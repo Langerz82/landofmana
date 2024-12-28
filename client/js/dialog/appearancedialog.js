@@ -34,12 +34,12 @@ define(['./dialog', '../tabbook', '../tabpage', 'data/appearancedata', '../pageN
         rescale: function() {
             var scale = this.parent.scale;
             var id = this.id;
-            this.body = $(id);
-            this.basketBackground = $(id + 'BasketBackground');
-            this.basket = $(id + 'Basket');
-            this.extra = $(id + 'Extra');
-            this.price = $(id + 'Price');
-            this.buyButton = $(id + 'BuyButton');
+            //this.body = $(id);
+            //this.basketBackground = $(id + 'BasketBackground');
+            //this.basket = $(id + 'Basket');
+            //this.extra = $(id + 'Extra');
+            //this.price = $(id + 'Price');
+            //this.buyButton = $(id + 'BuyButton');
         	  if (scale == 1)
         	  {
               this.body.css({
@@ -95,6 +95,7 @@ define(['./dialog', '../tabbook', '../tabpage', 'data/appearancedata', '../pageN
 	          //this.basket.css({'background-image': "url('img/3/item/item-" + item.sprite + ".png')"});
 
             //this.basket.attr('title', item.name);
+            this.basket.text('');
             this.extra.text(item.name);
             this.price.text(item.buyPrice);
 
@@ -113,6 +114,7 @@ define(['./dialog', '../tabbook', '../tabpage', 'data/appearancedata', '../pageN
             this.basket.attr('title', '');
             this.extra.text('');
             this.price.text('');
+            this.basket.text('');
         }
     });
 
@@ -384,7 +386,7 @@ define(['./dialog', '../tabbook', '../tabpage', 'data/appearancedata', '../pageN
             var weapon, armor,
                 width1, height1, width2, height2, width3, height3;
 
-        		game.player.appearances = HexToBin(datas.shift());
+        		game.player.appearances = Utils.Base64ToBinArray(datas.shift(), AppearanceData.length);
 
             for(var i=0; i < AppearanceData.length; i++)
             {

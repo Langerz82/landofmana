@@ -360,6 +360,36 @@ String.prototype.format = function (args) {
   });
 };
 
+Utils.BinArrayToBase64 = function (uint8array) {
+  var len = Math.ceil(uint8array.length / 32);
+  var tarr = [];
+  for (var i=0; i < len; i++) {
+    var num = uint8array.slice((i*32),(i*32)+32).join('');
+    //console.info("num:"+num);
+    //console.info("num2:"+parseInt(num, 2));
+    tarr.push(parseInt(num, 2));
+  }
+  var base64 = tarr.toString('base64');
+  return base64;
+}
+
+Utils.Base64ToBinArray = function (base64, limit) {
+  var data = base64.toString('binary');
+  var arr = data.split(",");
+  //console.info(JSON.stringify(arr));
+  var uint8array = new Uint8Array(arr.length*32);
+  for (var i=0; i < arr.length; ++i)
+  {
+    var dec = parseInt(arr[i]);
+    var bin = dec.toString(2);
+    var l = bin.length;
+    var index = (i+1)*32-l;
+    for (var j=0; j < l; ++j)
+      uint8array[index+j] = bin[j];
+  }
+  return uint8array.slice(0,limit);
+}
+
 var getGridPosition = function (x, y) {
   return {gx: x >> 4, gy: y >> 4};
 }

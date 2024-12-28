@@ -210,7 +210,7 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
           }
           else {
             DragItem = {};
-            DragItem.action = 2;
+            DragItem.action = 1;
             DragItem.type = 2;
             DragItem.slot = slot;
           }
@@ -270,7 +270,7 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
             DragItem.slot = realslot;
           }
           else {
-            var action = DragItem.action || 2;
+            var action = DragItem.action || 1;
             game.client.sendItemSlot([action, DragItem.type, DragItem.slot, 1, 0, realslot]);
             DragItem = null;
             self.deselectItem();
@@ -394,7 +394,7 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
           }
           else if (game.inventoryMode == InventoryMode.MODE_BANK) {
             if (!game.bankHandler.isBankFull()) {
-              game.client.sendItemSlot([2, type, slot, 1, 1, -1]);
+              game.client.sendItemSlot([1, type, slot, 1, 1, -1]);
             }
           }
         }

@@ -293,14 +293,16 @@ define(['./entity', '../transition', '../timer'], function(Entity, Transition, T
       if (!p || i > (p.length-1))
         return;
 
-      this.orientation = this.getOrientation([this.x,this.y], p[i]);
+      var orientation = this.getOrientation([this.x,this.y], p[i]);
+      this.orientation = orientation;
+      this.setOrientation(orientation);
       this.walk(this.orientation);
   },
 
-  updateWalk: function(a, b) {
+  /*updateWalk: function(a, b) {
       this.orientation = this.getOrientation(a, b);
       this.walk(this.orientation);
-  },
+  },*/
 
   nextStepPath: function () {
     if (this.step == 0)
@@ -408,7 +410,7 @@ define(['./entity', '../transition', '../timer'], function(Entity, Transition, T
   },
 
   movePath: function (path, orientation) {
-    this.orientation = this.getOrientationTo([path[1][0],path[1][1]]);
+    this.setOrientation(this.getOrientationTo([path[1][0],path[1][1]]));
     this.walk();
 
     this.path = path;
@@ -421,7 +423,7 @@ define(['./entity', '../transition', '../timer'], function(Entity, Transition, T
 
   move: function (time, orientation, state, x, y) {
 
-    this.orientation = orientation;
+    this.setOrientation(orientation);
     if (state == 1 && orientation != Types.Orientations.NONE)
     {
       this.forceStop();
@@ -562,6 +564,9 @@ define(['./entity', '../transition', '../timer'], function(Entity, Transition, T
 
   setOrientation: function(orientation) {
     if (orientation) {
+      if (orientation != this.orientation && this.isMoving()) {
+        try { throw new Error() } catch (e) { log.error(e.stack); }
+      }
       this.orientation = orientation || 0;
     }
   },
@@ -574,7 +579,7 @@ define(['./entity', '../transition', '../timer'], function(Entity, Transition, T
    * Changes the character's orientation so that it is facing its target.
    */
    lookAt: function(x, y) {
-       this.orientation = this.getOrientationTo([x, y]);
+       this.setOrientation(this.getOrientationTo([x, y]));
        this.idle(this.orientation);
        return this.orientation;
    },
@@ -598,14 +603,14 @@ define(['./entity', '../transition', '../timer'], function(Entity, Transition, T
     this.lookAt(pos.x+tsh,pos.y+tsh);
   },
 
-  isNextToo: function (x,y,o) {
+  /*isNextToo: function (x,y,o) {
     var o = o || this.orientation;
     var ts = G_TILESIZE;
     //log.info("isNextToo:");
     //log.info("dx:"+Math.abs(this.x-x));
     //log.info("dy:"+Math.abs(this.y-y));
     return (Math.abs(this.x-x) <= ts && Math.abs(this.y-y) <= ts);
-  },
+  },*/
 
   isInReach: function (x,y,o,r,rs) {
     var o = o || this.orientation;
@@ -654,10 +659,6 @@ define(['./entity', '../transition', '../timer'], function(Entity, Transition, T
 
   isFacingEntity: function (entity) {
       return this.isFacing(entity.x, entity.y);
-  },
-
-  isNextTooEntity: function (entity) {
-      return this.isNextToo(entity.x, entity.y);
   },
 
 /*******************************************************************************

@@ -27,7 +27,6 @@ define(['lib/pako', 'entity/player', 'entityfactory', 'entity/mob', 'entity/item
 						self.onMessage = function(data) {
 	            console.warn("recv: "+data);
 							var fnProcessMessage = function (message) {
-
 								if(self.isListening) {
 			            if(self.useBison) {
 			              data = BISON.decode(message);
@@ -49,12 +48,13 @@ define(['lib/pako', 'entity/player', 'entityfactory', 'entity/mob', 'entity/item
 	               }
 	             }
 	           };
-	           var method = data.substr(0,2) ;
-		        if (method === '2[')
+	           var method = data.substr(0,2);
+		        if (method === 'z|')
 		        {
-	            var buffer = _base64ToArrayBuffer(data.substr(1));
+	            var buffer = _base64ToArrayBuffer(data.substr(2));
 	            try {
 	              var message = pako.inflate(buffer, {gzip: true, to: 'string'});
+								console.warn("message:"+message);
 							  fnProcessMessage(message);
 	            } catch (err) {
 	              console.log(err);
@@ -88,47 +88,59 @@ define(['lib/pako', 'entity/player', 'entityfactory', 'entity/mob', 'entity/item
         },
 
 				setHandlers: function () {
-					this.handlers[Types.Messages.SC_AUCTIONOPEN] = this.auction_callback;
-					this.handlers[Types.Messages.SC_CHANGEPOINTS] = this.change_points_callback;
-					this.handlers[Types.Messages.SC_CHAT] = this.chat_callback;
-					this.handlers[Types.Messages.SC_DAMAGE] = this.dmg_callback;
-					this.handlers[Types.Messages.SC_DESTROY] = this.destroy_callback;
-					this.handlers[Types.Messages.SC_GOLD] = this.gold_callback;
-					this.handlers[Types.Messages.SC_ITEMSLOT] = this.itemslot_callback;
-					this.handlers[Types.Messages.SC_ITEMLEVELUP] = this.itemlevelup_callback;
-					this.handlers[Types.Messages.SC_STAT] = this.stat_callback;
-					this.handlers[Types.Messages.SC_LEVELUP] = this.levelup_callback;
-					this.handlers[Types.Messages.SC_DESPAWN] = this.despawn_callback;
-					this.handlers[Types.Messages.SC_SWAPSPRITE] = this.swapsprite_callback;
-					this.handlers[Types.Messages.SC_APPEARANCE] = this.appearance_callback;
-					//this.handlers[Types.Messages.SC_LOOKUPDATE] = this.updatelook_calllback;
-					this.handlers[Types.Messages.SC_MOVE] = this.move_callback;
-					this.handlers[Types.Messages.SC_MOVEPATH] = this.movepath_callback;
-					this.handlers[Types.Messages.SC_NOTIFY] = this.notify_callback;
-					this.handlers[Types.Messages.SC_QUEST] = this.quest_callback;
-					this.handlers[Types.Messages.SC_ACHIEVEMENT] = this.achievement_callback;
-					this.handlers[Types.Messages.SC_SKILLEFFECTS] = this.skilleffects_callback;
-					this.handlers[Types.Messages.SC_SKILLLOAD] = this.skillLoad_callback;
-					this.handlers[Types.Messages.SC_SKILLXP] = this.skillxp_callback;
-					this.handlers[Types.Messages.SC_SPAWN] = this.receiveSpawn;
-					this.handlers[Types.Messages.SC_SPEECH] = this.speech_callback;
-					this.handlers[Types.Messages.SC_DIALOGUE] = this.dialogue_callback;
-					this.handlers[Types.Messages.SC_STATINFO] = this.statInfo_callback;
-					this.handlers[Types.Messages.SC_TELEPORT_MAP] = this.teleportmap_callback;
-					this.handlers[Types.Messages.SC_BLOCK_MODIFY] = this.block_callback;
-					this.handlers[Types.Messages.SC_PARTY] = this.party_callback;
-					this.handlers[Types.Messages.SC_LOOKS] = this.looks_callback;
-					this.handlers[Types.Messages.SC_PLAYERINFO] = this.playerinfo_callback;
-					this.handlers[Types.Messages.SC_HARVEST] = this.harvest_callback;
+					this.handlers[Types.Messages.WC_AUCTIONOPEN] = this.auction_callback;
+					this.handlers[Types.Messages.WC_CHANGEPOINTS] = this.change_points_callback;
+					this.handlers[Types.Messages.WC_CHAT] = this.chat_callback;
+					this.handlers[Types.Messages.WC_DAMAGE] = this.dmg_callback;
+					this.handlers[Types.Messages.WC_DESTROY] = this.destroy_callback;
+					this.handlers[Types.Messages.WC_GOLD] = this.gold_callback;
+					this.handlers[Types.Messages.WC_ITEMSLOT] = this.itemslot_callback;
+					this.handlers[Types.Messages.WC_ITEMLEVELUP] = this.itemlevelup_callback;
+					this.handlers[Types.Messages.WC_STAT] = this.stat_callback;
+					this.handlers[Types.Messages.WC_LEVELUP] = this.levelup_callback;
+					this.handlers[Types.Messages.WC_DESPAWN] = this.despawn_callback;
+					this.handlers[Types.Messages.WC_SWAPSPRITE] = this.swapsprite_callback;
+					this.handlers[Types.Messages.WC_APPEARANCE] = this.appearance_callback;
+					//this.handlers[Types.Messages.WC_LOOKUPDATE] = this.updatelook_calllback;
+					this.handlers[Types.Messages.WC_MOVE] = this.move_callback;
+					this.handlers[Types.Messages.WC_MOVEPATH] = this.movepath_callback;
+					this.handlers[Types.Messages.WC_NOTIFY] = this.notify_callback;
+					this.handlers[Types.Messages.WC_QUEST] = this.quest_callback;
+					this.handlers[Types.Messages.WC_ACHIEVEMENT] = this.achievement_callback;
+					this.handlers[Types.Messages.WC_SKILLEFFECTS] = this.skilleffects_callback;
+					this.handlers[Types.Messages.WC_SKILLLOAD] = this.skillLoad_callback;
+					this.handlers[Types.Messages.WC_SKILLXP] = this.skillxp_callback;
+					this.handlers[Types.Messages.WC_SPAWN] = this.receiveSpawn;
+					this.handlers[Types.Messages.WC_SPEECH] = this.speech_callback;
+					this.handlers[Types.Messages.WC_DIALOGUE] = this.dialogue_callback;
+					this.handlers[Types.Messages.WC_STATINFO] = this.statInfo_callback;
+					this.handlers[Types.Messages.WC_TELEPORT_MAP] = this.teleportmap_callback;
+					this.handlers[Types.Messages.WC_BLOCK_MODIFY] = this.block_callback;
+					this.handlers[Types.Messages.WC_PARTY] = this.party_callback;
+					this.handlers[Types.Messages.WC_LOOKS] = this.looks_callback;
+					this.handlers[Types.Messages.WC_PLAYERINFO] = this.playerinfo_callback;
+					this.handlers[Types.Messages.WC_HARVEST] = this.harvest_callback;
 
-					this.handlers[Types.Messages.SC_SET_SPRITE] = this.set_sprite_callback;
-					this.handlers[Types.Messages.SC_SET_ANIMATION] = this.set_animation_callback;
+					this.handlers[Types.Messages.WC_SET_SPRITE] = this.set_sprite_callback;
+					this.handlers[Types.Messages.WC_SET_ANIMATION] = this.set_animation_callback;
+					this.handlers[Types.Messages.WC_VERSION] = this.onVersion;
+					this.handlers[Types.Messages.WC_PLAYER] = this.player_callback;
 				},
 
-				connect: function (connection) {
+				connect: function (url, data) {
 					var self = this;
 
-					this.connection = connection;
+					this.connection = io(url, {
+            forceNew: true,
+            reconnection: false,
+            timeout: 10000,
+            transports: ['websocket'],
+          });
+
+					this.connection.on('connect', function() {
+            log.info("Connected to server "+url);
+            self.onConnected(data);
+          });
 
 					//this.connection.removeListener('message', userclient.onMessage);
 					this.connection.on('message', function(e) {
@@ -136,10 +148,33 @@ define(['lib/pako', 'entity/player', 'entityfactory', 'entity/mob', 'entity/item
 							self.onMessage(e);
 							return false;
 					});
+
+					this.connection.on('disconnect', function() {
+							log.debug("Connection closed");
+							if(self.disconnected_callback) {
+									if(self.isTimeout) {
+											self._onError(["You have been disconnected for being inactive for too long"]);
+									} else {
+											self._onError(["The connection to RRO2 has been lost."]);
+									}
+							}
+					});
+				},
+
+				_onError: function (data) {
+	          var message = data[0];
+	          $('#container').addClass('error');
+	          $('#errorwindow .errordetails').html("<p>"+message+"</p>");
+	          app.loadWindow('playerwindow','errorwindow');
+	      },
+
+				onConnected: function (data) {
+					this.sendLoginPlayer(data[0], data[1]);
+					this.sendSyncTime();
 				},
 
 				onVersion: function (data) {
-	        game.onVersion(data);
+	        game.onVersionGame(data);
 	      },
 
         enable: function() {
@@ -475,9 +510,19 @@ define(['lib/pako', 'entity/player', 'entityfactory', 'entity/mob', 'entity/item
 				},
 
 // SEND FUNCTIONS.
+				sendSyncTime: function() {
+						log.info("sendSyncTime");
+						this.sendMessage([Types.Messages.BI_SYNCTIME,Date.now()]);
+				},
+
+				sendLoginPlayer: function (playername, playerhash) {
+					this.sendMessage([Types.Messages.CW_LOGIN_PLAYER,
+														playername,
+														playerhash]);
+				},
 
         /*sendCreate: function(player) {
-            this.sendMessage([Types.Messages.CS_CREATE_PLAYER,
+            this.sendMessage([Types.Messages.CW_CREATE_PLAYER,
 															Date.now(),
                               player.name,
             		      				player.pClass
@@ -485,14 +530,15 @@ define(['lib/pako', 'entity/player', 'entityfactory', 'entity/mob', 'entity/item
         },
 
         sendLogin: function(player) {
-            this.sendMessage([Types.Messages.CS_LOGIN_PLAYER,
+            this.sendMessage([Types.Messages.CW_LOGIN_PLAYER,
 															Date.now(),
                               player.name]);
         },*/
 
         sendMoveEntity: function(entity, action) {
 						//try { throw new Error(); } catch(err) { console.error(err.stack); }
-            this.sendMessage([Types.Messages.CS_MOVE,
+						console.info("DEBUG: sendMoveEntity: x:"+entity.x+",entity.y:"+entity.y);
+            this.sendMessage([Types.Messages.CW_MOVE,
 											getWorldTime(),
             		      entity.id,
 											action,
@@ -509,195 +555,191 @@ define(['lib/pako', 'entity/player', 'entityfactory', 'entity/mob', 'entity/item
 							length--;
 						}
 
-            var array = [Types.Messages.CS_MOVEPATH,
+            var array = [Types.Messages.CW_MOVEPATH,
 											getWorldTime(),
             		      entity.id,
 											entity.getOrientation(path[0], path[1]),
                       (entity.interrupted ? 1 : 0)];
 
-            array = array.concat(simpath);
+            array.push(simpath);
         		this.sendMessage(array);
         },
 
 				sendDropItem: function(item, x, y) {
-					this.sendMessage([Types.Messages.CS_DROP,
+					this.sendMessage([Types.Messages.CW_DROP,
 														x,
 														y,
 														item.id]);
 				},
 
         sendAttack: function(player, mob, spellId) {
-            this.sendMessage([Types.Messages.CS_ATTACK, getWorldTime(),
+            this.sendMessage([Types.Messages.CW_ATTACK, getWorldTime(),
                               mob.id, player.orientation, spellId]);
         },
 
         sendChat: function(text) {
-            this.sendMessage([Types.Messages.CS_CHAT,
+            this.sendMessage([Types.Messages.CW_CHAT,
                               text]);
         },
 
         sendLoot: function(item) {
-            this.sendMessage([Types.Messages.CS_LOOT].concat(_.pluck(item,'id')));
+            this.sendMessage([Types.Messages.CW_LOOT].concat(_.pluck(item,'id')));
         },
 
 				// map, status, x, y
         sendTeleportMap: function(data) {
 						//if (data[1] == 0)
 							//game.renderer.blankFrame = true;
-            this.sendMessage([Types.Messages.CS_TELEPORT_MAP,
+            this.sendMessage([Types.Messages.CW_TELEPORT_MAP,
             		      	  		data[0], data[1], data[2], data[3]]);
         },
 
         sendWho: function(ids) {
-						ids = ids || [];
-						ids.unshift((ids.length > 0) ? 2 : 1);
-						ids.unshift(Types.Messages.CS_WHO);
-            this.sendMessage(ids);
+						this.sendMessage([Types.Messages.CW_WHO,ids]);
         },
 
-				/*sendKnowWho: function(ids) {
-            ids.unshift(Types.Messages.CS_KNOWWHO);
-            this.sendMessage(ids);
-        },*/
+				sendWhoRequest: function() {
+						this.sendMessage([Types.Messages.CW_REQUEST,3]);
+        },
 
         sendDelist: function(ids) {
-            ids.unshift(Types.Messages.CS_DELIST);
+            ids.unshift(Types.Messages.CW_DELIST);
             this.sendMessage(ids);
         },
 
         sendTalkToNPC: function (type, npcId) {
-            this.sendMessage([Types.Messages.CS_TALKTONPC, type, npcId]);
+            this.sendMessage([Types.Messages.CW_TALKTONPC, type, npcId]);
         },
 
         sendQuest: function(entityId, questId, status){
-            this.sendMessage([Types.Messages.CS_QUEST, entityId, questId, status]);
+            this.sendMessage([Types.Messages.CW_QUEST, entityId, questId, status]);
         },
 
 				// category, type, inventoryNumber, count, x, y
         sendItemSlot: function(data){
-            this.sendMessage([Types.Messages.CS_ITEMSLOT].concat(data));
+            this.sendMessage([Types.Messages.CW_ITEMSLOT].concat(data));
         },
 
         sendSkill: function(type, targetId){
-            this.sendMessage([Types.Messages.CS_SKILL, type, targetId]);
+            this.sendMessage([Types.Messages.CW_SKILL, type, targetId]);
         },
 
         sendShortcut: function(index, type, shortcutId) {
-            this.sendMessage([Types.Messages.CS_SHORTCUT, index, type, shortcutId]);
+            this.sendMessage([Types.Messages.CW_SHORTCUT, index, type, shortcutId]);
         },
 
         sendSkillLoad: function() {
-            this.sendMessage([Types.Messages.CS_SKILLLOAD]);
+            this.sendMessage([Types.Messages.CW_SKILLLOAD]);
         },
 
         /*sendCharacterInfo: function() {
-            this.sendMessage([Types.Messages.CS_CHARACTERINFO]);
+            this.sendMessage([Types.Messages.CW_CHARACTERINFO]);
         },*/
 
         sendStoreSell: function(type, inventoryNumber) {
-            this.sendMessage([Types.Messages.CS_STORESELL, type, inventoryNumber]);
+            this.sendMessage([Types.Messages.CW_STORESELL, type, inventoryNumber]);
         },
         sendStoreBuy: function(itemType, itemKind, itemCount) {
-            this.sendMessage([Types.Messages.CS_STOREBUY, itemType, itemKind, itemCount]);
+            this.sendMessage([Types.Messages.CW_STOREBUY, itemType, itemKind, itemCount]);
         },
 				sendStoreCraft: function(itemKind, itemCount) {
-            this.sendMessage([Types.Messages.CS_CRAFT, itemKind, itemCount]);
+            this.sendMessage([Types.Messages.CW_CRAFT, itemKind, itemCount]);
         },
 
 				sendPlayerInfo: function () {
-					this.sendMessage([Types.Messages.CS_REQUEST, 2]);
+					this.sendMessage([Types.Messages.CW_REQUEST, 2]);
 				},
 
         sendAuctionOpen: function(type) {
-            this.sendMessage([Types.Messages.CS_AUCTIONOPEN, type]);
+            this.sendMessage([Types.Messages.CW_AUCTIONOPEN, type]);
         },
         sendAuctionSell: function(inventoryNumber, sellValue) {
-            this.sendMessage([Types.Messages.CS_AUCTIONSELL, inventoryNumber, sellValue]);
+            this.sendMessage([Types.Messages.CW_AUCTIONSELL, inventoryNumber, sellValue]);
         },
         sendAuctionBuy: function(index, type) {
-            this.sendMessage([Types.Messages.CS_AUCTIONBUY, index, type]);
+            this.sendMessage([Types.Messages.CW_AUCTIONBUY, index, type]);
         },
         sendAuctionDelete: function(index, type) {
-            this.sendMessage([Types.Messages.CS_AUCTIONDELETE, index, type]);
+            this.sendMessage([Types.Messages.CW_AUCTIONDELETE, index, type]);
         },
 
         sendStoreEnchant: function(type, index) { // type 1 = Inventory, 2 = Equipment.
-            this.sendMessage([Types.Messages.CS_STORE_MODITEM, 1, type, index]);
+            this.sendMessage([Types.Messages.CW_STORE_MODITEM, 1, type, index]);
         },
         sendStoreRepair: function(type, index) { // type 1 = Inventory, 2 = Equipment.
-            this.sendMessage([Types.Messages.CS_STORE_MODITEM, 0, type, index]);
+            this.sendMessage([Types.Messages.CW_STORE_MODITEM, 0, type, index]);
         },
 
         /*sendBankStore: function(itemSlot) {
-            this.sendMessage([Types.Messages.CS_ITEMSLOT, 2, itemSlot]);
+            this.sendMessage([Types.Messages.CW_ITEMSLOT, 2, itemSlot]);
         },
         sendBankRetrieve: function(itemSlot) {
-            this.sendMessage([Types.Messages.CS_BANKRETRIEVE, itemSlot]);
+            this.sendMessage([Types.Messages.CW_BANKRETRIEVE, itemSlot]);
         },*/
         sendGold: function(type, amount, type2) {
-            this.sendMessage([Types.Messages.CS_GOLD, parseInt(type), parseInt(amount), parseInt(type2)]);
+            this.sendMessage([Types.Messages.CW_GOLD, parseInt(type), parseInt(amount), parseInt(type2)]);
         },
 
         sendMapStatus: function (mapId, status) {
-        	this.sendMessage([Types.Messages.CS_MAP_STATUS, mapId, status]);
+        	this.sendMessage([Types.Messages.CW_MAP_STATUS, mapId, status]);
         },
         sendPlayerRevive: function () {
-        	this.sendMessage([Types.Messages.CS_REQUEST, 1]);
+        	this.sendMessage([Types.Messages.CW_REQUEST, 1]);
         },
         sendColorTint: function(type, value) {
-        	this.sendMessage([Types.Messages.CS_COLOR_TINT, type, value]);
+        	this.sendMessage([Types.Messages.CW_COLOR_TINT, type, value]);
         },
 
 				sendAppearanceList: function() {
-					this.sendMessage([Types.Messages.CS_REQUEST, 0]);
+					this.sendMessage([Types.Messages.CW_REQUEST, 0]);
 				},
 
 				sendAppearanceUnlock: function(index, buy) {
 					buy = buy || 0;
-					this.sendMessage([Types.Messages.CS_APPEARANCEUNLOCK, index, buy]);
+					this.sendMessage([Types.Messages.CW_APPEARANCEUNLOCK, index, buy]);
 				},
 
 				sendLook: function (type, id) {
-					this.sendMessage([Types.Messages.CS_LOOKUPDATE, type, id]);
+					this.sendMessage([Types.Messages.CW_LOOKUPDATE, type, id]);
 				},
 
 				sendAddStat: function(statType, points) {
-					this.sendMessage([Types.Messages.CS_STATADD, statType, points]);
+					this.sendMessage([Types.Messages.CW_STATADD, statType, points]);
 				},
 
 				sendLootMove: function (item) {
-					this.sendMessage([Types.Messages.CS_LOOT, item.id, item.x, item.y]);
+					this.sendMessage([Types.Messages.CW_LOOT, item.id, item.x, item.y]);
 				},
 
 				sendBlock: function (type, id, x, y) {
-					this.sendMessage([Types.Messages.CS_BLOCK_MODIFY, type, id, x, y]);
+					this.sendMessage([Types.Messages.CW_BLOCK_MODIFY, type, id, x, y]);
 				},
 
 				sendPartyInvite: function(name, status) { // 0 for request, 1, for yes, 2 for no.
-            this.sendMessage([Types.Messages.CS_PARTY, 1,
+            this.sendMessage([Types.Messages.CW_PARTY, 1,
                               name, status]);
         },
 
 				sendPartyKick: function(name) {
-            this.sendMessage([Types.Messages.CS_PARTY, 2,
+            this.sendMessage([Types.Messages.CW_PARTY, 2,
                               name, 0]);
         },
 
 				sendPartyLeader: function(name) {
-            this.sendMessage([Types.Messages.CS_PARTY, 3,
+            this.sendMessage([Types.Messages.CW_PARTY, 3,
                               name, 0]);
         },
 
         sendPartyLeave: function() {
-            this.sendMessage([Types.Messages.CS_PARTY, 4, '', 0]);
+            this.sendMessage([Types.Messages.CW_PARTY, 4, '', 0]);
         },
 
 				sendHarvest: function(x, y) {
-            this.sendMessage([Types.Messages.CS_HARVEST, x, y]);
+            this.sendMessage([Types.Messages.CW_HARVEST, x, y]);
         },
 
 				sendHarvestEntity: function(entity) {
-            this.sendMessage([Types.Messages.CS_USE_NODE, entity.id]);
+            this.sendMessage([Types.Messages.CW_USE_NODE, entity.id]);
         },
 
 

@@ -16,12 +16,12 @@ define(['./dialog', '../tabpage'], function(Dialog, TabPage) {
             	game.client.sendAddStat(3, 1);
               self.refreshStats();
             });
-            $('#charAddEnergy').click(function(e) {
+            /*$('#charAddEnergy').click(function(e) {
             	game.client.sendAddStat(4, 1);
               self.refreshStats();
-            });
+            });*/
             $('#charAddLuck').click(function(e) {
-            	game.client.sendAddStat(5, 1);
+            	game.client.sendAddStat(4, 1);
               self.refreshStats();
             });
         },

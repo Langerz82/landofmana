@@ -33,7 +33,7 @@ define(['./dialog', '../tabbook', '../tabpage', '../entity/item', 'data/items', 
                 DragBank.slot = realslot;
                 //self.parent.selectBankItem(self.background);
               } else {
-                game.client.sendItemSlot([2, 1, DragBank.slot, 1, 1, realslot]);
+                game.client.sendItemSlot([1, 1, DragBank.slot, 1, 1, realslot]);
                 DragBank = null;
                 self.parent.deselectItem();
               }
@@ -242,9 +242,7 @@ define(['./dialog', '../tabbook', '../tabpage', '../entity/item', 'data/items', 
         select: function(realslot, itemCount = 1) {
             if (!game.inventoryHandler.isInventoryFull())
             {
-                //game.client.sendItemSlot([2, 1, bank.getIndex()+(this.page*this.pageItems), 0, -1]);
-                //bank.release();
-                game.client.sendItemSlot([2, 1, realslot, itemCount, 0, -1]);
+                game.client.sendItemSlot([1, 1, realslot, itemCount, 0, -1]);
                 this.bankslots[realslot % 24].release();
             }
         },

@@ -581,7 +581,7 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
               });
             },
 
-            onVersion: function(data) {
+            onVersionUser: function(data) {
               //var self;
               this.versionChecked = true;
               var version = data[0];
@@ -589,7 +589,7 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
               this.hashChallenge = hash;
               log.info("onVersion: hash="+hash);
 
-              var local_version = config.build.version;
+              var local_version = config.build.version_game;
               log.info("config.build.version_user="+local_version);
               if (version != local_version)
               {
@@ -607,14 +607,49 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
               }
             },
 
-            onWorldReady: function (connection, data) {
+            onVersionGame: function(data) {
+              //var self;
+              this.versionChecked = true;
+              var version = data[0];
+              var hash = data[1];
+              this.hashChallenge = hash;
+              log.info("onVersion: hash="+hash);
+
+              var local_version = config.build.version_user;
+              log.info("config.build.version_user="+local_version);
+              if (version != local_version)
+              {
+                $('#container').addClass('error');
+                var errmsg = "Please download the new version of RRO2.<br/>";
+
+                if (game.renderer.isMobile) {
+                  errmsg += "<br/>For mobile see: " + config.build.updatepage;
+                } else {
+                  errmsg += "<br/>For most browsers press Ctrl+F5 to reload the game cache files.";
+                }
+                game.clienterror_callback(errmsg);
+                if (this.tablet || this.mobile)
+                  window.location.replace(config.build.updatepage);
+              }
+            },
+
+            onWorldReady: function (data) {
+              var username = data[0];
+              var playername = data[1];
+              var hash = data[2];
+              var protocol = data[3];
+              var host = data[4];
+              var port = data[5];
+
+              var url = protocol + "://"+ host +":"+ port +"/";
+
               // Game Client takes over the processing of Messages.
               game.client = new GameClient();
 
               game.client.callbacks = new ClientCallbacks(game.client);
               game.client.setHandlers();
 
-              game.client.connect(connection);
+              game.client.connect(url, [playername,hash]);
             },
 
             onPlayerLoad: function (player) {
@@ -630,7 +665,7 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
                     (/*(player.x % ts == 0 || player.y % ts == 0) ||*/
                      !player.isMoving()) && player.canObserve(game.currentTime))
                 {
-                    game.client.sendWho();
+                    game.client.sendWhoRequest();
 
                     player.observeTimer.lastTime = game.currentTime;
                 }
@@ -760,7 +795,7 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
                       return;
                     }
 
-                    p.orientation = dest.orientation;
+                    p.setOrientation(dest.orientation);
 
                     p.buttonMoving = false;
                     p.forceStop();
@@ -803,29 +838,31 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
 
                   checkTeleport(p, x, y);
 
-                  if(self.player.target instanceof NpcStatic || self.player.target instanceof NpcMove) {
-                      self.makeNpcTalk(self.player.target);
-                  } else if(self.player.target instanceof Chest) {
-                      self.client.sendOpen(self.player.target);
+                  if(p.target instanceof NpcStatic || p.target instanceof NpcMove) {
+                      self.makeNpcTalk(p.target);
+                  } else if(p.target instanceof Chest) {
+                      self.client.sendOpen(p.target);
                       self.audioManager.playSound("chest");
                   }
               });
 
               self.player.onRequestPath(function(x, y) {
-              	var ignored = [self.player]; // Always ignore self
+                var p = self.player;
+              	var ignored = [p]; // Always ignore self
               	var included = [];
 
-                  if(self.player.hasTarget() && !self.player.target.isDead) {
+                  if(p.hasTarget() && !p.target.isDead) {
 
-                      ignored.push(self.player.target);
+                      ignored.push(p.target);
                   }
 
-                  var path = self.findPath(self.player, x, y, ignored);
+                  var path = self.findPath(p, x, y, ignored);
 
                   if (path && path.length > 0)
                   {
-                    self.player.orientation = self.player.getOrientationTo([path[1][0],path[1][1]]);
-                    self.client.sendMovePath(self.player,
+                    var orientation = p.getOrientationTo([path[1][0],path[1][1]]);
+                    p.setOrientation(orientation);
+                    self.client.sendMovePath(p,
                       path.length,
                       path);
 	                }
@@ -969,7 +1006,17 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
                 if (processTarget()) return;
               }
 
+              // If the player is next to and facing a Harvest Tile.
               var pos = p.nextTile();
+              var type = p.getWeaponType();
+              if (type != null) {
+                var gpos = getGridPosition(pos[0], pos[1]);
+                if (this.mapContainer.isHarvestTile(gpos, type)) {
+                  game.processInput(pos[0], pos[1], true);
+                  return;
+                }
+              }
+
               entity = this.getEntityAt(pos[0], pos[1]);
               if (entity && entity != p && !fnIsDead(entity)) {
                 p.setTarget(entity);
@@ -984,18 +1031,18 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
                 p.clearTarget();
               }
 
-              if (target && p.isNextToo(target)) {
+              if (target && p.isNextTooEntity(target)) {
                 if (p.isMoving())
                   p.forceStop();
                 p.lookAtEntity(target);
                 if (processTarget()) return;
               }
 
-              if (this.mapContainer.isColliding(pos[0], pos[1])) {
+              /*if (this.mapContainer.isColliding(pos[0], pos[1])) {
                 p.clearTarget();
                 this.processInput(pos[0], pos[1], true);
                 return;
-              }
+              }*/
 
               entity = null;
               var entities = Object.values(this.camera.entities);
@@ -1146,7 +1193,7 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
 
               if (!npc) return;
 
-              if (!game.player.isNextToo(npc.x, npc.y))
+              if (!game.player.isNextTooEntity(npc))
                 return;
 
               if (npc.type == Types.EntityTypes.NPCMOVE) {
@@ -1410,13 +1457,13 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
                 //log.info("x:"+x+",y:"+y);
                 if(len > 0) {
                   var entity = null;
-                  var dx, dy;
+                  //var pos = {x:x,y:y};
                   for (var k in entities) {
                       entity = entities[k];
                       if (!entity) continue;
 
                       //log.info("x2:"+entity.x+",y2:"+entity.y);
-                      if (entity.isOver(x, y))
+                      if (entity.isOverPosition(x,y))
                         return entity;
                   }
                 }
@@ -1738,6 +1785,8 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
                   var entity2 = entities[k];
                   //if (entity2 instanceof Item)
                     //continue;
+                  if (entity2 instanceof Player)
+                    continue;
                   if (entity instanceof Player && entity.holdingBlock == entity2)
                     continue;
                   if (!entity2 || entity == entity2)
@@ -1745,8 +1794,8 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
                   if (entity2.isDead || entity2.isDying)
                     continue;
 
-                  if (!entity2.isWithin(entity) &&
-                      entity2.isWithin({x:x, y:y}))
+                  if (!entity2.isNextTooEntity(entity) &&
+                      entity2.isNextTooPosition(x, y))
                     return true;
                 }
                 return false;
@@ -1816,10 +1865,9 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
                 this.clickMove = true;
                 //this.playerPopupMenu.close();
 
-                for(var i = 0; i < this.dialogs.length; i++) {
-                    if(this.dialogs[i].visible){
-                        this.dialogs[i].hide();
-                    }
+                for (var dialog of this.dialogs) {
+                  if (dialog.visible)
+                    dialog.hide();
                 }
 
                 var entity = this.getEntityAt(pos.x, pos.y);
@@ -1846,7 +1894,7 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
 
         					this.app.showDropDialog(itemSlot);
         				} else {
-        					this.client.sendItemSlot([3, 0, itemSlot, 1]);
+        					this.client.sendItemSlot([2, 0, itemSlot, 1]);
         				}
             },
 
@@ -1892,7 +1940,7 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
           	    //this.playerPopupMenu.close();
                 //this.player.clearTarget();
                 var colliding = this.mapContainer.isColliding(px,py);
-                if (colliding && p.isNextToo(px, py)) {
+                if (colliding && p.isNextTooPosition(px, py)) {
                     // Start hit animation and send to Server harvest packet.
                     this.makePlayerHarvest(px, py);
                     return;
@@ -2283,7 +2331,8 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
                   	delist.push(entity.id);
                   	self.removeEntity(entity);
                   }
-                  self.client.sendWho(delist);
+                  if (delist.length > 0)
+                    self.client.sendWho(delist);
                 }
             },
 

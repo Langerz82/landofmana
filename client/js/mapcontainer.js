@@ -574,9 +574,16 @@ define(['area', 'detect', 'mapworker', 'map'], function(Area, Detect, worker, Ma
       if (!types.hasOwnProperty(type))
         return false;
 
-      //var harvestTiles = [678, 679, 698, 699, 855, 875];
-      var res = types[type].some(function (tile) { return tiles.includes(tile); });
+      var res = false;
+      if (Array.isArray(tiles)) {
+        res = types[type].some(function (tile) { return tiles.includes(tile); });
+      } else {
+        res = types[type].includes(tiles);
+      }
       return res;
+      //var harvestTiles = [678, 679, 698, 699, 855, 875];
+      //var res = types[type].some(function (tile) { return tiles.includes(tile); });
+      //return res;
     },
 
     getTiles: function (gx,gy) {

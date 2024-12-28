@@ -505,15 +505,16 @@ function(InfoManager, HoveringInfo, BubbleManager,
               if (!(p.x==x && p.y==y))
               {
                 console.warn("PLAYER NOT IN CORRECT POSITION.");
-                log.info("p.x="+p.x+",x="+x+"p.y="+p.y+",y="+y);
-
+                //log.info("DEBUG: p.x="+p.x+",x="+x+"p.y="+p.y+",y="+y);
+                // Dirty hack to avoid sending a incorrect packet in forcestop.
+                p.keyMove = false;
                 p.forceStop();
                 p.setPositionGrid(x,y);
                 game.player.user.client.sendSyncTime();
-                //game.mapContainer.moveGrid();
                 game.renderer.forceRedraw;
+                //log.info("DEBUG: p.x="+p.x+",x="+x+"p.y="+p.y+",y="+y);
+                return;
               }
-              return;
             }
 
             entity.setMoveRate(moveSpeed);
@@ -564,7 +565,7 @@ function(InfoManager, HoveringInfo, BubbleManager,
 
             entity.forceStop();
             entity.setPosition(path[0][0], path[0][1]);
-            entity.orientation = orientation;
+            entity.setOrientation(orientation);
 
             var movePathFunc = function () {
               if (entity.isDying || entity.isDead) {
@@ -820,9 +821,8 @@ function(InfoManager, HoveringInfo, BubbleManager,
             if(game.disconnect_callback) {
                 game.disconnect_callback(message);
             }
-            for(var index = 0; index < game.dialogs.length; index++) {
-                game.dialogs[index].hide();
-            }
+            for (var dialog of game.dialogs)
+              dialog.hide();
         });
 
         var questSpeech = function (quest) {
@@ -1349,13 +1349,202 @@ function(InfoManager, HoveringInfo, BubbleManager,
 
           }
           if (action == 2) {
-            p.harvestOff();
+            p.forceStop();
           }
 
         });
 
         client.onPlayerInfo(function (data) {
           game.statDialog.page.assign(data);
+        });
+
+        client.onPlayer(function(data) {
+            //setWorldTime(data[0], data[1]);
+            data.shift();
+            data.shift();
+
+            var p = game.player;
+
+            p.id = parseInt(data.shift());
+            p.name = data.shift();
+            p.mapIndex = parseInt(data.shift());
+            p.orientation = Types.Orientations.DOWN;
+            p.x = parseInt(data.shift()), p.y = parseInt(data.shift());
+            p.setPositionSpawn(p.x, p.y);
+
+            p.setMaxHP(parseInt(data.shift()));
+            p.setMaxEP(parseInt(data.shift()));
+            //p.setClass(parseInt(data.shift()));
+
+            p.exp = {
+              base: parseInt(data.shift()),
+              attack: parseInt(data.shift()),
+              defense: parseInt(data.shift()),
+              move: parseInt(data.shift()),
+              sword: parseInt(data.shift()),
+              bow: parseInt(data.shift()),
+              hammer: parseInt(data.shift()),
+              axe: parseInt(data.shift()),
+              logging: parseInt(data.shift()),
+              mining: parseInt(data.shift())
+            };
+
+            p.level = {
+              base: Types.getLevel(p.exp.base),
+              attack: Types.getAttackLevel(p.exp.attack),
+              defense: Types.getDefenseLevel(p.exp.defense),
+              move: Types.getMoveLevel(p.exp.move),
+              sword: Types.getWeaponLevel(p.exp.sword),
+              bow: Types.getWeaponLevel(p.exp.bow),
+              hammer: Types.getWeaponLevel(p.exp.hammer),
+              axe: Types.getWeaponLevel(p.exp.axe),
+            }
+            p.colors = [];
+            p.colors[0] = parseInt(data.shift());
+            p.colors[1] = parseInt(data.shift());
+
+            p.gold = [];
+            p.gold[0] = parseInt(data.shift()); // inventory gold.
+            p.gold[1] = parseInt(data.shift()); // bank gold.
+            p.gems = parseInt(data.shift());
+
+            game.inventoryHandler.setCurrency(p.gold[0], p.gems);
+            game.bankHandler.setGold(p.gold[1]);
+
+            p.setMoveRate(500-p.level.move)
+
+            p.stats.attack = parseInt(data.shift());
+            p.stats.defense = parseInt(data.shift());
+            p.stats.health = parseInt(data.shift());
+            p.stats.energy = parseInt(data.shift());
+            p.stats.luck = parseInt(data.shift());
+            p.stats.free = parseInt(data.shift());
+
+            // TODO fix item inits, and skill functions.
+            var itemCount = parseInt(data.shift());
+            if (itemCount > 0)
+            {
+              var items = [];
+              var itemArray = data.splice(0,(itemCount*6)).parseInt();
+              for(var i=0; i < itemCount; ++i)
+              {
+                var index = i*6;
+                var itemRoom = new ItemRoom(
+                  itemArray[index+0],
+                  itemArray[index+1],
+                  itemArray[index+2],
+                  itemArray[index+3],
+                  itemArray[index+4],
+                  itemArray[index+5],
+                );
+                items.push(itemRoom);
+              }
+              game.equipmentHandler.setEquipment(items);
+            }
+
+            p.sprites = [];
+            p.sprites[0] = parseInt(data.shift());
+            p.sprites[1] = parseInt(data.shift());
+
+            p.setWeaponSprite();
+            p.setArmorSprite();
+            p.setRange();
+
+            var itemCount = parseInt(data.shift());
+            if (itemCount > 0)
+            {
+              var items = [];
+              var itemArray = data.splice(0,(itemCount*6)).parseInt();
+              for(var i=0; i < itemCount; ++i)
+              {
+                var index = i*6;
+                var itemRoom = new ItemRoom(
+                  itemArray[index+0],
+                  itemArray[index+1],
+                  itemArray[index+2],
+                  itemArray[index+3],
+                  itemArray[index+4],
+                  itemArray[index+5],
+                );
+                items.push(itemRoom);
+              }
+              game.inventoryHandler.initInventory(items);
+            }
+
+            var itemCount = parseInt(data.shift());
+            if (itemCount > 0)
+            {
+              var items = [];
+              var itemArray = data.splice(0,(itemCount*6)).parseInt();
+              for(var i=0; i < itemCount; ++i)
+              {
+                  var index = i*6;
+                  var itemRoom = new ItemRoom(
+                    itemArray[index+0],
+                    itemArray[index+1],
+                    itemArray[index+2],
+                    itemArray[index+3],
+                    itemArray[index+4],
+                    itemArray[index+5],
+                  );
+                  items.push(itemRoom);
+              }
+              game.bankHandler.initBank(items);
+            }
+
+            p.quests = {};
+            var questCount = parseInt(data.shift());
+            if (questCount > 0)
+            {
+              var questArray = data.splice(0,(questCount*13));
+              questArray.parseInt();
+              for(var i=0; i < questCount; ++i)
+              {
+                var index = i*13;
+                p.quests[questArray[index]] = new Quest(questArray.slice(index,index+13));
+              }
+            }
+
+            p.achievements = [];
+            var achieveCount = parseInt(data.shift());
+            if (achieveCount > 0)
+            {
+              var achieveArray = data.splice(0,(achieveCount*7));
+              achieveArray.parseInt();
+              var achievement = null;
+              for(var i=0; i < achieveCount; ++i)
+              {
+                var index = i*7;
+                achievement = new Achievement(achieveArray.slice(index,index+7));
+                p.achievements.push(achievement);
+              }
+              game.achievementHandler.achievementReloadLog();
+            }
+
+            p.skillHandler = new SkillHandler(self);
+
+            var skillCount = parseInt(data.shift());
+            var skillExps = data.splice(0,skillCount);
+            skillExps.parseInt();
+            p.setSkills(skillExps);
+            game.skillDialog.page.setSkills(skillExps);
+
+
+            var shortcutCount = parseInt(data.shift());
+            if (shortcutCount > 0)
+            {
+              var shortcutArray = data.splice(0,(shortcutCount*3));
+              shortcutArray.parseInt();
+              var shortcuts = [];
+              for(var i=0; i < shortcutCount; ++i)
+              {
+                var index = i*3;
+                shortcuts.push(shortcutArray.slice(index,index+3));
+              }
+              game.shortcuts.installAll(shortcuts);
+            }
+
+            game.onPlayerLoad(p);
         });
 
       }

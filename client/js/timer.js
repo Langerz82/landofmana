@@ -3,13 +3,18 @@ define(function() {
 
     var Timer = Class.extend({
         init: function(duration, startTime) {
-            this.lastTime = startTime;
-            if (isNaN(startTime) || startTime === null || startTime === 0)
-            {
-              this.lastTime = Date.now();
-            }
+            this.restart(startTime);
 
             this.duration = duration;
+        },
+
+        restart: function (startTime)
+        {
+          this.lastTime = startTime;
+          if (isNaN(startTime) || startTime === null || startTime === 0)
+          {
+            this.lastTime = Date.now();
+          }
         },
 
         isOver: function(time) {

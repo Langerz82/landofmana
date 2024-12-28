@@ -97,7 +97,7 @@ define(['entity/item', 'data/items'], function(Item, Items) {
               /*$('#equipBackground'+i).on('drop', function(event) {
                 if (DragItem) {
                   var slot = $(this).data("slot");
-                  game.client.sendItemSlot([2, DragItem.type, DragItem.slot, 1, 2, slot]);
+                  game.client.sendItemSlot([1, DragItem.type, DragItem.slot, 1, 2, slot]);
                   DragItem = null;
                   game.inventoryHandler.deselectItem();
                 }

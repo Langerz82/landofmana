@@ -272,7 +272,7 @@ define(['../timer'], function(Timer) {
           }
           return this.fadingTimer.getRatio(time);
         },
-
+/*
         isNextToo: function (x,y,dist) {
           dist = dist || G_TILESIZE;
           return (Math.abs(this.x-x) <= dist && Math.abs(this.y-y) <= dist);
@@ -287,32 +287,39 @@ define(['../timer'], function(Timer) {
         },
 
         isTouching: function (entity) {
-          return this.isNextToo(entity.x,entity.y, (G_TILESIZE-1));
+          return this.isNextToo(entity.x,entity.y, (G_TILESIZE));
         },
 
         isOver: function (x, y) {
             return this.isNextToo(x, y, (G_TILESIZE >> 1));
         },
+*/
+        isWithinDist: function (x,y,dist) {
+          dist = dist || G_TILESIZE;
+          var dx = Math.abs(this.x-x);
+          var dy = Math.abs(this.y-y);
+          return (dx <= dist && dy <= dist);
+        },
 
-        isOverlapping: function() {
-          var entities = this.map.entities.getCharactersAround(this, 1);
-              res = false,
-              ts = G_TILESIZE;
+        isNextTooEntity: function (entity) {
+            return this.isWithinDist(entity.x, entity.y, G_TILESIZE);
+        },
 
-          for(var entity of entities) {
-            //var entity2 = entities[k];
-            if (!entity || this == entity)
-              continue;
-            var tx = entity.x;
-            var ty = entity.y;
-            if (this.isTouching(entity.x, entity.y))
-            {
-              res = true;
-              break;
-            }
-          }
-          return res;
-        }
+        isNextTooPosition: function (x, y) {
+            return this.isWithinDist(x, y, G_TILESIZE);
+        },
+
+        isOverEntity: function (entity) {
+            return this.isWithinDist(entity.x, entity.y, (G_TILESIZE >> 1));
+        },
+
+        isOverPosition: function (x, y) {
+            return this.isWithinDist(x, y, (G_TILESIZE >> 1));
+        },
+
+        isOverlappingEntity: function (entity) {
+          return this.isWithinDist(entity.x,entity.y, G_TILESIZE-1);
+        },
 
     });
 

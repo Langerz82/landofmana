@@ -277,7 +277,7 @@ define(['./entity', './character', '../exceptions', 'data/appearancedata'], func
     move: function (time, orientation, state, x, y) {
       var self = this;
 
-      this.orientation = orientation;
+      this.setOrientation(orientation);
       if (state == 1 && orientation != Types.Orientations.NONE)
       {
         var lockStepTime = (G_LATENCY - (getWorldTime()-time));
@@ -545,7 +545,7 @@ define(['./entity', './character', '../exceptions', 'data/appearancedata'], func
 
     respawn: function () {
       this.setArmorSprite();
-      this.orientation = Types.Orientations.DOWN;
+      this.setOrientation(Types.Orientations.DOWN);
       this.idle(this.orientation);
       this.fsm = "IDLE";
     },
@@ -615,11 +615,11 @@ define(['./entity', './character', '../exceptions', 'data/appearancedata'], func
       clearInterval(this.harvestTimeout);
       this.harvestTimeout = setInterval(function () {
         if (!self.harvestTimeout) {
-          self.harvestOff();
+          self.forceStop();
           return;
         }
         if (self.target && !(self.target.type == Types.EntityTypes.NODE)) {
-          self.harvestOff();
+          self.forceStop();
           return;
         }
         harvest();
@@ -632,7 +632,7 @@ define(['./entity', './character', '../exceptions', 'data/appearancedata'], func
         clearInterval(this.harvestTimeout);
         this.harvestTimeout = null;
         //this.fsm = "IDLE";
-        this.forceStop();
+        //this.forceStop();
         //this.fsm = "IDLE";
         //this.idle();
         this.startHarvestTime = 0;

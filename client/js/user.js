@@ -78,6 +78,7 @@ function(UserClient, Player, AppearanceData) {
         player.setItems();
 
         player.forceStop = function () {
+          this.harvestOff();
           if (this.keyMove && this.key_move_callback)
           {
             this.key_move_callback(false);
@@ -88,7 +89,7 @@ function(UserClient, Player, AppearanceData) {
           this._forceStop();
 
           this.idle();
-          this.fsm = "IDLE";
+          //this.fsm = "IDLE";
         };
 
         player.canAttack = function(time) {
@@ -110,17 +111,12 @@ function(UserClient, Player, AppearanceData) {
           orientation = orientation || this.orientation;
           var self = this;
 
-          if (this.fsm == "MOVEPATH") {
-            return;
-          }
-
-          this.harvestOff();
           this.setOrientation(orientation || 0);
-
           this.forceStop();
           this.fsm = "ATTACK";
           this.animate("atk", this.atkSpeed, 1, function () {
             self.idle(self.orientation);
+            self.fsm = "IDLE";
             self.forceStop();
           });
           return true;
@@ -144,21 +140,18 @@ function(UserClient, Player, AppearanceData) {
         player.moveTo_ = function(x, y, callback) {
           var self = this;
 
-          if (this.fsm == "MOVEPATH") {
-            return;
-          }
-
           if (this.fsm == "ATTACK") {
             return;
           }
 
-          this.forceStop();
-          this.harvestOff();
+          if (this.isMoving())
+            this.forceStop();
 
           log.info("background - free delay =" + G_LATENCY);
 
-          this.fsm = "MOVEPATH";
           this.walk();
+
+          //this.setFreeze(G_LATENCY);
           return this._moveTo(x, y, callback);
         };
 
@@ -174,9 +167,9 @@ function(UserClient, Player, AppearanceData) {
             return;
           }
 
-          if (this.fsm == "MOVEPATH") {
+          /*if (this.fsm == "MOVEPATH") {
             return;
-          }
+          }*/
 
           if (state && orientation != Types.Orientations.NONE)
           {
@@ -185,20 +178,19 @@ function(UserClient, Player, AppearanceData) {
             }
 
             if (!this.canMove(orientation)) {
-              //this.forceStop();
               return;
             }
 
+            if (this.isMoving())
+              this.forceStop();
+
+            this.orientation = orientation;
             this.setOrientation(orientation);
-
-            this.harvestOff();
-            this.forceStop();
-
-            this.fsm = "MOVING";
 
             this.walk();
 
             this.keyMove = true;
+            //this.setFreeze(G_LATENCY);
           }
           if (!state)
           {

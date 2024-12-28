@@ -1,10 +1,11 @@
 {
-    "host": "localhost",
+	"host": "localhost",
     "port": 1340,
-    "protocol": "http",
+	"protocol": "http",
     "useLocalAPI": false,
     "dispatcher": false,
-    "version":91,
+    "version_user":92,
+		"version_game":92,
     "updatepage":"https://play.google.com/store/apps/details?id=com.retrorpgonline2",
     "productpage":"../products/"
 }

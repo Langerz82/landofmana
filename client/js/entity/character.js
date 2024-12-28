@@ -352,7 +352,7 @@ define(['./entitymoving', '../transition', '../timer', 'data/mobdata', 'data/npc
        log.info("lookAtEntity");
        if (entity) {
            log.info("lookAtEntity "+entity.id);
-           this.orientation = this.getOrientationTo([entity.x, entity.y]);
+           this.setOrientation(this.getOrientationTo([entity.x, entity.y]));
            log.info("this.orientation="+this.orientation);
        }
        if (!this.hasAnimation('atk'))
