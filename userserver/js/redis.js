@@ -85,7 +85,8 @@ module.exports = DatabaseHandler = cls.Class.extend({
     client.hgetarray = hgetarray;
     this.ready = true;
 
-    //this.removeOldValues();
+    if (config.remove_old_values == 1)
+        this.removeOldValues();
   },
 
   removeOldValues: function () {

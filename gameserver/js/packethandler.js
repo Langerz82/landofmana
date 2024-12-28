@@ -8,8 +8,8 @@ var Character = require('./entity/character'),
   Formulas = require("./formulas"),
   formatCheck = require("./format").check,
   Party = require("./party"),
-  PartyHandler = require("./partyHandler"),
-  ShopHandler = require("./shopHandler"),
+  PartyHandler = require("./partyhandler"),
+  ShopHandler = require("./shophandler"),
   SkillHandler = require("./skillhandler"),
   TaskHandler = require("./taskhandler");
 
