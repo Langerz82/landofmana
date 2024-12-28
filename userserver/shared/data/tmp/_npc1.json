@@ -1,0 +1,630 @@
+[
+  {
+    "id": "agent",
+    "width": 24,
+    "height": 24,
+    "animations": {
+      "idle_down": {
+        "length": 2,
+        "row": 0
+      }
+    },
+    "offset_x": -4,
+    "offset_y": -8,
+    "file": "npc0.png"
+  },
+  {
+    "id": "ancientmanumentnpc",
+    "width": 24,
+    "height": 24,
+    "animations": {
+      "idle_down": {
+        "length": 2,
+        "row": 1
+      }
+    },
+    "offset_x": -4,
+    "offset_y": -8,
+    "file": "npc0.png"
+  },
+  {
+    "id": "angelnpc",
+    "width": 24,
+    "height": 24,
+    "animations": {
+      "idle_down": {
+        "length": 2,
+        "row": 2
+      }
+    },
+    "offset_x": -4,
+    "offset_y": -8,
+    "file": "npc0.png"
+  },
+  {
+    "id": "beachnpc",
+    "width": 24,
+    "height": 24,
+    "animations": {
+      "idle_down": {
+        "length": 2,
+        "row": 3
+      }
+    },
+    "offset_x": -4,
+    "offset_y": -8,
+    "file": "npc0.png"
+  },
+  {
+    "id": "bluebikinigirlnpc",
+    "width": 24,
+    "height": 24,
+    "animations": {
+      "idle_down": {
+        "length": 2,
+        "row": 4
+      }
+    },
+    "offset_x": -4,
+    "offset_y": -8,
+    "file": "npc0.png"
+  },
+  {
+    "id": "bluestoremannpc",
+    "width": 24,
+    "height": 24,
+    "animations": {
+      "idle_down": {
+        "length": 2,
+        "row": 5
+      }
+    },
+    "offset_x": -4,
+    "offset_y": -8,
+    "file": "npc0.png"
+  },
+  {
+    "id": "boxingman",
+    "width": 24,
+    "height": 24,
+    "animations": {
+      "idle_down": {
+        "length": 2,
+        "row": 6
+      }
+    },
+    "offset_x": -4,
+    "offset_y": -8,
+    "file": "npc0.png"
+  },
+  {
+    "id": "coder",
+    "width": 24,
+    "height": 24,
+    "animations": {
+      "idle_down": {
+        "length": 2,
+        "row": 7
+      }
+    },
+    "offset_x": -4,
+    "offset_y": -7,
+    "file": "npc0.png"
+  },
+  {
+    "id": "desertnpc",
+    "width": 24,
+    "height": 24,
+    "animations": {
+      "idle_down": {
+        "length": 2,
+        "row": 8
+      }
+    },
+    "offset_x": -4,
+    "offset_y": -8,
+    "file": "npc0.png"
+  },
+  {
+    "id": "doctor",
+    "width": 24,
+    "height": 24,
+    "animations": {
+      "idle_down": {
+        "length": 2,
+        "row": 9
+      }
+    },
+    "offset_x": -4,
+    "offset_y": -8,
+    "file": "npc0.png"
+  },
+  {
+    "id": "elfnpc",
+    "width": 24,
+    "height": 24,
+    "animations": {
+      "idle_down": {
+        "length": 2,
+        "row": 10
+      }
+    },
+    "offset_x": -4,
+    "offset_y": -8,
+    "file": "npc0.png"
+  },
+  {
+    "id": "fairynpc",
+    "width": 24,
+    "height": 24,
+    "animations": {
+      "idle_down": {
+        "length": 2,
+        "row": 11
+      }
+    },
+    "offset_x": -4,
+    "offset_y": -8,
+    "file": "npc0.png"
+  },
+  {
+    "id": "firstsonangelnpc",
+    "width": 24,
+    "height": 24,
+    "animations": {
+      "idle_down": {
+        "length": 2,
+        "row": 12
+      }
+    },
+    "offset_x": -4,
+    "offset_y": -8,
+    "file": "npc0.png"
+  },
+  {
+    "id": "fisherman",
+    "width": 24,
+    "height": 24,
+    "animations": {
+      "idle_down": {
+        "length": 2,
+        "row": 13
+      }
+    },
+    "offset_x": -4,
+    "offset_y": -8,
+    "file": "npc0.png"
+  },
+  {
+    "id": "forestnpc",
+    "width": 24,
+    "height": 24,
+    "animations": {
+      "idle_down": {
+        "length": 2,
+        "row": 14
+      }
+    },
+    "offset_x": -4,
+    "offset_y": -8,
+    "file": "npc0.png"
+  },
+  {
+    "id": "guard",
+    "width": 25,
+    "height": 24,
+    "animations": {
+      "idle_down": {
+        "length": 2,
+        "row": 15
+      }
+    },
+    "offset_x": -5,
+    "offset_y": -8,
+    "file": "npc0.png"
+  },
+  {
+    "id": "iamverycoldnpc",
+    "width": 24,
+    "height": 24,
+    "animations": {
+      "idle_down": {
+        "length": 2,
+        "row": 16
+      }
+    },
+    "offset_x": -4,
+    "offset_y": -8,
+    "file": "npc0.png"
+  },
+  {
+    "id": "iceelfnpc",
+    "width": 24,
+    "height": 24,
+    "animations": {
+      "idle_down": {
+        "length": 2,
+        "row": 17
+      }
+    },
+    "offset_x": -4,
+    "offset_y": -8,
+    "file": "npc0.png"
+  },
+  {
+    "id": "king",
+    "width": 32,
+    "height": 32,
+    "animations": {
+      "idle_down": {
+        "length": 2,
+        "row": 18
+      }
+    },
+    "offset_x": -8,
+    "offset_y": -12,
+    "file": "npc0.png"
+  },
+  {
+    "id": "lavanpc",
+    "width": 24,
+    "height": 24,
+    "animations": {
+      "idle_down": {
+        "length": 2,
+        "row": 38
+      }
+    },
+    "offset_x": -4,
+    "offset_y": -8,
+    "file": "npc0.png"
+  },
+  {
+    "id": "mermaidnpc",
+    "width": 24,
+    "height": 24,
+    "animations": {
+      "idle_down": {
+        "length": 2,
+        "row": 40
+      }
+    },
+    "offset_x": -4,
+    "offset_y": -8,
+    "file": "npc0.png"
+  },
+  {
+    "id": "mojojojonpc",
+    "width": 24,
+    "height": 24,
+    "animations": {
+      "idle_down": {
+        "length": 2,
+        "row": 42
+      }
+    },
+    "offset_x": -4,
+    "offset_y": -8,
+    "file": "npc0.png"
+  },
+  {
+    "id": "momangelnpc",
+    "width": 24,
+    "height": 24,
+    "animations": {
+      "idle_down": {
+        "length": 2,
+        "row": 44
+      }
+    },
+    "offset_x": -4,
+    "offset_y": -8,
+    "file": "npc0.png"
+  },
+  {
+    "id": "nyan",
+    "width": 49,
+    "height": 24,
+    "animations": {
+      "idle_down": {
+        "length": 6,
+        "row": 23
+      }
+    },
+    "offset_x": -22,
+    "offset_y": -6,
+    "file": "npc0.png"
+  },
+  {
+    "id": "octocat",
+    "width": 32,
+    "height": 32,
+    "animations": {
+      "idle_down": {
+        "length": 4,
+        "row": 24
+      }
+    },
+    "offset_x": -8,
+    "offset_y": -12,
+    "file": "npc0.png"
+  },
+  {
+    "id": "octopus",
+    "width": 24,
+    "height": 24,
+    "animations": {
+      "idle_down": {
+        "length": 2,
+        "row": 25
+      }
+    },
+    "offset_x": -4,
+    "offset_y": -8,
+    "file": "npc0.png"
+  },
+  {
+    "id": "oddeyecat",
+    "width": 24,
+    "height": 24,
+    "animations": {
+      "idle_down": {
+        "length": 2,
+        "row": 26
+      }
+    },
+    "offset_x": -4,
+    "offset_y": -8,
+    "file": "npc0.png"
+  },
+  {
+    "id": "pirategirlnpc",
+    "width": 24,
+    "height": 24,
+    "animations": {
+      "idle_down": {
+        "length": 2,
+        "row": 27
+      }
+    },
+    "offset_x": -4,
+    "offset_y": -8,
+    "file": "npc0.png"
+  },
+  {
+    "id": "priest",
+    "width": 24,
+    "height": 24,
+    "animations": {
+      "idle_down": {
+        "length": 2,
+        "row": 28
+      }
+    },
+    "offset_x": -4,
+    "offset_y": -8,
+    "file": "npc0.png"
+  },
+  {
+    "id": "redbikinigirlnpc",
+    "width": 24,
+    "height": 24,
+    "animations": {
+      "idle_down": {
+        "length": 2,
+        "row": 29
+      }
+    },
+    "offset_x": -4,
+    "offset_y": -8,
+    "file": "npc0.png"
+  },
+  {
+    "id": "redstoremannpc",
+    "width": 24,
+    "height": 24,
+    "animations": {
+      "idle_down": {
+        "length": 2,
+        "row": 30
+      }
+    },
+    "offset_x": -4,
+    "file": "npc0.png"
+  },
+  {
+    "id": "rick",
+    "width": 32,
+    "height": 32,
+    "animations": {
+      "idle_down": {
+        "length": 4,
+        "row": 31
+      }
+    },
+    "offset_x": -8,
+    "file": "npc0.png"
+  },
+  {
+    "id": "scientist",
+    "width": 24,
+    "height": 24,
+    "animations": {
+      "idle_down": {
+        "length": 2,
+        "row": 32
+      }
+    },
+    "offset_x": -4,
+    "offset_y": -8,
+    "file": "npc0.png"
+  },
+  {
+    "id": "secondsonangelnpc",
+    "width": 24,
+    "height": 24,
+    "animations": {
+      "idle_down": {
+        "length": 2,
+        "row": 33
+      }
+    },
+    "offset_x": -4,
+    "offset_y": -8,
+    "file": "npc0.png"
+  },
+  {
+    "id": "shepherdboy",
+    "width": 24,
+    "height": 24,
+    "animations": {
+      "idle_down": {
+        "length": 2,
+        "row": 34
+      }
+    },
+    "offset_x": -4,
+    "offset_y": -8,
+    "file": "npc0.png"
+  },
+  {
+    "id": "snowshepherdboy",
+    "width": 24,
+    "height": 24,
+    "animations": {
+      "idle_down": {
+        "length": 2,
+        "row": 35
+      }
+    },
+    "offset_x": -4,
+    "offset_y": -8,
+    "file": "npc0.png"
+  },
+  {
+    "id": "soldier",
+    "width": 24,
+    "height": 24,
+    "animations": {
+      "idle_down": {
+        "length": 2,
+        "row": 36
+      }
+    },
+    "offset_x": -4,
+    "offset_y": -8,
+    "file": "npc0.png"
+  },
+  {
+    "id": "sorcerer",
+    "width": 26,
+    "height": 26,
+    "animations": {
+      "idle_down": {
+        "length": 6,
+        "row": 37
+      }
+    },
+    "offset_x": -5,
+    "offset_y": -9,
+    "file": "npc0.png"
+  },
+  {
+    "id": "sponge",
+    "width": 24,
+    "height": 24,
+    "animations": {
+      "idle_down": {
+        "length": 2,
+        "row": 38
+      }
+    },
+    "offset_x": -4,
+    "offset_y": -8,
+    "file": "npc0.png"
+  },
+  {
+    "id": "superiorangelnpc",
+    "width": 24,
+    "height": 24,
+    "animations": {
+      "idle_down": {
+        "length": 2,
+        "row": 39
+      }
+    },
+    "offset_x": -4,
+    "offset_y": -8,
+    "file": "npc0.png"
+  },
+  {
+    "id": "vampire",
+    "width": 24,
+    "height": 24,
+    "animations": {
+      "idle_down": {
+        "length": 2,
+        "row": 40
+      }
+    },
+    "offset_x": -4,
+    "offset_y": -8,
+    "file": "npc0.png"
+  },
+  {
+    "id": "vendingmachine",
+    "width": 24,
+    "height": 24,
+    "animations": {
+      "idle_down": {
+        "length": 2,
+        "row": 41
+      }
+    },
+    "offset_x": -4,
+    "offset_y": -8,
+    "file": "npc0.png"
+  },
+  {
+    "id": "villagegirl",
+    "width": 24,
+    "height": 24,
+    "animations": {
+      "idle_down": {
+        "length": 2,
+        "row": 42
+      }
+    },
+    "offset_x": -4,
+    "offset_y": -8,
+    "file": "npc0.png"
+  },
+  {
+    "id": "villager",
+    "width": 24,
+    "height": 24,
+    "animations": {
+      "idle_down": {
+        "length": 2,
+        "row": 43
+      }
+    },
+    "offset_x": -4,
+    "offset_y": -8,
+    "file": "npc0.png"
+  },
+  {
+    "id": "zombiegf",
+    "width": 24,
+    "height": 24,
+    "animations": {
+      "idle_down": {
+        "length": 2,
+        "row": 44
+      }
+    },
+    "offset_x": -4,
+    "offset_y": -8,
+    "file": "npc0.png"
+  }
+]

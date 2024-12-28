@@ -1,0 +1,203 @@
+[
+  {
+    "uid": "default",
+    "index": 0
+  },
+  {
+    "uid": "agent",
+    "name": "Auction",
+    "index": 1
+  },
+  {
+    "uid": "ancientmanumentnpc",
+    "index": 2
+  },
+  {
+    "uid": "angelnpc",
+    "index": 3
+  },
+  {
+    "uid": "beachnpc",
+    "name": "Beachgoer",
+    "index": 4
+  },
+  {
+    "uid": "bluebikinigirlnpc",
+    "index": 5
+  },
+  {
+    "uid": "bluestoremannpc",
+    "name": "Bank",
+    "index": 6
+  },
+  {
+    "uid": "boxingman",
+    "name": "Bank",
+    "index": 7
+  },
+  {
+    "uid": "coder",
+    "name": "Looks",
+    "index": 8
+  },
+  {
+    "uid": "desertnpc",
+    "name": "Repair",
+    "index": 9
+  },
+  {
+    "uid": "doctor",
+    "name": "Looks",
+    "index": 10
+  },
+  {
+    "uid": "elfnpc",
+    "index": 11
+  },
+  {
+    "uid": "fairynpc",
+    "index": 12
+  },
+  {
+    "uid": "firstsonangelnpc",
+    "index": 13
+  },
+  {
+    "uid": "fisherman",
+    "index": 14
+  },
+  {
+    "uid": "forestnpc",
+    "index": 15
+  },
+  {
+    "uid": "guard",
+    "index": 16
+  },
+  {
+    "uid": "iamverycoldnpc",
+    "index": 17
+  },
+  {
+    "uid": "iceelfnpc",
+    "index": 18
+  },
+  {
+    "uid": "king",
+    "index": 19
+  },
+  {
+    "uid": "lavanpc",
+    "name": "Dying Man",
+    "index": 20
+  },
+  {
+    "uid": "mermaidnpc",
+    "name": "Mermaid",
+    "index": 21
+  },
+  {
+    "uid": "mojojojonpc",
+    "index": 22
+  },
+  {
+    "uid": "momangelnpc",
+    "index": 23
+  },
+  {
+    "uid": "nyan",
+    "index": 24
+  },
+  {
+    "uid": "octocat",
+    "index": 25
+  },
+  {
+    "uid": "octopus",
+    "index": 26
+  },
+  {
+    "uid": "oddeyecat",
+    "index": 27
+  },
+  {
+    "uid": "pirategirlnpc",
+    "index": 28
+  },
+  {
+    "uid": "priest",
+    "index": 29
+  },
+  {
+    "uid": "redbikinigirlnpc",
+    "index": 30
+  },
+  {
+    "uid": "redstoremannpc",
+    "name": "Craft",
+    "index": 31
+  },
+  {
+    "uid": "rick",
+    "name": "Collect",
+    "index": 32
+  },
+  {
+    "uid": "scientist",
+    "index": 33
+  },
+  {
+    "uid": "secondsonangelnpc",
+    "index": 34
+  },
+  {
+    "uid": "shepherdboy",
+    "name": "Shop",
+    "index": 35
+  },
+  {
+    "uid": "snowshepherdboy",
+    "name": "Beginner shop",
+    "index": 36
+  },
+  {
+    "uid": "soldier",
+    "index": 37
+  },
+  {
+    "uid": "sorcerer",
+    "index": 38
+  },
+  {
+    "uid": "sponge",
+    "index": 39
+  },
+  {
+    "uid": "superiorangelnpc",
+    "index": 40
+  },
+  {
+    "uid": "vampire",
+    "index": 41
+  },
+  {
+    "uid": "vendingmachine",
+    "name": "Enchant",
+    "index": 42
+  },
+  {
+    "uid": "villagegirl",
+    "name": "Enchant",
+    "index": 43
+  },
+  {
+    "uid": "villager",
+    "name": "Quests",
+    "index": 44
+  },
+  {
+    "uid": "zombiegf",
+    "name": "Quests",
+    "index": 45
+  }
+]

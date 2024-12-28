@@ -1,0 +1,5 @@
+TODO
+
+TODO swapping equipment items to different boxes deletes item.
+
+BUG - When equipping/unequipping leather item, the sprite changes too.

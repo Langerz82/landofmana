@@ -1,0 +1,1072 @@
+[
+	{
+		"name": "Sword 1",
+		"type": "weapon",
+		"sprite": "sword1",
+		"buy": 0
+	},
+	{
+		"name": "Sword 2",
+		"type": "weapon",
+		"sprite": "sword2",
+		"buy": 500
+
+	},
+	{
+		"name": "Axe",
+		"type": "weapon",
+		"sprite": "axe",
+		"buy": 1000
+	},
+	{
+		"name": "Morning Star",
+		"type": "weapon",
+		"sprite": "morningstar",
+		"buy": 1500
+	},
+	{
+		"name": "Blue Sword",
+		"type": "weapon",
+		"sprite": "bluesword",
+		"buy": 2000
+
+	},
+	{
+		"name": "Red Sword",
+		"type": "weapon",
+		"sprite": "redsword",
+		"buy": 2500
+	},
+	{
+		"name": "Golden Sword",
+		"type": "weapon",
+		"sprite": "goldensword",
+		"buy": 3000
+	},
+	{
+		"name": "Side Sword",
+		"type": "weapon",
+		"sprite": "sidesword",
+		"buy": 3500
+	},
+	{
+		"name": "Spear",
+		"type": "weapon",
+		"sprite": "spear",
+		"buy": 4000
+	},
+	{
+		"name": "Scimitar",
+		"type": "weapon",
+		"sprite": "scimitar",
+		"buy": 4500
+	},
+	{
+		"name": "Trident",
+		"type": "weapon",
+		"sprite": "trident",
+		"buy": 5000
+	},
+	{
+		"name": "Blue Scimitar",
+		"type": "weapon",
+		"sprite": "bluescimitar",
+		"buy": 5500
+	},
+	{
+		"name": "Hammer",
+		"type": "weapon",
+		"sprite": "hammer",
+		"buy": 6000
+	},
+	{
+		"name": "Green Light Saber",
+		"type": "weapon",
+		"sprite": "greenlightsaber",
+		"buy": 6500
+	},
+	{
+		"name": "Sky Light Saber",
+		"type": "weapon",
+		"sprite": "skylightsaber",
+		"buy": 7000
+	},
+	{
+		"name": "Red Light Saber",
+		"type": "weapon",
+		"sprite": "redlightsaber",
+		"buy": 7500
+	},
+	{
+		"name": "Bastard Sword",
+		"type": "weapon",
+		"sprite": "bastardsword",
+		"buy": 8000
+	},
+	{
+		"name": "Red Metal Sword",
+		"type": "weapon",
+		"sprite": "redmetalsword",
+		"buy": 8500
+	},
+	{
+		"name": "Justice Hammer",
+		"type": "weapon",
+		"sprite": "justicehammer",
+		"buy": 9000
+	},
+	{
+		"name": "Rose",
+		"type": "weapon",
+		"sprite": "rose",
+		"buy": 9500
+	},
+	{
+		"name": "Ice Rose",
+		"type": "weapon",
+		"sprite": "icerose",
+		"buy": 10000
+	},
+	{
+		"name": "Halberd",
+		"type": "weapon",
+		"sprite": "halberd",
+		"buy": 10500
+	},
+	{
+		"name": "Whip",
+		"type": "weapon",
+		"sprite": "whip",
+		"buy": 11000
+	},
+	{
+		"name": "Forest Guardian Sword",
+		"type": "weapon",
+		"sprite": "forestguardiansword",
+		"buy": 11500
+	},
+	{
+		"name": "Sickle",
+		"type": "weapon",
+		"sprite": "sickle",
+		"buy": 12000
+	},
+	{
+		"name": "Plunger",
+		"type": "weapon",
+		"sprite": "plunger",
+		"buy": 12500
+	},
+	{
+		"name": "Red Sickle",
+		"type": "weapon",
+		"sprite": "redsickle",
+		"buy": 13000
+	},
+	{
+		"name": "Day Walker",
+		"type": "weapon",
+		"sprite": "daywalker",
+		"buy": 13500
+	},
+	{
+		"name": "Purple Cloud Kallege",
+		"type": "weapon",
+		"sprite": "purplecloudkallege",
+		"buy": 14000
+	},
+	{
+		"name": "Sea Rage",
+		"type": "weapon",
+		"sprite": "searage",
+		"buy": 14500
+	},
+	{
+		"name": "Breaker",
+		"type": "weapon",
+		"sprite": "breaker",
+		"buy": 15000
+	},
+	{
+		"name": "Enel Trident",
+		"type": "weapon",
+		"sprite": "eneltrident",
+		"buy": 15500
+	},
+	{
+		"name": "Rainbow Sword",
+		"type": "weapon",
+		"sprite": "rainbowsword",
+		"buy": 16000
+	},
+	{
+		"name": "Typhoon",
+		"type": "weapon",
+		"sprite": "typhoon",
+		"buy": 16500
+	},
+	{
+		"name": "Memme",
+		"type": "weapon",
+		"sprite": "memme",
+		"buy": 17000
+	},
+	{
+		"name": "Candybar",
+		"type": "weapon",
+		"sprite": "candybar",
+		"buy": 17500
+	},
+	{
+		"name": "Butcher Knife",
+		"type": "weapon",
+		"sprite": "butcherknife",
+		"buy": 18000
+	},
+	{
+		"name": "Fire Shot",
+		"type": "weapon",
+		"sprite": "fireshot",
+		"buy": 18500
+	},
+	{
+		"name": "Comb",
+		"type": "weapon",
+		"sprite": "comb",
+		"buy": 19000
+	},
+	{
+		"name": "Squeaky Hammer",
+		"type": "weapon",
+		"sprite": "squeakyhammer",
+		"buy": 19500
+	},
+	{
+		"name": "Fire Play",
+		"type": "weapon",
+		"sprite": "fireplay",
+		"buy": 20000
+	},
+	{
+		"name": "Wea Staff",
+		"type": "weapon",
+		"sprite": "weastaff",
+		"buy": 20500
+	},
+	{
+		"name": "Pink Sword",
+		"type": "weapon",
+		"sprite": "pinksword",
+		"buy": 21000
+	},
+	{
+		"name": "Conference Call",
+		"type": "weapon",
+		"sprite": "conferencecall",
+		"buy": 21500
+	},
+	{
+		"name": "Cactus Axe",
+		"type": "weapon",
+		"sprite": "cactusaxe",
+		"buy": 22000
+	},
+	{
+		"name": "Devil Kazya Sword",
+		"type": "weapon",
+		"sprite": "devilkazyasword",
+		"buy": 22500
+	},
+	{
+		"name": "Bamboo Spear",
+		"type": "weapon",
+		"sprite": "bamboospear",
+		"buy": 23000
+	},
+	{
+		"name": "Paewoldo",
+		"type": "weapon",
+		"sprite": "paewoldo",
+		"buy": 23500
+	},
+	{
+		"name": "Magic Spear",
+		"type": "weapon",
+		"sprite": "magicspear",
+		"buy": 24000
+	},
+	{
+		"name": "Fire Sword",
+		"type": "weapon",
+		"sprite": "firesword",
+		"buy": 24500
+	},
+
+	{
+		"name": "Wooden Bow",
+		"type": "weaponarcher",
+		"sprite": "woodenbow",
+		"buy": 0
+	},
+	{
+		"name": "Plastic Bow",
+		"type": "weaponarcher",
+		"sprite": "plasticbow",
+		"buy": 500
+	},
+	{
+		"name": "Iron Bow",
+		"type": "weaponarcher",
+		"sprite": "ironbow",
+		"buy": 1000
+	},
+	{
+		"name": "Red Bow",
+		"type": "weaponarcher",
+		"sprite": "redbow",
+		"buy": 1500
+	},
+	{
+		"name": "Violet Bow",
+		"type": "weaponarcher",
+		"sprite": "violetbow",
+		"buy": 2000
+	},
+	{
+		"name": "Death Bow",
+		"type": "weaponarcher",
+		"sprite": "deathbow",
+		"buy": 2500
+	},
+	{
+		"name": "Golden Bow",
+		"type": "weaponarcher",
+		"sprite": "goldenbow",
+		"buy": 3000
+	},
+	{
+		"name": "Watermelon Bow",
+		"type": "weaponarcher",
+		"sprite": "watermelonbow",
+		"buy": 3500
+	},
+	{
+		"name": "Green Bow",
+		"type": "weaponarcher",
+		"sprite": "greenbow",
+		"buy": 4000
+	},
+	{
+		"name": "Redenel Bow",
+		"type": "weaponarcher",
+		"sprite": "redenelbow",
+		"buy": 4500
+	},
+	{
+		"name": "Mermaid Bow",
+		"type": "weaponarcher",
+		"sprite": "mermaidbow",
+		"buy": 5000
+	},
+	{
+		"name": "Seahorse Bow",
+		"type": "weaponarcher",
+		"sprite": "seahorsebow",
+		"buy": 5500
+	},
+	{
+		"name": "Hunter Bow",
+		"type": "weaponarcher",
+		"sprite": "hunterbow",
+		"buy": 6000
+	},
+	{
+		"name": "Green Light Bow",
+		"type": "weaponarcher",
+		"sprite": "greenlightbow",
+		"buy": 6500
+	},
+	{
+		"name": "Sky Light Bow",
+		"type": "weaponarcher",
+		"sprite": "skylightbow",
+		"buy": 7000
+	},
+	{
+		"name": "Red Light Bow",
+		"type": "weaponarcher",
+		"sprite": "redlightbow",
+		"buy": 7500
+	},
+	{
+		"name": "Captain Bow",
+		"type": "weaponarcher",
+		"sprite": "captainbow",
+		"buy": 8000
+	},
+	{
+		"name": "Red Metal Bow",
+		"type": "weaponarcher",
+		"sprite": "redmetalbow",
+		"buy": 8500
+	},
+	{
+		"name": "Justice Bow",
+		"type": "weaponarcher",
+		"sprite": "justicebow",
+		"buy": 9000
+	},
+	{
+		"name": "Rose Bow",
+		"type": "weaponarcher",
+		"sprite": "rosebow",
+		"buy": 9500
+	},
+	{
+		"name": "Marine Bow",
+		"type": "weaponarcher",
+		"sprite": "marinebow",
+		"buy": 10000
+	},
+	{
+		"name": "Crystal Bow",
+		"type": "weaponarcher",
+		"sprite": "crystalbow",
+		"buy": 10500
+	},
+	{
+		"name": "Colorful Bow",
+		"type": "weaponarcher",
+		"sprite": "gaybow",
+		"buy": 11000
+	},
+	{
+		"name": "Forest Bow",
+		"type": "weaponarcher",
+		"sprite": "forestbow",
+		"buy": 11500
+	},
+	{
+		"name": "Sickle Bow",
+		"type": "weaponarcher",
+		"sprite": "sicklebow",
+		"buy": 12000
+	},
+	{
+		"name": "Blood Bow",
+		"type": "weaponarcher",
+		"sprite": "bloodbow",
+		"buy": 12500
+	},
+	{
+		"name": "Red Sickle Bow",
+		"type": "weaponarcher",
+		"sprite": "redsicklebow",
+		"buy": 13000
+	},
+
+	{
+		"name": "Cloth Armor",
+		"type": "armor",
+		"sprite": "clotharmor",
+		"buy": 0
+	},
+	{
+		"name": "Leather Armor",
+		"type": "armor",
+		"sprite": "leatherarmor",
+		"buy": 500
+	},
+	{
+		"name": "Mail Armor",
+		"type": "armor",
+		"sprite": "mailarmor",
+		"buy": 1000
+	},
+	{
+		"name": "Plate Armor",
+		"type": "armor",
+		"sprite": "platearmor",
+		"buy": 1500
+	},
+	{
+		"name": "Red Armor",
+		"type": "armor",
+		"sprite": "redarmor",
+		"buy": 2000
+	},
+	{
+		"name": "Golden Armor",
+		"type": "armor",
+		"sprite": "goldenarmor",
+		"buy": 2500
+	},
+	{
+		"name": "Green Armor",
+		"type": "armor",
+		"sprite": "greenarmor",
+		"buy": 3000
+	},
+	{
+		"name": "Green Wing Armor",
+		"type": "armor",
+		"sprite": "greenwingarmor",
+		"buy": 3500
+	},
+	{
+		"name": "Guard Armor",
+		"type": "armor",
+		"sprite": "guardarmor",
+		"buy": 4000
+	},
+	{
+		"name": "Red Guard Armor",
+		"type": "armor",
+		"sprite": "redguardarmor",
+		"buy": 4500
+	},
+	{
+		"name": "White Armor",
+		"type": "armor",
+		"sprite": "whitearmor",
+		"buy": 5000
+	},
+	{
+		"name": "Rat Armor",
+		"type": "armor",
+		"sprite": "ratarmor",
+		"buy": 5500
+	},
+	{
+		"name": "Blue Pirate Armor",
+		"type": "armor",
+		"sprite": "bluepiratearmor",
+		"buy": 6000
+	},
+	{
+		"name": "Cheoli Armor",
+		"type": "armor",
+		"sprite": "cheoliarmor",
+		"buy": 6500
+	},
+	{
+		"name": "Dovakin Armor",
+		"type": "armor",
+		"sprite": "dovakinarmor",
+		"buy": 7000
+	},
+	{
+		"name": "GB Wing Armor",
+		"type": "armor",
+		"sprite": "gbwingarmor",
+		"buy": 7500
+	},
+	{
+		"name": "Red Wing Armor",
+		"type": "armor",
+		"sprite": "redwingarmor",
+		"buy": 8000
+	},
+	{
+		"name": "Snow Fox Armor",
+		"type": "armor",
+		"sprite": "snowfoxarmor",
+		"buy": 8500
+	},
+	{
+		"name": "Wolf Armor",
+		"type": "armor",
+		"sprite": "wolfarmor",
+		"buy": 9000
+	},
+	{
+		"name": "Blue Wing Armor",
+		"type": "armor",
+		"sprite": "bluewingarmor",
+		"buy": 9500
+	},
+	{
+		"name": "Thief Armor",
+		"type": "armor",
+		"sprite": "thiefarmor",
+		"buy": 10000
+	},
+	{
+		"name": "Ninja Armor",
+		"type": "armor",
+		"sprite": "ninjaarmor",
+		"buy": 10500
+	},
+	{
+		"name": "Dragon Armor",
+		"type": "armor",
+		"sprite": "dragonarmor",
+		"buy": 11000
+	},
+	{
+		"name": "Fallen Armor",
+		"type": "armor",
+		"sprite": "fallenarmor",
+		"buy": 11500
+	},
+	{
+		"name": "Paladin Armor",
+		"type": "armor",
+		"sprite": "paladinarmor",
+		"buy": 12000
+	},
+	{
+		"name": "Crystal Armor",
+		"type": "armor",
+		"sprite": "crystalarmor",
+		"buy": 12500
+	},
+	{
+		"name": "Adherer Robe",
+		"type": "armor",
+		"sprite": "adhererrobe",
+		"buy": 13000
+	},
+	{
+		"name": "Frost Armor",
+		"type": "armor",
+		"sprite": "frostarmor",
+		"buy": 13500
+	},
+	{
+		"name": "Strap Armor",
+		"type": "armor",
+		"sprite": "gayarmor",
+		"buy": 14000
+	},
+	{
+		"name": "School Uniform",
+		"type": "armor",
+		"sprite": "schooluniform",
+		"buy": 14500
+	},
+	{
+		"name": "Beautiful Life",
+		"type": "armor",
+		"sprite": "beautifullife",
+		"buy": 15000
+	},
+	{
+		"name": "Region Armor",
+		"type": "armor",
+		"sprite": "regionarmor",
+		"buy": 15500
+	},
+	{
+		"name": "Ghost Rider",
+		"type": "armor",
+		"sprite": "ghostrider",
+		"buy": 16000
+	},
+	{
+		"name": "Taekwondo",
+		"type": "armor",
+		"sprite": "taekwondo",
+		"buy": 16500
+	},
+	{
+		"name": "Rabbit Armor",
+		"type": "armor",
+		"sprite": "rabbitarmor",
+		"buy": 17000
+	},
+	{
+		"name": "Portal Armor",
+		"type": "armor",
+		"sprite": "portalarmor",
+		"buy": 17500
+	},
+	{
+		"name": "Pirate King",
+		"type": "armor",
+		"sprite": "pirateking",
+		"buy": 18000
+	},
+	{
+		"name": "Sea Dragon Armor",
+		"type": "armor",
+		"sprite": "seadragonarmor",
+		"buy": 18500
+	},
+	{
+		"name": "Shadow Region Armor",
+		"type": "armor",
+		"sprite": "shadowregionarmor",
+		"buy": 19000
+	},
+	{
+		"name": "Enel Armor",
+		"type": "armor",
+		"sprite": "enelarmor",
+		"buy": 19500
+	},
+	{
+		"name": "Mini Sea Dragon Armor",
+		"type": "armor",
+		"sprite": "miniseadragonarmor",
+		"buy": 20000
+	},
+	{
+		"name": "Huni Armor",
+		"type": "armor",
+		"sprite": "huniarmor",
+		"buy": 20500
+	},
+	{
+		"name": "Dambo Armor",
+		"type": "armor",
+		"sprite": "damboarmor",
+		"buy": 21000
+	},
+	{
+		"name": "Squid Armor",
+		"type": "armor",
+		"sprite": "squidarmor",
+		"buy": 21500
+	},
+	{
+		"name": "Bee Armor",
+		"type": "armor",
+		"sprite": "beearmor",
+		"buy": 22000
+	},
+	{
+		"name": "Blue Dambo Armor",
+		"type": "armor",
+		"sprite": "bluedamboarmor",
+		"buy": 22500
+	},
+	{
+		"name": "Rudolf Armor",
+		"type": "armor",
+		"sprite": "rudolfarmor",
+		"buy": 23000
+	},
+	{
+		"name": "Christmas Armor",
+		"type": "armor",
+		"sprite": "christmasarmor",
+		"buy": 23500
+	},
+	{
+		"name": "Robocop Armor",
+		"type": "armor",
+		"sprite": "robocoparmor",
+		"buy": 24000
+	},
+	{
+		"name": "Pink Cockroach Armor",
+		"type": "armor",
+		"sprite": "pinkcockroacharmor",
+		"buy": 24500
+	},
+	{
+		"name": "Cockroach Suit",
+		"type": "armor",
+		"sprite": "cockroachsuit",
+		"buy": 25000
+	},
+	{
+		"name": "Dinosaur Armor",
+		"type": "armor",
+		"sprite": "dinosaurarmor",
+		"buy": 25500
+	},
+	{
+		"name": "Cat Armor",
+		"type": "armor",
+		"sprite": "catarmor",
+		"buy": 26000
+	},
+	{
+		"name": "Snowman Armor",
+		"type": "armor",
+		"sprite": "snowmanarmor",
+		"buy": 26500
+	},
+	{
+		"name": "Beetle Armor",
+		"type": "armor",
+		"sprite": "beetlearmor",
+		"buy": 27000
+	},
+	{
+		"name": "Hongcheol Armor",
+		"type": "armor",
+		"sprite": "hongcheolarmor",
+		"buy": 27500
+	},
+	{
+		"name": "Tiger Armor",
+		"type": "armor",
+		"sprite": "tigerarmor",
+		"buy": 28000
+	},
+	{
+		"name": "Wizard Rob",
+		"type": "armor",
+		"sprite": "wizardrobe",
+		"buy": 28500
+
+	},
+	{
+		"name": "Iron Knight Armor",
+		"type": "armor",
+		"sprite": "ironknightarmor",
+		"buy": 29000
+	},
+	{
+		"name": "Evil Armor",
+		"type": "armor",
+		"sprite": "evilarmor",
+		"buy": 29500
+
+	},
+	{
+		"name": "Green Dambo Armor",
+		"type": "armor",
+		"sprite": "greendamboarmor",
+		"buy": 30000
+	},
+	{
+		"name": "Red Dambo Armor",
+		"type": "armor",
+		"sprite": "reddamboarmor",
+		"buy": 30500
+	},
+	{
+		"name": "Devil Kazya Armor",
+		"type": "armor",
+		"sprite": "devilkazyaarmor",
+		"buy": 31000
+	},
+	{
+		"name": "Bridal Mask",
+		"type": "armor",
+		"sprite": "bridalmask",
+		"buy": 31500
+	},
+	{
+		"name": "Black Spider Armor",
+		"type": "armor",
+		"sprite": "blackspiderarmor",
+		"buy": 32000
+	},
+	{
+		"name": "Frog Armor",
+		"type": "armor",
+		"sprite": "frogarmor",
+		"buy": 32500
+	},
+	{
+		"name": "Bearseonbi Armor",
+		"type": "armor",
+		"sprite": "bearseonbiarmor",
+		"buy": 33000
+	},
+	{
+		"name": "Raindow A Pro",
+		"type": "armor",
+		"sprite": "rainbowapro",
+		"buy": 33500
+	},
+	{
+		"name": "Coke Armor",
+		"type": "armor",
+		"sprite": "cokearmor",
+		"buy": 34000
+
+	},
+	{
+		"name": "Fried Potato Armor",
+		"type": "armor",
+		"sprite": "friedpotatoarmor",
+		"buy": 34500
+	},
+	{
+		"name": "Burger Armor",
+		"type": "armor",
+		"sprite": "burgerarmor",
+		"buy": 35000
+	},
+	{
+		"name": "Halloween JK Armor",
+		"type": "armor",
+		"sprite": "halloweenjkarmor",
+		"buy": 35500
+	},
+	{
+		"name": "Frankenstein Armor",
+		"type": "armor",
+		"sprite": "frankensteinarmor",
+		"buy": 36000
+	},
+	{
+		"name": "Admin armor",
+		"type": "armor",
+		"sprite": "adminarmor",
+		"buy": 36500
+	},
+
+	{
+		"name": "Cloth Armor",
+		"type": "armorarcher",
+		"sprite": "clotharmor",
+		"buy": 0
+	},
+	{
+		"name": "Leather Armor",
+		"type": "armorarcher",
+		"sprite": "leatherarcherarmor",
+		"buy": 500
+	},
+	{
+		"name": "Mail Armor",
+		"type": "armorarcher",
+		"sprite": "mailarcherarmor",
+		"buy": 1000
+	},
+	{
+		"name": "Plate Armor",
+		"type": "armorarcher",
+		"sprite": "platearcherarmor",
+		"buy": 1500
+	},
+	{
+		"name": "Red Armor",
+		"type": "armorarcher",
+		"sprite": "redarcherarmor",
+		"buy": 2000
+	},
+	{
+		"name": "Golden Armor",
+		"type": "armorarcher",
+		"sprite": "goldenarcherarmor",
+		"buy": 2500
+	},
+	{
+		"name": "Green Armor",
+		"type": "armorarcher",
+		"sprite": "greenarcherarmor",
+		"buy": 3000
+	},
+	{
+		"name": "Green Wing Armor",
+		"type": "armorarcher",
+		"sprite": "greenwingarcherarmor",
+		"buy": 3500
+	},
+	{
+		"name": "Guard Armor",
+		"type": "armorarcher",
+		"sprite": "guardarcherarmor",
+		"buy": 4000
+	},
+	{
+		"name": "Red Guard Armor",
+		"type": "armorarcher",
+		"sprite": "redguardarcherarmor",
+		"buy": 4500
+	},
+	{
+		"name": "White Armor",
+		"type": "armorarcher",
+		"sprite": "whitearcherarmor",
+		"buy": 5000
+	},
+	{
+		"name": "Pirate Armor",
+		"type": "armorarcher",
+		"sprite": "piratearcherarmor",
+		"buy": 5500
+	},
+	{
+		"name": "Cheoli Armor",
+		"type": "armorarcher",
+		"sprite": "cheoliarcherarmor",
+		"buy": 6000
+	},
+	{
+		"name": "Dovakin Armor",
+		"type": "armorarcher",
+		"sprite": "dovakinarcherarmor",
+		"buy": 6500
+	},
+	{
+		"name": "GB Wing Armor",
+		"type": "armorarcher",
+		"sprite": "gbwingarcherarmor",
+		"buy": 7000
+	},
+	{
+		"name": "Red Wing Armor",
+		"type": "armorarcher",
+		"sprite": "redwingarcherarmor",
+		"buy": 7500
+	},
+	{
+		"name": "Snow Fox Armor",
+		"type": "armorarcher",
+		"sprite": "snowfoxarcherarmor",
+		"buy": 8000
+	},
+	{
+		"name": "Wolf Armor",
+		"type": "armorarcher",
+		"sprite": "wolfarcherarmor",
+		"buy": 8500
+	},
+	{
+		"name": "Blue Wing Armor",
+		"type": "armorarcher",
+		"sprite": "bluewingarcherarmor",
+		"buy": 9000
+	},
+	{
+		"name": "Fallen Armor",
+		"type": "armorarcher",
+		"sprite": "fallenarcherarmor",
+		"buy": 9500
+	},
+	{
+		"name": "Crystal Armor",
+		"type": "armorarcher",
+		"sprite": "crystalarcherarmor",
+		"buy": 10000
+	},
+	{
+		"name": "Legolas Armor",
+		"type": "armorarcher",
+		"sprite": "legolasarmor",
+		"buy": 10500
+	},
+	{
+		"name": "Adherer Armor",
+		"type": "armorarcher",
+		"sprite": "adhererarcherarmor",
+		"buy": 11000
+	},
+	{
+		"name": "School Uniform",
+		"type": "armorarcher",
+		"sprite": "archerschooluniform",
+		"buy": 11500
+	},
+	{
+		"name": "Combat Uniform",
+		"type": "armorarcher",
+		"sprite": "combatuniform",
+		"buy": 12000
+	},
+	{
+		"name": "Strap Armor",
+		"type": "armorarcher",
+		"sprite": "gayarcherarmor",
+		"buy": 12500
+	}
+]

@@ -1,0 +1,23 @@
+{
+	"House1": {
+		"name":"House 1",
+		"sprite":"house1",
+		"kind":2001,
+		"hp":3000,
+		"collision": [-4,-3,2,3]
+	},
+	"House2": {
+		"name":"House 2",
+		"sprite":"house2",
+		"kind":2002,
+		"hp":3000,
+		"collision": [-3,-2,3,3]
+	},
+	"House3": {
+		"name":"House 3",
+		"sprite":"house3",
+		"kind":2003,
+		"hp":3000,
+		"collision": [-3,-1,3,4]
+	}
+}

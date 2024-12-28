@@ -1,0 +1,53 @@
+[
+{
+    "name":"Beserker",
+    "skillType":0,
+    "recharge": 30,
+    "iconOffset": [1,7],
+    "detail": "Beserker [l] - Boosts your attack by 3xlevel for 10 seconds,",
+    "targetType": 0,
+    "duration": 10,
+    "effects": [[0, 0, 2, 3],[0, 1, 2, -3]]
+},
+{
+    "name":"Explosive Attack",
+    "skillType":2,
+    "recharge":10,
+    "iconOffset": [3,12],
+    "detail": "Explosive Attack [l] - AOE NOT IMPLEMENTED",
+    "targetType": 1,
+    "countTotal": 1,
+    "aoe": 3,
+    "effects": [[1, 0, 4, 50]]
+},
+{
+    "name":"Deadly Attack",
+    "skillType":2,
+    "recharge":10,
+    "iconOffset": [4,7],
+    "detail": "Deadly Attack [l] - Does an attack of 150 damage per level.",
+    "targetType": 1,
+    "countTotal": 1,
+    "effects": [[1, 0, 4, 150]]
+},
+{
+    "name":"Daze",
+    "skillType":1,
+    "recharge":30,
+    "iconOffset": [0,12],
+    "detail": "Daze [l] - Dazes the target for [dpl]% seconds.",
+    "targetType": 1,
+    "durationPL": 1,
+    "effects": [[1, 0, 5, 1],[1, 1, 5, 0]]
+},
+{
+    "name":"Slow",
+    "skillType":1,
+    "recharge":20,
+    "iconOffset": [3,5],
+    "detail": "Slow [l] - Slows target for [dpl]% seconds.",
+    "targetType": 1,
+    "durationPL": 1,
+    "effects": [[1, 0, 6, 100],[1, 1, 6, -100]]
+}
+]

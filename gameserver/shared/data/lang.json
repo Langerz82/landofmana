@@ -1,0 +1,95 @@
+{
+  "EN": {
+    "BANK_FULL": "Bank is full.",
+    "EQUIPMENT_FULL": "Equipment is full.",
+    "INVENTORY_FULL": "Inventory is full.",
+    "ITEM_ADDED": "{0} added",
+    "GOLD_ADDED": "{0} gold added",
+    "GOLD_REMOVED": "{0} gold removed",
+
+    "EQUIPMENT_LEVEL": "You need to be level {0} to equip this.",
+    "EQUIPMENT_WRONGCLASS": "Your class cannot use this Item.",
+
+    "CHAT_MUTED": "You are currently muted.",
+
+    "MAP_ENTERED": "{0} has entered the {1} map.",
+
+    "NOTICE_1": "Go to the Google Play Store and rate Retro RPG Online!",
+
+    "TRADE_REQUESTED": "You requested a trade with {0}.",
+    "TRADE_REQUEST": "{0} has requested to trade you.",
+
+    "TUTORIAL_MOVE": "Click or Tap on land to move.",
+    "TUTORIAL_ATTACK": "Now click or tap on a Monster to attack",
+    "TUTORIAL_ATTACK2": "Thats it now kill more Monsters.",
+    "TUTORIAL_EQUIP": "Now I want to equip my brought gear by going into Menu Backpack and selecting it.",
+    "TUTORIAL_SHOPBUY": "I should find the Beginner Store by going to the menu and pressing Town.",
+    "TUTORIAL_SHOPBUY2": "I want to buy my first Armor and Weapon that is Level 10.",
+    "TUTORIAL_STATS": "You can now assign custom Stats in Menu >> Character >> 3rd Page (Character Stats),",
+    "TUTORIAL_PORTAL": "In the Town House move to the blue Portal near the bottom left.",
+
+    "SHOP_REPAIRED": "{0} item repaired.",
+    "SHOP_REMOVED": "{0} item removed.",
+    "SHOP_SOLD": "{0} has been sold.",
+    "SHOP_BUY": "{0} has been bought.",
+    "SHOP_ENCHANTED": "{0} has been enchanted.",
+    "SHOP_NOGOLD": "You don't have enough Gold.",
+    "SHOP_NOGEMS": "You don't have enough Gems.",
+    "SHOP_NOSPACE": "There is not enough space in your inventory.",
+    "SHOP_MISMATCH": "The price has been changed, please try again.",
+    "AUCTION_ADDED": "The auction item you listed has been added.",
+    "SHOP_NOCRAFTITEMS": "You do not have enough craft Items.",
+    "SHOP_MISSINGITEMS": "You are missing {0} {1}'s",
+
+    "COMBAT_PLAYERKILLED": "/1 {0} killed {1} in combat.",
+    "COMBAT_TARGETINVINCIBLE": "Target is invincible.",
+
+    "GROUP_PLAYERLEFT": "{0} has left your group.",
+    "ATTACK_TOOFAR": "You are too far away to attack.",
+
+    "TUTORIAL": "TUTORIAL",
+    "TUTORIAL_1": "To Move, Mouse click on the Map or an Object, or use the WASD or arrow keys.",
+    "TUTORIAL_2": "To Attack, Mouse click on the Object or get in attack range and press Space bar.",
+    "TUTORIAL_3": "To Cycle Targets, use keys T to target the closest Object or Y to reverse target.",
+    "TUTORIAL_4": "You can use Keys 1-4 for Skill Shortcuts, and Keys 5-8 for consumables like Potions.",
+    "TUTORIAL_5": "If you need to buy items you can select Menu >> Town to instantly warp to Town.",
+    "TUTORIAL_6": "At level 10 you can equip Items in Menu >> Equipment, and at level 20 you can assign Stat Points.",
+
+    "ACHIEVEMENTS_0": "Kill {0} Monsters.",
+    "ACHIEVEMENTS_1": "Collect {0} Items.",
+    "ACHIEVEMENTS_2": "Do {0} Damage to Monsters.",
+    "ACHIEVEMENTS_3": "Mine {0} Nodes.",
+    "ACHIEVEMENTS_4": "Log {0} Trees.",
+    "ACHIEVEMENTS_5": "Interact with {0} Objects.",
+    "ACHIEVEMENTS_0_COMPLETE": "Achievement - Kill {0} Monsters Completed. {1}XP Added.",
+    "ACHIEVEMENTS_1_COMPLETE": "Achievement - Collect {0} Items Completed. {1}XP Added.",
+    "ACHIEVEMENTS_2_COMPLETE": "Achievement - Do {0} Damage to Monsters Completed. {1}XP Added.",
+    "ACHIEVEMENTS_3_COMPLETE": "Achievement - Mine {0} Nodes Completed. {1}XP Added.",
+    "ACHIEVEMENTS_4_COMPLETE": "Achievement - Log {0} Trees Completed. {1}XP Added.",
+    "ACHIEVEMENTS_5_COMPLETE": "Achievement - Interact with {0} Objects Completed. {1}XP Added.",
+
+    "PARTY_PLAYER_INVITE_SENT": "Party invite sent to player {0}",
+    "PARTY_MAX_PLAYERS": "Max players reached in party.",
+    "PARTY_PLAYER_JOINED": "{0} joined your party.",
+    "PARTY_PLAYER_ADDED": "You are now partied with {0}",
+    "PARTY_YOU_REJECTED_INVITE": "You rejected {0}'s invite.",
+    "PARTY_THEY_REJECTED_INVITE": "{0} rejected your invite.",
+    "PARTY_CANNOT_KICK": "You cannot kick as you are not in a party or leader.",
+    "PARTY_PLAYER_KICKED": "You have been kicked from the party.",
+    "PARTY_NOT_LEADER": "You cannot set the leader as you are not in a party.",
+    "PARTY_YOU_LEADER": "You are now the leader.",
+    "PARTY_PLAYER_LEADER": "{0} is now leader.",
+    "PARTY_IS_LEADER": "{0} is already leader.",
+    "PARTY_NOT_IN": "You cannot leave as you are not in a party.",
+    "PARTY_PLAYER_LEFT": "{0} has left your party.",
+    "PARTY_YOU_LEFT": "You have left {0}'s party.",
+    "PARTY_ALL_LEFT": "The party has been disbanded.",
+    "NO_PLAYER_EXIST": "Player {0} does not exist.",
+
+    "HARVEST_INVALID": "You cannot harvest at this point, use the right weapon, try somewhere else or again later.",
+    "HARVEST_ADDED": "{0} has been added to your inventory",
+    "HARVEST_WRONG_TYPE": "You need to have a {0}.",
+    "HARVET_NO_WEAPON": "You do not have a harvest item equipped."
+
+  }
+}

@@ -1,0 +1,57 @@
+{
+"1": {
+	"npcKind": 0,
+	"name": "Intro 1",
+	"type": 1,
+	"level": 0,
+	"object": {"type": 2, "kind": 1, "count": 10}
+},
+"2": {
+	"npcKind": 1,
+	"name": "Intro 2",
+	"type": 2,
+	"level": 0,
+	"object": {"type": 2, "kind": 1, "level": [0,5]},
+	"object2": {"type": 4, "kind": 1, "count": 3, "chance": 20}
+},
+"3": {
+	"npcKind": 2,
+	"name": "Intro 3",
+	"type": 2,
+	"level": 0,
+	"object": {"type": 2, "kind": 1, "level": [0,5]},
+	"object2": {"type": 4, "kind": 41, "count": 5, "chance": 20}
+},
+"4": {
+	"npcKind": 3,
+	"name": "Intro 4",
+	"type": 2,
+	"level": 0,
+	"object": {"type": 2, "kind": 2, "level": [3,5]},
+	"object2": {"type": 4, "kind": 43, "count": 1, "chance": 5}
+},
+"5": {
+	"npcKind": 4,
+	"name": "Intro 5",
+	"type": 1,
+	"level": 0,
+	"object": {"type": 2, "kind": 2, "count": 10}
+},
+"6": {
+	"npcKind": 5,
+	"name": "Intro 6",
+	"type": 5,
+	"level": 0,
+	"data1": 1,
+	"object": {"type": 10, "kind": 3, "count": 5}
+},
+"7": {
+	"npcKind": 6,
+	"name": "Intro 7",
+	"type": 5,
+	"level": 0,
+	"data1": 2,
+	"object": {"type": 10, "kind": 3, "count": 5}
+}
+
+}

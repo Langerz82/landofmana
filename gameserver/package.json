@@ -1,0 +1,42 @@
+{
+  "name": "RetroRPGOnline2Server",
+  "version": "1.0.0",
+  "description": "Retro RPG Online 2 - Server ",
+  "main": "js/main.js",
+  "bin": {
+    "original": "r.js"
+  },
+  "dependencies": {
+    "@mapbox/node-pre-gyp": "^1.0.8",
+    "bcrypt": "^5.0.1",
+    "bison": "^1.1.1",
+    "buffer": "^6.0.3",
+    "cli": "^1.0.1",
+    "connect": "^3.7.0",
+    "crypto-js": "^4.2.0",
+    "cypher": "^0.0.1",
+    "debug": "^4.3.3",
+    "express": "^4.17.2",
+    "log": "^6.3.1",
+    "log-node": "^8.0.3",
+    "logger": "^0.0.1",
+    "morgan": "^1.10.0",
+    "redis": "^3.1.2",
+    "redis-server": "^1.2.2",
+    "sanitizer": "^0.1.3",
+    "semver": "^7.3.5",
+    "socket.io": "^4.4.1",
+    "socket.io-client": "^4.7.2",
+    "socket.io-parser": "^4.1.1",
+    "underscore": "^1.13.2"
+  },
+  "scripts": {
+    "build": "browserify --node --ignore-missing js/main.js | terser > index.js & uglifyjs --compress --mangle -- index.js > run.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "-"
+  },
+  "author": "Joshua Langley",
+  "license": "LGPL"
+}

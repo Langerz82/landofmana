@@ -1,0 +1,13 @@
+TODO
+
+WORKING - ITEM STACKING NOT WORKING.
+
+WORKING - HARVESTING NOT SELECTING THE HARVEST TILES AND TARGETING PLAYER INSTEAD.
+
+WORKING - HARVESTING NOT ADDING AND NOTIFYING CLIENT.
+
+WORKING - Combined Items not making new stack when stack amount reached.
+
+Maybe make Equipment inherit from ItemRoomStore.
+
+DONE - Auction Records not storing properly - Needs test on gs.

@@ -1,0 +1,28 @@
+{
+  "protocol": "http",
+  "address": "127.0.0.1",
+  "port": 1342,
+  "user_address": "127.0.0.1",
+  "user_port": 1340,
+  "user_password": "thisisatest",
+  "https_cert": "",
+  "https_key": "",
+  "ip": "0.0.0.0",
+  "debug_level": "debug",
+  "nb_players_per_world": 100,
+  "nb_worlds": 1,
+  "metrics_enabled": false,
+  "use_one_port": true,
+
+  "memcached_host": "127.0.0.1",
+  "memcached_port": 11211,
+  "server_name" : "RRO2",
+  "world_id": 1,
+  "production": "heroku",
+
+  "version":92,
+  "verify_email": "",
+  "verify_key": "",
+  "world_name": "North America",
+  "world_key": "test123"
+}

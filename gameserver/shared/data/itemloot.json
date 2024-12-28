@@ -1,0 +1,608 @@
+[
+{
+  "name": "Scrolls",
+  "sprite": "itemloot.png",
+  "offset": [0,0],
+  "rarity": "1"
+},
+{
+  "name": "Dice",
+  "sprite": "itemloot.png",
+  "offset": [0,1],
+  "rarity": "1"
+},
+{
+  "name": "Book",
+  "sprite": "itemloot.png",
+  "offset": [0,2],
+  "rarity": "1"
+},
+{
+  "name": "Key",
+  "sprite": "itemloot.png",
+  "offset": [0,3],
+  "rarity": "1"
+},
+{
+  "name": "Bell",
+  "sprite": "itemloot.png",
+  "offset": [0,4],
+  "rarity": "1"
+},
+{
+  "name": "Padlock",
+  "sprite": "itemloot.png",
+  "offset": [0,5],
+  "rarity": "1"
+},
+{
+  "name": "Candle",
+  "sprite": "itemloot.png",
+  "offset": [0,6],
+  "rarity": "1"
+},
+{
+  "name": "Drumstick",
+  "sprite": "itemloot.png",
+  "offset": [0,7],
+  "rarity": "1"
+},
+{
+  "name": "IronHelmet",
+  "sprite": "itemloot.png",
+  "offset": [0,8],
+  "rarity": "1"
+},
+{
+  "name": "Gumnut",
+  "sprite": "itemloot.png",
+  "offset": [0,9],
+  "rarity": "1"
+},
+{
+  "name": "Fireball",
+  "sprite": "itemloot.png",
+  "offset": [1,0],
+  "rarity": "2"
+},
+{
+  "name": "WitchHat",
+  "sprite": "itemloot.png",
+  "offset": [1,1],
+  "rarity": "2"
+},
+{
+  "name": "Chest",
+  "sprite": "itemloot.png",
+  "offset": [1,2],
+  "rarity": "2"
+},
+{
+  "name": "Shield",
+  "sprite": "itemloot.png",
+  "offset": [1,3],
+  "rarity": "2"
+},
+{
+  "name": "Log",
+  "sprite": "itemloot.png",
+  "offset": [1,4],
+  "rarity": "2"
+},
+{
+  "name": "RingOne",
+  "sprite": "itemloot.png",
+  "offset": [1,5],
+  "rarity": "2"
+},
+{
+  "name": "DreamCatcher",
+  "sprite": "itemloot.png",
+  "offset": [1,6],
+  "rarity": "2"
+},
+{
+  "name": "SealedScroll",
+  "sprite": "itemloot.png",
+  "offset": [1,7],
+  "rarity": "2"
+},
+{
+  "name": "Spider",
+  "sprite": "itemloot.png",
+  "offset": [1,8],
+  "rarity": "2"
+},
+{
+  "name": "MeltedCandles",
+  "sprite": "itemloot.png",
+  "offset": [1,9],
+  "rarity": "2"
+},
+{
+  "name": "Feather",
+  "sprite": "itemloot.png",
+  "offset": [2,0],
+  "rarity": "3"
+},
+{
+  "name": "Compass",
+  "sprite": "itemloot.png",
+  "offset": [2,1],
+  "rarity": "3"
+},
+{
+  "name": "PinkFireball",
+  "sprite": "itemloot.png",
+  "offset": [2,2],
+  "rarity": "3"
+},
+{
+  "name": "Gem",
+  "sprite": "itemloot.png",
+  "offset": [2,3],
+  "rarity": "3"
+},
+{
+  "name": "FireEye",
+  "sprite": "itemloot.png",
+  "offset": [2,4],
+  "rarity": "3"
+},
+{
+  "name": "TotemFace",
+  "sprite": "itemloot.png",
+  "offset": [2,5],
+  "rarity": "3"
+},
+{
+  "name": "Gadget",
+  "sprite": "itemloot.png",
+  "offset": [2,6],
+  "rarity": "3"
+},
+{
+  "name": "Frog",
+  "sprite": "itemloot.png",
+  "offset": [2,7],
+  "rarity": "3"
+},
+{
+  "name": "ThrowingDagger",
+  "sprite": "itemloot.png",
+  "offset": [2,8],
+  "rarity": "3"
+},
+{
+  "name": "UrnOne",
+  "sprite": "itemloot.png",
+  "offset": [2,9],
+  "rarity": "3"
+},
+{
+  "name":  "NecklaceOne",
+  "sprite": "itemloot.png",
+  "offset": [3,0],
+  "rarity": "4"
+},
+{
+  "name":  "Squid",
+  "sprite": "itemloot.png",
+  "offset": [3,1],
+  "rarity": "4"
+},
+{
+  "name":  "ClubOne",
+  "sprite": "itemloot.png",
+  "offset": [3,2],
+  "rarity": "4"
+},
+{
+  "name":  "Crystals",
+  "sprite": "itemloot.png",
+  "offset": [3,3],
+  "rarity": "4"
+},
+{
+  "name":  "Mace",
+  "sprite": "itemloot.png",
+  "offset": [3,4],
+  "rarity": "4"
+},
+{
+  "name":  "CoinPouch",
+  "sprite": "itemloot.png",
+  "offset": [3,5],
+  "rarity": "4"
+},
+{
+  "name": "NecklaceTwo",
+  "sprite": "itemloot.png",
+  "offset": [3,6],
+  "rarity": "4"
+},
+{
+  "name": "Bones",
+  "sprite": "itemloot.png",
+  "offset": [3,7],
+  "rarity": "4"
+},
+{
+  "name": "RingTwo",
+  "sprite": "itemloot.png",
+  "offset": [3,8],
+  "rarity": "4"
+},
+{
+  "name": "AnimalSkull",
+  "sprite": "itemloot.png",
+  "offset": [3,9],
+  "rarity": "4"
+},
+{
+  "name": "Leaf",
+  "sprite": "itemloot.png",
+  "offset": [4,0],
+  "rarity": "5"
+},
+{
+  "name": "Cheese",
+  "sprite": "itemloot.png",
+  "offset": [4,1],
+  "rarity": "5"
+},
+{
+  "name":  "Mushrooms",
+  "sprite": "itemloot.png",
+  "offset": [4,2],
+  "rarity": "5"
+},
+{
+  "name":  "FeatherQuill",
+  "sprite": "itemloot.png",
+  "offset": [4,3],
+  "rarity": "5"
+},
+{
+  "name":  "BoneEaring",
+  "sprite": "itemloot.png",
+  "offset": [4,4],
+  "rarity": "5"
+},
+{
+  "name": "Crate",
+  "sprite": "itemloot.png",
+  "offset": [4,5],
+  "rarity": "5"
+},
+{
+  "name":  "Bat",
+  "sprite": "itemloot.png",
+  "offset": [4,6],
+  "rarity": "5"
+},
+{
+  "name":  "PoisonVial",
+  "sprite": "itemloot.png",
+  "offset": [4,7],
+  "rarity": "5"
+},
+{
+  "name":  "ScrollsThree",
+  "sprite": "itemloot.png",
+  "offset": [4,8],
+  "rarity": "5"
+},
+{
+  "name":  "Bug",
+  "sprite": "itemloot.png",
+  "offset": [4,9],
+  "rarity": "5"
+},
+{
+  "name":  "Anvil",
+  "sprite": "itemloot.png",
+  "offset": [5,0],
+  "rarity": "6"
+},
+{
+  "name":  "BrokenGlass",
+  "sprite": "itemloot.png",
+  "offset": [5,1],
+  "rarity": "6"
+},
+{
+  "name":  "Goblet",
+  "sprite": "itemloot.png",
+  "offset": [5,2],
+  "rarity": "6"
+},
+{
+  "name":  "SkullRingTwo",
+  "sprite": "itemloot.png",
+  "offset": [5,3],
+  "rarity": "6"
+},
+{
+  "name":  "MonsterClaw",
+  "sprite": "itemloot.png",
+  "offset": [5,4],
+  "rarity": "6"
+},
+{
+  "name":  "PoisonVialTwo",
+  "sprite": "itemloot.png",
+  "offset": [5,5],
+  "rarity": "6"
+},
+{
+  "name": "BronzeHelmet",
+  "sprite": "itemloot.png",
+  "offset": [5,6],
+  "rarity": "6"
+},
+{
+  "name":  "BasicKnife",
+  "sprite": "itemloot.png",
+  "offset": [5,7],
+  "rarity": "6"
+},
+{
+  "name":  "Worms",
+  "sprite": "itemloot.png",
+  "offset": [5,8],
+  "rarity": "6"
+},
+{
+  "name":  "AutumnLeaf",
+  "sprite": "itemloot.png",
+  "offset": [5,9],
+  "rarity": "6"
+},
+{
+  "name":  "Drum",
+  "sprite": "itemloot.png",
+  "offset": [6,0],
+  "rarity": "7"
+},
+{
+  "name":  "Acorns",
+  "sprite": "itemloot.png",
+  "offset": [6,1],
+  "rarity": "7"
+},
+{
+  "name":  "Pendant",
+  "sprite": "itemloot.png",
+  "offset": [6,2],
+  "rarity": "7"
+},
+{
+  "name":  "Lute",
+  "sprite": "itemloot.png",
+  "offset": [6,3],
+  "rarity": "7"
+},
+{
+  "name":  "RingThree",
+  "sprite": "itemloot.png",
+  "offset": [6,4],
+  "rarity": "7"
+},
+{
+  "name":  "BattleAxe",
+  "sprite": "itemloot.png",
+  "offset": [6,5],
+  "rarity": "7"
+},
+{
+  "name":  "AncientShield",
+  "sprite": "itemloot.png",
+  "offset": [6,6],
+  "rarity": "7"
+},
+{
+  "name":  "Broach",
+  "sprite": "itemloot.png",
+  "offset": [6,7],
+  "rarity": "7"
+},
+{
+  "name":  "Maul",
+  "sprite": "itemloot.png",
+  "offset": [6,8],
+  "rarity": "7"
+},
+{
+  "name":  "SmokePipe",
+  "sprite": "itemloot.png",
+  "offset": [6,9],
+  "rarity": "7"
+},
+{
+  "name":  "Lizard",
+  "sprite": "itemloot.png",
+  "offset": [7,0],
+  "rarity": "8"
+},
+{
+  "name":  "DragonEgg",
+  "sprite": "itemloot.png",
+  "offset": [7,1],
+  "rarity": "8"
+},
+{
+  "name":  "MarbleJar",
+  "sprite": "itemloot.png",
+  "offset": [7,2],
+  "rarity": "8"
+},
+{
+  "name":  "OldBottle",
+  "sprite": "itemloot.png",
+  "offset": [7,3],
+  "rarity": "8"
+},
+{
+  "name":  "ShortSword",
+  "sprite": "itemloot.png",
+  "offset": [7,4],
+  "rarity": "8"
+},
+{
+  "name":  "BookTwo",
+  "sprite": "itemloot.png",
+  "offset": [7,5],
+  "rarity": "8"
+},
+{
+  "name":  "Bread",
+  "sprite": "itemloot.png",
+  "offset": [7,6],
+  "rarity": "8"
+},
+{
+  "name":  "Mirror",
+  "sprite": "itemloot.png",
+  "offset": [7,7],
+  "rarity": "8"
+},
+{
+  "name":  "Cards",
+  "sprite": "itemloot.png",
+  "offset": [7,8],
+  "rarity": "8"
+},
+{
+  "name":  "PotOfGold",
+  "sprite": "itemloot.png",
+  "offset": [7,9],
+  "rarity": "8"
+},
+{
+  "name":  "FaceMask",
+  "sprite": "itemloot.png",
+  "offset": [8,0],
+  "rarity": "9"
+},
+{
+  "name":  "Bomb",
+  "sprite": "itemloot.png",
+  "offset": [8,1],
+  "rarity": "9"
+},
+{
+  "name":  "HandBag",
+  "sprite": "itemloot.png",
+  "offset": [8,2],
+  "rarity": "9"
+},
+{
+  "name":  "ToothNecklace",
+  "sprite": "itemloot.png",
+  "offset": [8,3],
+  "rarity": "9"
+},
+{
+  "name":  "NecklaceThree",
+  "sprite": "itemloot.png",
+  "offset": [8,4],
+  "rarity": "9"
+},
+{
+  "name":  "LeafWreath",
+  "sprite": "itemloot.png",
+  "offset": [8,5],
+  "rarity": "9"
+},
+{
+  "name":  "Eyeball",
+  "sprite": "itemloot.png",
+  "offset": [8,6],
+  "rarity": "9"
+},
+{
+  "name":  "CrudeDagger",
+  "sprite": "itemloot.png",
+  "offset": [8,7],
+  "rarity": "9"
+},
+{
+  "name":  "SapJewel",
+  "sprite": "itemloot.png",
+  "offset": [8,8],
+  "rarity": "9"
+},
+{
+  "name":  "Clever",
+  "sprite": "itemloot.png",
+  "offset": [8,9],
+  "rarity": "9"
+},
+{
+  "name":  "MortAndPestle",
+  "sprite": "itemloot.png",
+  "offset": [9,0],
+  "rarity": "10"
+},
+{
+  "name":  "WoodHorn",
+  "sprite": "itemloot.png",
+  "offset": [9,1],
+  "rarity": "10"
+},
+{
+  "name":  "Pumpkin",
+  "sprite": "itemloot.png",
+  "offset": [9,2],
+  "rarity": "10"
+},
+{
+  "name":  "HumanSkull",
+  "sprite": "itemloot.png",
+  "offset": [9,3],
+  "rarity": "10"
+},
+{
+  "name":  "Thorns",
+  "sprite": "itemloot.png",
+  "offset": [9,4],
+  "rarity": "10"
+},
+{
+  "name":  "FineComb",
+  "sprite": "itemloot.png",
+  "offset": [9,5],
+  "rarity": "10"
+},
+{
+  "name":  "Cauldron",
+  "sprite": "itemloot.png",
+  "offset": [9,6],
+  "rarity": "10"
+},
+{
+  "name":  "MagicBall",
+  "sprite": "itemloot.png",
+  "offset": [9,7],
+  "rarity": "10"
+},
+{
+  "name":  "Mushroom",
+  "sprite": "itemloot.png",
+  "offset": [9,8],
+  "rarity": "10"
+},
+{
+  "name":  "Hook",
+  "sprite": "itemloot.png",
+  "offset": [9,9],
+  "rarity": "10"
+},
+{
+  "name":  "NordicCup",
+  "sprite": "itemloot.png",
+  "offset": [10,0],
+  "rarity": "10"
+}
+]

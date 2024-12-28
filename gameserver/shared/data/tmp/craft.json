@@ -1,0 +1,111 @@
+[
+	{
+		"name":"Leather Armor",
+		"type":2,
+		"input": [[37,10]],
+		"output": 25
+	},
+	{
+		"name":"Iron Armor",
+		"type":2,
+		"input": [[38,10]],
+		"output": 26
+	},
+	{
+		"name":"Steel Armor",
+		"type":2,
+		"input": [[39,10]],
+		"output": 27
+	},
+	{
+		"name":"Bronze Armor",
+		"type":2,
+		"input": [[40,10]],
+		"output": 28
+	},
+	{
+		"name":"Golden Armor",
+		"type":2,
+		"input": [[41,10]],
+		"output": 29
+	},
+	{
+		"name":"Glass Armor",
+		"type":2,
+		"input": [[42,10]],
+		"output": 30
+	},	
+	{
+		"name":"Beginner Sword",
+		"type":3,
+		"input": [[38,5]],
+		"output": 3
+	},
+	{
+		"name":"Iron Sword",
+		"type":3,
+		"input": [[38,10]],
+		"output": 4
+	},
+	{
+		"name":"Steel Sword",
+		"type":3,
+		"input": [[39,10]],
+		"output": 5
+	},
+	{
+		"name":"Bronze Sword",
+		"type":3,
+		"input": [[40,10]],
+		"output": 6
+	},
+	{
+		"name":"Golden Sword",
+		"type":3,
+		"input": [[41,10]],
+		"output": 7
+	},
+	{
+		"name":"Glass Sword",
+		"type":3,
+		"input": [[42,10]],
+		"output": 8
+	},	
+	
+	{
+		"name":"Beginner Bow",
+		"type":3,
+		"input": [[38,5]],
+		"output": 14
+	},
+	{
+		"name":"Iron Bow",
+		"type":3,
+		"input": [[38,10]],
+		"output": 15
+	},
+	{
+		"name":"Steel Bow",
+		"type":3,
+		"input": [[39,10]],
+		"output": 16
+	},
+	{
+		"name":"Bronze Bow",
+		"type":3,
+		"input": [[40,10]],
+		"output": 17
+	},
+	{
+		"name":"Golden Bow",
+		"type":3,
+		"input": [[41,10]],
+		"output": 18
+	},
+	{
+		"name":"Glass Bow",
+		"type":3,
+		"input": [[42,10]],
+		"output": 19
+	}	
+]
