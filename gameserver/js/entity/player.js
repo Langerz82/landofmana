@@ -1307,11 +1307,8 @@ module.exports = Player = Character.extend({
         store1.setItem(slot[1], null);
     }
     else {
-      // not sure why this is a thing.
-      if (slot2[0] == 2)
-        return;
-      store2.putItem(rs1);
-      store1.setItem(slot[1], null);
+      if (store2.putItem(rs1) != -1);
+        store1.setItem(slot[1], null);
     }
 
     if((slot && slot[0] == 2 && slot[1] == 4) ||

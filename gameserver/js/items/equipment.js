@@ -75,22 +75,13 @@ module.exports = Equipment = cls.Class.extend({
         return -1;
     },*/
 
-    /*putItem: function(item) {
+    putItem: function(item) {
         return this._putItem(item);
     },
 
     _putItem: function(item){
-        for(var i=0; i < this.maxNumber; i++){
-            var item = this.rooms[i];
-            if(!item) {
-                this.setItem(i, item);
-                return i;
-            }
-        }
-        if (this.owner instanceof Player)
-        	this.owner.map.entities.pushToPlayer(this.owner, new Messages.Notify("EQUIPMENT", "EQUIPMENT_FULL"));
         return -1;
-    },*/
+    },
 
     combineItem: function (item, item2) {
       return false;
