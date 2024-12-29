@@ -1308,8 +1308,8 @@ module.exports = Player = Character.extend({
     }
     else {
       // not sure why this is a thing.
-      //if (slot2[1] == 2)
-        //return;
+      if (slot2[0] == 2)
+        return;
       store2.putItem(rs1);
       store1.setItem(slot[1], null);
     }
