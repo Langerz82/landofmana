@@ -76,11 +76,7 @@ module.exports = Equipment = cls.Class.extend({
     },*/
 
     putItem: function(item) {
-        return this._putItem(item);
-    },
-
-    _putItem: function(item){
-        return -1;
+      return -1;
     },
 
     combineItem: function (item, item2) {

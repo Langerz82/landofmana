@@ -1307,7 +1307,7 @@ module.exports = Player = Character.extend({
         store1.setItem(slot[1], null);
     }
     else {
-      if (store2.putItem(rs1) != -1);
+      if (store2.putItem(rs1) != -1)
         store1.setItem(slot[1], null);
     }
 
