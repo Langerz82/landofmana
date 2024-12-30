@@ -185,6 +185,10 @@ var _isTypeValid = function (fmt, msg) {
                 ['n',serverPortMin,serverPortMax],
                 ['s',userServerPasswordLenMin,userServerPasswordLenMax],
                 ['s',worldKeyLenMin,worldKeyLenMax]];
+            this.formats[Types.UserMessages.WU_UPDATE_PLAYER_COUNT] = [
+                ['n',0,worldUsersCountMax],
+                ['n',1,worldUsersCountMax]];
+
             this.formats[Types.UserMessages.WU_PLAYER_LOGGED_IN] = [
                 ['s',usernameLenMin,usernameLenMax],
                 ['s',playerNameLenMin,playerNameLenMax]];

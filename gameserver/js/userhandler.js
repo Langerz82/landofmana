@@ -323,6 +323,10 @@ module.exports = UserHandler = cls.Class.extend({
       this.sendToUserServer(msg);
     },
 
+    sendWorldPlayerCount: function (count, maxCount) {
+      this.sendToUserServer( new UserMessages.UpdatePlayerCount(count, maxCount));
+    },
+
     sendAuctionsData: function (data) {
       this.sendToUserServer( new UserMessages.SavePlayerAuctions(data));
     },

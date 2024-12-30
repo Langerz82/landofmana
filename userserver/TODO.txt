@@ -1,5 +1,7 @@
 TODO
 
-TODO swapping equipment items to different boxes deletes item.
+Have GameServer update the player counts to the UserServer.
 
-BUG - When equipping/unequipping leather item, the sprite changes too.
+FIXED - swapping equipment items to different boxes deletes item.
+
+FIXED - When equipping/unequipping leather item, the sprite changes too.

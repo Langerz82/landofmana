@@ -43,7 +43,11 @@ module.exports = WorldHandler = cls.Class.extend({
           if (!self.game_server)
             return;
 
-          if (action == Types.UserMessages.WU_SAVE_PLAYER_DATA) {
+          if (action == Types.UserMessages.WU_UPDATE_PLAYER_COUNT) {
+              self.handleUpdatePlayerCount(message);
+              return;
+          }
+          else if (action == Types.UserMessages.WU_SAVE_PLAYER_DATA) {
               self.handleSavePlayerData(message);
               return;
           }
@@ -199,6 +203,11 @@ module.exports = WorldHandler = cls.Class.extend({
       //},10000);
       self.sendLooksToWorld(self.worldIndex);
       self.sendBansToWorld(self.worldIndex);
+    },
+
+    handleUpdatePlayerCount: function (msg) {
+      this.world.count = parseInt(msg[0]);
+      this.world.maxCount = parseInt(msg[1]);
     },
 
 // TODO FIX - Add playername in packet.

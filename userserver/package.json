@@ -26,7 +26,7 @@
     "socket.io": "^4.4.1",
     "socket.io-client": "^4.7.2",
     "socket.io-parser": "^4.1.1",
-    "underscore": "^1.13.2"
+    "underscore": "^1.13.7"
   },
   "scripts": {
     "build": "browserify --node --ignore-missing js/main.js | terser > index.js & uglifyjs --compress --mangle -- index.js > run.js"

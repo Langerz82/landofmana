@@ -8,6 +8,18 @@ var Message = cls.Class.extend({
 
 });
 
+UserMessages.UpdatePlayerCount = Message.extend({
+    init: function (count, maxCount) {
+      this.count = count;
+      this.maxCount = maxCount;
+    },
+    serialize: function () {
+        return [Types.UserMessages.WU_UPDATE_PLAYER_COUNT,
+          this.count,
+          this.maxCount];
+    }
+});
+
 UserMessages.SendPlayerGold = Message.extend({
     init: function (name, gold) {
       this.name = name;

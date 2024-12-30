@@ -97,8 +97,11 @@ module.exports = World = cls.Class.extend(
         {
           console.info("worldServer - onPlayerConnect.");
           //try { throw new Error(); } catch (e) { console.info(e.stack); }
-          if (self.players.indexOf(player) < 0)
+          if (self.players.indexOf(player) < 0) {
             self.players.push(player);
+            self.userHandler.sendWorldPlayerCount(self.players.length,
+              self.maxPlayers);
+          }
           self.objPlayers[player.name] = player;
         });
 
@@ -107,6 +110,8 @@ module.exports = World = cls.Class.extend(
           delete self.objPlayers[player.name];
           var index = self.players.indexOf(player);
           self.players.splice(index,1);
+          self.userHandler.sendWorldPlayerCount(self.players.length,
+            self.maxPlayers);
         });
 
         self.onPlayerEnter(function(player)
