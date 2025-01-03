@@ -29,7 +29,8 @@
         "start": "nw .",
 		"build":  "node ../r.js -o baseUrl=./js paths.requireLib=./../javascripts/require name=home include=requireLib out=./js/main-built.js & uglifyjs --compress --mangle -- ./js/main-built.js > ./js/compress.js",
 		"delete": "cp ./js/compress.js . & del ./js/*.js & cp compress.js ./js",
-		"css": "cd css & del /Q min.css & cd .. & css-minify -d css -o mincss & cd mincss & type *.min.css >  ../css/min.css & cd .. & del /Q mincss & rmdir mincss"
+		"css": "cd css & del /Q min.css & cd .. & css-minify -d css -o mincss & cd mincss & type *.min.css >  ../css/min.css & cd .. & del /Q mincss & rmdir mincss",
+		"css-linux": "cd css && rm min.css && cd .. && css-minify -d css -o mincss && cd mincss && cat *.min.css >  ../css/min.css && cd .. && rm -r mincss"
     },
     "version": "0.0.69",
     "webexe_settings": {
