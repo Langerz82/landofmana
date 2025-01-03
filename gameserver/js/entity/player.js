@@ -1120,6 +1120,7 @@ module.exports = Player = Character.extend({
     //delay=Utils.clamp(0, G_LATENCY, delay);
     //this.latencyDiff = Date.now() - time;
     this.startMovePathTime = time;
+    console.warn("time:"+time+",now:"+Date.now()+",diff:"+(Date.now()-time));
     //var delay=Utils.clamp(0, G_LATENCY, G_LATENCY+(time-Date.now()));
     console.warn("movePath: delay:"+delay);
 
@@ -1183,6 +1184,8 @@ module.exports = Player = Character.extend({
         this.ex = -1;
         this.ey = -1;
         this.startMoveTime = time;
+        console.warn("time:"+time+",now:"+Date.now()+",diff:"+(Date.now()-time));
+
         var execMove = function () {
           if (self.movement.inProgress) {
             self.forceStop();

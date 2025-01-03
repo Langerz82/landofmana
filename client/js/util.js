@@ -208,6 +208,10 @@ var padding = function (val, size) {
     return s;
 }
 
+/*var setLocalTime = function () {
+    LOCALTIME = Date.now();
+};*/
+
 var WORLDTIME = null;
 var LOCALTIME = null;
 var setWorldTime = function (localTime, remoteTime) {
@@ -216,17 +220,17 @@ var setWorldTime = function (localTime, remoteTime) {
   //console.warn("remoteTime: "+remoteTime);
   //console.warn("Date.now(): "+Date.now());
   var diff = ~~((Date.now()-localTime)/2);
-  WORLDTIME = remoteTime+diff;
+  WORLDTIME = remoteTime;
   LOCALTIME = localTime+diff;
   console.warn("LOCALTIME: "+LOCALTIME);
   console.warn("WORLDTIME: "+WORLDTIME);
   console.warn("Date.diff: "+(LOCALTIME - WORLDTIME));
-}
+};
 
 var getWorldTime = function () {
   return WORLDTIME + (Date.now()-LOCALTIME);
   //return Date.now();
-}
+};
 
 var getTime = function () {
   return Date.now();

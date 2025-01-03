@@ -3,3 +3,10 @@ package-lock.json
 node_modules
 
 client/js/main-built.js
+client/proguard-custom.txt
+client/server.js
+client/test.html
+client/manifest.json
+client/web2exe.json
+client/js/compress.js
+client/js/compress.js
