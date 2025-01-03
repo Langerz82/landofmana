@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "css-minify": "^2.0.2",
+    "uglify-js": "^3.19.3"
+  }
+}
