@@ -989,7 +989,7 @@ var selectFirstItem = {
 
       self.pxgamepad.update();
 
-       var ignorezone = 0.10;
+       var ignorezone = 0.25;
        var modx = self.dpadX || self.pxgamepad.leftStick.x,
            mody = self.dpadY || self.pxgamepad.leftStick.y;
 
@@ -997,16 +997,14 @@ var selectFirstItem = {
        var mod = Math.max(modxa, modya);
        if (mod > ignorezone)
        {
-         if (mod > 0.25) {
-      	   if (modxa > modya)
-      	   {
-             self.navigate = (modx > 0) ? Navigate.RIGHT : Navigate.LEFT;
-      	   }
-           else
-      	   {
-             self.navigate = (mody > 0) ? Navigate.DOWN : Navigate.UP;
-      	   }
-         }
+    	   if (modxa > modya)
+    	   {
+           self.navigate = (modx > 0) ? Navigate.RIGHT : Navigate.LEFT;
+    	   }
+         else
+    	   {
+           self.navigate = (mody > 0) ? Navigate.DOWN : Navigate.UP;
+    	   }
       }
 
       var mouse = game.mouse,

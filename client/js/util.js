@@ -219,9 +219,9 @@ var setWorldTime = function (localTime, remoteTime) {
   //console.warn("localTime: "+localTime);
   //console.warn("remoteTime: "+remoteTime);
   //console.warn("Date.now(): "+Date.now());
-  var diff = ~~((Date.now()-localTime)/2);
-  WORLDTIME = remoteTime;
-  LOCALTIME = localTime+diff;
+  var diff = ~~((Date.now()-parseInt(localTime))/2);
+  WORLDTIME = parseInt(remoteTime);
+  LOCALTIME = Date.now()-diff;
   console.warn("LOCALTIME: "+LOCALTIME);
   console.warn("WORLDTIME: "+WORLDTIME);
   console.warn("Date.diff: "+(LOCALTIME - WORLDTIME));

@@ -62,6 +62,10 @@ module.exports = PacketHandler = Class.extend({
       }*/
 
       switch (action) {
+        case Types.Messages.BI_SYNCTIME:
+          self.handleSyncTime(message);
+          break;
+
         case Types.Messages.CW_REQUEST:
           self.handleRequest(message);
           break;
@@ -279,6 +283,11 @@ module.exports = PacketHandler = Class.extend({
 
   send: function(message) {
     this.connection.send(message);
+  },
+
+  handleSyncTime: function (message) {
+    var clientTime = parseInt(message[0]);
+    this.connection.sendPlayer(new Messages.SyncTime(clientTime));
   },
 
   handleChat: function(message) {

@@ -9,6 +9,16 @@ var Message = cls.Class.extend({
 
 });
 
+Messages.SyncTime = Message.extend({
+    init: function (localtime) {
+    	this.localtime = localtime;
+    },
+    serialize: function () {
+        return [Types.Messages.BI_SYNCTIME,
+          this.localtime, Date.now()];
+    }
+});
+
 Messages.Spawn = Message.extend({
     init: function (entity) {
     	this.entity = entity;

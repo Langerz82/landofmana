@@ -88,6 +88,7 @@ define(['lib/pako', 'entity/player', 'entityfactory', 'entity/mob', 'entity/item
         },
 
 				setHandlers: function () {
+					this.handlers[Types.Messages.BI_SYNCTIME] = this.onSyncTime;
 					this.handlers[Types.Messages.WC_AUCTIONOPEN] = this.auction_callback;
 					this.handlers[Types.Messages.WC_CHANGEPOINTS] = this.change_points_callback;
 					this.handlers[Types.Messages.WC_CHAT] = this.chat_callback;
@@ -279,6 +280,10 @@ define(['lib/pako', 'entity/player', 'entityfactory', 'entity/mob', 'entity/item
                 }
             }
         },
+
+				onSyncTime: function (data) {
+	        setWorldTime(parseInt(data[0]), parseInt(data[1]))
+	      },
 
 				onVersion: function (data) {
 	        game.onVersionGame(data);
