@@ -2080,15 +2080,17 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
                 orientations.splice(orientations.indexOf(o), 1);
                 orientations.unshift(o);
 
-                for(var o of orientations)
-                {
-                  var p2 = this.player.nextDist(px, py, o, tsh);
-                  if (!this.mapContainer.isColliding(p2[0],p2[1]))
+                //for(var o of orientations)
+                //{
+                  //var p2 = this.player.nextDist(px, py, o, tsh);
+                  //if (!this.mapContainer.isColliding(p2[0],p2[1]))
+									if (!this.mapContainer.isColliding(px,py))
                   {
-                    this.makePlayerGoTo(p2[0], p2[1]);
+                    //this.makePlayerGoTo(p2[0], p2[1]);
+										this.makePlayerGoTo(px, py);
                     return;
                   }
-                }
+                //}
               }
               else {
                   this.makePlayerGoTo(px, py);
@@ -2370,7 +2372,7 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
 
             keyDown: function(key){
                 var self = this;
-                if(key >= 49 && key <= 54){ // 1, 2, 3, 4, 5, 6
+                if(key >= 49 && key <= 56){ // 1, 2, 3, 4, 5, 6
                     var itemSlot = key - 49;
                     var kind = this.inventoryHandler.inventory[itemSlot].itemKind;
                     if(ItemTypes.isConsumableItem(kind)){

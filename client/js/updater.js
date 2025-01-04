@@ -341,7 +341,7 @@ define(['entity/character', 'timer', 'entity/player', 'entity/entitymoving'], fu
 
         },
 
-        updatePlayerKeyMovement: function(c)
+        updatePlayerKeyMovement: function(C)
         {
             var self = this;
 
@@ -355,48 +355,10 @@ define(['entity/character', 'timer', 'entity/player', 'entity/entitymoving'], fu
             //var gc = game.camera;
             var o = c.orientation;
 
-
-
-            if (game.joystick && game.usejoystick)
-            {
-              if (!game.joystick.isActive())
-              {
-                 c.move(c.orientation, false);
-              }
-             if (game.joystick.right())
-             {
-               //c.move(c.orientation, false);
-                 c.move(Types.Orientations.RIGHT, true);
-             }
-             else if (game.joystick.left())
-             {
-               //c.move(c.orientation, false);
-                 c.move(Types.Orientations.LEFT, true);
-             }
-             else if (game.joystick.up())
-             {
-               //c.move(c.orientation, false);
-                 c.move(Types.Orientations.UP, true);
-             }
-             else if (game.joystick.down())
-             {
-                 //c.move(c.orientation, false);
-                 c.move(Types.Orientations.DOWN, true);
-             }
-             /*else {
-               c.move(Types.Orientations.NONE, false);
-             }*/
-          }
-
-          if (game.joystick && game.joystick.isActive())
-          {
-            clearInterval(game.autotalk);
-          }
-
-          if (c.isDying || c.isDead || c.freeze || c.isStunned || c.isMovingPath())
-          {
-            return;
-          }
+	          if (c.isDying || c.isDead || c.freeze || c.isStunned || c.isMovingPath())
+	          {
+	            return;
+	          }
 
 // TODO - Skip Move needs FIXING to fix scrolling!!!!!!!!!!!!!!!!!!!!!!
 

@@ -980,12 +980,45 @@ var selectFirstItem = {
 
       self.navigate = Navigate.NONE;
 
- 	    if (!self.pxgamepad.getGamepad())
-	      return;
-
-      var p = game.player;
+			var p = game.player;
       if (!p || !game.started || !game.ready)
         return;
+
+			var o = p.orientation;
+			if (game.joystick && game.usejoystick)
+			{
+				if (!game.joystick.isActive())
+				{
+					p.move(o, false);
+				}
+				if (game.joystick.right())
+				{
+					o = 4;
+					p.move(4, true);
+				}
+				if (game.joystick.left())
+				{
+					o = 3;
+					p.move(3, true);
+				}
+				if (game.joystick.up())
+				{
+					o = 1;
+					p.move(1, true);
+				}
+				if (game.joystick.down())
+				{
+					o = 2;
+					p.move(2, true);
+				}
+			}
+			if (game.joystick && game.joystick.isActive())
+			{
+				clearInterval(game.autotalk);
+			}
+
+ 	    if (!self.pxgamepad.getGamepad())
+	      return;
 
       self.pxgamepad.update();
 
