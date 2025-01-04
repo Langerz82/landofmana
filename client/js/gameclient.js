@@ -171,7 +171,7 @@ define(['lib/pako', 'entity/player', 'entityfactory', 'entity/mob', 'entity/item
 
 				onConnected: function (data) {
 					this.sendLoginPlayer(data[0], data[1]);
-					this.sendSyncTime();
+					this.sendSyncTime(Date.now());
 				},
 
 				onVersion: function (data) {
@@ -515,9 +515,9 @@ define(['lib/pako', 'entity/player', 'entityfactory', 'entity/mob', 'entity/item
 				},
 
 // SEND FUNCTIONS.
-				sendSyncTime: function() {
+				sendSyncTime: function(date) {
 						log.info("sendSyncTime");
-						this.sendMessage([Types.Messages.BI_SYNCTIME,Date.now()]);
+						this.sendMessage([Types.Messages.BI_SYNCTIME,date]);
 				},
 
 				sendLoginPlayer: function (playername, playerhash) {
