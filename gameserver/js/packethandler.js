@@ -287,7 +287,7 @@ module.exports = PacketHandler = Class.extend({
 
   handleSyncTime: function (message) {
     var clientTime = parseInt(message[0]);
-    this.connection.sendPlayer(new Messages.SyncTime(clientTime));
+    this.sendPlayer(new Messages.SyncTime(clientTime));
   },
 
   handleChat: function(message) {
