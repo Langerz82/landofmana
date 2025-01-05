@@ -989,27 +989,32 @@ var selectFirstItem = {
 			{
 				if (!game.joystick.isActive())
 				{
-					p.move(o, false);
+          self.navigate = Navigate.NONE;
+					//p.move(o, false);
 				}
 				if (game.joystick.right())
 				{
-					o = 4;
-					p.move(4, true);
+          self.navigate = Navigate.RIGHT;
+					//o = 4;
+					//p.move(4, true);
 				}
 				if (game.joystick.left())
 				{
-					o = 3;
-					p.move(3, true);
+          self.navigate = Navigate.LEFT;
+					//o = 3;
+					//p.move(3, true);
 				}
 				if (game.joystick.up())
 				{
-					o = 1;
-					p.move(1, true);
+          self.navigate = Navigate.UP;
+					//o = 1;
+					//p.move(1, true);
 				}
 				if (game.joystick.down())
 				{
-					o = 2;
-					p.move(2, true);
+          self.navigate = Navigate.DOWN;
+					//o = 2;
+					//p.move(2, true);
 				}
 			}
 			if (game.joystick && game.joystick.isActive())
@@ -1017,8 +1022,8 @@ var selectFirstItem = {
 				clearInterval(game.autotalk);
 			}
 
- 	    if (!self.pxgamepad.getGamepad())
-	      return;
+ 	    //if (!self.pxgamepad.getGamepad())
+	      //return;
 
       self.pxgamepad.update();
 

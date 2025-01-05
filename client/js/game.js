@@ -1725,6 +1725,9 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
 
                 this.cursorVisible = true;
 
+                if (!this.mapContainer)
+                  return;
+
                 if(this.mapContainer.gridReady && this.player && !this.renderer.mobile && !this.renderer.tablet) {
                     this.hoveringMob = this.isMobAt(x, y);
                     //log.info("isMobAt x="+x+"y="+y);
@@ -1853,6 +1856,9 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
             click: function() {
                 var pos = this.getMousePosition();
                 var p = game.player;
+
+                if (this.joystick.isActive())
+                  return;
 
                 if (p.dialogueEntity) {
                   game.showDialogue();

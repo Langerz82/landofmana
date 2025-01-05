@@ -341,7 +341,7 @@ define(['entity/character', 'timer', 'entity/player', 'entity/entitymoving'], fu
 
         },
 
-        updatePlayerKeyMovement: function(C)
+        updatePlayerKeyMovement: function(c)
         {
             var self = this;
 

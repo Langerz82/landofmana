@@ -117,12 +117,14 @@ body {
   position: absolute;
   left:0;
   top: 0;
+  background: rgb(0 0 0);
 }
 
 #canvas canvas {
   position: absolute;
   left:0;
   top:0;
+  background: rgb(0 0 0);
 }
 
 .started #canvas {cursor:none;}
