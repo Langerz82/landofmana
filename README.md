@@ -1,8 +1,11 @@
 # Land of Mana - Beta.
 formerly Retro RPG Online 2/Rogue Quest
 
-## PLAY FOR FREE NOW AT:
+## PLAY FOR FREE NOW IN YOUR BROWSER NO DOWNLOAD REQUIRED:
 https://www.landofmana.com/play/index.html
+
+## ANDROID RELEASE ON MOBILES, TABLETS AND SMART TV/BOXES (WITH A GAME CONTROLLER):
+https://play.google.com/store/apps/details?id=com.landofmana
 
 ## UPDATES:
 ### 20/12/2024
