@@ -284,6 +284,7 @@ module.exports = World = cls.Class.extend(
 
       Utils.forEach(this.players, function (p) {
         p.save(update);
+        p.connection.disconnect();
       });
 
       this.PLAYERS_SAVED = true;
@@ -395,7 +396,7 @@ module.exports = World = cls.Class.extend(
         setInterval(function()
         {
             self.save(true);
-        }, 1800000);
+        }, 600000);
     },
 
     addParty: function(player1, player2)

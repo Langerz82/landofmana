@@ -23,6 +23,7 @@ module.exports = Player = Character.extend({
         //this.userHandler = worldServer.userHandler;
         this.world = world;
         this.server = world;
+        this.connection = connection;
         //this.connection = connection;
         //this.worldHandler = this.connection.worldHandler;
 

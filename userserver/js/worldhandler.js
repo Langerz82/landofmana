@@ -48,11 +48,7 @@ module.exports = WorldHandler = cls.Class.extend({
               return;
           }
           else if (action == Types.UserMessages.WU_SAVE_PLAYER_DATA) {
-              self.handleSavePlayerData(message, false);
-              return;
-          }
-          else if (action == Types.UserMessages.WU_UPDATE_PLAYER_DATA) {
-              self.handleSavePlayerData(message, true);
+              self.handleSavePlayerData(message);
               return;
           }
           else if (action == Types.UserMessages.WU_PLAYER_LOGGED_IN) {
@@ -142,6 +138,11 @@ module.exports = WorldHandler = cls.Class.extend({
         console.warn("handleSavePlayerAuctions: world is not set.");
         return;
       }
+      if (Array.isArray(msg) && msg.length == 0) {
+        self.SAVED_AUCTIONS = true;
+        return;
+      }
+
       DBH.saveAuctions(this.world.key, msg, function (key, data) {
         self.SAVED_AUCTIONS = true;
       });
@@ -166,6 +167,11 @@ module.exports = WorldHandler = cls.Class.extend({
         console.warn("handleSaveUserBans: world is not set.");
         return;
       }
+      if (Array.isArray(msg[0]) && msg[0].length == 0) {
+        self.SAVED_BANS = true;
+        return;
+      }
+
       DBH.saveBans(this.world.key, msg[0], function (key, data) {
         self.SAVED_BANS = true;
       });
@@ -216,13 +222,15 @@ module.exports = WorldHandler = cls.Class.extend({
 
 // TODO FIX - Add playername in packet.
 
-    handleSavePlayerData: function (msg, update) {
+    handleSavePlayerData: function (msg) {
       console.info("handleSavePlayerData: "+JSON.stringify(msg));
 
       var self = this;
       var playerName = msg[0];
 
       var data = msg[1];
+
+      var update = (parseInt(msg[2]) === 1);
 
       if (!this.playerSaveData.hasOwnProperty(playerName)) {
         console.warn("CANNOT SAVE PLAYER AS NOT SENT TO GAME SERVER.");

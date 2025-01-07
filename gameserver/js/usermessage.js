@@ -104,8 +104,7 @@ UserMessages.SavePlayerData = Message.extend({
       this.update = update;
     },
     serialize: function () {
-        var um = (this.update) ? Types.UserMessages.WU_UPDATE_PLAYER_DATA :
-          Types.UserMessages.WU_SAVE_PLAYER_DATA;
-        return [um, this.playerName, this.playerData];
+        return [Types.UserMessages.WU_SAVE_PLAYER_DATA,
+          this.playerName, this.playerData, (this.update ? 1 : 0)];
     }
 });

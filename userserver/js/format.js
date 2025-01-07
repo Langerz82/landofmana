@@ -355,8 +355,7 @@ var _isTypeValid = function (fmt, msg) {
                 format = format || this.formats[type];
 
             //console.info("type:"+type);
-            if (type == Types.UserMessages.WU_SAVE_PLAYER_DATA ||
-                type == Types.UserMessages.WU_UPDATE_PLAYER_DATA)
+            if (type == Types.UserMessages.WU_SAVE_PLAYER_DATA)
             {
               console.info("WU_SAVE_PLAYER_DATA");
               if (message[0]) {
@@ -660,6 +659,12 @@ var _isTypeValid = function (fmt, msg) {
                   console.info("equipment data msg1-6 format failed. "+JSON.stringify(data));
                   return false;
                 }
+              }
+
+              var data = parseInt(message[2]);
+              if (!(data == 0 || data == 1)) {
+                console.info("update not 0 or 1.")
+                return false;
               }
 
               console.info("fmt:"+JSON.stringify(fmt));
