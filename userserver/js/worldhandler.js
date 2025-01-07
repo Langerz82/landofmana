@@ -48,7 +48,11 @@ module.exports = WorldHandler = cls.Class.extend({
               return;
           }
           else if (action == Types.UserMessages.WU_SAVE_PLAYER_DATA) {
-              self.handleSavePlayerData(message);
+              self.handleSavePlayerData(message, false);
+              return;
+          }
+          else if (action == Types.UserMessages.WU_UPDATE_PLAYER_DATA) {
+              self.handleSavePlayerData(message, true);
               return;
           }
           else if (action == Types.UserMessages.WU_PLAYER_LOGGED_IN) {
@@ -212,7 +216,7 @@ module.exports = WorldHandler = cls.Class.extend({
 
 // TODO FIX - Add playername in packet.
 
-    handleSavePlayerData: function (msg) {
+    handleSavePlayerData: function (msg, update) {
       console.info("handleSavePlayerData: "+JSON.stringify(msg));
 
       var self = this;
@@ -235,9 +239,11 @@ module.exports = WorldHandler = cls.Class.extend({
           self.playerSaveData[playerName]++;
           if (self.playerSaveData[playerName] == 7) {
             DBH.createPlayerNameInUser(username, playerName);
-            delete self.playerSaveData[playerName];
-            console.info("loggedInUsers: "+JSON.stringify(loggedInUsers));
-            delete loggedInUsers[username];
+            if (!update) {
+              delete self.playerSaveData[playerName];
+              delete loggedInUsers[username];
+            }
+            //console.info("loggedInUsers: "+JSON.stringify(loggedInUsers));
             console.info("loggedInUsers: "+JSON.stringify(loggedInUsers));
           }
           if (Object.keys(self.playerSaveData).length == 0) {

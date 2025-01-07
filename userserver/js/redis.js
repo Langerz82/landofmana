@@ -87,6 +87,8 @@ module.exports = DatabaseHandler = cls.Class.extend({
 
     if (config.remove_old_values == 1)
         this.removeOldValues();
+
+    this.insertMissingPlayerKeys();
   },
 
   removeOldValues: function () {
@@ -137,6 +139,20 @@ module.exports = DatabaseHandler = cls.Class.extend({
     });
   },
 
+  insertMissingPlayerKeys: function () {
+    client.keys('p:*', function (err, keys) {
+      if (err) return console.log(err);
+
+      client.smembers("player", function (err, reply) {
+        for (var pName of keys) {
+          var pName = pName.substr(2);
+          if (!reply.includes(pName)) {
+            client.sadd("player", pName);
+          }
+        }
+      });
+    });
+  },
 
   createPlayerKeys: function () {
     client.keys('p:*', function (err, arr) {
@@ -161,9 +177,9 @@ module.exports = DatabaseHandler = cls.Class.extend({
     var nameLower = name.toLowerCase();
     client.smembers(setName, function (err, reply) {
       reply = reply.map(function (rec) { return rec.toLowerCase(); });
-      var res = reply.findIndex(function (rec) { return (rec == name); })
+      //var res = reply.findIndex(function (rec) { return (rec == nameLower); })
       if (callback)
-        callback(name, (res >= 0 ? true : false));
+        callback(name, reply.includes(nameLower));
     });
   },
 

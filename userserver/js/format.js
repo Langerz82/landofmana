@@ -355,7 +355,8 @@ var _isTypeValid = function (fmt, msg) {
                 format = format || this.formats[type];
 
             //console.info("type:"+type);
-            if (type == Types.UserMessages.WU_SAVE_PLAYER_DATA)
+            if (type == Types.UserMessages.WU_SAVE_PLAYER_DATA ||
+                type == Types.UserMessages.WU_UPDATE_PLAYER_DATA)
             {
               console.info("WU_SAVE_PLAYER_DATA");
               if (message[0]) {

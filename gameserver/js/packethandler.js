@@ -286,17 +286,18 @@ module.exports = PacketHandler = Class.extend({
   },
 
   handleSyncTime: function (message) {
+    console.info("handleSyncTime");
     var clientTime = parseInt(message[0]);
-    this.sendPlayer(new Messages.SyncTime(clientTime));
+    //this.sendPlayer(new Messages.SyncTime(clientTime));
+    this.send([Types.Messages.BI_SYNCTIME, clientTime, Date.now()]);
   },
 
   handleChat: function(message) {
-    var self = this;
     var msg = Utils.sanitize(message[0]);
-    console.info("Chat: " + self.player.name + ": " + msg);
+    console.info("Chat: " + this.player.name + ": " + msg);
 
-    if ((new Date()).getTime() > self.player.chatBanEndTime) {
-      self.send([Types.Messages.WC_NOTIFY, "CHAT", "CHATMUTED"]);
+    if ((new Date()).getTime() > this.player.chatBanEndTime) {
+      this.send([Types.Messages.WC_NOTIFY, "CHAT", "CHATMUTED"]);
       return;
     }
 
@@ -305,10 +306,10 @@ module.exports = PacketHandler = Class.extend({
       var command = msg.split(" ", 3)
       switch (command[0]) {
         case "/w":
-          self.send([Types.Messages.WC_NOTIFY, "CHAT", "CHATMUTED"]);
+          this.send([Types.Messages.WC_NOTIFY, "CHAT", "CHATMUTED"]);
           break;
         default:
-          self.server.pushWorld(new Messages.Chat(self.player, msg));
+          this.server.pushWorld(new Messages.Chat(this.player, msg));
           break;
 
       }

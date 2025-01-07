@@ -172,7 +172,7 @@ module.exports = WorldHandler = cls.Class.extend({
         console.info("worldHandler: sendToUserServer called without userConnection being set: "+JSON.stringify(msg.serialize()));
     },
 
-    savePlayer: function (player) {
+    savePlayer: function (player, update) {
       console.info("worldHandler - savePlayer, name:"+player.name);
       var self = this;
 
@@ -187,7 +187,8 @@ module.exports = WorldHandler = cls.Class.extend({
         objData.data[index] = data;
         if (objData.count == 7)
         {
-          self.sendToUserServer( new UserMessages.SavePlayerData(playerName, objData.data));
+          var msg = new UserMessages.SavePlayerData(playerName, objData.data, update);
+          self.sendToUserServer(msg);
           delete self.playerSaveData[playerName];
         }
         else {

@@ -1042,11 +1042,11 @@ module.exports = Player = Character.extend({
     }
   },
 
-  save: function () {
+  save: function (update) {
     console.info("Player - save, name:"+this.name);
 
     if (this.worldHandler)
-      this.worldHandler.savePlayer(this);
+      this.worldHandler.savePlayer(this, update);
     else {
       console.warn("Player, save called without worldHandler being set. "+JSON.stringify(msg));
     }

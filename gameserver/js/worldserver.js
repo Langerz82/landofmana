@@ -270,7 +270,7 @@ module.exports = World = cls.Class.extend(
       this.userBans[username] = Date.now() + duration;
     },
 
-    save: function ()
+    save: function (update)
     {
       if (this.userHandler) {
         var playerNameList = [];
@@ -283,7 +283,7 @@ module.exports = World = cls.Class.extend(
       }
 
       Utils.forEach(this.players, function (p) {
-        p.save();
+        p.save(update);
       });
 
       this.PLAYERS_SAVED = true;
@@ -394,7 +394,7 @@ module.exports = World = cls.Class.extend(
 
         setInterval(function()
         {
-            self.save();
+            self.save(true);
         }, 1800000);
     },
 

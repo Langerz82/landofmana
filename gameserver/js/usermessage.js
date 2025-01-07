@@ -98,12 +98,14 @@ UserMessages.playerLoggedIn = Message.extend({
 });
 
 UserMessages.SavePlayerData = Message.extend({
-    init: function (playerName, playerData) {
+    init: function (playerName, playerData, update) {
     	this.playerName = playerName;
       this.playerData = playerData;
+      this.update = update;
     },
     serialize: function () {
-        return [Types.UserMessages.WU_SAVE_PLAYER_DATA, this.playerName,
-          this.playerData];
+        var um = (this.update) ? Types.UserMessages.WU_UPDATE_PLAYER_DATA :
+          Types.UserMessages.WU_SAVE_PLAYER_DATA;
+        return [um, this.playerName, this.playerData];
     }
 });
