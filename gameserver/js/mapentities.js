@@ -873,7 +873,7 @@ var MapEntities = cls.Class.extend({
     },
 
     getAroundCount: function(entities, entity, range) {
-      return this.getEntityAround(entities, entity, range);
+      return this.getEntityAround(entities, entity, range).length;
     },
 
     getEntityAroundCount: function(entity, range) {
