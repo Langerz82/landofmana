@@ -209,27 +209,28 @@ function main(config) {
 
 	server._ioServer.on('connection', (socket) => {
 	  console.log('connected');
-	  socket.on('disconnect', function(){
-		   console.log('disconnected - client');
-
-       // Remove WorldHandler if there is one present.
-       var wh = socket.worldHandler;
-       if (wh) {
-         var index = worldHandlers.indexOf(wh);
-         worldHandlers.splice(index, 1);
-         //worlds.splice(index, 1);
-         delete wh;
-       }
-
-       this.disconnect();
-       delete this;
-	  });
-
-	  server._ioServer.on('msg', (message) => {
-		    console.log("msg="+JSON.stringify(message));
-		    //io.emit('msg', message);
-	  });
 	});
+
+  server._ioServer.on('msg', (message) => {
+      console.log("msg="+JSON.stringify(message));
+      //io.emit('msg', message);
+  });
+
+  server._ioServer.on('disconnect', function(socket) {
+     console.log('disconnected - client');
+
+     // Remove WorldHandler if there is one present.
+     var wh = socket.worldHandler;
+     if (wh) {
+       var index = worldHandlers.indexOf(wh);
+       worldHandlers.splice(index, 1);
+       //worlds.splice(index, 1);
+       delete wh;
+     }
+
+     this.disconnect();
+     delete this;
+  });
 
   var signalHandler = function () {
     closeServer();
