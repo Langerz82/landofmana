@@ -83,7 +83,7 @@ var NpcMove = Character.extend({
       if (pQuest) {
         if (pQuest.status < QuestStatus.COMPLETE) {
           pQuest.status = QuestStatus.INPROGRESS;
-          player.progessQuest(pQuest);
+          player.progressQuest(pQuest);
           return;
         }
       }

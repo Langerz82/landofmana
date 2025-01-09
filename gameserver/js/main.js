@@ -263,15 +263,17 @@ function main(config) {
 
 	server._ioServer.on('connection', (socket) => {
 	  console.log('connected');
-	  socket.on('disconnect', function(){
-		console.log('disconnected');
-	  });
 
-	  server._ioServer.on('msg', (message) => {
-		console.log("msg="+JSON.stringify(message));
-		//io.emit('msg', message);
-	  });
 	});
+
+  server._ioServer.on('disconnect', function() {
+    console.log('disconnected');
+  });
+
+  server._ioServer.on('msg', (message) => {
+  console.log("msg="+JSON.stringify(message));
+  //io.emit('msg', message);
+  });
 
   /*server._ioServer.connect(1342, "localhost", function () {
     console.info("connected");

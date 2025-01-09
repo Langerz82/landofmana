@@ -283,8 +283,10 @@ module.exports = World = cls.Class.extend(
       }
 
       Utils.forEach(this.players, function (p) {
-        p.save(update);
-        p.connection.disconnect();
+        if (update)
+          p.save(update);
+        else
+          p.connection.disconnect();
       });
 
       this.PLAYERS_SAVED = true;
