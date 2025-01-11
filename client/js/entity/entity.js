@@ -301,6 +301,10 @@ define(['../timer'], function(Timer) {
           return (dx <= dist && dy <= dist);
         },
 
+        isWithinDistEntity: function (entity, dist) {
+            return this.isWithinDist(entity.x, entity.y, dist);
+        },
+
         isNextTooEntity: function (entity) {
             return this.isWithinDist(entity.x, entity.y, G_TILESIZE);
         },

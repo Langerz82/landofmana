@@ -1108,14 +1108,15 @@ module.exports = Player = Character.extend({
     }*/
     this.forceStop();
     //this.setPosition(x,y);
-    orientation = this.getOrientationTo({x: path[1][0], y: path[1][1]});
-    this.setOrientation(orientation);
+    //orientation = this.getOrientationTo({x: path[1][0], y: path[1][1]});
+    //this.setOrientation(orientation);
+
     this.path = this.fullpath = path;
     this.step = 0;
     this.interrupted = interrupted;
     //this.estDelay = Date.now() - time;
     //this.startMovePathTime = Date.now();
-    var delay = Utils.getLockDelay(time);
+    var delay = 0; //Utils.getLockDelay(time);
     //var delay=~~((Date.now()+G_UPDATE_INTERVAL)-(G_LATENCY + time));
     //this.unclampedDelay = delay;
     //delay=Utils.clamp(0, G_LATENCY, delay);
@@ -1125,18 +1126,6 @@ module.exports = Player = Character.extend({
     //var delay=Utils.clamp(0, G_LATENCY, G_LATENCY+(time-Date.now()));
     console.warn("movePath: delay:"+delay);
 
-    if (delay > 0)
-      this.setFreeze(delay, function (p) {
-        //p.startMovePathTime = Date.now();
-        /*if (!(p.x == x && p.y == y))
-        {
-          console.error("PLAYER NOT IN CORRECT POSITION");
-          console.info("p.x:"+p.x+",p.y:"+p.y);
-          console.info("c.x:"+x+",c.y:"+y);
-          p.resetMove(p.x,p.y);
-          return;
-        }*/
-      });
   },
 
   move: function (nm) {
@@ -1163,19 +1152,13 @@ module.exports = Player = Character.extend({
     }
 
     if (state == 3) {
-      this.moveOrientation = 0;
-      this.sx = x;
-      this.sy = y;
-      this.ex = -1;
-      this.ey = -1;
-      this.keyMove = false;
       this.setPosition(x,y);
-      this.nextMove = null;
+      this.forceStop();
       return;
     }
 
     if (state==1) {
-        var delay = Utils.getLockDelay(time);
+        var delay = 0; //Utils.getLockDelay(time);
         console.warn("delay="+delay);
         //var delay=Math.max(~~((G_LATENCY + time)-(Date.now()+G_UPDATE_INTERVAL)),0);
         //this.latencyDiff = Date.now() - time;
@@ -1225,7 +1208,7 @@ module.exports = Player = Character.extend({
       if (a || b) {
         clearTimeout(this.moving_timeout);
         this.setPosition(x,y);
-        this.forceStopMove();
+        this.forceStop();
         return;
       }
 
@@ -1233,14 +1216,15 @@ module.exports = Player = Character.extend({
       if(!this.map.entities.pathfinder.isValidPath(this.map.grid, path)) {
         console.warn("INVALID PATH.");
         console.warn("invalidPath: "+JSON.stringify(path));
-        this.setPosition(this.x,this.y);
-        this.forceStopMove();
+        this.resetMove(this.x,this.y);
+        return;
       }
 
       //var tMoves = [[this.sx,this.sy],[x,y]];
       if (this.map.entities.pathfinder.isPathTicksTooFast(this, path, this.startMoveTime))
       {
-        this.setPosition(this.sx,this.sy);
+        this.resetMove(this.sx,this.sy);
+        return;
       } else {
         this.setPosition(x,y);
       }
@@ -1614,6 +1598,7 @@ module.exports = Player = Character.extend({
   },
 
   resetMove: function (x,y) {
+    try { throw new Error(); } catch (e) { console.error(e.stack); }
     this.forceStop();
     this.setPosition(x, y);
     this.sx = x;

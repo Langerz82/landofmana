@@ -341,7 +341,7 @@ module.exports = PacketHandler = Class.extend({
     var npcId = parseInt(message[1]);
 
     npc = this.entities.getEntityById(npcId);
-    if (!npc.isNextTooEntity(this.player)) {
+    if (!npc.isWithinDistEntity(this.player, 24)) {
       console.info("player not close enough to NPC!");
       return;
     }
@@ -521,7 +521,7 @@ module.exports = PacketHandler = Class.extend({
     var x = parseInt(message[1]),
         y = parseInt(message[2]);
 
-    if (!this.player.isNextTooPosition(x,y)) {
+    if (!this.player.isWithinDist(x,y,24)) {
       console.info("Player is not close enough to item.")
       return;
     }

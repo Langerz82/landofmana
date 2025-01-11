@@ -116,8 +116,8 @@ module.exports = PlayerController = Class.extend({
 
     self.player.checkStartMove = function (x,y) {
       var p = self.player;
-      if (!(p.x == x && p.y == y))
-      {
+
+      var fnNotCorrectPos = function(x,y) {
         var dx = Math.abs(p.x-x), dy = Math.abs(p.y-y);
         //if ((dx+dy) < 32)
           //return true;
@@ -127,6 +127,16 @@ module.exports = PlayerController = Class.extend({
         console.error("dx:"+dx+",dy:"+dy);
         p.resetMove(p.x,p.y);
         return false;
+      };
+
+      /*if (p.movement.inProgress && !(p.ex == -1 && p.ey == -1) &&
+          !(x == p.ex && y == p.ey))
+      {
+        return fnNotCorrectPos(x,y);
+      }*/
+      if (!(p.x == x && p.y == y))
+      {
+        return fnNotCorrectPos(x,y);
       }
       return true;
     }

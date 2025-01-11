@@ -980,7 +980,7 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
               };
 
               var entity = p.dialogueEntity;
-              if (entity && p.isNextTooEntity(entity) && p.isFacingEntity(entity)) {
+              if (entity && p.isWithinDistEntity(entity, 24) && p.isFacingEntity(entity)) {
                 game.showDialogue();
                 return;
               }
@@ -1105,7 +1105,7 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
             makePlayerGoToItem: function(item) {
                 var p = this.player;
                 if (!item) return;
-                if (!p.isNextTooEntity(item)) {
+                if (!p.isWithinDistEntity(item, 24)) {
                   p.follow(item);
                   //this.player.isLootMoving = true;
                 } else {
@@ -1193,8 +1193,10 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
 
               if (!npc) return;
 
-              if (!game.player.isNextTooEntity(npc))
+              if (!game.player.isWithinDistEntity(npc, 24)) {
+                game.player.follow(npc);
                 return;
+              }
 
               if (npc.type == Types.EntityTypes.NPCMOVE) {
                 this.client.sendTalkToNPC(npc.type, npc.id);
@@ -1857,7 +1859,7 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
                 var pos = this.getMousePosition();
                 var p = game.player;
 
-                if (this.joystick.isActive())
+                if (this.joystick && this.joystick.isActive())
                   return;
 
                 if (p.dialogueEntity) {
@@ -1990,7 +1992,7 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
               }
               else if (entity instanceof NpcStatic || entity instanceof NpcMove)
               {
-                this.speakToNPC(entity);
+                this.makeNpcTalk(entity);
                 return;
               }
 
@@ -2104,13 +2106,13 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
             },
 
 
-            speakToNPC: function (entity) {
+            /*speakToNPC: function (entity) {
               var p = this.player;
-              if (!p.isNextTooEntity(entity))
+              if (!p.isWithinDistEntity(entity, 24))
                 p.follow(entity);
       				else
       					this.makeNpcTalk(entity);
-            },
+            },*/
 
             updateCameraEntity: function(id, entity)
             {
