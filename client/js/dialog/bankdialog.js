@@ -293,7 +293,7 @@ define(['./dialog', '../tabbook', '../tabpage', '../entity/item', 'data/items', 
             });
 
             $('#bankGoldFrame').click(function(event) {
-      	    	self.game.app.showDropDialog(-2);
+      	    	game.app.showDropDialog(-2);
       	    });
 
             $('#bankDialog0Button').click(function(event) {
