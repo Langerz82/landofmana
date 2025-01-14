@@ -8,27 +8,6 @@ https://www.landofmana.com/play/index.html
 https://play.google.com/store/apps/details?id=com.landofmana
 
 ## UPDATES:
-### 20/12/2024
-This project now uses a seperate User Server and Game Server thats in the experimental folder. Completed Quests may have reset for players but other than that everything should work ok. If there are issues please let me know, cheers.
-
-To compile client run:
-```
-cd client
-npm run build
-npm run css
-```
-To compile Game Server run:
-```
-cd gameserver
-npm run build
-```
-To compile User Server run:
-```
-cd userserver
-npm run build
-```
-
-If you want to modify or extend on any code you can, I'm releasing only the code under GPL. The resources (sprites/images/fonts/audio) have various copyrights and are subject to the condition respective of the original authors. So you may need pay for licensing any content see at bottom for details if you wish to release the same content in a game.
 
 ## FEATURES:
 * The game uses Pixi-JS 3D, and is optimized to work on lower spec GPU's and consume less power.
@@ -178,6 +157,28 @@ Additional Credits:
 * Menu Icons: Raven Fantasy https://clockworkraven.itch.io/raven-fantasy-pixel-art-rpg-icons-starter-pack
 
 ## Old Version History
+
+### 20/12/2024
+This project now uses a seperate User Server and Game Server thats in the experimental folder. Completed Quests may have reset for players but other than that everything should work ok. If there are issues please let me know, cheers.
+
+To compile client run:
+```
+cd client
+npm run build
+npm run css
+```
+To compile Game Server run:
+```
+cd gameserver
+npm run build
+```
+To compile User Server run:
+```
+cd userserver
+npm run build
+```
+
+If you want to modify or extend on any code you can, I'm releasing only the code under GPL. The resources (sprites/images/fonts/audio) have various copyrights and are subject to the condition respective of the original authors. So you may need pay for licensing any content see at bottom for details if you wish to release the same content in a game.
 
 ### 25/11/2024
 I am still working on this code. If you like this game give the project a Star/Like. Haha!!
