@@ -50,18 +50,15 @@ Copy client directory to a http Server in the root directory, then to access in 
 If you need to change the Servers address, in client/config/config_build.js, then enter the IP address or hostname of your server and modify as needed.
 If you change the IP address you might have to edit the CORS header in the client/index.html file to allow it to communicate with the server.
 
+## Linux Instructions for Servers:
 ### For Setup User Server:
-#### Linux:
 ```
 sudo apt-get update
 sudo apt-get install redis-server
 ```
 Linux - see: https://www.dragonflydb.io/faq/how-to-start-redis-server
-#### Windows:
-Windows - For as a windows redis-server server download here: https://redis.io/download/
 
 ### Run User Server:
-#### Linux:
 ```
 sudo apt-get update
 sudo apt-get install tmux
@@ -75,16 +72,7 @@ To kill userserver enter in:
 ```
 tmux kill-session -t rro2-user
 ```
-
-#### Windows:
-run userserver-win.bat
-
-For debug mode run userserver-inspect-win.bat
-
-If you need to exit the server do not close the window, switch to it then press Ctrl+C to exit cleanly so it saves to redis.
-
 ### Run Game Server:
-#### Linux:
 ```
 sudo apt-get update
 sudo apt-get install tmux
@@ -100,12 +88,23 @@ tmux kill-session -t rro2-game
 ```
 
 
-#### Windows:
+## Windows Instructions for Servers:
+Windows - For as a windows redis-server server download here: https://redis.io/download/
+
+### Run User Server:
+run userserver-win.bat
+
+For debug mode run userserver-inspect-win.bat
+
+If you need to exit the server do not close the window, switch to it then press Ctrl+C to exit cleanly so it saves to redis.
+
+### Run Game Server:
 run gameserver-win.bat
 
 For debug mode run gameserver-inspect-win.bat
 
 If you need to exit the server do not close the window, switch to it then press Ctrl+C to exit cleanly so it saves to redis.
+
 
 ### Terms and Conditions:
 This software is provided as is, is a compiled and covered under MPL V2.0 and is copyright code and content to there respective owners.
