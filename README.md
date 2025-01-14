@@ -1,7 +1,7 @@
 # Land of Mana - Beta.
 formerly Retro RPG Online 2/Rogue Quest
 
-## PLAY FOR FREE NOW IN YOUR BROWSER NO DOWNLOAD REQUIRED:
+## PLAY FREE IN YOUR BROWSER NO DOWNLOAD REQUIRED:
 https://www.landofmana.com/play/index.html
 
 ## ANDROID RELEASE ON MOBILES, TABLETS AND SMART TV/BOXES (WITH A GAME CONTROLLER):
@@ -106,7 +106,7 @@ For debug mode run gameserver-inspect-win.bat
 If you need to exit the server do not close the window, switch to it then press Ctrl+C to exit cleanly so it saves to redis.
 
 
-### Terms and Conditions:
+## Terms and Conditions:
 This software is provided as is, is a compiled and covered under MPL V2.0 and is copyright code and content to there respective owners.
 You may not profit off the software without permission of the original authors, and content creators.
 You may re-distribute the software unmodified, and the assets contained are copyright the original authors.
