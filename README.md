@@ -92,6 +92,11 @@ Debug mode:
 ```
 ./userserver-inspect-linux.sh
 ```
+To kill userserver enter in:
+```
+tmux kill-session -t rro2-user
+```
+
 #### Windows:
 run userserver-win.bat
 For debug mode run userserver-inspect-win.bat
@@ -107,6 +112,11 @@ Debug mode:
 ```
 ./gameserver-inspect-linux.sh
 ```
+To kill gameserver enter in:
+```
+tmux kill-session -t rro2-game
+```
+
 
 #### Windows:
 run gameserver-win.bat
