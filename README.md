@@ -78,7 +78,10 @@ tmux kill-session -t rro2-user
 
 #### Windows:
 run userserver-win.bat
+
 For debug mode run userserver-inspect-win.bat
+
+If you need to exit the server do not close the window, switch to it then press Ctrl+C to exit cleanly so it saves to redis.
 
 ### Run Game Server:
 #### Linux:
@@ -99,7 +102,10 @@ tmux kill-session -t rro2-game
 
 #### Windows:
 run gameserver-win.bat
+
 For debug mode run gameserver-inspect-win.bat
+
+If you need to exit the server do not close the window, switch to it then press Ctrl+C to exit cleanly so it saves to redis.
 
 ### Terms and Conditions:
 This software is provided as is, is a compiled and covered under MPL V2.0 and is copyright code and content to there respective owners.
