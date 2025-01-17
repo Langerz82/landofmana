@@ -1,34 +1,13 @@
 # Land of Mana - Beta.
 formerly Retro RPG Online 2/Rogue Quest
 
-## PLAY FOR FREE NOW IN YOUR BROWSER NO DOWNLOAD REQUIRED:
+## PLAY FREE IN YOUR BROWSER NO DOWNLOAD REQUIRED:
 https://www.landofmana.com/play/index.html
 
 ## ANDROID RELEASE ON MOBILES, TABLETS AND SMART TV/BOXES (WITH A GAME CONTROLLER):
 https://play.google.com/store/apps/details?id=com.landofmana
 
 ## UPDATES:
-### 20/12/2024
-This project now uses a seperate User Server and Game Server thats in the experimental folder. Completed Quests may have reset for players but other than that everything should work ok. If there are issues please let me know, cheers.
-
-### 25/11/2024
-I am still working on this code. If you like this game give the project a Star/Like. Haha!!
-
-### 18/07/2024 - NOTICE
-I have provided the source to the Client and Server, see the js directory in client and server.
-
-To compile client run:
-```
-cd client
-npm run build
-npm run css
-```
-To compile server run:
-```
-cd server
-npm run build
-```
-If you want to modify or extend on any code you can, I'm releasing only the code under GPL. The resources (sprites/images/fonts/audio) have various copyrights and are subject to the condition respective of the original authors. So you may need pay for licensing any content see at bottom for details if you wish to release the same content in a game.
 
 ## FEATURES:
 * The game uses Pixi-JS 3D, and is optimized to work on lower spec GPU's and consume less power.
@@ -71,18 +50,63 @@ Copy client directory to a http Server in the root directory, then to access in 
 If you need to change the Servers address, in client/config/config_build.js, then enter the IP address or hostname of your server and modify as needed.
 If you change the IP address you might have to edit the CORS header in the client/index.html file to allow it to communicate with the server.
 
-### For Server:
-Enter in the server directory:
-```npm install -d```   <--- (Will install all the node_module dependencies.
+## Linux Instructions for Servers:
+### For Setup User Server:
+```
+sudo apt-get update
+sudo apt-get install redis-server
+```
+Linux - see: https://www.dragonflydb.io/faq/how-to-start-redis-server
 
-Install the Redis-Server database software. 
-  Windows - For as a windows redis-server server download here: https://redis.io/download/
-  Linux - see: https://www.dragonflydb.io/faq/how-to-start-redis-server
+### Run User Server:
+```
+sudo apt-get update
+sudo apt-get install tmux
+./userserver-linux.sh
+```
+Debug mode:
+```
+./userserver-inspect-linux.sh
+```
+To kill userserver enter in:
+```
+tmux kill-session -t rro2-user
+```
+### Run Game Server:
+```
+sudo apt-get update
+sudo apt-get install tmux
+./gameserver-linux.sh
+```
+Debug mode:
+```
+./gameserver-inspect-linux.sh
+```
+To kill gameserver enter in:
+```
+tmux kill-session -t rro2-game
+```
 
-```node run.js```  <-- Will run the server.
+
+## Windows Instructions for Servers:
+Windows - For as a windows redis-server server download here: https://redis.io/download/
+
+### Run User Server:
+run userserver-win.bat
+
+For debug mode run userserver-inspect-win.bat
+
+If you need to exit the server do not close the window, switch to it then press Ctrl+C to exit cleanly so it saves to redis.
+
+### Run Game Server:
+run gameserver-win.bat
+
+For debug mode run gameserver-inspect-win.bat
+
+If you need to exit the server do not close the window, switch to it then press Ctrl+C to exit cleanly so it saves to redis.
 
 
-### Terms and Conditions:
+## Terms and Conditions:
 This software is provided as is, is a compiled and covered under MPL V2.0 and is copyright code and content to there respective owners.
 You may not profit off the software without permission of the original authors, and content creators.
 You may re-distribute the software unmodified, and the assets contained are copyright the original authors.
@@ -138,6 +162,34 @@ Additional Credits:
 * Menu Icons: Raven Fantasy https://clockworkraven.itch.io/raven-fantasy-pixel-art-rpg-icons-starter-pack
 
 ## Old Version History
+
+### 20/12/2024
+This project now uses a seperate User Server and Game Server thats in the experimental folder. Completed Quests may have reset for players but other than that everything should work ok. If there are issues please let me know, cheers.
+
+To compile client run:
+```
+cd client
+npm run build
+npm run css
+```
+To compile Game Server run:
+```
+cd gameserver
+npm run build
+```
+To compile User Server run:
+```
+cd userserver
+npm run build
+```
+
+If you want to modify or extend on any code you can, I'm releasing only the code under GPL. The resources (sprites/images/fonts/audio) have various copyrights and are subject to the condition respective of the original authors. So you may need pay for licensing any content see at bottom for details if you wish to release the same content in a game.
+
+### 25/11/2024
+I am still working on this code. If you like this game give the project a Star/Like. Haha!!
+
+### 18/07/2024 - NOTICE
+I have provided the source to the Client and Server, see the js directory in client and server.
 
 ### 24/04/2024 - NOTICE
 I will be no longer working on this project. I've come to the realisation that in order for this project to grow, I need more content and variety. Coding a game like this in a browser has several technical challenges and resource costs which I simply cannot afford being a solo developer. Compiled Client and Server code will be kept up here. The Live Server will run for as long as I can keep it up for without running extra costs but any new releases will most likely not occur.
