@@ -67,14 +67,15 @@ module.exports = TaskHandler = cls.Class.extend({
   },
 
   processEvent: function(player, playerEvent) {
+    var quests = player.quests;
     switch (playerEvent.eventType) {
       case EventType.KILLMOB:
         var target = playerEvent.object;
         target.questDrops = {};
-        for (var quest of player.quests) {
-          player.questAboutKill(target, quest);
-
-          if (quest.type == QuestType.GETITEMKIND) {
+        quests.forQuestsType(QuestType.KILLMOBKIND, function (quest) {
+          quests.questAboutKill(target, quest);
+        });
+        quests.forQuestsType(QuestType.GETITEMKIND, function (quest) {
             var lootKind = quest.object2.kind+1000;
             if (quest.object2.type == Types.EntityTypes.ITEMLOOT &&
                 quest.object.type == Types.EntityTypes.MOB &&
@@ -85,23 +86,20 @@ module.exports = TaskHandler = cls.Class.extend({
                 target.questDrops[lootKind] = parseInt(quest.object2.chance*10);
                 quest.object2.chance += 1;
             }
-          }
-        }
+        });
         break;
       case EventType.LOOTITEM:
-        for (var quest of player.quests) {
-          //var quest = player.quests[q];
-          if (quest.type == QuestType.GETITEMKIND && quest.object2.kind == (playerEvent.object.kind-1000)) {
-            player.questAboutItem(quest);
+        quests.forQuestsType(QuestType.GETITEMKIND, function (quest) {
+          if (quest.object2.kind == (playerEvent.object.kind-1000)) {
+            quests.questAboutItem(quest);
           }
-        }
+        });
         break;
       case EventType.USE_NODE:
-        for (var quest of player.quests) {
-          //var quest = player.quests[q];
-          if (quest.type == QuestType.USENODE && quest.object.kind == playerEvent.object.kind && quest.data1 == playerEvent.object.level)
-            player.questAboutUseNode(quest);
-        }
+        quests.forQuestsType(QuestType.USENODE, function (quest) {
+          if (quest.object.kind == playerEvent.object.kind && quest.data1 == playerEvent.object.level)
+            quests.questAboutUseNode(quest);
+        });
         break;
     }
 
@@ -109,13 +107,13 @@ module.exports = TaskHandler = cls.Class.extend({
       this.processAchievement(player, playerEvent, achievement, function (achievement, event) {
         return (achievement.data.type == EventType.KILLMOB &&
             (achievement.data.objectKind == 0 || achievement.data.objectKind == event.object.kind));
-      }, 15);
+      }, 5);
       this.processAchievement(player, playerEvent, achievement, function (achievement, event) {
         return (achievement.data.type == EventType.LOOTITEM && event.object.hasOwnProperty("enemyDrop"));
-      }, 25);
+      }, 15);
       this.processAchievement(player, playerEvent, achievement, function (achievement, event) {
         return (achievement.data.type == EventType.DAMAGE);
-      }, 0.25);
+      }, 0.1);
       this.processAchievement(player, playerEvent, achievement, function (achievement, event) {
         if (achievement.data.type == EventType.USE_NODE) {
           var wtype = event.object.weaponType;
@@ -181,6 +179,7 @@ module.exports = TaskHandler = cls.Class.extend({
           objectCountFmt = Number(objectCount / 1000000).toFixed(1).replace(/[.,]0$/, "")+"M";
         else if (objectCount >= 1000)
           objectCountFmt = Number(objectCount / 1000).toFixed(1).replace(/[.,]0$/, "")+"K";
+        player.incExp(xp);
         player.map.entities.pushToPlayer(player, new Messages.Notify("CHAT", chatAchievement, [objectCountFmt, xp]));
         if (achievement.rank == (rankCount-1) && achievement.count == objectCount)
         {

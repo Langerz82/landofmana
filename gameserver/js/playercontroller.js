@@ -129,11 +129,12 @@ module.exports = PlayerController = Class.extend({
         return false;
       };
 
-      /*if (p.movement.inProgress && !(p.ex == -1 && p.ey == -1) &&
+      /*if (!(p.ex == -1 && p.ey == -1) &&
           !(x == p.ex && y == p.ey))
       {
         return fnNotCorrectPos(x,y);
-      }*/
+      }
+      else*/
       if (!(p.x == x && p.y == y))
       {
         return fnNotCorrectPos(x,y);

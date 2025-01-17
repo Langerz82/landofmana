@@ -10,6 +10,7 @@ var Character = require('./character'),
     SkillHandler = require("../skillhandler"),
     SkillEffectHandler = require("../effecthandler"),
     PacketHandler = require("../packethandler"),
+    PlayerQuests = require("../playerquests"),
 
     Quest = require("../quest");
 
@@ -33,7 +34,7 @@ module.exports = Player = Character.extend({
 
         this.mapStatus = 0;
         this.mapIndex = 0;
-        this.quests = [];
+
         this.gold = new Array(2);
         this.skillSlots = [];
 
@@ -105,6 +106,7 @@ module.exports = Player = Character.extend({
         this.idleTimer = new Timer(300000);
 
     		this.playerController = new PlayerController(this);
+        this.quests = new PlayerQuests(this);
 
       	this.onWelcomeReady = false;
 
@@ -140,7 +142,6 @@ module.exports = Player = Character.extend({
         this.savedSection = 0;
 
         this.achievements = [];
-        this.completeQuests = {};
 
         this.damageCount = {};
         this.dealtCount = {};
@@ -193,130 +194,6 @@ module.exports = Player = Character.extend({
       this.map.entities.pushNeighbours(this, new Messages.ChangePoints(this, 0, 0));
     },
 
-    questAboutKill: function(mob, quest) {
-      var mobKind = mob.kind, mobLevel = mob.level;
-
-      var a = (quest.count < quest.object.count);
-      var b = (quest.type == QuestType.KILLMOBKIND && a && (mobKind == quest.object.kind));
-      var c = (quest.type == QuestType.KILLMOBS && a);
-      var d = (mob.level >= quest.object.level[0] && mob.level <= quest.object.level[1]);
-      if((b || c) && d)
-      {
-          console.info("_questAboutKill - conditions met.")
-          quest.data1 += ~~(mob.stats.xp / 1.5);
-          if(++quest.count == quest.object.count) {
-              this.questAboutKillComplete(quest);
-          }
-          else {
-              this.progressQuest(quest);
-          }
-      }
-    },
-
-    questAboutUseNode: function(quest) {
-      quest.count++;
-      if(quest.count >= quest.object.count) {
-        quest.count = quest.object.count;
-        var xp = quest.object.count * 10 * this.level.base;
-        this.completeQuest(quest, xp);
-      } else {
-        this.progressQuest(quest);
-      }
-    },
-
-    questAboutItem: function(quest) {
-        console.info(JSON.stringify(quest));
-        var kind = quest.object2.kind+1000;
-        var countItems = this.inventory.hasItemCount(kind);
-        quest.count = countItems;
-        this.progressQuest(quest);
-    },
-
-    questAboutFind: function(quest) {
-        //console.info(JSON.stringify(quest));
-        if(quest.count++ >= quest.object.count && quest.status == QuestStatus.INPROGRESS) {
-          quest.count = quest.object.count;
-          var xp = quest.object.count * 10 * this.level.base;
-          this.completeQuest(quest, xp);
-        }
-    },
-
-    questAboutItemComplete: function(quest, callback){
-
-        if(quest.count >= quest.object2.count && quest.status==QuestStatus.INPROGRESS) {
-          var kind = quest.object2.kind+1000;
-          if(!this.inventory.hasItemCount(kind))
-              return;
-
-          this.inventory.removeItemKind(kind, quest.object2.count);
-          var xp = quest.object2.count * 20 * this.level.base;
-          this.completeQuest(quest, xp);
-          if (callback)
-            callback(quest);
-          return true;
-        }
-        return false;
-    },
-
-    questAboutKillComplete: function (quest) {
-      console.info("_questAboutKill - completed.");
-      var xp = quest.data1;
-      quest.status = QuestStatus.COMPLETE;
-      this.completeQuest(quest, xp);
-    },
-
-    progressQuest: function (quest) {
-      quest.status = QuestStatus.INPROGRESS;
-      this.pushToPlayer(new Messages.Quest(quest));
-    },
-
-    completeQuest: function(quest, xp) {
-      if (xp > 0) {
-        this.incExp(xp);
-        this.pushToPlayer(new Messages.Stat(1, this.exp.base, xp));
-      }
-
-      quest.status = QuestStatus.COMPLETE;
-      this.pushToPlayer(new Messages.Quest(quest));
-      this.completeQuests[quest.id] = quest.npcQuestId;
-      this.quests.splice(this.quests.indexOf(quest), 1);
-      delete quest;
-    },
-
-    foundQuest: function(quest){
-    	  //console.info("foundQuest="+questId);
-        this.quests.push(quest);
-        quest.status = QuestStatus.STARTED;
-        this.pushToPlayer(new Messages.Quest(quest));
-    },
-
-    hasNpcCompleteQuest: function (npcQuestId) {
-      var q = null;
-      for (var qid in this.completeQuests) {
-        q = this.completeQuests[qid];
-        if (q == npcQuestId)
-          return true;
-      }
-      return false;
-    },
-
-    getQuestById: function (id) {
-      for (var q of this.quests) {
-        if (q.id == id) {
-          return q;
-        }
-      }
-      return null;
-    },
-
-    hasQuest: function (id) {
-      for (var q of this.quests) {
-        if (q.id == id) {
-          return true;
-        }
-      }
-      return false;
-    },
 
     onKillEntity: function (entity) {
       var damage = entity.damageCount.hasOwnProperty(this.id) ? entity.damageCount[this.id] : 0;
@@ -330,7 +207,6 @@ module.exports = Player = Character.extend({
       var xp = ~~(xp * mod);
       this.incExp(xp);
       this.incWeaponExp(~~(xp / 10));
-      this.map.entities.pushToPlayer(this, new Messages.Stat(1, this.exp.base, xp));
 
       var weaponSlot = 4;
       var armorDamage = Math.min(5, Math.ceil(dealt / 1000));
@@ -396,11 +272,14 @@ module.exports = Player = Character.extend({
       incExp = Math.ceil(incExp * this.getExpBonus());
 
       this.exp.base = parseInt(this.exp.base) + parseInt(incExp);
+      this.pushToPlayer(new Messages.Stat(1, this.exp.base, incExp));
+
       var origLevel = this.level.base;
       this.level.base = Types.getLevel(this.exp.base);
       if(origLevel !== this.level.base) {
       	this.levelUp();
       }
+
       return incExp;
     },
 
@@ -596,7 +475,7 @@ module.exports = Player = Character.extend({
 
 // TODO - Make Quests work with new Class.
       // Send All Quests
-      var quests = self.quests.filter(function (q) { return q.status !== QuestStatus.COMPLETE; });
+      var quests = self.quests.quests.filter(function (q) { return q.status !== QuestStatus.COMPLETE; });
       sendMessage.push(quests.length);
       for(var questIndex = 0; questIndex < quests.length; ++questIndex){
           var q = quests[questIndex];
@@ -727,7 +606,7 @@ module.exports = Player = Character.extend({
         }
 
         if (db_player.completeQuests)
-          self.completeQuests = (db_player.completeQuests) ? db_player.completeQuests : {};
+          self.quests.completeQuests = (db_player.completeQuests) ? db_player.completeQuests : {};
         //self.stats.hpMax = self.getHpMax();
         //self.stats.epMax = self.getEpMax();
         self.setHP();
@@ -1418,7 +1297,7 @@ module.exports = Player = Character.extend({
       else
         this.sprites[0] = id;
     }
-    if (type == 1)
+    else if (type == 1)
     {
       if (this.isArcher())
         this.sprites[3] = id;
@@ -1441,7 +1320,7 @@ module.exports = Player = Character.extend({
           return this.sprites[1];
       }
     }
-    if (type == 0) {
+    else if (type == 0) {
       if (this.isArcher())
         return this.sprites[2];
       else

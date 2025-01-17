@@ -19,32 +19,9 @@ var NpcMove = Character.extend({
         this.weapon = 0;
 
         this.gender = kind % 2;
-        /*if (this.gender == 0)
-          this.kind = 575+(kind%26); // Utils.randomRangeInt(575,590)
-        else
-          this.kind = 591+(kind%16); //Utils.randomRangeInt(591,606)
-        */
-        //console.info("npc kind:"+this.kind);
-        //this.showArmor(0);
-        //this.showWeapon(0);
-
-        //console.info("activeController - set");
         this.setMoveRate(350);
 
         this.name = NPCnames[kind%NPCnames.length];
-        /*var randName;
-        if (this.gender == 0)
-        {
-          randName = Utils.randomRangeInt(0,NpcData.NPCnames['0'].length-1);
-          this.name = NpcData.NPCnames['0'][randName];
-        }
-        else
-        {
-          randName = Utils.randomRangeInt(0,NpcData.NPCnames['1'].length-1);
-          this.name = NpcData.NPCnames['1'][randName];
-        }*/
-        //console.info("randName="+randName);
-        //console.info("Name="+NpcData.NPCnames['0'][randName]);
 
         this.activeController = new NpcMoveController(this);
 
@@ -62,7 +39,6 @@ var NpcMove = Character.extend({
             var pQuest = null;
             for (var q of qData)
             {
-              //var quest = new Quest([q.id, q.type, this.questId, 0, 0, q.data1, q.data2, q.object, q.object2]);
               this.quests[q.id] = q;
             }
           }
@@ -79,17 +55,17 @@ var NpcMove = Character.extend({
 
       var quest = this.quests[questId];
 
-      pQuest = player.getQuestById(parseInt(questId));
+      pQuest = player.quests.getQuestById(parseInt(questId));
       if (pQuest) {
         if (pQuest.status < QuestStatus.COMPLETE) {
           pQuest.status = QuestStatus.INPROGRESS;
-          player.progressQuest(pQuest);
+          player.quests.progressQuest(pQuest);
           return;
         }
       }
 
       pQuest = Object.assign(new Quest(), quest);
-      player.foundQuest(pQuest);
+      player.quests.foundQuest(pQuest);
     },
 
     rejectQuest: function (player, questId) {
@@ -97,18 +73,18 @@ var NpcMove = Character.extend({
     },
 
     hasQuest: function (player) {
-      for (var quest of player.quests)
+      for (var quest of player.quests.quests)
       {
         var a = (this.questId == quest.npcQuestId);
         if (a) {
-          player.progressQuest(quest);
+          player.quests.progressQuest(quest);
           return true;
         }
       }
 
       for (var id in this.quests) {
         var quest = this.quests[id];
-        if (player.hasNpcCompleteQuest(quest.npcQuestId)) {
+        if (player.quests.hasNpcCompleteQuest(quest.npcQuestId)) {
           this.sendNoQuest(player);
           return true;
         }
@@ -133,9 +109,9 @@ var NpcMove = Character.extend({
     },
 
     talk: function (player) {
-      for (var q of player.quests) {
+      for (var q of player.quests.quests) {
         if (q.type == QuestType.GETITEMKIND) {
-          if (player.questAboutItemComplete(q, null))
+          if (player.quests.questAboutItemComplete(q, null))
             return;
         }
       }
@@ -150,7 +126,7 @@ var NpcMove = Character.extend({
         }
 
         for (var qid in this.quests) {
-          var pq = player.getQuestById(qid);
+          var pq = player.quests.getQuestById(qid);
           /*if (pq && pq.status < QuestStatus.COMPLETE)
           {
             this.sendNoQuest(player);
@@ -214,7 +190,7 @@ var NpcMove = Character.extend({
 
         var itemKind = Utils.randomInt(ItemLootData.ItemLoot.length-1);
         var id = '02'+ Utils.pad(this.kind,6) + Utils.pad(this.questCount++,4);
-        var quest = player.getQuestById(id);
+        var quest = player.quests.getQuestById(id);
         if (!quest)
         {
           var mobObject = getMobObject();
@@ -228,11 +204,11 @@ var NpcMove = Character.extend({
             itemCount, itemChance]);
 
           quest = new Quest([id, QuestType.GETITEMKIND, this.questId, 0, 0, 0, 0, mobObject, itemObject]);
-          player.foundQuest(quest);
+          player.quests.foundQuest(quest);
         }
         else {
           quest.status = QuestStatus.INPROGRESS;
-          player.questAboutItem(quest);
+          player.quests.questAboutItem(quest);
         }
       }
       if (questType == QuestType.KILLMOBKIND)
@@ -240,7 +216,7 @@ var NpcMove = Character.extend({
         console.info("KILLMOBKIND");
 
         var id = '01'+ Utils.pad(this.kind,6) + Utils.pad(this.questCount++,4);
-        var quest = player.getQuestById(id);
+        var quest = player.quests.getQuestById(id);
         if (!quest)
         {
           var mobObject = getMobObject();
@@ -253,11 +229,11 @@ var NpcMove = Character.extend({
           mobObject.count = Math.ceil(mobObject.count/5)*5;
 
           quest = new Quest([id, QuestType.KILLMOBKIND, this.questId, 0, 0, 0, 0, mobObject]);
-          player.foundQuest(quest);
+          player.quests.foundQuest(quest);
         }
         else {
           quest.status = QuestStatus.INPROGRESS;
-          player.progressQuest(quest);
+          player.quests.progressQuest(quest);
         }
       }
     },

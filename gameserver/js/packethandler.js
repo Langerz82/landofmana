@@ -846,15 +846,11 @@ module.exports = PacketHandler = Class.extend({
       return;
     }
 
-    if (state==1)
-    {
-      if (!p.checkStartMove(x,y))
-        return;
-    }
-
     var arr = [time, state, orientation, x, y];
     if (state) {
       p.move([time, false, p.orientation, x, y]);
+      if (!p.checkStartMove(x,y))
+        return;
     }
     p.move(arr);
 

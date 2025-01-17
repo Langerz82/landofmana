@@ -127,7 +127,7 @@ module.exports = WorldHandler = cls.Class.extend({
         player.sprites.join(","),
         player.colors.join(","),
         JSON.stringify(player.shortcuts),
-        JSON.stringify(player.completeQuests)];
+        JSON.stringify(player.quests.completeQuests)];
 
       if (callback)
         callback(player.name, data);
@@ -135,9 +135,9 @@ module.exports = WorldHandler = cls.Class.extend({
 
     loadPlayerDataQuests: function (player, callback) {
       var quests = [];
-      if (!player.quests)
-        player.quests = [];
-      for (var quest of player.quests)
+      //if (!player.quests.quests)
+        //player.quests = [];
+      for (var quest of player.quests.quests)
       {
         if (!quest || quest.status == QuestStatus.COMPLETE  || _.isEmpty(quest))
           continue;
