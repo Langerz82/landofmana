@@ -1,15 +1,13 @@
-var cls = require("./lib/class");
 var Map = require("./map");
 var MapEntities = require("./mapentities");
 var Messages = require("./message");
-var Utils = require("./utils");
-var NpcMove = require("./entity/npcmove");
 var BlockArea = require("./area/blockarea");
 var TrapArea = require("./area/traparea");
 var MobArea = require("./area/mobarea");
 var EntityArea = require("./area/entityarea");
-var TrapGroup = require("./trapgroup");
+var NpcMove = require("./entity/npcmove");
 var Node = require("./entity/node");
+var TrapGroup = require("./entity/trapgroup");
 
 module.exports = MapManager = cls.Class.extend({
 

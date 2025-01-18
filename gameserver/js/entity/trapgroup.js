@@ -1,6 +1,5 @@
-var cls = require("./lib/class"),
-  Trap = require("./entity/trap"),
-  Timer = require("./timer");
+var Trap = require("./trap"),
+  Timer = require("../timer");
 
 module.exports = TrapGroup = cls.Class.extend({
   init: function(kind, x, y, width, height, map, damage, interval) {

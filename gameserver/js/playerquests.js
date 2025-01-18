@@ -19,7 +19,7 @@ module.exports = PlayerQuests = cls.Class.extend({
         console.info("_questAboutKill - conditions met.")
         quest.data1 += ~~(mob.stats.xp / 1.5);
         if(++quest.count == quest.object.count) {
-            this.questAboutKillComplete(quest);
+          this.completeQuest(quest, quest.data1);
         }
         else {
             this.progressQuest(quest);
@@ -72,13 +72,6 @@ module.exports = PlayerQuests = cls.Class.extend({
       return false;
   },
 
-  questAboutKillComplete: function (quest) {
-    console.info("_questAboutKill - completed.");
-    var xp = quest.data1;
-    quest.status = QuestStatus.COMPLETE;
-    this.completeQuest(quest, xp);
-  },
-
   progressQuest: function (quest) {
     quest.status = QuestStatus.INPROGRESS;
     this.player.pushToPlayer(new Messages.Quest(quest));
@@ -97,7 +90,6 @@ module.exports = PlayerQuests = cls.Class.extend({
   },
 
   removeQuest: function (quest) {
-    //var quests = this.quests;
     this.quests.splice(this.quests.indexOf(quest), 1);
     delete quest;
   },
@@ -109,33 +101,24 @@ module.exports = PlayerQuests = cls.Class.extend({
       this.player.pushToPlayer(new Messages.Quest(quest));
   },
 
-  hasNpcCompleteQuest: function (player, npcQuestId) {
-    var q = null;
+  hasNpcCompleteQuest: function (npcQuestId) {
     var cq = this.completeQuests;
     for (var qid in cq) {
-      q = cq[qid];
+      var q = cq[qid];
       if (q == npcQuestId)
         return true;
     }
     return false;
+    // Don't know why this won't work.
+    //return Object.values(this.completeQuests).find(function (el) { return el == npcQuestId; }) !== null;
   },
 
   getQuestById: function (id) {
-    for (var q of this.quests) {
-      if (q.id == id) {
-        return q;
-      }
-    }
-    return null;
-  },
+    return this.quests.find(function (q) { return q.id == id; });
+   },
 
   hasQuest: function (id) {
-    for (var q of this.quests) {
-      if (q.id == id) {
-        return true;
-      }
-    }
-    return false;
+    return this.getQuestById(id) != null;
   },
 
   forQuestsType: function (type, callback) {

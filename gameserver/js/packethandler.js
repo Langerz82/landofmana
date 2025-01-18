@@ -143,7 +143,7 @@ module.exports = PacketHandler = Class.extend({
 // TODO - Fix CHaracter Info
         case Types.Messages.CW_CHARACTERINFO:
           //console.info("Player character info: " + self.player.name);
-          self.entities.pushToPlayer(self.player, new Messages.CharacterInfo(self.player));
+          self.handleCharacterinfo(message);
           break;
 
         case Types.Messages.CW_TELEPORT_MAP:
@@ -229,12 +229,6 @@ module.exports = PacketHandler = Class.extend({
     }
   },
 
-  broadcastToZone: function(message, ignoreSelf) {
-    if (this.broadcastzone_callback) {
-      this.broadcastzone_callback(message, ignoreSelf === undefined ? true : ignoreSelf);
-    }
-  },
-
   sendPlayer: function (message) {
     this.entities.pushToPlayer(this.player, message);
   },
@@ -252,10 +246,6 @@ module.exports = PacketHandler = Class.extend({
     this.move_callback = callback;
   },
 
-  //onZone: function(callback) {
-    //this.zone_callback = callback;
-  //},
-
   onMessage: function(callback) {
     this.message_callback = callback;
   },
@@ -264,25 +254,16 @@ module.exports = PacketHandler = Class.extend({
     this.broadcast_callback = callback;
   },
 
-  //onBroadcastToZone: function(callback) {
-    //this.broadcastzone_callback = callback;
-  //},
-
-  /*handleHeartbeat: function () {
-      var self = this;
-      if (typeof heartbeatTimeout !== "undefined")
-        clearTimeout(heartbeatTimeout);
-      heartbeatTimeout = setTimeout(function () {
-        self.timeout();
-      },35000);
-  },*/
-
   sendToPlayer: function (player, message) {
     this.map.entities.pushToPlayer(player, message);
   },
 
   send: function(message) {
     this.connection.send(message);
+  },
+
+  handleCharacterInfo: function (message) {
+    this.sendPlayer(new Messages.CharacterInfo(this.player));
   },
 
   handleSyncTime: function (message) {
@@ -322,7 +303,7 @@ module.exports = PacketHandler = Class.extend({
     var questId = parseInt(msg[1]);
     var status = parseInt(msg[2]);
 
-    npc = this.entities.getEntityById(npcId);
+    var npc = this.entities.getEntityById(npcId);
     if (!this.player.isInScreen(npc)) {
       console.info("player not close enough to NPC!");
       return;
@@ -340,7 +321,7 @@ module.exports = PacketHandler = Class.extend({
     var type = parseInt(message[0]);
     var npcId = parseInt(message[1]);
 
-    npc = this.entities.getEntityById(npcId);
+    var npc = this.entities.getEntityById(npcId);
     if (!npc.isWithinDistEntity(this.player, 24)) {
       console.info("player not close enough to NPC!");
       return;
@@ -551,9 +532,10 @@ module.exports = PacketHandler = Class.extend({
     if (p.movement.inProgress) {
       p.attackQueue.push(message);
     } else {
-      setTimeout(function () {
-        self.handleHitEntity(p, message);
-      }, G_LATENCY);
+      self.handleHitEntity(p, message);
+      /*setTimeout(function () {
+
+      }, G_LATENCY);*/
     }
 
   },
@@ -563,13 +545,16 @@ module.exports = PacketHandler = Class.extend({
     var self = this;
     var p = this.player;
 
-    for (var msg of p.attackQueue)
-    {
-      console.info("processAttack, handle hit");
-      //this.handleHitEntity(this.player, msg);
-      setTimeout(function () {
+    if (p.movement.inProgress) {
+      for (var msg of p.attackQueue)
+      {
+        console.info("processAttack, handle hit");
+        //this.handleHitEntity(this.player, msg);
+        /*setTimeout(function () {
+
+        }, G_LATENCY);*/
         self.handleHitEntity(p, msg);
-      }, G_LATENCY);
+      }
     }
     this.player.attackQueue = [];
   },
