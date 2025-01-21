@@ -310,9 +310,9 @@ module.exports = PacketHandler = Class.extend({
     }
 
     if (status == 1)
-      npc.questHandler.acceptQuest(this.player, questId);
+      npc.entityQuests.acceptQuest(this.player, questId);
     else {
-      npc.questHandler.rejectQuest(this.player, questId);
+      npc.entityQuests.rejectQuest(this.player, questId);
     }
   },
 
