@@ -82,6 +82,7 @@ module.exports = Party = Class.extend({
     }
     return highestLevel;
   },
+
   getLowestLevel: function(){
     var i=0;
     var lowestLevel = 999;

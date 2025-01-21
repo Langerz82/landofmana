@@ -44,14 +44,10 @@ var MapEntities = cls.Class.extend({
         }
       }
 
-
-//      self.gather = {};
-//      self.pvpBases = {};
-//      self.houses = {};
       self.packets = {};
 
       self.mobAreas = [];
-      self.chestAreas = [];
+//      self.chestAreas = [];
       self.groups = {};
 
   		self.pathfinder = null;
@@ -132,7 +128,6 @@ var MapEntities = cls.Class.extend({
       pos = self.spaceEntityRandomApart(2, function () { return self.map.getRandomPosition(); });
 
 	    var npc = new NpcMove(++self.entityCount, 0, pos.x * 16, pos.y * 16, self.map);
-      //npc.name = name;
 
 		  self.addNpcPlayer(npc);
 		  //self.pushBroadcast(npc.spawn());
@@ -167,10 +162,9 @@ var MapEntities = cls.Class.extend({
     processWho: function(player) {
         var self = this;
         //console.info("processWho - called.");
-        //var neighbours = [];
         var screens = [];
-        var ids = [];
-        var knowns = [];
+        //var ids = [];
+        //var knowns = [];
 
         var ids = player.knownIds;
         ids = ids.parseInt();
@@ -179,35 +173,25 @@ var MapEntities = cls.Class.extend({
         var pgx = ~~(player.x/G_TILESIZE);
         var pgy = ~~(player.y/G_TILESIZE);
 
-        var x1 = pgx - 64;
-        var y1 = pgy - 32;
-        var x2 = pgx + 64;
-        var y2 = pgy + 32;
         //console.info("x1:"+x1+",y1:"+y1+",x2:"+x2+",y2:"+y2);
-        var entities = this.getSpatialEntities([x1,y1,x2,y2]);
+        var entities = this.getSpatialEntities([pgx - 64, pgy - 32,pgx + 64, pgy + 32]);
 
         //console.info("self.entities.length: "+Object.keys(self.entities).length);
         for (var entity of entities) {
           if (entity && !(entity == player) && self.isOffset(player, entity))
             screens.push(entity.id);
-          //else if (entity && !(entity == player) && self.isOffset(player, entity, 20))
-            //neighbours.push(entity.id);
         }
         //console.info("screens:"+JSON.stringify(screens));
         //console.info("ids:"+JSON.stringify(ids));
 
         var screenIds = (ids && ids.length > 0) ? _.difference(screens, ids) : screens;
-        //var neighbourIds = (ids && ids.length > 0) ? _.difference(neighbours, ids) : neighbours;
 
-
-        //screenIds.concat(neighbourIds);
         //console.info(JSON.stringify(screenIds));
 
         _.each(screenIds, function(id) {
             var entity = self.getEntityById(id);
             if(entity && !(entity == player))
             {
-                //if (typeof player.knownIds[entity.id] === "undefined")
                 player.knownIds.push(entity.id);
                 self.pushToPlayer(player, entity.spawn());
                 if (entity.path) {
@@ -306,7 +290,6 @@ var MapEntities = cls.Class.extend({
                self.packets[player.id].push(message.serialize());
           }
       }
-
     },
 
     isMobsOnSameTile: function(mob) {
@@ -392,7 +375,7 @@ var MapEntities = cls.Class.extend({
   		return null;
   	},
 
-    handleOpenedChest: function(chest, player) {
+    /*handleOpenedChest: function(chest, player) {
       var self = this;
       self.pushToAdjacentGroups(chest.group, chest.despawn());
       self.removeEntity(chest);
@@ -406,8 +389,7 @@ var MapEntities = cls.Class.extend({
     		self.server.handleItemDespawn(item);
 	    }
 	    chest.handleRespawn();
-
-    },
+    },*/
 
     spawnStaticEntities: function(map) {
         var self = this;
@@ -415,13 +397,6 @@ var MapEntities = cls.Class.extend({
 
         console.info(JSON.stringify(self.map.staticEntities));
         _.each(self.map.staticEntities, function(kind, tid) {
-            //var kind;
-            /*if (MobData.Properties[kindName])
-                 kind = MobData.Properties[kindName].kind;
-            else if (NpcData.Properties[kindName])
-            {
-                 kind = NpcData.Properties[kind].kind;
-            }*/
 
             var pos = map.tileIndexToGridPosition(tid);
 
@@ -430,18 +405,6 @@ var MapEntities = cls.Class.extend({
               console.info("npc:" + kind + ",x:"+pos.x+",y:"+pos.y);
               self.addNpc(kind, pos.x, pos.y);
             }
-
-            /*if (MobData.isMob(kind)) {
-                self.addMob(kind, pos.x, pos.y);
-                mob.onRespawn(function() {
-                    mob.isDead = false;
-                    mob.droppedItem = false;
-                    self.addMob(mob);
-                    if (mob.area)
-                        mob.area.addToArea(mob);
-                });
-                self.tryAddingMobToChestArea(mob);
-            }*/
         });
     },
 
@@ -488,7 +451,6 @@ var MapEntities = cls.Class.extend({
       var mob = new Mob(++self.entityCount, kind, x, y, self.map, area);
       mob.mobAI = this.mobAI;
 
-      //mob.onMove(self.server.onMobMoveCallback.bind(self.server));
       this.mobCallback.setCallbacks(mob);
 
       this.addEntity(mob);
@@ -562,14 +524,11 @@ var MapEntities = cls.Class.extend({
 	    if (player instanceof Player)
 		     player.packetHandler.broadcast(player.despawn());
 
-
       console.info("deleting player traces..");
-      //delete self.players[player.id];
-      delete self.packets[player.id];
-      //delete self.entities[player.id];
 
       self.removeEntity(player);
 
+      delete self.packets[player.id];
       delete player;
 
     },
@@ -613,11 +572,11 @@ var MapEntities = cls.Class.extend({
         return self.addItem(item);
     },
 
-    addItemFromChest: function(kind, x, y) {
+    /*addItemFromChest: function(kind, x, y) {
         var item = this.createItem(kind, x, y);
         item.isFromChest = true;
         return this.addItem(item);
-    },
+    },*/
 
     getNpcByQuestId:function(id) {
       var self = this;
@@ -634,8 +593,6 @@ var MapEntities = cls.Class.extend({
     	var self = this;
       if (self.entities.hasOwnProperty(id))
           return self.entities[id];
-      else
-          ; //try{ throw new Error(); } catch (err) { console.info(err.stack); }
     },
 
     getPlayerByName: function(name)
@@ -686,54 +643,21 @@ var MapEntities = cls.Class.extend({
     },
 
     forEachEntity: function(callback) {
-        //var self = this;
-        //console.info("forEachEntity, count:"+Object.keys(self.entities).length);
-        /*for (var id in self.entities) {
-            if (self.entities.hasOwnProperty(id))
-                callback(self.entities[id]);
-        }*/
         Utils.forEach(this.entities, function (entity) {
           callback(entity);
         });
     },
 
     forEachPlayer: function(callback) {
-        //var self = this;
-        /*(for (var id in self.players) {
-            if (self.players.hasOwnProperty(id))
-                callback(self.players[id]);
-        }*/
         Utils.forEach(this.players, function (entity) {
           callback(entity);
         });
-
     },
-
-    /*forEachPartyPlayer: function(callback) {
-        //var self = this;
-        Utils.forEach(this.players, function (entity) {
-          callback(entity);
-        });
-        for (var id in self.players) {
-            if (self.players.hasOwnProperty(id))
-                callback(self.players[id]);
-        }
-    },*/
 
     forEachMob: function(callback) {
         Utils.forEach(this.mobs, function (entity) {
           callback(entity);
         });
-
-        /*var self = this;
-        //try { throw new Error(); } catch (e) { console.info(e.stack); }
-        //console.info("forEachMob, count:"+Object.keys(self.mobs).length);
-        for (var id in self.mobs) {
-            //console.info("forEachMob, id:"+id);
-            if (self.mobs.hasOwnProperty(id)) {
-              callback(self.mobs[id]);
-            }
-        }*/
     },
 
     forEachCharacter: function(callback) {
@@ -741,13 +665,6 @@ var MapEntities = cls.Class.extend({
           if (entity instanceof Character)
             callback(entity);
         });
-
-        /*var self = this;
-        //console.info("forEachCharacter, count:"+Object.keys(self.entities).length);
-        for (var id in self.entities) {
-            if (self.entities.hasOwnProperty(id) && self.entities[id] instanceof Character)
-                callback(self.entities[id]);
-        }*/
     },
 
     forEachNpcPlayer: function(callback) {
@@ -755,11 +672,6 @@ var MapEntities = cls.Class.extend({
         if (entity instanceof Character)
           callback(entity);
       });
-        /*var self = this;
-        for (var id in self.npcplayers) {
-            if (self.npcplayers.hasOwnProperty(id))
-                callback(self.npcplayers[id]);
-        }*/
     },
 
 // TODO - Minimize function calls so you can pass type to loop through, and the additional condition.
@@ -873,7 +785,7 @@ var MapEntities = cls.Class.extend({
     },
 
     getAroundCount: function(entities, entity, range) {
-      return this.getEntityAround(entities, entity, range).length;
+      return this.getEntityCount(entities, entity, range);
     },
 
     getEntityAroundCount: function(entity, range) {

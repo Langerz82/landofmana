@@ -358,7 +358,7 @@ Utils.forEach = function (obj, fn) {
   for (var key in obj) {
     if (obj.hasOwnProperty(key))
     {
-      if (fn && fn(obj[key], key))
+      if (obj[key] && fn && fn(obj[key], key))
         return true;
     }
   }

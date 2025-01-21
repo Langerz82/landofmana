@@ -96,34 +96,6 @@ Messages.MovePath = Message.extend({
     }
 });
 
-/*Messages.Attack = Message.extend({
-    init: function(attackerId, targetId) {
-        this.attackerId = attackerId;
-        this.targetId = targetId;
-    },
-    serialize: function() {
-        return [Types.Messages.WC_ATTACK,
-            this.attackerId,
-            this.targetId];
-    }
-});*/
-
-
-/*Messages.Health = Message.extend({
-    init: function (id, points, isRegen) {
-    	  this.id = id;
-        this.points = points;
-        this.isRegen = isRegen;
-    },
-    serialize: function() {
-        var health = [Types.Messages.WC_HEALTH,
-                      this.id, this.points];
-        if (this.isRegen)
-            health.push(1);
-        return health;
-    }
-});*/
-
 Messages.ChangePoints = Message.extend({
     init: function(entity, modhp, modep) {
         this.id = entity.id;
@@ -196,25 +168,6 @@ Messages.Achievement = Message.extend({
         return ([Types.Messages.WC_ACHIEVEMENT]).concat(arr);
     }
 });
-
-/*Messages.Drop = Message.extend({
-    init: function (item, x, y) {
-        this.item = item;
-        this.x = x || this.mob.x;
-        this.y = y || this.mob.y;
-    },
-    serialize: function() {
-        var drop = [Types.Messages.WC_DROP,
-                    this.item.map.index,
-                    this.item.id,
-                    this.item.room.itemKind,
-                    this.item.room.itemNumber,
-                    this.x,
-        	    	    this.y];
-        return drop;
-    }
-});*/
-
 
 Messages.Log = Message.extend({
     init: function(message) {
@@ -409,18 +362,6 @@ Messages.ItemLevelUp = Message.extend({
   	}
   }
 });
-
-/*Messages.Kill = Message.extend({
-    init: function (entity, exp) {
-        this.entity = entity;
-        //this.level = level;
-        //this.exp = exp;
-    },
-    serialize: function () {
-        return [Types.Messages.WC_KILL,
-                this.entity ? this.entity.id : -1];
-    }
-});*/
 
 Messages.Stat = Message.extend({
     init: function (type, value, change) {

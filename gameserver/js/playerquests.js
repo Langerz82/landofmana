@@ -27,6 +27,19 @@ module.exports = PlayerQuests = cls.Class.extend({
     }
   },
 
+  questAboutItemCheck: function (target, quest) {
+    var lootKind = quest.object2.kind+1000;
+    if (quest.object2.type == Types.EntityTypes.ITEMLOOT &&
+        quest.object.type == Types.EntityTypes.MOB &&
+        quest.object.kind == target.kind &&
+        quest.status != QuestStatus.COMPLETE &&
+        (quest.count < quest.object2.count || player.inventory.hasItemCount(lootKind) < quest.object2.count))
+    {
+        target.questDrops[lootKind] = parseInt(quest.object2.chance*10);
+        quest.object2.chance += 1;
+    }
+  },
+
   questAboutUseNode: function(quest) {
     quest.count++;
     if(quest.count >= quest.object.count) {

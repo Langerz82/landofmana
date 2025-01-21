@@ -310,9 +310,9 @@ module.exports = PacketHandler = Class.extend({
     }
 
     if (status == 1)
-      npc.acceptQuest(this.player, questId);
+      npc.questHandler.acceptQuest(this.player, questId);
     else {
-      npc.rejectQuest(this.player, questId);
+      npc.questHandler.rejectQuest(this.player, questId);
     }
   },
 
@@ -533,11 +533,7 @@ module.exports = PacketHandler = Class.extend({
       p.attackQueue.push(message);
     } else {
       self.handleHitEntity(p, message);
-      /*setTimeout(function () {
-
-      }, G_LATENCY);*/
     }
-
   },
 
   processAttack: function () {
@@ -549,10 +545,6 @@ module.exports = PacketHandler = Class.extend({
       for (var msg of p.attackQueue)
       {
         console.info("processAttack, handle hit");
-        //this.handleHitEntity(this.player, msg);
-        /*setTimeout(function () {
-
-        }, G_LATENCY);*/
         self.handleHitEntity(p, msg);
       }
     }

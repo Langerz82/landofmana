@@ -79,7 +79,7 @@ module.exports = PlayerController = Class.extend({
       {
         return false;
       }
-      if (c.x == c.ex && c.y == c.ey)
+      else if (c.x == c.ex && c.y == c.ey)
       {
         //console.warn("checkStopDanger - coordinates equal");
         return true;

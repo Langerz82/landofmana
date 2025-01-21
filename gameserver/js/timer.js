@@ -9,11 +9,7 @@ module.exports = Timer = cls.Class.extend({
 
         restart: function (startTime)
         {
-          this.lastTime = startTime;
-          if (isNaN(startTime) || startTime === null || startTime === 0)
-          {
-            this.lastTime = Date.now();
-          }
+          this.lastTime = startTime || Date.now();
         },
 
         isOver: function(time) {

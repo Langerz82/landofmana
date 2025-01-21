@@ -41,20 +41,6 @@ module.exports = MapManager = cls.Class.extend({
       }
     },
 
-    /*storeChestArea: function(map) {
-    	    var self = this;
-
-            var chestAreas = [];
-            _.each(map.chestAreas, function(a) {
-                //console.info("number: " + a.nb + ",a.minLevel: "+a.minLevel+", a.maxLevel: "+a.maxLevel);
-                var area = new ChestArea(a.id, a.nb, a.minLevel, a.maxLevel, a.x, a.y, a.width, a.height, map);
-                area.spawnChests();
-                //area.onEmpty(self.handleEmptyMobArea.bind(self, area));
-                chestAreas.push(area);
-            });
-            return chestAreas;
-    },*/
-
     init: function(server) {
     	    var self = this;
 
@@ -148,17 +134,6 @@ module.exports = MapManager = cls.Class.extend({
                     a += x;
                     b += y;
 
-                    /*
-                    mobArea = new MobArea(id, 20, 1+(id), 1+(id), a, b, 35, 35,
-                      [id % Object.keys(MobData.Kinds).length], null, null, map, true, -1, null, null);
-                    map.mobArea.push(mobArea);
-
-                    var area = new Area(0, a, b, 35, 35, map, false, -1);
-                    var pos = area._getRandomPositionInsideArea(40);
-                    var npc = new NpcMove(++map.entities.entityCount, 2+(i), pos.x, pos.y, map);
-                    //npc.name = "Test"+id;
-                    map.entities.addNpcPlayer(npc);
-                    */
                     id++;
                     mobArea = new MobArea(id, 12, 1+(id), 1+(id), a, b, 40, 40,
                       [id % Object.keys(MobData.Kinds).length], null, null, map, true, -1, null, null);
