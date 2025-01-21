@@ -1,5 +1,8 @@
 TODO
 
+WORKING - Dynamic Quests when talking to the NPC it's using the Script Quests
+Dialogue for some reason.
+
 WORKING - ITEM STACKING NOT WORKING.
 
 WORKING - HARVESTING NOT SELECTING THE HARVEST TILES AND TARGETING PLAYER INSTEAD.

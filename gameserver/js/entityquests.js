@@ -1,16 +1,20 @@
 var Quest = require('./quest');
 var Messages = require('./message');
 
-module.exports = QuestHandler = cls.Class.extend({
+module.exports = EntityQuests = cls.Class.extend({
     init: function(entity) {
       this.entity = entity;
+
+      this.questsCount = 0;
+      this.quests = {};
+      this.questEntityKind = this.entity.kind;
     },
 
     acceptQuest: function (player, questId) {
-      if (!this.entity.quests.hasOwnProperty(questId))
+      if (!this.quests.hasOwnProperty(questId))
         return;
 
-      var quest = this.entity.quests[questId];
+      var quest = this.quests[questId];
 
       pQuest = player.quests.getQuestById(parseInt(questId));
       if (pQuest) {
@@ -29,18 +33,18 @@ module.exports = QuestHandler = cls.Class.extend({
 
     },
 
+// BUGGED - WHEN A QUEST IS IN-PROGRESS IT DOES NOT SHOW THE QUEST SUMMARY.
     hasQuest: function (player) {
       for (var quest of player.quests.quests)
       {
-        var a = (this.entity.questId == quest.npcQuestId);
-        if (a) {
+        if (this.questEntityKind == quest.npcQuestId) {
           player.quests.progressQuest(quest);
           return true;
         }
       }
 
-      for (var id in this.entity.quests) {
-        var quest = this.entity.quests[id];
+      for (var id in this.quests) {
+        var quest = this.quests[id];
         if (player.quests.hasNpcCompleteQuest(quest.npcQuestId)) {
           this.sendNoQuest(player);
           return true;
@@ -51,8 +55,7 @@ module.exports = QuestHandler = cls.Class.extend({
 
     sendNoQuest: function (player) {
       var entity = this.entity;
-      var langcode = "QUESTS_NONE";
-      var msg  = new Messages.Dialogue(entity, langcode, [entity.nextNpcDir, entity.nextNpcName, entity.name])
+      var msg = new Messages.Dialogue(entity, "QUESTS_NONE", [entity.nextNpcDir, entity.nextNpcName, entity.name])
       entity.map.entities.pushToPlayer(player, msg);
     },
 
@@ -113,7 +116,7 @@ module.exports = QuestHandler = cls.Class.extend({
       console.info("GETITEMKIND");
 
       var itemKind = Utils.randomInt(ItemLootData.ItemLoot.length-1);
-      var id = '02'+ Utils.pad(this.entity.kind,6) + Utils.pad(this.entity.questCount++,4);
+      var id = '02'+ Utils.pad(this.entity.kind,6) + Utils.pad(this.questsCount++,4);
       var quest = player.quests.getQuestById(id);
       if (!quest)
       {
@@ -127,7 +130,8 @@ module.exports = QuestHandler = cls.Class.extend({
         var itemObject = getQuestObject([Types.EntityTypes.ITEMLOOT, itemKind,
           itemCount, itemChance]);
 
-        quest = new Quest([id, QuestType.GETITEMKIND, this.entity.questId, 0, 0, 0, 0, mobObject, itemObject]);
+        quest = new Quest([id, QuestType.GETITEMKIND, this.questEntityKind, 0, 0, 0, 0, mobObject, itemObject]);
+        //quest.entityId = this.entity.id;
         player.quests.foundQuest(quest);
       }
       else {
@@ -139,7 +143,7 @@ module.exports = QuestHandler = cls.Class.extend({
     createQuestKillMobKind: function (player) {
       console.info("KILLMOBKIND");
 
-      var id = '01'+ Utils.pad(this.entity.kind,6) + Utils.pad(this.entity.questCount++,4);
+      var id = '01'+ Utils.pad(this.entity.kind,6) + Utils.pad(this.questsCount++,4);
       var quest = player.quests.getQuestById(id);
       if (!quest)
       {
@@ -152,7 +156,8 @@ module.exports = QuestHandler = cls.Class.extend({
         mobObject.count = Utils.clamp(lw, lh, (mobObject.count / 2));
         mobObject.count = Math.ceil(mobObject.count/5)*5;
 
-        quest = new Quest([id, QuestType.KILLMOBKIND, this.entity.questId, 0, 0, 0, 0, mobObject]);
+        quest = new Quest([id, QuestType.KILLMOBKIND, this.questEntityKind, 0, 0, 0, 0, mobObject]);
+        //quest.entityId = this.entity.id;
         player.quests.foundQuest(quest);
       }
       else {
@@ -160,7 +165,4 @@ module.exports = QuestHandler = cls.Class.extend({
         player.quests.progressQuest(quest);
       }
     },
-
-
-
 });

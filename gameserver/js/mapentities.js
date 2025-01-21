@@ -578,16 +578,17 @@ var MapEntities = cls.Class.extend({
         return this.addItem(item);
     },*/
 
-    getNpcByQuestId:function(id) {
+    /*getNpcByQuestId:function(id) {
       var self = this;
       var npc;
       for (var id in self.npcs) {
         npc = self.npcs[id];
-        if (npc.questId == id)
+        // DANGER - if questhandler variable changes so should this.
+        if (npc.entityQuests.questEntityKind == id)
           return npc;
       }
       return null;
-    },
+    },*/
 
     getEntityById: function(id) {
     	var self = this;

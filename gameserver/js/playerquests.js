@@ -85,11 +85,15 @@ module.exports = PlayerQuests = cls.Class.extend({
       return false;
   },
 
-  progressQuest: function (quest) {
-    quest.status = QuestStatus.INPROGRESS;
+  sendQuest: function (quest) {
+    //var entityId = this.player.map.entities.getNpcByQuestId(quest.npcQuestId);
     this.player.pushToPlayer(new Messages.Quest(quest));
   },
 
+  progressQuest: function (quest) {
+    quest.status = QuestStatus.INPROGRESS;
+    this.sendQuest(quest);
+  },
 
   completeQuest: function(quest, xp) {
     if (xp > 0) {
@@ -97,7 +101,7 @@ module.exports = PlayerQuests = cls.Class.extend({
     }
 
     quest.status = QuestStatus.COMPLETE;
-    this.player.pushToPlayer(new Messages.Quest(quest));
+    this.sendQuest(quest);
     this.completeQuests[quest.id] = quest.npcQuestId;
     this.removeQuest(quest);
   },
@@ -111,7 +115,7 @@ module.exports = PlayerQuests = cls.Class.extend({
       //console.info("foundQuest="+questId);
       this.quests.push(quest);
       quest.status = QuestStatus.STARTED;
-      this.player.pushToPlayer(new Messages.Quest(quest));
+      this.sendQuest(quest);
   },
 
   hasNpcCompleteQuest: function (npcQuestId) {

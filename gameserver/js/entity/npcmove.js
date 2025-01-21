@@ -3,7 +3,7 @@
 var Character = require('./character'),
     Messages = require('../message'),
     NpcMoveController = require('../npcmovecontroller'),
-    QuestHandler = require("../questhandler");
+    EntityQuests = require("../entityquests");
 var NPCnames = require("../../shared/data/npc_names.json");
 
 
@@ -24,13 +24,9 @@ var NpcMove = Character.extend({
         this.name = NPCnames[kind%NPCnames.length];
 
         this.activeController = new NpcMoveController(this);
-        this.questHandler = new QuestHandler(this);
+        this.entityQuests = new EntityQuests(this);
 
-        this.scriptQuests = false;
-
-        this.questCount = 0;
-        this.quests = {};
-        this.questId = this.kind;
+        //this.scriptQuests = false;
 
         if (QuestData.NpcData.hasOwnProperty(this.kind)) {
           var qData = QuestData.NpcData[this.kind];
@@ -40,14 +36,15 @@ var NpcMove = Character.extend({
             var pQuest = null;
             for (var q of qData)
             {
-              this.quests[q.id] = q;
+              this.entityQuests.quests[q.id] = q;
             }
           }
         }
     },
 
     getState: function() {
-        return this._getBaseState().concat([this.questId]);
+        // DANGER - if questhandler variable changes so should this.
+        return this._getBaseState().concat([this.entityQuests.questEntityKind]);
     },
 
     talk: function (player) {
@@ -55,7 +52,7 @@ var NpcMove = Character.extend({
 
       var res = false;
       player.quests.forQuestsType(QuestType.GETITEMKIND, function (q) {
-        if (q.npcQuestId == self.questId) {
+        if (q.npcQuestId == self.kind) {
           if (player.quests.questAboutItemComplete(q, null))
             res = true;
         }
@@ -63,16 +60,16 @@ var NpcMove = Character.extend({
       if (res)
         return;
 
-      if (Object.keys(this.quests).length == 0) {
-        this.questHandler.dynamicQuests(player);
+      if (Object.keys(this.entityQuests.quests).length == 0) {
+        this.entityQuests.dynamicQuests(player);
       } else {
         var newQid = -1;
 
-        if (this.questHandler.hasQuest(player)) {
+        if (this.entityQuests.hasQuest(player)) {
           return;
         }
 
-        for (var qid in this.quests) {
+        for (var qid in this.entityQuests.quests) {
           var pq = player.quests.getQuestById(qid);
           if (pq)
             continue;
@@ -81,7 +78,7 @@ var NpcMove = Character.extend({
         }
 
         if (newQid == -1) {
-          this.questHandler.sendNoQuest(player);
+          this.entityQuests.sendNoQuest(player);
           return;
         }
 
