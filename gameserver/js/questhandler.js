@@ -113,7 +113,7 @@ module.exports = QuestHandler = cls.Class.extend({
       console.info("GETITEMKIND");
 
       var itemKind = Utils.randomInt(ItemLootData.ItemLoot.length-1);
-      var id = '02'+ Utils.pad(this.kind,6) + Utils.pad(this.entity.questCount++,4);
+      var id = '02'+ Utils.pad(this.entity.kind,6) + Utils.pad(this.entity.questCount++,4);
       var quest = player.quests.getQuestById(id);
       if (!quest)
       {
@@ -139,7 +139,7 @@ module.exports = QuestHandler = cls.Class.extend({
     createQuestKillMobKind: function (player) {
       console.info("KILLMOBKIND");
 
-      var id = '01'+ Utils.pad(this.kind,6) + Utils.pad(this.entity.questCount++,4);
+      var id = '01'+ Utils.pad(this.entity.kind,6) + Utils.pad(this.entity.questCount++,4);
       var quest = player.quests.getQuestById(id);
       if (!quest)
       {
