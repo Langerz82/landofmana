@@ -857,41 +857,57 @@ var MapEntities = cls.Class.extend({
 
           var shortGrid = this.pathfinder.getShortGrid(grid, pS, pE, 3);
           var sgrid = shortGrid.crop;
-          pS = shortGrid.substart;
-          pE = shortGrid.subend;
+          //var spSG = shortGrid.substart;
+          //var spEG = shortGrid.subend;
+          var spS = shortGrid.substart;
+          var spE = shortGrid.subend;
+          //var spS = [~~(spSG[0])*ts,~~(spSG[1])*ts];
+          //var spE = [~~(spEG[0])*ts,~~(spEG[1])*ts];
 
-          if (!path || path.length == 0) {
-            if (pS[0] == pE[0] || pS[1] == pE[1]) {
-              mp = [pS, pE];
+          var subpath = [];
 
-              if(this.pathfinder.isValidPath(sgrid, mp)) {
+          if (!subpath || subpath.length == 0) {
+            if (spS[0] == spE[0] || spS[1] == spE[1]) {
+              mp = [spS, spE];
+              if(this.pathfinder.isValidPath(sgrid, mp, true)) {
                   //console.warn("path-mp:"+JSON.stringify(mp));
-                  path = mp;
-                  console.info("findPath1 - path:"+JSON.stringify(path));
+                  subpath = mp;
+                  console.info("findPath1 - subpath:"+JSON.stringify(subpath));
               }
             }
           }
 
-          if (!path || path.length == 0) {
-            var mp = [pS, [pS[0],pE[1]], pE];
-            console.info("mp:"+JSON.stringify(mp));
-            if(this.pathfinder.isValidPath(sgrid, mp)) {
+          if (Math.abs(spS[0]-spE[0]) > 1 || Math.abs(spS[1]-spE[1]) > 1)
+          {
+            if (!subpath || subpath.length == 0) {
+              var mp = [spS, [spS[0],spE[1]], spE];
+              console.info("mp:"+JSON.stringify(mp));
+              if(this.pathfinder.isValidPath(sgrid, mp, true)) {
 
-              //console.warn("findPath - lPath:"+JSON.stringify(mp));
-              path = mp;
-              console.info("findPath2 - path:"+JSON.stringify(path));
+                //console.warn("findPath - lPath:"+JSON.stringify(mp));
+                subpath = mp;
+                console.info("findPath2 - subpath:"+JSON.stringify(subpath));
+              }
+            }
+
+            if (!subpath || subpath.length == 0) {
+              //console.info("path:"+JSON.stringify(path));
+              mp = [spS, [spE[0],spS[1]], spE];
+              console.info("mp:"+JSON.stringify(mp));
+              if(this.pathfinder.isValidPath(sgrid, mp, true)) {
+                  //console.warn("findPath - lPath:"+JSON.stringify(mp));
+                  subpath = mp;
+                  console.info("findPath3 - subpath:"+JSON.stringify(subpath));
+              }
             }
           }
 
-          if (!path || path.length == 0) {
-            //console.info("path:"+JSON.stringify(path));
-            mp = [pS, [pE[0],pS[1]], pE];
-            console.info("mp:"+JSON.stringify(mp));
-            if(this.pathfinder.isValidPath(sgrid, mp)) {
-                //console.warn("findPath - lPath:"+JSON.stringify(mp));
-                path = mp;
-                console.info("findPath3 - path:"+JSON.stringify(path));
-            }
+          if (subpath && subpath.length > 0)
+          {
+            console.info("findPath - subpath:"+JSON.stringify(subpath));
+            var res = this.pathfinder.getFullFromShortPath(subpath, shortGrid.minX, shortGrid.minY);
+            console.info("findPath - res:"+JSON.stringify(res));
+            return res;
           }
 
           if (!path || path.length == 0) {
@@ -899,30 +915,8 @@ var MapEntities = cls.Class.extend({
             //console.info("grid:"+JSON.stringify(grid));
             //console.info(JSON.stringify(shortGrid));
             path = this.pathfinder.findShortPath(sgrid,
-          	 shortGrid.minX, shortGrid.minY, pS, pE);
+          	 shortGrid.minX, shortGrid.minY, spS, spE);
             console.info("findPath - shortPath:"+JSON.stringify(path));
-          }
-
-          if (path && path.length > 0)
-          {
-            //log.info("path_result: "+JSON.stringify(path));
-            var dx = character.x - pS[0]*ts;
-            var dy = character.y - pS[1]*ts;
-
-            for (var node of path)
-            {
-              node[0] = ~~(node[0]*ts+dx);
-              node[1] = ~~(node[1]*ts+dy);
-            }
-            log.info("path_result2: "+JSON.stringify(path));
-            if (!(path[0][0] == (character.x) && path[0][1] == (character.y)))
-            {
-              log.error("player path start co-ordinates mismatch.");
-              log.error("path start coordinate: "+path[0][0]+","+path[0][1]);
-              log.error("player start coordinate: "+character.x+","+character.y);
-              return null;
-            }
-            return path;
           }
 
           if (!path || path.length == 0) {

@@ -166,7 +166,7 @@ module.exports = Pathfinder = Class.extend({
       return true;
   },
 
-  isValidPath: function (grid, path) {
+  isValidPath: function (grid, path, isGridPath) {
     var ts = G_TILESIZE,
         ly = grid.length,
         lx = grid[0].length;
@@ -203,9 +203,11 @@ module.exports = Pathfinder = Class.extend({
     for (var i = 0; i < path.length; i++)
         path2[i] = path[i].slice();
 
-    for (var coord of path2) {
-      coord[0] /= ts;
-      coord[1] /= ts;
+    if (!isGridPath) {
+      for (var coord of path2) {
+        coord[0] /= ts;
+        coord[1] /= ts;
+      }
     }
 
     var pCoord = null;
@@ -276,28 +278,30 @@ module.exports = Pathfinder = Class.extend({
 			return null;
   },
 
+  getFullFromShortPath: function (subpath, offsetX, offsetY) {
+    var ts = G_TILESIZE;
+    if (subpath && subpath.length > 0)
+    {
+      var path = [];
+      var len = subpath.length;
+      for (var j = 0; j < len; ++j)
+      {
+        subpath[j][0] = (subpath[j][0]+offsetX)*ts;
+        subpath[j][1] = (subpath[j][1]+offsetY)*ts;
+      }
+      //console.info(JSON.stringify(path));
+      console.info(JSON.stringify(subpath));
+      return subpath;
+    }
+    return null;
+  },
+
   findShortPath: function(crop, offsetX, offsetY, start, end) {
       var ts = G_TILESIZE;
   		var path;
       //console.info("ASTAR(S): "+JSON.stringify(start)+","+JSON.stringify(end));
 			var subpath = AStar.AStar(crop, start, end);
-
-			if (subpath && subpath.length > 0)
-			{
-				var path = [];
-				var len = subpath.length;
-				for (var j = 0; j < len; ++j)
-				{
-					path[j] = [];
-					path[j][0] = (subpath[j][0]+offsetX)*ts;
-					path[j][1] = (subpath[j][1]+offsetY)*ts;
-				}
-				//console.info(JSON.stringify(path));
-				//console.info(JSON.stringify(subpath));
-				return path;
-			}
-
-      return null;
+      return this.getFullFromShortPath(subpath, offsetX, offsetY);
   },
 
   findPath: function(grid, start, end, findIncomplete) {
