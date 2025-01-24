@@ -98,13 +98,13 @@ module.exports = TaskHandler = cls.Class.extend({
       this.processAchievement(player, playerEvent, achievement, function (achievement, event) {
         return (achievement.data.type == EventType.KILLMOB &&
             (achievement.data.objectKind == 0 || achievement.data.objectKind == event.object.kind));
-      }, 5);
+      }, 7.5);
       this.processAchievement(player, playerEvent, achievement, function (achievement, event) {
         return (achievement.data.type == EventType.LOOTITEM && event.object.hasOwnProperty("enemyDrop"));
       }, 15);
       this.processAchievement(player, playerEvent, achievement, function (achievement, event) {
         return (achievement.data.type == EventType.DAMAGE);
-      }, 0.1);
+      }, 0.75);
       this.processAchievement(player, playerEvent, achievement, function (achievement, event) {
         if (achievement.data.type == EventType.USE_NODE) {
           var wtype = event.object.weaponType;
