@@ -857,17 +857,15 @@ var MapEntities = cls.Class.extend({
 
           var shortGrid = this.pathfinder.getShortGrid(grid, pS, pE, 3);
           var sgrid = shortGrid.crop;
-          //var spSG = shortGrid.substart;
-          //var spEG = shortGrid.subend;
           var spS = shortGrid.substart;
           var spE = shortGrid.subend;
-          //var spS = [~~(spSG[0])*ts,~~(spSG[1])*ts];
-          //var spE = [~~(spEG[0])*ts,~~(spEG[1])*ts];
-
           var subpath = [];
 
+          var dx = Math.abs(Math.floor(spS[0]) - Math.floor(spE[0]));
+          var dy = Math.abs(Math.floor(spS[1]) - Math.floor(spE[1]));
+          console.info("dx="+dx+",dy="+dy);
           if (!subpath || subpath.length == 0) {
-            if (spS[0] == spE[0] || spS[1] == spE[1]) {
+            if (dx == 0 || dy == 0) {
               mp = [spS, spE];
               if(this.pathfinder.isValidPath(sgrid, mp, true)) {
                   //console.warn("path-mp:"+JSON.stringify(mp));
@@ -877,13 +875,12 @@ var MapEntities = cls.Class.extend({
             }
           }
 
-          if (Math.abs(spS[0]-spE[0]) > 1 || Math.abs(spS[1]-spE[1]) > 1)
-          {
+          //if (!(dx == 0 || dy == 0))
+          //{
             if (!subpath || subpath.length == 0) {
               var mp = [spS, [spS[0],spE[1]], spE];
               console.info("mp:"+JSON.stringify(mp));
               if(this.pathfinder.isValidPath(sgrid, mp, true)) {
-
                 //console.warn("findPath - lPath:"+JSON.stringify(mp));
                 subpath = mp;
                 console.info("findPath2 - subpath:"+JSON.stringify(subpath));
@@ -891,7 +888,6 @@ var MapEntities = cls.Class.extend({
             }
 
             if (!subpath || subpath.length == 0) {
-              //console.info("path:"+JSON.stringify(path));
               mp = [spS, [spE[0],spS[1]], spE];
               console.info("mp:"+JSON.stringify(mp));
               if(this.pathfinder.isValidPath(sgrid, mp, true)) {
@@ -900,11 +896,11 @@ var MapEntities = cls.Class.extend({
                   console.info("findPath3 - subpath:"+JSON.stringify(subpath));
               }
             }
-          }
+          //}
 
           if (subpath && subpath.length > 0)
           {
-            console.info("findPath - subpath:"+JSON.stringify(subpath));
+            //console.info("findPath - subpath:"+JSON.stringify(subpath));
             var res = this.pathfinder.getFullFromShortPath(subpath, shortGrid.minX, shortGrid.minY);
             console.info("findPath - res:"+JSON.stringify(res));
             return res;

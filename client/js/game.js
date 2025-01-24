@@ -1597,7 +1597,7 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
                 if(this.pathfinder && character)
                 {
 
-                    var ts = this.tilesize;
+                    var ts = G_TILESIZE;
                     var grid = this.mapContainer.collisionGrid;
                     if (!grid) {
                       console.error("game.js findPath: grid not ready for pathing.")
@@ -1605,8 +1605,7 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
                     }
 
                     var c = this.camera;
-                    var path = null;
-                    //var ts = this.tilesize;
+
                     var pS = c.getGridPos([character.x, character.y]);
                     if (mc.isColliding(character.x, character.y))
                     {
@@ -1637,42 +1636,45 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
                     }
 
                     var shortGrid = this.pathfinder.getShortGrid(grid, pS, pE, 3);
+                    var sgrid = shortGrid.crop;
+                    var spS = shortGrid.substart;
+                    var spE = shortGrid.subend;
+                    var path = [];
+
+                    var dx = Math.abs(Math.floor(spS[0]) - Math.floor(spE[0]));
+                    var dy = Math.abs(Math.floor(spS[1]) - Math.floor(spE[1]));
+
                     if (!path || path.length == 0) {
-                      if (pS[0] == pE[0] || pS[1] == pE[1]) {
-                        mp = [pS, pE];
-                        if(this.pathfinder.isValidPath(grid, mp)) {
-                          log.info("validpath-mp:"+JSON.stringify(mp));
+                      if (dx == 0 || dy == 0) {
+                        mp = [spS, spE];
+                        if(this.pathfinder.isValidPath(sgrid, mp)) {
+                          log.info("validpath-mp1:"+JSON.stringify(mp));
                           path = mp;
                         }
                       }
                     }
 
-                    if (!path || path.length == 0) {
-                      var mp = [pS, [pS[0],pE[1]], pE];
-                      log.info("mp:"+JSON.stringify(mp));
-                      if(this.pathfinder.isValidPath(grid, mp)) {
-                        log.info("validpath-mp2:"+JSON.stringify(mp));
-                        path = mp;
+                    //if (!(dx == 0 || dy == 0)) {
+                      if (!path || path.length == 0) {
+                        var mp = [spS, [spS[0],spE[1]], spE];
+                        log.info("mp:"+JSON.stringify(mp));
+                        if(this.pathfinder.isValidPath(sgrid, mp)) {
+                          log.info("validpath-mp2:"+JSON.stringify(mp));
+                          path = mp;
+                        }
                       }
-                    }
 
-                    if (!path || path.length == 0) {
-                      //log.info("path:"+JSON.stringify(path));
-                      mp = [pS, [pE[0],pS[1]], pE];
-                      log.info("mp:"+JSON.stringify(mp));
-                      if(this.pathfinder.isValidPath(grid, mp)) {
-                        log.info("validpath-mp3:"+JSON.stringify(mp));
-                        path = mp;
+                      if (!path || path.length == 0) {
+                        mp = [spS, [spE[0],spS[1]], spE];
+                        log.info("mp:"+JSON.stringify(mp));
+                        if(this.pathfinder.isValidPath(sgrid, mp)) {
+                          log.info("validpath-mp3:"+JSON.stringify(mp));
+                          path = mp;
+                        }
                       }
-                    }
+                    //}
 
                     if (!path || path.length == 0) {
-                      var shortGrid = this.pathfinder.getShortGrid(grid, pS, pE, 3);
-
-                      var grid = shortGrid.crop,
-                        pS = shortGrid.substart,
-                        pE = shortGrid.subend;
-
                       var lx = grid[0].length;
                       var ly = grid.length;
                       if (pS[0] < 0 || pS[0] >= lx || pS[1] < 0 || pS[1] >= ly ||
@@ -1683,20 +1685,24 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
                               return null;
                       }
                       log.info("using short path finder.");
-                      path = this.pathfinder.findShortPath(shortGrid.crop,
-                        shortGrid.minX, shortGrid.minY, shortGrid.substart, shortGrid.subend);
+                      path = this.pathfinder.findShortPath(sgrid,
+                        shortGrid.minX, shortGrid.minY, spS, spE);
+                      if (path)
+                        log.info("validpath-mp4:"+JSON.stringify(path));
                     }
 
                     if (!path || path.length == 0) {
                       log.info("using long path finder.");
                       path = this.pathfinder.findPath(grid, pS, pE, false);
+                      if (path)
+                        log.info("validpath-mp5:"+JSON.stringify(path));
                     }
 
                     if (path && path.length > 0)
                     {
                       //log.info("path_result: "+JSON.stringify(path));
-                      var dx = character.x - pS[0]*ts;
-                      var dy = character.y - pS[1]*ts;
+                      var dx = character.x - spS[0]*ts;
+                      var dy = character.y - spS[1]*ts;
 
                       for (var node of path)
                       {
