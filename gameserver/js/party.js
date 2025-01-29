@@ -59,7 +59,7 @@ module.exports = Party = Class.extend({
     //console.info("msg="+JSON.stringify(msg));
     for(i=0; i<players.length; i++){
        if (players[i] instanceof Player)
-       	   players[i].map.entities.pushToPlayer(players[i], new Messages.Party(names));
+       	   players[i].map.entities.sendToPlayer(players[i], new Messages.Party(names));
     }
   },
 

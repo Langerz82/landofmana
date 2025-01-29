@@ -3,7 +3,7 @@
 var Character = require('./character'),
     Messages = require("../message"),
     Formulas = require("../formulas"),
-    Party = require("../party"),
+//    Party = require("../party"),
     Bank = require("../items/bank"),
     Equipment = require("../items/equipment"),
     Inventory = require("../items/inventory"),
@@ -191,7 +191,7 @@ module.exports = Player = Character.extend({
     resetBars: function() {
       this.resetHP();
       this.resetEP();
-      this.map.entities.pushNeighbours(this, new Messages.ChangePoints(this, 0, 0));
+      this.map.entities.sendNeighbours(this, new Messages.ChangePoints(this, 0, 0));
     },
 
 
@@ -272,7 +272,7 @@ module.exports = Player = Character.extend({
       incExp = Math.ceil(incExp * this.getExpBonus());
 
       this.exp.base = parseInt(this.exp.base) + parseInt(incExp);
-      this.pushToPlayer(new Messages.Stat(1, this.exp.base, incExp));
+      this.sendPlayer(new Messages.Stat(1, this.exp.base, incExp));
 
       var origLevel = this.level.base;
       this.level.base = Types.getLevel(this.exp.base);
@@ -292,7 +292,7 @@ module.exports = Player = Character.extend({
       var origLevel = this.level.attack;
       this.level.attack = Types.getAttackLevel(this.exp.attack);
       if(origLevel !== this.level.attack) {
-      	this.pushToPlayer(new Messages.LevelUp(2, this.level.attack, this.exp.attack));
+      	this.sendPlayer(new Messages.LevelUp(2, this.level.attack, this.exp.attack));
       }
       return incExp;
     },
@@ -307,7 +307,7 @@ module.exports = Player = Character.extend({
       var origLevel = this.level.defense;
       this.level.defense = Types.getDefenseLevel(this.exp.defense);
       if(origLevel !== this.level.defense) {
-      	this.pushToPlayer(new Messages.LevelUp(3, this.level.defense, this.exp.defense));
+      	this.sendPlayer(new Messages.LevelUp(3, this.level.defense, this.exp.defense));
       }
       return incExp;
     },
@@ -322,7 +322,7 @@ module.exports = Player = Character.extend({
       var origLevel = this.level.move;
       this.level.move = Types.getMoveLevel(this.exp.move);
       if(origLevel !== this.level.move) {
-      	this.pushToPlayer(new Messages.LevelUp(4, this.level.move, this.exp.move));
+      	this.sendPlayer(new Messages.LevelUp(4, this.level.move, this.exp.move));
       	//this.setMoveRate(300-this.level.move);
       }
       return incExp;
@@ -349,7 +349,7 @@ module.exports = Player = Character.extend({
           12: "hammer",
           13: "axe",
         }
-        this.pushToPlayer(new Messages.LevelUp(types[type], clvl, xp));
+        this.sendPlayer(new Messages.LevelUp(types[type], clvl, xp));
       }
       return incExp;
     },
@@ -382,11 +382,11 @@ module.exports = Player = Character.extend({
 	    {
 	    	this.stats.free += 5;
 	    }
-    	this.pushToPlayer(new Messages.StatInfo(this));
+    	this.sendPlayer(new Messages.StatInfo(this));
 
 	    this.resetBars();
-	    this.pushToPlayer(new Messages.ChangePoints(this, 0, 0));
-	    this.pushToPlayer(new Messages.LevelUp(1, this.level.base, this.exp.base));
+	    this.sendPlayer(new Messages.ChangePoints(this, 0, 0));
+	    this.sendPlayer(new Messages.LevelUp(1, this.level.base, this.exp.base));
 
 	    if (this.level.base == 10)
         {
@@ -653,7 +653,7 @@ module.exports = Player = Character.extend({
     		if (self.map && self.map.entities &&
     			self.mapStatus >= 2 && self.tut[tutCheck] == false)
   			{
-  				self.pushToPlayer(new Messages.Notify("TUTORIAL", text));
+  				self.sendPlayer(new Messages.Notify("TUTORIAL", text));
   				self.tut[tutCheck] = true;
   			}
   		},delay*5000);
@@ -715,7 +715,7 @@ module.exports = Player = Character.extend({
   },
 
   sendChangePoints: function (health, energy) {
-    this.map.entities.pushNeighbours(this, new Messages.ChangePoints(this, health, energy));
+    this.map.entities.sendNeighbours(this, new Messages.ChangePoints(this, health, energy));
   },
 
   getHPMax: function () {
@@ -765,7 +765,7 @@ module.exports = Player = Character.extend({
     var lvl = Types.getWeaponLevel(xp)
     if (this.level[weaponData.type] != lvl) {
       var msg = new Messages.LevelUp(types[weaponData.type], lvl, xp);
-      this.pushToPlayer(msg);
+      this.sendPlayer(msg);
     }
     this.level[weaponData.type] = lvl;
   },*/
@@ -884,12 +884,12 @@ module.exports = Player = Character.extend({
 
     this.gold[type] += parseInt(gold);
 
-    this.pushToPlayer(new Messages.Gold(this));
+    this.sendPlayer(new Messages.Gold(this));
     if (gold > 0)
-      this.pushToPlayer(new Messages.Notify("CHAT", "GOLD_ADDED", [gold]));
+      this.sendPlayer(new Messages.Notify("CHAT", "GOLD_ADDED", [gold]));
     else {
       gold *= -1;
-      this.pushToPlayer(new Messages.Notify("CHAT", "GOLD_REMOVED", [gold]));
+      this.sendPlayer(new Messages.Notify("CHAT", "GOLD_REMOVED", [gold]));
     }
     return true;
   },
@@ -1218,14 +1218,14 @@ module.exports = Player = Character.extend({
       store.makeEmptyItem(index);
     }
 
-    this.map.entities.pushNeighbours(this, item.spawn());
+    this.map.entities.sendNeighbours(this, item.spawn());
     this.knownIds.push(item.id);
     this.server.handleItemDespawn(item);
   },
 
   sendCurrentMove: function () {
     var msg = new Messages.Move(this, this.moveOrientation, 0, this.x, this.y);
-    this.map.entities.pushNeighbours(this, msg);
+    this.map.entities.sendNeighbours(this, msg);
   },
 
   dropGold: function () {
@@ -1369,11 +1369,11 @@ module.exports = Player = Character.extend({
         if (callback)
           callback(p);
 
-        p.map.entities.pushNeighbours(p, new Messages.Harvest(p, 2, x, y));
+        p.map.entities.sendNeighbours(p, new Messages.Harvest(p, 2, x, y));
     }, duration);
 
-    p.map.entities.pushNeighbours(p, new Messages.Harvest(p, 1, x, y), p);
-    p.pushToPlayer( new Messages.Harvest(p, 1, x, y, duration));
+    p.map.entities.sendNeighbours(p, new Messages.Harvest(p, 1, x, y), p);
+    p.sendPlayer( new Messages.Harvest(p, 1, x, y, duration));
   },
 
   _checkHarvest: function (x, y) {
@@ -1397,7 +1397,7 @@ module.exports = Player = Character.extend({
     }*/
     var type = entity.weaponType;
     if (!this.hasWeaponType(type)) {
-      this.pushToPlayer(new Messages.Notify("CHAT", "HARVEST_WRONG_TYPE", type));
+      this.sendPlayer(new Messages.Notify("CHAT", "HARVEST_WRONG_TYPE", type));
       res = false;
     }
 
@@ -1427,8 +1427,8 @@ module.exports = Player = Character.extend({
 
   _abortHarvest: function (x,y) {
     var p = this;
-    p.map.entities.pushNeighbours(p, new Messages.Harvest(p, 2, x, y));
-    p.pushToPlayer(new Messages.Notify("CHAT", "HARVEST_INVALID"));
+    p.map.entities.sendNeighbours(p, new Messages.Harvest(p, 2, x, y));
+    p.sendPlayer(new Messages.Notify("CHAT", "HARVEST_INVALID"));
   },
 
   onHarvest: function (x, y) {
@@ -1443,7 +1443,7 @@ module.exports = Player = Character.extend({
       res = false;
     }
     if (!this.map.isHarvestTile(gp, type)) {
-      p.pushToPlayer(new Messages.Notify("CHAT", "HARVEST_WRONG_TYPE", type));
+      p.sendPlayer(new Messages.Notify("CHAT", "HARVEST_WRONG_TYPE", type));
       res = false;
     }
 
@@ -1471,7 +1471,7 @@ module.exports = Player = Character.extend({
         if (self.inventory.putItem(item) == -1)
           return;
         var data = ItemTypes.getData(item.itemKind);
-        p.pushToPlayer(new Messages.Notify("CHAT", "HARVEST_ADDED", data.name));
+        p.sendPlayer(new Messages.Notify("CHAT", "HARVEST_ADDED", data.name));
       }
     }, duration);
   },
@@ -1487,7 +1487,42 @@ module.exports = Player = Character.extend({
     this.ey = -1;
   },
 
-  pushToPlayer: function (msg) {
-    this.map.entities.pushToPlayer(this, msg);
-  }
+  sendPlayer: function (msg) {
+    this.map.entities.sendToPlayer(this, msg);
+  },
+
+  sendToPlayer: function (player, msg) {
+    this.map.entities.sendToPlayer(player, msg);
+  },
+
+  onKilled: function (callback) {
+    this.on_killed_callback = callback;
+  },
+
+  onDeath: function (callback) {
+    this.on_death_callback = callback;
+  },
+
+  onTeleport: function (callback) {
+    this.on_teleport_callback = callback;
+  },
+
+  die: function (attacker) {
+    self = this;
+
+    _.each(this.attackers, function(attacker) {
+      self.on_killed_callback(attacker, self.damageCount[attacker.id]);
+      attacker.onKillEntity(self);
+    });
+    this.removeAttackers();
+
+    if (this.on_death_callback)
+      this.on_death_callback(attacker);
+  },
+
+  handleTeleport: function () {
+      if (this.on_teleport_callback)
+        this.on_teleport_callback();
+  },
+
 });

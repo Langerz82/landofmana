@@ -5,13 +5,13 @@ define(['camera', 'entity/item', 'data/items', 'data/itemlootdata', 'entity/enti
       var checkAnnouncement = function (self) {
           self.announcement = null;
           var sprite = self.pxSprite["announcement_0"];
-          if (sprite) {
-            Container.HUD2.removeChild(sprite);
-            sprite = null;
-          }
+          if (sprite)
+            sprite.visible = false;
           if (self.announcements.length > 0)
           {
             self.announcement = self.announcements.shift();
+            if (sprite)
+              sprite.visible = true;
           }
           setTimeout(function () { checkAnnouncement(self); },
             (self.announcement) ? self.announcement[1] : 5000
@@ -197,7 +197,8 @@ define(['camera', 'entity/item', 'data/items', 'data/itemlootdata', 'entity/enti
                 //this.scrollY = true;
 
                 //setTimeout(checkAnnouncement, 5000);
-                this.pushAnnouncement("this is a test", 5000);
+                this.pushAnnouncement("Welcome to Land Of Mana!", 5000);
+                checkAnnouncement(this);
 
                 this.hitbar = document.getElementById("combathitbar-slider");
             },
@@ -425,7 +426,6 @@ define(['camera', 'entity/item', 'data/items', 'data/itemlootdata', 'entity/enti
 
             pushAnnouncement: function (text, duration) {
             	this.announcements.push([text, duration]);
-              checkAnnouncement(this);
             },
 
             drawAnnouncement: function () {
@@ -451,6 +451,7 @@ define(['camera', 'entity/item', 'data/items', 'data/itemlootdata', 'entity/enti
                 Container.HUD2.addChild(sprite);
                 this.pxSprite[id] = sprite;
               }
+              sprite.text = announce[0];
               sprite.position.x = (this.renderer.width / 2);
               sprite.position.y = (this.renderer.height / 4);
             },

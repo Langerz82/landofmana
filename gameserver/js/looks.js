@@ -37,12 +37,14 @@ module.exports = Looks = cls.Class.extend({
       console.info("LOOKS SAVED");
 
       if (!this.prices)
-        return;
+        return true;
 
       data = this.prices.join(",");
       if (world.userHandler) {
         world.userHandler.sendLooksData(data);
+        return true;
       }
+      return false;
     },
 
     modPrice: function (index, modPrice) {
@@ -54,6 +56,6 @@ module.exports = Looks = cls.Class.extend({
     },
 
     sendLooks: function (player) {
-      player.map.entities.pushToPlayer(player, new Messages.AppearanceList(player.user, this));
+      player.map.entities.sendToPlayer(player, new Messages.AppearanceList(player.user, this));
     }
 });

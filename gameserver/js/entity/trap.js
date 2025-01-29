@@ -21,11 +21,11 @@ module.exports = Block = EntityMoving.extend({
 
   on: function() {
     this.active = true;
-    this.map.entities.pushNeighbours(this, new Messages.SwapSprite(this.id, 1));
+    this.map.entities.sendNeighbours(this, new Messages.SwapSprite(this.id, 1));
   },
 
   off: function () {
     this.active = false;
-    this.map.entities.pushNeighbours(this, new Messages.SwapSprite(this.id, 0));
+    this.map.entities.sendNeighbours(this, new Messages.SwapSprite(this.id, 0));
   },
 });

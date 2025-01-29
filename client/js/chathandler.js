@@ -3,7 +3,7 @@ define([], function() {
     var ChatHandler = Class.extend({
         init: function(game) {
             var self = this;
-            this.game = game;
+            //this.game = game;
             //this.client = game.client;
             //this.kkhandler = kkhandler;
             this.chatLog = $('#chatLog');
@@ -22,28 +22,28 @@ define([], function() {
         },
 
         handleAddSpawn: function (data) {
-		log.info("sendAddSpawn");
-		var m = this.game.getMouseGridPosition();
-		if (data.length == 2)
-			this.game.client.sendAddSpawn(parseInt(data[1]), m.x, m.y);
+      		log.info("sendAddSpawn");
+      		var m = game.getMouseGridPosition();
+      		if (data.length == 2)
+      			game.client.sendAddSpawn(parseInt(data[1]), m.x, m.y);
         },
 
         handleSaveSpawns: function (data) {
-        	this.game.client.sendSaveSpawns();
+        	game.client.sendSaveSpawns();
         },
 
         handleIdEntity: function (data) {
-		var m = this.game.getMouseGridPosition();
-		var entity = this.game.getEntityAt(m.x, m.y);
-		if (entity)
-		{
-			this.addToChatLog("entity name: " + entity.name + ", id: " + entity.id +
-			    ", kind: " + entity.kind + ", pos: (" + m.x + "," + m.y + ")");
-		}
+      		var m = game.getMouseGridPosition();
+      		var entity = game.getEntityAt(m.x, m.y);
+      		if (entity)
+      		{
+      			this.addToChatLog("entity name: " + entity.name + ", id: " + entity.id +
+      			    ", kind: " + entity.kind + ", pos: (" + m.x + "," + m.y + ")");
+      		}
         },
 
         handleWarp: function (data) {
-      		var p = this.game.player;
+      		var p = game.player;
       		if (p.warpX && p.warpY)
       		{
       			this.teleportTo(p.warpX, p.warpY);
@@ -51,47 +51,23 @@ define([], function() {
         },
 
         handlePartyInvite: function(data) {
-        	/*var m = this.game.getMouseGridPosition();
-        	var entity;
-        	if (data.length == 2)
-        	{
-        		log.info("name_search="+data[1]);
-        		entity = this.game.getEntityByName(data[1]);
-        	}
-        	else
-        	{
-        		entity = this.game.getEntityAt(m.x, m.y);
-                }
-        	if (entity == this.game.player)
-        		return;
-        	if (entity && entity.id)*/
-        	this.game.client.sendPartyInvite(data[0], 0);
-
+        	game.client.sendPartyInvite(data[0], 0);
         },
 
         handlePartyLeader: function(data) {
-        	//var m = this.game.getMouseGridPosition();
-        	//var entity = this.game.getEntityAt(m.x, m.y);
-        	//if (entity)
-        	this.game.client.sendPartyLeader(data[0]);
+        	game.client.sendPartyLeader(data[0]);
         },
 
         handlePartyLeave: function(data) {
-        	this.game.client.sendPartyLeave();
+        	game.client.sendPartyLeave();
         },
 
         handlePartyKick: function(data) {
-        	//var m = this.game.getMouseGridPosition();
-        	//var entity = this.game.getEntityAt(m.x, m.y);
-        	//if (entity)
-        	this.game.client.sendPartyKick(data[0]);
+        	game.client.sendPartyKick(data[0]);
         },
 
         handleAutoPotion: function (data) {
-    			//if (data.length == 2)
-    			//{
-    				this.game.useAutoPotion = parseInt(data[0]);
-    			//}
+    			game.useAutoPotion = parseInt(data[0]);
         },
 
         processSenders: function(entityId, message) {
@@ -135,22 +111,22 @@ define([], function() {
 			if(args != undefined){
 				switch(args[1]){
 					case "invite":
-						if(this.game.player.hasGuild()){
-							this.game.client.sendGuildInvite(args[2]);
+						if(game.player.hasGuild()){
+							game.client.sendGuildInvite(args[2]);
 						}
 						else{
 							this.addNotification("You are not in a guild.");
 						}
 						break;
 					case "create":
-						this.game.client.sendNewGuild(args[2]);
+						game.client.sendNewGuild(args[2]);
 						break;
 					case undefined:
 						if(args[5]==="leave"){
-							this.game.client.sendLeaveGuild();
+							game.client.sendLeaveGuild();
 						}
-						else if(this.game.player.hasGuild()){
-							this.game.client.talkToGuild(args[4]);
+						else if(game.player.hasGuild()){
+							game.client.talkToGuild(args[4]);
 						}
 						else{
 							this.addNotification("You got no-one to talk to…");
@@ -159,7 +135,7 @@ define([], function() {
 					case "accept":
 						var status;
 						if(args[2] === "yes") {
-							status = this.game.player.checkInvite();
+							status = game.player.checkInvite();
 							if(status === false){
 								this.addNotification("You were not invited anyway…");
 							}
@@ -168,14 +144,14 @@ define([], function() {
 								setTimeout(function(){self.addNotification("Find someone and ask for another invite.")},2500);
 							}
 							else{
-								this.game.client.sendGuildInviteReply(this.game.player.invite.guildId, true);
+								game.client.sendGuildInviteReply(game.player.invite.guildId, true);
 							}
 						}
 						else if(args[2] === "no"){
-							status = this.game.player.checkInvite();
+							status = game.player.checkInvite();
 							if(status!==false){
-								this.game.client.sendGuildInviteReply(this.game.player.invite.guildId, false);
-								this.game.player.deleteInvite();
+								game.client.sendGuildInviteReply(game.player.invite.guildId, false);
+								game.player.deleteInvite();
 							}
 							else{
 								this.addNotification("Whatever…");
@@ -192,8 +168,8 @@ define([], function() {
                 self = this,
                 commandPatterns = {
                       	"/g ": function(message) {
-                      		if(self.game.player.hasGuild()){
-                      			self.game.client.talkToGuild(message);
+                      		if(game.player.hasGuild()){
+                      			game.client.talkToGuild(message);
                       		}
                       		else{
                       			self.addNotification("You got no-one to talk to…");
@@ -201,8 +177,8 @@ define([], function() {
                       		return true;
 						},
                 		"/w ": function(message) {
-                            var name = self.game.player.name,
-                                rights = self.game.player.rights;
+                            var name = game.player.name,
+                                rights = game.player.rights;
 
                             //'hacking' this will cause no issues
                             //as they grant no advantages
@@ -217,11 +193,11 @@ define([], function() {
                                 //no default needed.
                             }
 
-                            self.game.client.sendChat("/s " + name + ": " + message);
+                            game.client.sendChat("/s " + name + ": " + message);
                             return true;
                       },
                       "// ": function(message) {
-                          self.game.client.sendChat("// " + self.game.player.name + ": " + message);
+                          game.client.sendChat("// " + game.player.name + ": " + message);
                           return true;
                       },
                       /*"/re": function(message) {
@@ -233,7 +209,7 @@ define([], function() {
                           return true;
                       },*/
                       "///": function(message) {
-                          self.game.client.sendChat("/// " + self.game.player.name + ": " + message);
+                          game.client.sendChat("/// " + game.player.name + ": " + message);
                           return true;
                       },
                       /*"/te": function(message) {

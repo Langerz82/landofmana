@@ -173,7 +173,7 @@ module.exports = MapManager = cls.Class.extend({
                           map.entities.addEntity(node);
                         }
                       }
-                      else {
+                      else if (id >= 10) {
                         level = Utils.clamp(1,4,~~(id/10)+1);
                         for (var k=0; k < 10; ++k) {
                           var	pos = map.entities.spaceEntityRandomApart(2,area._getRandomPositionInsideArea.bind(area,100));
@@ -183,7 +183,6 @@ module.exports = MapManager = cls.Class.extend({
                           area.addToArea(node);
                           map.entities.addEntity(node);
                         }
-
                       }
                     }
                 }

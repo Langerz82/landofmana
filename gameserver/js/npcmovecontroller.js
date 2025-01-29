@@ -37,7 +37,7 @@ module.exports = NpcMoveController = Class.extend({
       if (path && path.length > 0)
       {
         var msg = new Messages.MovePath(self.entity, path);
-        self.entity.map.entities.pushNeighbours(self.entity, msg);
+        self.entity.map.entities.sendNeighbours(self.entity, msg);
         return path;
       }
       //self.entity.forceStop();

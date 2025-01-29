@@ -130,7 +130,7 @@ var MapEntities = cls.Class.extend({
 	    var npc = new NpcMove(++self.entityCount, 0, pos.x * 16, pos.y * 16, self.map);
 
 		  self.addNpcPlayer(npc);
-		  //self.pushBroadcast(npc.spawn());
+		  //self.sendBroadcast(npc.spawn());
 		  return npc;
     },
 
@@ -193,10 +193,10 @@ var MapEntities = cls.Class.extend({
             if(entity && !(entity == player))
             {
                 player.knownIds.push(entity.id);
-                self.pushToPlayer(player, entity.spawn());
+                self.sendToPlayer(player, entity.spawn());
                 if (entity.path) {
                   var msg = new Messages.MovePath(entity, entity.path);
-                  self.pushToPlayer(player, msg);
+                  self.sendToPlayer(player, msg);
                 }
             }
         });
@@ -249,7 +249,7 @@ var MapEntities = cls.Class.extend({
         });
     },
 
-    pushToPlayer: function(player, message) {
+    sendToPlayer: function(player, message) {
         if (!message)
         	return;
 
@@ -262,7 +262,7 @@ var MapEntities = cls.Class.extend({
     },
 
 
-    pushBroadcast: function(message, ignoredPlayer)  {
+    sendBroadcast: function(message, ignoredPlayer)  {
         if (!message)
         	return;
 
@@ -274,8 +274,8 @@ var MapEntities = cls.Class.extend({
         });
     },
 
-    pushNeighbours: function(entity, message, ignoredPlayer, areaLength)  {
-    	//console.info("pushNeighbours");
+    sendNeighbours: function(entity, message, ignoredPlayer, areaLength)  {
+    	//console.info("sendNeighbours");
     	var self = this;
     	//console.info(JSON.stringify(message.serialize()));
       areaLength = areaLength || 48;
@@ -385,7 +385,7 @@ var MapEntities = cls.Class.extend({
 	    {
     		item.x = chest.x;
     		item.y = chest.y;
-    		chest.map.entities.pushBroadcast(new Messages.Spawn(item));
+    		chest.map.entities.sendBroadcast(new Messages.Spawn(item));
     		self.server.handleItemDespawn(item);
 	    }
 	    chest.handleRespawn();
@@ -537,7 +537,7 @@ var MapEntities = cls.Class.extend({
       console.info("removePlayer-called");
   	  var self = this;
 
-      self.pushBroadcast(player.despawn(0));
+      self.sendBroadcast(player.despawn(0));
       self.removeEntity(player);
 
       delete self.npcplayers[player.id];
@@ -803,7 +803,7 @@ var MapEntities = cls.Class.extend({
 
     itemDespawn: function (item)
     {
-      this.pushNeighbours(item, new Messages.Despawn(item));
+      this.sendNeighbours(item, new Messages.Despawn(item));
       this.removeEntity(item);
     },
 

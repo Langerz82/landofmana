@@ -31,7 +31,7 @@ module.exports = ShopHandler = Class.extend({
     this.player.inventory.makeEmptyItem(itemIndex);
     this.player.modifyGold(price);
     var itemName = ItemTypes.KindData[itemKind].name;
-    this.ph.sendPlayer(new Messages.Notify("SHOP","SHOP_SOLD", [itemName]));
+    this.player.sendPlayer(new Messages.Notify("SHOP","SHOP_SOLD", [itemName]));
   },
 
 // TODO - Revise beloww!!!!!!!!!!!!!!
@@ -83,12 +83,12 @@ module.exports = ShopHandler = Class.extend({
     var goldCount = this.player.gold[0];
 
     if (goldCount < price) {
-      this.ph.sendPlayer(new Messages.Notify("SHOP","SHOP_NOGOLD"));
+      this.player.sendPlayer(new Messages.Notify("SHOP","SHOP_NOGOLD"));
       return;
     }
 
     if (!this.player.inventory.hasRoom()) {
-      this.ph.sendPlayer(new Messages.Notify("SHOP","SHOP_NOSPACE"));
+      this.player.sendPlayer(new Messages.Notify("SHOP","SHOP_NOSPACE"));
       return;
     }
 
@@ -96,7 +96,7 @@ module.exports = ShopHandler = Class.extend({
     if (auctions.putItem(this.player, auction.item)) {
       this.player.modifyGold(-price);
       var itemName = ItemTypes.KindData[itemKind].name;
-      this.ph.sendPlayer(new Messages.Notify("SHOP","SHOP_SOLD", [itemName]));
+      this.player.sendPlayer(new Messages.Notify("SHOP","SHOP_SOLD", [itemName]));
 
       var auctionPlayer = this.world.getPlayerByName(auction.playerName);
       if (auctionPlayer) {
@@ -131,7 +131,7 @@ module.exports = ShopHandler = Class.extend({
     }
 
     if (!this.player.inventory.hasRoom()) {
-      this.ph.sendPlayer(new Messages.Notify("SHOP", "SHOP_NOSPACE"));
+      this.player.sendPlayer(new Messages.Notify("SHOP", "SHOP_NOSPACE"));
       return;
     }
 
@@ -139,7 +139,7 @@ module.exports = ShopHandler = Class.extend({
     if (auctions.putItem(this.player, auction.item))
     {
       var itemName = ItemTypes.KindData[itemKind].name;
-      this.ph.sendPlayer(new Messages.Notify("SHOP","SHOP_REMOVED", [itemName]));
+      this.player.sendPlayer(new Messages.Notify("SHOP","SHOP_REMOVED", [itemName]));
       this.world.auction.remove(auctionIndex);
       this.world.auction.list(this.player, type);
     }
@@ -184,7 +184,7 @@ module.exports = ShopHandler = Class.extend({
     goldCount = this.player.gold[0];
     //console.info("goldCount="+goldCount+",price="+price);
     if (goldCount < price) {
-      this.ph.sendPlayer(new Messages.Notify("SHOP","SHOP_NOGOLD"));
+      this.player.sendPlayer(new Messages.Notify("SHOP","SHOP_NOGOLD"));
       return;
     }
 
@@ -199,9 +199,9 @@ module.exports = ShopHandler = Class.extend({
     }
     item.slot = index;
 
-    this.ph.sendPlayer(new Messages.ItemSlot(type, [item]));
+    this.player.sendPlayer(new Messages.ItemSlot(type, [item]));
     var itemName = ItemTypes.KindData[item.itemKind].name;
-    this.ph.sendPlayer(new Messages.Notify("SHOP","SHOP_REPAIRED", [itemName]));
+    this.player.sendPlayer(new Messages.Notify("SHOP","SHOP_REPAIRED", [itemName]));
   },
 
   _enchantItem: function(type, item, index) {
@@ -221,7 +221,7 @@ module.exports = ShopHandler = Class.extend({
     goldCount = this.player.gold[0];
     //console.info("goldCount="+goldCount+",price="+price);
     if (goldCount < price) {
-      this.ph.sendPlayer(new Messages.Notify("SHOP", "SHOP_NOGOLD"));
+      this.player.sendPlayer(new Messages.Notify("SHOP", "SHOP_NOGOLD"));
       return;
     }
 
@@ -230,11 +230,11 @@ module.exports = ShopHandler = Class.extend({
 
     item.slot = index;
 
-    this.ph.sendPlayer(new Messages.ItemSlot(type, [item]));
+    this.player.sendPlayer(new Messages.ItemSlot(type, [item]));
     console.info("itemNumber=" + item.itemNumber);
     this.player.modifyGold(-price);
     var itemName = ItemTypes.KindData[item.itemKind].name;
-    this.ph.sendPlayer(new Messages.Notify("SHOP", "SHOP_ENCHANTED", [itemName]));
+    this.player.sendPlayer(new Messages.Notify("SHOP", "SHOP_ENCHANTED", [itemName]));
   },
 
   handleStoreBuy: function(message) {
@@ -268,7 +268,7 @@ module.exports = ShopHandler = Class.extend({
       //console.info("itemCount="+itemCount);
 
       if (goldCount < price) {
-        this.ph.sendPlayer(new Messages.Notify("SHOP","SHOP_NOGOLD"));
+        this.player.sendPlayer(new Messages.Notify("SHOP","SHOP_NOGOLD"));
         return;
       }
 
@@ -279,12 +279,12 @@ module.exports = ShopHandler = Class.extend({
         if (res == -1)
           return;
         this.player.modifyGold(-price);
-        this.ph.sendPlayer(new Messages.Notify("SHOP", "SHOP_BUY", [itemName]));
+        this.player.sendPlayer(new Messages.Notify("SHOP", "SHOP_BUY", [itemName]));
         /*if (!this.player.tut.equip) {
           this.player.tutChat("TUTORIAL_EQUIP", 10, "equip");
         }*/
       } else {
-        this.ph.sendPlayer(new Messages.Notify("SHOP", "SHOP_NOSPACE"));
+        this.player.sendPlayer(new Messages.Notify("SHOP", "SHOP_NOSPACE"));
       }
     }
 
@@ -337,7 +337,7 @@ module.exports = ShopHandler = Class.extend({
     //console.info("itemCount="+itemCount);
 
     if (goldCount < price) {
-      this.ph.sendPlayer(new Messages.Notify("SHOP","SHOP_NOGOLD"));
+      this.player.sendPlayer(new Messages.Notify("SHOP","SHOP_NOGOLD"));
       return;
     }
 
@@ -347,14 +347,14 @@ module.exports = ShopHandler = Class.extend({
     for (var it of craftData.i)
     {
         if (!this.player.inventory.hasItems(it[0],it[1]*itemCount)) {
-          this.ph.sendPlayer(new Messages.Notify("SHOP", "SHOP_NOCRAFTITEMS"));
+          this.player.sendPlayer(new Messages.Notify("SHOP", "SHOP_NOCRAFTITEMS"));
           return;
         }
     }
 
     if (!this.player.inventory.hasRoom())
     {
-      this.ph.sendPlayer(new Messages.Notify("SHOP", "SHOP_NOSPACE"));
+      this.player.sendPlayer(new Messages.Notify("SHOP", "SHOP_NOSPACE"));
       return;
     }
 
@@ -372,7 +372,7 @@ module.exports = ShopHandler = Class.extend({
     if (this.player.inventory.putItem(item) == -1)
       return;
 
-    this.ph.sendPlayer(new Messages.Notify("SHOP", "SHOP_BUY", [itemName]));
+    this.player.sendPlayer(new Messages.Notify("SHOP", "SHOP_BUY", [itemName]));
   },
 
 });

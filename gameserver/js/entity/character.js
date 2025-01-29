@@ -420,7 +420,7 @@ module.exports = Character = EntityMoving.extend({
     this.stats.hp = max;
     //try { throw new Error(); } catch(err) { console.info(err.stack); }
     msg = new Messages.ChangePoints(this, diff, 0);
-    this.map.entities.pushNeighbours(this, msg);
+    this.map.entities.sendNeighbours(this, msg);
   },
 
   resetEP: function () {
@@ -454,7 +454,7 @@ module.exports = Character = EntityMoving.extend({
       this.stats.ep = Utils.clamp(0, this.stats.epMax, (this.stats.ep-epMod));
 
     var msg = new Messages.Damage([attacker, this, -hpMod, -epMod, crit, effects]);
-    this.map.entities.pushNeighbours(attacker, msg);
+    this.map.entities.sendNeighbours(attacker, msg);
   },
 
   canMove: function() {

@@ -56,10 +56,14 @@ module.exports = WorldHandler = cls.Class.extend({
       }
 
       var username = player.user.name;
-      var ban = player.world.userBans[username];
-      if (ban && ban > Date.now()) {
-        console.info("player user is banned from server.");
-        this.connection.disconnect();
+      if (player.world && player.world.ban) {
+        if (player.world.ban.isUserBanned(username)) {
+          console.info("player user is banned from server.");
+          this.connection.disconnect();
+          return;
+        }
+      } else {
+        console.warn("handleLoginPlayer: world or world ban not set");
         return;
       }
 

@@ -117,7 +117,11 @@ module.exports = UserHandler = cls.Class.extend({
       if (!msg)
         return;
 
-      this.world.loadBans(msg);
+      if (this.world.ban)
+        this.world.ban.loadBans(msg);
+      else {
+        console.warn("world ban not loaded.");
+      }
     },
 
     handleLoadPlayerData: function (msg) {
@@ -127,9 +131,7 @@ module.exports = UserHandler = cls.Class.extend({
         var data = msg[1];
         var username = data[0][1];
 
-        if (this.world.userBans.hasOwnProperty(username) &&
-          this.world.userBans[username] > Date.now())
-        {
+        if (this.world.ban.isUserBanned(username)) {
             console.info("USER IS BANNED.");
             return;
         }

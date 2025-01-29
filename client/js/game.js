@@ -2278,15 +2278,22 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
 
             showNotification: function(data) {
                 var group = data.shift();
-                var langCode = data.shift();
+                var text = data.shift();
 
-                var message = lang.data[langCode];
-                if (data.length > 0)
-                  message = lang.data[langCode].format(data);
+                var message = lang.data[text];
+                if (message && data.length > 0)
+                  message = lang.data[text].format(data);
+
+                if (group.indexOf("GLOBAL") == 0)
+                {
+                  message = text;
+                  game.renderer.pushAnnouncement(message,10000);
+                  return;
+                }
 
                 if (group.indexOf("NOTICE") == 0)
                 {
-                  game.renderer.pushAnnouncement(message,30000);
+                  game.renderer.pushAnnouncement(message,10000);
                   return;
                 }
 

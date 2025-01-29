@@ -94,7 +94,7 @@ module.exports = BlockArea = EntityArea.extend({
       for (var i in this.blocks) {
         var block = this.blocks[i];
         this.map.entities.removeEntity(block);
-        this.map.entities.pushBroadcast(block.despawn());
+        this.map.entities.sendBroadcast(block.despawn());
       }
       delete this;
     }

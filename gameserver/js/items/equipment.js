@@ -154,7 +154,7 @@ module.exports = Equipment = cls.Class.extend({
         this.rooms[index] = item;
         item.slot = index;
       }
-      player.map.entities.pushToPlayer(player, new Messages.ItemSlot(2, [item]));
+      player.map.entities.sendToPlayer(player, new Messages.ItemSlot(2, [item]));
       return true;
     },
 
@@ -164,7 +164,7 @@ module.exports = Equipment = cls.Class.extend({
       //var level = ItemTypes.getArmorLevel(kind);
 
       if(level > player.level.base){
-          player.map.entities.pushToPlayer(player, new Messages.Notify("EQUIP", "EQUIPMENT_LEVEL", [level]));
+          player.map.entities.sendToPlayer(player, new Messages.Notify("EQUIP", "EQUIPMENT_LEVEL", [level]));
           return false;
       }
 
@@ -196,7 +196,7 @@ module.exports = Equipment = cls.Class.extend({
 	    	this.makeEmptyEquipment(slot);
 	    	return false;
 	    }
-      this.owner.map.entities.pushToPlayer(this.owner, new Messages.ItemSlot(2, [item]));
+      this.owner.map.entities.sendToPlayer(this.owner, new Messages.ItemSlot(2, [item]));
 	    return true;
     },
 
@@ -212,12 +212,12 @@ module.exports = Equipment = cls.Class.extend({
 	    if (oldItemNumber < newItemNumber)
 	    {
 	    	item.itemNumber++;
-	    	this.owner.map.entities.pushToPlayer(this.owner, new Messages.ItemLevelUp(slot, item));
+	    	this.owner.map.entities.sendToPlayer(this.owner, new Messages.ItemLevelUp(slot, item));
 	    }
 
       //log.warn("addExperience - item:"+JSON.stringify(item));
       item.slot = slot;
-      this.owner.map.entities.pushToPlayer(this.owner, new Messages.ItemSlot(2, [item]));
+      this.owner.map.entities.sendToPlayer(this.owner, new Messages.ItemSlot(2, [item]));
     },
 
     toString: function(){

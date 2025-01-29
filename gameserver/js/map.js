@@ -237,13 +237,15 @@ var Map = cls.Class.extend({
         var area = new Area(0, 512, 512, 30, 30, this, true, -1);
         //var pos = {x: (1024-45)*16, y: (1024-45)*16};
         //var pos = {x: (45)*16, y: (45)*16};
-        var	pos = this.entities.spaceEntityRandomApart(2,area._getRandomPositionInsideArea.bind(area,100));
+        var areaPos = area._getRandomPositionInsideArea.bind(area,100);
+        var	pos = this.entities.spaceEntityRandomApart(3,areaPos);
         console.info("getRandomStartingPosition - x:"+pos.x+",y:"+pos.y);
         return pos;
       }
 
       if (area) {
-        return this.entities.spaceEntityRandomApart(2,area._getRandomPositionInsideArea.bind(area,100));
+        var areaPos = area._getRandomPositionInsideArea.bind(area,100);
+        return this.entities.spaceEntityRandomApart(3,areaPos);
       	//return area.getRandomPosition();
       } else {
       	return null;
@@ -257,23 +259,25 @@ var Map = cls.Class.extend({
           x2 = ~~(x1 + 0.5),
           y2 = ~~(y1 + 0.5);
 
-      var arr = [[x1,y1], [x1,y2], [x2,y1], [x2,y2]];
+      var pos = [x1,y1];
+      //var arr = [[x1,y1], [x1,y2], [x2,y1], [x2,y2]];
 
-      var c = arr[0];
+      var c = pos;
       if (this.isOutOfBounds(c[0], c[1])) {
           return true;
       }
-      c = arr[3];
+      /*c = arr[3];
       if (this.isOutOfBounds(c[0], c[1])) {
+          return true;
+      }*/
+
+      if (this.isCollidingGrid(c[0], c[1])) {
           return true;
       }
 
-      c = null;
+      /*c = null;
       for (c of arr) {
-        if (this.isCollidingGrid(c[0], c[1])) {
-            return true;
-        }
-      }
+      }*/
       return false;
     },
 
@@ -299,16 +303,15 @@ var Map = cls.Class.extend({
         var self = this;
     	  var pos = {};
 
-        pos.x = Utils.randomRangeInt(0-collide[0], self.width - 1-collide[2]);
-        pos.y = Utils.randomRangeInt(0-collide[1], self.height - 1-collide[3]);
         var tries = 0;
-
-        while(tries < 25 && !self.isValidPosition(pos.x+collide[0], pos.y+collide[1], pos.x+collide[2], pos.y+collide[3]))
+        do
         {
-        	++tries;
         	pos.x = Utils.randomRangeInt(0-collide[0], self.width - 1-collide[2]);
         	pos.y = Utils.randomRangeInt(0-collide[1], self.height - 1-collide[3]);
-        }
+          if (self.isValidPosition(pos.x, pos.y))
+            break;
+        } while(tries++ < 25);
+
         if (tries >= 25)
         {
         	pos.x = -1;
@@ -320,26 +323,24 @@ var Map = cls.Class.extend({
 
     getRandomPositionArea: function (x1, x2, y1, y2) {
     	  var pos = {};
-        var ts = this.tilesize;
+        var ts = G_TILESIZE;
 
         x1 = Utils.clamp(0, this.width*ts, x1);
         x2 = Utils.clamp(0, this.width*ts, x2);
         y1 = Utils.clamp(0, this.height*ts, y1);
         y2 = Utils.clamp(0, this.height*ts, y2);
 
-        pos.x = Utils.randomRangeInt(x1, x2);
-        pos.y = Utils.randomRangeInt(y1, y2);
         var tries = 0;
-
-        while(tries < 20)
+        do
         {
+          pos.x = Utils.randomRangeInt(x1, x2);
+          pos.y = Utils.randomRangeInt(y1, y2);
+
           if (!this.isColliding(pos.x, pos.y))
             break;
 
-        	++tries;
-          pos.x = Utils.randomRangeInt(x1, x2);
-          pos.y = Utils.randomRangeInt(y1, y2);
-        }
+        } while(tries++ < 20);
+
         if (tries >= 20)
         {
         	pos.x = -1;
@@ -353,16 +354,15 @@ var Map = cls.Class.extend({
         var self = this;
     	  var pos = {};
 
-        pos.x = Utils.randomRangeInt(0, self.width*self.tilesize);
-        pos.y = Utils.randomRangeInt(0, self.height*self.tilesize);
         var tries = 0;
-
-        while(tries < 20 && !self.isColliding(pos.x, pos.y))
+        do
         {
-        	++tries;
-        	pos.x = Utils.randomRangeInt(0, self.width*self.tilesize);
-        	pos.y = Utils.randomRangeInt(0, self.height*self.tilesize);
-        }
+        	pos.x = Utils.randomRangeInt(0, self.width*G_TILESIZE);
+        	pos.y = Utils.randomRangeInt(0, self.height*G_TILESIZE);
+          if (self.isColliding(pos.x, pos.y))
+            break;
+        } while (tries++ < 20);
+
         if (tries >= 20)
         {
         	pos.x = -1;
@@ -372,94 +372,94 @@ var Map = cls.Class.extend({
         return pos;
     },
 
-        _getDoors: function(map) {
-            var self = this;
-            console.info(JSON.stringify(map.doors));
-            var doors = [];
-            _.each(map.doors, function(door) {
-            	door.width = (door.width) ? door.width : 1;
-            	door.height = (door.height) ? door.height : 1;
-            	console.info("door.tmap="+door.tmap);
-                var area = new MapArea(map, false, door.x, door.y, door.width, door.height, -1);
-                    area.minLevel = door.tminLevel || 0,
-                    area.maxLevel = door.tmaxLevel || 200,
-                    area.map = door.tmap ? door.tmap : 1,
-                    area.portal = door.p === 1,
-                    area.quest = door.tq,
-                    area.admin = door.a;
-			switch(door.to) {
-				case 'u': area.orientation = Types.Orientations.UP;
-					break;
-				case 'd': area.orientation = Types.Orientations.DOWN;
-					break;
-				case 'l': area.orientation = Types.Orientations.LEFT;
-					break;
-				case 'r': area.orientation = Types.Orientations.RIGHT;
-					break;
-				default : area.orientation = Types.Orientations.DOWN;
-			}
-                doors.push(area);
-            });
-            console.info("return doors");
-            return doors;
-        },
+    _getDoors: function(map) {
+        var self = this;
+        console.info(JSON.stringify(map.doors));
+        var doors = [];
+        _.each(map.doors, function(door) {
+        	door.width = (door.width) ? door.width : 1;
+        	door.height = (door.height) ? door.height : 1;
+        	console.info("door.tmap="+door.tmap);
+          var area = new MapArea(map, false, door.x, door.y, door.width, door.height, -1);
+              area.minLevel = door.tminLevel || 0,
+              area.maxLevel = door.tmaxLevel || 200,
+              area.map = door.tmap ? door.tmap : 1,
+              area.portal = door.p === 1,
+              area.quest = door.tq,
+              area.admin = door.a;
+    			switch(door.to) {
+    				case 'u': area.orientation = Types.Orientations.UP;
+    					break;
+    				case 'd': area.orientation = Types.Orientations.DOWN;
+    					break;
+    				case 'l': area.orientation = Types.Orientations.LEFT;
+    					break;
+    				case 'r': area.orientation = Types.Orientations.RIGHT;
+    					break;
+    				default : area.orientation = Types.Orientations.DOWN;
+    			}
+          doors.push(area);
+        });
+        console.info("return doors");
+        return doors;
+    },
 
-        isDoor: function(x,y) {
-            return _.detect(this.doors, function(door) {
-                return (door.contains({x: x, y: y}) != null);
-            });
-        },
+    isDoor: function(x,y) {
+        return _.detect(this.doors, function(door) {
+            return (door.contains({x: x, y: y}) != null);
+        });
+    },
 
 
-        getDoor: function(entity) {
-            return _.detect(this.doors, function(door) {
-            	//console.info("door.x="+door.x+",door.y="+door.y);
-            	//console.info("door.width="+door.width+",door.height="+door.height);
-                return door.contains(entity);
-            });
-        },
+    getDoor: function(entity) {
+        return _.detect(this.doors, function(door) {
+        	//console.info("door.x="+door.x+",door.y="+door.y);
+        	//console.info("door.width="+door.width+",door.height="+door.height);
+            return door.contains(entity);
+        });
+    },
 
-        getSubCoordinate: function (x,y) {
-          x = x % (this.chunkWidth * this.tilesize);
-          y = y % (this.chunkHeight * this.tilesize);
-          return [x,y];
-        },
+    getSubCoordinate: function (x,y) {
+      x = x % (this.chunkWidth * this.tilesize);
+      y = y % (this.chunkHeight * this.tilesize);
+      return [x,y];
+    },
 
-        getSubIndex: function (x,y) {
-          return ~~((y / (this.chunkHeight * this.tilesize) * this.chunkHeight) +
-                     x / (this.chunkWidth * this.tilesize));
-        },
+    getSubIndex: function (x,y) {
+      return ~~((y / (this.chunkHeight * this.tilesize) * this.chunkHeight) +
+                 x / (this.chunkWidth * this.tilesize));
+    },
 
-        isHarvestTile: function (pos, type) {
-          console.info("isHarvestTile");
-          //var gx = pos.x >> 4, gy = pos.y >> 4;
-          if (this.isOutOfBounds(pos.gx,pos.gy))
-            return false;
+    isHarvestTile: function (pos, type) {
+      console.info("isHarvestTile");
+      //var gx = pos.x >> 4, gy = pos.y >> 4;
+      if (this.isOutOfBounds(pos.gx,pos.gy))
+        return false;
 
-          var tiles = this.getTiles(pos.gx,pos.gy);
-          console.info("tiles: "+JSON.stringify(tiles));
-          if (!tiles || tiles.length == 0)
-            return false;
+      var tiles = this.getTiles(pos.gx,pos.gy);
+      console.info("tiles: "+JSON.stringify(tiles));
+      if (!tiles || tiles.length == 0)
+        return false;
 
-          log.info("tiles="+JSON.stringify(tiles));
-          var types = {}
-          types.axe = [678, 679, 698, 699, 855, 875, 274, 275, 294, 295];
+      log.info("tiles="+JSON.stringify(tiles));
+      var types = {}
+      types.axe = [678, 679, 698, 699, 855, 875, 274, 275, 294, 295];
 
-          if (!types.hasOwnProperty(type))
-            return false;
+      if (!types.hasOwnProperty(type))
+        return false;
 
-          var res = false;
-          if (Array.isArray(tiles)) {
-            res = types[type].some(function (tile) { return tiles.includes(tile); });
-          } else {
-            res = types[type].includes(tiles);
-          }
-          return res;
-        },
+      var res = false;
+      if (Array.isArray(tiles)) {
+        res = types[type].some(function (tile) { return tiles.includes(tile); });
+      } else {
+        res = types[type].includes(tiles);
+      }
+      return res;
+    },
 
-        getTiles: function (gx,gy) {
-          return this.tile[gy][gx];
-        },
+    getTiles: function (gx,gy) {
+      return this.tile[gy][gx];
+    },
 });
 
 var pos = function (x, y) {

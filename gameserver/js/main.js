@@ -354,6 +354,10 @@ function banuser(args) {
   world.banuser(username, duration);
 }
 
+function notify(args) {
+  world.notifyWorld(args.join(" "));
+}
+
 function getInput(cmd) {
     args = cmd.split(" ");
     cmdarg = args[0];
@@ -362,6 +366,11 @@ function getInput(cmd) {
 
     switch (cmdarg)
     {
+      case "notify":
+      case "say":
+      case "announce":
+        notify(args);
+        break;
       case "banplayer":
         banplayer(args);
         break;

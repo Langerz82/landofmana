@@ -126,6 +126,10 @@ module.exports = Mob = Character.extend({
       this.on_killed_callback = callback;
     },
 
+    onDeath: function (callback) {
+      this.on_death_callback = callback;
+    },
+
     onDamage: function (attacker, hpMod, epMod, crit, effects) {
       var hp = this.stats.hp;
       var dmgRatio = (hpMod / this.stats.hpMax);
@@ -205,38 +209,6 @@ module.exports = Mob = Character.extend({
         }
     },
 
-    /*addTanker: function(playerId){
-        var i=0;
-        for(i=0; i<this.tankerlist.length; i++){
-            if(this.tankerlist[i].id === playerId){
-                this.tankerlist[i].points++;
-                break;
-            }
-        }
-        if(i >= this.tankerlist.length){
-            this.tankerlist.push({id: playerId, points: 1});
-        }
-    },
-    getMainTankerId: function(){
-        var i=0;
-        var mainTanker = null;
-        for(i=0; i<this.tankerlist.length; i++){
-            if(mainTanker === null){
-                mainTanker = this.tankerlist[i];
-                continue;
-            }
-            if(mainTanker.points < this.tankerlist[i].points){
-                mainTanker = this.tankerlist[i];
-            }
-        }
-
-        if(mainTanker){
-            return mainTanker.id;
-        } else{
-            return null;
-        }
-    },*/
-
     getMostHated: function(hateRank) {
         var i, playerId,
             sorted = _.sortBy(this.hatelist, function(obj) { return obj.hate; }),
@@ -295,14 +267,14 @@ module.exports = Mob = Character.extend({
       this.isDead = false;
       this.droppedItem = false;
       this.setAiState(mobState.IDLE);
-      this.map.entities.pushNeighbours(this, new Messages.Spawn(this));
+      this.map.entities.sendNeighbours(this, new Messages.Spawn(this));
     },
 
     resetPosition: function () {
     	  ///var x=this.spawnX, y=this.spawnY;
         this.setPosition(this.spawnX, this.spawnY);
         //var msg = new Messages.Move(this, this.orientation, false, this.x, this.y);
-        //this.map.entities.pushNeighbours(this, msg);
+        //this.map.entities.sendNeighbours(this, msg);
     },
 
 
@@ -312,6 +284,7 @@ module.exports = Mob = Character.extend({
         this.setAiState(mobState.RETURNING);
 
         //const self = this;
+        this.removeAttackers();
         this.forceStop();
         if (this.hasTarget())
           this.clearTarget();
@@ -445,18 +418,21 @@ module.exports = Mob = Character.extend({
       //console.info(this.id + " has set aiState: " + state);
     },
 
-    die: function () {
+    die: function (attacker) {
       var self = this;
 
       console.info("Entity is dead");
       this.isDead = true;
-      this.map.entities.pushBroadcast(this.despawn());
+      this.map.entities.sendBroadcast(this.despawn());
 
 
       _.each(this.attackers, function(attacker) {
         self.on_killed_callback(attacker, self.damageCount[attacker.id]);
         attacker.onKillEntity(self);
       });
+
+      if (this.on_death_callback)
+        this.on_death_callback(attacker);
 
       this.damageCount = {};
       this.dealtCount = {};

@@ -29,7 +29,7 @@ var Node = Entity.extend({
 
     die: function() {
       this.isDead = true;
-      this.map.entities.pushNeighbours(this, new Messages.Despawn(this));
+      this.map.entities.sendNeighbours(this, new Messages.Despawn(this));
 
       this.handleRespawn();
       if (this.death_callback) {
@@ -54,7 +54,7 @@ var Node = Entity.extend({
 
    respawn: function () {
      this.isDead = false;
-     this.map.entities.pushNeighbours(this, new Messages.Spawn(this));
+     this.map.entities.sendNeighbours(this, new Messages.Spawn(this));
    },
 
    handleRespawn: function () {

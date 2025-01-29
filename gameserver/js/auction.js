@@ -70,9 +70,11 @@ module.exports = Auction = cls.Class.extend({
 
       if (world.userHandler) {
         world.userHandler.sendAuctionsData(data);
+        return true;
       } else {
         console.info("save: world.userHandler not set.");
       }
+      return false;
     },
 
     add: function(player, item, price, invIndex) {
@@ -80,7 +82,7 @@ module.exports = Auction = cls.Class.extend({
         var auction = new AuctionRecord(index, player.name, price, item);
         this.auctions.push(auction);
         player.inventory.setItem(invIndex, null);
-        player.map.entities.pushToPlayer(player, new Messages.Notify("AUCTION","AUCTION_ADDED"));
+        player.map.entities.sendToPlayer(player, new Messages.Notify("AUCTION","AUCTION_ADDED"));
     },
 
     remove: function (index) {
@@ -111,6 +113,6 @@ module.exports = Auction = cls.Class.extend({
         }
       }
       msg[2] = recCount;
-      player.map.entities.pushToPlayer(player, new Messages.AuctionOpen(msg));
+      player.map.entities.sendToPlayer(player, new Messages.AuctionOpen(msg));
     }
 });

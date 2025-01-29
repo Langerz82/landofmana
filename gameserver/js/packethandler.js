@@ -7,7 +7,7 @@ var Character = require('./entity/character'),
 
   Formulas = require("./formulas"),
   formatCheck = require("./format").check,
-  Party = require("./party"),
+//  Party = require("./party"),
   PartyHandler = require("./partyhandler"),
   ShopHandler = require("./shophandler"),
   SkillHandler = require("./skillhandler"),
@@ -230,7 +230,7 @@ module.exports = PacketHandler = Class.extend({
   },
 
   sendPlayer: function (message) {
-    this.entities.pushToPlayer(this.player, message);
+    this.entities.sendToPlayer(this.player, message);
   },
 
   onExit: function(callback) {
@@ -255,7 +255,7 @@ module.exports = PacketHandler = Class.extend({
   },
 
   sendToPlayer: function (player, message) {
-    this.map.entities.pushToPlayer(player, message);
+    this.map.entities.sendToPlayer(player, message);
   },
 
   send: function(message) {
@@ -709,7 +709,7 @@ module.exports = PacketHandler = Class.extend({
       //tEntity.stats.hp -= dmg;
       if (tEntity.isDead) {
         if (sEntity == self.player)
-          self.entities.pushBroadcast(new Messages.Notify("CHAT","COMBAT_PLAYERKILLED", [sEntity.name, tEntity.name]));
+          self.entities.sendBroadcast(new Messages.Notify("CHAT","COMBAT_PLAYERKILLED", [sEntity.name, tEntity.name]));
 
         sEntity.pStats.pk++;
         tEntity.pStats.pd++;
@@ -781,7 +781,7 @@ module.exports = PacketHandler = Class.extend({
       if (v == 1)
         effects.push(parseInt(k));
     }
-    this.entities.pushToPlayer(source, new Messages.SkillEffects(source, effects));
+    this.entities.sendToPlayer(source, new Messages.SkillEffects(source, effects));
     effects = [];
 
     if (!target) return;
@@ -791,7 +791,7 @@ module.exports = PacketHandler = Class.extend({
       if (v == 1)
         effects.push(parseInt(k));
     }
-    this.entities.pushToPlayer(source, new Messages.SkillEffects(target, effects));
+    this.entities.sendToPlayer(source, new Messages.SkillEffects(target, effects));
 
   },
 
@@ -832,7 +832,7 @@ module.exports = PacketHandler = Class.extend({
     p.move(arr);
 
     var msg = new Messages.Move(p, orientation, state, x, y);
-    this.entities.pushNeighbours(p, msg, p);
+    this.entities.sendNeighbours(p, msg, p);
 
     if (this.move_callback)
       this.move_callback();
@@ -883,7 +883,7 @@ module.exports = PacketHandler = Class.extend({
     p.movePath([time, interrupted], path);
 
     var msg = new Messages.MovePath(p, path);
-    this.entities.pushNeighbours(p, msg);
+    this.entities.sendNeighbours(p, msg);
   },
 
   // TODO - enterCallback x,y not being overridden sometimes,
@@ -984,13 +984,13 @@ module.exports = PacketHandler = Class.extend({
 
     p.setPosition(x,y);
     this.entities.processWho(p);
-    this.entities.pushNeighbours(p, new Messages.Spawn(p), p);
+    this.entities.sendNeighbours(p, new Messages.Spawn(p), p);
   },
 
   handleClearMap: function() {
     this.player.clearTarget();
 
-    this.server.handlePlayerVanish(this.player);
+    this.player.handleTeleport();
     this.entities.removeEntity(this.player);
   },
 
@@ -1003,7 +1003,7 @@ module.exports = PacketHandler = Class.extend({
     if (points < 0 || points > p.stats.free)
       return;
 
-    if (attribute > 4)
+    if (attribute < 0 || attribute > 4)
       return;
 
     switch (attribute) {
@@ -1092,7 +1092,7 @@ module.exports = PacketHandler = Class.extend({
       p.holdingBlock = null;
     }
     var msg = new Messages.BlockModify(block, p.id, type);
-    this.entities.pushNeighbours(p, msg, p);
+    this.entities.sendNeighbours(p, msg, p);
   },
 
   handleRequest: function (msg) {
@@ -1123,8 +1123,7 @@ module.exports = PacketHandler = Class.extend({
     if (p.isDead == true) {
       console.info("handled Revive!!");
       p.revive();
-      this.entities.pushNeighbours(p, new Messages.Spawn(p), p);
-      // TODO
+      this.entities.sendNeighbours(p, new Messages.Spawn(p), p);
       var msg = new Messages.Move(p, p.orientation, 2, p.x, p.y);
       this.sendPlayer(msg);
     }

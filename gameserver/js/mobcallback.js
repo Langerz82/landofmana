@@ -2,7 +2,8 @@ var Messages = require("./message"),
     _ = require("underscore"),
     Utils = require("./utils"),
     Formulas = require("./formulas"),
-    ChestArea = require('./area/chestarea');
+    ChestArea = require('./area/chestarea'),
+    TaskHandler = require('./taskhandler');
 
 module.exports = MobCallback = Class.extend({
 
@@ -46,7 +47,7 @@ module.exports = MobCallback = Class.extend({
             entity.orientation = entity.getOrientation([this.x,this.y], path[1]);
 				    var msg = new Messages.MovePath(entity, path);
 
-				    self.map.entities.pushNeighbours(entity, msg);
+				    self.map.entities.sendNeighbours(entity, msg);
             return path;
 				}
         return null;
@@ -67,7 +68,7 @@ module.exports = MobCallback = Class.extend({
 
     entity.onAbortPathing(function () {
       msg = new Messages.Move(entity, entity.orientation, 2, entity.x, entity.y);
-      self.map.entities.pushNeighbours(entity, msg);
+      self.map.entities.sendNeighbours(entity, msg);
 
       if (!entity.target)
         entity.setAiState(mobState.IDLE);
@@ -75,8 +76,16 @@ module.exports = MobCallback = Class.extend({
 
     entity.onKilled(function (attacker, damage) {
       if (attacker instanceof Player) {
+        attacker.skillHandler.setXPs();
         self.world.taskHandler.processEvent(attacker, PlayerEvent(EventType.DAMAGE, entity, damage));
       }
     });
+
+    entity.onDeath(function (attacker) {
+      if (attacker instanceof Player) {
+        self.world.taskHandler.processEvent(attacker, PlayerEvent(EventType.KILLMOB, entity, 1));
+      }
+      self.world.loot.handleDropItem(entity, attacker);
+    })
   }
 });

@@ -87,7 +87,7 @@ module.exports = PlayerQuests = cls.Class.extend({
 
   sendQuest: function (quest) {
     //var entityId = this.player.map.entities.getNpcByQuestId(quest.npcQuestId);
-    this.player.pushToPlayer(new Messages.Quest(quest));
+    this.player.sendPlayer(new Messages.Quest(quest));
   },
 
   progressQuest: function (quest) {

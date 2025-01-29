@@ -54,7 +54,7 @@ module.exports = ChestArea = EntityArea.extend({
 
             self.addToArea(chest);
             self.map.entities.addChest(chest);
-            self.map.entities.pushBroadcast(new Messages.Spawn(chest));
+            self.map.entities.sendBroadcast(new Messages.Spawn(chest));
         }, delay);
     }
 });
