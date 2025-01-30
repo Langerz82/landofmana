@@ -442,7 +442,7 @@ define(['camera', 'entity/item', 'data/items', 'data/itemlootdata', 'entity/enti
                 var style = new PIXI.TextStyle({
                   fontFamily: "KomikaHand",
                   fill: "#FFFF00",
-                  fontSize: 6 * self.scale,
+                  fontSize: 6 * this.scale,
                   align: "center",
                 });
                 sprite = new PIXI.Text(announce[0], style);
@@ -452,6 +452,9 @@ define(['camera', 'entity/item', 'data/items', 'data/itemlootdata', 'entity/enti
                 this.pxSprite[id] = sprite;
               }
               sprite.text = announce[0];
+              sprite.updateTransform();
+              sprite.updateText();
+              //sprite.style = sprite.pstyle;
               sprite.position.x = (this.renderer.width / 2);
               sprite.position.y = (this.renderer.height / 4);
             },
