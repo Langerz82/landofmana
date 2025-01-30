@@ -341,7 +341,7 @@ function banplayer(args) {
     console.info("banplayer - provide how many days banned.");
     return;
   }
-  world.banplayer(playerName, duration);
+  world.ban.banplayer(playerName, duration);
 }
 
 function banuser(args) {
@@ -351,7 +351,7 @@ function banuser(args) {
     console.info("banuser - provide how many days banned.");
     return;
   }
-  world.banuser(username, duration);
+  world.ban.banuser(username, duration);
 }
 
 function notify(args) {

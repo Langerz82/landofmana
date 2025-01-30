@@ -436,12 +436,12 @@ module.exports = WorldHandler = cls.Class.extend({
     },
 
     sendWorldSave: function () {
-      console.info("worldHandler - sendForceSaveAndCloseToWorld.");
+      console.info("worldHandler - UW_WORLD_SAVE.");
       this.send([Types.UserMessages.UW_WORLD_SAVE]);
     },
 
     sendWorldClose: function () {
-      console.info("worldHandler - sendForceSaveAndCloseToWorld.");
+      console.info("worldHandler - UW_WORLD_CLOSE.");
       this.send([Types.UserMessages.UW_WORLD_CLOSE]);
     },
 

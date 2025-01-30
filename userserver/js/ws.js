@@ -25,6 +25,10 @@ var sServer = cls.Class.extend({
         this.connectionCallback = callback;
     },
 
+    onDisconnect: function (callback) {
+        this.disconnectionCallback = callback;
+    },
+
     onError: function (callback) {
         this.errorCallback = callback;
     },
@@ -168,6 +172,9 @@ WS.socketioConnection = Connection.extend({
 
         this._super(id, connection, server);
         //this.conn = connection;
+        this._connection.on("connect_error", (err) => {
+          console.error(err.message); // prints the message associated with the error
+        });
 
         this._connection.on('message', function (message) {
           console.info("m="+message);
@@ -208,8 +215,8 @@ WS.socketioConnection = Connection.extend({
 
         this._connection.on('disconnect', function () {
             console.info('Client closed socket ' + self._connection.conn.remoteAddress);
-            if (self.closeCallback) {
-                self.closeCallback();
+            if (self._server.disconnectionCallback) {
+                self._server.disconnectionCallback(self);
             }
             self._connection.conn.close();
             delete self._server.removeConnection(self.id);

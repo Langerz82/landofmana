@@ -191,6 +191,19 @@ function main(config) {
         conn.listen(listener);
     });
 
+    server.onDisconnect(function(socket) {
+         console.log('disconnected - client');
+
+         // Remove WorldHandler if there is one present.
+         var wh = socket._connection.worldHandler;
+         if (wh) {
+           var index = worldHandlers.indexOf(wh);
+           if (index >= 0)
+             worldHandlers.splice(index, 1);
+           delete wh;
+         }
+    });
+
     server.onError(function() {
         console.error(Array.prototype.join.call(arguments, ", "));
     });
@@ -216,21 +229,8 @@ function main(config) {
       //io.emit('msg', message);
   });
 
-  server._ioServer.on('disconnect', function(socket) {
-     console.log('disconnected - client');
 
-     // Remove WorldHandler if there is one present.
-     var wh = socket.worldHandler;
-     if (wh) {
-       var index = worldHandlers.indexOf(wh);
-       worldHandlers.splice(index, 1);
-       //worlds.splice(index, 1);
-       delete wh;
-     }
 
-     this.disconnect();
-     delete this;
-  });
 
   var signalHandler = function () {
     closeServer();
