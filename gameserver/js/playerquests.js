@@ -44,7 +44,7 @@ module.exports = PlayerQuests = cls.Class.extend({
     quest.count++;
     if(quest.count >= quest.object.count) {
       quest.count = quest.object.count;
-      var xp = quest.object.count * 10 * this.level.base;
+      var xp = quest.object.count * 10 * this.player.level.base;
       this.completeQuest(quest, xp);
     } else {
       this.progressQuest(quest);

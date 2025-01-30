@@ -16,9 +16,9 @@ module.exports = MobCallback = Class.extend({
     var self = this;
 
     entity.onRespawn(function() {
-        entity.setFreeze(2000);
-        entity.isDead = false;
-        entity.droppedItem = false;
+        //entity.setFreeze(2000);
+        entity.respawn();
+
         self.addMob(mob);
 
         if (entity.area && entity.area instanceof ChestArea)

@@ -173,7 +173,7 @@ module.exports = PlayerController = Class.extend({
         });
 
         p.onDeath(function (attacker) {
-            p.world.loot.handleDropItem(entity, attacker);
+            p.world.loot.handleDropItem(p, attacker);
         });
 
   	}

@@ -259,15 +259,22 @@ module.exports = Mob = Character.extend({
         this.hasTalked = false;
     },
 
-    respawnMob: function () {
-      this.forceStop();
-      this.forgetEveryone();
-      this.disengage();
-      this.removeAttackers();
+    respawn: function () {
+      this.spawnX = this.x;
+      this.spawnY = this.y;
+      this.resetPosition();
       this.isDead = false;
       this.droppedItem = false;
-      this.setAiState(mobState.IDLE);
+      this.resetBehaviour();
       this.map.entities.sendNeighbours(this, new Messages.Spawn(this));
+    },
+
+    resetBehaviour: function () {
+      this.disengage();
+      this.forceStop();
+      this.forgetEveryone();
+      this.setAiState(mobState.IDLE);
+      this.freeze = false;
     },
 
     resetPosition: function () {
@@ -276,7 +283,6 @@ module.exports = Mob = Character.extend({
         //var msg = new Messages.Move(this, this.orientation, false, this.x, this.y);
         //this.map.entities.sendNeighbours(this, msg);
     },
-
 
     returnToSpawn: function() {
         if (this.aiState == mobState.RETURNING)
@@ -493,10 +499,9 @@ module.exports = Mob = Character.extend({
 
     returnedToSpawn: function () {
       console.info("mob.returnedToSpawn");
-      this.forceStop();
       this.resetHP();
-      this.setAiState(mobState.IDLE);
       this.resetPosition();
+      this.resetBehaviour();
     },
 
     handleMobHate: function(tEntity, hatePoints)

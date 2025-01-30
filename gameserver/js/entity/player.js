@@ -277,7 +277,7 @@ module.exports = Player = Character.extend({
       var origLevel = this.level.base;
       this.level.base = Types.getLevel(this.exp.base);
       if(origLevel !== this.level.base) {
-      	this.levelUp();
+      	this.levelUp(origLevel);
       }
 
       return incExp;
@@ -369,37 +369,28 @@ module.exports = Player = Character.extend({
       return bonus;
     },
 
-    levelUp: function () {
-	    if (this.level.base < 10)
-	    {
-	    	this.stats.attack+=2;
-	    	this.stats.defense+=2;
-	    	this.stats.health+=2;
-	    	this.stats.energy+=2;
-	    	this.stats.luck+=2;
-	    }
-	    else
-	    {
-	    	this.stats.free += 5;
-	    }
-    	this.sendPlayer(new Messages.StatInfo(this));
+    levelUp: function (prevLevel) {
+      for (var i=(prevLevel+1); i <= this.level.base; ++i)
+      {
+  	    if (i < 10)
+  	    {
+  	    	this.stats.attack+=2;
+  	    	this.stats.defense+=2;
+  	    	this.stats.health+=2;
+  	    	this.stats.energy+=2;
+  	    	this.stats.luck+=2;
+  	    }
+  	    else
+  	    {
+  	    	this.stats.free += 5;
+  	    }
+      }
 
+    	this.sendPlayer(new Messages.StatInfo(this));
 	    this.resetBars();
 	    this.sendPlayer(new Messages.ChangePoints(this, 0, 0));
 	    this.sendPlayer(new Messages.LevelUp(1, this.level.base, this.exp.base));
-
-	    if (this.level.base == 10)
-        {
-        	// TODO update checks.
-        	this.tutChat("TUTORIAL_SHOPBUY", 4, "buy");
-        	this.tutChat("TUTORIAL_SHOPBUY2", 6, "buy2");
-        }
-	    if (this.level.base == 20)
-        {
-        	this.tutChat("TUTORIAL_STATS", 2, "stats");
-        }
     },
-
 
     sendPlayerToClient: function ()
     {
@@ -585,24 +576,62 @@ module.exports = Player = Character.extend({
 
     		self.pStats = db_player.pStats.parseInt();
 
-        if (self.level.base < 10)
-    		{
-          var l = parseInt(self.level.base);
-    			self.stats.attack = l*2;
-    			self.stats.defense = l*2;
-    			self.stats.health = l*2;
-    			self.stats.energy = l*2;
-    			self.stats.luck = l*2;
-    			self.stats.free = 0;
-    		}
+        db_player.stats = db_player.stats.parseInt();
+
+        var isValidStats = function (lvl, stats) {
+            var total = 0;
+            if (lvl < 10)
+              total = lvl * 10;
+            else
+              total = (9 * 10) + (5 * (lvl - 9));
+
+            var statTotal = stats.reduce(function(a, b) { return (a + b); }, 0);
+
+            return (total == statTotal);
+        };
+
+        var lvl = parseInt(self.level.base);
+        if (!isValidStats(lvl, db_player.stats))
+        {
+          if (lvl < 10) {
+            self.stats.attack = lvl*2;
+      			self.stats.defense = lvl*2;
+      			self.stats.health = lvl*2;
+            self.stats.energy = lvl*2;
+      			self.stats.luck = lvl*2;
+
+            self.stats.free = 0;
+          }
+          else {
+            self.stats.attack = 18;
+      			self.stats.defense = 18;
+      			self.stats.health = 18;
+            self.stats.energy = 18;
+      			self.stats.luck = 18;
+
+            self.stats.free = (lvl-9)*5;
+          }
+        }
         else {
-          db_player.stats = db_player.stats.parseInt();
-          self.stats.attack = db_player.stats[0];
-          self.stats.defense = db_player.stats[1];
-          self.stats.health = db_player.stats[2];
-          self.stats.energy = db_player.stats[3];
-          self.stats.luck = db_player.stats[4];
-          self.stats.free = db_player.stats[5];
+          if (lvl < 10)
+      		{
+            self.stats.attack = lvl*2;
+      			self.stats.defense = lvl*2;
+      			self.stats.health = lvl*2;
+            self.stats.energy = lvl*2;
+      			self.stats.luck = lvl*2;
+
+      			self.stats.free = 0;
+      		}
+          else {
+            self.stats.attack = db_player.stats[0];
+            self.stats.defense = db_player.stats[1];
+            self.stats.health = db_player.stats[2];
+            self.stats.energy = db_player.stats[3];
+            self.stats.luck = db_player.stats[4];
+
+            self.stats.free = db_player.stats[5];
+          }
         }
 
         if (db_player.completeQuests)
@@ -1414,12 +1443,12 @@ module.exports = Player = Character.extend({
       if (type == "hammer")
         p.exp.mining += 10;
       entity.die();
-      var item = p.server.getDrop(p, entity, false);
+      var item = p.world.loot.getDrop(p, entity, false);
       if (item && item instanceof Item)
       {
           item.x = x;
           item.y = y;
-          p.server.handleItemDespawn(item);
+          p.world.loot.handleItemDespawn(item);
       }
       return;
     }, duration);
@@ -1512,7 +1541,8 @@ module.exports = Player = Character.extend({
 
     _.each(this.attackers, function(attacker) {
       self.on_killed_callback(attacker, self.damageCount[attacker.id]);
-      attacker.onKillEntity(self);
+      if (attacker instanceof Player)
+        attacker.onKillEntity(self);
     });
     this.removeAttackers();
 
