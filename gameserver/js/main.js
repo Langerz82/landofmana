@@ -73,6 +73,8 @@ AUCTION_SAVED = false;
 PLAYERS_SAVED = false;
 LOOKS_SAVED = false;
 
+IS_EXITING = false;
+
 //GDATE = new Date();
 
 /* global log, Player, databaseHandler */
@@ -283,9 +285,10 @@ function main(config) {
     main.closeServer();
   };
 
-  process.on('SIGINT', signalHandler)
-  process.on('SIGTERM', signalHandler)
-  process.on('SIGQUIT', signalHandler)
+  process.on('SIGINT', signalHandler);
+  process.on('SIGTERM', signalHandler);
+  process.on('SIGQUIT', signalHandler);
+  process.on('SIGHUP', signalHandler);
 
   var cmdPrompt = function () {
 
@@ -295,13 +298,15 @@ function main(config) {
       });
     }
 
-    readline.question('Command:', function (line) {
-      //console.info("line: " + line);
-      getInput(line);
+    if (!IS_EXITING && readline) {
+      readline.question('Command:', function (line) {
+        //console.info("line: " + line);
+        getInput(line);
 
-      //Utils.utilSleep(100);
-      setTimeout(cmdPrompt, 100);
-    });
+        //Utils.utilSleep(100);
+        setTimeout(cmdPrompt, 100);
+      });
+    }
   };
   /*var cmdStart = function () {
     cmdPrompt();
@@ -453,6 +458,11 @@ main.checkSaved = function () {
   }, 500);
 }
 
+main.safe_exit = function () {
+    server.close();
+    process.exit();
+};
+
 /*function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }*/
@@ -470,15 +480,11 @@ main.saveServer = function () {
 
 main.closeServer = function () {
   console.info("Main - closeServer!");
+  IS_EXITING = true;
   main.saveServer();
   readline.close();
   main.checkSaved();
 }
-
-main.safe_exit = function () {
-  //server.userHandler.disconnect();
-  setTimeout(function () { process.exit(0); }, 1000);
-};
 
 getConfigFile(defaultConfigPath, function(defaultConfig) {
     getConfigFile(customConfigPath, function(localConfig) {

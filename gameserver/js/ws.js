@@ -57,6 +57,15 @@ var sServer = cls.Class.extend({
 
     getConnection: function (id) {
         return this._connections[id];
+    },
+
+    onClose: function (callback) {
+      this._close_callback = callback;
+    },
+
+    close: function () {
+      if (this._close_callback)
+        this._close_callback(this);
     }
 });
 
@@ -150,6 +159,10 @@ WS.WebsocketServer = sServer.extend({
         });
         this._ioServer.on('connect_error', function (err) {
             console.error(err);
+        });
+
+        this.onClose(function (self) {
+          this._protoServer.close();
         });
 
         // Add a connect listener
