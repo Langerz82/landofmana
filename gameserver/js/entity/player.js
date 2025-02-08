@@ -3,7 +3,6 @@
 var Character = require('./character'),
     Messages = require("../message"),
     Formulas = require("../formulas"),
-//    Party = require("../party"),
     Bank = require("../items/bank"),
     Equipment = require("../items/equipment"),
     Inventory = require("../items/inventory"),
@@ -356,15 +355,16 @@ module.exports = Player = Character.extend({
 
     getExpBonus: function ()
     {
+      var self = this;
       var bonus = 1;
       if (this.party)
       {
-        for (var player of this.party.players) {
-          if (this.isInScreen([player.x,player.y]))
+        this.party.forEachPlayer(function (player) {
+          if (self.isInScreen([player.x,player.y]))
           {
-            bonus += 0.1 * this.party.players.length;
+            bonus += 0.15;
           }
-        }
+        });
       }
       return bonus;
     },
