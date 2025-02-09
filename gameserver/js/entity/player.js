@@ -8,9 +8,8 @@ var Character = require('./character'),
     Inventory = require("../items/inventory"),
     SkillHandler = require("../skillhandler"),
     SkillEffectHandler = require("../effecthandler"),
-    PacketHandler = require("../packethandler"),
-    PlayerQuests = require("../playerquests"),
-
+    PacketHandler = require("../packets/packethandler"),
+    PlayerQuests = require("../playerquests");
     Quest = require("../quest");
 
 module.exports = Player = Character.extend({
@@ -104,7 +103,8 @@ module.exports = Player = Character.extend({
 
         this.idleTimer = new Timer(300000);
 
-    		this.playerController = new PlayerController(this);
+        this.world.playerCallback.setCallbacks(this);
+    		//this.playerCallback = new PlayerCallback(this);
         this.quests = new PlayerQuests(this);
 
       	this.onWelcomeReady = false;

@@ -15,28 +15,28 @@ var cls = require("./lib/class"),
     Mob = require('./entity/mob'),
     Node = require('./entity/node'),
 //    Main = require('./main'),
-    Map = require('./map'),
-    MapManager = require('./mapmanager'),
-    MapEntities = require('./mapentities'),
+//    Map = require('./map/map'),
+    MapManager = require('./map/mapmanager'),
+//    MapEntities = require('./mapentities'),
 
     Messages = require('./message'),
-
-    PlayerController = require("./playercontroller"),
-    NpcMoveController = require("./npcmovecontroller"),
 
     util = require("util"),
     Pathfinder = require("./pathfinder"),
 
     Updater = require("./updater"),
-    Auction = require("./auction"),
-    Looks = require("./looks"),
 
-    TaskHandler = require("./taskhandler"),
-    BanManager = require("./banmanager"),
-    PartyManager = require("./partymanager"),
-    LootManager = require("./lootmanager"),
+    MobCallback = require("./callbacks/mobcallback"),
+    NpcMoveCallback = require("./callbacks/npcmovecallback"),
+    PlayerCallback = require("./callbacks/playercallback"),
 
-    UserHandler = require("./userhandler");
+    Auction = require("./world/auction"),
+    Looks = require("./world/looks"),
+
+    TaskHandler = require("./world/taskhandler"),
+    BanManager = require("./world/banmanager"),
+    PartyManager = require("./world/partymanager"),
+    LootManager = require("./world/lootmanager");
 
 module.exports = World = cls.Class.extend(
 {
@@ -60,6 +60,10 @@ module.exports = World = cls.Class.extend(
         self.ban = new BanManager(self);
         self.party = new PartyManager(self);
         self.loot = new LootManager(self);
+
+        self.mobCallback = new MobCallback();
+        self.playerCallback = new PlayerCallback();
+        self.npcMoveCallback = new NpcMoveCallback();
 
         self.itemCount = 0;
 

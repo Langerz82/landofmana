@@ -1,15 +1,10 @@
-var Messages = require("./message"),
-    _ = require("underscore"),
-    Utils = require("./utils"),
-    Formulas = require("./formulas"),
-    ChestArea = require('./area/chestarea'),
-    TaskHandler = require('./taskhandler');
+var Messages = require("../message"),
+    Formulas = require("../formulas"),
+    ChestArea = require('../area/chestarea');
 
 module.exports = MobCallback = Class.extend({
 
-  init: function(ws, map){
-      this.world = ws;
-      this.map = map;
+  init: function(){
   },
 
   setCallbacks: function (entity) {
@@ -37,7 +32,7 @@ module.exports = MobCallback = Class.extend({
 		    if (entity.target)
 		    	ignored.push(entity.target);
 
-		    var path = self.map.entities.findPath(entity, x, y, ignored);
+		    var path = entity.map.entities.findPath(entity, x, y, ignored);
 
         if (path && path.length == 1)
           console.error(entity.id + " " + JSON.stringify(path));
@@ -47,7 +42,7 @@ module.exports = MobCallback = Class.extend({
             entity.orientation = entity.getOrientation([this.x,this.y], path[1]);
 				    var msg = new Messages.MovePath(entity, path);
 
-				    self.map.entities.sendNeighbours(entity, msg);
+				    entity.map.entities.sendNeighbours(entity, msg);
             return path;
 				}
         return null;

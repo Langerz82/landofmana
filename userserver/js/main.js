@@ -197,6 +197,7 @@ function main(config) {
          // Remove WorldHandler if there is one present.
          var wh = socket._connection.worldHandler;
          if (wh) {
+           wh.release();
            var index = worldHandlers.indexOf(wh);
            if (index >= 0)
              worldHandlers.splice(index, 1);

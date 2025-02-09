@@ -1,7 +1,7 @@
 
 /* global require, module, log, DBH */
 
-var formatCheck = require("./format").check,
+var formatCheck = require("../format").check,
     UserMessages = require("./usermessage");
 
 module.exports = WorldHandler = cls.Class.extend({

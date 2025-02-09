@@ -407,6 +407,9 @@ Utils.Base64ToBinArray = function (base64, limit) {
   return uint8array.slice(0,limit);
 }
 
+Utils.SwapElements = function (arr, i1, i2) {
+  [arr[i1], arr[i2]] = [arr[i2], arr[i1]];
+}
 
 /*
 module.exports = removeEmpty = function (obj) {

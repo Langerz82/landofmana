@@ -1,12 +1,10 @@
-var cls = require('./lib/class');
-_ = require('underscore');
 var fs = require('fs');
-var file = require('../shared/js/file');
 var path = require('path');
-var Utils = require('./utils');
-var Checkpoint = require('./area/checkpoint');
-var Area = require('./area/area');
-var MapArea = require('./area/maparea');
+var file = require('../../shared/js/file');
+
+var Checkpoint = require('../area/checkpoint');
+var Area = require('../area/area');
+var MapArea = require('../area/maparea');
 
 var Map = cls.Class.extend({
 

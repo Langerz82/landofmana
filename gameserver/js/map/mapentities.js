@@ -1,24 +1,20 @@
 
-
-var path = require('path');
-var Utils = require('./utils');
-var Chest = require('./entity/chest');
-var NpcStatic = require('./entity/npcstatic');
-
-var Messages = require('./message');
-var MobCallback = require("./mobcallback");
-var MobAI = require("./mobai");
+var Chest = require('../entity/chest');
+var NpcStatic = require('../entity/npcstatic');
+var Messages = require('../message');
+var MobAI = require("../mobai");
 
 var MapEntities = cls.Class.extend({
 
 
-    init: function (id, server, map, database) {
+    init: function (id, server, map) {
     	var self = this;
 
     	self.id = id;
     	self.map = map;
     	self.server = server;
-    	self.database = database;
+      self.world = server;
+//    	self.database = database;
 
       self.entities = {};
       self.players = {};
@@ -59,7 +55,6 @@ var MapEntities = cls.Class.extend({
 
   		self.entityCount = 0;
 
-      this.mobCallback = null;
       this.mobAI = null;
 
       this.cellsize = G_TILESIZE;
@@ -102,7 +97,6 @@ var MapEntities = cls.Class.extend({
       this.initPathingGrid();
     	//this.initZoneGroups();
 
-      this.mobCallback = new MobCallback(this.server, this.map);
       this.mobAI = new MobAI(this.server, this.map);
     },
 
@@ -451,7 +445,7 @@ var MapEntities = cls.Class.extend({
       var mob = new Mob(++self.entityCount, kind, x, y, self.map, area);
       mob.mobAI = this.mobAI;
 
-      this.mobCallback.setCallbacks(mob);
+      this.world.mobCallback.setCallbacks(mob);
 
       this.addEntity(mob);
       this.mobs[mob.id] = mob;
@@ -610,8 +604,8 @@ var MapEntities = cls.Class.extend({
       var player = this.getPlayerByName(name);
       if (player)
         player.modifyGold(mod);
-      else
-        this.database.modifyGold(name, mod);
+      //else
+        //this.database.modifyGold(name, mod);
     },
 
     getEntitiesByPosition: function(x,y) {

@@ -1,17 +1,13 @@
-var Character = require('./entity/character'),
-  Chest = require('./entity/chest'),
-  Mob = require('./entity/mob'),
-  Node = require('./entity/node'),
-  Messages = require("./message"),
-  Utils = require("./utils"),
-
-  Formulas = require("./formulas"),
-  formatCheck = require("./format").check,
-//  Party = require("./party"),
+var Character = require('../entity/character'),
+  Chest = require('../entity/chest'),
+  Mob = require('../entity/mob'),
+  Node = require('../entity/node'),
+  Messages = require("../message"),
+  Formulas = require("../formulas"),
+  formatCheck = require("../format").check,
+  SkillHandler = require("../skillhandler"),
   PartyHandler = require("./partyhandler"),
-  ShopHandler = require("./shophandler"),
-  SkillHandler = require("./skillhandler"),
-  TaskHandler = require("./taskhandler");
+  ShopHandler = require("./shophandler");
 
 module.exports = PacketHandler = Class.extend({
   init: function(user, player, connection, worldServer, map) {

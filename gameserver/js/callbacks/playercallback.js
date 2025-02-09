@@ -1,18 +1,14 @@
-var Messages = require("./message"),
-    _ = require("underscore"),
-    Utils = require("./utils");
 
-module.exports = PlayerController = Class.extend({
+module.exports = PlayerCallback = Class.extend({
 
-  	init: function(entity) {
-    		this.player = entity;
-        this.entities = this.player.map.entities;
-    		this.setCallbacks();
+  	init: function() {
   	},
 
-	 setCallbacks: function () {
+	 setCallbacks: function (entity) {
     		var self = this;
-        var p = this.player;
+        var p = entity;
+        this.player = entity;
+        this.entities = p.map.entities;
 
     		//console.info("assigning callbacks to "+self.player.id);
 

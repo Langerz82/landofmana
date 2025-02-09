@@ -1,5 +1,3 @@
-var _ = require('underscore');
-var cls = require('./lib/class');
 
 var UserMessages = {};
 module.exports = UserMessages;

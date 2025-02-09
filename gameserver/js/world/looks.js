@@ -1,4 +1,4 @@
-var Messages = require("./message");
+var Messages = require("../message");
 
 
 module.exports = Looks = cls.Class.extend({

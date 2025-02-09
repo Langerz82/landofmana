@@ -19,7 +19,7 @@ module.exports = PlayerGroup = Class.extend({
       this.leader = playerName;
       var index = this.players.indexOf(this.leader);
       if (index != 0)
-        this.players[0] = this.players.splice(index, 1, this.players[0])[0];
+        Utils.SwapElements(this.players, 0, index);
   },
 
   addName: function(playerName) {

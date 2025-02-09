@@ -1,36 +1,36 @@
 var Map = require("./map");
 var MapEntities = require("./mapentities");
-var Messages = require("./message");
-var BlockArea = require("./area/blockarea");
-var TrapArea = require("./area/traparea");
-var MobArea = require("./area/mobarea");
-var EntityArea = require("./area/entityarea");
-var NpcMove = require("./entity/npcmove");
-var Node = require("./entity/node");
-var TrapGroup = require("./entity/trapgroup");
+
+//var BlockArea = require("../area/blockarea");
+//var TrapArea = require("../area/traparea");
+var MobArea = require("../area/mobarea");
+var EntityArea = require("../area/entityarea");
+var NpcMove = require("../entity/npcmove");
+var Node = require("../entity/node");
+//var TrapGroup = require("../entity/trapgroup");
 
 module.exports = MapManager = cls.Class.extend({
 
     storeMobAreas: function(map) {
-    	    var self = this;
+	    var self = this;
 
-            map.mobArea = [];
-            //map.mobLiveAreas = {};
-            //console.info("MobAreas: "+map.mobAreas.length);
-            var a;
-            for (var i=0; i < map.mobAreas.length; ++i)
-            {
-                a = map.mobAreas[i];
-            //_.each(map.mobAreas, function(a) {
-                a.sMinLevel = a.sMinLevel || 0;
-                a.sMaxLevel = a.sMaxLevel || 0;
-                var area = new MobArea(a.id, a.nb, a.minLevel, a.maxLevel, a.x, a.y, a.width, a.height,
-                	a.include, a.exclude, a.definite, map, a.ellipse, a.excludeId, a.sMinLevel, a.sMaxLevel);
-                //map.mobLiveAreas[a.id] = area;
-                map.mobArea.push(area);
-            //});
-            }
-            return map.mobArea;
+        map.mobArea = [];
+        //map.mobLiveAreas = {};
+        //console.info("MobAreas: "+map.mobAreas.length);
+        var a;
+        for (var i=0; i < map.mobAreas.length; ++i)
+        {
+            a = map.mobAreas[i];
+        //_.each(map.mobAreas, function(a) {
+            a.sMinLevel = a.sMinLevel || 0;
+            a.sMaxLevel = a.sMaxLevel || 0;
+            var area = new MobArea(a.id, a.nb, a.minLevel, a.maxLevel, a.x, a.y, a.width, a.height,
+            	a.include, a.exclude, a.definite, map, a.ellipse, a.excludeId, a.sMinLevel, a.sMaxLevel);
+            //map.mobLiveAreas[a.id] = area;
+            map.mobArea.push(area);
+        //});
+        }
+        return map.mobArea;
     },
 
     spawnMobs: function(map) {
@@ -42,14 +42,14 @@ module.exports = MapManager = cls.Class.extend({
     },
 
     init: function(server) {
-    	    var self = this;
+  	    var self = this;
 
-    	    this.server = server;
-    	    this.maps = {};
-    	    this.mapCount = 0;
-          this.id = 0;
-          this.mapInstances = {};
-          this.loaded = false;
+  	    this.server = server;
+  	    this.maps = {};
+  	    this.mapCount = 0;
+        this.id = 0;
+        this.mapInstances = {};
+        this.loaded = false;
 
         /**
          * Map Loading

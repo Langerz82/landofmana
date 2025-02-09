@@ -1,4 +1,4 @@
-var Messages = require("./message.js");
+var Messages = require("../message.js");
 
 module.exports = ShopHandler = Class.extend({
   init: function(packetHandler){

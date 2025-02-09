@@ -1,7 +1,6 @@
-var cls = require("./lib/class"),
-  EntityMoving = require("./entity/entitymoving"),
-  Messages = require("./message"),
-  AchievementJson = require("../shared/data/achievements.json");
+var EntityMoving = require("../entity/entitymoving"),
+    Messages = require("../message"),
+    AchievementJson = require("../../shared/data/achievements.json");
 
 //var AchievementData = AchievementJson;
 

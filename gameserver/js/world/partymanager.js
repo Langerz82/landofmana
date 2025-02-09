@@ -1,5 +1,5 @@
-var PlayerGroup = require("./playergroup");
-var Message = require("./message");
+var PlayerGroup = require("../playergroup");
+var Message = require("../message");
 
 module.exports = PartyManager = Class.extend({
   init: function (world) {

@@ -10,10 +10,10 @@ var useBison = false;
 var WS = require('./ws');
 
 var ProductionConfig = require('./productionconfig');
-var UserHandler = require('./userhandler');
-var WorldHandler = require('./worldhandler');
+var UserHandler = require('./user/userhandler');
+var WorldHandler = require('./user/worldhandler');
 
-var UserMessages = require('./usermessage');
+var UserMessages = require('./user/usermessage');
 
 //var RedisServer = require('redis-server');
 

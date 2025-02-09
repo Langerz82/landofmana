@@ -21,6 +21,7 @@ module.exports = WorldHandler = cls.Class.extend({
         this.playerSaveData = {};
         this.playerLoadData = {};
         this.playerCreateData = {};
+        this.loggedInUsers = {};
 
         this.block = false;
         this.listener = function(message) {
@@ -95,6 +96,7 @@ module.exports = WorldHandler = cls.Class.extend({
       for (var username in this.users) {
         console.info("username:"+username);
         delete loggedInUsers[username];
+        delete this.loggedInUsers[username];
       }
     },
 
@@ -177,11 +179,19 @@ module.exports = WorldHandler = cls.Class.extend({
       });
     },
 
+    release: function () {
+        for (var tmp in this.loggedInUsers) {
+          delete loggedInUsers[tmp];
+        }
+        delete this.loggedInUsers;
+    },
+
     handlePlayerLoggedIn: function (msg) {
       console.info("handlePlayerLoggedIn: "+JSON.stringify(msg));
       var username = msg[0];
       var playerName = msg[1];
       loggedInUsers[username] = playerName;
+      this.loggedInUsers[username] = userName;
       this.users[username] = username;
     },
 

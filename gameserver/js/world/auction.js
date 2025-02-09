@@ -1,6 +1,5 @@
-var cls = require("./lib/class"),
-    BaseItem = require("./items/baseitem"),
-    Messages = require("./message");
+var BaseItem = require("../items/baseitem"),
+    Messages = require("../message");
 
 module.exports = AuctionRecord = cls.Class.extend({
     init: function (index, playerName, price, item) {

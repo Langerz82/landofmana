@@ -2,7 +2,6 @@
 
 var Character = require('./character'),
     Messages = require('../message'),
-    NpcMoveController = require('../npcmovecontroller'),
     EntityQuests = require("../entityquests");
 var NPCnames = require("../../shared/data/npc_names.json");
 
@@ -23,7 +22,9 @@ var NpcMove = Character.extend({
 
         this.name = NPCnames[kind%NPCnames.length];
 
-        this.activeController = new NpcMoveController(this);
+        var callbacks = this.map.entities.world.npcMoveCallback;
+        callbacks.setCallbacks(this);
+
         this.entityQuests = new EntityQuests(this);
 
         //this.scriptQuests = false;
@@ -87,7 +88,31 @@ var NpcMove = Character.extend({
       }
     },
 
+    randomMove: function() {
+      if(!this.hasTarget() && !this.isDead && !this.isMoving()) {
+        var canRoam = (Utils.randomRangeInt(0,100) === 1);
+        if(!canRoam || this.map.entities.getPlayerAroundCount(this,20) == 0)
+          return;
+        var	pos = this.map.entities.getRandomPosition(this, 2);
+        if (pos && !(pos.x == this.x && pos.y == this.y))
+        {
+            //if (this.map.entities.isCharacterAt(pos.x,pos.y))
+            //   return;
+            this.go(pos.x, pos.y);
+            //this.nextStep();
+        }
+      }
+    },
 
+  	checkMove: function(time) {
+  		if (this.isDead)
+  			return;
+
+      if (!this.freeze && this.isMoving() && this.canMove())
+  		{
+  			this.nextStep();
+  		}
+  	}
 });
 
 module.exports = NpcMove;
