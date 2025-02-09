@@ -72,15 +72,15 @@ module.exports = MobCallback = Class.extend({
     entity.onKilled(function (attacker, damage) {
       if (attacker instanceof Player) {
         attacker.skillHandler.setXPs();
-        self.world.taskHandler.processEvent(attacker, PlayerEvent(EventType.DAMAGE, entity, damage));
+        entity.world.taskHandler.processEvent(attacker, PlayerEvent(EventType.DAMAGE, entity, damage));
       }
     });
 
     entity.onDeath(function (attacker) {
       if (attacker instanceof Player) {
-        self.world.taskHandler.processEvent(attacker, PlayerEvent(EventType.KILLMOB, entity, 1));
+        entity.world.taskHandler.processEvent(attacker, PlayerEvent(EventType.KILLMOB, entity, 1));
       }
-      self.world.loot.handleDropItem(entity, attacker);
+      entity.world.loot.handleDropItem(entity, attacker);
     })
   }
 });

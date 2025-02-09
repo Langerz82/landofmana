@@ -8,6 +8,8 @@ module.exports = Mob = Character.extend({
       //console.info("map.index"+map.index);
     	this._super(id, Types.EntityTypes.MOB, kind, x, y, map);
 
+      this.world = this.map.entities.world;
+
     	//console.info("constructor x:"+x+",y:"+y);
     	//console.info("this.kind="+this.kind);
 
