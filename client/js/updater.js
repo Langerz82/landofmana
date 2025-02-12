@@ -53,22 +53,30 @@ define(['entity/character', 'timer', 'entity/player', 'entity/entitymoving'], fu
             };
 
             this.charPathXF = function(c, m) {
-              var x = c.x + m;
+              var x = c.x + m, y = c.y;
               if (c.hasChangedItsPath())
               {
-                return false;
+                return true;
               }
-              c.setPosition(x, c.y);
+              if (c.map && c.map.isColliding(x, y)) {
+                try { throw new Error(); } catch (e) { console.error(e.stack); }
+                return true;
+              }
+              c.setPosition(x, y);
               return c.nextStep();
             };
 
             this.charPathYF = function(c, m) {
-              var y = c.y + m;
+              var x = c.x, y = c.y + m;
               if (c.hasChangedItsPath())
               {
-                return false;
+                return true;
               }
-              c.setPosition(c.x, y);
+              if (c.map && c.map.isColliding(x, y)) {
+                try { throw new Error(); } catch (e) { console.error(e.stack); }
+                return true;
+              }
+              c.setPosition(x, y);
               return c.nextStep();
             };
 

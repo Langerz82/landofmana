@@ -1,5 +1,7 @@
 TODO:
 
+BUG - Attacking sometimes jams the movement functions.
+
 BUG - In Looks Dialog some appearances have no item icon.
 
 FIX BUG Player sometimes jams and moves across with the wrong orientation.

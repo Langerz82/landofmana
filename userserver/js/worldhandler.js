@@ -180,7 +180,9 @@ module.exports = WorldHandler = cls.Class.extend({
     },
 
     release: function () {
+        console.info("worldHandler released.");
         for (var tmp in this.loggedInUsers) {
+          console.info("releasing user: "+tmp);
           delete loggedInUsers[tmp];
         }
         delete this.loggedInUsers;
@@ -191,7 +193,7 @@ module.exports = WorldHandler = cls.Class.extend({
       var username = msg[0];
       var playerName = msg[1];
       loggedInUsers[username] = playerName;
-      this.loggedInUsers[username] = userName;
+      this.loggedInUsers[username] = username;
       this.users[username] = username;
     },
 

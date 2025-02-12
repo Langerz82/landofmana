@@ -192,6 +192,7 @@ define(['lib/pako', 'entity/player', 'entityfactory', 'entity/mob', 'entity/item
         sendMessage: function(json) {
           var data;
           if(this.connection.connected === true) {
+						try { throw new Error() } catch (e) { console.warn("sent="+JSON.stringify(json)+e.stack); }
             //console.warn("sent=" + JSON.stringify(json));
           	if(this.useBison) {
                 data = BISON.encode(json);

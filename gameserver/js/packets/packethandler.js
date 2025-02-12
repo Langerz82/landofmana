@@ -806,6 +806,11 @@ module.exports = PacketHandler = Class.extend({
     if (entityId != p.id)
       return;
 
+    if (state==1 && p.hasMoveThrottled(G_ROUNDTRIP))  {
+      console.error("moveThrottled");
+      return;
+    }
+
     if (p.map.isColliding(x, y)) {
       console.warn("char.isColliding("+p.id+","+x+","+y+")");
       return;
@@ -837,16 +842,20 @@ module.exports = PacketHandler = Class.extend({
   handleMovePath: function(message) {
     console.info("handleMovePath");
     console.info("message="+JSON.stringify(message));
-    var time = parseInt(message[0]),
-      entityId = parseInt(message[1]),
-      orientation = parseInt(message[2]),
-      interrupted = (parseInt(message[3]) == 0) ? false : true;
-      message.splice(0,4);
-    var path = message[0];
+    var time = parseInt(message.shift()),
+      entityId = parseInt(message.shift()),
+      orientation = parseInt(message.shift()),
+      interrupted = (parseInt(message.shift()) == 0) ? false : true;
+      //message.splice(0,4);
+    var path = null;
+    if (message.length > 0)
+      path = message[0];
 
     var p = this.player;
     if (entityId != p.id)
       return;
+
+    if (path && p.hasMoveThrottled(G_ROUNDTRIP)) return;
 
     console.info(JSON.stringify(path));
 

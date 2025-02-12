@@ -1555,4 +1555,20 @@ module.exports = Player = Character.extend({
         this.on_teleport_callback();
   },
 
+  hasMoveThrottled: function (delay) {
+    var self = this;
+
+    if (this.moveThrottled)
+      return true;
+
+    this.moveThrottled = true;
+
+    clearTimeout(this.moveThrottleTimeout);
+    this.moveThrottleTimeout =
+      setTimeout(function () {
+          self.moveThrottled = false;
+          self.moveThrottleTimeout = null;
+      }, delay);
+    return false;
+  },
 });

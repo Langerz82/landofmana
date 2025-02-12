@@ -112,6 +112,7 @@ function(UserClient, Player, AppearanceData) {
           var self = this;
 
           this.setOrientation(orientation || 0);
+
           this.forceStop();
           this.fsm = "ATTACK";
           this.animate("atk", this.atkSpeed, 1, function () {
@@ -137,15 +138,43 @@ function(UserClient, Player, AppearanceData) {
           }
         };
 
+        player.moveThrottle = function (delay) {
+          var self = this;
+          // This group of code enforces path moving throttling.
+          if (this.refuseMove)
+            return true;
+          this.refuseMove = true;
+
+          clearTimeout(this.moveThrottleTimeout);
+          this.moveThrottleTimeout =
+          setTimeout(function () {
+            self.refuseMove = false;
+            self.moveThrottleTimeout = null;
+          }, delay);
+          return false;
+        }
+
         player.moveTo_ = function(x, y, callback) {
           var self = this;
 
+          //if (this.fsm == "MOVEPATH")
+
+
+          //this.fsm = "MOVEPATH";
           if (this.fsm == "ATTACK") {
             return;
           }
 
-          if (this.isMoving())
-            this.forceStop();
+
+
+          //if (this.isMoving())
+
+          if (this.moveThrottle(G_ROUNDTRIP)) {
+            //this.forceStop();
+            return;
+          }
+
+          this.forceStop();
 
           log.info("background - free delay =" + G_LATENCY);
 
@@ -167,12 +196,11 @@ function(UserClient, Player, AppearanceData) {
             return;
           }
 
-          /*if (this.fsm == "MOVEPATH") {
-            return;
-          }*/
-
           if (state && orientation != Types.Orientations.NONE)
           {
+            if (this.moveThrottle(G_ROUNDTRIP))
+              return;
+
             if (this.keyMove && orientation == this.orientation) {
                 return;
             }
