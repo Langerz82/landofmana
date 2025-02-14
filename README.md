@@ -1,3 +1,6 @@
+# Update 13/02/25
+Added code to throttle player movement so it's more smooth and causes less rubber-banding.
+
 # Land of Mana - Beta.
 formerly Retro RPG Online 2/Rogue Quest
 
