@@ -9,8 +9,10 @@
   }
 }*/
 
-#about{display:block;position:absolute;bottom:0;left:35%;text-align:center;color:#fff;width:30%}
-#about2{display:block;position:absolute;bottom:0;left:0;color:#fff;width:30%}
+#about{display:block;text-align:center;}
+#about2{position:absolute; text-align:center; bottom:0;display:block;}
+#about, #about * {font-size: 24px;font-family: 'GraphicPixel';color:#fff;}
+#about2, #about2 * {font-size: 24px;font-family: 'GraphicPixel';color:#fff;}
 
 html, body, div, span, applet, object, iframe,
 h1, h2, h3, h4, h5, h6, p, blockquote, pre,

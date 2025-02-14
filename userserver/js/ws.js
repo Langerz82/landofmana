@@ -215,9 +215,8 @@ WS.socketioConnection = Connection.extend({
 
         this._connection.on('disconnect', function () {
             console.info('Client closed socket ' + self._connection.conn.remoteAddress);
-            if (self._server.disconnectionCallback) {
-                self._server.disconnectionCallback(self);
-            }
+            if (self.closeCallback)
+              self.closeCallback(self);
             self._connection.conn.close();
             delete self._server.removeConnection(self.id);
         });

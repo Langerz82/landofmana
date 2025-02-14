@@ -798,6 +798,9 @@ define(['lib/localforage', 'entity/mob', 'entity/item', 'data/mobdata', 'user', 
         loadWindow: function(origin, destination) {
         	$('#'+origin).hide();
         	$('#'+destination).show();
+          if (destination != "user_window") {
+            $('#aboutbutton').hide();
+          }
           if (destination == "player_window")
             $('#user_remove').show();
           this.initFormFields();

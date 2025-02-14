@@ -92,15 +92,27 @@
 	display: none;
 }
 
-#user_window, #player_window, #remove_window {
+#about_window {
+	display: none;
+	z-index: 15;
+	opacity: 1;
+}
+
+#user_window, #player_window, #remove_window, #about_window {
 	position:absolute;
-	width:380px;
+	width:360px;
 	height:400px;
 	top:50%;
 	left:50%;
-	margin-left:-190px;
+	margin-left:-180px;
 	margin-top:-200px;
 	color: white;
+}
+
+#aboutbutton {
+	position: absolute;
+	left: 0px;
+	bottom: 0px;
 }
 
 #user_remove {
@@ -124,7 +136,7 @@
 	position:absolute;
 	top:170px;
 	left:10px;
-	width:370px;
+	width:340px;
 	height:40px;
 	color:white;
 	font-size:18px;
@@ -231,7 +243,7 @@
 	position:absolute;
 	top:170px;
 	left:10px;
-	width:370px;
+	width:340px;
 	height:50px;
 	color:white;
 	font-size:18px;
@@ -314,27 +326,42 @@
 	z-index:100;
 }
 
-#errorwindow .error {
+#errorwindow .error, #errorwindow .error * {
 	font-family: "GraphicPixel";
 }
 
 #errorwindow {
 	display:none;
+	opacity: 1;
 }
+
 .errordetails {
 	position:absolute;
 	top:2%;
 	left:2%;
 	width:90%;
+}
+
+.errordetails, .errordetails * {
 	color:#fff;
 	font-size:18px;
 	font-family:'GraphicPixel';
 	text-align:center;
 }
+
 .errorback {
 	position:absolute;
 	bottom:2%;
 	left:35%;
+	height: 50px;
+	line-height: 40px;
+	width: 30%;
+}
+
+.errorback * {
+	color:#fff;
+	text-decoration:none;
+	font-size: 24px;
 }
 
 #diedwindow {

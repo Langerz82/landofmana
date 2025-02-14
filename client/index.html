@@ -23,10 +23,12 @@
     ">
 
     <link rel="stylesheet" href="css/min.css" type="text/css">
-    <!--<link rel="stylesheet" href="css/menu.css" type="text/css">
-    <link rel="stylesheet" href="css/characterdialog.css" type="text/css">
+    <!--
     <link rel="stylesheet" href="css/main.css" type="text/css">
     <link rel="stylesheet" href="css/game.css" type="text/css">
+    <link rel="stylesheet" href="css/newgui.css" type="text/css">
+    <link rel="stylesheet" href="css/menu.css" type="text/css">
+    <link rel="stylesheet" href="css/characterdialog.css" type="text/css">
     <link rel="stylesheet" href="css/gamemenu.css" type="text/css">
     <link rel="stylesheet" href="css/quest.css" type="text/css">
     <link rel="stylesheet" href="css/inventory.css" type="text/css">
@@ -40,9 +42,9 @@
     <link rel="stylesheet" href="css/social.css" type="text/css">
     <link rel="stylesheet" href="css/settings.css" type="text/css">
     <link rel="stylesheet" href="css/leaderboard.css" type="text/css">
-	  <link rel="stylesheet" href="css/newgui.css" type="text/css">
     <link rel="stylesheet" href="css/fonts.css" type="text/css">
-    <link rel="stylesheet" href="css/dialogmodal.css" type="text/css">-->
+    <link rel="stylesheet" href="css/dialogmodal.css" type="text/css">
+    -->
 
     <link href="img/common/apple-touch-icon-57x57.png" rel="apple-touch-icon-precomposed" sizes="57x57">
     <link href="img/common/apple-touch-icon-72x72.png" rel="apple-touch-icon-precomposed" sizes="72x72">
@@ -111,6 +113,20 @@
 </noscript>
 <div id="intro">
   <div id="rro2-heading"></div>
+  <div class="frame" id="about_window">
+		<div class="frame-heading" id="aboutHeading">ABOUT<div class="frame-close-button" id="aboutclose"></div></div>
+		<div class="frame-content">
+			<article id="aboutgame">
+        <div id="about">
+          <p>Project Page</p>
+      		<a href="https://github.com/Langerz82/landofmana" target="new">Github - landofmana</a>
+      	</div>
+      	<div id="about2">
+      		Copyright <a href="https://github.com/Langerz82/" target="new">Joshua Langley</a> 2024
+      	</div>
+			</article>
+		</div>
+	</div>
 	<div class="frame" id="user_window">
 		<div class="frame-heading" id="skillHeading">ACCOUNT</div>
 		<div class="frame-content">
@@ -130,6 +146,7 @@
 			</article>
 		</div>
 	</div>
+  <div class="frame-new-button" id="aboutbutton">ABOUT</div>
 
   <div class="frame-new-button" id="user_remove">REMOVE ACCOUNT</div>
   <div class="frame" id="remove_window">
@@ -174,14 +191,8 @@
 		</div>
 		<div class="frame-content error">
 			<p class="errordetails frame-stroke1"></p>
-			<a class="errorback frame-new-button" href="index.html">REFRESH</a>
+			<div class="frame-new-button errorback"><a href="">REFRESH</a></div>
 		</div>
-	</div>
-	<div id="about">
-		<a href="https://github.com/Langerz82/landofmana" target="new">Github - landofmana</a>
-	</div>
-	<div id="about2">
-		Copyright <a href="https://github.com/Langerz82/" target="new">Joshua Langley</a> 2024
 	</div>
 </div>
 

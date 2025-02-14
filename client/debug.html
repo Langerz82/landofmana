@@ -25,8 +25,8 @@
     <!--<link rel="stylesheet" href="css/min.css" type="text/css">-->
     <link rel="stylesheet" href="css/main.css" type="text/css">
     <link rel="stylesheet" href="css/game.css" type="text/css">
-    <link rel="stylesheet" href="css/menu.css" type="text/css">
     <link rel="stylesheet" href="css/newgui.css" type="text/css">
+    <link rel="stylesheet" href="css/menu.css" type="text/css">
     <link rel="stylesheet" href="css/characterdialog.css" type="text/css">
     <link rel="stylesheet" href="css/gamemenu.css" type="text/css">
     <link rel="stylesheet" href="css/quest.css" type="text/css">
@@ -111,6 +111,20 @@
 </noscript>
 <div id="intro">
   <div id="rro2-heading"></div>
+  <div class="frame" id="about_window">
+		<div class="frame-heading" id="aboutHeading">ABOUT<div class="frame-close-button" id="aboutclose"></div></div>
+		<div class="frame-content">
+			<article id="aboutgame">
+        <div id="about">
+          <p>Project Page</p>
+      		<a href="https://github.com/Langerz82/landofmana" target="new">Github - landofmana</a>
+      	</div>
+      	<div id="about2">
+      		Copyright <a href="https://github.com/Langerz82/" target="new">Joshua Langley</a> 2024
+      	</div>
+			</article>
+		</div>
+	</div>
 	<div class="frame" id="user_window">
 		<div class="frame-heading" id="skillHeading">ACCOUNT</div>
 		<div class="frame-content">
@@ -130,6 +144,7 @@
 			</article>
 		</div>
 	</div>
+  <div class="frame-new-button" id="aboutbutton">ABOUT</div>
 
   <div class="frame-new-button" id="user_remove">REMOVE ACCOUNT</div>
   <div class="frame" id="remove_window">
@@ -174,14 +189,8 @@
 		</div>
 		<div class="frame-content error">
 			<p class="errordetails frame-stroke1"></p>
-			<div id="error_refresh" class="errorback frame-new-button">REFRESH</div>
+			<div class="frame-new-button errorback"><a href="">REFRESH</a></div>
 		</div>
-	</div>
-	<div id="about">
-		<a href="https://github.com/Langerz82/landofmana" target="new">Github - landofmana</a>
-	</div>
-	<div id="about2">
-		Copyright <a href="https://github.com/Langerz82/" target="new">Joshua Langley</a> 2024
 	</div>
 </div>
 
@@ -189,15 +198,15 @@
 	<div id="canvas">
   </div>
   <div id="gui">
-		<div class="frame" id="diedwindow">
-			<div class="frame-heading">
-				<div>DIED</div>
-			</div>
-			<div class="frame-content" id="death">
-				<div class="frame-new-button" id="respawn">RESPAWN</div>
-			</div>
-   </div>
-  <div class="frame-panel" id="npcDialog"><div id="npcDialoguePic"></div><div id="npcText"></div></div>
+			<div class="frame" id="diedwindow">
+				<div class="frame-heading">
+					<div>DIED</div>
+				</div>
+				<div class="frame-content" id="death">
+					<div class="frame-new-button" id="respawn">RESPAWN</div>
+				</div>
+	   </div>
+     <div class="frame-panel" id="npcDialog"><div id="npcDialoguePic"></div><div id="npcText"></div></div>
 	<div id="menucontainer" class="frame-panel menufadeout">
 	    <div id="inventorybutton"></div><div class="frame-stroke" id="inventorytext">EQUIPMENT</div>
 	    <div id="characterbutton"></div><div class="frame-stroke" id="charactertext">PLAYER</div>

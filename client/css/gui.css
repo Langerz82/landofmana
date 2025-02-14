@@ -21,7 +21,7 @@
 #shortcutbutton {
 	position:absolute;
 	right:0;
-	bottom:0;
+	bottom:12px;
 	opacity:0.6;
 }
 

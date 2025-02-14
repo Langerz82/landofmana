@@ -192,7 +192,7 @@ div.frame-new-button {
   font-size: 18px;
   font-weight: bold;
   line-height:34px;
-
+	text-decoration: none;
 }
 
 div.frame-new-button-ok.active
@@ -232,7 +232,7 @@ div.frame-close-button
 	  left: 50%;
 	  margin-left:-250px;
 	  margin-top:-250px;
-	  width:500px;
+	  width:450px;
 	  height:500px;
 	}
 

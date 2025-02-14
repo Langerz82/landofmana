@@ -137,6 +137,12 @@ function main(config) {
       var wh = new WorldHandler(self, conn);
       conn._connection.worldHandler = wh;
       worldHandlers.push(wh);
+
+      conn.onClose(function (conn) {
+        if (conn._server.disconnectionCallback) {
+            conn._server.disconnectionCallback(conn);
+        }
+      });
     };
 
     self.handleConnectUser = function (msg, conn) {
@@ -170,6 +176,11 @@ function main(config) {
       var user = new User(self, conn);
       user.hashChallenge = conn.hash;
 
+      conn.onClose(function (conn) {
+        if (user)
+          delete loggedInUsers[user.name];
+          delete user;
+      });
     };
 
     server.onConnect(function(conn) {

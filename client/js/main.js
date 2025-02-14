@@ -81,6 +81,14 @@ define(['app', 'entrypoint', 'data/langdata', 'util',
                     app.game.rankingHandler.show();
                 }
             });*/
+            $('#aboutbutton').click(function() {
+                var about = $('#about_window');
+                about.toggle();
+            });
+            $('#aboutclose').click(function() {
+                var about = $('#about_window');
+                about.hide();
+            });
 
             $('#chatbutton').click(function() {
                 if($('#chatbox').hasClass('active')) {
