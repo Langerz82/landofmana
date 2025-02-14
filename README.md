@@ -1,7 +1,7 @@
-# Update 14/02/25
+### Update 14/02/25
 UserServer - Fix login stuck bug, some client display fixes.
 
-# Update 13/02/25
+### Update 13/02/25
 Added code to throttle player movement so it's more smooth and causes less rubber-banding.
 
 # Land of Mana - Beta.
