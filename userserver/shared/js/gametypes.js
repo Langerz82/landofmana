@@ -333,7 +333,7 @@ Types.getWeaponLevel = function(exp){
 Types.getSkillLevel = function(exp, level) {
     level = level || 1;
     if (typeof(exp)=='undefined' || exp==0) return 1;
-    for(var i=level; i < 20; i++){
+    for(var i=level; i < 10; i++){
         if(exp < Types.skillExp[i]){
             return i;
         }

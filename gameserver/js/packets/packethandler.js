@@ -646,6 +646,7 @@ module.exports = PacketHandler = Class.extend({
     }
     var damageObj = this.calcDamage(sEntity, tEntity, null, 0); // no skill
 
+    var addDamage = 0;
     if (sEntity.effectHandler) {
       sEntity.effectHandler.interval("onhit", damageObj.damage);
       for (var skillEffect of sEntity.effectHandler.skillEffects)
@@ -655,13 +656,17 @@ module.exports = PacketHandler = Class.extend({
             if (target.stats.mod.damage)
             {
               var damage = target.stats.mod.damage;
-              fnDamage(sEntity, target, {damage: damage, crit: 0});
+              if (target == tEntity)
+                addDamage = damage;
+              else
+                fnDamage(sEntity, target, {damage: damage, crit: 0});
               target.stats.mod.damage = 0;
             }
           }
         }
       }
     }
+    damageObj.damage += addDamage;
     fnDamage(sEntity, tEntity, damageObj);
 
     if (sEntity.attackTimer)

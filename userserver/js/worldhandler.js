@@ -321,7 +321,7 @@ module.exports = WorldHandler = cls.Class.extend({
         "2,2,2,2,2,0",                       // stats
         "0,0,0,0,0,0,0,0,0,0",               // exps
         "0,0",                               // gold
-        "0,0,0,0,0",                         // skills
+        "0,0,0,0,0,0,0",                     // skills
         "0,0",                               // pStats
         "77,0,151,50",                       // sprites
         "0,0",                               // colors

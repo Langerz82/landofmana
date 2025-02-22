@@ -252,6 +252,7 @@ var _isTypeValid = function (fmt, msg) {
           var arr = msg.split(",");
           if (arr.length != fmt.length)
           {
+            try { throw new Error(); } catch (e) { console.error(e.stack); }
             console.info("fnCheckFormatCSV: message incorrect length.");
             console.info("fnCheckFormatCSV: arr.length:"+arr.length);
             return false;

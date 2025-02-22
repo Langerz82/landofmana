@@ -51,7 +51,7 @@ Skill = cls.Class.extend({
    	this.skillData = SkillData.Skills[skillIndex];
    	this.skillIndex = skillIndex;
    	this.skillLevel = Types.getSkillLevel(skillXP);
-   	this.skillXP = skillXP;
+   	this.skillXP = parseInt(skillXP);
     this.tempXP = 0;
 
    	if (this.skillData.recharge > 0)
@@ -77,7 +77,7 @@ Skill = cls.Class.extend({
       return;
 
     console.info("amount="+amount);
-   	this.skillXP += amount;
+   	this.skillXP += parseInt(amount);
    	var skillLevel = Types.getSkillLevel(this.skillXP, this.skillLevel);
    	if (skillLevel != this.skillLevel)
    	{

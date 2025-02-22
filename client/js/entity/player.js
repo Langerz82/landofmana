@@ -463,7 +463,7 @@ define(['./entity', './character', '../exceptions', 'data/appearancedata'], func
 
       // Players Stat affects Damage.
       var mods = (this.mod ? this.mod.attack : 0);
-      dealt += ((this.stats.attack+mods)*3) + this.stats.luck;
+      dealt += ~~((this.stats.attack*3)+mods) + this.stats.luck;
 
       var min = ~~(level*power);
       var max = ~~(min*3);
@@ -508,7 +508,7 @@ define(['./entity', './character', '../exceptions', 'data/appearancedata'], func
       log.info("dealtrange="+dealt);
       // Players Stat affects Damage.
       var mods = (this.mod ? this.mod.defense : 0);
-      dealt += ~~((this.stats.defense+mods)*3) + this.stats.luck;
+      dealt += ~~((this.stats.defense*3)+mods) + this.stats.luck;
 
       log.info("dealtstats="+dealt);
 

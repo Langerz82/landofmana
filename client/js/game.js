@@ -1124,12 +1124,12 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
               var p = this.player;
 
       				if (!p || p === entity || p.isDead || p.isDying) // sanity check.
-      					return;
+      					return false;
 
     					if (entity && entity.isDead)
     					{
     						p.removeTarget();
-    						return;
+    						return false;
     					}
 
               //if (p.isMoving())
@@ -1143,7 +1143,7 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
                   this.chathandler.addNotification(lang.data["ATTACK_TOOFAR"]);
 
                 log.info("CANNOT REACH TARGET!!");
-                return;
+                return false;
               } else {
                 if (p.isMoving())
                   p.forceStop();
@@ -1158,7 +1158,7 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
               if (!p.canAttack(time))
               {
                 log.info("CANNOT ATTACK DUE TO TIME.");
-                return;
+                return false;
               }
 
               //p.forceStop();
@@ -1171,7 +1171,7 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
                 this.client.sendAttack(p, p.target, spellId);
               }
               else {
-                return;
+                return false;
               }
 
               log.info("CAN ATTACK!! "+p.target.id);
@@ -1182,7 +1182,7 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
 
               p.attackCooldown.duration = 1000;
               p.attackCooldown.lastTime = time;
-
+              return true;
             },
 
             /**

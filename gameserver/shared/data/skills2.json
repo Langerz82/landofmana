@@ -4,31 +4,31 @@
     "skillType":"self",
     "recharge": 30,
     "iconOffset": [1,7],
-    "detail": "Beserker [l] - Boosts your attack by 3xlevel for 10 seconds,",
+    "detail": "Beserker [l] - Boosts your attack by 2xlevel for 10 seconds,",
     "targetType": "self",
     "duration": 10,
-    "effects": [["self", "start", "attack", 3], ["self", "end", "attack", -3]]
+    "effects": [["self", "start", "attack", 2], ["self", "end", "attack", 0]]
 },
 {
     "name":"Explosive Attack",
     "skillType":"attack",
     "recharge":10,
     "iconOffset": [3,12],
-    "detail": "Explosive Attack [l] - AOE NOT IMPLEMENTED",
+    "detail": "Explosive Attack [l] - Area of Effect up to 20 damage per level",
     "targetType": "enemy_aoe",
     "countTotal": 1,
     "aoe": 3,
-    "effects": [["target", "onhit", "damage", 50]]
+    "effects": [["target", "onhit", "damage", 20]]
 },
 {
     "name":"Deadly Attack",
     "skillType":"attack",
     "recharge":10,
     "iconOffset": [4,7],
-    "detail": "Deadly Attack [l] - Does an attack of 150 damage per level.",
+    "detail": "Deadly Attack [l] - Does an attack of up to 50 damage per level.",
     "targetType": "enemy",
     "countTotal": 1,
-    "effects": [["target", "onhit", "damage", 150]]
+    "effects": [["target", "onhit", "damage", 50]]
 },
 {
     "name":"Daze",
@@ -38,17 +38,17 @@
     "detail": "Daze [l] - Dazes the target for [dpl]% seconds.",
     "targetType": "enemy",
     "durationPL": 1,
-    "effects": [["target", "start", "freeze", 1],["target", "end", "freeze", -1]]
+    "effects": [["target", "start", "freeze", 1],["target", "end", "freeze", 0]]
 },
 {
     "name":"Shield",
     "skillType":"self",
     "recharge": 30,
     "iconOffset": [9,0],
-    "detail": "Shied [l] - Boosts your defense by 3xlevel for 10 seconds.",
+    "detail": "Shied [l] - Boosts your defense by 2xlevel for 10 seconds.",
     "targetType": "self",
     "duration": 10,
-    "effects": [["self", "start", "defense", 3], ["self", "end", "defense", -3]]
+    "effects": [["self", "start", "defense", 2], ["self", "end", "defense", 0]]
 },
 {
     "name":"Bandaid",

@@ -11,7 +11,7 @@ EffectType = cls.Class.extend({
     this.isTarget = isTarget;
     this.phase = phase;
     this.stat = stat;
-    this.modValue = modValue || 0;
+    this.modValue = parseFloat(modValue) || 0;
     this.active = false;
   },
 
@@ -53,6 +53,7 @@ EffectType = cls.Class.extend({
     if (val1 > 0 && val2 > 0)
     {
       this.diff = this.getModDiff(skillEffect, val1, val2, statmax);
+      //this.diff = parseInt(this.diff);
     }
 
     switch (this.stat)
@@ -60,13 +61,13 @@ EffectType = cls.Class.extend({
       case "hp":
         var oldhp = target.stats.hp;
         target.stats.hp += this.diff;
-        Utils.clamp(0, target.stats.hpMax, target.stats.hp);
+        target.stats.hp = Utils.clamp(0, target.stats.hpMax, target.stats.hp);
         if (target instanceof Player)
           target.sendChangePoints((target.stats.hp-oldhp),0);
         break;
       case "ep":
         target.stats.ep += this.diff;
-        Utils.clamp(0, target.stats.epMax, target.stats.ep);
+        target.stats.ep = Utils.clamp(0, target.stats.epMax, target.stats.ep);
         break;
       case "attack":
         //if (this.diff > target.stats.mod.attack) {
@@ -82,6 +83,7 @@ EffectType = cls.Class.extend({
         break;
       case "damage":
         target.stats.mod.damage = this.diff;
+        break;
       case "freeze":
         if (this.modVal == 1)
           target.freeze = true;
@@ -101,9 +103,11 @@ EffectType = cls.Class.extend({
     if (this.modValue < 1)
     {
       if (statmax > 0)
-        diff = ~~(statmod * statmax);
+        diff = Math.round(diff * statmax);
       else
-        diff = ~~(statmod * stat);
+        diff = Math.round(diff * stat);
+    } else {
+      diff = Math.round(diff);
     }
 
     if (diff > 0)
@@ -239,6 +243,7 @@ var SkillEffectHandler = cls.Class.extend({
 
     cast: function (skillId, target, x, y) {
       var skillEffect = this.skillEffects[skillId];
+      this.entity.skills[skillId].xp(1);
       skillEffect.apply(target, x, y);
     },
 });

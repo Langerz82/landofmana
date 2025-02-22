@@ -69,8 +69,10 @@ define(['entity/mob', 'data/skilldata', 'entity/character'], function(Mob, Skill
           game.player.target instanceof Character) {
           if (this.execute_callback)
             this.execute_callback(self, game);
-          else
-            game.makePlayerAttack(game.player.target, this.skillId);
+          else {
+            if (!game.makePlayerAttack(game.player.target, this.skillId))
+              return false;
+          }
         } else {
           game.chathandler.addNotification('No target chosen.');
           return false;
