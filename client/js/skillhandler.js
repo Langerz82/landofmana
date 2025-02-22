@@ -63,7 +63,7 @@ define(['entity/mob', 'data/skilldata', 'entity/character'], function(Mob, Skill
         game.chathandler.addNotification('Wait for cooldown.');
         return;
       }
-      if (this.data.skillType == 2) {
+      if (this.data.skillType == "attack") {
         if (!this.cooltimeDoneHandle &&
           game.player.hasTarget() &&
           game.player.target instanceof Character) {
@@ -75,7 +75,7 @@ define(['entity/mob', 'data/skilldata', 'entity/character'], function(Mob, Skill
           game.chathandler.addNotification('No target chosen.');
           return false;
         }
-      } else if (this.data.skillType == 1) {
+      } else if (this.data.skillType == "target") {
         if (!this.cooltimeDoneHandle &&
           game.player.hasTarget() &&
           game.player.target instanceof Character) {
@@ -88,7 +88,7 @@ define(['entity/mob', 'data/skilldata', 'entity/character'], function(Mob, Skill
           game.chathandler.addNotification('No target chosen.');
           return false;
         }
-      } else if (this.data.skillType == 0) {
+      } else if (this.data.skillType == "self") {
         if (!this.cooltimeDoneHandle)
           if (this.execute_callback) {
             log.info("execute_callback");

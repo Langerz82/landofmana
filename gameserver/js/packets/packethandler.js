@@ -548,6 +548,8 @@ module.exports = PacketHandler = Class.extend({
   },
 
   handleHitEntity: function(sEntity, message) { // 8
+    var self = this;
+
     console.info("handleHitEntity");
     //var self = this;
 
@@ -628,36 +630,45 @@ module.exports = PacketHandler = Class.extend({
     sEntity.attackedTime.duration = 500;
     sEntity.hasAttacked = true;
 
-    if (sEntity === this.player && tEntity instanceof Mob) {
+    /*if (sEntity === this.player && tEntity instanceof Mob) {
       this.player.tut.attack = true;
-    }
+    }*/
 
-    if (sEntity instanceof Player && tEntity instanceof Mob) {
-      tEntity.mobAI.checkHitAggro(tEntity, sEntity);
-    }
+    var fnDamage = function (sEntity, tEntity, damageObj) {
+      if (sEntity instanceof Player && tEntity instanceof Mob) {
+        tEntity.mobAI.checkHitAggro(tEntity, sEntity);
+      }
+      self.dealDamage(sEntity, tEntity, damageObj.damage, damageObj.crit);
+    };
 
     if (sEntity.effectHandler) {
-      sEntity.effectHandler.interval(3,0);
+      sEntity.effectHandler.interval("beforehit",0);
     }
     var damageObj = this.calcDamage(sEntity, tEntity, null, 0); // no skill
+
     if (sEntity.effectHandler) {
-      sEntity.effectHandler.interval(4, damageObj.damage);
-      for (var skillEffect in sEntity.effectHandler.skillEffects)
+      sEntity.effectHandler.interval("onhit", damageObj.damage);
+      for (var skillEffect of sEntity.effectHandler.skillEffects)
       {
-        for (var target in skillEffect.targets) {
-          var damage = target.mod.damage;
-          target.mod.damage = 0;
-          this.dealDamage(sEntity, target, damage, 0);
+        if (skillEffect.isActive) {
+          for (var target of skillEffect.targets) {
+            if (target.stats.mod.damage)
+            {
+              var damage = target.stats.mod.damage;
+              fnDamage(sEntity, target, {damage: damage, crit: 0});
+              target.stats.mod.damage = 0;
+            }
+          }
         }
       }
     }
-    this.dealDamage(sEntity, tEntity, damageObj.damage, damageObj.crit);
+    fnDamage(sEntity, tEntity, damageObj);
 
     if (sEntity.attackTimer)
       sEntity.attackTimer = Date.now();
 
     if (sEntity.effectHandler) {
-      sEntity.effectHandler.interval(5,0);
+      sEntity.effectHandler.interval("afterhit",0);
     }
   },
 
@@ -759,7 +770,7 @@ module.exports = PacketHandler = Class.extend({
     //console.info ("skill.skillLevel="+skill.skillLevel);
     //console.info ("type="+type);
 
-    p.effectHandler.cast(skillId, targetId, x, y);
+    p.effectHandler.cast(skillId, target, x, y);
 
     skill.tempXP = Math.min(skill.tempXP++,1);
 

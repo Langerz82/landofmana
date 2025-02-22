@@ -222,7 +222,7 @@ var setWorldTime = function (localTime, remoteTime) {
   var diff = ~~((Date.now()-localTime)/2);
   console.warn("Date.diff: "+diff);
   WORLDTIME = parseInt(remoteTime);
-  LOCALTIME = localTime+diff;
+  LOCALTIME = parseInt(localTime+diff);
   console.warn("LOCALTIME: "+LOCALTIME);
   console.warn("WORLDTIME: "+WORLDTIME);
   //console.warn("Date.diff: "+(LOCALTIME - WORLDTIME));

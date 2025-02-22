@@ -41,7 +41,7 @@ module.exports = Mob = Character.extend({
 
       this.stats.xp = this.data.xp * this.level;
 
-      this.mod = {
+      this.stats.mod = {
         attack: 0,
         defense: 0,
         damage: 0,
@@ -450,7 +450,7 @@ module.exports = Mob = Character.extend({
 
     baseCrit: function() {
       var modDiff = 0;
-      var statDiff = (this.stats.attack+this.mod.attack);
+      var statDiff = (this.stats.attack+this.stats.mod.attack);
       var chance = ~~(Utils.clamp(5, 500, ~~(statDiff + modDiff)));
       //console.info("player - baseCrit: "+chance);
       return chance;
@@ -458,7 +458,7 @@ module.exports = Mob = Character.extend({
 
     baseCritDef: function() {
       var modDiff = 0;
-      var statDiff = (this.stats.defense+this.mod.defense);
+      var statDiff = (this.stats.defense+this.stats.mod.defense);
       var chance = ~~(Utils.clamp(5, 500, ~~(statDiff + modDiff)));
       //console.info("player - baseCritDef: "+chance);
       return chance;
@@ -468,7 +468,7 @@ module.exports = Mob = Character.extend({
       var dealt, absorbed, dmg;
 
       dealt = ~~(this.level * 6);
-      dealt += (this.stats.attack+this.mod.attack) * (6-Math.min(3, (this.level * 0.1)));
+      dealt += (this.stats.attack+this.stats.mod.attack) * (6-Math.min(3, (this.level * 0.1)));
 
       dmg = ~~(dealt);
 
@@ -480,7 +480,7 @@ module.exports = Mob = Character.extend({
       var dealt, absorbed, dmg;
 
       dealt = ~~(this.level * 2);
-      dealt += ((this.stats.defense+this.mod.defense) * 2);
+      dealt += ((this.stats.defense+this.stats.mod.defense) * 2);
 
       dmg = ~~(dealt);
       //console.info("player - baseDamageDef: "+dmg);

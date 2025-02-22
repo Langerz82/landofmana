@@ -1,8 +1,8 @@
 
 // @entity Object reference to the owner of the effect.
 // @isTarget false Self, true Target.
-// @phase 0 start, 1 end, 2 timer interval, 3 before hit, 4 after hit.
-// @stat HP: 0, EP: 1, ATTACK: 2, DEFENSE: 3, etc. (See SkillEfects.EffectStat).
+// @phase 0 start, 1 end, 2 interval, 3 beforehit, 4 onhit, 5 afterhit.
+// @stat
 // @modValue Fixed value adjustment per Level, if less than 1 its a % of val2.
 
 EffectType = cls.Class.extend({
@@ -15,109 +15,115 @@ EffectType = cls.Class.extend({
     this.active = false;
   },
 
-  apply: function (target, isTarget, phase, damage) {
+  apply: function (skillEffect, target, isTarget, phase, damage) {
     if (this.phase != phase)
       return;
 
-    if (isTarget == this.isTarget)
-      return;
+    //if (isTarget == this.isTarget)
+      //return;
 
-    var val1 = 0, val2 = 0, vmax = 0;
+    var val1 = 0, val2 = 0, statmax = 0;
     switch (this.stat)
     {
-      case SkillEffects.EffectStat.HP:
+      case "hp":
         val1 = target.stats.hp;
-        vmax = val2 = target.stats.hpMax;
+        statmax = val2 = target.stats.hpMax;
         break;
-      case SkillEffects.EffectStat.EP:
+      case "ep":
         val1 = target.stats.ep;
-        vmax = val2 = target.stats.epMax;
+        statmax = val2 = target.stats.epMax;
         break;
-      case SkillEffects.EffectStat.ATTACK:
+      case "attack":
         val2 = val1 = target.stats.attack;
         break;
-      case SkillEffects.EffectStat.DEFENSE:
+      case "defense":
         val2 = val1 = target.stats.defense;
         break;
     }
     if (damage > 0) {
       switch (this.stat)
       {
-        case SkillEffects.EffectStat.DAMAGE:
+        case "damage":
           val1 = target.stats.hp;
           val2 = damage;
-          vmax = target.stats.hpMax;
           break;
       }
     }
 
     if (val1 > 0 && val2 > 0)
     {
-      this.getModDiff(val1, val2, vmax);
+      this.diff = this.getModDiff(skillEffect, val1, val2, statmax);
     }
 
     switch (this.stat)
     {
-      case SkillEffects.EffectStat.HP:
+      case "hp":
+        var oldhp = target.stats.hp;
         target.stats.hp += this.diff;
         Utils.clamp(0, target.stats.hpMax, target.stats.hp);
+        if (target instanceof Player)
+          target.sendChangePoints((target.stats.hp-oldhp),0);
         break;
-      case SkillEffects.EffectStat.EP:
+      case "ep":
         target.stats.ep += this.diff;
         Utils.clamp(0, target.stats.epMax, target.stats.ep);
         break;
-      case SkillEffects.EffectStat.ATTACK:
+      case "attack":
         //if (this.diff > target.stats.mod.attack) {
           target.stats.mod.attack = this.diff;
           //this.active = true;
         //}
         break;
-      case SkillEffects.EffectStat.DEFENSE:
+      case "defense":
         //if (this.diff > target.stats.mod.defense) {
           target.stats.mod.defense = this.diff;
           //this.active = true;
         //}
         break;
-      case SkillEffects.EffectStat.DAMAGE:
+      case "damage":
         target.stats.mod.damage = this.diff;
-      case SkillEffects.EffectStat.FREEZE:
+      case "freeze":
         if (this.modVal == 1)
           target.freeze = true;
         else {
           target.freeze = false;
         }
         break;
-      case SkillEffects.EffectStat.MOVESPEED:
+      case "slow":
         target.moveSpeed += this.modVal;
         break;
     }
     return;
   },
 
-  getModDiff: function (stat, statmod, vmax) {
-    var modVal = this.modValue * this.level;
-    if (effectType.modValue < 1)
+  getModDiff: function (skillEffect, stat, statmod, statmax) {
+    var diff = this.modValue * skillEffect.level;
+    if (this.modValue < 1)
     {
-      modVal = ~~(statmod * this.modValue * this.level);
+      if (statmax > 0)
+        diff = ~~(statmod * statmax);
+      else
+        diff = ~~(statmod * stat);
     }
-    var diff = modVal;
 
-    stat += modVal;
-    if (vmax > 0) {
-      if (stat > vmax)
-        diff -= (stat - vmax);
+    if (diff > 0)
+    {
+      if (statmax > 0) {
+        if ((stat + diff) > statmax)
+          diff = statmax - stat;
+      }
     }
-    if (stat < 0) {
-      diff = stat;
+    else if (diff < 0) {
+      if ((stat + diff) < 0)
+        diff = -stat;
     }
-    this.diff = diff;
     return diff;
   }
 });
 
 var SkillEffect = cls.Class.extend({
     init: function (source, skillId, skillLevel) {
-      this.source;
+      this.source = source;
       this.skillId = skillId;
       this.data = SkillData.Skills[skillId];
       console.info("SkillEffect - skillId:"+skillId);
@@ -125,28 +131,30 @@ var SkillEffect = cls.Class.extend({
       this.activeTimer = 0;
       this.duration = ((this.data.durationPL) ? (this.data.durationPL*this.level) : this.data.duration) || 0;
       this.duration *= 1000;
-      this.countTotal = this.data.total || 0;
+      this.countTotal = this.data.countTotal || 0;
       this.count = 0;
       this.effectTypes = this.data.effectTypes;
       this.level = skillLevel;
-      this.isActve = false;
+      this.isActive = false;
       this.interval = null;
       this.targets = [];
     },
 
     getTargets: function (target, x, y) {
       switch (this.targetType) {
-        case SkillEffects.TargetType.SELF:
+        case "self":
           return [this.source];
-        case SkillEffects.TargetType.ENEMY:
-          return [this.source, target];
-        case SkillEffects.TargetType.PLAYER_AOE:
-          var arr = target.maps.entities.getPlayerAround(target, this.data.aoe);
+        case "enemy":
+          return [target];
+        case "ally":
+          return [target];
+        case "ally_aoe":
+          var arr = target.map.entities.getPlayerAround(target, this.data.aoe);
           arr.unshift(this.source);
           return arr;
-        case SkillEffects.TargetType.ENEMY_AOE:
-          var arr = target.maps.entities.getMobsAround(target, this.data.aoe);
-          arr.unshift(this.source, this.target);
+        case "enemy_aoe":
+          var arr = target.map.entities.getMobsAround(target, this.data.aoe);
+          arr.unshift(target);
           return arr;
       };
       return [];
@@ -162,13 +170,13 @@ var SkillEffect = cls.Class.extend({
         }
         this.interval = setInterval(function () {
           if (self.activeTimer > self.duration) {
-           self.applyEffects(1,0);
+           self.applyEffects("end",0);
            self.isActive = false;
            clearInterval(self.interval);
            self.interval = null;
           }
           else{
-            self.applyEffects(2,0);
+            self.applyEffects("interval",0);
             self.activeTimer += 1000;
           }
         }, 1000);
@@ -179,30 +187,34 @@ var SkillEffect = cls.Class.extend({
 
       this.targets = this.getTargets(target, targetX, targetY);
       this.isActive = true;
-      this.applyEffects(0,0);
+      this.applyEffects("start",0);
 
     },
 
     applyEffects: function (phase, damage) {
       for (var target of this.targets) {
-        for (var effect in this.effectTypes) {
+        for (var effect of this.effectTypes) {
           if (this.isActive)
-            effect.apply(target, (this.source != target), phase, damage);
+            effect.apply(this, target, (this.source != target), phase, damage);
         }
       }
     },
 
     onInterval: function (phase, damage) {
+      if (!this.isActive)
+        return;
+
       if (this.countTotal > 0 && this.count == this.countTotal)
       {
-        this.applyEffects(1,0);
+        this.applyEffects("end",0);
         this.isActive = false;
+        this.count = 0;
         return;
       }
 
       this.applyEffects(phase,damage);
 
-      if (this.countTotal > 0 && phase==5)
+      if (this.countTotal > 0 && phase=="afterhit")
       {
         this.count++;
       }
@@ -226,7 +238,8 @@ var SkillEffectHandler = cls.Class.extend({
     },
 
     cast: function (skillId, target, x, y) {
-      this.skillEffects[skillId].apply(target, x, y);
+      var skillEffect = this.skillEffects[skillId];
+      skillEffect.apply(target, x, y);
     },
 });
 

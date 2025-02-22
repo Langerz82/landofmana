@@ -82,6 +82,7 @@ Skill = cls.Class.extend({
    	if (skillLevel != this.skillLevel)
    	{
    		this.skillLevel = skillLevel;
+      this.player.effectHandler.skillEffects[this.skillIndex].level = skillLevel;
    		this.player.map.entities.sendToPlayer(this.player, new Messages.SkillLoad(this.skillIndex, this.skillXP));
    	}
    }

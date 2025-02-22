@@ -149,8 +149,8 @@ define(['./dialog', '../tabpage', 'data/skilldata'], function(Dialog, TabPage, S
                         data.iconOffset);
                     skill.background.css({
                         'position': 'absolute',
-                        'left': ((i % 6) * 26) * scale + 'px',
-                        'top': ((6+(14*scale)) + (Math.floor(i / 6) * 26)) * scale + 'px',
+                        'left': ((i % 5) * 26) * scale + 'px',
+                        'top': ((6+(14*scale)) + (Math.floor(i / 5) * 26)) * scale + 'px',
                         'width': (24*scale)+'px',
                         'height': (24*scale)+'px',
                         'display': 'block'

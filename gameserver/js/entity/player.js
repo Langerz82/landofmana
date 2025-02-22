@@ -75,7 +75,7 @@ module.exports = Player = Character.extend({
           ep: 0,
           epMax: 0
         };
-        this.mod = {
+        this.stats.mod = {
           attack: 0,
           defense: 0,
           damage: 0,
@@ -847,7 +847,7 @@ module.exports = Player = Character.extend({
     }
 
     // Players Stat affects Damage.
-    var mods = (this.mod ? this.mod.attack : 0);
+    var mods = (this.mod ? this.stats.mod.attack : 0);
     dealt += ((this.stats.attack+mods)*3) + this.stats.luck;
 
     var min = ~~(level*power);
@@ -893,7 +893,7 @@ module.exports = Player = Character.extend({
 
     console.info("dealtrange="+dealt);
     // Players Stat affects Damage.
-    var mods = (this.mod ? this.mod.defense : 0);
+    var mods = (this.mod ? this.stats.mod.defense : 0);
     dealt += ~~((this.stats.defense+mods)*3) + this.stats.luck;
 
     console.info("dealtstats="+dealt);

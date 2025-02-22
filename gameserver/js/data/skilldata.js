@@ -6,9 +6,10 @@ var Skills = [];
 
 var getSkillEffects = function (data) {
 	var effects = [];
-	for (rec in data) {
-		effects.push(new EffectType((rec[0] == 1), rec[1], rec[2], rec[3]));
+	for (var rec of data) {
+		effects.push(new EffectType((rec[0] == "target"), rec[1], rec[2], rec[3]));
 	}
+	return effects;
 };
 
 var i = 0;

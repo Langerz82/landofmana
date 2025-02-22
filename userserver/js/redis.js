@@ -88,7 +88,35 @@ module.exports = DatabaseHandler = cls.Class.extend({
     if (config.remove_old_values == 1)
         this.removeOldValues();
 
+    this.replaceSkills();
     this.insertMissingPlayerKeys();
+  },
+
+  replaceSkills: function () {
+    var self = this;
+
+    client.keys('p:*', function (err, keys) {
+      if (err) return console.log(err);
+
+      for(var i = 0, len = keys.length; i < len; i++) {
+        var key = keys[i];
+        console.info(key);
+        if (key.startsWith("p:"))
+        {
+          var j=0;
+          client.hget(key, "skills", function (err, data) {
+            //console.info(JSON.stringify(err));
+            var len = data.split(",").length;
+            //console.info("skills count:"+len);
+            if (len !== 7) {
+              var key = keys[j++];
+              //console.info("resetting skills." + key);
+              client.hset(key, "skills", "0,0,0,0,0,0,0");
+            }
+          });
+        }
+      }
+    });
   },
 
   removeOldValues: function () {

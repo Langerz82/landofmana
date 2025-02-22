@@ -457,6 +457,8 @@ var _isTypeValid = function (fmt, msg) {
                 ['n',0,playerSkillXpMax],
                 ['n',0,playerSkillXpMax],
                 ['n',0,playerSkillXpMax],
+                ['n',0,playerSkillXpMax],
+                ['n',0,playerSkillXpMax],
                 ['n',0,playerSkillXpMax]];
               var res = this.checkFormatCSV(5, msg[5], fmt);
               if (!res) {

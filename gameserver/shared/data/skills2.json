@@ -1,53 +1,72 @@
 [
 {
     "name":"Beserker",
-    "skillType":0,
+    "skillType":"self",
     "recharge": 30,
     "iconOffset": [1,7],
     "detail": "Beserker [l] - Boosts your attack by 3xlevel for 10 seconds,",
-    "targetType": 0,
+    "targetType": "self",
     "duration": 10,
-    "effects": [[0, 0, 2, 3],[0, 1, 2, -3]]
+    "effects": [["self", "start", "attack", 3], ["self", "end", "attack", -3]]
 },
 {
     "name":"Explosive Attack",
-    "skillType":2,
+    "skillType":"attack",
     "recharge":10,
     "iconOffset": [3,12],
     "detail": "Explosive Attack [l] - AOE NOT IMPLEMENTED",
-    "targetType": 1,
+    "targetType": "enemy_aoe",
     "countTotal": 1,
     "aoe": 3,
-    "effects": [[1, 0, 4, 50]]
+    "effects": [["target", "onhit", "damage", 50]]
 },
 {
     "name":"Deadly Attack",
-    "skillType":2,
+    "skillType":"attack",
     "recharge":10,
     "iconOffset": [4,7],
     "detail": "Deadly Attack [l] - Does an attack of 150 damage per level.",
-    "targetType": 1,
+    "targetType": "enemy",
     "countTotal": 1,
-    "effects": [[1, 0, 4, 150]]
+    "effects": [["target", "onhit", "damage", 150]]
 },
 {
     "name":"Daze",
-    "skillType":1,
+    "skillType":"target",
     "recharge":30,
     "iconOffset": [0,12],
     "detail": "Daze [l] - Dazes the target for [dpl]% seconds.",
-    "targetType": 1,
+    "targetType": "enemy",
     "durationPL": 1,
-    "effects": [[1, 0, 5, 1],[1, 1, 5, 0]]
+    "effects": [["target", "start", "freeze", 1],["target", "end", "freeze", -1]]
 },
 {
-    "name":"Slow",
-    "skillType":1,
-    "recharge":20,
-    "iconOffset": [3,5],
-    "detail": "Slow [l] - Slows target for [dpl]% seconds.",
-    "targetType": 1,
-    "durationPL": 1,
-    "effects": [[1, 0, 6, 100],[1, 1, 6, -100]]
+    "name":"Shield",
+    "skillType":"self",
+    "recharge": 30,
+    "iconOffset": [9,0],
+    "detail": "Shied [l] - Boosts your defense by 3xlevel for 10 seconds.",
+    "targetType": "self",
+    "duration": 10,
+    "effects": [["self", "start", "defense", 3], ["self", "end", "defense", -3]]
+},
+{
+    "name":"Bandaid",
+    "skillType":"self",
+    "recharge": 30,
+    "iconOffset": [11,4],
+    "detail": "Bandaid [l] - Heals players 10hp per level per interval for 10 seconds.",
+    "targetType": "self",
+    "duration": 10,
+    "effects": [["self", "interval", "hp", 10]]
+},
+{
+    "name":"Healing",
+    "skillType":"self",
+    "recharge": 30,
+    "iconOffset": [6,5],
+    "detail": "Healing [l] - Heals players 7.5% per level.",
+    "targetType": "self",
+    "effects": [["self", "start", "hp", 0.075]]
 }
 ]

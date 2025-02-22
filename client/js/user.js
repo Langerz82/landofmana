@@ -116,10 +116,12 @@ function(UserClient, Player, AppearanceData) {
           this.forceStop();
           this.fsm = "ATTACK";
           this.animate("atk", this.atkSpeed, 1, function () {
-            self.idle(self.orientation);
+            //self.lockAnimation = false;
             self.fsm = "IDLE";
+            self.idle(self.orientation);
             self.forceStop();
           });
+          //this.lockAnimation = true;
           return true;
         };
 

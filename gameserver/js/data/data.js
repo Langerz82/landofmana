@@ -1,6 +1,8 @@
 
 MobData = require('./mobdata');
-SkillData = require('./skilldata');
+//setTimeout(function () {
+  SkillData = require('./skilldata');
+//}, 10000);
 ItemData = require('./itemdata');
 AppearanceData = require('./appearancedata');
 MobSpeechData = require('./mobspeechdata');
