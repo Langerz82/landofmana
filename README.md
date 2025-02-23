@@ -1,3 +1,6 @@
+### Update 23/02/25
+GameServer - Fixed major bug causing rubber banding, when multiple players on server.
+
 ### Update 14/02/25
 UserServer - Fix login stuck bug, some client display fixes.
 
