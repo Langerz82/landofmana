@@ -16,7 +16,7 @@ module.exports = PlayerCallback = Class.extend({
     		});
 
         p.onRequestPath(function (x,y) {
-            var p = self.player;
+            var p = this;
             return self.entities.findPath(p, x, y);
         });
 
@@ -24,9 +24,8 @@ module.exports = PlayerCallback = Class.extend({
             p.packetHandler.processAttack();
         };
 
-        var stopPathing = function (x, y) {
+        var stopPathing = function (p, x, y) {
             console.info("onStopPathing");
-            var p = self.player;
 
             // TODO - Maybe just remove.
             if (self.entities.pathfinder.isPathTicksTooFast(p, p.fullpath, p.startMovePathTime)) {
@@ -47,12 +46,12 @@ module.exports = PlayerCallback = Class.extend({
 
         p.onStopPathing(function (x, y) {
             console.info("onStopPathing");
-            stopPathing(x,y);
+            stopPathing(this,x,y);
         });
 
         p.onAbortPathing(function (x, y) {
             console.info("onAbortPathing");
-            stopPathing(x,y);
+            stopPathing(this,x,y);
         });
 
         p.checkStopDanger = function (c, o)
@@ -99,7 +98,7 @@ module.exports = PlayerCallback = Class.extend({
         };
 
         p.checkStartMove = function (x,y) {
-            var p = self.player;
+            var p = this;
 
             var fnNotCorrectPos = function(x,y) {
               var dx = Math.abs(p.x-x), dy = Math.abs(p.y-y);
@@ -121,7 +120,7 @@ module.exports = PlayerCallback = Class.extend({
         }
 
         p.correctMove = function (x, y) {
-            var p = self.player;
+            var p = this;
             if (!(p.ex == -1 && p.ey == -1) && !(p.x == x && p.y == y))
             {
               //try { throw new Error(); } catch(err) { console.info(err.stack); }
@@ -136,7 +135,7 @@ module.exports = PlayerCallback = Class.extend({
         };
 
         p.setMoveStopCallback(function () {
-            var p = self.player;
+            var p = this;
             //p.moveOrientation = 0;
             console.info("setMoveStopCallback");
             console.info("player, x:"+p.x+",y:"+p.y);
