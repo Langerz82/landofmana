@@ -861,6 +861,9 @@ module.exports = Player = Character.extend({
     var rangeMulti = this.isArcher() ? 0.85 : 1;
     dmg = ~~(dmg * noobMulti * rangeMulti);
 
+    //try { throw new Error(); } catch (e) { console.error(e.stack); }
+    dmg += this.stats.mod.damage;
+
     min = ~~((min + dealt)*noobMulti*rangeMulti);
     max = ~~((max + dealt)*noobMulti*rangeMulti);
 

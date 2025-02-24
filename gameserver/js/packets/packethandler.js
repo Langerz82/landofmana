@@ -653,20 +653,19 @@ module.exports = PacketHandler = Class.extend({
       {
         if (skillEffect.isActive) {
           for (var target of skillEffect.targets) {
-            if (target.stats.mod.damage)
+            if (sEntity.stats.mod.damage)
             {
-              var damage = target.stats.mod.damage;
+              var damage = sEntity.stats.mod.damage;
               if (target == tEntity)
-                addDamage = damage;
+                continue;
               else
                 fnDamage(sEntity, target, {damage: damage, crit: 0});
-              target.stats.mod.damage = 0;
             }
           }
         }
       }
     }
-    damageObj.damage += addDamage;
+    //damageObj.damage += addDamage;
     fnDamage(sEntity, tEntity, damageObj);
 
     if (sEntity.attackTimer)

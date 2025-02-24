@@ -14,21 +14,21 @@
     "skillType":"attack",
     "recharge":10,
     "iconOffset": [3,12],
-    "detail": "Explosive Attack [l] - Area of Effect up to 20 damage per level",
+    "detail": "Explosive Attack [l] - Area of Effect up to 100 damage per level",
     "targetType": "enemy_aoe",
     "countTotal": 1,
     "aoe": 3,
-    "effects": [["target", "onhit", "damage", 20]]
+    "effects": [["self", "start", "damage", 20], ["self", "end", "damage", 0]]
 },
 {
     "name":"Deadly Attack",
     "skillType":"attack",
     "recharge":10,
     "iconOffset": [4,7],
-    "detail": "Deadly Attack [l] - Does an attack of up to 50 damage per level.",
+    "detail": "Deadly Attack [l] - Does an attack of up to 250 damage per level.",
     "targetType": "enemy",
     "countTotal": 1,
-    "effects": [["target", "onhit", "damage", 50]]
+    "effects": [["self", "start", "damage", 50], ["self", "end", "damage", 0]]
 },
 {
     "name":"Daze",

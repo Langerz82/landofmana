@@ -15,14 +15,12 @@ EffectType = cls.Class.extend({
     this.active = false;
   },
 
-  apply: function (skillEffect, target, isTarget, phase, damage) {
+  apply: function (skillEffect, target, phase, damage) {
     if (this.phase != phase)
       return;
 
-    //if (isTarget == this.isTarget)
-      //return;
-
     var val1 = 0, val2 = 0, statmax = 0;
+    var runModDiff = true;
     switch (this.stat)
     {
       case "hp":
@@ -39,22 +37,17 @@ EffectType = cls.Class.extend({
       case "defense":
         val2 = val1 = target.stats.defense;
         break;
-    }
-    if (damage > 0) {
-      switch (this.stat)
-      {
-        case "damage":
-          val1 = target.stats.hp;
-          val2 = damage;
-          break;
-      }
+      case "damage":
+        val1 = 0;
+        val2 = damage;
+        break;
+      default:
+        runModDiff = false;
+        break;
     }
 
-    if (val1 > 0 && val2 > 0)
-    {
+    if (runModDiff)
       this.diff = this.getModDiff(skillEffect, val1, val2, statmax);
-      //this.diff = parseInt(this.diff);
-    }
 
     switch (this.stat)
     {
@@ -109,6 +102,9 @@ EffectType = cls.Class.extend({
     } else {
       diff = Math.round(diff);
     }
+
+    if (stat == 0)
+      return diff;
 
     if (diff > 0)
     {
@@ -196,10 +192,16 @@ var SkillEffect = cls.Class.extend({
     },
 
     applyEffects: function (phase, damage) {
-      for (var target of this.targets) {
-        for (var effect of this.effectTypes) {
-          if (this.isActive)
-            effect.apply(this, target, (this.source != target), phase, damage);
+      for (var effect of this.effectTypes) {
+        if (this.isActive) {
+            if (effect.isTarget) {
+              for (var target of this.targets) {
+                effect.apply(this, target, phase, damage);
+              }
+            }
+            else {
+              effect.apply(this, this.source, phase, damage);
+            }
         }
       }
     },
