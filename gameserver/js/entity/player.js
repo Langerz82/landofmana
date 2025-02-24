@@ -190,9 +190,13 @@ module.exports = Player = Character.extend({
     },
 
     resetBars: function() {
-      this.resetHP();
-      this.resetEP();
-      this.map.entities.sendNeighbours(this, new Messages.ChangePoints(this, 0, 0));
+      var hp = this.stats.hp;
+      var ep = this.stats.ep;
+      var hpDiff = this.stats.hpMax - hp;
+      var epDiff = this.stats.epMax - ep;
+      this.modHealthBy(hpDiff);
+      this.modEnergyBy(epDiff);
+      //this.map.entities.sendNeighbours(this, new Messages.ChangePoints(this, hpDiff, epDiff));
     },
 
 
@@ -642,9 +646,9 @@ module.exports = Player = Character.extend({
         //self.stats.epMax = self.getEpMax();
         self.setHP();
         self.setEP();
-
+        self.setPointsMax();
     		//console.info("self.stats.health="+self.stats.health);
-    		self.resetBars();
+        self.resetBars();
     		//console.info("self.stats.hp="+self.stats.hp);
     		self.setMoveRate(500-self.level.move);
 
@@ -675,6 +679,11 @@ module.exports = Player = Character.extend({
         self.server.connect_callback(self);
 
         //console.info("playerId: "+self.id);
+    },
+
+    setPointsMax: function () {
+      this.stats.hpMax = this.stats.hp;
+      this.stats.epMax = this.stats.ep;
     },
 
     tutChat: function(text, delay, check) {
@@ -1551,6 +1560,7 @@ module.exports = Player = Character.extend({
     });
     this.removeAttackers();
     this.endEffects();
+    this.isDead = true;
 
     if (this.on_death_callback)
       this.on_death_callback(attacker);

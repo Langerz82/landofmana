@@ -761,6 +761,9 @@ module.exports = PacketHandler = Class.extend({
         y = parseInt(message[3]),
         p = this.player;
 
+    if (p.isDying || p.isDead)
+      return;
+
     if (skillId < 0 || skillId >= p.skills.length)
       return;
 

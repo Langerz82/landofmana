@@ -16,6 +16,9 @@ EffectType = cls.Class.extend({
   },
 
   apply: function (skillEffect, target, phase, damage) {
+    if (target.isDead || target.isDying)
+      return;
+
     if (this.phase != phase)
       return;
 
@@ -52,11 +55,12 @@ EffectType = cls.Class.extend({
     switch (this.stat)
     {
       case "hp":
-        var oldhp = target.stats.hp;
-        target.stats.hp += this.diff;
-        target.stats.hp = Utils.clamp(0, target.stats.hpMax, target.stats.hp);
-        if (target instanceof Player)
-          target.sendChangePoints((target.stats.hp-oldhp),0);
+        //var oldhp = target.stats.hp;
+        //target.stats.hp += this.diff;
+        target.modHealthBy(this.diff);
+        //target.stats.hp = Utils.clamp(0, target.stats.hpMax, target.stats.hp);
+        //if (target instanceof Player)
+          //target.sendChangePoints((target.stats.hp-oldhp),0);
         break;
       case "ep":
         target.stats.ep += this.diff;
@@ -202,7 +206,10 @@ var SkillEffect = cls.Class.extend({
         if (phase == "end" && index >= 0)
           target.activeEffects.splice(this, 1);
 
-        effect.apply(this, target, phase, damage);
+
+        var index = target.activeEffects.indexOf(this);
+        if (index >= 0)
+          effect.apply(this, target, phase, damage);
     },
 
     applyEffects: function (phase, damage) {
@@ -224,8 +231,10 @@ var SkillEffect = cls.Class.extend({
       for (var target of this.targets) {
         for (var self of target.activeEffects)
         {
-          effect.apply(self, target, "end", 0);
+          for (var effect of self.effectTypes)
+            effect.apply(self, target, "end", 0);
         }
+        target.activeEffects = [];
       }
     },
 
