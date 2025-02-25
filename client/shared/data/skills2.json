@@ -58,7 +58,7 @@
     "detail": "Bandaid [l] - Heals players 10hp per level per interval for 10 seconds.",
     "targetType": "self",
     "duration": 10,
-    "effects": [["self", "start", "hp", 20], ["self", "end", "hp", 0]]
+    "effects": [["self", "interval", "hp", 20], ["self", "end", "hp", 0]]
 },
 {
     "name":"Healing",

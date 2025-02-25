@@ -245,7 +245,7 @@ var SkillEffect = cls.Class.extend({
 
           self.applyEffects(phase,damage);
 
-          if (self.countTotal > 0 && phase=="afterhit")
+          if (self.countTotal > 0)
           {
             self.count++;
           }
