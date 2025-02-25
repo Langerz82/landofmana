@@ -1,5 +1,7 @@
 TODO
 
+WORKING - When Healing over time Skill activated, AOE Skill does not work correctly.
+
 WORKING - Dynamic Quests when talking to the NPC it's using the Script Quests
 Dialogue for some reason.
 

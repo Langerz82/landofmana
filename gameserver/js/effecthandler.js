@@ -204,7 +204,7 @@ var SkillEffect = cls.Class.extend({
         }
 
         if (phase == "end" && index >= 0)
-          target.activeEffects.splice(this, 1);
+          target.activeEffects.splice(index, 1);
 
 
         var index = target.activeEffects.indexOf(this);
@@ -254,7 +254,7 @@ var SkillEffect = cls.Class.extend({
 
           self.applyEffects(phase,damage);
 
-          if (self.countTotal > 0)
+          if (phase=="afterhit" && self.countTotal > 0)
           {
             self.count++;
           }
