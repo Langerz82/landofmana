@@ -440,15 +440,13 @@ var MapEntities = cls.Class.extend({
     },
 
     addMob: function(kind, x, y, area) {
-      var self = this;
-
-      var mob = new Mob(++self.entityCount, kind, x, y, self.map, area);
+      var mob = new Mob(++this.entityCount, kind, x, y, this.map, area);
       mob.mobAI = this.mobAI;
-
-      this.world.mobCallback.setCallbacks(mob);
 
       this.addEntity(mob);
       this.mobs[mob.id] = mob;
+
+      this.world.mobCallback.setCallbacks(mob);
 
       return mob;
     },

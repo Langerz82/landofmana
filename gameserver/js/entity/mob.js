@@ -87,7 +87,6 @@ module.exports = Mob = Character.extend({
       this.droppedItem = false;
 
       this.isBlocking = false;
-      //this.hasTalked = false;
 
       this.freeze = false;
 
@@ -249,17 +248,16 @@ module.exports = Mob = Character.extend({
         }
         else {
             setTimeout(function () {
-                self.respawnMob();
-                if (self.respawnCallback) {
-                    self.respawnCallback();
+                //self.respawnMob();
+                if (this.respawnCallback) {
+                    this.respawnCallback();
                 }
-            }, this.spawnDelay);
+            }.bind(this), this.spawnDelay);
         }
     },
 
     onRespawn: function (callback) {
         this.respawnCallback = callback;
-        this.hasTalked = false;
     },
 
     respawn: function () {

@@ -157,6 +157,7 @@ module.exports = MobArea = EntityArea.extend({
 
     respawnMob: function(mob, delay) {
         var self = this;
+        var mob = mob;
         delay = mob.spawnDelay || delay;
 
         this.removeFromArea(mob);
@@ -164,7 +165,7 @@ module.exports = MobArea = EntityArea.extend({
         setTimeout(function() {
           var	pos = self.map.entities.spaceEntityRandomApart(3, self._getRandomPositionInsideArea.bind(self,20));
           var x=pos.x, y=pos.y;
-          mob.setPosition(x, y);
+          //mob.setPosition(x, y);
           mob.respawn();
         }, delay);
     },

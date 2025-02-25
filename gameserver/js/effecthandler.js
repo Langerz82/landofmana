@@ -244,7 +244,11 @@ var SkillEffect = cls.Class.extend({
       for (var target of this.targets) {
         for (var self of target.activeEffects)
         {
-          if (self.countTotal > 0 && self.count == self.countTotal)
+
+          self.applyEffects(phase,damage);
+
+          if (phase="afterhit" && self.countTotal > 0
+            && self.count == self.countTotal)
           {
             self.applyEffects("end",0);
             self.isActive = false;
@@ -252,9 +256,7 @@ var SkillEffect = cls.Class.extend({
             return;
           }
 
-          self.applyEffects(phase,damage);
-
-          if (phase=="afterhit" && self.countTotal > 0)
+          if (phase=="onhit" && self.countTotal > 0)
           {
             self.count++;
           }

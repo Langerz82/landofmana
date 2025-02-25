@@ -9,13 +9,13 @@ module.exports = MobCallback = Class.extend({
 
   setCallbacks: function (entity) {
     entity.onRespawn(function() {
-        //entity.setFreeze(2000);
+        //this.setFreeze(2000);
         this.respawn();
 
-        //self.addMob(mob);
+        //this.map.entities.addMob(this);
 
-        //if (entity.area && entity.area instanceof ChestArea)
-            //mob.area.addToArea(entity);
+        //if (this.area && this.area instanceof ChestArea)
+            //mob.area.addToArea(this);
     });
 
     entity.onStep(function (x, y) {
