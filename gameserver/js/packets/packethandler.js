@@ -649,18 +649,16 @@ module.exports = PacketHandler = Class.extend({
     var addDamage = 0;
     if (sEntity.effectHandler) {
       sEntity.effectHandler.interval("onhit", damageObj.damage);
-      for (var skillEffect of sEntity.effectHandler.skillEffects)
+      for (var skillEffect of sEntity.activeEffects)
       {
-        if (skillEffect.isActive) {
+        if (skillEffect.isActive && skillEffect.data.skillType == "attack") {
+
+          var damageObjAOE = this.calcDamageAOE(sEntity, null, 0);
           for (var target of skillEffect.targets) {
-            if (sEntity.stats.mod.damage)
-            {
-              var damage = sEntity.stats.mod.damage;
               if (target == tEntity)
                 continue;
               else
-                fnDamage(sEntity, target, {damage: damage, crit: 0});
-            }
+                fnDamage(sEntity, target, damageObjAOE);
           }
         }
       }
@@ -676,6 +674,17 @@ module.exports = PacketHandler = Class.extend({
     }
   },
 
+  calcDamageAOE: function(sEntity, skill, attackType) {
+    var damageObj = {
+      damage: 0,
+      crit: 0,
+      dot: 0
+    };
+
+    damageObj.damage = Math.round(Formulas.dmgAOE(sEntity));
+    return damageObj;
+  },
+
   calcDamage: function(sEntity, tEntity, skill, attackType) {
     var damageObj = {
       damage: 0,
@@ -683,7 +692,7 @@ module.exports = PacketHandler = Class.extend({
       dot: 0
     };
 
-    damageObj.damage = Math.round(Formulas.dmg(sEntity, tEntity, Date.now()));
+    damageObj.damage = Math.round(Formulas.dmg(sEntity, tEntity));
     if (damageObj.damage == 0)
       return damageObj;
 

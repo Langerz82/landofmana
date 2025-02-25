@@ -18,12 +18,31 @@ Formulas.crit = function(attacker, defender) {
 	return chance;
 }*/
 
-Formulas.dmg = function(attacker, defender, time) {
+Formulas.getAttackPower = function (attacker) {
+	var attackPower = 1;
+	if (attacker.attackTimer) {
+		var delay = (Date.now() - attacker.attackTimer)
+		attackPower = ~~(Utils.clamp(ATTACK_INTERVAL, ATTACK_MAX, delay) / ATTACK_INTERVAL);
+	}
+	return attackPower
+}
 
-    var attackPower = 1;
-    if (attacker.attackTimer)
-     attackPower = Utils.clamp(ATTACK_INTERVAL, ATTACK_MAX, (time - attacker.attackTimer)) / ATTACK_INTERVAL;
-    //attackPower *= 1.25;
+Formulas.dmgAOE = function(attacker) {
+    var attackPower = Formulas.getAttackPower(attacker);
+
+    //console.warn("attackPower="+attackPower);
+		var attacker_damage = ~~(attacker.baseDamage() / 2);
+    console.info("attacker baseDamage="+attacker_damage);
+    var dmg = ~~(attacker_damage * attackPower);
+
+    if (attacker instanceof Player && dmg > 0)
+    	attacker.incAttackExp(dmg);
+
+    return ~~(dmg);
+};
+
+Formulas.dmg = function(attacker, defender) {
+		var attackPower = Formulas.getAttackPower(attacker);
 
     //console.warn("attackPower="+attackPower);
 		var attacker_damage = attacker.baseDamage();

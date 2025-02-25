@@ -95,6 +95,7 @@ module.exports = Mob = Character.extend({
 
       this.effects = {};
 
+      this.activeEffects = [];
     },
 
     setMoveAI: function (duration)
@@ -164,7 +165,7 @@ module.exports = Mob = Character.extend({
 
     destroy: function () {
         this.isDead = true;
-
+        this.endEffects();
         this.forgetEveryone();
         //this.clearAttackerRefs();
         //this.removeAttackers();
@@ -268,6 +269,7 @@ module.exports = Mob = Character.extend({
       this.isDead = false;
       this.droppedItem = false;
       this.resetBehaviour();
+      this.activeEffects = [];
       this.map.entities.sendNeighbours(this, new Messages.Spawn(this));
     },
 
@@ -533,6 +535,15 @@ module.exports = Mob = Character.extend({
       this.attackTimer = Date.now();
       this.freeze = false;
     },
+
+    endEffects: function () {
+      for (var skilleffect of this.activeEffects)
+      {
+        skilleffect.endEffects();
+      }
+      this.activeEffects = [];
+    }
+
 });
 
 module.exports = Mob;

@@ -122,8 +122,9 @@ EffectType = cls.Class.extend({
 });
 
 var SkillEffect = cls.Class.extend({
-    init: function (source, skillId, skillLevel) {
-      this.source = source;
+    init: function (handler, skillId, skillLevel) {
+      this.handler = handler;
+      this.source = handler.entity;
       this.skillId = skillId;
       this.data = SkillData.Skills[skillId];
       console.info("SkillEffect - skillId:"+skillId);
@@ -177,9 +178,9 @@ var SkillEffect = cls.Class.extend({
           }
           else{
             self.applyEffects("interval",0);
-            self.activeTimer += 1000;
+            self.activeTimer += 2000;
           }
-        }, 1000);
+        }, 2000);
       }
 
       if (this.countTotal > 0)
@@ -191,38 +192,64 @@ var SkillEffect = cls.Class.extend({
 
     },
 
+    applyEffect: function (effect, target, phase, damage)
+    {
+        var index = target.activeEffects.indexOf(this);
+        if (phase == "start" && index < 0) {
+          target.activeEffects.push(this);
+        }
+
+        if (phase == "end" && index >= 0)
+          target.activeEffects.splice(this, 1);
+
+        effect.apply(this, target, phase, damage);
+    },
+
     applyEffects: function (phase, damage) {
       for (var effect of this.effectTypes) {
         if (this.isActive) {
             if (effect.isTarget) {
               for (var target of this.targets) {
-                effect.apply(this, target, phase, damage);
+                this.applyEffect(effect, target, phase, damage);
               }
             }
             else {
-              effect.apply(this, this.source, phase, damage);
+              this.applyEffect(effect, this.source, phase, damage);
             }
         }
       }
     },
 
-    onInterval: function (phase, damage) {
-      if (!this.isActive)
-        return;
-
-      if (this.countTotal > 0 && this.count == this.countTotal)
-      {
-        this.applyEffects("end",0);
-        this.isActive = false;
-        this.count = 0;
-        return;
+    endEffects: function () {
+      for (var target of this.targets) {
+        for (var self of target.activeEffects)
+        {
+          effect.apply(self, target, "end", 0);
+        }
       }
+    },
 
-      this.applyEffects(phase,damage);
+    onInterval: function (phase, damage) {
+      //if (!this.isActive)
+        //return;
+      for (var target of this.targets) {
+        for (var self of target.activeEffects)
+        {
+          if (self.countTotal > 0 && self.count == self.countTotal)
+          {
+            self.applyEffects("end",0);
+            self.isActive = false;
+            self.count = 0;
+            return;
+          }
 
-      if (this.countTotal > 0 && phase=="afterhit")
-      {
-        this.count++;
+          self.applyEffects(phase,damage);
+
+          if (self.countTotal > 0 && phase=="afterhit")
+          {
+            self.count++;
+          }
+        }
       }
     },
 });
@@ -233,7 +260,7 @@ var SkillEffectHandler = cls.Class.extend({
       this.skillEffects = [];
 
       for (var skill of this.entity.skills) {
-        this.skillEffects.push( new SkillEffect(this.entity, skill.skillIndex, skill.skillLevel));
+        this.skillEffects.push( new SkillEffect(this, skill.skillIndex, skill.skillLevel));
       }
     },
 

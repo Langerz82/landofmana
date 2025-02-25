@@ -14,11 +14,11 @@
     "skillType":"attack",
     "recharge":10,
     "iconOffset": [3,12],
-    "detail": "Explosive Attack [l] - Area of Effect up to 100 damage per level",
+    "detail": "Explosive Attack [l] - Area of Effect up to 50 damage per level",
     "targetType": "enemy_aoe",
     "countTotal": 1,
     "aoe": 3,
-    "effects": [["self", "start", "damage", 20], ["self", "end", "damage", 0]]
+    "effects": [["self", "start", "damage", 10], ["self", "end", "damage", 0]]
 },
 {
     "name":"Deadly Attack",
@@ -58,7 +58,7 @@
     "detail": "Bandaid [l] - Heals players 10hp per level per interval for 10 seconds.",
     "targetType": "self",
     "duration": 10,
-    "effects": [["self", "interval", "hp", 10]]
+    "effects": [["self", "start", "hp", 20], ["self", "end", "hp", 0]]
 },
 {
     "name":"Healing",
@@ -67,6 +67,7 @@
     "iconOffset": [6,5],
     "detail": "Healing [l] - Heals players 7.5% per level.",
     "targetType": "self",
-    "effects": [["self", "start", "hp", 0.075]]
+    "duration": 1,
+    "effects": [["self", "start", "hp", 0.075], ["self", "end", "hp", 0]]
 }
 ]

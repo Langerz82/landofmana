@@ -1134,7 +1134,10 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
 
               //if (p.isMoving())
                 //p.forceStop();
+              if (p.isMoving())
+                p.forceStop();
 
+              p.lookAtEntity(p.target);
               if (!p.canReach(p.target))
               {
                 p.followAttack(p.target);
@@ -1144,10 +1147,6 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
 
                 log.info("CANNOT REACH TARGET!!");
                 return false;
-              } else {
-                if (p.isMoving())
-                  p.forceStop();
-                p.lookAtEntity(p.target);
               }
               log.info("CAN REACH TARGET!!");
 

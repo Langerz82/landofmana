@@ -151,6 +151,8 @@ module.exports = Player = Character.extend({
         this.shortcuts = {};
 
         this.loaded = 0;
+
+        this.activeEffects = [];
     },
 
     start: function (connection) {
@@ -1548,6 +1550,7 @@ module.exports = Player = Character.extend({
         attacker.onKillEntity(self);
     });
     this.removeAttackers();
+    this.endEffects();
 
     if (this.on_death_callback)
       this.on_death_callback(attacker);
@@ -1574,4 +1577,13 @@ module.exports = Player = Character.extend({
       }, delay);
     return false;
   },
+
+  endEffects: function () {
+    for (var skilleffect of this.activeEffects)
+    {
+      skilleffect.endEffects();
+    }
+    this.activeEffects = [];
+  }
+
 });
