@@ -15,13 +15,11 @@ module.exports = MobCallback = Class.extend({
         //self.addMob(mob);
 
         //if (entity.area && entity.area instanceof ChestArea)
-        //    mob.area.addToArea(entity);
+            //mob.area.addToArea(entity);
     });
 
     entity.onStep(function (x, y) {
-  		  if (!this)
-  		  	  return;
-
+  		 return;
   	});
 
 		entity.onRequestPath(function(x, y) {
@@ -40,7 +38,7 @@ module.exports = MobCallback = Class.extend({
             this.orientation = this.getOrientation([this.x,this.y], path[1]);
 				    var msg = new Messages.MovePath(this, path);
 
-				    entity.map.entities.sendNeighbours(this, msg);
+				    this.map.entities.sendNeighbours(this, msg);
             return path;
 				}
         return null;
