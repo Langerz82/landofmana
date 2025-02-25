@@ -8,41 +8,39 @@ module.exports = MobCallback = Class.extend({
   },
 
   setCallbacks: function (entity) {
-    var self = this;
-
     entity.onRespawn(function() {
         //entity.setFreeze(2000);
-        entity.respawn();
+        this.respawn();
 
-        self.addMob(mob);
+        //self.addMob(mob);
 
-        if (entity.area && entity.area instanceof ChestArea)
-            mob.area.addToArea(entity);
+        //if (entity.area && entity.area instanceof ChestArea)
+        //    mob.area.addToArea(entity);
     });
 
     entity.onStep(function (x, y) {
-  		  if (!entity)
+  		  if (!this)
   		  	  return;
 
   	});
 
 		entity.onRequestPath(function(x, y) {
-		    var ignored = [entity];
+		    var ignored = [this];
 
-		    if (entity.target)
-		    	ignored.push(entity.target);
+		    if (this.target)
+		    	ignored.push(this.target);
 
-		    var path = entity.map.entities.findPath(entity, x, y, ignored);
+		    var path = this.map.entities.findPath(this, x, y, ignored);
 
         if (path && path.length == 1)
-          console.error(entity.id + " " + JSON.stringify(path));
+          console.error(this.id + " " + JSON.stringify(path));
 
 				if (path && path.length > 1)
 				{
-            entity.orientation = entity.getOrientation([this.x,this.y], path[1]);
-				    var msg = new Messages.MovePath(entity, path);
+            this.orientation = this.getOrientation([this.x,this.y], path[1]);
+				    var msg = new Messages.MovePath(this, path);
 
-				    entity.map.entities.sendNeighbours(entity, msg);
+				    entity.map.entities.sendNeighbours(this, msg);
             return path;
 				}
         return null;
@@ -51,36 +49,36 @@ module.exports = MobCallback = Class.extend({
 		entity.onStopPathing(function(x, y) {
 		  //console.info("mob.onStopPathing");
 
-      if (!entity.hasTarget())
-        entity.setAiState(mobState.IDLE);
+      if (!this.hasTarget())
+        this.setAiState(mobState.IDLE);
 
-      if (entity.aiState == mobState.CHASING)
-        entity.mobAI.checkReturn(entity,x,y);
+      if (this.aiState == mobState.CHASING)
+        this.mobAI.checkReturn(this,x,y);
 		});
 
     entity.onStartPathing(function () {
     });
 
     entity.onAbortPathing(function () {
-      msg = new Messages.Move(entity, entity.orientation, 2, entity.x, entity.y);
-      self.map.entities.sendNeighbours(entity, msg);
+      msg = new Messages.Move(this, this.orientation, 2, this.x, this.y);
+      this.map.entities.sendNeighbours(this, msg);
 
-      if (!entity.target)
-        entity.setAiState(mobState.IDLE);
+      if (!this.target)
+        this.setAiState(mobState.IDLE);
     });
 
     entity.onKilled(function (attacker, damage) {
       if (attacker instanceof Player) {
         attacker.skillHandler.setXPs();
-        entity.world.taskHandler.processEvent(attacker, PlayerEvent(EventType.DAMAGE, entity, damage));
+        this.world.taskHandler.processEvent(attacker, PlayerEvent(EventType.DAMAGE, this, damage));
       }
     });
 
     entity.onDeath(function (attacker) {
       if (attacker instanceof Player) {
-        entity.world.taskHandler.processEvent(attacker, PlayerEvent(EventType.KILLMOB, entity, 1));
+        this.world.taskHandler.processEvent(attacker, PlayerEvent(EventType.KILLMOB, this, 1));
       }
-      entity.world.loot.handleDropItem(entity, attacker);
+      this.world.loot.handleDropItem(this, attacker);
     })
   }
 });
