@@ -10,7 +10,7 @@
 
 #achievementLogScroll
 {
-	height:420px;
+	height:390px;
 	overflow-y: scroll;
 }
 
@@ -50,7 +50,7 @@
 
 	#questLogScroll
 	{
-		height:420px;
+		height:390px;
 		overflow-y: scroll;
 	}
 

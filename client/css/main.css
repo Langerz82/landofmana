@@ -86,15 +86,14 @@ body {
   filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#020024",endColorstr="#00d4ff",GradientType=1);
 }
 
-#rro2-heading {
+#game-heading {
   position: absolute;
-  width:414px;
-  height:83px;
-  background-image: url("../img/common/rro2-heading.png");
+  width:380px;
+  height:60px;
+  background-image: url("../img/common/landofmana.png");
   left:50%;
-  top:50px;
-  margin-left:-207px;
-  transform: scale(1,1);
+  top:5%;
+  margin-left:-190px;
 }
 
 #background {background-color:#999;}

@@ -81,24 +81,24 @@
     #storeDialogStore0Button.active {
     }
     #storeDialogStore1Button {
-        left: 120px;
+        left: 110px;
     }
     #storeDialogStore1Button.active {
     }
     #storeDialogStore2Button {
-        left: 240px;
+        left: 220px;
     }
     #storeDialogStore2Button.active {
     }
 		#storeDialogStore3Button {
-			left: 360px;
+			left: 330px;
 		}
 
 		.storeRack {
 			position:absolute;
 			left:0;
 			top:0;
-			width:100%;
+			width:96%;
 			height:56px;
 			border-radius:3px;
 			background-color:rgba(150, 150, 150, 0.35);

@@ -107,16 +107,15 @@
 	margin-left:-180px;
 	margin-top:-200px;
 	color: white;
+	z-index:5;
 }
 
 #aboutbutton {
 	position: absolute;
 	left: 0px;
 	bottom: 0px;
-}
-
-#user_remove {
-	display: none;
+	opacity: 0.75;
+	z-index: 1;
 }
 
 #remove_window {
@@ -190,7 +189,7 @@
 
 #user_load {
 	position:absolute;
-	bottom:10%;
+	bottom:5%;
 	right:5%;
 	width:150px;
 	height:50px;
@@ -200,7 +199,7 @@
 
 #user_create {
 	position:absolute;
-	bottom:10%;
+	bottom:5%;
 	left:5%;
 	width:150px;
 	height:50px;
@@ -217,6 +216,9 @@
 	line-height:40px;
 	color: white;
 	cursor: pointer;
+	display: none;
+	opacity: 0.75;
+	z-index: 1;
 }
 
 #user_load.loading:after, #user_create.loading:after {
@@ -303,7 +305,7 @@
 
 #player_create {
 	position:absolute;
-	bottom:10%;
+	bottom:5%;
 	left:5%;
 	width:120px;
 	height:50px;
@@ -313,7 +315,7 @@
 
 #player_load {
 	position:absolute;
-	bottom:10%;
+	bottom:5%;
 	right:5%;
 	width:120px;
 	height:50px;
