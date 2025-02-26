@@ -244,15 +244,15 @@ module.exports = Mob = Character.extend({
 
         if (this.area && this.area instanceof MobArea) {
             // Respawn inside the area if part of a MobArea
-            this.area.respawnMob(this, this.spawnDelay);
+            this.area.respawnMob(self, this.spawnDelay);
         }
         else {
             setTimeout(function () {
                 //self.respawnMob();
-                if (this.respawnCallback) {
-                    this.respawnCallback();
+                if (self.respawnCallback) {
+                    self.respawnCallback();
                 }
-            }.bind(this), this.spawnDelay);
+            }, this.spawnDelay);
         }
     },
 
@@ -287,6 +287,8 @@ module.exports = Mob = Character.extend({
     },
 
     returnToSpawn: function() {
+        var self = this;
+
         if (this.aiState == mobState.RETURNING)
           return;
         this.setAiState(mobState.RETURNING);
@@ -323,12 +325,12 @@ module.exports = Mob = Character.extend({
             console.info("st - id="+this.id+",x="+this.spawnX+",y="+this.spawnY);
             //this = self2;
 
-            this.returnedToSpawn();
+            self.returnedToSpawn();
             //self2.resetHP();
             //self2.setAiState(mobState.IDLE);
             //self2.setPosition(self2.spawnX,self2.spawnY);
 
-          }.bind(this), delay);
+          }, delay);
           /*this.returnTimeout = setTimeout(function () {
             self.returnedToSpawn();
           }, delay);*/

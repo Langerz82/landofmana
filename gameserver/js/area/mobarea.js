@@ -160,7 +160,7 @@ module.exports = MobArea = EntityArea.extend({
         var self_mob = mob;
         delay = mob.spawnDelay || delay;
 
-        this.removeFromArea(mob);
+        //this.removeFromArea(mob);
 
         setTimeout(function() {
           var	pos = self.map.entities.spaceEntityRandomApart(3, self._getRandomPositionInsideArea.bind(self,20));
