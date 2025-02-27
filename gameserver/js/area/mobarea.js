@@ -158,16 +158,17 @@ module.exports = MobArea = EntityArea.extend({
     respawnMob: function(mob, delay) {
         var self = this;
         delay = mob.spawnDelay || delay;
+        var self_mob = mob;
 
         //this.removeFromArea(mob);
 
         setTimeout(function() {
           var	pos = self.map.entities.spaceEntityRandomApart(3, self._getRandomPositionInsideArea.bind(self,20));
-          this.setPosition(pos.x, pos.y);
-          if (this.respawnCallback) {
-              this.respawnCallback();
+          self_mob.setPosition(pos.x, pos.y);
+          if (self_mob.respawnCallback) {
+              self_mob.respawnCallback();
           }
-        }.bind(mob), delay);
+        }, delay);
     },
 
     isNextTooEntity: function (entity, dist) {

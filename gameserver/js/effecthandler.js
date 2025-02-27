@@ -140,7 +140,7 @@ var SkillEffect = cls.Class.extend({
       this.count = 0;
       this.effectTypes = this.data.effectTypes;
       this.level = skillLevel;
-      this.isActive = false;
+      //this.isActive = false;
       this.interval = null;
       this.targets = [];
     },
@@ -176,7 +176,7 @@ var SkillEffect = cls.Class.extend({
         this.interval = setInterval(function () {
           if (self.activeTimer > self.duration) {
            self.applyEffects("end",0);
-           self.isActive = false;
+           //self.isActive = false;
            clearInterval(self.interval);
            self.interval = null;
           }
@@ -191,7 +191,7 @@ var SkillEffect = cls.Class.extend({
         this.count = 0;
 
       this.targets = this.getTargets(target, targetX, targetY);
-      this.isActive = true;
+      //this.isActive = true;
       this.applyEffects("start",0);
 
     },
@@ -199,23 +199,21 @@ var SkillEffect = cls.Class.extend({
     applyEffect: function (effect, target, phase, damage)
     {
         var index = target.activeEffects.indexOf(this);
-        if (phase == "start" && index < 0) {
+        if (index < 0) {
           target.activeEffects.push(this);
         }
 
-        index = target.activeEffects.indexOf(this);
-        if (index >= 0) {
-          effect.apply(this, target, phase, damage);
-          if (phase == "end") {
-            target.activeEffects.splice(index, 1);
-            delete this;
-          }
+        effect.apply(this, target, phase, damage);
+
+        //var index2 = target.activeEffects.indexOf(this);
+        if (index >= 0 && phase == "end") {
+          target.activeEffects.splice(index, 1);
         }
     },
 
     applyEffects: function (phase, damage) {
       for (var effect of this.effectTypes) {
-        if (this.isActive) {
+        if (effect.phase == phase) {
             if (effect.isTarget) {
               for (var target of this.targets) {
                 this.applyEffect(effect, target, phase, damage);
@@ -225,6 +223,11 @@ var SkillEffect = cls.Class.extend({
               this.applyEffect(effect, this.source, phase, damage);
             }
         }
+      }
+      if (phase == "end") {
+        this.count = 0;
+        this.activeTimer = 0;
+        this.handler.removeSkillEffect(this);
       }
     },
 
@@ -240,22 +243,23 @@ var SkillEffect = cls.Class.extend({
     },
 
     onInterval: function (phase, damage) {
-      for (var target of this.targets) {
-        this.applyEffects(phase,damage);
+      if (this.duration != 0)
+        return;
 
-        if (phase=="afterhit" && this.countTotal > 0
-          && this.count == this.countTotal)
-        {
-          this.applyEffects("end",0);
-          this.isActive = false;
-          this.count = 0;
-          return;
-        }
+      this.applyEffects(phase,damage);
 
-        if (phase=="onhit" && this.countTotal > 0)
-        {
-          this.count++;
-        }
+      if (phase=="afterhit" && this.countTotal > 0
+        && this.count == this.countTotal)
+      {
+        this.applyEffects("end",0);
+        //this.isActive = false;
+        this.count = 0;
+        return;
+      }
+
+      if (phase=="onhit" && this.countTotal > 0)
+      {
+        this.count++;
       }
     },
 });
@@ -263,11 +267,12 @@ var SkillEffect = cls.Class.extend({
 var SkillEffectHandler = cls.Class.extend({
     init: function (entity) {
       this.entity = entity;
+      this.skills = entity.skills;
       this.skillEffects = [];
 
-      for (var skill of this.entity.skills) {
+      /*for (var skill of this.skills) {
         this.skillEffects.push( new SkillEffect(this, skill.skillIndex, skill.skillLevel));
-      }
+      }*/
     },
 
     interval: function(phase, damage) {
@@ -277,9 +282,21 @@ var SkillEffectHandler = cls.Class.extend({
     },
 
     cast: function (skillId, target, x, y) {
-      var skillEffect = this.skillEffects[skillId];
-      this.entity.skills[skillId].xp(1);
+      //var skillEffect = this.skillEffects[skillId];
+      var skill = this.skills[skillId];
+      var skillLevel = skill.skillLevel;
+      var skillEffect = new SkillEffect(this, skillId, skillLevel);
+      this.skillEffects.push(skillEffect);
+      //var skill = this.skills[skillId];
+      skill.xp(1);
+      skillEffect.level = skill.skillLevel;
       skillEffect.apply(target, x, y);
+    },
+
+    removeSkillEffect: function (skillEffect) {
+      var index = this.skillEffects.indexOf(skillEffect);
+      if (index >= 0)
+        this.skillEffects.splice(index, 1);
     },
 });
 

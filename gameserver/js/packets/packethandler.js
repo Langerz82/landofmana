@@ -651,8 +651,8 @@ module.exports = PacketHandler = Class.extend({
       sEntity.effectHandler.interval("onhit", damageObj.damage);
       for (var skillEffect of sEntity.activeEffects)
       {
-        if (skillEffect.isActive && skillEffect.data.skillType == "attack" &&
-            skillEffect.data.targetType == "enemy_aoe")
+        var data = skillEffect.data;
+        if (data.skillType == "attack" && data.targetType == "enemy_aoe")
         {
           var damageObjAOE = this.calcDamageAOE(sEntity, null, 0);
           for (var target of skillEffect.targets) {
