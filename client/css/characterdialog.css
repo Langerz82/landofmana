@@ -80,14 +80,20 @@ pointer-events: auto;
 #skillDetail {
 	position: absolute;
 	left:0px;
-	top:2%;
+	top:0px;
 	width:90%;
 	height:20%;
 	font-family:'GraphicPixel';
 	font-size:18px;
 	font-weight: bold;
-	padding:5%;
+	padding:1%;
 	color: #fff;
+}
+
+#skillList {
+	position: absolute;
+	top:22%;
+	left:0;
 }
 
 #characterName, #characterLevel, #characterAttackLevel, #characterDefenseLevel, #characterExp,

@@ -103,6 +103,10 @@
 	z-index:5;
 }
 
+#about_window {
+	z-index:10;
+}
+
 #aboutbutton {
 	position: absolute;
 	left: 0px;

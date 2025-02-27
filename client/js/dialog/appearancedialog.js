@@ -237,7 +237,7 @@ define(['./dialog', '../tabbook', '../tabpage', 'data/appearancedata', '../pageN
             this.add(this.pageArmor);
             this.add(this.pageWeapon);
 
-            this.pageNavigator = new PageNavigator(parent.scale);
+            this.pageNavigator = new PageNavigator(parent, parent.scale);
 
             var self = this;
 

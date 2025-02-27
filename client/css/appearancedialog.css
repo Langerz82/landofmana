@@ -4,6 +4,8 @@
         pointer-events:all;
         cursor: default;
         z-index:11;
+        width:450px;
+        margin-left:-225px;
     }
 
     #characterLook3 {
@@ -39,7 +41,7 @@
     }
     #changeLookArmorPrev, #changeLookArmorNext, #changeLookWeaponPrev, #changeLookWeaponNext {
     	position: absolute;
-    	width:200px;
+    	width:170px;
     	height:24px;
     	font-size:18px;
       line-height:21px;

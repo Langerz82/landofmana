@@ -84,10 +84,11 @@
 		width:175px;
 		height:330px;
 		color:#fff;
-		opacity:0.6;
+		opacity:0.75;
 		/*border-radius: 10% / 5% !important;*/
 		padding:0 !important;
 		margin:10px !important;
+		z-index:20;
 	}
 
 	#attackContainer:before {

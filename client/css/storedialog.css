@@ -1,5 +1,7 @@
 #shopDialog {
   pointer-events: all;
+  width:450px;
+  margin-left:-225px;
 }
 
 #shopDialog div div div {
@@ -8,6 +10,8 @@
 }
 
     #storeDialog {
+        width:450px;
+        margin-left:-225px;
         font-family: 'GraphicPixel';
         font-size: 15px;
         font-weight: bold;
@@ -34,7 +38,7 @@
         position: absolute;
         left: 0px;
         top: 45px;
-        width: 90%;
+        width: 88%;
         height: 100%;
     }
 

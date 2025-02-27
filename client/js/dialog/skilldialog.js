@@ -147,10 +147,12 @@ define(['./dialog', '../tabpage', 'data/skilldata'], function(Dialog, TabPage, S
                     log.info('#characterSkill1' + i);
                     var skill = new Skill(this, i, tSkill.level,
                         data.iconOffset);
+                    var ix = (i % 4),
+                        iy = Math.floor(i / 4);
                     skill.background.css({
                         'position': 'absolute',
-                        'left': ((i % 5) * 26) * scale + 'px',
-                        'top': ((6+(14*scale)) + (Math.floor(i / 5) * 26)) * scale + 'px',
+                        'left': (ix * 26 * scale) + 'px',
+                        'top': (iy * 26 * scale) + 'px',
                         'width': (24*scale)+'px',
                         'height': (24*scale)+'px',
                         'display': 'block'

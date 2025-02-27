@@ -1,6 +1,3 @@
-#craftDialog {
-  pointer-events: all;
-}
 
 #craftDialog div div div {
   font-family: 'GraphicPixel' !important;
@@ -15,7 +12,9 @@
         -webkit-user-select: none;
         display: none;
 				cursor: pointer;
-				pointer-events: auto;
+				pointer-events: all;
+        width:450px;
+        margin-left: -225px;
     }
 
     #craftDialog div div div * {
@@ -26,16 +25,14 @@
         position: absolute;
         left: 0px;
         top: 0px;
-        width: 513px;
-        height: 495px;
+        height: 450px;
         display: none;
     }
     #craftDialogStorePageBody {
         position: absolute;
         left: 0px;
         top: 45px;
-        width: 90%;
-        height: 100%;
+        width: 432px;
     }
 
     #craftDialogStoreButtons {

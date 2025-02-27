@@ -259,7 +259,7 @@ define(['./dialog', '../tabbook', '../tabpage', '../entity/item', '../inventorys
             this.add(this.pageArmor);
             this.add(this.pageWeapon);
 
-            this.pageNavigator = new PageNavigator(parent.scale, "craft");
+            this.pageNavigator = new PageNavigator(parent, parent.scale, "craft");
             this.pageNavigator.onChange(function(sender) {
                 var activePage = self.getActivePage();
                 if(activePage && game.craftDialog.visible) {

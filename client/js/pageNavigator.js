@@ -1,6 +1,7 @@
 define([], function() {
   var PageNavigator = Class.extend({
-    init: function(scale, name) {
+    init: function(parent, scale, name) {
+        this.parent = parent;
         this.name = name || "store";
         this.body = $('#'+this.name+'PageNav');
         this.movePreviousButton = $('#'+this.name+'PageNavPrev');
@@ -17,6 +18,9 @@ define([], function() {
         var self = this;
 
         this.movePreviousButton.click(function(event) {
+            if (!self.parent.visible)
+              return;
+
             //alert("prev");
             if(self.index > 1) {
                 self.setIndex(self.index - 1);
@@ -26,6 +30,9 @@ define([], function() {
             }
         });
         this.moveNextButton.click(function(event) {
+            if (!self.parent.visible)
+              return;
+
             //alert("next");
             if(self.index < self.count) {
                 self.setIndex(self.index + 1);

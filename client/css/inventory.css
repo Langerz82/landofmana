@@ -6,11 +6,6 @@
     z-index:14;
 }
 
-.inventoryGemsFrame {
-    position:absolute;
-    bottom: 2%;
-}
-
 .gemsicon {
   position:absolute;
   left:0;
@@ -37,8 +32,8 @@
 
     #inventoryoffset {
     	position: absolute;
-    	left:20%;
-    	top:48px;
+    	left:0;
+    	top:42px;
 		  pointer-events: auto;
     }
 
@@ -51,12 +46,14 @@
 		bottom:0;
 		right:0;
     display: none;
+    height: 32px;
+    line-height: 28px;
   }
 
   #inventoryGearItems {
     position:absolute;
 		top:0;
-		right:150px;
+		left:0;
     height:30px;
     line-height: 26px;
   }
@@ -127,7 +124,8 @@
 	{
 		position:absolute;
 		left:0;
-		top:10px;
+		bottom:0;
+    height:142px;
 	}
 
   #equipment div * {
@@ -141,31 +139,32 @@
       height: 57px;
       background: url('../img/3/misc/itembackground.png' ) no-repeat;
       pointer-events: auto;
+      top:40px;
   }
 
 	#equipBackground0
 	{
-    top: 30px;
+    left:0;
     background-position: -56px 0;
 	}
 	#equipBackground1
 	{
-    top: 90px;
+    left: 60px;
     background-position: -56px -57px;
 	}
   #equipBackground2
 	{
-    top: 150px;
+    left: 120px;
     background-position: 0 -57px;
 	}
   #equipBackground3
 	{
-    top: 210px;
+    left: 180px;
     background-position: -56px -114px;
 	}
   #equipBackground4
 	{
-    top: 270px;
+    left: 240px;
     background-position: 0 0;
 	}
 
@@ -186,9 +185,9 @@
 
     .inventoryGoldFrame {
     		position:absolute;
-				left: 2%;
-        bottom: 2%;
-        width: 100px;
+				left: 0;
+        bottom: 0;
+        width: 80px;
         height: 21px;
     }
 
@@ -204,9 +203,10 @@
 		}
 
     .inventoryGemsFrame {
-				left: 106px;
-        bottom: 2%;
-        width: 100px;
+        position:absolute;
+				left: 80px;
+        bottom: 0;
+        width: 80px;
         height: 21px;
     }
 
@@ -229,9 +229,9 @@
 
     .inventorySellGoldFrame {
     		position:absolute;
-				right: 9px;
-        bottom: 60px;
-        width: 120px;
+				left: 160px;
+        bottom: 0;
+        width: 80px;
         height: 21px;
         text-align:right;
     }
