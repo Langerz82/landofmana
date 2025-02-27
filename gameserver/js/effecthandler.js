@@ -203,13 +203,14 @@ var SkillEffect = cls.Class.extend({
           target.activeEffects.push(this);
         }
 
-        if (phase == "end" && index >= 0)
-          target.activeEffects.splice(index, 1);
-
-
-        var index = target.activeEffects.indexOf(this);
-        if (index >= 0)
+        index = target.activeEffects.indexOf(this);
+        if (index >= 0) {
           effect.apply(this, target, phase, damage);
+          if (phase == "end") {
+            target.activeEffects.splice(index, 1);
+            delete this;
+          }
+        }
     },
 
     applyEffects: function (phase, damage) {
@@ -239,27 +240,21 @@ var SkillEffect = cls.Class.extend({
     },
 
     onInterval: function (phase, damage) {
-      //if (!this.isActive)
-        //return;
       for (var target of this.targets) {
-        for (var self of target.activeEffects)
+        this.applyEffects(phase,damage);
+
+        if (phase=="afterhit" && this.countTotal > 0
+          && this.count == this.countTotal)
         {
+          this.applyEffects("end",0);
+          this.isActive = false;
+          this.count = 0;
+          return;
+        }
 
-          self.applyEffects(phase,damage);
-
-          if (phase="afterhit" && self.countTotal > 0
-            && self.count == self.countTotal)
-          {
-            self.applyEffects("end",0);
-            self.isActive = false;
-            self.count = 0;
-            return;
-          }
-
-          if (phase=="onhit" && self.countTotal > 0)
-          {
-            self.count++;
-          }
+        if (phase=="onhit" && this.countTotal > 0)
+        {
+          this.count++;
         }
       }
     },
@@ -277,8 +272,8 @@ var SkillEffectHandler = cls.Class.extend({
 
     interval: function(phase, damage) {
       damage = damage || 0;
-      for (var effect of this.skillEffects)
-        effect.onInterval(phase, damage);
+      for (var skillEffect of this.entity.activeEffects)
+        skillEffect.onInterval(phase, damage);
     },
 
     cast: function (skillId, target, x, y) {

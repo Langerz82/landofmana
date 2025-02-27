@@ -263,7 +263,6 @@ module.exports = Mob = Character.extend({
     respawn: function () {
       this.spawnX = this.x;
       this.spawnY = this.y;
-      this.resetPosition();
       this.isDead = false;
       this.droppedItem = false;
       this.resetBehaviour();
@@ -322,7 +321,7 @@ module.exports = Mob = Character.extend({
           //setTimeout(self.returnedToSpawn.bind(self), delay);
           //setTimeout(() => { this.returnedToSpawn() }, delay);
           setTimeout(function() {
-            console.info("st - id="+this.id+",x="+this.spawnX+",y="+this.spawnY);
+            console.info("st - id="+self.id+",x="+self.spawnX+",y="+self.spawnY);
             //this = self2;
 
             self.returnedToSpawn();

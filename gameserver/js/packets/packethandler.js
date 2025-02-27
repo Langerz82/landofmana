@@ -651,8 +651,9 @@ module.exports = PacketHandler = Class.extend({
       sEntity.effectHandler.interval("onhit", damageObj.damage);
       for (var skillEffect of sEntity.activeEffects)
       {
-        if (skillEffect.isActive && skillEffect.data.skillType == "attack") {
-
+        if (skillEffect.isActive && skillEffect.data.skillType == "attack" &&
+            skillEffect.data.targetType == "enemy_aoe")
+        {
           var damageObjAOE = this.calcDamageAOE(sEntity, null, 0);
           for (var target of skillEffect.targets) {
               if (target == tEntity)
@@ -701,13 +702,6 @@ module.exports = PacketHandler = Class.extend({
       damageObj.damage *= 2;
       damageObj.crit = 1;
     }
-    if (sEntity.mod.dr > 0 && !sEntity.hasFullHealth()) {
-      var amount = Math.ceil(damageObj.damage * (sEntity.mod.dr / 100));
-      sEntity.regenHealthBy(amount);
-      if (sEntity instanceof Player)
-        this.sendPlayer(sEntity, sEntity.health());
-    }
-
     return damageObj;
   },
 
