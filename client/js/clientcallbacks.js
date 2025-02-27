@@ -1226,7 +1226,7 @@ function(InfoManager, HoveringInfo, BubbleManager,
             }
         };
 
-        var showDamageInfo = function (points, x, y, crit) {
+        var showDamageInfo = function (entity, points, x, y, crit) {
             //log.info("crit="+crit);
             if(points == 0) {
               game.infoManager.addDamageInfo("miss", x, y - 15, "health");
@@ -1240,7 +1240,8 @@ function(InfoManager, HoveringInfo, BubbleManager,
                 else {
                   game.infoManager.addDamageInfo(-points, x, y - 15, "inflicted");
                 }
-                game.audioManager.playSound("hurt");
+                if (game.camera.isVisible(entity))
+                  game.audioManager.playSound("hurt");
             } else {
                 game.infoManager.addDamageInfo(points, x, y - 15, "healed");
             }
@@ -1270,7 +1271,7 @@ function(InfoManager, HoveringInfo, BubbleManager,
           stats.ep = ep;
           stats.epMax = epMax;
 
-          showDamageInfo(hpMod, entity.x, entity.y, crit);
+          showDamageInfo(entity, hpMod, entity.x, entity.y, crit);
 
           if (hpMod > hp)
             hpMod += (hp - hpMod);
