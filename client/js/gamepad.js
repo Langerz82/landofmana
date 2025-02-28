@@ -31,7 +31,7 @@ var jqAchievementWindow = $("#achievementlog");
 var jqShopWindow = $("#shopDialog");
 
 var selectFirstItem = {
-  allinventorywindow: "#equipBackground0",
+  allinventorywindow: "#inventorybackground0",
   menucontainer: "#inventorybutton",
   statsDialog: "#charAddAttack",
   skillsDialog: "#characterSkill0Body",
@@ -245,66 +245,51 @@ var selectFirstItem = {
     }
     else if (jqInventoryWindow.is(':visible'))
     {
+      var equipment = false;
+      var modx = 0, mody = 0;
       if (navigate == Navigate.UP)
       {
-        if (self.joystickX > 0 && self.joystickY < 4) {
-          self.joystickY = ((self.joystickY+3)%4).clamp(0,3);
-          var index = self.playerInventory.format((self.joystickY)*6+(self.joystickX)-1);
-          this.setSelectedItem($(index));
-        }
-        if (self.joystickX == 0)
-        {
-          self.joystickY = ((self.joystickY+4)%5).clamp(0,4);
-          var index = self.playerEquipment[self.joystickY];
-          this.setSelectedItem($(index));
-        }
+        mody = -1;
       }
       if (navigate == Navigate.DOWN)
       {
-        if (self.joystickX > 0 && self.joystickY < 4) {
-          self.joystickY = ((self.joystickY+5)%4).clamp(0,3);
-          var index = self.playerInventory.format((self.joystickY)*6+(self.joystickX)-1);
-          this.setSelectedItem($(index));
-        }
-        if (self.joystickX == 0)
-        {
-          self.joystickY = ((self.joystickY+6)%5).clamp(0,4);
-          var index = self.playerEquipment[self.joystickY];
-          this.setSelectedItem($(index));
-        }
+        mody = 1;
       }
       if (navigate == Navigate.LEFT)
       {
-        self.joystickX = ((self.joystickX+6)%7).clamp(0,6);
-        if (self.joystickY == 4)
-          self.joystickY = 3;
-
-        if (self.joystickX > 0 && self.joystickY < 4) {
-          var index = self.playerInventory.format((self.joystickY)*6+(self.joystickX)-1);
-          this.setSelectedItem($(index));
-        }
-        if (self.joystickX == 0)
-        {
-          var index = self.playerEquipment[self.joystickY];
-          this.setSelectedItem($(index));
-        }
+        modx = -1;
       }
       if (navigate == Navigate.RIGHT)
       {
-        self.joystickX = ((self.joystickX+8)%7).clamp(0,6);
-        if (self.joystickY == 4)
-          self.joystickY = 3;
-
-        if (self.joystickX > 0 && self.joystickY < 4) {
-          var index = self.playerInventory.format((self.joystickY)*6+(self.joystickX)-1);
-          this.setSelectedItem($(index));
-        }
-        if (self.joystickX == 0)
-        {
-          var index = self.playerEquipment[self.joystickY];
-          this.setSelectedItem($(index));
-        }
+        modx = 1;
       }
+
+      self.joystickY = ((self.joystickY+5+mody)%5);
+      if (self.joystickY == 4 && self.joystickX < 5) {
+        equipment = true;
+      }
+      if (equipment) {
+        self.joystickX = ((self.joystickX+5+modx)%5);
+      } else {
+        self.joystickX = ((self.joystickX+6+modx)%6);
+      }
+
+      // Little dirty exception to skip the non-existant equipment slot.
+      if (self.joystickY == 4 && self.joystickX == 5) {
+          if (navigate == Navigate.UP) {
+            self.joystickX = 5;
+            self.joystickY = 3;
+          } else {
+            self.joystickX = 5;
+            self.joystickY = 0;
+          }
+      }
+
+      var index = self.playerInventory.format((self.joystickY)*6+(self.joystickX));
+      if (equipment) {
+        index = self.playerEquipment[self.joystickX];
+      }
+      this.setSelectedItem($(index));
       return;
     }
     else if (jqMenuWindow.is(':visible'))
@@ -379,30 +364,28 @@ var selectFirstItem = {
     }
     else if (jqSkillWindow.is(':visible'))
     {
-      /*if (navigate == Navigate.UP)
+      var modx = 0;
+      var mody = 0;
+      if (navigate == Navigate.UP)
       {
-        self.joystickY = (self.joystickY-1).clamp(0,2);
-        var index = self.playerDialogSkill.format((self.joystickY)*6+(self.joystickX));
-        this.setSelectedItem($(index));
+        mody = -1;
       }
       if (navigate == Navigate.DOWN)
       {
-        self.joystickY = (self.joystickY+1).clamp(0,2);
-        var index = self.playerDialogSkill.format((self.joystickY)*6+(self.joystickX));
-        this.setSelectedItem($(index));
-      }*/
+        mody = 1;
+      }
       if (navigate == Navigate.LEFT)
       {
-        self.joystickX = (self.joystickX-1).clamp(0,5);
-        var index = self.playerDialogSkill.format((self.joystickY)*6+(self.joystickX));
-        this.setSelectedItem($(index));
+        modx = -1;
       }
       if (navigate == Navigate.RIGHT)
       {
-        self.joystickX = (self.joystickX+1).clamp(0,5);
-        var index = self.playerDialogSkill.format((self.joystickY)*6+(self.joystickX));
-        this.setSelectedItem($(index));
+        modx = 1;
       }
+      self.joystickX = ((self.joystickX+(4+modx))%4).clamp(0,4);
+      self.joystickY = ((self.joystickY+(2+mody))%2).clamp(0,2);
+      var index = self.playerDialogSkill.format((self.joystickY)*4+(self.joystickX));
+      this.setSelectedItem($(index));
     }
     else if (jqStatWindow.is(':visible'))
     {
