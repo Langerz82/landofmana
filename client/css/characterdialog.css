@@ -21,11 +21,6 @@
 
 #characterName, #characterLevel, #characterAttackLevel,#characterDefenseLevel,#characterMoveLevel, #characterExp,
 #characterBaseHit, #characterBaseCrit, #characterBaseDamage, #characterBaseHitDef, #characterBaseCritDef, #characterBaseDamageDef {
-
-}
-
-#characterName, #characterLevel, #characterAttackLevel,#characterDefenseLevel,#characterMoveLevel, #characterExp,
-#characterBaseHit, #characterBaseCrit, #characterBaseDamage, #characterBaseHitDef, #characterBaseCritDef, #characterBaseDamageDef {
 	color:#fff;
 }
 
@@ -84,7 +79,7 @@ pointer-events: auto;
 	width:90%;
 	height:20%;
 	font-family:'GraphicPixel';
-	font-size:18px;
+	font-size:16px;
 	font-weight: bold;
 	padding:1%;
 	color: #fff;
@@ -102,7 +97,7 @@ pointer-events: auto;
   position: relative;
   width: 240px;
   height: 24px;
-  font-size: 21px;
+  font-size: 16px;
 }
 
 
@@ -119,7 +114,7 @@ pointer-events: auto;
 #characterBaseCrit, #characterBaseCritDef, #characterBaseDamageDef,
 #characterBaseDamage, #characterBaseDamageDef {
 	width: 240px;
-	font-size: 21px;
+	font-size: 16px;
 }
 
 #characterCloseButton {
@@ -146,8 +141,8 @@ pointer-events: auto;
 #characterLuck
 {
 	margin-bottom:6%;
-	font-size:21px;
-	width:120px !important;
+	font-size:16px;
+	width:110px !important;
 }
 
 #charAddAttack,
