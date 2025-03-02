@@ -264,30 +264,18 @@ var selectFirstItem = {
         modx = 1;
       }
 
-      self.joystickY = ((self.joystickY+5+mody)%5);
-      if (self.joystickY == 4 && self.joystickX < 5) {
-        equipment = true;
-      }
-      if (equipment) {
-        self.joystickX = ((self.joystickX+5+modx)%5);
-      } else {
-        self.joystickX = ((self.joystickX+6+modx)%6);
-      }
-
-      // Little dirty exception to skip the non-existant equipment slot.
-      if (self.joystickY == 4 && self.joystickX == 5) {
-          if (navigate == Navigate.UP) {
-            self.joystickX = 5;
-            self.joystickY = 3;
-          } else {
-            self.joystickX = 5;
-            self.joystickY = 0;
-          }
-      }
+			self.joystickX = ((self.joystickX+7+modx)%7);
+			if (self.joystickX == 6)
+			{
+				equipment = true;
+				self.joystickY = ((self.joystickY+5+mody)%5);
+			} else {
+				self.joystickY = ((self.joystickY+4+mody)%4);
+			}
 
       var index = self.playerInventory.format((self.joystickY)*6+(self.joystickX));
       if (equipment) {
-        index = self.playerEquipment[self.joystickX];
+        index = self.playerEquipment[self.joystickY];
       }
       this.setSelectedItem($(index));
       return;

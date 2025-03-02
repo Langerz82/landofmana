@@ -4,6 +4,8 @@
     text-align: center;
     pointer-events: auto;
     z-index:14;
+		width:440px;
+		margin-left: -220px;
 }
 
 .gemsicon {
@@ -61,7 +63,7 @@
   #inventoryGear2Items {
     position:absolute;
     top:0;
-    right:0;
+    left:150px;
     height:30px;
     line-height: 26px;
   }
@@ -123,9 +125,21 @@
 	#equipment
 	{
 		position:absolute;
-		left:0;
-		bottom:0;
-    height:142px;
+		right:0;
+		top:0;
+    height:450px;
+	}
+
+	#equipment span
+	{
+		position:absolute;
+		right:0;
+		top:0;
+    height:30px;
+		font-family: "GraphicPixel";
+		font-size:16px;
+		/*vertical-align: bottom;*/
+		line-height: 42px;
 	}
 
   #equipment div * {
@@ -139,32 +153,32 @@
       height: 57px;
       background: url('../img/3/misc/itembackground.png' ) no-repeat;
       pointer-events: auto;
-      top:40px;
+      right:0;
   }
 
 	#equipBackground0
 	{
-    left:0;
+    top:42px;
     background-position: -56px 0;
 	}
 	#equipBackground1
 	{
-    left: 60px;
+    top: 102px;
     background-position: -56px -57px;
 	}
   #equipBackground2
 	{
-    left: 120px;
+    top: 162px;
     background-position: 0 -57px;
 	}
   #equipBackground3
 	{
-    left: 180px;
+    top: 222px;
     background-position: -56px -114px;
 	}
   #equipBackground4
 	{
-    left: 240px;
+    top: 282px;
     background-position: 0 0;
 	}
 
@@ -229,7 +243,7 @@
 
     .inventorySellGoldFrame {
     		position:absolute;
-				left: 160px;
+				right: 90px;
         bottom: 0;
         width: 80px;
         height: 21px;
