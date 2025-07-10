@@ -43,7 +43,7 @@ define(['data/skilldata', 'data/items'], function(SkillData, Items) {
       var slot = this.jq.data("slot");
       // TODO fill.
       if (DragItem) {
-        var item = game.inventory.getItem(DragItem.slot);
+        var item = game.inventory.getItem(DragItem.type, DragItem.slot);
         if (item) {
           this.install(slot, 1, item.itemKind);
         }
