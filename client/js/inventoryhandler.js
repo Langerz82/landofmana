@@ -48,7 +48,7 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
             if (item) {
               item.slot = self.getRealSlot(slot);
               if (ItemTypes.isConsumableItem(item.itemKind)) {
-                game.useItem(item);
+                this.useItem(item);
               }
             }
           }
@@ -78,6 +78,7 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
     loadInventoryEvents: function() {
       var self = this;
       //DragItem = {};
+
 
       self.selectInventory = function(jq) {
         if (!self.game || !self.game.ready)
@@ -176,7 +177,7 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
           }
           else {
             item.slot = realslot;
-            game.useItem(item, type);
+            this.useItem(item, type);
           }
           if (triggerClick) {
             $('#invActionButton').data('itemType', type);
@@ -189,10 +190,19 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
       }
 
 // TODO: FIX BROKEN.
+      var equipItem = function (slot) {
+        if (DragItem) {
+          DragItem.slot = (DragItem.type == 0) ? self.getRealSlot(DragItem.slot) : DragItem.slot;
+          game.client.sendItemSlot([1, DragItem.type, DragItem.slot, 1, 2, slot]);
+          DragItem = null;
+          self.deselectItem();
+        }
+        else {
+          DragItem = {"action": 1, "type": 2, "slot": slot};
+        }
+      };
+
       for (var i = 0; i <= 4; i++) {
-        // TODO - Check if not needed.
-        //$('#characterEquip'+i).data("itemType",2);
-        //$('#characterEquip'+i).data("itemSlot",i);
         $('#equipment' + i).attr('draggable', true);
         $('#equipment' + i).draggable = true;
 
@@ -202,32 +212,25 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
         $('#equipBackground'+i).data("itemType",2);
         $('#equipBackground'+i).data("itemSlot",i);
 
-        var equipItem = function (slot) {
-          if (DragItem) {
-            game.client.sendItemSlot([1, DragItem.type, DragItem.slot, 1, 2, slot]);
-            DragItem = null;
+        $('#equipBackground'+i).on("click", function (e) {
+          var type = $(this).data("itemType");
+          var slot = $(this).data("itemSlot");
+
+          if (self.selectedItem >= 0) {
+            var item = self.getItem(type, slot);
+            if (item) {
+              this.useItem(item, type);
+            }
+            else {
+              if (DragItem)
+                item = self.getItem(DragItem.type, DragItem.slot);
+              if (item)
+                this.useItem(item, DragItem.type);
+            }
             self.deselectItem();
           }
           else {
-            DragItem = {};
-            DragItem.action = 1;
-            DragItem.type = 2;
-            DragItem.slot = slot;
-          }
-        };
-
-        var getEquipment = function (slot) {
-          if (slot < 0) return null;
-          return game.equipmentHandler.equipment[slot];
-        };
-
-        $('#equipBackground'+i).on("click", function (e) {
-          var slot = $(this).data("itemSlot");
-          if (self.selectedItem >= 0) {
-            equipItem(slot);
-          }
-          else {
-            if (self.selectedItem == -1 && (slot >= 0 && getEquipment(slot) == null))
+            if (self.selectedItem == -1 && (slot >= 0 && self.getItem(type, slot) == null))
               return;
 
             self.selectInventory(this);
@@ -248,8 +251,21 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
 
         $('#equipBackground'+i).on('drop touchend', function(event) {
           equipItem($(this).data("itemSlot"));
+          self.deselectItem();
         });
       }
+
+      var moveItem = function (slot) {
+        if (DragItem === null) {
+          DragItem = {"action": 1, "type": 0, "slot": slot};
+        }
+        else {
+          var action = DragItem.action || 1;
+          DragItem.slot = (DragItem.type == 0) ? self.getRealSlot(DragItem.slot) : DragItem.slot;
+          game.client.sendItemSlot([action, DragItem.type, DragItem.slot, 1, 0, self.getRealSlot(slot)]);
+          DragItem = null;
+        }
+      };
 
       for (var i = 0; i < 24; i++) {
         $('#inventory' + i).attr('draggable', true);
@@ -257,70 +273,37 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
 
         $('#inventorybackground' + i).data('itemType',0);
         $('#inventorybackground' + i).data('itemSlot',i);
-        //$('#inventory' + i).data('itemType',0);
-        //$('#inventory' + i).data('itemSlot',i);
-        //$('#inventorybackground' + i).click(selectInventory);
-
-				var moveItem = function (realslot) {
-          //var realslot = slot; // + (self.pageIndex * self.pageItems);
-
-          if (DragItem === null) {
-            DragItem = {};
-            DragItem.type = 0;
-            DragItem.slot = realslot;
-          }
-          else {
-            var action = DragItem.action || 1;
-            game.client.sendItemSlot([action, DragItem.type, DragItem.slot, 1, 0, realslot]);
-            DragItem = null;
-            self.deselectItem();
-          }
-				};
-
-				/*var dropItem = function (slot) {
-          var realslot = slot + (self.pageIndex * self.pageItems);
-				};*/
-
-        var itemslot = function (slot) {
-          return slot + (self.pageIndex * self.pageItems);
-        }
-
-        /*var getItem = function (realslot) {
-          if (realslot < 0) return null;
-          return self.inventory[realslot];
-        };*/
 
         $('#inventorybackground'+i).on('click tap', function(event) {
+          var type = $(this).data("itemType");
           var slot = $(this).data("itemSlot");
-          var realslot = itemslot(slot);
 
-          var hasSelected = (self.selectedItem == -1);
-
-          if (!hasSelected && self.getItem(slot) == null) {
-            if (game.gamepad.isActive())
-                moveItem(realslot);
+          if (self.selectedItem == -1)
+          {
+            self.selectInventory(this);
+            moveItem(slot);
+          }
+          else {
+            if (DragItem) {
+              var item = self.getItem(DragItem.type, DragItem.slot);
+              if (item && DragItem.slot == slot) {
+                game.useItem(item, DragItem.type);
+              } else {
+                moveItem(slot);
+              }
+            }
+            else {
+              moveItem(slot);
+            }
             self.deselectItem();
-            return;
           }
-          if (!hasSelected) {
-            self.selectInventory(this);
-            if (game.gamepad.isActive())
-              moveItem(realslot);
-            return;
-          }
-
-          var isSame = (self.selectedItem == realslot);
-          if (hasSelected || !isSame)
-            self.selectInventory(this);
-          if (!game.renderer.isDesktop || isSame || hasSelected)
-            moveItem(realslot);
         });
 
         $('#inventorybackground'+i).on('dragstart touchstart', function(event) {
           if (self.selectedItem == -1)
             self.selectInventory(this);
           if (!DragItem)
-					  moveItem(itemslot($(this).data("itemSlot")));
+					  moveItem($(this).data("itemSlot"));
         });
 
         $('#inventory' + i).on('dragover touchover', function(event) {
@@ -329,7 +312,8 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
 
         $('#inventorybackground' + i).on('drop touchend', function(event) {
           if (DragItem)
-					  moveItem(itemslot($(this).data("itemSlot")));
+					  moveItem($(this).data("itemSlot"));
+            self.deselectItem();
         });
       }
 
@@ -344,9 +328,9 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
         var invCheck = DragItem && DragItem.slot >= 0;
 
         if (invCheck) {
-          var mousePos = self.game.getMouseGridPosition();
-          self.game.dropItem(DragItem.slot, mousePos.x, mousePos.y);
+          self.game.dropItem(self.getRealSlot(DragItem.slot));
           DragItem = null;
+          self.deselectItem();
         }
       });
 
@@ -841,13 +825,79 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
       return slot + (this.pageIndex * this.pageItems);
     },
 
-    getItem: function (slot) {
-      var realslot = slot + (this.pageIndex * this.pageItems);
-      if (realslot < 0) return null;
-      if (!this.inventory[realslot])
-        return null;
-      return this.inventory[realslot];
+    getItem: function (type, slot) {
+      if (slot < 0) return null;
+      if (type == 0) {
+        return this.inventory[this.getRealSlot(slot)];
+      }
+      else if (type == 2)
+        return game.equipmentHandler.equipment[slot];
     },
+
+    dropItem: function(itemSlot) {
+        var pos = game.getMouseGridPosition();
+        var item = this.inventory[itemSlot];
+        if (!item)
+          return;
+
+        var kind = item.itemKind;
+        var count = item.itemNumber;
+        game.player.droppedX = pos.x;
+        game.player.droppedY = pos.y;
+        if((ItemTypes.isConsumableItem(kind) || ItemTypes.isLootItem(kind) || ItemTypes.isCraftItem(kind)) &&
+          (count > 1))
+        {
+          $('#dropCount').val(count);
+          game.app.showDropDialog(itemSlot);
+        } else {
+          game.client.sendItemSlot([2, 0, itemSlot, 1]);
+        }
+    },
+
+    equip: function(item, itemSlot){
+        var itemKind = item.itemKind;
+
+        var equipSlot = ItemTypes.getEquipmentSlot(itemKind);
+        if (equipSlot > -1)
+          game.client.sendItemSlot([1, 0, itemSlot, 0, 2, equipSlot]);
+
+        //this.menu.close();
+        game.statDialog.update();
+    },
+
+    unequip: function(itemSlot) {
+        game.client.sendItemSlot([1, 2, itemSlot, 0, 0, -1]);
+        game.statDialog.update();
+    },
+
+    useItem: function(item, type){
+      var player = game.player;
+      var kind = item.itemKind;
+      if (ItemTypes.isConsumableItem(kind)) {
+        if(kind && this.healingCoolTimeCallback === null
+           && (ItemTypes.isHealingItem(kind) && player.stats.hp < player.stats.hpMax
+           && player.stats.hp > 0) || (ItemTypes.isConsumableItem(kind) && !ItemTypes.isHealingItem(kind)))
+        {
+            if(this.decInventory(item.slot))
+            {
+                game.client.sendItemSlot([0, 0, item.slot, 1]);
+                game.audioManager.playSound("heal");
+                game.shortcuts.refresh();
+                return true;
+            }
+        }
+      } else if (ItemTypes.isEquippable(kind)) {
+        if (type == 2) {
+          this.unequip(item.slot);
+        }
+        else {
+          this.equip(item, item.slot);
+        }
+        return true;
+      }
+      return false;
+    },
+
   });
 
   return InventoryHandler;

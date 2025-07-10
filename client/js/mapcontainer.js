@@ -344,6 +344,9 @@ define(['area', 'detect', 'mapworker', 'map'], function(Area, Detect, worker, Ma
       } else {
         map = this.maps[index];
       }
+      if (map && !map.isLoaded)
+        return null;
+
       return map;
     },
 
@@ -371,7 +374,7 @@ define(['area', 'detect', 'mapworker', 'map'], function(Area, Detect, worker, Ma
 
     reloadMaps: function (init)
     {
-      var ts = game.tilesize;
+      var ts = G_TILESIZE;
       var c = game.camera;
       var fe = c.focusEntity;
       if (!fe)
@@ -406,7 +409,7 @@ define(['area', 'detect', 'mapworker', 'map'], function(Area, Detect, worker, Ma
     {
       var self = this;
       var r = game.renderer;
-      var ts = game.tilesize;
+      var ts = G_TILESIZE;
       var c = game.camera;
       var fe = c.focusEntity;
 
@@ -442,14 +445,7 @@ define(['area', 'detect', 'mapworker', 'map'], function(Area, Detect, worker, Ma
     _updateGrid: function (map)
     {
       //console.warn("_updateGrid - called.")
-      var r = game.renderer;
       var c = game.camera;
-      var gs = game.renderer.gameScale;
-      var ts = G_TILESIZE;
-
-      var cgw = c.gridWE;
-      var cgh = c.gridHE;
-
       var fe = c.focusEntity;
       var dim = map.dimensions;
 
@@ -458,27 +454,18 @@ define(['area', 'detect', 'mapworker', 'map'], function(Area, Detect, worker, Ma
       var cgwh = (cgw >> 1);
       var cghh = (cgh >> 1);
 
-      var hgw = ~~(c.screenW / (2*gs*ts));
-      var hgh = ~~(c.screenH / (2*gs*ts));
-
-      var cw = this.chunkWidth;
-      var ch = this.chunkHeight;
-
+      /*var gx = fe.x >> 4;
+      var gy = fe.y >> 4;
+      if (fe && this.fegx == gx && this.fegy == gy)
+      {
+        return;
+      }
+      this.fegx = gx;
+      this.fegy = gy;*/
       var gx = fe.x >> 4, gy = fe.y >> 4;
 
-      var sw = this.width;
-      var sh = this.height;
-
-      var tx = (gx-cgwh).clamp(0, sw-cgw);
-      var ty = (gy-cghh).clamp(0, sh-cgh);
-
-      gx = tx, gy = ty;
-
-      var dim = map.dimensions;
-
-
-      var sgx = gx % cw,
-          sgy = gy % ch;
+      gx = (gx-cgwh).clamp(0, this.width-cgw),
+      gy = (gy-cghh).clamp(0, this.height-cgh);
 
       var msx = (dim.x1-gx),
           msy = (dim.y1-gy);
@@ -488,8 +475,8 @@ define(['area', 'detect', 'mapworker', 'map'], function(Area, Detect, worker, Ma
           gex = Math.min((dim.x2-gx), cgw),
           gey = Math.min((dim.y2-gy), cgh);
 
-      var ox = (msx > 0) ? 0 : sgx;
-      var oy = (msy > 0) ? 0 : sgy;
+      var ox = (msx > 0) ? 0 : gx % this.chunkWidth;
+      var oy = (msy > 0) ? 0 : gy % this.chunkHeight;
 
       //console.warn("ox:"+ox+",oy:"+oy);
       for(var i=gsy, k=oy, l=ox; i < gey; ++i, ++k) {

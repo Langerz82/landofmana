@@ -2,7 +2,8 @@ var cls = require("../lib/class");
 
 module.exports = BaseItem = cls.Class.extend({
     init: function(arr){
-        this.set(arr);
+        if (Array.isArray(arr))
+          this.set(arr);
     },
 
     assign: function (item) {

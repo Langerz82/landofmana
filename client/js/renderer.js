@@ -1531,33 +1531,28 @@ define(['camera', 'entity/item', 'data/items', 'data/itemlootdata', 'entity/enti
 
             renderStaticCanvases: function() {
       				var c = this.camera;
-              var mc = game.mapContainer;
               var fe = c.focusEntity;
 
               //log.info("c.sox:"+c.sox+",c.soy:"+c.soy);
               c.setRealCoords();
 
-              if (mc)
-                mc.moveGrid();
+              var gx = fe.x >> 4;
+              var gy = fe.y >> 4;
+              if (fe && (this.fegx != gx || this.fegy != gy))
+              {
+                var mc = game.mapContainer;
+                if (mc)
+                  mc.moveGrid();
+              }
+              this.fegx = gx;
+              this.fegy = gy;
 
               var go = this.setGridOffset();
               this.setTilesOffset(go[0],go[1]);
 
-              /*if (this.fegx === fe.gx && this.fegy === fe.gy)
-                return;
-              this.fegx = fe.gx;
-              this.fegy = fe.gy;*/
-
-
-              if (this.forceRedraw) // || fe.isMoving() || fe.keyMove)
+              if (this.forceRedraw)
               {
                 this.refreshGrid();
-
-                /*if (this.forceRedraw || !(this.fegx === fe.gx && this.fegy === fe.gy)) {
-                  this.refreshGrid();
-                  this.fegx = fe.gx;
-                  this.fegy = fe.gy;
-                }*/
               }
             },
 

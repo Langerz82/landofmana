@@ -481,42 +481,39 @@ define(['app', 'entrypoint', 'data/langdata', 'util',
 
             //var keyMoves = {};
             //var pMove = 0;
+            //var keyPressed = 0;
             var moveKeys = function (e, key, bool) {
-              //if (bool && keyMoves[key] == bool)
-                //return;
               var p = game.player;
               var gameKeys = p && game.started && !$('#chatbox').hasClass('active');
               if (gameKeys) {
+                  if (bool && self.keyPressed == key) {
+                    console.warn("same key pressed.")
+                    return;
+                  }
                   switch(key) {
                       case Types.Keys.LEFT:
                       case Types.Keys.A:
                       case Types.Keys.KEYPAD_4:
-                          //if (pMove == key)
-                            //return;
                           game.player.move(Types.Orientations.LEFT, bool);
-                          //keyMoves[key] = bool;
-                          //pMove = (!bool) ? key : 0;
+                          self.keyPressed = (bool) ? key : 0;
                           break;
                       case Types.Keys.RIGHT:
                       case Types.Keys.D:
                       case Types.Keys.KEYPAD_6:
-                        //if (pMove == key)
-                          //return;
                           game.player.move(Types.Orientations.RIGHT, bool);
-                          //keyMoves[key] = bool;
-                          //pMove = (!bool) ? key : 0;
+                          self.keyPressed = (bool) ? key : 0;
                           break;
                       case Types.Keys.UP:
                       case Types.Keys.W:
                       case Types.Keys.KEYPAD_8:
                           game.player.move(Types.Orientations.UP, bool);
-                          //keyMoves[key] = bool;
+                          self.keyPressed = (bool) ? key : 0;
                           break;
                       case Types.Keys.DOWN:
                       case Types.Keys.S:
                       case Types.Keys.KEYPAD_2:
                           game.player.move(Types.Orientations.DOWN, bool);
-                          //keyMoves[key] = bool;
+                          self.keyPressed = (bool) ? key : 0;
                           break;
                   }
               }
@@ -681,15 +678,17 @@ define(['app', 'entrypoint', 'data/langdata', 'util',
                 	}
                 	else
                 	{
-                    if(count > game.inventoryHandler.inventory[app.inventoryNumber])
-                        count = game.inventoryHandler.inventory[app.inventoryNumber];
+                    var item = game.inventoryHandler.inventory[app.inventoryNumber];
+                    if (count <= 0)
+                      return;
+                    if(count > item.itemNumber)
+                      count = item.itemNumber;
 
-                    game.client.sendItemSlot([3, 0, app.inventoryNumber, count]);
+                    game.client.sendItemSlot([2, 0, app.inventoryNumber, count]);
 
-                    game.inventoryHandler.inventory[app.inventoryNumber] -= count;
-                    if(game.inventoryHandler.inventory[app.inventoryNumber] === 0)
+                    item.itemNumber -= count;
+                    if(item.itemNumber == 0)
                     {
-                      //game.inventoryHandler.inventories[app.inventoryNumber] = null;
                       game.inventoryHandler.inventory[app.inventoryNumber] = null;
                     }
 

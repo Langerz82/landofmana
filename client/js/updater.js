@@ -105,6 +105,7 @@ define(['entity/character', 'timer', 'entity/player', 'entity/entitymoving'], fu
             this.playerKeyXF = function(c, m) {
               var x = c.x + m;
               var res = game.moveCharacter(c, x, c.y);
+              //var res = true;
               if (res) {
                 c.setPosition(x, c.y);
               } else {
@@ -116,6 +117,7 @@ define(['entity/character', 'timer', 'entity/player', 'entity/entitymoving'], fu
             this.playerKeyYF = function(c, m) {
               var y = c.y + m;
               var res = game.moveCharacter(c, c.x, y);
+              //var res = true;
               if (res) {
                 c.setPosition(c.x, y);
               } else {
@@ -144,7 +146,7 @@ define(['entity/character', 'timer', 'entity/player', 'entity/entitymoving'], fu
         },
 
         update: function() {
-            var ts = game.tilesize;
+            //var ts = G_TILESIZE;
 
             //log.info("Updater.update() called");
             //if (game.client)
@@ -369,8 +371,6 @@ define(['entity/character', 'timer', 'entity/player', 'entity/entitymoving'], fu
 	          }
 
 // TODO - Skip Move needs FIXING to fix scrolling!!!!!!!!!!!!!!!!!!!!!!
-
-
           var canMove = c.movement.inProgress === false && c.keyMove;
           if(canMove) {
             if(o == Types.Orientations.LEFT) {

@@ -444,7 +444,7 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
             run: function(server, ps) {
             	  var self = this;
 
-                game.player = user.createPlayer(ps);
+                this.player = user.createPlayer(ps);
 
                 this.loadGameData();
 
@@ -459,10 +459,12 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
                 },1500); // Slight Delay For On-Screen Keybaord to minimize.
 
 
-                game.gamepad = new GamePad(self);
+                this.gamepad = new GamePad(this);
 
-                this.gameTick = setInterval(self.tick, G_UPDATE_INTERVAL);
+                setInterval(this.gametick.bind(self), G_UPDATE_INTERVAL);
 
+                this.gameFrame = 0;
+                this.pGameFrame = -1;
                 if (this.animFrame)
                   requestAnimFrame(this.render.bind(this));
                 else {
@@ -471,34 +473,48 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
             },
 
             render: function () {
-              var self = game;
 
-              self.renderer.renderFrame();
+              this.processRender = true;
+              this.renderer.renderFrame();
+              this.processRender = false;
 
-              if (self.animFrame)
-                requestAnimationFrame(self.render.bind(self));
+              if (this.animFrame)
+                requestAnimFrame(this.render.bind(this));
+
+              this.pGameFrame = this.gameFrame;
             },
 
-            tick: function() {
-              var self = game;
+            gametick: function() {
+              var self = this;
 
-              self.currentTime = getTime();
+              this.processLogic = true;
 
-              if (!self.started || self.isStopped) {
+              //if (Date.now() - this.tickTime < 16) {
+                //setTimeout(self.tick.bind(self), 1);
+                //return;
+              //}
+
+              this.tickTime = Date.now();
+              this.currentTime = getTime();
+
+              if (!this.started || this.isStopped) {
+                this.stateChanged = true;
                 return;
               }
 
-              self.updateTime = self.currentTime;
+              this.updateTime = this.currentTime;
 
               if (self.gamepad)
-                self.gamepad.interval();
+                this.gamepad.interval();
 
-              self.updater.update();
+              this.updater.update();
 
-        			if (self.mapStatus >= 2)
+        			if (this.mapStatus >= 2)
         			{
-        				self.updateCursorLogic();
+        				this.updateCursorLogic();
         			}
+              //this.stateChanged = true;
+              this.processLogic = false;
             },
 
             start: function() {
@@ -659,11 +675,9 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
               log.info("Received player ID from server : "+ player.id);
 
               // Make zoning possible.
-              //var ts = 4 * game.renderer.tilesize;
               setInterval(function() {
                 if (game.mapStatus >= 2 &&
-                    (/*(player.x % ts == 0 || player.y % ts == 0) ||*/
-                     !player.isMoving()) && player.canObserve(game.currentTime))
+                     !player.isMoving() && player.canObserve(game.currentTime))
                 {
                     game.client.sendWhoRequest();
 
@@ -690,7 +704,7 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
                 //$('#container').css('opacity', '100');
               }
 
-              var ts = game.tilesize;
+              //var ts = game.tilesize;
               //game.teleportMaps(0);
           	  game.teleportMaps(1);
 
@@ -1708,6 +1722,9 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
                         node[0] = ~~(node[0]*ts+dx);
                         node[1] = ~~(node[1]*ts+dy);
                       }
+                      // NOT NEEDED.
+                      //path = this.pathfinder.compressPath(path);
+
                       log.info("path_result2: "+JSON.stringify(path));
                       if (!(path[0][0] == (character.x) && path[0][1] == (character.y)))
                       {
@@ -1889,26 +1906,6 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
 
                 this.processInput(pos.x,pos.y);
                 this.clickMove = false;
-            },
-
-            dropItem: function(itemSlot, x, y) {
-                var pos = this.getMouseGridPosition();
-                x = x || pos.x;
-                y = y || pos.y;
-                var item = this.inventoryHandler.inventory[itemSlot];
-      	        var kind = item.itemKind;
-                var count = item.itemNumber;
-                this.player.droppedX = x;
-                this.player.droppedY = y;
-        				if((ItemTypes.isConsumableItem(kind) || ItemTypes.isLootItem(kind) || ItemTypes.isCraftItem(kind)) &&
-        					(count > 1))
-        				{
-        					$('#dropCount').val(count);
-
-        					this.app.showDropDialog(itemSlot);
-        				} else {
-        					this.client.sendItemSlot([2, 0, itemSlot, 1]);
-        				}
             },
 
             rightClick: function() {
@@ -2399,50 +2396,6 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
                         this.eat(inventoryNumber);
                     }
                 }
-            },
-
-// TODO - Check the Packet.
-            equip: function(itemSlot){
-                var itemKind = this.inventoryHandler.inventory[itemSlot].itemKind;
-
-                var equipSlot = ItemTypes.getEquipmentSlot(itemKind);
-                if (equipSlot > -1)
-                  this.client.sendItemSlot([1, 0, itemSlot, 0, 2, equipSlot]);
-
-                //this.menu.close();
-                game.statDialog.update();
-            },
-
-            unequip: function(index) {
-                this.client.sendItemSlot([1, 2, index, 0, 0, -1]);
-                game.statDialog.update();
-            },
-
-            useItem: function(item, type){
-              var kind = item.itemKind;
-              if (ItemTypes.isConsumableItem(kind)) {
-                if(kind && this.inventoryHandler.healingCoolTimeCallback === null
-                   && (ItemTypes.isHealingItem(kind) && this.player.stats.hp < this.player.stats.hpMax
-                   && this.player.stats.hp > 0) || (ItemTypes.isConsumableItem(kind) && !ItemTypes.isHealingItem(kind)))
-                {
-                    if(this.inventoryHandler.decInventory(item.slot))
-                    {
-                        this.client.sendItemSlot([0, 0, item.slot, 1]);
-                        this.audioManager.playSound("heal");
-                        game.shortcuts.refresh();
-                        return true;
-                    }
-                }
-              } else if (ItemTypes.isEquippable(kind)) {
-                if (type == 2) {
-                  game.unequip(slot);
-                }
-                else {
-                  game.equip(realslot);
-                }
-                return true;
-              }
-              return false;
             },
 
             repairItem: function (type, item, itemIndex) {

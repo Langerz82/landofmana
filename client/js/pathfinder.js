@@ -262,6 +262,37 @@ define(['lib/astar'], function(AStar) {
             this.ignored = [];
         },
 
+        /*
+        // TODO - Note needed so maybe just remove.
+        compressPath: function (path) {
+          if (!Array.isArray(path))
+            return path;
+
+          if (path.length < 3)
+            return path;
+
+          var newPath = [];
+          var lastDir = null;
+          var pNode = null;
+
+          console.warn("pathfinder - compressPath 1:"+path);
+          for (var node of path)
+          {
+            if (pNode)
+            {
+              var dir = [node.x  - pNode.x, node.y - pNode.y];
+              if (dir != lastDir)
+              {
+                newPath.push(pNode);
+              }
+              lastDir = dir;
+            }
+            pNode = node;
+          }
+          newPath.push(node);
+          console.warn("pathfinder - compressPath 2:"+newPath);
+          return newPath;
+        },*/
     });
 
     return Pathfinder;
