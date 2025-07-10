@@ -98,7 +98,7 @@ define(['data/skilldata', 'data/items'], function(SkillData, Items) {
       if (this.type == 1) {
         var item = game.inventory.getItemByKind(this.shortcutId);
         if (item)
-          res = game.useItem(item);
+          res = game.inventoryHandler.useItem(item);
       } else if (this.type == 2) {
         var skill = game.player.skillHandler.skills[this.shortcutId];
         if (skill)

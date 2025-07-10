@@ -1,5 +1,7 @@
 TODO
 
+Shortcut assignments not working.
+
 When user clicks twice on equipment send equip packet.
 
 NEEDS TESTING - User Server is not releasing users when dropping the connection in select Player window.

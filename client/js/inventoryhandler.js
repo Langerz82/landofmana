@@ -190,15 +190,15 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
       }
 
 // TODO: FIX BROKEN.
-      var equipItem = function (slot) {
-        if (DragItem) {
-          DragItem.slot = (DragItem.type == 0) ? self.getRealSlot(DragItem.slot) : DragItem.slot;
-          game.client.sendItemSlot([1, DragItem.type, DragItem.slot, 1, 2, slot]);
-          DragItem = null;
-          self.deselectItem();
+      var moveItem = function (slot, type) {
+        if (DragItem === null) {
+          DragItem = {"action": 1, "type": type, "slot": slot};
         }
         else {
-          DragItem = {"action": 1, "type": 2, "slot": slot};
+          var action = DragItem.action || 1;
+          DragItem.slot = (DragItem.type == 0) ? self.getRealSlot(DragItem.slot) : DragItem.slot;
+          game.client.sendItemSlot([action, DragItem.type, DragItem.slot, 1, type, self.getRealSlot(slot)]);
+          DragItem = null;
         }
       };
 
@@ -216,32 +216,36 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
           var type = $(this).data("itemType");
           var slot = $(this).data("itemSlot");
 
-          if (self.selectedItem >= 0) {
-            var item = self.getItem(type, slot);
-            if (item) {
-              this.useItem(item, type);
-            }
-            else {
-              if (DragItem)
-                item = self.getItem(DragItem.type, DragItem.slot);
-              if (item)
-                this.useItem(item, DragItem.type);
-            }
-            self.deselectItem();
+          if (self.selectedItem == -1)
+          {
+            self.selectInventory(this);
+            moveItem(slot, 2);
           }
           else {
-            if (self.selectedItem == -1 && (slot >= 0 && self.getItem(type, slot) == null))
+            if (DragItem && DragItem.type == type && type == 2)
               return;
-
-            self.selectInventory(this);
-            equipItem(slot);
+            var dragItem = (DragItem) ? self.getItem(DragItem.type, DragItem.slot) : null;
+            var item = self.getItem(type, slot);
+            if (dragItem && item) {
+              if (dragItem == item)
+                self.useItem(item, type);
+              else
+                moveItem(slot, 2);
+            }
+            else if (dragItem) {
+              self.useItem(dragItem, DragItem.type);
+            }
+            else if (item) {
+              self.useItem(item, type);
+            }
+            self.deselectItem();
           }
         });
 
         $('#equipment'+i).on('dragstart touchstart', function(event) {
           if (self.selectedItem < 0) {
             self.selectInventory(this);
-            equipItem($(this).data("itemSlot"));
+            moveItem($(this).data("itemSlot"), 2);
           }
         });
 
@@ -250,22 +254,11 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
         });
 
         $('#equipBackground'+i).on('drop touchend', function(event) {
-          equipItem($(this).data("itemSlot"));
+          moveItem($(this).data("itemSlot"), 2);
           self.deselectItem();
         });
       }
 
-      var moveItem = function (slot) {
-        if (DragItem === null) {
-          DragItem = {"action": 1, "type": 0, "slot": slot};
-        }
-        else {
-          var action = DragItem.action || 1;
-          DragItem.slot = (DragItem.type == 0) ? self.getRealSlot(DragItem.slot) : DragItem.slot;
-          game.client.sendItemSlot([action, DragItem.type, DragItem.slot, 1, 0, self.getRealSlot(slot)]);
-          DragItem = null;
-        }
-      };
 
       for (var i = 0; i < 24; i++) {
         $('#inventory' + i).attr('draggable', true);
@@ -281,19 +274,20 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
           if (self.selectedItem == -1)
           {
             self.selectInventory(this);
-            moveItem(slot);
+            moveItem(slot, 0);
           }
           else {
-            if (DragItem) {
-              var item = self.getItem(DragItem.type, DragItem.slot);
-              if (item && DragItem.slot == slot) {
-                game.useItem(item, DragItem.type);
-              } else {
-                moveItem(slot);
+            var dragItem = (DragItem) ? self.getItem(DragItem.type, DragItem.slot) : null;
+            var item = self.getItem(type, slot);
+            if (dragItem && item) {
+              if (dragItem == item)
+                self.useItem(item, DragItem.type);
+              else {
+                moveItem(slot, 0);
               }
             }
-            else {
-              moveItem(slot);
+            else if (dragItem || item) {
+              moveItem(slot, 0);
             }
             self.deselectItem();
           }
@@ -303,7 +297,7 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
           if (self.selectedItem == -1)
             self.selectInventory(this);
           if (!DragItem)
-					  moveItem($(this).data("itemSlot"));
+					  moveItem($(this).data("itemSlot"), 0);
         });
 
         $('#inventory' + i).on('dragover touchover', function(event) {
@@ -312,7 +306,7 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
 
         $('#inventorybackground' + i).on('drop touchend', function(event) {
           if (DragItem)
-					  moveItem($(this).data("itemSlot"));
+					  moveItem($(this).data("itemSlot"), 0);
             self.deselectItem();
         });
       }
@@ -328,7 +322,7 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
         var invCheck = DragItem && DragItem.slot >= 0;
 
         if (invCheck) {
-          self.game.dropItem(self.getRealSlot(DragItem.slot));
+          self.dropItem(self.getRealSlot(DragItem.slot));
           DragItem = null;
           self.deselectItem();
         }
@@ -832,6 +826,7 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
       }
       else if (type == 2)
         return game.equipmentHandler.equipment[slot];
+      return null;
     },
 
     dropItem: function(itemSlot) {

@@ -1142,7 +1142,10 @@ define(['camera', 'entity/item', 'data/items', 'data/itemlootdata', 'entity/enti
                 }
             		else if(entity instanceof Item) {
             			var item = entity;
-                  if (ItemTypes.isLootItem(item.kind)) {
+                  if (ItemTypes.isEquipment(item.kind)) {
+                    name = ItemTypes.getLevelByKind(item.kind) + '+' + item.count;
+                  }
+                  else if (ItemTypes.isLootItem(item.kind)) {
                     if (item.count > 1)
                       name = item.count + "x ";
                     name += ItemLoot[item.kind - 1000].name;
