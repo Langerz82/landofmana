@@ -335,7 +335,7 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
 
         $('#inventorybackground' + i).on('drop touchend', function(event) {
           if (DragItem)
-					  self.moveItem(0, $(this).data("itemSlot"));
+					  self.splitItem(0, $(this).data("itemSlot"));
             self.deselectItem();
         });
       }
