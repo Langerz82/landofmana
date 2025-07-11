@@ -664,34 +664,27 @@ define(['app', 'entrypoint', 'data/langdata', 'util',
                 //var pos = game.getMouseGridPosition();
                 var count = parseInt($('#dropCount').val());
                 if(count > 0) {
-                	if (app.inventoryNumber == -1) // Send to bank.
+                	if (app.dropAction == "bankgold") // Send to bank.
                 	{
                     var gold = game.player.gold[0];
                 		if (count > gold) count=gold;
                 		game.client.sendGold(0, count, 1);
                 	}
-                	else if (app.inventoryNumber == -2) // Send to inventory.
+                	else if (app.dropAction == "inventorygold") // Send to inventory.
                 	{
                     var bgold = game.player.gold[1];
                 		if (count > bgold) count=bgold;
                 		game.client.sendGold(1, count, 0);
                 	}
-                	else
+                  else if (app.dropAction == "splititems") // Split Items.
+                  {
+                    game.inventoryHandler.sendSplitItem(game.app.SplitItem, count);
+                    game.app.SplitItem = null;
+                  }
+                	else if (app.dropAction == "dropItems") // Drop Items
                 	{
-                    var item = game.inventoryHandler.inventory[app.inventoryNumber];
-                    if (count <= 0)
-                      return;
-                    if(count > item.itemNumber)
-                      count = item.itemNumber;
-
-                    game.client.sendItemSlot([2, 0, app.inventoryNumber, count]);
-
-                    item.itemNumber -= count;
-                    if(item.itemNumber == 0)
-                    {
-                      game.inventoryHandler.inventory[app.inventoryNumber] = null;
-                    }
-
+                    game.inventoryHandler.sendDropItem(game.app.DropItem, count);
+                    game.app.DropItem = null;
                 	}
                 }
 

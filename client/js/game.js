@@ -2398,7 +2398,7 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
                 }
             },
 
-            repairItem: function (type, item, itemIndex) {
+            repairItem: function (type, itemSlot, item) {
               var self = this;
               if (!item) return;
 
@@ -2412,12 +2412,12 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
               }
               this.confirmDialog.confirm(strPrice, function(result) {
                   if(result) {
-                      self.client.sendStoreRepair(type, itemIndex);
+                      self.client.sendStoreRepair(type, itemSlot);
                   }
               });
             },
 
-            enchantItem: function (type, item, itemIndex) {
+            enchantItem: function (type, itemSlot, item) {
               var self = this;
               if (!item) return;
 
@@ -2431,7 +2431,7 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
               }
               this.confirmDialog.confirm(strPrice, function(result) {
                   if(result) {
-                      self.client.sendStoreEnchant(type, itemIndex);
+                      self.client.sendStoreEnchant(type, itemSlot);
                   }
               });
             },

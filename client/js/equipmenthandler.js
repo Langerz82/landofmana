@@ -9,123 +9,13 @@ define(['entity/item', 'data/items'], function(Item, Items) {
             this.maxNumber = 5;
             this.scale = 3;
 
-            /*var selectEquipment = function(event) {
-              if (self.game.ready) {
-                var slot = $(this).data("itemSlot");
-
-                log.info("slot=" + slot);
-                //log.info("inventories " + JSON.stringify(self.inventory));
-                var item = self.equipment[slot];
-
-                if (item && self.selectedItem != realslot) {
-                    self.selectItem(self.selectedItem, false);
-                    self.selectItem(realslot, true);
-                    $('#invActionButton').data('itemType', 2);
-                    $('#invActionButton').data('itemSlot', slot);
-
-                    if (game.inventoryMode == InventoryMode.MODE_SELL) {
-                      $('.inventorySellGold').html(parseInt(ItemTypes.getEnchantSellPrice(item)));
-                    }
-                    else if (game.inventoryMode == InventoryMode.MODE_REPAIR) {
-                      $('.inventorySellGold').html(parseInt(ItemTypes.getRepairPrice(item)));
-                    }
-                    else if (game.inventoryMode == InventoryMode.MODE_ENCHANT) {
-                      $('.inventorySellGold').html(parseInt(ItemTypes.getEnchantPrice(item)));
-                    }
-                    else if (game.inventoryMode == InventoryMode.MODE_BANK) {
-                    }
-                    return;
-                  }
-                }
-
-                if (item && self.selectedItem == realslot) {
-                  var triggerClick = false;
-                  if (game.inventoryMode == InventoryMode.MODE_SELL) {
-                    triggerClick = true;
-                  }
-                  else if (game.inventoryMode == InventoryMode.MODE_REPAIR) {
-                    triggerClick = true;
-                  }
-                  else if (game.inventoryMode == InventoryMode.MODE_ENCHANT) {
-                    triggerClick = true;
-                  }
-                  else if (game.inventoryMode == InventoryMode.MODE_BANK) {
-                    triggerClick = true;
-                  }
-                  else {
-                    self.game.unequip(slot);
-                  }
-                  if (triggerClick) {
-                    $('#invActionButton').data('itemType', 2);
-                    $('#invActionButton').data('itemSlot', slot);
-                    $('#invActionButton').trigger("click");
-                  }
-                  self.selectItem(realslot, false);
-                }
-              };*/
-
-
             for (var i=0; i < 5; ++i)
             {
               $('#equipment'+i).attr('draggable', true);
               $('#equipment'+i).draggable = true;
               $('#equipment'+i).data("slot", i);
               $('#equipBackground'+i).data("slot", i);
-
-              /*$('#equipment'+i).on('click', function (event) {
-                self.selectItem($(this).data("slot"), true);
-              });*/
-
-              /*$('#equipment'+i).on('click', function (event) {
-                if (DragItem) {
-                  var slot = $(this).data("slot");
-                  game.client.sendItemSlot([1, DragItem.type, DragItem.slot, 1, 2, slot]);
-                  DragItem = null;
-                  game.inventoryHandler.deselectItem();
-                }
-                else {
-                  DragItem = {};
-                  DragItem.type = 2;
-                  DragItem.slot = $(this).data("slot");
-                  if (self.selectedItem >= 0)
-                    self.selectItem(self.selectedItem, false);
-                  self.selectItem($(this).data("slot"), true);
-
-                }
-              });*/
-
-              /*$('#equipBackground'+i).on('drop', function(event) {
-                if (DragItem) {
-                  var slot = $(this).data("slot");
-                  game.client.sendItemSlot([1, DragItem.type, DragItem.slot, 1, 2, slot]);
-                  DragItem = null;
-                  game.inventoryHandler.deselectItem();
-                }
-              });
-
-              $('#equipment'+i).on('dragover touchover', function(event) {
-                event.preventDefault();
-              });
-              $('#equipment'+i).on('dragover touchover', function(event) {
-                event.preventDefault();
-              });
-
-              $('#equipment'+i).on('dragstart touchstart', function(event) {
-              	log.info("Began DragStart.")
-                if (DragItem === null) {
-              	  DragItem = {};
-              	  DragItem.type = 2;
-                  DragItem.slot = $(this).data("slot");
-                }
-              });*/
             }
-
-            // TODO - TEMP REMOVE.
-            //$('#equipment1').data("slot", 0);
-            //$('#equipBackground1').data("slot", 0);
-            //$('#equipment4').data("slot", 1);
-            //$('#equipBackground4').data("slot", 1);
-
         },
 
         selectItem: function(realslot, select) {

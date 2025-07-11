@@ -48,7 +48,7 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
             if (item) {
               item.slot = self.getRealSlot(slot);
               if (ItemTypes.isConsumableItem(item.itemKind)) {
-                this.useItem(item);
+                this.useItem(0, item);
               }
             }
           }
@@ -177,7 +177,7 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
           }
           else {
             item.slot = realslot;
-            this.useItem(item, type);
+            this.useItem(type, item);
           }
           if (triggerClick) {
             $('#invActionButton').data('itemType', type);
@@ -190,15 +190,45 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
       }
 
 // TODO: FIX BROKEN.
-      var moveItem = function (slot, type) {
-        if (DragItem === null) {
-          DragItem = {"action": 1, "type": type, "slot": slot};
-        }
-        else {
-          var action = DragItem.action || 1;
-          DragItem.slot = (DragItem.type == 0) ? self.getRealSlot(DragItem.slot) : DragItem.slot;
-          game.client.sendItemSlot([action, DragItem.type, DragItem.slot, 1, type, self.getRealSlot(slot)]);
-          DragItem = null;
+      var activateItem = function (type, slot, item) {
+        if (item) {
+          var kind = item.itemKind;
+          if (game.inventoryMode == InventoryMode.MODE_AUCTION) {
+            if (ItemTypes.isLootItem(kind) || ItemTypes.isConsumableItem(kind))
+              return;
+
+            var value = ~~(ItemTypes.getEnchantSellPrice(item)/2);
+            $('#auctionSellCount').val(value);
+            game.app.showAuctionSellDialog(slot);
+            //game.client.sendAuctionSell(slot);
+          }
+          else if (game.inventoryMode == InventoryMode.MODE_SELL) {
+            if (ItemTypes.isLootItem(kind))
+              return;
+
+            game.client.sendStoreSell(type, slot);
+          }
+          else if (game.inventoryMode == InventoryMode.MODE_REPAIR) {
+            if (!ItemTypes.isEquipment(kind))
+              return;
+
+            game.repairItem(type, slot, item);
+          }
+          else if (game.inventoryMode == InventoryMode.MODE_ENCHANT) {
+            if (!ItemTypes.isEquipment(kind))
+              return;
+
+            game.enchantItem(type, slot, item);
+          }
+          else if (game.inventoryMode == InventoryMode.MODE_BANK) {
+            if (!game.bankHandler.isBankFull()) {
+              self.moveItem(1, -1);
+            }
+          }
+          else
+            self.useItem(DragItem.type, item);
+        } else {
+          self.splitItem(1, slot);
         }
       };
 
@@ -219,24 +249,23 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
           if (self.selectedItem == -1)
           {
             self.selectInventory(this);
-            moveItem(slot, 2);
+            self.moveItem(2, slot);
           }
           else {
-            if (DragItem && DragItem.type == type && type == 2)
-              return;
             var dragItem = (DragItem) ? self.getItem(DragItem.type, DragItem.slot) : null;
             var item = self.getItem(type, slot);
+
             if (dragItem && item) {
-              if (dragItem == item)
-                self.useItem(item, type);
-              else
-                moveItem(slot, 2);
+              if (dragItem == item) {
+                activateItem(type, slot, item);
+              } else
+                return;
             }
             else if (dragItem) {
-              self.useItem(dragItem, DragItem.type);
+              self.useItem(DragItem.type, dragItem);
             }
             else if (item) {
-              self.useItem(item, type);
+              self.useItem(type, item);
             }
             self.deselectItem();
           }
@@ -245,7 +274,7 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
         $('#equipment'+i).on('dragstart touchstart', function(event) {
           if (self.selectedItem < 0) {
             self.selectInventory(this);
-            moveItem($(this).data("itemSlot"), 2);
+            self.moveItem(2, $(this).data("itemSlot"));
           }
         });
 
@@ -254,11 +283,10 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
         });
 
         $('#equipBackground'+i).on('drop touchend', function(event) {
-          moveItem($(this).data("itemSlot"), 2);
+          self.moveItem(2, $(this).data("itemSlot"));
           self.deselectItem();
         });
       }
-
 
       for (var i = 0; i < 24; i++) {
         $('#inventory' + i).attr('draggable', true);
@@ -274,20 +302,21 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
           if (self.selectedItem == -1)
           {
             self.selectInventory(this);
-            moveItem(slot, 0);
+            self.moveItem(0, slot);
           }
           else {
             var dragItem = (DragItem) ? self.getItem(DragItem.type, DragItem.slot) : null;
             var item = self.getItem(type, slot);
             if (dragItem && item) {
-              if (dragItem == item)
-                self.useItem(item, DragItem.type);
+              if (dragItem == item) {
+                activateItem(type, slot, item);
+              }
               else {
-                moveItem(slot, 0);
+                self.moveItem(type, slot);
               }
             }
             else if (dragItem || item) {
-              moveItem(slot, 0);
+              self.splitItem(type, slot);
             }
             self.deselectItem();
           }
@@ -297,7 +326,7 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
           if (self.selectedItem == -1)
             self.selectInventory(this);
           if (!DragItem)
-					  moveItem($(this).data("itemSlot"), 0);
+					  self.moveItem(0, $(this).data("itemSlot"));
         });
 
         $('#inventory' + i).on('dragover touchover', function(event) {
@@ -306,7 +335,7 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
 
         $('#inventorybackground' + i).on('drop touchend', function(event) {
           if (DragItem)
-					  moveItem($(this).data("itemSlot"), 0);
+					  self.moveItem(0, $(this).data("itemSlot"));
             self.deselectItem();
         });
       }
@@ -362,17 +391,17 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
               if (!ItemTypes.isEquipment(kind))
                 return;
 
-              game.repairItem(type, item, slot);
+              game.repairItem(type, slot, item);
           }
           else if (game.inventoryMode == InventoryMode.MODE_ENCHANT) {
               if (!ItemTypes.isEquipment(kind))
                 return;
 
-              game.enchantItem(type, item, slot);
+              game.enchantItem(type, slot, item);
           }
           else if (game.inventoryMode == InventoryMode.MODE_BANK) {
             if (!game.bankHandler.isBankFull()) {
-              game.client.sendItemSlot([1, type, slot, 1, 1, -1]);
+              game.client.sendItemSlot([1, type, slot, item.itemNumber, 1, -1]);
             }
           }
         }
@@ -380,7 +409,7 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
 
       $('.inventoryGoldFrame').off().on('click', function(event) {
         if (self.game.bankDialog.visible) {
-          self.game.app.showDropDialog(-1);
+          self.game.app.showDropDialog("bankgold");
         }
       });
     },
@@ -829,6 +858,27 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
       return null;
     },
 
+    splitItem: function(type, slot) {
+        var item = this.getItem(DragItem.type, DragItem.slot);
+        if (!item) {
+          return;
+        }
+        DragItem.type2 = type;
+        DragItem.slot2 = slot;
+
+        var kind = item.itemKind;
+        var count = item.itemNumber;
+        if(ItemTypes.isStackedItem(kind) && (count > 1))
+        {
+          $('#dropCount').val(count);
+
+          game.app.SplitItem = DragItem;
+          game.app.showDropDialog("splititems");
+        } else {
+          this.moveItem(type, slot);
+        }
+    },
+
     dropItem: function(itemSlot) {
         var pos = game.getMouseGridPosition();
         var item = this.inventory[itemSlot];
@@ -843,13 +893,14 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
           (count > 1))
         {
           $('#dropCount').val(count);
-          game.app.showDropDialog(itemSlot);
+          game.app.DropItem = DragItem;
+          game.app.showDropDialog("dropItems");
         } else {
           game.client.sendItemSlot([2, 0, itemSlot, 1]);
         }
     },
 
-    equip: function(item, itemSlot){
+    equip: function(item, itemSlot) {
         var itemKind = item.itemKind;
 
         var equipSlot = ItemTypes.getEquipmentSlot(itemKind);
@@ -865,7 +916,7 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
         game.statDialog.update();
     },
 
-    useItem: function(item, type){
+    useItem: function(type, item) {
       var player = game.player;
       var kind = item.itemKind;
       if (ItemTypes.isConsumableItem(kind)) {
@@ -893,6 +944,54 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
       return false;
     },
 
+    moveItem: function (type, slot) {
+      DragItem = this._moveItem(DragItem, type, slot);
+    },
+
+    _moveItem: function (obj, type, slot) {
+      if (obj === null) {
+        return {"action": 1, "type": type, "slot": slot, "item": this.getItem(type,slot)};
+      }
+      else {
+        var action = obj.action || 1;
+        var slot2 = (slot >= 0) ? this.getRealSlot(slot) : slot;
+        obj.slot = (obj.type == 0) ? this.getRealSlot(obj.slot) : obj.slot;
+        game.client.sendItemSlot([action, obj.type, obj.slot, obj.item.itemNumber, type, slot2]);
+        obj = null;
+      }
+      return null;
+    },
+
+    sendSplitItem: function (splitItem, count) {
+      var item = splitItem.item;
+      if(count > item.itemNumber)
+        count = item.itemNumber;
+      item.itemNumber = count;
+
+      splitItem = this._moveItem(splitItem, splitItem.type2, splitItem.slot2);
+
+      item.itemNumber -= count;
+      if(item.itemNumber == 0)
+      {
+        item = null;
+      }
+    },
+
+    sendDropItem: function (dropItem, count) {
+      var item = dropItem.item;
+      if (count <= 0)
+        return;
+      if(count > item.itemNumber)
+        count = item.itemNumber;
+
+      game.client.sendItemSlot([2, dropItem.type, dropItem.slot, count]);
+
+      item.itemNumber -= count;
+      if(item.itemNumber == 0)
+      {
+        item = null;
+      }
+    }
   });
 
   return InventoryHandler;

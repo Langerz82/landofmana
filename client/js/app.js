@@ -753,13 +753,13 @@ define(['lib/localforage', 'entity/mob', 'entity/item', 'data/mobdata', 'user', 
             }
         },
 
-        showDropDialog: function(inventoryNumber) {
+        showDropDialog: function(dropAction) {
           if(game.started) {
             $('#dropDialog').show();
             $('#dropCount').focus();
             $('#dropCount').select();
 
-            this.inventoryNumber = inventoryNumber;
+            this.dropAction = dropAction;
             this.dropDialogPopuped = true;
           }
         },

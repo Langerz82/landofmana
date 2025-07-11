@@ -971,7 +971,7 @@ module.exports = Player = Character.extend({
     if (this.worldHandler)
       this.worldHandler.savePlayer(this, update);
     else {
-      console.warn("Player, save called without worldHandler being set. "+JSON.stringify(msg));
+      console.warn("Player, save called without worldHandler being set. ");
     }
   },
 
@@ -1201,6 +1201,20 @@ module.exports = Player = Character.extend({
     if (rs1 == rs2)
       return;
 
+    var splitItem = function (slot, slot2, rs1)
+    {
+      if (slot[2] > 0 && slot[2] < rs1.itemNumber && ItemTypes.isStackedItem(rs1.itemKind))
+      {
+        rs1.itemNumber -= slot[2];
+        store1.setItem(slot[1], rs1);
+        var rs2 = Object.assign(new ItemRoom(), rs1);
+        rs2.itemNumber = slot[2];
+        store2.setItem(slot2[1], rs2);
+        return true;
+      }
+      return false;
+    };
+
     if (rs2)
     {
       if (!this.inventory.combineItem(rs1, rs2)) {
@@ -1213,8 +1227,11 @@ module.exports = Player = Character.extend({
       }
     }
     else if (slot2[1] >= 0) {
-      if (store2.setItem(slot2[1], rs1))
-        store1.setItem(slot[1], null);
+
+      if (!splitItem(slot, slot2, rs1)) {
+        if (store2.setItem(slot2[1], rs1))
+          store1.setItem(slot[1], null);
+      }
     }
     else {
       if (store2.putItem(rs1) != -1)

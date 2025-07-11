@@ -321,6 +321,15 @@ ItemTypes.isItem = function (kind) {
     	item.type == "craft";
 }
 
+ItemTypes.isStackedItem = function (kind) {
+	var item = KindData[kind];
+	if (!item)
+		return false;
+	return ItemTypes.isCraftItem(kind) ||
+		ItemTypes.isLootItem(kind) ||
+		ItemTypes.isConsumableItem(kind);
+}
+
 ItemTypes.forEachKind = function(callback) {
     for(var k in kindData) {
     	//console.info("k="+JSON.stringify(k));

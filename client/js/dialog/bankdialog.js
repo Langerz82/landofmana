@@ -24,16 +24,19 @@ define(['./dialog', '../tabbook', '../tabpage', '../entity/item', 'data/items', 
             this.body.attr('draggable', true);
             this.body.draggable = true;
 
-            var moveItem = function (slot) {
-              var realslot = slot + (self.parent.page * self.parent.pageItems);
-
+            var getRealSlot = function (slot) {
+              return slot + (self.parent.page * self.parent.pageItems);
+            }
+            var moveItem = function (type, slot) {
               if (DragBank === null) {
                 DragBank = {};
-                DragBank.type = 0;
-                DragBank.slot = realslot;
-                //self.parent.selectBankItem(self.background);
+                DragBank.type = type;
+                DragBank.slot = slot;
+                DragBank.item = self.item;
               } else {
-                game.client.sendItemSlot([1, 1, DragBank.slot, 1, 1, realslot]);
+                var slot2 = slot >= 0 ? getRealSlot(slot) : slot;
+                var count = (DragBank.item) ? DragBank.item.itemNumber : 1;
+                game.client.sendItemSlot([1, DragBank.type, getRealSlot(DragBank.slot), count, type, slot2]);
                 DragBank = null;
                 self.parent.deselectItem();
               }
@@ -41,28 +44,23 @@ define(['./dialog', '../tabbook', '../tabpage', '../entity/item', 'data/items', 
 
             this.background.off().on('click tap', function(event) {
                 var slot = $(this).data("itemSlot");
-
-                if (self.parent.getItem(slot) == null) {
-                  if (game.gamepad.isActive())
-                      moveItem(slot);
-                  self.parent.deselectItem();
-                  return;
+                if (DragBank != null) {
+                  if (DragBank.slot == slot)
+                    moveItem(0, -1);
+                  else
+                    moveItem(1, slot);
                 }
-
-                var isSame = (self.parent.selectedItem % 24) == slot;
-                self.parent.selectBankItem(this);
-                if (!game.renderer.isDesktop || isSame || game.gamepad.isActive()) {
-                  moveItem(slot);
-                  return;
+                else {
+                  self.parent.selectBankItem(this);
+                  moveItem(1, slot);
                 }
-
             });
 
             this.body.on('dragstart touchstart', function(event) {
               if (self.parent.selectedItem == -1)
                 self.parent.selectBankItem(this);
               if (!DragBank)
-                moveItem($(this).data("itemSlot"));
+                moveItem(1, $(this).data("itemSlot"));
             });
 
             this.body.on('dragover touchover', function(event) {
@@ -70,7 +68,7 @@ define(['./dialog', '../tabbook', '../tabpage', '../entity/item', 'data/items', 
             });
 
             this.background.on('drop touchend', function(event) {
-              moveItem($(this).data("itemSlot"));
+              moveItem(1, $(this).data("itemSlot"));
             });
         },
 
@@ -199,7 +197,7 @@ define(['./dialog', '../tabbook', '../tabpage', '../entity/item', 'data/items', 
             this.selectedItem = null;
 
       	    $('#bankDialogBankGoldBody').click(function(event) {
-      	    	game.app.showDropDialog(-2);
+      	    	game.app.showDropDialog("inventorygold");
       	    });
 
 
@@ -293,7 +291,7 @@ define(['./dialog', '../tabbook', '../tabpage', '../entity/item', 'data/items', 
             });
 
             $('#bankGoldFrame').click(function(event) {
-      	    	game.app.showDropDialog(-2);
+      	    	game.app.showDropDialog("inventorygold");
       	    });
 
             $('#bankDialog0Button').click(function(event) {
