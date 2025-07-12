@@ -2,8 +2,7 @@ var BaseItem = require("../items/baseitem"),
     Messages = require("../message");
 
 module.exports = AuctionRecord = cls.Class.extend({
-    init: function (index, playerName, price, item) {
-      this.index = index;
+    init: function (playerName, price, item) {
       this.playerName = playerName;
       this.price = price;
       this.item = item;
@@ -15,7 +14,7 @@ module.exports = AuctionRecord = cls.Class.extend({
     },
 
     toArray: function () {
-      var cols = [this.index,
+      var cols = [
         this.playerName,
         this.price];
       cols = cols.concat(this.item.toArray());
@@ -37,11 +36,10 @@ module.exports = Auction = cls.Class.extend({
         return;
 
       auctions = [];
-      var i=0;
       for (var rec of data)
       {
         var sData = rec.split(",");
-        var record = new AuctionRecord(i,
+        var record = new AuctionRecord(
           sData[0],
           parseInt(sData[1]),
           new ItemRoom([
@@ -77,8 +75,7 @@ module.exports = Auction = cls.Class.extend({
     },
 
     add: function(player, item, price, invIndex) {
-        var index = Object.keys(this.auctions).length;
-        var auction = new AuctionRecord(index, player.name, price, item);
+        var auction = new AuctionRecord(player.name, price, item);
         this.auctions.push(auction);
         player.inventory.setItem(invIndex, null);
         player.map.entities.sendToPlayer(player, new Messages.Notify("AUCTION","AUCTION_ADDED"));
@@ -89,9 +86,7 @@ module.exports = Auction = cls.Class.extend({
     },
 
     putItem: function (player, item) {
-      //var itemRoom = new ItemRoom(item.toArray());
       return player.inventory.putItem(item) >= 0;
-
     },
 
     list: function (player, type) {
@@ -107,6 +102,7 @@ module.exports = Auction = cls.Class.extend({
           (type === 2 && !pc && ItemTypes.isWeapon(kind)) ||
           (type === 0 && pc))
         {
+          msg.push(this.auctions.indexOf(auction));
           msg = msg.concat(auction.toArray());
           ++recCount;
         }

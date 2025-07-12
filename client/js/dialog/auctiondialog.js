@@ -305,8 +305,6 @@ define(['./dialog', '../tabbook', '../tabpage', '../entity/item', 'data/items', 
               activePage.setPageIndex(0);*/
 
             this._super(page);
-
-
         },
 
         updatePageNav: function(len) {

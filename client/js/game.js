@@ -2302,7 +2302,7 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
                   else if(this.storeDialog.visible) {
                       game.notifyDialog.notify(message);
                   } else if(this.auctionDialog.visible) {
-                      if (langCode.indexOf('SHOP_SOLD') == 0) {
+                      if (group.indexOf('SHOP_SOLD') == 0) {
                           this.auctionDialog.storeFrame.open();
 
                           this.auctionDialog.storeFrame.pageMyAuctions.reload();

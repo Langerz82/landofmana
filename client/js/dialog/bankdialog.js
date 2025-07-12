@@ -42,7 +42,7 @@ define(['./dialog', '../tabbook', '../tabpage', '../entity/item', 'data/items', 
               }
             };
 
-            this.background.off().on('click tap', function(event) {
+            this.background.off().on('click', function(event) {
                 var slot = $(this).data("itemSlot");
                 if (DragBank != null) {
                   if (DragBank.slot == slot)

@@ -987,21 +987,10 @@ function(InfoManager, HoveringInfo, BubbleManager,
             var type = message.shift();
             var itemCount = message.shift();
 
-            /*if (!itemCount || itemCount == 0) {
-              return;
-            }*/
-
             var itemData = [];
-
             for (var i = 0; i < itemCount; ++i)
             {
-                /*var index = message[j];
-                var status = message[j+1];
-                if (status == -1)
-                {
-
-                }*/
-                j = (i*9);
+                var j = (i*9);
                 itemData.push({
                     index: message[j],
                     player: message[j+1],
@@ -1015,30 +1004,14 @@ function(InfoManager, HoveringInfo, BubbleManager,
                       message[j+8])
                 });
             }
-            // TODO - Check if this is correct.
-            //if (itemData.length > 0 && type >= 2)
-            //{
-              curPage = game.auctionDialog.storeFrame.getActivePage();
-              var page = game.auctionDialog.storeFrame.pages[type];
-              if (curPage === page) {
-                page.setPageIndex(0);
-                page.setItems(itemData);
-                page.reload();
-              }
-            /*}
-            else
-            {
-              var page = game.auctionDialog.storeFrame.pages[0];
-              page.setPageIndex(0);
-              page.setItems(itemData);
-              page.reload();
-            }
 
+            curPage = game.auctionDialog.storeFrame.getActivePage();
             var page = game.auctionDialog.storeFrame.pages[type];
+            if (curPage === page) {
+              page.setPageIndex(0);
+            }
             page.setItems(itemData);
-            page.setPageIndex(type);
-            page.reload();*/
-
+            page.reload();
         });
 
         client.onSkillLoad(function(datas) {

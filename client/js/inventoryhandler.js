@@ -295,7 +295,7 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
         $('#inventorybackground' + i).data('itemType',0);
         $('#inventorybackground' + i).data('itemSlot',i);
 
-        $('#inventorybackground'+i).on('click tap', function(event) {
+        $('#inventorybackground'+i).on('click', function(event) {
           var type = $(this).data("itemType");
           var slot = $(this).data("itemSlot");
 
@@ -365,46 +365,10 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
         var slot = parseInt($(this).data('itemSlot'));
 
         log.info("invActionButton - click, type:"+type+", slot:"+slot);
-        var item = self.inventory[slot];
-        if (type === 2)
-          item = game.equipmentHandler.equipment[slot];
+        var item = self.getItem(type, slot);
 
+        activateItem(type, slot, item);
         self.deselectItem();
-        if (item) {
-          var kind = item.itemKind;
-          if (game.inventoryMode == InventoryMode.MODE_AUCTION) {
-            if (ItemTypes.isLootItem(kind) || ItemTypes.isConsumableItem(kind))
-              return;
-
-              var value = ~~(ItemTypes.getEnchantSellPrice(item)/2);
-              $('#auctionSellCount').val(value);
-              game.app.showAuctionSellDialog(slot);
-              //game.client.sendAuctionSell(slot);
-          }
-          else if (game.inventoryMode == InventoryMode.MODE_SELL) {
-            if (ItemTypes.isLootItem(kind))
-              return;
-
-              game.client.sendStoreSell(type, slot);
-          }
-          else if (game.inventoryMode == InventoryMode.MODE_REPAIR) {
-              if (!ItemTypes.isEquipment(kind))
-                return;
-
-              game.repairItem(type, slot, item);
-          }
-          else if (game.inventoryMode == InventoryMode.MODE_ENCHANT) {
-              if (!ItemTypes.isEquipment(kind))
-                return;
-
-              game.enchantItem(type, slot, item);
-          }
-          else if (game.inventoryMode == InventoryMode.MODE_BANK) {
-            if (!game.bankHandler.isBankFull()) {
-              game.client.sendItemSlot([1, type, slot, item.itemNumber, 1, -1]);
-            }
-          }
-        }
       });
 
       $('.inventoryGoldFrame').off().on('click', function(event) {
