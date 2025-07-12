@@ -283,6 +283,9 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
         });
 
         $('#equipBackground'+i).on('drop touchend', function(event) {
+          if ($(this).data("itemSlot") == DragItem.slot)
+            return;
+
           self.moveItem(2, $(this).data("itemSlot"));
           self.deselectItem();
         });
@@ -334,6 +337,9 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
         });
 
         $('#inventorybackground' + i).on('drop touchend', function(event) {
+          if ($(this).data("itemSlot") == DragItem.slot)
+            return;
+
           if (DragItem)
 					  self.splitItem(0, $(this).data("itemSlot"));
             self.deselectItem();

@@ -68,6 +68,9 @@ define(['./dialog', '../tabbook', '../tabpage', '../entity/item', 'data/items', 
             });
 
             this.background.on('drop touchend', function(event) {
+              if ($(this).data("itemSlot") == DragBank.slot)
+                return;
+
               moveItem(1, $(this).data("itemSlot"));
             });
         },
