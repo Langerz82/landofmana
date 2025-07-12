@@ -27,7 +27,7 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
         visible: false
       });
 
-      this.healingCoolTimeCallback = null;
+      this.coolTimeCallback = null;
 
       this.isShowAllInventory = false;
 
@@ -37,7 +37,7 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
       this.pageItems = 24;
 
       var self = this;
-      for (var i = 0; i < 4; i++) {
+      /*for (var i = 0; i < 4; i++) {
         $('#scinventorybackground' + i).bind("click", function(event) {
           if (self.game.ready) {
             $("#inventoryGearItems").trigger('click');
@@ -53,7 +53,7 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
             }
           }
         });
-      }
+      }*/
 
       this.closeButton = $('#inventoryCloseButton');
       this.closeButton.click(function(event) {
@@ -77,31 +77,17 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
 
     loadInventoryEvents: function() {
       var self = this;
-      //DragItem = {};
-
 
       self.selectInventory = function(jq) {
         if (!self.game || !self.game.ready)
           return;
 
-        var slot = $(jq).data("itemSlot");
         var type = $(jq).data("itemType");
+        var slot = $(jq).data("itemSlot");
+
         log.info("selectInventory - click, slot:"+slot+", type:"+type);
 
-        var realslot = slot;
-        var item = null;
-        if (type == 0) {
-          realslot += (self.pageIndex * self.pageItems);
-          item = self.inventory[realslot];
-        }
-        else {
-          item = game.equipmentHandler.equipment[slot];
-        }
-
-        //if (!item)
-          //return;
-
-
+        var item = self.getItem(type, slot);
 
         $('.inventorySellGold').html("0");
         if (item) {
@@ -121,12 +107,12 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
         }
         //log.info("slot=" + slot);
         //log.info("inventories " + JSON.stringify(self.inventory));
-        if (item && self.selectedItem != realslot) {
+        if (item && self.selectedItem != slot) {
             $('.inventorySellGoldFrame').show();
             self.selectItem(type, self.selectedItem, false);
-            self.selectItem(type, realslot, true);
+            self.selectItem(type, slot, true);
             $('#invActionButton').data('itemType', type);
-            $('#invActionButton').data('itemSlot', realslot);
+            $('#invActionButton').data('itemSlot', slot);
 
             var kind = item.itemKind;
             if (game.inventoryMode == InventoryMode.MODE_AUCTION) {
@@ -151,34 +137,20 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
             return;
         }
 
-        if (item && self.selectedItem == realslot) {
+        if (item && self.selectedItem == slot) {
           var triggerClick = false;
-          if (game.inventoryMode == InventoryMode.MODE_AUCTION) {
+          if (game.inventoryMode == InventoryMode.MODE_AUCTION ||
+              game.inventoryMode == InventoryMode.MODE_SELL ||
+              game.inventoryMode == InventoryMode.MODE_REPAIR ||
+              game.inventoryMode == InventoryMode.MODE_ENCHANT ||
+              game.inventoryMode == InventoryMode.MODE_BANK)
+          {
             triggerClick = true;
           }
-          else if (game.inventoryMode == InventoryMode.MODE_SELL) {
-            //log.info("item " + JSON.stringify(item));
-            //$('.inventorySellGold').html(parseInt(ItemTypes.getEnchantSellPrice(item)));
-            triggerClick = true;
-          }
-          else if (game.inventoryMode == InventoryMode.MODE_REPAIR) {
-            //log.info("item " + JSON.stringify(item));
-            //$('.inventorySellGold').html(parseInt(ItemTypes.getRepairPrice(item)));
-            triggerClick = true;
-          }
-          else if (game.inventoryMode == InventoryMode.MODE_ENCHANT) {
-            //log.info("item " + JSON.stringify(item));
-            //$('.inventorySellGold').html(parseInt(ItemTypes.getEnchantPrice(item)));
-            triggerClick = true;
-          }
-          else if (game.inventoryMode == InventoryMode.MODE_BANK) {
-            //log.info("item " + JSON.stringify(item));
-            triggerClick = true;
-          }
-          else {
-            item.slot = realslot;
+          /*else {
+            item.slot = self.getRealSlot(slot);
             this.useItem(type, item);
-          }
+          }*/
           if (triggerClick) {
             $('#invActionButton').data('itemType', type);
             $('#invActionButton').data('itemSlot', slot);
@@ -186,7 +158,6 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
           }
           self.deselectItem();
         }
-        //self.deselectItem();
       }
 
 // TODO: FIX BROKEN.
@@ -200,7 +171,6 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
             var value = ~~(ItemTypes.getEnchantSellPrice(item)/2);
             $('#auctionSellCount').val(value);
             game.app.showAuctionSellDialog(slot);
-            //game.client.sendAuctionSell(slot);
           }
           else if (game.inventoryMode == InventoryMode.MODE_SELL) {
             if (ItemTypes.isLootItem(kind))
@@ -242,11 +212,11 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
         $('#equipBackground'+i).data("itemType",2);
         $('#equipBackground'+i).data("itemSlot",i);
 
-        $('#equipBackground'+i).on("click", function (e) {
+        $('#equipBackground'+i).on("click tap", function (e) {
           var type = $(this).data("itemType");
           var slot = $(this).data("itemSlot");
 
-          if (self.selectedItem == -1)
+          if (self.selectedItem == -1 && !DragItem)
           {
             self.selectInventory(this);
             self.moveItem(2, slot);
@@ -269,6 +239,7 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
             }
             self.deselectItem();
           }
+          event.stopPropagation();
         });
 
         $('#equipment'+i).on('dragstart touchstart', function(event) {
@@ -298,11 +269,11 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
         $('#inventorybackground' + i).data('itemType',0);
         $('#inventorybackground' + i).data('itemSlot',i);
 
-        $('#inventorybackground'+i).on('click', function(event) {
+        $('#inventorybackground'+i).on('click tap', function(event) {
           var type = $(this).data("itemType");
           var slot = $(this).data("itemSlot");
 
-          if (self.selectedItem == -1)
+          if (self.selectedItem == -1 && !DragItem)
           {
             self.selectInventory(this);
             self.moveItem(0, slot);
@@ -323,6 +294,7 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
             }
             self.deselectItem();
           }
+          event.stopPropagation();
         });
 
         $('#inventorybackground'+i).on('dragstart touchstart', function(event) {
@@ -389,15 +361,15 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
       this.selectItem(this.selectedType, this.selectedItem, false);
     },
 
-    selectItem: function(type, realslot, select) {
-      pageslot = realslot % this.pageItems;
-      htmlItem = $('#inventorybackground' + pageslot);
+    selectItem: function(type, slot, select) {
+      //pageslot = realslot % this.pageItems;
+      htmlItem = $('#inventorybackground' + slot);
       if (type == 2) {
-        htmlItem = $('#equipBackground'+realslot);
+        htmlItem = $('#equipBackground'+slot);
       }
       this.selectedType = type;
       if (select) {
-        this.selectedItem = realslot;
+        this.selectedItem = slot;
         htmlItem.css({
           'border': this.scale + 'px solid white'
         });
@@ -431,12 +403,10 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
       this.makeEmptyInventoryAll();
 
       if (this.pageIndex === 0) {
-        //for (var i=0; i < 24; ++i)
         this.showInventoryItems(0,24);
       }
       else if (this.pageIndex === 1) {
-        //for (var i=24; i < 48; ++i)
-        this.showInventoryItems(24,48);
+        this.showInventoryItems(0,24);
       }
     },
 
@@ -477,9 +447,9 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
 
     hasItems: function(itemKind, itemCount){
         var a = 0;
-        for(var i in this.inventory){
-            if(this.inventory[i] && this.inventory[i].itemKind === itemKind){
-            	 a += this.inventory[i].itemNumber;
+        for(var item of this.inventory){
+            if(item && item.itemKind === itemKind){
+            	 a += item.itemNumber;
             	 if (a >= itemCount)
                 	return true;
             }
@@ -495,21 +465,19 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
       var scale = this.scale;
 
       // TODO - Work out why not emptying item shortcuts.
-      for (var i = slotStart; i < slotEnd; ++i)
+      for (var slot = slotStart; slot < slotEnd; ++slot)
       {
-        var item = this.inventory[i];
-        var itemSlot = i % this.pageItems;
+        var item = this.getInventoryItem(slot);
         if (!item)
         {
-          this.makeEmptyInventory(itemSlot);
+          this.makeEmptyInventory(slot);
           continue;
         }
-        var itemKind = item.itemKind;
 
+        var itemKind = item.itemKind;
         var itemNumber = item.itemNumber;
 
         var itemData;
-
         if (itemKind >= 1000 && itemKind < 2000) {
           itemData = ItemLoot[itemKind - 1000];
         } else {
@@ -522,100 +490,49 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
           spriteName = game.sprites["items"].file;
         }
 
-        /*if (ItemTypes.isConsumableItem(itemKind)) {
-          if (itemKind > 0) {
-
-            $('#scinventory' + itemSlot).css({
-              'background-image': "url('img/" + scale + "/" + spriteName + "')",
-              'background-position': '-' + (itemData.offset[0] * scale * 24) + 'px -' + (itemData.offset[1] * scale * 24) + 'px',
-              'background-size': (144 * scale) + "px " + (24 * scale) + "px",
-              'background-offset': '-' + scale + "px -" + scale + "px"
-            });
-
-
-            $('#scinventory' + itemSlot).attr('title', Item.getInfoMsgEx(item));
-            $('#scinventory' + itemSlot).html(itemNumber);
-          }
-        }*/
-
         if (itemKind > 0) {
-          var jq = $('#inventory' + itemSlot);
+          var jq = $('#inventory' + slot);
           Items.jqShowItem(jq, item, jq);
-
-          //jq.attr('title', Item.getInfoMsgEx(item));
-          //jq.html(itemNumber);
         }
 
-        /*if (ItemTypes.isEquippable(itemKind)) {
-          $('#inventory' + itemSlot).html(ItemTypes.getLevelByKind(itemKind) + '+' + itemNumber);
-        } else {
-          if (itemNumber > 1)
-            $('#inventory' + itemSlot).html(itemNumber);
-        }*/
+        var highlight = $('#inventoryHL' + slot);
 
-
-        var highlight = $('#inventoryHL' + itemSlot);
-
-        var ct = highlight.data('cooltime');
-        if (ct && ct > 0) {
-          highlight.css({
-            'background-color': '#FF000077'
-          });
-          /*var shortcut = $('#scinventoryHL' + itemSlot);
-          shortcut.css({
-            'background-color': '#FF000077'
-          });*/
-          //return;
-        }
-
-        //var parent = $('#inventory' + itemSlot).parent();
-        //parent.data('itemSlot', i);
         if (game.inventoryMode == InventoryMode.MODE_SELL ||
             game.inventoryMode == InventoryMode.MODE_AUCTION)
         {
           if (ItemTypes.isEquippable(itemKind)) {
-            //$('#inventory' + itemSlot).addClass('active');
             highlight.css({
               'background-color': 'transparent'
             });
           } else {
-            //$('#inventory' + itemSlot).removeClass('active');
             highlight.css({
               'background-color': '#00000077'
             });
-            //parent.data('itemSlot', -1);
           }
         }
         else if (game.inventoryMode == InventoryMode.MODE_REPAIR) {
           if (ItemTypes.isEquippable(itemKind) &&  item.itemDurability != item.itemDurabilityMax) {
-            //$('#inventory' + itemSlot).addClass('active');
             highlight.css({
               'background-color': 'transparent'
             });
           } else {
-            //$('#inventory' + itemSlot).removeClass('active');
             highlight.css({
               'background-color': '#00000077'
             });
-            //parent.data('itemSlot', -1);
           }
         }
         else if (game.inventoryMode == InventoryMode.MODE_ENCHANT) {
-          if (ItemTypes.isEquippable(itemKind) && item.itemNumber < 25) {
-            //$('#inventory' + itemSlot).addClass('active');
+          if (ItemTypes.isEquippable(itemKind) && item.itemNumber <= this.pageItems) {
             highlight.css({
               'background-color': 'transparent'
             });
           } else {
-            //$('#inventory' + itemSlot).removeClass('active');
             highlight.css({
               'background-color': '#00000077'
             });
-            //parent.data('itemSlot', -1);
           }
         }
         else {
-          //$('#inventory' + itemSlot).addClass('active');
           highlight.css({
             'background-color': 'transparent'
           });
@@ -626,11 +543,6 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
     setMaxInventoryNumber: function(maxInventoryNumber) {
       var i = 0;
       this.maxInventoryNumber = maxInventoryNumber;
-
-      /*for (i = 0; i < maxInventoryNumber; i++) {
-        $('#inventorybackground' + i).css('display', 'block');
-        $('#inventorynumber' + i).css('display', 'block');
-      }*/
     },
 
     makeEmptyInventory: function(i) {
@@ -638,16 +550,18 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
 
       $('#inventorybackground' + i).attr('class', '');
 
-      if (i >= 0 && i < 6)
+      /*if (i >= 0 && i < 6)
       {
         $('#scinventory' + i).css('background-image', "none");
         $('#scinventory' + i).attr('title', '');
         $('#scinventory' + i).html("");
-      }
+      }*/
 
-      $('#inventoryHL' + i).css({
+      var cooltime = $('#inventoryHL' + i);
+      cooltime.css({
         'background-color': "transparent"
       });
+
       $('#inventory' + i).css({
         'background-image': "none",
       });
@@ -693,10 +607,6 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
         $('#invActionButton').text("REPAIR");
         $('#invActionButton').show();
       }
-      /*else if (game.inventoryMode == InventoryMode.MODE_BANK) {
-        $('#invActionButton').text("BANK");
-        $('#invActionButton').show();
-      }*/
       else {
         $('#invActionButton').hide();
       }
@@ -712,42 +622,42 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
     decInventory: function(slot) {
       var self = this;
 
-      if (this.healingCoolTimeCallback === null) {
-        //var cooltime = $('#scinventoryHL'+slot);
-        var cooltime2 = $('#inventoryHL'+slot);
+      if (this.coolTimeCallback === null) {
+        var cooltime = $('#inventoryHL'+slot);
 
-        var ct = '5';
-        cooltime2.data('cooltime', ct);
+        var ct = 5;
+        cooltime.data('cooltime', ct);
+        cooltime.html(ct);
+        cooltime.css({
+          'background-color': '#FF000077'
+        });
 
-        //cooltime.html(ct);
-        cooltime2.html(ct);
+        var resetCooltime = function () {
+          clearInterval(self.coolTimeCallback);
+          cooltime.css({
+           'background-color': 'transparent'
+          });
+          self.coolTimeCallback = null;
+          cooltime.html('');
+        };
 
-        this.healingCoolTimeCallback = setInterval(function() {
-          var ct = parseInt(cooltime2.data('cooltime'));
-          cooltime2.data('cooltime', (--ct).toString());
+        this.coolTimeCallback = setInterval(function() {
+          var ct = parseInt(cooltime.data('cooltime'));
+          cooltime.data('cooltime', (--ct).toString());
 
-          //cooltime.html(ct);
-          cooltime2.html(ct);
+          cooltime.html(ct);
 
           if (ct <= 0) {
-            clearInterval(self.healingCoolTimeCallback);
-            /*cooltime.css({
-             'background-color': 'transparent'
-           });*/
-            cooltime2.css({
-             'background-color': 'transparent'
-            });
-            self.healingCoolTimeCallback = null;
-            //cooltime.html('');
-            cooltime2.html('');
+            resetCooltime();
           }
-
         }, 1000);
 
-        var count = this.inventory[slot].itemNumber;
-        count -= 1;
-        if (count <= 0) {
-          this.inventory[slot] = null;
+        var item = this.getInventoryItem(slot);
+        var count = item.itemNumber;
+        if (--count <= 0) {
+          resetCooltime();
+          makeEmptyInventory(slot);
+          item = null;
         }
         return true;
       }
@@ -763,7 +673,7 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
     },
 
     isInventoryFull: function() {
-      for (var i = 6; i < this.maxInventoryNumber; ++i) {
+      for (var i = 0; i < this.maxInventoryNumber; ++i) {
         var item = this.inventory[i];
         if (item == null) {
           return false;
@@ -773,7 +683,7 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
     },
 
     hasItem: function(kind, count) {
-      for (i = 6; i < this.maxInventoryNumber; i++) {
+      for (i = 0; i < this.maxInventoryNumber; i++) {
         var item = this.inventory[i];
         if (item && kind == item.itemKind && item.itemNumber >= count) {
           return true;
@@ -816,6 +726,10 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
 
     getRealSlot: function (slot) {
       return slot + (this.pageIndex * this.pageItems);
+    },
+
+    getInventoryItem: function (slot) {
+      return this.getItem(0, slot);
     },
 
     getItem: function (type, slot) {
@@ -890,7 +804,7 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
       var player = game.player;
       var kind = item.itemKind;
       if (ItemTypes.isConsumableItem(kind)) {
-        if(kind && this.healingCoolTimeCallback === null
+        if(kind && this.coolTimeCallback === null
            && (ItemTypes.isHealingItem(kind) && player.stats.hp < player.stats.hpMax
            && player.stats.hp > 0) || (ItemTypes.isConsumableItem(kind) && !ItemTypes.isHealingItem(kind)))
         {
