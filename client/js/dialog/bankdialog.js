@@ -18,7 +18,6 @@ define(['./dialog', '../tabbook', '../tabpage', '../entity/item', 'data/items', 
 
             this.background.data('itemSlot',this.index);
 
-
             this.body.data('itemSlot',this.index);
 
             this.body.attr('draggable', true);
@@ -45,17 +44,16 @@ define(['./dialog', '../tabbook', '../tabpage', '../entity/item', 'data/items', 
               }
             };
 
-            this.body.off().on('click tap', function(event) {
+            this.body.off().on('click', function(event) {
                 var slot = $(this).data("itemSlot");
                 if (DragBank == null) {
                   self.parent.selectBankItem(this);
                   moveItem(1, slot, true);
-                  event.preventDefault();
   								event.stopPropagation();
                 }
             });
 
-            this.background.off().on('click tap', function(event) {
+            this.background.off().on('click', function(event) {
                 var slot = $(this).data("itemSlot");
                 if (DragBank != null) {
                   if (DragBank.slot == slot)
@@ -63,7 +61,6 @@ define(['./dialog', '../tabbook', '../tabpage', '../entity/item', 'data/items', 
                   else
                     moveItem(1, slot);
                 }
-                event.preventDefault();
 								event.stopPropagation();
             });
 
@@ -76,11 +73,14 @@ define(['./dialog', '../tabbook', '../tabpage', '../entity/item', 'data/items', 
               }
             });
 
-            this.body.on('dragover touchover', function(event) {
+            this.body.on('dragover', function(event) {
+              event.preventDefault();
+            });
+						this.background.on('dragover', function(event) {
               event.preventDefault();
             });
 
-            this.background.on('drop touchend', function(event) {
+            this.background.on('drop', function(event) {
               if (DragBank) {
                 if ($(this).data("itemSlot") == DragBank.slot)
                   return;
@@ -156,6 +156,7 @@ define(['./dialog', '../tabbook', '../tabpage', '../entity/item', 'data/items', 
             this.release();
         },
         release: function() {
+						this.body.css('display', 'none');
             this.body.css('background-image', '');
             this.body.html("");
             this.body.attr('title', '');

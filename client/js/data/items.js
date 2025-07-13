@@ -91,7 +91,9 @@ define(['text!../../shared/data/items2.json', 'text!../../shared/data/craft.json
 			var oh = (itemData.offset[1]*data.spriteheight*data.scale);
 
 			var margin = (56 - (data.spritewidth*data.scale)) >> 1;
-			jq.css({'background-image': "url('img/" + scale + "/sprites/" + data.sheet + "')",
+			jq.css({
+				'display': 'block',
+				'background-image': "url('img/" + scale + "/sprites/" + data.sheet + "')",
 				'background-size': ~~(data.width*data.scale)+"px "+ ~~(data.height*data.scale)+"px",
 				'background-position': '-'+ow+'px -'+oh+'px',
 				'margin': margin+'px',
@@ -124,7 +126,9 @@ define(['text!../../shared/data/items2.json', 'text!../../shared/data/craft.json
 
 			var filename = "img/"+scale+"/" + spriteName;
 
-			jq.css({'background-image': "url('"+filename+"')",
+			jq.css({
+				'display': 'block',
+				'background-image': "url('"+filename+"')",
 				'background-size': "auto",
 				'background-position': '-'+(itemData.offset[0]*scale*16)+'px -'+(itemData.offset[1]*scale*16)+'px',
 				'margin': margin+'px',

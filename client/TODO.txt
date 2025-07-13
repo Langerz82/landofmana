@@ -1,5 +1,7 @@
 TODO:
 
+Add Drop function for InventoryHandler.
+
 BUG - Attacking sometimes jams the movement functions.
 
 BUG - In Looks Dialog some appearances have no item icon.

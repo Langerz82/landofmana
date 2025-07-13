@@ -161,7 +161,7 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
       }
 
 // TODO: FIX BROKEN.
-      var activateItem = function (type, slot, item) {
+      var activateItem = function (type, slot, item, btnPressed) {
         if (item) {
           var kind = item.itemKind;
           if (game.inventoryMode == InventoryMode.MODE_AUCTION) {
@@ -195,8 +195,18 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
               self.moveItem(1, -1);
             }
           }
-          else
-            self.useItem(DragItem.type, item);
+					else if (game.inventoryMode == InventoryMode.MODE_NORMAL) {
+						if (self.selectedItem >= 0 && btnPressed)
+							self.dropItem(slot);
+						else {
+							if (DragItem)
+								self.useItem(DragItem.type, item);	
+						}
+					}
+          else {
+						if (DragItem)
+            	self.useItem(DragItem.type, item);
+					}
         } else {
           self.splitItem(1, slot);
         }
@@ -216,11 +226,10 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
           var type = $(this).data("itemType");
           var slot = $(this).data("itemSlot");
 
-					if (self.selectedItem == -1 && !DragItem)
+					if (self.selectedItem < 0)
           {
             self.selectInventory(this);
             self.moveItem(2, slot, true);
-						event.preventDefault();
 						event.stopPropagation();
           }
 				});
@@ -229,7 +238,7 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
           var type = $(this).data("itemType");
           var slot = $(this).data("itemSlot");
 
-          if (self.selectedItem != -1) {
+          if (self.selectedItem >= 0) {
             var dragItem = (DragItem) ? self.getItem(DragItem.type, DragItem.slot) : null;
             var item = self.getItem(type, slot);
 
@@ -247,11 +256,10 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
             }
             self.deselectItem();
           }
-					event.preventDefault();
           event.stopPropagation();
         });
 
-        $('#equipment'+i).on('dragstart touchstart', function(event) {
+        $('#equipment'+i).on('dragstart', function(event) {
           if (self.selectedItem < 0) {
             self.selectInventory(this);
             self.moveItem(2, $(this).data("itemSlot"), true);
@@ -259,11 +267,14 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
           }
         });
 
-        $('#equipment' + i).on('dragover touchover', function(event) {
+        $('#equipment' + i).on('dragover', function(event) {
+          event.preventDefault();
+        });
+				$('#equipBackground' + i).on('dragover', function(event) {
           event.preventDefault();
         });
 
-        $('#equipBackground'+i).on('drop touchend', function(event) {
+        $('#equipBackground'+i).on('drop', function(event) {
           if (DragItem) {
 						if ($(this).data("itemSlot") == DragItem.slot)
 	            return;
@@ -283,24 +294,23 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
         $('#inventorybackground'+i).data('itemType',0);
         $('#inventorybackground'+i).data('itemSlot',i);
 
-				$('#inventory'+i).on('click tap', function(event) {
+				$('#inventory'+i).on('click', function(event) {
           var type = $(this).data("itemType");
           var slot = $(this).data("itemSlot");
 
-					if (self.selectedItem == -1)
+					if (self.selectedItem < 0)
           {
             self.selectInventory(this);
             self.moveItem(0, slot, true);
-						event.preventDefault();
 						event.stopPropagation();
           }
 				});
 
-				$('#inventorybackground'+i).on('click tap', function(event) {
+				$('#inventorybackground'+i).on('click', function(event) {
           var type = $(this).data("itemType");
           var slot = $(this).data("itemSlot");
 
-					if (self.selectedItem != -1)
+					if (self.selectedItem >= 0)
           {
 						var dragItem = (DragItem) ? self.getItem(DragItem.type, DragItem.slot) : null;
             var item = self.getItem(type, slot);
@@ -316,24 +326,27 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
               self.splitItem(type, slot);
             }
             self.deselectItem();
+						event.stopPropagation();
           }
-					event.preventDefault();
-					event.stopPropagation();
 				});
 
-        $('#inventory'+i).on('dragstart touchstart', function(event) {
-          if (self.selectedItem == -1) {
+        $('#inventory'+i).on('dragstart', function(event) {
+          if (self.selectedItem < 0) {
             self.selectInventory(this);
 					  self.moveItem(0, $(this).data("itemSlot"), true);
 						event.stopPropagation();
 					}
         });
 
-        $('#inventory'+i).on('dragover touchover', function(event) {
+				$('#inventorybackground'+i).on('dragover', function(event) {
           event.preventDefault();
         });
 
-        $('#inventorybackground'+i).on('drop touchend', function(event) {
+        $('#inventory'+i).on('dragover', function(event) {
+          event.preventDefault();
+        });
+
+        $('#inventorybackground'+i).on('drop', function(event) {
           if (DragItem) {
 						if ($(this).data("itemSlot") == DragItem.slot)
 	            return;
@@ -371,7 +384,7 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
         log.info("invActionButton - click, type:"+type+", slot:"+slot);
         var item = self.getItem(type, slot);
 
-        activateItem(type, slot, item);
+        activateItem(type, slot, item, true);
         self.deselectItem();
       });
 
@@ -503,7 +516,7 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
         var itemKind = item.itemKind;
         var itemNumber = item.itemNumber;
 
-        var itemData;
+        /*var itemData;
         if (itemKind >= 1000 && itemKind < 2000) {
           itemData = ItemLoot[itemKind - 1000];
         } else {
@@ -514,7 +527,7 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
           spriteName = game.sprites["itemloot"].file;
         } else if (ItemTypes.isEquippable(itemKind)) {
           spriteName = game.sprites["items"].file;
-        }
+        }*/
 
         if (itemKind > 0) {
           var jq = $('#inventory' + slot);
@@ -589,6 +602,7 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
       });
 
       $('#inventory' + i).css({
+				'display': 'none',
         'background-image': "none",
       });
       $('#inventory' + i).attr('title', '');
@@ -633,8 +647,12 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
         $('#invActionButton').text("REPAIR");
         $('#invActionButton').show();
       }
+			else if (game.inventoryMode == InventoryMode.MODE_NORMAL) {
+        $('#invActionButton').text("DROP");
+        $('#invActionButton').show();
+      }
       else {
-        $('#invActionButton').hide();
+				$('#invActionButton').hide();
       }
       this.refreshInventory();
       $('#allinventorywindow').css('display', 'block');
