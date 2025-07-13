@@ -219,7 +219,7 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
 					if (self.selectedItem == -1 && !DragItem)
           {
             self.selectInventory(this);
-            self.moveItem(2, slot, false);
+            self.moveItem(2, slot, true);
 						event.preventDefault();
 						event.stopPropagation();
           }
@@ -254,9 +254,8 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
         $('#equipment'+i).on('dragstart touchstart', function(event) {
           if (self.selectedItem < 0) {
             self.selectInventory(this);
-            self.moveItem(2, $(this).data("itemSlot"), false);
-						event.preventDefault();
-						event.stopPropagation();					
+            self.moveItem(2, $(this).data("itemSlot"), true);
+						event.stopPropagation();
           }
         });
 
@@ -291,7 +290,7 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
 					if (self.selectedItem == -1)
           {
             self.selectInventory(this);
-            self.moveItem(0, slot, false);
+            self.moveItem(0, slot, true);
 						event.preventDefault();
 						event.stopPropagation();
           }
@@ -325,8 +324,7 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
         $('#inventory'+i).on('dragstart touchstart', function(event) {
           if (self.selectedItem == -1) {
             self.selectInventory(this);
-					  self.moveItem(0, $(this).data("itemSlot"), false);
-						event.preventDefault();
+					  self.moveItem(0, $(this).data("itemSlot"), true);
 						event.stopPropagation();
 					}
         });
@@ -856,24 +854,18 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
       return false;
     },
 
-
-		copyItem: function (type, slot) {
-      DragItem = this._copyItem(DragItem, type, slot);
+		moveItem: function (type, slot, start) {
+      DragItem = this._moveItem(DragItem, type, slot, start);
     },
-		
-		_copyItem: function (obj, type, slot) {			
-			if (obj === null) {
+
+    _moveItem: function (obj, type, slot, start) {
+      start = start || false;
+
+      if (start && obj === null) {
         return {"action": 1, "type": type, "slot": slot, "item": this.getItem(type,slot)};
       }
-			return null;
-		},
-		
-		moveItem: function (type, slot) {
-      DragItem = this._moveItem(DragItem, type, slot);
-    },
-		
-    _moveItem: function (obj, type, slot) {
-      if (obj !== null) {
+
+      if (!start && obj !== null) {
         var action = obj.action || 1;
         var slot2 = (slot >= 0) ? this.getRealSlot(slot) : slot;
         obj.slot = (obj.type == 0) ? this.getRealSlot(obj.slot) : obj.slot;

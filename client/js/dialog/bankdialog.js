@@ -27,13 +27,16 @@ define(['./dialog', '../tabbook', '../tabpage', '../entity/item', 'data/items', 
             var getRealSlot = function (slot) {
               return slot + (self.parent.page * self.parent.pageItems);
             }
-            var moveItem = function (type, slot) {
-              if (DragBank === null) {
+            var moveItem = function (type, slot, start) {
+              start = start || false;
+              if (start && DragBank === null) {
                 DragBank = {};
                 DragBank.type = type;
                 DragBank.slot = slot;
                 DragBank.item = self.item;
-              } else {
+                return;
+              }
+              if (!start && DragBank != null) {
                 var slot2 = slot >= 0 ? getRealSlot(slot) : slot;
                 var count = (DragBank.item) ? DragBank.item.itemNumber : 1;
                 game.client.sendItemSlot([1, DragBank.type, getRealSlot(DragBank.slot), count, type, slot2]);
@@ -42,7 +45,17 @@ define(['./dialog', '../tabbook', '../tabpage', '../entity/item', 'data/items', 
               }
             };
 
-            this.background.off().on('click', function(event) {
+            this.body.off().on('click tap', function(event) {
+                var slot = $(this).data("itemSlot");
+                if (DragBank == null) {
+                  self.parent.selectBankItem(this);
+                  moveItem(1, slot, true);
+                  event.preventDefault();
+  								event.stopPropagation();
+                }
+            });
+
+            this.background.off().on('click tap', function(event) {
                 var slot = $(this).data("itemSlot");
                 if (DragBank != null) {
                   if (DragBank.slot == slot)
@@ -50,19 +63,17 @@ define(['./dialog', '../tabbook', '../tabpage', '../entity/item', 'data/items', 
                   else
                     moveItem(1, slot);
                 }
-                else {
-                  self.parent.selectBankItem(this);
-                  moveItem(1, slot);
-                }
+                event.preventDefault();
 								event.stopPropagation();
             });
 
             this.body.on('dragstart', function(event) {
-              if (self.parent.selectedItem == -1)
+              var slot = $(this).data("itemSlot");
+              if (DragBank == null) {
                 self.parent.selectBankItem(this);
-              if (!DragBank)
-                moveItem(1, $(this).data("itemSlot"));
-							event.stopPropagation();
+                moveItem(1, slot, true);
+                event.stopPropagation();
+              }
             });
 
             this.body.on('dragover touchover', function(event) {
@@ -70,10 +81,12 @@ define(['./dialog', '../tabbook', '../tabpage', '../entity/item', 'data/items', 
             });
 
             this.background.on('drop touchend', function(event) {
-              if ($(this).data("itemSlot") == DragBank.slot)
-                return;
+              if (DragBank) {
+                if ($(this).data("itemSlot") == DragBank.slot)
+                  return;
 
-              moveItem(1, $(this).data("itemSlot"));
+                moveItem(1, $(this).data("itemSlot"));
+              }
             });
         },
 
