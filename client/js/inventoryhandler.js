@@ -212,16 +212,24 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
         $('#equipBackground'+i).data("itemType",2);
         $('#equipBackground'+i).data("itemSlot",i);
 
-        $('#equipBackground'+i).on("click tap", function (e) {
+				$('#equipment'+i).on("click", function (e) {
           var type = $(this).data("itemType");
           var slot = $(this).data("itemSlot");
 
-          if (self.selectedItem == -1 && !DragItem)
+					if (self.selectedItem == -1 && !DragItem)
           {
             self.selectInventory(this);
-            self.moveItem(2, slot);
+            self.moveItem(2, slot, false);
+						event.preventDefault();
+						event.stopPropagation();
           }
-          else {
+				});
+
+        $('#equipBackground'+i).on("click", function (e) {
+          var type = $(this).data("itemType");
+          var slot = $(this).data("itemSlot");
+
+          if (self.selectedItem != -1) {
             var dragItem = (DragItem) ? self.getItem(DragItem.type, DragItem.slot) : null;
             var item = self.getItem(type, slot);
 
@@ -239,13 +247,16 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
             }
             self.deselectItem();
           }
+					event.preventDefault();
           event.stopPropagation();
         });
 
         $('#equipment'+i).on('dragstart touchstart', function(event) {
           if (self.selectedItem < 0) {
             self.selectInventory(this);
-            self.moveItem(2, $(this).data("itemSlot"));
+            self.moveItem(2, $(this).data("itemSlot"), false);
+						event.preventDefault();
+						event.stopPropagation();					
           }
         });
 
@@ -254,32 +265,45 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
         });
 
         $('#equipBackground'+i).on('drop touchend', function(event) {
-          if ($(this).data("itemSlot") == DragItem.slot)
-            return;
+          if (DragItem) {
+						if ($(this).data("itemSlot") == DragItem.slot)
+	            return;
 
-          self.moveItem(2, $(this).data("itemSlot"));
-          self.deselectItem();
+	          self.moveItem(2, $(this).data("itemSlot"));
+	          self.deselectItem();
+					}
         });
       }
 
       for (var i = 0; i < 24; i++) {
-        $('#inventory' + i).attr('draggable', true);
-        $('#inventory' + i).draggable = true;
+        $('#inventory'+i).attr('draggable', true);
+        $('#inventory'+i).draggable = true;
 
-        $('#inventorybackground' + i).data('itemType',0);
-        $('#inventorybackground' + i).data('itemSlot',i);
+				$('#inventory'+i).data('itemType',0);
+        $('#inventory'+i).data('itemSlot',i);
+        $('#inventorybackground'+i).data('itemType',0);
+        $('#inventorybackground'+i).data('itemSlot',i);
 
-        $('#inventorybackground'+i).on('click tap', function(event) {
+				$('#inventory'+i).on('click tap', function(event) {
           var type = $(this).data("itemType");
           var slot = $(this).data("itemSlot");
 
-          if (self.selectedItem == -1 && !DragItem)
+					if (self.selectedItem == -1)
           {
             self.selectInventory(this);
-            self.moveItem(0, slot);
+            self.moveItem(0, slot, false);
+						event.preventDefault();
+						event.stopPropagation();
           }
-          else {
-            var dragItem = (DragItem) ? self.getItem(DragItem.type, DragItem.slot) : null;
+				});
+
+				$('#inventorybackground'+i).on('click tap', function(event) {
+          var type = $(this).data("itemType");
+          var slot = $(this).data("itemSlot");
+
+					if (self.selectedItem != -1)
+          {
+						var dragItem = (DragItem) ? self.getItem(DragItem.type, DragItem.slot) : null;
             var item = self.getItem(type, slot);
             if (dragItem && item) {
               if (dragItem == item) {
@@ -294,27 +318,31 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
             }
             self.deselectItem();
           }
-          event.stopPropagation();
-        });
+					event.preventDefault();
+					event.stopPropagation();
+				});
 
-        $('#inventorybackground'+i).on('dragstart touchstart', function(event) {
-          if (self.selectedItem == -1)
+        $('#inventory'+i).on('dragstart touchstart', function(event) {
+          if (self.selectedItem == -1) {
             self.selectInventory(this);
-          if (!DragItem)
-					  self.moveItem(0, $(this).data("itemSlot"));
+					  self.moveItem(0, $(this).data("itemSlot"), false);
+						event.preventDefault();
+						event.stopPropagation();
+					}
         });
 
-        $('#inventory' + i).on('dragover touchover', function(event) {
+        $('#inventory'+i).on('dragover touchover', function(event) {
           event.preventDefault();
         });
 
-        $('#inventorybackground' + i).on('drop touchend', function(event) {
-          if ($(this).data("itemSlot") == DragItem.slot)
-            return;
+        $('#inventorybackground'+i).on('drop touchend', function(event) {
+          if (DragItem) {
+						if ($(this).data("itemSlot") == DragItem.slot)
+	            return;
 
-          if (DragItem)
 					  self.splitItem(0, $(this).data("itemSlot"));
             self.deselectItem();
+					}
         });
       }
 
@@ -828,15 +856,24 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
       return false;
     },
 
-    moveItem: function (type, slot) {
-      DragItem = this._moveItem(DragItem, type, slot);
-    },
 
-    _moveItem: function (obj, type, slot) {
-      if (obj === null) {
+		copyItem: function (type, slot) {
+      DragItem = this._copyItem(DragItem, type, slot);
+    },
+		
+		_copyItem: function (obj, type, slot) {			
+			if (obj === null) {
         return {"action": 1, "type": type, "slot": slot, "item": this.getItem(type,slot)};
       }
-      else {
+			return null;
+		},
+		
+		moveItem: function (type, slot) {
+      DragItem = this._moveItem(DragItem, type, slot);
+    },
+		
+    _moveItem: function (obj, type, slot) {
+      if (obj !== null) {
         var action = obj.action || 1;
         var slot2 = (slot >= 0) ? this.getRealSlot(slot) : slot;
         obj.slot = (obj.type == 0) ? this.getRealSlot(obj.slot) : obj.slot;

@@ -215,7 +215,7 @@ define(['data/npcdata', 'data/questdata', 'data/mobdata', 'data/itemlootdata'],
       {
         htmlStr = '<p><h2>Quest Completed</h2></p><p>' + quest.summary + '</p>';
         game.userAlarm.alarm(htmlStr, this.hideDelay);
-        delete quest;
+        quest = null;
         this.questReloadLog();
       }
 

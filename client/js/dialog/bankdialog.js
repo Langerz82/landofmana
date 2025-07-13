@@ -54,13 +54,15 @@ define(['./dialog', '../tabbook', '../tabpage', '../entity/item', 'data/items', 
                   self.parent.selectBankItem(this);
                   moveItem(1, slot);
                 }
+								event.stopPropagation();
             });
 
-            this.body.on('dragstart touchstart', function(event) {
+            this.body.on('dragstart', function(event) {
               if (self.parent.selectedItem == -1)
                 self.parent.selectBankItem(this);
               if (!DragBank)
                 moveItem(1, $(this).data("itemSlot"));
+							event.stopPropagation();
             });
 
             this.body.on('dragover touchover', function(event) {
