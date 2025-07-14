@@ -163,7 +163,7 @@ module.exports = Equipment = cls.Class.extend({
       var kind = item.itemKind;
       //var level = ItemTypes.getArmorLevel(kind);
 
-      if(level > player.level.base){
+      if(level > player.level){
           player.map.entities.sendToPlayer(player, new Messages.Notify("EQUIP", "EQUIPMENT_LEVEL", [level]));
           return false;
       }

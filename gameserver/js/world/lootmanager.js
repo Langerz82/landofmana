@@ -163,6 +163,14 @@ module.exports = LootManager = Class.extend({
   getGoldDrop: function(source, target, stolen) {
     // No item drop gold.
     var count = target.dropGold();
+    if (source instanceof Player) {
+      var targetLevel = 0;
+      targetLevel = target.level;
+      var diff = targetLevel - source.level;
+      var bonusLevel = Utils.clamp(0.1, 1.9, 1 + (diff * 0.05));
+      count *= bonusLevel;
+      count = ~~count;
+    }
 
     if (source instanceof Player) {
       source.modifyGold(count);

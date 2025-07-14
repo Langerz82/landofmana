@@ -5,6 +5,7 @@
     "INVENTORY_FULL": "Inventory is full.",
     "ITEM_ADDED": "{0} added",
     "GOLD_ADDED": "{0} gold added",
+    "GOLD_ZERO": "0 gold",
     "GOLD_REMOVED": "{0} gold removed",
 
     "EQUIPMENT_LEVEL": "You need to be level {0} to equip this.",

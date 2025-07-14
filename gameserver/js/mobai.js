@@ -60,8 +60,7 @@ module.exports = MobAI = Class.extend({
         continue;
       }
 
-      //console.info("level diff - mob.level:"+(mob.level*2)+" player.level:"+player.level);
-			if (level >= player.level.base)
+			if (level >= player.level)
 			{
         //console.info("aggroPlayer.")
         mob.aggroPlayer(player);

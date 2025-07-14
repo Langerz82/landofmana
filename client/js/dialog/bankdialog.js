@@ -95,25 +95,25 @@ define(['./dialog', '../tabbook', '../tabpage', '../entity/item', 'data/items', 
             if (this.scale == 1)
             {
               this.background.css({
-      			'position': 'absolute',
-      			'left': '' + (0 + Math.floor(this.index % 6) * 18) + 'px',
-      			'top': '' + (0 + Math.floor(this.index / 6) * 18) + 'px'
+          			'position': 'absolute',
+          			'left': '' + (0 + Math.floor(this.index % 6) * 18) + 'px',
+          			'top': '' + (0 + Math.floor(this.index / 6) * 18) + 'px'
       		    });
             }
             else if (this.scale == 2)
             {
               this.background.css({
-      			'position': 'absolute',
-      			'left': '' + (0 + Math.floor(this.index % 6) * 50) + 'px',
-      			'top': '' + (0 + Math.floor(this.index / 6) * 50) + 'px'
+          			'position': 'absolute',
+          			'left': '' + (0 + Math.floor(this.index % 6) * 50) + 'px',
+          			'top': '' + (0 + Math.floor(this.index / 6) * 50) + 'px'
       		    });
             }
             else if (this.scale == 3)
             {
       		    this.background.css({
-      			'position': 'absolute',
-      			'left': '' + (0 + Math.floor(this.index % 6) * 60) + 'px',
-      			'top': '' + (0 + Math.floor(this.index / 6) * 60) + 'px'
+          			'position': 'absolute',
+          			'left': '' + (0 + Math.floor(this.index % 6) * 60) + 'px',
+          			'top': '' + (0 + Math.floor(this.index / 6) * 60) + 'px'
       		    });
             }
             if (this.item) {
@@ -218,9 +218,6 @@ define(['./dialog', '../tabbook', '../tabpage', '../entity/item', 'data/items', 
       	    $('#bankDialogBankGoldBody').click(function(event) {
       	    	game.app.showDropDialog("inventorygold");
       	    });
-
-
-
         },
 
         rescale: function(scale) {
@@ -326,11 +323,7 @@ define(['./dialog', '../tabbook', '../tabpage', '../entity/item', 'data/items', 
       	    	  self.bankFrame.open(3);
       	    });
 
-
             this.closeButton = $('#bankDialogCloseButton');
-
-
-
             this.closeButton.click(function(event) {
                 self.hide();
             });

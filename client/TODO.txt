@@ -1,5 +1,10 @@
 TODO:
 
+
+SERVER - Health stat level modifying does not show in client when adding points.
+CLIENT, When selecting other equipped items while an equipped item is selected, select the other equipment.
+SERVER, Scale gold making it better for harder mobs, less for easier ones.
+
 Add Drop function for InventoryHandler.
 
 BUG - Attacking sometimes jams the movement functions.

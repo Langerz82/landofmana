@@ -200,7 +200,7 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
 							self.dropItem(slot);
 						else {
 							if (DragItem)
-								self.useItem(DragItem.type, item);	
+								self.useItem(DragItem.type, item);
 						}
 					}
           else {
@@ -222,16 +222,24 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
         $('#equipBackground'+i).data("itemType",2);
         $('#equipBackground'+i).data("itemSlot",i);
 
+        var selectEquipment = function (event, type, slot) {
+          var item = self.getItem(type, slot);
+          if (item != null && DragItem && DragItem.item != item)
+            self.deselectItem();
+
+					if (self.selectedItem < 0)
+          {
+            self.selectInventory(event.target);
+            self.moveItem(2, slot, true);
+						event.stopPropagation();
+          }
+        };
+
 				$('#equipment'+i).on("click", function (e) {
           var type = $(this).data("itemType");
           var slot = $(this).data("itemSlot");
 
-					if (self.selectedItem < 0)
-          {
-            self.selectInventory(this);
-            self.moveItem(2, slot, true);
-						event.stopPropagation();
-          }
+          selectEquipment(event, type, slot);
 				});
 
         $('#equipBackground'+i).on("click", function (e) {
@@ -260,11 +268,8 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
         });
 
         $('#equipment'+i).on('dragstart', function(event) {
-          if (self.selectedItem < 0) {
-            self.selectInventory(this);
-            self.moveItem(2, $(this).data("itemSlot"), true);
-						event.stopPropagation();
-          }
+          var slot = $(this).data("itemSlot");
+          selectEquipment(event, 2, slot);
         });
 
         $('#equipment' + i).on('dragover', function(event) {
@@ -584,8 +589,16 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
       this.maxInventoryNumber = maxInventoryNumber;
     },
 
+    /*removeItem: function (realslot) {
+      var slotMin = (this.pageIndex * this.pageItems);
+      var slotMax = slotMin + this.pageItems;
+      if (realslot < slotMin || realslot >= slotMax)
+        return;
+
+      this.makeEmptyInventory(realslot % this.pageItems);
+    },*/
+
     makeEmptyInventory: function(i) {
-      i = (i % this.pageItems);
 
       $('#inventorybackground' + i).attr('class', '');
 
@@ -663,8 +676,15 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
       game.inventoryMode = 0;
     },
 
-    decInventory: function(slot) {
+    decInventory: function(realslot) {
       var self = this;
+
+      var slotMin = (this.pageIndex * this.pageItems);
+      var slotMax = slotMin + this.pageItems;
+      if (realslot < slotMin || realslot >= slotMax)
+        return;
+
+      var slot = realslot % this.pageItems;
 
       if (this.coolTimeCallback === null) {
         var cooltime = $('#inventoryHL'+slot);
@@ -700,7 +720,7 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
         var count = item.itemNumber;
         if (--count <= 0) {
           resetCooltime();
-          makeEmptyInventory(slot);
+          this.makeEmptyInventory(slot);
           item = null;
         }
         return true;
@@ -787,6 +807,9 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
     },
 
     splitItem: function(type, slot) {
+        if (!DragItem)
+          return;
+
         var item = this.getItem(DragItem.type, DragItem.slot);
         if (!item) {
           return;
@@ -852,13 +875,11 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
            && (ItemTypes.isHealingItem(kind) && player.stats.hp < player.stats.hpMax
            && player.stats.hp > 0) || (ItemTypes.isConsumableItem(kind) && !ItemTypes.isHealingItem(kind)))
         {
-            if(this.decInventory(item.slot))
-            {
-                game.client.sendItemSlot([0, 0, item.slot, 1]);
-                game.audioManager.playSound("heal");
-                game.shortcuts.refresh();
-                return true;
-            }
+            this.decInventory(item.slot);
+            game.client.sendItemSlot([0, 0, item.slot, 1]);
+            game.audioManager.playSound("heal");
+            game.shortcuts.refresh();
+            return true;
         }
       } else if (ItemTypes.isEquippable(kind)) {
         if (type == 2) {

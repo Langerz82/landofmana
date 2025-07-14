@@ -722,7 +722,7 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
               player.attackTime = game.currentTime;
 
               // START TUTORIAL SHOW CODE.
-              if (player.level.base == 0)
+              if (player.level == 0)
               {
                 var tutName = "["+lang.data["TUTORIAL"]+"]";
                 for (var i = 1; i <= 5; ++i)
@@ -2264,10 +2264,8 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
 
             updateExpBar: function(){
                 if(this.player && this.playerexp_callback){
-                    var level = this.player.level.base;
+                    var level = this.player.level;
                     var exp = this.player.exp.base;
-                    //var expInThisLevel = this.player.exp.base - Types.expForLevel[this.player.level.base-2];
-                    //var expForLevelUp = Types.expForLevel[this.player.level.base-1] - Types.expForLevel[this.player.level.base-2];
                     this.playerexp_callback(level, exp);
                 }
             },
@@ -2305,18 +2303,16 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
                       if (group.indexOf('SHOP_SOLD') == 0) {
                           this.auctionDialog.storeFrame.open();
 
-                          this.auctionDialog.storeFrame.pageMyAuctions.reload();
-                          this.auctionDialog.storeFrame.pageArmor.reload();
-              		        this.auctionDialog.storeFrame.pageWeapon.reload();
+                          this.auctionDialog.storeFrame.reload();
                       }
                       else {
                       	game.notifyDialog.notify(message);
                       }
                   } else if(this.appearanceDialog.visible) {
-                      if (langCode.indexOf('SHOP_SOLD') == 0) {
+                      if (group.indexOf('SHOP_SOLD') == 0) {
                           this.appearanceDialog.storeFrame.open();
                       }
-                      else if (langCode.indexOf('SHOP') == 0) {
+                      else if (group.indexOf('SHOP') == 0) {
                       	game.notifyDialog.notify(message);
                       }
                   }

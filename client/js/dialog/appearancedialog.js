@@ -26,42 +26,16 @@ define(['./dialog', '../tabbook', '../tabpage', 'data/appearancedata', '../pageN
             this.rescale();
 
             this.buyButton.text('Unlock');
-
-
-
         },
 
         rescale: function() {
             var scale = this.parent.scale;
             var id = this.id;
-            //this.body = $(id);
-            //this.basketBackground = $(id + 'BasketBackground');
-            //this.basket = $(id + 'Basket');
-            //this.extra = $(id + 'Extra');
-            //this.price = $(id + 'Price');
-            //this.buyButton = $(id + 'BuyButton');
-        	  if (scale == 1)
-        	  {
-              this.body.css({
-      			   'position': 'absolute',
-      			   'left': '0px',
-      			   'top': '' + (this.index * 18) + 'px',
-      		    });
-    	      }
-    	      else if (scale == 2) {
-               this.body.css({
-       			   'position': 'absolute',
-       			   'left': '0px',
-       			   'top': '' + (this.index * 36) + 'px',
-       		    });
-    	      }
-    	      else if (scale == 3) {
-      		    this.body.css({
-      			   'position': 'absolute',
-      			   'left': '0px',
-      			   'top': '' + (this.index * 54) + 'px',
-      		    });
-    	      }
+            this.body.css({
+             'position': 'absolute',
+             'left': '0px',
+             'top': '' + (this.index * (18 * scale)) + 'px',
+            });
     	      if (this.item) {
     	     	     this.assign(this.item);
     	      }
@@ -89,12 +63,9 @@ define(['./dialog', '../tabbook', '../tabpage', 'data/appearancedata', '../pageN
             this.item = item;
             item.itemKind = item.index;
 
-            //Items.jqShowItem(this.basket, {itemKind: this.item.index, itemNumber: 1}, this.basket);
+
             this.scale = this.parent.scale;
             Items.jqShowItem(this.basket, this.item, this.basket);
-	          //this.basket.css({'background-image': "url('img/3/item/item-" + item.sprite + ".png')"});
-
-            //this.basket.attr('title', item.name);
             this.basket.text('');
             this.extra.text(item.name);
             this.price.text(item.buyPrice);
@@ -231,11 +202,9 @@ define(['./dialog', '../tabbook', '../tabpage', 'data/appearancedata', '../pageN
 
             this.parent = parent;
             this.scale = this.parent.scale;
-            this.pageArmor = new AppearanceArmorPage(parent, this.scale);
-            this.pageWeapon = new AppearanceWeaponPage(parent, this.scale);
 
-            this.add(this.pageArmor);
-            this.add(this.pageWeapon);
+            this.add(new AppearanceArmorPage(parent, this.scale));
+            this.add(new AppearanceWeaponPage(parent, this.scale));
 
             this.pageNavigator = new PageNavigator(parent, parent.scale);
 
@@ -251,14 +220,14 @@ define(['./dialog', '../tabbook', '../tabpage', 'data/appearancedata', '../pageN
 
         rescale: function() {
         	this.scale = this.parent.scale;
-        	this.pageArmor.rescale(this.scale);
-        	this.pageWeapon.rescale(this.scale);
+          for (var page of this.pages)
+            page.rescale(this.scale);
 
         	this.pageNavigator.rescale(this.scale);
         },
 
         setPageIndex: function(value) {
-            if (!game.appearanceDialog.visible)
+            if (!this.parent.visible)
             	    return;
 
             this._super(value);
@@ -269,14 +238,15 @@ define(['./dialog', '../tabbook', '../tabpage', 'data/appearancedata', '../pageN
 
         updateNavigator: function () {
             var activePage = this.getActivePage();
+            var pageNav = this.pageNavigator;
             //log.info("activePage.getPageCount()="+activePage.getPageCount());
             if(activePage) {
                 if(activePage.getPageCount() > 0) {
-                    this.pageNavigator.setCount(activePage.getPageCount());
-                    this.pageNavigator.setIndex(activePage.getPageIndex() + 1);
-                    this.pageNavigator.setVisible(true);
+                    pageNav.setCount(activePage.getPageCount());
+                    pageNav.setIndex(activePage.getPageIndex() + 1);
+                    pageNav.setVisible(true);
                 } else {
-                    this.pageNavigator.setVisible(false);
+                    pageNav.setVisible(false);
                 }
                 activePage.reload();
             }
@@ -313,7 +283,7 @@ define(['./dialog', '../tabbook', '../tabpage', 'data/appearancedata', '../pageN
 
             var changeLookArmor = function (index)
             {
-              if (self.armorLooks.length > 0)
+              if (self.armorLooks && self.armorLooks.length > 0)
       				{
                 index = self.looksArmorIndex = (self.armorLooks.length + index) % self.armorLooks.length;
                 var spriteId = self.armorLooks[index];
@@ -329,25 +299,6 @@ define(['./dialog', '../tabbook', '../tabpage', 'data/appearancedata', '../pageN
       				}
             };
 
-            /*var changeLookWeapon = function (index)
-            {
-              if (self.weaponLooks.length > 0)
-      				{
-      					index = self.looksWeaponIndex = (index + self.weaponLooks.length) % self.weaponLooks.length;
-      					var spriteId = self.weaponLooks[index];
-                if (spriteId==0 || game.player.appearances[spriteId] == 1)
-                {
-                  //var index = p.isArcher() ? 3 : 1;
-                  game.player.sprites[1] = spriteId;
-                  game.player.setWeaponSprite();
-                  game.client.sendLook(1,spriteId);
-                }
-                self.playerAnim.sprites[1] = game.sprites[AppearanceData[spriteId].sprite];
-      					self.updateLook();
-      					game.app.initPlayerBar();
-      				}
-            }*/
-
       			$('#changeLookArmorPrev').bind("click", function(event) {
               changeLookArmor(--self.looksArmorIndex);
       			});
@@ -356,13 +307,6 @@ define(['./dialog', '../tabbook', '../tabpage', 'data/appearancedata', '../pageN
               changeLookArmor(++self.looksArmorIndex);
       			});
 
-      			/*$('#changeLookWeaponPrev').bind("click", function(event) {
-              changeLookWeapon(--self.looksWeaponIndex);
-      			});
-
-      			$('#changeLookWeaponNext').bind("click", function(event) {
-              changeLookWeapon(++self.looksWeaponIndex);
-            });*/
         },
 
         setScale: function() {
@@ -393,11 +337,11 @@ define(['./dialog', '../tabbook', '../tabpage', 'data/appearancedata', '../pageN
               AppearanceData[i].buy = parseInt(datas.shift());
             }
 
-            this.storeFrame.pageArmor.onData();
-            this.storeFrame.pageWeapon.onData();
+            for (var page of this.storeFrame.pages) {
+              page.onData();
+            }
 
             var categoryTypeArmor = "armor", categoryTypeWeapon = "weapon";
-
     		    if (game.player.isArcher()) {
               categoryTypeArmor="armorarcher";
       		    categoryTypeWeapon="weaponarcher";
@@ -413,15 +357,10 @@ define(['./dialog', '../tabbook', '../tabpage', 'data/appearancedata', '../pageN
               if (game.player.appearances[i] == 0)
                 continue;
 
-            	//var appearanceIndex = game.player.appearances[i];
             	if (AppearanceData[i].type == categoryTypeArmor)
             		this.armorLooks.push(i);
             	else if (AppearanceData[i].type == categoryTypeWeapon)
             		this.weaponLooks.push(i);
-            	//if (i == game.player.sprite[0])
-            		//this.looksArmorIndex = (this.armorLooks.length-1);
-            	//if (i == game.player.sprite[1])
-            		//this.looksWeaponIndex = (this.weaponLooks.length-1);
             }
             this.looksArmorIndex = this.armorLooks.indexOf(game.player.sprite[0]);
             this.looksWeaponIndex = this.weaponLooks.indexOf(game.player.sprite[0]);
@@ -447,20 +386,6 @@ define(['./dialog', '../tabbook', '../tabpage', 'data/appearancedata', '../pageN
               anim.addSprite(player.getWeaponSprite());
               anim.setHTML(['#characterLookArmor','#characterLookWeapon']);
             }
-
-            /*var sprite = player.armorSprite;
-            if (anim.sprites[0] != sprite)
-            {
-              anim.sprites[0] = sprite;
-              anim.loadAnimations(sprite);
-            }
-
-            var sprite = player.weaponSprite;
-            if (anim.sprites[1] != sprite)
-            {
-              anim.sprites[1] = sprite;
-              anim.loadAnimations(sprite);
-            }*/
 
             var armor = anim.sprites[0];
             var weapon = anim.sprites[1];
@@ -494,24 +419,13 @@ define(['./dialog', '../tabbook', '../tabpage', 'data/appearancedata', '../pageN
             width3 = Math.max(width1, width2);
             height3 = Math.max(height1, height2);
 
-            switch (this.scale) {
-                case 1:
-                    $('#characterLook').css('left', '' + (90 - parseInt(width3 / 2)) + 'px');
-                    $('#characterLook').css('top', '' + 40 + 'px');
-                    break;
-                case 2:
-                    $('#characterLook').css('left', '' + (180 - parseInt(width3 / 2)) + 'px');
-                    $('#characterLook').css('top', '' + 80 + 'px');
-                    break;
-                case 3:
-                    $('#characterLook').css('left', '' + (270 - parseInt(width3 / 2)) + 'px');
-                    $('#characterLook').css('top', '' + 120 + 'px');
-                    break;
-            }
-
-
-            $('#characterLook').css('width', '' + width3 + 'px');
-            $('#characterLook').css('height', '' + height3 + 'px');
+            var jqCharLook = $('#characterLook');
+            jqCharLook.css({
+              'left': ((90 * this.scale) - parseInt(width3 / 2)) + 'px',
+              'top': (40 * this.scale) + 'px',
+              'width': width3 + 'px',
+              'height': height3 + 'px'
+            });
 
             $('#characterLookArmor').css('left', '' + parseInt((width3 - width2) / 2 /*+ armor.offsetX*/) + 'px');
             $('#characterLookArmor').css('top', '' + parseInt((height3 - height2) / 2 /*+ armor.offsetY*/) + 'px');
@@ -521,23 +435,21 @@ define(['./dialog', '../tabbook', '../tabpage', 'data/appearancedata', '../pageN
         },
 
         show: function() {
-
-
             this.rescale();
 
             this.storeFrame.open();
             game.client.sendAppearanceList();
-            //game.client.sendLooks();
 
             $('#storeDialog .frameheadingtext').text('LOOKS');
 
             $('#storeDialogStore0Button').hide();
             $('#storeDialogStore2Button').hide();
 
-            $("#storeDialogStore3Button").text("LOOKS");
-            $("#storeDialogStore3Button").show();
+            jq3Button = $("#storeDialogStore3Button");
+            jq3Button.text("LOOKS");
+            jq3Button.show();
 
-            $('#storeDialogStore3Button').off().on('click', function (event) {
+            jq3Button.off().on('click', function (event) {
                   $('#appearanceDialog').show();
             });
 
@@ -545,14 +457,9 @@ define(['./dialog', '../tabbook', '../tabpage', 'data/appearancedata', '../pageN
                   $('#appearanceDialog').hide();
             });
 
-
             $('#looksDialogPlayer').css("display","block");
 
-            //this.appearanceFrame.update(game.player.getArmorSprite().name, game.player.getWeaponSprite().name);
-            //this.appearanceFrame.show();
-
             this._super();
-            //$("#storeDialogStore1Button").trigger('click');
         },
     });
 

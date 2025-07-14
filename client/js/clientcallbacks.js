@@ -682,7 +682,7 @@ function(InfoManager, HoveringInfo, BubbleManager,
           if (exp > 0)
           {
             game.infoManager.addDamageInfo("+"+exp+" exp", game.player.x, game.player.y, "experience", 3000);
-            game.player.level.base = level;
+            game.player.level = level;
             game.player.exp.base += exp;
             game.updateExpBar();
           }
@@ -696,7 +696,7 @@ function(InfoManager, HoveringInfo, BubbleManager,
             if (statType == 1) // exp.base
             {
               game.player.exp.base = statValue;
-              game.player.level.base = Types.getLevel(statValue)
+              game.player.level = Types.getLevel(statValue)
               if (statChange > 0) {
                 game.infoManager.addDamageInfo("+"+statChange+" exp", game.player.x, game.player.y, "experience", 3000);
               }
@@ -711,28 +711,28 @@ function(InfoManager, HoveringInfo, BubbleManager,
 
           var scale = game.renderer.scale;
           var x=game.player.x, y=game.player.y, id=game.player.id;
-          if (type==1 && game.player.level.base != level) {
+          if (type==1 && game.player.level != level) {
               id="lu"+id+"_"+level;
               var info = new HoveringInfo(id, "Level "+level, x, y, 5000, 'levelUp');
               game.infoManager.addInfo(info);
 
-              game.player.level.base = level;
+              game.player.level = level;
               return;
           }
-          if (type==2 && game.player.level.attack != level) {
+          if (type==2 && game.player.levels.attack != level) {
             id="lau"+id+"_"+level;
             var info = new HoveringInfo(id, "Attack Level "+level, x, y, 3500, 'minorLevelUp');
             game.infoManager.addInfo(info);
 
-            game.player.level.attack = level;
+            game.player.levels.attack = level;
             return;
           }
-          if (type==3 && game.player.level.defense != level) {
+          if (type==3 && game.player.levels.defense != level) {
             id="ldu"+id+"_"+level;
             var info = new HoveringInfo(id, "Defense Level "+level, x, y, 3500, 'minorLevelUp');
             game.infoManager.addInfo(info);
 
-            game.player.level.defense = level;
+            game.player.levels.defense = level;
             return;
           }
 
@@ -752,7 +752,7 @@ function(InfoManager, HoveringInfo, BubbleManager,
               game.infoManager.addInfo(info);
             }
             game.player.exp[weaponType] = exp
-            game.player.level[weaponType] = level;
+            game.player.levels[weaponType] = level;
           }
         });
 
@@ -966,18 +966,24 @@ function(InfoManager, HoveringInfo, BubbleManager,
           game.showNotification(data);
         });
 
-        client.onStatInfo(function(datas) {
-          datas.parseInt();
+        client.onStatInfo(function(data) {
+          data.parseInt();
           var stats = {
-            attack: datas[0],
-            defense: datas[1],
-            health: datas[2],
-            energy: datas[3],
-            luck: datas[4],
-            free: datas[5],
+            attack: data[0],
+            defense: data[1],
+            health: data[2],
+            energy: data[3],
+            luck: data[4],
+            free: data[5],
+            hp: data[6],
+            hpMax: data[7],
+            ep: data[8],
+            epMax: data[9]
           };
+
           game.player.stats = stats;
           game.statDialog.update();
+          game.updateBars();
         });
 
         /*client.onShop(function(message){
@@ -1007,9 +1013,10 @@ function(InfoManager, HoveringInfo, BubbleManager,
 
             curPage = game.auctionDialog.storeFrame.getActivePage();
             var page = game.auctionDialog.storeFrame.pages[type];
-            if (curPage === page) {
-              page.setPageIndex(0);
+            if (curPage !== page) {
+              game.auctionDialog.storeFrame.setPageIndex(type);
             }
+            page.setPageIndex(0);
             page.setItems(itemData);
             page.reload();
         });
@@ -1363,8 +1370,8 @@ function(InfoManager, HoveringInfo, BubbleManager,
               mining: parseInt(data.shift())
             };
 
-            p.level = {
-              base: Types.getLevel(p.exp.base),
+            p.level = Types.getLevel(p.exp.base);
+            p.levels = {
               attack: Types.getAttackLevel(p.exp.attack),
               defense: Types.getDefenseLevel(p.exp.defense),
               move: Types.getMoveLevel(p.exp.move),
@@ -1385,7 +1392,7 @@ function(InfoManager, HoveringInfo, BubbleManager,
             game.inventoryHandler.setCurrency(p.gold[0], p.gems);
             game.bankHandler.setGold(p.gold[1]);
 
-            p.setMoveRate(500-p.level.move)
+            p.setMoveRate(500)
 
             p.stats.attack = parseInt(data.shift());
             p.stats.defense = parseInt(data.shift());

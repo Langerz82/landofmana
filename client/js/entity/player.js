@@ -35,7 +35,8 @@ define(['./entity', './character', '../exceptions', 'data/appearancedata'], func
       //this.stopMove = false;
 
       this.exp = {};
-      this.level = {};
+      this.level = 0;
+      this.levels = {};
       this.sprites = new Array(2);
 
       this.stats = {};
@@ -377,7 +378,7 @@ define(['./entity', './character', '../exceptions', 'data/appearancedata'], func
     },
 
     baseCrit: function() {
-      var itemDiff = this.level.base*2;
+      var itemDiff = this.level*2;
       var item = this.equipment.rooms[4];
       if (item) {
         itemDiff = (3*ItemTypes.getData(item.itemKind).modifier)+(item.itemNumber*2);
@@ -391,7 +392,7 @@ define(['./entity', './character', '../exceptions', 'data/appearancedata'], func
     },
 
     baseCritDef: function() {
-      var itemDiff = this.level.base*2;
+      var itemDiff = this.level*2;
       for (var id in this.equipment.rooms) {
         if (id == 4) continue;
         var item = this.equipment.rooms[id];
@@ -448,11 +449,11 @@ define(['./entity', './character', '../exceptions', 'data/appearancedata'], func
     baseDamage: function() {
       var dealt, dmg;
       var weapon = this.equipment.rooms[4];
-      var level = this.level.base;
+      var level = this.level;
 
       dealt = ~~(weapon ? (ItemTypes.getData(weapon.itemKind).modifier * 3 + weapon.itemNumber * 2) : level);
 
-      var power = ((this.level.attack / 50) + 1);
+      var power = ((this.levels.attack / 50) + 1);
 
       power *= ((this.getWeaponLevel() / 50) + 1);
 
@@ -471,7 +472,7 @@ define(['./entity', './character', '../exceptions', 'data/appearancedata'], func
       dmg = Utils.randomRangeInt(min, max) + dealt;
 
       var noobLvl = 10;
-      var noobMulti = 1.15 + Math.max(0,(noobLvl-this.level.base) * (0.5/noobLvl));
+      var noobMulti = 1.15 + Math.max(0,(noobLvl-this.level) * (0.5/noobLvl));
 
       dmg = ~~(dmg * noobMulti);
 
@@ -485,7 +486,7 @@ define(['./entity', './character', '../exceptions', 'data/appearancedata'], func
     baseDamageDef: function() {
       var dealt = 0, dmg = 0;
 
-      var level = this.level.base+3;
+      var level = this.level+3;
       log.info("baseDamageDef:");
 
       dealt = level;
@@ -500,7 +501,7 @@ define(['./entity', './character', '../exceptions', 'data/appearancedata'], func
       }
 
       log.info("dealt="+dealt);
-      var power = ((this.level.defense / 50) + 1);
+      var power = ((this.levels.defense / 50) + 1);
       log.info("power="+power);
       var min = ~~(level*power);
       var max = ~~(min*2);

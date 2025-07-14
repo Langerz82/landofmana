@@ -35,10 +35,10 @@ define(function() {
         },
 
         update: function(time) {
-				if(this.isTimeToAnimate(time)) {
-					this.lastTime = time;
-					this.tick(time);
-				}
+  				if(this.isTimeToAnimate(time)) {
+  					this.lastTime = time;
+  					this.tick(time);
+  				}
         },
 
         tick: function(time) {

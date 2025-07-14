@@ -53,20 +53,20 @@ define(['hoveringinfo'], function(HoveringInfo) {
             var time = this.game.currentTime,
                 self = this;
 
-            		info.onDestroy(function(id) {
-                    id = id || this.id;
-                    if (!id || !self.destroyQueue) return;
-            		    self.destroyQueue.push(id);
-            		});
+        		info.onDestroy(function(id) {
+                id = id || this.id;
+                if (!id || !self.destroyQueue) return;
+        		    self.destroyQueue.push(id);
+        		});
 
-            			if (info.interval > 0) {
-            				self.infoQueue.push(info);
-            			}
-            			else
-            			{
-            				info.showTime = time;
-            				self.infos[info.id] = info;
-            			}
+      			if (info.interval > 0) {
+      				self.infoQueue.push(info);
+      			}
+      			else
+      			{
+      				info.showTime = time;
+      				self.infos[info.id] = info;
+      			}
         },
 
         forEachInfo: function(callback) {

@@ -22,7 +22,7 @@ define(function() {
             this.body.show();
             this.visible = true;
             this.showing = true;
-            //$(this.id).css('display', 'block');
+
             if (game.gamepad)
               game.gamepad.dialogOpen();
 
@@ -40,7 +40,6 @@ define(function() {
         hide: function() {
             this.visible = false;
             this.showing = false;
-            //$(this.id).css('display', 'none');
             this.body.hide();
 
             if(this.hideHandler){

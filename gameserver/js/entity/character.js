@@ -439,6 +439,16 @@ module.exports = Character = EntityMoving.extend({
     this.stats.ep = val;
   },
 
+  setHPMax: function (val) {
+    val = val || (typeof(this.getHPMax) === "function") ? this.getHPMax() : this.stats.hpMax;
+    this.stats.hpMax = val;
+  },
+
+  setEPMax: function (val) {
+    val = val || (typeof(this.getEPMax) === "function") ? this.getEPMax() : this.stats.epMax;
+    this.stats.epMax = val;
+  },
+
   onDamage: function (attacker, hpMod, epMod, crit, effects) {
     hpMod = hpMod || 0;
     epMod = epMod || 0;

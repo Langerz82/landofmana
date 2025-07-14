@@ -30,28 +30,12 @@ define(['./dialog', '../tabbook', '../tabpage', '../entity/item', '../inventorys
             var scale = this.parent.scale;
             var id = this.id;
             this.body = $(id);
-          	if (scale == 1)
-          	{
-              this.body.css({
-      	        'position': 'absolute',
-      	        'left': '0px',
-      	        'top': '' + (this.index * 20) + 'px'
-      		    });
-            }
-            else if (scale == 2) {
-              this.body.css({
-                'position': 'absolute',
-                'left': '0px',
-                'top': '' + (this.index * 40) + 'px'
-              });
-            }
-            else if (scale == 3) {
-              this.body.css({
-                'position': 'absolute',
-                'left': '0px',
-                'top': '' + (this.index * 60) + 'px'
-              });
-            }
+            this.body.css({
+    	        'position': 'absolute',
+    	        'left': '0px',
+    	        'top': '' + (this.index * (20*scale)) + 'px'
+    		    });
+
             if (this.item) {
             	     this.assign(this.item);
             }
@@ -251,13 +235,10 @@ define(['./dialog', '../tabbook', '../tabpage', '../entity/item', '../inventorys
 
             this.parent = parent;
             this.scale = this.parent.scale;
-            this.pagePotion = new StoreMiscPage(this, this.scale);
-            this.pageArmor = new StoreArmorPage(this, this.scale);
-            this.pageWeapon = new StoreWeaponPage(this, this.scale);
 
-            this.add(this.pagePotion);
-            this.add(this.pageArmor);
-            this.add(this.pageWeapon);
+            this.add(new StoreMiscPage(this, this.scale));
+            this.add(new StoreArmorPage(this, this.scale));
+            this.add(new StoreWeaponPage(this, this.scale));
 
             this.pageNavigator = new PageNavigator(parent, parent.scale, "craft");
             this.pageNavigator.onChange(function(sender) {
@@ -278,9 +259,9 @@ define(['./dialog', '../tabbook', '../tabpage', '../entity/item', '../inventorys
 
         rescale: function() {
         	this.scale = this.parent.scale;
-        	this.pagePotion.rescale(this.scale);
-        	this.pageArmor.rescale(this.scale);
-        	this.pageWeapon.rescale(this.scale);
+
+          for (var page of this.pages)
+            page.rescale(this.scale);
 
         	this.pageNavigator.rescale(this.scale);
         },
@@ -322,7 +303,7 @@ define(['./dialog', '../tabbook', '../tabpage', '../entity/item', '../inventorys
             //}
 
             this.setPageIndex(0);
-            this.pagePotion.setPageIndex(0);
+            this.pages[0].setPageIndex(0);
             //this.pagePotion.open(min,max);
 
 

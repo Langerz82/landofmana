@@ -99,7 +99,7 @@ module.exports = EntityQuests = cls.Class.extend({
       //var qTypes = [2];
       var questType = qTypes[Utils.randomInt(qTypes.length-1)];
 
-      var pLvl = player.level.base;
+      var pLvl = player.level;
 
 // TODO - FIX UP QUESTS FOR NEW STRUCTURE.
       if (questType == QuestType.GETITEMKIND)
@@ -126,7 +126,7 @@ module.exports = EntityQuests = cls.Class.extend({
         mobObject.count = 0;
 
         var itemCount = Utils.randomRangeInt(1,5);
-        var itemChance = 30*itemCount / (player.level.base+2);
+        var itemChance = 30*itemCount / (player.level+2);
         var itemObject = getQuestObject([Types.EntityTypes.ITEMLOOT, itemKind,
           itemCount, itemChance]);
 
@@ -151,7 +151,7 @@ module.exports = EntityQuests = cls.Class.extend({
         if (!mobObject)
           return;
         var lw = 5;
-        var lh = Math.max(player.level.base-10, 10);
+        var lh = Math.max(player.level-10, 10);
         //log.info("KILLMOBKIND - lh="+lh);
         mobObject.count = Utils.clamp(lw, lh, (mobObject.count / 2));
         mobObject.count = Math.ceil(mobObject.count/5)*5;

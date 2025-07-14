@@ -578,8 +578,8 @@ module.exports = PacketHandler = Class.extend({
 
     // If PvP then both players must be level 20 or higher.
     if (tEntity instanceof Player && sEntity instanceof Player &&
-        (sEntity.level.base < 20 || tEntity.level.base < 20 ||
-          Math.abs(sEntity.level.base-tEntity.level.base) > 10))
+        (sEntity.level < 20 || tEntity.level < 20 ||
+          Math.abs(sEntity.level-tEntity.level) > 10))
     {
       console.warn("pvp invalid diff");
       return;
@@ -1029,9 +1029,10 @@ module.exports = PacketHandler = Class.extend({
     if (points < 0 || points > p.stats.free)
       return;
 
-    if (attribute < 0 || attribute > 4)
+    if (attribute <= 0 || attribute > 4)
       return;
 
+    var alterBars = false;
     switch (attribute) {
       case 1:
         p.stats.attack += points;
@@ -1041,13 +1042,19 @@ module.exports = PacketHandler = Class.extend({
         break;
       case 3:
         p.stats.health += points;
+        alterBars = true;
         break;
       case 4:
         p.stats.luck += points;
         break;
     }
     p.stats.free -= points;
-    p.resetBars();
+
+    if (alterBars) {
+      p.setHPMax();
+      p.setEPMax();
+    }
+
     this.sendPlayer(new Messages.StatInfo(p));
   },
 

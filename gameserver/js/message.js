@@ -285,13 +285,18 @@ Messages.StatInfo = Message.extend({
         this.player = player;
     },
     serialize: function() {
+      var stats = this.player.stats;
       var data = [Types.Messages.WC_STATINFO,
-      	    this.player.stats.attack,
-      	    this.player.stats.defense,
-      	    this.player.stats.health,
-      	    this.player.stats.energy,
-      	    this.player.stats.luck,
-      	    this.player.stats.free,
+      	    stats.attack,
+      	    stats.defense,
+      	    stats.health,
+      	    stats.energy,
+      	    stats.luck,
+      	    stats.free,
+            stats.hp,
+            stats.hpMax,
+            stats.ep,
+            stats.epMax
       ];
       return data;
     }

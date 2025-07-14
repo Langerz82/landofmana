@@ -44,7 +44,7 @@ module.exports = PlayerQuests = cls.Class.extend({
     quest.count++;
     if(quest.count >= quest.object.count) {
       quest.count = quest.object.count;
-      var xp = quest.object.count * 10 * this.player.level.base;
+      var xp = quest.object.count * 10 * this.player.level;
       this.completeQuest(quest, xp);
     } else {
       this.progressQuest(quest);
@@ -63,7 +63,7 @@ module.exports = PlayerQuests = cls.Class.extend({
       //console.info(JSON.stringify(quest));
       if(quest.count++ >= quest.object.count && quest.status == QuestStatus.INPROGRESS) {
         quest.count = quest.object.count;
-        var xp = quest.object.count * 10 * this.player.level.base;
+        var xp = quest.object.count * 10 * this.player.level;
         this.completeQuest(quest, xp);
       }
   },
@@ -76,7 +76,7 @@ module.exports = PlayerQuests = cls.Class.extend({
             return;
 
         player.inventory.removeItemKind(kind, quest.object2.count);
-        var xp = quest.object2.count * 20 * this.player.level.base;
+        var xp = quest.object2.count * 20 * this.player.level;
         this.completeQuest(quest, xp);
         if (callback)
           callback(quest);

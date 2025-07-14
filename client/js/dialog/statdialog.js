@@ -125,19 +125,19 @@ define(['./dialog', '../tabpage'], function(Dialog, TabPage) {
             exp = (xp) ? ((xp - Types.skillExp[lvl-1])/(Types.skillExp[lvl] - Types.skillExp[lvl-1]) * 100) : 0;
             $('#characterLevelMining').text("Mining Level\t\t"+lvl+"\t"+exp.toFixed(0)+"%");
 
-            p.level.base = Types.getLevel(p.exp.base);
-            p.level.attack = Types.getAttackLevel(p.exp.attack);
-            p.level.defense = Types.getDefenseLevel(p.exp.defense);
+            p.level = Types.getLevel(p.exp.base);
+            p.levels.attack = Types.getAttackLevel(p.exp.attack);
+            p.levels.defense = Types.getDefenseLevel(p.exp.defense);
 
-            var expLevel = (p.exp.base) ? ((p.exp.base - Types.expForLevel[p.level.base-1])/(Types.expForLevel[p.level.base] - Types.expForLevel[p.level.base-1]) * 100) : 0;
-            var attackExp = (p.exp.attack) ? ((p.exp.attack - Types.attackExp[p.level.attack-1])/(Types.attackExp[p.level.attack] - Types.attackExp[p.level.attack-1]) * 100) : 0;
-            var defenseExp = (p.exp.defense) ? ((p.exp.defense - Types.defenseExp[p.level.defense-1])/(Types.defenseExp[p.level.defense] - Types.defenseExp[p.level.defense-1]) * 100) : 0;
-            //var moveExp = (p.exp.move) ? ((p.exp.move - Types.moveExp[p.level.move-1])/(Types.moveExp[p.level.move] - Types.moveExp[p.level.move-1]) * 100) : 0;
+            var expLevel = (p.exp.base) ? ((p.exp.base - Types.expForLevel[p.level-1])/(Types.expForLevel[p.level] - Types.expForLevel[p.level-1]) * 100) : 0;
+            var attackExp = (p.exp.attack) ? ((p.exp.attack - Types.attackExp[p.levels.attack-1])/(Types.attackExp[p.levels.attack] - Types.attackExp[p.levels.attack-1]) * 100) : 0;
+            var defenseExp = (p.exp.defense) ? ((p.exp.defense - Types.defenseExp[p.levels.defense-1])/(Types.defenseExp[p.levels.defense] - Types.defenseExp[p.levels.defense-1]) * 100) : 0;
+            //var moveExp = (p.exp.move) ? ((p.exp.move - Types.moveExp[p.levels.move-1])/(Types.moveExp[p.levels.move] - Types.moveExp[p.levels.move-1]) * 100) : 0;
 
-            $('#characterLevel').text("Level\t\t"+p.level.base+"\t"+expLevel.toFixed(0)+"%");
-            $('#characterAttackLevel').text("Attack Level\t\t"+p.level.attack+"\t"+attackExp.toFixed(0)+"%");
-            $('#characterDefenseLevel').text("Defense Level\t\t"+p.level.defense+"\t"+defenseExp.toFixed(0)+"%");
-            //$('#characterMoveLevel').text("Move Level\t\t"+p.level.move+"\t"+moveExp.toFixed(2)+"%");
+            $('#characterLevel').text("Level\t\t"+p.level+"\t"+expLevel.toFixed(0)+"%");
+            $('#characterAttackLevel').text("Attack Level\t\t"+p.levels.attack+"\t"+attackExp.toFixed(0)+"%");
+            $('#characterDefenseLevel').text("Defense Level\t\t"+p.levels.defense+"\t"+defenseExp.toFixed(0)+"%");
+            //$('#characterMoveLevel').text("Move Level\t\t"+p.levels.move+"\t"+moveExp.toFixed(2)+"%");
 
 
         }

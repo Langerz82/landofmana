@@ -153,6 +153,8 @@ module.exports = Player = Character.extend({
         this.loaded = 0;
 
         this.activeEffects = [];
+
+        this.levels = {};
     },
 
     start: function (connection) {
@@ -175,7 +177,7 @@ module.exports = Player = Character.extend({
       var basestate = this._getBaseState();
       var sprite1 = this.getSprite(0), sprite2 = this.getSprite(1);
 
-      var state = [this.level.base,
+      var state = [this.level,
         this.stats.hp,
         this.stats.hpMax,
         0,
@@ -208,10 +210,10 @@ module.exports = Player = Character.extend({
       var xp = ~~(entity.stats.xp * ratio);
       var diff = 10;
       var div = 1/diff;
-      var mod = 1 + div + Utils.clamp(-diff,diff,(entity.level - this.level.base)) * div;
+      var mod = 1 + div + Utils.clamp(-diff,diff,(entity.level - this.level)) * div;
       var xp = ~~(xp * mod);
       this.incExp(xp);
-      this.incWeaponExp(~~(xp / 10));
+      this.incWeaponExp(~~(xp / 3));
 
       var weaponSlot = 4;
       var armorDamage = Math.min(5, Math.ceil(dealt / 1000));
@@ -279,9 +281,9 @@ module.exports = Player = Character.extend({
       this.exp.base = parseInt(this.exp.base) + parseInt(incExp);
       this.sendPlayer(new Messages.Stat(1, this.exp.base, incExp));
 
-      var origLevel = this.level.base;
-      this.level.base = Types.getLevel(this.exp.base);
-      if(origLevel !== this.level.base) {
+      var origLevel = this.level;
+      this.level = Types.getLevel(this.exp.base);
+      if(origLevel !== this.level) {
       	this.levelUp(origLevel);
       }
 
@@ -294,10 +296,10 @@ module.exports = Player = Character.extend({
   		incExp = Math.ceil(incExp * this.getExpBonus() * 0.25);
 
     	this.exp.attack = parseInt(this.exp.attack) + parseInt(incExp);
-      var origLevel = this.level.attack;
-      this.level.attack = Types.getAttackLevel(this.exp.attack);
-      if(origLevel !== this.level.attack) {
-      	this.sendPlayer(new Messages.LevelUp(2, this.level.attack, this.exp.attack));
+      var origLevel = this.levels.attack;
+      this.levels.attack = Types.getAttackLevel(this.exp.attack);
+      if(origLevel !== this.levels.attack) {
+      	this.sendPlayer(new Messages.LevelUp(2, this.levels.attack, this.exp.attack));
       }
       return incExp;
     },
@@ -309,10 +311,10 @@ module.exports = Player = Character.extend({
 
     	this.exp.defense = parseInt(this.exp.defense) + parseInt(incExp);
 
-      var origLevel = this.level.defense;
-      this.level.defense = Types.getDefenseLevel(this.exp.defense);
-      if(origLevel !== this.level.defense) {
-      	this.sendPlayer(new Messages.LevelUp(3, this.level.defense, this.exp.defense));
+      var origLevel = this.stats.defense;
+      this.levels.defense = Types.getDefenseLevel(this.exp.defense);
+      if(origLevel !== this.levels.defense) {
+      	this.sendPlayer(new Messages.LevelUp(3, this.levels.defense, this.exp.defense));
       }
       return incExp;
     },
@@ -324,11 +326,10 @@ module.exports = Player = Character.extend({
 
   	  this.exp.move = parseInt(this.exp.move) + parseInt(incExp);
 
-      var origLevel = this.level.move;
-      this.level.move = Types.getMoveLevel(this.exp.move);
-      if(origLevel !== this.level.move) {
-      	this.sendPlayer(new Messages.LevelUp(4, this.level.move, this.exp.move));
-      	//this.setMoveRate(300-this.level.move);
+      var origLevel = this.levels.move;
+      this.levels.move = Types.getMoveLevel(this.exp.move);
+      if(origLevel !== this.levels.move) {
+      	this.sendPlayer(new Messages.LevelUp(4, this.levels.move, this.exp.move));
       }
       return incExp;
     },
@@ -376,7 +377,7 @@ module.exports = Player = Character.extend({
     },
 
     levelUp: function (prevLevel) {
-      for (var i=(prevLevel+1); i <= this.level.base; ++i)
+      for (var i=(prevLevel+1); i <= this.level; ++i)
       {
   	    if (i < 10)
   	    {
@@ -395,7 +396,7 @@ module.exports = Player = Character.extend({
     	this.sendPlayer(new Messages.StatInfo(this));
 	    this.resetBars();
 	    this.sendPlayer(new Messages.ChangePoints(this, 0, 0));
-	    this.sendPlayer(new Messages.LevelUp(1, this.level.base, this.exp.base));
+	    this.sendPlayer(new Messages.LevelUp(1, this.level, this.exp.base));
     },
 
     sendPlayerToClient: function ()
@@ -567,10 +568,10 @@ module.exports = Player = Character.extend({
           self.exp.mining = 0;
         }
 
-        self.level.base = Types.getLevel(self.exp.base);
-        self.level.attack = Types.getAttackLevel(self.exp.attack);
-        self.level.defense = Types.getDefenseLevel(self.exp.defense);
-        self.level.move = Types.getMoveLevel(self.exp.move);
+        self.level = Types.getLevel(self.exp.base);
+        self.levels.attack = Types.getAttackLevel(self.exp.attack);
+        self.levels.defense = Types.getDefenseLevel(self.exp.defense);
+        self.levels.move = Types.getMoveLevel(self.exp.move);
 
         //self.pClass = parseInt(db_player.pClass);
         //self.setClass(self.pClass);
@@ -596,7 +597,7 @@ module.exports = Player = Character.extend({
             return (total == statTotal);
         };
 
-        var lvl = parseInt(self.level.base);
+        var lvl = parseInt(self.level);
         if (!isValidStats(lvl, db_player.stats))
         {
           if (lvl < 10) {
@@ -650,7 +651,7 @@ module.exports = Player = Character.extend({
     		//console.info("self.stats.health="+self.stats.health);
         self.resetBars();
     		//console.info("self.stats.hp="+self.stats.hp);
-    		self.setMoveRate(500-self.level.move);
+    		self.setMoveRate(500);
 
         if (db_player.skills.length == 1) {
           for(var i =0; i < SkillData.Skills.length; ++i)
@@ -757,7 +758,7 @@ module.exports = Player = Character.extend({
   sendChangePoints: function (health, energy) {
     this.map.entities.sendNeighbours(this, new Messages.ChangePoints(this, health, energy));
   },
-
+  
   getHPMax: function () {
   	var hp = 300 + (this.stats.health * 50) + (this.stats.health * this.stats.health);
     return hp;
@@ -811,7 +812,7 @@ module.exports = Player = Character.extend({
   },*/
 
   baseCrit: function() {
-    var itemDiff = this.level.base*2;
+    var itemDiff = this.level*2;
     var item = this.getWeapon();
     if (item) {
       itemDiff = (3*ItemTypes.getData(item.itemKind).modifier)+(item.itemNumber*2);
@@ -825,7 +826,7 @@ module.exports = Player = Character.extend({
   },
 
   baseCritDef: function() {
-    var itemDiff = this.level.base*2;
+    var itemDiff = this.level*2;
     for (var id in this.equipment.rooms) {
       if (id == 4) continue;
       var item = this.equipment.rooms[id];
@@ -844,11 +845,11 @@ module.exports = Player = Character.extend({
   baseDamage: function() {
     var dealt, dmg;
     var weapon = this.getWeapon();
-    var level = this.level.base;
+    var level = this.level;
 
     dealt = ~~(weapon ? (ItemTypes.getData(weapon.itemKind).modifier * 3 + weapon.itemNumber * 2) : level);
 
-    var power = ((this.level.attack / 50) + 1);
+    var power = ((this.levels.attack / 50) + 1);
 
     power *= ((this.getWeaponLevel() / 50) + 1);
 
@@ -867,7 +868,7 @@ module.exports = Player = Character.extend({
     dmg = Utils.randomRangeInt(min, max) + dealt;
 
     var noobLvl = 10;
-    var noobMulti = 1.15 + Math.max(0,(noobLvl-this.level.base) * (0.5/noobLvl));
+    var noobMulti = 1.15 + Math.max(0,(noobLvl-this.level) * (0.5/noobLvl));
 
     var rangeMulti = this.isArcher() ? 0.85 : 1;
     dmg = ~~(dmg * noobMulti * rangeMulti);
@@ -885,7 +886,7 @@ module.exports = Player = Character.extend({
   baseDamageDef: function() {
     var dealt = 0, dmg = 0;
 
-    var level = this.level.base+3;
+    var level = this.level+3;
     console.info("baseDamageDef:");
 
     dealt = level;
@@ -900,7 +901,7 @@ module.exports = Player = Character.extend({
     }
 
     console.info("dealt="+dealt);
-    var power = ((this.level.defense / 50) + 1);
+    var power = ((this.levels.defense / 50) + 1);
     console.info("power="+power);
     var min = ~~(level*power);
     var max = ~~(min*2);
@@ -928,7 +929,9 @@ module.exports = Player = Character.extend({
     this.gold[type] += parseInt(gold);
 
     this.sendPlayer(new Messages.Gold(this));
-    if (gold > 0)
+    if (gold == 0)
+      this.sendPlayer(new Messages.Notify("CHAT", "GOLD_ZERO"));
+    else if (gold > 0)
       this.sendPlayer(new Messages.Notify("CHAT", "GOLD_ADDED", [gold]));
     else {
       gold *= -1;
@@ -1289,7 +1292,8 @@ module.exports = Player = Character.extend({
   },
 
   dropGold: function () {
-    var count = Math.ceil(Math.random() * this.level.base * 5 + this.level.base);
+    var level = this.level;
+    var count = Math.ceil(Math.random() * level * 5 + level);
     count = Math.min(count, this.gold[0]);
     this.modifyGold(-count);
     return count;

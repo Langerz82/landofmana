@@ -25,11 +25,13 @@ module.exports = Mob = Character.extend({
       	else
       		this.level = Utils.randomRangeInt(this.data.minLevel, this.data.maxLevel);
       }
+      this.level = this.level;
 
       var tx=Number(x), ty=Number(y);
       this.spawnX = tx;
       this.spawnY = ty;
 
+      this.stats = {};
       this.stats.attack = this.data.attack * this.level;
       this.stats.defense = this.data.defense * this.level;
       this.stats.hp = Math.max(this.data.hp * this.level - 40,1);
@@ -40,6 +42,7 @@ module.exports = Mob = Character.extend({
       this.stats.epMax = this.stats.ep;
 
       this.stats.xp = this.data.xp * this.level;
+
 
       this.stats.mod = {
         attack: 0,
