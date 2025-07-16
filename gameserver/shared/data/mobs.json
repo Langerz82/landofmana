@@ -40,7 +40,8 @@
         "spawnChance": 50,
         "dropBonus": 0,
         "spriteName": "crab",
-        "idleSpeedMod": 1
+        "idleSpeedMod": 1,
+        "modDamage": {"hammer": 1.2, "axe": 1.0, "sword": 1.0, "bow": 0.8}
     },
     "Skeleton":{
         "name":"Skeleton",
@@ -61,7 +62,8 @@
         "spawnChance": 50,
         "dropBonus": 0,
         "spriteName": "skeleton",
-        "idleSpeedMod": 1
+        "idleSpeedMod": 1,
+        "modDamage": {"hammer": 1.2, "axe": 1.0, "sword": 1.0, "bow": 0.8}
     },
     "Goblin":{
         "name":"Goblin",
@@ -103,7 +105,8 @@
         "spawnChance": 50,
         "dropBonus": 0,
         "spriteName": "snek",
-        "idleSpeedMod": 1
+        "idleSpeedMod": 1,
+        "modDamage": {"axe": 1.1, "sword": 1.1}
     },
     "Bat":{
         "name":"Bat",
@@ -124,7 +127,8 @@
         "spawnChance": 50,
         "dropBonus": 0,
         "spriteName": "bat",
-        "idleSpeedMod": 1
+        "idleSpeedMod": 1,
+        "modDamage": {"hammer": 0.8, "axe": 0.9, "sword": 0.9, "bow": 1.0}
     },
     "Skeleton2":{
         "name":"HardSkeleton",

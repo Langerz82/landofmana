@@ -446,9 +446,9 @@ define(['./entity', './character', '../exceptions', 'data/appearancedata'], func
       return weaponData.type;
     },
 
-    baseDamage: function() {
+    baseDamage: function(defender) {
       var dealt, dmg;
-      var weapon = this.equipment.rooms[4];
+      var weapon = this.getWeapon();
       var level = this.level;
 
       dealt = ~~(weapon ? (ItemTypes.getData(weapon.itemKind).modifier * 3 + weapon.itemNumber * 2) : level);
@@ -463,11 +463,12 @@ define(['./entity', './character', '../exceptions', 'data/appearancedata'], func
       }
 
       // Players Stat affects Damage.
-      var mods = (this.mod ? this.mod.attack : 0);
+      var mods = (this.stats.mod && this.stats.mod.attack ? 
+        this.stats.mod.attack : 0);
       dealt += ~~((this.stats.attack*3)+mods) + this.stats.luck;
 
       var min = ~~(level*power);
-      var max = ~~(min*3);
+      var max = ~~(min*2);
 
       dmg = Utils.randomRangeInt(min, max) + dealt;
 
@@ -476,8 +477,23 @@ define(['./entity', './character', '../exceptions', 'data/appearancedata'], func
 
       dmg = ~~(dmg * noobMulti);
 
-      min = ~~((min + dealt)*noobMulti);
-      max = ~~((max + dealt)*noobMulti);
+      if (this.stats.mod && this.stats.mod.damage)
+        dmg += this.stats.mod.damage;
+
+      if (defender && defender instanceof Mob)
+      {
+        var type = this.getWeaponType();
+        if (type) {
+          var mod = defender.data.modDamage[type];
+          dmg = ~~(dmg * mod);
+        }
+      }
+
+      min = (min + dealt) * noobMulti;
+      max = min * 5;
+
+      min = ~~(min);
+      max = ~~(Math.pow(max, 0.9));
 
       return [min,max];
       //return dmg;

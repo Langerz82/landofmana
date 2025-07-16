@@ -758,14 +758,14 @@ module.exports = Player = Character.extend({
   sendChangePoints: function (health, energy) {
     this.map.entities.sendNeighbours(this, new Messages.ChangePoints(this, health, energy));
   },
-  
+
   getHPMax: function () {
-  	var hp = 300 + (this.stats.health * 50) + (this.stats.health * this.stats.health);
+  	var hp = 300 + (this.stats.health * 100) + (this.stats.health * this.stats.health);
     return hp;
   },
 
   getEPMax: function () {
-  	var ep = 500 + (this.stats.energy * 50);
+  	var ep = 500 + (this.stats.energy * 100);
     return ep;
   },
 
@@ -842,7 +842,7 @@ module.exports = Player = Character.extend({
     return chance;
   },
 
-  baseDamage: function() {
+  baseDamage: function(defender) {
     var dealt, dmg;
     var weapon = this.getWeapon();
     var level = this.level;
@@ -859,31 +859,44 @@ module.exports = Player = Character.extend({
     }
 
     // Players Stat affects Damage.
-    var mods = (this.mod ? this.stats.mod.attack : 0);
+    var mods = (this.stats.mod && this.stats.mod.attack ?
+      this.stats.mod.attack : 0);
     dealt += ~~((this.stats.attack*3)+mods) + this.stats.luck;
 
     var min = ~~(level*power);
-    var max = ~~(min*3);
+    var max = ~~(min*2);
 
     dmg = Utils.randomRangeInt(min, max) + dealt;
 
     var noobLvl = 10;
     var noobMulti = 1.15 + Math.max(0,(noobLvl-this.level) * (0.5/noobLvl));
 
-    var rangeMulti = this.isArcher() ? 0.85 : 1;
-    dmg = ~~(dmg * noobMulti * rangeMulti);
+    dmg = ~~(dmg * noobMulti);
 
-    //try { throw new Error(); } catch (e) { console.error(e.stack); }
-    dmg += this.stats.mod.damage;
+    if (this.stats.mod && this.stats.mod.damage)
+      dmg += this.stats.mod.damage;
 
-    min = ~~((min + dealt)*noobMulti*rangeMulti);
-    max = ~~((max + dealt)*noobMulti*rangeMulti);
+    if (defender && defender instanceof Mob)
+    {
+      var type = this.getWeaponType();
+      if (type) {
+        var mod = defender.data.modDamage[type];
+        dmg = ~~(dmg * mod);
+      }
+    }
+
+    min = (min + dealt) * noobMulti;
+    max = min * 5;
+
+    min = ~~(min);
+    max = ~~(Math.pow(max, 0.9));
 
     //return [min,max];
     return dmg;
   },
 
-  baseDamageDef: function() {
+
+  baseDamageDef: function(defender) {
     var dealt = 0, dmg = 0;
 
     var level = this.level+3;
@@ -1349,8 +1362,7 @@ module.exports = Player = Character.extend({
     var weapon = this.equipment.getWeapon();
     if (!weapon)
       return null;
-    var data = ItemTypes.KindData[weapon.itemKind];
-    return data.type;
+    return ItemTypes.getType(weapon.itemKind);
   },
 
   // type 0=Armor, 1=Weapon

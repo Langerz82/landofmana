@@ -45,12 +45,18 @@ Formulas.dmg = function(attacker, defender) {
 		var attackPower = Formulas.getAttackPower(attacker);
 
     //console.warn("attackPower="+attackPower);
-		var attacker_damage = attacker.baseDamage();
-		var defender_defense = defender.baseDamageDef();
+		var attacker_damage = attacker.baseDamage(defender);
+		var defender_defense = defender.baseDamageDef(attacker);
     console.info("attacker baseDamage="+attacker_damage);
     console.info("defender baseDamageDef="+defender_defense);
     var dmg = ~~(attacker_damage * attackPower);
-    dmg = Utils.clamp(1,5000, ~~(dmg - defender_defense));
+		dmg = ~~(dmg - defender_defense);
+		if (attacker instanceof Player)
+			dmg = ~~(Math.pow(dmg, 0.95));
+		if (attacker instanceof Mob)
+			dmg = ~~(Math.pow(dmg, 0.9));
+
+    dmg = Utils.clamp(1,5000, dmg);
 
     if (attacker instanceof Player && dmg > 0)
     	attacker.incAttackExp(dmg);

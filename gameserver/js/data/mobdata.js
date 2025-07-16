@@ -4,7 +4,7 @@ var _ = require('underscore'),
 var Properties = {};
 var Kinds = {};
 _.each( Mobs, function( value, key ) {
-	Properties[key.toLowerCase()] = {
+	var mob = Properties[key.toLowerCase()] = {
 		key: key.toLowerCase(),
 		kind: value.kind,
 
@@ -30,11 +30,15 @@ _.each( Mobs, function( value, key ) {
 		spawnChance: (value.spawnChance) ? value.spawnChance : 50,
 
 		dropBonus: (value.dropBonus) ? value.dropBonus : 0,
-		drops: (value.drops) ? value.drops : null
+		drops: (value.drops) ? value.drops : null,
+		modDamage: {"hammer": 1.0, "axe": 1.0, "sword": 1.0, "bow": 0.9}
 	};
 
+	if (value.modDamage)
+	Object.assign(mob.modDamage, value.modDamage);
+
 	// Create a Kind map for fast retrieval.
-	Kinds[value.kind] = Properties[key.toLowerCase()];
+	Kinds[value.kind] = mob;
 });
 
 
