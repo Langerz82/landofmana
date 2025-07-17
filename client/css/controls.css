@@ -146,7 +146,7 @@
 #attackbackground {
 	position: absolute;
 	background: url('../img/common/attackbackground.png') no-repeat;
-	bottom: 60px;
+	bottom: 12px;
 	right: 12px;
 	width:80px;
 	height:80px;

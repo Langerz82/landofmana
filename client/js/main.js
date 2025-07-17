@@ -127,18 +127,11 @@ define(['app', 'entrypoint', 'data/langdata', 'util',
       			$('#shortcutbutton').click(function() {
       				$('#attackContainer').show();
       				$('#shortcutbutton').hide();
-              $('#attackbackground').css({
-                "bottom": "14px"
-              });
       			});
 
             $('#attackContainerClose').click(function() {
 				      $('#shortcutbutton').show();
 				      $('#attackContainer').hide();
-              $('#attackbackground').css({
-                "bottom": "60px"
-              });
-
             });
 
             $('#attackbackground').click(function() {
