@@ -1,4 +1,4 @@
-define(['detect', 'mapworker'], function(Detect, worker) {
+define(['detect'], function(Detect) {
 
   var Map = Class.extend({
     init: function(game, mapContainer, mapSubIndex) {
@@ -51,35 +51,6 @@ define(['detect', 'mapworker'], function(Detect, worker) {
       self._generateCollisionGrid();
       self._generateTileGrid();
     },
-
-    /*_loadMap: function(useWorker) {
-      var self = this,
-        filepath = "./maps/"+this.mapContainer.mapName+ "_"+this.mapSubIndex+".json";
-
-      if (useWorker) {
-        log.info("Loading map with web worker.");
-        var worker = new Worker('js/mapworker.js');
-        worker.postMessage("loadMap");
-
-        worker.onmessage = function(event) {
-          var map = event.data;
-          self._initMap(map);
-          self._generate();
-          self.mapLoaded = true;
-          self._checkReady();
-        };
-      } else {
-        log.info("Loading map via Ajax.");
-
-        var jqxhr = $.getJSON(filepath, function(data) {
-          self.data = data;
-          self._initMap(self.data);
-          self._generate();
-          self.mapLoaded = true;
-          self._isReady();
-        });
-      }
-    },*/
 
     _initTilesets: function() {
       var tileset;

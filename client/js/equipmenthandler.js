@@ -9,7 +9,7 @@ define(['entity/item', 'data/items'], function(Item, Items) {
             this.maxNumber = 5;
             this.scale = 3;
 
-            for (var i=0; i < 5; ++i)
+            for (var i=0; i < this.maxNumber; ++i)
             {
               $('#equipment'+i).attr('draggable', true);
               $('#equipment'+i).draggable = true;
@@ -76,24 +76,6 @@ define(['entity/item', 'data/items'], function(Item, Items) {
             }
             if (jqElement && item) {
               Items.jqShowItem($(jqElement), item, $(jqElement));
-
-              /*var itemData = ItemTypes.KindData[item.itemKind];
-              $(jqElement).css({
-                'background-image': "url('img/" + scale + "/" + itemData.sprite + "')",
-                'background-position': '-' + (itemData.offset[0] * scale * 16) + 'px -' + (itemData.offset[1] * scale * 16) + 'px',
-                'line-height': (scale * 16) + 'px',
-                'text-shadow': '-1px 0 black, 0 1px black, 1px 0 black, 0 -1px black',
-                'color': 'white',
-                'font-size': (scale * 6) + 'px',
-                'text-align': 'center',
-                'box-shadow': 'inset 0 0 0 ' + (scale * 16) + 'px rgba(255,0,0,' + (1 - (item.itemDurability / item.itemDurabilityMax)) + ')'
-              });
-
-              $(jqElement).attr(
-                'title',
-                Item.getInfoMsgEx(item)
-              );
-              $(jqElement).html(ItemTypes.getLevelByKind(item.itemKind) + '+' + item.itemNumber);*/
             }
             else {
               this.clearItem(i);

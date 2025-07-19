@@ -30,16 +30,14 @@ define([], function() {
                     if (self.game.player.pvpTarget && self.game.player.pvpTarget == self.selectedPlayer)
                     {
                         $('#playerPopupMenuAttack').html('Attack');
-                    	//self.game.player.pvpTarget = null;
                     }
                     else
                     {
-			//$('#playerPopupMenuAttack').html('Disengage');
                         self.game.player.pvpTarget = self.selectedPlayer;
                         // Player has 60 seconds of battle time.
                         setTimeout(function () {
-				if (self.game.player)
-					self.game.player.pvpTarget = null;
+                  				if (self.game.player)
+                  					self.game.player.pvpTarget = null;
                         	clearInterval(self.game.makePlayerAttackAuto);
                     	},60000);
                     }
@@ -53,19 +51,6 @@ define([], function() {
             var x = (player.x - this.game.camera.x) * s - $('#playerPopupMenuContainer').width()/2;
             var y = (player.y - this.game.camera.y) * s - $('#playerPopupMenuContainer').height()/2;
             var ph = this.game.socialHandler;
-
-
-            /*if(x < 0){
-                x = 0;
-            } else if(x + this.width > this.game.renderer.getWidth()){
-                x = this.game.renderer.getWidth() - this.width;
-            }*/
-
-            /*if(y < 0){
-                y = 0;
-            } else if(y + this.height > this.game.renderer.getHeight()){
-                y = this.game.renderer.getHeight() - this.height;
-            }*/
 
             this.selectedPlayer = player;
 

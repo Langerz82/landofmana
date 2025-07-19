@@ -15,16 +15,9 @@ define(['lib/pako', 'entity/player', 'entityfactory', 'entity/mob', 'entity/item
             this.tablet = Detect.isTablet(window.innerWidth);
             this.mobile = Detect.isMobile();
 
-
-						//this.harvest_callback	= null;
             this.handlers = {};
 
-						//this.rawpackets = [];
-						//this.packets = [];
-
-		        var burst = 4;
-
-						self.onMessage = function(data) {
+						this.onMessage = function(data) {
 	            console.warn("recv: "+data);
 							var fnProcessMessage = function (message) {
 								if(self.isListening) {
@@ -69,21 +62,6 @@ define(['lib/pako', 'entity/player', 'entityfactory', 'entity/mob', 'entity/item
 	            fnRecieveAction(message);
 	          }
 		      };
-		      /*this.packetProcFunc = function() {
-		        if (!self.packets || self.packets.length == 0)
-		          return;
-		        for (var i=0; i < burst; ++i)
-		        {
-		            if (self.packets.length == 0)
-		              return;
-		            var data = self.packets.shift();
-		            log.info("recv: "+data);
-		            self.receiveAction(data);
-		        }
-		      };*/
-
-					//setInterval(function () { self.packetProcFunc(); }, 16);
-
 					log.info("Starting client/server handshake");
         },
 

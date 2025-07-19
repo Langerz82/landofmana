@@ -15,24 +15,15 @@ define([], function() {
       });
     },
 
-    /*achievementAlarmShow: function(str, delay) {
-      delay = delay || this.hideDelay;
-      $('#questalarm').html(str);
-      $('#questalarm').fadeIn();
-      setTimeout(function() {
-        $('#questalarm').fadeOut();
-      }, delay);
-    },*/
-
     toggleShowLog: function() {
       this.showlog = !this.showlog;
       if (this.showlog) {
         this.achievementReloadLog();
         $('#achievementlog').css('display', 'block');
-        $('#achievementCloseButton').css('display', 'block');
+        self.closeButton.css('display', 'block');
       } else {
         $('#achievementlog').css('display', 'none');
-        $('#achievementCloseButton').css('display', 'none');
+        self.closeButton.css('display', 'none');
       }
     },
 

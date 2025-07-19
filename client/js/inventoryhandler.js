@@ -151,10 +151,6 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
           {
             triggerClick = true;
           }
-          /*else {
-            item.slot = self.getRealSlot(slot);
-            this.useItem(type, item);
-          }*/
           if (triggerClick) {
             $('#invActionButton').data('itemType', type);
             $('#invActionButton').data('itemSlot', slot);
@@ -459,7 +455,7 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
     },
 
     setCurrency: function(gold, gems) {
-      $('.inventoryGold').text(Utils.getGoldShortHand(gold));
+      $('.inventoryGold').text(Utils.getNumShortHand(gold));
       $('.inventoryGems').text(gems);
     },
 

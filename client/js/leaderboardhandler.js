@@ -156,22 +156,22 @@ define([], function() {
     	});
 
 // TODO - FIX.
-      return;
+  return;
 
-	fetch('http://103.214.108.218:8080/leader.json')
+	fetch('https://www.landofmana.com/play/leader.json')
 	  .then(
 	    function(response) {
 	      if (response.status !== 200) {
-		console.log('Looks like there was a problem. Status Code: ' +
-		  response.status);
-		return;
+      		console.log('Looks like there was a problem. Status Code: ' +
+      		  response.status);
+      		return;
 	      }
 
 	      // Examine the text in the response
 	      response.json().then(function(data) {
-		console.log(data);
-		leaderJSON = data;
-		callback();
+      		console.log(data);
+      		leaderJSON = data;
+      		callback();
 	      });
 	    }
 	  )

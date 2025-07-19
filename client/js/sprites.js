@@ -1,7 +1,4 @@
 define([],
-  //'text!../sprites/sprites.json',
-  //'text!../sprites/items.json',
-  //'text!../sprites/blocks.json'],
   function() {
     var Sprites = Class.extend({
       init: function (data) {

@@ -206,6 +206,8 @@ define(['data/skilldata', 'data/items'], function(SkillData, Items) {
       if (this.shortcuts[slot])
         this.shortcuts[slot].install(slot, type, shortcutId);
 
+      // This is a little hacky to apply the cooldown immediately if shortcut installed.
+      // Considering it's not much overhead re-showing all child cooldowns it's fine.
       for (var sc of this.shortcuts) {
         if (sc && type == sc.type && shortcutId == sc.shortcutId && sc.cooldown)
         {

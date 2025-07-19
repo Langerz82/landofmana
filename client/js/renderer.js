@@ -1406,12 +1406,10 @@ define(['camera', 'entity/item', 'data/items', 'data/itemlootdata', 'entity/enti
             },
 
             getScreenOffset: function () {
-              //var wo = this.getWinOffset(this.scale);
               var c = this.camera;
               var gs = this.gameScale;
               var cv = this.getCameraView();
 
-              //return [cv[0]+this.wox, cv[1]+this.woy];
               return [cv[0]+c.wOffX, cv[1]+c.wOffY];
             },
 

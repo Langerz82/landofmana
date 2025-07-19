@@ -1,4 +1,4 @@
-define(['area', 'detect', 'mapworker', 'map'], function(Area, Detect, worker, Map) {
+define(['area', 'detect', 'map'], function(Area, Detect, Map) {
 
   var MapContainer = Class.extend({
     init: function(game, mapIndex, mapName) {
@@ -59,52 +59,7 @@ define(['area', 'detect', 'mapworker', 'map'], function(Area, Detect, worker, Ma
       if (self.ready_func) {
         self.ready_func();
       }
-      //game.renderer.forceRedraw = true;
-      /*if (self.isLoaded) {
-        clearInterval(checkInterval);
-        return;
-      }
-
-      log.info("_checkReady");
-      var checkInterval = setInterval(function() {
-
-        if (self.isLoaded) {
-          clearInterval(checkInterval);
-          self.isLoaded = false;
-          if (self.ready_func) {
-            self.ready_func();
-          }
-        }
-      }, 100);*/
     },
-
-    /*_loadMap: function(useWorker, mapName) {
-      var self = this,
-        filepath = "./maps/" + mapName + "_GO.json";
-
-      if (useWorker) {
-        log.info("Loading map with web worker.");
-        var worker = new Worker('js/mapworker.js');
-        worker.postMessage("loadMapGO");
-
-        worker.onmessage = function(event) {
-          var map = event.data;
-          self._initMap(map);
-          self.mapLoaded = true;
-          self._checkReady();
-        };
-      } else {
-        log.info("Loading map via Ajax.");
-
-        var jqxhr = $.getJSON(filepath, function(data) {
-          self.data = data;
-          self._initMap(self.data);
-          self.mapLoaded = true;
-          self._isReady();
-
-        });
-      }
-    },*/
 
     _initGrids: function() {
       var c = game.camera;
@@ -535,7 +490,7 @@ define(['area', 'detect', 'mapworker', 'map'], function(Area, Detect, worker, Ma
      * @returns {Boolean} Whether the position is out of bounds.
      */
     isOutOfBounds: function(x, y) {
-      return !isInt(x) || !isInt(y) || (x < 0 || x >= (this.width) || y < 0 || y >= (this.height));
+      return !Utils.isInt(x) || !Utils.isInt(y) || (x < 0 || x >= (this.width) || y < 0 || y >= (this.height));
     },
 
     /**

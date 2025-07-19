@@ -104,7 +104,7 @@ define(['./dialog', '../tabbook', '../tabpage', '../entity/item', '../inventorys
               Items.jqShowItem($('#'+it.name), itemData, $('#'+it.name));
             }
 
-            this.price.text(getGoldShortHand(item.craftPrice));
+            this.price.text(Utils.getNumShortHand(item.craftPrice));
         }
     });
 

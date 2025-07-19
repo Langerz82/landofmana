@@ -6,7 +6,7 @@ define(['./entity'], function(Entity) {
         this._super(id, Types.EntityTypes.NODE, map, kind);
         this.level = 0;
         this.stats = {};
-        this.idleSpeed = 150+random(150);
+        this.idleSpeed = 150+Utils.random(150);
       },
 
       resetHP: function () {

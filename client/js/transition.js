@@ -5,7 +5,6 @@ define(function() {
           this.endValue = 0;
           this.duration = 0;
           this.inProgress = false;
-          //this.currentValue = 0;
           this.modValue = 0;
           this.object = object;
       },
@@ -14,7 +13,6 @@ define(function() {
           this.updateFunction = updateFunction;
           this.stopFunction = stopFunction;
           this.modValue = modValue;
-          //this.object = object;
           this.inProgress = true;
       },
 
@@ -23,9 +21,6 @@ define(function() {
               var inc = this.modValue;
 
               if (inc == 0) return;
-
-              if (inc > 3)
-                console.warn("inc="+inc);
 
               var j = 0;
               if(this.updateFunction) {

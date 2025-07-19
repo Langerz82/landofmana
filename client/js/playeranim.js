@@ -42,15 +42,6 @@ define(['sprite','animation','timer'], function(Sprite, Animation, Timer) {
           throw "Sprite error";
       }
 
-      //if(sprite.name in this.sprites) {
-      //    return;
-      //}
-
-      //if (!sprite.pjsSprite)
-      //  sprite.pjsSprite = game.renderer.createSprite(sprite);
-      //else
-      //  game.renderer.changeSprite(sprite, sprite.pjsSprite);
-
       this.sprites.push(sprite);
 
       this.loadAnimations(sprite);
@@ -68,23 +59,6 @@ define(['sprite','animation','timer'], function(Sprite, Animation, Timer) {
         return this.sprite[index].name;
     },
 
-/*
-for (var sprite of this.sprites) {
-  var anim = sprite.currentAnimation = sprite.animations[name];
-
-  //anim.reset();
-
-  this.currentAnimation = anim;
-  if(name.indexOf("atk") === 0) {
-      anim.reset();
-  }
-  anim.setSpeed(speed);
-  anim.setCount(count ? count : 0, onEndCount || function() {
-      self.idle();
-  });
-
-}
-*/
     getAnimationByName: function(name) {
         var animation = null;
 

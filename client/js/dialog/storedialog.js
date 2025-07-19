@@ -75,7 +75,7 @@ define(['./dialog', '../tabbook', '../tabpage', '../entity/item', '../inventorys
               this.extra.text(itemName);
             }
 
-            this.price.text(getGoldShortHand(item.buyPrice));
+            this.price.text(Utils.getNumShortHand(item.buyPrice));
         }
     });
 

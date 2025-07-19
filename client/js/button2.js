@@ -98,8 +98,8 @@ define(function() {
           return '-' + (left + (width * index)) + 'px -' + (top) + 'px';
         },
         setBackgroundPosition: function(kind) {
-		this.kind = kind;
-		this.body.css('background-position', this.getBackgroundPosition(kind));
+      		this.kind = kind;
+      		this.body.css('background-position', this.getBackgroundPosition(kind));
         },
 
         refresh: function() {

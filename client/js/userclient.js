@@ -42,12 +42,7 @@ define(['gameclient', 'skillhandler', 'quest', 'config', 'achievement'], functio
           app.$loginInfo.text("Connecting to RRO2 server...");
 
           var self = this;
-          /*$.get('./rro2.pem', function(data) {
-              //alert(data);
-              certLoaded(self, data);
-          });*/
 
-          //var certLoaded = function(self, data) {
           self.connection = io(url, {
             forceNew: true,
             reconnection: false,
@@ -114,29 +109,24 @@ define(['gameclient', 'skillhandler', 'quest', 'config', 'achievement'], functio
             fnRecieveAction(message);
           }
 	      };
-            /*self.onMessage = function(e) {
-              console.warn("recv: "+e);
-              var data = e.split(",");
-              self.receiveAction(data);
-            }*/
-            self.connection.on('message', this.onMessage);
 
-            self.connection.on('error', function(e) {
-              self._onError(["There has been an error connecting to RSO server try again soon."]);
-              log.error(e, true);
-            });
+        self.connection.on('message', this.onMessage);
 
-            self.connection.on('disconnect', function() {
-                log.debug("Connection closed");
-                if(self.disconnected_callback) {
-                    if(self.isTimeout) {
-                        self._onError(["You have been disconnected for being inactive for too long"]);
-                    } else {
-                        self._onError(["The connection to RRO2 has been lost."]);
-                    }
+        self.connection.on('error', function(e) {
+          self._onError(["There has been an error connecting to RSO server try again soon."]);
+          log.error(e, true);
+        });
+
+        self.connection.on('disconnect', function() {
+            log.debug("Connection closed");
+            if(self.disconnected_callback) {
+                if(self.isTimeout) {
+                    self._onError(["You have been disconnected for being inactive for too long"]);
+                } else {
+                    self._onError(["The connection to RRO2 has been lost."]);
                 }
-            });
-          //};
+            }
+        });
       },
 
       receiveAction: function(data) {
@@ -177,18 +167,6 @@ define(['gameclient', 'skillhandler', 'quest', 'config', 'achievement'], functio
         log.info("Starting client/server handshake");
 
         this.sendUserConnected();
-        //this.sendSyncTime();
-
-        /*switch (this.initialAction)
-        {
-        case 1: // login user.
-          log.info("sendLogin");
-          client.sendLoginUser();
-          break;
-        case 2: // create user.
-          client.sendCreateUser();
-          break;
-        }*/
       },
 
       onPlayerSummary: function (data) {
@@ -243,31 +221,6 @@ define(['gameclient', 'skillhandler', 'quest', 'config', 'achievement'], functio
       onVersion: function (data) {
         game.onVersionUser(data);
       },
-
-      /*onVersion: function(data) {
-        //var self;
-        this.versionChecked = true;
-        var version = data[0];
-        var hash = data[1];
-        this.hashChallenge = hash;
-        log.info("onVersion: hash="+hash);
-
-        log.info("config.build.version="+config.build.version);
-        if (version != config.build.version)
-        {
-          $('#container').addClass('error');
-          var errmsg = "Please download the new version of RRO2.<br/>";
-
-          if (game.renderer.isMobile) {
-            errmsg += "<br/>For mobile see: " + config.build.updatepage;
-          } else {
-            errmsg += "<br/>For most browsers press Ctrl+F5 to reload the game cache files.";
-          }
-          game.clienterror_callback(errmsg);
-          if (this.tablet || this.mobile)
-            window.location.replace(config.build.updatepage);
-        }
-      },*/
 
       onSyncTime: function (data) {
         setWorldTime(parseInt(data[0]), parseInt(data[1]))

@@ -39,10 +39,8 @@ function(UserClient, Player, AppearanceData) {
 
         var hashObj = new jsSHA(this.username+this.password, "ASCII").getHash("SHA-1","HEX");
         this.regHash = hashObj;
-        //var hashChallenge = new jsSHA(this.client.hashChallenge, "ASCII");
         log.info("User init: hash="+hash);
         log.info("User init: hashChallenge="+game.hashChallenge);
-        //var hash = new jsSHA(hashObj+this.client.hashChallenge, "ASCII");
         var hash = CryptoJS.AES.encrypt(JSON.stringify(hashObj), game.hashChallenge).toString();
         //log.info("hash="+hash.getHash("SHA-1","HEX"));
         //log.info("hashChallenge="+hashChallenge.getHash("SHA-1","HEX"));
@@ -116,12 +114,10 @@ function(UserClient, Player, AppearanceData) {
           this.forceStop();
           this.fsm = "ATTACK";
           this.animate("atk", this.atkSpeed, 1, function () {
-            //self.lockAnimation = false;
             self.fsm = "IDLE";
             self.idle(self.orientation);
             self.forceStop();
           });
-          //this.lockAnimation = true;
           return true;
         };
 
@@ -159,20 +155,11 @@ function(UserClient, Player, AppearanceData) {
         player.moveTo_ = function(x, y, callback) {
           var self = this;
 
-          //if (this.fsm == "MOVEPATH")
-
-
-          //this.fsm = "MOVEPATH";
           if (this.fsm == "ATTACK") {
             return;
           }
 
-
-
-          //if (this.isMoving())
-
           if (this.moveThrottle(G_ROUNDTRIP)) {
-            //this.forceStop();
             return;
           }
 
@@ -182,7 +169,6 @@ function(UserClient, Player, AppearanceData) {
 
           this.walk();
 
-          //this.setFreeze(G_LATENCY);
           return this._moveTo(x, y, callback);
         };
 
@@ -220,7 +206,6 @@ function(UserClient, Player, AppearanceData) {
             this.walk();
 
             this.keyMove = true;
-            //this.setFreeze(G_LATENCY);
           }
           if (!state)
           {

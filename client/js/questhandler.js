@@ -3,24 +3,11 @@
 define(['data/npcdata', 'data/questdata', 'data/mobdata', 'data/itemlootdata'],
   function(NpcData, QuestData, MobData, ItemLoot)
 {
-
-  //var mobdata = JSON.parse(QuestsJson);
-
   var QuestHandler = Class.extend({
     init: function(game) {
       this.game = game;
       this.hideDelay = 5000; //How long the notification shows for.
-      this.progressHideDelay = 1000;
-      //this.quests = this.game.player.quests;
       this.showlog = false;
-
-      //var i=0;
-      //_.each(this.game.player.quests, function(quest){
-      //quest.found = false;
-      //quest.completed = false;
-      //quest.id = i++;
-      //quest.progCount = 0;
-      //});
 
       var self = this;
       this.closeButton = $('#questCloseButton');
@@ -33,51 +20,11 @@ define(['data/npcdata', 'data/questdata', 'data/mobdata', 'data/itemlootdata'],
       this.quests = this.game.player.quests;
     },
 
-    /*npcHasQuest: function(npcId) {
-	    for(var questSerial in this.quests){
-		  var quest = this.quests[questSerial];
-		  if(quest.npcId === npcId && (!quest.found || !quest.completed))
-			return true;
-	    }
-	    return false;
-    },*/
-
     getNPCQuest: function(questId) {
       return _.find(this.quests, function(q) {
         return q.id === questId;
       });
     },
-
-    /*questAlarmHide: function () {
-      $('#questalarm').hide();
-    },
-
-    questAlarmShow: function(str, delay) {
-      this.quests = this.game.player.quests;
-      var imgNames = str.match(/\[img\](.*?)\[\/img\]/g);
-      var desc = str.replace(/\[img\](.*?)\[\/img\]/g, "<div class=\"alarmimg\" id=\"alarmimg$1\" style=\"background-image: url('img/1/$1.png')\"></div>");
-
-      $('#questalarm').html(desc);
-      $('#questalarm').fadeIn();
-
-      _.each(imgNames, function(name) {
-        name = name.replace("[img]", "").replace("[/img]", "");
-        var sprite = this.game.spritesets[0][name];
-        var x = ((sprite.animationData['idle_down'].length - 1) * sprite.width);
-        var y = ((sprite.animationData['idle_down'].row) * sprite.height);
-
-        $('#alarmimg' + name).css("width", sprite.width);
-        $('#alarmimg' + name).css("height", sprite.height);
-
-        var offset = '-' + x + 'px -' + y + 'px';
-        $('#alarmimg' + name).css("background-position", offset);
-      });
-
-      setTimeout(function() {
-        $('#questalarm').fadeOut();
-      }, delay);
-
-    },*/
 
     toggleShowLog: function() {
       this.showlog = !this.showlog;
@@ -191,14 +138,11 @@ define(['data/npcdata', 'data/questdata', 'data/mobdata', 'data/itemlootdata'],
       //alert("called");
       $('#questlog').css('display', 'block');
       $('#questCloseButton').css('display', 'block');
-
-      //SendNative(["QuestLogOpen"].concat(this.quests));
     },
 
     questHideLog: function() {
       $('#questlog').css('display', 'none');
       $('#questCloseButton').css('display', 'none');
-      //SendNative(["QuestLogClose"]);
     },
 
     handleQuest: function(quest) {

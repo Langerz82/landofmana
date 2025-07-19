@@ -6,18 +6,8 @@ define(['lib/astar'], function(AStar) {
             this.height = height;
             this.grid = null;
             this.blankGrid = [];
-            this.initBlankGrid_();
             this.ignored = [];
             this.included = [];
-        },
-
-        initBlankGrid_: function() {
-            /*for(var i=0; i < this.height; i += 1) {
-                this.blankGrid[i] = [];
-                for(var j=0; j < this.width; j += 1) {
-                    this.blankGrid[i][j] = 0;
-                }
-            }*/
         },
 
         checkValidPath: function (path) {
@@ -146,13 +136,6 @@ define(['lib/astar'], function(AStar) {
 
       			if (subpath && subpath.length > 0)
       			{
-      				//var path = subpath;
-      				/*var len = subpath.length;
-      				for (var j = 0; j < len; ++j)
-      				{
-      					path[j] = [subpath[j][0]+(offsetX),subpath[j][1]+(offsetY)];
-      				}*/
-      				//log.info(JSON.stringify(path));
       				log.info(JSON.stringify(subpath));
       				return subpath;
       			}
@@ -168,13 +151,6 @@ define(['lib/astar'], function(AStar) {
             this.applyIncludeList_(this.grid, true);
 
             path = AStar.AStar(this.grid, start, end);
-
-            /*if(!path || path.length === 0 && findIncomplete === true) {
-                // If no path was found, try and find an incomplete one
-                // to at least get closer to destination.
-                path = this.findIncompletePath_(start, end);
-                //log.info("NO path to destination");
-            }*/
 
             return path;
         },
@@ -261,38 +237,6 @@ define(['lib/astar'], function(AStar) {
             this.applyIncludeList_(grid, false);
             this.ignored = [];
         },
-
-        /*
-        // TODO - Note needed so maybe just remove.
-        compressPath: function (path) {
-          if (!Array.isArray(path))
-            return path;
-
-          if (path.length < 3)
-            return path;
-
-          var newPath = [];
-          var lastDir = null;
-          var pNode = null;
-
-          console.warn("pathfinder - compressPath 1:"+path);
-          for (var node of path)
-          {
-            if (pNode)
-            {
-              var dir = [node.x  - pNode.x, node.y - pNode.y];
-              if (dir != lastDir)
-              {
-                newPath.push(pNode);
-              }
-              lastDir = dir;
-            }
-            pNode = node;
-          }
-          newPath.push(node);
-          console.warn("pathfinder - compressPath 2:"+newPath);
-          return newPath;
-        },*/
     });
 
     return Pathfinder;

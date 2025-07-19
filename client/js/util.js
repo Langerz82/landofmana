@@ -8,7 +8,7 @@
 
 var Utils = {};
 
-var isInt = function(n) {
+Utils.isInt = function(n) {
     return (n % 1) === 0;
 };
 
@@ -26,7 +26,7 @@ window.requestAnimFrame = (function(){
           };
 })();
 
-var getUrlVars = function() {
+Utils.getUrlVars = function() {
 	//from http://snipplr.com/view/19838/get-url-parameters/
     var vars = {};
     var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
@@ -35,35 +35,28 @@ var getUrlVars = function() {
     return vars;
 }
 
-var distanceTo = function(x, y, x2, y2) {
+Utils.distanceTo = function(x, y, x2, y2) {
     var distX = Math.abs(x - x2);
     var distY = Math.abs(y - y2);
 
     return (distX > distY) ? distX : distY;
 };
 
-var random = function(range) {
+Utils.random = function(range) {
     return Math.floor(Math.random() * range);
 };
-var randomRange = function(min, max) {
+Utils.randomRange = function(min, max) {
     return min + (Math.random() * (max - min));
 };
 
-var randomRangeInt = function(min, max) {
+Utils.randomRangeInt = function(min, max) {
     return min + Math.floor(Math.random() * (max - min + 1));
 };
 
-Utils.randomRangeInt = randomRangeInt;
-Utils.randomRange = randomRange;
-Utils.random = random;
-Utils.distanceTo = distanceTo;
-Utils.getUrlVars = getUrlVars;
-
-var fixed = function(value, length) {
+Utils.fixed = function(value, length) {
     var buffer = '00000000' + value;
     return buffer.substring(buffer.length - length);
 }
-Utils.fixed = fixed;
 
 String.prototype.format = String.prototype.f = function() {
     var s = this,
@@ -108,14 +101,6 @@ Utils.rgb2hex = function (rgb){
   ("0" + parseInt(rgb[3],10).toString(16)).slice(-2) : '';
 }
 
-/**
- * Shuffles array in place. ES6 version
- * @param {Array} a items The array containing the items.
- */
-var shuffle = function (a) {
-    return;
-};
-
 Utils.manhattenDistance = function (pos1, pos2) {
 	return Math.abs(pos1.x-pos2.x) + Math.abs(pos1.y-pos2.y);
 };
@@ -128,24 +113,6 @@ Utils.realDistance = function (p1, p2) {
 	return ~~(Math.pow( Math.pow(p2[0]-p1[0],2) + Math.pow(p2[1]-p1[1],2), 0.5) );
 };
 
-var pointerEventToXY = function(e){
-  var out = {x:0, y:0};
-  if (e.originalEvent.hasOwnProperty('touches'))
-  {
-  	var touch = e.originalEvent.touches[0] || e.originalEvent.changedTouches[0];
-    out.x = touch.pageX;
-    out.y = touch.pageY;
-  } else {
-    out.x = e.pageX;
-    out.y = e.pageY;
-  }
-  return out;
-};
-
-var ceilGrid = function (val) {
-    return ~~(val+0.5);
-};
-
 if (!Number.prototype.ceilGrid) {
   Number.prototype.ceilGrid = function () {
     return ~~(this+0.5);
@@ -153,12 +120,11 @@ if (!Number.prototype.ceilGrid) {
 }
 
 var clamp = function (val, min, max) {
-  var out = Math.min(Math.max(val, min), max);
-  return out;
+  return Math.min(Math.max(val, min), max);
 };
 
 Number.prototype.clamp = function (min, max) {
-  var out = Math.min(Math.max(this, min), max);
+  var out = clamp(this, min, max);
   //this = out;
   return out;
 };
@@ -176,17 +142,18 @@ Utils.remainder = function (a, b)
     return a - (a / b) * b;
 };
 
-Utils.getGoldShortHand = function (val) {
+Utils.getNumShortHand = function (val, fixed) {
+  fixed = fixed || 2;
   if (val <= 1000)
     return val;
   if (val <= 1000000)
-    return (val/1000).toFixed(2)+"K";
+    return (val/1000).toFixed(fixed)+"K";
   if (val <= 1000000000)
-    return (val/1000000).toFixed(2)+"M";
+    return (val/1000000).toFixed(fixed)+"M";
   if (val <= 1000000000000)
-    return (val/1000000000).toFixed(2)+"B";
+    return (val/1000000000).toFixed(fixed)+"B";
   else
-    return (val/1000000000000).toFixed(2)+"T";
+    return (val/1000000000000).toFixed(fixed)+"T";
 }
 
 Utils.padding = function (val, size) {

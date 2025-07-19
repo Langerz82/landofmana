@@ -6,10 +6,10 @@ define(['text!../shared/data/sprites.json', 'lib/localforage', 'infomanager', 'b
         'gameclient', 'clientcallbacks', 'audio', 'updater',
         'pathfinder', 'entity/entity', 'entity/item', 'data/items', 'data/itemlootdata', 'data/appearancedata', 'dialog/appearancedialog',
         'entity/mob', 'entity/npcstatic', 'entity/npcmove', 'data/npcdata', 'entity/player', 'entity/character', 'entity/chest', 'entity/block', 'entity/node',
-        'data/mobdata', 'data/mobspeech', 'exceptions', 'config', 'chathandler',
-        'playerpopupmenu', 'classpopupmenu', 'quest', 'data/questdata', 'questhandler', 'achievementhandler', 'useralarm',
+        'data/mobdata', 'data/mobspeech', 'config', 'chathandler',
+        'playerpopupmenu', 'quest', 'data/questdata', 'questhandler', 'achievementhandler', 'useralarm',
         'equipmenthandler', 'inventoryhandler', 'shortcuthandler', 'bankhandler', 'socialhandler',
-        'leaderboardhandler', 'settingshandler','storehandler','bools',
+        'leaderboardhandler', 'settingshandler','storehandler',
         'skillhandler', 'data/skilldata',
         'dialog/statdialog', 'dialog/skilldialog',
         'dialog/confirmdialog', 'dialog/notifydialog', 'dialog/storedialog', 'dialog/auctiondialog', 'dialog/craftdialog',
@@ -20,10 +20,10 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
          GameClient, ClientCallbacks, AudioManager, Updater,
          Pathfinder, Entity, Item, Items, ItemLoot, AppearanceData, AppearanceDialog,
          Mob, NpcStatic, NpcMove, NpcData, Player, Character, Chest, Block, Node,
-         MobData, MobSpeech, Exceptions, config, ChatHandler,
-         PlayerPopupMenu, ClassPopupMenu, Quest, QuestData, QuestHandler, AchievementHandler, UserAlarm,
+         MobData, MobSpeech, config, ChatHandler,
+         PlayerPopupMenu, Quest, QuestData, QuestHandler, AchievementHandler, UserAlarm,
          EquipmentHandler, InventoryHandler, ShortcutHandler, BankHandler, SocialHandler,
-         LeaderboardHandler, SettingsHandler, StoreHandler, Bools,
+         LeaderboardHandler, SettingsHandler, StoreHandler,
          SkillHandler, SkillData,
          StatDialog, SkillDialog,
          ConfirmDialog, NotifyDialog, StoreDialog, AuctionDialog, CraftDialog,
@@ -209,7 +209,6 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
                 this.confirmDialog = new ConfirmDialog();
                 this.notifyDialog = new NotifyDialog();
 
-                this.classPopupMenu = new ClassPopupMenu(this);
                 this.inventoryHandler = new InventoryHandler(this);
                 this.inventory = this.inventoryHandler;
                 this.shortcuts = new ShortcutHandler();

@@ -25,10 +25,6 @@ define(function() {
             } else {
                 this.body.removeClass('active');
             }
-            /*this.body.off().on('click', function(event) {
-                if (self.page.parent.parent.showing)
-                  self.page.active();
-            });*/
         }
     });
 

@@ -31,37 +31,26 @@ define(['entity/entity'], function(Entity) {
             this.gridH = Math.ceil(h / tsgs);
             this.gridW += this.gridW % 2 ? 1 : 0;
             this.gridH += this.gridH % 2 ? 1 : 0;
-            //this.border = 0;
-            //this.gridW -= this.border*2;
-            //this.gridH -= this.border*2;
 
             this.gridWE = this.gridW+2;
             this.gridHE = this.gridH+2;
 
-            //var zoom = 1/this.renderer.resolution;
-            var zoom = 1; //this.renderer.gameZoom;
-            this.screenW = w; //~~(this.gridW*tsgs*zoom);
-            this.screenH = h; //~~(this.gridH*tsgs*zoom);
+            var zoom = 1;
+            this.screenW = w;
+            this.screenH = h;
             this.screenWE = ~~(this.gridWE*tsgs*zoom);
             this.screenHE = ~~(this.gridHE*tsgs*zoom);
-            //this.screenW2 = w;
-            //this.screenH2 = h;
 
             log.debug("camera: this.screenW="+this.screenW+",this.screenH="+this.screenH);
             //log.debug("camera: this.screenW2="+this.screenW2+",this.screenH2="+this.screenH2);
 
-            //this.screenW = w - (this.border*2*tsgs); //this.gridW * ts;
-            //this.screenH = h - (this.border*2*tsgs); //this.gridH * ts;
             this.screenX = ~~(this.screenW/gs);
             this.screenY = ~~(this.screenH/gs);
             this.tScreenW = this.gridWE * tsgs;
             this.tScreenH = this.gridHE * tsgs;
 
-
             this.wOffX = ~~((this.tScreenW - this.screenW)/(2*gs));
             this.wOffY = ~~((this.tScreenH - this.screenH)/(2*gs));
-            //this.cOffX = (this.screenWE-w)/(gs*2);
-            //this.cOffY = (this.screenHE-h)/(gs*2);
             log.debug("camera: this.wOffX="+this.wOffX+",this.wOffY="+this.wOffY);
             //log.debug("camera: this.cOffX="+this.cOffX+",this.cOffY="+this.cOffY);
             this.eOffX = this.wOffX-ts;
@@ -69,7 +58,7 @@ define(['entity/entity'], function(Entity) {
 
             log.debug("---------");
             log.debug("W:"+this.gridW + " H:" + this.gridH);
-            //alert("W:"+this.gridW + " H:" + this.gridH);
+
             var mc = game.mapContainer;
             if (mc) {
               mc._initGrids();
@@ -134,14 +123,12 @@ define(['entity/entity'], function(Entity) {
         forEachVisibleValidPosition: function(callback) {
             if (!this.gridWE || !this.gridHE)
               return;
-            //var mc = game.mapContainer;
 
             var h = this.gridHE;
             var w = this.gridWE;
             var j=0, k=0;
             for(var y=0; y < h; ++y) {
                 for(var x=0; x < w; ++x) {
-                    //if (y < mc.tileGrid[0].length && x < mc.tileGrid.length)
                     callback(x, y);
                 }
             }

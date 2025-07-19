@@ -259,12 +259,9 @@ define([], function() {
                             var splitMsg = message.split(' ');
                             var msg = "";
                             for(i=0; i<splitMsg.length; i++){
-                                  if(i !== 3){
-                                      msg += splitMsg[i] + " ";
-                                  }
-                                  // OPTIMIZED VERSION !!! NON TESTED
-                                  //if(i !== 3)
-                                  //    msg += splitMsg[i] + " ";
+                              if(i !== 3){
+                                  msg += splitMsg[i] + " ";
+                              }
                             }
                             self.addToChatLog('<font color="#FFA500">' + msg + '</font>');
                             return true;

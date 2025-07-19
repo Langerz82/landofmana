@@ -24,7 +24,6 @@ define(['entity/character', 'timer', 'entity/player', 'entity/entitymoving'], fu
                 res = true;
               }
 
-
               var x = c.x, y = c.y;
 
               if (o == Types.Orientations.LEFT && c.x < c.ex)
@@ -105,7 +104,6 @@ define(['entity/character', 'timer', 'entity/player', 'entity/entitymoving'], fu
             this.playerKeyXF = function(c, m) {
               var x = c.x + m;
               var res = game.moveCharacter(c, x, c.y);
-              //var res = true;
               if (res) {
                 c.setPosition(x, c.y);
               } else {
@@ -117,7 +115,6 @@ define(['entity/character', 'timer', 'entity/player', 'entity/entitymoving'], fu
             this.playerKeyYF = function(c, m) {
               var y = c.y + m;
               var res = game.moveCharacter(c, c.x, y);
-              //var res = true;
               if (res) {
                 c.setPosition(c.x, y);
               } else {
@@ -142,24 +139,12 @@ define(['entity/character', 'timer', 'entity/player', 'entity/entitymoving'], fu
               //if (c.movement.inProgress)
                 //c.forceStop();
             }
-
         },
 
         update: function() {
-            //var ts = G_TILESIZE;
-
-            //log.info("Updater.update() called");
-            //if (game.client)
-              //setTimeout(game.client.packetProcFunc,8);
-            //game.client.packetProcFunc();
-
             if (game.mapStatus < 2)
             	return;
 
-            //game.camera.setRealCoords();
-            //
-
-            //this.updateRan = false;
             this.looping = true;
 
             this.updateCharacters();
@@ -169,10 +154,7 @@ define(['entity/character', 'timer', 'entity/player', 'entity/entitymoving'], fu
             //this.updateAnimatedTiles();
             this.updateChatBubbles();
             this.updateInfos();
-// TODO - Re-enable after testing.
-            //this.updatePerformance();
             this.looping = false;
-            //this.updateRan = true;
             this.lastUpdateTime = Date.now();
         },
 
@@ -273,8 +255,6 @@ define(['entity/character', 'timer', 'entity/player', 'entity/entitymoving'], fu
         {
           var self = this;
           var tick = c.tickFrames;
-          //var speed = c.moveSpeed;
-          //var time = this.game.currentTime;
           var o = c.orientation;
 
           if (c.freeze || c.isMovingPath() || c.isDying || c.isDead) {
@@ -311,10 +291,7 @@ define(['entity/character', 'timer', 'entity/player', 'entity/entitymoving'], fu
         updatePlayerPathMovement: function(c) {
             var self = this;
 
-            //var time = game.currentTime;
-            //var ts = game.tilesize;
             var tick = c.tickFrames;
-            //var speed = c.moveSpeed;
             var o = c.orientation;
 
             if (c.isDying || c.isDead || c.freeze || c.isStunned || c.keyMove || !c.isMovingPath())
@@ -358,13 +335,8 @@ define(['entity/character', 'timer', 'entity/player', 'entity/entitymoving'], fu
             if(!game.player)
                 return;
 
-            //var time = game.currentTime;
             var tick = c.tickFrames;
-            //var ts = game.tilesize;
-            //var speed = c.moveSpeed;
-            //var gc = game.camera;
             var o = c.orientation;
-
 	          if (c.isDying || c.isDead || c.freeze || c.isStunned || c.isMovingPath())
 	          {
 	            return;

@@ -26,8 +26,8 @@ Container.STAGE.interactive = true;
 
 Object.freeze(Container);
 
-define(['app', 'entrypoint', 'data/langdata', 'util',
-    'button2', 'dialog/dialog', 'game', 'bubble'], function(App, EntryPoint, LangData) {
+define(['app', 'data/langdata', 'util',
+    'button2', 'dialog/dialog', 'game', 'bubble'], function(App, LangData) {
     //global app, game;
     lang = new LangData("EN");
 
@@ -216,8 +216,6 @@ define(['app', 'entrypoint', 'data/langdata', 'util',
             game.useServer == "world";
 
             game.onGameStart(function() {
-		            var entry = new EntryPoint();
-		            entry.execute(game);
             });
 
             game.onDisconnect(function(message) {

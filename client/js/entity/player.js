@@ -5,7 +5,8 @@ var STATE_IDLE = 0,
     STATE_MOVING = 1,
     STATE_ATTACKING = 2;
 
-define(['./entity', './character', '../exceptions', 'data/appearancedata'], function(Entity, Character, Exceptions, AppearanceData) {
+define(['./entity', './character', 'data/appearancedata'],
+  function(Entity, Character, AppearanceData) {
   var Player = Character.extend({
     init: function(id, type, map, kind, name) {
 
@@ -463,7 +464,7 @@ define(['./entity', './character', '../exceptions', 'data/appearancedata'], func
       }
 
       // Players Stat affects Damage.
-      var mods = (this.stats.mod && this.stats.mod.attack ? 
+      var mods = (this.stats.mod && this.stats.mod.attack ?
         this.stats.mod.attack : 0);
       dealt += ~~((this.stats.attack*3)+mods) + this.stats.luck;
 

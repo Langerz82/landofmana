@@ -160,6 +160,7 @@ define(['lib/localforage', 'entity/mob', 'entity/item', 'data/mobdata', 'user', 
       },
 
       userClient: function () {
+        var self = this;
         this.userclient = new UserClient(config.build, this.useServer);
 
         this.userclient.fail_callback = function(reason){
@@ -168,8 +169,6 @@ define(['lib/localforage', 'entity/mob', 'entity/item', 'data/mobdata', 'user', 
                 reason: reason
             });
             self.started = false;
-
-
         };
       },
 

@@ -21,58 +21,27 @@ define([], function() {
             if (!self.parent.visible)
               return;
 
-            //alert("prev");
             if(self.index > 1) {
                 self.setIndex(self.index - 1);
-                /*if(self.changeHandler) {
-                    self.changeHandler(self);
-                }*/
             }
         });
         this.moveNextButton.click(function(event) {
             if (!self.parent.visible)
               return;
 
-            //alert("next");
             if(self.index < self.count) {
                 self.setIndex(self.index + 1);
-                /*if(self.changeHandler) {
-                    self.changeHandler(self);
-                }*/
             }
         });
     },
 
     rescale: function(scale) {
-      if (scale == 1)
-      {
-        for(var index = 0; index < this.numbers.length; index++) {
-          this.numbers[index].css({
-              'position': 'absolute',
-              'left': '' + (12 + (index * 12)) + 'px',
-              'top': '0px'
-          });
-        }
-      }
-      else if (scale == 2)
-      {
-        for(var index = 0; index < this.numbers.length; index++) {
-          this.numbers[index].css({
-              'position': 'absolute',
-              'left': '' + (24 + (index * 24)) + 'px',
-              'top': '0px'
-          });
-        }
-      }
-      else if (scale == 3)
-      {
-        for(var index = 0; index < this.numbers.length; index++) {
-          this.numbers[index].css({
-              'position': 'absolute',
-              'left': '' + (36 + (index * 36)) + 'px',
-              'top': '0px'
-          });
-        }
+      for(var index = 0; index < this.numbers.length; index++) {
+        this.numbers[index].css({
+            'position': 'absolute',
+            'left': '' + ((12*scale) + (index * 12 * scale)) + 'px',
+            'top': '0px'
+        });
       }
     },
 
@@ -116,9 +85,6 @@ define([], function() {
     open: function() {
       this.setIndex(1);
       (this.index < this.count) ? this.setVisible(1) : this.setVisible();
-
-      //this.movePreviousButton.attr('class', 'enabled');
-      //this.moveNextButton.attr('class', 'enabled');
 
     }
 

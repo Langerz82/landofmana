@@ -20,8 +20,8 @@ Detect.isTablet = function(screenWidth) {
 }
 
 Detect.isMobile = function() {
-	if(Detect.userAgentContains('Mobile') 
-	    || Detect.userAgentContains('iPhone')) 
+	if(Detect.userAgentContains('Mobile')
+	    || Detect.userAgentContains('iPhone'))
 	{
 	    return true;
 	}
