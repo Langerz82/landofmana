@@ -6,7 +6,7 @@ define(['text!../../shared/data/mobs.json'], function(MobsJson) {
 	MobData.Properties = {};
 	var mobParse = JSON.parse(MobsJson);
 	$.each( mobParse, function( key, value ) {
-		MobData.Properties[key.toLowerCase()] = {
+		var mob = {
 			key: key.toLowerCase(),
 			kind: value.kind,
 
@@ -37,7 +37,8 @@ define(['text!../../shared/data/mobs.json'], function(MobsJson) {
 			drops: (value.drops) ? value.drops : null,
 			spriteName: value.spriteName
 		};
-		MobData.Kinds[value.kind] = MobData.Properties[key.toLowerCase()];
+		MobData.Properties[key.toLowerCase()] = mob;
+		MobData.Kinds[value.kind] = mob;
 	});
     return MobData;
 });

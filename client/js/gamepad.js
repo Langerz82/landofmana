@@ -34,7 +34,7 @@ var selectFirstItem = {
   allinventorywindow: "#inventorybackground0",
   menucontainer: "#inventorybutton",
   statsDialog: "#charAddAttack",
-  skillsDialog: "#skill0Body",
+  skillsDialog: "#skill0 div.skillbody",
   playerPopupMenuContainer: "#playerPopupMenuPartyInvite",
   questlog: "#questCloseButton",
   socialwindow: "#socialclose",
@@ -43,7 +43,7 @@ var selectFirstItem = {
   dropDialog: "#dropAccept",
   dialogModalConfirm: "#dialogModalConfirmButton1",
   dialogModalNotify: "#dialogModalNotifyButton1",
-  combatContainer: "#scinventory0",
+  combatContainer: "#shortcut0",
   auctionSellDialog: "#auctionSellAccept",
   bankDialog: "#bankDialogBank00Background",
   appearanceDialog: "#changeLookArmorPrev",
@@ -71,10 +71,9 @@ var selectFirstItem = {
   self.playerEquipment = ["#equipBackground0","#equipBackground1","#equipBackground2","#equipBackground3","#equipBackground4"];
   self.playerShortcut = ["#shortcut0", "#shortcut1", "#shortcut2", "#shortcut3", "#shortcut4", "#shortcut5", "#shortcut6", "#shortcut7"];
 
-  self.playerDialogSkill = "#skill{0}Body";
-  self.playerShortcutSkill = "#skill{0}Body";
+  self.playerDialogSkill = "#skill{0}  div.skillbody";
   self.playerDialogStat = ["#charAddAttack","#charAddDefense","#charAddHealth","#charAddEnergy","#charAddLuck"];
-  self.playerSettings = ["#buttonchat","#buttonsound","#buttonjoystick","#buttonmenucolor","#buttonbuttoncolor","#gamezoom"];
+  self.playerSettings = ["#buttonchat","#buttonsound","#buttonjoystick","#buttonmenucolor","#buttonbuttoncolor"];
   self.leaderboardselect = ["#lbselect","#lbindex"];
 
   self.mainButtonsActive = false;
@@ -606,7 +605,7 @@ var selectFirstItem = {
     		{
           if (self.selectedItem) {
             self.selectedItem.trigger("click");
-            self.setSelectedItem(self.selectedItem);
+            //self.setSelectedItem(self.selectedItem);
           }
           return;
     		}
@@ -614,48 +613,7 @@ var selectFirstItem = {
         {
           if (self.selectedItem)
           {
-              if (self.selectedItem.attr("id") == "gamezoom")
-              {
-                var index = $(".cgamezoom option:selected").index();
-                var size = $(".cgamezoom option").length;
-                var newIndex = (index+1) % size;
-
-                $(".cgamezoom option:selected").removeAttr("selected");
-                $(".cgamezoom option:eq("+newIndex+")").prop("selected", true);
-                $(".cgamezoom").trigger("chosen:updated");
-                $(".cgamezoom").trigger("change");
-              }
-              else {
-                self.selectedItem.trigger("click");
-              }
-          }
-        }
-        else if (jqLeaderWindow.is(':visible'))
-        {
-          if (self.selectedItem)
-          {
-            if (self.selectedItem.attr("id") == "lbselect")
-            {
-              var index = $("#lbselect option:selected").index();
-              var size = $("#lbselect option").length;
-              var newIndex = (index+1) % size;
-
-              $("#lbselect option:selected").removeAttr("selected");
-              $("#lbselect option:eq("+newIndex+")").prop("selected", true);
-              $("#lbselect").trigger("chosen:updated");
-              $("#lbselect").trigger("change");
-            }
-            if (self.selectedItem.attr("id") == "lbindex")
-            {
-              var index = $("#lbindex option:selected").index();
-              var size = $("#lbindex option").length;
-              var newIndex = (index+1) % size;
-
-              $("#lbindex option:selected").removeAttr("selected");
-              $("#lbindex option:eq("+newIndex+")").prop("selected", true);
-              $("#lbindex").trigger("chosen:updated");
-              $("#lbindex").trigger("change");
-            }
+              self.selectedItem.trigger("click");
           }
         }
         else if (self.mainButtonsActive)
@@ -671,6 +629,10 @@ var selectFirstItem = {
                 self.setSelectedItem($("#inventorybutton"));
               }*/
               //self.setSelectedItem(null);
+              /*if (self.selectedItem[0].id === 'shortcutbutton')
+              {
+                self.shortcutActive = true;
+              }*/
               self.dialogOpen();
           }
           self.mainButtonsActive = false;
