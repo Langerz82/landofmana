@@ -304,6 +304,8 @@ define(['./dialog', '../tabbook', '../tabpage', '../entity/item', 'data/items', 
             this.storeButton.off().on('click', function (event) {
               game.inventoryMode = InventoryMode.MODE_BANK;
               game.inventoryHandler.showInventory();
+              game.inventoryHandler.backPage = self;
+              self.hide();
             });
 
             $('#bankGoldFrame').click(function(event) {

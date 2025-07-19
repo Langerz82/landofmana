@@ -34,7 +34,7 @@ var selectFirstItem = {
   allinventorywindow: "#inventorybackground0",
   menucontainer: "#inventorybutton",
   statsDialog: "#charAddAttack",
-  skillsDialog: "#characterSkill0Body",
+  skillsDialog: "#skill0Body",
   playerPopupMenuContainer: "#playerPopupMenuPartyInvite",
   questlog: "#questCloseButton",
   socialwindow: "#socialclose",
@@ -71,7 +71,7 @@ var selectFirstItem = {
   self.playerEquipment = ["#equipBackground0","#equipBackground1","#equipBackground2","#equipBackground3","#equipBackground4"];
   self.playerShortcut = ["#shortcut0", "#shortcut1", "#shortcut2", "#shortcut3", "#shortcut4", "#shortcut5", "#shortcut6", "#shortcut7"];
 
-  self.playerDialogSkill = "#characterSkill{0}Body";
+  self.playerDialogSkill = "#skill{0}Body";
   self.playerShortcutSkill = "#skill{0}Body";
   self.playerDialogStat = ["#charAddAttack","#charAddDefense","#charAddHealth","#charAddEnergy","#charAddLuck"];
   self.playerSettings = ["#buttonchat","#buttonsound","#buttonjoystick","#buttonmenucolor","#buttonbuttoncolor","#gamezoom"];

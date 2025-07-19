@@ -1,9 +1,10 @@
 define(['./dialog', '../tabpage', 'data/skilldata'], function(Dialog, TabPage, SkillData) {
     var Skill = Class.extend({
         init: function(parent, i, level, position) {
-            var id = this.id = '#characterSkill' + i;
+            var id = this.id = '#skill' + i;
             this.background = $(id);
-            this.body = $(id + 'Body');
+            this.body = $(id + ' .skillbody');
+            this.jqCooltime = $(id + ' .skillcd');
             this.levels = [];
             this.level = level;
             this.parent = parent;
@@ -11,6 +12,7 @@ define(['./dialog', '../tabpage', 'data/skilldata'], function(Dialog, TabPage, S
             this.index = i;
 
             var data = this.data = SkillData.Data[i];
+            this.cooldownDuration = (data.recharge) ? data.recharge : 2000;
             log.info(i+" = "+JSON.stringify(data));
             //log.info(JSON.stringify(SkillData.Data));
             //log.info("SkillData.Data[id].name"+SkillData.Data[id].name);
@@ -24,13 +26,24 @@ define(['./dialog', '../tabpage', 'data/skilldata'], function(Dialog, TabPage, S
             var dragStart = false;
 
             var clickSkill = function (index) {
-              //game.selectedSkill = self;
-              self.parent.selectedSkill = self;
-              self.parent.clearHighlight();
-              self.body.css('border', self.scale+"px solid #f00");
-              $('#skillDetail').html(self.detail);
-              ShortcutData = self; //(ShortcutData ? null : self);
-              //ShortcutData.skillIndex = index;
+              if (self.parent.selectedSkill == self) {
+                if (game.player.skillHandler.execute(self.index))
+                {
+                  self.cooldownStart();
+                  game.shortcuts.cooldownStart(2, self.index);
+                }
+                //self.parent.selectedSkill = self;
+                //self.parent.clearHighlight();
+                //ShortcutData = null;
+              } else {
+                //game.selectedSkill = self;
+                self.parent.selectedSkill = self;
+                self.parent.clearHighlight();
+                self.body.css('border', self.scale+"px solid #f00");
+                $('#skillDetail').html(self.detail);
+                ShortcutData = self; //(ShortcutData ? null : self);
+                //ShortcutData.skillIndex = index;
+              }
             };
 
             this.body.data('skillIndex', this.index);
@@ -40,12 +53,33 @@ define(['./dialog', '../tabpage', 'data/skilldata'], function(Dialog, TabPage, S
             	log.info("Began DragStart.")
             });
 
-            this.body.on('click tap', function(event){
+            this.body.on('click', function(event){
             	clickSkill($(this).data("skillIndex"));
               event.stopPropagation();
             });
 
             this.rescale();
+        },
+
+        cooldownStart: function () {
+          this.cooltime = Date.now();
+          this.cooldown();
+          this.cooltimeHandle = setInterval(this.cooldown.bind(this), 1000);
+        },
+
+        cooldown: function() {
+          var duration = (Date.now() - this.cooltime);
+          var coolms = this.cooldownDuration;
+          if (duration < coolms) {
+            var counter = Math.ceil((coolms-duration)/1000);
+            this.jqCooltime.css('display', 'block');
+            this.jqCooltime.html('' + counter.toFixed(0));
+          }
+          else {
+            this.jqCooltime.css('display', 'none');
+            clearInterval(this.cooltimeHandle);
+            this.cooltimeHandle = null;
+          }
         },
 
         rescale: function () {
@@ -54,8 +88,8 @@ define(['./dialog', '../tabpage', 'data/skilldata'], function(Dialog, TabPage, S
 
           this.body.css({
               'position': 'absolute',
-              'left': (scale)+'px',
-              'top': (scale)+'px',
+              'left': '0',
+              'top': '0',
               'width': 24 * scale,
               'height': 24 * scale,
               'display': 'none'
@@ -111,6 +145,11 @@ define(['./dialog', '../tabpage', 'data/skilldata'], function(Dialog, TabPage, S
           this.skills[index] = {level: level, skill: null};
         },
 
+        cooldownStart: function (index) {
+            if (this.skills[index])
+              this.skills[index].skill.cooldownStart();
+        },
+
         clear: function() {
             var scale = game.renderer.getUiScaleFactor();
             for (var i = this.skills.length-1; i >= 0; --i)
@@ -122,8 +161,8 @@ define(['./dialog', '../tabpage', 'data/skilldata'], function(Dialog, TabPage, S
                         //'display': 'none'
                         'background-image': 'url("../img/'+scale+'/misc/itembackground.png")',
                     });
-                    $('#characterSkill' + i).attr('title', '');
-                    $('#characterSkill' + i).html();
+                    $('#skill' + i).attr('title', '');
+                    $('#skill' + i).html();
                     tSkill.level = 0;
                 }
             }
@@ -144,7 +183,7 @@ define(['./dialog', '../tabpage', 'data/skilldata'], function(Dialog, TabPage, S
                 var tSkill = this.skills[i];
                 var data = SkillData.Data[i];
                 if(tSkill) {
-                    log.info('#characterSkill1' + i);
+                    log.info('#skill1' + i);
                     var skill = new Skill(this, i, tSkill.level,
                         data.iconOffset);
                     var ix = (i % 4),
@@ -159,15 +198,15 @@ define(['./dialog', '../tabpage', 'data/skilldata'], function(Dialog, TabPage, S
                     });
                     this.skills[i].skill = skill;
                     //log.info("this.skills[id].skill="+JSON.stringify(this.skills[id].skill));
-                    $('#characterSkill' + i).attr('title', data.name + " Lv: " + tSkill.level);
-                    $('#characterSkill' + i + 'Body').css({
+                    $('#skill' + i).attr('title', data.name + " Lv: " + tSkill.level);
+                    $('#skill' + i + 'Body').css({
                         'text-align': 'center',
                         'color': '#fff',
                         'line-height': (18*scale)+'px',
                         'font-size': (6*scale)+'px',
                         'font-weight': 'bold'
                     });
-                    $('#characterSkill' + i + 'Body').html("Lv "+tSkill.level);
+                    $('#skill' + i + 'Body').html("Lv "+tSkill.level);
                     skill.setLevel(tSkill.level);
                 }
             }
@@ -191,7 +230,7 @@ define(['./dialog', '../tabpage', 'data/skilldata'], function(Dialog, TabPage, S
 
             ShortcutData = null;
 
-            $('#skillsCloseButton').add('#skillsDialog').add('#game').on('click tap', function(event){
+            $('#skillsCloseButton').add('#skillsDialog').add('#game').on('click', function(event){
               if (ShortcutData)
                 ShortcutData.parent.clearHighlight();
             	ShortcutData = null;

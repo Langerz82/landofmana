@@ -1,5 +1,6 @@
 TODO:
-
+CLIENT - Attack skill can now target.
+CLIENT - Inventory Window no long has windows behind it in Auction/Bank.
 
 SERVER - Health stat level modifying does not show in client when adding points.
 CLIENT, When selecting other equipped items while an equipped item is selected, select the other equipment.

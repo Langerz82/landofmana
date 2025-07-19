@@ -1130,12 +1130,12 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
             /**
              *
              */
-            makePlayerAttack: function(entity, spellId) {
-              spellId = (spellId >= 0) ? spellId : -1;
+            makePlayerAttack: function(entity) {
               log.info("makePlayerAttack " + entity.id);
               var self = this;
               var time = this.currentTime;
               var p = this.player;
+              var skillId = (p.attackSkill) ? p.attackSkill.skillId : -1;
 
       				if (!p || p === entity || p.isDead || p.isDying) // sanity check.
       					return false;
@@ -1146,8 +1146,6 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
     						return false;
     					}
 
-              //if (p.isMoving())
-                //p.forceStop();
               if (p.isMoving())
                 p.forceStop();
 
@@ -1164,24 +1162,16 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
               }
               log.info("CAN REACH TARGET!!");
 
-              //var attackTime = this.currentTime-p.attackTime;
-    					//if (p.canAttack(time) && attackTime > ATTACK_INTERVAL)
-              //p.fsm = "MOVE";
-
               if (!p.canAttack(time))
               {
                 log.info("CANNOT ATTACK DUE TO TIME.");
                 return false;
               }
 
-              //p.forceStop();
-              //p.engage(p.target);
-              //p.hit();
-
               if (p.hit() && p.hasTarget()) {
-                //this.client.sendMoveEntity(p, 0);
-                //p.forceStop();
-                this.client.sendAttack(p, p.target, spellId);
+                if (p.attackSkill)
+                  p.attackSkill.activated = true;
+                this.client.sendAttack(p, p.target, skillId);
               }
               else {
                 return false;
@@ -1190,8 +1180,6 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
               log.info("CAN ATTACK!! "+p.target.id);
 
               self.audioManager.playSound("hit"+Math.floor(Math.random()*2+1));
-
-              p.skillHandler.showActiveSkill();
 
               p.attackCooldown.duration = 1000;
               p.attackCooldown.lastTime = time;

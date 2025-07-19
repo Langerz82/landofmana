@@ -284,79 +284,34 @@
 	z-index:15;
 }
 
-#skill0,  #skill1,  #skill2,  #skill3 {
-	position: absolute;
-	width: 80px;
-	height: 80px;
-	pointer-events: all;
-	cursor: pointer;
-	background: url('../img/3/misc/shortcutbackground.png') no-repeat;
-	background-size: 77px 77px;
-	/*margin: 3px;*/
+#skillList div.skillbody {
+	position:absolute;
+	display: block;
+	margin:0;
+	padding:0;
 }
 
-#skill0SC,  #skill1SC,  #skill2SC,  #skill3SC {
-  z-index: 15;
-  position: absolute;
-  bottom: 3px;
-  left: 3px;
-  width: 72px;
-  height: 21px;
-  font-size: 16px;
-  color: white;
-  cursor: default;
-  font-weight: bold;
-  pointer-events: none;
-  opacity: 0.8;
-  text-align: center;
-}
-
-#skill0 {
-	top: 288px;
-	left: 0;
-}
-#skill1 {
-	top: 288px;
-	left: 80px;
-}
-#skill2 {
-	top: 208px;
-	left: 0;
-}
-#skill3 {
-	top: 208px;
-	left: 80px;
-}
-
-#skill0Body,  #skill1Body,  #skill2Body,  #skill3Body, #skill4Body, #skill5Body {
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: 72px;
-  height: 72px;
-  text-align: center;
-  line-height:36px;
-  color: #fff;
-  font-weight: bold;
-  border-radius:9px;
-	margin:3px;
-}
-
-#skill0Cooltime,  #skill1Cooltime,  #skill2Cooltime,  #skill3Cooltime, #skill4Cooltime, #skill5Cooltime {
+#skillList div.skillcd {
+	background-color: #ff0000;
+	border: 3px solid #000000;
+	display: none;
 	position:absolute;
 	left:0;
-	top: 0;
-	width: 72px;
-	height: 72px;
-	background-color: rgba(255, 0, 0, 0.5);
-	text-align: center;
-	font-size: 21px;
-	padding-top: 0px;
+	top:0;
+	margin:0;
+	padding:0;
+	width:72px;
+	height:72px;
+	z-index:15;
 	color: white;
 	cursor: default;
-	display: none;
-	line-height:42px;
-	border-radius:9px;
-	text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;
-	margin:2px;
+	font-family: "GraphicPixel";
+	font-weight: bold;
+	pointer-events: none;
+	opacity: 0.5;
+	text-align: center;
+  line-height:50px;
+  color: #fff;
+	text-shadow: -2px 0 black, 0 2px black, 2px 0 black, 0 -2px black;
+	font-size:24px;
 }

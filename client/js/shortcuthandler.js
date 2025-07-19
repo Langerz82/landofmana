@@ -70,7 +70,6 @@ define(['data/skilldata', 'data/items'], function(SkillData, Items) {
         this.cooldownTime = ~~(SkillData.Data[id].recharge / 1000);
       }
       this.display();
-      //game.client.sendShortcut(this.index, this.type, this.shortcutId);
     },
 
     display: function () {
@@ -116,6 +115,9 @@ define(['data/skilldata', 'data/items'], function(SkillData, Items) {
       var children = this.parent.getSameShortcuts(this);
       this.cooldown = new Cooldown(this.parent, this);
       this.cooldown.start(time);
+
+      if (this.type == 2)
+        game.skillDialog.page.cooldownStart(this.shortcutId);
     },
 
   });
@@ -202,6 +204,19 @@ define(['data/skilldata', 'data/items'], function(SkillData, Items) {
     install: function (slot, type, index) {
       if (this.shortcuts[slot])
         this.shortcuts[slot].install(slot, type, index);
+    },
+
+    cooldownStart: function (type, shortcutId) {
+        for (var slot of this.shortcuts) {
+          if (!slot)
+            continue;
+
+          if (slot.type == type && slot.shortcutId == shortcutId)
+          {
+            slot.cooldownStart(slot.cooldownTime);
+            break;
+          }
+        }
     },
 
     exec: function (slot) {

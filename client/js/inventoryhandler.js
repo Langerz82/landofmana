@@ -61,6 +61,10 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
         self.deselectItem();
         self.hideInventory();
         self.refreshInventory();
+        if (self.backPage) {
+          self.backPage.show();
+          self.backPage = null;
+        }
       });
 
       $('#inventoryGearItems').click(function(event) {
