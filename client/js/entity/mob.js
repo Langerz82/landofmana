@@ -7,7 +7,7 @@ define(['./character', 'data/mobdata'], function(Character, MobData) {
 
             this.data = MobData.Kinds[this.kind];
 
-            this.idleSpeed = randomInt(~~(this.data.idleSpeed * 2/3), ~~(this.data.idleSpeed * 4/3));
+            this.idleSpeed = Utils.randomRangeInt(~~(this.data.idleSpeed * 2/3), ~~(this.data.idleSpeed * 4/3));
 
             this.level = level || this.data.level;
 

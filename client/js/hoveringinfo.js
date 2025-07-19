@@ -17,7 +17,7 @@ define(function() {
             this.strokeColor = damageInfoData[type].stroke;
             this.fontSize = damageInfoData[type].fontSize;
             //this.showTime = game.currentTime;
-            this.angle = randomInt(20,160) / 180 * Math.PI;
+            this.angle = Utils.randomRangeInt(20,160) / 180 * Math.PI;
             this.infoData = damageInfoData[type];
             this.effect = damageInfoData[type].effect || 0;
         },

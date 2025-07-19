@@ -431,7 +431,7 @@ define(['area', 'detect', 'mapworker', 'map'], function(Area, Detect, worker, Ma
         var mr = {x1: (dim.x1 * ts), y1: (dim.y1 * ts),
                   x2: (dim.x2 * ts), y2: (dim.y2 * ts)};
 
-        var res = RectContains(sr, mr);
+        var res = Utils.RectContains(sr, mr);
         if (res)
         {
           this._updateGrid(map);

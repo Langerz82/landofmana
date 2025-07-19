@@ -459,7 +459,7 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
     },
 
     setCurrency: function(gold, gems) {
-      $('.inventoryGold').text(getGoldShortHand(gold));
+      $('.inventoryGold').text(Utils.getGoldShortHand(gold));
       $('.inventoryGems').text(gems);
     },
 

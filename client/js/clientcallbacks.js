@@ -477,7 +477,7 @@ function(InfoManager, HoveringInfo, BubbleManager,
                 map != game.player.mapIndex)
               return;
 
-            //var lockStepTime = (G_LATENCY - (getWorldTime()-time)).clamp(0,G_LATENCY);
+            //var lockStepTime = (G_LATENCY - (Utils.getWorldTime()-time)).clamp(0,G_LATENCY);
             //console.warn("lockStepTime="+lockStepTime);
             //var entity = null;
             //if(id === game.player.id)
@@ -557,7 +557,7 @@ function(InfoManager, HoveringInfo, BubbleManager,
             if (entity == game.player)
               return;
 
-            var lockStepTime = (G_LATENCY - (getWorldTime()-time) + G_UPDATE_INTERVAL);
+            var lockStepTime = (G_LATENCY - (Utils.getWorldTime()-time) + G_UPDATE_INTERVAL);
             lockStepTime = lockStepTime.clamp(0,G_LATENCY);
             //console.warn("lockStepTime="+lockStepTime);
             //console.warn("getDiffTime(time):"+(Date.now() - time));

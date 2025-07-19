@@ -25,7 +25,7 @@ define(['../timer'], function(Timer) {
             this.name = "";
 
             this.fadingTime = 1000;
-            this.fadingTimer = new Timer(this.fadingTime, getTime());
+            this.fadingTimer = new Timer(this.fadingTime, Utils.getTime());
             this.lockfadeIn = false;
 
             this.spriteChanged = true;

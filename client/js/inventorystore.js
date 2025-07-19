@@ -1,9 +1,4 @@
 define(['entity/item', 'data/items'], function(Item, Items) {
-    function fixed(value, length) {
-        var buffer = '00000000' + value;
-        return buffer.substring(buffer.length - length);
-    }
-
     var InventoryStore = Class.extend({
         init: function(parent, index) {
             this.parent = parent;
@@ -14,7 +9,7 @@ define(['entity/item', 'data/items'], function(Item, Items) {
             this.skillKind = 0;
             this.skillLevel = 0;
             this.experience = 0;
-            var name = '#dialogInventory' + fixed(this.index, 2);
+            var name = '#dialogInventory' + Utils.fixed(this.index, 2);
             this.background = $(name + 'Background');
             this.body = $(name + 'Body');
             this.number = $(name + 'Number');

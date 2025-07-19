@@ -17,7 +17,7 @@ define(['./entity', '../transition', '../timer'], function(Entity, Transition, T
     this.moveSpeed = 100;
     this.setMoveRate(this.moveSpeed);
     this.walkSpeed = 150;
-    this.idleSpeed = randomInt(750, 1000);
+    this.idleSpeed = Utils.randomRangeInt(750, 1000);
 
     this.followingMode = false;
 

@@ -37,8 +37,8 @@ define(['./dialog', '../tabpage', 'data/skilldata'], function(Dialog, TabPage, S
                 //ShortcutData = null;
               } else {
                 //game.selectedSkill = self;
-                self.parent.selectedSkill = self;
                 self.parent.clearHighlight();
+                self.parent.selectedSkill = self;
                 self.body.css('border', self.scale+"px solid #f00");
                 $('#skillDetail').html(self.detail);
                 ShortcutData = self; //(ShortcutData ? null : self);
@@ -213,6 +213,7 @@ define(['./dialog', '../tabpage', 'data/skilldata'], function(Dialog, TabPage, S
         },
 
         clearHighlight: function() {
+          this.selectedSkill = null;
         	for(var i = 0; i < this.skills.length; ++i)
           {
         		if (this.skills[i].skill)

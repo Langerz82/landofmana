@@ -97,7 +97,7 @@ define(['gameclient', 'skillhandler', 'quest', 'config', 'achievement'], functio
            var method = data.substr(0,2) ;
 	        if (method === '2[')
 	        {
-            var buffer = _base64ToArrayBuffer(data.substr(1));
+            var buffer = Utils._base64ToArrayBuffer(data.substr(1));
             try {
               var message = pako.inflate(buffer, {gzip: true, to: 'string'});
 						  fnProcessMessage(message);

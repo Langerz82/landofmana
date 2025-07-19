@@ -49,26 +49,21 @@ var randomRange = function(min, max) {
     return min + (Math.random() * (max - min));
 };
 
-var randomInt = function(min, max) {
+var randomRangeInt = function(min, max) {
     return min + Math.floor(Math.random() * (max - min + 1));
 };
 
-Utils.randomRangeInt = randomInt;
-
-
-var SendNative = function(data) {
-	if (typeof Native !== 'undefined') {
-		var newData = JSON.stringify(data)
-	        newData = newData.replace("null", "0");
-		//log.info("newData="+newData);
-	        Native("dataCallback",newData);
-	}
-}
+Utils.randomRangeInt = randomRangeInt;
+Utils.randomRange = randomRange;
+Utils.random = random;
+Utils.distanceTo = distanceTo;
+Utils.getUrlVars = getUrlVars;
 
 var fixed = function(value, length) {
     var buffer = '00000000' + value;
     return buffer.substring(buffer.length - length);
 }
+Utils.fixed = fixed;
 
 String.prototype.format = String.prototype.f = function() {
     var s = this,
@@ -80,15 +75,7 @@ String.prototype.format = String.prototype.f = function() {
     return s;
 };
 
-/*var wait = function(ms) {
-	var start = new Date().getTime();
-	var end = start;
-	while(end < start + ms) {
-		end = new Date().getTime();
-	}
-}*/
-
-var _base64ToArrayBuffer = function(base64) {
+Utils._base64ToArrayBuffer = function(base64) {
 	var bin_string = window.atob(base64);
 	var l = bin_string.length;
 	var bytes = new Uint8Array(l);
@@ -99,7 +86,7 @@ var _base64ToArrayBuffer = function(base64) {
 	return bytes.buffer;
 }
 
-var _arrayBufferToBase64 = function(buffer) {
+Utils._arrayBufferToBase64 = function(buffer) {
     var binary = '';
     var bytes = new Uint8Array( buffer );
     var len = bytes.byteLength;
@@ -109,11 +96,11 @@ var _arrayBufferToBase64 = function(buffer) {
     return window.btoa( binary );
 }
 
-var removeDoubleQuotes = function (val) {
+Utils.removeDoubleQuotes = function (val) {
 	return val.toString().replace(/^"(.+(?="$))"$/,'$1');
 }
 
-var rgb2hex = function (rgb){
+Utils.rgb2hex = function (rgb){
  rgb = rgb.match(/^rgba?[\s+]?\([\s+]?(\d+)[\s+]?,[\s+]?(\d+)[\s+]?,[\s+]?(\d+)[\s+]?/i);
  return (rgb && rgb.length === 4) ?
   ("0" + parseInt(rgb[1],10).toString(16)).slice(-2) +
@@ -129,11 +116,11 @@ var shuffle = function (a) {
     return;
 };
 
-var manhattenDistance = function (pos1, pos2) {
+Utils.manhattenDistance = function (pos1, pos2) {
 	return Math.abs(pos1.x-pos2.x) + Math.abs(pos1.y-pos2.y);
 };
 
-var realDistance = function (e1, e2) {
+Utils.realDistanceXY = function (e1, e2) {
   return Utils.realDistance([e1.x,e1.y],[e2.x,e2.y]);
 }
 
@@ -184,12 +171,12 @@ Number.prototype.mod = function(n) {
     return ((this%n)+n)%n;
 };
 
-var remainder = function (a, b)
+Utils.remainder = function (a, b)
 {
     return a - (a / b) * b;
 };
 
-var getGoldShortHand = function (val) {
+Utils.getGoldShortHand = function (val) {
   if (val <= 1000)
     return val;
   if (val <= 1000000)
@@ -202,7 +189,7 @@ var getGoldShortHand = function (val) {
     return (val/1000000000000).toFixed(2)+"T";
 }
 
-var padding = function (val, size) {
+Utils.padding = function (val, size) {
     var s = val+"";
     while (s.length < size) s = "0" + s;
     return s;
@@ -214,7 +201,7 @@ var padding = function (val, size) {
 
 var WORLDTIME = null;
 var LOCALTIME = null;
-var setWorldTime = function (localTime, remoteTime) {
+Utils.setWorldTime = function (localTime, remoteTime) {
   //WORLDTIME = new Date();
   //console.warn("localTime: "+localTime);
   //console.warn("remoteTime: "+remoteTime);
@@ -228,29 +215,14 @@ var setWorldTime = function (localTime, remoteTime) {
   //console.warn("Date.diff: "+(LOCALTIME - WORLDTIME));
 };
 
-var getWorldTime = function () {
+Utils.getWorldTime = function () {
   return WORLDTIME + (Date.now()-LOCALTIME);
   //return Date.now();
 };
 
-var getTime = function () {
+Utils.getTime = function () {
   return Date.now();
 }
-
-/*var getWorldTime = function () {
-  console.warn("getWorldTime");
-  //console.warn("LOCALTIME: "+LOCALTIME);
-  //console.warn("WORLDTIME: "+WORLDTIME);
-  console.warn("Date.now(): "+Date.now());
-  return (LOCALTIME - WORLDTIME) + Date.now();
-}*/
-
-/*var getDiffTime = function (val) {
-    console.warn("getWorldTime-NOW: " +getWorldTime());
-    console.warn("getDiffTime-val:"+val);
-    console.warn("getDiffTime result:"+(getWorldTime()-val));
-    return (getWorldTime()-val);
-}*/
 
 Number.prototype.roundupsign = function () {
     return (this >= 0 || -1) * Math.ceil(Math.abs(this));
@@ -308,30 +280,7 @@ if (!String.prototype.reverse) {
   }
 }
 
-var BinToHex = function (uint8array) {
-    var len = Math.ceil(uint8array.length / 4);
-    var hex = "";
-    for (var i=0; i < len; i++) {
-      j=i*4;
-      var num = uint8array.slice(j,j+4).join('');
-      hex += parseInt(num, 2).toString(16).toUpperCase();
-    }
-    return hex;
-}
-
-var HexToBin = function (hex) {
-  var len = Math.ceil(hex.length);
-  var tmp;
-  var sum = "";
-  for (var i=0; i < len; i++) {
-    tmp = hex.substr(i,1);
-    sum += parseInt(tmp, 16).toString(2).padStart(4,'0');
-  }
-  var uint8arr = new Uint8Array( sum.split('') );
-  return uint8arr;
-}
-
-var RectContains = function (a, b) {
+Utils.RectContains = function (a, b) {
   // no horizontal overlap
 	if (a.x1 >= b.x2 || b.x1 >= a.x2) return false;
 
@@ -395,10 +344,10 @@ Utils.Base64ToBinArray = function (base64, limit) {
   return uint8array.slice(0,limit);
 }
 
-var getGridPosition = function (x, y) {
+Utils.getGridPosition = function (x, y) {
   return {gx: x >> 4, gy: y >> 4};
 }
 
-var getPositionFromGrid = function (gx, gy) {
+Utils.getPositionFromGrid = function (gx, gy) {
   return {x: gx << 4, y: gy << 4};
 }

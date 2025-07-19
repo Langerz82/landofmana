@@ -51,7 +51,7 @@ define(['lib/pako', 'entity/player', 'entityfactory', 'entity/mob', 'entity/item
 	           var method = data.substr(0,2);
 		        if (method === 'z|')
 		        {
-	            var buffer = _base64ToArrayBuffer(data.substr(2));
+	            var buffer = Utils._base64ToArrayBuffer(data.substr(2));
 	            try {
 	              var message = pako.inflate(buffer, {gzip: true, to: 'string'});
 								console.warn("message:"+message);
@@ -283,7 +283,7 @@ define(['lib/pako', 'entity/player', 'entityfactory', 'entity/mob', 'entity/item
         },
 
 				onSyncTime: function (data) {
-	        setWorldTime(parseInt(data[0]), parseInt(data[1]))
+	        Utils.setWorldTime(parseInt(data[0]), parseInt(data[1]))
 	      },
 
 				onVersion: function (data) {
@@ -545,7 +545,7 @@ define(['lib/pako', 'entity/player', 'entityfactory', 'entity/mob', 'entity/item
 						//try { throw new Error(); } catch(err) { console.error(err.stack); }
 						console.info("DEBUG: sendMoveEntity: x:"+entity.x+",entity.y:"+entity.y);
             this.sendMessage([Types.Messages.CW_MOVE,
-											getWorldTime(),
+											Utils.getWorldTime(),
             		      entity.id,
 											action,
 											entity.orientation,
@@ -562,7 +562,7 @@ define(['lib/pako', 'entity/player', 'entityfactory', 'entity/mob', 'entity/item
 						}
 
             var array = [Types.Messages.CW_MOVEPATH,
-											getWorldTime(),
+											Utils.getWorldTime(),
             		      entity.id,
 											entity.getOrientation(path[0], path[1]),
                       (entity.interrupted ? 1 : 0)];
@@ -579,7 +579,7 @@ define(['lib/pako', 'entity/player', 'entityfactory', 'entity/mob', 'entity/item
 				},
 
         sendAttack: function(player, mob, spellId) {
-            this.sendMessage([Types.Messages.CW_ATTACK, getWorldTime(),
+            this.sendMessage([Types.Messages.CW_ATTACK, Utils.getWorldTime(),
                               mob.id, player.orientation, spellId]);
         },
 

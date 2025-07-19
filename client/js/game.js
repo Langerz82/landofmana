@@ -95,7 +95,7 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
                 this.lastCurrentTime = 0;
                 this.updateCurrentTime = 0;
                 this.logicTime = 0;
-                this.currentTime = getTime();
+                this.currentTime = Utils.getTime();
 
                 this.cursors = {};
 
@@ -495,7 +495,7 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
               //}
 
               this.tickTime = Date.now();
-              this.currentTime = getTime();
+              this.currentTime = Utils.getTime();
 
               if (!this.started || this.isStopped) {
                 this.stateChanged = true;
@@ -1846,7 +1846,7 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
 
 
               for (var entity2 of entities) {
-                entity2.playerDistance = realDistance(entity,entity2);
+                entity2.playerDistance = Utils.realDistanceXY(entity,entity2);
               }
 
               if (entities.length == 0) {

@@ -1296,14 +1296,14 @@ define(['camera', 'entity/item', 'data/items', 'data/itemlootdata', 'entity/enti
 // TODO - Render in PIXIJS ?
             getFPS: function() {
                 var //nowTime = new Date(),
-                    diffTime = getTime() - this.lastTime;
+                    diffTime = Utils.getTime() - this.lastTime;
 
                 if (diffTime >= 1000) {
                     if (this.game.player.isMoving())
                       this.movingFPS = this.frameCount;
                     this.realFPS = this.frameCount;
                     this.frameCount = 0;
-                    this.lastTime = getTime();
+                    this.lastTime = Utils.getTime();
 
                 }
                 this.frameCount++;

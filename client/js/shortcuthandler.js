@@ -8,26 +8,25 @@ define(['data/skilldata', 'data/items'], function(SkillData, Items) {
       this.type = type;
       this.shortcutId = -1;
       this.cooldownTime = 0;
+
       this.jq = $('#shortcut'+slot);
       this.jqb = $('#scbackground'+slot);
-      //this.jqCooldown = $('#shortcutCD'+index);
+      this.jqCooldown = $('#scCD'+slot);
       this.jqnum = $('#shortcutnum'+slot);
 
       this.jq.data("slot", slot);
 
-      var install = function() {
-
-      };
-
       this.jq.click(function(e) {
+        if (ShortcutData || DragItem) {
+          self.setup();
+          return;
+        }
         if (self.type > 0) {
           self.exec();
         }
-        else {
-          self.setup();
-        }
+
       });
-      this.jq.on('drop touchend', function(e) {
+      this.jq.on('drop', function(e) {
         self.setup();
       });
       this.jq.unbind('dragover').bind('dragover', function(event) {
@@ -45,11 +44,15 @@ define(['data/skilldata', 'data/items'], function(SkillData, Items) {
       if (DragItem) {
         var item = game.inventory.getItem(DragItem.type, DragItem.slot);
         if (item) {
-          this.install(slot, 1, item.itemKind);
+          this.parent.install(slot, 1, item.itemKind);
         }
+        game.inventory.deselectItem();
+        DragItem = null;
       }
       if (ShortcutData) {
-        this.install(slot, 2, ShortcutData.index);
+        this.parent.install(slot, 2, ShortcutData.index);
+        game.skillDialog.page.clearHighlight();
+        ShortcutData = null;
       }
       if (this.shortcutId > -1)
         game.client.sendShortcut(this.slot, this.type, this.shortcutId);
@@ -60,8 +63,6 @@ define(['data/skilldata', 'data/items'], function(SkillData, Items) {
       this.slot = slot;
       this.type = type;
       this.shortcutId = id;
-
-      // get cooldown time.
 
       if (this.type == 1) {
         this.cooldownTime = 5;
@@ -86,11 +87,8 @@ define(['data/skilldata', 'data/items'], function(SkillData, Items) {
     },
 
     exec: function () {
-      var children = this.parent.getSameShortcuts(this);
-      for (var sc of children) {
-        if (sc.cooldown && sc.cooldown.cooltimeCounter > 0)
-          return;
-      }
+      if (this.cooldown && this.cooldown.cooltimeCounter > 0)
+        return;
 
       var res = false;
       // display cooldown for all
@@ -105,15 +103,16 @@ define(['data/skilldata', 'data/items'], function(SkillData, Items) {
       }
 
       if (res)
-        this.cooldownStart(this.cooldownTime);
+        this.parent.cooldownStart(this.type, this.shortcutId);
 
       this.display();
     },
 
     cooldownStart: function (time) {
-      // show cooldown display.
-      var children = this.parent.getSameShortcuts(this);
-      this.cooldown = new Cooldown(this.parent, this);
+      if (this.cooldown)
+        this.cooldown.done();
+
+      this.cooldown = new Cooldown(this);
       this.cooldown.start(time);
 
       if (this.type == 2)
@@ -123,11 +122,9 @@ define(['data/skilldata', 'data/items'], function(SkillData, Items) {
   });
 
   var Cooldown = Class.extend({
-    init: function(parent, shortcut) {
-      this.parent = parent;
+    init: function(shortcut) {
       this.shortcut = shortcut;
-      this.children = this.parent.getSameShortcuts(shortcut);
-
+      this.children = shortcut.parent.getSameShortcuts(shortcut);
     },
 
     start: function (time) {
@@ -148,20 +145,26 @@ define(['data/skilldata', 'data/items'], function(SkillData, Items) {
       this.cooltimeTickHandle = setInterval(funcCooldown, 1000);
 
       funcCooldown();
-      this.children = this.parent.getSameShortcuts(this.shortcut);
-      for (var slot of this.children) {
-        $('#scCD'+slot.slot).show();
-      }
+
+      for (var sc of this.children)
+        sc.jqCooldown.show();
     },
 
     tick: function () {
-      this.children = this.parent.getSameShortcuts(this.shortcut);
+      this.children = this.shortcut.parent.getSameShortcuts(this.shortcut);
 
-      if (this.cooltimeCounter == 0)
+      if (this.cooltimeCounter == 0) {
         this.done();
+        return;
+      }
 
-      for (var slot of this.children) {
-        $('#scCD'+slot.slot).html(this.cooltimeCounter);
+      this.show();
+    },
+
+    show: function () {
+      for (var sc of this.children) {
+        sc.jqCooldown.show();
+        sc.jqCooldown.html(this.cooltimeCounter);
       }
     },
 
@@ -170,12 +173,10 @@ define(['data/skilldata', 'data/items'], function(SkillData, Items) {
       this.cooltimeTickHandle = null;
       this.cooltimeCounter = 0;
 
-      this.children = this.parent.getSameShortcuts(this.shortcut);
+      for (var sc of this.children)
+        sc.jqCooldown.hide();
 
-      for (var slot of this.children) {
-        $('#scCD'+slot.slot).hide();
-      }
-
+      this.cooldown = null;
       delete this;
     },
   });
@@ -201,9 +202,17 @@ define(['data/skilldata', 'data/items'], function(SkillData, Items) {
       }
     },
 
-    install: function (slot, type, index) {
+    install: function (slot, type, shortcutId) {
       if (this.shortcuts[slot])
-        this.shortcuts[slot].install(slot, type, index);
+        this.shortcuts[slot].install(slot, type, shortcutId);
+
+      for (var sc of this.shortcuts) {
+        if (sc && type == sc.type && shortcutId == sc.shortcutId && sc.cooldown)
+        {
+          sc.cooldown.show();
+          break;
+        }
+      }
     },
 
     cooldownStart: function (type, shortcutId) {
@@ -214,7 +223,6 @@ define(['data/skilldata', 'data/items'], function(SkillData, Items) {
           if (slot.type == type && slot.shortcutId == shortcutId)
           {
             slot.cooldownStart(slot.cooldownTime);
-            break;
           }
         }
     },
