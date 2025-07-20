@@ -29,7 +29,7 @@ define([], function() {
         this.count = arr[5] || 0;
         this.objectCount = arr[6] || 0;
         var objectCount = this.objectCount;
-        objectCount = Utils.getNumShortHand(objectCount);
+        objectCount = Utils.getNumShortHand(objectCount, 0);
         this.summary = lang.data["ACHIEVEMENTS_"+this.index].format(objectCount);
       },
 

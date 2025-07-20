@@ -143,7 +143,9 @@ Utils.remainder = function (a, b)
 };
 
 Utils.getNumShortHand = function (val, fixed) {
-  fixed = fixed || 2;
+  if (fixed === null)
+    fixed = 2;
+
   if (val <= 1000)
     return val;
   if (val <= 1000000)
@@ -154,6 +156,13 @@ Utils.getNumShortHand = function (val, fixed) {
     return (val/1000000000).toFixed(fixed)+"B";
   else
     return (val/1000000000000).toFixed(fixed)+"T";
+}
+
+Utils.Percent = function (val, fixed) {
+  if (fixed === null)
+    fixed = 0;
+
+  return Number(val * 100).toFixed(fixed) + "%";
 }
 
 Utils.padding = function (val, size) {

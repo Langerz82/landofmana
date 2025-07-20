@@ -1,4 +1,13 @@
 TODO:
+
+CLIENT - Hide gold amount in Appearance Dialog.
+
+DONE:
+
+CLIENT - Fix short hand values for achievements.
+SERVER - Turn down xp rewards on achievements.
+SERVER - Turn up item xp rewards on armor, and possibly lower weapon xp.
+
 CLIENT - Attack skill can now target.
 CLIENT - Inventory Window no long has windows behind it in Auction/Bank.
 

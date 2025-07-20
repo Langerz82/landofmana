@@ -149,7 +149,7 @@ define(['entity/item', 'data/items'], function(Item, Items) {
             this.spriteName = ItemTypes.KindData[itemKind].sprite;
             this.itemDurability = durability;
             this.itemDurabilityMax = durabilityMax;
-            this.itemDurabilityPercent = durability/durabilityMax*100;
+            this.itemDurabilityPercent = Utils.Percent(durability/durabilityMax);
             this.experience = experience;
             this.restore();
         },
@@ -173,7 +173,7 @@ define(['entity/item', 'data/items'], function(Item, Items) {
             }
           	else
           	{
-          		this.body.html(this.itemDurabilityPercent.toFixed() + "%");
+          		this.body.html(this.itemDurabilityPercent);
           	}
         }
     });

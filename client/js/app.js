@@ -586,7 +586,7 @@ define(['lib/localforage', 'entity/mob', 'entity/item', 'data/mobdata', 'user', 
               //$("#target .health").css('width', Math.round(target.healthPoints/target.maxHp*90*scale)+'px');
               $("#target .health").css('width', Math.round(target.healthPoints/target.maxHp*40*guiScale)+'px');
               /*if(game.player.inspecting && game.player.inspecting.id === target.id){
-                  $("#inspector .health").css('width', Math.floor(target.healthPoints/target.maxHp*100) + "%");
+                  $("#inspector .health").css('width', Utils.Percent(target.healthPoints/target.maxHp, 0));
               }*/
           });
 
@@ -636,9 +636,10 @@ define(['lib/localforage', 'entity/mob', 'entity/item', 'data/mobdata', 'user', 
                     } else if(rate < 0){
                         rate = 0;
                     }
-                $('#exp').css('width', 100*rate + "%");
-               	$('#expbar').attr("title", "Exp: " + (rate*100).toFixed(0) + "%");
-               	$('#expbar').html("Exp: " + (rate*100).toFixed(0) + "%");
+                var rateFmt = Utils.Percent(rate,0);
+                $('#exp').css('width', rateFmt);
+               	$('#expbar').attr("title", "Exp: " + rateFmt);
+               	$('#expbar').html("Exp: " + rateFmt);
                	$('#explevel').html(level);
             });
         },

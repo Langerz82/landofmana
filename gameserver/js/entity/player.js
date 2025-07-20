@@ -213,10 +213,10 @@ module.exports = Player = Character.extend({
       var mod = 1 + div + Utils.clamp(-diff,diff,(entity.level - this.level)) * div;
       var xp = ~~(xp * mod);
       this.incExp(xp);
-      this.incWeaponExp(~~(xp / 3));
+      this.incWeaponExp(xp);
 
       var weaponSlot = 4;
-      var armorDamage = Math.min(5, Math.ceil(dealt / 1000));
+      var armorDamage = Math.min(5, Math.ceil(dealt / 300));
       log.warn("armorDamage:" + armorDamage);
       for (var it in this.equipment.rooms) {
         if (it == weaponSlot)
@@ -234,7 +234,7 @@ module.exports = Player = Character.extend({
       this.armorDamage = 0;
 
       // Degrade weapon if over threshold.
-      var weaponDamage = Math.min(5, Math.ceil(damage / 1000));
+      var weaponDamage = Math.min(5, Math.ceil(damage / 2000));
       if (weaponDamage > 0)
       {
           if (this.equipment.degradeItem(weaponSlot, 1))

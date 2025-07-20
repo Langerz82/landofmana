@@ -411,6 +411,29 @@ Utils.SwapElements = function (arr, i1, i2) {
   [arr[i1], arr[i2]] = [arr[i2], arr[i1]];
 }
 
+Utils.getNumShortHand = function (val, fixed) {
+  if (fixed === null)
+    fixed = 2;
+
+  if (val <= 1000)
+    return val;
+  if (val <= 1000000)
+    return (val/1000).toFixed(fixed)+"K";
+  if (val <= 1000000000)
+    return (val/1000000).toFixed(fixed)+"M";
+  if (val <= 1000000000000)
+    return (val/1000000000).toFixed(fixed)+"B";
+  else
+    return (val/1000000000000).toFixed(fixed)+"T";
+}
+
+Utils.Percent = function (val, fixed) {
+  if (fixed === null)
+    fixed = 0;
+
+  return (val * 100).toFixed(fixed) + "%";
+}
+
 /*
 module.exports = removeEmpty = function (obj) {
   return Object.fromEntries(

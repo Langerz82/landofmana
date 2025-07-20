@@ -97,13 +97,13 @@ module.exports = TaskHandler = cls.Class.extend({
       this.processAchievement(player, playerEvent, achievement, function (achievement, event) {
         return (achievement.data.type == EventType.KILLMOB &&
             (achievement.data.objectKind == 0 || achievement.data.objectKind == event.object.kind));
-      }, 5);
+      }, 2);
       this.processAchievement(player, playerEvent, achievement, function (achievement, event) {
         return (achievement.data.type == EventType.LOOTITEM && event.object.hasOwnProperty("enemyDrop"));
-      }, 10);
+      }, 5);
       this.processAchievement(player, playerEvent, achievement, function (achievement, event) {
         return (achievement.data.type == EventType.DAMAGE);
-      }, 0.1);
+      }, 0.02);
       this.processAchievement(player, playerEvent, achievement, function (achievement, event) {
         if (achievement.data.type == EventType.USE_NODE) {
           var wtype = event.object.weaponType;
@@ -164,11 +164,8 @@ module.exports = TaskHandler = cls.Class.extend({
 
         var xp = ~~(objectCount * expMultiplier);
         var chatAchievement = "ACHIEVEMENTS_"+ti+"_COMPLETE";
-        var objectCountFmt = objectCount;
-        if (objectCount >= 1000000)
-          objectCountFmt = Number(objectCount / 1000000).toFixed(1).replace(/[.,]0$/, "")+"M";
-        else if (objectCount >= 1000)
-          objectCountFmt = Number(objectCount / 1000).toFixed(1).replace(/[.,]0$/, "")+"K";
+        var objectCountFmt = Utils.getNumShortHand(objectCount, 0);
+
         player.incExp(xp);
         player.map.entities.sendToPlayer(player, new Messages.Notify("CHAT", chatAchievement, [objectCountFmt, xp]));
         if (achievement.rank == (rankCount-1) && achievement.count == objectCount)

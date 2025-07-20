@@ -31,7 +31,7 @@ define([], function() {
       $("#achievementLogInfo tbody").find("tr:gt(0)").remove();
 
       for (var achievement of game.player.achievements) {
-        var progress = Number((achievement.count / achievement.objectCount) * 100).toFixed(0)+"%";
+        var progress = Utils.Percent(achievement.count / achievement.objectCount, 0);
 
         $('#achievementLogInfo tbody').append(
           "<tr id='ad_"+achievement.index+"'>" +
