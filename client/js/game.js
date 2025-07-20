@@ -1023,7 +1023,7 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
               var pos = p.nextTile();
               var type = p.getWeaponType();
               if (type != null) {
-                var gpos = getGridPosition(pos[0], pos[1]);
+                var gpos = Utils.getGridPosition(pos[0], pos[1]);
                 if (this.mapContainer.isHarvestTile(gpos, type)) {
                   game.processInput(pos[0], pos[1], true);
                   return;

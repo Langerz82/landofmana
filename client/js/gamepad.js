@@ -322,33 +322,32 @@ var selectFirstItem = {
         return;
       }
     }
+    /*
+// TODO FIX
     else if (self.shortcutActive && jqAttackWindow.is(':visible'))
     {
       if (navigate == Navigate.UP)
       {
-        self.joystickY = ((self.joystickY+7)%8);
-        var index = self.playerShortcut[(self.joystickY)*2+(self.joystickX)];
-        this.setSelectedItem($(index));
+        self.joystickY = (self.joystickY-1).clamp(0,3);
       }
       if (navigate == Navigate.DOWN)
       {
-        self.joystickY = ((self.joystickY+1)%8);
-        var index = self.playerShortcut[(self.joystickY)*2+(self.joystickX)];
-        this.setSelectedItem($(index));
+        self.joystickY = (self.joystickY-1).clamp(0,3);
       }
       if (navigate == Navigate.LEFT)
       {
-        self.joystickX = (self.joystickX+1%2);
-        var index = self.playerShortcut[(self.joystickY)*2+(self.joystickX)];
-        this.setSelectedItem($(index));
+        self.joystickX = (self.joystickX-1).clamp(0,1);
       }
       if (navigate == Navigate.RIGHT)
       {
-        self.joystickX = (self.joystickX+1%2);
+        self.joystickX = (self.joystickX+1).clamp(0,1);
+      }
+      if (navigate != 0) {
         var index = self.playerShortcut[(self.joystickY)*2+(self.joystickX)];
         this.setSelectedItem($(index));
       }
     }
+    }*/
     else if (jqSkillWindow.is(':visible'))
     {
       var modx = 0;
