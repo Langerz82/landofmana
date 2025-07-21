@@ -431,7 +431,7 @@ Utils.Percent = function (val, fixed) {
   if (fixed === null)
     fixed = 0;
 
-  return (val * 100).toFixed(fixed) + "%";
+  return Number(val * 100).toFixed(fixed) + "%";
 }
 
 /*

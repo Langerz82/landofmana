@@ -1639,42 +1639,11 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
                     var sgrid = shortGrid.crop;
                     var spS = shortGrid.substart;
                     var spE = shortGrid.subend;
-                    var path = [];
+                    var path = null;
 
-                    var dx = Math.abs(Math.floor(spS[0]) - Math.floor(spE[0]));
-                    var dy = Math.abs(Math.floor(spS[1]) - Math.floor(spE[1]));
+                    path = this.pathfinder.findDirectPath(sgrid, spS, spE);
 
-                    if (!path || path.length == 0) {
-                      if (dx == 0 || dy == 0) {
-                        mp = [spS, spE];
-                        if(this.pathfinder.isValidPath(sgrid, mp)) {
-                          log.info("validpath-mp1:"+JSON.stringify(mp));
-                          path = mp;
-                        }
-                      }
-                    }
-
-                    //if (!(dx == 0 || dy == 0)) {
-                      if (!path || path.length == 0) {
-                        var mp = [spS, [spS[0],spE[1]], spE];
-                        log.info("mp:"+JSON.stringify(mp));
-                        if(this.pathfinder.isValidPath(sgrid, mp)) {
-                          log.info("validpath-mp2:"+JSON.stringify(mp));
-                          path = mp;
-                        }
-                      }
-
-                      if (!path || path.length == 0) {
-                        mp = [spS, [spE[0],spS[1]], spE];
-                        log.info("mp:"+JSON.stringify(mp));
-                        if(this.pathfinder.isValidPath(sgrid, mp)) {
-                          log.info("validpath-mp3:"+JSON.stringify(mp));
-                          path = mp;
-                        }
-                      }
-                    //}
-
-                    if (!path || path.length == 0) {
+                    if (!path) {
                       var lx = grid[0].length;
                       var ly = grid.length;
                       if (pS[0] < 0 || pS[0] >= lx || pS[1] < 0 || pS[1] >= ly ||
@@ -1691,14 +1660,14 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
                         log.info("validpath-mp4:"+JSON.stringify(path));
                     }
 
-                    if (!path || path.length == 0) {
+                    if (!path) {
                       log.info("using long path finder.");
                       path = this.pathfinder.findPath(grid, pS, pE, false);
                       if (path)
                         log.info("validpath-mp5:"+JSON.stringify(path));
                     }
 
-                    if (path && path.length > 0)
+                    if (path)
                     {
                       //log.info("path_result: "+JSON.stringify(path));
                       var dx = character.x - spS[0]*ts;

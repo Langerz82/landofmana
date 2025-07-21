@@ -851,46 +851,11 @@ var MapEntities = cls.Class.extend({
           var sgrid = shortGrid.crop;
           var spS = shortGrid.substart;
           var spE = shortGrid.subend;
-          var subpath = [];
+          var subpath = null;
 
-          var dx = Math.abs(Math.floor(spS[0]) - Math.floor(spE[0]));
-          var dy = Math.abs(Math.floor(spS[1]) - Math.floor(spE[1]));
-          console.info("dx="+dx+",dy="+dy);
-          if (!subpath || subpath.length == 0) {
-            if (dx == 0 || dy == 0) {
-              mp = [spS, spE];
-              if(this.pathfinder.isValidPath(sgrid, mp, true)) {
-                  //console.warn("path-mp:"+JSON.stringify(mp));
-                  subpath = mp;
-                  console.info("findPath1 - subpath:"+JSON.stringify(subpath));
-              }
-            }
-          }
+          subpath = this.pathfinder.findDirectPath(sgrid, spS, spE);
 
-          //if (!(dx == 0 || dy == 0))
-          //{
-            if (!subpath || subpath.length == 0) {
-              var mp = [spS, [spS[0],spE[1]], spE];
-              console.info("mp:"+JSON.stringify(mp));
-              if(this.pathfinder.isValidPath(sgrid, mp, true)) {
-                //console.warn("findPath - lPath:"+JSON.stringify(mp));
-                subpath = mp;
-                console.info("findPath2 - subpath:"+JSON.stringify(subpath));
-              }
-            }
-
-            if (!subpath || subpath.length == 0) {
-              mp = [spS, [spE[0],spS[1]], spE];
-              console.info("mp:"+JSON.stringify(mp));
-              if(this.pathfinder.isValidPath(sgrid, mp, true)) {
-                  //console.warn("findPath - lPath:"+JSON.stringify(mp));
-                  subpath = mp;
-                  console.info("findPath3 - subpath:"+JSON.stringify(subpath));
-              }
-            }
-          //}
-
-          if (subpath && subpath.length > 0)
+          if (subpath)
           {
             //console.info("findPath - subpath:"+JSON.stringify(subpath));
             var res = this.pathfinder.getFullFromShortPath(subpath, shortGrid.minX, shortGrid.minY);
@@ -898,30 +863,28 @@ var MapEntities = cls.Class.extend({
             return res;
           }
 
-          if (!path || path.length == 0) {
+        if (!path) {
             //console.warn("findPath - shortPath: attempting.");
             //console.info("grid:"+JSON.stringify(grid));
             //console.info(JSON.stringify(shortGrid));
             path = this.pathfinder.findShortPath(sgrid,
           	 shortGrid.minX, shortGrid.minY, spS, spE);
             console.info("findPath - shortPath:"+JSON.stringify(path));
-          }
+        }
 
-          if (!path || path.length == 0) {
-            console.warn("findPath - DANGER - findPath LONGGG");
-            path = this.pathfinder.findPath(grid, pS, pE, false);
-            console.info("findPath - longPath:"+JSON.stringify(path));
-          }
+        if (!path) {
+          console.warn("findPath - DANGER - findPath LONGGG");
+          path = this.pathfinder.findPath(grid, pS, pE, false);
+          console.info("findPath - longPath:"+JSON.stringify(path));
+        }
 
-          if (!path)
+        if (!path)
             console.error("findPath - Error while finding the path to "+x+", "+y+" for "+character.id);
 
           //console.info("cid: "+character.id+", path_result:"+JSON.stringify(path));
-          return path;
-      } else {
-          console.error("findPath - Error while finding the path to "+x+", "+y+" for "+character.id);
-      }
-      return path;
+          return null;
+        }
+        return path;
     },
 
     spaceEntityRandomApart: function (dist, callback_func, entities, entity, threshold) {
