@@ -37,23 +37,6 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
       this.pageItems = 24;
 
       var self = this;
-      /*for (var i = 0; i < 4; i++) {
-        $('#scinventorybackground' + i).bind("click", function(event) {
-          if (self.game.ready) {
-            $("#inventoryGearItems").trigger('click');
-            var slot = parseInt(this.id.slice(21));
-
-            log.info("inventoryNumber"+slot);
-            var item = self.inventory[slot];
-            if (item) {
-              item.slot = self.getRealSlot(slot);
-              if (ItemTypes.isConsumableItem(item.itemKind)) {
-                this.useItem(0, item);
-              }
-            }
-          }
-        });
-      }*/
 
       this.closeButton = $('#inventoryCloseButton');
       this.closeButton.click(function(event) {
@@ -236,17 +219,16 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
         };
 
 				$('#equipment'+i).on("click", function (e) {
-          var type = $(this).data("itemType");
-          var slot = $(this).data("itemSlot");
-
-          selectEquipment(event, type, slot);
 				});
 
         $('#equipBackground'+i).on("click", function (e) {
           var type = $(this).data("itemType");
           var slot = $(this).data("itemSlot");
 
-          if (self.selectedItem >= 0) {
+          if (self.selectedItem < 0) {
+            selectEquipment(e, type, slot);
+          }
+          else {
             var dragItem = (DragItem) ? self.getItem(DragItem.type, DragItem.slot) : null;
             var item = self.getItem(type, slot);
 
@@ -300,7 +282,7 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
         $('#inventorybackground'+i).data('itemSlot',i);
 
 				$('#inventory'+i).on('click', function(event) {
-          var type = $(this).data("itemType");
+          /*var type = $(this).data("itemType");
           var slot = $(this).data("itemSlot");
 
 					if (self.selectedItem < 0)
@@ -308,7 +290,7 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
             self.selectInventory(this);
             self.moveItem(0, slot, true);
 						event.stopPropagation();
-          }
+          }*/
 				});
 
 				$('#inventorybackground'+i).on('click', function(event) {
@@ -331,8 +313,12 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
               self.splitItem(type, slot);
             }
             self.deselectItem();
-						event.stopPropagation();
           }
+          else {
+            self.selectInventory(this);
+            self.moveItem(0, slot, true);
+          }
+          event.stopPropagation();
 				});
 
         $('#inventory'+i).on('dragstart', function(event) {
@@ -394,8 +380,8 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
       });
 
       $('.inventoryGoldFrame').off().on('click', function(event) {
-        if (self.game.bankDialog.visible) {
-          self.game.app.showDropDialog("bankgold");
+        if (game.inventoryMode == InventoryMode.MODE_BANK) {
+          game.app.showDropDialog("bankgold");
         }
       });
     },
@@ -455,7 +441,7 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
     },
 
     setCurrency: function(gold, gems) {
-      $('.inventoryGold').text(Utils.getNumShortHand(gold));
+      $('.inventoryGold').text(Utils.getNumShortHand(gold, 2));
       $('.inventoryGems').text(gems);
     },
 
@@ -521,25 +507,14 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
         var itemKind = item.itemKind;
         var itemNumber = item.itemNumber;
 
-        /*var itemData;
-        if (itemKind >= 1000 && itemKind < 2000) {
-          itemData = ItemLoot[itemKind - 1000];
-        } else {
-          itemData = ItemTypes.KindData[itemKind];
-        }
-        var spriteName = itemData.sprite;
-        if (itemKind >= 1000 && itemKind < 2000) {
-          spriteName = game.sprites["itemloot"].file;
-        } else if (ItemTypes.isEquippable(itemKind)) {
-          spriteName = game.sprites["items"].file;
-        }*/
-
         if (itemKind > 0) {
           var jq = $('#inventory' + slot);
           Items.jqShowItem(jq, item, jq);
         }
 
         var highlight = $('#inventoryHL' + slot);
+
+        $('#allinventorywindow div.inventoryGemsFrame').show();
 
         if (game.inventoryMode == InventoryMode.MODE_SELL ||
             game.inventoryMode == InventoryMode.MODE_AUCTION)
@@ -564,6 +539,7 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
               'background-color': '#00000077'
             });
           }
+          $('#allinventorywindow div.inventoryGemsFrame').hide();
         }
         else if (game.inventoryMode == InventoryMode.MODE_ENCHANT) {
           if (ItemTypes.isEquippable(itemKind) && item.itemNumber <= this.pageItems) {
@@ -575,6 +551,7 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
               'background-color': '#00000077'
             });
           }
+          $('#allinventorywindow div.inventoryGemsFrame').hide();
         }
         else {
           highlight.css({
@@ -658,6 +635,10 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
       }
       else if (game.inventoryMode == InventoryMode.MODE_REPAIR) {
         $('#invActionButton').text("REPAIR");
+        $('#invActionButton').show();
+      }
+      else if (game.inventoryMode == InventoryMode.MODE_BANK) {
+        $('#invActionButton').text("BANK");
         $('#invActionButton').show();
       }
 			else if (game.inventoryMode == InventoryMode.MODE_NORMAL) {

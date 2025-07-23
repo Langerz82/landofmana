@@ -13,7 +13,7 @@
     #bankDialogButtons div
     {
         display: inline-block;
-        width:80px;
+        width:50px;
         height:36px;
     }
 
@@ -72,7 +72,7 @@
     }
 
     #bankDialogStoreButton {
-      position: absolute;
-      right:2%;
-      bottom:2%;
+      display: inline-block;
+      width:100px !important;
+      height:36px;
     }

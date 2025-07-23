@@ -355,6 +355,9 @@ define(['./dialog', '../tabbook', '../tabpage', '../entity/item', '../inventorys
 
             this._super();
             $("#craftDialogStore0Button").trigger('click');
+
+            $('#storeDialogStore div.inventoryGoldFrame').show();
+            $('#storeDialogStore div.inventoryGemsFrame').hide();            
         },
 
         hide: function() {

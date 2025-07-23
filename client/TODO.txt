@@ -1,9 +1,16 @@
 TODO:
 
-CLIENT - Hide gold amount in Appearance Dialog.
+CLIENT - DPAD mouse movement is not moving up/down/left/right properly.
+
+CLIENT - Enable selecting Inventory Gold in Inventory to transfer to Bank.
+
+CLIENT - Keyboard movement appears jerky, needs fixing.
+
+
 
 DONE:
 
+CLIENT - Hide gold amount in Appearance Dialog.
 CLIENT - Fix short hand values for achievements.
 SERVER - Turn down xp rewards on achievements.
 SERVER - Turn up item xp rewards on armor, and possibly lower weapon xp.

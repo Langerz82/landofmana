@@ -1,15 +1,10 @@
 define(['./dialog', '../tabbook', '../tabpage', '../entity/item', 'data/items', 'data/itemlootdata', '../inventorystore'], function(Dialog, TabBook, TabPage, Item, Items, ItemLoot, InventoryStore) {
-    function fixed(value, length) {
-        var buffer = '00000000' + value;
-        return buffer.substring(buffer.length - length);
-    }
-
     var BankSlot = Class.extend({
         init: function(parent, index) {
             this.parent = parent;
             this.index = index;
             this.item = null;
-            var name = '#bankDialogBank' + fixed(this.index, 2);
+            var name = '#bankDialogBank' + this.index;
             this.background = $(name + 'Background');
             this.body = $(name + 'Body');
 
@@ -45,17 +40,16 @@ define(['./dialog', '../tabbook', '../tabpage', '../entity/item', 'data/items', 
             };
 
             this.body.off().on('click', function(event) {
+            });
+
+            this.background.off().on('click', function(event) {
                 var slot = $(this).data("itemSlot");
                 if (DragBank == null) {
                   self.parent.selectBankItem(this);
                   moveItem(1, slot, true);
   								event.stopPropagation();
                 }
-            });
-
-            this.background.off().on('click', function(event) {
-                var slot = $(this).data("itemSlot");
-                if (DragBank != null) {
+                else {
                   if (DragBank.slot == slot)
                     moveItem(0, -1);
                   else
@@ -267,7 +261,7 @@ define(['./dialog', '../tabbook', '../tabpage', '../entity/item', 'data/items', 
 
         selectItem: function(realslot, select) {
           pageslot = realslot % this.pageItems;
-          //var str = '#bankDialogBank'+fixed(pageslot,2)+'Background';
+          //var str = '#bankDialogBank'+pageslot+'Background';
           if (pageslot < 0)
             return;
 

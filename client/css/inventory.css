@@ -201,7 +201,7 @@
     		position:absolute;
 				left: 0;
         bottom: 0;
-        width: 80px;
+        width: 120px;
         height: 21px;
     }
 
@@ -218,9 +218,9 @@
 
     .inventoryGemsFrame {
         position:absolute;
-				left: 80px;
+				left: 120px;
         bottom: 0;
-        width: 80px;
+        width: 120px;
         height: 21px;
     }
 
@@ -241,11 +241,21 @@
         line-height:21px;
     }
 
+    #storeDialogStore div.inventoryGoldFrame
+    {
+      left: 0px;
+    }
+
+    #storeDialogStore div.inventoryGemsFrame
+    {
+      left: 0px;
+    }
+
     .inventorySellGoldFrame {
     		position:absolute;
 				right: 120px;
         bottom: 0;
-        width: 80px;
+        width: 120px;
         height: 21px;
         text-align:right;
     }
@@ -259,3 +269,7 @@
         color: #fff;
         text-align: left;
     }
+
+     .inventorySellGoldFrame * {
+       font-family: "GraphicPixel";
+     }

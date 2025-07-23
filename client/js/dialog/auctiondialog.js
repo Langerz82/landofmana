@@ -359,6 +359,9 @@ define(['./dialog', '../tabbook', '../tabpage', '../entity/item', 'data/items', 
 
             this._super();
             $("#storeDialogStore0Button").trigger('click');
+
+            $('#storeDialogStore div.inventoryGoldFrame').show();
+            $('#storeDialogStore div.inventoryGemsFrame').hide();            
         },
 
         hide: function() {

@@ -311,6 +311,8 @@ define(['./dialog', '../tabbook', '../tabpage', '../entity/item', '../inventorys
             this.sellButton.off().on('click', function (event) {
               game.inventoryMode = InventoryMode.MODE_SELL;
               game.inventoryHandler.showInventory(true);
+              game.inventoryHandler.backPage = self;
+              self.hide();
             });
 
             this.rescale();
@@ -320,6 +322,9 @@ define(['./dialog', '../tabbook', '../tabpage', '../entity/item', '../inventorys
 
             this._super();
             $("#storeDialogStore0Button").trigger('click');
+
+            $('#storeDialogStore div.inventoryGoldFrame').show();
+            $('#storeDialogStore div.inventoryGemsFrame').hide();
         },
 
         hide: function() {

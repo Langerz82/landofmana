@@ -451,13 +451,18 @@ define(['./dialog', '../tabbook', '../tabpage', 'data/appearancedata', '../pageN
 
             jq3Button.off().on('click', function (event) {
                   $('#appearanceDialog').show();
+                  $('#storeDialogStore').hide();
             });
 
             $('#appearanceCloseButton').off().on('click', function (event) {
                   $('#appearanceDialog').hide();
+                  $('#storeDialogStore').show();
             });
 
             $('#looksDialogPlayer').css("display","block");
+
+            $('#storeDialogStore div.inventoryGoldFrame').hide();
+            $('#storeDialogStore div.inventoryGemsFrame').show();
 
             this._super();
         },

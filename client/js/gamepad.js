@@ -29,6 +29,8 @@ var jqDiedWindow = $("#diedwindow");
 var jqAuctionSellWindow = $("#auctionSellDialog");
 var jqAchievementWindow = $("#achievementlog");
 var jqShopWindow = $("#shopDialog");
+var jqBankWindow = $("#bankDialog");
+var jqLooksWindow = $('#appearanceDialog');
 
 var selectFirstItem = {
   allinventorywindow: "#inventorybackground0",
@@ -45,12 +47,14 @@ var selectFirstItem = {
   dialogModalNotify: "#dialogModalNotifyButton1",
   combatContainer: "#shortcut0",
   auctionSellDialog: "#auctionSellAccept",
-  bankDialog: "#bankDialogBank00Background",
-  appearanceDialog: "#changeLookArmorPrev",
+  bankDialog: "#bankDialogBank0Background",
+  appearanceDialog: "#storeDialogStore1Button",
+  craftDialog: "#craftDialogStore0Button",
   shopDialog: "#shopSKU",
   storeDialog: "#storeDialogStore0Button",
   socialconfirm: "#socialconfirmyes",
   diedwindow: "#respawn",
+  attackContainer: "#shortcut0"
 };
 
   var Gamepad = Class.extend({
@@ -58,15 +62,19 @@ var selectFirstItem = {
       var self = this;
 
   self.shopPageIndex = 0;
+  self.craftPageIndex = 0;
+  self.invPageIndex = 0;
 	self.storeDialogSide = ['#storeDialogStore0Button', '#storeDialogStore1Button', '#storeDialogStore2Button', '#storeDialogStore3Button'];
+  self.looksDialogSide = ['#storeDialogStore1Button', '#storeDialogStore3Button'];
+  self.craftDialogButtons = "#craftDialogStore{0}Button";
 	self.storeDialogBuyButton = "#storeDialogStore{0}BuyButton";
 
-  self.bankPages = ["#bankDialog0Button", "#bankDialog1Button", "#bankDialog2Button", "#bankDialog3Button", "#bankDialogStoreButton"];
+  self.bankPages = ["#bankDialog0Button", "#bankDialog1Button", "#bankDialog2Button", "#bankDialog3Button", "#bankDialogStoreButton", "#bankGoldFrame"];
   self.bankPageIndex = 0;
 
 
   self.playerInventory = "#inventorybackground{0}";
-  self.playerInventoryButtons = ["#inventoryGearItems", "inventoryGear2Items"];
+  self.playerInventoryButtons = ["#inventoryGearItems", "#inventoryGear2Items"];
   self.playerBank = "#bankDialogBank{0}Background";
   self.playerEquipment = ["#equipBackground0","#equipBackground1","#equipBackground2","#equipBackground3","#equipBackground4"];
   self.playerShortcut = ["#shortcut0", "#shortcut1", "#shortcut2", "#shortcut3", "#shortcut4", "#shortcut5", "#shortcut6", "#shortcut7"];
@@ -92,11 +100,8 @@ var selectFirstItem = {
     "#socialbutton",
     "#warpbutton",
     "#settingsbutton",
-//    "#leaderboardbutton",
     "#storebutton"
   ];
-
-	//self.shortcutButtons = ['#scinventory2','#scinventory3','#scinventory0','#scinventory1','#skill0','#skill1','#skill2','#skill3','#skill4', '#skill5'];
 
   self.navMouse = false;
 
@@ -104,14 +109,11 @@ var selectFirstItem = {
   self.navNone = false;
 
   self.movePad = false;
-  //self.navLeft = false;
-  //self.navRight = false;
-  //self.navUp = false;
-  //self.navDown = false;
 
   self.shortcutAssign = 0;
   self.selectedItem = null;
-  //self.navIntervalSpeed = 16;
+  self.dpadX = 0;
+  self.dpadY = 0;
 
   self.resetNavInterval = function (speed) {
     clearInterval(self.navInterval);
@@ -134,10 +136,10 @@ var selectFirstItem = {
     //var navigate = self.navigate[1];
     var navigate = self.navigate;
 
-    if (!jqInventoryWindow.is(':visible') &&
-        (game.storeDialog.visible ||
+    if (game.storeDialog.visible ||
          game.auctionDialog.visible ||
-         game.appearanceDialog.visible))
+         game.appearanceDialog.visible ||
+         game.craftDialog.visible)
     {
        if (navigate == Navigate.UP)
        {
@@ -196,51 +198,44 @@ var selectFirstItem = {
          }
        }
     }
-    else if (!jqInventoryWindow.is(':visible') && game.bankDialog.visible)
-    {
-
-      var y4 = 0;
-      if (navigate == Navigate.UP)
-      {
-        self.joystickY = (self.joystickY-1).clamp(0,4);
-
-        if (self.joystickY == 4)
-          y4 = ~~(self.joystickX/3);
-      }
-      if (navigate == Navigate.DOWN)
-      {
-        self.joystickY = (self.joystickY+1).clamp(0,4);
-
-        if (self.joystickY == 4)
-          y4 = ~~(self.joystickX/3);
-      }
+    else if (jqLooksWindow.is(':visible')) {
       if (navigate == Navigate.LEFT)
       {
-        self.joystickX = (self.joystickX-1).clamp(0,5);
-
-        if (self.joystickY == 4)
-          y4 = (self.joystickX%2);
-
+        $("#changeLookArmorPrev").trigger("click");
       }
       if (navigate == Navigate.RIGHT)
       {
-        self.joystickX = (self.joystickX+1).clamp(0,5);
+        $("#changeLookArmorNext").trigger("click");
+      }
+    }
+    else if (jqBankWindow.is(':visible'))
+    {
+      var modx = 0, mody = 0;
+      if (navigate == Navigate.UP)
+      {
+        mody = -1;
+      }
+      if (navigate == Navigate.DOWN)
+      {
+        mody = 1;
+      }
+      if (navigate == Navigate.LEFT)
+      {
+        modx = -1;
+      }
+      if (navigate == Navigate.RIGHT)
+      {
+        modx = 1;
+      }
 
-        if (self.joystickY == 4)
-          y4 = (self.joystickX%2);
+      if (navigate != 0) {
+        self.joystickX = ((self.joystickX+6+modx)%6);
+        self.joystickY = ((self.joystickY+4+mody)%4);
+        var index =(self.joystickY)*6+(self.joystickX);
+        var jqi = self.playerBank.format(index);
+        this.setSelectedItem($(jqi));
       }
-      if (navigate != Navigate.NONE || navigate != Navigate.NONE) {
-        if (self.joystickY == 4)
-        {
-          var jq = ["#bankGoldFrame", "#bankDialogStoreButton"];
-          this.setSelectedItem($(jq[y4]));
-        }
-        else {
-          var index = self.playerBank.format(padding((self.joystickY)*6+(self.joystickX),2));
-          this.setSelectedItem($(index));
-        }
-      }
-      return;
+      //return;
     }
     else if (jqInventoryWindow.is(':visible'))
     {
@@ -263,21 +258,23 @@ var selectFirstItem = {
         modx = 1;
       }
 
-			self.joystickX = ((self.joystickX+7+modx)%7);
-			if (self.joystickX == 6)
-			{
-				equipment = true;
-				self.joystickY = ((self.joystickY+5+mody)%5);
-			} else {
-				self.joystickY = ((self.joystickY+4+mody)%4);
-			}
+      if (navigate != 0) {
+  			self.joystickX = ((self.joystickX+7+modx)%7);
+  			if (self.joystickX == 6)
+  			{
+  				equipment = true;
+  				self.joystickY = ((self.joystickY+5+mody)%5);
+  			} else {
+  				self.joystickY = ((self.joystickY+4+mody)%4);
+  			}
 
-      var index = self.playerInventory.format((self.joystickY)*6+(self.joystickX));
-      if (equipment) {
-        index = self.playerEquipment[self.joystickY];
+        var index = self.playerInventory.format((self.joystickY)*6+(self.joystickX));
+        if (equipment) {
+          index = self.playerEquipment[self.joystickY];
+        }
+        this.setSelectedItem($(index));
       }
-      this.setSelectedItem($(index));
-      return;
+      //return;
     }
     else if (jqMenuWindow.is(':visible'))
     {
@@ -322,8 +319,6 @@ var selectFirstItem = {
         return;
       }
     }
-    /*
-// TODO FIX
     else if (self.shortcutActive && jqAttackWindow.is(':visible'))
     {
       if (navigate == Navigate.UP)
@@ -332,7 +327,7 @@ var selectFirstItem = {
       }
       if (navigate == Navigate.DOWN)
       {
-        self.joystickY = (self.joystickY-1).clamp(0,3);
+        self.joystickY = (self.joystickY+1).clamp(0,3);
       }
       if (navigate == Navigate.LEFT)
       {
@@ -347,7 +342,6 @@ var selectFirstItem = {
         this.setSelectedItem($(index));
       }
     }
-    }*/
     else if (jqSkillWindow.is(':visible'))
     {
       var modx = 0;
@@ -368,10 +362,12 @@ var selectFirstItem = {
       {
         modx = 1;
       }
-      self.joystickX = ((self.joystickX+(4+modx))%4).clamp(0,4);
-      self.joystickY = ((self.joystickY+(2+mody))%2).clamp(0,2);
-      var index = self.playerDialogSkill.format((self.joystickY)*4+(self.joystickX));
-      this.setSelectedItem($(index));
+      if (navigate != 0) {
+        self.joystickX = (self.joystickX+(4 + modx)) % 4;
+        self.joystickY = (self.joystickY+(2 + mody)) % 2;
+        var index = self.playerDialogSkill.format((self.joystickY)*4+(self.joystickX));
+        this.setSelectedItem($(index));
+      }
     }
     else if (jqStatWindow.is(':visible'))
     {
@@ -486,6 +482,15 @@ var selectFirstItem = {
       return;
     }
 
+    if (jqInventoryWindow.is(':visible')) {
+      $('#allinventorywindow .inventoryGoldFrame').trigger('click');
+      return;
+    }
+    if (jqBankWindow.is(':visible')) {
+      $('#bankGoldFrame').trigger('click');
+      return;
+    }
+
     log.info("buttonOn = x");
     game.playerTargetClosestEntity(1);
 	});
@@ -503,6 +508,13 @@ var selectFirstItem = {
     if (self.rightTopPressed) {
       self.pressShortcut(7);
       return;
+    }
+
+    if (jqInventoryWindow.is(':visible')) {
+      $('#invActionButton').trigger('click');
+    }
+    if (jqBankWindow.is(':visible')) {
+      $('#bankDialogStoreButton').trigger('click');
     }
 
     log.info("buttonOn = y");
@@ -526,6 +538,16 @@ var selectFirstItem = {
 
 	    if(self.isDialogOpen())
 	    {
+        if (game.storeDialog.visible ||
+            game.auctionDialog.visible ||
+            game.appearanceDialog.visible ||
+            game.craftDialog.visible)
+    		{
+    		    if (self.selectedItem)
+            {
+                self.selectedItem.trigger("click");
+            }
+    		}
         if (jqAuctionSellWindow.is(':visible'))
         {
           $("#auctionSellAccept").trigger("click");
@@ -575,19 +597,16 @@ var selectFirstItem = {
             self.selectedItem.trigger("click");
           }
     		}
-      	else if (jqInventoryWindow.is(':visible'))
+        else if (jqBankWindow.is(':visible'))
       	{
-          if (game.inventoryHandler.selectedItem != -1 &&
-              self.lastSelectedItem == self.selectedItem)
-          {
-            $('#invActionButton').trigger("click");
-            return;
-          }
-
           if (self.selectedItem)
             self.selectedItem.trigger("click");
-
-          self.lastSelectedItem = self.selectedItem;
+          return;
+        }
+      	else if (jqInventoryWindow.is(':visible'))
+      	{
+          if (self.selectedItem)
+            self.selectedItem.trigger("click");
           return;
         }
     		else if (jqMenuWindow.is(':visible'))
@@ -595,25 +614,16 @@ var selectFirstItem = {
           if (self.selectedItem)
             self.selectedItem.trigger("click");
     		}
-    		else if (!jqInventoryWindow.is(':visible') && (game.storeDialog.visible || game.auctionDialog.visible || game.appearanceDialog.visible))
-    		{
-           if (self.selectedItem)
-        	     self.selectedItem.trigger("click");
-    		}
-    		else if (!jqInventoryWindow.is(':visible') && game.bankDialog.visible)
-    		{
-          if (self.selectedItem) {
-            self.selectedItem.trigger("click");
-            //self.setSelectedItem(self.selectedItem);
-          }
-          return;
-    		}
         else if (jqSettingsWindow.is(':visible'))
         {
           if (self.selectedItem)
           {
               self.selectedItem.trigger("click");
           }
+        }
+        else if (jqLooksWindow.is(':visible'))
+        {
+          $("#changeLookArmorNext").trigger("click");
         }
         else if (self.mainButtonsActive)
         {
@@ -628,10 +638,10 @@ var selectFirstItem = {
                 self.setSelectedItem($("#inventorybutton"));
               }*/
               //self.setSelectedItem(null);
-              /*if (self.selectedItem[0].id === 'shortcutbutton')
+              if (self.selectedItem[0].id === 'shortcutbutton')
               {
                 self.shortcutActive = true;
-              }*/
+              }
               self.dialogOpen();
           }
           self.mainButtonsActive = false;
@@ -751,19 +761,31 @@ var selectFirstItem = {
     		{
     	      //self.disableSelectItem();
     		    $("#dropCancel").trigger("click");
+            return;
     		}
-    		else if (game.storeDialog.visible || game.auctionDialog.visible || game.appearanceDialog.visible)
+    		else if (game.storeDialog.visible ||
+            game.auctionDialog.visible ||
+            game.appearanceDialog.visible)
     		{
             $("#storeDialogCloseButton").trigger("click");
     		    //self.disableSelectItem();
+    		}
+        else if (game.craftDialog.visible)
+    		{
+    		    $("#craftDialogCloseButton").trigger("click");
     		}
     		else if (game.bankDialog.visible)
     		{
     		    $("#bankDialogCloseButton").trigger("click");
     		}
-        else if (self.shortcutActive)
+        else if (jqLooksWindow.is(':visible'))
         {
-          $(self.playerShortcut[self.joystickIndex]).trigger("click");
+          $("#appearanceCloseButton").trigger("click");
+        }
+        else if (jqAttackWindow.is(':visible'))
+        {
+          if (self.shortcutActive)
+            self.shortcutActive = false;
         }
         else if (self.mainButtonsActive)
         {
@@ -781,6 +803,12 @@ var selectFirstItem = {
 	    }
 	    else
 	    {
+        if (jqAttackWindow.is(':visible'))
+        {
+          $("#attackContainerClose").trigger("click");
+        } else {
+          $("#shortcutbutton").trigger("click");
+        }
         /*self.shortcutActive = true;
         if (!$("#attackContainer").is(':visible'))
         {
@@ -802,13 +830,22 @@ var selectFirstItem = {
 
       });
 
+      var switchInventoryDialogPage = function (mod) {
+        var l = self.playerInventoryButtons.length;
+        var i = (l+self.invPageIndex+mod) % l;
+        self.invPageIndex = i;
+        var jq = $(self.playerInventoryButtons[i]);
+
+        self.setSelectedItem(jq);
+      }
+
       var switchBankDialogPage = function (mod) {
         var l = self.bankPages.length;
         var i = (l+self.bankPageIndex+mod) % l;
         self.bankPageIndex = i;
         var jq = $(self.bankPages[i]);
+
         self.setSelectedItem(jq);
-        jq.trigger("click");
       }
 
       var switchShopDialogPage = function (mod) {
@@ -816,22 +853,48 @@ var selectFirstItem = {
         var i = (l+self.shopPageIndex+mod) % l;
         self.shopPageIndex = i;
         var jq = $(self.storeDialogSide[i]);
+
         self.setSelectedItem(jq);
-        jq.trigger("click");
+      }
+
+      var switchLooksDialogPage = function (mod) {
+        var l = self.looksDialogSide.length;
+        var i = (l+self.shopPageIndex+mod) % l;
+        self.shopPageIndex = i;
+        var jq = $(self.looksDialogSide[i]);
+
+        self.setSelectedItem(jq);
+      }
+
+      var switchCraftDialogPage = function (mod) {
+        var l = 3;
+        var i = (l+self.craftPageIndex+mod) % l;
+        self.craftPageIndex = i;
+        var jq = $(self.craftDialogButtons.format(i));
+
+        self.setSelectedItem(jq);
       }
 
       self.pxgamepad.buttonOn('leftTop', function() {
         if (jqInventoryWindow.is(':visible'))
         {
-            $("#inventoryGearItems").click();
-            return;
+          switchInventoryDialogPage(-1);
+          return;
         }
-        if ($("#bankDialog").is(':visible')) {
+        if (jqBankWindow.is(':visible')) {
           switchBankDialogPage(-1);
           return;
         }
+        if (game.appearanceDialog.visible) {
+          switchLooksDialogPage(-1);
+          return;
+        }
         if ($("#storeDialogStore").is(':visible')) {
-          switchShopDialogPage(1);
+          switchShopDialogPage(-1);
+          return;
+        }
+        if ($("#craftDialog").is(':visible')) {
+          switchCraftDialogPage(-1);
           return;
         }
 
@@ -845,15 +908,23 @@ var selectFirstItem = {
       self.pxgamepad.buttonOn('rightTop', function() {
         if (jqInventoryWindow.is(':visible'))
         {
-            $("#inventoryGear2Items").click();
-            return;
+          switchInventoryDialogPage(1);
+          return;
         }
-        if ($("#bankDialog").is(':visible')) {
+        if (jqBankWindow.is(':visible')) {
           switchBankDialogPage(1);
+          return;
+        }
+        if (game.appearanceDialog.visible) {
+          switchLooksDialogPage(1);
           return;
         }
         if ($("#storeDialogStore").is(':visible')) {
           switchShopDialogPage(1);
+          return;
+        }
+        if ($("#craftDialog").is(':visible')) {
+          switchCraftDialogPage(1);
           return;
         }
 
@@ -875,40 +946,65 @@ var selectFirstItem = {
 
       self.pxgamepad.buttonOn('dpadUp', function() {
         self.dpadY = -1;
+        self.dpadX = 0;
     	});
 
       self.pxgamepad.buttonOn('dpadDown', function() {
         self.dpadY = 1;
+        self.dpadX = 0;
     	});
 
       self.pxgamepad.buttonOn('dpadLeft', function() {
         self.dpadX = -1;
+        self.dpadY = 0;
     	});
 
       self.pxgamepad.buttonOn('dpadRight', function() {
         self.dpadX = 1;
+        self.dpadY = 0;
     	});
 
       self.pxgamepad.buttonOff('dpadUp', function() {
+        self.dpadX = 0;
         self.dpadY = 0;
     	});
 
       self.pxgamepad.buttonOff('dpadDown', function() {
+        self.dpadX = 0;
         self.dpadY = 0;
     	});
 
       self.pxgamepad.buttonOff('dpadLeft', function() {
         self.dpadX = 0;
+        self.dpadY = 0;
     	});
 
       self.pxgamepad.buttonOff('dpadRight', function() {
         self.dpadX = 0;
+        self.dpadY = 0;
     	});
 
     },
 
     interval: function () {
+      if (this.pxgamepad.getGamepad() === null)
+        return;
+
 	    var self = this;
+
+      self.pxgamepad.update();
+
+      var fnDeadZone = function (stick, deadzone) {
+        var dzx = Math.abs(stick.x);
+        if (dzx < deadzone)
+          stick.x = 0;
+        dzy = Math.abs(stick.y);
+        if (dzy < deadzone)
+          stick.y = 0;
+      };
+
+      fnDeadZone(self.pxgamepad.leftStick, 0.10);
+      fnDeadZone(self.pxgamepad.rightStick, 0.10);
 
       self.navigate = Navigate.NONE;
 
@@ -922,42 +1018,28 @@ var selectFirstItem = {
 				if (!game.joystick.isActive())
 				{
           self.navigate = Navigate.NONE;
-					//p.move(o, false);
 				}
 				if (game.joystick.right())
 				{
           self.navigate = Navigate.RIGHT;
-					//o = 4;
-					//p.move(4, true);
 				}
 				if (game.joystick.left())
 				{
           self.navigate = Navigate.LEFT;
-					//o = 3;
-					//p.move(3, true);
 				}
 				if (game.joystick.up())
 				{
           self.navigate = Navigate.UP;
-					//o = 1;
-					//p.move(1, true);
 				}
 				if (game.joystick.down())
 				{
           self.navigate = Navigate.DOWN;
-					//o = 2;
-					//p.move(2, true);
 				}
 			}
 			if (game.joystick && game.joystick.isActive())
 			{
 				clearInterval(game.autotalk);
 			}
-
- 	    //if (!self.pxgamepad.getGamepad())
-	      //return;
-
-      self.pxgamepad.update();
 
        var ignorezone = 0.25;
        var modx = self.dpadX || self.pxgamepad.leftStick.x,
@@ -980,7 +1062,7 @@ var selectFirstItem = {
       var mouse = game.mouse,
         width = game.renderer.renderer.screen.width,
         height = game.renderer.renderer.screen.height,
-        ts = game.tilesize,
+        ts = G_TILESIZE,
         speed = (ts >> 3) * game.renderer.scale;
 
       var modx2 = self.navMouse ? (self.dpadX || self.pxgamepad.leftStick.x) : self.pxgamepad.rightStick.x,
@@ -1050,6 +1132,7 @@ var selectFirstItem = {
     		game.bankDialog.visible ||
     		game.auctionDialog.visible ||
         game.appearanceDialog.visible ||
+        game.craftDialog.visible ||
     		jqMenuWindow.is(':visible') ||
     		jqInventoryWindow.is(':visible') ||
     		jqSkillWindow.is(':visible') ||
@@ -1068,8 +1151,9 @@ var selectFirstItem = {
         jqAuctionSellWindow.is(':visible') ||
         jqDiedWindow.is(':visible') ||
         jqShopWindow.is(':visible') ||
-        this.mainButtonsActive;
-        //this.shortcutActive;
+        jqLooksWindow.is(':visible') ||
+        this.mainButtonsActive ||
+        this.shortcutActive;
         //this.navMouse;
     },
 

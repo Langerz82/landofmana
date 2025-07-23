@@ -438,33 +438,13 @@ define(['app', 'data/langdata', 'util',
             });
 
             jqGame.on("touchmove",function(e){
-              //var x = ~~(e.touches[0].clientX * game.renderer.gameZoom);
-              //var y = ~~(e.touches[0].clientY * game.renderer.gameZoom);
             });
 
             jqGame.on("touchend",function(e){
-
-              /*var x = ~~(e.changedTouches[0].clientX * game.renderer.gameZoom);
-              var y = ~~(e.changedTouches[0].clientY * game.renderer.gameZoom);
-              if (Math.abs(touchX - x) < 20 && Math.abs(touchY - y) < 20)
-                game.playerClick = true;
-              if (game.playerClick)
-              {
-                if(game.started) {
-                    game.click();
-                }
-              }*/
-              //game.playerClick = false;
             });
 
             jqGame.on('click touchend', function(event) {
 								game.click();
-                /*if (event.button === 0) {
-
-                }
-                if(event.button === 2) {
-                    return false;
-                }*/
             });
 
             jqGame.mousemove(function(e) {
@@ -477,119 +457,125 @@ define(['app', 'data/langdata', 'util',
                 }
             });
 
-            $(document).keyup(function(e) {
-                moveKeys(e, e.which, false);
-            });
 
             //var keyMoves = {};
             //var pMove = 0;
             //var keyPressed = 0;
-            var moveKeys = function (e, key, bool) {
+            var jqChatbox = $('#chatbox');
+            var jqDropDialog = $('#dropDialog');
+            var jqChatInput = $('#chatinput');
+            var jqForeground = $('#foreground');
+            var jqShortcut = [];
+            for(var i=0; i < 8; ++i)
+              jqShortcut[i] = $('#shortcut'+i);
+
+            var moveKeys = function (e, bool) {
+              var key = e.which;
               var p = game.player;
-              var gameKeys = p && game.started && !$('#chatbox').hasClass('active');
+              var gameKeys = p && game.started && !jqChatbox.hasClass('active');
               if (gameKeys) {
                   if (bool && self.keyPressed == key) {
-                    console.warn("same key pressed.")
+                    //console.warn("same key pressed.")
                     return;
                   }
                   switch(key) {
                       case Types.Keys.LEFT:
                       case Types.Keys.A:
                       case Types.Keys.KEYPAD_4:
-                          game.player.move(Types.Orientations.LEFT, bool);
+                          p.move(Types.Orientations.LEFT, bool);
                           self.keyPressed = (bool) ? key : 0;
                           break;
                       case Types.Keys.RIGHT:
                       case Types.Keys.D:
                       case Types.Keys.KEYPAD_6:
-                          game.player.move(Types.Orientations.RIGHT, bool);
+                          p.move(Types.Orientations.RIGHT, bool);
                           self.keyPressed = (bool) ? key : 0;
                           break;
                       case Types.Keys.UP:
                       case Types.Keys.W:
                       case Types.Keys.KEYPAD_8:
-                          game.player.move(Types.Orientations.UP, bool);
+                          p.move(Types.Orientations.UP, bool);
                           self.keyPressed = (bool) ? key : 0;
                           break;
                       case Types.Keys.DOWN:
                       case Types.Keys.S:
                       case Types.Keys.KEYPAD_2:
-                          game.player.move(Types.Orientations.DOWN, bool);
+                          p.move(Types.Orientations.DOWN, bool);
                           self.keyPressed = (bool) ? key : 0;
                           break;
                   }
               }
             };
 
-
-            $(document).keydown(function(e) {
-                /*if (e.repeat) {
-                  return;
-                }*/
-
-                //console.warn("$(document).keydown");
-                var key = e.which,
-                    $chat = $('#chatinput');
-
-                if($('#dropDialog').is(":visible"))
-                  return;
-
-                //log.info("keydown="+key);
-                if(key === Types.Keys.ENTER) {
-                    if($('#chatbox').hasClass('active')) {
-                        app.hideChat();
-                    } else {
-                        app.showChat();
-                    }
-                }
-
-                moveKeys(e, e.which, true);
-
-                var p = game.player;
-                var gameKeys = p && game.started && !$('#chatbox').hasClass('active');
-                if (gameKeys) {
-                    switch(key) {
-                        case Types.Keys.T:
-                            game.playerTargetClosestEntity(1);
-                            break;
-                        case Types.Keys.Y:
-                            game.playerTargetClosestEntity(-1);
-                            break;
-                        case Types.Keys.SPACE:
-                            game.makePlayerInteractNextTo();
-                            break;
-                        case Types.Keys.KEY_1:
-                          $('#shortcut0').trigger('click');
-                          break;
-                        case Types.Keys.KEY_2:
-                          $('#shortcut1').trigger('click');
-                          break;
-                        case Types.Keys.KEY_3:
-                          $('#shortcut2').trigger('click');
-                          break;
-                        case Types.Keys.KEY_4:
-                          $('#shortcut3').trigger('click');
-                          break;
-                        case Types.Keys.KEY_5:
-                          $('#shortcut4').trigger('click');
-                          break;
-                        case Types.Keys.KEY_6:
-                          $('#shortcut5').trigger('click');
-                          break;
-                        case Types.Keys.KEY_7:
-                          $('#shortcut6').trigger('click');
-                          break;
-                        case Types.Keys.KEY_8:
-                          $('#shortcut7').trigger('click');
-                          break;
-                        /*case Types.Keys.KEY_9:
-                          $('#skill5').trigger('click');
-                          break;*/
-                        default:
-                            break;
-                    }
-                }
+            $(document).keyup(function(e) {
+                moveKeys(e, false);
             });
+
+            var keyDown = function (e) {
+              var key = e.which;
+
+              if(jqDropDialog.is(":visible")) {
+                if (key === Types.Keys.ENTER)
+                  $("#dropAccept").trigger("click");
+                else if (key === Types.Keys.ESCAPE)
+                  $("#dropCancel").trigger("click");
+                return;
+              }
+
+              if(key === Types.Keys.ENTER) {
+                  if(jqChatbox.hasClass('active')) {
+                      app.hideChat();
+                  } else {
+                      app.showChat();
+                  }
+              }
+
+              moveKeys(e, true);
+
+              var p = game.player;
+              var gameKeys = p && game.started && !jqChatbox.hasClass('active');
+              if (gameKeys) {
+                  switch(key) {
+                      case Types.Keys.T:
+                          game.playerTargetClosestEntity(1);
+                          break;
+                      case Types.Keys.Y:
+                          game.playerTargetClosestEntity(-1);
+                          break;
+                      case Types.Keys.SPACE:
+                          game.makePlayerInteractNextTo();
+                          break;
+                      case Types.Keys.KEY_1:
+                        jqShortcut[0].trigger('click');
+                        break;
+                      case Types.Keys.KEY_2:
+                        jqShortcut[1].trigger('click');
+                        break;
+                      case Types.Keys.KEY_3:
+                        jqShortcut[2].trigger('click');
+                        break;
+                      case Types.Keys.KEY_4:
+                        jqShortcut[3].trigger('click');
+                        break;
+                      case Types.Keys.KEY_5:
+                        jqShortcut[4].trigger('click');
+                        break;
+                      case Types.Keys.KEY_6:
+                        jqShortcut[5].trigger('click');
+                        break;
+                      case Types.Keys.KEY_7:
+                        jqShortcut[6].trigger('click');
+                        break;
+                      case Types.Keys.KEY_8:
+                        jqShortcut[7].trigger('click');
+                        break;
+                      default:
+                          break;
+                  }
+              }
+            };
+
+            $(document).keydown(keyDown);
 
             /*
             $('#attackButton').on("touchstart mousedown", function(e) {
@@ -609,15 +595,13 @@ define(['app', 'data/langdata', 'util',
 
 
             //var keyFired= false;
-
-            $('#chatinput').keydown(function(e) {
+            jqChatInput.keydown(function(e) {
                 if (e.repeat) { return; }
                 /*if(keyFired) {
                   return;
                 }
                 keyFired = true;*/
                 var key = e.which,
-                    $chat = $('#chatinput'),
                     placeholder = $(this).attr("placeholder");
 
                 //   if (!(e.shiftKey && e.keyCode === 16) && e.keyCode !== 9) {
@@ -629,13 +613,13 @@ define(['app', 'data/langdata', 'util',
                 //    }
 
                 if(key === 13) {
-                    if($chat.val() !== '') {
+                    if(jqChatInput.val() !== '') {
                         if(game.player) {
-                            game.say($chat.val());
+                            game.say(jqChatInput.val());
                         }
-                        $chat.val('');
+                        jqChatInput.val('');
                         app.hideChat();
-                        $('#foreground').focus();
+                        jqForeground.focus();
                         return false;
                     } else {
                         app.hideChat();
@@ -748,7 +732,7 @@ define(['app', 'data/langdata', 'util',
                 game.questhandler.toggleShowLog();
             });*/
 
-            $(document).bind("keydown", function(e) {
+            var mainKeyDown = function(e) {
                 var key = e.which,
                     $chat = $('#chatinput');
 
@@ -774,7 +758,9 @@ define(['app', 'data/langdata', 'util',
                     }
 
                 }
-            });
+            };
+
+            $(document).bind("keydown", mainKeyDown);
 
             if(game.renderer.tablet) {
                 $('body').addClass('tablet');
