@@ -1,11 +1,5 @@
 define(['./dialog', '../tabbook', '../tabpage', '../entity/item', '../inventorystore', '../pageNavigator', 'data/items'],
   function(Dialog, TabBook, TabPage, Item, InventoryStore, PageNavigator, Items) {
-
-    var SCALE = 3;
-    function setScale(scale) {
-    	    SCALE = scale;
-    }
-
     var StoreRack = Class.extend({
         init: function(parent, id, index) {
             this.parent = parent;
@@ -357,7 +351,7 @@ define(['./dialog', '../tabbook', '../tabpage', '../entity/item', '../inventorys
             $("#craftDialogStore0Button").trigger('click');
 
             $('#storeDialogStore div.inventoryGoldFrame').show();
-            $('#storeDialogStore div.inventoryGemsFrame').hide();            
+            $('#storeDialogStore div.inventoryGemsFrame').hide();
         },
 
         hide: function() {

@@ -1,14 +1,5 @@
-define(['./dialog', '../tabbook', '../tabpage', 'data/appearancedata', '../pageNavigator', '../playeranim', 'data/items'], function(Dialog, TabBook, TabPage, AppearanceData, PageNavigator, PlayerAnim, Items) {
-    function fixed(value, length) {
-        var buffer = '00000000' + value;
-        return buffer.substring(buffer.length - length);
-    }
-
-    var SCALE = 2;
-    function setScale(scale) {
-    	    SCALE = scale;
-    }
-
+define(['./dialog', '../tabbook', '../tabpage', 'data/appearancedata', '../pageNavigator', '../playeranim', 'data/items'],
+  function(Dialog, TabBook, TabPage, AppearanceData, PageNavigator, PlayerAnim, Items) {
     var StoreRack = Class.extend({
         init: function(parent, id, index) {
             this.parent = parent;

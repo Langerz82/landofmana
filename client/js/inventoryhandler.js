@@ -235,8 +235,11 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
             if (dragItem && item) {
               if (dragItem == item) {
                 activateItem(type, slot, item);
-              } else
-                return;
+              }
+              //else if (DragItem.type == type && type == 2)
+              //  return;
+              else
+                self.moveItem(type, slot);
             }
             else if (dragItem) {
               self.useItem(DragItem.type, dragItem);

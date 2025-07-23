@@ -1,4 +1,5 @@
-define(['./dialog', '../tabbook', '../tabpage', '../entity/item', 'data/items', 'data/itemlootdata', '../inventorystore'], function(Dialog, TabBook, TabPage, Item, Items, ItemLoot, InventoryStore) {
+define(['./dialog', '../tabbook', '../tabpage', '../entity/item', 'data/items', 'data/itemlootdata', '../inventorystore'],
+  function(Dialog, TabBook, TabPage, Item, Items, ItemLoot, InventoryStore) {
     var BankSlot = Class.extend({
         init: function(parent, index) {
             this.parent = parent;

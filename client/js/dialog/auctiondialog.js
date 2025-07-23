@@ -1,14 +1,5 @@
-define(['./dialog', '../tabbook', '../tabpage', '../entity/item', 'data/items', '../inventorystore', '../pageNavigator'], function(Dialog, TabBook, TabPage, Item, Items, InventoryStore, PageNavigator) {
-    function fixed(value, length) {
-        var buffer = '00000000' + value;
-        return buffer.substring(buffer.length - length);
-    }
-
-    var SCALE = 2;
-    function setScale(scale) {
-    	    SCALE = scale;
-    }
-
+define(['./dialog', '../tabbook', '../tabpage', '../entity/item', 'data/items', '../inventorystore', '../pageNavigator'],
+  function(Dialog, TabBook, TabPage, Item, Items, InventoryStore, PageNavigator) {
     var StoreRack = Class.extend({
         init: function(parent, id, index) {
             this.parent = parent;
@@ -361,7 +352,7 @@ define(['./dialog', '../tabbook', '../tabpage', '../entity/item', 'data/items', 
             $("#storeDialogStore0Button").trigger('click');
 
             $('#storeDialogStore div.inventoryGoldFrame').show();
-            $('#storeDialogStore div.inventoryGemsFrame').hide();            
+            $('#storeDialogStore div.inventoryGemsFrame').hide();
         },
 
         hide: function() {
