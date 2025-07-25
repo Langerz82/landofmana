@@ -19,8 +19,14 @@ define(['area', 'detect', 'map'], function(Area, Detect, Map) {
       this.inc = 0;
 
       var $file = "./maps/"+this.mapName+".zip";
+      var name = self.mapName + "_GO.json";
+
       JSZipUtils.getBinaryContent($file, function(err, data) {
           if(err) {
+              var filename = "./maps/"+self.mapName+"/"+name;
+              $.getJSON(filename, function( data ) {
+                self.loadMap(data);
+              });
               throw err; // or handle err
           }
 

@@ -16,13 +16,17 @@ define(['detect'], function(Detect) {
       this.dimensions = this.game.mapContainer.getSubMapIndexDimensions(this.mapSubIndex);
 
       var mc = this.mapContainer;
+      var name = mc.mapName + "_"+this.mapSubIndex+".json";
       try {
-        var name = mc.mapName + "_"+this.mapSubIndex+".json";
         mc.zip.file(name).async("string").then(function(data) {
           self.loadMapData(JSON.parse(data));
         });
       }
       catch (err) {
+        var filename = "./maps/"+mc.mapName+"/"+name;
+        $.getJSON(filename, function( data ) {
+          self.loadMapData(data);
+        });
         console.error(JSON.stringify(err));
       }
     },
