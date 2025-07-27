@@ -1126,63 +1126,29 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
                 }
             },
 
-            /**
-             *
-             */
             makePlayerAttack: function(entity) {
-              log.info("makePlayerAttack " + entity.id);
-              var self = this;
-              var time = this.currentTime;
               var p = this.player;
               var skillId = (p.attackSkill) ? p.attackSkill.skillId : -1;
-
-      				if (!p || p === entity || p.isDead || p.isDying) // sanity check.
-      					return false;
-
-    					if (entity && entity.isDead)
-    					{
-    						p.removeTarget();
-    						return false;
-    					}
-
-              if (p.isMoving())
-                p.forceStop();
-
-              p.lookAtEntity(p.target);
-              if (!p.canReach(p.target))
-              {
-                p.followAttack(p.target);
-
-                if (p.isArcher())
-                  this.chathandler.addNotification(lang.data["ATTACK_TOOFAR"]);
-
-                log.info("CANNOT REACH TARGET!!");
-                return false;
+              var time = this.currentTime;
+              var res = p.makeAttack(entity);
+              if (!res) {
+                log.info("CANNOT ATTACK.");
               }
-              log.info("CAN REACH TARGET!!");
-
-              if (!p.canAttack(time))
-              {
+              else if (res === "attack_toofar") {
+                this.chathandler.addNotification(lang.data["ATTACK_TOOFAR"]);
+              }
+              else if (res === "attack_outoftime") {
                 log.info("CANNOT ATTACK DUE TO TIME.");
-                return false;
               }
-
-              if (p.hit() && p.hasTarget()) {
-                if (p.attackSkill)
-                  p.attackSkill.activated = true;
+              else if (res === "attack_ok") {
                 this.client.sendAttack(p, p.target, skillId);
+                this.audioManager.playSound("hit"+Math.floor(Math.random()*2+1));
+
+                p.attackCooldown.duration = 1000;
+                p.attackCooldown.lastTime = time;
+                return true;
               }
-              else {
-                return false;
-              }
-
-              log.info("CAN ATTACK!! "+p.target.id);
-
-              self.audioManager.playSound("hit"+Math.floor(Math.random()*2+1));
-
-              p.attackCooldown.duration = 1000;
-              p.attackCooldown.lastTime = time;
-              return true;
+              return false;
             },
 
             /**
@@ -1822,7 +1788,7 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
                 return null;
               }
               if (entities.length == 1) {
-                entity.targetIndex = 1;
+                entity.targetIndex = 0;
                 return entities[0];
               }
 
@@ -2022,9 +1988,9 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
             },
 
             clickMoveTo: function (px, py) {
-              var self = this;
+              //var self = this;
               log.info("makePlayerGoTo");
-              var tsh = G_TILESIZE >> 1;
+              //var tsh = G_TILESIZE >> 1;
               //var ts = game.tilesize;
 
               //log.info("so:"+so[0]+","+so[1]);
@@ -2176,10 +2142,10 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
             },
 
             resize: function() {
-                var x = this.camera.x,
-                    y = this.camera.y,
-                    currentScale = this.renderer.scale,
-                    newScale = this.renderer.getScaleFactor();
+                //var x = this.camera.x,
+                    //y = this.camera.y,
+                    //currentScale = this.renderer.scale,
+                    //newScale = this.renderer.getScaleFactor();
                 var self = this;
 
                 var resizeGameFunc = function () {
@@ -2256,7 +2222,7 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
                   else if(this.storeDialog.visible) {
                       game.notifyDialog.notify(message);
                   } else if(this.auctionDialog.visible) {
-                      if (group.indexOf('SHOP_SOLD') == 0) {
+                      if (text.indexOf('SHOP_SOLD') == 0) {
                           this.auctionDialog.storeFrame.open();
 
                           this.auctionDialog.storeFrame.reload();
@@ -2265,7 +2231,7 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
                       	game.notifyDialog.notify(message);
                       }
                   } else if(this.appearanceDialog.visible) {
-                      if (group.indexOf('SHOP_SOLD') == 0) {
+                      if (text.indexOf('SHOP_SOLD') == 0) {
                           this.appearanceDialog.storeFrame.open();
                       }
                       else if (group.indexOf('SHOP') == 0) {
@@ -2339,7 +2305,7 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
                 });
             },
 
-            keyDown: function(key){
+            /*keyDown: function(key){
                 var self = this;
                 if(key >= 49 && key <= 56){ // 1, 2, 3, 4, 5, 6
                     var itemSlot = key - 49;
@@ -2348,7 +2314,7 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
                         this.eat(inventoryNumber);
                     }
                 }
-            },
+            },*/
 
             repairItem: function (type, itemSlot, item) {
               var self = this;

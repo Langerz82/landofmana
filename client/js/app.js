@@ -11,7 +11,7 @@ define(['lib/localforage', 'entity/mob', 'entity/item', 'data/mobdata', 'user', 
             this.currentPage = 1;
             this.blinkInterval = null;
             this.ready = false;
-            //this.watchNameInputInterval = setInterval(this.toggleButton.bind(this), 100);
+
             this.initFormFields();
             this.dropDialogPopuped = false;
             this.auctionsellDialogPopuped = false;
@@ -81,7 +81,6 @@ define(['lib/localforage', 'entity/mob', 'entity/item', 'data/mobdata', 'user', 
               else
               {
                 $('#player_load').show();
-                //$('#player_create').hide();
                 $('#player_create_form').hide();
               }
             });
@@ -94,10 +93,6 @@ define(['lib/localforage', 'entity/mob', 'entity/item', 'data/mobdata', 'user', 
               {
                 app.showPlayerCreate();
                 $('#player_name').focus();
-                //$('#lbl_player_select').hide();
-                //$('#player_select').hide();
-                //$('#player_create_form').show();
-                //$('#player_load').hide();
               }
             });
 
@@ -297,7 +292,8 @@ define(['lib/localforage', 'entity/mob', 'entity/item', 'data/mobdata', 'user', 
             this.getLoadUserButton().click(function () {
               if ($("#user_load").hasClass("loading"))
                 return;
-              self.tryUserAction(1); });
+              self.tryUserAction(1);
+            });
             this.getCreateUserButton().click(function () {
               if ($("#user_create").hasClass("loading"))
                 return;
@@ -440,19 +436,13 @@ define(['lib/localforage', 'entity/mob', 'entity/item', 'data/mobdata', 'user', 
 
 
         setMouseCoordinates: function(x, y) {
-            var jqGame = $("#game");
-
-            //var top = jqGame.offset().top;
-            //var left = jqGame.offset().left;
-// TODO Width and Height not clamping mouse properly.
+            // TODO Width and Height not clamping mouse properly.
             var scale = game.renderer.scale,
                 width = game.renderer.innerWidth,
                 height = game.renderer.innerHeight,
                 mouse = game.mouse;
 
-            //var zoom = game.renderer.resolution / game.renderer.renderer.resolution;
-            var zoom = 1/game.renderer.resolution; //game.renderer.resolution / game.renderer.renderZoom; //   / game.renderer.resolution;
-            //var zoom = game.renderer.resolution;
+            var zoom = 1/game.renderer.resolution;
 
             width = ~~(width/zoom)-1;
             height = ~~(height/zoom)-1;
@@ -463,6 +453,7 @@ define(['lib/localforage', 'entity/mob', 'entity/item', 'data/mobdata', 'user', 
             //log.info(mouse.x+","+mouse.y);
         },
 
+        // TODO use functions from playeranim instead.
         initPlayerBar: function() {
             var self = this;
             var scale = 2,
@@ -616,6 +607,9 @@ define(['lib/localforage', 'entity/mob', 'entity/item', 'data/mobdata', 'user', 
 			      var widthRate = 1.0;
             var self = this;
 
+            jqExp = $('#exp');
+            jqExpBar = $('#expbar');
+            jqExpLevel = $('#explevel');
             game.onPlayerExpChange(function(level, exp){
               var prevLvlExp = Types.expForLevel[level-1];
               var expInThisLevel = exp - prevLvlExp;
@@ -623,24 +617,25 @@ define(['lib/localforage', 'entity/mob', 'entity/item', 'data/mobdata', 'user', 
 
             	if (!expInThisLevel && !expForLevelUp)
             	{
-            		$('#exp').css('width', "0px");
-            		$('#expbar').attr("title", "Exp: 0%");
-               		$('#expbar').html("Exp: 0%");
-               		return;
-                }
+            		jqExp.css('width', "0px");
+            		jqExpBar.attr("title", "Exp: 0%");
+               	jqExpBar.html("Exp: 0%");
+               	return;
+              }
 
               maxWidth = parseInt($('#expbar').width());
             	var rate = expInThisLevel/expForLevelUp;
-                    if(rate > 1){
-                        rate = 1;
-                    } else if(rate < 0){
-                        rate = 0;
-                    }
-                var rateFmt = Utils.Percent(rate,0);
-                $('#exp').css('width', rateFmt);
-               	$('#expbar').attr("title", "Exp: " + rateFmt);
-               	$('#expbar').html("Exp: " + rateFmt);
-               	$('#explevel').html(level);
+              if(rate > 1){
+                  rate = 1;
+              } else if(rate < 0){
+                  rate = 0;
+              }
+
+              var rateFmt = Utils.Percent(rate,0);
+              jqExp.css('width', rateFmt);
+             	jqExpBar.attr("title", "Exp: " + rateFmt);
+             	jqExpBar.html("Exp: " + rateFmt);
+             	jqExpLevel.html(level);
             });
         },
 
@@ -648,11 +643,14 @@ define(['lib/localforage', 'entity/mob', 'entity/item', 'data/mobdata', 'user', 
       	    var healthMaxWidth = $("#statbars").width();
 	          log.info("healthMaxWidth="+healthMaxWidth);
 
+            var jqHealth = $("#health");
+            var jqHealthText = $('#healthtext');
+
             game.onPlayerHealthChange(function(hp, maxHp) {
                 healthMaxWidth = $("#statbars").width();
                 var barWidth = Math.round((healthMaxWidth / maxHp) * (hp > 0 ? hp : 0));
-                $("#health").css('width', barWidth + "px");
-                $('#healthtext').html("<p>HP: " + hp + "/" + maxHp + "</p>");
+                jqHealth.css('width', barWidth + "px");
+                jqHealthText.html("<p>HP: " + hp + "/" + maxHp + "</p>");
             });
 
             game.onPlayerHurt(this.blinkHealthBar.bind(this));
@@ -672,35 +670,30 @@ define(['lib/localforage', 'entity/mob', 'entity/item', 'data/mobdata', 'user', 
         	var self = this;
         	log.info("initMenuButton");
 
-			$( document ).ready(function() {
-				$("#menucontainer").css("display", "none");
-			});
+    			$( document ).ready(function() {
+    				$("#menucontainer").css("display", "none");
+    			});
 
         	$("#charactermenu").click(function(e) {
         		if ($("#menucontainer").is(':visible'))
         		{
         			$("#menucontainer").fadeOut();
-              //if (game.gamepad)
-                //game.gamepad.resetNavInterval(16);
     				}
     				else
     				{
     					$("#menucontainer").show();
-              //if (game.gamepad)
-                //game.gamepad.resetNavInterval(192);
     				}
-    				//self.menuClicked = !self.menuClicked;
         	});
 
-      $(window).resize(function() { app.resizeUi(); });
-			$( document ).ready(function() {
+          $(window).resize(function() { app.resizeUi(); });
+    			$( document ).ready(function() {
+    				$("#menucontainer").on('click', 'div', function(e){
+    					$("#menucontainer").fadeOut();
+    				});
+    			});
 
-				$("#menucontainer").on('click', 'div', function(e){
-					$("#menucontainer").fadeOut();
-				});
-			});
         	$("#menucontainer").click(function(e){
-				$("#menucontainer").fadeOut();
+				    $("#menucontainer").fadeOut();
         	});
         },
 

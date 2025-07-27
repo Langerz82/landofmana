@@ -64,6 +64,7 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
 
     loadInventoryEvents: function() {
       var self = this;
+      var jqActionButton = $('#invActionButton');
 
       self.selectInventory = function(jq) {
         if (!self.game || !self.game.ready)
@@ -98,8 +99,8 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
             $('.inventorySellGoldFrame').show();
             self.selectItem(type, self.selectedItem, false);
             self.selectItem(type, slot, true);
-            $('#invActionButton').data('itemType', type);
-            $('#invActionButton').data('itemSlot', slot);
+            jqActionButton.data('itemType', type);
+            jqActionButton.data('itemSlot', slot);
 
             var kind = item.itemKind;
             if (game.inventoryMode == InventoryMode.MODE_AUCTION) {
@@ -135,9 +136,9 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
             triggerClick = true;
           }
           if (triggerClick) {
-            $('#invActionButton').data('itemType', type);
-            $('#invActionButton').data('itemSlot', slot);
-            $('#invActionButton').trigger("click");
+            jqActionButton.data('itemType', type);
+            jqActionButton.data('itemSlot', slot);
+            jqActionButton.trigger("click");
           }
           self.deselectItem();
         }
@@ -415,12 +416,12 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
       }
     },
 
-    moveShortcuts: function(x, y) {
+    /*moveShortcuts: function(x, y) {
       this.container.css({
         "left": this.game.mouse.x + "px",
         "top": this.game.mouse.y + "px"
       });
-    },
+    },*/
 
     showInventoryButton: function() {
       var scale = this.scale;
@@ -582,13 +583,6 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
 
       $('#inventorybackground' + i).attr('class', '');
 
-      /*if (i >= 0 && i < 6)
-      {
-        $('#scinventory' + i).css('background-image', "none");
-        $('#scinventory' + i).attr('title', '');
-        $('#scinventory' + i).html("");
-      }*/
-
       var cooltime = $('#inventoryHL' + i);
       cooltime.css({
         'background-color': "transparent"
@@ -624,32 +618,33 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
     showInventory: function() {
       this.pageIndex = 0;
       $('.inventorySellGoldFrame').hide();
+      var jqActionButton = $('#invActionButton');
       if (game.inventoryMode == InventoryMode.MODE_AUCTION) {
-        $('#invActionButton').text("LIST");
-        $('#invActionButton').show();
+        jqActionButton.text("LIST");
+        jqActionButton.show();
       }
       else if (game.inventoryMode == InventoryMode.MODE_SELL) {
-        $('#invActionButton').text("SELL");
-        $('#invActionButton').show();
+        jqActionButton.text("SELL");
+        jqActionButton.show();
       }
       else if (game.inventoryMode == InventoryMode.MODE_ENCHANT) {
-        $('#invActionButton').text("ENCHANT");
-        $('#invActionButton').show();
+        jqActionButton.text("ENCHANT");
+        jqActionButton.show();
       }
       else if (game.inventoryMode == InventoryMode.MODE_REPAIR) {
-        $('#invActionButton').text("REPAIR");
-        $('#invActionButton').show();
+        jqActionButton.text("REPAIR");
+        jqActionButton.show();
       }
       else if (game.inventoryMode == InventoryMode.MODE_BANK) {
-        $('#invActionButton').text("BANK");
-        $('#invActionButton').show();
+        jqActionButton.text("BANK");
+        jqActionButton.show();
       }
 			else if (game.inventoryMode == InventoryMode.MODE_NORMAL) {
-        $('#invActionButton').text("DROP");
-        $('#invActionButton').show();
+        jqActionButton.text("DROP");
+        jqActionButton.show();
       }
       else {
-				$('#invActionButton').hide();
+				jqActionButton.hide();
       }
       this.refreshInventory();
       $('#allinventorywindow').css('display', 'block');

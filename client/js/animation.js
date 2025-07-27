@@ -28,12 +28,13 @@ define(function() {
                 }
             }
 
-            this.currentFrame.x = this.width * (i + this.col);
-            this.currentFrame.y = this.height * this.row;
-            this.currentFrame.i = (i + this.col);
-            this.currentFrame.j = this.row;
+            var cf = this.currentFrame;
+            cf.x = this.width * (i + this.col);
+            cf.y = this.height * this.row;
+            cf.i = (i + this.col);
+            cf.j = this.row;
 
-            this.currentFrame.index = i;
+            cf.index = i;
         },
 
         setSpeed: function(speed) {

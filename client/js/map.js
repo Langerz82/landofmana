@@ -13,7 +13,7 @@ define(['detect'], function(Detect) {
       this.mapName = mapContainer.mapName;
       this.focusOffset = {x1: -1, x2: -1, y1: -1, y2: -1};
       this.gridUpdated = false;
-      this.dimensions = this.game.mapContainer.getSubMapIndexDimensions(this.mapSubIndex);
+      this.dimensions = mapContainer.getSubMapIndexDimensions(this.mapSubIndex);
 
       var mc = this.mapContainer;
       var name = mc.mapName + "_"+this.mapSubIndex+".json";
@@ -57,21 +57,15 @@ define(['detect'], function(Detect) {
     },
 
     _initTilesets: function() {
-      var tileset;
-
       this.tilesetCount = 1;
       this._loadTilesets();
-
     },
 
     _initMap: function(map) {
       this.width = map.width;
       this.height = map.height;
-      //this.widthX = (map.width-1)*this.game.tilesize;
-      //this.heightY = (map.height-1)*this.game.tilesize;
       this.tileData = map.data;
       this.collisionData = map.collision;
-
     },
 
     // TODO

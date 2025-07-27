@@ -56,7 +56,8 @@ define(['text!../../shared/data/skills2.json'], function(SkillsJSON) {
       'background-size': 'auto',
       'background-image': 'url("img/' + scale + '/misc/skillicons.png")',
       'background-position': (-position[0] * 24 * scale) + "px " + (-position[1] * 24 * scale) + "px",
-      'background-repeat': 'no-repeat'
+      'background-repeat': 'no-repeat',
+      'margin': '2px'
     });
     if (jqn) {
       jqn.html("");

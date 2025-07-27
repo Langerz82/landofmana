@@ -416,8 +416,11 @@ define(['./entitymoving', '../transition', '../timer', 'data/mobdata', 'data/npc
 
       var spot = this.getClosestSpot(entity, 1, this.attackRange);
 
-      if (spot && spot.x && spot.y)
+      if (spot && spot.x && spot.y) {
         this.moveTo_(spot.x, spot.y);
+        return true;
+      }
+      return false;
     },
 
     clean: function() {

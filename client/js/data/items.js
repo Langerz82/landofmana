@@ -82,7 +82,7 @@ define(['text!../../shared/data/items2.json', 'text!../../shared/data/craft.json
 		}
 
 		var scale = 2;
-		if (itemData.staticsheet > 0) {
+		if (itemData.staticsheet && itemData.staticsheet > 0) {
 			var data = Staticsheet[itemData.staticsheet];
 			if (size > 1)
 				data.scale = size;
@@ -143,14 +143,25 @@ define(['text!../../shared/data/items2.json', 'text!../../shared/data/craft.json
 				var img = null;
 				if (Items.itemLoad[filename]) {
 					img = Items.itemLoad[filename];
-					resize(img)
+
+					var fnResize = function(image) {
+						if (image.complete) {
+							resize(image);
+							return true;
+						}
+						return false;
+					};
+
+					var res = fnResize(img);
+					if (!res)
+						setTimeout(function () { fnResize(img); }, 50);
 				}
 				else {
 					img = new Image();
-					img.src = "img/"+scale+"/" + spriteName;
+					img.src = filename;
 					img.onload = function() {
 						resize(img);
-					}
+					};
 					Items.itemLoad[filename] = img;
 				}
 			}

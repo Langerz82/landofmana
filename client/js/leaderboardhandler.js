@@ -1,13 +1,13 @@
 define([], function() {
   var LeaderboardHandler = Class.extend({
     init: function(game) {
-	this.game = game;
-	this.toggle = false;
+    	this.game = game;
+    	this.toggle = false;
 
-	var self = this;
-	$('#leaderboardclose').click(function(e){
-            self.show();
-	});
+    	var self = this;
+    	$('#leaderboardclose').click(function(e){
+                self.show();
+    	});
     },
 
     show: function() {

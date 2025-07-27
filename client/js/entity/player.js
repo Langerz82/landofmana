@@ -667,6 +667,54 @@ define(['./entity', './character', 'data/appearancedata'],
       }
     },
 
+    /**
+     *
+     */
+    makeAttack: function(entity) {
+      log.info("makeAttack " + entity.id);
+      var time = game.currentTime;
+      var skillId = (this.attackSkill) ? this.attackSkill.skillId : -1;
+
+      if (this === entity || this.isDead || this.isDying) // sanity check.
+        return null;
+
+      if (entity && entity.isDead)
+      {
+        this.removeTarget();
+        return null;
+      }
+
+      this.setTarget(entity);
+
+      if (this.isMoving())
+        this.forceStop();
+
+      this.lookAtEntity(entity);
+      if (!this.canReach(entity))
+      {
+        if (!this.followAttack(entity))
+          return "attack_toofar";
+        else {
+          return null;
+        }
+      }
+      log.info("CAN REACH TARGET!!");
+
+      if (!this.canAttack(time))
+      {
+        log.info("CANNOT ATTACK DUE TO TIME.");
+        return "attack_outoftime";
+      }
+
+      if (this.hit() && this.hasTarget()) {
+        if (this.attackSkill)
+          this.attackSkill.activated = true;
+        return "attack_ok";
+      }
+
+      return "attack_aborted";
+    },
+
   });
 
   return Player;

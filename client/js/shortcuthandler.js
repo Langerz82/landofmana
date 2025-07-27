@@ -1,4 +1,6 @@
 define(['data/skilldata', 'data/items'], function(SkillData, Items) {
+  DragShortcut = null;
+
   var Shortcut = Class.extend({
     init: function(parent, slot, type) {
       var self = this;
@@ -14,36 +16,60 @@ define(['data/skilldata', 'data/items'], function(SkillData, Items) {
       this.jqCooldown = $('#scCD'+slot);
       this.jqnum = $('#shortcutnum'+slot);
 
-      this.jq.data("slot", slot);
+      this.jq.attr('draggable', true);
+      this.jq.draggable = true;
 
-      this.jq.click(function(e) {
+      this.jq.data("slot", slot);
+      this.jq.data("type", type);
+
+      var fnClick = function(e) {
+        var slot = self.jq.data("slot");
+
         if (ShortcutData || DragItem) {
-          self.setup();
+          self.setup(slot);
           return;
         }
         if (self.type > 0) {
           self.exec();
         }
+      };
 
+      this.jq.click(fnClick);
+      this.jqb.click(fnClick);
+
+      this.jq.on('dragstart', function(e) {
+        var slot = self.jq.data("slot");
+        DragShortcut = {"slot": slot};
       });
-      this.jq.on('drop', function(e) {
-        self.setup();
+
+      this.jqb.on('drop', function(e) {
+        var slot = self.jq.data("slot");
+        var newShortcut = self.parent.shortcuts[slot];
+        var oldShortcut = null;
+        if (DragShortcut)
+          oldShortcut = self.parent.shortcuts[DragShortcut.slot];
+        var tmp = Object.assign({}, newShortcut);
+        if (newShortcut && oldShortcut) {
+          newShortcut.install(oldShortcut.slot, oldShortcut.type, oldShortcut.shortcutId);
+          oldShortcut.install(tmp.slot, tmp.type, tmp.shortcutId);
+        }
+        DragShortcut = null;
+      });
+
+      this.jqb.unbind('dragover').bind('dragover', function(event) {
+          event.preventDefault();
       });
       this.jq.unbind('dragover').bind('dragover', function(event) {
           event.preventDefault();
       });
-      /*this.jqb.unbind('dragover').bind('dragover', function(event) {
-          event.preventDefault();
-      });*/
-
     },
 
-    setup: function () {
-      var slot = this.jq.data("slot");
+    setup: function (slot) {
+      //var slot = this.jq.data("slot");
       // TODO fill.
       if (DragItem) {
-        var item = game.inventory.getItem(DragItem.type, DragItem.slot);
-        if (item) {
+        var item = game.inventory.inventory[DragItem.slot];
+        if (item && ItemTypes.isConsumableItem(item.itemKind)) {
           this.parent.install(slot, 1, item.itemKind);
         }
         game.inventory.deselectItem();
@@ -66,6 +92,7 @@ define(['data/skilldata', 'data/items'], function(SkillData, Items) {
 
       if (this.type == 1) {
         this.cooldownTime = 5;
+        //this.itemKind = this.shortcutId;
       }
       else if (this.type == 2) {
         this.cooldownTime = ~~(SkillData.Data[id].recharge / 1000);
@@ -73,17 +100,28 @@ define(['data/skilldata', 'data/items'], function(SkillData, Items) {
       this.display();
     },
 
+    clear: function () {
+        this.jqnum.css("display", "none");
+        this.jq.css("display", "none");
+    },
+
     display: function () {
+      this.jqnum.css("display", "block");
+      this.jq.css("display", "block");
+
       if (this.type == 1) {
         var count = game.inventory.getItemTotalCount(this.shortcutId);
         var item = {itemKind: this.shortcutId, itemNumber: count};
         Items.jqShowItem(this.jq, item, this.jq, 1.5);
+        return;
       }
       else if (this.type == 2) {
         // Temp not Working
         var skill = null;
         SkillData.jqShowSkill(this.jq, this.shortcutId, this.jq);
+        return;
       }
+      this.clear();
     },
 
     exec: function () {
@@ -189,6 +227,7 @@ define(['data/skilldata', 'data/items'], function(SkillData, Items) {
       var shortcut;
       for (var i=0; i < this.shortcutCount; ++i) {
         shortcut = new Shortcut(this, i, 0);
+        shortcut.clear();
         this.shortcuts.push(shortcut);
       }
     },

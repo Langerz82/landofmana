@@ -27,7 +27,7 @@ Container.STAGE.interactive = true;
 Object.freeze(Container);
 
 define(['app', 'data/langdata', 'util',
-    'button2', 'dialog/dialog', 'game', 'bubble'], function(App, LangData) {
+    'button2', 'dialog/dialog', 'game'], function(App, LangData) {
     //global app, game;
     lang = new LangData("EN");
 
@@ -45,7 +45,7 @@ define(['app', 'data/langdata', 'util',
         userclient.connection.close();
       else if (typeof game !== "undefined" && game.client && game.client.connection)
         game.client.connection.close();
-  }
+  };
 
     	 $(document).ready(function() {
 
@@ -96,11 +96,6 @@ define(['app', 'data/langdata', 'util',
                 } else {
                     app.showChat();
                 }
-                /*if($('#chatbutton').hasClass('active')) {
-                    app.showChat();
-                } else {
-                    app.hideChat();
-                }*/
             });
 
             /*$('#instructions').click(function() {
@@ -117,7 +112,7 @@ define(['app', 'data/langdata', 'util',
 
             $('.clickable').click(function(event) {
                 //event.stopPropagation();
-                clickFunc(e);
+                fnClickFunc(e);
             });
 
             $('#change-password').click(function() {
@@ -138,62 +133,9 @@ define(['app', 'data/langdata', 'util',
               game.makePlayerInteractNextTo();
             });
 
-            // Create New Character fields
-            /*$('#nameinput').bind("keyup", function() {
-                app.toggleButton();
-            });
-            $('#pwinput').bind("keyup", function() {
-                app.toggleButton();
-            });
-            $('#pwinput2').bind("keyup", function() {
-                app.toggleButton();
-            });
-            $('#emailinput').bind("keyup", function() {
-                app.toggleButton();
-            });
-
-            // Change Password Fields.
-            $('#cpnameinput').bind("keyup", function() {
-                app.toggleButton();
-            });
-            $('#cppwinputold').bind("keyup", function() {
-                app.toggleButton();
-            });
-            $('#cppwinput').bind("keyup", function() {
-                app.toggleButton();
-            });
-            $('#cppwinput2').bind("keyup", function() {
-                app.toggleButton();
-            });*/
-
-
-            //$('#notifications div').bind(TRANSITIONEND, app.resetMessagesPosition.bind(app));
-
             $('.close').click(function() {
                 app.hideWindows();
             });
-
-            //$('.play').click(function(event) {
-                 //app.tryStartingGame();
-
-                 /*switch (app.initialAction)
-                 {
-                 case "loadcharacter":
-                   log.info("sendLogin");
-                   client.sendLogin(self.player);
-                   break;
-                 case "createcharacter":
-                   client.sendCreate(self.player);
-                   break;
-                 } */
-            //});
-
-            //document.addEventListener("touchstart", function() {},false);
-
-
-            //$('#resize-check').bind("transitionend", app.resizeUi.bind(app));
-            //$('#resize-check').bind("webkitTransitionEnd", app.resizeUi.bind(app));
-            //$('#resize-check').bind("oTransitionEnd", app.resizeUi.bind(app));
 
             log.info("App initialized.");
 
@@ -252,7 +194,7 @@ define(['app', 'data/langdata', 'util',
             $('#emailinput').attr('value', '');
             $('#chatbox').attr('value', '');
 
-            var clickFunc = function (e)
+            var fnClickFunc = function (e)
             {
               app.center();
               app.setMouseCoordinates(e.data.global.x, e.data.global.y);
@@ -264,26 +206,6 @@ define(['app', 'data/langdata', 'util',
               app.hideWindows();
               event.stopPropagation();
             };
-
-            /*if(game.renderer.mobile || game.renderer.tablet) {
-              Container.STAGE.addListener('touchstart', (e) => {
-                clickFunc(e);
-              });
-              Container.STAGE.addListener('touchend', (e) => {
-              });
-            } else {
-              Container.STAGE.addListener('pointerdown', (e) => {
-                //console.log("clicked");
-                //clickFunc(e);
-              });
-              Container.STAGE.addListener('pointermove', (e) => {
-                  //console.log("fired");
-                  app.setMouseCoordinates(e.data.global.x, e.data.global.y);
-                  if(game.started) {
-                      game.movecursor();
-                  }
-              });
-            }*/
 
             $(document).ready(function () {
       		    $('#gui').on('click', function(event) {
@@ -341,14 +263,12 @@ define(['app', 'data/langdata', 'util',
                 game.questhandler.toggleShowLog();
             });
 
-
             // Settings Button
             this.settingsButton = new Button2('#settings', {background: {left: 32}, downed: false});
             this.settingsButton.onClick(function(sender, event) {
                 game.settingsHandler.show();
             });
             game.settingsButton = this.settingsButton;
-
 
             // Warp Button
             this.warpButton = new Button2('#warp', {background: {left: 482}});
@@ -362,24 +282,7 @@ define(['app', 'data/langdata', 'util',
                 }
             };
 
-            // Chat Button
-            /*this.chatButton = new Button2('#chat', {background: {left: this.scale * 0}});
-            this.chatButton.onClick(function(sender, event) {
-                app.toggleChat();
-                event.preventDefault();
-            });
-            game.chatButton = this.chatButton;
-            app.toggleChat = function() {
-                if(game && game.ready) {
-            			if(!$('#chatbutton').hasClass('active')) {
-            				app.showChat();
-            			} else {
-            				app.hideChat();
-            			}
-                }
-            }*/
-
-	      // Party Button
+	          // Party Button
             this.socialButton = new Button2('#social', {background: {left: 416}});
             this.socialButton.onClick(function(sender, event) {
                 app.toggleSocial()
@@ -391,14 +294,14 @@ define(['app', 'data/langdata', 'util',
                 }
             }
 
-			// Leader Button
+			      // Leader Button
             this.achievementButton = new Button2('#achievement', {background: {left: 448}});
             this.achievementButton.onClick(function(sender, event) {
                 game.achievementHandler.toggleShowLog();
             });
             game.achievementButton = this.achievementButton;
 
-
+            // Store Button
             this.storeButton = new Button2('#store', {background: {left: 160}});
             this.storeButton.onClick(function(sender, event) {
                 app.toggleStore();
@@ -458,9 +361,6 @@ define(['app', 'data/langdata', 'util',
             });
 
 
-            //var keyMoves = {};
-            //var pMove = 0;
-            //var keyPressed = 0;
             var jqChatbox = $('#chatbox');
             var jqDropDialog = $('#dropDialog');
             var jqChatInput = $('#chatinput');
@@ -469,7 +369,7 @@ define(['app', 'data/langdata', 'util',
             for(var i=0; i < 8; ++i)
               jqShortcut[i] = $('#shortcut'+i);
 
-            var moveKeys = function (e, bool) {
+            var fnMoveKeys = function (e, bool) {
               var key = e.which;
               var p = game.player;
               var gameKeys = p && game.started && !jqChatbox.hasClass('active');
@@ -508,10 +408,10 @@ define(['app', 'data/langdata', 'util',
             };
 
             $(document).keyup(function(e) {
-                moveKeys(e, false);
+                fnMoveKeys(e, false);
             });
 
-            var keyDown = function (e) {
+            var fnKeyDown = function (e) {
               var key = e.which;
 
               if(jqDropDialog.is(":visible")) {
@@ -530,7 +430,7 @@ define(['app', 'data/langdata', 'util',
                   }
               }
 
-              moveKeys(e, true);
+              fnMoveKeys(e, true);
 
               var p = game.player;
               var gameKeys = p && game.started && !jqChatbox.hasClass('active');
@@ -575,24 +475,7 @@ define(['app', 'data/langdata', 'util',
               }
             };
 
-            $(document).keydown(keyDown);
-
-            /*
-            $('#attackButton').on("touchstart mousedown", function(e) {
-                if (!game.player || game.player.isDead)
-                	return;
-
-                e.preventDefault();
-                setTimeout(function() {
-                		game.makePlayerInteractNext();
-                }, game.inputLatency);
-            });
-            $('#attackButton').on("mouseup touchend", function(e) {
-            	clearInterval(game.autoattack);
-            });
-            */
-
-
+            $(document).keydown(fnKeyDown);
 
             //var keyFired= false;
             jqChatInput.keydown(function(e) {
@@ -732,7 +615,7 @@ define(['app', 'data/langdata', 'util',
                 game.questhandler.toggleShowLog();
             });*/
 
-            var mainKeyDown = function(e) {
+            var fnMainKeyDown = function(e) {
                 var key = e.which,
                     $chat = $('#chatinput');
 
@@ -760,7 +643,7 @@ define(['app', 'data/langdata', 'util',
                 }
             };
 
-            $(document).bind("keydown", mainKeyDown);
+            $(document).bind("keydown", fnMainKeyDown);
 
             if(game.renderer.tablet) {
                 $('body').addClass('tablet');
@@ -825,7 +708,7 @@ define(['app', 'data/langdata', 'util',
 	}
     };
 
-    $('#armorColor').change(function(e) {
+    /*$('#armorColor').change(function(e) {
       log.info($(this).val());
     	var color = $(this).val();
     	game.client.sendColorTint("armorColor", color);
@@ -845,7 +728,7 @@ define(['app', 'data/langdata', 'util',
   		game.renderer.removeWeaponColorCanvas(game.player);
   		game.renderer.createWeaponColorCanvas(game.player);
 
-    });
+    });*/
 
     return initApp();
 });

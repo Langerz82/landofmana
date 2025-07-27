@@ -29,6 +29,7 @@ define(['entity/mob', 'data/skilldata', 'entity/character'], function(Mob, Skill
       }
     }
   });
+
   var SkillPassive = Skill.extend({});
   var SkillActive = Skill.extend({
     init: function(skillId) {
@@ -129,12 +130,12 @@ define(['entity/mob', 'data/skilldata', 'entity/character'], function(Mob, Skill
 
     },
 
-    moveShortcuts: function() {
+    /*moveShortcuts: function() {
       this.container.css({
         "left": this.game.mouse.x + "px",
         "top": this.game.mouse.y + "px"
       });
-    },
+    },*/
 
     displayShortcuts: function() {
     },

@@ -19,96 +19,36 @@ define(['entity/item', 'data/items'], function(Item, Items) {
 
         rescale: function() {
             this.scale = this.parent.parent.scale;
-            if (this.scale == 1)
-            {
-      		    this.background.css({
-          			'position': 'absolute',
-          			'left': '' + (15 + Math.floor(this.index % 6) * 17) + 'px',
-          			'top': '' + (27 + Math.floor(this.index / 6) * 23) + 'px',
-          			'width': '16px',
-          			'height': '16px',
-          			'background-image': 'url("img/1/storedialogsheet.png")',
-          			'background-position': '-300px -180px'
-      		    });
-      		    this.body.css({
-          			'position': 'absolute',
-          			'width': '16px',
-          			'height': '15px',
-          			'bottom': '1px',
-          			'line-height': '16px',
-          			'text-shadow': '-1px 0 black, 0 1px black, 1px 0 black, 0 -1px black',
-          			'color': 'rgba(255,255,0,1.0)',
-          			'font-size': '6px',
-          			'text-align': 'center',
-      		    });
-      		    this.number.css({
-      		    	'margin-top': '15px',
-          			'color': '#fff',
-          			'font-size': '6px',
-          			'text-align': 'center',
-          			'text-shadow': '-1px 0 black, 0 1px black, 1px 0 black, 0 -1px black',
-      		    });
-            }
-            else if (this.scale == 2)
-            {
-      		    this.background.css({
-          			'position': 'absolute',
-          			'left': '' + (30 + Math.floor(this.index % 6) * 33) + 'px',
-          			'top': '' + (54 + Math.floor(this.index / 6) * 45) + 'px',
-          			'width': '32px',
-          			'height': '32px',
-          			'background-image': 'url("img/2/storedialogsheet.png")',
-          			'background-position': '-600px -360px'
-      		    });
-      		    this.body.css({
-          			'position': 'absolute',
-          			'width': '32px',
-          			'height': '30px',
-          			'bottom': '2px',
-          			'line-height': '32px',
-          			'text-shadow': '-1px 0 black, 0 1px black, 1px 0 black, 0 -1px black',
-          			'color': 'rgba(255,255,0,1.0)',
-          			'font-size': '12px',
-          			'text-align': 'center',
-      		    });
-      		    this.number.css({
-      		    	'margin-top': '30px',
-          			'color': '#fff',
-          			'font-size': '12px',
-          			'text-align': 'center',
-          			'text-shadow': '-1px 0 black, 0 1px black, 1px 0 black, 0 -1px black',
-      		    });
-            }
-            else if (this.scale == 3)
-            {
-      		    this.background.css({
-          			'position': 'absolute',
-          			'left': '' + (45 + Math.floor(this.index % 6) * 50) + 'px',
-          			'top': '' + (81 + Math.floor(this.index / 6) * 68) + 'px',
-          			'width': '48px',
-          			'height': '48px',
-          			'background-image': 'url("img/3/storedialogsheet.png")',
-          			'background-position': '-900px -540px'
-      		    });
-      		    this.body.css({
-          			'position': 'absolute',
-          			'width': '48px',
-          			'height': '45px',
-          			'bottom': '3px',
-          			'line-height': '48px',
-          			'text-shadow': '-1px 0 black, 0 1px black, 1px 0 black, 0 -1px black',
-          			'color': 'rgba(255,255,0,1.0)',
-          			'font-size': '18px',
-          			'text-align': 'center',
-      		    });
-      		    this.number.css({
-      		    	'margin-top': '45px',
-          			'color': '#fff',
-          			'font-size': '18px',
-          			'text-align': 'center',
-          			'text-shadow': '-1px 0 black, 0 1px black, 1px 0 black, 0 -1px black',
-      		    });
-            }
+            var scale = this.scale;
+
+    		    this.background.css({
+        			'position': 'absolute',
+        			'left': '' + ((15*scale) + Math.floor(this.index % 6) * (17*scale)) + 'px',
+        			'top': '' + ((27*scale) + Math.floor(this.index / 6) * (23*scale)) + 'px',
+        			'width': (16*scale)+'px',
+        			'height': (16*scale)+'px',
+        			'background-image': 'url("img/'+scale+'/storedialogsheet.png")',
+        			'background-position': (-300*scale)+'px '+(-180*scale)+'px'
+    		    });
+    		    this.body.css({
+        			'position': 'absolute',
+        			'width': (16*scale)+'px',
+        			'height': (16*scale)+'px',
+        			'bottom': '1px',
+        			'line-height': '16px',
+        			'text-shadow': '-1px 0 black, 0 1px black, 1px 0 black, 0 -1px black',
+        			'color': 'rgba(255,255,0,1.0)',
+        			'font-size': (6*scale)+'px',
+        			'text-align': 'center',
+    		    });
+    		    this.number.css({
+    		    	'margin-top': (16*scale)+'px',
+        			'color': '#fff',
+        			'font-size': (6*scale)+'px',
+        			'text-align': 'center',
+        			'text-shadow': '-1px 0 black, 0 1px black, 1px 0 black, 0 -1px black',
+    		    });
+
             if (this.itemKind) {
                 this.restore();
             }
@@ -137,20 +77,21 @@ define(['entity/item', 'data/items'], function(Item, Items) {
         },
 
         getComment: function() {
-            return Item.getInfoMsgEx(this.itemKind, this.enchantLevel, this.skillKind, this.skillLevel, this.itemDurability, this.itemDurabilityMax);
+            return Item.getInfoMsgEx(this);
         },
 
-        assign: function(itemKind, itemNumber, skillKind, skillLevel, durability, durabilityMax, experience) {
-            this.setItemKind(itemKind);
-            this.itemNumber = itemNumber;
-            this.skillKind = skillKind;
-            this.skillLevel = skillLevel;
-            this.itemName = ItemTypes.KindData[itemKind].name;
-            this.spriteName = ItemTypes.KindData[itemKind].sprite;
-            this.itemDurability = durability;
-            this.itemDurabilityMax = durabilityMax;
-            this.itemDurabilityPercent = Utils.Percent(durability/durabilityMax);
-            this.experience = experience;
+        assign: function(arr) {
+        //assign: function(itemKind, itemNumber, skillKind, skillLevel, durability, durabilityMax, experience) {
+            this.setItemKind(arr[0]);
+            this.itemNumber = arr[1];
+            this.skillKind = arr[2];
+            this.skillLevel = arr[3];
+            this.itemName = ItemTypes.KindData[arr[0]].name;
+            this.spriteName = ItemTypes.KindData[arr[0]].sprite;
+            this.itemDurability = arr[4];
+            this.itemDurabilityMax = arr[5];
+            this.itemDurabilityPercent = Utils.Percent(arr[4]/arr[5]);
+            this.experience = arr[6];
             this.restore();
         },
         clear: function() {
