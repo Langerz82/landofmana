@@ -1125,6 +1125,7 @@ function(InfoManager, HoveringInfo, BubbleManager,
 
             entity.setArmorSprite();
             entity.setWeaponSprite();
+            game.app.initPlayerBar();
           } else {
             entity.setSprite(game.sprites[data[1]]);
           }
@@ -1304,7 +1305,7 @@ function(InfoManager, HoveringInfo, BubbleManager,
 
           p.setWeaponSprite();
           p.setArmorSprite();
-
+          game.app.initPlayerBar();
         });
 
         client.onHarvest(function (data) {

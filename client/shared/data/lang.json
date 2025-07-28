@@ -41,6 +41,7 @@
     "AUCTION_ADDED": "The auction item you listed has been added.",
     "SHOP_NOCRAFTITEMS": "You do not have enough craft Items.",
     "SHOP_MISSINGITEMS": "You are missing {0} {1}'s",
+    "SHOP_UNLOCK_CONFIRM": "Do you want to unlock this appearance for {0} gems?",
 
     "COMBAT_PLAYERKILLED": "/1 {0} killed {1} in combat.",
     "COMBAT_TARGETINVINCIBLE": "Target is invincible.",

@@ -39,29 +39,26 @@
         width: 96px;
         height: 96px;
     }
-    #changeLookArmorPrev, #changeLookArmorNext, #changeLookWeaponPrev, #changeLookWeaponNext {
+    #changeLookPrev, #changeLookNext, #changeLookUnlock {
     	position: absolute;
-    	width:170px;
+    	width:120px;
     	height:24px;
     	font-size:18px;
       line-height:21px;
     	color: #fff;
     }
-    #changeLookArmorPrev {
+    #changeLookPrev {
     	left:18px;
     	top:270px;
     }
-    #changeLookArmorNext {
+    #changeLookUnlock {
+      left: 50%;
+      margin-left: -60px;
+      top:270px;
+    }
+    #changeLookNext {
     	right:18px;
     	top:270px;
-    }
-    #changeLookWeaponPrev {
-    	left:18px;
-    	top:306px;
-    }
-    #changeLookWeaponNext {
-    	right:18px;
-    	top:306px;
     }
 
     #characterLookArmor, #characterLookWeapon {

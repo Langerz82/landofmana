@@ -31,6 +31,7 @@ var jqAchievementWindow = $("#achievementlog");
 var jqShopWindow = $("#shopDialog");
 var jqBankWindow = $("#bankDialog");
 var jqLooksWindow = $('#appearanceDialog');
+var jqLooksPreview = $('#looksDialogPlayer');
 
 var selectFirstItem = {
   allinventorywindow: "#inventorybackground0",
@@ -65,7 +66,7 @@ var selectFirstItem = {
   self.craftPageIndex = 0;
   self.invPageIndex = 0;
 	self.storeDialogSide = ['#storeDialogStore0Button', '#storeDialogStore1Button', '#storeDialogStore2Button', '#storeDialogStore3Button'];
-  self.looksDialogSide = ['#storeDialogStore1Button', '#storeDialogStore3Button'];
+  self.looksDialogSide = ['#storeDialogStore0Button', '#storeDialogStore3Button'];
   self.craftDialogButtons = "#craftDialogStore{0}Button";
 	self.storeDialogBuyButton = "#storeDialogStore{0}BuyButton";
 
@@ -138,7 +139,7 @@ var selectFirstItem = {
 
     if (game.storeDialog.visible ||
          game.auctionDialog.visible ||
-         game.appearanceDialog.visible ||
+         game.appearanceDialog.visible && !jqLooksPreview.is(':visible') ||
          game.craftDialog.visible)
     {
        if (navigate == Navigate.UP)
@@ -198,15 +199,18 @@ var selectFirstItem = {
          }
        }
     }
-    else if (jqLooksWindow.is(':visible')) {
-      if (navigate == Navigate.LEFT)
-      {
-        $("#changeLookArmorPrev").trigger("click");
+    else if (jqLooksPreview.is(':visible')) {
+      if (!game.appearanceDialog.unlockLookMode) {
+        if (navigate == Navigate.LEFT)
+        {
+          $("#changeLookPrev").trigger("click");
+        }
+        if (navigate == Navigate.RIGHT)
+        {
+          $("#changeLookNext").trigger("click");
+        }
       }
-      if (navigate == Navigate.RIGHT)
-      {
-        $("#changeLookArmorNext").trigger("click");
-      }
+      return;
     }
     else if (jqBankWindow.is(':visible'))
     {
@@ -538,9 +542,19 @@ var selectFirstItem = {
 
 	    if(self.isDialogOpen())
 	    {
+        if (jqConfirmWindow.is(':visible'))
+        {
+          $("#dialogModalConfirmButton1").trigger("click");
+          return;
+        }
+        if (jqNotifyWindow.is(':visible'))
+        {
+          $("#dialogModalNotifyButton1").trigger("click");
+          return;
+        }
         if (game.storeDialog.visible ||
             game.auctionDialog.visible ||
-            game.appearanceDialog.visible ||
+            game.appearanceDialog.visible && !jqLooksPreview.is(':visible') ||
             game.craftDialog.visible)
     		{
     		    if (self.selectedItem)
@@ -558,16 +572,6 @@ var selectFirstItem = {
     	    $("#respawn").trigger('click');
           return;
     	  }
-        if (jqConfirmWindow.is(':visible'))
-        {
-          $("#dialogModalConfirmButton1").trigger("click");
-          return;
-        }
-        if (jqNotifyWindow.is(':visible'))
-        {
-          $("#dialogModalNotifyButton1").trigger("click");
-          return;
-        }
     	  if ($("#socialconfirm").is(':visible'))
     		{
     	    $('#socialconfirmyes').trigger("click");
@@ -581,6 +585,14 @@ var selectFirstItem = {
     		    $("#dropAccept").trigger("click");
             return;
     		}
+        if (jqLooksPreview.is(':visible'))
+        {
+          if (game.appearanceDialog.unlockLookMode)
+            $("#changeLookUnlock").trigger("click");
+          else
+            $("#changeLookNext").trigger("click");
+          return;
+        }
         else if (jqSkillWindow.is(':visible'))
     		{
           if (game.selectedSkill) {
@@ -620,10 +632,6 @@ var selectFirstItem = {
           {
               self.selectedItem.trigger("click");
           }
-        }
-        else if (jqLooksWindow.is(':visible'))
-        {
-          $("#changeLookArmorNext").trigger("click");
         }
         else if (self.mainButtonsActive)
         {
@@ -782,6 +790,10 @@ var selectFirstItem = {
         {
           $("#appearanceCloseButton").trigger("click");
         }
+        else if (jqLooksPreview.is(':visible'))
+        {
+          $("#appearanceCloseButton").trigger("click");
+        }
         else if (jqAttackWindow.is(':visible'))
         {
           if (self.shortcutActive)
@@ -849,10 +861,14 @@ var selectFirstItem = {
       }
 
       var switchShopDialogPage = function (mod) {
-        var l = self.storeDialogSide.length;
+        var sides = self.storeDialogSide;
+        if (game.appearanceDialog.visible)
+          sides = self.looksDialogSide;
+
+        var l = sides.length;
         var i = (l+self.shopPageIndex+mod) % l;
         self.shopPageIndex = i;
-        var jq = $(self.storeDialogSide[i]);
+        var jq = $(sides[i]);
 
         self.setSelectedItem(jq);
       }
@@ -1152,6 +1168,7 @@ var selectFirstItem = {
         jqDiedWindow.is(':visible') ||
         jqShopWindow.is(':visible') ||
         jqLooksWindow.is(':visible') ||
+        jqLooksPreview.is(':visible') ||
         this.mainButtonsActive ||
         this.shortcutActive;
         //this.navMouse;

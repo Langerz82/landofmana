@@ -518,8 +518,6 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
 
         var highlight = $('#inventoryHL' + slot);
 
-        $('#allinventorywindow div.inventoryGemsFrame').show();
-
         if (game.inventoryMode == InventoryMode.MODE_SELL ||
             game.inventoryMode == InventoryMode.MODE_AUCTION)
         {
@@ -543,7 +541,6 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
               'background-color': '#00000077'
             });
           }
-          $('#allinventorywindow div.inventoryGemsFrame').hide();
         }
         else if (game.inventoryMode == InventoryMode.MODE_ENCHANT) {
           if (ItemTypes.isEquippable(itemKind) && item.itemNumber <= this.pageItems) {
@@ -555,7 +552,6 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
               'background-color': '#00000077'
             });
           }
-          $('#allinventorywindow div.inventoryGemsFrame').hide();
         }
         else {
           highlight.css({
@@ -618,10 +614,13 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
     showInventory: function() {
       this.pageIndex = 0;
       $('.inventorySellGoldFrame').hide();
+      var jqGemsFrame = $('#allinventorywindow .inventoryGemsFrame');
       var jqActionButton = $('#invActionButton');
+      jqGemsFrame.hide();
       if (game.inventoryMode == InventoryMode.MODE_AUCTION) {
         jqActionButton.text("LIST");
         jqActionButton.show();
+
       }
       else if (game.inventoryMode == InventoryMode.MODE_SELL) {
         jqActionButton.text("SELL");
@@ -642,6 +641,7 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
 			else if (game.inventoryMode == InventoryMode.MODE_NORMAL) {
         jqActionButton.text("DROP");
         jqActionButton.show();
+        jqGemsFrame.show();
       }
       else {
 				jqActionButton.hide();

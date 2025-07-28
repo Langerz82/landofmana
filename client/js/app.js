@@ -1,8 +1,8 @@
 
 /* global Mob, Types, Item, log, _, TRANSITIONEND, Class */
 
-define(['lib/localforage', 'entity/mob', 'entity/item', 'data/mobdata', 'user', 'userclient', 'config'],
-  function(localforage, Mob, Item, MobData, User, UserClient, config) {
+define(['lib/localforage', 'entity/mob', 'entity/item', 'data/mobdata', 'user', 'userclient', 'config', 'playeranim'],
+  function(localforage, Mob, Item, MobData, User, UserClient, config, PlayerAnim) {
 
     var App = Class.extend({
         init: function() {
@@ -453,66 +453,19 @@ define(['lib/localforage', 'entity/mob', 'entity/item', 'data/mobdata', 'user', 
             //log.info(mouse.x+","+mouse.y);
         },
 
-        // TODO use functions from playeranim instead.
         initPlayerBar: function() {
             var self = this;
-            var scale = 2,
-                ts = game.renderer.tilesize,
-                player = game.player;
+            var player = game.player;
 
             if (player && !Detect.isMobile()) {
-    		    var weapon = player.getWeaponSprite();
-    		    var armor = player.getArmorSprite();
-            var zoom = 1.5;
-
-    		    width1 = weapon ? weapon.width * scale * zoom : 0;
-    		    height1 = weapon ? weapon.height * scale * zoom : 0;
-
-    		    width2 = armor ? armor.width * scale * zoom : 0;
-    		    height2 = armor ? armor.height * scale * zoom : 0;
-
-    		    width3 = Math.max(width1, width2);
-    		    height3 = Math.max(height1, height2);
-
-            var jqLook = $('#characterLook2');
-            var jqArmor = $('#characterLookArmor2');
-            var jqWeapon = $('#characterLookWeapon2');
-
-    		    switch (scale) {
-        			case 1:
-        			    jqLook.css('left', (- parseInt(width3 / 2)) + 'px');
-        			    jqLook.css('top', (- parseInt(height3 / 2)) + 'px');
-        			    break;
-        			case 2:
-        			    jqLook.css('left', (- parseInt(width3 / 2)) + 'px');
-        			    jqLook.css('top', (- parseInt(height3 / 2)) + 'px');
-        			    break;
-        			case 3:
-        			    jqLook.css('left', (- parseInt(width3 / 2)) + 'px');
-        			    jqLook.css('top', (- parseInt(height3 / 2)) + 'px');
-        			    break;
-    		    }
-
-
-    		    jqLook.css('width', '' + width3 + 'px');
-    		    jqLook.css('height', '' + height3 + 'px');
-
-    		    jqArmor.css('left', '' + parseInt((width3 - width2) / 2) + 'px');
-    		    jqArmor.css('top', '' + parseInt((height3 - height2) / 2) + 'px');
-    		    jqArmor.css('width', '' + width2 + 'px');
-    		    jqArmor.css('height', '' + height2 + 'px');
-    		    jqArmor.css('background-size', '' + (width2 * 5) + 'px');
-    		    jqArmor.css('background-position', '0px -' + (height2 * 8) + 'px');
-
-    		    jqWeapon.css('left', '' + parseInt((width3 - width1) / 2) + 'px');
-    		    jqWeapon.css('top', '' + parseInt((height3 - height1) / 2) + 'px');
-    		    jqWeapon.css('width', '' + width1 + 'px');
-    		    jqWeapon.css('height', '' + height1 + 'px');
-    		    jqWeapon.css('background-size', '' + (width1 * 5) + 'px');
-    		    jqWeapon.css('background-position', '0px -' + (height1 * 8) + 'px');
-
-    		    jqArmor.css('background-image', 'url("'+armor.filepath+'")');
-    		    jqWeapon.css('background-image', 'url("'+weapon.filepath+'")');
+              var anim = new PlayerAnim();
+              anim.sprites = [];
+              anim.addSprite(player.getArmorSprite());
+              anim.addSprite(player.getWeaponSprite());
+              anim.setHTML(['#characterLookArmor2','#characterLookWeapon2']);
+              anim.showHTML('#characterLook2', 2, 2);
+              anim.idle(Types.Orientations.DOWN);
+              anim.show();
             }
         },
 

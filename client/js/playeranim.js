@@ -159,6 +159,35 @@ define(['sprite','animation','timer'], function(Sprite, Animation, Timer) {
       }
     },
 
+    showHTML: function (jqRoot, gameScale, scale) {
+      var wmax = 0, hmax = 0;
+      var dimensions = [];
+      for (var sprite of this.sprites)
+      {
+        var w = sprite ? sprite.width * scale : 0;
+        var h = sprite ? sprite.height * scale : 0;
+        dimensions.push([w,h]);
+        if (w > wmax)
+          wmax = w;
+        if (h > hmax)
+          hmax = h;
+      }
+
+      $(jqRoot).css({
+        'margin-left': '-' + parseInt(wmax / 2) + 'px',
+        'margin-top': '-' + parseInt(hmax / 2) + 'px',
+        'width': wmax + 'px',
+        'height': hmax + 'px'
+      });
+
+      var i=0;
+      for (var html of this.html)
+      {
+        $(html).css('left', parseInt((wmax - dimensions[i][1]) / 2) + 'px');
+        $(html).css('top', parseInt((hmax - dimensions[i][1]) / 2) + 'px');
+        i++;
+      }
+    }
   });
   return PlayerAnim;
 });

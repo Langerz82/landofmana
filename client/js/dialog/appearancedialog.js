@@ -1,5 +1,5 @@
-define(['./dialog', '../tabbook', '../tabpage', 'data/appearancedata', '../pageNavigator', '../playeranim', 'data/items'],
-  function(Dialog, TabBook, TabPage, AppearanceData, PageNavigator, PlayerAnim, Items) {
+define(['./dialog', '../tabbook', '../tabpage', 'data/appearancedata', '../pageNavigator', '../playeranim', 'data/items', 'dialog/confirmdialog'],
+  function(Dialog, TabBook, TabPage, AppearanceData, PageNavigator, PlayerAnim, Items, ConfirmDialog) {
     var StoreRack = Class.extend({
         init: function(parent, id, index) {
             this.parent = parent;
@@ -45,7 +45,9 @@ define(['./dialog', '../tabbook', '../tabpage', 'data/appearancedata', '../pageN
                 log.info("buyButton");
                 var dialog = game.appearanceDialog;
                 if(game && game.ready && dialog.visible) {
-                    game.client.sendAppearanceUnlock(self.item.index, self.item.buyPrice);
+                    dialog.update(self.parent.itemType, game.sprites[AppearanceData[self.item.index].sprite]);
+                    $('#changeLookUnlock').data("item", self.item);
+                    dialog.unlockMode(true);
                 }
             });
         },
@@ -62,13 +64,6 @@ define(['./dialog', '../tabbook', '../tabpage', 'data/appearancedata', '../pageN
             this.price.text(item.buyPrice);
 
             var self = this;
-            this.body.off().on('click', function(event) {
-                var dialog = game.appearanceDialog;
-                if(game && game.ready && dialog.visible) {
-                	dialog.update(self.parent.itemType, game.sprites[AppearanceData[self.item.index].sprite]);
-                	$('#appearanceDialog').show();
-                }
-            });
         },
 
         clear: function() {
@@ -156,6 +151,9 @@ define(['./dialog', '../tabbook', '../tabpage', 'data/appearancedata', '../pageN
 
       	    this.reload();
       	    this.parent.updateNavigator();
+            this.parent.parent.showStore(true);
+            if (this.parent.getPageIndex() != 0)
+              this.parent.setPageIndex(0);
         },
 
         reload: function()
@@ -177,15 +175,15 @@ define(['./dialog', '../tabbook', '../tabpage', 'data/appearancedata', '../pageN
 
     var AppearanceArmorPage = AppearancePage.extend({
         init: function(parent, scale) {
-            this._super(parent, '#storeDialogStore', 0, scale, 1);
+            this._super(parent, '#storeDialogStore', 0, scale, 0);
         }
     });
 
-    var AppearanceWeaponPage = AppearancePage.extend({
+    /*var AppearanceWeaponPage = AppearancePage.extend({
         init: function(parent, scale) {
-            this._super(parent, '#storeDialogStore', 1, scale, 2);
+            this._super(parent, '#storeDialogStore', 1, scale, 1);
         }
-    });
+    });*/
 
     var StoreFrame = TabBook.extend({
         init: function(parent) {
@@ -195,7 +193,7 @@ define(['./dialog', '../tabbook', '../tabpage', 'data/appearancedata', '../pageN
             this.scale = this.parent.scale;
 
             this.add(new AppearanceArmorPage(parent, this.scale));
-            this.add(new AppearanceWeaponPage(parent, this.scale));
+            //this.add(new AppearanceWeaponPage(parent, this.scale));
 
             this.pageNavigator = new PageNavigator(parent, parent.scale);
 
@@ -272,32 +270,50 @@ define(['./dialog', '../tabbook', '../tabpage', 'data/appearancedata', '../pageN
             var p = game.player;
             this.playerAnim = new PlayerAnim();
 
-            var changeLookArmor = function (index)
-            {
-              if (self.armorLooks && self.armorLooks.length > 0)
-      				{
-                index = self.looksArmorIndex = (self.armorLooks.length + index) % self.armorLooks.length;
-                var spriteId = self.armorLooks[index];
-                if (spriteId==0 || game.player.appearances[spriteId] == 1) {
-                  //var index = p.isArcher() ? 2 : 0;
-                  game.player.sprites[0] = spriteId;
-                  game.player.setArmorSprite();
-                  game.client.sendLook(0,spriteId);
+      			$('#changeLookPrev').bind("click", function(event) {
+              self.changeLookArmor(--self.looksArmorIndex);
+              $('#changeLookUnlock').hide();
+      			});
+
+      			$('#changeLookNext').bind("click", function(event) {
+              self.changeLookArmor(++self.looksArmorIndex);
+              $('#changeLookUnlock').hide();
+      			});
+
+            this.confirmDialog = new ConfirmDialog();
+            $('#changeLookUnlock').on('click', function(event) {
+                log.info("unlockButton");
+                if(game && game.ready) {
+                  var item = $(this).data("item");
+                  var strPrice = lang.data['SHOP_UNLOCK_CONFIRM'].format(item.buyPrice);
+                  self.confirmDialog.confirm(strPrice, function(result) {
+                      if(result) {
+                          game.client.sendAppearanceUnlock(item.index, item.buyPrice);
+                          self.showStore(true);
+                      }
+                  });
                 }
-                self.playerAnim.sprites[0] = game.sprites[AppearanceData[spriteId].sprite];
-      					self.updateLook();
-      					game.app.initPlayerBar();
-      				}
-            };
+            });
 
-      			$('#changeLookArmorPrev').bind("click", function(event) {
-              changeLookArmor(--self.looksArmorIndex);
-      			});
+            this.unlockLookMode = false;
+        },
 
-      			$('#changeLookArmorNext').bind("click", function(event) {
-              changeLookArmor(++self.looksArmorIndex);
-      			});
-
+        changeLookArmor: function (index)
+        {
+          if (this.armorLooks && this.armorLooks.length > 0)
+          {
+            index = this.looksArmorIndex = (this.armorLooks.length + index) % this.armorLooks.length;
+            var spriteId = this.armorLooks[index];
+            if (spriteId==0 || game.player.appearances[spriteId] == 1) {
+              //var index = p.isArcher() ? 2 : 0;
+              game.player.sprites[0] = spriteId;
+              game.player.setArmorSprite();
+              game.client.sendLook(0,spriteId);
+            }
+            this.playerAnim.sprites[0] = game.sprites[AppearanceData[spriteId].sprite];
+            this.updateLook();
+            game.app.initPlayerBar();
+          }
         },
 
         setScale: function() {
@@ -310,22 +326,20 @@ define(['./dialog', '../tabbook', '../tabpage', 'data/appearancedata', '../pageN
         },
 
         hide: function() {
-            $('#storeDialogInventory').css("display","block");
-            $('#looksDialogPlayer').css("display","none");
-
-            $('#appearanceDialog').css("display","none");
+            $('#storeDialogInventory').show();
+            $('#looksDialogPlayer').hide();
+            $('#appearanceDialog').hide();
             this._super();
         },
 
         assign: function(datas) {
-            var weapon, armor,
-                width1, height1, width2, height2, width3, height3;
+            if (datas) {
+        		  game.player.appearances = Utils.Base64ToBinArray(datas.shift(), AppearanceData.length);
 
-        		game.player.appearances = Utils.Base64ToBinArray(datas.shift(), AppearanceData.length);
-
-            for(var i=0; i < AppearanceData.length; i++)
-            {
-              AppearanceData[i].buy = parseInt(datas.shift());
+              for(var i=0; i < AppearanceData.length; i++)
+              {
+                AppearanceData[i].buy = parseInt(datas.shift());
+              }
             }
 
             for (var page of this.storeFrame.pages) {
@@ -372,11 +386,10 @@ define(['./dialog', '../tabbook', '../tabpage', 'data/appearancedata', '../pageN
 
             var player = game.player;
 
-            if (anim.sprites.length == 0) {
-              anim.addSprite(player.getArmorSprite());
-              anim.addSprite(player.getWeaponSprite());
-              anim.setHTML(['#characterLookArmor','#characterLookWeapon']);
-            }
+            anim.sprites = [];
+            anim.addSprite(player.getArmorSprite());
+            anim.addSprite(player.getWeaponSprite());
+            anim.setHTML(['#characterLookArmor','#characterLookWeapon']);
 
             var armor = anim.sprites[0];
             var weapon = anim.sprites[1];
@@ -397,43 +410,49 @@ define(['./dialog', '../tabbook', '../tabpage', 'data/appearancedata', '../pageN
                 inc++;
             }, 1500);
 
+            anim.showHTML('#characterLook', this.scale, 3);
+        },
 
-            var zoom = 1.5;
-            var scale = 2;
+        unlockMode: function (flag) {
+          this.showStore(false);
+          if (flag) {
+            $('#changeLookPrev').hide();
+            $('#changeLookNext').hide();
+            $('#changeLookUnlock').show();
+          } else {
+            $('#changeLookPrev').show();
+            $('#changeLookNext').show();
+            $('#changeLookUnlock').hide();
+          }
+          this.unlockLookMode = flag;
+        },
 
-      			width1 = weapon ? weapon.width * scale * zoom : 0;
-      			height1 = weapon ? weapon.height * scale * zoom : 0;
+        showStore: function (flag) {
+          if (flag) {
+            //this.visible = true;
+            $('#appearanceDialog').hide();
+            $('#storeDialogStore').show();
 
-      			width2 = armor ? armor.width * scale * zoom : 0;
-      			height2 = armor ? armor.height * scale * zoom : 0;
-
-            width3 = Math.max(width1, width2);
-            height3 = Math.max(height1, height2);
-
-            var jqCharLook = $('#characterLook');
-            jqCharLook.css({
-              'left': ((90 * this.scale) - parseInt(width3 / 2)) + 'px',
-              'top': (40 * this.scale) + 'px',
-              'width': width3 + 'px',
-              'height': height3 + 'px'
-            });
-
-            $('#characterLookArmor').css('left', '' + parseInt((width3 - width2) / 2 /*+ armor.offsetX*/) + 'px');
-            $('#characterLookArmor').css('top', '' + parseInt((height3 - height2) / 2 /*+ armor.offsetY*/) + 'px');
-            $('#characterLookWeapon').css('left', '' + parseInt((width3 - width1) / 2 /*- (weapon.offsetX - armor.offsetX)*/) + 'px');
-            $('#characterLookWeapon').css('top', '' + parseInt((height3 - height1) / 2 /*- (weapon.offsetY - armor.offsetY)*/) + 'px');
-
+          }
+          else {
+            //this.visible = false;
+            $('#appearanceDialog').show();
+            $('#storeDialogStore').hide();
+          }
         },
 
         show: function() {
+            var self = this;
+
             this.rescale();
 
             this.storeFrame.open();
-            game.client.sendAppearanceList();
+            //game.client.sendAppearanceList();
 
             $('#storeDialog .frameheadingtext').text('LOOKS');
 
-            $('#storeDialogStore0Button').hide();
+            $('#storeDialogStore0Button').text("ARMOR");
+            $('#storeDialogStore1Button').hide();
             $('#storeDialogStore2Button').hide();
 
             jq3Button = $("#storeDialogStore3Button");
@@ -441,20 +460,22 @@ define(['./dialog', '../tabbook', '../tabpage', 'data/appearancedata', '../pageN
             jq3Button.show();
 
             jq3Button.off().on('click', function (event) {
-                  $('#appearanceDialog').show();
-                  $('#storeDialogStore').hide();
+                self.unlockMode(false);
+                if (!self.unlockLookMode)
+                  self.changeLookArmor(self.looksArmorIndex);
             });
 
             $('#appearanceCloseButton').off().on('click', function (event) {
-                  $('#appearanceDialog').hide();
-                  $('#storeDialogStore').show();
+                self.showStore(true);
             });
 
-            $('#looksDialogPlayer').css("display","block");
+            $('#looksDialogPlayer').css("display", "block");
 
             $('#storeDialogStore div.inventoryGoldFrame').hide();
             $('#storeDialogStore div.inventoryGemsFrame').show();
 
+            //this.storeFrame.open(0);
+            //$('#storeDialogStore0Button').trigger("click");
             this._super();
         },
     });

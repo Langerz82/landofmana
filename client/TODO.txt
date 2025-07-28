@@ -1,15 +1,15 @@
 TODO:
 
-CLIENT - When loading an item in shortcut if there are multiple shortcuts image width/height not loaded fast enough.
-
-CLIENT - Enable shortcut to shortcut dragging.
-
+CLIENT - Make Gamepad work with new Looks Dialogs.
 
 CLIENT - Keyboard movement appears jerky, needs fixing.
 
-
-
 DONE:
+
+CLIENT - Re-work appearance dialog, to include preview unlock and unlock button.
+
+CLIENT - When loading an item in shortcut if there are multiple shortcuts image width/height not loaded fast enough.
+CLIENT - Enable shortcut to shortcut dragging.
 
 CLIENT - DPAD mouse movement is not moving up/down/left/right properly.
 CLIENT - Enable selecting Inventory Gold in Inventory to transfer to Bank.

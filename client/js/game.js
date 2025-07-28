@@ -2222,19 +2222,20 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
                   else if(this.storeDialog.visible) {
                       game.notifyDialog.notify(message);
                   } else if(this.auctionDialog.visible) {
-                      if (text.indexOf('SHOP_SOLD') == 0) {
+                      /*if (text.indexOf('SHOP_SOLD') == 0) {
                           this.auctionDialog.storeFrame.open();
 
                           this.auctionDialog.storeFrame.reload();
                       }
                       else {
                       	game.notifyDialog.notify(message);
-                      }
+                      }*/
+                      game.notifyDialog.notify(message);
                   } else if(this.appearanceDialog.visible) {
-                      if (text.indexOf('SHOP_SOLD') == 0) {
+                      /*if (text.indexOf('SHOP_SOLD') == 0) {
                           this.appearanceDialog.storeFrame.open();
-                      }
-                      else if (group.indexOf('SHOP') == 0) {
+                      }*/
+                      if (group.indexOf('SHOP') == 0) {
                       	game.notifyDialog.notify(message);
                       }
                   }
