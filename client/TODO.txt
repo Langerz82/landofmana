@@ -1,10 +1,17 @@
 TODO:
 
-CLIENT - Make Gamepad work with new Looks Dialogs.
 
 CLIENT - Keyboard movement appears jerky, needs fixing.
 
 DONE:
+
+CLIENT - Add download link to mobiles.
+
+CLIENT - Make Gamepad work with new Looks Dialogs.
+
+CLIENT - Fix attack and moving bug.
+
+CLIENT - Fix hash challenge error sometimes on start.
 
 CLIENT - Re-work appearance dialog, to include preview unlock and unlock button.
 

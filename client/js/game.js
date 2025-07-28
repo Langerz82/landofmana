@@ -604,7 +604,7 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
               //this.hashChallenge = hash;
               //log.info("onVersion: hash="+hash);
 
-              var local_version = config.build.version_user;
+              var local_version = config.build.version_game;
               log.info("config.build.version_user="+local_version);
               if (version != local_version)
               {
@@ -612,7 +612,8 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
                 var errmsg = "Please download the new version of RRO2.<br/>";
 
                 if (game.renderer.isMobile) {
-                  errmsg += "<br/>For mobile see: " + config.build.updatepage;
+                  errmsg += "<br/>For mobile see: <a href=\"" + config.build.updatepage +
+                    "\" target=\"_self\">UPDATE LINK</a> or search Google play for \"Land of Mana\".";
                 } else {
                   errmsg += "<br/>For most browsers press Ctrl+F5 to reload the game cache files.";
                 }

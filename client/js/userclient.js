@@ -228,10 +228,11 @@ define(['gameclient', 'skillhandler', 'quest', 'config', 'achievement'], functio
         if (version != local_version)
         {
           $('#container').addClass('error');
-          var errmsg = "Please download the new version of RRO2.<br/>";
+          var errmsg = "Please download the new version of Land Of Mana.<br/>";
 
           if (game.renderer.isMobile) {
-            errmsg += "<br/>For mobile see: " + config.build.updatepage;
+            errmsg += "<br/>For mobile see: <a href=\"" + config.build.updatepage +
+              "\" target=\"_self\">UPDATE LINK</a> or search Google play for \"Land of Mana\".";
           } else {
             errmsg += "<br/>For most browsers press Ctrl+F5 to reload the game cache files.";
           }
