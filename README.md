@@ -1,12 +1,3 @@
-### Update 23/02/25
-GameServer - Fixed major bug causing rubber banding, when multiple players on server.
-
-### Update 14/02/25
-UserServer - Fix login stuck bug, some client display fixes.
-
-### Update 13/02/25
-Added code to throttle player movement so it's more smooth and causes less rubber-banding.
-
 # Land of Mana - Beta.
 formerly Retro RPG Online 2/Rogue Quest
 
@@ -15,6 +6,7 @@ https://www.landofmana.com/play/index.html
 
 ## ANDROID RELEASE ON MOBILES, TABLETS AND SMART TV/BOXES (WITH A GAME CONTROLLER):
 https://play.google.com/store/apps/details?id=com.landofmana
+https://play.google.com/store/apps/details?id=com.retrorpgonline2
 
 ## UPDATES:
 
@@ -171,6 +163,15 @@ Additional Credits:
 * Menu Icons: Raven Fantasy https://clockworkraven.itch.io/raven-fantasy-pixel-art-rpg-icons-starter-pack
 
 ## Old Version History
+
+### Update 23/02/25
+GameServer - Fixed major bug causing rubber banding, when multiple players on server.
+
+### Update 14/02/25
+UserServer - Fix login stuck bug, some client display fixes.
+
+### Update 13/02/25
+Added code to throttle player movement so it's more smooth and causes less rubber-banding.
 
 ### 20/12/2024
 This project now uses a seperate User Server and Game Server thats in the experimental folder. Completed Quests may have reset for players but other than that everything should work ok. If there are issues please let me know, cheers.
