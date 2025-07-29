@@ -253,14 +253,14 @@ define(['entity/character', 'timer', 'entity/player', 'entity/entitymoving'], fu
 
         updateCharacterKeyMovement: function(c)
         {
-          var self = this;
-          var tick = c.tickFrames;
-          var o = c.orientation;
-
           if (c.freeze || c.isMovingPath() || c.isDying || c.isDead) {
             //log.info("character is frozen.")
             return;
           }
+
+          var self = this;
+          var tick = c.tickFrames;
+          var o = c.orientation;
 
           var canMove = c.movement.inProgress === false  && c.keyMove && o > 0;
           if(canMove) {
@@ -289,18 +289,16 @@ define(['entity/character', 'timer', 'entity/player', 'entity/entitymoving'], fu
         },
 
         updatePlayerPathMovement: function(c) {
-            var self = this;
-
-            var tick = c.tickFrames;
-            var o = c.orientation;
-
             if (c.isDying || c.isDead || c.freeze || c.isStunned || c.keyMove || !c.isMovingPath())
             {
               return;
             }
 
-// TODO - Fix character stuttering thats corrupting the map display and collision.
+            var self = this;
+            var tick = c.tickFrames;
+            var o = c.orientation;
 
+// TODO - Fix character stuttering thats corrupting the map display and collision.
 
             var canMove = c.movement.inProgress === false;
             if(canMove) {
@@ -330,17 +328,17 @@ define(['entity/character', 'timer', 'entity/player', 'entity/entitymoving'], fu
 
         updatePlayerKeyMovement: function(c)
         {
-            var self = this;
+          if(!game.player)
+              return;
 
-            if(!game.player)
-                return;
+          if (c.isDying || c.isDead || c.freeze || c.isStunned || c.isMovingPath())
+          {
+            return;
+          }
 
-            var tick = c.tickFrames;
-            var o = c.orientation;
-	          if (c.isDying || c.isDead || c.freeze || c.isStunned || c.isMovingPath())
-	          {
-	            return;
-	          }
+          var self = this;
+          var tick = c.tickFrames;
+          var o = c.orientation;
 
 // TODO - Skip Move needs FIXING to fix scrolling!!!!!!!!!!!!!!!!!!!!!!
           var canMove = c.movement.inProgress === false && c.keyMove;

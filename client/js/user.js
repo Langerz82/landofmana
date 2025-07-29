@@ -40,8 +40,8 @@ function(UserClient, Player, AppearanceData) {
         var hashObj = new jsSHA(this.username+this.password, "ASCII").getHash("SHA-1","HEX");
         this.regHash = hashObj;
         log.info("User init: hash="+hash);
-        log.info("User init: hashChallenge="+game.hashChallenge);
-        var hash = CryptoJS.AES.encrypt(JSON.stringify(hashObj), game.hashChallenge).toString();
+        log.info("User init: hashChallenge="+app.hashChallenge);
+        var hash = CryptoJS.AES.encrypt(JSON.stringify(hashObj), app.hashChallenge).toString();
         //log.info("hash="+hash.getHash("SHA-1","HEX"));
         //log.info("hashChallenge="+hashChallenge.getHash("SHA-1","HEX"));
         this.hash = this.hash || btoa(hash);
@@ -141,14 +141,17 @@ function(UserClient, Player, AppearanceData) {
           // This group of code enforces path moving throttling.
           if (this.refuseMove)
             return true;
-          this.refuseMove = true;
 
-          clearTimeout(this.moveThrottleTimeout);
-          this.moveThrottleTimeout =
-          setTimeout(function () {
+          //this.refuseMove = false;
+          /*if (this.moveThrottleTimeout) {
+            clearTimeout(this.moveThrottleTimeout);
+            this.moveThrottleTimeout = null;
+          }*/
+          this.moveThrottleTimeout = setTimeout(function () {
             self.refuseMove = false;
             self.moveThrottleTimeout = null;
           }, delay);
+          this.refuseMove = true;
           return false;
         }
 
@@ -159,9 +162,10 @@ function(UserClient, Player, AppearanceData) {
             return;
           }
 
-          if (this.moveThrottle(G_ROUNDTRIP)) {
+          //this.moveThrottle(G_ROUNDTRIP);
+          /*if (this.moveThrottle(G_ROUNDTRIP)) {
             return;
-          }
+          }*/
 
           this.forceStop();
 
@@ -186,8 +190,9 @@ function(UserClient, Player, AppearanceData) {
 
           if (state && orientation != Types.Orientations.NONE)
           {
-            if (this.moveThrottle(G_ROUNDTRIP))
-              return;
+            //this.moveThrottle(G_ROUNDTRIP);
+            /*if (this.moveThrottle(G_ROUNDTRIP))
+              return;*/
 
             if (this.keyMove && orientation == this.orientation) {
                 return;

@@ -48,10 +48,10 @@ define(['../timer'], function(Timer) {
             var oriented = ['atk', 'walk', 'idle'],
                 o = this.orientation || Types.Orientations.DOWN;
 
-            if (animation != 'atk' && this.fsm == "ATTACK")
+            /*if (animation != 'atk' && this.fsm == "ATTACK")
             {
                 try { throw new Error(); } catch (e) { console.error(e.stack); }
-            }
+            }*/
 
             this.flipSpriteX = false;
             this.flipSpriteY = false;

@@ -684,18 +684,20 @@ define(['./entity', './character', 'data/appearancedata'],
         return null;
       }
 
+      if (this.isMoving() || this.isMovingPath())
+        return;
+
       this.setTarget(entity);
 
-      if (this.isMoving())
-        this.forceStop();
 
       this.lookAtEntity(entity);
       if (!this.canReach(entity))
       {
+        //this.setTarget(entity);
         if (!this.followAttack(entity))
           return "attack_toofar";
         else {
-          return null;
+          return "attack_moving";
         }
       }
       log.info("CAN REACH TARGET!!");
