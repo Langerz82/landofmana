@@ -230,14 +230,14 @@ define(['gameclient', 'skillhandler', 'quest', 'config', 'achievement'], functio
           $('#container').addClass('error');
           var errmsg = "Please download the new version of Land Of Mana.<br/>";
 
-          if (game.renderer.tablet || game.renderer.mobile) {
+          if (game.tablet || game.mobile) {
             errmsg += "<br/>For mobile see: <a href=\"" + config.build.updatepage +
               "\" target=\"_self\">UPDATE LINK</a> or search Google play for \"Land of Mana\".";
           } else {
             errmsg += "<br/>For most browsers press Ctrl+F5 to reload the game cache files.";
           }
           game.clienterror_callback(errmsg);
-          if (game.renderer.tablet || game.renderer.mobile)
+          if (game.tablet || game.mobile)
             window.location.replace(config.build.updatepage);
           return;
         }

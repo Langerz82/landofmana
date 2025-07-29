@@ -53,6 +53,10 @@ define(['data/skilldata', 'data/items'], function(SkillData, Items) {
           newShortcut.install(oldShortcut.slot, oldShortcut.type, oldShortcut.shortcutId);
           oldShortcut.install(tmp.slot, tmp.type, tmp.shortcutId);
         }
+        else if (newShortcut && !oldShortcut)
+        {
+          self.setup(slot);
+        }
         DragShortcut = null;
       });
 

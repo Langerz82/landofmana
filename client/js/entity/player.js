@@ -491,7 +491,7 @@ define(['./entity', './character', 'data/appearancedata'],
       }
 
       min = (min + dealt) * noobMulti;
-      max = min * 5;
+      max = min * 3;
 
       min = ~~(min);
       max = ~~(Math.pow(max, 0.9));

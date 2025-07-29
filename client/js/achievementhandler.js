@@ -19,11 +19,11 @@ define([], function() {
       this.showlog = !this.showlog;
       if (this.showlog) {
         this.achievementReloadLog();
-        $('#achievementlog').css('display', 'block');
-        self.closeButton.css('display', 'block');
+        $('#achievementlog').show();
+        //this.closeButton.show();
       } else {
-        $('#achievementlog').css('display', 'none');
-        self.closeButton.css('display', 'none');
+        $('#achievementlog').hide();
+        //this.closeButton.hide();
       }
     },
 

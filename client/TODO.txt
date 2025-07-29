@@ -1,9 +1,14 @@
 TODO:
 
+CLIENT - Achievements window heading is incorrectly formatted.
 
 CLIENT - Keyboard movement appears jerky, needs fixing.
 
 DONE:
+
+CLIENT - Item click dragging to shortcuts isnt working.
+
+CLIENT/SERVER - Make Attack Recharge multiplier from 4s to 3s and x3 damage.
 
 CLIENT - Add download link to mobiles.
 

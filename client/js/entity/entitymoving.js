@@ -564,9 +564,9 @@ define(['./entity', '../transition', '../timer'], function(Entity, Transition, T
 
   setOrientation: function(orientation) {
     if (orientation) {
-      if (orientation != this.orientation && this.isMoving()) {
+      /*if (orientation != this.orientation && this.isMoving()) {
         try { throw new Error() } catch (e) { log.error(e.stack); }
-      }
+      }*/
       this.orientation = orientation || 0;
     }
   },
