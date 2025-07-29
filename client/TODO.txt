@@ -6,6 +6,10 @@ CLIENT - Keyboard movement appears jerky, needs fixing.
 
 DONE:
 
+SERVER - Re-enabled Mod Reduction damage for Monsters.
+
+SERVER - Added XP mob/player mod rewards.
+
 CLIENT - Item click dragging to shortcuts isnt working.
 
 CLIENT/SERVER - Make Attack Recharge multiplier from 4s to 3s and x3 damage.

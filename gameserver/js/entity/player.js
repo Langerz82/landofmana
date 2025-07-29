@@ -207,7 +207,7 @@ module.exports = Player = Character.extend({
       var dealt = entity.dealtCount.hasOwnProperty(this.id) ? entity.dealtCount[this.id] : 0;
       var ratio = (damage / entity.stats.hpMax);
 
-      var xp = ~~(entity.stats.xp * ratio);
+      var xp = ~~(entity.getXP() * ratio);
       var diff = 10;
       var div = 1/diff;
       var mod = 1 + div + Utils.clamp(-diff,diff,(entity.level - this.level)) * div;
@@ -1627,6 +1627,9 @@ module.exports = Player = Character.extend({
       skilleffect.endEffects();
     }
     this.activeEffects = [];
-  }
+  },
 
+  getXP: function () {
+    return 20 * this.level;
+  }
 });

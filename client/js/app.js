@@ -667,28 +667,27 @@ define(['lib/localforage', 'entity/mob', 'entity/item', 'data/mobdata', 'user', 
             }, 500);
         },
 
-        showChat: function() {
+        showChat: function(flag) {
             if(game.started) {
+              if (flag) {
                 $('#chatbox').addClass('active');
                 $('#chatinput').focus();
                 //$('#chatbutton').addClass('active');
                 $('#chatbutton').addClass('active');
-            }
-        },
-
-        hideChat: function() {
-            if(game.started) {
+              }
+              else {
                 $('#chatbox').removeClass('active');
                 $('#chatinput').blur();
                 //$('#chatbutton').removeClass('active');
                 $('#chatbutton').removeClass('active');
+              }
             }
         },
 
         showChatLog: function() {
             if(game.started) {
                 $('#chatbutton').addClass('active');
-                $('#chatLog').css('display','none');
+                $('#chatLog').hide();
             }
         },
 

@@ -53,8 +53,8 @@ Formulas.dmg = function(attacker, defender) {
 		dmg = ~~(dmg - (defender_defense * Math.max(0.5,attackPower/2)));
 		//if (attacker instanceof Player)
 			//dmg = ~~(Math.pow(dmg, 0.95));
-		//if (attacker instanceof Mob)
-			//dmg = ~~(Math.pow(dmg, 0.9));
+		if (attacker instanceof Mob)
+			dmg = ~~(Math.pow(dmg, 0.9));
 
     dmg = Utils.clamp(1,5000, dmg);
 

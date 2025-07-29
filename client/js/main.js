@@ -91,11 +91,7 @@ define(['app', 'data/langdata', 'util',
             });
 
             $('#chatbutton').click(function() {
-                if($('#chatbox').hasClass('active')) {
-                    app.hideChat();
-                } else {
-                    app.showChat();
-                }
+              app.showChat(!$('#chatbox').hasClass('active'));
             });
 
             /*$('#instructions').click(function() {
@@ -409,25 +405,47 @@ define(['app', 'data/langdata', 'util',
 
             $(document).keyup(function(e) {
                 fnMoveKeys(e, false);
+                return false;
             });
 
             var fnKeyDown = function (e) {
+              //e.preventDefault();
+              //e.stopPropagation();
+
               var key = e.which;
+
+              if(key === Types.Keys.ENTER) { // Enter
+                  if(game.started) {
+                      e.preventDefault(); // prevent form submit.
+                      app.showChat(!jqChatbox.hasClass('active'));
+                      return false; // prevent form submit.
+                  }
+                  if ($('#user_window').is(':visible'))
+                  {
+                      $('input').blur();      // exit keyboard on mobile
+                      app.tryUserAction(1);
+                      return false;           // prevent form submit
+                  }
+                  if ($('#player_window').is(':visible'))
+                  {
+                      $('input').blur();      // exit keyboard on mobile
+                      if ($('#player_create_form').is(':visible'))
+                        app.tryPlayerAction(4);
+                      else if($('#player_load').is(':visible'))
+                        app.tryPlayerAction(3);
+                      return false;           // prevent form submit
+                  }
+
+              }
+
+              //e.preventDefault();
 
               if(jqDropDialog.is(":visible")) {
                 if (key === Types.Keys.ENTER)
                   $("#dropAccept").trigger("click");
                 else if (key === Types.Keys.ESCAPE)
                   $("#dropCancel").trigger("click");
-                return;
-              }
-
-              if(key === Types.Keys.ENTER) {
-                  if(jqChatbox.hasClass('active')) {
-                      app.hideChat();
-                  } else {
-                      app.showChat();
-                  }
+                return false;
               }
 
               fnMoveKeys(e, true);
@@ -473,9 +491,20 @@ define(['app', 'data/langdata', 'util',
                           break;
                   }
               }
+              return false;
             };
 
-            $(document).keydown(fnKeyDown);
+            //$(document).keydown(fnKeyDown);
+
+            $(document).keydown(function (e) {
+              //e.stopPropagation();
+              /*if (e.repeat) {
+                e.preventDefault();
+                e.stopPropagation();
+                return false;
+              }*/
+              fnKeyDown(e);
+            });
 
             //var keyFired= false;
             jqChatInput.keydown(function(e) {
@@ -501,17 +530,17 @@ define(['app', 'data/langdata', 'util',
                             game.say(jqChatInput.val());
                         }
                         jqChatInput.val('');
-                        app.hideChat();
-                        jqForeground.focus();
+                        app.showChat(false);
+                        //jqForeground.focus();
                         return false;
                     } else {
-                        app.hideChat();
+                        app.showChat(false);
                         return false;
                     }
                 }
 
                 if(key === 27) {
-                    app.hideChat();
+                    app.showChat(false);
                     return false;
                 }
             });
@@ -615,35 +644,11 @@ define(['app', 'data/langdata', 'util',
                 game.questhandler.toggleShowLog();
             });*/
 
-            var fnMainKeyDown = function(e) {
-                var key = e.which,
-                    $chat = $('#chatinput');
+            //var fnMainKeyDown = function(e) {
 
-                if(key === 13) { // Enter
-                    if(game.started) {
-                        $chat.focus();
-                        return false;
-                    }
-                    if ($('#user_window').is(':visible'))
-                    {
-                        $('input').blur();      // exit keyboard on mobile
-                        app.tryUserAction(1);
-                        return false;           // prevent form submit
-                    }
-                    if ($('#player_window').is(':visible'))
-                    {
-                        $('input').blur();      // exit keyboard on mobile
-                        if ($('#player_create_form').is(':visible'))
-                          app.tryPlayerAction(4);
-                        else if($('#player_load').is(':visible'))
-                          app.tryPlayerAction(3);
-                        return false;           // prevent form submit
-                    }
+            //};
 
-                }
-            };
-
-            $(document).bind("keydown", fnMainKeyDown);
+            //$(document).bind("keydown", fnMainKeyDown);
 
             if(game.renderer.tablet) {
                 $('body').addClass('tablet');

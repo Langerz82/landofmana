@@ -495,11 +495,6 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
 
               this.processLogic = true;
 
-              //if (Date.now() - this.tickTime < 16) {
-                //setTimeout(self.tick.bind(self), 1);
-                //return;
-              //}
-
               this.tickTime = Date.now();
               this.currentTime = Utils.getTime();
 
@@ -519,7 +514,7 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
         			{
         				this.updateCursorLogic();
         			}
-              //this.stateChanged = true;
+
               this.processLogic = false;
             },
 

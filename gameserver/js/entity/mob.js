@@ -100,6 +100,15 @@ module.exports = Mob = Character.extend({
       this.activeEffects = [];
     },
 
+    getXP: function () {
+      return this.data.xp *
+        this.data.attackMod *
+        this.data.defenseMod *
+        this.data.attackRateMod *
+        this.data.hpMod *
+        this.level;
+    },
+ 
     setMoveAI: function (duration)
     {
     	this.moveAICooldown = new Timer(duration);

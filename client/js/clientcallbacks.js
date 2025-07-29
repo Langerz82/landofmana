@@ -510,7 +510,7 @@ function(InfoManager, HoveringInfo, BubbleManager,
                 p.keyMove = false;
                 p.forceStop();
                 p.setPositionGrid(x,y);
-                game.player.user.client.sendSyncTime();
+                game.client.sendSyncTime();
                 game.renderer.forceRedraw;
                 //log.info("DEBUG: p.x="+p.x+",x="+x+"p.y="+p.y+",y="+y);
                 return;

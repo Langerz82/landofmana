@@ -8,20 +8,28 @@ _.each( Mobs, function( value, key ) {
 		key: key.toLowerCase(),
 		kind: value.kind,
 
-		attack: (value.attackMod) ? (value.attackMod * 3) : 3,
-		defense: (value.defenseMod) ? (value.defenseMod * 3) : 3,
-		hp: value.hpMod ? (value.hpMod * 150) : 150,
-		xp: value.xpMod ? (value.xpMod * 10) : 10,
+		attackMod: (value.attackMod) ? value.attackMod : 1,
+		defenseMod: (value.defenseMod) ? value.defenseMod : 1,
+		attackRateMod: (value.attackRateMod) ? 1/value.attackRateMod : 1,
+		hpMod: (value.hpMod) ? value.hpMod : 1,
 
-		level: value.level ? value.level : 0,
-		minLevel: value.minLevel ? value.minLevel : 0,
-		maxLevel: value.maxLevel ? value.maxLevel : 0,
+		attack: (value.attackMod) ? (value.attackMod * 3) : 3,
+
+		defense: (value.defenseMod) ? (value.defenseMod * 3) : 3,
+
+		hp: (value.hpMod) ? (value.hpMod * 150) : 150,
+		xp: (value.xpMod) ? (value.xpMod * 10) : 10,
+
+		level: (value.level) ? value.level : 0,
+		minLevel: (value.minLevel) ? value.minLevel : 0,
+		maxLevel: (value.maxLevel) ? value.maxLevel : 0,
 
 		aggroRange: (value.aggroRange) ? value.aggroRange+1 : 4,
 		attackRange: (value.attackRange) ? value.attackRange : 1,
 		isAggressive: (value.isAggressive == 1) ? true : false,
 
 		attackRate: (value.attackRateMod) ? (value.attackRateMod * 1500) : 1500,
+
 		reactionDelay: (value.reactionMod) ? (value.reactionMod * 256) : 256,
 		moveSpeed: (value.moveSpeedMod) ? ~~(300 + (200 * value.moveSpeedMod)) : 500,
 		//tick: 1, //(value.moveSpeedMod) ? (value.moveSpeedMod*2) : 2,
