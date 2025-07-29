@@ -102,8 +102,18 @@ module.exports = PlayerCallback = Class.extend({
 
             var fnNotCorrectPos = function(x,y) {
               var dx = Math.abs(p.x-x), dy = Math.abs(p.y-y);
-              //if ((dx+dy) < 32)
-                //return true;
+              if (dx == 0 || dy == 0)
+              {
+                var path = [[p.x,p.y],[x,y]];
+                if(p.map.entities.pathfinder.isValidPath(p.map.grid, path)) {
+                  if (!p.map.entities.pathfinder.isPathTicksTooFast(p, path, p.endMoveTime))
+                  {
+                    p.fixMove(x,y);
+                    return true;
+                  }
+                }
+              }
+
               console.error("PLAYER NOT IN CORRECT POSITION");
               console.info("p.x:"+p.x+",p.y:"+p.y);
               console.info("c.x:"+x+",c.y:"+y);
@@ -145,6 +155,7 @@ module.exports = PlayerCallback = Class.extend({
             p.checkStopDanger(p, p.moveOrientation);
 
             p.correctMove(p.ex,p.ey);
+            p.endMoveTime = Date.now();
             //p.sendCurrentMove();
             //console.info("p.x:"+p.x+",p.y="+p.y);
             attackFunc(p);

@@ -508,7 +508,7 @@ function(InfoManager, HoveringInfo, BubbleManager,
                 //log.info("DEBUG: p.x="+p.x+",x="+x+"p.y="+p.y+",y="+y);
                 // Dirty hack to avoid sending a incorrect packet in forcestop.
                 p.resetPosition(x,y);
-                game.client.sendMoveEntity(p, 2);
+                p.sendMove(false);
                 //game.client.sendSyncTime();
                 game.renderer.forceRedraw;
                 //log.info("DEBUG: p.x="+p.x+",x="+x+"p.y="+p.y+",y="+y);

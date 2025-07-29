@@ -1553,19 +1553,17 @@ module.exports = Player = Character.extend({
   },
 
   resetMove: function (x,y) {
+    this.fixMove(x,y);
     this.sendCurrentMove();
-    if (this.correctingPosition)
-      return;
+  },
 
-    try { throw new Error(); } catch (e) { console.error(e.stack); }
+  fixMove: function (x,y) {
     this.forceStop();
     this.setPosition(x, y);
     this.sx = x;
     this.sy = y;
-    this.sendCurrentMove();
     this.ex = -1;
     this.ey = -1;
-    this.correctingPosition = true;
   },
 
   sendPlayer: function (msg) {

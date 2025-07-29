@@ -1,13 +1,13 @@
 TODO:
 
-
-CLIENT/SERVER - Fix rubber banding caused by incorrect movement when spamming keyboard presses.
-
 CLIENT - Keyboard movement appears jerky, needs fixing.
 
 DONE:
 
+SERVER - On incorrect movement start check the coordinate difference is isValidPath
+  and estimate the time difference.
 
+CLIENT/SERVER - Fix rubber banding caused by incorrect movement when spamming keyboard presses.
 
 CLIENT - Achievements window heading is incorrectly formatted.
 
