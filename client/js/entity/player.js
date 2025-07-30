@@ -717,6 +717,15 @@ define(['./entity', './character', 'data/appearancedata'],
       return "attack_aborted";
     },
 
+    resetPosition: function (x,y) {
+      this.movement.stop();
+      this.keyMove = false;
+      this.forceStop();
+      this.setPositionGrid(x,y);
+      //this.setPosition(x,y);
+      this.fsm = "IDLE";
+    }
+
   });
 
   return Player;

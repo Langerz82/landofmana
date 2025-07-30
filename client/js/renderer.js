@@ -229,7 +229,8 @@ define(['camera', 'entity/item', 'data/items', 'data/itemlootdata', 'entity/enti
                 return 3;
             },
 
-            getGameZoom: function() {
+            getGameZoom: function(zoomMod) {
+                zoomMod = zoomMod || 1;
                 var w = window.innerWidth,
                     h = window.innerHeight,
                     zoom;
@@ -248,12 +249,11 @@ define(['camera', 'entity/item', 'data/items', 'data/itemlootdata', 'entity/enti
                   else
                     zoom = 1920/w * 0.8;
                 }
-
-                return zoom;
+                return zoom * zoomMod;
             },
 
-            rescale: function() {
-                this.gameZoom = this.getGameZoom();
+            rescale: function(zoomMod) {
+                this.gameZoom = this.getGameZoom(zoomMod);
                 this.scale = this.getScaleFactor();
 
                 this.initFPS();
@@ -293,7 +293,9 @@ define(['camera', 'entity/item', 'data/items', 'data/itemlootdata', 'entity/enti
                 this.camera.focusEntity = game.player;
             },
 
-            resizeCanvases: function() {
+            resizeCanvases: function(zoomMod) {
+              zoomMod = zoomMod || 1;
+
               this.zoomExact = 1;
               this.zoom = 1;
 
@@ -324,11 +326,14 @@ define(['camera', 'entity/item', 'data/items', 'data/itemlootdata', 'entity/enti
 
               this.gui.style.transform = "scale("+(this.guizoom*this.fourKZoom)+")";
 
+              this.rescale(zoomMod);
               this.camera.rescale();
-              this.rescale();
+              this.camera.setRealCoords();
+
               this.centerStage();
 
               this.forceRedraw = true;
+              this.renderFrame();
             },
 
             initFPS: function() {

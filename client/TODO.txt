@@ -1,10 +1,17 @@
 TODO:
 
-CLIENT - Achievements window heading is incorrectly formatted.
+
+CLIENT/SERVER - Fix rubber banding caused by incorrect movement when spamming keyboard presses.
 
 CLIENT - Keyboard movement appears jerky, needs fixing.
 
 DONE:
+
+
+
+CLIENT - Achievements window heading is incorrectly formatted.
+
+CLIENT - Fix setting zoom.
 
 SERVER - Re-enabled Mod Reduction damage for Monsters.
 

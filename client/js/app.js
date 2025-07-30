@@ -18,6 +18,8 @@ define(['lib/localforage', 'entity/mob', 'entity/item', 'data/mobdata', 'user', 
 
             this.inventoryNumber = 0;
 
+            this.userReady = false;
+
             this.classNames = ["user_window",
             	"player_window"];
             this.loadWindow(this.classNames[1],this.classNames[0]);
@@ -762,12 +764,19 @@ define(['lib/localforage', 'entity/mob', 'entity/item', 'data/mobdata', 'user', 
                     this.initPlayerBar();
                     game.updateBars();
                 } else {
-                    var newScale = game.renderer.getScaleFactor();
-                    game.renderer.rescale(newScale);
+                    //var newScale = game.renderer.getScaleFactor();
+                    game.renderer.rescale();
 
                 }
             }
         },
+
+        onUserReady: function () {
+          app.userReady = true;
+          $('#user_create').removeClass('loading');
+          $('#user_load').removeClass('loading');
+          app.$loginInfo.text("Connected.");
+        }
     });
 
     return App;

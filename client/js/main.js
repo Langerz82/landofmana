@@ -361,6 +361,14 @@ define(['app', 'data/langdata', 'util',
             var jqDropDialog = $('#dropDialog');
             var jqChatInput = $('#chatinput');
             var jqForeground = $('#foreground');
+            var jqUserWindow = $('#user_window');
+            var jqPlayerWindow = $('#player_window');
+            var jqInput = $('input');
+            var jqPlayerCreateForm = $('#player_create_form');
+            var jqPlayerLoad = $('#player_load');
+            var jqDropAccept = $("#dropAccept");
+            var jqDropCancel = $("#dropCancel");
+
             var jqShortcut = [];
             for(var i=0; i < 8; ++i)
               jqShortcut[i] = $('#shortcut'+i);
@@ -372,7 +380,7 @@ define(['app', 'data/langdata', 'util',
               if (gameKeys) {
                   if (bool && self.keyPressed == key) {
                     //console.warn("same key pressed.")
-                    return;
+                    return false;
                   }
                   switch(key) {
                       case Types.Keys.LEFT:
@@ -380,33 +388,37 @@ define(['app', 'data/langdata', 'util',
                       case Types.Keys.KEYPAD_4:
                           p.move(Types.Orientations.LEFT, bool);
                           self.keyPressed = (bool) ? key : 0;
-                          break;
+                          return false;
                       case Types.Keys.RIGHT:
                       case Types.Keys.D:
                       case Types.Keys.KEYPAD_6:
                           p.move(Types.Orientations.RIGHT, bool);
                           self.keyPressed = (bool) ? key : 0;
-                          break;
+                          return false;
                       case Types.Keys.UP:
                       case Types.Keys.W:
                       case Types.Keys.KEYPAD_8:
                           p.move(Types.Orientations.UP, bool);
                           self.keyPressed = (bool) ? key : 0;
-                          break;
+                          return false;
                       case Types.Keys.DOWN:
                       case Types.Keys.S:
                       case Types.Keys.KEYPAD_2:
                           p.move(Types.Orientations.DOWN, bool);
                           self.keyPressed = (bool) ? key : 0;
-                          break;
+                          return false;
                   }
               }
+              return true;
             };
 
             $(document).keyup(function(e) {
-                fnMoveKeys(e, false);
-                return false;
+                if (e.repeat)
+                  return false;
+
+                return fnMoveKeys(e, false);
             });
+
 
             var fnKeyDown = function (e) {
               //e.preventDefault();
@@ -416,39 +428,37 @@ define(['app', 'data/langdata', 'util',
 
               if(key === Types.Keys.ENTER) { // Enter
                   if(game.started) {
-                      e.preventDefault(); // prevent form submit.
                       app.showChat(!jqChatbox.hasClass('active'));
                       return false; // prevent form submit.
                   }
-                  if ($('#user_window').is(':visible'))
+                  if (jqUserWindow.is(':visible') && app.userReady)
                   {
-                      $('input').blur();      // exit keyboard on mobile
+                      jqInput.blur();      // exit keyboard on mobile
                       app.tryUserAction(1);
                       return false;           // prevent form submit
                   }
-                  if ($('#player_window').is(':visible'))
+                  if (jqPlayerWindow.is(':visible'))
                   {
-                      $('input').blur();      // exit keyboard on mobile
-                      if ($('#player_create_form').is(':visible'))
+                      jqInput.blur();      // exit keyboard on mobile
+                      if (jqPlayerCreateForm.is(':visible'))
                         app.tryPlayerAction(4);
-                      else if($('#player_load').is(':visible'))
+                      else if(jqPlayerLoad.is(':visible'))
                         app.tryPlayerAction(3);
                       return false;           // prevent form submit
                   }
 
               }
 
-              //e.preventDefault();
-
               if(jqDropDialog.is(":visible")) {
                 if (key === Types.Keys.ENTER)
-                  $("#dropAccept").trigger("click");
+                  jqDropAccept.trigger("click");
                 else if (key === Types.Keys.ESCAPE)
-                  $("#dropCancel").trigger("click");
+                  jqDropCancel.trigger("click");
                 return false;
               }
 
-              fnMoveKeys(e, true);
+              if (!fnMoveKeys(e, true))
+                return false;
 
               var p = game.player;
               var gameKeys = p && game.started && !jqChatbox.hasClass('active');
@@ -456,54 +466,52 @@ define(['app', 'data/langdata', 'util',
                   switch(key) {
                       case Types.Keys.T:
                           game.playerTargetClosestEntity(1);
-                          break;
+                          return false;
                       case Types.Keys.Y:
                           game.playerTargetClosestEntity(-1);
-                          break;
+                          return false;
                       case Types.Keys.SPACE:
                           game.makePlayerInteractNextTo();
-                          break;
+                          return false;
                       case Types.Keys.KEY_1:
                         jqShortcut[0].trigger('click');
-                        break;
+                        return false;
                       case Types.Keys.KEY_2:
                         jqShortcut[1].trigger('click');
-                        break;
+                        return false;
                       case Types.Keys.KEY_3:
                         jqShortcut[2].trigger('click');
-                        break;
+                        return false;
                       case Types.Keys.KEY_4:
                         jqShortcut[3].trigger('click');
-                        break;
+                        return false;
                       case Types.Keys.KEY_5:
                         jqShortcut[4].trigger('click');
-                        break;
+                        return false;
                       case Types.Keys.KEY_6:
                         jqShortcut[5].trigger('click');
-                        break;
+                        return false;
                       case Types.Keys.KEY_7:
                         jqShortcut[6].trigger('click');
-                        break;
+                        return false;
                       case Types.Keys.KEY_8:
                         jqShortcut[7].trigger('click');
-                        break;
+                        return false;
                       default:
                           break;
                   }
               }
-              return false;
             };
-
-            //$(document).keydown(fnKeyDown);
 
             $(document).keydown(function (e) {
               //e.stopPropagation();
-              /*if (e.repeat) {
-                e.preventDefault();
-                e.stopPropagation();
-                return false;
-              }*/
-              fnKeyDown(e);
+              if (e.repeat) {
+                //e.preventDefault();
+                //e.stopPropagation();
+                return true;
+              }
+              return fnKeyDown(e);
+              //return false;
             });
 
             //var keyFired= false;
@@ -515,14 +523,6 @@ define(['app', 'data/langdata', 'util',
                 keyFired = true;*/
                 var key = e.which,
                     placeholder = $(this).attr("placeholder");
-
-                //   if (!(e.shiftKey && e.keyCode === 16) && e.keyCode !== 9) {
-                //        if ($(this).val() === placeholder) {
-                //           $(this).val('');
-                //            $(this).removeAttr('placeholder');
-                //            $(this).removeClass('placeholder');
-                //        }
-                //    }
 
                 if(key === 13) {
                     if(jqChatInput.val() !== '') {
@@ -650,10 +650,11 @@ define(['app', 'data/langdata', 'util',
 
             //$(document).bind("keydown", fnMainKeyDown);
 
-            if(game.renderer.tablet) {
+            if(game.tablet) {
                 $('body').addClass('tablet');
             }
         });
+
         $('#healthbar').bind('mousedown', function (event) {
             if(event.button === 2) {
                 return false;
@@ -712,28 +713,6 @@ define(['app', 'data/langdata', 'util',
 	      console = {};
 	}
     };
-
-    /*$('#armorColor').change(function(e) {
-      log.info($(this).val());
-    	var color = $(this).val();
-    	game.client.sendColorTint("armorColor", color);
-  		game.player.armorColor = color;
-
-  		game.renderer.removeBodyColorCanvas(game.player);
-  		game.renderer.createBodyColorCanvas(game.player);
-
-    });
-
-    $('#weaponColor').change(function(e) {
-      log.info($(this).val());
-    	var color = $(this).val();
-    	game.client.sendColorTint("weaponColor", color);
-  		game.player.weaponColor = color;
-
-  		game.renderer.removeWeaponColorCanvas(game.player);
-  		game.renderer.createWeaponColorCanvas(game.player);
-
-    });*/
 
     return initApp();
 });

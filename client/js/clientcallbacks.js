@@ -507,10 +507,9 @@ function(InfoManager, HoveringInfo, BubbleManager,
                 console.warn("PLAYER NOT IN CORRECT POSITION.");
                 //log.info("DEBUG: p.x="+p.x+",x="+x+"p.y="+p.y+",y="+y);
                 // Dirty hack to avoid sending a incorrect packet in forcestop.
-                p.keyMove = false;
-                p.forceStop();
-                p.setPositionGrid(x,y);
-                game.client.sendSyncTime();
+                p.resetPosition(x,y);
+                game.client.sendMoveEntity(p, 2);
+                //game.client.sendSyncTime();
                 game.renderer.forceRedraw;
                 //log.info("DEBUG: p.x="+p.x+",x="+x+"p.y="+p.y+",y="+y);
                 return;

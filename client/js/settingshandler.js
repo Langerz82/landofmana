@@ -172,6 +172,32 @@ define(['lib/localforage', 'lib/virtualjoystick'], function(localforage) {
         localforage.setItem('buttoncolor', this.value);
         $('div.frame-new-button').css('background-color', this.value);
       });
+
+      // Hacky value settings but should work!
+      var fnSetZoom = function (val) {
+        $("#gamezoom option:selected").removeAttr("selected");
+        $('#gamezoom option[value="'+val+'"]').attr("selected", true);
+      }
+      this.changeZoom = function (val) {
+        if (!game)
+          return;
+
+        game.resize(val);
+        fnSetZoom(val);
+      }
+      var selectZoom = $('.cgamezoom');
+      if(game) {
+        localforage.getItem('gamezoom', function(e, val) {
+            game.zoom = val;
+            fnSetZoom(val);
+        });
+      }
+    	selectZoom.change(function() {
+    		var val = $('#gamezoom').val();
+        localforage.setItem('gamezoom', val);
+        game.zoom = val;
+        self.changeZoom(val);
+    	});
     },
 
     apply: function () {

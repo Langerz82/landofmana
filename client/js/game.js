@@ -460,8 +460,7 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
                 //self.renderer.resizeCanvases();
 
                 setTimeout(function () {
-                    self.renderer.rescale();
-                    self.renderer.resizeCanvases();
+                    game.resize(game.zoom);
                 },1500); // Slight Delay For On-Screen Keybaord to minimize.
 
 
@@ -2121,30 +2120,10 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
                 this.notification_callback = callback;
             },
 
-            resize: function() {
-                //var x = this.camera.x,
-                    //y = this.camera.y,
-                    //currentScale = this.renderer.scale,
-                    //newScale = this.renderer.getScaleFactor();
-                var self = this;
-
-                var resizeGameFunc = function () {
-                  self.ready = false;
-                  self.renderer.rescaling = true;
-                  //self.renderer.setWinDimension();
-                  //self.renderer.calcZoom();
-                  self.renderer.rescale();
-                  self.renderer.resizeCanvases();
-                  self.camera.setRealCoords();
-                  self.moveEntityThreshold = ~~(self.camera.gridW / 2) + 1;
-                  self.ready = true;
-                  self.renderer.rescaling = false;
-                  self.updateBars();
-                  self.updateExpBar();
-                  //self.updateTarget();
-                }
-
-                resizeGameFunc();
+            resize: function(zoomMod) {
+                this.renderer.resizeCanvases(zoomMod);
+                this.updateBars();
+                this.updateExpBar();
 
                 this.inventoryHandler.refreshInventory();
                 if (this.player && this.player.skillHandler) {

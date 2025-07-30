@@ -241,10 +241,7 @@ define(['gameclient', 'skillhandler', 'quest', 'config', 'achievement'], functio
             window.location.replace(config.build.updatepage);
           return;
         }
-
-        $('#user_create').removeClass('loading');
-        $('#user_load').removeClass('loading');
-        app.$loginInfo.text("Connected.");
+        app.onUserReady();
       },
 
       onSyncTime: function (data) {
