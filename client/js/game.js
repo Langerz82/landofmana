@@ -2126,9 +2126,9 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
                 this.updateExpBar();
 
                 this.inventoryHandler.refreshInventory();
-                if (this.player && this.player.skillHandler) {
+                /*if (this.player && this.player.skillHandler) {
                     this.player.skillHandler.displayShortcuts();
-                }
+                }*/
                 if (this.storeDialog.visible)
                 	this.storeDialog.rescale();
                 if (this.bankDialog.visible) {

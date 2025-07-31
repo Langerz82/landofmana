@@ -1,8 +1,20 @@
 TODO:
 
+SERVER - Sometimes it reports the user is logged in at startup, when they arent.
+
 CLIENT - Keyboard movement appears jerky, needs fixing.
 
 DONE:
+
+CLIENT - When assigning shortcuts while a cooldown is occuring some skills sometimes bug.
+
+CLIENT - Disable assigning shortcuts when it has a cooldown.
+
+SERVER - When setting a new map, make a new function, and clear the player grid variables.
+
+CLIENT - Make add stat button a little larger for mobile.
+CLIENT - Make chatlog appear by default, and move it a little up above the chat button.
+CLIENT - Make shortcut window a bit lower flush with the attack button for mobile.
 
 SERVER - On incorrect movement start check the coordinate difference is isValidPath
   and estimate the time difference.

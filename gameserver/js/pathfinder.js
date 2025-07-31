@@ -172,11 +172,11 @@ module.exports = Pathfinder = Class.extend({
         lx = grid[0].length;
 
     // Check collision from an axis, n1 to n2, n3 is for the other axis.
-    var c1to2on3 = function (n1,n2,n3,axis) {
+    var c1to2on3 = function (n1,n2,n3,axis_x) {
       //console.info("c1to2on3 - n1:"+n1+",n2:"+n2+",n3:"+n3);
       n1 = Math.floor(n1), n2 = Math.floor(n2), n3=Math.floor(n3);
       var i1 = Math.min(n1,n2), i2 = Math.max(n1,n2);
-      if (axis == "x") {
+      if (axis_x) {
         for (var i=i1; i < i2; i++) {
           if (grid[n3][i]) {
             return false;
@@ -193,10 +193,10 @@ module.exports = Pathfinder = Class.extend({
     }
 
     var xf = function (x1,x2,y) {
-      return c1to2on3(x1,x2,y,"x");
+      return c1to2on3(x1,x2,y,true);
     }
     var yf = function (y1,y2,x) {
-      return c1to2on3(y1,y2,x,"y");
+      return c1to2on3(y1,y2,x,false);
     }
 
     var path2 = [];

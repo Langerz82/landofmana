@@ -945,7 +945,6 @@ module.exports = PacketHandler = Class.extend({
 
     console.warn("mapIndex: p.map.mapIndex:"+map.index);
     if (status == 0) {
-      p.pushSpawns = false;
       p.forceStop();
       p.mapStatus = 0;
       this.handleClearMap();
@@ -954,8 +953,7 @@ module.exports = PacketHandler = Class.extend({
 
       var finishTeleportMaps = function (mapId) {
         //console.info("real mapId: " + mapId);
-        p.map = map;
-        self.setMap(map);
+        p.setMap(map);
 
         var pos = {x: p.x, y: p.y};
         console.info("handleTeleportMap - x: "+x+",y:"+y);

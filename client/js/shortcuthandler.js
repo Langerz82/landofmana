@@ -20,21 +20,19 @@ define(['data/skilldata', 'data/items'], function(SkillData, Items) {
       this.jq.draggable = true;
 
       this.jq.data("slot", slot);
-      this.jq.data("type", type);
 
       var fnClick = function(e) {
         var slot = self.jq.data("slot");
-
         if (ShortcutData || DragItem) {
           self.setup(slot);
-          return;
+          return false;
         }
         if (self.type > 0) {
           self.exec();
         }
+        return false;
       };
 
-      this.jq.click(fnClick);
       this.jqb.click(fnClick);
 
       this.jq.on('dragstart', function(e) {
@@ -50,6 +48,10 @@ define(['data/skilldata', 'data/items'], function(SkillData, Items) {
           oldShortcut = self.parent.shortcuts[DragShortcut.slot];
         var tmp = Object.assign({}, newShortcut);
         if (newShortcut && oldShortcut) {
+          if (newShortcut.isCoolingDown)
+            return;
+          if (oldShortcut.isCoolingDown)
+            return;
           newShortcut.install(oldShortcut.slot, oldShortcut.type, oldShortcut.shortcutId);
           oldShortcut.install(tmp.slot, tmp.type, tmp.shortcutId);
         }
@@ -58,6 +60,8 @@ define(['data/skilldata', 'data/items'], function(SkillData, Items) {
           self.setup(slot);
         }
         DragShortcut = null;
+        ShortcutData = null;
+        DragItem = null;
       });
 
       this.jqb.unbind('dragover').bind('dragover', function(event) {
@@ -71,6 +75,9 @@ define(['data/skilldata', 'data/items'], function(SkillData, Items) {
     setup: function (slot) {
       //var slot = this.jq.data("slot");
       // TODO fill.
+      if (this.isCoolingDown)
+        return;
+
       if (DragItem) {
         var item = game.inventory.inventory[DragItem.slot];
         if (item && ItemTypes.isConsumableItem(item.itemKind)) {
@@ -188,8 +195,10 @@ define(['data/skilldata', 'data/items'], function(SkillData, Items) {
 
       funcCooldown();
 
-      for (var sc of this.children)
+      for (var sc of this.children) {
+        sc.isCoolingDown = true;
         sc.jqCooldown.show();
+      }
     },
 
     tick: function () {
@@ -215,10 +224,13 @@ define(['data/skilldata', 'data/items'], function(SkillData, Items) {
       this.cooltimeTickHandle = null;
       this.cooltimeCounter = 0;
 
-      for (var sc of this.children)
+      for (var sc of this.children) {
+        sc.isCoolingDown = false;
         sc.jqCooldown.hide();
-
+        sc.cooldown = null;
+      }
       this.cooldown = null;
+      this.shortcut.cooldown = null;
       delete this;
     },
   });

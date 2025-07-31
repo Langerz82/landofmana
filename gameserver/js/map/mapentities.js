@@ -481,8 +481,17 @@ var MapEntities = cls.Class.extend({
         return item;
     },
 
+    removeSpatial: function (entity) {
+      if (entity.spatialMap) {
+        var spatial = this.spatial[entity.spy][entity.spx];
+        Utils.removeFromArray(spatial, entity);
+      }
+    },
+
     removeEntity: function(entity) {
     	//console.info("removeEntity: "+entity.id);
+        this.removeSpatial(entity);
+
         if (entity.id in this.mobs)
             delete this.mobs[entity.id];
 

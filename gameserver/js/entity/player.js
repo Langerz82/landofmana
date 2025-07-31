@@ -1634,5 +1634,11 @@ module.exports = Player = Character.extend({
 
   getXP: function () {
     return 20 * this.level;
+  },
+
+  setMap: function (map) {
+    this.map.entities.removeSpatial(this);
+    this.packetHandler.setMap(map);
+    this.map = map;
   }
 });

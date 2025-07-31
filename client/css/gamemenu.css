@@ -88,7 +88,7 @@ footer, header, hgroup, menu, nav, section {
     width: 25%;
     height: 25%;
     left: 0;
-    top: 65%;
+    bottom: 50px;
     padding: 10px;
     overflow-y: hidden;
     overflow-x: hidden;

@@ -23,7 +23,14 @@ define(['./dialog', '../tabpage', 'data/skilldata'], function(Dialog, TabPage, S
             this.scale = game.renderer.getUiScaleFactor();
 
             var self = this;
-            var dragStart = false;
+
+            var fnSelectSkill = function (index) {
+              self.parent.clearHighlight();
+              self.parent.selectedSkill = self;
+              self.body.css('border', self.scale+"px solid #f00");
+              $('#skillDetail').html(self.detail);
+              ShortcutData = self;
+            };
 
             var clickSkill = function (index) {
               if (self.parent.selectedSkill == self) {
@@ -32,24 +39,15 @@ define(['./dialog', '../tabpage', 'data/skilldata'], function(Dialog, TabPage, S
                   self.cooldownStart();
                   game.shortcuts.cooldownStart(2, self.index);
                 }
-                //self.parent.selectedSkill = self;
-                //self.parent.clearHighlight();
-                //ShortcutData = null;
               } else {
-                //game.selectedSkill = self;
-                self.parent.clearHighlight();
-                self.parent.selectedSkill = self;
-                self.body.css('border', self.scale+"px solid #f00");
-                $('#skillDetail').html(self.detail);
-                ShortcutData = self; //(ShortcutData ? null : self);
-                //ShortcutData.skillIndex = index;
+                fnSelectSkill(index);
               }
             };
 
             this.body.data('skillIndex', this.index);
 
             this.body.bind('dragstart', function(event) {
-              clickSkill($(this).data("skillIndex"));
+              fnSelectSkill($(this).data("skillIndex"));
             	log.info("Began DragStart.")
             });
 

@@ -30,7 +30,7 @@ define(['entity/mob', 'data/skilldata', 'entity/character'], function(Mob, Skill
     }
   });
 
-  var SkillPassive = Skill.extend({});
+  //var SkillPassive = Skill.extend({});
   var SkillActive = Skill.extend({
     init: function(skillId) {
       this._super(skillId);
@@ -64,7 +64,7 @@ define(['entity/mob', 'data/skilldata', 'entity/character'], function(Mob, Skill
           game.client.sendSkill(this.skillId, player.target.id);
 
         } else {
-          game.chathandler.addNotification('No target chosen.');
+          game.makePlayerInteractNextTo();
           return false;
         }
       } else if (this.data.skillType == "self") {
@@ -105,43 +105,9 @@ define(['entity/mob', 'data/skilldata', 'entity/character'], function(Mob, Skill
       this.container = $('#skillcontainer');
       this.activeSkills = [];
 
-      var self = this;
-      self.isDragging = false;
-
-      this.container.bind("touchstart", function(ev) {
-        self.isClicked = true;
+      $('#skillsCloseButton').click(function () {
+        ShortcutData = null;
       });
-      this.container.mousedown(function() {
-        self.isClicked = true;
-      });
-
-      this.container.mousemove(function() {
-        self.isDragging = true;
-      });
-
-      this.container.mouseup(function(event) {
-        self.isDragging = false;
-        self.isClicked = false;
-      });
-      this.container.bind("touchend", function(ev) {
-        self.isDragging = false;
-        self.isClicked = false;
-      });
-
-    },
-
-    /*moveShortcuts: function() {
-      this.container.css({
-        "left": this.game.mouse.x + "px",
-        "top": this.game.mouse.y + "px"
-      });
-    },*/
-
-    displayShortcuts: function() {
-    },
-
-    hideShortcuts: function() {
-
     },
 
     getSkill: function(skillId) {

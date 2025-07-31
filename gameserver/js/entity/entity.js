@@ -65,9 +65,9 @@ module.exports = Entity = cls.Class.extend({
             var spx = ~~(gx / G_SPATIAL_SIZE);
             var spy = ~~(gy / G_SPATIAL_SIZE);
 
-            if (!this.hasOwnProperty("sx"))
+            if (!this.hasOwnProperty("spx"))
               this.spx = spx;
-            if (!this.hasOwnProperty("sy"))
+            if (!this.hasOwnProperty("spy"))
               this.spy = spy;
             if (!this.hasOwnProperty("spatialMap"))
               this.spatialMap = this.map;
@@ -90,10 +90,6 @@ module.exports = Entity = cls.Class.extend({
                 var spatial = this.map.entities.spatial[spy][spx];
                 if (!spatial.includes(this))
                   spatial.push(this);
-                /*var index = spatial.indexOf(this);
-                if (index == -1) {
-                  spatial.push(this);
-                }*/
               }
             }
             this.spx = spx;
