@@ -102,11 +102,11 @@ module.exports = PlayerCallback = Class.extend({
 
             var fnNotCorrectPos = function(x,y) {
               var dx = Math.abs(p.x-x), dy = Math.abs(p.y-y);
-              if (dx == 0 || dy == 0)
+              if ((dx == 0 && dy != 0) || (dy == 0 && dx != 0))
               {
                 var path = [[p.x,p.y],[x,y]];
                 if(p.map.entities.pathfinder.isValidPath(p.map.grid, path)) {
-                  if (!p.map.entities.pathfinder.isPathTicksTooFast(p, path, p.endMoveTime))
+                  if (!p.endMoveTime || !p.map.entities.pathfinder.isPathTicksTooFast(p, path, p.endMoveTime))
                   {
                     p.fixMove(x,y);
                     return true;

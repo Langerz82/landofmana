@@ -21,36 +21,24 @@ module.exports = Pathfinder = Class.extend({
       }*/
   },
 
-  isPathTicksTooFast: function (entity, path, startTime) {
+  isPathTicksTooFast: function (entity, path, startTime, tolerance) {
+    tolerance = tolerance || G_FRAME_INTERVAL * 2
     console.info("pathFinder - isPathTicksTooFast:");
     var elapsed = Date.now() - startTime;
 
-    var serverTicks = ~~(elapsed * (entity.tick / G_FRAME_INTERVAL_EXACT));
+    var elapsedTicks = ~~(elapsed * (entity.tick / G_FRAME_INTERVAL_EXACT));
     //console.warn("entity.estDelay: "+entity.estDelay);
-    serverTicks = Math.max(serverTicks, 0);
-    var playerTicks = this.getPathTicks(path, entity.x, entity.y);
-    if (playerTicks == 0) {
+    elapsedTicks = Math.max(elapsedTicks, 0);
+    var actualTicks = this.getPathTicks(path, entity.x, entity.y);
+    /*if (actualTicks == 0) {
       console.warn("getPathTicks - "+JSON.stringify(path)+", x:"+entity.x+",y:"+entity.y);
       return false;
-    }
-
-    //if (entity.unclampedDelay > 0)
-      //tMoves += entity.unclampedDelay;
-    //console.info("entity.unclampedDelay:"+entity.unclampedDelay);
-    //console.warn("SPEED CHECK. estMoves: "+estMoves+", tMoves: "+tMoves+", entity.latencyDiff: "+entity.latencyDiff);
-    var tolerance = G_FRAME_INTERVAL * 2; //+ ~~(estMoves/100*G_UPDATE_INTERVAL);
-    //var diff = tMoves - estMoves; // - entity.latencyDiff;
-    //console.warn("SPEED HACK. playerTicks - tolerance: "+playerTicks+"-"+tolerance+", "+(playerTicks - tolerance)+" > serverTicks: "+serverTicks+", entity.latencyDiff: "+entity.latencyDiff);
-    console.info("playerTicks:"+playerTicks);
-    console.info("serverTicks:"+serverTicks);
-    console.info("playerTicks - tolerance:"+(playerTicks - tolerance));
-    if (serverTicks < (playerTicks - tolerance))
+    }*/
+    console.info("elapsedTicks:"+elapsedTicks);
+    console.info("actualTicks:"+actualTicks);
+    if (actualTicks > (elapsedTicks + tolerance))
     {
-      //try { throw new Error(); } catch(err) { console.info(err.stack); }
-      //console.warn("playerTicks:"+playerTicks);
-      //console.warn("serverTicks:"+serverTicks);
-      console.warn("SPEED HACK. playerTicks - tolerance: "+playerTicks+"-"+tolerance+", "+(playerTicks - tolerance)+" > serverTicks: "+serverTicks+", entity.latencyDiff: "+entity.latencyDiff);
-      //p.setPosition(p.stx,p.sty);
+      console.warn("SPEED HACK DETECTED. playerTicks - actualTicks: "+actualTicks+", elapsedTicks:"+elapsedTicks+", tolerance:"+tolerance);
       return true;
     }
     return false;
