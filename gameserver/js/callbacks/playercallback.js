@@ -102,16 +102,19 @@ module.exports = PlayerCallback = Class.extend({
 
             var fnNotCorrectPos = function(x,y) {
               var dx = Math.abs(p.x-x), dy = Math.abs(p.y-y);
-              if ((dx == 0 && dy != 0) || (dy == 0 && dx != 0))
+              var tx = Math.trunc(p.x) - Math.trunc(x) == 0;
+              var ty = Math.trunc(p.y) - Math.trunc(y) == 0;
+              if ((tx && dy != 0) || (ty && dx != 0))
               {
                 var path = [[p.x,p.y],[x,y]];
-                if(p.map.entities.pathfinder.isValidPath(p.map.grid, path)) {
-                  if (!p.endMoveTime || !p.map.entities.pathfinder.isPathTicksTooFast(p, path, p.endMoveTime))
-                  {
-                    p.fixMove(x,y);
-                    return true;
-                  }
+                //if(p.map.entities.pathfinder.isValidPath(p.map.grid, path)) {
+                if (!p.endMoveTime || !p.map.entities.pathfinder.isPathTicksTooFast(p, path, p.endMoveTime))
+                {
+                  console.error("FIXED MOVE");
+                  p.fixMove(x,y);
+                  return true;
                 }
+                //}
               }
 
               console.error("PLAYER NOT IN CORRECT POSITION");

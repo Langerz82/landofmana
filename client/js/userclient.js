@@ -213,6 +213,7 @@ define(['gameclient', 'skillhandler', 'quest', 'config', 'achievement'], functio
           $('#container').addClass('error');
           $('#errorwindow .errordetails').html("<p>"+message+"</p>");
           app.loadWindow('loginwindow','errorwindow');
+          $('#errorwindow').focus();
       },
 
       onVersion: function(data) {

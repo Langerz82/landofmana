@@ -827,7 +827,7 @@ module.exports = PacketHandler = Class.extend({
     if (entityId != p.id)
       return;
 
-    if (state==1 && p.hasMoveThrottled(G_ROUNDTRIP))  {
+    if (state==1 && p.hasMoveThrottled(G_LATENCY))  {
       console.error("moveThrottled");
       return;
     }
@@ -876,7 +876,7 @@ module.exports = PacketHandler = Class.extend({
     if (entityId != p.id)
       return;
 
-    if (path && p.hasMoveThrottled(G_ROUNDTRIP)) return;
+    if (path && p.hasMoveThrottled(G_LATENCY)) return;
 
     console.info(JSON.stringify(path));
 

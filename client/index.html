@@ -113,7 +113,7 @@
 </noscript>
 <div id="intro">
   <div id="game-heading"></div>
-  <div class="frame" id="about_window">
+  <div class="frame" id="about_window" tabindex="0">
 		<div class="frame-heading" id="aboutHeading">ABOUT<div class="frame-close-button" id="aboutclose"></div></div>
 		<div class="frame-content">
 			<article id="aboutgame">
@@ -127,7 +127,7 @@
 			</article>
 		</div>
 	</div>
-	<div class="frame" id="user_window">
+	<div class="frame" id="user_window" tabindex="0">
 		<div class="frame-heading" id="skillHeading">ACCOUNT</div>
 		<div class="frame-content">
 			<article id="loadcharacter">
@@ -147,9 +147,9 @@
 		</div>
 	</div>
   <div class="frame-new-button" id="aboutbutton">ABOUT</div>
-
   <div class="frame-new-button" id="user_remove">REMOVE ACCOUNT</div>
-  <div class="frame" id="remove_window">
+
+  <div class="frame" id="remove_window" tabindex="0">
     <div class="frame-heading" id="skillHeading">ACCOUNT<div class="frame-close-button" id="user_close"></div></div>
     <div class="frame-content">
       <div class="newFieldName">Current Password</div><br/>
@@ -160,7 +160,7 @@
     </div>
   </div>
 
-	<div class="frame" id="player_window">
+	<div class="frame" id="player_window" tabindex="0">
 		<div class="frame-heading">PLAYERS</div>
 		<div class="frame-content">
 			<article id="createcharacter">
@@ -185,7 +185,7 @@
 		</div>
 	</div>
 
-	<div class="frame" id="errorwindow">
+	<div class="frame" id="errorwindow" tabindex="0">
 		<div class="frame-heading">
 			<div>ERROR</div>
 		</div>
@@ -200,7 +200,7 @@
 	<div id="canvas">
   </div>
   <div id="gui">
-			<div class="frame" id="diedwindow">
+			<div class="frame" id="diedwindow" tabindex="0">
 				<div class="frame-heading">
 					<div>DIED</div>
 				</div>
@@ -363,7 +363,7 @@
                 <div id="auctionSellCancel" class="frame-new-button">CANCEL</div>
             </div>
         </div>
-        <div id="dropDialog" class="frame-panel">
+        <div id="dropDialog" class="frame-panel" tabindex="0">
             <div id="dropTitle">Input transfer count.</div>
             <div>
                 <input type="number" id="dropCount">

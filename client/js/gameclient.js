@@ -145,6 +145,7 @@ define(['lib/pako', 'entity/player', 'entityfactory', 'entity/mob', 'entity/item
 	          $('#container').addClass('error');
 	          $('#errorwindow .errordetails').html("<p>"+message+"</p>");
 	          app.loadWindow('playerwindow','errorwindow');
+						$('#errorwindow').focus();
 	      },
 
 				onConnected: function (data) {

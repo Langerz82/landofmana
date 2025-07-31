@@ -153,14 +153,16 @@ div.clear{
     font-family:'GraphicPixel';
     color:#e3e3e3;
     position: absolute;
+    width: 180px;
+    height: 120px;
     left: 50%;
     top: 50%;
-    margin-left: -76px;
-    margin-top: -23px;
+    margin-left: -90px;
+    margin-top: -60px;
     padding: 5px;
-    background: rgba(45, 45, 45, 0.8);
     border-radius: 6px 6px 6px 6px;
     display: none;
+    opacity: 0.75;
     z-index:15;
 }
 

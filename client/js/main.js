@@ -159,20 +159,19 @@ define(['app', 'data/langdata', 'util',
             game.onDisconnect(function(message) {
                 $('#errorwindow').find('p').html(message+"<em>Disconnected. Please reload the page.</em>");
                 $('#errorwindow').show();
+                $('#errorwindow').focus();
             });
 
             game.onClientError(function(message) {
                 $('#errorwindow').find('p').html(message);
                 $('#errorwindow').show();
+                $('#errorwindow').focus();
             });
 
             game.onPlayerDeath(function() {
                 game.player.dead();
-                //game.removeEntity(game.player);
-
-                //game.player.flipSpriteY = false;
-                //$('body').addClass('death');
                 $('#diedwindow').show();
+                $('#diedwindow').focus();
             });
 
             game.onNotification(function(message) {
@@ -421,9 +420,6 @@ define(['app', 'data/langdata', 'util',
 
 
             var fnKeyDown = function (e) {
-              //e.preventDefault();
-              //e.stopPropagation();
-
               var key = e.which;
 
               if(key === Types.Keys.ENTER) { // Enter
@@ -431,30 +427,6 @@ define(['app', 'data/langdata', 'util',
                       app.showChat(!jqChatbox.hasClass('active'));
                       return false; // prevent form submit.
                   }
-                  if (jqUserWindow.is(':visible') && app.userReady)
-                  {
-                      jqInput.blur();      // exit keyboard on mobile
-                      app.tryUserAction(1);
-                      return false;           // prevent form submit
-                  }
-                  if (jqPlayerWindow.is(':visible'))
-                  {
-                      jqInput.blur();      // exit keyboard on mobile
-                      if (jqPlayerCreateForm.is(':visible'))
-                        app.tryPlayerAction(4);
-                      else if(jqPlayerLoad.is(':visible'))
-                        app.tryPlayerAction(3);
-                      return false;           // prevent form submit
-                  }
-
-              }
-
-              if(jqDropDialog.is(":visible")) {
-                if (key === Types.Keys.ENTER)
-                  jqDropAccept.trigger("click");
-                else if (key === Types.Keys.ESCAPE)
-                  jqDropCancel.trigger("click");
-                return false;
               }
 
               if (!fnMoveKeys(e, true))
@@ -504,14 +476,55 @@ define(['app', 'data/langdata', 'util',
             };
 
             $(document).keydown(function (e) {
-              //e.stopPropagation();
               if (e.repeat) {
-                //e.preventDefault();
-                //e.stopPropagation();
                 return true;
               }
               return fnKeyDown(e);
-              //return false;
+            });
+
+            jqPlayerWindow.keydown(function (e) {
+              if (e.which == 13) {
+                jqInput.blur();
+                if (jqPlayerCreateForm.is(':visible'))
+                  app.tryPlayerAction(4);
+                else if(jqPlayerLoad.is(':visible'))
+                  app.tryPlayerAction(3);
+                return false;
+              }
+            });
+
+            jqUserWindow.keydown(function (e) {
+              if (e.which == 13 && app.userReady) {
+                jqInput.blur();      // exit keyboard on mobile
+                app.tryUserAction(1);
+                return false;
+              }
+            });
+
+            $('#errorwindow').keydown(function (e) {
+              if (e.which == 13) {
+                location.reload();
+                return false;
+              }
+            });
+
+            $('#dropCount').keydown(function (e) {
+              var key = e.which;
+              if (key === Types.Keys.ENTER) {
+                jqDropAccept.trigger("click");
+                return false;
+              }
+              else if (key === Types.Keys.ESCAPE) {
+                jqDropCancel.trigger("click");
+                return false;
+              }
+            });
+
+            $('#diedwindow').keydown(function (e) {
+              if(e.which === Types.Keys.ENTER) {
+                $('#respawn').trigger("click");
+                return false;
+              }
             });
 
             //var keyFired= false;

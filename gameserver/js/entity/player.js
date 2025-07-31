@@ -1608,19 +1608,11 @@ module.exports = Player = Character.extend({
   },
 
   hasMoveThrottled: function (delay) {
-    var self = this;
-
-    if (this.moveThrottled)
+    if (Date.now() - this.lastMoveThrottle < delay)
       return true;
 
-    this.moveThrottled = true;
+    this.lastMoveThrottle = Date.now();
 
-    clearTimeout(this.moveThrottleTimeout);
-    this.moveThrottleTimeout =
-      setTimeout(function () {
-          self.moveThrottled = false;
-          self.moveThrottleTimeout = null;
-      }, delay);
     return false;
   },
 

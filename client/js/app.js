@@ -745,6 +745,7 @@ define(['lib/localforage', 'entity/mob', 'entity/item', 'data/mobdata', 'user', 
         loadWindow: function(origin, destination) {
         	$('#'+origin).hide();
         	$('#'+destination).show();
+          //$('#'+destination).focus();
           if (destination != "user_window") {
             $('#aboutbutton').hide();
           }
