@@ -114,7 +114,6 @@ define(['camera', 'entity/item', 'data/items', 'data/itemlootdata', 'entity/enti
                 Container.HUD.zIndex = 6;
                 Container.HUD2.zIndex = 7;
 
-                //this.scale = 2;
                 this.guiScale = 3;
                 this.scaleHUD = 1;
                 this.gameScale = 3;
@@ -134,15 +133,11 @@ define(['camera', 'entity/item', 'data/items', 'data/itemlootdata', 'entity/enti
                 Container.HUD2.scale.x = 1;
                 Container.HUD2.scale.y = 1;
 
-                //Container.BACKGROUND.sortDirty = true;
-                //Container.FOREGROUND.sortDirty = true;
-
                 this.resources = {};
                 this.tiles = {};
 
                 this.initFPS();
-                this.tilesize = 16;
-
+                this.tilesize = G_TILESIZE;
 
                 this.upscaledRendering = true;
 				        this.rescaling = true;
@@ -159,7 +154,7 @@ define(['camera', 'entity/item', 'data/items', 'data/itemlootdata', 'entity/enti
 
                 this.lastTime = 0;
                 this.frameCount = 0;
-                this.maxFPS = this.FPS;
+                //this.maxFPS = this.FPS;
                 this.realFPS = 0;
                 this.movingFPS = this.FPS;
                 this.fullscreen = true;
@@ -192,28 +187,17 @@ define(['camera', 'entity/item', 'data/items', 'data/itemlootdata', 'entity/enti
 
                 this.hitbarWidth = 0;
 
-                //this.tw = window.innerWidth;
-                //this.th = window.innerHeight;
-
-                //this.scrollX = true;
-                //this.scrollY = true;
-
-                //setTimeout(checkAnnouncement, 5000);
                 this.pushAnnouncement("Welcome to Land Of Mana!", 5000);
                 checkAnnouncement(this);
 
+                this.gui = document.getElementById('gui');
                 this.hitbar = document.getElementById("combathitbar-slider");
             },
 
             calcScreenSize: function (zoomMod) {
               this.gameZoom = this.getGameZoom(zoomMod);
-              this.gameWidth = Math.min(window.innerWidth,1920);
-              this.gameHeight = Math.min(window.innerHeight,1080);
-
-              //this.fourKZoom = (window.innerWidth > this.gameWidth) ? window.innerWidth / this.gameWidth : 1;
-              this.screenZoom = Math.min(screen.width/this.gameWidth,screen.height/this.gameHeight);
-              //this.renderZoom = this.screenZoom * this.fourKZoom;
-              //this.resolution = 1;
+              this.gameWidth = window.innerWidth;
+              this.gameHeight = window.innerHeight;
               this.innerWidth = ~~(this.gameWidth * this.gameZoom);
               this.innerHeight = ~~(this.gameHeight * this.gameZoom);
             },
@@ -231,33 +215,48 @@ define(['camera', 'entity/item', 'data/items', 'data/itemlootdata', 'entity/enti
             },
 
             getGuiZoom: function () {
-              var guizoom = 1.25;
-              if (this.mobile)
-                guizoom = 0.75;
-              else if (this.tablet)
-                guizoom = 1.0;
-              return guizoom;
+              var w = window.innerWidth,
+                  h = window.innerHeight;
+
+              var zoom = 1;
+
+              if (this.mobile) {
+                zoom *= 0.75;
+              }
+              else if (this.tablet) {
+                zoom *= 1;
+              }
+              else {
+                if ((w < 500 && h < 1000) || (w < 1000 && h < 500))
+                  zoom *= 0.75;
+                else if (w <= 1500 || h <= 870)
+                  zoom *= 1;
+                else
+                  zoom *= 1.25;
+              }
+              return zoom;
             },
 
             getGameZoom: function(zoomMod) {
                 zoomMod = zoomMod || 1;
                 var w = window.innerWidth,
-                    h = window.innerHeight,
-                    zoom;
+                    h = window.innerHeight;
+
+                var zoom = w/window.screen.width;
 
                 if (this.mobile) {
-                  zoom = 1.2;
+                  zoom *= 1.2;
                 }
                 else if (this.tablet) {
-                  zoom = 1;
+                  zoom *= 1;
                 }
                 else {
                   if ((w < 500 && h < 1000) || (w < 1000 && h < 500))
-                		zoom = 1.25;
+                		zoom *= 1.2;
                 	else if (w <= 1500 || h <= 870)
-                		zoom = 1;
+                		zoom *= 1;
                   else
-                    zoom = 1920/w * 0.8;
+                    zoom *= 0.8;
                 }
                 return zoom * zoomMod;
             },
@@ -296,10 +295,7 @@ define(['camera', 'entity/item', 'data/items', 'data/itemlootdata', 'entity/enti
             },
 
             guiResize: function () {
-              //var uw = window.innerWidth;
-              //var uh = window.innerHeight;
 
-    					this.gui = document.getElementById('gui');
 
               var guizoom = this.getGuiZoom();
 
@@ -313,7 +309,6 @@ define(['camera', 'entity/item', 'data/items', 'data/itemlootdata', 'entity/enti
     					log.debug("#gui set to " + this.gui.width + " x " + this.gui.height);
 
               this.gui.style.transform = "scale("+(guizoom)+")";
-              //this.gui.style.transform = "scale("+(this.guizoom*this.fourKZoom)+")";
             },
 
             resizeCanvases: function(zoomMod) {
@@ -331,8 +326,6 @@ define(['camera', 'entity/item', 'data/items', 'data/itemlootdata', 'entity/enti
 
               this.forceRedraw = true;
               this.renderFrame();
-              this.guiResize();
-
             },
 
             initFPS: function() {
