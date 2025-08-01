@@ -640,7 +640,10 @@ define(['lib/localforage', 'entity/mob', 'entity/item', 'data/mobdata', 'user', 
     				}
         	});
 
-          $(window).resize(function() { app.resizeUi(); });
+          $(window).resize(function() {
+            app.resizeUi();
+          });
+
     			$( document ).ready(function() {
     				$("#menucontainer").on('click', 'div', function(e){
     					$("#menucontainer").fadeOut();
@@ -756,19 +759,13 @@ define(['lib/localforage', 'entity/mob', 'entity/item', 'data/mobdata', 'user', 
 
         resizeUi: function() {
             //log.error("resizeUi");
-            if(game) {
-                if(game.started) {
-                    game.resize();
-                    this.initHealthBar();
-                    this.initTargetHud();
-                    this.initExpBar();
-                    this.initPlayerBar();
-                    game.updateBars();
-                } else {
-                    //var newScale = game.renderer.getScaleFactor();
-                    game.renderer.rescale();
-
-                }
+            if(game && game.started) {
+              game.resize(game.zoom);
+              this.initHealthBar();
+              this.initTargetHud();
+              this.initExpBar();
+              this.initPlayerBar();
+              game.updateBars();
             }
         },
 

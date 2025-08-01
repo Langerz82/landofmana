@@ -399,7 +399,7 @@ define(['area', 'detect', 'map'], function(Area, Detect, Map) {
         }
       }
 
-      game.renderer.forceRedraw = true;
+      //game.renderer.forceRedraw = true;
       return true;
     },
 

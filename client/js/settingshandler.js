@@ -1,8 +1,8 @@
 define(['lib/localforage', 'lib/virtualjoystick'], function(localforage) {
   var SettingsHandler = Class.extend({
-    init: function(game,app) {
+    init: function(game) {
     	this.game = game;
-    	this.app = app;
+    	this.app = game.app;
     	this.toggle = false;
     	var self = this;
 

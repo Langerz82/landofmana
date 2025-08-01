@@ -194,7 +194,7 @@ function(UserClient, Player, AppearanceData) {
             /*if (this.moveThrottle(G_ROUNDTRIP))
               return;*/
 
-            if (this.keyMove && orientation == this.orientation) {
+            if (this.keyMove /*&& orientation == this.orientation*/) {
                 return;
             }
 

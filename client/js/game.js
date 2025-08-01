@@ -459,12 +459,15 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
 
                 //self.renderer.resizeCanvases();
 
+                this.settingsHandler = new SettingsHandler(this);
+                this.settingsHandler.apply();
+
                 setTimeout(function () {
                     game.resize(game.zoom);
-                },1500); // Slight Delay For On-Screen Keybaord to minimize.
-
+                },3000); // Slight Delay For On-Screen Keybaord to minimize.
 
                 this.gamepad = new GamePad(this);
+
 
                 setInterval(this.gametick.bind(self), G_UPDATE_INTERVAL);
 
@@ -481,16 +484,21 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
 
               this.processRender = true;
               this.renderer.renderFrame();
-              this.processRender = false;
 
               if (this.animFrame)
                 requestAnimFrame(this.render.bind(this));
 
               this.pGameFrame = this.gameFrame;
+              this.processRender = false;
             },
 
             gametick: function() {
               var self = this;
+
+              /*if (this.processRender) {
+                setTimeout(self.gametick.bind(self),1);
+                return;
+              }*/
 
               this.processLogic = true;
 
@@ -644,9 +652,6 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
             },
 
             onPlayerLoad: function (player) {
-              game.settingsHandler = new SettingsHandler(game, game.app);
-              game.settingsHandler.apply();
-
               log.info("Received player ID from server : "+ player.id);
 
               // Make zoning possible.

@@ -372,52 +372,101 @@ define(['app', 'data/langdata', 'util',
             for(var i=0; i < 8; ++i)
               jqShortcut[i] = $('#shortcut'+i);
 
-            var fnMoveKeys = function (e, bool) {
-              var key = e.which;
-              var p = game.player;
-              var gameKeys = p && game.started && !jqChatbox.hasClass('active');
-              if (gameKeys) {
-                  if (bool && self.keyPressed == key) {
-                    //console.warn("same key pressed.")
-                    return false;
-                  }
-                  switch(key) {
-                      case Types.Keys.LEFT:
-                      case Types.Keys.A:
-                      case Types.Keys.KEYPAD_4:
-                          p.move(Types.Orientations.LEFT, bool);
-                          self.keyPressed = (bool) ? key : 0;
-                          return false;
-                      case Types.Keys.RIGHT:
-                      case Types.Keys.D:
-                      case Types.Keys.KEYPAD_6:
-                          p.move(Types.Orientations.RIGHT, bool);
-                          self.keyPressed = (bool) ? key : 0;
-                          return false;
-                      case Types.Keys.UP:
-                      case Types.Keys.W:
-                      case Types.Keys.KEYPAD_8:
-                          p.move(Types.Orientations.UP, bool);
-                          self.keyPressed = (bool) ? key : 0;
-                          return false;
-                      case Types.Keys.DOWN:
-                      case Types.Keys.S:
-                      case Types.Keys.KEYPAD_2:
-                          p.move(Types.Orientations.DOWN, bool);
-                          self.keyPressed = (bool) ? key : 0;
-                          return false;
-                  }
-              }
-              return true;
+            var fnCondition = function () {
+              return game.player && game.started && !jqChatbox.hasClass('active');
             };
+            var fnGameKeys = fnCondition;
 
-            $(document).keyup(function(e) {
-                if (e.repeat)
-                  return false;
+            var keyboard = function (value) {
+                var key = {
+                  "value": value,
+                  "isDown": false,
+                  "isUp": true,
+                  "press": undefined,
+                  "release": undefined
+                };
 
-                return fnMoveKeys(e, false);
-            });
+                //The `downHandler`
+                key.downHandler = function (event) {
+                  if (!fnCondition())
+                    return;
 
+                  for (var k of key.value) {
+                    if (event.which === k) {
+                      if (key.isUp && key.press) {
+                        key.press();
+                      }
+                      key.isDown = true;
+                      key.isUp = false;
+                      event.preventDefault();
+                    }
+                  }
+                };
+
+                //The `upHandler`
+                key.upHandler = function (event) {
+                  if (!fnCondition())
+                    return;
+
+                  for (var k of key.value) {
+                    if (event.which === k) {
+                      if (key.isDown && key.release) {
+                        key.release();
+                      }
+                      key.isDown = false;
+                      key.isUp = true;
+                      event.preventDefault();
+                    }
+                  }
+                };
+
+                //Attach event listeners
+                var downListener = key.downHandler.bind(key);
+                var upListener = key.upHandler.bind(key);
+
+                window.addEventListener("keydown", downListener, false);
+                window.addEventListener("keyup", upListener, false);
+
+                // Detach event listeners
+                key.unsubscribe = () => {
+                  window.removeEventListener("keydown", downListener);
+                  window.removeEventListener("keyup", upListener);
+                };
+
+                return key;
+              }
+
+              var fnKeyLeft = keyboard([Types.Keys.LEFT,Types.Keys.A,Types.Keys.KEYPAD_4]);
+              fnKeyLeft.press = function () {
+                game.player.move(Types.Orientations.LEFT, true);
+              };
+              fnKeyLeft.release = function () {
+                game.player.move(Types.Orientations.LEFT, false);
+              };
+
+              var fnKeyRight = keyboard([Types.Keys.RIGHT,Types.Keys.D,Types.Keys.KEYPAD_6]);
+              fnKeyRight.press = function () {
+                game.player.move(Types.Orientations.RIGHT, true);
+              };
+              fnKeyRight.release = function () {
+                game.player.move(Types.Orientations.RIGHT, false);
+              };
+
+              var fnKeyUp = keyboard([Types.Keys.UP,Types.Keys.W,Types.Keys.KEYPAD_8]);
+              fnKeyUp.press = function () {
+                game.player.move(Types.Orientations.UP, true);
+              };
+              fnKeyUp.release = function () {
+                game.player.move(Types.Orientations.UP, false);
+              };
+
+              var fnKeyDown = keyboard([Types.Keys.DOWN,Types.Keys.S,Types.Keys.KEYPAD_2]);
+              fnKeyDown.press = function () {
+                game.player.move(Types.Orientations.DOWN, true);
+              };
+              fnKeyDown.release = function () {
+                game.player.move(Types.Orientations.DOWN, false);
+              };
 
             var fnKeyDown = function (e) {
               var key = e.which;
@@ -429,12 +478,7 @@ define(['app', 'data/langdata', 'util',
                   }
               }
 
-              if (!fnMoveKeys(e, true))
-                return false;
-
-              var p = game.player;
-              var gameKeys = p && game.started && !jqChatbox.hasClass('active');
-              if (gameKeys) {
+              if (fnGameKeys()) {
                   switch(key) {
                       case Types.Keys.T:
                           game.playerTargetClosestEntity(1);
@@ -474,6 +518,15 @@ define(['app', 'data/langdata', 'util',
                   }
               }
             };
+
+/*
+            $(document).keyup(function(e) {
+                if (e.repeat)
+                  return false;
+
+                return fnMoveKeys(e, false);
+            });
+*/
 
             $(document).keydown(function (e) {
               if (e.repeat) {
@@ -527,13 +580,8 @@ define(['app', 'data/langdata', 'util',
               }
             });
 
-            //var keyFired= false;
             jqChatInput.keydown(function(e) {
                 if (e.repeat) { return; }
-                /*if(keyFired) {
-                  return;
-                }
-                keyFired = true;*/
                 var key = e.which,
                     placeholder = $(this).attr("placeholder");
 

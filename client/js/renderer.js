@@ -31,13 +31,14 @@ define(['camera', 'entity/item', 'data/items', 'data/itemlootdata', 'entity/enti
                 //PIXI.settings.FAIL_IF_MAJOR_PERFORMANCE_CAVEAT = false;
 
                 PIXI.tilemap.Constant = {
-                    maxTextures: 16,
-                    bufferSize: 8192,
-                    boundSize: 4096,
+                    maxTextures: 8,
+                    bufferSize: 4096,
+                    boundSize: 2048,
                     boundCountPerBuffer: 4,
                     use32bitIndex: true,
                     SCALE_MODE: PIXI.SCALE_MODES.LINEAR,
                 };
+                PIXI.settings.PRECISION_FRAGMENT = PIXI.PRECISION.HIGH;
 
                 WebFont.load({
                     custom: {
@@ -51,9 +52,9 @@ define(['camera', 'entity/item', 'data/items', 'data/itemlootdata', 'entity/enti
                 this.scale = this.getScaleFactor();
 
                 this.resolution = 1;
-                this.gameZoom = this.getGameZoom();
+                //this.gameZoom = this.getGameZoom(1);
 
-                this.calcScreenSize();
+                this.calcScreenSize(1);
 
 
                 var renderer = new PIXI.autoDetectRenderer (this.innerWidth, this.innerHeight, {
@@ -67,14 +68,14 @@ define(['camera', 'entity/item', 'data/items', 'data/itemlootdata', 'entity/enti
                   });
                 this.renderer = renderer;
                 // Assuming 'renderer' is your PIXI renderer object
-                renderer.plugins.interaction.autoPreventDefault = false;
+                this.renderer.plugins.interaction.autoPreventDefault = false;
 
                 this.canvas = $("#canvas");
                 this.canvas.css({
                    'cursor' : 'none'
                 });
 
-                this.centerStage();
+                //this.centerStage();
 
                 console.warn(this.renderer.type);
                 if (this.renderer.type == PIXI.WEBGL_RENDERER){
@@ -191,9 +192,8 @@ define(['camera', 'entity/item', 'data/items', 'data/itemlootdata', 'entity/enti
 
                 this.hitbarWidth = 0;
 
-                this.tw = window.innerWidth;
-                this.th = window.innerHeight;
-
+                //this.tw = window.innerWidth;
+                //this.th = window.innerHeight;
 
                 //this.scrollX = true;
                 //this.scrollY = true;
@@ -205,16 +205,17 @@ define(['camera', 'entity/item', 'data/items', 'data/itemlootdata', 'entity/enti
                 this.hitbar = document.getElementById("combathitbar-slider");
             },
 
-            calcScreenSize: function () {
+            calcScreenSize: function (zoomMod) {
+              this.gameZoom = this.getGameZoom(zoomMod);
               this.gameWidth = Math.min(window.innerWidth,1920);
               this.gameHeight = Math.min(window.innerHeight,1080);
-              this.fourKZoom = (window.innerWidth > this.gameWidth) ? window.innerWidth / this.gameWidth : 1;
+
+              //this.fourKZoom = (window.innerWidth > this.gameWidth) ? window.innerWidth / this.gameWidth : 1;
               this.screenZoom = Math.min(screen.width/this.gameWidth,screen.height/this.gameHeight);
-              this.renderZoom = this.gameZoom * this.screenZoom * this.fourKZoom;
+              //this.renderZoom = this.screenZoom * this.fourKZoom;
+              //this.resolution = 1;
               this.innerWidth = ~~(this.gameWidth * this.gameZoom);
               this.innerHeight = ~~(this.gameHeight * this.gameZoom);
-              this.resolution = (this.gameZoom) / this.renderZoom;
-
             },
 
             getScaleFactor: function() {
@@ -229,6 +230,15 @@ define(['camera', 'entity/item', 'data/items', 'data/itemlootdata', 'entity/enti
                 return 3;
             },
 
+            getGuiZoom: function () {
+              var guizoom = 1.25;
+              if (this.mobile)
+                guizoom = 0.75;
+              else if (this.tablet)
+                guizoom = 1.0;
+              return guizoom;
+            },
+
             getGameZoom: function(zoomMod) {
                 zoomMod = zoomMod || 1;
                 var w = window.innerWidth,
@@ -236,7 +246,7 @@ define(['camera', 'entity/item', 'data/items', 'data/itemlootdata', 'entity/enti
                     zoom;
 
                 if (this.mobile) {
-                  zoom = 1.25;
+                  zoom = 1.2;
                 }
                 else if (this.tablet) {
                   zoom = 1;
@@ -252,8 +262,7 @@ define(['camera', 'entity/item', 'data/items', 'data/itemlootdata', 'entity/enti
                 return zoom * zoomMod;
             },
 
-            rescale: function(zoomMod) {
-                this.gameZoom = this.getGameZoom(zoomMod);
+            rescale: function() {
                 this.scale = this.getScaleFactor();
 
                 this.initFPS();
@@ -263,29 +272,22 @@ define(['camera', 'entity/item', 'data/items', 'data/itemlootdata', 'entity/enti
                     this.game.inventoryHandler.scale = this.getUiScaleFactor();
                 }
 
-                this.calcScreenSize();
-
                 this.renderer.resize(this.innerWidth, this.innerHeight);
-                this.renderer.resolution = this.resolution;
-                this.forceRedraw = true;
+                this.renderer.resolution = 1;
             },
 
             centerStage: function () {
-              var roundTo = 100;
-              var zoom = (~~((1/this.gameZoom * this.fourKZoom)*roundTo)/roundTo);
-              var left = Math.max(window.innerWidth - (this.renderer.width*zoom),0);
-              var top = Math.max(window.innerHeight - (this.renderer.height*zoom),0);
-              var width = ~~(this.renderer.width*zoom);
-              var height = ~~(this.renderer.height*zoom);
+              var zoom = (1/this.gameZoom);
+              var rw = ~~(this.renderer.width);
+              var rh = ~~(this.renderer.height);
 
               this.canvas.css({
-                left: ~~(left/2) + "px",
-                top:  ~~(top/2) + "px",
-                width: width + "px !important",
-                height: height + "px !important",
+                left: "0px",
+                top:  "0px",
+                width: rw + "px !important",
+                height: rh + "px !important",
                 transform: "scale("+zoom+")",
               });
-              this.forceRedraw = true;
             },
 
             createCamera: function() {
@@ -293,30 +295,16 @@ define(['camera', 'entity/item', 'data/items', 'data/itemlootdata', 'entity/enti
                 this.camera.focusEntity = game.player;
             },
 
-            resizeCanvases: function(zoomMod) {
-              zoomMod = zoomMod || 1;
-
-              this.zoomExact = 1;
-              this.zoom = 1;
-
-              zoom1 = (Math.min(3840, 1920)/window.innerWidth);
-              zoom2 = (Math.min(this.innerHeight, 1080)/window.innerHeight);
-
-              this.zoom=Math.min(zoom1, zoom2);
-
-              var uw = window.innerWidth;
-              var uh = window.innerHeight;
+            guiResize: function () {
+              //var uw = window.innerWidth;
+              //var uh = window.innerHeight;
 
     					this.gui = document.getElementById('gui');
 
-              this.guizoom = 1.25;
-              if (this.mobile)
-                this.guizoom = 0.75;
-              else if (this.tablet)
-                this.guizoom = 1.0;
+              var guizoom = this.getGuiZoom();
 
-    					var w = Math.round($(window).width() / this.guizoom);
-    					var h = Math.round($(window).height() / this.guizoom);
+    					var w = Math.round($(window).width() / guizoom);
+    					var h = Math.round($(window).height() / guizoom);
 
     					this.gui.width = w;
     					this.gui.height = h;
@@ -324,16 +312,27 @@ define(['camera', 'entity/item', 'data/items', 'data/itemlootdata', 'entity/enti
     					this.gui.style.height = h+"px";
     					log.debug("#gui set to " + this.gui.width + " x " + this.gui.height);
 
-              this.gui.style.transform = "scale("+(this.guizoom*this.fourKZoom)+")";
+              this.gui.style.transform = "scale("+(guizoom)+")";
+              //this.gui.style.transform = "scale("+(this.guizoom*this.fourKZoom)+")";
+            },
 
-              this.rescale(zoomMod);
+            resizeCanvases: function(zoomMod) {
+              zoomMod = zoomMod || 1;
+
+              this.calcScreenSize(zoomMod);
+
+              this.guiResize();
+
+              this.rescale();
+              this.centerStage();
+
               this.camera.rescale();
               this.camera.setRealCoords();
 
-              this.centerStage();
-
               this.forceRedraw = true;
               this.renderFrame();
+              this.guiResize();
+
             },
 
             initFPS: function() {
@@ -520,7 +519,7 @@ define(['camera', 'entity/item', 'data/items', 'data/itemlootdata', 'entity/enti
                  var container = this.tiles["BACKGROUND"];
                  if (arr[0] === 1)
                   container = this.tiles["FOREGROUND"];
-                 container.addFrame(tileset, this.hOffX+arr[4], this.hOffY+arr[5], ts, ts);
+                 container.addFrame(tileset, arr[4], arr[5], ts, ts);
 
 
                  // UNcomment to enable tile numbering.
@@ -1414,11 +1413,12 @@ define(['camera', 'entity/item', 'data/items', 'data/itemlootdata', 'entity/enti
 
               var gx = fe.x >> 4;
               var gy = fe.y >> 4;
-              if (fe && (this.fegx != gx || this.fegy != gy))
+              if (this.forceRedraw || fe && (this.fegx != gx || this.fegy != gy))
               {
                 var mc = game.mapContainer;
                 if (mc)
                   mc.moveGrid();
+                this.forceRedraw = true;
               }
               this.fegx = gx;
               this.fegy = gy;
@@ -1426,10 +1426,10 @@ define(['camera', 'entity/item', 'data/items', 'data/itemlootdata', 'entity/enti
               var go = this.setGridOffset();
               this.setTilesOffset(go[0],go[1]);
 
-              //if (this.forceRedraw)
-              //{
+              if (this.forceRedraw)
+              {
                 this.refreshGrid();
-              //}
+              }
             },
 
             showCutScene: function () {
@@ -1502,11 +1502,11 @@ define(['camera', 'entity/item', 'data/items', 'data/itemlootdata', 'entity/enti
             },
 
             setTilesOffset: function (x,y) {
-              var ts = this.tilesize,
+              var //ts = this.tilesize,
                   c = game.camera,
-                  p = game.player,
-                  gs = this.gameScale,
-                  mc = game.mapContainer;
+                  //p = game.player,
+                  gs = this.gameScale;
+                  //mc = game.mapContainer;
 
               x = -x;
               y = -y;
@@ -1541,12 +1541,14 @@ define(['camera', 'entity/item', 'data/items', 'data/itemlootdata', 'entity/enti
               x *= gs;
               y *= gs;
 
+              Container.BACKGROUND.x = x;
+              Container.BACKGROUND.y = y;
+              Container.FOREGROUND.x = x;
+              Container.FOREGROUND.y = y;
               Container.COLLISION.x = x;
               Container.COLLISION.y = y;
               Container.COLLISION2.x = x;
               Container.COLLISION2.y = y;
-
-              //log.info("offset x:"+x+",y:"+y);
 
             },
 
