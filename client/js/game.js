@@ -457,14 +457,12 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
                 this.updater = new Updater(this);
                 this.camera = this.renderer.camera;
 
-                //self.renderer.resizeCanvases();
-
                 this.settingsHandler = new SettingsHandler(this);
                 this.settingsHandler.apply();
 
                 setTimeout(function () {
                     game.resize(game.zoom);
-                },3000); // Slight Delay For On-Screen Keybaord to minimize.
+                },2000); // Slight Delay For On-Screen Keybaord to minimize.
 
                 this.gamepad = new GamePad(this);
 
