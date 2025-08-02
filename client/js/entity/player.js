@@ -282,7 +282,7 @@ define(['./entity', './character', 'data/appearancedata'],
       this.setOrientation(orientation);
       if (state == 1 && orientation != Types.Orientations.NONE)
       {
-        var lockStepTime = (G_LATENCY - (getWorldTime()-time));
+        var lockStepTime = (G_LATENCY - (Utils.getWorldTime()-time));
         lockStepTime = lockStepTime.clamp(G_UPDATE_INTERVAL,G_LATENCY);
         console.warn("lockStepTime="+lockStepTime);
 
