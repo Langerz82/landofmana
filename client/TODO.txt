@@ -8,6 +8,12 @@ CLIENT - Keyboard movement appears jerky, needs fixing.
 
 DONE:
 
+CLIENT - Clicking on Looks Unlock Preview Armor is not working.
+
+CLIENT - Fix Menu z-index ordering and layout.
+
+CLIENT - Fix Store Pave Navigating positioning and layout.
+
 CLIENT - When assigning shortcuts while a cooldown is occuring some skills sometimes bug.
 
 CLIENT - Disable assigning shortcuts when it has a cooldown.

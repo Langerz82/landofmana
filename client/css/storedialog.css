@@ -170,32 +170,47 @@
 
 		#storePageNav {
 			position: absolute;
-			right: 0px;
+			left: 50%;
+      margin-left: -90px;
 			bottom: 0px;
-			width: 240px;
+			width: 180px;
 			height: 30px;
 		}
+
+    #storePageNav div {
+      position: absolute;
+      top: 0;
+      font-size:20px;
+      height:30px;
+      color: #FFFFFF;
+      text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;
+      text-align: center;
+    }
+
+    .storePageNavNumber {
+				width: 20px;
+		}
+
 		#storePageNavPrev {
-			position: absolute;
 			left: 0px;
-			top: 0px;
-			width: 24px;
-			height: 27px;
-			color: #FFFFFF;
-			text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;
+			width: 40px;
 		}
-		.storePageNavNumber {
-				width: 27px;
-				height: 30px;
-				color: #FFFFFF;
-				text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;
-		}
+    #storePageNavNumber0 {
+      left:40px;
+    }
+    #storePageNavNumber1 {
+      left:60px;
+    }
+    #storePageNavNumber2 {
+      left:80px;
+    }
+    #storePageNavNumber3 {
+      left:100px;
+    }
+    #storePageNavNumber4 {
+      left:120px;
+    }
 		#storePageNavNext {
-			position: absolute;
-			left: 210px;
-			top: 0px;
-			width: 24px;
-			height: 27px;
-			color: #FFFFFF;
-			text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;
+			left: 140px;
+			width: 40px;
 		}

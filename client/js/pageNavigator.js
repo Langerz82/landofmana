@@ -36,13 +36,6 @@ define([], function() {
     },
 
     rescale: function(scale) {
-      for(var index = 0; index < this.numbers.length; index++) {
-        this.numbers[index].css({
-            'position': 'absolute',
-            'left': '' + ((12*scale) + (index * 12 * scale)) + 'px',
-            'top': '0px'
-        });
-      }
     },
 
     getCount: function() {

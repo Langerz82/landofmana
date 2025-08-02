@@ -376,19 +376,21 @@ define(['./dialog', '../tabbook', '../tabpage', 'data/appearancedata', '../pageN
         },
 
         update: function (itemType, sprite) {
-          this.playerAnim.sprites[itemType] = sprite;
-          this.updateLook();
+          //this.playerAnim.sprites[itemType] = sprite;
+          this.updateLook(sprite);
         },
 
-        updateLook: function() {
+        updateLook: function(spriteArmor) {
             var self = this;
             var anim = this.playerAnim;
-
             var player = game.player;
 
+            spriteArmor = spriteArmor || player.getArmorSprite();
+
             anim.sprites = [];
-            anim.addSprite(player.getArmorSprite());
+            anim.addSprite(spriteArmor);
             anim.addSprite(player.getWeaponSprite());
+
             anim.setHTML(['#characterLookArmor','#characterLookWeapon']);
 
             var armor = anim.sprites[0];
