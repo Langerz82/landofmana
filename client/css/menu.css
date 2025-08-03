@@ -93,12 +93,12 @@
 
 #user_window, #player_window, #remove_window, #about_window {
 	position:absolute;
-	width:360px;
-	height:400px;
+	width:350px;
+	height:350px;
 	top:50%;
 	left:50%;
-	margin-left:-180px;
-	margin-top:-200px;
+	margin-left:-175px;
+	margin-top:-175px;
 	color: white;
 	z-index:5;
 }
@@ -130,7 +130,7 @@
 
 #user_window .validation-summary {
 	position:absolute;
-	top:170px;
+	top:150px;
 	left:10px;
 	width:340px;
 	height:40px;
@@ -154,30 +154,30 @@
 	left:10px;
 }
 #lbl_user_name {
-	top:42px;
+	top:15px;
 }
 #lbl_user_password {
-	top:84px;
+	top:60px;
 }
 #lbl_user_remember {
-	top:126px;
+	top:110px;
 	width:250px;
 }
 
 #user_name {
 	position:absolute;
-	top:42px;
+	top:15px;
 	left:150px;
 }
 #user_password {
 	position:absolute;
-	top:84px;
+	top:60px;
 	left:150px;
 
 }
 #user_remember {
 	position:absolute;
-	top:126px;
+	top:100px;
 	left:200px;
 	width:32px;
 	height:32px;
@@ -186,9 +186,9 @@
 
 #user_load {
 	position:absolute;
-	bottom:2%;
-	right:5%;
-	width:150px;
+	bottom:0;
+	right:3%;
+	width:140px;
 	height:50px;
 	line-height:40px;
 	cursor: pointer;
@@ -196,9 +196,9 @@
 
 #user_create {
 	position:absolute;
-	bottom:2%;
-	left:5%;
-	width:150px;
+	bottom:0;
+	left:3%;
+	width:140px;
 	height:50px;
 	line-height:40px;
 	cursor: pointer;
@@ -207,8 +207,8 @@
 #user_remove {
 	position:absolute;
 	bottom:0;
-	right:0;
-	width:200px;
+	right:3%;
+	width:140px;
 	height:50px;
 	line-height:40px;
 	color: white;
@@ -240,7 +240,7 @@
 
 #player_window .validation-summary {
 	position:absolute;
-	top:170px;
+	top:150px;
 	left:10px;
 	width:340px;
 	height:50px;
@@ -278,33 +278,33 @@
 #player_select {
 	position:absolute;
 	top:76px;
-	left:154px;
+	left:150px;
 }
 
 #player_server {
 	position:absolute;
 	top:34px;
-	left:154px;
+	left:150px;
 }
 
 #player_name {
 	position:absolute;
 	top:76px;
-	left:154px;
+	left:150px;
 	width:50%;
 }
 
 #player_class {
 	position:absolute;
 	top:118px;
-	left:154px;
+	left:150px;
 }
 
 #player_create {
 	position:absolute;
-	bottom:2%;
-	left:5%;
-	width:120px;
+	bottom:0;
+	left:3%;
+	width:140px;
 	height:50px;
 	line-height:40px;
 	cursor: pointer;
@@ -312,9 +312,9 @@
 
 #player_load {
 	position:absolute;
-	bottom:2%;
-	right:5%;
-	width:120px;
+	bottom:0;
+	right:3%;
+	width:140px;
 	height:50px;
 	line-height:40px;
 	cursor: pointer;
@@ -379,4 +379,14 @@
 	height:45px;
 	cursor: pointer;
 	pointer-events:all;
+}
+
+#user_remove_confirm {
+	position:absolute;
+	bottom:0;
+	left:3%;
+	width:140px;
+	height:50px;
+	line-height:40px;
+	cursor: pointer;
 }

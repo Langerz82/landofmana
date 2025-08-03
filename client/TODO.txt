@@ -1,5 +1,7 @@
 TODO:
 
+CLIENT - Resize user/player windows on start by reducing height to fit horizontally.
+
 SERVER - Interacting with static objects if under time before using again, comes up with a harvest warning which needs to be a generic message.
 
 SERVER - Sometimes it reports the user is logged in at startup, when they arent.
