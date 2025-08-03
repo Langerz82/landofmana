@@ -118,7 +118,7 @@ define(['./dialog', '../tabbook', '../tabpage', 'data/appearancedata', '../pageN
         onData: function() {
             this.items = [];
             var categoryType;
-            if (!game || !game.player)
+            if (!game || !game.player || !game.player.appearances)
               return;
 
             if (this.itemType==0)
@@ -243,6 +243,8 @@ define(['./dialog', '../tabbook', '../tabpage', 'data/appearancedata', '../pageN
 
         open: function() {
             game.client.sendAppearanceList();
+            this.setPageIndex(0);
+            this.getActivePage().active();
         },
 
 
@@ -431,13 +433,10 @@ define(['./dialog', '../tabbook', '../tabpage', 'data/appearancedata', '../pageN
 
         showStore: function (flag) {
           if (flag) {
-            //this.visible = true;
             $('#appearanceDialog').hide();
             $('#storeDialogStore').show();
-
           }
           else {
-            //this.visible = false;
             $('#appearanceDialog').show();
             $('#storeDialogStore').hide();
           }
@@ -447,9 +446,6 @@ define(['./dialog', '../tabbook', '../tabpage', 'data/appearancedata', '../pageN
             var self = this;
 
             this.rescale();
-
-            this.storeFrame.open();
-            //game.client.sendAppearanceList();
 
             $('#storeDialog .frameheadingtext').text('LOOKS');
 
@@ -476,9 +472,9 @@ define(['./dialog', '../tabbook', '../tabpage', 'data/appearancedata', '../pageN
             $('#storeDialogStore div.inventoryGoldFrame').hide();
             $('#storeDialogStore div.inventoryGemsFrame').show();
 
-            //this.storeFrame.open(0);
-            //$('#storeDialogStore0Button').trigger("click");
             this._super();
+
+            this.storeFrame.open();
         },
     });
 

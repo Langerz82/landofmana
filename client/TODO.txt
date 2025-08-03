@@ -8,6 +8,8 @@ CLIENT - Keyboard movement appears jerky, needs fixing.
 
 DONE:
 
+CLIENT - Click on Looks Window does not auto load look items.
+
 CLIENT - Clicking on Looks Unlock Preview Armor is not working.
 
 CLIENT - Fix Menu z-index ordering and layout.
