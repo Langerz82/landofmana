@@ -51,7 +51,7 @@ define([], function() {
         return this.index;
     },
     setIndex: function(value) {
-        this.pageChanged = (this.index != value);
+        this.pageChanged = (this.index !== value);
         this.index = value;
 
         this.numbers[0].html(~~(value / 10))

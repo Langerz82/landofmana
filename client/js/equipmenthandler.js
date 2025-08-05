@@ -48,14 +48,14 @@ define(['entity/item', 'data/items'], function(Item, Items) {
             {
               this.clearItem(i);
               var item = itemRooms[i];
-              if (item.itemKind == -1) {
+              if (item.itemKind === -1) {
                 this.equipment[item.slot] = null;
                 continue;
               }
               if (item) {
                 this.equipment[item.slot] = item;
 
-                if (item.slot == 4)
+                if (item.slot === 4)
                   game.player.setRange();
               }
             }

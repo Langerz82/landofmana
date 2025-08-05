@@ -23,7 +23,7 @@ define([], function() {
           for(var i = 0; i < itemArray.length; ++i)
           {
             var item = itemArray[i];
-            if (item.itemKind == -1)
+            if (item.itemKind === -1)
               this.banks[item.slot] = null;
             else
               this.banks[item.slot] = item;

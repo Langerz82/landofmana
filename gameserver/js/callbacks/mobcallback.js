@@ -30,7 +30,7 @@ module.exports = MobCallback = Class.extend({
 
 		    var path = this.map.entities.findPath(this, x, y, ignored);
 
-        if (path && path.length == 1)
+        if (path && path.length === 1)
           console.error(this.id + " " + JSON.stringify(path));
 
 				if (path && path.length > 1)
@@ -50,7 +50,7 @@ module.exports = MobCallback = Class.extend({
       if (!this.hasTarget())
         this.setAiState(mobState.IDLE);
 
-      if (this.aiState == mobState.CHASING)
+      if (this.aiState === mobState.CHASING)
         this.mobAI.checkReturn(this,x,y);
 		});
 

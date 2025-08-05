@@ -341,7 +341,7 @@ Messages.ItemSlot = Message.extend({
         this.items.length];
         for (var item of this.items) {
           var arr = null;
-          if (item.itemKind == -1)
+          if (item.itemKind === -1)
             arr = [item.slot, item.itemKind];
           else {
             //log.warn("Messages.ItemSlot - item:" + JSON.stringify(item));

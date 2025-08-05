@@ -15,21 +15,21 @@ define(['entity/entity', 'entity/item', 'entity/mob', 'entity/npcstatic', 'entit
 
         // If Items.
 
-        if (type == Types.EntityTypes.PLAYER)
+        if (type === Types.EntityTypes.PLAYER)
         	return new Player(id, type, mapIndex, kind, name);
-        else if (type == Types.EntityTypes.MOB)
+        else if (type === Types.EntityTypes.MOB)
         	return new Mob(id, type, mapIndex, kind, name, level);
-        else if (type == Types.EntityTypes.NPCSTATIC)
+        else if (type === Types.EntityTypes.NPCSTATIC)
         	return new NpcStatic(id, type, mapIndex, kind);
-				else if (type == Types.EntityTypes.ITEM || type == Types.EntityTypes.ITEMLOOT)
+				else if (type === Types.EntityTypes.ITEM || type === Types.EntityTypes.ITEMLOOT)
         	return new Item(id, type, mapIndex, kind, "item");
-				else if (type == Types.EntityTypes.BLOCK)
+				else if (type === Types.EntityTypes.BLOCK)
           return new Block(id, type, mapIndex, kind, name);
-				else if (type == Types.EntityTypes.TRAP)
+				else if (type === Types.EntityTypes.TRAP)
           return new Entity(id, type, mapIndex, kind, name);
-        else if (type == Types.EntityTypes.NPCMOVE)
+        else if (type === Types.EntityTypes.NPCMOVE)
           return new NpcMove(id, type, mapIndex, kind, name);
-				else if (type == Types.EntityTypes.NODE)
+				else if (type === Types.EntityTypes.NODE)
           return new Node(id, mapIndex, kind);
 
         return null;

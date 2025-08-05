@@ -36,7 +36,7 @@ module.exports = WorldHandler = cls.Class.extend({
           }
           message.shift();
 
-          if (action == Types.UserMessages.WU_GAMESERVER_INFO) {
+          if (action === Types.UserMessages.WU_GAMESERVER_INFO) {
             self.handleGameServerInfo(message);
             return;
           }
@@ -44,39 +44,39 @@ module.exports = WorldHandler = cls.Class.extend({
           if (!self.game_server)
             return;
 
-          if (action == Types.UserMessages.WU_UPDATE_PLAYER_COUNT) {
+          if (action === Types.UserMessages.WU_UPDATE_PLAYER_COUNT) {
               self.handleUpdatePlayerCount(message);
               return;
           }
-          else if (action == Types.UserMessages.WU_SAVE_PLAYER_DATA) {
+          else if (action === Types.UserMessages.WU_SAVE_PLAYER_DATA) {
               self.handleSavePlayerData(message);
               return;
           }
-          else if (action == Types.UserMessages.WU_PLAYER_LOGGED_IN) {
+          else if (action === Types.UserMessages.WU_PLAYER_LOGGED_IN) {
               self.handlePlayerLoggedIn(message);
               return;
           }
-          else if (action == Types.UserMessages.WU_SAVE_PLAYERS_LIST) {
+          else if (action === Types.UserMessages.WU_SAVE_PLAYERS_LIST) {
               self.handleSavePlayersList(message);
               return;
           }
-          else if (action == Types.UserMessages.WU_PLAYER_LOADED) {
+          else if (action === Types.UserMessages.WU_PLAYER_LOADED) {
               self.handlePlayerLoaded(message);
               return;
           }
-          else if (action == Types.UserMessages.WU_SAVE_PLAYER_AUCTIONS) {
+          else if (action === Types.UserMessages.WU_SAVE_PLAYER_AUCTIONS) {
               self.handleSavePlayerAuctions(message);
               return
           }
-          else if (action == Types.UserMessages.WU_SAVE_PLAYER_LOOKS) {
+          else if (action === Types.UserMessages.WU_SAVE_PLAYER_LOOKS) {
               self.handleSavePlayerLooks(message);
               return;
           }
-          else if (action == Types.UserMessages.WU_SAVE_USER_BANS) {
+          else if (action === Types.UserMessages.WU_SAVE_USER_BANS) {
               self.handleSaveUserBans(message);
               return;
           }
-          else if (action == Types.UserMessages.WU_ADD_PLAYER_GOLD) {
+          else if (action === Types.UserMessages.WU_ADD_PLAYER_GOLD) {
               self.handleAddPlayerGold(message);
               return;
           }
@@ -140,7 +140,7 @@ module.exports = WorldHandler = cls.Class.extend({
         console.warn("handleSavePlayerAuctions: world is not set.");
         return;
       }
-      if (Array.isArray(msg) && msg.length == 0) {
+      if (Array.isArray(msg) && msg.length === 0) {
         self.SAVED_AUCTIONS = true;
         return;
       }
@@ -169,7 +169,7 @@ module.exports = WorldHandler = cls.Class.extend({
         console.warn("handleSaveUserBans: world is not set.");
         return;
       }
-      if (Array.isArray(msg[0]) && msg[0].length == 0) {
+      if (Array.isArray(msg[0]) && msg[0].length === 0) {
         self.SAVED_BANS = true;
         return;
       }
@@ -211,7 +211,7 @@ module.exports = WorldHandler = cls.Class.extend({
         key: msg[6]
       };
 
-      if (world.password == MainConfig.user_password) {
+      if (world.password === MainConfig.user_password) {
         this.game_server = true;
       }
       else {
@@ -257,7 +257,7 @@ module.exports = WorldHandler = cls.Class.extend({
 
       var checkPlayerSaved = function (playerName) {
           self.playerSaveData[playerName]++;
-          if (self.playerSaveData[playerName] == 7) {
+          if (self.playerSaveData[playerName] === 7) {
             DBH.createPlayerNameInUser(username, playerName);
             if (!update) {
               delete self.playerSaveData[playerName];
@@ -266,7 +266,7 @@ module.exports = WorldHandler = cls.Class.extend({
             //console.info("loggedInUsers: "+JSON.stringify(loggedInUsers));
             console.info("loggedInUsers: "+JSON.stringify(loggedInUsers));
           }
-          if (Object.keys(self.playerSaveData).length == 0) {
+          if (Object.keys(self.playerSaveData).length === 0) {
             DBH.transferOfflineGold(playerName, function (playerName) {
               self.SAVED_PLAYERS = true;
             });
@@ -363,7 +363,7 @@ module.exports = WorldHandler = cls.Class.extend({
         var objData = self.playerCreateData[playerName];
         objData.count++;
         objData.data[index] = data;
-        if (objData.count == 7)
+        if (objData.count === 7)
         {
           self.playerSaveData[playerName] = 0;
           self.sendMessage( new UserMessages.SendLoadPlayerData(playerName, objData.data));
@@ -481,7 +481,7 @@ module.exports = WorldHandler = cls.Class.extend({
         var objData = self.playerLoadData[playername];
         objData.count++;
         objData.data[index] = db_data;
-        if (objData.count == 7)
+        if (objData.count === 7)
         {
           self.playerSaveData[playername] = 0;
           self.sendMessage( new UserMessages.SendLoadPlayerData(playername, objData.data));

@@ -224,8 +224,8 @@ define(['lib/pako', 'entity/player', 'entityfactory', 'entity/mob', 'entity/item
             //log.info("game.mapIndex:"+game.mapIndex);
             //log.info("map:"+parseInt(map));
 
-            if (!game.mapContainer.ready || game.mapContainer.mapIndex != parseInt(mapIndex) ||
-            	id == game.player.id)
+            if (!game.mapContainer.ready || game.mapContainer.mapIndex !== parseInt(mapIndex) ||
+            	id === game.player.id)
             	return;
 
             //log.info("data="+JSON.stringify(data));
@@ -235,7 +235,7 @@ define(['lib/pako', 'entity/player', 'entityfactory', 'entity/mob', 'entity/item
 							game.removeEntity(entity);
             }
 
-            if(type == Types.EntityTypes.ITEM || type == Types.EntityTypes.ITEMLOOT) {
+            if(type === Types.EntityTypes.ITEM || type === Types.EntityTypes.ITEMLOOT) {
                 var item = EntityFactory.createEntity(type, kind, id, mapIndex, name);
 								item.orientation = parseInt(data[7]);
                 item.count = parseInt(data[8]);
@@ -244,7 +244,7 @@ define(['lib/pako', 'entity/player', 'entityfactory', 'entity/mob', 'entity/item
                     this.spawn_item_callback(data, item); // from 8
                 }
 						}
-            else if(type == Types.EntityTypes.CHEST) {
+            else if(type === Types.EntityTypes.CHEST) {
                 var item = EntityFactory.createEntity(type, kind, id, mapIndex, name);
 								item.setPosition(x, y);
                 if(this.spawn_chest_callback) {
@@ -573,7 +573,7 @@ define(['lib/pako', 'entity/player', 'entityfactory', 'entity/mob', 'entity/item
 
 				// map, status, x, y
         sendTeleportMap: function(data) {
-						//if (data[1] == 0)
+						//if (data[1] === 0)
 							//game.renderer.blankFrame = true;
             this.sendMessage([Types.Messages.CW_TELEPORT_MAP,
             		      	  		data[0], data[1], data[2], data[3]]);

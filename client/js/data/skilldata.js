@@ -13,7 +13,7 @@ EffectType = Class.extend({
 var getSkillEffects = function (data) {
 	var effects = [];
 	for (var rec of data) {
-		effects.push(new EffectType((rec[0] == "target"), rec[1], rec[2], rec[3]));
+		effects.push(new EffectType((rec[0] === "target"), rec[1], rec[2], rec[3]));
 	}
 	return effects;
 };

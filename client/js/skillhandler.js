@@ -46,7 +46,7 @@ define(['entity/mob', 'data/skilldata', 'entity/character'], function(Mob, Skill
         return false;
       }
 
-      if (this.data.skillType == "attack") {
+      if (this.data.skillType === "attack") {
         player.attackSkill = this;
         this.activated = false;
         game.makePlayerInteractNextTo();
@@ -56,7 +56,7 @@ define(['entity/mob', 'data/skilldata', 'entity/character'], function(Mob, Skill
         if (this.execute_callback)
           this.execute_callback(self);
 
-      } else if (this.data.skillType == "target") {
+      } else if (this.data.skillType === "target") {
         if (player.hasTarget() &&
               player.target instanceof Character) {
           if (this.execute_callback)
@@ -67,7 +67,7 @@ define(['entity/mob', 'data/skilldata', 'entity/character'], function(Mob, Skill
           game.makePlayerInteractNextTo();
           return false;
         }
-      } else if (this.data.skillType == "self") {
+      } else if (this.data.skillType === "self") {
         if (this.execute_callback)
           this.execute_callback(self);
         game.client.sendSkill(this.skillId, 0);

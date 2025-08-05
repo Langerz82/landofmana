@@ -267,8 +267,8 @@ module.exports = User = cls.Class.extend({
       var bytes = CryptoJS.AES.decrypt(this.hash, this.hashChallenge);
       var decrypt = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
       var hash = crypto.createHash('sha1').update(decrypt+db_user.salt).digest('hex');
-      console.info("checkUser: "+hash+" != "+db_user.hash);
-      if (hash != db_user.hash) {
+      console.info("checkUser: "+hash+" !== "+db_user.hash);
+      if (hash !== db_user.hash) {
         this.connection.send([Types.UserMessages.UC_ERROR,"invalidlogin"]);
         if (++this.passwordTries > 3)
           this.connection.close("Wrong Password: " + this.name);

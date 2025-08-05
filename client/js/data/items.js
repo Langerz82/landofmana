@@ -12,7 +12,7 @@ define(['text!../../shared/data/items2.json', 'text!../../shared/data/craft.json
 		var data = [];
 		for (var craft of CraftData)
 		{
-			if (craft.o == index)
+			if (craft.o === index)
 				data.push(craft);
 		}
 		return data;
@@ -25,7 +25,7 @@ define(['text!../../shared/data/items2.json', 'text!../../shared/data/craft.json
 	//log.info(JSON.stringify(itemParse));
 	$.each( itemParse, function( itemKey, itemValue ) {
 		var kind = itemValue.id;
-		if (itemValue.type == "weapon" || itemValue.type == "weaponarcher") {
+		if (itemValue.type === "weapon" || itemValue.type === "weaponarcher") {
 			Items[itemKey+1] = Item.extend({
 				init: function(id) {
 					this._super(id, parseInt(itemKey), itemValue.type);
@@ -33,7 +33,7 @@ define(['text!../../shared/data/items2.json', 'text!../../shared/data/craft.json
 			});
 		}
 		else if (ItemTypes.isArmor(kind) ||
-			 itemValue.type == "object" || itemValue.type == "craft") {
+			 itemValue.type === "object" || itemValue.type === "craft") {
 			Items[itemKey+1] = Item.extend({
 				init: function(id) {
 					this._super(id, parseInt(itemKey), itemValue.type);

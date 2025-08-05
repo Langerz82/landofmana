@@ -158,9 +158,9 @@ define(['./dialog', '../tabbook', '../tabpage', '../entity/item', '../inventorys
           	    var item = this.items[i];
                 if (!cond(item))
           	    	this.items.splice(this.items.indexOf(item),1);
-          	    if (item.craft.length == 0)
+          	    if (item.craft.length === 0)
           	    	this.items.splice(this.items.indexOf(item),1);
-                else if (item.craft.length == 1) {
+                else if (item.craft.length === 1) {
                   item.craft = item.craft[0];
                 }
                 else {

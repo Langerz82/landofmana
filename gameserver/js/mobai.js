@@ -110,7 +110,7 @@ module.exports = MobAI = Class.extend({
       if (mob.isDead || mob.freeze)
         continue;
 
-      if (mob.aiState == mobState.RETURNING)
+      if (mob.aiState === mobState.RETURNING)
         return;
 
       if (mob.canAggro())
@@ -159,7 +159,7 @@ module.exports = MobAI = Class.extend({
           return;
         }
 
-        if (!target.isMoving() && mob.ptx == mob.target.x && mob.pty == mob.target.y)
+        if (!target.isMoving() && mob.ptx === mob.target.x && mob.pty === mob.target.y)
         {
           //console.info(mob.id+" path same as before and expensive.");
           return;
@@ -286,13 +286,13 @@ module.exports = MobAI = Class.extend({
           continue;
 
     		//console.info("Roaming playerCount="+playerCount);
-  		  if(mob && !mob.hasTarget() && !mob.isDead && !mob.isReturning && !mob.isMoving() && mob.aiState == mobState.IDLE) {
+  		  if(mob && !mob.hasTarget() && !mob.isDead && !mob.isReturning && !mob.isMoving() && mob.aiState === mobState.IDLE) {
           var area = mob.area;
           var pos = mob.map.entities.spaceEntityRandomApart(2, area._getRandomPositionForEntity.bind(area,mob,dist), mobs);
           if (!pos)
             continue;
 
-    			if (!(pos.x == mob.x && pos.y == mob.y))
+    			if (!(pos.x === mob.x && pos.y === mob.y))
     			{
     				  mob.go(pos.x, pos.y);
 

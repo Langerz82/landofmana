@@ -305,7 +305,7 @@ define(['./entity', '../transition', '../timer'], function(Entity, Transition, T
   },*/
 
   nextStepPath: function () {
-    if (this.step == 0)
+    if (this.step === 0)
     {
       //this.orientation = this.getOrientationTo([this.path[1][0]-tsh,this.path[1][1]-tsh]);
       this.step++;
@@ -316,8 +316,8 @@ define(['./entity', '../transition', '../timer'], function(Entity, Transition, T
     if (this.step < this.path.length)
     {
       //log.info("next-x:"+this.path[this.step][0]+",next-y:"+this.path[this.step][1]);
-      if (this.x == this.path[this.step][0] &&
-          this.y == this.path[this.step][1])
+      if (this.x === this.path[this.step][0] &&
+          this.y === this.path[this.step][1])
       {
         this.step++;
         this.updateMovement();
@@ -424,13 +424,13 @@ define(['./entity', '../transition', '../timer'], function(Entity, Transition, T
   move: function (time, orientation, state, x, y) {
 
     this.setOrientation(orientation);
-    if (state == 1 && orientation != Types.Orientations.NONE)
+    if (state === 1 && orientation !== Types.Orientations.NONE)
     {
       this.forceStop();
       this.setPosition(x,y);
       this.walk(orientation);
     }
-    else if (state == 0 || state == 2 || orientation == Types.Orientations.NONE)
+    else if (state === 0 || state === 2 || orientation === Types.Orientations.NONE)
     {
       this.forceStop();
       this.setPosition(x,y);
@@ -491,7 +491,7 @@ define(['./entity', '../transition', '../timer'], function(Entity, Transition, T
      var tCoords = null;
      if (typeof(coords) === "Object" && coords.x > 0 && coords.y > 0) {
        tCoords = [coords.x, coords.y];
-     } else if (Array.isArray(coords) && coords.length == 2) {
+     } else if (Array.isArray(coords) && coords.length === 2) {
        tCoords = [coords[0], coords[1]];
      }
      if (!tCoords) return null;
@@ -564,7 +564,7 @@ define(['./entity', '../transition', '../timer'], function(Entity, Transition, T
 
   setOrientation: function(orientation) {
     if (orientation) {
-      /*if (orientation != this.orientation && this.isMoving()) {
+      /*if (orientation !== this.orientation && this.isMoving()) {
         try { throw new Error() } catch (e) { log.error(e.stack); }
       }*/
       this.orientation = orientation || 0;

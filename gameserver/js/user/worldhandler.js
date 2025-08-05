@@ -25,7 +25,7 @@ module.exports = WorldHandler = cls.Class.extend({
           }
           message.shift();
 
-          if (action == Types.Messages.CW_LOGIN_PLAYER) {
+          if (action === Types.Messages.CW_LOGIN_PLAYER) {
             self.handleLoginPlayer(message);
             return;
           }
@@ -77,7 +77,7 @@ module.exports = WorldHandler = cls.Class.extend({
       var data = [
         user.name,
         user.hash,
-        user.gems,
+        Number(user.gems),
         Utils.BinArrayToBase64(user.looks)];
 
       if (callback)
@@ -143,7 +143,7 @@ module.exports = WorldHandler = cls.Class.extend({
         //player.quests = [];
       for (var quest of player.quests.quests)
       {
-        if (!quest || quest.status == QuestStatus.COMPLETE  || _.isEmpty(quest))
+        if (!quest || quest.status === QuestStatus.COMPLETE  || _.isEmpty(quest))
           continue;
         quests.push(quest.toArray().join(','));
       }
@@ -189,7 +189,7 @@ module.exports = WorldHandler = cls.Class.extend({
         var objData = self.playerSaveData[playerName];
         objData.count++;
         objData.data[index] = data;
-        if (objData.count == 7)
+        if (objData.count === 7)
         {
           var msg = new UserMessages.SavePlayerData(playerName, objData.data, update);
           self.sendToUserServer(msg);

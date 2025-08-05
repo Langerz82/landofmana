@@ -37,7 +37,7 @@ module.exports = EntityQuests = cls.Class.extend({
     hasQuest: function (player) {
       for (var quest of player.quests.quests)
       {
-        if (this.questEntityKind == quest.npcQuestId) {
+        if (this.questEntityKind === quest.npcQuestId) {
           player.quests.progressQuest(quest);
           return true;
         }
@@ -69,19 +69,19 @@ module.exports = EntityQuests = cls.Class.extend({
 
     getMobObject: function () {
       var entities = self.map.entities.getMobsAround(this.entity, 35);
-      if (entities.length == 0)
+      if (entities.length === 0)
         return;
 
       var entitycount = Utils.GetGroupCountArray(entities, "kind");
       console.warn("entitycount="+JSON.stringify(entitycount));
-      if (entitycount.length == 0)
+      if (entitycount.length === 0)
         return null;
       log.info("entitycount="+JSON.stringify(entitycount));
       entitycount.sort(function(a, b){return b[1]-a[1]});
       log.info("entitycount="+JSON.stringify(entitycount));
       var kind = parseInt(entitycount[0][0]);
 
-      entities = entities.filter(function(entity) { return entity.kind == kind; });
+      entities = entities.filter(function(entity) { return entity.kind === kind; });
       var minLevel = Utils.minProp(entities, "level").level;
 
       var mobCount = parseInt(entitycount[0][1]);
@@ -102,11 +102,11 @@ module.exports = EntityQuests = cls.Class.extend({
       var pLvl = player.level;
 
 // TODO - FIX UP QUESTS FOR NEW STRUCTURE.
-      if (questType == QuestType.GETITEMKIND)
+      if (questType === QuestType.GETITEMKIND)
       {
         this.createQuestItemKind(player);
       }
-      if (questType == QuestType.KILLMOBKIND)
+      if (questType === QuestType.KILLMOBKIND)
       {
         this.createQuestKillMobKind(player);
       }

@@ -30,7 +30,7 @@ module.exports = Updater = Class.extend({
     this.playerPathXF = function(c, m) {
       var x = c.x + m;
       c.setPosition(x, c.y);
-      if (x % self.whoDist == 0)
+      if (x % self.whoDist === 0)
         c.map.entities.processWho(c);
       return c.nextStep();
     };
@@ -38,21 +38,21 @@ module.exports = Updater = Class.extend({
     this.playerPathYF = function(c, m) {
       var y = c.y + m;
       c.setPosition(c.x, y);
-      if (y % self.whoDist == 0)
+      if (y % self.whoDist === 0)
         c.map.entities.processWho(c);
       return c.nextStep();
     };
 
     this.playerKeyXF = function(c, m) {
       var x = c.x + m;
-      if ((c.startMoving || (x % G_TILESIZE == 0)) && self.checkCollide(c,x,c.y))
+      if ((c.startMoving || (x % G_TILESIZE === 0)) && self.checkCollide(c,x,c.y))
       {
         c.forceStopMove();
         return true;
       }
       c.startMoving = false;
       c.setPosition(x, c.y);
-      if (x % self.whoDist == 0)
+      if (x % self.whoDist === 0)
         c.map.entities.processWho(c);
 
       if (c.checkStopDanger(c, c.orientation))
@@ -65,14 +65,14 @@ module.exports = Updater = Class.extend({
 
     this.playerKeyYF = function(c, m) {
       var y = c.y + m;
-      if ((c.startMoving || (y % G_TILESIZE == 0)) && self.checkCollide(c,c.x,y))
+      if ((c.startMoving || (y % G_TILESIZE === 0)) && self.checkCollide(c,c.x,y))
       {
         c.forceStopMove();
         return true;
       }
       c.startMoving = false;
       c.setPosition(c.x, y);
-      if (y % self.whoDist == 0)
+      if (y % self.whoDist === 0)
         c.map.entities.processWho(c);
 
       if (c.checkStopDanger(c, c.orientation))
@@ -137,11 +137,11 @@ module.exports = Updater = Class.extend({
    * Moves the player one space, if possible
    */
   moveCharacter: function(char, axis, x, y) {
-    //if (char.moveOrientation == Types.Orientations.NONE)
+    //if (char.moveOrientation === Types.Orientations.NONE)
       //return false;
 
     if (this.checkCollide(char, axis, x, y)) {
-    //if (axis % G_TILESIZE == 0) {
+    //if (axis % G_TILESIZE === 0) {
       //if (char.map.isColliding(x, y)) {
         c.setPosition(c.x, c.y);
         console.warn("char.isColliding("+char.id+","+x+","+y+")");
@@ -169,22 +169,22 @@ module.exports = Updater = Class.extend({
 
       var canMove = c.movement.inProgress === false && c.isMovingPath();
       if(canMove) {
-        if(o == Types.Orientations.LEFT) {
+        if(o === Types.Orientations.LEFT) {
           c.movement.start(self.charPathXF,
              null,
              -tick);
         }
-        else if(o == Types.Orientations.RIGHT) {
+        else if(o === Types.Orientations.RIGHT) {
           c.movement.start(self.charPathXF,
              null,
              tick);
         }
-        else if(o == Types.Orientations.UP) {
+        else if(o === Types.Orientations.UP) {
           c.movement.start(self.charPathYF,
              null,
              -tick);
         }
-        else if(o == Types.Orientations.DOWN) {
+        else if(o === Types.Orientations.DOWN) {
           c.movement.start(self.charPathYF,
              null,
              tick);
@@ -206,22 +206,22 @@ module.exports = Updater = Class.extend({
       // TODO - Changed Path check is messy.
       var canMove = c.movement.inProgress === false && c.isMovingPath();
       if(canMove) {
-        if(o == Types.Orientations.LEFT) {
+        if(o === Types.Orientations.LEFT) {
           c.movement.start(self.playerPathXF,
              null,
              -tick);
         }
-        else if(o == Types.Orientations.RIGHT) {
+        else if(o === Types.Orientations.RIGHT) {
           c.movement.start(self.playerPathXF,
              null,
              tick);
         }
-        else if(o == Types.Orientations.UP) {
+        else if(o === Types.Orientations.UP) {
           c.movement.start(self.playerPathYF,
              null,
              -tick);
         }
-        else if(o == Types.Orientations.DOWN) {
+        else if(o === Types.Orientations.DOWN) {
           c.movement.start(self.playerPathYF,
              null,
              tick);
@@ -243,22 +243,22 @@ module.exports = Updater = Class.extend({
 
     var canMove = c.movement.inProgress === false && o > 0;
     if(canMove) {
-      if(o == Types.Orientations.LEFT) {
+      if(o === Types.Orientations.LEFT) {
         c.movement.start(self.playerKeyXF,
            null,
            -tick);
       }
-      else if(o == Types.Orientations.RIGHT) {
+      else if(o === Types.Orientations.RIGHT) {
         c.movement.start(self.playerKeyXF,
            null,
            tick);
       }
-      else if(o == Types.Orientations.UP) {
+      else if(o === Types.Orientations.UP) {
         c.movement.start(self.playerKeyYF,
            null,
            -tick);
       }
-      else if(o == Types.Orientations.DOWN) {
+      else if(o === Types.Orientations.DOWN) {
         c.movement.start(self.playerKeyYF,
            null,
            tick);

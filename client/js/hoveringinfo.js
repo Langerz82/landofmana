@@ -42,11 +42,11 @@ define(function() {
         },
 
         tick: function(time) {
-          if (this.effect == 0)
+          if (this.effect === 0)
           {
             this.y -= 1;
           }
-          else if (this.effect == 1)
+          else if (this.effect === 1)
           {
             this.y -= Math.sin(this.angle);
             this.x -= Math.cos(this.angle);

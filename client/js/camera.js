@@ -137,7 +137,7 @@ define(['entity/entity'], function(Entity) {
         isVisible: function(entity, extra) {
             extra = extra || 0;
             //log.info("isVisible: " + entity.mapIndex + "!==" + this.game.map.index);
-            if (entity.mapIndex != game.mapIndex) return false;
+            if (entity.mapIndex !== game.mapIndex) return false;
             if (!entity) return false;
             return this.isVisiblePosition(entity.x, entity.y, extra);
         },
@@ -167,7 +167,7 @@ define(['entity/entity'], function(Entity) {
           var y = (self.gridH-1) * tsh;
 
           this.forEachInScreen(function (entity2) {
-            if (entity2 == entity)
+            if (entity2 === entity)
               return;
             if (Math.abs(entity.x-entity2.x) < x &&
                 Math.abs(entity.y-entity2.y) < y)

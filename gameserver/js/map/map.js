@@ -231,7 +231,7 @@ var Map = cls.Class.extend({
 
       //console.info("getRandomStartingPosition - none");
 
-      if (this.index == 1) {
+      if (this.index === 1) {
         var area = new Area(0, 512, 512, 30, 30, this, true, -1);
         //var pos = {x: (1024-45)*16, y: (1024-45)*16};
         //var pos = {x: (45)*16, y: (45)*16};
@@ -404,7 +404,7 @@ var Map = cls.Class.extend({
 
     isDoor: function(x,y) {
         return _.detect(this.doors, function(door) {
-            return (door.contains({x: x, y: y}) != null);
+            return (door.contains({x: x, y: y}) !== null);
         });
     },
 
@@ -436,7 +436,7 @@ var Map = cls.Class.extend({
 
       var tiles = this.getTiles(pos.gx,pos.gy);
       console.info("tiles: "+JSON.stringify(tiles));
-      if (!tiles || tiles.length == 0)
+      if (!tiles || tiles.length === 0)
         return false;
 
       log.info("tiles="+JSON.stringify(tiles));

@@ -76,13 +76,13 @@ Utils.getOrientationString = function(r) {
 };
 
 Utils.getOrientationFromLastMove = function(entity) {
-	if (!entity.path || entity.path.length == 0)
+	if (!entity.path || entity.path.length === 0)
 		return Utils.randomOrientation();
 
 	var x2 = entity.path[entity.path.length - 1][0];
 	var y2 = entity.path[entity.path.length - 1][1];
 
-	if (entity.path.length == 1)
+	if (entity.path.length === 1)
 	{
 		var x = entity.x;
 		var y = entity.y;
@@ -194,8 +194,8 @@ Utils.array_values = function (input) {
 
 Utils.arraysEqual = function (a, b) {
   if (a === b) return true;
-  if (a == null || b == null) return false;
-  if (a.length != b.length) return false;
+  if (a === null || b === null) return false;
+  if (a.length !== b.length) return false;
 
   for (var i = 0; i < a.length; ++i) {
     if (a[i] !== b[i]) return false;
@@ -386,7 +386,7 @@ Utils.Base64ToBinArray = function (base64, limit) {
 module.exports = removeEmpty = function (obj) {
   return Object.fromEntries(
     Object.entries(obj)
-      .filter(([_, v]) => v != null)
+      .filter(([_, v]) => v !== null)
       .map(([k, v]) => [k, v === Object(v) ? removeEmpty(v) : v])
   );
 }

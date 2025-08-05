@@ -101,11 +101,11 @@ define(['data/skilldata', 'data/items'], function(SkillData, Items) {
       this.type = type;
       this.shortcutId = id;
 
-      if (this.type == 1) {
+      if (this.type === 1) {
         this.cooldownTime = 5;
         //this.itemKind = this.shortcutId;
       }
-      else if (this.type == 2) {
+      else if (this.type === 2) {
         this.cooldownTime = ~~(SkillData.Data[id].recharge / 1000);
       }
       this.display();
@@ -120,13 +120,13 @@ define(['data/skilldata', 'data/items'], function(SkillData, Items) {
       this.jqnum.css("display", "block");
       this.jq.css("display", "block");
 
-      if (this.type == 1) {
+      if (this.type === 1) {
         var count = game.inventory.getItemTotalCount(this.shortcutId);
         var item = {itemKind: this.shortcutId, itemNumber: count};
         Items.jqShowItem(this.jq, item, this.jq, 1.5);
         return;
       }
-      else if (this.type == 2) {
+      else if (this.type === 2) {
         // Temp not Working
         var skill = null;
         SkillData.jqShowSkill(this.jq, this.shortcutId, this.jq);
@@ -141,11 +141,11 @@ define(['data/skilldata', 'data/items'], function(SkillData, Items) {
 
       var res = false;
       // display cooldown for all
-      if (this.type == 1) {
+      if (this.type === 1) {
         var item = game.inventory.getItemByKind(this.shortcutId);
         if (item)
           res = game.inventoryHandler.useItem(0, item);
-      } else if (this.type == 2) {
+      } else if (this.type === 2) {
         var skill = game.player.skillHandler.skills[this.shortcutId];
         if (skill)
           res = skill.execute();
@@ -164,7 +164,7 @@ define(['data/skilldata', 'data/items'], function(SkillData, Items) {
       this.cooldown = new Cooldown(this);
       this.cooldown.start(time);
 
-      if (this.type == 2)
+      if (this.type === 2)
         game.skillDialog.page.cooldownStart(this.shortcutId);
     },
 
@@ -204,7 +204,7 @@ define(['data/skilldata', 'data/items'], function(SkillData, Items) {
     tick: function () {
       this.children = this.shortcut.parent.getSameShortcuts(this.shortcut);
 
-      if (this.cooltimeCounter == 0) {
+      if (this.cooltimeCounter === 0) {
         this.done();
         return;
       }
@@ -264,7 +264,7 @@ define(['data/skilldata', 'data/items'], function(SkillData, Items) {
       // This is a little hacky to apply the cooldown immediately if shortcut installed.
       // Considering it's not much overhead re-showing all child cooldowns it's fine.
       for (var sc of this.shortcuts) {
-        if (sc && type == sc.type && shortcutId == sc.shortcutId && sc.cooldown)
+        if (sc && type === sc.type && shortcutId === sc.shortcutId && sc.cooldown)
         {
           sc.cooldown.show();
           break;
@@ -277,7 +277,7 @@ define(['data/skilldata', 'data/items'], function(SkillData, Items) {
           if (!slot)
             continue;
 
-          if (slot.type == type && slot.shortcutId == shortcutId)
+          if (slot.type === type && slot.shortcutId === shortcutId)
           {
             slot.cooldownStart(slot.cooldownTime);
           }
@@ -298,7 +298,7 @@ define(['data/skilldata', 'data/items'], function(SkillData, Items) {
     getSameShortcuts: function (shortcut) {
       var shortcuts = [];
       for (var sc of this.shortcuts) {
-        if (sc.type == shortcut.type && sc.shortcutId == shortcut.shortcutId)
+        if (sc.type === shortcut.type && sc.shortcutId === shortcut.shortcutId)
         {
           shortcuts.push(sc);
         }

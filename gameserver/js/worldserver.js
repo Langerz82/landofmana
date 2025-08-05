@@ -173,7 +173,7 @@ module.exports = World = cls.Class.extend(
                 if (character instanceof Mob)
                 {
                     if (!character.isDead && !character.hasFullHealth() && !character.isAttacked() &&
-                        character.x == character.spawnX && character.y == character.spawnY)
+                        character.x === character.spawnX && character.y === character.spawnY)
                     {
                         //console.info("stats="+JSON.stringify(character.stats));
                         var packet = character.modHealthBy(Math.floor(character.stats.hpMax / 8));
@@ -369,7 +369,7 @@ module.exports = World = cls.Class.extend(
         var effects = [];
 
         Utils.forEach(entity.effects, function (v, k) {
-          if (v == 1)
+          if (v === 1)
             effects.push(parseInt(k));
         });
       }

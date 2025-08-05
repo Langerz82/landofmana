@@ -33,7 +33,7 @@ define(['./dialog', '../tabpage', 'data/skilldata'], function(Dialog, TabPage, S
             };
 
             var clickSkill = function (index) {
-              if (self.parent.selectedSkill == self) {
+              if (self.parent.selectedSkill === self) {
                 if (game.player.skillHandler.execute(self.index))
                 {
                   self.cooldownStart();

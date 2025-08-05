@@ -35,7 +35,7 @@ define(['timer'], function(Timer) {
         },
 
         create: function(entity, content, time) {
-            if (content === undefined || content == "") return;
+            if (content === undefined || content === "") return;
 
             var id=entity.id;
             var time = time || Date.now();

@@ -387,7 +387,7 @@ module.exports = EntityMoving = Entity.extend({
  isOverlapping: function() {
    var entities = this.map.entities.getCharactersAround(this, 1);
    for(var entity of entities) {
-     if (!entity || this == entity)
+     if (!entity || this === entity)
        continue;
      if (this.isOverlappingEntity(entity))
      {
@@ -507,8 +507,8 @@ module.exports = EntityMoving = Entity.extend({
   },*/
 
   nextStepPath: function () {
-    // Needed because x and y are moved != path[0].
-    if (this.step == 0)
+    // Needed because x and y are moved !== path[0].
+    if (this.step === 0)
     {
       this.step++;
       this.updateMovement();
@@ -518,8 +518,8 @@ module.exports = EntityMoving = Entity.extend({
     if (this.step < this.path.length)
     {
       //console.info("next-x:"+this.path[this.step][0]+",next-y:"+this.path[this.step][1]);
-      if (this.x == this.path[this.step][0] &&
-          this.y == this.path[this.step][1])
+      if (this.x === this.path[this.step][0] &&
+          this.y === this.path[this.step][1])
       {
         this.step++;
         this.updateMovement();
@@ -636,7 +636,7 @@ module.exports = EntityMoving = Entity.extend({
 
   movePath: function (path, orientation) {
     this.orientation = this.getOrientationTo([path[1][0],path[1][1]]);
-    /*if (orientation != orientation2) {
+    /*if (orientation !== orientation2) {
       console.error("orientation: "+orientation+","+orientation2);
       if (orientation2 > 0)
         orientation = orientation2;
@@ -683,13 +683,13 @@ module.exports = EntityMoving = Entity.extend({
   move: function (time, orientation, state, x, y) {
 
     this.orientation = orientation;
-    if (state == 1 && orientation != Types.Orientations.NONE)
+    if (state === 1 && orientation !== Types.Orientations.NONE)
     {
       this.forceStop();
       this.setPosition(x,y);
       this.walk(orientation);
     }
-    else if (state == 0 || state == 2 || orientation == Types.Orientations.NONE)
+    else if (state === 0 || state === 2 || orientation === Types.Orientations.NONE)
     {
       this.forceStop();
       this.setPosition(x,y);
@@ -697,7 +697,7 @@ module.exports = EntityMoving = Entity.extend({
   },
 
   canMove: function() {
-    if (this.isDead == false && this.moveCooldown.isOver()) {
+    if (this.isDead === false && this.moveCooldown.isOver()) {
       return true;
     }
     return false;
@@ -721,7 +721,7 @@ module.exports = EntityMoving = Entity.extend({
    var tCoords = null;
    if (typeof(coords) === "Object" && coords.x > 0 && coords.y > 0) {
      tCoords = [coords.x, coords.y];
-   } else if (Array.isArray(coords) && coords.length == 2) {
+   } else if (Array.isArray(coords) && coords.length === 2) {
      tCoords = [coords[0], coords[1]];
    }
    if (!tCoords) return null;

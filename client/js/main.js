@@ -151,7 +151,7 @@ define(['app', 'data/langdata', 'util',
 
             app.setGame(game);
 
-            game.useServer == "world";
+            game.useServer === "world";
 
             game.onGameStart(function() {
             });
@@ -373,7 +373,7 @@ define(['app', 'data/langdata', 'util',
               jqShortcut[i] = $('#shortcut'+i);
 
             var fnCondition = function () {
-              return game.player && game.started && !jqChatbox.hasClass('active');
+              return game.player && game.started && !jqChatbox.hasClass('active') && !jqDropDialog.is(":visible");
             };
             var fnGameKeys = fnCondition;
 
@@ -536,7 +536,7 @@ define(['app', 'data/langdata', 'util',
             });
 
             jqPlayerWindow.keydown(function (e) {
-              if (e.which == 13) {
+              if (e.which === 13) {
                 jqInput.blur();
                 if (jqPlayerCreateForm.is(':visible'))
                   app.tryPlayerAction(4);
@@ -547,7 +547,7 @@ define(['app', 'data/langdata', 'util',
             });
 
             jqUserWindow.keydown(function (e) {
-              if (e.which == 13 && app.userReady) {
+              if (e.which === 13 && app.userReady) {
                 jqInput.blur();      // exit keyboard on mobile
                 app.tryUserAction(1);
                 return false;
@@ -555,7 +555,7 @@ define(['app', 'data/langdata', 'util',
             });
 
             $('#errorwindow').keydown(function (e) {
-              if (e.which == 13) {
+              if (e.which === 13) {
                 location.reload();
                 return false;
               }
@@ -623,24 +623,24 @@ define(['app', 'data/langdata', 'util',
                 //var pos = game.getMouseGridPosition();
                 var count = parseInt($('#dropCount').val());
                 if(count > 0) {
-                	if (app.dropAction == "bankgold") // Send to bank.
+                	if (app.dropAction === "bankgold") // Send to bank.
                 	{
                     var gold = game.player.gold[0];
                 		if (count > gold) count=gold;
                 		game.client.sendGold(0, count, 1);
                 	}
-                	else if (app.dropAction == "inventorygold") // Send to inventory.
+                	else if (app.dropAction === "inventorygold") // Send to inventory.
                 	{
                     var bgold = game.player.gold[1];
                 		if (count > bgold) count=bgold;
                 		game.client.sendGold(1, count, 0);
                 	}
-                  else if (app.dropAction == "splititems") // Split Items.
+                  else if (app.dropAction === "splititems") // Split Items.
                   {
                     game.inventoryHandler.sendSplitItem(game.app.SplitItem, count);
                     game.app.SplitItem = null;
                   }
-                	else if (app.dropAction == "dropItems") // Drop Items
+                	else if (app.dropAction === "dropItems") // Drop Items
                 	{
                     game.inventoryHandler.sendDropItem(game.app.DropItem, count);
                     game.app.DropItem = null;

@@ -46,9 +46,9 @@ define(['./entitymoving', '../timer'], function(EntityMoving, Timer) {
         for (var i=1; i < 5; ++i)
         {
           var p = pos[i];
-          if (entity.orientation == i && (
-              (p[0] == entity.x && Math.abs(p[1]-entity.y) <= bss) ||
-              (p[1] == entity.y && Math.abs(p[0]-entity.x) <= bss)))
+          if (entity.orientation === i && (
+              (p[0] === entity.x && Math.abs(p[1]-entity.y) <= bss) ||
+              (p[1] === entity.y && Math.abs(p[0]-entity.x) <= bss)))
           {
               return true;
           }

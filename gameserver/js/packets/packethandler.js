@@ -305,7 +305,7 @@ module.exports = PacketHandler = Class.extend({
       return;
     }
 
-    if (status == 1)
+    if (status === 1)
       npc.entityQuests.acceptQuest(this.player, questId);
     else {
       npc.entityQuests.rejectQuest(this.player, questId);
@@ -373,11 +373,11 @@ module.exports = PacketHandler = Class.extend({
     if (!itemData)
       return;
 
-    if (!(itemData.type == "armorarcher" || itemData.type == "armor"))
+    if (!(itemData.type === "armorarcher" || itemData.type === "armor"))
       return;
 
     var price = this.server.looks.prices[appearanceIndex];
-    if (price != priceClient) {
+    if (price !== priceClient) {
       this.sendPlayer(new Messages.Notify("SHOP", "SHOP_MISMATCH", [itemData.name]));
       this.server.looks.sendLooks(this.player);
       return;
@@ -417,12 +417,12 @@ module.exports = PacketHandler = Class.extend({
     if (!itemData)
       return;
 
-    if (!(itemData.type == "armorarcher" || itemData.type == "armor"))
+    if (!(itemData.type === "armorarcher" || itemData.type === "armor"))
       return;
 
     var appearance = this.player.user.looks[id];
-    if (appearance == 1) {
-      if (type == 0) {
+    if (appearance === 1) {
+      if (type === 0) {
         p.setSprite(0, id);
       }
     }
@@ -461,18 +461,18 @@ module.exports = PacketHandler = Class.extend({
       return;
 
     // slot type, slot index, slot count.
-    var slot = [parseInt(msg[1]), parseInt(msg[2]), parseInt(msg[3])];
-    if (slot[0] == 2 && slot[1] > this.player.equipment.maxNumber)
+    var slot = [Number(msg[1]), Number(msg[2]), Number(msg[3])];
+    if (slot[0] === 2 && slot[1] > this.player.equipment.maxNumber)
       return;
     var item = null;
     if (slot[1] >= 0)
       item = this.player.getStoredItem(slot[0], slot[1], slot[2]);
 
     var slot2 = null;
-    if (msg.length == 6)
+    if (msg.length === 6)
     {
-      slot2 = [parseInt(msg[4]), parseInt(msg[5])];
-      if (slot[0] == slot2[0] && slot[1] == slot2[1])
+      slot2 = [Number(msg[4]), Number(msg[5])];
+      if (slot[0] === slot2[0] && slot[1] === slot2[1])
         return;
     }
     if (action === 0) {
@@ -585,7 +585,7 @@ module.exports = PacketHandler = Class.extend({
       return;
     }
 
-    if (tEntity.aiState == mobState.RETURNING)
+    if (tEntity.aiState === mobState.RETURNING)
       return;
 
     if (tEntity.invincible) {
@@ -609,7 +609,7 @@ module.exports = PacketHandler = Class.extend({
     sEntity.setOrientation(orientation);
     sEntity.engage(tEntity);
 
-    if (sEntity == this.player) {
+    if (sEntity === this.player) {
       if (!sEntity.canReach(tEntity)) {
         console.info("Player not close enough!");
         console.info("p.x:" + sEntity.x + ",p.y:" + sEntity.y);
@@ -652,11 +652,11 @@ module.exports = PacketHandler = Class.extend({
       for (var skillEffect of sEntity.activeEffects)
       {
         var data = skillEffect.data;
-        if (data.skillType == "attack" && data.targetType == "enemy_aoe")
+        if (data.skillType === "attack" && data.targetType === "enemy_aoe")
         {
           var damageObjAOE = this.calcDamageAOE(sEntity, null, 0);
           for (var target of skillEffect.targets) {
-              if (target == tEntity)
+              if (target === tEntity)
                 continue;
               else
                 fnDamage(sEntity, target, damageObjAOE);
@@ -694,7 +694,7 @@ module.exports = PacketHandler = Class.extend({
     };
 
     damageObj.damage = Math.round(Formulas.dmg(sEntity, tEntity));
-    if (damageObj.damage == 0)
+    if (damageObj.damage === 0)
       return damageObj;
 
     var canCrit = Formulas.crit(sEntity, tEntity);
@@ -722,7 +722,7 @@ module.exports = PacketHandler = Class.extend({
     if (tEntity instanceof Player) {
       //tEntity.stats.hp -= dmg;
       if (tEntity.isDead) {
-        if (sEntity == self.player)
+        if (sEntity === self.player)
           self.entities.sendBroadcast(new Messages.Notify("CHAT","COMBAT_PLAYERKILLED", [sEntity.name, tEntity.name]));
 
         sEntity.pStats.pk++;
@@ -740,7 +740,7 @@ module.exports = PacketHandler = Class.extend({
     if (slot < 0 || slot > 7)
       return;
 
-    if (type == 2) {
+    if (type === 2) {
       if (shortcutId < 0 || shortcutId >= SkillData.Skills.length)
         return;
     }
@@ -795,7 +795,7 @@ module.exports = PacketHandler = Class.extend({
 
     for (let [k,v] of Object.entries(source.effects))
     {
-      if (v == 1)
+      if (v === 1)
         effects.push(parseInt(k));
     }
     this.entities.sendToPlayer(source, new Messages.SkillEffects(source, effects));
@@ -805,7 +805,7 @@ module.exports = PacketHandler = Class.extend({
 
     for (let [k,v] of Object.entries(target.effects))
     {
-      if (v == 1)
+      if (v === 1)
         effects.push(parseInt(k));
     }
     this.entities.sendToPlayer(source, new Messages.SkillEffects(target, effects));
@@ -824,7 +824,7 @@ module.exports = PacketHandler = Class.extend({
       y = parseInt(message[5]) || -1;
 
     var p = this.player;
-    if (entityId != p.id)
+    if (entityId !== p.id)
       return;
 
     if (state==1 && p.hasMoveThrottled(G_LATENCY))  {
@@ -837,7 +837,7 @@ module.exports = PacketHandler = Class.extend({
       return;
     }
 
-    if (state == 2) {
+    if (state === 2) {
       if (p.isMovingPath() && p.fullpath) {
         p.abort_pathing_callback(x, y);
         p.forceStop();
@@ -866,14 +866,14 @@ module.exports = PacketHandler = Class.extend({
     var time = parseInt(message.shift()),
       entityId = parseInt(message.shift()),
       orientation = parseInt(message.shift()),
-      interrupted = (parseInt(message.shift()) == 0) ? false : true;
+      interrupted = (parseInt(message.shift()) === 0) ? false : true;
       //message.splice(0,4);
     var path = null;
     if (message.length > 0)
       path = message[0];
 
     var p = this.player;
-    if (entityId != p.id)
+    if (entityId !== p.id)
       return;
 
     if (path && p.hasMoveThrottled(G_LATENCY)) return;
@@ -901,7 +901,7 @@ module.exports = PacketHandler = Class.extend({
       return;
     }
 
-    /*if (p.x != x || p.y != y) {
+    /*if (p.x !== x || p.y !== y) {
       console.warn("handleMovePath: invalid start coords.");
       return;
     }*/
@@ -944,7 +944,7 @@ module.exports = PacketHandler = Class.extend({
     }
 
     console.warn("mapIndex: p.map.mapIndex:"+map.index);
-    if (status == 0) {
+    if (status === 0) {
       p.forceStop();
       p.mapStatus = 0;
       this.handleClearMap();
@@ -993,7 +993,7 @@ module.exports = PacketHandler = Class.extend({
       pos = map.enterCallback(p);
       finishTeleportMaps(mapId)
     }
-    else if (status == 1) {
+    else if (status === 1) {
       p.mapStatus = 2;
       self.handleSpawnMap(mapId, p.x, p.y);
 
@@ -1106,11 +1106,11 @@ module.exports = PacketHandler = Class.extend({
     if (!p.isNextTooEntity(block))
       return;
 
-    if (type == 0) // pickup
+    if (type === 0) // pickup
     {
       p.holdingBlock = block;
     }
-    else if (type == 1) //place
+    else if (type === 1) //place
     {
       x = Utils.roundTo(x, G_TILESIZE);
       y = Utils.roundTo(y, G_TILESIZE);
@@ -1151,7 +1151,7 @@ module.exports = PacketHandler = Class.extend({
 
   handleRevive: function(msg) {
     var p = this.player;
-    if (p.isDead == true) {
+    if (p.isDead === true) {
       console.info("handled Revive!!");
       p.revive();
       this.entities.sendNeighbours(p, new Messages.Spawn(p), p);

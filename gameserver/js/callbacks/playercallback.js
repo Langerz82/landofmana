@@ -58,11 +58,11 @@ module.exports = PlayerCallback = Class.extend({
         {
             var res=false;
 
-            if (c.ex == -1 && c.ey == -1)
+            if (c.ex === -1 && c.ey === -1)
             {
               return false;
             }
-            else if (c.x == c.ex && c.y == c.ey)
+            else if (c.x === c.ex && c.y === c.ey)
             {
               //console.warn("checkStopDanger - coordinates equal");
               return true;
@@ -70,19 +70,19 @@ module.exports = PlayerCallback = Class.extend({
 
             var x = c.x, y = c.y;
 
-            if (o == Types.Orientations.LEFT && c.x < c.ex)
+            if (o === Types.Orientations.LEFT && c.x < c.ex)
             {
               res = true;
             }
-            else if (o == Types.Orientations.RIGHT && c.x > c.ex)
+            else if (o === Types.Orientations.RIGHT && c.x > c.ex)
             {
               res = true;
             }
-            else if (o == Types.Orientations.UP && c.y < c.ey)
+            else if (o === Types.Orientations.UP && c.y < c.ey)
             {
               res = true;
             }
-            else if (o == Types.Orientations.DOWN && c.y > c.ey)
+            else if (o === Types.Orientations.DOWN && c.y > c.ey)
             {
               res = true;
             }
@@ -102,9 +102,9 @@ module.exports = PlayerCallback = Class.extend({
 
             var fnNotCorrectPos = function(x,y) {
               var dx = Math.abs(p.x-x), dy = Math.abs(p.y-y);
-              var tx = Math.trunc(p.x) - Math.trunc(x) == 0;
-              var ty = Math.trunc(p.y) - Math.trunc(y) == 0;
-              if ((tx && dy != 0) || (ty && dx != 0))
+              var tx = Math.trunc(p.x) - Math.trunc(x) === 0;
+              var ty = Math.trunc(p.y) - Math.trunc(y) === 0;
+              if ((tx && dy !== 0) || (ty && dx !== 0))
               {
                 var path = [[p.x,p.y],[x,y]];
                 //if(p.map.entities.pathfinder.isValidPath(p.map.grid, path)) {
@@ -125,7 +125,7 @@ module.exports = PlayerCallback = Class.extend({
               return false;
             };
 
-            if (!(p.x == x && p.y == y))
+            if (!(p.x === x && p.y === y))
             {
               return fnNotCorrectPos(x,y);
             }
@@ -134,7 +134,7 @@ module.exports = PlayerCallback = Class.extend({
 
         p.correctMove = function (x, y) {
             var p = this;
-            if (!(p.ex == -1 && p.ey == -1) && !(p.x == x && p.y == y))
+            if (!(p.ex === -1 && p.ey === -1) && !(p.x === x && p.y === y))
             {
               //try { throw new Error(); } catch(err) { console.info(err.stack); }
               console.warn("ERROR - MOVING NOT SYNCHED PROPERLY, FORCING CLIENT UPDATE");

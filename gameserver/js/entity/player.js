@@ -219,7 +219,7 @@ module.exports = Player = Character.extend({
       var armorDamage = Math.min(5, Math.ceil(dealt / 300));
       log.warn("armorDamage:" + armorDamage);
       for (var it in this.equipment.rooms) {
-        if (it == weaponSlot)
+        if (it === weaponSlot)
           continue;
 
         if (!this.equipment.rooms[it])
@@ -535,7 +535,7 @@ module.exports = Player = Character.extend({
         self.y = parseInt(db_player.map[2]);
         self.orientation = parseInt(db_player.map[3]);
 
-        if (db_player.sprites.length == 2) {
+        if (db_player.sprites.length === 2) {
           db_player.sprites[2] = 151;
           db_player.sprites[3] = 50;
         }
@@ -559,7 +559,7 @@ module.exports = Player = Character.extend({
           self.exp.hammer = 0;
           self.exp.axe = 0;
         }
-        if (db_player.exps.length == 10)
+        if (db_player.exps.length === 10)
         {
           self.exp.logging = parseInt(db_player.exps[8]);
           self.exp.mining = parseInt(db_player.exps[9]);
@@ -594,7 +594,7 @@ module.exports = Player = Character.extend({
 
             var statTotal = stats.reduce(function(a, b) { return (a + b); }, 0);
 
-            return (total == statTotal);
+            return (total === statTotal);
         };
 
         var lvl = parseInt(self.level);
@@ -653,7 +653,7 @@ module.exports = Player = Character.extend({
     		//console.info("self.stats.hp="+self.stats.hp);
     		self.setMoveRate(500);
 
-        if (db_player.skills.length == 1) {
+        if (db_player.skills.length === 1) {
           for(var i =0; i < SkillData.Skills.length; ++i)
             db_player.skills[i] = 0;
         }
@@ -692,7 +692,7 @@ module.exports = Player = Character.extend({
 		var tutCheck = check;
     	setTimeout(function () {
     		if (self.map && self.map.entities &&
-    			self.mapStatus >= 2 && self.tut[tutCheck] == false)
+    			self.mapStatus >= 2 && self.tut[tutCheck] === false)
   			{
   				self.sendPlayer(new Messages.Notify("TUTORIAL", text));
   				self.tut[tutCheck] = true;
@@ -716,21 +716,21 @@ module.exports = Player = Character.extend({
 
       var itemData = ItemTypes.KindData[kind];
 
-      if (itemData.typemod == "health")
+      if (itemData.typemod === "health")
       {
     		amount = itemData.modifier;
     		if(!this.hasFullHealth()) {
     			this.modHealthBy(amount);
     		}
       }
-      else if (itemData.typemod == "healthpercent")
+      else if (itemData.typemod === "healthpercent")
       {
       	amount = ~~(this.stats.hpMax * itemData.modifier/100);
     		if(!this.hasFullHealth()) {
     			this.modHealthBy(amount);
     		}
       }
-      if (itemData.typemod == "energy")
+      if (itemData.typemod === "energy")
       {
     		amount = itemData.modifier;
     		if(!this.hasFullEnergy()) {
@@ -804,7 +804,7 @@ module.exports = Player = Character.extend({
       "axe":13,
     }
     var lvl = Types.getWeaponLevel(xp)
-    if (this.level[weaponData.type] != lvl) {
+    if (this.level[weaponData.type] !== lvl) {
       var msg = new Messages.LevelUp(types[weaponData.type], lvl, xp);
       this.sendPlayer(msg);
     }
@@ -828,7 +828,7 @@ module.exports = Player = Character.extend({
   baseCritDef: function() {
     var itemDiff = this.level*2;
     for (var id in this.equipment.rooms) {
-      if (id == 4) continue;
+      if (id === 4) continue;
       var item = this.equipment.rooms[id];
       if (item) {
         itemDiff += (3*ItemTypes.getData(item.itemKind).modifier)+(item.itemNumber*2);
@@ -907,7 +907,7 @@ module.exports = Player = Character.extend({
     {
       var item = this.equipment.rooms[id];
       if (item) {
-        var eq_multi = (id == 1) ? 4 : 2;
+        var eq_multi = (id === 1) ? 4 : 2;
         var def = (ItemTypes.getData(item.itemKind).modifier * eq_multi + item.itemNumber * eq_multi);
         dealt += ~~(def * ((item.itemDurability / item.itemDurabilityMax * 0.5) + 0.5));
       }
@@ -942,7 +942,7 @@ module.exports = Player = Character.extend({
     this.gold[type] += parseInt(gold);
 
     this.sendPlayer(new Messages.Gold(this));
-    if (gold == 0)
+    if (gold === 0)
       this.sendPlayer(new Messages.Notify("CHAT", "GOLD_ZERO"));
     else if (gold > 0)
       this.sendPlayer(new Messages.Notify("CHAT", "GOLD_ADDED", [gold]));
@@ -967,7 +967,7 @@ module.exports = Player = Character.extend({
 
   saveSection: function () {
     console.info("SAVING SECTION: "+this.savedSection);
-    if (++this.savedSection == 6) {
+    if (++this.savedSection === 6) {
       console.info("SAVED PLAYER!!!!!: "+this.name);
       this.savedSection = 0;
     }
@@ -1040,7 +1040,7 @@ module.exports = Player = Character.extend({
     this.ex = this.x2;
     this.ey = this.y2;
 
-    /*if (!(this.x == x && this.y == y)) {
+    /*if (!(this.x === x && this.y === y)) {
       console.warn("movePath - Start Position not correct!");
       console.info("movePath - x:"+x+",y:"+y+",p.x:"+this.x+",p.y:"+this.y);
     }*/
@@ -1089,7 +1089,7 @@ module.exports = Player = Character.extend({
       this.moving_callback = null;
     }
 
-    if (state == 3) {
+    if (state === 3) {
       this.setPosition(x,y);
       this.forceStop();
       return;
@@ -1129,14 +1129,14 @@ module.exports = Player = Character.extend({
 
     }
 
-    if (state == 0) {
+    if (state === 0) {
       console.info("move - x: "+x+", y: "+y);
       //try { throw new Error(); } catch(err) { console.info(err.stack); }
       this.ex = x;
       this.ey = y;
-      var a = (x == this.x && y == this.y);
-      var b = (this.sx == x && this.sy == y);
-      //var c = (this.nsx == x && this.nsy == y);
+      var a = (x === this.x && y === this.y);
+      var b = (this.sx === x && this.sy === y);
+      //var c = (this.nsx === x && this.nsy === y);
 
       console.info("move: x="+x+",y="+y);
       console.info("move: this.x="+this.x+",this.y="+this.y);
@@ -1205,7 +1205,7 @@ module.exports = Player = Character.extend({
       return;
 
     // if equipment and item is equipment set the correct index.
-    if (slot2[0] == 2 && rs1) {
+    if (slot2[0] === 2 && rs1) {
       slot2[1] = store2.getItemTypeIndex(rs1);
     }
 
@@ -1214,7 +1214,7 @@ module.exports = Player = Character.extend({
     if (slot2[1] >= 0)
       rs2 = room2[slot2[1]];
 
-    if (rs1 == rs2)
+    if (rs1 === rs2)
       return;
 
     var splitItem = function (slot, slot2, rs1)
@@ -1250,12 +1250,12 @@ module.exports = Player = Character.extend({
       }
     }
     else {
-      if (store2.putItem(rs1) != -1)
+      if (store2.putItem(rs1) !== -1)
         store1.setItem(slot[1], null);
     }
 
-    if((slot && slot[0] == 2 && slot[1] == 4) ||
-       (slot2 && slot2[0] == 2 && slot2[1] == 4))
+    if((slot && slot[0] === 2 && slot[1] === 4) ||
+       (slot2 && slot2[0] === 2 && slot2[1] === 4))
     {
       this.broadcastSprites();
     }
@@ -1275,7 +1275,7 @@ module.exports = Player = Character.extend({
     var index = slot[1];
     var count = slot[2];
 
-    if (slot[0] == 2) {
+    if (slot[0] === 2) {
       console.error("handleStoreEmpty - Cannot empty equipment store.");
       return;
     }
@@ -1345,7 +1345,7 @@ module.exports = Player = Character.extend({
 
   hasWeaponType: function (type) {
     type = type || "any";
-    if (type == "any")
+    if (type === "any")
         return true;
 
     var weapon = this.equipment.getWeapon();
@@ -1353,7 +1353,7 @@ module.exports = Player = Character.extend({
       return false;
 
     if (type) {
-      return this.getWeaponType() == type;
+      return this.getWeaponType() === type;
     }
     return ItemTypes.isHarvestWeapon(weapon.itemKind);
   },
@@ -1367,13 +1367,13 @@ module.exports = Player = Character.extend({
 
   // type 0=Armor, 1=Weapon
   setSprite: function (type, id) {
-    if (type == 0) {
+    if (type === 0) {
       if (this.isArcher())
         this.sprites[2] = id;
       else
         this.sprites[0] = id;
     }
-    else if (type == 1)
+    else if (type === 1)
     {
       if (this.isArcher())
         this.sprites[3] = id;
@@ -1385,7 +1385,7 @@ module.exports = Player = Character.extend({
   // type 0=Armor, 1=Weapon
   getSprite: function (type) {
     var item = null;
-    if (type == 1) {
+    if (type === 1) {
       item = this.equipment.getWeapon();
       if (item) {
         return ItemTypes.getSpriteCode(item.itemKind);
@@ -1396,7 +1396,7 @@ module.exports = Player = Character.extend({
           return this.sprites[1];
       }
     }
-    else if (type == 0) {
+    else if (type === 0) {
       if (this.isArcher())
         return this.sprites[2];
       else
@@ -1419,7 +1419,7 @@ module.exports = Player = Character.extend({
     p.isHarvesting = true;
 
     var exp = this.exp.logging;
-    if (type == "hammer")
+    if (type === "hammer")
       exp = this.exp.mining;
 
     var durationMod = Utils.clamp(0.1, 1, (1 - Types.getSkillLevel(exp)/20));
@@ -1431,7 +1431,7 @@ module.exports = Player = Character.extend({
         if (!p.isHarvesting)
           complete = false;
 
-        if (!(p.x == px && p.y == py))
+        if (!(p.x === px && p.y === py))
           complete = false;
 
         if (!p.hasWeaponType(type))
@@ -1487,7 +1487,7 @@ module.exports = Player = Character.extend({
     this._harvest(x, y, function (p) {
       p.server.taskHandler.processEvent(p, PlayerEvent(EventType.USE_NODE, entity, 1));
 
-      if (type == "hammer")
+      if (type === "hammer")
         p.exp.mining += 10;
       entity.die();
       var item = p.world.loot.getDrop(p, entity, false);
@@ -1536,15 +1536,15 @@ module.exports = Player = Character.extend({
     var duration = 6000;
     p._harvest(x, y, function (p) {
       p.server.taskHandler.processEvent(p, PlayerEvent(EventType.HARVEST, p, 1));
-      if (p.getWeaponType() == "axe")
+      if (p.getWeaponType() === "axe")
         p.exp.logging += 10;
       p.map.entities.harvest[gp.gx + "_" + gp.gy] = Date.now();
       if (p.inventory.hasRoom()) {
         var kind;
-        if (p.getWeaponType() == "axe")
+        if (p.getWeaponType() === "axe")
           kind = 320;
         var item = new ItemRoom([kind, 1, 0, 0]);
-        if (self.inventory.putItem(item) == -1)
+        if (self.inventory.putItem(item) === -1)
           return;
         var data = ItemTypes.getData(item.itemKind);
         p.sendPlayer(new Messages.Notify("CHAT", "HARVEST_ADDED", data.name));

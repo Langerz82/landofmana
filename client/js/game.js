@@ -340,7 +340,7 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
                     this.setCursor("loot");
                     this.hoveringTarget = false;
                 }
-                else if (this.currentCursor.currentAnimation.name != "hand") {
+                else if (this.currentCursor.currentAnimation.name !== "hand") {
                     this.setCursor("hand");
                     this.hoveringTarget = false;
                     this.hoveringPlayer = false;
@@ -357,7 +357,7 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
             removeEntity: function(entity) {
                 if(entity.id in this.entities) {
                     var id = entity.id;
-                    if (this.player.target == entity) {
+                    if (this.player.target === entity) {
                       this.player.clearTarget();
                       this.player.targetIndex = 0;
                     }
@@ -554,7 +554,7 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
             getNpcByQuestId: function(questId){
                 for(var id in this.entities){
                     var entity = this.entities[id];
-                    if(entity.hasOwnProperty("questId") && entity.questId == questId){
+                    if(entity.hasOwnProperty("questId") && entity.questId === questId){
                         return entity;
                     }
                 }
@@ -604,16 +604,12 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
             },
 
             onVersionGame: function(data) {
-              //var self;
               this.versionChecked = true;
-              var version = data[0];
-              //var hash = data[1];
-              //this.hashChallenge = hash;
-              //log.info("onVersion: hash="+hash);
+              var version = Number(data[0]);
 
-              var local_version = config.build.version_game;
-              log.info("config.build.version_user="+local_version);
-              if (version != local_version)
+              var local_version = Number(config.build.version_game);
+              log.info("config.build.version_game="+local_version);
+              if (version !== local_version)
               {
                 $('#container').addClass('error');
                 var errmsg = "Please download the new version of Land Of Mana.<br/>";
@@ -700,7 +696,7 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
               player.attackTime = game.currentTime;
 
               // START TUTORIAL SHOW CODE.
-              if (player.level == 0)
+              if (player.level === 0)
               {
                 var tutName = "["+lang.data["TUTORIAL"]+"]";
                 for (var i = 1; i <= 5; ++i)
@@ -716,7 +712,7 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
 
             teleportFromTown: function (player) {
               var p = player;
-              if (p.mapIndex == 0 && (p.gx>=63 && p.gx<=65) && (p.gy>=70 && p.gy<=72))
+              if (p.mapIndex === 0 && (p.gx>=63 && p.gx<=65) && (p.gy>=70 && p.gy<=72))
               {
                 this.teleportMaps(1);
               }
@@ -743,7 +739,7 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
 
                 p.sendMove(sentMove ? 1 : 0);
                 //if (!p.freeze)
-                //f (p.sentMoving != sentMove) {
+                //f (p.sentMoving !== sentMove) {
                   //p.sendMove(sentMove ? 1 : 0);
                   //p.sentMoving = sentMove;
                 //}
@@ -953,10 +949,10 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
               var fnIsIgnored = function (entity) {
                 if (entity && (entity.isDying || entity.isDead))
                   return true;
-                return (entity.type == Types.EntityTypes.NPCSTATIC ||
-                    entity.type == Types.EntityTypes.NPCMOVE ||
-                    entity.type == Types.EntityTypes.PLAYER ||
-                    entity.type == Types.EntityTypes.NODE);
+                return (entity.type === Types.EntityTypes.NPCSTATIC ||
+                    entity.type === Types.EntityTypes.NPCMOVE ||
+                    entity.type === Types.EntityTypes.PLAYER ||
+                    entity.type === Types.EntityTypes.NODE);
               };
 
               var processTarget = function () {
@@ -1001,7 +997,7 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
               // If the player is next to and facing a Harvest Tile.
               var pos = p.nextTile();
               var type = p.getWeaponType();
-              if (type != null) {
+              if (type !== null) {
                 var gpos = Utils.getGridPosition(pos[0], pos[1]);
                 if (this.mapContainer.isHarvestTile(gpos, type)) {
                   game.processInput(pos[0], pos[1], true);
@@ -1010,7 +1006,7 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
               }
 
               entity = this.getEntityAt(pos[0], pos[1]);
-              if (entity && entity != p && !fnIsDead(entity)) {
+              if (entity && entity !== p && !fnIsDead(entity)) {
                 p.setTarget(entity);
                 if (p.hasTarget() && processTarget()) return;
               }
@@ -1042,7 +1038,7 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
 
               var loopEntities = function (entities, fn) {
                 for (var entity of entities) {
-                  if (!entity || entity == p)
+                  if (!entity || entity === p)
                     continue;
 
                   if (!p.isNextTooEntity(entity))
@@ -1070,7 +1066,7 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
                 if (!p.hasTarget()) {
                   p.targetIndex = 0;
                 }
-                if (p.targetIndex == 0)
+                if (p.targetIndex === 0)
                 {
                   this.playerTargetClosestEntity(1);
                   if (p.target && !p.isNextTooEntity(p.target))
@@ -1146,7 +1142,7 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
                 return;
               }
 
-              if (npc.type == Types.EntityTypes.NPCMOVE) {
+              if (npc.type === Types.EntityTypes.NPCMOVE) {
                 this.client.sendTalkToNPC(npc.type, npc.id);
                 return;
               }
@@ -1222,10 +1218,10 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
                   return;
 
                 var data = entity.dialogue[entity.dialogueIndex-1];
-                if (data && data.length == 3) {
+                if (data && data.length === 3) {
                   var action = data[2];
                   var splitAction = action.split("_");
-                  if (splitAction[0] == "QUEST") {
+                  if (splitAction[0] === "QUEST") {
                     game.client.sendQuest(entity.id, parseInt(splitAction[1]), 1);
                   }
                 }
@@ -1267,14 +1263,14 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
                 return;
 
               var data = entity.dialogue[entity.dialogueIndex];
-              var msgEntity = (data[0] == 0) ? entity : game.player;
+              var msgEntity = (data[0] === 0) ? entity : game.player;
               var msg = data[1];
               if (!entity || !msg)
                 return;
 
               this.bubbleManager.create(msgEntity, msg);
               this.audioManager.playSound("npc");
-              if (data[0] == 0) {
+              if (data[0] === 0) {
                 this.chathandler.addNormalChat({name: "[NPC] "+msgEntity.name}, msg);
                 this.npcText.html(msgEntity.name + ": " + msg);
               } else {
@@ -1295,7 +1291,7 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
                   return;
 
                 var data = entity.dialogue[entity.dialogueIndex];
-                var msgEntity = (data[0] == 0) ? entity : game.player;
+                var msgEntity = (data[0] === 0) ? entity : game.player;
                 this.bubbleManager.destroyBubble(msgEntity.id);
               }
 
@@ -1325,7 +1321,7 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
              * @see forEachEntity
              */
             forEachMob: function(callback) {
-                var cond = function (e) { return e.type == Types.EntityTypes.MOB; };
+                var cond = function (e) { return e.type === Types.EntityTypes.MOB; };
                 this.forEachEntity(callback, cond);
                 /*_.each(this.entities, function(entity) {
                     if(entity instanceof Mob) {
@@ -1423,7 +1419,7 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
             /*getEntityByName: function (name) {
             	var entity;
             	$.each(this.entities, function (i, v) {
-        	        if (v instanceof Player && v.name.toLowerCase() == name.toLowerCase())
+        	        if (v instanceof Player && v.name.toLowerCase() === name.toLowerCase())
         	        {
         	        	entity = v;
         	        	return false;
@@ -1570,7 +1566,7 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
                     log.info("pS[0]="+pS[0]+",pS[1]="+pS[1]);
                     log.info("pE[0]="+pE[0]+",pE[1]="+pE[1]);
 
-                    if (pS[0] == pE[0] && pS[1] == pE[1])
+                    if (pS[0] === pE[0] && pS[1] === pE[1])
                       return null;
 
                     var lx = grid[0].length;
@@ -1630,7 +1626,7 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
                       //path = this.pathfinder.compressPath(path);
 
                       log.info("path_result2: "+JSON.stringify(path));
-                      if (!(path[0][0] == (character.x) && path[0][1] == (character.y)))
+                      if (!(path[0][0] === (character.x) && path[0][1] === (character.y)))
                       {
                         log.error("player path start co-ordinates mismatch.");
                         log.error("path start coordinate: "+path[0][0]+","+path[0][1]);
@@ -1683,7 +1679,7 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
               skipOverlap = skipOverlap || false;
               var res = true;
 
-              if (res && char.orientation == Types.Orientations.NONE)
+              if (res && char.orientation === Types.Orientations.NONE)
                 res = false;
 
               if (res && this.mapContainer.isColliding(x, y))
@@ -1702,7 +1698,7 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
                 res = false;
               }
 
-              /*if (!res && char == this.player) {
+              /*if (!res && char === this.player) {
                 char.forceStop();
               }*/
 
@@ -1718,9 +1714,9 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
                     //continue;
                   if (entity2 instanceof Player)
                     continue;
-                  if (entity instanceof Player && entity.holdingBlock == entity2)
+                  if (entity instanceof Player && entity.holdingBlock === entity2)
                     continue;
-                  if (!entity2 || entity == entity2)
+                  if (!entity2 || entity === entity2)
                     continue;
                   if (entity2.isDead || entity2.isDying)
                     continue;
@@ -1738,7 +1734,7 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
                 p.targetIndex = 0;
 
               var excludeTypes = [Types.EntityTypes.NODE, Types.EntityTypes.PLAYER];
-              if (game.mapContainer.mapIndex != 0)
+              if (game.mapContainer.mapIndex !== 0)
               {
                 excludeTypes = excludeTypes.concat([Types.EntityTypes.NPCMOVE, Types.EntityTypes.NPCSTATIC]);
               }
@@ -1765,11 +1761,11 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
                 entity2.playerDistance = Utils.realDistanceXY(entity,entity2);
               }
 
-              if (entities.length == 0) {
+              if (entities.length === 0) {
                 entity.targetIndex = 0;
                 return null;
               }
-              if (entities.length == 1) {
+              if (entities.length === 1) {
                 entity.targetIndex = 0;
                 return entities[0];
               }
@@ -1883,7 +1879,7 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
                 p.isFacingEntity(entity))
               {
                 var block = entity;
-                if (block == p.holdingBlock) {
+                if (block === p.holdingBlock) {
                   block.place(p);
                   p.holdingBlock = null;
                 } else {
@@ -1908,7 +1904,7 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
                   //this.playerPopupMenu.click(entity);
               }
               else if(entity instanceof Mob ||
-                      (entity instanceof Player && entity !== this.player && this.player.pvpTarget == entity))
+                      (entity instanceof Player && entity !== this.player && this.player.pvpTarget === entity))
               {
                   log.info("makePlayerAttack!");
                   this.makePlayerAttack(entity);
@@ -1952,7 +1948,7 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
               }
 
               var type = p.getWeaponType();
-              if (type == null) {
+              if (type === null) {
                 game.showNotification(["CHAT", "HARVEST_WRONG_TYPE", type]);
                 return;
               }
@@ -2162,21 +2158,21 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
                 if (message && data.length > 0)
                   message = lang.data[text].format(data);
 
-                if (group.indexOf("GLOBAL") == 0)
+                if (group.indexOf("GLOBAL") === 0)
                 {
                   message = text;
                   game.renderer.pushAnnouncement(message,10000);
                   return;
                 }
 
-                if (group.indexOf("NOTICE") == 0)
+                if (group.indexOf("NOTICE") === 0)
                 {
                   game.renderer.pushAnnouncement(message,10000);
                   return;
                 }
 
-                if (group.indexOf('SHOP') == 0 ||
-                    group.indexOf('INVENTORY') == 0)
+                if (group.indexOf('SHOP') === 0 ||
+                    group.indexOf('INVENTORY') === 0)
                 {
                   if(this.craftDialog.visible) {
                       game.notifyDialog.notify(message);
@@ -2184,7 +2180,7 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
                   else if(this.storeDialog.visible) {
                       game.notifyDialog.notify(message);
                   } else if(this.auctionDialog.visible) {
-                      /*if (text.indexOf('SHOP_SOLD') == 0) {
+                      /*if (text.indexOf('SHOP_SOLD') === 0) {
                           this.auctionDialog.storeFrame.open();
 
                           this.auctionDialog.storeFrame.reload();
@@ -2194,10 +2190,10 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
                       }*/
                       game.notifyDialog.notify(message);
                   } else if(this.appearanceDialog.visible) {
-                      /*if (text.indexOf('SHOP_SOLD') == 0) {
+                      /*if (text.indexOf('SHOP_SOLD') === 0) {
                           this.appearanceDialog.storeFrame.open();
                       }*/
-                      if (group.indexOf('SHOP') == 0) {
+                      if (group.indexOf('SHOP') === 0) {
                       	game.notifyDialog.notify(message);
                       }
                   }
@@ -2224,7 +2220,7 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
                 if(nb > 0) {
                 	for (var i=0; i < self.removeObsoleteEntitiesChunk; ++i)
                 	{
-                		if (i == nb)
+                		if (i === nb)
                 			break;
                 		entity = this.obsoleteEntities.shift();
                   	log.info("Removed Entity: "+ entity.id);

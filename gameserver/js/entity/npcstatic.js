@@ -20,7 +20,7 @@ var NpcStatic = Entity.extend({
     {
       console.info("talk");
       console.info("kind: "+this.kind);
-      if (this.kind == 44)
+      if (this.kind === 44)
       {
         console.info("THIS IS FOR COLLECTING ITEMS NPC.")
         if (player.questStatus) {
@@ -40,7 +40,7 @@ var NpcStatic = Entity.extend({
       //if (player.questStatus) {
         for (var quest in player.quests)
         {
-          if (quest.npcKind == this.kind)
+          if (quest.npcKind === this.kind)
           {
             //npcIsBusy = true;
             return;

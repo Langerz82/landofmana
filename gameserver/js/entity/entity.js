@@ -56,8 +56,8 @@ module.exports = Entity = cls.Class.extend({
             if (typeof this.gx === "undefined") this.gx = gx;
             if (typeof this.gy === "undefined") this.gy = gy;
 
-            if (x % ts == 0) this.gx = gx;
-            if (y % ts == 0) this.gy = gy;
+            if (x % ts === 0) this.gx = gx;
+            if (y % ts === 0) this.gy = gy;
 
             //if (this.map.entities.spatial)
               //return;
@@ -75,13 +75,13 @@ module.exports = Entity = cls.Class.extend({
 // TODO - FIx.
             //console.info("this.spx:"+this.spx+",this.spy:"+this.spy);
             //console.info("spx:"+spx+",spy:"+spy);
-            var sameMap = (this.spatialMap == this.map);
+            var sameMap = (this.spatialMap === this.map);
             if (!sameMap) {
               var spatial = this.spatialMap.entities.spatial[this.spy][this.spx];
               Utils.removeFromArray(spatial, this);
             }
             else {
-              if (this.spx != spx || this.spy != spy)
+              if (this.spx !== spx || this.spy !== spy)
               {
                 var spatial = this.map.entities.spatial[this.spy][this.spx];
                 Utils.removeFromArray(spatial, this);

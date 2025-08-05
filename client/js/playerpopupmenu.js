@@ -27,7 +27,7 @@ define([], function() {
             });
             $('#playerPopupMenuAttack').click(function(event){
                 if(self.selectedPlayer){
-                    if (self.game.player.pvpTarget && self.game.player.pvpTarget == self.selectedPlayer)
+                    if (self.game.player.pvpTarget && self.game.player.pvpTarget === self.selectedPlayer)
                     {
                         $('#playerPopupMenuAttack').html('Attack');
                     }
@@ -65,7 +65,7 @@ define([], function() {
             	$('#playerPopupMenuPartyLeader').css('display', 'none');
             }
 
-            if ((ph.isPartyLeader(this.game.player.name) && !ph.isPartyMember(this.selectedPlayer.name)) || ph.partymembers.length == 0)
+            if ((ph.isPartyLeader(this.game.player.name) && !ph.isPartyMember(this.selectedPlayer.name)) || ph.partymembers.length === 0)
             {
             	$('#playerPopupMenuPartyInvite').show()
               setTimeout(function () {
@@ -77,7 +77,7 @@ define([], function() {
             	$('#playerPopupMenuPartyInvite').hide();
             }
 
-            if (this.selectedPlayer.level >= 20 && this.game.player.level >= 20 && this.game.mapIndex != 0)
+            if (this.selectedPlayer.level >= 20 && this.game.player.level >= 20 && this.game.mapIndex !== 0)
             {
             	    $('#playerPopupMenuAttack').css('display','block');
             }

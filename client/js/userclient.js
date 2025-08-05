@@ -190,7 +190,7 @@ define(['gameclient', 'skillhandler', 'quest', 'config', 'achievement'], functio
           app.showPlayerLoad();
         }
 
-        if (count == 0)
+        if (count === 0)
         {
           app.showPlayerCreate();
         }
@@ -219,14 +219,14 @@ define(['gameclient', 'skillhandler', 'quest', 'config', 'achievement'], functio
       onVersion: function(data) {
         //var self;
         this.versionChecked = true;
-        var version = data[0];
+        var version = Number(data[0]);
         var hash = data[1];
         app.hashChallenge = hash;
         log.info("onVersion: hash="+hash);
 
-        var local_version = config.build.version_game;
+        var local_version = Number(config.build.version_user);
         log.info("config.build.version_user="+local_version);
-        if (version != local_version)
+        if (version !== local_version)
         {
           $('#container').addClass('error');
           var errmsg = "Please download the new version of Land Of Mana.<br/>";
@@ -246,7 +246,7 @@ define(['gameclient', 'skillhandler', 'quest', 'config', 'achievement'], functio
       },
 
       onSyncTime: function (data) {
-        setWorldTime(parseInt(data[0]), parseInt(data[1]))
+        setWorldTime(Number(data[0]), Number(data[1]))
       },
 
       onWorldReady: function (data) {

@@ -80,14 +80,14 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
         $('.inventorySellGold').html("0");
         if (item) {
           var kind = item.itemKind;
-          if (game.inventoryMode == InventoryMode.MODE_ENCHANT ||
-              game.inventoryMode == InventoryMode.MODE_REPAIR)
+          if (game.inventoryMode === InventoryMode.MODE_ENCHANT ||
+              game.inventoryMode === InventoryMode.MODE_REPAIR)
           {
             if (!ItemTypes.isEquipment(kind))
               return;
           }
-          if (game.inventoryMode == InventoryMode.MODE_SELL ||
-              game.inventoryMode == InventoryMode.MODE_AUCTION)
+          if (game.inventoryMode === InventoryMode.MODE_SELL ||
+              game.inventoryMode === InventoryMode.MODE_AUCTION)
           {
             if (ItemTypes.isLootItem(kind))
               return;
@@ -95,7 +95,7 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
         }
         //log.info("slot=" + slot);
         //log.info("inventories " + JSON.stringify(self.inventory));
-        if (item && self.selectedItem != slot) {
+        if (item && self.selectedItem !== slot) {
             $('.inventorySellGoldFrame').show();
             self.selectItem(type, self.selectedItem, false);
             self.selectItem(type, slot, true);
@@ -103,35 +103,35 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
             jqActionButton.data('itemSlot', slot);
 
             var kind = item.itemKind;
-            if (game.inventoryMode == InventoryMode.MODE_AUCTION) {
+            if (game.inventoryMode === InventoryMode.MODE_AUCTION) {
               var value = ~~(ItemTypes.getEnchantSellPrice(item)/2);
               $('.inventorySellGold').html(parseInt(value));
             }
-            else if (game.inventoryMode == InventoryMode.MODE_SELL) {
+            else if (game.inventoryMode === InventoryMode.MODE_SELL) {
               $('.inventorySellGold').html(parseInt(ItemTypes.getEnchantSellPrice(item)));
             }
-            else if (game.inventoryMode == InventoryMode.MODE_REPAIR) {
+            else if (game.inventoryMode === InventoryMode.MODE_REPAIR) {
               $('.inventorySellGold').html(parseInt(ItemTypes.getRepairPrice(item)));
             }
-            else if (game.inventoryMode == InventoryMode.MODE_ENCHANT) {
+            else if (game.inventoryMode === InventoryMode.MODE_ENCHANT) {
               $('.inventorySellGold').html(parseInt(ItemTypes.getEnchantPrice(item)));
             }
-            else if (game.inventoryMode == InventoryMode.MODE_BANK) {
+            else if (game.inventoryMode === InventoryMode.MODE_BANK) {
               $('.inventorySellGoldFrame').hide();
             }
-            else if (game.inventoryMode == InventoryMode.MODE_NORMAL) {
+            else if (game.inventoryMode === InventoryMode.MODE_NORMAL) {
               $('.inventorySellGoldFrame').hide();
             }
             return;
         }
 
-        if (item && self.selectedItem == slot) {
+        if (item && self.selectedItem === slot) {
           var triggerClick = false;
-          if (game.inventoryMode == InventoryMode.MODE_AUCTION ||
-              game.inventoryMode == InventoryMode.MODE_SELL ||
-              game.inventoryMode == InventoryMode.MODE_REPAIR ||
-              game.inventoryMode == InventoryMode.MODE_ENCHANT ||
-              game.inventoryMode == InventoryMode.MODE_BANK)
+          if (game.inventoryMode === InventoryMode.MODE_AUCTION ||
+              game.inventoryMode === InventoryMode.MODE_SELL ||
+              game.inventoryMode === InventoryMode.MODE_REPAIR ||
+              game.inventoryMode === InventoryMode.MODE_ENCHANT ||
+              game.inventoryMode === InventoryMode.MODE_BANK)
           {
             triggerClick = true;
           }
@@ -148,7 +148,7 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
       var activateItem = function (type, slot, item, btnPressed) {
         if (item) {
           var kind = item.itemKind;
-          if (game.inventoryMode == InventoryMode.MODE_AUCTION) {
+          if (game.inventoryMode === InventoryMode.MODE_AUCTION) {
             if (ItemTypes.isLootItem(kind) || ItemTypes.isConsumableItem(kind))
               return;
 
@@ -156,30 +156,30 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
             $('#auctionSellCount').val(value);
             game.app.showAuctionSellDialog(slot);
           }
-          else if (game.inventoryMode == InventoryMode.MODE_SELL) {
+          else if (game.inventoryMode === InventoryMode.MODE_SELL) {
             if (ItemTypes.isLootItem(kind))
               return;
 
             game.client.sendStoreSell(type, slot);
           }
-          else if (game.inventoryMode == InventoryMode.MODE_REPAIR) {
+          else if (game.inventoryMode === InventoryMode.MODE_REPAIR) {
             if (!ItemTypes.isEquipment(kind))
               return;
 
             game.repairItem(type, slot, item);
           }
-          else if (game.inventoryMode == InventoryMode.MODE_ENCHANT) {
+          else if (game.inventoryMode === InventoryMode.MODE_ENCHANT) {
             if (!ItemTypes.isEquipment(kind))
               return;
 
             game.enchantItem(type, slot, item);
           }
-          else if (game.inventoryMode == InventoryMode.MODE_BANK) {
+          else if (game.inventoryMode === InventoryMode.MODE_BANK) {
             if (!game.bankHandler.isBankFull()) {
               self.moveItem(1, -1);
             }
           }
-					else if (game.inventoryMode == InventoryMode.MODE_NORMAL) {
+					else if (game.inventoryMode === InventoryMode.MODE_NORMAL) {
 						if (self.selectedItem >= 0 && btnPressed)
 							self.dropItem(slot);
 						else {
@@ -208,7 +208,7 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
 
         var selectEquipment = function (event, type, slot) {
           var item = self.getItem(type, slot);
-          if (item != null && DragItem && DragItem.item != item)
+          if (item !== null && DragItem && DragItem.item !== item)
             self.deselectItem();
 
 					if (self.selectedItem < 0)
@@ -234,10 +234,10 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
             var item = self.getItem(type, slot);
 
             if (dragItem && item) {
-              if (dragItem == item) {
+              if (dragItem === item) {
                 activateItem(type, slot, item);
               }
-              //else if (DragItem.type == type && type == 2)
+              //else if (DragItem.type === type && type === 2)
               //  return;
               else
                 self.moveItem(type, slot);
@@ -267,7 +267,7 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
 
         $('#equipBackground'+i).on('drop', function(event) {
           if (DragItem) {
-						if ($(this).data("itemSlot") == DragItem.slot)
+						if ($(this).data("itemSlot") === DragItem.slot)
 	            return;
 
 	          self.moveItem(2, $(this).data("itemSlot"));
@@ -306,7 +306,7 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
 						var dragItem = (DragItem) ? self.getItem(DragItem.type, DragItem.slot) : null;
             var item = self.getItem(type, slot);
             if (dragItem && item) {
-              if (dragItem == item) {
+              if (dragItem === item) {
                 activateItem(type, slot, item);
               }
               else {
@@ -343,7 +343,7 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
 
         $('#inventorybackground'+i).on('drop', function(event) {
           if (DragItem) {
-						if ($(this).data("itemSlot") == DragItem.slot)
+						if ($(this).data("itemSlot") === DragItem.slot)
 	            return;
 
 					  self.splitItem(0, $(this).data("itemSlot"));
@@ -384,7 +384,7 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
       });
 
       $('.inventoryGoldFrame').off().on('click', function(event) {
-        if (game.inventoryMode == InventoryMode.MODE_BANK) {
+        if (game.inventoryMode === InventoryMode.MODE_BANK) {
           game.app.showDropDialog("bankgold");
         }
       });
@@ -398,7 +398,7 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
     selectItem: function(type, slot, select) {
       //pageslot = realslot % this.pageItems;
       htmlItem = $('#inventorybackground' + slot);
-      if (type == 2) {
+      if (type === 2) {
         htmlItem = $('#equipBackground'+slot);
       }
       this.selectedType = type;
@@ -459,7 +459,7 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
       for (var item of itemArray)
       {
         var i = item.slot;
-        if (item.itemKind == -1)
+        if (item.itemKind === -1)
         {
           this.inventory[i] = null;
           this.makeEmptyInventory(i);
@@ -518,8 +518,8 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
 
         var highlight = $('#inventoryHL' + slot);
 
-        if (game.inventoryMode == InventoryMode.MODE_SELL ||
-            game.inventoryMode == InventoryMode.MODE_AUCTION)
+        if (game.inventoryMode === InventoryMode.MODE_SELL ||
+            game.inventoryMode === InventoryMode.MODE_AUCTION)
         {
           if (ItemTypes.isEquippable(itemKind)) {
             highlight.css({
@@ -531,8 +531,8 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
             });
           }
         }
-        else if (game.inventoryMode == InventoryMode.MODE_REPAIR) {
-          if (ItemTypes.isEquippable(itemKind) &&  item.itemDurability != item.itemDurabilityMax) {
+        else if (game.inventoryMode === InventoryMode.MODE_REPAIR) {
+          if (ItemTypes.isEquippable(itemKind) &&  item.itemDurability !== item.itemDurabilityMax) {
             highlight.css({
               'background-color': 'transparent'
             });
@@ -542,7 +542,7 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
             });
           }
         }
-        else if (game.inventoryMode == InventoryMode.MODE_ENCHANT) {
+        else if (game.inventoryMode === InventoryMode.MODE_ENCHANT) {
           if (ItemTypes.isEquippable(itemKind) && item.itemNumber <= this.pageItems) {
             highlight.css({
               'background-color': 'transparent'
@@ -617,28 +617,28 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
       var jqGemsFrame = $('#allinventorywindow .inventoryGemsFrame');
       var jqActionButton = $('#invActionButton');
       jqGemsFrame.hide();
-      if (game.inventoryMode == InventoryMode.MODE_AUCTION) {
+      if (game.inventoryMode === InventoryMode.MODE_AUCTION) {
         jqActionButton.text("LIST");
         jqActionButton.show();
 
       }
-      else if (game.inventoryMode == InventoryMode.MODE_SELL) {
+      else if (game.inventoryMode === InventoryMode.MODE_SELL) {
         jqActionButton.text("SELL");
         jqActionButton.show();
       }
-      else if (game.inventoryMode == InventoryMode.MODE_ENCHANT) {
+      else if (game.inventoryMode === InventoryMode.MODE_ENCHANT) {
         jqActionButton.text("ENCHANT");
         jqActionButton.show();
       }
-      else if (game.inventoryMode == InventoryMode.MODE_REPAIR) {
+      else if (game.inventoryMode === InventoryMode.MODE_REPAIR) {
         jqActionButton.text("REPAIR");
         jqActionButton.show();
       }
-      else if (game.inventoryMode == InventoryMode.MODE_BANK) {
+      else if (game.inventoryMode === InventoryMode.MODE_BANK) {
         jqActionButton.text("BANK");
         jqActionButton.show();
       }
-			else if (game.inventoryMode == InventoryMode.MODE_NORMAL) {
+			else if (game.inventoryMode === InventoryMode.MODE_NORMAL) {
         jqActionButton.text("DROP");
         jqActionButton.show();
         jqGemsFrame.show();
@@ -710,7 +710,7 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
     getItemInventorSlotByKind: function(kind) {
       for (i = 0; i < this.maxInventoryNumber; i++) {
         var item = this.inventory[i];
-        if (item && kind == item.itemKind)
+        if (item && kind === item.itemKind)
           return i;
       }
     },
@@ -718,7 +718,7 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
     isInventoryFull: function() {
       for (var i = 0; i < this.maxInventoryNumber; ++i) {
         var item = this.inventory[i];
-        if (item == null) {
+        if (item === null) {
           return false;
         }
       }
@@ -728,7 +728,7 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
     hasItem: function(kind, count) {
       for (i = 0; i < this.maxInventoryNumber; i++) {
         var item = this.inventory[i];
-        if (item && kind == item.itemKind && item.itemNumber >= count) {
+        if (item && kind === item.itemKind && item.itemNumber >= count) {
           return true;
         }
       }
@@ -738,7 +738,7 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
     getItemCount: function(kind) {
       for (i = 0; i < this.maxInventoryNumber; i++) {
         var item = this.inventory[i];
-        if (item && kind == item.itemKind) {
+        if (item && kind === item.itemKind) {
           return item.itemNumber;
         }
       }
@@ -749,7 +749,7 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
       var total = 0;
       for (i = 0; i < this.maxInventoryNumber; i++) {
         var item = this.inventory[i];
-        if (item && kind == item.itemKind) {
+        if (item && kind === item.itemKind) {
           total += item.itemNumber;
         }
       }
@@ -759,7 +759,7 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
     getItemByKind: function(kind) {
       for (i = 0; i < this.maxInventoryNumber; i++) {
         var item = this.inventory[i];
-        if (item && kind == item.itemKind) {
+        if (item && kind === item.itemKind) {
           item.slot = i;
           return item;
         }
@@ -777,10 +777,10 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
 
     getItem: function (type, slot) {
       if (slot < 0) return null;
-      if (type == 0) {
+      if (type === 0) {
         return this.inventory[this.getRealSlot(slot)];
       }
-      else if (type == 2)
+      else if (type === 2)
         return game.equipmentHandler.equipment[slot];
       return null;
     },
@@ -789,6 +789,7 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
         if (!DragItem)
           return;
 
+        var item2 = this.getItem(type, slot);
         var item = this.getItem(DragItem.type, DragItem.slot);
         if (!item) {
           return;
@@ -798,7 +799,8 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
 
         var kind = item.itemKind;
         var count = item.itemNumber;
-        if(ItemTypes.isStackedItem(kind) && (count > 1))
+        if ( (this.isStackitem(item) && !item2) ||
+             (this.isStackitem(item,true) && item2 && this.isStackitem(item2, true)))
         {
           $('#dropCount').val(count);
 
@@ -819,8 +821,7 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
         var count = item.itemNumber;
         game.player.droppedX = pos.x;
         game.player.droppedY = pos.y;
-        if((ItemTypes.isConsumableItem(kind) || ItemTypes.isLootItem(kind) || ItemTypes.isCraftItem(kind)) &&
-          (count > 1))
+        if(this.isStackitem(item))
         {
           $('#dropCount').val(count);
           game.app.DropItem = DragItem;
@@ -828,6 +829,11 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
         } else {
           game.client.sendItemSlot([2, 0, itemSlot, 1]);
         }
+    },
+
+    isStackitem: function (item, maxStack) {
+      return (ItemTypes.isStackedItem(item.itemKind) &&
+        (item.itemNumber > 1) && (!maxStack || (maxStack && item.itemNumber < 100)));
     },
 
     equip: function(item, itemSlot) {
@@ -861,7 +867,7 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
             return true;
         }
       } else if (ItemTypes.isEquippable(kind)) {
-        if (type == 2) {
+        if (type === 2) {
           this.unequip(item.slot);
         }
         else {
@@ -886,7 +892,7 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
       if (!start && obj !== null) {
         var action = obj.action || 1;
         var slot2 = (slot >= 0) ? this.getRealSlot(slot) : slot;
-        obj.slot = (obj.type == 0) ? this.getRealSlot(obj.slot) : obj.slot;
+        obj.slot = (obj.type === 0) ? this.getRealSlot(obj.slot) : obj.slot;
         game.client.sendItemSlot([action, obj.type, obj.slot, obj.item.itemNumber, type, slot2]);
         obj = null;
       }
@@ -902,7 +908,7 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
       splitItem = this._moveItem(splitItem, splitItem.type2, splitItem.slot2);
 
       item.itemNumber -= count;
-      if(item.itemNumber == 0)
+      if(item.itemNumber === 0)
       {
         item = null;
       }
@@ -918,7 +924,7 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
       game.client.sendItemSlot([2, dropItem.type, dropItem.slot, count]);
 
       item.itemNumber -= count;
-      if(item.itemNumber == 0)
+      if(item.itemNumber === 0)
       {
         item = null;
       }

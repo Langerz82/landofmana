@@ -14,11 +14,11 @@ define(['entity/character', 'timer', 'entity/player', 'entity/entitymoving'], fu
               var o = c.orientation;
               var res=false;
 
-              if (c.ex == -1 && c.ey == -1)
+              if (c.ex === -1 && c.ey === -1)
               {
                 return false;
               }
-              if (c.x == c.ex && c.y == c.ey)
+              if (c.x === c.ex && c.y === c.ey)
               {
                 log.info("checkStopDanger - coordinates equal");
                 res = true;
@@ -26,19 +26,19 @@ define(['entity/character', 'timer', 'entity/player', 'entity/entitymoving'], fu
 
               var x = c.x, y = c.y;
 
-              if (o == Types.Orientations.LEFT && c.x < c.ex)
+              if (o === Types.Orientations.LEFT && c.x < c.ex)
               {
                 return true;
               }
-              else if (o == Types.Orientations.RIGHT && c.x > c.ex)
+              else if (o === Types.Orientations.RIGHT && c.x > c.ex)
               {
                 return true;
               }
-              else if (o == Types.Orientations.UP && c.y < c.ey)
+              else if (o === Types.Orientations.UP && c.y < c.ey)
               {
                 return true;
               }
-              else if (o == Types.Orientations.DOWN && c.y > c.ey)
+              else if (o === Types.Orientations.DOWN && c.y > c.ey)
               {
                 return true;
               }
@@ -81,7 +81,7 @@ define(['entity/character', 'timer', 'entity/player', 'entity/entitymoving'], fu
 
             this.charKeyXF = function(c, m) {
               var x = c.x + m;
-              if (x == c.ex || self.checkStopDanger(c))
+              if (x === c.ex || self.checkStopDanger(c))
               {
                 c.forceStop();
                 return true;
@@ -92,7 +92,7 @@ define(['entity/character', 'timer', 'entity/player', 'entity/entitymoving'], fu
 
             this.charKeyYF = function(c, m) {
               var y = c.y + m;
-              if (y == c.ey || self.checkStopDanger(c))
+              if (y === c.ey || self.checkStopDanger(c))
               {
                 c.forceStop();
                 return true;
@@ -178,7 +178,7 @@ define(['entity/character', 'timer', 'entity/player', 'entity/entitymoving'], fu
                 }
                 if (entity instanceof Player)
                 {
-                  if (entity == game.player) {
+                  if (entity === game.player) {
                     self.updatePlayerPathMovement(entity);
                     self.updatePlayerKeyMovement(entity);
                   }
@@ -227,22 +227,22 @@ define(['entity/character', 'timer', 'entity/player', 'entity/entitymoving'], fu
 
             var canMove = c.movement.inProgress === false && c.isMovingPath();
             if(canMove) {
-              if(o == Types.Orientations.LEFT) {
+              if(o === Types.Orientations.LEFT) {
                 c.movement.start(self.charPathXF,
                    self.stopTransition,
                    -tick);
               }
-              else if(o == Types.Orientations.RIGHT) {
+              else if(o === Types.Orientations.RIGHT) {
                 c.movement.start(self.charPathXF,
                    self.stopTransition,
                    tick);
               }
-              else if(o == Types.Orientations.UP) {
+              else if(o === Types.Orientations.UP) {
                 c.movement.start(self.charPathYF,
                    self.stopTransition,
                    -tick);
               }
-              else if(o == Types.Orientations.DOWN) {
+              else if(o === Types.Orientations.DOWN) {
                 c.movement.start(self.charPathYF,
                    self.stopTransition,
                    tick);
@@ -264,22 +264,22 @@ define(['entity/character', 'timer', 'entity/player', 'entity/entitymoving'], fu
 
           var canMove = c.movement.inProgress === false  && c.keyMove && o > 0;
           if(canMove) {
-            if(o == Types.Orientations.LEFT) {
+            if(o === Types.Orientations.LEFT) {
               c.movement.start(self.charKeyXF,
                                null,
                                -tick);
             }
-            else if(o == Types.Orientations.RIGHT) {
+            else if(o === Types.Orientations.RIGHT) {
               c.movement.start(self.charKeyXF,
                                null,
                                tick);
             }
-            else if(o == Types.Orientations.UP) {
+            else if(o === Types.Orientations.UP) {
               c.movement.start(self.charKeyYF,
                                null,
                                -tick);
             }
-            else if(o == Types.Orientations.DOWN) {
+            else if(o === Types.Orientations.DOWN) {
               c.movement.start(
                                self.charKeyYF,
                                null,
@@ -302,22 +302,22 @@ define(['entity/character', 'timer', 'entity/player', 'entity/entitymoving'], fu
 
             var canMove = c.movement.inProgress === false;
             if(canMove) {
-              if(o == Types.Orientations.LEFT) {
+              if(o === Types.Orientations.LEFT) {
                 c.movement.start(self.playerPathXF,
                    null,
                    -tick);
               }
-              else if(o == Types.Orientations.RIGHT) {
+              else if(o === Types.Orientations.RIGHT) {
                 c.movement.start(self.playerPathXF,
                    null,
                    tick);
               }
-              else if(o == Types.Orientations.UP) {
+              else if(o === Types.Orientations.UP) {
                 c.movement.start(self.playerPathYF,
                    null,
                    -tick);
               }
-              else if(o == Types.Orientations.DOWN) {
+              else if(o === Types.Orientations.DOWN) {
                 c.movement.start(self.playerPathYF,
                    null,
                    tick);
@@ -343,22 +343,22 @@ define(['entity/character', 'timer', 'entity/player', 'entity/entitymoving'], fu
 // TODO - Skip Move needs FIXING to fix scrolling!!!!!!!!!!!!!!!!!!!!!!
           var canMove = c.movement.inProgress === false && c.keyMove;
           if(canMove) {
-            if(o == Types.Orientations.LEFT) {
+            if(o === Types.Orientations.LEFT) {
               c.movement.start(self.playerKeyXF,
                                null,
                                -tick);
             }
-            else if(o == Types.Orientations.RIGHT) {
+            else if(o === Types.Orientations.RIGHT) {
               c.movement.start(self.playerKeyXF,
                                null,
                                tick);
             }
-            else if(o == Types.Orientations.UP) {
+            else if(o === Types.Orientations.UP) {
               c.movement.start(self.playerKeyYF,
                                null,
                                -tick);
             }
-            else if(o == Types.Orientations.DOWN) {
+            else if(o === Types.Orientations.DOWN) {
               c.movement.start(self.playerKeyYF,
                                null,
                                tick);

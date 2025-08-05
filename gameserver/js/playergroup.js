@@ -24,7 +24,7 @@ module.exports = PlayerGroup = Class.extend({
 
   addName: function(playerName) {
     if(playerName){
-      if (this.players.length == 0) {
+      if (this.players.length === 0) {
         this.leader = playerName;
       }
       if (!this.containsName(playerName)) {
@@ -85,7 +85,7 @@ module.exports = PlayerGroup = Class.extend({
   },
 
   removeName: function(playerName) {
-    if (playerName == this.leader)
+    if (playerName === this.leader)
     	this.leader = this.players[0];
     if (playerName) {
       if (this.containsName(playerName)) {

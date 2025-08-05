@@ -286,7 +286,7 @@ String.prototype.format = function (args) {
 
   return this.replace(/{([0-9]+)}/g, function (match, index) {
     // checking whether the argument is present
-    return typeof tmp[index] == 'undefined' ? match : tmp[index];
+    return typeof tmp[index] === 'undefined' ? match : tmp[index];
   });
 };
 

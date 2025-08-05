@@ -40,12 +40,12 @@ var Node = Entity.extend({
     setDrops: function () {
       this.drops = {};
 
-      if (this.kind == 2) {
-        if (this.level == 1)
+      if (this.kind === 2) {
+        if (this.level === 1)
           this.drops[301] = 2000;
-        if (this.level == 2)
+        if (this.level === 2)
           this.drops[302] = 2000;
-        if (this.level == 3)
+        if (this.level === 3)
           this.drops[303] = 2000;
         else
           this.drops[304] = 2000;

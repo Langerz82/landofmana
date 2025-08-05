@@ -60,7 +60,7 @@ module.exports = TrapGroup = cls.Class.extend({
     if (this.switchTimer.isOver())
       this.damaging = !this.damaging;
 
-    if (dmg != this.damaging) {
+    if (dmg !== this.damaging) {
       if (this.damaging) {
         for(var trap of this.traps) {
           trap.on();

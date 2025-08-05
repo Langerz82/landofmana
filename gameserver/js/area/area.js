@@ -113,9 +113,9 @@ module.exports = Area = cls.Class.extend({
 
       //console.log("this.elipseId="+this.elipseId);
       //console.log("inElipse="+inElipse);
-      if (iteration == 1 || this.excludeId == -1) {
+      if (iteration === 1 || this.excludeId === -1) {
         return inElipse;
-      } else if (iteration == 0) {
+      } else if (iteration === 0) {
         var res = inElipse;
 
         var prevArea = this.map.mobLiveAreas[this.elipseId];

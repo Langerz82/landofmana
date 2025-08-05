@@ -44,7 +44,7 @@ define([], function() {
     handleAchievement: function(achievement) {
       var htmlStr = '';
 
-      if (achievement.count == achievement.objectCount) {
+      if (achievement.count === achievement.objectCount) {
         htmlStr = '<p><h2>Achievement Completed</h2></p><p>' + achievement.summary + '</p>';
         game.userAlarm.alarm(htmlStr, this.hideDelay);
       }

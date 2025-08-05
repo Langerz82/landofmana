@@ -21,7 +21,7 @@ module.exports = Transition = Class.extend({
       if(this.inProgress) {
           var inc = this.modValue;
 
-          if (inc == 0) return;
+          if (inc === 0) return;
 
           var j = 0;
           if(this.updateFunction) {

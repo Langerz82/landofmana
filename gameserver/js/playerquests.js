@@ -11,14 +11,14 @@ module.exports = PlayerQuests = cls.Class.extend({
     var mobKind = mob.kind, mobLevel = mob.level;
 
     var a = (quest.count < quest.object.count);
-    var b = (quest.type == QuestType.KILLMOBKIND && a && (mobKind == quest.object.kind));
-    var c = (quest.type == QuestType.KILLMOBS && a);
+    var b = (quest.type === QuestType.KILLMOBKIND && a && (mobKind === quest.object.kind));
+    var c = (quest.type === QuestType.KILLMOBS && a);
     var d = (mob.level >= quest.object.level[0] && mob.level <= quest.object.level[1]);
     if((b || c) && d)
     {
         console.info("_questAboutKill - conditions met.")
         quest.data1 += ~~(mob.stats.xp / 1.5);
-        if(++quest.count == quest.object.count) {
+        if(++quest.count === quest.object.count) {
           this.completeQuest(quest, quest.data1);
         }
         else {
@@ -29,9 +29,9 @@ module.exports = PlayerQuests = cls.Class.extend({
 
   questAboutItemCheck: function (target, quest) {
     var lootKind = quest.object2.kind+1000;
-    if (quest.object2.type == Types.EntityTypes.ITEMLOOT &&
-        quest.object.type == Types.EntityTypes.MOB &&
-        quest.object.kind == target.kind &&
+    if (quest.object2.type === Types.EntityTypes.ITEMLOOT &&
+        quest.object.type === Types.EntityTypes.MOB &&
+        quest.object.kind === target.kind &&
         quest.status != QuestStatus.COMPLETE &&
         (quest.count < quest.object2.count || player.inventory.hasItemCount(lootKind) < quest.object2.count))
     {
@@ -61,7 +61,7 @@ module.exports = PlayerQuests = cls.Class.extend({
 
   questAboutFind: function(quest) {
       //console.info(JSON.stringify(quest));
-      if(quest.count++ >= quest.object.count && quest.status == QuestStatus.INPROGRESS) {
+      if(quest.count++ >= quest.object.count && quest.status === QuestStatus.INPROGRESS) {
         quest.count = quest.object.count;
         var xp = quest.object.count * 10 * this.player.level;
         this.completeQuest(quest, xp);
@@ -122,16 +122,16 @@ module.exports = PlayerQuests = cls.Class.extend({
     var cq = this.completeQuests;
     for (var qid in cq) {
       var q = cq[qid];
-      if (q == npcQuestId)
+      if (q === npcQuestId)
         return true;
     }
     return false;
     // Don't know why this won't work.
-    //return Object.values(this.completeQuests).find(function (el) { return el == npcQuestId; }) !== null;
+    //return Object.values(this.completeQuests).find(function (el) { return el === npcQuestId; }) !== null;
   },
 
   getQuestById: function (id) {
-    return this.quests.find(function (q) { return q.id == id; });
+    return this.quests.find(function (q) { return q.id === id; });
    },
 
   hasQuest: function (id) {
@@ -140,7 +140,7 @@ module.exports = PlayerQuests = cls.Class.extend({
 
   forQuestsType: function (type, callback) {
     for (var q of this.quests) {
-      if (q.type == type && callback)
+      if (q.type === type && callback)
           callback(q);
     }
   },

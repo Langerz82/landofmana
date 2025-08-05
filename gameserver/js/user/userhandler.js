@@ -293,15 +293,15 @@ module.exports = UserHandler = cls.Class.extend({
         }
       }
       var storeType = null;
-      if (type == 0){
+      if (type === 0){
         player.inventory = new Inventory(player, 48, items);
         storeType = player.inventory;
       }
-      else if (type == 1){
+      else if (type === 1){
         player.bank = new Bank(player, 96, items);
         storeType = player.bank;
       }
-      else if (type == 2){
+      else if (type === 2){
         player.equipment = new Equipment(player, 5, items);
         storeType = player.equipment;
         player.equipment.setItem = function (index, item) {

@@ -82,7 +82,7 @@ EffectType = cls.Class.extend({
         target.stats.mod.damage = this.diff;
         break;
       case "freeze":
-        if (this.modVal == 1)
+        if (this.modVal === 1)
           target.freeze = true;
         else {
           target.freeze = false;
@@ -107,7 +107,7 @@ EffectType = cls.Class.extend({
       diff = Math.round(diff);
     }
 
-    if (stat == 0)
+    if (stat === 0)
       return diff;
 
     if (diff > 0)
@@ -206,14 +206,14 @@ var SkillEffect = cls.Class.extend({
         effect.apply(this, target, phase, damage);
 
         //var index2 = target.activeEffects.indexOf(this);
-        if (index >= 0 && phase == "end") {
+        if (index >= 0 && phase === "end") {
           target.activeEffects.splice(index, 1);
         }
     },
 
     applyEffects: function (phase, damage) {
       for (var effect of this.effectTypes) {
-        if (effect.phase == phase) {
+        if (effect.phase === phase) {
             if (effect.isTarget) {
               for (var target of this.targets) {
                 this.applyEffect(effect, target, phase, damage);
@@ -224,7 +224,7 @@ var SkillEffect = cls.Class.extend({
             }
         }
       }
-      if (phase == "end") {
+      if (phase === "end") {
         this.count = 0;
         this.activeTimer = 0;
         this.handler.removeSkillEffect(this);
@@ -249,7 +249,7 @@ var SkillEffect = cls.Class.extend({
       this.applyEffects(phase,damage);
 
       if (phase=="afterhit" && this.countTotal > 0
-        && this.count == this.countTotal)
+        && this.count === this.countTotal)
       {
         this.applyEffects("end",0);
         //this.isActive = false;

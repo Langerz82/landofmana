@@ -28,10 +28,10 @@ module.exports = PartyHandler = Class.extend({
 
     var curParty = this.player.party;
 
-    if (this.player == player2)
+    if (this.player === player2)
       return;
 
-    if (status == 0) {
+    if (status === 0) {
 
       if (curParty && curParty.players.length >= 5) {
         this.player.sendPlayer(new Messages.Notify("CHAT", "PARTY_MAX_PLAYERS"));
@@ -41,7 +41,7 @@ module.exports = PartyHandler = Class.extend({
         this.player.sendToPlayer(player2, new Messages.PartyInvite(this.player.id));
         this.player.sendPlayer(new Messages.Notify("CHAT", "PARTY_PLAYER_INVITE_SENT", [player2.name]));
       }
-    } else if (status == 1) {
+    } else if (status === 1) {
       if (player2.party) {
         player2.party.removeName(player2);
         //this.handlePartyAbandoned(player2.party);
@@ -64,7 +64,7 @@ module.exports = PartyHandler = Class.extend({
         this.player.sendToPlayer(player2, new Messages.Notify("CHAT", "PARTY_PLAYER_JOINED", [this.player.name]));
         this.player.sendPlayer(new Messages.Notify("CHAT", "PARTY_PLAYER_ADDED", [player2.name]));
       }
-    } else if (status == 2) {
+    } else if (status === 2) {
       this.player.sendPlayer(new Messages.Notify("CHAT", "PARTY_YOU_REJECTED_INVITE", [player2.name]));
       this.player.sendToPlayer(player2, new Messages.Notify("CHAT", "PARTY_THEY_REJECTED_INVITE", [player2.name]));
     }
@@ -77,7 +77,7 @@ module.exports = PartyHandler = Class.extend({
     if (!player2) {
       return;
     }
-    if (this.player == player2)
+    if (this.player === player2)
       return;
 
     var party = this.player.party;
@@ -87,7 +87,7 @@ module.exports = PartyHandler = Class.extend({
       return;
     }
 
-    if (this.player == party.leader) {
+    if (this.player === party.leader) {
       party.removeName(player2);
       if (player2 instanceof Player)
         this.player.sendToPlayer(player2, new Messages.Notify("CHAT", "PARTY_PLAYER_KICKED"));
@@ -104,7 +104,7 @@ module.exports = PartyHandler = Class.extend({
       return;
     }
 
-    if (this.player == player2)
+    if (this.player === player2)
       return;
 
     var party = this.player.party;
@@ -113,7 +113,7 @@ module.exports = PartyHandler = Class.extend({
       return;
     }
 
-    if (this.player == party.leader) {
+    if (this.player === party.leader) {
       party.setLeader(player2.name);
 
       this.player.sendToPlayer(player2, new Messages.Notify("CHAT", "PARTY_YOU_LEADER"));
@@ -128,7 +128,7 @@ module.exports = PartyHandler = Class.extend({
     var party = this.player.party;
     var leader = (party) ? party.leader : null;
 
-    if (leader == null)
+    if (leader === null)
       return;
 
     if (!party) {
@@ -141,13 +141,13 @@ module.exports = PartyHandler = Class.extend({
 
     this.player.sendToPlayer(leader, new Messages.Notify("CHAT", "PARTY_PLAYER_LEFT", [this.player.name]));
 
-    if (this.player != leader)
+    if (this.player !== leader)
       this.player.sendPlayer(new Messages.Notify("CHAT", "PARTY_YOU_LEFT", [leader.name]));
 
   },
 
   handleAbandoned: function(party) {
-    if (party.players.length != 1)
+    if (party.players.length !== 1)
       return;
 
     this.player.sendPlayer(new Messages.Notify("CHAT", "PARTY_ALL_LEFT"));

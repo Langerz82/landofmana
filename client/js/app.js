@@ -74,7 +74,7 @@ define(['lib/localforage', 'entity/mob', 'entity/item', 'data/mobdata', 'user', 
             });
 
             $('#player_select').change(function () {
-              if ($(this).val() == -1)
+              if ($(this).val() === -1)
               {
                 $('#player_load').hide();
                 $('#player_create').show();
@@ -91,7 +91,7 @@ define(['lib/localforage', 'entity/mob', 'entity/item', 'data/mobdata', 'user', 
               if ($('#player_create_form').is(":visible"))
                 self.tryPlayerAction(4);
 
-              if ($('#player_name').val() == "")
+              if ($('#player_name').val() === "")
               {
                 app.showPlayerCreate();
                 $('#player_name').focus();
@@ -216,9 +216,9 @@ define(['lib/localforage', 'entity/mob', 'entity/item', 'data/mobdata', 'user', 
           if (action > 0)
           {
             var username = this.$usernameinput.val();
-            var userpw = (action == 3) ? $('#remove_password').val() : this.$userpasswordinput.val();
+            var userpw = (action === 3) ? $('#remove_password').val() : this.$userpasswordinput.val();
     		    var hash = null;
-    		    if (userpw == '')
+    		    if (userpw === '')
     		    	hash = $('#user_hash').val();
     		    log.info("hash="+hash);
 
@@ -234,11 +234,11 @@ define(['lib/localforage', 'entity/mob', 'entity/item', 'data/mobdata', 'user', 
               localforage.setItem('user_hash', this.user.hash);
             }
 
-            if (action == 1)
+            if (action === 1)
               this.userclient.sendLoginUser(this.user);
-            if (action == 2)
+            if (action === 2)
               this.userclient.sendCreateUser(this.user);
-            if (action == 3)
+            if (action === 3)
               this.userclient.sendRemoveUser(this.user);
           }
         },
@@ -248,21 +248,21 @@ define(['lib/localforage', 'entity/mob', 'entity/item', 'data/mobdata', 'user', 
 
           var self = this;
 
-          if (action == 3 || action == 4)
+          if (action === 3 || action === 4)
           {
     		    var username = this.$playernameinput.val();
             var playerIndex = parseInt($('#player_select').val());
-            if(action == 4 && !this.validatePlayerForm(username)) return;
+            if(action === 4 && !this.validatePlayerForm(username)) return;
 
     		    //var pClass = parseInt($('#player_class').val());
             var server = parseInt($('#player_server').val());
 
             var ps = null;
-            if (action == 3) {
+            if (action === 3) {
               this.userclient.sendLoginPlayer(server, playerIndex);
               ps = user.playerSum[playerIndex];
             }
-            if (action == 4) {
+            if (action === 4) {
               this.userclient.sendCreatePlayer(server, username);
               ps = new PlayerSummary(user.playerSum.length, {name: username});
             }
@@ -504,8 +504,6 @@ define(['lib/localforage', 'entity/mob', 'entity/item', 'data/mobdata', 'user', 
 		        game.player.onSetTarget(function(target, name, level, mouseover)
             {
   		        var el = '#target';
-
-    		    	//if (target.kind == 70) return; // Exclude Mimics.
 
         			if (target.title)
         			{
@@ -749,10 +747,10 @@ define(['lib/localforage', 'entity/mob', 'entity/item', 'data/mobdata', 'user', 
         	$('#'+origin).hide();
         	$('#'+destination).show();
           //$('#'+destination).focus();
-          if (destination != "user_window") {
+          if (destination !== "user_window") {
             $('#aboutbutton').hide();
           }
-          if (destination == "player_window")
+          if (destination === "player_window")
             $('#user_remove').show();
           this.initFormFields();
         },

@@ -29,14 +29,14 @@ function(InfoManager, HoveringInfo, BubbleManager,
 
         // data - mapIndex, mapStatus, x, y.
         client.onPlayerTeleportMap(function(data) {
-          var mapId = parseInt(data[0]),
-              x = parseInt(data[2]),
-              y = parseInt(data[3]);
-          var status = game.mapStatus = parseInt(data[1]);
+          var mapId = Number(data[0]),
+              x = Number(data[2]),
+              y = Number(data[3]);
+          var status = game.mapStatus = Number(data[1]);
 
           log.info("ON PLAYER TELEPORT MAP:"+mapId+"status: "+status+",x:"+x+",y:"+y);
 
-          if (status == -1)
+          if (status === -1)
           {
             game.mapIndex = 0;
             game.mapStatus = 2;
@@ -47,7 +47,7 @@ function(InfoManager, HoveringInfo, BubbleManager,
             return;
           }
 
-          if (status == 1)
+          if (status === 1)
           {
             log.info("spawnMap");
 
@@ -80,7 +80,7 @@ function(InfoManager, HoveringInfo, BubbleManager,
             //game.setCursor("hand");
           }
 
-          if (status == 2)
+          if (status === 2)
           {
               log.info("spawnMap - Loaded");
               game.initPlayer();
@@ -168,7 +168,7 @@ function(InfoManager, HoveringInfo, BubbleManager,
         });*/
 
         /*client.onKnownEntityList(function(list) {
-            if (!list || list.length == 0) {
+            if (!list || list.length === 0) {
               client.sendKnowWho([]);
               return;
             }
@@ -196,9 +196,9 @@ function(InfoManager, HoveringInfo, BubbleManager,
             //log.info("Spawned " + ItemTypes.KindData[item.kind].name + " (" + item.id + ") at "+x+", "+y);
             if (!item) return;
 
-            var x = parseInt(data[5]),
-                y = parseInt(data[6]),
-                count = parseInt(data[8]);
+            var x = Number(data[5]),
+                y = Number(data[6]),
+                count = Number(data[8]);
 
             var kind = item.kind;
             var sprite = null;
@@ -218,44 +218,27 @@ function(InfoManager, HoveringInfo, BubbleManager,
             game.updateCameraEntity(item.id, item);
         });
 
-        /*client.onSpawnChest(function(chest, x, y) {
-            log.info("Spawned chest (" + chest.id + ") at "+x+", "+y);
-            chest.setSprite(game.sprites[chest.getSpriteName()]);
-            chest.setPosition(x, y);
-            chest.setAnimation("idle_down", 150);
-            game.addEntity(chest, x, y);
-            chest.onOpen(function() {
-                chest.setSprite(game.sprites["death"]);
-                chest.setAnimation("death", 120, 1, function() {
-                    log.info(chest.id + " was removed");
-                    game.removeEntity(chest);
-                    game.previousClickPosition = {};
-                    game.player.removeTarget();
-                });
-            });
-        });*/
-
         var spawnEntity = function(data, entity)
         {
-          var id = data[0];
+          var id = Number(data[0]);
           if(id === game.playerId)
             return;
 
-          entity.setPosition(data[5], data[6]);
-          var orientation = data[7];
-          entity.level = parseInt(data[8]);
+          entity.setPosition(Number(data[5]), Number(data[6]));
+          var orientation = Number(data[7]);
+          entity.level = Number(data[8]);
           if (data.length > 10 && !(entity instanceof Block)) {
-            entity.setHP(parseInt(data[9]));
-            entity.setMaxHP(parseInt(data[10]));
+            entity.setHP(Number(data[9]));
+            entity.setMaxHP(Number(data[10]));
           }
 
           if(entity.type === Types.EntityTypes.PLAYER)
           {
               //entity.setClass(parseInt(data[11]));
-              entity.sprites[0] = parseInt(data[12]); // Main sprite.
-              entity.sprites[1] = parseInt(data[13]);
-              entity.armorColor = '#'+data[14];
-              entity.weaponColor = '#'+data[15];
+              entity.sprites[0] = Number(data[12]); // Main sprite.
+              entity.sprites[1] = Number(data[13]);
+              //entity.armorColor = '#'+data[14];
+              //entity.weaponColor = '#'+data[15];
           }
           if (entity.type === Types.EntityTypes.NODE)
           {
@@ -290,12 +273,12 @@ function(InfoManager, HoveringInfo, BubbleManager,
             entity.setSprite(game.sprites[spriteName]);
             entity.animate(nameData[1], entity.idleSpeed);
           }
-          else if (entity.type == Types.EntityTypes.TRAP)
+          else if (entity.type === Types.EntityTypes.TRAP)
           {
             var spriteName = "trap-"+entity.kind;
             entity.setSprite(game.sprites[spriteName]);
 
-            var animName = (spriteId == 0) ? "off" : "on";
+            var animName = (spriteId === 0) ? "off" : "on";
             entity.animate(animName, entity.idleSpeed);
 
           }
@@ -308,7 +291,7 @@ function(InfoManager, HoveringInfo, BubbleManager,
           {
               var uid = "npc"+(1+(~~(entity.kind/8)%4))+"_"+(1+(entity.kind%8));
               entity.setSprite(game.sprites[uid]);
-              entity.questId = data[8];
+              entity.questId = Number(data[8]);
           }
 
           if (entity instanceof EntityMoving && !(entity instanceof Block)) {
@@ -386,7 +369,7 @@ function(InfoManager, HoveringInfo, BubbleManager,
               entity.onDeath(function() {
                 var p = game.player;
 
-                if (entity == p)
+                if (entity === p)
                   return;
 
                 p.targetIndex = 0;
@@ -424,10 +407,10 @@ function(InfoManager, HoveringInfo, BubbleManager,
 
         // data - entityId, x, y, mapIndex
         client.onDespawnEntity(function(data) {
-            if (game.mapIndex != data[1])
+            if (game.mapIndex !== Number(data[1]))
               return;
 
-          var entity = game.getEntityById(data[0]);
+          var entity = game.getEntityById(Number(data[0]));
             if(entity) {
               var entityName;
 
@@ -452,9 +435,9 @@ function(InfoManager, HoveringInfo, BubbleManager,
                   entity.open();
               } else if(entity instanceof Block) {
                 game.removeEntity(entity);
-              } else if (entity.type == Types.EntityTypes.TRAP) {
+              } else if (entity.type === Types.EntityTypes.TRAP) {
                 game.removeEntity(entity);
-              } else if (entity.type == Types.EntityTypes.NODE) {
+              } else if (entity.type === Types.EntityTypes.NODE) {
                 game.removeEntity(entity);
               }
               entity.clean();
@@ -464,17 +447,17 @@ function(InfoManager, HoveringInfo, BubbleManager,
         // data - time, mapIndex, entityId, orientation, state, moveSpeed, x, y.
         client.onEntityMove(function(data)
         {
-            var time = parseInt(data[0]),
-                map = parseInt(data[1]),
-                id = parseInt(data[2]),
-                orientation = parseInt(data[3]),
-                state = parseInt(data[4]),
-                moveSpeed = parseInt(data[5]),
-                x = parseInt(data[6]),
-                y = parseInt(data[7]);
+            var time = Number(data[0]),
+                map = Number(data[1]),
+                id = Number(data[2]),
+                orientation = Number(data[3]),
+                state = Number(data[4]),
+                moveSpeed = Number(data[5]),
+                x = Number(data[6]),
+                y = Number(data[7]);
 
-            if (game.mapStatus < 2 || game.mapIndex != map ||
-                map != game.player.mapIndex)
+            if (game.mapStatus < 2 || game.mapIndex !== map ||
+                map !== game.player.mapIndex)
               return;
 
             //var lockStepTime = (G_LATENCY - (Utils.getWorldTime()-time)).clamp(0,G_LATENCY);
@@ -496,7 +479,7 @@ function(InfoManager, HoveringInfo, BubbleManager,
               return;
             }
 
-            if (entity == game.player)
+            if (entity === game.player)
             {
               var p = entity;
               if(!p || p.isDying || p.isDead)
@@ -525,17 +508,17 @@ function(InfoManager, HoveringInfo, BubbleManager,
         // time, mapIndex, entityId, orientation, interrupted, moveSpeed, path.
         client.onEntityMovePath(function(data)
         {
-            var time = parseInt(data[0]),
-              map = parseInt(data[1]),
-              id = parseInt(data[2]),
-              orientation = parseInt(data[3]),
+            var time = Number(data[0]),
+              map = Number(data[1]),
+              id = Number(data[2]),
+              orientation = Number(data[3]),
               interrupted = (data[4] ? true : false),
-              moveSpeed = parseInt(data[5]);
+              moveSpeed = Number(data[5]);
 
             var path = data.splice(6, data.length-6);
 
-            if (game.mapStatus < 2 || game.mapIndex != map ||
-                map != game.player.mapIndex)
+            if (game.mapStatus < 2 || game.mapIndex !== map ||
+                map !== game.player.mapIndex)
               return;
 
             var entity = null;
@@ -553,7 +536,7 @@ function(InfoManager, HoveringInfo, BubbleManager,
             if(entity.isDying || entity.isDead)
               return;
 
-            if (entity == game.player)
+            if (entity === game.player)
               return;
 
             var lockStepTime = (G_LATENCY - (Utils.getWorldTime()-time) + G_UPDATE_INTERVAL);
@@ -583,14 +566,14 @@ function(InfoManager, HoveringInfo, BubbleManager,
               entity.movePath(path,orientation);
             };
 
-            if (lockStepTime == 0)
+            if (lockStepTime === 0)
               movePathFunc();
             else
               setTimeout(movePathFunc, lockStepTime);
         });
 
         client.onEntityDestroy(function(data) {
-            var id = data[0];
+            var id = Number(data[0]);
             var entity = game.getEntityById(id);
             if(entity) {
                 if(entity instanceof Item) {
@@ -605,16 +588,16 @@ function(InfoManager, HoveringInfo, BubbleManager,
         client.onCharacterDamage(function(data) {
             data.parseInt();
 
-            var sEntity = game.getEntityById(data[0]),
-                tEntity = game.getEntityById(data[1]),
-                orientation = data[2],
-                hpMod = data[3],
-                hp = data[4],
-                hpMax = data[5],
-                epMod = data[6],
-                ep = data[7],
-                epMax = data[8],
-                crit = (data[9] == 1);
+            var sEntity = game.getEntityById(Number(data[0])),
+                tEntity = game.getEntityById(Number(data[1])),
+                orientation = Number(data[2]),
+                hpMod = Number(data[3]),
+                hp = Number(data[4]),
+                hpMax = Number(data[5]),
+                epMod = Number(data[6]),
+                ep = Number(data[7]),
+                epMax = Number(data[8]),
+                crit = (data[9] === 1);
 
             if (!sEntity || !tEntity)
               return;
@@ -622,7 +605,7 @@ function(InfoManager, HoveringInfo, BubbleManager,
             client.change_points_callback([tEntity.id,hp,hpMax,hpMod,ep,epMax,epMod,crit]);
 
             if(hpMod < 0) {
-                if (sEntity != game.player) {
+                if (sEntity !== game.player) {
                   sEntity.lookAtEntity(tEntity);
                   sEntity.hit(sEntity.orientation);
                 }
@@ -632,67 +615,14 @@ function(InfoManager, HoveringInfo, BubbleManager,
             {
               sEntity.attackTime = game.currentTime;
             }
-
-            /*if (data.length > 10)
-            {
-              var effects = data.splice(10, data.length);
-
-              $('#targeteffects').empty();
-              var effectId = 'targeteffect';
-
-              for (var i=0; i < effects.length; ++i)
-              {
-                var effect = effects[i];
-                var position = SkillData.Ordered[effect].iconOffset;
-                $('#targeteffects').append("<div id='targeteffect"+i+"' ></div>");
-                if (game.renderer.scale == 2)
-                {
-                  $('#'+effectId+i).css({
-                    'display': 'inline-block',
-                    'width': '24px',
-                    'height': '24px',
-                    'background-image': 'url("img/1/skillicons.png")',
-                    'background-position': (-position[0]*24)+"px "+(-position[1]*24)+"px" ,
-                    'background-repeat': 'no-repeat'
-                  });
-                }
-                else if (game.renderer.scale == 1)
-                {
-                  $('#'+effectId+i).css({
-                    'display': 'inline-block',
-                    'width': '12px',
-                    'height': '12px',
-                    'background-image': 'url("img/1/skillicons.png")',
-                    'background-position': (-position[0]*12)+"px "+(-position[1]*12)+"px" ,
-                    'background-repeat': 'no-repeat',
-                    'background-size': '180px 168px'
-                  });
-                }
-              }
-            }*/
-
         });
-// TODO
-        /*client.onPlayerKillMob(function(data) {
-          var id = data[0];
-          var level = data[1];
-          var exp = data[2];
-
-          if (exp > 0)
-          {
-            game.infoManager.addDamageInfo("+"+exp+" exp", game.player.x, game.player.y, "experience", 3000);
-            game.player.level = level;
-            game.player.exp.base += exp;
-            game.updateExpBar();
-          }
-        });*/
 
         client.onPlayerStat(function(data) {
-            var statType = parseInt(data[0]);
-            var statValue = parseInt(data[1]);
-            var statChange = parseInt(data[2]);
+            var statType = Number(data[0]);
+            var statValue = Number(data[1]);
+            var statChange = Number(data[2]);
 
-            if (statType == 1) // exp.base
+            if (statType === 1) // exp.base
             {
               game.player.exp.base = statValue;
               game.player.level = Types.getLevel(statValue)
@@ -704,13 +634,13 @@ function(InfoManager, HoveringInfo, BubbleManager,
         });
 
         client.onPlayerLevelUp(function(data) {
-          var type = data[0];
-          var level = data[1];
-          var exp = data[2];
+          var type = Number(data[0]);
+          var level = Number(data[1]);
+          var exp = Number(data[2]);
 
           var scale = game.renderer.scale;
           var x=game.player.x, y=game.player.y, id=game.player.id;
-          if (type==1 && game.player.level != level) {
+          if (type==1 && game.player.level !== level) {
               id="lu"+id+"_"+level;
               var info = new HoveringInfo(id, "Level "+level, x, y, 5000, 'levelUp');
               game.infoManager.addInfo(info);
@@ -718,7 +648,7 @@ function(InfoManager, HoveringInfo, BubbleManager,
               game.player.level = level;
               return;
           }
-          if (type==2 && game.player.levels.attack != level) {
+          if (type==2 && game.player.levels.attack !== level) {
             id="lau"+id+"_"+level;
             var info = new HoveringInfo(id, "Attack Level "+level, x, y, 3500, 'minorLevelUp');
             game.infoManager.addInfo(info);
@@ -726,7 +656,7 @@ function(InfoManager, HoveringInfo, BubbleManager,
             game.player.levels.attack = level;
             return;
           }
-          if (type==3 && game.player.levels.defense != level) {
+          if (type==3 && game.player.levels.defense !== level) {
             id="ldu"+id+"_"+level;
             var info = new HoveringInfo(id, "Defense Level "+level, x, y, 3500, 'minorLevelUp');
             game.infoManager.addInfo(info);
@@ -745,7 +675,7 @@ function(InfoManager, HoveringInfo, BubbleManager,
           if (type >= 10) {
             weaponType = types[type];
             var curLevel = Types.getWeaponLevel(game.player.exp[weaponType]);
-            if (curLevel != level) {
+            if (curLevel !== level) {
               id="wu"+id+"_"+level;
               var info = new HoveringInfo(id, weaponType+" Level "+level, x, y, 3500, 'minorLevelUp');
               game.infoManager.addInfo(info);
@@ -756,18 +686,18 @@ function(InfoManager, HoveringInfo, BubbleManager,
         });
 
         client.onPlayerItemLevelUp(function(data) {
-          var type = data[0];
-          var level = data[1];
-          var exp = data[2];
+          var type = Number(data[0]);
+          var level = Number(data[1]);
+          var exp = Number(data[2]);
 
           var x=game.player.x, y=game.player.y, id=game.player.id;
-          if (type == 0)
+          if (type === 0)
           {
             id="laru"+id+"_"+level;
             var info = new HoveringInfo(id, "Armor Level "+level, x, y, 3500, 'minorLevelUp');
             game.infoManager.addInfo(info);
           }
-          else if (type == 1)
+          else if (type === 1)
           {
             id="lweu"+id+"_"+level;
             var info = new HoveringInfo(id, "Weapon Level "+level, x, y, 3500, 'minorLevelUp');
@@ -776,9 +706,9 @@ function(InfoManager, HoveringInfo, BubbleManager,
         });
 
         client.onGold(function (data) {
-          var gold = parseInt(data[0]);
-          var bankgold = parseInt(data[1]);
-          var gems = parseInt(data[2]);
+          var gold = Number(data[0]);
+          var bankgold = Number(data[1]);
+          var gems = Number(data[2]);
 
           game.player.gold[0] = gold;
           game.player.gold[1] = bankgold;
@@ -787,16 +717,9 @@ function(InfoManager, HoveringInfo, BubbleManager,
           game.inventoryHandler.setCurrency(gold, gems);
           game.bankHandler.setGold(bankgold);
         });
-/*
-        client.onDropItem(function(item) {
-            game.addItem(item);
-            game.updateCursor();
-            game.updateCameraEntity(item.id, item);
-        });
-*/
 
         client.onChatMessage(function(data) {
-          var entityId = data[0];
+          var entityId = Number(data[0]);
           var message = data[1];
 
           if(!game.chathandler.processReceiveMessage(entityId, message)) {
@@ -846,7 +769,7 @@ function(InfoManager, HoveringInfo, BubbleManager,
 
         client.onQuest(function(data){
             data.parseInt();
-            var questId = data[0];
+            var questId = Number(data[0]);
             var quest = game.player.quests[questId];
             if (!quest)
             {
@@ -854,7 +777,7 @@ function(InfoManager, HoveringInfo, BubbleManager,
               game.player.quests[questId] = quest;
             }
             else {
-               //if (quest.status != QuestStatus.COMPLETE)
+               //if (quest.status !== QuestStatus.COMPLETE)
                 quest.update(data);
             }
 
@@ -866,15 +789,15 @@ function(InfoManager, HoveringInfo, BubbleManager,
               questSpeech(quest);
             }
 
-            if (quest.status == 0) {
+            if (quest.status === 0) {
               game.questhandler.handleQuest(quest);
             }
 
             //if (quest.status > 0)
               //game.questhandler.handleQuest(quest);
 
-            if (quest.status == QuestStatus.COMPLETE) {
-              if (quest.type == QuestType.KILLMOBKIND || quest.type == QuestType.KILLMOBS)
+            if (quest.status === QuestStatus.COMPLETE) {
+              if (quest.type === QuestType.KILLMOBKIND || quest.type === QuestType.KILLMOBS)
                 game.questhandler.handleQuest(quest);
               //delete quest;
             }
@@ -882,54 +805,54 @@ function(InfoManager, HoveringInfo, BubbleManager,
 
         client.onAchievement(function (data) {
           data.parseInt();
-          var achievementId = data[0];
+          var achievementId = Number(data[0]);
           var achievement = new Achievement(data);
           game.player.achievements[achievementId] = achievement;
           game.achievementHandler.handleAchievement(achievement);
         });
 
         client.onItemSlot(function(data){
-          data.parseInt();
-          var type = data.shift();
-          var count = data.shift();
+          //data.parseInt();
+          var type = Number(data.shift());
+          var count = Number(data.shift());
           var items = [];
           var t = 0;
           for (var i=0; i < count; ++i)
           {
-            var slot = parseInt(data[t]);
-            var kind = parseInt(data[t+1]);
-            if (kind == -1) {
+            var slot = Number(data[t]);
+            var kind = Number(data[t+1]);
+            if (kind === -1) {
               items.push({slot:slot,itemKind:-1});
               t += 2;
               continue;
             }
             var itemRoom = new ItemRoom(
-              parseInt(slot),
-              parseInt(kind),
-              parseInt(data[t+2]),
-              parseInt(data[t+3]),
-              parseInt(data[t+4]),
-              parseInt(data[t+5]),
+              Number(slot),
+              Number(kind),
+              Number(data[t+2]),
+              Number(data[t+3]),
+              Number(data[t+4]),
+              Number(data[t+5]),
             );
             t += 6;
             items.push(itemRoom);
           }
-          if (type == 0) {
+          if (type === 0) {
             game.inventoryHandler.setInventory(items);
             game.shortcuts.refresh();
           }
-          else if (type == 1) {
+          else if (type === 1) {
             game.bankHandler.setBank(items);
             if (game.bankDialog.visible)
               game.bankDialog.bankFrame.open(game.bankDialog.bankFrame.page);
           }
-          if (type == 2) {
+          if (type === 2) {
             game.equipmentHandler.setEquipment(items);
           }
         });
 
         client.onDialogue(function (data) {
-          var npcId = data.shift();
+          var npcId = Number(data.shift());
           var langCode = data.shift();
 
           var npc = game.getEntityById(npcId);
@@ -966,18 +889,17 @@ function(InfoManager, HoveringInfo, BubbleManager,
         });
 
         client.onStatInfo(function(data) {
-          data.parseInt();
           var stats = {
-            attack: data[0],
-            defense: data[1],
-            health: data[2],
-            energy: data[3],
-            luck: data[4],
-            free: data[5],
-            hp: data[6],
-            hpMax: data[7],
-            ep: data[8],
-            epMax: data[9]
+            attack: Number(data[0]),
+            defense: Number(data[1]),
+            health: Number(data[2]),
+            energy: Number(data[3]),
+            luck: Number(data[4]),
+            free: Number(data[5]),
+            hp: Number(data[6]),
+            hpMax: Number(data[7]),
+            ep: Number(data[8]),
+            epMax: Number(data[9])
           };
 
           game.player.stats = stats;
@@ -988,25 +910,25 @@ function(InfoManager, HoveringInfo, BubbleManager,
         /*client.onShop(function(message){
         });*/
 
-        client.onAuction(function(message){
-            var type = message.shift();
-            var itemCount = message.shift();
+        client.onAuction(function(data){
+            var type = Number(data.shift());
+            var itemCount = Number(data.shift());
 
             var itemData = [];
             for (var i = 0; i < itemCount; ++i)
             {
                 var j = (i*9);
                 itemData.push({
-                    index: message[j],
-                    player: message[j+1],
-                    buy: message[j+2],
+                    index: Number(data[j]),
+                    player: data[j+1],
+                    buy: Number(data[j+2]),
                     item: new ItemRoom (
-                      message[j+3],
-                      message[j+4],
-                      message[j+5],
-                      message[j+6],
-                      message[j+7],
-                      message[j+8])
+                      Number(data[j+3]),
+                      Number(data[j+4]),
+                      Number(data[j+5]),
+                      Number(data[j+6]),
+                      Number(data[j+7]),
+                      Number(data[j+8]))
                 });
             }
 
@@ -1021,8 +943,8 @@ function(InfoManager, HoveringInfo, BubbleManager,
         });
 
         client.onSkillLoad(function(datas) {
-            var skillIndex = datas[0];
-            var skillExp = datas[1];
+            var skillIndex = Number(datas[0]);
+            var skillExp = Number(datas[1]);
 
             skillLevel = Types.getSkillLevel(skillExp);
             game.player.skillHandler.setSkill(skillIndex, skillExp);
@@ -1030,20 +952,22 @@ function(InfoManager, HoveringInfo, BubbleManager,
         });
 
         client.onSkillXP(function(data) {
-            data.parseInt();
-            var skillCount = message.shift();
+            var skillCount = Number(data.shift());
 
-            if (skillCount == 0)
+            if (skillCount === 0)
               return;
 
             for (var i = 0; i < skillCount; ++i)
             {
-              game.player.skillHandler.setSkill(message[i*2],message[i*2+1]);
+              game.player.skillHandler.setSkill(
+                Number(data[i*2]),
+                Number(data[i*2+1]));
             }
         });
 
+/*
         client.onSkillEffects(function(data){
-            var id = data.shift();
+            var id = Number(data.shift());
             entity = game.getEntityById(id);
             if (!entity) return;
 
@@ -1051,12 +975,12 @@ function(InfoManager, HoveringInfo, BubbleManager,
 
             var htmlEffects;
             var effectId;
-            if (game.player == entity)
+            if (game.player === entity)
             {
               htmlEffects = $('#playereffects');
               effectId = "playereffect";
             }
-            else if (entity == game.player.target)
+            else if (entity === game.player.target)
             {
               htmlEffects = $('#targeteffects');
               effectId = "targeteffect";
@@ -1081,7 +1005,7 @@ function(InfoManager, HoveringInfo, BubbleManager,
                   'background-position': (-position[0]*12*s)+"px "+(-position[1]*12*s)+"px" ,
                   'background-repeat': 'no-repeat'
                 });
-                if (s == 1)
+                if (s === 1)
                 {
                   $('#'+effectId+i).css({
                     'background-size': '180px 168px'
@@ -1090,9 +1014,10 @@ function(InfoManager, HoveringInfo, BubbleManager,
               }
             }
         });
+*/
 
         client.onSpeech(function (id, key, value) {
-          var entity = game.getEntityById(id);
+          var entity = game.getEntityById(Number(id));
           if (!entity) return;
 
           var msg = "";
@@ -1107,26 +1032,26 @@ function(InfoManager, HoveringInfo, BubbleManager,
         client.onMapStatus(function (mapId, status)
         {
           log.info("mapStatus="+mapId+","+status);
-          game.mapIndex = parseInt(mapId);
-          game.mapStatus = parseInt(status);
+          game.mapIndex = Number(mapId);
+          game.mapStatus = Number(status);
         });
 
         client.onSetSprite(function (data)
         {
 
-          var entity = game.getEntityById(parseInt(data[0]));
+          var entity = game.getEntityById(Number(data[0]));
           if (!entity) return;
 
           if (entity instanceof Player)
           {
-            entity.sprites[0] = parseInt(data[1]);
-            entity.sprites[1] = parseInt(data[2]);
+            entity.sprites[0] = Number(data[1]);
+            entity.sprites[1] = Number(data[2]);
 
             entity.setArmorSprite();
             entity.setWeaponSprite();
             game.app.initPlayerBar();
           } else {
-            entity.setSprite(game.sprites[data[1]]);
+            entity.setSprite(game.sprites[Number(data[1])]);
           }
 
         });
@@ -1134,7 +1059,7 @@ function(InfoManager, HoveringInfo, BubbleManager,
         client.onSetAnimation(function (data)
         {
 
-          var entity = game.getEntityById(parseInt(data[0]));
+          var entity = game.getEntityById(Number(data[0]));
           if (!entity) return;
 
           // TODO - Not yet implemented.
@@ -1145,16 +1070,16 @@ function(InfoManager, HoveringInfo, BubbleManager,
         });
 
         client.onSwapSprite(function (data) {
-          var entityId = parseInt(data[0]);
-          var spriteId = parseInt(data[1]);
-          var animId = parseInt(data[2]);
+          var entityId = Number(data[0]);
+          var spriteId = Number(data[1]);
+          var animId = Number(data[2]);
 
           var entity = game.getEntityById(entityId);
           switch (entity.type) {
             case Types.EntityTypes.TRAP:
               var spriteName = "trap-"+spriteId;
               entity.setSprite(game.sprites[spriteName]);
-              var animName = (spriteId == 0) ? "off" : "on";
+              var animName = (spriteId === 0) ? "off" : "on";
               entity.animate(animName, entity.idleSpeed);
               break;
           }
@@ -1165,9 +1090,9 @@ function(InfoManager, HoveringInfo, BubbleManager,
         });
 
         client.onBlockModify(function (data) {
-          var entityId = parseInt(data[0]);
-          var type = parseInt(data[1]);
-          var blockId = parseInt(data[2]);
+          var entityId = Number(data[0]);
+          var type = Number(data[1]);
+          var blockId = Number(data[2]);
 
 
           var entity = game.getEntityById(entityId);
@@ -1208,7 +1133,7 @@ function(InfoManager, HoveringInfo, BubbleManager,
 
         var showDamageInfo = function (entity, points, x, y, crit) {
             //log.info("crit="+crit);
-            if(points == 0) {
+            if(points === 0) {
               game.infoManager.addDamageInfo("miss", x, y - 15, "health");
               return;
             }
@@ -1228,15 +1153,14 @@ function(InfoManager, HoveringInfo, BubbleManager,
         };
 
         client.onCharacterChangePoints(function (data) {
-          data.parseInt();
-          var id = data[0];
-          var hp = data[1];
-          var hpMax = data[2];
-          var hpMod = data[3];
-          var ep = data[4];
-          var epMax = data[5];
-          var epMod = data[6];
-          var crit = data[7] || 0;
+          var id = Number(data[0]);
+          var hp = Number(data[1]);
+          var hpMax = Number(data[2]);
+          var hpMod = Number(data[3]);
+          var ep = Number(data[4]);
+          var epMax = Number(data[5]);
+          var epMod = Number(data[6]);
+          var crit = Number(data[7]) || 0;
 
           if (id <= 0)
             return;
@@ -1256,13 +1180,13 @@ function(InfoManager, HoveringInfo, BubbleManager,
           if (hpMod > hp)
             hpMod += (hp - hpMod);
 
-          if (entity == game.player)
+          if (entity === game.player)
           {
-            if (hpMod != 0) {
+            if (hpMod !== 0) {
               game.playerhp_callback(hp, hpMax);
               onPlayerChangeHealth(entity, -hpMod);
             }
-            if (epMod != 0) {
+            if (epMod !== 0) {
               game.playerep_callback(ep, epMax);
             }
             game.updateBars();
@@ -1277,11 +1201,11 @@ function(InfoManager, HoveringInfo, BubbleManager,
         });
 
         client.onParty(function (data) {
-          var partyType = data.shift();
-          if (partyType == 1) {
+          var partyType = Number(data.shift());
+          if (partyType === 1) {
             game.socialHandler.setPartyMembers(data);
           }
-          if (partyType == 2) {
+          if (partyType === 2) {
             var id = data[0];
             var player = game.getEntityById(id);
             game.socialHandler.inviteParty(player);
@@ -1290,17 +1214,15 @@ function(InfoManager, HoveringInfo, BubbleManager,
         });
 
         client.onLooks(function (data) {
-          data = data.parseInt();
-
-          var id = data.shift();
+          var id = Number(data.shift());
           var p = game.getEntityById(id);
           if (!p)
             return;
 
-          var isArcher = data.shift();
+          //var isArcher = data.shift();
 
-          p.sprites[0] = data.shift();
-          p.sprites[1] = data.shift();
+          p.sprites[0] = Number(data.shift());
+          p.sprites[1] = Number(data.shift());
 
           p.setWeaponSprite();
           p.setArmorSprite();
@@ -1308,28 +1230,27 @@ function(InfoManager, HoveringInfo, BubbleManager,
         });
 
         client.onHarvest(function (data) {
-          data = data.parseInt();
-
-          var id = data.shift();
+          var id = Number(data.shift());
           var p = game.getEntityById(id);
           if (!p)
             return;
 
-          var action = data.shift();
+          var action = Number(data.shift());
 
-          var x=data.shift(), y=data.shift();
+          var x=Number(data.shift()),
+              y=Number(data.shift());
 
-          if (action == 1)
+          if (action === 1)
           {
-            if (p.fsm != "HARVEST") {
+            if (p.fsm !== "HARVEST") {
               p.lookAtTile(x, y);
               p.harvestOn();
             }
-            if (p == game.player)
-              p.harvestDuration = data.shift();
+            if (p === game.player)
+              p.harvestDuration = Number(data.shift());
 
           }
-          if (action == 2) {
+          if (action === 2) {
             p.forceStop();
           }
 
@@ -1346,15 +1267,15 @@ function(InfoManager, HoveringInfo, BubbleManager,
 
             var p = game.player;
 
-            p.id = parseInt(data.shift());
+            p.id = Number(data.shift());
             p.name = data.shift();
-            p.mapIndex = parseInt(data.shift());
+            p.mapIndex = Number(data.shift());
             p.orientation = Types.Orientations.DOWN;
-            p.x = parseInt(data.shift()), p.y = parseInt(data.shift());
+            p.x = Number(data.shift()), p.y = Number(data.shift());
             p.setPositionSpawn(p.x, p.y);
 
-            p.setMaxHP(parseInt(data.shift()));
-            p.setMaxEP(parseInt(data.shift()));
+            p.setMaxHP(Number(data.shift()));
+            p.setMaxEP(Number(data.shift()));
             //p.setClass(parseInt(data.shift()));
 
             p.exp = {
@@ -1515,7 +1436,7 @@ function(InfoManager, HoveringInfo, BubbleManager,
             if (shortcutCount > 0)
             {
               var shortcutArray = data.splice(0,(shortcutCount*3));
-              shortcutArray.parseInt();
+              shortcutArray = shortcutArray.parseInt();
               var shortcuts = [];
               for(var i=0; i < shortcutCount; ++i)
               {

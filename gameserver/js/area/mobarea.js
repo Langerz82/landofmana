@@ -62,7 +62,7 @@ module.exports = MobArea = EntityArea.extend({
       {
         for (var j in this.exclude)
         {
-          if (this.mobs[i].kind == this.exclude[j])
+          if (this.mobs[i].kind === this.exclude[j])
           {
               this.mobs.splice(i,1);
               break;
@@ -100,10 +100,10 @@ module.exports = MobArea = EntityArea.extend({
       //console.info("_createRandomMobInsideArea");
 
       //console.info(JSON.stringify(this.mobs));
-    	if (!this.mobs || this.mobs.length == 0) return null;
+    	if (!this.mobs || this.mobs.length === 0) return null;
 
 
-    	if (this.mobs.length == 1)
+    	if (this.mobs.length === 1)
       {
           //console.info("kind_first: "+this.mobs[0].kind);
 	        return this._createMob(this.mobs[0].kind);
@@ -113,9 +113,9 @@ module.exports = MobArea = EntityArea.extend({
       var mobRatio = [];
       var mobRatioTotal = 0;
       var l = this.mobs.length;
-      if (l == 0)
+      if (l === 0)
       {
-        console.warn("mobs length == 0 aborting create.");
+        console.warn("mobs length === 0 aborting create.");
         return null;
       }
 
@@ -141,9 +141,9 @@ module.exports = MobArea = EntityArea.extend({
         }
         r -= sc;
       }
-      if (kind == 0) {
+      if (kind === 0) {
         console.info("this.mobs="+JSON.stringify(this.mobs));
-        console.warn("mob kind == 0 aborting create.");
+        console.warn("mob kind === 0 aborting create.");
         return null;
       }
       //if ()

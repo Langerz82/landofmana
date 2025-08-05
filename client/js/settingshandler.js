@@ -205,7 +205,7 @@ define(['lib/localforage', 'lib/virtualjoystick'], function(localforage) {
 
         var buttonSound = $('#buttonsound');
         localforage.getItem('sound', function(e, val) {
-          if (val == 0) {
+          if (val === 0) {
             buttonSound.html("Off");
             buttonSound.removeClass('active');
             self.funcSound(false);

@@ -142,14 +142,14 @@ var selectFirstItem = {
          game.appearanceDialog.visible && !jqLooksPreview.is(':visible') ||
          game.craftDialog.visible)
     {
-       if (navigate == Navigate.UP)
+       if (navigate === Navigate.UP)
        {
          self.joystickY = (self.joystickY-1).clamp(0,5);
-         if (self.joystickY == 0)
+         if (self.joystickY === 0)
          {
            var index = self.storeDialogSide[self.joystickX];
            this.setSelectedItem($(index));
-           if (self.joystickX == 3)
+           if (self.joystickX === 3)
            {
              self.joystickX = 0;
              self.joystickY = 0;
@@ -161,7 +161,7 @@ var selectFirstItem = {
            this.setSelectedItem($(index));
          }
        }
-       if (navigate == Navigate.DOWN)
+       if (navigate === Navigate.DOWN)
        {
          self.joystickY = (self.joystickY+1).clamp(0,5);
          if (self.joystickY >= 1) {
@@ -169,9 +169,9 @@ var selectFirstItem = {
            this.setSelectedItem($(index));
          }
        }
-       if (navigate == Navigate.LEFT)
+       if (navigate === Navigate.LEFT)
        {
-         if (self.joystickY == 0) {
+         if (self.joystickY === 0) {
            self.joystickX = (self.joystickX-1).clamp(0,3);
            var index = self.storeDialogSide[self.joystickX];
            this.setSelectedItem($(index));
@@ -181,12 +181,12 @@ var selectFirstItem = {
            $('#storePageNavPrev').trigger("click");
          }
        }
-       if (navigate == Navigate.RIGHT)
+       if (navigate === Navigate.RIGHT)
        {
-         if (self.joystickY == 0) {
+         if (self.joystickY === 0) {
            self.joystickX = (self.joystickX+1).clamp(0,3);
            var index = self.storeDialogSide[self.joystickX];
-           if (self.joystickX == 3)
+           if (self.joystickX === 3)
            {
              self.joystickX = 0;
              self.joystickY = 0;
@@ -201,11 +201,11 @@ var selectFirstItem = {
     }
     else if (jqLooksPreview.is(':visible')) {
       if (!game.appearanceDialog.unlockLookMode) {
-        if (navigate == Navigate.LEFT)
+        if (navigate === Navigate.LEFT)
         {
           $("#changeLookPrev").trigger("click");
         }
-        if (navigate == Navigate.RIGHT)
+        if (navigate === Navigate.RIGHT)
         {
           $("#changeLookNext").trigger("click");
         }
@@ -215,24 +215,24 @@ var selectFirstItem = {
     else if (jqBankWindow.is(':visible'))
     {
       var modx = 0, mody = 0;
-      if (navigate == Navigate.UP)
+      if (navigate === Navigate.UP)
       {
         mody = -1;
       }
-      if (navigate == Navigate.DOWN)
+      if (navigate === Navigate.DOWN)
       {
         mody = 1;
       }
-      if (navigate == Navigate.LEFT)
+      if (navigate === Navigate.LEFT)
       {
         modx = -1;
       }
-      if (navigate == Navigate.RIGHT)
+      if (navigate === Navigate.RIGHT)
       {
         modx = 1;
       }
 
-      if (navigate != 0) {
+      if (navigate !== 0) {
         self.joystickX = ((self.joystickX+6+modx)%6);
         self.joystickY = ((self.joystickY+4+mody)%4);
         var index =(self.joystickY)*6+(self.joystickX);
@@ -245,26 +245,26 @@ var selectFirstItem = {
     {
       var equipment = false;
       var modx = 0, mody = 0;
-      if (navigate == Navigate.UP)
+      if (navigate === Navigate.UP)
       {
         mody = -1;
       }
-      if (navigate == Navigate.DOWN)
+      if (navigate === Navigate.DOWN)
       {
         mody = 1;
       }
-      if (navigate == Navigate.LEFT)
+      if (navigate === Navigate.LEFT)
       {
         modx = -1;
       }
-      if (navigate == Navigate.RIGHT)
+      if (navigate === Navigate.RIGHT)
       {
         modx = 1;
       }
 
-      if (navigate != 0) {
+      if (navigate !== 0) {
   			self.joystickX = ((self.joystickX+7+modx)%7);
-  			if (self.joystickX == 6)
+  			if (self.joystickX === 6)
   			{
   				equipment = true;
   				self.joystickY = ((self.joystickY+5+mody)%5);
@@ -283,13 +283,13 @@ var selectFirstItem = {
     else if (jqMenuWindow.is(':visible'))
     {
       var len = self.menuButtons.length;
-      if (navigate == Navigate.UP)
+      if (navigate === Navigate.UP)
       {
         self.joystickY = ((self.joystickY-1+len)%len).clamp(0,9);
         var index = self.menuButtons[self.joystickY];
         this.setSelectedItem($(index));
       }
-      if (navigate == Navigate.DOWN)
+      if (navigate === Navigate.DOWN)
       {
         self.joystickY = ((self.joystickY+1+len)%len).clamp(0,9);
         var index = self.menuButtons[self.joystickY];
@@ -300,23 +300,23 @@ var selectFirstItem = {
     {
       var l = self.mainButtons.length;
 
-      if (navigate == Navigate.UP)
+      if (navigate === Navigate.UP)
       {
         self.joystickX = (l+self.joystickX-2) % l;
       }
-      else if (navigate == Navigate.DOWN)
+      else if (navigate === Navigate.DOWN)
       {
         self.joystickX = (l+self.joystickX+2) % l;
       }
-      else if (navigate == Navigate.LEFT && self.joystickX > 0)
+      else if (navigate === Navigate.LEFT && self.joystickX > 0)
       {
         self.joystickX = (l+self.joystickX-1) % l;
       }
-      else if (navigate == Navigate.RIGHT && self.joystickX > 0)
+      else if (navigate === Navigate.RIGHT && self.joystickX > 0)
       {
         self.joystickX = (l+self.joystickX+1) % l;
       }
-      if (navigate != Navigate.NONE)
+      if (navigate !== Navigate.NONE)
       {
         var index = self.mainButtons[self.joystickX];
         this.setSelectedItem($(index));
@@ -325,23 +325,23 @@ var selectFirstItem = {
     }
     else if (self.shortcutActive && jqAttackWindow.is(':visible'))
     {
-      if (navigate == Navigate.UP)
+      if (navigate === Navigate.UP)
       {
         self.joystickY = (self.joystickY-1).clamp(0,3);
       }
-      if (navigate == Navigate.DOWN)
+      if (navigate === Navigate.DOWN)
       {
         self.joystickY = (self.joystickY+1).clamp(0,3);
       }
-      if (navigate == Navigate.LEFT)
+      if (navigate === Navigate.LEFT)
       {
         self.joystickX = (self.joystickX-1).clamp(0,1);
       }
-      if (navigate == Navigate.RIGHT)
+      if (navigate === Navigate.RIGHT)
       {
         self.joystickX = (self.joystickX+1).clamp(0,1);
       }
-      if (navigate != 0) {
+      if (navigate !== 0) {
         var index = self.playerShortcut[(self.joystickY)*2+(self.joystickX)];
         this.setSelectedItem($(index));
       }
@@ -350,23 +350,23 @@ var selectFirstItem = {
     {
       var modx = 0;
       var mody = 0;
-      if (navigate == Navigate.UP)
+      if (navigate === Navigate.UP)
       {
         mody = -1;
       }
-      if (navigate == Navigate.DOWN)
+      if (navigate === Navigate.DOWN)
       {
         mody = 1;
       }
-      if (navigate == Navigate.LEFT)
+      if (navigate === Navigate.LEFT)
       {
         modx = -1;
       }
-      if (navigate == Navigate.RIGHT)
+      if (navigate === Navigate.RIGHT)
       {
         modx = 1;
       }
-      if (navigate != 0) {
+      if (navigate !== 0) {
         self.joystickX = (self.joystickX+(4 + modx)) % 4;
         self.joystickY = (self.joystickY+(2 + mody)) % 2;
         var index = self.playerDialogSkill.format((self.joystickY)*4+(self.joystickX));
@@ -375,13 +375,13 @@ var selectFirstItem = {
     }
     else if (jqStatWindow.is(':visible'))
     {
-      if (navigate == Navigate.UP)
+      if (navigate === Navigate.UP)
       {
         self.joystickY = (self.joystickY-1).clamp(0,4);
         var index = self.playerDialogStat[self.joystickY];
         this.setSelectedItem($(index));
       }
-      if (navigate == Navigate.DOWN)
+      if (navigate === Navigate.DOWN)
       {
         self.joystickY = (self.joystickY+1).clamp(0,4);
         var index = self.playerDialogStat[self.joystickY];
@@ -390,13 +390,13 @@ var selectFirstItem = {
     }
     else if (jqSettingsWindow.is(':visible'))
     {
-      if (navigate == Navigate.UP)
+      if (navigate === Navigate.UP)
       {
         self.joystickY = (self.joystickY-1).clamp(0,5);
         var index = self.playerSettings[self.joystickY];
         this.setSelectedItem($(index));
       }
-      if (navigate == Navigate.DOWN)
+      if (navigate === Navigate.DOWN)
       {
         self.joystickY = (self.joystickY+1).clamp(0,5);
         var index = self.playerSettings[self.joystickY];
@@ -405,12 +405,12 @@ var selectFirstItem = {
     }
     else if (jqLeaderWindow.is(':visible'))
     {
-      if (navigate == Navigate.LEFT)
+      if (navigate === Navigate.LEFT)
       {
         var index = self.leaderboardselect[0];
         this.setSelectedItem($(index));
       }
-      if (navigate == Navigate.RIGHT)
+      if (navigate === Navigate.RIGHT)
       {
         var index = self.leaderboardselect[1];
         this.setSelectedItem($(index));
@@ -419,10 +419,10 @@ var selectFirstItem = {
   };
 
   self.setSelectedItem = function (val) {
-    //if (self.selectedItem != val)
+    //if (self.selectedItem !== val)
     //{
       var defHighlight = "2px solid rgb(0, 0, 255)";
-      if (self.selectedItem && self.selectedItem.css('border') == defHighlight)
+      if (self.selectedItem && self.selectedItem.css('border') === defHighlight)
         self.selectedItem.css('border', self.selectedItemBorder);
 
       if (val)
@@ -1102,32 +1102,32 @@ var selectFirstItem = {
       if (!self.isDialogOpen() && !self.navMouse)
       {
         if (!game.player.keyMove) {
-          if (navigate == Navigate.LEFT)
+          if (navigate === Navigate.LEFT)
           {
               //log.info("moveLeft = true");
               p.move(3, true);
               this.movePad = 3;
           }
-          if (navigate == Navigate.RIGHT)
+          if (navigate === Navigate.RIGHT)
           {
               //log.info("moveRight = true");
               p.move(4, true);
               this.movePad = 4;
           }
-          if (navigate == Navigate.UP)
+          if (navigate === Navigate.UP)
           {
               //log.info("moveUp = true");
               p.move(1, true);
               this.movePad = 1;
           }
-          if (navigate == Navigate.DOWN)
+          if (navigate === Navigate.DOWN)
           {
               //log.info("moveDown = true");
               p.move(2, true);
               this.movePad = 2;
           }
         }
-        if (navigate == Navigate.NONE && navigate == Navigate.NONE && p.keyMove & this.movePad > 0)
+        if (navigate === Navigate.NONE && navigate === Navigate.NONE && p.keyMove & this.movePad > 0)
         {
           p.move(this.movePad, false);
           this.movePad = 0;
@@ -1194,7 +1194,7 @@ var selectFirstItem = {
 
     dialogOpen: function () {
       for (var k in selectFirstItem) {
-          if ($('#'+k).is(':visible') && self.selectedItem == null)
+          if ($('#'+k).is(':visible') && self.selectedItem === null)
           {
             if (selectFirstItem[k])
               this.setSelectedItem($(selectFirstItem[k]));

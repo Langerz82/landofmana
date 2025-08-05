@@ -88,7 +88,7 @@ define([], function() {
 		for (var i=0; i < leadersLength; ++i)
 		{
 			var leader = leaders[i];
-			if (self.game.player.name == leader.key)
+			if (self.game.player.name === leader.key)
 			{
 				playerIndex = i;
 				break;
@@ -122,7 +122,7 @@ define([], function() {
 		for (var i=recStart; i < recEnd; ++i)
 		{
 			var leader = leaders[i];
-			if (i == playerIndex)
+			if (i === playerIndex)
 				lbdata += "<tr class=\"lbplayer\"><td>"+(i+1)+"</td><td>"+leader.key+"</td><td>"+leader.value+"</td></tr>";
 			else
 				lbdata += "<tr><td>"+(i+1)+"</td><td>"+leader.key+"</td><td>"+leader.value+"</td></tr>";
@@ -136,7 +136,7 @@ define([], function() {
 		var pageData;
 		for (var i = 1; i <= pagesCount; ++i)
 		{
-			if (pageIndex == i)
+			if (pageIndex === i)
 			    pageData += "<option value=\""+i+"\" selected>"+i+"</option>";
 			else
 			    pageData += "<option value=\""+i+"\">"+i+"</option>";

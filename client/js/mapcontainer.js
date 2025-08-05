@@ -218,7 +218,7 @@ define(['area', 'detect', 'map'], function(Area, Detect, Map) {
         return (door.contains({
           gx: x,
           gy: y
-        }) != null);
+        }) !== null);
       });
     },
 
@@ -321,7 +321,7 @@ define(['area', 'detect', 'map'], function(Area, Detect, Map) {
           map = this.maps[i];
           map.ready(function () {
             this.gridUpdated = true;
-            if ((++self.inc) == self.count) {
+            if ((++self.inc) === self.count) {
               self.OnAllReady();
               self.inc = 0;
               self.moveGrid(true);
@@ -417,7 +417,7 @@ define(['area', 'detect', 'map'], function(Area, Detect, Map) {
 
       /*var gx = fe.x >> 4;
       var gy = fe.y >> 4;
-      if (fe && this.fegx == gx && this.fegy == gy)
+      if (fe && this.fegx === gx && this.fegy === gy)
       {
         return;
       }
@@ -513,7 +513,7 @@ define(['area', 'detect', 'map'], function(Area, Detect, Map) {
     isHarvestTile: function (pos, type) {
       //var gx = pos.x >> 4, gy = pos.y >> 4;
       var tiles = this.getTiles(pos.gx,pos.gy);
-      if (!tiles || tiles.length == 0)
+      if (!tiles || tiles.length === 0)
         return false;
 
       log.info("tiles="+JSON.stringify(tiles));

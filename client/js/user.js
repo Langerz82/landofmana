@@ -91,7 +91,7 @@ function(UserClient, Player, AppearanceData) {
         };
 
         player.canAttack = function(time) {
-            if(this.isDead == false && this.attackCooldown.isOver(time)) {
+            if(this.isDead === false && this.attackCooldown.isOver(time)) {
                 return true;
             }
             return false;
@@ -124,13 +124,13 @@ function(UserClient, Player, AppearanceData) {
         player.canMove = function (orientation) {
           orientation = orientation || this.orientation;
           var pos = this.nextMove(this.x,this.y,orientation);
-          if (orientation == 0)
+          if (orientation === 0)
             return true;
           return game.moveCharacter(this, pos[0], pos[1]);
         };
 
         player.sendMove = function (state) {
-          if (state || this.sentMove != state) {
+          if (state || this.sentMove !== state) {
             game.client.sendMoveEntity(this, state);
             this.sentMove = state;
           }
@@ -158,7 +158,7 @@ function(UserClient, Player, AppearanceData) {
         player.moveTo_ = function(x, y, callback) {
           var self = this;
 
-          if (this.fsm == "ATTACK") {
+          if (this.fsm === "ATTACK") {
             return;
           }
 
@@ -184,17 +184,17 @@ function(UserClient, Player, AppearanceData) {
           if (this.isDying || this.isDead)
             return;
 
-          if (this.fsm == "ATTACK") {
+          if (this.fsm === "ATTACK") {
             return;
           }
 
-          if (state && orientation != Types.Orientations.NONE)
+          if (state && orientation !== Types.Orientations.NONE)
           {
             //this.moveThrottle(G_ROUNDTRIP);
             /*if (this.moveThrottle(G_ROUNDTRIP))
               return;*/
 
-            if (this.keyMove /*&& orientation == this.orientation*/) {
+            if (this.keyMove /*&& orientation === this.orientation*/) {
                 return;
             }
 
@@ -214,7 +214,7 @@ function(UserClient, Player, AppearanceData) {
           }
           if (!state)
           {
-            if (orientation != this.orientation && this.isMoving()) {
+            if (orientation !== this.orientation && this.isMoving()) {
               return;
             }
             this.forceStop();

@@ -107,7 +107,7 @@ var MapEntities = cls.Class.extend({
     spawnNpcs: function(count) {
     	var npc;
     	//console.info("SPAWN NPCS");
-    	//if (this.map == this.server.maps[0]) // World Map
+    	//if (this.map === this.server.maps[0]) // World Map
     	//{
 			for(var i = 0; i < count; ++i)
 			{
@@ -172,7 +172,7 @@ var MapEntities = cls.Class.extend({
 
         //console.info("self.entities.length: "+Object.keys(self.entities).length);
         for (var entity of entities) {
-          if (entity && !(entity == player) && self.isOffset(player, entity))
+          if (entity && !(entity === player) && self.isOffset(player, entity))
             screens.push(entity.id);
         }
         //console.info("screens:"+JSON.stringify(screens));
@@ -184,7 +184,7 @@ var MapEntities = cls.Class.extend({
 
         _.each(screenIds, function(id) {
             var entity = self.getEntityById(id);
-            if(entity && !(entity == player))
+            if(entity && !(entity === player))
             {
                 player.knownIds.push(entity.id);
                 self.sendToPlayer(player, entity.spawn());
@@ -223,16 +223,16 @@ var MapEntities = cls.Class.extend({
         	console.info(JSON.stringify(self.packets));
         Utils.forEach(this.packets, (packet, id) => {
           len = packet.length;
-          if (len > 0 && typeof packet != 'undefined' && packet != null)
+          if (len > 0 && typeof packet !== 'undefined' && packet !== null)
           {
              var player = self.getEntityById(id);
               var conn = self.server.socket.getConnection(id);
-              if (player && player.mapStatus >= 2 && conn != null && typeof conn != 'undefined')
+              if (player && player.mapStatus >= 2 && conn !== null && typeof conn !== 'undefined')
               {
                   var packets = [];
                   for (var i =0; i < self.maxPackets; ++i)
                   {
-                      if (packet.length == 0)
+                      if (packet.length === 0)
                         break;
                       packets.push(packet.shift());
                   }
@@ -261,7 +261,7 @@ var MapEntities = cls.Class.extend({
         	return;
 
         Utils.forEach(this.packets, function (packet, id) {
-          if (id != ignoredPlayer)
+          if (id !== ignoredPlayer)
           {
               packet.push(message.serialize());
           }
@@ -278,7 +278,7 @@ var MapEntities = cls.Class.extend({
 
     	//console.info(entities.length);
       for (var player of players) {
-          if (self.packets.hasOwnProperty(player.id) && !ignoredPlayer || (ignoredPlayer && player != ignoredPlayer))
+          if (self.packets.hasOwnProperty(player.id) && !ignoredPlayer || (ignoredPlayer && player !== ignoredPlayer))
           {
                //console.info("neighbour.id:"+neighbour.id);
                self.packets[player.id].push(message.serialize());
@@ -309,7 +309,7 @@ var MapEntities = cls.Class.extend({
   				Y2 = entity.y;
   			}
   			//console.info("x:"+X+",y:"+Y+",y2:"+Y2+",x2:"+X2);
-  			if(entity.id != mob.id && X == X2 && Y == Y2)
+  			if(entity.id !== mob.id && X === X2 && Y === Y2)
   			{
   			result = true;
   			}
@@ -350,7 +350,7 @@ var MapEntities = cls.Class.extend({
   		var tries = 10;
   		var attempts = 0;
       threshold *= G_TILESIZE;
-  		while (attempts++ < tries && (pos.y != entity.y && pos.x != entity.x)) {
+  		while (attempts++ < tries && (pos.y !== entity.y && pos.x !== entity.x)) {
   			//console.info("try move attempt:"+attempts);
   			var r1 = Utils.randomRangeInt(-threshold,threshold);
   			var r2 = Utils.randomRangeInt(-threshold,threshold);
@@ -585,7 +585,7 @@ var MapEntities = cls.Class.extend({
       for (var id in self.npcs) {
         npc = self.npcs[id];
         // DANGER - if questhandler variable changes so should this.
-        if (npc.entityQuests.questEntityKind == id)
+        if (npc.entityQuests.questEntityKind === id)
           return npc;
       }
       return null;
@@ -618,7 +618,7 @@ var MapEntities = cls.Class.extend({
     getEntitiesByPosition: function(x,y) {
     	entities = [];
     	this.forEachEntity(function(e) {
-    		if (e.x == x && e.y == y)
+    		if (e.x === x && e.y === y)
     		    entities.push(e);
     	});
     	return entities;
@@ -638,7 +638,7 @@ var MapEntities = cls.Class.extend({
     			X = mob.path[mob.path.length-1][0];
     			Y = mob.path[mob.path.length-1][1];
     		}
-    		if (x == X && y == Y)
+    		if (x === X && y === Y)
     		    result = true;
   	  });
   	  return result;
@@ -850,7 +850,7 @@ var MapEntities = cls.Class.extend({
             return null;
           }
 
-          if (pS[0] == pE[0] && pS[1] == pE[1]) {
+          if (pS[0] === pE[0] && pS[1] === pE[1]) {
             try { throw new Error(); } catch(err) { console.info(err.stack); }
             console.warn("findPath - path coordinates are the same.")
             return null;
@@ -923,7 +923,7 @@ var MapEntities = cls.Class.extend({
 
       var pos = {x: x, y: y};
       var entities = this.getEntitiesAround(pos, 1);
-      if (entities.length == 0)
+      if (entities.length === 0)
         return true;
       for (var entity of entities) {
         if (entity.isOverPosition(pos))

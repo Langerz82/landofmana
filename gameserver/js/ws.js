@@ -125,7 +125,7 @@ WS.WebsocketServer = sServer.extend({
         }
 
         var protocol = http;
-        if (config.protocol == "https")
+        if (config.protocol === "https")
           protocol = https;
 
         var client_connect = function (socket) {
@@ -208,7 +208,7 @@ WS.socketioConnection = Connection.extend({
         var fnOnMessage = function (msg) {
           console.info("m="+msg);
           var flag = msg.charAt(0);
-          if (flag == "2")
+          if (flag === "2")
           {
               var buffer = Buffer.from(flag, 'base64');
               zlib.gunzip(buffer, (err, buffer) => {
@@ -296,7 +296,7 @@ WS.userConnection = Connection.extend({
         this.fnOnMessage = function (msg) {
           console.info("m="+msg);
           var flag = msg.charAt(0);
-          if (flag == "2")
+          if (flag === "2")
           {
               var buffer = Buffer.from(flag, 'base64');
               zlib.gunzip(buffer, (err, buffer) => {

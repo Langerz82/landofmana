@@ -24,7 +24,7 @@ define([], function() {
         handleAddSpawn: function (data) {
       		log.info("sendAddSpawn");
       		var m = game.getMouseGridPosition();
-      		if (data.length == 2)
+      		if (data.length === 2)
       			game.client.sendAddSpawn(parseInt(data[1]), m.x, m.y);
         },
 
@@ -108,7 +108,7 @@ define([], function() {
                 			//#cli guilds
 			var regexp = /^\/guild\ (invite|create|accept)\s+([^\s]*)|(guild:)\s*(.*)$|^\/guild\ (leave)$/i;
 			var args = message.match(regexp);
-			if(args != undefined){
+			if(args !== undefined){
 				switch(args[1]){
 					case "invite":
 						if(game.player.hasGuild()){
@@ -218,7 +218,7 @@ define([], function() {
                       },*/
                 };
                 if (pattern in commandPatterns) {
-                      if (typeof commandPatterns[pattern] == "function") {
+                      if (typeof commandPatterns[pattern] === "function") {
                           return commandPatterns[pattern](message.substring(3));
                       }
                 }
@@ -268,7 +268,7 @@ define([], function() {
                         },
                 };
                 if (pattern in commandPatterns) {
-                      if (typeof commandPatterns[pattern] == "function") {
+                      if (typeof commandPatterns[pattern] === "function") {
                           return commandPatterns[pattern](entityId, message.substring(3));
                       }
                 }

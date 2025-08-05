@@ -73,7 +73,7 @@ module.exports = ShopHandler = Class.extend({
     var auction = this.world.auction.auctions[auctionIndex];
     if (!auction)
       return;
-    if (auction.playerName == this.player.name)
+    if (auction.playerName === this.player.name)
       return;
 
     var price = auction.price;
@@ -151,15 +151,15 @@ module.exports = ShopHandler = Class.extend({
           itemIndex = parseInt(msg[2]);
 
       //console.info("type=" + type + ",invNumber=" + inventoryNumber1);
-      if (type == 0 || type == 2) {
+      if (type === 0 || type === 2) {
         var itemStore = this.player.itemStore[type];
         if (itemIndex < 0 && itemIndex >= itemStore.maxNumber)
           return;
         var item = this.player.itemStore[type].rooms[itemIndex];
         //console.info("item=" + JSON.stringify(item));
-        if (modType == 0)
+        if (modType === 0)
           this._repairItem(type, item, itemIndex);
-        if (modType == 1)
+        if (modType === 1)
           this._enchantItem(type, item, itemIndex);
       }
   },
@@ -174,7 +174,7 @@ module.exports = ShopHandler = Class.extend({
     if (!ItemTypes.isEquipment(item.itemKind))
       return;
 
-    if (item.itemDurability == item.itemDurabilityMax)
+    if (item.itemDurability === item.itemDurabilityMax)
       return;
 
     price = ~~(ItemTypes.getRepairPrice(item));
@@ -276,7 +276,7 @@ module.exports = ShopHandler = Class.extend({
       if (consume || (!consume && this.player.inventory.hasRoom())) {
         var item = new ItemRoom([itemKind, itemCount, 0, 0, 0]);
         var res = this.player.inventory.putItem(item);
-        if (res == -1)
+        if (res === -1)
           return;
         this.player.modifyGold(-price);
         this.player.sendPlayer(new Messages.Notify("SHOP", "SHOP_BUY", [itemName]));
@@ -307,7 +307,7 @@ module.exports = ShopHandler = Class.extend({
 
     var craftData = ItemData.CraftData[craftId];
 
-    var itemKind = craftData.o;
+    var itemKind = Number(craftData.o);
 
     //console.info("itemKind="+itemKind);
     //console.info(JSON.stringify(ItemTypes));
@@ -341,7 +341,7 @@ module.exports = ShopHandler = Class.extend({
       return;
     }
 
-    if (itemData.craft.length == 0)
+    if (itemData.craft.length === 0)
       return;
 
     for (var it of craftData.i)
@@ -369,7 +369,7 @@ module.exports = ShopHandler = Class.extend({
       durability = 900;
 
     var item = new ItemRoom([itemKind, itemCount, durability, durability]);
-    if (this.player.inventory.putItem(item) == -1)
+    if (this.player.inventory.putItem(item) === -1)
       return;
 
     this.player.sendPlayer(new Messages.Notify("SHOP", "SHOP_BUY", [itemName]));

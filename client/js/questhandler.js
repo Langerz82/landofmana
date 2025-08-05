@@ -44,7 +44,7 @@ define(['data/npcdata', 'data/questdata', 'data/mobdata', 'data/itemlootdata'],
       var questIds = Object.keys(this.quests);
       for (var i = 0; i < questIds.length; ++i) {
         var quest = this.quests[questIds[i]];
-        if (quest.status == 2) {
+        if (quest.status === 2) {
           $('#questLogInfo .qd'+quest.id).remove();
           continue;
         }

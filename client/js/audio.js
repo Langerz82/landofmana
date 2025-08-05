@@ -112,7 +112,7 @@ define(['area'], function(Area) {
     playSound: function(name) {
       if (this.enabled) {
         if (name in this.loadedSound &&
-          this.loadedSound[name] == false) {
+          this.loadedSound[name] === false) {
           this.loadSound(name);
           this.loadedSound[name] = true;
         }
@@ -160,7 +160,7 @@ define(['area'], function(Area) {
               this.fadeOutCurrentMusic();
             }
             /*if (music.name in this.loadedMusic &&
-            	this.loadedMusic[music.name] == false)
+            	this.loadedMusic[music.name] === false)
             {
             	this.loadMusic(music.name);
             	this.loadedMusic[music.name] = true;
@@ -180,7 +180,7 @@ define(['area'], function(Area) {
     },
     playMusic: function(music) {
       if (music.name in this.loadedMusic &&
-        this.loadedMusic[music.name] == false) {
+        this.loadedMusic[music.name] === false) {
         this.loadMusic(music.name);
         this.loadMusic[music.name] = true;
       }

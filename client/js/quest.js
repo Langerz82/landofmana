@@ -38,7 +38,7 @@ define(['data/npcdata', 'data/questdata', 'data/mobdata', 'data/itemlootdata'],
           if (!isNaN(arr[7]))
             this.object = getQuestObject([arr[7],arr[8],arr[9]]);
           this.object2 = null;
-          if (arr.length == 13 && !isNaN(arr[10]))
+          if (arr.length === 13 && !isNaN(arr[10]))
             this.object2 = getQuestObject([arr[10],arr[11],arr[12]]);
           this.setDesc();
         },

@@ -83,10 +83,10 @@ define(['detect'], function(Detect) {
         y = 0;
 
       var getX = function(num, w) {
-        if (num == 0) {
+        if (num === 0) {
           return 0;
         }
-        return (num % w == 0) ? w - 1 : (num % w) - 1;
+        return (num % w === 0) ? w - 1 : (num % w) - 1;
       };
 
       tileNum -= 1;

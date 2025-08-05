@@ -152,7 +152,7 @@ module.exports = MapManager = cls.Class.extend({
 
                     if (id > 0) {
                       var level = 1;
-                      if (id == 5) {
+                      if (id === 5) {
                         for (var k=0; k < 6; ++k) {
                           var	pos = map.entities.spaceEntityRandomApart(2,area._getRandomPositionInsideArea.bind(area,100));
                           var node = new Node(++map.entities.entityCount, 3, pos.x, pos.y, map, level, level);
@@ -162,7 +162,7 @@ module.exports = MapManager = cls.Class.extend({
                           map.entities.addEntity(node);
                         }
                       }
-                      else if (id == 6) {
+                      else if (id === 6) {
                         level = 2;
                         for (var k=0; k < 6; ++k) {
                           var	pos = map.entities.spaceEntityRandomApart(2,area._getRandomPositionInsideArea.bind(area,100));
@@ -245,7 +245,7 @@ module.exports = MapManager = cls.Class.extend({
     isMapsReady: function ()
     {
       console.info("Maps Length: "+Object.keys(this.maps).length);
-    	return (this.mapCount == Object.keys(this.maps).length);
+    	return (this.mapCount === Object.keys(this.maps).length);
     },
 
     onMapsReady: function (readyFunc)

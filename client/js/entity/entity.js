@@ -41,14 +41,14 @@ define(['../timer'], function(Timer) {
         hasAnimation: function (type) {
           if (!this.currentAnimation)
             return false;
-          return this.currentAnimation.name.indexOf(type) == 0;
+          return this.currentAnimation.name.indexOf(type) === 0;
         },
 
         animate: function(animation, speed, count, onEndCount) {
             var oriented = ['atk', 'walk', 'idle'],
                 o = this.orientation || Types.Orientations.DOWN;
 
-            /*if (animation != 'atk' && this.fsm == "ATTACK")
+            /*if (animation !== 'atk' && this.fsm === "ATTACK")
             {
                 try { throw new Error(); } catch (e) { console.error(e.stack); }
             }*/
@@ -61,7 +61,7 @@ define(['../timer'], function(Timer) {
                 this.flipSpriteX = (this.orientation === Types.Orientations.LEFT) ? true : false;
             }
 
-            if (this.type == 10)
+            if (this.type === 10)
               console.info("animation: "+animation+", speed:"+speed+", count:"+count+", onEndCount:"+onEndCount);
             this.setAnimation(animation, speed, count, onEndCount);
         },
@@ -83,10 +83,10 @@ define(['../timer'], function(Timer) {
             var gx = (x >> 4);
             var gy = (y >> 4);
 
-            if (x % ts == 0) {
+            if (x % ts === 0) {
               this.gx = gx;
             }
-            if (y % ts == 0) {
+            if (y % ts === 0) {
               this.gy = gy;
             }
 
@@ -107,10 +107,10 @@ define(['../timer'], function(Timer) {
 
             this.gx = gx;
             this.gy = gy;
-            /*if (x % ts == 0) {
+            /*if (x % ts === 0) {
               this.gx = gx;
             }
-            if (y % ts == 0) {
+            if (y % ts === 0) {
               this.gy = gy;
             }*/
         },
@@ -204,7 +204,7 @@ define(['../timer'], function(Timer) {
                     return;
                 }
 
-                if ((this.isDying || this.isDead) && this.currentAnimation.name == "death")
+                if ((this.isDying || this.isDead) && this.currentAnimation.name === "death")
                   return;
 
                 var s = this.sprite,
@@ -258,7 +258,7 @@ define(['../timer'], function(Timer) {
         },
 
         fadeInEntity: function(time) {
-            if (this.lockfadeIn == true)
+            if (this.lockfadeIn === true)
               return;
 
             this.isFading = true;
@@ -266,7 +266,7 @@ define(['../timer'], function(Timer) {
         },
 
         getFadeRatio: function(time) {
-          if (this.lockfadeIn == true)
+          if (this.lockfadeIn === true)
             return 1.0;
 
           if (this.fadingTimer.isOver(time))

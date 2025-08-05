@@ -83,7 +83,7 @@ module.exports = LootManager = Class.extend({
 
   getPlayerDrop: function(source, target, stolen) {
     var itemIndex = target.inventory.getRandomItemNumber();
-    if (itemIndex == -1)
+    if (itemIndex === -1)
       return;
     item = target.inventory.rooms[itemIndex];
     var count = 1;
@@ -107,7 +107,7 @@ module.exports = LootManager = Class.extend({
 
   getDrop: function(source, target, stolen) {
     //console.info("getDroppedItem");
-    if (target.droppedItem == true)
+    if (target.droppedItem === true)
       return;
 
     target.droppedItem = true;

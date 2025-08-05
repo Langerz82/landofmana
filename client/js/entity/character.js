@@ -137,7 +137,7 @@ define(['./entitymoving', '../transition', '../timer', 'data/mobdata', 'data/npc
      * @returns {Boolean} Whether this is an attacker of this character.
      */
     isAttackedBy: function(character) {
-      if (Object.keys(this.attackers).length == 0) {
+      if (Object.keys(this.attackers).length === 0) {
         return false;
       }
       return this.attackers.hasOwnProperty(character.id) &&
@@ -145,7 +145,7 @@ define(['./entitymoving', '../transition', '../timer', 'data/mobdata', 'data/npc
     },
 
     isAttacked: function() {
-      return !(Object.keys(this.attackers).length == 0);
+      return !(Object.keys(this.attackers).length === 0);
     },
 
     /**
@@ -211,7 +211,7 @@ define(['./entitymoving', '../transition', '../timer', 'data/mobdata', 'data/npc
     },
 
     canAttack: function(time) {
-        if(this.isDead == false && this.attackCooldown.isOver(time)) {
+        if(this.isDead === false && this.attackCooldown.isOver(time)) {
             return true;
         }
         return false;
@@ -235,7 +235,7 @@ define(['./entitymoving', '../transition', '../timer', 'data/mobdata', 'data/npc
      */
     setTarget: function(character) {
         //try { throw new Error(); } catch(err) { console.error(err.stack); }
-         if (character == null || character.isDying || character.isDead) {
+         if (character === null || character.isDying || character.isDead) {
          	     this.removeTarget();
          	     return;
          }

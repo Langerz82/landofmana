@@ -250,7 +250,7 @@ var _isTypeValid = function (fmt, msg) {
             return false;
           }
           var arr = msg.split(",");
-          if (arr.length != fmt.length)
+          if (arr.length !== fmt.length)
           {
             try { throw new Error(); } catch (e) { console.error(e.stack); }
             console.info("fnCheckFormatCSV: message incorrect length.");
@@ -356,7 +356,7 @@ var _isTypeValid = function (fmt, msg) {
                 format = format || this.formats[type];
 
             //console.info("type:"+type);
-            if (type == Types.UserMessages.WU_SAVE_PLAYER_DATA)
+            if (type === Types.UserMessages.WU_SAVE_PLAYER_DATA)
             {
               console.info("WU_SAVE_PLAYER_DATA");
               if (message[0]) {
@@ -372,7 +372,7 @@ var _isTypeValid = function (fmt, msg) {
                 console.info("message 1 not an array.")
                 return false;
               }
-              if (message[1].length != 7) {
+              if (message[1].length !== 7) {
                 console.info("message 1 not length 7.")
                 return false;
               }
@@ -394,7 +394,7 @@ var _isTypeValid = function (fmt, msg) {
                 console.info("message 1-1 not an array.")
                 return false;
               }
-              if (msg.length != 11) {
+              if (msg.length !== 11) {
                 console.info("message 1-1 not length 11.")
                 return false;
               }
@@ -619,7 +619,7 @@ var _isTypeValid = function (fmt, msg) {
                 }
                 var arr = data.split(',');
                 var count = arr.length;
-                if (count % 3 != 0) {
+                if (count % 3 !== 0) {
                   console.info("message arr1-3 not correct achievement count.");
                   return false;
                 }
@@ -665,7 +665,7 @@ var _isTypeValid = function (fmt, msg) {
               }
 
               var data = parseInt(message[2]);
-              if (!(data == 0 || data == 1)) {
+              if (!(data === 0 || data === 1)) {
                 console.info("update not 0 or 1.")
                 return false;
               }
@@ -674,7 +674,7 @@ var _isTypeValid = function (fmt, msg) {
               console.info("message:"+JSON.stringify(message));
               return true;
             }
-            else if (type == Types.UserMessages.WU_SAVE_PLAYER_AUCTIONS) {
+            else if (type === Types.UserMessages.WU_SAVE_PLAYER_AUCTIONS) {
               console.info("WU_SAVE_PLAYER_AUCTIONS");
               var arr = message;
               var fmt = [['array',0,auctionEntriesMax,[
@@ -689,7 +689,7 @@ var _isTypeValid = function (fmt, msg) {
 
               return this.checkFormat(fmt, [arr], true);
             }
-            else if (type == Types.UserMessages.WU_SAVE_PLAYER_LOOKS)
+            else if (type === Types.UserMessages.WU_SAVE_PLAYER_LOOKS)
             {
               console.info("WU_SAVE_PLAYER_LOOKS");
               var msg = message[0];

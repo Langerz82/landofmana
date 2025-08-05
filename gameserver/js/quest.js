@@ -19,11 +19,11 @@ module.exports = getQuestObject = function(arr) {
   self.kind = parseInt(arr[1]) || 0;
   self.count = parseInt(arr[2]) || 0;
   self.chance = parseInt(arr[3]) || 0;
-  if (arr.length == 4)
+  if (arr.length === 4)
     self.level = [0, 99];
-  if (arr.length == 5)
+  if (arr.length === 5)
     self.level = [parseInt(arr[4]),99];
-  if (arr.length == 6)
+  if (arr.length === 6)
     self.level = [parseInt(arr[4]),parseInt(arr[5])];
 
   return self;

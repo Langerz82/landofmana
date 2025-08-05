@@ -80,14 +80,14 @@ module.exports = TaskHandler = cls.Class.extend({
         break;
       case EventType.LOOTITEM:
         quests.forQuestsType(QuestType.GETITEMKIND, function (quest) {
-          if (quest.object2.kind == (playerEvent.object.kind-1000)) {
+          if (quest.object2.kind === (playerEvent.object.kind-1000)) {
             quests.questAboutItem(quest);
           }
         });
         break;
       case EventType.USE_NODE:
         quests.forQuestsType(QuestType.USENODE, function (quest) {
-          if (quest.object.kind == playerEvent.object.kind && quest.data1 == playerEvent.object.level)
+          if (quest.object.kind === playerEvent.object.kind && quest.data1 === playerEvent.object.level)
             quests.questAboutUseNode(quest);
         });
         break;
@@ -95,33 +95,33 @@ module.exports = TaskHandler = cls.Class.extend({
 
     for (var achievement of player.achievements) {
       this.processAchievement(player, playerEvent, achievement, function (achievement, event) {
-        return (achievement.data.type == EventType.KILLMOB &&
-            (achievement.data.objectKind == 0 || achievement.data.objectKind == event.object.kind));
+        return (achievement.data.type === EventType.KILLMOB &&
+            (achievement.data.objectKind === 0 || achievement.data.objectKind === event.object.kind));
       }, 2);
       this.processAchievement(player, playerEvent, achievement, function (achievement, event) {
-        return (achievement.data.type == EventType.LOOTITEM && event.object.hasOwnProperty("enemyDrop"));
+        return (achievement.data.type === EventType.LOOTITEM && event.object.hasOwnProperty("enemyDrop"));
       }, 5);
       this.processAchievement(player, playerEvent, achievement, function (achievement, event) {
-        return (achievement.data.type == EventType.DAMAGE);
+        return (achievement.data.type === EventType.DAMAGE);
       }, 0.02);
       this.processAchievement(player, playerEvent, achievement, function (achievement, event) {
-        if (achievement.data.type == EventType.USE_NODE) {
+        if (achievement.data.type === EventType.USE_NODE) {
           var wtype = event.object.weaponType;
-          return (player.hasWeaponType(wtype) && wtype == achievement.data.data1);
+          return (player.hasWeaponType(wtype) && wtype === achievement.data.data1);
         }
         return false;
       }, 5);
       this.processAchievement(player, playerEvent, achievement, function (achievement, event) {
-        if (achievement.data.type == EventType.HARVEST) {
+        if (achievement.data.type === EventType.HARVEST) {
           var wtype = event.object.weaponType;
-          return (player.hasWeaponType(wtype) && wtype == "axe");
+          return (player.hasWeaponType(wtype) && wtype === "axe");
         }
         return false;
       }, 5);
       this.processAchievement(player, playerEvent, achievement, function (achievement, event) {
-        if (achievement.data.type == EventType.USE_NODE) {
+        if (achievement.data.type === EventType.USE_NODE) {
           var wtype = event.object.weaponType;
-          return (player.hasWeaponType(wtype) && wtype == achievement.data.data1);
+          return (player.hasWeaponType(wtype) && wtype === achievement.data.data1);
         }
         return false;
       }, 5);
@@ -130,7 +130,7 @@ module.exports = TaskHandler = cls.Class.extend({
   },
 
   processAchievement: function (player, event, achievement, condition, expMultiplier) {
-    if (event.eventType != achievement.data.type)
+    if (event.eventType !== achievement.data.type)
       return;
 
     if (!condition(achievement, event))
@@ -149,7 +149,7 @@ module.exports = TaskHandler = cls.Class.extend({
     }
     else {
 
-      if (achievement.rank == (rankCount-1) && achievement.count == objectCount)
+      if (achievement.rank === (rankCount-1) && achievement.count === objectCount)
       {
         return;
       }
@@ -168,7 +168,7 @@ module.exports = TaskHandler = cls.Class.extend({
 
         player.incExp(xp);
         player.map.entities.sendToPlayer(player, new Messages.Notify("CHAT", chatAchievement, [objectCountFmt, xp]));
-        if (achievement.rank == (rankCount-1) && achievement.count == objectCount)
+        if (achievement.rank === (rankCount-1) && achievement.count === objectCount)
         {
           return;
         }

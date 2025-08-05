@@ -16,7 +16,7 @@ define(['lib/astar'], function(AStar) {
               return false;
             for (var node of path) {
               if (pnode) {
-                if (pnode[0] == node[0] || pnode[0] == node[1] || pnode[1] == node[0] || pnode[1] == node[1]) {
+                if (pnode[0] === node[0] || pnode[0] === node[1] || pnode[1] === node[0] || pnode[1] === node[1]) {
                   pnode = node;
                   continue;
                 }
@@ -69,7 +69,7 @@ define(['lib/astar'], function(AStar) {
                return false;
 
              if (pCoord) {
-               if (coord[0] != pCoord[0] && coord[1] != pCoord[1])
+               if (coord[0] !== pCoord[0] && coord[1] !== pCoord[1])
                  return false;
                if (Math.abs(coord[0] - pCoord[0]) > 0) {
                  if (!xf(pCoord[0], coord[0], coord[1]))
@@ -122,8 +122,8 @@ define(['lib/astar'], function(AStar) {
             var ts = G_TILESIZE;
 
                   // If its one space just return the start, end path.
-      			if ((Math.abs(start[0] - end[0]) <= ts && Math.abs(start[1] - end[1]) == 0) ||
-      				(Math.abs(start[1] - end[1]) <= ts && Math.abs(start[0] - end[0]) == 0))
+      			if ((Math.abs(start[0] - end[0]) <= ts && Math.abs(start[1] - end[1]) === 0) ||
+      				(Math.abs(start[1] - end[1]) <= ts && Math.abs(start[0] - end[0]) === 0))
       					return [[start[0], start[1]],[end[0],end[1]]];
 
       			return null;
@@ -134,7 +134,7 @@ define(['lib/astar'], function(AStar) {
           var dy = Math.abs(Math.floor(start[1]) - Math.floor(end[1]));
 
           var mp = [start, end];
-          if (dx == 0 || dy == 0) {
+          if (dx === 0 || dy === 0) {
             if(this.isValidPath(grid, mp)) {
               log.info("validpath-fdp1:"+JSON.stringify(mp));
               return mp;

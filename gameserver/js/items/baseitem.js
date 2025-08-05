@@ -7,24 +7,24 @@ module.exports = BaseItem = cls.Class.extend({
     },
 
     assign: function (item) {
-      this.set([item.itemKind,
-        item.itemNumber,
-        item.itemDurability,
-        item.itemDurabilityMax,
-        item.itemExperience]);
+      this.set([Number(item.itemKind),
+        Number(item.itemNumber),
+        Number(item.itemDurability),
+        Number(item.itemDurabilityMax),
+        Number(item.itemExperience)]);
     },
 
     set: function(arr){
-        var itemKind = arr[0];
-        this.itemKind = arr[0];
-        this.itemNumber = arr[1];
-        this.itemDurability = arr[2] ? arr[2] : ((ItemTypes.isConsumableItem(itemKind) || ItemTypes.isCraftItem(itemKind)) ? 0 : 900);
-        this.itemDurabilityMax = arr[3] ? arr[3] : ((ItemTypes.isConsumableItem(itemKind) || ItemTypes.isCraftItem(itemKind)) ? 0 : 900);
-        this.itemExperience = arr[4] || 0;
+        var itemKind = Number(arr[0]);
+        this.itemKind = itemKind;
+        this.itemNumber = Number(arr[1]);
+        this.itemDurability = arr[2] ? Number(arr[2]) : ((ItemTypes.isConsumableItem(itemKind) || ItemTypes.isCraftItem(itemKind)) ? 0 : 900);
+        this.itemDurabilityMax = arr[3] ? Number(arr[3]) : ((ItemTypes.isConsumableItem(itemKind) || ItemTypes.isCraftItem(itemKind)) ? 0 : 900);
+        this.itemExperience = Number(arr[4]) || 0;
     },
 
     addNumber: function(number){
-        this.itemNumber += number;
+        this.itemNumber += Number(number);
     },
 
     save: function()

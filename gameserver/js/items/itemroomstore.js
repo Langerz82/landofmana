@@ -66,7 +66,7 @@ module.exports = ItemStore = cls.Class.extend({
 
     getItemCount: function(itemKind){
     	for(var i in this.rooms){
-            if(this.rooms[i] && this.rooms[i].itemKind == itemKind){
+            if(this.rooms[i] && this.rooms[i].itemKind === itemKind){
                 return this.rooms[i].itemNumber;
             }
         }
@@ -75,7 +75,7 @@ module.exports = ItemStore = cls.Class.extend({
 
     getItemIndex: function(itemKind){
         for(var i in this.rooms){
-            if(this.rooms[i] && this.rooms[i].itemKind == itemKind){
+            if(this.rooms[i] && this.rooms[i].itemKind === itemKind){
                 return i;
             }
         }
@@ -116,7 +116,7 @@ module.exports = ItemStore = cls.Class.extend({
       if(!item || !item2)
         return false;
 
-      if(item.itemKind != item2.itemKind)
+      if(item.itemKind !== item2.itemKind)
         return false;
 
       if (ItemTypes.isEquippable(item.itemKind) ||
@@ -124,9 +124,9 @@ module.exports = ItemStore = cls.Class.extend({
         return false;
       }
 
-      if (item.itemNumber == this.maxStack)
+      if (item.itemNumber === this.maxStack)
         return false;
-      if (item2.itemNumber == this.maxStack)
+      if (item2.itemNumber === this.maxStack)
         return false;
 
       var res = false;
@@ -140,7 +140,7 @@ module.exports = ItemStore = cls.Class.extend({
           item.itemNumber = item2.itemNumber - maxStack;
           item2.itemNumber = Math.min(item2.itemNumber, maxStack);
           //this.setItem(slot, null); //  NOT NEEDED.
-          if (item.slot == -1)
+          if (item.slot === -1)
             slot = this.getEmptyIndex();
         } else {
           item = null;
@@ -203,7 +203,7 @@ module.exports = ItemStore = cls.Class.extend({
         var r = this.rooms[i];
         if (!r)
           continue;
-        if(r.itemKind == kind) {
+        if(r.itemKind === kind) {
           if (r.itemNumber > j) {
             r.itemNumber -= j;
             this.setItem(i, r);
@@ -233,7 +233,7 @@ module.exports = ItemStore = cls.Class.extend({
 
         item.itemNumber -= number;
 
-        if (item.itemNumber == 0)
+        if (item.itemNumber === 0)
           item = null;
 
         this.setItem(index, item);

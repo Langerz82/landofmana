@@ -61,8 +61,8 @@ var getStoreTypeNew = function(type) {
 };
 
 var getItemsStoreCount = function (type) {
-  if (type == 1) return 96;
-  if (type == 2) return 5;
+  if (type === 1) return 96;
+  if (type === 2) return 5;
   return 48;
 };
 
@@ -85,7 +85,7 @@ module.exports = DatabaseHandler = cls.Class.extend({
     client.hgetarray = hgetarray;
     this.ready = true;
 
-    if (config.remove_old_values == 1)
+    if (config.remove_old_values === 1)
         this.removeOldValues();
 
     //this.replaceSkills();
@@ -205,7 +205,7 @@ module.exports = DatabaseHandler = cls.Class.extend({
     var nameLower = name.toLowerCase();
     client.smembers(setName, function (err, reply) {
       reply = reply.map(function (rec) { return rec.toLowerCase(); });
-      //var res = reply.findIndex(function (rec) { return (rec == nameLower); })
+      //var res = reply.findIndex(function (rec) { return (rec === nameLower); })
       if (callback)
         callback(name, reply.includes(nameLower));
     });
@@ -432,7 +432,7 @@ module.exports = DatabaseHandler = cls.Class.extend({
     var uKey = "u:" + user.name;
     client.hget(uKey, "players", function (err, reply) {
       console.info("players_reply:"+reply);
-      if (reply == null || reply === "")
+      if (reply === null || reply === "")
       {
         user.sendPlayers();
         return;
@@ -463,7 +463,7 @@ module.exports = DatabaseHandler = cls.Class.extend({
             "sprites": reply[4].split(",")
           };
           db_players.push(db_player);
-          if (++count == playerNames.length)
+          if (++count === playerNames.length)
             user.sendPlayers(db_players);
         });
       }
@@ -586,7 +586,7 @@ module.exports = DatabaseHandler = cls.Class.extend({
         console.error("redis.addPlayerGoldOffline - no goldoffline record for player '"+playerName+"' found.");
         return;
       }
-      if (err || !data || data == "") {
+      if (err || !data || data === "") {
         console.warn(err);
         console.warn(JSON.stringify(data));
         return;
@@ -644,7 +644,7 @@ module.exports = DatabaseHandler = cls.Class.extend({
           callback(playerName, 0);
         return;
       }
-      if (err || !data || data == "") {
+      if (err || !data || data === "") {
         console.warn(err);
         console.warn(JSON.stringify(data));
         return;
@@ -674,7 +674,7 @@ module.exports = DatabaseHandler = cls.Class.extend({
           callback(playerName, golddiff, type);
         return;
       }
-      if (err || !data || data == "") {
+      if (err || !data || data === "") {
         console.warn(err);
         console.warn(JSON.stringify(data));
         if (callback)
@@ -717,7 +717,7 @@ module.exports = DatabaseHandler = cls.Class.extend({
     var sType = getStoreTypeNew(type);
 
     client.hget(pKey, sType, function (err, data) {
-        if (err || !data || data == "") {
+        if (err || !data || data === "") {
           console.warn(err);
           console.warn(JSON.stringify(data));
           return;
@@ -736,7 +736,7 @@ module.exports = DatabaseHandler = cls.Class.extend({
     console.info("sType: "+sType);
     client.hset(pKey, sType, data,
       function(err, replies) {
-        if (err || !data || data == "") {
+        if (err || !data || data === "") {
           console.warn(err);
           console.warn(JSON.stringify(replies));
           console.warn(JSON.stringify(data));
@@ -758,7 +758,7 @@ module.exports = DatabaseHandler = cls.Class.extend({
 
     client.hset(pKey, "newquests", data,
       function(err, replies) {
-        if (err || !data || data == "") {
+        if (err || !data || data === "") {
           console.warn(err);
           console.warn(JSON.stringify(replies));
           console.warn(JSON.stringify(data));
@@ -777,7 +777,7 @@ module.exports = DatabaseHandler = cls.Class.extend({
     var indexes;
 
     client.hget(pKey, "newquests", function (err, data) {
-        if (err || !data || data == "") {
+        if (err || !data || data === "") {
           console.warn(err);
           console.warn(JSON.stringify(data));
           data = [];
@@ -812,7 +812,7 @@ loadAchievements: function(playerName, callback) {
   console.info("loadAchievement");
   var pKey = "p:" + playerName;
   client.hget(pKey, "achievements", function (err, data) {
-      if (err || !data || data == "") {
+      if (err || !data || data === "") {
         console.warn(err);
         console.warn(JSON.stringify(data));
         return;
@@ -866,7 +866,7 @@ loadAchievements: function(playerName, callback) {
     var key = 'l:looks-'+worldKey;
     client.hget(key, "prices", function (err, reply)
     {
-      if (err || !reply || reply == "") {
+      if (err || !reply || reply === "") {
         console.warn(err);
         console.warn(JSON.stringify(reply));
         return;

@@ -280,7 +280,7 @@ define(['./entity', './character', 'data/appearancedata'],
       var self = this;
 
       this.setOrientation(orientation);
-      if (state == 1 && orientation != Types.Orientations.NONE)
+      if (state === 1 && orientation !== Types.Orientations.NONE)
       {
         var lockStepTime = (G_LATENCY - (Utils.getWorldTime()-time));
         lockStepTime = lockStepTime.clamp(G_UPDATE_INTERVAL,G_LATENCY);
@@ -299,7 +299,7 @@ define(['./entity', './character', 'data/appearancedata'],
           self.keyMove = true;
         }, lockStepTime);
       }
-      else if (state == 0 || orientation == Types.Orientations.NONE)
+      else if (state === 0 || orientation === Types.Orientations.NONE)
       {
         this.ex = x;
         this.ey = y;
@@ -310,7 +310,7 @@ define(['./entity', './character', 'data/appearancedata'],
           this.moving_callback = null;
         }
       }
-      else if (state == 2 && orientation != Types.Orientations.NONE)
+      else if (state === 2 && orientation !== Types.Orientations.NONE)
       {
         this.forceStop();
         this.setPosition(x,y);
@@ -395,7 +395,7 @@ define(['./entity', './character', 'data/appearancedata'],
     baseCritDef: function() {
       var itemDiff = this.level*2;
       for (var id in this.equipment.rooms) {
-        if (id == 4) continue;
+        if (id === 4) continue;
         var item = this.equipment.rooms[id];
         if (item) {
           itemDiff += (3*ItemTypes.getData(item.itemKind).modifier)+(item.itemNumber*2);
@@ -423,7 +423,7 @@ define(['./entity', './character', 'data/appearancedata'],
     },
 
     hasHarvestWeapon: function (type) {
-      if (type && type == "any")
+      if (type && type === "any")
           return true;
 
       var weapon = this.getWeapon();
@@ -432,7 +432,7 @@ define(['./entity', './character', 'data/appearancedata'],
 
       var weaponData = ItemTypes.KindData[weapon.itemKind];
       if (type) {
-        return weaponData.type == type;
+        return weaponData.type === type;
       }
       return ItemTypes.isHarvestWeapon(weapon.itemKind);
     },
@@ -511,7 +511,7 @@ define(['./entity', './character', 'data/appearancedata'],
       {
         var item = this.equipment.rooms[id];
         if (item) {
-          var eq_multi = (id == 1) ? 4 : 2;
+          var eq_multi = (id === 1) ? 4 : 2;
           var def = (ItemTypes.getData(item.itemKind).modifier * eq_multi + item.itemNumber * eq_multi);
           dealt += ~~(def * ((item.itemDurability / item.itemDurabilityMax * 0.5) + 0.5));
         }
@@ -626,7 +626,7 @@ define(['./entity', './character', 'data/appearancedata'],
         self.animate("atk", self.atkSpeed, 1, function () {
           self.idle(self.orientation);
         });
-        if (tmptype == "any")
+        if (tmptype === "any")
           self.hideWeapon = true;
       };
       harvest();
@@ -636,7 +636,7 @@ define(['./entity', './character', 'data/appearancedata'],
           self.forceStop();
           return;
         }
-        if (self.target && !(self.target.type == Types.EntityTypes.NODE)) {
+        if (self.target && !(self.target.type === Types.EntityTypes.NODE)) {
           self.forceStop();
           return;
         }
@@ -646,7 +646,7 @@ define(['./entity', './character', 'data/appearancedata'],
     },
 
     harvestOff: function () {
-      if (this.fsm == "HARVEST") {
+      if (this.fsm === "HARVEST") {
         clearInterval(this.harvestTimeout);
         this.harvestTimeout = null;
         //this.fsm = "IDLE";

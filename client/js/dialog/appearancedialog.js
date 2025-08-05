@@ -139,7 +139,7 @@ define(['./dialog', '../tabbook', '../tabpage', 'data/appearancedata', '../pageN
         			if (!item)
         			    continue;
 
-        			if (item.type == categoryType && game.player.appearances[k] == 0 && item.buy > 0)
+        			if (item.type === categoryType && game.player.appearances[k] === 0 && item.buy > 0)
         			{
       				    this.items.push({
           					index: k,
@@ -152,7 +152,7 @@ define(['./dialog', '../tabbook', '../tabpage', 'data/appearancedata', '../pageN
       	    this.reload();
       	    this.parent.updateNavigator();
             this.parent.parent.showStore(true);
-            if (this.parent.getPageIndex() != 0)
+            if (this.parent.getPageIndex() !== 0)
               this.parent.setPageIndex(0);
         },
 
@@ -306,7 +306,7 @@ define(['./dialog', '../tabbook', '../tabpage', 'data/appearancedata', '../pageN
           {
             index = this.looksArmorIndex = (this.armorLooks.length + index) % this.armorLooks.length;
             var spriteId = this.armorLooks[index];
-            if (spriteId==0 || game.player.appearances[spriteId] == 1) {
+            if (spriteId==0 || game.player.appearances[spriteId] === 1) {
               //var index = p.isArcher() ? 2 : 0;
               game.player.sprites[0] = spriteId;
               game.player.setArmorSprite();
@@ -361,12 +361,12 @@ define(['./dialog', '../tabbook', '../tabpage', 'data/appearancedata', '../pageN
 
 	          for(var i=0; i < AppearanceData.length; i++)
             {
-              if (game.player.appearances[i] == 0)
+              if (game.player.appearances[i] === 0)
                 continue;
 
-            	if (AppearanceData[i].type == categoryTypeArmor)
+            	if (AppearanceData[i].type === categoryTypeArmor)
             		this.armorLooks.push(i);
-            	else if (AppearanceData[i].type == categoryTypeWeapon)
+            	else if (AppearanceData[i].type === categoryTypeWeapon)
             		this.weaponLooks.push(i);
             }
             this.looksArmorIndex = this.armorLooks.indexOf(game.player.sprite[0]);
@@ -410,7 +410,7 @@ define(['./dialog', '../tabbook', '../tabpage', 'data/appearancedata', '../pageN
 
               var o = (inc % 3)+1;
               fn[(inc_fn % fn.length)].bind(anim)(o);
-              if (++inc_fn % fn.length == 0)
+              if (++inc_fn % fn.length === 0)
                 inc++;
             }, 1500);
 

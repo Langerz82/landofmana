@@ -78,7 +78,7 @@ define(['camera', 'entity/item', 'data/items', 'data/itemlootdata', 'entity/enti
                 //this.centerStage();
 
                 console.warn(this.renderer.type);
-                if (this.renderer.type == PIXI.WEBGL_RENDERER){
+                if (this.renderer.type === PIXI.WEBGL_RENDERER){
                    console.warn('Using WebGL');
                  } else {
                    console.warn('Using Canvas');
@@ -192,6 +192,8 @@ define(['camera', 'entity/item', 'data/items', 'data/itemlootdata', 'entity/enti
 
                 this.gui = document.getElementById('gui');
                 this.hitbar = document.getElementById("combathitbar-slider");
+
+                this.resizeCanvases(1);
             },
 
             calcScreenSize: function (zoomMod) {
@@ -242,7 +244,8 @@ define(['camera', 'entity/item', 'data/items', 'data/itemlootdata', 'entity/enti
                 var w = window.innerWidth,
                     h = window.innerHeight;
 
-                var zoom = w/window.screen.width;
+                //var zoom = (w/window.screen.width * 0.5) + 0.5;
+                var zoom = 1;
 
                 if (this.mobile) {
                   zoom *= 1.2;
@@ -325,7 +328,7 @@ define(['camera', 'entity/item', 'data/items', 'data/itemlootdata', 'entity/enti
               this.camera.setRealCoords();
 
               this.forceRedraw = true;
-              this.renderFrame();
+              //this.renderFrame();
             },
 
             initFPS: function() {
@@ -899,11 +902,11 @@ define(['camera', 'entity/item', 'data/items', 'data/itemlootdata', 'entity/enti
                     //tOff = 1.0*ts,
                     ex = (dx + eo[0]),
                     ey = (dy + eo[1]);
-                if (entity == game.player) {
+                if (entity === game.player) {
                   this.pex = ex;
                   this.pey = ey;
                 }
-                if (entity == game.player.target) {
+                if (entity === game.player.target) {
                   this.drawEntityTile(entity.id, ex, ey);
                 }
                 else {
@@ -975,7 +978,7 @@ define(['camera', 'entity/item', 'data/items', 'data/itemlootdata', 'entity/enti
                   }
                   else {
                     self.drawEntityName(entity);
-                    if ((entity != game.player))
+                    if ((entity !== game.player))
                       self.showHealthBar(entity);
                   }
 
@@ -997,7 +1000,7 @@ define(['camera', 'entity/item', 'data/items', 'data/itemlootdata', 'entity/enti
                 var name = "";
 
                 if(entity instanceof Player && entity.isMoving && !entity.isDead) {
-                    color = (entity.id == this.game.playerId ? "#ffff00" : (entity.admin ? "#ff0000" : "#fcda5c"));
+                    color = (entity.id === this.game.playerId ? "#ffff00" : (entity.admin ? "#ff0000" : "#fcda5c"));
 
                     name = entity.name;
                 }
@@ -1404,17 +1407,17 @@ define(['camera', 'entity/item', 'data/items', 'data/itemlootdata', 'entity/enti
               //log.info("c.sox:"+c.sox+",c.soy:"+c.soy);
               c.setRealCoords();
 
-              var gx = fe.x >> 4;
-              var gy = fe.y >> 4;
-              if (this.forceRedraw || fe && (this.fegx != gx || this.fegy != gy))
-              {
-                var mc = game.mapContainer;
-                if (mc)
-                  mc.moveGrid();
-                this.forceRedraw = true;
-              }
-              this.fegx = gx;
-              this.fegy = gy;
+              //var gx = fe.x >> 4;
+              //var gy = fe.y >> 4;
+              //if (this.forceRedraw || fe && (this.fegx !== gx || this.fegy !== gy))
+              //{
+              var mc = game.mapContainer;
+              if (mc)
+                mc.moveGrid();
+              this.forceRedraw = true;
+              //}
+              //this.fegx = gx;
+              //this.fegy = gy;
 
               var go = this.setGridOffset();
               this.setTilesOffset(go[0],go[1]);
@@ -1567,7 +1570,7 @@ define(['camera', 'entity/item', 'data/items', 'data/itemlootdata', 'entity/enti
                 var self = this;
                 self.camera.forEachInScreen(function (entity,id) {
                   if (entity) {
-                    if (entity == game.player)
+                    if (entity === game.player)
                       return;
                     self.removeEntity(entity);
                   }
@@ -1600,7 +1603,7 @@ define(['camera', 'entity/item', 'data/items', 'data/itemlootdata', 'entity/enti
               //this.forceRedraw = true;
 
               if (!game.ready || !game.player || game.mapStatus < 2 ||
-                  !game.mapContainer.gridReady || this.tilesets.length == 0 ||
+                  !game.mapContainer.gridReady || this.tilesets.length === 0 ||
                   !this.loadData.loaded) {
                 this.forceRedraw = true;
                 return;

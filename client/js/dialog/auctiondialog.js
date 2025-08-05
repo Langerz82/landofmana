@@ -27,7 +27,7 @@ define(['./dialog', '../tabbook', '../tabpage', '../entity/item', 'data/items', 
             this.extra = $(id + 'Extra');
             this.price = $(id + 'Price');
             this.buyButton = $(id + 'BuyButton');
-        	if (scale == 1)
+        	if (scale === 1)
         	{
             this.body.css({
         			'position': 'absolute',
@@ -35,14 +35,14 @@ define(['./dialog', '../tabbook', '../tabpage', '../entity/item', 'data/items', 
         			'top': '' + (this.index * 18) + 'px',
     		    });
   	     }
-  	     else if (scale == 2) {
+  	     else if (scale === 2) {
            this.body.css({
        			'position': 'absolute',
        			'left': '0px',
        			'top': '' + (this.index * 40) + 'px',
    		    });
   	     }
-  	     else if (scale == 3) {
+  	     else if (scale === 3) {
   		    this.body.css({
       			'position': 'absolute',
       			'left': '0px',
@@ -60,7 +60,7 @@ define(['./dialog', '../tabbook', '../tabpage', '../entity/item', 'data/items', 
         setVisible: function(value) {
             var self = this;
             this.body.css('display', value===true ? 'block' : 'none');
-            if (this.parent.parent.pageIndex == 0)
+            if (this.parent.parent.pageIndex === 0)
             	this.buyButton.text('DELETE');
             else
             	this.buyButton.text('BUY');
@@ -69,7 +69,7 @@ define(['./dialog', '../tabbook', '../tabpage', '../entity/item', 'data/items', 
                 {
             			if(game && game.ready && game.auctionDialog.visible) {
             			    //alert("auction buy");
-            			    if (self.parent.parent.pageIndex == 0) {
+            			    if (self.parent.parent.pageIndex === 0) {
             				      game.client.sendAuctionDelete(self.item.index, self.parent.itemType);
                       }
             			    else {
@@ -151,7 +151,7 @@ define(['./dialog', '../tabbook', '../tabpage', '../entity/item', 'data/items', 
 
             this.close();
 
-            if (!this.items || this.items.length == 0)
+            if (!this.items || this.items.length === 0)
         	     return;
 
             log.info("reload - this.pageIndex: "+ this.pageIndex);
@@ -204,10 +204,10 @@ define(['./dialog', '../tabbook', '../tabpage', '../entity/item', 'data/items', 
           			var item = this.items[i];
           			var prevItem = this.items[i-1];
 
-          			if (item.kind == prevItem.kind &&
-          			    item.itemCount == prevItem.itemCount &&
-          			    item.itemSkillKind == prevItem.itemSkillKind &&
-          			    item.itemSkillLevel == prevItem.itemSkillLevel)
+          			if (item.kind === prevItem.kind &&
+          			    item.itemCount === prevItem.itemCount &&
+          			    item.itemSkillKind === prevItem.itemSkillKind &&
+          			    item.itemSkillLevel === prevItem.itemSkillLevel)
           			{
           				this.items.splice(i,1);
           			}

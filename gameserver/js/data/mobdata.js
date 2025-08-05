@@ -26,7 +26,7 @@ _.each( Mobs, function( value, key ) {
 
 		aggroRange: (value.aggroRange) ? value.aggroRange+1 : 4,
 		attackRange: (value.attackRange) ? value.attackRange : 1,
-		isAggressive: (value.isAggressive == 1) ? true : false,
+		isAggressive: (value.isAggressive === 1) ? true : false,
 
 		attackRate: (value.attackRateMod) ? (value.attackRateMod * 1500) : 1500,
 

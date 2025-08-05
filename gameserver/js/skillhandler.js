@@ -73,7 +73,7 @@ Skill = cls.Class.extend({
 
    xp: function (amount)
    {
-    if (amount == 0)
+    if (amount === 0)
       return;
 
     console.info("amount="+amount);

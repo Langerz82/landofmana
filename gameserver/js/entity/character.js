@@ -175,7 +175,7 @@ module.exports = Character = EntityMoving.extend({
    * @returns {Boolean} Whether this is an attacker of this character.
    */
   isAttackedBy: function(character) {
-    if (Object.keys(this.attackers).length == 0) {
+    if (Object.keys(this.attackers).length === 0) {
       return false;
     }
     return this.attackers.hasOwnProperty(character.id) &&
@@ -183,7 +183,7 @@ module.exports = Character = EntityMoving.extend({
   },
 
   isAttacked: function() {
-    return !(Object.keys(this.attackers).length == 0);
+    return !(Object.keys(this.attackers).length === 0);
   },
 
   /**
@@ -249,7 +249,7 @@ module.exports = Character = EntityMoving.extend({
   },
 
   canAttack: function() {
-    if (this.isDead == false && this.attackCooldown.isOver()) {
+    if (this.isDead === false && this.attackCooldown.isOver()) {
       return true;
     }
     return false;
@@ -332,7 +332,7 @@ module.exports = Character = EntityMoving.extend({
    * @param {Character} character The target character.
    */
   setTarget: function(character) {
-    if (character == null) {
+    if (character === null) {
       this.removeTarget();
       return;
     }
@@ -458,9 +458,9 @@ module.exports = Character = EntityMoving.extend({
     if (hpMod > 0)
       this.addAttacker(attacker);
 
-    if (hpMod != 0)
+    if (hpMod !== 0)
       this.stats.hp = Utils.clamp(0, this.stats.hpMax, (this.stats.hp-hpMod));
-    if (epMod != 0)
+    if (epMod !== 0)
       this.stats.ep = Utils.clamp(0, this.stats.epMax, (this.stats.ep-epMod));
 
     var msg = new Messages.Damage([attacker, this, -hpMod, -epMod, crit, effects]);
@@ -468,7 +468,7 @@ module.exports = Character = EntityMoving.extend({
   },
 
   canMove: function() {
-    if (this.isDead == false && this.moveCooldown.isOver()) {
+    if (this.isDead === false && this.moveCooldown.isOver()) {
       return true;
     }
     return false;
@@ -561,7 +561,7 @@ module.exports = Character = EntityMoving.extend({
       x = p.x;
       y = p.y;
       for(var e2 of entities) {
-        if (!e2 || this == e2)
+        if (!e2 || this === e2)
           continue;
         tx = e2.x;
         ty = e2.y;
@@ -581,7 +581,7 @@ module.exports = Character = EntityMoving.extend({
       }
     }
 
-    if (poss.length == 0)
+    if (poss.length === 0)
       return null;
 
     poss.sort(function(a,b) { return a.d-b.d; });

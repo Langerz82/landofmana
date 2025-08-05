@@ -1,12 +1,12 @@
 define(function() {
     function isUndefined(value) {
 
-        return (typeof value) == 'undefined';
+        return (typeof value) === 'undefined';
     }
 
     function isObject(value) {
 
-        return (typeof value) == 'object';
+        return (typeof value) === 'object';
     }
 
     function assign(target, source1, source2, items) {

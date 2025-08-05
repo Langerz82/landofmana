@@ -11,7 +11,7 @@ var _ = require('underscore'),
   		var data = [];
   		for (var craft of CraftData)
   		{
-  			if (craft.o == index)
+  			if (craft.o === index)
   				data.push(craft);
   		}
   		return data;

@@ -30,7 +30,7 @@ module.exports = Pathfinder = Class.extend({
     //console.warn("entity.estDelay: "+entity.estDelay);
     elapsedTicks = Math.max(elapsedTicks, 0);
     var actualTicks = this.getPathTicks(path, entity.x, entity.y);
-    /*if (actualTicks == 0) {
+    /*if (actualTicks === 0) {
       console.warn("getPathTicks - "+JSON.stringify(path)+", x:"+entity.x+",y:"+entity.y);
       return false;
     }*/
@@ -102,7 +102,7 @@ module.exports = Pathfinder = Class.extend({
           var dist = dx + dy;
           subTotal += dist;
 
-          if (subTotal == subDist) {
+          if (subTotal === subDist) {
             newPath.push(node1);
             break;
           }
@@ -129,8 +129,8 @@ module.exports = Pathfinder = Class.extend({
     });
     var node1 = tmpPath.shift();
     for (var node2 of tmpPath) {
-      if ((node1[0] == node2[0] && node1[1] >= node[1] && node2[1] <= node[1]) ||
-        (node1[1] == node2[1] && node1[0] >= node[0] && node2[0] <= node[0]))
+      if ((node1[0] === node2[0] && node1[1] >= node[1] && node2[1] <= node[1]) ||
+        (node1[1] === node2[1] && node1[0] >= node[0] && node2[0] <= node[0]))
         return true;
       node1 = node2;
     }
@@ -143,7 +143,7 @@ module.exports = Pathfinder = Class.extend({
         return false;
       for (var node of path) {
         if (pnode) {
-          if (pnode[0] == node[0] || pnode[0] == node[1] || pnode[1] == node[0] || pnode[1] == node[1]) {
+          if (pnode[0] === node[0] || pnode[0] === node[1] || pnode[1] === node[0] || pnode[1] === node[1]) {
             pnode = node;
             continue;
           }
@@ -259,8 +259,8 @@ module.exports = Pathfinder = Class.extend({
       var ts = G_TILESIZE;
 
             // If its one space just return the start, end path.
-			if ((Math.abs(start[0] - end[0]) <= ts && Math.abs(start[1] - end[1]) == 0) ||
-				(Math.abs(start[1] - end[1]) <= ts && Math.abs(start[0] - end[0]) == 0))
+			if ((Math.abs(start[0] - end[0]) <= ts && Math.abs(start[1] - end[1]) === 0) ||
+				(Math.abs(start[1] - end[1]) <= ts && Math.abs(start[0] - end[0]) === 0))
 					return [[start[0], start[1]],[end[0],end[1]]];
 
 			return null;
@@ -289,7 +289,7 @@ module.exports = Pathfinder = Class.extend({
     var dy = Math.abs(Math.floor(start[1]) - Math.floor(end[1]));
 
     var mp = [start, end];
-    if (dx == 0 || dy == 0) {
+    if (dx === 0 || dy === 0) {
       if(this.isValidPath(grid, mp)) {
         log.info("validpath-fdp1:"+JSON.stringify(mp));
         return mp;

@@ -21,7 +21,7 @@ define(function() {
             var over = false;
 
             //log.info("Timer.isOver - lasttime: "+this.lastTime+", duration: "+(time - this.lastTime));
-            if(this.lastTime == 0 || (time - this.lastTime) > this.duration) {
+            if(this.lastTime === 0 || (time - this.lastTime) > this.duration) {
                 over = true;
                 this.lastTime = time;
             }

@@ -147,7 +147,7 @@ module.exports = AStar = (function () {
                }
            };
            current = open.splice(min, 1)[0];
-           if (current.v != endnode.v) {
+           if (current.v !== endnode.v) {
            //if (Math.abs(current.x-endnode.x) >= 1 || Math.abs(current.y-endnode.y) >= 1) {
                --length;
                next = successors(find, current.x, current.y, grid, rows, cols);
@@ -159,7 +159,7 @@ module.exports = AStar = (function () {
                        var extra = 0;
                        if (adj.p) {
                         adj.dir = getDir(adj, adj.p);
-                        if (adj.p.dir && adj.p.dir != adj.dir)
+                        if (adj.p.dir && adj.p.dir !== adj.dir)
                           extra = 2;
                        }
                        adj.f = (adj.g = current.g + distance(adj, current, f1, f2)) + distance(adj, endnode, f1, f2) + extra;
@@ -179,9 +179,9 @@ module.exports = AStar = (function () {
                  var it2 = null;
                  for (var it of result) {
                    if (it2) {
-                     if (~~(it2[0]) == ~~(it[0]))
+                     if (~~(it2[0]) === ~~(it[0]))
                        it[0] = it2[0];
-                     else if (~~(it2[1]) == ~~(it[1]))
+                     else if (~~(it2[1]) === ~~(it[1]))
                        it[1] = it2[1];
                      else {
                        break;
@@ -200,9 +200,9 @@ module.exports = AStar = (function () {
        for (var i=2; i < result.length; ++i)
        {
          if ((Math.abs(result[i-2][0] - result[i][0]) > 0 &&
-              Math.abs(result[i-2][1] - result[i][1]) == 0) ||
+              Math.abs(result[i-2][1] - result[i][1]) === 0) ||
              (Math.abs(result[i-2][1] - result[i][1]) > 0  &&
-              Math.abs(result[i-2][0] - result[i][0]) == 0))
+              Math.abs(result[i-2][0] - result[i][0]) === 0))
          {
            result.splice(--i,1);
          }

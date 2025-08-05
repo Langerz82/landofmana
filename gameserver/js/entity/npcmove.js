@@ -53,7 +53,7 @@ var NpcMove = Character.extend({
 
       var res = false;
       player.quests.forQuestsType(QuestType.GETITEMKIND, function (q) {
-        if (q.npcQuestId == self.kind) {
+        if (q.npcQuestId === self.kind) {
           if (player.quests.questAboutItemComplete(q, null))
             res = true;
         }
@@ -61,7 +61,7 @@ var NpcMove = Character.extend({
       if (res)
         return;
 
-      if (Object.keys(this.entityQuests.quests).length == 0) {
+      if (Object.keys(this.entityQuests.quests).length === 0) {
         this.entityQuests.dynamicQuests(player);
       } else {
         var newQid = -1;
@@ -78,7 +78,7 @@ var NpcMove = Character.extend({
           break;
         }
 
-        if (newQid == -1) {
+        if (newQid === -1) {
           this.entityQuests.sendNoQuest(player);
           return;
         }
@@ -91,10 +91,10 @@ var NpcMove = Character.extend({
     randomMove: function() {
       if(!this.hasTarget() && !this.isDead && !this.isMoving()) {
         var canRoam = (Utils.randomRangeInt(0,100) === 1);
-        if(!canRoam || this.map.entities.getPlayerAroundCount(this,20) == 0)
+        if(!canRoam || this.map.entities.getPlayerAroundCount(this,20) === 0)
           return;
         var	pos = this.map.entities.getRandomPosition(this, 2);
-        if (pos && !(pos.x == this.x && pos.y == this.y))
+        if (pos && !(pos.x === this.x && pos.y === this.y))
         {
             //if (this.map.entities.isCharacterAt(pos.x,pos.y))
             //   return;

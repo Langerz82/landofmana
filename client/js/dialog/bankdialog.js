@@ -31,7 +31,7 @@ define(['./dialog', '../tabbook', '../tabpage', '../entity/item', 'data/items', 
                 DragBank.item = self.item;
                 return;
               }
-              if (!start && DragBank != null) {
+              if (!start && DragBank !== null) {
                 var slot2 = slot >= 0 ? getRealSlot(slot) : slot;
                 var count = (DragBank.item) ? DragBank.item.itemNumber : 1;
                 game.client.sendItemSlot([1, DragBank.type, getRealSlot(DragBank.slot), count, type, slot2]);
@@ -45,13 +45,13 @@ define(['./dialog', '../tabbook', '../tabpage', '../entity/item', 'data/items', 
 
             this.background.off().on('click', function(event) {
                 var slot = $(this).data("itemSlot");
-                if (DragBank == null) {
+                if (DragBank === null) {
                   self.parent.selectBankItem(this);
                   moveItem(1, slot, true);
   								event.stopPropagation();
                 }
                 else {
-                  if (DragBank.slot == slot)
+                  if (DragBank.slot === slot)
                     moveItem(0, -1);
                   else
                     moveItem(1, slot);
@@ -61,7 +61,7 @@ define(['./dialog', '../tabbook', '../tabpage', '../entity/item', 'data/items', 
 
             this.body.on('dragstart', function(event) {
               var slot = $(this).data("itemSlot");
-              if (DragBank == null) {
+              if (DragBank === null) {
                 self.parent.selectBankItem(this);
                 moveItem(1, slot, true);
                 event.stopPropagation();
@@ -77,7 +77,7 @@ define(['./dialog', '../tabbook', '../tabpage', '../entity/item', 'data/items', 
 
             this.background.on('drop', function(event) {
               if (DragBank) {
-                if ($(this).data("itemSlot") == DragBank.slot)
+                if ($(this).data("itemSlot") === DragBank.slot)
                   return;
 
                 moveItem(1, $(this).data("itemSlot"));
@@ -87,7 +87,7 @@ define(['./dialog', '../tabbook', '../tabpage', '../entity/item', 'data/items', 
 
         rescale: function() {
             this.scale = game.renderer.guiScale;
-            if (this.scale == 1)
+            if (this.scale === 1)
             {
               this.background.css({
           			'position': 'absolute',
@@ -95,7 +95,7 @@ define(['./dialog', '../tabbook', '../tabpage', '../entity/item', 'data/items', 
           			'top': '' + (0 + Math.floor(this.index / 6) * 18) + 'px'
       		    });
             }
-            else if (this.scale == 2)
+            else if (this.scale === 2)
             {
               this.background.css({
           			'position': 'absolute',
@@ -103,7 +103,7 @@ define(['./dialog', '../tabbook', '../tabpage', '../entity/item', 'data/items', 
           			'top': '' + (0 + Math.floor(this.index / 6) * 50) + 'px'
       		    });
             }
-            else if (this.scale == 3)
+            else if (this.scale === 3)
             {
       		    this.background.css({
           			'position': 'absolute',
@@ -189,7 +189,7 @@ define(['./dialog', '../tabbook', '../tabpage', '../entity/item', 'data/items', 
               //log.info("slot=" + slot);
               //log.info("inventories " + JSON.stringify(self.inventory));
               if (item) {
-                if (self.selectedItem != realslot) {
+                if (self.selectedItem !== realslot) {
                   self.deselectItem();
                   self.selectItem(realslot, true);
                   return;

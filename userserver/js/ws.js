@@ -103,15 +103,15 @@ WS.WebsocketServer = sServer.extend({
         this._super();
 
         var app = {};
-        if (config.https_cert != "") {
+        if (config.https_cert !== "") {
           app.cert = fs.readFileSync(config.https_cert);
         }
-        if (config.https_key != "") {
+        if (config.https_key !== "") {
           app.key = fs.readFileSync(config.https_key);
         }
 
         var protocol = http;
-        if (config.protocol == "https")
+        if (config.protocol === "https")
           protocol = https;
 
         var client_connect = function (socket) {

@@ -21,7 +21,7 @@ define(['text!../../shared/data/mobs.json'], function(MobsJson) {
 
 			aggroRange: (value.aggroRange) ? value.aggroRange+1 : 4,
 			attackRange: (value.attackRange) ? value.attackRange : 1,
-			isAggressive: (value.isAggressive == 1) ? true : false,
+			isAggressive: (value.isAggressive === 1) ? true : false,
 
 			attackRate: (value.attackRateMod) ? (value.attackRateMod * 1000) : 1000,
 			reactionDelay: (value.reactionMod) ? (value.reactionMod * 768) : 768,

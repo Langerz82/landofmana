@@ -17,7 +17,7 @@ module.exports = Equipment = cls.Class.extend({
           for(var i=0; i<items.length; i++){
             var index = items[i].slot;
             this.rooms[index] = items[i];
-            /*if (items[i] && index == this.weaponSlot) {
+            /*if (items[i] && index === this.weaponSlot) {
               this.owner.setRange();
             }*/
           }
@@ -49,7 +49,7 @@ module.exports = Equipment = cls.Class.extend({
 
     /*getItemCount: function(itemKind){
     	for(var i in this.rooms){
-            if(this.rooms[i].itemKind == itemKind){
+            if(this.rooms[i].itemKind === itemKind){
                 return this.rooms[i].itemNumber;
             }
         }
@@ -58,7 +58,7 @@ module.exports = Equipment = cls.Class.extend({
 
     getItemIndex: function(itemKind){
         for(var i in this.rooms){
-            if(this.rooms[i] && this.rooms[i].itemKind == itemKind){
+            if(this.rooms[i] && this.rooms[i].itemKind === itemKind){
                 return i;
             }
         }
@@ -138,7 +138,7 @@ module.exports = Equipment = cls.Class.extend({
     {
 
 
-      if (item && this.rooms[index] == item)
+      if (item && this.rooms[index] === item)
         return false;
 
       var player = this.owner;
@@ -191,7 +191,7 @@ module.exports = Equipment = cls.Class.extend({
 	    	return;
 	    item.itemDurability -= adjustment;
 	    item.itemDurability = Math.max(0,item.itemDurability);
-	    if (item.itemDurability == 0 && item.itemDurabilityMax <= 30)
+	    if (item.itemDurability === 0 && item.itemDurabilityMax <= 30)
 	    {
 	    	this.makeEmptyEquipment(slot);
 	    	return false;

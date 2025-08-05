@@ -108,7 +108,7 @@ module.exports = Mob = Character.extend({
         this.data.hpMod *
         this.level;
     },
- 
+
     setMoveAI: function (duration)
     {
     	this.moveAICooldown = new Timer(duration);
@@ -300,7 +300,7 @@ module.exports = Mob = Character.extend({
     returnToSpawn: function() {
         var self = this;
 
-        if (this.aiState == mobState.RETURNING)
+        if (this.aiState === mobState.RETURNING)
           return;
         this.setAiState(mobState.RETURNING);
 
@@ -313,14 +313,14 @@ module.exports = Mob = Character.extend({
 
         this.freeze = false;
         //this.resetHP();
-        if (this.x == this.spawnX && this.y == this.spawnY) {
+        if (this.x === this.spawnX && this.y === this.spawnY) {
           this.returnedToSpawn();
           return;
         }
         this.go(this.spawnX, this.spawnY);
         console.warn("returnToSpawn - Path: "+JSON.stringify(this.path))
         //this.resetSpawn = true;
-        if (!this.path || this.path.length == 0) {
+        if (!this.path || this.path.length === 0) {
           try { throw new Error(); } catch(err) { console.error(err.stack); }
           this.returnedToSpawn();
         }
@@ -386,7 +386,7 @@ module.exports = Mob = Character.extend({
       for (var kind in ItemData.Kinds)
       {
     		var item = ItemData.Kinds[kind];
-    		if (!item || item.legacy == 1)
+    		if (!item || item.legacy === 1)
     			continue;
 
         var diff = item.level - this.level;
@@ -433,7 +433,7 @@ module.exports = Mob = Character.extend({
     },
 
     setAiState: function (state) {
-      //if (this.aiState == mobState.RETURNING)
+      //if (this.aiState === mobState.RETURNING)
         //try { throw new Error(); } catch(err) { console.error(err.stack); }
       this.aiState = state;
       //console.info(this.id + " has set aiState: " + state);
