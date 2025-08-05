@@ -367,14 +367,19 @@ define(['app', 'data/langdata', 'util',
             var jqPlayerLoad = $('#player_load');
             var jqDropAccept = $("#dropAccept");
             var jqDropCancel = $("#dropCancel");
+            var jqAuctionSellDialog = $("#auctionSellDialog");
+            var jqDialogModalNotify = $("#dialogModalNotify");
+            var jqDialogModalConfirm = $("#dialogModalConfirm");
 
             var jqShortcut = [];
             for(var i=0; i < 8; ++i)
               jqShortcut[i] = $('#shortcut'+i);
 
             var fnCondition = function () {
-              return game.player && game.started && !jqChatbox.hasClass('active') && !jqDropDialog.is(":visible");
+              return game.player && game.started && !jqChatbox.hasClass('active') && !jqDropDialog.is(":visible")
+               && !jqAuctionSellDialog.is(":visible") && !jqDialogModalNotify.is(":visible") && !jqDialogModalConfirm.is(":visible");
             };
+
             var fnGameKeys = fnCondition;
 
             var keyboard = function (value) {
@@ -472,9 +477,29 @@ define(['app', 'data/langdata', 'util',
               var key = e.which;
 
               if(key === Types.Keys.ENTER) { // Enter
-                  if(game.started) {
+                  if (jqDialogModalNotify.is(":visible")) {
+                    $('#dialogModalNotifyButton1').trigger("click");
+                    return false;
+                  }
+                  else if (jqDialogModalConfirm.is(":visible")) {
+                    $('#dialogModalConfirmButton1').trigger("click");
+                    return false;
+                  }
+                  else if(game.started) {
                       app.showChat(!jqChatbox.hasClass('active'));
                       return false; // prevent form submit.
+                  }
+
+              }
+
+              if(key === Types.Keys.ESCAPE) {
+                  if (jqDialogModalConfirm.is(":visible")) {
+                    $('#dialogModalNotifyButton1').trigger("click");
+                    return false;
+                  }
+                  else if (jqDialogModalConfirm.is(":visible")) {
+                    $('#dialogModalConfirmButton2').trigger("click");
+                    return false;
                   }
               }
 
@@ -561,6 +586,18 @@ define(['app', 'data/langdata', 'util',
               }
             });
 
+            $('#auctionSellDialog').keydown(function (e) {
+              var key = e.which;
+              if (key === Types.Keys.ENTER) {
+                $('#auctionSellAccept').trigger("click");
+                return false;
+              }
+              else if (key === Types.Keys.ESCAPE) {
+                $('#auctionSellCancel').trigger("click");
+                return false;
+              }
+            });
+
             $('#dropCount').keydown(function (e) {
               var key = e.which;
               if (key === Types.Keys.ENTER) {
@@ -619,7 +656,7 @@ define(['app', 'data/langdata', 'util',
             });
 
 
-            $('#dropAccept').click(function(event) {
+            jqDropAccept.click(function(event) {
                 //var pos = game.getMouseGridPosition();
                 var count = parseInt($('#dropCount').val());
                 if(count > 0) {
@@ -653,7 +690,7 @@ define(['app', 'data/langdata', 'util',
 
             });
 
-            $('#dropCancel').click(function(event) {
+            jqDropCancel.click(function(event) {
                 setTimeout(function () {
                     app.hideDropDialog();
                 }, 100);
@@ -697,25 +734,12 @@ define(['app', 'data/langdata', 'util',
                 $('#name-tooltip').removeClass('visible');
             });
 
-            /*$('#mutebutton').click(function() {
-                game.audioManager.toggle();
-            });
-
-            $('#helpbutton').click(function() {
-                game.questhandler.toggleShowLog();
-            });*/
-
-            //var fnMainKeyDown = function(e) {
-
-            //};
-
-            //$(document).bind("keydown", fnMainKeyDown);
-
             if(game.tablet) {
                 $('body').addClass('tablet');
             }
         });
 
+/*
         $('#healthbar').bind('mousedown', function (event) {
             if(event.button === 2) {
                 return false;
@@ -749,6 +773,7 @@ define(['app', 'data/langdata', 'util',
                 return false;
             }
         });
+*/
 
     	/*$(window).blur(function(){
     	  if (game && game.client && game.player && game.started);

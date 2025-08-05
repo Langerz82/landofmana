@@ -19,7 +19,6 @@ var _ = require('underscore'),
 
 var KindData = {};
 
-
 //console.info(ItemsJson);
 KindData[0] = null;
 _.each( ItemsJson, function( itemValue, key ) {

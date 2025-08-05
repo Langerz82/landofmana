@@ -174,9 +174,9 @@ define(function() {
                   var it2 = null;
                   for (var it of result) {
                     if (it2) {
-                      if (~~(it2[0]) == ~~(it[0]))
+                      if (~~(it2[0]) === ~~(it[0]))
                         it[0] = it2[0];
-                      else if (~~(it2[1]) == ~~(it[1]))
+                      else if (~~(it2[1]) === ~~(it[1]))
                         it[1] = it2[1];
                       else {
                         break;
@@ -195,22 +195,14 @@ define(function() {
         for (var i=2; i < result.length; ++i)
         {
           if ((Math.abs(result[i-2][0] - result[i][0]) > 0 &&
-               Math.abs(result[i-2][1] - result[i][1]) == 0) ||
+               Math.abs(result[i-2][1] - result[i][1]) === 0) ||
               (Math.abs(result[i-2][1] - result[i][1]) > 0  &&
-               Math.abs(result[i-2][0] - result[i][0]) == 0))
+               Math.abs(result[i-2][0] - result[i][0]) === 0))
           {
             result.splice(--i,1);
           }
         }
 
-        /*var i = 0.5;
-        for (var node of result) {
-          if (node[0] % 1 == 0)
-            node[0] += i;
-          if (node[1] % 1 == 0)
-            node[1] += i;
-        }*/
-        //log.info(JSON.stringify(result));
         return result;
     }
 
