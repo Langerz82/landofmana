@@ -5,13 +5,13 @@
 
 #npcDialog {
 	position:absolute;
-	width: 500px;
-	height: 150px;
+	width: 440px;
+	height: 200px;
 	left: 50%;
 	top: 75%;
-	margin-left: -250px;
-	margin-top: -75px;
-	padding:14px;
+	margin-left: -220px;
+	margin-top: -100px;
+	padding:0;
 	opacity:0.5;
 	display: none;
 }
@@ -27,7 +27,7 @@
 
 #npcDialoguePic {
 	position: absolute;
-	left: 30px;
+	left: 20px;
 	top: 20px;
 	width: 64px;
 	height: 64px;

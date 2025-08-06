@@ -251,13 +251,13 @@ define(['camera', 'entity/item', 'data/items', 'data/itemlootdata', 'entity/enti
                   zoom *= 1.2;
                 }
                 else if (this.tablet) {
-                  zoom *= 1;
+                  zoom *= 0.9;
                 }
                 else {
                   if ((w < 500 && h < 1000) || (w < 1000 && h < 500))
                 		zoom *= 1.2;
                 	else if (w <= 1500 || h <= 870)
-                		zoom *= 1;
+                		zoom *= 0.9;
                   else
                     zoom *= 0.8;
                 }
