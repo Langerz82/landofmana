@@ -1,7 +1,7 @@
 {
-    "host": "www.landofmana.com",
+    "host": "127.0.0.1",
     "port": 1340,
-    "protocol": "https",
+    "protocol": "http",
     "useLocalAPI": false,
     "dispatcher": false,
     "version_user":93,
