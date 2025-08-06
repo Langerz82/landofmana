@@ -1,17 +1,8 @@
 
 
-#achievementlog, #questlog {
+#achievementlog {
 	position: absolute;
-	top: 50%;
-	left: 75%;
-	margin-left: -220px;
-	margin-top: -100px;
-	width: 440px;
-	height: 200px;
 	display: none;
-	color: white;
-	text-align: center;
-	pointer-events: auto;
 }
 
 #achievementLogScroll
@@ -46,6 +37,11 @@
 	text-align:center;
 }
 
+#questlog {
+	position: absolute;
+	display: none;
+}
+
 #questLogScroll
 {
 	height:390px;
@@ -76,10 +72,12 @@
 	color: rgba(255, 255, 255, 1);
 	display: none;
 	position: absolute;
-	bottom: calc(5% + 70px);
-	left: calc(50% - 225px);
-	width: 450px;
-	height: 140px;
+	top: 75%;
+	left: 50%;
+	margin-left: -220px;
+	margin-top: -100px;
+	width: 440px;
+	height: 200px;
 	cursor:none;
 	padding:6px 12px 6px 12px;
 	border-radius:12px;
