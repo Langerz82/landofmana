@@ -148,23 +148,24 @@ module.exports = AStar = (function () {
            };
            current = open.splice(min, 1)[0];
            if (current.v !== endnode.v) {
-           //if (Math.abs(current.x-endnode.x) >= 1 || Math.abs(current.y-endnode.y) >= 1) {
                --length;
                next = successors(find, current.x, current.y, grid, rows, cols);
                for(i = 0, j = next.length; i < j; ++i){
-                   (adj = next[i]).p = current;
+                   adj = next[i];
+                   adj.p = current;
                    adj.f = adj.g = 0;
                    adj.v = ~~(adj.x) + ~~(adj.y) * cols;
                    if(!(adj.v in list)){
-                       var extra = 0;
-                       if (adj.p) {
-                        adj.dir = getDir(adj, adj.p);
-                        if (adj.p.dir && adj.p.dir !== adj.dir)
-                          extra = 2;
-                       }
-                       adj.f = (adj.g = current.g + distance(adj, current, f1, f2)) + distance(adj, endnode, f1, f2) + extra;
-                       open[length++] = adj;
-                       list[adj.v] = 1;
+                     var extra = 0;
+                     if (current) {
+                      adj.dir = getDir(adj, current);
+                      if (typeof current.dir !== 'undefined' && current.dir != adj.dir)
+                        extra = 2;
+                     }
+                     adj.g = current.g + distance(adj, current, f1, f2) + extra;
+                     adj.f = adj.g + distance(adj, endnode, f1, f2);
+                     open[length++] = adj;
+                     list[adj.v] = 1;
                    }
                }
            } else {
@@ -197,14 +198,18 @@ module.exports = AStar = (function () {
            }
        } while (length);
 
-       for (var i=2; i < result.length; ++i)
-       {
-         if ((Math.abs(result[i-2][0] - result[i][0]) > 0 &&
-              Math.abs(result[i-2][1] - result[i][1]) === 0) ||
-             (Math.abs(result[i-2][1] - result[i][1]) > 0  &&
-              Math.abs(result[i-2][0] - result[i][0]) === 0))
+       // Algorithm to shorten path cordinates to only corners.
+       if (result.length > 2) {
+         for (var i=2; i < result.length; ++i)
          {
-           result.splice(--i,1);
+           var n1 = result[i-2];
+           var n2 = result[i];
+           var tx = Math.abs(n1[0] - n2[0]);
+           var ty = Math.abs(n1[1] - n2[1]);
+           if (( tx > 0 && ty === 0) || (tx === 0 && ty > 0))
+           {
+             result.splice(--i,1);
+           }
          }
        }
 

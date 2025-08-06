@@ -942,9 +942,9 @@ module.exports = Player = Character.extend({
     this.gold[type] += parseInt(gold);
 
     this.sendPlayer(new Messages.Gold(this));
-    if (gold === 0)
-      this.sendPlayer(new Messages.Notify("CHAT", "GOLD_ZERO"));
-    else if (gold > 0)
+    if (gold === 0) {
+      //this.sendPlayer(new Messages.Notify("CHAT", "GOLD_ZERO"));
+    } else if (gold > 0)
       this.sendPlayer(new Messages.Notify("CHAT", "GOLD_ADDED", [gold]));
     else {
       gold *= -1;

@@ -1195,16 +1195,31 @@ define(['camera', 'entity/item', 'data/items', 'data/itemlootdata', 'entity/enti
               return "";
             },
 
-            drawCombatHitBar: function () {
+            resetCombatHitBar: function () {
+              var self = this;
+
+              function regenerateElements(){
+                var clonedElement = self.hitbar.cloneNode(true);
+                self.hitbar.parentNode.replaceChild(clonedElement, self.hitbar);
+                self.hitbar = document.getElementById('combathitbar-points');
+              }
+              regenerateElements();
+            },
+
+            /*drawCombatHitBar: function () {
               if (game.player) {
                 var attackPower = Math.min(game.currentTime - game.player.attackTime, ATTACK_MAX) / ATTACK_MAX;
+                if (attackPower === 1) {
+                  //$('#combathitbar-points').removeClass('progress');
+                  //$('#combathitbar-points').stop(true);
+                }
                 var width = ~~(228 * attackPower);
-                if (Math.abs(width - this.hitbarWidth) > 2) {
-                  this.hitbar.style.width = width+"px";
+                if ((width - this.hitbarWidth) != 0) {
+                  //this.hitbar.style.width = width+"px";
                   this.hitbarWidth = width;
                 }
               }
-            },
+            },*/
 
             drawDebugInfo: function() {
               var c = game.camera;
@@ -1626,7 +1641,7 @@ define(['camera', 'entity/item', 'data/items', 'data/itemlootdata', 'entity/enti
 
               this.drawCombatInfo();
               this.drawDebugInfo();
-              this.drawCombatHitBar();
+              //this.drawCombatHitBar();
               this.drawCursor();
 
               //this.drawCenter();

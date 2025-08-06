@@ -694,6 +694,7 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
 
               //log.info("game.currentTime="+game.currentTime);
               player.attackTime = game.currentTime;
+              game.renderer.resetCombatHitBar();
 
               // START TUTORIAL SHOW CODE.
               if (player.level === 0)
@@ -1124,6 +1125,7 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
 
                 p.attackCooldown.duration = 1000;
                 p.attackCooldown.lastTime = time;
+                game.renderer.resetCombatHitBar();
                 return true;
               }
               return false;

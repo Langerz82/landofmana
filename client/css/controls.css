@@ -320,3 +320,15 @@
 	text-shadow: -2px 0 black, 0 2px black, 2px 0 black, 0 -2px black;
 	font-size:24px;
 }
+
+.combatProgress {
+		width: 0%;
+    background-color: #e4c465;
+    animation: progressBar 3s ease-in-out;
+    animation-fill-mode:both;
+}
+
+@keyframes progressBar {
+  0% { width: 0; }
+  100% { width: 100%; }
+}
