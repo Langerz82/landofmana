@@ -46,9 +46,10 @@ define(function() {
       function grids(coord) {
         return gGrid[~~(coord[0])][~~(coord[1])];
       }
+
       function successors(find, x, y, grid, rows, cols){
-          x = ~~(x) + 0.5;
-          y = ~~(y) + 0.5;
+          //x = ~~(x) + 0.5;
+          //y = ~~(y) + 0.5;
 
           var
               N = (y - 1),
@@ -56,8 +57,8 @@ define(function() {
               E = (x + 1),
               W = (x - 1),
               $N = N > 0 && !grids([N,x]),
-              $S = S < (rows+1) && !grids([S,x]),
-              $E = E < (cols+1) && !grids([y,E]),
+              $S = S < (rows) && !grids([S,x]),
+              $E = E < (cols) && !grids([y,E]),
               $W = W > 0 && !grids([y,W]),
               result = [],
               i = 0
@@ -107,7 +108,7 @@ define(function() {
             f2 = Math.max,
             list = {},
             result = [],
-            open = [{x:~~(start[0]), y:~~(start[1]), f:0, g:0, v:(start[0])+(start[1])*cols}],
+            open = [{x:~~(start[0]), y:~~(start[1]), f:0, g:0, v:~~(start[0])+~~(start[1])*cols}],
             length = 1,
             adj, distance, find, i, j, max, min, current, next,
             endnode = {x:~~(end[0]), y:~~(end[1]), v:~~(end[0])+~~(end[1])*cols};
@@ -153,7 +154,7 @@ define(function() {
                       if (current) {
                        adj.dir = getDir(adj, current);
                        if (typeof current.dir !== 'undefined' && current.dir != adj.dir)
-                         extra = 2;
+                         extra = 10;
                       }
                       adj.g = current.g + distance(adj, current, f1, f2) + extra;
                       adj.f = adj.g + distance(adj, endnode, f1, f2);

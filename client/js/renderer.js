@@ -1483,17 +1483,24 @@ define(['camera', 'entity/item', 'data/items', 'data/itemlootdata', 'entity/enti
 
             setGridOffset: function () {
               var c = this.camera;
-              var mc = game.mapContainer;
+              //var mc = game.mapContainer;
               var fe = c.focusEntity;
-              var ts = this.tilesize;
+              //var ts = this.tilesize;
               if (!fe) return;
 
               var gx = fe.x >> 4;
               var gy = fe.y >> 4;
 
-              this.sox = (fe.x - (gx * ts));
-              this.soy = (fe.y - (gy * ts));
+              //this.sox = (fe.x - (gx * G_TILESIZE));
+              //this.soy = (fe.y - (gy * G_TILESIZE));
 
+              this.sox = fe.x % G_TILESIZE;
+              this.soy = fe.y % G_TILESIZE;
+
+              /*if (this.sox != this.sox2 || this.soy != this.soy2)
+              {
+                console.error("NOT EQUAL");
+              }*/
               //log.info("setGridOffset: r.sox:"+c.sox+"r.soy:"+c.soy);
 
               if (!c.scrollX) this.sox = 0;

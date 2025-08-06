@@ -103,7 +103,7 @@ define(['entity/entity'], function(Entity) {
 
         getGridPos: function (pos)
         {
-          var ts = game.tilesize;
+          var ts = G_TILESIZE;
           var r = game.renderer;
           var mc = game.mapContainer;
           if (!mc) return;
@@ -113,6 +113,8 @@ define(['entity/entity'], function(Entity) {
 
           var tw = -r.hOffX;
           var th = -r.hOffY;
+          //var tw = r.sox;
+          //var th = r.soy;
 
           var tx = (x-this.x + tw) / ts;
           var ty = (y-this.y + th) / ts;

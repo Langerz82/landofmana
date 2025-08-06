@@ -872,28 +872,28 @@ var MapEntities = cls.Class.extend({
             return res;
           }
 
-        if (!path) {
+          if (!path) {
             //console.warn("findPath - shortPath: attempting.");
             //console.info("grid:"+JSON.stringify(grid));
             //console.info(JSON.stringify(shortGrid));
             path = this.pathfinder.findShortPath(sgrid,
           	 shortGrid.minX, shortGrid.minY, spS, spE);
             console.info("findPath - shortPath:"+JSON.stringify(path));
-        }
+          }
 
-        if (!path) {
-          console.warn("findPath - DANGER - findPath LONGGG");
-          path = this.pathfinder.findPath(grid, pS, pE, false);
-          console.info("findPath - longPath:"+JSON.stringify(path));
-        }
+          if (!path) {
+            console.warn("findPath - DANGER - findPath LONGGG");
+            path = this.pathfinder.findPath(grid, pS, pE, false);
+            console.info("findPath - longPath:"+JSON.stringify(path));
+          }
 
-        if (!path)
-            console.error("findPath - Error while finding the path to "+x+", "+y+" for "+character.id);
-
-          //console.info("cid: "+character.id+", path_result:"+JSON.stringify(path));
-          return null;
+          if (!path) {
+              console.error("findPath - Error while finding the path to "+x+", "+y+" for "+character.id);
+            return null;
+          }
+          return path;
         }
-        return path;
+        return null;
     },
 
     spaceEntityRandomApart: function (dist, callback_func, entities, entity, threshold) {
