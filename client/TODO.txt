@@ -1,8 +1,5 @@
 TODO:
 
-
-CLIENT - Player/User Window is still a little too large for horizontal view on mobile.
-
 SERVER - Interacting with static objects if under time before using again, comes up with a harvest warning which needs to be a generic message.
 
 SERVER - Sometimes it reports the user is logged in at startup, when they arent.
@@ -10,6 +7,8 @@ SERVER - Sometimes it reports the user is logged in at startup, when they arent.
 CLIENT - Keyboard movement appears jerky, needs fixing.
 
 DONE:
+
+CLIENT - Player/User Window is still a little too large for horizontal view on mobile.
 
 CLIENT - When click dragging to another item with a full item count, the drop dialog should NOT display.
 

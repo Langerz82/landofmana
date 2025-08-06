@@ -1,5 +1,5 @@
 {
-    
+
     //Server Start
     "muted": "You are currently muted.",
     "snowpotionWarning": "This isn't a snowpotion.",
@@ -15,8 +15,8 @@
     "pvpNotification2": "falls before you.",
     "pvpNotification3": "has been defeated.",
     "partyWarning": "You are not in a party.",
-    //End of Server english   
-    
+    //End of Server english
+
     "usernameField": "Username",
     "passwordField": "Password",
     "enterUsernameWarning": "Please enter a username.",
@@ -26,9 +26,9 @@
     "invalidEmail": "The email you have entered appears to be invalid, please try again.",
     "createCharacter": "Create Character",
     "playersOnlineSingular": "player",
-    "playersOnlinePlural": "players"
+    "playersOnlinePlural": "players",
     "disconnectMessage": "Please reload the page",
-    
+
     "timeoutWarning": "The connection to TTA servers has timed out.",
     "invalidLogin": "The username or password you have entered is incorrect.",
     "userExistsWarning": "The username you have entered is currently in use.",
@@ -38,7 +38,7 @@
     "fullWarning": "The TTA server is currently full.",
     "unknownWarning": "An error has occured, unknown warning: ",
     "targerHUDLevel": "Level - ",
-    
-    
-    
+
+
+
 }

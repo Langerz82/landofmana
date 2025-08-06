@@ -204,7 +204,6 @@ module.exports = PacketHandler = Class.extend({
       console.info("onClose - called");
       clearTimeout(this.disconnectTimeout);
       this.close("onClose");
-
     });
 
   },

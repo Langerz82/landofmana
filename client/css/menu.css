@@ -94,11 +94,11 @@
 #user_window, #player_window, #remove_window, #about_window {
 	position:absolute;
 	width:350px;
-	height:350px;
+	height:340px;
 	top:50%;
 	left:50%;
 	margin-left:-175px;
-	margin-top:-175px;
+	margin-top:-170px;
 	color: white;
 	z-index:5;
 }
@@ -128,18 +128,18 @@
 #user_window {font-size:18px;}
 #user_window input {font-size:18px;}
 
-#user_window .validation-summary {
+.validation-summary {
 	position:absolute;
 	top:150px;
 	left:10px;
-	width:340px;
+	width:328px;
 	height:40px;
 	color:white;
 	font-size:18px;
 	font-family: 'GraphicPixel';
 }
 
-#user_window .validation-error {
+.validation-error {
 	position:relative;
 	left: 10px;
 	color: red;
@@ -207,7 +207,7 @@
 #user_remove {
 	position:absolute;
 	bottom:0;
-	right:3%;
+	right:0;
 	width:140px;
 	height:50px;
 	line-height:40px;
@@ -237,24 +237,6 @@
 }
 
 #player_window, #player_window input {font-size:18px;}
-
-#player_window .validation-summary {
-	position:absolute;
-	top:150px;
-	left:10px;
-	width:340px;
-	height:50px;
-	color:white;
-	font-size:18px;
-	font-family: 'GraphicPixel';
-}
-#player_window .validation-error {
-	position:relative;
-	left: 10px;
-	color: red;
-	font-size:18px;
-	font-family: 'GraphicPixel';
-}
 
 #lbl_player_select, #lbl_player_name, #lbl_player_class, #lbl_player_server {
 	position:absolute;

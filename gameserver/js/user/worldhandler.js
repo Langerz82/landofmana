@@ -56,6 +56,14 @@ module.exports = WorldHandler = cls.Class.extend({
       }
 
       var username = player.user.name;
+      if (users.hasOwnProperty(username)) {
+        console.info("player user is already logged in.");
+        this.connection.send([Types.UserMessages.UC_ERROR,"loggedin"]);
+        this.connection.disconnect();
+        return;
+      }
+      users[username] = playerName;
+
       if (player.world && player.world.ban) {
         if (player.world.ban.isUserBanned(username)) {
           console.info("player user is banned from server.");

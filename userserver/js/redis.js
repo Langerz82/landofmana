@@ -366,7 +366,7 @@ module.exports = DatabaseHandler = cls.Class.extend({
           };
 
           if (!data.gems)
-            db_user.gems = 1000;
+            db_user.gems = 2000;
           else
             db_user.gems = parseInt(data.gems);
 

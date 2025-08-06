@@ -12,8 +12,6 @@ module.exports = UserHandler = cls.Class.extend({
         this.world = world;
         this.connection = connection;
 
-        this.currentPlayer = null;
-
         this.connection.listen(function(message) {
           console.info("recv="+JSON.stringify(message));
           var action = parseInt(message[0]);
@@ -42,7 +40,7 @@ module.exports = UserHandler = cls.Class.extend({
 
         });
 
-        this.loadedUser = false;
+        //this.loadedUser = false;
         this.loadedPlayer = false;
 
         this.looks = new Array(AppearanceData.Data.length);
@@ -52,6 +50,7 @@ module.exports = UserHandler = cls.Class.extend({
         this.lastPacketTime = Date.now();
     },
 
+/*
     onClose: function (save) {
       console.warn("User.onClose - called.")
       if (this.name) {
@@ -63,18 +62,18 @@ module.exports = UserHandler = cls.Class.extend({
       var p = this.player;
       if (save && p)
       {
-        if (this.loadedPlayer)
-          p.save();
+        //if (this.loadedPlayer)
+          player.save();
         players.splice(players.indexOf(p),1);
-        //console.warn(JSON.stringify(players));
-        delete this.currentPlayer;
+        console.warn(JSON.stringify(players));
+        delete player;
       }
       delete users[this.name];
       console.warn(JSON.stringify(users));
-      this.connection.close("closing connection");
-      delete this;
+      //this.connection.close("closing connection");
+      //delete this;
     },
-
+*/
     onExit: function() {
     },
 
@@ -166,6 +165,7 @@ module.exports = UserHandler = cls.Class.extend({
       user.hashChallenge = conn.hash;
       user.world = this.world;
       user.conn = conn;
+      user.userHandler = this;
 
       this.server.enterWorld(conn);
       //var user = {gems: gems,
