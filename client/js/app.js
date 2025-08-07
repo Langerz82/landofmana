@@ -398,6 +398,7 @@ define(['lib/localforage', 'entity/mob', 'entity/item', 'data/mobdata', 'user', 
         },
 
         addValidationError: function(field, errorText) {
+            $('.validation-summary').html('');
             $('<span/>', {
                 'class': 'validation-error blink',
                 text: errorText
