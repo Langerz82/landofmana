@@ -85,12 +85,13 @@ UserMessages.SavePlayersList = Message.extend({
 
 
 UserMessages.playerLoggedIn = Message.extend({
-    init: function (username, playerName) {
+    init: function (status, username, playerName) {
+      this.status = status;
       this.username = username;
     	this.playerName = playerName;
     },
     serialize: function () {
-        return [Types.UserMessages.WU_PLAYER_LOGGED_IN, this.username,
+        return [Types.UserMessages.WU_PLAYER_LOGGED_IN, this.status, this.username,
           this.playerName];
     }
 });

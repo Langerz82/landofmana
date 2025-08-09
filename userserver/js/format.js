@@ -190,6 +190,7 @@ var _isTypeValid = function (fmt, msg) {
                 ['n',1,worldUsersCountMax]];
 
             this.formats[Types.UserMessages.WU_PLAYER_LOGGED_IN] = [
+                ['n',0,1],
                 ['s',usernameLenMin,usernameLenMax],
                 ['s',playerNameLenMin,playerNameLenMax]];
             this.formats[Types.UserMessages.WU_SAVE_PLAYERS_LIST] = [

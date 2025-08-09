@@ -109,6 +109,7 @@ module.exports = World = cls.Class.extend(
           delete self.objPlayers[player.name.toLowerCase()];
           var index = self.players.indexOf(player);
           self.players.splice(index,1);
+          self.userHandler.sendPlayerLogout(player);
           self.userHandler.sendWorldPlayerCount(self.players.length,
             self.maxPlayers);
         });

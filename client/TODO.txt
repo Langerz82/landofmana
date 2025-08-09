@@ -1,12 +1,14 @@
 TODO:
 
-SERVER - Interacting with static objects if under time before using again, comes up with a harvest warning which needs to be a generic message.
-
 SERVER - Sometimes it reports the user is logged in at startup, when they arent.
 
 CLIENT - Keyboard movement appears jerky, needs fixing.
 
 DONE:
+
+SERVER - Interacting with static objects if under time before using again, comes up with a harvest warning which needs to be a generic message.
+
+SERVER - Block user connects when player is in world at user-server side.
 
 SERVER - Better user player logging in sequence.
 

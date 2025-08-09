@@ -83,22 +83,23 @@ module.exports = WorldHandler = cls.Class.extend({
         };
         this.connection.listen(this.listener);
 
-        this.connection.onClose(function() {
+        /*this.connection.onClose(function() {
           console.info("onClose - called");
           //self.onExit();
           this.close("onClose");
           self.onClose();
-        });
+        });*/
     },
 
-    onClose: function () {
+    /*onClose: function () {
       console.info("worldHandler, onClose.")
       for (var username in this.users) {
         console.info("username:"+username);
         delete loggedInUsers[username];
         delete this.loggedInUsers[username];
       }
-    },
+      delete this;
+    },*/
 
     /*onExit: function() {
     },*/
@@ -186,15 +187,24 @@ module.exports = WorldHandler = cls.Class.extend({
           delete loggedInUsers[tmp];
         }
         delete this.loggedInUsers;
+        delete this;
     },
 
     handlePlayerLoggedIn: function (msg) {
       console.info("handlePlayerLoggedIn: "+JSON.stringify(msg));
-      var username = msg[0];
-      var playerName = msg[1];
-      loggedInUsers[username] = playerName;
-      this.loggedInUsers[username] = username;
-      this.users[username] = username;
+      var status = Number(msg[0]);
+      var username = msg[1];
+      var playerName = msg[2];
+      if (status === 1) {
+        loggedInUsers[username] = playerName;
+        this.loggedInUsers[username] = username;
+        this.users[username] = username;
+      }
+      else {
+        delete loggedInUsers[username];
+        delete this.loggedInUsers[username];
+        delete this.users[username];
+      }
     },
 
     handleGameServerInfo: function (msg) {

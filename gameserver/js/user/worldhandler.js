@@ -83,7 +83,7 @@ module.exports = WorldHandler = cls.Class.extend({
 
       player.start(this.connection);
 
-      this.sendToUserServer(new UserMessages.playerLoggedIn(player.user.name, playerName));
+      this.sendToUserServer(new UserMessages.playerLoggedIn(1,player.user.name, playerName));
     },
 
     loadPlayerDataUserInfo: function (player, callback) {

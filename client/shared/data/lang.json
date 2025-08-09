@@ -88,7 +88,7 @@
     "PARTY_ALL_LEFT": "The party has been disbanded.",
     "NO_PLAYER_EXIST": "Player {0} does not exist.",
 
-    "HARVEST_INVALID": "You cannot harvest at this point, use the right weapon, try somewhere else or again later.",
+    "HARVEST_INVALID": "You cannot use this at this time.",
     "HARVEST_ADDED": "{0} has been added to your inventory",
     "HARVEST_WRONG_TYPE": "You need to have a {0}.",
     "HARVEST_NO_WEAPON": "You do not have a harvest item equipped.",

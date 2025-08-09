@@ -357,6 +357,10 @@ module.exports = UserHandler = cls.Class.extend({
       this.sendToUserServer( new UserMessages.SendPlayerGold(name, gold));
     },
 
+    sendPlayerLogout: function (player) {
+      this.sendToUserServer(new UserMessages.playerLoggedIn(0,player.user.name, player.name));
+    },
+
     /*sendPlayerLoggedIn: function (username, playerName) {
       this.sendToUserServer( new UserMessages.playerLoggedIn(username, playerName));
     },*/

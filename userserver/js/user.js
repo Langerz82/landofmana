@@ -87,28 +87,6 @@ module.exports = User = cls.Class.extend({
               return;
           }
 
-          /*if (this.game_server)
-          {
-            switch (action)
-            {
-              case Types.UserMessages.WU_SAVE_USER_INFO:
-                self.handleSaveUserInfo(message);
-                return;
-              case Types.UserMessages.WU_SAVE_PLAYER_INFO:
-                self.handleSavePlayerInfo(message);
-                return;
-              case Types.UserMessages.WU_SAVE_PLAYER_QUESTS:
-                self.handleSavePlayerQuests(message);
-                return;
-              case Types.UserMessages.WU_SAVE_PLAYER_ACHIEVEMENTS:
-                self.handleSavePlayerAchievements(message);
-                return;
-              case Types.UserMessages.WU_SAVE_PLAYER_ITEMS:
-                self.handleSavePlayerItems(message);
-                return;
-            }
-          }*/
-
           if (!self.loadedUser) {
             console.info("Cannot Login User: " + message);
             return;
@@ -282,6 +260,13 @@ module.exports = User = cls.Class.extend({
       if (loggedInUsers.hasOwnProperty(this.name)) {
         this.connection.send([Types.UserMessages.UC_ERROR,"loggedin"]);
         return false;
+      }
+
+      for (var wh of worldHandlers) {
+        if (wh.loggedInUsers.hasOwnProperty(this.name)) {
+          this.connection.send([Types.UserMessages.UC_ERROR,"loggedin"]);
+          return false;
+        }
       }
 
       users[this.name] = this;
