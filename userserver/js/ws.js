@@ -217,6 +217,9 @@ WS.socketioConnection = Connection.extend({
             console.info('Client closed socket ' + self._connection.conn.remoteAddress);
             if (self.closeCallback)
               self.closeCallback(self);
+            if (self.hasOwnProperty("user"))
+              self.user.onClose();
+
             self._connection.conn.close();
             delete self._server.removeConnection(self.id);
         });

@@ -8,6 +8,10 @@ CLIENT - Keyboard movement appears jerky, needs fixing.
 
 DONE:
 
+SERVER - Better user player logging in sequence.
+
+SERVER - On UserHandler connection dropping store packets and re-send on a new connection.
+
 CLIENT - Player/User Window is still a little too large for horizontal view on mobile.
 
 CLIENT - When click dragging to another item with a full item count, the drop dialog should NOT display.

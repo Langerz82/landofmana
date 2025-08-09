@@ -38,6 +38,9 @@ module.exports = User = cls.Class.extend({
 
         this.main = main;
         this.connection = connection;
+        this.hashChallenge = connection.hash;
+        connection.user = this;
+
         this.worldConnection = null;
 
         this.currentPlayer = null;
@@ -129,17 +132,13 @@ module.exports = User = cls.Class.extend({
           }
         };
         this.connection.listen(this.listener);
-
-        this.connection.onClose(function() {
-          console.info("onClose - called");
-          clearTimeout(this.disconnectTimeout);
-          self.onExit();
-          this.close("onClose");
-          self.onClose();
-        });
     },
 
-    onClose: function (save) {
+    onClose: function () {
+      console.info("onClose - called");
+      clearTimeout(this.disconnectTimeout);
+      //self.onExit();
+
       console.warn("User.onClose - called.")
 
       if (this.hasLoggedIn)
@@ -150,11 +149,8 @@ module.exports = User = cls.Class.extend({
 
       //delete users[this.name];
       //console.warn(JSON.stringify(users));
-      this.connection.close("closing connection");
+      //this.connection.close("closing connection");
       //delete this;
-    },
-
-    onExit: function() {
     },
 
     send: function(message) {
@@ -278,6 +274,11 @@ module.exports = User = cls.Class.extend({
       ///console.warn(JSON.stringify(users));
       console.info("LOGIN: " + this.name);
       console.info("loggedInUsers: "+JSON.stringify(loggedInUsers));
+      if (users.hasOwnProperty(this.name)) {
+        this.connection.send([Types.UserMessages.UC_ERROR,"loggedin"]);
+        return false;
+      }
+
       if (loggedInUsers.hasOwnProperty(this.name)) {
         this.connection.send([Types.UserMessages.UC_ERROR,"loggedin"]);
         return false;

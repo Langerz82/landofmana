@@ -40,14 +40,24 @@ module.exports = UserHandler = cls.Class.extend({
 
         });
 
+        this.sendOldPackets();
+
         //this.loadedUser = false;
-        this.loadedPlayer = false;
+        //this.loadedPlayer = false;
 
-        this.looks = new Array(AppearanceData.Data.length);
+        //this.looks = new Array(AppearanceData.Data.length);
 
-        this.gems = 0;
+        //this.gems = 0;
 
-        this.lastPacketTime = Date.now();
+        //this.lastPacketTime = Date.now();
+    },
+
+    sendOldPackets: function () {
+        for (var msg of userHandlerPackets)
+        {
+          this.connection.send(msg.serialize());
+        }
+        userHandlerPackets = [];
     },
 
 /*
@@ -316,8 +326,10 @@ module.exports = UserHandler = cls.Class.extend({
     sendToUserServer: function (msg) {
       if (this.connection)
         this.connection.send(msg.serialize());
-      else
+      else {
+        userHandlerPackets.push(msg);
         console.info("userHandler: sendToUserServer called without connection being set: "+JSON.stringify(msg.serialize()));
+      }
     },
 
     sendWorldInfo: function (config) {

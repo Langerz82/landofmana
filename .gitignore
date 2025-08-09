@@ -11,3 +11,4 @@ client/web2exe.json
 client/js/compress.js
 client/js/compress.js
 gameserver/gameserver.zip
+*.zip

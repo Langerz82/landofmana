@@ -166,6 +166,7 @@ module.exports = Player = Character.extend({
       this.packetHandler = new PacketHandler(this.user, this, connection, this.world, this.map);
       this.packetHandler.loadedPlayer = true;
 
+      this.server.connect_callback(this);
       this.sendPlayerToClient();
     },
 
@@ -677,7 +678,7 @@ module.exports = Player = Character.extend({
         }
 
         self.attackTimer = Date.now();
-        self.server.connect_callback(self);
+        //self.server.connect_callback(self);
 
         //console.info("playerId: "+self.id);
     },

@@ -82,18 +82,21 @@ IS_EXITING = false;
 //var worldHandler;
 var userHandler = null;
 //var main = null;
-var world = null;
-var server = null;
+//var world = null;
 
 //var userHandler;
 
 //worlds = [];
+server = null;
 world = null;
+
 users = {};
 //players = [];
 hashes = {};
 
 var Main = {};
+
+userHandlerPackets = [];
 
 module.exports = Main;
 

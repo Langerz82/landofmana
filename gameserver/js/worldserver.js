@@ -148,7 +148,7 @@ module.exports = World = cls.Class.extend(
 
                 delete users[player.user.name];
                 player.map.entities.removePlayer(player);
-                //delete player;
+                delete player;
             });
 
             if (self.added_callback)
