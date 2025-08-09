@@ -2,7 +2,8 @@
 /* global require, module, log, DBH */
 
 var formatCheck = require("../format").check,
-    UserMessages = require("./usermessage");
+    UserMessages = require("./usermessage"),
+    Messages = require("../message");
 
 module.exports = WorldHandler = cls.Class.extend({
     init: function(main, connection) {
@@ -40,6 +41,10 @@ module.exports = WorldHandler = cls.Class.extend({
       this.connection.send(message);
     },
 
+    sendPlayerMessage: function(msg) {
+      this.connection.send(msg.serialize());
+    },
+
     handleLoginPlayer: function (msg) {
       console.info("worldHandler, handleLoginPlayer: "+JSON.stringify(msg));
       var playerName = msg[0],
@@ -58,7 +63,7 @@ module.exports = WorldHandler = cls.Class.extend({
       var username = player.user.name;
       if (users.hasOwnProperty(username)) {
         console.info("player user is already logged in.");
-        this.connection.send([Types.UserMessages.UC_ERROR,"loggedin"]);
+        this.sendPlayerMessage(new Messages.Error("user already logged in."));
         this.connection.disconnect();
         return;
       }
@@ -67,6 +72,7 @@ module.exports = WorldHandler = cls.Class.extend({
       if (player.world && player.world.ban) {
         if (player.world.ban.isUserBanned(username)) {
           console.info("player user is banned from server.");
+          this.sendPlayerMessage(new Messages.Error("user is banned."));
           this.connection.disconnect();
           return;
         }

@@ -104,6 +104,7 @@ define(['lib/pako', 'entity/player', 'entityfactory', 'entity/mob', 'entity/item
 					this.handlers[Types.Messages.WC_SET_ANIMATION] = this.set_animation_callback;
 					this.handlers[Types.Messages.WC_VERSION] = this.onVersion;
 					this.handlers[Types.Messages.WC_PLAYER] = this.player_callback;
+					this.handlers[Types.Messages.WC_ERROR] = this.onError;
 				},
 
 				connect: function (url, data) {
@@ -140,12 +141,16 @@ define(['lib/pako', 'entity/player', 'entityfactory', 'entity/mob', 'entity/item
 					});
 				},
 
-				_onError: function (data) {
+				onError: function (data) {
 	          var message = data[0];
 	          $('#container').addClass('error');
-	          $('#errorwindow .errordetails').html("<p>"+message+"</p>");
+	          $('#errorwindow .errordetails').append("<p>"+message+"</p>");
 	          app.loadWindow('playerwindow','errorwindow');
 						$('#errorwindow').focus();
+	      },
+
+				_onError: function (data) {
+	          this.onError(data);
 	      },
 
 				onConnected: function (data) {
