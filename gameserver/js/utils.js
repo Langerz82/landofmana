@@ -353,6 +353,10 @@ Utils.getGridPosition = function (x, y) {
   return {gx: x >> 4, gy: y >> 4};
 }
 
+Utils.getPositionFromGrid = function (gx, gy) {
+  return {x: gx << 4, y: gy << 4};
+}
+
 Utils.forEach = function (obj, fn) {
   var prop = null;
   for (var key in obj) {

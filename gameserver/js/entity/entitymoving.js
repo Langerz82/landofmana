@@ -181,8 +181,8 @@ module.exports = EntityMoving = Entity.extend({
 
   lookAtTile: function (x, y) {
     var tsh = G_TILESIZE >> 1;
-    var pos = getGridPosition(x, y);
-    pos = getPositionFromGrid(pos.gx, pos.gy);
+    var pos = Utils.getGridPosition(x, y);
+    pos = Utils.getPositionFromGrid(pos.gx, pos.gy);
     this.lookAt(pos.x+tsh,pos.y+tsh);
   },
 

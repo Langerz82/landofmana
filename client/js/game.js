@@ -947,8 +947,15 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
             {
               var p = this.player;
 
+              if (p.isDying || p.isDead)
+                return;
+
+              var fnIsDead = function (entity) {
+                return entity && (entity.isDying || entity.isDead);
+              }
+
               var fnIsIgnored = function (entity) {
-                if (entity && (entity.isDying || entity.isDead))
+                if (fnIsDead(entity))
                   return true;
                 return (entity.type === Types.EntityTypes.NPCSTATIC ||
                     entity.type === Types.EntityTypes.NPCMOVE ||
@@ -959,7 +966,7 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
               var processTarget = function () {
                 var pos = p.nextTile();
                 var target = p.target;
-                if (target && (target.isDying || target.isDead)) {
+                if (fnIsDead(target)) {
                   p.clearTarget();
                   return false;
                 }
@@ -969,26 +976,15 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
               };
 
               var entity = p.dialogueEntity;
-              if (entity && p.isWithinDistEntity(entity, 24) && p.isFacingEntity(entity)) {
+              if (entity && game.camera.isVisible(entity) && p.isFacingEntity(entity)) {
                 game.showDialogue();
                 return;
               }
-
-              if (p.isDying || p.isDead)
-                return;
 
               log.info("makePlayerInteractNextTo");
               //var ts = this.tilesize;
 
               this.ignorePlayer = true;
-
-
-
-              //var targetFound = false;
-
-              var fnIsDead = function (entity) {
-                return entity && (entity.isDying || entity.isDead);
-              }
 
               var target = p.target;
               if (target && p.isNextTooEntity(target) && p.isFacingEntity(target)) {
@@ -1027,53 +1023,11 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
                 if (processTarget()) return;
               }
 
-              /*if (this.mapContainer.isColliding(pos[0], pos[1])) {
-                p.clearTarget();
-                this.processInput(pos[0], pos[1], true);
+              entity = p.target;
+              p.targetIndex = 0;
+              this.playerTargetClosestEntity(0);
+              if (entity != p.target)
                 return;
-              }*/
-
-              entity = null;
-              var entities = Object.values(this.camera.entities);
-              entities = entities.filter(entity => !fnIsIgnored(entity));
-
-              var loopEntities = function (entities, fn) {
-                for (var entity of entities) {
-                  if (!entity || entity === p)
-                    continue;
-
-                  if (!p.isNextTooEntity(entity))
-                    continue;
-
-                  if (fn(p, entity)) {
-                    return entity;
-                  }
-                }
-                return null;
-              };
-
-              target = p.target;
-              if (!target) {
-                target = loopEntities(entities, function (p,e) {
-                  return p.isNextTooEntity(e);
-                });
-              }
-
-              if (target) {
-                p.clearTarget();
-                p.setTarget(target);
-              }
-              else {
-                if (!p.hasTarget()) {
-                  p.targetIndex = 0;
-                }
-                if (p.targetIndex === 0)
-                {
-                  this.playerTargetClosestEntity(1);
-                  if (p.target && !p.isNextTooEntity(p.target))
-                    return;
-                }
-              }
 
               processTarget();
               this.ignorePlayer = false;
@@ -1955,7 +1909,7 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
                 return;
               }
 
-              var gpos = getGridPosition(px, py);
+              var gpos = Utils.getGridPosition(px, py);
               if (!this.mapContainer.isHarvestTile(gpos, type)) {
                 game.showNotification(["CHAT", "HARVEST_WRONG_TYPE", type]);
                 return;

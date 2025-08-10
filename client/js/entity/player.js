@@ -526,7 +526,7 @@ define(['./entity', './character', 'data/appearancedata'],
       log.info("dealtrange="+dealt);
       // Players Stat affects Damage.
       var mods = (this.mod ? this.mod.defense : 0);
-      dealt += ~~((this.stats.defense*3)+mods) + this.stats.luck;
+      dealt += ~~((this.stats.defense*5)+mods) + this.stats.luck;
 
       log.info("dealtstats="+dealt);
 

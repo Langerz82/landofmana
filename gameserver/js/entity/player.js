@@ -923,7 +923,7 @@ module.exports = Player = Character.extend({
     console.info("dealtrange="+dealt);
     // Players Stat affects Damage.
     var mods = (this.mod ? this.stats.mod.defense : 0);
-    dealt += ~~((this.stats.defense*3)+mods) + this.stats.luck;
+    dealt += ~~((this.stats.defense*5)+mods) + this.stats.luck;
 
     console.info("dealtstats="+dealt);
 
