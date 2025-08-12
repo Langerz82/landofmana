@@ -26,7 +26,7 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
       });
 
       this.coolTimeCallback = null;
-      this.itemCooldown = 5000;
+      this.itemCooldown = 5;
       this.cooldowns = [];
       this.cooldownTime = 0;
 
@@ -510,7 +510,7 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
     },
 
     funcCooldownExec: function () {
-      this.cooldownTime = Date.now();
+      this.cooldownTime = this.itemCooldown;
       this.funcCooldown();
       game.shortcuts.cooldownItems();
     },
@@ -529,7 +529,7 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
         return cooldowns;
       }
 
-      var resetCooltime = function () {
+      var resetCooltimeItems = function () {
         for (var ct of self.cooldowns) {
           ct.removeData('cooltime');
           ct.html('');
@@ -537,33 +537,34 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
             'background-color': 'transparent'
           });
         }
-        clearInterval(self.coolTimeCallback);
-        self.coolTimeCallback = null;
       };
       resetCooltime();
 
-      if (self.cooldownTime != 0) {
-        var setCooltimes = function () {
-          self.cooldowns = fnCooldownItems();
+      var setCooltimes = function (decCounter) {
+        self.cooldowns = fnCooldownItems();
+        if (self.cooldownTime == 0) {
+          resetCooltimeItems();
+          clearInterval(self.coolTimeCallback);
+          self.coolTimeCallback = null;
+          return;
+        }
+        for (var ct of self.cooldowns) {
+          ct.data('cooltime', true);
+          ct.html(self.cooldownTime);
+          ct.css({
+            'background-color': '#FF000077'
+          });
+        }
+        if (decCounter)
+          self.cooldownTime--;
+      };
 
-          var elapsedTime = (Date.now() - self.cooldownTime);
-          if (elapsedTime >= self.itemCooldown) {
-            self.cooldownTime = 0;
-            resetCooltime();
-            return;
-          }
-          for (var ct of self.cooldowns) {
-            ct.data('cooltime', true);
-            ct.html(Math.ceil((self.itemCooldown-elapsedTime)/1000));
-            ct.css({
-              'background-color': '#FF000077'
-            });
-          }
-        };
-
+      if (this.coolTimeCallback == null) {
         this.coolTimeCallback = setInterval(function() {
-          setCooltimes();
-        }, 100);
+          setCooltimes(true);
+        }, 1000);
+        setCooltimes(true);
+      } else {
         setCooltimes();
       }
     },
