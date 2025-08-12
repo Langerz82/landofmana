@@ -554,7 +554,7 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
           }
           for (var ct of self.cooldowns) {
             ct.data('cooltime', true);
-            ct.html(((self.itemCooldown-elapsedTime)/1000).toFixed(0));
+            ct.html(Math.ceil((self.itemCooldown-elapsedTime)/1000));
             ct.css({
               'background-color': '#FF000077'
             });
