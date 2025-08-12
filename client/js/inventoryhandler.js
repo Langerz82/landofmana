@@ -124,7 +124,6 @@ define(['entity/item', 'data/items', 'data/itemlootdata'], function(Item, Items,
           if (--count <= 0) {
             this.inventory[realslot] = null;
           }
-          this.dialog.decInventory(realslot);
         },
 
         splitItem: function(type, slot) {
@@ -187,6 +186,7 @@ define(['entity/item', 'data/items', 'data/itemlootdata'], function(Item, Items,
                && player.stats.hp > 0) || (ItemTypes.isConsumableItem(kind) && !ItemTypes.isHealingItem(kind)))
             {
                 this.decInventory(item.slot);
+                this.dialog.funcCooldownExec();
                 game.client.sendItemSlot([0, 0, item.slot, 1]);
                 game.audioManager.playSound("heal");
                 game.shortcuts.refresh();

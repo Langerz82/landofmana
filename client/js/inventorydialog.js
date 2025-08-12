@@ -26,6 +26,9 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
       });
 
       this.coolTimeCallback = null;
+      this.itemCooldown = 5000;
+      this.cooldowns = [];
+      this.cooldownTime = 0;
 
       this.isShowAllInventory = false;
 
@@ -425,6 +428,7 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
     refreshInventoryAll: function () {
       this.makeEmptyInventoryAll();
       this.showItems(0,24);
+      this.funcCooldown();
     },
 
     setCurrency: function(gold, gems) {
@@ -505,67 +509,63 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
         return items;
     },
 
-    decInventory: function(realslot) {
+    funcCooldownExec: function () {
+      this.cooldownTime = Date.now();
+      this.funcCooldown();
+      game.shortcuts.cooldownItems();
+    },
+
+    funcCooldown: function() {
       var self = this;
 
-      var cond = function (item) { return ItemTypes.isConsumableItem(item.itemKind); };
-      var items = this.getItems(0, cond);
-
-      if (this.coolTimeCallback === null) {
-        var cooltime = 5;
-
-        var cooltimes = [];
-
+      var fnCooldownItems = function () {
+        var cond = function (item) { return ItemTypes.isConsumableItem(item.itemKind); };
+        var items = self.getItems(0, cond);
+        var cooldowns = [];
         for (var item of items) {
-          var slot = item.slot % this.pageItems;
-          cooltimes.push($('#inventoryHL'+slot));
+          var slot = item.slot % self.pageItems;
+          cooldowns.push($('#inventoryHL'+slot));
         }
+        return cooldowns;
+      }
 
-        for (var ct of cooltimes) {
-          ct.data('cooltime', cooltime);
-          ct.html(ct);
+      var resetCooltime = function () {
+        for (var ct of self.cooldowns) {
+          ct.removeData('cooltime');
+          ct.html('');
           ct.css({
-            'background-color': '#FF000077'
+            'background-color': 'transparent'
           });
         }
+        clearInterval(self.coolTimeCallback);
+        self.coolTimeCallback = null;
+      };
+      resetCooltime();
 
-        var resetCooltime = function () {
-          for (var ct of cooltimes) {
-            ct.removeData('cooltime');
-            ct.html('');
-            ct.css({
-              'background-color': 'transparent'
-            });
-          }
-          clearInterval(self.coolTimeCallback);
-          self.coolTimeCallback = null;
-        };
-
+      if (self.cooldownTime != 0) {
         var setCooltimes = function () {
-          if (cooltime <= 0) {
+          self.cooldowns = fnCooldownItems();
+
+          var elapsedTime = (Date.now() - self.cooldownTime);
+          if (elapsedTime >= self.itemCooldown) {
+            self.cooldownTime = 0;
             resetCooltime();
             return;
           }
-          for (var ct of cooltimes) {
-            ct.data('cooltime', (cooltime).toString());
-            ct.html(cooltime.toString());
+          for (var ct of self.cooldowns) {
+            ct.data('cooltime', true);
+            ct.html(((self.itemCooldown-elapsedTime)/1000).toFixed(0));
             ct.css({
               'background-color': '#FF000077'
             });
           }
-          cooltime--;
         };
 
         this.coolTimeCallback = setInterval(function() {
           setCooltimes();
-        }, 1000);
+        }, 100);
         setCooltimes();
-
-        game.shortcuts.cooldownItems();
-
-        return true;
       }
-      return false;
     },
 
     getRealSlot: function (slot) {
