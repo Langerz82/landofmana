@@ -242,9 +242,9 @@ module.exports = MobAI = Class.extend({
                 mob.target.isDead = true;
             }
 
-            console.info("handleHurtEntity");
+            console.info("handleHurt");
             this.server.handleDamage(mob.target, mob, -dmg, mob.criticalHit);
-            this.server.handleHurtEntity(mob.target, mob);
+            mob.target.handleHurt(mob);
             mob.attackTimer = Date.now();
         }
     },

@@ -9,15 +9,16 @@ define(['entity/item', 'data/items'], function(Item, Items) {
             this.maxNumber = 5;
             this.scale = 3;
 
-            for (var i=0; i < this.maxNumber; ++i)
+            /*for (var i=0; i < this.maxNumber; ++i)
             {
               $('#equipment'+i).attr('draggable', true);
               $('#equipment'+i).draggable = true;
               $('#equipment'+i).data("slot", i);
               $('#equipBackground'+i).data("slot", i);
-            }
+            }*/
         },
 
+/*
         selectItem: function(realslot, select) {
           var self = this;
           log.info("equipment - selectItem" + realslot);
@@ -34,6 +35,7 @@ define(['entity/item', 'data/items'], function(Item, Items) {
             this.selectedItem = -1;
           }
         },
+*/
 
         clearItem: function (slot) {
           $('#equipment'+slot).css({
@@ -81,6 +83,22 @@ define(['entity/item', 'data/items'], function(Item, Items) {
               this.clearItem(i);
             }
           }
+        },
+
+        equip: function(item, itemSlot) {
+            var itemKind = item.itemKind;
+
+            var equipSlot = ItemTypes.getEquipmentSlot(itemKind);
+            if (equipSlot > -1)
+              game.client.sendItemSlot([1, 0, itemSlot, 0, 2, equipSlot]);
+
+            //this.menu.close();
+            game.statDialog.update();
+        },
+
+        unequip: function(itemSlot) {
+            game.client.sendItemSlot([1, 2, itemSlot, 0, 0, -1]);
+            game.statDialog.update();
         },
 
     });

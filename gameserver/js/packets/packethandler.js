@@ -715,7 +715,7 @@ module.exports = PacketHandler = Class.extend({
     if (sEntity instanceof Player)
       sEntity.weaponDamage += dmg;
 
-    this.server.handleHurtEntity(tEntity, sEntity);
+    tEntity.handleHurt(sEntity);
     console.info("DAMAGE OCCURED "+dmg);
     //console.info("dmg="+dmg);
     if (tEntity instanceof Player) {

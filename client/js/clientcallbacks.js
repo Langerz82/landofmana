@@ -5,7 +5,7 @@ define(['infomanager', 'hoveringinfo', 'bubble',
         'entity/mob', 'entity/npcstatic', 'entity/npcmove', 'data/npcdata', 'entity/player', 'entity/character', 'entity/chest', 'entity/block',
         'data/mobdata', 'data/mobspeech', 'config', 'chathandler',
         'playerpopupmenu', 'quest', 'data/questdata', 'questhandler', 'achievement',
-        'equipmenthandler', 'inventoryhandler', 'bankhandler', 'socialhandler',
+        'equipmenthandler', 'inventoryhandler', 'inventorydialog', 'bankhandler', 'socialhandler',
         'leaderboardhandler', 'settingshandler',
         'skillhandler', 'data/skilldata', 'dialog/storedialog', 'dialog/auctiondialog',
         'dialog/bankdialog', 'data/langdata', 'gamepad'],
@@ -17,7 +17,7 @@ function(InfoManager, HoveringInfo, BubbleManager,
          Mob, NpcStatic, NpcMove, NpcData, Player, Character, Chest, Block,
          MobData, MobSpeech, config, ChatHandler,
          PlayerPopupMenu, Quest, QuestData, QuestHandler, Achievement,
-         EquipmentHandler, InventoryHandler, BankHandler, SocialHandler,
+         EquipmentHandler, InventoryHandler, InventoryDialog, BankHandler, SocialHandler,
          LeaderboardHandler, SettingsHandler,
          SkillHandler, SkillData, StoreDialog, AuctionDialog,
          BankDialog, LangData, GamePad) {
@@ -714,7 +714,7 @@ function(InfoManager, HoveringInfo, BubbleManager,
           game.player.gold[1] = bankgold;
           game.player.gems = gems;
 
-          game.inventoryHandler.setCurrency(gold, gems);
+          game.inventoryDialog.setCurrency(gold, gems);
           game.bankHandler.setGold(bankgold);
         });
 
@@ -1310,7 +1310,7 @@ function(InfoManager, HoveringInfo, BubbleManager,
             p.gold[1] = parseInt(data.shift()); // bank gold.
             p.gems = parseInt(data.shift());
 
-            game.inventoryHandler.setCurrency(p.gold[0], p.gems);
+            game.inventoryDialog.setCurrency(p.gold[0], p.gems);
             game.bankHandler.setGold(p.gold[1]);
 
             p.setMoveRate(500)

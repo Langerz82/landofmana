@@ -468,15 +468,13 @@ define(['./entity', './character', 'data/appearancedata'],
         this.stats.mod.attack : 0);
       dealt += ~~((this.stats.attack*3)+mods) + this.stats.luck;
 
-      var min = ~~(level*power);
+      var noobLvl = 10;
+      var noobMulti = 1 + Math.max(0,(noobLvl-this.level) * (1/this.level));
+
+      var min = ~~(level*power*noobMulti);
       var max = ~~(min*2);
 
       dmg = Utils.randomRangeInt(min, max) + dealt;
-
-      var noobLvl = 10;
-      var noobMulti = 1.15 + Math.max(0,(noobLvl-this.level) * (0.5/noobLvl));
-
-      dmg = ~~(dmg * noobMulti);
 
       if (this.stats.mod && this.stats.mod.damage)
         dmg += this.stats.mod.damage;
@@ -490,11 +488,8 @@ define(['./entity', './character', 'data/appearancedata'],
         }
       }
 
-      min = (min + dealt) * noobMulti;
-      max = min * 3;
-
-      min = ~~(min);
-      max = ~~(Math.pow(max, 0.9));
+      min = ~~(min + dealt);
+      max = ~~((max + dealt) * 3);
 
       return [min,max];
       //return dmg;
@@ -526,14 +521,14 @@ define(['./entity', './character', 'data/appearancedata'],
       log.info("dealtrange="+dealt);
       // Players Stat affects Damage.
       var mods = (this.mod ? this.mod.defense : 0);
-      dealt += ~~((this.stats.defense*5)+mods) + this.stats.luck;
+      dealt += ~~((this.stats.defense*4)+mods) + this.stats.luck;
 
       log.info("dealtstats="+dealt);
 
       dmg = Utils.randomRangeInt(min, max) + dealt;
 
-      min += dealt;
-      max += dealt;
+      min = ~~(min + dealt);
+      max = ~~((max+dealt) * 1.75);
 
       return [min,max];
       //return dmg;

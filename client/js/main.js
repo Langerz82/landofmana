@@ -207,7 +207,7 @@ define(['app', 'data/langdata', 'util',
       				//event.preventDefault();
 
       		    });
-		          game.inventoryHandler.loadInventoryEvents();
+		          game.inventoryDialog.loadInventoryEvents();
             });
             $('#respawn').click(function(event) {
                 game.audioManager.playSound("revive");
@@ -224,7 +224,7 @@ define(['app', 'data/langdata', 'util',
             this.inventoryButton = new Button2('#inventory', {background: {left: 0, top: 32}});
             this.inventoryButton.onClick(function(sender, event) {
               if(game && game.ready) {
-                game.inventoryHandler.toggleInventory();
+                game.inventoryDialog.toggleInventory();
               }
             });
 
@@ -674,12 +674,12 @@ define(['app', 'data/langdata', 'util',
                 	}
                   else if (app.dropAction === "splititems") // Split Items.
                   {
-                    game.inventoryHandler.sendSplitItem(game.app.SplitItem, count);
+                    game.inventoryDialog.sendSplitItem(game.app.SplitItem, count);
                     game.app.SplitItem = null;
                   }
                 	else if (app.dropAction === "dropItems") // Drop Items
                 	{
-                    game.inventoryHandler.sendDropItem(game.app.DropItem, count);
+                    game.inventoryDialog.sendDropItem(game.app.DropItem, count);
                     game.app.DropItem = null;
                 	}
                 }
@@ -702,7 +702,7 @@ define(['app', 'data/langdata', 'util',
                     var count = parseInt($('#auctionSellCount').val());
                     if(count > 0) {
                         game.client.sendAuctionSell(app.inventoryNumber,count);
-                        game.inventoryHandler.inventory[app.inventoryNumber] = null;
+                        game.inventoryDialog.inventory[app.inventoryNumber] = null;
                     }
                 } catch(e) {
                 }

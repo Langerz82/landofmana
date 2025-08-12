@@ -598,6 +598,22 @@ module.exports = Character = EntityMoving.extend({
       this.moveTo_(spot.x, spot.y);
   },
 
+  handleHurt: function(attacker)
+  {
+      if (!attacker)
+          return;
+
+      if (this.stats.hp <= 0)
+      {
+        _.each(this.attackers, function(e) {
+          if (e.hasOwnProperty("knownIds"))
+            delete e.knownIds[this.id];
+        });
+
+        this.die(attacker);
+      }
+  },
+
 /*******************************************************************************
  * END - Misc Functions.
  ******************************************************************************/

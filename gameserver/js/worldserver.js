@@ -170,22 +170,8 @@ module.exports = World = cls.Class.extend(
                 }
             };
 
-            /*var fnMob = function(character)
-            {
-                if (character instanceof Mob)
-                {
-                    if (!character.isDead && !character.hasFullHealth() && !character.isAttacked() &&
-                        character.x === character.spawnX && character.y === character.spawnY)
-                    {
-                        //console.info("stats="+JSON.stringify(character.stats));
-                        var packet = character.modHealthBy(Math.floor(character.stats.hpMax / 8));
-                    }
-                }
-            };*/
-
             self.forEachMap(function (map) {
                 map.entities.forEachPlayer(fnPlayer);
-                //map.entities.forEachMob(fnMob);
             });
         });
 
@@ -389,7 +375,7 @@ module.exports = World = cls.Class.extend(
       entity.onDamage(attacker, hpMod, epMod, crit, effects);
     },
 
-    handleHurtEntity: function(entity, attacker)
+    /*handleHurtEntity: function(entity, attacker)
     {
         var self = this;
 
@@ -405,7 +391,7 @@ module.exports = World = cls.Class.extend(
 
           entity.die(attacker);
         }
-    },
+    },*/
 
     /*onInit: function(callback)
     {
@@ -466,9 +452,9 @@ module.exports = World = cls.Class.extend(
         });
     },
 
-    getPopulation: function()
+    /*getPopulation: function()
     {
       return this.players.length;
-    },
+    },*/
 
 });

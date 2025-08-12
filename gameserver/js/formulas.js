@@ -50,9 +50,10 @@ Formulas.dmg = function(attacker, defender) {
     console.info("attacker baseDamage="+attacker_damage);
     console.info("defender baseDamageDef="+defender_defense);
     var dmg = ~~(attacker_damage * attackPower);
-		dmg = ~~(dmg - (defender_defense * Math.max(0.5,attackPower/2)));
-		//if (attacker instanceof Player)
-			//dmg = ~~(Math.pow(dmg, 0.95));
+		var defensePower = (2/3)*Math.pow(1.5,attackPower);
+		var def = ~~(defender_defense * defensePower);
+		dmg = ~~(dmg - def);
+
 		if (attacker instanceof Mob)
 			dmg = ~~(Math.pow(dmg, 0.9));
 

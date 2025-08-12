@@ -8,7 +8,7 @@ define(['text!../shared/data/sprites.json', 'lib/localforage', 'infomanager', 'b
         'entity/mob', 'entity/npcstatic', 'entity/npcmove', 'data/npcdata', 'entity/player', 'entity/character', 'entity/chest', 'entity/block', 'entity/node',
         'data/mobdata', 'data/mobspeech', 'config', 'chathandler',
         'playerpopupmenu', 'quest', 'data/questdata', 'questhandler', 'achievementhandler', 'useralarm',
-        'equipmenthandler', 'inventoryhandler', 'shortcuthandler', 'bankhandler', 'socialhandler',
+        'equipmenthandler', 'inventoryhandler', 'inventorydialog', 'shortcuthandler', 'bankhandler', 'socialhandler',
         'leaderboardhandler', 'settingshandler','storehandler',
         'skillhandler', 'data/skilldata',
         'dialog/statdialog', 'dialog/skilldialog',
@@ -22,7 +22,7 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
          Mob, NpcStatic, NpcMove, NpcData, Player, Character, Chest, Block, Node,
          MobData, MobSpeech, config, ChatHandler,
          PlayerPopupMenu, Quest, QuestData, QuestHandler, AchievementHandler, UserAlarm,
-         EquipmentHandler, InventoryHandler, ShortcutHandler, BankHandler, SocialHandler,
+         EquipmentHandler, InventoryHandler, InventoryDialog, ShortcutHandler, BankHandler, SocialHandler,
          LeaderboardHandler, SettingsHandler, StoreHandler,
          SkillHandler, SkillData,
          StatDialog, SkillDialog,
@@ -216,11 +216,11 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
                 this.confirmDialog = new ConfirmDialog();
                 this.notifyDialog = new NotifyDialog();
 
-                this.inventoryHandler = new InventoryHandler(this);
+                this.inventoryDialog = new InventoryDialog();
+                this.inventoryHandler = new InventoryHandler(this.inventoryDialog);
+
                 this.inventory = this.inventoryHandler;
                 this.shortcuts = new ShortcutHandler();
-
-
             },
 
             setChatInput: function(element) {
@@ -2080,7 +2080,7 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
                 this.updateBars();
                 this.updateExpBar();
 
-                this.inventoryHandler.refreshInventory();
+                this.inventoryDialog.refreshInventory();
                 /*if (this.player && this.player.skillHandler) {
                     this.player.skillHandler.displayShortcuts();
                 }*/
