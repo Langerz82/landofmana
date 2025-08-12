@@ -1,7 +1,5 @@
 TODO:
 
-CLIENT - Clicking on a consumable in Inventory does not execute a cooldown for all shortcut consumables.
-
 SERVER/CLIENT - Up Defense a little bit so it's more useful.
 
 SERVER - Sometimes it reports the user is logged in at startup, when they arent.
@@ -9,6 +7,8 @@ SERVER - Sometimes it reports the user is logged in at startup, when they arent.
 CLIENT - Keyboard movement appears jerky, needs fixing.
 
 DONE:
+
+CLIENT - Clicking on a consumable in Inventory does not execute a cooldown for all shortcut consumables.
 
 CLIENT - Fix player targeting.
 

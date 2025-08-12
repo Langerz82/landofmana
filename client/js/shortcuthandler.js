@@ -284,6 +284,17 @@ define(['data/skilldata', 'data/items'], function(SkillData, Items) {
         }
     },
 
+    cooldownItems: function () {
+      var itemslot = null;
+      for (var slot of this.shortcuts) {
+        if (slot.type === 1) {
+          var cooldown = new Cooldown(slot);
+          cooldown.start(slot.cooldownTime);
+          break;
+        }
+      }
+    },
+
     exec: function (slot) {
       if (this.shortcuts[slot])
         this.shortcuts[slot].exec();
@@ -298,7 +309,11 @@ define(['data/skilldata', 'data/items'], function(SkillData, Items) {
     getSameShortcuts: function (shortcut) {
       var shortcuts = [];
       for (var sc of this.shortcuts) {
-        if (sc.type === shortcut.type && sc.shortcutId === shortcut.shortcutId)
+        if (sc.type == 1 && sc.type === shortcut.type)
+        {
+          shortcuts.push(sc);
+        }
+        else if (sc.type === shortcut.type && sc.shortcutId === shortcut.shortcutId)
         {
           shortcuts.push(sc);
         }

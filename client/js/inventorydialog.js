@@ -570,6 +570,8 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
         }, 1000);
         setCooltimes();
 
+        game.shortcuts.cooldownItems();
+
         return true;
       }
       return false;
