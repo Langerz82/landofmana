@@ -538,9 +538,9 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
           });
         }
       };
-      resetCooltime();
+      resetCooltimeItems();
 
-      var setCooltimes = function (decCounter) {
+      var setCooltimes = function () {
         self.cooldowns = fnCooldownItems();
         if (self.cooldownTime == 0) {
           resetCooltimeItems();
@@ -555,17 +555,21 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
             'background-color': '#FF000077'
           });
         }
-        if (decCounter)
-          self.cooldownTime--;
       };
 
-      if (this.coolTimeCallback == null) {
-        this.coolTimeCallback = setInterval(function() {
-          setCooltimes(true);
-        }, 1000);
-        setCooltimes(true);
-      } else {
+      var fnInterval = function () {
         setCooltimes();
+        self.cooldownTime--;
+      };
+
+      if (this.cooldownTime > 0)
+      {
+        if (this.coolTimeCallback == null) {
+          this.coolTimeCallback = setInterval(fnInterval, 1000);
+          fnInterval();
+        } else {
+          setCooltimes();
+        }
       }
     },
 
