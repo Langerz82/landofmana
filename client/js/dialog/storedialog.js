@@ -310,8 +310,8 @@ define(['./dialog', '../tabbook', '../tabpage', '../entity/item', '../inventorys
 
             this.sellButton.off().on('click', function (event) {
               game.inventoryMode = InventoryMode.MODE_SELL;
-              game.inventoryHandler.showInventory(true);
-              game.inventoryHandler.backPage = self;
+              game.inventoryDialog.showInventory(true);
+              game.inventoryDialog.backPage = self;
               self.hide();
             });
 

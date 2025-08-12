@@ -48,7 +48,7 @@ define(['./dialog', '../tabbook', '../tabpage', '../entity/item', '../inventorys
               this.buyButton.off().on('click', function(event) {
                   var noItems = false;
                   for (var it of self.item.craft.i) {
-                    if (!game.inventoryHandler.hasItems(it[0],it[1])) {
+                    if (!game.inventory.hasItems(it[0],it[1])) {
                       game.showNotification(["CHAT", "SHOP_MISSINGITEMS", it[1], ItemTypes.getData(it[0]).name]);
                       noItems = true;
                     }

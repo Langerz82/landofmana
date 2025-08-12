@@ -340,9 +340,9 @@ define(['./dialog', '../tabbook', '../tabpage', '../entity/item', 'data/items', 
             store3btn.show();
             store3btn.off().on('click', function (event) {
               game.inventoryMode = InventoryMode.MODE_AUCTION;
-              game.inventoryHandler.backPage = self;
+              game.inventory.backPage = self;
               self.hide();
-              game.inventoryHandler.toggleInventory();
+              game.inventory.toggleInventory();
               //self.storeFrame.setPageIndex(0);
             });
 

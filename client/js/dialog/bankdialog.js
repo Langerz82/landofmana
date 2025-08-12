@@ -249,7 +249,7 @@ define(['./dialog', '../tabbook', '../tabpage', '../entity/item', 'data/items', 
         },
 
         select: function(realslot, itemCount = 1) {
-            if (!game.inventoryHandler.isInventoryFull())
+            if (!game.inventory.isInventoryFull())
             {
                 game.client.sendItemSlot([1, 1, realslot, itemCount, 0, -1]);
                 this.bankslots[realslot % 24].release();
@@ -298,8 +298,8 @@ define(['./dialog', '../tabbook', '../tabpage', '../entity/item', 'data/items', 
             this.storeButton = $('#bankDialogStoreButton');
             this.storeButton.off().on('click', function (event) {
               game.inventoryMode = InventoryMode.MODE_BANK;
-              game.inventoryHandler.showInventory();
-              game.inventoryHandler.backPage = self;
+              game.inventoryDialog.showInventory();
+              game.inventoryDialog.backPage = self;
               self.hide();
             });
 

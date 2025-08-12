@@ -832,7 +832,7 @@ function(HoveringInfo,
             items.push(itemRoom);
           }
           if (type === 0) {
-            game.inventoryHandler.setInventory(items);
+            game.inventory.setInventory(items);
             game.shortcuts.refresh();
           }
           else if (type === 1) {
@@ -1364,7 +1364,7 @@ function(HoveringInfo,
                 );
                 items.push(itemRoom);
               }
-              game.inventoryHandler.initInventory(items);
+              game.inventory.initInventory(items);
             }
 
             var itemCount = parseInt(data.shift());

@@ -126,6 +126,130 @@ define(['entity/item', 'data/items', 'data/itemlootdata'], function(Item, Items,
           }
           this.dialog.decInventory(realslot);
         },
+
+        splitItem: function(type, slot) {
+            if (!DragItem)
+              return;
+
+            var item2 = this.dialog.getItem(type, slot);
+            var item = this.dialog.getItem(DragItem.type, DragItem.slot);
+            if (!item) {
+              return;
+            }
+            DragItem.type2 = type;
+            DragItem.slot2 = slot;
+
+            var kind = item.itemKind;
+            var count = item.itemNumber;
+            if ( (this.isStackitem(item) && !item2) ||
+                 (this.isStackitem(item,true) && item2 && this.isStackitem(item2, true)))
+            {
+              $('#dropCount').val(count);
+
+              game.app.SplitItem = DragItem;
+              game.app.showDropDialog("splititems");
+            } else {
+              this.moveItem(type, slot);
+            }
+        },
+
+        dropItem: function(itemSlot) {
+            var pos = game.getMouseGridPosition();
+            var item = this.inventory[itemSlot];
+            if (!item)
+              return;
+
+            var kind = item.itemKind;
+            var count = item.itemNumber;
+            game.player.droppedX = pos.x;
+            game.player.droppedY = pos.y;
+            if(this.isStackitem(item))
+            {
+              $('#dropCount').val(count);
+              game.app.DropItem = DragItem;
+              game.app.showDropDialog("dropItems");
+            } else {
+              game.client.sendItemSlot([2, 0, itemSlot, 1]);
+            }
+        },
+
+        isStackitem: function (item, maxStack) {
+          return (ItemTypes.isStackedItem(item.itemKind) &&
+            (item.itemNumber > 1) && (!maxStack || (maxStack && item.itemNumber < 100)));
+        },
+
+        useItem: function(type, item) {
+          var player = game.player;
+          var kind = item.itemKind;
+          if (ItemTypes.isConsumableItem(kind)) {
+            if(kind && this.dialog.coolTimeCallback === null
+               && (ItemTypes.isHealingItem(kind) && player.stats.hp < player.stats.hpMax
+               && player.stats.hp > 0) || (ItemTypes.isConsumableItem(kind) && !ItemTypes.isHealingItem(kind)))
+            {
+                this.decInventory(item.slot);
+                game.client.sendItemSlot([0, 0, item.slot, 1]);
+                game.audioManager.playSound("heal");
+                game.shortcuts.refresh();
+                return true;
+            }
+          } else if (ItemTypes.isEquippable(kind)) {
+            game.equipment.useItem(type, item);
+            return true;
+          }
+          return false;
+        },
+
+    		moveItem: function (type, slot, start) {
+          DragItem = this._moveItem(DragItem, type, slot, start);
+        },
+
+        _moveItem: function (obj, type, slot, start) {
+          start = start || false;
+
+          if (start && obj === null) {
+            return {"action": 1, "type": type, "slot": slot, "item": this.dialog.getItem(type,slot)};
+          }
+
+          if (!start && obj !== null) {
+            var action = obj.action || 1;
+            slot = (slot >= 0) ? this.dialog.getRealSlot(slot) : slot;
+            obj.slot = (obj.type === 0) ? this.dialog.getRealSlot(obj.slot) : obj.slot;
+            game.client.sendItemSlot([action, obj.type, obj.slot, obj.item.itemNumber, type, slot]);
+            obj = null;
+          }
+          return null;
+        },
+
+        sendSplitItem: function (splitItem, count) {
+          var item = splitItem.item;
+          if(count > item.itemNumber)
+            count = item.itemNumber;
+          item.itemNumber = count;
+
+          splitItem = this._moveItem(splitItem, splitItem.type2, splitItem.slot2);
+
+          item.itemNumber -= count;
+          if(item.itemNumber === 0)
+          {
+            item = null;
+          }
+        },
+
+        sendDropItem: function (dropItem, count) {
+          var item = dropItem.item;
+          if (count <= 0)
+            return;
+          if(count > item.itemNumber)
+            count = item.itemNumber;
+
+          game.client.sendItemSlot([2, dropItem.type, dropItem.slot, count]);
+
+          item.itemNumber -= count;
+          if(item.itemNumber === 0)
+          {
+            item = null;
+          }
+        },
     });
 
     return InventoryHandler;

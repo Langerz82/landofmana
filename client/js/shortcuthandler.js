@@ -79,7 +79,7 @@ define(['data/skilldata', 'data/items'], function(SkillData, Items) {
         return;
 
       if (DragItem) {
-        var item = game.inventoryHandler.inventory[DragItem.slot];
+        var item = game.inventory.inventory[DragItem.slot];
         if (item && ItemTypes.isConsumableItem(item.itemKind)) {
           this.parent.install(slot, 1, item.itemKind);
         }
@@ -121,7 +121,7 @@ define(['data/skilldata', 'data/items'], function(SkillData, Items) {
       this.jq.css("display", "block");
 
       if (this.type === 1) {
-        var count = game.inventoryHandler.getItemTotalCount(this.shortcutId);
+        var count = game.inventory.getItemTotalCount(this.shortcutId);
         var item = {itemKind: this.shortcutId, itemNumber: count};
         Items.jqShowItem(this.jq, item, this.jq, 1.5);
         return;
@@ -142,9 +142,9 @@ define(['data/skilldata', 'data/items'], function(SkillData, Items) {
       var res = false;
       // display cooldown for all
       if (this.type === 1) {
-        var item = game.inventoryHandler.getItemByKind(this.shortcutId);
+        var item = game.inventory.getItemByKind(this.shortcutId);
         if (item)
-          res = game.inventoryDialog.useItem(0, item);
+          res = game.inventory.useItem(0, item);
       } else if (this.type === 2) {
         var skill = game.player.skillHandler.skills[this.shortcutId];
         if (skill)

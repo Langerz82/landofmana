@@ -8,6 +8,8 @@ CLIENT - Keyboard movement appears jerky, needs fixing.
 
 DONE:
 
+CLIENT - If Item Stack consumable is last one and activated, cooldown shows for that slot when it should not.
+
 CLIENT - Clicking on a consumable in Inventory does not execute a cooldown for all shortcut consumables.
 
 CLIENT - Fix player targeting.

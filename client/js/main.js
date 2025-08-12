@@ -674,12 +674,12 @@ define(['app', 'data/langdata', 'util',
                 	}
                   else if (app.dropAction === "splititems") // Split Items.
                   {
-                    game.inventoryDialog.sendSplitItem(game.app.SplitItem, count);
+                    game.inventory.sendSplitItem(game.app.SplitItem, count);
                     game.app.SplitItem = null;
                   }
                 	else if (app.dropAction === "dropItems") // Drop Items
                 	{
-                    game.inventoryDialog.sendDropItem(game.app.DropItem, count);
+                    game.inventory.sendDropItem(game.app.DropItem, count);
                     game.app.DropItem = null;
                 	}
                 }

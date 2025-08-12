@@ -107,7 +107,7 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
                 this.dialogs = [];
                 this.statDialog = new StatDialog();
                 this.skillDialog = new SkillDialog();
-                this.equipmentHandler = new EquipmentHandler(this);
+                //this.equipmentHandler = new EquipmentHandler(this);
                 this.userAlarm = new UserAlarm();
 
                 this.dialogs.push(this.statDialog);
@@ -218,8 +218,10 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
 
                 this.inventoryDialog = new InventoryDialog();
                 this.inventoryHandler = new InventoryHandler(this.inventoryDialog);
+                this.equipmentHandler = new EquipmentHandler();
 
                 this.inventory = this.inventoryHandler;
+                this.equipment = this.equipmentHandler;
                 this.shortcuts = new ShortcutHandler();
             },
 
@@ -1126,14 +1128,14 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
           			}
               } else if (NpcData.Kinds[npc.kind].title==="Enchant") {
                 game.inventoryMode = InventoryMode.MODE_ENCHANT;
-              	this.inventoryHandler.showInventory();
+              	this.inventoryDialog.showInventory();
               	if (this.gamepad.isActive())
           			{
           				this.gamepad.dialogNavigate();
           			}
               } else if (NpcData.Kinds[npc.kind].title==="Repair") {
                 game.inventoryMode = InventoryMode.MODE_REPAIR;
-              	this.inventoryHandler.showInventory();
+              	this.inventoryDialog.showInventory();
               	if (this.gamepad.isActive())
           			{
           				this.gamepad.dialogNavigate();
@@ -2199,17 +2201,6 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
                 this.updateCursorLogic();
             },
 
-            /**
-             * Change player plateau mode when necessary
-             */
-            /*updatePlateauMode: function() {
-                if(this.map && this.map.isPlateau(this.player.gx, this.player.gy)) {
-                    this.player.isOnPlateau = true;
-                } else {
-                    this.player.isOnPlateau = false;
-                }
-            },*/
-
             forEachEntityRange: function(gx, gy, r, callback) {
                 this.forEachEntity(function(e) {
         					if (e.gx >= gx-r && e.gx <= gx+r &&
@@ -2219,56 +2210,6 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
         					}
                 });
             },
-
-            /*keyDown: function(key){
-                var self = this;
-                if(key >= 49 && key <= 56){ // 1, 2, 3, 4, 5, 6
-                    var itemSlot = key - 49;
-                    var kind = this.inventoryHandler.inventory[itemSlot].itemKind;
-                    if(ItemTypes.isConsumableItem(kind)){
-                        this.eat(inventoryNumber);
-                    }
-                }
-            },*/
-
-            repairItem: function (type, itemSlot, item) {
-              var self = this;
-              if (!item) return;
-
-              if(!this.ready) return;
-
-              var price = ItemTypes.getRepairPrice(item);
-              var strPrice = 'Cost ' + price + ' to Repair.';
-              if (price > this.player.gold[0]) {
-                  game.showNotification(["SHOP", "SHOP_NOGOLD"]);
-                  return;
-              }
-              this.confirmDialog.confirm(strPrice, function(result) {
-                  if(result) {
-                      self.client.sendStoreRepair(type, itemSlot);
-                  }
-              });
-            },
-
-            enchantItem: function (type, itemSlot, item) {
-              var self = this;
-              if (!item) return;
-
-              if(!this.ready) return;
-
-              var price = ItemTypes.getEnchantPrice(item);
-              var strPrice = 'Cost ' + price + ' to Enchant.';
-              if (price > this.player.gold[0]) {
-                  game.showNotification(["SHOP", "SHOP_NOGOLD"]);
-                  return;
-              }
-              this.confirmDialog.confirm(strPrice, function(result) {
-                  if(result) {
-                      self.client.sendStoreEnchant(type, itemSlot);
-                  }
-              });
-            },
-
         });
 
         return Game;

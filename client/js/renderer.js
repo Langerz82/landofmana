@@ -271,7 +271,7 @@ define(['camera', 'entity/item', 'data/items', 'data/itemlootdata', 'entity/enti
 
                 if(this.game.ready && this.game.renderer) {
                     this.game.setSpriteScale(this.scale);
-                    this.game.inventoryHandler.scale = this.getUiScaleFactor();
+                    this.game.inventory.scale = this.getUiScaleFactor();
                 }
 
                 this.renderer.resize(this.innerWidth, this.innerHeight);

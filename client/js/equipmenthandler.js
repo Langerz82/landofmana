@@ -101,6 +101,53 @@ define(['entity/item', 'data/items'], function(Item, Items) {
             game.statDialog.update();
         },
 
+        repairItem: function (type, itemSlot, item) {
+          var self = this;
+          if (!item) return;
+
+          if(!game.ready) return;
+
+          var price = ItemTypes.getRepairPrice(item);
+          var strPrice = 'Cost ' + price + ' to Repair.';
+          if (price > game.player.gold[0]) {
+              game.showNotification(["SHOP", "SHOP_NOGOLD"]);
+              return;
+          }
+          game.confirmDialog.confirm(strPrice, function(result) {
+              if(result) {
+                  game.client.sendStoreRepair(type, itemSlot);
+              }
+          });
+        },
+
+        enchantItem: function (type, itemSlot, item) {
+          var self = this;
+          if (!item) return;
+
+          if(!game.ready) return;
+
+          var price = ItemTypes.getEnchantPrice(item);
+          var strPrice = 'Cost ' + price + ' to Enchant.';
+          if (price > game.player.gold[0]) {
+              game.showNotification(["SHOP", "SHOP_NOGOLD"]);
+              return;
+          }
+          gamg.confirmDialog.confirm(strPrice, function(result) {
+              if(result) {
+                  game.client.sendStoreEnchant(type, itemSlot);
+              }
+          });
+        },
+
+        useItem: function (type, item) {
+          if (type === 2) {
+            this.unequip(item.slot);
+          }
+          else {
+            this.equip(item, item.slot);
+          }
+        },
+
     });
 
     return EquipmentHandler;

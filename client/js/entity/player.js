@@ -54,7 +54,7 @@ define(['./entity', './character', 'data/appearancedata'],
       this.equipment = {};
       this.inventory = {};
       this.equipment.rooms = game.equipmentHandler.equipment;
-      this.inventory.rooms = game.inventoryHandler.inventory;
+      this.inventory.rooms = game.inventory.inventory;
     },
 
     isMovingAll: function () {
