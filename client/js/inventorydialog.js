@@ -518,14 +518,6 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
     decInventory: function(realslot) {
       var self = this;
 
-      var slot = realslot % this.pageItems;
-      var item = this.getItem(0, slot);
-      var count = item.itemNumber;
-      if (--count <= 0) {
-        this.makeEmptyInventory(slot);
-        this.handler.inventory[realslot] = null;
-      }
-
       var items = this.getVisibleItems(0, function (item) { return ItemTypes.isConsumableItem(item.itemKind); });
 
       if (this.coolTimeCallback === null) {
@@ -657,7 +649,7 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
            && (ItemTypes.isHealingItem(kind) && player.stats.hp < player.stats.hpMax
            && player.stats.hp > 0) || (ItemTypes.isConsumableItem(kind) && !ItemTypes.isHealingItem(kind)))
         {
-            this.decInventory(item.slot);
+            this.handler.decInventory(item.slot);
             game.client.sendItemSlot([0, 0, item.slot, 1]);
             game.audioManager.playSound("heal");
             game.shortcuts.refresh();

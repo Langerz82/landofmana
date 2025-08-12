@@ -117,7 +117,15 @@ define(['entity/item', 'data/items', 'data/itemlootdata'], function(Item, Items,
             return false;
         },
 
-
+        decInventory: function(realslot) {
+          var self = this;
+          var item = this.inventory[realslot];
+          var count = item.itemNumber;
+          if (--count <= 0) {
+            this.inventory[realslot] = null;
+          }
+          this.dialog.decInventory(realslot);
+        },
     });
 
     return InventoryHandler;
