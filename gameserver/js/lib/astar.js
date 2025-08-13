@@ -51,8 +51,8 @@ module.exports = AStar = (function () {
        return gGrid[~~(coord[0])][~~(coord[1])];
      }
      function successors(find, x, y, grid, rows, cols){
-         //x = ~~(x) + 0.5;
-         //y = ~~(y) + 0.5;
+         x = ~~(x) + 0.5;
+         y = ~~(y) + 0.5;
 
          var
              N = (y - 1),
