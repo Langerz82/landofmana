@@ -478,27 +478,26 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
                 else {
                   this.renderTick = setInterval(this.render, G_UPDATE_INTERVAL);
                 }
+                //this.renderTime = performance.now();
+                this.runUpdateInRender = !this.renderer.mobile && !this.renderer.tablet;
             },
 
             render: function () {
-
               this.processRender = true;
+
+              if (this.runUpdateInRender)
+                this.updater.update();
+
               this.renderer.renderFrame();
 
               if (this.animFrame)
                 requestAnimFrame(this.render.bind(this));
 
-              this.pGameFrame = this.gameFrame;
               this.processRender = false;
             },
 
             gametick: function() {
               var self = this;
-
-              /*if (this.processRender) {
-                setTimeout(self.gametick.bind(self),1);
-                return;
-              }*/
 
               this.processLogic = true;
 
@@ -515,7 +514,8 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
               if (self.gamepad)
                 this.gamepad.interval();
 
-              this.updater.update();
+              if (!this.runUpdateInRender)
+                this.updater.update();
 
         			if (this.mapStatus >= 2)
         			{

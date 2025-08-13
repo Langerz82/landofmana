@@ -372,7 +372,7 @@ define(['camera', 'entity/item', 'data/items', 'data/itemlootdata', 'entity/enti
               Container.BACKGROUND.addChild(this.tiles.BACKGROUND);
               Container.FOREGROUND.addChild(this.tiles.FOREGROUND);
 
-              this.textStyleName = new PIXI.TextStyle({fontFamily: 'KomikaHand', stroke: 'black', strokeThickness: 1});
+              this.textStyleName = new PIXI.TextStyle({fontFamily: 'KomikaHand', stroke: 'black', strokeThickness: 3});
             },
 
             pushAnnouncement: function (text, duration) {
@@ -395,6 +395,7 @@ define(['camera', 'entity/item', 'data/items', 'data/itemlootdata', 'entity/enti
                   fill: "#FFFF00",
                   fontSize: 6 * this.scale,
                   align: "center",
+                  strokeThickness: 4,
                 });
                 sprite = new PIXI.Text(announce[0], style);
                 sprite.anchor.set(0.5,0.5);
@@ -411,8 +412,6 @@ define(['camera', 'entity/item', 'data/items', 'data/itemlootdata', 'entity/enti
             },
 
             drawText: function(ctx, text, x, y, centered, color, strokeColor) {
-            	  this.strokeSize = 3;
-
                 switch(this.scale) {
                     case 1:
                         this.strokeSize = 1; break;
@@ -426,7 +425,7 @@ define(['camera', 'entity/item', 'data/items', 'data/itemlootdata', 'entity/enti
                         style.align = "center";
                     }
                     style.stroke = strokeColor || "#373737";
-                    style.strokeThickness = this.strokeSize;
+                    style.strokeThickness = 4;
                     style.fill = color || "white";
 
                     var pText = new PIXI.Text(text, style);
@@ -531,25 +530,26 @@ define(['camera', 'entity/item', 'data/items', 'data/itemlootdata', 'entity/enti
 
             },
 
-            // containerName, tileid, tilesets, setW, x, y
+            // containerName, tileid, x, y
             drawTile: function(arr) {
                 var ts = G_TILESIZE;
 
-                 arr[4] *= ts;
-                 arr[5] *= ts;
+                 arr[2] *= ts;
+                 arr[3] *= ts;
 
-                 var tileset = arr[2][0];
+                 var tw = this.tilesetwidth;
+                 var tileset = this.tilesets[0];
 
                  tileset.frame = new PIXI.Rectangle(0, 0, ts, ts);
                  tileset.frame.interactive = false;
                  tileset.frame.interactiveChildren = false;
-                 tileset.frame.x = (getX(arr[1], arr[3]) * ts);
-                 tileset.frame.y = (~~(arr[1] / arr[3]) * ts);
+                 tileset.frame.x = (getX(arr[1], tw) * ts);
+                 tileset.frame.y = (~~(arr[1] / tw) * ts);
 
                  var container = this.tiles["BACKGROUND"];
                  if (arr[0] === 1)
                   container = this.tiles["FOREGROUND"];
-                 container.addFrame(tileset, arr[4], arr[5], ts, ts);
+                 container.addFrame(tileset, arr[2], arr[3], ts, ts);
 
 
                  // UNcomment to enable tile numbering.
@@ -994,6 +994,13 @@ define(['camera', 'entity/item', 'data/items', 'data/itemlootdata', 'entity/enti
               }
             },
 
+            hideEntity: function (entity) {
+              entity.pjsSprite.renderable = false;
+              entity.pjsSprite.visible = false;
+              if (this.pxSprite.hasOwnProperty("en_"+entity.id) && this.pxSprite["en_"+entity.id])
+                this.pxSprite["en_"+entity.id].visible = false;
+            },
+
             drawEntities: function(dirtyOnly) {
                 var self = this;
                 //self.drawEntity(game.player);
@@ -1001,6 +1008,14 @@ define(['camera', 'entity/item', 'data/items', 'data/itemlootdata', 'entity/enti
                   this.showHarvestBar(game.player);
                 else {
                   this.removeHarvestBar(game.player.id);
+                }
+
+                for (var id in game.entities)
+                {
+                  var entity = game.entities[id];
+                  if (entity) {
+                    this.hideEntity(entity);
+                  }
                 }
 
                 self.camera.forEachInScreen(function (entity,id) {
@@ -1022,20 +1037,12 @@ define(['camera', 'entity/item', 'data/items', 'data/itemlootdata', 'entity/enti
                   if (entity instanceof Entity)
                   {
                     entity.pjsSprite.renderable = true;
+                    entity.pjsSprite.visible = true;
                     if (!entity.isDead)
                       self.drawEntity(entity);
                   }
 
                 });
-
-                for (var id in game.entities)
-                {
-                  var entity = game.entities[id];
-
-                  if (entity && !game.camera.isVisible(entity,2)) {
-                    entity.pjsSprite.renderable = false;
-                  }
-                }
             },
 
             drawEntityName: function(entity) {
@@ -1099,13 +1106,17 @@ define(['camera', 'entity/item', 'data/items', 'data/itemlootdata', 'entity/enti
                     fill: color,
                     fontSize: 5 * this.scale,
                     align: "center",
+                    strokeThickness: 4,
                   });
                   sprite = new PIXI.Text(name, style);
                   sprite.anchor.set(0.5, 0.5);
+                  sprite.interactive  = false;
+                  sprite.interactiveChildren = false;
 
                   Container.HUD.addChild(sprite);
                   this.pxSprite["en_"+entity.id] = sprite;
                 }
+                sprite.visible = true;
                 sprite.zIndex = (entity.y*(this.camera.gridW*ts)+entity.x);
                 sprite.x = x;
                 sprite.y = y;
@@ -1146,13 +1157,14 @@ define(['camera', 'entity/item', 'data/items', 'data/itemlootdata', 'entity/enti
                 var g = this.game,
                     m = this.game.map;
 
+                self.tilesetwidth = tilesetwidth;
                 if(g.started) {
       						g.camera.forEachVisibleValidPosition(function(x, y) {
                     //collide = mc.collisionGrid[y][x];
       							if(mc.tileGrid[y][x] instanceof Array) {
                       for (var id of mc.tileGrid[y][x]) {
       								//_.each(mc.tileGrid[y][x], function(id) {
-                        self.drawTile([(mc.isHighTile(id) ? 1 : 0), id, self.tilesets, tilesetwidth, x, y]);
+                        self.drawTile([(mc.isHighTile(id) ? 1 : 0), id, x, y]);
       									/*if(mc.isHighTile(id)) { // Don't draw unnecessary tiles
       										self.drawTile([1, id, self.tilesets, tilesetwidth, x, y]);
       									} else {
@@ -1164,7 +1176,7 @@ define(['camera', 'entity/item', 'data/items', 'data/itemlootdata', 'entity/enti
       							else {
       								var id = mc.tileGrid[y][x];
       								if(id) {
-                        self.drawTile([(mc.isHighTile(id) ? 1 : 0), id, self.tilesets, tilesetwidth, x, y]);
+                        self.drawTile([(mc.isHighTile(id) ? 1 : 0), id, x, y]);
       									/*if(mc.isHighTile(id)) { // Don't draw unnecessary tiles
       										self.drawTile([1, id, self.tilesets, tilesetwidth, x, y]);
       									} else {
@@ -1317,6 +1329,7 @@ define(['camera', 'entity/item', 'data/items', 'data/itemlootdata', 'entity/enti
                     fill: info.fillColor,
                     fontSize: info.fontSize * self.scale,
                     align: "center",
+                    strokeThickness: 4
                   });
                   sprite = new PIXI.Text(info.value, style);
                   sprite.anchor.set(0.5,0);
@@ -1473,7 +1486,7 @@ define(['camera', 'entity/item', 'data/items', 'data/itemlootdata', 'entity/enti
               //log.info("c.sox:"+c.sox+",c.soy:"+c.soy);
               c.setRealCoords();
 
-              var gx = fe.x >> 4;
+              /*var gx = fe.x >> 4;
               var gy = fe.y >> 4;
               if (this.forceRedraw || (fe && (this.fegx !== gx || this.fegy !== gy)))
               {
@@ -1483,15 +1496,20 @@ define(['camera', 'entity/item', 'data/items', 'data/itemlootdata', 'entity/enti
                 this.forceRedraw = true;
               }
               this.fegx = gx;
-              this.fegy = gy;
+              this.fegy = gy;*/
+
+              var mc = game.mapContainer;
+              if (mc)
+                mc.moveGrid();
+              //this.forceRedraw = true;
 
               var go = this.setGridOffset();
               this.setTilesOffset(go[0],go[1]);
 
-              if (this.forceRedraw)
-              {
+              //if (this.forceRedraw)
+              //{
                 this.refreshGrid();
-              }
+              //}
             },
 
             showCutScene: function () {

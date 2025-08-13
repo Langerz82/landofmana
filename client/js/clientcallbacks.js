@@ -1307,7 +1307,7 @@ function(HoveringInfo,
             game.inventoryDialog.setCurrency(p.gold[0], p.gems);
             game.bankHandler.setGold(p.gold[1]);
 
-            p.setMoveRate(500)
+            p.setMoveRate(500);
 
             p.stats.attack = parseInt(data.shift());
             p.stats.defense = parseInt(data.shift());

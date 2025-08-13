@@ -128,7 +128,7 @@ define(['entity/entity'], function(Entity) {
 
             var h = this.gridHE;
             var w = this.gridWE;
-            var j=0, k=0;
+            //var j=0, k=0;
             for(var y=0; y < h; ++y) {
                 for(var x=0; x < w; ++x) {
                     callback(x, y);
