@@ -136,7 +136,6 @@ define(['./dialog', '../tabbook', '../tabpage', '../entity/item', '../inventorys
           	    if (!cond(item))
           	    	this.items.splice(this.items.indexOf(item),1);
             }
-            //this.setPageIndex(0);
         },
 
         reload: function() {
@@ -254,16 +253,8 @@ define(['./dialog', '../tabbook', '../tabpage', '../entity/item', '../inventorys
             this.minLevel = min;
             this.maxLevel = max;
 
-            //for(var index = 0; index < this.pages.length; index++) {
-            //    this.pages[index].open(min,max);
-            //}
-
             this.setPageIndex(0);
             this.pages[0].setPageIndex(0);
-            //this.pagePotion.open(min,max);
-
-
-            //this.pageNavigator.open();
         }
     });
 
@@ -302,8 +293,10 @@ define(['./dialog', '../tabbook', '../tabpage', '../entity/item', '../inventorys
 
             $("#storeDialogStore0Button").text('CONSUME');
             //$("#storeDialogStore0Button").removeClass('active');
-            $("#storeDialogStore0Button").show();
-            $("#storeDialogStore2Button").show();
+            //$("#storeDialogStore0Button").show();
+            //$("#storeDialogStore1Button").show();
+            //$("#storeDialogStore2Button").show();
+            $("#storeDialog .storebuttons").show();
 
             this.sellButton.text('SELL');
             this.sellButton.show();

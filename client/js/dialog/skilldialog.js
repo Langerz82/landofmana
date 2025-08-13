@@ -197,14 +197,14 @@ define(['./dialog', '../tabpage', 'data/skilldata'], function(Dialog, TabPage, S
                     this.skills[i].skill = skill;
                     //log.info("this.skills[id].skill="+JSON.stringify(this.skills[id].skill));
                     $('#skill' + i).attr('title', data.name + " Lv: " + tSkill.level);
-                    $('#skill' + i + 'Body').css({
+                    $('#skill' + i + ' .skillbody').css({
                         'text-align': 'center',
                         'color': '#fff',
-                        'line-height': (18*scale)+'px',
+                        'line-height': (24*scale)+'px',
                         'font-size': (6*scale)+'px',
                         'font-weight': 'bold'
                     });
-                    $('#skill' + i + 'Body').html("Lv "+tSkill.level);
+                    $('#skill' + i + ' .skillbody').html("Lv "+tSkill.level);
                     skill.setLevel(tSkill.level);
                 }
             }

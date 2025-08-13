@@ -332,18 +332,18 @@ define(['./dialog', '../tabbook', '../tabpage', '../entity/item', 'data/items', 
             $('#storeDialog .frameheading div').text('AUCTION');
 
             $("#storeDialogStore0Button").text('LIST');
-            $("#storeDialogStore0Button").show();
-            $("#storeDialogStore2Button").show();
+            $("#storeDialog .storebuttons").show();
+            //$("#storeDialogStore0Button").show();
+            //$("#storeDialogStore2Button").show();
 
             var store3btn = $("#storeDialogStore3Button");
             store3btn.text('SELL');
             store3btn.show();
             store3btn.off().on('click', function (event) {
               game.inventoryMode = InventoryMode.MODE_AUCTION;
-              game.inventory.backPage = self;
+              game.inventoryDialog.backPage = self;
               self.hide();
-              game.inventory.toggleInventory();
-              //self.storeFrame.setPageIndex(0);
+              game.inventoryDialog.toggleInventory();
             });
 
             this.storeFrame.open(0);
