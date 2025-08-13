@@ -1948,17 +1948,11 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
                 orientations.splice(orientations.indexOf(o), 1);
                 orientations.unshift(o);
 
-                //for(var o of orientations)
-                //{
-                  //var p2 = this.player.nextDist(px, py, o, tsh);
-                  //if (!this.mapContainer.isColliding(p2[0],p2[1]))
-									if (!this.mapContainer.isColliding(px,py))
-                  {
-                    //this.makePlayerGoTo(p2[0], p2[1]);
-										this.makePlayerGoTo(px, py);
-                    return;
-                  }
-                //}
+								if (!this.mapContainer.isColliding(px,py))
+                {
+									this.makePlayerGoTo(px, py);
+                  return;
+                }
               }
               else {
                   this.makePlayerGoTo(px, py);
@@ -2138,19 +2132,8 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
                   else if(this.storeDialog.visible) {
                       game.notifyDialog.notify(message);
                   } else if(this.auctionDialog.visible) {
-                      /*if (text.indexOf('SHOP_SOLD') === 0) {
-                          this.auctionDialog.storeFrame.open();
-
-                          this.auctionDialog.storeFrame.reload();
-                      }
-                      else {
-                      	game.notifyDialog.notify(message);
-                      }*/
                       game.notifyDialog.notify(message);
                   } else if(this.appearanceDialog.visible) {
-                      /*if (text.indexOf('SHOP_SOLD') === 0) {
-                          this.appearanceDialog.storeFrame.open();
-                      }*/
                       if (group.indexOf('SHOP') === 0) {
                       	game.notifyDialog.notify(message);
                       }

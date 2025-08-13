@@ -48,8 +48,8 @@ define(function() {
       }
 
       function successors(find, x, y, grid, rows, cols){
-          //x = ~~(x) + 0.5;
-          //y = ~~(y) + 0.5;
+          x = ~~(x) + 0.5;
+          y = ~~(y) + 0.5;
 
           var
               N = (y - 1),
