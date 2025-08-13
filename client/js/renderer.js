@@ -20,6 +20,8 @@ define(['camera', 'entity/item', 'data/items', 'data/itemlootdata', 'entity/enti
 
         var Renderer = Class.extend({
             init: function(game) {
+
+
                 var self = this;
                 this.game = game;
 
@@ -98,8 +100,8 @@ define(['camera', 'entity/item', 'data/items', 'data/itemlootdata', 'entity/enti
                 Container.STAGE.addChild(Container.BACKGROUND);
                 Container.STAGE.addChild(Container.ENTITIES);
                 Container.STAGE.addChild(Container.FOREGROUND);
-                Container.STAGE.addChild(Container.COLLISION);
-                Container.STAGE.addChild(Container.COLLISION2);
+                //Container.STAGE.addChild(Container.COLLISION);
+                //Container.STAGE.addChild(Container.COLLISION2);
                 Container.STAGE.addChild(Container.HUD);
                 Container.STAGE.addChild(Container.HUD2);
 
@@ -109,10 +111,10 @@ define(['camera', 'entity/item', 'data/items', 'data/itemlootdata', 'entity/enti
                 Container.BACKGROUND.zIndex = 1;
                 Container.ENTITIES.zIndex = 2;
                 Container.FOREGROUND.zIndex = 3;
-                Container.COLLISION.zIndex = 4;
-                Container.COLLISION2.zIndex = 5;
-                Container.HUD.zIndex = 6;
-                Container.HUD2.zIndex = 7;
+                //Container.COLLISION.zIndex = 4;
+                //Container.COLLISION2.zIndex = 5;
+                Container.HUD.zIndex = 4;
+                Container.HUD2.zIndex = 5;
 
                 this.guiScale = 3;
                 this.scaleHUD = 1;
@@ -124,14 +126,33 @@ define(['camera', 'entity/item', 'data/items', 'data/itemlootdata', 'entity/enti
                 Container.ENTITIES.scale.y = this.gameScale;
                 Container.FOREGROUND.scale.x = this.gameScale;
                 Container.FOREGROUND.scale.y = this.gameScale;
-                Container.COLLISION.scale.x = this.gameScale;
-                Container.COLLISION.scale.y = this.gameScale;
-                Container.COLLISION2.scale.x = 1;
-                Container.COLLISION2.scale.y = 1;
+                //Container.COLLISION.scale.x = this.gameScale;
+                //Container.COLLISION.scale.y = this.gameScale;
+                //Container.COLLISION2.scale.x = 1;
+                //Container.COLLISION2.scale.y = 1;
                 Container.HUD.scale.x = this.scaleHUD;
                 Container.HUD.scale.y = this.scaleHUD;
                 Container.HUD2.scale.x = 1;
                 Container.HUD2.scale.y = 1;
+
+                Container.STAGE.interactive = false;
+                Container.BACKGROUND.interactive = false;
+                Container.ENTITIES.interactive = false;
+                Container.FOREGROUND.interactive = false;
+                //Container.COLLISION.interactive = false;
+                //Container.COLLISION2.interactive = false;
+                Container.HUD.interactive = false;
+                Container.HUD2.interactive = false;
+
+                Container.STAGE.interactiveChildren = false;
+                Container.BACKGROUND.interactiveChildren = false;
+                Container.ENTITIES.interactiveChildren = false;
+                Container.FOREGROUND.interactiveChildren = false;
+                //Container.COLLISION.interactiveChildren = false;
+                //Container.COLLISION2.interactiveChildren = false;
+                Container.HUD.interactiveChildren = false;
+                Container.HUD2.interactiveChildren = false;
+
 
                 this.resources = {};
                 this.tiles = {};
@@ -194,6 +215,8 @@ define(['camera', 'entity/item', 'data/items', 'data/itemlootdata', 'entity/enti
                 this.hitbar = document.getElementById("combathitbar-slider");
 
                 this.resizeCanvases(1);
+
+                //this.culler = new Culler();
             },
 
             calcScreenSize: function (zoomMod) {
@@ -339,6 +362,13 @@ define(['camera', 'entity/item', 'data/items', 'data/itemlootdata', 'entity/enti
               this.tilesets = this.loadData.tilesets;
               this.tiles.BACKGROUND = new PIXI.tilemap.CompositeRectTileLayer(0, this.tilesets);
               this.tiles.FOREGROUND = new PIXI.tilemap.CompositeRectTileLayer(0, this.tilesets);
+
+              this.tiles.BACKGROUND.interactive = false;
+              this.tiles.FOREGROUND.interactive = false;
+
+              this.tiles.BACKGROUND.interactiveChildren = false;
+              this.tiles.FOREGROUND.interactiveChildren = false;
+
               Container.BACKGROUND.addChild(this.tiles.BACKGROUND);
               Container.FOREGROUND.addChild(this.tiles.FOREGROUND);
 
@@ -435,6 +465,8 @@ define(['camera', 'entity/item', 'data/items', 'data/itemlootdata', 'entity/enti
               sprite.flipX = false;
               sprite.flipY = false;
               sprite.visible = false;
+              sprite.cullable = true;
+              sprite.interactiveChildren = false;
               csprite.container.addChild(sprite);
               return sprite;
             },
@@ -509,6 +541,8 @@ define(['camera', 'entity/item', 'data/items', 'data/itemlootdata', 'entity/enti
                  var tileset = arr[2][0];
 
                  tileset.frame = new PIXI.Rectangle(0, 0, ts, ts);
+                 tileset.frame.interactive = false;
+                 tileset.frame.interactiveChildren = false;
                  tileset.frame.x = (getX(arr[1], arr[3]) * ts);
                  tileset.frame.y = (~~(arr[1] / arr[3]) * ts);
 
@@ -655,10 +689,8 @@ define(['camera', 'entity/item', 'data/items', 'data/itemlootdata', 'entity/enti
               {
                 var gfx = new PIXI.Graphics();
                 var l = (this.tilesize >> 1);
-                //this.drawSquare(gfx, 0, 0, 0x00ff00, l, 1);
                 gfx.lineStyle(2, 0x00ff00)
                   .drawRoundedRect(x-l, y-l, l << 1, l << 1, 4);
-                //this.drawTarget(gfx, 0, 0, 0x0000ff, l, 1);
                 var texture = this.renderer.generateTexture(gfx);
                 var sprite = new PIXI.Sprite(texture);
                 Container.ENTITIES.addChild(sprite);
@@ -838,6 +870,7 @@ define(['camera', 'entity/item', 'data/items', 'data/itemlootdata', 'entity/enti
                 var texture = this.renderer.generateTexture(gfx);
 
                 var sprite = new PIXI.Sprite(texture);
+                sprite.cullable = true;
                 sprite.anchor.set(0.5,0.5);
                 sprite.alpha = 0.85;
 
@@ -988,11 +1021,21 @@ define(['camera', 'entity/item', 'data/items', 'data/itemlootdata', 'entity/enti
                   }
                   if (entity instanceof Entity)
                   {
+                    entity.pjsSprite.renderable = true;
                     if (!entity.isDead)
                       self.drawEntity(entity);
                   }
 
                 });
+
+                for (var id in game.entities)
+                {
+                  var entity = game.entities[id];
+
+                  if (entity && !game.camera.isVisible(entity,2)) {
+                    entity.pjsSprite.renderable = false;
+                  }
+                }
             },
 
             drawEntityName: function(entity) {
@@ -1106,28 +1149,36 @@ define(['camera', 'entity/item', 'data/items', 'data/itemlootdata', 'entity/enti
                 if(g.started) {
       						g.camera.forEachVisibleValidPosition(function(x, y) {
                     //collide = mc.collisionGrid[y][x];
-      							if(_.isArray(mc.tileGrid[y][x])) {
-      								_.each(mc.tileGrid[y][x], function(id) {
-      									if(!mc.isHighTile(id)) { // Don't draw unnecessary tiles
-      										self.drawTile([0, id, self.tilesets, tilesetwidth, x, y]);
-      									}
-      								});
+      							if(mc.tileGrid[y][x] instanceof Array) {
+                      for (var id of mc.tileGrid[y][x]) {
+      								//_.each(mc.tileGrid[y][x], function(id) {
+                        self.drawTile([(mc.isHighTile(id) ? 1 : 0), id, self.tilesets, tilesetwidth, x, y]);
+      									/*if(mc.isHighTile(id)) { // Don't draw unnecessary tiles
+      										self.drawTile([1, id, self.tilesets, tilesetwidth, x, y]);
+      									} else {
+                          self.drawTile([0, id, self.tilesets, tilesetwidth, x, y]);
+                        }*/
+      								//});
+                      }
       							}
       							else {
       								var id = mc.tileGrid[y][x];
       								if(id) {
-      									if(!mc.isHighTile(id)) { // Don't draw unnecessary tiles
-      										self.drawTile([0, id, self.tilesets, tilesetwidth, x, y]);
-      									}
+                        self.drawTile([(mc.isHighTile(id) ? 1 : 0), id, self.tilesets, tilesetwidth, x, y]);
+      									/*if(mc.isHighTile(id)) { // Don't draw unnecessary tiles
+      										self.drawTile([1, id, self.tilesets, tilesetwidth, x, y]);
+      									} else {
+                          self.drawTile([0, id, self.tilesets, tilesetwidth, x, y]);
+                        }*/
       								}
       							}
       						}, 0, m);
                 }
             },
 
-            drawHighTerrain: function() {
+            /*drawHighTerrain: function() {
                 this.drawHighTiles();
-            },
+            },*/
 
             drawAnimatedTiles: function() {
                 return; // stub - remove.
@@ -1143,14 +1194,14 @@ define(['camera', 'entity/item', 'data/items', 'data/itemlootdata', 'entity/enti
                 });
             },
 
-            drawHighTiles: function() {
+            /*drawHighTiles: function() {
                 var self = this,
                     mc = this.game.mapContainer,
                     tilesetwidth = this.tilesets[0].baseTexture.width / this.tilesize,
                     g = this.game;
 
                 g.camera.forEachVisibleValidPosition(function(x, y) {
-                  if(_.isArray(mc.tileGrid[y][x])) {
+                  if(mc.tileGrid[y][x] instanceof Array) {
                     _.each(mc.tileGrid[y][x], function(id) {
                       if(mc.isHighTile(id)) {
                         self.drawTile([1, id, self.tilesets, tilesetwidth, x, y]);
@@ -1166,7 +1217,7 @@ define(['camera', 'entity/item', 'data/items', 'data/itemlootdata', 'entity/enti
                     }
                   }
                 }, 0, false);
-            },
+            },*/
 
 // TODO - Render in PIXIJS ?
             getFPS: function() {
@@ -1370,7 +1421,7 @@ define(['camera', 'entity/item', 'data/items', 'data/itemlootdata', 'entity/enti
                      .lineTo(x-l, y-l);*/
             },
 
-            drawCollision: function () {
+            /*drawCollision: function () {
               var self = this,
                   mc = this.game.mapContainer,
                   g = this.game;
@@ -1392,9 +1443,9 @@ define(['camera', 'entity/item', 'data/items', 'data/itemlootdata', 'entity/enti
                 }
                 this.colTotal = index;
               }
-            },
+            },*/
 
-            drawCollisionTile: function (index, x, y, color) {
+            /*drawCollisionTile: function (index, x, y, color) {
               var ts = this.tilesize;
 
               x = (x * ts);
@@ -1413,7 +1464,7 @@ define(['camera', 'entity/item', 'data/items', 'data/itemlootdata', 'entity/enti
               }
               sprite.x = x;
               sprite.y = y;
-            },
+            },*/
 
             renderStaticCanvases: function() {
       				var c = this.camera;
@@ -1422,17 +1473,17 @@ define(['camera', 'entity/item', 'data/items', 'data/itemlootdata', 'entity/enti
               //log.info("c.sox:"+c.sox+",c.soy:"+c.soy);
               c.setRealCoords();
 
-              //var gx = fe.x >> 4;
-              //var gy = fe.y >> 4;
-              //if (this.forceRedraw || fe && (this.fegx !== gx || this.fegy !== gy))
-              //{
-              var mc = game.mapContainer;
-              if (mc)
-                mc.moveGrid();
-              this.forceRedraw = true;
-              //}
-              //this.fegx = gx;
-              //this.fegy = gy;
+              var gx = fe.x >> 4;
+              var gy = fe.y >> 4;
+              if (this.forceRedraw || (fe && (this.fegx !== gx || this.fegy !== gy)))
+              {
+                var mc = game.mapContainer;
+                if (mc)
+                  mc.moveGrid();
+                this.forceRedraw = true;
+              }
+              this.fegx = gx;
+              this.fegy = gy;
 
               var go = this.setGridOffset();
               this.setTilesOffset(go[0],go[1]);
@@ -1514,7 +1565,7 @@ define(['camera', 'entity/item', 'data/items', 'data/itemlootdata', 'entity/enti
               //log.info("refreshGrid: START");
               this.clearTiles();
               this.drawTerrain();
-              this.drawHighTerrain();
+              //this.drawHighTerrain();
               //this.drawCollision();
               //log.info("refreshGrid: END");
             },
@@ -1563,10 +1614,10 @@ define(['camera', 'entity/item', 'data/items', 'data/itemlootdata', 'entity/enti
               Container.BACKGROUND.y = y;
               Container.FOREGROUND.x = x;
               Container.FOREGROUND.y = y;
-              Container.COLLISION.x = x;
-              Container.COLLISION.y = y;
-              Container.COLLISION2.x = x;
-              Container.COLLISION2.y = y;
+              //Container.COLLISION.x = x;
+              //Container.COLLISION.y = y;
+              //Container.COLLISION2.x = x;
+              //Container.COLLISION2.y = y;
 
             },
 
@@ -1577,7 +1628,7 @@ define(['camera', 'entity/item', 'data/items', 'data/itemlootdata', 'entity/enti
                 this.tiles.FOREGROUND.clear();
             },
 
-            clearFullTiles: function () {
+            /*clearFullTiles: function () {
               Container.BACKGROUND.children[0].clear();
               if (this.tiles.BACKGROUND) {
                 this.tiles.BACKGROUND.clear();
@@ -1586,7 +1637,7 @@ define(['camera', 'entity/item', 'data/items', 'data/itemlootdata', 'entity/enti
               if (this.tiles.FOREGROUND) {
                 this.tiles.FOREGROUND.clear();
               }
-            },
+            },*/
 
             clearEntities: function() {
                 var self = this;
@@ -1607,9 +1658,9 @@ define(['camera', 'entity/item', 'data/items', 'data/itemlootdata', 'entity/enti
                 Container.HUD2.removeChildren();
                 //if (Container.HUD.children.length > 2)
                   //Container.HUD.removeChildren(2,Container.HUD.children.length);
-                Container.COLLISION.removeChildren();
+                //Container.COLLISION.removeChildren();
                 this.pxSprite = {};
-                this.clearFullTiles();
+                this.clearTiles();
                 //this.renderer.gl.flush();
                 this.renderer.render(Container.STAGE);
 
@@ -1655,6 +1706,14 @@ define(['camera', 'entity/item', 'data/items', 'data/itemlootdata', 'entity/enti
               //this.drawEdgeLine();
               //this.drawTopLeft();
               //Container.STAGE.sortChildren();
+
+              /*this.culler.cull(Container.STAGE, {
+                "x":0,
+                "y":0,
+                "width": window.innerWidth,
+                "height": window.innerHeight
+              });*/
+
               this.renderer.render(Container.STAGE);
               //this.renderer.gl.flush();
 

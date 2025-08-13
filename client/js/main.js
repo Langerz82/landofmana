@@ -11,17 +11,18 @@ ATTACK_INTERVAL = 1000;
 ATTACK_MAX = 3000;
 
 Container = {
-  STAGE: new PIXI.Container(),
-  BACKGROUND: new PIXI.Container(),
-  ENTITIES: new PIXI.Container(),
-  FOREGROUND: new PIXI.Container(),
-  COLLISION: new PIXI.Container(),
-  COLLISION2: new PIXI.Container(),
-  HUD: new PIXI.Container(),
-  HUD2: new PIXI.Container()
+  "STAGE": new PIXI.Container(),
+  "BACKGROUND": new PIXI.Container(),
+  "ENTITIES": new PIXI.Container(),
+  "FOREGROUND": new PIXI.Container(),
+//  COLLISION: new PIXI.Container(),
+//  COLLISION2: new PIXI.Container(),
+  "HUD": new PIXI.Container(),
+  "HUD2": new PIXI.Container()
 };
 
-Container.STAGE.interactive = true;
+
+Container.STAGE.interactive = false;
 //Container.STAGE.hitArea = new PIXI.Rectangle(0, 0, Container, 100);
 
 Object.freeze(Container);
