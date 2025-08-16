@@ -471,8 +471,8 @@ define(['./entity', './character', 'data/appearancedata'],
       var noobLvl = 10;
       var noobMulti = 1 + Math.max(0,(noobLvl-this.level) * (1/this.level));
 
-      var min = ~~(level*power*noobMulti*1.5);
-      var max = ~~(min*1.333);
+      var min = ~~(level*power*noobMulti*1.75);
+      var max = ~~(min*1.25);
 
       dmg = Utils.randomRangeInt(min, max) + dealt;
 

@@ -33,7 +33,7 @@ module.exports = PlayerQuests = cls.Class.extend({
         quest.object.type === Types.EntityTypes.MOB &&
         quest.object.kind === target.kind &&
         quest.status != QuestStatus.COMPLETE &&
-        (quest.count < quest.object2.count || player.inventory.hasItemCount(lootKind) < quest.object2.count))
+        (quest.count < quest.object2.count || this.player.inventory.hasItemCount(lootKind) < quest.object2.count))
     {
         target.questDrops[lootKind] = parseInt(quest.object2.chance*10);
         quest.object2.chance += 1;
@@ -72,10 +72,10 @@ module.exports = PlayerQuests = cls.Class.extend({
 
       if(quest.count >= quest.object2.count && quest.status==QuestStatus.INPROGRESS) {
         var kind = quest.object2.kind+1000;
-        if(!player.inventory.hasItemCount(kind))
+        if(!this.player.inventory.hasItemCount(kind))
             return;
 
-        player.inventory.removeItemKind(kind, quest.object2.count);
+        this.player.inventory.removeItemKind(kind, quest.object2.count);
         var xp = quest.object2.count * 20 * this.player.level;
         this.completeQuest(quest, xp);
         if (callback)

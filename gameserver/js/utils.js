@@ -438,6 +438,16 @@ Utils.Percent = function (val, fixed) {
   return Number(val * 100).toFixed(fixed) + "%";
 }
 
+Utils.objectToArray = function (object) {
+  var arr = [];
+  for (var key in object) {
+    var obj = object[key];
+    if (obj)
+      arr.push(obj);
+  }
+  return arr;
+}
+
 /*
 module.exports = removeEmpty = function (obj) {
   return Object.fromEntries(

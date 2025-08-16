@@ -327,3 +327,13 @@ Utils.getGridPosition = function (x, y) {
 Utils.getPositionFromGrid = function (gx, gy) {
   return {x: gx << 4, y: gy << 4};
 }
+
+Utils.objectToArray = function (object) {
+  var arr = [];
+  for (var key in object) {
+    var obj = object[key];
+    if (obj)
+      arr.push(obj);
+  }
+  return arr;
+}

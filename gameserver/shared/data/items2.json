@@ -339,10 +339,10 @@
 
 	{
 		"id":34,
-		"name": "Flask +250 HP",
+		"name": "Flask +500 HP",
 		"type":"object",
 		"typemod":"health",
-		"modifier":250,
+		"modifier":500,
 		"sprite":"item/item-flask.png",
 		"spriteName":"item-flask",
 		"offset":[0,0],

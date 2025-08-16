@@ -25,7 +25,7 @@ define(['entity/entity'], function(Entity) {
             var w = this.renderer.innerWidth;
             var h = this.renderer.innerHeight;
             log.debug("camera: w="+w+",h="+h);
-            var ts = this.tilesize;
+            var ts = G_TILESIZE;
             var tsgs = (ts * gs);
             this.gridW = Math.ceil(w / tsgs);
             this.gridH = Math.ceil(h / tsgs);
@@ -38,23 +38,23 @@ define(['entity/entity'], function(Entity) {
             var zoom = 1;
             this.screenW = w;
             this.screenH = h;
-            this.screenWE = ~~(this.gridWE*tsgs*zoom);
-            this.screenHE = ~~(this.gridHE*tsgs*zoom);
+            //this.screenWE = ~~(this.gridWE*tsgs*zoom);
+            //this.screenHE = ~~(this.gridHE*tsgs*zoom);
 
             log.debug("camera: this.screenW="+this.screenW+",this.screenH="+this.screenH);
             //log.debug("camera: this.screenW2="+this.screenW2+",this.screenH2="+this.screenH2);
 
             this.screenX = ~~(this.screenW/gs);
             this.screenY = ~~(this.screenH/gs);
-            this.tScreenW = this.gridWE * tsgs;
-            this.tScreenH = this.gridHE * tsgs;
+            var tScreenW = this.gridWE * tsgs;
+            var tScreenH = this.gridHE * tsgs;
 
-            this.wOffX = ~~((this.tScreenW - this.screenW)/(2*gs));
-            this.wOffY = ~~((this.tScreenH - this.screenH)/(2*gs));
+            this.wOffX = ~~((tScreenW - this.screenW)/(2*gs));
+            this.wOffY = ~~((tScreenH - this.screenH)/(2*gs));
             log.debug("camera: this.wOffX="+this.wOffX+",this.wOffY="+this.wOffY);
             //log.debug("camera: this.cOffX="+this.cOffX+",this.cOffY="+this.cOffY);
-            this.eOffX = this.wOffX-ts;
-            this.eOffY = this.wOffY-ts;
+            //this.eOffX = this.wOffX-ts;
+            //this.eOffY = this.wOffY-ts;
 
             log.debug("---------");
             log.debug("W:"+this.gridW + " H:" + this.gridH);
@@ -151,12 +151,7 @@ define(['entity/entity'], function(Entity) {
       		  var maxX = Math.min(game.mapContainer.widthX, this.x+this.screenX+extra);
       		  var maxY = Math.min(game.mapContainer.heightY, this.y+this.screenY+extra);
 
-            if(y.between(minY,maxY) && x.between(minX,maxX))
-            {
-                return true;
-            } else {
-                return false;
-            }
+            return (y.between(minY,maxY) && x.between(minX,maxX));
         },
 
         forEachInScreenArray: function (entity) {

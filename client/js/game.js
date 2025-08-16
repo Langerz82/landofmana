@@ -1705,15 +1705,14 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
             },
 
             entityTargetClosestEntity: function (entity, inc, index, excludeTypes) {
-              var self = this;
-              var ts = this.tilesize;
-              var cm = this.camera;
+              //var self = this;
+              //var ts = this.tilesize;
+              //var cm = this.camera;
 
               index = index || 0;
 
-              var entities = cm.forEachInScreenArray();
+              var entities = Utils.objectToArray(this.camera.entities);
               entities = entities.filter(entity => !(excludeTypes.includes(entity.type) || entity.isDying || entity.isDead));
-
 
               for (var entity2 of entities) {
                 entity2.playerDistance = Utils.realDistanceXY(entity,entity2);
