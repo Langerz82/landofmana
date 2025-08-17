@@ -11,7 +11,7 @@ module.exports = MobAI = Class.extend({
   },
 
   checkHitAggro: function (mob, sEntity) {
-    if (mob.isDead || mob.isStunned || mob.isAttacking())
+    if (mob.isStunned || mob.isAttacking())
 			return;
 
     if (mob.aiState !== mobState.IDLE)
@@ -28,12 +28,12 @@ module.exports = MobAI = Class.extend({
   checkAggro: function(mob) {
     //console.info("checkAggro");
 
-    if (mob.isDead || mob.isStunned || mob.isAttacking() || !mob.isAggressive) {
+    if (mob.isStunned || mob.isAttacking() || !mob.isAggressive) {
       //console.info("isDead isStunned isAttacking not isAggresive");
 			return;
     }
 
-    if (mob.aiState != mobState.IDLE) {
+    if (mob.aiState !== mobState.IDLE) {
       //console.info("not idle");
       return;
     }
@@ -55,7 +55,7 @@ module.exports = MobAI = Class.extend({
 		{
       //console.info("player.name: "+player.name);
 
-      if (player.isDead || player.freeze) {
+      if (!player.isAlive()) {
         //console.info("player isDead or freeze.")
         continue;
       }
@@ -71,23 +71,16 @@ module.exports = MobAI = Class.extend({
   checkHit: function(mob) {
         var self = this;
 
+        if (mob.aiState !== mobState.ATTACKING)
+          return;
+
 	    	if (mob.isStunned || !mob.target || mob.freeze)
 	    		return;
-
-        if (mob.aiState === mobState.FIRSTATTACK) {
-          mob.setFreeze(mob.data.reactionDelay, function () {
-            mob.setAiState(mobState.ATTACKING);
-          });
-          return;
-        }
 
         if (!mob.canReach(mob.target)) {
           mob.setAiState(mobState.CHASING);
           return;
         }
-
-        if (mob.aiState !== mobState.ATTACKING)
-          return;
 
 	    	//console.info("mob.target: "+mob.target.id);
 	    	//console.info("mob.canAttack: "+ mob.canAttack(time));
@@ -107,7 +100,7 @@ module.exports = MobAI = Class.extend({
     {
       var mob = mobs[mobId];
 
-      if (mob.isDead || mob.freeze)
+      if (!mob.isAlive() || mob.freeze)
         continue;
 
       if (mob.aiState === mobState.RETURNING)
@@ -133,8 +126,9 @@ module.exports = MobAI = Class.extend({
         return;
       }
 
-      if (target.isDead ||target.isDying)
+      if (!target.isAlive())
 			{
+        mob.returnToSpawn();
         //console.info(mob.id+" mob target is dead.");
 				return;
 			}
@@ -204,19 +198,17 @@ module.exports = MobAI = Class.extend({
               return;
           }
 
-          //mob.setFreeze(G_LATENCY);
           mob.forceStop();
           console.info(mob.id+" within range");
-          //mob.setAggroRate((mob.moveSpeed+G_LATENCY));
-          mob.setAiState(mobState.FIRSTATTACK);
+          mob.setAiState(mobState.ATTACKING);
         }
 
       }
     },
 
-    handleHurt: function(mob){ // 9
+    handleHurt: function(mob) { // 9
 
-        if (!mob.target || mob.freeze)
+        if (!mob || !mob.target || mob.freeze)
         	return;
 
       	if (mob.target.isInvincible)
@@ -226,26 +218,26 @@ module.exports = MobAI = Class.extend({
 
         console.info("handleHurt.");
 
-        if(mob && mob.target.stats.hp > 0 && mob instanceof Mob)
+        if(mob.target.stats.hp > 0)
         {
             mob.lookAt(mob.target);
 
             console.info("handleHurt - mob")
             var dmg = Formulas.dmg(mob, mob.target, mob.attackTimer);
             var canCrit = Formulas.crit(mob, mob.target);
+            mob.criticalHit = false;
             if (canCrit) {
             	    dmg *= 2;
-            	    mob.criticalHit = false;
-            }
-            mob.target.stats.hp -= dmg;
-            if(mob.target.stats.hp <= 0) {
-                mob.target.isDead = true;
+            	    mob.criticalHit = true;
             }
 
             console.info("handleHurt");
             this.server.handleDamage(mob.target, mob, -dmg, mob.criticalHit);
-            mob.target.handleHurt(mob);
             mob.attackTimer = Date.now();
+            if (!mob.target.isAlive())
+            {
+              mob.returnToSpawn();
+            }
         }
     },
 
@@ -258,18 +250,19 @@ module.exports = MobAI = Class.extend({
       }
 
       var et = entity.target;
-      if (et && (et.isDying || et.isDead)) {
+      if (et && (et.isDying || !et.isAlive())) {
         entity.returnToSpawn();
         return true;
       }
 
-      if ((entity.distanceToPos(entity.spawnX, entity.spawnY) >= 24*G_TILESIZE) ||
+      if ((entity.distanceToPos(entity.spawnX, entity.spawnY) >= 16*G_TILESIZE) ||
           (et && entity.distanceToPos(et.x, et.y) >= 12*G_TILESIZE))
       {
           console.info("RETURN TO SPAWN!");
           entity.returnToSpawn();
           return true;
       }
+      return false;
     },
 
     Roaming: function(player) {
@@ -277,8 +270,7 @@ module.exports = MobAI = Class.extend({
       var dist = 5 * G_TILESIZE;
 
       var mobs = this.map.entities.getMobsAround(player, 32);
-      var mob;
-  	  for (mob of mobs) {
+  	  for (var mob of mobs) {
         if (!mob) continue;
 
         var rand = (Utils.randomInt(10) === 0);
@@ -286,7 +278,7 @@ module.exports = MobAI = Class.extend({
           continue;
 
     		//console.info("Roaming playerCount="+playerCount);
-  		  if(mob && !mob.hasTarget() && !mob.isDead && !mob.isReturning && !mob.isMoving() && mob.aiState === mobState.IDLE) {
+  		  if(mob.canRoam()) {
           var area = mob.area;
           var pos = mob.map.entities.spaceEntityRandomApart(2, area._getRandomPositionForEntity.bind(area,mob,dist), mobs);
           if (!pos)
@@ -294,14 +286,7 @@ module.exports = MobAI = Class.extend({
 
     			if (!(pos.x === mob.x && pos.y === mob.y))
     			{
-    				  mob.go(pos.x, pos.y);
-
-              if (mob.path)
-              {
-                mob.aiState = mobState.ROAMING;
-                mob.spawnX = pos.x;
-                mob.spawnY = pos.y;
-              }
+              mob.goRoam(pos);
     			}
   		  }
 	    }

@@ -1062,7 +1062,7 @@ function(HoveringInfo,
         client.onProducts(function(data) {
           game.products = data;
         });
-
+/*
         client.onSwapSprite(function (data) {
           var entityId = Number(data[0]);
           var spriteId = Number(data[1]);
@@ -1078,7 +1078,7 @@ function(HoveringInfo,
               break;
           }
         });
-
+*/
         client.onAppearance(function (data) {
           game.appearanceDialog.assign(data);
         });
@@ -1207,6 +1207,7 @@ function(HoveringInfo,
           }
         });
 
+/*
         client.onLooks(function (data) {
           var id = Number(data.shift());
           var p = game.getEntityById(id);
@@ -1222,6 +1223,7 @@ function(HoveringInfo,
           p.setArmorSprite();
           game.app.initPlayerBar();
         });
+*/
 
         client.onHarvest(function (data) {
           var id = Number(data.shift());

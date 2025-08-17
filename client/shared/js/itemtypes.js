@@ -106,13 +106,13 @@ ItemTypes.getBuyPrice = function(kind) {
 
 				var type = item.type;
         if (type == "bow") {
-        	return Math.floor(item.modifier*item.modifier*10);
+        	return Math.floor(item.modifier*item.modifier*5);
         } else if (type == "chest") {
-        	return Math.floor(item.modifier*item.modifier*10);
+        	return Math.floor(item.modifier*item.modifier*5);
 				} else if (ItemTypes.isArmor(kind)) {
 					return Math.floor(item.modifier*item.modifier*10);
 				} else if (ItemTypes.isWeapon(kind)) {
-					return Math.floor(item.modifier*item.modifier*10);
+					return Math.floor(item.modifier*item.modifier*5);
         } else if (type == "object" && item.buy > 0) {
         	if (item.buyCount > 1)
         		return (item.buy * item.buyCount);

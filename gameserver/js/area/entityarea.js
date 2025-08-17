@@ -57,10 +57,9 @@ var EntityArea = Area.extend({
         setTimeout(function() {
           var	pos = self.map.entities.spaceEntityRandomApart(2, self._getRandomPositionInsideArea.bind(self,20), self.entities);
 
-          var x=pos.x, y=pos.y;
-          entity.spawnX = entity.x = x;
-          entity.spawnY = entity.y = y;
-          entity.respawn();
+          entity.spawnX = entity.x = pos.x;
+          entity.spawnY = entity.y = pos.y;
+          entity.revive();
         }, delay);
     },
 

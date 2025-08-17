@@ -62,10 +62,9 @@ mobState = {
     ROAMING: 2,
     AGGRO: 3,
     CHASING: 4,
-    FIRSTATTACK: 5,
-    ATTACKING: 6,
-    RETURNING: 7,
-    STUCK: 8
+    ATTACKING: 5,
+    RETURNING: 6,
+    STUCK: 7
 };
 
 SAVING_SERVER = false;

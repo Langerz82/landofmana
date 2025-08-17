@@ -43,7 +43,7 @@ Messages.Despawn = Message.extend({
     }
 });
 
-Messages.SwapSprite = Message.extend({
+/*Messages.SwapSprite = Message.extend({
     init: function (entity, animId) {
     	this.entity = entity;
       //this.spriteId = spriteId;
@@ -53,7 +53,7 @@ Messages.SwapSprite = Message.extend({
         return [Types.Messages.WC_SWAPSPRITE,
           this.entity.id, this.entity.kind, this.animId];
     }
-});
+});*/
 
 Messages.Move = Message.extend({
     init: function (entity, orientation, state, x, y) {
@@ -489,7 +489,7 @@ Messages.PlayerInfo = Message.extend({
     }
 });
 
-Messages.Looks = Message.extend({
+/*Messages.Looks = Message.extend({
     init: function (player) {
         this.player = player;
         this.sprite1 = player.sprites[0];
@@ -506,7 +506,7 @@ Messages.Looks = Message.extend({
           this.sprite1,
           this.sprite2];
     }
-});
+});*/
 
 Messages.setSprite = Message.extend({
     init: function (entity, sprite1, sprite2) {

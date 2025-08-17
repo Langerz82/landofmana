@@ -34,8 +34,8 @@ module.exports = Pathfinder = Class.extend({
       console.warn("getPathTicks - "+JSON.stringify(path)+", x:"+entity.x+",y:"+entity.y);
       return false;
     }*/
-    console.info("elapsedTicks:"+elapsedTicks);
-    console.info("actualTicks:"+actualTicks);
+    //console.info("elapsedTicks:"+elapsedTicks);
+    //console.info("actualTicks:"+actualTicks);
     if (actualTicks > (elapsedTicks + tolerance))
     {
       console.warn("SPEED HACK DETECTED. playerTicks - actualTicks: "+actualTicks+", elapsedTicks:"+elapsedTicks+", tolerance:"+tolerance);

@@ -78,7 +78,7 @@ define(['lib/pako', 'entity/player', 'entityfactory', 'entity/mob', 'entity/item
 					this.handlers[Types.Messages.WC_STAT] = this.stat_callback;
 					this.handlers[Types.Messages.WC_LEVELUP] = this.levelup_callback;
 					this.handlers[Types.Messages.WC_DESPAWN] = this.despawn_callback;
-					this.handlers[Types.Messages.WC_SWAPSPRITE] = this.swapsprite_callback;
+					//this.handlers[Types.Messages.WC_SWAPSPRITE] = this.swapsprite_callback;
 					this.handlers[Types.Messages.WC_APPEARANCE] = this.appearance_callback;
 					//this.handlers[Types.Messages.WC_LOOKUPDATE] = this.updatelook_calllback;
 					this.handlers[Types.Messages.WC_MOVE] = this.move_callback;
@@ -96,7 +96,7 @@ define(['lib/pako', 'entity/player', 'entityfactory', 'entity/mob', 'entity/item
 					this.handlers[Types.Messages.WC_TELEPORT_MAP] = this.teleportmap_callback;
 					this.handlers[Types.Messages.WC_BLOCK_MODIFY] = this.block_callback;
 					this.handlers[Types.Messages.WC_PARTY] = this.party_callback;
-					this.handlers[Types.Messages.WC_LOOKS] = this.looks_callback;
+//					this.handlers[Types.Messages.WC_LOOKS] = this.looks_callback;
 					this.handlers[Types.Messages.WC_PLAYERINFO] = this.playerinfo_callback;
 					this.handlers[Types.Messages.WC_HARVEST] = this.harvest_callback;
 
@@ -278,9 +278,9 @@ define(['lib/pako', 'entity/player', 'entityfactory', 'entity/mob', 'entity/item
             this.party_callback = callback;
         },
 
-				onLooks: function (callback) {
+				/*onLooks: function (callback) {
             this.looks_callback = callback;
-        },
+        },*/
 
 				onPlayer: function (callback) {
             this.player_callback = callback;
@@ -482,11 +482,11 @@ define(['lib/pako', 'entity/player', 'entityfactory', 'entity/mob', 'entity/item
 				onProducts: function (callback) {
 					this.products_callback = callback;
 				},
-
+/*
 				onSwapSprite: function (callback) {
 					this.swapsprite_callback = callback;
 				},
-
+*/
 				onAppearance: function (callback) {
 					this.appearance_callback = callback;
 				},

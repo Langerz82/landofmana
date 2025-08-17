@@ -259,6 +259,13 @@ module.exports = Player = Character.extend({
         attacker.onHitEntity(this, hpDiff);
         this.onHitByEntity(attacker, hpDiff);
       }
+      if (this.stats.hp <= 0)
+      {
+        _.each(this.attackers, function(e) {
+          if (e.hasOwnProperty("knownIds"))
+            delete e.knownIds[this.id];
+        });
+      }
     },
 
     onHitEntity: function (target, dmg) {
@@ -1312,6 +1319,7 @@ module.exports = Player = Character.extend({
   revive: function () {
     this.isDead = false;
     this.isDying = false;
+    this.freeze = false;
     this.hasEnteredGame = true;
     this.resetBars();
 
@@ -1388,9 +1396,9 @@ module.exports = Player = Character.extend({
         return ItemTypes.getSpriteCode(item.itemKind);
       } else {
         if (this.isArcher())
-          return this.sprites[3];
+          return 50;
         else
-          return this.sprites[1];
+          return 0;
       }
     }
     else if (type === 0) {
@@ -1587,7 +1595,9 @@ module.exports = Player = Character.extend({
     self = this;
 
     _.each(this.attackers, function(attacker) {
-      self.on_killed_callback(attacker, self.damageCount[attacker.id]);
+      if (self.on_killed_callback) {
+        self.on_killed_callback(attacker, self.damageCount[attacker.id]);
+      }
       if (attacker instanceof Player)
         attacker.onKillEntity(self);
     });

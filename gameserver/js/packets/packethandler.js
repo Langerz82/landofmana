@@ -427,9 +427,6 @@ module.exports = PacketHandler = Class.extend({
     }
 
     p.broadcastSprites();
-    /*var s1 = p.getSprite(0);
-    var s2 = p.getSprite(1);
-    this.broadcast(new Messages.setSprite(p, s1, s2));*/
   },
 
 
@@ -715,7 +712,6 @@ module.exports = PacketHandler = Class.extend({
     if (sEntity instanceof Player)
       sEntity.weaponDamage += dmg;
 
-    tEntity.handleHurt(sEntity);
     console.info("DAMAGE OCCURED "+dmg);
     //console.info("dmg="+dmg);
     if (tEntity instanceof Player) {

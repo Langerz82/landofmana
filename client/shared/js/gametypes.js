@@ -132,7 +132,7 @@ Types = {
       WC_COLOR_TINT: 307,
       WC_DAMAGE: 308,
       WC_DESPAWN: 309,
-      WC_SWAPSPRITE: 310,
+//    WC_SWAPSPRITE: 310, // removed WC_SET_SPRITE replacement.
       WC_APPEARANCE: 311,
       WC_GOLD: 312,
       WC_PARTY: 313,
@@ -141,7 +141,7 @@ Types = {
       WC_STAT: 316,
       WC_LEVELUP: 317,
       WC_LIST: 318,
-      WC_LOOKS: 319,
+//      WC_LOOKS: 319, // removed WC_SET_SPRITE replacement.
       WC_LOG: 320,
       WC_HARVEST: 321,
       WC_MOVE: 322,

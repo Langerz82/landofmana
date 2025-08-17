@@ -35,6 +35,11 @@ define([],
         }
 
         this.sprites = sprites;
+
+        /*var i=0;
+        for (var id in sprites) {
+          console.error((++i)+" "+id);
+        }*/
         return sprites;
 
       }

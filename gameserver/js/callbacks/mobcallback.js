@@ -10,7 +10,7 @@ module.exports = MobCallback = Class.extend({
   setCallbacks: function (entity) {
     entity.onRespawn(function() {
         //this.setFreeze(2000);
-        this.respawn();
+        this.revive();
 
         //this.map.entities.addMob(this);
 

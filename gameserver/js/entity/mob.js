@@ -272,10 +272,11 @@ module.exports = Mob = Character.extend({
         this.respawnCallback = callback;
     },
 
-    respawn: function () {
+    revive: function () {
       this.spawnX = this.x;
       this.spawnY = this.y;
       this.isDead = false;
+      this.freeze = false;
       this.droppedItem = false;
       this.resetBehaviour();
       this.activeEffects = [];
@@ -302,15 +303,16 @@ module.exports = Mob = Character.extend({
 
         if (this.aiState === mobState.RETURNING)
           return;
+
         this.setAiState(mobState.RETURNING);
 
         //const self = this;
-        this.removeAttackers();
+        //this.removeAttackers();
         this.forceStop();
         if (this.hasTarget())
           this.clearTarget();
         this.forgetEveryone();
-
+        this.invincible = true;
         this.freeze = false;
         //this.resetHP();
         if (this.x === this.spawnX && this.y === this.spawnY) {
@@ -517,6 +519,7 @@ module.exports = Mob = Character.extend({
       this.resetHP();
       this.resetPosition();
       this.resetBehaviour();
+      this.invincible = false;
     },
 
     handleMobHate: function(tEntity, hatePoints)
@@ -553,8 +556,23 @@ module.exports = Mob = Character.extend({
         skilleffect.endEffects();
       }
       this.activeEffects = [];
-    }
+    },
 
+    goRoam: function (pos) {
+      this.go(pos.x, pos.y);
+
+      if (this.path)
+      {
+        this.aiState = mobState.ROAMING;
+        this.spawnX = pos.x;
+        this.spawnY = pos.y;
+      }
+    },
+
+    canRoam: function () {
+      return !this.hasTarget() && !this.isDead && !this.isReturning &&
+        !this.isMoving() && this.aiState === mobState.IDLE;
+    },
 });
 
 module.exports = Mob;

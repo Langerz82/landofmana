@@ -381,29 +381,30 @@ module.exports = Character = EntityMoving.extend({
   /**
    *
    */
-  dead: function () {
+  /*dead: function () {
     this.isDead = true;
     this.isDying = false;
     this.forceStop();
     this.freeze = true;
-  },
+  },*/
 
-  die: function() {
+  died: function() {
     console.warn("CHARACTER DIED!!!!!!!!!!!!!!!!!!!!!")
     this.forceStop();
     //try { throw new Error(); } catch(err) { console.info(err.stack); }
     this.removeTarget();
     this.isDying = true;
     this.isDead = true;
+    this.freeze = true;
     if (this.death_callback) {
       this.death_callback();
     }
   },
 
-  dying: function() {
+  /*dying: function() {
     this.isDead = false;
     this.isDying = true;
-  },
+  },*/
 
 /*******************************************************************************
  * END - State Functions.
@@ -455,6 +456,9 @@ module.exports = Character = EntityMoving.extend({
     crit = crit || 0;
     effects = effects || 0;
 
+    if (this.invincible)
+      return;
+
     if (hpMod > 0)
       this.addAttacker(attacker);
 
@@ -465,6 +469,11 @@ module.exports = Character = EntityMoving.extend({
 
     var msg = new Messages.Damage([attacker, this, -hpMod, -epMod, crit, effects]);
     this.map.entities.sendNeighbours(attacker, msg);
+
+    if (this.stats.hp <= 0)
+    {
+      this.died(attacker);
+    }
   },
 
   canMove: function() {
@@ -598,20 +607,8 @@ module.exports = Character = EntityMoving.extend({
       this.moveTo_(spot.x, spot.y);
   },
 
-  handleHurt: function(attacker)
-  {
-      if (!attacker)
-          return;
-
-      if (this.stats.hp <= 0)
-      {
-        _.each(this.attackers, function(e) {
-          if (e.hasOwnProperty("knownIds"))
-            delete e.knownIds[this.id];
-        });
-
-        this.die(attacker);
-      }
+  isAlive: function () {
+    return !this.isDead;
   },
 
 /*******************************************************************************

@@ -172,13 +172,10 @@ module.exports = PlayerCallback = Class.extend({
                 entity.returnToSpawn();
               }
           });
+          p.clearAttackerRefs();
         });
 
         p.onKilled(function (attacker, damage) {
-            if (attacker instanceof Mob)
-            {
-              attacker.returnToSpawn();
-            }
         });
 
         p.onDeath(function (attacker) {

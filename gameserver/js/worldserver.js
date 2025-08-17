@@ -123,15 +123,6 @@ module.exports = World = cls.Class.extend(
 
             player.map.entities.sendBroadcast(new Messages.Notify("MAP", "MAP_ENTERED", [player.name, player.map.name]), true);
 
-            /*player.onDeath(function()
-            {
-                player.forEachAttacker(function (c) {
-                  c.removeAttacker(player);
-                  if (c instanceof Mob)
-                    c.forgetPlayer(player.id);
-                });
-            });*/
-
             player.packetHandler.onBroadcast(function(message, ignoreSelf)
             {
                 player.map.entities.sendBroadcast(message, ignoreSelf ? player.id : null);
@@ -159,13 +150,13 @@ module.exports = World = cls.Class.extend(
 
         self.onRegenTick(function()
         {
-            var fnPlayer = function(character)
+            var fnPlayer = function(player)
             {
-                if (character instanceof Player)
+                if (player instanceof Player)
                 {
-                    if (!character.isDead && !character.hasFullHealth() && !character.isAttacked())
+                    if (player.isAlive() && !player.hasFullHealth() && !player.isAttacked())
                     {
-                        var packet = character.modHealthBy(Math.floor(character.stats.hpMax / 8));
+                        var packet = player.modHealthBy(Math.floor(player.stats.hpMax / 8));
                     }
                 }
             };
@@ -375,29 +366,6 @@ module.exports = World = cls.Class.extend(
       entity.onDamage(attacker, hpMod, epMod, crit, effects);
     },
 
-    /*handleHurtEntity: function(entity, attacker)
-    {
-        var self = this;
-
-        if (!entity || !attacker)
-            return;
-
-        if (entity.stats.hp <= 0)
-        {
-          _.each(entity.attackers, function(e) {
-            if (e instanceof Player)
-              delete e.knownIds[entity.id];
-          });
-
-          entity.die(attacker);
-        }
-    },*/
-
-    /*onInit: function(callback)
-    {
-        this.init_callback = callback;
-    },*/
-
     onPlayerConnect: function(callback)
     {
         this.connect_callback = callback;
@@ -406,11 +374,6 @@ module.exports = World = cls.Class.extend(
     onPlayerEnter: function(callback)
     {
         this.enter_callback = callback;
-    },
-
-    onPlayerAdded: function(callback)
-    {
-        this.added_callback = callback;
     },
 
     onPlayerRemoved: function(callback)
@@ -422,21 +385,6 @@ module.exports = World = cls.Class.extend(
     {
         this.regen_callback = callback;
     },
-
-    /*onPvpRegenTick: function(callback)
-    {
-        this.pvp_regen_callback = callback;
-    },*/
-
-    /*onEntityAttack: function(callback)
-    {
-        this.attack_callback = callback;
-    },*/
-
-    /*onMobMoveCallback: function(mob)
-    {
-        var self = this;
-    },*/
 
     pushWorld: function(message)
     {
