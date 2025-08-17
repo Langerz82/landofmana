@@ -140,9 +140,9 @@ module.exports = Mob = Character.extend({
       this.on_killed_callback = callback;
     },
 
-    onDeath: function (callback) {
+    /*onDeath: function (callback) {
       this.on_death_callback = callback;
-    },
+    },*/
 
     onDamage: function (attacker, hpMod, epMod, crit, effects) {
       var hp = this.stats.hp;
@@ -441,24 +441,22 @@ module.exports = Mob = Character.extend({
       //console.info(this.id + " has set aiState: " + state);
     },
 
-    die: function (attacker) {
+    died: function (attacker) {
       var self = this;
 
       console.info("Entity is dead");
-      this.isDead = true;
-      this.map.entities.sendBroadcast(this.despawn());
 
+      this.map.entities.sendBroadcast(this.despawn());
 
       _.each(this.attackers, function(attacker) {
         self.on_killed_callback(attacker, self.damageCount[attacker.id]);
         attacker.onKillEntity(self);
       });
 
-      if (this.on_death_callback)
-        this.on_death_callback(attacker);
-
       this.damageCount = {};
       this.dealtCount = {};
+
+      this._super();
 
       this.destroy();
     },

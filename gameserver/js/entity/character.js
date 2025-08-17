@@ -388,7 +388,7 @@ module.exports = Character = EntityMoving.extend({
     this.freeze = true;
   },*/
 
-  died: function() {
+  died: function(attacker) {
     console.warn("CHARACTER DIED!!!!!!!!!!!!!!!!!!!!!")
     this.forceStop();
     //try { throw new Error(); } catch(err) { console.info(err.stack); }
@@ -397,7 +397,7 @@ module.exports = Character = EntityMoving.extend({
     this.isDead = true;
     this.freeze = true;
     if (this.death_callback) {
-      this.death_callback();
+      this.death_callback(attacker);
     }
   },
 
