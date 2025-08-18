@@ -871,10 +871,10 @@ module.exports = Player = Character.extend({
       this.stats.mod.attack : 0);
     dealt += ~~((this.stats.attack*3)+mods) + this.stats.luck;
 
-    var noobLvl = 10;
+    var noobLvl = 12;
     var noobMulti = 1 + Math.max(0,(noobLvl-this.level) * (1/this.level));
 
-    var min = ~~(level*power*noobMulti*1.75);
+    var min = ~~(level*power*noobMulti*3.5);
     var max = ~~(min*1.25);
 
     dmg = Utils.randomRangeInt(min, max) + dealt;
@@ -1036,7 +1036,6 @@ module.exports = Player = Character.extend({
 
     if (this.keyMove) {
       this.move(this.orientation, 0, this.ex, this.ey);
-      //return;
     }
 
     this.sx = this.x;
@@ -1044,30 +1043,11 @@ module.exports = Player = Character.extend({
     this.ex = this.x2;
     this.ey = this.y2;
 
-    /*if (!(this.x === x && this.y === y)) {
-      console.warn("movePath - Start Position not correct!");
-      console.info("movePath - x:"+x+",y:"+y+",p.x:"+this.x+",p.y:"+this.y);
-    }*/
     this.forceStop();
-    //this.setPosition(x,y);
-    //orientation = this.getOrientationTo({x: path[1][0], y: path[1][1]});
-    //this.setOrientation(orientation);
-
     this.path = this.fullpath = path;
     this.step = 0;
     this.interrupted = interrupted;
-    //this.estDelay = Date.now() - time;
-    //this.startMovePathTime = Date.now();
-    var delay = 0; //Utils.getLockDelay(time);
-    //var delay=~~((Date.now()+G_UPDATE_INTERVAL)-(G_LATENCY + time));
-    //this.unclampedDelay = delay;
-    //delay=Utils.clamp(0, G_LATENCY, delay);
-    //this.latencyDiff = Date.now() - time;
     this.startMovePathTime = time;
-    console.warn("time:"+time+",now:"+Date.now()+",diff:"+(Date.now()-time));
-    //var delay=Utils.clamp(0, G_LATENCY, G_LATENCY+(time-Date.now()));
-    console.warn("movePath: delay:"+delay);
-
   },
 
   move: function (nm) {
@@ -1318,7 +1298,7 @@ module.exports = Player = Character.extend({
 
   revive: function () {
     this.isDead = false;
-    this.isDying = false;
+    //this.isDying = false;
     this.freeze = false;
     this.hasEnteredGame = true;
     this.resetBars();
@@ -1583,15 +1563,11 @@ module.exports = Player = Character.extend({
     this.on_killed_callback = callback;
   },
 
-  onDeath: function (callback) {
-    this.on_death_callback = callback;
-  },
-
   onTeleport: function (callback) {
     this.on_teleport_callback = callback;
   },
 
-  die: function (attacker) {
+  died: function (attacker) {
     self = this;
 
     _.each(this.attackers, function(attacker) {
@@ -1603,10 +1579,8 @@ module.exports = Player = Character.extend({
     });
     this.removeAttackers();
     this.endEffects();
-    this.isDead = true;
 
-    if (this.on_death_callback)
-      this.on_death_callback(attacker);
+    this._super(attacker);
   },
 
   handleTeleport: function () {

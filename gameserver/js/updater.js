@@ -99,7 +99,7 @@ module.exports = Updater = Class.extend({
         var entity = characters[entityId];
         if (!entity)
           continue;
-        if (entity.isDying || entity.isDead || entity.isStunned)
+        if (entity.isDead || entity.isStunned)
         {
           continue;
         }
@@ -162,7 +162,7 @@ module.exports = Updater = Class.extend({
       var tick=c.tick * G_FRAME_INTERVALS;
       var o = c.orientation;
 
-      if (c.isDying || c.isDead || c.freeze || c.isStunned)
+      if (c.isDead || c.freeze || c.isStunned)
       {
         return;
       }
@@ -198,7 +198,7 @@ module.exports = Updater = Class.extend({
       var tick=c.tick * G_FRAME_INTERVALS;
       var o = c.orientation;
 
-      if (c.isDying || c.isDead || c.freeze || c.isStunned)
+      if (c.isDead || c.freeze || c.isStunned)
       {
         return;
       }

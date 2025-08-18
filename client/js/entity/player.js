@@ -321,55 +321,6 @@ define(['./entity', './character', 'data/appearancedata'],
       }
     },
 
-    /*forceStop: function () {
-      this.keyMove = false;
-      this._super();
-
-    },*/
-
-
-    /*moveTo_: function(x, y, callback) {
-      var ts = G_TILESIZE;
-      var self = this;
-      var parent = self._super;
-
-      if (!game.player) {
-        return this._super(x, y, callback);
-      }
-
-      if (this.freeze || this.movement.inProgress || this.isMoving() || this.isMovingPath()) {
-        //this.forceStop();
-        return;
-      }
-
-      this.freeze = true;
-      this._super(x, y, callback);
-      if (!this.path)
-        return;
-
-      var orientation = this.orientation;
-
-      log.info("background - free delay =" + G_LATENCY);
-      this.fsm = "MOVE";
-      //var orientation = this.orientation;
-      clearTimeout(self.moveTimeout);
-      self.moveTimeout = setTimeout(function() {
-        if (self.movement.inProgress) {
-          self.movement.stop();
-          return;
-        }
-        //self.forceStop();
-        self.orientation = orientation;
-        //self.setOrientation(orientation);
-        self.freeze = false;
-        clearTimeout(self.moveTimeout);
-        self.moveTimeout = null;
-
-      }, G_LATENCY);
-
-    },*/
-
-
     baseHit: function() {
       return 0;
     },
@@ -468,10 +419,10 @@ define(['./entity', './character', 'data/appearancedata'],
         this.stats.mod.attack : 0);
       dealt += ~~((this.stats.attack*3)+mods) + this.stats.luck;
 
-      var noobLvl = 10;
+      var noobLvl = 12;
       var noobMulti = 1 + Math.max(0,(noobLvl-this.level) * (1/this.level));
 
-      var min = ~~(level*power*noobMulti*1.75);
+      var min = ~~(level*power*noobMulti*3.5);
       var max = ~~(min*1.25);
 
       dmg = Utils.randomRangeInt(min, max) + dealt;

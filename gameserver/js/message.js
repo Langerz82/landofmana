@@ -509,16 +509,21 @@ Messages.PlayerInfo = Message.extend({
 });*/
 
 Messages.setSprite = Message.extend({
-    init: function (entity, sprite1, sprite2) {
+    init: function (entity, sprite1, sprite2, animName) {
         this.id = entity.id;
         this.sprite1 = sprite1;
-        this.sprite2 = sprite2 || 0;
+        this.sprite2 = sprite2;
+        this.animName = animName;
     },
     serialize: function () {
-        return [Types.Messages.WC_SET_SPRITE,
+        var arr = [Types.Messages.WC_SET_SPRITE,
           this.id,
-          this.sprite1,
-          this.sprite2];
+          this.sprite1];
+        if (this.sprite2)
+          arr.push(this.sprite2);
+        if (this.animName)
+          arr.push(this.animName);
+        return arr;
     }
 });
 

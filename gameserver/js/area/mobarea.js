@@ -164,7 +164,11 @@ module.exports = MobArea = EntityArea.extend({
 
         setTimeout(function() {
           var	pos = self.map.entities.spaceEntityRandomApart(3, self._getRandomPositionInsideArea.bind(self,20));
-          self_mob.setPosition(pos.x, pos.y);
+          if (pos) {
+            self_mob.spawnX = pos.x;
+            self_mob.spawnY = pos.y;
+            self_mob.setPosition(pos.x, pos.y);
+          }
           if (self_mob.respawnCallback) {
               self_mob.respawnCallback();
           }

@@ -32,7 +32,7 @@ module.exports = Character = EntityMoving.extend({
 
     // Modes
     this.isDead = false;
-    this.isDying = false;
+//    this.isDying = false;
 
     this.attackingMode = false;
     this.followingMode = false;
@@ -393,7 +393,7 @@ module.exports = Character = EntityMoving.extend({
     this.forceStop();
     //try { throw new Error(); } catch(err) { console.info(err.stack); }
     this.removeTarget();
-    this.isDying = true;
+    //this.isDying = true;
     this.isDead = true;
     this.freeze = true;
     if (this.death_callback) {

@@ -276,8 +276,8 @@ module.exports = Mob = Character.extend({
       this.spawnX = this.x;
       this.spawnY = this.y;
       this.isDead = false;
-      this.freeze = false;
       this.droppedItem = false;
+      this.invincible = false;
       this.resetBehaviour();
       this.activeEffects = [];
       this.map.entities.sendNeighbours(this, new Messages.Spawn(this));
@@ -306,22 +306,18 @@ module.exports = Mob = Character.extend({
 
         this.setAiState(mobState.RETURNING);
 
-        //const self = this;
-        //this.removeAttackers();
         this.forceStop();
         if (this.hasTarget())
           this.clearTarget();
         this.forgetEveryone();
         this.invincible = true;
         this.freeze = false;
-        //this.resetHP();
         if (this.x === this.spawnX && this.y === this.spawnY) {
           this.returnedToSpawn();
           return;
         }
         this.go(this.spawnX, this.spawnY);
         console.warn("returnToSpawn - Path: "+JSON.stringify(this.path))
-        //this.resetSpawn = true;
         if (!this.path || this.path.length === 0) {
           try { throw new Error(); } catch(err) { console.error(err.stack); }
           this.returnedToSpawn();
@@ -331,22 +327,10 @@ module.exports = Mob = Character.extend({
           var delay= Math.max(0, ~~(pathTicks / (this.tick / G_FRAME_INTERVAL_EXACT)));
           console.info("returnToSpawn.delay = "+delay);
           console.info("id="+this.id+",x="+this.spawnX+",y="+this.spawnY);
-          //var self = this;
-          //setTimeout(self.returnedToSpawn.bind(self), delay);
-          //setTimeout(() => { this.returnedToSpawn() }, delay);
           setTimeout(function() {
             console.info("st - id="+self.id+",x="+self.spawnX+",y="+self.spawnY);
-            //this = self2;
-
             self.returnedToSpawn();
-            //self2.resetHP();
-            //self2.setAiState(mobState.IDLE);
-            //self2.setPosition(self2.spawnX,self2.spawnY);
-
           }, delay);
-          /*this.returnTimeout = setTimeout(function () {
-            self.returnedToSpawn();
-          }, delay);*/
         }
     },
 
@@ -456,7 +440,7 @@ module.exports = Mob = Character.extend({
       this.damageCount = {};
       this.dealtCount = {};
 
-      this._super();
+      this._super(attacker);
 
       this.destroy();
     },

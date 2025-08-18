@@ -250,7 +250,7 @@ module.exports = MobAI = Class.extend({
       }
 
       var et = entity.target;
-      if (et && (et.isDying || !et.isAlive())) {
+      if (et && !et.isAlive()) {
         entity.returnToSpawn();
         return true;
       }

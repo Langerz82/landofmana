@@ -453,7 +453,7 @@ module.exports = PacketHandler = Class.extend({
     var self = this;
     var action = parseInt(msg[0]);
 
-    if (this.player.isDying || this.player.isDead)
+    if (this.player.isDead)
       return;
 
     // slot type, slot index, slot count.
@@ -518,7 +518,7 @@ module.exports = PacketHandler = Class.extend({
     var time = parseInt(message[0]);
     var p = this.player;
 
-    if (p.isDying || p.isDead)
+    if (p.isDead)
       return;
 
     if (p.movement.inProgress) {
@@ -750,7 +750,7 @@ module.exports = PacketHandler = Class.extend({
         y = parseInt(message[3]),
         p = this.player;
 
-    if (p.isDying || p.isDead)
+    if (p.isDead)
       return;
 
     if (skillId < 0 || skillId >= p.skills.length)

@@ -16,7 +16,7 @@ EffectType = cls.Class.extend({
   },
 
   apply: function (skillEffect, target, phase, damage) {
-    if (target.isDead || target.isDying)
+    if (target.isDead)
       return;
 
     if (this.phase != phase)
