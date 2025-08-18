@@ -519,9 +519,9 @@ Messages.setSprite = Message.extend({
         var arr = [Types.Messages.WC_SET_SPRITE,
           this.id,
           this.sprite1];
-        if (this.sprite2)
+        if (typeof(this.sprite2) !== 'undefined')
           arr.push(this.sprite2);
-        if (this.animName)
+        if (typeof(this.animName) !== 'undefined')
           arr.push(this.animName);
         return arr;
     }
