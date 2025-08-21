@@ -202,15 +202,18 @@ module.exports = Player = Character.extend({
 
 
     onKillEntity: function (entity, damage, dealt) {
-      //var damage = entity.damageCount.hasOwnProperty(this.id) ? entity.damageCount[this.id] : 0;
-      //var dealt = entity.dealtCount.hasOwnProperty(this.id) ? entity.dealtCount[this.id] : 0;
+      damage = damage || 0;
+      dealt = dealt || 0;
+
       var ratio = (damage / entity.stats.hpMax);
 
       var xp = ~~(entity.getXP() * ratio);
+
       var diff = 10;
       var div = 1/diff;
       var mod = 1 + div + Utils.clamp(-diff,diff,(entity.level - this.level)) * div;
       var xp = ~~(xp * mod);
+
       this.incExp(xp);
       this.incWeaponExp(xp);
 
