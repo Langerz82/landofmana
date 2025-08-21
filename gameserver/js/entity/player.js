@@ -387,7 +387,8 @@ module.exports = Player = Character.extend({
   	    	this.stats.free += 5;
   	    }
       }
-
+      this.setHPMax();
+      this.setEPMax();
     	this.sendPlayer(new Messages.StatInfo(this));
 	    this.resetBars();
 	    this.sendPlayer(new Messages.ChangePoints(this, 0, 0));
@@ -755,7 +756,7 @@ module.exports = Player = Character.extend({
   },
 
   getHPMax: function () {
-  	var hp = 300 + (this.stats.health * 100) + (this.stats.health * this.stats.health);
+  	var hp = 300 + (this.stats.health * 100);
     return hp;
   },
 
@@ -1283,7 +1284,7 @@ module.exports = Player = Character.extend({
     return count;
   },
 
-  revive: function () {
+  respawn: function () {
     this.isDead = false;
     //this.isDying = false;
     this.freeze = false;

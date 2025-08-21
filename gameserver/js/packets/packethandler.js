@@ -1123,7 +1123,7 @@ module.exports = PacketHandler = Class.extend({
     var p = this.player;
     if (p.isDead === true) {
       console.info("handled Revive!!");
-      p.revive();
+      p.respawn();
       this.entities.sendNeighbours(p, new Messages.Spawn(p), p);
       var msg = new Messages.Move(p, p.orientation, 2, p.x, p.y);
       this.sendPlayer(msg);

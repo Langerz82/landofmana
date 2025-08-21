@@ -50,11 +50,12 @@ var NpcMove = Character.extend({
 
     talk: function (player) {
       var self = this;
+      var self_player = player;
 
       var res = false;
       player.quests.forQuestsType(QuestType.GETITEMKIND, function (q) {
         if (q.npcQuestId === self.kind) {
-          if (player.quests.questAboutItemComplete(q, null))
+          if (self_player.quests.questAboutItemComplete(q, null))
             res = true;
         }
       });

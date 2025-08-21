@@ -63,7 +63,7 @@ var EntityArea = Area.extend({
             entity.setPosition(pos.x,pos.y);
           }
 
-          entity.revive();
+          entity.respawn();
         }, delay);
     },
 

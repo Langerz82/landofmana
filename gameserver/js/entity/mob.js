@@ -280,7 +280,7 @@ module.exports = Mob = Character.extend({
         this.respawnCallback = callback;
     },
 
-    revive: function () {
+    respawn: function () {
       this.spawnX = this.x;
       this.spawnY = this.y;
       this.isDead = false;
