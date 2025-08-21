@@ -142,8 +142,6 @@ module.exports = Player = Character.extend({
 
         this.achievements = [];
 
-        this.damageCount = {};
-        this.dealtCount = {};
         this.pStats = [];
         this.sprites = [];
         this.colors = [];
@@ -249,16 +247,7 @@ module.exports = Player = Character.extend({
     },
 
     onDamage: function (attacker, hpMod, epMod, crit, effects) {
-      var hp = this.stats.hp;
-      var dmgRatio = (hpMod / this.stats.hpMax);
-      log.info("dmgRatio: "+dmgRatio)
       this._super(attacker, hpMod, epMod, crit, effects);
-      var hpDiff = hp - this.stats.hp;
-      if (hpDiff > 0) {
-        console.info ("onDamage hpMod:"+hpMod)
-        attacker.onHitEntity(this, hpDiff);
-        this.onHitByEntity(attacker, hpDiff);
-      }
       if (this.stats.hp <= 0)
       {
         _.each(this.attackers, function(e) {
@@ -266,18 +255,6 @@ module.exports = Player = Character.extend({
             delete e.knownIds[this.id];
         });
       }
-    },
-
-    onHitEntity: function (target, dmg) {
-      if (!this.dealtCount.hasOwnProperty(target.id))
-        this.dealtCount[target.id] = 0;
-      this.dealtCount[target.id] += dmg;
-    },
-
-    onHitByEntity: function (target, dmg) {
-      if (!this.damageCount.hasOwnProperty(target.id))
-        this.damageCount[target.id] = 0;
-      this.damageCount[target.id] += dmg;
     },
 
     incExp: function (gotexp)
@@ -1567,22 +1544,6 @@ module.exports = Player = Character.extend({
     this.on_teleport_callback = callback;
   },
 
-  died: function (attacker) {
-    self = this;
-
-    _.each(this.attackers, function(attacker) {
-      if (self.on_killed_callback) {
-        self.on_killed_callback(attacker, self.damageCount[attacker.id]);
-      }
-      if (attacker instanceof Player)
-        attacker.onKillEntity(self);
-    });
-    this.removeAttackers();
-    this.endEffects();
-
-    this._super(attacker);
-  },
-
   handleTeleport: function () {
       if (this.on_teleport_callback)
         this.on_teleport_callback();
@@ -1595,14 +1556,6 @@ module.exports = Player = Character.extend({
     this.lastMoveThrottle = Date.now();
 
     return false;
-  },
-
-  endEffects: function () {
-    for (var skilleffect of this.activeEffects)
-    {
-      skilleffect.endEffects();
-    }
-    this.activeEffects = [];
   },
 
   getXP: function () {

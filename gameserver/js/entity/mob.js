@@ -54,8 +54,6 @@ module.exports = Mob = Character.extend({
       this.hatelist = [];
       this.hateCount = 0;
       //this.tankerlist = [];
-      this.damageCount = {};
-      this.dealtCount = {};
 
       this.respawnTimeout = null;
       this.returnTimeout = null;
@@ -148,21 +146,17 @@ module.exports = Mob = Character.extend({
       var hp = this.stats.hp;
       var dmgRatio = (hpMod / this.stats.hpMax);
       log.info("dmgRatio: "+dmgRatio)
-      if (!this.isMoving() && dmgRatio >= 0.5) {
+      /*if (!this.isMoving() && dmgRatio >= 0.5) {
         this.forceStop();
         this.setFreeze(1000, function (mob) { mob.attackTimer = Date.now(); });
-      }
+      }*/
+
+      //var hpDiff = hp - this.stats.hp;
 
       this._super(attacker, hpMod, epMod, crit, effects);
-      var hpDiff = hp - this.stats.hp;
-      if (hpDiff > 0) {
-        console.info ("onDamage hpMod:"+hpMod)
-        attacker.onHitEntity(this, hpDiff);
-        this.onHitByEntity(attacker, hpDiff);
-      }
     },
 
-    onHitEntity: function (target, dmg) {
+    /*onHitEntity: function (target, dmg) {
       if (!this.dealtCount.hasOwnProperty(target.id))
         this.dealtCount[target.id] = 0;
       this.dealtCount[target.id] += dmg;
@@ -172,7 +166,7 @@ module.exports = Mob = Character.extend({
       if (!this.damageCount.hasOwnProperty(target.id))
         this.damageCount[target.id] = 0;
       this.damageCount[target.id] += dmg;
-    },
+    },*/
 
     destroy: function () {
         this.isDead = true;
@@ -425,24 +419,19 @@ module.exports = Mob = Character.extend({
       //console.info(this.id + " has set aiState: " + state);
     },
 
-    died: function (attacker) {
+    die: function (attacker) {
       var self = this;
 
       console.info("Entity is dead");
 
-      this.map.entities.sendBroadcast(this.despawn());
-
-      _.each(this.attackers, function(attacker) {
-        self.on_killed_callback(attacker, self.damageCount[attacker.id]);
-        attacker.onKillEntity(self);
-      });
-
-      this.damageCount = {};
-      this.dealtCount = {};
-
       this._super(attacker);
 
+      this.map.entities.sendBroadcast(this.despawn());
       this.destroy();
+    },
+
+    onKillEntity: function (attacker) {
+
     },
 
     baseCrit: function() {

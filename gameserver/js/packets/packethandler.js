@@ -39,24 +39,6 @@ module.exports = PacketHandler = Class.extend({
 
       self.user.lastPacketTime = Date.now();
 
-      /*switch (action) {
-        case Types.UserMessages.UW_LOAD_USER_INFO:
-          self.handleLoadUserInfo(message);
-          return;
-        case Types.UserMessages.UW_LOAD_PLAYER_INFO:
-          self.handleLoadPlayerInfo(message);
-          return;
-        case Types.UserMessages.UW_LOAD_PLAYER_QUESTS:
-          self.handleLoadPlayerQuests(message);
-          return;
-        case Types.UserMessages.UW_LOAD_PLAYER_ACHIEVEMENTS:
-          self.handleLoadPlayerAchievements(message);
-          return;
-        case Types.UserMessages.UW_LOAD_PLAYER_ITEMS:
-          self.handleLoadPlayerItems(message);
-          return;
-      }*/
-
       switch (action) {
         case Types.Messages.BI_SYNCTIME:
           self.handleSyncTime(message);
@@ -141,7 +123,6 @@ module.exports = PacketHandler = Class.extend({
           //console.info("Player character info: " + self.player.name);
           self.handleCharacterinfo(message);
           break;
-
         case Types.Messages.CW_TELEPORT_MAP:
           self.handleTeleportMap(message);
           break;
@@ -171,7 +152,7 @@ module.exports = PacketHandler = Class.extend({
           break;
 
         case Types.Messages.CW_PARTY:
-          self.handleParty(message);
+          self.partyHandler.handleParty(message);
           break;
 
         case Types.Messages.CW_HARVEST:
@@ -317,7 +298,7 @@ module.exports = PacketHandler = Class.extend({
     var npcId = parseInt(message[1]);
 
     var npc = this.entities.getEntityById(npcId);
-    if (!npc.isWithinDistEntity(this.player, 24)) {
+    if (!this.player.isInScreen(npc)) {
       console.info("player not close enough to NPC!");
       return;
     }
@@ -326,7 +307,7 @@ module.exports = PacketHandler = Class.extend({
       npc.talk(this.player);
   },
 
-  handleBankStore: function(message) {
+  /*handleBankStore: function(message) {
     var itemIndex = parseInt(message[0]);
 
     var p = this.player;
@@ -342,9 +323,9 @@ module.exports = PacketHandler = Class.extend({
         }
       }
     }
-  },
+  },*/
 
-  handleBankRetrieve: function(message) {
+  /*handleBankRetrieve: function(message) {
     var bankIndex = parseInt(message[0]);
 
     var p = this.player;
@@ -359,7 +340,7 @@ module.exports = PacketHandler = Class.extend({
       }
     }
     this.sendPlayer(new Messages.Gold(p));
-  },
+  },*/
 
   handleAppearanceUnlock: function(message) {
     var appearanceIndex = parseInt(message[0]);
@@ -777,7 +758,7 @@ module.exports = PacketHandler = Class.extend({
 
     p.effectHandler.cast(skillId, target, x, y);
 
-    skill.tempXP = Math.min(skill.tempXP++,1);
+    //skill.tempXP = Math.min(skill.tempXP++,1);
 
     this.handleSkillEffects(p, target);
   },
@@ -863,9 +844,7 @@ module.exports = PacketHandler = Class.extend({
       orientation = parseInt(message.shift()),
       interrupted = (parseInt(message.shift()) === 0) ? false : true;
       //message.splice(0,4);
-    var path = null;
-    if (message.length > 0)
-      path = message[0];
+    var path = message[0];
 
     var p = this.player;
     if (entityId !== p.id)
@@ -895,11 +874,6 @@ module.exports = PacketHandler = Class.extend({
       p.resetMove(p.x,p.y);
       return;
     }
-
-    /*if (p.x !== x || p.y !== y) {
-      console.warn("handleMovePath: invalid start coords.");
-      return;
-    }*/
 
     p.movePath([time, interrupted], path);
 
@@ -942,9 +916,12 @@ module.exports = PacketHandler = Class.extend({
     if (status === 0) {
       p.forceStop();
       p.mapStatus = 0;
-      this.handleClearMap();
+      //this.handleClearMap();
+      p.clearTarget();
 
-      this.entities.removePlayer(this.player);
+      p.handleTeleport();
+
+      this.entities.removePlayer(p);
 
       var finishTeleportMaps = function (mapId) {
         //console.info("real mapId: " + mapId);
@@ -957,18 +934,22 @@ module.exports = PacketHandler = Class.extend({
         if (typeof p.prevPosX === "undefined" &&
             typeof p.prevPosY === "undefined")
         {
-          pos = self.map.getRandomStartingPosition();
-        }
-        else if (p.map.mapIndex === 0)
-        {
-
           p.prevPosX = p.x;
           p.prevPosY = p.y;
           pos = self.map.getRandomStartingPosition();
         }
-        else if (p.map.mapIndex === 1)
+        else if (p.map.index === 0)
         {
-          pos = {x: p.prevPosX, y: p.prevPosY};
+          p.prevPosX = p.x;
+          p.prevPosY = p.y;
+          pos = self.map.getRandomStartingPosition();
+        }
+        else if (p.map.index === 1)
+        {
+          if (p.hasOwnProperty("prevPosX") && p.hasOwnProperty("prevPosY"))
+            pos = {x: p.prevPosX, y: p.prevPosY};
+          else
+            pos = self.map.getRandomStartingPosition();
         }
         else {
           pos = self.map.getRandomStartingPosition();
@@ -986,7 +967,7 @@ module.exports = PacketHandler = Class.extend({
       };
 
       pos = map.enterCallback(p);
-      finishTeleportMaps(mapId)
+      finishTeleportMaps(mapId);
     }
     else if (status === 1) {
       p.mapStatus = 2;
@@ -1006,12 +987,8 @@ module.exports = PacketHandler = Class.extend({
     this.entities.sendNeighbours(p, new Messages.Spawn(p), p);
   },
 
-  handleClearMap: function() {
-    this.player.clearTarget();
-
-    this.player.handleTeleport();
-    this.entities.removeEntity(this.player);
-  },
+  //handleClearMap: function() {
+  //},
 
   handleStatAdd: function(message) {
     var self = this;
@@ -1073,17 +1050,15 @@ module.exports = PacketHandler = Class.extend({
     // Transfer to bank.
     if (type===0 && type2===1)
     {
-      if (!this.player.modifyGold(-gold, 0))
-        return;
-      this.player.modifyGold(gold, 1);
+      if (this.player.modifyGold(-gold, 0))
+        this.player.modifyGold(gold, 1);
     }
 
     // Withdraw from bank.
     if (type===1 && type2===0)
     {
-      if (!this.player.modifyGold(-gold, 1))
-        return;
-      this.player.modifyGold(gold, 0);
+      if (this.player.modifyGold(-gold, 1))
+        this.player.modifyGold(gold, 0);
     }
   },
 
@@ -1168,27 +1143,8 @@ module.exports = PacketHandler = Class.extend({
       this.player.knownIds.splice(this.player.knownIds.indexOf(id), 1);
   },
 
-  handleParty: function (msg) {
-    var partyType = msg.shift();
-    switch (partyType) {
-      case 1:
-        this.partyHandler.handleInvite(msg);
-        break;
-      case 2:
-        this.partyHandler.handleKick(msg);
-        break;
-      case 3:
-        this.partyHandler.handleLeader(msg);
-        break;
-      case 4:
-        this.partyHandler.handleLeave(msg);
-        break;
-    }
-  },
-
   handleHarvest: function (msg) {
-    var self = this;
-    var x=msg[0], y=msg[1];
+    var x=parseInt(msg[0]), y=parseInt(msg[1]);
     this.player.onHarvest(x,y);
   },
 

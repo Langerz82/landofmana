@@ -17,6 +17,24 @@ module.exports = PartyHandler = Class.extend({
     return player;
   },
 
+  handleParty: function (msg) {
+    var partyType = msg.shift();
+    switch (partyType) {
+      case 1:
+        this.handleInvite(msg);
+        break;
+      case 2:
+        this.handleKick(msg);
+        break;
+      case 3:
+        this.handleLeader(msg);
+        break;
+      case 4:
+        this.handleLeave(msg);
+        break;
+    }
+  },
+
   handleInvite: function(msg) {
     var name = msg[0];
     var player2 = this.getPlayer(name);

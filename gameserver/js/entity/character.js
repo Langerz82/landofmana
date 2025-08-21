@@ -72,6 +72,7 @@ module.exports = Character = EntityMoving.extend({
 
     this.freeze = false;
 
+    this.activeEffects = [];
     this.effects = {};
     this.invincible = false;
 
@@ -88,6 +89,9 @@ module.exports = Character = EntityMoving.extend({
       daze: 0,
       hate: 0
     };
+
+    this.damageCount = {};
+    this.dealtCount = {};
 
     this.neighboursUpdated  = false;
   },
@@ -388,7 +392,9 @@ module.exports = Character = EntityMoving.extend({
     this.freeze = true;
   },*/
 
-  died: function(attacker) {
+  die: function(attacker) {
+    var self = this;
+
     console.warn("CHARACTER DIED!!!!!!!!!!!!!!!!!!!!!")
     this.forceStop();
     //try { throw new Error(); } catch(err) { console.info(err.stack); }
@@ -396,9 +402,43 @@ module.exports = Character = EntityMoving.extend({
     //this.isDying = true;
     this.isDead = true;
     this.freeze = true;
+
+    _.each(this.attackers, function(attacker) {
+      if (self.on_killed_callback) {
+        self.on_killed_callback(attacker, self.damageCount[attacker.id]);
+      }
+      attacker.onKillEntity(self);
+    });
+
+    this.removeAttackers();
+    this.endEffects();
+
+    this.damageCount = {};
+    this.dealtCount = {};
+
     if (this.death_callback) {
       this.death_callback(attacker);
     }
+  },
+
+  endEffects: function () {
+    for (var skilleffect of this.activeEffects)
+    {
+      skilleffect.endEffects();
+    }
+    this.activeEffects = [];
+  },
+
+  onHitEntity: function (target, dmg) {
+    if (!this.dealtCount.hasOwnProperty(target.id))
+      this.dealtCount[target.id] = 0;
+    this.dealtCount[target.id] += dmg;
+  },
+
+  onHitByEntity: function (target, dmg) {
+    if (!this.damageCount.hasOwnProperty(target.id))
+      this.damageCount[target.id] = 0;
+    this.damageCount[target.id] += dmg;
   },
 
   /*dying: function() {
@@ -459,6 +499,8 @@ module.exports = Character = EntityMoving.extend({
     if (this.invincible)
       return;
 
+    var prevHP = this.stats.hp;
+
     if (hpMod > 0)
       this.addAttacker(attacker);
 
@@ -470,9 +512,16 @@ module.exports = Character = EntityMoving.extend({
     var msg = new Messages.Damage([attacker, this, -hpMod, -epMod, crit, effects]);
     this.map.entities.sendNeighbours(attacker, msg);
 
+    var hpDiff = prevHP - this.stats.hp;
+    if (hpMod > 0) {
+      console.info ("onDamage hpDiff:"+hpDiff)
+      attacker.onHitEntity(this, hpDiff);
+      this.onHitByEntity(attacker, hpDiff);
+    }
+
     if (this.stats.hp <= 0)
     {
-      this.died(attacker);
+      this.die(attacker);
     }
   },
 
