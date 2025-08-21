@@ -90,9 +90,6 @@ module.exports = Character = EntityMoving.extend({
       hate: 0
     };
 
-    this.damageCount = {};
-    this.dealtCount = {};
-
     this.neighboursUpdated  = false;
   },
 
@@ -403,18 +400,9 @@ module.exports = Character = EntityMoving.extend({
     this.isDead = true;
     this.freeze = true;
 
-    _.each(this.attackers, function(attacker) {
-      if (self.on_killed_callback) {
-        self.on_killed_callback(attacker, self.damageCount[attacker.id]);
-      }
-      attacker.onKillEntity(self);
-    });
 
     this.removeAttackers();
     this.endEffects();
-
-    this.damageCount = {};
-    this.dealtCount = {};
 
     if (this.death_callback) {
       this.death_callback(attacker);
@@ -427,18 +415,6 @@ module.exports = Character = EntityMoving.extend({
       skilleffect.endEffects();
     }
     this.activeEffects = [];
-  },
-
-  onHitEntity: function (target, dmg) {
-    if (!this.dealtCount.hasOwnProperty(target.id))
-      this.dealtCount[target.id] = 0;
-    this.dealtCount[target.id] += dmg;
-  },
-
-  onHitByEntity: function (target, dmg) {
-    if (!this.damageCount.hasOwnProperty(target.id))
-      this.damageCount[target.id] = 0;
-    this.damageCount[target.id] += dmg;
   },
 
   /*dying: function() {
@@ -511,18 +487,6 @@ module.exports = Character = EntityMoving.extend({
 
     var msg = new Messages.Damage([attacker, this, -hpMod, -epMod, crit, effects]);
     this.map.entities.sendNeighbours(attacker, msg);
-
-    var hpDiff = prevHP - this.stats.hp;
-    if (hpMod > 0) {
-      console.info ("onDamage hpDiff:"+hpDiff)
-      attacker.onHitEntity(this, hpDiff);
-      this.onHitByEntity(attacker, hpDiff);
-    }
-
-    if (this.stats.hp <= 0)
-    {
-      this.die(attacker);
-    }
   },
 
   canMove: function() {

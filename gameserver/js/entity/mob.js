@@ -96,6 +96,10 @@ module.exports = Mob = Character.extend({
       this.effects = {};
 
       this.activeEffects = [];
+
+      this.damageCount = {};
+      this.dealtCount = {};
+
     },
 
     getXP: function () {
@@ -146,27 +150,22 @@ module.exports = Mob = Character.extend({
       var hp = this.stats.hp;
       var dmgRatio = (hpMod / this.stats.hpMax);
       log.info("dmgRatio: "+dmgRatio)
-      /*if (!this.isMoving() && dmgRatio >= 0.5) {
-        this.forceStop();
-        this.setFreeze(1000, function (mob) { mob.attackTimer = Date.now(); });
-      }*/
 
-      //var hpDiff = hp - this.stats.hp;
+      var hpDiff = this.stats.hp;
 
       this._super(attacker, hpMod, epMod, crit, effects);
-    },
 
-    /*onHitEntity: function (target, dmg) {
-      if (!this.dealtCount.hasOwnProperty(target.id))
-        this.dealtCount[target.id] = 0;
-      this.dealtCount[target.id] += dmg;
-    },
+      hpDiff = hpDiff - this.stats.hp;
+      if (hpDiff > 0) {
+        console.info ("onDamage hpDiff:"+hpDiff)
+        this.onHitByEntity(attacker, hpDiff);
+      }
 
-    onHitByEntity: function (target, dmg) {
-      if (!this.damageCount.hasOwnProperty(target.id))
-        this.damageCount[target.id] = 0;
-      this.damageCount[target.id] += dmg;
-    },*/
+      if (this.stats.hp <= 0)
+      {
+        this.die(attacker);
+      }
+    },
 
     destroy: function () {
         this.isDead = true;
@@ -179,6 +178,21 @@ module.exports = Mob = Character.extend({
         this.resetBars();
         this.resetPosition();
         this.handleRespawn();
+
+        this.damageCount = {};
+        this.dealtCount = {};
+    },
+
+    onHitEntity: function (target, dmg) {
+      if (!this.dealtCount.hasOwnProperty(target.id))
+        this.dealtCount[target.id] = 0;
+      this.dealtCount[target.id] += dmg;
+    },
+
+    onHitByEntity: function (target, dmg) {
+      if (!this.damageCount.hasOwnProperty(target.id))
+        this.damageCount[target.id] = 0;
+      this.damageCount[target.id] += dmg;
     },
 
     resetBars: function () {
@@ -424,9 +438,18 @@ module.exports = Mob = Character.extend({
 
       console.info("Entity is dead");
 
+      this.map.entities.sendBroadcast(this.despawn());
+
+      _.each(this.attackers, function(attacker) {
+        if (self.on_killed_callback) {
+          self.on_killed_callback(attacker, self.damageCount[attacker.id]);
+        }
+        attacker.onKillEntity(self, self.damageCount[attacker.id],
+          self.dealtCount[attacker.id]);
+      });
+
       this._super(attacker);
 
-      this.map.entities.sendBroadcast(this.despawn());
       this.destroy();
     },
 

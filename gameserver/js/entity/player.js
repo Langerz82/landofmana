@@ -201,9 +201,9 @@ module.exports = Player = Character.extend({
     },
 
 
-    onKillEntity: function (entity) {
-      var damage = entity.damageCount.hasOwnProperty(this.id) ? entity.damageCount[this.id] : 0;
-      var dealt = entity.dealtCount.hasOwnProperty(this.id) ? entity.dealtCount[this.id] : 0;
+    onKillEntity: function (entity, damage, dealt) {
+      //var damage = entity.damageCount.hasOwnProperty(this.id) ? entity.damageCount[this.id] : 0;
+      //var dealt = entity.dealtCount.hasOwnProperty(this.id) ? entity.dealtCount[this.id] : 0;
       var ratio = (damage / entity.stats.hpMax);
 
       var xp = ~~(entity.getXP() * ratio);
@@ -242,18 +242,25 @@ module.exports = Player = Character.extend({
       //target.addWeaponExp(target.weaponDamage);
       this.weaponDamage = 0;
 
-      this.damageCount[entity.id] = 0;
-      this.dealtCount[entity.id] = 0;
+      //this.damageCount[entity.id] = 0;
+      //this.dealtCount[entity.id] = 0;
     },
 
     onDamage: function (attacker, hpMod, epMod, crit, effects) {
+      var hpDiff = this.stats.hp;
       this._super(attacker, hpMod, epMod, crit, effects);
+      hpDiff = hpDiff - this.stats.hp;
+
+      attacker.onHitEntity(this, hpDiff);
+
       if (this.stats.hp <= 0)
       {
-        _.each(this.attackers, function(e) {
-          if (e.hasOwnProperty("knownIds"))
-            delete e.knownIds[this.id];
+        _.each(this.attackers, function(attacker) {
+          if (attacker.hasOwnProperty("knownIds"))
+            delete attacker.knownIds[this.id];
+
         });
+        this.die(attacker);
       }
     },
 
