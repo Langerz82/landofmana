@@ -476,7 +476,7 @@ module.exports = Mob = Character.extend({
     baseDamage: function() {
       var dealt, absorbed, dmg;
 
-      dealt = ~~(this.level * 6);
+      dealt = ~~(this.level * 12);
       dealt += (this.stats.attack+this.stats.mod.attack) * (6-Math.min(3, (this.level * 0.1)));
 
       dmg = ~~(dealt);

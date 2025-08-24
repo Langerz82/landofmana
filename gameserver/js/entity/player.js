@@ -862,8 +862,8 @@ module.exports = Player = Character.extend({
     var noobLvl = 12;
     var noobMulti = 1 + Math.max(0,(noobLvl-this.level) * (1/this.level));
 
-    var min = ~~(level*power*noobMulti*3.5);
-    var max = ~~(min*1.25);
+    var min = ~~(level*power*noobMulti*4);
+    var max = ~~(min*1.15);
 
     dmg = Utils.randomRangeInt(min, max) + dealt;
 
