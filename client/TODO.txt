@@ -1,14 +1,16 @@
 TODO:
 
-SERVER/CLIENT - To reduce damage variance by adjusting min/max damage.
-
-SERVER/CLIENT - Up Defense a little bit so it's more useful.
+CLIENT - Add Exp progress in Skills Window for each skill.
 
 SERVER - Sometimes it reports the user is logged in at startup, when they arent.
 
 CLIENT - Keyboard movement appears jerky, needs fixing.
 
 DONE:
+
+SERVER/CLIENT - To reduce damage variance by adjusting min/max damage.
+
+SERVER/CLIENT - Up Defense a little bit so it's more useful.
 
 CLIENT - Pathfinding wasnt moving characters within tiles properly.
 
