@@ -55,7 +55,7 @@ module.exports = MapManager = cls.Class.extend({
          * Map Loading
          */
 
-      	this.maps[0] = new Map(0,"map0","./maps/map0.json","");
+      	this.maps[0] = new Map(server, 0,"map0","./maps/map0.json","");
       	this.maps[0].ready(function() {
       		var map = self.maps[0];
 
@@ -72,7 +72,7 @@ module.exports = MapManager = cls.Class.extend({
       	});
 
 
-        this.maps[1] = new Map(1,"map1","./maps/map1.json","");
+        this.maps[1] = new Map(server, 1,"map1","./maps/map1.json","");
         this.maps[1].ready(function() {
             var map = self.maps[1];
 

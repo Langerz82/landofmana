@@ -9,8 +9,9 @@ var MapArea = require('../area/maparea');
 var Map = cls.Class.extend({
 
 
-    init: function (id, name, filepath, filenameCollision) {
+    init: function (world, id, name, filepath, filenameCollision) {
     	this.id = this.index = id;
+      this.world = world;
     	console.info("filepath: "+filepath+",filenameCollision: "+filenameCollision);
         var self = this;
         this.name = name;

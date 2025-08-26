@@ -119,9 +119,9 @@ var MapEntities = cls.Class.extend({
     _createNpc: function(name) {
 	    var self = this;
 
-      pos = self.spaceEntityRandomApart(2, function () { return self.map.getRandomPosition(); });
+      pos = this.spaceEntityRandomApart(2, function () { return self.map.getRandomPosition(); });
 
-	    var npc = new NpcMove(++self.entityCount, 0, pos.x * 16, pos.y * 16, self.map);
+	    var npc = new NpcMove(++this.entityCount, 0, pos.x * 16, pos.y * 16, self.map);
 
 		  self.addNpcPlayer(npc);
 		  //self.sendBroadcast(npc.spawn());
@@ -227,7 +227,7 @@ var MapEntities = cls.Class.extend({
           {
              var player = self.getEntityById(id);
               var conn = self.server.socket.getConnection(id);
-              if (player && player.mapStatus >= 2 && conn !== null && typeof conn !== 'undefined')
+              if (player && player.map && player.mapStatus >= 2 && conn !== null && typeof conn !== 'undefined')
               {
                   var packets = [];
                   for (var i =0; i < self.maxPackets; ++i)
@@ -253,8 +253,8 @@ var MapEntities = cls.Class.extend({
         {
 				    self.packets[player.id].push(message.serialize());
         }
+        this.processPackets();
     },
-
 
     sendBroadcast: function(message, ignoredPlayer)  {
         if (!message)
@@ -266,6 +266,7 @@ var MapEntities = cls.Class.extend({
               packet.push(message.serialize());
           }
         });
+        this.processPackets();
     },
 
     sendNeighbours: function(entity, message, ignoredPlayer, areaLength)  {
@@ -274,7 +275,7 @@ var MapEntities = cls.Class.extend({
     	//console.info(JSON.stringify(message.serialize()));
       areaLength = areaLength || 48;
     	var players = self.getPlayerAround(entity, areaLength);
-      if (entity instanceof Player) players.push(entity);
+      players.push(entity);
 
     	//console.info(entities.length);
       for (var player of players) {
@@ -284,6 +285,7 @@ var MapEntities = cls.Class.extend({
                self.packets[player.id].push(message.serialize());
           }
       }
+      this.processPackets();
     },
 
     isMobsOnSameTile: function(mob) {
@@ -379,7 +381,7 @@ var MapEntities = cls.Class.extend({
 	    {
     		item.x = chest.x;
     		item.y = chest.y;
-    		chest.map.entities.sendBroadcast(new Messages.Spawn(item));
+    		self.sendBroadcast(new Messages.Spawn(item));
     		self.server.handleItemDespawn(item);
 	    }
 	    chest.handleRespawn();
@@ -523,7 +525,7 @@ var MapEntities = cls.Class.extend({
     	var self = this;
 
 	    if (player instanceof Player)
-		     player.packetHandler.broadcast(player.despawn());
+		     this.sendBroadcast(player.despawn());
 
       console.info("deleting player traces..");
 
@@ -536,12 +538,11 @@ var MapEntities = cls.Class.extend({
 
     removeNpcPlayer: function(player) {
       console.info("removePlayer-called");
-  	  var self = this;
 
-      self.sendBroadcast(player.despawn(0));
-      self.removeEntity(player);
+      this.sendBroadcast(player.despawn(0));
+      this.removeEntity(player);
 
-      delete self.npcplayers[player.id];
+      delete this.npcplayers[player.id];
     },
 
     createItem: function(itemRoom, x, y) {

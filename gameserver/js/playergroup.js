@@ -60,7 +60,7 @@ module.exports = PlayerGroup = Class.extend({
       if(playerName) {
         var player = self.getPlayer(playerName);
         if (player)
-          player.sendToPlayer(player, msg);
+          player.sendPlayer(msg);
       }
     })
   },

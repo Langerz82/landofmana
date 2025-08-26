@@ -36,6 +36,7 @@ var cls = require("./lib/class"),
     TaskHandler = require("./world/taskhandler"),
     BanManager = require("./world/banmanager"),
     PartyManager = require("./world/partymanager"),
+
     LootManager = require("./world/lootmanager");
 
 module.exports = World = cls.Class.extend(
@@ -396,6 +397,7 @@ module.exports = World = cls.Class.extend(
                 Utils.forEach(packets, function (packet) {
                   packet.push(message.serialize());
                 });
+                map.entities.processPackets();
             }
         });
     },

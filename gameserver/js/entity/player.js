@@ -91,6 +91,7 @@ module.exports = Player = Character.extend({
         this.moveSpeed = 500;
         this.setMoveRate(this.moveSpeed);
 
+        this.consumeTime = new Timer(5000);
         this.attackedTime = new Timer(1000);
         this.attackQueue = [];
         this.moveQueue = [];
@@ -700,13 +701,8 @@ module.exports = Player = Character.extend({
       var self = this;
       var kind = item.itemKind;
 
-      if(this.consumeTimeout){
+      if(!this.consumeTime.isOver())
           return;
-      } else{
-          this.consumeTimeout = setTimeout(function(){
-              self.consumeTimeout = null;
-          }, 4000);
-      }
 
       var amount;
 

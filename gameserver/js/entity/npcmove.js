@@ -85,7 +85,7 @@ var NpcMove = Character.extend({
         }
 
         var langcode = "DIALOGUE_"+newQid;
-        this.map.entities.sendToPlayer(player, new Messages.Dialogue(this, langcode));
+        player.sendPlayer(new Messages.Dialogue(this, langcode));
       }
     },
 

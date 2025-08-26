@@ -56,6 +56,6 @@ module.exports = Looks = cls.Class.extend({
     },
 
     sendLooks: function (player) {
-      player.map.entities.sendToPlayer(player, new Messages.AppearanceList(player.user, this));
+      player.sendPlayer(new Messages.AppearanceList(player.user, this));
     }
 });

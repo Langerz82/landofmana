@@ -78,7 +78,7 @@ module.exports = Auction = cls.Class.extend({
         var auction = new AuctionRecord(player.name, price, item);
         this.auctions.push(auction);
         player.inventory.setItem(invIndex, null);
-        player.map.entities.sendToPlayer(player, new Messages.Notify("AUCTION","AUCTION_ADDED"));
+        player.sendPlayer(new Messages.Notify("AUCTION","AUCTION_ADDED"));
     },
 
     remove: function (index) {
@@ -108,6 +108,6 @@ module.exports = Auction = cls.Class.extend({
         }
       }
       msg[2] = recCount;
-      player.map.entities.sendToPlayer(player, new Messages.AuctionOpen(msg));
+      player.sendPlayer(new Messages.AuctionOpen(msg));
     }
 });

@@ -38,7 +38,7 @@ module.exports = SkillHandler = cls.Class.extend({
         }
       }
       if (skillXPs.length > 0)
-        this.player.map.entities.sendToPlayer(this.player, new Messages.SkillXP(skillXPs));
+        this.player.sendPlayer(new Messages.SkillXP(skillXPs));
     }
 });
 
@@ -83,7 +83,7 @@ Skill = cls.Class.extend({
    	{
    		this.skillLevel = skillLevel;
       this.player.effectHandler.skillEffects[this.skillIndex].level = skillLevel;
-   		this.player.map.entities.sendToPlayer(this.player, new Messages.SkillLoad(this.skillIndex, this.skillXP));
+   		this.player.sendPlayer(new Messages.SkillLoad(this.skillIndex, this.skillXP));
    	}
    }
 });

@@ -96,7 +96,7 @@ module.exports = LootManager = Class.extend({
     if (stolen) {
       item2 = Object.assign(new ItemRoom(), item);
       item2.itemNumber = count;
-      source.map.entities.sendToPlayer(source, new Messages.Notify("CHAT", "ITEM_ADDED", [ItemData.Kinds[item.itemKind].name]));
+      source.sendPlayer(new Messages.Notify("CHAT", "ITEM_ADDED", [ItemData.Kinds[item.itemKind].name]));
     }
     else {
       item2 = target.map.entities.addItem(target.map.entities.createItem(type, item, target.x, target.y, count));
@@ -146,7 +146,7 @@ module.exports = LootManager = Class.extend({
     if (stolen)
     {
       if (source instanceof Player)
-        source.map.entities.sendToPlayer(source, new Messages.Notify("CHAT", "ITEM_ADDED", [ItemData.Kinds[item.itemKind].name]));
+        source.sendPlayer(new Messages.Notify("CHAT", "ITEM_ADDED", [ItemData.Kinds[item.itemKind].name]));
       return itemRoom;
     }
     else

@@ -205,9 +205,6 @@ module.exports = PacketHandler = Class.extend({
     }
   },
 
-  sendPlayer: function (message) {
-    this.entities.sendToPlayer(this.player, message);
-  },
 
   onExit: function(callback) {
     console.info("packetHandler, onExit.");
@@ -230,12 +227,16 @@ module.exports = PacketHandler = Class.extend({
     this.broadcast_callback = callback;
   },
 
-  sendToPlayer: function (player, message) {
-    this.map.entities.sendToPlayer(player, message);
-  },
-
   send: function(message) {
     this.connection.send(message);
+  },
+
+  sendPlayer: function (message) {
+    this.player.sendPlayer(message);
+  },
+
+  sendToPlayer: function (player, message) {
+    this.player.sendToPlayer(player, message);
   },
 
   handleCharacterInfo: function (message) {
@@ -699,7 +700,7 @@ module.exports = PacketHandler = Class.extend({
       //tEntity.stats.hp -= dmg;
       if (tEntity.isDead) {
         if (sEntity === self.player)
-          self.entities.sendBroadcast(new Messages.Notify("CHAT","COMBAT_PLAYERKILLED", [sEntity.name, tEntity.name]));
+          self.player.map.entities.sendBroadcast(new Messages.Notify("CHAT","COMBAT_PLAYERKILLED", [sEntity.name, tEntity.name]));
 
         sEntity.pStats.pk++;
         tEntity.pStats.pd++;
@@ -774,7 +775,7 @@ module.exports = PacketHandler = Class.extend({
       if (v === 1)
         effects.push(parseInt(k));
     }
-    this.entities.sendToPlayer(source, new Messages.SkillEffects(source, effects));
+    this.sendToPlayer(source, new Messages.SkillEffects(source, effects));
     effects = [];
 
     if (!target) return;
@@ -784,7 +785,7 @@ module.exports = PacketHandler = Class.extend({
       if (v === 1)
         effects.push(parseInt(k));
     }
-    this.entities.sendToPlayer(source, new Messages.SkillEffects(target, effects));
+    this.sendToPlayer(source, new Messages.SkillEffects(target, effects));
 
   },
 
@@ -830,7 +831,7 @@ module.exports = PacketHandler = Class.extend({
     p.move(arr);
 
     var msg = new Messages.Move(p, orientation, state, x, y);
-    this.entities.sendNeighbours(p, msg, p);
+    p.map.entities.sendNeighbours(p, msg, p);
 
     if (this.move_callback)
       this.move_callback();
@@ -878,7 +879,7 @@ module.exports = PacketHandler = Class.extend({
     p.movePath([time, interrupted], path);
 
     var msg = new Messages.MovePath(p, path);
-    this.entities.sendNeighbours(p, msg);
+    p.map.entities.sendNeighbours(p, msg);
   },
 
   // TODO - enterCallback x,y not being overridden sometimes,
@@ -984,7 +985,7 @@ module.exports = PacketHandler = Class.extend({
 
     p.setPosition(x,y);
     this.entities.processWho(p);
-    this.entities.sendNeighbours(p, new Messages.Spawn(p), p);
+    p.map.entities.sendNeighbours(p, new Messages.Spawn(p), p);
   },
 
   //handleClearMap: function() {
@@ -1093,7 +1094,7 @@ module.exports = PacketHandler = Class.extend({
       p.holdingBlock = null;
     }
     var msg = new Messages.BlockModify(block, p.id, type);
-    this.entities.sendNeighbours(p, msg, p);
+    p.map.entities.sendNeighbours(p, msg, p);
   },
 
   handleRequest: function (msg) {
@@ -1124,7 +1125,7 @@ module.exports = PacketHandler = Class.extend({
     if (p.isDead === true) {
       console.info("handled Revive!!");
       p.respawn();
-      this.entities.sendNeighbours(p, new Messages.Spawn(p), p);
+      p.map.entities.sendNeighbours(p, new Messages.Spawn(p), p);
       var msg = new Messages.Move(p, p.orientation, 2, p.x, p.y);
       this.sendPlayer(msg);
     }

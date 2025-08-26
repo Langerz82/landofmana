@@ -162,7 +162,7 @@ module.exports = ItemStore = cls.Class.extend({
       if (i < 0)
       {
         if (this.owner instanceof Player)
-        	this.owner.map.entities.sendToPlayer(this.owner, this.fullMessage);
+        	this.owner.sendPlayer(this.fullMessage);
         return -1;
       }
       else {
@@ -188,7 +188,7 @@ module.exports = ItemStore = cls.Class.extend({
         this.rooms[index] = item;
         item.slot = index;
       }
-      this.owner.map.entities.sendToPlayer(this.owner, new Messages.ItemSlot(this.typeIndex, [item]));
+      this.owner.sendPlayer(new Messages.ItemSlot(this.typeIndex, [item]));
       return true;
     },
 

@@ -160,14 +160,14 @@ module.exports = TaskHandler = cls.Class.extend({
         var diff = (achievement.count+count);
         achievement.count = Math.min(diff, objectCount);
         count -= (objectCount-prevCount);
-        player.map.entities.sendToPlayer(player, new Messages.Achievement(achievement));
+        player.sendPlayer(new Messages.Achievement(achievement));
 
         var xp = ~~(objectCount * expMultiplier);
         var chatAchievement = "ACHIEVEMENTS_"+ti+"_COMPLETE";
         var objectCountFmt = Utils.getNumShortHand(objectCount, 0);
 
         player.incExp(xp);
-        player.map.entities.sendToPlayer(player, new Messages.Notify("CHAT", chatAchievement, [objectCountFmt, xp]));
+        player.sendPlayer(new Messages.Notify("CHAT", chatAchievement, [objectCountFmt, xp]));
         if (achievement.rank === (rankCount-1) && achievement.count === objectCount)
         {
           return;
@@ -180,7 +180,7 @@ module.exports = TaskHandler = cls.Class.extend({
         }
       }
     }
-    player.map.entities.sendToPlayer(player, new Messages.Achievement(achievement));
+    player.sendPlayer(new Messages.Achievement(achievement));
   },
 
 

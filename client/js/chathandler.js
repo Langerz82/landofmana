@@ -108,7 +108,7 @@ define([], function() {
                 			//#cli guilds
 			var regexp = /^\/guild\ (invite|create|accept)\s+([^\s]*)|(guild:)\s*(.*)$|^\/guild\ (leave)$/i;
 			var args = message.match(regexp);
-			if(args !== undefined){
+			if(Array.isArray(args) && args.length > 1){
 				switch(args[1]){
 					case "invite":
 						if(game.player.hasGuild()){
