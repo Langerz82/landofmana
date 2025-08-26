@@ -132,7 +132,7 @@ define(['entity/item', 'data/items'], function(Item, Items) {
               game.showNotification(["SHOP", "SHOP_NOGOLD"]);
               return;
           }
-          gamg.confirmDialog.confirm(strPrice, function(result) {
+          game.confirmDialog.confirm(strPrice, function(result) {
               if(result) {
                   game.client.sendStoreEnchant(type, itemSlot);
               }

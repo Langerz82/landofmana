@@ -267,7 +267,7 @@ module.exports = PacketHandler = Class.extend({
           this.send([Types.Messages.WC_NOTIFY, "CHAT", "CHATMUTED"]);
           break;
         default:
-          this.server.pushWorld(new Messages.Chat(this.player, msg));
+          this.server.sendWorld(new Messages.Chat(this.player, msg));
           break;
 
       }

@@ -56,7 +56,7 @@ module.exports = EntityQuests = cls.Class.extend({
     sendNoQuest: function (player) {
       var entity = this.entity;
       var msg = new Messages.Dialogue(entity, "QUESTS_NONE", [entity.nextNpcDir, entity.nextNpcName, entity.name])
-      entity.sendToPlayer(player, msg);
+      player.sendPlayer(msg);
     },
 
     dynamicQuests: function (player) {

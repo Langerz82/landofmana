@@ -178,7 +178,7 @@ module.exports = World = cls.Class.extend(
             Utils.forEach(self.notify, function (notify) {
               if (Date.now() - notify.lastTime >= notify.interval * 60000)
               {
-                  self.pushWorld(new Messages.Notify("NOTICE", notify.textid));
+                  self.sendWorld(new Messages.Notify("NOTICE", notify.textid));
                   notify.lastTime = Date.now();
               }
             });
@@ -187,7 +187,7 @@ module.exports = World = cls.Class.extend(
     },
 
     notifyWorld: function (msg) {
-      this.pushWorld(new Messages.Notify("GLOBAL", msg));
+      this.sendWorld(new Messages.Notify("GLOBAL", msg));
     },
 
     stop: function ()
@@ -387,18 +387,11 @@ module.exports = World = cls.Class.extend(
         this.regen_callback = callback;
     },
 
-    pushWorld: function(message)
+    sendWorld: function(message)
     {
         var self = this;
         self.forEachMap(function (map) {
-            var packets = map.entities.packets;
-            if (Object.keys(packets).length > 0)
-            {
-                Utils.forEach(packets, function (packet) {
-                  packet.push(message.serialize());
-                });
-                map.entities.processPackets();
-            }
+            map.entities.sendBroadcast(message);
         });
     },
 
