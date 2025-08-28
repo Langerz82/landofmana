@@ -8,6 +8,11 @@
 	/*font-family:'pixel-emulator';*/
 }
 
+#skillsDialog {
+	width: 350px;
+	margin-left: -175px;
+}
+
 #characterAttack,
 #characterDefense,
 #characterHealth,

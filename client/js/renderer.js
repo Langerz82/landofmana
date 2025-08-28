@@ -212,7 +212,7 @@ define(['camera', 'entity/item', 'data/items', 'data/itemlootdata', 'entity/enti
                 checkAnnouncement(this);
 
                 this.gui = document.getElementById('gui');
-                this.hitbar = document.getElementById("combathitbar-slider");
+                this.hitbar = document.getElementById("energy");
 
                 this.resizeCanvases(1);
 
@@ -1264,7 +1264,7 @@ define(['camera', 'entity/item', 'data/items', 'data/itemlootdata', 'entity/enti
               function regenerateElements(){
                 var clonedElement = self.hitbar.cloneNode(true);
                 self.hitbar.parentNode.replaceChild(clonedElement, self.hitbar);
-                self.hitbar = document.getElementById('combathitbar-points');
+                self.hitbar = document.getElementById('energy');
               }
               regenerateElements();
             },

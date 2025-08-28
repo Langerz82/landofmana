@@ -236,6 +236,12 @@ div.frame-close-button
 	  height:446px;
 	}
 
+	div.frame-top {
+		top:18px !important;
+		margin-top:0;
+		z-index: 14;
+	}
+
 	div.frame-content {
 	  top: 50px;
 	  left:0;

@@ -123,13 +123,15 @@ define(['data/skilldata', 'data/items'], function(SkillData, Items) {
       if (this.type === 1) {
         var count = game.inventory.getItemTotalCount(this.shortcutId);
         var item = {itemKind: this.shortcutId, itemNumber: count};
-        Items.jqShowItem(this.jq, item, this.jq, 1.5);
+        Items.jqShowItem(this.jq, item, this.jq, 1);
+        this.jq.css("transform", "scale("+(51/48)+")");
         return;
       }
       else if (this.type === 2) {
         // Temp not Working
         var skill = null;
-        SkillData.jqShowSkill(this.jq, this.shortcutId, this.jq);
+        SkillData.jqShowSkill(this.jq, this.shortcutId, this.jq, 1);
+        this.jq.css("transform", "scale("+(51/48)+")");
         return;
       }
       this.clear();

@@ -3,9 +3,12 @@
         display:none;
         pointer-events:all;
         cursor: default;
-        z-index:11;
+        z-index:14;
         width:450px;
         margin-left:-225px;
+        top:18px;
+        margin-top:0;
+
     }
 
     #characterLook3 {

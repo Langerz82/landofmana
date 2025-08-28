@@ -77,18 +77,20 @@ footer, header, hgroup, menu, nav, section {
     left: 0;
     bottom: 12px;
     opacity: 0.75;
-    width: 105px;
-    height: 36px;
+    width: 32px;
+    height: 32px;
+    margin:3px;
+    background: url('../img/common/messenger.png') no-repeat;
   }
 
   #chatLog {
     font-family: 'GraphicPixel';
     color: #e3e3e3;
     position: absolute;
-    width: 25%;
+    width: 30%;
     height: 25%;
     left: 0;
-    bottom: 50px;
+    bottom: 45px;
     padding: 10px;
     overflow-y: hidden;
     overflow-x: hidden;

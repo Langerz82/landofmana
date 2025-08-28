@@ -220,7 +220,7 @@
 	    <div id="settingsbutton"></div><div class="frame-stroke" id="settingstext">SETTINGS</div>
 	    <div id="storebutton"></div><div class="frame-stroke" id="storetext">STORE</div>
 	</div>
-		<div class="frame" id="settings">
+		<div class="frame frame-top" id="settings">
 			<div class="frame-heading">SETTINGS<div class="frame-close-button" id="settingsclose"></div></div>
 			<div class="frame-content">
 				<div class="frame-stroke1" id="settingchat">Chat</div><div id="buttonchat" class="frame-new-button-ok active">On</div><br/>
@@ -250,10 +250,10 @@
 				<div id="health"> </div>
 				<div class="frame-stroke1" id="healthtext"></div>
 			</div>
-			<!--<div class="frame-border">
-				<div id="energy"> </div>
-				<div class="frame-stroke1" id="energytext"></div>
-			</div>-->
+			<div class="frame-border">
+				<div id="energy" class="combatProgress"> </div>
+				<div class="frame-stroke1" id="energytext">Energy</div>
+			</div>
 		</div>
     <div id="playereffects"></div>
 		<div class="frame-stroke1" id="explevel"></div>
@@ -263,7 +263,7 @@
 		<div id="exp"></div>
 		<div class="frame-stroke1" id="expbar"></div>
 	</div>
-		<div class="frame" id="allinventorywindow">
+		<div class="frame frame-top" id="allinventorywindow">
 			<div class="frame-heading">EQUIPMENT<div class="frame-close-button" id="inventoryCloseButton"></div></div>
 			<div class="frame-content">
         <div class="frame-content-padding">
@@ -311,9 +311,9 @@
 			</div>
         </div>
         <div id="chatLog" class="chatscrollout"></div>
-        <div class="frame-new-button" id="chatbutton">CHAT</div>
+        <div id="chatbutton"></div>
         <div id="useralarm"></div>
-		<div class="frame" id="questlog">
+		<div class="frame frame-top" id="questlog">
 			<div class="frame-heading">QUESTS<div class="frame-close-button" id="questCloseButton"></div></div>
 			<div class="frame-content">
         <div id="questLogScroll">
@@ -327,7 +327,7 @@
         </div>
 			</div>
     </div>
-      <div class="frame" id="achievementlog">
+      <div class="frame frame-top" id="achievementlog">
   			<div class="frame-heading">ACHIEVEMENTS<div class="frame-close-button" id="achievementCloseButton"></div></div>
   			<div class="frame-content">
           <div id="achievementLogScroll">
@@ -377,7 +377,7 @@
         	<div id="playerPopupMenuPartyKick">Kick</div>
         	<div id="playerPopupMenuAttack">Attack</div>
         </div>
-		<div class="frame" id="socialwindow">
+		<div class="frame frame-top" id="socialwindow">
 			<div class="frame-heading">SOCIAL<div class="frame-close-button" id="socialclose"></div></div>
 			<div class="frame-content">
 				<div id="party">
@@ -392,7 +392,7 @@
 			</div>
 		</div>
 
-		<div class="frame" id="leaderboard">
+		<div class="frame frame-top" id="leaderboard">
 			<div class="frame-heading">RANKINGS<div class="frame-close-button" id="leaderboardclose"></div></div>
 			<div class="frame-content">
         <div>
@@ -415,14 +415,9 @@
     <div id="combatContainer">
     	<div id="currentSkill"></div>
     </div>
-    <div id="combathit">
-      <div id="combathitbar"></div>
-      <div id="combathitbar-points"><div id="combathitbar-slider" class="combatProgress"></div></div>
-    </div>
     <div id="attackbackground" class="frame-new-button"><div class="attackSC">A</div></div>
-		<div class="frame-new-button" id="shortcutbutton">SHORTCUT</div>
-    <div class="frame-panel" id="attackContainer">
-      <div id="attackContainerClose" class="frame-close-button"></div>
+		<!--<div class="frame-new-button" id="shortcutbutton">SHORTCUT</div>-->
+    <div id="attackContainer">
         <div id="attackOffset">
           <div id="scbackground0">
               <div id="shortcut0"></div>
@@ -460,7 +455,7 @@
               <div id="shortcutnum5"></div>
               <div class="scSC">R+A 6</div>
           </div>
-          <div id="scbackground6">
+          <!--<div id="scbackground6">
               <div id="shortcut6"></div>
               <div class="scCD" id="scCD6"></div>
               <div id="shortcutnum6"></div>
@@ -471,10 +466,10 @@
               <div class="scCD" id="scCD7"></div>
               <div id="shortcutnum7"></div>
               <div class="scSC">R+X 8</div>
-          </div>
+          </div>-->
 			</div>
     </div>
-    <div class="frame" id="skillsDialog">
+    <div class="frame frame-top" id="skillsDialog">
 			<div class="frame-heading">
 				<div id="skillsDialogHeading">SKILLS</div>
 				<div class="frame-close-button" id="skillsCloseButton"></div>
@@ -496,7 +491,7 @@
         </div>
       </div>
     </div>
-		<div class="frame" id="statsDialog">
+		<div class="frame frame-top" id="statsDialog">
 			<div class="frame-heading">
 				<div id="statsDialogHeading">STATS</div>
 				<div class="frame-close-button" id="statsCloseButton"></div>
@@ -536,7 +531,7 @@
         </div>
       </div>
     </div>
-    <div class="frame" id="bankDialog">
+    <div class="frame frame-top" id="bankDialog">
   		<div class="frame-heading">BANK<div class="frame-close-button" id="bankDialogCloseButton"></div></div>
   		<div class="frame-content">
         <div id="bankDialogButtons">
@@ -588,7 +583,7 @@
     </div>
 	</div>
 
-  <div class="frame" id="appearanceDialog">
+  <div class="frame frame-top" id="appearanceDialog">
 		<div class="frame-heading">LOOKS<div class="frame-close-button" id="appearanceCloseButton"></div></div>
 		<div class="frame-content">
       <div class="frame-content-padding">
@@ -606,7 +601,7 @@
     </div>
   </div>
 
-  <div class="frame" id="shopDialog">
+  <div class="frame frame-top" id="shopDialog">
 		<div class="frame-heading">SHOP<div class="frame-close-button" id="shopCloseButton"></div></div>
 		<div class="frame-content">
       <div class="frame-content-padding">
@@ -626,7 +621,7 @@
     </div>
   </div>
 
-  <div class="frame" id="storeDialog">
+  <div class="frame frame-top" id="storeDialog">
     <div class="frame-heading"><div>SHOPS</div><div class="frame-close-button" id="storeDialogCloseButton"></div></div>
     <div class="frame-content">
     <div class="frame-content-padding">
@@ -697,7 +692,7 @@
     </div>
   </div>
 
-  <div class="frame" id="craftDialog">
+  <div class="frame frame-top" id="craftDialog">
     <div class="frame-heading"><div>CRAFT</div><div class="frame-close-button" id="craftDialogCloseButton"></div></div>
     <div class="frame-content">
     <div class="frame-content-padding">

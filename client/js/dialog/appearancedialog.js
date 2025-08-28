@@ -418,7 +418,7 @@ define(['./dialog', '../tabbook', '../tabpage', 'data/appearancedata', '../pageN
         },
 
         unlockMode: function (flag) {
-          this.showStore(false);
+          this.showStore(flag);
           if (flag) {
             $('#changeLookPrev').hide();
             $('#changeLookNext').hide();
@@ -434,11 +434,11 @@ define(['./dialog', '../tabbook', '../tabpage', 'data/appearancedata', '../pageN
         showStore: function (flag) {
           if (flag) {
             $('#appearanceDialog').hide();
-            $('#storeDialogStore').show();
+            $('#storeDialog').show();
           }
           else {
             $('#appearanceDialog').show();
-            $('#storeDialogStore').hide();
+            $('#storeDialog').hide();
           }
         },
 

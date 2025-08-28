@@ -551,8 +551,8 @@ define(['lib/localforage', 'entity/mob', 'entity/item', 'data/mobdata', 'user', 
             game.onPlayerEnergyChange(function(ep, epMax) {
                 maxWidth = $("#statbars").width();
                 var barWidth = Math.round((maxWidth / epMax) * (ep > 0 ? ep : 0));
-                $('#energy').css('width', barWidth + "px");
-                $('#energytext').html("<p>Energy: " + ep + "/" + epMax + "</p>");
+                //$('#energy').css('width', barWidth + "px");
+                //$('#energytext').html("<p>Energy: " + ep + "/" + epMax + "</p>");
             });
         },
 

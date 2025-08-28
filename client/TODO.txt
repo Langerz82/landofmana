@@ -1,5 +1,17 @@
 TODO:
 
+CLIENT - Move stamina bar to top left window.
+
+CLIENT - Shortcuts - Move shortcuts to horizontal bottom, make numbered first, only show gamepad option when enabled.
+
+CLIENT - GUI - Allow possible scaling.
+
+CLIENT - NPC - Add NPC question marks for available quests.
+
+CLIENT/SERVER - NPC - Allow multiple quests from the same NPC.
+
+CLIENT/SERVER - Reduce damage variance 1.0-1.1.
+
 CLIENT - Add Exp progress in Skills Window for each skill.
 
 SERVER - Sometimes it reports the user is logged in at startup, when they arent.

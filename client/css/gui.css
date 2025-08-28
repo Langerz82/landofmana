@@ -25,10 +25,6 @@
 	opacity:0.75;
 }
 
-#attackContainer {
-	display: none;
-}
-
 #statbars .frame-border {
 	border: 1px solid black;
 }
@@ -79,7 +75,7 @@
     	cursor:pointer;
     	pointer-events:auto;
 			opacity:0.75;
-			width:105px;
+			width:90px;
 			height:36px;
     }
 

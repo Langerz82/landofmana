@@ -49,15 +49,17 @@ define(['text!../../shared/data/skills2.json'], function(SkillsJSON) {
 		//Skill.Ordered[j++] = Skill.Data[i];
 	}
 
-  Skill.jqShowSkill = function (jq, skillId, jqn) {
+  Skill.jqShowSkill = function (jq, skillId, jqn, size) {
     var scale = 3;
+    size = size || 1;
+    size = size * 0.66;
     var position = Skill.Data[skillId].iconOffset;
     jq.css({
       'background-size': 'auto',
       'background-image': 'url("img/' + scale + '/misc/skillicons.png")',
-      'background-position': (-position[0] * 24 * scale) + "px " + (-position[1] * 24 * scale) + "px",
+      'background-position': (-position[0] * 24 * scale * size) + "px " + (-position[1] * 24 * scale * size) + "px",
       'background-repeat': 'no-repeat',
-      'margin': '2px'
+      'background-size': (1080 * size)+'px '+(1008 * size)+'px '
     });
     if (jqn) {
       jqn.html("");

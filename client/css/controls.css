@@ -1,9 +1,9 @@
 
-
+/*
 	#combathit {
 		position: absolute;
-		bottom:12px;
-		right:100px;
+		bottom:0px;
+		right:0px;
 		width:262px;
 		height:45px;
 	}
@@ -36,6 +36,7 @@
 		border-radius: 0 0 6px 6px;
 		opacity: 0.8;
 	}
+*/
 
 	#combatContainer {
 		position: absolute;
@@ -79,10 +80,10 @@
 
 	#attackContainer {
 		position: absolute;
-		bottom:100px;
+		bottom:10px;
 		right:3px;
-		width:162px;
-		height:322px;
+		width:330px;
+		height:60px;
 		color:#fff;
 		opacity:0.75;
 		/*border-radius: 10% / 5% !important;*/
@@ -135,21 +136,21 @@
 #scbackground0,  #scbackground1,  #scbackground2,  #scbackground3,
 #scbackground4,  #scbackground5,  #scbackground6,  #scbackground7 {
 	position: absolute;
-	width: 80px;
-	height: 80px;
+	width: 55px;
+	height: 55px;
 	pointer-events: all;
 	cursor: pointer;
 	background: url('../img/3/misc/shortcutbackground.png') no-repeat;
-	background-size: 77px 77px;
+	background-size: 55px 55px;
 	margin: 0;
 }
 
 #attackbackground {
 	position: absolute;
 	bottom: 12px;
-	right: 3px;
-	width:72px;
-	height:72px;
+	right: 0;
+	width:55px;
+	height:55px;
 	pointer-events: all;
 	cursor: pointer;
 	margin: 0;
@@ -178,36 +179,28 @@
 }
 
 #scbackground0 {
-	top: 0px;
-	left: 0px;
+	bottom: 60px;
+	right: 0;
 }
 #scbackground1 {
-	top: 0px;
-	left: 80px;
+	bottom: 115px;
+	right: 0;
 }
 #scbackground2 {
-	top: 80px;
-	left: 0px;
+	bottom: 170px;
+	right: 0;
 }
 #scbackground3 {
-	top: 80px;
-	left: 80px;
+	bottom: 225px;
+	right: 0;
 }
 #scbackground4 {
-	top: 160px;
-	left: 0px;
+	bottom: 280px;
+	right: 0;
 }
 #scbackground5 {
-	top: 160px;
-	left: 80px;
-}
-#scbackground6 {
-	top: 240px;
-	left: 0px;
-}
-#scbackground7 {
-	top: 240px;
-	left: 80px;
+	bottom: 335px;
+	right: 0;
 }
 
 #shortcut0,  #shortcut1,  #shortcut2,  #shortcut3,
@@ -215,8 +208,8 @@
   position: absolute;
   top: 0;
   left: 0;
-  width: 72px;
-  height: 72px;
+  width: 48px;
+  height: 48px;
   background-color: 'transparent';
   background-repeat: no-repeat !important;
   text-align: center;
@@ -224,16 +217,17 @@
   color: #fff;
 	font-size:18px;
   text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;
-	margin:2px;
+	margin:4px;
 	border-radius:6px;
+	opacity: 0.75;
 }
 
 .scCD {
 	position: absolute;
   top: 0;
   left: 0;
-  width: 72px;
-  height: 72px;
+  width: 55px;
+  height: 55px;
   background-color: #ff0000;
   background-repeat: no-repeat !important;
   text-align: center;
@@ -242,7 +236,7 @@
 	text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;
 	font-size:18px;
   opacity: 0.5;
-	margin:2px;
+	margin:0;
 	display: none;
 	border-radius:6px;
 }
@@ -269,7 +263,7 @@
 	position: absolute;
 	bottom: 0;
 	left: 0;
-	width: 72px;
+	width: 55px;
 	height: 21px;
 	font-size: 16px;
 	color: white;
@@ -278,7 +272,7 @@
 	pointer-events: none;
 	opacity: 0.8;
 	text-align: center;
-	margin:3px;
+	margin:4px;
 }
 
 #attackContainer .frame-close-button {
