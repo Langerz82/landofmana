@@ -80,7 +80,7 @@
 
 	#attackContainer {
 		position: absolute;
-		bottom:10px;
+		bottom:12px;
 		right:3px;
 		width:330px;
 		height:60px;
@@ -133,21 +133,9 @@
 	text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;
 }
 
-#scbackground0,  #scbackground1,  #scbackground2,  #scbackground3,
-#scbackground4,  #scbackground5,  #scbackground6,  #scbackground7 {
-	position: absolute;
-	width: 55px;
-	height: 55px;
-	pointer-events: all;
-	cursor: pointer;
-	background: url('../img/3/misc/shortcutbackground.png') no-repeat;
-	background-size: 55px 55px;
-	margin: 0;
-}
-
 #attackbackground {
 	position: absolute;
-	bottom: 12px;
+	bottom: 0;
 	right: 0;
 	width:55px;
 	height:55px;
@@ -156,6 +144,7 @@
 	margin: 0;
 	padding: 0;
 	opacity: 0.75;
+	border: 3px solid #333;
 }
 
 #attackbackground .attackSC {
@@ -178,28 +167,40 @@
 	background-size: 42px 42px;
 }
 
+#scbackground0,  #scbackground1,  #scbackground2,  #scbackground3,
+#scbackground4,  #scbackground5,  #scbackground6,  #scbackground7 {
+	position: absolute;
+	width: 60px;
+	height: 60px;
+	pointer-events: all;
+	cursor: pointer;
+	background: url('../img/3/misc/shortcutbackground.png') no-repeat;
+	background-size: 60px 60px;
+	margin: 0;
+}
+
 #scbackground0 {
 	bottom: 60px;
 	right: 0;
 }
 #scbackground1 {
-	bottom: 115px;
+	bottom: 120px;
 	right: 0;
 }
 #scbackground2 {
-	bottom: 170px;
+	bottom: 180px;
 	right: 0;
 }
 #scbackground3 {
-	bottom: 225px;
+	bottom: 240px;
 	right: 0;
 }
 #scbackground4 {
-	bottom: 280px;
+	bottom: 300px;
 	right: 0;
 }
 #scbackground5 {
-	bottom: 335px;
+	bottom: 360px;
 	right: 0;
 }
 
@@ -217,7 +218,7 @@
   color: #fff;
 	font-size:18px;
   text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;
-	margin:4px;
+	margin:6px;
 	border-radius:6px;
 	opacity: 0.75;
 }

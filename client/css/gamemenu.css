@@ -75,12 +75,14 @@ footer, header, hgroup, menu, nav, section {
   #chatbutton {
     position: absolute;
     left: 0;
-    bottom: 12px;
+    bottom: 10px;
     opacity: 0.75;
-    width: 32px;
-    height: 32px;
+    width: 60px;
+    height: 60px;
     margin:3px;
     background: url('../img/common/messenger.png') no-repeat;
+    background-size: 60px 60px;
+    pointer-events: all;
   }
 
   #chatLog {
@@ -90,7 +92,7 @@ footer, header, hgroup, menu, nav, section {
     width: 30%;
     height: 25%;
     left: 0;
-    bottom: 45px;
+    bottom: 70px;
     padding: 10px;
     overflow-y: hidden;
     overflow-x: hidden;
