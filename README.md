@@ -162,6 +162,7 @@ Additional Credits:
 * Weapon & Armor Icons: Medievalmore https://cartoonsmart.com/profile/?ID=9323
 * Craft Icons: BizmasterStudios https://opengameart.org/users/bizmasterstudios
 * Menu Icons: Raven Fantasy https://clockworkraven.itch.io/raven-fantasy-pixel-art-rpg-icons-starter-pack
+* [Message icons created by Freepik - Flaticon](https://www.flaticon.com/free-icons/message)
 
 ## Old Version History
 
