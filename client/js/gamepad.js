@@ -12,7 +12,6 @@ define([], function() {
 
 var jqInventoryWindow = $("#allinventorywindow");
 var jqMenuWindow = $("#menucontainer");
-var jqAttackWindow = $("#attackContainer");
 var jqSkillWindow = $("#skillsDialog");
 var jqStatWindow = $("#statsDialog");
 var jqPlayerPopupWindow = $("#playerPopupMenuContainer");
@@ -55,7 +54,7 @@ var selectFirstItem = {
   storeDialog: "#storeDialogStore0Button",
   socialconfirm: "#socialconfirmyes",
   diedwindow: "#respawn",
-  attackContainer: "#shortcut0"
+  "shortcut-bar": "#shortcut0"
 };
 
   var Gamepad = Class.extend({
@@ -323,7 +322,7 @@ var selectFirstItem = {
         return;
       }
     }
-    else if (self.shortcutActive && jqAttackWindow.is(':visible'))
+    else if (self.shortcutActive)
     {
       if (navigate === Navigate.UP)
       {
@@ -465,16 +464,9 @@ var selectFirstItem = {
   });
 
   self.pressShortcut = function (index) {
-    jqAttackWindow.show();
     self.setSelectedItem($(self.playerShortcut[index]));
     self.selectedItem.trigger("click");
   };
-
-  /*self.pressSkill = function (index) {
-    jqAttackWindow.show();
-    self.setSelectedItem($(self.playerShortcut[index]));
-    self.selectedItem.trigger("click");
-  };*/
 
   self.pxgamepad.buttonOn('x', function() {
     if (self.leftTopPressed) {
@@ -646,10 +638,10 @@ var selectFirstItem = {
                 self.setSelectedItem($("#inventorybutton"));
               }*/
               //self.setSelectedItem(null);
-              if (self.selectedItem[0].id === 'shortcutbutton')
+              /*if (self.selectedItem[0].id === 'shortcutbutton')
               {
                 self.shortcutActive = true;
-              }
+              }*/
               self.dialogOpen();
           }
           self.mainButtonsActive = false;
@@ -794,11 +786,6 @@ var selectFirstItem = {
         {
           $("#appearanceCloseButton").trigger("click");
         }
-        else if (jqAttackWindow.is(':visible'))
-        {
-          if (self.shortcutActive)
-            self.shortcutActive = false;
-        }
         else if (self.mainButtonsActive)
         {
           self.mainButtonsActive = false;
@@ -815,18 +802,6 @@ var selectFirstItem = {
 	    }
 	    else
 	    {
-        if (jqAttackWindow.is(':visible'))
-        {
-          $("#attackContainerClose").trigger("click");
-        } else {
-          $("#shortcutbutton").trigger("click");
-        }
-        /*self.shortcutActive = true;
-        if (!$("#attackContainer").is(':visible'))
-        {
-          self.setSelectedItem($(self.playerShortcut[0]));
-          $("#attackContainer").show();
-        }*/
 	    }
 	});
 
@@ -914,7 +889,6 @@ var selectFirstItem = {
           return;
         }
 
-        jqAttackWindow.show();
         self.leftTopPressed = true;
       });
       self.pxgamepad.buttonOff('leftTop', function() {
@@ -944,7 +918,6 @@ var selectFirstItem = {
           return;
         }
 
-        jqAttackWindow.show();
         self.rightTopPressed = true;
       });
 
@@ -1169,8 +1142,8 @@ var selectFirstItem = {
         jqShopWindow.is(':visible') ||
         jqLooksWindow.is(':visible') ||
         jqLooksPreview.is(':visible') ||
-        this.mainButtonsActive ||
-        this.shortcutActive;
+        this.mainButtonsActive;
+        //this.shortcutActive;
         //this.navMouse;
     },
 

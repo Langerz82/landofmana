@@ -116,17 +116,7 @@ define(['app', 'data/langdata', 'util',
                 app.loadWindow('loginWindow', 'passwordWindow');
             });
 
-      			$('#shortcutbutton').click(function() {
-      				$('#attackContainer').show();
-      				$('#shortcutbutton').hide();
-      			});
-
-            $('#attackContainerClose').click(function() {
-				      $('#shortcutbutton').show();
-				      $('#attackContainer').hide();
-            });
-
-            $('#attackbackground').click(function() {
+            $('#attack-shortcut').click(function() {
               game.makePlayerInteractNextTo();
             });
 

@@ -18,10 +18,8 @@ intput[type="color"]
 #buttonchat,
 #buttonsound,
 #buttonjoystick,
-#buttonoptimized,
 #buttonmenucolor,
-#buttonbuttoncolor,
-#buttonGPU
+#buttonbuttoncolor
 {
 	position:relative;
 	display:inline-block;
@@ -36,27 +34,24 @@ intput[type="color"]
 	#settingchat,
 	#settingsound,
 	#settingjoystick,
-	#settingoptimized,
 	#settingzoom,
 	#settingmenucolor,
 	#settingbuttoncolor,
-	#settingGPU
+	#settingshortcut
 	{
 		position:relative;
 		display:inline-block;
 		font-family: 'pixel-emulator';
 		font-size:24px;
 		color:#fff;
-		width:200px;
+		width:180px;
 	}
 
 	#buttonchat,
 	#buttonsound,
 	#buttonjoystick,
-	#buttonoptimized,
 	#buttonmenucolor,
-	#buttonbuttoncolor,
-	#buttonGPU
+	#buttonbuttoncolor
 	{
 		position:relative;
 		display:inline-block;
@@ -70,13 +65,13 @@ intput[type="color"]
 
 	}
 
-	.cgamezoom
+	.cgamezoom, .cshortcutstyle
 	{
 		position:relative;
 		display:inline-block;
 		font-size:18px;
 		background-color: black;
-		width:120px;
+		width:200px;
 		height:40px;
 		overflow: hidden;
 		color:#fff;

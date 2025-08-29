@@ -23,8 +23,7 @@
     ">
 
     <link rel="stylesheet" href="css/min.css" type="text/css">
-    <!--
-    <link rel="stylesheet" href="css/main.css" type="text/css">
+    <!--<link rel="stylesheet" href="css/main.css" type="text/css">
     <link rel="stylesheet" href="css/game.css" type="text/css">
     <link rel="stylesheet" href="css/newgui.css" type="text/css">
     <link rel="stylesheet" href="css/menu.css" type="text/css">
@@ -43,8 +42,7 @@
     <link rel="stylesheet" href="css/settings.css" type="text/css">
     <link rel="stylesheet" href="css/leaderboard.css" type="text/css">
     <link rel="stylesheet" href="css/fonts.css" type="text/css">
-    <link rel="stylesheet" href="css/dialogmodal.css" type="text/css">
-    -->
+    <link rel="stylesheet" href="css/dialogmodal.css" type="text/css">-->
 
     <link href="img/common/apple-touch-icon-57x57.png" rel="apple-touch-icon-precomposed" sizes="57x57">
     <link href="img/common/apple-touch-icon-72x72.png" rel="apple-touch-icon-precomposed" sizes="72x72">
@@ -128,7 +126,7 @@
 		</div>
 	</div>
 	<div class="frame" id="user_window" tabindex="0">
-		<div class="frame-heading" id="skillHeading">ACCOUNT</div>
+		<div class="frame-heading" id="userHeading">ACCOUNT</div>
 		<div class="frame-content">
 			<article id="loadcharacter">
 			<div class="newFieldName" id="lbl_user_name">Username</div>
@@ -136,7 +134,7 @@
 			<div class="newFieldName" id="lbl_user_remember">Remember Login</div>
 			<form action="none" method="get" accept-charset="utf-8" autocomplete="off">
 				<input type="text" id="user_name" class="stroke" name="player-name" placeholder="Character Name" maxlength="16" autocomplete="off" autofocus />
-				<input type="password" id="user_password" class="stroke" name="player-loginpw" placeholder="Password" maxlength="16" autocomplete="off"/><br/>
+				<input type="password" id="user_password" class="stroke" name="player-loginpw" placeholder="Password" maxlength="16" autocomplete="off"/><br>
         <input type="checkbox" id="user_remember" value="Save"/>
 				<input type="hidden" id="user_hash" />
 			</form>
@@ -150,12 +148,12 @@
   <div class="frame-new-button" id="user_remove">DELETE</div>
 
   <div class="frame" id="remove_window" tabindex="0">
-    <div class="frame-heading" id="skillHeading">ACCOUNT<div class="frame-close-button" id="user_close"></div></div>
+    <div class="frame-heading" id="accountHeading">ACCOUNT<div class="frame-close-button" id="user_close"></div></div>
     <div class="frame-content">
-      <div class="newFieldName">Current Password</div><br/>
-      <input type="password" id="remove_password" class="stroke" name="player-loginpw" placeholder="Password" maxlength="16" autocomplete="off"/><br/><br/>
-      Type in "YES" exactly to PERMANENTLY remove all your PLAYERS and ACCOUNT.<br/><br/>
-      <input type="text" id="remove_confirm" class="stroke" maxlength="3" autocomplete="off"/><br/><br/>
+      <div class="newFieldName">Current Password</div><br>
+      <input type="password" id="remove_password" class="stroke" name="player-loginpw" placeholder="Password" maxlength="16" autocomplete="off"/><br><br>
+      Type in "YES" exactly to PERMANENTLY remove all your PLAYERS and ACCOUNT.<br><br>
+      <input type="text" id="remove_confirm" class="stroke" maxlength="3" autocomplete="off"/><br><br>
       <div class="frame-new-button" id="user_remove_confirm">REMOVE</div>
     </div>
   </div>
@@ -200,46 +198,56 @@
 	<div id="canvas">
   </div>
   <div id="gui">
-			<div class="frame" id="diedwindow" tabindex="0">
-				<div class="frame-heading">
-					<div>DIED</div>
-				</div>
-				<div class="frame-content" id="death">
-					<div class="frame-new-button" id="respawn">RESPAWN</div>
-				</div>
-	   </div>
-     <div class="frame-panel" id="npcDialog"><div id="npcDialoguePic"></div><div id="npcText"></div></div>
-	<div id="menucontainer" class="frame-panel menufadeout">
-	    <div id="inventorybutton"></div><div class="frame-stroke" id="inventorytext">EQUIPMENT</div>
-	    <div id="characterbutton"></div><div class="frame-stroke" id="charactertext">PLAYER</div>
-	    <div id="skillbutton"></div><div class="frame-stroke" id="skilltext">SKILLS</div>
-	    <div id="helpbutton"></div><div class="frame-stroke" id="helptext">QUESTS</div>
-      <div id="achievementbutton"></div><div class="frame-stroke" id="achievementtext">ACHIEVEMENT</div>
-	    <div id="socialbutton"></div><div class="frame-stroke" id="socialtext">SOCIAL</div>
-	    <div id="warpbutton"></div><div class="frame-stroke" id="warptext">TOWN</div>
-	    <div id="settingsbutton"></div><div class="frame-stroke" id="settingstext">SETTINGS</div>
-	    <div id="storebutton"></div><div class="frame-stroke" id="storetext">STORE</div>
-	</div>
+    <div class="frame" id="diedwindow" tabindex="0">
+    	<div class="frame-heading">
+    		<div>DIED</div>
+    	</div>
+    	<div class="frame-content" id="death">
+    		<div class="frame-new-button" id="respawn">RESPAWN</div>
+    	</div>
+    </div>
+    <div class="frame-panel" id="npcDialog"><div id="npcDialoguePic"></div><div id="npcText"></div></div>
+  	<div id="menucontainer" class="frame-panel menufadeout">
+  	    <div id="inventorybutton"></div><div class="frame-stroke" id="inventorytext">EQUIPMENT</div>
+  	    <div id="characterbutton"></div><div class="frame-stroke" id="charactertext">PLAYER</div>
+  	    <div id="skillbutton"></div><div class="frame-stroke" id="skilltext">SKILLS</div>
+  	    <div id="helpbutton"></div><div class="frame-stroke" id="helptext">QUESTS</div>
+        <div id="achievementbutton"></div><div class="frame-stroke" id="achievementtext">ACHIEVEMENT</div>
+  	    <div id="socialbutton"></div><div class="frame-stroke" id="socialtext">SOCIAL</div>
+  	    <div id="warpbutton"></div><div class="frame-stroke" id="warptext">TOWN</div>
+  	    <div id="settingsbutton"></div><div class="frame-stroke" id="settingstext">SETTINGS</div>
+  	    <div id="storebutton"></div><div class="frame-stroke" id="storetext">STORE</div>
+  	</div>
 		<div class="frame frame-top" id="settings">
 			<div class="frame-heading">SETTINGS<div class="frame-close-button" id="settingsclose"></div></div>
 			<div class="frame-content">
-				<div class="frame-stroke1" id="settingchat">Chat</div><div id="buttonchat" class="frame-new-button-ok active">On</div><br/>
-				<div class="frame-stroke1" id="settingsound">Sound</div><div id="buttonsound" class="frame-new-button-ok active">On</div><br/>
-				<div class="frame-stroke1" id="settingjoystick">Joystick</div><div id="buttonjoystick" class="frame-new-button-ok">Off</div><br/>
-        <div class="frame-stroke1" id="settingmenucolor">Menu Color</div><input type="color" id="buttonmenucolor" value="#38A7DF"/><br/>
-        <div class="frame-stroke1" id="settingbuttoncolor">Button Color</div><input type="color" id="buttonbuttoncolor" value="#F7B132"/><br/>
+				<div class="frame-stroke1" id="settingchat">Chat</div><div id="buttonchat" class="frame-new-button-ok active">On</div><br>
+				<div class="frame-stroke1" id="settingsound">Sound</div><div id="buttonsound" class="frame-new-button-ok active">On</div><br>
+				<div class="frame-stroke1" id="settingjoystick">Joystick</div><div id="buttonjoystick" class="frame-new-button-ok">Off</div><br>
+        <div class="frame-stroke1" id="settingmenucolor">Menu Color</div><input type="color" id="buttonmenucolor" value="#38A7DF"/><br>
+        <div class="frame-stroke1" id="settingbuttoncolor">Button Color</div><input type="color" id="buttonbuttoncolor" value="#F7B132"/><br>
         <div id="divzoom">
-				<div class="frame-stroke1" id="settingzoom">Zoom</div>
-				<select id="gamezoom" size="1" class="needsclick cgamezoom">
-          <option value="0.6">Closest</option>
-					<option value="0.8">Closer</option>
-          <option value="1.0" selected>Normal</option>
-          <option value="1.2">Further</option>
-          <option value="1.4">Furthest</option>
-				</select>
-			</div>
+  				<div class="frame-stroke1" id="settingzoom">Zoom</div>
+          <select id="gamezoom" size="1" class="needsclick cgamezoom">
+            <option value="0.6">Closest</option>
+  					<option value="0.8">Closer</option>
+            <option value="1.0" selected>Normal</option>
+            <option value="1.2">Further</option>
+            <option value="1.4">Furthest</option>
+  				</select>
+        </div>
+        <div id="divshortcut">
+          <div class="frame-stroke1" id="settingshortcut">Shortcuts</div>
+          <select id="shortcutstyle" size="1" class="needsclick cshortcutstyle">
+            <option value="vertical-asc">Vertical ascending</option>
+  					<option value="vertical-desc" selected>Vertical descending</option>
+            <option value="horizontal-asc">Horizontal ascending</option>
+            <option value="horizontal-desc">Horizontal descending</option>
+  				</select>
+        </div>
+      </div>
 		</div>
-	</div>
+
 	<div class="frame-panel" id="playerbar">
 	    <div id="characterLook2">
 		<div id="characterLookArmor2"></div>
@@ -415,60 +423,47 @@
     <div id="combatContainer">
     	<div id="currentSkill"></div>
     </div>
-		<!--<div class="frame-new-button" id="shortcutbutton">SHORTCUT</div>-->
-    <div id="attackContainer">
-        <div id="attackOffset">
-          <div id="attackbackground" class="frame-new-button"><div class="attackSC">A</div></div>
-          <div id="scbackground0">
-              <div id="shortcut0"></div>
-              <div class="scCD" id="scCD0"></div>
-              <div id="shortcutnum0"></div>
-              <div class="scSC">L+B 1</div>
-          </div>
-          <div id="scbackground1">
-              <div id="shortcut1"></div>
-              <div class="scCD" id="scCD1"></div>
-              <div id="shortcutnum1"></div>
-              <div class="scSC">L+A 2</div>
-          </div>
-          <div id="scbackground2">
-              <div id="shortcut2"></div>
-              <div class="scCD" id="scCD2"></div>
-              <div id="shortcutnum2"></div>
-              <div class="scSC">L+Y 3</div>
-          </div>
-          <div id="scbackground3">
-              <div id="shortcut3"></div>
-              <div class="scCD" id="scCD3"></div>
-              <div id="shortcutnum3"></div>
-              <div class="scSC">L+X 4</div>
-          </div>
-          <div id="scbackground4">
-              <div id="shortcut4"></div>
-              <div class="scCD" id="scCD4"></div>
-              <div id="shortcutnum4"></div>
-              <div class="scSC">R+B 5</div>
-          </div>
-          <div id="scbackground5">
-              <div id="shortcut5"></div>
-              <div class="scCD" id="scCD5"></div>
-              <div id="shortcutnum5"></div>
-              <div class="scSC">R+A 6</div>
-          </div>
-          <!--<div id="scbackground6">
-              <div id="shortcut6"></div>
-              <div class="scCD" id="scCD6"></div>
-              <div id="shortcutnum6"></div>
-              <div class="scSC">R+Y 7</div>
-          </div>
-          <div id="scbackground7">
-              <div id="shortcut7"></div>
-              <div class="scCD" id="scCD7"></div>
-              <div id="shortcutnum7"></div>
-              <div class="scSC">R+X 8</div>
-          </div>-->
-			</div>
+
+    <div id="shortcut-bar">
+      <div id="attack-shortcut" class="frame-new-button"><div class="attackSC">A</div></div>
+      <div id="scbackground0">
+          <div id="shortcut0"></div>
+          <div class="scCD" id="scCD0"></div>
+          <div id="shortcutnum0"></div>
+          <div class="scSC">1 L+B</div>
+      </div>
+      <div id="scbackground1">
+          <div id="shortcut1"></div>
+          <div class="scCD" id="scCD1"></div>
+          <div id="shortcutnum1"></div>
+          <div class="scSC">2 L+A</div>
+      </div>
+      <div id="scbackground2">
+          <div id="shortcut2"></div>
+          <div class="scCD" id="scCD2"></div>
+          <div id="shortcutnum2"></div>
+          <div class="scSC">3 L+Y</div>
+      </div>
+      <div id="scbackground3">
+          <div id="shortcut3"></div>
+          <div class="scCD" id="scCD3"></div>
+          <div id="shortcutnum3"></div>
+          <div class="scSC">4 L+X</div>
+      </div>
+      <div id="scbackground4">
+          <div id="shortcut4"></div>
+          <div class="scCD" id="scCD4"></div>
+          <div id="shortcutnum4"></div>
+          <div class="scSC">5 R+B</div>
+      </div>
+      <div id="scbackground5">
+          <div id="shortcut5"></div>
+          <div class="scCD" id="scCD5"></div>
+          <div id="shortcutnum5"></div>
+          <div class="scSC">6 R+A</div>
+      </div>
     </div>
+
     <div class="frame frame-top" id="skillsDialog">
 			<div class="frame-heading">
 				<div id="skillsDialogHeading">SKILLS</div>
@@ -607,7 +602,7 @@
       <div class="frame-content-padding">
           <div>Please select your username or gift to another username and enter it below.</div>
           <form target="_blank" action="paypal.html" method="get" accept-charset="utf-8" autocomplete="off">
-            <input type="text" id="shopUsername" class="stroke" name="shopUsername" placeholder="Username" maxlength="16" autocomplete="off" autofocus />
+            <input type="text" id="shopUsername" class="stroke" name="shopUsername" placeholder="Username" maxlength="16" autocomplete="off" />
             <select id="shopSKU" class="needsclick" name="shopSKU" >
               <option value="GEMS10_10.00">2,000 GEMS - $10.00 USD</option>
               <option value="GEMS30_30.00">6,500 GEMS - $30.00 USD</option>
@@ -615,7 +610,7 @@
             </select>
             <input type="submit" value="checkout" />
           </form>
-          <div>It may take up to 24-hours for your gems to show up in your account.<br/>If it has been longer please e-mail mmoprogaming (at) gmail.com</div>
+          <div>It may take up to 24-hours for your gems to show up in your account.<br>If it has been longer please e-mail mmoprogaming (at) gmail.com</div>
           <div class="inventoryGemsFrame"><div class="gemsicon"></div><div class="inventoryGems frame-stroke1">0</div></div>
       </div>
     </div>

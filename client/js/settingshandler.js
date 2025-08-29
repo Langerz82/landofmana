@@ -173,30 +173,56 @@ define(['lib/localforage', 'lib/virtualjoystick'], function(localforage) {
         $('div.frame-new-button').css('background-color', this.value);
       });
 
-      // Hacky value settings but should work!
       var fnSetZoom = function (val) {
-        $("#gamezoom option:selected").removeAttr("selected");
-        $('#gamezoom option[value="'+val+'"]').attr("selected", true);
-      }
-      this.changeZoom = function (val) {
         if (!game)
           return;
-
+        game.zoom = val;
         game.resize(val);
-        fnSetZoom(val);
+
+        $("#gamezoom option:selected").removeAttr("selected");
+        $('#gamezoom option[value="'+val+'"]').attr("selected", true);
       }
       var selectZoom = $('.cgamezoom');
       if(game) {
         localforage.getItem('gamezoom', function(e, val) {
-            game.zoom = val;
+          if (val)
             fnSetZoom(val);
         });
+        fnSetZoom(1.0);
       }
     	selectZoom.change(function() {
     		var val = $('#gamezoom').val();
         localforage.setItem('gamezoom', val);
-        game.zoom = val;
-        self.changeZoom(val);
+        fnSetZoom(val);
+    	});
+
+      var fnSetShortcut = function (val) {
+        $('#shortcut-bar').removeClass();
+        $('#shortcut-bar').addClass(val);
+
+        $("#shortcutstyle option:selected").removeAttr("selected");
+        $('#shortcutstyle option[value="'+val+'"]').attr("selected", true);
+      }
+      var selectShortcut = $('#shortcutstyle');
+      if(game) {
+        localforage.getItem('shortcutstyle', function(e, val) {
+            if (val)
+              fnSetShortcut(val);
+        });
+        if (game.renderer.mobile || game.renderer.tablet) {
+          if (window.innerWidth > window.innerHeight)
+            fnSetShortcut("horizontal-desc");
+          else {
+            fnSetShortcut("vertical-desc");
+          }
+        }
+        else
+          fnSetShortcut("horizontal-asc");
+      }
+    	selectShortcut.change(function() {
+    		var val = $('#shortcutstyle').val();
+        localforage.setItem('shortcutstyle', val);
+        fnSetShortcut(val);
     	});
     },
 
