@@ -20,9 +20,9 @@ _.each( Mobs, function( value, key ) {
 		hp: (value.hpMod) ? (value.hpMod * 150) : 150,
 		xp: (value.xpMod) ? (value.xpMod * 10) : 10,
 
-		level: (value.level) ? value.level : 0,
-		minLevel: (value.minLevel) ? value.minLevel : 0,
-		maxLevel: (value.maxLevel) ? value.maxLevel : 0,
+		//level: (value.level) ? value.level : 0,
+		minLevel: (value.minLevel) ? value.minLevel : 1,
+		maxLevel: (value.maxLevel) ? value.maxLevel : 99,
 
 		aggroRange: (value.aggroRange) ? value.aggroRange+1 : 4,
 		attackRange: (value.attackRange) ? value.attackRange : 1,
@@ -75,7 +75,6 @@ var getByLevelRange = function(min, max) {
     return levelRange;
     //console.info("levelRange.length: " + levelRange.length);
 }
-
 
 module.exports.Properties = Properties;
 module.exports.Kinds = Kinds;

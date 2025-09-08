@@ -3,8 +3,8 @@ var EntityArea = require('./entityarea'),
     Messages = require('../message');
 
 module.exports = ChestArea = EntityArea.extend({
-    init: function(id, elipse, nb, minLevel, maxLevel, x, y, width, height, map) {
-        this._super(id, x, y, width, height, map);
+    init: function(map, id, elipse, nb, minLevel, maxLevel, x, y, width, height) {
+        this._super(map, id, x, y, width, height);
         this.nb = nb;
         this.minLevel = minLevel;
         this.maxLevel = maxLevel;

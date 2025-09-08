@@ -3,8 +3,8 @@ var EntityArea = require("./entityarea"),
   TrapGroup = require("../entity/trapgroup");
 
 module.exports = TrapArea = EntityArea.extend({
-  init: function(id, x, y, width, height, map, damage, switchInterval) {
-    this._super(id, x, y, width, height, map);
+  init: function(map, id, x, y, width, height, damage, switchInterval) {
+    this._super(map, id, x, y, width, height);
     this.groups = [];
     this.checkTimer = new Timer(500);
 

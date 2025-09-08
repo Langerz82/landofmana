@@ -1,6 +1,7 @@
 
 var Chest = require('../entity/chest');
 var NpcStatic = require('../entity/npcstatic');
+var NpcMove = require('../entity/npcmove');
 var Messages = require('../message');
 var MobAI = require("../mobai");
 
@@ -123,7 +124,7 @@ var MapEntities = cls.Class.extend({
 
 	    var npc = new NpcMove(++this.entityCount, 0, pos.x * 16, pos.y * 16, self.map);
 
-		  self.addNpcPlayer(npc);
+		  self.addNpcMove(npc);
 		  //self.sendBroadcast(npc.spawn());
 		  return npc;
     },
@@ -387,9 +388,28 @@ var MapEntities = cls.Class.extend({
 	    chest.handleRespawn();
     },*/
 
-    spawnStaticEntities: function(map) {
+    spawnEntities: function(map) {
         var self = this;
-        var count = 0;
+
+        //setTimeout(function () {
+        _.each(self.map.spawnEntities, function(npcData) {
+            if (npcData.type == Types.EntityTypes.NPCMOVE) {
+              var npc = self.addNpcMove(npcData.id, npcData.x*G_TILESIZE, npcData.y*G_TILESIZE);
+              if (npcData.name)
+                npc.name = npcData.name;
+              if (npcData.scriptQuests)
+                npc.scriptQuests = npcData.scriptQuests;
+            }
+            if (npcData.type == Types.EntityTypes.NPCSTATIC) {
+              var npc = self.addNpcStatic(npcData.id, npcData.x*G_TILESIZE, npcData.y*G_TILESIZE);
+              if (npcData.name)
+                npc.name = npcData.name;
+              if (npcData.scriptQuests)
+                npc.scriptQuests = npcData.scriptQuests;
+            }
+
+        });
+        //},10000);
 
         console.info(JSON.stringify(self.map.staticEntities));
         _.each(self.map.staticEntities, function(kind, tid) {
@@ -399,12 +419,12 @@ var MapEntities = cls.Class.extend({
             console.info("kind:"+kind);
             if (NpcData.isNpc(kind)) {
               console.info("npc:" + kind + ",x:"+pos.x+",y:"+pos.y);
-              self.addNpc(kind, pos.x, pos.y);
+              self.addNpcStatic(kind, pos.x, pos.y);
             }
         });
     },
 
-    spawnEntity: function(kind, x, y, map) {
+    /*spawnEntity: function(kind, x, y, map) {
         var self = this;
         var entity;
         //console.info("kind="+kind);
@@ -415,7 +435,7 @@ var MapEntities = cls.Class.extend({
             entity = self.addMob(kind, x, y);
         }
         return entity;
-    },
+    },*/
 
     addEntity: function(entity) {
       this.entities[entity.id] = entity;
@@ -453,25 +473,22 @@ var MapEntities = cls.Class.extend({
       return mob;
     },
 
-    addNpc: function(kind, x, y) {
-        var self = this;
+    addNpcStatic: function(kind, x, y) {
+        var npc = new NpcStatic(++this.entityCount, kind, x, y, this.map);
 
-        var npc = new NpcStatic(++self.entityCount, kind, x, y, self.map);
-
-        self.addEntity(npc);
-        self.npcs[npc.id] = npc;
+        this.addEntity(npc);
+        this.npcs[npc.id] = npc;
 
         return npc;
     },
 
-    addNpcPlayer: function(player) {
-        //console.info("addNpcPlayer - player id: "+player.id);
-    	  var self = this;
+    addNpcMove: function(kind, x, y) {
+        var npc = new NpcMove(++this.entityCount, kind, x, y, this.map);
 
-        self.addEntity(player);
-        self.npcplayers[player.id] = player;
+        this.addEntity(npc);
+        this.npcplayers[npc.id] = npc;
 
-        return player;
+        return npc;
     },
 
     addItem: function(item) {
@@ -910,7 +927,7 @@ var MapEntities = cls.Class.extend({
 				if (callback_func)
 				{
 				  pos = callback_func(param);
-				  count = pos ? this.getAroundCount(entities, {x: pos.x, y: pos.y},dist) : 0;
+				  count = pos ? this.getAroundCount(entities, pos, dist) : 0;
 				}
         iter++;
 			}

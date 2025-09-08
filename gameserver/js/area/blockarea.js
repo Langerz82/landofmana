@@ -2,8 +2,8 @@ var EntityArea = require("./entityarea.js"),
   Block = require("../entity/block.js");
 
 module.exports = BlockArea = EntityArea.extend({
-  init: function(id, x, y, width, height, map, elipse) {
-    this._super(id, x, y, width, height, map, elipse);
+  init: function(map, id, x, y, width, height, elipse) {
+    this._super(map, id, x, y, width, height, elipse);
     this.blocks = [];
     this.players = {};
   },

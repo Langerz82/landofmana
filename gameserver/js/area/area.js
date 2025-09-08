@@ -4,7 +4,7 @@ var Utils = require('../utils');
 // IMPORTANT - X,Y are center cordinates for elipses only. For default rectangle its top-left.
 
 module.exports = Area = cls.Class.extend({
-  init: function(id, x, y, width, height, map, elipse, excludeId) {
+  init: function(map, id, x, y, width, height, elipse, excludeId) {
     this.id = id;
     var ts = G_TILESIZE;
     this.gx = x;
@@ -41,8 +41,8 @@ module.exports = Area = cls.Class.extend({
     var d = Math.min(dist.height, dist.width);
     while (count < threshold) {
       if (!this.elipse) {
-        pos.x = xandy.x + Utils.randomInt(dist.width);
-        pos.y = xandy.y + Utils.randomInt(dist.height);
+        pos.x = xandy.x + Utils.randomInt(dist.width*2) - dist.width;
+        pos.y = xandy.y + Utils.randomInt(dist.height*2) - dist.height;
       } else {
         var a = Math.random() * 2 * Math.PI;
         var r = Utils.randomRangeInt(0,~~(d / 2));

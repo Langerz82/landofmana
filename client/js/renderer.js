@@ -544,7 +544,7 @@ define(['camera', 'entity/item', 'data/items', 'data/itemlootdata', 'entity/enti
                  tileset.frame.interactive = false;
                  tileset.frame.interactiveChildren = false;
                  tileset.frame.x = (getX(arr[1], tw) * ts);
-                 tileset.frame.y = (~~(arr[1] / tw) * ts);
+                 tileset.frame.y = (~~((arr[1]-1) / tw) * ts);
 
                  var container = this.tiles["BACKGROUND"];
                  if (arr[0] === 1)
@@ -1188,10 +1188,6 @@ define(['camera', 'entity/item', 'data/items', 'data/itemlootdata', 'entity/enti
                 }
             },
 
-            /*drawHighTerrain: function() {
-                this.drawHighTiles();
-            },*/
-
             drawAnimatedTiles: function() {
                 return; // stub - remove.
 
@@ -1205,31 +1201,6 @@ define(['camera', 'entity/item', 'data/items', 'data/itemlootdata', 'entity/enti
                   self.animatedTileCount += 1;
                 });
             },
-
-            /*drawHighTiles: function() {
-                var self = this,
-                    mc = this.game.mapContainer,
-                    tilesetwidth = this.tilesets[0].baseTexture.width / this.tilesize,
-                    g = this.game;
-
-                g.camera.forEachVisibleValidPosition(function(x, y) {
-                  if(mc.tileGrid[y][x] instanceof Array) {
-                    _.each(mc.tileGrid[y][x], function(id) {
-                      if(mc.isHighTile(id)) {
-                        self.drawTile([1, id, self.tilesets, tilesetwidth, x, y]);
-                      }
-                    });
-                  }
-                  else {
-                    var id = mc.tileGrid[y][x];
-                    if(id) {
-                      if(mc.isHighTile(id)) {
-                        self.drawTile([1, id, self.tilesets, tilesetwidth, x, y]);
-                      }
-                    }
-                  }
-                }, 0, false);
-            },*/
 
 // TODO - Render in PIXIJS ?
             getFPS: function() {

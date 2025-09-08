@@ -3,22 +3,30 @@ var EntityArea = require('./entityarea'),
     Messages = require('../message');
 
 module.exports = MobArea = EntityArea.extend({
-    init: function(id, nb, minLevel, maxLevel, x, y, width, height, include, exclude, definite, map, elipse, excludeId, sMinLevel, sMaxLevel) {
-        this._super(id, x, y, width, height, map, elipse, excludeId);
+    init: function(map, id, nb, minLevel, maxLevel, x, y, width, height, include, exclude, definite, elipse, excludeId, level) {
+        this._super(map, id, x, y, width, height, elipse, excludeId);
         this.nb = nb;
         this.minLevel = minLevel;
         this.maxLevel = maxLevel;
         this.respawns = [];
-        this.map = map;
-        this.sMinLevel = sMinLevel;
-        this.sMaxLevel = sMaxLevel;
+        this.level = level;
 
         this.include = null;
-        if (typeof(include) === "string")
-        	this.include = include.split(",");
+        if (include) {
+          if (typeof(include) === "string" && include.indexOf(",") >= 0)
+        	 this.include = include.split(",");
+          else {
+            this.include = [include];
+          }
+        }
         this.exclude = null;
-        if (typeof(exclude) === "string")
-        	this.exclude = exclude.split(",");
+        if (exclude) {
+          if (typeof(exclude) === "string" && exclude.indexOf(",") >= 0)
+        	 this.exclude = exclude.split(",");
+          else {
+            this.exclude = [exclude];
+          }
+        }
 
         this.setNumberOfEntities(this.nb);
 
@@ -35,37 +43,41 @@ module.exports = MobArea = EntityArea.extend({
 
     addMobs: function (level) {
       this.mobs = [];
-      if (this.definite)
+      if (Array.isArray(this.definite))
       {
-        for (var index in this.definite)
+        for (var i of this.definite)
         {
-          this.mobs.push(MobData.Kinds[this.definite[index]]);
+          this.mobs.push(MobData.Kinds[i]);
         }
         return;
       }
 
-      if (level) {
-        this.minLevel = (this.sMinLevel) ? level+this.sMinLevel : this.minLevel;
-        this.maxLevel = (this.sMaxLevel) ? level+this.sMaxLevel : this.maxLevel;
+      if (level && this.level) {
+        this.minLevel = level+this.minLevel;
+        this.maxLevel = level+this.maxLevel;
       }
 
       levelMobs = MobData.getByLevelRange(this.minLevel, this.maxLevel);
       this.mobs = this.mobs.concat(levelMobs);
 
-      for (var index in this.include)
-      {
-        this.mobs.push(MobData.Kinds[this.include[index]]);
+      if (Array.isArray(this.include)) {
+        for (var i of this.include)
+        {
+          this.mobs.push(MobData.Kinds[i]);
+        }
       }
 
-      var i = this.mobs.length;
-      while (--i >= 0)
-      {
-        for (var j in this.exclude)
+      if (Array.isArray(this.exclude)) {
+        var i = this.mobs.length;
+        while (--i >= 0)
         {
-          if (this.mobs[i].kind === this.exclude[j])
+          for (var j of this.exclude)
           {
-              this.mobs.splice(i,1);
-              break;
+            if (this.mobs[i].kind === j)
+            {
+                this.mobs.splice(i,1);
+                break;
+            }
           }
         }
       }

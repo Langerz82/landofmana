@@ -3,8 +3,8 @@ var Utils = require('../utils');
 var Area = require('./area');
 
 var Checkpoint = Area.extend({
-    init: function(id, x, y, width, height, map) {
-        this._super(id, x, y, width, height, map);
+    init: function(map, id, x, y, width, height) {
+        this._super(map, id, x, y, width, height);
     },
 
     /*getRandomPosition: function () {

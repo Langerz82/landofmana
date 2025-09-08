@@ -3,8 +3,8 @@ var Area = require('./area'),
     Utils = require('../utils');
 
 var EntityArea = Area.extend({
-    init: function(id, x, y, width, height, map, elipse, excludeId) {
-        this._super(id, x, y, width, height, map, elipse, excludeId);
+    init: function(map, id, x, y, width, height, elipse, excludeId) {
+        this._super(map, id, x, y, width, height, elipse, excludeId);
         this.entities = [];
         this.hasCompletelyRespawned = true;
     },

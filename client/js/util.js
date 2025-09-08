@@ -222,7 +222,7 @@ var getX = function(id, w) {
     if(id === 0) {
         return 0;
     }
-    return (id % w === 0) ? w - 1 : (id % w) - 1;
+    return (id % w === 0) ? w - 1  : (id % w) - 1;
 };
 
 if (!Array.prototype.parseInt) {
