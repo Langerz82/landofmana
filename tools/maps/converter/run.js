@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-var util = require('util'),
+const util = require('util'),
     Log = require('log'),
     path = require("path"),
     fs = require("fs"),
@@ -8,31 +8,14 @@ var util = require('util'),
     processMap = require('./_processmap'),
     log = new Log(Log.DEBUG);
 
-//const { XMLParser, XMLBuilder, XMLValidator} = require("fast-xml-parser/src/fxp");
-//const parser = new XMLParser();
-//var parser = require('fast-xml-parser');
-var he = require('he');
-const parser = require("fast-xml-parser");
-//var parser = new XMLParser();
-
-var xmloptions = {
-    attributeNamePrefix : "@_",
-    attrNodeName: "attr", //default is 'false'
-    textNodeName : "#text",
-    ignoreAttributes : false,
-    ignoreNameSpace : false,
-    allowBooleanAttributes : false,
-    parseNodeValue : true,
-    parseAttributeValue : true,
-    trimValues: true,
-    cdataTagName: "__cdata", //default is 'false'
-    cdataPositionChar: "\\c",
-    parseTrueNumberOnly: false,
-    arrayMode: false, //"strict"
-    attrValueProcessor: (val, attrName) => he.decode(val, {isAttributeValue: true}),//default is a=>a
-    tagValueProcessor : (val, tagName) => he.decode(val), //default is a=>a
-    stopNodes: ["parse-me-as-string"]
+const { XMLParser } = require("fast-xml-parser");
+const options = {
+	ignoreAttributes: false,
+	attributeNamePrefix: '@_',
+	parseAttributeValue: true,
 };
+
+var parser = new XMLParser(options);
 
 var source = process.argv[2],
     mode = process.argv[3] || "direct",
@@ -40,8 +23,8 @@ var source = process.argv[2],
     chunkHeight = process.argv[5] || 128;
     destination = process.argv[6];
 
-if(!source || (mode!="direct" && mode!="both" && mode!="client" && mode!="server") || (mode!="direct" && !destination)) {
-    log.info("Usage : ./exportmap.js tiled_json_file [mode] [destination]");
+if(!source || (mode!="direct" && mode!="client" && mode!="server")) {
+    log.info("Usage : ./exportmap.js tiled_json_file [mode]");
     console.info("Optional parameters : mode & destination. Values:");
     console.info("    - \"direct\" (default) → updates current server and map files (WARNING: SHOULD ONLY BE CALLED FROM BrowserQuest/tools/maps !!!);");
     console.info("    - \"client destination_file\" → will generate destination_file.js and destination_file.json for client side map;");
@@ -55,27 +38,24 @@ function main() {
 }
 
 function callback_function(json, jsontsx) {
+	var filename=source.substr(source.lastIndexOf('/')+1,
+		source.lastIndexOf('.') - source.lastIndexOf('/')-1);
+	var client_dir = "../../../client/maps/"+filename;
+
 	switch(mode){
 		case "client":
-			processClient(json, jsontsx, destination);
+			if (!fs.existsSync(client_dir))
+				fs.mkdirSync(client_dir);
+			processClient(json, jsontsx, client_dir+"/"+filename);
 			break;
 		case "server":
-			processServer(json, jsontsx, destination);
+			processServer(json, jsontsx, "../../../gameserver/maps/"+filename+".json");
 			break;
 		case "direct":
-			var filename=source.substr(source.lastIndexOf('/')+1,
-				source.lastIndexOf('.') - source.lastIndexOf('/')-1);
-			var client_dir = "../../../client/maps/"+filename;
 			if (!fs.existsSync(client_dir))
 				fs.mkdirSync(client_dir);
 			processClient(json, jsontsx, client_dir+"/"+filename);
 			processServer(json, jsontsx, "../../../gameserver/maps/"+filename+".json");
-			break;
-
-		case "both":
-			var directory=destination.replace(/\/+$/,'');//strip last path slashes
-			processClient(json, jsontsx, directory+"/"+source);
-			processServer(json, jsontsx, directory+"/"+source);
 			break;
 		default:
 			console.info("Unrecognized mode, how on earth did you manage that ?");
@@ -84,7 +64,6 @@ function callback_function(json, jsontsx) {
 
 
 var map = {};
-
 
 function processClient(json, tsx, dest){
   var mapData = processMap(json, tsx, {mode:"client"});
@@ -229,8 +208,8 @@ function createMapFile(mapData, dest)
 }
 
 function processServer(json, tsx, dest){
-	var jsonMap = JSON.stringify(processMap(json, tsx, {mode:"server"})); // Save the processed map object as JSON data
-	
+	var jsonMap = JSON.stringify(processMap(json, tsx, {mode:"server"})); // Save the processed map object as JSON 
+
 	var subTotal = jsonMap.width * jsonMap.height;
 	for (var i=0; i < subTotal; ++i)
 	{
@@ -275,23 +254,22 @@ function getTiledJSONmap(filename, callback) {
 	
 	//console.info("blah");
 	fs.readFile(filename, function(err, file1) {
-		if (err)
+		if (err) {
 			console.error(err);
-		//console.info("blah2");
-		fs.readFile(tsx, function(err, file2) {
-			if (err)
-				console.error(err);
-			
-			//console.info("blah3");
-			var tsxdata = file2.toString();
-			//console.info(JSON.stringify(parser));
-			//if( parser.validate(tsxdata) === true) {
-			//var jsonObj = parser.parse(tsxdata,xmloptions);
-			//}
+			return;
+		}
 
-			// Intermediate obj
-			var tObj = parser.getTraversalObj(tsxdata,xmloptions);
-			var jsonObj = parser.convertToJson(tObj,xmloptions);
+		fs.readFile(tsx, function(err, file2) {
+			if (err) {
+				console.error(err);
+				return;
+			}
+
+			var tsxdata = file2.toString();
+			//console.log(file2.toString());
+
+			var jsonObj = parser.parse(tsxdata, options);
+			//console.log(JSON.stringify(jsonObj));
 
 			callback(JSON.parse(file1.toString()), jsonObj);
 		});

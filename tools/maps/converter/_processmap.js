@@ -6,7 +6,6 @@ var fs = require("fs"),
 
 var map, mode;
 var collidingTiles = {};
-//var staticEntities = {};
 var entitiesFirstGid = -1;
 
 var log = new Log(Log.DEBUG, fs.createWriteStream('processmap.log'));
@@ -72,82 +71,54 @@ module.exports = function processMap(json, jsontsx, options) {
 	for(var i = 0; i < length; i += 1)
 		map.collision[i] = 0;
 
-    //console.error(TsxJSON.tileset.tile[1].attr["@_id"]);
-
-    // Tile properties (collision, z-index, animation length...)
-    var handleTileProp = function(propName, propValue, tileId) {
-    	//console.info(propName);
-    	//console.info(tileId);
-    	if(propName === "c") {
-            //console.info("Tile ID [" + tileId + "] is a collision tile");
-            collidingTiles[tileId] = true;
-        }
-
-        if(mode === "client") {
-			if(propName === "v") {
-				map.high.push(tileId);
-				//console.debug("Tile ID [" + tileId + "] is a high tile (obscures foreground)");
-			}
-
-            if(propName === "length") {
-                if(!map.animated[tileId]) {
-                    map.animated[tileId] = {};
-                    //console.debug("Tile ID [" + tileId + "] is an animated tile");
-                }
-                map.animated[tileId].l = propValue;
-            }
-            if(propName === "delay") {
-                if(!map.animated[tileId]) {
-                    map.animated[tileId] = {};
-                }
-                map.animated[tileId].d = propValue;
-            }
-        }
-    };
-
 	_.each(TiledJSON.tilesets, function(val) {
 		//console.info(JSON.stringify(val))
 		if (val.source === "Mobs.tsx")
 			entitiesFirstGid = val.firstgid;
 	});
 	//console.info(JSON.stringify(TiledJSON.tilesets));
+	console.info("tilesets");
 	_.each(TiledJSON.tilesets, function (value) {
-		//console.info(JSON.stringify(value));
+		if (value.source === "tilesheet.tsx")
+		{
+			console.info("tilesheet");
+			//console.info(JSON.stringify(value));
+		}
 	});
-	//console.info(JSON.stringify(TiledJSON.tilesets[0].tiles));
-	var tiles = TiledJSON.tilesets[0].tiles;
-	// iterate through tileset tile properties
-	_.each(tiles, function(value) {
-		var tileId = parseInt(value.id, 10) + 1;
+
+	console.info("iterate through tileset tile properties");
+	_.each(TsxJSON.tileset.tile, function(value) {
+		//console.info(value);
+		var tileId = parseInt(value['@_id'], 10) + 1;
 		//console.info("*** Processing Tile ID " + tileId);
 		//console.info(value);
-		if (value.hasOwnProperty("properties")) {
-			//console.info(JSON.stringify(value.properties));
-			
-			_.each(value.properties, function(data) {
-					//console.info(JSON.stringify(data));
-					var tpName = data.name;
-					var tpVal = data.value;
 
-					handleTileProp(tpName, (isNumber(parseInt(tpVal, 10))) ? parseInt(tpVal, 10) : tpVal, tileId);
-			});
+		if (value.hasOwnProperty("properties")) {
+			
+			//console.info("properties:"+JSON.stringify(value.properties));
+			var prop = getPropertyXmlList(value.properties);
+			//console.log("prop:"+JSON.stringify(prop));
+			//return;
+
+			if (prop.hasOwnProperty("v")) {
+				//console.info("Tile ID [" + tileId + "] is a high tile (obscures foreground)");
+				map.high.push(tileId);
+			}
+
+			if (prop.hasOwnProperty("c")) {
+				//console.info("Tile ID [" + tileId + "] is a collision tile");
+				collidingTiles[tileId] = true;
+			}
 		}
 
 		if (value.hasOwnProperty("objectgroup")) {
-			//console.info(JSON.stringify(value));
-			
-			_.each(value.objectgroup.object, function(data) {
-					//console.info(JSON.stringify(data));
-					var id = data.id;
-					if (id == 1) {
+			_.each(value.objectgroup, function(data) {
+					if (data["@_id"] == 1) {
 						//console.info("Tile ID [" + tileId + "] is a collision tile");
 						collidingTiles[tileId] = true;
 					}
 			});
 		}
-		
-		//objectgroup -> object.id;
-
 	});
 
     // iterate through layers and process
@@ -226,13 +197,10 @@ module.exports = function processMap(json, jsontsx, options) {
 
     // iterate through remaining layers
     console.info("* Phase 3 Tile Map Processing");
-    /*var length = map.width * map.height;
-	for(var i = 0; i < length; i += 1)
-		map.collision[i] = 0;
-	console.info("before:"+map.collision);*/
     for(var i = TiledJSON.layers.length - 1; i > 0; i -= 1) {
         processLayer(TiledJSON.layers[i]);
     }
+
     // If combined empty layer then make it a collision.
 	for (var i = 0, max = length; i < max; i += 1) {
 		if(map.data[i] === undefined) {
@@ -240,21 +208,17 @@ module.exports = function processMap(json, jsontsx, options) {
 		}
 	}
 
-	//console.info("after:"+JSON.stringify(map.data));
-    //console.info("after:"+JSON.stringify(map.collision));
-
-    if(mode === "client") {
-        console.info("* Phase 4 Map Data Fixup");
-
-        // set all undefined tiles to 0
-        /*for (var i = 0, max = map.data.length; i < max; i += 1) {
-            if(map.data[i] == null) {
-                map.data[i] = 0;
-            }
-        }*/
-    }
-
     return map;
+};
+
+var getPropertyXmlList = function (properties) {
+	props = {}
+	for (var id in properties) {
+		prop = properties[id];
+		//console.info(JSON.stringify(prop));
+		props[prop["@_name"]] = prop["@_value"]
+	}
+	return props;
 };
 
 var getPropertyList = function (properties) {
@@ -277,27 +241,6 @@ var processLayer = function(layer) {
     var layerType = layer.type;
     //console.info("** Processing layer: " + layerName);
 
-/*    if (mode === "server" && layerName === "_entities") {
-        console.info("*** Processing positions of static entities...");
-        var tiles = layer.data;
-		
-        //console.info(JSON.stringify(tiles));
-		var i=0;
-		for (var tile of tiles) {
-			if (tile > 0) {
-				console.info(JSON.stringify(layer.properties));
-				return;
-			}
-			i++;
-		}
-		//return;
-		var entity = {
-			
-		};
-		map.entities.push(entity);
-    }
-*/
-
     var tiles = layer.data;
     
     if(mode === "client" && layerName === "plateau") {
@@ -317,23 +260,18 @@ var processLayer = function(layer) {
         for(var j = 0; j < tiles.length; j += 1) {
             var gid = tiles[j];
 
-            //if(mode === "client") {
-                // set tile gid in the tilesheet
-                if(gid > 0) {
-                    if(!map.data[j]) {
-                        map.data[j] = gid;
-                    }
-                    else if(map.data[j] instanceof Array) {
-                        map.data[j].unshift(gid);
-                    }
-                    else {
-                        map.data[j] = [gid, map.data[j]];
-                    }
-                }
-                //if (map.data[j] === undefined)
-                	//map.data[j] = 0;
-                
-            //}
+			// set tile gid in the tilesheet
+			if(gid > 0) {
+				if(!map.data[j]) {
+					map.data[j] = gid;
+				}
+				else if(map.data[j] instanceof Array) {
+					map.data[j].unshift(gid);
+				}
+				else {
+					map.data[j] = [gid, map.data[j]];
+				}
+			}
 
             // colliding tiles
             if(gid > 0 && gid in collidingTiles) {

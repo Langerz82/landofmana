@@ -1,6 +1,8 @@
 {
   "dependencies": {
     "css-minify": "^2.0.2",
+    "fast-xml-parser": "^5.2.5",
+    "requirejs": "^2.3.7",
     "uglify-js": "^3.19.3"
   }
 }
