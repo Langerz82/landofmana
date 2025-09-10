@@ -11,5 +11,8 @@ client/web2exe.json
 client/js/compress.js
 client/js/compress.js
 gameserver/gameserver.zip
-*.zip
+./*.zip
+./client/*.zip
+./userserver/*.zip
+./gameserver/*.zip
 tools/maps/converter/processmap.log
