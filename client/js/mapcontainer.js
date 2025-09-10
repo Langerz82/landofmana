@@ -182,6 +182,7 @@ define(['area', 'detect', 'map'], function(Area, Detect, Map) {
      * @see Renderer.drawHighTiles
      */
     isHighTile: function(id) {
+      //return this.high.hasOwnProperty(id);
       return this.high[(id)];
       //return _.indexOf(this.high, id + 1) >= 0;
     },

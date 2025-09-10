@@ -148,9 +148,9 @@ module.exports = MapManager = cls.Class.extend({
                       mobArea.addMobs();
                       mobArea.spawnMobs();
 
-                      var area = new EntityArea(map, 0, a, b, 30, 30, true, -1);
-                      //var pos = area._getRandomPositionInsideArea(30);
-                      var npc = map.entities.addNpcMove(id, a*G_TILESIZE, b*G_TILESIZE);
+                      var area = new EntityArea(map, 0, a, b, 10, 10, true, -1);
+                      var pos = area._getRandomPositionInsideArea(30);
+                      var npc = map.entities.addNpcMove(id, pos.x, pos.y);
 
                       prevNpc.nextNpcName = npc.name;
                       prevNpc.nextNpcDir = strDir;
@@ -197,10 +197,10 @@ module.exports = MapManager = cls.Class.extend({
               map.enterCallback = function (player) {
                 var pos = map.getRandomStartingPosition();
               	return pos;
-              }
+              };
               self.MapsReady();
           });
-      //  },10000);
+        //},10000);
     },
 
     MapsReady: function () {

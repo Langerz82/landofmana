@@ -27,7 +27,7 @@ module.exports = function processMap(json, jsontsx, options) {
         collision: [],
         doors: [],
         checkpoints: []
-	
+
     };
     mode = options.mode;
     
@@ -40,7 +40,7 @@ module.exports = function processMap(json, jsontsx, options) {
     }
     if(mode === "server") {
     	map.data = [];
-		map.high = [];
+		//map.high = [];
         map.roamingAreas = [];
         map.chestAreas = [];
         map.pvpAreas = [];
@@ -91,16 +91,16 @@ module.exports = function processMap(json, jsontsx, options) {
 		//console.info(value);
 		var tileId = parseInt(value['@_id'], 10) + 1;
 		//console.info("*** Processing Tile ID " + tileId);
-		//console.info(value);
+		if (tileId >= 272 && tileId <= 275)
+			console.info(value);
 
 		if (value.hasOwnProperty("properties")) {
 			
 			//console.info("properties:"+JSON.stringify(value.properties));
 			var prop = getPropertyXmlList(value.properties);
 			//console.log("prop:"+JSON.stringify(prop));
-			//return;
 
-			if (prop.hasOwnProperty("v")) {
+			if (prop.hasOwnProperty("v") && mode === "client") {
 				//console.info("Tile ID [" + tileId + "] is a high tile (obscures foreground)");
 				map.high.push(tileId);
 			}
@@ -215,8 +215,15 @@ var getPropertyXmlList = function (properties) {
 	props = {}
 	for (var id in properties) {
 		prop = properties[id];
-		//console.info(JSON.stringify(prop));
-		props[prop["@_name"]] = prop["@_value"]
+		if (Array.isArray(prop)) {
+			for (var p of prop) {
+				props[p["@_name"]] = p["@_value"];
+			}
+		}
+		else {
+			//console.info(JSON.stringify(prop));
+			props[prop["@_name"]] = prop["@_value"];
+		}
 	}
 	return props;
 };

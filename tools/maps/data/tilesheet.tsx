@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<tileset version="1.2" tiledversion="1.3.4" name="tilesheet" tilewidth="16" tileheight="16" tilecount="13520" columns="20">
+<tileset version="1.10" tiledversion="1.10.2" name="tilesheet" tilewidth="16" tileheight="16" tilecount="13520" columns="20">
  <properties>
   <property name="v" value=""/>
  </properties>
@@ -683,6 +683,7 @@
  </tile>
  <tile id="273">
   <properties>
+   <property name="c" value=""/>
    <property name="v" value=""/>
   </properties>
   <objectgroup draworder="index">
@@ -691,6 +692,7 @@
  </tile>
  <tile id="274">
   <properties>
+   <property name="c" value=""/>
    <property name="v" value=""/>
   </properties>
   <objectgroup draworder="index">
@@ -1429,15 +1431,21 @@
  </tile>
  <tile id="677">
   <properties>
-   <property name="c" type="int" value="0"/>
+   <property name="c" value=""/>
    <property name="v" value=""/>
   </properties>
+  <objectgroup draworder="index" id="2">
+   <object id="1" x="0" y="0" width="16" height="16"/>
+  </objectgroup>
  </tile>
  <tile id="678">
   <properties>
-   <property name="c" type="int" value="0"/>
+   <property name="c" value=""/>
    <property name="v" value=""/>
   </properties>
+  <objectgroup draworder="index" id="2">
+   <object id="1" x="0" y="0" width="16" height="16"/>
+  </objectgroup>
  </tile>
  <tile id="679">
   <properties>
@@ -1475,11 +1483,17 @@
   </objectgroup>
  </tile>
  <tile id="697">
+  <properties>
+   <property name="c" value=""/>
+  </properties>
   <objectgroup draworder="index">
    <object id="1" x="0" y="0" width="16" height="16"/>
   </objectgroup>
  </tile>
  <tile id="698">
+  <properties>
+   <property name="c" value=""/>
+  </properties>
   <objectgroup draworder="index">
    <object id="1" x="0" y="0" width="16" height="16"/>
   </objectgroup>
@@ -1747,8 +1761,12 @@
  </tile>
  <tile id="854">
   <properties>
+   <property name="c" value=""/>
    <property name="v" value=""/>
   </properties>
+  <objectgroup draworder="index" id="2">
+   <object id="1" x="0" y="0" width="16" height="16"/>
+  </objectgroup>
  </tile>
  <tile id="855">
   <properties>
@@ -1756,6 +1774,9 @@
   </properties>
  </tile>
  <tile id="874">
+  <properties>
+   <property name="c" value=""/>
+  </properties>
   <objectgroup draworder="index">
    <object id="1" x="0" y="0" width="16" height="16"/>
   </objectgroup>

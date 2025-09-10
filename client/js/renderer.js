@@ -532,6 +532,9 @@ define(['camera', 'entity/item', 'data/items', 'data/itemlootdata', 'entity/enti
 
             // containerName, tileid, x, y
             drawTile: function(arr) {
+                //if (arr[0])
+                  //return;
+
                 var ts = G_TILESIZE;
 
                  arr[2] *= ts;
@@ -547,7 +550,7 @@ define(['camera', 'entity/item', 'data/items', 'data/itemlootdata', 'entity/enti
                  tileset.frame.y = (~~((arr[1]-1) / tw) * ts);
 
                  var container = this.tiles["BACKGROUND"];
-                 if (arr[0] === 1)
+                 if (arr[0])
                   container = this.tiles["FOREGROUND"];
                  container.addFrame(tileset, arr[2], arr[3], ts, ts);
 
@@ -1164,7 +1167,7 @@ define(['camera', 'entity/item', 'data/items', 'data/itemlootdata', 'entity/enti
       							if(mc.tileGrid[y][x] instanceof Array) {
                       for (var id of mc.tileGrid[y][x]) {
       								//_.each(mc.tileGrid[y][x], function(id) {
-                        self.drawTile([(mc.isHighTile(id) ? 1 : 0), id, x, y]);
+                        self.drawTile([mc.isHighTile(id), id, x, y]);
       									/*if(mc.isHighTile(id)) { // Don't draw unnecessary tiles
       										self.drawTile([1, id, self.tilesets, tilesetwidth, x, y]);
       									} else {
@@ -1176,7 +1179,7 @@ define(['camera', 'entity/item', 'data/items', 'data/itemlootdata', 'entity/enti
       							else {
       								var id = mc.tileGrid[y][x];
       								if(id) {
-                        self.drawTile([(mc.isHighTile(id) ? 1 : 0), id, x, y]);
+                        self.drawTile([mc.isHighTile(id), id, x, y]);
       									/*if(mc.isHighTile(id)) { // Don't draw unnecessary tiles
       										self.drawTile([1, id, self.tilesets, tilesetwidth, x, y]);
       									} else {
