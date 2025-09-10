@@ -4,8 +4,8 @@
     "protocol": "http",
     "useLocalAPI": false,
     "dispatcher": false,
-    "version_user":93,
-    "version_game":93,
+    "version_user":94,
+    "version_game":94,
     "updatepage":"https://play.google.com/store/apps/details?id=com.retrorpgonline2",
     "productpage":"../products/"
 }
