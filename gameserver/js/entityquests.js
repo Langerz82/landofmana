@@ -34,50 +34,36 @@ module.exports = EntityQuests = cls.Class.extend({
     },
 
     giveReward: function (player, quest) {
-      var speakDialog = false;
       var pquest = player.quests.completeQuests[quest.id];
-      if (!pquest.hasOwnProperty("gold") && quest.gold > 0) {
-        player.modifyGold(parseInt(quest.gold));
-        pquest.gold = true;
-        speakDialog = true;
-      }
 
       if (!pquest.hasOwnProperty("reward")) {
-        if (quest.reward.length > 0)
-        {
-          var count = player.inventory.hasRoomCount();
-          if (count > quest.reward.length)
-          {
-            for (var reward of quest.reward)
-            {
-                var item = new ItemRoom([
-                  parseInt(reward.itemKind),
-                  parseInt(reward.itemNumber) || 1,
-                  parseInt(reward.itemDurability) || null,
-                  parseInt(reward.itemDurabilityMax) || null,
-                  parseInt(reward.itemExperience) || 0]);
-
-                player.inventory.putItem(item);
-                var msg = new Messages.Notify("CHAT", "ITEM_ADDED", [ItemData.Kinds[item.itemKind].name])
-                player.sendPlayer(msg);
-            }
-            speakDialog = true;
-            pquest.reward = true;
-          } else {
-            player.sendPlayer(new Messages.Notify("INVENTORY", "INVENTORY_FULL"));
-          }
-        } else {
-          pquest.reward = true;
+        var count = player.inventory.hasRoomCount();
+        if (quest.reward.length > 0 && count < quest.reward.length) {
+          player.sendPlayer(new Messages.Notify("INVENTORY", "INVENTORY_FULL"));
+          return false;
         }
-      }
 
-      if (speakDialog)
-      {
         var msg = new Messages.Dialogue(this.entity, "QUESTS_REWARD", [this.entity.name]);
         player.sendPlayer(msg);
+
+        if (quest.gold > 0)
+          player.modifyGold(parseInt(quest.gold));
+
+        for (var reward of quest.reward)
+        {
+            var item = new ItemRoom([
+              parseInt(reward.itemKind),
+              parseInt(reward.itemNumber) || 1,
+              parseInt(reward.itemDurability) || null,
+              parseInt(reward.itemDurabilityMax) || null,
+              parseInt(reward.itemExperience) || 0]);
+
+            player.inventory.putItem(item);
+            var msg = new Messages.Notify("CHAT", "ITEM_ADDED", [ItemData.Kinds[item.itemKind].name])
+            player.sendPlayer(msg);
+        }
         return true;
       }
-
       return false;
     },
 
