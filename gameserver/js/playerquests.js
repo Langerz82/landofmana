@@ -102,7 +102,7 @@ module.exports = PlayerQuests = cls.Class.extend({
 
     quest.status = QuestStatus.COMPLETE;
     this.sendQuest(quest);
-    this.completeQuests[quest.id] = quest.npcQuestId;
+    this.completeQuests[quest.id] = {"npcid":quest.npcQuestId};
     this.removeQuest(quest);
   },
 
@@ -122,12 +122,10 @@ module.exports = PlayerQuests = cls.Class.extend({
     var cq = this.completeQuests;
     for (var qid in cq) {
       var q = cq[qid];
-      if (q === npcQuestId)
+      if (q.npcid === npcQuestId)
         return true;
     }
     return false;
-    // Don't know why this won't work.
-    //return Object.values(this.completeQuests).find(function (el) { return el === npcQuestId; }) !== null;
   },
 
   getQuestById: function (id) {

@@ -33,7 +33,47 @@ module.exports = EntityQuests = cls.Class.extend({
 
     },
 
-// BUGGED - WHEN A QUEST IS IN-PROGRESS IT DOES NOT SHOW THE QUEST SUMMARY.
+    giveReward: function (player, quest) {
+      var pquest = player.quests.completeQuests[quest.id];
+      if (!pquest.hasOwnProperty("gold") && quest.gold > 0) {
+        player.modifyGold(parseInt(quest.gold));
+        pquest.gold = true;
+      }
+
+      if (!pquest.hasOwnProperty("reward")) {
+        if (quest.reward.length > 0)
+        {
+          var count = player.inventory.hasRoomCount();
+          if (count > quest.reward.length)
+          {
+            for (var reward of quest.reward)
+            {
+                var item = new ItemRoom([
+                  parseInt(reward.itemKind),
+                  parseInt(reward.itemNumber) || 1,
+                  parseInt(reward.itemDurability) || null,
+                  parseInt(reward.itemDurabilityMax) || null,
+                  parseInt(reward.itemExperience) || 0]);
+
+                player.inventory.putItem(item);
+                var msg = new Messages.Notify("CHAT", "ITEM_ADDED", [ItemData.Kinds[item.itemKind].name])
+                player.sendPlayer(msg);
+            }
+
+            var msg = new Messages.Dialogue(this.entity, "QUESTS_REWARD", [entity.name]);
+            player.sendPlayer(msg);
+            pquest.reward = true;
+            return true;
+          } else {
+            player.sendPlayer(new Messages.Notify("INVENTORY", "INVENTORY_FULL"));
+          }
+        } else {
+          pquest.reward = true;
+        }
+      }
+      return false;
+    },
+
     hasQuest: function (player) {
       for (var quest of player.quests.quests)
       {
@@ -45,8 +85,10 @@ module.exports = EntityQuests = cls.Class.extend({
 
       for (var id in this.quests) {
         var quest = this.quests[id];
+
         if (player.quests.hasNpcCompleteQuest(quest.npcQuestId)) {
-          this.sendNoQuest(player);
+          if (!this.giveReward(player, quest))
+            this.sendNoQuest(player);
           return true;
         }
       }

@@ -4,7 +4,8 @@
 	"name": "Intro 1",
 	"type": 1,
 	"level": 0,
-	"object": {"type": 2, "kind": 1, "count": 10}
+	"object": {"type": 2, "kind": 1, "count": 10},
+	"gold": 30
 },
 "2": {
 	"npcKind": 1,
@@ -40,10 +41,10 @@
 "6": {
 	"npcKind": 5,
 	"name": "Intro 6",
-	"type": 5,
+	"type": 2,
 	"level": 0,
-	"data1": 1,
-	"object": {"type": 10, "kind": 3, "count": 5}
+	"object": {"type": 2, "kind": 2, "level": [5,6]},
+	"object2": {"type": 4, "kind": 31, "count": 5, "chance": 15}
 },
 "7": {
 	"npcKind": 6,
@@ -52,6 +53,37 @@
 	"level": 0,
 	"data1": 2,
 	"object": {"type": 10, "kind": 3, "count": 5}
+},
+"8": {
+	"npcKind": 7,
+	"name": "Intro 8",
+	"type": 1,
+	"level": 0,
+	"object": {"type": 2, "kind": 3, "count": 10}
+},
+"9": {
+	"npcKind": 8,
+	"name": "Intro 9",
+	"type": 2,
+	"level": 0,
+	"object": {"type": 2, "kind": 3, "level": [7,11]},
+	"object2": {"type": 4, "kind": 93, "count": 5, "chance": 15}
+},
+"10": {
+	"npcKind": 9,
+	"name": "Intro 10",
+	"type": 5,
+	"level": 0,
+	"data1": 2,
+	"object": {"type": 10, "kind": 4, "count": 5}
+},
+"11": {
+	"npcKind": 10,
+	"name": "Intro 11",
+	"type": 1,
+	"level": 0,
+	"object": {"type": 2, "kind": 4, "count": 20},
+	"reward": [{"itemKind": 100}]
 }
 
 }

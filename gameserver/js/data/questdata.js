@@ -19,6 +19,8 @@ for (var id in QuestsJson) {
   quest.data2 = data.data2 || 0;
   quest.count = 0;
   quest.status = 0;
+  quest.gold = data.gold || 0;
+  quest.reward = data.reward || [];
   if (data.object) {
     quest.object = getQuestObject([data.object.type, data.object.kind,
       data.object.count || 0,

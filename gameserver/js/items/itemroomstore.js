@@ -52,6 +52,12 @@ module.exports = ItemStore = cls.Class.extend({
         return a;
     },
 
+    hasRoomCount: function(start, end) {
+        start = start || 0;
+        end = end || this.maxNumber;
+        return this.maxNumber - Object.keys(this.rooms).length;
+    },
+
     hasRoom: function(start, end) {
         start = start || 0;
         end = end || this.maxNumber;

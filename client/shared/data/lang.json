@@ -93,6 +93,11 @@
     "HARVEST_WRONG_TYPE": "You need to have a {0}.",
     "HARVEST_NO_WEAPON": "You do not have a harvest item equipped.",
 
+    "QUESTS_REWARD": [
+      [0, "Here is your reward."],
+      [1, "Thanks {0}."]
+    ],
+
     "DIALOGUE_1": [
       [0, "You look lost young boy..."],
       [1, "Where am I?"],
@@ -118,14 +123,30 @@
       [0, "Crabs have overrun the place..", "QUEST_5"]
     ],
     "DIALOGUE_6": [
-      [0, "Fires were started by Goblins after they left the area"],
-      [0, "I need you to put out some fires so they don't get out of control.", "QUEST_6"]
+      [0, "I went squid fishing and left all my catches in a bucket"],
+      [0, "The pesky Crabs stole my catches and now I've got nothing!"],
+      [0, "Please help me get my squid back.", "QUEST_5"]
     ],
-
     "DIALOGUE_7": [
       [0, "The graveyard is overrun with Skeletons."],
       [0, "I need you to remove the tombstones."],
       [0, "This will prevent the evil wizards resurrecting people in graves.", "QUEST_7"]
+    ],
+    "DIALOGUE_8": [
+      [0, "I need a favor. I need to you to kill some skeletons."],
+      [0, "Make the area safe to us again please!", "QUEST_8"]
+    ],
+    "DIALOGUE_9": [
+      [0, "I need skulls from skeleton to cast a special ritual."],
+      [0, "Retrieve 5 for me and I will be able to cast my spell.", "QUEST_9"]
+    ],
+    "DIALOGUE_10": [
+      [0, "Fires were started by Goblins after they left the area"],
+      [0, "I need you to put out some fires so they don't get out of control.", "QUEST_10"]
+    ],
+    "DIALOGUE_11": [
+      [0, "Goblins are troublesome little buggers. I need to get rid of some."],
+      [0, "Kill 20 of them and they should stop damaging the area.", "QUEST_11"]
     ],
 
     "QUESTS_NONE": [
@@ -138,8 +159,7 @@
           [
             [0, "Thank you when you have completed this return to me."]
           ],
-          ["Kill %count% %name%'s"]
-      ],
+          ["Kill %count% %name%'s"]      ],
       "2": [
         [
           [0, "Please get the dice and return to me when complete."]
@@ -177,15 +197,47 @@
       ],
       "6": [
           [
-            [0, "Can you destroy %count% fires?"]
+            [0, "Kill Crabs and get my squid back."]
           ],
-          ["Destroy %count% fires."]
+          ["Return %count% squids I caught."],
+          [
+            [0,"Thank-you now I can put food on the table."],
+            [0,"I might even get lucky with the Mrs."]
+          ]
       ],
       "7": [
           [
             [0, "Can you destroy %count% tombstones for me?"]
           ],
           ["Destroy %count% tombstones."]
+      ],
+      "8": [
+          [
+            [0, "Kill %count% Skeletons."]
+          ],
+          ["Kill %count% Skeletons."]
+      ],
+      "9": [
+          [
+            [0, "Kill Skeletons and collect there humanoid skulls."]
+          ],
+          ["Return %count% skulls."],
+          [
+            [0,"Thank-you I will now be able to cast my ritual."],
+            [0,"I will get rid of these Skeletons for good."]
+          ]
+      ],
+      "10": [
+          [
+            [0, "Can you destroy %count% fires?"]
+          ],
+          ["Destroy %count% fires."]
+      ],
+      "11": [
+          [
+            [0, "Kill %count% Goblins come back to me for a reward."]
+          ],
+          ["Kill %count% Goblins come back for reward."]
       ]
     },
 
@@ -209,8 +261,12 @@
       "3": "Get %count% pieces of %name% from %name2%s",
       "4": "Get the Feather Quill from %name%s",
       "5": "Kill %count% %name%s",
-      "6": "Destroy %count% Fires.",
-      "7": "Destroy %count% Tombstones."
+      "6": "Get %count% squid from %name2%s",
+      "7": "Destroy %count% Tombstones.",
+      "8": "Kill %count% Skeletons.",
+      "9": "Get %count% Skulls from Skeletons.",
+      "10": "Destroy %count% Fires.",
+      "11": "Kill %count% Goblins."
     }
   }
 }
