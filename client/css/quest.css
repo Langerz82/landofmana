@@ -3,6 +3,7 @@
 #achievementlog {
 	position: absolute;
 	display: none;
+	pointer-events: all;
 }
 
 #achievementLogScroll
@@ -40,6 +41,7 @@
 #questlog {
 	position: absolute;
 	display: none;
+	pointer-events: all;
 }
 
 #questLogScroll

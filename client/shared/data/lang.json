@@ -125,7 +125,7 @@
     "DIALOGUE_6": [
       [0, "I went squid fishing and left all my catches in a bucket"],
       [0, "The pesky Crabs stole my catches and now I've got nothing!"],
-      [0, "Please help me get my squid back.", "QUEST_5"]
+      [0, "Please help me get my squid back.", "QUEST_6"]
     ],
     "DIALOGUE_7": [
       [0, "The graveyard is overrun with Skeletons."],

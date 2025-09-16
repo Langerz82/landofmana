@@ -122,7 +122,7 @@ module.exports = PlayerQuests = cls.Class.extend({
     var cq = this.completeQuests;
     for (var qid in cq) {
       var q = cq[qid];
-      if (q.npcid === npcQuestId)
+      if (q.hasOwnProperty("npcid") && q.npcid === npcQuestId)
         return true;
     }
     return false;

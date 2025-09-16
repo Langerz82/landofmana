@@ -152,15 +152,17 @@ module.exports = MapManager = cls.Class.extend({
                       var pos = area._getRandomPositionInsideArea(30);
                       var npc = map.entities.addNpcMove(id, pos.x, pos.y);
 
+                      var area2 = new EntityArea(map, 0, a, b, 20, 20, true, -1);
+
                       prevNpc.nextNpcName = npc.name;
                       prevNpc.nextNpcDir = strDir;
                       prevNpc = npc;
 
                       if (id > 0) {
                         var level = 1;
-                        if (id === 5) {
+                        if (id === 9) {
                           for (var k=0; k < 6; ++k) {
-                            var	pos = map.entities.spaceEntityRandomApart(2,area._getRandomPositionInsideArea.bind(area,100));
+                            var	pos = map.entities.spaceEntityRandomApart(2,area2._getRandomPositionInsideArea.bind(area2,100));
                             var node = new Node(++map.entities.entityCount, 3, pos.x, pos.y, map, level, level);
                             node.name = "node1";
                             node.weaponType = "any";
@@ -171,7 +173,7 @@ module.exports = MapManager = cls.Class.extend({
                         else if (id === 6) {
                           level = 2;
                           for (var k=0; k < 6; ++k) {
-                            var	pos = map.entities.spaceEntityRandomApart(2,area._getRandomPositionInsideArea.bind(area,100));
+                            var	pos = map.entities.spaceEntityRandomApart(2,area2._getRandomPositionInsideArea.bind(area2,100));
                             var node = new Node(++map.entities.entityCount, 3, pos.x, pos.y, map, level, level);
                             node.name = "node2";
                             node.weaponType = "any";
@@ -179,10 +181,10 @@ module.exports = MapManager = cls.Class.extend({
                             map.entities.addEntity(node);
                           }
                         }
-                        else if (id >= 10) {
+                        else if (id > 10) {
                           level = Utils.clamp(1,4,~~(id/10)+1);
                           for (var k=0; k < 10; ++k) {
-                            var	pos = map.entities.spaceEntityRandomApart(2,area._getRandomPositionInsideArea.bind(area,100));
+                            var	pos = map.entities.spaceEntityRandomApart(2,area2._getRandomPositionInsideArea.bind(area2,100));
                             var node = new Node(++map.entities.entityCount, 2, pos.x, pos.y, map, level, level);
                             node.name = "node"+level;
                             node.weaponType = "hammer";

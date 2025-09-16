@@ -34,10 +34,12 @@ module.exports = EntityQuests = cls.Class.extend({
     },
 
     giveReward: function (player, quest) {
+      var speakDialog = false;
       var pquest = player.quests.completeQuests[quest.id];
       if (!pquest.hasOwnProperty("gold") && quest.gold > 0) {
         player.modifyGold(parseInt(quest.gold));
         pquest.gold = true;
+        speakDialog = true;
       }
 
       if (!pquest.hasOwnProperty("reward")) {
@@ -59,11 +61,8 @@ module.exports = EntityQuests = cls.Class.extend({
                 var msg = new Messages.Notify("CHAT", "ITEM_ADDED", [ItemData.Kinds[item.itemKind].name])
                 player.sendPlayer(msg);
             }
-
-            var msg = new Messages.Dialogue(this.entity, "QUESTS_REWARD", [entity.name]);
-            player.sendPlayer(msg);
+            speakDialog = true;
             pquest.reward = true;
-            return true;
           } else {
             player.sendPlayer(new Messages.Notify("INVENTORY", "INVENTORY_FULL"));
           }
@@ -71,6 +70,14 @@ module.exports = EntityQuests = cls.Class.extend({
           pquest.reward = true;
         }
       }
+
+      if (speakDialog)
+      {
+        var msg = new Messages.Dialogue(this.entity, "QUESTS_REWARD", [this.entity.name]);
+        player.sendPlayer(msg);
+        return true;
+      }
+
       return false;
     },
 

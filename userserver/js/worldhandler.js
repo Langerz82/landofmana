@@ -336,7 +336,7 @@ module.exports = WorldHandler = cls.Class.extend({
         "77,0,151,50",                       // sprites
         "0,0",                               // colors
         "{}",                        // shortcuts
-        "[]"                                   // completeQuests
+        "{}"                                   // completeQuests
       ];
 
       return data;

@@ -638,10 +638,9 @@ module.exports = Player = Character.extend({
           }
         }
 
-        if (db_player.completeQuests)
-          self.quests.completeQuests = (db_player.completeQuests) ? db_player.completeQuests : {};
-        //self.stats.hpMax = self.getHpMax();
-        //self.stats.epMax = self.getEpMax();
+        self.quests.completeQuests = (db_player.completeQuests) ?
+          (Array.isArray(db_player.completeQuests) ? {} :  db_player.completeQuests) : {};
+
         self.setHP();
         self.setEP();
         self.setPointsMax();

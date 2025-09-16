@@ -1,5 +1,9 @@
 TODO:
 
+CLIENT - Quest Window mouse pointer not working.
+
+CLIENT - Quest Window, Quest Entry not showing correct sprite for fires quest.
+
 CLIENT - Move stamina bar to top left window.
 
 CLIENT - Shortcuts - Move shortcuts to horizontal bottom, make numbered first, only show gamepad option when enabled.

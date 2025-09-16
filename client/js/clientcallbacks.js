@@ -860,10 +860,6 @@ function(HoveringInfo,
               {
                 msg[1] = msg[1].format(data);
               }
-              /*for (var i=0; i < message.length; ++i) {
-                var tmp = message[i][1].format(data);
-                message[i][1] = tmp;
-              }*/
             }
             else {
               message[1] = message[1].format(data);

@@ -74,8 +74,8 @@
 	"name": "Intro 10",
 	"type": 5,
 	"level": 0,
-	"data1": 2,
-	"object": {"type": 10, "kind": 4, "count": 5}
+	"data1": 1,
+	"object": {"type": 10, "kind": 3, "count": 5}
 },
 "11": {
 	"npcKind": 10,
