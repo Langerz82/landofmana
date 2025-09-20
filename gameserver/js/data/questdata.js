@@ -37,15 +37,13 @@ for (var id in QuestsJson) {
   }
 
   var questObject = Object.assign(new Quest, quest);
-  //questObject.assign(quest);
 
-//setTimeout(function () {
   QuestData[quest.id] = questObject;
 
   if (!QuestNpcData[quest.npcKind])
     QuestNpcData[quest.npcKind] = [];
   QuestNpcData[quest.npcKind].push(questObject);
-//}, 10000);
+
 }
 
 console.info(JSON.stringify(QuestNpcData));

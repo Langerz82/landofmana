@@ -142,22 +142,21 @@ Messages.Dialogue = Message.extend({
     init: function (npc, langcode, vars) {
         this.id = npc.id;
         this.langcode = langcode;
-        this.questId = 0;
         this.vars = vars || [];
     },
     serialize: function () {
-        return [Types.Messages.WC_DIALOGUE, this.id, this.questId, this.langcode].concat(this.vars);
+        return [Types.Messages.WC_DIALOGUE, this.id, this.langcode].concat(this.vars);
     }
 });
 
-Messages.DialogueQuest = Messages.Dialogue.extend({
+/*Messages.DialogueQuest = Messages.Dialogue.extend({
   init: function (npc, langcode, questId, vars) {
       this.id = npc.id;
       this.langcode = langcode;
       this.questId = questId;
       this.vars = vars || [];
   }
-});
+});*/
 
 Messages.Quest = Message.extend({
     init: function(quest) {

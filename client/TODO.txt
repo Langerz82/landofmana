@@ -1,5 +1,7 @@
 TODO:
 
+CLIENT/SERVER - Work out why Exp keeps on resetting.
+
 CLIENT - Quest Window mouse pointer not working.
 
 CLIENT - Quest Window, Quest Entry not showing correct sprite for fires quest.

@@ -848,7 +848,6 @@ function(HoveringInfo,
 
         client.onDialogue(function (data) {
           var npcId = Number(data.shift());
-          var questId = Number(data.shift());
           var langCode = data.shift();
 
           var npc = game.getEntityById(npcId);
@@ -868,7 +867,10 @@ function(HoveringInfo,
             }
           }
 
-          npc.questId = questId;
+          if (langCode.indexOf("DIALOGUE_") === 0)
+          {
+            npc.questId = langCode.split('_')[1];
+          }
           npc.dialogue = message;
           npc.dialogueIndex = 0;
 

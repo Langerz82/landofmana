@@ -7,7 +7,6 @@ module.exports = EntityQuests = cls.Class.extend({
 
       this.questsCount = 0;
       this.quests = {};
-      this.questEntityKind = entity.kind;
     },
 
     acceptQuest: function (player, questId) {
@@ -72,7 +71,7 @@ module.exports = EntityQuests = cls.Class.extend({
     hasQuest: function (player) {
       for (var quest of player.quests.quests)
       {
-        if (this.questEntityKind === quest.npcQuestId) {
+        if (this.entity.npcQuestId === quest.npcQuestId) {
           /*if (player.quests.hasNpcCompleteQuest(quest.npcQuestId)) {
             continue;
           }*/
@@ -183,7 +182,7 @@ module.exports = EntityQuests = cls.Class.extend({
         var itemObject = getQuestObject([Types.EntityTypes.ITEMLOOT, itemKind,
           itemCount, itemChance]);
 
-        quest = new Quest([id, QuestType.GETITEMKIND, this.questEntityKind, 0, 0, 0, 0, mobObject, itemObject]);
+        quest = new Quest([id, QuestType.GETITEMKIND, this.entity.npcQuestId, 0, 0, 0, 0, mobObject, itemObject]);
         //quest.entityId = this.entity.id;
         player.quests.foundQuest(quest);
       }
@@ -209,7 +208,7 @@ module.exports = EntityQuests = cls.Class.extend({
         mobObject.count = Utils.clamp(lw, lh, (mobObject.count / 2));
         mobObject.count = Math.ceil(mobObject.count/5)*5;
 
-        quest = new Quest([id, QuestType.KILLMOBKIND, this.questEntityKind, 0, 0, 0, 0, mobObject]);
+        quest = new Quest([id, QuestType.KILLMOBKIND, this.entity.npcQuestId, 0, 0, 0, 0, mobObject]);
         //quest.entityId = this.entity.id;
         player.quests.foundQuest(quest);
       }

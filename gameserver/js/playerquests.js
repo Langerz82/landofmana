@@ -97,7 +97,7 @@ module.exports = PlayerQuests = cls.Class.extend({
 
   completeQuest: function(quest, xp) {
     if (xp > 0) {
-      this.player.incExp(xp * quest.expMultiplier);
+      this.player.incExp(xp * QuestData.Data[quest.id].expMultiplier);
     }
 
     quest.status = QuestStatus.COMPLETE;
