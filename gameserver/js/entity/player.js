@@ -638,8 +638,19 @@ module.exports = Player = Character.extend({
           }
         }
 
-        self.quests.completeQuests = (db_player.completeQuests) ?
-          (Array.isArray(db_player.completeQuests) ? {} :  db_player.completeQuests) : {};
+        // if quests old format create empty.
+        // if quests new but id not a Number delete.
+        if (Array.isArray(db_player.completeQuests)) {
+            self.quests.completeQuests = {}
+        }
+        else {
+          for (var id in db_player.completeQuests)
+          {
+            if (!Number(id))
+              delete db_player.completeQuests[id];
+          }
+          self.quests.completeQuests = db_player.completeQuests;
+        }
 
         self.setHP();
         self.setEP();

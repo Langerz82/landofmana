@@ -7,7 +7,7 @@ module.exports = EntityQuests = cls.Class.extend({
 
       this.questsCount = 0;
       this.quests = {};
-      this.questEntityKind = this.entity.kind;
+      this.questEntityKind = entity.kind;
     },
 
     acceptQuest: function (player, questId) {
@@ -35,6 +35,7 @@ module.exports = EntityQuests = cls.Class.extend({
 
     giveReward: function (player, quest) {
       var pquest = player.quests.completeQuests[quest.id];
+      if (!pquest) return false;
 
       if (!pquest.hasOwnProperty("reward")) {
         var count = player.inventory.hasRoomCount();
@@ -62,6 +63,7 @@ module.exports = EntityQuests = cls.Class.extend({
             var msg = new Messages.Notify("CHAT", "ITEM_ADDED", [ItemData.Kinds[item.itemKind].name])
             player.sendPlayer(msg);
         }
+        pquest.reward = 1;
         return true;
       }
       return false;
@@ -71,6 +73,9 @@ module.exports = EntityQuests = cls.Class.extend({
       for (var quest of player.quests.quests)
       {
         if (this.questEntityKind === quest.npcQuestId) {
+          /*if (player.quests.hasNpcCompleteQuest(quest.npcQuestId)) {
+            continue;
+          }*/
           player.quests.progressQuest(quest);
           return true;
         }
@@ -80,12 +85,25 @@ module.exports = EntityQuests = cls.Class.extend({
         var quest = this.quests[id];
 
         if (player.quests.hasNpcCompleteQuest(quest.npcQuestId)) {
-          if (!this.giveReward(player, quest))
-            this.sendNoQuest(player);
-          return true;
+          if (this.giveReward(player, quest)) {
+            return true;
+          }
         }
       }
       return false;
+    },
+
+    getNextQuestId: function (player) {
+      for (var qid in this.quests) {
+        if (player.quests.completeQuests[qid])
+          continue;
+
+        var pq = player.quests.getQuestById(qid);
+        if (pq)
+          continue;
+        return qid;
+      }
+      return null;
     },
 
     sendNoQuest: function (player) {

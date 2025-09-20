@@ -18,7 +18,8 @@ var mapsCountMax = 10;
 var mapCoordsMax = 16384;
 var orientationsMax = 4;
 
-var questIdMax = 999;
+var questCountMax = 999;
+var questIdMax = 999999999999999;
 var questTypeMax = 9;
 var questNpcIdMax = 100;
 var questCountMax = 99;
@@ -128,7 +129,7 @@ var isTypeValid = function (fmt,msg) {
 
 var _isTypeValid = function (fmt, msg) {
 
-  if (fmt === 'n' && _.isNumber(parseInt(msg))) {
+  if (fmt === 'n' && _.isNumber(Number(msg))) {
       //console.info("isType is number");
       return true;
   }
@@ -136,7 +137,7 @@ var _isTypeValid = function (fmt, msg) {
       //console.info("isType is string");
       return true;
   }
-  if (fmt === 'no' && (_.isNull(msg) || _.isNumber(parseInt(msg)))) {
+  if (fmt === 'no' && (_.isNull(msg) || _.isNumber(Number(msg)))) {
       //console.info("isType is optional number");
       return true;
   }
@@ -550,9 +551,9 @@ var _isTypeValid = function (fmt, msg) {
                 console.info("complete quests is not an object.");
                 return false;
               }
-              fmt = [['object',0,questIdMax, [
+              fmt = [['object',0,questCountMax, [
                 ['no',0,questNpcIdMax],
-                ['no',0,questIdMax]]
+                ['n',0,questIdMax]]
               ]];
               var res = this.checkFormat(fmt, [arr], true);
               if (!res) {

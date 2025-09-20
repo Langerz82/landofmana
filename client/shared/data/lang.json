@@ -98,55 +98,59 @@
       [1, "Thanks {0}."]
     ],
 
-    "DIALOGUE_1": [
+    "DIALOGUE_200000": [
       [0, "You look lost young boy..."],
       [1, "Where am I?"],
       [0, "What do you mean where you are? Anyway I need help son."],
       [0, "You see, young one, my house, well, it's not quite the welcoming place it used to be."],
       [0, "It's overrun by rats, scurrying through every nook and cranny, making themselves right at home."],
       [0, "It's a bit of a mess, I'm afraid. Can you kill 10 rats for me, Sonny?"],
-      [0, "That way I can get into my home again.", "QUEST_1"]
+      [0, "That way I can get into my home again.", "QUEST"]
     ],
-    "DIALOGUE_2": [
-      [0, "Rats have stolen my 3 dice I need you to kill some Rats to get them.", "QUEST_2"]
+    "DIALOGUE_200001": [
+      [0, "Now kill 10 more rats kill them all!"],
+      [1, "Ok Granps chill man.", "QUEST"]
     ],
-    "DIALOGUE_3": [
-      [0, "Rats have stolen my tasty cheese.", "QUEST_3"]
+    "DIALOGUE_200100": [
+      [0, "Rats have stolen my 3 dice I need you to kill some Rats to get them.", "QUEST"]
     ],
-    "DIALOGUE_4": [
+    "DIALOGUE_200200": [
+      [0, "Rats have stolen my tasty cheese.", "QUEST"]
+    ],
+    "DIALOGUE_200300": [
       [0, "Hello I was writing my memiors earlier.."],
       [0, "When a pesky Crab stole my Feather Quilt."],
       [0, "The problem is I don't know which one stole it"],
-      [0, "So I need you to kill and search all of them until it's found.", "QUEST_4"]
+      [0, "So I need you to kill and search all of them until it's found.", "QUEST"]
     ],
-    "DIALOGUE_5": [
-      [0, "Crabs have overrun the place..", "QUEST_5"]
+    "DIALOGUE_200400": [
+      [0, "Crabs have overrun the place..", "QUEST"]
     ],
-    "DIALOGUE_6": [
+    "DIALOGUE_200500": [
       [0, "I went squid fishing and left all my catches in a bucket"],
       [0, "The pesky Crabs stole my catches and now I've got nothing!"],
-      [0, "Please help me get my squid back.", "QUEST_6"]
+      [0, "Please help me get my squid back.", "QUEST"]
     ],
-    "DIALOGUE_7": [
+    "DIALOGUE_200600": [
       [0, "The graveyard is overrun with Skeletons."],
       [0, "I need you to remove the tombstones."],
-      [0, "This will prevent the evil wizards resurrecting people in graves.", "QUEST_7"]
+      [0, "This will prevent the evil wizards resurrecting people in graves.", "QUEST"]
     ],
-    "DIALOGUE_8": [
+    "DIALOGUE_200700": [
       [0, "I need a favor. I need to you to kill some skeletons."],
-      [0, "Make the area safe to us again please!", "QUEST_8"]
+      [0, "Make the area safe to us again please!", "QUEST"]
     ],
-    "DIALOGUE_9": [
+    "DIALOGUE_200800": [
       [0, "I need skulls from skeleton to cast a special ritual."],
-      [0, "Retrieve 5 for me and I will be able to cast my spell.", "QUEST_9"]
+      [0, "Retrieve 5 for me and I will be able to cast my spell.", "QUEST"]
     ],
-    "DIALOGUE_10": [
+    "DIALOGUE_200900": [
       [0, "Fires were started by Goblins after they left the area"],
-      [0, "I need you to put out some fires so they don't get out of control.", "QUEST_10"]
+      [0, "I need you to put out some fires so they don't get out of control.", "QUEST"]
     ],
-    "DIALOGUE_11": [
+    "DIALOGUE_201000": [
       [0, "Goblins are troublesome little buggers. I need to get rid of some."],
-      [0, "Kill 20 of them and they should stop damaging the area.", "QUEST_11"]
+      [0, "Kill 20 of them and they should stop damaging the area.", "QUEST"]
     ],
 
     "QUESTS_NONE": [
@@ -155,12 +159,17 @@
     ],
 
     "QUESTS": {
-      "1": [
+      "200000": [
           [
             [0, "Thank you when you have completed this return to me."]
           ],
-          ["Kill %count% %name%'s"]      ],
-      "2": [
+          ["Kill %count% %name%'s"]],
+      "200001": [
+          [
+            [0, "Come back when they are dead muhahaha."]
+          ],
+          ["Kill %count% %name%'s"]],
+      "200100": [
         [
           [0, "Please get the dice and return to me when complete."]
         ],
@@ -171,7 +180,7 @@
           [1, "Err, your welcome I guess..."]
         ]
       ],
-      "3": [
+      "200200": [
           [
             [0, "Can you please kill rats and return my cheese?"],
             [0, "I need %count% pieces back to me."]
@@ -179,7 +188,7 @@
           ["Get %count% pieces of cheese."],
           ["Thank-you for returning my cheese."]
       ],
-      "4": [
+      "200300": [
           [
             [0, "Can you please kill Crabs and return my Feather Quill?"]
           ],
@@ -189,13 +198,13 @@
             [0,"I can now resume writing my memiors."]
           ]
       ],
-      "5": [
+      "200400": [
           [
             [0, "Kill %count% Crabs for me?"]
           ],
           ["Kill %count% Crabs."]
       ],
-      "6": [
+      "200500": [
           [
             [0, "Kill Crabs and get my squid back."]
           ],
@@ -205,19 +214,19 @@
             [0,"I might even get lucky with the Mrs."]
           ]
       ],
-      "7": [
+      "200600": [
           [
             [0, "Can you destroy %count% tombstones for me?"]
           ],
           ["Destroy %count% tombstones."]
       ],
-      "8": [
+      "200700": [
           [
             [0, "Kill %count% Skeletons."]
           ],
           ["Kill %count% Skeletons."]
       ],
-      "9": [
+      "200800": [
           [
             [0, "Kill Skeletons and collect there humanoid skulls."]
           ],
@@ -227,13 +236,13 @@
             [0,"I will get rid of these Skeletons for good."]
           ]
       ],
-      "10": [
+      "200900": [
           [
             [0, "Can you destroy %count% fires?"]
           ],
           ["Destroy %count% fires."]
       ],
-      "11": [
+      "201000": [
           [
             [0, "Kill %count% Goblins come back to me for a reward."]
           ],
@@ -256,17 +265,18 @@
       "KILLMOBKIND": "Kill %count% %name%s",
       "GETITEMKIND": "Get %count% pieces of %name% from %name2%s",
       "USENODE": "Use %count% %name%.",
-      "1": "Kill %count% %name%s",
-      "2": "Retrieve %count% %name%'s from %name2%s",
-      "3": "Get %count% pieces of %name% from %name2%s",
-      "4": "Get the Feather Quill from %name%s",
-      "5": "Kill %count% %name%s",
-      "6": "Get %count% squid from %name2%s",
-      "7": "Destroy %count% Tombstones.",
-      "8": "Kill %count% Skeletons.",
-      "9": "Get %count% Skulls from Skeletons.",
-      "10": "Destroy %count% Fires.",
-      "11": "Kill %count% Goblins."
+      "200000": "Kill %count% %name%s",
+      "200001": "Kill %count% %name%s",
+      "200100": "Retrieve %count% %name%'s from %name2%s",
+      "200200": "Get %count% pieces of %name% from %name2%s",
+      "200300": "Get the Feather Quill from %name%s",
+      "200400": "Kill %count% %name%s",
+      "200500": "Get %count% squid from %name2%s",
+      "200600": "Destroy %count% Tombstones.",
+      "200700": "Kill %count% Skeletons.",
+      "200800": "Get %count% Skulls from Skeletons.",
+      "200900": "Destroy %count% Fires.",
+      "201000": "Kill %count% Goblins."
     }
   }
 }

@@ -50,6 +50,7 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
 
                 // Game state
                 this.entities = {};
+                this.npc = {};
                 this.pathingGrid = [];
                 this.tileGrid = [];
                 this.itemGrid = [];
@@ -357,6 +358,9 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
             },
 
             removeEntity: function(entity) {
+                if (this.npc[entity.id])
+                  delete this.npc[id];
+
                 if(entity.id in this.entities) {
                     var id = entity.id;
                     if (this.player.target === entity) {
@@ -553,10 +557,10 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
                 //}
             },
 
-            getNpcByQuestId: function(questId){
-                for(var id in this.entities){
-                    var entity = this.entities[id];
-                    if(entity.hasOwnProperty("questId") && entity.questId === questId){
+            getNpcByQuestKind: function(npcQuestId){
+                for(var id in this.npc){
+                    var entity = this.npc[id];
+                    if(entity.npcQuestId === npcQuestId){
                         return entity;
                     }
                 }
@@ -1178,9 +1182,8 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
                 var data = entity.dialogue[entity.dialogueIndex-1];
                 if (data && data.length === 3) {
                   var action = data[2];
-                  var splitAction = action.split("_");
-                  if (splitAction[0] === "QUEST") {
-                    game.client.sendQuest(entity.id, parseInt(splitAction[1]), 1);
+                  if (action === "QUEST") {
+                    game.client.sendQuest(entity.id, parseInt(entity.questId), 1);
                   }
                 }
 

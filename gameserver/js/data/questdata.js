@@ -21,6 +21,8 @@ for (var id in QuestsJson) {
   quest.status = 0;
   quest.gold = data.gold || 0;
   quest.reward = data.reward || [];
+  quest.expMultiplier = data.expMultiplier || 1;
+
   if (data.object) {
     quest.object = getQuestObject([data.object.type, data.object.kind,
       data.object.count || 0,
@@ -37,11 +39,13 @@ for (var id in QuestsJson) {
   var questObject = Object.assign(new Quest, quest);
   //questObject.assign(quest);
 
+//setTimeout(function () {
   QuestData[quest.id] = questObject;
 
   if (!QuestNpcData[quest.npcKind])
     QuestNpcData[quest.npcKind] = [];
   QuestNpcData[quest.npcKind].push(questObject);
+//}, 10000);
 }
 
 console.info(JSON.stringify(QuestNpcData));

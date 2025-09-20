@@ -26,6 +26,7 @@ var NpcMove = Character.extend({
         callbacks.setCallbacks(this);
 
         this.entityQuests = new EntityQuests(this);
+        this.npcQuestId = this.kind;
 
         //this.scriptQuests = false;
 
@@ -45,7 +46,8 @@ var NpcMove = Character.extend({
 
     getState: function() {
         // DANGER - if questhandler variable changes so should this.
-        return this._getBaseState().concat([this.entityQuests.questEntityKind]);
+        // TODO
+        return this._getBaseState().concat(this.npcQuestId);
     },
 
     talk: function (player) {
@@ -54,7 +56,7 @@ var NpcMove = Character.extend({
 
       var res = false;
       player.quests.forQuestsType(QuestType.GETITEMKIND, function (q) {
-        if (q.npcQuestId === self.kind) {
+        if (q.npcQuestId === self.npcQuestId) {
           if (self_player.quests.questAboutItemComplete(q, null))
             res = true;
         }
@@ -71,21 +73,16 @@ var NpcMove = Character.extend({
           return;
         }
 
-        for (var qid in this.entityQuests.quests) {
-          var pq = player.quests.getQuestById(qid);
-          if (pq)
-            continue;
-          newQid = qid;
-          break;
-        }
+        var newQid = this.entityQuests.getNextQuestId(player);
 
-        if (newQid === -1) {
+        if (!newQid) {
           this.entityQuests.sendNoQuest(player);
           return;
         }
 
         var langcode = "DIALOGUE_"+newQid;
-        player.sendPlayer(new Messages.Dialogue(this, langcode));
+        var msg = new Messages.DialogueQuest(this, langcode, newQid);
+        player.sendPlayer(msg);
       }
     },
 

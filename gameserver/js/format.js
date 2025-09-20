@@ -28,7 +28,8 @@ var orientationsMax = 4;
 var entityIdMax = 99999;
 var mapStatusMax = 3;
 
-var questIdMax = 999;
+var questCountMax = 999;
+var questIdMax = 999999999999999;
 var questTypeMax = 9;
 var questNpcIdMax = 100;
 var questCountMax = 99;
@@ -146,7 +147,7 @@ var isTypeValid = function (fmt,msg) {
 
 var _isTypeValid = function (fmt, msg) {
 
-  if (fmt === 'n' && _.isNumber(parseInt(msg))) {
+  if (fmt === 'n' && _.isNumber(Number(msg))) {
       //console.info("isType is number");
       return true;
   }
@@ -154,7 +155,7 @@ var _isTypeValid = function (fmt, msg) {
       //console.info("isType is string");
       return true;
   }
-  if (fmt === 'no' && (_.isNull(msg) || _.isNumber(parseInt(msg)))) {
+  if (fmt === 'no' && (_.isNull(msg) || _.isNumber(Number(msg)))) {
       //console.info("isType is optional number");
       return true;
   }
@@ -295,7 +296,8 @@ var _isTypeValid = function (fmt, msg) {
             this.formats[Types.Messages.CW_QUEST] = [
               ['n',0,entityIdMax],
               ['n',0,questIdMax],
-              ['n',0,2]],
+              ['n',0,questTypeMax]
+            ],
             this.formats[Types.Messages.CW_MOVEPATH] = [
               ['n',serverDateMin,serverDateMax],
               ['n',0,entityIdMax],

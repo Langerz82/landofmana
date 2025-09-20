@@ -237,8 +237,8 @@ div.frame-close-button
 	}
 
 	div.frame-top {
-		top:18px !important;
-		margin-top:0;
+		/*top:18px !important;*/
+		/*margin-top:0;*/
 		z-index: 14;
 	}
 

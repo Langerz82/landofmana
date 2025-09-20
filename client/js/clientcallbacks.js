@@ -285,7 +285,8 @@ function(HoveringInfo,
           {
               var uid = "npc"+(1+(~~(entity.kind/8)%4))+"_"+(1+(entity.kind%8));
               entity.setSprite(game.sprites[uid]);
-              entity.questId = Number(data[8]);
+              entity.npcQuestId = Number(data[8]);
+              game.npc[entity.id] = entity;
           }
 
           if (entity instanceof EntityMoving && !(entity instanceof Block)) {
@@ -742,7 +743,7 @@ function(HoveringInfo,
         });
 
         var questSpeech = function (quest) {
-          var npc = game.getNpcByQuestId(quest.npcQuestId);
+          var npc = game.getNpcByQuestKind(quest.npcQuestId);
           if (!npc)
             return;
 
@@ -762,7 +763,7 @@ function(HoveringInfo,
         };
 
         client.onQuest(function(data){
-            data.parseInt();
+            //data.parseInt();
             var questId = Number(data[0]);
             var quest = game.player.quests[questId];
             if (!quest)
@@ -775,7 +776,7 @@ function(HoveringInfo,
                 quest.update(data);
             }
 
-            var npc = game.getNpcByQuestId(quest.npcQuestId);
+            var npc = game.getNpcByQuestKind(quest.npcQuestId);
             if (npc)
               game.bubbleManager.destroyBubble(npc.id);
 
@@ -847,6 +848,7 @@ function(HoveringInfo,
 
         client.onDialogue(function (data) {
           var npcId = Number(data.shift());
+          var questId = Number(data.shift());
           var langCode = data.shift();
 
           var npc = game.getEntityById(npcId);
@@ -866,6 +868,7 @@ function(HoveringInfo,
             }
           }
 
+          npc.questId = questId;
           npc.dialogue = message;
           npc.dialogueIndex = 0;
 
