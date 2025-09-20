@@ -37,6 +37,7 @@ for (var id in QuestsJson) {
   }
 
   var questObject = Object.assign(new Quest, quest);
+  questObject.data = quest;
 
   QuestData[quest.id] = questObject;
 

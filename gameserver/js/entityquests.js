@@ -25,6 +25,7 @@ module.exports = EntityQuests = cls.Class.extend({
       }
 
       pQuest = Object.assign(new Quest(), quest);
+      pQuest.data = quest.data;
       player.quests.foundQuest(pQuest);
     },
 

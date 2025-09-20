@@ -254,6 +254,7 @@ module.exports = UserHandler = cls.Class.extend({
               quest.object = getQuestObject(questData.splice(0,6));
             if (questData.length > 0)
               quest.object2 = getQuestObject(questData.splice(0,6));
+            quest.data = QuestData.Data.hasOwnProperty(quest.id) ? QuestData.Data[quest.id] : null;
             player.quests.quests.push(quest);
           }
         }
