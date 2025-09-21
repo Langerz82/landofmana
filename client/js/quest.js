@@ -50,7 +50,7 @@ define(['data/npcdata', 'data/questdata', 'data/mobdata', 'data/itemlootdata'],
           var summaryIndex;
           if (questLang)
           {
-            desc = desc || questLang[this.status];
+            desc = desc || questLang[this.status+1];
           }
           else {
             switch (this.type) {

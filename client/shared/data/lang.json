@@ -98,61 +98,6 @@
       [1, "Thanks {0}."]
     ],
 
-    "DIALOGUE_200000": [
-      [0, "You look lost young boy..."],
-      [1, "Where am I?"],
-      [0, "What do you mean where you are? Anyway I need help son."],
-      [0, "You see, young one, my house, well, it's not quite the welcoming place it used to be."],
-      [0, "It's overrun by rats, scurrying through every nook and cranny, making themselves right at home."],
-      [0, "It's a bit of a mess, I'm afraid. Can you kill 10 rats for me, Sonny?"],
-      [0, "That way I can get into my home again.", "QUEST"]
-    ],
-    "DIALOGUE_200001": [
-      [0, "Now kill 10 more rats kill them all!"],
-      [1, "Ok Granps chill man.", "QUEST"]
-    ],
-    "DIALOGUE_200100": [
-      [0, "Rats have stolen my 3 dice I need you to kill some Rats to get them.", "QUEST"]
-    ],
-    "DIALOGUE_200200": [
-      [0, "Rats have stolen my tasty cheese.", "QUEST"]
-    ],
-    "DIALOGUE_200300": [
-      [0, "Hello I was writing my memiors earlier.."],
-      [0, "When a pesky Crab stole my Feather Quilt."],
-      [0, "The problem is I don't know which one stole it"],
-      [0, "So I need you to kill and search all of them until it's found.", "QUEST"]
-    ],
-    "DIALOGUE_200400": [
-      [0, "Crabs have overrun the place..", "QUEST"]
-    ],
-    "DIALOGUE_200500": [
-      [0, "I went squid fishing and left all my catches in a bucket"],
-      [0, "The pesky Crabs stole my catches and now I've got nothing!"],
-      [0, "Please help me get my squid back.", "QUEST"]
-    ],
-    "DIALOGUE_200600": [
-      [0, "The graveyard is overrun with Skeletons."],
-      [0, "I need you to remove the tombstones."],
-      [0, "This will prevent the evil wizards resurrecting people in graves.", "QUEST"]
-    ],
-    "DIALOGUE_200700": [
-      [0, "I need a favor. I need to you to kill some skeletons."],
-      [0, "Make the area safe to us again please!", "QUEST"]
-    ],
-    "DIALOGUE_200800": [
-      [0, "I need skulls from skeleton to cast a special ritual."],
-      [0, "Retrieve 5 for me and I will be able to cast my spell.", "QUEST"]
-    ],
-    "DIALOGUE_200900": [
-      [0, "Fires were started by Goblins after they left the area"],
-      [0, "I need you to put out some fires so they don't get out of control.", "QUEST"]
-    ],
-    "DIALOGUE_201000": [
-      [0, "Goblins are troublesome little buggers. I need to get rid of some."],
-      [0, "Kill 20 of them and they should stop damaging the area.", "QUEST"]
-    ],
-
     "QUESTS_NONE": [
       [0, "I have no more quests for you, head {0} and look for {1}."],
       [1, "Thanks {2}."]
@@ -160,16 +105,34 @@
 
     "QUESTS": {
       "200000": [
-          [
-            [0, "Thank you when you have completed this return to me."]
-          ],
-          ["Kill %count% %name%'s"]],
+        [
+          [0, "You look lost young boy..."],
+          [1, "Where am I?"],
+          [0, "What do you mean where you are? Anyway I need help son."],
+          [0, "You see, young one, my house, well, it's not quite the welcoming place it used to be."],
+          [0, "It's overrun by rats, scurrying through every nook and cranny, making themselves right at home."],
+          [0, "It's a bit of a mess, I'm afraid. Can you kill 10 rats for me, Sonny?"],
+          [0, "That way I can get into my home again.", "QUEST"]
+        ],
+        [
+          [0, "Thank you when you have completed this return to me."]
+        ],
+        ["Kill %count% %name%'s"]
+      ],
       "200001": [
-          [
-            [0, "Come back when they are dead muhahaha."]
-          ],
-          ["Kill %count% %name%'s"]],
+        [
+          [0, "Now kill 10 more rats kill them all!"],
+          [1, "Ok Granps chill man.", "QUEST"]
+        ],
+        [
+          [0, "Come back when they are dead muhahaha."]
+        ],
+        ["Kill %count% %name%'s"]
+      ],
       "200100": [
+        [
+          [0, "Rats have stolen my 3 dice I need you to kill some Rats to get them.", "QUEST"]
+        ],
         [
           [0, "Please get the dice and return to me when complete."]
         ],
@@ -181,72 +144,110 @@
         ]
       ],
       "200200": [
-          [
-            [0, "Can you please kill rats and return my cheese?"],
-            [0, "I need %count% pieces back to me."]
-          ],
-          ["Get %count% pieces of cheese."],
-          ["Thank-you for returning my cheese."]
+        [
+          [0, "Rats have stolen my tasty cheese.", "QUEST"]
+        ],
+        [
+          [0, "Can you please kill rats and return my cheese?"],
+          [0, "I need %count% pieces back to me."]
+        ],
+        ["Get %count% pieces of cheese."],
+        ["Thank-you for returning my cheese."]
       ],
       "200300": [
-          [
-            [0, "Can you please kill Crabs and return my Feather Quill?"]
-          ],
-          ["Return my Feather Quill."],
-          [
-            [0,"Thank-you for returning my Feather Quill."],
-            [0,"I can now resume writing my memiors."]
-          ]
+        [
+          [0, "Hello I was writing my memiors earlier.."],
+          [0, "When a pesky Crab stole my Feather Quilt."],
+          [0, "The problem is I don't know which one stole it"],
+          [0, "So I need you to kill and search all of them until it's found.", "QUEST"]
+        ],
+        [
+          [0, "Can you please kill Crabs and return my Feather Quill?"]
+        ],
+        ["Return my Feather Quill."],
+        [
+          [0,"Thank-you for returning my Feather Quill."],
+          [0,"I can now resume writing my memiors."]
+        ]
       ],
       "200400": [
-          [
-            [0, "Kill %count% Crabs for me?"]
-          ],
-          ["Kill %count% Crabs."]
+        [
+          [0, "Crabs have overrun the place..", "QUEST"]
+        ],
+        [
+          [0, "Kill %count% Crabs for me?"]
+        ],
+        ["Kill %count% Crabs."]
       ],
       "200500": [
-          [
-            [0, "Kill Crabs and get my squid back."]
-          ],
-          ["Return %count% squids I caught."],
-          [
-            [0,"Thank-you now I can put food on the table."],
-            [0,"I might even get lucky with the Mrs."]
-          ]
+        [
+          [0, "I went squid fishing and left all my catches in a bucket"],
+          [0, "The pesky Crabs stole my catches and now I've got nothing!"],
+          [0, "Please help me get my squid back.", "QUEST"]
+        ],
+        [
+          [0, "Kill Crabs and get my squid back."]
+        ],
+        ["Return %count% squids I caught."],
+        [
+          [0,"Thank-you now I can put food on the table."],
+          [0,"I might even get lucky with the Mrs."]
+        ]
       ],
       "200600": [
-          [
-            [0, "Can you destroy %count% tombstones for me?"]
-          ],
-          ["Destroy %count% tombstones."]
+        [
+          [0, "The graveyard is overrun with Skeletons."],
+          [0, "I need you to remove the tombstones."],
+          [0, "This will prevent the evil wizards resurrecting people in graves.", "QUEST"]
+        ],
+        [
+          [0, "Can you destroy %count% tombstones for me?"]
+        ],
+        ["Destroy %count% tombstones."]
       ],
       "200700": [
-          [
-            [0, "Kill %count% Skeletons."]
-          ],
-          ["Kill %count% Skeletons."]
+        [
+          [0, "I need a favor. I need to you to kill some skeletons."],
+          [0, "Make the area safe to us again please!", "QUEST"]
+        ],
+        [
+          [0, "Kill %count% Skeletons."]
+        ],
+        ["Kill %count% Skeletons."]
       ],
       "200800": [
-          [
-            [0, "Kill Skeletons and collect there humanoid skulls."]
-          ],
-          ["Return %count% skulls."],
-          [
-            [0,"Thank-you I will now be able to cast my ritual."],
-            [0,"I will get rid of these Skeletons for good."]
-          ]
+        [
+          [0, "I need skulls from skeleton to cast a special ritual."],
+          [0, "Retrieve 5 for me and I will be able to cast my spell.", "QUEST"]
+        ],
+        [
+          [0, "Kill Skeletons and collect there humanoid skulls."]
+        ],
+        ["Return %count% skulls."],
+        [
+          [0,"Thank-you I will now be able to cast my ritual."],
+          [0,"I will get rid of these Skeletons for good."]
+        ]
       ],
       "200900": [
-          [
-            [0, "Can you destroy %count% fires?"]
-          ],
-          ["Destroy %count% fires."]
+        [
+          [0, "Fires were started by Goblins after they left the area"],
+          [0, "I need you to put out some fires so they don't get out of control.", "QUEST"]
+        ],
+        [
+          [0, "Can you destroy %count% fires?"]
+        ],
+        ["Destroy %count% fires."]
       ],
       "201000": [
-          [
-            [0, "Kill %count% Goblins come back to me for a reward."]
-          ],
-          ["Kill %count% Goblins come back for reward."]
+        [
+          [0, "Goblins are troublesome little buggers. I need to get rid of some."],
+          [0, "Kill 20 of them and they should stop damaging the area.", "QUEST"]
+        ],
+        [
+          [0, "Kill %count% Goblins come back to me for a reward."]
+        ],
+        ["Kill %count% Goblins come back for reward."]
       ]
     },
 

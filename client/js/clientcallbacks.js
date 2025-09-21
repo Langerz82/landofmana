@@ -853,8 +853,18 @@ function(HoveringInfo,
           var npc = game.getEntityById(npcId);
           var p = game.player;
 
+          var message;
+          var questPattern = /^QUESTS_[0-9]+$/g;
+          if (questPattern.test(langCode))
+          {
+            var questId = langCode.split('_')[1];
+            npc.questId = questId;
+            message = JSON.parse(JSON.stringify(lang.data['QUESTS'][questId][0]));
+          } else {
+            message = JSON.parse(JSON.stringify(lang.data[langCode]));
+          }
+
           // Needs to do a deep copy so lang data does not get overwritten.
-          var message = JSON.parse(JSON.stringify(lang.data[langCode]));
           if (data.length > 0) {
             if (Array.isArray(message)) {
               for (var msg of message)
@@ -867,10 +877,6 @@ function(HoveringInfo,
             }
           }
 
-          if (langCode.indexOf("DIALOGUE_") === 0)
-          {
-            npc.questId = langCode.split('_')[1];
-          }
           npc.dialogue = message;
           npc.dialogueIndex = 0;
 
