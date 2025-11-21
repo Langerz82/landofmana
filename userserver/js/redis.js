@@ -63,7 +63,7 @@ var getStoreTypeNew = function(type) {
 var getItemsStoreCount = function (type) {
   if (type === 1) return 96;
   if (type === 2) return 5;
-  return 48;
+  return 50;
 };
 
 // TODO Array parseInt where appropriate.

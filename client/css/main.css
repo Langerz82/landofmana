@@ -88,12 +88,13 @@ body {
 
 #game-heading {
   position: absolute;
-  width:380px;
-  height:60px;
-  background-image: url("../img/common/landofmana.png");
-  left:50%;
-  top:5%;
-  margin-left:-190px;
+      width: 360px;
+      height: 60px;
+      background-image: url(../img/common/landofmana.png);
+      left: 50%;
+      top: 5%;
+      margin-left: -180px;
+      background-size: 100%;
 }
 
 #background {background-color:#999;}

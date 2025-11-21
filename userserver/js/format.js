@@ -78,7 +78,7 @@ var banDateMin = 1730000000000;
 var banDateMax = 1800000000000;
 
 var getItemSlots = function (type) {
-  if (type==0) return 48;
+  if (type==0) return 50;
   if (type==1) return 96;
   if (type==2) return 5;
   return 0;

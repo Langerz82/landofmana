@@ -473,20 +473,22 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
                 this.gamepad = new GamePad(this);
 
 
-                setInterval(this.gametick.bind(self), G_UPDATE_INTERVAL);
+
 
                 this.gameFrame = 0;
                 this.pGameFrame = -1;
-                if (this.animFrame)
+                /*if (this.animFrame)
                   requestAnimFrame(this.render.bind(this));
                 else {
                   this.renderTick = setInterval(this.render, G_UPDATE_INTERVAL);
-                }
+                }*/
+                this.gameInterval = setInterval(this.gametick.bind(self), G_UPDATE_INTERVAL);
+                //this.renderInterval = setInterval(this.render.bind(self), G_UPDATE_INTERVAL);
                 //this.renderTime = performance.now();
                 this.runUpdateInRender = !this.renderer.mobile && !this.renderer.tablet;
             },
 
-            render: function () {
+            /*render: function () {
               this.processRender = true;
 
               if (this.runUpdateInRender)
@@ -494,11 +496,11 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
 
               this.renderer.renderFrame();
 
-              if (this.animFrame)
-                requestAnimFrame(this.render.bind(this));
+              //if (this.animFrame)
+                //requestAnimFrame(this.render.bind(this));
 
               this.processRender = false;
-            },
+            },*/
 
             gametick: function() {
               var self = this;
@@ -518,13 +520,15 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
               if (self.gamepad)
                 this.gamepad.interval();
 
-              if (!this.runUpdateInRender)
+              //if (!this.runUpdateInRender)
                 this.updater.update();
 
         			if (this.mapStatus >= 2)
         			{
         				this.updateCursorLogic();
         			}
+
+              this.renderer.renderFrame();
 
               this.processLogic = false;
             },

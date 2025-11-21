@@ -10,7 +10,7 @@ module.exports = ItemStore = cls.Class.extend({
         this.number = number;
 
         this.typeIndex = 0;
-        this.maxNumber = 48;
+        this.maxNumber = 50;
         this.maxStack = 100;
         this.fullMessage = new Messages.Notify("ITEMSTORE", "ITEMSTORE_FULL");
 

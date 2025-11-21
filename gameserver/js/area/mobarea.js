@@ -85,7 +85,7 @@ module.exports = MobArea = EntityArea.extend({
     },
 
     spawnMobs: function() {
-      //console.info("spawnMobs - nb: "+this.nb);
+        console.info("spawnMobs - nb: "+this.nb);
         for(var i = 0; i < this.nb; ++i) {
             this.addToArea(this._createRandomMobInsideArea(), this.exclude);
         }
@@ -101,7 +101,7 @@ module.exports = MobArea = EntityArea.extend({
       //console.info("pos-x:"+pos.x+", pos-y:"+pos.y+", kind="+kind);
       var mob = self.map.entities.addMob(kind, pos.x, pos.y, this);
 
-      self.addToArea(mob);
+      //self.addToArea(mob);
 
       return mob;
     },

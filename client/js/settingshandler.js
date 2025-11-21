@@ -197,11 +197,12 @@ define(['lib/localforage', 'lib/virtualjoystick'], function(localforage) {
     	});
 
       var fnSetShortcut = function (val) {
-        $('#shortcut-bar').removeClass();
-        $('#shortcut-bar').addClass(val);
+        $('#shortcut_bar').removeClass();
+        $('#shortcut_bar').addClass(val);
 
         $("#shortcutstyle option:selected").removeAttr("selected");
         $('#shortcutstyle option[value="'+val+'"]').attr("selected", true);
+        ShortcutStyle=val;
       }
       var selectShortcut = $('#shortcutstyle');
       if(game) {

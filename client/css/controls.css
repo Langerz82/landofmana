@@ -38,7 +38,7 @@
 		border:3px solid black;
 	}
 
-	#shortcut-bar {
+	#shortcut_bar {
 		position: absolute;
 		bottom:12px;
 		right:0;
@@ -52,11 +52,11 @@
 		z-index:20;
 	}
 
-	#shortcut-bar:before {
+	#shortcut_bar:before {
 		border-radius: 10% / 5% !important;
 	}
 
-	#shortcut-bar div div * {
+	#shortcut_bar div div * {
 		font-family: "GraphicPixel";
 	}
 
@@ -106,122 +106,122 @@
 	margin: 0;
 }
 
-/* #shortcut-bar.vertical-asc */
-#attack-shortcut, #shortcut-bar.vertical-desc #attack-shortcut {
+/* #shortcut_bar.vertical-asc */
+#attack-shortcut, #shortcut_bar.vertical-desc #attack-shortcut {
 	bottom: 0;
 	right: 0;
 }
-#scbackground0, #shortcut-bar.vertical-desc #scbackground0 {
+#scbackground0, #shortcut_bar.vertical-desc #scbackground0 {
 	bottom: 60px;
 	right: 0;
 }
-#scbackground1, #shortcut-bar.vertical-desc #scbackground1 {
+#scbackground1, #shortcut_bar.vertical-desc #scbackground1 {
 	bottom: 120px;
 	right: 0;
 }
-#scbackground2, #shortcut-bar.vertical-desc #scbackground2 {
+#scbackground2, #shortcut_bar.vertical-desc #scbackground2 {
 	bottom: 180px;
 	right: 0;
 }
-#scbackground3, #shortcut-bar.vertical-desc #scbackground3 {
+#scbackground3, #shortcut_bar.vertical-desc #scbackground3 {
 	bottom: 240px;
 	right: 0;
 }
-#scbackground4, #shortcut-bar.vertical-desc #scbackground4 {
+#scbackground4, #shortcut_bar.vertical-desc #scbackground4 {
 	bottom: 300px;
 	right: 0;
 }
-#scbackground5, #shortcut-bar.vertical-desc #scbackground5 {
+#scbackground5, #shortcut_bar.vertical-desc #scbackground5 {
 	bottom: 360px;
 	right: 0;
 }
 
-/* #shortcut-bar.vertical-desc */
-#shortcut-bar.vertical-asc #attack-shortcut {
+/* #shortcut_bar.vertical-desc */
+#shortcut_bar.vertical-asc #attack-shortcut {
 	bottom: 360px;
 	right: 0;
 }
-#shortcut-bar.vertical-asc #scbackground0 {
+#shortcut_bar.vertical-asc #scbackground0 {
 	bottom: 300px;
 	right: 0;
 }
-#shortcut-bar.vertical-asc #scbackground1 {
+#shortcut_bar.vertical-asc #scbackground1 {
 	bottom: 240px;
 	right: 0;
 }
-#shortcut-bar.vertical-asc #scbackground2 {
+#shortcut_bar.vertical-asc #scbackground2 {
 	bottom: 180px;
 	right: 0;
 }
-#shortcut-bar.vertical-asc #scbackground3 {
+#shortcut_bar.vertical-asc #scbackground3 {
 	bottom: 120px;
 	right: 0;
 }
-#shortcut-bar.vertical-asc #scbackground4 {
+#shortcut_bar.vertical-asc #scbackground4 {
 	bottom: 60px;
 	right: 0;
 }
-#shortcut-bar.vertical-asc #scbackground5 {
+#shortcut_bar.vertical-asc #scbackground5 {
 	bottom: 0px;
 	right: 0;
 }
 
-/* #shortcut-bar.horizontal-asc */
-#shortcut-bar.horizontal-asc #attack-shortcut {
+/* #shortcut_bar.horizontal-asc */
+#shortcut_bar.horizontal-asc #attack-shortcut {
 	bottom: 0;
 	right: 360px;
 }
-#shortcut-bar.horizontal-asc #scbackground0{
+#shortcut_bar.horizontal-asc #scbackground0{
 	bottom: 0;
 	right: 300px;
 }
-#shortcut-bar.horizontal-asc #scbackground1 {
+#shortcut_bar.horizontal-asc #scbackground1 {
 	bottom: 0;
 	right: 240px;
 }
-#shortcut-bar.horizontal-asc #scbackground2 {
+#shortcut_bar.horizontal-asc #scbackground2 {
 	bottom: 0;
 	right: 180px;
 }
-#shortcut-bar.horizontal-asc #scbackground3 {
+#shortcut_bar.horizontal-asc #scbackground3 {
 	bottom: 0;
 	right: 120px;
 }
-#shortcut-bar.horizontal-asc #scbackground4 {
+#shortcut_bar.horizontal-asc #scbackground4 {
 	bottom: 0;
 	right: 60px;
 }
-#shortcut-bar.horizontal-asc #scbackground5 {
+#shortcut_bar.horizontal-asc #scbackground5 {
 	bottom: 0;
 	right: 0;
 }
 
-/* #shortcut-bar.horizontal-desc */
-#shortcut-bar.horizontal-desc #scbackground5 {
+/* #shortcut_bar.horizontal-desc */
+#shortcut_bar.horizontal-desc #scbackground5 {
 	bottom: 0;
 	right: 360px;
 }
-#shortcut-bar.horizontal-desc #scbackground4 {
+#shortcut_bar.horizontal-desc #scbackground4 {
 	bottom: 0;
 	right: 300px;
 }
-#shortcut-bar.horizontal-desc #scbackground3 {
+#shortcut_bar.horizontal-desc #scbackground3 {
 	bottom: 0;
 	right: 240px;
 }
-#shortcut-bar.horizontal-desc #scbackground2 {
+#shortcut_bar.horizontal-desc #scbackground2 {
 	bottom: 0;
 	right: 180px;
 }
-#shortcut-bar.horizontal-desc #scbackground1 {
+#shortcut_bar.horizontal-desc #scbackground1 {
 	bottom: 0;
 	right: 120px;
 }
-#shortcut-bar.horizontal-desc #scbackground0 {
+#shortcut_bar.horizontal-desc #scbackground0 {
 	bottom: 0;
 	right: 60px;
 }
-#shortcut-bar.horizontal-desc #attack-shortcut {
+#shortcut_bar.horizontal-desc #attack-shortcut {
 	bottom: 0;
 	right: 0;
 }

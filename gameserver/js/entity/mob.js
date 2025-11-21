@@ -100,6 +100,19 @@ module.exports = Mob = Character.extend({
       this.damageCount = {};
       this.dealtCount = {};
 
+      this.creatureMulti = 1;
+    },
+
+    createBoss: function (multi) {
+        this.creatureMulti = multi;
+        this.hp *= multi;
+        this.hpMax *= multi;
+        this.spawnDelay *= multi;
+
+        for (var kind in this.drops) {
+          if (ItemTypes.isEquipment(kind))
+            this.drops[kind] *= multi;
+        }
     },
 
     getXP: function () {
@@ -505,7 +518,7 @@ module.exports = Mob = Character.extend({
     },
 
     dropGold: function () {
-      return Utils.randomRangeInt(this.level * 2, this.level * 3);
+      return Utils.randomRangeInt(this.level * 2, this.level * 3) * (this.creatureMulti);
     },
 
     returnedToSpawn: function () {

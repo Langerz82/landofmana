@@ -229,3 +229,10 @@
     #craftPageNavNumber4 {
       position: absolute; left: 180px; top: 0px;
     }
+
+    #craftDialog div.inventoryGoldFrame {
+      position:absolute;
+      bottom:0;
+      left:0;
+      height:18px;
+    }

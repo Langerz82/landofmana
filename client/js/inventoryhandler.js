@@ -5,9 +5,9 @@ define(['entity/item', 'data/items', 'data/itemlootdata'], function(Item, Items,
         init: function(dialog) {
             var self = this;
             this.inventory = [];
-            this.maxNumber = 48;
+            this.maxNumber = 50;
             this.scale = 3;
-            this.pageItems = 24;
+            //this.pageItems = 24;
             this.dialog = dialog;
             dialog.handler = this;
         },
@@ -17,7 +17,7 @@ define(['entity/item', 'data/items', 'data/itemlootdata'], function(Item, Items,
         },
 
         initInventory: function(itemArray) {
-          this.pageIndex = 0;
+          //this.pageIndex = 0;
           this.setInventory(itemArray);
         },
 
@@ -39,8 +39,8 @@ define(['entity/item', 'data/items', 'data/itemlootdata'], function(Item, Items,
             else
               item.name = ItemTypes.KindData[kind].name;
 
-            var count = this.dialog.getRealSlot();
-            if (i >= count && i < (count + this.pageItems))
+            //var count = this.dialog.getRealSlot();
+            //if (i >= count && i < (count + this.pageItems))
               this.dialog.refreshInventory(i);
           }
         },
@@ -212,8 +212,8 @@ define(['entity/item', 'data/items', 'data/itemlootdata'], function(Item, Items,
 
           if (!start && obj !== null) {
             var action = obj.action || 1;
-            slot = (slot >= 0) ? this.dialog.getRealSlot(slot) : slot;
-            obj.slot = (obj.type === 0) ? this.dialog.getRealSlot(obj.slot) : obj.slot;
+            //slot = (slot >= 0) ? this.dialog.getRealSlot(slot) : slot;
+            //obj.slot = (obj.type === 0) ? this.dialog.getRealSlot(obj.slot) : obj.slot;
             game.client.sendItemSlot([action, obj.type, obj.slot, obj.item.itemNumber, type, slot]);
             obj = null;
           }

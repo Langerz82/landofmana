@@ -10,6 +10,13 @@
   color: white;
 }
 
+#shopDialog div.inventoryGemsFrame {
+  position:absolute;
+  top: auto;
+  bottom:0 !important;
+  left:0 !important;
+}
+
     #storeDialog {
         width:450px;
         margin-left:-225px;

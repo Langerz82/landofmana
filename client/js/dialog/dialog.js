@@ -24,7 +24,7 @@ define(function() {
             this.showing = true;
 
             if (game.gamepad)
-              game.gamepad.dialogOpen();
+              game.gamepad.dialogOpen(this.body);
 
             if (this.closeButton) {
               this.closeButton.click( function (e) {

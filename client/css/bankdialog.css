@@ -6,33 +6,25 @@
         display: none;
 	      cursor: pointer;
 	      pointer-events: auto;
-        width:450px;
-/*        margin-left:-225px;
-        top:18px;
-        margin-top:0;*/
-        z-index: 14;
-    }
-
-    #bankDialogButtons div
-    {
-        display: inline-block;
-        width:50px;
-        height:36px;
+        width:400px;
+        margin-left:-200px;
+        z-index: 20;
     }
 
     #bankDialogBank {
         position: absolute;
-        left: 50%;
-        top: 60px;
-        margin-left: -195px;
-        width: 390px;
-        height: 96%;
+        left: 0;
+        top: 0;
+        width: 380px;
+        height: 75%;
+        overflow-y: scroll;
+        margin: 10px;
     }
 
     #bankGoldFrame {
     		position:absolute;
-				left: 2%;
-        bottom: 15%;
+				left: 10px;
+        bottom: 0;
         width: 150px;
         height: 18px;
     }
@@ -75,7 +67,9 @@
     }
 
     #bankDialogStoreButton {
-      display: inline-block;
+      position: absolute;
       width:100px !important;
       height:36px;
+      right: 0;
+      bottom: 0;
     }

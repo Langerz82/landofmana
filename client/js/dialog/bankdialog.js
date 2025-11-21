@@ -5,9 +5,23 @@ define(['./dialog', '../tabbook', '../tabpage', '../entity/item', 'data/items', 
             this.parent = parent;
             this.index = index;
             this.item = null;
+
+            var jqParent = $("#bankDialogBank");
+            data = "<div id=\"bankDialogBank{0}Background\" class=\"bankItemBackground\"><div id=\"bankDialogBank{0}Body\" class=\"bankItem\"></div></div>".format(index);
+
+            jqParent.append(data);
+
             var name = '#bankDialogBank' + this.index;
             this.background = $(name + 'Background');
             this.body = $(name + 'Body');
+
+            var top = (60 * ~~(index/parent.itemsPerRow));
+            var left = (60*(index % parent.itemsPerRow));
+
+            this.background.css({
+              "top": top+"px",
+              "left": left+"px"
+            });
 
             this.rescale();
             var self = this;
@@ -46,6 +60,8 @@ define(['./dialog', '../tabbook', '../tabpage', '../entity/item', 'data/items', 
             this.background.off().on('click', function(event) {
                 var slot = $(this).data("itemSlot");
                 if (DragBank === null) {
+                  if (self.item === null)
+                    return;
                   self.parent.selectBankItem(this);
                   moveItem(1, slot, true);
   								event.stopPropagation();
@@ -62,6 +78,8 @@ define(['./dialog', '../tabbook', '../tabpage', '../entity/item', 'data/items', 
             this.body.on('dragstart', function(event) {
               var slot = $(this).data("itemSlot");
               if (DragBank === null) {
+                if (self.item === null)
+                  return;                
                 self.parent.selectBankItem(this);
                 moveItem(1, slot, true);
                 event.stopPropagation();
@@ -171,7 +189,8 @@ define(['./dialog', '../tabbook', '../tabpage', '../entity/item', 'data/items', 
             this.page = 0;
 
             //this.pageIndex = 0;
-            this.pageItems = 24;
+            this.pageItems = 96;
+            this.itemsPerRow = 6;
 
             var self = this;
             this.selectBankItem = function(jq) {
@@ -182,20 +201,21 @@ define(['./dialog', '../tabbook', '../tabpage', '../entity/item', 'data/items', 
               var itemNumber = $(jq).data("itemNumber");
               log.info("selectInventory - click, slot:"+slot);
 
-              var realslot = slot + (self.page * self.pageItems);
-              var item = game.bankHandler.banks[realslot];
+              //var realslot = slot + (self.page * self.pageItems);
+              var item = game.bankHandler.banks[slot];
               //var item = this.getItem(slot);
 
               //log.info("slot=" + slot);
               //log.info("inventories " + JSON.stringify(self.inventory));
               if (item) {
-                if (self.selectedItem !== realslot) {
-                  self.deselectItem();
-                  self.selectItem(realslot, true);
+                if (self.selectedItem !== slot) {
+                  if (self.selectedItem != null)
+                    self.deselectItem();
+                  self.selectItem(slot, true);
                   return;
                 }
                 else {
-                  self.select(realslot, itemNumber);
+                  self.select(slot, itemNumber);
                   self.deselectItem();
                 }
               }
@@ -222,8 +242,7 @@ define(['./dialog', '../tabbook', '../tabpage', '../entity/item', 'data/items', 
         },
 
         getItem: function (slot) {
-            var realslot = slot + (this.page * this.pageItems);
-            return game.bankHandler.banks[realslot];
+            return game.bankHandler.banks[slot];
         },
 
         getInventory: function(index) {
@@ -234,13 +253,13 @@ define(['./dialog', '../tabbook', '../tabpage', '../entity/item', 'data/items', 
             this.page = page;
             game.bankHandler.pageIndex = page;
 
-            for(var index = 0; index < 24; index++) {
+            for(var index = 0; index < this.pageItems; index++) {
                 this.bankslots[index].release();
             }
 
             if(game && game.ready) {
                 for(var bankNumber = 0; bankNumber < this.pageItems; bankNumber++) {
-                    var item = game.bankHandler.banks[this.pageItems*page+bankNumber];
+                    var item = game.bankHandler.banks[bankNumber];
                     if(item) {
                         this.bankslots[bankNumber].assign(item);
                     }
@@ -248,29 +267,31 @@ define(['./dialog', '../tabbook', '../tabpage', '../entity/item', 'data/items', 
             }
         },
 
-        select: function(realslot, itemCount = 1) {
+        select: function(slot, itemCount = 1) {
             if (!game.inventory.isInventoryFull())
             {
-                game.client.sendItemSlot([1, 1, realslot, itemCount, 0, -1]);
-                this.bankslots[realslot % 24].release();
+                game.client.sendItemSlot([1, 1, slot, itemCount, 0, -1]);
+                this.bankslots[slot].release();
             }
         },
 
         deselectItem: function() {
+          if (this.selectedItem === null || this.selectedItem === -1)
+            return;
           this.selectItem(this.selectedItem, false);
         },
 
-        selectItem: function(realslot, select) {
-          pageslot = realslot % this.pageItems;
+        selectItem: function(slot, select) {
+          //pageslot = realslot % this.pageItems;
           //var str = '#bankDialogBank'+pageslot+'Background';
-          if (pageslot < 0)
+          if (slot < 0)
             return;
 
-          var background = this.bankslots[pageslot].background;
+          var background = this.bankslots[slot].background;
 
           if (select) {
             var s = game.renderer.getUiScaleFactor();
-            this.selectedItem = realslot;
+            this.selectedItem = slot;
             background.css({
               'border': s + 'px solid white'
             });
@@ -283,7 +304,6 @@ define(['./dialog', '../tabbook', '../tabpage', '../entity/item', 'data/items', 
           }
         },
     });
-
 
     var BankDialog = Dialog.extend({
         init: function(game) {

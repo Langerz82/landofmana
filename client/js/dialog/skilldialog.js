@@ -237,8 +237,8 @@ define(['./dialog', '../tabpage', 'data/skilldata'], function(Dialog, TabPage, S
         },
 
         show: function() {
-            this._super();
             this.page.rescale();
+            this._super();
         },
 
         update: function(datas) {

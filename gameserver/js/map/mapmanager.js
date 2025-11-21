@@ -7,39 +7,10 @@ var MobArea = require("../area/mobarea");
 var EntityArea = require("../area/entityarea");
 var NpcMove = require("../entity/npcmove");
 var Node = require("../entity/node");
+var Mob = require("../entity/mob");
 //var TrapGroup = require("../entity/trapgroup");
 
 module.exports = MapManager = cls.Class.extend({
-
-    /*storeMobAreas: function(map) {
-	    var self = this;
-
-        map.mobArea = [];
-        //map.mobLiveAreas = {};
-        //console.info("MobAreas: "+map.mobAreas.length);
-        var a;
-        for (var i=0; i < map.mobAreas.length; ++i)
-        {
-            a = map.mobAreas[i];
-        //_.each(map.mobAreas, function(a) {
-            a.sMinLevel = a.sMinLevel || 0;
-            a.sMaxLevel = a.sMaxLevel || 0;
-            var area = new MobArea(a.id, a.nb, a.minLevel, a.maxLevel, a.x, a.y, a.width, a.height,
-            	a.include, a.exclude, a.definite, map, a.ellipse, a.excludeId, null);
-            //map.mobLiveAreas[a.id] = area;
-            map.mobArea.push(area);
-        //});
-        }
-        return map.mobArea;
-    },*/
-
-    /*spawnMobs: function(map) {
-	    var self = this;
-      map.initMobAreas();
-      //setTimeout(function () {
-
-      //},20000);
-    },*/
 
     init: function(server) {
   	    var self = this;
@@ -96,6 +67,8 @@ module.exports = MapManager = cls.Class.extend({
 
               var prevNpc = npc;
 
+//setTimeout(function () {
+
               var x=0;
               var y=0;
               var a = 512;
@@ -139,16 +112,35 @@ module.exports = MapManager = cls.Class.extend({
                       a += x;
                       b += y;
 
-                      id++;
+                      id += 1;
 
                       //var mobtype = (id % (Object.keys(MobData.Kinds).length-1))+1;
-                      mobArea = new MobArea(map, id, 12, 1+(id), 1+(id), a, b, 40, 40,
+                      mobArea = new MobArea(map, id, 15, 1+(id), 1+(id), a, b, 40, 40,
                         null, null, null, true, -1, null);
                       map.mobArea.push(mobArea);
                       mobArea.addMobs();
                       mobArea.spawnMobs();
 
-                      var area = new EntityArea(map, 0, a, b, 10, 10, true, -1);
+                      // Slighter tougher mobs in inner circle.
+                      mobArea = new MobArea(map, id, 5, 2+(id), 2+(id), a, b, 20, 20,
+                        null, null, null, true, -1, null);
+                      map.mobArea.push(mobArea);
+                      mobArea.addMobs();
+                      mobArea.spawnMobs();
+
+
+                      // Boss is in innermost circle.
+                      mobArea = new MobArea(map, id, 1, 3+(id), 3+(id), a, b, 10, 10,
+                        null, null, null, true, -1, null);
+                      map.mobArea.push(mobArea);
+                      mobArea.addMobs();
+                      mobArea.spawnMobs();
+                      for (var mob of mobArea.entities) {
+                        mob.createBoss(5);
+                      }
+
+
+                      var area = new EntityArea(map, 0, a, b, 20, 20, true, -1);
                       var pos = area._getRandomPositionInsideArea(30);
                       var npc = map.entities.addNpcMove(id, pos.x, pos.y);
 
@@ -195,6 +187,8 @@ module.exports = MapManager = cls.Class.extend({
                       }
                   }
               }
+
+//}, 10000);
 
               map.enterCallback = function (player) {
                 var pos = map.getRandomStartingPosition();

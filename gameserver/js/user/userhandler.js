@@ -305,7 +305,7 @@ module.exports = UserHandler = cls.Class.extend({
       }
       var storeType = null;
       if (type === 0){
-        player.inventory = new Inventory(player, 48, items);
+        player.inventory = new Inventory(player, 50, items);
         storeType = player.inventory;
       }
       else if (type === 1){
