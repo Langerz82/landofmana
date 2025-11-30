@@ -528,7 +528,10 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
         				this.updateCursorLogic();
         			}
 
-              this.renderer.renderFrame();
+              if (this.animFrame)
+                requestAnimFrame(this.renderer.renderFrame.bind(this.renderer));
+              else
+                this.renderer.renderFrame();
 
               this.processLogic = false;
             },

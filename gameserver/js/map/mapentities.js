@@ -238,8 +238,10 @@ var MapEntities = cls.Class.extend({
                       packets.push(packet.shift());
                   }
                   conn.send(packets);
-              } else
-                  delete conn;
+              } else {
+                  conn = null;
+                  //delete conn;
+              }
           }
         });
     },
@@ -549,8 +551,8 @@ var MapEntities = cls.Class.extend({
       self.removeEntity(player);
 
       delete self.packets[player.id];
-      delete player;
-
+      //delete player;
+      player = null;
     },
 
     removeNpcPlayer: function(player) {

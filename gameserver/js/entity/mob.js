@@ -105,9 +105,10 @@ module.exports = Mob = Character.extend({
 
     createBoss: function (multi) {
         this.creatureMulti = multi;
-        this.hp *= multi;
-        this.hpMax *= multi;
+        this.stats.hp *= multi;
+        this.stats.hpMax *= multi;
         this.spawnDelay *= multi;
+        this.resetHP();
 
         for (var kind in this.drops) {
           if (ItemTypes.isEquipment(kind))

@@ -109,7 +109,8 @@ module.exports = PlayerQuests = cls.Class.extend({
 
   removeQuest: function (quest) {
     this.quests.splice(this.quests.indexOf(quest), 1);
-    delete quest;
+    //delete quest;
+    quest = null;
   },
 
   foundQuest: function(quest){

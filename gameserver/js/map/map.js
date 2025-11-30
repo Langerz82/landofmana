@@ -105,7 +105,7 @@ var Map = cls.Class.extend({
             var arr = tiles.slice(i * this.width, ((i+1) * this.width) );
             this.tile[i] = arr;
         }
-        delete tiles;
+        //delete tiles;
     },
 
     loadCollisionGrid: function(collisions) {
@@ -114,7 +114,7 @@ var Map = cls.Class.extend({
             var arr = collisions.slice(i * this.width, ((i+1) * this.width) );
             this.grid[i] = arr;
         }
-        delete collisions;
+        //delete collisions;
     },
 
     GroupIdToGroupPosition: function (id) {

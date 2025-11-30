@@ -18,11 +18,12 @@ module.exports = PartyManager = Class.extend({
 
   removeParty: function(party)
   {
-      this.party = _.reject(this.party, function(el)
+      this.party.splice(this.party.indexOf(party), 1);
+      /*this.party = _.reject(this.party, function(el)
       {
           return el === party;
-      });
-      delete party;
+      });*/
+      party = null;
   },
 
   removePlayer: function (player) {
