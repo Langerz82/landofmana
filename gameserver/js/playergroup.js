@@ -93,7 +93,8 @@ module.exports = PlayerGroup = Class.extend({
         if (player) {
           player[this.group] = null;
         }
-        this.players.splice(this.players.indexOf(playerName), 1);
+        this.players.removeVal(playerName);
+        //this.players.splice(this.players.indexOf(playerName), 1);
       }
       this.sendMembersName();
     }

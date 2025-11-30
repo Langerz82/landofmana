@@ -1141,7 +1141,8 @@ module.exports = PacketHandler = Class.extend({
       ids = message;
 
     for(var id of ids)
-      this.player.knownIds.splice(this.player.knownIds.indexOf(id), 1);
+      this.player.knownIds.removeVal(id);
+      //this.player.knownIds.splice(this.player.knownIds.indexOf(id), 1);
   },
 
   handleHarvest: function (msg) {

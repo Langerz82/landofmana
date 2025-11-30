@@ -18,7 +18,8 @@ module.exports = PartyManager = Class.extend({
 
   removeParty: function(party)
   {
-      this.party.splice(this.party.indexOf(party), 1);
+      this.party.remove(party);
+      //this.party.splice(this.party.indexOf(party), 1);
       /*this.party = _.reject(this.party, function(el)
       {
           return el === party;

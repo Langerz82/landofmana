@@ -85,7 +85,7 @@ module.exports = MobArea = EntityArea.extend({
     },
 
     spawnMobs: function() {
-        console.info("spawnMobs - nb: "+this.nb);
+        //console.info("spawnMobs - nb: "+this.nb);
         for(var i = 0; i < this.nb; ++i) {
             this.addToArea(this._createRandomMobInsideArea(), this.exclude);
         }

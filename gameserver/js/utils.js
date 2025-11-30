@@ -448,6 +448,13 @@ Utils.objectToArray = function (object) {
   return arr;
 }
 
+
+if (!Array.prototype.removeVal) {
+  Object.defineProperty(Array.prototype, 'removeVal', {
+      value: function(val){ return this.splice(this.indexOf(val), 1); }
+  });
+}
+
 /*
 module.exports = removeEmpty = function (obj) {
   return Object.fromEntries(

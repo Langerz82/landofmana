@@ -108,8 +108,8 @@ module.exports = World = cls.Class.extend(
         self.onPlayerRemoved(function(player) {
           console.info("worldServer - onPlayerRemoved.");
           delete self.objPlayers[player.name.toLowerCase()];
-          var index = self.players.indexOf(player);
-          self.players.splice(index,1);
+          self.players.removeVal(player);
+          //self.players.splice(self.players.indexOf(player),1);
           self.userHandler.sendPlayerLogout(player);
           self.userHandler.sendWorldPlayerCount(self.players.length,
             self.maxPlayers);

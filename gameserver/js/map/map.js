@@ -34,6 +34,7 @@ var Map = cls.Class.extend({
                 //{
                   var json = JSON.parse(file);
                   self.initMap(json,filenameCollision);
+                  json = null;
                 //}
                 //self.fileloaded = true;
             });
