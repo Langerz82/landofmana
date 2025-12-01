@@ -529,14 +529,15 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
         			}
 
               //if (!this.renderer.calledRender) {
-                if (this.animFrame) {
-                  cancelAnimationFrame(this.renderFrameId);
+                /*if (this.animFrame) {
+                  //cancelAnimationFrame(this.renderFrameId);
                   this.renderFrameId = requestAnimFrame(this.renderer.renderFrame.bind(this.renderer));
                   //this.renderer.calledRender = false;
                 } else {
                   this.renderer.renderFrame();
                   //this.renderer.calledRender = false;
-                }
+                }*/
+                this.renderer.renderFrame();
               //}
 
               this.processLogic = false;
