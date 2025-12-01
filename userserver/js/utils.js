@@ -382,6 +382,12 @@ Utils.Base64ToBinArray = function (base64, limit) {
   return uint8array.slice(0,limit);
 }
 
+if (!Array.prototype.removeVal) {
+  Object.defineProperty(Array.prototype, 'removeVal', {
+      value: function(val){ return this.splice(this.indexOf(val), 1); }
+  });
+}
+
 /*
 module.exports = removeEmpty = function (obj) {
   return Object.fromEntries(

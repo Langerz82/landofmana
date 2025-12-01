@@ -395,6 +395,7 @@ define(['app', 'data/langdata', 'util',
                       key.isDown = true;
                       key.isUp = false;
                       event.preventDefault();
+                      event.stopPropagation();
                     }
                   }
                 };
@@ -412,6 +413,7 @@ define(['app', 'data/langdata', 'util',
                       key.isDown = false;
                       key.isUp = true;
                       event.preventDefault();
+                      event.stopPropagation();
                     }
                   }
                 };

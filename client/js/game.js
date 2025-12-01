@@ -528,10 +528,16 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
         				this.updateCursorLogic();
         			}
 
-              if (this.animFrame)
-                requestAnimFrame(this.renderer.renderFrame.bind(this.renderer));
-              else
-                this.renderer.renderFrame();
+              //if (!this.renderer.calledRender) {
+                if (this.animFrame) {
+                  cancelAnimationFrame(this.renderFrameId);
+                  this.renderFrameId = requestAnimFrame(this.renderer.renderFrame.bind(this.renderer));
+                  //this.renderer.calledRender = false;
+                } else {
+                  this.renderer.renderFrame();
+                  //this.renderer.calledRender = false;
+                }
+              //}
 
               this.processLogic = false;
             },
@@ -1721,7 +1727,8 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
 
               index = index || 0;
 
-              var entities = Utils.objectToArray(this.camera.entities);
+              //var entities = Utils.objectToArray(this.camera.entities);
+              var entities = this.camera.forEachInScreenArray(entity);
               entities = entities.filter(entity => !(excludeTypes.includes(entity.type) || entity.isDying || entity.isDead));
 
               for (var entity2 of entities) {

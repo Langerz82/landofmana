@@ -1643,6 +1643,7 @@ define(['camera', 'entity/item', 'data/items', 'data/itemlootdata', 'entity/enti
             },
 
             renderFrame: function() {
+              //this.calledRender = false;
               if (!game.ready || this.blankFrame)
               {
 // TODO Make compatible with all sprites.

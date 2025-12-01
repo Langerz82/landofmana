@@ -20,8 +20,8 @@ window.requestAnimFrame = (function(){
           window.webkitRequestAnimationFrame ||
           window.mozRequestAnimationFrame    ||
           window.oRequestAnimationFrame      ||
-          window.msRequestAnimationFrame     ||
-          function(/* function */ callback, /* DOMElement */ element){
+          window.msRequestAnimationFrame
+          || function(/* function */ callback, /* DOMElement */ element){
             window.setTimeout(callback, 16);
           };
 })();
@@ -336,4 +336,19 @@ Utils.objectToArray = function (object) {
       arr.push(obj);
   }
   return arr;
+}
+
+Utils.getOrientationFromPath = function (p1, p2) {
+    var dx = p1[0] - p2[0];
+    var dy = p1[1] - p2[1];
+
+    if (dy > 0)
+      return 1;
+    if (dy < 0)
+      return 2;
+    if (dx > 0)
+      return 3;
+    if (dx < 0)
+      return 4;
+    return 0;
 }

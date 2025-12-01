@@ -639,6 +639,7 @@ define(['./entity', '../transition', '../timer'], function(Entity, Transition, T
     return (Math.abs(this.x-x) <= a && Math.abs(this.y-y) <= b);
   },
 
+
   isFacing: function (x, y) {
     var dx = this.x - x;
     var dy = this.y - y;
@@ -689,6 +690,16 @@ define(['./entity', '../transition', '../timer'], function(Entity, Transition, T
  * END - Misc Functions.
  ******************************************************************************/
 
+    isMovingPathCorrectly: function () {
+      if (this.path && this.path.length > 1)
+      {
+        var o1 = this.getOrientation([this.x, this.y], this.path[this.step]);
+        var o2 = this.getOrientation(this.path[this.step-1], this.path[this.step]);
+        return (o1 == o2);
+        //return this.isFacing(this.path[this.step][0], this.path[this.step][1]);
+      }
+      return true;
+    }
   });
 
   return EntityMoving;

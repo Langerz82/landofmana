@@ -122,7 +122,8 @@ module.exports = Mob = Character.extend({
         this.data.defenseMod *
         this.data.attackRateMod *
         this.data.hpMod *
-        this.level;
+        this.level *
+        this.creatureMulti;
     },
 
     setMoveAI: function (duration)

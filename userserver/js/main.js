@@ -179,7 +179,7 @@ function main(config) {
       conn.onClose(function (conn) {
         if (user)
           delete loggedInUsers[user.name];
-          delete user;
+          user = null;
       });
     };
 
@@ -209,10 +209,10 @@ function main(config) {
          var wh = socket._connection.worldHandler;
          if (wh) {
            wh.release();
-           var index = worldHandlers.indexOf(wh);
-           if (index >= 0)
-             worldHandlers.splice(index, 1);
-           delete wh;
+           //var index = worldHandlers.indexOf(wh);
+           //if (index >= 0)
+           delete worldHandlers.removeVal(wh);
+           wh = null;
          }
     });
 

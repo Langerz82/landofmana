@@ -143,10 +143,6 @@ function(UserClient, Player, AppearanceData) {
             return true;
 
           //this.refuseMove = false;
-          /*if (this.moveThrottleTimeout) {
-            clearTimeout(this.moveThrottleTimeout);
-            this.moveThrottleTimeout = null;
-          }*/
           this.moveThrottleTimeout = setTimeout(function () {
             self.refuseMove = false;
             self.moveThrottleTimeout = null;
@@ -156,30 +152,30 @@ function(UserClient, Player, AppearanceData) {
         }
 
         player.moveTo_ = function(x, y, callback) {
-          var self = this;
+          //var self = this;
 
           if (this.fsm === "ATTACK") {
             return;
           }
 
-          //this.moveThrottle(G_ROUNDTRIP);
-          /*if (this.moveThrottle(G_ROUNDTRIP)) {
-            return;
-          }*/
-
           this.forceStop();
+
+          //this.moveThrottle(G_ROUNDTRIP);
+          if (this.moveThrottle(G_ROUNDTRIP)) {
+            return;
+          }
 
           log.info("background - free delay =" + G_LATENCY);
 
           this.walk();
-
+          //this.fsm = "MOVE_PATH";
           return this._moveTo(x, y, callback);
         };
 
 
         // TODO - FIX BUG Player sometimes jams and moves across with the wrong orientation.
         player.move = function (orientation, state) {
-          var self = this;
+          //var self = this;
 
           if (this.isDying || this.isDead)
             return;
@@ -190,9 +186,14 @@ function(UserClient, Player, AppearanceData) {
 
           if (state && orientation !== Types.Orientations.NONE)
           {
+            /*if (this.isMovingPath()) {
+              this.forceStop();
+              return;
+            }*/
+
             //this.moveThrottle(G_ROUNDTRIP);
-            /*if (this.moveThrottle(G_ROUNDTRIP))
-              return;*/
+            if (this.moveThrottle(G_ROUNDTRIP))
+              return;
 
             if (this.keyMove /*&& orientation === this.orientation*/) {
                 return;
@@ -202,7 +203,7 @@ function(UserClient, Player, AppearanceData) {
               return;
             }
 
-            if (this.isMoving())
+            if (this.isMoving() || this.isMovingPath())
               this.forceStop();
 
             this.orientation = orientation;

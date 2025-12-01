@@ -122,6 +122,7 @@ module.exports = User = cls.Class.extend({
       if (this.hasLoggedIn)
         delete loggedInUsers[this.name];
 
+      //users.removeVal(this);
       delete users[this.name];
       delete this;
 

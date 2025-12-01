@@ -155,13 +155,13 @@ define(['entity/entity'], function(Entity) {
         },
 
         forEachInScreenArray: function (entity) {
-          var self = this;
+          //var self = this;
           var entities = [];
           var entity = entity || this.focusEntity;
 
           var tsh = G_TILESIZE >> 1;
-          var x = (self.gridW-1) * tsh;
-          var y = (self.gridH-1) * tsh;
+          var x = (this.gridW-1) * tsh;
+          var y = (this.gridH-1) * tsh;
 
           this.forEachInScreen(function (entity2) {
             if (entity2 === entity)
