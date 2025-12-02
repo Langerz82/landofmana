@@ -332,7 +332,7 @@ define(['app', 'data/langdata', 'util',
             jqGame.on("touchend",function(e){
             });
 
-            jqGame.on('click touchend', function(event) {
+            jqGame.on('click', function(event) {
 								game.click();
             });
 
