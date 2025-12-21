@@ -372,6 +372,8 @@ function(HoveringInfo,
 
                 if(p.target === entity) {
                     p.disengage();
+                    clearTimeout(p.attackInterval);
+                    p.attackInterval = null;
                 }
 
                 entity.isDying = true;

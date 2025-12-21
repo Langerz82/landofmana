@@ -48,11 +48,12 @@ define(['entity/mob', 'data/skilldata', 'entity/character'], function(Mob, Skill
 
       if (this.data.skillType === "attack") {
         player.attackSkill = this;
-        this.activated = false;
-        game.makePlayerInteractNextTo();
-        player.attackSkill = null;
-        if (!this.activated)
-          return false;
+        //this.activated = false;
+        if (!player.attackInterval)
+          game.makePlayerInteractNextTo();
+        //player.attackSkill = null;
+        //if (!this.activated)
+          //return false;
         if (this.execute_callback)
           this.execute_callback(self);
 

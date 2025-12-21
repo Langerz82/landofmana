@@ -240,7 +240,7 @@ define(['data/skilldata', 'data/items'], function(SkillData, Items) {
   var ShortcutHandler = Class.extend({
     init: function() {
       this.shortcuts = [];
-      this.shortcutCount = 8;
+      this.shortcutCount = 6;
 
       var shortcut;
       for (var i=0; i < this.shortcutCount; ++i) {

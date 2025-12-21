@@ -1078,6 +1078,8 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
 
             makePlayerAttack: function(entity) {
               var p = this.player;
+              clearTimeout(p.attackInterval);
+              p.attackInterval = null;
               var skillId = (p.attackSkill) ? p.attackSkill.skillId : -1;
               var time = this.currentTime;
               var res = p.makeAttack(entity);
@@ -1100,6 +1102,8 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
                 p.attackCooldown.duration = 1000;
                 p.attackCooldown.lastTime = time;
                 game.renderer.resetCombatHitBar();
+
+                p.attackInterval = setTimeout(this.makePlayerAttack.bind(this, entity), ATTACK_MAX);
                 return true;
               }
               return false;

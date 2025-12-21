@@ -8,7 +8,7 @@ G_UPDATE_INTERVAL = 16;
 G_TILESIZE = 16;
 
 ATTACK_INTERVAL = 1000;
-ATTACK_MAX = 3000;
+ATTACK_MAX = 1000;
 
 Container = {
   "STAGE": new PIXI.Container(),

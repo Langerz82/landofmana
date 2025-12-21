@@ -317,7 +317,7 @@
 .combatProgress {
 		width: 0%;
     background-color: #e4c465;
-    animation: progressBar 3s linear;
+    animation: progressBar 1s linear;
     animation-fill-mode:both;
 }
 

@@ -24,7 +24,7 @@ Formulas.getAttackPower = function (attacker) {
 		var delay = (Date.now() - attacker.attackTimer)
 		attackPower = ~~(Utils.clamp(ATTACK_INTERVAL, ATTACK_MAX, delay) / ATTACK_INTERVAL);
 	}
-	return attackPower
+	return attackPower;
 }
 
 Formulas.dmgAOE = function(attacker) {
@@ -50,7 +50,8 @@ Formulas.dmg = function(attacker, defender) {
     console.info("attacker baseDamage="+attacker_damage);
     console.info("defender baseDamageDef="+defender_defense);
     var dmg = ~~(attacker_damage * attackPower);
-		var defensePower = (2/3)*Math.pow(1.5,attackPower);
+		var defensePower = attackPower;
+		//var defensePower = (2/3)*Math.pow(1.5,attackPower);
 		var def = ~~(defender_defense * defensePower);
 		dmg = ~~(dmg - def);
 

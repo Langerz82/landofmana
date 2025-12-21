@@ -270,9 +270,9 @@
 
     div.inventorySellGoldFrame {
     		position:absolute;
-				left: 0;
+				right: 200px;
         bottom: 0;
-        width: 120px;
+        width: 0;
         height: 21px;
         text-align:right;
     }
