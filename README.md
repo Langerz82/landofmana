@@ -109,6 +109,23 @@ For debug mode run gameserver-inspect-win.bat
 
 If you need to exit the server do not close the window, switch to it then press Ctrl+C to exit cleanly so it saves to redis.
 
+### Compiling Source:
+To compile client run:
+```
+cd client
+npm run build
+npm run css
+```
+To compile Game Server run:
+```
+cd gameserver
+npm run build
+```
+To compile User Server run:
+```
+cd userserver
+npm run build
+```
 
 ## Terms and Conditions:
 This software is provided as is, is a compiled and covered under MPL V2.0 and is copyright code and content to there respective owners.
@@ -166,22 +183,6 @@ Additional Credits:
 * Menu Icons: Raven Fantasy https://clockworkraven.itch.io/raven-fantasy-pixel-art-rpg-icons-starter-pack
 * [Message icons created by Freepik - Flaticon](https://www.flaticon.com/free-icons/message)
 
-To compile client run:
-```
-cd client
-npm run build
-npm run css
-```
-To compile Game Server run:
-```
-cd gameserver
-npm run build
-```
-To compile User Server run:
-```
-cd userserver
-npm run build
-```
 
 If you want to modify or extend on any code you can, I'm releasing only the code under GPL. The resources (sprites/images/fonts/audio) have various copyrights and are subject to the condition respective of the original authors. So you may need pay for licensing any content see at bottom for details if you wish to release the same content in a game.
 
