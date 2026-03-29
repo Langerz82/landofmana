@@ -548,7 +548,7 @@ module.exports = PacketHandler = Class.extend({
     }
 
     //console.warn("attackDuration: "+(Date.now() - sEntity.attackTimer));
-    var attackTime = Date.now() - sEntity.attackTimer;
+    var attackTime = Date.now() - sEntity.attackTimer + 100;
     if (attackTime < ATTACK_INTERVAL) {
       console.warn("attack interval");
       return;

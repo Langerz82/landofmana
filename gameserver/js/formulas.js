@@ -22,7 +22,7 @@ Formulas.getAttackPower = function (attacker) {
 	var attackPower = 1;
 	if (attacker.attackTimer) {
 		var delay = (Date.now() - attacker.attackTimer)
-		attackPower = ~~(Utils.clamp(ATTACK_INTERVAL, ATTACK_MAX, delay) / ATTACK_INTERVAL);
+		attackPower = ~~(Utils.clamp(ATTACK_INTERVAL, ATTACK_MAX, delay + 100) / ATTACK_INTERVAL);
 	}
 	return attackPower;
 }

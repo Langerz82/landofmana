@@ -1153,41 +1153,28 @@ define(['camera', 'entity/item', 'data/items', 'data/itemlootdata', 'entity/enti
 
             drawTerrain: function(ctx) {
                 var self = this,
-                    p = this.game.player,
-                    mc = this.game.mapContainer,
+                    p = game.player,
+                    mc = game.mapContainer,
                     tilesetwidth = this.tilesets[0].baseTexture.width / mc.tilesize;
 
-                var g = this.game,
-                    m = this.game.map;
+                //var m = game.map;
 
                 self.tilesetwidth = tilesetwidth;
-                if(g.started) {
-      						g.camera.forEachVisibleValidPosition(function(x, y) {
-                    //collide = mc.collisionGrid[y][x];
+
+                if(game.started) {
+      						game.camera.forEachVisibleValidPosition(function(x, y) {
       							if(mc.tileGrid[y][x] instanceof Array) {
                       for (var id of mc.tileGrid[y][x]) {
-      								//_.each(mc.tileGrid[y][x], function(id) {
                         self.drawTile([mc.isHighTile(id), id, x, y]);
-      									/*if(mc.isHighTile(id)) { // Don't draw unnecessary tiles
-      										self.drawTile([1, id, self.tilesets, tilesetwidth, x, y]);
-      									} else {
-                          self.drawTile([0, id, self.tilesets, tilesetwidth, x, y]);
-                        }*/
-      								//});
                       }
       							}
       							else {
       								var id = mc.tileGrid[y][x];
       								if(id) {
                         self.drawTile([mc.isHighTile(id), id, x, y]);
-      									/*if(mc.isHighTile(id)) { // Don't draw unnecessary tiles
-      										self.drawTile([1, id, self.tilesets, tilesetwidth, x, y]);
-      									} else {
-                          self.drawTile([0, id, self.tilesets, tilesetwidth, x, y]);
-                        }*/
       								}
       							}
-      						}, 0, m);
+      						}, 0, null);
                 }
             },
 
@@ -1554,12 +1541,18 @@ define(['camera', 'entity/item', 'data/items', 'data/itemlootdata', 'entity/enti
             },
 
             refreshGrid: function () {
-              //log.info("refreshGrid: START");
-              this.clearTiles();
-              this.drawTerrain();
-              //this.drawHighTerrain();
-              //this.drawCollision();
-              //log.info("refreshGrid: END");
+              var mc = game.mapContainer;
+
+              // Optimization only redraw tilegrid if it has changed.
+              if (mc.tileGrid) {
+                var eq = (this.tileGrid === JSON.stringify(mc.tileGrid));
+                if (!eq)
+                {
+                  this.clearTiles();
+                  this.drawTerrain();
+                }
+                this.tileGrid = JSON.stringify(mc.tileGrid);
+              }
             },
 
             setTilesOffset: function (x,y) {
