@@ -1561,7 +1561,8 @@ define(['camera', 'entity/item', 'data/items', 'data/itemlootdata', 'entity/enti
               }
 
               if (mc.tileGrid) {
-                if (typeof(this.tileGrid) === "undefined" || !this.fnTileGridEqual(this.tileGrid, mc.tileGrid))
+                var cond = (this.tileGrid) ? this.fnTileGridEqual(this.tileGrid, mc.tileGrid) : false;
+                if (!cond)
                 {
                   this.clearTiles();
                   this.drawTerrain();
