@@ -1542,16 +1542,31 @@ define(['camera', 'entity/item', 'data/items', 'data/itemlootdata', 'entity/enti
 
             refreshGrid: function () {
               var mc = game.mapContainer;
+              var self = this;
 
               // Optimization only redraw tilegrid if it has changed.
+              if (typeof(this.fnTileGridEqual) === "undefined") {
+                this.fnTileGridEqual = function (tg1, tg2) {
+                  var ly = mc.tileGrid.length;
+                  var lx = mc.tileGrid[0].length;
+
+                  for (var y=0; y < ly; ++y) {
+                    for (var x=0; x < lx; ++x) {
+                      if (tg1[y][x] != tg2[y][x])
+                        return false;
+                    }
+                  }
+                  return true;
+                };
+              }
+
               if (mc.tileGrid) {
-                var eq = (this.tileGrid === JSON.stringify(mc.tileGrid));
-                if (!eq)
+                if (typeof(this.tileGrid) === "undefined" || !this.fnTileGridEqual(this.tileGrid, mc.tileGrid))
                 {
                   this.clearTiles();
                   this.drawTerrain();
+                  this.tileGrid = mc.tileGrid.map(row => row.slice());
                 }
-                this.tileGrid = JSON.stringify(mc.tileGrid);
               }
             },
 
