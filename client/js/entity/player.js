@@ -30,6 +30,7 @@ define(['./entity', './character', 'data/appearancedata'],
       this.moveSpeed = 500;
       this.setMoveRate(this.moveSpeed);
 
+      this.atkSpeed = 64;
       //this.timesAttack = 0;
       this.setAttackRate(64);
 

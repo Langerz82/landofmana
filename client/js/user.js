@@ -117,6 +117,8 @@ function(UserClient, Player, AppearanceData) {
             self.fsm = "IDLE";
             self.idle(self.orientation);
             self.forceStop();
+            if (self.moveOrientation != 0)
+              self.move(self.moveOrientation, true);
           });
           return true;
         };
@@ -181,6 +183,7 @@ function(UserClient, Player, AppearanceData) {
             return;
 
           if (this.fsm === "ATTACK") {
+            this.moveOrientation = orientation;
             return;
           }
 
@@ -218,12 +221,15 @@ function(UserClient, Player, AppearanceData) {
             if (orientation !== this.orientation && this.isMoving()) {
               return;
             }
+            this.moveOrientation = 0;
+
             this.forceStop();
           }
           if (this.key_move_callback)
           {
             this.key_move_callback(state);
           }
+          clearTimeout(this.attackInterval);
         };
 
         player.setArmorSprite = function (sprite) {
