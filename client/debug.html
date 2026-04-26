@@ -15,13 +15,12 @@
     <meta name="keywords" content="Land of Mana,Legend of Mana,Rogue Quest,roguequest,BrowserQuest,MaEaearth">
     <meta http-equiv="Content-Security-Policy" content="
       default-src 'self' ms-appx://*;
-      connect-src 'self' ws://127.0.0.1:1342 ws://127.0.0.1:1340 https://* wss://www.landofmana.com:1340 wss://www.landofmana.com:1341;
+      connect-src 'self' http://127.0.0.1:* ws://127.0.0.1:* https://www.landofmana.com:* wss://www.landofmana.com:*;
       style-src 'self' 'unsafe-inline' fonts.googleapis.com;
       script-src 'self' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net ms-appx://* 'unsafe-inline' 'unsafe-eval';
       font-src 'self' fonts.gstatic.com fonts.googleapis.com data:;
       img-src 'self' data:;
     ">
-
     <!--<link rel="stylesheet" href="css/min.css" type="text/css">-->
     <link rel="stylesheet" href="css/main.css" type="text/css">
     <link rel="stylesheet" href="css/game.css" type="text/css">
@@ -49,19 +48,17 @@
     <link href="img/common/apple-touch-icon-114x114.png" rel="apple-touch-icon-precomposed" sizes="114x114">
     <link href="img/common/apple-touch-icon-144x144.png" rel="apple-touch-icon-precomposed" sizes="144x144">
 
-    <script src="js/lib/jquery.js"></script>
-    <script src="js/lib/modernizr.js" type="text/javascript"></script>
-    <!--<script src="js/detect.js" type="text/javascript"></script>-->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js" type="text/javascript"></script>
-    <script src="javascripts/jszip-utils.js" type="text/javascript"></script>
-    <script src="javascripts/precache.js" type="text/javascript"></script>
+    <script type="text/javascript" src="js/lib/jquery.js"></script>
+    <script type="text/javascript" src="js/lib/modernizr.js"></script>
+    <script type="text/javascript" src="javascripts/jszip.min.js"></script>
+    <script type="text/javascript" src="javascripts/jszip-utils.js"></script>
+    <script type="text/javascript" src="javascripts/precache.js"></script>
+    <script type="text/javascript" src="javascripts/fastclick.js"></script>
+    <script type="text/javascript" src="javascripts/pixi.min.js"></script>
+    <script type="text/javascript" src="javascripts/crypto/index.min.js"></script>
+    <script type="text/javascript" src="javascripts/pixi-tilemap.js"></script>
+    <script type="text/javascript" src="javascripts/webfontloader.js"></script>
 
-    <script src="javascripts/fastclick.js" type="text/javascript"></script>
-    <!--<script src="javascripts/pixi.js" type="text/javascript"></script>-->
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/pixi.js@6.5.9/dist/browser/pixi.min.js"></script>
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/crypto-js@4.2.0/index.min.js"></script>
-    <script src="javascripts/pixi-tilemap.js" type="text/javascript"></script>
-    <script src="javascripts/webfontloader.js" type="text/javascript"></script>
     <script>
 		document.addEventListener('DOMContentLoaded', function () {
 				FastClick.attach(document.body);
