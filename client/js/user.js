@@ -117,7 +117,7 @@ function(UserClient, Player, AppearanceData) {
             self.fsm = "IDLE";
             self.idle(self.orientation);
             self.forceStop();
-            if (self.moveOrientation != 0)
+            if (self.moveOrientation)
               self.move(self.moveOrientation, true);
           });
           return true;
