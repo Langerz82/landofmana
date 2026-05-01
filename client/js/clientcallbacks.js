@@ -968,56 +968,9 @@ function(HoveringInfo,
             }
         });
 
-/*
         client.onSkillEffects(function(data){
-            var id = Number(data.shift());
-            entity = game.getEntityById(id);
-            if (!entity) return;
-
-            var effects = entity.effects = data;
-
-            var htmlEffects;
-            var effectId;
-            if (game.player === entity)
-            {
-              htmlEffects = $('#playereffects');
-              effectId = "playereffect";
-            }
-            else if (entity === game.player.target)
-            {
-              htmlEffects = $('#targeteffects');
-              effectId = "targeteffect";
-            }
-            if (htmlEffects)
-              htmlEffects.empty();
-
-            var s = game.renderer.scale;
-            if (effects)
-            {
-              for (var i=0; i < effects.length; ++i)
-              {
-                var effect = effects[i];
-                var position = SkillData.Ordered[effect].iconOffset;
-                htmlEffects.append("<div id='"+(effectId + i)+"' ></div>");
-
-                $('#'+effectId+i).css({
-                  'display': 'inline-block',
-                  'width': (12*s)+'px',
-                  'height': (12*s)+'px',
-                  'background-image': 'url("img/1/skillicons.png")',
-                  'background-position': (-position[0]*12*s)+"px "+(-position[1]*12*s)+"px" ,
-                  'background-repeat': 'no-repeat'
-                });
-                if (s === 1)
-                {
-                  $('#'+effectId+i).css({
-                    'background-size': '180px 168px'
-                  });
-                }
-              }
-            }
+          // stub for now.
         });
-*/
 
         client.onSpeech(function (id, key, value) {
           var entity = game.getEntityById(Number(id));
@@ -1114,13 +1067,11 @@ function(HoveringInfo,
 
         var onPlayerChangeHealth = function(player, points, crit) {
             var isRegen = false;
-            if (points < 0)
+            if (points > 0)
               isRegen = true;
 
             if (!player || !(player instanceof Player) || player.isDead)
               return;
-
-            player.stats.hp = (player.stats.hp-points).clamp(0, player.stats.hpMax);
 
             var isHurt = (points <= player.stats.hp);
             if(isHurt && game.playerhurt_callback) {
@@ -1128,10 +1079,6 @@ function(HoveringInfo,
             }
 
             game.updateBars();
-            if(player.stats.hp <= 0) {
-                player.stats.hp = 0;
-                player.die();
-            }
         };
 
         var showDamageInfo = function (entity, points, x, y, crit) {
@@ -1172,34 +1119,24 @@ function(HoveringInfo,
           if (!entity)
             return;
 
-          var stats = entity.stats;
-          stats.hp = hp;
-          stats.hpMax = hpMax;
-          stats.ep = ep;
-          stats.epMax = epMax;
-
           showDamageInfo(entity, hpMod, entity.x, entity.y, crit);
 
           if (hpMod > hp)
             hpMod += (hp - hpMod);
 
+          entity.modifyHP(hpMod);
+          entity.modifyEP(epMod);
+
           if (entity === game.player)
           {
             if (hpMod !== 0) {
               game.playerhp_callback(hp, hpMax);
-              onPlayerChangeHealth(entity, -hpMod);
+              onPlayerChangeHealth(entity, hpMod);
             }
             if (epMod !== 0) {
               game.playerep_callback(ep, epMax);
             }
             game.updateBars();
-          }
-          else {
-            // DO SOMETHING WITH ENTITY HP/EP ADJUSTMENT.
-            if(hp <= 0) {
-                entity.stats.hp = 0;
-                entity.die();
-            }
           }
         });
 

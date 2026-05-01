@@ -88,6 +88,7 @@ function(UserClient, Player, AppearanceData) {
 
           this.idle();
           //this.fsm = "IDLE";
+          this.moveOrientation = 0;
         };
 
         player.canAttack = function(time) {
@@ -116,9 +117,13 @@ function(UserClient, Player, AppearanceData) {
           this.animate("atk", this.atkSpeed, 1, function () {
             self.fsm = "IDLE";
             self.idle(self.orientation);
-            self.forceStop();
-            if (self.moveOrientation)
+
+            if (self.moveOrientation) {
               self.move(self.moveOrientation, true);
+              self.moveOrientation = 0;
+              return;
+            }
+            self.forceStop();
           });
           return true;
         };
@@ -144,7 +149,6 @@ function(UserClient, Player, AppearanceData) {
           if (this.refuseMove)
             return true;
 
-          //this.refuseMove = false;
           this.moveThrottleTimeout = setTimeout(function () {
             self.refuseMove = false;
             self.moveThrottleTimeout = null;
@@ -154,15 +158,12 @@ function(UserClient, Player, AppearanceData) {
         }
 
         player.moveTo_ = function(x, y, callback) {
-          //var self = this;
-
           if (this.fsm === "ATTACK") {
             return;
           }
 
           this.forceStop();
 
-          //this.moveThrottle(G_ROUNDTRIP);
           if (this.moveThrottle(G_ROUNDTRIP)) {
             return;
           }
@@ -170,7 +171,7 @@ function(UserClient, Player, AppearanceData) {
           log.info("background - free delay =" + G_LATENCY);
 
           this.walk();
-          //this.fsm = "MOVE_PATH";
+
           return this._moveTo(x, y, callback);
         };
 
@@ -182,23 +183,21 @@ function(UserClient, Player, AppearanceData) {
           if (this.isDying || this.isDead)
             return;
 
-          if (this.fsm === "ATTACK") {
-            this.moveOrientation = orientation;
-            return;
-          }
-
           if (state && orientation !== Types.Orientations.NONE)
           {
             /*if (this.isMovingPath()) {
               this.forceStop();
               return;
             }*/
+            this.moveOrientation = orientation;
+            if (this.fsm === "ATTACK") {
+              return;
+            }
 
-            //this.moveThrottle(G_ROUNDTRIP);
             if (this.moveThrottle(G_ROUNDTRIP))
               return;
 
-            if (this.keyMove /*&& orientation === this.orientation*/) {
+            if (this.keyMove) {
                 return;
             }
 
@@ -221,7 +220,11 @@ function(UserClient, Player, AppearanceData) {
             if (orientation !== this.orientation && this.isMoving()) {
               return;
             }
+
             this.moveOrientation = 0;
+            if (this.fsm === "ATTACK") {
+              return;
+            }
 
             this.forceStop();
           }

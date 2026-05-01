@@ -1,5 +1,6 @@
 TODO:
 
+
 CLIENT/SERVER - Work out why Exp keeps on resetting.
 
 CLIENT - Quest Window mouse pointer not working.
@@ -20,11 +21,15 @@ CLIENT/SERVER - Reduce damage variance 1.0-1.1.
 
 CLIENT - Add Exp progress in Skills Window for each skill.
 
-SERVER - Sometimes it reports the user is logged in at startup, when they arent.
+SERVER - Sometimes it reports the user is logged in at startup, when they aren't.
 
 CLIENT - Keyboard movement appears jerky, needs fixing.
 
 DONE:
+
+CLIENT - When moving into attack sometimes the moveOrientation is still set causing after attack wandering.
+
+CLIENT - Health Pots seems to change the Health Bar twice instead of once.
 
 SERVER/CLIENT - To reduce damage variance by adjusting min/max damage.
 

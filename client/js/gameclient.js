@@ -429,12 +429,15 @@ define(['lib/pako', 'entity/player', 'entityfactory', 'entity/mob', 'entity/item
         onSkillInstall: function(callback) {
             this.skillInstall_callback = callback;
         },
+
         onSkillLoad: function(callback) {
             this.skillLoad_callback = callback;
         },
+
 				onSkillXP: function(callback) {
             this.skillxp_callback = callback;
         },
+
 				onSkillEffects: function (callback) {
             this.skilleffects_callback = callback;
         },

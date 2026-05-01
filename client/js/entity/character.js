@@ -437,6 +437,18 @@ define(['./entitymoving', '../transition', '../timer', 'data/mobdata', 'data/npc
  * END - Misc Function.
  ******************************************************************************/
 
+   modifyHP: function (points) {
+     this.stats.hp = (this.stats.hp+points).clamp(0, this.stats.hpMax);
+
+     if(this.stats.hp == 0) {
+         this.die();
+     }
+   },
+
+   modifyEP: function (points) {
+     this.stats.ep = (this.stats.ep+points).clamp(0, this.stats.epMax);
+   },
+
   });
 
   return Character;
