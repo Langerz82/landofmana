@@ -235,24 +235,6 @@ function(UserClient, Player, AppearanceData) {
           clearTimeout(this.attackInterval);
         };
 
-        player.setArmorSprite = function (sprite) {
-          if (!sprite)
-          {
-            var id = this.sprites[0];
-            sprite = game.sprites[AppearanceData[id].sprite];
-          }
-          this._setArmorSprite(sprite);
-        };
-
-        player.setWeaponSprite = function (sprite) {
-          if (!sprite)
-          {
-            var id = this.sprites[1];
-            sprite = game.sprites[AppearanceData[id].sprite];
-          }
-          this._setWeaponSprite(sprite);
-        };
-
         game.addPlayerCallbacks(player);
 
         return player;

@@ -608,14 +608,20 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
             teleportMaps: function(mapIndex, x, y)
             {
               var self = this;
-              this.mapStatus = 0;
-            	log.info("teleportMaps");
+
             	x = x || -1;
             	y = y || -1;
 
-              if (this.mapContainer)
+              if (this.mapContainer) {
+                if (mapIndex == this.mapContainer.mapIndex)
+                  return;
+
                 this.mapContainer = null;
-                //delete this.mapContainer;
+              }
+
+              log.info("teleportMaps");
+              this.mapStatus = 0;
+              //delete this.mapContainer;
               this.mapContainer = new MapContainer(this, mapIndex, this.mapNames[mapIndex]);
 
               this.mapContainer.ready(function () {

@@ -26,7 +26,7 @@
 }
 
 #statbars .frame-border {
-	border: 1px solid black;
+	border: 2px solid black;
 }
 
 	#playerbar {
@@ -52,7 +52,7 @@
     #characterLook2 {
         position: absolute;
         left:8%;
-        top:20%;
+        top:16px;
         width: 96px;
         height: 96px;
         margin-left:14%;
@@ -81,7 +81,7 @@
 
 	#statbars {
 		position: absolute;
-    top: 25%;
+    top: 0;
     left: 25%;
     height: 42px;
     width: 180px;
@@ -227,61 +227,69 @@
         text-align: center;
     }
 
+		#target * {
+			font-family: "GraphicPixel";
+			font-size:16px;
+			color: white;
+		}
 
-	#target {
-		border-radius: 3% / 10% !important;
-	}
-	#target:before {
-		border-radius: 3% / 10% !important;
-	}
-
-    #target{
+    #target {
         font-family:'GraphicPixel';
         color:#e3e3e3;
-        position: absolute;
-        top:1%;
-        left:50%;
-        display: none;
-        pointer-events: none;
-		width:120px;
-		height:15px;
-		opacity:0.75;
-		padding:0;
+				position: absolute;
+		    left: 50%;
+				margin-left: -100px;
+		    top: 20px;
+		    width: 180px;
+		    height: 36px;
+		    z-index: 5 !important;
+		    overflow: hidden;
+				display: none;
+		    pointer-events: none;
+		    padding: 14px !important;
+		    -moz-user-select: none;
+		    -webkit-user-select: none;
+		    cursor: none;
+		    opacity: 0.6;
+
     }
 
     #target .details {
-        text-transform: capitalize;
-        z-index:20;
+        z-index:10;
     }
     #target .name {
         position: absolute;
-        top:5%;
-        left:5%;
-        text-transform: capitalize;
-        font-size:12px;
+        top:0;
+        left:10px;
     }
-    #target .health {
-        position:absolute;
-        left:5%;
-        top:18px;
-        height:12px;
-				background: rgb(2,0,36);
-				background: linear-gradient(0deg, rgba(255,0,0,1) 0%, rgba(128,0,0,1) 25%, rgba(255,0,0,1) 100%);
-				width:120px;
-        -webkit-transition: width .1s ease-in-out;
-        transition: width .1s ease-in-out;
-    }
-    /*#target .level {
-        position: absolute;
-        bottom:5%;
-        left:5%;
-        z-index:20;
-        font-size:12px;
-    }*/
-		#target #targeteffects {
-			position: absolute;
-			bottom:5%;
-			left:5%;
-			width:120px;
-			height:24px;
+		#target .frame-border {
+			position:absolute;
+			top:24px;
+			left:10px;
+			height:20px;
+			width:180px;
+			border: 2px solid black;
 		}
+    #target-health {
+			position:absolute;
+			top:0;
+			left:0;
+			height:20px;
+			width:180px;
+			border: none;
+			border-right: 2px solid black;
+			background: rgb(255,0,0);
+			background: linear-gradient(0deg, rgba(255,0,0,1) 0%, rgba(128,0,0,1) 25%, rgba(255,0,0,1) 100%);
+			-webkit-transition: width .25s ease-in-out;
+			transition: width .25s ease-in-out;
+    }
+
+		#target-healthtext {
+				position:absolute;
+        width: 182px;
+        height: 16px;
+        margin: 0;
+        padding: 0;
+        line-height: 16px;
+        text-align: center;
+    }

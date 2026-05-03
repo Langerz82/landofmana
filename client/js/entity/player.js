@@ -21,9 +21,9 @@ define(['./entity', './character', 'data/appearancedata'],
       this.rights = 0;
 
       // sprites
-      this.spriteName = "clotharmor";
-      this.armorName = "clotharmor";
-      this.weaponName = "sword1";
+      //this.spriteName = "clotharmor";
+      //this.armorName = "clotharmor";
+      //this.weaponName = "sword1";
 
       //this.pClass = 0;
 
@@ -39,7 +39,7 @@ define(['./entity', './character', 'data/appearancedata'],
       this.exp = {};
       this.level = 0;
       this.levels = {};
-      this.sprites = new Array(2);
+      //this.sprites = new Array(2);
 
       this.stats = {};
 
@@ -48,7 +48,9 @@ define(['./entity', './character', 'data/appearancedata'],
       this.joystickTime = 0;
 
       this.fsm = "IDLE";
-
+      this.sprites = [null, null];
+      this.pjsSprites = [null, null];
+      this.oldSprites = [null, null];
     },
 
     setItems: function () {
@@ -122,22 +124,24 @@ define(['./entity', './character', 'data/appearancedata'],
       return this.isLootMoving;
     },
 
-    getSpriteName: function() {
+    /*getSpriteName: function() {
       return this.getArmorSprite().name;
-    },
+    },*/
 
     getArmorSprite: function() {
-      var spriteName = this.spriteName;
+      return this.sprites[0];
+      /*var spriteName = this.spriteName;
       if (game.sprites.hasOwnProperty(spriteName))
         return game.sprites[spriteName];
-      return null;
+      return null;*/
     },
 
     getWeaponSprite: function() {
-      var spriteName = this.weaponName;
+      return this.sprites[1];
+      /*var spriteName = this.weaponName;
       if (game.sprites.hasOwnProperty(spriteName))
         return game.sprites[spriteName];
-      return null;
+      return null;*/
     },
 
     isArcher: function () {
@@ -151,75 +155,11 @@ define(['./entity', './character', 'data/appearancedata'],
       return false;
     },
 
-    /*setArmorSpriteId: function (id) {
-      var sprite = game.sprites[AppearanceData[id].sprite];
-      if (sprite) {
-        this.spriteName = sprite.name;
-        this.setSprite(sprite);
-      }
-    },
-
-    setWeaponSpriteId: function (id) {
-      var sprite = game.sprites[AppearanceData[id].sprite];
-      if (sprite) {
-        this.weaponName = sprite.name;
-        if (!this.pjsWeaponSprite)
-          this.pjsWeaponSprite = game.renderer.createSprite(sprite);
-        else
-        {
-          this.pjsWeaponSprite = game.renderer.changeSprite(sprite, this.pjsWeaponSprite);
-        }
-      }
-    },*/
-
-    setArmorSprite: function(sprite) {
-      this._setArmorSprite(sprite);
-    },
-
-    setWeaponSprite: function(sprite) {
-      this._setWeaponSprite(sprite);
-    },
-
-    _setArmorSprite: function(sprite) {
-      if (!sprite)
-      {
-        var id = this.sprites[0];
-        /*if (this.isArcher()) {
-          id = this.sprites[2];
-        }*/
-        sprite = game.sprites[AppearanceData[id].sprite];
-      }
-      if (sprite) {
-        this.armorSprite = sprite;
-        this.spriteName = sprite.name;
-        this.setSprite(sprite);
-      }
-    },
-
-    _setWeaponSprite: function(sprite) {
-      if (!sprite)
-      {
-        var id = this.sprites[1];
-        /*if (this.isArcher()) {
-          id = this.sprites[3];
-        }*/
-        sprite = game.sprites[AppearanceData[id].sprite];
-      }
-
-      if (sprite) {
-        this.weaponName = sprite.name;
-        this.weaponSprite = sprite;
-        if (!this.pjsWeaponSprite)
-          this.pjsWeaponSprite = game.renderer.createSprite(sprite);
-        else
-        {
-          this.pjsWeaponSprite = game.renderer.changeSprite(sprite, this.pjsWeaponSprite);
-        }
-      }
-    },
-
     hasWeapon: function() {
-      return this.weaponName !== null;
+      if (!this.equipment)
+        return false;
+
+      return this.equipment.rooms[4] !== null;
     },
 
     flagPVP: function(pvpFlag) {
@@ -503,13 +443,13 @@ define(['./entity', './character', 'data/appearancedata'],
       this.stats.hp = this.stats.hpMax;
       this.stats.ep = this.stats.epMax;
 
-      this.setArmorSprite();
-      this.forceStop();
       this.disengage();
     },
 
     respawn: function () {
-      this.setArmorSprite();
+      this.restoreSprite(0);
+      this.restoreSprite(1);
+      this.forceStop();
       this.setOrientation(Types.Orientations.DOWN);
       this.idle(this.orientation);
       this.fsm = "IDLE";
@@ -671,8 +611,12 @@ define(['./entity', './character', 'data/appearancedata'],
       this.setPositionGrid(x,y);
       //this.setPosition(x,y);
       this.fsm = "IDLE";
-    }
+    },
 
+    setSpriteByIndex: function (index, num) {
+      var sprite = game.sprites[AppearanceData[num].sprite];
+      this.setSprite(sprite, index);
+    }
   });
 
   return Player;

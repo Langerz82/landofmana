@@ -367,7 +367,7 @@ define(['app', 'data/langdata', 'util',
               jqShortcut[i] = $('#shortcut'+i);
 
             var fnCondition = function () {
-              return game.player && game.started && !jqChatbox.hasClass('active') && !jqDropDialog.is(":visible")
+              return game.player && game.started && game.mapStatus >= 2 && !jqChatbox.hasClass('active') && !jqDropDialog.is(":visible")
                && !jqAuctionSellDialog.is(":visible") && !jqDialogModalNotify.is(":visible") && !jqDialogModalConfirm.is(":visible");
             };
 

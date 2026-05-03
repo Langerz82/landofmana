@@ -2,7 +2,7 @@ define(['hoveringinfo',
         'gameclient', 'audio',
         'pathfinder', 'entity/entity', 'entity/entitymoving', 'entity/item', 'data/items', 'data/itemlootdata',
         'entity/mob', 'entity/npcstatic', 'entity/npcmove', 'data/npcdata', 'entity/player', 'entity/character', 'entity/chest', 'entity/block',
-        'data/mobdata', 'data/mobspeech',
+        'data/mobdata', 'data/mobspeech', 'data/appearancedata',
         'quest', 'achievement',
         'skillhandler', 'data/skilldata',
         'data/langdata', 'gamepad'],
@@ -11,7 +11,7 @@ function(HoveringInfo,
          GameClient, AudioManager,
          Pathfinder, Entity, EntityMoving, Item, Items, ItemLoot,
          Mob, NpcStatic, NpcMove, NpcData, Player, Character, Chest, Block,
-         MobData, MobSpeech,
+         MobData, MobSpeech, AppearanceData,
          Quest, Achievement,
          SkillHandler, SkillData,
          LangData, GamePad) {
@@ -79,19 +79,10 @@ function(HoveringInfo,
               log.info("spawnMap - Loaded");
               game.initPlayer();
 
-
-// TODO - ERROR, On position 50,50 pathing is allowing move inside collisionGrid.
-              //x = 200 * game.tilesize, y = 200 * game.tilesize;
-              //game.player.setPosition(x, y);
               game.player.setPositionSpawn(x, y);
               game.player.forceStop();
-              //game.player.gx = x >> 4;
-              //game.player.gy = y >> 4;
+
               var c = game.camera;
-              //c.scrollX = false;
-              //c.scrollY = false;
-              //c.sox = 0;
-              //c.soy = 0;
 
               game.initGrid();
               c.setRealCoords();
@@ -100,50 +91,23 @@ function(HoveringInfo,
               //game.initAnimatedTiles();
               log.info("spawnMap - Cleared");
 
-              var mapReady = function ()
-              {
+              game.mapContainer.allReady(function() {
                 log.info("spawnPlayer - started");
 
                 var p = game.player;
-                //p.setWeaponSprite(p.getWeaponSprite());
-                //p.setArmorSprite(p.getArmorSprite());
 
                 game.addEntity(p);
 
-                //game.mapIndex = mapId;
-
                 game.audioManager.updateMusic();
-
-
-
 
                 game.mapStatus = 2;
 
-                //if (game.player.x % ts === 0 || game.player.y % ts === 0)
-                //{
-                  //var mc = game.mapContiainer;
-                  //var x=game.player.x, y=game.player.y;
-                  log.info("moveGrid");
-                  //mc.fx = x;
-                  //mc.fy = y;
-                  //mc.fgx = p.gx;
-                  //mc.fgy = p.gy;
-                  //mc.moveGrid();
-                  //game.renderer.refreshGrid();
-                //}
-                //game.mapContainer.moveGrid();
-                //game.renderer.refreshGrid();
-                //game.mapContainer.moveGrid();
-                //game.renderer.refreshGrid();
+                log.info("moveGrid");
 
                 game.renderer.forceRedraw = true;
                 log.info("spawnPlayer - finished");
-                //game.renderer.blankFrame = false;
-                game.player.freeze = false;
-              };
-              //game.renderer.forceRedraw = true;
-              game.mapContainer.allReady(function() {
-                mapReady();
+
+                p.freeze = false;
               });
               game.renderer.forceRedraw = true;
           }
@@ -228,11 +192,8 @@ function(HoveringInfo,
 
           if(entity.type === Types.EntityTypes.PLAYER)
           {
-              //entity.setClass(parseInt(data[11]));
-              entity.sprites[0] = Number(data[12]); // Main sprite.
-              entity.sprites[1] = Number(data[13]);
-              //entity.armorColor = '#'+data[14];
-              //entity.weaponColor = '#'+data[15];
+              entity.setSpriteByIndex(0, Number(data[12]));
+              entity.setSpriteByIndex(1, Number(data[13]));
           }
           if (entity.type === Types.EntityTypes.NODE)
           {
@@ -251,14 +212,6 @@ function(HoveringInfo,
             var spriteName = entity.getSpriteName();
             entity.name = spriteName;
             entity.setSprite(game.sprites[spriteName]);
-          }
-          else if (entity instanceof Player)
-          {
-            entity.setArmorSprite();
-            entity.setWeaponSprite();
-
-            //entity.setWeaponSpriteId(entity.sprites[0]);
-            //entity.setArmorSpriteId(entity.sprites[1]);
           }
           else if (entity instanceof Block)
           {
@@ -1000,14 +953,14 @@ function(HoveringInfo,
 
           if (entity instanceof Player)
           {
-            entity.sprites[0] = Number(data[1]);
-            entity.sprites[1] = Number(data[2]);
+            entity.setSpriteByIndex(0, Number(data[1]));
+            entity.setSpriteByIndex(1, Number(data[2]));
 
-            entity.setArmorSprite();
-            entity.setWeaponSprite();
             game.app.initPlayerBar();
           } else {
-            entity.setSprite(game.sprites[Number(data[1])]);
+            var num = Number(data[1]);
+            var sprite = game.sprites[AppearanceData[num].sprite];
+            entity.setSprite(sprite);
           }
 
         });
@@ -1138,6 +1091,9 @@ function(HoveringInfo,
             }
             game.updateBars();
           }
+          else {
+            game.updatetarget_callback(entity);
+          }
         });
 
         client.onParty(function (data) {
@@ -1152,24 +1108,6 @@ function(HoveringInfo,
 
           }
         });
-
-/*
-        client.onLooks(function (data) {
-          var id = Number(data.shift());
-          var p = game.getEntityById(id);
-          if (!p)
-            return;
-
-          //var isArcher = data.shift();
-
-          p.sprites[0] = Number(data.shift());
-          p.sprites[1] = Number(data.shift());
-
-          p.setWeaponSprite();
-          p.setArmorSprite();
-          game.app.initPlayerBar();
-        });
-*/
 
         client.onHarvest(function (data) {
           var id = Number(data.shift());
@@ -1286,12 +1224,15 @@ function(HoveringInfo,
               game.equipmentHandler.setEquipment(items);
             }
 
-            p.sprites = [];
-            p.sprites[0] = parseInt(data.shift());
-            p.sprites[1] = parseInt(data.shift());
+            //p.sprites = [];
+            var aid = parseInt(data.shift());
+            var wid = parseInt(data.shift());
 
-            p.setWeaponSprite();
-            p.setArmorSprite();
+            var aSprite = game.sprites[AppearanceData[aid].sprite];
+            var wSprite = game.sprites[AppearanceData[wid].sprite];
+
+            p.setSprite(aSprite, 0);
+            p.setSprite(wSprite, 1);
             p.setRange();
 
             var itemCount = parseInt(data.shift());

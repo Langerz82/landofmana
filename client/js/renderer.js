@@ -588,8 +588,8 @@ define(['camera', 'entity/item', 'data/items', 'data/itemlootdata', 'entity/enti
 
                 var s = 2,
                     ts = G_TILESIZE,
-                    w = entity.sprite.width,
-                    h = entity.sprite.height;
+                    w = entity.sprites[0].width,
+                    h = entity.sprites[0].height;
 
                 var x = itemData.offset[0] * w * s,
       	            y = itemData.offset[1] * h * s;
@@ -608,7 +608,7 @@ define(['camera', 'entity/item', 'data/items', 'data/itemlootdata', 'entity/enti
                 }
 
                 try {
-                    this.drawSprite([entity.pjsSprite, x, y, w*s, h*s, idx, idy, dw, dh, 0, 0, z, 0.5, 0.5]);
+                    this.drawSprite([entity.pjsSprites[0], x, y, w*s, h*s, idx, idy, dw, dh, 0, 0, z, 0.5, 0.5]);
                 } catch (err) {
                   log.info(err.message);
                   log.info(err.stack);
@@ -908,7 +908,7 @@ define(['camera', 'entity/item', 'data/items', 'data/itemlootdata', 'entity/enti
             },
 
             drawEntity: function(entity) {
-                var sprite = entity.sprite,
+                var sprite = entity.getSprite(),
                     anim = entity.currentAnimation;
 
                 entity.spriteChanged = true;
@@ -957,16 +957,16 @@ define(['camera', 'entity/item', 'data/items', 'data/itemlootdata', 'entity/enti
                     if (entity instanceof NpcMove) {
                       ey -= (ts >> 1);
                     }
-                    this.drawSprite([entity.pjsSprite, x, y, w*s, h*s, ex, ey,
+                    this.drawSprite([entity.pjsSprites[0], x, y, w*s, h*s, ex, ey,
                       dw, dh, entity.flipSpriteX, entity.flipSpriteY, z, cx, cy]);
                 }
                 catch (err) { log.info(err.message); log.info(err.stack); }
 
-                if(entity instanceof Character && !(entity.isDead || entity.isDying) && entity.hasWeapon()) {
-                    if (!entity.pjsWeaponSprite)
-                      entity.setWeaponSprite();
+                if(entity instanceof Player && !(entity.isDead || entity.isDying)) {
+                    //if (!entity.sprites[1].pjsSprite)
+                      //entity.setWeaponSprite();
                       //Container.ENTITIES.addChild(entity.pjsWeaponSprite);
-                    var weapon = entity.getWeaponSprite();
+                    var weapon = entity.getSprite(1);
                     if(weapon) {
                         var weaponAnimData = weapon.animationData[anim.name],
                             index = (weaponAnimData) ? frame.index < weaponAnimData.length ? frame.index : frame.index % weaponAnimData.length : 0,
@@ -979,7 +979,7 @@ define(['camera', 'entity/item', 'data/items', 'data/itemlootdata', 'entity/enti
                           //var wox = weapon.offsetX;
                           //    woy = weapon.offsetY;
                           var visible = !entity.hideWeapon;
-                  				this.drawSprite([entity.pjsWeaponSprite, wx, wy, ww*s, wh*s,
+                  				this.drawSprite([entity.pjsSprites[1], wx, wy, ww*s, wh*s,
                   					ex,
                   					ey,
                   					ww, wh, entity.flipSpriteX, entity.flipSpriteY, z+1, 0.5, 0.5, visible]);
@@ -991,17 +991,23 @@ define(['camera', 'entity/item', 'data/items', 'data/itemlootdata', 'entity/enti
             removeEntityStuff: function (entity) {
               this.removeHealthBar(entity.id);
               this.removeEntityName(entity.id);
+
+              // Hide the weapon of a player.
               if (entity instanceof Player) {
-                Container.ENTITIES.removeChild(entity.pjsWeaponSprite);
-                entity.pjsWeaponSprite = null;
+                entity.pjsSprites[1].renderable = false;
+                entity.pjsSprites[1].visible = false;
               }
             },
 
-            hideEntity: function (entity) {
-              entity.pjsSprite.renderable = false;
-              entity.pjsSprite.visible = false;
-              if (this.pxSprite.hasOwnProperty("en_"+entity.id) && this.pxSprite["en_"+entity.id])
-                this.pxSprite["en_"+entity.id].visible = false;
+            entityVisible: function (entity, flag) {
+              for (var pjsSprite of entity.pjsSprites) {
+                if (pjsSprite === null)
+                  continue;
+                pjsSprite.renderable = flag;
+                pjsSprite.visible = flag;
+              }
+              //if (this.pxSprite.hasOwnProperty("en_"+entity.id) && this.pxSprite["en_"+entity.id])
+                //this.pxSprite["en_"+entity.id].visible = flag;
             },
 
             drawEntities: function(dirtyOnly) {
@@ -1017,21 +1023,16 @@ define(['camera', 'entity/item', 'data/items', 'data/itemlootdata', 'entity/enti
                 {
                   var entity = game.entities[id];
                   if (entity) {
-                    this.hideEntity(entity);
+                    this.entityVisible(entity, false);
                   }
                 }
 
                 self.camera.forEachInScreen(function (entity,id) {
                   if (!entity) return;
 
-                  if (entity.isDying || entity.isDead) {
-                    self.removeEntityStuff(entity);
-                  }
-                  else {
-                    self.drawEntityName(entity);
-                    if ((entity !== game.player))
-                      self.showHealthBar(entity);
-                  }
+                  self.drawEntityName(entity);
+                  if (entity !== game.player)
+                    self.showHealthBar(entity);
 
                   if (entity instanceof Item)
                   {
@@ -1039,10 +1040,13 @@ define(['camera', 'entity/item', 'data/items', 'data/itemlootdata', 'entity/enti
                   }
                   if (entity instanceof Entity)
                   {
-                    entity.pjsSprite.renderable = true;
-                    entity.pjsSprite.visible = true;
+                    self.entityVisible(entity, true);
                     if (!entity.isDead)
                       self.drawEntity(entity);
+                  }
+
+                  if (entity.isDying || entity.isDead) {
+                    self.removeEntityStuff(entity);
                   }
 
                 });
@@ -1142,9 +1146,9 @@ define(['camera', 'entity/item', 'data/items', 'data/itemlootdata', 'entity/enti
 
             removeEntity: function (entity)
             {
-              Container.ENTITIES.removeChild(entity.pjsSprite);
+              Container.ENTITIES.removeChild(entity.pjsSprites[0]);
               if (entity instanceof Player)
-                Container.ENTITIES.removeChild(entity.pjsWeaponSprite);
+                Container.ENTITIES.removeChild(entity.pjsSprites[1]);
               this.removeEntityName(entity.id);
               Container.ENTITIES.removeChild(this.pxSprite["et_"+entity.id]);
               Container.ENTITIES.removeChild(this.pxSprite["etp_"+entity.id]);

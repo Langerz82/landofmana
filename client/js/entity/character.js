@@ -46,7 +46,7 @@ define(['./entitymoving', '../transition', '../timer', 'data/mobdata', 'data/npc
 
         this.observeTimer = new Timer(4096);
 
-        this.sprite = [];
+        //this.sprite = [];
 
         this.attackers = {};
     },
@@ -245,7 +245,7 @@ define(['./entitymoving', '../transition', '../timer', 'data/mobdata', 'data/npc
             }
             this.target = character;
             if(this.settarget_callback){
-                var targetName = this.target.spriteName;
+                var targetName = this.target.name;
                 if (MobData.Kinds[character.kind] && targetName)
                     this.settarget_callback(character, targetName, character.level);
             }
@@ -267,8 +267,8 @@ define(['./entitymoving', '../transition', '../timer', 'data/mobdata', 'data/npc
           var mobData = MobData.Kinds[character.kind];
           if (mobData)
           {
-          	  if (mobData.spriteName)
-          	      targetName = mobData.spriteName;
+          	  if (mobData.name)
+          	      targetName = mobData.name;
               else
                   targetName = mobData.key;
           }
@@ -398,18 +398,19 @@ define(['./entitymoving', '../transition', '../timer', 'data/mobdata', 'data/npc
         }
     },
 
-    hurt: function() {
+/*    hurt: function() {
         var self = this;
 
         this.stopHurting();
-        this.sprite = this.hurtSprite;
+        this.sprites[0] = this.hurtSprite;
         this.hurting = setTimeout(this.stopHurting.bind(this), 75);
     },
 
     stopHurting: function() {
-        this.sprite = this.normalSprite;
+        this.sprites[0] = this.normalSprite;
         clearTimeout(this.hurting);
     },
+*/
 
     followAttack: function(entity) {
       var found = false;
@@ -447,7 +448,7 @@ define(['./entitymoving', '../transition', '../timer', 'data/mobdata', 'data/npc
 
    modifyEP: function (points) {
      this.stats.ep = (this.stats.ep+points).clamp(0, this.stats.epMax);
-   },
+   }
 
   });
 

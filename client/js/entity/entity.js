@@ -9,10 +9,12 @@ define(['../timer'], function(Timer) {
             this.kind = kind;
 
             // Renderer
-            this.sprite = null;
+            this.sprites = [null];
+            this.oldSprites = [null];
+            this.pjsSprites = [null];
+
             this.flipSpriteX = false;
             this.flipSpriteY = false;
-            this.pjsSprite = null;
             this.animations = null;
             this.currentAnimation = null;
 
@@ -28,7 +30,7 @@ define(['../timer'], function(Timer) {
             this.fadingTimer = new Timer(this.fadingTime, Utils.getTime());
             this.lockfadeIn = false;
 
-            this.spriteChanged = true;
+            //this.spriteChanged = true;
 
             this.x = 0;
             this.y = 0;
@@ -149,22 +151,28 @@ define(['../timer'], function(Timer) {
             this.spawnGy = gy;
         },
 
-        setSprite: function(sprite) {
+        setSprite: function(sprite, index) {
+            index = index || 0;
             if(!sprite) {
                 log.error(this.id + " : sprite is null", true);
                 throw "Sprite error";
             }
 
-            if(this.sprite && this.sprite.name === sprite.name) {
-                return;
-            }
+            if (sprite == this.sprites[index])
+              return;
 
-            if (!this.pjsSprite)
-              this.pjsSprite = game.renderer.createSprite(sprite);
+            this.oldSprites[index] = this.sprites[index];
+
+            this.sprites[index] = sprite;
+
+            var tmpSprite = this.sprites[index];
+
+            if (this.pjsSprites[index] === null)
+              this.pjsSprites[index] = game.renderer.createSprite(sprite);
             else
-              game.renderer.changeSprite(sprite, this.pjsSprite);
-            this.oldSprite = this.sprite;
-            this.sprite = sprite;
+              this.pjsSprites[index] = game.renderer.changeSprite(sprite, this.pjsSprites[index]);
+            //this.oldSprite = this.sprite;
+
             this.animations = sprite.createAnimations();
 
             this.isLoaded = true;
@@ -173,12 +181,21 @@ define(['../timer'], function(Timer) {
             }
         },
 
-        getSprite: function() {
-            return this.sprite;
+        restoreSprite: function (index) {
+            index = index || 0;
+            var tmp = this.oldSprites[index];
+            if (tmp)
+              this.setSprite(tmp, index);
         },
 
-        getSpriteName: function() {
-            return this.spriteName;
+        getSprite: function(index) {
+            index = index || 0;
+            return this.sprites[index];
+        },
+
+        getSpriteName: function(index) {
+            index = index || 0;
+            return this.sprites[index].name;
         },
 
         getAnimationByName: function(name) {
@@ -207,8 +224,7 @@ define(['../timer'], function(Timer) {
                 if ((this.isDying || this.isDead) && this.currentAnimation.name === "death")
                   return;
 
-                var s = this.sprite,
-                    a = this.getAnimationByName(name);
+                var a = this.getAnimationByName(name);
 
                 if(a) {
                     this.currentAnimation = a;

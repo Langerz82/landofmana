@@ -362,9 +362,9 @@ define(['lib/localforage', 'entity/mob', 'entity/item', 'data/mobdata', 'user', 
 
             if (userpw.length > 0)
             {
-              if (userpw.length < 6 && userpw.length > 16)
+              if (userpw.length < 6 && userpw.length > 32)
               {
-                this.addValidationError(this.$userpasswordinput, 'Please enter a username between 6 and 16 characters.');
+                this.addValidationError(this.$userpasswordinput, 'Please enter a user password between 6 and 32 characters.');
                 return false;
               }
               if (userpw === userpw.replace(/^[A-Za-z0-9@!#\$\^%&*()+=\-\[\]\\\';\.\/\{\}\|\":<>\? ]+$/,''))
@@ -463,8 +463,8 @@ define(['lib/localforage', 'entity/mob', 'entity/item', 'data/mobdata', 'user', 
             if (player && !Detect.isMobile()) {
               var anim = new PlayerAnim();
               anim.sprites = [];
-              anim.addSprite(player.getArmorSprite());
-              anim.addSprite(player.getWeaponSprite());
+              anim.addSprite(player.getSprite(0));
+              anim.addSprite(player.getSprite(1));
               anim.setHTML(['#characterLookArmor2','#characterLookWeapon2']);
               anim.showHTML('#characterLook2', 2, 2);
               anim.idle(Types.Orientations.DOWN);
@@ -476,9 +476,9 @@ define(['lib/localforage', 'entity/mob', 'entity/item', 'data/mobdata', 'user', 
             var jqPic = $("#npcDialoguePic");
             var scale = 2;
 
-    		    var sprite = entity.sprite;
+    		    var sprite = entity.getSprite();
 
-            var anim = entity.sprite.animations["idle_down"];
+            var anim = sprite.animations["idle_down"];
             var oc = anim.col * anim.width * scale;
             var or = anim.row * anim.height * scale;
     		    width2 = sprite ? sprite.width * scale : 0;
@@ -512,14 +512,15 @@ define(['lib/localforage', 'entity/mob', 'entity/item', 'data/mobdata', 'user', 
         			}
         			else
         			{
-        				$(el+' .name').text(name + "Lv"+level);
+        				$(el+' .name').text(name + " Lv"+level);
         			}
 
         			$(el+' .name').css('text-transform', 'capitalize');
-        			if(target.healthPoints) {
-        			    $(el+" .health").css('width', Math.round(target.healthPoints/target.maxHp*40*guiScale)+'px');
+        			if(target.stats.hp) {
+        			    $("#target-health").css('width', Math.round(target.stats.hp/target.stats.hpMax*60*guiScale)+'px');
+                  $("#target-healthtext").html(target.stats.hp + "/" + target.stats.hpMax);
         			} else{
-        			    $(el+" .health").css('width', 40*guiScale+"px");
+        			    $("#target-health").css('width', 60*guiScale+"px");
         			}
 
         			$(el).fadeIn('fast');
@@ -527,9 +528,10 @@ define(['lib/localforage', 'entity/mob', 'entity/item', 'data/mobdata', 'user', 
           }
 
           game.onUpdateTarget(function(target){
-          	log.info("targetHealth: "+target.healthPoints+" "+target.maxHp);
+          	log.info("targetHealth: "+target.stats.hp+" "+target.stats.hpMax);
               //$("#target .health").css('width', Math.round(target.healthPoints/target.maxHp*90*scale)+'px');
-              $("#target .health").css('width', Math.round(target.healthPoints/target.maxHp*40*guiScale)+'px');
+              $("#target-health").css('width', Math.round(target.stats.hp/target.stats.hpMax*40*guiScale)+'px');
+              $("#target-healthtext").html(target.stats.hp + "/" + target.stats.hpMax);
               /*if(game.player.inspecting && game.player.inspecting.id === target.id){
                   $("#inspector .health").css('width', Utils.Percent(target.healthPoints/target.maxHp, 0));
               }*/

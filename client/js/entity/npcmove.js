@@ -25,15 +25,15 @@ define(['./character','data/appearancedata','../sprites'], function(Character, A
         }
     },*/
 
-    getSprite: function () {
+    /*getSprite: function () {
   	    if (this.sprite[0] > 0)
   	    {
   	    	    return Sprites[this.sprite[0]].sprite;
   	    }
-  	},
+  	},*/
 
     getSpriteName: function() {
-        return game.spriteNames[this.sprite[0]];
+        return game.spriteNames[this.sprites[0]];
     },
 
     /*setClass: function(pClass) {

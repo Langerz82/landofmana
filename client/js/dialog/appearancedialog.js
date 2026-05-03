@@ -307,9 +307,9 @@ define(['./dialog', '../tabbook', '../tabpage', 'data/appearancedata', '../pageN
             index = this.looksArmorIndex = (this.armorLooks.length + index) % this.armorLooks.length;
             var spriteId = this.armorLooks[index];
             if (spriteId==0 || game.player.appearances[spriteId] === 1) {
-              //var index = p.isArcher() ? 2 : 0;
-              game.player.sprites[0] = spriteId;
-              game.player.setArmorSprite();
+
+              game.player.setSpriteByIndex(0, Number(spriteId));
+
               game.client.sendLook(0,spriteId);
             }
             this.playerAnim.sprites[0] = game.sprites[AppearanceData[spriteId].sprite];
@@ -336,7 +336,8 @@ define(['./dialog', '../tabbook', '../tabpage', 'data/appearancedata', '../pageN
 
         assign: function(datas) {
             if (datas) {
-        		  game.player.appearances = Utils.Base64ToBinArray(datas.shift(), AppearanceData.length);
+              var p = game.player;
+        		  p.appearances = Utils.Base64ToBinArray(datas.shift(), AppearanceData.length);
 
               for(var i=0; i < AppearanceData.length; i++)
               {
@@ -361,7 +362,7 @@ define(['./dialog', '../tabbook', '../tabpage', 'data/appearancedata', '../pageN
 
 	          for(var i=0; i < AppearanceData.length; i++)
             {
-              if (game.player.appearances[i] === 0)
+              if (p.appearances[i] === 0)
                 continue;
 
             	if (AppearanceData[i].type === categoryTypeArmor)
@@ -369,8 +370,8 @@ define(['./dialog', '../tabbook', '../tabpage', 'data/appearancedata', '../pageN
             	else if (AppearanceData[i].type === categoryTypeWeapon)
             		this.weaponLooks.push(i);
             }
-            this.looksArmorIndex = this.armorLooks.indexOf(game.player.sprite[0]);
-            this.looksWeaponIndex = this.weaponLooks.indexOf(game.player.sprite[0]);
+            this.looksArmorIndex = this.armorLooks.indexOf(p.getSprite());
+            this.looksWeaponIndex = this.weaponLooks.indexOf(p.getSprite());
 
             this.scale = game.renderer.getUiScaleFactor();
 
@@ -385,13 +386,13 @@ define(['./dialog', '../tabbook', '../tabpage', 'data/appearancedata', '../pageN
         updateLook: function(spriteArmor) {
             var self = this;
             var anim = this.playerAnim;
-            var player = game.player;
+            var p = game.player;
 
-            spriteArmor = spriteArmor || player.getArmorSprite();
+            spriteArmor = spriteArmor || p.getArmorSprite();
 
             anim.sprites = [];
             anim.addSprite(spriteArmor);
-            anim.addSprite(player.getWeaponSprite());
+            anim.addSprite(p.getWeaponSprite());
 
             anim.setHTML(['#characterLookArmor','#characterLookWeapon']);
 
