@@ -530,7 +530,7 @@ define(['lib/localforage', 'entity/mob', 'entity/item', 'data/mobdata', 'user', 
           game.onUpdateTarget(function(target){
           	log.info("targetHealth: "+target.stats.hp+" "+target.stats.hpMax);
               //$("#target .health").css('width', Math.round(target.healthPoints/target.maxHp*90*scale)+'px');
-              $("#target-health").css('width', Math.round(target.stats.hp/target.stats.hpMax*40*guiScale)+'px');
+              $("#target-health").css('width', Math.round(target.stats.hp/target.stats.hpMax*60*guiScale)+'px');
               $("#target-healthtext").html(target.stats.hp + "/" + target.stats.hpMax);
               /*if(game.player.inspecting && game.player.inspecting.id === target.id){
                   $("#inspector .health").css('width', Utils.Percent(target.healthPoints/target.maxHp, 0));
@@ -540,7 +540,7 @@ define(['lib/localforage', 'entity/mob', 'entity/item', 'data/mobdata', 'user', 
           if (game.player) {
     		    game.player.onRemoveTarget( function(targetId) {
       			$('#target').fadeOut('fast');
-      			$("#target .health").css('width', (40*guiScale)+'px');
+      			$("#target .health").css('width', (60*guiScale)+'px');
 
       			$('#combatContainer').fadeOut('fast');
 		        });

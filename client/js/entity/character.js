@@ -246,8 +246,11 @@ define(['./entitymoving', '../transition', '../timer', 'data/mobdata', 'data/npc
             this.target = character;
             if(this.settarget_callback){
                 var targetName = this.target.name;
-                if (MobData.Kinds[character.kind] && targetName)
+                if (targetName && character.hasOwnProperty("stats") &&
+                    character.stats.hasOwnProperty("hpMax") && character.stats.hpMax > 0)
+                {
                     this.settarget_callback(character, targetName, character.level);
+                }
             }
         } else {
             log.debug(character.id + " is already the target of " + this.id);
