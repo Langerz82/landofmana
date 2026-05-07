@@ -107,7 +107,6 @@ module.exports = Updater = Class.extend({
           this.updatePlayerKeyMovement(entity);
           if (entity.path)
             this.updatePlayerPathMovement(entity);
-          entity.neighboursUpdated = false;
         }
         else {
           if (entity.path)

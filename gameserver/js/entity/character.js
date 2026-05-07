@@ -81,16 +81,21 @@ module.exports = Character = EntityMoving.extend({
       daze: 0,
       hate: 0
     };
-
-    this.neighboursUpdated  = false;
   },
 
 /*******************************************************************************
  * BEGIN - Stat Functions.
  ******************************************************************************/
+   getHpMax: function () {
+    this.stats.hpMax;
+   },
 
-  resetHP: function () {
-    var max = (typeof(this.getHPMax) === "function") ? this.getHPMax() : this.stats.hpMax;
+   getEpMax: function () {
+     this.stats.epMax;
+   },
+
+  resetHp: function () {
+    var max = this.getHpMax();
     this.stats.hpMax = max;
     var diff= max - this.stats.hp;
     this.stats.hp = max;
@@ -99,30 +104,32 @@ module.exports = Character = EntityMoving.extend({
     this.map.entities.sendNeighbours(this, msg);
   },
 
-  resetEP: function () {
-    var max = (typeof(this.getEPMax) === "function") ? this.getEPMax() : this.stats.epMax;
+  resetEp: function () {
+    var max = this.getEpMax();
     this.stats.epMax = max;
     this.stats.ep = max;
   },
 
-  setHP: function (val) {
-    val = val || (typeof(this.getHPMax) === "function") ? this.getHPMax() : this.stats.hpMax;
+  setHp: function (val) {
+    val = val || this.getHpMax();
     this.stats.hp = val;
   },
 
-  setEP: function (val) {
-    val = val || (typeof(this.getEPMax) === "function") ? this.getEPMax() : this.stats.epMax;
+  setEp: function (val) {
+    val = val || this.getEpMax();
     this.stats.ep = val;
   },
 
-  setHPMax: function (val) {
-    val = val || (typeof(this.getHPMax) === "function") ? this.getHPMax() : this.stats.hpMax;
+  setHpMax: function (val) {
+    val = val || this.getHpMax();
     this.stats.hpMax = val;
+    this.stats.hp = val;
   },
 
-  setEPMax: function (val) {
-    val = val || (typeof(this.getEPMax) === "function") ? this.getEPMax() : this.stats.epMax;
+  setEpMax: function (val) {
+    val = val || this.getEpMax();
     this.stats.epMax = val;
+    this.stats.ep = val;
   },
 
   onDamage: function (attacker, hpMod, epMod, crit, effects) {
@@ -148,14 +155,7 @@ module.exports = Character = EntityMoving.extend({
     this.map.entities.sendNeighbours(attacker, msg);
   },
 
-  canMove: function() {
-    if (this.isDead === false && this.moveCooldown.isOver()) {
-      return true;
-    }
-    return false;
-  },
-
-  modHealthBy: function(val) {
+  modHp: function(val) {
     var hp = this.stats.hp,
       max = this.stats.hpMax;
 
@@ -163,7 +163,7 @@ module.exports = Character = EntityMoving.extend({
     return this.changePoints(val, 0);
   },
 
-  modEnergyBy: function(val) {
+  modEp: function(val) {
     var ep = this.stats.ep,
       max = this.stats.epMax;
 
@@ -181,11 +181,6 @@ module.exports = Character = EntityMoving.extend({
 
   changePoints: function(modhp, modep) {
     return new Messages.ChangePoints(this, modhp, modep);
-  },
-
-  setMaxHpMax: function(hp) {
-    this.stats.hpMax = hp;
-    this.stats.hp = hp;
   },
 
   setAttackRange: function(range) {
@@ -241,14 +236,6 @@ module.exports = Character = EntityMoving.extend({
     this.sprite = this.normalSprite;
     clearTimeout(this.hurting);
   },
-
-/*******************************************************************************
- * END - Combat Functions.
- ******************************************************************************/
-
-/*******************************************************************************
- * BEGIN - Attack Functions.
- ******************************************************************************/
 
   /**
    * Makes the character attack another character. Same as Character.follow but with an auto-attacking behavior.
@@ -375,8 +362,17 @@ module.exports = Character = EntityMoving.extend({
       this.addAttacker(target);
   },
 
+  followAttack: function(entity) {
+    var found = false;
+
+    var spot = this.getClosestSpot(entity, 1, this.attackRange);
+
+    if (spot && spot.x && spot.y)
+      this.moveTo_(spot.x, spot.y);
+  },
+
 /*******************************************************************************
- * END - Attack Functions.
+ * END - Combat Functions.
  ******************************************************************************/
 
 /*******************************************************************************
@@ -475,30 +471,6 @@ module.exports = Character = EntityMoving.extend({
  * END - Target Functions.
  ******************************************************************************/
 
-
- /*******************************************************************************
-  * BEGIN - Orientation Functions.
-  ******************************************************************************/
-
-   // Orientation Code.
-   lookAtEntity: function(entity) {
-     this._lookAtEntity(entity);
-   },
-
-   _lookAtEntity: function(entity) {
-      if (entity) {
-          var orientation = this.getOrientationTo([entity.x, entity.y]);
-          this.setOrientation(orientation);
-      }
-      if (typeof(this.animate) === "function" && !this.hasAnimation('atk'))
-        this.idle(this.orientation);
-      return this.orientation;
-   },
-
- /*******************************************************************************
-  * END - Orientation Functions.
-  ******************************************************************************/
-
 /*******************************************************************************
  * BEGIN - State Functions.
  ******************************************************************************/
@@ -581,10 +553,7 @@ module.exports = Character = EntityMoving.extend({
         poss.splice(poss.indexOf(p),1);
     }
 
-    //if (!this.neighboursUpdated) {
-      var entities = this.map.entities.getCharactersAround(dest, adjEnd);
-      //this.neighboursUpdated = true;
-    //}
+    var entities = this.map.entities.getCharactersAround(dest, adjEnd);
 
     //var entities = this.map.entities.getCharactersAround({x:x2,y:y2}, 6);
     //console.info("entities: "+JSON.stringify(entities));
@@ -623,18 +592,16 @@ module.exports = Character = EntityMoving.extend({
 
     return {x: poss[0].x, y: poss[0].y};
   },
-
-  followAttack: function(entity) {
-    var found = false;
-
-    var spot = this.getClosestSpot(entity, 1, this.attackRange);
-
-    if (spot && spot.x && spot.y)
-      this.moveTo_(spot.x, spot.y);
+  
+  canMove: function() {
+    if (this.isDead === false && this.moveCooldown.isOver()) {
+      return true;
+    }
+    return false;
   },
 
 /*******************************************************************************
- * END - Misc Functions.
+ * END - Misc Function.
  ******************************************************************************/
 
 });

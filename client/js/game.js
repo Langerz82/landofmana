@@ -2115,9 +2115,10 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
             },
 
             updateBars: function() {
-                if(this.player && this.playerhp_callback && this.playerep_callback) {
-                    this.playerhp_callback(this.player.stats.hp, this.player.stats.hpMax);
-                    this.playerep_callback(this.player.stats.ep, this.player.stats.epMax);
+                var p = this.player;
+                if(p && this.playerhp_callback && this.playerep_callback) {
+                    this.playerhp_callback(p.stats.hp, p.stats.hpMax);
+                    this.playerep_callback(p.stats.ep, p.stats.epMax);
                 }
             },
 

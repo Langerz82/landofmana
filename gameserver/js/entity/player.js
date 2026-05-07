@@ -196,8 +196,8 @@ module.exports = Player = Character.extend({
       var ep = this.stats.ep;
       var hpDiff = this.stats.hpMax - hp;
       var epDiff = this.stats.epMax - ep;
-      this.modHealthBy(hpDiff);
-      this.modEnergyBy(epDiff);
+      this.modHp(hpDiff);
+      this.modEp(epDiff);
       //this.map.entities.sendNeighbours(this, new Messages.ChangePoints(this, hpDiff, epDiff));
     },
 
@@ -388,8 +388,8 @@ module.exports = Player = Character.extend({
   	    	this.stats.free += 5;
   	    }
       }
-      this.setHPMax();
-      this.setEPMax();
+      this.setHpMax();
+      this.setEpMax();
     	this.sendPlayer(new Messages.StatInfo(this));
 	    this.resetBars();
 	    this.sendPlayer(new Messages.ChangePoints(this, 0, 0));
@@ -652,8 +652,8 @@ module.exports = Player = Character.extend({
           self.quests.completeQuests = db_player.completeQuests;
         }
 
-        self.setHP();
-        self.setEP();
+        self.setHp();
+        self.setEp();
         self.setPointsMax();
     		//console.info("self.stats.health="+self.stats.health);
         self.resetBars();
@@ -722,27 +722,27 @@ module.exports = Player = Character.extend({
       {
     		amount = itemData.modifier;
     		if(!this.hasFullHealth()) {
-    			this.modHealthBy(amount);
+    			this.modHp(amount);
     		}
       }
       else if (itemData.typemod === "healthpercent")
       {
       	amount = ~~(this.stats.hpMax * itemData.modifier/100);
     		if(!this.hasFullHealth()) {
-    			this.modHealthBy(amount);
+    			this.modHp(amount);
     		}
       }
       if (itemData.typemod === "energy")
       {
     		amount = itemData.modifier;
     		if(!this.hasFullEnergy()) {
-    			this.modEnergyBy(amount);
+    			this.modEp(amount);
     		}
       }
       this.inventory.takeOutItems(slot, 1);
     },
 
-  modHealthBy: function (hp) {
+  modHp: function (hp) {
     if (this.isDead)
       return;
 
@@ -751,7 +751,7 @@ module.exports = Player = Character.extend({
     return msg;
   },
 
-  modEnergyBy: function (ep) {
+  modEp: function (ep) {
     var msg = this._super(ep);
     this.sendChangePoints(0, ep);
     return msg;
@@ -761,12 +761,12 @@ module.exports = Player = Character.extend({
     this.map.entities.sendNeighbours(this, new Messages.ChangePoints(this, health, energy));
   },
 
-  getHPMax: function () {
+  getHpMax: function () {
   	var hp = 300 + (this.stats.health * 100);
     return hp;
   },
 
-  getEPMax: function () {
+  getEpMax: function () {
   	var ep = 500 + (this.stats.energy * 100);
     return ep;
   },
@@ -1002,18 +1002,6 @@ module.exports = Player = Character.extend({
     if (this.isArcher()) {
       this.setAttackRange(10);
     }
-  },
-
-  setHP: function (val) {
-    //this.stats.hpMax = this.stats.health * 30;
-    //this.stats.hpMax = this.getHpMax();
-    this._super(val);
-  },
-
-  setEP: function (val) {
-    //this.stats.epMax = this.stats.energy * 30;
-    //this.stats.ep = this.getEPMax();
-    this._super(val);
   },
 
   // data = time, interrupted. path

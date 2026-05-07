@@ -1022,8 +1022,8 @@ module.exports = PacketHandler = Class.extend({
     p.stats.free -= points;
 
     if (alterBars) {
-      p.setHPMax();
-      p.setEPMax();
+      p.setHpMax();
+      p.setEpMax();
     }
 
     this.sendPlayer(new Messages.StatInfo(p));

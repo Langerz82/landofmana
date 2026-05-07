@@ -54,37 +54,49 @@ define(['./entitymoving', '../transition', '../timer'], function(EntityMoving, T
 /*******************************************************************************
  * BEGIN - Stat Functions.
  ******************************************************************************/
-    resetHP: function () {
-      var max = this.stats.hpMax;
-      this.stats.hp = max;
+    getHpMax: function () {
+     this.stats.hpMax;
     },
 
-    resetEP: function () {
-      var max = this.stats.epMax;
-      this.stats.ep = max;
+    getEpMax: function () {
+      this.stats.epMax;
     },
 
-    setHP: function (val) {
-      val = val || this.stats.hpMax;
-      this.stats.hp = val;
-    },
+   resetHp: function () {
+     var max = this.getHpMax();
+     this.stats.hpMax = max;
+     this.stats.hp = max;
+   },
 
-    setEP: function (val) {
-      val = val || this.stats.epMax;
-      this.stats.ep = val;
-    },
+   resetEp: function () {
+     var max = this.getEpMax();
+     this.stats.epMax = max;
+     this.stats.ep = max;
+   },
 
-    setMaxHP: function(hp) {
-        this.stats.hpMax = hp;
-        this.stats.hp = hp;
-    },
+   setHp: function (val) {
+     val = val || this.getHpMax();
+     this.stats.hp = val;
+   },
 
-    setMaxEP: function(ep) {
-        this.stats.epMax = ep;
-        this.stats.ep = ep;
-    },
+   setEp: function (val) {
+     val = val || this.getEpMax();
+     this.stats.ep = val;
+   },
 
-    modHealthBy: function (points) {
+   setHpMax: function (val) {
+     val = val || this.getHpMax();
+     this.stats.hpMax = val;
+     this.stats.hp = val;
+   },
+
+   setEpMax: function (val) {
+     val = val || this.getEpMax();
+     this.stats.epMax = val;
+     this.stats.ep = val;
+   },
+
+    modHp: function (points) {
       this.stats.hp = (this.stats.hp+points).clamp(0, this.stats.hpMax);
 
       if(this.stats.hp == 0) {
@@ -92,7 +104,7 @@ define(['./entitymoving', '../transition', '../timer'], function(EntityMoving, T
       }
     },
 
-    modEnergyBy: function (points) {
+    modEp: function (points) {
       this.stats.ep = (this.stats.ep+points).clamp(0, this.stats.epMax);
     },
 
@@ -104,9 +116,9 @@ define(['./entitymoving', '../transition', '../timer'], function(EntityMoving, T
  * END - Stat Functions.
  ******************************************************************************/
 
-/*******************************************************************************
- * BEGIN - Attack Functions.
- ******************************************************************************/
+ /*******************************************************************************
+  * BEGIN - Combat Functions.
+  ******************************************************************************/
 
     hit: function(orientation) {
         var self = this;
@@ -119,6 +131,43 @@ define(['./entitymoving', '../transition', '../timer'], function(EntityMoving, T
           self.idle(self.orientation);
         });
     },
+
+   onAggro: function(callback) {
+     this.aggro_callback = callback;
+   },
+
+   onCheckAggro: function(callback) {
+     this.checkaggro_callback = callback;
+   },
+
+   checkAggro: function() {
+     if (this.checkaggro_callback) {
+       this.checkaggro_callback();
+     }
+   },
+
+   aggro: function(character) {
+     if (this.aggro_callback) {
+       this.aggro_callback(character);
+     }
+   },
+
+   onDeath: function(callback) {
+     this.death_callback = callback;
+   },
+
+   hurt: function() {
+     var self = this;
+
+     this.stopHurting();
+     this.sprite = this.hurtSprite;
+     this.hurting = setTimeout(this.stopHurting.bind(this), 75);
+   },
+
+   stopHurting: function() {
+     this.sprite = this.normalSprite;
+     clearTimeout(this.hurting);
+   },
 
     /**
      * Makes the character attack another character. Same as Character.follow but with an auto-attacking behavior.
@@ -233,8 +282,29 @@ define(['./entitymoving', '../transition', '../timer'], function(EntityMoving, T
         this.attackCooldown = new Timer(rate);
     },
 
+    createAttackLink: function(target)
+    {
+        if (this.hasTarget())
+        {
+            this.removeTarget();
+        }
+        this.setTarget(target);
+
+        target.addAttacker(this);
+        this.addAttacker(target);
+    },
+
+    followAttack: function(entity) {
+      var found = false;
+
+      var spot = this.getClosestSpot(entity, 1, this.attackRange);
+
+      if (spot && spot.x && spot.y)
+        this.moveTo_(spot.x, spot.y);
+    },
+
 /*******************************************************************************
- * END - Attack Functions.
+ * END - Combat Functions.
  ******************************************************************************/
 
 /*******************************************************************************
@@ -332,38 +402,6 @@ define(['./entitymoving', '../transition', '../timer'], function(EntityMoving, T
 
 /*******************************************************************************
  * END - Target Functions.
- ******************************************************************************/
-
-/*******************************************************************************
- * BEGIN - Orientation Functions.
- ******************************************************************************/
-
-   /**
-    * Changes the character's orientation so that it is facing its target.
-    */
-    lookAt: function(x, y) {
-        this.setOrientation(this.getOrientationTo([x, y]));
-        this.idle(this.orientation);
-        return this.orientation;
-    },
-
-    // Orientation Code.
-    lookAtEntity: function(entity) {
-      this._lookAtEntity(entity);
-    },
-
-    _lookAtEntity: function(entity) {
-       if (entity) {
-           var orientation = this.getOrientationTo([entity.x, entity.y]);
-           this.setOrientation(orientation);
-       }
-       if (typeof(this.animate) === "function" && !this.hasAnimation('atk'))
-         this.idle(this.orientation);
-       return this.orientation;
-    },
-
-/*******************************************************************************
- * END - Orientation Functions.
  ******************************************************************************/
 
 /*******************************************************************************

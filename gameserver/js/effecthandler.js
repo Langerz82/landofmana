@@ -57,7 +57,7 @@ EffectType = cls.Class.extend({
       case "hp":
         //var oldhp = target.stats.hp;
         //target.stats.hp += this.diff;
-        target.modHealthBy(this.diff);
+        target.modHp(this.diff);
         //target.stats.hp = Utils.clamp(0, target.stats.hpMax, target.stats.hp);
         //if (target instanceof Player)
           //target.sendChangePoints((target.stats.hp-oldhp),0);

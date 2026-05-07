@@ -428,6 +428,29 @@ module.exports = EntityMoving = Entity.extend({
     this.step = 0;
   },
 
+  move: function (time, orientation, state, x, y) {
+
+    this.setOrientation(orientation);
+    if (state === 1 && orientation !== Types.Orientations.NONE)
+    {
+      this.forceStop();
+      this.setPosition(x,y);
+      this.walk(orientation);
+    }
+    else if (state === 0 || state === 2 || orientation === Types.Orientations.NONE)
+    {
+      this.forceStop();
+      this.setPosition(x,y);
+    }
+  },
+
+  canMove: function() {
+    if (this.isDead === false && this.moveCooldown.isOver()) {
+      return true;
+    }
+    return false;
+  },
+
 /*******************************************************************************
  * END - Movement Functions.
  ******************************************************************************/
@@ -474,29 +497,6 @@ module.exports = EntityMoving = Entity.extend({
 
   nextTile: function (x, y, o, dist) {
     return this.nextDist(x, y, o, G_TILESIZE);
-  },
-
-  move: function (time, orientation, state, x, y) {
-
-    this.orientation = orientation;
-    if (state === 1 && orientation !== Types.Orientations.NONE)
-    {
-      this.forceStop();
-      this.setPosition(x,y);
-      this.walk(orientation);
-    }
-    else if (state === 0 || state === 2 || orientation === Types.Orientations.NONE)
-    {
-      this.forceStop();
-      this.setPosition(x,y);
-    }
-  },
-
-  canMove: function() {
-    if (this.isDead === false && this.moveCooldown.isOver()) {
-      return true;
-    }
-    return false;
   },
 
   // New function to make coding easier.
@@ -631,7 +631,7 @@ module.exports = EntityMoving = Entity.extend({
   ******************************************************************************/
 
  /*******************************************************************************
-  * BEGIN - MISC Functions.
+  * BEGIN - Misc Functions.
   ******************************************************************************/
 
  onRemove: function(callback) {
@@ -655,7 +655,7 @@ module.exports = EntityMoving = Entity.extend({
  },
 
 /*******************************************************************************
- * END - MISC Functions.
+ * END - Misc Functions.
  ******************************************************************************/
 
 /*******************************************************************************

@@ -108,7 +108,7 @@ module.exports = Mob = Character.extend({
         this.stats.hp *= multi;
         this.stats.hpMax *= multi;
         this.spawnDelay *= multi;
-        this.resetHP();
+        this.resetHp();
 
         for (var kind in this.drops) {
           if (ItemTypes.isEquipment(kind))
@@ -525,7 +525,7 @@ module.exports = Mob = Character.extend({
 
     returnedToSpawn: function () {
       console.info("mob.returnedToSpawn");
-      this.resetHP();
+      this.resetHp();
       this.resetPosition();
       this.resetBehaviour();
       this.invincible = false;

@@ -158,7 +158,7 @@ module.exports = World = cls.Class.extend(
                 {
                     if (!player.isDead && !player.hasFullHealth() && !player.isAttacked())
                     {
-                        var packet = player.modHealthBy(Math.floor(player.stats.hpMax / 8));
+                        var packet = player.modHp(Math.floor(player.stats.hpMax / 8));
                     }
                 }
             };

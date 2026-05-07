@@ -185,9 +185,9 @@ function(HoveringInfo,
           entity.setPosition(Number(data[5]), Number(data[6]));
           var orientation = Number(data[7]);
           entity.level = Number(data[8]);
-          if (data.length > 10 && !(entity instanceof Block)) {
-            entity.setHP(Number(data[9]));
-            entity.setMaxHP(Number(data[10]));
+          if (data.length > 10 && entity instanceof Character) {
+            entity.setHp(Number(data[9]));
+            entity.setHpMax(Number(data[10]));
           }
 
           if(entity.type === Types.EntityTypes.PLAYER)
@@ -1078,8 +1078,8 @@ function(HoveringInfo,
           if (hpMod > hp)
             hpMod += (hp - hpMod);
 
-          entity.modHealthBy(hpMod);
-          entity.modEnergyBy(epMod);
+          entity.modHp(hpMod);
+          entity.modEp(epMod);
 
           if (entity === game.player)
           {
@@ -1155,8 +1155,8 @@ function(HoveringInfo,
             p.x = Number(data.shift()), p.y = Number(data.shift());
             p.setPositionSpawn(p.x, p.y);
 
-            p.setMaxHP(Number(data.shift()));
-            p.setMaxEP(Number(data.shift()));
+            p.setHpMax(Number(data.shift()));
+            p.setEpMax(Number(data.shift()));
             //p.setClass(parseInt(data.shift()));
 
             p.exp = {
