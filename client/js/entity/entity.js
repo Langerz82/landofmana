@@ -30,16 +30,13 @@ define(['../timer'], function(Timer) {
             this.fadingTimer = new Timer(this.fadingTime, Utils.getTime());
             this.lockfadeIn = false;
 
-            //this.spriteChanged = true;
-
             this.x = 0;
             this.y = 0;
-            //this.gx = 0;
-            //this.gy = 0;
-            //this.pgx = 0;
-            //this.pgy = 0;
+            this.gx = 0;
+            this.gy = 0;
         },
 
+/* Sprite and Animation - START */
         hasAnimation: function (type) {
           if (!this.currentAnimation)
             return false;
@@ -50,11 +47,6 @@ define(['../timer'], function(Timer) {
             var oriented = ['atk', 'walk', 'idle'],
                 o = this.orientation || Types.Orientations.DOWN;
 
-            /*if (animation !== 'atk' && this.fsm === "ATTACK")
-            {
-                try { throw new Error(); } catch (e) { console.error(e.stack); }
-            }*/
-
             this.flipSpriteX = false;
             this.flipSpriteY = false;
 
@@ -63,92 +55,7 @@ define(['../timer'], function(Timer) {
                 this.flipSpriteX = (this.orientation === Types.Orientations.LEFT) ? true : false;
             }
 
-            if (this.type === 10)
-              console.info("animation: "+animation+", speed:"+speed+", count:"+count+", onEndCount:"+onEndCount);
             this.setAnimation(animation, speed, count, onEndCount);
-        },
-
-        onRemove: function(callback) {
-          this.remove_callback = callback;
-        },
-
-        setName: function(name) {
-            this.name = name;
-        },
-
-        _setPosition: function(x, y) {
-            var ts = G_TILESIZE;
-
-            this.x = x;
-            this.y = y;
-
-            var gx = (x >> 4);
-            var gy = (y >> 4);
-
-            if (x % ts === 0) {
-              this.gx = gx;
-            }
-            if (y % ts === 0) {
-              this.gy = gy;
-            }
-
-        },
-
-        setPosition: function (x, y) {
-          this._setPosition(x,y);
-        },
-
-        setPositionGrid: function(x, y) {
-            var ts = game.tilesize;
-
-            this.x = x;
-            this.y = y;
-
-            var gx = (x >> 4);
-            var gy = (y >> 4);
-
-            this.gx = gx;
-            this.gy = gy;
-            /*if (x % ts === 0) {
-              this.gx = gx;
-            }
-            if (y % ts === 0) {
-              this.gy = gy;
-            }*/
-        },
-
-        getPositionGridPrev: function () {
-          var gx = this.gx; //(this.x >> 4);
-          var gy = this.gy; //(this.y >> 4);
-
-          /*switch(this.orientation) {
-            case Types.Orientations.UP:
-              gy++;
-              break;
-            case Types.Orientations.DOWN:
-              gy--;
-              break;
-            case Types.Orientations.LEFT:
-              gx++;
-              break;
-            case Types.Orientations.RIGHT:
-              gx--;
-              break;
-          }*/
-          return {gx: gx, gy: gy};
-        },
-
-        setPositionSpawn: function(x, y) {
-            log.info("setPositionSpawn - x:"+x+"y:"+y);
-
-            this.x = x;
-            this.y = y;
-
-            var gx = this.gx = (x >> 4);
-            var gy = this.gy = (y >> 4);
-
-            this.spawnGx = gx;
-            this.spawnGy = gy;
         },
 
         setSprite: function(sprite, index) {
@@ -165,13 +72,10 @@ define(['../timer'], function(Timer) {
 
             this.sprites[index] = sprite;
 
-            var tmpSprite = this.sprites[index];
-
             if (this.pjsSprites[index] === null)
               this.pjsSprites[index] = game.renderer.createSprite(sprite);
             else
               this.pjsSprites[index] = game.renderer.changeSprite(sprite, this.pjsSprites[index]);
-            //this.oldSprite = this.sprite;
 
             this.animations = sprite.createAnimations();
 
@@ -242,19 +146,8 @@ define(['../timer'], function(Timer) {
             }
         },
 
-        ready: function(f) {
-            this.ready_func = f;
-        },
-
-        clean: function() {
-        },
-
-        log_info: function(message) {
-            log.info("["+this.id+"] " + message);
-        },
-
-        log_error: function(message) {
-            log.error("["+this.id+"] " + message);
+        getSpriteName: function (spriteNum) {
+          return AppearanceData.getSpriteByID(spriteNum);
         },
 
         setVisible: function(value) {
@@ -293,28 +186,106 @@ define(['../timer'], function(Timer) {
           }
           return this.fadingTimer.getRatio(time);
         },
+        
+/* Sprite and Animation - END */
+
+        setPosition: function (x, y) {
+          this._setPosition(x,y);
+        },
+
+        _setPosition: function(x, y) {
+            var ts = G_TILESIZE;
+
+            this.x = x;
+            this.y = y;
+
+            var gx = ~~(x / ts);
+            var gy = ~~(y / ts);
+
+            this.gx = gx;
+            this.gy = gy;
+        },
+
 /*
-        isNextToo: function (x,y,dist) {
-          dist = dist || G_TILESIZE;
-          return (Math.abs(this.x-x) <= dist && Math.abs(this.y-y) <= dist);
-        },
+        setPositionGrid: function(x, y) {
+            var ts = G_TILESIZE;
 
-        isNextTooEntity: function (entity) {
-            return this.isNextToo(entity.x, entity.y);
-        },
+            this.x = x;
+            this.y = y;
 
-        isWithin: function (entity) {
-          return this.isNextToo(entity.x,entity.y, (G_TILESIZE >> 1));
-        },
+            var gx = ~~(x / ts);
+            var gy = ~~(y / ts);
 
-        isTouching: function (entity) {
-          return this.isNextToo(entity.x,entity.y, (G_TILESIZE));
-        },
-
-        isOver: function (x, y) {
-            return this.isNextToo(x, y, (G_TILESIZE >> 1));
+            this.gx = gx;
+            this.gy = gy;
         },
 */
+
+        setPositionSpawn: function(x, y) {
+            log.info("setPositionSpawn - x:"+x+"y:"+y);
+
+            this.setPosition(x, y);
+
+            this.spawnGx = this.gx;
+            this.spawnGy = this.gy;
+        },
+
+        ready: function(f) {
+            this.ready_func = f;
+        },
+
+        onRemove: function(callback) {
+          this.remove_callback = callback;
+        },
+
+        /**
+         *
+         */
+        getDistanceToEntity: function(entity) {
+            var distX = Math.abs(entity.x - this.x),
+                distY = Math.abs(entity.y - this.y);
+
+            return (distX > distY) ? distX : distY;
+        },
+
+        /**
+         * Returns true if the entity is adjacent to the given one.
+         * @returns {Boolean} Whether these two entities are adjacent.
+         */
+        isAdjacent: function(entity) {
+            var adjacent = false;
+
+            if(entity) {
+            		adjacent = this.getDistanceToEntity(entity) > 1 ? false : true;
+            }
+
+            return adjacent;
+        },
+
+        /**
+         *
+         */
+        isAdjacentNonDiagonal: function(entity) {
+            var result = false;
+
+            if(this.isAdjacent(entity) && !(this.x !== entity.x && this.y !== entity.y)) {
+                result = true;
+            }
+
+            return result;
+        },
+
+        isDiagonallyAdjacent: function(entity) {
+            return this.isAdjacent(entity) && !this.isAdjacentNonDiagonal(entity);
+        },
+
+        forEachAdjacentNonDiagonalPosition: function(callback) {
+            callback(this.x - 1, this.y, 3);
+            callback(this.x, this.y - 1, 1);
+            callback(this.x + 1, this.y, 4);
+            callback(this.x, this.y + 1, 2);
+        },
+
         isWithinDist: function (x,y,dist) {
           dist = dist || G_TILESIZE;
           var dx = Math.abs(this.x-x);
@@ -345,6 +316,7 @@ define(['../timer'], function(Timer) {
         isOverlappingEntity: function (entity) {
           return this.isWithinDist(entity.x,entity.y, G_TILESIZE-1);
         },
+
 
     });
 

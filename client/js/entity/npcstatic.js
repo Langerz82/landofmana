@@ -13,29 +13,13 @@ define(['./character', '../questhandler', 'data/npcdata'], function(Character, Q
       this.name = name || NpcData.Kinds[this.kind].title;
     },
 
-    /*talk: function(msgs) {
-        if(!this.talkIndex)
-    	   this.talkIndex = 0;
-        if (!Array.isArray(msgs))
-          return "Well, hello there!";
+    getSpriteName: function() {
+        return NpcData.Kinds[this.kind].uid;
+    },
 
-        var msg = null;
-        var talkCount = msgs.length;
-
-        if(this.talkIndex < talkCount) {
-          return msgs[this.talkIndex++];
-        } else {
-          return null;
-        }
-    },*/
-
-      getSpriteName: function() {
-          return NpcData.Kinds[this.kind].uid;
-      },
-
-      getAnimationByName: function () {
-        return this._super("idle_down");
-      }
-    });
+    getAnimationByName: function () {
+      return this._super("idle_down");
+    }
+  });
   return NpcStatic;
 });

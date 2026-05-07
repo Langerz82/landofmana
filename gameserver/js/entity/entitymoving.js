@@ -9,14 +9,6 @@ module.exports = EntityMoving = Entity.extend({
 
     this._super(id, type, kind, x, y, map);
 
-    // Position and orientation
-    this.nextX = -1;
-    this.nextY = -1;
-    this.prevX = -1;
-    this.prevY = -1;
-
-    //this.orientation = Types.Orientations.DOWN;
-
     // Speeds
     this.moveSpeed = 100;
     this.setMoveRate(this.moveSpeed);
@@ -24,179 +16,24 @@ module.exports = EntityMoving = Entity.extend({
     this.idleSpeed = Utils.randomInt(750, 1000);
 
     this.followingMode = false;
-    this.engagingPC = false;
 
     this.step = 0;
 
-    this.orientation = this.setRandomOrientation();
+    this.orientation = 2; // DOWN
 
     // Pathing
-    this.movement = new Transition();
-
+    this.movement = new Transition(this);
+    this.moveCooldown = null;
     this.path = null;
     this.newDestination = null;
     this.adjacentTiles = {};
-
-    // Health
-    this.moveCooldown = null;
 
     this.freeze = false;
   },
 
 /*******************************************************************************
- * BEGIN - Orientation Functions.
- ******************************************************************************/
-
-  setOrientation: function(orientation) {
-    if (orientation) {
-      this.orientation = orientation || 0;
-    }
-  },
-
-  idle: function(orientation) {
-    this.setOrientation(orientation);
-  },
-
-  walk: function(orientation) {
-    this.setOrientation(orientation);
-  },
-
-  /**
-   * Gets the right orientation to face a target character from the current position.
-   * Note:
-   * In order to work properly, this method should be used in the following
-   * situation :
-   *    S
-   *  S T S
-   *    S
-   * (where S is self, T is target character)
-   *
-   * @param {Character} character The character to face.
-   * @returns {String} The orientation.
-   */
-  getOrientationTo: function(character) {
-    if (this.x < character.x) {
-      return Types.Orientations.RIGHT;
-    } else if (this.x > character.x) {
-      return Types.Orientations.LEFT;
-    } else if (this.y > character.y) {
-      return Types.Orientations.UP;
-    } else {
-      return Types.Orientations.DOWN;
-    }
-  },
-
-  /**
-   * Changes the character's orientation so that it is facing its target.
-   */
-  /*lookAt: function(target) {
-    if (target) {
-      this.orientation = this.getOrientationTo(target);
-    }
-  },*/
-
-  isFacing: function (x, y) {
-    var dx = this.x - x;
-    var dy = this.y - y;
-
-    switch (this.orientation)
-    {
-      case 1:
-        return (dy > 0);
-      case 2:
-        return (dy < 0);
-      case 3:
-        return (dx > 0);
-      case 4:
-        return (dx < 0);
-    }
-    return false;
-  },
-
-  isFacingEntity: function (entity) {
-      return this.isFacing(entity.x, entity.y);
-  },
-
-  getOrientationTo: function(object) {
-      return this.getOrientation([this.x,this.y], [object.x,object.y])
-  },
-
-  getOrientation: function(p1, p2) {
-      var x = Math.abs(p1[0]-p2[0]);
-      var y = Math.abs(p1[1]-p2[1]);
-      if(x > y) {
-        if (p1[0] > p2[0])
-          return Types.Orientations.LEFT;
-        else
-          return Types.Orientations.RIGHT;
-      } else if(y > x) {
-        if (p1[1] > p2[1])
-          return Types.Orientations.UP;
-        else
-          return Types.Orientations.DOWN;
-      }
-      return Types.Orientations.NONE;
-  },
-
-  isInReach: function (x,y,o,r,rs) {
-    var o = o || this.orientation;
-    var ts = G_TILESIZE;
-    var rs = rs || ts >> 1;
-    var r = r || ts + rs;
-
-    var a = rs, b = rs;
-    switch (o) {
-      case Types.Orientations.UP:
-      case Types.Orientations.DOWN:
-        b=r;
-        break;
-      case Types.Orientations.LEFT:
-      case Types.Orientations.RIGHT:
-        a=r;
-        break;
-      case Types.Orientations.NONE:
-        return false;
-    }
-    //console.info("isInReach:");
-    //console.info("dx:"+Math.abs(this.x-x));
-    //console.info("dy:"+Math.abs(this.y-y));
-    //console.info("xa:"+a);
-    //console.info("yb:"+b);
-    return (Math.abs(this.x-x) <= a && Math.abs(this.y-y) <= b);
-  },
-
-  lookAt: function(x, y) {
-      this.orientation = this.getOrientationTo([x, y]);
-      this.idle(this.orientation);
-      return this.orientation;
-  },
-
-  // Orientation Code.
-  lookAtEntity: function(entity) {
-      if (entity) {
-          this.orientation = this.getOrientationTo(entity);
-      }
-      return this.orientation;
-  },
-
-  lookAtTile: function (x, y) {
-    var tsh = G_TILESIZE >> 1;
-    var pos = Utils.getGridPosition(x, y);
-    pos = Utils.getPositionFromGrid(pos.gx, pos.gy);
-    this.lookAt(pos.x+tsh,pos.y+tsh);
-  },
-
-/*******************************************************************************
- * END - Orientation Functions.
- ******************************************************************************/
-
-/*******************************************************************************
  * BEGIN - Pathing Functions.
  ******************************************************************************/
-
-  /*onMoveChange: function (callback) {
-      this.move_change_callback = callback;
-  },*/
 
   moveTo_: function(x, y, callback) {
     return this._moveTo(x, y, callback);
@@ -220,18 +57,18 @@ module.exports = EntityMoving = Entity.extend({
   },
 
   requestPathfindingTo: function(x, y) {
-    //console.info(JSON.stringify(this.path));
+    //log.info(JSON.stringify(this.path));
     if (Array.isArray(this.path) && this.path.length > 0) {
       return this.path;
     } else if (this.request_path_callback) {
       return this.request_path_callback(x, y);
     } else {
-      console.info(this.id + " couldn't request pathfinding to " + x + ", " + y);
-      console.info("char x:" + this.x + ",y: " + this.y + ", x:" + x + "y: " + y);
+      log.info(this.id + " couldn't request pathfinding to " + x + ", " + y);
+      log.info("char x:" + this.x + ",y: " + this.y + ", x:" + x + "y: " + y);
       try {
         throw new Error()
       } catch (e) {
-        console.info(e.stack);
+        log.info(e.stack);
       }
       return null;
     }
@@ -258,10 +95,6 @@ module.exports = EntityMoving = Entity.extend({
     this.path = path;
     this.step = 0;
 
-    if (this.followingMode) { // following a character
-      path.pop();
-    }
-
     if (this.start_pathing_callback) {
       this.start_pathing_callback(path);
     }
@@ -275,12 +108,6 @@ module.exports = EntityMoving = Entity.extend({
    *
    */
   go: function(x, y) {
-    if (this.isAttacking()) {
-      this.disengage();
-    } else if (this.followingMode) {
-      this.followingMode = false;
-      this.target = null;
-    }
     this.moveTo_(x, y);
   },
 
@@ -300,19 +127,7 @@ module.exports = EntityMoving = Entity.extend({
       if (!this.path)
         return null;
       var lastPath = this.path[this.path.length-1];
-      return [lastPath[0],
-        lastPath[1]];
-  },
-
-  stopInPath: function(x,y) {
-    if (this.isMovingPath()) {
-      if (this.map.entities.pathfinder.isInPath(this.path, [x,y])) {
-        this.setPosition(x,y);
-        //this.stop();
-        this.interrupted = true;
-        this.forceStop();
-      }
-    }
+      return [lastPath[0], lastPath[1]];
   },
 
 /*******************************************************************************
@@ -352,8 +167,8 @@ module.exports = EntityMoving = Entity.extend({
    var x, y, deg = 0;
    for (var i = 0; i < iterations; ++i) {
      deg += sec;
-     x = ~~(x2 + (Math.sin(deg)*d));
-     y = ~~(y2 + (Math.cos(deg)*d));
+     x = ~~(x2 + (Math.cos(deg)*d));
+     y = ~~(y2 + (Math.sin(deg)*d));
      points.push([x,y]);
    }
    points = points.filter((v,i,a)=>a.findIndex(v2=>(v2[0]===v[0] && v2[1]===v[1]))===i);
@@ -375,26 +190,14 @@ module.exports = EntityMoving = Entity.extend({
    for (var i = (coords.length-1); i >= 0; --i)
    {
      var coord = coords[i];
-     if (game.mapContainer.isColliding(coord.x, coord.y))
+     var map = game ? game.mapContainer : this.map;
+     if (map.isColliding(coord.x, coord.y))
        coords.splice(i,1);
    }
 
    coords.sort(function(a,b) { return a.d-b.d; });
 
    return {x: coords[0].x, y: coords[0].y};
- },
-
- isOverlapping: function() {
-   var entities = this.map.entities.getCharactersAround(this, 1);
-   for(var entity of entities) {
-     if (!entity || this === entity)
-       continue;
-     if (this.isOverlappingEntity(entity))
-     {
-       return true;
-     }
-   }
-   return false;
  },
 
 /*******************************************************************************
@@ -404,6 +207,18 @@ module.exports = EntityMoving = Entity.extend({
 /*******************************************************************************
  * BEGIN - Movement Functions.
  ******************************************************************************/
+
+   idle: function(orientation) {
+     this.setOrientation(orientation || this.orientation);
+     if (typeof(this.animate) === "function")
+       this.animate("idle", this.idleSpeed);
+   },
+
+   walk: function(orientation) {
+     this.setOrientation(orientation || this.orientation);
+     if (typeof(this.animate) === "function")
+       this.animate("walk", this.walkSpeed);
+   },
 
   /**
    * Stops a moving character.
@@ -497,27 +312,20 @@ module.exports = EntityMoving = Entity.extend({
       if (!p || i > (p.length-1))
         return;
 
-      this.orientation = this.getOrientation([this.x,this.y], p[i]);
+      var orientation = this.getOrientation([this.x,this.y], p[i]);
+      this.setOrientation(orientation);
       this.walk(this.orientation);
   },
 
-  /*updateWalk: function(a, b) {
-      this.orientation = this.getOrientation(a, b);
-      this.walk(this.orientation);
-  },*/
-
   nextStepPath: function () {
-    // Needed because x and y are moved !== path[0].
     if (this.step === 0)
     {
       this.step++;
       this.updateMovement();
     }
 
-    //console.info("nextStepPath - x:"+this.x+", y:"+this.y);
     if (this.step < this.path.length)
     {
-      //console.info("next-x:"+this.path[this.step][0]+",next-y:"+this.path[this.step][1]);
       if (this.x === this.path[this.step][0] &&
           this.y === this.path[this.step][1])
       {
@@ -535,7 +343,6 @@ module.exports = EntityMoving = Entity.extend({
           path, x, y;
 
       if(!this.isMovingPath() || this.freeze) {
-        //console.info("NOT MOVING OR FREEZE!!!!!!!!!!!!!");
         this.interrupted = true;
         stop = true;
       }
@@ -612,45 +419,34 @@ module.exports = EntityMoving = Entity.extend({
     return !(this.newDestination === null);
   },
 
-  isNear: function(character, distance) {
-    var dx, dy, near = false;
-
-    dx = Math.abs(this.x - character.x);
-    dy = Math.abs(this.y - character.y);
-
-    if (dx <= (distance*G_TILESIZE) && dy <= (distance*G_TILESIZE)) {
-      near = true;
-    }
-    return near;
-  },
-
-  isNextToo: function (x,y,o) {
-    var o = o || this.orientation;
-    var ts = G_TILESIZE;
-    //log.info("isNextToo:");
-    //log.info("dx:"+Math.abs(this.x-x));
-    //log.info("dy:"+Math.abs(this.y-y));
-    return (Math.abs(this.x-x) <= ts && Math.abs(this.y-y) <= ts);
-  },
-
-
   movePath: function (path, orientation) {
-    this.orientation = this.getOrientationTo([path[1][0],path[1][1]]);
-    /*if (orientation !== orientation2) {
-      console.error("orientation: "+orientation+","+orientation2);
-      if (orientation2 > 0)
-        orientation = orientation2;
-    }
-    this.setOrientation(orientation);*/
+    var orientation = this.getOrientationTo(path[1]);
+    this.setOrientation(orientation);
     this.walk();
 
     this.path = path;
     this.step = 0;
   },
 
-  /*setPosition: function (x, y) {
-    this._setPosition(x,y);
-  },*/
+/*******************************************************************************
+ * END - Movement Functions.
+ ******************************************************************************/
+
+/*******************************************************************************
+ * BEGIN - Grid Functions.
+ ******************************************************************************/
+
+  isNear: function(character, distance) {
+    var dx = Math.abs(this.x - character.x);
+    var dy = Math.abs(this.y - character.y);
+
+    return (dx <= (distance*G_TILESIZE) && dy <= (distance*G_TILESIZE));
+  },
+
+  isNextToo: function (x,y) {
+    var ts = G_TILESIZE;
+    return (Math.abs(this.x-x) <= ts && Math.abs(this.y-y) <= ts);
+  },
 
   nextDist: function (x, y, o, dist) {
     x = x || this.x;
@@ -703,43 +499,143 @@ module.exports = EntityMoving = Entity.extend({
     return false;
   },
 
-/*******************************************************************************
- * END - Movement Functions.
- ******************************************************************************/
+  // New function to make coding easier.
+  /// TODO - Fix, probably broken with new path code.
+  isWithinPath: function(coords) {
+    var tCoords = null;
+    if (typeof(coords) === "Object" && coords.x > 0 && coords.y > 0) {
+      tCoords = [coords.x, coords.y];
+    } else if (Array.isArray(coords) && coords.length === 2) {
+      tCoords = [coords[0], coords[1]];
+    }
+    if (!tCoords) return null;
+
+    if (this.path === null || this.path.length === 0)
+      return null;
+
+    var pathLen = this.path.length;
+    for (var i = 0; i < pathLen; ++i) {
+      if (this.path[i][0] === tCoords[0] && this.path[i][1] === tCoords[1])
+        return {
+          x: tCoords[0],
+          y: tCoords[1],
+          step: i
+        };
+    }
+
+    return null;
+  },
 
 /*******************************************************************************
- * START - MISC Functions.
+ * END - Grid Functions.
  ******************************************************************************/
+
+ /*******************************************************************************
+  * BEGIN - Orientation Functions.
+  ******************************************************************************/
+
+    getOrientation: function(p1, p2) {
+        var x = Math.abs(p1[0]-p2[0]);
+        var y = Math.abs(p1[1]-p2[1]);
+        if(x > y) {
+          if (p1[0] > p2[0])
+            return 3; // W
+          else
+            return 4; // E
+        } else if(y > x) {
+          if (p1[1] > p2[1])
+            return 1; // N
+          else
+            return 2; // S
+        }
+        return 0;
+    },
+
+   setOrientation: function(orientation) {
+     if (orientation) {
+       this.orientation = orientation || 0;
+     }
+   },
+
+   getOrientationTo: function(arr) {
+       return this.getOrientation([this.x,this.y],arr);
+   },
+
+   /**
+    * Changes the character's orientation so that it is facing its target.
+    */
+    lookAt: function(x, y) {
+        this.setOrientation(this.getOrientationTo([x, y]));
+        this.idle(this.orientation);
+        return this.orientation;
+    },
+
+   // Orientation Code.
+   lookAtEntity: function(entity) {
+     this._lookAtEntity(entity);
+   },
+
+   _lookAtEntity: function(entity) {
+      if (entity) {
+          var orientation = this.getOrientationTo([entity.x, entity.y]);
+          this.setOrientation(orientation);
+      }
+      return this.orientation;
+   },
+
+   lookAtTile: function (x, y) {
+     var tsh = G_TILESIZE >> 1;
+     var pos = Utils.getGridPosition(x, y);
+     pos = Utils.getPositionFromGrid(pos.gx, pos.gy);
+     this.lookAt(pos.x+tsh,pos.y+tsh);
+   },
+
+   isInReach: function (x,y,o,r,rs) {
+     var o = o || this.orientation;
+     var ts = G_TILESIZE;
+     var rs = rs || ts >> 1;
+     var r = r || ts + rs;
+
+     var a = rs, b = rs;
+     switch (o) {
+       case Types.Orientations.UP:
+       case Types.Orientations.DOWN:
+         b=r;
+         break;
+       case Types.Orientations.LEFT:
+       case Types.Orientations.RIGHT:
+         a=r;
+         break;
+       case Types.Orientations.NONE:
+         return false;
+     }
+     //console.info("isInReach:");
+     //console.info("dx:"+Math.abs(this.x-x));
+     //console.info("dy:"+Math.abs(this.y-y));
+     //console.info("xa:"+a);
+     //console.info("yb:"+b);
+     return (Math.abs(this.x-x) <= a && Math.abs(this.y-y) <= b);
+   },
+
+
+   isFacing: function (x, y) {
+     return this.orientation === this.getOrientationTo([x, y]);
+   },
+
+   isFacingEntity: function (entity) {
+       return this.isFacing(entity.x, entity.y);
+   },
+
+ /*******************************************************************************
+  * END - Orientation Functions.
+  ******************************************************************************/
+
+ /*******************************************************************************
+  * BEGIN - MISC Functions.
+  ******************************************************************************/
 
  onRemove: function(callback) {
    this.remove_callback = callback;
- },
-
- // New function to make coding easier.
- /// TODO - Fix, probably broken with new path code.
- isWithinPath: function(coords) {
-   var tCoords = null;
-   if (typeof(coords) === "Object" && coords.x > 0 && coords.y > 0) {
-     tCoords = [coords.x, coords.y];
-   } else if (Array.isArray(coords) && coords.length === 2) {
-     tCoords = [coords[0], coords[1]];
-   }
-   if (!tCoords) return null;
-
-   if (this.path === null || this.path.length === 0)
-     return null;
-
-   var pathLen = this.path.length;
-   for (var i = 0; i < pathLen; ++i) {
-     if (this.path[i][0] === tCoords[0] && this.path[i][1] === tCoords[1])
-       return {
-         x: tCoords[0],
-         y: tCoords[1],
-         step: i
-       };
-   }
-
-   return null;
  },
 
  setFreeze: function(ms, callback) {
@@ -758,13 +654,44 @@ module.exports = EntityMoving = Entity.extend({
    }, ms);
  },
 
- // Server Character
- getState: function() {
-   return this._getBaseState();
- },
-
 /*******************************************************************************
  * END - MISC Functions.
+ ******************************************************************************/
+
+/*******************************************************************************
+ * BEGIN - Server Functions.
+ ******************************************************************************/
+
+  // Server Character
+  getState: function() {
+    return this._getBaseState();
+  },
+
+   stopInPath: function(x,y) {
+     if (this.isMovingPath()) {
+       if (this.isWithinPath({x:x,y:y})) {
+         this.setPosition(x,y);
+         this.interrupted = true;
+         this.forceStop();
+       }
+     }
+   },
+
+   isOverlapping: function() {
+     var entities = this.map.entities.getCharactersAround(this, 1);
+     for(var entity of entities) {
+       if (!entity || this === entity)
+         continue;
+       if (this.isOverlappingEntity(entity))
+       {
+         return true;
+       }
+     }
+     return false;
+   },
+
+/*******************************************************************************
+ * END - Server Functions.
  ******************************************************************************/
 
 });

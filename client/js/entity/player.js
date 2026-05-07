@@ -17,7 +17,6 @@ define(['./entity', './character', 'data/appearancedata'],
       this.name = name;
 
       // Renderer
-      this.nameOffsetY = -10;
       this.rights = 0;
 
       // sprites
@@ -124,24 +123,12 @@ define(['./entity', './character', 'data/appearancedata'],
       return this.isLootMoving;
     },
 
-    /*getSpriteName: function() {
-      return this.getArmorSprite().name;
-    },*/
-
     getArmorSprite: function() {
       return this.sprites[0];
-      /*var spriteName = this.spriteName;
-      if (game.sprites.hasOwnProperty(spriteName))
-        return game.sprites[spriteName];
-      return null;*/
     },
 
     getWeaponSprite: function() {
       return this.sprites[1];
-      /*var spriteName = this.weaponName;
-      if (game.sprites.hasOwnProperty(spriteName))
-        return game.sprites[spriteName];
-      return null;*/
     },
 
     isArcher: function () {
@@ -166,21 +153,7 @@ define(['./entity', './character', 'data/appearancedata'],
       this.pvpFlag = pvpFlag;
     },
 
-    // Override walk, idle, and updateMovement for mounts.
-    /*walk: function(orientation) {
-      this.setOrientation(orientation);
-      this.animate("walk", this.walkSpeed);
-    },
-
-    idle: function(orientation) {
-      orientation = orientation || 0;
-      this.setOrientation(orientation);
-      this.animate("idle", this.idleSpeed);
-    },*/
-
     setRange: function() {
-      //this.pClass = pClass;
-      //ts = game.tilesize;
       this.setAttackRange(1);
       if (this.isArcher()) {
         this.setAttackRange(10);
@@ -492,18 +465,6 @@ define(['./entity', './character', 'data/appearancedata'],
         }
     },
 
-    /*setPositionGrid: function() {
-        var gx = (this.x >> 4);
-        var gy = (this.y >> 4);
-        //this.gx = gx;
-        //this.gy = gy;
-        var o = this.orientation;
-    },*/
-
-    /*isMoving: function() {
-        return this._super() && this.keyMove;
-    },*/
-
     harvestOn: function(type) {
       var self = this;
       var tmptype = type;
@@ -536,17 +497,12 @@ define(['./entity', './character', 'data/appearancedata'],
       if (this.fsm === "HARVEST") {
         clearInterval(this.harvestTimeout);
         this.harvestTimeout = null;
-        //this.fsm = "IDLE";
-        //this.forceStop();
-        //this.fsm = "IDLE";
-        //this.idle();
         this.startHarvestTime = 0;
         this.hideWeapon = false;
       }
     },
 
     forceStop: function () {
-      //this.keyMove = false;
       this._super();
       if (this.key_move_callback)
       {
@@ -581,7 +537,7 @@ define(['./entity', './character', 'data/appearancedata'],
       if (!this.canReach(entity))
       {
         //this.setTarget(entity);
-        if (!this.followAttack(entity))
+        if (!this.follow(entity))
           return "attack_toofar";
         else {
           return "attack_moving";
@@ -608,8 +564,7 @@ define(['./entity', './character', 'data/appearancedata'],
       this.movement.stop();
       this.keyMove = false;
       this.forceStop();
-      this.setPositionGrid(x,y);
-      //this.setPosition(x,y);
+      this.setPosition(x,y);
       this.fsm = "IDLE";
     },
 

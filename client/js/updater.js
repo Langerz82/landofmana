@@ -124,8 +124,8 @@ define(['entity/character', 'timer', 'entity/player', 'entity/entitymoving'], fu
             };
 
             this.playerPathXF = function(c, m) {
-              if (!c.isMovingPathCorrectly())
-                console.error("NOT isMovingPathCorrectly");
+              //if (!c.isMovingPathCorrectly())
+                //console.error("NOT isMovingPathCorrectly");
 
               var x = c.x + m;
               c.setPosition(x, c.y);
@@ -133,8 +133,8 @@ define(['entity/character', 'timer', 'entity/player', 'entity/entitymoving'], fu
             };
 
             this.playerPathYF = function(c, m) {
-              if (!c.isMovingPathCorrectly())
-                console.error("NOT isMovingPathCorrectly");
+              //if (!c.isMovingPathCorrectly())
+                //console.error("NOT isMovingPathCorrectly");
 
               var y = c.y + m;
               c.setPosition(c.x, y);

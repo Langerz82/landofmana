@@ -443,6 +443,7 @@ function(HoveringInfo,
                 p.resetPosition(x,y);
                 p.sendMove(false);
                 //game.client.sendSyncTime();
+                game.client.sendSyncTime(Date.now());
                 game.renderer.forceRedraw;
                 //log.info("DEBUG: p.x="+p.x+",x="+x+"p.y="+p.y+",y="+y);
                 return;
@@ -1077,8 +1078,8 @@ function(HoveringInfo,
           if (hpMod > hp)
             hpMod += (hp - hpMod);
 
-          entity.modifyHP(hpMod);
-          entity.modifyEP(epMod);
+          entity.modHealthBy(hpMod);
+          entity.modEnergyBy(epMod);
 
           if (entity === game.player)
           {

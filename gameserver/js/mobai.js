@@ -55,7 +55,7 @@ module.exports = MobAI = Class.extend({
 		{
       //console.info("player.name: "+player.name);
 
-      if (!player.isAlive()) {
+      if (player.isDead) {
         //console.info("player isDead or freeze.")
         continue;
       }
@@ -100,7 +100,7 @@ module.exports = MobAI = Class.extend({
     {
       var mob = mobs[mobId];
 
-      if (!mob.isAlive() || mob.freeze)
+      if (mob.isDead || mob.freeze)
         continue;
 
       if (mob.aiState === mobState.RETURNING)
@@ -126,7 +126,7 @@ module.exports = MobAI = Class.extend({
         return;
       }
 
-      if (!target.isAlive())
+      if (target.isDead)
 			{
         mob.returnToSpawn();
         //console.info(mob.id+" mob target is dead.");
@@ -234,7 +234,7 @@ module.exports = MobAI = Class.extend({
             console.info("handleHurt");
             this.server.handleDamage(mob.target, mob, -dmg, mob.criticalHit);
             mob.attackTimer = Date.now();
-            if (!mob.target.isAlive())
+            if (mob.target.isDead)
             {
               mob.returnToSpawn();
             }
@@ -250,7 +250,7 @@ module.exports = MobAI = Class.extend({
       }
 
       var et = entity.target;
-      if (et && !et.isAlive()) {
+      if (et && et.isDead) {
         entity.returnToSpawn();
         return true;
       }

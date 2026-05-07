@@ -542,11 +542,6 @@ define(['lib/pako', 'entity/player', 'entityfactory', 'entity/mob', 'entity/item
 
         sendMovePath: function(entity, length, path) {
 						var simpath = path;
-						if (entity.followingMode)
-						{
-							simpath.pop();
-							length--;
-						}
 
             var array = [Types.Messages.CW_MOVEPATH,
 											Utils.getWorldTime(),

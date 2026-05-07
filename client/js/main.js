@@ -1,6 +1,8 @@
 
 /* global Types */
 app = null;
+log = console;
+
 G_LATENCY = 75;
 G_ROUNDTRIP = G_LATENCY * 2;
 G_UPDATE_INTERVAL = 16;

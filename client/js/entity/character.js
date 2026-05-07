@@ -1,5 +1,5 @@
 
-define(['./entitymoving', '../transition', '../timer', 'data/mobdata', 'data/npcdata'], function(EntityMoving, Transition, Timer, MobData, NpcData) {
+define(['./entitymoving', '../transition', '../timer'], function(EntityMoving, Transition, Timer) {
 
   var Character = EntityMoving.extend({
     init: function(id, type, mapIndex, kind) {
@@ -82,6 +82,18 @@ define(['./entitymoving', '../transition', '../timer', 'data/mobdata', 'data/npc
     setMaxEP: function(ep) {
         this.stats.epMax = ep;
         this.stats.ep = ep;
+    },
+
+    modHealthBy: function (points) {
+      this.stats.hp = (this.stats.hp+points).clamp(0, this.stats.hpMax);
+
+      if(this.stats.hp == 0) {
+          this.die();
+      }
+    },
+
+    modEnergyBy: function (points) {
+      this.stats.ep = (this.stats.ep+points).clamp(0, this.stats.epMax);
     },
 
     setAttackRange: function(range) {
@@ -210,8 +222,8 @@ define(['./entitymoving', '../transition', '../timer', 'data/mobdata', 'data/npc
       return (this.unconfirmedTarget === character);
     },
 
-    canAttack: function(time) {
-        if(this.isDead === false && this.attackCooldown.isOver(time)) {
+    canAttack: function() {
+        if(this.isDead === false && this.attackCooldown.isOver()) {
             return true;
         }
         return false;
@@ -245,15 +257,10 @@ define(['./entitymoving', '../transition', '../timer', 'data/mobdata', 'data/npc
             }
             this.target = character;
             if(this.settarget_callback){
-                var targetName = this.target.name;
-                if (targetName && character.hasOwnProperty("stats") &&
-                    character.stats.hasOwnProperty("hpMax") && character.stats.hpMax > 0)
-                {
-                    this.settarget_callback(character, targetName, character.level);
-                }
+                this.settarget_callback(character, true);
             }
         } else {
-            log.debug(character.id + " is already the target of " + this.id);
+            console.debug(character.id + " is already the target of " + this.id);
         }
     },
 
@@ -265,20 +272,7 @@ define(['./entitymoving', '../transition', '../timer', 'data/mobdata', 'data/npc
       if(this.inspecting !== character && character !== this){
         this.inspecting = character;
         if(this.settarget_callback && this.target){
-
-          var targetName;
-          var mobData = MobData.Kinds[character.kind];
-          if (mobData)
-          {
-          	  if (mobData.name)
-          	      targetName = mobData.name;
-              else
-                  targetName = mobData.key;
-          }
-          else if (isItem(character.id)) {
-          	      targetName = ItemTypes.getKindAsString(character.kind);
-          }
-          this.settarget_callback(character, targetName, character.level, true);
+          this.settarget_callback(character, true);
         }
       }
     },
@@ -321,14 +315,12 @@ define(['./entitymoving', '../transition', '../timer', 'data/mobdata', 'data/npc
     canReach: function(entity) {
       var ts = G_TILESIZE;
 
-      //log.info("attackRange: " + this.attackRange);
-
       if (this.attackRange === 1)
         return this.isInReach(entity.x, entity.y, this.orientation);
 
       if (this.attackRange > 1)
       {
-        var range = ~~(Utils.realDistance([entity.x,entity.y],[this.x,this.y])/G_TILESIZE);
+        var range = ~~(Utils.realDistance([entity.x,entity.y],[this.x,this.y])/ts);
         return range <= this.attackRange;
       }
       return false;
@@ -346,19 +338,26 @@ define(['./entitymoving', '../transition', '../timer', 'data/mobdata', 'data/npc
  * BEGIN - Orientation Functions.
  ******************************************************************************/
 
+   /**
+    * Changes the character's orientation so that it is facing its target.
+    */
+    lookAt: function(x, y) {
+        this.setOrientation(this.getOrientationTo([x, y]));
+        this.idle(this.orientation);
+        return this.orientation;
+    },
+
     // Orientation Code.
     lookAtEntity: function(entity) {
       this._lookAtEntity(entity);
     },
 
     _lookAtEntity: function(entity) {
-       log.info("lookAtEntity");
        if (entity) {
-           log.info("lookAtEntity "+entity.id);
-           this.setOrientation(this.getOrientationTo([entity.x, entity.y]));
-           log.info("this.orientation="+this.orientation);
+           var orientation = this.getOrientationTo([entity.x, entity.y]);
+           this.setOrientation(orientation);
        }
-       if (!this.hasAnimation('atk'))
+       if (typeof(this.animate) === "function" && !this.hasAnimation('atk'))
          this.idle(this.orientation);
        return this.orientation;
     },
@@ -401,24 +400,11 @@ define(['./entitymoving', '../transition', '../timer', 'data/mobdata', 'data/npc
         }
     },
 
-/*    hurt: function() {
-        var self = this;
+    follow: function(entity, min, max) {
+      min = min || 1;
+      max = max || this.attackRange;
 
-        this.stopHurting();
-        this.sprites[0] = this.hurtSprite;
-        this.hurting = setTimeout(this.stopHurting.bind(this), 75);
-    },
-
-    stopHurting: function() {
-        this.sprites[0] = this.normalSprite;
-        clearTimeout(this.hurting);
-    },
-*/
-
-    followAttack: function(entity) {
-      var found = false;
-
-      var spot = this.getClosestSpot(entity, 1, this.attackRange);
+      var spot = this.getClosestSpot(entity, min, max);
 
       if (spot && spot.x && spot.y) {
         this.moveTo_(spot.x, spot.y);
@@ -427,12 +413,9 @@ define(['./entitymoving', '../transition', '../timer', 'data/mobdata', 'data/npc
       return false;
     },
 
-    clean: function() {
-    },
-
     // Observe used for zoning.
-    canObserve: function (time) {
-      if (this.observeTimer.isOver(time))
+    canObserve: function () {
+      if (this.observeTimer.isOver())
         return true;
       return false;
     },
@@ -440,18 +423,6 @@ define(['./entitymoving', '../transition', '../timer', 'data/mobdata', 'data/npc
 /*******************************************************************************
  * END - Misc Function.
  ******************************************************************************/
-
-   modifyHP: function (points) {
-     this.stats.hp = (this.stats.hp+points).clamp(0, this.stats.hpMax);
-
-     if(this.stats.hp == 0) {
-         this.die();
-     }
-   },
-
-   modifyEP: function (points) {
-     this.stats.ep = (this.stats.ep+points).clamp(0, this.stats.epMax);
-   }
 
   });
 

@@ -20,6 +20,11 @@ define(function() {
         isOver: function(time) {
             var over = false;
 
+            if (isNaN(time) || time === null || time === 0)
+            {
+              time = Date.now();
+            }
+
             //log.info("Timer.isOver - lasttime: "+this.lastTime+", duration: "+(time - this.lastTime));
             if(this.lastTime === 0 || (time - this.lastTime) > this.duration) {
                 over = true;

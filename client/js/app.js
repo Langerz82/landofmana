@@ -502,20 +502,30 @@ define(['lib/localforage', 'entity/mob', 'entity/item', 'data/mobdata', 'user', 
               ts = game.renderer.tilesize;
 
           if (game.player) {
-		        game.player.onSetTarget(function(target, name, level, mouseover)
+		        game.player.onSetTarget(function(target, mouseover)
             {
+              var targetName = target.name;
+              if (!(targetName && target.hasOwnProperty("stats") &&
+                target.stats.hasOwnProperty("hpMax") && target.stats.hpMax > 0))
+              {
+                return;
+              }
+
+              var mobData = MobData.Kinds[target.kind];
+              if (target instanceof Mob && mobData)
+              {
+              	  if (mobData.name)
+              	      targetName = mobData.name;
+                  else
+                      targetName = mobData.key;
+              }
+
   		        var el = '#target';
 
-        			if (target.title)
-        			{
-        				$(el+' .name').text(target.title);
-        			}
-        			else
-        			{
-        				$(el+' .name').text(name + " Lv"+level);
-        			}
+        			$(el+' .name').text(targetName + " Lv"+target.level);
 
         			$(el+' .name').css('text-transform', 'capitalize');
+
         			if(target.stats.hp) {
         			    $("#target-health").css('width', Math.round(target.stats.hp/target.stats.hpMax*60*guiScale)+'px');
                   $("#target-healthtext").html(target.stats.hp + "/" + target.stats.hpMax);
