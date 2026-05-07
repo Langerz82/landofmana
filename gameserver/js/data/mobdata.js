@@ -18,6 +18,7 @@ _.each( Mobs, function( value, key ) {
 		defense: (value.defenseMod) ? (value.defenseMod * 3) : 3,
 
 		hp: (value.hpMod) ? (value.hpMod * 150) : 150,
+		ep: (value.epMod) ? (value.epMod * 50) : 0,
 		xp: (value.xpMod) ? (value.xpMod * 10) : 10,
 
 		//level: (value.level) ? value.level : 0,

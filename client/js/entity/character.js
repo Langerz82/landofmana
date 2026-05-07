@@ -54,13 +54,13 @@ define(['./entitymoving', '../transition', '../timer'], function(EntityMoving, T
 /*******************************************************************************
  * BEGIN - Stat Functions.
  ******************************************************************************/
-    getHpMax: function () {
-     this.stats.hpMax;
-    },
+   getHpMax: function () {
+     return (this.stats) ? this.stats.hpMax : 0;
+   },
 
-    getEpMax: function () {
-      this.stats.epMax;
-    },
+   getEpMax: function () {
+     return (this.stats) ? this.stats.epMax : 0;
+   },
 
    resetHp: function () {
      var max = this.getHpMax();

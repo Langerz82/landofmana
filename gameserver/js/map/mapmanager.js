@@ -67,7 +67,7 @@ module.exports = MapManager = cls.Class.extend({
 
               var prevNpc = npc;
 
-//setTimeout(function () {
+setTimeout(function () {
 
               var x=0;
               var y=0;
@@ -115,30 +115,28 @@ module.exports = MapManager = cls.Class.extend({
                       id += 1;
 
                       //var mobtype = (id % (Object.keys(MobData.Kinds).length-1))+1;
-                      mobArea = new MobArea(map, id, 15, 1+(id), 1+(id), a, b, 40, 40,
+                      var mobArea1 = new MobArea(map, id, 15, 1+(id), 1+(id), a, b, 40, 40,
                         null, null, null, true, -1, null);
-                      map.mobArea.push(mobArea);
-                      mobArea.addMobs();
-                      mobArea.spawnMobs();
+                      map.mobArea.push(mobArea1);
+                      mobArea1.addMobs();
+                      mobArea1.spawnMobs();
 
                       // Slighter tougher mobs in inner circle.
-                      mobArea = new MobArea(map, id, 5, 2+(id), 2+(id), a, b, 20, 20,
+                      var mobArea2 = new MobArea(map, id, 5, 2+(id), 2+(id), a, b, 20, 20,
                         null, null, null, true, -1, null);
-                      map.mobArea.push(mobArea);
-                      mobArea.addMobs();
-                      mobArea.spawnMobs();
-
+                      map.mobArea.push(mobArea2);
+                      mobArea2.addMobs();
+                      mobArea2.spawnMobs();
 
                       // Boss is in innermost circle.
-                      mobArea = new MobArea(map, id, 1, 3+(id), 3+(id), a, b, 10, 10,
+                      var mobArea3 = new MobArea(map, id, 1, 3+(id), 3+(id), a, b, 10, 10,
                         null, null, null, true, -1, null);
-                      map.mobArea.push(mobArea);
-                      mobArea.addMobs();
-                      mobArea.spawnMobs();
-                      for (var mob of mobArea.entities) {
+                      map.mobArea.push(mobArea3);
+                      mobArea3.addMobs();
+                      mobArea3.spawnMobs();
+                      for (var mob of mobArea3.entities) {
                         mob.createBoss(5);
                       }
-
 
                       var area = new EntityArea(map, 0, a, b, 20, 20, true, -1);
                       var pos = area._getRandomPositionInsideArea(30);
@@ -188,7 +186,7 @@ module.exports = MapManager = cls.Class.extend({
                   }
               }
 
-//}, 10000);
+}, 10000);
 
               map.enterCallback = function (player) {
                 var pos = map.getRandomStartingPosition();

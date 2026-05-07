@@ -31,18 +31,19 @@ module.exports = Mob = Character.extend({
       this.spawnX = tx;
       this.spawnY = ty;
 
-      this.stats = {};
+      //this.stats = {};
       this.stats.attack = this.data.attack * this.level;
       this.stats.defense = this.data.defense * this.level;
-      this.stats.hp = Math.max(this.data.hp * this.level - 40,1);
+      this.stats.hpMax = Math.max(this.data.hp * this.level - 40,1);
       //console.info("this.data.hp="+this.data.hp);
-      this.stats.hpMax = this.stats.hp;
+      //this.stats.hpMax = this.stats.hp;
       //console.info("this.stats.hpMax="+this.stats.hpMax);
-      this.stats.ep = this.data.ep * this.level;
-      this.stats.epMax = this.stats.ep;
+      this.stats.epMax = this.data.ep * this.level;
+      //this.stats.epMax = this.stats.ep;
 
       this.stats.xp = this.data.xp * this.level;
-
+      //this.setHpMax();
+      //this.setEpMax();
 
       this.stats.mod = {
         attack: 0,
@@ -101,6 +102,9 @@ module.exports = Mob = Character.extend({
       this.dealtCount = {};
 
       this.creatureMulti = 1;
+
+      this.resetHp();
+      this.resetEp();
     },
 
     createBoss: function (multi) {

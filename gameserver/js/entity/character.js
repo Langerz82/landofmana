@@ -87,11 +87,11 @@ module.exports = Character = EntityMoving.extend({
  * BEGIN - Stat Functions.
  ******************************************************************************/
    getHpMax: function () {
-    this.stats.hpMax;
+     return (this.stats) ? this.stats.hpMax : 0;
    },
 
    getEpMax: function () {
-     this.stats.epMax;
+     return (this.stats) ? this.stats.epMax : 0;
    },
 
   resetHp: function () {
@@ -592,7 +592,7 @@ module.exports = Character = EntityMoving.extend({
 
     return {x: poss[0].x, y: poss[0].y};
   },
-  
+
   canMove: function() {
     if (this.isDead === false && this.moveCooldown.isOver()) {
       return true;
