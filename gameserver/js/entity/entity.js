@@ -20,11 +20,6 @@ module.exports = Entity = cls.Class.extend({
 
           this.name = "";
 
-          this.isCritical = false;
-          this.isHeal = false;
-
-          this.shadowOffsetY = 0;
-
           // Position
           this.setPosition(Number(x), Number(y));
           //this.x = ;
@@ -196,79 +191,37 @@ module.exports = Entity = cls.Class.extend({
         return this.isWithinDist(entity.x,entity.y, G_TILESIZE-1);
       },
 
-/* SERVER FUNCTIONS - START */
-
-	    _getBaseState: function () {
-  			return [
-  				parseInt(this.id, 10),
+      _getBaseState: function () {
+        return [
+          parseInt(this.id, 10),
           parseInt(this.type),
-  				parseInt(this.kind),
+          parseInt(this.kind),
           this.name,
           parseInt(this.map.index),
-  				parseInt(this.x),
-  				parseInt(this.y),
+          parseInt(this.x),
+          parseInt(this.y),
           parseInt(this.orientation || 0)
-  			];
-	    },
-
-	    getMapIndex: function ()
-	    {
-	    	return this.map.index;
+        ];
 	    },
 
       getState: function () {
         return this._getBaseState();
       },
 
+      setRandomOrientation: function() {
+        this.orientation = Utils.randomRangeInt(1,4);
+      },
+
+/* SERVER FUNCTIONS - START */
+
       spawn: function () {
         return new Messages.Spawn(this);
       },
 
       despawn: function () {
-        //var blood2 = (blood === null) ? 1 : blood;
-        //try { throw new Error(); } catch (e) { console.info(e.stack); }
         return new Messages.Despawn(this);
       },
 
-      getPositionNextTo: function (entity) {
-        var ts = G_TILESIZE;
-        var pos = null;
-        if (entity) {
-          pos = {};
-          // This is a quick & dirty way to give mobs a random position
-          // close to another entity.
-          var r = Utils.random(4);
-
-          pos.x = entity.x;
-          pos.y = entity.y;
-          if (r === 0) {
-            pos.y -= ts;
-          }
-          if (r === 1) {
-            pos.y += ts;
-          }
-          if (r === 2) {
-            pos.x -= ts;
-          }
-          if (r === 3) {
-            pos.x += ts;
-          }
-        }
-        return pos;
-      },
-
-      setRandomOrientation: function() {
-        r = Utils.random(4);
-
-        if(r === 0)
-          this.orientation = 1; // N
-        if(r === 1)
-          this.orientation = 2; // S
-        if(r === 2)
-          this.orientation = 3; // E
-        if(r === 3)
-          this.orientation = 4; // W
-      },
 /* SERVER FUNCTIONS - END */
 });
 

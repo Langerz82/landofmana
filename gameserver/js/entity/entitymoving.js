@@ -13,9 +13,7 @@ module.exports = EntityMoving = Entity.extend({
     this.moveSpeed = 100;
     this.setMoveRate(this.moveSpeed);
     this.walkSpeed = 150;
-    this.idleSpeed = Utils.randomInt(750, 1000);
-
-    this.followingMode = false;
+    this.idleSpeed = Utils.randomRangeInt(750, 1000);
 
     this.step = 0;
 
@@ -26,13 +24,12 @@ module.exports = EntityMoving = Entity.extend({
     this.moveCooldown = null;
     this.path = null;
     this.newDestination = null;
-    this.adjacentTiles = {};
 
     this.freeze = false;
   },
 
 /*******************************************************************************
- * BEGIN - Pathing Functions.
+ * BEGIN - Movement Functions.
  ******************************************************************************/
 
   moveTo_: function(x, y, callback) {
@@ -44,7 +41,6 @@ module.exports = EntityMoving = Entity.extend({
       x: x,
       y: y
     };
-    this.adjacentTiles = {};
 
     if (this.isMovingPath()) {
       this.continueTo(x, y);
@@ -131,7 +127,7 @@ module.exports = EntityMoving = Entity.extend({
   },
 
 /*******************************************************************************
- * END - Pathing Functions.
+ * END - Movement Functions.
  ******************************************************************************/
 
 /*******************************************************************************
@@ -240,8 +236,6 @@ module.exports = EntityMoving = Entity.extend({
       this.interrupted = false;
       this.path = null;
       this.newDestination = null;
-      this.isReadyToMove = true;
-      this.followingMode = false;
     }
     //this.idle(this.orientation);
     //if (this.movestop_callback)
@@ -449,6 +443,16 @@ module.exports = EntityMoving = Entity.extend({
       return true;
     }
     return false;
+  },
+
+  stopInPath: function(x,y) {
+    if (this.isMovingPath()) {
+      if (this.isWithinPath({x:x,y:y})) {
+        this.setPosition(x,y);
+        this.interrupted = true;
+        this.forceStop();
+      }
+    }
   },
 
 /*******************************************************************************
@@ -662,23 +666,7 @@ module.exports = EntityMoving = Entity.extend({
  * BEGIN - Server Functions.
  ******************************************************************************/
 
-  // Server Character
-  getState: function() {
-    return this._getBaseState();
-  },
-
-   stopInPath: function(x,y) {
-     if (this.isMovingPath()) {
-       if (this.isWithinPath({x:x,y:y})) {
-         this.setPosition(x,y);
-         this.interrupted = true;
-         this.forceStop();
-       }
-     }
-   },
-
-   isOverlapping: function() {
-     var entities = this.map.entities.getCharactersAround(this, 1);
+   isOverlapping: function(entities) {
      for(var entity of entities) {
        if (!entity || this === entity)
          continue;

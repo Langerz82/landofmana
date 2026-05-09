@@ -17,6 +17,7 @@ define(['./entitymoving', '../transition', '../timer'], function(EntityMoving, T
         // Combat
         this.target = null;
         this.unconfirmedTarget = null;
+        this.attackers = {};
 
         // Health
         this.stats = {};
@@ -29,87 +30,81 @@ define(['./entitymoving', '../transition', '../timer'], function(EntityMoving, T
         this.isDying = false;
         this.isDead = false;
         this.attackingMode = false;
-        this.followingMode = false;
         this.inspecting = null;
-
         this.isStunned = false;
-        this.isAttacking = false;
-
-        this.isReadyToMove = true;
-
-        this.updateCharacter = false;
-
-        this.requestMove = false;
 
         this.freeze = false;
-        this.flagAttacking = false;
-
-        this.observeTimer = new Timer(4096);
 
         //this.sprite = [];
-
-        this.attackers = {};
     },
 
 /*******************************************************************************
  * BEGIN - Stat Functions.
  ******************************************************************************/
-   getHpMax: function () {
-     return (this.stats) ? this.stats.hpMax : 0;
-   },
+    getHpMax: function () {
+      return (this.stats) ? this.stats.hpMax : 0;
+    },
 
-   getEpMax: function () {
-     return (this.stats) ? this.stats.epMax : 0;
-   },
+    getEpMax: function () {
+      return (this.stats) ? this.stats.epMax : 0;
+    },
 
-   resetHp: function () {
-     var max = this.getHpMax();
-     this.stats.hpMax = max;
-     this.stats.hp = max;
-   },
+    resetHp: function () {
+      var max = this.getHpMax();
+      this.stats.hpMax = max;
+      this.stats.hp = max;
+    },
 
-   resetEp: function () {
-     var max = this.getEpMax();
-     this.stats.epMax = max;
-     this.stats.ep = max;
-   },
+    resetEp: function () {
+      var max = this.getEpMax();
+      this.stats.epMax = max;
+      this.stats.ep = max;
+    },
 
-   setHp: function (val) {
-     val = val || this.getHpMax();
-     this.stats.hp = val;
-   },
+    setHp: function (val) {
+      val = val || this.getHpMax();
+      this.stats.hp = val;
+    },
 
-   setEp: function (val) {
-     val = val || this.getEpMax();
-     this.stats.ep = val;
-   },
+    setEp: function (val) {
+      val = val || this.getEpMax();
+      this.stats.ep = val;
+    },
 
-   setHpMax: function (val) {
-     val = val || this.getHpMax();
-     this.stats.hpMax = val;
-     this.stats.hp = val;
-   },
+    setHpMax: function (val) {
+      val = val || this.getHpMax();
+      this.stats.hpMax = val;
+      this.stats.hp = val;
+    },
 
-   setEpMax: function (val) {
-     val = val || this.getEpMax();
-     this.stats.epMax = val;
-     this.stats.ep = val;
-   },
+    setEpMax: function (val) {
+      val = val || this.getEpMax();
+      this.stats.epMax = val;
+      this.stats.ep = val;
+    },
 
-    modHp: function (points) {
-      this.stats.hp = (this.stats.hp+points).clamp(0, this.stats.hpMax);
+    hasFullHealth: function() {
+      return this.stats.hp === this.stats.hpMax;
+    },
+
+    hasFullEnergy: function() {
+      return this.stats.ep === this.stats.epMax;
+    },
+
+    setAttackRange: function(range) {
+       this.attackRange = range;
+    },
+
+    modHp: function (val) {
+      this.stats.hp = (this.stats.hp+val).clamp(0, this.stats.hpMax);
 
       if(this.stats.hp == 0) {
           this.die();
       }
     },
 
-    modEp: function (points) {
-      this.stats.ep = (this.stats.ep+points).clamp(0, this.stats.epMax);
-    },
-
-    setAttackRange: function(range) {
-        this.attackRange = range;
+    modEp: function (val) {
+      this.stats.ep = (this.stats.ep+val).clamp(0, this.stats.epMax);
     },
 
 /*******************************************************************************
@@ -181,7 +176,6 @@ define(['./entitymoving', '../transition', '../timer'], function(EntityMoving, T
 
     disengage: function() {
         this.attackingMode = false;
-        this.followingMode = false;
         this.removeTarget();
     },
 
@@ -405,7 +399,7 @@ define(['./entitymoving', '../transition', '../timer'], function(EntityMoving, T
  ******************************************************************************/
 
 /*******************************************************************************
- * BEGIN - Misc Function.
+ * BEGIN - State Function.
  ******************************************************************************/
 
      onDeath: function(callback) {
@@ -426,7 +420,7 @@ define(['./entitymoving', '../transition', '../timer'], function(EntityMoving, T
       this.freeze = true;
     },
 
-    die: function() {
+    die: function(attacker) {
         this.forceStop();
         this.removeTarget();
         this.isDying = true;
@@ -434,8 +428,20 @@ define(['./entitymoving', '../transition', '../timer'], function(EntityMoving, T
         clearTimeout(this.moveTimeout);
 
         if(this.death_callback) {
-            this.death_callback();
+            this.death_callback(attacker);
         }
+    },
+
+/*******************************************************************************
+ * END - State Functions.
+ ******************************************************************************/
+
+/*******************************************************************************
+ * BEGIN - Misc Functions.
+ ******************************************************************************/
+
+    onRemove: function(callback) {
+      this.remove_callback = callback;
     },
 
     follow: function(entity, min, max) {
@@ -451,11 +457,85 @@ define(['./entitymoving', '../transition', '../timer'], function(EntityMoving, T
       return false;
     },
 
-    // Observe used for zoning.
-    canObserve: function () {
-      if (this.observeTimer.isOver())
+    canMove: function() {
+      if (this.isDead === false && this.moveCooldown.isOver()) {
         return true;
+      }
       return false;
+    },
+
+    clean: function() {
+      this.forEachAttacker(function(attacker) {
+        attacker.disengage();
+        attacker.idle();
+      });
+    },
+
+    getClosestSpot: function(dest, adjStart, adjEnd) {
+      adjStart = adjStart || 1;
+      adjEnd = adjEnd || 1;
+      var poss = this.getSpotsAroundFrom(dest, adjStart, adjEnd);
+      var sx = this.x, sy = this.y;
+
+      for (var p of poss)
+      {
+        if (this.isColliding(p.x, p.y))
+          poss.splice(poss.indexOf(p),1);
+      }
+
+      entities = this.getEntitiesAround(adjEnd);
+
+      //console.info("entities: "+JSON.stringify(entities));
+      var ts = G_TILESIZE;
+      var tsh = ts >> 1;
+
+      var x, y, tx, ty;
+      for (var p of poss) {
+        x = p.x;
+        y = p.y;
+        for(var e2 of entities) {
+          if (!e2 || this === e2)
+            continue;
+          tx = e2.x;
+          ty = e2.y;
+
+          if (e2.isMovingPath()) {
+            var tp = e2.getLastMove();
+            if (tp) {
+              tx = tp[0];
+              ty = tp[1];
+            }
+          }
+          if ( Math.abs(x-tx) <= tsh && Math.abs(y-ty) <= tsh)
+          {
+            //console.info("ENTITY ON TARGET SPOT!");
+            poss.splice(poss.indexOf(p),1);
+          }
+        }
+      }
+
+      if (poss.length === 0)
+        return null;
+
+      poss.sort(function(a,b) { return a.d-b.d; });
+
+      return {x: poss[0].x, y: poss[0].y};
+    },
+
+    isColliding: function (x, y) {
+      if (typeof (game) === "undefined")
+        return this.map.isColliding(x,y);
+      else {
+        return game.mapContainer.isColliding(x,y);
+      }
+    },
+
+    getEntitiesAround: function (dist) {
+      if (typeof (game) === "undefined")
+        return this.map.entities.getCharactersAround(this, dist);
+      else {
+        return game.getEntitiesAround(this.x,this.y, dist * G_TILESIZE);
+      }
     },
 
 /*******************************************************************************

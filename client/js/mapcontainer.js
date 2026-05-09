@@ -454,8 +454,8 @@ define(['area', 'detect', 'map'], function(Area, Detect, Map) {
 
     isColliding: function(x, y)
     {
-      var x1 = ~~(x >> 4),
-          y1 = ~~(y >> 4),
+      var x1 = ~~(x / G_TILESIZE),
+          y1 = ~~(y / G_TILESIZE),
           x2 = ~~(x1 + 0.5),
           y2 = ~~(y1 + 0.5);
 

@@ -191,7 +191,8 @@ module.exports = MobAI = Class.extend({
       else {
         if (!mob.isMovingPath())
         {
-          if (mob.isOverlapping()) {
+          var entities = mob.map.entities.getCharactersAround(mob, 1);
+          if (mob.isOverlapping(entities)) {
             mob.forceStop();
             mob.follow(mob.target);
             if (mob.path)

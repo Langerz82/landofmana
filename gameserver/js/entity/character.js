@@ -24,15 +24,17 @@ module.exports = Character = EntityMoving.extend({
     this.unconfirmedTarget = null;
     this.attackers = {};
 
+    // Health
+    this.stats = {};
+    this.stats.hp = 0;
+    this.stats.hpMax = 0;
+    this.stats.ep = 0;
+    this.stats.epMax = 0;
+
     // Modes
-    this.isDead = false;
 //    this.isDying = false;
-
+    this.isDead = false;
     this.attackingMode = false;
-    this.followingMode = false;
-    this.engagingPC = false;
-
-    this.observeTimer = new Timer(4096);
 
     this.step = 0;
 
@@ -43,24 +45,9 @@ module.exports = Character = EntityMoving.extend({
 
     this.path = null;
     this.newDestination = null;
-    this.adjacentTiles = {};
-
-    // Health
-    this.stats = {};
-    this.stats.hp = 0;
-    this.stats.hpMax = 0;
-    this.stats.ep = 0;
-    this.stats.epMax = 0;
 
     this.attackCooldown = null;
     this.moveCooldown = null;
-
-    this.attackerLevel = 0;
-    this.defenderLevel = 0;
-    this.moveLevel = 0;
-
-//    this.armor = null;
-//    this.weapon = null;
 
     this.freeze = false;
 
@@ -132,6 +119,38 @@ module.exports = Character = EntityMoving.extend({
     this.stats.ep = val;
   },
 
+  hasFullHealth: function() {
+    return this.stats.hp === this.stats.hpMax;
+  },
+
+  hasFullEnergy: function() {
+    return this.stats.ep === this.stats.epMax;
+  },
+
+  setAttackRange: function(range) {
+    this.attackRange = range;
+  },
+
+  modHp: function(val) {
+    var hp = this.stats.hp,
+      max = this.stats.hpMax;
+
+    this.stats.hp = Utils.clamp(0, max, hp+val);
+    return this.changePoints(val, 0);
+  },
+
+  modEp: function(val) {
+    var ep = this.stats.ep,
+      max = this.stats.epMax;
+
+    this.stats.ep = Utils.clamp(0, max, ep+val);
+    return this.changePoints(0, val);
+  },
+
+  changePoints: function(modhp, modep) {
+    return new Messages.ChangePoints(this, modhp, modep);
+  },
+
   onDamage: function (attacker, hpMod, epMod, crit, effects) {
     hpMod = hpMod || 0;
     epMod = epMod || 0;
@@ -153,38 +172,6 @@ module.exports = Character = EntityMoving.extend({
 
     var msg = new Messages.Damage([attacker, this, -hpMod, -epMod, crit, effects]);
     this.map.entities.sendNeighbours(attacker, msg);
-  },
-
-  modHp: function(val) {
-    var hp = this.stats.hp,
-      max = this.stats.hpMax;
-
-    this.stats.hp = Utils.clamp(0, max, hp+val);
-    return this.changePoints(val, 0);
-  },
-
-  modEp: function(val) {
-    var ep = this.stats.ep,
-      max = this.stats.epMax;
-
-    this.stats.ep = Utils.clamp(0, max, ep+val);
-    return this.changePoints(0, val);
-  },
-
-  hasFullHealth: function() {
-    return this.stats.hp === this.stats.hpMax;
-  },
-
-  hasFullEnergy: function() {
-    return this.stats.ep === this.stats.epMax;
-  },
-
-  changePoints: function(modhp, modep) {
-    return new Messages.ChangePoints(this, modhp, modep);
-  },
-
-  setAttackRange: function(range) {
-    this.attackRange = range * G_TILESIZE;
   },
 
 /*******************************************************************************
@@ -249,7 +236,6 @@ module.exports = Character = EntityMoving.extend({
 
   disengage: function() {
     this.attackingMode = false;
-    this.followingMode = false;
     this.removeTarget();
   },
 
@@ -475,6 +461,14 @@ module.exports = Character = EntityMoving.extend({
  * BEGIN - State Functions.
  ******************************************************************************/
 
+  onDeath: function(callback) {
+      this.death_callback = callback;
+  },
+
+  hasWeapon: function() {
+      return false;
+  },
+
   /**
    *
    */
@@ -495,7 +489,7 @@ module.exports = Character = EntityMoving.extend({
     //this.isDying = true;
     this.isDead = true;
     this.freeze = true;
-
+    clearTimeout(this.moveTimeout);
 
     this.removeAttackers();
     this.endEffects();
@@ -526,19 +520,35 @@ module.exports = Character = EntityMoving.extend({
  * BEGIN - Misc Functions.
  ******************************************************************************/
 
-  /*attack: function() {
-    return new Messages.Attack(this.id, this.target.id);
-  },*/
+  onRemove: function(callback) {
+    this.remove_callback = callback;
+  },
+
+  follow: function(entity, min, max) {
+    min = min || 1;
+    max = max || this.attackRange;
+
+    var spot = this.getClosestSpot(entity, min, max);
+
+    if (spot && spot.x && spot.y) {
+      this.moveTo_(spot.x, spot.y);
+      return true;
+    }
+    return false;
+  },
+
+  canMove: function() {
+    if (this.isDead === false && this.moveCooldown.isOver()) {
+      return true;
+    }
+    return false;
+  },
 
   clean: function() {
     this.forEachAttacker(function(attacker) {
       attacker.disengage();
       attacker.idle();
     });
-  },
-
-  onRemove: function(callback) {
-    this.remove_callback = callback;
   },
 
   getClosestSpot: function(dest, adjStart, adjEnd) {
@@ -549,13 +559,12 @@ module.exports = Character = EntityMoving.extend({
 
     for (var p of poss)
     {
-      if (this.map.isColliding(p.x, p.y))
+      if (this.isColliding(p.x, p.y))
         poss.splice(poss.indexOf(p),1);
     }
 
-    var entities = this.map.entities.getCharactersAround(dest, adjEnd);
+    entities = this.getEntitiesAround(adjEnd);
 
-    //var entities = this.map.entities.getCharactersAround({x:x2,y:y2}, 6);
     //console.info("entities: "+JSON.stringify(entities));
     var ts = G_TILESIZE;
     var tsh = ts >> 1;
@@ -593,11 +602,20 @@ module.exports = Character = EntityMoving.extend({
     return {x: poss[0].x, y: poss[0].y};
   },
 
-  canMove: function() {
-    if (this.isDead === false && this.moveCooldown.isOver()) {
-      return true;
+  isColliding: function (x, y) {
+    if (typeof (game) === "undefined")
+      return this.map.isColliding(x,y);
+    else {
+      return game.mapContainer.isColliding(x,y);
     }
-    return false;
+  },
+
+  getEntitiesAround: function (dist) {
+    if (typeof (game) === "undefined")
+      return this.map.entities.getCharactersAround(this, dist);
+    else {
+      return game.getEntitiesAround(this.x,this.y, dist * G_TILESIZE);
+    }
   },
 
 /*******************************************************************************

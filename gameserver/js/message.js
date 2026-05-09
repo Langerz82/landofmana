@@ -246,7 +246,7 @@ Messages.TeleportMap = Message.extend({
     },
     serialize: function () {
         return [Types.Messages.WC_TELEPORT_MAP,
-                this.entity.getMapIndex(),
+                this.entity.map.index,
         	      this.subIndex,
                 this.status,
                 this.entity.x,

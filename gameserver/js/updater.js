@@ -136,22 +136,11 @@ module.exports = Updater = Class.extend({
    * Moves the player one space, if possible
    */
   moveCharacter: function(char, axis, x, y) {
-    //if (char.moveOrientation === Types.Orientations.NONE)
-      //return false;
-
     if (this.checkCollide(char, axis, x, y)) {
-    //if (axis % G_TILESIZE === 0) {
-      //if (char.map.isColliding(x, y)) {
-        c.setPosition(c.x, c.y);
-        console.warn("char.isColliding("+char.id+","+x+","+y+")");
-        return false;
-      //}
-    }
-
-    /*if (char.isOverlapping()) {
-      console.warn("char.isOverlapping("+char.id+","+x+","+y+")");
+      c.setPosition(c.x, c.y);
+      console.warn("char.isColliding("+char.id+","+x+","+y+")");
       return false;
-    }*/
+    }
     return true;
   },
 

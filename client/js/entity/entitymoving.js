@@ -2,18 +2,16 @@
 define(['./entity', '../transition', '../timer'], function(Entity, Transition, Timer) {
 
     var EntityMoving = Entity.extend({
-  init: function(id, type, map, kind, x, y) {
+  init: function(id, type, mapIndex, kind, x, y) {
     var self = this;
 
-    this._super(id, type, map, kind, x, y);
+    this._super(id, type, mapIndex, kind, x, y);
 
     // Speeds
     this.moveSpeed = 100;
     this.setMoveRate(this.moveSpeed);
     this.walkSpeed = 150;
     this.idleSpeed = Utils.randomRangeInt(750, 1000);
-
-    this.followingMode = false;
 
     this.step = 0;
 
@@ -24,7 +22,6 @@ define(['./entity', '../transition', '../timer'], function(Entity, Transition, T
     this.moveCooldown = null;
     this.path = null;
     this.newDestination = null;
-    this.adjacentTiles = {};
 
     this.freeze = false;
   },
@@ -42,7 +39,6 @@ define(['./entity', '../transition', '../timer'], function(Entity, Transition, T
        x: x,
        y: y
      };
-     this.adjacentTiles = {};
 
      if (this.isMovingPath()) {
        this.continueTo(x, y);
@@ -242,7 +238,6 @@ define(['./entity', '../transition', '../timer'], function(Entity, Transition, T
     this.interrupted = false;
     this.path = null;
     this.newDestination = null;
-    this.isReadyToMove = true;
   },
 
   setMoveStopCallback: function (callback) {
@@ -411,6 +406,23 @@ define(['./entity', '../transition', '../timer'], function(Entity, Transition, T
     {
       this.forceStop();
       this.setPosition(x,y);
+    }
+  },
+
+  canMove: function() {
+    if (this.isDead === false && this.moveCooldown.isOver()) {
+      return true;
+    }
+    return false;
+  },
+
+  stopInPath: function(x,y) {
+    if (this.isMovingPath()) {
+      if (this.isWithinPath({x:x,y:y})) {
+        this.setPosition(x,y);
+        this.interrupted = true;
+        this.forceStop();
+      }
     }
   },
 

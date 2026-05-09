@@ -24,10 +24,10 @@ PlayerSummary.prototype.toString = function () {
     return this.toArray().join(",");
 }
 
-define(['userclient', 'entity/player', 'data/appearancedata', 'lib/sha1'],
+define(['userclient', 'entity/player', 'data/appearancedata', 'timer', 'lib/sha1'],
 
 // TODO - Make a thin user client that process User related packets back and forth.
-function(UserClient, Player, AppearanceData) {
+function(UserClient, Player, AppearanceData, Timer) {
 
   var User = Class.extend({
       init: function(userclient, username, password) {
@@ -233,6 +233,13 @@ function(UserClient, Player, AppearanceData) {
             this.key_move_callback(state);
           }
           clearTimeout(this.attackInterval);
+        };
+
+        // Observe used for zoning.
+        player.canObserve = function () {
+          if (typeof(this.observeTimer) === "undefined")
+            this.observeTimer = new Timer(4096);
+          return this.observeTimer.isOver();
         };
 
         game.addPlayerCallbacks(player);
