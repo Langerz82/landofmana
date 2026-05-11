@@ -273,22 +273,6 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
               this.spritesets[0][data.id] = new Sprite(data, 2, Container.ENTITIES);
             },
 
-            setSpriteScale: function(scale) {
-              var self = this;
-
-              _.each(this.entities, function(entity) {
-                   try {
-                     if (entity !== game.player)
-                     {
-                        var sprite = self.sprites[entity.getSpriteName()];
-                        if (sprite)
-                   	      entity.setSprite(sprite);
-                     }
-                   }
-                   catch (e) {}
-              });
-            },
-
             loadSprites: function() {
                 log.info("Loading sprites...");
                 this.spritesets = [];
@@ -300,7 +284,6 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
                   sprite = sprites[key];
                   this.loadSprite(sprite);
                 }
-                this.setSpriteScale(this.renderer.scale);
             },
 
             setCursor: function(name, orientation) {
@@ -1070,8 +1053,8 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
             makePlayerGoToItem: function(item) {
                 var p = this.player;
                 if (!item) return;
-                if (!p.isWithinDistEntity(item, 24)) {
-                  p.follow(item);
+                if (!p.isNextTooEntity(item)) {
+                  p.follow(item, 1, 1);
                   //this.player.isLootMoving = true;
                 } else {
                   this.client.sendLootMove(item);

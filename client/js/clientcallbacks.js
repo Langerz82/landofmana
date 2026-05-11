@@ -1229,6 +1229,8 @@ function(HoveringInfo,
             var aid = parseInt(data.shift());
             var wid = parseInt(data.shift());
 
+            aid = 77;
+
             var aSprite = game.sprites[AppearanceData[aid].sprite];
             var wSprite = game.sprites[AppearanceData[wid].sprite];
 

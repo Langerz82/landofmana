@@ -33,6 +33,8 @@ define(['../timer'], function(Timer) {
         this.y = 0;
         this.gx = 0;
         this.gy = 0;
+
+        this.orientation = 2;
     },
 
 /* Sprite and Animation - START */
@@ -71,12 +73,15 @@ define(['../timer'], function(Timer) {
 
         this.sprites[index] = sprite;
 
-        if (this.pjsSprites[index] === null)
+        var pjsSprite = this.pjsSprites[index];
+        if (!pjsSprite)
           this.pjsSprites[index] = game.renderer.createSprite(sprite);
         else
-          this.pjsSprites[index] = game.renderer.changeSprite(sprite, this.pjsSprites[index]);
+          this.pjsSprites[index] = game.renderer.changeSprite(this.sprites[index], pjsSprite);
 
-        this.animations = sprite.createAnimations();
+        // The main sprite Animations are used only.
+        if (index == 0)
+          this.animations = sprite.animations;
 
         this.isLoaded = true;
         if(this.ready_func) {
@@ -131,9 +136,9 @@ define(['../timer'], function(Timer) {
 
             if(a) {
                 this.currentAnimation = a;
-                if(name.indexOf("atk") === 0) {
+                //if(name.indexOf("atk") === 0) {
                     this.currentAnimation.reset();
-                }
+                //}
                 this.currentAnimation.setSpeed(speed);
                 this.currentAnimation.setCount(count ? count : 0, onEndCount || function() {
                     self.idle(self.orientation);

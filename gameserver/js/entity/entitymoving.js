@@ -181,19 +181,68 @@ module.exports = EntityMoving = Entity.extend({
  getClosestSpot: function(dest, adjStart, adjEnd) {
    adjStart = adjStart || 1;
    adjEnd = adjEnd || 1;
-   var coords = this.getSpotsAroundFrom(dest, adjStart, adjEnd);
+   var poss = this.getSpotsAroundFrom(dest, adjStart, adjEnd);
+   var sx = this.x, sy = this.y;
 
-   for (var i = (coords.length-1); i >= 0; --i)
+   for (var p of poss)
    {
-     var coord = coords[i];
-     var map = game ? game.mapContainer : this.map;
-     if (map.isColliding(coord.x, coord.y))
-       coords.splice(i,1);
+     if (this.isColliding(p.x, p.y))
+       poss.splice(poss.indexOf(p),1);
    }
 
-   coords.sort(function(a,b) { return a.d-b.d; });
+   entities = this.getEntitiesAround(adjEnd);
 
-   return {x: coords[0].x, y: coords[0].y};
+   //console.info("entities: "+JSON.stringify(entities));
+   var ts = G_TILESIZE;
+   var tsh = ts >> 1;
+
+   var x, y, tx, ty;
+   for (var p of poss) {
+     x = p.x;
+     y = p.y;
+     for(var e2 of entities) {
+       if (!e2 || this === e2)
+         continue;
+       tx = e2.x;
+       ty = e2.y;
+
+       if (typeof(e2.isMovingPath) === "function" && e2.isMovingPath()) {
+         var tp = e2.getLastMove();
+         if (tp) {
+           tx = tp[0];
+           ty = tp[1];
+         }
+       }
+       if ( Math.abs(x-tx) <= tsh && Math.abs(y-ty) <= tsh)
+       {
+         //console.info("ENTITY ON TARGET SPOT!");
+         poss.splice(poss.indexOf(p),1);
+       }
+     }
+   }
+
+   if (poss.length === 0)
+     return null;
+
+   poss.sort(function(a,b) { return a.d-b.d; });
+
+   return {x: poss[0].x, y: poss[0].y};
+ },
+
+ isColliding: function (x, y) {
+   if (typeof (game) === "undefined")
+     return this.map.isColliding(x,y);
+   else {
+     return game.mapContainer.isColliding(x,y);
+   }
+ },
+
+ getEntitiesAround: function (dist) {
+   if (typeof (game) === "undefined")
+     return this.map.entities.getCharactersAround(this, dist);
+   else {
+     return game.getEntitiesAround(this.x,this.y, dist * G_TILESIZE);
+   }
  },
 
 /*******************************************************************************

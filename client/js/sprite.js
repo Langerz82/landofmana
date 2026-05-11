@@ -7,29 +7,29 @@ define(['animation'], function(Animation) {
             this.file = data.file;
             this.scale = scale;
             this.container = container;
-            this.isLoaded = false;
+            //this.isLoaded = false;
             this.offsetX = 0;
             this.offsetY = 0;
             this.data = data;
 
             this.loadJSON(data);
 
-            this.whiteSprite = {
+            this.createAnimations();
+
+            /*this.whiteSprite = {
                 isLoaded: true,
             };
             this.silhouetteSprite = {
                 isLoaded: true,
-            };
-            this.rsprite = null;
+            };*/
+            //this.rsprite = null;
         },
 
         loadJSON: function(data) {
             this.id = data.id;
 
-            if (this.file)
+            if (this.file || data.file)
               this.filepath = "img/" + this.scale + "/sprites/" + this.file;
-            else if (data.file)
-              this.filepath = "img/" + this.scale + "/sprites/" + data.file;
             else
               this.filepath = "img/" + this.scale + "/sprites/" + this.id + ".png";
 
@@ -46,6 +46,7 @@ define(['animation'], function(Animation) {
             for(var name in this.animationData) {
                 var a = this.animationData[name];
                 if (!a.hasOwnProperty('col')) a.col = 0;
+                if (!a.hasOwnProperty('row')) a.row = 0;
                 this.animations[name] = new Animation(name, a.length, a.col, a.row, this.width, this.height);
             }
 

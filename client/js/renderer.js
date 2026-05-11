@@ -35,7 +35,7 @@ define(['camera', 'entity/item', 'data/items', 'data/itemlootdata', 'entity/enti
                 PIXI.tilemap.Constant = {
                     maxTextures: 8,
                     bufferSize: 4096,
-                    boundSize: 2048,
+                    boundSize: 4096,
                     boundCountPerBuffer: 4,
                     use32bitIndex: true,
                     SCALE_MODE: PIXI.SCALE_MODES.LINEAR,
@@ -293,7 +293,6 @@ define(['camera', 'entity/item', 'data/items', 'data/itemlootdata', 'entity/enti
                 this.initFPS();
 
                 if(this.game.ready && this.game.renderer) {
-                    this.game.setSpriteScale(this.scale);
                     this.game.inventory.scale = this.getUiScaleFactor();
                 }
 
@@ -924,24 +923,25 @@ define(['camera', 'entity/item', 'data/items', 'data/itemlootdata', 'entity/enti
                     y = frame.y * s,
                     w = sprite.width,
                     h = sprite.height,
-                    offX = (sprite.width >> 1),
-                    offY = (sprite.height >> 1),
+                    //offX = (sprite.width >> 1),
+                    //offY = (sprite.height >> 1),
                     ts = this.tilesize,
                     //tsh = ts >> 1,
-                    ox = sprite.offsetX,
-                    oy = sprite.offsetY,
+                    //ox = sprite.offsetX,
+                    //oy = sprite.offsetY,
                     dx = entity.x,
                     dy = entity.y,
-                    dw = w,
-                    dh = h,
+                    //dw = w,
+                    //dh = h,
                     z = (entity.y*(c.gridW*ts)+entity.x) * 2,
                     //tOff = 1.0*ts,
                     ex = (dx + eo[0]),
                     ey = (dy + eo[1]);
-                if (entity === game.player) {
+
+                /*if (entity === game.player) {
                   this.pex = ex;
                   this.pey = ey;
-                }
+                }*/
                 if (entity === game.player.target) {
                   this.drawEntityTile(entity.id, ex, ey);
                 }
@@ -953,12 +953,11 @@ define(['camera', 'entity/item', 'data/items', 'data/itemlootdata', 'entity/enti
                 entity.fadeRatio = entity.getFadeRatio(this.game.currentTime);
 
                 try {
-                    var cx = 0.5, cy = 0.5;
                     if (entity instanceof NpcMove) {
                       ey -= (ts >> 1);
                     }
                     this.drawSprite([entity.pjsSprites[0], x, y, w*s, h*s, ex, ey,
-                      dw, dh, entity.flipSpriteX, entity.flipSpriteY, z, cx, cy]);
+                      w, h, entity.flipSpriteX, entity.flipSpriteY, z, 0.5, 0.5]);
                 }
                 catch (err) { log.info(err.message); log.info(err.stack); }
 
