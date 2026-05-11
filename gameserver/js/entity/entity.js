@@ -238,18 +238,6 @@ module.exports = Entity = cls.Class.extend({
       return false;
     },
 
-    isOverlapping: function(entities) {
-      for(var entity of entities) {
-        if (!entity || this === entity)
-          continue;
-        if (this.isOverlappingEntity(entity))
-        {
-          return true;
-        }
-      }
-      return false;
-    },
-
 /* SERVER FUNCTIONS - START */
 
   _getBaseState: function () {
