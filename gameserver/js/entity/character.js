@@ -40,12 +40,6 @@ module.exports = Character = EntityMoving.extend({
 
     this.orientation = this.setRandomOrientation();
 
-    // Pathing
-    this.movement = new Transition(this);
-
-    this.path = null;
-    this.newDestination = null;
-
     this.attackCooldown = null;
     this.moveCooldown = null;
 

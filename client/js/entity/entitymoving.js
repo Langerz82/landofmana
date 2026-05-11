@@ -215,29 +215,35 @@ define(['./entity', '../transition', '../timer'], function(Entity, Transition, T
       this.animate("walk", this.walkSpeed);
   },
 
-  forceStop: function () {
-    this._forceStop();
-    if (!this.isDying && !this.isDead && !this.hasAnimation('atk'))
-        this.idle();
+  forceStop: function() {
+    this.stop();
   },
 
   _forceStop: function() {
-    if (this.path && this.movement.inProgress && this.abort_pathing_callback)
-      this.abort_pathing_callback(this.x,this.y);
-
-    this._stop();
+    this.stop();
   },
 
   /**
-   * Stops a moving character.
-   */
-  _stop: function() {
+  * Stops a moving character.
+  */
+  stop: function() {
     this.movement.stop();
 
+    if (this.isMovingPath()) {
+      if (this.interrupted && this.abort_pathing_callback)
+        this.abort_pathing_callback(this.x, this.y);
+    }
+    else {
+      if (this.movestop_callback)
+        this.movestop_callback();
+    }
+
+    this.step = 0;
+    this.interrupted = true;
     this.moving = false;
-    this.interrupted = false;
     this.path = null;
     this.newDestination = null;
+    this.freeze = false;
   },
 
   setMoveStopCallback: function (callback) {
@@ -414,16 +420,6 @@ define(['./entity', '../transition', '../timer'], function(Entity, Transition, T
       return true;
     }
     return false;
-  },
-
-  stopInPath: function(x,y) {
-    if (this.isMovingPath()) {
-      if (this.isWithinPath({x:x,y:y})) {
-        this.setPosition(x,y);
-        this.interrupted = true;
-        this.forceStop();
-      }
-    }
   },
 
 /*******************************************************************************

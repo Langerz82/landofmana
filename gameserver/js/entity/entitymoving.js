@@ -216,56 +216,36 @@ module.exports = EntityMoving = Entity.extend({
        this.animate("walk", this.walkSpeed);
    },
 
-  /**
+   forceStop: function() {
+     this.stop();
+   },
+
+   _forceStop: function() {
+     this.stop();
+   },
+
+   /**
    * Stops a moving character.
    */
-  stop: function() {
-    if (this.isMovingPath()) {
-      this.interrupted = true;
-      this.moving = false;
-    }
-  },
+   stop: function() {
+     this.movement.stop();
 
-  forceStop: function() {
-    this.movement.stop();
-    this.orientation = 0;
-    this.moveOrientation = 0;
-    if (this.isMovingPath()) {
-      if (this.interrupted && this.abort_pathing_callback)
-        this.abort_pathing_callback(this.x, this.y);
-      this.interrupted = false;
-      this.path = null;
-      this.newDestination = null;
-    }
-    //this.idle(this.orientation);
-    //if (this.movestop_callback)
-      //this.movestop_callback();
-  },
+     if (this.isMovingPath()) {
+       if (this.interrupted && this.abort_pathing_callback)
+         this.abort_pathing_callback(this.x, this.y);
+     }
+     else {
+       if (this.movestop_callback)
+         this.movestop_callback();
+     }
 
-  forceStopMove: function() {
-    console.info("character - forceStopMove - called");
-    //console.info("forceStopMove - player, moveOrientation:"+this.moveOrientation);
-    //console.info("forceStopMove - player, ex:"+this.x+",ey:"+this.y);
-    //console.info("forceStopMove - player, cx:"+this.sx+",cy:"+this.sy);
-    //try { throw new Error(); } catch(err) { console.info(err.stack); }
-
-    this.movement.stop();
-    //this.orientation = 0;
-    this.moveOrientation = 0;
-    this.freeze = false;
-    //if (this.moving_callback)
-      //clearInterval(this.moving_callback);
-    //this.keyMove = false;
-    //this.y = this.sy;
-    if (this.movestop_callback)
-      this.movestop_callback();
-
-    //this.sx = this.x;
-    //this.sy = this.y;
-    //this.ex = -1;
-    //this.ey = -1;
-
-  },
+     this.step = 0;
+     this.interrupted = true;
+     this.moving = false;
+     this.path = null;
+     this.newDestination = null;
+     this.freeze = false;
+   },
 
   setMoveStopCallback: function (callback) {
     this.movestop_callback = callback;
@@ -660,26 +640,6 @@ module.exports = EntityMoving = Entity.extend({
 
 /*******************************************************************************
  * END - Misc Functions.
- ******************************************************************************/
-
-/*******************************************************************************
- * BEGIN - Server Functions.
- ******************************************************************************/
-
-   isOverlapping: function(entities) {
-     for(var entity of entities) {
-       if (!entity || this === entity)
-         continue;
-       if (this.isOverlappingEntity(entity))
-       {
-         return true;
-       }
-     }
-     return false;
-   },
-
-/*******************************************************************************
- * END - Server Functions.
  ******************************************************************************/
 
 });

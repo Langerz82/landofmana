@@ -1022,10 +1022,10 @@ module.exports = Player = Character.extend({
 
     this.sx = this.x;
     this.sy = this.y;
-    this.ex = this.x2;
-    this.ey = this.y2;
+    this.ex = x2;
+    this.ey = y2;
 
-    this.forceStop();
+    //this.forceStop();
     this.path = this.fullpath = path;
     this.step = 0;
     this.interrupted = interrupted;
@@ -1132,7 +1132,7 @@ module.exports = Player = Character.extend({
       } else {
         this.setPosition(x,y);
       }
-      this.forceStopMove();
+      this.forceStop();
       this.keyMove = false;
       this.nextMove = null;
     }
@@ -1571,5 +1571,11 @@ module.exports = Player = Character.extend({
     this.map.entities.removeSpatial(this);
     this.packetHandler.setMap(map);
     this.map = map;
-  }
+  },
+
+  forceStop: function() {
+    this.moveOrientation = 0;
+    this._forceStop();
+  },
+
 });

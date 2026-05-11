@@ -13,38 +13,24 @@ define(['./entity', './character', 'data/appearancedata'],
       this._super(id, type, map, kind);
       var self = this;
 
-      //this.game = game;
       this.name = name;
 
-      // Renderer
       this.rights = 0;
-
-      // sprites
-      //this.spriteName = "clotharmor";
-      //this.armorName = "clotharmor";
-      //this.weaponName = "sword1";
-
-      //this.pClass = 0;
 
       this.moveSpeed = 500;
       this.setMoveRate(this.moveSpeed);
 
       this.atkSpeed = 64;
-      //this.timesAttack = 0;
       this.setAttackRate(64);
-
-      //this.stopMove = false;
 
       this.exp = {};
       this.level = 0;
       this.levels = {};
-      //this.sprites = new Array(2);
 
       this.stats = {};
 
       this.orientation = Types.Orientations.DOWN;
       this.keyMove = false;
-      this.joystickTime = 0;
 
       this.fsm = "IDLE";
       this.sprites = [null, null];
@@ -64,63 +50,12 @@ define(['./entity', './character', 'data/appearancedata'],
       //return true;
     },
 
-    /*getGuild: function() {
-      return this.guild;
-    },
-
-    setGuild: function(guild) {
-      this.guild = guild;
-      $('#guild-population').addClass("visible");
-      $('#guild-name').html(guild.name);
-    },
-
-    unsetGuild: function() {
-      delete this.guild;
-      $('#guild-population').removeClass("visible");
-    },
-
-    hasGuild: function() {
-      return (typeof this.guild !== 'undefined');
-    },
-
-
-    addInvite: function(inviteGuildId) {
-      this.invite = {
-        time: new Date().valueOf(),
-        guildId: inviteGuildId
-      };
-    },
-
-    deleteInvite: function() {
-      delete this.invite;
-    },
-
-    checkInvite: function() {
-      if (this.invite && ((new Date().valueOf() - this.invite.time) < 595000)) {
-        return this.invite.guildId;
-      } else {
-        if (this.invite) {
-          this.deleteInvite();
-          return -1;
-        } else {
-          return false;
-        }
-      }
-    },*/
-
     setSkill: function(index, exp) {
       this.skillHandler.add(index, exp);
     },
 
     setSkills: function(skillExps) {
       this.skillHandler.addAll(skillExps);
-    },
-
-    setConsumable: function(itemKind) {
-    },
-
-    isMovingToLoot: function() {
-      return this.isLootMoving;
     },
 
     getArmorSprite: function() {
@@ -132,14 +67,18 @@ define(['./entity', './character', 'data/appearancedata'],
     },
 
     isArcher: function () {
-      if (!this.equipment)
-        return false;
-
-      var weapon = this.equipment.rooms[4];
+      var weapon = this.getWeapon();
       if (weapon && ItemTypes.isArcherWeapon(weapon.itemKind)) {
         return true;
       }
       return false;
+    },
+
+    getWeapon: function() {
+      if (!this.equipment)
+        return null;
+
+      return this.equipment.rooms[4];
     },
 
     hasWeapon: function() {
@@ -149,10 +88,6 @@ define(['./entity', './character', 'data/appearancedata'],
       return this.equipment.rooms[4] !== null;
     },
 
-    flagPVP: function(pvpFlag) {
-      this.pvpFlag = pvpFlag;
-    },
-
     setRange: function() {
       this.setAttackRange(1);
       if (this.isArcher()) {
@@ -160,24 +95,20 @@ define(['./entity', './character', 'data/appearancedata'],
       }
     },
 
-    setPvpSide: function(side) {
-      this.pvpSide = side;
-    },
-
     canKeyMove: function () {
         var x=this.x, y=this.y;
         switch (this.orientation)
         {
-          case Types.Orientations.UP:
+          case 1:
             y--;
             break;
-          case Types.Orientations.DOWN:
+          case 2:
             y++;
             break;
-          case Types.Orientations.LEFT:
+          case 3:
             x--;
             break;
-          case Types.Orientations.RIGHT:
+          case 4:
             x++;
             break;
         }
@@ -272,11 +203,6 @@ define(['./entity', './character', 'data/appearancedata'],
       var chance_out = (chance / 5).toFixed(0)+"%";
       return chance_out;
       //return chance;
-    },
-
-    getWeapon: function () {
-      var weapon = this.equipment.rooms[4];
-      return weapon;
     },
 
     getWeaponLevel: function () {
@@ -433,19 +359,11 @@ define(['./entity', './character', 'data/appearancedata'],
 
       if (this.holdingBlock)
       {
-        var ts=G_TILESIZE;
-        var posArray = [
-          [x,y],
-          [x,y-ts],
-          [x,y+ts],
-          [x-ts,y],
-          [x+ts,y]
-        ];
-        var pos = posArray[this.orientation];
+        var pos = this.getTilePositionNextTo(this.orientation, 1);
         this.holdingBlock.setPosition(pos[0], pos[1]);
       }
     },
-
+/*
     followPath: function(path) {
       this._followPath(path);
     },
@@ -464,7 +382,7 @@ define(['./entity', './character', 'data/appearancedata'],
             }
         }
     },
-
+*/
     harvestOn: function(type) {
       var self = this;
       var tmptype = type;
@@ -502,14 +420,6 @@ define(['./entity', './character', 'data/appearancedata'],
       }
     },
 
-    forceStop: function () {
-      this._super();
-      if (this.key_move_callback)
-      {
-        this.key_move_callback(false);
-      }
-    },
-
     /**
      *
      */
@@ -531,7 +441,6 @@ define(['./entity', './character', 'data/appearancedata'],
         return;
 
       this.setTarget(entity);
-
 
       this.lookAtEntity(entity);
       if (!this.canReach(entity))

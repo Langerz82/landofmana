@@ -537,6 +537,12 @@ define(['./entitymoving', '../transition', '../timer'], function(EntityMoving, T
         return game.getEntitiesAround(this.x,this.y, dist * G_TILESIZE);
       }
     },
+    
+    forceStop: function () {
+      this._forceStop();
+      if (!this.isDying && !this.isDead && !this.hasAnimation('atk'))
+        this.idle();
+    },
 
 /*******************************************************************************
  * END - Misc Function.

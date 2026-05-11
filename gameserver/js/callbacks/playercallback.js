@@ -67,6 +67,8 @@ module.exports = PlayerCallback = Class.extend({
               //console.warn("checkStopDanger - coordinates equal");
               return true;
             }
+            if (o == 0)
+              return false;
 
             var x = c.x, y = c.y;
 
@@ -88,6 +90,7 @@ module.exports = PlayerCallback = Class.extend({
             }
             if (res) {
               c.setPosition(c.ex, c.ey);
+              //c.correctMove(c.x, c.y);
               console.warn("WARN - PLAYER "+c.id+" not stopping.");
               console.warn("orientation: "+Utils.getOrientationString(o));
               console.warn("x :"+x+",y :"+y);
@@ -150,14 +153,17 @@ module.exports = PlayerCallback = Class.extend({
         p.setMoveStopCallback(function () {
             var p = this;
             //p.moveOrientation = 0;
+//            console.warn()
+            //try { throw new Error(); } catch(err) { console.error(err.stack); }
             console.info("setMoveStopCallback");
             console.info("player, x:"+p.x+",y:"+p.y);
             //console.info("player, ex:"+p.x+",ey:"+p.y);
             //console.info("player, cx:"+p.sx+",cy:"+p.sy);
 
-            p.checkStopDanger(p, p.moveOrientation);
+            if (p.checkStopDanger(p, p.moveOrientation))
+              p.correctMove(p.ex,p.ey);
 
-            p.correctMove(p.ex,p.ey);
+            //p.correctMove(p.ex,p.ey);
             p.endMoveTime = Date.now();
             //p.sendCurrentMove();
             //console.info("p.x:"+p.x+",p.y="+p.y);

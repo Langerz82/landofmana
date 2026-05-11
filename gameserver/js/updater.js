@@ -47,7 +47,7 @@ module.exports = Updater = Class.extend({
       var x = c.x + m;
       if ((c.startMoving || (x % G_TILESIZE === 0)) && self.checkCollide(c,x,c.y))
       {
-        c.forceStopMove();
+        c.forceStop();
         return true;
       }
       c.startMoving = false;
@@ -57,7 +57,8 @@ module.exports = Updater = Class.extend({
 
       if (c.checkStopDanger(c, c.orientation))
       {
-        c.forceStopMove();
+        //c.resetMove(c.x,c.y);
+        c.forceStop();
         return true;
       }
       return false;
@@ -67,7 +68,7 @@ module.exports = Updater = Class.extend({
       var y = c.y + m;
       if ((c.startMoving || (y % G_TILESIZE === 0)) && self.checkCollide(c,c.x,y))
       {
-        c.forceStopMove();
+        c.forceStop();
         return true;
       }
       c.startMoving = false;
@@ -77,7 +78,8 @@ module.exports = Updater = Class.extend({
 
       if (c.checkStopDanger(c, c.orientation))
       {
-        c.forceStopMove();
+        //c.resetMove(c.x,c.y);
+        c.forceStop();
         return true;
       }
       return false;

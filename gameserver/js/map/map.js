@@ -276,30 +276,25 @@ var Map = cls.Class.extend({
 
     isColliding: function(x, y)
     {
-      var x1 = ~~(x >> 4),
-          y1 = ~~(y >> 4),
-          x2 = ~~(x1 + 0.5),
-          y2 = ~~(y1 + 0.5);
+      var gx = (x / G_TILESIZE),
+          gy = (y / G_TILESIZE),
+          d = 0.5,
+          x1 = ~~(gx-d),
+          y1 = ~~(gy-d),
+          x2 = ~~(gx+d),
+          y2 = ~~(gy+d);
 
-      var pos = [x1,y1];
-      //var arr = [[x1,y1], [x1,y2], [x2,y1], [x2,y2]];
+      var arr = [[x1,y1], [x1,y2], [x2,y1], [x2,y2]];
 
-      var c = pos;
-      if (this.isOutOfBounds(c[0], c[1])) {
-          return true;
+      for (var c of arr) {
+        if (this.isOutOfBounds(c[0], c[1])) {
+            return true;
+        }
+
+        if (this.isCollidingGrid(c[0], c[1])) {
+            return true;
+        }
       }
-      /*c = arr[3];
-      if (this.isOutOfBounds(c[0], c[1])) {
-          return true;
-      }*/
-
-      if (this.isCollidingGrid(c[0], c[1])) {
-          return true;
-      }
-
-      /*c = null;
-      for (c of arr) {
-      }*/
       return false;
     },
 

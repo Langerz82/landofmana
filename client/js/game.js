@@ -754,10 +754,6 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
                   var i = path.length - 1,
                       x =  path[i][0],
                       y =  path[i][1];
-
-                  /*if(self.player.isMovingToLoot()) {
-                      self.player.isLootMoving = false;
-                  }*/
               });
 
               self.player.onKeyMove(function(sentMove) {
