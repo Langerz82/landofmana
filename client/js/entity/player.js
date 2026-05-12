@@ -446,7 +446,7 @@ define(['./entity', './character', 'data/appearancedata'],
       if (!this.canReach(entity))
       {
         //this.setTarget(entity);
-        if (!this.follow(entity))
+        if (!this.followAttack(entity))
           return "attack_toofar";
         else {
           return "attack_moving";

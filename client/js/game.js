@@ -1054,7 +1054,7 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
                 var p = this.player;
                 if (!item) return;
                 if (!p.isNextTooEntity(item)) {
-                  p.follow(item, 1, 1);
+                  p.follow(item);
                   //this.player.isLootMoving = true;
                 } else {
                   this.client.sendLootMove(item);
@@ -1102,7 +1102,7 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
 
               if (!npc) return;
 
-              if (!game.player.isWithinDistEntity(npc, 24)) {
+              if (!game.player.isNextTooEntity(npc)) {
                 game.player.follow(npc);
                 return;
               }

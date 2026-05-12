@@ -110,15 +110,19 @@ module.exports = EntityMoving = Entity.extend({
   /**
    * Makes the character follow another one.
    */
-  follow: function(entity, dist) {
-    var found = false;
+   follow: function(entity, min, max) {
+     min = min || 1;
+     max = max || 1;
 
-    var spot = this.getClosestSpot(entity, dist);
+     var spot = this.getClosestSpot(entity, min, max);
 
-    if (spot && spot.x && spot.y)
-      this.moveTo_(spot.x, spot.y);
-  },
-
+     if (spot && spot.x && spot.y) {
+       this.moveTo_(spot.x, spot.y);
+       return true;
+     }
+     return false;
+   },
+   
   getLastMove: function () {
       if (!this.path)
         return null;

@@ -444,19 +444,6 @@ define(['./entitymoving', '../transition', '../timer'], function(EntityMoving, T
       this.remove_callback = callback;
     },
 
-    follow: function(entity, min, max) {
-      min = min || 1;
-      max = max || this.attackRange;
-
-      var spot = this.getClosestSpot(entity, min, max);
-
-      if (spot && spot.x && spot.y) {
-        this.moveTo_(spot.x, spot.y);
-        return true;
-      }
-      return false;
-    },
-
     canMove: function() {
       if (this.isDead === false && this.moveCooldown.isOver()) {
         return true;
