@@ -1026,10 +1026,13 @@ module.exports = Player = Character.extend({
     this.ey = y2;
 
     //this.forceStop();
+    //this.fullpath = path;
     this.path = this.fullpath = path;
     this.step = 0;
+    //this.movePath(path);
     this.interrupted = interrupted;
     this.startMovePathTime = time;
+
   },
 
   move: function (nm) {

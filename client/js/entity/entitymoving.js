@@ -443,13 +443,11 @@ define(['./entity', '../transition', '../timer'], function(Entity, Transition, T
     return !(this.newDestination === null);
   },
 
-  movePath: function (path, orientation) {
-    var orientation = this.getOrientationTo(path[1]);
-    this.setOrientation(orientation);
-    this.walk();
-
+  movePath: function (path) {
     this.path = path;
+    this.orientation = this.getOrientationTo(path[1]);
     this.step = 0;
+    this.walk();
   },
 
   move: function (time, orientation, state, x, y) {
@@ -473,6 +471,16 @@ define(['./entity', '../transition', '../timer'], function(Entity, Transition, T
       return true;
     }
     return false;
+  },
+
+  stopInPath: function(x,y) {
+    if (this.isMovingPath()) {
+      if (this.isWithinPath({x:x,y:y})) {
+        this.setPosition(x,y);
+        this.interrupted = true;
+        this.forceStop();
+      }
+    }
   },
 
 /*******************************************************************************

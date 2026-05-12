@@ -122,7 +122,7 @@ module.exports = EntityMoving = Entity.extend({
      }
      return false;
    },
-   
+
   getLastMove: function () {
       if (!this.path)
         return null;
@@ -446,13 +446,11 @@ module.exports = EntityMoving = Entity.extend({
     return !(this.newDestination === null);
   },
 
-  movePath: function (path, orientation) {
-    var orientation = this.getOrientationTo(path[1]);
-    this.setOrientation(orientation);
-    this.walk();
-
+  movePath: function (path) {
     this.path = path;
+    this.orientation = this.getOrientationTo(path[1]);
     this.step = 0;
+    this.walk();
   },
 
   move: function (time, orientation, state, x, y) {

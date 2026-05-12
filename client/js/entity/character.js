@@ -34,8 +34,6 @@ define(['./entitymoving', '../transition', '../timer'], function(EntityMoving, T
         this.isStunned = false;
 
         this.freeze = false;
-
-        //this.sprite = [];
     },
 
 /*******************************************************************************

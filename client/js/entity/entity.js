@@ -226,12 +226,12 @@ define(['../timer'], function(Timer) {
 */
 
     setPositionSpawn: function(x, y) {
-        log.info("setPositionSpawn - x:"+x+"y:"+y);
+      log.info("setPositionSpawn - x:"+x+"y:"+y);
 
-        this.setPosition(x, y);
+      this.setPosition(x, y);
 
-        this.spawnGx = this.gx;
-        this.spawnGy = this.gy;
+      this.spawnGx = this.gx;
+      this.spawnGy = this.gy;
     },
 
     ready: function(f) {

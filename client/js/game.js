@@ -981,7 +981,7 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
               };
 
               var entity = p.dialogueEntity;
-              if (entity && game.camera.isVisible(entity) && p.isFacingEntity(entity)) {
+              if (entity && game.camera.isVisible(entity) && p.isNextToo(entity)) {
                 game.showDialogue();
                 return;
               }
@@ -992,6 +992,9 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
               this.ignorePlayer = true;
 
               var target = p.target;
+              /*if (target && target instanceof Character) {
+                if (processTarget()) return;
+              }*/
               if (target && p.isNextTooEntity(target) && p.isFacingEntity(target)) {
                 if (processTarget()) return;
               }
@@ -1013,9 +1016,9 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
                 if (p.hasTarget() && processTarget()) return;
               }
 
-              if (target && fnIsIgnored(target)) {
+              /*if (target && fnIsIgnored(target)) {
                 p.clearTarget();
-              }
+              }*/
 
               if (target && !game.camera.isVisible(target)) {
                 p.clearTarget();

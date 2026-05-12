@@ -459,14 +459,15 @@ function(HoveringInfo,
         // time, mapIndex, entityId, orientation, interrupted, moveSpeed, path.
         client.onEntityMovePath(function(data)
         {
-            var time = Number(data[0]),
-              map = Number(data[1]),
-              id = Number(data[2]),
-              orientation = Number(data[3]),
-              interrupted = (data[4] ? true : false),
-              moveSpeed = Number(data[5]);
+            var time = Number(data.shift()),
+              map = Number(data.shift()),
+              id = Number(data.shift()),
+              orientation = Number(data.shift()),
+              interrupted = (data.shift() ? true : false),
+              moveSpeed = Number(data.shift());
 
-            var path = data.splice(6, data.length-6);
+            //var path = data.splice(5, data.length-5);
+            var path = data;
 
             if (game.mapStatus < 2 || game.mapIndex !== map ||
                 map !== game.player.mapIndex)
@@ -498,7 +499,7 @@ function(HoveringInfo,
 
             entity.forceStop();
             entity.setPosition(path[0][0], path[0][1]);
-            entity.setOrientation(orientation);
+            //entity.setOrientation(orientation);
 
             var movePathFunc = function () {
               if (entity.isDying || entity.isDead) {
@@ -514,7 +515,7 @@ function(HoveringInfo,
                 entity.setMoveRate(moveSpeed);
               }
 
-              entity.movePath(path,orientation);
+              entity.movePath(path);
             };
 
             if (lockStepTime === 0)
@@ -1228,8 +1229,6 @@ function(HoveringInfo,
             //p.sprites = [];
             var aid = parseInt(data.shift());
             var wid = parseInt(data.shift());
-
-            aid = 77;
 
             var aSprite = game.sprites[AppearanceData[aid].sprite];
             var wSprite = game.sprites[AppearanceData[wid].sprite];
