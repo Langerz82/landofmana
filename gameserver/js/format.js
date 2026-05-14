@@ -45,7 +45,7 @@ var questObjectLevelMax = 999;
 var entityTypeNPCMin = 5;
 var entityTypeNPCMax = 6;
 
-var shortcutIndexMax = 8;
+var shortcutIndexMax = 6;
 var shortcutTypeMax = 2;
 var shortcutTypeIdMax = 999;
 

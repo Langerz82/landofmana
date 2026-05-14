@@ -254,12 +254,18 @@ define(['data/skilldata', 'data/items'], function(SkillData, Items) {
       var shortcut;
       var i=0;
       for (var sc of arr) {
-        if (sc)
+        if (sc) {
+          if (sc[0] >= this.shortcutCount)
+            continue;
           this.shortcuts[sc[0]].install(sc[0], sc[1], sc[2]);
+        }
       }
     },
 
     install: function (slot, type, shortcutId) {
+      if (slot >= this.shortcutCount)
+        return;
+
       if (this.shortcuts[slot])
         this.shortcuts[slot].install(slot, type, shortcutId);
 
