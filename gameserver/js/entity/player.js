@@ -671,12 +671,18 @@ module.exports = Player = Character.extend({
         if (Array.isArray()) {
           for (var shortcut of db_player.shortcuts)
           {
+            if (shortcut[0] >= 6)
+              continue;
+
             if (shortcut)
               self.shortcuts[shortcut[0]] = shortcut;
           }
         } else {
           for (var sid in db_player.shortcuts)
           {
+            if (sid >= 6)
+              continue;
+
             var shortcut = db_player.shortcuts[sid];
             if (shortcut)
               self.shortcuts[sid] = shortcut;
