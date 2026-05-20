@@ -33,6 +33,7 @@ module.exports = PlayerCallback = Class.extend({
               p.resetMove(p.sx,p.sy);
               return;
             }
+
             //p.setPosition(p.sx,p.sy);
             //else
             p.setPosition(x,y);
@@ -65,10 +66,8 @@ module.exports = PlayerCallback = Class.extend({
             else if (c.x === c.ex && c.y === c.ey)
             {
               //console.warn("checkStopDanger - coordinates equal");
-              return true;
-            }
-            if (o == 0)
               return false;
+            }
 
             var x = c.x, y = c.y;
 

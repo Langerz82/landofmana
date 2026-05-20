@@ -575,12 +575,12 @@ function(HoveringInfo,
             var statChange = Number(data[2]);
             var p = game.player;
 
-            Utils.setValueByPath(game.player.stats, statType, statValue);
+            Utils.setValueByPath(p.stats, statType, statValue);
             if (statType === "exp.base") // exp.base
             {
-              game.player.level = Types.getLevel(statValue)
+              p.level = Types.getLevel(statValue)
               if (statChange > 0) {
-                game.infoManager.addDamageInfo("+"+statChange+" exp", game.player.x, game.player.y, "experience", 3000);
+                game.infoManager.addDamageInfo("+"+statChange+" exp", p.x, p.y, "experience", 3000);
               }
               game.updateExpBar();
             }
@@ -851,7 +851,8 @@ function(HoveringInfo,
             epMax: Number(data[9])
           };
 
-          game.player.stats = stats;
+          //game.player.stats = stats;
+          Object.assign(game.player.stats, stats);
           game.statDialog.update();
           game.updateBars();
         });

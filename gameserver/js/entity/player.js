@@ -270,7 +270,7 @@ module.exports = Player = Character.extend({
 
       this.level = Types.getLevel(this.stats.exp.base);
       if(prevLvl !== lvl) {
-      	this.levelUp(lvl);
+      	this.levelUp(prevLvl);
       }
 
       return incExp;
@@ -347,7 +347,7 @@ module.exports = Player = Character.extend({
     },
 
     levelUp: function (prevLevel) {
-      for (var i=(prevLevel+1); i <= this.level; ++i)
+      for (var i=prevLevel; i < this.level; ++i)
       {
   	    if (i < 10)
   	    {
@@ -1015,14 +1015,11 @@ module.exports = Player = Character.extend({
     this.ex = x2;
     this.ey = y2;
 
-    //this.forceStop();
-    //this.fullpath = path;
+    this.forceStop();
     this.path = this.fullpath = path;
     this.step = 0;
-    //this.movePath(path);
     this.interrupted = interrupted;
     this.startMovePathTime = time;
-
   },
 
   move: function (nm) {
