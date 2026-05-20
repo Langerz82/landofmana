@@ -368,6 +368,9 @@ define(['../timer'], function(Timer) {
       return false;
     },
 
+    clean: function() {
+    },
+
   });
 
   return Entity;

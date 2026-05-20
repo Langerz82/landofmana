@@ -270,6 +270,10 @@ module.exports = Entity = cls.Class.extend({
   },
 
 /* SERVER FUNCTIONS - END */
+
+  clean: function() {
+  },
+
 });
 
 module.exports = Entity;

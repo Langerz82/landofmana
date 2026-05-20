@@ -1413,4 +1413,19 @@ module.exports = Player = Character.extend({
     this._forceStop();
   },
 
+  modHp: function (hp) {
+    if (this.isDead)
+      return;
+
+    var msg = this._super(hp);
+    this.sendChangePoints(hp, 0);
+    return msg;
+  },
+
+  modEp: function (ep) {
+    var msg = this._super(ep);
+    this.sendChangePoints(0, ep);
+    return msg;
+  },
+
 });
