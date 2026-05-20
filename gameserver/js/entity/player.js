@@ -17,13 +17,7 @@ module.exports = Player = Character.extend({
         var self = this;
 
         this.user = user;
-        //this.main = worldServer;
-        //this.server = main;
-        //this.userHandler = worldServer.userHandler;
         this.world = world;
-        this.server = world;
-        //this.connection = connection;
-        //this.worldHandler = this.connection.worldHandler;
 
         this.map = this.world.maps[0];
 
@@ -33,16 +27,6 @@ module.exports = Player = Character.extend({
         this.mapIndex = 0;
 
         this.gold = new Array(2);
-        //this.skillSlots = [];
-
-        //this.hasLoggedIn = false;
-        //this.hasEnteredGame = false;
-        //this.isDead = false;
-        //this.haters = {};
-        //this.lastCheckpoint = null;
-        //this.formatChecker = new FormatChecker();
-        //this.friends = {};
-        //this.ignores = {};
 
         this.inventory = null;
         this.bank = null;
@@ -70,48 +54,22 @@ module.exports = Player = Character.extend({
           health: 0
         };
 
-        //this.cooltimeTimeout = null;
         this.consumeTimeout = null;
         this.skillHandler = new SkillHandler(this);
 
-        //this.hasFocus = true;
         this.moveSpeed = 500;
         this.setMoveRate(this.moveSpeed);
 
         this.consumeTime = new Timer(10000);
         this.attackedTime = new Timer(500);
         this.attackQueue = [];
-        //this.moveQueue = [];
-        //this.stopQueue = [];
-
-        //this.pClass = 0;
 
         this.attackSkill = [];
         this.attackTimer = 0;
 
         this.idleTimer = new Timer(300000);
 
-        //this.world.playerCallback.setCallbacks(this);
-    		//this.playerCallback = new PlayerCallback(this);
         this.quests = new PlayerQuests(this);
-
-      	//this.onWelcomeReady = false;
-
-/*
-      	this.tut = {};
-      	this.tut.move = false;
-      	this.tut.portal = false;
-      	this.tut.attack = false;
-      	this.tut.attack2 = false;
-      	this.tut.buy = false;
-      	this.tut.buy2 = false;
-      	this.tut.equip = false;
-      	this.tut.stats = false;
-*/
-
-//      	this.spawnsList = {};
-
-//      	this.lastAction = Date.now();
 
         this.knownIds = [];
 
@@ -122,14 +80,6 @@ module.exports = Player = Character.extend({
 
         this.moveOrientation = 0;
 
-        /*this.savedPlayer = false;
-        this.savedQuests = false;
-        this.savedInventory = false;
-        this.savedEquipment = false;
-        this.savedBank = false;*/
-        //this.savedAll = false;
-        //this.savedSection = 0;
-
         this.achievements = [];
 
         this.pStats = [];
@@ -139,22 +89,16 @@ module.exports = Player = Character.extend({
         this.shortcuts = {};
 
         this.loaded = 0;
-
-        //this.activeEffects = [];
-
-        //this.levels = {};
     },
 
     start: function (connection) {
-
-      //this.worldHandler = connection.worldHandler;
       this.connection = connection;
       this.id = connection.id;
 
       this.packetHandler = new PacketHandler(this);
       this.packetHandler.loadedPlayer = true;
 
-      this.server.connect_callback(this);
+      this.world.connect_callback(this);
       this.sendPlayerToClient();
     },
 
@@ -257,15 +201,27 @@ module.exports = Player = Character.extend({
       }
     },
 
+    getLevel: function () {
+      return Types.getLevel(this.stats.exp.base);
+    },
+
+    getAttackLevel: function () {
+      return Types.getAttackLevel(this.stats.exp.attack);
+    },
+
+    getDefenseLevel: function () {
+      return Types.getDefenseLevel(this.stats.exp.defense);
+    },
+
     incExp: function (gotexp)
     {
       var incExp = parseInt(gotexp);
 
       incExp = Math.ceil(incExp * this.getExpBonus());
 
-      var prevLvl = Types.getLevel(this.stats.exp.base);
+      var prevLvl = this.getLevel();
       this.stats.exp.base = parseInt(this.stats.exp.base) + parseInt(incExp);
-      var lvl = Types.getLevel(this.stats.exp.base);
+      var lvl = this.getLevel();
       this.sendPlayer(new Messages.Stat("exp.base", this.stats.exp.base, incExp));
 
       this.level = Types.getLevel(this.stats.exp.base);
@@ -281,9 +237,9 @@ module.exports = Player = Character.extend({
 
   		incExp = Math.ceil(incExp * this.getExpBonus() * 0.25);
 
-      var prevLvl = Types.getAttackLevel(this.stats.exp.attack);
+      var prevLvl = this.getAttackLevel();
     	this.stats.exp.attack = parseInt(this.stats.exp.attack) + parseInt(incExp);
-      var lvl = Types.getAttackLevel(this.stats.exp.attack);
+      var lvl = this.getAttackLevel();
       if(prevLvl !== lvl) {
       	this.sendPlayer(new Messages.LevelUp("attack", lvl, this.stats.exp.attack));
       }
@@ -295,9 +251,9 @@ module.exports = Player = Character.extend({
 
 		  incExp = Math.ceil(incExp * this.getExpBonus());
 
-      var prevLvl = Types.getDefenseLevel(this.stats.exp.defense);
+      var prevLvl = this.getDefenseLevel();
     	this.stats.exp.defense = parseInt(this.stats.exp.defense) + parseInt(incExp);
-      var lvl = Types.getDefenseLevel(this.stats.exp.defense);
+      var lvl = this.getDefenseLevel();
       if(prevLvl !== lvl) {
       	this.sendPlayer(new Messages.LevelUp("defense", lvl, this.stats.exp.defense));
       }
@@ -319,12 +275,6 @@ module.exports = Player = Character.extend({
       var clvl = Types.getWeaponLevel(xp);
       this.stats.exp[type] = xp;
       if(plvl !== clvl) {
-        var types = {
-          10: "sword",
-          11: "bow",
-          12: "hammer",
-          13: "axe",
-        }
         this.sendPlayer(new Messages.LevelUp(type, clvl, xp));
       }
       return incExp;
@@ -462,7 +412,6 @@ module.exports = Player = Character.extend({
       }
 
       // Send install skills
-      //self.skillHandler.setSkills(self, db_player.skills);
       self.effectHandler = new SkillEffectHandler(self);
       sendMessage.push(self.skills.length);
       for(var i=0; i < self.skills.length; ++i) {
@@ -470,7 +419,6 @@ module.exports = Player = Character.extend({
       }
 
       // Send load Skill slots.
-      //self.shortcuts = db_player.shortcuts;
       var len = Object.keys(self.shortcuts).length;
       sendMessage.push(len);
       var sc;
@@ -485,14 +433,8 @@ module.exports = Player = Character.extend({
 
       if (self.world.enter_callback)
       {
-
         self.world.enter_callback(self);
-        //console.info(JSON.stringify(sendMessage));
-        //self.send(sendMessage);
         self.connection.sendUTF8(sendMessage.join(","));
-
-        //self.hasEnteredGame = true;
-
       }
     },
 
@@ -501,7 +443,7 @@ module.exports = Player = Character.extend({
     {
         var self = this;
         self.mapIndex = parseInt(db_player.map[0]);
-        self.map =  self.server.maps[self.mapIndex];
+        self.map =  self.world.maps[self.mapIndex];
         self.x = parseInt(db_player.map[1]);
         self.y = parseInt(db_player.map[2]);
         self.orientation = parseInt(db_player.map[3]);
@@ -540,10 +482,6 @@ module.exports = Player = Character.extend({
         }
 
         self.level = Types.getLevel(self.stats.exp.base);
-        /*self.levels = {
-          "attack": Types.getAttackLevel(self.stats.exp.attack),
-          "defense": Types.getDefenseLevel(self.stats.exp.defense)
-        };*/
 
         self.gold[0] = parseInt(db_player.gold[0]);
         self.gold[1] = parseInt(db_player.gold[1]);
@@ -597,26 +535,6 @@ module.exports = Player = Character.extend({
           self.stats.luck = db_player.stats[4];
 
           self.stats.free = db_player.stats[5];
-
-          /*if (lvl < 10)
-      		{
-            self.stats.attack = lvl*2;
-      			self.stats.defense = lvl*2;
-      			self.stats.health = lvl*2;
-            self.stats.energy = lvl*2;
-      			self.stats.luck = lvl*2;
-
-      			self.stats.free = 0;
-      		}
-          else {
-            self.stats.attack = db_player.stats[0];
-            self.stats.defense = db_player.stats[1];
-            self.stats.health = db_player.stats[2];
-            self.stats.energy = db_player.stats[3];
-            self.stats.luck = db_player.stats[4];
-
-            self.stats.free = db_player.stats[5];
-          }*/
         }
 
         // if quests old format create empty.
@@ -633,9 +551,9 @@ module.exports = Player = Character.extend({
           self.quests.completeQuests = db_player.completeQuests;
         }
 
-        self.setHp();
-        self.setEp();
-        self.setPointsMax();
+        self.setHpMax();
+        self.setEpMax();
+
     		//console.info("self.stats.health="+self.stats.health);
         self.resetBars();
     		//console.info("self.stats.hp="+self.stats.hp);
@@ -671,27 +589,8 @@ module.exports = Player = Character.extend({
         }
 
         self.attackTimer = Date.now();
-        //self.server.connect_callback(self);
 
         //console.info("playerId: "+self.id);
-    },
-
-    setPointsMax: function () {
-      this.stats.hpMax = this.stats.hp;
-      this.stats.epMax = this.stats.ep;
-    },
-
-    tutChat: function(text, delay, check) {
-		var self = this;
-		var tutCheck = check;
-    	setTimeout(function () {
-    		if (self.map && self.map.entities &&
-    			self.mapStatus >= 2 && self.tut[tutCheck] === false)
-  			{
-  				self.sendPlayer(new Messages.Notify("TUTORIAL", text));
-  				self.tut[tutCheck] = true;
-  			}
-  		},delay*5000);
     },
 
     handleInventoryEat: function(item, slot){
@@ -730,6 +629,7 @@ module.exports = Player = Character.extend({
       this.inventory.takeOutItems(slot, 1);
     },
 
+/*
   modHp: function (hp) {
     if (this.isDead)
       return;
@@ -744,6 +644,7 @@ module.exports = Player = Character.extend({
     this.sendChangePoints(0, ep);
     return msg;
   },
+*/
 
   sendChangePoints: function (health, energy) {
     this.map.entities.sendNeighbours(this, new Messages.ChangePoints(this, health, energy));
@@ -755,7 +656,7 @@ module.exports = Player = Character.extend({
   },
 
   getEpMax: function () {
-  	var ep = 500 + (this.stats.energy * 100);
+  	var ep = 300 + (this.stats.energy * 100);
     return ep;
   },
 
@@ -778,28 +679,6 @@ module.exports = Player = Character.extend({
     var weaponData = ItemTypes.KindData[weapon.itemKind];
     return Types.getWeaponLevel(this.exp[weaponData.type]);
   },
-
-  /*addWeaponExp: function (damage) {
-    var weapon = this.equipment.rooms[4];
-    if (!weapon)
-      return;
-    var weaponData = ItemTypes.KindData[weapon.itemKind];
-    this.exp[weaponData.type] += ~~(damage / 100);
-
-    var xp = this.exp[weaponData.type];
-    var types = {
-      "sword":10,
-      "bow":11,
-      "hammer":12,
-      "axe":13,
-    }
-    var lvl = Types.getWeaponLevel(xp)
-    if (this.level[weaponData.type] !== lvl) {
-      var msg = new Messages.LevelUp(types[weaponData.type], lvl, xp);
-      this.sendPlayer(msg);
-    }
-    this.level[weaponData.type] = lvl;
-  },*/
 
   baseCrit: function() {
     var itemDiff = this.level*2;
@@ -953,14 +832,6 @@ module.exports = Player = Character.extend({
     return true;
   },
 
-  /*saveSection: function () {
-    console.info("SAVING SECTION: "+this.savedSection);
-    if (++this.savedSection === 6) {
-      console.info("SAVED PLAYER!!!!!: "+this.name);
-      this.savedSection = 0;
-    }
-  },*/
-
   sendToUserServer: function (msg) {
     if (this.world)
       this.world.send(msg.serialize());
@@ -1052,17 +923,12 @@ module.exports = Player = Character.extend({
     }
 
     if (state==1) {
-        var delay = 0; //Utils.getLockDelay(time);
-        console.warn("delay="+delay);
-        //var delay=Math.max(~~((G_LATENCY + time)-(Date.now()+G_UPDATE_INTERVAL)),0);
-        //this.latencyDiff = Date.now() - time;
-        //this.startMoveTime = time + delay;
+        var delay = 0;
         this.sx = this.x;
         this.sy = this.y;
         this.ex = -1;
         this.ey = -1;
         this.startMoveTime = time;
-        console.warn("time:"+time+",now:"+Date.now()+",diff:"+(Date.now()-time));
 
         var execMove = function () {
           if (self.movement.inProgress) {
@@ -1072,8 +938,6 @@ module.exports = Player = Character.extend({
           self.startMoving = true;
           self.moveOrientation = o;
           self.keyMove = true;
-          //self.startMoveTime = Date.now();
-          //self.startMoveSysTime = Date.now() + delay;
           return;
         };
         if (delay <= 0)
@@ -1086,18 +950,10 @@ module.exports = Player = Character.extend({
     }
 
     if (state === 0) {
-      console.info("move - x: "+x+", y: "+y);
-      //try { throw new Error(); } catch(err) { console.info(err.stack); }
       this.ex = x;
       this.ey = y;
       var a = (x === this.x && y === this.y);
       var b = (this.sx === x && this.sy === y);
-      //var c = (this.nsx === x && this.nsy === y);
-
-      console.info("move: x="+x+",y="+y);
-      console.info("move: this.x="+this.x+",this.y="+this.y);
-      console.info("move: this.sx="+this.sx+",this.sy="+this.sy);
-      //console.info("move: this.nsx="+this.nsx+",this.nsy="+this.nsy);
 
       if (a || b) {
         clearTimeout(this.moving_timeout);
@@ -1114,7 +970,6 @@ module.exports = Player = Character.extend({
         return;
       }
 
-      //var tMoves = [[this.sx,this.sy],[x,y]];
       if (this.map.entities.pathfinder.isPathTicksTooFast(this, path, this.startMoveTime))
       {
         this.resetMove(this.sx,this.sy);
@@ -1151,8 +1006,8 @@ module.exports = Player = Character.extend({
   },
 
   swapItem: function (slot, slot2) {
-    console.info(JSON.stringify(slot));
-    console.info(JSON.stringify(slot2));
+    //console.info(JSON.stringify(slot));
+    //console.info(JSON.stringify(slot2));
     var store1 = this.itemStore[slot[0]];
     var store2 = this.itemStore[slot2[0]];
     var room1 = store1.rooms;
@@ -1237,8 +1092,6 @@ module.exports = Player = Character.extend({
     }
 
     var itemRoom = store.rooms[slot[1]];
-    //var newItemRoom = new ItemRoom();
-    //newItemRoom.assign(itemRoom);
     var newItemRoom = Object.assign(new ItemRoom(), itemRoom);
     var item = this.map.entities.createItem(newItemRoom, this.x, this.y);
     count = Utils.clamp(1, itemRoom.itemNumber, count);
@@ -1252,7 +1105,7 @@ module.exports = Player = Character.extend({
 
     this.map.entities.sendNeighbours(this, item.spawn());
     this.knownIds.push(item.id);
-    this.server.handleItemDespawn(item);
+    this.world.handleItemDespawn(item);
   },
 
   sendCurrentMove: function () {
@@ -1282,15 +1135,7 @@ module.exports = Player = Character.extend({
 
     if (this.holdingBlock)
     {
-      var ts=G_TILESIZE;
-      var posArray = [
-        [x,y],
-        [x,y-ts],
-        [x,y+ts],
-        [x-ts,y],
-        [x+ts,y]
-      ];
-      var pos = posArray[this.orientation];
+      var pos = this.getTilePositionNextTo();
       this.holdingBlock.setPosition(pos[0], pos[1]);
     }
   },
@@ -1442,7 +1287,7 @@ module.exports = Player = Character.extend({
 
     var duration = 5000 + (entity.level*1000);
     this._harvest(x, y, function (p) {
-      p.server.taskHandler.processEvent(p, PlayerEvent(EventType.USE_NODE, entity, 1));
+      p.world.taskHandler.processEvent(p, PlayerEvent(EventType.USE_NODE, entity, 1));
 
       if (type === "hammer")
         p.stats.exp.mining += 10;
@@ -1492,7 +1337,7 @@ module.exports = Player = Character.extend({
 // TODO CHECK WHY NOT ADDING ITEM AND NOT NOTIFYING CLIENT.
     var duration = 6000;
     p._harvest(x, y, function (p) {
-      p.server.taskHandler.processEvent(p, PlayerEvent(EventType.HARVEST, p, 1));
+      p.world.taskHandler.processEvent(p, PlayerEvent(EventType.HARVEST, p, 1));
       if (p.getWeaponType() === "axe")
         p.stats.exp.logging += 10;
       p.map.entities.harvest[gp.gx + "_" + gp.gy] = Date.now();
