@@ -347,7 +347,6 @@ define(['./entity', './character', 'data/appearancedata'],
       this.freeze = false;
       this.stats.hp = this.stats.hpMax;
       this.stats.ep = this.stats.epMax;
-
       this.disengage();
     },
 

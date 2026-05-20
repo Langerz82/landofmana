@@ -446,8 +446,8 @@ function(HoveringInfo,
                 game.client.sendSyncTime(Date.now());
                 game.renderer.forceRedraw;
                 //log.info("DEBUG: p.x="+p.x+",x="+x+"p.y="+p.y+",y="+y);
-                return;
               }
+              return;
             }
 
             entity.setMoveRate(moveSpeed);
