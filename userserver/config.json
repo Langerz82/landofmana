@@ -21,7 +21,7 @@
   "world_id": 1,
   "production": "heroku",
   "database": "redis",
-  "version":94,
+  "version":95,
   "verify_email": "",
   "verify_key": ""
 }
