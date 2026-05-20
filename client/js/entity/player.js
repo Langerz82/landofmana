@@ -214,7 +214,7 @@ define(['./entity', './character', 'data/appearancedata'],
       if (!weapon)
         return 0;
       var weaponData = ItemTypes.KindData[weapon.itemKind];
-      return Types.getWeaponLevel(this.exp[weaponData.type]);
+      return Types.getWeaponLevel(this.stats.exp[weaponData.type]);
     },
 
     hasHarvestWeapon: function (type) {
