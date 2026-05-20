@@ -10,13 +10,13 @@ var Character = require('../entity/character'),
   ShopHandler = require("./shophandler");
 
 module.exports = PacketHandler = Class.extend({
-  init: function(user, player, connection, worldServer, map) {
-    this.user = user;
+  init: function(player, connection, worldServer) {
     this.player = player;
-    this.connection = connection;
-    this.world = this.server = worldServer;
-    this.map = player.map;
-    this.entities = player.map.entities;
+    this.user = player.user;
+    this.connection = player.connection;
+    this.world = this.server = player.world;
+//    this.map = player.map;
+//    this.entities = player.map.entities;
     this.partyHandler = new PartyHandler(this);
     this.shopHandler = new ShopHandler(this);
 
@@ -189,10 +189,12 @@ module.exports = PacketHandler = Class.extend({
 
   },
 
+/*
   setMap: function (map) {
       this.map = map;
       this.entities = map.entities;
   },
+*/
 
   timeout: function() {
     this.connection.sendUTF8("timeout");
@@ -280,16 +282,17 @@ module.exports = PacketHandler = Class.extend({
     var questId = parseInt(msg[1]);
     var status = parseInt(msg[2]);
 
-    var npc = this.entities.getEntityById(npcId);
-    if (!this.player.isInScreen(npc)) {
+    var p = this.player;
+    var npc = p.map.entities.getEntityById(npcId);
+    if (!p.isInScreen(npc)) {
       console.info("player not close enough to NPC!");
       return;
     }
 
     if (status === 1)
-      npc.entityQuests.acceptQuest(this.player, questId);
+      npc.entityQuests.acceptQuest(p, questId);
     else {
-      npc.entityQuests.rejectQuest(this.player, questId);
+      npc.entityQuests.rejectQuest(p, questId);
     }
   },
 
@@ -298,14 +301,15 @@ module.exports = PacketHandler = Class.extend({
     var type = parseInt(message[0]);
     var npcId = parseInt(message[1]);
 
-    var npc = this.entities.getEntityById(npcId);
-    if (!this.player.isInScreen(npc)) {
+    var p = this.player;
+    var npc = p.map.entities.getEntityById(npcId);
+    if (!p.isInScreen(npc)) {
       console.info("player not close enough to NPC!");
       return;
     }
 
     if (npc)
-      npc.talk(this.player);
+      npc.talk(p);
   },
 
   /*handleBankStore: function(message) {
@@ -467,7 +471,8 @@ module.exports = PacketHandler = Class.extend({
   handleLoot: function(message) {
     console.info("handleLoot");
 
-    item = this.entities.getEntityById(parseInt(message[0]));
+    var p = this.player;
+    item = p.map.entities.getEntityById(parseInt(message[0]));
     if (!item) {
       console.info("no item.");
       return;
@@ -476,7 +481,7 @@ module.exports = PacketHandler = Class.extend({
     var x = parseInt(message[1]),
         y = parseInt(message[2]);
 
-    if (!this.player.isWithinDist(x,y,24)) {
+    if (!p.isWithinDist(x,y,24)) {
       console.info("Player is not close enough to item.")
       return;
     }
@@ -486,10 +491,10 @@ module.exports = PacketHandler = Class.extend({
       console.info("enemyDrop");
 
     if (item instanceof Item) {
-      if (this.player.inventory.putItem(item.room) >= 0) {
-        this.server.taskHandler.processEvent(this.player, PlayerEvent(EventType.LOOTITEM, item, 1));
+      if (p.inventory.putItem(item.room) >= 0) {
+        this.server.taskHandler.processEvent(p, PlayerEvent(EventType.LOOTITEM, item, 1));
         this.broadcast(item.despawn(), false);
-        this.entities.removeEntity(item);
+        p.map.entities.removeEntity(item);
       }
     }
   },
@@ -527,6 +532,7 @@ module.exports = PacketHandler = Class.extend({
 
   handleHitEntity: function(sEntity, message) { // 8
     var self = this;
+    var p = this.player;
 
     console.info("handleHitEntity");
     //var self = this;
@@ -541,7 +547,7 @@ module.exports = PacketHandler = Class.extend({
       return;
     }
 
-    var tEntity = this.entities.getEntityById(targetId);
+    var tEntity = sEntity.map.entities.getEntityById(targetId);
     if (!tEntity) {
       console.warn("invalid entity");
       return;
@@ -575,7 +581,7 @@ module.exports = PacketHandler = Class.extend({
 // TODO fill sEntity, tEntity.
 
     //console.info("player.x:"+this.player.x+",this.player.y:"+this.player.y+",mob.x"+mob.x+",mob.y:"+mob.y);
-    if (this.map.isColliding(sEntity.x, sEntity.y)) {
+    if (sEntity.map.isColliding(sEntity.x, sEntity.y)) {
       console.warn("char.isColliding("+sEntity.id+","+sEntity.x+","+sEntity.y+")");
       return;
     }
@@ -601,11 +607,11 @@ module.exports = PacketHandler = Class.extend({
         return;
       }
       sEntity.isHarvesting = false;
-      sEntity.lastAction = Date.now();
+//      sEntity.lastAction = Date.now();
     }
 
     sEntity.isBlocking = false;
-    sEntity.attackedTime.duration = 500;
+//    sEntity.attackedTime.duration = 500;
     sEntity.hasAttacked = true;
 
     /*if (sEntity === this.player && tEntity instanceof Mob) {
@@ -744,7 +750,7 @@ module.exports = PacketHandler = Class.extend({
     var target;
     //console.info("targetId="+targetId);
     if (targetId) {
-      target = this.entities.getEntityById(targetId);
+      target = p.map.entities.getEntityById(targetId);
       if (!target)
         return;
     }
@@ -864,13 +870,13 @@ module.exports = PacketHandler = Class.extend({
     if (p.mapStatus < 2)
       return;
 
-    if (!this.entities.pathfinder.checkValidPath(path)) {
+    if (!p.map.entities.pathfinder.checkValidPath(path)) {
       console.warn("handleMovePath: checkValidPath false.");
       p.resetMove(p.x,p.y);
       return;
     }
 
-    if (!this.entities.pathfinder.isValidPath(p.map.grid, path)) {
+    if (!p.map.entities.pathfinder.isValidPath(p.map.grid, path)) {
       console.warn("handleMovePath: no valid path.");
       p.resetMove(p.x,p.y);
       return;
@@ -922,7 +928,7 @@ module.exports = PacketHandler = Class.extend({
 
       p.handleTeleport();
 
-      this.entities.removePlayer(p);
+      p.map.entities.removePlayer(p);
 
       var finishTeleportMaps = function (mapId) {
         //console.info("real mapId: " + mapId);
@@ -932,31 +938,25 @@ module.exports = PacketHandler = Class.extend({
         console.info("handleTeleportMap - x: "+x+",y:"+y);
 
         console.warn("mapIndex: p.map.mapIndex:"+map.index);
-        if (typeof p.prevPosX === "undefined" &&
-            typeof p.prevPosY === "undefined")
+        if (p.map.index === 0 || (typeof p.prevPosX === "undefined" &&
+            typeof p.prevPosY === "undefined"))
         {
           p.prevPosX = p.x;
           p.prevPosY = p.y;
-          pos = self.map.getRandomStartingPosition();
-        }
-        else if (p.map.index === 0)
-        {
-          p.prevPosX = p.x;
-          p.prevPosY = p.y;
-          pos = self.map.getRandomStartingPosition();
+          pos = p.map.getRandomStartingPosition();
         }
         else if (p.map.index === 1)
         {
           if (p.hasOwnProperty("prevPosX") && p.hasOwnProperty("prevPosY"))
             pos = {x: p.prevPosX, y: p.prevPosY};
           else
-            pos = self.map.getRandomStartingPosition();
+            pos = p.map.getRandomStartingPosition();
         }
         else {
-          pos = self.map.getRandomStartingPosition();
+          pos = p.map.getRandomStartingPosition();
         }
 
-        self.entities.addPlayer(p);
+        p.map.entities.addPlayer(p);
 
         p.ex = p.sx = pos.x;
         p.ey = p.sy = pos.y;
@@ -984,7 +984,7 @@ module.exports = PacketHandler = Class.extend({
     p.knownIds = [];
 
     p.setPosition(x,y);
-    this.entities.processWho(p);
+    p.map.entities.processWho(p);
     p.map.entities.sendNeighbours(p, new Messages.Spawn(p), p);
   },
 
@@ -1071,7 +1071,7 @@ module.exports = PacketHandler = Class.extend({
 
     var p = this.player;
 
-    var block = this.map.entities.getEntityById(id);
+    var block = p.map.entities.getEntityById(id);
     if (!block || !(block instanceof Block))
       return;
     if (!p.isNextTooEntity(block))
@@ -1086,7 +1086,7 @@ module.exports = PacketHandler = Class.extend({
       x = Utils.roundTo(x, G_TILESIZE);
       y = Utils.roundTo(y, G_TILESIZE);
 
-      if (this.map.isColliding(x, y))
+      if (p.map.isColliding(x, y))
         return;
 
       block.setPosition(x, y);
@@ -1099,6 +1099,7 @@ module.exports = PacketHandler = Class.extend({
 
   handleRequest: function (msg) {
     var type = parseInt(msg);
+    var p = this.player;
 
     switch (type) {
       case 0: // CW_APPEARANCELIST
@@ -1111,7 +1112,7 @@ module.exports = PacketHandler = Class.extend({
         this.handlePlayerInfo(msg);
         break;
       case 3: // CW_WHO REQUEST
-        this.entities.processWho(this.player);
+        p.map.entities.processWho(p);
         break;
     }
   },
@@ -1152,7 +1153,8 @@ module.exports = PacketHandler = Class.extend({
 
   handleUseNode: function (msg) {
     var id=parseInt(msg[0]);
-    var entity = this.entities.getEntityById(id);
+    var p = this.player;
+    var entity = p.map.entities.getEntityById(id);
     this.player.onHarvestEntity(entity);
   },
 

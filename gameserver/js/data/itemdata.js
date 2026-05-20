@@ -22,7 +22,7 @@ var KindData = {};
 //console.info(ItemsJson);
 KindData[0] = null;
 _.each( ItemsJson, function( itemValue, key ) {
-	KindData[itemValue.id] = {
+	var itemData = {
     name: itemValue.name,
     type: (itemValue.type) ? itemValue.type : "object",
     damageType: (itemValue.damageType) ? itemValue.damageType : "none",
@@ -37,8 +37,14 @@ _.each( ItemsJson, function( itemValue, key ) {
     staticsheet: (itemValue.staticsheet > 0) ? itemValue.staticsheet : 0,
     level: (itemValue.level) ? itemValue.level : itemValue.modifier,
     legacy: (itemValue.legacy) ? itemValue.legacy : 0,
+    cooldown: (itemValue.cooldown) ? itemValue.cooldown : 10,
     craft: getCraftData(itemValue.id)
 	};
+
+  if (itemData.type == "object")
+    itemData.cooldown = (itemValue.cooldown) ? itemValue.cooldown : 10;
+
+  KindData[itemValue.id] = itemData;
 });
 
 ItemTypes.setKindData(KindData);

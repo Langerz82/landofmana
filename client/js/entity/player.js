@@ -23,11 +23,14 @@ define(['./entity', './character', 'data/appearancedata'],
       this.atkSpeed = 64;
       this.setAttackRate(64);
 
-      this.exp = {};
+      //this.exp = {};
       this.level = 0;
-      this.levels = {};
+      //this.levels = {};
 
-      this.stats = {};
+      this.stats = {
+        exp: {}
+      };
+
 
       this.orientation = Types.Orientations.DOWN;
       this.keyMove = false;
@@ -97,6 +100,7 @@ define(['./entity', './character', 'data/appearancedata'],
 
     canKeyMove: function () {
         var x=this.x, y=this.y;
+
         switch (this.orientation)
         {
           case 1:
@@ -245,7 +249,8 @@ define(['./entity', './character', 'data/appearancedata'],
 
       dealt = ~~(weapon ? (ItemTypes.getData(weapon.itemKind).modifier * 3 + weapon.itemNumber * 2) : level);
 
-      var power = ((this.levels.attack / 50) + 1);
+      var lvl = Types.getAttackLevel(this.stats.exp.attack);
+      var power = ((lvl / 50) + 1);
 
       power *= ((this.getWeaponLevel() / 50) + 1);
 
@@ -304,7 +309,8 @@ define(['./entity', './character', 'data/appearancedata'],
       }
 
       log.info("dealt="+dealt);
-      var power = ((this.levels.defense / 50) + 1);
+      var lvl = Types.getDefenseLevel(this.stats.exp.defense);
+      var power = ((lvl / 50) + 1);
       log.info("power="+power);
       var min = ~~(level*power);
       var max = ~~(min*2);

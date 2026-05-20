@@ -186,7 +186,7 @@ define(['entity/item', 'data/items', 'data/itemlootdata'], function(Item, Items,
                && player.stats.hp > 0) || (ItemTypes.isConsumableItem(kind) && !ItemTypes.isHealingItem(kind)))
             {
                 this.decInventory(item.slot);
-                this.dialog.funcCooldownExec();
+                this.dialog.funcCooldownExec(item);
                 game.client.sendItemSlot([0, 0, item.slot, 1]);
                 game.audioManager.playSound("heal");
                 game.shortcuts.refresh();

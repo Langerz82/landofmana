@@ -78,9 +78,7 @@ define(['lib/pako', 'entity/player', 'entityfactory', 'entity/mob', 'entity/item
 					this.handlers[Types.Messages.WC_STAT] = this.stat_callback;
 					this.handlers[Types.Messages.WC_LEVELUP] = this.levelup_callback;
 					this.handlers[Types.Messages.WC_DESPAWN] = this.despawn_callback;
-					//this.handlers[Types.Messages.WC_SWAPSPRITE] = this.swapsprite_callback;
 					this.handlers[Types.Messages.WC_APPEARANCE] = this.appearance_callback;
-					//this.handlers[Types.Messages.WC_LOOKUPDATE] = this.updatelook_calllback;
 					this.handlers[Types.Messages.WC_MOVE] = this.move_callback;
 					this.handlers[Types.Messages.WC_MOVEPATH] = this.movepath_callback;
 					this.handlers[Types.Messages.WC_NOTIFY] = this.notify_callback;
@@ -485,11 +483,7 @@ define(['lib/pako', 'entity/player', 'entityfactory', 'entity/mob', 'entity/item
 				onProducts: function (callback) {
 					this.products_callback = callback;
 				},
-/*
-				onSwapSprite: function (callback) {
-					this.swapsprite_callback = callback;
-				},
-*/
+
 				onAppearance: function (callback) {
 					this.appearance_callback = callback;
 				},

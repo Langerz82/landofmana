@@ -570,13 +570,14 @@ function(HoveringInfo,
         });
 
         client.onPlayerStat(function(data) {
-            var statType = Number(data[0]);
+            var statType = data[0];
             var statValue = Number(data[1]);
             var statChange = Number(data[2]);
+            var p = game.player;
 
-            if (statType === 1) // exp.base
+            Utils.setValueByPath(game.player.stats, statType, statValue);
+            if (statType === "exp.base") // exp.base
             {
-              game.player.exp.base = statValue;
               game.player.level = Types.getLevel(statValue)
               if (statChange > 0) {
                 game.infoManager.addDamageInfo("+"+statChange+" exp", game.player.x, game.player.y, "experience", 3000);
@@ -586,54 +587,44 @@ function(HoveringInfo,
         });
 
         client.onPlayerLevelUp(function(data) {
-          var type = Number(data[0]);
+          var type = data[0];
           var level = Number(data[1]);
           var exp = Number(data[2]);
+          var p = game.player;
 
           var scale = game.renderer.scale;
-          var x=game.player.x, y=game.player.y, id=game.player.id;
-          if (type==1 && game.player.level !== level) {
+          var x=p.x, y=p.y, id=p.id;
+          if (type==="base" && p.level !== level) {
               id="lu"+id+"_"+level;
               var info = new HoveringInfo(id, "Level "+level, x, y, 5000, 'levelUp');
               game.infoManager.addInfo(info);
-
-              game.player.level = level;
+              p.level = level;
               return;
           }
-          if (type==2 && game.player.levels.attack !== level) {
-            id="lau"+id+"_"+level;
-            var info = new HoveringInfo(id, "Attack Level "+level, x, y, 3500, 'minorLevelUp');
-            game.infoManager.addInfo(info);
-
-            game.player.levels.attack = level;
-            return;
-          }
-          if (type==3 && game.player.levels.defense !== level) {
-            id="ldu"+id+"_"+level;
-            var info = new HoveringInfo(id, "Defense Level "+level, x, y, 3500, 'minorLevelUp');
-            game.infoManager.addInfo(info);
-
-            game.player.levels.defense = level;
-            return;
-          }
-
-          var types = {
-            10: "sword",
-            11: "bow",
-            12: "hammer",
-            13: "axe",
-          }
-
-          if (type >= 10) {
-            weaponType = types[type];
-            var curLevel = Types.getWeaponLevel(game.player.exp[weaponType]);
+          else if (type==="attack") {
+            var curLevel = Types.getAttackLevel(p.stats.exp.attack);
             if (curLevel !== level) {
-              id="wu"+id+"_"+level;
-              var info = new HoveringInfo(id, weaponType+" Level "+level, x, y, 3500, 'minorLevelUp');
+              id="lau"+id+"_"+level;
+              var info = new HoveringInfo(id, "Attack Level "+level, x, y, 3500, 'minorLevelUp');
               game.infoManager.addInfo(info);
             }
-            game.player.exp[weaponType] = exp
-            game.player.levels[weaponType] = level;
+          }
+          else if (type==="defense") {
+            var curLevel = Types.getDefenseLevel(p.stats.exp.defense);
+            if (curLevel !== level) {
+              id="ldu"+id+"_"+level;
+              var info = new HoveringInfo(id, "Defense Level "+level, x, y, 3500, 'minorLevelUp');
+              game.infoManager.addInfo(info);
+            }
+          }
+          else if (p.stats.exp.hasOwnProperty(type)) {
+            var curLevel = Types.getWeaponLevel(p.stats.exp[type]);
+            if (curLevel !== level) {
+              id="wu"+id+"_"+level;
+              var info = new HoveringInfo(id, type+" Level "+level, x, y, 3500, 'minorLevelUp');
+              game.infoManager.addInfo(info);
+            }
+            p.stats.exp[type] = exp
           }
         });
 
@@ -979,23 +970,7 @@ function(HoveringInfo,
         client.onProducts(function(data) {
           game.products = data;
         });
-/*
-        client.onSwapSprite(function (data) {
-          var entityId = Number(data[0]);
-          var spriteId = Number(data[1]);
-          var animId = Number(data[2]);
 
-          var entity = game.getEntityById(entityId);
-          switch (entity.type) {
-            case Types.EntityTypes.TRAP:
-              var spriteName = "trap-"+spriteId;
-              entity.setSprite(game.sprites[spriteName]);
-              var animName = (spriteId === 0) ? "off" : "on";
-              entity.animate(animName, entity.idleSpeed);
-              break;
-          }
-        });
-*/
         client.onAppearance(function (data) {
           game.appearanceDialog.assign(data);
         });
@@ -1160,7 +1135,7 @@ function(HoveringInfo,
             p.setEpMax(Number(data.shift()));
             //p.setClass(parseInt(data.shift()));
 
-            p.exp = {
+            p.stats.exp = {
               base: parseInt(data.shift()),
               attack: parseInt(data.shift()),
               defense: parseInt(data.shift()),
@@ -1173,16 +1148,8 @@ function(HoveringInfo,
               mining: parseInt(data.shift())
             };
 
-            p.level = Types.getLevel(p.exp.base);
-            p.levels = {
-              attack: Types.getAttackLevel(p.exp.attack),
-              defense: Types.getDefenseLevel(p.exp.defense),
-              move: Types.getMoveLevel(p.exp.move),
-              sword: Types.getWeaponLevel(p.exp.sword),
-              bow: Types.getWeaponLevel(p.exp.bow),
-              hammer: Types.getWeaponLevel(p.exp.hammer),
-              axe: Types.getWeaponLevel(p.exp.axe),
-            }
+            p.level = Types.getLevel(p.stats.exp.base);
+
             p.colors = [];
             p.colors[0] = parseInt(data.shift());
             p.colors[1] = parseInt(data.shift());

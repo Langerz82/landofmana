@@ -70,16 +70,16 @@ define(['./dialog', '../tabpage'], function(Dialog, TabPage) {
 
             var p = game.player;
             //p.exp = {};
-            p.exp.base = data.shift();
-            p.exp.attack = data.shift();
-            p.exp.defense = data.shift();
+            p.stats.exp.base = data.shift();
+            p.stats.exp.attack = data.shift();
+            p.stats.exp.defense = data.shift();
             //p.exp.move = data.shift();
-            p.exp.sword = data.shift();
-            p.exp.bow = data.shift();
-            p.exp.hammer = data.shift();
-            p.exp.axe = data.shift();
-            p.exp.logging = data.shift();
-            p.exp.mining = data.shift();
+            p.stats.exp.sword = data.shift();
+            p.stats.exp.bow = data.shift();
+            p.stats.exp.hammer = data.shift();
+            p.stats.exp.axe = data.shift();
+            p.stats.exp.logging = data.shift();
+            p.stats.exp.mining = data.shift();
 
             this.refreshStats();
 
@@ -95,56 +95,62 @@ define(['./dialog', '../tabpage'], function(Dialog, TabPage) {
 
             $('#characterName').text("Name\t\t"+p.name);
 
-            var xp = p.exp.sword || 0;
+            var xp = p.stats.exp.sword || 0;
             var lvl = Types.getWeaponLevel(xp);
-            var ratio = (xp) ? (xp - Types.weaponExp[lvl-1])/(Types.weaponExp[lvl] - Types.weaponExp[lvl-1]) : 0;
+            var fnXP = Types.weaponExp;
+            var ratio = (xp) ? (xp - fnXP[lvl-1])/(fnXP[lvl] - fnXP[lvl-1]) : 0;
             var ratioFmt = Utils.Percent(ratio);
             $('#characterLevelSword').text("Sword Level\t\t"+lvl+"\t"+ratioFmt);
 
-            xp = p.exp.bow || 0;
-            lvl = Types.getWeaponLevel(xp);
-            ratio = (xp) ? (xp - Types.weaponExp[lvl-1])/(Types.weaponExp[lvl] - Types.weaponExp[lvl-1]) : 0;
+            xp = p.stats.exp.bow || 0;
+            fnXP = Types.weaponExp;
+            ratio = (xp) ? (xp - fnXP[lvl-1])/(fnXP[lvl] - fnXP[lvl-1]) : 0;
             ratioFmt = Utils.Percent(ratio);
             $('#characterLevelBow').text("Bow Level\t\t"+lvl+"\t"+ratioFmt);
 
-            xp = p.exp.hammer || 0;
-            lvl = Types.getWeaponLevel(xp);
-            ratio = (xp) ? (xp - Types.weaponExp[lvl-1])/(Types.weaponExp[lvl] - Types.weaponExp[lvl-1]) : 0;
+            xp = p.stats.exp.hammer || 0;
+            fnXP = Types.weaponExp;
+            ratio = (xp) ? (xp - fnXP[lvl-1])/(fnXP[lvl] - fnXP[lvl-1]) : 0;
             ratioFmt = Utils.Percent(ratio);
             $('#characterLevelHammer').text("Hammer Level\t\t"+lvl+"\t"+ratioFmt);
 
-            xp = p.exp.axe || 0;
-            lvl = Types.getWeaponLevel(xp);
-            ratio = (xp) ? (xp - Types.weaponExp[lvl-1])/(Types.weaponExp[lvl] - Types.weaponExp[lvl-1]) : 0;
+            xp = p.stats.exp.axe || 0;
+            fnXP = Types.weaponExp;
+            ratio = (xp) ? (xp - fnXP[lvl-1])/(fnXP[lvl] - fnXP[lvl-1]) : 0;
             ratioFmt = Utils.Percent(ratio);
             $('#characterLevelAxe').text("Axe Level\t\t"+lvl+"\t"+ratioFmt+"%");
 
-            xp = p.exp.logging || 0;
+            xp = p.stats.exp.logging || 0;
             lvl = Types.getSkillLevel(xp);
-            ratio = (xp) ? (xp - Types.skillExp[lvl-1])/(Types.skillExp[lvl] - Types.skillExp[lvl-1]) : 0;
+            fnXP = Types.skillExp;
+            ratio = (xp) ? (xp - fnXP[lvl-1])/(fnXP[lvl] - fnXP[lvl-1]) : 0;
             ratioFmt = Utils.Percent(ratio);
             $('#characterLevelLogging').text("Logging Level\t\t"+lvl+"\t"+ratioFmt);
 
-            xp = p.exp.mining || 0;
+            xp = p.stats.exp.mining || 0;
             lvl = Types.getSkillLevel(xp);
-            ratio = (xp) ? (xp - Types.skillExp[lvl-1])/(Types.skillExp[lvl] - Types.skillExp[lvl-1]) : 0;
+            fnXP = Types.skillExp;
+            ratio = (xp) ? (xp - fnXP[lvl-1])/(fnXP[lvl] - fnXP[lvl-1]) : 0;
             ratioFmt = Utils.Percent(ratio);
             $('#characterLevelMining').text("Mining Level\t\t"+lvl+"\t"+ratioFmt);
 
-            p.level = Types.getLevel(p.exp.base);
-            p.levels.attack = Types.getAttackLevel(p.exp.attack);
-            p.levels.defense = Types.getDefenseLevel(p.exp.defense);
+            xp = p.stats.exp.base || 0;
+            lvl = Types.getLevel(xp);
+            fnXP = Types.expForLevel;
+            ratio = (xp) ? (xp - fnXP[lvl-1])/(fnXP[lvl] - fnXP[lvl-1]) : 0;
+            $('#characterLevel').text("Level\t\t"+lvl+"\t"+Utils.Percent(ratio));
 
-            var expLevelRatio = (p.exp.base) ? (p.exp.base - Types.expForLevel[p.level-1])/(Types.expForLevel[p.level] - Types.expForLevel[p.level-1]) : 0;
-            var attackRatio = (p.exp.attack) ? (p.exp.attack - Types.attackExp[p.levels.attack-1])/(Types.attackExp[p.levels.attack] - Types.attackExp[p.levels.attack-1]) : 0;
-            var defenseRatio = (p.exp.defense) ? (p.exp.defense - Types.defenseExp[p.levels.defense-1])/(Types.defenseExp[p.levels.defense] - Types.defenseExp[p.levels.defense-1]) : 0;
-            //var moveRatio = (p.exp.move) ? (p.exp.move - Types.moveExp[p.levels.move-1])/(Types.moveExp[p.levels.move] - Types.moveExp[p.levels.move-1]) : 0;
+            xp = p.stats.exp.attack || 0;
+            lvl = Types.getAttackLevel(p.stats.exp.attack);
+            fnXP = Types.attackExp;
+            ratio = (xp) ? (xp - fnXP[lvl-1])/(fnXP[lvl] - fnXP[lvl-1]) : 0;
+            $('#characterAttackLevel').text("Attack Level\t\t"+lvl+"\t"+Utils.Percent(ratio));
 
-            $('#characterLevel').text("Level\t\t"+p.level+"\t"+Utils.Percent(expLevelRatio));
-            $('#characterAttackLevel').text("Attack Level\t\t"+p.levels.attack+"\t"+Utils.Percent(attackRatio));
-            $('#characterDefenseLevel').text("Defense Level\t\t"+p.levels.defense+"\t"+Utils.Percent(defenseRatio));
-            //$('#characterMoveLevel').text("Move Level\t\t"+p.levels.move+"\t"+Utils.Percent(moveRatio));
-
+            xp = p.stats.exp.defense || 0;
+            lvl = Types.getDefenseLevel(p.stats.exp.defense);
+            fnXP = Types.defenseExp;
+            ratio = (xp) ? (xp - fnXP[lvl-1])/(fnXP[lvl] - fnXP[lvl-1]) : 0;
+            $('#characterDefenseLevel').text("Defense Level\t\t"+lvl+"\t"+Utils.Percent(ratio));
 
         }
     });

@@ -352,3 +352,40 @@ Utils.getOrientationFromPath = function (p1, p2) {
       return 4;
     return 0;
 }
+
+/**
+ * Resolves a dot-notation string path to a value within an object.
+ * @param {Object} obj - The source object.
+ * @param {string} path - The dot-separated string (e.g., 'a.b.c').
+ * @returns {*} - The value found at the path, or undefined if not found.
+ */
+Utils.getValueByPath = function (obj, path) {
+  if (path.indexOf('.') < 0)
+    return obj[path];
+  return path.split('.').reduce((acc, part) => acc && acc[part], obj);
+}
+
+/**
+ * Sets a value inside an object at the specified dot-notated path.
+ * @param {Object} obj - The target object.
+ * @param {string} path - The dot-separated string path.
+ * @param {*} value - The value to set.
+ * @returns {Object} - The modified object.
+ */
+Utils.setValueByPath = function (obj, path, value) {
+  const keys = path.split('.');
+  const lastKey = keys.pop();
+
+  // Traverse to the second-to-last object
+  const lastObj = keys.reduce((acc, key) => {
+    // If the next level doesn't exist, create an empty object
+    if (!acc[key] || typeof acc[key] !== 'object') {
+      acc[key] = {};
+    }
+    return acc[key];
+  }, obj);
+
+  // Set the final value
+  lastObj[lastKey] = value;
+  return obj;
+}

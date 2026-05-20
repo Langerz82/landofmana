@@ -981,7 +981,7 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
               };
 
               var entity = p.dialogueEntity;
-              if (entity && game.camera.isVisible(entity) && p.isNextToo(entity)) {
+              if (entity && p.isNextTooEntity(entity) && p.isFacingEntity(entity)) {
                 game.showDialogue();
                 return;
               }
@@ -2106,8 +2106,8 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
 
             updateExpBar: function(){
                 if(this.player && this.playerexp_callback){
-                    var level = this.player.level;
-                    var exp = this.player.exp.base;
+                    var exp = this.player.stats.exp.base;
+                    var level = Types.getLevel(exp);
                     this.playerexp_callback(level, exp);
                 }
             },

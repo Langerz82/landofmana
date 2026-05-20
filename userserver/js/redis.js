@@ -25,7 +25,7 @@ var hgetarray = function (hash, key, callback)
   }
 };
 
-var getStoreType = function(type)
+/*var getStoreType = function(type)
 {
   var sType;
   switch (type)
@@ -41,7 +41,7 @@ var getStoreType = function(type)
         break;
   }
   return sType;
-};
+};*/
 
 var getStoreTypeNew = function(type) {
   var sType;
@@ -372,11 +372,6 @@ module.exports = DatabaseHandler = cls.Class.extend({
 
           var len = AppearanceData.Data.length;
           db_user.looks = new Uint8Array(len);
-          /*if (!data.looks2 || parseInt(data.looks2, 16) === 0 || data.looks2.toLowerCase().includes("nan")) {
-            db_user.looks = new Uint8Array(len);
-            for(var i=0; i < len; ++i)
-              db_user.looks[i] = 0;
-          }*/
           if (data.looks2) {
             db_user.looks = Utils.Base64ToBinArray(data.looks2, len);
           }

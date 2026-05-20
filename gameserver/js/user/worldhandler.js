@@ -108,16 +108,16 @@ module.exports = WorldHandler = cls.Class.extend({
         player.stats.free];
 
       var exps = [
-        Utils.NaN2Zero(player.exp.base),
-        Utils.NaN2Zero(player.exp.attack),
-        Utils.NaN2Zero(player.exp.defense),
-        Utils.NaN2Zero(player.exp.move),
-        Utils.NaN2Zero(player.exp.sword),
-        Utils.NaN2Zero(player.exp.bow),
-        Utils.NaN2Zero(player.exp.hammer),
-        Utils.NaN2Zero(player.exp.axe),
-        Utils.NaN2Zero(player.exp.logging),
-        Utils.NaN2Zero(player.exp.mining),
+        Utils.NaN2Zero(player.stats.exp.base),
+        Utils.NaN2Zero(player.stats.exp.attack),
+        Utils.NaN2Zero(player.stats.exp.defense),
+        Utils.NaN2Zero(player.stats.exp.move),
+        Utils.NaN2Zero(player.stats.exp.sword),
+        Utils.NaN2Zero(player.stats.exp.bow),
+        Utils.NaN2Zero(player.stats.exp.hammer),
+        Utils.NaN2Zero(player.stats.exp.axe),
+        Utils.NaN2Zero(player.stats.exp.logging),
+        Utils.NaN2Zero(player.stats.exp.mining),
       ];
 
       var map = [

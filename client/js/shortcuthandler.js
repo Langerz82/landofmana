@@ -102,7 +102,7 @@ define(['data/skilldata', 'data/items'], function(SkillData, Items) {
       this.shortcutId = id;
 
       if (this.type === 1) {
-        this.cooldownTime = 5;
+        this.cooldownTime = ItemTypes.KindData[id].cooldown;
         //this.itemKind = this.shortcutId;
       }
       else if (this.type === 2) {

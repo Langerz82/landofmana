@@ -187,6 +187,7 @@ module.exports = UserHandler = cls.Class.extend({
       //user.world = this;
 
       player = new Player(this.world, user, conn);
+      this.world.playerCallback.setCallbacks(player);
       //player.start(this.connection);
       //player.name = playerSummary.name;
       //player.hasLoggedIn = true;

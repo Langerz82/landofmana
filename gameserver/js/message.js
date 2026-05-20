@@ -485,15 +485,15 @@ Messages.PlayerInfo = Message.extend({
     },
     serialize: function () {
         return [Types.Messages.WC_PLAYERINFO,
-          this.player.exp.base,
-          this.player.exp.attack,
-          this.player.exp.defense,
-          this.player.exp.sword,
-          this.player.exp.bow,
-          this.player.exp.hammer,
-          this.player.exp.axe,
-          this.player.exp.logging,
-          this.player.exp.mining
+          this.player.stats.exp.base,
+          this.player.stats.exp.attack,
+          this.player.stats.exp.defense,
+          this.player.stats.exp.sword,
+          this.player.stats.exp.bow,
+          this.player.stats.exp.hammer,
+          this.player.stats.exp.axe,
+          this.player.stats.exp.logging,
+          this.player.stats.exp.mining
         ];
     }
 });

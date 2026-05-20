@@ -349,7 +349,7 @@ WS.userConnection = Connection.extend({
       });
 
       var fnDisconnect = function () {
-          try { throw new Error(); } catch (e) { console.error(e.stack); }
+          //try { throw new Error(); } catch (e) { console.error(e.stack); }
           console.info('USER CONNECTION CLOSED.');
           if (self.closeCallback) {
               self.closeCallback();

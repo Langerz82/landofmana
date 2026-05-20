@@ -40,7 +40,7 @@ define(['text!../../shared/data/items2.json', 'text!../../shared/data/craft.json
 				}
 			});
 		}
-		kindData[kind] = {
+		var itemData = {
 			name: itemValue.name,
 			type: (itemValue.type) ? itemValue.type : "object",
 			damageType: (itemValue.damageType) ? itemValue.damageType : "none",
@@ -58,6 +58,11 @@ define(['text!../../shared/data/items2.json', 'text!../../shared/data/craft.json
 			//craft: (itemValue.craft) ? itemValue.craft : [],
 			craft: getCraftData(kind)
 		};
+
+		if (itemData.type == "object")
+			itemData.cooldown = (itemValue.cooldown) ? itemValue.cooldown : 10;
+
+		kindData[kind] = itemData;
 	});
 
 	ItemTypes.setKindData(kindData);

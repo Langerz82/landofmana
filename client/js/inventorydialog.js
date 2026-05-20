@@ -26,7 +26,6 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
       });
 
       this.coolTimeCallback = null;
-      this.itemCooldown = 5;
       this.cooldowns = [];
       this.cooldownTime = 0;
 
@@ -517,8 +516,9 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
         return items;
     },
 
-    funcCooldownExec: function () {
-      this.cooldownTime = this.itemCooldown;
+    funcCooldownExec: function (item) {
+      var itemData = ItemTypes.KindData[item.itemKind];
+      this.cooldownTime = itemData.cooldown;
       this.funcCooldown();
       game.shortcuts.cooldownItems();
     },
