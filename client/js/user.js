@@ -158,6 +158,9 @@ function(UserClient, Player, AppearanceData, Timer) {
         }
 
         player.moveTo_ = function(x, y, callback) {
+          if (this.isMovingPath())
+            return;
+
           if (this.fsm === "ATTACK") {
             return;
           }
@@ -185,10 +188,11 @@ function(UserClient, Player, AppearanceData, Timer) {
 
           if (state && orientation !== Types.Orientations.NONE)
           {
-            /*if (this.isMovingPath()) {
-              this.forceStop();
+            if (this.isMovingPath()) {
+              //this.forceStop();
               return;
-            }*/
+            }
+
             this.moveOrientation = orientation;
             if (this.fsm === "ATTACK") {
               return;

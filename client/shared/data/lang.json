@@ -259,7 +259,9 @@
       ["%name2%'s have stolen my %count% %name%s'. I need you to kill %name2%'s and get my %name%s' back.",
        "Have you got my %count% %name%'s?",
        "Thank you for returning my %name%'s now I can use them."]
-
+    ],
+    "QUESTS_NODE": [
+      ["Use %count% %name%."]
     ],
     "QUEST_SUMMARY": {
       "HIDEANDSEEK": "Find %name%",
