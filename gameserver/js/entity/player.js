@@ -1364,7 +1364,8 @@ module.exports = Player = Character.extend({
 
   fixMove: function (x,y) {
     try { throw new Error(); } catch(err) { console.info(err.stack); }
-    this.forceStop();
+    if (this.isMoving() || this.isMovingPath())
+      this.forceStop();
     this.setPosition(x, y);
     this.sx = x;
     this.sy = y;
