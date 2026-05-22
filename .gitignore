@@ -13,7 +13,9 @@ client/js/compress.js
 gameserver/gameserver.zip
 ./*.zip
 client/*.zip
-userserver/*.zip
-gameserver/*.zip
+userserver/index.zip
+userserver/userserver.zip
+gameserver/index.zip
+userserver/gameserver.zip
 tools/maps/converter/processmap.log
 client.zip
