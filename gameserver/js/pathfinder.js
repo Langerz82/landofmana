@@ -117,7 +117,7 @@ module.exports = Pathfinder = Class.extend({
             var node3 = node1.slice();
             var tdiff = subTotal - subDist;
             if (dx > 0) {
-              node3[0] -= tDiff;
+              node3[0] -= tdiff;
             }
             if (dy > 0) {
               node3[1] -= tdiff;
