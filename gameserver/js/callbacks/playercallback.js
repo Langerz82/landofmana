@@ -27,23 +27,23 @@ module.exports = PlayerCallback = Class.extend({
         var stopPathing = function (p, x, y) {
             console.info("onStopPathing");
 
-            // TODO - Maybe just remove.
-
-            if (self.entities.pathfinder.isPathTicksTooFast(p.tick, p.getSubPath(x, y), p.startMovePathTime)) {
-              console.error("path - isPathTicksTooFast = true.");
-              p.resetMove(p.sx,p.sy);
-              return;
-            }
-
-            //p.setPosition(p.sx,p.sy);
-            //else
             p.setPosition(x,y);
 
             p.sx = p.x;
             p.sy = p.y;
-            //p.forceStop();
+
             console.info("p.x:"+p.x+",p.y="+p.y);
             attackFunc(p);
+        };
+
+        var abortPathing = function (p, x, y) {
+          if (self.entities.pathfinder.isPathTicksTooFast(p.tick, p.getSubPath(x, y), p.startMovePathTime)) {
+            console.error("path - isPathTicksTooFast = true.");
+            p.resetMove(p.sx,p.sy);
+            return;
+          }
+
+          stopPathing(p,x,y);
         };
 
         p.onStopPathing(function (x, y) {
@@ -53,7 +53,7 @@ module.exports = PlayerCallback = Class.extend({
 
         p.onAbortPathing(function (x, y) {
             console.info("onAbortPathing");
-            stopPathing(this,x,y);
+            abortPathing(this,x,y);
         });
 
         p.checkStopDanger = function (c, o)
