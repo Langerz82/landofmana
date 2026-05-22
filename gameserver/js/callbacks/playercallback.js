@@ -28,7 +28,8 @@ module.exports = PlayerCallback = Class.extend({
             console.info("onStopPathing");
 
             // TODO - Maybe just remove.
-            if (self.entities.pathfinder.isPathTicksTooFast(p, p.fullpath, p.startMovePathTime)) {
+
+            if (self.entities.pathfinder.isPathTicksTooFast(p.tick, p.getSubPath(x, y), p.startMovePathTime)) {
               console.error("path - isPathTicksTooFast = true.");
               p.resetMove(p.sx,p.sy);
               return;
@@ -99,37 +100,51 @@ module.exports = PlayerCallback = Class.extend({
             return res;
         };
 
+        p.checkPathInterrupt = function (x,y) {
+          var p = this;
+          if (!p.isMovingPath())
+            return false;
+
+          var pathfinder = p.map.entities.pathfinder;
+
+          if (!pathfinder.getPathSubDistance(p.path, x, y))
+            return false;
+
+          return pathfinder.isPathTicksTooFast(p.tick, p.getSubPath(x,y), Date.now());
+        };
+
         p.checkStartMove = function (x,y) {
             var p = this;
 
+            if (p.checkPathInterrupt(x,y)) {
+              return false;
+            }
+
             var fnNotCorrectPos = function(x,y) {
+              var pathfinder = p.map.entities.pathfinder;
               var dx = Math.abs(p.x-x), dy = Math.abs(p.y-y);
               var tx = Math.trunc(p.x) - Math.trunc(x) === 0;
               var ty = Math.trunc(p.y) - Math.trunc(y) === 0;
+
               if ((tx && dy !== 0) || (ty && dx !== 0))
               {
                 var path = [[p.x,p.y],[x,y]];
-                //if(p.map.entities.pathfinder.isValidPath(p.map.grid, path)) {
-                if (!p.endMoveTime || !p.map.entities.pathfinder.isPathTicksTooFast(p, path, p.endMoveTime))
-                {
-                  console.error("FIXED MOVE");
-                  p.fixMove(x,y);
+                if (!pathfinder.isValidPath(p.map.grid, path))
                   return true;
-                }
-                //}
-              }
 
-              console.error("PLAYER NOT IN CORRECT POSITION");
-              console.info("p.x:"+p.x+",p.y:"+p.y);
-              console.info("c.x:"+x+",c.y:"+y);
-              console.error("dx:"+dx+",dy:"+dy);
-              p.resetMove(p.x,p.y);
+                return pathfinder.isPathTicksTooFast(p.tick, path, Date.now());
+              }
               return false;
             };
 
             if (!(p.x === x && p.y === y))
             {
-              return fnNotCorrectPos(x,y);
+              if (fnNotCorrectPos(x,y)) {
+                //console.error("FIXED MOVE");
+                p.fixMove(x,y);
+                return true;
+              }
+              return false;
             }
             return true;
         }

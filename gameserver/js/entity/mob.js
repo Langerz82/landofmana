@@ -350,7 +350,7 @@ module.exports = Mob = Character.extend({
           this.returnedToSpawn();
         }
         else {
-          var pathTicks = this.map.entities.pathfinder.getPathTicks(this.path, this.spawnX, this.spawnY);
+          var pathTicks = this.map.entities.pathfinder.getPathSubDistance(this.path, this.spawnX, this.spawnY);
           var delay= Math.max(0, ~~(pathTicks / (this.tick / G_FRAME_INTERVAL_EXACT)));
           console.info("returnToSpawn.delay = "+delay);
           console.info("id="+this.id+",x="+this.spawnX+",y="+this.spawnY);

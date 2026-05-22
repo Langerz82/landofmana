@@ -537,7 +537,7 @@ module.exports = PacketHandler = Class.extend({
     console.info("handleHitEntity");
     //var self = this;
 
-    console.info("message: "+JSON.stringify(message));
+    //console.info("message: "+JSON.stringify(message));
     var targetId = parseInt(message[1]),
         orientation = parseInt(message[2]),
         skillId = parseInt(message[3]);
@@ -881,7 +881,7 @@ module.exports = PacketHandler = Class.extend({
       p.resetMove(p.x,p.y);
       return;
     }
-
+    console.warn("movepath: "+JSON.stringify(path));
     p.movePath([time, interrupted], path);
 
     var msg = new Messages.MovePath(p, path);

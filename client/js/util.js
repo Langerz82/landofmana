@@ -389,3 +389,7 @@ Utils.setValueByPath = function (obj, path, value) {
   lastObj[lastKey] = value;
   return obj;
 }
+
+Utils.isBetween = function (num, a, b) {
+    return num >= Math.min(a, b) && num <= Math.max(a, b);
+};

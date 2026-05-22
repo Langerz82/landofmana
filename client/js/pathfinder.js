@@ -16,11 +16,10 @@ define(['lib/astar'], function(AStar) {
               return false;
             for (var node of path) {
               if (pnode) {
-                if (pnode[0] === node[0] || pnode[0] === node[1] || pnode[1] === node[0] || pnode[1] === node[1]) {
-                  pnode = node;
-                  continue;
+                if (pnode[0] !== node[0] && pnode[1] !== node[1])
+                {
+                  return false;
                 }
-                return false;
               }
               pnode = node;
             }

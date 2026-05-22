@@ -21,17 +21,21 @@ module.exports = Pathfinder = Class.extend({
       }*/
   },
 
-  isPathTicksTooFast: function (entity, path, startTime, tolerance) {
-    tolerance = tolerance || G_FRAME_INTERVAL * 2
+  isPathTicksTooFast: function (ticks, path, startTime, tolerance) {
+    //return false;
+
+    tolerance = tolerance || G_UPDATE_INTERVAL;
+    //tolerance *= entity.tick;
+
     console.info("pathFinder - isPathTicksTooFast:");
     var elapsed = Date.now() - startTime;
 
-    var elapsedTicks = ~~(elapsed * (entity.tick / G_FRAME_INTERVAL_EXACT));
+    var elapsedTicks = ~~(elapsed / G_FRAME_INTERVAL);
     //console.warn("entity.estDelay: "+entity.estDelay);
     elapsedTicks = Math.max(elapsedTicks, 0);
-    var actualTicks = this.getPathTicks(path, entity.x, entity.y);
+    var actualTicks = ~~(this.getPathDistance(path) / ticks);
     /*if (actualTicks === 0) {
-      console.warn("getPathTicks - "+JSON.stringify(path)+", x:"+entity.x+",y:"+entity.y);
+      console.warn("getPathDistance - "+JSON.stringify(path)+", x:"+entity.x+",y:"+entity.y);
       return false;
     }*/
     //console.info("elapsedTicks:"+elapsedTicks);
@@ -46,21 +50,25 @@ module.exports = Pathfinder = Class.extend({
 
  // TODO - Incorrect when moving left.
   /*
-   * getPathTicks:
+   * getPathDistance:
    * path - The path to check. x,y = x-position and y-position
    * of the final coordinate that should be in the path.
    */
-  getPathTicks: function (path, x, y) {
+  getPathSubDistance: function (path, x, y) {
       count = 0;
       var n2 = null;
+
+      if (!this.isInPath(path, [x, y]))
+        return 0;
+
       for (var n1 of path) {
           if (n2) {
-              if (x==n1[0] && x==n2[0] && y >= Math.min(n1[1],n2[1]) && y <= Math.max(n1[1],n2[1]))
+              if (x==n1[0] && x==n2[0] && Utils.isBetween(y,n1[1],n2[1]))
               {
                 count += Math.abs(n2[1]-y);
                 break;
               }
-              if (y==n1[1] && y==n2[1] && x >= Math.min(n1[0],n2[0]) && x <= Math.max(n1[0],n2[0]))
+              if (y==n1[1] && y==n2[1] && Utils.isBetween(x,n1[0],n2[0]))
               {
                 count += Math.abs(n2[0]-x);
                 break;
@@ -74,14 +82,14 @@ module.exports = Pathfinder = Class.extend({
       return count;
   },
 
-  getPathTicks2: function (path) {
-    var node2;
+  getPathDistance: function (path) {
+    var n2 = null;
     var total = 0;
-    for (var node1 of path) {
-      if (node2) {
-        total += Math.abs(node1[0]-node2[0]) + Math.abs(node1[1]-node2[1]);
+    for (var n1 of path) {
+      if (n2) {
+        total += Math.abs(n1[0]-n2[0]) + Math.abs(n1[1]-n2[1]);
       }
-      node2 = node1;
+      n2 = n1;
     }
     return total;
   },
@@ -90,7 +98,7 @@ module.exports = Pathfinder = Class.extend({
       if (dist < 0)
         return null;
 
-      var totalDist = this.getPathTicks2(path);
+      var totalDist = this.getPathDistance(path);
       var subDist = totalDist - dist;
       var node2;
       var newPath = [];
@@ -99,20 +107,21 @@ module.exports = Pathfinder = Class.extend({
         if (node2) {
           var dx = Math.abs(node1[0]-node2[0]);
           var dy = Math.abs(node1[1]-node2[1]);
-          var dist = dx + dy;
-          subTotal += dist;
+          subTotal += (dx + dy);
 
           if (subTotal === subDist) {
-            newPath.push(node1);
+            newPath.push(node1.slice());
             break;
           }
           else if (subTotal > subDist) {
-            var node3 = node1;
+            var node3 = node1.slice();
             var tdiff = subTotal - subDist;
-            if (dx > 0)
-              node3[0] += (node1[0]-node2[0] < 0) ? tdiff : -tdiff;
-            if (dy > 0)
-              node3[1] += (node1[1]-node2[1] < 0) ? tdiff : -tdiff;
+            if (dx > 0) {
+              node3[0] -= tDiff;
+            }
+            if (dy > 0) {
+              node3[1] -= tdiff;
+            }
             newPath.push(node3);
             break;
           }
@@ -123,16 +132,31 @@ module.exports = Pathfinder = Class.extend({
       return newPath;
   },
 
+  getSubPath: function (path, x, y) {
+    if (!this.isInPath(path, [x,y]))
+      return null;
+
+    var lastnode = path[path.length-1];
+    if (x === lastnode[0] && y === lastnode[1])
+    {
+      return path.map(function(arr) {
+        return arr.slice();
+      });
+    }
+
+    var dist = this.getPathDistance(path, x, y);
+    return this.getPathUntil(path, dist);
+  },
+
   isInPath: function (path, node) {
-    var tmpPath = path.map(function(arr) {
-      return arr.slice();
-    });
-    var node1 = tmpPath.shift();
-    for (var node2 of tmpPath) {
-      if ((node1[0] === node2[0] && node1[1] >= node[1] && node2[1] <= node[1]) ||
-        (node1[1] === node2[1] && node1[0] >= node[0] && node2[0] <= node[0]))
-        return true;
-      node1 = node2;
+    var n2 = null;
+    for (var n1 of path) {
+      if (n2) {
+        if ((n1[0] === n2[0] && Utils.isBetween(node[1], n1[1], n2[1])) ||
+            (n1[1] === n2[1] && Utils.isBetween(node[0], n1[0], n2[0])))
+          return true;
+      }
+      n2 = n1;
     }
     return false;
   },
@@ -143,11 +167,10 @@ module.exports = Pathfinder = Class.extend({
         return false;
       for (var node of path) {
         if (pnode) {
-          if (pnode[0] === node[0] || pnode[0] === node[1] || pnode[1] === node[0] || pnode[1] === node[1]) {
-            pnode = node;
-            continue;
+          if (pnode[0] !== node[0] && pnode[1] !== node[1])
+          {
+            return false;
           }
-          return false;
         }
         pnode = node;
       }

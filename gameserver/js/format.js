@@ -366,10 +366,10 @@ var _isTypeValid = function (fmt, msg) {
           var ignoreLength = ignoreLength || false;
 
           if (format) {
-              console.info("message:"+message);
-              console.info("format:"+format);
+              //console.info("message:"+message);
+              //console.info("format:"+format);
               if (!ignoreLength && message.length !== format.length) {
-                  console.info("checkFormat - length incorrect. fmt:"+JSON.stringify(message)+", msg:"+JSON.stringify(format));
+                  //console.info("checkFormat - length incorrect. fmt:"+JSON.stringify(message)+", msg:"+JSON.stringify(format));
                   return false;
               }
 

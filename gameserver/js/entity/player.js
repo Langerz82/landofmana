@@ -887,6 +887,9 @@ module.exports = Player = Character.extend({
     this.ey = y2;
 
     this.forceStop();
+    if (!this.map.entities.pathfinder.checkValidPath(path))
+      return;
+
     this.path = this.fullpath = path;
     this.step = 0;
     this.interrupted = interrupted;
@@ -970,7 +973,7 @@ module.exports = Player = Character.extend({
         return;
       }
 
-      if (this.map.entities.pathfinder.isPathTicksTooFast(this, path, this.startMoveTime))
+      if (this.map.entities.pathfinder.isPathTicksTooFast(this.tick, path, this.startMoveTime))
       {
         this.resetMove(this.sx,this.sy);
         return;
@@ -1360,6 +1363,7 @@ module.exports = Player = Character.extend({
   },
 
   fixMove: function (x,y) {
+    try { throw new Error(); } catch(err) { console.info(err.stack); }
     this.forceStop();
     this.setPosition(x, y);
     this.sx = x;
@@ -1428,4 +1432,15 @@ module.exports = Player = Character.extend({
     return msg;
   },
 
+  getSubPath: function (x,y) {
+    x = x || this.x;
+    y = y || this.y;
+
+    var path = this.map.entities.pathfinder.getSubPath(this.path, x, y);
+    /*if (!this.map.entities.pathfinder.checkValidPath(path))
+    {
+      return path;
+    }*/
+    return path;
+  }
 });
