@@ -52,6 +52,10 @@ define(['entity/item', 'data/items'], function(Item, Items) {
               var item = itemRooms[i];
               if (item.itemKind === -1) {
                 this.equipment[item.slot] = null;
+
+                if (item.slot === 4)
+                  game.player.setRange();
+
                 continue;
               }
               if (item) {
