@@ -1,5 +1,9 @@
 TODO:
 
+[Improvement] CLIENT MOBILE - Make menu Items a little bigger.
+
+[BUG] CLIENT MOBILE - Attack with AOE causes continued AOE damage.
+
 
 CLIENT/SERVER - Work out why Exp keeps on resetting.
 

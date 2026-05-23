@@ -167,16 +167,16 @@ module.exports = Mob = Character.extend({
 
     onDamage: function (attacker, hpMod, epMod, crit, effects) {
       var hp = this.stats.hp;
-      var dmgRatio = (hpMod / this.stats.hpMax);
-      log.info("dmgRatio: "+dmgRatio)
+      //var dmgRatio = (hpMod / this.stats.hpMax);
+      //log.info("dmgRatio: "+dmgRatio)
 
       var hpDiff = this.stats.hp;
 
       this._super(attacker, hpMod, epMod, crit, effects);
 
-      hpDiff = hpDiff - this.stats.hp;
+      hpDiff -= this.stats.hp;
       if (hpDiff > 0) {
-        console.info ("onDamage hpDiff:"+hpDiff)
+        //console.info ("onDamage hpDiff:"+hpDiff)
         this.onHitByEntity(attacker, hpDiff);
       }
 
@@ -455,7 +455,7 @@ module.exports = Mob = Character.extend({
     die: function (attacker) {
       var self = this;
 
-      console.info("Entity is dead");
+      //console.info("Entity is dead");
 
       this.map.entities.sendBroadcast(this.despawn());
 

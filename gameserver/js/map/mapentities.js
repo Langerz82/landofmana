@@ -859,20 +859,20 @@ var MapEntities = cls.Class.extend({
 
           if (this.map.isColliding(character.x, character.y))
           {
-            console.warn("findPath - isColliding start.");
+            //console.warn("findPath - isColliding start.");
             return null;
           }
 
           var pE = [x,y];
           if (this.map.isColliding(x, y))
           {
-            console.warn("findPath - isColliding end.");
+            //console.warn("findPath - isColliding end.");
             return null;
           }
 
           if (pS[0] === pE[0] && pS[1] === pE[1]) {
             try { throw new Error(); } catch(err) { console.info(err.stack); }
-            console.warn("findPath - path coordinates are the same.")
+            //console.warn("findPath - path coordinates are the same.")
             return null;
           }
 
@@ -888,7 +888,7 @@ var MapEntities = cls.Class.extend({
           {
             //console.info("findPath - subpath:"+JSON.stringify(subpath));
             var res = this.pathfinder.getFullFromShortPath(subpath, shortGrid.minX, shortGrid.minY);
-            console.info("findPath - res:"+JSON.stringify(res));
+            //console.info("findPath - res:"+JSON.stringify(res));
             return res;
           }
 
@@ -898,13 +898,13 @@ var MapEntities = cls.Class.extend({
             //console.info(JSON.stringify(shortGrid));
             path = this.pathfinder.findShortPath(sgrid,
           	 shortGrid.minX, shortGrid.minY, spS, spE);
-            console.info("findPath - shortPath:"+JSON.stringify(path));
+            //console.info("findPath - shortPath:"+JSON.stringify(path));
           }
 
           if (!path) {
-            console.warn("findPath - DANGER - findPath LONGGG");
+            //console.warn("findPath - DANGER - findPath LONGGG");
             path = this.pathfinder.findPath(grid, pS, pE, false);
-            console.info("findPath - longPath:"+JSON.stringify(path));
+            //console.info("findPath - longPath:"+JSON.stringify(path));
           }
 
           if (!path) {

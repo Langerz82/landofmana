@@ -402,22 +402,22 @@ var _isTypeValid = function (fmt, msg) {
         check: function (msg) {
             var self = this;
 
-            console.info("msg:"+JSON.stringify(msg));
+            //console.info("msg:"+JSON.stringify(msg));
             var message = msg.slice(0);
             var type = message.shift();
             var format = this.formats[type];
 
-            console.info("msg: "+JSON.stringify(message));
-            console.info("type: "+type);
+            //console.info("msg: "+JSON.stringify(message));
+            //console.info("type: "+type);
             if (format)
             {
-                console.info("checkFormat type:"+type);
+                //console.info("checkFormat type:"+type);
                 var res = this.checkFormat(format, message, true);
                 return res;
             }
             else if (type === Types.Messages.CW_ITEMSLOT)
             {
-              console.info("type CW_ITEMSLOT");
+              //console.info("type CW_ITEMSLOT");
               var format = [
                 ['n',0,2],
                 ['n',0,2],

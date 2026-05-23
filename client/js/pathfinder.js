@@ -135,22 +135,22 @@ define(['lib/astar'], function(AStar) {
           var mp = [start, end];
           if (dx === 0 || dy === 0) {
             if(this.isValidPath(grid, mp)) {
-              log.info("validpath-fdp1:"+JSON.stringify(mp));
+              //log.info("validpath-fdp1:"+JSON.stringify(mp));
               return mp;
             }
           }
 
           mp = [start, [start[0],end[1]], end];
-          log.info("mp:"+JSON.stringify(mp));
+          //log.info("mp:"+JSON.stringify(mp));
           if(this.isValidPath(grid, mp)) {
-            log.info("validpath-fdp2:"+JSON.stringify(mp));
+            //log.info("validpath-fdp2:"+JSON.stringify(mp));
             return mp;
           }
 
           mp = [start, [end[0],start[1]], end];
-          log.info("mp:"+JSON.stringify(mp));
+          //log.info("mp:"+JSON.stringify(mp));
           if(this.isValidPath(grid, mp)) {
-            log.info("validpath-fdp3:"+JSON.stringify(mp));
+            //log.info("validpath-fdp3:"+JSON.stringify(mp));
             return mp;
           }
           return null;
