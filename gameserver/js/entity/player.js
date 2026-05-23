@@ -965,10 +965,15 @@ module.exports = Player = Character.extend({
         return;
       }
 
-      var path = [[this.sx,this.sy],[x,y]];
-      if(!this.map.entities.pathfinder.isValidPath(this.map.grid, path)) {
-        console.warn("INVALID PATH.");
-        console.warn("invalidPath: "+JSON.stringify(path));
+      if (this.sx === x || this.sy === y) {
+        var path = [[this.sx,this.sy],[x,y]];
+        if(!this.map.entities.pathfinder.isValidPath(this.map.grid, path)) {
+          //console.warn("INVALID PATH.");
+          console.warn("invalidPath: "+JSON.stringify(path));
+          this.resetMove(this.x,this.y);
+          return;
+        }
+      } else {
         this.resetMove(this.x,this.y);
         return;
       }
@@ -1443,5 +1448,14 @@ module.exports = Player = Character.extend({
       return path;
     }*/
     return path;
+  },
+
+  interruptPath: function (x, y) {
+    if (this.isMovingPath()) {
+      //p.abort_pathing_callback(x, y);
+      this.setPosition(x,y);
+      this.interrupted = true;
+      this.forceStop();
+    }
   }
 });
