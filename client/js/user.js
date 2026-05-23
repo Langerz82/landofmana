@@ -207,8 +207,8 @@ function(UserClient, Player, AppearanceData, Timer) {
               return;
             }
 
-            if (this.isMoving() || this.isMovingPath())
-              this.forceStop();
+            //if (this.isMoving() || this.isMovingPath())
+            this.forceStop();
 
             this.orientation = orientation;
             this.setOrientation(orientation);

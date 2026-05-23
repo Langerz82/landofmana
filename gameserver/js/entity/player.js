@@ -1364,12 +1364,13 @@ module.exports = Player = Character.extend({
 
   fixMove: function (x,y) {
     try { throw new Error(); } catch(err) { console.info(err.stack); }
-    this.forceStop();
+    this.interrupted = false;
     this.setPosition(x, y);
     this.sx = x;
     this.sy = y;
     this.ex = -1;
     this.ey = -1;
+    this.forceStop();
   },
 
   sendPlayer: function (msg) {

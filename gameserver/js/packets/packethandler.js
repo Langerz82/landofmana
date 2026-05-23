@@ -822,6 +822,7 @@ module.exports = PacketHandler = Class.extend({
 
     if (state === 2) {
       if (p.isMovingPath() && p.fullpath) {
+        //p.interrupted = true;
         p.abort_pathing_callback(x, y);
         p.forceStop();
       }
