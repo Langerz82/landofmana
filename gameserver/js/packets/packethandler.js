@@ -815,21 +815,22 @@ module.exports = PacketHandler = Class.extend({
       return;
     }
 
-    if (p.map.isColliding(x, y)) {
-      console.warn("char.isColliding("+p.id+","+x+","+y+")");
+
+    if (state === 2) {
+      if (!p.checkStartMove(x,y))
+        return;
+
+      p.setPosition(x, y);
+      p.forceStop();
       return;
     }
 
-    if (state === 2) {
-      p.interruptPath(x, y);
+    if (!p.checkStartMove(x,y))
       return;
-    }
 
     var arr = [time, state, orientation, x, y];
     if (state) {
       p.move([time, false, p.orientation, x, y]);
-      if (!p.checkStartMove(x,y))
-        return;
     }
     p.move(arr);
 
@@ -864,8 +865,7 @@ module.exports = PacketHandler = Class.extend({
     if (!p.checkStartMove(x,y))
       return;
 
-    if (p.mapStatus < 2)
-      return;
+    p.forceStop();
 
     if (!p.map.entities.pathfinder.checkValidPath(path)) {
       console.warn("handleMovePath: checkValidPath false.");

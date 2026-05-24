@@ -70,7 +70,7 @@ module.exports = Entity = cls.Class.extend({
         }
         else {
           var spatial = this.map.entities.spatial[spy][spx];
-          if (!spatial.includes(this))
+          if (spatial && !spatial.includes(this))
             spatial.push(this);
         }
       }

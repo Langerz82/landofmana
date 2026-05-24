@@ -110,17 +110,25 @@ module.exports = PlayerCallback = Class.extend({
           if (!pathfinder.getPathSubDistance(p.path, x, y))
             return false;
 
-          return pathfinder.isPathTicksTooFast(p.tick, p.getSubPath(x,y), Date.now());
+          return pathfinder.isPathTicksTooFast(p.tick, p.getSubPath(x,y), p.startMovePathTime);
         };
 
         p.checkStartMove = function (x,y) {
             var p = this;
 
+            if (p.mapStatus < 2)
+              return false;
+
+            if (p.map.isColliding(x, y)) {
+              console.warn("char.isColliding("+p.id+","+x+","+y+")");
+              return false;
+            }
+
             if (p.checkPathInterrupt(x,y)) {
               return false;
             }
 
-            var fnNotCorrectPos = function(x,y) {
+            /*var fnNotCorrectPos = function(x,y) {
               var pathfinder = p.map.entities.pathfinder;
               var dx = Math.abs(p.x-x), dy = Math.abs(p.y-y);
               var tx = Math.trunc(p.x) - Math.trunc(x) === 0;
@@ -135,18 +143,19 @@ module.exports = PlayerCallback = Class.extend({
                 return pathfinder.isPathTicksTooFast(p.tick, path, Date.now());
               }
               return false;
-            };
+            };*/
 
             if (!(p.x === x && p.y === y))
             {
-              if (fnNotCorrectPos(x,y)) {
+              /*if (fnNotCorrectPos(x,y)) {
                 //console.error("FIXED MOVE");
                 p.fixMove(x,y);
                 return true;
               }
-              return false;
+              return false;*/
+              p.fixMove(x,y);
+              return true;
             }
-            return true;
         }
 
         p.correctMove = function (x, y) {

@@ -927,10 +927,10 @@ module.exports = Player = Character.extend({
 
     if (state==1) {
         var delay = 0;
-        this.sx = this.x;
-        this.sy = this.y;
-        this.ex = -1;
-        this.ey = -1;
+        //this.sx = this.x;
+        //this.sy = this.y;
+        //this.ex = -1;
+        //this.ey = -1;
         this.startMoveTime = time;
 
         var execMove = function () {
@@ -948,11 +948,16 @@ module.exports = Player = Character.extend({
         else
           this.moving_timeout = setTimeout(execMove, delay);
 
-        this.nextMove = null;
+        //this.nextMove = null;
 
     }
 
     if (state === 0) {
+      if (!(this.sx === x && this.sy === y)) {
+        try { throw new Error(); } catch (e) { console.error(e.stack); }
+      }
+
+      this.startMoveTime = time;
       this.ex = x;
       this.ey = y;
       var a = (x === this.x && y === this.y);
@@ -965,7 +970,8 @@ module.exports = Player = Character.extend({
         return;
       }
 
-      if (this.sx === x || this.sy === y) {
+// TODO
+      /*if (this.sx === x || this.sy === y) {
         var path = [[this.sx,this.sy],[x,y]];
         if(!this.map.entities.pathfinder.isValidPath(this.map.grid, path)) {
           //console.warn("INVALID PATH.");
@@ -973,21 +979,23 @@ module.exports = Player = Character.extend({
           this.resetMove(this.x,this.y);
           return;
         }
+
+        if (this.map.entities.pathfinder.isPathTicksTooFast(this.tick, path, this.startMoveTime))
+        {
+          this.resetMove(this.sx,this.sy);
+          return;
+        } else {
+          this.setPosition(x,y);
+        }
       } else {
+        //this.setPosition(x,y);
         this.resetMove(this.x,this.y);
         return;
-      }
+      }*/
 
-      if (this.map.entities.pathfinder.isPathTicksTooFast(this.tick, path, this.startMoveTime))
-      {
-        this.resetMove(this.sx,this.sy);
-        return;
-      } else {
-        this.setPosition(x,y);
-      }
       this.forceStop();
       this.keyMove = false;
-      this.nextMove = null;
+      //this.nextMove = null;
     }
   },
 
@@ -1421,6 +1429,10 @@ module.exports = Player = Character.extend({
   forceStop: function() {
     this.moveOrientation = 0;
     this._forceStop();
+    this.sx = this.x;
+    this.sy = this.y;
+    this.ex = -1;
+    this.ey = -1;
   },
 
   modHp: function (hp) {

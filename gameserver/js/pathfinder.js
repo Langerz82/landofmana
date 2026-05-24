@@ -29,6 +29,8 @@ module.exports = Pathfinder = Class.extend({
 
     console.info("pathFinder - isPathTicksTooFast:");
     var elapsed = Date.now() - startTime;
+    if (elapsed === 0)
+      return false;
 
     var elapsedTicks = ~~(elapsed / G_FRAME_INTERVAL);
     //console.warn("entity.estDelay: "+entity.estDelay);
@@ -42,6 +44,7 @@ module.exports = Pathfinder = Class.extend({
     //console.info("actualTicks:"+actualTicks);
     if (actualTicks > (elapsedTicks + tolerance))
     {
+      try { throw new Error(); } catch(err) { console.info(err.stack); }
       console.warn("SPEED HACK DETECTED. playerTicks - actualTicks: "+actualTicks+", elapsedTicks:"+elapsedTicks+", tolerance:"+tolerance);
       return true;
     }
