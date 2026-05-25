@@ -848,7 +848,7 @@ module.exports = PacketHandler = Class.extend({
       entityId = parseInt(message.shift()),
       orientation = parseInt(message.shift()),
       interrupted = (parseInt(message.shift()) === 0) ? false : true;
-      //message.splice(0,4);
+
     var path = message[0];
 
     var p = this.player;
@@ -867,17 +867,9 @@ module.exports = PacketHandler = Class.extend({
 
     p.forceStop();
 
-    if (!p.map.entities.pathfinder.checkValidPath(path)) {
-      console.warn("handleMovePath: checkValidPath false.");
-      p.resetMove(p.x,p.y);
+    if (!p.isValidPath(path))
       return;
-    }
 
-    if (!p.map.entities.pathfinder.isValidPath(p.map.grid, path)) {
-      console.warn("handleMovePath: no valid path.");
-      p.resetMove(p.x,p.y);
-      return;
-    }
     console.warn("movepath: "+JSON.stringify(path));
     p.movePath([time, interrupted], path);
 

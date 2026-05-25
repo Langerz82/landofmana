@@ -10,8 +10,6 @@ module.exports = PlayerCallback = Class.extend({
         this.player = entity;
         this.entities = p.map.entities;
 
-    		//console.info("assigning callbacks to "+self.player.id);
-
     		p.onStep(function (player, x, y) {
     		});
 
@@ -66,36 +64,33 @@ module.exports = PlayerCallback = Class.extend({
             }
             else if (c.x === c.ex && c.y === c.ey)
             {
-              //console.warn("checkStopDanger - coordinates equal");
               return false;
             }
 
             var x = c.x, y = c.y;
 
-            if (o === Types.Orientations.LEFT && c.x < c.ex)
+            if (o === 3 && c.x < c.ex)
             {
               res = true;
             }
-            else if (o === Types.Orientations.RIGHT && c.x > c.ex)
+            else if (o === 4 && c.x > c.ex)
             {
               res = true;
             }
-            else if (o === Types.Orientations.UP && c.y < c.ey)
+            else if (o === 1 && c.y < c.ey)
             {
               res = true;
             }
-            else if (o === Types.Orientations.DOWN && c.y > c.ey)
+            else if (o === 2 && c.y > c.ey)
             {
               res = true;
             }
             if (res) {
               c.setPosition(c.ex, c.ey);
-              //c.correctMove(c.x, c.y);
               console.warn("WARN - PLAYER "+c.id+" not stopping.");
               console.warn("orientation: "+Utils.getOrientationString(o));
               console.warn("x :"+x+",y :"+y);
               console.warn("sx:"+c.ex+",sy:"+c.ey);
-              //c.checkStopDanger = false;
             }
             return res;
         };
@@ -128,31 +123,8 @@ module.exports = PlayerCallback = Class.extend({
               return false;
             }
 
-            /*var fnNotCorrectPos = function(x,y) {
-              var pathfinder = p.map.entities.pathfinder;
-              var dx = Math.abs(p.x-x), dy = Math.abs(p.y-y);
-              var tx = Math.trunc(p.x) - Math.trunc(x) === 0;
-              var ty = Math.trunc(p.y) - Math.trunc(y) === 0;
-
-              if ((tx && dy !== 0) || (ty && dx !== 0))
-              {
-                var path = [[p.x,p.y],[x,y]];
-                if (!pathfinder.isValidPath(p.map.grid, path))
-                  return true;
-
-                return pathfinder.isPathTicksTooFast(p.tick, path, Date.now());
-              }
-              return false;
-            };*/
-
             if (!(p.x === x && p.y === y))
             {
-              /*if (fnNotCorrectPos(x,y)) {
-                //console.error("FIXED MOVE");
-                p.fixMove(x,y);
-                return true;
-              }
-              return false;*/
               p.fixMove(x,y);
               return true;
             }
@@ -162,7 +134,6 @@ module.exports = PlayerCallback = Class.extend({
             var p = this;
             if (!(p.ex === -1 && p.ey === -1) && !(p.x === x && p.y === y))
             {
-              //try { throw new Error(); } catch(err) { console.info(err.stack); }
               console.warn("ERROR - MOVING NOT SYNCHED PROPERLY, FORCING CLIENT UPDATE");
               console.info("player, orientation:"+p.moveOrientation);
               console.info("player, x:"+p.x+",y:"+p.y);
@@ -175,9 +146,6 @@ module.exports = PlayerCallback = Class.extend({
 
         p.setMoveStopCallback(function () {
             var p = this;
-            //p.moveOrientation = 0;
-//            console.warn()
-            //try { throw new Error(); } catch(err) { console.error(err.stack); }
             console.info("setMoveStopCallback");
             console.info("player, x:"+p.x+",y:"+p.y);
             //console.info("player, ex:"+p.x+",ey:"+p.y);
@@ -186,9 +154,7 @@ module.exports = PlayerCallback = Class.extend({
             if (p.checkStopDanger(p, p.moveOrientation))
               p.correctMove(p.ex,p.ey);
 
-            //p.correctMove(p.ex,p.ey);
             p.endMoveTime = Date.now();
-            //p.sendCurrentMove();
             //console.info("p.x:"+p.x+",p.y="+p.y);
             attackFunc(p);
         });

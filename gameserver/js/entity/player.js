@@ -927,10 +927,6 @@ module.exports = Player = Character.extend({
 
     if (state==1) {
         var delay = 0;
-        //this.sx = this.x;
-        //this.sy = this.y;
-        //this.ex = -1;
-        //this.ey = -1;
         this.startMoveTime = time;
 
         var execMove = function () {
@@ -947,9 +943,6 @@ module.exports = Player = Character.extend({
           execMove();
         else
           this.moving_timeout = setTimeout(execMove, delay);
-
-        //this.nextMove = null;
-
     }
 
     if (state === 0) {
@@ -970,32 +963,8 @@ module.exports = Player = Character.extend({
         return;
       }
 
-// TODO
-      /*if (this.sx === x || this.sy === y) {
-        var path = [[this.sx,this.sy],[x,y]];
-        if(!this.map.entities.pathfinder.isValidPath(this.map.grid, path)) {
-          //console.warn("INVALID PATH.");
-          console.warn("invalidPath: "+JSON.stringify(path));
-          this.resetMove(this.x,this.y);
-          return;
-        }
-
-        if (this.map.entities.pathfinder.isPathTicksTooFast(this.tick, path, this.startMoveTime))
-        {
-          this.resetMove(this.sx,this.sy);
-          return;
-        } else {
-          this.setPosition(x,y);
-        }
-      } else {
-        //this.setPosition(x,y);
-        this.resetMove(this.x,this.y);
-        return;
-      }*/
-
       this.forceStop();
       this.keyMove = false;
-      //this.nextMove = null;
     }
   },
 
@@ -1455,10 +1424,6 @@ module.exports = Player = Character.extend({
     y = y || this.y;
 
     var path = this.map.entities.pathfinder.getSubPath(this.path, x, y);
-    /*if (!this.map.entities.pathfinder.checkValidPath(path))
-    {
-      return path;
-    }*/
     return path;
   },
 
@@ -1469,5 +1434,21 @@ module.exports = Player = Character.extend({
       this.interrupted = true;
       this.forceStop();
     }
+  },
+
+  isValidPath: function (path) {
+    if (!this.map.entities.pathfinder.checkValidPath(path)) {
+      console.warn("handleMovePath: checkValidPath false.");
+      this.resetMove(this.x,this.y);
+      return false;
+    }
+
+    if (!this.map.entities.pathfinder.isValidPath(this.map.grid, path)) {
+      console.warn("handleMovePath: no valid path.");
+      this.resetMove(this.x,this.y);
+      return false;
+    }
+    return true;
   }
+
 });
