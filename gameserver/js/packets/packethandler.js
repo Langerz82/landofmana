@@ -797,7 +797,7 @@ module.exports = PacketHandler = Class.extend({
 
   // TODO map enforce for all calls.
   handleMoveEntity: function(message) {
-    console.info("handleMoveEntity");
+    //console.info("handleMoveEntity");
     //console.info("message="+JSON.stringify(message));
     var time = parseInt(message[0]),
       entityId = parseInt(message[1]),
@@ -811,26 +811,29 @@ module.exports = PacketHandler = Class.extend({
       return;
 
     if (state==1 && p.hasMoveThrottled(G_LATENCY))  {
-      console.error("moveThrottled");
+      console.warn("handleMoveEntity - moveThrottled");
       return;
     }
-
 
     if (state === 2) {
-      if (!p.checkStartMove(x,y))
-        return;
+      if (!p.checkStartMove(x,y)) {
+        p.resetMove(p.x,p.y);
+        p.forceStop();
+      }
 
-      p.setPosition(x, y);
-      p.forceStop();
       return;
     }
 
-    if (!p.checkStartMove(x,y))
+    if (state === 1 && !p.checkStartMove(x,y)) {
+      //console.error("handleMoveEntity - checkStartMove.");
+      p.resetMove(p.x,p.y);
       return;
+    }
 
     var arr = [time, state, orientation, x, y];
-    if (state) {
-      p.move([time, false, p.orientation, x, y]);
+    console.warn("handleMoveEntity - arr: "+JSON.stringify(arr));
+    if (state === 1) {
+      p.move([time, 0, p.orientation, x, y]);
     }
     p.move(arr);
 
@@ -842,8 +845,6 @@ module.exports = PacketHandler = Class.extend({
   },
 
   handleMovePath: function(message) {
-    console.info("handleMovePath");
-    console.info("message="+JSON.stringify(message));
     var time = parseInt(message.shift()),
       entityId = parseInt(message.shift()),
       orientation = parseInt(message.shift()),
@@ -855,22 +856,29 @@ module.exports = PacketHandler = Class.extend({
     if (entityId !== p.id)
       return;
 
-    if (path && p.hasMoveThrottled(G_LATENCY)) return;
+
+    if (path && p.hasMoveThrottled(G_LATENCY)) {
+      p.resetMove(p.x,p.y);
+      console.warn("handleMoveEntity - moveThrottled");
+      return;
+    }
 
     console.info(JSON.stringify(path));
 
     var x = path[0][0],
         y = path[0][1];
 
-    if (!p.checkStartMove(x,y))
+    if (!p.checkStartMove(x,y)) {
+      p.resetMove(p.x,p.y);
       return;
+    }
 
     p.forceStop();
 
     if (!p.isValidPath(path))
       return;
 
-    console.warn("movepath: "+JSON.stringify(path));
+    console.warn("handleMoveEntity - movepath: "+JSON.stringify(path));
     p.movePath([time, interrupted], path);
 
     var msg = new Messages.MovePath(p, path);
@@ -908,7 +916,7 @@ module.exports = PacketHandler = Class.extend({
       return;
     }
 
-    console.warn("mapIndex: p.map.mapIndex:"+map.index);
+    //console.warn("mapIndex: p.map.mapIndex:"+map.index);
     if (status === 0) {
       p.forceStop();
       p.mapStatus = 0;
@@ -924,9 +932,9 @@ module.exports = PacketHandler = Class.extend({
         p.setMap(map);
 
         var pos = {x: p.x, y: p.y};
-        console.info("handleTeleportMap - x: "+x+",y:"+y);
+        //console.info("handleTeleportMap - x: "+x+",y:"+y);
 
-        console.warn("mapIndex: p.map.mapIndex:"+map.index);
+        //console.warn("mapIndex: p.map.mapIndex:"+map.index);
         if (p.map.index === 0 || (typeof p.prevPosX === "undefined" &&
             typeof p.prevPosY === "undefined"))
         {
@@ -952,7 +960,7 @@ module.exports = PacketHandler = Class.extend({
         p.setPosition(pos.x, pos.y);
         p.move([Date.now(),3,1,pos.x,pos.y]);
 
-        console.info("trying to send.");
+        //console.info("trying to send.");
         self.send([Types.Messages.WC_TELEPORT_MAP, mapId, 1, p.x, p.y]);
       };
 

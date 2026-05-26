@@ -57,7 +57,6 @@ module.exports = Updater = Class.extend({
 
       if (c.checkStopDanger(c, c.orientation))
       {
-        //c.resetMove(c.x,c.y);
         c.forceStop();
         return true;
       }
@@ -78,7 +77,6 @@ module.exports = Updater = Class.extend({
 
       if (c.checkStopDanger(c, c.orientation))
       {
-        //c.resetMove(c.x,c.y);
         c.forceStop();
         return true;
       }
@@ -196,22 +194,22 @@ module.exports = Updater = Class.extend({
       // TODO - Changed Path check is messy.
       var canMove = c.movement.inProgress === false && c.isMovingPath();
       if(canMove) {
-        if(o === Types.Orientations.LEFT) {
+        if(o === 3) {
           c.movement.start(self.playerPathXF,
              null,
              -tick);
         }
-        else if(o === Types.Orientations.RIGHT) {
+        else if(o === 4) {
           c.movement.start(self.playerPathXF,
              null,
              tick);
         }
-        else if(o === Types.Orientations.UP) {
+        else if(o === 1) {
           c.movement.start(self.playerPathYF,
              null,
              -tick);
         }
-        else if(o === Types.Orientations.DOWN) {
+        else if(o === 2) {
           c.movement.start(self.playerPathYF,
              null,
              tick);
@@ -223,7 +221,7 @@ module.exports = Updater = Class.extend({
   {
     var self = this;
     var tick=c.tick * G_FRAME_INTERVALS;
-    var o = c.moveOrientation;
+    var o = c.orientation;
     //var whoDist = 8;
 
     if (c.freeze || c.isMovingPath()) {
@@ -231,24 +229,24 @@ module.exports = Updater = Class.extend({
       return;
     }
 
-    var canMove = c.movement.inProgress === false && o > 0;
+    var canMove = c.movement.inProgress === false && o > 0 && c.keyMove;
     if(canMove) {
-      if(o === Types.Orientations.LEFT) {
+      if(o === 3) {
         c.movement.start(self.playerKeyXF,
            null,
            -tick);
       }
-      else if(o === Types.Orientations.RIGHT) {
+      else if(o === 4) {
         c.movement.start(self.playerKeyXF,
            null,
            tick);
       }
-      else if(o === Types.Orientations.UP) {
+      else if(o === 1) {
         c.movement.start(self.playerKeyYF,
            null,
            -tick);
       }
-      else if(o === Types.Orientations.DOWN) {
+      else if(o === 2) {
         c.movement.start(self.playerKeyYF,
            null,
            tick);

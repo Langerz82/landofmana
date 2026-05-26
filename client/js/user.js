@@ -79,7 +79,7 @@ function(UserClient, Player, AppearanceData, Timer) {
           this.harvestOff();
           if (this.keyMove && this.key_move_callback)
           {
-            this.key_move_callback(false);
+            this.key_move_callback(0);
           }
           this.keyMove = false;
           this.freeze = false;
@@ -144,16 +144,11 @@ function(UserClient, Player, AppearanceData, Timer) {
         };
 
         player.moveThrottle = function (delay) {
-          var self = this;
-          // This group of code enforces path moving throttling.
-          if (this.refuseMove)
+          if ((Date.now() - this.lastMoveThrottle) < delay)
             return true;
 
-          this.moveThrottleTimeout = setTimeout(function () {
-            self.refuseMove = false;
-            self.moveThrottleTimeout = null;
-          }, delay);
-          this.refuseMove = true;
+          this.lastMoveThrottle = Date.now();
+
           return false;
         }
 
@@ -196,8 +191,10 @@ function(UserClient, Player, AppearanceData, Timer) {
               return;
             }
 
-            if (this.moveThrottle(G_ROUNDTRIP))
+            if (this.moveThrottle(G_ROUNDTRIP)) {
+              this.forceStop();
               return;
+            }
 
             if (this.keyMove) {
                 return;

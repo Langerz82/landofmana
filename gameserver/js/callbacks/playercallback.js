@@ -35,8 +35,9 @@ module.exports = PlayerCallback = Class.extend({
         };
 
         var abortPathing = function (p, x, y) {
-          if (self.entities.pathfinder.isPathTicksTooFast(p.tick, p.getSubPath(x, y), p.startMovePathTime)) {
-            console.error("path - isPathTicksTooFast = true.");
+          var dist = self.entities.pathfinder.getPathSubDistance(p.path, x, y);
+          if (self.entities.pathfinder.isDistanceTooFast(p.tick, dist, p.startMovePathTime)) {
+            console.error("path - isDistanceTooFast = true.");
             p.resetMove(p.sx,p.sy);
             return;
           }
@@ -64,48 +65,52 @@ module.exports = PlayerCallback = Class.extend({
             }
             else if (c.x === c.ex && c.y === c.ey)
             {
-              return false;
+              return true;
             }
 
             var x = c.x, y = c.y;
 
-            if (o === 3 && c.x < c.ex)
+            if (o === 4 && x < c.ex)
             {
               res = true;
             }
-            else if (o === 4 && c.x > c.ex)
+            else if (o === 3 && x > c.ex)
             {
               res = true;
             }
-            else if (o === 1 && c.y < c.ey)
+            else if (o === 2 && y < c.ey)
             {
               res = true;
             }
-            else if (o === 2 && c.y > c.ey)
+            else if (o === 1 && y > c.ey)
             {
               res = true;
             }
             if (res) {
               c.setPosition(c.ex, c.ey);
-              console.warn("WARN - PLAYER "+c.id+" not stopping.");
-              console.warn("orientation: "+Utils.getOrientationString(o));
-              console.warn("x :"+x+",y :"+y);
-              console.warn("sx:"+c.ex+",sy:"+c.ey);
+              console.info("checkStopDanger, WARN - PLAYER "+c.id+" not stopping.");
+              console.info("checkStopDanger, orientation: "+Utils.getOrientationString(o));
+              console.info("checkStopDanger, x :"+x+",y :"+y);
+              console.info("checkStopDanger, ex:"+c.ex+",ey:"+c.ey);
             }
             return res;
         };
 
         p.checkPathInterrupt = function (x,y) {
           var p = this;
+
           if (!p.isMovingPath())
             return false;
 
           var pathfinder = p.map.entities.pathfinder;
 
-          if (!pathfinder.getPathSubDistance(p.path, x, y))
-            return false;
+          var dist = pathfinder.getPathSubDistance(p.path, x, y);
+          if (!dist) {
+            console.error("getPathSubDistance = not found.");
+            return true;
+          }
 
-          return pathfinder.isPathTicksTooFast(p.tick, p.getSubPath(x,y), p.startMovePathTime);
+          return pathfinder.isDistanceTooFast(p.tick, dist, p.startMovePathTime);
         };
 
         p.checkStartMove = function (x,y) {
@@ -114,20 +119,35 @@ module.exports = PlayerCallback = Class.extend({
             if (p.mapStatus < 2)
               return false;
 
+            console.warn("checkStartMove - player, x:"+x+",y:"+y);
+            console.warn("checkStartMove - player, p.sx:"+p.sx+",p.sy:"+p.sy);
+            console.warn("checkStartMove - player, p.x:"+p.x+",p.y:"+p.y);
+            console.warn("checkStartMove - player, ex:"+p.ex+",ey:"+p.ey);
+
             if (p.map.isColliding(x, y)) {
-              console.warn("char.isColliding("+p.id+","+x+","+y+")");
+              console.warn("checkStartMove - char.isColliding("+p.id+","+x+","+y+")");
               return false;
             }
 
             if (p.checkPathInterrupt(x,y)) {
+              console.warn("checkStartMove - checkPathInterrupt = true");
               return false;
             }
 
-            if (!(p.x === x && p.y === y))
+            if (p.isMovingPath() && !(p.x === x && p.y === y))
             {
+              console.warn("checkStartMove - isMovingPath but wrong coords.");
               p.fixMove(x,y);
               return true;
             }
+
+            if (p.x === x && p.y === y) {
+              console.warn("checkStartMove - same coords.");
+              return true;
+            }
+
+            console.warn("checkStartMove - different coords.");
+            return false;
         }
 
         p.correctMove = function (x, y) {
@@ -135,7 +155,7 @@ module.exports = PlayerCallback = Class.extend({
             if (!(p.ex === -1 && p.ey === -1) && !(p.x === x && p.y === y))
             {
               console.warn("ERROR - MOVING NOT SYNCHED PROPERLY, FORCING CLIENT UPDATE");
-              console.info("player, orientation:"+p.moveOrientation);
+              console.info("player, orientation:"+p.orientation);
               console.info("player, x:"+p.x+",y:"+p.y);
               console.info("player, sx:"+p.sx+",sy:"+p.sy);
               console.info("player, ex:"+p.ex+",ey:"+p.ey);
@@ -146,16 +166,13 @@ module.exports = PlayerCallback = Class.extend({
 
         p.setMoveStopCallback(function () {
             var p = this;
-            console.info("setMoveStopCallback");
-            console.info("player, x:"+p.x+",y:"+p.y);
-            //console.info("player, ex:"+p.x+",ey:"+p.y);
-            //console.info("player, cx:"+p.sx+",cy:"+p.sy);
+            //console.error("setMoveStopCallback - player, sx:"+p.sx+",sy:"+p.sy);
+            //console.error("setMoveStopCallback - player, x:"+p.x+",y:"+p.y);
+            //console.error("setMoveStopCallback - player, ex:"+p.ex+",ey:"+p.ey);
 
-            if (p.checkStopDanger(p, p.moveOrientation))
-              p.correctMove(p.ex,p.ey);
-
+            p.keyMove = false;
             p.endMoveTime = Date.now();
-            //console.info("p.x:"+p.x+",p.y="+p.y);
+
             attackFunc(p);
         });
 

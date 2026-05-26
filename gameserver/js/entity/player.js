@@ -78,7 +78,7 @@ module.exports = Player = Character.extend({
         this.ex = -1;
         this.ey = -1;
 
-        this.moveOrientation = 0;
+//        this.moveOrientation = 0;
 
         this.achievements = [];
 
@@ -919,13 +919,13 @@ module.exports = Player = Character.extend({
       this.moving_callback = null;
     }
 
-    if (state === 3) {
+    /*if (state === 3) {
       this.setPosition(x,y);
       this.forceStop();
       return;
-    }
+    }*/
 
-    if (state==1) {
+    if (state === 1) {
         var delay = 0;
         this.startMoveTime = time;
 
@@ -935,36 +935,46 @@ module.exports = Player = Character.extend({
           }
           self.moving_timeout = null;
           self.startMoving = true;
-          self.moveOrientation = o;
+//          self.moveOrientation = o;
+          self.orientation = o;
           self.keyMove = true;
           return;
         };
-        if (delay <= 0)
+        //if (delay <= 0)
           execMove();
-        else
-          this.moving_timeout = setTimeout(execMove, delay);
+        //else
+          //this.moving_timeout = setTimeout(execMove, delay);
     }
 
     if (state === 0) {
-      if (!(this.sx === x && this.sy === y)) {
+      /*if (!(this.sx === x && this.sy === y)) {
         try { throw new Error(); } catch (e) { console.error(e.stack); }
-      }
+      }*/
 
-      this.startMoveTime = time;
+      //this.startMoveTime = time;
       this.ex = x;
       this.ey = y;
       var a = (x === this.x && y === this.y);
       var b = (this.sx === x && this.sy === y);
 
       if (a || b) {
+        console.warn("player move: this.moving_timeout cleared.");
         clearTimeout(this.moving_timeout);
         this.setPosition(x,y);
         this.forceStop();
         return;
       }
 
-      this.forceStop();
-      this.keyMove = false;
+      // If a stop is recieved before the movement completes,
+      // validate the path, and if it's legal fix then stop.
+      if ((this.x === x && this.y !== y) || (this.x !== x && this.y === y)) {
+        var path = [[this.x,this.y],[x,y]];
+        if (this.isValidPath(path, this.startMoveTime)) {
+          this.fixMove(x, y);
+          this.forceStop();
+        }
+        return;
+      }
     }
   },
 
@@ -1094,7 +1104,7 @@ module.exports = Player = Character.extend({
   },
 
   sendCurrentMove: function () {
-    var msg = new Messages.Move(this, this.moveOrientation, 0, this.x, this.y);
+    var msg = new Messages.Move(this, this.orientation, 0, this.x, this.y);
     this.map.entities.sendNeighbours(this, msg);
   },
 
@@ -1340,18 +1350,14 @@ module.exports = Player = Character.extend({
   },
 
   resetMove: function (x,y) {
+    try { throw new Error(); } catch(err) { console.error(err.stack); }
     this.fixMove(x,y);
     this.sendCurrentMove();
   },
 
   fixMove: function (x,y) {
-    try { throw new Error(); } catch(err) { console.info(err.stack); }
     this.interrupted = false;
     this.setPosition(x, y);
-    this.sx = x;
-    this.sy = y;
-    this.ex = -1;
-    this.ey = -1;
     this.forceStop();
   },
 
@@ -1377,7 +1383,7 @@ module.exports = Player = Character.extend({
   },
 
   hasMoveThrottled: function (delay) {
-    if (Date.now() - this.lastMoveThrottle < delay)
+    if ((Date.now() - this.lastMoveThrottle) < delay)
       return true;
 
     this.lastMoveThrottle = Date.now();
@@ -1396,10 +1402,18 @@ module.exports = Player = Character.extend({
   },
 
   forceStop: function() {
-    this.moveOrientation = 0;
+    this.orientation = 0;
     this._forceStop();
-    this.sx = this.x;
-    this.sy = this.y;
+    //if (this.ex === -1 && this.ey === -1)
+    //{
+      this.sx = this.x;
+      this.sy = this.y;
+    //}
+    //else {
+    //  this.sx = this.ex;
+    //  this.sy = this.ey;
+    //}
+
     this.ex = -1;
     this.ey = -1;
   },
@@ -1436,18 +1450,30 @@ module.exports = Player = Character.extend({
     }
   },
 
-  isValidPath: function (path) {
-    if (!this.map.entities.pathfinder.checkValidPath(path)) {
-      console.warn("handleMovePath: checkValidPath false.");
+  isValidPath: function (path, time) {
+    var pathfinder = this.map.entities.pathfinder;
+    if (!pathfinder.checkValidPath(path)) {
+      console.warn("isValidPath: checkValidPath false.");
       this.resetMove(this.x,this.y);
       return false;
     }
 
-    if (!this.map.entities.pathfinder.isValidPath(this.map.grid, path)) {
+    if (!pathfinder.isValidPath(this.map.grid, path)) {
       console.warn("handleMovePath: no valid path.");
       this.resetMove(this.x,this.y);
       return false;
     }
+
+    console.warn("player - isValidPath: "+JSON.stringify(path));
+    if (time) {
+      var dist = pathfinder.getPathDistance(path);
+      if (pathfinder.isDistanceTooFast(this.tick, dist, time)) {
+        console.warn("handleMovePath: no valid path.");
+        this.resetMove(this.x,this.y);
+        return false;
+      }
+    }
+
     return true;
   }
 

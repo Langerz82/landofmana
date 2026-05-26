@@ -21,31 +21,23 @@ module.exports = Pathfinder = Class.extend({
       }*/
   },
 
-  isPathTicksTooFast: function (ticks, path, startTime, tolerance) {
-    //return false;
+  isDistanceTooFast: function (ticks, dist, startTime, tolerance) {
+    tolerance = tolerance || G_FRAME_INTERVAL;
 
-    tolerance = tolerance || G_UPDATE_INTERVAL;
-    //tolerance *= entity.tick;
-
-    console.info("pathFinder - isPathTicksTooFast:");
+    console.info("pathFinder - isDistanceTooFast:");
     var elapsed = Date.now() - startTime;
     if (elapsed === 0)
       return false;
 
     var elapsedTicks = ~~(elapsed / G_FRAME_INTERVAL);
-    //console.warn("entity.estDelay: "+entity.estDelay);
     elapsedTicks = Math.max(elapsedTicks, 0);
-    var actualTicks = ~~(this.getPathDistance(path) / ticks);
-    /*if (actualTicks === 0) {
-      console.warn("getPathDistance - "+JSON.stringify(path)+", x:"+entity.x+",y:"+entity.y);
-      return false;
-    }*/
-    //console.info("elapsedTicks:"+elapsedTicks);
-    //console.info("actualTicks:"+actualTicks);
+
+    var actualTicks = ~~(dist / ticks);
+    console.warn("isDistanceTooFast: playerTicks - actualTicks: "+actualTicks+", elapsedTicks:"+elapsedTicks);
     if (actualTicks > (elapsedTicks + tolerance))
     {
       try { throw new Error(); } catch(err) { console.info(err.stack); }
-      console.warn("SPEED HACK DETECTED. playerTicks - actualTicks: "+actualTicks+", elapsedTicks:"+elapsedTicks+", tolerance:"+tolerance);
+      console.warn("isDistanceTooFast: SPEED HACK DETECTED. playerTicks - actualTicks: "+actualTicks+", elapsedTicks:"+elapsedTicks+", tolerance:"+tolerance);
       return true;
     }
     return false;
@@ -58,6 +50,15 @@ module.exports = Pathfinder = Class.extend({
    * of the final coordinate that should be in the path.
    */
   getPathSubDistance: function (path, x, y) {
+      /*
+      var subpath = this.getSubPath(path, x, y);
+      if (!subpath)
+        return 0;
+      console.warn("getPathSubDistance: subpath="+JSON.stringify(subpath));
+      var dist = this.getPathDistance(subpath);
+      console.warn("getPathSubDistance: dist="+dist);
+      */
+
       count = 0;
       var n2 = null;
 
@@ -82,6 +83,7 @@ module.exports = Pathfinder = Class.extend({
           }
           n2 = n1;
       }
+      console.warn("getPathSubDistance: count="+count);
       return count;
   },
 

@@ -811,7 +811,7 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
                 	if (p.isDead)
                       return;
 
-                  self.client.sendMoveEntity(p, 2);
+                  //self.client.sendMoveEntity(p, 2);
                   /*if(self.isItemAt(x, y)) {
                       var items = self.getItemsAt(x, y);
 
