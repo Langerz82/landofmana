@@ -172,7 +172,7 @@ define(['app', 'data/langdata', 'util',
             });
 
             app.initHealthBar();
-            app.initEnergyBar();
+            //app.initEnergyBar();
             app.initExpBar();
             app.initPlayerBar();
 

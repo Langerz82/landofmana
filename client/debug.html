@@ -255,14 +255,20 @@
 				<div id="health"> </div>
 				<div class="frame-stroke1" id="healthtext"></div>
 			</div>
-			<div class="frame-border">
-				<div id="energy" class="combatProgress"> </div>
-				<div class="frame-stroke1" id="energytext">Energy</div>
-			</div>
 		</div>
     <div id="playereffects"></div>
 		<div class="frame-stroke1" id="explevel"></div>
 	</div>
+  <div class="frame-panel" id="target">
+      <div class="target-details">
+          <div class="frame-stroke1 name"></div>
+          <div class="frame-stroke1 level"></div>
+          <div class="frame-border">
+            <div id="target-health"> </div>
+            <div class="frame-stroke1" id="target-healthtext"></div>
+          </div>
+      </div>
+  </div>
 	<div class="frame-new-button" id="charactermenu">MENU</div>
 	<div id="expcontainer">
 		<div id="exp"></div>
@@ -327,16 +333,6 @@
             <form action="none" method="get" accept-charset="utf-8">
                 <input id="chatinput" class="gp" type="text" maxlength="256">
             </form>
-        </div>
-        <div class="frame-panel" id="target">
-            <div class="details">
-                <div class="frame-stroke1 name"></div>
-                <div class="frame-stroke1 level"></div>
-                <div class="frame-border">
-          				<div id="target-health"> </div>
-          				<div class="frame-stroke1" id="target-healthtext"></div>
-          			</div>
-            </div>
         </div>
         <div id="auctionSellDialog" class="frame-panel">
             <div id="auctionSellTitle">Sell Value.</div>

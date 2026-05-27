@@ -1222,32 +1222,6 @@ define(['camera', 'entity/item', 'data/items', 'data/itemlootdata', 'entity/enti
               return "";
             },
 
-            resetCombatHitBar: function () {
-              var self = this;
-
-              function regenerateElements(){
-                var clonedElement = self.hitbar.cloneNode(true);
-                self.hitbar.parentNode.replaceChild(clonedElement, self.hitbar);
-                self.hitbar = document.getElementById('energy');
-              }
-              regenerateElements();
-            },
-
-            /*drawCombatHitBar: function () {
-              if (game.player) {
-                var attackPower = Math.min(game.currentTime - game.player.attackTime, ATTACK_MAX) / ATTACK_MAX;
-                if (attackPower === 1) {
-                  //$('#combathitbar-points').removeClass('progress');
-                  //$('#combathitbar-points').stop(true);
-                }
-                var width = ~~(228 * attackPower);
-                if ((width - this.hitbarWidth) != 0) {
-                  //this.hitbar.style.width = width+"px";
-                  this.hitbarWidth = width;
-                }
-              }
-            },*/
-
             drawDebugInfo: function() {
               var c = game.camera;
               var debugInfo = "";

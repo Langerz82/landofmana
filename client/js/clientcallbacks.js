@@ -1064,9 +1064,6 @@ function(HoveringInfo,
               game.playerhp_callback(hp, hpMax);
               onPlayerChangeHealth(entity, hpMod);
             }
-            if (epMod !== 0) {
-              game.playerep_callback(ep, epMax);
-            }
             game.updateBars();
           }
           else {

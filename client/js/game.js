@@ -703,7 +703,6 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
 
               //log.info("game.currentTime="+game.currentTime);
               player.attackTime = game.currentTime;
-              game.renderer.resetCombatHitBar();
 
               // START TUTORIAL SHOW CODE.
               if (player.level === 0)
@@ -1089,7 +1088,6 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
 
                 p.attackCooldown.duration = 1000;
                 p.attackCooldown.lastTime = time;
-                game.renderer.resetCombatHitBar();
 
                 p.attackInterval = setTimeout(this.makePlayerAttack.bind(this, entity), ATTACK_MAX);
                 return true;
@@ -2063,10 +2061,6 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
                 this.playerhp_callback = callback;
             },
 
-            onPlayerEnergyChange: function(callback) {
-                this.playerep_callback = callback;
-            },
-
             onBarStatsChange: function(callback) {
                 this.barstats_callback = callback;
             },
@@ -2098,9 +2092,8 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
 
             updateBars: function() {
                 var p = this.player;
-                if(p && this.playerhp_callback && this.playerep_callback) {
+                if(p && this.playerhp_callback) {
                     this.playerhp_callback(p.stats.hp, p.stats.hpMax);
-                    this.playerep_callback(p.stats.ep, p.stats.epMax);
                 }
             },
 

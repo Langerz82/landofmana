@@ -522,13 +522,14 @@ define(['lib/localforage', 'entity/mob', 'entity/item', 'data/mobdata', 'user', 
 
   		        var el = '#target';
 
+              targetName = targetName.capitalizeFirstLetter();
         			$(el+' .name').text(targetName + " Lv"+target.level);
 
-        			$(el+' .name').css('text-transform', 'capitalize');
+        			//$(el+' .name').css('text-transform', 'capitalize');
 
         			if(target.stats.hp) {
         			    $("#target-health").css('width', Math.round(target.stats.hp/target.stats.hpMax*60*guiScale)+'px');
-                  $("#target-healthtext").html(target.stats.hp + "/" + target.stats.hpMax);
+                  $("#target-healthtext").html("HP: "+target.stats.hp + "/" + target.stats.hpMax);
         			} else{
         			    $("#target-health").css('width', 60*guiScale+"px");
         			}
@@ -541,7 +542,7 @@ define(['lib/localforage', 'entity/mob', 'entity/item', 'data/mobdata', 'user', 
           	log.info("targetHealth: "+target.stats.hp+" "+target.stats.hpMax);
               //$("#target .health").css('width', Math.round(target.healthPoints/target.maxHp*90*scale)+'px');
               $("#target-health").css('width', Math.round(target.stats.hp/target.stats.hpMax*60*guiScale)+'px');
-              $("#target-healthtext").html(target.stats.hp + "/" + target.stats.hpMax);
+              $("#target-healthtext").html("HP: "+target.stats.hp + "/" + target.stats.hpMax);
               /*if(game.player.inspecting && game.player.inspecting.id === target.id){
                   $("#inspector .health").css('width', Utils.Percent(target.healthPoints/target.maxHp, 0));
               }*/
@@ -555,17 +556,6 @@ define(['lib/localforage', 'entity/mob', 'entity/item', 'data/mobdata', 'user', 
       			$('#combatContainer').fadeOut('fast');
 		        });
           }
-        },
-
-        initEnergyBar: function() {
-            var maxWidth = $("#statbars").width();
-
-            game.onPlayerEnergyChange(function(ep, epMax) {
-                maxWidth = $("#statbars").width();
-                var barWidth = Math.round((maxWidth / epMax) * (ep > 0 ? ep : 0));
-                //$('#energy').css('width', barWidth + "px");
-                //$('#energytext').html("<p>Energy: " + ep + "/" + epMax + "</p>");
-            });
         },
 
         initExpBar: function(){
@@ -616,12 +606,11 @@ define(['lib/localforage', 'entity/mob', 'entity/item', 'data/mobdata', 'user', 
                 healthMaxWidth = $("#statbars").width();
                 var barWidth = Math.round((healthMaxWidth / maxHp) * (hp > 0 ? hp : 0));
                 jqHealth.css('width', barWidth + "px");
-                jqHealthText.html("<p>HP: " + hp + "/" + maxHp + "</p>");
+                jqHealthText.html("HP: " + hp + "/" + maxHp);
             });
 
             game.onPlayerHurt(this.blinkHealthBar.bind(this));
         },
-
 
         blinkHealthBar: function() {
             var $hitpoints = $('#health');
