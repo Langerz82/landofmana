@@ -153,7 +153,7 @@ module.exports = Player = Character.extend({
 
       var weaponSlot = 4;
       var armorDamage = Math.min(5, Math.ceil(dealt / 300));
-      log.warn("armorDamage:" + armorDamage);
+      log.info("player - armorDamage:" + armorDamage);
       for (var it in this.equipment.rooms) {
         if (it === weaponSlot)
           continue;
@@ -958,7 +958,7 @@ module.exports = Player = Character.extend({
       var b = (this.sx === x && this.sy === y);
 
       if (a || b) {
-        console.warn("player move: this.moving_timeout cleared.");
+        console.info("player move: this.moving_timeout cleared.");
         clearTimeout(this.moving_timeout);
         this.setPosition(x,y);
         this.forceStop();
@@ -1464,7 +1464,7 @@ module.exports = Player = Character.extend({
       return false;
     }
 
-    console.warn("player - isValidPath: "+JSON.stringify(path));
+    console.info("player - isValidPath: "+JSON.stringify(path));
     if (time) {
       var dist = pathfinder.getPathDistance(path);
       if (pathfinder.isDistanceTooFast(this.tick, dist, time)) {

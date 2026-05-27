@@ -476,7 +476,7 @@ module.exports = Character = EntityMoving.extend({
   die: function(attacker) {
     var self = this;
 
-    console.warn("CHARACTER DIED!!!!!!!!!!!!!!!!!!!!!")
+    console.info("character, die: called.");
     this.forceStop();
     //try { throw new Error(); } catch(err) { console.info(err.stack); }
     this.removeTarget();

@@ -818,9 +818,8 @@ module.exports = PacketHandler = Class.extend({
     if (state === 2) {
       if (!p.checkStartMove(x,y)) {
         p.resetMove(p.x,p.y);
-        p.forceStop();
       }
-
+      p.forceStop();
       return;
     }
 
@@ -831,7 +830,7 @@ module.exports = PacketHandler = Class.extend({
     }
 
     var arr = [time, state, orientation, x, y];
-    console.warn("handleMoveEntity - arr: "+JSON.stringify(arr));
+    console.info("handleMoveEntity - arr: "+JSON.stringify(arr));
     if (state === 1) {
       p.move([time, 0, p.orientation, x, y]);
     }
@@ -878,7 +877,7 @@ module.exports = PacketHandler = Class.extend({
     if (!p.isValidPath(path))
       return;
 
-    console.warn("handleMoveEntity - movepath: "+JSON.stringify(path));
+    console.info("packethandler: handleMoveEntity - movepath: "+JSON.stringify(path));
     p.movePath([time, interrupted], path);
 
     var msg = new Messages.MovePath(p, path);

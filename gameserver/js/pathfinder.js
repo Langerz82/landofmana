@@ -24,7 +24,7 @@ module.exports = Pathfinder = Class.extend({
   isDistanceTooFast: function (ticks, dist, startTime, tolerance) {
     tolerance = tolerance || G_FRAME_INTERVAL;
 
-    console.info("pathFinder - isDistanceTooFast:");
+    console.info("pathFinder - isDistanceTooFast: called.");
     var elapsed = Date.now() - startTime;
     if (elapsed === 0)
       return false;
@@ -33,11 +33,11 @@ module.exports = Pathfinder = Class.extend({
     elapsedTicks = Math.max(elapsedTicks, 0);
 
     var actualTicks = ~~(dist / ticks);
-    console.warn("isDistanceTooFast: playerTicks - actualTicks: "+actualTicks+", elapsedTicks:"+elapsedTicks);
+    console.info("pathFinder - isDistanceTooFast: playerTicks - actualTicks: "+actualTicks+", elapsedTicks:"+elapsedTicks);
     if (actualTicks > (elapsedTicks + tolerance))
     {
-      try { throw new Error(); } catch(err) { console.info(err.stack); }
-      console.warn("isDistanceTooFast: SPEED HACK DETECTED. playerTicks - actualTicks: "+actualTicks+", elapsedTicks:"+elapsedTicks+", tolerance:"+tolerance);
+      try { throw new Error(); } catch(err) { console.warn(err.stack); }
+      console.warn("pathFinder - isDistanceTooFast: SPEED HACK DETECTED. playerTicks - actualTicks: "+actualTicks+", elapsedTicks:"+elapsedTicks+", tolerance:"+tolerance);
       return true;
     }
     return false;
@@ -83,7 +83,7 @@ module.exports = Pathfinder = Class.extend({
           }
           n2 = n1;
       }
-      console.warn("getPathSubDistance: count="+count);
+      console.info("pathfinder - getPathSubDistance: count="+count);
       return count;
   },
 

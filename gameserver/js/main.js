@@ -220,7 +220,7 @@ function main(config) {
         var random = Math.random().toString();
         var hash = crypto.createHash('sha1').update(current_date + random).digest('hex');
         conn.hash = hash;
-        console.warn("onConnect: hash="+hash);
+        console.info("main - onConnect: hash="+hash);
 
       	console.info(JSON.stringify(config));
       	console.info("version sent");

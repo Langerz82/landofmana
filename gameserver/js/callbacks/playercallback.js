@@ -119,34 +119,34 @@ module.exports = PlayerCallback = Class.extend({
             if (p.mapStatus < 2)
               return false;
 
-            console.warn("checkStartMove - player, x:"+x+",y:"+y);
-            console.warn("checkStartMove - player, p.sx:"+p.sx+",p.sy:"+p.sy);
-            console.warn("checkStartMove - player, p.x:"+p.x+",p.y:"+p.y);
-            console.warn("checkStartMove - player, ex:"+p.ex+",ey:"+p.ey);
+            //console.info("checkStartMove - player, x:"+x+",y:"+y);
+            //console.info("checkStartMove - player, p.sx:"+p.sx+",p.sy:"+p.sy);
+            //console.info("checkStartMove - player, p.x:"+p.x+",p.y:"+p.y);
+            //console.info("checkStartMove - player, ex:"+p.ex+",ey:"+p.ey);
 
             if (p.map.isColliding(x, y)) {
-              console.warn("checkStartMove - char.isColliding("+p.id+","+x+","+y+")");
+              console.info("checkStartMove - char.isColliding("+p.id+","+x+","+y+")");
               return false;
             }
 
             if (p.checkPathInterrupt(x,y)) {
-              console.warn("checkStartMove - checkPathInterrupt = true");
+              console.info("checkStartMove - checkPathInterrupt = true");
               return false;
             }
 
             if (p.isMovingPath() && !(p.x === x && p.y === y))
             {
-              console.warn("checkStartMove - isMovingPath but wrong coords.");
+              console.info("checkStartMove - isMovingPath but wrong coords.");
               p.fixMove(x,y);
               return true;
             }
 
             if (p.x === x && p.y === y) {
-              console.warn("checkStartMove - same coords.");
+              console.info("checkStartMove - same coords.");
               return true;
             }
 
-            console.warn("checkStartMove - different coords.");
+            console.info("checkStartMove - different coords.");
             return false;
         }
 
