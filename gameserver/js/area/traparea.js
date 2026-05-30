@@ -46,9 +46,9 @@ module.exports = TrapArea = EntityArea.extend({
     console.info("isGroupEmptyPositions: pos=["+pos[0]+","+pos[1]+"],w="+width+",h="+height);
     for (var i=0; i < width; ++i) {
       for (var j=0; j < height; ++j) {
-        if (!this.map.entities.isGridPositionEmpty(
-          (pos[0]+i)*G_TILESIZE,
-          (pos[1]+j)*G_TILESIZE))
+        var x = (pos[0]+i);
+        var y = (pos[1]+j);
+        if (!this.map.entities.isGridPositionEmpty(x,y))
         {
           return false;
         }
@@ -60,10 +60,10 @@ module.exports = TrapArea = EntityArea.extend({
   isTouching: function (entity) {
       var th = G_TILESIZE >> 1;
 
-      var x1 = (this.x*G_TILESIZE-th);
-      var x2 = ((this.x+this.width)*G_TILESIZE+th);
-      var y1 = (this.y*G_TILESIZE-th);
-      var y2 = ((this.y+this.width)*G_TILESIZE+th);
+      var x1 = (this.x-th);
+      var x2 = ((this.x+this.width)+th);
+      var y1 = (this.y-th);
+      var y2 = ((this.y+this.width)+th);
 
       return _.inRange(entity.x, x1, x2) && _.inRange(entity.y, y1, y2);
   },

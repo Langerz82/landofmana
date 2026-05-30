@@ -96,9 +96,12 @@ module.exports = MobArea = EntityArea.extend({
 
       //console.info("_createMob:"+kind);
 	    var	pos = self.map.entities.spaceEntityRandomApart(2,self._getRandomPositionInsideArea.bind(self,100));
-      if (!pos) return null;
+      if (!pos) {
+        console.warn("mobarea, _createMob: no position");
+        return null;
+      }
 
-      //console.info("pos-x:"+pos.x+", pos-y:"+pos.y+", kind="+kind);
+      console.info("pos-x:"+pos.x+", pos-y:"+pos.y+", kind="+kind);
       var mob = self.map.entities.addMob(kind, pos.x, pos.y, this);
 
       //self.addToArea(mob);
@@ -175,7 +178,7 @@ module.exports = MobArea = EntityArea.extend({
         //this.removeFromArea(mob);
 
         setTimeout(function() {
-          var	pos = self.map.entities.spaceEntityRandomApart(3, self._getRandomPositionInsideArea.bind(self,20));
+          var	pos = self.map.entities.spaceEntityRandomApart(3, self._getRandomPositionInsideArea.bind(self,100));
           if (pos) {
             self_mob.spawnX = pos.x;
             self_mob.spawnY = pos.y;

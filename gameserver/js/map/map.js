@@ -220,7 +220,7 @@ var Map = cls.Class.extend({
 
         _.each(maList, function (ma) {
             var mobarea = new MobArea(self, ma.id, ma.count, ma.minLevel, ma.maxLevel,
-              ma.x, ma.y, ma.w, ma.h,
+              ma.x*G_TILESIZE, ma.y*G_TILESIZE, ma.w*G_TILESIZE, ma.h*G_TILESIZE,
               ma.include, ma.exclude, ma.definite,
               false, -1, ma.level);
             self.mobAreas[ma.id] = mobarea;
@@ -236,7 +236,8 @@ var Map = cls.Class.extend({
         this.startingAreas = [];
 
         _.each(cpList, function (cp) {
-            var checkpoint = new Checkpoint(self, cp.id, cp.x, cp.y, cp.w, cp.h);
+            var checkpoint = new Checkpoint(self, cp.id,
+              cp.x, cp.y, cp.w, cp.h);
             self.checkpoints[checkpoint.id] = checkpoint;
             if (cp.s === 1) {
                 self.startingAreas.push(checkpoint);
@@ -256,7 +257,7 @@ var Map = cls.Class.extend({
       //console.info("getRandomStartingPosition - none");
 
       if (this.index === 1) {
-        var area = new Area(this, 0, 512, 512, 30, 30, true, -1);
+        var area = new Area(this, 0, 512*G_TILESIZE, 512*G_TILESIZE, 30*G_TILESIZE, 30*G_TILESIZE, true, -1);
         //var pos = {x: (1024-45)*16, y: (1024-45)*16};
         //var pos = {x: (45)*16, y: (45)*16};
         var areaPos = area._getRandomPositionInsideArea.bind(area,100);

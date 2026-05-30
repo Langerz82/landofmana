@@ -4,10 +4,10 @@ var MapArea = cls.Class.extend({
 	init: function(map, elipse, x, y, width, height) {
 		this.map = map;
 		this.elipse = elipse;
-		this.x = x * G_TILESIZE;
-		this.y = y * G_TILESIZE;
-		this.width = width * G_TILESIZE;
-		this.height = height * G_TILESIZE;
+		this.x = x;
+		this.y = y;
+		this.width = width;
+		this.height = height;
 	},
 
 	contains: function(entity) {
