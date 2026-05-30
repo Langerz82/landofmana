@@ -148,7 +148,7 @@
   <properties>
    <property name="v" value=""/>
   </properties>
-  <objectgroup draworder="index">
+  <objectgroup draworder="index" id="2">
    <object id="1" x="0" y="0" width="16" height="16"/>
   </objectgroup>
  </tile>
@@ -156,7 +156,7 @@
   <properties>
    <property name="v" value=""/>
   </properties>
-  <objectgroup draworder="index">
+  <objectgroup draworder="index" id="2">
    <object id="1" x="0" y="0" width="16" height="16"/>
   </objectgroup>
  </tile>
@@ -164,17 +164,23 @@
   <properties>
    <property name="v" value=""/>
   </properties>
+  <objectgroup draworder="index" id="2">
+   <object id="1" x="0" y="0" width="16" height="16"/>
+  </objectgroup>
  </tile>
  <tile id="67">
   <properties>
    <property name="v" value=""/>
   </properties>
+  <objectgroup draworder="index" id="2">
+   <object id="1" x="0" y="0" width="16" height="16"/>
+  </objectgroup>
  </tile>
  <tile id="68">
   <properties>
    <property name="v" value=""/>
   </properties>
-  <objectgroup draworder="index">
+  <objectgroup draworder="index" id="2">
    <object id="1" x="0" y="0" width="16" height="16"/>
   </objectgroup>
  </tile>
@@ -182,7 +188,7 @@
   <properties>
    <property name="v" value=""/>
   </properties>
-  <objectgroup draworder="index">
+  <objectgroup draworder="index" id="2">
    <object id="1" x="0" y="0" width="16" height="16"/>
   </objectgroup>
  </tile>
@@ -637,37 +643,55 @@
   <properties>
    <property name="v" value=""/>
   </properties>
+  <objectgroup draworder="index" id="2">
+   <object id="1" x="0" y="0" width="16" height="16"/>
+  </objectgroup>
  </tile>
  <tile id="264">
   <properties>
    <property name="v" value=""/>
   </properties>
+  <objectgroup draworder="index" id="2">
+   <object id="1" x="0" y="0" width="16" height="16"/>
+  </objectgroup>
  </tile>
  <tile id="265">
   <properties>
    <property name="v" value=""/>
   </properties>
+  <objectgroup draworder="index" id="2">
+   <object id="1" x="0" y="0" width="16" height="16"/>
+  </objectgroup>
  </tile>
  <tile id="266">
   <properties>
    <property name="v" value=""/>
   </properties>
+  <objectgroup draworder="index" id="2">
+   <object id="1" x="0" y="0" width="16" height="16"/>
+  </objectgroup>
  </tile>
  <tile id="267">
   <properties>
    <property name="v" value=""/>
   </properties>
+  <objectgroup draworder="index" id="2">
+   <object id="1" x="0" y="0" width="16" height="16"/>
+  </objectgroup>
  </tile>
  <tile id="268">
   <properties>
    <property name="v" value=""/>
   </properties>
+  <objectgroup draworder="index" id="2">
+   <object id="1" x="0" y="0" width="16" height="16"/>
+  </objectgroup>
  </tile>
  <tile id="269">
   <properties>
    <property name="v" value=""/>
   </properties>
-  <objectgroup draworder="index">
+  <objectgroup draworder="index" id="2">
    <object id="1" x="0" y="0" width="16" height="16"/>
   </objectgroup>
  </tile>
