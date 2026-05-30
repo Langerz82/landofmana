@@ -944,13 +944,16 @@ module.exports = PacketHandler = Class.extend({
 
       var pos = {x: p.x, y: p.y};
       //console.info("handleTeleportMap - x: "+x+",y:"+y);
-
-      //console.warn("mapIndex: p.map.mapIndex:"+map.index);
+      var isDoor = false;
       if (portalId >= 0) {
         var door = oldMap.doors[portalId];
-        pos = {x: door.dx, y: door.dy};
+        if (door.tx >= 0 && door.ty >= 0) {
+          pos = {x: door.tx, y: door.ty};
+          isDoor = true;
+        }
       }
-      else {
+
+      if (!isDoor) {
         if (p.map.index === 0 || (typeof p.prevPosX === "undefined" &&
             typeof p.prevPosY === "undefined"))
         {

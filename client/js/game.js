@@ -789,7 +789,7 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
                     p.setOrientation(dest.orientation);
 
                     p.buttonMoving = false;
-                    self.teleportMaps(dest.map, dest.dx, dest.dy, dest.id);
+                    self.teleportMaps(dest.tmap, dest.tx, dest.ty, dest.id);
 
                     //self.updatePlateauMode();
 

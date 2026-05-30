@@ -161,8 +161,8 @@ module.exports = function processMap(json, jsontsx, options) {
 					 };
 					 if (prop.tMinLevel) doorArea.tMinLevel = prop.tMinLevel;
 					 if (prop.tMaxLevel) doorArea.tMaxLevel = prop.tMaxLevel;
-					 if (prop.dx) doorArea.dx = prop.dx;
-					 if (prop.dy) doorArea.dy = prop.dy;
+					 if (prop.dx) doorArea.tx = prop.tx;
+					 if (prop.dy) doorArea.ty = prop.ty;
 					 map.doors.push(doorArea);
 				 }
 			 }

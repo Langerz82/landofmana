@@ -154,7 +154,7 @@ module.exports = MapManager = cls.Class.extend({
                       var pos = area._getRandomPositionInsideArea(30*G_TILESIZE);
                       var npc = map.entities.addNpcMove(id, pos.x, pos.y);
 
-                      var area2 = new EntityArea(map, 0, i, j, w, h, true, -1);
+                      var area2 = new EntityArea(map, 0, ga, gb, w, h, true, -1);
 
                       prevNpc.nextNpcName = npc.name;
                       prevNpc.nextNpcDir = strDir;

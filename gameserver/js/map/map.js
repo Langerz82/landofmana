@@ -399,7 +399,7 @@ var Map = cls.Class.extend({
         	door.height = (door.height) ? door.height : 1;
         	console.info("door.tmap="+door.tmap);
           var area = new MapArea(map, false, door.x, door.y, door.width, door.height, -1);
-          area.tmap = door.tmap ? door.tmap : 1;
+          area.tmap = door.map ? door.map : self.id;
           area.minLevel = door.tminLevel || 0;
           area.maxLevel = door.tmaxLevel || 200;
 
@@ -414,8 +414,8 @@ var Map = cls.Class.extend({
     					break;
     				default : area.orientation = Types.Orientations.DOWN;
     			}
-          area.dx = door.dx || -1;
-          area.dy = door.dy || -1;
+          area.tx = door.tx || -1;
+          area.ty = door.ty || -1;
           doors.push(area);
         });
         console.info("return doors");

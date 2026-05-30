@@ -135,9 +135,9 @@ define(['area', 'detect', 'map'], function(Area, Detect, Map) {
         var area = new Area(door.x, door.y, door.width, door.height);
         area.minLevel = door.tminLevel || 0;
         area.maxLevel = door.tmaxLevel || 200;
-        area.map = door.tmap || this.mapIndex;
-        area.dx = door.dx || -1;
-        area.dy = door.dy || -1;
+        area.tmap = door.tmap || this.mapIndex;
+        area.tx = door.tx || -1;
+        area.ty = door.ty || -1;
 
         switch (door.to) {
           case 'u':
