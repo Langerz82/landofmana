@@ -24,7 +24,7 @@ var source = process.argv[2],
     destination = process.argv[6];
 
 if(!source || (mode!="direct" && mode!="client" && mode!="server")) {
-    log.info("Usage : ./exportmap.js tiled_json_file [mode]");
+    console.info("Usage : ./exportmap.js tiled_json_file [mode]");
     console.info("Optional parameters : mode & destination. Values:");
     console.info("    - \"direct\" (default) → updates current server and map files (WARNING: SHOULD ONLY BE CALLED FROM BrowserQuest/tools/maps !!!);");
     console.info("    - \"client destination_file\" → will generate destination_file.js and destination_file.json for client side map;");

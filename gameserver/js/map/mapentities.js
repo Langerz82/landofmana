@@ -396,14 +396,14 @@ var MapEntities = cls.Class.extend({
         //setTimeout(function () {
         _.each(self.map.spawnEntities, function(npcData) {
             if (npcData.type == Types.EntityTypes.NPCMOVE) {
-              var npc = self.addNpcMove(npcData.id, npcData.x*G_TILESIZE, npcData.y*G_TILESIZE);
+              var npc = self.addNpcMove(npcData.id, npcData.x, npcData.y);
               if (npcData.name)
                 npc.name = npcData.name;
               if (npcData.scriptQuests)
                 npc.scriptQuests = npcData.scriptQuests;
             }
             if (npcData.type == Types.EntityTypes.NPCSTATIC) {
-              var npc = self.addNpcStatic(npcData.id, npcData.x*G_TILESIZE, npcData.y*G_TILESIZE);
+              var npc = self.addNpcStatic(npcData.id, npcData.x, npcData.y);
               if (npcData.name)
                 npc.name = npcData.name;
               if (npcData.scriptQuests)
@@ -918,7 +918,7 @@ var MapEntities = cls.Class.extend({
 
     spaceEntityRandomApart: function (dist, callback_func, entities, entity, threshold) {
       entities = entities || this.entities;
-      threshold = threshold || 50;
+      threshold = threshold || 100;
     	var pos = null;
     	var count = 1;
       var param = (entity && entity.collision) ? entity.collision : null;

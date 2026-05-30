@@ -138,60 +138,70 @@ module.exports = function processMap(json, jsontsx, options) {
 				var prop = getPropertyList(area.properties);
                 var cp = {
                     id: ++count,
-                    x: ~~(area.x / map.tilesize),
-                    y: ~~(area.y / map.tilesize),
-                    w: ~~(area.width / map.tilesize),
-                    h: ~~(area.height / map.tilesize),
+                    x: ~~(area.x),
+                    y: ~~(area.y),
+                    w: ~~(area.width),
+                    h: ~~(area.height),
 					s: prop.s,
                 };
                 map.checkpoints.push(cp);
             });
         }
 
-	else if(layer.name === "entities" && mode === "server"){
-                 console.info("Processing entities...");
-                 var areas = layer.objects;
-                 for(var i = 0; i < areas.length; i++){
-					 var prop = getPropertyList(areas[i].properties);
-					 console.info(JSON.stringify(prop));
-                     var entityArea = {
-                         x: ~~(areas[i].x / map.tilesize),
-                         y: ~~(areas[i].y / map.tilesize),
-						 type: prop.type,
-                         id: prop.id,
-						 name: prop.name,
-						 scriptQuests: prop.scriptQuests,
-                     };
-                     map.entities.push(entityArea);
-                 }
-             }
+		else if(layer.name === "entities"){
+			if (mode == "server") {
+					 console.info("Processing entities...");
+					 //console.info(JSON.stringify(layer));
+					 var areas = layer.objects;
+					 if (areas) {
+						 for(var i = 0; i < areas.length; i++){
+							 var prop = getPropertyList(areas[i].properties);
+							 //console.info(JSON.stringify(prop));
+							 var entityArea = {
+								 x: ~~(areas[i].x),
+								 y: ~~(areas[i].y),
+								 type: prop.type,
+								 id: prop.id,
+								 name: prop.name || "",
+							 };
+							 if (prop.scriptQuests) {
+								 entityArea.scriptQuests = prop.scriptQuests;
+							 }
+							 map.entities.push(entityArea);
+						 }
+					 }
+			}
+			else
+				return;
+		}
 
-
-	else if(layer.name === "mobareas" && mode === "server"){
-                 console.info("Processing mobareas...");
-                 var areas = layer.objects;
-				 console.info(JSON.stringify(areas));
-				 //return;
-                 for(var i = 0; i < areas.length; i++){
-					 console.info(areas[i]);
-					 var prop = getPropertyList(areas[i].properties);
-                     var area = {
-						 id: i,
-						 count: prop.count,
-						 minLevel: prop.minLevel,
-						 maxLevel: prop.maxLevel,
-                         x: ~~(areas[i].x / map.tilesize),
-                         y: ~~(areas[i].y / map.tilesize),
-                         w: ~~(areas[i].width / map.tilesize),
-                         h: ~~(areas[i].height / map.tilesize),
-						 include: prop.include || '',
-						 exclude: prop.exclude || '',
-						 definite: prop.definite || '',
-						 level: prop.level || '',
-                     };
-                     map.mobAreas.push(area);
-                 }
-             }
+		else if(layer.name === "mobareas"){
+			if (mode == "server") {
+					 console.info("Processing mobareas...");
+					 var areas = layer.objects;
+					 console.info(JSON.stringify(areas));
+					 //return;
+					 for(var i = 0; i < areas.length; i++){
+						 console.info(areas[i]);
+						 var prop = getPropertyList(areas[i].properties);
+						 var area = {
+							 id: i,
+							 count: prop.count,
+							 minLevel: prop.minLevel,
+							 maxLevel: prop.maxLevel,
+							 x: ~~(areas[i].x),
+							 y: ~~(areas[i].y),
+							 w: ~~(areas[i].width),
+							 h: ~~(areas[i].height),
+							 include: prop.include || '',
+							 exclude: prop.exclude || '',
+							 definite: prop.definite || '',
+							 level: prop.level || '',
+						 };
+						 map.mobAreas.push(area);
+					 }
+			}
+		}
 
     });
 

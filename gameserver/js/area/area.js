@@ -6,18 +6,19 @@ var Utils = require('../utils');
 module.exports = Area = cls.Class.extend({
   init: function(map, id, x, y, width, height, elipse, excludeId) {
     this.id = id;
-    var ts = G_TILESIZE;
-    this.gx = x;
-    this.gy = y;
-    this.x = x*ts;
-    this.y = y*ts;
+    //var ts = G_TILESIZE;
+    this.gx = ~~(x / G_TILESIZE);
+    this.gy = ~~(y / G_TILESIZE);
+
+    this.x = x;
+    this.y = y;
     if (elipse)
     {
       this.x + this.width / 2;
       this.y + this.height / 2;
     }
-    this.width = width*ts;
-    this.height = height*ts;
+    this.width = width;
+    this.height = height;
     //this.world = world;
     this.map = map;
 
@@ -29,7 +30,7 @@ module.exports = Area = cls.Class.extend({
   },
 
   _getRandomPosition: function(xandy, dist, threshold) {
-    threshold = threshold || 30;
+    threshold = threshold || 100;
     //console.info("_getRandomPositionInsideArea - threshold="+threshold);
     var pos = {};
     var valid = false;
@@ -38,18 +39,20 @@ module.exports = Area = cls.Class.extend({
     var count = 0;
     //console.info("threshold = "+threshold);
 
-    var d = Math.min(dist.height, dist.width);
+    var dw = dist.width;
+    var dh = dist.height;
     while (count < threshold) {
       if (!this.elipse) {
-        pos.x = xandy.x + Utils.randomInt(dist.width*2) - dist.width;
-        pos.y = xandy.y + Utils.randomInt(dist.height*2) - dist.height;
+        pos.x = xandy.x + Utils.randomInt(dw << 1) - dw;
+        pos.y = xandy.y + Utils.randomInt(dh << 1) - dh;
       } else {
         var a = Math.random() * 2 * Math.PI;
-        var r = Utils.randomRangeInt(0,~~(d / 2));
+        var rx = Utils.randomRangeInt(0,~~(dw / 2));
+        var ry = Utils.randomRangeInt(0,~~(dh / 2));
         //console.info("a="+a+",r="+r);
 
-        pos.x = Math.round(xandy.x + (r * Math.cos(a)));
-        pos.y = Math.round(xandy.y + (r * Math.sin(a)));
+        pos.x = Math.round(xandy.x + ~~(rx * Math.cos(a)));
+        pos.y = Math.round(xandy.y + ~~(ry * Math.sin(a)));
       }
       //console.info("pos.x: "+pos.x+",pos.y:"+pos.y);
       //console.info("count="+count);
@@ -75,7 +78,7 @@ module.exports = Area = cls.Class.extend({
       count++;
     }
     if (count >= threshold) {
-      //console.warn("_getRandomPosition exceeded:" + pos.x + "," + pos.y);
+      console.error("_getRandomPosition exceeded:" + pos.x + "," + pos.y);
       //process.exit(1);
       return null;
     }
@@ -127,7 +130,6 @@ module.exports = Area = cls.Class.extend({
       return false;
     }
   },
-
 
 });
 
