@@ -14,6 +14,8 @@ var isNumber = function(o) {
     return ! isNaN (o-0) && o !== null && o !== "" && o !== false;
 };
 
+var G_TILESIZE = 16;
+
 module.exports = function processMap(json, jsontsx, options) {
     var self = this, TiledJSON = json, TsxJSON = jsontsx;
     var layerIndex = 0, tileIndex = 0;
@@ -131,16 +133,19 @@ module.exports = function processMap(json, jsontsx, options) {
 			
             // iterate through the checkpoints
             _.each(areas, function(area) {
-				var prop = getPropertyList(area.properties);
-                var cp = {
-                    id: ++count,
-                    x: ~~(area.x),
-                    y: ~~(area.y),
-                    w: ~~(area.width),
-                    h: ~~(area.height),
-					s: prop.s,
-                };
-                map.checkpoints.push(cp);
+				console.info(JSON.stringify(area));
+				if (area.properties) {
+					var prop = getPropertyList(area.properties);
+					var cp = {
+						id: ++count,
+						x: ~~(area.x),
+						y: ~~(area.y),
+						w: ~~(area.width),
+						h: ~~(area.height),
+						s: prop.s,
+					};
+					map.checkpoints.push(cp);
+				}
             });
         }
 
@@ -157,12 +162,36 @@ module.exports = function processMap(json, jsontsx, options) {
 						 y: ~~(areas[i].y),
 						 width: ~~(areas[i].width),
 						 height: ~~(areas[i].height),
-						 tmap: prop.tmap,
 					 };
+					 if (prop.tmap >= 0) doorArea.tmap = prop.tmap;
 					 if (prop.tMinLevel) doorArea.tMinLevel = prop.tMinLevel;
 					 if (prop.tMaxLevel) doorArea.tMaxLevel = prop.tMaxLevel;
-					 if (prop.dx) doorArea.tx = prop.tx;
-					 if (prop.dy) doorArea.ty = prop.ty;
+					 if (prop.tx) doorArea.tx = prop.tx;
+					 if (prop.ty) doorArea.ty = prop.ty;
+					 map.doors.push(doorArea);
+				 }
+			 }
+		}
+
+		else if(layerName === "doors_old"){
+			 console.info("Processing doors...");
+			 //console.info(JSON.stringify(layer));
+			 var areas = layer.objects;
+			 if (areas) {
+				 for(var i = 0; i < areas.length; i++){
+					 var prop = getPropertyList(areas[i].properties);
+					 //console.info(JSON.stringify(prop));
+					 var doorArea = {
+						 x: ~~(areas[i].x),
+						 y: ~~(areas[i].y),
+						 width: ~~(areas[i].width),
+						 height: ~~(areas[i].height),
+					 };
+					 if (prop.tmap >= 0) doorArea.tmap = prop.tmap;
+					 if (prop.tMinLevel) doorArea.tMinLevel = prop.tMinLevel;
+					 if (prop.tMaxLevel) doorArea.tMaxLevel = prop.tMaxLevel;
+					 if (prop.x) doorArea.tx = prop.x * G_TILESIZE;
+					 if (prop.y) doorArea.ty = prop.y * G_TILESIZE;
 					 map.doors.push(doorArea);
 				 }
 			 }
@@ -290,6 +319,17 @@ var processLayer = function(layer) {
             }
         }
     }
+	else if(layerName === "blocking") {
+		console.info("Processing blocking tiles...");
+		for(var i=0; i < tiles.length; i += 1) {
+			var gid = tiles[i].gid;
+
+			// colliding tiles
+			if(gid > 0 && gid in collidingTiles) {
+				map.collision[i] = 1;
+			}
+		}
+	}
     else if(layerType === "tilelayer" && /*layer.visible !== 0 &&*/ 
     	layerName !== "_entities" && layerName !== "collision") 
     {

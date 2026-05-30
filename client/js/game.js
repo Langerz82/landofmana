@@ -147,7 +147,7 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
 
                 this.mapStatus = 0;
 
-                this.mapNames = ["map0", "map1"];
+                this.mapNames = ["map0", "map1", "map2"];
 
                 this.gameTime = 0;
                 //this.updateTick = G_UPDATE_INTERVAL;
@@ -691,7 +691,7 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
 
               //var ts = game.tilesize;
               //game.teleportMaps(0);
-          	  game.teleportMaps(1);
+          	  game.teleportMaps(2);
 
               //Welcome message
               game.chathandler.show();

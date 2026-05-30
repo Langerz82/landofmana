@@ -206,6 +206,23 @@ module.exports = MapManager = cls.Class.extend({
               };
               self.MapsReady();
           });
+
+          this.maps[2] = new Map(server, 2, "map2", "./maps/map2.json", "");
+        	this.maps[2].ready(function() {
+        		var map = self.maps[2];
+
+        		map.entities = new MapEntities(self.id, self.server, map, self.server.database);
+        		map.entities.mapready();
+
+        		//map.entities.spawnEntities(map);
+
+        		map.enterCallback = function (player) {
+        			var pos = map.getRandomStartingPosition();
+        			return pos;
+        		}
+        		self.MapsReady();
+        	});
+
     },
 
     MapsReady: function () {

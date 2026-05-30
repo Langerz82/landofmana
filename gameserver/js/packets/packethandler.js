@@ -942,6 +942,8 @@ module.exports = PacketHandler = Class.extend({
       var oldMap = p.map;
       p.setMap(map);
 
+// TODO - Going through portal when returning its looping.
+
       var pos = {x: p.x, y: p.y};
       //console.info("handleTeleportMap - x: "+x+",y:"+y);
       var isDoor = false;
@@ -954,7 +956,9 @@ module.exports = PacketHandler = Class.extend({
       }
 
       if (!isDoor) {
-        if (p.map.index === 0 || (typeof p.prevPosX === "undefined" &&
+        pos = p.map.getRandomStartingPosition();
+
+        /*if (p.map.index === 0 || (typeof p.prevPosX === "undefined" &&
             typeof p.prevPosY === "undefined"))
         {
           p.prevPosX = p.x;
@@ -970,7 +974,7 @@ module.exports = PacketHandler = Class.extend({
         }
         else {
           pos = p.map.getRandomStartingPosition();
-        }
+        }*/
       }
 
       p.map.entities.addPlayer(p);
@@ -984,21 +988,22 @@ module.exports = PacketHandler = Class.extend({
     }
     else if (status === 1) {
       p.mapStatus = 2;
-      self.handleSpawnMap(mapId, p.x, p.y);
+      //self.handleSpawnMap(mapId, p.x, p.y);
+
+      p.knownIds = [];
+
+      p.setPosition(p.x,p.y);
+      p.map.entities.processWho(p);
+      p.map.entities.sendNeighbours(p, new Messages.Spawn(p), p);
 
       self.send([Types.Messages.WC_TELEPORT_MAP, mapId, 2, p.x, p.y, -1]);
     }
   },
 
-  handleSpawnMap: function(mapId, x, y) {
+  /*handleSpawnMap: function(mapId, x, y) {
     var p = this.player;
 
-    p.knownIds = [];
-
-    p.setPosition(x,y);
-    p.map.entities.processWho(p);
-    p.map.entities.sendNeighbours(p, new Messages.Spawn(p), p);
-  },
+  },*/
 
   //handleClearMap: function() {
   //},
