@@ -573,7 +573,7 @@ define(['lib/pako', 'entity/player', 'entityfactory', 'entity/mob', 'entity/item
 						//if (data[1] === 0)
 							//game.renderer.blankFrame = true;
             this.sendMessage([Types.Messages.CW_TELEPORT_MAP,
-            		      	  		data[0], data[1], data[2], data[3]]);
+            		      	  		data[0], data[1], data[2], data[3], data[4]]);
         },
 
         sendWho: function(ids) {

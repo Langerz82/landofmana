@@ -893,6 +893,8 @@ module.exports = PacketHandler = Class.extend({
         status = parseInt(msg[1]);
     console.info("status="+status);
     var x = parseInt(msg[2]), y = parseInt(msg[3]);
+    var portalId = parseInt(msg[4]);
+
     var p = this.player;
     if (status <= 0)
     {
@@ -915,6 +917,11 @@ module.exports = PacketHandler = Class.extend({
       return;
     }
 
+    if (portalId >= 0 && portalId >= p.map.doors.length) {
+      console.info("Teleport does not exist.");
+      return;
+    }
+
     //console.warn("mapIndex: p.map.mapIndex:"+map.index);
     if (status === 0) {
       p.forceStop();
@@ -926,14 +933,24 @@ module.exports = PacketHandler = Class.extend({
 
       p.map.entities.removePlayer(p);
 
-      var finishTeleportMaps = function (mapId) {
-        //console.info("real mapId: " + mapId);
-        p.setMap(map);
+      pos = map.enterCallback(p);
 
-        var pos = {x: p.x, y: p.y};
-        //console.info("handleTeleportMap - x: "+x+",y:"+y);
 
-        //console.warn("mapIndex: p.map.mapIndex:"+map.index);
+      //finishTeleportMaps(mapId);
+
+      //console.info("real mapId: " + mapId);
+      var oldMap = p.map;
+      p.setMap(map);
+
+      var pos = {x: p.x, y: p.y};
+      //console.info("handleTeleportMap - x: "+x+",y:"+y);
+
+      //console.warn("mapIndex: p.map.mapIndex:"+map.index);
+      if (portalId >= 0) {
+        var door = oldMap.doors[portalId];
+        pos = {x: door.dx, y: door.dy};
+      }
+      else {
         if (p.map.index === 0 || (typeof p.prevPosX === "undefined" &&
             typeof p.prevPosY === "undefined"))
         {
@@ -951,26 +968,22 @@ module.exports = PacketHandler = Class.extend({
         else {
           pos = p.map.getRandomStartingPosition();
         }
+      }
 
-        p.map.entities.addPlayer(p);
+      p.map.entities.addPlayer(p);
 
-        p.ex = p.sx = pos.x;
-        p.ey = p.sy = pos.y;
-        p.setPosition(pos.x, pos.y);
-        p.move([Date.now(),3,1,pos.x,pos.y]);
+      p.setPosition(pos.x, pos.y);
+      p.forceStop();
+      p.move([Date.now(),3,1,pos.x,pos.y]);
 
-        //console.info("trying to send.");
-        self.send([Types.Messages.WC_TELEPORT_MAP, mapId, 1, p.x, p.y]);
-      };
-
-      pos = map.enterCallback(p);
-      finishTeleportMaps(mapId);
+      //console.info("trying to send.");
+      self.send([Types.Messages.WC_TELEPORT_MAP, mapId, 1, p.x, p.y, -1]);
     }
     else if (status === 1) {
       p.mapStatus = 2;
       self.handleSpawnMap(mapId, p.x, p.y);
 
-      self.send([Types.Messages.WC_TELEPORT_MAP, mapId, 2, p.x, p.y]);
+      self.send([Types.Messages.WC_TELEPORT_MAP, mapId, 2, p.x, p.y, -1]);
     }
   },
 

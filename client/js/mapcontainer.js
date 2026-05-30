@@ -128,17 +128,17 @@ define(['area', 'detect', 'map'], function(Area, Detect, Map) {
       var self = this;
 
       var doors = [];
+      var count = 0;
       _.each(map.doors, function(door) {
         door.width = (door.width) ? door.width : 1;
         door.height = (door.height) ? door.height : 1;
         var area = new Area(door.x, door.y, door.width, door.height);
-        area.minLevel = door.tminLevel,
-          area.maxLevel = door.tmaxLevel,
-          area.map = door.tmap,
-          area.difficulty = door.tdifficulty,
-          area.portal = door.p === 1,
-          area.quest = door.tq,
-          area.admin = door.a;
+        area.minLevel = door.tminLevel || 0;
+        area.maxLevel = door.tmaxLevel || 200;
+        area.map = door.tmap || this.mapIndex;
+        area.dx = door.dx || -1;
+        area.dy = door.dy || -1;
+
         switch (door.to) {
           case 'u':
             area.orientation = Types.Orientations.UP;
@@ -155,6 +155,7 @@ define(['area', 'detect', 'map'], function(Area, Detect, Map) {
           default:
             area.orientation = Types.Orientations.DOWN;
         }
+        area.id = count++;
         doors.push(area);
       });
       return doors;

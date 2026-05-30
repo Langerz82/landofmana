@@ -6,7 +6,7 @@ var fs = require("fs"),
 
 var map, mode;
 var collidingTiles = {};
-var entitiesFirstGid = -1;
+//var entitiesFirstGid = -1;
 
 var log = new Log(Log.DEBUG, fs.createWriteStream('processmap.log'));
 
@@ -41,11 +41,6 @@ module.exports = function processMap(json, jsontsx, options) {
     if(mode === "server") {
     	map.data = [];
 		//map.high = [];
-        map.roamingAreas = [];
-        map.chestAreas = [];
-        map.pvpAreas = [];
-        map.staticChests = [];
-        map.staticEntities = {};
 		map.entities = [];
 		map.mobAreas = [];
     }
@@ -70,12 +65,13 @@ module.exports = function processMap(json, jsontsx, options) {
     var length = map.width * map.height;
 	for(var i = 0; i < length; i += 1)
 		map.collision[i] = 0;
-
+/*
 	_.each(TiledJSON.tilesets, function(val) {
 		//console.info(JSON.stringify(val))
 		if (val.source === "Mobs.tsx")
 			entitiesFirstGid = val.firstgid;
 	});
+*/
 	//console.info(JSON.stringify(TiledJSON.tilesets));
 	console.info("tilesets");
 	_.each(TiledJSON.tilesets, function (value) {
@@ -148,7 +144,31 @@ module.exports = function processMap(json, jsontsx, options) {
             });
         }
 
-		else if(layer.name === "entities"){
+		else if(layerName === "doors"){
+			 console.info("Processing doors...");
+			 //console.info(JSON.stringify(layer));
+			 var areas = layer.objects;
+			 if (areas) {
+				 for(var i = 0; i < areas.length; i++){
+					 var prop = getPropertyList(areas[i].properties);
+					 //console.info(JSON.stringify(prop));
+					 var doorArea = {
+						 x: ~~(areas[i].x),
+						 y: ~~(areas[i].y),
+						 width: ~~(areas[i].width),
+						 height: ~~(areas[i].height),
+						 tmap: prop.tmap,
+					 };
+					 if (prop.tMinLevel) doorArea.tMinLevel = prop.tMinLevel;
+					 if (prop.tMaxLevel) doorArea.tMaxLevel = prop.tMaxLevel;
+					 if (prop.dx) doorArea.dx = prop.dx;
+					 if (prop.dy) doorArea.dy = prop.dy;
+					 map.doors.push(doorArea);
+				 }
+			 }
+		}
+
+		else if(layerName === "entities"){
 			if (mode == "server") {
 					 console.info("Processing entities...");
 					 //console.info(JSON.stringify(layer));

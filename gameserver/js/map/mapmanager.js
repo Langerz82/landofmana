@@ -43,7 +43,6 @@ module.exports = MapManager = cls.Class.extend({
       	});
 
 
-        //setTimeout(function () {
           self.maps[1] = new Map(server, 1,"map1","./maps/map1.json","");
           self.maps[1].ready(function() {
               var map = self.maps[1];
@@ -67,7 +66,8 @@ module.exports = MapManager = cls.Class.extend({
 
               var prevNpc = npc;
 
-setTimeout(function () {
+// Only uncomment for debugging spawns.
+//setTimeout(function () {
 
               var x=0;
               var y=0;
@@ -198,7 +198,7 @@ setTimeout(function () {
                   }
               }
 
-}, 10000);
+//}, 10000);
 
               map.enterCallback = function (player) {
                 var pos = map.getRandomStartingPosition();
@@ -206,7 +206,6 @@ setTimeout(function () {
               };
               self.MapsReady();
           });
-        //},10000);
     },
 
     MapsReady: function () {

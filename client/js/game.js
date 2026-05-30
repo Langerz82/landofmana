@@ -588,12 +588,14 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
 //                self.settingsHandler.apply();
             },
 
-            teleportMaps: function(mapIndex, x, y)
+            teleportMaps: function(mapIndex, x, y, portalId)
             {
               var self = this;
 
             	x = x || -1;
             	y = y || -1;
+              if (typeof(portalId) === "undefined")
+                portalId = -1;
 
               if (this.mapContainer) {
                 if (mapIndex == this.mapContainer.mapIndex)
@@ -608,7 +610,7 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
               this.mapContainer = new MapContainer(this, mapIndex, this.mapNames[mapIndex]);
 
               this.mapContainer.ready(function () {
-                  self.client.sendTeleportMap([mapIndex, 0, x, y]);
+                  self.client.sendTeleportMap([mapIndex, 0, x, y, portalId]);
               });
             },
 
@@ -720,11 +722,6 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
             },
 
             teleportFromTown: function (player) {
-              var p = player;
-              if (p.mapIndex === 0 && (p.gx>=63 && p.gx<=65) && (p.gy>=70 && p.gy<=72))
-              {
-                this.teleportMaps(1);
-              }
             },
 
             addPlayerCallbacks: function (player) {
@@ -740,7 +737,8 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
 
               self.player.onKeyMove(function(sentMove) {
                 var p = self.player;
-                checkTeleport(p, p.x, p.y);
+                if (!p.freeze)
+                  checkTeleport(p, p.x, p.y);
 
                 p.sendMove(sentMove ? 1 : 0);
                 //if (!p.freeze)
@@ -768,7 +766,7 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
 
               var checkTeleport = function (p, x, y)
               {
-                self.teleportFromTown(p);
+                //self.teleportFromTown(p);
 
                 var dest = self.mapContainer.getDoor(p);
                 if(!p.hasTarget() && dest) {
@@ -791,8 +789,7 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
                     p.setOrientation(dest.orientation);
 
                     p.buttonMoving = false;
-                    p.forceStop();
-                    //self.teleportMaps(dest.map, dest.x, dest.y, dest.difficulty);
+                    self.teleportMaps(dest.map, dest.dx, dest.dy, dest.id);
 
                     //self.updatePlateauMode();
 

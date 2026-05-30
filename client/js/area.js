@@ -12,10 +12,10 @@ define(function() {
         contains: function(entity) {
             //var ts = TILESIZE;
             if(entity) {
-                return entity.gx >= this.x
-                    && entity.gy >= this.y
-                    && entity.gx < this.x + this.width
-                    && entity.gy < this.y + this.height;
+                return entity.x >= this.x
+                    && entity.y >= this.y
+                    && entity.x < this.x + this.width
+                    && entity.y < this.y + this.height;
             } else {
                 return false;
             }

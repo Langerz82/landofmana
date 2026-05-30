@@ -256,7 +256,7 @@ var Map = cls.Class.extend({
 
       //console.info("getRandomStartingPosition - none");
 
-      if (this.index === 1) {
+      /*if (this.index === 1) {
         var area = new Area(this, 0, 512*G_TILESIZE, 512*G_TILESIZE, 30*G_TILESIZE, 30*G_TILESIZE, true, -1);
         //var pos = {x: (1024-45)*16, y: (1024-45)*16};
         //var pos = {x: (45)*16, y: (45)*16};
@@ -264,7 +264,7 @@ var Map = cls.Class.extend({
         var	pos = this.entities.spaceEntityRandomApart(3,areaPos);
         console.info("getRandomStartingPosition - x:"+pos.x+",y:"+pos.y);
         return pos;
-      }
+      }*/
 
       if (area) {
         var areaPos = area._getRandomPositionInsideArea.bind(area,100);
@@ -399,12 +399,10 @@ var Map = cls.Class.extend({
         	door.height = (door.height) ? door.height : 1;
         	console.info("door.tmap="+door.tmap);
           var area = new MapArea(map, false, door.x, door.y, door.width, door.height, -1);
-              area.minLevel = door.tminLevel || 0,
-              area.maxLevel = door.tmaxLevel || 200,
-              area.map = door.tmap ? door.tmap : 1,
-              area.portal = door.p === 1,
-              area.quest = door.tq,
-              area.admin = door.a;
+          area.tmap = door.tmap ? door.tmap : 1;
+          area.minLevel = door.tminLevel || 0;
+          area.maxLevel = door.tmaxLevel || 200;
+
     			switch(door.to) {
     				case 'u': area.orientation = Types.Orientations.UP;
     					break;
@@ -416,6 +414,8 @@ var Map = cls.Class.extend({
     					break;
     				default : area.orientation = Types.Orientations.DOWN;
     			}
+          area.dx = door.dx || -1;
+          area.dy = door.dy || -1;
           doors.push(area);
         });
         console.info("return doors");

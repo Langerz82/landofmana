@@ -24,6 +24,7 @@ var achievementCountMax = 999999;
 var skillsXPMax = 999999999;
 var mapsCountMax = 10;
 var mapCoordsMax = 16384;
+var mapIndexMax = 9;
 var orientationsMax = 4;
 var entityIdMax = 99999;
 var mapStatusMax = 3;
@@ -276,7 +277,8 @@ var _isTypeValid = function (fmt, msg) {
               ['n',0,mapStatusMax],
               ['n',0,1],
               ['n',-1,mapCoordsMax],
-              ['n',-1,mapCoordsMax]],
+              ['n',-1,mapCoordsMax],
+              ['n',-1,mapIndexMax]],
             this.formats[Types.Messages.CW_SKILL] = [
               ['n',0,playerSkillMax],
               ['n',0,entityIdMax]],

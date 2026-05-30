@@ -25,7 +25,8 @@ function(HoveringInfo,
         client.onPlayerTeleportMap(function(data) {
           var mapId = Number(data[0]),
               x = Number(data[2]),
-              y = Number(data[3]);
+              y = Number(data[3]),
+              portalId = Number(data[4]);
           var status = game.mapStatus = Number(data[1]);
 
           log.info("ON PLAYER TELEPORT MAP:"+mapId+"status: "+status+",x:"+x+",y:"+y);
@@ -67,7 +68,7 @@ function(HoveringInfo,
             game.items = {};
 
             log.info("Map loaded.");
-            client.sendTeleportMap([mapId, 1, x, y]);
+            client.sendTeleportMap([mapId, 1, x, y, portalId]);
             //game.renderer.initPIXI();
             game.renderer.blankFrame = true;
             //game.initCursors();
