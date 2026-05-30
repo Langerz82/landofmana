@@ -618,8 +618,8 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
               this.versionChecked = true;
               var version = Number(data[0]);
 
-              var local_version = Number(config.build.version_game);
-              log.info("config.build.version_game="+local_version);
+              var local_version = Number(config.build.version);
+              log.info("config.build.version="+local_version);
               if (version !== local_version)
               {
                 $('#container').addClass('error');

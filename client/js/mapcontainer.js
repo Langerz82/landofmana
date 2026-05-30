@@ -18,12 +18,12 @@ define(['area', 'detect', 'map', 'config'], function(Area, Detect, Map, config) 
       this.count = 0;
       this.inc = 0;
 
-      var $file = "./maps/"+this.mapName+".zip?v=" + config.build.version_game;
+      var $file = "./maps/"+this.mapName+".zip?v=" + config.build.version;
       var name = self.mapName+"/"+self.mapName + "_GO.json";
 
       JSZipUtils.getBinaryContent($file, function(err, data) {
           if(err) {
-              var filename = "./maps/"+name+"?v="+config.build.version_game;
+              var filename = "./maps/"+name+"?v="+config.build.version;
               $.getJSON(filename, function( data ) {
                 self.loadMap(data);
               });

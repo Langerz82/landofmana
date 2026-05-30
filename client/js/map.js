@@ -23,7 +23,7 @@ define(['detect','config'], function(Detect, config) {
         });
       }
       catch (err) {
-        var filename = "./maps/"+name+"?v="+config.build.version_game;
+        var filename = "./maps/"+name+"?v="+config.build.version;
         $.getJSON(filename, function( data ) {
           self.loadMapData(data);
         });

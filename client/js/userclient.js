@@ -224,8 +224,8 @@ define(['gameclient', 'skillhandler', 'quest', 'config', 'achievement'], functio
         app.hashChallenge = hash;
         log.info("onVersion: hash="+hash);
 
-        var local_version = Number(config.build.version_user);
-        log.info("config.build.version_user="+local_version);
+        var local_version = Number(config.build.version);
+        log.info("config.build.version="+local_version);
         if (version !== local_version)
         {
           $('#container').addClass('error');
