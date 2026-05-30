@@ -1,4 +1,4 @@
-define(['detect'], function(Detect) {
+define(['detect','config'], function(Detect, config) {
 
   var Map = Class.extend({
     init: function(game, mapContainer, mapSubIndex) {
@@ -16,14 +16,14 @@ define(['detect'], function(Detect) {
       this.dimensions = mapContainer.getSubMapIndexDimensions(this.mapSubIndex);
 
       var mc = this.mapContainer;
-      var name = mc.mapName + "_"+this.mapSubIndex+".json";
+      var name = mc.mapName + "/" + mc.mapName + "_"+this.mapSubIndex+".json";
       try {
         mc.zip.file(name).async("string").then(function(data) {
           self.loadMapData(JSON.parse(data));
         });
       }
       catch (err) {
-        var filename = "./maps/"+mc.mapName+"/"+name;
+        var filename = "./maps/"+name+"?v="+config.build.version_game;
         $.getJSON(filename, function( data ) {
           self.loadMapData(data);
         });

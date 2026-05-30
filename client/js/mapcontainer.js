@@ -1,4 +1,4 @@
-define(['area', 'detect', 'map'], function(Area, Detect, Map) {
+define(['area', 'detect', 'map', 'config'], function(Area, Detect, Map, config) {
 
   var MapContainer = Class.extend({
     init: function(game, mapIndex, mapName) {
@@ -18,12 +18,12 @@ define(['area', 'detect', 'map'], function(Area, Detect, Map) {
       this.count = 0;
       this.inc = 0;
 
-      var $file = "./maps/"+this.mapName+".zip";
-      var name = self.mapName + "_GO.json";
+      var $file = "./maps/"+this.mapName+".zip?v=" + config.build.version_game;
+      var name = self.mapName+"/"+self.mapName + "_GO.json";
 
       JSZipUtils.getBinaryContent($file, function(err, data) {
           if(err) {
-              var filename = "./maps/"+self.mapName+"/"+name;
+              var filename = "./maps/"+name+"?v="+config.build.version_game;
               $.getJSON(filename, function( data ) {
                 self.loadMap(data);
               });
@@ -33,8 +33,8 @@ define(['area', 'detect', 'map'], function(Area, Detect, Map) {
           JSZip.loadAsync(data).then(function(zip) {
             self.zip = zip;
             try {
-              var name = self.mapName + "_GO.json";
-              zip.file(name).async("string").then(function(data) {
+              var filename = name;
+              zip.file(filename).async("string").then(function(data) {
                 self.loadMap(JSON.parse(data));
               });
             }
