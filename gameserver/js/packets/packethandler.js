@@ -951,6 +951,8 @@ module.exports = PacketHandler = Class.extend({
         var door = oldMap.doors[portalId];
         if (door.tx >= 0 && door.ty >= 0) {
           pos = {x: door.tx, y: door.ty};
+          pos.x += (G_TILESIZE >> 1);
+          pos.y += (G_TILESIZE >> 1);
           isDoor = true;
         }
       }
@@ -984,7 +986,7 @@ module.exports = PacketHandler = Class.extend({
       p.move([Date.now(),3,1,pos.x,pos.y]);
 
       //console.info("trying to send.");
-      self.send([Types.Messages.WC_TELEPORT_MAP, mapId, 1, p.x, p.y, -1]);
+      self.send([Types.Messages.WC_TELEPORT_MAP, mapId, 1, p.x, p.y, portalId]);
     }
     else if (status === 1) {
       p.mapStatus = 2;
@@ -996,7 +998,7 @@ module.exports = PacketHandler = Class.extend({
       p.map.entities.processWho(p);
       p.map.entities.sendNeighbours(p, new Messages.Spawn(p), p);
 
-      self.send([Types.Messages.WC_TELEPORT_MAP, mapId, 2, p.x, p.y, -1]);
+      self.send([Types.Messages.WC_TELEPORT_MAP, mapId, 2, p.x, p.y, portalId]);
     }
   },
 

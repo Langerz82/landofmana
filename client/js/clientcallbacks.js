@@ -53,6 +53,10 @@ function(HoveringInfo,
             //game.player.forceStop();
             game.player.clearTarget();
             game.player.freeze = true;
+
+//            if (portalId >= 0)
+//              game.player.orientation = game.mapContainer.doors[portalId].orientation;
+
             //game.player.path = null;
             //game.player.step = 0;
 
@@ -82,6 +86,11 @@ function(HoveringInfo,
 
               game.player.setPositionSpawn(x, y);
               game.player.forceStop();
+              if (portalId >= 0) {
+                var orientation = game.mapContainer.doors[portalId].orientation;
+                game.player.orientation = orientation;
+                game.player.idle();
+              }
 
               var c = game.camera;
 
@@ -110,7 +119,7 @@ function(HoveringInfo,
 
                 p.freeze = false;
               });
-              game.renderer.forceRedraw = true;
+              //game.renderer.forceRedraw = true;
           }
 
         });

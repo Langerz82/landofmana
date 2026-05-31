@@ -162,12 +162,14 @@ module.exports = function processMap(json, jsontsx, options) {
 						 y: ~~(areas[i].y),
 						 width: ~~(areas[i].width),
 						 height: ~~(areas[i].height),
+						 o: "d",
 					 };
 					 if (prop.tmap >= 0) doorArea.tmap = prop.tmap;
 					 if (prop.tMinLevel) doorArea.tMinLevel = prop.tMinLevel;
 					 if (prop.tMaxLevel) doorArea.tMaxLevel = prop.tMaxLevel;
 					 if (prop.tx) doorArea.tx = prop.tx;
 					 if (prop.ty) doorArea.ty = prop.ty;
+					 if (prop.o) doorArea.to = prop.o;
 					 map.doors.push(doorArea);
 				 }
 			 }
@@ -186,12 +188,14 @@ module.exports = function processMap(json, jsontsx, options) {
 						 y: ~~(areas[i].y),
 						 width: ~~(areas[i].width),
 						 height: ~~(areas[i].height),
+						 to: "d"
 					 };
 					 if (prop.tmap >= 0) doorArea.tmap = prop.tmap;
 					 if (prop.tMinLevel) doorArea.tMinLevel = prop.tMinLevel;
 					 if (prop.tMaxLevel) doorArea.tMaxLevel = prop.tMaxLevel;
 					 if (prop.x) doorArea.tx = prop.x * G_TILESIZE;
 					 if (prop.y) doorArea.ty = prop.y * G_TILESIZE;
+					 if (prop.o) doorArea.to = prop.o;
 					 map.doors.push(doorArea);
 				 }
 			 }
@@ -319,13 +323,12 @@ var processLayer = function(layer) {
             }
         }
     }
-	else if(layerName === "blocking") {
+	else if(layerType === "tilelayer" && layerName === "blocking") {
 		console.info("Processing blocking tiles...");
 		for(var i=0; i < tiles.length; i += 1) {
-			var gid = tiles[i].gid;
-
+			var gid = tiles[i];
 			// colliding tiles
-			if(gid > 0 && gid in collidingTiles) {
+			if(gid > 0) {
 				map.collision[i] = 1;
 			}
 		}

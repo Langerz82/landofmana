@@ -598,8 +598,8 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
                 portalId = -1;
 
               if (this.mapContainer) {
-                if (mapIndex == this.mapContainer.mapIndex)
-                  return;
+                //if (mapIndex == this.mapContainer.mapIndex)
+                  //return;
 
                 this.mapContainer = null;
               }
@@ -737,7 +737,7 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
 
               self.player.onKeyMove(function(sentMove) {
                 var p = self.player;
-                if (!p.freeze)
+                if (!sentMove && !p.freeze)
                   checkTeleport(p, p.x, p.y);
 
                 p.sendMove(sentMove ? 1 : 0);
