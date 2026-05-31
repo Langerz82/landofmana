@@ -393,3 +393,7 @@ Utils.setValueByPath = function (obj, path, value) {
 Utils.isBetween = function (num, a, b) {
     return num >= Math.min(a, b) && num <= Math.max(a, b);
 };
+
+Utils.floorToGrid = function (num, nth) {
+    return Math.floor(num / nth) * nth;
+};

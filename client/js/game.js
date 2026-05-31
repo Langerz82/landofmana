@@ -691,7 +691,7 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
 
               //var ts = game.tilesize;
               //game.teleportMaps(0);
-          	  game.teleportMaps(2);
+          	  game.teleportMaps(1);
 
               //Welcome message
               game.chathandler.show();
@@ -1502,8 +1502,6 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
 
                 if(this.pathfinder && character)
                 {
-
-                    var ts = G_TILESIZE;
                     var grid = this.mapContainer.collisionGrid;
                     if (!grid) {
                       console.error("game.js findPath: grid not ready for pathing.")
@@ -1513,12 +1511,15 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
                     var c = this.camera;
 
                     var pS = c.getGridPos([character.x, character.y]);
+
                     if (mc.isColliding(character.x, character.y))
                     {
                       log.info("pathfind - isColliding start.");
                       return null;
                     }
                     var pE = c.getGridPos([x, y]);
+                    //console.info(JSON.stringify(pE));
+
                     if (mc.isColliding(x, y))
                     {
                       log.info("pathfind - isColliding end.");
@@ -1575,14 +1576,17 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
 
                     if (path)
                     {
-                      //log.info("path_result: "+JSON.stringify(path));
-                      var dx = character.x - spS[0]*ts;
-                      var dy = character.y - spS[1]*ts;
+                      var ts = G_TILESIZE;
 
+                      //log.info("path_result: "+JSON.stringify(path));
+                      var dx = ~~(character.x/G_TILESIZE) - spS[0] + 0.5;
+                      var dy = ~~(character.y/G_TILESIZE) - spS[1] + 0.5;
+                      log.info("dx: "+dx);
+                      log.info("dy: "+dy);
                       for (var node of path)
                       {
-                        node[0] = ~~(node[0]*ts+dx);
-                        node[1] = ~~(node[1]*ts+dy);
+                        node[0] = (node[0]+dx)*G_TILESIZE;
+                        node[1] = (node[1]+dy)*G_TILESIZE;
                       }
                       // NOT NEEDED.
                       //path = this.pathfinder.compressPath(path);
@@ -1637,34 +1641,50 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
             /**
              * Moves the player one space, if possible
              */
-            moveCharacter: function(char, x, y, skipOverlap) {
+            moveCharacter: function(char, x, y, skipOverlap, skipGridCheck) {
               skipOverlap = skipOverlap || false;
-              var res = true;
+              skipGridCheck = skipGridCheck || false;
 
-              if (res && char.orientation === Types.Orientations.NONE)
-                res = false;
+              var o = char.orientation;
+              if (o === Types.Orientations.NONE)
+                return false;
 
-              if (res && this.mapContainer.isColliding(x, y))
-                res = false;
+              // This chunk of code makes sure character move into the grid.
+              if (!skipGridCheck) {
+                var midTile = (G_TILESIZE >> 1);
+                var mx = (x % G_TILESIZE);
+                var my = (y % G_TILESIZE);
+                //var o = char.orientation;
+                var check = (o === 1 || o === 2) ?
+                  (my === midTile) : (mx === midTile);
+                log.info("skipGridCheck, mx:"+mx+", my:"+my);
+                if (char.stopKeyMove && check)
+                {
+                  char.setPosition(x,y);
+                  return false;
+                }
+              }
 
+              //var cy = (o == 1 || o == 2) ? y : char.y;
+              //var cx = (o == 3 || o == 4) ? x : char.x;
+              if (this.mapContainer.isColliding(x, y)) {
+                //char.setPosition(x,y);
+                return false;
+              }
 
-              if (res && char instanceof Player) {
+              if (char instanceof Player) {
                 var block = char.holdingBlock;
                 var tile = char.nextTile(x, y);
                 if (block && this.mapContainer.isColliding(tile[0], tile[1]))
-                  res = false;
+                  return false;
               }
 
-              if (res && !skipOverlap && this.isOverlapping(char, x, y)) {
+              if (!skipOverlap && this.isOverlapping(char, x, y)) {
                 //console.warn("this.isOverlapping("+char.id+","+x+","+y+")");
-                res = false;
+                return false;
               }
 
-              /*if (!res && char === this.player) {
-                char.forceStop();
-              }*/
-
-              return res;
+              return true;
             },
 
             isOverlapping: function(entity, x, y) {
@@ -1683,8 +1703,8 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
                   if (entity2.isDead || entity2.isDying)
                     continue;
 
-                  if (!entity2.isNextTooEntity(entity) &&
-                      entity2.isNextTooPosition(x, y))
+                  if (!entity2.isWithinDist(entity.x, entity.y, G_TILESIZE-1) &&
+                      entity2.isWithinDist(x, y, G_TILESIZE-1))
                     return true;
                 }
                 return false;

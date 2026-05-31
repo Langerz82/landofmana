@@ -337,11 +337,11 @@ define(['../timer'], function(Timer) {
     },
 
     isNextTooEntity: function (entity) {
-        return this.isWithinDist(entity.x, entity.y, G_TILESIZE);
+        return this.isWithinDist(entity.x, entity.y, (G_TILESIZE));
     },
 
     isNextTooPosition: function (x, y) {
-        return this.isWithinDist(x, y, G_TILESIZE);
+        return this.isWithinDist(x, y, (G_TILESIZE));
     },
 
     isOverEntity: function (entity) {

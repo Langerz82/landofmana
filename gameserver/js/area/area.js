@@ -42,19 +42,25 @@ module.exports = Area = cls.Class.extend({
     var dw = dist.width;
     var dh = dist.height;
     while (count < threshold) {
-      if (!this.elipse) {
-        pos.x = xandy.x + Utils.randomInt(dw << 1) - dw;
-        pos.y = xandy.y + Utils.randomInt(dh << 1) - dh;
-      } else {
+      if (this.elipse) {
         var a = Math.random() * 2 * Math.PI;
         var rx = Utils.randomRangeInt(0,~~(dw / 2));
         var ry = Utils.randomRangeInt(0,~~(dh / 2));
-        //console.info("a="+a+",r="+r);
 
         pos.x = Math.round(xandy.x + ~~(rx * Math.cos(a)));
         pos.y = Math.round(xandy.y + ~~(ry * Math.sin(a)));
+      } else {
+        pos.x = xandy.x + Utils.randomInt(dw << 1) - dw;
+        pos.y = xandy.y + Utils.randomInt(dh << 1) - dh;
       }
-      //console.info("pos.x: "+pos.x+",pos.y:"+pos.y);
+
+      pos.x = Utils.floorToGrid(pos.x, G_TILESIZE) + (G_TILESIZE >> 1);
+      pos.y = Utils.floorToGrid(pos.y, G_TILESIZE) + (G_TILESIZE >> 1);
+
+      //if (pos.x % 16 !== 0 || pos.y % 16 !== 0)
+        //console.error("not multiple of 16");
+
+      //console.warn("pos.x: "+pos.x+",pos.y:"+pos.y);
       //console.info("count="+count);
       if (!this.contains(pos.x, pos.y, 0)) {
         //console.info("_getRandomPosition: contains - false "+pos.x+","+pos.y);

@@ -75,7 +75,7 @@ Utils.getOrientationString = function(r) {
     return o;
 };
 
-Utils.getOrientationFromLastMove = function(entity) {
+/*Utils.getOrientationFromLastMove = function(entity) {
 	if (!entity.path || entity.path.length === 0)
 		return Utils.randomOrientation();
 
@@ -102,7 +102,7 @@ Utils.getOrientationFromLastMove = function(entity) {
 	else if (y2 < y)
 		return Types.Orientations.UP;
 
-}
+}*/
 
 Utils.randomPositionNextTo = function (entity) {
     var a = entity.x, b = entity.y, r = Utils.random(4);

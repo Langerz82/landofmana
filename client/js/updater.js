@@ -103,21 +103,25 @@ define(['entity/character', 'timer', 'entity/player', 'entity/entitymoving'], fu
 
             this.playerKeyXF = function(c, m) {
               var x = c.x + m;
-              var res = game.moveCharacter(c, x, c.y);
+              var y = c.y;
+              var res = game.moveCharacter(c, x, y);
               if (res) {
-                c.setPosition(x, c.y);
+                c.setPosition(x, y);
               } else {
+                //c.setPosition(x, y);
                 c.forceStop();
               }
               return !res;
             };
 
             this.playerKeyYF = function(c, m) {
+              var x = c.x;
               var y = c.y + m;
-              var res = game.moveCharacter(c, c.x, y);
+              var res = game.moveCharacter(c, x, y);
               if (res) {
-                c.setPosition(c.x, y);
+                c.setPosition(x, y);
               } else {
+                //c.setPosition(x, y);
                 c.forceStop();
               }
               return !res;

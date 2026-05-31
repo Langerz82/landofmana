@@ -367,7 +367,7 @@ module.exports = Mob = Character.extend({
 
     move: function (x, y) {
         this.setPosition(x, y);
-        this.orientation = Utils.getOrientationFromLastMove(this);
+        //this.orientation = Utils.getOrientationFromLastMove(this);
         if (this.moveCallback) {
             this.moveCallback(this);
         }

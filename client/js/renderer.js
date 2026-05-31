@@ -1222,11 +1222,23 @@ define(['camera', 'entity/item', 'data/items', 'data/itemlootdata', 'entity/enti
               return "";
             },
 
+            getCoordinates2: function () {
+      				var realX = game.player.x;
+      				var realY = game.player.y;
+
+      				if (this.game.player)
+      				{
+                return "x:"+realX+",y:"+realY;
+      				}
+              return "";
+            },
+
             drawDebugInfo: function() {
               var c = game.camera;
               var debugInfo = "";
               debugInfo += this.getFPS() + "\n";
               debugInfo += this.getCoordinates() + "\n";
+              //debugInfo += this.getCoordinates2() + "\n";
 
               var s = this.scale;
               var sprite = this.pxSprite["pc_coords"];

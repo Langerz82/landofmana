@@ -367,6 +367,8 @@ define(['./entity', './character', 'data/appearancedata'],
         var pos = this.getTilePositionNextTo(this.orientation, 1);
         this.holdingBlock.setPosition(pos[0], pos[1]);
       }
+
+      log.info("setPosition, rx:"+(x % G_TILESIZE)+", ry:"+(y % G_TILESIZE));
     },
 /*
     followPath: function(path) {

@@ -119,6 +119,9 @@ define(['entity/entity'], function(Entity) {
           var tx = (x-this.x + tw) / ts;
           var ty = (y-this.y + th) / ts;
 
+          tx = Math.floor(tx);
+          ty = Math.floor(ty);
+
           return [tx,ty];
         },
 

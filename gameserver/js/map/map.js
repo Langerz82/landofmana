@@ -279,7 +279,7 @@ var Map = cls.Class.extend({
     {
       var gx = (x / G_TILESIZE),
           gy = (y / G_TILESIZE),
-          d = 0.5,
+          d = 0.49, // A little less than 0.5.
           x1 = ~~(gx-d),
           y1 = ~~(gy-d),
           x2 = ~~(gx+d),

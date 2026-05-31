@@ -453,30 +453,15 @@ define(['area', 'detect', 'map', 'config'], function(Area, Detect, Map, config) 
       }
     },
 
-    /*isColliding: function(x, y)
-    {
-      var xr = Utils.mapRound(x / G_TILESIZE),
-          yr = Utils.mapRound(y / G_TILESIZE);
-
-      if (this.isOutOfBounds(xr, yr)) {
-          return true;
-      }
-
-      if (this.isCollidingGrid(xr, yr)) {
-          return true;
-      }
-      return false;
-    },*/
-
     isColliding: function(x, y)
     {
       var gx = (x / G_TILESIZE),
           gy = (y / G_TILESIZE),
-          d = 0.5,
-          x1 = ~~(gx-d),
-          y1 = ~~(gy-d),
-          x2 = ~~(gx+d),
-          y2 = ~~(gy+d);
+          d = 0.49, // A little less than 0.5.
+          x1 = Math.floor(gx-d),
+          y1 = Math.floor(gy-d),
+          x2 = Math.floor(gx+d),
+          y2 = Math.floor(gy+d);
 
       var arr = [[x1,y1], [x1,y2], [x2,y1], [x2,y2]];
 

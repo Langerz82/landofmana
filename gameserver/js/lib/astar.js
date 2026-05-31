@@ -51,8 +51,8 @@ module.exports = AStar = (function () {
        return gGrid[~~(coord[0])][~~(coord[1])];
      }
      function successors(find, x, y, grid, rows, cols){
-         x = ~~(x) + 0.5;
-         y = ~~(y) + 0.5;
+         x = ~~(x);
+         y = ~~(y);
 
          var
              N = (y - 1),
@@ -106,19 +106,16 @@ module.exports = AStar = (function () {
 
      function AStar(grid, start, end, f) {
        gGrid = grid;
-       var
-           cols = grid[0].length,
+       var cols = grid[0].length,
            rows = grid.length,
            limit = cols * rows,
            f1 = Math.abs,
            f2 = Math.max,
            list = {},
            result = [],
-           //open = [{x:~~(start[0]), y:~~(start[1]), f:0, g:0, v:~~(start[0])+~~(start[1])*cols}],
-           open = [{x:~~(start[0]), y:~~(start[1]), f:0, g:0, v:(start[0])+(start[1])*cols}],
+           open = [{x:~~(start[0]), y:~~(start[1]), f:0, g:0, v:~~(start[0])+~~(start[1])*cols}],
            length = 1,
            adj, distance, find, i, j, max, min, current, next,
-           //endnode = {x:(end[0]), y:(end[1]), v:(end[0])+(end[1])*cols};
            endnode = {x:~~(end[0]), y:~~(end[1]), v:~~(end[0])+~~(end[1])*cols};
 
        switch (f) {
@@ -165,7 +162,7 @@ module.exports = AStar = (function () {
                         extra = 10;
                      }
                      adj.g = current.g + distance(adj, current, f1, f2) + extra;
-                     adj.f = adj.g + distance(adj, endnode, f1, f2);
+                     adj.f = adj.g + distance(adj, endnode, f1, f2) + extra;
                      open[length++] = adj;
                      list[adj.v] = 1;
                    }
@@ -176,27 +173,7 @@ module.exports = AStar = (function () {
                    result[i++] = [current.x, current.y];
                } while (current = current.p);
 
-               var fn = function (node, result) {
-                 result.shift();
-                 result.unshift([node[0], node[1]]);
-                 var it2 = null;
-                 for (var it of result) {
-                   if (it2) {
-                     if (~~(it2[0]) === ~~(it[0]))
-                       it[0] = it2[0];
-                     else if (~~(it2[1]) === ~~(it[1]))
-                       it[1] = it2[1];
-                     else {
-                       break;
-                     }
-                   }
-                   it2 = it;
-                 }
-               };
-
-               fn(end, result);
                result.reverse();
-               fn(start, result);
            }
        } while (length);
 
@@ -215,7 +192,6 @@ module.exports = AStar = (function () {
          }
        }
 
-       //console.info(JSON.stringify(result));
        return result;
    }
 

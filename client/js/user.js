@@ -89,6 +89,7 @@ function(UserClient, Player, AppearanceData, Timer) {
           this.idle();
           //this.fsm = "IDLE";
           this.moveOrientation = 0;
+          this.stopKeyMove = false;
         };
 
         player.canAttack = function(time) {
@@ -133,7 +134,8 @@ function(UserClient, Player, AppearanceData, Timer) {
           var pos = this.nextMove(this.x,this.y,orientation);
           if (orientation === 0)
             return true;
-          return game.moveCharacter(this, pos[0], pos[1]);
+          return game.moveCharacter(this, pos[0], pos[1], false, true);
+          //return game.moveCharacter(this, this.x, this.y, false, true);
         };
 
         player.sendMove = function (state) {
@@ -161,6 +163,7 @@ function(UserClient, Player, AppearanceData, Timer) {
           }
 
           this.forceStop();
+          clearTimeout(this.attackInterval);
 
           if (this.moveThrottle(G_ROUNDTRIP)) {
             return;
@@ -205,7 +208,7 @@ function(UserClient, Player, AppearanceData, Timer) {
             }
 
             //if (this.isMoving() || this.isMovingPath())
-            this.forceStop();
+            //this.forceStop();
 
             this.orientation = orientation;
             this.setOrientation(orientation);
@@ -213,24 +216,42 @@ function(UserClient, Player, AppearanceData, Timer) {
             this.walk();
 
             this.keyMove = true;
+            /*if (this.key_move_callback)
+            {
+              this.key_move_callback(state);
+            }*/
+            this.stopKeyMove = false;
           }
           if (!state)
           {
             if (orientation !== this.orientation && this.isMoving()) {
+              //this.keyMove = false;
               return;
             }
 
+            this.stopKeyMove = true;
             this.moveOrientation = 0;
             if (this.fsm === "ATTACK") {
               return;
             }
 
-            this.forceStop();
+/*
+            if (this.key_move_callback)
+            {
+              this.key_move_callback(state);
+            }
+*/
+            return;
+            //this.keyMove = false;
+//            return;
+            //this.forceStop();
           }
+
           if (this.key_move_callback)
           {
             this.key_move_callback(state);
           }
+
           clearTimeout(this.attackInterval);
         };
 

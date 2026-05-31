@@ -48,8 +48,8 @@ define(function() {
       }
 
       function successors(find, x, y, grid, rows, cols){
-          x = ~~(x) + 0.5;
-          y = ~~(y) + 0.5;
+          x = ~~(x);
+          y = ~~(y);
 
           var
               N = (y - 1),
@@ -157,7 +157,7 @@ define(function() {
                          extra = 10;
                       }
                       adj.g = current.g + distance(adj, current, f1, f2) + extra;
-                      adj.f = adj.g + distance(adj, endnode, f1, f2);
+                      adj.f = adj.g + distance(adj, endnode, f1, f2) + extra;
                       open[length++] = adj;
                       list[adj.v] = 1;
                     }
@@ -168,27 +168,7 @@ define(function() {
                     result[i++] = [current.x, current.y];
                 } while (current = current.p);
 
-                var fn = function (node, result) {
-                  result.shift();
-                  result.unshift([node[0], node[1]]);
-                  var it2 = null;
-                  for (var it of result) {
-                    if (it2) {
-                      if (~~(it2[0]) === ~~(it[0]))
-                        it[0] = it2[0];
-                      else if (~~(it2[1]) === ~~(it[1]))
-                        it[1] = it2[1];
-                      else {
-                        break;
-                      }
-                    }
-                    it2 = it;
-                  }
-                };
-
-                fn(end, result);
                 result.reverse();
-                fn(start, result);
             }
         } while (length);
 
