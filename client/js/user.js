@@ -162,6 +162,9 @@ function(UserClient, Player, AppearanceData, Timer) {
             return;
           }
 
+          if (this.keyMove || this.stopKeyMove)
+            return;
+
           this.forceStop();
           clearTimeout(this.attackInterval);
 
@@ -199,6 +202,10 @@ function(UserClient, Player, AppearanceData, Timer) {
               return;
             }
 
+            if (this.movement.inProgress) {
+              this.forceStop();
+            }
+
             if (this.keyMove) {
                 return;
             }
@@ -208,7 +215,7 @@ function(UserClient, Player, AppearanceData, Timer) {
             }
 
             //if (this.isMoving() || this.isMovingPath())
-            //this.forceStop();
+            this.forceStop();
 
             this.orientation = orientation;
             this.setOrientation(orientation);

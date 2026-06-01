@@ -1504,6 +1504,10 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
                       return null;
                     }*/
                     var pE = c.getGridPos([x, y]);
+                    // Round end result to grid.
+                    //pE[0] = Math.floor(pE[0]) + 0.5;
+                    //pE[1] = Math.floor(pE[1]) + 0.5;
+
                     //console.info(JSON.stringify(pE));
 
                     if (mc.isCollidingPoint(x, y))
@@ -1565,14 +1569,13 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
                       var ts = G_TILESIZE;
 
                       //log.info("path_result: "+JSON.stringify(path));
-                      var dx = ~~(character.x/G_TILESIZE) - spS[0] + 0.5;
-                      var dy = ~~(character.y/G_TILESIZE) - spS[1] + 0.5;
-                      log.info("dx: "+dx);
-                      log.info("dy: "+dy);
+                      var dx = character.x - spS[0]*ts;
+                      var dy = character.y - spS[1]*ts;
+
                       for (var node of path)
                       {
-                        node[0] = (node[0]+dx)*G_TILESIZE;
-                        node[1] = (node[1]+dy)*G_TILESIZE;
+                        node[0] = ~~(node[0]*ts+dx);
+                        node[1] = ~~(node[1]*ts+dy);
                       }
                       // NOT NEEDED.
                       //path = this.pathfinder.compressPath(path);

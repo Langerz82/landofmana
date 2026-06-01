@@ -12,12 +12,12 @@ define(['text!../../shared/data/itemloot.json'], function(ItemLootJson) {
         include: (val.include) ? val.include : null
   		};
   	});
-    console.info(JSON.stringify(ItemLoot));
+    //console.info(JSON.stringify(ItemLoot));
     var i = 0;
     for (var il of ItemLoot)
     {
       if (il)
-        console.info(i+": "+JSON.stringify(il));
+        //console.info(i+": "+JSON.stringify(il));
       i++
     }
     return ItemLoot;

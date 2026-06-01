@@ -280,14 +280,24 @@ module.exports = Mob = Character.extend({
 
     handleRespawn: function () {
         var self = this;
-
+// TODO Mobs not respawning properly and disappearing.
         if (this.area && this.area instanceof MobArea) {
             // Respawn inside the area if part of a MobArea
-            this.area.respawnMob(self, this.spawnDelay);
+            setTimeout(function() {
+              var	pos = self.map.entities.spaceEntityRandomApart(3, self.area._getRandomPositionInsideArea.bind(self.area,100));
+              console.warn("modarea - respawnMob:"+JSON.stringify(pos));
+              if (pos) {
+                self.spawnX = pos.x;
+                self.spawnY = pos.y;
+                self.setPosition(pos.x, pos.y);
+              }
+              if (self.respawnCallback) {
+                  self.respawnCallback();
+              }
+            }, this.spawnDelay);
         }
         else {
             setTimeout(function () {
-                //self.respawnMob();
                 if (self.respawnCallback) {
                     self.respawnCallback();
                 }

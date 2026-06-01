@@ -1222,7 +1222,7 @@ define(['camera', 'entity/item', 'data/items', 'data/itemlootdata', 'entity/enti
               return "";
             },
 
-            getCoordinates2: function () {
+            getRealCoordinates: function () {
       				var realX = game.player.x;
       				var realY = game.player.y;
 
@@ -1238,7 +1238,7 @@ define(['camera', 'entity/item', 'data/items', 'data/itemlootdata', 'entity/enti
               var debugInfo = "";
               debugInfo += this.getFPS() + "\n";
               debugInfo += this.getCoordinates() + "\n";
-              //debugInfo += this.getCoordinates2() + "\n";
+              debugInfo += this.getRealCoordinates() + "\n";
 
               var s = this.scale;
               var sprite = this.pxSprite["pc_coords"];

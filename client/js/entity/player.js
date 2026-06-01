@@ -368,7 +368,7 @@ define(['./entity', './character', 'data/appearancedata'],
         this.holdingBlock.setPosition(pos[0], pos[1]);
       }
 
-      log.info("setPosition, rx:"+(x % G_TILESIZE)+", ry:"+(y % G_TILESIZE));
+      //log.info("setPosition, rx:"+(x % G_TILESIZE)+", ry:"+(y % G_TILESIZE));
     },
 /*
     followPath: function(path) {

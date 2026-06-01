@@ -111,16 +111,11 @@ define(['entity/entity'], function(Entity) {
           var x = pos[0];
               y = pos[1];
 
-          var tw = -r.hOffX;
-          var th = -r.hOffY;
-          //var tw = r.sox;
-          //var th = r.soy;
+          var tw = r.hOffX;
+          var th = r.hOffY;
 
-          var tx = (x-this.x + tw) / ts;
-          var ty = (y-this.y + th) / ts;
-
-          tx = Math.floor(tx);
-          ty = Math.floor(ty);
+          var tx = (x-this.x - tw) / ts;
+          var ty = (y-this.y - th) / ts;
 
           return [tx,ty];
         },

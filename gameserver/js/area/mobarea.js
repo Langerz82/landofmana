@@ -170,26 +170,6 @@ module.exports = MobArea = EntityArea.extend({
       return this._createMob(kind);
     },
 
-    respawnMob: function(mob, delay) {
-        var self = this;
-        delay = mob.spawnDelay || delay;
-        var self_mob = mob;
-
-        //this.removeFromArea(mob);
-
-        setTimeout(function() {
-          var	pos = self.map.entities.spaceEntityRandomApart(3, self._getRandomPositionInsideArea.bind(self,100));
-          if (pos) {
-            self_mob.spawnX = pos.x;
-            self_mob.spawnY = pos.y;
-            self_mob.setPosition(pos.x, pos.y);
-          }
-          if (self_mob.respawnCallback) {
-              self_mob.respawnCallback();
-          }
-        }, delay);
-    },
-
     isNextTooEntity: function (entity, dist) {
       dist = dist || G_TILESIZE;
       for (var en of this.entities)
