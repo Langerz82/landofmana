@@ -939,16 +939,11 @@ module.exports = PacketHandler = Class.extend({
       //finishTeleportMaps(mapId);
 
       //console.info("real mapId: " + mapId);
-      var oldMap = p.map;
-      p.setMap(map);
-
-// TODO - Going through portal when returning its looping.
-
       var pos = {x: p.x, y: p.y};
       //console.info("handleTeleportMap - x: "+x+",y:"+y);
       var isDoor = false;
       if (portalId >= 0) {
-        var door = oldMap.doors[portalId];
+        var door = p.map.doors[portalId];
         if (door.tx >= 0 && door.ty >= 0) {
           pos = {x: door.tx, y: door.ty};
           pos.x += (G_TILESIZE >> 1);
@@ -956,6 +951,11 @@ module.exports = PacketHandler = Class.extend({
           isDoor = true;
         }
       }
+
+      p.setMap(map);
+
+// TODO - Going through portal when returning its looping.
+
 
       if (!isDoor) {
         pos = p.map.getRandomStartingPosition();

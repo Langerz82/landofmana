@@ -138,23 +138,8 @@ define(['area', 'detect', 'map', 'config'], function(Area, Detect, Map, config) 
         area.tmap = (door.tmap >= 0) ? door.tmap : self.mapIndex;
         area.tx = door.tx || -1;
         area.ty = door.ty || -1;
+        area.orientation = door.to || 2;
 
-        switch (door.to) {
-          case 'u':
-            area.orientation = Types.Orientations.UP;
-            break;
-          case 'd':
-            area.orientation = Types.Orientations.DOWN;
-            break;
-          case 'l':
-            area.orientation = Types.Orientations.LEFT;
-            break;
-          case 'r':
-            area.orientation = Types.Orientations.RIGHT;
-            break;
-          default:
-            area.orientation = Types.Orientations.DOWN;
-        }
         area.id = count++;
         doors.push(area);
       });

@@ -402,18 +402,7 @@ var Map = cls.Class.extend({
           area.tmap = door.map ? door.map : self.id;
           area.minLevel = door.tminLevel || 0;
           area.maxLevel = door.tmaxLevel || 200;
-
-    			switch(door.to) {
-    				case 'u': area.orientation = Types.Orientations.UP;
-    					break;
-    				case 'd': area.orientation = Types.Orientations.DOWN;
-    					break;
-    				case 'l': area.orientation = Types.Orientations.LEFT;
-    					break;
-    				case 'r': area.orientation = Types.Orientations.RIGHT;
-    					break;
-    				default : area.orientation = Types.Orientations.DOWN;
-    			}
+          area.orientation = door.to || 2;
           area.tx = door.tx || -1;
           area.ty = door.ty || -1;
           doors.push(area);

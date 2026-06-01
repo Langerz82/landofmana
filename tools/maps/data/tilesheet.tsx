@@ -3696,17 +3696,17 @@
   <properties>
    <property name="length" value="3"/>
   </properties>
-  <objectgroup draworder="index" id="4">
-   <object id="3" x="0" y="0" width="16" height="16"/>
+  <objectgroup draworder="index">
+   <object id="1" x="0" y="0" width="16" height="16"/>
   </objectgroup>
  </tile>
  <tile id="1721">
-  <objectgroup draworder="index" id="3">
-   <object id="2" x="0" y="0" width="16" height="16"/>
+  <objectgroup draworder="index">
+   <object id="1" x="0" y="0" width="16" height="16"/>
   </objectgroup>
  </tile>
  <tile id="1722">
-  <objectgroup draworder="index" id="2">
+  <objectgroup draworder="index">
    <object id="1" x="0" y="0" width="16" height="16"/>
   </objectgroup>
  </tile>

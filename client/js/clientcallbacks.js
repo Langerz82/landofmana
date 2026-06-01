@@ -46,19 +46,19 @@ function(HoveringInfo,
           {
             log.info("spawnMap");
 
-            if (game.player.isMoving())
-              game.player.forceStop();
+            //if (game.player.isMoving())
+            game.player.forceStop();
             game.mapIndex = mapId;
             game.player.mapIndex = mapId;
             //game.player.forceStop();
             game.player.clearTarget();
             game.player.freeze = true;
-
-//            if (portalId >= 0)
-//              game.player.orientation = game.mapContainer.doors[portalId].orientation;
-
-            //game.player.path = null;
-            //game.player.step = 0;
+            game.initPlayer();
+            if (portalId >= 0) {
+              var orientation = game.prevMapContainer.doors[portalId].orientation;
+              game.player.orientation = orientation;
+              game.player.idle();
+            }
 
             game.renderer.clearEntities();
 
@@ -72,7 +72,7 @@ function(HoveringInfo,
             game.items = {};
 
             log.info("Map loaded.");
-            client.sendTeleportMap([mapId, 1, x, y, portalId]);
+            client.sendTeleportMap([mapId, 1, x, y, -1]);
             //game.renderer.initPIXI();
             game.renderer.blankFrame = true;
             //game.initCursors();
@@ -82,15 +82,9 @@ function(HoveringInfo,
           if (status === 2)
           {
               log.info("spawnMap - Loaded");
-              game.initPlayer();
 
               game.player.setPositionSpawn(x, y);
-              game.player.forceStop();
-              if (portalId >= 0) {
-                var orientation = game.mapContainer.doors[portalId].orientation;
-                game.player.orientation = orientation;
-                game.player.idle();
-              }
+              //game.player.forceStop();
 
               var c = game.camera;
 

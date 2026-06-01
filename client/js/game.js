@@ -598,6 +598,7 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
                 portalId = -1;
 
               if (this.mapContainer) {
+                this.prevMapContainer = this.mapContainer;
                 //if (mapIndex == this.mapContainer.mapIndex)
                   //return;
 

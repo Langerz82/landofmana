@@ -169,7 +169,7 @@ module.exports = function processMap(json, jsontsx, options) {
 					 if (prop.tMaxLevel) doorArea.tMaxLevel = prop.tMaxLevel;
 					 if (prop.tx) doorArea.tx = prop.tx;
 					 if (prop.ty) doorArea.ty = prop.ty;
-					 if (prop.o) doorArea.to = prop.o;
+					 if (prop.o) doorArea.to = getOrientation(prop.o);
 					 map.doors.push(doorArea);
 				 }
 			 }
@@ -188,14 +188,14 @@ module.exports = function processMap(json, jsontsx, options) {
 						 y: ~~(areas[i].y),
 						 width: ~~(areas[i].width),
 						 height: ~~(areas[i].height),
-						 to: "d"
+						 to: 2
 					 };
 					 if (prop.tmap >= 0) doorArea.tmap = prop.tmap;
 					 if (prop.tMinLevel) doorArea.tMinLevel = prop.tMinLevel;
 					 if (prop.tMaxLevel) doorArea.tMaxLevel = prop.tMaxLevel;
 					 if (prop.x) doorArea.tx = prop.x * G_TILESIZE;
 					 if (prop.y) doorArea.ty = prop.y * G_TILESIZE;
-					 if (prop.o) doorArea.to = prop.o;
+					 if (prop.o) doorArea.to = getOrientation(prop.o);
 					 map.doors.push(doorArea);
 				 }
 			 }
@@ -306,6 +306,21 @@ var getPropertyList = function (properties) {
 	return props;
 };
 
+var getOrientation = function (orientation) {
+	switch (orientation) {
+	  case 'u':
+		return 1;
+	  case 'd':
+		return 2;
+	  case 'l':
+		return 3;
+	  case 'r':
+		return 4;
+	  default:
+		return 1;
+	}
+}
+
 var processLayer = function(layer) {
     var layerName = layer.name.toLowerCase();
     var layerType = layer.type;
@@ -315,13 +330,13 @@ var processLayer = function(layer) {
     
     if(mode === "client" && layerName === "plateau") {
         console.info("*** Processing plateau tiles...");
-        for(var i = 0; i < tiles.length; i += 1) {
+        /*for(var i = 0; i < tiles.length; i += 1) {
             var gid = tiles[i];
 
             if(gid && gid > 0) {
                 map.plateau.push(i);
             }
-        }
+        }*/
     }
 	else if(layerType === "tilelayer" && layerName === "blocking") {
 		console.info("Processing blocking tiles...");
