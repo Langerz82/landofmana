@@ -438,6 +438,21 @@ define(['area', 'detect', 'map', 'config'], function(Area, Detect, Map, config) 
       }
     },
 
+    isCollidingPoint: function(x, y)
+    {
+      var gx = Math.floor(x / G_TILESIZE),
+          gy = Math.floor(y / G_TILESIZE);
+
+      if (this.isOutOfBounds(gx, gy)) {
+          return true;
+      }
+
+      if (this.isCollidingGrid(gx, gy)) {
+          return true;
+      }
+      return false;
+    },
+
     isColliding: function(x, y)
     {
       var gx = (x / G_TILESIZE),

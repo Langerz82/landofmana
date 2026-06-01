@@ -915,34 +915,21 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
             },
 
             getMousePosition: function() {
-          	    var r = this.renderer,
-                  c = this.camera,
-          	      mx = this.mouse.x,
-                  my = this.mouse.y;
-                //var sox = c.sox,
-                //    soy = c.soy;
-                // var ts = this.tilesize;
+          	    var c = this.camera;
+          	    var mx = this.mouse.x;
+                var my = this.mouse.y;
 
+                //log.info("getMousePosition, pre mx:"+mx+",my:"+my);
                 mx = ~~(mx + c.x);
                 my = ~~(my + c.y);
 
+                //log.info("getMousePosition, c.x:"+c.x+",c.y:"+c.y);
                 this.mouse.gx = ~~(mx / G_TILESIZE);
                 this.mouse.gy = ~~(my / G_TILESIZE);
 
-                return { x: mx, y: my};
-            },
+                //log.info("getMousePosition, post mx:"+mx+",my:"+my);
 
-            /**
-             * Moves a character to a given location on the world grid.
-             *
-             * @param {Number} x The x coordinate of the target location.
-             * @param {Number} y The y coordinate of the target location.
-             */
-            makeCharacterGoTo: function(character, x, y) {
-                if(!this.map.isColliding(x,y) && !character.isDead)
-                {
-                    character.go(x, y);
-                }
+                return { x: mx, y: my};
             },
 
             makePlayerInteractNextTo: function()
@@ -1040,7 +1027,6 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
 
             /**
              * Moves the current player to a given target location.
-             * @see makeCharacterGoTo
              */
             makePlayerGoTo: function(x, y) {
                 this.player.go(x, y);
@@ -1048,7 +1034,6 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
 
             /**
              * Moves the current player towards a specific item.
-             * @see makeCharacterGoTo
              */
             makePlayerGoToItem: function(item) {
                 var p = this.player;
@@ -1073,7 +1058,7 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
                 return false;
               }
               else if (res === "attack_toofar") {
-                this.chathandler.addNotification(lang.data["ATTACK_TOOFAR"]);
+                //this.chathandler.addNotification(lang.data["ATTACK_TOOFAR"]);
                 return false;
               }
               else if (res === "attack_outoftime") {
@@ -1513,15 +1498,15 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
 
                     var pS = c.getGridPos([character.x, character.y]);
 
-                    if (mc.isColliding(character.x, character.y))
+                    /*if (mc.isColliding(character.x, character.y))
                     {
                       log.info("pathfind - isColliding start.");
                       return null;
-                    }
+                    }*/
                     var pE = c.getGridPos([x, y]);
                     //console.info(JSON.stringify(pE));
 
-                    if (mc.isColliding(x, y))
+                    if (mc.isCollidingPoint(x, y))
                     {
                       log.info("pathfind - isColliding end.");
                       return null;
@@ -1832,8 +1817,10 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
               {
           	    //this.playerPopupMenu.close();
                 //this.player.clearTarget();
+                var type = p.getWeaponType();
+                var gpos = Utils.getGridPosition(px, py);
                 var colliding = this.mapContainer.isColliding(px,py);
-                if (colliding && p.isNextTooPosition(px, py)) {
+                if (colliding && this.mapContainer.isHarvestTile(gpos, type) && p.isNextTooPosition(px, py)) {
                     // Start hit animation and send to Server harvest packet.
                     this.makePlayerHarvest(px, py);
                     return;
@@ -1957,27 +1944,28 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
               //log.info("so:"+so[0]+","+so[1]);
               var p = this.player;
 
-              var colliding = this.mapContainer.isColliding(px,py);
-
-              //var tpos = {x: pos.x, y: pos.y};
+              var colliding = this.mapContainer.isCollidingPoint(px,py);
               if (colliding)
               {
-                var x = p.x - px;
-                var y = p.y - py;
+                if (this.renderer.mobile) {
+                  var x = p.x - px;
+                  var y = p.y - py;
 
-                var o1 = (x < 0) ? Types.Orientations.LEFT : Types.Orientations.RIGHT;
-                var o2 = (y < 0) ? Types.Orientations.UP : Types.Orientations.DOWN;
-                var o = (Math.abs(x) > Math.abs(y)) ? o1 : o2;
+                  var o1 = (x < 0) ? Types.Orientations.LEFT : Types.Orientations.RIGHT;
+                  var o2 = (y < 0) ? Types.Orientations.UP : Types.Orientations.DOWN;
+                  var o = (Math.abs(x) > Math.abs(y)) ? o1 : o2;
 
-                var orientations = [1,2,3,4];
-                orientations.splice(orientations.indexOf(o), 1);
-                orientations.unshift(o);
+                  var orientations = [1,2,3,4];
+                  orientations.splice(orientations.indexOf(o), 1);
+                  orientations.unshift(o);
 
-								if (!this.mapContainer.isColliding(px,py))
-                {
-									this.makePlayerGoTo(px, py);
-                  return;
+  								if (!this.mapContainer.isColliding(px,py))
+                  {
+  									this.makePlayerGoTo(px, py);
+                    return;
+                  }
                 }
+                return;
               }
               else {
                   this.makePlayerGoTo(px, py);
