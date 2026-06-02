@@ -279,13 +279,13 @@ module.exports = Mob = Character.extend({
     },
 
     handleRespawn: function () {
-        var self = this;
+        var mob = this;
 // TODO Mobs not respawning properly and disappearing.
         if (this.area && this.area instanceof MobArea) {
-            // Respawn inside the area if part of a MobArea
-            setTimeout(function() {
+            var fn = function () {
+              var self = this;
               var	pos = self.map.entities.spaceEntityRandomApart(3, self.area._getRandomPositionInsideArea.bind(self.area,100));
-              console.warn("modarea - respawnMob:"+JSON.stringify(pos));
+              console.warn("mob - respawnMob:"+JSON.stringify(pos));
               if (pos) {
                 self.spawnX = pos.x;
                 self.spawnY = pos.y;
@@ -294,7 +294,9 @@ module.exports = Mob = Character.extend({
               if (self.respawnCallback) {
                   self.respawnCallback();
               }
-            }, this.spawnDelay);
+            };
+            // Respawn inside the area if part of a MobArea
+            setTimeout(fn.bind(this), this.spawnDelay);
         }
         else {
             setTimeout(function () {
@@ -354,20 +356,19 @@ module.exports = Mob = Character.extend({
           return;
         }
         this.go(this.spawnX, this.spawnY);
-        console.warn("returnToSpawn - Path: "+JSON.stringify(this.path))
+        console.info("returnToSpawn - Path: "+JSON.stringify(this.path))
         if (!this.path || this.path.length === 0) {
           try { throw new Error(); } catch(err) { console.error(err.stack); }
           this.returnedToSpawn();
         }
         else {
-          var pathTicks = this.map.entities.pathfinder.getPathSubDistance(this.path, this.spawnX, this.spawnY);
+          var pathTicks = this.map.entities.pathfinder.getPathDistance(this.path);
           var delay= Math.max(0, ~~(pathTicks / (this.tick / G_FRAME_INTERVAL_EXACT)));
           console.info("returnToSpawn.delay = "+delay);
           console.info("id="+this.id+",x="+this.spawnX+",y="+this.spawnY);
-          setTimeout(function() {
-            console.info("st - id="+self.id+",x="+self.spawnX+",y="+self.spawnY);
-            self.returnedToSpawn();
-          }, delay);
+          setTimeout(this.returnedToSpawn.bind(this), delay);
+          //console.warn("mob returnToSpawn: id: "+this.id+", delay: "+delay);
+          //this.startReturn = Date.now();
         }
     },
 
@@ -539,6 +540,13 @@ module.exports = Mob = Character.extend({
 
     returnedToSpawn: function () {
       console.info("mob.returnedToSpawn");
+      //console.warn("mob.returnedToSpawn: mob id "+this.id+", actual delay:"+(Date.now()-this.startReturn));
+      console.info("st - id="+this.id+",x="+this.spawnX+",y="+this.spawnY);
+      if (!(this.x == this.spawnX && this.y === this.spawnY)) {
+        //console.error("mob, returnedToSpawn: incorrect spawn coords.");
+        //console.error("mob, returnedToSpawn: sx:"+this.spawnX+", sy:"+this.spawnY);
+        //console.error("mob, returnedToSpawn: x:"+this.x+", y:"+this.y);
+      }
       this.resetHp();
       this.resetPosition();
       this.resetBehaviour();
