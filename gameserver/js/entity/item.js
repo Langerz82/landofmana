@@ -22,6 +22,7 @@ module.exports = Item = Entity.extend({
         this.blinkTimeout = setTimeout(function () {
             params.blinkCallback();
             self.despawnTimeout = setTimeout(params.despawnCallback, params.blinkingDuration);
+            self = null;
         }, params.beforeBlinkDelay);
     },
 
@@ -44,6 +45,7 @@ module.exports = Item = Entity.extend({
             if (self.respawnCallback) {
                 self.respawnCallback();
             }
+            self = null;
         }, delay);
     },
 

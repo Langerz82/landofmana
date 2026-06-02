@@ -279,11 +279,10 @@ module.exports = Mob = Character.extend({
     },
 
     handleRespawn: function () {
-        var mob = this;
+        var self = this;
 // TODO Mobs not respawning properly and disappearing.
         if (this.area && this.area instanceof MobArea) {
             var fn = function () {
-              var self = this;
               var	pos = self.map.entities.spaceEntityRandomApart(3, self.area._getRandomPositionInsideArea.bind(self.area,100));
               console.warn("mob - respawnMob:"+JSON.stringify(pos));
               if (pos) {
@@ -294,9 +293,10 @@ module.exports = Mob = Character.extend({
               if (self.respawnCallback) {
                   self.respawnCallback();
               }
+              self = null;
             };
             // Respawn inside the area if part of a MobArea
-            setTimeout(fn.bind(this), this.spawnDelay);
+            setTimeout(fn, this.spawnDelay);
         }
         else {
             setTimeout(function () {
@@ -366,7 +366,11 @@ module.exports = Mob = Character.extend({
           var delay= Math.max(0, ~~(pathTicks / (this.tick / G_FRAME_INTERVAL_EXACT)));
           console.info("returnToSpawn.delay = "+delay);
           console.info("id="+this.id+",x="+this.spawnX+",y="+this.spawnY);
-          setTimeout(this.returnedToSpawn.bind(this), delay);
+          setTimeout(function () {
+            self.returnedToSpawn();
+            self = null;
+          }, delay);
+
           //console.warn("mob returnToSpawn: id: "+this.id+", delay: "+delay);
           //this.startReturn = Date.now();
         }
