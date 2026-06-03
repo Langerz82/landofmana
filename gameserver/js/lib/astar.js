@@ -230,6 +230,9 @@ module.exports = AStar = (function () {
          result = ConvertPathToRealPath(result, start, end);
          result = DropUneededNodes(result);
        }
+       else {
+         return null;
+       }
 
        return result;
    }
