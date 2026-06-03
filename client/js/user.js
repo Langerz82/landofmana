@@ -77,7 +77,7 @@ function(UserClient, Player, AppearanceData, Timer) {
 
         player.forceStop = function () {
           this.harvestOff();
-          if (this.keyMove && this.key_move_callback)
+          if ((this.keyMove || this.stopKeyMove) && this.key_move_callback)
           {
             this.key_move_callback(0);
           }
@@ -125,6 +125,7 @@ function(UserClient, Player, AppearanceData, Timer) {
               return;
             }
             self.forceStop();
+            self = null;
           });
           return true;
         };
@@ -154,23 +155,39 @@ function(UserClient, Player, AppearanceData, Timer) {
           return false;
         }
 
-        player.moveTo_ = function(x, y, callback) {
-          //if (this.isMovingPath())
-            //return;
-
+        player.rejectMove = function () {
           if (this.fsm === "ATTACK") {
-            return;
+            return true;
           }
 
-          if (this.keyMove || this.stopKeyMove)
+          if (this.moveThrottle(G_ROUNDTRIP)) {
+            this.forceStop();
+            return true;
+          }
+
+          // This is needed to allow key moving during
+          // path movement.
+          if (this.movement.inProgress)
+          {
+            this.forceStop();
+            return false;
+          }
+
+          if (this.keyMove) {
+            this.forceStop();
+            return true;
+          }
+
+          return false;
+        }
+
+        player.moveTo_ = function(x, y, callback) {
+          if (this.rejectMove()) {
             return;
+          }
 
           this.forceStop();
           clearTimeout(this.attackInterval);
-
-          if (this.moveThrottle(G_ROUNDTRIP)) {
-            return;
-          }
 
           log.info("background - free delay =" + G_LATENCY);
 
@@ -179,42 +196,18 @@ function(UserClient, Player, AppearanceData, Timer) {
           return this._moveTo(x, y, callback);
         };
 
-
-        // TODO - FIX BUG Player sometimes jams and moves across with the wrong orientation.
         player.move = function (orientation, state) {
-          //var self = this;
 
           if (this.isDying || this.isDead)
             return;
 
           if (state && orientation !== Types.Orientations.NONE)
           {
-            //if (this.isMovingPath())
-              //return;
-
-            this.moveOrientation = orientation;
-            if (this.fsm === "ATTACK") {
+            this.moveOrientation = this.orientation;
+            if (this.rejectMove()) {
               return;
             }
 
-            if (this.moveThrottle(G_ROUNDTRIP)) {
-              this.forceStop();
-              return;
-            }
-
-            if (this.movement.inProgress) {
-              this.forceStop();
-            }
-
-            if (this.keyMove) {
-                return;
-            }
-
-            if (!this.canMove(orientation)) {
-              return;
-            }
-
-            //if (this.isMoving() || this.isMovingPath())
             this.forceStop();
 
             this.orientation = orientation;
@@ -223,16 +216,11 @@ function(UserClient, Player, AppearanceData, Timer) {
             this.walk();
 
             this.keyMove = true;
-            /*if (this.key_move_callback)
-            {
-              this.key_move_callback(state);
-            }*/
             this.stopKeyMove = false;
           }
           if (!state)
           {
             if (orientation !== this.orientation && this.isMoving()) {
-              //this.keyMove = false;
               return;
             }
 
@@ -241,17 +229,7 @@ function(UserClient, Player, AppearanceData, Timer) {
             if (this.fsm === "ATTACK") {
               return;
             }
-
-/*
-            if (this.key_move_callback)
-            {
-              this.key_move_callback(state);
-            }
-*/
             return;
-            //this.keyMove = false;
-//            return;
-            //this.forceStop();
           }
 
           if (this.key_move_callback)

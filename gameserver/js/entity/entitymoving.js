@@ -360,7 +360,6 @@ module.exports = EntityMoving = Entity.extend({
         this.updateMovement();
         return true;
       }
-      return false;
     }
     return false;
   },
@@ -374,14 +373,9 @@ module.exports = EntityMoving = Entity.extend({
         stop = true;
       }
 
-      /*if(this.interrupted) {
-          //console.info("nextStep - id:"+this.id+", interrupted=true");
-          stop = true;
-      }*/
       if (!stop)
       {
           res = this.nextStepPath();
-
           if (this.step >= this.path.length) {
             //console.info("nextStep - id:"+this.id+", step >= length");
             stop = true;
@@ -416,7 +410,6 @@ module.exports = EntityMoving = Entity.extend({
 
       return res;
   },
-
 
   onBeforeMove: function(callback) {
     this.before_move_callback = callback;

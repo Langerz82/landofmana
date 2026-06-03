@@ -36,6 +36,16 @@ define(['lib/localforage', 'entity/mob', 'entity/item', 'data/mobdata', 'user', 
 
 		        var self = this;
 
+            $( document ).ready(function() {
+              self.jqUserWindow = $('#user_window');
+              self.jqPlayerWindow = $('#player_window');
+
+              self.jqPlayerSelect = $("#player_select");
+              self.jqPlayerLoad = $("#player_load");
+              self.jqPlayerCreate = $("#player_create");
+              self.jqPlayerCreateForm = $('#player_create_form');
+      			});
+
             this.$loginInfo = $('#loginInfo');
 
             $('#error_refresh').click(function(event){
@@ -68,27 +78,33 @@ define(['lib/localforage', 'entity/mob', 'entity/item', 'data/mobdata', 'user', 
             });
 
             $('#player_window').ready(function () {
-              $('#player_create_form').hide();
-              $('#player_load').hide();
-              $('#player_create').show();
+              self.jqPlayerCreateForm.hide();
+              self.jqPlayerLoad.hide();
+              self.jqPlayerCreate.show();
             });
 
             $('#player_select').change(function () {
               if ($(this).val() === -1)
               {
-                $('#player_load').hide();
-                $('#player_create').show();
-                $('#player_create_form').show();
+                self.jqPlayerLoad.hide();
+                self.jqPlayerCreate.show();
+                self.jqPlayerCreateForm.show();
               }
               else
               {
-                $('#player_load').show();
-                $('#player_create_form').hide();
+                self.jqPlayerLoad.show();
+                self.jqPlayerCreateForm.hide();
               }
             });
 
             $('#player_create').click(function () {
-              if ($('#player_create_form').is(":visible"))
+              if (self.jqPlayerLoad.hasClass("loading"))
+                return;
+
+              if (self.jqPlayerCreate.hasClass("loading"))
+                return;
+
+              if (self.jqPlayerCreateForm.is(":visible"))
                 self.tryPlayerAction(4);
 
               if ($('#player_name').val() === "")
@@ -250,8 +266,11 @@ define(['lib/localforage', 'entity/mob', 'entity/item', 'data/mobdata', 'user', 
 
           if (action === 3 || action === 4)
           {
+            self.jqPlayerLoad.addClass("loading");
+            self.jqPlayerCreate.addClass("loading");
+
     		    var username = this.$playernameinput.val();
-            var playerIndex = parseInt($('#player_select').val());
+            var playerIndex = parseInt(self.jqPlayerSelect.val());
             if(action === 4 && !this.validatePlayerForm(username)) return;
 
     		    //var pClass = parseInt($('#player_class').val());
@@ -301,10 +320,19 @@ define(['lib/localforage', 'entity/mob', 'entity/item', 'data/mobdata', 'user', 
                 return;
               self.tryUserAction(2);
             });
-            this.getLoadPlayerButton().click(function () { self.tryPlayerAction(3); });
+            this.getLoadPlayerButton().click(function () {
+              if (self.jqPlayerLoad.hasClass("loading"))
+                return;
+              if (self.jqPlayerCreate.hasClass("loading"))
+                return;
+
+              //self.jqPlayerLoad.addClass("loading");
+              //self.jqPlayerCreate.addClass("loading");
+              self.tryPlayerAction(3);
+            });
             //this.getCreatePlayerButton().click(function () {});
             this.getBackButton().click(function () {
-              if ($('#player_load').is(":visible"))
+              if (self.jqPlayerLoad.is(":visible"))
                 self.loadWindow('player_window', 'user_window');
               else {
                 self.showPlayerLoad();
@@ -314,26 +342,26 @@ define(['lib/localforage', 'entity/mob', 'entity/item', 'data/mobdata', 'user', 
 
         showPlayerLoad: function ()
         {
-          $('#player_load').show();
-          $('#player_select').show();
+          this.jqPlayerLoad.show();
+          this.jqPlayerSelect.show();
           $('#lbl_player_select').show();
-          $('#player_create_form').hide();
+          this.jqPlayerCreateForm.hide();
         },
 
         showPlayerCreate: function ()
         {
-          $('#player_load').hide();
-          $('#player_select').hide();
+          this.jqPlayerLoad.hide();
+          this.jqPlayerSelect.hide();
           $('#lbl_player_select').hide();
-          $('#player_create_form').show();
+          this.jqPlayerCreateForm.show();
         },
 
         userFormActive: function() {
-            return $('#user_window').is(":visible");
+            return this.jqUserWindow.is(":visible");
         },
 
         playerFormActive: function() {
-            return $('#player_window').is(":visible");
+            return this.jqPlayerWindow.is(":visible");
         },
 
         /**

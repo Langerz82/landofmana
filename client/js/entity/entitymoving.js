@@ -358,7 +358,6 @@ define(['./entity', '../transition', '../timer'], function(Entity, Transition, T
         this.updateMovement();
         return true;
       }
-      return false;
     }
     return false;
   },
@@ -372,14 +371,9 @@ define(['./entity', '../transition', '../timer'], function(Entity, Transition, T
         stop = true;
       }
 
-      /*if(this.interrupted) {
-          //console.info("nextStep - id:"+this.id+", interrupted=true");
-          stop = true;
-      }*/
       if (!stop)
       {
           res = this.nextStepPath();
-
           if (this.step >= this.path.length) {
             //console.info("nextStep - id:"+this.id+", step >= length");
             stop = true;

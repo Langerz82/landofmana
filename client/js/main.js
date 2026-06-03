@@ -705,17 +705,13 @@ define(['app', 'data/langdata', 'util',
                 setTimeout(function () {
                     app.hideAuctionSellDialog();
                 }, 100);
-
             });
 
             $('#auctionSellCancel').click(function(event) {
                 setTimeout(function () {
                     app.hideAuctionSellDialog();
                 }, 100);
-
             });
-
-
 
             $('#nameinput').focusin(function() {
                 $('#name-tooltip').addClass('visible');
