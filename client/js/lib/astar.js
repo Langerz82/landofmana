@@ -44,13 +44,10 @@ define(function() {
       }
 
       function grids(coord) {
-        return gGrid[~~(coord[0])][~~(coord[1])];
+        return gGrid[coord[0]][coord[1]];
       }
 
       function successors(find, x, y, grid, rows, cols){
-          x = ~~(x) + 0.5;
-          y = ~~(y) + 0.5;
-
           var
               N = (y - 1),
               S = (y + 1),
@@ -61,8 +58,7 @@ define(function() {
               $E = E < (cols) && !grids([y,E]),
               $W = W > 0 && !grids([y,W]),
               result = [],
-              i = 0
-          ;
+              i = 0;
 
           $N && (result[i++] = {x:x, y:N});
           $E && (result[i++] = {x:E, y:y});
@@ -97,6 +93,58 @@ define(function() {
         if (n1.y > n2.y)
           return 4;
         return 0;
+      }
+
+      function ConvertPathToRealPath(result, start, end) {
+        var fn = function (node, result) {
+          result.shift();
+          result.unshift([node[0], node[1]]);
+          var it2 = null;
+          for (var it of result) {
+            if (it2) {
+              if (~~(it2[0]) === ~~(it[0]))
+                it[0] = it2[0];
+              else if (~~(it2[1]) === ~~(it[1]))
+                it[1] = it2[1];
+              else {
+                break;
+              }
+            }
+            it2 = it;
+          }
+        };
+
+        fn(end, result);
+        result.reverse();
+        fn(start, result);
+
+        // Make nodes mid-points.
+        for (var node of result) {
+          if (node[0] % 1 === 0)
+            node[0] += 0.5;
+          if (node[1] % 1 === 0)
+            node[1] += 0.5;
+        }
+
+        return result;
+      }
+
+      function DropUneededNodes(result) {
+        // Algorithm to shorten path cordinates to only corners.
+        if (result.length > 2) {
+          for (var i=2; i < result.length; ++i)
+          {
+            var n1 = result[i-2];
+            var n2 = result[i];
+            var tx = Math.abs(n1[0] - n2[0]);
+            var ty = Math.abs(n1[1] - n2[1]);
+            if (( tx > 0 && ty === 0) || (tx === 0 && ty > 0))
+            {
+              result.splice(--i,1);
+            }
+          }
+        }
+        return result;
       }
 
       function AStar(grid, start, end, f) {
@@ -157,7 +205,7 @@ define(function() {
                          extra = 10;
                       }
                       adj.g = current.g + distance(adj, current, f1, f2) + extra;
-                      adj.f = adj.g + distance(adj, endnode, f1, f2);
+                      adj.f = adj.g + distance(adj, endnode, f1, f2) + extra;
                       open[length++] = adj;
                       list[adj.v] = 1;
                     }
@@ -167,44 +215,13 @@ define(function() {
                 do {
                     result[i++] = [current.x, current.y];
                 } while (current = current.p);
-
-                var fn = function (node, result) {
-                  result.shift();
-                  result.unshift([node[0], node[1]]);
-                  var it2 = null;
-                  for (var it of result) {
-                    if (it2) {
-                      if (~~(it2[0]) === ~~(it[0]))
-                        it[0] = it2[0];
-                      else if (~~(it2[1]) === ~~(it[1]))
-                        it[1] = it2[1];
-                      else {
-                        break;
-                      }
-                    }
-                    it2 = it;
-                  }
-                };
-
-                fn(end, result);
-                result.reverse();
-                fn(start, result);
             }
         } while (length);
 
-        // Algorithm to shorten path cordinates to only corners.
-        if (result.length > 2) {
-          for (var i=2; i < result.length; ++i)
-          {
-            var n1 = result[i-2];
-            var n2 = result[i];
-            var tx = Math.abs(n1[0] - n2[0]);
-            var ty = Math.abs(n1[1] - n2[1]);
-            if (( tx > 0 && ty === 0) || (tx === 0 && ty > 0))
-            {
-              result.splice(--i,1);
-            }
-          }
+        if (result && result.length > 0)
+        {
+          result = ConvertPathToRealPath(result, start, end);
+          result = DropUneededNodes(result);
         }
 
         return result;
