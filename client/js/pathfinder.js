@@ -156,30 +156,84 @@ define(['lib/astar'], function(AStar) {
           return null;
         },
 
+        convertPathToRealPath: function (result, start, end) {
+          var fn = function (node, result) {
+            result.shift();
+            result.unshift([node[0], node[1]]);
+            var it2 = null;
+            for (var it of result) {
+              if (it2) {
+                if (~~(it2[0]) === ~~(it[0]))
+                  it[0] = it2[0];
+                else if (~~(it2[1]) === ~~(it[1]))
+                  it[1] = it2[1];
+                else {
+                  break;
+                }
+              }
+              it2 = it;
+            }
+          };
+
+          fn(start, result);
+          result.reverse();
+          fn(end, result);
+          result.reverse();
+
+          // Make nodes mid-points.
+          for (var node of result) {
+            if (node[0] % 1 === 0)
+              node[0] += 0.5;
+            if (node[1] % 1 === 0)
+              node[1] += 0.5;
+          }
+
+          return result;
+        },
+
+        dropUneededNodes: function (result) {
+          // Algorithm to shorten path cordinates to only corners.
+          if (result.length > 2) {
+            for (var i=2; i < result.length; ++i)
+            {
+              var n1 = result[i-2];
+              var n2 = result[i];
+              var tx = Math.abs(n1[0] - n2[0]);
+              var ty = Math.abs(n1[1] - n2[1]);
+              if (( tx > 0 && ty === 0) || (tx === 0 && ty > 0))
+              {
+                result.splice(--i,1);
+              }
+            }
+          }
+          return result;
+        },
+
+        AStar: function (grid, start, end) {
+          var pStart = [~~start[0],~~start[1]];
+          var pEnd = [~~end[0],~~end[1]];
+          var path = AStar.AStar(grid, pStart, pEnd);
+          if (path)
+          {
+            path = this.convertPathToRealPath(path, start, end);
+            path = this.dropUneededNodes(path);
+            log.info(JSON.stringify(path));
+            return path;
+          }
+          return null;
+        },
+
         findShortPath: function(crop, offsetX, offsetY, start, end) {
-            var ts = G_TILESIZE;
-        		var path = [];
-      			var subpath = AStar.AStar(crop, start, end);
-
-      			if (subpath && subpath.length > 0)
-      			{
-      				log.info(JSON.stringify(subpath));
-      				return subpath;
-      			}
-
-            return null;
+      			return this.AStar(crop, start, end);
         },
 
         findPath: function(grid, start, end, findIncomplete) {
             var path;
 
-			      this.grid = grid;
-            this.applyIgnoreList_(this.grid, true);
-            this.applyIncludeList_(this.grid, true);
+            this.applyIgnoreList_(grid, true);
+            this.applyIncludeList_(grid, true);
 
-            path = AStar.AStar(this.grid, start, end);
-
-            return path;
+            return this.AStar(grid, start, end);
         },
 
         /**

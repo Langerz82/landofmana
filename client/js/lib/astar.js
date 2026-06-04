@@ -7,8 +7,6 @@ define(function() {
        * @author  Andrea Giammarchi
        * @license Mit Style License
        */
-
-      var asGridCellSize = 16;
       var gGrid;
 
       function diagonalSuccessors($N, $S, $E, $W, N, S, E, W, grid, rows, cols, result, i) {
@@ -95,140 +93,99 @@ define(function() {
         return 0;
       }
 
-      function ConvertPathToRealPath(result, start, end) {
-        var fn = function (node, result) {
-          result.shift();
-          result.unshift([node[0], node[1]]);
-          var it2 = null;
-          for (var it of result) {
-            if (it2) {
-              if (~~(it2[0]) === ~~(it[0]))
-                it[0] = it2[0];
-              else if (~~(it2[1]) === ~~(it[1]))
-                it[1] = it2[1];
-              else {
-                break;
-              }
-            }
-            it2 = it;
-          }
-        };
-
-        fn(end, result);
-        result.reverse();
-        fn(start, result);
-
-        // Make nodes mid-points.
-        for (var node of result) {
-          if (node[0] % 1 === 0)
-            node[0] += 0.5;
-          if (node[1] % 1 === 0)
-            node[1] += 0.5;
-        }
-
-        return result;
-      }
-
-      function DropUneededNodes(result) {
-        // Algorithm to shorten path cordinates to only corners.
-        if (result.length > 2) {
-          for (var i=2; i < result.length; ++i)
-          {
-            var n1 = result[i-2];
-            var n2 = result[i];
-            var tx = Math.abs(n1[0] - n2[0]);
-            var ty = Math.abs(n1[1] - n2[1]);
-            if (( tx > 0 && ty === 0) || (tx === 0 && ty > 0))
-            {
-              result.splice(--i,1);
-            }
-          }
-        }
-        return result;
-      }
-
       function AStar(grid, start, end, f) {
-        gGrid = grid;
-        var cols = grid[0].length,
-            rows = grid.length,
-            limit = cols * rows,
-            f1 = Math.abs,
-            f2 = Math.max,
-            list = {},
-            result = [],
-            open = [{x:~~(start[0]), y:~~(start[1]), f:0, g:0, v:~~(start[0])+~~(start[1])*cols}],
-            length = 1,
-            adj, distance, find, i, j, max, min, current, next,
-            endnode = {x:~~(end[0]), y:~~(end[1]), v:~~(end[0])+~~(end[1])*cols};
+            gGrid = grid;
+            var cols = grid[0].length,
+                rows = grid.length,
+                limit = cols * rows,
+                f1 = Math.abs,
+                f2 = Math.max,
+                list = {},
+                result = [],
+                open = [{x:start[0], y:start[1], f:0, g:0, turns: 0, v:start[0]+start[1]*cols}],
+                length = 1,
+                adj, distance, find, i, j, max, min, current, next,
+                endnode = {x:end[0], y:end[1], v:end[0]+end[1]*cols};
 
-        switch (f) {
-            case "Diagonal":
-                find = diagonalSuccessors;
-            case "DiagonalFree":
-                distance = diagonal;
-                break;
-            case "Euclidean":
-                find = diagonalSuccessors;
-            case "EuclideanFree":
-                f2 = Math.sqrt;
-                distance = euclidean;
-                break;
-            default:
-                distance = manhattan;
-                find = nothingToDo;
-                break;
-        }
-        find || (find = diagonalSuccessorsFree);
-        do {
-            max = limit;
-            min = 0;
-            for(i = 0; i < length; ++i) {
-                if((f = open[i].f) < max) {
-                    max = f;
-                    min = i;
-                }
-            };
-            current = open.splice(min, 1)[0];
-            if (current.v !== endnode.v) {
-                --length;
-                next = successors(find, current.x, current.y, grid, rows, cols);
-                for(i = 0, j = next.length; i < j; ++i){
-                    adj = next[i];
-                    adj.p = current;
-                    adj.f = adj.g = 0;
-                    adj.v = ~~(adj.x) + ~~(adj.y) * cols;
-                    if(!(adj.v in list)){
-                      var extra = 0;
-                      if (current) {
-                       adj.dir = getDir(adj, current);
-                       if (typeof current.dir !== 'undefined' && current.dir != adj.dir)
-                         extra = 10;
-                      }
-                      adj.g = current.g + distance(adj, current, f1, f2) + extra;
-                      adj.f = adj.g + distance(adj, endnode, f1, f2) + extra;
-                      open[length++] = adj;
-                      list[adj.v] = 1;
+            switch (f) {
+                case "Diagonal":
+                    find = diagonalSuccessors;
+                case "DiagonalFree":
+                    distance = diagonal;
+                    break;
+                case "Euclidean":
+                    find = diagonalSuccessors;
+                case "EuclideanFree":
+                    f2 = Math.sqrt;
+                    distance = euclidean;
+                    break;
+                default:
+                    distance = manhattan;
+                    find = nothingToDo;
+                    break;
+            }
+            find || (find = diagonalSuccessorsFree);
+
+            do {
+                max = Infinity;  // better than limit for large grids
+                min = 0;
+                for(i = 0; i < length; ++i) {
+                    if((f = open[i].f) < max) {
+                        max = f;
+                        min = i;
                     }
                 }
-            } else {
-                i = length = 0;
-                do {
-                    result[i++] = [current.x, current.y];
-                } while (current = current.p);
-            }
-        } while (length);
 
-        if (result && result.length > 0)
-        {
-          result = ConvertPathToRealPath(result, start, end);
-          result = DropUneededNodes(result);
-        }
-        else {
-          return null;
-        }
+                current = open.splice(min, 1)[0];
 
-        return result;
-    }
+                if (current.v !== endnode.v) {
+                    --length;
+                    next = successors(find, current.x, current.y, grid, rows, cols);
+
+                    for(i = 0, j = next.length; i < j; ++i){
+                        adj = next[i];
+                        adj.p = current;
+                        adj.f = adj.g = 0;
+                        adj.v = adj.x + adj.y * cols;
+                        adj.turns = current.turns || 0;  // carry over turn count
+
+                        if(!(adj.v in list)){
+                          var extra = 0;
+                          var turnPenalty = 0;
+
+                          if (current && typeof current.dir !== 'undefined') {
+                              adj.dir = getDir(adj, current);
+
+                              // Strong turn penalty
+                              if (current.dir !== adj.dir && adj.dir !== 0) {
+                                  turnPenalty = 1000;           // Very high to prioritize fewer turns
+                                  adj.turns = current.turns + 1;
+                              }
+                          } else {
+                              // First move - no turn yet
+                              adj.dir = getDir(adj, current);
+                          }
+
+                          var stepCost = distance(adj, current, f1, f2);
+
+                          adj.g = current.g + stepCost + turnPenalty;
+                          adj.f = adj.g + distance(adj, endnode, f1, f2) + (adj.turns * 50); // secondary tie-breaker
+
+                          open[length++] = adj;
+                          list[adj.v] = 1;
+                        }
+                    }
+                } else {
+                    // Reconstruct path
+                    i = length = 0;
+                    do {
+                        result[i++] = [current.x, current.y];
+                    } while (current = current.p);
+                }
+            } while (length);
+
+            return (result && result.length > 0) ? result.reverse() : null; // reverse so start -> end
+        }
 
     return {AStar};
 

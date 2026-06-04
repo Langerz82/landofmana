@@ -185,7 +185,7 @@ function(UserClient, Player, AppearanceData, Timer) {
           if (this.rejectMove()) {
             return;
           }
-
+          this.moveOrientation = 0;
           this.forceStop();
           clearTimeout(this.attackInterval);
 
@@ -203,11 +203,11 @@ function(UserClient, Player, AppearanceData, Timer) {
 
           if (state && orientation !== Types.Orientations.NONE)
           {
-            this.moveOrientation = this.orientation;
+            this.moveOrientation = orientation;
             if (this.rejectMove()) {
               return;
             }
-
+            //this.moveOrientation = this.orientation;
             this.forceStop();
 
             this.orientation = orientation;
@@ -223,9 +223,9 @@ function(UserClient, Player, AppearanceData, Timer) {
             if (orientation !== this.orientation && this.isMoving()) {
               return;
             }
-
-            this.stopKeyMove = true;
             this.moveOrientation = 0;
+            this.stopKeyMove = true;
+
             if (this.fsm === "ATTACK") {
               return;
             }
