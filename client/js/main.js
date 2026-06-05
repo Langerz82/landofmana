@@ -326,6 +326,8 @@ define(['app', 'data/langdata', 'util',
               if(game.started) {
                   game.movecursor();
               }
+              game.click();
+              e.preventDefault();
             });
 
             jqGame.on("touchmove",function(e){
@@ -334,8 +336,9 @@ define(['app', 'data/langdata', 'util',
             jqGame.on("touchend",function(e){
             });
 
-            jqGame.on('click', function(event) {
+            jqGame.on("click", function(e) {
 								game.click();
+                e.preventDefault();
             });
 
             jqGame.mousemove(function(e) {

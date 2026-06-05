@@ -817,6 +817,8 @@ module.exports = PacketHandler = Class.extend({
 
     if (state === 2) {
       if (!p.checkStartMove(x,y)) {
+        console.error("handleMoveEntity, checkStartMove - x:"+x+",y:"+y);
+        console.error("handleMoveEntity, checkStartMove - p.x:"+p.x+",p.y:"+p.y);
         p.resetMove(p.x,p.y);
       }
       p.forceStop();

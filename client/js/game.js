@@ -1749,6 +1749,7 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
             },
 
             click: function() {
+                console.error("game.click");
                 var pos = this.getMousePosition();
                 var p = game.player;
 

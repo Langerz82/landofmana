@@ -1100,7 +1100,7 @@ module.exports = Player = Character.extend({
 
     this.map.entities.sendNeighbours(this, item.spawn());
     this.knownIds.push(item.id);
-    this.world.handleItemDespawn(item);
+    this.world.loot.handleItemDespawn(item);
   },
 
   sendCurrentMove: function () {

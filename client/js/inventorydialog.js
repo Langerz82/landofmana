@@ -355,11 +355,11 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
         });
       }
 
-      $('#game').on('dragover touchover', function(event) {
+      $('#game').on('dragover', function(event) {
         event.preventDefault();
       });
 
-      $('#game').on('drop touchend', function(event) {
+      $('#game').on('drop', function(event) {
 
         game.app.setMouseCoordinates(event);
 

@@ -438,6 +438,9 @@ define(['camera', 'entity/item', 'data/items', 'data/itemlootdata', 'entity/enti
                     my = game.mouse.y;
                 var anim = game.currentCursor.currentAnimation;
                 var frame = anim.currentFrame;
+                if (this.mobile)
+                  return;
+
                 if(this.game.currentCursor) {
                     this.drawSpriteHUD(game.currentCursor.pjsSprite,
                       frame.x, frame.y,
