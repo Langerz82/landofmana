@@ -477,11 +477,9 @@ function(HoveringInfo,
                 map !== game.player.mapIndex)
               return;
 
-            var entity = null;
+            var entity = game.getEntityById(id);
 
             if(id === game.player.id) return;
-
-            entity = game.getEntityById(id);
 
             if (!entity)
             {
@@ -519,7 +517,9 @@ function(HoveringInfo,
                 entity.setMoveRate(moveSpeed);
               }
 
+              //console.info("onEntityMovePath: "+JSON.stringify(path));
               entity.movePath(path);
+              entity = null;
             };
 
             if (lockStepTime === 0)

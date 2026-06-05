@@ -101,7 +101,7 @@ module.exports = MobArea = EntityArea.extend({
         return null;
       }
 
-      console.info("pos-x:"+pos.x+", pos-y:"+pos.y+", kind="+kind);
+      //console.info("pos-x:"+pos.x+", pos-y:"+pos.y+", kind="+kind);
       var mob = self.map.entities.addMob(kind, pos.x, pos.y, this);
 
       //self.addToArea(mob);

@@ -292,7 +292,7 @@ define(['./entity', '../transition', '../timer'], function(Entity, Transition, T
     }
 
     this.step = 0;
-    this.interrupted = true;
+    this.interrupted = false;
     this.moving = false;
     this.path = null;
     this.newDestination = null;
@@ -405,7 +405,6 @@ define(['./entity', '../transition', '../timer'], function(Entity, Transition, T
         }
         res = true;
       }
-
       return res;
   },
 
@@ -438,6 +437,8 @@ define(['./entity', '../transition', '../timer'], function(Entity, Transition, T
   },
 
   movePath: function (path) {
+    this.forceStop();
+    this.setPosition(path[0][0], path[0][1]);
     this.path = path;
     this.orientation = this.getOrientationTo(path[1]);
     this.step = 0;

@@ -412,7 +412,7 @@ var Map = cls.Class.extend({
         _.each(map.doors, function(door) {
         	door.width = (door.width) ? door.width : 1;
         	door.height = (door.height) ? door.height : 1;
-        	console.info("door.tmap="+door.tmap);
+        	//console.info("door.tmap="+door.tmap);
           var area = new MapArea(map, false, door.x, door.y, door.width, door.height, -1);
           area.tmap = door.map ? door.map : self.id;
           area.minLevel = door.tminLevel || 0;

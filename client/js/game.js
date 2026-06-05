@@ -1646,7 +1646,7 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
                 //var o = char.orientation;
                 var check = (o === 1 || o === 2) ?
                   (my === midTile) : (mx === midTile);
-                log.info("skipGridCheck, mx:"+mx+", my:"+my);
+                //log.info("skipGridCheck, mx:"+mx+", my:"+my);
                 if (char.stopKeyMove && check)
                 {
                   char.setPosition(x,y);

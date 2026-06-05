@@ -293,7 +293,7 @@ module.exports = EntityMoving = Entity.extend({
      }
 
      this.step = 0;
-     this.interrupted = true;
+     this.interrupted = false;
      this.moving = false;
      this.path = null;
      this.newDestination = null;
@@ -440,6 +440,8 @@ module.exports = EntityMoving = Entity.extend({
   },
 
   movePath: function (path) {
+    this.forceStop();
+    this.setPosition(path[0][0], path[0][1]);
     this.path = path;
     this.orientation = this.getOrientationTo(path[1]);
     this.step = 0;
