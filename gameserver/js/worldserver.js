@@ -322,7 +322,7 @@ module.exports = World = cls.Class.extend(
           self.forEachMap(function (map) {
             var players = map.entities.players;
             Utils.forEach(players, function (p) {
-              //map.entities.mobAI.Roaming(p);
+              map.entities.mobAI.Roaming(p);
             });
           });
         }, 1000);
