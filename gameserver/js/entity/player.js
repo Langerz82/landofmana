@@ -890,9 +890,7 @@ module.exports = Player = Character.extend({
     if (!this.map.entities.pathfinder.checkValidPath(path))
       return;
 
-    this.path = this.fullpath = path;
-    this.step = 0;
-    this.interrupted = interrupted;
+    this.setPath(path);
     this.startMovePathTime = time;
   },
 
@@ -905,11 +903,6 @@ module.exports = Player = Character.extend({
 
     var time=nm[0], state=nm[1], o=nm[2], x=nm[3], y=nm[4];
     console.info("nm:"+JSON.stringify(nm));
-
-    if (this.isMovingPath()) {
-      //entity.stopInPath(x,y);
-      return;
-    }
 
     this.idleTimer.restart();
 

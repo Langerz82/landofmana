@@ -24,6 +24,7 @@ module.exports = EntityMoving = Entity.extend({
     this.moveCooldown = null;
     this.path = null;
     this.newDestination = null;
+    this.interrupted = false;
 
     this.freeze = false;
   },
@@ -280,25 +281,21 @@ module.exports = EntityMoving = Entity.extend({
    /**
    * Stops a moving character.
    */
-   stop: function() {
-     this.movement.stop();
+  stop: function() {
 
-     if (this.isMovingPath()) {
-       if (this.interrupted && this.abort_pathing_callback)
-         this.abort_pathing_callback(this.x, this.y);
-     }
-     else {
-       if (this.movestop_callback)
-         this.movestop_callback();
-     }
+    if (this.isMoving()) {
+      if (this.movestop_callback)
+        this.movestop_callback();
+    }
 
-     this.step = 0;
-     this.interrupted = false;
-     this.moving = false;
-     this.path = null;
-     this.newDestination = null;
-     this.freeze = false;
-   },
+    this.movement.stop();
+    this.interrupted = false;
+    this.step = 0;
+//    this.moving = false;
+    this.path = null;
+    this.newDestination = null;
+    this.freeze = false;
+  },
 
   setMoveStopCallback: function (callback) {
     this.movestop_callback = callback;
@@ -368,8 +365,13 @@ module.exports = EntityMoving = Entity.extend({
       var stop = false, res = false,
           path, x, y;
 
-      if(!this.isMovingPath() || this.freeze) {
-        this.interrupted = true;
+      var interrupted = false;
+
+      if (this.freeze)
+        return false;
+
+      if(!this.isMovingPath() || this.interrupted) {
+        interrupted = true;
         stop = true;
       }
 
@@ -399,15 +401,17 @@ module.exports = EntityMoving = Entity.extend({
       }
 
       if(stop) { // Path is complete or has been interrupted
-        if(this.stop_pathing_callback) {
-            this.stop_pathing_callback(this.x, this.y);
-
-        this.forceStop();
-        //console.info("nextStep - stopped, x:"+this.x+",y:"+this.y);
+        if (interrupted && this.abort_pathing_callback) {
+            this.abort_pathing_callback(this.x, this.y);
+          interrupted = false;
         }
+        else if(this.stop_pathing_callback) {
+            this.stop_pathing_callback(this.x, this.y);
+            //console.info("nextStep - stopped, x:"+this.x+",y:"+this.y);
+        }
+        this.forceStop();
         res = true;
       }
-
       return res;
   },
 
@@ -439,12 +443,16 @@ module.exports = EntityMoving = Entity.extend({
     return !(this.newDestination === null);
   },
 
+  setPath: function (path) {
+    this.path = path;
+    this.step = 0;
+    this.orientation = this.getOrientationTo(path[1]);
+  },
+
   movePath: function (path) {
     this.forceStop();
     this.setPosition(path[0][0], path[0][1]);
-    this.path = path;
-    this.orientation = this.getOrientationTo(path[1]);
-    this.step = 0;
+    this.setPath(path);
     this.walk();
   },
 
@@ -469,16 +477,6 @@ module.exports = EntityMoving = Entity.extend({
       return true;
     }
     return false;
-  },
-
-  stopInPath: function(x,y) {
-    if (this.isMovingPath()) {
-      if (this.isWithinPath({x:x,y:y})) {
-        this.setPosition(x,y);
-        this.interrupted = true;
-        this.forceStop();
-      }
-    }
   },
 
 /*******************************************************************************

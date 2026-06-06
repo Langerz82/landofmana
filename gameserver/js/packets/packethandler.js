@@ -508,8 +508,8 @@ module.exports = PacketHandler = Class.extend({
     if (p.isDead)
       return;
 
-    if (p.movement.inProgress) {
-      p.attackQueue.push(message);
+    if (p.isMoving() || p.isMovingPath()) {
+      p.attackQueue = message;
     } else {
       self.handleHitEntity(p, message);
     }
@@ -520,14 +520,20 @@ module.exports = PacketHandler = Class.extend({
     var self = this;
     var p = this.player;
 
-    if (p.movement.inProgress) {
+    if (p.attackQueue) {
+      self.handleHitEntity(p, p.attackQueue);
+      p.attackQueue = null;
+    }
+    //if (p.movement.inProgress) {
+    /*
       for (var msg of p.attackQueue)
       {
         console.info("processAttack, handle hit");
         self.handleHitEntity(p, msg);
       }
-    }
+    //}
     this.player.attackQueue = [];
+    */
   },
 
   handleHitEntity: function(sEntity, message) { // 8
@@ -595,6 +601,7 @@ module.exports = PacketHandler = Class.extend({
 
     if (sEntity === this.player) {
       if (!sEntity.canReach(tEntity)) {
+        //try { throw new Error() } catch (e) { console.error(e.stack); }
         console.info("Player not close enough!");
         console.info("p.x:" + sEntity.x + ",p.y:" + sEntity.y);
         console.info("e.x:" + tEntity.x + ",e.y:" + tEntity.y);
