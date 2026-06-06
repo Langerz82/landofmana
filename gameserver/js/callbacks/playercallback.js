@@ -106,7 +106,12 @@ module.exports = PlayerCallback = Class.extend({
 
           var dist = pathfinder.getPathSubDistance(p.path, x, y);
           if (!dist) {
-            console.error("getPathSubDistance = not found.");
+            if (p.path[0][0] === x && p.path[0][1] === y)
+              return false;
+
+            console.info("checkPathInterrupt, getPathSubDistance = not found.");
+            console.info("checkPathInterrupt, getPathSubDistance: path:"+JSON.stringify(p.path));
+            console.info("checkPathInterrupt, getPathSubDistance: x:"+x+",y:"+y);
             return true;
           }
 
@@ -147,6 +152,8 @@ module.exports = PlayerCallback = Class.extend({
             }
 
             console.info("checkStartMove - different coords.");
+            console.info("checkStartMove - p.x:"+p.x+",p.y:"+p.y);
+            console.info("checkStartMove - x:"+x+",y:"+y);
             return false;
         }
 

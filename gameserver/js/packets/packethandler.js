@@ -819,6 +819,7 @@ module.exports = PacketHandler = Class.extend({
 
     if (state==1 && p.hasMoveThrottled(G_LATENCY))  {
       console.warn("handleMoveEntity - moveThrottled");
+      p.resetMove(p.x,p.y);
       return;
     }
 
