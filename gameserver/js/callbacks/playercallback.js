@@ -14,8 +14,9 @@ module.exports = PlayerCallback = Class.extend({
     		});
 
         p.onRequestPath(function (x,y) {
-            var p = this;
-            return self.entities.findPath(p, x, y);
+            var path = this.entities.findPath(this, x, y);
+            console.info("onRequestPath, id:"+this.id+", path:"+JSON.stringify(path));
+            return
         });
 
         var attackFunc = function (p) {
@@ -30,7 +31,7 @@ module.exports = PlayerCallback = Class.extend({
             p.sx = p.x;
             p.sy = p.y;
 
-            console.info("p.x:"+p.x+",p.y="+p.y);
+            console.info("onStopPathing - p.id"+p.id+"p.x:"+p.x+",p.y="+p.y);
             attackFunc(p);
         };
 
@@ -97,31 +98,27 @@ module.exports = PlayerCallback = Class.extend({
         };
 
         p.checkPathInterrupt = function (x,y) {
-          var p = this;
-
-          if (!p.isMovingPath())
+          if (!this.isMovingPath())
             return false;
 
-          var pathfinder = p.map.entities.pathfinder;
+          var pathfinder = this.map.entities.pathfinder;
 
-          var dist = pathfinder.getPathSubDistance(p.path, x, y);
+          var dist = pathfinder.getPathSubDistance(this.path, x, y);
           if (!dist) {
-            if (p.path[0][0] === x && p.path[0][1] === y)
+            if (this.path[0][0] === x && this.path[0][1] === y)
               return false;
 
             console.info("checkPathInterrupt, getPathSubDistance = not found.");
-            console.info("checkPathInterrupt, getPathSubDistance: path:"+JSON.stringify(p.path));
+            console.info("checkPathInterrupt, getPathSubDistance: path:"+JSON.stringify(this.path));
             console.info("checkPathInterrupt, getPathSubDistance: x:"+x+",y:"+y);
             return true;
           }
 
-          return pathfinder.isDistanceTooFast(p.tick, dist, p.startMovePathTime);
+          return pathfinder.isDistanceTooFast(this.tick, dist, this.startMovePathTime);
         };
 
         p.checkStartMove = function (x,y) {
-            var p = this;
-
-            if (p.mapStatus < 2)
+            if (this.mapStatus < 2)
               return false;
 
             //console.info("checkStartMove - player, x:"+x+",y:"+y);
@@ -129,76 +126,74 @@ module.exports = PlayerCallback = Class.extend({
             //console.info("checkStartMove - player, p.x:"+p.x+",p.y:"+p.y);
             //console.info("checkStartMove - player, ex:"+p.ex+",ey:"+p.ey);
 
-            if (p.map.isColliding(x, y)) {
-              console.info("checkStartMove - char.isColliding("+p.id+","+x+","+y+")");
+            if (this.map.isColliding(x, y)) {
+              console.info("checkStartMove - char.isColliding("+this.id+","+x+","+y+")");
               return false;
             }
 
-            if (p.checkPathInterrupt(x,y)) {
+            if (this.checkPathInterrupt(x,y)) {
               console.info("checkStartMove - checkPathInterrupt = true");
               return false;
             }
 
-            if (p.isMovingPath() && !(p.x === x && p.y === y))
+            if (this.isMovingPath() && !(this.x === x && this.y === y))
             {
               console.info("checkStartMove - isMovingPath but wrong coords.");
-              p.fixMove(x,y);
+              this.fixMove(x,y);
               return true;
             }
 
-            if (p.x === x && p.y === y) {
+            if (this.x === x && this.y === y) {
               console.info("checkStartMove - same coords.");
               return true;
             }
 
-            console.info("checkStartMove - different coords.");
-            console.info("checkStartMove - p.x:"+p.x+",p.y:"+p.y);
+            console.info("checkStartMove - id:"+this.id+" different coords.");
+            console.info("checkStartMove - id:"+this.id+" p.x:"+this.x+",p.y:"+this.y);
             console.info("checkStartMove - x:"+x+",y:"+y);
             return false;
         }
 
         p.correctMove = function (x, y) {
-            var p = this;
-            if (!(p.ex === -1 && p.ey === -1) && !(p.x === x && p.y === y))
+            if (!(this.ex === -1 && this.ey === -1) && !(this.x === x && this.y === y))
             {
               console.warn("ERROR - MOVING NOT SYNCHED PROPERLY, FORCING CLIENT UPDATE");
-              console.info("player, orientation:"+p.orientation);
-              console.info("player, x:"+p.x+",y:"+p.y);
-              console.info("player, sx:"+p.sx+",sy:"+p.sy);
-              console.info("player, ex:"+p.ex+",ey:"+p.ey);
+              console.info("player, orientation:"+this.orientation);
+              console.info("player, x:"+this.x+",y:"+this.y);
+              console.info("player, sx:"+this.sx+",sy:"+this.sy);
+              console.info("player, ex:"+this.ex+",ey:"+this.ey);
 
-              p.resetMove(p.sx,p.sy);
+              this.resetMove(this.sx,this.sy);
             }
         };
 
         p.setMoveStopCallback(function () {
-            var p = this;
             //console.error("setMoveStopCallback - player, sx:"+p.sx+",sy:"+p.sy);
             //console.error("setMoveStopCallback - player, x:"+p.x+",y:"+p.y);
             //console.error("setMoveStopCallback - player, ex:"+p.ex+",ey:"+p.ey);
 
-            p.keyMove = false;
-            p.endMoveTime = Date.now();
+            this.keyMove = false;
+            this.endMoveTime = Date.now();
 
-            attackFunc(p);
+            attackFunc(this);
         });
 
         p.onTeleport(function () {
-          p.forEachAttacker(function(entity)
+          this.forEachAttacker(function(entity)
           {
               if (entity instanceof Mob)
               {
                 entity.returnToSpawn();
               }
           });
-          p.clearAttackerRefs();
+          this.clearAttackerRefs();
         });
 
         p.onKilled(function (attacker, damage) {
         });
 
         p.onDeath(function (attacker) {
-            p.world.loot.handleDropItem(p, attacker);
+            this.world.loot.handleDropItem(this, attacker);
         });
 
   	}

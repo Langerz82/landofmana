@@ -471,7 +471,15 @@ define(['app', 'data/langdata', 'util',
                 game.player.move(Types.Orientations.DOWN, false);
               };
 
-            var fnKeyDown = function (e) {
+              app.releaseKeys = function () {
+                var key = [fnKeyRight, fnKeyLeft, fnKeyUp, fnKeyDown];
+                for (var k of key) {
+                  k.isDown = false;
+                  k.isUp = true;
+                }
+              }
+
+            var fnKeyAction = function (e) {
               var key = e.which;
 
               if(key === Types.Keys.ENTER) { // Enter
@@ -555,7 +563,7 @@ define(['app', 'data/langdata', 'util',
               if (e.repeat) {
                 return true;
               }
-              return fnKeyDown(e);
+              return fnKeyAction(e);
             });
 
             jqPlayerWindow.keydown(function (e) {

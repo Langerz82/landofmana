@@ -500,7 +500,7 @@ module.exports = PacketHandler = Class.extend({
   },
 
   handleAttack: function(message) {
-    console.info("handleAttack");
+    //console.info("handleAttack");
     var self = this;
     var time = parseInt(message[0]);
     var p = this.player;
@@ -540,7 +540,7 @@ module.exports = PacketHandler = Class.extend({
     var self = this;
     var p = this.player;
 
-    console.info("handleHitEntity");
+    //console.info("handleHitEntity");
     //var self = this;
 
     //console.info("message: "+JSON.stringify(message));
@@ -707,7 +707,7 @@ module.exports = PacketHandler = Class.extend({
     if (sEntity instanceof Player)
       sEntity.weaponDamage += dmg;
 
-    console.info("DAMAGE OCCURED "+dmg);
+    //console.info("DAMAGE OCCURED "+dmg);
     //console.info("dmg="+dmg);
     if (tEntity instanceof Player) {
       //tEntity.stats.hp -= dmg;

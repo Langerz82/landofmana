@@ -28,6 +28,7 @@ function(HoveringInfo,
               y = Number(data[3]),
               portalId = Number(data[4]);
           var status = game.mapStatus = Number(data[1]);
+          var p = game.player;
 
           log.info("ON PLAYER TELEPORT MAP:"+mapId+"status: "+status+",x:"+x+",y:"+y);
 
@@ -35,8 +36,8 @@ function(HoveringInfo,
           {
             game.mapIndex = 0;
             game.mapStatus = 2;
-            game.player.forceStop();
-            game.player.clearTarget();
+            p.forceStop();
+            p.clearTarget();
             //game.player.path = null;
             //game.player.step = 0;
             return;
@@ -47,17 +48,18 @@ function(HoveringInfo,
             log.info("spawnMap");
 
             //if (game.player.isMoving())
-            game.player.forceStop();
+            p.forceStop();
             game.mapIndex = mapId;
-            game.player.mapIndex = mapId;
+            p.mapIndex = mapId;
             //game.player.forceStop();
-            game.player.clearTarget();
-            game.player.freeze = true;
+            p.clearTarget();
+            p.freeze = true;
             game.initPlayer();
             if (portalId >= 0) {
               var orientation = game.prevMapContainer.doors[portalId].orientation;
-              game.player.orientation = orientation;
-              game.player.idle();
+              p.orientation = orientation;
+              //p.moveOrientation = orientation;
+              //p.forceStopTeleport();
             }
 
             game.renderer.clearEntities();
@@ -83,7 +85,7 @@ function(HoveringInfo,
           {
               log.info("spawnMap - Loaded");
 
-              game.player.setPositionSpawn(x, y);
+              p.setPositionSpawn(x, y);
               //game.player.forceStop();
 
               var c = game.camera;
@@ -111,7 +113,10 @@ function(HoveringInfo,
                 game.renderer.forceRedraw = true;
                 log.info("spawnPlayer - finished");
 
-                p.freeze = false;
+                //p.freeze = false;
+                p.forceStop();
+                game.app.releaseKeys();
+                //p.stopKeyMove = false;
               });
               //game.renderer.forceRedraw = true;
           }

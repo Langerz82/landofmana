@@ -688,7 +688,7 @@ module.exports = Player = Character.extend({
     }
     var statDiff = this.stats.attack + (this.stats.luck*2);
     var chance = Utils.clamp(0, 500, ~~(statDiff + itemDiff));
-    console.info("player - baseCrit: "+chance);
+    //console.info("player - baseCrit: "+chance);
     //var chance_out = (chance / 5).toFixed(0)+"%";
     //return chance_out;
     return chance;
@@ -705,7 +705,7 @@ module.exports = Player = Character.extend({
     }
     var statDiff = this.stats.defense + (this.stats.luck*2);
     var chance = Utils.clamp(0, 500, ~~(statDiff + itemDiff));
-    console.info("player - baseCritDef: "+chance);
+    //console.info("player - baseCritDef: "+chance);
     //var chance_out = (chance / 5).toFixed(0)+"%";
     //return chance_out;
     return chance;
@@ -765,7 +765,7 @@ module.exports = Player = Character.extend({
     var dealt = 0, dmg = 0;
 
     var level = this.level+3;
-    console.info("baseDamageDef:");
+    //console.info("baseDamageDef:");
 
     dealt = level;
     for (var id in this.equipment.rooms)
@@ -778,19 +778,19 @@ module.exports = Player = Character.extend({
       }
     }
 
-    console.info("dealt="+dealt);
+    //console.info("dealt="+dealt);
     var lvl = Types.getDefenseLevel(this.stats.exp.defense);
     var power = ((lvl / 50) + 1);
-    console.info("power="+power);
+    //console.info("power="+power);
     var min = ~~(level*power);
     var max = ~~(min*2);
 
-    console.info("dealtrange="+dealt);
+    //console.info("dealtrange="+dealt);
     // Players Stat affects Damage.
     var mods = (this.mod ? this.stats.mod.defense : 0);
     dealt += ~~((this.stats.defense*4)+mods) + this.stats.luck;
 
-    console.info("dealtstats="+dealt);
+    //console.info("dealtstats="+dealt);
 
     dmg = Utils.randomRangeInt(min, max) + dealt;
 
@@ -938,8 +938,7 @@ module.exports = Player = Character.extend({
         //else
           //this.moving_timeout = setTimeout(execMove, delay);
     }
-
-    if (state === 0) {
+    else if (state === 0) {
       /*if (!(this.sx === x && this.sy === y)) {
         try { throw new Error(); } catch (e) { console.error(e.stack); }
       }*/
@@ -953,8 +952,10 @@ module.exports = Player = Character.extend({
       if (a || b) {
         console.info("player move: this.moving_timeout cleared.");
         clearTimeout(this.moving_timeout);
-        this.setPosition(x,y);
+        this.fixMove(x,y);
         this.forceStop();
+        console.info("player, resetMove - x:"+x+", y:"+y);
+        console.info("player, resetMove - this.x:"+this.x+", this.y:"+this.y);
         return;
       }
 
@@ -1119,6 +1120,7 @@ module.exports = Player = Character.extend({
   },
 
   setPosition: function (x, y) {
+    try { throw new Error(); } catch (e) { log.info(e.stack); }
     this._super(x,y);
 
     if (this.holdingBlock)
@@ -1349,6 +1351,7 @@ module.exports = Player = Character.extend({
   },
 
   fixMove: function (x,y) {
+    //try { throw new Error(); } catch(err) { console.warn(err.stack); }
     this.interrupted = false;
     this.setPosition(x, y);
     this.forceStop();

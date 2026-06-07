@@ -282,25 +282,42 @@ module.exports = EntityMoving = Entity.extend({
    * Stops a moving character.
    */
   stop: function() {
-
-    if (this.isMoving()) {
+    if (this.isMoving() && !this.isMovingPath()) {
       if (this.movestop_callback)
         this.movestop_callback();
     }
 
+    this.stopPath();
     this.movement.stop();
-    this.interrupted = false;
+    this.freeze = false;
+  },
+
+  stopPath: function () {
+    if (!this.isMovingPath())
+      return;
+
+    lnode = this.getLastMove();
+    this.interrupted = !(this.x === lnode[0] && this.y === lnode[1]);
+
     this.step = 0;
-//    this.moving = false;
     this.path = null;
     this.newDestination = null;
-    this.freeze = false;
+
+    if (this.interrupted && this.abort_pathing_callback) {
+      this.abort_pathing_callback(this.x, this.y);
+      this.interrupted = false;
+    }
+    else if(this.stop_pathing_callback) {
+      this.stop_pathing_callback(this.x, this.y);
+      //console.info("nextStep - stopped, x:"+this.x+",y:"+this.y);
+    }
+    this.movement.stop();
+    this.forceStop();
   },
 
   setMoveStopCallback: function (callback) {
     this.movestop_callback = callback;
   },
-
 
   onHasMoved: function(callback) {
     this.hasmoved_callback = callback;
@@ -365,13 +382,11 @@ module.exports = EntityMoving = Entity.extend({
       var stop = false, res = false,
           path, x, y;
 
-      var interrupted = false;
-
       if (this.freeze)
         return false;
 
-      if(!this.isMovingPath() || this.interrupted) {
-        interrupted = true;
+      if(!this.isMovingPath()) {
+        this.interrupted = true;
         stop = true;
       }
 
@@ -401,15 +416,7 @@ module.exports = EntityMoving = Entity.extend({
       }
 
       if(stop) { // Path is complete or has been interrupted
-        if (interrupted && this.abort_pathing_callback) {
-            this.abort_pathing_callback(this.x, this.y);
-          interrupted = false;
-        }
-        else if(this.stop_pathing_callback) {
-            this.stop_pathing_callback(this.x, this.y);
-            //console.info("nextStep - stopped, x:"+this.x+",y:"+this.y);
-        }
-        this.forceStop();
+        this.stopPath();
         res = true;
       }
       return res;

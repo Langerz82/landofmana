@@ -81,14 +81,10 @@ function(UserClient, Player, AppearanceData, Timer) {
           {
             this.key_move_callback(0);
           }
-          this.keyMove = false;
-          this.freeze = false;
-          //clearTimeout(this.moveTimeout);
           this._forceStop();
-
           this.idle();
-          //this.fsm = "IDLE";
           this.moveOrientation = 0;
+          this.keyMove = false;
           this.stopKeyMove = false;
         };
 
@@ -210,7 +206,7 @@ function(UserClient, Player, AppearanceData, Timer) {
             //this.moveOrientation = this.orientation;
             this.forceStop();
 
-            this.orientation = orientation;
+            //this.orientation = orientation;
             this.setOrientation(orientation);
 
             this.walk();
@@ -224,6 +220,7 @@ function(UserClient, Player, AppearanceData, Timer) {
               return;
             }
             this.moveOrientation = 0;
+            //this.keyMove = false;
             this.stopKeyMove = true;
 
             if (this.fsm === "ATTACK") {
