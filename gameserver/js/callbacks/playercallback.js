@@ -25,8 +25,8 @@ module.exports = PlayerCallback = Class.extend({
 
         var stopPathing = function (p, x, y) {
             console.info("onStopPathing");
-
             p.setPosition(x,y);
+            p.forceStop();
 
             p.sx = p.x;
             p.sy = p.y;

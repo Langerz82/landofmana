@@ -29,6 +29,8 @@ module.exports = Entity = cls.Class.extend({
     },
 
     setPosition: function (x, y) {
+      //console.info("setPosition - x:"+x+",y:"+y);
+      //try { throw new Error(); } catch (e) { console.info(e.stack); }
       this._setPosition(x,y);
     },
 

@@ -1116,7 +1116,8 @@ module.exports = Player = Character.extend({
   },
 
   setPosition: function (x, y) {
-    try { throw new Error(); } catch (e) { log.info(e.stack); }
+    //console.info("setPosition - x:"+x+",y:"+y);
+    //try { throw new Error(); } catch (e) { console.info(e.stack); }
     this._super(x,y);
 
     if (this.holdingBlock)
