@@ -895,8 +895,6 @@ module.exports = Player = Character.extend({
   },
 
   move: function (nm) {
-    var p = self = this;
-
     //nm = self.nextMove;
     if (!nm)
       return;
@@ -922,19 +920,19 @@ module.exports = Player = Character.extend({
         var delay = 0;
         this.startMoveTime = time;
 
-        var execMove = function () {
-          if (self.movement.inProgress) {
-            self.forceStop();
+        var execMove = function (p) {
+          if (p.movement.inProgress) {
+            p.forceStop();
           }
-          self.moving_timeout = null;
-          self.startMoving = true;
+          p.moving_timeout = null;
+          p.startMoving = true;
 //          self.moveOrientation = o;
-          self.orientation = o;
-          self.keyMove = true;
+          p.orientation = o;
+          p.keyMove = true;
           return;
         };
         //if (delay <= 0)
-          execMove();
+          execMove(this);
         //else
           //this.moving_timeout = setTimeout(execMove, delay);
     }
@@ -953,7 +951,6 @@ module.exports = Player = Character.extend({
         console.info("player move: this.moving_timeout cleared.");
         clearTimeout(this.moving_timeout);
         this.fixMove(x,y);
-        this.forceStop();
         console.info("player, resetMove - x:"+x+", y:"+y);
         console.info("player, resetMove - this.x:"+this.x+", this.y:"+this.y);
         return;
@@ -965,7 +962,6 @@ module.exports = Player = Character.extend({
         var path = [[this.x,this.y],[x,y]];
         if (this.isValidPath(path, this.startMoveTime)) {
           this.fixMove(x, y);
-          this.forceStop();
         }
         return;
       }

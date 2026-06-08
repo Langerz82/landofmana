@@ -17,29 +17,33 @@ module.exports = Updater = Class.extend({
 
     this.charPathXF = function(c, m) {
       var x = c.x + m;
-      c.setPosition(x, c.y);
+      var y = c.y;
+      c.setPosition(x, y);
       return c.nextStep();
     };
 
     this.charPathYF = function(c, m) {
+      var x = c.x;
       var y = c.y + m;
-      c.setPosition(c.x, y);
+      c.setPosition(x, y);
       return c.nextStep();
     };
 
     this.playerPathXF = function(c, m) {
       var x = c.x + m;
-      c.setPosition(x, c.y);
+      var y = c.y;
       if (x % self.whoDist === 0)
         c.map.entities.processWho(c);
+      c.setPosition(x, y);
       return c.nextStep();
     };
 
     this.playerPathYF = function(c, m) {
+      var x = c.x;
       var y = c.y + m;
-      c.setPosition(c.x, y);
       if (y % self.whoDist === 0)
         c.map.entities.processWho(c);
+      c.setPosition(x, y);
       return c.nextStep();
     };
 

@@ -128,26 +128,20 @@ define(['entity/character', 'timer', 'entity/player', 'entity/entitymoving'], fu
             };
 
             this.playerPathXF = function(c, m) {
-              //if (!c.isMovingPathCorrectly())
-                //console.error("NOT isMovingPathCorrectly");
-
               var x = c.x + m;
-              c.setPosition(x, c.y);
+              var y = c.y;
+              c.setPosition(x, y);
               return c.nextStep();
             };
 
             this.playerPathYF = function(c, m) {
-              //if (!c.isMovingPathCorrectly())
-                //console.error("NOT isMovingPathCorrectly");
-
+              var x = c.x;
               var y = c.y + m;
-              c.setPosition(c.x, y);
+              c.setPosition(x, y);
               return c.nextStep();
             };
 
             this.stopTransition = function (c) {
-              //if (c.movement.inProgress)
-                //c.forceStop();
             }
         },
 
