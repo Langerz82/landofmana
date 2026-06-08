@@ -31,7 +31,7 @@ module.exports = Transition = Class.extend({
             var mod = (inc > 0) ? 1 : -1;
             for (var it=0; it < itCount; ++it)
             {
-              if (this.updateFunction(this.object, mod))
+              if (!this.inProgress || this.updateFunction(this.object, mod))
               {
                   this.stop(this.object);
                   return;

@@ -760,7 +760,7 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
               self.player.onStep(function() {
               });
 
-              self.player.onAbortPathing(function(x, y) {
+              self.player.onAbortPathing(function(path, x, y) {
                 var p = self.player;
                 self.client.sendMoveEntity(p, 2);
               });

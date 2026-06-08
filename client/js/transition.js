@@ -31,7 +31,7 @@ define(function() {
                 var mod = (inc > 0) ? 1 : -1;
                 for (it=1; it <= itCount; ++it)
                 {
-                  if (this.updateFunction(this.object, mod))
+                  if (!this.inProgress || this.updateFunction(this.object, mod))
                   {
                       this.stop(this.object);
                       return;

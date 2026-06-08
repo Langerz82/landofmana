@@ -299,17 +299,19 @@ define(['./entity', '../transition', '../timer'], function(Entity, Transition, T
     this.interrupted = !(this.x === lnode[0] && this.y === lnode[1]);
 
     this.step = 0;
+    var path = this.path;
     this.path = null;
     this.newDestination = null;
 
     if (this.interrupted && this.abort_pathing_callback) {
-      this.abort_pathing_callback(this.x, this.y);
+      this.abort_pathing_callback(path, this.x, this.y);
       this.interrupted = false;
     }
     else if(this.stop_pathing_callback) {
       this.stop_pathing_callback(this.x, this.y);
       //console.info("nextStep - stopped, x:"+this.x+",y:"+this.y);
     }
+
     this.movement.stop();
     this.forceStop();
   },

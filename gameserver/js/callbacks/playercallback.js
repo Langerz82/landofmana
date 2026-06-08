@@ -26,7 +26,7 @@ module.exports = PlayerCallback = Class.extend({
         var stopPathing = function (p, x, y) {
             console.info("onStopPathing");
             p.setPosition(x,y);
-            p.forceStop();
+            //p.forceStop();
 
             p.sx = p.x;
             p.sy = p.y;
@@ -35,8 +35,8 @@ module.exports = PlayerCallback = Class.extend({
             attackFunc(p);
         };
 
-        var abortPathing = function (p, x, y) {
-          var dist = self.entities.pathfinder.getPathSubDistance(p.path, x, y);
+        var abortPathing = function (p, path, x, y) {
+          var dist = self.entities.pathfinder.getPathSubDistance(path, x, y);
           if (self.entities.pathfinder.isDistanceTooFast(p.tick, dist, p.startMovePathTime)) {
             console.error("path - isDistanceTooFast = true.");
             p.resetMove(p.sx,p.sy);
@@ -51,9 +51,9 @@ module.exports = PlayerCallback = Class.extend({
             stopPathing(this,x,y);
         });
 
-        p.onAbortPathing(function (x, y) {
+        p.onAbortPathing(function (path, x, y) {
             console.info("onAbortPathing");
-            abortPathing(this,x,y);
+            abortPathing(this,path,x,y);
         });
 
         p.checkStopDanger = function (c, o)
