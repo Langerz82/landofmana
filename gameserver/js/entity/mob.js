@@ -284,7 +284,7 @@ module.exports = Mob = Character.extend({
         if (this.area && this.area instanceof MobArea) {
             var fn = function () {
               var	pos = self.map.entities.spaceEntityRandomApart(3, self.area._getRandomPositionInsideArea.bind(self.area,100));
-              console.warn("mob - respawnMob:"+JSON.stringify(pos));
+              console.warn("mob, handleRespawn - id:"+self.id+", pos:"+JSON.stringify(pos));
               if (pos) {
                 self.spawnX = pos.x;
                 self.spawnY = pos.y;

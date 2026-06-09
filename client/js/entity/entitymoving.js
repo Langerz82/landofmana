@@ -289,7 +289,6 @@ define(['./entity', '../transition', '../timer'], function(Entity, Transition, T
     this.stopPath();
     this.movement.stop();
     this.freeze = false;
-    this.keyMove = false;
   },
 
   stopPath: function () {

@@ -1397,15 +1397,10 @@ module.exports = Player = Character.extend({
   forceStop: function() {
     this.orientation = 0;
     this._forceStop();
-    //if (this.ex === -1 && this.ey === -1)
-    //{
-      this.sx = this.x;
-      this.sy = this.y;
-    //}
-    //else {
-    //  this.sx = this.ex;
-    //  this.sy = this.ey;
-    //}
+    this.keyMove = false;
+
+    this.sx = this.x;
+    this.sy = this.y;
 
     this.ex = -1;
     this.ey = -1;

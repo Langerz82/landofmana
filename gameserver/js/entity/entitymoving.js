@@ -290,7 +290,6 @@ module.exports = EntityMoving = Entity.extend({
     this.stopPath();
     this.movement.stop();
     this.freeze = false;
-    this.keyMove = false;
   },
 
   stopPath: function () {

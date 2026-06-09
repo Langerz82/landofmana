@@ -361,6 +361,7 @@ define(['./entity', './character', 'data/appearancedata'],
 
     setPosition: function (x, y) {
       this._super(x,y);
+      this.keyMove = false;
 
       if (this.holdingBlock)
       {
