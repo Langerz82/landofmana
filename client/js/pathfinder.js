@@ -135,7 +135,7 @@ define(['lib/astar'], function(AStar) {
           var mp = [start, end];
           if (dx === 0 || dy === 0) {
             if(this.isValidPath(grid, mp)) {
-              //log.info("validpath-fdp1:"+JSON.stringify(mp));
+              log.info("validpath-fdp1:"+JSON.stringify(mp));
               return mp;
             }
           }
@@ -143,14 +143,14 @@ define(['lib/astar'], function(AStar) {
           mp = [start, [start[0],end[1]], end];
           //log.info("mp:"+JSON.stringify(mp));
           if(this.isValidPath(grid, mp)) {
-            //log.info("validpath-fdp2:"+JSON.stringify(mp));
+            log.info("validpath-fdp2:"+JSON.stringify(mp));
             return mp;
           }
 
           mp = [start, [end[0],start[1]], end];
           //log.info("mp:"+JSON.stringify(mp));
           if(this.isValidPath(grid, mp)) {
-            //log.info("validpath-fdp3:"+JSON.stringify(mp));
+            log.info("validpath-fdp3:"+JSON.stringify(mp));
             return mp;
           }
           return null;
@@ -224,7 +224,10 @@ define(['lib/astar'], function(AStar) {
         },
 
         findShortPath: function(crop, offsetX, offsetY, start, end) {
-      			return this.AStar(crop, start, end);
+      			var path = this.AStar(crop, start, end);
+            if (path) {
+              console.info("pathfinder, findShortPath - path: "+JSON.stringify(path));
+            }
         },
 
         findPath: function(grid, start, end, findIncomplete) {
@@ -233,7 +236,10 @@ define(['lib/astar'], function(AStar) {
             this.applyIgnoreList_(grid, true);
             this.applyIncludeList_(grid, true);
 
-            return this.AStar(grid, start, end);
+            var path = this.AStar(grid, start, end);
+            if (path) {
+              console.info("pathfinder, findPath - path: "+JSON.stringify(path));
+            }
         },
 
         /**

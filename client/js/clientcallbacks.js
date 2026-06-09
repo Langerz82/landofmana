@@ -450,6 +450,7 @@ function(HoveringInfo,
                 //log.info("DEBUG: p.x="+p.x+",x="+x+"p.y="+p.y+",y="+y);
                 // Dirty hack to avoid sending a incorrect packet in forcestop.
                 p.resetPosition(x,y);
+                p.setFreeze(G_ROUNDTRIP);
                 //p.sendMove(false);
                 //game.client.sendSyncTime();
                 game.client.sendSyncTime(Date.now());
