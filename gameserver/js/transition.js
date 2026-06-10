@@ -31,7 +31,13 @@ module.exports = Transition = Class.extend({
             var mod = (inc > 0) ? 1 : -1;
             for (var it=0; it < itCount; ++it)
             {
-              if (!this.inProgress || this.updateFunction(this.object, mod))
+              if (!this.inProgress)
+              {
+                  this.stop(this.object);
+                  return;
+              }
+
+              if (this.updateFunction(this.object, mod))
               {
                   this.stop(this.object);
                   return;
@@ -47,6 +53,7 @@ module.exports = Transition = Class.extend({
   },*/
 
   stop: function() {
+    //try { throw new Error(); } catch (e) { console.error(e.stack); }
     if (this.stopFunction)
       this.stopFunction(this.object);
 

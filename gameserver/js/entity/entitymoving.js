@@ -296,6 +296,7 @@ module.exports = EntityMoving = Entity.extend({
     if (!this.isMovingPath())
       return;
 
+    //console.info("entitymoving, stopPath - path: "+JSON.stringify(this.path));
     lnode = this.getLastMove();
     this.interrupted = !(this.x === lnode[0] && this.y === lnode[1]);
 
@@ -314,7 +315,7 @@ module.exports = EntityMoving = Entity.extend({
     }
 
     this.movement.stop();
-    this.forceStop();
+    //this.forceStop();
   },
 
   setMoveStopCallback: function (callback) {
@@ -388,6 +389,7 @@ module.exports = EntityMoving = Entity.extend({
         return false;
 
       if(!this.isMovingPath()) {
+        console.info("entityMoving, nextStep - stopping as no path");
         this.interrupted = true;
         stop = true;
       }
@@ -396,7 +398,7 @@ module.exports = EntityMoving = Entity.extend({
       {
           res = this.nextStepPath();
           if (this.step >= this.path.length) {
-            //console.info("nextStep - id:"+this.id+", step >= length");
+            console.info("entityMoving, nextStep - id:"+this.id+", step >= length");
             stop = true;
           }
 
@@ -418,7 +420,7 @@ module.exports = EntityMoving = Entity.extend({
       }
 
       if(stop) { // Path is complete or has been interrupted
-        this.stopPath();
+        this.forceStop();
         res = true;
       }
       return res;

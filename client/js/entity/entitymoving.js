@@ -313,7 +313,6 @@ define(['./entity', '../transition', '../timer'], function(Entity, Transition, T
     }
 
     this.movement.stop();
-    this.forceStop();
   },
 
   setMoveStopCallback: function (callback) {
@@ -417,7 +416,7 @@ define(['./entity', '../transition', '../timer'], function(Entity, Transition, T
       }
 
       if(stop) { // Path is complete or has been interrupted
-        this.stopPath();
+        this.forceStop();
         res = true;
       }
       return res;

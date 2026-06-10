@@ -45,7 +45,18 @@ module.exports = MobCallback = Class.extend({
 		});
 
 		entity.onStopPathing(function(x, y) {
+      //try { throw new Error(); } catch (e) { console.error(e.stack); }
 		  //console.info("mob.onStopPathing");
+      //console.info("mob.aiState:"+this.aiState);
+      //console.info("mob.x:"+this.x+",mob.y:"+this.y);
+      //console.info("mob.spawnX:"+this.spawnX+",mob.spawnY:"+this.spawnY);
+      //console.info("x:"+x+",y:"+y);
+      //console.info("onStopPathing - mob.id: "+this.id);
+
+      if (this.aiState === mobState.RETURNING) {
+        this.returnedToSpawn();
+        //this.returningToSpawn = false;
+      }
 
       if (!this.hasTarget())
         this.setAiState(mobState.IDLE);
@@ -57,9 +68,21 @@ module.exports = MobCallback = Class.extend({
     entity.onStartPathing(function () {
     });
 
-    entity.onAbortPathing(function () {
+    entity.onAbortPathing(function (path, x, y) {
+      //try { throw new Error(); } catch (e) { console.error(e.stack); }
+      //console.info("mob.onAbortPathing");
+      //console.info("mob.aiState:"+this.aiState);
+      //console.info("mob.x:"+this.x+",mob.y:"+this.y);
+      //console.info("mob.spawnX:"+this.spawnX+",mob.spawnY:"+this.spawnY);
+      //console.info("x:"+x+",y:"+y);
+      //console.info("onAbortPathing - mob.id: "+this.id);
+
       msg = new Messages.Move(this, this.orientation, 2, this.x, this.y);
       this.map.entities.sendNeighbours(this, msg);
+
+      if (this.aiState === mobState.RETURNING) {
+        return;
+      }
 
       if (!this.target)
         this.setAiState(mobState.IDLE);

@@ -92,7 +92,7 @@ module.exports = Mob = Character.extend({
 
       this.freeze = false;
 
-      this.aiState = mobState.IDLE;
+      this.setAiState(mobState.IDLE);
 
       this.effects = {};
 
@@ -278,33 +278,24 @@ module.exports = Mob = Character.extend({
         this.removeAttackers();
     },
 
+    execRespawn: function () {
+      if (this.area && this.area instanceof MobArea) {
+        var	pos = this.map.entities.spaceEntityRandomApart(3, this.area._getRandomPositionInsideArea.bind(this.area,100));
+        console.warn("mob, handleRespawn - id:"+this.id+", pos:"+JSON.stringify(pos));
+        if (pos) {
+          this.spawnX = pos.x;
+          this.spawnY = pos.y;
+          this.setPosition(pos.x, pos.y);
+        }
+      }
+      if (this.respawnCallback) {
+          this.respawnCallback();
+      }
+    },
+
     handleRespawn: function () {
-        var self = this;
-// TODO Mobs not respawning properly and disappearing.
-        if (this.area && this.area instanceof MobArea) {
-            var fn = function () {
-              var	pos = self.map.entities.spaceEntityRandomApart(3, self.area._getRandomPositionInsideArea.bind(self.area,100));
-              console.warn("mob, handleRespawn - id:"+self.id+", pos:"+JSON.stringify(pos));
-              if (pos) {
-                self.spawnX = pos.x;
-                self.spawnY = pos.y;
-                self.setPosition(pos.x, pos.y);
-              }
-              if (self.respawnCallback) {
-                  self.respawnCallback();
-              }
-              self = null;
-            };
-            // Respawn inside the area if part of a MobArea
-            setTimeout(fn, this.spawnDelay);
-        }
-        else {
-            setTimeout(function () {
-                if (self.respawnCallback) {
-                    self.respawnCallback();
-                }
-            }, this.spawnDelay);
-        }
+        this.respawnTime = Date.now();
+        this.mobAI.mobsToRespawn.push(this);
     },
 
     onRespawn: function (callback) {
@@ -338,14 +329,14 @@ module.exports = Mob = Character.extend({
     },
 
     returnToSpawn: function() {
-        var self = this;
+        //var self = this;
 
         if (this.aiState === mobState.RETURNING)
           return;
 
+        this.forceStop();
         this.setAiState(mobState.RETURNING);
 
-        this.forceStop();
         if (this.hasTarget())
           this.clearTarget();
         this.forgetEveryone();
@@ -356,24 +347,14 @@ module.exports = Mob = Character.extend({
           return;
         }
         this.go(this.spawnX, this.spawnY);
-        console.info("returnToSpawn - Path: "+JSON.stringify(this.path))
+        //this.returningToSpawn = true;
+        //console.info("returnToSpawn - Path: "+JSON.stringify(this.path))
+        //console.info("returnToSpawn - mob.id: "+this.id);
         if (!this.path || this.path.length === 0) {
           try { throw new Error(); } catch(err) { console.error(err.stack); }
           this.returnedToSpawn();
         }
-        else {
-          var pathTicks = this.map.entities.pathfinder.getPathDistance(this.path);
-          var delay= Math.max(0, ~~(pathTicks / (this.tick / G_FRAME_INTERVAL_EXACT)));
-          console.info("returnToSpawn.delay = "+delay);
-          console.info("id="+this.id+",x="+this.spawnX+",y="+this.spawnY);
-          setTimeout(function () {
-            self.returnedToSpawn();
-            self = null;
-          }, delay);
-
-          //console.warn("mob returnToSpawn: id: "+this.id+", delay: "+delay);
-          //this.startReturn = Date.now();
-        }
+        //this.setAiState(mobState.RETURNING);
     },
 
     onMove: function (callback) {
@@ -462,7 +443,8 @@ module.exports = Mob = Character.extend({
 
     setAiState: function (state) {
       //if (this.aiState === mobState.RETURNING)
-        //try { throw new Error(); } catch(err) { console.error(err.stack); }
+      //console.error("mob, setAiState - state:"+state);
+      //try { throw new Error(); } catch(err) { console.error(err.stack); }
       this.aiState = state;
       //console.info(this.id + " has set aiState: " + state);
     },
@@ -598,7 +580,7 @@ module.exports = Mob = Character.extend({
 
       if (this.path)
       {
-        this.aiState = mobState.ROAMING;
+        this.setAiState(mobState.ROAMING);
         this.spawnX = pos.x;
         this.spawnY = pos.y;
       }

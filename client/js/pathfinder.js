@@ -228,6 +228,7 @@ define(['lib/astar'], function(AStar) {
             if (path) {
               console.info("pathfinder, findShortPath - path: "+JSON.stringify(path));
             }
+            return path;
         },
 
         findPath: function(grid, start, end, findIncomplete) {
@@ -240,6 +241,7 @@ define(['lib/astar'], function(AStar) {
             if (path) {
               console.info("pathfinder, findPath - path: "+JSON.stringify(path));
             }
+            return path;
         },
 
         /**

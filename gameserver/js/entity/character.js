@@ -126,19 +126,33 @@ module.exports = Character = EntityMoving.extend({
   },
 
   modHp: function(val) {
-    var hp = this.stats.hp,
-      max = this.stats.hpMax;
-
-    this.stats.hp = Utils.clamp(0, max, hp+val);
-    return this.changePoints(val, 0);
+    var prev = this._modHp(val);
+    return (typeof game !== 'undefined') ? prev : this.changePoints(prev, 0);
   },
 
   modEp: function(val) {
+    var prev = this._modEp(val);
+    return (typeof game !== 'undefined') ? prev : this.changePoints(0, prev);
+  },
+
+  _modHp: function(val) {
+    var hp = this.stats.hp,
+      max = this.stats.hpMax;
+
+    var prev = hp;
+    this.stats.hp = Utils.clamp(0, max, hp+val);
+    prev -= this.stats.hp;
+    return prev;
+  },
+
+  _modEp: function(val) {
     var ep = this.stats.ep,
       max = this.stats.epMax;
 
+    var prev = ep;
     this.stats.ep = Utils.clamp(0, max, ep+val);
-    return this.changePoints(0, val);
+    prev -= this.stats.ep;
+    return prev;
   },
 
   changePoints: function(modhp, modep) {
@@ -154,17 +168,13 @@ module.exports = Character = EntityMoving.extend({
     if (this.invincible)
       return;
 
-    var prevHP = this.stats.hp;
-
     if (hpMod > 0)
       this.addAttacker(attacker);
 
-    if (hpMod !== 0)
-      this.stats.hp = Utils.clamp(0, this.stats.hpMax, (this.stats.hp-hpMod));
-    if (epMod !== 0)
-      this.stats.ep = Utils.clamp(0, this.stats.epMax, (this.stats.ep-epMod));
+    var hpDiff = this._modHp(hpMod);
+    var epDiff = this._modEp(epMod);
 
-    var msg = new Messages.Damage([attacker, this, -hpMod, -epMod, crit, effects]);
+    var msg = new Messages.Damage([attacker, this, -hpDiff, -epDiff, crit, effects]);
     this.map.entities.sendNeighbours(attacker, msg);
   },
 

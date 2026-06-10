@@ -8,6 +8,7 @@ module.exports = MobAI = Class.extend({
       this.world = this.server = this.worldServer = ws;
       this.map = map;
       //this.mobsMoving = 0;
+      this.mobsToRespawn = [];
   },
 
   checkHitAggro: function (mob, sEntity) {
@@ -69,7 +70,7 @@ module.exports = MobAI = Class.extend({
   },
 
   checkHit: function(mob) {
-        var self = this;
+        //var self = this;
 
         if (mob.aiState !== mobState.ATTACKING)
           return;
@@ -95,6 +96,18 @@ module.exports = MobAI = Class.extend({
   },
 
   update: function() {
+    var now = Date.now();
+
+    // Loop from the end to the beginning
+    for (let i = this.mobsToRespawn.length - 1; i >= 0; i--) {
+      var mob = this.mobsToRespawn[i];
+      if ((now - mob.respawnTime) >= mob.spawnDelay)
+      {
+        mob.execRespawn();
+        this.mobsToRespawn.splice(i, 1);
+      }
+    }
+
     var mobs = this.map.entities.mobs;
     for(var mobId in mobs)
     {
@@ -120,6 +133,9 @@ module.exports = MobAI = Class.extend({
       //console.info("mobAI - checkChase.");
       var target = mob.target;
       //console.info("##### New mob can move! ######");
+      if (mob.aiState === mobState.RETURNING)
+        return;
+
       if (mob.freeze)
       {
         //console.info(mob.id+" mob freeze.");
