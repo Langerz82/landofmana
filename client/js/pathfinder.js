@@ -135,7 +135,8 @@ define(['lib/astar'], function(AStar) {
           var mp = [start, end];
           if (dx === 0 || dy === 0) {
             if(this.isValidPath(grid, mp)) {
-              log.info("validpath-fdp1:"+JSON.stringify(mp));
+              //log.info("validpath-fdp1:"+JSON.stringify(mp));
+              mp = this.makeNodesMidPoints(mp);
               return mp;
             }
           }
@@ -143,17 +144,30 @@ define(['lib/astar'], function(AStar) {
           mp = [start, [start[0],end[1]], end];
           //log.info("mp:"+JSON.stringify(mp));
           if(this.isValidPath(grid, mp)) {
-            log.info("validpath-fdp2:"+JSON.stringify(mp));
+            //log.info("validpath-fdp2:"+JSON.stringify(mp));
+            mp = this.makeNodesMidPoints(mp);
             return mp;
           }
 
           mp = [start, [end[0],start[1]], end];
           //log.info("mp:"+JSON.stringify(mp));
           if(this.isValidPath(grid, mp)) {
-            log.info("validpath-fdp3:"+JSON.stringify(mp));
+            //log.info("validpath-fdp3:"+JSON.stringify(mp));
+            mp = this.makeNodesMidPoints(mp);
             return mp;
           }
           return null;
+        },
+
+        makeNodesMidPoints: function (result) {
+          // Make nodes mid-points.
+          for (var node of result) {
+            if (node[0] % 1 === 0)
+              node[0] += 0.5;
+            if (node[1] % 1 === 0)
+              node[1] += 0.5;
+          }
+          return result;
         },
 
         convertPathToRealPath: function (result, start, end) {
@@ -180,13 +194,7 @@ define(['lib/astar'], function(AStar) {
           fn(end, result);
           result.reverse();
 
-          // Make nodes mid-points.
-          for (var node of result) {
-            if (node[0] % 1 === 0)
-              node[0] += 0.5;
-            if (node[1] % 1 === 0)
-              node[1] += 0.5;
-          }
+          result = this.makeNodesMidPoints(result);
 
           return result;
         },
