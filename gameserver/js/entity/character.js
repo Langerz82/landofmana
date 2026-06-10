@@ -168,11 +168,11 @@ module.exports = Character = EntityMoving.extend({
     if (this.invincible)
       return;
 
+    var hpDiff = this._modHp(-hpMod);
+    var epDiff = this._modEp(-epMod);
+
     if (hpMod > 0)
       this.addAttacker(attacker);
-
-    var hpDiff = this._modHp(hpMod);
-    var epDiff = this._modEp(epMod);
 
     var msg = new Messages.Damage([attacker, this, -hpDiff, -epDiff, crit, effects]);
     this.map.entities.sendNeighbours(attacker, msg);
