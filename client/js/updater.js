@@ -81,23 +81,35 @@ define(['entity/character', 'timer', 'entity/player', 'entity/entitymoving'], fu
 
             this.charKeyXF = function(c, m) {
               var x = c.x + m;
+              var y = c.y;
               if (x === c.ex || self.checkStopDanger(c))
               {
                 c.forceStop();
                 return true;
               }
-              c.setPosition(x, c.y);
+              var res = game.moveCharacter(c, x, y);
+              if (res) {
+                c.setPosition(x, y);
+              } else {
+                c.forceStop();
+              }
               return false;
             };
 
             this.charKeyYF = function(c, m) {
+              var x = c.x;
               var y = c.y + m;
               if (y === c.ey || self.checkStopDanger(c))
               {
                 c.forceStop();
                 return true;
               }
-              c.setPosition(c.x, y);
+              var res = game.moveCharacter(c, x, y);
+              if (res) {
+                c.setPosition(x, y);
+              } else {
+                c.forceStop();
+              }
               return false;
             };
 
@@ -108,7 +120,6 @@ define(['entity/character', 'timer', 'entity/player', 'entity/entitymoving'], fu
               if (res) {
                 c.setPosition(x, y);
               } else {
-                //c.setPosition(x, y);
                 c.forceStop();
               }
               return !res;
@@ -121,7 +132,6 @@ define(['entity/character', 'timer', 'entity/player', 'entity/entitymoving'], fu
               if (res) {
                 c.setPosition(x, y);
               } else {
-                //c.setPosition(x, y);
                 c.forceStop();
               }
               return !res;
