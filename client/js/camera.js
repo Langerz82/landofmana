@@ -114,10 +114,15 @@ define(['entity/entity'], function(Entity) {
           var tw = r.hOffX;
           var th = r.hOffY;
 
+          log.info("camera.getGridPos - tw:"+tw);
+          log.info("camera.getGridPos - th:"+th);
+
           var tx = (x-this.x - tw) / ts;
           var ty = (y-this.y - th) / ts;
 
-          return [tx,ty];
+          var res = [tx,ty];
+          log.info("camera.getGridPos - res:"+JSON.stringify(res));
+          return res;
         },
 
         forEachVisibleValidPosition: function(callback) {

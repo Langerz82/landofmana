@@ -389,7 +389,7 @@ module.exports = EntityMoving = Entity.extend({
         return false;
 
       if(!this.isMovingPath()) {
-        console.info("entityMoving, nextStep - stopping as no path");
+        //console.info("entityMoving, nextStep - stopping as no path");
         this.interrupted = true;
         stop = true;
       }
@@ -398,7 +398,7 @@ module.exports = EntityMoving = Entity.extend({
       {
           res = this.nextStepPath();
           if (this.step >= this.path.length) {
-            console.info("entityMoving, nextStep - id:"+this.id+", step >= length");
+            //console.info("entityMoving, nextStep - id:"+this.id+", step >= length");
             stop = true;
           }
 

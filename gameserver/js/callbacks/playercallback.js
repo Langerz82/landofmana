@@ -121,6 +121,8 @@ module.exports = PlayerCallback = Class.extend({
             if (this.mapStatus < 2)
               return false;
 
+            var pathfinder = this.map.entities.pathfinder;
+
             //console.info("checkStartMove - player, x:"+x+",y:"+y);
             //console.info("checkStartMove - player, p.sx:"+p.sx+",p.sy:"+p.sy);
             //console.info("checkStartMove - player, p.x:"+p.x+",p.y:"+p.y);
@@ -146,6 +148,24 @@ module.exports = PlayerCallback = Class.extend({
             if (this.x === x && this.y === y) {
               console.info("checkStartMove - same coords.");
               return true;
+            }
+
+            if (this.isMoving())
+            {
+              var path = [[this.sx,this.sy],[x,y]];
+              console.info("playercallback, checkStartMove, isMoving - path: "+JSON.stringify(path));
+
+              if (!pathfinder.checkValidPath(path)) {
+                console.info("playercallback, checkStartMove, isMoving - checkValidPath false.");
+                return false;
+              }
+              if (!pathfinder.isValidPath(this.map.grid, path)) {
+                console.info("playercallback, checkStartMove, isMoving - isValidPath false.");
+                return false;
+              }
+              var dist = Math.abs(this.sx-x) + Math.abs(this.sy-y);
+              console.info("playercallback, checkStartMove, isMoving - isDistanceTooFast.");
+              return !pathfinder.isDistanceTooFast(this.tick, dist, this.startMoveTime);
             }
 
             console.info("checkStartMove - id:"+this.id+" different coords.");

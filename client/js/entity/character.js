@@ -95,6 +95,10 @@ define(['./entitymoving', '../transition', '../timer'], function(EntityMoving, T
 
     modHp: function(val) {
       var prev = this._modHp(val);
+
+      if(this.stats.hp == 0) {
+          this.die();
+      }
       return (typeof game !== 'undefined') ? prev : this.changePoints(prev, 0);
     },
 

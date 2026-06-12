@@ -882,13 +882,22 @@ var MapEntities = cls.Class.extend({
           var spE = shortGrid.subend;
           var subpath = null;
 
+          console.info("findDirectPath - spS:"+JSON.stringify(spS));
+          console.info("findDirectPath - spE:"+JSON.stringify(spE));
           subpath = this.pathfinder.findDirectPath(sgrid, spS, spE);
 
           if (subpath)
           {
-            //console.info("findPath - subpath:"+JSON.stringify(subpath));
+            console.info("findDirectPath - subpath:"+JSON.stringify(subpath));
+            if (!this.pathfinder.isValidPath(sgrid, subpath, true)) {
+              //console.error("subpath: "+JSON.stringify(subpath));
+              try { throw new Error(); } catch (e) { console.error(e.stack); }
+            }
             var res = this.pathfinder.getFullFromShortPath(subpath, shortGrid.minX, shortGrid.minY);
-            //console.info("findPath - res:"+JSON.stringify(res));
+            console.info("findDirectPath - res:"+JSON.stringify(res));
+            if (!this.pathfinder.isValidPath(this.map.grid, res, false)) {
+              try { throw new Error(); } catch (e) { console.error(e.stack); }
+            }
             return res;
           }
 
@@ -896,21 +905,33 @@ var MapEntities = cls.Class.extend({
             //console.warn("findPath - shortPath: attempting.");
             //console.info("grid:"+JSON.stringify(grid));
             //console.info(JSON.stringify(shortGrid));
-            path = this.pathfinder.findShortPath(sgrid,
+            subpath = this.pathfinder.findShortPath(sgrid,
           	 shortGrid.minX, shortGrid.minY, spS, spE);
-            //console.info("findPath - shortPath:"+JSON.stringify(path));
+            if (subpath)
+              path = this.pathfinder.getFullFromShortPath(subpath, shortGrid.minX, shortGrid.minY);
+            console.info("findPath - shortPath:"+JSON.stringify(path));
           }
 
           if (!path) {
-            //console.warn("findPath - DANGER - findPath LONGGG");
-            path = this.pathfinder.findPath(grid, pS, pE, false);
-            //console.info("findPath - longPath:"+JSON.stringify(path));
+            console.warn("findPath - DANGER - findPath LONGGG");
+            var longGrid = this.pathfinder.getShortGrid(grid, pS, pE, 10);
+            var lpS = longGrid.substart;
+            var lpE = longGrid.subend;
+            path = this.pathfinder.findShortPath(longGrid.crop,
+          	 longGrid.minX, longGrid.minY, lpS, lpE);
+            if (path)
+              path = this.pathfinder.getFullFromShortPath(path, longGrid.minX, longGrid.minY);
+            console.info("findPath - longPath:"+JSON.stringify(path));
           }
 
           if (!path) {
               console.error("findPath - Error while finding the path to "+x+", "+y+" for "+character.id);
             return null;
           }
+          if (!this.pathfinder.isValidPath(this.map.grid, path, false)) {
+            try { throw new Error(); } catch (e) { console.error(e.stack); }
+          }
+
           return path;
         }
         return null;

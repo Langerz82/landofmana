@@ -38,13 +38,13 @@ define(['lib/astar'], function(AStar) {
              n1 = Math.floor(n1), n2 = Math.floor(n2), n3=Math.floor(n3);
              var i1 = Math.min(n1,n2), i2 = Math.max(n1,n2);
              if (axis_x) {
-               for (var i=i1; i < i2; i++) {
+               for (var i=i1; i <= i2; i++) {
                  if (grid[n3][i]) {
                    return false;
                  }
                }
              } else {
-               for (var i=i1; i < i2; i++) {
+               for (var i=i1; i <= i2; i++) {
                  if (grid[i][n3]) {
                    return false;
                  }
@@ -85,7 +85,7 @@ define(['lib/astar'], function(AStar) {
          },
 
         getShortGrid: function (grid, start, end, gridEdges) {
-          var ts = G_TILESIZE;
+          //var ts = G_TILESIZE;
           start = [start[0], start[1]];
     			end = [end[0], end[1]];
 
@@ -134,7 +134,7 @@ define(['lib/astar'], function(AStar) {
 
           var mp = [start, end];
           if (dx === 0 || dy === 0) {
-            if(this.isValidPath(grid, mp)) {
+            if(this.isValidPath(grid, mp, true)) {
               //log.info("validpath-fdp1:"+JSON.stringify(mp));
               mp = this.makeNodesMidPoints(mp);
               return mp;
@@ -143,7 +143,7 @@ define(['lib/astar'], function(AStar) {
 
           mp = [start, [start[0],end[1]], end];
           //log.info("mp:"+JSON.stringify(mp));
-          if(this.isValidPath(grid, mp)) {
+          if(this.isValidPath(grid, mp, true)) {
             //log.info("validpath-fdp2:"+JSON.stringify(mp));
             mp = this.makeNodesMidPoints(mp);
             return mp;
@@ -151,7 +151,7 @@ define(['lib/astar'], function(AStar) {
 
           mp = [start, [end[0],start[1]], end];
           //log.info("mp:"+JSON.stringify(mp));
-          if(this.isValidPath(grid, mp)) {
+          if(this.isValidPath(grid, mp, true)) {
             //log.info("validpath-fdp3:"+JSON.stringify(mp));
             mp = this.makeNodesMidPoints(mp);
             return mp;
@@ -223,7 +223,7 @@ define(['lib/astar'], function(AStar) {
           var path = AStar.AStar(grid, pStart, pEnd);
           if (path)
           {
-            path = this.convertPathToRealPath(path, start, end);
+            //path = this.convertPathToRealPath(path, start, end);
             path = this.dropUneededNodes(path);
             log.info(JSON.stringify(path));
             return path;

@@ -1472,7 +1472,7 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
              * The path will pass through any entity present in the ignore list.
              */
             findPath: function(character, x, y, ignoreList, includeList) {
-
+                var ts = G_TILESIZE;
                 var self = this,
                     path = [],
                     isPlayer = (character === this.player);
@@ -1532,24 +1532,18 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
                         return null;
                     }
 
-                    var shortGrid = this.pathfinder.getShortGrid(grid, pS, pE, 3);
+                    var fpS = [~~(pS[0]),~~(pS[1])];
+                    var fpE = [~~(pE[0]),~~(pE[1])];
+                    var shortGrid = this.pathfinder.getShortGrid(grid, fpS, fpE, 3);
                     var sgrid = shortGrid.crop;
                     var spS = shortGrid.substart;
                     var spE = shortGrid.subend;
                     var path = null;
+                    var longPath = false;
 
                     path = this.pathfinder.findDirectPath(sgrid, spS, spE);
 
                     if (!path) {
-                      var lx = grid[0].length;
-                      var ly = grid.length;
-                      if (pS[0] < 0 || pS[0] >= lx || pS[1] < 0 || pS[1] >= ly ||
-                          pE[0] < 0 || pE[0] >= lx || pE[1] < 0 || pE[1] >= ly)
-                      {
-                              log.error("short path cordinates outside of dimensions.");
-                              log.error(JSON.stringify([pS, pE]));
-                              return null;
-                      }
                       log.info("using short path finder.");
                       path = this.pathfinder.findShortPath(sgrid,
                         shortGrid.minX, shortGrid.minY, spS, spE);
@@ -1559,33 +1553,39 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
 
                     if (!path) {
                       log.info("using long path finder.");
-                      path = this.pathfinder.findPath(grid, pS, pE, false);
-                      if (path)
+                      path = this.pathfinder.findPath(grid, fpS, fpE, false);
+                      if (path) {
+                        longPath = true;
                         log.info("validpath-mp5:"+JSON.stringify(path));
+                      }
                     }
 
                     if (path)
                     {
-                      var ts = G_TILESIZE;
-
                       //log.info("path_result: "+JSON.stringify(path));
-                      var dx = character.x - spS[0]*ts;
-                      var dy = character.y - spS[1]*ts;
-
+                      log.info("game.findPath - spS: "+JSON.stringify(spS));
+                      var cx = (longPath) ? fpS[0] : spS[0];
+                      var cy = (longPath) ? fpS[1] : spS[1];
+                      var dx = character.x - (cx*ts);
+                      var dy = character.y - (cy*ts);
+                      log.info("game.findPath - dx: "+dx);
+                      log.info("game.findPath - dy: "+dy);
                       for (var node of path)
                       {
-                        node[0] = ~~(node[0]*ts+dx);
-                        node[1] = ~~(node[1]*ts+dy);
+                        node[0] = ~~((node[0]*ts)+dx);
+                        node[1] = ~~((node[1]*ts)+dy);
                       }
                       // NOT NEEDED.
                       //path = this.pathfinder.compressPath(path);
 
-                      log.info("path_result2: "+JSON.stringify(path));
+                      log.info("game.findPath - path_result2: "+JSON.stringify(path));
                       if (!(path[0][0] === (character.x) && path[0][1] === (character.y)))
                       {
-                        log.error("player path start co-ordinates mismatch.");
-                        log.error("path start coordinate: "+path[0][0]+","+path[0][1]);
-                        log.error("player start coordinate: "+character.x+","+character.y);
+                        log.error("game.findPath - player path start co-ordinates mismatch.");
+                        log.info("game.findPath - pdx:"+(Math.abs(path[0][0]-character.x)));
+                        log.info("game.findPath - pdy:"+(Math.abs(path[0][1]-character.y)));
+                        log.info("game.findPath - path start coordinate: "+path[0][0]+","+path[0][1]);
+                        log.info("game.findPath - player start coordinate: "+character.x+","+character.y);
                         return null;
                       }
                     }
@@ -1749,7 +1749,7 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
             },
 
             click: function() {
-                console.error("game.click");
+                //console.error("game.click");
                 var pos = this.getMousePosition();
                 var p = game.player;
 

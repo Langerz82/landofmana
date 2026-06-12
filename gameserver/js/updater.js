@@ -18,6 +18,9 @@ module.exports = Updater = Class.extend({
     this.charPathXF = function(c, m) {
       var x = c.x + m;
       var y = c.y;
+      if (c.map.isCollidingPoint(x,y)) {
+        try { throw new Error(); } catch (e) { console.error(e.stack); }
+      }
       c.setPosition(x, y);
       return c.nextStep();
     };
@@ -25,6 +28,9 @@ module.exports = Updater = Class.extend({
     this.charPathYF = function(c, m) {
       var x = c.x;
       var y = c.y + m;
+      if (c.map.isCollidingPoint(x,y)) {
+        try { throw new Error(); } catch (e) { console.error(e.stack); }
+      }
       c.setPosition(x, y);
       return c.nextStep();
     };

@@ -193,13 +193,13 @@ module.exports = Pathfinder = Class.extend({
       n1 = Math.floor(n1), n2 = Math.floor(n2), n3=Math.floor(n3);
       var i1 = Math.min(n1,n2), i2 = Math.max(n1,n2);
       if (axis_x) {
-        for (var i=i1; i < i2; i++) {
+        for (var i=i1; i <= i2; i++) {
           if (grid[n3][i]) {
             return false;
           }
         }
       } else {
-        for (var i=i1; i < i2; i++) {
+        for (var i=i1; i <= i2; i++) {
           if (grid[i][n3]) {
             return false;
           }
@@ -317,26 +317,27 @@ module.exports = Pathfinder = Class.extend({
     var dy = Math.abs(Math.floor(start[1]) - Math.floor(end[1]));
 
     var mp = [start, end];
+    //console.info("mp:"+JSON.stringify(mp));
     if (dx === 0 || dy === 0) {
-      if(this.isValidPath(grid, mp)) {
-        //log.info("validpath-fdp1:"+JSON.stringify(mp));
+      if(this.isValidPath(grid, mp, true)) {
+        //console.info("validpath-fdp1:"+JSON.stringify(mp));
         mp = this.makeNodesMidPoints(mp);
         return mp;
       }
     }
 
     mp = [start, [start[0],end[1]], end];
-    //log.info("mp:"+JSON.stringify(mp));
-    if(this.isValidPath(grid, mp)) {
-      //log.info("validpath-fdp2:"+JSON.stringify(mp));
+    //console.info("mp:"+JSON.stringify(mp));
+    if(this.isValidPath(grid, mp, true)) {
+      //console.info("validpath-fdp2:"+JSON.stringify(mp));
       mp = this.makeNodesMidPoints(mp);
       return mp;
     }
 
     mp = [start, [end[0],start[1]], end];
-    //log.info("mp:"+JSON.stringify(mp));
-    if(this.isValidPath(grid, mp)) {
-      //log.info("validpath-fdp3:"+JSON.stringify(mp));
+    //console.info("mp:"+JSON.stringify(mp));
+    if(this.isValidPath(grid, mp, true)) {
+      //console.info("validpath-fdp3:"+JSON.stringify(mp));
       mp = this.makeNodesMidPoints(mp);
       return mp;
     }
@@ -416,7 +417,8 @@ module.exports = Pathfinder = Class.extend({
   },
 
   findShortPath: function(crop, offsetX, offsetY, start, end) {
-      return this.AStar(crop, start, end);
+      var path = this.AStar(crop, start, end);
+      return path;
   },
 
   findPath: function(grid, start, end, findIncomplete) {
@@ -425,7 +427,8 @@ module.exports = Pathfinder = Class.extend({
       this.applyIgnoreList_(grid, true);
       this.applyIncludeList_(grid, true);
 
-      return this.AStar(grid, start, end);
+      var path = this.AStar(grid, start, end);
+      return path;
   },
 
   /**
