@@ -62,7 +62,7 @@ module.exports = Player = Character.extend({
 
         this.consumeTime = new Timer(10000);
         this.attackedTime = new Timer(500);
-        this.attackQueue = [];
+        this.attackQueue = null;
 
         this.attackSkill = [];
         this.attackTimer = 0;

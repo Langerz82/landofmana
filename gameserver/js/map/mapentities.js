@@ -928,10 +928,15 @@ var MapEntities = cls.Class.extend({
               console.error("findPath - Error while finding the path to "+x+", "+y+" for "+character.id);
             return null;
           }
+          if (!this.pathfinder.checkValidPath(path)) {
+            try { throw new Error(); } catch (e) { console.error(e.stack); }
+          }
           if (!this.pathfinder.isValidPath(this.map.grid, path, false)) {
             try { throw new Error(); } catch (e) { console.error(e.stack); }
           }
-
+          if (!(path[0][0] === character.x && path[0][1] === character.y)) {
+            try { throw new Error(); } catch (e) { console.error(e.stack); }
+          }
           return path;
         }
         return null;

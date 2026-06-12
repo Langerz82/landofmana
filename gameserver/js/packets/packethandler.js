@@ -517,23 +517,13 @@ module.exports = PacketHandler = Class.extend({
 
   processAttack: function () {
     //console.info("processAttack");
-    var self = this;
+    //var self = this;
     var p = this.player;
 
     if (p.attackQueue) {
-      self.handleHitEntity(p, p.attackQueue);
+      this.handleHitEntity(p, p.attackQueue);
       p.attackQueue = null;
     }
-    //if (p.movement.inProgress) {
-    /*
-      for (var msg of p.attackQueue)
-      {
-        console.info("processAttack, handle hit");
-        self.handleHitEntity(p, msg);
-      }
-    //}
-    this.player.attackQueue = [];
-    */
   },
 
   handleHitEntity: function(sEntity, message) { // 8
