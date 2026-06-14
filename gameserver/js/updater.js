@@ -55,40 +55,52 @@ module.exports = Updater = Class.extend({
 
     this.playerKeyXF = function(c, m) {
       var x = c.x + m;
-      if ((c.startMoving || (x % G_TILESIZE === 0)) && self.checkCollide(c,x,c.y))
-      {
+      var y = c.y;
+      var stop = function () {
         c.forceStop();
         return true;
       }
+      if ((c.startMoving || (x % G_TILESIZE === 0)) && self.checkCollide(c,x,y))
+      {
+        stop();
+      }
+      if (c.map.isColliding(x,y)) {
+        stop();
+      }
       c.startMoving = false;
-      c.setPosition(x, c.y);
+      c.setPosition(x, y);
       if (x % self.whoDist === 0)
         c.map.entities.processWho(c);
 
       if (c.checkStopDanger(c, c.orientation))
       {
-        c.forceStop();
-        return true;
+        stop();
       }
       return false;
     };
 
     this.playerKeyYF = function(c, m) {
+      var x = c.x;
       var y = c.y + m;
-      if ((c.startMoving || (y % G_TILESIZE === 0)) && self.checkCollide(c,c.x,y))
-      {
+      var stop = function () {
         c.forceStop();
         return true;
       }
+      if ((c.startMoving || (y % G_TILESIZE === 0)) && self.checkCollide(c,x,y))
+      {
+        stop();
+      }
+      if (c.map.isColliding(x,y)) {
+        stop();
+      }
       c.startMoving = false;
-      c.setPosition(c.x, y);
+      c.setPosition(x, y);
       if (y % self.whoDist === 0)
         c.map.entities.processWho(c);
 
       if (c.checkStopDanger(c, c.orientation))
       {
-        c.forceStop();
-        return true;
+        stop();
       }
       return false;
     };

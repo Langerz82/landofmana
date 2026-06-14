@@ -51,8 +51,7 @@ define(['entity/character', 'timer', 'entity/player', 'entity/entitymoving'], fu
               return res;
             };
 
-            this.charPathXF = function(c, m) {
-              var x = c.x + m, y = c.y;
+            this.charPath = function (c, x, y) {
               if (c.hasChangedItsPath())
               {
                 return true;
@@ -65,76 +64,64 @@ define(['entity/character', 'timer', 'entity/player', 'entity/entitymoving'], fu
               return c.nextStep();
             };
 
+            this.charPathXF = function(c, m) {
+              var x = c.x + m, y = c.y;
+              return self.charPath(c, x, y);
+            };
+
             this.charPathYF = function(c, m) {
               var x = c.x, y = c.y + m;
-              if (c.hasChangedItsPath())
+              return self.charPath(c, x, y);
+            };
+
+            this.charKey = function (c, x, y) {
+              if (self.checkStopDanger(c))
               {
+                c.forceStop();
                 return true;
               }
-              if (c.map && c.map.isColliding(x, y)) {
-                try { throw new Error(); } catch (e) { console.error(e.stack); }
-                return true;
+              var res = game.moveCharacter(c, x, y);
+              if (res) {
+                c.setPosition(x, y);
+              } else {
+                c.forceStop();
               }
-              c.setPosition(x, y);
-              return c.nextStep();
+              return false;
             };
 
             this.charKeyXF = function(c, m) {
               var x = c.x + m;
               var y = c.y;
-              if (x === c.ex || self.checkStopDanger(c))
-              {
-                c.forceStop();
-                return true;
-              }
-              var res = game.moveCharacter(c, x, y);
-              if (res) {
-                c.setPosition(x, y);
-              } else {
-                c.forceStop();
-              }
-              return false;
+              return self.charKey(c, x, y);
             };
 
             this.charKeyYF = function(c, m) {
               var x = c.x;
               var y = c.y + m;
-              if (y === c.ey || self.checkStopDanger(c))
-              {
-                c.forceStop();
-                return true;
-              }
+              return self.charKey(c, x, y);
+            };
+
+            this.playerKey = function (c, x, y) {
               var res = game.moveCharacter(c, x, y);
               if (res) {
                 c.setPosition(x, y);
               } else {
+                c.keyMove = true;
                 c.forceStop();
               }
-              return false;
+              return !res;
             };
 
             this.playerKeyXF = function(c, m) {
               var x = c.x + m;
               var y = c.y;
-              var res = game.moveCharacter(c, x, y);
-              if (res) {
-                c.setPosition(x, y);
-              } else {
-                c.forceStop();
-              }
-              return !res;
+              return self.playerKey(c, x, y);
             };
 
             this.playerKeyYF = function(c, m) {
               var x = c.x;
               var y = c.y + m;
-              var res = game.moveCharacter(c, x, y);
-              if (res) {
-                c.setPosition(x, y);
-              } else {
-                c.forceStop();
-              }
-              return !res;
+              return self.playerKey(c, x, y);
             };
 
             this.playerPathXF = function(c, m) {
