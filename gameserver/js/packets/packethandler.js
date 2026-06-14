@@ -874,7 +874,7 @@ module.exports = PacketHandler = Class.extend({
 
     p.forceStop();
 
-    if (!p.isValidPath(path))
+    if (!p.isValidGridPath(path))
       return;
 
     console.info("packethandler: handleMoveEntity - movepath: "+JSON.stringify(path));

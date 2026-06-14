@@ -155,12 +155,12 @@ module.exports = PlayerCallback = Class.extend({
               var path = [[this.sx,this.sy],[x,y]];
               console.info("playercallback, checkStartMove, isMoving - path: "+JSON.stringify(path));
 
-              if (!pathfinder.checkValidPath(path)) {
-                console.info("playercallback, checkStartMove, isMoving - checkValidPath false.");
+              if (!pathfinder.isValidPath(path)) {
+                console.info("playercallback, checkStartMove, isMoving - isValidPath false.");
                 return false;
               }
-              if (!pathfinder.isValidPath(this.map.grid, path)) {
-                console.info("playercallback, checkStartMove, isMoving - isValidPath false.");
+              if (!pathfinder.isValidGridPath(this.map.grid, path)) {
+                console.info("playercallback, checkStartMove, isMoving - isValidGridPath false.");
                 return false;
               }
               var dist = Math.abs(this.sx-x) + Math.abs(this.sy-y);

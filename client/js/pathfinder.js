@@ -10,12 +10,14 @@ define(['lib/astar'], function(AStar) {
             this.included = [];
         },
 
-        checkValidPath: function (path) {
+        isValidPath: function (path) {
             var pnode = null;
             if (!Array.isArray(path) || path.length < 2)
               return false;
             for (var node of path) {
               if (pnode) {
+                if (pnode[0] === node[0] && pnode[1] === node[1])
+                  return false;
                 if (pnode[0] !== node[0] && pnode[1] !== node[1])
                 {
                   return false;
@@ -27,7 +29,7 @@ define(['lib/astar'], function(AStar) {
         },
 
         // TODO - Grid axis is not being checked properly.
-         isValidPath: function (grid, path) {
+         isValidGridPath: function (grid, path) {
            var ts = G_TILESIZE,
                ly = grid.length,
                lx = grid[0].length;
@@ -134,7 +136,7 @@ define(['lib/astar'], function(AStar) {
 
           var mp = [start, end];
           if (dx === 0 || dy === 0) {
-            if(this.isValidPath(grid, mp, true)) {
+            if(this.isValidGridPath(grid, mp, true)) {
               //log.info("validpath-fdp1:"+JSON.stringify(mp));
               mp = this.makeNodesMidPoints(mp);
               return mp;
@@ -143,7 +145,7 @@ define(['lib/astar'], function(AStar) {
 
           mp = [start, [start[0],end[1]], end];
           //log.info("mp:"+JSON.stringify(mp));
-          if(this.isValidPath(grid, mp, true)) {
+          if(this.isValidGridPath(grid, mp, true)) {
             //log.info("validpath-fdp2:"+JSON.stringify(mp));
             mp = this.makeNodesMidPoints(mp);
             return mp;
@@ -151,7 +153,7 @@ define(['lib/astar'], function(AStar) {
 
           mp = [start, [end[0],start[1]], end];
           //log.info("mp:"+JSON.stringify(mp));
-          if(this.isValidPath(grid, mp, true)) {
+          if(this.isValidGridPath(grid, mp, true)) {
             //log.info("validpath-fdp3:"+JSON.stringify(mp));
             mp = this.makeNodesMidPoints(mp);
             return mp;

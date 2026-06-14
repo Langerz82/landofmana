@@ -295,7 +295,7 @@ function(HoveringInfo,
                 }
 
                 var path = game.findPath(entity, x, y, ignored, include);
-                if (!game.pathfinder.checkValidPath(path))
+                if (!game.pathfinder.isValidPath(path))
                 {
                   try { throw new Error(); } catch(err) { console.error("invalidpath: "+JSON.stringify(path)); }
                 }

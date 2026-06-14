@@ -889,13 +889,13 @@ var MapEntities = cls.Class.extend({
           if (subpath)
           {
             console.info("findDirectPath - subpath:"+JSON.stringify(subpath));
-            if (!this.pathfinder.isValidPath(sgrid, subpath, true)) {
+            if (!this.pathfinder.isValidGridPath(sgrid, subpath, true)) {
               //console.error("subpath: "+JSON.stringify(subpath));
               try { throw new Error(); } catch (e) { console.error(e.stack); }
             }
             var res = this.pathfinder.getFullFromShortPath(subpath, shortGrid.minX, shortGrid.minY);
             console.info("findDirectPath - res:"+JSON.stringify(res));
-            if (!this.pathfinder.isValidPath(this.map.grid, res, false)) {
+            if (!this.pathfinder.isValidGridPath(this.map.grid, res, false)) {
               try { throw new Error(); } catch (e) { console.error(e.stack); }
             }
             return res;
@@ -928,10 +928,10 @@ var MapEntities = cls.Class.extend({
               console.error("findPath - Error while finding the path to "+x+", "+y+" for "+character.id);
             return null;
           }
-          if (!this.pathfinder.checkValidPath(path)) {
+          if (!this.pathfinder.isValidPath(path)) {
             try { throw new Error(); } catch (e) { console.error(e.stack); }
           }
-          if (!this.pathfinder.isValidPath(this.map.grid, path, false)) {
+          if (!this.pathfinder.isValidGridPath(this.map.grid, path, false)) {
             try { throw new Error(); } catch (e) { console.error(e.stack); }
           }
           if (!(path[0][0] === character.x && path[0][1] === character.y)) {

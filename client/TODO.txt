@@ -83,7 +83,7 @@ CLIENT - Make add stat button a little larger for mobile.
 CLIENT - Make chatlog appear by default, and move it a little up above the chat button.
 CLIENT - Make shortcut window a bit lower flush with the attack button for mobile.
 
-SERVER - On incorrect movement start check the coordinate difference is isValidPath
+SERVER - On incorrect movement start check the coordinate difference is isValidGridPath
   and estimate the time difference.
 
 CLIENT/SERVER - Fix rubber banding caused by incorrect movement when spamming keyboard presses.

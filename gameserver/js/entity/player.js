@@ -887,7 +887,7 @@ module.exports = Player = Character.extend({
     this.ey = y2;
 
     this.forceStop();
-    if (!this.map.entities.pathfinder.checkValidPath(path))
+    if (!this.map.entities.pathfinder.isValidPath(path))
       return;
 
     this.setPath(path);
@@ -960,7 +960,7 @@ module.exports = Player = Character.extend({
       // validate the path, and if it's legal fix then stop.
       if ((this.x === x && this.y !== y) || (this.x !== x && this.y === y)) {
         var path = [[this.x,this.y],[x,y]];
-        if (this.isValidPath(path, this.startMoveTime)) {
+        if (this.isValidGridPath(path, this.startMoveTime)) {
           this.fixMove(x, y);
         }
         return;
@@ -1438,21 +1438,21 @@ module.exports = Player = Character.extend({
     }
   },
 
-  isValidPath: function (path, time) {
+  isValidGridPath: function (path, time) {
     var pathfinder = this.map.entities.pathfinder;
-    if (!pathfinder.checkValidPath(path)) {
-      console.warn("isValidPath: checkValidPath false.");
+    if (!pathfinder.isValidPath(path)) {
+      console.warn("isValidGridPath: isValidPath false.");
       this.resetMove(this.x,this.y);
       return false;
     }
 
-    if (!pathfinder.isValidPath(this.map.grid, path)) {
+    if (!pathfinder.isValidGridPath(this.map.grid, path)) {
       console.warn("handleMovePath: no valid path.");
       this.resetMove(this.x,this.y);
       return false;
     }
 
-    console.info("player - isValidPath: "+JSON.stringify(path));
+    console.info("player - isValidGridPath: "+JSON.stringify(path));
     if (time) {
       var dist = pathfinder.getPathDistance(path);
       if (pathfinder.isDistanceTooFast(this.tick, dist, time)) {

@@ -166,12 +166,14 @@ module.exports = Pathfinder = Class.extend({
     return false;
   },
 
-  checkValidPath: function (path) {
+  isValidPath: function (path) {
       var pnode = null;
       if (!Array.isArray(path) || path.length < 2)
         return false;
       for (var node of path) {
         if (pnode) {
+          if (pnode[0] === node[0] && pnode[1] === node[1])
+            return false;
           if (pnode[0] !== node[0] && pnode[1] !== node[1])
           {
             return false;
@@ -182,7 +184,7 @@ module.exports = Pathfinder = Class.extend({
       return true;
   },
 
-  isValidPath: function (grid, path, isGridPath) {
+  isValidGridPath: function (grid, path, isGridPath) {
     var ts = G_TILESIZE,
         ly = grid.length,
         lx = grid[0].length;
@@ -319,7 +321,7 @@ module.exports = Pathfinder = Class.extend({
     var mp = [start, end];
     //console.info("mp:"+JSON.stringify(mp));
     if (dx === 0 || dy === 0) {
-      if(this.isValidPath(grid, mp, true)) {
+      if(this.isValidGridPath(grid, mp, true)) {
         //console.info("validpath-fdp1:"+JSON.stringify(mp));
         mp = this.makeNodesMidPoints(mp);
         return mp;
@@ -328,7 +330,7 @@ module.exports = Pathfinder = Class.extend({
 
     mp = [start, [start[0],end[1]], end];
     //console.info("mp:"+JSON.stringify(mp));
-    if(this.isValidPath(grid, mp, true)) {
+    if(this.isValidGridPath(grid, mp, true)) {
       //console.info("validpath-fdp2:"+JSON.stringify(mp));
       mp = this.makeNodesMidPoints(mp);
       return mp;
@@ -336,7 +338,7 @@ module.exports = Pathfinder = Class.extend({
 
     mp = [start, [end[0],start[1]], end];
     //console.info("mp:"+JSON.stringify(mp));
-    if(this.isValidPath(grid, mp, true)) {
+    if(this.isValidGridPath(grid, mp, true)) {
       //console.info("validpath-fdp3:"+JSON.stringify(mp));
       mp = this.makeNodesMidPoints(mp);
       return mp;

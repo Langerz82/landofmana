@@ -1512,22 +1512,25 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
 
                     if (mc.isCollidingPoint(x, y))
                     {
-                      log.info("pathfind - isColliding end.");
+                      log.info("game.findPath - isColliding end.");
                       return null;
                     }
 
                     log.info("pS[0]="+pS[0]+",pS[1]="+pS[1]);
                     log.info("pE[0]="+pE[0]+",pE[1]="+pE[1]);
 
-                    if (pS[0] === pE[0] && pS[1] === pE[1])
+                    if (pS[0] === pE[0] && pS[1] === pE[1]) {
+                      console.warn("game.findPath - pS and pE same node aborting.");
                       return null;
+                    }
+
 
                     var lx = grid[0].length;
                     var ly = grid.length;
                     if (pS[0] < 0 || pS[0] >= lx || pS[1] < 0 || pS[1] >= ly ||
                         pE[0] < 0 || pE[0] >= lx || pE[1] < 0 || pE[1] >= ly)
                     {
-                        log.error("path cordinates outside of dimensions.");
+                        log.error("game.findPath - path cordinates outside of dimensions.");
                         log.error(JSON.stringify([pS, pE]));
                         return null;
                     }
@@ -1544,19 +1547,19 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
                     path = this.pathfinder.findDirectPath(sgrid, spS, spE);
 
                     if (!path) {
-                      log.info("using short path finder.");
+                      log.info("game.findPath - using short path finder.");
                       path = this.pathfinder.findShortPath(sgrid,
                         shortGrid.minX, shortGrid.minY, spS, spE);
                       if (path)
-                        log.info("validpath-mp4:"+JSON.stringify(path));
+                        log.info("game.findPath - validpath-mp4:"+JSON.stringify(path));
                     }
 
                     if (!path) {
-                      log.info("using long path finder.");
+                      log.info("game.findPath - using long path finder.");
                       path = this.pathfinder.findPath(grid, fpS, fpE, false);
                       if (path) {
                         longPath = true;
-                        log.info("validpath-mp5:"+JSON.stringify(path));
+                        log.info("game.findPath - validpath-mp5:"+JSON.stringify(path));
                       }
                     }
 
@@ -1588,9 +1591,13 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
                         log.info("game.findPath - player start coordinate: "+character.x+","+character.y);
                         return null;
                       }
+                      if (!this.pathfinder.isValidPath(path)) {
+                        try { throw new Error(); } catch (e) { console.error(e.stack); }
+                        return null;
+                      }
                     }
                 } else {
-                    log.error("Error while finding the path to "+x+", "+y+" for "+character.id);
+                    log.error("game.findPath - Error while finding the path to "+x+", "+y+" for "+character.id);
                 }
                 return path;
             },
