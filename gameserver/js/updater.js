@@ -14,10 +14,7 @@ module.exports = Updater = Class.extend({
     this.whoDist = (8 * G_TILESIZE);
 
     // TODO - Changed Path check is messy.
-
-    this.charPathXF = function(c, m) {
-      var x = c.x + m;
-      var y = c.y;
+    this.charPath = function (c,x,y) {
       if (c.map.isCollidingPoint(x,y)) {
         try { throw new Error(); } catch (e) { console.error(e.stack); }
       }
@@ -25,14 +22,16 @@ module.exports = Updater = Class.extend({
       return c.nextStep();
     };
 
+    this.charPathXF = function(c, m) {
+      var x = c.x + m;
+      var y = c.y;
+      return self.charPath(c,x,y);
+    };
+
     this.charPathYF = function(c, m) {
       var x = c.x;
       var y = c.y + m;
-      if (c.map.isCollidingPoint(x,y)) {
-        try { throw new Error(); } catch (e) { console.error(e.stack); }
-      }
-      c.setPosition(x, y);
-      return c.nextStep();
+      return self.charPath(c,x,y);
     };
 
     this.playerPathXF = function(c, m) {
@@ -53,56 +52,41 @@ module.exports = Updater = Class.extend({
       return c.nextStep();
     };
 
-    this.playerKeyXF = function(c, m) {
-      var x = c.x + m;
-      var y = c.y;
+    this.playerKey = function (c,x,y) {
       var stop = function () {
         c.forceStop();
         return true;
       }
-      if ((c.startMoving || (x % G_TILESIZE === 0)) && self.checkCollide(c,x,y))
+      if (self.checkCollide(c,x,y))
       {
-        stop();
-      }
-      if (c.map.isColliding(x,y)) {
         stop();
       }
       c.startMoving = false;
       c.setPosition(x, y);
-      if (x % self.whoDist === 0)
-        c.map.entities.processWho(c);
 
       if (c.checkStopDanger(c, c.orientation))
       {
         stop();
       }
       return false;
+
+    }
+    this.playerKeyXF = function(c, m) {
+      var x = c.x + m;
+      var y = c.y;
+      if (x % self.whoDist === 0)
+        c.map.entities.processWho(c);
+
+      return self.playerKey(c,x,y,true);
     };
 
     this.playerKeyYF = function(c, m) {
       var x = c.x;
       var y = c.y + m;
-      var stop = function () {
-        c.forceStop();
-        return true;
-      }
-      if ((c.startMoving || (y % G_TILESIZE === 0)) && self.checkCollide(c,x,y))
-      {
-        stop();
-      }
-      if (c.map.isColliding(x,y)) {
-        stop();
-      }
-      c.startMoving = false;
-      c.setPosition(x, y);
       if (y % self.whoDist === 0)
         c.map.entities.processWho(c);
 
-      if (c.checkStopDanger(c, c.orientation))
-      {
-        stop();
-      }
-      return false;
+      return self.playerKey(c,x,y,false);
     };
 
 	},
