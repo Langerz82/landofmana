@@ -9,66 +9,69 @@ var MapEntities = cls.Class.extend({
 
 
     init: function (id, server, map) {
-    	var self = this;
+    	this.id = id;
+    	this.map = map;
+    	this.server = server;
+      this.world = server;
+//    	this.database = database;
 
-    	self.id = id;
-    	self.map = map;
-    	self.server = server;
-      self.world = server;
-//    	self.database = database;
+      this.entities = {};
+      this.players = {};
+      this.characters = {};
+      this.npcplayers = {};
+      this.mobs = {};
+//      this.attackers = {};
+      this.items = {};
+      this.equipping = {};
+      this.hurt = {};
+      this.npcs = {};
+//      this.pets = {};
+      this.chests = {};
+      this.blocks = {};
 
-      self.entities = {};
-      self.players = {};
-      self.characters = {};
-      self.npcplayers = {};
-      self.mobs = {};
-//      self.attackers = {};
-      self.items = {};
-      self.equipping = {};
-      self.hurt = {};
-      self.npcs = {};
-//      self.pets = {};
-      self.chests = {};
-      self.blocks = {};
+      this.packets = {};
 
-      self.spatial = [];
-      var spatialWidth = Math.ceil(self.map.width / G_SPATIAL_SIZE);
-      var spatialHeight = Math.ceil(self.map.height / G_SPATIAL_SIZE);
-      for(var i=0, j=0; i < spatialHeight; i++) {
-        self.spatial[i] = [];
-        for(j=0; j < spatialWidth; j++) {
-          self.spatial[i][j] = [];
-        }
-      }
+      this.mobAreas = [];
+//      this.chestAreas = [];
+      this.groups = {};
 
-      self.packets = {};
+  		this.pathfinder = null;
+  		this.pathingGrid = null;
 
-      self.mobAreas = [];
-//      self.chestAreas = [];
-      self.groups = {};
+  		this.zoneGroupsReady = false;
 
-  		self.pathfinder = null;
-  		self.pathingGrid = null;
+  		this.maxPackets = 10;
 
-  		self.zoneGroupsReady = false;
-
-  		self.maxPackets = 10;
-
-  		self.entityCount = 0;
+  		this.entityCount = 0;
 
       this.mobAI = null;
 
       this.cellsize = G_TILESIZE;
 
       this.harvest = {};
+
+      this.initSpatialEntities(G_SPATIAL_SIZE);
+    },
+
+    initSpatialEntities: function (size) {
+      this.spatial = [];
+      this.spatialSize = size;
+      var spatialWidth = Math.ceil(this.map.width / size);
+      var spatialHeight = Math.ceil(this.map.height / size);
+      for(var i=0, j=0; i < spatialHeight; i++) {
+        this.spatial[i] = [];
+        for(j=0; j < spatialWidth; j++) {
+          this.spatial[i][j] = [];
+        }
+      }
     },
 
     getSpatialEntities: function (arr)
     {
-        var x1 = ~~(Math.max(arr[0],0) / G_SPATIAL_SIZE);
-        var y1 = ~~(Math.max(arr[1],0) / G_SPATIAL_SIZE);
-        var x2 = ~~(Math.min(arr[2],this.map.width-1) / G_SPATIAL_SIZE);
-        var y2 = ~~(Math.min(arr[3],this.map.height-1) / G_SPATIAL_SIZE);
+        var x1 = ~~(Math.max(arr[0],0) / this.spatialSize);
+        var y1 = ~~(Math.max(arr[1],0) / this.spatialSize);
+        var x2 = ~~(Math.min(arr[2],this.map.width-1) / this.spatialSize);
+        var y2 = ~~(Math.min(arr[3],this.map.height-1) / this.spatialSize);
 
         //console.info("getSpatialEntities - x1:"+x1+",y1:"+y1+",x2:"+x2+",y2:"+y2);
         var res = [];
@@ -130,31 +133,32 @@ var MapEntities = cls.Class.extend({
     },
 
     initPathingGrid: function() {
-		var map = this.map,
-		    self = this;
-			console.info("pathinggrid height:"+map.height+", width:"+map.width);
+  		var map = this.map,
+  		    self = this;
+  			console.info("pathinggrid height:"+map.height+", width:"+map.width);
 
-		var grid = new Uint8Array(map.height);
-		for(var i=0, j=0; i < map.height; ++i) {
-			grid[i] = new Uint8Array(map.width);
-			for(j=0; j < map.width; ++j) {
-        if (map.grid[i][j])
-          grid[i][j] = 1;
-        else
-          grid[i][j] = 0;
-			}
-		}
-		self.entitygrid = grid.slice(0);
-    //self.pathingGrid = grid.slice(0);
+  		var grid = new Uint8Array(map.height);
+  		for(var i=0, j=0; i < map.height; ++i) {
+  			grid[i] = new Uint8Array(map.width);
+  			for(j=0; j < map.width; ++j) {
+          if (map.grid[i][j])
+            grid[i][j] = 1;
+          else
+            grid[i][j] = 0;
+  			}
+  		}
+  		self.entitygrid = grid.slice(0);
+      //self.pathingGrid = grid.slice(0);
 
-		console.info("Initialized the pathing grid with static colliding cells.");
+  		console.info("Initialized the pathing grid with static colliding cells.");
     },
 
     /*pushSpawnsToPlayer: function(player, ids) {
         this.processWho(this.player);
     },*/
 
-    processWho: function(player) {
+    processWho: function(player, dist) {
+        dist = dist || 64;
         var self = this;
         //console.info("processWho - called.");
         var screens = [];
@@ -169,7 +173,7 @@ var MapEntities = cls.Class.extend({
         var pgy = ~~(player.y/G_TILESIZE);
 
         //console.info("x1:"+x1+",y1:"+y1+",x2:"+x2+",y2:"+y2);
-        var entities = this.getSpatialEntities([pgx - 64, pgy - 32,pgx + 64, pgy + 32]);
+        var entities = this.getSpatialEntities([pgx - dist, pgy - dist,pgx + dist, pgy + dist]);
 
         //console.info("self.entities.length: "+Object.keys(self.entities).length);
         for (var entity of entities) {
@@ -209,12 +213,7 @@ var MapEntities = cls.Class.extend({
         //console.info("entity.x: "+entity.x+" entity.y:"+entity.y);
         //console.info("entity2.x: "+entity2.x+" entity2.y:"+entity2.y);
         //console.info("minX:"+minX+",maxX:"+maxX+",minY:"+minY+",maxY:"+maxY);
-        if(entity2.y >= minY && entity2.y <= maxY && entity2.x >= minX && entity2.x <= maxX)
-        {
-            return true;
-        } else {
-            return false;
-        }
+        return (entity2.y >= minY && entity2.y <= maxY && entity2.x >= minX && entity2.x <= maxX);
     },
 
     processPackets: function() {
@@ -222,6 +221,7 @@ var MapEntities = cls.Class.extend({
 
         if (self.packets.length > 0)
         	console.info(JSON.stringify(self.packets));
+
         Utils.forEach(this.packets, (packet, id) => {
           len = packet.length;
           if (len > 0 && typeof packet !== 'undefined' && packet !== null)
@@ -276,7 +276,7 @@ var MapEntities = cls.Class.extend({
     	//console.info("sendNeighbours");
     	var self = this;
     	//console.info(JSON.stringify(message.serialize()));
-      areaLength = areaLength || 48;
+      areaLength = areaLength || 64;
     	var players = self.getPlayerAround(entity, areaLength);
       players.push(entity);
 
@@ -292,31 +292,12 @@ var MapEntities = cls.Class.extend({
     },
 
     isMobsOnSameTile: function(mob) {
-  		var X = mob.x,
-  			Y = mob.y,
-  			result = false,
-  			X2 = 0,
-  			Y2 = 0;
-  		if (mob.path && mob.path.length > 0)
-  		{
-  			X = mob.path[mob.path.length-1][0];
-  			Y = mob.path[mob.path.length-1][1];
-  		}
+      var p1 = mob.getLastPosition();
   		_.each(self.mobs, function(entity) {
-  			if (entity.isMoving())
+        var p2 = entity.getLastPosition();
+  			if(entity.id !== mob.id && p1[0] === p2[0] && p1[1] === p2[1])
   			{
-  				X2 = entity.path[entity.path.length-1][0];
-  				Y2 = entity.path[entity.path.length-1][1];
-  			}
-  			else
-  			{
-  				X2 = entity.x;
-  				Y2 = entity.y;
-  			}
-  			//console.info("x:"+X+",y:"+Y+",y2:"+Y2+",x2:"+X2);
-  			if(entity.id !== mob.id && X === X2 && Y === Y2)
-  			{
-  			result = true;
+          result = true;
   			}
   		});
   		//console.info("result="+result);
@@ -348,6 +329,7 @@ var MapEntities = cls.Class.extend({
   		return result;
     },
 
+/*
   	getRandomPosition: function (entity, threshold) {
   		var pos = [];
   		var valid = false;
@@ -373,7 +355,7 @@ var MapEntities = cls.Class.extend({
       console.info("getRandomPosition - failed");
   		return null;
   	},
-
+*/
     /*handleOpenedChest: function(chest, player) {
       var self = this;
       self.pushToAdjacentGroups(chest.group, chest.despawn());
@@ -651,14 +633,8 @@ var MapEntities = cls.Class.extend({
     isMobAt: function(x,y) {
     	var result = false;
 	    this.forEachMob(function (mob) {
-    		var X = mob.x,
-    		    Y = mob.y;
-    		if (mob.path && mob.path.length > 0)
-    		{
-    			X = mob.path[mob.path.length-1][0];
-    			Y = mob.path[mob.path.length-1][1];
-    		}
-    		if (x === X && y === Y)
+        var pos = mob.getLastPosition();
+    		if (x === pos[0] && y === pos[1])
     		    result = true;
   	  });
   	  return result;
@@ -698,19 +674,7 @@ var MapEntities = cls.Class.extend({
 
 // TODO - Minimize function calls so you can pass type to loop through, and the additional condition.
     getEntitySpatialCount: function(entity, range, conditional) {
-      range *= G_TILESIZE;
-      var x = entity.x;
-      var y = entity.y;
-      var r = range >> 1;
-      var count = 0;
-      var def_conditional = function (e1,e2) { return e1 !== e2; };
-      conditional = conditional || def_conditional;
-      var group = this.getSpatialEntities([x-r,y-r,x+r,y+r]);
-      for (var e2 of group) {
-          if (conditional(e1, e2))
-            count++;
-      }
-      return count;
+      return this.getEntityAroundSpatial(entity, range, conditional).length;
     },
 
     getEntityAroundSpatial: function(entity, range, conditional) {
@@ -735,25 +699,7 @@ var MapEntities = cls.Class.extend({
     },
 
     getEntityCount: function(group, e1, range, conditional) {
-      range *= G_TILESIZE;
-      conditional = conditional || function (e1, e2) { return e1 !== e2; };
-      var compare = function (e1, e2) {
-        return (Math.abs(e2.x-e1.x) <= range && Math.abs(e2.y-e1.y) <= range &&
-            conditional(e1,e2))
-      };
-      var count=0;
-      if (Array.isArray(group)) {
-        for (var e2 of group) {
-            if (compare(e1,e2))
-              count++;
-        }
-      } else {
-        Utils.forEach(group, function (e2) {
-          if (compare(e1,e2))
-            count++;
-        })
-      }
-      return count;
+      return this.getEntityAround(group, e1, range, conditional).length;
     },
 
     getEntityAround: function(group, e1, range, conditional) {

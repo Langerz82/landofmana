@@ -174,7 +174,7 @@ module.exports = MobArea = EntityArea.extend({
       dist = dist || G_TILESIZE;
       for (var en of this.entities)
       {
-        if (Math.abs(entity.x - en.x) < G_TILESIZE &&  Math.abs(entity.y - en.y) < G_TILESIZE)
+        if (Math.abs(entity.x - en.x) <= dist &&  Math.abs(entity.y - en.y) <= dist)
           return true;
       }
       return false;

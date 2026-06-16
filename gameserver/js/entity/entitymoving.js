@@ -490,6 +490,14 @@ module.exports = EntityMoving = Entity.extend({
     return false;
   },
 
+  getLastPosition: function () {
+    if (this.path) {
+      var lastMove = this.path[this.path.length-1];
+      return lastMove;
+    }
+    return [this.x, this.y];
+  },
+  
 /*******************************************************************************
  * END - Movement Functions.
  ******************************************************************************/

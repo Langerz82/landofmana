@@ -1574,11 +1574,11 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
                       path = this.pathfinder.convertPathToRealPath(path, rs, re);
                       log.info("game.findPath - path_result2: "+JSON.stringify(path));
                       //log.info("game.findPath - spS: "+JSON.stringify(spS));
-                      if (!this.pathfinder.isValidGridPath(grid, path)) {
+                      /*if (!this.pathfinder.isValidGridPath(grid, path)) {
                         try { throw new Error(); } catch (e) { console.error(e.stack); }
                         character.forceStop();
                         return null;
-                      }
+                      }*/
                       var cx = (longPath) ? fpS[0] : spS[0];
                       var cy = (longPath) ? fpS[1] : spS[1];
                       var dx = character.x - (cx*ts);

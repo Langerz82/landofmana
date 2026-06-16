@@ -283,11 +283,12 @@ define(['../timer'], function(Timer) {
         return this.isAdjacent(entity) && !this.isAdjacentNonDiagonal(entity);
     },
 
-    forEachAdjacentNonDiagonalPosition: function(callback) {
-        callback(this.x - 1, this.y, 3);
-        callback(this.x, this.y - 1, 1);
-        callback(this.x + 1, this.y, 4);
-        callback(this.x, this.y + 1, 2);
+    forEachAdjacentNonDiagonalPosition: function(callback, dist) {
+        dist = dist || 1;
+        callback(this.x - dist, this.y, 3);
+        callback(this.x, this.y - dist, 1);
+        callback(this.x + dist, this.y, 4);
+        callback(this.x, this.y + dist, 2);
     },
 
     getAdjacentTiles: function (min, max) {
@@ -309,16 +310,16 @@ define(['../timer'], function(Timer) {
       var pos = [this.x,this.y];
       switch (orientation)
       {
-        case 1:
+        case 3:
           pos[0] -= dist;
           break;
-        case 2:
+        case 4:
           pos[0] += dist;
           break;
-        case 3:
+        case 1:
           pos[1] -= dist;
           break;
-        case 4:
+        case 2:
           pos[1] += dist;
           break;
       }
