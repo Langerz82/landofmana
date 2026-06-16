@@ -1516,14 +1516,13 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
                       return null;
                     }
 
-                    log.info("pS[0]="+pS[0]+",pS[1]="+pS[1]);
-                    log.info("pE[0]="+pE[0]+",pE[1]="+pE[1]);
+                    log.info("game.findPath - pS[0]="+pS[0]+",pS[1]="+pS[1]);
+                    log.info("game.findPath - pE[0]="+pE[0]+",pE[1]="+pE[1]);
 
                     if (pS[0] === pE[0] && pS[1] === pE[1]) {
                       console.warn("game.findPath - pS and pE same node aborting.");
                       return null;
                     }
-
 
                     var lx = grid[0].length;
                     var ly = grid.length;
@@ -1565,34 +1564,58 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
 
                     if (path)
                     {
-                      //log.info("path_result: "+JSON.stringify(path));
-                      log.info("game.findPath - spS: "+JSON.stringify(spS));
+                      var fp = path[0];
+                      var lp = path[path.length-1];
+                      var rs = [fp[0] + (pS[0] % 1),fp[1] + (pS[1] % 1)];
+                      var re = [lp[0] + (pE[0] % 1),lp[1] + (pE[1] % 1)];
+                      log.info("game.findPath - rs: "+JSON.stringify(rs));
+                      log.info("game.findPath - re: "+JSON.stringify(re));
+                      log.info("game.findPath - path_result1: "+JSON.stringify(path));
+                      path = this.pathfinder.convertPathToRealPath(path, rs, re);
+                      log.info("game.findPath - path_result2: "+JSON.stringify(path));
+                      //log.info("game.findPath - spS: "+JSON.stringify(spS));
+                      if (!this.pathfinder.isValidGridPath(grid, path)) {
+                        try { throw new Error(); } catch (e) { console.error(e.stack); }
+                        character.forceStop();
+                        return null;
+                      }
                       var cx = (longPath) ? fpS[0] : spS[0];
                       var cy = (longPath) ? fpS[1] : spS[1];
                       var dx = character.x - (cx*ts);
                       var dy = character.y - (cy*ts);
-                      log.info("game.findPath - dx: "+dx);
-                      log.info("game.findPath - dy: "+dy);
+                      //log.info("game.findPath - dx: "+dx);
+                      //log.info("game.findPath - dy: "+dy);
+                      log.info("game.findPath - path1: "+JSON.stringify(path));
                       for (var node of path)
                       {
                         node[0] = ~~((node[0]*ts)+dx);
                         node[1] = ~~((node[1]*ts)+dy);
                       }
-                      // NOT NEEDED.
-                      //path = this.pathfinder.compressPath(path);
+                      log.info("game.findPath - path2: "+JSON.stringify(path));
+
+                      var dx = (path[0][0]-character.x);
+                      var dy = (path[0][1]-character.y);
+                      for (var node of path)
+                      {
+                        node[0] -= dx;
+                        node[1] -= dy;
+                      }
+
+                      log.info("game.findPath - path3: "+JSON.stringify(path));
 
                       log.info("game.findPath - path_result2: "+JSON.stringify(path));
+                      log.info("game.findPath - pdx:"+(Math.abs(path[0][0]-character.x)));
+                      log.info("game.findPath - pdy:"+(Math.abs(path[0][1]-character.y)));
+                      log.info("game.findPath - path start coordinate: "+path[0][0]+","+path[0][1]);
+                      log.info("game.findPath - player start coordinate: "+character.x+","+character.y);
                       if (!(path[0][0] === (character.x) && path[0][1] === (character.y)))
                       {
                         log.error("game.findPath - player path start co-ordinates mismatch.");
-                        log.info("game.findPath - pdx:"+(Math.abs(path[0][0]-character.x)));
-                        log.info("game.findPath - pdy:"+(Math.abs(path[0][1]-character.y)));
-                        log.info("game.findPath - path start coordinate: "+path[0][0]+","+path[0][1]);
-                        log.info("game.findPath - player start coordinate: "+character.x+","+character.y);
                         return null;
                       }
                       if (!this.pathfinder.isValidPath(path)) {
                         try { throw new Error(); } catch (e) { console.error(e.stack); }
+                        character.forceStop();
                         return null;
                       }
                     }

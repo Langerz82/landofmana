@@ -103,6 +103,9 @@ module.exports = PlayerCallback = Class.extend({
 
           var pathfinder = this.map.entities.pathfinder;
 
+          if (!pathfinder.isInPath(this.path, [x,y]))
+            return true;
+
           var dist = pathfinder.getPathSubDistance(this.path, x, y);
           if (!dist) {
             if (this.path[0][0] === x && this.path[0][1] === y)
@@ -114,7 +117,8 @@ module.exports = PlayerCallback = Class.extend({
             return true;
           }
 
-          return pathfinder.isDistanceTooFast(this.tick, dist, this.startMovePathTime);
+          var res = pathfinder.isDistanceTooFast(this.tick, dist, this.startMovePathTime);
+          return res;
         };
 
         p.checkStartMove = function (x,y) {
@@ -135,14 +139,11 @@ module.exports = PlayerCallback = Class.extend({
 
             if (this.checkPathInterrupt(x,y)) {
               console.info("checkStartMove - checkPathInterrupt = true");
+              this.resetMove(this.x,this.y);
               return false;
             }
-
-            if (this.isMovingPath() && !(this.x === x && this.y === y))
-            {
-              console.info("checkStartMove - isMovingPath but wrong coords.");
+            else {
               this.fixMove(x,y);
-              return true;
             }
 
             if (this.x === x && this.y === y) {
@@ -159,7 +160,7 @@ module.exports = PlayerCallback = Class.extend({
                 console.info("playercallback, checkStartMove, isMoving - isValidPath false.");
                 return false;
               }
-              if (!pathfinder.isValidGridPath(this.map.grid, path)) {
+              if (!pathfinder.isValidGridPath(this.map.grid, path, true)) {
                 console.info("playercallback, checkStartMove, isMoving - isValidGridPath false.");
                 return false;
               }

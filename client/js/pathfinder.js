@@ -28,63 +28,74 @@ define(['lib/astar'], function(AStar) {
             return true;
         },
 
-        // TODO - Grid axis is not being checked properly.
-         isValidGridPath: function (grid, path) {
-           var ts = G_TILESIZE,
-               ly = grid.length,
-               lx = grid[0].length;
+        isValidGridPath: function (grid, path, isRealPath) {
+          var ts = G_TILESIZE,
+              ly = grid.length,
+              lx = grid[0].length;
 
-           // Check collision from an axis, n1 to n2, n3 is for the other axis.
-           var c1to2on3 = function (n1,n2,n3,axis_x) {
-             //log.info("c1to2on3 - n1:"+n1+",n2:"+n2+",n3:"+n3);
-             n1 = Math.floor(n1), n2 = Math.floor(n2), n3=Math.floor(n3);
-             var i1 = Math.min(n1,n2), i2 = Math.max(n1,n2);
-             if (axis_x) {
-               for (var i=i1; i <= i2; i++) {
-                 if (grid[n3][i]) {
-                   return false;
-                 }
-               }
-             } else {
-               for (var i=i1; i <= i2; i++) {
-                 if (grid[i][n3]) {
-                   return false;
-                 }
-               }
-             }
-             return true;
-           }
+          // Check collision from an axis, n1 to n2, n3 is for the other axis.
+          var c1to2on3 = function (n1,n2,n3,axis_x) {
+            //console.info("c1to2on3 - n1:"+n1+",n2:"+n2+",n3:"+n3);
+            n1 = Math.floor(n1), n2 = Math.floor(n2), n3=Math.floor(n3);
+            var i1 = Math.min(n1,n2), i2 = Math.max(n1,n2);
+            if (axis_x) {
+              for (var i=i1; i <= i2; i++) {
+                if (grid[n3][i]) {
+                  return false;
+                }
+              }
+            } else {
+              for (var i=i1; i <= i2; i++) {
+                if (grid[i][n3]) {
+                  return false;
+                }
+              }
+            }
+            return true;
+          }
 
-           var xf = function (x1,x2,y) {
-             return c1to2on3(x1,x2,y,true);
-           }
-           var yf = function (y1,y2,x) {
-             return c1to2on3(y1,y2,x,false);
-           }
+          var xf = function (x1,x2,y) {
+            return c1to2on3(x1,x2,y,true);
+          }
+          var yf = function (y1,y2,x) {
+            return c1to2on3(y1,y2,x,false);
+          }
 
-           var pCoord = null;
-           for (var coord of path) {
-             if (coord[1] < 0 || coord[1] >= ly)
-               return false;
-             if (coord[0] < 0 || coord[0] > lx)
-               return false;
+          var path2 = [];
+          for (var i = 0; i < path.length; i++)
+              path2[i] = path[i].slice();
 
-             if (pCoord) {
-               if (coord[0] !== pCoord[0] && coord[1] !== pCoord[1])
-                 return false;
-               if (Math.abs(coord[0] - pCoord[0]) > 0) {
-                 if (!xf(pCoord[0], coord[0], coord[1]))
-                   return false;
-               }
-               else if (Math.abs(coord[1] - pCoord[1]) > 0) {
-                 if (!yf(pCoord[1], coord[1], coord[0]))
-                   return false;
-               }
-             }
-             pCoord = coord;
-           }
-           return true;
-         },
+          if (isRealPath) {
+            for (var coord of path2) {
+              coord[0] /= ts;
+              coord[1] /= ts;
+            }
+          }
+
+          var pCoord = null;
+
+          for (var coord of path2) {
+            if (coord[1] < 0 || coord[1] >= ly)
+              return false;
+            if (coord[0] < 0 || coord[0] >= lx)
+              return false;
+
+            if (pCoord) {
+              if (coord[0] != pCoord[0] && coord[1] != pCoord[1])
+                return false;
+              if (Math.abs(coord[0] - pCoord[0]) > 0) {
+                if (!xf(pCoord[0], coord[0], coord[1]))
+                  return false;
+              }
+              else if (Math.abs(coord[1] - pCoord[1]) > 0) {
+                if (!yf(pCoord[1], coord[1], coord[0]))
+                  return false;
+              }
+            }
+            pCoord = coord;
+          }
+          return true;
+        },
 
         getShortGrid: function (grid, start, end, gridEdges) {
           //var ts = G_TILESIZE;
@@ -136,26 +147,23 @@ define(['lib/astar'], function(AStar) {
 
           var mp = [start, end];
           if (dx === 0 || dy === 0) {
-            if(this.isValidGridPath(grid, mp, true)) {
-              //log.info("validpath-fdp1:"+JSON.stringify(mp));
-              mp = this.makeNodesMidPoints(mp);
+            if(this.isValidGridPath(grid, mp)) {
+              log.info("validpath-fdp1:"+JSON.stringify(mp));
               return mp;
             }
           }
 
           mp = [start, [start[0],end[1]], end];
-          //log.info("mp:"+JSON.stringify(mp));
-          if(this.isValidGridPath(grid, mp, true)) {
-            //log.info("validpath-fdp2:"+JSON.stringify(mp));
-            mp = this.makeNodesMidPoints(mp);
+          log.info("mp:"+JSON.stringify(mp));
+          if(this.isValidGridPath(grid, mp)) {
+            log.info("validpath-fdp2:"+JSON.stringify(mp));
             return mp;
           }
 
           mp = [start, [end[0],start[1]], end];
-          //log.info("mp:"+JSON.stringify(mp));
-          if(this.isValidGridPath(grid, mp, true)) {
-            //log.info("validpath-fdp3:"+JSON.stringify(mp));
-            mp = this.makeNodesMidPoints(mp);
+          log.info("mp:"+JSON.stringify(mp));
+          if(this.isValidGridPath(grid, mp)) {
+            log.info("validpath-fdp3:"+JSON.stringify(mp));
             return mp;
           }
           return null;

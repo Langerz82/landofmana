@@ -1446,7 +1446,7 @@ module.exports = Player = Character.extend({
       return false;
     }
 
-    if (!pathfinder.isValidGridPath(this.map.grid, path)) {
+    if (!pathfinder.isValidGridPath(this.map.grid, path, true)) {
       console.warn("handleMovePath: no valid path.");
       this.resetMove(this.x,this.y);
       return false;
