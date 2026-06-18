@@ -318,7 +318,7 @@ module.exports = EntityMoving = Entity.extend({
     //this.forceStop();
   },
 
-  setMoveStopCallback: function (callback) {
+  onMoveStop: function (callback) {
     this.movestop_callback = callback;
   },
 
@@ -497,7 +497,7 @@ module.exports = EntityMoving = Entity.extend({
     }
     return [this.x, this.y];
   },
-  
+
 /*******************************************************************************
  * END - Movement Functions.
  ******************************************************************************/

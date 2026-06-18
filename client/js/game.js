@@ -760,6 +760,16 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
               self.player.onStep(function() {
               });
 
+              self.player.onMoveStop(function () {
+                var p = self.player;
+                log.info("player.onMoveStop");
+                if (p.hasTarget())
+                  p.lookAtEntity(p.target);
+                else {
+                  log.info("onMoveStop - NO TARGET!");
+                }
+              });
+
               self.player.onAbortPathing(function(path, x, y) {
                 var p = self.player;
                 self.client.sendMoveEntity(p, 2);
@@ -819,13 +829,13 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
                       }
                   }*/
                   //p.targetIndex = 0;
-                  log.info("onStopPathing - 1")
+                  log.info("onStopPathing - 1");
                   if (p.hasTarget())
                     p.lookAtEntity(p.target);
                   else {
-                    log.info("onStopPathing - NO TARGET!")
+                    log.info("onStopPathing - NO TARGET!");
                   }
-                  log.info("onStopPathing - 2")
+                  log.info("onStopPathing - 2");
 
                   checkTeleport(p, x, y);
 
@@ -1009,9 +1019,8 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
               }
 
               if (target && p.isNextTooEntity(target)) {
-                if (p.isMoving())
-                  p.forceStop();
-                p.lookAtEntity(target);
+                if (!p.isMoving())
+                  p.lookAtEntity(target);
                 if (processTarget()) return;
               }
 

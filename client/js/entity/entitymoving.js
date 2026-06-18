@@ -315,7 +315,7 @@ define(['./entity', '../transition', '../timer'], function(Entity, Transition, T
     this.movement.stop();
   },
 
-  setMoveStopCallback: function (callback) {
+  onMoveStop: function (callback) {
     this.movestop_callback = callback;
   },
 
@@ -485,7 +485,7 @@ define(['./entity', '../transition', '../timer'], function(Entity, Transition, T
     }
     return false;
   },
-  
+
   getLastPosition: function () {
     if (this.path) {
       var lastMove = this.path[this.path.length-1];

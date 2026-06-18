@@ -492,7 +492,7 @@ var MapEntities = cls.Class.extend({
     },
 
     removeEntity: function(entity) {
-    	//console.info("removeEntity: "+entity.id);
+    	  console.error("removeEntity: "+entity.id);
         this.removeSpatial(entity);
 
         if (entity.id in this.mobs)
@@ -753,15 +753,16 @@ var MapEntities = cls.Class.extend({
     },
 
     getAroundCount: function(entities, entity, range) {
-      return this.getEntityCount(entities, entity, range);
+      return this.getEntityAround(entities, entity, range).length;
     },
 
     getEntityAroundCount: function(entity, range) {
-      return this.getEntityCount(this.getEntitiesAround(entity, range), entity, range);
+      var entities = this.getEntitiesAround(entity, range);
+      return this.getEntityAround(entities, entity, range).length;
     },
 
     getPlayerAroundCount: function(entity, range) {
-      return this.getEntityCount(this.players, entity, range);
+      return this.getEntityAround(this.players, entity, range).length;
     },
 
     getPartyAround: function(entity, range) { // entity
@@ -844,6 +845,7 @@ var MapEntities = cls.Class.extend({
             console.info("findDirectPath - res:"+JSON.stringify(res));
             if (!this.pathfinder.isValidGridPath(this.map.grid, res, true)) {
               try { throw new Error(); } catch (e) { console.error(e.stack); }
+              return null;
             }
             return res;
           }
@@ -873,16 +875,19 @@ var MapEntities = cls.Class.extend({
 
           if (!path) {
               console.error("findPath - Error while finding the path to "+x+", "+y+" for "+character.id);
-            return null;
+              return null;
           }
           if (!this.pathfinder.isValidPath(path)) {
             try { throw new Error(); } catch (e) { console.error(e.stack); }
+            return null;
           }
           if (!this.pathfinder.isValidGridPath(this.map.grid, path, true)) {
             try { throw new Error(); } catch (e) { console.error(e.stack); }
+            return null;
           }
           if (!(path[0][0] === character.x && path[0][1] === character.y)) {
             try { throw new Error(); } catch (e) { console.error(e.stack); }
+            return null;
           }
           return path;
         }

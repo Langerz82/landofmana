@@ -948,11 +948,11 @@ module.exports = Player = Character.extend({
       var b = (this.sx === x && this.sy === y);
 
       if (a || b) {
-        console.info("player move: this.moving_timeout cleared.");
-        clearTimeout(this.moving_timeout);
+        //console.info("player.move: this.moving_timeout cleared.");
+        //clearTimeout(this.moving_timeout);
         this.fixMove(x,y);
-        console.info("player, resetMove - x:"+x+", y:"+y);
-        console.info("player, resetMove - this.x:"+this.x+", this.y:"+this.y);
+        console.info("player.move, resetMove - x:"+x+", y:"+y);
+        console.info("player.move, resetMove - this.x:"+this.x+", this.y:"+this.y);
         return;
       }
 
@@ -965,6 +965,10 @@ module.exports = Player = Character.extend({
         }
         return;
       }
+
+      console.warn("player.move: not stopping.");
+      console.warn("player.move, stop - x:"+x+", y:"+y);
+      console.warn("player.move, stop - this.x:"+this.x+", this.y:"+this.y);
     }
   },
 
@@ -1349,9 +1353,9 @@ module.exports = Player = Character.extend({
 
   fixMove: function (x,y) {
     //try { throw new Error(); } catch(err) { console.warn(err.stack); }
-    this.interrupted = false;
-    this.setPosition(x, y);
+    //this.interrupted = false;
     this.forceStop();
+    this.setPosition(x, y);
   },
 
   sendPlayer: function (msg) {

@@ -188,7 +188,7 @@ module.exports = PlayerCallback = Class.extend({
             }
         };
 
-        p.setMoveStopCallback(function () {
+        p.onMoveStop(function () {
             //console.error("setMoveStopCallback - player, sx:"+p.sx+",sy:"+p.sy);
             //console.error("setMoveStopCallback - player, x:"+p.x+",y:"+p.y);
             //console.error("setMoveStopCallback - player, ex:"+p.ex+",ey:"+p.ey);

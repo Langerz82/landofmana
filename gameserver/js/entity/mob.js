@@ -279,18 +279,10 @@ module.exports = Mob = Character.extend({
     },
 
     execRespawn: function () {
-      if (this.area && this.area instanceof MobArea) {
-        var	pos = this.map.entities.spaceEntityRandomApart(3, this.area._getRandomPositionInsideArea.bind(this.area,100));
-        console.warn("mob, handleRespawn - id:"+this.id+", pos:"+JSON.stringify(pos));
-        if (pos) {
-          this.spawnX = pos.x;
-          this.spawnY = pos.y;
-          this.setPosition(pos.x, pos.y);
-        }
-      }
       if (this.respawnCallback) {
           this.respawnCallback();
       }
+      //this.respawn();
     },
 
     handleRespawn: function () {
@@ -303,6 +295,13 @@ module.exports = Mob = Character.extend({
     },
 
     respawn: function () {
+      if (this.area && this.area instanceof MobArea) {
+        var	pos = this.map.entities.spaceEntityRandomApart(3, this.area._getRandomPositionInsideArea.bind(this.area,100));
+        console.warn("mob, handleRespawn - id:"+this.id+", pos:"+JSON.stringify(pos));
+        if (pos) {
+          this.setPosition(pos.x, pos.y);
+        }
+      }
       this.spawnX = this.x;
       this.spawnY = this.y;
       this.isDead = false;

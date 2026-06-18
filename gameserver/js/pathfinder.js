@@ -319,25 +319,25 @@ module.exports = Pathfinder = Class.extend({
     var dy = Math.abs(Math.floor(start[1]) - Math.floor(end[1]));
 
     var mp = [start, end];
-    //console.info("mp:"+JSON.stringify(mp));
+    console.info("mp:"+JSON.stringify(mp));
     if (dx === 0 || dy === 0) {
       if(this.isValidGridPath(grid, mp)) {
-        //console.info("validpath-fdp1:"+JSON.stringify(mp));
+        console.info("validpath-fdp1:"+JSON.stringify(mp));
         return mp;
       }
     }
 
     mp = [start, [start[0],end[1]], end];
-    //console.info("mp:"+JSON.stringify(mp));
+    console.info("mp:"+JSON.stringify(mp));
     if(this.isValidGridPath(grid, mp)) {
-      //console.info("validpath-fdp2:"+JSON.stringify(mp));
+      console.info("validpath-fdp2:"+JSON.stringify(mp));
       return mp;
     }
 
     mp = [start, [end[0],start[1]], end];
-    //console.info("mp:"+JSON.stringify(mp));
+    console.info("mp:"+JSON.stringify(mp));
     if(this.isValidGridPath(grid, mp)) {
-      //console.info("validpath-fdp3:"+JSON.stringify(mp));
+      console.info("validpath-fdp3:"+JSON.stringify(mp));
       return mp;
     }
     return null;

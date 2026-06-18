@@ -76,10 +76,16 @@ function(UserClient, Player, AppearanceData, Timer) {
         player.setItems();
 
         player.forceStop = function () {
+          if (this.fsm === "ATTACK")
+            try { throw new Error(); } catch (e) { console.error(e.stack); }
+          //console.error("player.forceStop - this.keyMove:"+this.keyMove);
+          //console.error("player.forceStop - this.stopKeyMove:"+this.stopKeyMove);
           this.harvestOff();
-          if ((this.keyMove || this.stopKeyMove) && this.key_move_callback)
+          //if ((this.keyMove || this.stopKeyMove) && this.key_move_callback)
+          if (this.isMoving() && !this.isMovingPath())
           {
-            this.key_move_callback(0);
+            if (this.key_move_callback)
+              this.key_move_callback(0);
           }
           this._forceStop();
           this.idle();
@@ -96,9 +102,6 @@ function(UserClient, Player, AppearanceData, Timer) {
         };
 
         player.lookAtEntity = function (entity) {
-          if (this.isMoving())
-            this.forceStop();
-
           this._lookAtEntity(entity);
         };
 
@@ -106,6 +109,9 @@ function(UserClient, Player, AppearanceData, Timer) {
         player.hit = function(orientation) {
           orientation = orientation || this.orientation;
           var self = this;
+
+          //if (this.fsm === "ATTACK")
+            //return;
 
           this.setOrientation(orientation || 0);
 
