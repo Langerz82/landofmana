@@ -102,6 +102,9 @@ function(UserClient, Player, AppearanceData, Timer) {
         };
 
         player.lookAtEntity = function (entity) {
+          if (this.isMoving())
+            return;
+
           this._lookAtEntity(entity);
         };
 
