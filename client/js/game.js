@@ -1076,6 +1076,9 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
               }
               else if (res === "attack_ok") {
                 this.client.sendAttack(p, p.target, skillId);
+                if (skillId != -1)
+                  p.attackSkill = null;
+
                 this.audioManager.playSound("hit"+Math.floor(Math.random()*2+1));
 
                 p.attackCooldown.duration = 1000;

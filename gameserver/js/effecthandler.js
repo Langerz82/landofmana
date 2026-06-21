@@ -63,8 +63,7 @@ EffectType = cls.Class.extend({
           //target.sendChangePoints((target.stats.hp-oldhp),0);
         break;
       case "ep":
-        target.stats.ep += this.diff;
-        target.stats.ep = Utils.clamp(0, target.stats.epMax, target.stats.ep);
+        target.modEp(this.diff);
         break;
       case "attack":
         //if (this.diff > target.stats.mod.attack) {
@@ -129,17 +128,17 @@ var SkillEffect = cls.Class.extend({
     init: function (handler, skillId, skillLevel) {
       this.handler = handler;
       this.source = handler.entity;
-      this.skillId = skillId;
+      this.skillId = Number(skillId);
       this.data = SkillData.Skills[skillId];
       console.info("SkillEffect - skillId:"+skillId);
       this.targetType = this.data.targetType;
       this.activeTimer = 0;
       this.duration = ((this.data.durationPL) ? (this.data.durationPL*this.level) : this.data.duration) || 0;
-      this.duration *= 1000;
-      this.countTotal = this.data.countTotal || 0;
+      this.duration = Number(this.duration) * 1000;
+      this.countTotal = Number(this.data.countTotal) || 0;
       this.count = 0;
       this.effectTypes = this.data.effectTypes;
-      this.level = skillLevel;
+      this.level = Number(skillLevel);
       //this.isActive = false;
       this.interval = null;
       this.targets = [];
@@ -174,7 +173,7 @@ var SkillEffect = cls.Class.extend({
           this.interval = null;
         }
         this.interval = setInterval(function () {
-          if (self.activeTimer > self.duration) {
+          if (self.activeTimer >= self.duration) {
            self.applyEffects("end",0);
            //self.isActive = false;
            clearInterval(self.interval);
@@ -199,14 +198,15 @@ var SkillEffect = cls.Class.extend({
     applyEffect: function (effect, target, phase, damage)
     {
         var index = target.activeEffects.indexOf(this);
-        if (index < 0) {
+        if (phase==="start" && index < 0) {
           target.activeEffects.push(this);
+          index = target.activeEffects.indexOf(this);
         }
 
         effect.apply(this, target, phase, damage);
 
         //var index2 = target.activeEffects.indexOf(this);
-        if (index >= 0 && phase === "end") {
+        if (phase==="end" && index >= 0) {
           target.activeEffects.splice(index, 1);
         }
     },
@@ -224,6 +224,7 @@ var SkillEffect = cls.Class.extend({
             }
         }
       }
+
       if (phase === "end") {
         this.count = 0;
         this.activeTimer = 0;
@@ -248,7 +249,7 @@ var SkillEffect = cls.Class.extend({
 
       this.applyEffects(phase,damage);
 
-      if (phase=="afterhit" && this.countTotal > 0
+      if (phase==="afterhit" && this.countTotal > 0
         && this.count === this.countTotal)
       {
         this.applyEffects("end",0);
@@ -257,7 +258,7 @@ var SkillEffect = cls.Class.extend({
         return;
       }
 
-      if (phase=="onhit" && this.countTotal > 0)
+      if (phase==="onhit" && this.countTotal > 0)
       {
         this.count++;
       }
