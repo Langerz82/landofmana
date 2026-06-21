@@ -320,7 +320,7 @@ module.exports = Pathfinder = Class.extend({
 
     var mp = [start, end];
     console.info("mp:"+JSON.stringify(mp));
-    if (dx === 0 || dy === 0) {
+    if (dx < 1 || dy < 1) {
       if(this.isValidGridPath(grid, mp)) {
         console.info("validpath-fdp1:"+JSON.stringify(mp));
         return mp;
@@ -383,22 +383,39 @@ module.exports = Pathfinder = Class.extend({
     return result;
   },
 
-  dropUneededNodes: function (result) {
-    // Algorithm to shorten path cordinates to only corners.
-    if (result.length > 2) {
-      for (var i=2; i < result.length; ++i)
-      {
-        var n1 = result[i-2];
-        var n2 = result[i];
-        var tx = Math.abs(n1[0] - n2[0]);
-        var ty = Math.abs(n1[1] - n2[1]);
-        if (( tx > 0 && ty === 0) || (tx === 0 && ty > 0))
-        {
-          result.splice(--i,1);
-        }
+  dropUneededNodes: function(path) {
+      if (!Array.isArray(path) || path.length < 2)
+          return path;
+
+      var result = [path[0]];
+
+      for (var i = 1; i < path.length; i++) {
+          var curr = path[i];
+          var prev = result[result.length - 1];
+
+          // Remove consecutive duplicates.
+          if (curr[0] === prev[0] && curr[1] === prev[1])
+              continue;
+
+          result.push(curr);
+
+          // If we have three nodes, see if the middle one is unnecessary.
+          while (result.length >= 3) {
+              var a = result[result.length - 3];
+              var b = result[result.length - 2];
+              var c = result[result.length - 1];
+
+              // Remove b if all three are on the same horizontal or vertical line.
+              if ((a[0] === b[0] && b[0] === c[0]) ||
+                  (a[1] === b[1] && b[1] === c[1])) {
+                  result.splice(result.length - 2, 1);
+              } else {
+                  break;
+              }
+          }
       }
-    }
-    return result;
+
+      return result;
   },
 
   AStar: function (grid, start, end) {

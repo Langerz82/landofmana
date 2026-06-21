@@ -589,6 +589,19 @@ module.exports = Mob = Character.extend({
       return !this.hasTarget() && !this.isDead && !this.isReturning &&
         !this.isMoving() && this.aiState === mobState.IDLE;
     },
+
+    followAttack: function (entity) {
+      if (entity.isMoving()) {
+        var pos = this.nextTile(entity.x,entity.y,entity.orientation);
+        pos[0] = Math.floor(pos[0]/G_TILESIZE) * G_TILESIZE;
+        pos[1] = Math.floor(pos[1]/G_TILESIZE) * G_TILESIZE;
+        var obj = {x: pos[0], y: pos[1]};
+        this._super(obj);
+      }
+      else {
+        this._super(entity);
+      }
+    }
 });
 
 module.exports = Mob;

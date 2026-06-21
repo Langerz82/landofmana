@@ -539,10 +539,12 @@ module.exports = EntityMoving = Entity.extend({
   },
 
   nextMove: function (x, y, o, dist) {
+    dist = dist || 1;
     return this.nextDist(x, y, o, 1);
   },
 
   nextTile: function (x, y, o, dist) {
+    dist = dist || G_TILESIZE;
     return this.nextDist(x, y, o, G_TILESIZE);
   },
 

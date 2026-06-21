@@ -836,10 +836,12 @@ var MapEntities = cls.Class.extend({
           if (subpath)
           {
             subpath = this.pathfinder.makeNodesMidPoints(subpath);
+            subpath = this.pathfinder.dropUneededNodes(subpath);
             console.info("findDirectPath - subpath:"+JSON.stringify(subpath));
             if (!this.pathfinder.isValidGridPath(sgrid, subpath)) {
               //console.error("subpath: "+JSON.stringify(subpath));
               try { throw new Error(); } catch (e) { console.error(e.stack); }
+              return null;
             }
             var res = this.pathfinder.getFullFromShortPath(subpath, shortGrid.minX, shortGrid.minY);
             console.info("findDirectPath - res:"+JSON.stringify(res));
@@ -868,18 +870,16 @@ var MapEntities = cls.Class.extend({
             var lpE = longGrid.subend;
             path = this.pathfinder.findShortPath(longGrid.crop,
           	 longGrid.minX, longGrid.minY, lpS, lpE);
-            if (path)
+            if (path) {
+              path = this.pathfinder.dropUneededNodes(path);
               path = this.pathfinder.getFullFromShortPath(path, longGrid.minX, longGrid.minY);
+            }
             console.info("findPath - longPath:"+JSON.stringify(path));
           }
 
           if (!path) {
               console.error("findPath - Error while finding the path to "+x+", "+y+" for "+character.id);
               return null;
-          }
-          if (!this.pathfinder.isValidPath(path)) {
-            try { throw new Error(); } catch (e) { console.error(e.stack); }
-            return null;
           }
           if (!this.pathfinder.isValidGridPath(this.map.grid, path, true)) {
             try { throw new Error(); } catch (e) { console.error(e.stack); }
