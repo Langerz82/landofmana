@@ -84,15 +84,11 @@ define(['area', 'detect', 'map', 'config'], function(Area, Detect, Map, config) 
     _initMap: function(map) {
       var c = game.camera;
       var gs = game.renderer.gameScale;
-      var ts = game.tilesize;
+      var ts = G_TILESIZE;
 
       this.width = map.width;
       this.height = map.height;
-      this.chunkWidth = 128;
-      this.chunkHeight = 128;
 
-      this.chunksX = Math.ceil(map.width / map.chunkWidth);
-      this.chunksY = Math.ceil(map.height / map.chunkHeight);
       this.indexes = map.indexes;
 
       this.widthX = (map.width-1)*this.game.tilesize;
@@ -110,11 +106,8 @@ define(['area', 'detect', 'map', 'config'], function(Area, Detect, Map, config) 
       this.doors = this._getDoors(map);
       this.checkpoints = this._getCheckpoints(map);
 
-      this.gridWidth = 128;
-      this.gridHeight = 128;
-
-      this.edgeX = this.gridWidth >> 1;
-      this.edgeY = this.gridHeight >> 1;
+      this.gridWidth = c.gridWE;
+      this.gridHeight = c.gridHE;
 
       this.gcsx = 0;
       this.gcsy = 0;
@@ -232,43 +225,6 @@ define(['area', 'detect', 'map', 'config'], function(Area, Detect, Map, config) 
       });
     },
 
-    getSubCoordinate: function (x,y) {
-      x = x % (this.chunkWidth * this.tilesize);
-      y = y % (this.chunkHeight * this.tilesize);
-      return [x,y];
-    },
-
-    getSubIndex: function (gx,gy) {
-      gx = gx.clamp(0, this.width-1);
-      gy = gy.clamp(0, this.height-1);
-
-      var index = ~~(gy / this.chunkHeight)*this.chunksX +
-                     ~~(gx / this.chunkWidth);
-      if (index < 0 || index > this.indexes)
-        return null;
-
-      return index;
-    },
-
-    getSubIndexRelative: function (x,y) {
-      return this.getSubIndex(x >> 4, y >> 4);
-    },
-
-    getSubMapIndexDimensions: function (subIndex)
-    {
-        var map = this.maps[subIndex];
-        var indexY = ~~(subIndex / this.chunksX) * (this.chunkHeight);
-        var indexX = (subIndex % this.chunksX) * (this.chunkWidth);
-
-        var dimension = {
-          x1: indexX,
-          x2: indexX + (this.chunkWidth),
-          y1: indexY,
-          y2: indexY + (this.chunkHeight)
-        };
-        return dimension;
-    },
-
     GridPositionToTileIndex: function(x, y) {
       return (y * this.width) + x;
     },
@@ -301,7 +257,6 @@ define(['area', 'detect', 'map', 'config'], function(Area, Detect, Map, config) 
     LoadMaps: function () {
         var self = this;
         var map;
-        var ts = game.tilesize;
 
         for (var i in this.maps)
         {
@@ -330,24 +285,8 @@ define(['area', 'detect', 'map', 'config'], function(Area, Detect, Map, config) 
 
       var gx = fe.gx, gy = fe.gy;
 
-      for (var i=0; i < this.indexes; i++)
-      {
-        var dim = this.getSubMapIndexDimensions(i);
-        var mapPoint = {x: (dim.x1+dim.x2)/2, y: (dim.y1+dim.y2)/2}
-        var distX = Math.abs(mapPoint.x-gx);
-        var distY = Math.abs(mapPoint.y-gy);
-        if ( (distX + distY) < (this.chunkHeight * 2) )
-        {
-          if (!this.maps[i]) {
-            this.GetMap(i);
-          }
-        }
-        else if ( (distX + distY) > (this.chunkHeight * 4))
-        {
-          if (this.maps.hasOwnProperty(i)) {
-            this.maps[i] = null;
-          }
-        }
+      if (!this.maps[0]) {
+        this.GetMap(0);
       }
       if (init)
         this.LoadMaps();
@@ -366,27 +305,9 @@ define(['area', 'detect', 'map', 'config'], function(Area, Detect, Map, config) 
 
       this.reloadMaps();
 
-      for (var i in this.maps)
-      {
-        map = this.maps[i];
-        if (!(map && map.isLoaded))
-          continue;
+      var map = this.maps[0];
+      this._updateGrid(map);
 
-        var dim = this.getSubMapIndexDimensions(i);
-
-        var sr = {x1: c.x, y1: c.y,
-                  x2: c.x + (c.gridWE * ts), y2: c.y + (c.gridHE * ts)};
-        var mr = {x1: (dim.x1 * ts), y1: (dim.y1 * ts),
-                  x2: (dim.x2 * ts), y2: (dim.y2 * ts)};
-
-        var res = Utils.RectContains(sr, mr);
-        if (res)
-        {
-          this._updateGrid(map);
-        }
-      }
-
-      //game.renderer.forceRedraw = true;
       return true;
     },
 
@@ -402,36 +323,20 @@ define(['area', 'detect', 'map', 'config'], function(Area, Detect, Map, config) 
       var cgwh = (cgw >> 1);
       var cghh = (cgh >> 1);
 
-      /*var gx = fe.x >> 4;
-      var gy = fe.y >> 4;
-      if (fe && this.fegx === gx && this.fegy === gy)
-      {
-        return;
-      }
-      this.fegx = gx;
-      this.fegy = gy;*/
       var gx = fe.x >> 4, gy = fe.y >> 4;
 
       gx = (gx-cgwh).clamp(0, this.width-cgw),
       gy = (gy-cghh).clamp(0, this.height-cgh);
 
-      var msx = (dim.x1-gx),
-          msy = (dim.y1-gy);
+      var ox = gx;
+      var oy = gy;
 
-      var gsx = Math.max(msx, 0),
-          gsy = Math.max(msy, 0),
-          gex = Math.min((dim.x2-gx), cgw),
-          gey = Math.min((dim.y2-gy), cgh);
+      var gw = this.gridWidth;
+      var gh = this.gridHeight;
 
-      var ox = (msx > 0) ? 0 : gx % this.chunkWidth;
-      var oy = (msy > 0) ? 0 : gy % this.chunkHeight;
-
-      //console.warn("ox:"+ox+",oy:"+oy);
-      for(var i=gsy, k=oy, l=ox; i < gey; ++i, ++k) {
+      for(var i=0, k=oy, l=ox; i < gh; ++i, ++k) {
           l = ox;
-          for(var j=gsx; j < gex; ++j, ++l) {
-            //if (k < 0 || k >= this.chunkHeight || l < 0 || l >= this.chunkWidth)
-              //console.error("mc._updateGrid - out of bounds: i j, k l,"+i+" "+j+" "+","+k+" "+l);
+          for(var j=0; j < gw; ++j, ++l) {
             this.collisionGrid[i][j] = map.collision[k][l];
             this.tileGrid[i][j] = map.tile[k][l];
           }
@@ -478,13 +383,10 @@ define(['area', 'detect', 'map', 'config'], function(Area, Detect, Map, config) 
     },
 
     isCollidingGrid: function(gx, gy) {
-      var index = this.getSubIndex(gx,gy);
+      var index = 0;
       var map = this.maps[index];
       if (!map)
         return true;
-
-      gx -= map.dimensions.x1;
-      gy -= map.dimensions.y1;
 
       return map.isColliding(gx,gy);
     },
@@ -504,8 +406,8 @@ define(['area', 'detect', 'map', 'config'], function(Area, Detect, Map, config) 
      * @returns {Boolean} Whether the position is out of bounds.
      */
     isOutOfCameraBounds: function(x, y) {
-      var ts = game.tilesize,
-          to = game.tilesize >> 1;
+      var ts = G_TILESIZE,
+          to = G_TILESIZE >> 1;
       return !isInt(x) || !isInt(y) || (x < to || x >= (this.width*ts-to) || y < (to) || y >= (this.height*ts-(to)));
     },
 
@@ -528,16 +430,12 @@ define(['area', 'detect', 'map', 'config'], function(Area, Detect, Map, config) 
         res = types[type].includes(tiles);
       }
       return res;
-      //var harvestTiles = [678, 679, 698, 699, 855, 875];
-      //var res = types[type].some(function (tile) { return tiles.includes(tile); });
-      //return res;
     },
 
     getTiles: function (gx,gy) {
-      var mapIndex = this.getSubIndex(gx, gy);
-      var map = this.maps[mapIndex];
-      var tx = gx % this.chunkWidth, ty = gy % this.chunkHeight;
-      return map.tile[ty][tx];
+      var index = 0;
+      var map = this.maps[index];
+      return map.tile[gy][gx];
     },
 
   });

@@ -19,8 +19,8 @@ var parser = new XMLParser(options);
 
 var source = process.argv[2],
     mode = process.argv[3] || "direct",
-    chunkWidth = process.argv[4] || 128;
-    chunkHeight = process.argv[5] || 128;
+    chunkWidth = process.argv[4] || 0;
+    chunkHeight = process.argv[5] || 0;
     destination = process.argv[6];
 
 if(!source || (mode!="direct" && mode!="client" && mode!="server")) {
@@ -71,7 +71,7 @@ function processClient(json, tsx, dest){
   if (chunkWidth == 0 && chunkHeight == 0)
   {
     createMapFile(mapData, dest);
-    return;  	  
+    return;
   }
 
   chunkWidth = parseInt(chunkWidth || map.chunkWidth);

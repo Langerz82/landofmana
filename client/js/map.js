@@ -1,7 +1,7 @@
 define(['detect','config'], function(Detect, config) {
 
   var Map = Class.extend({
-    init: function(game, mapContainer, mapSubIndex) {
+    init: function(game, mapContainer) {
       var self = this;
 
       this.game = game;
@@ -9,14 +9,11 @@ define(['detect','config'], function(Detect, config) {
       this.isLoaded = false;
       this.tilesetsLoaded = false;
       this.mapLoaded = false;
-      this.mapSubIndex = mapSubIndex;
       this.mapName = mapContainer.mapName;
-      this.focusOffset = {x1: -1, x2: -1, y1: -1, y2: -1};
       this.gridUpdated = false;
-      this.dimensions = mapContainer.getSubMapIndexDimensions(this.mapSubIndex);
 
       var mc = this.mapContainer;
-      var name = mc.mapName + "/" + mc.mapName + "_"+this.mapSubIndex+".json";
+      var name = mc.mapName + "/" + mc.mapName +".json";
       try {
         mc.zip.file(name).async("string").then(function(data) {
           self.loadMapData(JSON.parse(data));
