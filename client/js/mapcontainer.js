@@ -106,8 +106,8 @@ define(['area', 'detect', 'map', 'config'], function(Area, Detect, Map, config) 
       this.doors = this._getDoors(map);
       this.checkpoints = this._getCheckpoints(map);
 
-      this.gridWidth = c.gridWE;
-      this.gridHeight = c.gridHE;
+      //this.gridWidth = c.gridWE;
+      //this.gridHeight = c.gridHE;
 
       this.gcsx = 0;
       this.gcsy = 0;
@@ -229,7 +229,7 @@ define(['area', 'detect', 'map', 'config'], function(Area, Detect, Map, config) 
       return (y * this.width) + x;
     },
 
-    GetMap: function (index) {
+    getMap: function (index) {
       var self = this;
       var map;
       if (!this.maps[index]) {
@@ -286,7 +286,7 @@ define(['area', 'detect', 'map', 'config'], function(Area, Detect, Map, config) 
       var gx = fe.gx, gy = fe.gy;
 
       if (!this.maps[0]) {
-        this.GetMap(0);
+        this.getMap(0);
       }
       if (init)
         this.LoadMaps();
@@ -331,14 +331,11 @@ define(['area', 'detect', 'map', 'config'], function(Area, Detect, Map, config) 
       var ox = gx;
       var oy = gy;
 
-      var gw = this.gridWidth;
-      var gh = this.gridHeight;
-
-      for(var i=0, k=oy, l=ox; i < gh; ++i, ++k) {
+      for(var i=0, k=oy, l=ox; i < cgh; ++i, ++k) {
           l = ox;
-          for(var j=0; j < gw; ++j, ++l) {
-            this.collisionGrid[i][j] = map.collision[k][l];
-            this.tileGrid[i][j] = map.tile[k][l];
+          for(var j=0; j < cgw; ++j, ++l) {
+            this.collisionGrid[i][j] = this.getCollision(l,k);
+            this.tileGrid[i][j] = this.getTiles(l,k);
           }
       }
     },
@@ -433,11 +430,14 @@ define(['area', 'detect', 'map', 'config'], function(Area, Detect, Map, config) 
     },
 
     getTiles: function (gx,gy) {
-      var index = 0;
-      var map = this.maps[index];
+      var map = this.getMap(0);
       return map.tile[gy][gx];
     },
 
+    getCollision: function (gx,gy) {
+      var map = this.getMap(0);
+      return map.collision[gy][gx];
+    },
   });
 
   return MapContainer;
