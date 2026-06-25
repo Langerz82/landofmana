@@ -303,6 +303,8 @@ define(['./entity', '../transition', '../timer'], function(Entity, Transition, T
     this.path = null;
     this.newDestination = null;
 
+    this.movement.stop();
+
     if (this.interrupted && this.abort_pathing_callback) {
       this.abort_pathing_callback(path, this.x, this.y);
       this.interrupted = false;
@@ -311,8 +313,6 @@ define(['./entity', '../transition', '../timer'], function(Entity, Transition, T
       this.stop_pathing_callback(this.x, this.y);
       //console.info("nextStep - stopped, x:"+this.x+",y:"+this.y);
     }
-
-    this.movement.stop();
   },
 
   onMoveStop: function (callback) {

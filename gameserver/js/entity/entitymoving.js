@@ -305,6 +305,8 @@ module.exports = EntityMoving = Entity.extend({
     this.path = null;
     this.newDestination = null;
 
+    this.movement.stop();
+
     if (this.interrupted && this.abort_pathing_callback) {
       this.abort_pathing_callback(path, this.x, this.y);
       this.interrupted = false;
@@ -313,9 +315,6 @@ module.exports = EntityMoving = Entity.extend({
       this.stop_pathing_callback(this.x, this.y);
       //console.info("nextStep - stopped, x:"+this.x+",y:"+this.y);
     }
-
-    this.movement.stop();
-    //this.forceStop();
   },
 
   onMoveStop: function (callback) {
