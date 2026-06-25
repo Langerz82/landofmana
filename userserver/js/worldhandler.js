@@ -13,7 +13,6 @@ module.exports = WorldHandler = cls.Class.extend({
         this.connection = connection;
         this.world = null;
 
-        this.users = {};
         this.SAVED_AUCTIONS = false;
         this.SAVED_LOOKS = false;
         this.SAVED_BANS = false;
@@ -82,27 +81,7 @@ module.exports = WorldHandler = cls.Class.extend({
           }
         };
         this.connection.listen(this.listener);
-
-        /*this.connection.onClose(function() {
-          console.info("onClose - called");
-          //self.onExit();
-          this.close("onClose");
-          self.onClose();
-        });*/
     },
-
-    /*onClose: function () {
-      console.info("worldHandler, onClose.")
-      for (var username in this.users) {
-        console.info("username:"+username);
-        delete loggedInUsers[username];
-        delete this.loggedInUsers[username];
-      }
-      delete this;
-    },*/
-
-    /*onExit: function() {
-    },*/
 
     send: function(message) {
       this.connection.send(message);
@@ -122,16 +101,11 @@ module.exports = WorldHandler = cls.Class.extend({
 
     handleSavePlayersList: function (msg) {
       console.info("handleSavePlayersList: "+JSON.stringify(msg));
-      //this.savePlayers = {};
       if (msg[0].length === 0) {
         this.SAVED_PLAYERS = true;
         return;
       }
       this.SAVED_PLAYERS = false;
-      /*for (var pname of msg)
-      {
-        this.savePlayers[pname] = 0;
-      }*/
     },
 
     handleSavePlayerAuctions: function (msg) {
@@ -184,7 +158,6 @@ module.exports = WorldHandler = cls.Class.extend({
         console.info("worldHandler released.");
         for (var tmp in this.loggedInUsers) {
           console.info("releasing user: "+tmp);
-          delete loggedInUsers[tmp];
         }
         delete this.loggedInUsers;
         delete this;
@@ -195,15 +168,12 @@ module.exports = WorldHandler = cls.Class.extend({
       var status = Number(msg[0]);
       var username = msg[1];
       var playerName = msg[2];
+
       if (status === 1) {
-        loggedInUsers[username] = playerName;
-        this.loggedInUsers[username] = username;
-        this.users[username] = username;
+        this.loggedInUsers[username] = users[username];
       }
       else {
-        delete loggedInUsers[username];
         delete this.loggedInUsers[username];
-        delete this.users[username];
       }
     },
 
@@ -230,9 +200,7 @@ module.exports = WorldHandler = cls.Class.extend({
 
       this.world = world;
 
-      //setTimeout(function () {
       self.sendAuctionsToWorld(self.worldIndex);
-      //},10000);
       self.sendLooksToWorld(self.worldIndex);
       self.sendBansToWorld(self.worldIndex);
     },
@@ -271,10 +239,8 @@ module.exports = WorldHandler = cls.Class.extend({
             DBH.createPlayerNameInUser(username, playerName);
             if (!update) {
               delete self.playerSaveData[playerName];
-              delete loggedInUsers[username];
+              delete users[username];
             }
-            //console.info("loggedInUsers: "+JSON.stringify(loggedInUsers));
-            console.info("loggedInUsers: "+JSON.stringify(loggedInUsers));
           }
           if (Object.keys(self.playerSaveData).length === 0) {
             DBH.transferOfflineGold(playerName, function (playerName) {
@@ -506,7 +472,6 @@ module.exports = WorldHandler = cls.Class.extend({
         var objData = {};
         objData.data = new Array(7);
         objData.count = 0;
-        //objData.username = username;
 
         self.playerLoadData[playername] = objData;
 

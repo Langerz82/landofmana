@@ -41,15 +41,6 @@ module.exports = UserHandler = cls.Class.extend({
         });
 
         this.sendOldPackets();
-
-        //this.loadedUser = false;
-        //this.loadedPlayer = false;
-
-        //this.looks = new Array(AppearanceData.Data.length);
-
-        //this.gems = 0;
-
-        //this.lastPacketTime = Date.now();
     },
 
     sendOldPackets: function () {
@@ -60,30 +51,6 @@ module.exports = UserHandler = cls.Class.extend({
         userHandlerPackets = [];
     },
 
-/*
-    onClose: function (save) {
-      console.warn("User.onClose - called.")
-      if (this.name) {
-        console.warn("name:"+this.name);
-        users[this.name] = 0;
-      }
-      save = save || false;
-
-      var p = this.player;
-      if (save && p)
-      {
-        //if (this.loadedPlayer)
-          player.save();
-        players.splice(players.indexOf(p),1);
-        console.warn(JSON.stringify(players));
-        delete player;
-      }
-      delete users[this.name];
-      console.warn(JSON.stringify(users));
-      //this.connection.close("closing connection");
-      //delete this;
-    },
-*/
     onExit: function() {
     },
 
@@ -178,27 +145,20 @@ module.exports = UserHandler = cls.Class.extend({
       user.userHandler = this;
 
       this.server.enterWorld(conn);
-      //var user = {gems: gems,
-        //looks: Utils.HexToBin(looks)};
+
       user.gems = gems;
       var len = AppearanceData.Data.length;
       user.looks = Utils.Base64ToBinArray(looks, len);
       user.name = username;
-      //user.world = this;
 
       player = new Player(this.world, user, conn);
       this.world.playerCallback.setCallbacks(player);
-      //player.start(this.connection);
-      //player.name = playerSummary.name;
-      //player.hasLoggedIn = true;
+
       player.name = playerName;
       player.hash = hash;
       player.loaded = 0;
       player.worldHandler = user.worldHandler;
       this.player = player;
-
-      //this.world.connect_callback(player);
-      //this.currentPlayer = player;
 
       this.loadedPlayer = true;
     },
@@ -206,7 +166,6 @@ module.exports = UserHandler = cls.Class.extend({
     handleLoadPlayerInfo: function (msg) {
       console.info("handleLoadPlayerInfo: "+JSON.stringify(msg));
       var player = this.player;
-      //player.name = msg.shift();
       //console.info(msg.toString());
       var data_player = {
           "name": msg[0],
@@ -234,15 +193,12 @@ module.exports = UserHandler = cls.Class.extend({
       }
 
       player.fillPlayerInfo(data_player);
-      //player.hasLoggedIn = true;
-      //player.packetHandler.loadedPlayer = true;
-
     },
 
     handleLoadPlayerQuests: function (msg) {
       console.info("handleLoadPlayerQuests: "+JSON.stringify(msg));
       var player = this.player;
-      //var playerName = msg.shift();
+
       console.info("msg="+msg);
       try {
         dataJSON = JSON.parse(msg);
@@ -268,7 +224,6 @@ module.exports = UserHandler = cls.Class.extend({
     handleLoadPlayerAchievements: function (msg) {
       console.info("handleLoadPlayerAchievements: "+JSON.stringify(msg));
       var player = this.player;
-      //var playerName = msg.shift();
 
       var achievements = getInitAchievements();
       var rec = msg.split(',');
@@ -287,9 +242,8 @@ module.exports = UserHandler = cls.Class.extend({
     handleLoadPlayerItems: function (type, msg) {
       console.info("handleLoadPlayerItems: "+JSON.stringify(msg));
       var player = this.player;
-      //var playerName = msg.shift();
       var items = [];
-      //console.info(pKey);
+
       console.info("getItems - data="+msg);
       dataJSON = JSON.parse(msg);
       for (var itemData of dataJSON) {
@@ -362,10 +316,6 @@ module.exports = UserHandler = cls.Class.extend({
     sendPlayerLogout: function (player) {
       this.sendToUserServer(new UserMessages.playerLoggedIn(0,player.user.name, player.name));
     },
-
-    /*sendPlayerLoggedIn: function (username, playerName) {
-      this.sendToUserServer( new UserMessages.playerLoggedIn(username, playerName));
-    },*/
 
     sendPlayersList: function (data) {
       console.info("userHandler - sendPlayersList: "+JSON.stringify(data));

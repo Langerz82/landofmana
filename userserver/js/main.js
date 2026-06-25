@@ -36,7 +36,6 @@ PLAYERS_SAVED = false;
 //worlds = [];
 worldHandlers = [];
 users = {};
-loggedInUsers = {};
 
 player_users = {};
 
@@ -178,7 +177,8 @@ function main(config) {
 
       conn.onClose(function (conn) {
         if (user)
-          delete loggedInUsers[user.name];
+          if (user.hasLoggedIn)
+            delete users[user.name];
           user = null;
       });
     };
