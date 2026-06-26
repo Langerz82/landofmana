@@ -284,7 +284,7 @@ module.exports = MobAI = Class.extend({
 
     Roaming: function(player) {
       //var self = this;
-      var dist = 5 * G_TILESIZE;
+      var maxDistance = 6;
 
       var mobs = this.map.entities.getMobsAround(player, 32);
   	  for (var mob of mobs) {
@@ -297,6 +297,7 @@ module.exports = MobAI = Class.extend({
     		//console.info("Roaming playerCount="+playerCount);
   		  if(mob.canRoam()) {
           var area = mob.area;
+          var dist = Utils.randomInt(maxDistance) * G_TILESIZE;
           var pos = mob.map.entities.spaceEntityRandomApart(2, area._getRandomPositionForEntity.bind(area,mob,dist), mobs);
           if (!pos)
             continue;

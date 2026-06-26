@@ -304,7 +304,6 @@ define(['./entity', '../transition', '../timer'], function(Entity, Transition, T
     this.newDestination = null;
 
     this.movement.stop();
-
     if (this.interrupted && this.abort_pathing_callback) {
       this.abort_pathing_callback(path, this.x, this.y);
       this.interrupted = false;

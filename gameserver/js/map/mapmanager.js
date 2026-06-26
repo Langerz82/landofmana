@@ -121,7 +121,7 @@ module.exports = MapManager = cls.Class.extend({
                       //var mobtype = (id % (Object.keys(MobData.Kinds).length-1))+1;
                       var w = 40 * G_TILESIZE;
                       var h = 40 * G_TILESIZE;
-                      var mobArea1 = new MobArea(map, id, 15, 1+(id), 1+(id), ga, gb, w, h,
+                      var mobArea1 = new MobArea(map, id, 12, 1+(id), 1+(id), ga, gb, w, h,
                         null, null, null, true, -1, null);
                       map.mobArea.push(mobArea1);
                       mobArea1.addMobs();
@@ -130,7 +130,7 @@ module.exports = MapManager = cls.Class.extend({
                       // Slighter tougher mobs in inner circle.
                       w = 20 * G_TILESIZE;
                       h = 20 * G_TILESIZE;
-                      var mobArea2 = new MobArea(map, id, 5, 2+(id), 2+(id), ga, gb, w, h,
+                      var mobArea2 = new MobArea(map, id, 4, 2+(id), 2+(id), ga, gb, w, h,
                         null, null, null, true, -1, null);
                       map.mobArea.push(mobArea2);
                       mobArea2.addMobs();

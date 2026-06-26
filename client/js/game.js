@@ -1517,8 +1517,8 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
                     }*/
                     var pE = c.getGridPos([x, y]);
                     // Round end result to grid.
-                    //pE[0] = Math.floor(pE[0]) + 0.5;
-                    //pE[1] = Math.floor(pE[1]) + 0.5;
+                    pE[0] = Math.floor(pE[0]) + 0.5;
+                    pE[1] = Math.floor(pE[1]) + 0.5;
 
                     //console.info(JSON.stringify(pE));
 
@@ -1548,7 +1548,7 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
 
                     var fpS = [~~(pS[0]),~~(pS[1])];
                     var fpE = [~~(pE[0]),~~(pE[1])];
-                    var shortGrid = this.pathfinder.getShortGrid(grid, fpS, fpE, 3);
+                    var shortGrid = this.pathfinder.getShortGrid(grid, pS, pE, 3);
                     var sgrid = shortGrid.crop;
                     var spS = shortGrid.substart;
                     var spE = shortGrid.subend;
@@ -1578,13 +1578,16 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
                     {
                       var fp = path[0];
                       var lp = path[path.length-1];
-                      var rs = [fp[0] + (pS[0] % 1),fp[1] + (pS[1] % 1)];
-                      var re = [lp[0] + (pE[0] % 1),lp[1] + (pE[1] % 1)];
+                      //var rs = [fp[0] + (pS[0] % 1),fp[1] + (pS[1] % 1)];
+                      //var re = [lp[0] + (pE[0] % 1),lp[1] + (pE[1] % 1)];
+                      var rs = fp;
+                      var re = lp;
                       log.info("game.findPath - rs: "+JSON.stringify(rs));
                       log.info("game.findPath - re: "+JSON.stringify(re));
                       log.info("game.findPath - path_result1: "+JSON.stringify(path));
-                      path = this.pathfinder.convertPathToRealPath(path, rs, re);
-                      log.info("game.findPath - path_result2: "+JSON.stringify(path));
+                      var realpath = this.pathfinder.convertPathToRealPath(path, rs, re);
+                      realpath = this.pathfinder.dropUneededNodes(realpath);
+                      log.info("game.findPath - path_result2: "+JSON.stringify(realpath));
                       //log.info("game.findPath - spS: "+JSON.stringify(spS));
                       /*if (!this.pathfinder.isValidGridPath(grid, path)) {
                         try { throw new Error(); } catch (e) { console.error(e.stack); }
@@ -1597,39 +1600,40 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
                       var dy = character.y - (cy*ts);
                       //log.info("game.findPath - dx: "+dx);
                       //log.info("game.findPath - dy: "+dy);
-                      log.info("game.findPath - path1: "+JSON.stringify(path));
-                      for (var node of path)
+                      log.info("game.findPath - path1: "+JSON.stringify(realpath));
+                      for (var node of realpath)
                       {
                         node[0] = ~~((node[0]*ts)+dx);
                         node[1] = ~~((node[1]*ts)+dy);
                       }
-                      log.info("game.findPath - path2: "+JSON.stringify(path));
+                      log.info("game.findPath - path2: "+JSON.stringify(realpath));
 
-                      var dx = (path[0][0]-character.x);
-                      var dy = (path[0][1]-character.y);
-                      for (var node of path)
+                      var dx = (realpath[0][0]-character.x);
+                      var dy = (realpath[0][1]-character.y);
+                      for (var node of realpath)
                       {
                         node[0] -= dx;
                         node[1] -= dy;
                       }
 
-                      log.info("game.findPath - path3: "+JSON.stringify(path));
+                      log.info("game.findPath - path3: "+JSON.stringify(realpath));
 
-                      log.info("game.findPath - path_result2: "+JSON.stringify(path));
-                      log.info("game.findPath - pdx:"+(Math.abs(path[0][0]-character.x)));
-                      log.info("game.findPath - pdy:"+(Math.abs(path[0][1]-character.y)));
-                      log.info("game.findPath - path start coordinate: "+path[0][0]+","+path[0][1]);
+                      log.info("game.findPath - path_result2: "+JSON.stringify(realpath));
+                      log.info("game.findPath - pdx:"+(Math.abs(realpath[0][0]-character.x)));
+                      log.info("game.findPath - pdy:"+(Math.abs(realpath[0][1]-character.y)));
+                      log.info("game.findPath - path start coordinate: "+realpath[0][0]+","+realpath[0][1]);
                       log.info("game.findPath - player start coordinate: "+character.x+","+character.y);
-                      if (!(path[0][0] === (character.x) && path[0][1] === (character.y)))
+                      if (!(realpath[0][0] === (character.x) && realpath[0][1] === (character.y)))
                       {
                         log.error("game.findPath - player path start co-ordinates mismatch.");
                         return null;
                       }
-                      if (!this.pathfinder.isValidPath(path)) {
+                      if (!this.pathfinder.isValidPath(realpath)) {
                         try { throw new Error(); } catch (e) { console.error(e.stack); }
                         character.forceStop();
                         return null;
                       }
+                      path = realpath;
                     }
                 } else {
                     log.error("game.findPath - Error while finding the path to "+x+", "+y+" for "+character.id);
@@ -1887,8 +1891,9 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
               {
                 p.setTarget(entity);
               }
-              if (p.isNextTooEntity(entity))
+              if (p.isNextTooEntity(entity) && !p.movement.inProgress) {
                 p.lookAtEntity(entity);
+              }
               log.info("player target: "+p.target.id);
 
               if (entity instanceof Block && p.isNextTooEntity(entity) &&

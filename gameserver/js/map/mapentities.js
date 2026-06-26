@@ -823,7 +823,9 @@ var MapEntities = cls.Class.extend({
             return null;
           }
 
-          var shortGrid = this.pathfinder.getShortGrid(grid, pS, pE, 3);
+          var fgpS = [~~(pS[0]/ts), ~~(pS[1]/ts)];
+          var fgpE = [~~(pE[0]/ts), ~~(pE[1]/ts)];
+          var shortGrid = this.pathfinder.getShortGrid(grid, fgpS, fgpE, 3);
           var sgrid = shortGrid.crop;
           var spS = shortGrid.substart;
           var spE = shortGrid.subend;
@@ -865,7 +867,7 @@ var MapEntities = cls.Class.extend({
 
           if (!path) {
             console.warn("findPath - DANGER - findPath LONGGG");
-            var longGrid = this.pathfinder.getShortGrid(grid, pS, pE, 10);
+            var longGrid = this.pathfinder.getShortGrid(grid, fgpS, fgpE, 10);
             var lpS = longGrid.substart;
             var lpE = longGrid.subend;
             path = this.pathfinder.findShortPath(longGrid.crop,

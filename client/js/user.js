@@ -100,14 +100,14 @@ function(UserClient, Player, AppearanceData, Timer) {
             }
             return false;
         };
-
+/*
         player.lookAtEntity = function (entity) {
           if (this.isMoving())
             return;
 
           this._lookAtEntity(entity);
         };
-
+*/
         // Note - freeze might be needed disable for now.
         player.hit = function(orientation) {
           orientation = orientation || this.orientation;
@@ -174,12 +174,12 @@ function(UserClient, Player, AppearanceData, Timer) {
           // path movement.
           if (this.movement.inProgress)
           {
-            this.forceStop();
+            //this.forceStop();
             return false;
           }
 
           if (this.keyMove) {
-            this.forceStop();
+            //this.forceStop();
             return true;
           }
 

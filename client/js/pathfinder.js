@@ -97,37 +97,26 @@ define(['lib/astar'], function(AStar) {
           return true;
         },
 
-        getShortGrid: function (grid, start, end, gridEdges) {
-          //var ts = G_TILESIZE;
-          start = [start[0], start[1]];
-    			end = [end[0], end[1]];
+        // from https://chatgpt.com/c/6a3db155-e5c4-83ec-8fac-a774dc81df12
+        getShortGrid: function (grid, start, end, e = 0) {
+            const h = grid.length, w = grid[0].length;
+            const minX = Math.max(Math.min(~~start[0], ~~end[0]) - e, 0);
+            const maxX = Math.min(Math.max(Math.ceil(start[0]), Math.ceil(end[0])) + e, w - 1);
+            const minY = Math.max(Math.min(~~start[1], ~~end[1]) - e, 0);
+            const maxY = Math.min(Math.max(Math.ceil(start[1]), Math.ceil(end[1])) + e, h - 1);
 
-          var minX = Math.max(Math.min(Math.floor(start[0]), Math.floor(end[0])) - gridEdges, 0);
-          var maxX = Math.min(Math.max(Math.ceil(start[0]), Math.ceil(end[0])) + gridEdges, grid[0].length-1);
-          var minY = Math.max(Math.min(Math.floor(start[1]), Math.floor(end[1])) - gridEdges, 0);
-          var maxY = Math.min(Math.max(Math.ceil(start[1]), Math.ceil(end[1])) + gridEdges, grid.length-1);
+            var crop = Array.from(
+                { length: maxY - minY + 1 },
+                (_, y) => new Uint8Array(grid[minY + y].slice(minX, maxX + 1))
+            );
 
-    			var substart = [(start[0]-minX), (start[1]-minY)];
-    			var subend = [(end[0]-minX), (end[1]-minY)];
-
-    			//log.info(JSON.stringify(substart));
-    			//log.info(JSON.stringify(subend));
-    			//log.info("minX="+minX+",maxX="+maxX+",minY="+minY+",maxY="+maxY);
-
-
-          maxX = Math.min(grid[0].length-1, maxX);
-          maxY = Math.min(grid.length-1, maxY);
-          var crop = new Array(maxY - minY);
-    			for(var j=0, i = minY; i <= maxY; ++i) {
-    				crop[j++] = new Uint8Array(grid[i].slice(minX, maxX));
-    			}
-
-    			return {
-    				crop: crop,
-    				minX: minX,
-    				minY: minY,
-    				substart: substart,
-    				subend: subend};
+            return {
+                crop,
+                minX,
+                minY,
+                substart: [start[0] - minX, start[1] - minY],
+                subend: [end[0] - minX, end[1] - minY]
+            };
         },
 
         findNeighbourPath: function(start, end) {
@@ -142,11 +131,13 @@ define(['lib/astar'], function(AStar) {
 		    },
 
         findDirectPath: function (grid, start, end) {
-          var dx = Math.abs(Math.floor(start[0]) - Math.floor(end[0]));
-          var dy = Math.abs(Math.floor(start[1]) - Math.floor(end[1]));
+          //var dx = Math.abs(Math.floor(start[0]) - Math.floor(end[0]));
+          //var dy = Math.abs(Math.floor(start[1]) - Math.floor(end[1]));
+          var dx = Math.abs(start[0] - end[0]);
+          var dy = Math.abs(start[1] - end[1]);
 
           var mp = [start, end];
-          if (dx < 1 || dy < 1) {
+          if (dx === 0 || dy === 0) {
             if(this.isValidGridPath(grid, mp)) {
               log.info("validpath-fdp1:"+JSON.stringify(mp));
               return mp;
@@ -180,33 +171,38 @@ define(['lib/astar'], function(AStar) {
           return result;
         },
 
-        convertPathToRealPath: function (result, start, end) {
-          var fn = function (node, result) {
-            result.shift();
-            result.unshift([node[0], node[1]]);
-            var it2 = null;
-            for (var it of result) {
-              if (it2) {
-                if (~~(it2[0]) === ~~(it[0]))
-                  it[0] = it2[0];
-                else if (~~(it2[1]) === ~~(it[1]))
-                  it[1] = it2[1];
-                else {
-                  break;
-                }
+        _popAndPushNewNodeInPath: function (node, result) {
+          result.shift();
+          result.unshift([node[0], node[1]]);
+          var it2 = null;
+          for (var it of result) {
+            if (it2) {
+              if (~~(it2[0]) === ~~(it[0]))
+                it[0] = it2[0];
+              else if (~~(it2[1]) === ~~(it[1]))
+                it[1] = it2[1];
+              else {
+                break;
               }
-              it2 = it;
             }
-          };
+            it2 = it;
+          }
+        },
 
-          fn(start, result);
-          result.reverse();
-          fn(end, result);
-          result.reverse();
+        convertPathToRealPath: function (result, start, end) {
+          var temp = Utils.copy2DArray(result);
 
-          result = this.makeNodesMidPoints(result);
+          if (temp.length === 2) {
+            temp = Utils.copy2DArray([start, end]);
+          } else {
+            this._popAndPushNewNodeInPath(start, temp);
+            temp.reverse();
+            this._popAndPushNewNodeInPath(end, temp);
+            temp.reverse();
+          }
 
-          return result;
+          temp = this.makeNodesMidPoints(temp);
+          return temp;
         },
 
         dropUneededNodes: function(path) {
@@ -261,7 +257,7 @@ define(['lib/astar'], function(AStar) {
         findShortPath: function(crop, offsetX, offsetY, start, end) {
       			var path = this.AStar(crop, start, end);
             if (path) {
-              console.info("pathfinder, findShortPath - path: "+JSON.stringify(path));
+              console.info("pathfinder.findShortPath - path: "+JSON.stringify(path));
             }
             return path;
         },
@@ -274,7 +270,7 @@ define(['lib/astar'], function(AStar) {
 
             var path = this.AStar(grid, start, end);
             if (path) {
-              console.info("pathfinder, findPath - path: "+JSON.stringify(path));
+              console.info("pathfinder.findPath - path: "+JSON.stringify(path));
             }
             return path;
         },

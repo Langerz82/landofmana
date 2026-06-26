@@ -397,3 +397,11 @@ Utils.isBetween = function (num, a, b) {
 Utils.floorToGrid = function (num, nth) {
     return Math.floor(num / nth) * nth;
 };
+
+Utils.copy2DArray = function (arr) {
+  let copy = [];
+  for (let i = 0; i < arr.length; i++) {
+    copy.push(arr[i].slice()); // .slice() creates a copy of the inner array
+  }
+  return copy;
+}
