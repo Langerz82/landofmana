@@ -1600,8 +1600,8 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
                       log.info("game.findPath - path1: "+JSON.stringify(realpath));
                       for (var node of realpath)
                       {
-                        node[0] = ~~((node[0]*ts)+dx);
-                        node[1] = ~~((node[1]*ts)+dy);
+                        node[0] = Math.floor((node[0]*ts)+dx);
+                        node[1] = Math.floor((node[1]*ts)+dy);
                       }
                       log.info("game.findPath - path2: "+JSON.stringify(realpath));
 

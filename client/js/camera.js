@@ -127,6 +127,10 @@ define(['entity/entity'], function(Entity) {
             var tx = (x - this.x - tw) / ts;
             var ty = (y - this.y - th) / ts;
 
+            // CRITICAL FIX: Snap to nearest grid point + handle FP precision
+            tx = Math.round(tx * 2) / 2;  // Snap to nearest 0.5 (center of tile)
+            ty = Math.round(ty * 2) / 2;
+
             log.info("camera.getGridPos - input:", x, y,
                      "camera:", this.x, this.y,
                      "offsets:", tw, th,

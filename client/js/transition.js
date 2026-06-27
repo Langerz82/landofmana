@@ -22,19 +22,24 @@ define(function() {
 
               if (inc === 0) return;
 
-              var j = 0;
               if(this.updateFunction) {
                 var it;
                 var itCount = Math.abs(inc);
 
                 var start=0;
                 var mod = (inc > 0) ? 1 : -1;
-                for (it=1; it <= itCount; ++it)
+                for (it=0; it < itCount; ++it)
                 {
-                  if (!this.inProgress || this.updateFunction(this.object, mod))
+                  if (!this.inProgress)
                   {
                       this.stop(this.object);
-                      return;
+                      break;
+                  }
+
+                  if (this.updateFunction(this.object, mod))
+                  {
+                      this.stop(this.object);
+                      break;
                   }
                 }
               }

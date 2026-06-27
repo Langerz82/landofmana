@@ -465,7 +465,6 @@ define(['lib/localforage', 'entity/mob', 'entity/item', 'data/mobdata', 'user', 
             return zoom;
         },
 
-
         setMouseCoordinates: function(x, y) {
             // TODO Width and Height not clamping mouse properly.
             console.info("app.setMouseCoordinates - x:"+x+",y"+y);
@@ -476,7 +475,7 @@ define(['lib/localforage', 'entity/mob', 'entity/item', 'data/mobdata', 'user', 
                 height = r.innerHeight,
                 mouse = game.mouse;
 
-            var zoom = 1/game.renderer.resolution;
+            var zoom = 1/r.resolution;
 
             width = ~~(width/zoom)-1;
             height = ~~(height/zoom)-1;
@@ -486,6 +485,7 @@ define(['lib/localforage', 'entity/mob', 'entity/item', 'data/mobdata', 'user', 
 
             console.info("app.setMouseCoordinates - mouse.x:"+mouse.x+",mouse.y"+mouse.y);
         },
+
 
         initPlayerBar: function() {
             var self = this;
