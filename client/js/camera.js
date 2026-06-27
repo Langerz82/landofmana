@@ -35,7 +35,6 @@ define(['entity/entity'], function(Entity) {
             this.gridWE = this.gridW+2;
             this.gridHE = this.gridH+2;
 
-            var zoom = 1;
             this.screenW = w;
             this.screenH = h;
             //this.screenWE = ~~(this.gridWE*tsgs*zoom);
@@ -101,28 +100,39 @@ define(['entity/entity'], function(Entity) {
           this.gy = this.y >> 4;
         },
 
+        // https://grok.com/c/d9d3d7ca-7162-4793-8cb0-21cf9399b5db?rid=2ddba89c-2428-434f-8f84-3782c5f3a321
         getGridPos: function (pos)
         {
-          var ts = G_TILESIZE;
-          var r = game.renderer;
-          var mc = game.mapContainer;
-          if (!mc) return;
+            var ts = G_TILESIZE;
+            var r = game.renderer;
+            var x = pos[0];
+            var y = pos[1];
 
-          var x = pos[0];
-              y = pos[1];
+            // Mobile-friendly offset calculation
+            var tw = 0;
+            var th = 0;
 
-          var tw = r.hOffX;
-          var th = r.hOffY;
+            if (r.hOffX !== undefined && r.hOffY !== undefined) {
+                // Use renderer offsets directly - more reliable than devicePixelRatio hack
+                tw = r.hOffX;
+                th = r.hOffY;
+            }
 
-          log.info("camera.getGridPos - tw:"+tw);
-          log.info("camera.getGridPos - th:"+th);
+            // Fallback for mobile / high DPI
+            if (r.mobile || r.tablet || (window.devicePixelRatio && window.devicePixelRatio > 1)) {
+                // Don't divide by devicePixelRatio - it's causing the mismatch
+                // Just use raw offsets
+            }
 
-          var tx = (x-this.x - tw) / ts;
-          var ty = (y-this.y - th) / ts;
+            var tx = (x - this.x - tw) / ts;
+            var ty = (y - this.y - th) / ts;
 
-          var res = [tx,ty];
-          log.info("camera.getGridPos - res:"+JSON.stringify(res));
-          return res;
+            log.info("camera.getGridPos - input:", x, y,
+                     "camera:", this.x, this.y,
+                     "offsets:", tw, th,
+                     "result:", tx, ty);
+
+            return [tx, ty];
         },
 
         forEachVisibleValidPosition: function(callback) {

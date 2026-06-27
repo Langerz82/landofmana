@@ -317,12 +317,21 @@ define(['app', 'data/langdata', 'util',
 
             var touchX, touchY;
             jqGame.on("touchstart",function(e){
+              var r = game.renderer;
               game.playerClick = false;
-              var left = this.offsetParent.offsetLeft;
-              var top = this.offsetParent.offsetTop;
-              touchX = ~~((e.touches[0].pageX-left) * game.renderer.gameZoom);
-              touchY = ~~((e.touches[0].pageY-top) * game.renderer.gameZoom);
-              app.setMouseCoordinates(touchX, touchY);
+
+              var dpr = window.devicePixelRatio || 1;
+              var touch = e.touches[0];
+              var rect = this.getBoundingClientRect();
+
+              var scaleX = this.width / rect.width;
+              var scaleY = this.height / rect.height;
+
+              var x = (touch.clientX - rect.left) * scaleX;
+              var y = (touch.clientY - rect.top) * scaleY;
+
+              app.setMouseCoordinates(x, y);
+
               if(game.started) {
                   game.movecursor();
               }
