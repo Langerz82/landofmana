@@ -106,8 +106,10 @@ define(['entity/character', 'timer', 'entity/player', 'entity/entitymoving'], fu
               if (res) {
                 c.setPosition(x, y);
               } else {
-                c.keyMove = true;
-                c.forceStop();
+                if (c.isGridAligned()) {
+                  c.keyMove = true;
+                  c.forceStop();
+                }
               }
               return !res;
             };
@@ -124,18 +126,28 @@ define(['entity/character', 'timer', 'entity/player', 'entity/entitymoving'], fu
               return self.playerKey(c, x, y);
             };
 
+            this.playerPath = function (c, x, y) {
+              c.setPosition(x, y);
+
+              // In the place where you call entity.nextStep() every frame/tick
+              if (c.isMovingPath() && !c.isGridAligned()) {
+                  // Continue moving until aligned
+                  return c.nextStepPath();
+              } else {
+                  return c.nextStep();
+              }
+            };
+
             this.playerPathXF = function(c, m) {
               var x = c.x + m;
               var y = c.y;
-              c.setPosition(x, y);
-              return c.nextStep();
+              return self.playerPath(c,x,y);
             };
 
             this.playerPathYF = function(c, m) {
               var x = c.x;
               var y = c.y + m;
-              c.setPosition(x, y);
-              return c.nextStep();
+              return self.playerPath(c,x,y);
             };
 
             this.stopTransition = function (c) {
@@ -290,41 +302,40 @@ define(['entity/character', 'timer', 'entity/player', 'entity/entitymoving'], fu
         },
 
         updatePlayerPathMovement: function(c) {
-            if (c.isDying || c.isDead || c.freeze || c.isStunned || c.keyMove || !c.isMovingPath())
-            {
-              return;
-            }
+          if (c.isDying || c.isDead || c.freeze || c.isStunned || c.keyMove || !c.isMovingPath()) {
+                  return;
+          }
 
-            var self = this;
-            var tick = c.tickFrames;
-            var o = c.orientation;
+          var self = this;
+          var tick = c.tickFrames;
+          var o = c.orientation;
 
 // TODO - Fix character stuttering thats corrupting the map display and collision.
 
-            var canMove = c.movement.inProgress === false;
-            if(canMove) {
-              c.updateMovement();
-              if(o === Types.Orientations.LEFT) {
-                c.movement.start(self.playerPathXF,
-                   null,
-                   -tick);
-              }
-              else if(o === Types.Orientations.RIGHT) {
-                c.movement.start(self.playerPathXF,
-                   null,
-                   tick);
-              }
-              else if(o === Types.Orientations.UP) {
-                c.movement.start(self.playerPathYF,
-                   null,
-                   -tick);
-              }
-              else if(o === Types.Orientations.DOWN) {
-                c.movement.start(self.playerPathYF,
-                   null,
-                   tick);
-              }
+          var canMove = c.movement.inProgress === false;
+          if(canMove) {
+            c.updateMovement();
+            if(o === Types.Orientations.LEFT) {
+              c.movement.start(self.playerPathXF,
+                 null,
+                 -tick);
             }
+            else if(o === Types.Orientations.RIGHT) {
+              c.movement.start(self.playerPathXF,
+                 null,
+                 tick);
+            }
+            else if(o === Types.Orientations.UP) {
+              c.movement.start(self.playerPathYF,
+                 null,
+                 -tick);
+            }
+            else if(o === Types.Orientations.DOWN) {
+              c.movement.start(self.playerPathYF,
+                 null,
+                 tick);
+            }
+          }
 
         },
 

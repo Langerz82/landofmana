@@ -81,14 +81,13 @@ function(UserClient, Player, AppearanceData, Timer) {
           //console.error("player.forceStop - this.keyMove:"+this.keyMove);
           //console.error("player.forceStop - this.stopKeyMove:"+this.stopKeyMove);
           this.harvestOff();
-          //if ((this.keyMove || this.stopKeyMove) && this.key_move_callback)
           if (this.isMoving() && !this.isMovingPath())
           {
             if (this.key_move_callback)
               this.key_move_callback(0);
           }
           this._forceStop();
-          this.idle();
+
           this.moveOrientation = 0;
           this.keyMove = false;
           this.stopKeyMove = false;
@@ -100,14 +99,7 @@ function(UserClient, Player, AppearanceData, Timer) {
             }
             return false;
         };
-/*
-        player.lookAtEntity = function (entity) {
-          if (this.isMoving())
-            return;
 
-          this._lookAtEntity(entity);
-        };
-*/
         // Note - freeze might be needed disable for now.
         player.hit = function(orientation) {
           orientation = orientation || this.orientation;
@@ -158,7 +150,7 @@ function(UserClient, Player, AppearanceData, Timer) {
           this.lastMoveThrottle = Date.now();
 
           return false;
-        }
+        };
 
         player.rejectMove = function () {
           if (this.fsm === "ATTACK") {
@@ -170,91 +162,77 @@ function(UserClient, Player, AppearanceData, Timer) {
             return true;
           }
 
-          // This is needed to allow key moving during
-          // path movement.
-          if (this.movement.inProgress)
-          {
-            //this.forceStop();
-            return false;
-          }
-
+          // Allow pathing to interrupt keyMove if we're trying to click-move
           if (this.keyMove) {
-            //this.forceStop();
-            return true;
+            this.forceStop();   // ← clean up before allowing path
+            return false;                // allow the path move
           }
 
           return false;
         }
 
         player.moveTo_ = function(x, y, callback) {
-          if (this.rejectMove()) {
-            return;
-          }
+            this.resetMovementState();
 
-          this.moveOrientation = 0;
-          this.forceStop();
-          clearTimeout(this.attackInterval);
+            if (this.rejectMove()) {
+                return;
+            }
 
-          log.info("background - free delay =" + G_LATENCY);
+            this.moveOrientation = 0;
+            clearTimeout(this.attackInterval);
 
-          this.walk();
+            log.info("background - free delay =" + G_LATENCY);
 
-          return this._moveTo(x, y, callback);
+            this.walk();  // start walking anim early
+
+            return this._moveTo(x, y, callback);
         };
 
         player.move = function (orientation, state) {
+            if (this.isDying || this.isDead) return;
 
-          if (this.isDying || this.isDead)
-            return;
+            if (state && orientation !== Types.Orientations.NONE) {
+                this.moveOrientation = orientation;
 
-          if (state && orientation !== Types.Orientations.NONE)
-          {
-            this.moveOrientation = orientation;
+                if (this.isMovingPath()) {
+                    this.keyMove = true;
+                    if (this.isGridAligned()) {
+                        this.tryInterruptPathForKey();
+                    } else {
+                        this.interrupted = true;   // will be picked up by nextStep
+                    }
+                    return;
+                }
 
-            if (this.rejectMove()) {
-              return;
+                if (this.rejectMove()) return;
+
+                this.startKeyMovement(orientation);
+
+            } else if (!state) {
+                // KEY RELEASE
+                if (this.fsm === "ATTACK") return;
+
+                this.keyMove = false;
+                this.stopKeyMove = true;
+                this.moveOrientation = 0;
+
+                if (this.isGridAligned()) {
+                    this.forceStop();
+                }
             }
 
-            //this.moveOrientation = this.orientation;
-            this.forceStop();
+            clearTimeout(this.attackInterval);
+        };
 
-            //this.orientation = orientation;
-            this.setOrientation(orientation);
-
-            this.walk();
-
-            this.keyMove = true;
-            this.stopKeyMove = false;
-          }
-          if (!state)
-          {
-            if (this.fsm === "ATTACK") {
-              return;
-            }
-/*
-            if (!this.canMove()) {
-              this.keyMove = true;
-              this.forceStop();
-            }
-*/
-            if (orientation !== this.orientation && this.isMoving()) {
-              return;
-            }
-
-
-            this.moveOrientation = 0;
+        player.resetMovementState = function() {
             this.keyMove = false;
-            this.stopKeyMove = true;
-
-            return;
-          }
-
-          if (this.key_move_callback)
-          {
-            this.key_move_callback(state);
-          }
-
-          clearTimeout(this.attackInterval);
+            this.stopKeyMove = false;
+            this.moveOrientation = 0;
+            this.newDestination = null;
+            this.path = null;
+            this.step = 0;
+            this.interrupted = false;
+            if (this.movement) this.movement.stop();
         };
 
         // Observe used for zoning.

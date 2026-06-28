@@ -130,7 +130,7 @@ define(['./entity', '../transition', '../timer'], function(Entity, Transition, T
    },
 
  /*******************************************************************************
-  * END - Pathing Functions.
+  * END - Movement Functions.
   ******************************************************************************/
 
  /*******************************************************************************
@@ -277,41 +277,52 @@ define(['./entity', '../transition', '../timer'], function(Entity, Transition, T
     this.stop();
   },
 
+  isGridAligned: function() {
+      var ts = G_TILESIZE;
+      var mid = (G_TILESIZE >> 1);
+      return (this.x % ts === mid && this.y % ts === mid);
+  },
+
   /**
   * Stops a moving character.
   */
   stop: function() {
-    if (this.isMoving() && !this.isMovingPath()) {
-      if (this.movestop_callback)
-        this.movestop_callback();
-    }
+      if (this.isMoving() && !this.isMovingPath()) {
+          if (this.movestop_callback) this.movestop_callback();
+      }
 
-    this.stopPath();
-    this.movement.stop();
-    this.freeze = false;
+      this._stopPath();
+      this.movement.stop();
+      this.freeze = false;
+
+      // Always force idle when stopping (unless pathing)
+      if (typeof this.idle === "function") {
+          this.idle(this.orientation);
+      }
   },
 
   stopPath: function () {
-    if (!this.isMovingPath())
-      return;
+    this._stopPath();
+  },
 
-    lnode = this.getLastMove();
-    this.interrupted = !(this.x === lnode[0] && this.y === lnode[1]);
+  _stopPath: function () {
+      if (!this.isMovingPath()) return;
 
-    this.step = 0;
-    var path = this.path;
-    this.path = null;
-    this.newDestination = null;
+      var lnode = this.getLastMove();
+      this.interrupted = !(this.x === lnode[0] && this.y === lnode[1]);
 
-    this.movement.stop();
-    if (this.interrupted && this.abort_pathing_callback) {
-      this.abort_pathing_callback(path, this.x, this.y);
-      this.interrupted = false;
-    }
-    else if(this.stop_pathing_callback) {
-      this.stop_pathing_callback(this.x, this.y);
-      //console.info("nextStep - stopped, x:"+this.x+",y:"+this.y);
-    }
+      this.step = 0;
+      var path = this.path;
+      this.path = null;
+      this.newDestination = null;
+
+      this.movement.stop();
+
+      if (this.interrupted && this.abort_pathing_callback) {
+          this.abort_pathing_callback(path, this.x, this.y); // old path
+      } else if(this.stop_pathing_callback) {
+          this.stop_pathing_callback(this.x, this.y);
+      }
   },
 
   onMoveStop: function (callback) {
@@ -384,7 +395,7 @@ define(['./entity', '../transition', '../timer'], function(Entity, Transition, T
       if (this.freeze)
         return false;
 
-      if(!this.isMovingPath()) {
+      if (!this.isMovingPath()) {
         this.interrupted = true;
         stop = true;
       }
@@ -393,7 +404,6 @@ define(['./entity', '../transition', '../timer'], function(Entity, Transition, T
       {
           res = this.nextStepPath();
           if (this.step >= this.path.length) {
-            //console.info("nextStep - id:"+this.id+", step >= length");
             stop = true;
           }
 
@@ -402,12 +412,12 @@ define(['./entity', '../transition', '../timer'], function(Entity, Transition, T
           }
       }
 
-      if(this.hasChangedItsPath()) {
+      if (this.hasChangedItsPath()) {
           this.setPosition(this.x, this.y);
+
           x = this.newDestination.x;
           y = this.newDestination.y;
           path = this.requestPathfindingTo(x, y);
-
 
           this.newDestination = null;
           this.followPath(path);

@@ -34,6 +34,7 @@ define(['./entity', './character', 'data/appearancedata'],
 
       this.orientation = Types.Orientations.DOWN;
       this.keyMove = false;
+      //this.pendingKeyInterrupt = false;
 
       this.fsm = "IDLE";
       this.sprites = [null, null];
@@ -488,7 +489,53 @@ define(['./entity', './character', 'data/appearancedata'],
     setSpriteByIndex: function (index, num) {
       var sprite = game.sprites[AppearanceData[num].sprite];
       this.setSprite(sprite, index);
-    }
+    },
+
+    tryInterruptPathForKey: function() {
+        if (!this.moveOrientation || !this.isGridAligned()) {
+            return false;
+        }
+
+        console.log("[Player] Interrupting path for key movement");
+
+        var o = this.moveOrientation;
+
+        this.resetMovementState();
+        this.forceStop();
+        this.movement.stop();
+
+        if (o && o !== Types.Orientations.NONE) {
+            this.startKeyMovement(o);
+        }
+        return true;
+    },
+
+    nextStep: function () {
+      // === STRONGER KEY INTERRUPT CHECK ===
+      if (this.moveOrientation &&
+          this.isGridAligned() &&
+          this.isMovingPath()) {
+
+          this.tryInterruptPathForKey();
+          return false;
+      }
+      return this._super();
+    },
+
+    startKeyMovement: function(orientation) {
+        this.resetMovementState();
+        this.setOrientation(orientation);
+        this.walk(orientation);
+        this.keyMove = true;
+        this.stopKeyMove = false;
+        this.moveOrientation = orientation;
+
+        if (this.key_move_callback) this.key_move_callback(1);
+
+        // Force the updater to pick it up next frame
+        this.movement.stop(); // make sure it's clean
+    },
+
   });
 
   return Player;

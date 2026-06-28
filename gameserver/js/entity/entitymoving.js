@@ -124,12 +124,12 @@ module.exports = EntityMoving = Entity.extend({
      return false;
    },
 
-  getLastMove: function () {
-      if (!this.path)
-        return null;
-      var lastPath = this.path[this.path.length-1];
-      return [lastPath[0], lastPath[1]];
-  },
+   getLastMove: function () {
+       if (!this.path)
+         return null;
+       var lastPath = this.path[this.path.length-1];
+       return lastPath;
+   },
 
 /*******************************************************************************
  * END - Movement Functions.
@@ -278,44 +278,53 @@ module.exports = EntityMoving = Entity.extend({
      this.stop();
    },
 
+   isGridAligned: function() {
+       var ts = G_TILESIZE;
+       var mid = (G_TILESIZE >> 1);
+       return (this.x % ts === mid && this.y % ts === mid);
+   },
+
    /**
    * Stops a moving character.
    */
-  stop: function() {
-    if (this.isMoving() && !this.isMovingPath()) {
-      if (this.movestop_callback)
-        this.movestop_callback();
-    }
+   stop: function() {
+       if (this.isMoving() && !this.isMovingPath()) {
+           if (this.movestop_callback) this.movestop_callback();
+       }
 
-    this.stopPath();
-    this.movement.stop();
-    this.freeze = false;
-  },
+       this._stopPath();
+       this.movement.stop();
+       this.freeze = false;
 
-  stopPath: function () {
-    if (!this.isMovingPath())
-      return;
+       // Always force idle when stopping (unless pathing)
+       if (typeof this.idle === "function") {
+           this.idle(this.orientation);
+       }
+   },
 
-    //console.info("entitymoving, stopPath - path: "+JSON.stringify(this.path));
-    lnode = this.getLastMove();
-    this.interrupted = !(this.x === lnode[0] && this.y === lnode[1]);
+   stopPath: function () {
+     this._stopPath();
+   },
 
-    this.step = 0;
-    var path = this.path;
-    this.path = null;
-    this.newDestination = null;
+   _stopPath: function () {
+       if (!this.isMovingPath()) return;
 
-    this.movement.stop();
+       var lnode = this.getLastMove();
+       this.interrupted = !(this.x === lnode[0] && this.y === lnode[1]);
 
-    if (this.interrupted && this.abort_pathing_callback) {
-      this.abort_pathing_callback(path, this.x, this.y);
-      this.interrupted = false;
-    }
-    else if(this.stop_pathing_callback) {
-      this.stop_pathing_callback(this.x, this.y);
-      //console.info("nextStep - stopped, x:"+this.x+",y:"+this.y);
-    }
-  },
+       this.step = 0;
+       var path = this.path;
+       this.path = null;
+       this.newDestination = null;
+
+       this.movement.stop();
+
+       if (this.interrupted && this.abort_pathing_callback) {
+           this.abort_pathing_callback(path, this.x, this.y); // old path
+       } else if(this.stop_pathing_callback) {
+           this.stop_pathing_callback(this.x, this.y);
+       }
+   },
 
   onMoveStop: function (callback) {
     this.movestop_callback = callback;
@@ -387,8 +396,7 @@ module.exports = EntityMoving = Entity.extend({
       if (this.freeze)
         return false;
 
-      if(!this.isMovingPath()) {
-        //console.info("entityMoving, nextStep - stopping as no path");
+      if (!this.isMovingPath()) {
         this.interrupted = true;
         stop = true;
       }
@@ -397,7 +405,6 @@ module.exports = EntityMoving = Entity.extend({
       {
           res = this.nextStepPath();
           if (this.step >= this.path.length) {
-            //console.info("entityMoving, nextStep - id:"+this.id+", step >= length");
             stop = true;
           }
 
@@ -406,7 +413,7 @@ module.exports = EntityMoving = Entity.extend({
           }
       }
 
-      if(this.hasChangedItsPath()) {
+      if (this.hasChangedItsPath()) {
           this.setPosition(this.x, this.y);
           x = this.newDestination.x;
           y = this.newDestination.y;

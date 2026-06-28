@@ -225,10 +225,13 @@ module.exports = Updater = Class.extend({
 
   updatePlayerKeyMovement: function(c)
   {
+    if (c.isDying || c.isDead || c.freeze || c.isStunned) {
+        return;
+    }
+
     var self = this;
     var tick=c.tick * G_FRAME_INTERVALS;
     var o = c.orientation;
-    //var whoDist = 8;
 
     if (c.freeze || c.isMovingPath()) {
       //console.info("character is frozen.")
