@@ -1546,7 +1546,10 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
                   this.pathfinder.applyIncludeList_(grid, true);
                 }
 
-                var shortGrid = this.pathfinder.getShortGrid(grid, pS, pE, 10);
+                var gridExtra = Math.max(Math.abs(fpS[0]-fpE[0]), Math.abs(fpS[1]-fpE[1]));
+                gridExtra = Math.max(3,gridExtra);
+
+                var shortGrid = this.pathfinder.getShortGrid(grid, pS, pE, gridExtra);
                 var sgrid = shortGrid.crop;
                 var spS = shortGrid.substart;
                 var spE = shortGrid.subend;
