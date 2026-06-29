@@ -102,8 +102,8 @@ define(['detect','config'], function(Detect, config) {
 
     _generateCollisionGrid: function() {
       this.collision = new Array(this.height);
-      for (var j, i = 0; i < this.height; i++) {
-        this.collision[i] = this.collisionData.slice(i * this.width, ((i+1) * this.width) );
+      for (var i = 0; i < this.height; i++) {
+        this.collision[i] = new Uint8Array(this.collisionData.slice(i * this.width, (i + 1) * this.width));
       }
       delete this.collisionData;
       log.debug("Collision grid generated.");

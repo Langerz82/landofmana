@@ -205,6 +205,21 @@ define(['lib/astar'], function(AStar) {
           return temp;
         },
 
+        _fixDiagonalJumps: function(path) {
+            let fixed = [path[0]];
+            for (let i = 1; i < path.length; i++) {
+                let prev = fixed[fixed.length - 1];
+                let curr = path[i];
+
+                if (prev[0] !== curr[0] && prev[1] !== curr[1]) {
+                    // Insert corner point
+                    fixed.push([curr[0], prev[1]]);
+                }
+                fixed.push(curr);
+            }
+            return fixed;
+        },
+
         dropUneededNodes: function(path) {
             if (!Array.isArray(path) || path.length < 2)
                 return path;

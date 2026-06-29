@@ -1476,166 +1476,145 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
                 return !_.isNull(this.getChestAt(x, y));
             },
 
-            /**
-             * Finds a path to a grid position for the specified character.
-             * The path will pass through any entity present in the ignore list.
-             */
+             /**
+               * Simplified findPath using AStar directly.
+               * Allows exact start/end positions. Ensures path is axis-aligned (no diagonals).
+               */
             findPath: function(character, x, y, ignoreList, includeList) {
                 var ts = G_TILESIZE;
-                var self = this,
-                    path = [],
-                    isPlayer = (character === this.player);
+                var self = this;
 
                 var mc = this.mapContainer;
-                if (!mc || !mc.gridReady)
+                if (!mc || !mc.gridReady || this.mapStatus < 2)
                   return null;
 
-                if (this.mapStatus < 2)
-                	return null;
+                log.info("PATHFINDER CODE - simplified AStar");
 
-                log.info("PATHFINDER CODE");
-
-                if(this.pathfinder && character)
+                if(!this.pathfinder || !character)
                 {
-                    var grid = this.mapContainer.collisionGrid;
-                    if (!grid) {
-                      console.error("game.js findPath: grid not ready for pathing.")
-                      return null;
-                    }
-
-                    var c = this.camera;
-
-                    var pS = c.getGridPos([character.x, character.y]);
-
-                    /*if (mc.isColliding(character.x, character.y))
-                    {
-                      log.info("pathfind - isColliding start.");
-                      return null;
-                    }*/
-                    var pE = c.getGridPos([x, y]);
-                    // Round end result to grid.
-                    pE[0] = Math.floor(pE[0]) + 0.5;
-                    pE[1] = Math.floor(pE[1]) + 0.5;
-
-                    //console.info(JSON.stringify(pE));
-
-                    if (mc.isCollidingPoint(x, y))
-                    {
-                      log.info("game.findPath - isColliding end.");
-                      return null;
-                    }
-
-                    log.info("game.findPath - pS[0]="+pS[0]+",pS[1]="+pS[1]);
-                    log.info("game.findPath - pE[0]="+pE[0]+",pE[1]="+pE[1]);
-
-                    if (pS[0] === pE[0] && pS[1] === pE[1]) {
-                      console.warn("game.findPath - pS and pE same node aborting.");
-                      return null;
-                    }
-
-                    var lx = grid[0].length;
-                    var ly = grid.length;
-                    if (pS[0] < 0 || pS[0] >= lx || pS[1] < 0 || pS[1] >= ly ||
-                        pE[0] < 0 || pE[0] >= lx || pE[1] < 0 || pE[1] >= ly)
-                    {
-                        log.error("game.findPath - path cordinates outside of dimensions.");
-                        log.error(JSON.stringify([pS, pE]));
-                        return null;
-                    }
-
-                    var fpS = [~~(pS[0]),~~(pS[1])];
-                    var fpE = [~~(pE[0]),~~(pE[1])];
-                    var shortGrid = this.pathfinder.getShortGrid(grid, pS, pE, 3);
-                    var sgrid = shortGrid.crop;
-                    var spS = shortGrid.substart;
-                    var spE = shortGrid.subend;
-                    var path = null;
-                    var longPath = false;
-
-                    path = this.pathfinder.findDirectPath(sgrid, spS, spE);
-
-                    if (!path) {
-                      log.info("game.findPath - using short path finder.");
-                      path = this.pathfinder.findShortPath(sgrid,
-                        shortGrid.minX, shortGrid.minY, spS, spE);
-                      if (path)
-                        log.info("game.findPath - validpath-mp4:"+JSON.stringify(path));
-                    }
-
-                    if (!path) {
-                      log.info("game.findPath - using long path finder.");
-                      path = this.pathfinder.findPath(grid, fpS, fpE, false);
-                      if (path) {
-                        longPath = true;
-                        log.info("game.findPath - validpath-mp5:"+JSON.stringify(path));
-                      }
-                    }
-
-                    if (path)
-                    {
-                      var fp = path[0];
-                      var lp = path[path.length-1];
-                      //var rs = [fp[0] + (pS[0] % 1),fp[1] + (pS[1] % 1)];
-                      //var re = [lp[0] + (pE[0] % 1),lp[1] + (pE[1] % 1)];
-                      var rs = fp;
-                      var re = lp;
-                      log.info("game.findPath - rs: "+JSON.stringify(rs));
-                      log.info("game.findPath - re: "+JSON.stringify(re));
-                      log.info("game.findPath - path_result1: "+JSON.stringify(path));
-                      var realpath = this.pathfinder.convertPathToRealPath(path, rs, re);
-                      realpath = this.pathfinder.dropUneededNodes(realpath);
-                      log.info("game.findPath - path_result2: "+JSON.stringify(realpath));
-                      //log.info("game.findPath - spS: "+JSON.stringify(spS));
-                      /*if (!this.pathfinder.isValidGridPath(grid, path)) {
-                        try { throw new Error(); } catch (e) { console.error(e.stack); }
-                        character.forceStop();
-                        return null;
-                      }*/
-                      var cx = (longPath) ? fpS[0] : spS[0];
-                      var cy = (longPath) ? fpS[1] : spS[1];
-                      var dx = character.x - (cx*ts);
-                      var dy = character.y - (cy*ts);
-                      //log.info("game.findPath - dx: "+dx);
-                      //log.info("game.findPath - dy: "+dy);
-                      log.info("game.findPath - path1: "+JSON.stringify(realpath));
-                      for (var node of realpath)
-                      {
-                        node[0] = Math.floor((node[0]*ts)+dx);
-                        node[1] = Math.floor((node[1]*ts)+dy);
-                      }
-                      log.info("game.findPath - path2: "+JSON.stringify(realpath));
-
-                      var dx = (realpath[0][0]-character.x);
-                      var dy = (realpath[0][1]-character.y);
-                      for (var node of realpath)
-                      {
-                        node[0] -= dx;
-                        node[1] -= dy;
-                      }
-
-                      log.info("game.findPath - path3: "+JSON.stringify(realpath));
-
-                      log.info("game.findPath - path_result2: "+JSON.stringify(realpath));
-                      log.info("game.findPath - pdx:"+(Math.abs(realpath[0][0]-character.x)));
-                      log.info("game.findPath - pdy:"+(Math.abs(realpath[0][1]-character.y)));
-                      log.info("game.findPath - path start coordinate: "+realpath[0][0]+","+realpath[0][1]);
-                      log.info("game.findPath - player start coordinate: "+character.x+","+character.y);
-                      if (!(realpath[0][0] === (character.x) && realpath[0][1] === (character.y)))
-                      {
-                        log.error("game.findPath - player path start co-ordinates mismatch.");
-                        return null;
-                      }
-                      if (!this.pathfinder.isValidPath(realpath)) {
-                        try { throw new Error(); } catch (e) { console.error(e.stack); }
-                        character.forceStop();
-                        return null;
-                      }
-                      path = realpath;
-                    }
-                } else {
                     log.error("game.findPath - Error while finding the path to "+x+", "+y+" for "+character.id);
+                    return null;
                 }
-                return path;
+
+                var grid = this.mapContainer.maps[0].collision;
+                if (!grid) {
+                  console.error("game.js findPath: grid not ready for pathing.")
+                  return null;
+                }
+
+                // Exact world positions
+                var start = [character.x, character.y];
+                var end = [x, y];
+
+                // Check if start or end is colliding
+                if (mc.isColliding(character.x, character.y)) {
+                  log.info("pathfind - isColliding start.");
+                  return null;
+                }
+                if (mc.isCollidingPoint(x, y)) {
+                  log.info("pathfind - isColliding end.");
+                  return null;
+                }
+
+                var pS = [start[0]/ts, start[1]/ts];
+                var pE = [end[0]/ts, end[1]/ts];
+
+                log.info("game.findPath - pS:", pS, "pE:", pE);
+
+                if (Math.abs(pS[0] - pE[0]) < 0.01 && Math.abs(pS[1] - pE[1]) < 0.01) {
+                  // Same tile - direct path
+                  return [[character.x, character.y], [x, y]];
+                }
+
+                // Bounds check
+                var lx = grid[0].length;
+                var ly = grid.length;
+                if (pS[0] < 0 || pS[0] >= lx || pS[1] < 0 || pS[1] >= ly ||
+                    pE[0] < 0 || pE[0] >= lx || pE[1] < 0 || pE[1] >= ly) {
+                  log.error("game.findPath - path coordinates outside of dimensions.");
+                  return null;
+                }
+
+                // Grid coords for AStar (integer)
+                var fpS = [Math.floor(pS[0]), Math.floor(pS[1])];
+                var fpE = [Math.floor(pE[0]), Math.floor(pE[1])];
+
+                // Apply ignore/include lists if provided (support for entities)
+                if (ignoreList || includeList) {
+                  // Note: current Pathfinder methods modify grid in place - clone if needed for safety
+                  this.pathfinder.applyIgnoreList_(grid, true);  // temporarily mark as walkable
+                  this.pathfinder.applyIncludeList_(grid, true);
+                }
+
+                var shortGrid = this.pathfinder.getShortGrid(grid, pS, pE, 10);
+                var sgrid = shortGrid.crop;
+                var spS = shortGrid.substart;
+                var spE = shortGrid.subend;
+                var fspS = [Math.floor(spS[0]),Math.floor(spS[1])];
+                var fspE = [Math.floor(spE[0]),Math.floor(spE[1])];
+                var path = null;
+                var longPath = false;
+
+                gridPath = this.pathfinder.findDirectPath(sgrid, fspS, fspE);
+
+                if (!gridPath) {
+                  log.info("game.findPath - using short path finder.");
+                  gridPath = this.pathfinder.findShortPath(sgrid,
+                    shortGrid.minX, shortGrid.minY, fspS, fspE);
+                  if (gridPath)
+                    log.info("game.findPath - validpath-mp4:"+JSON.stringify(path));
+                }
+
+                if (!gridPath) {
+                  log.info("game.findPath - using long path finder.");
+                  path = this.pathfinder.findPath(grid, fpS, fpE, false);
+                  if (gridPath) {
+                    longPath = true;
+                    shortGrid.minX = 0;
+                    shortGrid.minY = 0;
+                    log.info("game.findPath - validpath-mp5:"+JSON.stringify(path));
+                  }
+                }
+
+                // Use AStar
+                //var gridPath = this.pathfinder.AStar(grid, fpS, fpE);
+
+                // Restore grid if we modified it
+                if (ignoreList || includeList) {
+                  this.pathfinder.clearIgnoreList(grid);
+                  this.pathfinder.clearIncludeList(grid);
+                }
+
+                if (!gridPath || gridPath.length < 1) {
+                  log.info("No path found with AStar");
+                  return null;
+                }
+
+                // Convert grid path to world coordinates (tile centers initially)
+                var realpath = gridPath.map(node => [
+                  (shortGrid.minX + node[0] + 0.5) * ts,
+                  (shortGrid.minY + node[1] + 0.5) * ts
+                ]);
+
+                // Force exact start and end positions
+                realpath[0] = start;
+                realpath[realpath.length - 1] = end;
+
+                // Ensure axis-aligned (no diagonal jumps)
+                realpath = this.pathfinder._fixDiagonalJumps(realpath, start, end);
+
+                // Clean up unnecessary nodes
+                realpath = this.pathfinder.dropUneededNodes(realpath);
+
+                // Final validation
+                if (!this.pathfinder.isValidPath(realpath)) {
+                  console.error("Generated path failed validation");
+                  character.forceStop();
+                  return null;
+                }
+
+                log.info("Final simplified realPath:", realpath);
+                return realpath;
             },
 
             /**

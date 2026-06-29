@@ -128,14 +128,14 @@ define(['entity/character', 'timer', 'entity/player', 'entity/entitymoving'], fu
 
             this.playerPath = function (c, x, y) {
               c.setPosition(x, y);
-
+              return c.nextStep();
               // In the place where you call entity.nextStep() every frame/tick
-              if (c.isMovingPath() && !c.isGridAligned()) {
+              /*if (c.isMovingPath() && !c.isGridAligned()) {
                   // Continue moving until aligned
                   return c.nextStepPath();
               } else {
                   return c.nextStep();
-              }
+              }*/
             };
 
             this.playerPathXF = function(c, m) {
