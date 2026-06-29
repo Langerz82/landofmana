@@ -518,4 +518,11 @@ Utils.copy2DArray = function (arr) {
   return copy;
 }
 
+Utils.fixGridPosition = function (x,y) {
+  return {
+    x: (Math.floor(x/G_TILESIZE)+0.5)/G_TILESIZE,
+    y: (Math.floor(y/G_TILESIZE)+0.5)/G_TILESIZE,
+  };
+}
+
 module.exports = Utils;

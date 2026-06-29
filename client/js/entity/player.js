@@ -34,7 +34,7 @@ define(['./entity', './character', 'data/appearancedata'],
 
       this.orientation = Types.Orientations.DOWN;
       this.keyMove = false;
-      //this.pendingKeyInterrupt = false;
+      this.pendingKeyOrientation = null;
 
       this.fsm = "IDLE";
       this.sprites = [null, null];
