@@ -109,6 +109,7 @@ define(['entity/character', 'timer', 'entity/player', 'entity/entitymoving'], fu
                 if (c.isGridAligned()) {
                   c.keyMove = true;
                   c.forceStop();
+                  //c.keyMove = true;
                 }
               }
               return !res;
@@ -353,8 +354,12 @@ define(['entity/character', 'timer', 'entity/player', 'entity/entitymoving'], fu
           var tick = c.tickFrames;
           var o = c.orientation;
 
-// TODO - Skip Move needs FIXING to fix scrolling!!!!!!!!!!!!!!!!!!!!!!
-          var canMove = c.movement.inProgress === false && c.keyMove;
+          // STRICT alignment requirement for key movement
+          var canMove = !c.movement.inProgress &&
+                        c.keyMove &&
+                        o > 0 &&
+                        c.isGridAligned();   // <-- removed the || !c.isMoving() part
+
           if(canMove) {
             if(o === Types.Orientations.LEFT) {
               c.movement.start(self.playerKeyXF,

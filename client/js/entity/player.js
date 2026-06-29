@@ -511,29 +511,54 @@ define(['./entity', './character', 'data/appearancedata'],
     },
 
     nextStep: function () {
-      // === STRONGER KEY INTERRUPT CHECK ===
-      if (this.moveOrientation &&
-          this.isGridAligned() &&
-          this.isMovingPath()) {
+      // === KEY MOVE ALIGNMENT ENFORCEMENT ===
+      if (this.keyMove && this.moveOrientation) {
+          if (this.isGridAligned()) {
+              this.tryApplyPendingKeyMove();
+          } else if (this.pendingKeyOrientation) {
+              return false;   // wait until aligned
+          }
 
-          this.tryInterruptPathForKey();
-          return false;
+          // Interrupt pathing cleanly if key is held
+          if (this.isMovingPath() && this.isGridAligned()) {
+              this.tryInterruptPathForKey();
+              return false;
+          }
       }
       return this._super();
     },
 
     startKeyMovement: function(orientation) {
-        this.resetMovementState();
+        if (this.isDying || this.isDead) return;
+
+        this.resetMovementState();           // clean old state
         this.setOrientation(orientation);
-        this.walk(orientation);
+
+        // NEW: Don't start new key move until aligned (unless we're already stopped)
+        if (!this.isGridAligned() && this.isMoving()) {
+            this.pendingKeyOrientation = orientation;  // queue it
+            return;
+        }
+
         this.keyMove = true;
         this.stopKeyMove = false;
         this.moveOrientation = orientation;
 
+        this.walk(orientation);
         if (this.key_move_callback) this.key_move_callback(1);
 
-        // Force the updater to pick it up next frame
-        this.movement.stop(); // make sure it's clean
+        this.movement.stop(); // ensure clean
+    },
+
+    // Called from nextStep / when we hit grid alignment
+    tryApplyPendingKeyMove: function() {
+        if (this.pendingKeyOrientation && this.isGridAligned()) {
+            var o = this.pendingKeyOrientation;
+            this.pendingKeyOrientation = null;
+            this.startKeyMovement(o);
+            return true;
+        }
+        return false;
     },
 
   });

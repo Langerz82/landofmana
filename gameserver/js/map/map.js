@@ -110,12 +110,12 @@ var Map = cls.Class.extend({
     },
 
     loadCollisionGrid: function(collisions) {
-        this.grid = new Array(this.height);
-        for(var i = 0; i < this.height; ++i) {
-            var arr = collisions.slice(i * this.width, ((i+1) * this.width) );
-            this.grid[i] = arr;
-        }
-        //delete collisions;
+      this.grid = new Array(this.height);
+      for (var i = 0; i < this.height; i++) {
+        this.grid[i] = new Uint8Array(collisions.slice(i * this.width, (i + 1) * this.width));
+      }
+      delete collisions;
+      console.info("Collision grid generated.");
     },
 
     GroupIdToGroupPosition: function (id) {

@@ -10,8 +10,8 @@ module.exports = LootManager = Class.extend({
     if (itemLoot && itemLoot instanceof Item)
     {
         console.info("LOOT ITEM SENT!")
-        itemLoot.x = entity.x;
-        itemLoot.y = entity.y;
+        itemLoot.x = Math.floor(entity.x/G_TILESIZE)*G_TILESIZE;
+        itemLoot.y = Math.floor(entity.y/G_TILESIZE)*G_TILESIZE;
         this.handleItemDespawn(itemLoot);
         return;
     }
@@ -19,8 +19,8 @@ module.exports = LootManager = Class.extend({
     var item = this.getDroppedOrStolenItem(attacker, entity, 0);
     if (item && item instanceof Item)
     {
-        item.x = entity.x;
-        item.y = entity.y;
+        item.x = Math.floor(entity.x/G_TILESIZE)*G_TILESIZE;
+        item.y = Math.floor(entity.y/G_TILESIZE)*G_TILESIZE;
         this.handleItemDespawn(item);
         return;
     }

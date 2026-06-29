@@ -203,6 +203,13 @@ function(UserClient, Player, AppearanceData, Timer) {
                     }
                     return;
                 }
+                if (this.isMoving()) {
+                    this.keyMove = true;
+                    if (!this.isGridAligned()) {
+                        this.pendingKeyOrientation = true;   // will be picked up by nextStep
+                    }
+                    return;
+                }
 
                 if (this.rejectMove()) return;
 
@@ -215,6 +222,7 @@ function(UserClient, Player, AppearanceData, Timer) {
                 this.keyMove = false;
                 this.stopKeyMove = true;
                 this.moveOrientation = 0;
+                this.pendingKeyOrientation = null;
 
                 if (this.isGridAligned()) {
                     this.forceStop();
