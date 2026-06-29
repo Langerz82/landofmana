@@ -1504,7 +1504,8 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
 
                 // Exact world positions
                 var start = [character.x, character.y];
-                var end = [x, y];
+                var endpos = Utils.fixGridPosition(x,y);
+                var end = [endpos.x, endpos.y];
 
                 // Check if start or end is colliding
                 if (mc.isColliding(character.x, character.y)) {
