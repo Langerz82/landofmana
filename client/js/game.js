@@ -1717,8 +1717,6 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
                     continue;
                   if (entity2.isDead || entity2.isDying)
                     continue;
-                  if (entity2.isMoving())
-                    continue;
 
                   if (!entity2.isWithinDist(entity.x, entity.y, G_TILESIZE-1) &&
                       entity2.isWithinDist(x, y, G_TILESIZE-1))

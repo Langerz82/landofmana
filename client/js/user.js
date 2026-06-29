@@ -194,23 +194,6 @@ function(UserClient, Player, AppearanceData, Timer) {
             if (state && orientation !== Types.Orientations.NONE) {
                 this.moveOrientation = orientation;
 
-                if (this.isMovingPath()) {
-                    this.keyMove = true;
-                    if (this.isGridAligned()) {
-                        this.tryInterruptPathForKey();
-                    } else {
-                        this.interrupted = true;   // will be picked up by nextStep
-                    }
-                    return;
-                }
-                if (this.isMoving()) {
-                    this.keyMove = true;
-                    if (!this.isGridAligned()) {
-                        this.pendingKeyOrientation = true;   // will be picked up by nextStep
-                    }
-                    return;
-                }
-
                 if (this.rejectMove()) return;
 
                 this.startKeyMovement(orientation);
@@ -223,10 +206,6 @@ function(UserClient, Player, AppearanceData, Timer) {
                 this.stopKeyMove = true;
                 this.moveOrientation = 0;
                 this.pendingKeyOrientation = null;
-
-                if (this.isGridAligned()) {
-                    this.forceStop();
-                }
             }
 
             clearTimeout(this.attackInterval);

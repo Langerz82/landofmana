@@ -278,12 +278,6 @@ module.exports = EntityMoving = Entity.extend({
      this.stop();
    },
 
-   isGridAligned: function() {
-       var ts = G_TILESIZE;
-       var mid = (G_TILESIZE >> 1);
-       return (this.x % ts === mid && this.y % ts === mid);
-   },
-
    /**
    * Stops a moving character.
    */

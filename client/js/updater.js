@@ -106,11 +106,8 @@ define(['entity/character', 'timer', 'entity/player', 'entity/entitymoving'], fu
               if (res) {
                 c.setPosition(x, y);
               } else {
-                if (c.isGridAligned()) {
-                  c.keyMove = true;
-                  c.forceStop();
-                  //c.keyMove = true;
-                }
+                c.keyMove = true;
+                c.forceStop();
               }
               return !res;
             };
@@ -130,13 +127,6 @@ define(['entity/character', 'timer', 'entity/player', 'entity/entitymoving'], fu
             this.playerPath = function (c, x, y) {
               c.setPosition(x, y);
               return c.nextStep();
-              // In the place where you call entity.nextStep() every frame/tick
-              /*if (c.isMovingPath() && !c.isGridAligned()) {
-                  // Continue moving until aligned
-                  return c.nextStepPath();
-              } else {
-                  return c.nextStep();
-              }*/
             };
 
             this.playerPathXF = function(c, m) {
@@ -357,8 +347,7 @@ define(['entity/character', 'timer', 'entity/player', 'entity/entitymoving'], fu
           // STRICT alignment requirement for key movement
           var canMove = !c.movement.inProgress &&
                         c.keyMove &&
-                        o > 0 &&
-                        c.isGridAligned();   // <-- removed the || !c.isMoving() part
+                        o > 0;
 
           if(canMove) {
             if(o === Types.Orientations.LEFT) {
