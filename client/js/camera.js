@@ -163,13 +163,36 @@ define(['entity/entity'], function(Entity) {
 
         forEachInOuterScreen: function(callback)
         {
-          for(var id in this.entities) {
+          for(var id in this.outEntities) {
             var entity = this.outEntities[id];
             if (entity && entity instanceof Entity) {
               callback(entity,id);
             }
           }
-        }
+        },
+
+        getEntitiesAround: function (x, y, dist, unInclude = []) {
+          var minx = x-dist;
+          var miny = y-dist;
+          var maxx = x+dist;
+          var maxy = y+dist;
+
+          var entities = [];
+          for(var id in this.entities) {
+            var entity = this.entities[id];
+            if (entity && entity instanceof Entity) {
+              var ex = entity.x;
+              var ey = entity.y;
+              if (unInclude.indexOf(entity) >= 0)
+                continue;
+
+              if (ex >= minx && ex <= maxx && ey >= miny && ey <= maxy)
+                entities.push(entity);
+            }
+          }
+          return entities;
+        },
+
     });
 
     return Camera;

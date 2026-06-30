@@ -1332,14 +1332,14 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
                 }
             },
 
-            getEntitiesAround: function(x, y, ts) {
+            getEntitiesAround: function(x, y, ts, unInclude = []) {
               ts = ts || G_TILESIZE;
               var pos = [[x+ts,y],[x-ts,y],[x,y+ts],[x,y-ts]];
               var entity = null;
               var entities = [];
               for (var p of pos) {
                 entity = this.getEntityAt(p[0],p[1]);
-                if (entity)
+                if (entity && unInclude.indexOf(entity) === -1)
                   entities.push(entity);
               }
               return entities;
@@ -1831,14 +1831,14 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
               var entity = p.hasTarget() ?
                 p.target : this.getEntityAt(px, py);
 
-              /*if (!entity && this.renderer.mobile) {
-                var entities = this.getEntitiesAround(px, py, 16);
+              if (!entity && this.renderer.mobile) {
+                var entities = game.camera.getEntitiesAround(px, py, 16, [game.player]);
                 if (entities && entities.length > 0)
                 {
                   entity = entities[0];
                   p.setTarget(entity);
                 }
-              }*/
+              }
 
               if (entity && !entity.isDying) {
                 this.playerInteract(entity);
