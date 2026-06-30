@@ -1664,22 +1664,6 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
               if (o === Types.Orientations.NONE)
                 return false;
 
-              // This chunk of code makes sure character move into the grid.
-              if (!skipGridCheck) {
-                var midTile = (G_TILESIZE >> 1);
-                var mx = (x % G_TILESIZE);
-                var my = (y % G_TILESIZE);
-                //var o = char.orientation;
-                var check = (o === 1 || o === 2) ?
-                  (my === midTile) : (mx === midTile);
-                //log.info("skipGridCheck, mx:"+mx+", my:"+my);
-                if (char.stopKeyMove && check)
-                {
-                  char.setPosition(x,y);
-                  return false;
-                }
-              }
-
               //var cy = (o == 1 || o == 2) ? y : char.y;
               //var cx = (o == 3 || o == 4) ? x : char.x;
               if (this.mapContainer.isColliding(x, y)) {
@@ -1697,6 +1681,22 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
               if (!skipOverlap && this.isOverlapping(char, x, y)) {
                 //console.warn("this.isOverlapping("+char.id+","+x+","+y+")");
                 return false;
+              }
+
+              // This chunk of code makes sure character move into the grid.
+              if (!skipGridCheck) {
+                var midTile = (G_TILESIZE >> 1);
+                var mx = (x % G_TILESIZE);
+                var my = (y % G_TILESIZE);
+                //var o = char.orientation;
+                var check = (o === 1 || o === 2) ?
+                  (my === midTile) : (mx === midTile);
+                //log.info("skipGridCheck, mx:"+mx+", my:"+my);
+                if (char.stopKeyMove && check)
+                {
+                  char.setPosition(x,y);
+                  return false;
+                }
               }
 
               return true;

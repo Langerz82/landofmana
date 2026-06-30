@@ -113,10 +113,8 @@ function(HoveringInfo,
                 game.renderer.forceRedraw = true;
                 log.info("spawnPlayer - finished");
 
-                //p.freeze = false;
                 p.forceStop();
                 game.app.releaseKeys();
-                //p.stopKeyMove = false;
               });
               //game.renderer.forceRedraw = true;
           }
