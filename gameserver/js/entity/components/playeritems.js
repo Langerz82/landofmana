@@ -91,7 +91,7 @@ module.exports = PlayerItems = cls.Class.extend({
 
     var itemRoom = store.rooms[slot[1]];
     var newItemRoom = Object.assign(new ItemRoom(), itemRoom);
-    var item = p.map.entities.createItem(newItemRoom, entity.x, entity.y);
+    var item = entity.map.entities.createItem(newItemRoom, entity.x, entity.y);
     count = Utils.clamp(1, itemRoom.itemNumber, count);
 
     if(!ItemTypes.isEquippable(kind)) {
