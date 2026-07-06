@@ -250,8 +250,8 @@ define(['./dialog', '../tabbook', '../tabpage', '../entity/item', '../inventorys
         open: function(min,max) {
             var self = this;
 
-            this.minLevel = min;
-            this.maxLevel = max;
+            //this.minLevel = min;
+            //this.maxLevel = max;
 
             this.setPageIndex(0);
             this.pages[0].setPageIndex(0);
