@@ -8,8 +8,6 @@ client/server.js
 client/test.html
 client/manifest.json
 client/web2exe.json
-client/js/compress.js
-client/js/compress.js
 gameserver/gameserver.zip
 gameserver/index.zip
 gameserver/index.js
