@@ -1,6 +1,9 @@
 TODO:
 
-SERVER - When client closes connection, user is still being registered as logged in.
+CLIENT - When you sell an item at the shop, Armor and Weapons in shop cannot be loaded. - TEST.
+
+CLIENT/SERVER? - The sprite changes when you enter a new map. - FIXED.
+SERVER - When client closes connection, user is still being registered as logged in. - FIXED.
 
 [Improvement] CLIENT MOBILE - Make menu Items a little bigger.
 

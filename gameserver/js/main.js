@@ -89,7 +89,7 @@ var userHandler = null;
 server = null;
 world = null;
 
-users = new Map();
+players = new Map();
 //players = [];
 hashes = new Map();
 

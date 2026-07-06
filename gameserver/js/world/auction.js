@@ -77,7 +77,7 @@ module.exports = Auction = cls.Class.extend({
     add: function(player, item, price, invIndex) {
         var auction = new AuctionRecord(player.name, price, item);
         this.auctions.push(auction);
-        player.inventory.setItem(invIndex, null);
+        player.items.inventory.setItem(invIndex, null);
         player.sendPlayer(new Messages.Notify("AUCTION","AUCTION_ADDED"));
     },
 
@@ -86,7 +86,7 @@ module.exports = Auction = cls.Class.extend({
     },
 
     putItem: function (player, item) {
-      return player.inventory.putItem(item) >= 0;
+      return player.items.inventory.putItem(item) >= 0;
     },
 
     list: function (player, type) {

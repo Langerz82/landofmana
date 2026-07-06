@@ -174,10 +174,11 @@ function main(config) {
       user.hashChallenge = conn.hash;
 
       conn.onClose(function (conn) {
-        if (user)
+        if (user) {
           if (user.hasLoggedIn)
             users.delete(user.name);
           user = null;
+        }
       });
     };
 

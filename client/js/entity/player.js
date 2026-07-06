@@ -171,9 +171,11 @@ define(['./entity', './character', './components/playercombat', './components/pl
       this.disengage();
     },
 
-    respawn: function () {
-      this.restoreSprite(0);
-      this.restoreSprite(1);
+    respawn: function (died = false) {
+      if (died) {
+        this.restoreSprite(0);
+        this.restoreSprite(1);
+      }
       this.forceStop();
       this.setOrientation(Types.Orientations.DOWN);
       this.idle(this.orientation);

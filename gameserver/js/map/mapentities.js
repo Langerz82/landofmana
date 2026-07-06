@@ -424,7 +424,22 @@ var MapEntities = cls.Class.extend({
 
     removeSpatial: function (entity) {
       if (entity.spatialMap) {
-        var spatial = this.spatial[entity.spy][entity.spx];
+        if (!entity || !entity.x || !entity.y) return;
+
+        var ts = G_TILESIZE;
+        var gx = ~~(entity.x / ts);
+        var gy = ~~(entity.y / ts);
+
+        var spx = ~~(gx / this.spatialSize);
+        var spy = ~~(gy / this.spatialSize);
+
+        // bounds check
+        if (spy < 0 || spy >= this.spatial.length ||
+            spx < 0 || spx >= this.spatial[spy].length) {
+            return;
+        }
+        
+        var spatial = this.spatial[spy][spx];
         Utils.removeFromArray(spatial, entity);
       }
     },

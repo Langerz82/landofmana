@@ -61,13 +61,13 @@ module.exports = WorldHandler = cls.Class.extend({
       }
 
       var username = player.user.name;
-      if (users.has(username)) {
+      if (players.has(username)) {
         console.info("player user is already logged in.");
         this.sendPlayerMessage(new Messages.Error("user already logged in."));
         this.connection.disconnect();
         return;
       }
-      users.set(username, playerName);
+      players.set(username, player);
 
       if (player.world && player.world.ban) {
         if (player.world.ban.isUserBanned(username)) {
@@ -180,7 +180,7 @@ module.exports = WorldHandler = cls.Class.extend({
 
     loadPlayerDataItems: function (player, type, callback) {
       if (callback)
-        callback(player.name, type, player.itemStore[type].toStringJSON());
+        callback(player.name, type, player.items.itemStore[type].toStringJSON());
     },
 
     sendToUserServer: function (msg) {

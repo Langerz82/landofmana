@@ -116,7 +116,6 @@ module.exports = User = cls.Class.extend({
         users.delete(this.name);
       }
       delete this;
-      //}
     },
 
     send: function(message) {
@@ -244,7 +243,7 @@ module.exports = User = cls.Class.extend({
       }
 
       console.info("LOGIN: " + this.name);
-      if (users.hasOwnProperty(this.name)) {
+      if (users.has(this.name)) {
         this.connection.send([Types.UserMessages.UC_ERROR,"loggedin"]);
         return false;
       }

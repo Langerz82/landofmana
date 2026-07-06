@@ -230,10 +230,10 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
                 this.chatinput = element;
             },
 
-            initPlayer: function() {
+            initPlayer: function(died = false) {
                 this.app.initTargetHud();
 
-                this.player.respawn();
+                this.player.respawn(died);
 
                 this.camera.entities[this.player.id] = this.player;
                 this.camera.outEntities[this.player.id] = this.player;
@@ -2057,7 +2057,7 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
                 this.updateBars();
 
                 //this.addEntity(p);
-                this.initPlayer();
+                this.initPlayer(true);
 
                 this.started = true;
                 //this.client.enable();
