@@ -8,8 +8,9 @@ module.exports = PartyHandler = Class.extend({
   },
 
   getPlayer: function (name) {
-    name = name.toLowerCase();
-    var player = this.world.getPlayerByName(name);
+    if (!name) return null;
+    const normalized = name.toLowerCase().trim();
+    const player = this.world.getPlayerByName(normalized);
     if (!player) {
       this.player.sendPlayer(new Messages.Notify("CHAT", "NO_PLAYER_EXIST", [name]));
       return null;
@@ -44,18 +45,17 @@ module.exports = PartyHandler = Class.extend({
 
     var status = msg[1];
 
-    var curParty = this.player.party;
+    var party = this.player.party;
 
     if (this.player === player2)
       return;
 
     if (status === 0) {
-
-      if (curParty && curParty.players.length >= 5) {
+      if (party && party.players.length >= 5) {
         this.player.sendPlayer(new Messages.Notify("CHAT", "PARTY_MAX_PLAYERS"));
         return;
       }
-      if ((!curParty || curParty.leader) && player2 instanceof Player) {
+      if ((!party || party.leader) && player2 instanceof Player) {
         this.player.sendToPlayer(player2, new Messages.PartyInvite(this.player.id));
         this.player.sendPlayer(new Messages.Notify("CHAT", "PARTY_PLAYER_INVITE_SENT", [player2.name]));
       }
@@ -64,12 +64,12 @@ module.exports = PartyHandler = Class.extend({
         player2.party.removeName(player2);
         //this.handlePartyAbandoned(player2.party);
       }
-      if (curParty) {
-        if (curParty.players.length >= 5) {
+      if (party) {
+        if (party.players.length >= 5) {
           this.player.sendPlayer(new Messages.Notify("CHAT", "PARTY_MAX_PLAYERS"));
           return;
         }
-        curParty.addName(player2);
+        party.addName(player2);
       } else {
         if (this.world && this.world.party)
           this.world.party.addParty(player2, this.player);

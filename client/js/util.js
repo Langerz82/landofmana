@@ -49,9 +49,8 @@ Utils.randomRange = function(min, max) {
     return min + (Math.random() * (max - min));
 };
 
-Utils.randomRangeInt = function(min, max) {
-    return min + Math.floor(Math.random() * (max - min + 1));
-};
+Utils.randomInt = (max) => Math.floor(Math.random() * (max + 1));
+Utils.randomRangeInt = (min, max) => min + Math.floor(Math.random() * (max - min + 1));
 
 Utils.fixed = function(value, length) {
     var buffer = '00000000' + value;
@@ -119,19 +118,7 @@ if (!Number.prototype.ceilGrid) {
   }
 }
 
-var clamp = function (val, min, max) {
-  return Math.min(Math.max(val, min), max);
-};
-
-Number.prototype.clamp = function (min, max) {
-  var out = clamp(this, min, max);
-  //this = out;
-  return out;
-};
-
-Utils.clamp = function(min, max, value) {
-  return value.clamp(min,max);
-}
+Utils.clamp = (min, max, value) => Math.max(min, Math.min(max, value));
 
 Number.prototype.mod = function(n) {
     return ((this%n)+n)%n;
@@ -404,11 +391,21 @@ Utils.copy2DArray = function (arr) {
     copy.push(arr[i].slice()); // .slice() creates a copy of the inner array
   }
   return copy;
-}
+};
 
 Utils.fixGridPosition = function (x,y) {
   return {
     x: (Math.floor(x/G_TILESIZE)+0.5)*G_TILESIZE,
     y: (Math.floor(y/G_TILESIZE)+0.5)*G_TILESIZE,
   };
-}
+};
+
+Utils.validateIndex = function(index, max) {
+  const idx = parseInt(index, 10);
+  return Number.isInteger(idx) && idx >= 0 && idx < max;
+};
+
+Utils.validatePositiveNumber = function(num) {
+  const n = parseInt(num, 10);
+  return Number.isInteger(n) && n > 0;
+};

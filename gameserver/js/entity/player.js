@@ -3,13 +3,13 @@
 var Character = require('./character'),
     Messages = require("../message"),
     Formulas = require("../formulas"),
-    Bank = require("../items/bank"),
-    Equipment = require("../items/equipment"),
-    Inventory = require("../items/inventory"),
     SkillHandler = require("../skillhandler"),
     SkillEffectHandler = require("../effecthandler"),
     PacketHandler = require("../packets/packethandler"),
-    PlayerQuests = require("../playerquests");
+    PlayerQuests = require("./components/playerquests"),
+    PlayerHarvest = require("./components/playerharvest"),
+    PlayerItems = require("./components/playeritems"),
+    PlayerCombat = require("./components/playercombat"),
     Quest = require("../quest");
 
 module.exports = Player = Character.extend({
@@ -25,13 +25,6 @@ module.exports = Player = Character.extend({
 
         this.mapStatus = 0;
         this.mapIndex = 0;
-
-        this.gold = new Array(2);
-
-        this.inventory = null;
-        this.bank = null;
-        this.equipment = null;
-        this.itemStore = new Array(3);
 
         this.stats = {
           attack: 0,
@@ -54,13 +47,12 @@ module.exports = Player = Character.extend({
           health: 0
         };
 
-        this.consumeTimeout = null;
+
         this.skillHandler = new SkillHandler(this);
 
         this.moveSpeed = 500;
         this.setMoveRate(this.moveSpeed);
 
-        this.consumeTime = new Timer(10000);
         this.attackedTime = new Timer(500);
         this.attackQueue = null;
 
@@ -70,6 +62,9 @@ module.exports = Player = Character.extend({
         this.idleTimer = new Timer(300000);
 
         this.quests = new PlayerQuests(this);
+        this.harvest = new PlayerHarvest(this);
+        this.items = new PlayerItems(this);
+        this.combat = new PlayerCombat(this);
 
         this.knownIds = [];
 
@@ -154,17 +149,17 @@ module.exports = Player = Character.extend({
       var weaponSlot = 4;
       var armorDamage = Math.min(5, Math.ceil(dealt / 300));
       log.info("player - armorDamage:" + armorDamage);
-      for (var it in this.equipment.rooms) {
+      for (var it in this.items.equipment.rooms) {
         if (it === weaponSlot)
           continue;
 
-        if (!this.equipment.rooms[it])
+        if (!this.items.equipment.rooms[it])
           continue;
         //log.info("armor: "+this.equipment[it].toString());
         if (armorDamage > 0)
         {
-            if (this.equipment.degradeItem(it, 1))
-              this.equipment.addExperience(it, armorDamage);
+            if (this.items.equipment.degradeItem(it, 1))
+              this.items.equipment.addExperience(it, armorDamage);
         }
       }
       this.armorDamage = 0;
@@ -173,8 +168,8 @@ module.exports = Player = Character.extend({
       var weaponDamage = Math.min(5, Math.ceil(damage / 2000));
       if (weaponDamage > 0)
       {
-          if (this.equipment.degradeItem(weaponSlot, 1))
-            this.equipment.addExperience(weaponSlot, weaponDamage);
+          if (this.items.equipment.degradeItem(weaponSlot, 1))
+            this.items.equipment.addExperience(weaponSlot, weaponDamage);
       }
       //target.addWeaponExp(target.weaponDamage);
       this.weaponDamage = 0;
@@ -265,7 +260,7 @@ module.exports = Player = Character.extend({
 
   		incExp = Math.ceil(incExp * this.getExpBonus() * 0.25);
 
-      var type = this.getWeaponType();
+      var type = this.items.getWeaponType();
       if (!this.stats.exp.hasOwnProperty(type))
         return null;
 
@@ -349,8 +344,8 @@ module.exports = Player = Character.extend({
           self.stats.exp.mining,
           self.colors[0],
           self.colors[1],
-          self.gold[0],
-          self.gold[1],
+          self.items.gold[0],
+          self.items.gold[1],
           self.user.gems,
           self.stats.attack,
           self.stats.defense,
@@ -362,9 +357,9 @@ module.exports = Player = Character.extend({
 
       console.info("sendMessage - Equipment");
       // Send All Equipment
-      sendMessage.push(Object.keys(self.equipment.rooms).length);
-      for(var equipIndex in self.equipment.rooms){
-        var item = self.equipment.rooms[equipIndex];
+      sendMessage.push(Object.keys(self.items.equipment.rooms).length);
+      for(var equipIndex in self.items.equipment.rooms){
+        var item = self.items.equipment.rooms[equipIndex];
         sendMessage = sendMessage.concat(item.toArray());
       }
 
@@ -372,23 +367,22 @@ module.exports = Player = Character.extend({
 
       sendMessage.push(self.getSprite(0));
       sendMessage.push(self.getSprite(1));
-      //sendMessage.push(self.isArcher() ? self.sprites[3] : self.sprites[1]);
 
       //console.info("inventory=" +JSON.stringify(self.inventory.rooms));
 
       console.info("sendMessage - Inventory");
       // Send All Inventory
-      sendMessage.push(Object.keys(self.inventory.rooms).length);
-      for(var invIndex in self.inventory.rooms){
-        var item = self.inventory.rooms[invIndex];
+      sendMessage.push(Object.keys(self.items.inventory.rooms).length);
+      for(var invIndex in self.items.inventory.rooms){
+        var item = self.items.inventory.rooms[invIndex];
         sendMessage = sendMessage.concat(item.toArray());
       }
 
       console.info("sendMessage - Bank");
       // Send All Bank
-      sendMessage.push(Object.keys(self.bank.rooms).length);
-      for(var bankIndex in self.bank.rooms){
-        var item = self.bank.rooms[bankIndex];
+      sendMessage.push(Object.keys(self.items.bank.rooms).length);
+      for(var bankIndex in self.items.bank.rooms){
+        var item = self.items.bank.rooms[bankIndex];
         sendMessage = sendMessage.concat(item.toArray());
       }
 
@@ -483,8 +477,8 @@ module.exports = Player = Character.extend({
 
         self.level = Types.getLevel(self.stats.exp.base);
 
-        self.gold[0] = parseInt(db_player.gold[0]);
-        self.gold[1] = parseInt(db_player.gold[1]);
+        self.items.gold[0] = parseInt(db_player.gold[0]);
+        self.items.gold[1] = parseInt(db_player.gold[1]);
 
         self.isDead = false;
 
@@ -593,59 +587,6 @@ module.exports = Player = Character.extend({
         //console.info("playerId: "+self.id);
     },
 
-    handleInventoryEat: function(item, slot){
-      var self = this;
-      var kind = item.itemKind;
-
-      if(!this.consumeTime.isOver())
-          return;
-
-      var amount;
-
-      var itemData = ItemTypes.KindData[kind];
-      this.consumeTime.duration = itemData.cooldown * 1000;
-
-      if (itemData.typemod === "health")
-      {
-    		amount = itemData.modifier;
-    		if(!this.hasFullHealth()) {
-    			this.modHp(amount);
-    		}
-      }
-      else if (itemData.typemod === "healthpercent")
-      {
-      	amount = ~~(this.stats.hpMax * itemData.modifier/100);
-    		if(!this.hasFullHealth()) {
-    			this.modHp(amount);
-    		}
-      }
-      if (itemData.typemod === "energy")
-      {
-    		amount = itemData.modifier;
-    		if(!this.hasFullEnergy()) {
-    			this.modEp(amount);
-    		}
-      }
-      this.inventory.takeOutItems(slot, 1);
-    },
-
-/*
-  modHp: function (hp) {
-    if (this.isDead)
-      return;
-
-    var msg = this._super(hp);
-    this.sendChangePoints(hp, 0);
-    return msg;
-  },
-
-  modEp: function (ep) {
-    var msg = this._super(ep);
-    this.sendChangePoints(0, ep);
-    return msg;
-  },
-*/
-
   sendChangePoints: function (health, energy) {
     this.map.entities.sendNeighbours(this, new Messages.ChangePoints(this, health, energy));
   },
@@ -660,177 +601,7 @@ module.exports = Player = Character.extend({
     return ep;
   },
 
-  /*drop: function (item,x,y) {
-  	//console.info(JSON.stringify(item));
-      //console.info("drop x:"+x+",y:"+y);
-  	if (item) {
-          console.info("drop x:"+x+",y:"+y);
-          return new Messages.Drop(item, x, y);
-      }
-  },*/
-  getWeapon: function () {
-    return this.equipment.getWeapon();
-  },
 
-  getWeaponLevel: function () {
-    var weapon = this.getWeapon();
-    if (!weapon)
-      return 0;
-    var weaponData = ItemTypes.KindData[weapon.itemKind];
-    return Types.getWeaponLevel(this.stats.exp[weaponData.type]);
-  },
-
-  baseCrit: function() {
-    var itemDiff = this.level*2;
-    var item = this.getWeapon();
-    if (item) {
-      itemDiff = (3*ItemTypes.getData(item.itemKind).modifier)+(item.itemNumber*2);
-    }
-    var statDiff = this.stats.attack + (this.stats.luck*2);
-    var chance = Utils.clamp(0, 500, ~~(statDiff + itemDiff));
-    //console.info("player - baseCrit: "+chance);
-    //var chance_out = (chance / 5).toFixed(0)+"%";
-    //return chance_out;
-    return chance;
-  },
-
-  baseCritDef: function() {
-    var itemDiff = this.level*2;
-    for (var id in this.equipment.rooms) {
-      if (id === 4) continue;
-      var item = this.equipment.rooms[id];
-      if (item) {
-        itemDiff += (3*ItemTypes.getData(item.itemKind).modifier)+(item.itemNumber*2);
-      }
-    }
-    var statDiff = this.stats.defense + (this.stats.luck*2);
-    var chance = Utils.clamp(0, 500, ~~(statDiff + itemDiff));
-    //console.info("player - baseCritDef: "+chance);
-    //var chance_out = (chance / 5).toFixed(0)+"%";
-    //return chance_out;
-    return chance;
-  },
-
-  baseDamage: function(defender) {
-    var dealt, dmg;
-    var weapon = this.getWeapon();
-    var level = this.level;
-
-    dealt = ~~(weapon ? (ItemTypes.getData(weapon.itemKind).modifier * 3 + weapon.itemNumber * 2) : level);
-
-    var lvl = Types.getAttackLevel(this.stats.exp.attack);
-    var power = ((lvl / 50) + 1);
-
-    power *= ((this.getWeaponLevel() / 50) + 1);
-
-    // Weapon Durability affects Damage.
-    if (weapon) {
-      dealt = ~~(dealt * ((weapon.itemDurability / weapon.itemDurabilityMax * 0.5) + 0.5));
-    }
-
-    // Players Stat affects Damage.
-    var mods = (this.stats.mod && this.stats.mod.attack ?
-      this.stats.mod.attack : 0);
-    dealt += ~~((this.stats.attack*3)+mods) + this.stats.luck;
-
-    var noobLvl = 12;
-    var noobMulti = 1 + Math.max(0,(noobLvl-this.level) * (1/this.level));
-
-    var min = ~~(level*power*noobMulti*4);
-    var max = ~~(min*1.15);
-
-    dmg = Utils.randomRangeInt(min, max) + dealt;
-
-    if (this.stats.mod && this.stats.mod.damage)
-      dmg += this.stats.mod.damage;
-
-    if (defender && defender instanceof Mob)
-    {
-      var type = this.getWeaponType();
-      if (type) {
-        var mod = defender.data.modDamage[type];
-        dmg = ~~(dmg * mod);
-      }
-    }
-
-    min = ~~(min + dealt);
-    max = ~~((max + dealt) * 3);
-
-    //return [min,max];
-    return dmg;
-  },
-
-
-  baseDamageDef: function(defender) {
-    var dealt = 0, dmg = 0;
-
-    var level = this.level+3;
-    //console.info("baseDamageDef:");
-
-    dealt = level;
-    for (var id in this.equipment.rooms)
-    {
-      var item = this.equipment.rooms[id];
-      if (item) {
-        var eq_multi = (id === 1) ? 4 : 2;
-        var def = (ItemTypes.getData(item.itemKind).modifier * eq_multi + item.itemNumber * eq_multi);
-        dealt += ~~(def * ((item.itemDurability / item.itemDurabilityMax * 0.5) + 0.5));
-      }
-    }
-
-    //console.info("dealt="+dealt);
-    var lvl = Types.getDefenseLevel(this.stats.exp.defense);
-    var power = ((lvl / 50) + 1);
-    //console.info("power="+power);
-    var min = ~~(level*power);
-    var max = ~~(min*2);
-
-    //console.info("dealtrange="+dealt);
-    // Players Stat affects Damage.
-    var mods = (this.mod ? this.stats.mod.defense : 0);
-    dealt += ~~((this.stats.defense*4)+mods) + this.stats.luck;
-
-    //console.info("dealtstats="+dealt);
-
-    dmg = Utils.randomRangeInt(min, max) + dealt;
-
-    min = ~~(min + dealt);
-    max = ~~((max+dealt) * 1.75);
-
-    //return [min,max];
-    return dmg;
-  },
-
-  modifyGold: function(gold, type) {
-    type = type || 0;
-    if (this.gold[type]+gold < 0)
-      return false;
-
-    this.gold[type] += parseInt(gold);
-
-    this.sendPlayer(new Messages.Gold(this));
-    if (gold === 0) {
-      //this.sendPlayer(new Messages.Notify("CHAT", "GOLD_ZERO"));
-    } else if (gold > 0)
-      this.sendPlayer(new Messages.Notify("CHAT", "GOLD_ADDED", [gold]));
-    else {
-      gold *= -1;
-      this.sendPlayer(new Messages.Notify("CHAT", "GOLD_REMOVED", [gold]));
-    }
-    return true;
-  },
-
-  modifyGems: function(diff) {
-    diff = parseInt(diff);
-    if ((this.user.gems - diff) < 0)
-    {
-      this.connection.send((new Messages.Notify("SHOP", "SHOP_NOGEMS")).serialize());
-      return false;
-    }
-    this.user.gems += diff;
-    this.connection.send((new Messages.Gold(this)).serialize());
-    return true;
-  },
 
   sendToUserServer: function (msg) {
     if (this.world)
@@ -850,13 +621,6 @@ module.exports = Player = Character.extend({
     }
   },
 
-  isArcher: function () {
-    var weapon = this.getWeapon();
-    if (weapon && ItemTypes.isArcherWeapon(weapon.itemKind)) {
-      return true;
-    }
-    return false;
-  },
 
   setRange: function() {
     this.setAttackRange(1);
@@ -972,95 +736,6 @@ module.exports = Player = Character.extend({
     }
   },
 
-/* ITEM STORE FUNCTIONS */
-  getStoredItem: function (type, slot, count) {
-    var store = this.itemStore[type];
-
-    var rooms = store.rooms;
-
-    //console.info("inventory: "+JSON.stringify(this.player.inventory.rooms[index]));
-    if (slot < 0 || slot >= rooms.length)
-      return null;
-
-    var item = rooms[slot];
-    if (!item)
-      return;
-
-    var count2 = rooms[slot].itemNumber;
-    if(ItemTypes.isLootItem(item.itemKind) || ItemTypes.isConsumableItem(item.itemKind)) {
-      if (count > 0 && count2 > 0 && count2 < count)
-          item = store.takeOutItems(slot, count2);
-    }
-    return item;
-  },
-
-  swapItem: function (slot, slot2) {
-    //console.info(JSON.stringify(slot));
-    //console.info(JSON.stringify(slot2));
-    var store1 = this.itemStore[slot[0]];
-    var store2 = this.itemStore[slot2[0]];
-    var room1 = store1.rooms;
-    var rs1 = room1[slot[1]];
-    if (!rs1)
-      return;
-
-    // if equipment and item is equipment set the correct index.
-    if (slot2[0] === 2 && rs1) {
-      slot2[1] = store2.getItemTypeIndex(rs1);
-    }
-
-    var room2 = store2.rooms;
-    var rs2 = null;
-    if (slot2[1] >= 0)
-      rs2 = room2[slot2[1]];
-
-    if (rs1 === rs2)
-      return;
-
-    var splitItem = function (slot, slot2, rs1)
-    {
-      if (slot[2] > 0 && slot[2] < rs1.itemNumber && ItemTypes.isStackedItem(rs1.itemKind))
-      {
-        rs1.itemNumber -= slot[2];
-        store1.setItem(slot[1], rs1);
-        var rs2 = Object.assign(new ItemRoom(), rs1);
-        rs2.itemNumber = slot[2];
-        store2.setItem(slot2[1], rs2);
-        return true;
-      }
-      return false;
-    };
-
-    if (rs2)
-    {
-      if (!store2.combineItem(rs1, rs2)) {
-        var tmp = rs2;
-        if (store2.checkItem(slot2[1], rs1) && store1.checkItem(slot[1], rs2))
-        {
-          store2.setItem(slot2[1], rs1);
-          store1.setItem(slot[1], rs2);
-        }
-      }
-    }
-    else if (slot2[1] >= 0) {
-
-      if (!splitItem(slot, slot2, rs1)) {
-        if (store2.setItem(slot2[1], rs1))
-          store1.setItem(slot[1], null);
-      }
-    }
-    else {
-      if (store2.putItem(rs1) !== -1)
-        store1.setItem(slot[1], null);
-    }
-
-    if((slot && slot[0] === 2 && slot[1] === 4) ||
-       (slot2 && slot2[0] === 2 && slot2[1] === 4))
-    {
-      this.broadcastSprites();
-    }
-  },
-
   broadcastSprites: function () {
     var s1 = this.getSprite(0);
     this.setSprite(0, s1);
@@ -1069,45 +744,9 @@ module.exports = Player = Character.extend({
     this.packetHandler.broadcast(new Messages.setSprite(this, s1, s2), false);
   },
 
-  handleStoreEmpty: function (slot, item) {
-    var kind = item.itemKind;
-    var store = this.itemStore[slot[0]];
-    var index = slot[1];
-    var count = slot[2];
-
-    if (slot[0] === 2) {
-      console.error("handleStoreEmpty - Cannot empty equipment store.");
-      return;
-    }
-
-    var itemRoom = store.rooms[slot[1]];
-    var newItemRoom = Object.assign(new ItemRoom(), itemRoom);
-    var item = this.map.entities.createItem(newItemRoom, this.x, this.y);
-    count = Utils.clamp(1, itemRoom.itemNumber, count);
-
-    if(!ItemTypes.isEquippable(kind)) {
-      item.room.itemNumber = count;
-      store.takeOutItems(index, count);
-    } else {
-      store.makeEmptyItem(index);
-    }
-
-    this.map.entities.sendNeighbours(this, item.spawn());
-    this.knownIds.push(item.id);
-    this.world.loot.handleItemDespawn(item);
-  },
-
   sendCurrentMove: function () {
     var msg = new Messages.Move(this, this.orientation, 0, this.x, this.y);
     this.map.entities.sendNeighbours(this, msg);
-  },
-
-  dropGold: function () {
-    var level = this.level;
-    var count = Math.ceil(Math.random() * level * 5 + level);
-    count = Math.min(count, this.gold[0]);
-    this.modifyGold(-count);
-    return count;
   },
 
   respawn: function () {
@@ -1136,28 +775,6 @@ module.exports = Player = Character.extend({
             ~~(Math.abs(this.y - pos[1])/G_TILESIZE) <= ~~(G_SCREEN_HEIGHT/2));
   },
 
-  hasWeaponType: function (type) {
-    type = type || "any";
-    if (type === "any")
-        return true;
-
-    var weapon = this.equipment.getWeapon();
-    if (!weapon)
-      return false;
-
-    if (type) {
-      return this.getWeaponType() === type;
-    }
-    return ItemTypes.isHarvestWeapon(weapon.itemKind);
-  },
-
-  getWeaponType : function () {
-    var weapon = this.equipment.getWeapon();
-    if (!weapon)
-      return null;
-    return ItemTypes.getType(weapon.itemKind);
-  },
-
   // type 0=Armor, 1=Weapon
   setSprite: function (type, id) {
     if (type === 0) {
@@ -1179,7 +796,7 @@ module.exports = Player = Character.extend({
   getSprite: function (type) {
     var item = null;
     if (type === 1) {
-      item = this.equipment.getWeapon();
+      item = this.items.equipment.getWeapon();
       if (item) {
         return ItemTypes.getSpriteCode(item.itemKind);
       } else {
@@ -1195,154 +812,6 @@ module.exports = Player = Character.extend({
       else
         return this.sprites[0];
     }
-  },
-
-  _harvest: function (x, y, callback, duration) {
-    var p = this;
-
-    var valid = p._checkHarvest(x, y);
-    if (!valid) {
-      p._abortHarvest(x, y);
-      return;
-    }
-
-    var px = p.x, py = p.y;
-    var type = p.getWeaponType();
-
-    p.isHarvesting = true;
-
-    var exp = this.stats.exp.logging;
-    if (type === "hammer")
-      exp = this.stats.exp.mining;
-
-    var durationMod = Utils.clamp(0.1, 1, (1 - Types.getSkillLevel(exp)/20));
-    duration = ~~(duration * durationMod);
-    clearTimeout(p.harvestTimeout);
-    p.harvestTimeout = setTimeout(function () {
-        var complete = true;
-
-        if (!p.isHarvesting)
-          complete = false;
-
-        if (!(p.x === px && p.y === py))
-          complete = false;
-
-        if (!p.hasWeaponType(type))
-          complete = false;
-
-        if (!complete) {
-          p._abortHarvest(x, y);
-          return;
-        }
-
-        if (callback)
-          callback(p);
-
-        p.map.entities.sendNeighbours(p, new Messages.Harvest(p, 2, x, y));
-    }, duration);
-
-    p.map.entities.sendNeighbours(p, new Messages.Harvest(p, 1, x, y), p);
-    p.sendPlayer( new Messages.Harvest(p, 1, x, y, duration));
-  },
-
-  _checkHarvest: function (x, y) {
-    var p = this;
-    if (!p.isNextTooPosition(x,y))
-      return false;
-
-    if (!p.hasWeaponType())
-      return false;
-
-    return true;
-  },
-
-  onHarvestEntity: function (entity) {
-    var self = this;
-    var res = true;
-
-    /*var type = this.getWeaponType();
-    if (!type) {
-      res = false;
-    }*/
-    var type = entity.weaponType;
-    if (!this.hasWeaponType(type)) {
-      this.sendPlayer(new Messages.Notify("CHAT", "HARVEST_WRONG_TYPE", type));
-      res = false;
-    }
-
-    var x= entity.x, y=entity.y;
-    if (!res) {
-      this._abortHarvest(x, y);
-      return;
-    }
-
-    var duration = 5000 + (entity.level*1000);
-    this._harvest(x, y, function (p) {
-      p.world.taskHandler.processEvent(p, PlayerEvent(EventType.USE_NODE, entity, 1));
-
-      if (type === "hammer")
-        p.stats.exp.mining += 10;
-      entity.die();
-      var item = p.world.loot.getDrop(p, entity, false);
-      if (item && item instanceof Item)
-      {
-          item.x = x;
-          item.y = y;
-          p.world.loot.handleItemDespawn(item);
-      }
-      return;
-    }, duration);
-  },
-
-  _abortHarvest: function (x,y) {
-    var p = this;
-    p.map.entities.sendNeighbours(p, new Messages.Harvest(p, 2, x, y));
-    p.sendPlayer(new Messages.Notify("CHAT", "HARVEST_INVALID"));
-  },
-
-  onHarvest: function (x, y) {
-    var p = this;
-    var gp = Utils.getGridPosition(x,y);
-
-    time = p.map.entities.harvest[gp.gx + "_" + gp.gy];
-
-    var res = true;
-    var type = p.getWeaponType();
-    if (!type) {
-      res = false;
-    }
-    if (!this.map.isHarvestTile(gp, type)) {
-      p.sendPlayer(new Messages.Notify("CHAT", "HARVEST_WRONG_TYPE", type));
-      res = false;
-    }
-
-    if (time && (Date.now() - time) < 60000) {
-      res = false;
-    }
-
-    if (!res) {
-      this._abortHarvest(x, y);
-      return;
-    }
-
-// TODO CHECK WHY NOT ADDING ITEM AND NOT NOTIFYING CLIENT.
-    var duration = 6000;
-    p._harvest(x, y, function (p) {
-      p.world.taskHandler.processEvent(p, PlayerEvent(EventType.HARVEST, p, 1));
-      if (p.getWeaponType() === "axe")
-        p.stats.exp.logging += 10;
-      p.map.entities.harvest[gp.gx + "_" + gp.gy] = Date.now();
-      if (p.inventory.hasRoom()) {
-        var kind;
-        if (p.getWeaponType() === "axe")
-          kind = 320;
-        var item = new ItemRoom([kind, 1, 0, 0]);
-        if (self.inventory.putItem(item) === -1)
-          return;
-        var data = ItemTypes.getData(item.itemKind);
-        p.sendPlayer(new Messages.Notify("CHAT", "HARVEST_ADDED", data.name));
-      }
-    }, duration);
   },
 
   resetMove: function (x,y) {
@@ -1466,6 +935,24 @@ module.exports = Player = Character.extend({
     }
 
     return true;
-  }
+  },
+
+  isArcher: function () {
+    var weapon = this.items.getWeapon();
+    if (weapon && ItemTypes.isArcherWeapon(weapon.itemKind)) {
+      return true;
+    }
+    return false;
+  },
+
+  dropGold: function () {
+    var p = this;
+
+    var level = p.level;
+    var count = Math.ceil(Math.random() * level * 5 + level);
+    count = Math.min(count, this.items.gold[0]);
+    this.items.modifyGold(-count);
+    return count;
+  },
 
 });

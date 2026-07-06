@@ -48,16 +48,16 @@ module.exports = EntityQuests = cls.Class.extend({
         player.sendPlayer(msg);
 
         if (quest.gold > 0)
-          player.modifyGold(parseInt(quest.gold));
+          player.modifyGold(parseInt(quest.gold, 10));
 
         for (var reward of quest.reward)
         {
             var item = new ItemRoom([
-              parseInt(reward.itemKind),
-              parseInt(reward.itemNumber) || 1,
-              parseInt(reward.itemDurability) || null,
-              parseInt(reward.itemDurabilityMax) || null,
-              parseInt(reward.itemExperience) || 0]);
+              parseInt(reward.itemKind, 10),
+              parseInt(reward.itemNumber, 10) || 1,
+              parseInt(reward.itemDurability, 10) || null,
+              parseInt(reward.itemDurabilityMax, 10) || null,
+              parseInt(reward.itemExperience, 10) || 0]);
 
             player.inventory.putItem(item);
             var msg = new Messages.Notify("CHAT", "ITEM_ADDED", [ItemData.Kinds[item.itemKind].name])
@@ -132,12 +132,12 @@ module.exports = EntityQuests = cls.Class.extend({
       log.info("entitycount="+JSON.stringify(entitycount));
       entitycount.sort(function(a, b){return b[1]-a[1]});
       log.info("entitycount="+JSON.stringify(entitycount));
-      var kind = parseInt(entitycount[0][0]);
+      var kind = parseInt(entitycount[0][0], 10);
 
       entities = entities.filter(function(entity) { return entity.kind === kind; });
       var minLevel = Utils.minProp(entities, "level").level;
 
-      var mobCount = parseInt(entitycount[0][1]);
+      var mobCount = parseInt(entitycount[0][1], 10);
       if (mobCount <= 0)
         return null;
       if (!MobData.Kinds[kind])

@@ -26,46 +26,46 @@ var Chest = Item.extend({
         //console.info("dropLevel="+dropLevel);
         for (var itemId in ItemData.Kinds)
         {
-		var item = ItemData.Kinds[itemId];
-		if (!item)
-			continue;
+      		var item = ItemData.Kinds[itemId];
+      		if (!item)
+      			continue;
 
-		if (item.typemod=="attack" || item.typemod=="defense")
-		{
-			switch (dropLevel)
-			{
-			case item.modifier+10:
-				this.drops[itemId] = 20;
-				break;
-			case item.modifier:
-				this.drops[itemId] = 10;
-				break;
-			case item.modifier-10:
-				this.drops[itemId] = 5;
-				break;
-			case item.modifier-20:
-				this.drops[itemId] = 2;
-				break;
-			}
-		}
-		if (item.typemod=="craft")
-		{
-			switch (dropLevel)
-			{
-			case item.modifier+10:
-				this.drops[itemId] = 400;
-				break;
-			case item.modifier:
-				this.drops[itemId] = 200;
-				break;
-			case item.modifier-10:
-				this.drops[itemId] = 100;
-				break;
-			case item.modifier-20:
-				this.drops[itemId] = 50;
-				break;
-			}
-		}
+      		if (item.typemod=="attack" || item.typemod=="defense")
+      		{
+      			switch (dropLevel)
+      			{
+      			case item.modifier+10:
+      				this.drops[itemId] = 20;
+      				break;
+      			case item.modifier:
+      				this.drops[itemId] = 10;
+      				break;
+      			case item.modifier-10:
+      				this.drops[itemId] = 5;
+      				break;
+      			case item.modifier-20:
+      				this.drops[itemId] = 2;
+      				break;
+      			}
+      		}
+      		if (item.typemod=="craft")
+      		{
+      			switch (dropLevel)
+      			{
+      			case item.modifier+10:
+      				this.drops[itemId] = 400;
+      				break;
+      			case item.modifier:
+      				this.drops[itemId] = 200;
+      				break;
+      			case item.modifier-10:
+      				this.drops[itemId] = 100;
+      				break;
+      			case item.modifier-20:
+      				this.drops[itemId] = 50;
+      				break;
+      			}
+      		}
         }
         //console.info("drops="+JSON.stringify(this.drops));
    }

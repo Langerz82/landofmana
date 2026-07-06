@@ -15,57 +15,57 @@ module.exports = getQuestObject = function(arr) {
       obj.kind,
       obj.count];
   }
-  self.type = parseInt(arr[0]);
-  self.kind = parseInt(arr[1]) || 0;
-  self.count = parseInt(arr[2]) || 0;
-  self.chance = parseInt(arr[3]) || 0;
+  self.type = parseInt(arr[0], 10);
+  self.kind = parseInt(arr[1], 10) || 0;
+  self.count = parseInt(arr[2], 10) || 0;
+  self.chance = parseInt(arr[3], 10) || 0;
   if (arr.length === 4)
     self.level = [0, 99];
   if (arr.length === 5)
-    self.level = [parseInt(arr[4]),99];
+    self.level = [parseInt(arr[4], 10),99];
   if (arr.length === 6)
-    self.level = [parseInt(arr[4]),parseInt(arr[5])];
+    self.level = [parseInt(arr[4], 10),parseInt(arr[5], 10)];
 
   return self;
 };
 
 module.exports = Quest = cls.Class.extend({
     init: function(qArray) {
-      //qArray = qArray.parseInt();
+      //qArray = qArray.parseInt(, 10);
       if (!qArray)
         return;
 
-      this.id = parseInt(qArray[0]);
-      this.type = parseInt(qArray[1]);
-      this.npcQuestId = parseInt(qArray[2]);
-      this.count = parseInt(qArray[3]) || 0;
-      this.status = parseInt(qArray[4]) || 0;
-      this.data1 = parseInt(qArray[5]) || 0;
-      this.data2 = parseInt(qArray[6]) || 0;
+      this.id = parseInt(qArray[0], 10);
+      this.type = parseInt(qArray[1], 10);
+      this.npcQuestId = parseInt(qArray[2], 10);
+      this.count = parseInt(qArray[3], 10) || 0;
+      this.status = parseInt(qArray[4], 10) || 0;
+      this.data1 = parseInt(qArray[5], 10) || 0;
+      this.data2 = parseInt(qArray[6], 10) || 0;
       this.object = qArray[7] || null;
       this.object2 = qArray[8] || null;
     },
 
     assign: function (quest) {
-      this.id = parseInt(quest.id);
-      this.type = parseInt(quest.type);
-      this.npcQuestId = parseInt(quest.npcQuestId);
-      this.count = parseInt(quest.count);
-      this.status = parseInt(quest.status);
-      this.data1 = parseInt(quest.data1);
-      this.data2 = parseInt(quest.data2);
+      this.id = parseInt(quest.id, 10);
+      this.type = parseInt(quest.type, 10);
+      this.npcQuestId = parseInt(quest.npcQuestId, 10);
+      this.count = parseInt(quest.count, 10);
+      this.status = parseInt(quest.status, 10);
+      this.data1 = parseInt(quest.data1, 10);
+      this.data2 = parseInt(quest.data2, 10);
       this.object = quest.object;
       this.object2 = quest.object2;
     },
 
     toArray: function () {
-      var cols = [parseInt(this.id),
-        parseInt(this.type),
-        parseInt(this.npcQuestId),
-        parseInt(this.count),
-        parseInt(this.status),
-        parseInt(this.data1),
-        parseInt(this.data2)];
+      var cols = [parseInt(this.id, 10),
+        parseInt(this.type, 10),
+        parseInt(this.npcQuestId, 10),
+        parseInt(this.count, 10),
+        parseInt(this.status, 10),
+        parseInt(this.data1, 10),
+        parseInt(this.data2, 10)];
 
       if (this.object) {
         cols = cols.concat(this.object.toArray(this.object));

@@ -175,7 +175,7 @@ module.exports = LootManager = Class.extend({
     }
 
     if (source instanceof Player) {
-      source.modifyGold(count);
+      source.items.modifyGold(count);
     }
   },
 

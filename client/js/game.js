@@ -992,7 +992,7 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
 
               // If the player is next to and facing a Harvest Tile.
               var pos = p.nextTile();
-              var type = p.getWeaponType();
+              var type = p.items.getWeaponType();
               if (type !== null) {
                 var gpos = Utils.getGridPosition(pos[0], pos[1]);
                 if (this.mapContainer.isHarvestTile(gpos, type)) {
@@ -1823,8 +1823,8 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
               if (!this.started || !this.player || this.player.isDead)
                   return;
 
-              px = px.clamp(0, this.mapContainer.widthX);
-              py = py.clamp(0, this.mapContainer.heightY);
+              px = Utils.clamp(0, this.mapContainer.widthX, px);
+              py = Utils.clamp(0, this.mapContainer.heightY, py);
 
             	///log.info("x="+pos.x+",y="+pos.y);
 
@@ -1847,7 +1847,7 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
               {
           	    //this.playerPopupMenu.close();
                 //this.player.clearTarget();
-                var type = p.getWeaponType();
+                var type = p.items.getWeaponType();
                 var gpos = Utils.getGridPosition(px, py);
                 var colliding = this.mapContainer.isColliding(px,py);
                 if (colliding && this.mapContainer.isHarvestTile(gpos, type) && p.isNextTooPosition(px, py)) {
@@ -1929,7 +1929,7 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
                 return;
               }
 
-              if (!p.hasHarvestWeapon(entity.weaponType)) {
+              if (!p.items.hasHarvestWeapon(entity.weaponType)) {
                 game.showNotification(["CHAT", "HARVEST_WRONG_TYPE", entity.weaponType]);
                 return;
               }
@@ -1943,12 +1943,12 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
             makePlayerHarvest: function (px, py) {
               var p = this.player;
 
-              if (!p.hasHarvestWeapon()) {
+              if (!p.items.hasHarvestWeapon()) {
                 game.showNotification(["CHAT", "HARVEST_NO_WEAPON"]);
                 return;
               }
 
-              var type = p.getWeaponType();
+              var type = p.items.getWeaponType();
               if (type === null) {
                 game.showNotification(["CHAT", "HARVEST_WRONG_TYPE", type]);
                 return;

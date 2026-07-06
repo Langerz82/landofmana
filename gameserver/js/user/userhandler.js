@@ -260,23 +260,23 @@ module.exports = UserHandler = cls.Class.extend({
       }
       var storeType = null;
       if (type === 0){
-        player.inventory = new Inventory(player, 50, items);
-        storeType = player.inventory;
+        player.items.inventory = new Inventory(player, 50, items);
+        storeType = player.items.inventory;
       }
       else if (type === 1){
-        player.bank = new Bank(player, 96, items);
-        storeType = player.bank;
+        player.items.bank = new Bank(player, 96, items);
+        storeType = player.items.bank;
       }
       else if (type === 2){
-        player.equipment = new Equipment(player, 5, items);
-        storeType = player.equipment;
-        player.equipment.setItem = function (index, item) {
-          var res = player.equipment._setItem(index, item);
+        player.items.equipment = new Equipment(player, 5, items);
+        storeType = player.items.equipment;
+        player.items.equipment.setItem = function (index, item) {
+          var res = player.items.equipment._setItem(index, item);
           player.setRange();
           return res;
         };
       }
-      player.itemStore[type] = storeType;
+      player.items.itemStore[type] = storeType;
     },
 
     sendToUserServer: function (msg) {

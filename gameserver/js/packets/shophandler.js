@@ -11,7 +11,7 @@ module.exports = ShopHandler = Class.extend({
     var type = parseInt(message[0]);
     var itemIndex = parseInt(message[1]);
 
-    var item = this.player.itemStore[0].rooms[itemIndex];
+    var item = this.player.items.itemStore[0].rooms[itemIndex];
     if (!item)
       return;
 
@@ -28,8 +28,8 @@ module.exports = ShopHandler = Class.extend({
 
     var itemKind = item.itemKind;
     //gold = this.player.gold[0];
-    this.player.inventory.makeEmptyItem(itemIndex);
-    this.player.modifyGold(price);
+    this.player.items.inventory.makeEmptyItem(itemIndex);
+    this.player.items.modifyGold(price);
     var itemName = ItemTypes.KindData[itemKind].name;
     this.player.sendPlayer(new Messages.Notify("SHOP","SHOP_SOLD", [itemName]));
   },
@@ -41,7 +41,7 @@ module.exports = ShopHandler = Class.extend({
     if (price < 0 || itemIndex < 0 || itemIndex >= this.player.inventory.maxNumber)
       return;
 
-    var item = this.player.inventory.rooms[itemIndex];
+    var item = this.player.items.inventory.rooms[itemIndex];
     console.info(JSON.stringify(item));
 
     var kind = item.itemKind;
@@ -51,7 +51,7 @@ module.exports = ShopHandler = Class.extend({
     if (kind) {
       this.world.auction.add(this.player, item, price, itemIndex);
       this.world.auction.list(this.player, 0);
-      this.player.inventory.setItem(itemIndex, null);
+      this.player.items.inventory.setItem(itemIndex, null);
     }
   },
 
@@ -80,27 +80,27 @@ module.exports = ShopHandler = Class.extend({
     if (price < 0)
       return;
 
-    var goldCount = this.player.gold[0];
+    var goldCount = this.player.items.gold[0];
 
     if (goldCount < price) {
       this.player.sendPlayer(new Messages.Notify("SHOP","SHOP_NOGOLD"));
       return;
     }
 
-    if (!this.player.inventory.hasRoom()) {
+    if (!this.player.items.inventory.hasRoom()) {
       this.player.sendPlayer(new Messages.Notify("SHOP","SHOP_NOSPACE"));
       return;
     }
 
     var itemKind = auction.item.itemKind;
     if (auctions.putItem(this.player, auction.item)) {
-      this.player.modifyGold(-price);
+      this.player.items.modifyGold(-price);
       var itemName = ItemTypes.KindData[itemKind].name;
       this.player.sendPlayer(new Messages.Notify("SHOP","SHOP_SOLD", [itemName]));
 
       var auctionPlayer = this.world.getPlayerByName(auction.playerName);
       if (auctionPlayer) {
-        auctionPlayer.modifyGold(price);
+        auctionPlayer.items.modifyGold(price);
       } else {
         if (this.world.userHandler)
           this.world.userHandler.sendPlayerGold(auction.playerName, price);
@@ -152,10 +152,10 @@ module.exports = ShopHandler = Class.extend({
 
       //console.info("type=" + type + ",invNumber=" + inventoryNumber1);
       if (type === 0 || type === 2) {
-        var itemStore = this.player.itemStore[type];
+        var itemStore = this.player.items.itemStore[type];
         if (itemIndex < 0 && itemIndex >= itemStore.maxNumber)
           return;
-        var item = this.player.itemStore[type].rooms[itemIndex];
+        var item = this.player.items.itemStore[type].rooms[itemIndex];
         //console.info("item=" + JSON.stringify(item));
         if (modType === 0)
           this._repairItem(type, item, itemIndex);
@@ -181,7 +181,7 @@ module.exports = ShopHandler = Class.extend({
     if (price <= 0)
       return;
 
-    goldCount = this.player.gold[0];
+    goldCount = this.player.items.gold[0];
     //console.info("goldCount="+goldCount+",price="+price);
     if (goldCount < price) {
       this.player.sendPlayer(new Messages.Notify("SHOP","SHOP_NOGOLD"));
@@ -192,10 +192,10 @@ module.exports = ShopHandler = Class.extend({
     item.itemDurability = item.itemDurabilityMax;
     if (item.itemDurabilityMax <= 0) {
       item = null;
-      this.player.itemStore[type].makeEmptyItem(index);
+      this.player.items.itemStore[type].makeEmptyItem(index);
     } else {
       console.info("itemNumber=" + item.itemNumber);
-      this.player.modifyGold(-price);
+      this.player.items.modifyGold(-price);
     }
     item.slot = index;
 
@@ -218,7 +218,7 @@ module.exports = ShopHandler = Class.extend({
     if (price <= 0)
       return;
 
-    goldCount = this.player.gold[0];
+    goldCount = this.player.items.gold[0];
     //console.info("goldCount="+goldCount+",price="+price);
     if (goldCount < price) {
       this.player.sendPlayer(new Messages.Notify("SHOP", "SHOP_NOGOLD"));
@@ -232,7 +232,7 @@ module.exports = ShopHandler = Class.extend({
 
     this.player.sendPlayer(new Messages.ItemSlot(type, [item]));
     console.info("itemNumber=" + item.itemNumber);
-    this.player.modifyGold(-price);
+    this.player.items.modifyGold(-price);
     var itemName = ItemTypes.KindData[item.itemKind].name;
     this.player.sendPlayer(new Messages.Notify("SHOP", "SHOP_ENCHANTED", [itemName]));
   },
@@ -263,7 +263,7 @@ module.exports = ShopHandler = Class.extend({
       if (ItemTypes.Store.isBuyMultiple(itemKind)) {
         itemCount = itemData.buycount;
       }
-      goldCount = this.player.gold[0];
+      goldCount = this.player.items.gold[0];
       //console.info("goldCount="+goldCount);
       //console.info("itemCount="+itemCount);
 
@@ -273,12 +273,12 @@ module.exports = ShopHandler = Class.extend({
       }
 
       var consume = ItemTypes.isConsumableItem(itemKind);
-      if (consume || (!consume && this.player.inventory.hasRoom())) {
+      if (consume || (!consume && this.player.items.inventory.hasRoom())) {
         var item = new ItemRoom([itemKind, itemCount, 0, 0, 0]);
-        var res = this.player.inventory.putItem(item);
+        var res = this.player.items.inventory.putItem(item);
         if (res === -1)
           return;
-        this.player.modifyGold(-price);
+        this.player.items.modifyGold(-price);
         this.player.sendPlayer(new Messages.Notify("SHOP", "SHOP_BUY", [itemName]));
         /*if (!this.player.tut.equip) {
           this.player.tutChat("TUTORIAL_EQUIP", 10, "equip");
@@ -332,7 +332,7 @@ module.exports = ShopHandler = Class.extend({
 
     price = price * itemCount;
 
-    goldCount = this.player.gold[0];
+    goldCount = this.player.items.gold[0];
     //console.info("goldCount="+goldCount);
     //console.info("itemCount="+itemCount);
 
@@ -346,22 +346,22 @@ module.exports = ShopHandler = Class.extend({
 
     for (var it of craftData.i)
     {
-        if (!this.player.inventory.hasItems(it[0],it[1]*itemCount)) {
+        if (!this.player.items.inventory.hasItems(it[0],it[1]*itemCount)) {
           this.player.sendPlayer(new Messages.Notify("SHOP", "SHOP_NOCRAFTITEMS"));
           return;
         }
     }
 
-    if (!this.player.inventory.hasRoom())
+    if (!this.player.items.inventory.hasRoom())
     {
       this.player.sendPlayer(new Messages.Notify("SHOP", "SHOP_NOSPACE"));
       return;
     }
 
-    this.player.modifyGold(-price);
+    this.player.items.modifyGold(-price);
     for (var it of craftData.i)
     {
-        this.player.inventory.removeItemKind(it[0],it[1]*itemCount);
+        this.player.items.inventory.removeItemKind(it[0],it[1]*itemCount);
     }
 
     var durability = 0;
@@ -369,7 +369,7 @@ module.exports = ShopHandler = Class.extend({
       durability = 900;
 
     var item = new ItemRoom([itemKind, itemCount, durability, durability]);
-    if (this.player.inventory.putItem(item) === -1)
+    if (this.player.items.inventory.putItem(item) === -1)
       return;
 
     this.player.sendPlayer(new Messages.Notify("SHOP", "SHOP_BUY", [itemName]));

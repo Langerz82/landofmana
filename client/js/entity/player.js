@@ -5,8 +5,8 @@ var STATE_IDLE = 0,
     STATE_MOVING = 1,
     STATE_ATTACKING = 2;
 
-define(['./entity', './character', 'data/appearancedata'],
-  function(Entity, Character, AppearanceData) {
+define(['./entity', './character', './components/playercombat', './components/playeritems', 'data/appearancedata'],
+  function(Entity, Character, PlayerCombat, PlayerItems, AppearanceData) {
   var Player = Character.extend({
     init: function(id, type, map, kind, name) {
 
@@ -31,7 +31,6 @@ define(['./entity', './character', 'data/appearancedata'],
         exp: {}
       };
 
-
       this.orientation = Types.Orientations.DOWN;
       this.keyMove = false;
       this.pendingKeyOrientation = null;
@@ -40,13 +39,9 @@ define(['./entity', './character', 'data/appearancedata'],
       this.sprites = [null, null];
       this.pjsSprites = [null, null];
       this.oldSprites = [null, null];
-    },
 
-    setItems: function () {
-      this.equipment = {};
-      this.inventory = {};
-      this.equipment.rooms = game.equipmentHandler.equipment;
-      this.inventory.rooms = game.inventory.inventory;
+      this.items = new PlayerItems(this);
+      this.combat = new PlayerCombat(this);
     },
 
     isMovingAll: function () {
@@ -71,25 +66,11 @@ define(['./entity', './character', 'data/appearancedata'],
     },
 
     isArcher: function () {
-      var weapon = this.getWeapon();
+      var weapon = this.items.getWeapon();
       if (weapon && ItemTypes.isArcherWeapon(weapon.itemKind)) {
         return true;
       }
       return false;
-    },
-
-    getWeapon: function() {
-      if (!this.equipment)
-        return null;
-
-      return this.equipment.rooms[4];
-    },
-
-    hasWeapon: function() {
-      if (!this.equipment)
-        return false;
-
-      return this.equipment.rooms[4] !== null;
     },
 
     setRange: function() {
@@ -169,167 +150,6 @@ define(['./entity', './character', 'data/appearancedata'],
         clearTimeout(this.moving_callback);
         this.moving_callback = null;
       }
-    },
-
-    baseHit: function() {
-      return 0;
-    },
-
-    baseHitDef: function() {
-      return 0;
-    },
-
-    baseCrit: function() {
-      var itemDiff = this.level*2;
-      var item = this.equipment.rooms[4];
-      if (item) {
-        itemDiff = (3*ItemTypes.getData(item.itemKind).modifier)+(item.itemNumber*2);
-      }
-      var statDiff = this.stats.attack + (this.stats.luck*2);
-      var chance = Utils.clamp(0, 500, ~~(statDiff + itemDiff));
-      log.info("player - baseCrit: "+chance);
-      var chance_out = (chance / 5).toFixed(0)+"%";
-      return chance_out;
-      //return chance;
-    },
-
-    baseCritDef: function() {
-      var itemDiff = this.level*2;
-      for (var id in this.equipment.rooms) {
-        if (id === 4) continue;
-        var item = this.equipment.rooms[id];
-        if (item) {
-          itemDiff += (3*ItemTypes.getData(item.itemKind).modifier)+(item.itemNumber*2);
-        }
-      }
-      var statDiff = this.stats.defense + (this.stats.luck*2);
-      var chance = Utils.clamp(0, 500, ~~(statDiff + itemDiff));
-      log.info("player - baseCritDef: "+chance);
-      var chance_out = (chance / 5).toFixed(0)+"%";
-      return chance_out;
-      //return chance;
-    },
-
-    getWeaponLevel: function () {
-      var weapon = this.getWeapon();
-      if (!weapon)
-        return 0;
-      var weaponData = ItemTypes.KindData[weapon.itemKind];
-      return Types.getWeaponLevel(this.stats.exp[weaponData.type]);
-    },
-
-    hasHarvestWeapon: function (type) {
-      if (type && type === "any")
-          return true;
-
-      var weapon = this.getWeapon();
-      if (!weapon)
-        return false;
-
-      var weaponData = ItemTypes.KindData[weapon.itemKind];
-      if (type) {
-        return weaponData.type === type;
-      }
-      return ItemTypes.isHarvestWeapon(weapon.itemKind);
-    },
-
-    getWeaponType : function () {
-      //return "axe"; // todo remove.
-
-      var weapon = this.getWeapon();
-      if (!weapon)
-        return null;
-      var weaponData = ItemTypes.KindData[weapon.itemKind];
-      return weaponData.type;
-    },
-
-    baseDamage: function(defender) {
-      var dealt, dmg;
-      var weapon = this.getWeapon();
-      var level = this.level;
-
-      dealt = ~~(weapon ? (ItemTypes.getData(weapon.itemKind).modifier * 3 + weapon.itemNumber * 2) : level);
-
-      var lvl = Types.getAttackLevel(this.stats.exp.attack);
-      var power = ((lvl / 50) + 1);
-
-      power *= ((this.getWeaponLevel() / 50) + 1);
-
-      // Weapon Durability affects Damage.
-      if (weapon) {
-        dealt = ~~(dealt * ((weapon.itemDurability / weapon.itemDurabilityMax * 0.5) + 0.5));
-      }
-
-      // Players Stat affects Damage.
-      var mods = (this.stats.mod && this.stats.mod.attack ?
-        this.stats.mod.attack : 0);
-      dealt += ~~((this.stats.attack*3)+mods) + this.stats.luck;
-
-      var noobLvl = 12;
-      var noobMulti = 1 + Math.max(0,(noobLvl-this.level) * (1/this.level));
-
-      var min = ~~(level*power*noobMulti*4);
-      var max = ~~(min*1.15);
-
-      dmg = Utils.randomRangeInt(min, max) + dealt;
-
-      if (this.stats.mod && this.stats.mod.damage)
-        dmg += this.stats.mod.damage;
-
-      if (defender && defender instanceof Mob)
-      {
-        var type = this.getWeaponType();
-        if (type) {
-          var mod = defender.data.modDamage[type];
-          dmg = ~~(dmg * mod);
-        }
-      }
-
-      min = ~~(min + dealt);
-      max = ~~((max + dealt) * 3);
-
-      return [min,max];
-      //return dmg;
-    },
-
-    baseDamageDef: function() {
-      var dealt = 0, dmg = 0;
-
-      var level = this.level+3;
-      log.info("baseDamageDef:");
-
-      dealt = level;
-      for (var id in this.equipment.rooms)
-      {
-        var item = this.equipment.rooms[id];
-        if (item) {
-          var eq_multi = (id === 1) ? 4 : 2;
-          var def = (ItemTypes.getData(item.itemKind).modifier * eq_multi + item.itemNumber * eq_multi);
-          dealt += ~~(def * ((item.itemDurability / item.itemDurabilityMax * 0.5) + 0.5));
-        }
-      }
-
-      log.info("dealt="+dealt);
-      var lvl = Types.getDefenseLevel(this.stats.exp.defense);
-      var power = ((lvl / 50) + 1);
-      log.info("power="+power);
-      var min = ~~(level*power);
-      var max = ~~(min*2);
-
-      log.info("dealtrange="+dealt);
-      // Players Stat affects Damage.
-      var mods = (this.mod ? this.mod.defense : 0);
-      dealt += ~~((this.stats.defense*4)+mods) + this.stats.luck;
-
-      log.info("dealtstats="+dealt);
-
-      dmg = Utils.randomRangeInt(min, max) + dealt;
-
-      min = ~~(min + dealt);
-      max = ~~((max+dealt) * 1.75);
-
-      return [min,max];
-      //return dmg;
     },
 
     onKeyMove: function (callback) {

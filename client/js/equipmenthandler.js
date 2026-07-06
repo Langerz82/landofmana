@@ -5,7 +5,7 @@ define(['entity/item', 'data/items'], function(Item, Items) {
         init: function(game) {
             var self = this;
             this.game = game;
-            this.equipment = [];
+            this.rooms = [];
             this.maxNumber = 5;
             this.scale = 3;
 
@@ -51,7 +51,7 @@ define(['entity/item', 'data/items'], function(Item, Items) {
               this.clearItem(i);
               var item = itemRooms[i];
               if (item.itemKind === -1) {
-                this.equipment[item.slot] = null;
+                this.rooms[item.slot] = null;
 
                 if (item.slot === 4)
                   game.player.setRange();
@@ -59,7 +59,7 @@ define(['entity/item', 'data/items'], function(Item, Items) {
                 continue;
               }
               if (item) {
-                this.equipment[item.slot] = item;
+                this.rooms[item.slot] = item;
 
                 if (item.slot === 4)
                   game.player.setRange();
@@ -74,7 +74,7 @@ define(['entity/item', 'data/items'], function(Item, Items) {
           // Dumped from Char dialog.
 
           for (var i=0; i < this.maxNumber; ++i) {
-            var item = this.equipment[i];
+            var item = this.rooms[i];
             var jqElement = '#equipment'+i;
 
             if (item && item.itemKind > 0 && item.itemKind < 1000) {
@@ -150,6 +150,13 @@ define(['entity/item', 'data/items'], function(Item, Items) {
           else {
             this.equip(item, item.slot);
           }
+        },
+
+        getWeapon: function() {
+          if (!this.rooms)
+            return null;
+
+          return this.rooms[4];
         },
 
     });

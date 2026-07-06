@@ -325,8 +325,8 @@ define(['area', 'detect', 'map', 'config'], function(Area, Detect, Map, config) 
 
       var gx = fe.x >> 4, gy = fe.y >> 4;
 
-      gx = (gx-cgwh).clamp(0, this.width-cgw),
-      gy = (gy-cghh).clamp(0, this.height-cgh);
+      gx = Utils.clamp(0, (this.width-cgw), (gx-cgwh)),
+      gy = Utils.clamp(0, (this.height-cgh), (gy-cghh));
 
       var ox = gx;
       var oy = gy;

@@ -417,12 +417,6 @@ function(HoveringInfo,
                 map !== game.player.mapIndex)
               return;
 
-            //var lockStepTime = (G_LATENCY - (Utils.getWorldTime()-time)).clamp(0,G_LATENCY);
-            //console.warn("lockStepTime="+lockStepTime);
-            //var entity = null;
-            //if(id === game.player.id)
-              //return;
-
             var entity = game.getEntityById(id);
             if (!entity)
             {
@@ -498,7 +492,7 @@ function(HoveringInfo,
               return;
 
             var lockStepTime = (G_LATENCY - (Utils.getWorldTime()-time) + G_UPDATE_INTERVAL);
-            lockStepTime = lockStepTime.clamp(0,G_LATENCY);
+            lockStepTime = Utils.clamp(0,G_LATENCY,lockStepTime);
             //console.warn("lockStepTime="+lockStepTime);
             //console.warn("getDiffTime(time):"+(Date.now() - time));
             //console.warn("recv - lockStepTime="+lockStepTime);
@@ -1208,7 +1202,6 @@ function(HoveringInfo,
 
             p.setSprite(aSprite, 0);
             p.setSprite(wSprite, 1);
-            p.setRange();
 
             var itemCount = parseInt(data.shift());
             if (itemCount > 0)
@@ -1230,6 +1223,7 @@ function(HoveringInfo,
               }
               game.inventory.initInventory(items);
             }
+            p.setRange();
 
             var itemCount = parseInt(data.shift());
             if (itemCount > 0)

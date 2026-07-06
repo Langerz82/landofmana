@@ -27,7 +27,12 @@ module.exports = MobAI = Class.extend({
   },
 
   checkAggro: function(mob) {
-    //console.info("checkAggro");
+    //console.info("mobai.checkAggro");
+
+    // Cache frequently accessed properties
+    const now = Date.now();
+    if (now - mob.lastAggroCheck < 1000) return;
+    mob.lastAggroCheck = now;
 
     if (mob.isStunned || mob.isAttacking() || !mob.isAggressive) {
       //console.info("isDead isStunned isAttacking not isAggresive");

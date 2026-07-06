@@ -3,7 +3,7 @@
 var Formulas = {};
 
 Formulas.crit = function(attacker, defender) {
-	var chance = (Utils.randomRangeInt(0,200) <= Utils.clamp(5, 195, ~~(25 + attacker.baseCrit() - defender.baseCritDef())));
+	var chance = (Utils.randomRangeInt(0,200) <= Utils.clamp(5, 195, ~~(25 + attacker.combat.baseCrit() - defender.combat.baseCritDef())));
 	return chance;
 }
 
@@ -31,7 +31,7 @@ Formulas.dmgAOE = function(attacker) {
     var attackPower = Formulas.getAttackPower(attacker);
 
     //console.warn("attackPower="+attackPower);
-		var attacker_damage = ~~(attacker.baseDamage() / 2);
+		var attacker_damage = ~~(attacker.combat.baseDamage() / 2);
     console.info("attacker baseDamage="+attacker_damage);
     var dmg = ~~(attacker_damage * attackPower);
 
@@ -45,8 +45,8 @@ Formulas.dmg = function(attacker, defender) {
 		var attackPower = Formulas.getAttackPower(attacker);
 
     //console.warn("attackPower="+attackPower);
-		var attacker_damage = attacker.baseDamage(defender);
-		var defender_defense = defender.baseDamageDef(attacker);
+		var attacker_damage = attacker.combat.baseDamage(defender);
+		var defender_defense = defender.combat.baseDamageDef(attacker);
     console.info("attacker baseDamage="+attacker_damage);
     console.info("defender baseDamageDef="+defender_defense);
     var dmg = ~~(attacker_damage * attackPower);

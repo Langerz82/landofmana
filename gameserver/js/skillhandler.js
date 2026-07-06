@@ -29,7 +29,7 @@ module.exports = SkillHandler = cls.Class.extend({
       var skillXPs = [];
       for(var i=0; i < this.skills.length; ++i) {
         var skill = this.skills[i];
-        var xp = parseInt(skill.tempXP);
+        var xp = parseInt(skill.tempXP, 10);
         if (xp > 0)
         {
           skill.xp(xp);
@@ -51,7 +51,7 @@ Skill = cls.Class.extend({
    	this.skillData = SkillData.Skills[skillIndex];
    	this.skillIndex = skillIndex;
    	this.skillLevel = Types.getSkillLevel(skillXP);
-   	this.skillXP = parseInt(skillXP);
+   	this.skillXP = parseInt(skillXP, 10);
     this.tempXP = 0;
 
    	if (this.skillData.recharge > 0)
@@ -77,7 +77,7 @@ Skill = cls.Class.extend({
       return;
 
     console.info("amount="+amount);
-   	this.skillXP += parseInt(amount);
+   	this.skillXP += parseInt(amount, 10);
    	var skillLevel = Types.getSkillLevel(this.skillXP, this.skillLevel);
    	if (skillLevel != this.skillLevel)
    	{

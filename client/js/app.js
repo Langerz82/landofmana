@@ -480,8 +480,8 @@ define(['lib/localforage', 'entity/mob', 'entity/item', 'data/mobdata', 'user', 
             width = ~~(width/zoom)-1;
             height = ~~(height/zoom)-1;
 
-            mouse.x = ~~(clamp(x,0,width)*zoom/scale);
-            mouse.y = ~~(clamp(y,0,height)*zoom/scale);
+            mouse.x = ~~(Utils.clamp(0,width,x)*zoom/scale);
+            mouse.y = ~~(Utils.clamp(0,height,y)*zoom/scale);
 
             console.info("app.setMouseCoordinates - mouse.x:"+mouse.x+",mouse.y"+mouse.y);
         },

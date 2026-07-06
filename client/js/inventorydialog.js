@@ -584,10 +584,10 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
     getItem: function (type, slot) {
       if (slot < 0) return null;
       if (type === 0) {
-        return game.inventory.inventory[slot];
+        return game.inventory.rooms[slot];
       }
       else if (type === 2)
-        return game.equipment.equipment[slot];
+        return game.equipment.rooms[slot];
       return null;
     },
 

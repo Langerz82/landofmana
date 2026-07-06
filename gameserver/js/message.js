@@ -69,7 +69,7 @@ Messages.Move = Message.extend({
             this.time,
             this.entity.map.index,
             this.entity.id,
-        		parseInt(this.orientation),
+        		parseInt(this.orientation, 10),
         		this.state,
             this.entity.moveSpeed,
             this.x,
@@ -89,7 +89,7 @@ Messages.MovePath = Message.extend({
               this.time,
               this.entity.map.index,
             	this.entity.id,
-          		parseInt(this.orientation),
+          		parseInt(this.orientation, 10),
               this.entity.interrupted = (this.entity.interrupted ? 1 : 0),
               this.entity.moveSpeed,
             ]).concat(this.path);
@@ -439,8 +439,8 @@ Messages.Speech = Message.extend({
 
 Messages.Gold = Message.extend({
 	init: function (player) {
-		this.invgold = player.gold[0];
-    this.bankgold = player.gold[1];
+		this.invgold = player.items.gold[0];
+    this.bankgold = player.items.gold[1];
     this.gems = player.user.gems;
 	},
 	serialize: function () {

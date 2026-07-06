@@ -36,10 +36,10 @@ define(['./dialog', '../tabpage'], function(Dialog, TabPage) {
             $('#characterEnergy').text("Energy:\t\t"+stats.energy);
             $('#characterLuck').text("Luck:\t\t"+stats.luck);
 
-            $('#characterBaseCrit').text("Base Crit\t\t"+p.baseCrit());
-            $('#characterBaseCritDef').text("Base Crit Def\t\t"+p.baseCritDef());
-            $('#characterBaseDamage').html("Base Damage<br/>"+p.baseDamage()[0]+"-"+p.baseDamage()[1]);
-            $('#characterBaseDamageDef').html("Base Damage Def<br/>"+p.baseDamageDef()[0]+"-"+p.baseDamageDef()[1]);
+            $('#characterBaseCrit').text("Base Crit\t\t"+p.combat.baseCrit());
+            $('#characterBaseCritDef').text("Base Crit Def\t\t"+p.combat.baseCritDef());
+            $('#characterBaseDamage').html("Base Damage<br/>"+p.combat.baseDamage()[0]+"-"+p.combat.baseDamage()[1]);
+            $('#characterBaseDamageDef').html("Base Damage Def<br/>"+p.combat.baseDamageDef()[0]+"-"+p.combat.baseDamageDef()[1]);
 
             if (stats.free > 0)
             {

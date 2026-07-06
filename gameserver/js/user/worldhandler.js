@@ -139,7 +139,7 @@ module.exports = WorldHandler = cls.Class.extend({
         map.join(","),
         stats.join(","),
         exps.join(","),
-        player.gold.join(","),
+        player.items.gold.join(","),
         skillexps.join(","),
         player.pStats.join(","),
         player.sprites.join(","),

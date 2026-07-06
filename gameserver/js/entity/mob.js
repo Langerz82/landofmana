@@ -1,5 +1,6 @@
 var Character = require('./character'),
   Messages = require('../message'),
+  MobCombat = require('./components/mobcombat'),
   MobArea = require('../area/mobarea');
 
 module.exports = Mob = Character.extend({
@@ -105,6 +106,8 @@ module.exports = Mob = Character.extend({
 
       this.resetHp();
       this.resetEp();
+
+      this.combat = new MobCombat(this);
     },
 
     createBoss: function (multi) {
@@ -470,45 +473,6 @@ module.exports = Mob = Character.extend({
 
     onKillEntity: function (attacker) {
 
-    },
-
-    baseCrit: function() {
-      var modDiff = 0;
-      var statDiff = (this.stats.attack+this.stats.mod.attack);
-      var chance = ~~(Utils.clamp(5, 500, ~~(statDiff + modDiff)));
-      //console.info("player - baseCrit: "+chance);
-      return chance;
-    },
-
-    baseCritDef: function() {
-      var modDiff = 0;
-      var statDiff = (this.stats.defense+this.stats.mod.defense);
-      var chance = ~~(Utils.clamp(5, 500, ~~(statDiff + modDiff)));
-      //console.info("player - baseCritDef: "+chance);
-      return chance;
-    },
-
-    baseDamage: function() {
-      var dealt, absorbed, dmg;
-
-      dealt = ~~(this.level * 12);
-      dealt += (this.stats.attack+this.stats.mod.attack) * (6-Math.min(3, (this.level * 0.1)));
-
-      dmg = ~~(dealt);
-
-      //console.info("player - baseDamage: "+dmg);
-      return dmg;
-    },
-
-    baseDamageDef: function() {
-      var dealt, absorbed, dmg;
-
-      dealt = ~~(this.level * 2);
-      dealt += ((this.stats.defense+this.stats.mod.defense) * 2);
-
-      dmg = ~~(dealt);
-      //console.info("player - baseDamageDef: "+dmg);
-      return dmg;
     },
 
     canReach: function(entity) {

@@ -146,7 +146,7 @@ var selectFirstItem = {
     {
        if (navigate === Navigate.UP)
        {
-         self.joystickY = (self.joystickY-1).clamp(0,5);
+         self.joystickY = Utils.clamp(0,5, (self.joystickY-1));
          if (self.joystickY === 0)
          {
            var index = self.storeDialogSide[self.joystickX];
@@ -165,7 +165,7 @@ var selectFirstItem = {
        }
        if (navigate === Navigate.DOWN)
        {
-         self.joystickY = (self.joystickY+1).clamp(0,5);
+         self.joystickY = Utils.clamp(0,5,(self.joystickY+1));
          if (self.joystickY >= 1) {
            var index = self.storeDialogBuyButton.format(self.joystickY-1);
            this.setSelectedItem($(index));
@@ -174,7 +174,7 @@ var selectFirstItem = {
        if (navigate === Navigate.LEFT)
        {
          if (self.joystickY === 0) {
-           self.joystickX = (self.joystickX-1).clamp(0,3);
+           self.joystickX = Utils.clamp(0,3,(self.joystickX-1));
            var index = self.storeDialogSide[self.joystickX];
            this.setSelectedItem($(index));
            $(index).trigger("click");
@@ -186,7 +186,7 @@ var selectFirstItem = {
        if (navigate === Navigate.RIGHT)
        {
          if (self.joystickY === 0) {
-           self.joystickX = (self.joystickX+1).clamp(0,3);
+           self.joystickX = Utils.clamp(0,3,(self.joystickX+1));
            var index = self.storeDialogSide[self.joystickX];
            if (self.joystickX === 3)
            {
@@ -432,13 +432,13 @@ var selectFirstItem = {
     {
       if (navigate === Navigate.UP)
       {
-        self.joystickY = (self.joystickY-1).clamp(0,4);
+        self.joystickY = Utils.clamp(0,4,(self.joystickY-1));
         var index = self.playerDialogStat[self.joystickY];
         this.setSelectedItem($(index));
       }
       if (navigate === Navigate.DOWN)
       {
-        self.joystickY = (self.joystickY+1).clamp(0,4);
+        self.joystickY = Utils.clamp(0,4,(self.joystickY+1));
         var index = self.playerDialogStat[self.joystickY];
         this.setSelectedItem($(index));
       }
@@ -447,13 +447,13 @@ var selectFirstItem = {
     {
       if (navigate === Navigate.UP)
       {
-        self.joystickY = (self.joystickY-1).clamp(0,5);
+        self.joystickY = Utils.clamp(0,5,(self.joystickY-1));
         var index = self.playerSettings[self.joystickY];
         this.setSelectedItem($(index));
       }
       if (navigate === Navigate.DOWN)
       {
-        self.joystickY = (self.joystickY+1).clamp(0,5);
+        self.joystickY = Utils.clamp(0,5,(self.joystickY+1));
         var index = self.playerSettings[self.joystickY];
         this.setSelectedItem($(index));
       }
@@ -1191,8 +1191,8 @@ var selectFirstItem = {
         mouse.y += mody2 * speed;
      }
 
-     game.mouse.x = ~~(mouse.x.clamp(0,width-1));
-     game.mouse.y = ~~(mouse.y.clamp(0,height-1));
+     game.mouse.x = ~~(Utils.clamp(0, (width-1), mouse.x));
+     game.mouse.y = ~~(Utils.clamp(0, (height-1), mouse.y));
 
       var navigate = self.navigate;
       ///var navigate = self.navigate[1];

@@ -4,7 +4,7 @@ define(['entity/item', 'data/items', 'data/itemlootdata'], function(Item, Items,
     var InventoryHandler = Class.extend({
         init: function(dialog) {
             var self = this;
-            this.inventory = [];
+            this.rooms = [];
             this.maxNumber = 50;
             this.scale = 3;
             //this.pageItems = 24;
@@ -27,12 +27,12 @@ define(['entity/item', 'data/items', 'data/itemlootdata'], function(Item, Items,
             var i = item.slot;
             if (item.itemKind === -1)
             {
-              this.inventory[i] = null;
+              this.rooms[i] = null;
               this.dialog.makeEmptyInventory(i);
               continue;
             }
 
-            this.inventory[i] = item;
+            this.rooms[i] = item;
             var kind = item.itemKind;
             if (kind >= 1000 && kind < 2000)
               item.name = ItemLoot[kind - 1000].name;
@@ -47,7 +47,7 @@ define(['entity/item', 'data/items', 'data/itemlootdata'], function(Item, Items,
 
         getItemInventorySlotByKind: function(kind) {
           for (i = 0; i < this.maxNumber; i++) {
-            var item = this.inventory[i];
+            var item = this.rooms[i];
             if (item && kind === item.itemKind)
               return i;
           }
@@ -55,7 +55,7 @@ define(['entity/item', 'data/items', 'data/itemlootdata'], function(Item, Items,
 
         isInventoryFull: function() {
           for (var i = 0; i < this.maxNumber; ++i) {
-            var item = this.inventory[i];
+            var item = this.rooms[i];
             if (item === null) {
               return false;
             }
@@ -65,7 +65,7 @@ define(['entity/item', 'data/items', 'data/itemlootdata'], function(Item, Items,
 
         hasItem: function(kind, count) {
           for (i = 0; i < this.maxNumber; i++) {
-            var item = this.inventory[i];
+            var item = this.rooms[i];
             if (item && kind === item.itemKind && item.itemNumber >= count) {
               return true;
             }
@@ -75,7 +75,7 @@ define(['entity/item', 'data/items', 'data/itemlootdata'], function(Item, Items,
 
         getItemCount: function(kind) {
           for (i = 0; i < this.maxNumber; i++) {
-            var item = this.inventory[i];
+            var item = this.rooms[i];
             if (item && kind === item.itemKind) {
               return item.itemNumber;
             }
@@ -86,7 +86,7 @@ define(['entity/item', 'data/items', 'data/itemlootdata'], function(Item, Items,
         getItemTotalCount: function(kind) {
           var total = 0;
           for (i = 0; i < this.maxNumber; i++) {
-            var item = this.inventory[i];
+            var item = this.rooms[i];
             if (item && kind === item.itemKind) {
               total += item.itemNumber;
             }
@@ -96,7 +96,7 @@ define(['entity/item', 'data/items', 'data/itemlootdata'], function(Item, Items,
 
         getItemByKind: function(kind) {
           for (i = 0; i < this.maxNumber; i++) {
-            var item = this.inventory[i];
+            var item = this.rooms[i];
             if (item && kind === item.itemKind) {
               item.slot = i;
               return item;
@@ -107,7 +107,7 @@ define(['entity/item', 'data/items', 'data/itemlootdata'], function(Item, Items,
 
         hasItems: function(itemKind, itemCount){
             var a = 0;
-            for(var item of this.inventory){
+            for(var item of this.rooms){
                 if(item && item.itemKind === itemKind){
                 	 a += item.itemNumber;
                 	 if (a >= itemCount)
@@ -119,10 +119,10 @@ define(['entity/item', 'data/items', 'data/itemlootdata'], function(Item, Items,
 
         decInventory: function(realslot) {
           var self = this;
-          var item = this.inventory[realslot];
+          var item = this.rooms[realslot];
           var count = item.itemNumber;
           if (--count <= 0) {
-            this.inventory[realslot] = null;
+            this.rooms[realslot] = null;
           }
         },
 
@@ -154,7 +154,7 @@ define(['entity/item', 'data/items', 'data/itemlootdata'], function(Item, Items,
 
         dropItem: function(itemSlot) {
             var pos = game.getMouseGridPosition();
-            var item = this.inventory[itemSlot];
+            var item = this.rooms[itemSlot];
             if (!item)
               return;
 

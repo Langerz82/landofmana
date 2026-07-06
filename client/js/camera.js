@@ -79,8 +79,8 @@ define(['entity/entity'], function(Entity) {
           var x = fe.x - hgw;
           var y = fe.y - hgh;
 
-          this.x = x.clamp(mc.gcsx, mc.gcex);
-          this.y = y.clamp(mc.gcsy, mc.gcey);
+          this.x = Utils.clamp(mc.gcsx, mc.gcex, x);
+          this.y = Utils.clamp(mc.gcsy, mc.gcey, y);
 
           this.rx = x;
           this.ry = y;
@@ -93,8 +93,8 @@ define(['entity/entity'], function(Entity) {
           this.scrollX = (x > tMinX && x <= tMaxX);
           this.scrollY = (y > tMinY && y <= tMaxY);
 
-          this.sx = x.clamp(tMinX, tMaxX);
-          this.sy = y.clamp(tMinY, tMaxY);
+          this.sx = Utils.clamp(tMinX, tMaxX, x);
+          this.sy = Utils.clamp(tMinY, tMaxY, y);
 
           this.gx = this.x >> 4;
           this.gy = this.y >> 4;

@@ -44,14 +44,15 @@ module.exports = TrapGroup = cls.Class.extend({
   },
 
   isTouching: function (entity) {
-      var th = G_TILESIZE >> 1;
+    const ts = G_TILESIZE;
+    const half = ts >> 1;
+    const left   = this.x * ts - half;
+    const right  = (this.x + this.width) * ts + half;
+    const top    = this.y * ts - half;
+    const bottom = (this.y + this.height) * ts + half;
 
-      var x1 = (this.x*G_TILESIZE-th);
-      var x2 = ((this.x+this.width)*G_TILESIZE+th);
-      var y1 = (this.y*G_TILESIZE-th);
-      var y2 = ((this.y+this.width)*G_TILESIZE+th);
-
-      return _.inRange(entity.x, x1, x2) && _.inRange(entity.y, y1, y2);
+    return entity.x >= left && entity.x <= right &&
+           entity.y >= top && entity.y <= bottom;
   },
 
   update: function (entity) {

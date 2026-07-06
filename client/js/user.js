@@ -73,7 +73,7 @@ function(UserClient, Player, AppearanceData, Timer) {
         player.user = this;
         player.keyMove = false;
 
-        player.setItems();
+        player.items.setItems(game.equipmentHandler, game.inventory);
 
         player.forceStop = function () {
           if (this.fsm === "ATTACK")

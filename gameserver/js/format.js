@@ -442,6 +442,7 @@ var _isTypeValid = function (fmt, msg) {
                 return false;
             }
         },
+
     });
 
     var checker = new FormatChecker();

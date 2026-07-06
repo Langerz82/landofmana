@@ -29,8 +29,11 @@ module.exports = PacketHandler = Class.extend({
     this.connection.listen(function(message) {
       console.info("recv="+JSON.stringify(message));
       var action = parseInt(message[0]);
+      if (isNaN(action)) {
+        this.connection.close("Invalid message");
+        return;
+      }
 
-      if (action)
       if(!formatCheck(message)) {
           self.connection.close("Invalid "+Types.getMessageTypeAsString(action)+" message format: "+message);
           return;
@@ -444,11 +447,11 @@ module.exports = PacketHandler = Class.extend({
 
     // slot type, slot index, slot count.
     var slot = [Number(msg[1]), Number(msg[2]), Number(msg[3])];
-    if (slot[0] === 2 && slot[1] > this.player.equipment.maxNumber)
+    if (slot[0] === 2 && slot[1] > this.player.items.equipment.maxNumber)
       return;
     var item = null;
     if (slot[1] >= 0)
-      item = this.player.getStoredItem(slot[0], slot[1], slot[2]);
+      item = this.player.items.getStoredItem(slot[0], slot[1], slot[2]);
 
     var slot2 = null;
     if (msg.length === 6)
@@ -458,13 +461,13 @@ module.exports = PacketHandler = Class.extend({
         return;
     }
     if (action === 0) {
-      this.player.handleInventoryEat(item, slot[1]);
+      this.player.items.handleInventoryEat(item, slot[1]);
     }
     else if (action === 1) {
-      this.player.swapItem(slot, slot2);
+      this.player.items.swapItem(slot, slot2);
     }
     else if (action === 2) { // drop item.
-      this.player.handleStoreEmpty(slot, item);
+      this.player.items.handleStoreEmpty(slot, item);
     }
   },
 
@@ -491,7 +494,7 @@ module.exports = PacketHandler = Class.extend({
       console.info("enemyDrop");
 
     if (item instanceof Item) {
-      if (p.inventory.putItem(item.room) >= 0) {
+      if (p.items.inventory.putItem(item.room) >= 0) {
         this.server.taskHandler.processEvent(p, PlayerEvent(EventType.LOOTITEM, item, 1));
         this.broadcast(item.despawn(), false);
         p.map.entities.removeEntity(item);
@@ -1167,14 +1170,15 @@ module.exports = PacketHandler = Class.extend({
 
   handleHarvest: function (msg) {
     var x=parseInt(msg[0]), y=parseInt(msg[1]);
-    this.player.onHarvest(x,y);
+    this.player.harvest.onHarvest(x,y);
   },
 
   handleUseNode: function (msg) {
     var id=parseInt(msg[0]);
     var p = this.player;
     var entity = p.map.entities.getEntityById(id);
-    this.player.onHarvestEntity(entity);
+    if (entity)
+      this.player.harvest.onHarvestEntity(entity);
   },
 
 });

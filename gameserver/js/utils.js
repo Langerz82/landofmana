@@ -12,12 +12,8 @@ Utils.randomRange = function(min, max) {
     return min + (Math.random() * (max - min));
 };
 
-Utils.randomInt = function(val) {
-    return Math.floor(Math.random() * (val+1));
-};
-Utils.randomRangeInt = function(min, max) {
-    return min + Math.floor(Math.random() * (max - min + 1));
-};
+Utils.randomInt = (max) => Math.floor(Math.random() * (max + 1));
+Utils.randomRangeInt = (min, max) => min + Math.floor(Math.random() * (max - min + 1));
 
 Utils.percentToBool = function(percent){
     if(Math.random() < percent*0.01){
@@ -34,15 +30,7 @@ Utils.ratioToBool = function(ratio){
     }
 };
 
-Utils.clamp = function(min, max, value) {
-    if(value < min) {
-        return min;
-    } else if(value > max) {
-        return max;
-    } else {
-        return value;
-    }
-};
+Utils.clamp = (min, max, value) => Math.max(min, Math.min(max, value));
 
 Utils.randomOrientation = function() {
     var o, r = Utils.random(4);
@@ -516,13 +504,23 @@ Utils.copy2DArray = function (arr) {
     copy.push(arr[i].slice()); // .slice() creates a copy of the inner array
   }
   return copy;
-}
+};
 
 Utils.fixGridPosition = function (x,y) {
   return {
     x: (Math.floor(x/G_TILESIZE)+0.5)*G_TILESIZE,
     y: (Math.floor(y/G_TILESIZE)+0.5)*G_TILESIZE,
   };
-}
+};
+
+Utils.validateIndex = function(index, max) {
+  const idx = parseInt(index, 10);
+  return Number.isInteger(idx) && idx >= 0 && idx < max;
+};
+
+Utils.validatePositiveNumber = function(num) {
+  const n = parseInt(num, 10);
+  return Number.isInteger(n) && n > 0;
+};
 
 module.exports = Utils;

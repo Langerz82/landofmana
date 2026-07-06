@@ -343,7 +343,7 @@ function modgold (args) {
 
 function banplayer(args) {
   var playerName = args[0];
-  var duration = parseInt(args[1]);
+  var duration = parseInt(args[1], 10);
   if (!duration) {
     console.info("banplayer - provide how many days banned.");
     return;
@@ -353,7 +353,7 @@ function banplayer(args) {
 
 function banuser(args) {
   var username = args[0];
-  var duration = parseInt(args[1]);
+  var duration = parseInt(args[1], 10);
   if (!duration) {
     console.info("banuser - provide how many days banned.");
     return;

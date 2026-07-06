@@ -1,4 +1,4 @@
-var Messages = require("./message");
+var Messages = require("../../message");
 
 module.exports = PlayerQuests = cls.Class.extend({
   init: function (player) {
@@ -28,12 +28,14 @@ module.exports = PlayerQuests = cls.Class.extend({
   },
 
   questAboutItemCheck: function (target, quest) {
+    var p = this.player;
+
     var lootKind = quest.object2.kind+1000;
     if (quest.object2.type === Types.EntityTypes.ITEMLOOT &&
         quest.object.type === Types.EntityTypes.MOB &&
         quest.object.kind === target.kind &&
         quest.status != QuestStatus.COMPLETE &&
-        (quest.count < quest.object2.count || this.player.inventory.hasItemCount(lootKind) < quest.object2.count))
+        (quest.count < quest.object2.count || p.items.inventory.hasItemCount(lootKind) < quest.object2.count))
     {
         target.questDrops[lootKind] = parseInt(quest.object2.chance*10);
         quest.object2.chance += 1;
@@ -41,10 +43,12 @@ module.exports = PlayerQuests = cls.Class.extend({
   },
 
   questAboutUseNode: function(quest) {
+    var p = this.player;
+
     quest.count++;
     if(quest.count >= quest.object.count) {
       quest.count = quest.object.count;
-      var xp = quest.object.count * 10 * this.player.level;
+      var xp = quest.object.count * 10 * p.level;
       this.completeQuest(quest, xp);
     } else {
       this.progressQuest(quest);
@@ -52,31 +56,34 @@ module.exports = PlayerQuests = cls.Class.extend({
   },
 
   questAboutItem: function(quest) {
+      var p = this.player;
+
       console.info(JSON.stringify(quest));
       var kind = quest.object2.kind+1000;
-      var countItems = this.player.inventory.hasItemCount(kind);
+      var countItems = p.inventory.hasItemCount(kind);
       quest.count = countItems;
       this.progressQuest(quest);
   },
 
   questAboutFind: function(quest) {
+      var p = this.player;
       //console.info(JSON.stringify(quest));
       if(quest.count++ >= quest.object.count && quest.status === QuestStatus.INPROGRESS) {
         quest.count = quest.object.count;
-        var xp = quest.object.count * 10 * this.player.level;
+        var xp = quest.object.count * 10 * p.level;
         this.completeQuest(quest, xp);
       }
   },
 
   questAboutItemComplete: function(quest, callback){
-
+      var p = this.player;
       if(quest.count >= quest.object2.count && quest.status==QuestStatus.INPROGRESS) {
         var kind = quest.object2.kind+1000;
-        if(!this.player.inventory.hasItemCount(kind))
+        if(!p.items.inventory.hasItemCount(kind))
             return;
 
-        this.player.inventory.removeItemKind(kind, quest.object2.count);
-        var xp = quest.object2.count * 20 * this.player.level;
+        p.items.inventory.removeItemKind(kind, quest.object2.count);
+        var xp = quest.object2.count * 20 * p.level;
         this.completeQuest(quest, xp);
         if (callback)
           callback(quest);
@@ -86,8 +93,9 @@ module.exports = PlayerQuests = cls.Class.extend({
   },
 
   sendQuest: function (quest) {
+    var p = this.player;
     //var entityId = this.player.map.entities.getNpcByQuestId(quest.npcQuestId);
-    this.player.sendPlayer(new Messages.Quest(quest));
+    p.sendPlayer(new Messages.Quest(quest));
   },
 
   progressQuest: function (quest) {
@@ -139,11 +147,17 @@ module.exports = PlayerQuests = cls.Class.extend({
     return this.getQuestById(id) != null;
   },
 
-  forQuestsType: function (type, callback) {
+  /*forQuestsType: function (type, callback) {
     for (var q of this.quests) {
       if (q.type === type && callback)
           callback(q);
     }
-  },
+  },*/
 
+  // Use modern array methods
+  forQuestsType: function (type, callback) {
+    this.quests
+      .filter(q => q.type === type)
+      .forEach(callback);
+  },
 });
