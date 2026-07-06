@@ -113,7 +113,7 @@ module.exports = User = cls.Class.extend({
       console.warn("User.onClose - called.")
 
       if (this.hasLoggedIn) {
-        delete users[this.name];
+        users.delete(this.name);
       }
       delete this;
       //}
@@ -179,7 +179,7 @@ module.exports = User = cls.Class.extend({
           this.connection.send([Types.UserMessages.SC_ERROR,"invalidname"]);
           return;
         }
-        if (users[this.name]) {
+        if (users.has(this.name)) {
           this.connection.send([Types.UserMessages.UC_ERROR,"loggedin"]);
           this.connection.close("user logged in.");
           return;
@@ -256,7 +256,7 @@ module.exports = User = cls.Class.extend({
         }
       }
 
-      users[this.name] = this;
+      users.set(this.name, this);
       this.hasLoggedIn = true;
 
       //var d = new Date();
@@ -364,9 +364,10 @@ module.exports = User = cls.Class.extend({
       if (playerIndex < 0 && playerIndex >= this.players.length)
         return false;
 
-      if (users.hasOwnProperty(this.name))
+      var user = users.get(this.name);
+      if (user)
       {
-        var elapsedTime = Date.now() - users[this.name].loggedInDate;
+        var elapsedTime = Date.now() - user.loggedInDate;
         console.info("user.handleLoginPlayer - elapsedTime: "+elapsedTime);
         if (elapsedTime > 60000) {
           this.connection.send([Types.UserMessages.UC_ERROR,"timeout"]);
@@ -411,9 +412,6 @@ module.exports = User = cls.Class.extend({
       } else {
         console.info("No world Handler!");
       }
-
-      player_users[playerName] = this;
-
       return true;
     },
 

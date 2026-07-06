@@ -15,19 +15,17 @@ var MapEntities = cls.Class.extend({
       this.world = server;
 //    	this.database = database;
 
-      this.entities = {};
-      this.players = {};
-      this.characters = {};
-      this.npcplayers = {};
-      this.mobs = {};
+      this.entities = new Map();
+      this.players = new Map();
+      this.characters = new Map();
+      this.npcplayers = new Map();
+      this.mobs = new Map();
 //      this.attackers = {};
-      this.items = {};
-      this.equipping = {};
-      this.hurt = {};
-      this.npcs = {};
+      this.items = new Map();
+      this.npcs = new Map();
 //      this.pets = {};
-      this.chests = {};
-      this.blocks = {};
+      this.chests = new Map();
+      this.blocks = new Map();
 
       this.packets = {};
 
@@ -125,7 +123,7 @@ var MapEntities = cls.Class.extend({
 
       pos = this.spaceEntityRandomApart(2, function () { return self.map.getRandomPosition(); });
 
-	    var npc = new NpcMove(++this.entityCount, 0, pos.x * 16, pos.y * 16, self.map);
+	    var npc = new NpcMove(++this.entityCount, 0, pos.x * G_TILESIZE, pos.y * G_TILESIZE, self.map);
 
 		  self.addNpcMove(npc);
 		  //self.sendBroadcast(npc.spawn());
@@ -291,87 +289,6 @@ var MapEntities = cls.Class.extend({
       this.processPackets();
     },
 
-    isMobsOnSameTile: function(mob) {
-      var p1 = mob.getLastPosition();
-  		_.each(self.mobs, function(entity) {
-        var p2 = entity.getLastPosition();
-  			if(entity.id !== mob.id && p1[0] === p2[0] && p1[1] === p2[1])
-  			{
-          result = true;
-  			}
-  		});
-  		//console.info("result="+result);
-  		return result;
-    },
-
-    getFreeAdjacentNonDiagonalPosition: function(entity) {
-  		var self = this,
-  			result = null;
-
-  		entity.forEachAdjacentNonDiagonalPosition(function(x, y, orientation) {
-  			if(!result && !self.map.isColliding(x, y) && !self.isCharacterAt(x, y)) {
-  			   result = {x: x, y: y, o: orientation};
-  			}
-  		});
-  		return result;
-    },
-
-    getFreeFutureAdjacentNonDiagonalPosition: function(entity) {
-  		var self = this,
-  			result = [];
-
-  		entity.forEachFutureAdjacentNonDiagonalPosition(function(x, y, orientation) {
-
-        if(!self.map.isColliding(x, y) && !self.isMobAt(x, y)) {
-  			     result.push({x: x, y: y, o: orientation});
-  			}
-  		});
-  		return result;
-    },
-
-/*
-  	getRandomPosition: function (entity, threshold) {
-  		var pos = [];
-  		var valid = false;
-  		//console.info("entity.x:"+entity.x+",entity.y:"+entity.y);
-  		var tries = 10;
-  		var attempts = 0;
-      threshold *= G_TILESIZE;
-  		while (attempts++ < tries && (pos.y !== entity.y && pos.x !== entity.x)) {
-  			//console.info("try move attempt:"+attempts);
-  			var r1 = Utils.randomRangeInt(-threshold,threshold);
-  			var r2 = Utils.randomRangeInt(-threshold,threshold);
-  			//console.info("r1="+r1+",r2="+r2);
-  			pos[0] = entity.x + r1;
-  			pos[1] = entity.y + r2;
-        //console.info("pos: "+pos[0]+","+pos[1]);
-  			valid = !this.map.isColliding(pos[0], pos[1]);
-        //console.info("valid="+valid);
-
-  			if (valid && !(pos[0]==-1 && pos[1]==-1))
-  				return {x: pos[0], y: pos[1]};
-  		}
-  		//console.info("pos.x:"+pos.x+",pos.y:"+pos.y);
-      console.info("getRandomPosition - failed");
-  		return null;
-  	},
-*/
-    /*handleOpenedChest: function(chest, player) {
-      var self = this;
-      self.pushToAdjacentGroups(chest.group, chest.despawn());
-      self.removeEntity(chest);
-
-	    var item = self.server.getDroppedOrStolenItem(player, chest, false);
-	    if (item && item instanceof Item)
-	    {
-    		item.x = chest.x;
-    		item.y = chest.y;
-    		self.sendBroadcast(new Messages.Spawn(item));
-    		self.server.handleItemDespawn(item);
-	    }
-	    chest.handleRespawn();
-    },*/
-
     spawnEntities: function(map) {
         var self = this;
 
@@ -422,26 +339,26 @@ var MapEntities = cls.Class.extend({
     },*/
 
     addEntity: function(entity) {
-      this.entities[entity.id] = entity;
+      this.entities.set(entity.id, entity);
       if (entity instanceof Character)
-        this.characters[entity.id] = entity;
+        this.characters.set(entity.id, entity);
     },
 
     addPlayer: function(player) {
       console.info("addPlayer - player id: "+player.id);
       this.addEntity(player);
-      this.players[player.id] = player;
+      this.players.set(player.id, player);
       this.packets[player.id] = [];
     },
 
     addChest: function(chest) {
         this.addEntity(chest);
-        this.chests[chest.id] = chest;
+        this.chests.set(chest.id, chest);
     },
 
     addBlock: function (block) {
       this.addEntity(block);
-      this.blocks[block.id] = block;
+      this.blocks.set(block.id, block);
       return block;
     },
 
@@ -450,7 +367,7 @@ var MapEntities = cls.Class.extend({
       mob.mobAI = this.mobAI;
 
       this.addEntity(mob);
-      this.mobs[mob.id] = mob;
+      this.mobs.set(mob.id, mob);
 
       this.world.mobCallback.setCallbacks(mob);
 
@@ -461,7 +378,7 @@ var MapEntities = cls.Class.extend({
         var npc = new NpcStatic(++this.entityCount, kind, x, y, this.map);
 
         this.addEntity(npc);
-        this.npcs[npc.id] = npc;
+        this.npcs.set(npc.id, npc);
 
         return npc;
     },
@@ -470,18 +387,39 @@ var MapEntities = cls.Class.extend({
         var npc = new NpcMove(++this.entityCount, kind, x, y, this.map);
 
         this.addEntity(npc);
-        this.npcplayers[npc.id] = npc;
+        this.npcplayers.set(npc.id, npc);
 
         return npc;
     },
 
     addItem: function(item) {
-        var self = this;
-
-        self.addEntity(item);
-        self.items[item.id] = item;
+        this.addEntity(item);
+        this.items.set(item.id, item);
 
         return item;
+    },
+
+    addSpatial: function(entity) {
+      if (!entity || !entity.x || !entity.y) return;
+
+      var ts = G_TILESIZE;
+      var gx = ~~(entity.x / ts);
+      var gy = ~~(entity.y / ts);
+
+      var spx = ~~(gx / this.spatialSize);
+      var spy = ~~(gy / this.spatialSize);
+
+      // bounds check
+      if (spy < 0 || spy >= this.spatial.length ||
+          spx < 0 || spx >= this.spatial[spy].length) {
+          return;
+      }
+
+      entity.spx = spx;
+      entity.spy = spy;
+      entity.spatialMap = true;
+
+      this.spatial[spy][spx].push(entity);
     },
 
     removeSpatial: function (entity) {
@@ -495,26 +433,26 @@ var MapEntities = cls.Class.extend({
     	  console.error("removeEntity: "+entity.id);
         this.removeSpatial(entity);
 
-        if (entity.id in this.mobs)
-            delete this.mobs[entity.id];
+        if (this.mobs.has(entity.id))
+            this.mobs.delete(entity.id);
 
-        if (entity.id in this.items)
-            delete this.items[entity.id];
+        if (this.items.has(entity.id))
+            this.items.delete(entity.id);
 
-        if (entity.id in this.players)
-            delete this.players[entity.id];
+        if (this.players.has(entity.id))
+            this.players.delete(entity.id);
 
-        if (entity.id in this.chests)
-            delete this.chests[entity.id];
+        if (this.chests.has(entity.id))
+            this.chests.delete(entity.id);
 
-        if (entity.id in this.blocks)
-            delete this.blocks[entity.id];
+        if (this.blocks.has(entity.id))
+            this.blocks.delete(entity.id);
 
-        if (entity.id in this.characters)
-            delete this.characters[entity.id];
+        if (this.characters.has(entity.id))
+            this.characters.delete(entity.id);
 
-        if (entity.id in this.entities)
-            delete this.entities[entity.id];
+        if (this.entities.has(entity.id))
+            this.entities.delete(entity.id);
 
         entity.destroy();
     },
@@ -543,7 +481,7 @@ var MapEntities = cls.Class.extend({
       this.sendBroadcast(player.despawn(0));
       this.removeEntity(player);
 
-      delete this.npcplayers[player.id];
+      delete this.npcplayers.get(player.id);
     },
 
     createItem: function(itemRoom, x, y) {
@@ -594,15 +532,12 @@ var MapEntities = cls.Class.extend({
     },*/
 
     getEntityById: function(id) {
-    	var self = this;
-      if (self.entities.hasOwnProperty(id))
-          return self.entities[id];
+      return this.entities.get(Number(id));
     },
 
     getPlayerByName: function(name)
     {
-        for (var id in this.players) {
-          var p = this.players[id];
+        for (const p of this.players.values()) {
           if (p.name === name)
             return p;
         }
@@ -641,35 +576,35 @@ var MapEntities = cls.Class.extend({
     },
 
     forEachEntity: function(callback) {
-        Utils.forEach(this.entities, function (entity) {
+        for (const entity of this.entities.values()) {
           callback(entity);
-        });
+        }
     },
 
     forEachPlayer: function(callback) {
-        Utils.forEach(this.players, function (entity) {
-          callback(entity);
-        });
+      for (const entity of this.players.values()) {
+        callback(entity);
+      }
     },
 
     forEachMob: function(callback) {
-        Utils.forEach(this.mobs, function (entity) {
-          callback(entity);
-        });
+      for (const entity of this.mobs.values()) {
+        callback(entity);
+      }
     },
 
     forEachCharacter: function(callback) {
-        Utils.forEach(this.entities, function (entity) {
-          if (entity instanceof Character)
-            callback(entity);
-        });
+      for (const entity of this.entities.values()) {
+        if (entity instanceof Character)
+          callback(entity);
+      }
     },
 
     forEachNpcPlayer: function(callback) {
-      Utils.forEach(this.npcplayers, function (entity) {
+      for (const entity of this.npcplayers.values()) {
         if (entity instanceof Character)
           callback(entity);
-      });
+      }
     },
 
 // TODO - Minimize function calls so you can pass type to loop through, and the additional condition.
@@ -678,16 +613,18 @@ var MapEntities = cls.Class.extend({
     },
 
     getEntityAroundSpatial: function(entity, range, conditional) {
-      range *= G_TILESIZE;
-      var r = range >> 1;
+      r = r || 1;
       var x = entity.x;
       var y = entity.y;
+      var gx = ~~(entity.x / G_TILESIZE);
+      var gy = ~~(entity.y / G_TILESIZE);
+
       var entities = [];
       var def_conditional = function (e1,e2) { return e1 !== e2; };
       conditional = conditional || def_conditional;
       //console.info("getEntityAround, range: "+range+",x:"+x+",y:"+y);
       var e2;
-      var group = this.getSpatialEntities([x-r,y-r,x+r,y+r]);
+      var group = this.getSpatialEntities([gx-r,gy-r,gx+r,gy+r]);
       for (var e2 of group) {
           if (conditional(entity,e2))
           {
@@ -716,25 +653,34 @@ var MapEntities = cls.Class.extend({
               entities.push(e2);
         }
       } else {
-        Utils.forEach(group, function (e2) {
-          if (compare(e1,e2))
-            entities.push(e2);
-        })
+        if (group instanceof Map) {
+          for (const e2 of group.values()) {
+            if (compare(e1,e2))
+              entities.push(e2);
+          }
+        }
+        else {
+          Utils.forEach(group, function (e2) {
+            if (compare(e1,e2))
+              entities.push(e2);
+          });
+        }
       }
       return entities;
     },
 
-    getEachEntityAround: function(x, y, s) {
+    getEachEntityAround: function(x, y, range) {
         var x = ~~(x/G_TILESIZE);
         var y = ~~(y/G_TILESIZE);
-        var entities = this.getSpatialEntities([x-s,y-s,x+s,y+s]);
-        return this.getEntityAround(entities, {x: x, y: y}, s);
+        var r = range;
+        var entities = this.getSpatialEntities([x-r,y-r,x+r,y+r]);
+        return this.getEntityAround(entities, {x: x, y: y}, r);
     },
 
     getEntitiesAround: function(entity, range) {
       var x = ~~(entity.x/G_TILESIZE);
       var y = ~~(entity.y/G_TILESIZE);
-      var r = (range*G_TILESIZE) >> 1;
+      var r = range;
       var entities = this.getSpatialEntities([x-r,y-r,x+r,y+r]);
       return this.getEntityAround(entities, entity, r);
     },
@@ -897,7 +843,7 @@ var MapEntities = cls.Class.extend({
     },
 
     spaceEntityRandomApart: function (dist, callback_func, entities, entity, threshold) {
-      entities = entities || this.entities;
+      entities = entities || this.entities.values();
       threshold = threshold || 100;
     	var pos = null;
     	var count = 1;
@@ -932,6 +878,5 @@ var MapEntities = cls.Class.extend({
       return true;
     },
 });
-
 
 module.exports = MapEntities;

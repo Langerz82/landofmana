@@ -139,7 +139,7 @@ module.exports = World = cls.Class.extend(
                 if (self.removed_callback)
                     self.removed_callback(player);
 
-                delete users[player.user.name];
+                users.delete(player.user.name);
                 player.map.entities.removePlayer(player);
                 //delete player;
                 player = null;
@@ -256,7 +256,7 @@ module.exports = World = cls.Class.extend(
       //console.info("world update called.");
 
       self.forEachMap(function (map) {
-        if (map.updater && Object.keys(map.entities.players).length > 0)
+        if (map.updater && map.entities.players.size > 0)
         {
             map.updater.update();
         }
@@ -281,7 +281,7 @@ module.exports = World = cls.Class.extend(
         var processPackets = function () {
           self.forEachMap(function (map) {
               if (map.updater &&
-                  Object.keys(map.entities.players).length > 0)
+                  map.entities.players.size > 0)
               {
                   map.entities.processPackets();
               }
@@ -292,7 +292,7 @@ module.exports = World = cls.Class.extend(
         setInterval(function()
         {
             self.forEachMap(function (map) {
-              if (Object.keys(map.entities.players).length > 0)
+              if (map.entities.players.size > 0)
               {
                 map.entities.mobAI.update();
               }
@@ -320,10 +320,9 @@ module.exports = World = cls.Class.extend(
         setInterval(function()
         {
           self.forEachMap(function (map) {
-            var players = map.entities.players;
-            Utils.forEach(players, function (p) {
+            for (const p of map.entities.players.values()) {
               map.entities.mobAI.Roaming(p);
-            });
+            }
           });
         }, 1000);
 

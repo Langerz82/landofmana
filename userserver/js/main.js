@@ -35,9 +35,7 @@ PLAYERS_SAVED = false;
 
 //worlds = [];
 worldHandlers = [];
-users = {};
-
-player_users = {};
+users = new Map();
 
 Log = require('log');
 var fs = require('fs');
@@ -178,7 +176,7 @@ function main(config) {
       conn.onClose(function (conn) {
         if (user)
           if (user.hasLoggedIn)
-            delete users[user.name];
+            users.delete(user.name);
           user = null;
       });
     };

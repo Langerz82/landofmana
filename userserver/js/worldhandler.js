@@ -20,7 +20,7 @@ module.exports = WorldHandler = cls.Class.extend({
         this.playerSaveData = {};
         this.playerLoadData = {};
         this.playerCreateData = {};
-        this.loggedInUsers = {};
+        this.loggedInUsers = new Map();
 
         this.block = false;
         this.listener = function(message) {
@@ -156,7 +156,7 @@ module.exports = WorldHandler = cls.Class.extend({
 
     release: function () {
         console.info("worldHandler released.");
-        for (var tmp in this.loggedInUsers) {
+        for (var tmp of this.loggedInUsers) {
           console.info("releasing user: "+tmp);
         }
         delete this.loggedInUsers;
@@ -170,10 +170,10 @@ module.exports = WorldHandler = cls.Class.extend({
       var playerName = msg[2];
 
       if (status === 1) {
-        this.loggedInUsers[username] = users[username];
+        this.loggedInUsers.set(username, users.get(username));
       }
       else {
-        delete this.loggedInUsers[username];
+        this.loggedInUsers.delete(username);
       }
     },
 
@@ -239,7 +239,7 @@ module.exports = WorldHandler = cls.Class.extend({
             DBH.createPlayerNameInUser(username, playerName);
             if (!update) {
               delete self.playerSaveData[playerName];
-              delete users[username];
+              users.delete(username);
             }
           }
           if (Object.keys(self.playerSaveData).length === 0) {

@@ -97,14 +97,8 @@ module.exports = Updater = Class.extend({
 
       this.time = Date.now();
 
-      var characters = this.map.entities.characters;
-      for(var entityId in characters)
+      for(var entity of this.map.entities.characters.values())
       {
-        if (!characters.hasOwnProperty(entityId))
-          continue;
-        var entity = characters[entityId];
-        if (!entity)
-          continue;
         if (entity.isDead || entity.isStunned)
         {
           continue;

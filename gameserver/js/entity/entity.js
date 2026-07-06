@@ -46,40 +46,8 @@ module.exports = Entity = cls.Class.extend({
       this.gx = gx;
       this.gy = gy;
 
-      var spx = ~~(gx / G_SPATIAL_SIZE);
-      var spy = ~~(gy / G_SPATIAL_SIZE);
-
-      if (!this.hasOwnProperty("spx"))
-        this.spx = spx;
-      if (!this.hasOwnProperty("spy"))
-        this.spy = spy;
-      if (!this.hasOwnProperty("spatialMap"))
-        this.spatialMap = this.map;
-
-// TODO - FIx.
-      //console.info("this.spx:"+this.spx+",this.spy:"+this.spy);
-      //console.info("spx:"+spx+",spy:"+spy);
-      var sameMap = (this.spatialMap === this.map);
-      if (!sameMap) {
-        var spatial = this.spatialMap.entities.spatial[this.spy][this.spx];
-        Utils.removeFromArray(spatial, this);
-      }
-      else {
-        if (this.spx !== spx || this.spy !== spy)
-        {
-          var spatial = this.map.entities.spatial[this.spy][this.spx];
-          Utils.removeFromArray(spatial, this);
-        }
-        else {
-          var spatial = this.map.entities.spatial[spy][spx];
-          if (spatial && !spatial.includes(this))
-            spatial.push(this);
-        }
-      }
-      this.spx = spx;
-      this.spy = spy;
-
-      this.spatialMap = this.map;
+      this.map.entities.removeSpatial(this);
+      this.map.entities.addSpatial(this);
     },
 
 /*

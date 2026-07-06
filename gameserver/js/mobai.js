@@ -108,11 +108,9 @@ module.exports = MobAI = Class.extend({
       }
     }
 
-    var mobs = this.map.entities.mobs;
-    for(var mobId in mobs)
+    var mobs = this.map.entities.mobs.values();
+    for(const mob of mobs)
     {
-      var mob = mobs[mobId];
-
       if (mob.isDead || mob.freeze)
         continue;
 

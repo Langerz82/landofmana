@@ -1394,7 +1394,6 @@ module.exports = Player = Character.extend({
 
   setMap: function (map) {
     this.map.entities.removeSpatial(this);
-    //this.packetHandler.setMap(map);
     this.map = map;
   },
 

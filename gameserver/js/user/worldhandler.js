@@ -61,13 +61,13 @@ module.exports = WorldHandler = cls.Class.extend({
       }
 
       var username = player.user.name;
-      if (users.hasOwnProperty(username)) {
+      if (users.has(username)) {
         console.info("player user is already logged in.");
         this.sendPlayerMessage(new Messages.Error("user already logged in."));
         this.connection.disconnect();
         return;
       }
-      users[username] = playerName;
+      users.set(username, playerName);
 
       if (player.world && player.world.ban) {
         if (player.world.ban.isUserBanned(username)) {
