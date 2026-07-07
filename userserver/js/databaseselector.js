@@ -1,9 +1,11 @@
-/* global module, __dirname */
-var path = require('path');
+import path from 'path';
 
-var server;
+const DatabaseSelector = async (config) => {
+  // Hardcoded to Redis for now
+  const module = await import("./redis.js");
 
-module.exports = function(config) {
-  return require("./redis");
-  //return require(path.resolve(__dirname, '.', config.database));
+  // Return the default export (or the whole module)
+  return module.default || module;
 };
+
+export default DatabaseSelector;

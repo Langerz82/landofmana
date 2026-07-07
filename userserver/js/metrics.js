@@ -1,51 +1,49 @@
-var _ = require('underscore');
-var cls = require('./lib/class');
-var Metrics = {};
+import _ from 'underscore';
+import Memcache from 'memcache';
 
-
-Metrics = cls.Class.extend({
-    init: function(config) {
-        var self = this;
-
+class Metrics {
+    constructor(config) {
         this.config = config;
-        this.client = new (require('memcache')).Client(config.memcached_port, config.memcached_host);
+        this.client = new Memcache.Client(config.memcached_port, config.memcached_host);
         this.client.connect();
 
         this.isReady = false;
+        this.readyCallback = null;
 
-        this.client.on('connect', function () {
-            console.info('Metrics enabled: memcached client connected to ' + config.memcached_host + ':' + config.memcached_port);
-            self.isReady = true;
-            if (self.readyCallback) {
-                self.readyCallback();
+        this.client.on('connect', () => {
+            console.info(`Metrics enabled: memcached client connected to ${config.memcached_host}:${config.memcached_port}`);
+            this.isReady = true;
+
+            if (this.readyCallback) {
+                this.readyCallback();
             }
         });
-    },
+    }
 
-    ready: function (callback) {
+    ready(callback) {
         this.readyCallback = callback;
-    },
+    }
 
-    updatePlayerCounters: function (worlds, updatedCallback) {
-        var self = this;
-        var config = this.config;
-        var numServers = _.size(config.game_servers);
-        var playerCount = _.reduce(worlds, function (sum, world) { return sum + world.playerCount; }, 0);
+    updatePlayerCounters(worlds, updatedCallback) {
+        const config = this.config;
+        let numServers = _.size(config.game_servers);
+        const playerCount = _.reduce(worlds, (sum, world) => sum + world.playerCount, 0);
 
         if (this.isReady) {
             // Set the number of players on this server
-            this.client.set('player_count_'+config.server_name, playerCount, function () {
-                var totalPlayers = 0;
+            this.client.set(`player_count_${config.server_name}`, playerCount, () => {
+                let totalPlayers = 0;
 
                 // Recalculate the total number of players and set it
-                _.each(config.game_servers, function (server) {
-                    self.client.get('player_count_'+server.name, function (error, result) {
-                        var count = result ? parseInt(result, 10) : 0;
+                _.each(config.game_servers, (server) => {
+                    this.client.get(`player_count_${server.name}`, (error, result) => {
+                        const count = result ? parseInt(result, 10) : 0;
 
                         totalPlayers += count;
                         numServers -= 1;
+
                         if (numServers === 0) {
-                            self.client.set('total_players', totalPlayers, function () {
+                            this.client.set('total_players', totalPlayers, () => {
                                 if (updatedCallback) {
                                     updatedCallback(totalPlayers);
                                 }
@@ -57,27 +55,27 @@ Metrics = cls.Class.extend({
         } else {
             console.error('Memcached client not connected');
         }
-    },
+    }
 
-    updateWorldDistribution: function (worlds) {
-        this.client.set('world_distribution_' + this.config.server_name, worlds);
-    },
+    updateWorldDistribution(worlds) {
+        this.client.set(`world_distribution_${this.config.server_name}`, worlds);
+    }
 
-    updateWorldCount: function() {
-        this.client.set('world_count_' + this.config.server_name, this.config.nb_worlds);
-    },
+    updateWorldCount() {
+        this.client.set(`world_count_${this.config.server_name}`, this.config.nb_worlds);
+    }
 
-    getOpenWorldCount: function (callback) {
-        this.client.get('world_count_' + this.config.server_name, function (error, result) {
-            callback(result);
-        });
-    },
-
-    getTotalPlayers: function (callback) {
-        this.client.get('total_players', function (error, result) {
+    getOpenWorldCount(callback) {
+        this.client.get(`world_count_${this.config.server_name}`, (error, result) => {
             callback(result);
         });
     }
-});
 
-module.exports = Metrics;
+    getTotalPlayers(callback) {
+        this.client.get('total_players', (error, result) => {
+            callback(result);
+        });
+    }
+}
+
+export default Metrics;

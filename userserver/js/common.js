@@ -1,9 +1,41 @@
-cls = require("./lib/class");
-_ = require('underscore');
+import Class from "./lib/class.js";
+import _ from 'underscore';
 
-GameTypes = require("../shared/js/gametypes");
-ItemTypes = require("../shared/js/itemtypes");
-Types = GameTypes;
-Utils = require('./utils');
+import GameTypes from "../shared/js/gametypes.js";
+import ItemTypes from "../shared/js/itemtypes.js";
 
-AppearanceData = require('./data/appearancedata');
+const Types = GameTypes;
+
+import Utils from './utils.js';
+
+import AppearanceData from './data/appearancedata.js';
+
+// Export everything that was globally assigned
+export {
+  Class,
+  _,
+  GameTypes,
+  ItemTypes,
+  Types,
+  Utils,
+  AppearanceData
+};
+
+// For backward compatibility (if other files still use global-like access)
+export default {
+  Class,
+  _,
+  GameTypes,
+  ItemTypes,
+  Types,
+  Utils,
+  AppearanceData
+};
+
+global.Class = Class;
+global._ = _;
+global.GameTypes = GameTypes;
+global.ItemTypes = ItemTypes;
+global.Types = Types;
+global.Utils = Utils;
+global.AppearanceData = AppearanceData;

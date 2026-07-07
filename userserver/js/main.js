@@ -1,340 +1,278 @@
-require('./common')
+import * as common from './common.js';
 
-var fs = require('fs');
-var crypto = require('crypto');
-var Metrics = require('./metrics');
-var ProductionConfig = require('./productionconfig');
-var User = require('./user');
-var WorldHandler = require('./worldhandler');
-var Utils = require('./utils');
-var redis = require('./redis');
-var UserMessages = require('./usermessage');
+import fs from 'fs';
+import crypto from 'crypto';
+import Metrics from './metrics.js';
+import ProductionConfig from './productionconfig.js';
+import User from './user.js';
+import WorldHandler from './worldhandler.js';
+import Utils from './utils.js';
+import redis from './redis.js';
+import UserMessages from './usermessage.js';
 
-var _ = require('underscore');
-var readline = require('readline').createInterface({
+// Add these:
+import ws from './ws.js';
+import DatabaseSelector from './databaseselector.js';
+
+//import _ from 'underscore';
+import { createInterface } from 'readline';
+
+import { dirname } from 'path';
+import { fileURLToPath } from 'url';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+
+const readline = createInterface({
   input: process.stdin,
   output: process.stdout
 });
 
-let packageName = "com.retrorpgonline2";
+const packageName = "com.retrorpgonline2";
 
-//let verifier = null;
-
-let IO_STATES = {
-	MSG_BUYPRODUCT: 1,
-	MSG_ERRORPRODUCT: 2,
+const IO_STATES = {
+  MSG_BUYPRODUCT: 1,
+  MSG_ERRORPRODUCT: 2,
 };
 
-SAVING_SERVER = false;
-AUCTION_SAVED = false;
-PLAYERS_SAVED = false;
+let SAVING_SERVER = false;
+let AUCTION_SAVED = false;
+let PLAYERS_SAVED = false;
 
-//GDATE = new Date();
+// Global setup
+import Log from 'log';
+import util from 'util';
 
-/* global log, Player, databaseHandler */
+const log_file = fs.createWriteStream(__dirname + '/../console.log', { flags: 'w' });
+const log_stdout = process.stdout;
 
-//worlds = [];
-worldHandlers = [];
-users = new Map();
+global.MainConfig = null;
+global.DBH = null;
+global.databaseHandler = null;
+global.worldHandlers = [];
+global.users = new Map();
 
-Log = require('log');
-var fs = require('fs');
-var util = require('util');
-var crypto = require('crypto');
+// Logging setup
+global.log = new Log(Log.INFO || Log.DEBUG || Log.ERROR);
 
-var log_file = fs.createWriteStream(__dirname + '/../console.log', {flags : 'w'});
-var log_stdout = process.stdout;
+function setupLogging() {
+  console.isEnabled = true;
 
+  // Clear old methods
+  Object.defineProperty(log, "log", { value: undefined, writable: true, enumerable: true });
+  Object.defineProperty(log, "info", { value: undefined, writable: true, enumerable: true });
+  Object.defineProperty(log, "warn", { value: undefined, writable: true, enumerable: true });
+  Object.defineProperty(log, "error", { value: undefined, writable: true, enumerable: true });
 
-function main(config) {
+  log.log = (d) => {
+    const txt = `LOG: ${util.format(d)}\n`;
+    console.info(txt);
+  };
 
-    /*switch(config.debug_level) {
-        case "error":
-        case "debug":
-        case "info":
-            log = new Log(Log.INFO || Log.DEBUG || Log.ERROR);
-        break;
-    }*/
+  log.info = (d) => {
+    const txt = `INFO: ${util.format(d)}\n`;
+    console.info(txt);
+  };
 
-    log = new Log(Log.INFO || Log.DEBUG || Log.ERROR);
-    console.isEnabled = true;
+  log.warn = (d) => {
+    const txt = `WARN: ${util.format(d)}\n`;
+    console.warn(txt);
+  };
 
-    //console.log = console.info;
-    Object.defineProperty(log, "log", {
-      value: undefined,
-      writable: true,
-      enumerable: true
-    });
-    Object.defineProperty(log, "info", {
-      value: undefined,
-      writable: true,
-      enumerable: true
-    });
-    Object.defineProperty(log, "warn", {
-      value: undefined,
-      writable: true,
-      enumerable: true
-    });
-    Object.defineProperty(log, "error", {
-      value: undefined,
-      writable: true,
-      enumerable: true
-    });
+  log.error = (d) => {
+    const txt = `ERROR: ${util.format(d)}\n`;
+    console.error(txt);
+  };
+}
 
-    // redirect stdout / stderr
-    log.log = function(d) { //
-      var txt = "LOG: " + util.format(d) + '\n';
-      //log_file.write(txt);
-      //log_stdout.write(txt);
-      console.info(txt);
-    };
-    log.info = function(d) { //
-      var txt = "INFO: " + util.format(d) + '\n';
-      //log_file.write(txt);
-      //log_stdout.write(txt);
-      console.info(txt);
-    };
-    log.warn = function(d) { //
-      var txt = "WARN: " + util.format(d) + '\n';
-      //log_file.write(txt);
-      //log_stdout.write(txt);
-      console.warn(txt);
-    };
-    log.error = function(d) { //
-      var txt = "ERROR: " + util.format(d) + '\n';
-      //log_file.write(txt);
-      //log_stdout.write(txt);
-      console.error(txt);
-    };
+async function main(config) {
+  const self = this;
+  setupLogging();
 
-    var production_config = new ProductionConfig(config);
-    if(production_config.inProduction()) {
-        _.extend(config, production_config.getProductionSettings());
-    }
-    MainConfig = config;
+  const production_config = new ProductionConfig(config);
+  if (production_config.inProduction()) {
+    Object.assign(config, production_config.getProductionSettings());
+  }
+  global.MainConfig = config;
 
-    var ws = require("./ws");
+  const server = new ws.WebsocketServer(config);
+  const metrics = config.metrics_enabled ? new Metrics(config) : null;
 
-    var server = new ws.WebsocketServer(config);
-    var metrics = config.metrics_enabled ? new Metrics(config) : null;
-    var lastTotalPlayers = 0;
-    var self = this;
+  console.info("Initializing RRO2 GameServer - World");
 
-    var DatabaseSelector = require("./databaseselector");
+  try {
+      const selectorModule = await DatabaseSelector(config);
+      const DatabaseHandlerClass = selectorModule.default || selectorModule;
 
-    console.info("Initializing RRO2 GameServer - World ");
+      global.DBH = global.databaseHandler = new DatabaseHandlerClass(config);
+      console.log("REDIS SERVER CREATED!!!!!!!!!!!!!");
+  } catch (err) {
+      console.error("Database handler initialization failed:", err);
+      process.exit(1);
+  }
 
-    var selector = DatabaseSelector(config);
-    selector(config);
-    DBH = databaseHandler = new selector(config);
+  //const selector = DatabaseSelector(config);
+  //selector(config);
+  //DBH = databaseHandler = new selector(config);
 
-    console.log("REDIS SERVER CREATED!!!!!!!!!!!!!");
+  //console.log("REDIS SERVER CREATED!!!!!!!!!!!!!");
 
-    self.handleConnectWorld = function (msg, conn) {
-      var wh = new WorldHandler(self, conn);
-      conn._connection.worldHandler = wh;
-      worldHandlers.push(wh);
+  const handleConnectWorld = (msg, conn) => {
+    const wh = new WorldHandler(global, conn);
+    conn._connection.worldHandler = wh;
+    worldHandlers.push(wh);
 
-      conn.onClose(function (conn) {
-        if (conn._server.disconnectionCallback) {
-            conn._server.disconnectionCallback(conn);
-        }
-      });
-    };
-
-    self.handleConnectUser = function (msg, conn) {
-      var current_date = (new Date()).valueOf().toString();
-      var random = Math.random().toString();
-      var hash = crypto.createHash('sha1').update(current_date + random).digest('hex');
-      conn.hash = hash;
-      console.warn("onConnect: hash="+hash);
-
-      console.info(JSON.stringify(config));
-      console.info("version sent");
-      console.info("UC_VERSION: "+GameTypes.UserMessages.UC_VERSION);
-
-      conn.sendUTF8(GameTypes.UserMessages.UC_VERSION+","+config.version+","+conn.hash);
-
-      var reply = [GameTypes.UserMessages.UC_WORLDS];
-      var i=0;
-      for (var wh of worldHandlers)
-      {
-        var world = wh.world;
-        if (!world)
-          continue;
-
-        reply.push(i++);
-        reply.push(world.name);
-        reply.push(world.count);
-        reply.push(world.maxCount);
+    conn.onClose((conn) => {
+      if (conn._server.disconnectionCallback) {
+        conn._server.disconnectionCallback(conn);
       }
-      conn.send(reply);
+    });
+  };
 
-      var user = new User(self, conn);
-      user.hashChallenge = conn.hash;
+  const handleConnectUser = (msg, conn) => {
+    const current_date = Date.now().toString();
+    const random = Math.random().toString();
+    const hash = crypto.createHash('sha1').update(current_date + random).digest('hex');
 
-      conn.onClose(function (conn) {
-        if (user) {
-          if (user.hasLoggedIn)
-            users.delete(user.name);
-          user = null;
-        }
-      });
+    conn.hash = hash;
+    console.warn(`onConnect: hash=${hash}`);
+
+    console.info(JSON.stringify(config));
+    console.info("version sent");
+    console.info(`UC_VERSION: ${GameTypes.UserMessages.UC_VERSION}`);
+
+    conn.sendUTF8(`${GameTypes.UserMessages.UC_VERSION},${config.version},${conn.hash}`);
+
+    const reply = [GameTypes.UserMessages.UC_WORLDS];
+    let i = 0;
+    for (const wh of worldHandlers) {
+      const world = wh.world;
+      if (!world) continue;
+
+      reply.push(i++);
+      reply.push(world.name);
+      reply.push(world.count);
+      reply.push(world.maxCount);
+    }
+    conn.send(reply);
+
+    const user = new User(global, conn);
+    user.hashChallenge = conn.hash;
+
+    conn.onClose((conn) => {
+      if (user?.hasLoggedIn) {
+        users.delete(user.name);
+      }
+    });
+  };
+
+  server.onConnect((conn) => {
+    const listener = (message) => {
+      console.info(`recv[0]=${message}`);
+      const action = parseInt(message[0], 10);
+      message.shift();
+
+      switch (action) {
+        case GameTypes.UserMessages.WU_CONNECT_WORLD:
+          handleConnectWorld(message, conn);
+          break;
+        case GameTypes.UserMessages.CU_CONNECT_USER:
+          handleConnectUser(message, conn);
+          break;
+      }
     };
-
-    server.onConnect(function(conn) {
-        var listener = function(message) {
-          console.info("recv[0]="+message);
-          var action = parseInt(message[0]);
-          message.shift();
-
-          switch (action)
-          {
-            case Types.UserMessages.WU_CONNECT_WORLD:
-              self.handleConnectWorld(message, conn);
-              break;
-            case Types.UserMessages.CU_CONNECT_USER:
-              self.handleConnectUser(message, conn);
-              break;
-          }
-        };
-        conn.listen(listener);
-    });
-
-    server.onDisconnect(function(socket) {
-         console.log('disconnected - client');
-
-         // Remove WorldHandler if there is one present.
-         var wh = socket._connection.worldHandler;
-         if (wh) {
-           wh.release();
-           //var index = worldHandlers.indexOf(wh);
-           //if (index >= 0)
-           delete worldHandlers.removeVal(wh);
-           wh = null;
-         }
-    });
-
-    server.onError(function() {
-        console.error(Array.prototype.join.call(arguments, ", "));
-    });
-
-    server.onRequestStatus(function() {
-        return JSON.stringify(getWorldDistribution(worlds));
-    });
-
-    process.on('uncaughtException', function (e) {
-        // Display the full error stack, to aid debugging
-        console.info(JSON.stringify(e));
-
-        console.error('uncaughtException: ' + e.stack);
-
-    });
-
-	server._ioServer.on('connection', (socket) => {
-	  console.log('connected');
-	});
-
-  server._ioServer.on('msg', (message) => {
-      console.log("msg="+JSON.stringify(message));
-      //io.emit('msg', message);
+    conn.listen(listener);
   });
 
+  server.onDisconnect((socket) => {
+    console.log('disconnected - client');
 
-
-
-  var signalHandler = function () {
-    closeServer();
-  };
-
-  process.on('SIGINT', signalHandler)
-  process.on('SIGTERM', signalHandler)
-  process.on('SIGQUIT', signalHandler)
-
-  var cmdPrompt = function () {
-
-    if (process.platform === "win32") {
-      readline.on("SIGINT", function () {
-        process.emit("SIGINT");
-      });
+    const wh = socket._connection?.worldHandler;
+    if (wh) {
+      wh.release();
+      worldHandlers = worldHandlers.filter(w => w !== wh);
     }
+  });
 
-    readline.question('Command:', function (line) {
-      //console.info("line: " + line);
-      getInput(line);
+  server.onError((...args) => {
+    console.error(args.join(", "));
+  });
 
-      //Utils.utilSleep(100);
-      setTimeout(cmdPrompt, 100);
-    });
-  };
-  /*var cmdStart = function () {
-    cmdPrompt();
-  };*/
+  server.onRequestStatus(() => {
+    return JSON.stringify(getWorldDistribution(worlds)); // Note: `worlds` not defined in original - check
+  });
+
+  process.on('uncaughtException', (e) => {
+    console.info(JSON.stringify(e));
+    console.error('uncaughtException: ' + e.stack);
+  });
+
+  // Socket.io events
+  server._ioServer.on('connection', () => {
+    console.log('connected');
+  });
+
+  server._ioServer.on('msg', (message) => {
+    console.log("msg=" + JSON.stringify(message));
+  });
+
+  const signalHandler = () => closeServer();
+
+  process.on('SIGINT', signalHandler);
+  process.on('SIGTERM', signalHandler);
+  process.on('SIGQUIT', signalHandler);
 
   cmdPrompt();
 }
 
-function changePassword (args) {
-  var world = worlds[0];
-  var username = args[0];
-  var password = args[1];
+function changePassword(args) {
+  // const world = worlds[0]; // `worlds` appears unused / undefined in provided code
+  const username = args[0];
+  const password = args[1];
 
-  var hash = crypto.createHash('sha1').update(username+password).digest('hex');
+  const hash = crypto.createHash('sha1').update(username + password).digest('hex');
   DBH.savePassword(username, hash);
 }
 
 function getInput(cmd) {
-    args = cmd.split(" ");
-    cmdarg = args[0];
-    args.shift();
-    console.info("cmd: " + cmd);
+  const args = cmd.split(" ");
+  const cmdarg = args[0];
+  args.shift();
 
-    switch (cmdarg)
-    {
-      case "setpass":
-        changePassword(args);
-        break;
-      case "exit":
-      case "quit":
-      case 'q':
-      case 'x':
-        closeServer();
-        //process.exit(1);
-        break;
-      case "s":
-      case "save":
-        closeServer();
-        break;
-      case "forcequit":
-        closeServer();
-        process.exit(1);
-        break;
-      default:
-        console.info("Unknown command.")
-    }
+  console.info("cmd: " + cmd);
+
+  switch (cmdarg) {
+    case "setpass":
+      changePassword(args);
+      break;
+    case "exit":
+    case "quit":
+    case "q":
+    case "x":
+    case "s":
+    case "save":
+      closeServer();
+      break;
+    case "forcequit":
+      closeServer();
+      process.exit(1);
+      break;
+    default:
+      console.info("Unknown command.");
+  }
 }
 
 function checkSaved() {
-  var allSavedInterval = setInterval(function () {
+  const allSavedInterval = setInterval(() => {
     console.info("allSavedInterval");
-    var allSaved = true;
-    for (var wh of worldHandlers) {
-      //console.info("wh.SAVED_AUCTIONS:"+wh.SAVED_AUCTIONS);
-      //console.info("wh.SAVED_LOOKS:"+wh.SAVED_LOOKS);
-      console.info("wh.SAVED_PLAYERS:"+wh.SAVED_PLAYERS);
-      if (!wh.savedWorldState())
-      {
-        allSaved = false;
-        break;
-      }
-    }
-    if (allSaved)
-    {
-      for (var wh of worldHandlers) {
+
+    const allSaved = worldHandlers.every(wh => wh.savedWorldState());
+
+    if (allSaved) {
+      for (const wh of worldHandlers) {
         wh.sendWorldClose();
       }
       clearInterval(allSavedInterval);
-      setTimeout(function () { process.exit(0); }, 2000);
+      setTimeout(() => process.exit(0), 2000);
     }
   }, 500);
 }
@@ -345,48 +283,60 @@ function closeServer() {
   checkSaved();
 }
 
-function sleep(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
-}
-
 function saveServer() {
-  console.log("saving server!")
-  //SAVING_SERVER = true;
-  for (var wh of worldHandlers)
-  {
-      wh.sendWorldSave();
+  console.log("saving server!");
+  for (const wh of worldHandlers) {
+    wh.sendWorldSave();
   }
 }
 
-function getConfigFile(path, callback) {
-    fs.readFile(path, 'utf8', function(err, json_string) {
-        if(err) {
-            //console.info("This server can be customized by creating a configuration file named: " + err.path);
-            callback(null);
-        } else {
-            callback(JSON.parse(json_string));
+function getConfigFile(path) {
+  return new Promise((resolve, reject) => {
+    fs.readFile(path, 'utf8', (err, json_string) => {
+      if (err) {
+        resolve(null);
+      } else {
+        try {
+          resolve(JSON.parse(json_string));
+        } catch (e) {
+          reject(e);
         }
+      }
     });
+  });
 }
 
-var defaultConfigPath = './config.json';
-var customConfigPath = './config_local.json';
+// --- Entry point ---
+const defaultConfigPath = './config.json';
+let customConfigPath = './config_local.json';
 
-process.argv.forEach(function (val, index, array) {
-    if(index === 2) {
-        customConfigPath = val;
+if (process.argv[2]) {
+  customConfigPath = process.argv[2];
+}
+
+(async () => {
+  try {
+    const defaultConfig = await getConfigFile(defaultConfigPath);
+    const localConfig = await getConfigFile(customConfigPath);
+
+    if (localConfig) {
+      main(localConfig);
+    } else if (defaultConfig) {
+      main(defaultConfig);
+    } else {
+      console.error("Server cannot start without any configuration file.");
+      process.exit(1);
     }
-});
+  } catch (err) {
+    console.error("Config loading error:", err);
+    process.exit(1);
+  }
+})();
 
-getConfigFile(defaultConfigPath, function(defaultConfig) {
-    getConfigFile(customConfigPath, function(localConfig) {
-        if(localConfig) {
-            main(localConfig);
-        } else if(defaultConfig) {
-            main(defaultConfig);
-        } else {
-            console.error("Server cannot start without any configuration file.");
-            process.exit(1);
-        }
-    });
-});
+// Helper (if needed)
+const cmdPrompt = () => {
+  readline.question('Command: ', (line) => {
+    getInput(line);
+    setTimeout(cmdPrompt, 100);
+  });
+};

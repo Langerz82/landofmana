@@ -1,32 +1,28 @@
-var cls = require('./lib/class');
-var ProductionConfig = {};
+import cls from './lib/class.js';
 
-ProductionConfig = cls.Class.extend({
-
-    init: function(config) {
-
+class ProductionConfig {
+    constructor(config) {
         this.config = config;
+
         try {
             this.production = require('../production_hosts/' + config.production + '.js');
-        }
-        catch(err) {
+        } catch (err) {
             this.production = null;
         }
+    }
 
-    },
-
-    inProduction: function() {
-        if(this.production !== null) {
+    inProduction() {
+        if (this.production !== null) {
             return this.production.isActive();
         }
         return false;
-    },
+    }
 
-    getProductionSettings : function() {
-        if(this.inProduction()) {
+    getProductionSettings() {
+        if (this.inProduction()) {
             return this.production;
         }
     }
-});
+}
 
-module.exports = ProductionConfig;
+export default ProductionConfig;

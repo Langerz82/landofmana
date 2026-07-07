@@ -1,429 +1,377 @@
-
 /* global require, module, log, DBH */
 
-var crypto = require('crypto'),
-    formatCheck = require("./format").check,
-    UserMessages = require("./usermessage"),
-    bcrypt = require('bcrypt'),
-    CryptoJS = require("crypto-js");
+import crypto from 'crypto';
+import bcrypt from 'bcrypt';
+import CryptoJS from "crypto-js";
 
-function PlayerSummary(index, db_player) {
-  this.index = index;
-  this.name = db_player.name;
-  this.exp = db_player.exp;
-  this.colors = db_player.colors;
-  this.sprites = db_player.sprites;
-  return this;
-}
+import UserMessages from "./usermessage.js";
+import formatChecker from "./format.js";
 
-PlayerSummary.prototype.toArray = function () {
-  return [this.index,
-    this.name,
-    this.exp,
-    this.colors[0],
-    this.colors[1],
-    this.sprites[0],
-    this.sprites[1]];
-}
+class PlayerSummary {
+  constructor(index, db_player) {
+    this.index = index;
+    this.name = db_player.name;
+    this.exp = db_player.exp;
+    this.colors = db_player.colors;
+    this.sprites = db_player.sprites;
+  }
 
-PlayerSummary.prototype.toString = function () {
+  toArray() {
+    return [
+      this.index,
+      this.name,
+      this.exp,
+      this.colors[0],
+      this.colors[1],
+      this.sprites[0],
+      this.sprites[1]
+    ];
+  }
+
+  toString() {
     return this.toArray().join(",");
+  }
 }
 
-module.exports = User = cls.Class.extend({
-    init: function(main, connection, worldConnection) {
-        var self = this;
+class User {   // Assuming `cls` is still available globally or via require
+  constructor(main, connection) {
+    const self = this;
 
-        this.main = main;
-        this.connection = connection;
-        this.hashChallenge = connection.hash;
-        connection.user = this;
+    this.main = main;
+    this.connection = connection;
+    this.hashChallenge = connection.hash;
+    connection.user = this;
 
-        this.worldConnection = null;
+    this.worldConnection = null;
 
-        this.currentPlayer = null;
-        this.players = [];
+    this.currentPlayer = null;
+    this.players = [];
 
-        this.loadedUser = false;
-        this.loadedPlayer = false;
-        this.player_loggedin = false;
+    this.loadedUser = false;
+    this.loadedPlayer = false;
+    this.player_loggedin = false;
 
-        // Initialize Looks Array.
-        this.looks = new Uint8Array(AppearanceData.Data.length);
-        this.looks[0] = 1;
-        this.looks[50] = 1;
-        this.looks[77] = 1;
-        this.looks[151] = 1;
+    // Initialize Looks Array.
+    this.looks = new Uint8Array(AppearanceData.Data.length);
+    this.looks[0] = 1;
+    this.looks[50] = 1;
+    this.looks[77] = 1;
+    this.looks[151] = 1;
 
-        this.gems = 0;
+    this.gems = 0;
 
-        this.lastPacketTime = Date.now();
+    this.lastPacketTime = Date.now();
 
-        this.listener = function(message) {
-          console.info("recv[0]="+message);
-          var action = parseInt(message[0]);
-          if (!action)
-            return;
+    this.listener = function (message) {
+      console.info("recv[0]=" + message);
+      const action = parseInt(message[0]);
+      if (!action) return;
 
-          if(!formatCheck(message)) {
-              self.connection.close("Invalid value "+action+" packet format: "+message);
-              return;
-          }
-          message.shift();
-
-          switch (action)
-          {
-            case Types.UserMessages.CU_CREATE_USER:
-              self.handleCreateUser(message);
-              return;
-            case Types.UserMessages.CU_LOGIN_USER:
-              self.handleLoginUser(message);
-              return;
-          }
-
-          if (!self.loadedUser) {
-            console.info("Cannot Login User: " + message);
-            return;
-          }
-
-          switch (action) {
-            case Types.UserMessages.CU_CREATE_PLAYER:
-              self.handleCreatePlayer(message);
-              return;
-            case Types.UserMessages.CU_LOGIN_PLAYER:
-              self.handleLoginPlayer(message);
-              return;
-            case Types.UserMessages.CU_REMOVE_USER:
-              self.handleRemoveUser(message);
-              return;
-          }
-
-          if (!self.loadedPlayer) {
-            console.info("Cannot Login: " + message);
-            return;
-          }
-        };
-        this.connection.listen(this.listener);
-    },
-
-    onClose: function () {
-      console.info("onClose - called");
-      clearTimeout(this.disconnectTimeout);
-
-      console.warn("User.onClose - called.")
-
-      if (this.hasLoggedIn) {
-        users.delete(this.name);
+      if (!formatChecker.check(message)) {
+        self.connection.close("Invalid value " + action + " packet format: " + message);
+        return;
       }
-      delete this;
-    },
+      message.shift();
 
-    send: function(message) {
-      this.connection.send(message);
-    },
-
-    sendWorld: function(message) {
-      this.worldConnection.send(message);
-    },
-
-    handleCreateUser: function(message)
-    {
-      var self = this;
-      var name = Utils.sanitize(message[0]);
-      var hash = Utils.sanitize(message[1]);
-      hash = Utils.btoa(hash);
-
-      console.info("Starting Client/Server Handshake");
-
-      self.name = name.substr(0, 16).trim().toLowerCase();
-      console.info("self.user.name=" + self.name);
-
-      var bytes = CryptoJS.AES.decrypt(hash, this.hashChallenge);
-      var decrypt = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
-      var current_date = (new Date()).valueOf().toString();
-      var random = Math.random().toString();
-      var salt = crypto.createHash('sha1').update(current_date + random).digest('hex');
-      hash = crypto.createHash('sha1').update(decrypt + salt).digest('hex');
-
-      try {
-        if (!Utils.checkInputName(self.name)) {
-          self.connection.send([Types.UserMessages.UC_ERROR,"invalidusername"]);
+      switch (action) {
+        case Types.UserMessages.CU_CREATE_USER:
+          self.handleCreateUser(message);
           return;
-        }
-        self.hash = hash;
-        self.salt = salt;
-        self.loggedInDate = Date.now();
-
-        DBH.createUser(self);
-      } catch (e) {
-        console.info('message=' + e.message);
-        console.info('stack=' + e.stack);
-      }
-    },
-
-    handleLoginUser: function(message)
-    {
-      var name = Utils.sanitize(message[0]);
-      var hash = Utils.sanitize(message[1]);
-      hash = Utils.btoa(hash);
-
-      console.info("Starting Client/Server Handshake");
-
-      this.name = name.substr(0, 16).trim().toLowerCase();
-
-      console.info("self.name=" + this.name);
-      try {
-        // Validate the username
-        if (!Utils.checkInputName(this.name)) {
-          this.connection.send([Types.UserMessages.SC_ERROR,"invalidname"]);
+        case Types.UserMessages.CU_LOGIN_USER:
+          self.handleLoginUser(message);
           return;
-        }
-        if (users.has(this.name)) {
-          this.connection.send([Types.UserMessages.UC_ERROR,"loggedin"]);
-          this.connection.close("user logged in.");
-          return;
-        }
-
-        this.hash = hash;
-        this.loggedInDate = Date.now();
-
-        DBH.loadUser(this);
-      } catch (e) {
-        console.info('message=' + e.message);
-        console.info('stack=' + e.stack);
-      }
-    },
-
-    handleRemoveUser: function(message)
-    {
-      var self = this;
-      var hash = Utils.sanitize(message[1]);
-      hash = Utils.btoa(hash);
-
-      console.info("self.name=" + self.name);
-      try {
-        self.hash = hash;
-
-        DBH.removeUser(self);
-      } catch (e) {
-        console.info('message=' + e.message);
-        console.info('stack=' + e.stack);
-      }
-    },
-
-    checkUser: function (db_user, skip_logged_in)
-    {
-      skip_logged_in = skip_logged_in || false;
-
-      var curTime = Date.now();
-      var banTime = db_user.banTime + db_user.banDuration;
-      if (banTime > curTime) {
-        this.connection.send([Types.UserMessages.UC_ERROR,"ban"]);
-        this.connection.close("Closing connection to: " + player.name);
-        return false;
       }
 
-      if (db_user.membershipTime > curTime) {
-        user.membership = true;
-      }
-
-      // Check Password
-      //console.info("db_user.hash=" + db_user.hash);
-      //console.info("user.hash=" + user.hash);
-
-      var bytes = CryptoJS.AES.decrypt(this.hash, this.hashChallenge);
-      var decrypt = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
-      var hash = crypto.createHash('sha1').update(decrypt+db_user.salt).digest('hex');
-      console.info("checkUser: "+hash+" !== "+db_user.hash);
-      if (hash !== db_user.hash) {
-        this.connection.send([Types.UserMessages.UC_ERROR,"invalidlogin"]);
-        if (++this.passwordTries > 3)
-          this.connection.close("Wrong Password: " + this.name);
-        return false;
-      }
-
-      console.info("LOGIN: " + this.name);
-      if (users.has(this.name)) {
-        this.connection.send([Types.UserMessages.UC_ERROR,"loggedin"]);
-        return false;
-      }
-
-      for (var wh of worldHandlers) {
-        if (wh.loggedInUsers.hasOwnProperty(this.name)) {
-          this.connection.send([Types.UserMessages.UC_ERROR,"loggedin"]);
-          return false;
-        }
-      }
-
-      users.set(this.name, this);
-      this.hasLoggedIn = true;
-
-      //var d = new Date();
-      var lastLoginTimeDate = new Date(db_user.lastLoginTime);
-
-      return true;
-    },
-
-    sendPlayers: function(db_players)
-    {
-      this.loadedUser = true;
-      if (!Array.isArray(db_players))
-      {
-        this.connection.send([Types.UserMessages.UC_PLAYER_SUM,"0"]);
+      if (!self.loadedUser) {
+        console.info("Cannot Login User: " + message);
         return;
       }
 
-
-      var sendMsg = [Types.UserMessages.UC_PLAYER_SUM, db_players.length];
-      for (var i=0; i < db_players.length; ++i)
-      {
-        var dbp = db_players[i];
-
-        var playerSum = new PlayerSummary(i, dbp);
-        this.players.push(playerSum);
-        sendMsg = sendMsg.concat(playerSum.toArray());
+      switch (action) {
+        case Types.UserMessages.CU_CREATE_PLAYER:
+          self.handleCreatePlayer(message);
+          return;
+        case Types.UserMessages.CU_LOGIN_PLAYER:
+          self.handleLoginPlayer(message);
+          return;
+        case Types.UserMessages.CU_REMOVE_USER:
+          self.handleRemoveUser(message);
+          return;
       }
-      this.connection.send(sendMsg);
-    },
 
-    handleCreatePlayer: function(message)
-    {
-      var self = this;
+      if (!self.loadedPlayer) {
+        console.info("Cannot Login: " + message);
+        return;
+      }
+    };
 
-      var worldIndex = parseInt(message[0]);
-      var name = Utils.sanitize(message[1]);
+    this.connection.listen(this.listener);
+  }
 
-      var worldHandler = this.getWorldHandler(worldIndex);
+  onClose() {
+    console.info("onClose - called");
+    clearTimeout(this.disconnectTimeout);
 
-      var tmpPlayer = {
-        name: name
-      };
+    console.warn("User.onClose - called.");
 
-      /**
-       * Implement RSA Authorization
-       */
+    if (this.hasLoggedIn) {
+      users.delete(this.name);
+    }
+    delete this;
+  }
 
-      console.info("Starting Client/Server Handshake");
+  send(message) {
+    this.connection.send(message);
+  }
 
-      // Always ensure that the name is not longer than a maximum length.
-      // (also enforced by the maxlength attribute of the name input element).
-      // After that, you capitalize the first letter.
-      tmpPlayer.name = tmpPlayer.name.substr(0, 16).trim();
+  sendWorld(message) {
+    this.worldConnection.send(message);
+  }
 
+  handleCreateUser(message) {
+    const self = this;
+    let name = Utils.sanitize(message[0]);
+    let hash = Utils.sanitize(message[1]);
+    hash = Utils.btoa(hash);
+
+    console.info("Starting Client/Server Handshake");
+
+    self.name = name.substr(0, 16).trim().toLowerCase();
+    console.info("self.user.name=" + self.name);
+
+    const bytes = CryptoJS.AES.decrypt(hash, this.hashChallenge);
+    const decrypt = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
+    const current_date = (new Date()).valueOf().toString();
+    const random = Math.random().toString();
+    const salt = crypto.createHash('sha1').update(current_date + random).digest('hex');
+    hash = crypto.createHash('sha1').update(decrypt + salt).digest('hex');
+
+    try {
+      if (!Utils.checkInputName(self.name)) {
+        self.connection.send([Types.UserMessages.UC_ERROR, "invalidusername"]);
+        return;
+      }
+      self.hash = hash;
+      self.salt = salt;
+      self.loggedInDate = Date.now();
+
+      DBH.createUser(self);
+    } catch (e) {
+      console.info('message=' + e.message);
+      console.info('stack=' + e.stack);
+    }
+  }
+
+  handleLoginUser(message) {
+    let name = Utils.sanitize(message[0]);
+    let hash = Utils.sanitize(message[1]);
+    hash = Utils.btoa(hash);
+
+    console.info("Starting Client/Server Handshake");
+
+    this.name = name.substr(0, 16).trim().toLowerCase();
+
+    console.info("self.name=" + this.name);
+    try {
       // Validate the username
-      if (!Utils.checkInputName(tmpPlayer.name)) {
-        user.connection.send([Types.UserMessages.UC_ERROR,"invalidname"]);
+      if (!Utils.checkInputName(this.name)) {
+        this.connection.send([Types.UserMessages.SC_ERROR, "invalidname"]);
         return;
       }
-
-      var db_player = {
-        name: tmpPlayer.name,
-        map: 0, // MapIndex.
-        exp: 0, // Base XP.
-        colors: [0,0],
-        sprites: [0,0]
-      };
-
-      var playername = db_player.name;
-      var playerSummary = new PlayerSummary(this.players.length, db_player);
-      this.players.push(playerSummary);
-
-      console.info("self.player.name=" + db_player.name);
-      try {
-        var callback = function (db_player) {
-
-          if (self.loginPlayer(worldIndex, playerSummary))
-          {
-            var p = self.currentPlayer;
-            p.name = db_player.name;
-
-            players.push(p);
-          }
-        };
-        DBH.createPlayer(playername, function (playername, res) {
-          if (res) {
-            worldHandler.createPlayerToWorld(self, self.name, playername);
-          }
-          else {
-            self.connection.send([Types.UserMessages.UC_ERROR,"playerexists"]);
-          }
-        });
-      } catch (e) {
-        console.info('message=' + e.message);
-        console.info('stack=' + e.stack);
-      }
-    },
-
-    handleLoginPlayer: function(message)
-    {
-      console.info("user.handleLoginPlayer - called.");
-      var worldIndex = parseInt(message[0]);
-      var playerIndex = parseInt(message[1]);
-
-      if (playerIndex < 0 && playerIndex >= this.players.length)
-        return false;
-
-      var user = users.get(this.name);
-      if (user)
-      {
-        var elapsedTime = Date.now() - user.loggedInDate;
-        console.info("user.handleLoginPlayer - elapsedTime: "+elapsedTime);
-        if (elapsedTime > 60000) {
-          this.connection.send([Types.UserMessages.UC_ERROR,"timeout"]);
-          this.connection.close("user elapsed time");
-          return;
-        }
-      } else {
-        this.connection.send([Types.UserMessages.UC_ERROR,"loggedin"]);
+      if (users.has(this.name)) {
+        this.connection.send([Types.UserMessages.UC_ERROR, "loggedin"]);
         this.connection.close("user logged in.");
         return;
       }
 
-      this.loginPlayer(worldIndex, this.players[playerIndex]);
-    },
+      this.hash = hash;
+      this.loggedInDate = Date.now();
 
-    getWorldHandler: function (worldIndex) {
-      if (worldIndex < 0 || worldIndex >= worldHandlers.length) {
-        console.info("getWorldHandler - worldIndex out of range.");
-        return null;
-      }
+      DBH.loadUser(this);
+    } catch (e) {
+      console.info('message=' + e.message);
+      console.info('stack=' + e.stack);
+    }
+  }
 
-      console.info("worldIndex: "+worldIndex);
-      var worldHandler = worldHandlers[worldIndex];
-      if (!worldHandler) {
-        console.info("No world Handler!");
-        this.connection.close("no world handler.");
-        return null;
-      }
-      return worldHandler;
-    },
+  handleRemoveUser(message) {
+    const self = this;
+    let hash = Utils.sanitize(message[1]);
+    hash = Utils.btoa(hash);
 
-    loginPlayer: function (worldIndex, playerSummary)
-    {
-      console.info("user.loginPlayer - called");
-      var worldHandler = this.getWorldHandler(worldIndex);
+    console.info("self.name=" + self.name);
+    try {
+      self.hash = hash;
 
-      var playerName = playerSummary.name;
-      this.playerName = playerName;
+      DBH.removeUser(self);
+    } catch (e) {
+      console.info('message=' + e.message);
+      console.info('stack=' + e.stack);
+    }
+  }
 
-      if (worldHandler) {
-        worldHandler.sendPlayerToWorld(this, this.name, playerName);
-      } else {
-        console.info("No world Handler!");
-      }
-      return true;
-    },
+  checkUser(db_user, skip_logged_in = false) {
+    const curTime = Date.now();
+    const banTime = db_user.banTime + db_user.banDuration;
+    if (banTime > curTime) {
+      this.connection.send([Types.UserMessages.UC_ERROR, "ban"]);
+      this.connection.close("Closing connection to: " + (this.currentPlayer ? this.currentPlayer.name : this.name));
+      return false;
+    }
 
-    /*modifyGems: function(diff) {
-      diff = parseInt(diff);
-      if ((this.gems - diff) < 0)
-      {
-        this.connection.send((new Messages.Notify("SHOP", "SHOP_NOGEMS")).serialize());
+    if (db_user.membershipTime > curTime) {
+      this.membership = true;   // Fixed potential typo (was `user.membership`)
+    }
+
+    // Check Password
+    const bytes = CryptoJS.AES.decrypt(this.hash, this.hashChallenge);
+    const decrypt = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
+    const hash = crypto.createHash('sha1').update(decrypt + db_user.salt).digest('hex');
+
+    console.info("checkUser: " + hash + " !== " + db_user.hash);
+    if (hash !== db_user.hash) {
+      this.connection.send([Types.UserMessages.UC_ERROR, "invalidlogin"]);
+      if (++this.passwordTries > 3)
+        this.connection.close("Wrong Password: " + this.name);
+      return false;
+    }
+
+    console.info("LOGIN: " + this.name);
+    if (users.has(this.name)) {
+      this.connection.send([Types.UserMessages.UC_ERROR, "loggedin"]);
+      return false;
+    }
+
+    for (const wh of worldHandlers) {
+      if (wh.loggedInUsers.hasOwnProperty(this.name)) {
+        this.connection.send([Types.UserMessages.UC_ERROR, "loggedin"]);
         return false;
       }
-      this.gems += diff;
-      this.connection.send((new Messages.Gold(this.currentPlayer)).serialize());
-      return true;
-    },*/
+    }
 
-});
+    users.set(this.name, this);
+    this.hasLoggedIn = true;
+
+    return true;
+  }
+
+  sendPlayers(db_players) {
+    this.loadedUser = true;
+    if (!Array.isArray(db_players)) {
+      this.connection.send([Types.UserMessages.UC_PLAYER_SUM, "0"]);
+      return;
+    }
+
+    const sendMsg = [Types.UserMessages.UC_PLAYER_SUM, db_players.length];
+    for (let i = 0; i < db_players.length; ++i) {
+      const dbp = db_players[i];
+      const playerSum = new PlayerSummary(i, dbp);
+      this.players.push(playerSum);
+      sendMsg.push(...playerSum.toArray());
+    }
+    this.connection.send(sendMsg);
+  }
+
+  handleCreatePlayer(message) {
+    const self = this;
+    const worldIndex = parseInt(message[0]);
+    let name = Utils.sanitize(message[1]);
+
+    const worldHandler = this.getWorldHandler(worldIndex);
+
+    const tmpPlayer = { name };
+
+    console.info("Starting Client/Server Handshake");
+
+    tmpPlayer.name = tmpPlayer.name.substr(0, 16).trim();
+
+    if (!Utils.checkInputName(tmpPlayer.name)) {
+      this.connection.send([Types.UserMessages.UC_ERROR, "invalidname"]); // Fixed: was `user.`
+      return;
+    }
+
+    const db_player = {
+      name: tmpPlayer.name,
+      map: 0,
+      exp: 0,
+      colors: [0, 0],
+      sprites: [0, 0]
+    };
+
+    const playerSummary = new PlayerSummary(this.players.length, db_player);
+    this.players.push(playerSummary);
+
+    console.info("self.player.name=" + db_player.name);
+
+    try {
+      DBH.createPlayer(db_player.name, (playername, res) => {
+        if (res) {
+          worldHandler.createPlayerToWorld(self, self.name, playername);
+        } else {
+          self.connection.send([Types.UserMessages.UC_ERROR, "playerexists"]);
+        }
+      });
+    } catch (e) {
+      console.info('message=' + e.message);
+      console.info('stack=' + e.stack);
+    }
+  }
+
+  handleLoginPlayer(message) {
+    console.info("user.handleLoginPlayer - called.");
+    const worldIndex = parseInt(message[0]);
+    const playerIndex = parseInt(message[1]);
+
+    if (playerIndex < 0 || playerIndex >= this.players.length) return false;
+
+    const user = users.get(this.name);
+    if (user) {
+      const elapsedTime = Date.now() - user.loggedInDate;
+      console.info("user.handleLoginPlayer - elapsedTime: " + elapsedTime);
+      if (elapsedTime > 60000) {
+        this.connection.send([Types.UserMessages.UC_ERROR, "timeout"]);
+        this.connection.close("user elapsed time");
+        return;
+      }
+    } else {
+      this.connection.send([Types.UserMessages.UC_ERROR, "loggedin"]);
+      this.connection.close("user logged in.");
+      return;
+    }
+
+    this.loginPlayer(worldIndex, this.players[playerIndex]);
+  }
+
+  getWorldHandler(worldIndex) {
+    if (worldIndex < 0 || worldIndex >= worldHandlers.length) {
+      console.info("getWorldHandler - worldIndex out of range.");
+      return null;
+    }
+
+    console.info("worldIndex: " + worldIndex);
+    const worldHandler = worldHandlers[worldIndex];
+    if (!worldHandler) {
+      console.info("No world Handler!");
+      this.connection.close("no world handler.");
+      return null;
+    }
+    return worldHandler;
+  }
+
+  loginPlayer(worldIndex, playerSummary) {
+    console.info("user.loginPlayer - called");
+    const worldHandler = this.getWorldHandler(worldIndex);
+
+    const playerName = playerSummary.name;
+    this.playerName = playerName;
+
+    if (worldHandler) {
+      worldHandler.sendPlayerToWorld(this, this.name, playerName);
+    } else {
+      console.info("No world Handler!");
+    }
+    return true;
+  }
+}
+
+export default User;
