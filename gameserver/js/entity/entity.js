@@ -1,5 +1,5 @@
 import Messages from '../message.js';
-//import Utils from '../utils.js';
+import Utils from '../utils.js';
 import { G_TILESIZE } from '../main.js';
 
 /* global log */

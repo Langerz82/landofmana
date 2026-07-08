@@ -12,10 +12,10 @@ import PlayerItems from "./components/playeritems.js";
 import PlayerCombat from "./components/playercombat.js";
 import Quest from "../quest.js";
 import Timer from '../timer.js';
-//import Utils from '../utils.js';
-//import { Types } from '../common.js';
-//import '../../shared/js/gametypes.js';
-//import '../main.js';
+import Utils from '../utils.js';
+import { Types, ItemTypes } from '../common.js';
+import _ from 'underscore';
+import SkillData from '../data/skilldata.js';
 
 class Player extends Character {
     constructor(world, user, connection) {

@@ -2,7 +2,7 @@ import Entity from "./entity.js";
 import Messages from "../message.js";
 import Timer from "../timer.js";
 import Transition from "../transition.js";
-//import Utils from '../utils.js';
+import Utils from '../utils.js';
 import { Types } from '../common.js';
 import { G_TILESIZE } from '../main.js';
 

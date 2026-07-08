@@ -2,10 +2,10 @@ import EntityMoving from "./entitymoving.js";
 import Messages from "../message.js";
 import Timer from "../timer.js";
 import Transition from "../transition.js";
-//import Utils from '../utils.js';
+import Utils from '../utils.js';
+import { Types } from '../common.js';
+import _ from 'underscore';
 import { G_TILESIZE } from '../main.js';
-
-/* global _ */
 
 class Character extends EntityMoving {
   constructor(id, type, kind, x, y, map) {

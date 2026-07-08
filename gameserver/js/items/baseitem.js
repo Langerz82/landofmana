@@ -1,3 +1,4 @@
+import { ItemTypes } from '../common.js';
 
 class BaseItem {
     constructor(arr) {
