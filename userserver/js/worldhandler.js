@@ -5,7 +5,7 @@ import UserMessages from "./usermessage.js";
 
 class WorldHandler {
     constructor(main, connection) {
-        var self = this;
+        const self = this;
 
         this.main = main;
         this.connection = connection;
@@ -23,7 +23,7 @@ class WorldHandler {
         this.block = false;
         this.listener = function(message) {
           console.info("recv[0]="+message);
-          var action = parseInt(message[0]);
+          const action = parseInt(message[0]);
           if (!action)
             return;
 
@@ -108,7 +108,7 @@ class WorldHandler {
 
     handleSavePlayerAuctions (msg) {
       console.info("worldHandler, handleSavePlayerAuctions: "+JSON.stringify(msg));
-      var self = this;
+      const self = this;
       if (!this.world) {
         console.warn("handleSavePlayerAuctions: world is not set.");
         return;
@@ -125,7 +125,7 @@ class WorldHandler {
 
     handleSavePlayerLooks (msg) {
       console.info("worldHandler, handleSavePlayerLooks: "/*+JSON.stringify(msg)*/);
-      var self = this;
+      const self = this;
       if (!this.world) {
         console.warn("handleSavePlayerLooks: world is not set.");
         return;
@@ -137,7 +137,7 @@ class WorldHandler {
 
     handleSaveUserBans (msg) {
       console.info("worldHandler, handleSaveUserBans: "/*+JSON.stringify(msg)*/);
-      var self = this;
+      const self = this;
       if (!this.world) {
         console.warn("handleSaveUserBans: world is not set.");
         return;
@@ -154,7 +154,7 @@ class WorldHandler {
 
     release () {
         console.info("worldHandler released.");
-        for (var tmp of this.loggedInUsers) {
+        for (const tmp of this.loggedInUsers) {
           console.info("releasing user: "+tmp);
         }
         delete this.loggedInUsers;
@@ -163,9 +163,9 @@ class WorldHandler {
 
     handlePlayerLoggedIn (msg) {
       console.info("handlePlayerLoggedIn: "+JSON.stringify(msg));
-      var status = Number(msg[0]);
-      var username = msg[1];
-      var playerName = msg[2];
+      const status = Number(msg[0]);
+      const username = msg[1];
+      const playerName = msg[2];
 
       if (status === 1) {
         this.loggedInUsers.set(username, users.get(username));
@@ -177,9 +177,9 @@ class WorldHandler {
 
     handleGameServerInfo (msg) {
       console.info("handleGameServerInfo: "+JSON.stringify(msg));
-      var self = this;
+      const self = this;
 
-      var world = {
+      const world = {
         name: msg[0],
         count: parseInt(msg[1]),
         maxCount: parseInt(msg[2]),
@@ -213,7 +213,7 @@ class WorldHandler {
     handleSavePlayerData (msg) {
       console.info("handleSavePlayerData: "+JSON.stringify(msg));
 
-      var self = this;
+      const self = this;
 
       // NOTE: this whole handler runs synchronously inside this connection's
       // socket.io 'message' dispatch. Previously nothing here was guarded, so
@@ -224,11 +224,11 @@ class WorldHandler {
       // logged error instead of a dropped connection, and the logged stack
       // pinpoints exactly what's malformed if this is in fact firing.
       try {
-        var playerName = msg[0];
+        const playerName = msg[0];
 
-        var data = msg[1];
+        const data = msg[1];
 
-        var update = (parseInt(msg[2]) === 1);
+        const update = (parseInt(msg[2]) === 1);
 
         if (!this.playerSaveData.hasOwnProperty(playerName)) {
           console.warn("CANNOT SAVE PLAYER AS NOT SENT TO GAME SERVER.");
@@ -238,10 +238,10 @@ class WorldHandler {
         this.playerSaveData[playerName] = 0;
 
         // NOTE - Remove the userame and hash from the data.
-        var username = data[0].shift();
-        var hash = data[0].shift();
+        const username = data[0].shift();
+        const hash = data[0].shift();
 
-        var checkPlayerSaved = function (playerName) {
+        const checkPlayerSaved = function (playerName) {
             try {
               self.playerSaveData[playerName]++;
               if (self.playerSaveData[playerName] === 7) {
@@ -295,7 +295,7 @@ class WorldHandler {
 
     handlePlayerLoaded (msg) {
         console.info("handlePlayerLoaded");
-        var protocol = msg[0],
+        const protocol = msg[0],
             address = msg[1],
             port = msg[2];
 
@@ -306,7 +306,7 @@ class WorldHandler {
 
     handleCreatePlayerInfo (playername) {
       console.info("handleCreatePlayerInfo");
-      var data = [
+      const data = [
         playername,                          // name
         "0,0,0,0",                           // map
         "2,2,2,2,2,0",                       // stats
@@ -340,7 +340,7 @@ class WorldHandler {
 
     createPlayerToWorld(user, username, playername) {
       console.info("createPlayerToWorld");
-      var self = this;
+      const self = this;
 
       this.block = true;
       user.playerName = playername;
@@ -349,9 +349,9 @@ class WorldHandler {
       console.info("SENDING USERNAME: "+username);
       console.info("SENDING PLAYER: "+playername);
 
-      var playerName = playername;
-      var checkLoadDataFull = function (index, data) {
-        var objData = self.playerCreateData[playerName];
+      const playerName = playername;
+      const checkLoadDataFull = function (index, data) {
+        const objData = self.playerCreateData[playerName];
         objData.count++;
         objData.data[index] = data;
         if (objData.count === 7)
@@ -366,7 +366,7 @@ class WorldHandler {
       };
 
       DBH.loadPlayerUserInfo(user, function (username, data) {
-        var objData = {};
+        const objData = {};
         objData.data = new Array(7);
         objData.count = 0;
 
@@ -399,7 +399,7 @@ class WorldHandler {
     }
 
     sendAuctionsToWorld (worldindex) {
-      var self = this;
+      const self = this;
       if (!this.world) {
         console.warn("sendAuctionsToWorld - no world set.");
         return;
@@ -411,20 +411,20 @@ class WorldHandler {
     }
 
     sendLooksToWorld (worldindex) {
-      var self = this;
+      const self = this;
       if (!this.world) {
         console.warn("sendLooksToWorld - no world set.");
         return;
       }
       DBH.loadLooks(this.world.key, function (key, db_data) {
-        var data = db_data.split(',');
+        let data = db_data.split(',');
         data = data.parseInt();
         self.sendMessage( new UserMessages.LoadPlayerLooks(data));
       });
     }
 
     sendBansToWorld (worldindex) {
-      var self = this;
+      const self = this;
       if (!this.world) {
         console.warn("sendLooksToWorld - no world set.");
         return;
@@ -435,8 +435,8 @@ class WorldHandler {
     }
 
     handleAddPlayerGold (msg) {
-        var playerName = msg[0];
-        var goldAmount = parseInt(msg[1]);
+        const playerName = msg[0];
+        const goldAmount = parseInt(msg[1]);
         DBH.addPlayerGoldOffline(playerName, goldAmount);
     }
 
@@ -462,7 +462,7 @@ class WorldHandler {
 
     sendPlayerToWorld (user, username, playername) {
       console.info("sendPlayerToWorld");
-      var self = this;
+      const self = this;
 
       user.playerName = playername;
       this.user = user;
@@ -470,8 +470,8 @@ class WorldHandler {
       console.info("SENDING USERNAME: "+username);
       console.info("SENDING PLAYER: "+playername);
 
-      var checkLoadDataFull = function (index, db_data) {
-        var objData = self.playerLoadData[playername];
+      const checkLoadDataFull = function (index, db_data) {
+        const objData = self.playerLoadData[playername];
         objData.count++;
         objData.data[index] = db_data;
         if (objData.count === 7)
@@ -486,7 +486,7 @@ class WorldHandler {
       };
 
       DBH.loadPlayerUserInfo(user, function (username, db_data) {
-        var objData = {};
+        const objData = {};
         objData.data = new Array(7);
         objData.count = 0;
 

@@ -1,10 +1,10 @@
 import _ from 'underscore';
 import AppearancesJson from "../../shared/data/appearance.json" with { type: 'json' };
 
-var AppearanceData = {};
+const AppearanceData = {};
 AppearanceData.Data = [];
 
-var ItemGearTypes = {
+const ItemGearTypes = {
   "weapon": [],
   "weaponarcher": [],
   "armor": [],
