@@ -120,8 +120,13 @@ class MobAI {
       if (mob.isDead || mob.freeze)
         continue;
 
+      // NOTE: this was `return` instead of `continue`. Since this is inside
+      // a `for (const mob of mobs)` loop over every mob on the map, hitting
+      // a single RETURNING mob used to abort AI processing for the rest of
+      // the mobs on the map for that tick entirely, instead of just skipping
+      // that one mob.
       if (mob.aiState === mobState.RETURNING)
-        return;
+        continue;
 
       if (mob.canAggro())
         this.checkAggro(mob);

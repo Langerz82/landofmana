@@ -384,7 +384,18 @@ Utils.Base64ToBinArray = function (base64, limit) {
 
 if (!Array.prototype.removeVal) {
   Object.defineProperty(Array.prototype, 'removeVal', {
-      value: function(val){ return this.splice(this.indexOf(val), 1); }
+      // NOTE: previously did `this.splice(this.indexOf(val), 1)` unconditionally.
+      // When `val` isn't in the array, indexOf returns -1, and splice(-1, 1)
+      // doesn't no-op -- it removes the LAST element of the array. Every caller
+      // (worldserver.js self.players.removeVal, packethandler.js
+      // player.knownIds.removeVal, playergroup.js, playerquests.js) expects a
+      // harmless no-op when the value isn't present, not silent removal of an
+      // unrelated entry.
+      value: function(val){
+        var idx = this.indexOf(val);
+        if (idx < 0) return [];
+        return this.splice(idx, 1);
+      }
   });
 }
 

@@ -296,7 +296,12 @@ class MapEntities {
 
         //console.info(entities.length);
         for (var player of players) {
-            if (self.packets.hasOwnProperty(player.id) && !ignoredPlayer || (ignoredPlayer && player !== ignoredPlayer))
+            // NOTE: previously `packets.hasOwnProperty(player.id) && !ignoredPlayer ||
+            // (ignoredPlayer && player !== ignoredPlayer)` -- because && binds tighter
+            // than ||, the ignoredPlayer branch bypassed the hasOwnProperty check
+            // entirely, so a player around who isn't the ignored one but somehow has
+            // no packets entry would throw on push() below instead of being skipped.
+            if (self.packets.hasOwnProperty(player.id) && (!ignoredPlayer || player !== ignoredPlayer))
             {
                 //console.info("neighbour.id:"+neighbour.id);
                 self.packets[player.id].push(message.serialize());
@@ -647,14 +652,8 @@ class MapEntities {
         return this.getEntityAroundSpatial(entity, range, conditional).length;
     }
 
-    // NOTE: pre-existing bug preserved from the original — this method's second
-    // parameter is named `range` but the body reads/writes a completely
-    // different, never-declared bare identifier `r` instead. This would throw a
-    // ReferenceError at runtime in the original CommonJS version too (sloppy
-    // mode only creates implicit globals on bare *assignment*, and the very
-    // first use here, `r = r || 1`, reads `r` before ever assigning it).
     getEntityAroundSpatial(entity, range, conditional) {
-        r = r || 1;
+        var r = range || 1;
         var x = entity.x;
         var y = entity.y;
         var gx = ~~(entity.x / G_TILESIZE);
@@ -762,17 +761,19 @@ class MapEntities {
         this.removeEntity(item);
     }
 
-    // NOTE: pre-existing bug preserved from the original — `chest` below was
-    // never defined (the line that would have created it is commented out), so
-    // this would throw a ReferenceError at runtime in the original CommonJS
-    // version too.
-    handleEmptyChestArea(area) {
-        var self = this;
-        if(area) {
-            //var chest = self.addItem(self.createChest(area.chestX, area.chestY, area.items));
-            self.handleItemDespawn(chest);
-        }
-    }
+    // NOTE: `handleEmptyChestArea` was removed here. It referenced a `chest`
+    // variable that was never defined (its creation line was commented out),
+    // called `self.handleItemDespawn(...)` which isn't a method on this class
+    // (that method lives on world/lootmanager.js, reached via
+    // `player.world.loot.handleItemDespawn`), and called a `self.createChest`
+    // that doesn't exist anywhere in this class either -- chest spawning and
+    // respawning is fully implemented instead on ChestArea
+    // (area/chestarea.js: spawnChests/_createChest/respawnChest). This method
+    // wasn't called from anywhere in the codebase, so nothing depended on it;
+    // reconstructing working chest-despawn logic here would mean guessing at
+    // intended behavior rather than fixing a typo, so it's been dropped
+    // rather than patched. If empty-chest-area handling turns out to still be
+    // needed, ChestArea.respawnChest looks like the right place to hook it in.
 
     tryAddingMobToChestArea(mob) {
         var self = this;
