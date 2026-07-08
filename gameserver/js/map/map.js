@@ -33,7 +33,7 @@ class Map {
 
             fs.readFile(filepath, function (err, file) {
                 var json = JSON.parse(file);
-                console.info("Map.load:"+JSON.stringify(json));
+                //console.info("Map.load:"+JSON.stringify(json));
                 self.initMap(json);
                 json = null;
             });

@@ -200,6 +200,7 @@ WS.socketioConnection = class extends Connection {
         this._connection.on('disconnect', () => {
             console.info('Client closed socket ' + self._connection.conn.remoteAddress);
             if (self.closeCallback) self.closeCallback(self._connection);
+            if (self._server.disconnectionCallback) self._server.disconnectionCallback(self);
             self._server.removeConnection(self.id);
         });
     }

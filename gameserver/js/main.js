@@ -493,8 +493,22 @@ main.checkSaved = function () {
 }
 
 main.safe_exit = function () {
+    // Gracefully tell the userserver we're going away. Without this, the
+    // gameserver's outgoing socket.io-client connection (server.userConn)
+    // is just abandoned when the process dies, so the userserver only
+    // notices via its ping-timeout instead of its immediate 'disconnect'
+    // handler (see userserver/js/main.js server.onDisconnect), which is
+    // what actually cleans up its worldHandlers list.
+    if (server.userConn) {
+        server.userConn.disconnect();
+    }
     server.close();
-    process.exit();
+    // Give the disconnect packet a moment to actually flush over the
+    // socket before the process dies; process.exit() is immediate and can
+    // otherwise cut off the pending write.
+    setTimeout(function () {
+        process.exit();
+    }, 200);
 };
 
 /*function sleep(ms) {

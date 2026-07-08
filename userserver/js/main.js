@@ -120,12 +120,8 @@ async function main(config) {
     const wh = new WorldHandler(global, conn);
     conn._connection.worldHandler = wh;
     worldHandlers.push(wh);
-
-    conn.onClose((conn) => {
-      if (conn.server.disconnectionCallback) {
-        conn.server.disconnectionCallback(this);
-      }
-    });
+    // Cleanup on disconnect is handled centrally by server.onDisconnect
+    // below (it needs the full worldHandlers list to filter against).
   };
 
   const handleConnectUser = (msg, conn) => {
