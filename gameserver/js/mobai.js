@@ -1,6 +1,6 @@
 import Messages from "./message.js";
 import _ from "underscore";
-//import Utils from "./utils.js";
+import Utils from "./utils.js";
 import Formulas from "./formulas.js";
 import { mobState, G_TILESIZE } from './main.js';
 

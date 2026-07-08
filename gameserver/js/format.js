@@ -1,3 +1,5 @@
+import { Types } from './common.js';
+import _ from 'underscore';
 /* global NotifyData */
 
 var itemKindMax = 999;

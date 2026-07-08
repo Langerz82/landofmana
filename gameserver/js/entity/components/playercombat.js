@@ -1,5 +1,5 @@
-//import Utils from '../../utils.js';
-import { Types } from '../../common.js';
+import Utils from '../../utils.js';
+import { Types, ItemTypes } from '../../common.js';
 import Mob from '../mob.js';
 
 class PlayerCombat {

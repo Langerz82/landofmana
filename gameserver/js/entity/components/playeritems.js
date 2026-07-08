@@ -3,9 +3,9 @@ import Equipment from '../../items/equipment.js';
 import Inventory from '../../items/inventory.js';
 import Timer from '../../timer.js';
 import Messages from '../../message.js';
-import { Types } from '../../common.js';
+import { Types, ItemTypes } from '../../common.js';
 import ItemRoom from '../../items/itemroom.js';
-//import Utils from '../../utils.js';
+import Utils from '../../utils.js';
 
 class PlayerItems {
     constructor(entity) {

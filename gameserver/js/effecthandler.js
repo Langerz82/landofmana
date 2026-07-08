@@ -1,3 +1,4 @@
+import SkillData from './data/skilldata.js';
 // @entity Object reference to the owner of the effect.
 // @isTarget false Self, true Target.
 // @phase 0 start, 1 end, 2 interval, 3 beforehit, 4 onhit, 5 afterhit.

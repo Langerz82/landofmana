@@ -1,7 +1,7 @@
 /* global databaseHandler, log */
 import ItemRoom from './itemroom.js';
 import Messages from '../message.js';
-//import Utils from '../utils.js';
+import { ItemTypes } from '../common.js';
 import Player from '../entity/player.js';
 
 class ItemStore {

@@ -1,7 +1,7 @@
 import EntityArea from './entityarea.js';
 import _ from 'underscore';
 import Messages from '../message.js';
-//import Utils from '../utils.js';
+import Utils from '../utils.js';
 import MobData from '../data/mobdata.js';
 import { G_TILESIZE } from '../main.js';
 

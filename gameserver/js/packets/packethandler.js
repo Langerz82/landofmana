@@ -11,7 +11,7 @@ import ShopHandler from './shophandler.js';
 import Item from '../entity/item.js';
 import Block from '../entity/block.js';
 import Player from '../entity/player.js';
-//import Utils from '../utils.js';
+import Utils from '../utils.js';
 import { Types } from '../common.js';
 import AppearanceData from '../data/appearancedata.js';
 import SkillData from '../data/skilldata.js';
@@ -139,13 +139,7 @@ class PacketHandler {
 
 // TODO - Fix CHaracter Info
             case Types.Messages.CW_CHARACTERINFO:
-                //console.info("Player character info: " + self.player.name);
-                // NOTE: pre-existing bug preserved from the original — this calls
-                // self.handleCharacterinfo (lowercase "info"), but the only method
-                // actually defined on this class is handleCharacterInfo (capital
-                // "I"). Would throw a TypeError at runtime in the original
-                // CommonJS version too.
-                self.handleCharacterinfo(message);
+                self.handleCharacterInfo(message);
                 break;
             case Types.Messages.CW_TELEPORT_MAP:
                 self.handleTeleportMap(message);
@@ -283,7 +277,7 @@ class PacketHandler {
             return;
         }
 
-        if (msg && (msg !== "" || msg !== " ")) {
+        if (msg) {
             msg = msg.substr(0, 256); //Will have to change the max length
             var command = msg.split(" ", 3)
             switch (command[0]) {
@@ -333,41 +327,6 @@ class PacketHandler {
         if (npc)
             npc.talk(p);
     }
-
-    /*handleBankStore: function(message) {
-        var itemIndex = parseInt(message[0]);
-
-        var p = this.player;
-        if (itemIndex >= 0 && itemIndex < p.inventory.maxNumber) {
-          var item = p.inventory.rooms[itemIndex];
-          //console.info("bankitem: " + JSON.stringify(item));
-          if (item && item.itemKind) {
-            var slot = p.bank.getEmptyIndex();
-            //console.info("slot=" + slot);
-            if (slot >= 0) {
-              p.bank.putItem(item);
-              p.inventory.takeOutItems(itemIndex, item.itemNumber);
-            }
-          }
-        }
-      },*/
-
-    /*handleBankRetrieve: function(message) {
-        var bankIndex = parseInt(message[0]);
-
-        var p = this.player;
-        if (bankIndex >= 0 && bankIndex < p.bank.maxNumber) {
-          var item = p.bank.rooms[bankIndex];
-          if (item && item.itemKind) {
-            var slot = p.inventory.getEmptyIndex();
-            if (slot >= 0) {
-              p.inventory.putItem(item);
-              p.bank.takeOutItems(bankIndex, item.itemNumber);
-            }
-          }
-        }
-        this.sendPlayer(new Messages.Gold(p));
-      },*/
 
     handleAppearanceUnlock(message) {
         var appearanceIndex = parseInt(message[0]);
@@ -734,8 +693,8 @@ class PacketHandler {
         if (tEntity instanceof Player) {
             //tEntity.stats.hp -= dmg;
             if (tEntity.isDead) {
-                if (sEntity === self.player)
-                    self.player.map.entities.sendBroadcast(new Messages.Notify("CHAT","COMBAT_PLAYERKILLED", [sEntity.name, tEntity.name]));
+                if (sEntity === this.player)
+                    this.player.map.entities.sendBroadcast(new Messages.Notify("CHAT","COMBAT_PLAYERKILLED", [sEntity.name, tEntity.name]));
 
                 sEntity.pStats.pk++;
                 tEntity.pStats.pd++;

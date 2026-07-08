@@ -1,7 +1,7 @@
 import EntityMoving from '../entity/entitymoving.js';
 import Messages from '../message.js';
 import AchievementJson from '../../shared/data/achievements.json' with { type: 'json' };
-//import Utils from '../utils.js';
+import { Types } from '../common.js';
 
 /* global log */
 

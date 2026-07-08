@@ -1,4 +1,4 @@
-//import Utils from '../../utils.js';
+import Utils from '../../utils.js';
 
 class MobCombat {
     constructor(entity) {

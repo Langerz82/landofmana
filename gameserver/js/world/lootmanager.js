@@ -1,10 +1,11 @@
 import Item from '../entity/item.js';
 import Mob from '../entity/mob.js';
 import Player from '../entity/player.js';
-//import Utils from '../utils.js';
+import Utils from '../utils.js';
 import ItemRoom from '../items/itemroom.js';
 import Messages from '../message.js';
 import ItemData from '../data/itemdata.js';
+import { ItemTypes } from '../common.js';
 
 class LootManager {
     constructor(world) {

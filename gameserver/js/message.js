@@ -1,6 +1,6 @@
 import _ from 'underscore';
 import { Types } from './common.js';
-//import Utils from './utils.js';
+import Utils from './utils.js';
 
 const Messages = {};
 export default Messages;

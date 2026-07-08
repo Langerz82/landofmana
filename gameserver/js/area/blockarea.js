@@ -1,6 +1,6 @@
 import EntityArea from './entityarea.js';
 import Block from '../entity/block.js';
-//import Utils from '../utils.js';
+import Utils from '../utils.js';
 import { G_TILESIZE } from '../main.js';
 
 class BlockArea extends EntityArea {

@@ -1,5 +1,6 @@
 import Messages from '../message.js';
 import ItemData from '../data/itemdata.js';
+import { ItemTypes } from '../common.js';
 import ItemRoom from '../items/itemroom.js';
 
 class ShopHandler {

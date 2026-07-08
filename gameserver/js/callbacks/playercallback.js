@@ -1,4 +1,4 @@
-//import Utils from '../utils.js';
+import Utils from '../utils.js';
 import Mob from '../entity/mob.js';
 
 class PlayerCallback {

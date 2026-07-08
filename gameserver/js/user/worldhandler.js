@@ -3,7 +3,7 @@ import { check as formatCheck } from '../format.js';
 import UserMessages from './usermessage.js';
 import Messages from '../message.js';
 import { Types } from '../common.js';
-//import Utils from '../utils.js';
+import Utils from '../utils.js';
 import { hashes, players } from '../main.js';
 
 class WorldHandler {

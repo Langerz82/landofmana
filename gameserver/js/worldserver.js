@@ -38,7 +38,7 @@ import PartyManager from "./world/partymanager.js";
 
 import LootManager from "./world/lootmanager.js";
 
-//import Utils from './utils.js';
+import Utils from './utils.js';
 import { G_UPDATE_INTERVAL, players } from './main.js';
 import NotifyData from './data/notificationdata.js';
 

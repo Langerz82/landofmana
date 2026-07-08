@@ -1,7 +1,7 @@
 import Character from './character.js';
 import Messages from '../message.js';
 import EntityQuests from '../entityquests.js';
-//import Utils from '../utils.js';
+import Utils from '../utils.js';
 import { Types } from '../common.js';
 import QuestData from '../data/questdata.js';
 import NPCnames from '../../shared/data/npc_names.json' with { type: 'json' };

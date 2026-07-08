@@ -1,6 +1,6 @@
 import astar from './lib/astar.js';
 import _ from 'underscore';
-//import Utils from './utils.js';
+import Utils from './utils.js';
 import { G_FRAME_INTERVAL, G_TILESIZE } from './main.js';
 
 /* global log */

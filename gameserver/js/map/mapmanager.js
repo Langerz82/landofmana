@@ -9,7 +9,7 @@ import NpcMove from '../entity/npcmove.js';
 import Node from '../entity/node.js';
 import Mob from '../entity/mob.js';
 //var TrapGroup = require("../entity/trapgroup");
-//import Utils from '../utils.js';
+import Utils from '../utils.js';
 import { G_TILESIZE } from '../main.js';
 
 class MapManager {

@@ -216,7 +216,11 @@ WS.socketioConnection = class extends Connection {
           var flag = msg.charAt(0);
           if (flag === "2")
           {
-              var buffer = Buffer.from(flag, 'base64');
+              // NOTE: this used to base64-decode `flag` (the single "2" prefix
+              // character) instead of the actual payload, so any compressed/
+              // large message from a game client failed to decompress. Mirrors
+              // the fix already present in WS.userConnection below.
+              var buffer = Buffer.from(msg.substr(1), 'base64');
               zlib.gunzip(buffer, (err, buffer) => {
                 if (err)
                   console.log(err.toString());

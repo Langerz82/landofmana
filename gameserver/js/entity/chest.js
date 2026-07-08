@@ -1,6 +1,6 @@
 import Item from './item.js';
 import { Types } from '../common.js';
-//import Utils from '../utils.js';
+import Utils from '../utils.js';
 import ItemData from '../data/itemdata.js';
 import ChestArea from '../area/chestarea.js';
 
