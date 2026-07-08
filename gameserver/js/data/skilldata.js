@@ -1,5 +1,5 @@
-var SkillsJSON = require("../../shared/data/skills2.json"),
-		EffectHandler = require("../effecthandler");
+import SkillsJSON from "../../shared/data/skills2.json" with { type: 'json' };
+import { EffectType } from "../effecthandler.js";
 
 var Skills = [];
 //var SkillNames = {};
@@ -42,4 +42,5 @@ for (var index in SkillsJSON)
 
 console.info("skills: "+JSON.stringify(Skills));
 
-module.exports.Skills = Skills;
+export { Skills };
+export default { Skills };

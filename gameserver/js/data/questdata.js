@@ -1,6 +1,6 @@
-var Utils = require("../utils"),
-    Quest = require("../quest"),
-    QuestsJson = require("../../shared/data/quests.json");
+//import Utils from "../utils.js";
+import Quest, { getQuestObject } from "../quest.js";
+import QuestsJson from "../../shared/data/quests.json" with { type: 'json' };
 
 var QuestData = {};
 var QuestNpcData = {};
@@ -49,5 +49,6 @@ for (var id in QuestsJson) {
 
 console.info(JSON.stringify(QuestNpcData));
 //console.info(QuestData);
-module.exports.Data = QuestData;
-module.exports.NpcData = QuestNpcData;
+export const Data = QuestData;
+export const NpcData = QuestNpcData;
+export default { Data, NpcData };

@@ -1,70 +1,77 @@
+import Chest from '../entity/chest.js';
+import NpcStatic from '../entity/npcstatic.js';
+import NpcMove from '../entity/npcmove.js';
+import Messages from '../message.js';
+import MobAI from '../mobai.js';
+import _ from 'underscore';
+//import Utils from '../utils.js';
+import Pathfinder from '../pathfinder.js';
+import Character from '../entity/character.js';
+import Mob from '../entity/mob.js';
+import Item from '../entity/item.js';
+import Player from '../entity/player.js';
+import { Types } from '../common.js';
+import NpcData from '../data/npcdata.js';
+import { G_TILESIZE, G_SPATIAL_SIZE } from '../main.js';
 
-var Chest = require('../entity/chest');
-var NpcStatic = require('../entity/npcstatic');
-var NpcMove = require('../entity/npcmove');
-var Messages = require('../message');
-var MobAI = require("../mobai");
-
-var MapEntities = cls.Class.extend({
-
-
-    init: function (id, server, map) {
-    	this.id = id;
-    	this.map = map;
-    	this.server = server;
-      this.world = server;
+class MapEntities {
+    constructor(id, server, map) {
+        this.id = id;
+        this.map = map;
+        this.server = server;
+        this.world = server;
 //    	this.database = database;
 
-      this.entities = new Map();
-      this.players = new Map();
-      this.characters = new Map();
-      this.npcplayers = new Map();
-      this.mobs = new Map();
+        this.entities = new Map();
+        this.players = new Map();
+        this.characters = new Map();
+        this.npcplayers = new Map();
+        this.mobs = new Map();
 //      this.attackers = {};
-      this.items = new Map();
-      this.npcs = new Map();
+        this.items = new Map();
+        this.npcs = new Map();
 //      this.pets = {};
-      this.chests = new Map();
-      this.blocks = new Map();
+        this.chests = new Map();
+        this.blocks = new Map();
 
-      this.packets = {};
+        this.packets = {};
 
-      this.mobAreas = [];
+        this.mobAreas = [];
 //      this.chestAreas = [];
-      this.groups = {};
+        this.groups = {};
 
-  		this.pathfinder = null;
-  		this.pathingGrid = null;
+        this.pathfinder = null;
+        this.pathingGrid = null;
 
-  		this.zoneGroupsReady = false;
+        this.zoneGroupsReady = false;
 
-  		this.maxPackets = 10;
+        this.maxPackets = 10;
 
-  		this.entityCount = 0;
+        this.entityCount = 0;
 
-      this.mobAI = null;
+        this.mobAI = null;
 
-      this.cellsize = G_TILESIZE;
+        this.cellsize = G_TILESIZE;
 
-      this.harvest = {};
+        this.harvest = {};
 
-      this.initSpatialEntities(G_SPATIAL_SIZE);
-    },
+        this.initSpatialEntities(G_SPATIAL_SIZE);
+    }
 
-    initSpatialEntities: function (size) {
-      this.spatial = [];
-      this.spatialSize = size;
-      var spatialWidth = Math.ceil(this.map.width / size);
-      var spatialHeight = Math.ceil(this.map.height / size);
-      for(var i=0, j=0; i < spatialHeight; i++) {
-        this.spatial[i] = [];
-        for(j=0; j < spatialWidth; j++) {
-          this.spatial[i][j] = [];
+    initSpatialEntities(size) {
+        this.spatial = [];
+        this.spatialSize = size;
+        var spatialWidth = Math.ceil(this.map.width / size);
+        var spatialHeight = Math.ceil(this.map.height / size);
+        for(var i=0, j=0; i < spatialHeight; i++) {
+            this.spatial[i] = [];
+            for(j=0; j < spatialWidth; j++) {
+                this.spatial[i][j] = [];
+            }
         }
-      }
-    },
+    }
 
-    getSpatialEntities: function (arr)
+    getSpatialEntities(arr)
     {
         var x1 = ~~(Math.max(arr[0],0) / this.spatialSize);
         var y1 = ~~(Math.max(arr[1],0) / this.spatialSize);
@@ -77,85 +84,89 @@ var MapEntities = cls.Class.extend({
         var l2 = 0;
         for(var j = y1, i=0; j <= y2; ++j)
         {
-          l2 = this.spatial[j].length;
-          for(i = x1; i <= x2; ++i) {
-            /*if (j < 0 || j >= l1)
-              continue;
-            if (i < 0 || i >= l2)
-              continue;*/
-            for (var entity of this.spatial[j][i]) {
-              if (!entity) continue;
-              //console.info("id:"+id);
-              //console.info("entity.id:"+entity.id);
-              res.push(entity);
+            l2 = this.spatial[j].length;
+            for(i = x1; i <= x2; ++i) {
+                /*if (j < 0 || j >= l1)
+                  continue;
+                if (i < 0 || i >= l2)
+                  continue;*/
+                for (var entity of this.spatial[j][i]) {
+                    if (!entity) continue;
+                    //console.info("id:"+id);
+                    //console.info("entity.id:"+entity.id);
+                    res.push(entity);
+                }
             }
-          }
         }
         return res;
-    },
+    }
 
-    mapready: function() {
-      this.initPathFinder();
-      this.initPathingGrid();
-    	//this.initZoneGroups();
+    mapready() {
+        this.initPathFinder();
+        this.initPathingGrid();
+        //this.initZoneGroups();
 
-      this.mobAI = new MobAI(this.server, this.map);
-    },
+        this.mobAI = new MobAI(this.server, this.map);
+    }
 
-    initPathFinder: function() {
-    	this.pathfinder = new Pathfinder(this.map.width, this.map.height);
-    },
+    initPathFinder() {
+        this.pathfinder = new Pathfinder(this.map.width, this.map.height);
+    }
 
-    spawnNpcs: function(count) {
-    	var npc;
-    	//console.info("SPAWN NPCS");
-    	//if (this.map === this.server.maps[0]) // World Map
-    	//{
-			for(var i = 0; i < count; ++i)
-			{
-				npc = this._createNpc("Npc"+i);
-			}
-		  //}
-    },
+    spawnNpcs(count) {
+        var npc;
+        //console.info("SPAWN NPCS");
+        //if (this.map === this.server.maps[0]) // World Map
+        //{
+        for(var i = 0; i < count; ++i)
+        {
+            npc = this._createNpc("Npc"+i);
+        }
+        //  }
+    }
 
-    _createNpc: function(name) {
-	    var self = this;
+    _createNpc(name) {
+        var self = this;
 
-      pos = this.spaceEntityRandomApart(2, function () { return self.map.getRandomPosition(); });
+        // NOTE: `pos` was a bare (undeclared) assignment in the original CommonJS
+        // source, which created an implicit global there; declared with `var`
+        // here since ES modules are always strict mode and forbid implicit
+        // globals.
+        var pos = this.spaceEntityRandomApart(2, function () { return self.map.getRandomPosition(); });
 
-	    var npc = new NpcMove(++this.entityCount, 0, pos.x * G_TILESIZE, pos.y * G_TILESIZE, self.map);
+        var npc = new NpcMove(++this.entityCount, 0, pos.x * G_TILESIZE, pos.y * G_TILESIZE, self.map);
 
-		  self.addNpcMove(npc);
-		  //self.sendBroadcast(npc.spawn());
-		  return npc;
-    },
+        self.addNpcMove(npc);
+        //self.sendBroadcast(npc.spawn());
+        return npc;
+    }
 
-    initPathingGrid: function() {
-  		var map = this.map,
-  		    self = this;
-  			console.info("pathinggrid height:"+map.height+", width:"+map.width);
+    initPathingGrid() {
+        var map = this.map,
+            self = this;
+        console.info("pathinggrid height:"+map.height+", width:"+map.width);
 
-  		var grid = new Uint8Array(map.height);
-  		for(var i=0, j=0; i < map.height; ++i) {
-  			grid[i] = new Uint8Array(map.width);
-  			for(j=0; j < map.width; ++j) {
-          if (map.grid[i][j])
-            grid[i][j] = 1;
-          else
-            grid[i][j] = 0;
-  			}
-  		}
-  		self.entitygrid = grid.slice(0);
-      //self.pathingGrid = grid.slice(0);
+        var grid = new Array(map.height);
+        for(let i=0; i < map.height; ++i) {
+            grid[i] = new Uint8Array(map.width);
+            for(let j=0; j < map.width; ++j) {
+                if (map.grid[i][j])
+                    grid[i][j] = 1;
+                else
+                    grid[i][j] = 0;
+            }
+        }
+        self.entitygrid = grid.slice(0);
+        //self.pathingGrid = grid.slice(0);
 
-  		console.info("Initialized the pathing grid with static colliding cells.");
-    },
+        console.info("Initialized the pathing grid with static colliding cells.");
+    }
 
     /*pushSpawnsToPlayer: function(player, ids) {
         this.processWho(this.player);
     },*/
 
-    processWho: function(player, dist) {
+    processWho(player, dist) {
         dist = dist || 64;
         var self = this;
         //console.info("processWho - called.");
@@ -175,8 +186,8 @@ var MapEntities = cls.Class.extend({
 
         //console.info("self.entities.length: "+Object.keys(self.entities).length);
         for (var entity of entities) {
-          if (entity && !(entity === player) && self.isOffset(player, entity))
-            screens.push(entity.id);
+            if (entity && !(entity === player) && self.isOffset(player, entity))
+                screens.push(entity.id);
         }
         //console.info("screens:"+JSON.stringify(screens));
         //console.info("ids:"+JSON.stringify(ids));
@@ -192,14 +203,14 @@ var MapEntities = cls.Class.extend({
                 player.knownIds.push(entity.id);
                 self.sendToPlayer(player, entity.spawn());
                 if (entity.path) {
-                  var msg = new Messages.MovePath(entity, entity.path);
-                  self.sendToPlayer(player, msg);
+                    var msg = new Messages.MovePath(entity, entity.path);
+                    self.sendToPlayer(player, msg);
                 }
             }
         });
-    },
+    }
 
-    isOffset: function(entity, entity2, extra, cameraHalfX, cameraHalfY) {
+    isOffset(entity, entity2, extra, cameraHalfX, cameraHalfY) {
         extra = (extra || 0) * G_TILESIZE;
         cameraHalfX = (cameraHalfX || 32) * G_TILESIZE;
         cameraHalfY = (cameraHalfY || 18) * G_TILESIZE;
@@ -212,101 +223,105 @@ var MapEntities = cls.Class.extend({
         //console.info("entity2.x: "+entity2.x+" entity2.y:"+entity2.y);
         //console.info("minX:"+minX+",maxX:"+maxX+",minY:"+minY+",maxY:"+maxY);
         return (entity2.y >= minY && entity2.y <= maxY && entity2.x >= minX && entity2.x <= maxX);
-    },
+    }
 
-    processPackets: function() {
+    processPackets() {
         var self = this;
 
         if (self.packets.length > 0)
-        	console.info(JSON.stringify(self.packets));
+            console.info(JSON.stringify(self.packets));
 
+        // NOTE: `len` was a bare (undeclared) assignment in the original
+        // CommonJS source, which created an implicit global there; declared
+        // with `let` here since ES modules are always strict mode and forbid
+        // implicit globals.
         Utils.forEach(this.packets, (packet, id) => {
-          len = packet.length;
-          if (len > 0 && typeof packet !== 'undefined' && packet !== null)
-          {
-             var player = self.getEntityById(id);
-              var conn = self.server.socket.getConnection(id);
-              if (player && player.map && player.mapStatus >= 2 && conn !== null && typeof conn !== 'undefined')
-              {
-                  var packets = [];
-                  for (var i =0; i < self.maxPackets; ++i)
-                  {
-                      if (packet.length === 0)
-                        break;
-                      packets.push(packet.shift());
-                  }
-                  conn.send(packets);
-              } else {
-                  conn = null;
-                  //delete conn;
-              }
-          }
+            let len = packet.length;
+            if (len > 0 && typeof packet !== 'undefined' && packet !== null)
+            {
+                var player = self.getEntityById(id);
+                var conn = self.server.socket.getConnection(id);
+                if (player && player.map && player.mapStatus >= 2 && conn !== null && typeof conn !== 'undefined')
+                {
+                    var packets = [];
+                    for (var i =0; i < self.maxPackets; ++i)
+                    {
+                        if (packet.length === 0)
+                            break;
+                        packets.push(packet.shift());
+                    }
+                    conn.send(packets);
+                } else {
+                    conn = null;
+                    //delete conn;
+                }
+            }
         });
-    },
+    }
 
-    sendToPlayer: function(player, message) {
+    sendToPlayer(player, message) {
         if (!message)
-        	return;
+            return;
 
         var self = this;
         //console.info("sent_raw: "+message;
         if (player && player.id in self.packets)
         {
-				    self.packets[player.id].push(message.serialize());
+            self.packets[player.id].push(message.serialize());
         }
         this.processPackets();
-    },
+    }
 
-    sendBroadcast: function(message, ignoredPlayer)  {
+    sendBroadcast(message, ignoredPlayer)  {
         if (!message)
-        	return;
+            return;
 
         Utils.forEach(this.packets, function (packet, id) {
-          if (id !== ignoredPlayer)
-          {
-              packet.push(message.serialize());
-          }
+            if (id !== ignoredPlayer)
+            {
+                packet.push(message.serialize());
+            }
         });
         this.processPackets();
-    },
+    }
 
-    sendNeighbours: function(entity, message, ignoredPlayer, areaLength)  {
-    	//console.info("sendNeighbours");
-    	var self = this;
-    	//console.info(JSON.stringify(message.serialize()));
-      areaLength = areaLength || 64;
-    	var players = self.getPlayerAround(entity, areaLength);
-      players.push(entity);
+    sendNeighbours(entity, message, ignoredPlayer, areaLength)  {
+        //console.info("sendNeighbours");
+        var self = this;
+        //console.info(JSON.stringify(message.serialize()));
+        areaLength = areaLength || 64;
+        var players = self.getPlayerAround(entity, areaLength);
+        players.push(entity);
 
-    	//console.info(entities.length);
-      for (var player of players) {
-          if (self.packets.hasOwnProperty(player.id) && !ignoredPlayer || (ignoredPlayer && player !== ignoredPlayer))
-          {
-               //console.info("neighbour.id:"+neighbour.id);
-               self.packets[player.id].push(message.serialize());
-          }
-      }
-      this.processPackets();
-    },
+        //console.info(entities.length);
+        for (var player of players) {
+            if (self.packets.hasOwnProperty(player.id) && !ignoredPlayer || (ignoredPlayer && player !== ignoredPlayer))
+            {
+                //console.info("neighbour.id:"+neighbour.id);
+                self.packets[player.id].push(message.serialize());
+            }
+        }
+        this.processPackets();
+    }
 
-    spawnEntities: function(map) {
+    spawnEntities(map) {
         var self = this;
 
         //setTimeout(function () {
         _.each(self.map.spawnEntities, function(npcData) {
             if (npcData.type == Types.EntityTypes.NPCMOVE) {
-              var npc = self.addNpcMove(npcData.id, npcData.x, npcData.y);
-              if (npcData.name)
-                npc.name = npcData.name;
-              if (npcData.scriptQuests)
-                npc.scriptQuests = npcData.scriptQuests;
+                var npc = self.addNpcMove(npcData.id, npcData.x, npcData.y);
+                if (npcData.name)
+                    npc.name = npcData.name;
+                if (npcData.scriptQuests)
+                    npc.scriptQuests = npcData.scriptQuests;
             }
             if (npcData.type == Types.EntityTypes.NPCSTATIC) {
-              var npc = self.addNpcStatic(npcData.id, npcData.x, npcData.y);
-              if (npcData.name)
-                npc.name = npcData.name;
-              if (npcData.scriptQuests)
-                npc.scriptQuests = npcData.scriptQuests;
+                var npc = self.addNpcStatic(npcData.id, npcData.x, npcData.y);
+                if (npcData.name)
+                    npc.name = npcData.name;
+                if (npcData.scriptQuests)
+                    npc.scriptQuests = npcData.scriptQuests;
             }
 
         });
@@ -319,11 +334,11 @@ var MapEntities = cls.Class.extend({
 
             console.info("kind:"+kind);
             if (NpcData.isNpc(kind)) {
-              console.info("npc:" + kind + ",x:"+pos.x+",y:"+pos.y);
-              self.addNpcStatic(kind, pos.x, pos.y);
+                console.info("npc:" + kind + ",x:"+pos.x+",y:"+pos.y);
+                self.addNpcStatic(kind, pos.x, pos.y);
             }
         });
-    },
+    }
 
     /*spawnEntity: function(kind, x, y, map) {
         var self = this;
@@ -338,92 +353,68 @@ var MapEntities = cls.Class.extend({
         return entity;
     },*/
 
-    addEntity: function(entity) {
-      this.entities.set(entity.id, entity);
-      if (entity instanceof Character)
-        this.characters.set(entity.id, entity);
-    },
+    addEntity(entity) {
+        this.entities.set(entity.id, entity);
+        if (entity instanceof Character)
+            this.characters.set(entity.id, entity);
+    }
 
-    addPlayer: function(player) {
-      console.info("addPlayer - player id: "+player.id);
-      this.addEntity(player);
-      this.players.set(player.id, player);
-      this.packets[player.id] = [];
-    },
+    addPlayer(player) {
+        console.info("addPlayer - player id: "+player.id);
+        this.addEntity(player);
+        this.players.set(player.id, player);
+        this.packets[player.id] = [];
+    }
 
-    addChest: function(chest) {
+    addChest(chest) {
         this.addEntity(chest);
         this.chests.set(chest.id, chest);
-    },
+    }
 
-    addBlock: function (block) {
-      this.addEntity(block);
-      this.blocks.set(block.id, block);
-      return block;
-    },
+    addBlock(block) {
+        this.addEntity(block);
+        this.blocks.set(block.id, block);
+        return block;
+    }
 
-    addMob: function(kind, x, y, area) {
-      var mob = new Mob(++this.entityCount, kind, x, y, this.map, area);
-      mob.mobAI = this.mobAI;
+    addMob(kind, x, y, area) {
+        var mob = new Mob(++this.entityCount, kind, x, y, this.map, area);
+        mob.mobAI = this.mobAI;
 
-      this.addEntity(mob);
-      this.mobs.set(mob.id, mob);
+        this.addEntity(mob);
+        this.mobs.set(mob.id, mob);
 
-      this.world.mobCallback.setCallbacks(mob);
+        this.world.mobCallback.setCallbacks(mob);
 
-      return mob;
-    },
+        return mob;
+    }
 
-    addNpcStatic: function(kind, x, y) {
+    addNpcStatic(kind, x, y) {
         var npc = new NpcStatic(++this.entityCount, kind, x, y, this.map);
 
         this.addEntity(npc);
         this.npcs.set(npc.id, npc);
 
         return npc;
-    },
+    }
 
-    addNpcMove: function(kind, x, y) {
+    addNpcMove(kind, x, y) {
         var npc = new NpcMove(++this.entityCount, kind, x, y, this.map);
 
         this.addEntity(npc);
         this.npcplayers.set(npc.id, npc);
 
         return npc;
-    },
+    }
 
-    addItem: function(item) {
+    addItem(item) {
         this.addEntity(item);
         this.items.set(item.id, item);
 
         return item;
-    },
+    }
 
-    addSpatial: function(entity) {
-      if (!entity || !entity.x || !entity.y) return;
-
-      var ts = G_TILESIZE;
-      var gx = ~~(entity.x / ts);
-      var gy = ~~(entity.y / ts);
-
-      var spx = ~~(gx / this.spatialSize);
-      var spy = ~~(gy / this.spatialSize);
-
-      // bounds check
-      if (spy < 0 || spy >= this.spatial.length ||
-          spx < 0 || spx >= this.spatial[spy].length) {
-          return;
-      }
-
-      entity.spx = spx;
-      entity.spy = spy;
-      entity.spatialMap = true;
-
-      this.spatial[spy][spx].push(entity);
-    },
-
-    removeSpatial: function (entity) {
-      if (entity.spatialMap) {
+    addSpatial(entity) {
         if (!entity || !entity.x || !entity.y) return;
 
         var ts = G_TILESIZE;
@@ -438,14 +429,38 @@ var MapEntities = cls.Class.extend({
             spx < 0 || spx >= this.spatial[spy].length) {
             return;
         }
-        
-        var spatial = this.spatial[spy][spx];
-        Utils.removeFromArray(spatial, entity);
-      }
-    },
 
-    removeEntity: function(entity) {
-    	  console.error("removeEntity: "+entity.id);
+        entity.spx = spx;
+        entity.spy = spy;
+        entity.spatialMap = true;
+
+        this.spatial[spy][spx].push(entity);
+    }
+
+    removeSpatial(entity) {
+        if (entity.spatialMap) {
+            if (!entity || !entity.x || !entity.y) return;
+
+            var ts = G_TILESIZE;
+            var gx = ~~(entity.x / ts);
+            var gy = ~~(entity.y / ts);
+
+            var spx = ~~(gx / this.spatialSize);
+            var spy = ~~(gy / this.spatialSize);
+
+            // bounds check
+            if (spy < 0 || spy >= this.spatial.length ||
+                spx < 0 || spx >= this.spatial[spy].length) {
+                return;
+            }
+
+            var spatial = this.spatial[spy][spx];
+            Utils.removeFromArray(spatial, entity);
+        }
+    }
+
+    removeEntity(entity) {
+        console.error("removeEntity: "+entity.id);
         this.removeSpatial(entity);
 
         if (this.mobs.has(entity.id))
@@ -470,47 +485,47 @@ var MapEntities = cls.Class.extend({
             this.entities.delete(entity.id);
 
         entity.destroy();
-    },
+    }
 
-    removePlayer: function(player) {
-      //try { throw new Error(); } catch (e) { console.error(e.stack); }
+    removePlayer(player) {
+        //try { throw new Error(); } catch (e) { console.error(e.stack); }
 
-      console.info("removePlayer-called");
-    	var self = this;
+        console.info("removePlayer-called");
+        var self = this;
 
-	    if (player instanceof Player)
-		     this.sendBroadcast(player.despawn());
+        if (player instanceof Player)
+            this.sendBroadcast(player.despawn());
 
-      console.info("deleting player traces..");
+        console.info("deleting player traces..");
 
-      self.removeEntity(player);
+        self.removeEntity(player);
 
-      delete self.packets[player.id];
-      //delete player;
-      player = null;
-    },
+        delete self.packets[player.id];
+        //delete player;
+        player = null;
+    }
 
-    removeNpcPlayer: function(player) {
-      console.info("removePlayer-called");
+    removeNpcPlayer(player) {
+        console.info("removePlayer-called");
 
-      this.sendBroadcast(player.despawn(0));
-      this.removeEntity(player);
+        this.sendBroadcast(player.despawn(0));
+        this.removeEntity(player);
 
-      delete this.npcplayers.get(player.id);
-    },
+        delete this.npcplayers.get(player.id);
+    }
 
-    createItem: function(itemRoom, x, y) {
+    createItem(itemRoom, x, y) {
         var id = (++this.entityCount);
         var item = null;
 
         var type = Types.EntityTypes.ITEM;
         if(!ItemTypes.isEquippable(itemRoom.itemKind))
-          type = Types.EntityTypes.ITEMLOOT;
+            type = Types.EntityTypes.ITEMLOOT;
         item = new Item(type, id, itemRoom, x, y, this.map);
         this.addItem(item);
 
         return item;
-    },
+    }
 
     /*createChest: function(x, y, items) {
         var self = this;
@@ -519,14 +534,14 @@ var MapEntities = cls.Class.extend({
         return chest;
     },*/
 
-    addStaticItem: function(map, item) {
+    addStaticItem(map, item) {
         var self = this;
 
         item.isStatic = true;
         item.onRespawn(self.addStaticItem.bind(self, item));
 
         return self.addItem(item);
-    },
+    }
 
     /*addItemFromChest: function(kind, x, y) {
         var item = this.createItem(kind, x, y);
@@ -546,352 +561,366 @@ var MapEntities = cls.Class.extend({
       return null;
     },*/
 
-    getEntityById: function(id) {
-      return this.entities.get(Number(id));
-    },
+    getEntityById(id) {
+        return this.entities.get(Number(id));
+    }
 
-    getPlayerByName: function(name)
+    getPlayerByName(name)
     {
         for (const p of this.players.values()) {
-          if (p.name === name)
-            return p;
+            if (p.name === name)
+                return p;
         }
         return null;
-    },
+    }
 
-    setModifyGoldByName: function(name, mod) {
-      var player = this.getPlayerByName(name);
-      if (player)
-        player.modifyGold(mod);
-      //else
+    setModifyGoldByName(name, mod) {
+        var player = this.getPlayerByName(name);
+        if (player)
+            player.modifyGold(mod);
+        //else
         //this.database.modifyGold(name, mod);
-    },
+    }
 
-    getEntitiesByPosition: function(x,y) {
-    	entities = [];
-    	this.forEachEntity(function(e) {
-    		if (e.x === x && e.y === y)
-    		    entities.push(e);
-    	});
-    	return entities;
-    },
+    // NOTE: `entities` was a bare (undeclared) assignment in the original
+    // CommonJS source, which created an implicit global there; declared with
+    // `var` here since ES modules are always strict mode and forbid implicit
+    // globals.
+    getEntitiesByPosition(x,y) {
+        var entities = [];
+        this.forEachEntity(function(e) {
+            if (e.x === x && e.y === y)
+                entities.push(e);
+        });
+        return entities;
+    }
 
-    isCharacterAt: function (x,y) {
-      return this.entitygrid[y][x] === 1;
-    },
+    isCharacterAt(x,y) {
+        return this.entitygrid[y][x] === 1;
+    }
 
-    isMobAt: function(x,y) {
-    	var result = false;
-	    this.forEachMob(function (mob) {
-        var pos = mob.getLastPosition();
-    		if (x === pos[0] && y === pos[1])
-    		    result = true;
-  	  });
-  	  return result;
-    },
+    isMobAt(x,y) {
+        var result = false;
+        this.forEachMob(function (mob) {
+            var pos = mob.getLastPosition();
+            if (x === pos[0] && y === pos[1])
+                result = true;
+        });
+        return result;
+    }
 
-    forEachEntity: function(callback) {
+    forEachEntity(callback) {
         for (const entity of this.entities.values()) {
-          callback(entity);
+            callback(entity);
         }
-    },
+    }
 
-    forEachPlayer: function(callback) {
-      for (const entity of this.players.values()) {
-        callback(entity);
-      }
-    },
+    forEachPlayer(callback) {
+        for (const entity of this.players.values()) {
+            callback(entity);
+        }
+    }
 
-    forEachMob: function(callback) {
-      for (const entity of this.mobs.values()) {
-        callback(entity);
-      }
-    },
+    forEachMob(callback) {
+        for (const entity of this.mobs.values()) {
+            callback(entity);
+        }
+    }
 
-    forEachCharacter: function(callback) {
-      for (const entity of this.entities.values()) {
-        if (entity instanceof Character)
-          callback(entity);
-      }
-    },
+    forEachCharacter(callback) {
+        for (const entity of this.entities.values()) {
+            if (entity instanceof Character)
+                callback(entity);
+        }
+    }
 
-    forEachNpcPlayer: function(callback) {
-      for (const entity of this.npcplayers.values()) {
-        if (entity instanceof Character)
-          callback(entity);
-      }
-    },
+    forEachNpcPlayer(callback) {
+        for (const entity of this.npcplayers.values()) {
+            if (entity instanceof Character)
+                callback(entity);
+        }
+    }
 
 // TODO - Minimize function calls so you can pass type to loop through, and the additional condition.
-    getEntitySpatialCount: function(entity, range, conditional) {
-      return this.getEntityAroundSpatial(entity, range, conditional).length;
-    },
+    getEntitySpatialCount(entity, range, conditional) {
+        return this.getEntityAroundSpatial(entity, range, conditional).length;
+    }
 
-    getEntityAroundSpatial: function(entity, range, conditional) {
-      r = r || 1;
-      var x = entity.x;
-      var y = entity.y;
-      var gx = ~~(entity.x / G_TILESIZE);
-      var gy = ~~(entity.y / G_TILESIZE);
+    // NOTE: pre-existing bug preserved from the original — this method's second
+    // parameter is named `range` but the body reads/writes a completely
+    // different, never-declared bare identifier `r` instead. This would throw a
+    // ReferenceError at runtime in the original CommonJS version too (sloppy
+    // mode only creates implicit globals on bare *assignment*, and the very
+    // first use here, `r = r || 1`, reads `r` before ever assigning it).
+    getEntityAroundSpatial(entity, range, conditional) {
+        r = r || 1;
+        var x = entity.x;
+        var y = entity.y;
+        var gx = ~~(entity.x / G_TILESIZE);
+        var gy = ~~(entity.y / G_TILESIZE);
 
-      var entities = [];
-      var def_conditional = function (e1,e2) { return e1 !== e2; };
-      conditional = conditional || def_conditional;
-      //console.info("getEntityAround, range: "+range+",x:"+x+",y:"+y);
-      var e2;
-      var group = this.getSpatialEntities([gx-r,gy-r,gx+r,gy+r]);
-      for (var e2 of group) {
-          if (conditional(entity,e2))
-          {
-              //console.info("getEntityAround, pushed:"+e2.id);
-              entities.push(e2);
-          }
-      }
-      return entities;
-    },
-
-    getEntityCount: function(group, e1, range, conditional) {
-      return this.getEntityAround(group, e1, range, conditional).length;
-    },
-
-    getEntityAround: function(group, e1, range, conditional) {
-      range *= G_TILESIZE;
-      var entities = [];
-      conditional = conditional || function (e1, e2) { return e1 !== e2; };
-      var compare = function (e1, e2) {
-        return (Math.abs(e2.x-e1.x) <= range && Math.abs(e2.y-e1.y) <= range &&
-            conditional(e1,e2))
-      };
-      if (Array.isArray(group)) {
+        var entities = [];
+        var def_conditional = function (e1,e2) { return e1 !== e2; };
+        conditional = conditional || def_conditional;
+        //console.info("getEntityAround, range: "+range+",x:"+x+",y:"+y);
+        var e2;
+        var group = this.getSpatialEntities([gx-r,gy-r,gx+r,gy+r]);
         for (var e2 of group) {
-            if (compare(e1,e2))
-              entities.push(e2);
+            if (conditional(entity,e2))
+            {
+                //console.info("getEntityAround, pushed:"+e2.id);
+                entities.push(e2);
+            }
         }
-      } else {
-        if (group instanceof Map) {
-          for (const e2 of group.values()) {
-            if (compare(e1,e2))
-              entities.push(e2);
-          }
-        }
-        else {
-          Utils.forEach(group, function (e2) {
-            if (compare(e1,e2))
-              entities.push(e2);
-          });
-        }
-      }
-      return entities;
-    },
+        return entities;
+    }
 
-    getEachEntityAround: function(x, y, range) {
+    getEntityCount(group, e1, range, conditional) {
+        return this.getEntityAround(group, e1, range, conditional).length;
+    }
+
+    getEntityAround(group, e1, range, conditional) {
+        range *= G_TILESIZE;
+        var entities = [];
+        conditional = conditional || function (e1, e2) { return e1 !== e2; };
+        var compare = function (e1, e2) {
+            return (Math.abs(e2.x-e1.x) <= range && Math.abs(e2.y-e1.y) <= range &&
+                conditional(e1,e2))
+        };
+        if (Array.isArray(group)) {
+            for (var e2 of group) {
+                if (compare(e1,e2))
+                    entities.push(e2);
+            }
+        } else {
+            if (group instanceof Map) {
+                for (const e2 of group.values()) {
+                    if (compare(e1,e2))
+                        entities.push(e2);
+                }
+            }
+            else {
+                Utils.forEach(group, function (e2) {
+                    if (compare(e1,e2))
+                        entities.push(e2);
+                });
+            }
+        }
+        return entities;
+    }
+
+    getEachEntityAround(x, y, range) {
         var x = ~~(x/G_TILESIZE);
         var y = ~~(y/G_TILESIZE);
         var r = range;
         var entities = this.getSpatialEntities([x-r,y-r,x+r,y+r]);
         return this.getEntityAround(entities, {x: x, y: y}, r);
-    },
+    }
 
-    getEntitiesAround: function(entity, range) {
-      var x = ~~(entity.x/G_TILESIZE);
-      var y = ~~(entity.y/G_TILESIZE);
-      var r = range;
-      var entities = this.getSpatialEntities([x-r,y-r,x+r,y+r]);
-      return this.getEntityAround(entities, entity, r);
-    },
+    getEntitiesAround(entity, range) {
+        var x = ~~(entity.x/G_TILESIZE);
+        var y = ~~(entity.y/G_TILESIZE);
+        var r = range;
+        var entities = this.getSpatialEntities([x-r,y-r,x+r,y+r]);
+        return this.getEntityAround(entities, entity, r);
+    }
 
-    getCharactersAround: function(entity, range) {
-      return this.getEntityAround(this.getEntitiesAround(entity, range), entity, range,
-        function(e1,e2) { return (e1 !== e2 && e2 instanceof Character); });
-    },
+    getCharactersAround(entity, range) {
+        return this.getEntityAround(this.getEntitiesAround(entity, range), entity, range,
+            function(e1,e2) { return (e1 !== e2 && e2 instanceof Character); });
+    }
 
-    getMobsAround: function(entity, range) {
-      return this.getEntityAround(this.mobs, entity, range);
-    },
+    getMobsAround(entity, range) {
+        return this.getEntityAround(this.mobs, entity, range);
+    }
 
-    getPlayerAround: function(entity, range) {
-      return this.getEntityAround(this.players, entity, range);
-    },
+    getPlayerAround(entity, range) {
+        return this.getEntityAround(this.players, entity, range);
+    }
 
-    getAroundCount: function(entities, entity, range) {
-      return this.getEntityAround(entities, entity, range).length;
-    },
+    getAroundCount(entities, entity, range) {
+        return this.getEntityAround(entities, entity, range).length;
+    }
 
-    getEntityAroundCount: function(entity, range) {
-      var entities = this.getEntitiesAround(entity, range);
-      return this.getEntityAround(entities, entity, range).length;
-    },
+    getEntityAroundCount(entity, range) {
+        var entities = this.getEntitiesAround(entity, range);
+        return this.getEntityAround(entities, entity, range).length;
+    }
 
-    getPlayerAroundCount: function(entity, range) {
-      return this.getEntityAround(this.players, entity, range).length;
-    },
+    getPlayerAroundCount(entity, range) {
+        return this.getEntityAround(this.players, entity, range).length;
+    }
 
-    getPartyAround: function(entity, range) { // entity
-      return this.getEntityAround(entity.party.players, entity, range);
-    },
+    getPartyAround(entity, range) { // entity
+        return this.getEntityAround(entity.party.players, entity, range);
+    }
 
-    itemDespawn: function (item)
+    itemDespawn(item)
     {
-      this.sendNeighbours(item, new Messages.Despawn(item));
-      this.removeEntity(item);
-    },
+        this.sendNeighbours(item, new Messages.Despawn(item));
+        this.removeEntity(item);
+    }
 
-    handleEmptyChestArea: function(area) {
+    // NOTE: pre-existing bug preserved from the original — `chest` below was
+    // never defined (the line that would have created it is commented out), so
+    // this would throw a ReferenceError at runtime in the original CommonJS
+    // version too.
+    handleEmptyChestArea(area) {
         var self = this;
         if(area) {
             //var chest = self.addItem(self.createChest(area.chestX, area.chestY, area.items));
             self.handleItemDespawn(chest);
         }
-    },
+    }
 
-    tryAddingMobToChestArea: function(mob) {
+    tryAddingMobToChestArea(mob) {
         var self = this;
         _.each(self.chestAreas, function(area) {
             if (area.contains(mob))
                 area.addToArea(mob);
         });
-    },
+    }
 
-    findPath: function(character, x, y, ignoreList) {
-      var self = this,
-          path = [];
+    findPath(character, x, y, ignoreList) {
+        var self = this,
+            path = [];
 
-      //console.info("PATHFINDER CODE");
+        //console.info("PATHFINDER CODE");
 
-      if(this.pathfinder && character)
-      {
-          var grid = self.map.grid;
-          var path = null;
-          var pS =[character.x, character.y];
-          var ts = G_TILESIZE;
+        if(this.pathfinder && character)
+        {
+            var grid = self.map.grid;
+            var path = null;
+            var pS =[character.x, character.y];
+            var ts = G_TILESIZE;
 
-          if (this.map.isColliding(character.x, character.y))
-          {
-            //console.warn("findPath - isColliding start.");
-            return null;
-          }
-
-          var pE = [x,y];
-          if (this.map.isColliding(x, y))
-          {
-            //console.warn("findPath - isColliding end.");
-            return null;
-          }
-
-          if (pS[0] === pE[0] && pS[1] === pE[1]) {
-            try { throw new Error(); } catch(err) { console.info(err.stack); }
-            //console.warn("findPath - path coordinates are the same.")
-            return null;
-          }
-
-          var fgpS = [~~(pS[0]/ts), ~~(pS[1]/ts)];
-          var fgpE = [~~(pE[0]/ts), ~~(pE[1]/ts)];
-          var shortGrid = this.pathfinder.getShortGrid(grid, fgpS, fgpE, 3);
-          var sgrid = shortGrid.crop;
-          var spS = shortGrid.substart;
-          var spE = shortGrid.subend;
-          var subpath = null;
-
-          console.info("findDirectPath - spS:"+JSON.stringify(spS));
-          console.info("findDirectPath - spE:"+JSON.stringify(spE));
-          subpath = this.pathfinder.findDirectPath(sgrid, spS, spE);
-
-          if (subpath)
-          {
-            subpath = this.pathfinder.makeNodesMidPoints(subpath);
-            subpath = this.pathfinder.dropUneededNodes(subpath);
-            console.info("findDirectPath - subpath:"+JSON.stringify(subpath));
-            if (!this.pathfinder.isValidGridPath(sgrid, subpath)) {
-              //console.error("subpath: "+JSON.stringify(subpath));
-              try { throw new Error(); } catch (e) { console.error(e.stack); }
-              return null;
+            if (this.map.isColliding(character.x, character.y))
+            {
+                //console.warn("findPath - isColliding start.");
+                return null;
             }
-            var res = this.pathfinder.getFullFromShortPath(subpath, shortGrid.minX, shortGrid.minY);
-            console.info("findDirectPath - res:"+JSON.stringify(res));
-            if (!this.pathfinder.isValidGridPath(this.map.grid, res, true)) {
-              try { throw new Error(); } catch (e) { console.error(e.stack); }
-              return null;
-            }
-            return res;
-          }
 
-          if (!path) {
-            //console.warn("findPath - shortPath: attempting.");
-            //console.info("grid:"+JSON.stringify(grid));
-            //console.info(JSON.stringify(shortGrid));
-            subpath = this.pathfinder.findShortPath(sgrid,
-          	 shortGrid.minX, shortGrid.minY, spS, spE);
+            var pE = [x,y];
+            if (this.map.isColliding(x, y))
+            {
+                //console.warn("findPath - isColliding end.");
+                return null;
+            }
+
+            if (pS[0] === pE[0] && pS[1] === pE[1]) {
+                try { throw new Error(); } catch(err) { console.info(err.stack); }
+                //console.warn("findPath - path coordinates are the same.")
+                return null;
+            }
+
+            var fgpS = [~~(pS[0]/ts), ~~(pS[1]/ts)];
+            var fgpE = [~~(pE[0]/ts), ~~(pE[1]/ts)];
+            var shortGrid = this.pathfinder.getShortGrid(grid, fgpS, fgpE, 3);
+            var sgrid = shortGrid.crop;
+            var spS = shortGrid.substart;
+            var spE = shortGrid.subend;
+            var subpath = null;
+
+            console.info("findDirectPath - spS:"+JSON.stringify(spS));
+            console.info("findDirectPath - spE:"+JSON.stringify(spE));
+            subpath = this.pathfinder.findDirectPath(sgrid, spS, spE);
+
             if (subpath)
-              path = this.pathfinder.getFullFromShortPath(subpath, shortGrid.minX, shortGrid.minY);
-            console.info("findPath - shortPath:"+JSON.stringify(path));
-          }
-
-          if (!path) {
-            console.warn("findPath - DANGER - findPath LONGGG");
-            var longGrid = this.pathfinder.getShortGrid(grid, fgpS, fgpE, 10);
-            var lpS = longGrid.substart;
-            var lpE = longGrid.subend;
-            path = this.pathfinder.findShortPath(longGrid.crop,
-          	 longGrid.minX, longGrid.minY, lpS, lpE);
-            if (path) {
-              path = this.pathfinder.dropUneededNodes(path);
-              path = this.pathfinder.getFullFromShortPath(path, longGrid.minX, longGrid.minY);
+            {
+                subpath = this.pathfinder.makeNodesMidPoints(subpath);
+                subpath = this.pathfinder.dropUneededNodes(subpath);
+                console.info("findDirectPath - subpath:"+JSON.stringify(subpath));
+                if (!this.pathfinder.isValidGridPath(sgrid, subpath)) {
+                    //console.error("subpath: "+JSON.stringify(subpath));
+                    try { throw new Error(); } catch (e) { console.error(e.stack); }
+                    return null;
+                }
+                var res = this.pathfinder.getFullFromShortPath(subpath, shortGrid.minX, shortGrid.minY);
+                console.info("findDirectPath - res:"+JSON.stringify(res));
+                if (!this.pathfinder.isValidGridPath(this.map.grid, res, true)) {
+                    try { throw new Error(); } catch (e) { console.error(e.stack); }
+                    return null;
+                }
+                return res;
             }
-            console.info("findPath - longPath:"+JSON.stringify(path));
-          }
 
-          if (!path) {
-              console.error("findPath - Error while finding the path to "+x+", "+y+" for "+character.id);
-              return null;
-          }
-          if (!this.pathfinder.isValidGridPath(this.map.grid, path, true)) {
-            try { throw new Error(); } catch (e) { console.error(e.stack); }
-            return null;
-          }
-          if (!(path[0][0] === character.x && path[0][1] === character.y)) {
-            try { throw new Error(); } catch (e) { console.error(e.stack); }
-            return null;
-          }
-          return path;
+            if (!path) {
+                //console.warn("findPath - shortPath: attempting.");
+                //console.info("grid:"+JSON.stringify(grid));
+                //console.info(JSON.stringify(shortGrid));
+                subpath = this.pathfinder.findShortPath(sgrid,
+                    shortGrid.minX, shortGrid.minY, spS, spE);
+                if (subpath)
+                    path = this.pathfinder.getFullFromShortPath(subpath, shortGrid.minX, shortGrid.minY);
+                console.info("findPath - shortPath:"+JSON.stringify(path));
+            }
+
+            if (!path) {
+                console.warn("findPath - DANGER - findPath LONGGG");
+                var longGrid = this.pathfinder.getShortGrid(grid, fgpS, fgpE, 10);
+                var lpS = longGrid.substart;
+                var lpE = longGrid.subend;
+                path = this.pathfinder.findShortPath(longGrid.crop,
+                    longGrid.minX, longGrid.minY, lpS, lpE);
+                if (path) {
+                    path = this.pathfinder.dropUneededNodes(path);
+                    path = this.pathfinder.getFullFromShortPath(path, longGrid.minX, longGrid.minY);
+                }
+                console.info("findPath - longPath:"+JSON.stringify(path));
+            }
+
+            if (!path) {
+                console.error("findPath - Error while finding the path to "+x+", "+y+" for "+character.id);
+                return null;
+            }
+            if (!this.pathfinder.isValidGridPath(this.map.grid, path, true)) {
+                try { throw new Error(); } catch (e) { console.error(e.stack); }
+                return null;
+            }
+            if (!(path[0][0] === character.x && path[0][1] === character.y)) {
+                try { throw new Error(); } catch (e) { console.error(e.stack); }
+                return null;
+            }
+            return path;
         }
         return null;
-    },
+    }
 
-    spaceEntityRandomApart: function (dist, callback_func, entities, entity, threshold) {
-      entities = entities || this.entities.values();
-      threshold = threshold || 100;
-    	var pos = null;
-    	var count = 1;
-      var param = (entity && entity.collision) ? entity.collision : null;
-      var iter = 0;
+    spaceEntityRandomApart(dist, callback_func, entities, entity, threshold) {
+        entities = entities || this.entities.values();
+        threshold = threshold || 100;
+        var pos = null;
+        var count = 1;
+        var param = (entity && entity.collision) ? entity.collision : null;
+        var iter = 0;
 
-			while (count > 0 && iter < threshold)
-			{
-				if (callback_func)
-				{
-				  pos = callback_func(param);
-				  count = pos ? this.getAroundCount(entities, pos, dist) : 0;
-				}
-        iter++;
-			}
-		  return pos;
-    },
+        while (count > 0 && iter < threshold)
+        {
+            if (callback_func)
+            {
+                pos = callback_func(param);
+                count = pos ? this.getAroundCount(entities, pos, dist) : 0;
+            }
+            iter++;
+        }
+        return pos;
+    }
 
-    isGridPositionEmpty: function (x, y) {
-      console.info("isGridPositionEmpty: x="+x+",y="+y);
-      if (this.map.isColliding(x, y))
-        return false;
+    isGridPositionEmpty(x, y) {
+        console.info("isGridPositionEmpty: x="+x+",y="+y);
+        if (this.map.isColliding(x, y))
+            return false;
 
-      var pos = {x: x, y: y};
-      var entities = this.getEntitiesAround(pos, 1);
-      if (entities.length === 0)
+        var pos = {x: x, y: y};
+        var entities = this.getEntitiesAround(pos, 1);
+        if (entities.length === 0)
+            return true;
+        for (var entity of entities) {
+            if (entity.isOverPosition(pos))
+                return false;
+        }
         return true;
-      for (var entity of entities) {
-        if (entity.isOverPosition(pos))
-          return false;
-      }
-      return true;
-    },
-});
+    }
+}
 
-module.exports = MapEntities;
+export default MapEntities;

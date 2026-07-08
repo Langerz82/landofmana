@@ -1,11 +1,11 @@
 /* global databaseHandler, log */
+import ItemRoom from './itemroom.js';
+import Messages from '../message.js';
+//import Utils from '../utils.js';
+import Player from '../entity/player.js';
 
-var cls = require("../lib/class"),
-    ItemRoom = require("./itemroom"),
-    Messages = require("../message");
-
-module.exports = ItemStore = cls.Class.extend({
-    init: function(owner, number, items){
+class ItemStore {
+    constructor(owner, number, items) {
         this.owner = owner;
         this.number = number;
 
@@ -19,76 +19,76 @@ module.exports = ItemStore = cls.Class.extend({
         //console.info("itemSlots="+JSON.stringify(itemSlots));
 
         if (items) {
-          for(var i=0; i<items.length; i++){
-              this.rooms[ items[i].slot] = items[i];
-          }
+            for(var i=0; i<items.length; i++){
+                this.rooms[ items[i].slot] = items[i];
+            }
         }
-    },
+    }
 
-    hasItem: function(itemKind){
+    hasItem(itemKind) {
         return this.hasItems(itemKind, 1);
-    },
+    }
 
-    hasItems: function(itemKind, itemCount){
+    hasItems(itemKind, itemCount) {
         var a = 0;
         for(var i in this.rooms){
             //console.info("hasItems - compare: " + this.rooms[i].itemKind + "=" + itemKind);
             if(this.rooms[i] && this.rooms[i].itemKind === itemKind){
-            	 a += this.rooms[i].itemNumber;
-            	 if (a >= itemCount)
-                	return true;
+                a += this.rooms[i].itemNumber;
+                if (a >= itemCount)
+                    return true;
             }
         }
         return false;
-    },
+    }
 
-    hasItemCount: function(itemKind){
+    hasItemCount(itemKind) {
         var a = 0;
         for(var i in this.rooms){
             if(this.rooms[i] && this.rooms[i].itemKind === itemKind){
-            	 a += this.rooms[i].itemNumber;
+                a += this.rooms[i].itemNumber;
             }
         }
         return a;
-    },
+    }
 
-    hasRoomCount: function(start, end) {
+    hasRoomCount(start, end) {
         start = start || 0;
         end = end || this.maxNumber;
         return this.maxNumber - Object.keys(this.rooms).length;
-    },
+    }
 
-    hasRoom: function(start, end) {
+    hasRoom(start, end) {
         start = start || 0;
         end = end || this.maxNumber;
         return Object.keys(this.rooms).length < this.maxNumber;
-    },
+    }
 
-    makeEmptyItem: function(index) {
+    makeEmptyItem(index) {
         this.rooms[index] = null;
         delete this.rooms[index];
         this.setItem(index, null);
-    },
+    }
 
-    getItemCount: function(itemKind){
-    	for(var i in this.rooms){
+    getItemCount(itemKind) {
+        for(var i in this.rooms){
             if(this.rooms[i] && this.rooms[i].itemKind === itemKind){
                 return this.rooms[i].itemNumber;
             }
         }
         return 0;
-    },
+    }
 
-    getItemIndex: function(itemKind){
+    getItemIndex(itemKind) {
         for(var i in this.rooms){
             if(this.rooms[i] && this.rooms[i].itemKind === itemKind){
                 return i;
             }
         }
         return -1;
-    },
+    }
 
-    getEmptyIndex: function(start, end) {
+    getEmptyIndex(start, end) {
         start = start || 0;
         end = end || this.maxNumber;
         for(var index = start; index < end; index++) {
@@ -97,189 +97,198 @@ module.exports = ItemStore = cls.Class.extend({
             }
         }
         return -1;
-    },
+    }
 
-    putItem: function(item) {
-      var kind = item.itemKind;
-      var consume = ItemTypes.isConsumableItem(kind);
-      var loot = ItemTypes.isLootItem(kind);
-      var craft = ItemTypes.isCraftItem(kind);
+    putItem(item) {
+        var kind = item.itemKind;
+        var consume = ItemTypes.isConsumableItem(kind);
+        var loot = ItemTypes.isLootItem(kind);
+        var craft = ItemTypes.isCraftItem(kind);
 
-      if (consume || loot || craft)
-      {
-        for(var i in this.rooms){
-          if (this.combineItem(item, this.rooms[i]))
+        if (consume || loot || craft)
+        {
+            for(var i in this.rooms){
+                if (this.combineItem(item, this.rooms[i]))
+                    return i;
+            }
+        }
+        return this._putItem(item);
+    }
+
+    combineItem(item, item2) {
+        console.info(JSON.stringify(item));
+        console.info(JSON.stringify(item2));
+
+        if(!item || !item2)
+            return false;
+
+        if(item.itemKind !== item2.itemKind)
+            return false;
+
+        if (ItemTypes.isEquippable(item.itemKind) ||
+            ItemTypes.isEquippable(item2.itemKind)) {
+            return false;
+        }
+
+        if (item.itemNumber === this.maxStack)
+            return false;
+        if (item2.itemNumber === this.maxStack)
+            return false;
+
+        var res = false;
+        var slot = item.slot;
+        var slot2 = item2.slot;
+
+        var maxStack = this.maxStack;
+        if (item2.itemNumber < maxStack) {
+            item2.itemNumber += item.itemNumber;
+            if (item2.itemNumber > maxStack) {
+                item.itemNumber = item2.itemNumber - maxStack;
+                item2.itemNumber = Math.min(item2.itemNumber, maxStack);
+                //this.setItem(slot, null); //  NOT NEEDED.
+                if (item.slot === -1)
+                    slot = this.getEmptyIndex();
+            } else {
+                item = null;
+            }
+            res = true;
+        }
+
+        if(item2.itemNumber <= 0) {
+            item2 = null;
+        }
+
+        this.setItem(slot, item);
+        this.setItem(slot2, item2);
+        return res;
+    }
+
+    // NOTE: `i` was a bare (undeclared) assignment in the original CommonJS
+    // source, which created an implicit global there; declared with `var` here
+    // since ES modules are always strict mode and forbid implicit globals.
+    _putItem(item) {
+        var i = this.getEmptyIndex();
+        if (i < 0)
+        {
+            if (this.owner instanceof Player)
+                this.owner.sendPlayer(this.fullMessage);
+            return -1;
+        }
+        else {
+            this.setItem(i, item);
             return i;
         }
-      }
-      return this._putItem(item);
-    },
+    }
 
-    combineItem: function (item, item2) {
-      console.info(JSON.stringify(item));
-      console.info(JSON.stringify(item2));
+    checkItem(index, item) {
+        return (item);
+    }
 
-      if(!item || !item2)
-        return false;
-
-      if(item.itemKind !== item2.itemKind)
-        return false;
-
-      if (ItemTypes.isEquippable(item.itemKind) ||
-          ItemTypes.isEquippable(item2.itemKind)) {
-        return false;
-      }
-
-      if (item.itemNumber === this.maxStack)
-        return false;
-      if (item2.itemNumber === this.maxStack)
-        return false;
-
-      var res = false;
-      var slot = item.slot;
-      var slot2 = item2.slot;
-
-      var maxStack = this.maxStack;
-      if (item2.itemNumber < maxStack) {
-        item2.itemNumber += item.itemNumber;
-        if (item2.itemNumber > maxStack) {
-          item.itemNumber = item2.itemNumber - maxStack;
-          item2.itemNumber = Math.min(item2.itemNumber, maxStack);
-          //this.setItem(slot, null); //  NOT NEEDED.
-          if (item.slot === -1)
-            slot = this.getEmptyIndex();
-        } else {
-          item = null;
+    setItem(index, item)
+    {
+        if (!item) {
+            this.rooms[index] = null;
+            item = {slot: index, itemKind: -1};
         }
-        res = true;
-      }
+        else {
+            if (!this.checkItem(index, item))
+                return false;
 
-      if(item2.itemNumber <= 0) {
-        item2 = null;
-      }
-
-      this.setItem(slot, item);
-      this.setItem(slot2, item2);
-      return res;
-    },
-
-    _putItem: function(item){
-      i = this.getEmptyIndex();
-      if (i < 0)
-      {
-        if (this.owner instanceof Player)
-        	this.owner.sendPlayer(this.fullMessage);
-        return -1;
-      }
-      else {
-        this.setItem(i, item);
-        return i;
-      }
-    },
-
-    checkItem: function (index, item) {
-      return (item);
-    },
-
-    setItem: function (index, item)
-    {
-      if (!item) {
-        this.rooms[index] = null;
-        item = {slot: index, itemKind: -1};
-      }
-      else {
-        if (!this.checkItem(index, item))
-          return false;
-
-        this.rooms[index] = item;
-        item.slot = index;
-      }
-      this.owner.sendPlayer(new Messages.ItemSlot(this.typeIndex, [item]));
-      return true;
-    },
-
-    save: function ()
-    {
-    },
-
-    removeItemKind: function (kind, number)
-    {
-      var j=number;
-      for(var i in this.rooms){
-        var r = this.rooms[i];
-        if (!r)
-          continue;
-        if(r.itemKind === kind) {
-          if (r.itemNumber > j) {
-            r.itemNumber -= j;
-            this.setItem(i, r);
-            return true;
-          } else {
-            j -= r.itemNumber;
-            r = null;
-          }
-          this.setItem(i, r);
+            this.rooms[index] = item;
+            item.slot = index;
         }
-      }
-      return false;
-    },
+        this.owner.sendPlayer(new Messages.ItemSlot(this.typeIndex, [item]));
+        return true;
+    }
 
-    takeOutItems: function(index, number){
+    save()
+    {
+    }
+
+    removeItemKind(kind, number)
+    {
+        var j=number;
+        for(var i in this.rooms){
+            var r = this.rooms[i];
+            if (!r)
+                continue;
+            if(r.itemKind === kind) {
+                if (r.itemNumber > j) {
+                    r.itemNumber -= j;
+                    this.setItem(i, r);
+                    return true;
+                } else {
+                    j -= r.itemNumber;
+                    r = null;
+                }
+                this.setItem(i, r);
+            }
+        }
+        return false;
+    }
+
+    takeOutItems(index, number) {
         var item = this.rooms[index];
         if (!item)
-          return null;
+            return null;
 
         if (number > item.itemNumber)
-          return null;
+            return null;
 
         if (ItemTypes.isEquippable(item.itemKind)) {
-          this.setItem(index, null);
-          return item;
+            this.setItem(index, null);
+            return item;
         }
 
         item.itemNumber -= number;
 
         if (item.itemNumber === 0)
-          item = null;
+            item = null;
 
         this.setItem(index, item);
         return item;
-    },
+    }
 
-    getRandomItemNumber: function() {
-    	var item = null;
-      var itemNums = [];
-      for (var i in this.rooms)
-      {
-        item = this.rooms[i];
-        if (item && item.itemKind > 0) itemNums.push(id);
-      }
-      var rand = Utils.randomRange(0,itemNums.length-1);
-      return (itemNums.length > 0) ?
-        itemNums[rand] : -1;
-    },
+    // NOTE: pre-existing bug preserved from the original — pushes a bare `id`
+    // identifier below instead of the loop variable `i` (or `item.slot`). This
+    // would throw a ReferenceError at runtime in the original CommonJS version
+    // too, since sloppy mode only creates implicit globals on bare *assignment*,
+    // not on read of an undeclared name.
+    getRandomItemNumber() {
+        var item = null;
+        var itemNums = [];
+        for (var i in this.rooms)
+        {
+            item = this.rooms[i];
+            if (item && item.itemKind > 0) itemNums.push(id);
+        }
+        var rand = Utils.randomRange(0,itemNums.length-1);
+        return (itemNums.length > 0) ?
+            itemNums[rand] : -1;
+    }
 
-    toString: function(){
-      var i=0;
-      var itemString = "" + this.maxNumber + ",";
+    toString() {
+        var i=0;
+        var itemString = "" + this.maxNumber + ",";
 
-      for(var i in this.rooms){
-          var item = this.rooms[i];
-          if (!item) continue;
-          itemString += item.toArray().join(',');
-      }
-      return itemString;
-    },
+        for(var i in this.rooms){
+            var item = this.rooms[i];
+            if (!item) continue;
+            itemString += item.toArray().join(',');
+        }
+        return itemString;
+    }
 
-    toStringJSON: function () {
-      var item = null;
-      var items = [];
-      for(var i in this.rooms){
-          item = this.rooms[i];
-          if (!item) continue;
-          items.push(item.toArray());
-      }
-      return JSON.stringify(items);
-    },
+    toStringJSON() {
+        var item = null;
+        var items = [];
+        for(var i in this.rooms){
+            item = this.rooms[i];
+            if (!item) continue;
+            items.push(item.toArray());
+        }
+        return JSON.stringify(items);
+    }
+}
 
-});
+export default ItemStore;

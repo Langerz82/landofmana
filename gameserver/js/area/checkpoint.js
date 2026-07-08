@@ -1,16 +1,14 @@
-//var cls = require('./lib/class');
-var Utils = require('../utils');
-var Area = require('./area');
+//import Utils from '../utils.js';
+import Area from './area.js';
 
-var Checkpoint = Area.extend({
-    init: function(map, id, x, y, width, height) {
-        this._super(map, id, x, y, width, height);
-    },
+class Checkpoint extends Area {
+    constructor(map, id, x, y, width, height) {
+        super(map, id, x, y, width, height);
+    }
 
-    isValidPosition: function(x, y) {
+    isValidPosition(x, y) {
         return this.map && this.map.isValidPosition(x, y);
-    },
+    }
+}
 
-});
-
-module.exports = Checkpoint;
+export default Checkpoint;

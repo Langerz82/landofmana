@@ -1,4 +1,5 @@
-var AppearancesJson = require("../../shared/data/appearance.json");
+import _ from 'underscore';
+import AppearancesJson from "../../shared/data/appearance.json" with { type: 'json' };
 
 var AppearanceData = [];
 
@@ -31,11 +32,11 @@ _.each( AppearancesJson, function( value, key) {
 
 //console.log(JSON.stringify(ItemGearTypes));
 
+export { ItemGearTypes };
+export const Data = AppearanceData;
 
-module.exports.ItemGearTypes = ItemGearTypes;
-
-module.exports.Data = AppearanceData;
-
-module.exports.getSpriteByID = function (id) {
+export function getSpriteByID(id) {
   return AppearanceData[id].sprite;
 }
+
+export default { ItemGearTypes, Data, getSpriteByID };

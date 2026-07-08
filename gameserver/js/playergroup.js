@@ -1,7 +1,8 @@
-var Messages = require("./message.js");
+import Messages from "./message.js";
+//import Utils from './utils.js';
 
-module.exports = PlayerGroup = Class.extend({
-  init: function(leader, group, allowOnce) {
+class PlayerGroup {
+  constructor(leader, group, allowOnce) {
     this.players = [];
     this.allowOnce = allowOnce;
     this.group = group;
@@ -9,20 +10,20 @@ module.exports = PlayerGroup = Class.extend({
 
     this.addName(leader.name);
     this.setLeader(leader.name);
-  },
+  }
 
-  containsName: function (playerName) {
+  containsName(playerName) {
     return this.players.includes(playerName);
-  },
+  }
 
-  setLeader: function(playerName) {
+  setLeader(playerName) {
       this.leader = playerName;
       var index = this.players.indexOf(this.leader);
       if (index != 0)
         Utils.SwapElements(this.players, 0, index);
-  },
+  }
 
-  addName: function(playerName) {
+  addName(playerName) {
     if(playerName){
       if (this.players.length === 0) {
         this.leader = playerName;
@@ -40,18 +41,18 @@ module.exports = PlayerGroup = Class.extend({
       }
     }
     this.sendMembersName();
-  },
+  }
 
-  getPlayer: function (playerName) {
+  getPlayer(playerName) {
     if(playerName) {
       var player = this.world.getPlayerByName(playerName);
       if (player)
         return player;
     }
     return null;
-  },
+  }
 
-  sendPlayers: function (msg, sendOwner) {
+  sendPlayers(msg, sendOwner) {
     var self = this;
     this.forEachName(function (playerName) {
       if (sendOwner && this.leader === playerName)
@@ -63,17 +64,17 @@ module.exports = PlayerGroup = Class.extend({
           player.sendPlayer(msg);
       }
     })
-  },
+  }
 
-  forEachName: function (callback) {
+  forEachName(callback) {
     var length = this.players.length;
     for(var i=0; i < length; ++i){
       if (callback)
         callback(this.players[i]);
     }
-  },
+  }
 
-  forEachPlayer: function (callback) {
+  forEachPlayer(callback) {
     var length = this.players.length;
     for(var i=0; i < length; ++i){
       if (callback) {
@@ -82,9 +83,9 @@ module.exports = PlayerGroup = Class.extend({
           callback(player);
       }
     }
-  },
+  }
 
-  removeName: function(playerName) {
+  removeName(playerName) {
     if (playerName === this.leader)
     	this.leader = this.players[0];
     if (playerName) {
@@ -98,15 +99,17 @@ module.exports = PlayerGroup = Class.extend({
       }
       this.sendMembersName();
     }
-  },
+  }
 
-  setMemberMessage: function (msg) {
+  setMemberMessage(msg) {
     this.memberMessage = msg;
-  },
+  }
 
-  sendMembersName: function() {
+  sendMembersName() {
     if (this.memberMessage)
       this.sendPlayers(new this.memberMessage(this.players), true);
-  },
+  }
 
-});
+}
+
+export default PlayerGroup;

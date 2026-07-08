@@ -1,5 +1,5 @@
-var _ = require('underscore'),
-		Mobs = require("../../shared/data/mobs.json");
+import _ from 'underscore';
+import Mobs from "../../shared/data/mobs.json" with { type: 'json' };
 
 var Properties = {};
 var Kinds = {};
@@ -55,6 +55,8 @@ var isMob = function(kind){
     return Kinds[kind] ? true : false;
 };
 
+// NOTE: `MobKinds` is referenced here but never declared/imported anywhere
+// in the original source -- a pre-existing bug, left as-is.
 var forEachMobKind = function(callback) {
     for(var k in MobKinds) {
         callback(MobKinds[k][0], k);
@@ -62,7 +64,7 @@ var forEachMobKind = function(callback) {
 };
 
 var getByLevelRange = function(min, max) {
-    levelRange = [];
+    let levelRange = [];
     for (var k in Kinds) {
 			 var mobKind = Kinds[k];
     	 if (mobKind.level > 0 && mobKind.level >= min && mobKind.level <= max)
@@ -77,8 +79,5 @@ var getByLevelRange = function(min, max) {
     //console.info("levelRange.length: " + levelRange.length);
 }
 
-module.exports.Properties = Properties;
-module.exports.Kinds = Kinds;
-module.exports.isMob = isMob;
-module.exports.forEachMobKind = forEachMobKind;
-module.exports.getByLevelRange = getByLevelRange;
+export { Properties, Kinds, isMob, forEachMobKind, getByLevelRange };
+export default { Properties, Kinds, isMob, forEachMobKind, getByLevelRange };

@@ -1,24 +1,28 @@
-var Quest = require('./quest');
-var Messages = require('./message');
+import Quest, { getQuestObject } from './quest.js';
+import Messages from './message.js';
+import { Types } from './common.js';
+//import Utils from './utils.js';
 
-module.exports = EntityQuests = cls.Class.extend({
-    init: function(entity) {
+/* global MobData, ItemData, ItemLootData */
+
+class EntityQuests {
+    constructor(entity) {
       this.entity = entity;
 
       this.questsCount = 0;
       this.quests = {};
-    },
+    }
 
-    acceptQuest: function (player, questId) {
+    acceptQuest(player, questId) {
       if (!this.quests.hasOwnProperty(questId))
         return;
 
       var quest = this.quests[questId];
 
-      pQuest = player.quests.getQuestById(parseInt(questId));
+      var pQuest = player.quests.getQuestById(parseInt(questId));
       if (pQuest) {
-        if (pQuest.status < QuestStatus.COMPLETE) {
-          pQuest.status = QuestStatus.INPROGRESS;
+        if (pQuest.status < Types.QuestStatus.COMPLETE) {
+          pQuest.status = Types.QuestStatus.INPROGRESS;
           player.quests.progressQuest(pQuest);
           return;
         }
@@ -27,13 +31,13 @@ module.exports = EntityQuests = cls.Class.extend({
       pQuest = Object.assign(new Quest(), quest);
       pQuest.data = quest.data;
       player.quests.foundQuest(pQuest);
-    },
+    }
 
-    rejectQuest: function (player, questId) {
+    rejectQuest(player, questId) {
 
-    },
+    }
 
-    giveReward: function (player, quest) {
+    giveReward(player, quest) {
       var pquest = player.quests.completeQuests[quest.id];
       if (!pquest) return false;
 
@@ -67,9 +71,9 @@ module.exports = EntityQuests = cls.Class.extend({
         return true;
       }
       return false;
-    },
+    }
 
-    hasQuest: function (player) {
+    hasQuest(player) {
       for (var quest of player.quests.quests)
       {
         if (this.entity.npcQuestId === quest.npcQuestId) {
@@ -91,9 +95,9 @@ module.exports = EntityQuests = cls.Class.extend({
         }
       }
       return false;
-    },
+    }
 
-    getNextQuestId: function (player) {
+    getNextQuestId(player) {
       for (var qid in this.quests) {
         if (player.quests.completeQuests[qid])
           continue;
@@ -104,23 +108,27 @@ module.exports = EntityQuests = cls.Class.extend({
         return qid;
       }
       return null;
-    },
+    }
 
-    sendNoQuest: function (player) {
+    sendNoQuest(player) {
       var entity = this.entity;
       var msg = new Messages.Dialogue(entity, "QUESTS_NONE", [entity.nextNpcDir, entity.nextNpcName, entity.name])
       player.sendPlayer(msg);
-    },
+    }
 
-    dynamicQuests: function (player) {
+    dynamicQuests(player) {
       if (this.hasQuest(player))
         return;
 
       this.createQuest(player);
       return;
-    },
+    }
 
-    getMobObject: function () {
+    // NOTE: `self` is referenced here in the original source without ever
+    // being declared/assigned in this method (likely meant `this.entity`).
+    // Preserved as-is; this is a pre-existing bug unrelated to the ES module
+    // conversion.
+    getMobObject() {
       var entities = self.map.entities.getMobsAround(this.entity, 35);
       if (entities.length === 0)
         return;
@@ -145,9 +153,9 @@ module.exports = EntityQuests = cls.Class.extend({
 
       return getQuestObject([Types.EntityTypes.MOB, kind,
         mobCount, 0, minLevel, 100]);
-    },
+    }
 
-    createQuest: function(player) {
+    createQuest(player) {
       var qTypes = [1,2];
       //var qTypes = [2];
       var questType = qTypes[Utils.randomInt(qTypes.length-1)];
@@ -155,17 +163,17 @@ module.exports = EntityQuests = cls.Class.extend({
       var pLvl = player.level;
 
 // TODO - FIX UP QUESTS FOR NEW STRUCTURE.
-      if (questType === QuestType.GETITEMKIND)
+      if (questType === Types.QuestType.GETITEMKIND)
       {
         this.createQuestItemKind(player);
       }
-      if (questType === QuestType.KILLMOBKIND)
+      if (questType === Types.QuestType.KILLMOBKIND)
       {
         this.createQuestKillMobKind(player);
       }
-    },
+    }
 
-    createQuestItemKind: function (player) {
+    createQuestItemKind(player) {
       console.info("GETITEMKIND");
 
       var itemKind = Utils.randomInt(ItemLootData.ItemLoot.length-1);
@@ -183,17 +191,17 @@ module.exports = EntityQuests = cls.Class.extend({
         var itemObject = getQuestObject([Types.EntityTypes.ITEMLOOT, itemKind,
           itemCount, itemChance]);
 
-        quest = new Quest([id, QuestType.GETITEMKIND, this.entity.npcQuestId, 0, 0, 0, 0, mobObject, itemObject]);
+        quest = new Quest([id, Types.QuestType.GETITEMKIND, this.entity.npcQuestId, 0, 0, 0, 0, mobObject, itemObject]);
         //quest.entityId = this.entity.id;
         player.quests.foundQuest(quest);
       }
       else {
-        quest.status = QuestStatus.INPROGRESS;
+        quest.status = Types.QuestStatus.INPROGRESS;
         player.quests.questAboutItem(quest);
       }
-    },
+    }
 
-    createQuestKillMobKind: function (player) {
+    createQuestKillMobKind(player) {
       console.info("KILLMOBKIND");
 
       var id = '01'+ Utils.pad(this.entity.kind,6) + Utils.pad(this.questsCount++,4);
@@ -209,13 +217,15 @@ module.exports = EntityQuests = cls.Class.extend({
         mobObject.count = Utils.clamp(lw, lh, (mobObject.count / 2));
         mobObject.count = Math.ceil(mobObject.count/5)*5;
 
-        quest = new Quest([id, QuestType.KILLMOBKIND, this.entity.npcQuestId, 0, 0, 0, 0, mobObject]);
+        quest = new Quest([id, Types.QuestType.KILLMOBKIND, this.entity.npcQuestId, 0, 0, 0, 0, mobObject]);
         //quest.entityId = this.entity.id;
         player.quests.foundQuest(quest);
       }
       else {
-        quest.status = QuestStatus.INPROGRESS;
+        quest.status = Types.QuestStatus.INPROGRESS;
         player.quests.progressQuest(quest);
       }
-    },
-});
+    }
+}
+
+export default EntityQuests;

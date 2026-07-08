@@ -1,27 +1,32 @@
 
-/* global require, module, log, databaseHandler */
-var Character = require('./character'),
-    Messages = require("../message"),
-    Formulas = require("../formulas"),
-    SkillHandler = require("../skillhandler"),
-    SkillEffectHandler = require("../effecthandler"),
-    PacketHandler = require("../packets/packethandler"),
-    PlayerQuests = require("./components/playerquests"),
-    PlayerHarvest = require("./components/playerharvest"),
-    PlayerItems = require("./components/playeritems"),
-    PlayerCombat = require("./components/playercombat"),
-    Quest = require("../quest");
+/* global log, databaseHandler, QuestStatus, SkillData */
+import Character from './character.js';
+import Messages from "../message.js";
+import Formulas from "../formulas.js";
+import SkillHandler from "../skillhandler.js";
+import SkillEffectHandler from "../effecthandler.js";
+import PacketHandler from "../packets/packethandler.js";
+import PlayerQuests from "./components/playerquests.js";
+import PlayerHarvest from "./components/playerharvest.js";
+import PlayerItems from "./components/playeritems.js";
+import PlayerCombat from "./components/playercombat.js";
+import Quest from "../quest.js";
+import Timer from '../timer.js';
+//import Utils from '../utils.js';
+//import { Types } from '../common.js';
+//import '../../shared/js/gametypes.js';
+//import '../main.js';
 
-module.exports = Player = Character.extend({
-    init: function(world, user, connection) {
+class Player extends Character {
+    constructor(world, user, connection) {
+        var map = world.maps[0];
+        super(connection.id, Types.EntityTypes.PLAYER, 1, 0, 0, map, 0);
         var self = this;
 
         this.user = user;
         this.world = world;
 
-        this.map = this.world.maps[0];
-
-        this._super(connection.id, Types.EntityTypes.PLAYER, 1, 0, 0, this.map, 0);
+        this.map = map;
 
         this.mapStatus = 0;
         this.mapIndex = 0;
@@ -84,9 +89,9 @@ module.exports = Player = Character.extend({
         this.shortcuts = {};
 
         this.loaded = 0;
-    },
+    }
 
-    start: function (connection) {
+    start(connection) {
       this.connection = connection;
       this.id = connection.id;
 
@@ -95,13 +100,13 @@ module.exports = Player = Character.extend({
 
       this.world.connect_callback(this);
       this.sendPlayerToClient();
-    },
+    }
 
-    destroy: function() {
+    destroy() {
       var self = this;
-    },
+    }
 
-    getState: function() {
+    getState() {
       var basestate = this._getBaseState();
       var sprite1 = this.getSprite(0), sprite2 = this.getSprite(1);
 
@@ -113,13 +118,13 @@ module.exports = Player = Character.extend({
   	    0, 0];
 
       return basestate.concat(state);
-    },
+    }
 
-    send: function(message) {
+    send(message) {
         this.connection.send(message);
-    },
+    }
 
-    resetBars: function() {
+    resetBars() {
       var hp = this.stats.hp;
       var ep = this.stats.ep;
       var hpDiff = this.stats.hpMax - hp;
@@ -127,10 +132,10 @@ module.exports = Player = Character.extend({
       this.modHp(hpDiff);
       this.modEp(epDiff);
       //this.map.entities.sendNeighbours(this, new Messages.ChangePoints(this, hpDiff, epDiff));
-    },
+    }
 
 
-    onKillEntity: function (entity, damage, dealt) {
+    onKillEntity(entity, damage, dealt) {
       damage = damage || 0;
       dealt = dealt || 0;
 
@@ -176,11 +181,11 @@ module.exports = Player = Character.extend({
 
       //this.damageCount[entity.id] = 0;
       //this.dealtCount[entity.id] = 0;
-    },
+    }
 
-    onDamage: function (attacker, hpMod, epMod, crit, effects) {
+    onDamage(attacker, hpMod, epMod, crit, effects) {
       var hpDiff = this.stats.hp;
-      this._super(attacker, hpMod, epMod, crit, effects);
+      super.onDamage(attacker, hpMod, epMod, crit, effects);
       hpDiff = hpDiff - this.stats.hp;
 
       attacker.onHitEntity(this, hpDiff);
@@ -194,21 +199,21 @@ module.exports = Player = Character.extend({
         });
         this.die(attacker);
       }
-    },
+    }
 
-    getLevel: function () {
+    getLevel() {
       return Types.getLevel(this.stats.exp.base);
-    },
+    }
 
-    getAttackLevel: function () {
+    getAttackLevel() {
       return Types.getAttackLevel(this.stats.exp.attack);
-    },
+    }
 
-    getDefenseLevel: function () {
+    getDefenseLevel() {
       return Types.getDefenseLevel(this.stats.exp.defense);
-    },
+    }
 
-    incExp: function (gotexp)
+    incExp(gotexp)
     {
       var incExp = parseInt(gotexp);
 
@@ -225,9 +230,9 @@ module.exports = Player = Character.extend({
       }
 
       return incExp;
-    },
+    }
 
-    incAttackExp: function(gotexp){
+    incAttackExp(gotexp){
     	var incExp = parseInt(gotexp);
 
   		incExp = Math.ceil(incExp * this.getExpBonus() * 0.25);
@@ -239,9 +244,9 @@ module.exports = Player = Character.extend({
       	this.sendPlayer(new Messages.LevelUp("attack", lvl, this.stats.exp.attack));
       }
       return incExp;
-    },
+    }
 
-    incDefenseExp: function(gotexp){
+    incDefenseExp(gotexp){
     	var incExp = parseInt(gotexp);
 
 		  incExp = Math.ceil(incExp * this.getExpBonus());
@@ -253,9 +258,9 @@ module.exports = Player = Character.extend({
       	this.sendPlayer(new Messages.LevelUp("defense", lvl, this.stats.exp.defense));
       }
       return incExp;
-    },
+    }
 
-    incWeaponExp: function(gotexp){
+    incWeaponExp(gotexp){
     	var incExp = parseInt(gotexp);
 
   		incExp = Math.ceil(incExp * this.getExpBonus() * 0.25);
@@ -273,9 +278,9 @@ module.exports = Player = Character.extend({
         this.sendPlayer(new Messages.LevelUp(type, clvl, xp));
       }
       return incExp;
-    },
+    }
 
-    getExpBonus: function ()
+    getExpBonus()
     {
       var self = this;
       var bonus = 1;
@@ -289,9 +294,9 @@ module.exports = Player = Character.extend({
         });
       }
       return bonus;
-    },
+    }
 
-    levelUp: function (prevLevel) {
+    levelUp(prevLevel) {
       for (var i=prevLevel; i < this.level; ++i)
       {
   	    if (i < 10)
@@ -313,9 +318,9 @@ module.exports = Player = Character.extend({
 	    this.resetBars();
 	    this.sendPlayer(new Messages.ChangePoints(this, 0, 0));
 	    this.sendPlayer(new Messages.LevelUp("base", this.level, this.stats.exp.base));
-    },
+    }
 
-    sendPlayerToClient: function ()
+    sendPlayerToClient()
     {
       var self = this;
 
@@ -388,7 +393,7 @@ module.exports = Player = Character.extend({
 
 // TODO - Make Quests work with new Class.
       // Send All Quests
-      var quests = self.quests.quests.filter(function (q) { return q.status !== QuestStatus.COMPLETE; });
+      var quests = self.quests.quests.filter(function (q) { return q.status !== Types.QuestStatus.COMPLETE; });
       sendMessage.push(quests.length);
       for(var questIndex = 0; questIndex < quests.length; ++questIndex){
           var q = quests[questIndex];
@@ -430,10 +435,10 @@ module.exports = Player = Character.extend({
         self.world.enter_callback(self);
         self.connection.sendUTF8(sendMessage.join(","));
       }
-    },
+    }
 
 // TODO - Fill db_player variable assignments.
-    fillPlayerInfo: function(db_player)
+    fillPlayerInfo(db_player)
     {
         var self = this;
         self.mapIndex = parseInt(db_player.map[0]);
@@ -585,33 +590,33 @@ module.exports = Player = Character.extend({
         self.attackTimer = Date.now();
 
         //console.info("playerId: "+self.id);
-    },
+    }
 
-  sendChangePoints: function (health, energy) {
+  sendChangePoints(health, energy) {
     this.map.entities.sendNeighbours(this, new Messages.ChangePoints(this, health, energy));
-  },
+  }
 
-  getHpMax: function () {
+  getHpMax() {
   	var hp = 300 + (this.stats.health * 100);
     return hp;
-  },
+  }
 
-  getEpMax: function () {
+  getEpMax() {
   	var ep = 300 + (this.stats.energy * 100);
     return ep;
-  },
+  }
 
 
 
-  sendToUserServer: function (msg) {
+  sendToUserServer(msg) {
     if (this.world)
       this.world.send(msg.serialize());
     else {
       console.warn("Player, sendToUserServer called without world being set. "+JSON.stringify(msg));
     }
-  },
+  }
 
-  save: function (update) {
+  save(update) {
     console.info("Player - save, name:"+this.name);
 
     if (this.connection.worldHandler)
@@ -619,18 +624,18 @@ module.exports = Player = Character.extend({
     else {
       console.warn("Player, save called without worldHandler being set. ");
     }
-  },
+  }
 
 
-  setRange: function() {
+  setRange() {
     this.setAttackRange(1);
     if (this.isArcher()) {
       this.setAttackRange(10);
     }
-  },
+  }
 
   // data = time, interrupted. path
-  movePath: function (data, path)
+  movePath(data, path)
   {
     var x=path[0][0], y=path[0][1],
       x2=path[path.length-1][0], y2=path[path.length-1][1],
@@ -656,9 +661,9 @@ module.exports = Player = Character.extend({
 
     this.setPath(path);
     this.startMovePathTime = time;
-  },
+  }
 
-  move: function (nm) {
+  move(nm) {
     //nm = self.nextMove;
     if (!nm)
       return;
@@ -734,49 +739,49 @@ module.exports = Player = Character.extend({
       console.warn("player.move, stop - x:"+x+", y:"+y);
       console.warn("player.move, stop - this.x:"+this.x+", this.y:"+this.y);
     }
-  },
+  }
 
-  broadcastSprites: function () {
+  broadcastSprites() {
     var s1 = this.getSprite(0);
     this.setSprite(0, s1);
     var s2 = this.getSprite(1);
     this.setSprite(1, s2);
     this.packetHandler.broadcast(new Messages.setSprite(this, s1, s2), false);
-  },
+  }
 
-  sendCurrentMove: function () {
+  sendCurrentMove() {
     var msg = new Messages.Move(this, this.orientation, 0, this.x, this.y);
     this.map.entities.sendNeighbours(this, msg);
-  },
+  }
 
-  respawn: function () {
+  respawn() {
     this.isDead = false;
     //this.isDying = false;
     this.freeze = false;
     //this.hasEnteredGame = true;
     this.resetBars();
 
-  },
+  }
 
-  setPosition: function (x, y) {
+  setPosition(x, y) {
     //console.info("setPosition - x:"+x+",y:"+y);
     //try { throw new Error(); } catch (e) { console.info(e.stack); }
-    this._super(x,y);
+    super.setPosition(x,y);
 
     if (this.holdingBlock)
     {
       var pos = this.getTilePositionNextTo();
       this.holdingBlock.setPosition(pos[0], pos[1]);
     }
-  },
+  }
 
-  isInScreen: function (pos) {
+  isInScreen(pos) {
     return (~~(Math.abs(this.x - pos[0])/G_TILESIZE) <= ~~(G_SCREEN_WIDTH/2) &&
             ~~(Math.abs(this.y - pos[1])/G_TILESIZE) <= ~~(G_SCREEN_HEIGHT/2));
-  },
+  }
 
   // type 0=Armor, 1=Weapon
-  setSprite: function (type, id) {
+  setSprite(type, id) {
     if (type === 0) {
       if (this.isArcher())
         this.sprites[2] = id;
@@ -790,10 +795,10 @@ module.exports = Player = Character.extend({
       else
         this.sprites[1] = id;
     }
-  },
+  }
 
   // type 0=Armor, 1=Weapon
-  getSprite: function (type) {
+  getSprite(type) {
     var item = null;
     if (type === 1) {
       item = this.items.equipment.getWeapon();
@@ -812,61 +817,61 @@ module.exports = Player = Character.extend({
       else
         return this.sprites[0];
     }
-  },
+  }
 
-  resetMove: function (x,y) {
+  resetMove(x,y) {
     try { throw new Error(); } catch(err) { console.error(err.stack); }
     this.fixMove(x,y);
     this.sendCurrentMove();
-  },
+  }
 
-  fixMove: function (x,y) {
+  fixMove(x,y) {
     //try { throw new Error(); } catch(err) { console.warn(err.stack); }
     //this.interrupted = false;
     this.forceStop();
     this.setPosition(x, y);
-  },
+  }
 
-  sendPlayer: function (msg) {
+  sendPlayer(msg) {
     this.map.entities.sendToPlayer(this, msg);
-  },
+  }
 
-  sendToPlayer: function (player, msg) {
+  sendToPlayer(player, msg) {
     this.map.entities.sendToPlayer(player, msg);
-  },
+  }
 
-  onKilled: function (callback) {
+  onKilled(callback) {
     this.on_killed_callback = callback;
-  },
+  }
 
-  onTeleport: function (callback) {
+  onTeleport(callback) {
     this.on_teleport_callback = callback;
-  },
+  }
 
-  handleTeleport: function () {
+  handleTeleport() {
       if (this.on_teleport_callback)
         this.on_teleport_callback();
-  },
+  }
 
-  hasMoveThrottled: function (delay) {
+  hasMoveThrottled(delay) {
     if ((Date.now() - this.lastMoveThrottle) < delay)
       return true;
 
     this.lastMoveThrottle = Date.now();
 
     return false;
-  },
+  }
 
-  getXP: function () {
+  getXP() {
     return 20 * this.level;
-  },
+  }
 
-  setMap: function (map) {
+  setMap(map) {
     this.map.entities.removeSpatial(this);
     this.map = map;
-  },
+  }
 
-  forceStop: function() {
+  forceStop() {
     this.orientation = 0;
     this._forceStop();
     this.keyMove = false;
@@ -876,41 +881,41 @@ module.exports = Player = Character.extend({
 
     this.ex = -1;
     this.ey = -1;
-  },
+  }
 
-  modHp: function (hp) {
+  modHp(hp) {
     if (this.isDead)
       return;
 
-    var msg = this._super(hp);
+    var msg = super.modHp(hp);
     this.sendChangePoints(hp, 0);
     return msg;
-  },
+  }
 
-  modEp: function (ep) {
-    var msg = this._super(ep);
+  modEp(ep) {
+    var msg = super.modEp(ep);
     this.sendChangePoints(0, ep);
     return msg;
-  },
+  }
 
-  getSubPath: function (x,y) {
+  getSubPath(x,y) {
     x = x || this.x;
     y = y || this.y;
 
     var path = this.map.entities.pathfinder.getSubPath(this.path, x, y);
     return path;
-  },
+  }
 
-  interruptPath: function (x, y) {
+  interruptPath(x, y) {
     if (this.isMovingPath()) {
       //p.abort_pathing_callback(x, y);
       this.setPosition(x,y);
       this.interrupted = true;
       this.forceStop();
     }
-  },
+  }
 
-  isValidGridPath: function (path, time) {
+  isValidGridPath(path, time) {
     var pathfinder = this.map.entities.pathfinder;
     if (!pathfinder.isValidPath(path)) {
       console.warn("isValidGridPath: isValidPath false.");
@@ -935,17 +940,17 @@ module.exports = Player = Character.extend({
     }
 
     return true;
-  },
+  }
 
-  isArcher: function () {
+  isArcher() {
     var weapon = this.items.getWeapon();
     if (weapon && ItemTypes.isArcherWeapon(weapon.itemKind)) {
       return true;
     }
     return false;
-  },
+  }
 
-  dropGold: function () {
+  dropGold() {
     var p = this;
 
     var level = p.level;
@@ -953,6 +958,8 @@ module.exports = Player = Character.extend({
     count = Math.min(count, this.items.gold[0]);
     this.items.modifyGold(-count);
     return count;
-  },
+  }
 
-});
+}
+
+export default Player;

@@ -1,21 +1,25 @@
-var _ = require('underscore'),
-    ItemsJson = require("../../shared/data/items2.json"),
-    CraftData = require("../../shared/data/craft.json");
+import _ from 'underscore';
+import ItemsJson from "../../shared/data/items2.json" with { type: 'json' };
+import CraftData from "../../shared/data/craft.json" with { type: 'json' };
+import ItemTypes from '../../shared/js/itemtypes.js';
+//import {*} from '../common.js';
 
-  	var id = 0;
-  	for (var craft of CraftData) {
-  		craft.id = id++;
-  	}
+//import { ItemTypes } from '../common.js';
 
-  	var getCraftData = function (index) {
-  		var data = [];
-  		for (var craft of CraftData)
-  		{
-  			if (craft.o === index)
-  				data.push(craft);
-  		}
-  		return data;
-  	};
+var id = 0;
+for (var craft of CraftData) {
+	craft.id = id++;
+}
+
+var getCraftData = function (index) {
+	var data = [];
+	for (var craft of CraftData)
+	{
+		if (craft.o === index)
+			data.push(craft);
+	}
+	return data;
+};
 
 var KindData = {};
 
@@ -49,5 +53,6 @@ _.each( ItemsJson, function( itemValue, key ) {
 
 ItemTypes.setKindData(KindData);
 
-module.exports.Kinds = KindData;
-module.exports.CraftData = CraftData;
+export const Kinds = KindData;
+export { CraftData };
+export default { Kinds, CraftData };

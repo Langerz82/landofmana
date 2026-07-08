@@ -1,22 +1,21 @@
-/* global Types, module */
-
-var Entity = require('./entity');
+import Entity from './entity.js';
+import { Types } from '../common.js';
+import ItemData from '../data/itemdata.js';
 
 // TODO Make Item inherit from ItemRoom.
-
-module.exports = Item = Entity.extend({
-    init: function (type, id, itemRoom, x, y, map) {
-				var kind = itemRoom.itemKind;
-        this._super(id, type, kind, x, y, map);
+class Item extends Entity {
+    constructor(type, id, itemRoom, x, y, map) {
+        var kind = itemRoom.itemKind;
+        super(id, type, kind, x, y, map);
         this.isStatic = false;
         this.isFromChest = false;
-				this.orientation = Types.Orientations.DOWN;
+        this.orientation = Types.Orientations.DOWN;
         this.experience = 0;
         this.data = ItemData.Kinds[kind];
-				this.room = itemRoom;
-    },
+        this.room = itemRoom;
+    }
 
-    handleDespawn: function (params) {
+    handleDespawn(params) {
         var self = this;
 
         this.blinkTimeout = setTimeout(function () {
@@ -24,9 +23,9 @@ module.exports = Item = Entity.extend({
             self.despawnTimeout = setTimeout(params.despawnCallback, params.blinkingDuration);
             self = null;
         }, params.beforeBlinkDelay);
-    },
+    }
 
-    destroy: function () {
+    destroy() {
         if (this.blinkTimeout) {
             clearTimeout(this.blinkTimeout);
         }
@@ -37,9 +36,9 @@ module.exports = Item = Entity.extend({
         if (this.isStatic) {
             this.scheduleRespawn(30000);
         }
-    },
+    }
 
-    scheduleRespawn: function (delay) {
+    scheduleRespawn(delay) {
         var self = this;
         setTimeout(function () {
             if (self.respawnCallback) {
@@ -47,36 +46,39 @@ module.exports = Item = Entity.extend({
             }
             self = null;
         }, delay);
-    },
+    }
 
-    onRespawn: function (callback) {
+    onRespawn(callback) {
         this.respawnCallback = callback;
-    },
-    getState: function() {
-				return [
-					parseInt(this.id, 10),
-					parseInt(this.type),
-					parseInt(this.room.itemKind),
-					(this.data && this.data.hasOwnProperty('name')) ? this.data.name : '' ,
-					parseInt(this.map.index),
-					parseInt(this.x),
-					parseInt(this.y),
-					parseInt(this.orientation),
-					parseInt(this.room.itemNumber)
-				];
-    },
+    }
 
-    getName: function() {
-    	return this.data.name;
-    },
+    getState() {
+        return [
+            parseInt(this.id, 10),
+            parseInt(this.type),
+            parseInt(this.room.itemKind),
+            (this.data && this.data.hasOwnProperty('name')) ? this.data.name : '' ,
+            parseInt(this.map.index),
+            parseInt(this.x),
+            parseInt(this.y),
+            parseInt(this.orientation),
+            parseInt(this.room.itemNumber)
+        ];
+    }
 
-    toString: function(){
-    return this.room.itemKind + " "
-         + this.room.itemNumber + " "
-         + this.room.itemDurability + " "
-         + this.room.itemDurabilityMax + " "
-         + this.room.itemExperience + " "
-         + this.x + " "
-         + this.y;
-  }
-});
+    getName() {
+        return this.data.name;
+    }
+
+    toString(){
+        return this.room.itemKind + " "
+             + this.room.itemNumber + " "
+             + this.room.itemDurability + " "
+             + this.room.itemDurabilityMax + " "
+             + this.room.itemExperience + " "
+             + this.x + " "
+             + this.y;
+    }
+}
+
+export default Item;

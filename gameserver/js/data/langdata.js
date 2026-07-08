@@ -1,5 +1,5 @@
-var _ = require('underscore'),
-		LangJson = require("../../shared/data/lang.json");
+import _ from 'underscore';
+import LangJson from "../../shared/data/lang.json" with { type: 'json' };
 
 var LangData = {};
 
@@ -7,4 +7,5 @@ _.each( LangJson, function( val, key ) {
 	LangData[key] = val;
 });
 
-module.exports.Data = LangData;
+export const Data = LangData;
+export default { Data };

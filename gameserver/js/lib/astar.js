@@ -1,6 +1,23 @@
-var Utils = require('.././utils');
+//import Utils from '../utils.js';
 
-module.exports = AStar = (function () {
+// NOTE: the original file ended with a bare top-level `return AStar;`
+// after `module.exports` had already been set. That only "worked" because
+// CommonJS modules are implicitly wrapped in a function by Node (so a
+// top-level `return` just ends the file early); ES modules have no such
+// wrapper and a top-level `return` is a SyntaxError. It has been dropped
+// here since it was dead code anyway (module.exports/the export below had
+// already been assigned).
+//
+// Also NOTE: the original declared this as `AStar = (function(){...}())`
+// with no `var`, which (in the old sloppy-mode CommonJS world) leaked a
+// second, true global also named `AStar` -- separate from whatever a
+// `require('./lib/astar')` call captured. Other files (e.g. pathfinder.js)
+// called `AStar.AStar(...)` relying on that leaked global rather than on
+// their own `require()` result. Now that this is a real ES module with no
+// global leakage, callers should import this module's default export and
+// call `.AStar(...)` on it directly (pathfinder.js has been updated to do
+// this).
+const AStar = (function () {
     /**
      * A* (A-Star) algorithm for a path finder
      * @author  Andrea Giammarchi
@@ -190,4 +207,4 @@ module.exports = AStar = (function () {
 
 }());
 
-return AStar;
+export default AStar;

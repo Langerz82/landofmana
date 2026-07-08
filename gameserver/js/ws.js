@@ -1,120 +1,126 @@
-var _ = require('underscore');
-var BISON = require('bison');
+import _ from 'underscore';
+import BISON from 'bison';
 var useBison = false;
-var cls = require('./lib/class');
-var http = require('http');
-var https = require('https');
-const { Server } = require('socket.io');
-var url = require('url');
-var Utils = require('./utils');
-var WS = {};
-var zlib = require('zlib');
-var connect = require('connect');
-var fs = require('fs');
-var io_client = require('socket.io-client');
+import http from 'http';
+import https from 'https';
+import { Server } from 'socket.io';
+import url from 'url';
+//import Utils from './utils.js';
+const WS = {};
+import zlib from 'zlib';
+import connect from 'connect';
+import fs from 'fs';
+import io_client from 'socket.io-client';
 
-module.exports = WS;
+export default WS;
 
 /**
  * Abstract Server and Connection classes
  */
-var sServer = cls.Class.extend({
-    init: function () {
-    },
+class sServer {
+    constructor() {
+    }
 
-    start: function () {
+    start() {
       if (this.startCallback)
         this.startCallback(this);
-    },
+    }
 
-    onStart: function (callback) {
+    onStart(callback) {
       this.startCallback = callback;
-    },
+    }
 
-    onConnect: function (callback) {
+    onConnect(callback) {
         this.connectionCallback = callback;
-    },
+    }
 
-    onError: function (callback) {
+    onError(callback) {
         this.errorCallback = callback;
-    },
+    }
 
-    broadcast: function (message) {
+    broadcast(message) {
         throw 'Not implemented';
-    },
+    }
 
-    forEachConnection: function (callback) {
+    forEachConnection(callback) {
         _.each(this._connections, callback);
-    },
+    }
 
-    addConnection: function (connection) {
+    addConnection(connection) {
         this._connections[connection.id] = connection;
-    },
+    }
 
-    removeConnection: function (id) {
+    removeConnection(id) {
         delete this._connections[id];
-    },
+    }
 
-    getConnection: function (id) {
+    getConnection(id) {
         return this._connections[id];
-    },
+    }
 
-    onClose: function (callback) {
+    onClose(callback) {
       this._close_callback = callback;
-    },
+    }
 
-    close: function () {
+    close() {
       if (this._close_callback)
         this._close_callback(this);
     }
-});
+}
 
-var Connection = cls.Class.extend({
-    init: function (id, connection, server) {
+class Connection {
+    constructor(id, connection, server) {
         this._connection = connection;
         this._server = server;
         this.id = id;
-    },
+    }
 
-    onClose: function (callback) {
+    onClose(callback) {
         this.closeCallback = callback;
-    },
+    }
 
-    listen: function (callback) {
+    listen(callback) {
         this.listenCallback = callback;
-    },
+    }
 
-    broadcast: function (message) {
+    broadcast(message) {
         throw 'Not implemented';
-    },
+    }
 
-    send: function (message) {
+    send(message) {
         throw 'Not implemented';
-    },
+    }
 
-    sendUTF8: function (data) {
+    sendUTF8(data) {
         throw 'Not implemented';
-    },
+    }
 
-    close: function (logError) {
+    close(logError) {
         console.info('Closing connection to ' + this._connection.remoteAddress + '. ' + logError);
         this._connection.conn.close();
     }
-});
+}
 
 
 
 /**
  * WebsocketServer
  */
-WS.WebsocketServer = sServer.extend({
-    _connections: {},
-    _counter: 0,
+WS.WebsocketServer = class extends sServer {
+    // NOTE: in the original `Class.extend()` system, `_connections: {}` and
+    // `_counter: 0` were copied onto the shared *prototype*, so (in theory)
+    // every instance shared the same `_connections` object unless an
+    // instance overwrote it. This app only ever creates a single
+    // WebsocketServer, so that quirk was never actually observable. Public
+    // class fields (below) give each instance its own copy, which is the
+    // more correct behavior and matches what the code already assumed
+    // (`this._connections[...]` being per-server).
+    _connections = {};
+    _counter = 0;
 
-    init: function (config) {
+    constructor(config) {
+        super();
         var self = this;
-
-        this._super();
 
         var app = {};
         if (config.https_cert != "") {
@@ -167,42 +173,42 @@ WS.WebsocketServer = sServer.extend({
 
         // Add a connect listener
 
-    },
+    }
 
-    _createId: function() {
+    _createId() {
         return 50000 + (this._counter++);
-    },
+    }
 
-    broadcast: function (message) {
+    broadcast(message) {
         this.forEachConnection(function(connection) {
             connection.send(message);
         });
-    },
+    }
 
-    onRequestStatus: function (statusCallback) {
+    onRequestStatus(statusCallback) {
         this.statusCallback = statusCallback;
-    },
+    }
 
-    /*sendUser: function (message)
+    /*sendUser(message)
     {
       this.userConn.sendUserUTF8(data);
     },
 
-    sendUserUTF8: function(data) {
+    sendUserUTF8(data) {
       this.userConn.emit("message", data);
     },*/
 
-});
+};
 
 /**
  * Connection class for socket.io Socket
  * https://github.com/Automattic/socket.io
  */
-WS.socketioConnection = Connection.extend({
-    init: function (id, connection, server) {
+WS.socketioConnection = class extends Connection {
+    constructor(id, connection, server) {
+        super(id, connection, server);
         var self = this;
 
-        this._super(id, connection, server);
         //this.conn = connection;
 
         var fnOnMessage = function (msg) {
@@ -248,9 +254,9 @@ WS.socketioConnection = Connection.extend({
             //self._connection.conn.close();
             delete self._server.removeConnection(self.id);
         });
-    },
+    }
 
-    send: function(message) {
+    send(message) {
         //if (message.indexOf("3,")==0);
       console.info("send="+message);
     	var self = this;
@@ -272,26 +278,25 @@ WS.socketioConnection = Connection.extend({
     	{
     		self.sendUTF8('1'+data);
     	}
-    },
+    }
 
-    sendUTF8: function(data) {
+    sendUTF8(data) {
         //console.info("sendUTF8 - "+data);
         this._connection.send(data);
-    },
+    }
 
-    disconnect: function () {
+    disconnect() {
       //console.info("USER CONNECTION - DISCONNECT.");
       this._connection.disconnect();
-    },
+    }
 
-});
+};
 
 
-WS.userConnection = Connection.extend({
-    init: function (id, connection, server) {
+WS.userConnection = class extends Connection {
+    constructor(id, connection, server) {
+        super(id, connection, server);
         var self = this;
-
-        this._super(id, connection, server);
 
         this.fnOnMessage = function (msg) {
           console.info("m="+msg);
@@ -326,9 +331,9 @@ WS.userConnection = Connection.extend({
           }
         };
 
-    },
+    }
 
-    connect: function (connectString) {
+    connect(connectString) {
       var self = this;
 
       this._connection = io_client.connect(connectString, {reconnect: true, rejectUnauthorized: false});
@@ -360,13 +365,13 @@ WS.userConnection = Connection.extend({
           //delete self._connection;
       };
       this._connection.on('disconnect', fnDisconnect);
-    },
+    }
 
-    onConnectUser: function (callback) {
+    onConnectUser(callback) {
       this.connectionUserCallback = callback;
-    },
+    }
 
-    send: function(message) {
+    send(message) {
         //if (message.indexOf("3,")==0);
       console.info("send="+message);
     	var self = this;
@@ -388,16 +393,16 @@ WS.userConnection = Connection.extend({
     	{
     		self.sendUTF8('1'+data);
     	}
-    },
+    }
 
-    disconnect: function () {
+    disconnect() {
       console.info("USER CONNECTION - DISCONNECT.");
       //this._connection.removeAllListeners(['message']);
       this._connection.disconnect();
       //this._connection.off();
-    },
+    }
 
-    sendUTF8: function(data) {
+    sendUTF8(data) {
         //console.info("sendUTF8 - "+data);
         if (this._connection) {
           this._connection.emit("message", data);
@@ -405,5 +410,5 @@ WS.userConnection = Connection.extend({
           console.error("this connection not set.");
           try { throw new Error(); } catch (e) { console.warn(e.stack); }
         }
-    },
-});
+    }
+};

@@ -1,21 +1,22 @@
-
 // @entity Object reference to the owner of the effect.
 // @isTarget false Self, true Target.
 // @phase 0 start, 1 end, 2 interval, 3 beforehit, 4 onhit, 5 afterhit.
 // @stat
 // @modValue Fixed value adjustment per Level, if less than 1 its a % of val2.
 
-EffectType = cls.Class.extend({
-  init: function (isTarget, phase, stat, modValue) {
+/* global SkillData */
+
+class EffectType {
+  constructor(isTarget, phase, stat, modValue) {
     this.entity = null;
     this.isTarget = isTarget;
     this.phase = phase;
     this.stat = stat;
     this.modValue = parseFloat(modValue) || 0;
     this.active = false;
-  },
+  }
 
-  apply: function (skillEffect, target, phase, damage) {
+  apply(skillEffect, target, phase, damage) {
     if (target.isDead)
       return;
 
@@ -92,9 +93,9 @@ EffectType = cls.Class.extend({
         break;
     }
     return;
-  },
+  }
 
-  getModDiff: function (skillEffect, stat, statmod, statmax) {
+  getModDiff(skillEffect, stat, statmod, statmax) {
     var diff = this.modValue * skillEffect.level;
     if (this.modValue < 1)
     {
@@ -122,10 +123,10 @@ EffectType = cls.Class.extend({
     }
     return diff;
   }
-});
+}
 
-var SkillEffect = cls.Class.extend({
-    init: function (handler, skillId, skillLevel) {
+class SkillEffect {
+    constructor(handler, skillId, skillLevel) {
       this.handler = handler;
       this.source = handler.entity;
       this.skillId = Number(skillId);
@@ -142,9 +143,9 @@ var SkillEffect = cls.Class.extend({
       //this.isActive = false;
       this.interval = null;
       this.targets = [];
-    },
+    }
 
-    getTargets: function (target, x, y) {
+    getTargets(target, x, y) {
       switch (this.targetType) {
         case "self":
           return [this.source];
@@ -162,9 +163,9 @@ var SkillEffect = cls.Class.extend({
           return arr;
       };
       return [];
-    },
+    }
 
-    apply: function (target, targetX, targetY) {
+    apply(target, targetX, targetY) {
       var self = this;
       if (this.duration > 0) {
         this.activeTimer = 0;
@@ -193,9 +194,9 @@ var SkillEffect = cls.Class.extend({
       //this.isActive = true;
       this.applyEffects("start",0);
 
-    },
+    }
 
-    applyEffect: function (effect, target, phase, damage)
+    applyEffect(effect, target, phase, damage)
     {
         var index = target.activeEffects.indexOf(this);
         if (phase==="start" && index < 0) {
@@ -209,9 +210,9 @@ var SkillEffect = cls.Class.extend({
         if (phase==="end" && index >= 0) {
           target.activeEffects.splice(index, 1);
         }
-    },
+    }
 
-    applyEffects: function (phase, damage) {
+    applyEffects(phase, damage) {
       for (var effect of this.effectTypes) {
         if (effect.phase === phase) {
             if (effect.isTarget) {
@@ -230,9 +231,9 @@ var SkillEffect = cls.Class.extend({
         this.activeTimer = 0;
         this.handler.removeSkillEffect(this);
       }
-    },
+    }
 
-    endEffects: function () {
+    endEffects() {
       for (var target of this.targets) {
         for (var self of target.activeEffects)
         {
@@ -241,9 +242,9 @@ var SkillEffect = cls.Class.extend({
         }
         target.activeEffects = [];
       }
-    },
+    }
 
-    onInterval: function (phase, damage) {
+    onInterval(phase, damage) {
       if (this.duration != 0)
         return;
 
@@ -262,11 +263,11 @@ var SkillEffect = cls.Class.extend({
       {
         this.count++;
       }
-    },
-});
+    }
+}
 
-var SkillEffectHandler = cls.Class.extend({
-    init: function (entity) {
+class SkillEffectHandler {
+    constructor(entity) {
       this.entity = entity;
       this.skills = entity.skills;
       this.skillEffects = [];
@@ -274,15 +275,15 @@ var SkillEffectHandler = cls.Class.extend({
       /*for (var skill of this.skills) {
         this.skillEffects.push( new SkillEffect(this, skill.skillIndex, skill.skillLevel));
       }*/
-    },
+    }
 
-    interval: function(phase, damage) {
+    interval(phase, damage) {
       damage = damage || 0;
       for (var skillEffect of this.entity.activeEffects)
         skillEffect.onInterval(phase, damage);
-    },
+    }
 
-    cast: function (skillId, target, x, y) {
+    cast(skillId, target, x, y) {
       //var skillEffect = this.skillEffects[skillId];
       var skill = this.skills[skillId];
       var skillLevel = skill.skillLevel;
@@ -292,15 +293,21 @@ var SkillEffectHandler = cls.Class.extend({
       skill.xp(1);
       skillEffect.level = skill.skillLevel;
       skillEffect.apply(target, x, y);
-    },
+    }
 
-    removeSkillEffect: function (skillEffect) {
+    removeSkillEffect(skillEffect) {
       var index = this.skillEffects.indexOf(skillEffect);
       if (index >= 0)
         this.skillEffects.splice(index, 1);
-    },
-});
+    }
+}
 
-module.exports = EffectType;
-module.exports = SkillEffect;
-module.exports = SkillEffectHandler;
+// NOTE: the original CommonJS file did `module.exports = EffectType;` then
+// `module.exports = SkillEffect;` then `module.exports = SkillEffectHandler;`
+// in sequence -- each overwrote the previous, so only SkillEffectHandler was
+// ever actually importable (`require('./effecthandler')` === SkillEffectHandler).
+// That default-export behavior is preserved below; EffectType/SkillEffect are
+// additionally exposed as named exports since they're genuinely useful and
+// were previously just unreachable dead exports due to the overwrite bug.
+export { EffectType, SkillEffect };
+export default SkillEffectHandler;

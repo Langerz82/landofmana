@@ -1,9 +1,18 @@
-var cls = require('./lib/class');
-var ProductionConfig = {};
+import { createRequire } from 'module';
 
-ProductionConfig = cls.Class.extend({
+// NOTE: `init()`/the constructor below needs a *synchronous*, dynamically
+// computed require (the path depends on `config.production`, which isn't
+// known until runtime). Static ES `import` statements only accept string
+// literals, and dynamic `import()` is always asynchronous, which would
+// change this constructor's (and its callers') behavior. `createRequire`
+// is the standard, documented way to keep a synchronous, computed
+// `require()` available inside an ES module, so it is used here to
+// preserve the exact original behavior.
+const require = createRequire(import.meta.url);
 
-    init: function(config) {
+class ProductionConfig {
+
+    constructor(config) {
 
         this.config = config;
         try {
@@ -13,20 +22,20 @@ ProductionConfig = cls.Class.extend({
             this.production = null;
         }
 
-    },
+    }
 
-    inProduction: function() {
+    inProduction() {
         if(this.production !== null) {
             return this.production.isActive();
         }
         return false;
-    },
+    }
 
-    getProductionSettings : function() {
+    getProductionSettings() {
         if(this.inProduction()) {
             return this.production;
         }
     }
-});
+}
 
-module.exports = ProductionConfig;
+export default ProductionConfig;

@@ -1,47 +1,49 @@
 /**
  * @type GameWorld Handler
  */
-var cls = require("./lib/class"),
-    _ = require("underscore"),
-    Log = require('log'),
-    Entity = require('./entity/entity'),
+import _ from "underscore";
+import Log from 'log';
+import Entity from './entity/entity.js';
 
-    Character = require('./entity/character'),
-    NpcStatic = require('./entity/npcstatic'),
-    NpcMove = require('./entity/npcmove'),
-    Player = require('./entity/player'),
-    Item = require('./entity/item'),
-    Chest = require('./entity/chest'),
-    Mob = require('./entity/mob'),
-    Node = require('./entity/node'),
-//    Main = require('./main'),
-//    Map = require('./map/map'),
-    MapManager = require('./map/mapmanager'),
-//    MapEntities = require('./mapentities'),
+import Character from './entity/character.js';
+import NpcStatic from './entity/npcstatic.js';
+import NpcMove from './entity/npcmove.js';
+import Player from './entity/player.js';
+import Item from './entity/item.js';
+import Chest from './entity/chest.js';
+import Mob from './entity/mob.js';
+import Node from './entity/node.js';
+//import Main from './main.js';
+//import Map from './map/map.js';
+import MapManager from './map/mapmanager.js';
+//import MapEntities from './mapentities.js';
 
-    Messages = require('./message'),
+import Messages from './message.js';
 
-    util = require("util"),
-    Pathfinder = require("./pathfinder"),
+import util from "util";
+import Pathfinder from "./pathfinder.js";
 
-    Updater = require("./updater"),
+import Updater from "./updater.js";
 
-    MobCallback = require("./callbacks/mobcallback"),
-    NpcMoveCallback = require("./callbacks/npcmovecallback"),
-    PlayerCallback = require("./callbacks/playercallback"),
+import MobCallback from "./callbacks/mobcallback.js";
+import NpcMoveCallback from "./callbacks/npcmovecallback.js";
+import PlayerCallback from "./callbacks/playercallback.js";
 
-    Auction = require("./world/auction"),
-    Looks = require("./world/looks"),
+import Auction from "./world/auction.js";
+import Looks from "./world/looks.js";
 
-    TaskHandler = require("./world/taskhandler"),
-    BanManager = require("./world/banmanager"),
-    PartyManager = require("./world/partymanager"),
+import TaskHandler from "./world/taskhandler.js";
+import BanManager from "./world/banmanager.js";
+import PartyManager from "./world/partymanager.js";
 
-    LootManager = require("./world/lootmanager");
+import LootManager from "./world/lootmanager.js";
 
-module.exports = World = cls.Class.extend(
-{
-    init: function(id, maxPlayers, socket)
+//import Utils from './utils.js';
+import { G_UPDATE_INTERVAL, players } from './main.js';
+import NotifyData from './data/notificationdata.js';
+
+class World {
+    constructor(id, maxPlayers, socket)
     {
         var self = this;
 
@@ -186,23 +188,23 @@ module.exports = World = cls.Class.extend(
             });
         }, 60000);
 
-    },
+    }
 
-    notifyWorld: function (msg) {
+    notifyWorld(msg) {
       this.sendWorld(new Messages.Notify("GLOBAL", msg));
-    },
+    }
 
-    stop: function ()
+    stop()
     {
       this.save();
-    },
+    }
 
-    isSaved: function () {
+    isSaved() {
       return this.PLAYERS_SAVED && this.AUCTIONS_SAVED && this.LOOKS_SAVED
         && this.BANS_SAVED;
-    },
+    }
 
-    savePlayers: function (update) {
+    savePlayers(update) {
       if (this.userHandler) {
         var playerNameList = [];
         Utils.forEach(this.players, function (p) {
@@ -221,16 +223,16 @@ module.exports = World = cls.Class.extend(
           p.connection.disconnect();
       });
       return true;
-    },
+    }
 
-    setSaves: function (setSave) {
+    setSaves(setSave) {
       this.PLAYERS_SAVED = setSave;
       this.AUCTIONS_SAVED = setSave;
       this.LOOKS_SAVED = setSave;
       this.BANS_SAVED = setSave;
-    },
+    }
 
-    save: function (update)
+    save(update)
     {
       if (this.savePlayers(update))
         this.PLAYERS_SAVED = true;
@@ -248,9 +250,9 @@ module.exports = World = cls.Class.extend(
       if (update) {
         this.setSaves(false);
       }
-    },
+    }
 
-    update: function () {
+    update() {
       var self = this;
 
       this.lastUpdateTime = Date.now();
@@ -262,16 +264,16 @@ module.exports = World = cls.Class.extend(
             map.updater.update();
         }
       });
-    },
+    }
 
-    forEachMap: function (callback) {
+    forEachMap(callback) {
       Utils.forEach(this.maps, function (map) {
         if (map && map.ready && map.isLoaded && map.entities && callback)
           callback(map);
       });
-    },
+    }
 
-    run: function()
+    run()
     {
         var self = this;
 
@@ -331,19 +333,19 @@ module.exports = World = cls.Class.extend(
         {
             self.save(true);
         }, 600000);
-    },
+    }
 
-    loggedInPlayer: function(name)
+    loggedInPlayer(name)
     {
         return typeof (this.getPlayerByName(name)) === "object";
-    },
+    }
 
-    getPlayerByName: function(name)
+    getPlayerByName(name)
     {
         return this.objPlayers[name.toLowerCase()];
-    },
+    }
 
-    handleDamage: function(entity, attacker, damage, crit)
+    handleDamage(entity, attacker, damage, crit)
     {
       if (entity.effects) {
         console.info("entity.effects: "+JSON.stringify(entity.effects));
@@ -366,39 +368,41 @@ module.exports = World = cls.Class.extend(
 
       //attacker, hpMod, epMod, crit, effects
       entity.onDamage(attacker, hpMod, epMod, crit, effects);
-    },
+    }
 
-    onPlayerConnect: function(callback)
+    onPlayerConnect(callback)
     {
         this.connect_callback = callback;
-    },
+    }
 
-    onPlayerEnter: function(callback)
+    onPlayerEnter(callback)
     {
         this.enter_callback = callback;
-    },
+    }
 
-    onPlayerRemoved: function(callback)
+    onPlayerRemoved(callback)
     {
         this.removed_callback = callback;
-    },
+    }
 
-    onRegenTick: function(callback)
+    onRegenTick(callback)
     {
         this.regen_callback = callback;
-    },
+    }
 
-    sendWorld: function(message)
+    sendWorld(message)
     {
         var self = this;
         self.forEachMap(function (map) {
             map.entities.sendBroadcast(message);
         });
-    },
+    }
 
-    /*getPopulation: function()
+    /*getPopulation()
     {
       return this.players.length;
     },*/
 
-});
+}
+
+export default World;

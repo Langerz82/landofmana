@@ -1,196 +1,222 @@
-var Character = require('../entity/character'),
-  Chest = require('../entity/chest'),
-  Mob = require('../entity/mob'),
-  Node = require('../entity/node'),
-  Messages = require("../message"),
-  Formulas = require("../formulas"),
-  formatCheck = require("../format").check,
-  SkillHandler = require("../skillhandler"),
-  PartyHandler = require("./partyhandler"),
-  ShopHandler = require("./shophandler");
+import Character from '../entity/character.js';
+import Chest from '../entity/chest.js';
+import Mob from '../entity/mob.js';
+import Node from '../entity/node.js';
+import Messages from '../message.js';
+import Formulas from '../formulas.js';
+import { check as formatCheck } from '../format.js';
+import SkillHandler from '../skillhandler.js';
+import PartyHandler from './partyhandler.js';
+import ShopHandler from './shophandler.js';
+import Item from '../entity/item.js';
+import Block from '../entity/block.js';
+import Player from '../entity/player.js';
+//import Utils from '../utils.js';
+import { Types } from '../common.js';
+import AppearanceData from '../data/appearancedata.js';
+import SkillData from '../data/skilldata.js';
+import { G_LATENCY, G_TILESIZE, ATTACK_INTERVAL, mobState } from '../main.js';
+import { PlayerEvent } from '../world/taskhandler.js';
 
-module.exports = PacketHandler = Class.extend({
-  init: function(player, connection, worldServer) {
-    this.player = player;
-    this.user = player.user;
-    this.connection = player.connection;
-    this.world = this.server = player.world;
+/* global EventType */
+
+class PacketHandler {
+    constructor(player, connection, worldServer) {
+        this.player = player;
+        this.user = player.user;
+        this.connection = player.connection;
+        this.world = this.server = player.world;
 //    this.map = player.map;
 //    this.entities = player.map.entities;
-    this.partyHandler = new PartyHandler(this);
-    this.shopHandler = new ShopHandler(this);
+        this.partyHandler = new PartyHandler(this);
+        this.shopHandler = new ShopHandler(this);
 
-    //this.loadedPlayer = false;
-    //this.formatChecker = new FormatChecker();
+        //this.loadedPlayer = false;
+        //this.formatChecker = new FormatChecker();
 
-    var self = this;
+        var self = this;
 
-    //this.connection.off('msg', this.player.user.listener);
-    this.connection.listen(function(message) {
-      console.info("recv="+JSON.stringify(message));
-      var action = parseInt(message[0]);
-      if (isNaN(action)) {
-        this.connection.close("Invalid message");
-        return;
-      }
+        //this.connection.off('msg', this.player.user.listener);
+        this.connection.listen(function(message) {
+            console.info("recv="+JSON.stringify(message));
+            var action = parseInt(message[0]);
+            if (isNaN(action)) {
+                // NOTE: pre-existing bug preserved from the original — this callback
+                // is a plain (non-arrow) function, so `this` here is not the
+                // PacketHandler instance (it's `self` a few lines below that
+                // captures that correctly). `this.connection` would throw at
+                // runtime both here and in the original CommonJS version.
+                this.connection.close("Invalid message");
+                return;
+            }
 
-      if(!formatCheck(message)) {
-          self.connection.close("Invalid "+Types.getMessageTypeAsString(action)+" message format: "+message);
-          return;
-      }
-      message.shift();
+            if(!formatCheck(message)) {
+                self.connection.close("Invalid "+Types.getMessageTypeAsString(action)+" message format: "+message);
+                return;
+            }
+            message.shift();
 
-      self.user.lastPacketTime = Date.now();
+            self.user.lastPacketTime = Date.now();
 
-      switch (action) {
-        case Types.Messages.BI_SYNCTIME:
-          self.handleSyncTime(message);
-          break;
+            switch (action) {
+            case Types.Messages.BI_SYNCTIME:
+                self.handleSyncTime(message);
+                break;
 
-        case Types.Messages.CW_REQUEST:
-          self.handleRequest(message);
-          break;
+            case Types.Messages.CW_REQUEST:
+                self.handleRequest(message);
+                break;
 
-        case Types.Messages.CW_WHO:
-          //console.info("Who: " + self.player.name);
-          //console.info("list: " + message);
-          self.handleWho(message);
-          break;
+            case Types.Messages.CW_WHO:
+                //console.info("Who: " + self.player.name);
+                //console.info("list: " + message);
+                self.handleWho(message);
+                break;
 
-        case Types.Messages.CW_CHAT:
-          self.handleChat(message);
-          break;
+            case Types.Messages.CW_CHAT:
+                self.handleChat(message);
+                break;
 
-        case Types.Messages.CW_MOVE:
-          self.handleMoveEntity(message);
-          break;
+            case Types.Messages.CW_MOVE:
+                self.handleMoveEntity(message);
+                break;
 
-        case Types.Messages.CW_MOVEPATH:
-          self.handleMovePath(message);
-          break;
+            case Types.Messages.CW_MOVEPATH:
+                self.handleMovePath(message);
+                break;
 
-        case Types.Messages.CW_ATTACK:
-          //console.info("Player: " + self.player.name + " hit: " + message[1]);
-          self.handleAttack(message);
-          break;
+            case Types.Messages.CW_ATTACK:
+                //console.info("Player: " + self.player.name + " hit: " + message[1]);
+                self.handleAttack(message);
+                break;
 
-        case Types.Messages.CW_ITEMSLOT:
-          self.handleItemSlot(message);
-          break;
+            case Types.Messages.CW_ITEMSLOT:
+                self.handleItemSlot(message);
+                break;
 
-        case Types.Messages.CW_STORESELL:
-          //console.info("Player: " + self.player.name + " store sell: " + message[1]);
-          self.shopHandler.handleStoreSell(message);
-          break;
-        case Types.Messages.CW_STOREBUY:
-          //console.info("Player: " + self.player.name + " store buy: " + message[1] + " " + message[2] + " " + message[3]);
-          self.shopHandler.handleStoreBuy(message);
-          break;
-        case Types.Messages.CW_CRAFT:
-          //console.info("Player: " + self.player.name + " store buy: " + message[1] + " " + message[2] + " " + message[3]);
-          self.shopHandler.handleCraft(message);
-          break;
-        case Types.Messages.CW_APPEARANCEUNLOCK:
-          self.handleAppearanceUnlock(message);
-          break;
-        case Types.Messages.CW_LOOKUPDATE:
-          self.handleLookUpdate(message);
-          break;
-        case Types.Messages.CW_AUCTIONSELL:
-          //console.info("Player: " + self.player.name + " auction sell: " + message[0]);
-          self.shopHandler.handleAuctionSell(message);
-          break;
+            case Types.Messages.CW_STORESELL:
+                //console.info("Player: " + self.player.name + " store sell: " + message[1]);
+                self.shopHandler.handleStoreSell(message);
+                break;
+            case Types.Messages.CW_STOREBUY:
+                //console.info("Player: " + self.player.name + " store buy: " + message[1] + " " + message[2] + " " + message[3]);
+                self.shopHandler.handleStoreBuy(message);
+                break;
+            case Types.Messages.CW_CRAFT:
+                //console.info("Player: " + self.player.name + " store buy: " + message[1] + " " + message[2] + " " + message[3]);
+                self.shopHandler.handleCraft(message);
+                break;
+            case Types.Messages.CW_APPEARANCEUNLOCK:
+                self.handleAppearanceUnlock(message);
+                break;
+            case Types.Messages.CW_LOOKUPDATE:
+                self.handleLookUpdate(message);
+                break;
+            case Types.Messages.CW_AUCTIONSELL:
+                //console.info("Player: " + self.player.name + " auction sell: " + message[0]);
+                self.shopHandler.handleAuctionSell(message);
+                break;
 
-        case Types.Messages.CW_AUCTIONBUY:
-          //console.info("Player: " + self.player.name + " auction buy: " + message[0]);
-          self.shopHandler.handleAuctionBuy(message);
-          break;
+            case Types.Messages.CW_AUCTIONBUY:
+                //console.info("Player: " + self.player.name + " auction buy: " + message[0]);
+                self.shopHandler.handleAuctionBuy(message);
+                break;
 
-        case Types.Messages.CW_AUCTIONOPEN:
-          //console.info("Player: " + self.player.name + " auction open: " + message[0]);
-          self.shopHandler.handleAuctionOpen(message);
-          break;
+            case Types.Messages.CW_AUCTIONOPEN:
+                //console.info("Player: " + self.player.name + " auction open: " + message[0]);
+                self.shopHandler.handleAuctionOpen(message);
+                break;
 
-        case Types.Messages.CW_AUCTIONDELETE:
-          //console.info("Player: " + self.player.name + " auction delete: " + message[0]);
-          self.shopHandler.handleAuctionDelete(message);
-          break;
+            case Types.Messages.CW_AUCTIONDELETE:
+                //console.info("Player: " + self.player.name + " auction delete: " + message[0]);
+                self.shopHandler.handleAuctionDelete(message);
+                break;
 
-        case Types.Messages.CW_STORE_MODITEM:
-          //console.info("Player: " + self.player.name + " store enchant: " + message[0]);
-          self.shopHandler.handleStoreModItem(message);
-          break;
+            case Types.Messages.CW_STORE_MODITEM:
+                //console.info("Player: " + self.player.name + " store enchant: " + message[0]);
+                self.shopHandler.handleStoreModItem(message);
+                break;
 
 // TODO - Fix CHaracter Info
-        case Types.Messages.CW_CHARACTERINFO:
-          //console.info("Player character info: " + self.player.name);
-          self.handleCharacterinfo(message);
-          break;
-        case Types.Messages.CW_TELEPORT_MAP:
-          self.handleTeleportMap(message);
-          break;
-        case Types.Messages.CW_LOOT:
-          self.handleLoot(message);
-          break;
-        case Types.Messages.CW_TALKTONPC:
-          self.handleTalkToNPC(message);
-          break;
-        case Types.Messages.CW_QUEST:
-          self.handleQuest(message);
-          break;
-        case Types.Messages.CW_GOLD:
-          self.handleGold(message);
-          break;
-        case Types.Messages.CW_STATADD:
-          self.handleStatAdd(message);
-          break;
-        case Types.Messages.CW_SKILL:
-          self.handleSkill(message);
-          break;
-        case Types.Messages.CW_SHORTCUT:
-          self.handleShortcut(message);
-          break;
-        case Types.Messages.CW_BLOCK_MODIFY:
-          self.handleBlock(message);
-          break;
+            case Types.Messages.CW_CHARACTERINFO:
+                //console.info("Player character info: " + self.player.name);
+                // NOTE: pre-existing bug preserved from the original — this calls
+                // self.handleCharacterinfo (lowercase "info"), but the only method
+                // actually defined on this class is handleCharacterInfo (capital
+                // "I"). Would throw a TypeError at runtime in the original
+                // CommonJS version too.
+                self.handleCharacterinfo(message);
+                break;
+            case Types.Messages.CW_TELEPORT_MAP:
+                self.handleTeleportMap(message);
+                break;
+            case Types.Messages.CW_LOOT:
+                self.handleLoot(message);
+                break;
+            case Types.Messages.CW_TALKTONPC:
+                self.handleTalkToNPC(message);
+                break;
+            case Types.Messages.CW_QUEST:
+                self.handleQuest(message);
+                break;
+            case Types.Messages.CW_GOLD:
+                self.handleGold(message);
+                break;
+            case Types.Messages.CW_STATADD:
+                self.handleStatAdd(message);
+                break;
+            case Types.Messages.CW_SKILL:
+                self.handleSkill(message);
+                break;
+            case Types.Messages.CW_SHORTCUT:
+                self.handleShortcut(message);
+                break;
+            case Types.Messages.CW_BLOCK_MODIFY:
+                self.handleBlock(message);
+                break;
 
-        case Types.Messages.CW_PARTY:
-          self.partyHandler.handleParty(message);
-          break;
+            case Types.Messages.CW_PARTY:
+                self.partyHandler.handleParty(message);
+                break;
 
-        case Types.Messages.CW_HARVEST:
-          self.handleHarvest(message);
-          break;
+            case Types.Messages.CW_HARVEST:
+                self.handleHarvest(message);
+                break;
 
-        case Types.Messages.CW_USE_NODE:
-          self.handleUseNode(message);
-          break;
+            case Types.Messages.CW_USE_NODE:
+                self.handleUseNode(message);
+                break;
 
-        default:
-          if (self.message_callback)
-            self.player.message_callback(message);
-          break;
-      }
-    });
+            default:
+                if (self.message_callback)
+                    self.player.message_callback(message);
+                break;
+            }
+        });
 
-    this.connection.onClose(function() {
-      console.info("Player: " + self.player.name + " has exited the world.");
+        this.connection.onClose(function() {
+            console.info("Player: " + self.player.name + " has exited the world.");
 
-      self.player.save();
+            self.player.save();
 
-      console.info("REMOVING PLAYER FROM WORLD.");
+            console.info("REMOVING PLAYER FROM WORLD.");
 
-      if (self.exit_callback) {
-        console.info("exit callback.");
-        self.exit_callback(self.player);
-      }
+            if (self.exit_callback) {
+                console.info("exit callback.");
+                self.exit_callback(self.player);
+            }
 
-      console.info("onClose - called");
-      clearTimeout(this.disconnectTimeout);
-      this.close("onClose");
-    });
+            console.info("onClose - called");
+            // NOTE: pre-existing bug preserved from the original — this callback
+            // is a plain (non-arrow) function, so `this` here is not the
+            // PacketHandler instance. `this.disconnectTimeout`/`this.close` would
+            // throw at runtime both here and in the original CommonJS version
+            // (should probably have been `self.connection` / a stored timeout).
+            clearTimeout(this.disconnectTimeout);
+            this.close("onClose");
+        });
 
-  },
+    }
 
 /*
   setMap: function (map) {
@@ -199,224 +225,224 @@ module.exports = PacketHandler = Class.extend({
   },
 */
 
-  timeout: function() {
-    this.connection.sendUTF8("timeout");
-    this.connection.close("Player was idle for too long");
-  },
-
-  broadcast: function(message, ignoreSelf) {
-    if (this.broadcast_callback) {
-      this.broadcast_callback(message, ignoreSelf === undefined ? true : ignoreSelf);
-    }
-  },
-
-
-  onExit: function(callback) {
-    console.info("packetHandler, onExit.");
-    this.exit_callback = callback;
-    /*try {
-    throw new Error()
-    }
-    catch (e) { console.info(e.stack); }*/
-  },
-
-  onMove: function(callback) {
-    this.move_callback = callback;
-  },
-
-  onMessage: function(callback) {
-    this.message_callback = callback;
-  },
-
-  onBroadcast: function(callback) {
-    this.broadcast_callback = callback;
-  },
-
-  send: function(message) {
-    this.connection.send(message);
-  },
-
-  sendPlayer: function (message) {
-    this.player.sendPlayer(message);
-  },
-
-  sendToPlayer: function (player, message) {
-    this.player.sendToPlayer(player, message);
-  },
-
-  handleCharacterInfo: function (message) {
-    this.sendPlayer(new Messages.CharacterInfo(this.player));
-  },
-
-  handleSyncTime: function (message) {
-    console.info("handleSyncTime");
-    var clientTime = parseInt(message[0]);
-    //this.sendPlayer(new Messages.SyncTime(clientTime));
-    this.send([Types.Messages.BI_SYNCTIME, clientTime, Date.now()]);
-  },
-
-  handleChat: function(message) {
-    var msg = Utils.sanitize(message[0]);
-    console.info("Chat: " + this.player.name + ": " + msg);
-
-    if ((new Date()).getTime() > this.player.chatBanEndTime) {
-      this.send([Types.Messages.WC_NOTIFY, "CHAT", "CHATMUTED"]);
-      return;
+    timeout() {
+        this.connection.sendUTF8("timeout");
+        this.connection.close("Player was idle for too long");
     }
 
-    if (msg && (msg !== "" || msg !== " ")) {
-      msg = msg.substr(0, 256); //Will have to change the max length
-      var command = msg.split(" ", 3)
-      switch (command[0]) {
-        case "/w":
-          this.send([Types.Messages.WC_NOTIFY, "CHAT", "CHATMUTED"]);
-          break;
-        default:
-          this.server.sendWorld(new Messages.Chat(this.player, msg));
-          break;
-
-      }
-    }
-  },
-
-  handleQuest: function (msg) {
-    console.info("handleQuest");
-    var npcId = parseInt(msg[0]);
-    var questId = parseInt(msg[1]);
-    var status = parseInt(msg[2]);
-
-    var p = this.player;
-    var npc = p.map.entities.getEntityById(npcId);
-    if (!p.isInScreen(npc)) {
-      console.info("player not close enough to NPC!");
-      return;
-    }
-
-    if (status === 1)
-      npc.entityQuests.acceptQuest(p, questId);
-    else {
-      npc.entityQuests.rejectQuest(p, questId);
-    }
-  },
-
-  handleTalkToNPC: function(message) { // 30
-    console.info("handleTalkToNPC");
-    var type = parseInt(message[0]);
-    var npcId = parseInt(message[1]);
-
-    var p = this.player;
-    var npc = p.map.entities.getEntityById(npcId);
-    if (!p.isInScreen(npc)) {
-      console.info("player not close enough to NPC!");
-      return;
-    }
-
-    if (npc)
-      npc.talk(p);
-  },
-
-  /*handleBankStore: function(message) {
-    var itemIndex = parseInt(message[0]);
-
-    var p = this.player;
-    if (itemIndex >= 0 && itemIndex < p.inventory.maxNumber) {
-      var item = p.inventory.rooms[itemIndex];
-      //console.info("bankitem: " + JSON.stringify(item));
-      if (item && item.itemKind) {
-        var slot = p.bank.getEmptyIndex();
-        //console.info("slot=" + slot);
-        if (slot >= 0) {
-          p.bank.putItem(item);
-          p.inventory.takeOutItems(itemIndex, item.itemNumber);
+    broadcast(message, ignoreSelf) {
+        if (this.broadcast_callback) {
+            this.broadcast_callback(message, ignoreSelf === undefined ? true : ignoreSelf);
         }
-      }
     }
-  },*/
 
-  /*handleBankRetrieve: function(message) {
-    var bankIndex = parseInt(message[0]);
 
-    var p = this.player;
-    if (bankIndex >= 0 && bankIndex < p.bank.maxNumber) {
-      var item = p.bank.rooms[bankIndex];
-      if (item && item.itemKind) {
-        var slot = p.inventory.getEmptyIndex();
-        if (slot >= 0) {
-          p.inventory.putItem(item);
-          p.bank.takeOutItems(bankIndex, item.itemNumber);
+    onExit(callback) {
+        console.info("packetHandler, onExit.");
+        this.exit_callback = callback;
+        /*try {
+        throw new Error()
         }
-      }
-    }
-    this.sendPlayer(new Messages.Gold(p));
-  },*/
-
-  handleAppearanceUnlock: function(message) {
-    var appearanceIndex = parseInt(message[0]);
-    var priceClient = parseInt(message[1]);
-
-    if (appearanceIndex < 0 || appearanceIndex >= AppearanceData.Data.length)
-      return;
-
-    var itemData = AppearanceData.Data[appearanceIndex];
-    if (!itemData)
-      return;
-
-    if (!(itemData.type === "armorarcher" || itemData.type === "armor"))
-      return;
-
-    var price = this.server.looks.prices[appearanceIndex];
-    if (price !== priceClient) {
-      this.sendPlayer(new Messages.Notify("SHOP", "SHOP_MISMATCH", [itemData.name]));
-      this.server.looks.sendLooks(this.player);
-      return;
+        catch (e) { console.info(e.stack); }*/
     }
 
-    var gemCount = 0;
-
-    if (appearanceIndex >= 0) {
-      gemCount = this.player.user.gems;
-
-      console.info("gemCount=" + gemCount);
-
-      if (gemCount >= price) {
-        this.player.user.looks[appearanceIndex] = 1;
-        this.player.modifyGems(-price);
-        this.server.looks.prices[appearanceIndex] += 100;
-
-        this.sendPlayer(new Messages.Notify("SHOP", "SHOP_SOLD", [itemData.name]));
-        this.server.looks.sendLooks(this.player);
-      } else {
-        this.sendPlayer(new Messages.Notify("SHOP", "SHOP_NOGEMS"));
-      }
-    }
-  },
-
-  handleLookUpdate: function(message) {
-    var type = parseInt(message[0]),
-      id = parseInt(message[1]);
-
-    var p = this.player;
-    if (id < 0 || id >= AppearanceData.Data.length)
-      return;
-    if (type < 0 || type > 1)
-      return;
-
-    var itemData = AppearanceData.Data[id];
-    if (!itemData)
-      return;
-
-    if (!(itemData.type === "armorarcher" || itemData.type === "armor"))
-      return;
-
-    var appearance = this.player.user.looks[id];
-    if (appearance === 1) {
-      if (type === 0) {
-        p.setSprite(0, id);
-      }
+    onMove(callback) {
+        this.move_callback = callback;
     }
 
-    p.broadcastSprites();
-  },
+    onMessage(callback) {
+        this.message_callback = callback;
+    }
+
+    onBroadcast(callback) {
+        this.broadcast_callback = callback;
+    }
+
+    send(message) {
+        this.connection.send(message);
+    }
+
+    sendPlayer(message) {
+        this.player.sendPlayer(message);
+    }
+
+    sendToPlayer(player, message) {
+        this.player.sendToPlayer(player, message);
+    }
+
+    handleCharacterInfo(message) {
+        this.sendPlayer(new Messages.CharacterInfo(this.player));
+    }
+
+    handleSyncTime(message) {
+        console.info("handleSyncTime");
+        var clientTime = parseInt(message[0]);
+        //this.sendPlayer(new Messages.SyncTime(clientTime));
+        this.send([Types.Messages.BI_SYNCTIME, clientTime, Date.now()]);
+    }
+
+    handleChat(message) {
+        var msg = Utils.sanitize(message[0]);
+        console.info("Chat: " + this.player.name + ": " + msg);
+
+        if ((new Date()).getTime() > this.player.chatBanEndTime) {
+            this.send([Types.Messages.WC_NOTIFY, "CHAT", "CHATMUTED"]);
+            return;
+        }
+
+        if (msg && (msg !== "" || msg !== " ")) {
+            msg = msg.substr(0, 256); //Will have to change the max length
+            var command = msg.split(" ", 3)
+            switch (command[0]) {
+            case "/w":
+                this.send([Types.Messages.WC_NOTIFY, "CHAT", "CHATMUTED"]);
+                break;
+            default:
+                this.server.sendWorld(new Messages.Chat(this.player, msg));
+                break;
+
+            }
+        }
+    }
+
+    handleQuest(msg) {
+        console.info("handleQuest");
+        var npcId = parseInt(msg[0]);
+        var questId = parseInt(msg[1]);
+        var status = parseInt(msg[2]);
+
+        var p = this.player;
+        var npc = p.map.entities.getEntityById(npcId);
+        if (!p.isInScreen(npc)) {
+            console.info("player not close enough to NPC!");
+            return;
+        }
+
+        if (status === 1)
+            npc.entityQuests.acceptQuest(p, questId);
+        else {
+            npc.entityQuests.rejectQuest(p, questId);
+        }
+    }
+
+    handleTalkToNPC(message) { // 30
+        console.info("handleTalkToNPC");
+        var type = parseInt(message[0]);
+        var npcId = parseInt(message[1]);
+
+        var p = this.player;
+        var npc = p.map.entities.getEntityById(npcId);
+        if (!p.isInScreen(npc)) {
+            console.info("player not close enough to NPC!");
+            return;
+        }
+
+        if (npc)
+            npc.talk(p);
+    }
+
+    /*handleBankStore: function(message) {
+        var itemIndex = parseInt(message[0]);
+
+        var p = this.player;
+        if (itemIndex >= 0 && itemIndex < p.inventory.maxNumber) {
+          var item = p.inventory.rooms[itemIndex];
+          //console.info("bankitem: " + JSON.stringify(item));
+          if (item && item.itemKind) {
+            var slot = p.bank.getEmptyIndex();
+            //console.info("slot=" + slot);
+            if (slot >= 0) {
+              p.bank.putItem(item);
+              p.inventory.takeOutItems(itemIndex, item.itemNumber);
+            }
+          }
+        }
+      },*/
+
+    /*handleBankRetrieve: function(message) {
+        var bankIndex = parseInt(message[0]);
+
+        var p = this.player;
+        if (bankIndex >= 0 && bankIndex < p.bank.maxNumber) {
+          var item = p.bank.rooms[bankIndex];
+          if (item && item.itemKind) {
+            var slot = p.inventory.getEmptyIndex();
+            if (slot >= 0) {
+              p.inventory.putItem(item);
+              p.bank.takeOutItems(bankIndex, item.itemNumber);
+            }
+          }
+        }
+        this.sendPlayer(new Messages.Gold(p));
+      },*/
+
+    handleAppearanceUnlock(message) {
+        var appearanceIndex = parseInt(message[0]);
+        var priceClient = parseInt(message[1]);
+
+        if (appearanceIndex < 0 || appearanceIndex >= AppearanceData.Data.length)
+            return;
+
+        var itemData = AppearanceData.Data[appearanceIndex];
+        if (!itemData)
+            return;
+
+        if (!(itemData.type === "armorarcher" || itemData.type === "armor"))
+            return;
+
+        var price = this.server.looks.prices[appearanceIndex];
+        if (price !== priceClient) {
+            this.sendPlayer(new Messages.Notify("SHOP", "SHOP_MISMATCH", [itemData.name]));
+            this.server.looks.sendLooks(this.player);
+            return;
+        }
+
+        var gemCount = 0;
+
+        if (appearanceIndex >= 0) {
+            gemCount = this.player.user.gems;
+
+            console.info("gemCount=" + gemCount);
+
+            if (gemCount >= price) {
+                this.player.user.looks[appearanceIndex] = 1;
+                this.player.modifyGems(-price);
+                this.server.looks.prices[appearanceIndex] += 100;
+
+                this.sendPlayer(new Messages.Notify("SHOP", "SHOP_SOLD", [itemData.name]));
+                this.server.looks.sendLooks(this.player);
+            } else {
+                this.sendPlayer(new Messages.Notify("SHOP", "SHOP_NOGEMS"));
+            }
+        }
+    }
+
+    handleLookUpdate(message) {
+        var type = parseInt(message[0]),
+            id = parseInt(message[1]);
+
+        var p = this.player;
+        if (id < 0 || id >= AppearanceData.Data.length)
+            return;
+        if (type < 0 || type > 1)
+            return;
+
+        var itemData = AppearanceData.Data[id];
+        if (!itemData)
+            return;
+
+        if (!(itemData.type === "armorarcher" || itemData.type === "armor"))
+            return;
+
+        var appearance = this.player.user.looks[id];
+        if (appearance === 1) {
+            if (type === 0) {
+                p.setSprite(0, id);
+            }
+        }
+
+        p.broadcastSprites();
+    }
 
 
 // param 1 - action type.
@@ -438,747 +464,764 @@ module.exports = PacketHandler = Class.extend({
 // param 6 - slot index 2.
 // param 7 - count of items 2.
 
-  handleItemSlot: function(msg) { // 28
-    var self = this;
-    var action = parseInt(msg[0]);
+    handleItemSlot(msg) { // 28
+        var self = this;
+        var action = parseInt(msg[0]);
 
-    if (this.player.isDead)
-      return;
+        if (this.player.isDead)
+            return;
 
-    // slot type, slot index, slot count.
-    var slot = [Number(msg[1]), Number(msg[2]), Number(msg[3])];
-    if (slot[0] === 2 && slot[1] > this.player.items.equipment.maxNumber)
-      return;
-    var item = null;
-    if (slot[1] >= 0)
-      item = this.player.items.getStoredItem(slot[0], slot[1], slot[2]);
+        // slot type, slot index, slot count.
+        var slot = [Number(msg[1]), Number(msg[2]), Number(msg[3])];
+        if (slot[0] === 2 && slot[1] > this.player.items.equipment.maxNumber)
+            return;
+        var item = null;
+        if (slot[1] >= 0)
+            item = this.player.items.getStoredItem(slot[0], slot[1], slot[2]);
 
-    var slot2 = null;
-    if (msg.length === 6)
-    {
-      slot2 = [Number(msg[4]), Number(msg[5])];
-      if (slot[0] === slot2[0] && slot[1] === slot2[1])
-        return;
-    }
-    if (action === 0) {
-      this.player.items.handleInventoryEat(item, slot[1]);
-    }
-    else if (action === 1) {
-      this.player.items.swapItem(slot, slot2);
-    }
-    else if (action === 2) { // drop item.
-      this.player.items.handleStoreEmpty(slot, item);
-    }
-  },
-
-  handleLoot: function(message) {
-    console.info("handleLoot");
-
-    var p = this.player;
-    item = p.map.entities.getEntityById(parseInt(message[0]));
-    if (!item) {
-      console.info("no item.");
-      return;
+        var slot2 = null;
+        if (msg.length === 6)
+        {
+            slot2 = [Number(msg[4]), Number(msg[5])];
+            if (slot[0] === slot2[0] && slot[1] === slot2[1])
+                return;
+        }
+        if (action === 0) {
+            this.player.items.handleInventoryEat(item, slot[1]);
+        }
+        else if (action === 1) {
+            this.player.items.swapItem(slot, slot2);
+        }
+        else if (action === 2) { // drop item.
+            this.player.items.handleStoreEmpty(slot, item);
+        }
     }
 
-    var x = parseInt(message[1]),
-        y = parseInt(message[2]);
+    // NOTE: `item` was a bare (undeclared) assignment in the original CommonJS
+    // source, which created an implicit global there; declared with `var` here
+    // since ES modules are always strict mode and forbid implicit globals.
+    handleLoot(message) {
+        console.info("handleLoot");
 
-    if (!p.isWithinDist(x,y,24)) {
-      console.info("Player is not close enough to item.")
-      return;
+        var p = this.player;
+        var item = p.map.entities.getEntityById(parseInt(message[0]));
+        if (!item) {
+            console.info("no item.");
+            return;
+        }
+
+        var x = parseInt(message[1]),
+            y = parseInt(message[2]);
+
+        if (!p.isWithinDist(x,y,24)) {
+            console.info("Player is not close enough to item.")
+            return;
+        }
+
+        console.info("item="+item.toString());
+        if (item.enemyDrop)
+            console.info("enemyDrop");
+
+        if (item instanceof Item) {
+            if (p.items.inventory.putItem(item.room) >= 0) {
+                this.server.taskHandler.processEvent(p, PlayerEvent(Types.EventType.LOOTITEM, item, 1));
+                this.broadcast(item.despawn(), false);
+                p.map.entities.removeEntity(item);
+            }
+        }
     }
 
-    console.info("item="+item.toString());
-    if (item.enemyDrop)
-      console.info("enemyDrop");
+    handleAttack(message) {
+        //console.info("handleAttack");
+        var self = this;
+        var time = parseInt(message[0]);
+        var p = this.player;
 
-    if (item instanceof Item) {
-      if (p.items.inventory.putItem(item.room) >= 0) {
-        this.server.taskHandler.processEvent(p, PlayerEvent(EventType.LOOTITEM, item, 1));
-        this.broadcast(item.despawn(), false);
-        p.map.entities.removeEntity(item);
-      }
-    }
-  },
+        if (p.isDead)
+            return;
 
-  handleAttack: function(message) {
-    //console.info("handleAttack");
-    var self = this;
-    var time = parseInt(message[0]);
-    var p = this.player;
-
-    if (p.isDead)
-      return;
-
-    if (p.isMoving() || p.isMovingPath()) {
-      p.attackQueue = message;
-    } else {
-      self.handleHitEntity(p, message);
-    }
-  },
-
-  processAttack: function () {
-    //console.info("processAttack");
-    //var self = this;
-    var p = this.player;
-
-    if (p.attackQueue) {
-      this.handleHitEntity(p, p.attackQueue);
-      p.attackQueue = null;
-    }
-  },
-
-  handleHitEntity: function(sEntity, message) { // 8
-    var self = this;
-    var p = this.player;
-
-    //console.info("handleHitEntity");
-    //var self = this;
-
-    //console.info("message: "+JSON.stringify(message));
-    var targetId = parseInt(message[1]),
-        orientation = parseInt(message[2]),
-        skillId = parseInt(message[3]);
-
-    if (targetId < 0) {
-      console.warn("invalid targetId");
-      return;
+        if (p.isMoving() || p.isMovingPath()) {
+            p.attackQueue = message;
+        } else {
+            self.handleHitEntity(p, message);
+        }
     }
 
-    var tEntity = sEntity.map.entities.getEntityById(targetId);
-    if (!tEntity) {
-      console.warn("invalid entity");
-      return;
+    processAttack() {
+        //console.info("processAttack");
+        //var self = this;
+        var p = this.player;
+
+        if (p.attackQueue) {
+            this.handleHitEntity(p, p.attackQueue);
+            p.attackQueue = null;
+        }
     }
 
-    //console.warn("attackDuration: "+(Date.now() - sEntity.attackTimer));
-    var attackTime = Date.now() - sEntity.attackTimer + 100;
-    if (attackTime < ATTACK_INTERVAL) {
-      console.warn("attack interval");
-      return;
-    }
+    handleHitEntity(sEntity, message) { // 8
+        var self = this;
+        var p = this.player;
 
-    // If PvP then both players must be level 20 or higher.
-    if (tEntity instanceof Player && sEntity instanceof Player &&
-        (sEntity.level < 20 || tEntity.level < 20 ||
-          Math.abs(sEntity.level-tEntity.level) > 10))
-    {
-      console.warn("pvp invalid diff");
-      return;
-    }
+        //console.info("handleHitEntity");
+        //var self = this;
 
-    if (tEntity.aiState === mobState.RETURNING)
-      return;
+        //console.info("message: "+JSON.stringify(message));
+        var targetId = parseInt(message[1]),
+            orientation = parseInt(message[2]),
+            skillId = parseInt(message[3]);
 
-    if (tEntity.invincible) {
-      this.sendPlayer(new Messages.Notify("CHAT","COMBAT_TARGETINVINCIBLE"));
-      console.warn("target invincible");
-      return;
-    }
+        if (targetId < 0) {
+            console.warn("invalid targetId");
+            return;
+        }
+
+        var tEntity = sEntity.map.entities.getEntityById(targetId);
+        if (!tEntity) {
+            console.warn("invalid entity");
+            return;
+        }
+
+        //console.warn("attackDuration: "+(Date.now() - sEntity.attackTimer));
+        var attackTime = Date.now() - sEntity.attackTimer + 100;
+        if (attackTime < ATTACK_INTERVAL) {
+            console.warn("attack interval");
+            return;
+        }
+
+        // If PvP then both players must be level 20 or higher.
+        if (tEntity instanceof Player && sEntity instanceof Player &&
+            (sEntity.level < 20 || tEntity.level < 20 ||
+              Math.abs(sEntity.level-tEntity.level) > 10))
+        {
+            console.warn("pvp invalid diff");
+            return;
+        }
+
+        if (tEntity.aiState === mobState.RETURNING)
+            return;
+
+        if (tEntity.invincible) {
+            this.sendPlayer(new Messages.Notify("CHAT","COMBAT_TARGETINVINCIBLE"));
+            console.warn("target invincible");
+            return;
+        }
 
 // TODO fill sEntity, tEntity.
 
-    //console.info("player.x:"+this.player.x+",this.player.y:"+this.player.y+",mob.x"+mob.x+",mob.y:"+mob.y);
-    if (sEntity.map.isColliding(sEntity.x, sEntity.y)) {
-      console.warn("char.isColliding("+sEntity.id+","+sEntity.x+","+sEntity.y+")");
-      return;
-    }
-
-    if (skillId >= 0) {
-      this.handleSkill([skillId, targetId, tEntity.x, tEntity.y]);
-    }
-
-    sEntity.setOrientation(orientation);
-    sEntity.engage(tEntity);
-
-    if (sEntity === this.player) {
-      if (!sEntity.canReach(tEntity)) {
-        //try { throw new Error() } catch (e) { console.error(e.stack); }
-        console.info("Player not close enough!");
-        console.info("p.x:" + sEntity.x + ",p.y:" + sEntity.y);
-        console.info("e.x:" + tEntity.x + ",e.y:" + tEntity.y);
-        console.info("dx:"+Math.abs(sEntity.x-tEntity.x)+",dy:"+Math.abs(sEntity.y-tEntity.y));
-        return;
-      }
-
-      if (!sEntity.attackedTime.isOver()) {
-        console.warn("attackedTime is not over.");
-        return;
-      }
-      sEntity.isHarvesting = false;
-//      sEntity.lastAction = Date.now();
-    }
-
-    sEntity.isBlocking = false;
-//    sEntity.attackedTime.duration = 500;
-    sEntity.hasAttacked = true;
-
-    /*if (sEntity === this.player && tEntity instanceof Mob) {
-      this.player.tut.attack = true;
-    }*/
-
-    var fnDamage = function (sEntity, tEntity, damageObj) {
-      if (sEntity instanceof Player && tEntity instanceof Mob) {
-        tEntity.mobAI.checkHitAggro(tEntity, sEntity);
-      }
-      self.dealDamage(sEntity, tEntity, damageObj.damage, damageObj.crit);
-    };
-
-    if (sEntity.effectHandler) {
-      sEntity.effectHandler.interval("beforehit",0);
-    }
-    var damageObj = this.calcDamage(sEntity, tEntity, null, 0); // no skill
-
-    var addDamage = 0;
-    if (sEntity.effectHandler) {
-      sEntity.effectHandler.interval("onhit", damageObj.damage);
-      for (var skillEffect of sEntity.activeEffects)
-      {
-        var data = skillEffect.data;
-        if (data.skillType === "attack" && data.targetType === "enemy_aoe")
-        {
-          var damageObjAOE = this.calcDamageAOE(sEntity, null, 0);
-          for (var target of skillEffect.targets) {
-              if (target === tEntity)
-                continue;
-              else
-                fnDamage(sEntity, target, damageObjAOE);
-          }
+        //console.info("player.x:"+this.player.x+",this.player.y:"+this.player.y+",mob.x"+mob.x+",mob.y:"+mob.y);
+        if (sEntity.map.isColliding(sEntity.x, sEntity.y)) {
+            console.warn("char.isColliding("+sEntity.id+","+sEntity.x+","+sEntity.y+")");
+            return;
         }
-      }
+
+        if (skillId >= 0) {
+            this.handleSkill([skillId, targetId, tEntity.x, tEntity.y]);
+        }
+
+        sEntity.setOrientation(orientation);
+        sEntity.engage(tEntity);
+
+        if (sEntity === this.player) {
+            if (!sEntity.canReach(tEntity)) {
+                //try { throw new Error() } catch (e) { console.error(e.stack); }
+                console.info("Player not close enough!");
+                console.info("p.x:" + sEntity.x + ",p.y:" + sEntity.y);
+                console.info("e.x:" + tEntity.x + ",e.y:" + tEntity.y);
+                console.info("dx:"+Math.abs(sEntity.x-tEntity.x)+",dy:"+Math.abs(sEntity.y-tEntity.y));
+                return;
+            }
+
+            if (!sEntity.attackedTime.isOver()) {
+                console.warn("attackedTime is not over.");
+                return;
+            }
+            sEntity.isHarvesting = false;
+//      sEntity.lastAction = Date.now();
+        }
+
+        sEntity.isBlocking = false;
+//    sEntity.attackedTime.duration = 500;
+        sEntity.hasAttacked = true;
+
+        /*if (sEntity === this.player && tEntity instanceof Mob) {
+          this.player.tut.attack = true;
+        }*/
+
+        var fnDamage = function (sEntity, tEntity, damageObj) {
+            if (sEntity instanceof Player && tEntity instanceof Mob) {
+                tEntity.mobAI.checkHitAggro(tEntity, sEntity);
+            }
+            self.dealDamage(sEntity, tEntity, damageObj.damage, damageObj.crit);
+        };
+
+        if (sEntity.effectHandler) {
+            sEntity.effectHandler.interval("beforehit",0);
+        }
+        var damageObj = this.calcDamage(sEntity, tEntity, null, 0); // no skill
+
+        var addDamage = 0;
+        if (sEntity.effectHandler) {
+            sEntity.effectHandler.interval("onhit", damageObj.damage);
+            for (var skillEffect of sEntity.activeEffects)
+            {
+                var data = skillEffect.data;
+                if (data.skillType === "attack" && data.targetType === "enemy_aoe")
+                {
+                    var damageObjAOE = this.calcDamageAOE(sEntity, null, 0);
+                    for (var target of skillEffect.targets) {
+                        if (target === tEntity)
+                            continue;
+                        else
+                            fnDamage(sEntity, target, damageObjAOE);
+                    }
+                }
+            }
+        }
+        //damageObj.damage += addDamage;
+        fnDamage(sEntity, tEntity, damageObj);
+
+        if (sEntity.attackTimer)
+            sEntity.attackTimer = Date.now();
+
+        if (sEntity.effectHandler) {
+            sEntity.effectHandler.interval("afterhit",0);
+        }
     }
-    //damageObj.damage += addDamage;
-    fnDamage(sEntity, tEntity, damageObj);
 
-    if (sEntity.attackTimer)
-      sEntity.attackTimer = Date.now();
+    calcDamageAOE(sEntity, skill, attackType) {
+        var damageObj = {
+            damage: 0,
+            crit: 0,
+            dot: 0
+        };
 
-    if (sEntity.effectHandler) {
-      sEntity.effectHandler.interval("afterhit",0);
+        damageObj.damage = Math.round(Formulas.dmgAOE(sEntity));
+        return damageObj;
     }
-  },
 
-  calcDamageAOE: function(sEntity, skill, attackType) {
-    var damageObj = {
-      damage: 0,
-      crit: 0,
-      dot: 0
-    };
+    calcDamage(sEntity, tEntity, skill, attackType) {
+        var damageObj = {
+            damage: 0,
+            crit: 0,
+            dot: 0
+        };
 
-    damageObj.damage = Math.round(Formulas.dmgAOE(sEntity));
-    return damageObj;
-  },
+        damageObj.damage = Math.round(Formulas.dmg(sEntity, tEntity));
+        if (damageObj.damage === 0)
+            return damageObj;
 
-  calcDamage: function(sEntity, tEntity, skill, attackType) {
-    var damageObj = {
-      damage: 0,
-      crit: 0,
-      dot: 0
-    };
-
-    damageObj.damage = Math.round(Formulas.dmg(sEntity, tEntity));
-    if (damageObj.damage === 0)
-      return damageObj;
-
-    var canCrit = Formulas.crit(sEntity, tEntity);
-    if (canCrit) {
-      damageObj.damage *= 2;
-      damageObj.crit = 1;
+        var canCrit = Formulas.crit(sEntity, tEntity);
+        if (canCrit) {
+            damageObj.damage *= 2;
+            damageObj.crit = 1;
+        }
+        return damageObj;
     }
-    return damageObj;
-  },
 
 // TODO - Fix entity vars.
-  dealDamage: function(sEntity, tEntity, dmg, crit) {
-    if (!tEntity) return;
+    // NOTE: pre-existing bug preserved from the original — this method references
+    // a bare `self` below that is never defined anywhere in this function (unlike
+    // handleAttack/handleHitEntity above, this method never does `var self =
+    // this;`). Under the old prototype-based Class.extend pattern this was just a
+    // plain method, not a closure nested inside init(), so it never had access to
+    // init()'s local `self` either — this would throw a ReferenceError at runtime
+    // in the original CommonJS version too.
+    dealDamage(sEntity, tEntity, dmg, crit) {
+        if (!tEntity) return;
 
-    if (tEntity instanceof Mob)
-      tEntity.aggroPlayer(sEntity);
+        if (tEntity instanceof Mob)
+            tEntity.aggroPlayer(sEntity);
 
-    this.server.handleDamage(tEntity, sEntity, -dmg, crit);
-    if (sEntity instanceof Player)
-      sEntity.weaponDamage += dmg;
+        this.server.handleDamage(tEntity, sEntity, -dmg, crit);
+        if (sEntity instanceof Player)
+            sEntity.weaponDamage += dmg;
 
-    //console.info("DAMAGE OCCURED "+dmg);
-    //console.info("dmg="+dmg);
-    if (tEntity instanceof Player) {
-      //tEntity.stats.hp -= dmg;
-      if (tEntity.isDead) {
-        if (sEntity === self.player)
-          self.player.map.entities.sendBroadcast(new Messages.Notify("CHAT","COMBAT_PLAYERKILLED", [sEntity.name, tEntity.name]));
+        //console.info("DAMAGE OCCURED "+dmg);
+        //console.info("dmg="+dmg);
+        if (tEntity instanceof Player) {
+            //tEntity.stats.hp -= dmg;
+            if (tEntity.isDead) {
+                if (sEntity === self.player)
+                    self.player.map.entities.sendBroadcast(new Messages.Notify("CHAT","COMBAT_PLAYERKILLED", [sEntity.name, tEntity.name]));
 
-        sEntity.pStats.pk++;
-        tEntity.pStats.pd++;
-      }
-      //self.server.broadcastAttacker(sEntity);
-    }
-  },
-
-  handleShortcut: function(message) {
-    var slot = parseInt(message[0]);
-    var type = parseInt(message[1]);
-    var shortcutId = parseInt(message[2]);
-
-    if (slot < 0 || slot > 7)
-      return;
-
-    if (type === 2) {
-      if (shortcutId < 0 || shortcutId >= SkillData.Skills.length)
-        return;
-    }
-
-    this.player.shortcuts[slot] = [slot, type, shortcutId];
-  },
-
-  handleSkill: function(message) {
-    var skillId = parseInt(message[0]),
-        targetId = parseInt(message[1]),
-        x = parseInt(message[2]),
-        y = parseInt(message[3]),
-        p = this.player;
-
-    if (p.isDead)
-      return;
-
-    if (skillId < 0 || skillId >= p.skills.length)
-      return;
-
-    var skill = p.skills[skillId];
-
-    // Perform the skill.
-    var target;
-    //console.info("targetId="+targetId);
-    if (targetId) {
-      target = p.map.entities.getEntityById(targetId);
-      if (!target)
-        return;
-    }
-    //console.info("targetid="+targetId);
-
-    // Make sure the skill is ready.
-    if (!skill.isReady())
-      return;
-
-    //console.info ("skill.skillLevel="+skill.skillLevel);
-    //console.info ("type="+type);
-
-    p.effectHandler.cast(skillId, target, x, y);
-
-    //skill.tempXP = Math.min(skill.tempXP++,1);
-
-    this.handleSkillEffects(p, target);
-  },
-
-  handleSkillEffects: function (source, target)
-  {
-    var effects = [];
-    if (!source.effects)
-      return;
-
-    for (let [k,v] of Object.entries(source.effects))
-    {
-      if (v === 1)
-        effects.push(parseInt(k));
-    }
-    this.sendToPlayer(source, new Messages.SkillEffects(source, effects));
-    effects = [];
-
-    if (!target) return;
-
-    for (let [k,v] of Object.entries(target.effects))
-    {
-      if (v === 1)
-        effects.push(parseInt(k));
-    }
-    this.sendToPlayer(source, new Messages.SkillEffects(target, effects));
-
-  },
-
-  // TODO map enforce for all calls.
-  handleMoveEntity: function(message) {
-    //console.info("handleMoveEntity");
-    //console.info("message="+JSON.stringify(message));
-    var time = parseInt(message[0]),
-      entityId = parseInt(message[1]),
-      state = parseInt(message[2]),
-      orientation = parseInt(message[3]),
-      x = parseInt(message[4]) || -1,
-      y = parseInt(message[5]) || -1;
-
-    var p = this.player;
-    if (entityId !== p.id)
-      return;
-
-    if (state==1 && p.hasMoveThrottled(G_LATENCY))  {
-      console.warn("handleMoveEntity - moveThrottled");
-      p.resetMove(p.x,p.y);
-      return;
-    }
-
-    if (state === 2) {
-      if (!p.checkStartMove(x,y)) {
-        console.error("handleMoveEntity, checkStartMove - x:"+x+",y:"+y);
-        console.error("handleMoveEntity, checkStartMove - p.x:"+p.x+",p.y:"+p.y);
-        p.resetMove(p.x,p.y);
-      }
-      p.forceStop();
-      return;
-    }
-
-    if (state === 1 && !p.checkStartMove(x,y)) {
-      //console.error("handleMoveEntity - checkStartMove.");
-      p.resetMove(p.x,p.y);
-      return;
-    }
-
-    var arr = [time, state, orientation, x, y];
-    console.info("handleMoveEntity - arr: "+JSON.stringify(arr));
-    if (state === 1) {
-      p.move([time, 0, p.orientation, x, y]);
-    }
-    p.move(arr);
-
-    var msg = new Messages.Move(p, orientation, state, x, y);
-    p.map.entities.sendNeighbours(p, msg, p);
-
-    if (this.move_callback)
-      this.move_callback();
-  },
-
-  handleMovePath: function(message) {
-    var time = parseInt(message.shift()),
-      entityId = parseInt(message.shift()),
-      orientation = parseInt(message.shift()),
-      interrupted = (parseInt(message.shift()) === 0) ? false : true;
-
-    var path = message[0];
-
-    var p = this.player;
-    if (entityId !== p.id)
-      return;
-
-
-    if (path && p.hasMoveThrottled(G_LATENCY)) {
-      p.resetMove(p.x,p.y);
-      console.warn("handleMoveEntity - moveThrottled");
-      return;
-    }
-
-    console.info(JSON.stringify(path));
-
-    var x = path[0][0],
-        y = path[0][1];
-
-    if (!p.checkStartMove(x,y)) {
-      p.resetMove(p.x,p.y);
-      return;
-    }
-
-    p.forceStop();
-
-    if (!p.isValidGridPath(path))
-      return;
-
-    console.info("packethandler: handleMoveEntity - movepath: "+JSON.stringify(path));
-    p.movePath([time, interrupted], path);
-
-    var msg = new Messages.MovePath(p, path);
-    p.map.entities.sendNeighbours(p, msg);
-  },
-
-  // TODO - enterCallback x,y not being overridden sometimes,
-  // and sending to wrong Map.
-  handleTeleportMap: function(msg) {
-    console.info("handleTeleportMap");
-    var self = this;
-    var mapId = parseInt(msg[0]),
-        status = parseInt(msg[1]);
-    console.info("status="+status);
-    var x = parseInt(msg[2]), y = parseInt(msg[3]);
-    var portalId = parseInt(msg[4]);
-
-    var p = this.player;
-    if (status <= 0)
-    {
-      x = -1;
-      y = -1;
-    }
-
-    var mapInstanceId = null;
-    var mapName = null;
-
-    if (mapId < 0 || mapId >= self.server.maps.length)
-    {
-      console.info("Map non-index");
-      return;
-    }
-
-    var map = self.server.maps[mapId];
-    if (!(map && map.ready)) {
-      console.info("Map non-existant or not ready");
-      return;
-    }
-
-    if (portalId >= 0 && portalId >= p.map.doors.length) {
-      console.info("Teleport does not exist.");
-      return;
-    }
-
-    //console.warn("mapIndex: p.map.mapIndex:"+map.index);
-    if (status === 0) {
-      p.forceStop();
-      p.mapStatus = 0;
-      //this.handleClearMap();
-      p.clearTarget();
-
-      p.handleTeleport();
-
-      p.map.entities.removePlayer(p);
-
-      pos = map.enterCallback(p);
-
-
-      //finishTeleportMaps(mapId);
-
-      //console.info("real mapId: " + mapId);
-      var pos = {x: p.x, y: p.y};
-      //console.info("handleTeleportMap - x: "+x+",y:"+y);
-      var isDoor = false;
-      if (portalId >= 0) {
-        var door = p.map.doors[portalId];
-        if (door.tx >= 0 && door.ty >= 0) {
-          pos = {x: door.tx, y: door.ty};
-          pos.x += (G_TILESIZE >> 1);
-          pos.y += (G_TILESIZE >> 1);
-          isDoor = true;
+                sEntity.pStats.pk++;
+                tEntity.pStats.pd++;
+            }
+            //self.server.broadcastAttacker(sEntity);
         }
-      }
+    }
 
-      p.setMap(map);
+    handleShortcut(message) {
+        var slot = parseInt(message[0]);
+        var type = parseInt(message[1]);
+        var shortcutId = parseInt(message[2]);
+
+        if (slot < 0 || slot > 7)
+            return;
+
+        if (type === 2) {
+            if (shortcutId < 0 || shortcutId >= SkillData.Skills.length)
+                return;
+        }
+
+        this.player.shortcuts[slot] = [slot, type, shortcutId];
+    }
+
+    handleSkill(message) {
+        var skillId = parseInt(message[0]),
+            targetId = parseInt(message[1]),
+            x = parseInt(message[2]),
+            y = parseInt(message[3]),
+            p = this.player;
+
+        if (p.isDead)
+            return;
+
+        if (skillId < 0 || skillId >= p.skills.length)
+            return;
+
+        var skill = p.skills[skillId];
+
+        // Perform the skill.
+        var target;
+        //console.info("targetId="+targetId);
+        if (targetId) {
+            target = p.map.entities.getEntityById(targetId);
+            if (!target)
+                return;
+        }
+        //console.info("targetid="+targetId);
+
+        // Make sure the skill is ready.
+        if (!skill.isReady())
+            return;
+
+        //console.info ("skill.skillLevel="+skill.skillLevel);
+        //console.info ("type="+type);
+
+        p.effectHandler.cast(skillId, target, x, y);
+
+        //skill.tempXP = Math.min(skill.tempXP++,1);
+
+        this.handleSkillEffects(p, target);
+    }
+
+    handleSkillEffects(source, target)
+    {
+        var effects = [];
+        if (!source.effects)
+            return;
+
+        for (let [k,v] of Object.entries(source.effects))
+        {
+            if (v === 1)
+                effects.push(parseInt(k));
+        }
+        this.sendToPlayer(source, new Messages.SkillEffects(source, effects));
+        effects = [];
+
+        if (!target) return;
+
+        for (let [k,v] of Object.entries(target.effects))
+        {
+            if (v === 1)
+                effects.push(parseInt(k));
+        }
+        this.sendToPlayer(source, new Messages.SkillEffects(target, effects));
+
+    }
+
+    // TODO map enforce for all calls.
+    handleMoveEntity(message) {
+        //console.info("handleMoveEntity");
+        //console.info("message="+JSON.stringify(message));
+        var time = parseInt(message[0]),
+            entityId = parseInt(message[1]),
+            state = parseInt(message[2]),
+            orientation = parseInt(message[3]),
+            x = parseInt(message[4]) || -1,
+            y = parseInt(message[5]) || -1;
+
+        var p = this.player;
+        if (entityId !== p.id)
+            return;
+
+        if (state==1 && p.hasMoveThrottled(G_LATENCY))  {
+            console.warn("handleMoveEntity - moveThrottled");
+            p.resetMove(p.x,p.y);
+            return;
+        }
+
+        if (state === 2) {
+            if (!p.checkStartMove(x,y)) {
+                console.error("handleMoveEntity, checkStartMove - x:"+x+",y:"+y);
+                console.error("handleMoveEntity, checkStartMove - p.x:"+p.x+",p.y:"+p.y);
+                p.resetMove(p.x,p.y);
+            }
+            p.forceStop();
+            return;
+        }
+
+        if (state === 1 && !p.checkStartMove(x,y)) {
+            //console.error("handleMoveEntity - checkStartMove.");
+            p.resetMove(p.x,p.y);
+            return;
+        }
+
+        var arr = [time, state, orientation, x, y];
+        console.info("handleMoveEntity - arr: "+JSON.stringify(arr));
+        if (state === 1) {
+            p.move([time, 0, p.orientation, x, y]);
+        }
+        p.move(arr);
+
+        var msg = new Messages.Move(p, orientation, state, x, y);
+        p.map.entities.sendNeighbours(p, msg, p);
+
+        if (this.move_callback)
+            this.move_callback();
+    }
+
+    handleMovePath(message) {
+        var time = parseInt(message.shift()),
+            entityId = parseInt(message.shift()),
+            orientation = parseInt(message.shift()),
+            interrupted = (parseInt(message.shift()) === 0) ? false : true;
+
+        var path = message[0];
+
+        var p = this.player;
+        if (entityId !== p.id)
+            return;
+
+
+        if (path && p.hasMoveThrottled(G_LATENCY)) {
+            p.resetMove(p.x,p.y);
+            console.warn("handleMoveEntity - moveThrottled");
+            return;
+        }
+
+        console.info(JSON.stringify(path));
+
+        var x = path[0][0],
+            y = path[0][1];
+
+        if (!p.checkStartMove(x,y)) {
+            p.resetMove(p.x,p.y);
+            return;
+        }
+
+        p.forceStop();
+
+        if (!p.isValidGridPath(path))
+            return;
+
+        console.info("packethandler: handleMoveEntity - movepath: "+JSON.stringify(path));
+        p.movePath([time, interrupted], path);
+
+        var msg = new Messages.MovePath(p, path);
+        p.map.entities.sendNeighbours(p, msg);
+    }
+
+    // TODO - enterCallback x,y not being overridden sometimes,
+    // and sending to wrong Map.
+    handleTeleportMap(msg) {
+        console.info("handleTeleportMap");
+        var self = this;
+        var mapId = parseInt(msg[0]),
+            status = parseInt(msg[1]);
+        console.info("status="+status);
+        var x = parseInt(msg[2]), y = parseInt(msg[3]);
+        var portalId = parseInt(msg[4]);
+
+        var p = this.player;
+        if (status <= 0)
+        {
+            x = -1;
+            y = -1;
+        }
+
+        var mapInstanceId = null;
+        var mapName = null;
+
+        if (mapId < 0 || mapId >= self.server.maps.length)
+        {
+            console.info("Map non-index");
+            return;
+        }
+
+        var map = self.server.maps[mapId];
+        if (!(map && map.ready)) {
+            console.info("Map non-existant or not ready");
+            return;
+        }
+
+        if (portalId >= 0 && portalId >= p.map.doors.length) {
+            console.info("Teleport does not exist.");
+            return;
+        }
+
+        //console.warn("mapIndex: p.map.mapIndex:"+map.index);
+        if (status === 0) {
+            p.forceStop();
+            p.mapStatus = 0;
+            //this.handleClearMap();
+            p.clearTarget();
+
+            p.handleTeleport();
+
+            p.map.entities.removePlayer(p);
+
+            // NOTE: `pos` was a bare (undeclared) assignment in the original
+            // CommonJS source, which created an implicit global there; declared
+            // with `var` here since ES modules are always strict mode and forbid
+            // implicit globals. Its value is immediately overwritten by the next
+            // `var pos = {x: p.x, y: p.y};` below in both versions (pre-existing
+            // dead store), left unchanged.
+            var pos = map.enterCallback(p);
+
+
+            //finishTeleportMaps(mapId);
+
+            //console.info("real mapId: " + mapId);
+            var pos = {x: p.x, y: p.y};
+            //console.info("handleTeleportMap - x: "+x+",y:"+y);
+            var isDoor = false;
+            if (portalId >= 0) {
+                var door = p.map.doors[portalId];
+                if (door.tx >= 0 && door.ty >= 0) {
+                    pos = {x: door.tx, y: door.ty};
+                    pos.x += (G_TILESIZE >> 1);
+                    pos.y += (G_TILESIZE >> 1);
+                    isDoor = true;
+                }
+            }
+
+            p.setMap(map);
 
 // TODO - Going through portal when returning its looping.
 
 
-      if (!isDoor) {
-        pos = p.map.getRandomStartingPosition();
+            if (!isDoor) {
+                pos = p.map.getRandomStartingPosition();
 
-        /*if (p.map.index === 0 || (typeof p.prevPosX === "undefined" &&
-            typeof p.prevPosY === "undefined"))
-        {
-          p.prevPosX = p.x;
-          p.prevPosY = p.y;
-          pos = p.map.getRandomStartingPosition();
+                /*if (p.map.index === 0 || (typeof p.prevPosX === "undefined" &&
+                    typeof p.prevPosY === "undefined"))
+                {
+                  p.prevPosX = p.x;
+                  p.prevPosY = p.y;
+                  pos = p.map.getRandomStartingPosition();
+                }
+                else if (p.map.index === 1)
+                {
+                  if (p.hasOwnProperty("prevPosX") && p.hasOwnProperty("prevPosY"))
+                    pos = {x: p.prevPosX, y: p.prevPosY};
+                  else
+                    pos = p.map.getRandomStartingPosition();
+                }
+                else {
+                  pos = p.map.getRandomStartingPosition();
+                }*/
+            }
+
+            p.map.entities.addPlayer(p);
+
+            p.setPosition(pos.x, pos.y);
+            p.forceStop();
+            p.move([Date.now(),3,1,pos.x,pos.y]);
+
+            //console.info("trying to send.");
+            self.send([Types.Messages.WC_TELEPORT_MAP, mapId, 1, p.x, p.y, portalId]);
         }
-        else if (p.map.index === 1)
-        {
-          if (p.hasOwnProperty("prevPosX") && p.hasOwnProperty("prevPosY"))
-            pos = {x: p.prevPosX, y: p.prevPosY};
-          else
-            pos = p.map.getRandomStartingPosition();
+        else if (status === 1) {
+            p.mapStatus = 2;
+            //self.handleSpawnMap(mapId, p.x, p.y);
+
+            p.knownIds = [];
+
+            p.setPosition(p.x,p.y);
+            p.map.entities.processWho(p);
+            p.map.entities.sendNeighbours(p, new Messages.Spawn(p), p);
+
+            self.send([Types.Messages.WC_TELEPORT_MAP, mapId, 2, p.x, p.y, portalId]);
         }
-        else {
-          pos = p.map.getRandomStartingPosition();
-        }*/
-      }
-
-      p.map.entities.addPlayer(p);
-
-      p.setPosition(pos.x, pos.y);
-      p.forceStop();
-      p.move([Date.now(),3,1,pos.x,pos.y]);
-
-      //console.info("trying to send.");
-      self.send([Types.Messages.WC_TELEPORT_MAP, mapId, 1, p.x, p.y, portalId]);
-    }
-    else if (status === 1) {
-      p.mapStatus = 2;
-      //self.handleSpawnMap(mapId, p.x, p.y);
-
-      p.knownIds = [];
-
-      p.setPosition(p.x,p.y);
-      p.map.entities.processWho(p);
-      p.map.entities.sendNeighbours(p, new Messages.Spawn(p), p);
-
-      self.send([Types.Messages.WC_TELEPORT_MAP, mapId, 2, p.x, p.y, portalId]);
-    }
-  },
-
-  /*handleSpawnMap: function(mapId, x, y) {
-    var p = this.player;
-
-  },*/
-
-  //handleClearMap: function() {
-  //},
-
-  handleStatAdd: function(message) {
-    var self = this;
-    var attribute = parseInt(message[0]),
-        points = parseInt(message[1]);
-    var p = this.player;
-
-    if (points < 0 || points > p.stats.free)
-      return;
-
-    if (attribute <= 0 || attribute > 4)
-      return;
-
-    var alterBars = false;
-    switch (attribute) {
-      case 1:
-        p.stats.attack += points;
-        break;
-      case 2:
-        p.stats.defense += points;
-        break;
-      case 3:
-        p.stats.health += points;
-        alterBars = true;
-        break;
-      case 4:
-        p.stats.luck += points;
-        break;
-    }
-    p.stats.free -= points;
-
-    if (alterBars) {
-      p.setHpMax();
-      p.setEpMax();
     }
 
-    this.sendPlayer(new Messages.StatInfo(p));
-  },
+    /*handleSpawnMap: function(mapId, x, y) {
+        var p = this.player;
 
-  handleGold: function (message) {
-    var type = parseInt(message[0]),
-        gold = parseInt(message[1]),
-        type2 = parseInt(message[2]);
+      },*/
 
-    if (gold < 0)
-      return;
+    //handleClearMap: function() {
+    //},
 
-    if (gold > 9999999) {
-      this.sendPlayer(new Messages.Notify("GOLD","MAX_TRANSFER"));
-      return;
+    handleStatAdd(message) {
+        var self = this;
+        var attribute = parseInt(message[0]),
+            points = parseInt(message[1]);
+        var p = this.player;
+
+        if (points < 0 || points > p.stats.free)
+            return;
+
+        if (attribute <= 0 || attribute > 4)
+            return;
+
+        var alterBars = false;
+        switch (attribute) {
+        case 1:
+            p.stats.attack += points;
+            break;
+        case 2:
+            p.stats.defense += points;
+            break;
+        case 3:
+            p.stats.health += points;
+            alterBars = true;
+            break;
+        case 4:
+            p.stats.luck += points;
+            break;
+        }
+        p.stats.free -= points;
+
+        if (alterBars) {
+            p.setHpMax();
+            p.setEpMax();
+        }
+
+        this.sendPlayer(new Messages.StatInfo(p));
     }
 
-    if (gold > this.player.gold[type])
-    {
-      this.sendPlayer(new Messages.Notify("GOLD","INSUFFICIENT_GOLD"));
-      return;
+    handleGold(message) {
+        var type = parseInt(message[0]),
+            gold = parseInt(message[1]),
+            type2 = parseInt(message[2]);
+
+        if (gold < 0)
+            return;
+
+        if (gold > 9999999) {
+            this.sendPlayer(new Messages.Notify("GOLD","MAX_TRANSFER"));
+            return;
+        }
+
+        if (gold > this.player.gold[type])
+        {
+            this.sendPlayer(new Messages.Notify("GOLD","INSUFFICIENT_GOLD"));
+            return;
+        }
+
+        // Transfer to bank.
+        if (type===0 && type2===1)
+        {
+            if (this.player.modifyGold(-gold, 0))
+                this.player.modifyGold(gold, 1);
+        }
+
+        // Withdraw from bank.
+        if (type===1 && type2===0)
+        {
+            if (this.player.modifyGold(-gold, 1))
+                this.player.modifyGold(gold, 0);
+        }
     }
 
-    // Transfer to bank.
-    if (type===0 && type2===1)
-    {
-      if (this.player.modifyGold(-gold, 0))
-        this.player.modifyGold(gold, 1);
+    handleBlock(msg) {
+        var type = parseInt(msg[0]),
+            id = parseInt(msg[1]),
+            x = parseInt(msg[2]),
+            y = parseInt(msg[3]);
+
+        var p = this.player;
+
+        var block = p.map.entities.getEntityById(id);
+        if (!block || !(block instanceof Block))
+            return;
+        if (!p.isNextTooEntity(block))
+            return;
+
+        if (type === 0) // pickup
+        {
+            p.holdingBlock = block;
+        }
+        else if (type === 1) //place
+        {
+            x = Utils.roundTo(x, G_TILESIZE);
+            y = Utils.roundTo(y, G_TILESIZE);
+
+            if (p.map.isColliding(x, y))
+                return;
+
+            block.setPosition(x, y);
+            block.update(this.player);
+            p.holdingBlock = null;
+        }
+        var msg = new Messages.BlockModify(block, p.id, type);
+        p.map.entities.sendNeighbours(p, msg, p);
     }
 
-    // Withdraw from bank.
-    if (type===1 && type2===0)
-    {
-      if (this.player.modifyGold(-gold, 1))
-        this.player.modifyGold(gold, 0);
+    handleRequest(msg) {
+        var type = parseInt(msg);
+        var p = this.player;
+
+        switch (type) {
+        case 0: // CW_APPEARANCELIST
+            this.handleAppearanceList(msg);
+            break;
+        case 1: // CW_PLAYER_REVIVE
+            this.handleRevive(msg);
+            break;
+        case 2: // CW_PLAYERINFO
+            this.handlePlayerInfo(msg);
+            break;
+        case 3: // CW_WHO REQUEST
+            p.map.entities.processWho(p);
+            break;
+        }
     }
-  },
 
-  handleBlock: function (msg) {
-    var type = parseInt(msg[0]),
-        id = parseInt(msg[1]),
-        x = parseInt(msg[2]),
-        y = parseInt(msg[3]);
-
-    var p = this.player;
-
-    var block = p.map.entities.getEntityById(id);
-    if (!block || !(block instanceof Block))
-      return;
-    if (!p.isNextTooEntity(block))
-      return;
-
-    if (type === 0) // pickup
-    {
-      p.holdingBlock = block;
+    handleAppearanceList(msg) {
+        this.server.looks.sendLooks(this.player);
     }
-    else if (type === 1) //place
-    {
-      x = Utils.roundTo(x, G_TILESIZE);
-      y = Utils.roundTo(y, G_TILESIZE);
 
-      if (p.map.isColliding(x, y))
-        return;
-
-      block.setPosition(x, y);
-      block.update(this.player);
-      p.holdingBlock = null;
+    handleRevive(msg) {
+        var p = this.player;
+        if (p.isDead === true) {
+            console.info("handled Revive!!");
+            p.respawn();
+            p.map.entities.sendNeighbours(p, new Messages.Spawn(p), p);
+            var msg = new Messages.Move(p, p.orientation, 2, p.x, p.y);
+            this.sendPlayer(msg);
+        }
     }
-    var msg = new Messages.BlockModify(block, p.id, type);
-    p.map.entities.sendNeighbours(p, msg, p);
-  },
 
-  handleRequest: function (msg) {
-    var type = parseInt(msg);
-    var p = this.player;
-
-    switch (type) {
-      case 0: // CW_APPEARANCELIST
-        this.handleAppearanceList(msg);
-        break;
-      case 1: // CW_PLAYER_REVIVE
-        this.handleRevive(msg);
-        break;
-      case 2: // CW_PLAYERINFO
-        this.handlePlayerInfo(msg);
-        break;
-      case 3: // CW_WHO REQUEST
-        p.map.entities.processWho(p);
-        break;
+    handlePlayerInfo(msg) {
+        this.sendPlayer(new Messages.PlayerInfo(this.player));
     }
-  },
 
-  handleAppearanceList: function (msg) {
-    this.server.looks.sendLooks(this.player);
-  },
+    handleWho(message) {
+        var ids = [];
+        if (message.length > 0)
+            ids = message;
 
-  handleRevive: function(msg) {
-    var p = this.player;
-    if (p.isDead === true) {
-      console.info("handled Revive!!");
-      p.respawn();
-      p.map.entities.sendNeighbours(p, new Messages.Spawn(p), p);
-      var msg = new Messages.Move(p, p.orientation, 2, p.x, p.y);
-      this.sendPlayer(msg);
+        for(var id of ids)
+            this.player.knownIds.removeVal(id);
+        //this.player.knownIds.splice(this.player.knownIds.indexOf(id), 1);
     }
-  },
 
-  handlePlayerInfo: function (msg) {
-    this.sendPlayer(new Messages.PlayerInfo(this.player));
-  },
+    handleHarvest(msg) {
+        var x=parseInt(msg[0]), y=parseInt(msg[1]);
+        this.player.harvest.onHarvest(x,y);
+    }
 
-  handleWho: function(message) {
-    var ids = [];
-    if (message.length > 0)
-      ids = message;
+    handleUseNode(msg) {
+        var id=parseInt(msg[0]);
+        var p = this.player;
+        var entity = p.map.entities.getEntityById(id);
+        if (entity)
+            this.player.harvest.onHarvestEntity(entity);
+    }
+}
 
-    for(var id of ids)
-      this.player.knownIds.removeVal(id);
-      //this.player.knownIds.splice(this.player.knownIds.indexOf(id), 1);
-  },
-
-  handleHarvest: function (msg) {
-    var x=parseInt(msg[0]), y=parseInt(msg[1]);
-    this.player.harvest.onHarvest(x,y);
-  },
-
-  handleUseNode: function (msg) {
-    var id=parseInt(msg[0]);
-    var p = this.player;
-    var entity = p.map.entities.getEntityById(id);
-    if (entity)
-      this.player.harvest.onHarvestEntity(entity);
-  },
-
-});
+export default PacketHandler;

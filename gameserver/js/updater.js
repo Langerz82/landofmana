@@ -1,10 +1,15 @@
-var Messages = require("./message"),
-    _ = require("underscore"),
-    Utils = require("./utils");
+import Messages from "./message.js";
+import _ from "underscore";
+//import Utils from "./utils.js";
+import { Types } from './common.js';
+import { G_TILESIZE, G_FRAME_INTERVALS } from './main.js';
+import Player from './entity/player.js';
 
-module.exports = Updater = Class.extend({
+/* global Player */
 
-	init: function(ws, map) {
+class Updater {
+
+	constructor(ws, map) {
     var self = this;
     this.ws = ws;
     this.server = ws;
@@ -89,9 +94,9 @@ module.exports = Updater = Class.extend({
       return self.playerKey(c,x,y,false);
     };
 
-	},
+	}
 
-  update: function() {
+  update() {
       var self = this,
           m = null;
 
@@ -117,34 +122,34 @@ module.exports = Updater = Class.extend({
             m.step(this.time);
         }
       }
-  },
+  }
 
-  checkCollide: function (c, x, y) {
+  checkCollide(c, x, y) {
     if (c instanceof Player) {
       if (c.map.isColliding(x, y))
         return true;
       if (c.holdingBlock) {
-        pos = c.nextTile();
+        var pos = c.nextTile();
         if (c.map.isColliding(pos[0], pos[1]))
           return true;
       }
       return false;
     }
-  },
+  }
 
   /**
    * Moves the player one space, if possible
    */
-  moveCharacter: function(char, axis, x, y) {
+  moveCharacter(char, axis, x, y) {
     if (this.checkCollide(char, axis, x, y)) {
       c.setPosition(c.x, c.y);
       console.warn("char.isColliding("+char.id+","+x+","+y+")");
       return false;
     }
     return true;
-  },
+  }
 
-  updateCharacterPathMovement: function(c) {
+  updateCharacterPathMovement(c) {
       var self = this;
 
       var tick=c.tick * G_FRAME_INTERVALS;
@@ -178,9 +183,9 @@ module.exports = Updater = Class.extend({
              tick);
         }
       }
-  },
+  }
 
-  updatePlayerPathMovement: function(c) {
+  updatePlayerPathMovement(c) {
       var self = this;
 
       var tick=c.tick * G_FRAME_INTERVALS;
@@ -215,9 +220,9 @@ module.exports = Updater = Class.extend({
              tick);
         }
       }
-  },
+  }
 
-  updatePlayerKeyMovement: function(c)
+  updatePlayerKeyMovement(c)
   {
     if (c.isDying || c.isDead || c.freeze || c.isStunned) {
         return;
@@ -256,5 +261,7 @@ module.exports = Updater = Class.extend({
       }
     }
 
-  },
-});
+  }
+}
+
+export default Updater;

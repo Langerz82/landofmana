@@ -1,6 +1,5 @@
-
-module.exports = Transition = Class.extend({
-  init: function(object) {
+class Transition {
+  constructor(object) {
       this.startValue = 0;
       this.endValue = 0;
       this.duration = 0;
@@ -8,16 +7,16 @@ module.exports = Transition = Class.extend({
       //this.currentValue = 0;
       this.modValue = 0;
       this.object = object;
-  },
+  }
 
-  start: function(updateFunction, stopFunction, modValue) {
+  start(updateFunction, stopFunction, modValue) {
       this.updateFunction = updateFunction;
       this.stopFunction = stopFunction;
       this.modValue = modValue;
       this.inProgress = true;
-  },
+  }
 
-  step: function() {
+  step() {
       if(this.inProgress) {
           var inc = this.modValue;
 
@@ -45,18 +44,20 @@ module.exports = Transition = Class.extend({
             }
           }
       }
-  },
+  }
 
-  /*restart: function(currentTime, startValue, endValue) {
+  /*restart(currentTime, startValue, endValue) {
       this.start(currentTime, this.updateFunction, this.stopFunction, this.startValue, this.endValue, this.duration);
       this.step(currentTime);
   },*/
 
-  stop: function() {
+  stop() {
     //try { throw new Error(); } catch (e) { console.error(e.stack); }
     if (this.stopFunction)
       this.stopFunction(this.object);
 
     this.inProgress = false;
   }
-});
+}
+
+export default Transition;

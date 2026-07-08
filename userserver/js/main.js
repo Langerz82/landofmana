@@ -6,7 +6,7 @@ import Metrics from './metrics.js';
 import ProductionConfig from './productionconfig.js';
 import User from './user.js';
 import WorldHandler from './worldhandler.js';
-import Utils from './utils.js';
+//import Utils from './utils.js';
 import redis from './redis.js';
 import UserMessages from './usermessage.js';
 
@@ -122,8 +122,8 @@ async function main(config) {
     worldHandlers.push(wh);
 
     conn.onClose((conn) => {
-      if (conn._server.disconnectionCallback) {
-        conn._server.disconnectionCallback(conn);
+      if (conn.server.disconnectionCallback) {
+        conn.server.disconnectionCallback(this);
       }
     });
   };

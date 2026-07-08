@@ -1,24 +1,36 @@
-require('./common');
-require('./data/data');
+import './common.js';
+import './data/data.js';
 
-var Log = require('log');
-var fs = require('fs');
-var util = require('util');
-var crypto = require('crypto');
-var BISON = require('bison');
+import LogModule from 'log';
+import fs from 'fs';
+import util from 'util';
+import crypto from 'crypto';
+import BISON from 'bison';
 var useBison = false;
-var WS = require('./ws');
+import WS from './ws.js';
 
-var ProductionConfig = require('./productionconfig');
-var UserHandler = require('./user/userhandler');
-var WorldHandler = require('./user/worldhandler');
+import ProductionConfig from './productionconfig.js';
+import UserHandler from './user/userhandler.js';
+import WorldHandler from './user/worldhandler.js';
 
-var UserMessages = require('./user/usermessage');
+import UserMessages from './user/usermessage.js';
 
-//var RedisServer = require('redis-server');
+//import RedisServer from 'redis-server';
 
-var _ = require('underscore');
-var readline = require('readline').createInterface({
+import _ from 'underscore';
+import WorldServer from './worldserver.js';
+import { Types } from './common.js';
+import readlineModule from 'readline';
+import { fileURLToPath } from 'url';
+import path from 'path';
+
+// NOTE: ES modules have no `__dirname`/`__filename` (those are CommonJS-only
+// module wrapper variables). This is the standard replacement, needed so
+// the `log_file` stream below (which uses `__dirname`) keeps working.
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const readline = readlineModule.createInterface({
   input: process.stdin,
   output: process.stdout
 });
@@ -32,32 +44,42 @@ let IO_STATES = {
 	MSG_ERRORPRODUCT: 2,
 };
 
+// NOTE: all of the constants below were originally assigned to bare,
+// undeclared identifiers (e.g. `G_LATENCY = 75;`). In the old CommonJS/
+// sloppy-mode world that implicitly created real properties on Node's
+// `global` object, which is how every other file in this project could
+// reference `G_TILESIZE`, `mobState`, etc. as bare globals. ES modules are
+// always strict mode and never leak to the global object, so that trick no
+// longer works. These are now proper module-scoped bindings, exported by
+// name so the handful of other converted files that need them
+// (formulas.js, mobai.js, pathfinder.js, updater.js, utils.js,
+// worldserver.js) can `import` them explicitly instead.
 
-G_LATENCY = 75;
-G_ROUNDTRIP = G_LATENCY * 2;
+export const G_LATENCY = 75;
+export const G_ROUNDTRIP = G_LATENCY * 2;
 
-G_TILESIZE = 16;
+export const G_TILESIZE = 16;
 
-G_FRAME_INTERVALS = 2;
-G_FRAME_INTERVAL_EXACT = (1000/60);
-G_FRAME_INTERVAL = ~~(G_FRAME_INTERVAL_EXACT);
-G_UPDATE_INTERVAL = ~~(G_FRAME_INTERVAL*G_FRAME_INTERVALS);
+export const G_FRAME_INTERVALS = 2;
+export const G_FRAME_INTERVAL_EXACT = (1000/60);
+export const G_FRAME_INTERVAL = ~~(G_FRAME_INTERVAL_EXACT);
+export const G_UPDATE_INTERVAL = ~~(G_FRAME_INTERVAL*G_FRAME_INTERVALS);
 //G_UPDATE_INTERVAL = (G_UPDATE_INTERVAL_EXACT);
-G_INTERVAL =( G_UPDATE_INTERVAL * G_FRAME_INTERVALS);
+export const G_INTERVAL =( G_UPDATE_INTERVAL * G_FRAME_INTERVALS);
 
-G_SPATIAL_SIZE = 32;
+export const G_SPATIAL_SIZE = 32;
 
-G_SCREEN_WIDTH = 34;
-G_SCREEN_HEIGHT = 18;
+export const G_SCREEN_WIDTH = 34;
+export const G_SCREEN_HEIGHT = 18;
 
 //G_ROUNDTRIP = G_LATENCY * 2 - G_UPDATE_INTERVAL;
 
-ATTACK_INTERVAL = 1000;
-ATTACK_MAX = 1000;
+export const ATTACK_INTERVAL = 1000;
+export const ATTACK_MAX = 1000;
 
-PLAYER_SAVE_INTERVAL = 1800000;
+export const PLAYER_SAVE_INTERVAL = 1800000;
 
-mobState = {
+export const mobState = {
     IDLE: 1,
     ROAMING: 2,
     AGGRO: 3,
@@ -67,12 +89,12 @@ mobState = {
     STUCK: 7
 };
 
-SAVING_SERVER = false;
-AUCTION_SAVED = false;
-PLAYERS_SAVED = false;
-LOOKS_SAVED = false;
+let SAVING_SERVER = false;
+let AUCTION_SAVED = false;
+let PLAYERS_SAVED = false;
+let LOOKS_SAVED = false;
 
-IS_EXITING = false;
+let IS_EXITING = false;
 
 //GDATE = new Date();
 
@@ -86,25 +108,38 @@ var userHandler = null;
 //var userHandler;
 
 //worlds = [];
-server = null;
-world = null;
+let server = null;
+global.server = server;
+let world = null;
+global.world = world;
 
-players = new Map();
+// `players`/`hashes` are mutated in place (Map#set/#delete) rather than
+// reassigned, so they're safe to export as `const` for the other converted
+// files (worldserver.js) that previously reached them as a leaked global.
+export const players = new Map();
+global.players = players;
 //players = [];
-hashes = new Map();
+export const hashes = new Map();
+global.hashes = hashes;
 
 var Main = {};
 
-userHandlerPackets = [];
+// NOTE: kept exactly as in the original -- `Main` is exported here, but
+// every method actually added below (checkSaved, safe_exit, saveServer,
+// closeServer) is attached to the lowercase `main` *function*, not to this
+// `Main` object. That mismatch is a pre-existing quirk of the original
+// source (and, since nothing in this project ever required './main' for
+// its exports, it was never actually exercised); it has not been "fixed"
+// here since that's a logic change outside the scope of the ES module
+// conversion.
+export default Main;
 
-module.exports = Main;
+export let MainConfig;
+global.MainConfig = MainConfig;
 
-/*
-Log = require('log');
-var fs = require('fs');
-var util = require('util');
-var crypto = require('crypto');
-*/
+export let log;
+global.log = log;
+export let gConnection;
 
 var log_file = fs.createWriteStream(__dirname + '/../console.log', {flags : 'w'});
 var log_stdout = process.stdout;
@@ -117,7 +152,8 @@ var log_stdout = process.stdout;
 
 function main(config) {
 
-    log = new Log(Log.INFO || Log.DEBUG || Log.ERROR);
+    log = new LogModule(LogModule.INFO || LogModule.DEBUG || LogModule.ERROR);
+    global.log = log;
     console.isEnabled = true;
 
     //console.log = console.info;
@@ -168,19 +204,15 @@ function main(config) {
         _.extend(config, production_config.getProductionSettings());
     }
     var worldId = config.world_id;
-    MainConfig = config;
+    global.MainConfig = config;
 
-    var ws = require("./ws");
-
-    var WorldServer = require("./worldserver");
-
-    server = new ws.WebsocketServer(config);
+    server = new WS.WebsocketServer(config);
     var lastTotalPlayers = 0;
     var self = this;
 
     console.info("Initializing RRO2 GameServer - World " + worldId);
 
-    world = new WorldServer('world'+ i, config.nb_players_per_world, server);
+    world = new WorldServer('world', config.nb_players_per_world, server);
     world.run();
     world.name = config.world_name;
 
@@ -198,7 +230,7 @@ function main(config) {
       server.userConn.onConnectUser(function (conn) {
         gConnection = conn;
         console.info("onConnectUser - Connected");
-        this.send([GameTypes.UserMessages.WU_CONNECT_WORLD]);
+        this.send([Types.UserMessages.WU_CONNECT_WORLD]);
 
         console.info("server.enterWorld");
         userHandler = new UserHandler(main, server, world, conn);
@@ -224,9 +256,9 @@ function main(config) {
 
       	console.info(JSON.stringify(config));
       	console.info("version sent");
-        console.info(GameTypes.Messages.WC_VERSION);
+        console.info(Types.Messages.WC_VERSION);
 
-      	conn.sendUTF8(GameTypes.Messages.WC_VERSION+","+config.version+","+conn.hash);
+      	conn.sendUTF8(Types.Messages.WC_VERSION+","+config.version+","+conn.hash);
         var wh = new WorldHandler(server, conn);
         wh.userConnection = server.userHandler.connection;
 
@@ -366,8 +398,8 @@ function notify(args) {
 }
 
 function getInput(cmd) {
-    args = cmd.split(" ");
-    cmdarg = args[0];
+    var args = cmd.split(" ");
+    var cmdarg = args[0];
     args.shift();
     console.info("cmd: " + cmd);
 

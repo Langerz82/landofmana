@@ -1,18 +1,18 @@
-/* global module */
+import Character from './character.js';
+import Messages from '../message.js';
+import EntityQuests from '../entityquests.js';
+//import Utils from '../utils.js';
+import { Types } from '../common.js';
+import QuestData from '../data/questdata.js';
+import NPCnames from '../../shared/data/npc_names.json' with { type: 'json' };
 
-var Character = require('./character'),
-    Messages = require('../message'),
-    EntityQuests = require("../entityquests");
-var NPCnames = require("../../shared/data/npc_names.json");
-
-
-var NpcMove = Character.extend({
-    init: function (id, kind, x, y, map) {
+class NpcMove extends Character {
+    constructor(id, kind, x, y, map) {
         // This is because the npc offsets are centered in the client.
         x += 8;
         y += 8;
 
-        this._super(id, Types.EntityTypes.NPCMOVE, kind, x, y, map);
+        super(id, Types.EntityTypes.NPCMOVE, kind, x, y, map);
 
         this.armor = 0;
         this.weapon = 0;
@@ -31,86 +31,86 @@ var NpcMove = Character.extend({
         //this.scriptQuests = false;
 
         if (QuestData.NpcData.hasOwnProperty(this.kind)) {
-          var qData = QuestData.NpcData[this.kind];
-          if (qData && qData.length > 0)
-          {
-            var newQuest = null;
-            var pQuest = null;
-            for (var q of qData)
+            var qData = QuestData.NpcData[this.kind];
+            if (qData && qData.length > 0)
             {
-              this.entityQuests.quests[q.id] = q;
+                var newQuest = null;
+                var pQuest = null;
+                for (var q of qData)
+                {
+                    this.entityQuests.quests[q.id] = q;
+                }
             }
-          }
         }
-    },
+    }
 
-    getState: function() {
+    getState() {
         // DANGER - if questhandler variable changes so should this.
         // TODO
         return this._getBaseState().concat(this.npcQuestId);
-    },
+    }
 
-    talk: function (player) {
-      var self = this;
-      var self_player = player;
+    talk(player) {
+        var self = this;
+        var self_player = player;
 
-      var res = false;
-      player.quests.forQuestsType(QuestType.GETITEMKIND, function (q) {
-        if (q.npcQuestId === self.npcQuestId) {
-          if (self_player.quests.questAboutItemComplete(q, null))
-            res = true;
+        var res = false;
+        player.quests.forQuestsType(Types.QuestType.GETITEMKIND, function (q) {
+            if (q.npcQuestId === self.npcQuestId) {
+                if (self_player.quests.questAboutItemComplete(q, null))
+                    res = true;
+            }
+        });
+        if (res)
+            return;
+
+        if (Object.keys(this.entityQuests.quests).length === 0) {
+            this.entityQuests.dynamicQuests(player);
+        } else {
+            var newQid = -1;
+
+            if (this.entityQuests.hasQuest(player)) {
+                return;
+            }
+
+            var newQid = this.entityQuests.getNextQuestId(player);
+
+            if (!newQid) {
+                this.entityQuests.sendNoQuest(player);
+                return;
+            }
+
+            var langcode = "QUESTS_"+newQid;
+            var msg = new Messages.Dialogue(this, langcode);
+            player.sendPlayer(msg);
         }
-      });
-      if (res)
-        return;
+    }
 
-      if (Object.keys(this.entityQuests.quests).length === 0) {
-        this.entityQuests.dynamicQuests(player);
-      } else {
-        var newQid = -1;
-
-        if (this.entityQuests.hasQuest(player)) {
-          return;
+    randomMove() {
+        if(!this.hasTarget() && !this.isDead && !this.isMoving()) {
+            var canRoam = (Utils.randomRangeInt(0,100) === 1);
+            if(!canRoam || this.map.entities.getPlayerAroundCount(this,20) === 0)
+                return;
+            var	pos = this.map.entities.getRandomPosition(this, 2);
+            if (pos && !(pos.x === this.x && pos.y === this.y))
+            {
+                //if (this.map.entities.isCharacterAt(pos.x,pos.y))
+                //   return;
+                this.go(pos.x, pos.y);
+                //this.nextStep();
+            }
         }
+    }
 
-        var newQid = this.entityQuests.getNextQuestId(player);
+    checkMove(time) {
+        if (this.isDead)
+            return;
 
-        if (!newQid) {
-          this.entityQuests.sendNoQuest(player);
-          return;
-        }
-
-        var langcode = "QUESTS_"+newQid;
-        var msg = new Messages.Dialogue(this, langcode);
-        player.sendPlayer(msg);
-      }
-    },
-
-    randomMove: function() {
-      if(!this.hasTarget() && !this.isDead && !this.isMoving()) {
-        var canRoam = (Utils.randomRangeInt(0,100) === 1);
-        if(!canRoam || this.map.entities.getPlayerAroundCount(this,20) === 0)
-          return;
-        var	pos = this.map.entities.getRandomPosition(this, 2);
-        if (pos && !(pos.x === this.x && pos.y === this.y))
+        if (!this.freeze && this.isMoving() && this.canMove())
         {
-            //if (this.map.entities.isCharacterAt(pos.x,pos.y))
-            //   return;
-            this.go(pos.x, pos.y);
-            //this.nextStep();
+            this.nextStep();
         }
-      }
-    },
+    }
+}
 
-  	checkMove: function(time) {
-  		if (this.isDead)
-  			return;
-
-      if (!this.freeze && this.isMoving() && this.canMove())
-  		{
-  			this.nextStep();
-  		}
-  	}
-});
-
-module.exports = NpcMove;
+export default NpcMove;

@@ -1,7 +1,7 @@
-var _ = require('underscore'),
-		NPCsJSON = require("../../shared/data/npcs.json"),
-		NPCspeak = require("../../shared/data/npc_english.json"),
-		NPCnames = require("../../shared/data/npc_names_eng.json");
+import _ from 'underscore';
+import NPCsJSON from "../../shared/data/npcs.json" with { type: 'json' };
+import NPCspeak from "../../shared/data/npc_english.json" with { type: 'json' };
+import NPCnames from "../../shared/data/npc_names_eng.json" with { type: 'json' };
 
 var Properties = {};
 var Kinds = NPCsJSON;
@@ -18,8 +18,5 @@ var isNpc = function(kind){
     return Kinds[kind] ? true : false;
 };
 
-module.exports.Properties = Properties;
-module.exports.Kinds = Kinds;
-module.exports.isNpc = isNpc;
-
-module.exports.NPCnames = NPCnames;
+export { Properties, Kinds, isNpc, NPCnames };
+export default { Properties, Kinds, isNpc, NPCnames };

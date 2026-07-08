@@ -1,8 +1,19 @@
-var astar = require('./lib/astar');
-var Utils = require('./utils');
+import astar from './lib/astar.js';
+import _ from 'underscore';
+//import Utils from './utils.js';
+import { G_FRAME_INTERVAL, G_TILESIZE } from './main.js';
 
-module.exports = Pathfinder = Class.extend({
-  init: function(width, height) {
+/* global log */
+// NOTE: the original source called a bare, capitalized `AStar`/`AStar.AStar`
+// here instead of using the lowercase `astar` module it actually required.
+// That only worked because `lib/astar.js` declared its export with no `var`
+// (`AStar = (function(){...}())`), which leaked a second, real global also
+// named `AStar` in the old sloppy-mode CommonJS world. Now that astar.js is
+// a real ES module (no global leakage), these calls have been updated to go
+// through the properly imported `astar` module instead.
+
+class Pathfinder {
+  constructor(width, height) {
       this.width = width;
       this.height = height;
       this.grid = null;
@@ -10,18 +21,18 @@ module.exports = Pathfinder = Class.extend({
       this.initBlankGrid_();
       this.ignored = [];
       this.included = [];
-  },
+  }
 
-  initBlankGrid_: function() {
+  initBlankGrid_() {
       /*for(var i=0; i < this.height; i += 1) {
           this.blankGrid[i] = [];
           for(var j=0; j < this.width; j += 1) {
               this.blankGrid[i][j] = 0;
           }
       }*/
-  },
+  }
 
-  isDistanceTooFast: function (ticks, dist, startTime, tolerance) {
+  isDistanceTooFast(ticks, dist, startTime, tolerance) {
     tolerance = tolerance || G_FRAME_INTERVAL;
 
     console.info("pathFinder - isDistanceTooFast: called.");
@@ -41,7 +52,7 @@ module.exports = Pathfinder = Class.extend({
       return true;
     }
     return false;
-  },
+  }
 
  // TODO - Incorrect when moving left.
   /*
@@ -49,7 +60,7 @@ module.exports = Pathfinder = Class.extend({
    * path - The path to check. x,y = x-position and y-position
    * of the final coordinate that should be in the path.
    */
-  getPathSubDistance: function (path, x, y) {
+  getPathSubDistance(path, x, y) {
       /*
       var subpath = this.getSubPath(path, x, y);
       if (!subpath)
@@ -59,7 +70,7 @@ module.exports = Pathfinder = Class.extend({
       console.warn("getPathSubDistance: dist="+dist);
       */
 
-      count = 0;
+      var count = 0;
       var n2 = null;
 
       if (!this.isInPath(path, [x, y]))
@@ -85,9 +96,9 @@ module.exports = Pathfinder = Class.extend({
       }
       console.info("pathfinder - getPathSubDistance: count="+count);
       return count;
-  },
+  }
 
-  getPathDistance: function (path) {
+  getPathDistance(path) {
     var n2 = null;
     var total = 0;
     for (var n1 of path) {
@@ -97,9 +108,9 @@ module.exports = Pathfinder = Class.extend({
       n2 = n1;
     }
     return total;
-  },
+  }
 
-  getPathUntil: function (path, dist) {
+  getPathUntil(path, dist) {
       if (dist < 0)
         return null;
 
@@ -135,9 +146,9 @@ module.exports = Pathfinder = Class.extend({
         newPath.push(node1);
       }
       return newPath;
-  },
+  }
 
-  getSubPath: function (path, x, y) {
+  getSubPath(path, x, y) {
     if (!this.isInPath(path, [x,y]))
       return null;
 
@@ -151,9 +162,9 @@ module.exports = Pathfinder = Class.extend({
 
     var dist = this.getPathDistance(path, x, y);
     return this.getPathUntil(path, dist);
-  },
+  }
 
-  isInPath: function (path, node) {
+  isInPath(path, node) {
     var n2 = null;
     for (var n1 of path) {
       if (n2) {
@@ -164,9 +175,9 @@ module.exports = Pathfinder = Class.extend({
       n2 = n1;
     }
     return false;
-  },
+  }
 
-  isValidPath: function (path) {
+  isValidPath(path) {
       var pnode = null;
       if (!Array.isArray(path) || path.length < 2)
         return false;
@@ -182,9 +193,9 @@ module.exports = Pathfinder = Class.extend({
         pnode = node;
       }
       return true;
-  },
+  }
 
-  isValidGridPath: function (grid, path, isRealPath) {
+  isValidGridPath(grid, path, isRealPath) {
     var ts = G_TILESIZE,
         ly = grid.length,
         lx = grid[0].length;
@@ -251,10 +262,10 @@ module.exports = Pathfinder = Class.extend({
       pCoord = coord;
     }
     return true;
-  },
+  }
 
   // from https://chatgpt.com/c/6a3db155-e5c4-83ec-8fac-a774dc81df12
-  getShortGrid: function (grid, start, end, e = 0) {
+  getShortGrid(grid, start, end, e = 0) {
       const h = grid.length, w = grid[0].length;
       const minX = Math.max(Math.min(~~start[0], ~~end[0]) - e, 0);
       const maxX = Math.min(Math.max(Math.ceil(start[0]), Math.ceil(end[0])) + e, w - 1);
@@ -273,9 +284,9 @@ module.exports = Pathfinder = Class.extend({
           substart: [start[0] - minX, start[1] - minY],
           subend: [end[0] - minX, end[1] - minY]
       };
-  },
+  }
 
-  findNeighbourPath: function(start, end) {
+  findNeighbourPath(start, end) {
       var ts = G_TILESIZE;
 
             // If its one space just return the start, end path.
@@ -284,9 +295,9 @@ module.exports = Pathfinder = Class.extend({
 					return [[start[0], start[1]],[end[0],end[1]]];
 
 			return null;
-  },
+  }
 
-  getFullFromShortPath: function (subpath, offsetX, offsetY) {
+  getFullFromShortPath(subpath, offsetX, offsetY) {
     var ts = G_TILESIZE;
     if (subpath && subpath.length > 0)
     {
@@ -302,9 +313,9 @@ module.exports = Pathfinder = Class.extend({
       return subpath;
     }
     return null;
-  },
+  }
 
-  findDirectPath: function (grid, start, end) {
+  findDirectPath(grid, start, end) {
     //var dx = Math.abs(Math.floor(start[0]) - Math.floor(end[0]));
     //var dy = Math.abs(Math.floor(start[1]) - Math.floor(end[1]));
     var dx = Math.abs(start[0] - end[0]);
@@ -332,9 +343,9 @@ module.exports = Pathfinder = Class.extend({
       return mp;
     }
     return null;
-  },
+  }
 
-  makeNodesMidPoints: function (result) {
+  makeNodesMidPoints(result) {
     // Make nodes mid-points.
     for (var node of result) {
       if (node[0] % 1 === 0)
@@ -343,9 +354,9 @@ module.exports = Pathfinder = Class.extend({
         node[1] += 0.5;
     }
     return result;
-  },
+  }
 
-  _popAndPushNewNodeInPath: function (node, result) {
+  _popAndPushNewNodeInPath(node, result) {
     result.shift();
     result.unshift([node[0], node[1]]);
     var it2 = null;
@@ -361,9 +372,9 @@ module.exports = Pathfinder = Class.extend({
       }
       it2 = it;
     }
-  },
+  }
 
-  convertPathToRealPath: function (result, start, end) {
+  convertPathToRealPath(result, start, end) {
     var temp = Utils.copy2DArray(result);
 
     if (temp.length === 2) {
@@ -377,9 +388,9 @@ module.exports = Pathfinder = Class.extend({
 
     temp = this.makeNodesMidPoints(temp);
     return temp;
-  },
+  }
 
-  dropUneededNodes: function(path) {
+  dropUneededNodes(path) {
       if (!Array.isArray(path) || path.length < 2)
           return path;
 
@@ -412,12 +423,12 @@ module.exports = Pathfinder = Class.extend({
       }
 
       return result;
-  },
+  }
 
-  AStar: function (grid, start, end) {
+  AStar(grid, start, end) {
     var pStart = [~~start[0],~~start[1]];
     var pEnd = [~~end[0],~~end[1]];
-    var path = AStar.AStar(grid, pStart, pEnd);
+    var path = astar.AStar(grid, pStart, pEnd);
     if (path)
     {
       path = this.convertPathToRealPath(path, start, end);
@@ -426,17 +437,17 @@ module.exports = Pathfinder = Class.extend({
       return path;
     }
     return null;
-  },
+  }
 
-  findShortPath: function(crop, offsetX, offsetY, start, end) {
+  findShortPath(crop, offsetX, offsetY, start, end) {
       var path = this.AStar(crop, start, end);
       if (path) {
         console.info("pathfinder.findShortPath - path: "+JSON.stringify(path));
       }
       return path;
-  },
+  }
 
-  findPath: function(grid, start, end, findIncomplete) {
+  findPath(grid, start, end, findIncomplete) {
       var path;
 
       this.applyIgnoreList_(grid, true);
@@ -447,7 +458,7 @@ module.exports = Pathfinder = Class.extend({
         console.info("pathfinder.findPath - path: "+JSON.stringify(path));
       }
       return path;
-  },
+  }
 
   /**
    * Finds a path which leads the closest possible to an unreachable x, y position.
@@ -460,39 +471,39 @@ module.exports = Pathfinder = Class.extend({
    * @private
    * @returns {Array} The incomplete path towards the end position
    */
-  findIncompletePath_: function(start, end) {
+  findIncompletePath_(start, end) {
       var perfect, x, y,
           incomplete = [];
 
-      perfect = AStar.AStar(this.blankGrid, start, end);
+      perfect = astar.AStar(this.blankGrid, start, end);
 
       for(var i=perfect.length-1; i > 0; i -= 1) {
           x = perfect[i][0];
           y = perfect[i][1];
 
           if(this.grid[y][x] === 0) {
-              incomplete = AStar(this.grid, start, [x, y]);
+              incomplete = astar.AStar(this.grid, start, [x, y]);
               break;
           }
       }
       return incomplete;
-  },
+  }
 
   /**
    * Removes colliding tiles corresponding to the given entity's position in the pathing grid.
    */
-  ignoreEntity: function(entity) {
+  ignoreEntity(entity) {
       if(entity) {
           this.ignored.push(entity);
       }
-  },
-  includeEntity: function(entity) {
+  }
+  includeEntity(entity) {
       if(entity) {
           this.included.push(entity);
       }
-  },
+  }
 
-  applyIgnoreList_: function(grid, ignored) {
+  applyIgnoreList_(grid, ignored) {
       var self = this,
           x, y;
 
@@ -505,9 +516,9 @@ module.exports = Pathfinder = Class.extend({
               grid[y][x] = ignored ? 0 : 1;
           }
       });
-  },
+  }
 
-  applyIncludeList_: function(grid, included) {
+  applyIncludeList_(grid, included) {
       var self = this,
           x, y;
 
@@ -520,16 +531,17 @@ module.exports = Pathfinder = Class.extend({
               grid[y][x] = included ? 1 : 0;
           }
       });
-  },
+  }
 
-  clearIgnoreList: function(grid) {
+  clearIgnoreList(grid) {
       this.applyIgnoreList_(grid, false);
       this.ignored = [];
-  },
+  }
 
-  clearIncludeList: function(grid) {
+  clearIncludeList(grid) {
       this.applyIncludeList_(grid, false);
       this.ignored = [];
-  },
+  }
+}
 
-});
+export default Pathfinder;

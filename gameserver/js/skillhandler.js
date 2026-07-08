@@ -1,30 +1,35 @@
-var Messages = require("./message.js");
+import Messages from "./message.js";
+import Timer from './timer.js';
+import { Types } from './common.js';
+import SkillData from './data/skilldata.js';
 
-module.exports = SkillHandler = cls.Class.extend({
-    init: function(player) {
+/* global SkillData */
+
+class SkillHandler {
+    constructor(player) {
         player.skills = [];
         this.player = player;
         this.skills = this.player.skills;
-    },
-    clear: function() {
-    },
+    }
+    clear() {
+    }
 
-    setSkills: function (player, skills)
+    setSkills(player, skills)
     {
       for (var i = 0; i < skills.length; ++i)
       {
         var skill = new Skill(player, i, skills[i]);
         player.skills[i] = skill;
       }
-    },
+    }
 
-    setSkill: function (index, exp) {
+    setSkill(index, exp) {
       var skill = player.skills[index];
       skill.skillXP = exp;
       skill.skillLevel = Types.getSkillLevel(exp);
-    },
+    }
 
-    setXPs: function ()
+    setXPs()
     {
       var skillXPs = [];
       for(var i=0; i < this.skills.length; ++i) {
@@ -40,11 +45,11 @@ module.exports = SkillHandler = cls.Class.extend({
       if (skillXPs.length > 0)
         this.player.sendPlayer(new Messages.SkillXP(skillXPs));
     }
-});
+}
 
 
-Skill = cls.Class.extend({
-   init: function (player, skillIndex, skillXP)
+class Skill {
+   constructor(player, skillIndex, skillXP)
    {
    	this.player = player;
     console.info("skillIndex:"+skillIndex);
@@ -59,19 +64,19 @@ Skill = cls.Class.extend({
    		this.skillCooldown = new Timer(this.skillData.recharge);
       this.skillCooldown.lastTime = 0;
     }
-   },
+   }
 
-   getSkill: function ()
+   getSkill()
    {
 	    return this.skillData;
-   },
+   }
 
-   isReady: function ()
+   isReady()
    {
    	return this.skillCooldown.isOver();
-   },
+   }
 
-   xp: function (amount)
+   xp(amount)
    {
     if (amount === 0)
       return;
@@ -86,4 +91,7 @@ Skill = cls.Class.extend({
    		this.player.sendPlayer(new Messages.SkillLoad(this.skillIndex, this.skillXP));
    	}
    }
-});
+}
+
+export { Skill };
+export default SkillHandler;

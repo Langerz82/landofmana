@@ -1,17 +1,18 @@
-var Messages = require("./message"),
-    _ = require("underscore"),
-    Utils = require("./utils"),
-    Formulas = require("./formulas");
+import Messages from "./message.js";
+import _ from "underscore";
+//import Utils from "./utils.js";
+import Formulas from "./formulas.js";
+import { mobState, G_TILESIZE } from './main.js';
 
-module.exports = MobAI = Class.extend({
-  init: function(ws, map){
+class MobAI {
+  constructor(ws, map){
       this.world = this.server = this.worldServer = ws;
       this.map = map;
       //this.mobsMoving = 0;
       this.mobsToRespawn = [];
-  },
+  }
 
-  checkHitAggro: function (mob, sEntity) {
+  checkHitAggro(mob, sEntity) {
     if (mob.isStunned || mob.isAttacking())
 			return;
 
@@ -24,9 +25,9 @@ module.exports = MobAI = Class.extend({
     if (mob.isAttackedBy(sEntity))
       this.aggroPlayer(mob, sEntity);
     return;
-  },
+  }
 
-  checkAggro: function(mob) {
+  checkAggro(mob) {
     //console.info("mobai.checkAggro");
 
     // Cache frequently accessed properties
@@ -72,9 +73,9 @@ module.exports = MobAI = Class.extend({
         mob.aggroPlayer(player);
 			}
 		}
-  },
+  }
 
-  checkHit: function(mob) {
+  checkHit(mob) {
         //var self = this;
 
         if (mob.aiState !== mobState.ATTACKING)
@@ -98,9 +99,9 @@ module.exports = MobAI = Class.extend({
 
   				this.handleHurt(mob);
         }
-  },
+  }
 
-  update: function() {
+  update() {
     var now = Date.now();
 
     // Loop from the end to the beginning
@@ -129,9 +130,9 @@ module.exports = MobAI = Class.extend({
         this.checkHit(mob);
       }
     }
-  },
+  }
 
-  checkChase: function(mob) {
+  checkChase(mob) {
       //var self = this;
       //console.info("mobAI - checkChase.");
       var target = mob.target;
@@ -224,9 +225,9 @@ module.exports = MobAI = Class.extend({
         }
 
       }
-    },
+  }
 
-    handleHurt: function(mob) { // 9
+  handleHurt(mob) { // 9
 
         if (!mob || !mob.target || mob.freeze)
         	return;
@@ -259,9 +260,9 @@ module.exports = MobAI = Class.extend({
               mob.returnToSpawn();
             }
         }
-    },
+  }
 
-    checkReturn: function (entity) {
+  checkReturn(entity) {
       if (entity.aiState !== mobState.CHASING &&
           entity.aiState !== mobState.STUCK &&
           entity.aiState !== mobState.ROAMING)
@@ -283,9 +284,9 @@ module.exports = MobAI = Class.extend({
           return true;
       }
       return false;
-    },
+  }
 
-    Roaming: function(player) {
+  Roaming(player) {
       //var self = this;
       var maxDistance = 6;
 
@@ -311,6 +312,8 @@ module.exports = MobAI = Class.extend({
     			}
   		  }
 	    }
-    },
+  }
 
-});
+}
+
+export default MobAI;

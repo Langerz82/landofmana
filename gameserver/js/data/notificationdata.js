@@ -1,5 +1,5 @@
-var _ = require('underscore'),
-		NotifyJSON = require("../../shared/data/notifications.json");
+import _ from 'underscore';
+import NotifyJSON from "../../shared/data/notifications.json" with { type: 'json' };
 
 var Notifications = {};
 var i = 0;
@@ -10,4 +10,5 @@ _.each( NotifyJSON, function( value, key ) {
 	};
 });
 
-module.exports.Notifications = Notifications;
+export { Notifications };
+export default { Notifications };

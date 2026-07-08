@@ -1,13 +1,23 @@
-var Character = require('./character'),
-  Messages = require('../message'),
-  MobCombat = require('./components/mobcombat'),
-  MobArea = require('../area/mobarea');
+import Character from './character.js';
+import Messages from '../message.js';
+import MobCombat from './components/mobcombat.js';
+import MobArea from '../area/mobarea.js';
+//import Utils from '../utils.js';
+import Timer from '../timer.js';
+//import { Types } from '../common.js';
+import MobData from '../data/mobdata.js';
+import ItemData from '../data/itemdata.js';
+import ItemLootData from '../data/itemlootdata.js';
+import { mobState, G_TILESIZE } from '../main.js';
+import Player from './player.js';
 
-module.exports = Mob = Character.extend({
-    init: function (id, kind, x, y, map, mobArea) {
+/* global _, Player */
+
+class Mob extends Character {
+    constructor(id, kind, x, y, map, mobArea) {
 
       //console.info("map.index"+map.index);
-    	this._super(id, Types.EntityTypes.MOB, kind, x, y, map);
+    	super(id, Types.EntityTypes.MOB, kind, x, y, map);
 
       this.world = this.map.entities.world;
 
@@ -108,9 +118,9 @@ module.exports = Mob = Character.extend({
       this.resetEp();
 
       this.combat = new MobCombat(this);
-    },
+    }
 
-    createBoss: function (multi) {
+    createBoss(multi) {
         this.creatureMulti = multi;
         this.stats.hp *= multi;
         this.stats.hpMax *= multi;
@@ -121,9 +131,9 @@ module.exports = Mob = Character.extend({
           if (ItemTypes.isEquipment(kind))
             this.drops[kind] *= multi;
         }
-    },
+    }
 
-    getXP: function () {
+    getXP() {
       return this.data.xp *
         this.data.attackMod *
         this.data.defenseMod *
@@ -131,51 +141,51 @@ module.exports = Mob = Character.extend({
         this.data.hpMod *
         this.level *
         this.creatureMulti;
-    },
+    }
 
-    setMoveAI: function (duration)
+    setMoveAI(duration)
     {
     	this.moveAICooldown = new Timer(duration);
-    },
-    canMoveAI: function ()
+    }
+    canMoveAI()
     {
     	return this.moveAICooldown.isOver();
-    },
-    resetMoveAI: function (time)
+    }
+    resetMoveAI(time)
     {
     	this.moveAICooldown.lastTime = time;
-    },
+    }
 
-    setAggroRate: function (duration)
+    setAggroRate(duration)
     {
     	this.aggroCooldown = new Timer(duration);
 
-    },
-    canAggro: function ()
+    }
+    canAggro()
     {
     	return this.aggroCooldown.isOver();
-    },
-    resetAggro: function (time)
+    }
+    resetAggro(time)
     {
     	this.aggroCooldown.lastTime = time;
-    },
+    }
 
-    onKilled: function (callback) {
+    onKilled(callback) {
       this.on_killed_callback = callback;
-    },
+    }
 
-    /*onDeath: function (callback) {
+    /*onDeath(callback) {
       this.on_death_callback = callback;
     },*/
 
-    onDamage: function (attacker, hpMod, epMod, crit, effects) {
+    onDamage(attacker, hpMod, epMod, crit, effects) {
       var hp = this.stats.hp;
       //var dmgRatio = (hpMod / this.stats.hpMax);
       //log.info("dmgRatio: "+dmgRatio)
 
       var hpDiff = this.stats.hp;
 
-      this._super(attacker, hpMod, epMod, crit, effects);
+      super.onDamage(attacker, hpMod, epMod, crit, effects);
 
       hpDiff -= this.stats.hp;
       if (hpDiff > 0) {
@@ -187,9 +197,9 @@ module.exports = Mob = Character.extend({
       {
         this.die(attacker);
       }
-    },
+    }
 
-    destroy: function () {
+    destroy() {
         this.isDead = true;
         this.endEffects();
         this.forgetEveryone();
@@ -203,39 +213,39 @@ module.exports = Mob = Character.extend({
 
         this.damageCount = {};
         this.dealtCount = {};
-    },
+    }
 
-    onHitEntity: function (target, dmg) {
+    onHitEntity(target, dmg) {
       if (!this.dealtCount.hasOwnProperty(target.id))
         this.dealtCount[target.id] = 0;
       this.dealtCount[target.id] += dmg;
-    },
+    }
 
-    onHitByEntity: function (target, dmg) {
+    onHitByEntity(target, dmg) {
       if (!this.damageCount.hasOwnProperty(target.id))
         this.damageCount[target.id] = 0;
       this.damageCount[target.id] += dmg;
-    },
+    }
 
-    resetBars: function () {
+    resetBars() {
       this.stats.hp = this.stats.hpMax;
       this.stats.ep = this.stats.epMax;
-    },
+    }
 
-    /*receiveDamage: function (points, playerId) {
+    /*receiveDamage(points, playerId) {
         this.stats.hp -= points;
         if (this.stats.hp < 0) {
           this.stats.hp = 0;
         }
     },*/
 
-    hates: function (entity) {
+    hates(entity) {
         return _.any(this.hatelist, function(obj) {
             return obj.entity === entity;
         });
-    },
+    }
 
-    increaseHateFor: function (entity, points) {
+    increaseHateFor(entity, points) {
         if (this.hates(entity)) {
             _.detect(this.hatelist, function (obj) {
                 return obj.entity === entity;
@@ -251,9 +261,9 @@ module.exports = Mob = Character.extend({
             clearTimeout(this.returnTimeout);
             this.returnTimeout = null;
         }
-    },
+    }
 
-    getMostHated: function(hateRank) {
+    getMostHated(hateRank) {
         var i, playerId,
             sorted = _.sortBy(this.hatelist, function(obj) { return obj.hate; }),
             size = _.size(this.hatelist);
@@ -262,42 +272,42 @@ module.exports = Mob = Character.extend({
             return sorted[0].entity;
         }
         return null;
-    },
+    }
 
-    forgetPlayer: function(playerId) {
+    forgetPlayer(playerId) {
         this.hatelist = _.reject(this.hatelist, function(obj) { return obj.entity.id === playerId; });
         //this.tankerlist = _.reject(this.tankerlist, function(obj) { return obj.id === playerId; });
 
         if(this.hatelist.length === 0 /*|| this.tankerlist === 0*/) {
             this.returnToSpawn();
         }
-    },
+    }
 
-    forgetEveryone: function () {
+    forgetEveryone() {
         this.hatelist = [];
         this.damageCount = {};
         this.dealtCount = {};
         this.clearAttackerRefs();
         this.removeAttackers();
-    },
+    }
 
-    execRespawn: function () {
+    execRespawn() {
       if (this.respawnCallback) {
           this.respawnCallback();
       }
       //this.respawn();
-    },
+    }
 
-    handleRespawn: function () {
+    handleRespawn() {
         this.respawnTime = Date.now();
         this.mobAI.mobsToRespawn.push(this);
-    },
+    }
 
-    onRespawn: function (callback) {
+    onRespawn(callback) {
         this.respawnCallback = callback;
-    },
+    }
 
-    respawn: function () {
+    respawn() {
       if (this.area && this.area instanceof MobArea) {
         var	pos = this.map.entities.spaceEntityRandomApart(3, this.area._getRandomPositionInsideArea.bind(this.area,100));
         console.warn("mob, handleRespawn - id:"+this.id+", pos:"+JSON.stringify(pos));
@@ -313,24 +323,24 @@ module.exports = Mob = Character.extend({
       this.resetBehaviour();
       this.activeEffects = [];
       this.map.entities.sendNeighbours(this, new Messages.Spawn(this));
-    },
+    }
 
-    resetBehaviour: function () {
+    resetBehaviour() {
       this.disengage();
       this.forceStop();
       this.forgetEveryone();
       this.setAiState(mobState.IDLE);
       this.freeze = false;
-    },
+    }
 
-    resetPosition: function () {
+    resetPosition() {
     	  ///var x=this.spawnX, y=this.spawnY;
         this.setPosition(this.spawnX, this.spawnY);
         //var msg = new Messages.Move(this, this.orientation, false, this.x, this.y);
         //this.map.entities.sendNeighbours(this, msg);
-    },
+    }
 
-    returnToSpawn: function() {
+    returnToSpawn() {
         //var self = this;
 
         if (this.aiState === mobState.RETURNING)
@@ -357,25 +367,25 @@ module.exports = Mob = Character.extend({
           this.returnedToSpawn();
         }
         //this.setAiState(mobState.RETURNING);
-    },
+    }
 
-    onMove: function (callback) {
+    onMove(callback) {
         this.moveCallback = callback;
-    },
+    }
 
-    move: function (x, y) {
+    move(x, y) {
         this.setPosition(x, y);
         //this.orientation = Utils.getOrientationFromLastMove(this);
         if (this.moveCallback) {
             this.moveCallback(this);
         }
-    },
+    }
 
-    distanceToPos: function (x, y) {
+    distanceToPos(x, y) {
     	 return Utils.distanceTo(this.x, this.y, x, y);
-    },
+    }
 
-    setItemLoot: function () {
+    setItemLoot() {
       this.loot = {};
       this.lootTotal = 0;
       for (var lootId in ItemLootData.ItemLoot)
@@ -389,9 +399,9 @@ module.exports = Mob = Character.extend({
       }
       //this.lootTotal *= ((200 - this.level)/50);
       this.lootTotal = ~~(this.lootTotal);
-    },
+    }
 
-    setDrops: function () {
+    setDrops() {
       var dropLevel = Math.ceil(this.level / 10) * 10;
       //console.info("dropLevel="+dropLevel);
       for (var kind in ItemData.Kinds)
@@ -426,9 +436,9 @@ module.exports = Mob = Character.extend({
         this.drops[34] = 250;
       else
         this.drops[36] = 250;
-   },
+   }
 
-   Speech: function (key, value) {
+   Speech(key, value) {
 		/*if (this.data.isSpeech === 0)
 			return;
 
@@ -436,22 +446,22 @@ module.exports = Mob = Character.extend({
 			value = Utils.random(MobSpeechData.Speech[key].length-1);
 		return new Messages.Speech(this, key, value);*/
     return null;
-   },
+   }
 
-    getState: function () {
+    getState() {
       //console.info("mob_state:"+JSON.stringify(basestate.concat(state)));
       return this._getBaseState().concat([this.level, this.stats.hp, this.stats.hpMax]);
-    },
+    }
 
-    setAiState: function (state) {
+    setAiState(state) {
       //if (this.aiState === mobState.RETURNING)
       //console.error("mob, setAiState - state:"+state);
       //try { throw new Error(); } catch(err) { console.error(err.stack); }
       this.aiState = state;
       //console.info(this.id + " has set aiState: " + state);
-    },
+    }
 
-    die: function (attacker) {
+    die(attacker) {
       var self = this;
 
       //console.info("Entity is dead");
@@ -466,28 +476,28 @@ module.exports = Mob = Character.extend({
           self.dealtCount[attacker.id]);
       });
 
-      this._super(attacker);
+      super.die(attacker);
 
       this.destroy();
-    },
+    }
 
-    onKillEntity: function (attacker) {
+    onKillEntity(attacker) {
 
-    },
+    }
 
-    canReach: function(entity) {
+    canReach(entity) {
       var o = this.orientation;
       this.lookAtEntity(entity);
-      var res = this._super(entity);
+      var res = super.canReach(entity);
       this.orientation = o;
       return res;
-    },
+    }
 
-    dropGold: function () {
+    dropGold() {
       return Utils.randomRangeInt(this.level * 2, this.level * 3) * (this.creatureMulti);
-    },
+    }
 
-    returnedToSpawn: function () {
+    returnedToSpawn() {
       console.info("mob.returnedToSpawn");
       //console.warn("mob.returnedToSpawn: mob id "+this.id+", actual delay:"+(Date.now()-this.startReturn));
       console.info("st - id="+this.id+",x="+this.spawnX+",y="+this.spawnY);
@@ -500,9 +510,9 @@ module.exports = Mob = Character.extend({
       this.resetPosition();
       this.resetBehaviour();
       this.invincible = false;
-    },
+    }
 
-    handleMobHate: function(tEntity, hatePoints)
+    handleMobHate(tEntity, hatePoints)
     {
         console.info("handleMobHate");
         if (tEntity && tEntity instanceof Player)
@@ -516,9 +526,9 @@ module.exports = Mob = Character.extend({
                 this.createAttackLink(hEntity);
             }
         }
-    },
+    }
 
-    aggroPlayer: function (player, dmg)
+    aggroPlayer(player, dmg)
     {
       dmg = dmg || 1;
 
@@ -528,17 +538,17 @@ module.exports = Mob = Character.extend({
       this.setAiState(mobState.AGGRO);
       this.attackTimer = Date.now();
       this.freeze = false;
-    },
+    }
 
-    endEffects: function () {
+    endEffects() {
       for (var skilleffect of this.activeEffects)
       {
         skilleffect.endEffects();
       }
       this.activeEffects = [];
-    },
+    }
 
-    goRoam: function (pos) {
+    goRoam(pos) {
       this.go(pos.x, pos.y);
 
       if (this.path)
@@ -547,25 +557,25 @@ module.exports = Mob = Character.extend({
         this.spawnX = pos.x;
         this.spawnY = pos.y;
       }
-    },
+    }
 
-    canRoam: function () {
+    canRoam() {
       return !this.hasTarget() && !this.isDead && !this.isReturning &&
         !this.isMoving() && this.aiState === mobState.IDLE;
-    },
+    }
 
-    followAttack: function (entity) {
+    followAttack(entity) {
       if (entity.isMoving()) {
         var pos = this.nextTile(entity.x,entity.y,entity.orientation);
         pos[0] = Math.floor(pos[0]/G_TILESIZE) * G_TILESIZE;
         pos[1] = Math.floor(pos[1]/G_TILESIZE) * G_TILESIZE;
         var obj = {x: pos[0], y: pos[1]};
-        this._super(obj);
+        super.followAttack(obj);
       }
       else {
-        this._super(entity);
+        super.followAttack(entity);
       }
     }
-});
+}
 
-module.exports = Mob;
+export default Mob;

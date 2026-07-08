@@ -1,70 +1,75 @@
-var _ = require('underscore');
-var cls = require('./lib/class');
-//var Quest = require('./quest');
+import _ from 'underscore';
+import { Types } from './common.js';
+//import Utils from './utils.js';
 
-var Messages = {};
-module.exports = Messages;
+const Messages = {};
+export default Messages;
 
-var Message = cls.Class.extend({
+class Message {
 
-});
+}
 
-Messages.SyncTime = Message.extend({
-    init: function (localtime) {
+Messages.SyncTime = class extends Message {
+    constructor(localtime) {
+        super();
     	this.localtime = localtime;
-    },
-    serialize: function () {
+    }
+    serialize() {
         return [Types.Messages.BI_SYNCTIME,
           this.localtime, Date.now()];
     }
-});
+};
 
-Messages.Spawn = Message.extend({
-    init: function (entity) {
+Messages.Spawn = class extends Message {
+    constructor(entity) {
+        super();
     	this.entity = entity;
-    },
-    serialize: function () {
+    }
+    serialize() {
         var spawn = [Types.Messages.WC_SPAWN];
         return spawn.concat(this.entity.getState());
     }
-});
+};
 
-Messages.Despawn = Message.extend({
-    init: function (entity) {
+Messages.Despawn = class extends Message {
+    constructor(entity) {
+        super();
         this.id = entity.id;
         this.mapIndex = entity.map.index;
         this.x = entity.x;
         this.y = entity.y;
 
-    },
-    serialize: function () {
+    }
+    serialize() {
         return [Types.Messages.WC_DESPAWN, this.id,
                 this.mapIndex, this.x, this.y];
     }
-});
+};
 
-/*Messages.SwapSprite = Message.extend({
-    init: function (entity, animId) {
+/*Messages.SwapSprite = class extends Message {
+    constructor(entity, animId) {
+        super();
     	this.entity = entity;
       //this.spriteId = spriteId;
       this.animId = animId;
-    },
-    serialize: function () {
+    }
+    serialize() {
         return [Types.Messages.WC_SWAPSPRITE,
           this.entity.id, this.entity.kind, this.animId];
     }
-});*/
+};*/
 
-Messages.Move = Message.extend({
-    init: function (entity, orientation, state, x, y) {
+Messages.Move = class extends Message {
+    constructor(entity, orientation, state, x, y) {
+        super();
         this.time = Date.now(),
         this.entity = entity,
         this.orientation = orientation;
         this.state = state;
         this.x = x || this.entity.x;
         this.y = y || this.entity.y;
-    },
-    serialize: function () {
+    }
+    serialize() {
         return [Types.Messages.WC_MOVE,
             this.time,
             this.entity.map.index,
@@ -75,16 +80,17 @@ Messages.Move = Message.extend({
             this.x,
             this.y];
     }
-});
+};
 
-Messages.MovePath = Message.extend({
-    init: function (entity, path) {
+Messages.MovePath = class extends Message {
+    constructor(entity, path) {
+        super();
         this.time = Date.now(),
         this.entity = entity,
         this.path = path,
         this.orientation = entity.orientation;
-    },
-    serialize: function () {
+    }
+    serialize() {
         return ([Types.Messages.WC_MOVEPATH,
               this.time,
               this.entity.map.index,
@@ -94,10 +100,11 @@ Messages.MovePath = Message.extend({
               this.entity.moveSpeed,
             ]).concat(this.path);
     }
-});
+};
 
-Messages.ChangePoints = Message.extend({
-    init: function(entity, modhp, modep) {
+Messages.ChangePoints = class extends Message {
+    constructor(entity, modhp, modep) {
+        super();
         this.id = entity.id;
         this.hp = entity.stats.hp;
         this.hpMax = entity.stats.hpMax;
@@ -105,146 +112,158 @@ Messages.ChangePoints = Message.extend({
         this.epMax = entity.stats.epMax || 0;
         this.modhp = modhp;
         this.modep = modep;
-    },
-    serialize: function() {
+    }
+    serialize() {
         return [Types.Messages.WC_CHANGEPOINTS,
           this.id,
           this.hp, this.hpMax, this.modhp,
           this.ep, this.epMax, this.modep];
     }
-});
+};
 
-Messages.Error = Message.extend({
-  init: function(message) {
+Messages.Error = class extends Message {
+  constructor(message) {
+    super();
     this.message = message;
-  },
-  serialize: function() {
+  }
+  serialize() {
     return [Types.Messages.WC_ERROR,
             this.message];
   }
-});
+};
 
-Messages.Notify = Message.extend({
-  init: function(group, message, vars) {
+Messages.Notify = class extends Message {
+  constructor(group, message, vars) {
+    super();
     this.group = group;
     this.message = message;
     this.vars = vars || [];
-  },
-  serialize: function() {
+  }
+  serialize() {
     var arr =[Types.Messages.WC_NOTIFY,
         this.group,
         this.message]
     return arr.concat(this.vars);
   }
-});
+};
 
-Messages.Dialogue = Message.extend({
-    init: function (npc, langcode, vars) {
+Messages.Dialogue = class extends Message {
+    constructor(npc, langcode, vars) {
+        super();
         this.id = npc.id;
         this.langcode = langcode;
         this.vars = vars || [];
-    },
-    serialize: function () {
+    }
+    serialize() {
         return [Types.Messages.WC_DIALOGUE, this.id, this.langcode].concat(this.vars);
     }
-});
+};
 
-/*Messages.DialogueQuest = Messages.Dialogue.extend({
-  init: function (npc, langcode, questId, vars) {
+/*Messages.DialogueQuest = class extends Messages.Dialogue {
+  constructor(npc, langcode, questId, vars) {
+      super();
       this.id = npc.id;
       this.langcode = langcode;
       this.questId = questId;
       this.vars = vars || [];
   }
-});*/
+};*/
 
-Messages.Quest = Message.extend({
-    init: function(quest) {
+Messages.Quest = class extends Message {
+    constructor(quest) {
+        super();
         this.quest = quest;
-    },
-    serialize: function(){
+    }
+    serialize(){
         var arr = this.quest.toClient();
         return ([Types.Messages.WC_QUEST]).concat(arr);
     }
-});
+};
 
-Messages.Achievement = Message.extend({
-    init: function(achievement) {
+Messages.Achievement = class extends Message {
+    constructor(achievement) {
+        super();
         this.achievement = achievement;
-    },
-    serialize: function(){
+    }
+    serialize(){
         var arr = this.achievement.toClient(this.achievement);
         return ([Types.Messages.WC_ACHIEVEMENT]).concat(arr);
     }
-});
+};
 
-Messages.Log = Message.extend({
-    init: function(message) {
+Messages.Log = class extends Message {
+    constructor(message) {
+        super();
         this.message = message;
         this.message.unshift(Types.Messages.WC_LOG);
-    },
-    serialize: function() {
+    }
+    serialize() {
         return this.message;
     }
-});
+};
 
 
-Messages.SkillLoad = Message.extend({
-    init: function(index, exp) {
+Messages.SkillLoad = class extends Message {
+    constructor(index, exp) {
+        super();
         this.index = index;
         this.exp = exp;
-    },
-    serialize: function() {
+    }
+    serialize() {
         return [Types.Messages.WC_SKILLLOAD,
             this.index,
             this.exp];
     }
-});
+};
 
-Messages.SkillEffects = Message.extend({
-    init: function(player, effects) {
+Messages.SkillEffects = class extends Message {
+    constructor(player, effects) {
+        super();
         this.id = player.id;
         this.effects = effects;
-    },
-    serialize: function() {
+    }
+    serialize() {
         return ([Types.Messages.WC_SKILLEFFECTS,
             this.id]).concat(this.effects);
     }
-});
+};
 
-Messages.SkillXP = Message.extend({
-    init: function(skillXPs) {
+Messages.SkillXP = class extends Message {
+    constructor(skillXPs) {
+        super();
         this.skillXPs = skillXPs;
-    },
-    serialize: function() {
+    }
+    serialize() {
         var arr = [Types.Messages.WC_SKILLXP];
         arr.push(skillXPs.length);
         arr.concat(skillXPs);
         return arr;
     }
-});
+};
 
-Messages.Chat = Message.extend({
-    init: function (player, group, message) {
+Messages.Chat = class extends Message {
+    constructor(player, group, message) {
+        super();
         this.playerId = player.id;
         this.group = group;
         this.message = message;
-    },
-    serialize: function () {
+    }
+    serialize() {
         return [Types.Messages.WC_CHAT,
                 this.playerId,
                 this.group,
                 this.message];
     }
-});
+};
 
-Messages.TeleportMap = Message.extend({
-    init: function (entity, subIndex, status) {
+Messages.TeleportMap = class extends Message {
+    constructor(entity, subIndex, status) {
+        super();
         this.entity = entity,
         this.subIndex = subIndex,
         this.status = status;
-    },
-    serialize: function () {
+    }
+    serialize() {
         return [Types.Messages.WC_TELEPORT_MAP,
                 this.entity.map.index,
         	      this.subIndex,
@@ -252,12 +271,13 @@ Messages.TeleportMap = Message.extend({
                 this.entity.x,
                 this.entity.y];
     }
-});
+};
 
 // (entity1, entity2, hpMod, hp, maxHp, crit, effects)
 
-Messages.Damage = Message.extend({
-    init: function (data) {
+Messages.Damage = class extends Message {
+    constructor(data) {
+        super();
         var attacker = data[0];
         var target = data[1];
         this.entity1 = attacker;
@@ -270,8 +290,8 @@ Messages.Damage = Message.extend({
         this.epMax = target.stats.epMax || 0;
         this.crit = (data[4]) ? 1 : 0;
         this.effects = data[5];
-    },
-    serialize: function () {
+    }
+    serialize() {
         var arr = [Types.Messages.WC_DAMAGE,
           this.entity1.id,
           this.entity2.id,
@@ -287,13 +307,14 @@ Messages.Damage = Message.extend({
           arr.concat(this.effects);
         return arr;
     }
-});
+};
 
-Messages.StatInfo = Message.extend({
-    init: function(player) {
+Messages.StatInfo = class extends Message {
+    constructor(player) {
+        super();
         this.player = player;
-    },
-    serialize: function() {
+    }
+    serialize() {
       var stats = this.player.stats;
       var data = [Types.Messages.WC_STATINFO,
       	    stats.attack,
@@ -309,13 +330,14 @@ Messages.StatInfo = Message.extend({
       ];
       return data;
     }
-});
+};
 
-Messages.UpdateLook = Message.extend({
-    init: function(player) {
+Messages.UpdateLook = class extends Message {
+    constructor(player) {
+        super();
         this.player = player;
-    },
-    serialize: function() {
+    }
+    serialize() {
       return [Types.Messages.WC_LOOKUPDATE,
             this.player.id,
             this.player.sprites[0],
@@ -323,28 +345,30 @@ Messages.UpdateLook = Message.extend({
       	    this.player.colors[0],
       	    this.player.colors[1]];
     }
-});
+};
 
-Messages.AppearanceList = Message.extend({
-    init: function(user, looks) {
+Messages.AppearanceList = class extends Message {
+    constructor(user, looks) {
+        super();
         this.looks = Utils.BinArrayToBase64(user.looks);
         this.prices = looks.prices;
-    },
-    serialize: function() {
+    }
+    serialize() {
         return [Types.Messages.WC_APPEARANCE, this.looks].concat(this.prices);
     }
-});
+};
 
 // type 0 - INVENTORY
 // type 1 - BANK
 // type 2 - EQUIPMENT
 
-Messages.ItemSlot = Message.extend({
-  init: function(type, items) {
+Messages.ItemSlot = class extends Message {
+  constructor(type, items) {
+    super();
     this.type = type;
     this.items = items;
-  },
-  serialize: function() {
+  }
+  serialize() {
   		var msg = [Types.Messages.WC_ITEMSLOT,
         this.type,
         this.items.length];
@@ -360,14 +384,15 @@ Messages.ItemSlot = Message.extend({
         }
       return msg;
    }
-});
+};
 
-Messages.ItemLevelUp = Message.extend({
-  init: function(index, item) {
+Messages.ItemLevelUp = class extends Message {
+  constructor(index, item) {
+    super();
     this.index = index;
     this.item = item;
-  },
-  serialize: function() {
+  }
+  serialize() {
   	if (this.item) {
     	return [Types.Messages.WC_ITEMLEVELUP,
     		this.index,
@@ -375,115 +400,125 @@ Messages.ItemLevelUp = Message.extend({
     		this.item.itemExperience];
   	}
   }
-});
+};
 
-Messages.Stat = Message.extend({
-    init: function (type, value, change) {
+Messages.Stat = class extends Message {
+    constructor(type, value, change) {
+        super();
         this.type = type;
         this.value = value;
         this.change = change;
-    },
-    serialize: function () {
+    }
+    serialize() {
         return [Types.Messages.WC_STAT,
                 this.type,
                 this.value,
                 this.change];
     }
-});
+};
 
-Messages.LevelUp = Message.extend({
-    init: function (type, level, exp) {
+Messages.LevelUp = class extends Message {
+    constructor(type, level, exp) {
+        super();
         this.type = type;
         this.level = level;
         this.exp = exp;
-    },
-    serialize: function () {
+    }
+    serialize() {
         return [Types.Messages.WC_LEVELUP,
                 this.type,
                 this.level,
                 this.exp];
     }
-});
+};
 
-Messages.List = Message.extend({
-    init: function (ids) {
+Messages.List = class extends Message {
+    constructor(ids) {
+        super();
         this.ids = ids;
-    },
-    serialize: function () {
+    }
+    serialize() {
         var list = this.ids;
         list.unshift(Types.Messages.WC_LIST);
         //console.info(JSON.stringify(list));
         return list;
     }
-});
+};
 
-Messages.AuctionOpen = Message.extend({
-    init: function (itemData) {
+Messages.AuctionOpen = class extends Message {
+    constructor(itemData) {
+        super();
         this.itemData = itemData;
-    },
-    serialize: function () {
+    }
+    serialize() {
         return this.itemData;
     }
-});
+};
 
-Messages.Speech = Message.extend({
-    init: function (entity, kind, value) {
+Messages.Speech = class extends Message {
+    constructor(entity, kind, value) {
+        super();
        this.entityid = entity.id;
     	 this.kind = kind;
     	 this.value = value;
-    },
-    serialize: function () {
+    }
+    serialize() {
         return [Types.Messages.WC_SPEECH, this.entityid, this.kind, this.value];
     }
-});
+};
 
-Messages.Gold = Message.extend({
-	init: function (player) {
+Messages.Gold = class extends Message {
+	constructor(player) {
+	    super();
 		this.invgold = player.items.gold[0];
     this.bankgold = player.items.gold[1];
     this.gems = player.user.gems;
-	},
-	serialize: function () {
+	}
+	serialize() {
 		return [Types.Messages.WC_GOLD, this.invgold, this.bankgold,
           this.gems];
   }
-});
+};
 
-Messages.BlockModify = Message.extend({
-    init: function (entity, id, state) {
+Messages.BlockModify = class extends Message {
+    constructor(entity, id, state) {
+        super();
     	this.entity = entity;
       this.id = id;
       this.state = state;
-    },
-    serialize: function () {
+    }
+    serialize() {
         var spawn = [Types.Messages.WC_SPAWN, this.id, this.state];
         return spawn.concat(this.entity.getState());
     }
-});
+};
 
-Messages.PartyInvite = Message.extend({
-    init: function(id) {
+Messages.PartyInvite = class extends Message {
+    constructor(id) {
+        super();
         this.id = id;
-    },
-    serialize: function() {
+    }
+    serialize() {
         return [Types.Messages.WC_PARTY, 2, this.id];
     }
-});
+};
 
-Messages.Party = Message.extend({
-    init: function (members) {
+Messages.Party = class extends Message {
+    constructor(members) {
+        super();
         this.members = members;
-    },
-    serialize: function () {
+    }
+    serialize() {
         return [Types.Messages.WC_PARTY, 1].concat(this.members);
     }
-});
+};
 
-Messages.PlayerInfo = Message.extend({
-    init: function (player) {
+Messages.PlayerInfo = class extends Message {
+    constructor(player) {
+        super();
         this.player = player;
-    },
-    serialize: function () {
+    }
+    serialize() {
         return [Types.Messages.WC_PLAYERINFO,
           this.player.stats.exp.base,
           this.player.stats.exp.attack,
@@ -496,10 +531,11 @@ Messages.PlayerInfo = Message.extend({
           this.player.stats.exp.mining
         ];
     }
-});
+};
 
-/*Messages.Looks = Message.extend({
-    init: function (player) {
+/*Messages.Looks = class extends Message {
+    constructor(player) {
+        super();
         this.player = player;
         this.sprite1 = player.sprites[0];
         this.sprite2 = player.getWeaponSprite();
@@ -507,24 +543,25 @@ Messages.PlayerInfo = Message.extend({
           this.sprite1 = player.sprites[2];
           //this.sprite2 = player.sprites[3];
         }
-    },
-    serialize: function () {
+    }
+    serialize() {
         return [Types.Messages.WC_LOOKS,
           this.player.id,
           (this.player.isArcher() ? 1 : 0), //].concat(this.player.sprites);
           this.sprite1,
           this.sprite2];
     }
-});*/
+};*/
 
-Messages.setSprite = Message.extend({
-    init: function (entity, sprite1, sprite2, animName) {
+Messages.setSprite = class extends Message {
+    constructor(entity, sprite1, sprite2, animName) {
+        super();
         this.id = entity.id;
         this.sprite1 = sprite1;
         this.sprite2 = sprite2;
         this.animName = animName;
-    },
-    serialize: function () {
+    }
+    serialize() {
         var arr = [Types.Messages.WC_SET_SPRITE,
           this.id,
           this.sprite1];
@@ -534,29 +571,31 @@ Messages.setSprite = Message.extend({
           arr.push(this.animName);
         return arr;
     }
-});
+};
 
-Messages.setAnimation = Message.extend({
-    init: function (entity, animation) {
+Messages.setAnimation = class extends Message {
+    constructor(entity, animation) {
+        super();
         this.id = entity.id;
         this.animation = animation;
-    },
-    serialize: function () {
+    }
+    serialize() {
         return [Types.Messages.WC_SET_ANIMATION,
           this.id,
           this.animation];
     }
-});
+};
 
-Messages.Harvest = Message.extend({
-    init: function (player, action, gx, gy, duration) {
+Messages.Harvest = class extends Message {
+    constructor(player, action, gx, gy, duration) {
+        super();
         this.duration = duration || 0;
         this.id = player.id;
         this.action = action;
         this.gx = gx;
         this.gy = gy;
-    },
-    serialize: function () {
+    }
+    serialize() {
         var arr = [Types.Messages.WC_HARVEST,
           this.id,
           this.action,
@@ -566,4 +605,4 @@ Messages.Harvest = Message.extend({
           arr.push(this.duration);
         return arr;
     }
-});
+};

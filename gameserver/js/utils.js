@@ -1,5 +1,8 @@
-var Utils = {},
-    sanitizer = require('sanitizer');
+import sanitizer from 'sanitizer';
+import { Types } from './common.js';
+import { G_TILESIZE } from './main.js';
+
+var Utils = {};
 
 Utils.sanitize = function(string) {
     // Strip unsafe tags, then escape as html entities.
@@ -30,7 +33,9 @@ Utils.ratioToBool = function(ratio){
     }
 };
 
-Utils.clamp = (min, max, value) => Math.max(min, Math.min(max, value));
+Utils.clamp = function  (min, max, value) {
+  return Math.max(min, Math.min(max, value));
+};
 
 Utils.randomOrientation = function() {
     var o, r = Utils.random(4);
@@ -263,7 +268,7 @@ if (!Array.prototype.parseInt) {
 
 
 //if (!ArrayParseInt) {
-ArrayParseInt = function () {
+var ArrayParseInt = function () {
   return this.map(function (x) {
     return parseInt(x, 10);
   });
@@ -444,7 +449,7 @@ if (!Array.prototype.removeVal) {
 }
 
 /*
-module.exports = removeEmpty = function (obj) {
+export const removeEmpty = function (obj) {
   return Object.fromEntries(
     Object.entries(obj)
       .filter(([_, v]) => v != null)
@@ -523,4 +528,4 @@ Utils.validatePositiveNumber = function(num) {
   return Number.isInteger(n) && n > 0;
 };
 
-module.exports = Utils;
+export default Utils;

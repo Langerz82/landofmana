@@ -1,5 +1,5 @@
-var _ = require('underscore'),
-		MobSpeech = require("../../shared/data/mobs_speech.json");
+import _ from 'underscore';
+import MobSpeech from "../../shared/data/mobs_speech.json" with { type: 'json' };
 
 var speech = {};
 _.each( MobSpeech, function( value, key ) {
@@ -9,4 +9,5 @@ _.each( MobSpeech, function( value, key ) {
 });
 
 //console.info(JSON.stringify(speech));
-module.exports.Speech = speech;
+export const Speech = speech;
+export default { Speech };

@@ -1,73 +1,70 @@
-//var cls = require('./lib/class');
-var Area = require('./area'),
-    Utils = require('../utils');
+import _ from 'underscore';
+import Area from './area.js';
 
-var EntityArea = Area.extend({
-    init: function(map, id, x, y, width, height, elipse, excludeId) {
-        this._super(map, id, x, y, width, height, elipse, excludeId);
+class EntityArea extends Area {
+    constructor(map, id, x, y, width, height, elipse, excludeId) {
+        super(map, id, x, y, width, height, elipse, excludeId);
         this.entities = [];
         this.hasCompletelyRespawned = true;
-    },
+    }
 
-    removeFromArea: function(entity) {
-      var i = _.indexOf(_.pluck(this.entities, 'id'), entity.id);
-      this.entities.splice(i, 1);
+    removeFromArea(entity) {
+        var i = _.indexOf(_.pluck(this.entities, 'id'), entity.id);
+        this.entities.splice(i, 1);
 
-      if (this.isEmpty() && this.hasCompletelyRespawned && this.emptyCallback) {
-        this.hasCompletelyRespawned = false;
-        this.emptyCallback();
-      }
-    },
+        if (this.isEmpty() && this.hasCompletelyRespawned && this.emptyCallback) {
+            this.hasCompletelyRespawned = false;
+            this.emptyCallback();
+        }
+    }
 
-    onEmpty: function(callback) {
-      this.emptyCallback = callback;
-    },
+    onEmpty(callback) {
+        this.emptyCallback = callback;
+    }
 
-    addToArea: function(entity) {
-      if (entity && entity.kind !== null) {
-        this.entities.push(entity);
-        entity.area = this;
-      }
+    addToArea(entity) {
+        if (entity && entity.kind !== null) {
+            this.entities.push(entity);
+            entity.area = this;
+        }
 
-      if (this.isFull()) {
-        this.hasCompletelyRespawned = true;
-      }
-    },
+        if (this.isFull()) {
+            this.hasCompletelyRespawned = true;
+        }
+    }
 
-    setNumberOfEntities: function(nb) {
-      this.nbEntities = nb;
-    },
+    setNumberOfEntities(nb) {
+        this.nbEntities = nb;
+    }
 
-    isEmpty: function() {
-      return !_.any(this.entities, function(entity) {
-        return !entity.isDead;
-      });
-    },
+    isEmpty() {
+        return !_.any(this.entities, function(entity) {
+            return !entity.isDead;
+        });
+    }
 
-    isFull: function() {
-      return !this.isEmpty() && (this.nbEntities === _.size(this.entities));
-    },
+    isFull() {
+        return !this.isEmpty() && (this.nbEntities === _.size(this.entities));
+    }
 
-    respawn: function(entity, delay) {
+    respawn(entity, delay) {
         var self = this;
         delay = entity.spawnDelay || delay;
 
         this.removeFromArea(entity);
 
         setTimeout(function() {
-          var	pos = self.map.entities.spaceEntityRandomApart(2, self._getRandomPositionInsideArea.bind(self,20), self.entities);
+            var	pos = self.map.entities.spaceEntityRandomApart(2, self._getRandomPositionInsideArea.bind(self,20), self.entities);
 
-          if (pos) {
-            entity.spawnX = pos.x;
-            entity.spawnY = pos.y;
-            entity.setPosition(pos.x,pos.y);
-          }
+            if (pos) {
+                entity.spawnX = pos.x;
+                entity.spawnY = pos.y;
+                entity.setPosition(pos.x,pos.y);
+            }
 
-          entity.respawn();
+            entity.respawn();
         }, delay);
-    },
+    }
+}
 
-
-});
-
-module.exports = EntityArea;
+export default EntityArea;

@@ -1,18 +1,16 @@
-var cls = require("./lib/class");
-
-module.exports = Timer = cls.Class.extend({
-    init: function(duration, startTime) {
+class Timer {
+    constructor(duration, startTime) {
         this.restart(startTime);
 
         this.duration = duration;
-    },
+    }
 
-    restart: function (startTime)
+    restart(startTime)
     {
       this.lastTime = startTime || Date.now();
-    },
+    }
 
-    isOver: function(time) {
+    isOver(time) {
         var over = false;
 
         if (isNaN(time) || time === null || time === 0)
@@ -33,8 +31,8 @@ module.exports = Timer = cls.Class.extend({
             this.lastTime = time;
         }
         return over;
-    },
-    /*isOverLatency: function(time, latency) {
+    }
+    /*isOverLatency(time, latency) {
         var over = false;
 
         if((time - this.lastTime) > (this.duration - latency)) {
@@ -44,4 +42,6 @@ module.exports = Timer = cls.Class.extend({
         return over;
     }*/
 
-});
+}
+
+export default Timer;

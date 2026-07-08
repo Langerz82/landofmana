@@ -1,5 +1,5 @@
-var _ = require('underscore'),
-		ItemLootJson = require("../../shared/data/itemloot.json");
+import _ from 'underscore';
+import ItemLootJson from "../../shared/data/itemloot.json" with { type: 'json' };
 
 var ItemLoot = [];
 
@@ -15,4 +15,5 @@ _.each( ItemLootJson, function( val, key ) {
 
 //console.info("ITEMLOOT="+JSON.stringify(ItemLoot));
 
-module.exports.ItemLoot = ItemLoot;
+export { ItemLoot };
+export default { ItemLoot };

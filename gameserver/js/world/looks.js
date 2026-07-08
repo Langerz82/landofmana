@@ -1,61 +1,66 @@
-var Messages = require("../message");
+import Messages from '../message.js';
+import AppearanceData from '../data/appearancedata.js';
 
-
-module.exports = Looks = cls.Class.extend({
-    init: function(){
+class Looks {
+    constructor() {
         this.prices = [];
         this.reset();
-    },
+    }
 
-    reset: function ()
+    reset()
     {
         console.info("LOOKS INIT");
 
         var length = AppearanceData.Data.length;
         for (var i = 0; i < length; i++) {
-          this.prices.push(500);
+            this.prices.push(500);
         }
         this.prices[0] = 0; // Sword1
         this.prices[50] = 0; // WoodenBow
         this.prices[77] = 0; // Cloth armor
         this.prices[151] = 0; // Cloth armor
-    },
-
-    load: function (data)
-    {
-      var self = this;
-      //console.info("LOOKS LOAD: "+JSON.stringify(data));
-
-      if (!data)
-        this.reset();
-
-      this.prices = data.parseInt();
-    },
-
-    save: function (world)
-    {
-      console.info("LOOKS SAVED");
-
-      if (!this.prices)
-        return true;
-
-      data = this.prices.join(",");
-      if (world.userHandler) {
-        world.userHandler.sendLooksData(data);
-        return true;
-      }
-      return false;
-    },
-
-    modPrice: function (index, modPrice) {
-      this.prices[index] += modPrice;
-    },
-
-    pricesToString: function () {
-      return this.prices.join(',');
-    },
-
-    sendLooks: function (player) {
-      player.sendPlayer(new Messages.AppearanceList(player.user, this));
     }
-});
+
+    load(data)
+    {
+        var self = this;
+        //console.info("LOOKS LOAD: "+JSON.stringify(data));
+
+        if (!data)
+            this.reset();
+
+        this.prices = data.parseInt();
+    }
+
+    // NOTE: `data` was a bare (undeclared) assignment in the original CommonJS
+    // source, which created an implicit global there; declared with `var` here
+    // since ES modules are always strict mode and forbid implicit globals.
+    save(world)
+    {
+        console.info("LOOKS SAVED");
+
+        if (!this.prices)
+            return true;
+
+        var data = this.prices.join(",");
+        if (world.userHandler) {
+            world.userHandler.sendLooksData(data);
+            return true;
+        }
+        return false;
+    }
+
+    modPrice(index, modPrice) {
+        this.prices[index] += modPrice;
+    }
+
+    pricesToString() {
+        return this.prices.join(',');
+    }
+
+    sendLooks(player) {
+        player.sendPlayer(new Messages.AppearanceList(player.user, this));
+    }
+}
+
+export default Looks;

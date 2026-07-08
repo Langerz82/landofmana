@@ -1,40 +1,46 @@
-var PlayerGroup = require("../playergroup");
-var Message = require("../message");
+import PlayerGroup from '../playergroup.js';
+import Message from '../message.js';
 
-module.exports = PartyManager = Class.extend({
-  init: function (world) {
-    this.world = world;
-    this.party = [];
-  },
-
-  addParty: function(player1, player2)
-  {
-      var party = new PlayerGroup(player1, "party", true);
-      party.setMemberMessage(Message.Party);
-      party.addName(player2.name);
-      this.party.push(party);
-      return party;
-  },
-
-  removeParty: function(party)
-  {
-      this.party.remove(party);
-      //this.party.splice(this.party.indexOf(party), 1);
-      /*this.party = _.reject(this.party, function(el)
-      {
-          return el === party;
-      });*/
-      party = null;
-  },
-
-  removePlayer: function (player) {
-    if (player.hasOwnProperty("party") && player.party)
-    {
-        var party = player.party;
-        party.removeName(player.name);
-        player.packetHandler.partyHandler.handlePartyAbandoned(party);
+class PartyManager {
+    constructor(world) {
+        this.world = world;
+        this.party = [];
     }
-  },
+
+    addParty(player1, player2)
+    {
+        var party = new PlayerGroup(player1, "party", true);
+        party.setMemberMessage(Message.Party);
+        party.addName(player2.name);
+        this.party.push(party);
+        return party;
+    }
+
+    // NOTE: pre-existing bug preserved from the original — `.remove(party)` is
+    // not a native Array method; the rest of the codebase's own array-removal
+    // helper is named `removeVal` (see e.g. PlayerQuests.removeQuest), so this
+    // would throw a TypeError at runtime in the original CommonJS version too.
+    removeParty(party)
+    {
+        this.party.remove(party);
+        //this.party.splice(this.party.indexOf(party), 1);
+        /*this.party = _.reject(this.party, function(el)
+        {
+            return el === party;
+        });*/
+        party = null;
+    }
+
+    removePlayer(player) {
+        if (player.hasOwnProperty("party") && player.party)
+        {
+            var party = player.party;
+            party.removeName(player.name);
+            player.packetHandler.partyHandler.handlePartyAbandoned(party);
+        }
+    }
 
 
-});
+}
+
+export default PartyManager;

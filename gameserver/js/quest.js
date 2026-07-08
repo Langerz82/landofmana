@@ -1,6 +1,4 @@
-var cls = require('./lib/class');
-
-module.exports = getQuestObject = function(arr) {
+const getQuestObject = function(arr) {
   var self = {};
   self.toArray = function (obj) {
     return [obj.type,
@@ -29,8 +27,15 @@ module.exports = getQuestObject = function(arr) {
   return self;
 };
 
-module.exports = Quest = cls.Class.extend({
-    init: function(qArray) {
+// NOTE: the original CommonJS file did `module.exports = getQuestObject`
+// and then, further down, `module.exports = Quest = ...`, so the second
+// assignment silently overwrote the first -- `require('./quest')` only ever
+// resolved to `Quest`. That default-export behavior is preserved below;
+// `getQuestObject` is additionally exposed as a named export (entityquests.js
+// relies on it and previously reached it only because both files shared the
+// same leaked global scope).
+class Quest {
+    constructor(qArray) {
       //qArray = qArray.parseInt(, 10);
       if (!qArray)
         return;
@@ -44,9 +49,9 @@ module.exports = Quest = cls.Class.extend({
       this.data2 = parseInt(qArray[6], 10) || 0;
       this.object = qArray[7] || null;
       this.object2 = qArray[8] || null;
-    },
+    }
 
-    assign: function (quest) {
+    assign(quest) {
       this.id = parseInt(quest.id, 10);
       this.type = parseInt(quest.type, 10);
       this.npcQuestId = parseInt(quest.npcQuestId, 10);
@@ -56,9 +61,9 @@ module.exports = Quest = cls.Class.extend({
       this.data2 = parseInt(quest.data2, 10);
       this.object = quest.object;
       this.object2 = quest.object2;
-    },
+    }
 
-    toArray: function () {
+    toArray() {
       var cols = [parseInt(this.id, 10),
         parseInt(this.type, 10),
         parseInt(this.npcQuestId, 10),
@@ -74,9 +79,9 @@ module.exports = Quest = cls.Class.extend({
         cols = cols.concat(this.object2.toArray(this.object2));
       }
       return cols;
-    },
+    }
 
-    toClient: function () {
+    toClient() {
       var cols = [this.id,
         this.type,
         this.npcQuestId,
@@ -97,9 +102,12 @@ module.exports = Quest = cls.Class.extend({
         cols = cols.concat([0,0,0]);
       }
       return cols;
-    },
+    }
 
-    toString: function () {
+    toString() {
         return this.toArray().join(",");
     }
-});
+}
+
+export { getQuestObject };
+export default Quest;
