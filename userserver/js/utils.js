@@ -1,5 +1,7 @@
-var Utils = {},
-    sanitizer = require('sanitizer');
+import sanitizer from 'sanitizer';
+
+var Utils = {};
+
 
 Utils.sanitize = function(string) {
     // Strip unsafe tags, then escape as html entities.
@@ -274,13 +276,11 @@ if (!Array.prototype.parseInt) {
 }*/
 
 
-//if (!ArrayParseInt) {
-ArrayParseInt = function () {
+Utils.ArrayParseInt = function () {
   return this.map(function (x) {
     return parseInt(x, 10);
   });
 }
-//}
 
 if (!String.prototype.reverse) {
   String.prototype.reverse = function () {
@@ -397,4 +397,6 @@ module.exports = removeEmpty = function (obj) {
   );
 }
 */
-module.exports = Utils;
+//module.exports = Utils;
+
+export default Utils;

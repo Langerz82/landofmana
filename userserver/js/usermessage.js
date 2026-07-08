@@ -1,5 +1,5 @@
 import _ from 'underscore';
-import Class from './lib/class.js';
+
 // import Quest from './quest.js'; // commented out in original
 
 import Types from '../shared/js/gametypes.js';

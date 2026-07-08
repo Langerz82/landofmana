@@ -224,18 +224,11 @@ if (!Array.prototype.In) {
   });
 }
 
-/*ArrayParseInt = function() {
-  var l = this.length;
-  for (var i=0; i < l; ++i)
-    this[i] = parseInt(this[i]);
-  return this;
+Utils.ArrayParseInt = function () {
+  return this.map(function (x) {
+    return parseInt(x, 10);
+  });
 }
-
-ArrayIn = function(index) {
-  if (index >= 0 && index < this.length)
-    return true;
-  return false;
-}*/
 
 if (!String.prototype.reverse) {
   String.prototype.reverse = function () {

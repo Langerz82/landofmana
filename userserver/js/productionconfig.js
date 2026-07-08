@@ -1,4 +1,3 @@
-import cls from './lib/class.js';
 
 class ProductionConfig {
     constructor(config) {

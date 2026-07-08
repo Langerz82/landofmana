@@ -1,7 +1,8 @@
-var _ = require('underscore'),
-    AppearancesJson = require("../../shared/data/appearance.json");
+import _ from 'underscore';
+import AppearancesJson from "../../shared/data/appearance.json" with { type: 'json' };
 
-var AppearanceData = [];
+var AppearanceData = {};
+AppearanceData.Data = [];
 
 var ItemGearTypes = {
   "weapon": [],
@@ -18,7 +19,7 @@ var ItemGearTypes = {
 });*/
 
 _.each( AppearancesJson, function( value, key) {
-	AppearanceData.push({
+	AppearanceData.Data.push({
 		name: value.name,
 		type: value.type,
 		sprite: value.sprite,
@@ -32,11 +33,10 @@ _.each( AppearancesJson, function( value, key) {
 
 //console.log(JSON.stringify(ItemGearTypes));
 
+AppearanceData.ItemGearTypes = ItemGearTypes;
 
-module.exports.ItemGearTypes = ItemGearTypes;
-
-module.exports.Data = AppearanceData;
-
-module.exports.getSpriteByID = function (id) {
+AppearanceData.getSpriteByID = function (id) {
   return AppearanceData[id].sprite;
 }
+
+export default AppearanceData;

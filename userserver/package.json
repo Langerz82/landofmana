@@ -1,5 +1,6 @@
 {
   "name": "RetroRPGOnline2Server",
+  "type": "module",
   "version": "1.0.0",
   "description": "Retro RPG Online 2 - Server ",
   "main": "js/main.js",

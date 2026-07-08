@@ -266,14 +266,11 @@ if (!Array.prototype.parseInt) {
   });
 }*/
 
-
-//if (!ArrayParseInt) {
-var ArrayParseInt = function () {
+Utils.ArrayParseInt = function () {
   return this.map(function (x) {
     return parseInt(x, 10);
   });
 }
-//}
 
 if (!String.prototype.reverse) {
   String.prototype.reverse = function () {

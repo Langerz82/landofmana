@@ -1,18 +1,17 @@
-var _ = require('underscore');
-var BISON = require('bison');
-var useBison = false;
-var http = require('http');
-var https = require('https');
-const { Server } = require('socket.io');
-var url = require('url');
-var Utils = require('./utils');
-var WS = {};
-var zlib = require('zlib');
-var connect = require('connect');
-var fs = require('fs');
-var io_client = require('socket.io-client');
 
-module.exports = WS;
+import BISON from 'bison';
+let useBison = false;
+import http from 'http';
+import https from 'https';
+import { Server } from 'socket.io';
+import url from 'url';
+let WS = {};
+import zlib from 'zlib';
+import connect from 'connect';
+import fs from 'fs';
+import io_client from 'socket.io-client';
+
+export default WS;
 
 /**
  * Abstract Server and Connection classes

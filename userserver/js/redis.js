@@ -1,12 +1,9 @@
 /* global Types, log, client */
 
-const crypto = require('crypto');
-const fs = require('fs');
-const redis = require("redis");
-const bcrypt = require("bcrypt");
-
-const Utils = require('./utils');
-//const Auction = require('./auction');
+import crypto from 'crypto';
+import fs from 'fs';
+import redis from "redis";
+import bcrypt from "bcrypt";
 
 let client;
 
@@ -911,4 +908,4 @@ class DatabaseHandler {
   // END BANNED USERS
 }
 
-module.exports = DatabaseHandler;
+export default DatabaseHandler;

@@ -1,4 +1,3 @@
-import Class from "./lib/class.js";
 import _ from 'underscore';
 
 import GameTypes from "../shared/js/gametypes.js";
@@ -12,7 +11,6 @@ import AppearanceData from './data/appearancedata.js';
 
 // Export everything that was globally assigned
 export {
-  Class,
   _,
   GameTypes,
   ItemTypes,
@@ -23,7 +21,6 @@ export {
 
 // For backward compatibility (if other files still use global-like access)
 export default {
-  Class,
   _,
   GameTypes,
   ItemTypes,
@@ -32,7 +29,6 @@ export default {
   AppearanceData
 };
 
-global.Class = Class;
 global._ = _;
 global.GameTypes = GameTypes;
 global.ItemTypes = ItemTypes;
