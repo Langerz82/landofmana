@@ -39,4 +39,6 @@ class Timer {
     */
 }
 
-module.exports = Timer;
+// Rest of the codebase uses ES module import/export; `module.exports` doesn't
+// exist in that context and would throw if this were ever imported normally.
+export default Timer;

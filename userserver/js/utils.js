@@ -181,11 +181,11 @@ Utils.removeDoubleQuotes = function (val) {
 }
 
 Utils.max = function (array, colIndex) {
-	Math.max.apply(Math, array.map(function (v) { return v[colIndex]; }));
+	return Math.max.apply(Math, array.map(function (v) { return v[colIndex]; }));
 }
 
 Utils.min = function (array, colIndex) {
-	Math.min.apply(Math, array.map(function (v) { return v[colIndex]; }));
+	return Math.min.apply(Math, array.map(function (v) { return v[colIndex]; }));
 }
 
 Utils.array_values = function (input) {

@@ -360,10 +360,15 @@ class DatabaseHandler {
 
         if (user.checkUser(db_user)) {
           const ipAddress = user.connection._connection.remoteAddress;
-          if (!data.ipAddesses) {
+          // Was reading "ipAddesses" (typo) which never matched the stored
+          // "ipAddresses" field, so this always fell into the first branch and
+          // overwrote the IP history with just the current IP on every login.
+          // Also `toString(...)` was called as a bare function rather than
+          // String(data.ipAddresses)/data.ipAddresses.toString().
+          if (!data.ipAddresses) {
             client.hset(uKey, "ipAddresses", ipAddress);
           } else {
-            if (!toString(data.ipAddesses).includes(ipAddress)) {
+            if (!String(data.ipAddresses).includes(ipAddress)) {
               client.hset(uKey, "ipAddresses", db_user.ipAddresses + "," + ipAddress);
             }
           }

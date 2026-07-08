@@ -214,7 +214,11 @@ WS.socketioConnection = class extends Connection {
             zlib.gzip(data, { level: 1 }, (err, buffer) => {
                 if (!err) {
                     const encoded = Buffer.from(buffer).toString('base64');
-                    self.sendUTF8('z|' + encoded);
+                    // Must match the "2" flag checked by fnOnMessage's decompression
+                    // branch above (and the flag userConnection.send() below actually
+                    // uses) -- sending "z|" here meant every payload >= 2048 bytes was
+                    // unparseable garbage on the receiving end.
+                    self.sendUTF8('2' + encoded);
                 }
             });
         } else {

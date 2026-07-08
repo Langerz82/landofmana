@@ -36,7 +36,7 @@ _.each( AppearancesJson, function( value, key) {
 AppearanceData.ItemGearTypes = ItemGearTypes;
 
 AppearanceData.getSpriteByID = function (id) {
-  return AppearanceData[id].sprite;
+  return AppearanceData.Data[id].sprite;
 }
 
 export default AppearanceData;

@@ -360,7 +360,9 @@ class WorldHandler {
           self.sendMessage( new UserMessages.SendLoadPlayerData(playerName, objData.data));
           delete self.playerCreateData[playerName];
         }
-        self.playerCreateData[playerName] = objData;
+        else {
+          self.playerCreateData[playerName] = objData;
+        }
       };
 
       DBH.loadPlayerUserInfo(user, function (username, data) {

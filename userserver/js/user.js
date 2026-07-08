@@ -60,6 +60,11 @@ class User {   // Assuming `cls` is still available globally or via require
 
     this.gems = 0;
 
+    // Must start at 0 -- checkUser() does `++this.passwordTries`, and
+    // incrementing an undefined value produces NaN forever, which made
+    // `NaN > 3` always false and disabled the lockout-after-3-tries check.
+    this.passwordTries = 0;
+
     this.lastPacketTime = Date.now();
 
     this.listener = function (message) {

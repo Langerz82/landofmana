@@ -194,7 +194,14 @@ async function main(config) {
   });
 
   server.onRequestStatus(() => {
-    return JSON.stringify(getWorldDistribution(worlds)); // Note: `worlds` not defined in original - check
+    // `getWorldDistribution`/`worlds` were never defined anywhere in this
+    // codebase, so this threw a ReferenceError the moment anything invoked
+    // the status callback. Build the distribution from the live
+    // worldHandlers list instead, the same data used in handleConnectUser.
+    const distribution = worldHandlers
+      .filter((wh) => wh.world)
+      .map((wh) => ({ name: wh.world.name, count: wh.world.count, maxCount: wh.world.maxCount }));
+    return JSON.stringify(distribution);
   });
 
   process.on('uncaughtException', (e) => {
