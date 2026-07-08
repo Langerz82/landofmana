@@ -301,9 +301,20 @@ WS.userConnection = class extends Connection {
         this.fnOnMessage = function (msg) {
           console.info("m="+msg);
           var flag = msg.charAt(0);
-          if (flag === "2")
+          // NOTE: the userserver's socketioConnection.send() (userserver/js/ws.js)
+          // prefixes large/compressed messages with 'z|', while this class's own
+          // send() below prefixes them with '2'. Both prefixes have to be
+          // recognized here since this connection receives messages sent by
+          // whichever of those two implementations is on the other end. This
+          // used to only check for "2" and also used `flag` (a single character)
+          // instead of the actual payload when base64-decoding, so any large
+          // message from the userserver (e.g. SendLoadPlayerData) fell through
+          // to JSON.parse on a corrupted string and threw.
+          var isZPrefixed = msg.charAt(0) === "z" && msg.charAt(1) === "|";
+          if (flag === "2" || isZPrefixed)
           {
-              var buffer = Buffer.from(flag, 'base64');
+              var payload = isZPrefixed ? msg.substr(2) : msg.substr(1);
+              var buffer = Buffer.from(payload, 'base64');
               zlib.gunzip(buffer, (err, buffer) => {
                 if (err)
                   console.log(err.toString());
@@ -343,6 +354,10 @@ WS.userConnection = class extends Connection {
         console.info(JSON.stringify(err));
       });
 
+      this._connection.on('error', function(err){
+        console.error(JSON.stringify(err));
+      });
+
       this._connection.on('message', this.fnOnMessage);
 
       this._connection.on('connect', function (socket) {
@@ -353,9 +368,9 @@ WS.userConnection = class extends Connection {
             self.connectionUserCallback(self);
       });
 
-      var fnDisconnect = function () {
+      var fnDisconnect = function (reason) {
           //try { throw new Error(); } catch (e) { console.error(e.stack); }
-          console.info('USER CONNECTION CLOSED.');
+          console.info('USER CONNECTION CLOSED. reason=' + reason);
           if (self.closeCallback) {
               self.closeCallback();
           }
@@ -385,7 +400,11 @@ WS.userConnection = class extends Connection {
       if (data.length >= 2048)
       {
 		      zlib.gzip(data, {level:1}, (err, buffer) => {
-			    buffer = new Buffer(buffer).toString('base64');
+			    if (err) {
+			        console.error("userConnection.send - gzip failed: " + err);
+			        return;
+			    }
+			    buffer = Buffer.from(buffer).toString('base64');
 			    self.sendUTF8('2'+buffer);
 		      });
 	    }

@@ -142,7 +142,7 @@ class ShopHandler {
             return;
         }
 
-        if (!p.inventory.hasRoom()) {
+        if (!p.items.inventory.hasRoom()) {
             p.sendPlayer(new Messages.Notify("SHOP", "SHOP_NOSPACE"));
             return;
         }

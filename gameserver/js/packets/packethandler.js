@@ -207,13 +207,6 @@ class PacketHandler {
             }
 
             console.info("onClose - called");
-            // NOTE: pre-existing bug preserved from the original — this callback
-            // is a plain (non-arrow) function, so `this` here is not the
-            // PacketHandler instance. `this.disconnectTimeout`/`this.close` would
-            // throw at runtime both here and in the original CommonJS version
-            // (should probably have been `self.connection` / a stored timeout).
-            clearTimeout(this.disconnectTimeout);
-            this.close("onClose");
         });
 
     }

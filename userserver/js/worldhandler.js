@@ -214,66 +214,83 @@ class WorldHandler {
       console.info("handleSavePlayerData: "+JSON.stringify(msg));
 
       var self = this;
-      var playerName = msg[0];
 
-      var data = msg[1];
+      // NOTE: this whole handler runs synchronously inside this connection's
+      // socket.io 'message' dispatch. Previously nothing here was guarded, so
+      // any exception (e.g. malformed msg/data shape) would go uncaught,
+      // propagate up through socket.io's internal dispatch for this specific
+      // gameserver connection, and could tear the connection down instead of
+      // just failing this one save. Wrapping in try/catch turns that into a
+      // logged error instead of a dropped connection, and the logged stack
+      // pinpoints exactly what's malformed if this is in fact firing.
+      try {
+        var playerName = msg[0];
 
-      var update = (parseInt(msg[2]) === 1);
+        var data = msg[1];
 
-      if (!this.playerSaveData.hasOwnProperty(playerName)) {
-        console.warn("CANNOT SAVE PLAYER AS NOT SENT TO GAME SERVER.");
-        return;
-      }
+        var update = (parseInt(msg[2]) === 1);
 
-      this.playerSaveData[playerName] = 0;
+        if (!this.playerSaveData.hasOwnProperty(playerName)) {
+          console.warn("CANNOT SAVE PLAYER AS NOT SENT TO GAME SERVER.");
+          return;
+        }
 
-      // NOTE - Remove the userame and hash from the data.
-      var username = data[0].shift();
-      var hash = data[0].shift();
+        this.playerSaveData[playerName] = 0;
 
-      var checkPlayerSaved = function (playerName) {
-          self.playerSaveData[playerName]++;
-          if (self.playerSaveData[playerName] === 7) {
-            DBH.createPlayerNameInUser(username, playerName);
-            if (!update) {
-              delete self.playerSaveData[playerName];
-              users.delete(username);
+        // NOTE - Remove the userame and hash from the data.
+        var username = data[0].shift();
+        var hash = data[0].shift();
+
+        var checkPlayerSaved = function (playerName) {
+            try {
+              self.playerSaveData[playerName]++;
+              if (self.playerSaveData[playerName] === 7) {
+                DBH.createPlayerNameInUser(username, playerName);
+                if (!update) {
+                  delete self.playerSaveData[playerName];
+                  users.delete(username);
+                }
+              }
+              if (Object.keys(self.playerSaveData).length === 0) {
+                DBH.transferOfflineGold(playerName, function (playerName) {
+                  self.SAVED_PLAYERS = true;
+                });
+              }
+            } catch (err) {
+              console.error("handleSavePlayerData - checkPlayerSaved failed for "+playerName+": "+err.stack);
             }
-          }
-          if (Object.keys(self.playerSaveData).length === 0) {
-            DBH.transferOfflineGold(playerName, function (playerName) {
-              self.SAVED_PLAYERS = true;
-            });
-          }
-      };
+        };
 
-      DBH.savePlayerUserInfo(username, playerName, data[0], function (username, playerName, data) {
-        checkPlayerSaved(playerName);
-      });
+        DBH.savePlayerUserInfo(username, playerName, data[0], function (username, playerName, data) {
+          checkPlayerSaved(playerName);
+        });
 
-      DBH.savePlayerInfo(playerName, data[1], function (playerName) {
-        checkPlayerSaved(playerName);
-      });
+        DBH.savePlayerInfo(playerName, data[1], function (playerName) {
+          checkPlayerSaved(playerName);
+        });
 
-      DBH.saveQuests(playerName, JSON.stringify(data[2]), function (playerName) {
-        checkPlayerSaved(playerName);
-      });
+        DBH.saveQuests(playerName, JSON.stringify(data[2]), function (playerName) {
+          checkPlayerSaved(playerName);
+        });
 
-      DBH.saveAchievements(playerName, data[3], function (playerName) {
-        checkPlayerSaved(playerName);
-      });
+        DBH.saveAchievements(playerName, data[3], function (playerName) {
+          checkPlayerSaved(playerName);
+        });
 
-      DBH.saveItems(playerName, 0, data[4], function (playerName) {
-        checkPlayerSaved(playerName);
-      });
+        DBH.saveItems(playerName, 0, data[4], function (playerName) {
+          checkPlayerSaved(playerName);
+        });
 
-      DBH.saveItems(playerName, 1, data[5], function (playerName) {
-        checkPlayerSaved(playerName);
-      });
+        DBH.saveItems(playerName, 1, data[5], function (playerName) {
+          checkPlayerSaved(playerName);
+        });
 
-      DBH.saveItems(playerName, 2, data[6], function (playerName) {
-        checkPlayerSaved(playerName);
-      });
+        DBH.saveItems(playerName, 2, data[6], function (playerName) {
+          checkPlayerSaved(playerName);
+        });
+      } catch (err) {
+        console.error("handleSavePlayerData failed: "+err.stack);
+      }
     }
 
     handlePlayerLoaded (msg) {
