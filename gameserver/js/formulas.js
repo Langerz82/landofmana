@@ -1,7 +1,7 @@
 import Utils from './utils.js';
 import { ATTACK_INTERVAL, ATTACK_MAX } from './main.js';
-import Mob from './entity/Mob.js';
-import Player from './entity/Player.js';
+import Mob from './entity/mob.js';
+import Player from './entity/player.js';
 
 /* global Types */
 
