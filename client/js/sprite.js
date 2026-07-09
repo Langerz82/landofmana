@@ -74,8 +74,7 @@ define(['animation'], function(Animation) {
                 return;
             }
 
-            var s = this.sprite,
-                a = this.getAnimationByName(name);
+            var a = this.getAnimationByName(name);
 
             if(a) {
                 this.currentAnimation = a;
