@@ -1563,8 +1563,8 @@ export default class Renderer {
           if (!(tg1.length === tg2.length && tg1[0].length === tg2[0].length))
             return false;
 
-          const ly = mc.tileGrid.length;
-          const lx = mc.tileGrid[0].length;
+          const ly = tg2.length;
+          const lx = tg2[0].length;
 
           for (let y=0; y < ly; ++y) {
             for (let x=0; x < lx; ++x) {
