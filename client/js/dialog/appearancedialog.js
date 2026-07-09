@@ -341,8 +341,8 @@ export default class AppearanceDialog extends Dialog {
         }
 
         assign(datas) {
-            if (datas) {
-              const p = game.player;
+            const p = game.player;
+            if (datas) {  
         		  p.appearances = Utils.Base64ToBinArray(datas.shift(), AppearanceData.length);
 
               for(let i=0; i < AppearanceData.length; i++)
