@@ -61,7 +61,7 @@ class PlayerQuests {
 
         console.info(JSON.stringify(quest));
         const kind = quest.object2.kind+1000;
-        const countItems = p.inventory.hasItemCount(kind);
+        const countItems = p.items.inventory.hasItemCount(kind);
         quest.count = countItems;
         this.progressQuest(quest);
     }

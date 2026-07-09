@@ -108,7 +108,7 @@ class LootManager {
         const itemIndex = target.inventory.getRandomItemNumber();
         if (itemIndex === -1)
             return;
-        const item = target.inventory.rooms[itemIndex];
+        const item = target.items.inventory.rooms[itemIndex];
         let count = 1;
         if (ItemTypes.isConsumableItem(item.itemKind)) {
             count = Math.floor((Math.random() * target.level + 2) / 2);
@@ -124,7 +124,7 @@ class LootManager {
         else {
             item2 = target.map.entities.addItem(target.map.entities.createItem(type, item, target.x, target.y, count));
         }
-        target.inventory.takeOutItems(itemIndex, count);
+        target.items.inventory.takeOutItems(itemIndex, count);
         return item2;
     }
 

@@ -42,7 +42,7 @@ class EntityQuests {
       if (!pquest) return false;
 
       if (!pquest.hasOwnProperty("reward")) {
-        const count = player.inventory.hasRoomCount();
+        const count = player.items.inventory.hasRoomCount();
         if (quest.reward.length > 0 && count < quest.reward.length) {
           player.sendPlayer(new Messages.Notify("INVENTORY", "INVENTORY_FULL"));
           return false;
@@ -52,7 +52,7 @@ class EntityQuests {
         player.sendPlayer(msg);
 
         if (quest.gold > 0)
-          player.modifyGold(parseInt(quest.gold, 10));
+          player.items.modifyGold(parseInt(quest.gold, 10));
 
         for (const reward of quest.reward)
         {
@@ -63,7 +63,7 @@ class EntityQuests {
               parseInt(reward.itemDurabilityMax, 10) || null,
               parseInt(reward.itemExperience, 10) || 0]);
 
-            player.inventory.putItem(item);
+            player.items.inventory.putItem(item);
             var msg = new Messages.Notify("CHAT", "ITEM_ADDED", [ItemData.Kinds[item.itemKind].name])
             player.sendPlayer(msg);
         }
