@@ -1,7 +1,7 @@
 // Converted from AMD (define) + Class.extend to a native ES6 module/class.
 class TabButton {
     constructor(id, page) {
-        var self = this;
+        const self = this;
         this.id = id;
         this.body = $(id);
         this.page = page;
@@ -19,7 +19,7 @@ class TabButton {
         return this.body.attr('class') === 'active';
     }
     setVisible(value) {
-        var self = this;
+        const self = this;
         if(value) {
             this.body.addClass('active');
         } else {

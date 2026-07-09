@@ -48,10 +48,10 @@ export default class User {
 
         this.playerSum = [];
 
-        var hashObj = new jsSHA(this.username+this.password, "ASCII").getHash("SHA-1","HEX");
+        const hashObj = new jsSHA(this.username+this.password, "ASCII").getHash("SHA-1","HEX");
         this.regHash = hashObj;
         // FIX: `hash` was read before its declaration/assignment below (hoisting bug), always logging "undefined"; moved assignment before the log
-        var hash = CryptoJS.AES.encrypt(JSON.stringify(hashObj), app.hashChallenge).toString();
+        const hash = CryptoJS.AES.encrypt(JSON.stringify(hashObj), app.hashChallenge).toString();
         log.info("User init: hash="+hash);
         log.info("User init: hashChallenge="+app.hashChallenge);
         //log.info("hash="+hash.getHash("SHA-1","HEX"));
@@ -62,12 +62,12 @@ export default class User {
 
       setPlayerSummary(data)
       {
-        var count = parseInt(data.shift());
-        for (var i=0; i < count; ++i)
+        const count = parseInt(data.shift());
+        for (let i=0; i < count; ++i)
         {
-          var j = (7 * i); // FIX: missing var, was an implicit global
+          const j = (7 * i); // FIX: missing var, was an implicit global
 
-          var ps = new PlayerSummary(parseInt(data[j]), {
+          const ps = new PlayerSummary(parseInt(data[j]), {
             name: data[j+1],
             //pClass: parseInt(data[j+2]),
             exp: parseInt(data[j+2]),
@@ -81,7 +81,7 @@ export default class User {
       createPlayer(ps)
       {
         this.playerSum[ps.index] = ps;
-        var player = new Player(0, 1, 0, 0, ps.name);
+        const player = new Player(0, 1, 0, 0, ps.name);
         player.user = this;
         player.keyMove = false;
 
@@ -115,7 +115,7 @@ export default class User {
         // Note - freeze might be needed disable for now.
         player.hit = function(orientation) {
           orientation = orientation || this.orientation;
-          var self = this;
+          let self = this;
 
           //if (this.fsm === "ATTACK")
             //return;
@@ -141,7 +141,7 @@ export default class User {
 
         player.canMove = function (orientation) {
           orientation = orientation || this.orientation;
-          var pos = this.nextMove(this.x,this.y,orientation);
+          const pos = this.nextMove(this.x,this.y,orientation);
           if (orientation === 0)
             return true;
           return game.moveCharacter(this, pos[0], pos[1], false, true);

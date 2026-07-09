@@ -44,7 +44,7 @@ export default class InventoryDialog {
       //this.pageIndex = 0;
       //this.pageItems = 24;
 
-      var self = this;
+      const self = this;
 
       this.jqActionButton = $('#invActionButton');
 
@@ -71,15 +71,15 @@ export default class InventoryDialog {
         self.refreshInventoryAll();
       });*/
 
-      var itemsPerRow = 5;
-      var jqInventoryOffset = $("#inventoryoffset");
-      for(var i = 0; i < this.maxInventoryNumber; ++i)
+      const itemsPerRow = 5;
+      const jqInventoryOffset = $("#inventoryoffset");
+      for(let i = 0; i < this.maxInventoryNumber; ++i)
       {
-        var data = "<div class=\"inventoryitembackground\" id=\"inventoryitembackground{0}\"><div class=\"inventoryitem\" id=\"inventoryitem{0}\" draggable=\"true\"></div><div class=\"inventoryhighlight\" id=\"inventoryHL{0}\"></div></div>".format(i);
+        const data = "<div class=\"inventoryitembackground\" id=\"inventoryitembackground{0}\"><div class=\"inventoryitem\" id=\"inventoryitem{0}\" draggable=\"true\"></div><div class=\"inventoryhighlight\" id=\"inventoryHL{0}\"></div></div>".format(i);
         jqInventoryOffset.append(data);
-        var jqInventoryBackground = $("#inventoryitembackground"+i);
-        var top = (60 * ~~(i/itemsPerRow));
-        var left = (60*(i % itemsPerRow));
+        const jqInventoryBackground = $("#inventoryitembackground"+i);
+        const top = (60 * ~~(i/itemsPerRow));
+        const left = (60*(i % itemsPerRow));
         jqInventoryBackground.css({
           "top": top+"px",
           "left": left+"px"
@@ -91,16 +91,16 @@ export default class InventoryDialog {
       if (!game || !game.ready)
         return;
 
-      var type = $(jq).data("itemType");
-      var slot = $(jq).data("itemSlot");
+      const type = $(jq).data("itemType");
+      const slot = $(jq).data("itemSlot");
 
       log.info("selectInventory - click, slot:"+slot+", type:"+type);
 
-      var item = this.getItem(type, slot);
+      const item = this.getItem(type, slot);
 
       $('.inventorySellGold').html("0");
       if (item) {
-        var kind = item.itemKind;
+        const kind = item.itemKind;
         if (game.inventoryMode === InventoryMode.MODE_ENCHANT ||
             game.inventoryMode === InventoryMode.MODE_REPAIR)
         {
@@ -124,9 +124,9 @@ export default class InventoryDialog {
           this.jqActionButton.data('itemSlot', slot);
           this.jqActionButton.show();
 
-          var kind = item.itemKind;
+          const kind = item.itemKind;
           if (game.inventoryMode === InventoryMode.MODE_AUCTION) {
-            var value = ~~(ItemTypes.getEnchantSellPrice(item)/2);
+            const value = ~~(ItemTypes.getEnchantSellPrice(item)/2);
             $('.inventorySellGold').html(parseInt(value));
           }
           else if (game.inventoryMode === InventoryMode.MODE_SELL) {
@@ -148,7 +148,7 @@ export default class InventoryDialog {
       }
 
       if (item && this.selectedItem === slot) {
-        var triggerClick = false;
+        let triggerClick = false;
         if (game.inventoryMode === InventoryMode.MODE_AUCTION ||
             game.inventoryMode === InventoryMode.MODE_SELL ||
             game.inventoryMode === InventoryMode.MODE_REPAIR ||
@@ -168,12 +168,12 @@ export default class InventoryDialog {
 
     activateItem(type, slot, item, btnPressed) {
       if (item) {
-        var kind = item.itemKind;
+        const kind = item.itemKind;
         if (game.inventoryMode === InventoryMode.MODE_AUCTION) {
           if (ItemTypes.isLootItem(kind) || ItemTypes.isConsumableItem(kind))
             return;
 
-          var value = ~~(ItemTypes.getEnchantSellPrice(item)/2);
+          const value = ~~(ItemTypes.getEnchantSellPrice(item)/2);
           $('#auctionSellCount').val(value);
           game.app.showAuctionSellDialog(slot);
         }
@@ -218,7 +218,7 @@ export default class InventoryDialog {
     }
 
     selectEquipment(event, type, slot) {
-      var item = this.getItem(type, slot);
+      const item = this.getItem(type, slot);
       if (item !== null && DragItem && DragItem.item !== item)
         this.deselectItem();
 
@@ -231,9 +231,9 @@ export default class InventoryDialog {
     }
 
     loadInventoryEvents() {
-      var self = this;
+      const self = this;
 
-      var max = game.equipment.maxNumber;
+      const max = game.equipment.maxNumber;
       for (var i = 0; i < max; i++) {
         $('#equipment' + i).attr('draggable', true);
         $('#equipment' + i).draggable = true;
@@ -248,15 +248,15 @@ export default class InventoryDialog {
         });
 
         $('#equipBackground'+i).on("click", function (event) {
-          var type = $(this).data("itemType");
-          var slot = $(this).data("itemSlot");
+          const type = $(this).data("itemType");
+          const slot = $(this).data("itemSlot");
 
           if (self.selectedItem < 0) {
             self.selectEquipment(event, type, slot);
           }
           else {
-            var dragItem = (DragItem) ? self.getItem(DragItem.type, DragItem.slot) : null;
-            var item = self.getItem(type, slot);
+            const dragItem = (DragItem) ? self.getItem(DragItem.type, DragItem.slot) : null;
+            const item = self.getItem(type, slot);
 
             if (dragItem && item) {
               if (dragItem === item) {
@@ -277,7 +277,7 @@ export default class InventoryDialog {
         });
 
         $('#equipment'+i).on('dragstart', function(event) {
-          var slot = $(this).data("itemSlot");
+          const slot = $(this).data("itemSlot");
           self.selectEquipment(event, 2, slot);
         });
 
@@ -309,13 +309,13 @@ export default class InventoryDialog {
         $('#inventoryitembackground'+i).data('itemSlot',i);
 
         $('#inventoryitembackground'+i).on('click', function(event) {
-          var type = $(this).data("itemType");
-          var slot = $(this).data("itemSlot");
+          const type = $(this).data("itemType");
+          const slot = $(this).data("itemSlot");
 
           if (self.selectedItem >= 0)
           {
-            var dragItem = (DragItem) ? self.getItem(DragItem.type, DragItem.slot) : null;
-            var item = self.getItem(type, slot);
+            const dragItem = (DragItem) ? self.getItem(DragItem.type, DragItem.slot) : null;
+            const item = self.getItem(type, slot);
             if (dragItem && item) {
               if (dragItem === item) {
                 self.activateItem(type, slot, item);
@@ -371,7 +371,7 @@ export default class InventoryDialog {
 
         game.app.setMouseCoordinates(event);
 
-        var invCheck = DragItem && DragItem.slot >= 0;
+        const invCheck = DragItem && DragItem.slot >= 0;
 
         if (invCheck) {
           self.handler.dropItem(DragItem.slot);
@@ -382,11 +382,11 @@ export default class InventoryDialog {
 
       this.sellButton = $('#invActionButton');
       this.sellButton.off().on('click', function(event) {
-        var type = parseInt($(this).data('itemType'));
-        var slot = parseInt($(this).data('itemSlot'));
+        const type = parseInt($(this).data('itemType'));
+        const slot = parseInt($(this).data('itemSlot'));
 
         log.info("invActionButton - click, type:"+type+", slot:"+slot);
-        var item = self.getItem(type, slot);
+        const item = self.getItem(type, slot);
 
         self.activateItem(type, slot, item, true);
         self.deselectItem();
@@ -407,7 +407,7 @@ export default class InventoryDialog {
 
     selectItem(type, slot, select) {
       //pageslot = realslot % this.pageItems;
-      var htmlItem = $('#inventoryitembackground' + slot); // FIX: missing var, was leaking an implicit global
+      let htmlItem = $('#inventoryitembackground' + slot); // FIX: missing var, was leaking an implicit global
       if (type === 2) {
         htmlItem = $('#equipBackground'+slot);
       }
@@ -427,7 +427,7 @@ export default class InventoryDialog {
     }
 
     showInventoryButton() {
-      var scale = this.scale;
+      const scale = this.scale;
       this.inventorybutton.setBackground({
         left: 196 * scale,
         top: 314 * scale,
@@ -438,7 +438,7 @@ export default class InventoryDialog {
     refreshInventory(index) {
       index = index || -1;
       if (index > -1) {
-        var item = this.getItem(0,index); // FIX: missing var, was leaking an implicit global
+        const item = this.getItem(0,index); // FIX: missing var, was leaking an implicit global
         if (item)
           this.showItems(index);
         else {
@@ -473,8 +473,8 @@ export default class InventoryDialog {
     showInventory() {
       this.pageIndex = 0;
       $('.inventorySellGoldFrame').hide();
-      var jqGemsFrame = $('#allinventorywindow .inventoryGemsFrame');
-      var jqActionButton = $('#invActionButton');
+      const jqGemsFrame = $('#allinventorywindow .inventoryGemsFrame');
+      const jqActionButton = $('#invActionButton');
       jqGemsFrame.hide();
       if (game.inventoryMode === InventoryMode.MODE_AUCTION) {
         jqActionButton.text("LIST");
@@ -515,9 +515,9 @@ export default class InventoryDialog {
     }
 
     getItems(type, cond) {
-        var items = [];
-        for (var i = 0; i < this.maxInventoryNumber; ++i) {
-          var item = this.getItem(type, i);
+        const items = [];
+        for (let i = 0; i < this.maxInventoryNumber; ++i) {
+          const item = this.getItem(type, i);
           if (item && (!cond || (cond && cond(item))))
             items.push(item);
         }
@@ -525,19 +525,19 @@ export default class InventoryDialog {
     }
 
     funcCooldownExec(item) {
-      var itemData = ItemTypes.KindData[item.itemKind];
+      const itemData = ItemTypes.KindData[item.itemKind];
       this.cooldownTime = itemData.cooldown;
       this.funcCooldown();
       game.shortcuts.cooldownItems();
     }
 
     funcCooldown() {
-      var self = this;
+      const self = this;
 
-      var fnCooldownItems = function () {
-        var cond = function (item) { return ItemTypes.isConsumableItem(item.itemKind); };
-        var items = self.getItems(0, cond);
-        var cooldowns = [];
+      const fnCooldownItems = function () {
+        const cond = function (item) { return ItemTypes.isConsumableItem(item.itemKind); };
+        const items = self.getItems(0, cond);
+        const cooldowns = [];
         for (var item of items) {
           //var slot = item.slot % self.pageItems;
           cooldowns.push($('#inventoryHL'+item.slot));
@@ -545,8 +545,8 @@ export default class InventoryDialog {
         return cooldowns;
       }
 
-      var resetCooltimeItems = function () {
-        for (var ct of self.cooldowns) {
+      const resetCooltimeItems = function () {
+        for (let ct of self.cooldowns) {
           ct.removeData('cooltime');
           ct.html('');
           ct.css({
@@ -556,7 +556,7 @@ export default class InventoryDialog {
       };
       resetCooltimeItems();
 
-      var setCooltimes = function () {
+      const setCooltimes = function () {
         self.cooldowns = fnCooldownItems();
         if (self.cooldownTime == 0) {
           resetCooltimeItems();
@@ -564,7 +564,7 @@ export default class InventoryDialog {
           self.coolTimeCallback = null;
           return;
         }
-        for (var ct of self.cooldowns) {
+        for (let ct of self.cooldowns) {
           ct.data('cooltime', true);
           ct.html(self.cooldownTime);
           ct.css({
@@ -573,7 +573,7 @@ export default class InventoryDialog {
         }
       };
 
-      var fnInterval = function () {
+      const fnInterval = function () {
         setCooltimes();
         self.cooldownTime--;
       };
@@ -603,7 +603,7 @@ export default class InventoryDialog {
 
       //$('#inventoryitembackground' + i).attr('class', '');
 
-      var cooltime = $('#inventoryHL' + i);
+      const cooltime = $('#inventoryHL' + i);
       cooltime.css({
         'background-color': "transparent"
       });
@@ -618,7 +618,7 @@ export default class InventoryDialog {
     }
 
     makeEmptyInventoryAll() {
-      for (var i = 0; i < this.maxInventoryNumber; i++)
+      for (let i = 0; i < this.maxInventoryNumber; i++)
       {
         this.makeEmptyInventory(i);
       }
@@ -629,27 +629,27 @@ export default class InventoryDialog {
       slotEnd = slotEnd || slotStart+1;
 
       log.info("this.scale=" + this.scale);
-      var scale = this.scale;
+      const scale = this.scale;
 
       // TODO - Work out why not emptying item shortcuts.
-      for (var slot = slotStart; slot < slotEnd; ++slot)
+      for (let slot = slotStart; slot < slotEnd; ++slot)
       {
-        var item = this.getItem(0, slot);
+        const item = this.getItem(0, slot);
         if (!item)
         {
           this.makeEmptyInventory(slot);
           continue;
         }
 
-        var itemKind = item.itemKind;
-        var itemNumber = item.itemNumber;
+        const itemKind = item.itemKind;
+        const itemNumber = item.itemNumber;
 
         if (itemKind > 0) {
-          var jq = $('#inventoryitem' + slot);
+          const jq = $('#inventoryitem' + slot);
           Items.jqShowItem(jq, item, jq);
         }
 
-        var highlight = $('#inventoryHL' + slot);
+        const highlight = $('#inventoryHL' + slot);
 
         if (game.inventoryMode === InventoryMode.MODE_SELL ||
             game.inventoryMode === InventoryMode.MODE_AUCTION)

@@ -6,7 +6,7 @@ export default class StoreHandler {
     	this.game = game;
     	this.app = app;
     	this.toggle = false;
-    	var self = this;
+    	const self = this;
     	$('#shopCloseButton').click(function(e){
           $('#shopDialog').hide();
           self.toggle = false; // FIX: `this` inside the click handler is the DOM element, not the StoreHandler; use captured `self` instead

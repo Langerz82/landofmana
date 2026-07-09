@@ -50,7 +50,7 @@ export default class EntityMoving extends Entity {
         if (this.isMovingPath()) {
             this.continueTo(x, y);
         } else {
-            var path = this.requestPathfindingTo(x, y);
+            const path = this.requestPathfindingTo(x, y);
 
             if (path)
                 this.followPath(path);
@@ -119,7 +119,7 @@ export default class EntityMoving extends Entity {
         min = min || 1;
         max = max || 1;
 
-        var spot = this.getClosestSpot(entity, min, max);
+        const spot = this.getClosestSpot(entity, min, max);
 
         if (spot && spot.x && spot.y) {
             this.moveTo_(spot.x, spot.y);
@@ -131,7 +131,7 @@ export default class EntityMoving extends Entity {
     getLastMove() {
         if (!this.path)
             return null;
-        var lastPath = this.path[this.path.length - 1];
+        const lastPath = this.path[this.path.length - 1];
         return lastPath;
     }
 
@@ -147,10 +147,10 @@ export default class EntityMoving extends Entity {
         adjStart = adjStart || 1;
         adjEnd = adjEnd || 1;
 
-        var coords = [];
-        var start = Math.min(adjStart, adjEnd);
-        var end = Math.max(adjStart, adjEnd);
-        for (var i = start; i <= end; ++i) {
+        let coords = [];
+        const start = Math.min(adjStart, adjEnd);
+        const end = Math.max(adjStart, adjEnd);
+        for (let i = start; i <= end; ++i) {
             coords = coords.concat(this.getSpotsAround(dest, i));
         }
         return coords;
@@ -158,19 +158,19 @@ export default class EntityMoving extends Entity {
 
     getSpotsAround(dest, adjDist) {
         adjDist = adjDist || 1;
-        var d = adjDist * G_TILESIZE;
-        var iterations = adjDist * 4;
+        const d = adjDist * G_TILESIZE;
+        const iterations = adjDist * 4;
 
-        var pos = [dest.x, dest.y];
-        var x2 = pos[0],
+        const pos = [dest.x, dest.y];
+        const x2 = pos[0],
             y2 = pos[1];
 
-        var sx = this.x,
+        const sx = this.x,
             sy = this.y;
 
-        var points = [];
-        var sec = 2 * Math.PI / iterations;
-        var x, y, deg = 0;
+        let points = [];
+        const sec = 2 * Math.PI / iterations;
+        let x, y, deg = 0;
         for (var i = 0; i < iterations; ++i) {
             deg += sec;
             x = ~~(x2 + (Math.cos(deg) * d));
@@ -179,8 +179,8 @@ export default class EntityMoving extends Entity {
         }
         points = points.filter((v, i, a) => a.findIndex(v2 => (v2[0] === v[0] && v2[1] === v[1])) === i);
 
-        var coords = [];
-        var p, tp, len = points.length;
+        const coords = [];
+        let p, tp, len = points.length;
         for (var i = 0; i < len; ++i) {
             p = points[i];
             coords.push({d: Utils.realDistance([sx, sy], p), x: p[0], y: p[1]});
@@ -191,31 +191,31 @@ export default class EntityMoving extends Entity {
     getClosestSpot(dest, adjStart, adjEnd) {
         adjStart = adjStart || 1;
         adjEnd = adjEnd || 1;
-        var poss = this.getSpotsAroundFrom(dest, adjStart, adjEnd);
-        var sx = this.x, sy = this.y;
+        let poss = this.getSpotsAroundFrom(dest, adjStart, adjEnd);
+        const sx = this.x, sy = this.y;
 
         poss = poss.filter(function(p) {
             return !this.isColliding(p.x, p.y);
         }, this);
 
-        var entities = this.getEntitiesAround(adjEnd);
+        const entities = this.getEntitiesAround(adjEnd);
 
         //console.info("entities: "+JSON.stringify(entities));
-        var ts = G_TILESIZE;
-        var tsh = ts >> 1;
+        const ts = G_TILESIZE;
+        const tsh = ts >> 1;
 
-        var x, y, tx, ty;
+        let x, y, tx, ty;
         poss = poss.filter(function(p) {
             x = p.x;
             y = p.y;
-            for (var e2 of entities) {
+            for (let e2 of entities) {
                 if (!e2 || this === e2)
                     continue;
                 tx = e2.x;
                 ty = e2.y;
 
                 if (typeof (e2.isMovingPath) === "function" && e2.isMovingPath()) {
-                    var tp = e2.getLastMove();
+                    const tp = e2.getLastMove();
                     if (tp) {
                         tx = tp[0];
                         ty = tp[1];
@@ -306,11 +306,11 @@ export default class EntityMoving extends Entity {
     _stopPath() {
         if (!this.isMovingPath()) return;
 
-        var lnode = this.getLastMove();
+        const lnode = this.getLastMove();
         this.interrupted = !(this.x === lnode[0] && this.y === lnode[1]);
 
         this.step = 0;
-        var path = this.path;
+        const path = this.path;
         this.path = null;
         this.newDestination = null;
 
@@ -355,13 +355,13 @@ export default class EntityMoving extends Entity {
     }
 
     updateMovement() {
-        var p = this.path,
+        const p = this.path,
             i = this.step;
 
         if (!p || i > (p.length - 1))
             return;
 
-        var orientation = this.getOrientation([this.x, this.y], p[i]);
+        const orientation = this.getOrientation([this.x, this.y], p[i]);
         this.setOrientation(orientation);
         this.walk(this.orientation);
     }
@@ -384,7 +384,7 @@ export default class EntityMoving extends Entity {
     }
 
     nextStep() {
-        var stop = false, res = false,
+        let stop = false, res = false,
             path, x, y;
 
         if (this.freeze)
@@ -488,7 +488,7 @@ export default class EntityMoving extends Entity {
 
     getLastPosition() {
         if (this.path) {
-            var lastMove = this.path[this.path.length - 1];
+            const lastMove = this.path[this.path.length - 1];
             return lastMove;
         }
         return [this.x, this.y];
@@ -503,14 +503,14 @@ export default class EntityMoving extends Entity {
      ******************************************************************************/
 
     isNear(character, distance) {
-        var dx = Math.abs(this.x - character.x);
-        var dy = Math.abs(this.y - character.y);
+        const dx = Math.abs(this.x - character.x);
+        const dy = Math.abs(this.y - character.y);
 
         return (dx <= (distance * G_TILESIZE) && dy <= (distance * G_TILESIZE));
     }
 
     isNextToo(x, y) {
-        var ts = G_TILESIZE;
+        const ts = G_TILESIZE;
         return (Math.abs(this.x - x) <= ts && Math.abs(this.y - y) <= ts);
     }
 
@@ -546,7 +546,7 @@ export default class EntityMoving extends Entity {
     // New function to make coding easier.
     /// TODO - Fix, probably broken with new path code.
     isWithinPath(coords) {
-        var tCoords = null;
+        let tCoords = null;
         if (typeof (coords) === "Object" && coords.x > 0 && coords.y > 0) {
             tCoords = [coords.x, coords.y];
         } else if (Array.isArray(coords) && coords.length === 2) {
@@ -557,8 +557,8 @@ export default class EntityMoving extends Entity {
         if (this.path === null || this.path.length === 0)
             return null;
 
-        var pathLen = this.path.length;
-        for (var i = 0; i < pathLen; ++i) {
+        const pathLen = this.path.length;
+        for (let i = 0; i < pathLen; ++i) {
             if (this.path[i][0] === tCoords[0] && this.path[i][1] === tCoords[1])
                 return {
                     x: tCoords[0],
@@ -579,8 +579,8 @@ export default class EntityMoving extends Entity {
      ******************************************************************************/
 
     getOrientation(p1, p2) {
-        var x = Math.abs(p1[0] - p2[0]);
-        var y = Math.abs(p1[1] - p2[1]);
+        const x = Math.abs(p1[0] - p2[0]);
+        const y = Math.abs(p1[1] - p2[1]);
         if (x > y) {
             if (p1[0] > p2[0])
                 return 3; // W
@@ -621,26 +621,26 @@ export default class EntityMoving extends Entity {
 
     _lookAtEntity(entity) {
         if (entity) {
-            var orientation = this.getOrientationTo([entity.x, entity.y]);
+            const orientation = this.getOrientationTo([entity.x, entity.y]);
             this.setOrientation(orientation);
         }
         return this.orientation;
     }
 
     lookAtTile(x, y) {
-        var tsh = G_TILESIZE >> 1;
-        var pos = Utils.getGridPosition(x, y);
+        const tsh = G_TILESIZE >> 1;
+        let pos = Utils.getGridPosition(x, y);
         pos = Utils.getPositionFromGrid(pos.gx, pos.gy);
         this.lookAt(pos.x + tsh, pos.y + tsh);
     }
 
     isInReach(x, y, o, r, rs) {
         var o = o || this.orientation;
-        var ts = G_TILESIZE;
+        const ts = G_TILESIZE;
         var rs = rs || ts >> 1;
         var r = r || ts + rs;
 
-        var a = rs, b = rs;
+        let a = rs, b = rs;
         switch (o) {
             case Types.Orientations.UP:
             case Types.Orientations.DOWN:
@@ -683,7 +683,7 @@ export default class EntityMoving extends Entity {
     }
 
     setFreeze(ms, callback) {
-        var self = this;
+        const self = this;
         if (ms <= 0) {
             self.freeze = false;
             return;

@@ -21,7 +21,7 @@ export default class TabBook {
         this.pages[this.pageIndex].setVisible(false);
       }
       if((value >= 0) && (value < this.pages.length)) {
-        var done = this.openHandler ? this.openHandler(this, value) : true;
+        const done = this.openHandler ? this.openHandler(this, value) : true;
         if(done) {
           this.pageIndex = value;
           this.pages[this.pageIndex].setVisible(true);
@@ -34,7 +34,7 @@ export default class TabBook {
       return this.pageIndex >= 0 ? this.pages[this.pageIndex] : null;
     }
     setActivePage(value) {
-      var index = this.pages.indexOf(value);
+      const index = this.pages.indexOf(value);
       if(index >= 0) {
         this.setPageIndex(index);
       }

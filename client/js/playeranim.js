@@ -26,9 +26,9 @@ export default class PlayerAnim {
     }
 
     loadAnimations(sprite) {
-        var animations = sprite.createAnimations();
+        const animations = sprite.createAnimations();
         //sprite.animations = animations;
-        for (var id in animations) {
+        for (let id in animations) {
             if (!this.animations[id])
                 this.animations[id] = animations[id];
         }
@@ -63,13 +63,13 @@ export default class PlayerAnim {
     }
 
     getAnimationByName(name) {
-        var animation = null;
+        let animation = null;
 
         if (name in this.animations) {
             animation = this.animations[name];
         }
         else {
-            var e = new Error();
+            const e = new Error();
             log.error(e.stack);
             log.info("No animation called " + name);
             return null;
@@ -78,14 +78,14 @@ export default class PlayerAnim {
     }
 
     setAnimation(name, speed, count, onEndCount) {
-        var self = this;
+        const self = this;
 
         if (this.isLoaded) {
             if (this.currentAnimation && this.currentAnimation.name === name) {
                 return;
             }
 
-            var s = this.sprite,
+            const s = this.sprite,
                 a = this.getAnimationByName(name);
 
             if (a) {
@@ -120,7 +120,7 @@ export default class PlayerAnim {
     }
 
     animate(animation, speed, count, onEndCount) {
-        var oriented = ['atk', 'walk', 'idle'],
+        const oriented = ['atk', 'walk', 'idle'],
             o = this.orientation || Types.Orientations.DOWN;
 
         this.flipSpriteX = false;
@@ -139,19 +139,19 @@ export default class PlayerAnim {
     }
 
     show() {
-        var animName = this.currentAnimation.name,
+        const animName = this.currentAnimation.name,
             s = game.renderer.gameScale;
 
-        var i = 0;
-        var types = ["armor", "weapon"];
-        for (var sprite of this.sprites) {
-            var anim = this.currentAnimation;
-            var frame = anim.currentFrame;
-            var div = $(this.html[i]);
-            var w = (sprite.width * s);
-            var h = (sprite.height * s);
-            var x = frame.i * w;
-            var y = frame.j * h;
+        let i = 0;
+        const types = ["armor", "weapon"];
+        for (const sprite of this.sprites) {
+            const anim = this.currentAnimation;
+            const frame = anim.currentFrame;
+            const div = $(this.html[i]);
+            const w = (sprite.width * s);
+            const h = (sprite.height * s);
+            const x = frame.i * w;
+            const y = frame.j * h;
 
             div.css('width', w + 'px');
             div.css('height', h + 'px');
@@ -163,11 +163,11 @@ export default class PlayerAnim {
     }
 
     showHTML(jqRoot, gameScale, scale) {
-        var wmax = 0, hmax = 0;
-        var dimensions = [];
-        for (var sprite of this.sprites) {
-            var w = sprite ? sprite.width * scale : 0;
-            var h = sprite ? sprite.height * scale : 0;
+        let wmax = 0, hmax = 0;
+        const dimensions = [];
+        for (const sprite of this.sprites) {
+            const w = sprite ? sprite.width * scale : 0;
+            const h = sprite ? sprite.height * scale : 0;
             dimensions.push([w, h]);
             if (w > wmax)
                 wmax = w;
@@ -182,8 +182,8 @@ export default class PlayerAnim {
             'height': hmax + 'px'
         });
 
-        var i = 0;
-        for (var html of this.html) {
+        let i = 0;
+        for (const html of this.html) {
             $(html).css('left', parseInt((wmax - dimensions[i][1]) / 2) + 'px');
             $(html).css('top', parseInt((hmax - dimensions[i][1]) / 2) + 'px');
             i++;

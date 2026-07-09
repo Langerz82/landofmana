@@ -15,13 +15,13 @@ export default class PlayerItems {
     }
 
     hasWeaponType(type) {
-        var entity = this.entity;
+        const entity = this.entity;
 
         type = type || "any";
         if (type === "any")
             return true;
 
-        var weapon = this.equipment.getWeapon();
+        const weapon = this.equipment.getWeapon();
         if (!weapon)
             return false;
 
@@ -40,17 +40,17 @@ export default class PlayerItems {
     }
 
     getWeaponLevel() {
-        var entity = this.entity;
+        const entity = this.entity;
 
-        var weapon = this.getWeapon();
+        const weapon = this.getWeapon();
         if (!weapon)
             return 0;
-        var weaponData = ItemTypes.KindData[weapon.itemKind];
+        const weaponData = ItemTypes.KindData[weapon.itemKind];
         return Types.getWeaponLevel(entity.stats.exp[weaponData.type]);
     }
 
     getWeaponType() {
-        var weapon = this.getWeapon();
+        const weapon = this.getWeapon();
         if (!weapon)
             return null;
         return ItemTypes.getType(weapon.itemKind);
@@ -60,11 +60,11 @@ export default class PlayerItems {
         if (type && type === "any")
             return true;
 
-        var weapon = this.getWeapon();
+        const weapon = this.getWeapon();
         if (!weapon)
             return false;
 
-        var weaponData = ItemTypes.KindData[weapon.itemKind];
+        const weaponData = ItemTypes.KindData[weapon.itemKind];
         if (type) {
             return weaponData.type === type;
         }

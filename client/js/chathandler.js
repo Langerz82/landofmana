@@ -3,7 +3,7 @@
 
 export default class ChatHandler {
     constructor(game) {
-        var self = this;
+        const self = this;
         //this.game = game;
         //this.client = game.client;
         //this.kkhandler = kkhandler;
@@ -24,7 +24,7 @@ export default class ChatHandler {
 
     handleAddSpawn(data) {
   		log.info("sendAddSpawn");
-  		var m = game.getMouseGridPosition();
+  		const m = game.getMouseGridPosition();
   		if (data.length === 2)
   			game.client.sendAddSpawn(parseInt(data[1]), m.x, m.y);
     }
@@ -34,8 +34,8 @@ export default class ChatHandler {
     }
 
     handleIdEntity(data) {
-  		var m = game.getMouseGridPosition();
-  		var entity = game.getEntityAt(m.x, m.y);
+  		const m = game.getMouseGridPosition();
+  		const entity = game.getEntityAt(m.x, m.y);
   		if (entity)
   		{
   			// FIX: entity.name is untrusted/server-controlled; escape before inserting as HTML to prevent XSS
@@ -45,7 +45,7 @@ export default class ChatHandler {
     }
 
     handleWarp(data) {
-  		var p = game.player;
+  		const p = game.player;
   		if (p.warpX && p.warpY)
   		{
   			this.teleportTo(p.warpX, p.warpY);
@@ -73,7 +73,7 @@ export default class ChatHandler {
     }
 
     processSenders(entityId, message) {
-            var data = message.split(" ",5);
+            const data = message.split(" ",5);
             if (!data) data[0] = message;
 
             switch (data.shift())
@@ -108,8 +108,8 @@ export default class ChatHandler {
                 	return true;
             }
             			//#cli guilds
-			var regexp = /^\/guild\ (invite|create|accept)\s+([^\s]*)|(guild:)\s*(.*)$|^\/guild\ (leave)$/i;
-			var args = message.match(regexp);
+			const regexp = /^\/guild\ (invite|create|accept)\s+([^\s]*)|(guild:)\s*(.*)$|^\/guild\ (leave)$/i;
+			const args = message.match(regexp);
 			if(Array.isArray(args) && args.length > 1){
 				switch(args[1]){
 					case "invite":
@@ -135,7 +135,7 @@ export default class ChatHandler {
 						}
 						break;
 					case "accept":
-						var status;
+						let status;
 						if(args[2] === "yes") {
 							status = game.player.checkInvite();
 							if(status === false){
@@ -179,7 +179,7 @@ export default class ChatHandler {
                       		return true;
 						},
                 		"/w ": function(message) {
-                            var name = game.player.name,
+                            let name = game.player.name,
                                 rights = game.player.rights;
 
                             //'hacking' this will cause no issues
@@ -223,7 +223,7 @@ export default class ChatHandler {
     		//var args = message.match(regexp);
     		//if (args) return false;
 
-    		var data = message.split(" ",5);
+    		const data = message.split(" ",5);
             if (!data) data[0] = message;
 
             switch (data[0])
@@ -233,7 +233,7 @@ export default class ChatHandler {
                 	return true;
             }
 
-    	var pattern = message.substring(0, 3),
+    	const pattern = message.substring(0, 3),
             self = this,
             commandPatterns = {
                     // World chat
@@ -248,9 +248,9 @@ export default class ChatHandler {
                         return true;
                     },
                     "///": function(entityId, message){
-                        var i=0;
-                        var splitMsg = message.split(' ');
-                        var msg = "";
+                        let i=0;
+                        const splitMsg = message.split(' ');
+                        let msg = "";
                         for(i=0; i<splitMsg.length; i++){
                           if(i !== 3){
                               msg += splitMsg[i] + " ";
@@ -270,7 +270,7 @@ export default class ChatHandler {
     }
     bumpOffLog(delay) {
       var delay = delay || this.bumpOffDelay;
-      var self = this;
+      const self = this;
       $(this.chatLog).scrollTop(999999);
       setTimeout(function () {
         $(this.chatLog).find("p:first").remove();
@@ -280,38 +280,38 @@ export default class ChatHandler {
     addToChatLog(message){
         // FIX: message may be raw untrusted chat text (see call sites); callers now escape untrusted
         // content before calling this, since some callers intentionally wrap pre-built trusted HTML (e.g. <font> tags)
-        var self = this;
-        var el = $('<p style="color: white">' + message + '</p>');
+        const self = this;
+        const el = $('<p style="color: white">' + message + '</p>');
         $(el).appendTo(this.chatLog);
         this.bumpOffLog();
     }
     addNotification(message){
-        var self = this;
-        var el = $('<p style="color: rgba(128, 255, 128, 1)">' + message + '</p>');
+        const self = this;
+        const el = $('<p style="color: rgba(128, 255, 128, 1)">' + message + '</p>');
         $(el).appendTo(this.chatLog);
         this.bumpOffLog();
     }
     addNormalChat(entity, message) {
-        var self = this;
+        const self = this;
         if (!entity) return;
         // FIX: entity.name and message are untrusted/server-controlled; escape before inserting as HTML to prevent XSS
-        var el = $('<p style="color: rgba(255, 255, 0, 1)">' + Utils.escapeHtml(entity.name) + ': ' + Utils.escapeHtml(message) + '</p>');
+        const el = $('<p style="color: rgba(255, 255, 0, 1)">' + Utils.escapeHtml(entity.name) + ': ' + Utils.escapeHtml(message) + '</p>');
         $(el).appendTo(this.chatLog);
         this.bumpOffLog();
     }
 
     addGameNotification(notificationType, message) {
-        var self = this;
+        const self = this;
         // FIX: message may be untrusted/server-controlled; escape before inserting as HTML to prevent XSS
-    	  var el = $('<p style="color: rgba(255, 255, 0, 1)">' + notificationType + ': ' + Utils.escapeHtml(message) + '</p>');
+    	  const el = $('<p style="color: rgba(255, 255, 0, 1)">' + notificationType + ': ' + Utils.escapeHtml(message) + '</p>');
         $(el).appendTo(this.chatLog);
         this.bumpOffLog();
     }
 
     addRatingNotification(message) {
-        var self = this;
+        const self = this;
         // FIX: message is untrusted/server-controlled; escape before inserting as HTML to prevent XSS
-        var el = $('<p style="color: rgba(255, 255, 0, 1)">' + Utils.escapeHtml(message) + '</p>');
+        const el = $('<p style="color: rgba(255, 255, 0, 1)">' + Utils.escapeHtml(message) + '</p>');
         $(el).appendTo(this.chatLog);
         this.bumpOffLog();
     }

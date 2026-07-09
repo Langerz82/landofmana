@@ -13,8 +13,8 @@
 // module file.
 /* global $ */
 export default function fetchJsonSync(path) {
-    var result = null;
-    var failure = null;
+    let result = null;
+    let failure = null;
 
     $.ajax({
         url: path,

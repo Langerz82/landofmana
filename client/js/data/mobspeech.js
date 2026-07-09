@@ -4,9 +4,9 @@
 /* global Types, $ */
 import fetchJsonSync from './fetchjsonsync.js';
 
-var MobSpeech = {};
+const MobSpeech = {};
 MobSpeech.Speech = {};
-var mobParse = fetchJsonSync('shared/data/mobs_speech.json');
+const mobParse = fetchJsonSync('shared/data/mobs_speech.json');
 $.each(mobParse, function(key, value) {
     MobSpeech.Speech[key] = value;
 });

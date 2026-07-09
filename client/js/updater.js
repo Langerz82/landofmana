@@ -8,7 +8,7 @@ import EntityMoving from './entity/entitymoving.js';
 
 export default class Updater {
         constructor(game) {
-            var self = this;
+            const self = this;
             this.game = game;
             this.performanceTime = 0;
             //this.tick = 5;
@@ -16,8 +16,8 @@ export default class Updater {
 
             this.checkStopDanger = function (c)
             {
-              var o = c.orientation;
-              var res=false;
+              const o = c.orientation;
+              let res=false;
 
               if (c.ex === -1 && c.ey === -1)
               {
@@ -29,7 +29,7 @@ export default class Updater {
                 res = true;
               }
 
-              var x = c.x, y = c.y;
+              const x = c.x, y = c.y;
 
               if (o === Types.Orientations.LEFT && c.x < c.ex)
               {
@@ -70,12 +70,12 @@ export default class Updater {
             };
 
             this.charPathXF = function(c, m) {
-              var x = c.x + m, y = c.y;
+              const x = c.x + m, y = c.y;
               return self.charPath(c, x, y);
             };
 
             this.charPathYF = function(c, m) {
-              var x = c.x, y = c.y + m;
+              const x = c.x, y = c.y + m;
               return self.charPath(c, x, y);
             };
 
@@ -85,7 +85,7 @@ export default class Updater {
                 c.forceStop();
                 return true;
               }
-              var res = game.moveCharacter(c, x, y);
+              const res = game.moveCharacter(c, x, y);
               if (res) {
                 c.setPosition(x, y);
               } else {
@@ -95,19 +95,19 @@ export default class Updater {
             };
 
             this.charKeyXF = function(c, m) {
-              var x = c.x + m;
-              var y = c.y;
+              const x = c.x + m;
+              const y = c.y;
               return self.charKey(c, x, y);
             };
 
             this.charKeyYF = function(c, m) {
-              var x = c.x;
-              var y = c.y + m;
+              const x = c.x;
+              const y = c.y + m;
               return self.charKey(c, x, y);
             };
 
             this.playerKey = function (c, x, y) {
-              var res = game.moveCharacter(c, x, y);
+              const res = game.moveCharacter(c, x, y);
               if (res) {
                 c.setPosition(x, y);
               } else {
@@ -118,14 +118,14 @@ export default class Updater {
             };
 
             this.playerKeyXF = function(c, m) {
-              var x = c.x + m;
-              var y = c.y;
+              const x = c.x + m;
+              const y = c.y;
               return self.playerKey(c, x, y);
             };
 
             this.playerKeyYF = function(c, m) {
-              var x = c.x;
-              var y = c.y + m;
+              const x = c.x;
+              const y = c.y + m;
               return self.playerKey(c, x, y);
             };
 
@@ -135,14 +135,14 @@ export default class Updater {
             };
 
             this.playerPathXF = function(c, m) {
-              var x = c.x + m;
-              var y = c.y;
+              const x = c.x + m;
+              const y = c.y;
               return self.playerPath(c,x,y);
             };
 
             this.playerPathYF = function(c, m) {
-              var x = c.x;
-              var y = c.y + m;
+              const x = c.x;
+              const y = c.y + m;
               return self.playerPath(c,x,y);
             };
 
@@ -168,10 +168,10 @@ export default class Updater {
         }
 
         updateCharacters() {
-            var self = this;
-            var mc = game.mapContainer;
+            const self = this;
+            const mc = game.mapContainer;
 
-			// TODO - Optimization not working.
+				// TODO - Optimization not working.
             // This code is intensive.
             //var frames = Math.max(1, ~~((Date.now() - this.lastUpdateTime) / G_UPDATE_INTERVAL));
             //console.warn("uc ticks="+ticks);
@@ -203,7 +203,7 @@ export default class Updater {
         }
 
         updateTransitions() {
-            var self = this,
+            let self = this,
                 m = null;
 
             game.forEachEntity(function(entity) {
@@ -218,14 +218,14 @@ export default class Updater {
         }
 
         updateCharacterPathMovement(c) {
-            var self = this;
+            const self = this;
 
             //var ts = game.tilesize;
-            var tick = c.tickFrames;
+            const tick = c.tickFrames;
             //console.warn("tick="+tick);
             //var speed = c.moveSpeed;
             //var time = this.game.currentTime;
-            var o = c.orientation;
+            const o = c.orientation;
 
             if (c.freeze || c.isStunned || c.isDying || c.isDead)
             {
@@ -234,7 +234,7 @@ export default class Updater {
 
 // TODO - Fix character stuttering thats corrupting the map display and collision.
 
-            var canMove = c.movement.inProgress === false && c.isMovingPath();
+            const canMove = c.movement.inProgress === false && c.isMovingPath();
             if(canMove) {
               if(o === Types.Orientations.LEFT) {
                 c.movement.start(self.charPathXF,
@@ -267,11 +267,11 @@ export default class Updater {
             return;
           }
 
-          var self = this;
-          var tick = c.tickFrames;
-          var o = c.orientation;
+          const self = this;
+          const tick = c.tickFrames;
+          const o = c.orientation;
 
-          var canMove = c.movement.inProgress === false  && c.keyMove && o > 0;
+          const canMove = c.movement.inProgress === false  && c.keyMove && o > 0;
           if(canMove) {
             if(o === Types.Orientations.LEFT) {
               c.movement.start(self.charKeyXF,
@@ -302,13 +302,13 @@ export default class Updater {
                   return;
           }
 
-          var self = this;
-          var tick = c.tickFrames;
-          var o = c.orientation;
+          const self = this;
+          const tick = c.tickFrames;
+          const o = c.orientation;
 
 // TODO - Fix character stuttering thats corrupting the map display and collision.
 
-          var canMove = c.movement.inProgress === false;
+          const canMove = c.movement.inProgress === false;
           if(canMove) {
             c.updateMovement();
             if(o === Types.Orientations.LEFT) {
@@ -345,12 +345,12 @@ export default class Updater {
             return;
           }
 
-          var self = this;
-          var tick = c.tickFrames;
-          var o = c.orientation;
+          const self = this;
+          const tick = c.tickFrames;
+          const o = c.orientation;
 
           // STRICT alignment requirement for key movement
-          var canMove = !c.movement.inProgress &&
+          const canMove = !c.movement.inProgress &&
                         c.keyMove &&
                         o > 0;
 
@@ -380,13 +380,13 @@ export default class Updater {
         }
 
         updateAnimations() {
-            var t = game.currentTime;
+            const t = game.currentTime;
 
             game.camera.forEachInScreen(function(entity) {
                 if (!entity)
                 	return;
 
-            	var anim = entity.currentAnimation;
+            	const anim = entity.currentAnimation;
 
                 if(anim && !entity.isStun) {
                     if(anim.update(t)) {
@@ -395,16 +395,16 @@ export default class Updater {
                 }
             });
 
-            var target = this.game.targetAnimation;
+            const target = this.game.targetAnimation;
             if(target) {
                 target.update(t);
             }
 
             if (game.appearanceDialog.visible)
             {
-              var pa = game.appearanceDialog.playerAnim;
+              const pa = game.appearanceDialog.playerAnim;
               if (pa.currentAnimation) {
-                var animName = pa.currentAnimation.name;
+                const animName = pa.currentAnimation.name;
                 pa.currentAnimation.update(t);
                 //for (var sprite of pa.sprites)
                   //sprite.currentAnimation.update(t);
@@ -414,7 +414,7 @@ export default class Updater {
         }
 
         updateAnimatedTiles() {
-            var self = this,
+            const self = this,
                 t = game.currentTime;
 
             game.forEachAnimatedTile(function (tile) {
@@ -423,12 +423,12 @@ export default class Updater {
         }
 
         updateChatBubbles() {
-            var t = this.game.currentTime;
+            const t = this.game.currentTime;
             game.bubbleManager.update(t);
         }
 
         updateInfos() {
-            var t = this.game.currentTime;
+            const t = this.game.currentTime;
 
             this.game.infoManager.update(t);
         }

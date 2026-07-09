@@ -8,7 +8,7 @@ import config from './config.js';
 
 export default class MapContainer {
     constructor(game, mapIndex, mapName) {
-        var self = this;
+        const self = this;
 
         this.game = game;
         this.mapIndex = mapIndex;
@@ -24,12 +24,12 @@ export default class MapContainer {
         this.count = 0;
         this.inc = 0;
 
-        var $file = "./maps/" + this.mapName + ".zip?v=" + config.build.version;
-        var name = self.mapName + "/" + self.mapName + "_GO.json";
+        const $file = "./maps/" + this.mapName + ".zip?v=" + config.build.version;
+        const name = self.mapName + "/" + self.mapName + "_GO.json";
 
         JSZipUtils.getBinaryContent($file, function(err, data) {
             if (err) {
-                var filename = "./maps/" + name + "?v=" + config.build.version;
+                const filename = "./maps/" + name + "?v=" + config.build.version;
                 $.getJSON(filename, function(data) {
                     self.loadMap(data);
                 });
@@ -39,7 +39,7 @@ export default class MapContainer {
             JSZip.loadAsync(data).then(function(zip) {
                 self.zip = zip;
                 try {
-                    var filename = name;
+                    const filename = name;
                     zip.file(filename).async("string").then(function(data) {
                         self.loadMap(JSON.parse(data));
                     });
@@ -66,19 +66,19 @@ export default class MapContainer {
     }
 
     _isReady() {
-        var self = this;
+        const self = this;
         if (self.ready_func) {
             self.ready_func();
         }
     }
 
     _initGrids() {
-        var c = game.camera;
-        for (var i = 0; i < c.gridHE; ++i) {
+        const c = game.camera;
+        for (let i = 0; i < c.gridHE; ++i) {
             this.collisionGrid[i] = [];
             this.itemGrid[i] = [];
             this.tileGrid[i] = [];
-            for (var j = 0; j < c.gridWE; ++j) {
+            for (let j = 0; j < c.gridWE; ++j) {
                 this.collisionGrid[i][j] = false;
                 this.tileGrid[i][j] = 0;
                 this.itemGrid[i][j] = {};
@@ -87,9 +87,9 @@ export default class MapContainer {
     }
 
     _initMap(map) {
-        var c = game.camera;
-        var gs = game.renderer.gameScale;
-        var ts = G_TILESIZE;
+        const c = game.camera;
+        const gs = game.renderer.gameScale;
+        const ts = G_TILESIZE;
 
         this.width = map.width;
         this.height = map.height;
@@ -103,7 +103,7 @@ export default class MapContainer {
         this.musicAreas = map.musicAreas || [];
         this.high = map.high || [];
         this.high = {};
-        for (var h of map.high) {
+        for (let h of map.high) {
             this.high[h] = true;
         }
 
@@ -123,14 +123,14 @@ export default class MapContainer {
     }
 
     _getDoors(map) {
-        var self = this;
+        const self = this;
 
-        var doors = [];
-        var count = 0;
+        const doors = [];
+        let count = 0;
         _.each(map.doors, function(door) {
             door.width = (door.width) ? door.width : 1;
             door.height = (door.height) ? door.height : 1;
-            var area = new Area(door.x, door.y, door.width, door.height);
+            const area = new Area(door.x, door.y, door.width, door.height);
             area.minLevel = door.tminLevel || 0;
             area.maxLevel = door.tmaxLevel || 200;
             area.tmap = (door.tmap >= 0) ? door.tmap : self.mapIndex;
@@ -190,7 +190,7 @@ export default class MapContainer {
      *
      */
     getTileAnimationDelay(id) {
-        var animProperties = this.animated[id + 1];
+        const animProperties = this.animated[id + 1];
         if (animProperties.d) {
             return animProperties.d;
         } else {
@@ -215,9 +215,9 @@ export default class MapContainer {
     }
 
     _getCheckpoints(map) {
-        var checkpoints = [];
+        const checkpoints = [];
         _.each(map.checkpoints, function(cp) {
-            var area = new Area(cp.x, cp.y, cp.w, cp.h);
+            const area = new Area(cp.x, cp.y, cp.w, cp.h);
             area.id = cp.id;
             checkpoints.push(area);
         });
@@ -235,8 +235,8 @@ export default class MapContainer {
     }
 
     getMap(index) {
-        var self = this;
-        var map;
+        const self = this;
+        let map;
         if (!this.maps[index]) {
             map = new Map(this.game, this, index);
             //map.ready(this.MapReady);
@@ -260,10 +260,10 @@ export default class MapContainer {
     }
 
     LoadMaps() {
-        var self = this;
-        var map;
+        let self = this;
+        let map;
 
-        for (var i in this.maps) {
+        for (let i in this.maps) {
             map = this.maps[i];
             map.ready(function() {
                 this.gridUpdated = true;
@@ -280,13 +280,13 @@ export default class MapContainer {
     }
 
     reloadMaps(init) {
-        var ts = G_TILESIZE;
-        var c = game.camera;
-        var fe = c.focusEntity;
+        const ts = G_TILESIZE;
+        const c = game.camera;
+        const fe = c.focusEntity;
         if (!fe)
             return false;
 
-        var gx = fe.gx, gy = fe.gy;
+        const gx = fe.gx, gy = fe.gy;
 
         if (!this.maps[0]) {
             this.getMap(0);
@@ -296,18 +296,18 @@ export default class MapContainer {
     }
 
     moveGrid(force) {
-        var self = this;
-        var r = game.renderer;
-        var ts = G_TILESIZE;
-        var c = game.camera;
-        var fe = c.focusEntity;
+        const self = this;
+        const r = game.renderer;
+        const ts = G_TILESIZE;
+        const c = game.camera;
+        const fe = c.focusEntity;
 
         if (!fe || !this.gridReady)
             return false;
 
         this.reloadMaps();
 
-        var map = this.maps[0];
+        const map = this.maps[0];
         this._updateGrid(map);
 
         return true;
@@ -315,26 +315,26 @@ export default class MapContainer {
 
     _updateGrid(map) {
         //console.warn("_updateGrid - called.")
-        var c = game.camera;
-        var fe = c.focusEntity;
-        var dim = map.dimensions;
+        const c = game.camera;
+        const fe = c.focusEntity;
+        const dim = map.dimensions;
 
-        var cgw = c.gridWE;
-        var cgh = c.gridHE;
-        var cgwh = (cgw >> 1);
-        var cghh = (cgh >> 1);
+        const cgw = c.gridWE;
+        const cgh = c.gridHE;
+        const cgwh = (cgw >> 1);
+        const cghh = (cgh >> 1);
 
-        var gx = fe.x >> 4, gy = fe.y >> 4;
+        let gx = fe.x >> 4, gy = fe.y >> 4;
 
         gx = Utils.clamp(0, (this.width - cgw), (gx - cgwh)),
         gy = Utils.clamp(0, (this.height - cgh), (gy - cghh));
 
-        var ox = gx;
-        var oy = gy;
+        const ox = gx;
+        const oy = gy;
 
-        for (var i = 0, k = oy, l = ox; i < cgh; ++i, ++k) {
+        for (let i = 0, k = oy, l = ox; i < cgh; ++i, ++k) {
             l = ox;
-            for (var j = 0; j < cgw; ++j, ++l) {
+            for (let j = 0; j < cgw; ++j, ++l) {
                 this.collisionGrid[i][j] = this.getCollision(l, k);
                 this.tileGrid[i][j] = this.getTiles(l, k);
             }
@@ -342,7 +342,7 @@ export default class MapContainer {
     }
 
     isCollidingPoint(x, y) {
-        var gx = Math.floor(x / G_TILESIZE),
+        const gx = Math.floor(x / G_TILESIZE),
             gy = Math.floor(y / G_TILESIZE);
 
         if (this.isOutOfBounds(gx, gy)) {
@@ -356,7 +356,7 @@ export default class MapContainer {
     }
 
     isColliding(x, y) {
-        var gx = (x / G_TILESIZE),
+        const gx = (x / G_TILESIZE),
             gy = (y / G_TILESIZE),
             d = 0.49, // A little less than 0.5.
             x1 = Math.floor(gx - d),
@@ -364,9 +364,9 @@ export default class MapContainer {
             x2 = Math.floor(gx + d),
             y2 = Math.floor(gy + d);
 
-        var arr = [[x1, y1], [x1, y2], [x2, y1], [x2, y2]];
+        const arr = [[x1, y1], [x1, y2], [x2, y1], [x2, y2]];
 
-        for (var c of arr) {
+        for (let c of arr) {
             if (this.isOutOfBounds(c[0], c[1])) {
                 return true;
             }
@@ -379,8 +379,8 @@ export default class MapContainer {
     }
 
     isCollidingGrid(gx, gy) {
-        var index = 0;
-        var map = this.maps[index];
+        const index = 0;
+        const map = this.maps[index];
         if (!map)
             return true;
 
@@ -402,24 +402,24 @@ export default class MapContainer {
      * @returns {Boolean} Whether the position is out of bounds.
      */
     isOutOfCameraBounds(x, y) {
-        var ts = G_TILESIZE,
+        const ts = G_TILESIZE,
             to = G_TILESIZE >> 1;
         return !isInt(x) || !isInt(y) || (x < to || x >= (this.width * ts - to) || y < (to) || y >= (this.height * ts - (to)));
     }
 
     isHarvestTile(pos, type) {
         //var gx = pos.x >> 4, gy = pos.y >> 4;
-        var tiles = this.getTiles(pos.gx, pos.gy);
+        const tiles = this.getTiles(pos.gx, pos.gy);
         if (!tiles || tiles.length === 0)
             return false;
 
         log.info("tiles=" + JSON.stringify(tiles));
-        var types = {}
+        const types = {}
         types.axe = [678, 679, 698, 699, 855, 875, 274, 275, 294, 295];
         if (!types.hasOwnProperty(type))
             return false;
 
-        var res = false;
+        let res = false;
         if (Array.isArray(tiles)) {
             res = types[type].some(function(tile) { return tiles.includes(tile); });
         } else {
@@ -429,12 +429,12 @@ export default class MapContainer {
     }
 
     getTiles(gx, gy) {
-        var map = this.getMap(0);
+        const map = this.getMap(0);
         return map.tile[gy][gx];
     }
 
     getCollision(gx, gy) {
-        var map = this.getMap(0);
+        const map = this.getMap(0);
         return map.collision[gy][gx];
     }
 }

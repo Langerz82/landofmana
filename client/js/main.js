@@ -50,9 +50,9 @@ Object.freeze(window.Container);
 // 'lang = new LangData("EN")').
 window.lang = new LangData("EN");
 
-var initApp = function(server) {
+const initApp = function(server) {
 
-	var startEvents = function () {
+	const startEvents = function () {
     if (typeof(StatusBar) !== 'undefined')
     	    StatusBar.hide();
 
@@ -101,11 +101,11 @@ window.onbeforeunload = function (e) {
             }
         });*/
         $('#aboutbutton').click(function() {
-            var about = $('#about_window');
+            const about = $('#about_window');
             about.toggle();
         });
         $('#aboutclose').click(function() {
-            var about = $('#about_window');
+            const about = $('#about_window');
             about.hide();
         });
 
@@ -151,7 +151,7 @@ window.onbeforeunload = function (e) {
 };
 
 var initGame = function() {
-    var canvas = document.getElementById("entities"),
+    const canvas = document.getElementById("entities"),
         input = document.getElementById("chatinput");
 
     // FIX (conversion): 'game' is another canonical cross-file global declaration site (was a
@@ -200,7 +200,7 @@ var initGame = function() {
     $('#emailinput').attr('value', '');
     $('#chatbox').attr('value', '');
 
-    var fnClickFunc = function (e)
+    const fnClickFunc = function (e)
     {
       app.center();
       app.setMouseCoordinates(e.data.global.x, e.data.global.y);
@@ -225,7 +225,7 @@ var initGame = function() {
         game.respawnPlayer();
         $('#diedwindow').hide();
     });
-    var self = app;
+    const self = app;
     app.scale = game.renderer.getScaleFactor();
 
     Button2.configure = {background: {top: self.scale * 0, width: self.scale * 0}, kinds: [0, 3, 2]};
@@ -332,22 +332,22 @@ var initGame = function() {
         }
     });
 
-    var jqGame = $('#game');
+    const jqGame = $('#game');
 
-    var touchX, touchY;
+    let touchX, touchY;
     jqGame.on("touchstart",function(e){
-      var r = game.renderer;
+      const r = game.renderer;
       game.playerClick = false;
 
-      var dpr = window.devicePixelRatio || 1;
-      var touch = e.touches[0];
-      var rect = this.getBoundingClientRect();
+      const dpr = window.devicePixelRatio || 1;
+      const touch = e.touches[0];
+      const rect = this.getBoundingClientRect();
 
-      var scaleX = this.width / rect.width;
-      var scaleY = this.height / rect.height;
+      const scaleX = this.width / rect.width;
+      const scaleY = this.height / rect.height;
 
-      var x = (touch.clientX - rect.left) * scaleX;
-      var y = (touch.clientY - rect.top) * scaleY;
+      const x = (touch.clientX - rect.left) * scaleX;
+      const y = (touch.clientY - rect.top) * scaleY;
 
       app.setMouseCoordinates(x, y);
 
@@ -370,8 +370,8 @@ var initGame = function() {
     });
 
     jqGame.mousemove(function(e) {
-        var x = e.offsetX;
-        var y = e.offsetY;
+        const x = e.offsetX;
+        const y = e.offsetY;
         app.setMouseCoordinates(x, y);
         if(game.started) {
             game.updateCursor();
@@ -380,34 +380,34 @@ var initGame = function() {
     });
 
 
-    var jqChatbox = $('#chatbox');
-    var jqDropDialog = $('#dropDialog');
-    var jqChatInput = $('#chatinput');
-    var jqForeground = $('#foreground');
-    var jqUserWindow = $('#user_window');
-    var jqPlayerWindow = $('#player_window');
-    var jqInput = $('input');
-    var jqPlayerCreateForm = $('#player_create_form');
-    var jqPlayerLoad = $('#player_load');
-    var jqDropAccept = $("#dropAccept");
-    var jqDropCancel = $("#dropCancel");
-    var jqAuctionSellDialog = $("#auctionSellDialog");
-    var jqDialogModalNotify = $("#dialogModalNotify");
-    var jqDialogModalConfirm = $("#dialogModalConfirm");
+    const jqChatbox = $('#chatbox');
+    const jqDropDialog = $('#dropDialog');
+    const jqChatInput = $('#chatinput');
+    const jqForeground = $('#foreground');
+    const jqUserWindow = $('#user_window');
+    const jqPlayerWindow = $('#player_window');
+    const jqInput = $('input');
+    const jqPlayerCreateForm = $('#player_create_form');
+    const jqPlayerLoad = $('#player_load');
+    const jqDropAccept = $("#dropAccept");
+    const jqDropCancel = $("#dropCancel");
+    const jqAuctionSellDialog = $("#auctionSellDialog");
+    const jqDialogModalNotify = $("#dialogModalNotify");
+    const jqDialogModalConfirm = $("#dialogModalConfirm");
 
-    var jqShortcut = [];
-    for(var i=0; i < 8; ++i)
+    const jqShortcut = [];
+    for(let i=0; i < 8; ++i)
       jqShortcut[i] = $('#shortcut'+i);
 
-    var fnCondition = function () {
+    const fnCondition = function () {
       return game.player && game.started && game.mapStatus >= 2 && !jqChatbox.hasClass('active') && !jqDropDialog.is(":visible")
        && !jqAuctionSellDialog.is(":visible") && !jqDialogModalNotify.is(":visible") && !jqDialogModalConfirm.is(":visible");
     };
 
-    var fnGameKeys = fnCondition;
+    const fnGameKeys = fnCondition;
 
-    var keyboard = function (value) {
-        var key = {
+    const keyboard = function (value) {
+        const key = {
           "value": value,
           "isDown": false,
           "isUp": true,
@@ -452,8 +452,8 @@ var initGame = function() {
         };
 
         //Attach event listeners
-        var downListener = key.downHandler.bind(key);
-        var upListener = key.upHandler.bind(key);
+        const downListener = key.downHandler.bind(key);
+        const upListener = key.upHandler.bind(key);
 
         window.addEventListener("keydown", downListener, false);
         window.addEventListener("keyup", upListener, false);
@@ -467,7 +467,7 @@ var initGame = function() {
         return key;
       }
 
-      var fnKeyLeft = keyboard([Types.Keys.LEFT,Types.Keys.A,Types.Keys.KEYPAD_4]);
+      const fnKeyLeft = keyboard([Types.Keys.LEFT,Types.Keys.A,Types.Keys.KEYPAD_4]);
       fnKeyLeft.press = function () {
         game.player.move(Types.Orientations.LEFT, true);
       };
@@ -475,7 +475,7 @@ var initGame = function() {
         game.player.move(Types.Orientations.LEFT, false);
       };
 
-      var fnKeyRight = keyboard([Types.Keys.RIGHT,Types.Keys.D,Types.Keys.KEYPAD_6]);
+      const fnKeyRight = keyboard([Types.Keys.RIGHT,Types.Keys.D,Types.Keys.KEYPAD_6]);
       fnKeyRight.press = function () {
         game.player.move(Types.Orientations.RIGHT, true);
       };
@@ -483,7 +483,7 @@ var initGame = function() {
         game.player.move(Types.Orientations.RIGHT, false);
       };
 
-      var fnKeyUp = keyboard([Types.Keys.UP,Types.Keys.W,Types.Keys.KEYPAD_8]);
+      const fnKeyUp = keyboard([Types.Keys.UP,Types.Keys.W,Types.Keys.KEYPAD_8]);
       fnKeyUp.press = function () {
         game.player.move(Types.Orientations.UP, true);
       };
@@ -491,7 +491,7 @@ var initGame = function() {
         game.player.move(Types.Orientations.UP, false);
       };
 
-      var fnKeyDown = keyboard([Types.Keys.DOWN,Types.Keys.S,Types.Keys.KEYPAD_2]);
+      const fnKeyDown = keyboard([Types.Keys.DOWN,Types.Keys.S,Types.Keys.KEYPAD_2]);
       fnKeyDown.press = function () {
         game.player.move(Types.Orientations.DOWN, true);
       };
@@ -500,15 +500,15 @@ var initGame = function() {
       };
 
       app.releaseKeys = function () {
-        var key = [fnKeyRight, fnKeyLeft, fnKeyUp, fnKeyDown];
-        for (var k of key) {
+        const key = [fnKeyRight, fnKeyLeft, fnKeyUp, fnKeyDown];
+        for (let k of key) {
           k.isDown = false;
           k.isUp = true;
         }
       }
 
-    var fnKeyAction = function (e) {
-      var key = e.which;
+    const fnKeyAction = function (e) {
+      const key = e.which;
 
       if(key === Types.Keys.ENTER) { // Enter
           if (jqDialogModalNotify.is(":visible")) {
@@ -621,7 +621,7 @@ var initGame = function() {
     });
 
     $('#auctionSellDialog').keydown(function (e) {
-      var key = e.which;
+      const key = e.which;
       if (key === Types.Keys.ENTER) {
         $('#auctionSellAccept').trigger("click");
         return false;
@@ -633,7 +633,7 @@ var initGame = function() {
     });
 
     $('#dropCount').keydown(function (e) {
-      var key = e.which;
+      const key = e.which;
       if (key === Types.Keys.ENTER) {
         jqDropAccept.trigger("click");
         return false;
@@ -653,7 +653,7 @@ var initGame = function() {
 
     jqChatInput.keydown(function(e) {
         if (e.repeat) { return; }
-        var key = e.which,
+        const key = e.which,
             placeholder = $(this).attr("placeholder");
 
         if(key === 13) {
@@ -678,7 +678,7 @@ var initGame = function() {
     });
 
     $('#chatinput').focus(function(e) {
-        var placeholder = $(this).attr("placeholder");
+        const placeholder = $(this).attr("placeholder");
 
         if(!Detect.isFirefoxAndroid()) {
             $(this).val(placeholder);
@@ -692,17 +692,17 @@ var initGame = function() {
 
     jqDropAccept.click(function(event) {
         //var pos = game.getMouseGridPosition();
-        var count = parseInt($('#dropCount').val());
+        let count = parseInt($('#dropCount').val());
         if(count > 0) {
         	if (app.dropAction === "bankgold") // Send to bank.
         	{
-            var gold = game.player.gold[0];
+            const gold = game.player.gold[0];
         		if (count > gold) count=gold;
         		game.client.sendGold(0, count, 1);
         	}
         	else if (app.dropAction === "inventorygold") // Send to inventory.
         	{
-            var bgold = game.player.gold[1];
+            const bgold = game.player.gold[1];
         		if (count > bgold) count=bgold;
         		game.client.sendGold(1, count, 0);
         	}
@@ -733,7 +733,7 @@ var initGame = function() {
 
     $('#auctionSellAccept').click(function(event) {
         try {
-            var count = parseInt($('#auctionSellCount').val());
+            const count = parseInt($('#auctionSellCount').val());
             if(count > 0) {
                 game.client.sendAuctionSell(app.inventoryNumber,count);
                 game.inventoryDialog.inventory[app.inventoryNumber] = null;

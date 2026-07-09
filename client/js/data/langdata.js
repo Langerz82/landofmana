@@ -4,7 +4,7 @@
 /* global $ */
 import fetchJsonSync from './fetchjsonsync.js';
 
-var LangData = fetchJsonSync('shared/data/lang.json');
+const LangData = fetchJsonSync('shared/data/lang.json');
 
 export default class Lang {
     constructor(lang) {

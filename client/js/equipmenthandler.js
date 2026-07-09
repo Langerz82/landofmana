@@ -5,7 +5,7 @@ import Items from './data/items.js';
 
 export default class EquipmentHandler {
         constructor(game) {
-            var self = this;
+            const self = this;
             this.game = game;
             this.rooms = [];
             this.maxNumber = 5;
@@ -48,10 +48,10 @@ export default class EquipmentHandler {
         }
 
         setEquipment(itemRooms) {
-            for(var i = 0; i < itemRooms.length; ++i)
+            for(let i = 0; i < itemRooms.length; ++i)
             {
               this.clearItem(i);
-              var item = itemRooms[i];
+              const item = itemRooms[i];
               if (item.itemKind === -1) {
                 this.rooms[item.slot] = null;
 
@@ -71,13 +71,13 @@ export default class EquipmentHandler {
         }
 
         refreshEquipment() {
-          var scale = game.renderer.guiScale;
+          const scale = game.renderer.guiScale;
 
           // Dumped from Char dialog.
 
-          for (var i=0; i < this.maxNumber; ++i) {
-            var item = this.rooms[i];
-            var jqElement = '#equipment'+i;
+          for (let i=0; i < this.maxNumber; ++i) {
+            const item = this.rooms[i];
+            const jqElement = '#equipment'+i;
 
             if (item && item.itemKind > 0 && item.itemKind < 1000) {
               item.name = ItemTypes.KindData[item.itemKind].name;
@@ -92,9 +92,9 @@ export default class EquipmentHandler {
         }
 
         equip(item, itemSlot) {
-            var itemKind = item.itemKind;
+            const itemKind = item.itemKind;
 
-            var equipSlot = ItemTypes.getEquipmentSlot(itemKind);
+            const equipSlot = ItemTypes.getEquipmentSlot(itemKind);
             if (equipSlot > -1)
               game.client.sendItemSlot([1, 0, itemSlot, 0, 2, equipSlot]);
 
@@ -108,13 +108,13 @@ export default class EquipmentHandler {
         }
 
         repairItem(type, itemSlot, item) {
-          var self = this;
+          const self = this;
           if (!item) return;
 
           if(!game.ready) return;
 
-          var price = ItemTypes.getRepairPrice(item);
-          var strPrice = 'Cost ' + price + ' to Repair.';
+          const price = ItemTypes.getRepairPrice(item);
+          const strPrice = 'Cost ' + price + ' to Repair.';
           if (price > game.player.gold[0]) {
               game.showNotification(["SHOP", "SHOP_NOGOLD"]);
               return;
@@ -127,13 +127,13 @@ export default class EquipmentHandler {
         }
 
         enchantItem(type, itemSlot, item) {
-          var self = this;
+          const self = this;
           if (!item) return;
 
           if(!game.ready) return;
 
-          var price = ItemTypes.getEnchantPrice(item);
-          var strPrice = 'Cost ' + price + ' to Enchant.';
+          const price = ItemTypes.getEnchantPrice(item);
+          const strPrice = 'Cost ' + price + ' to Enchant.';
           if (price > game.player.gold[0]) {
               game.showNotification(["SHOP", "SHOP_NOGOLD"]);
               return;

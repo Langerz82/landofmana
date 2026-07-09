@@ -3,7 +3,7 @@
 
 export default class BankHandler {
     constructor(game) {
-        var self = this;
+        const self = this;
 
         this.game = game;
         this.maxNumber = 96;
@@ -11,18 +11,18 @@ export default class BankHandler {
     }
 
     initBank(itemArray) {
-      for(var i = 0; i < itemArray.length; ++i)
+      for(let i = 0; i < itemArray.length; ++i)
       {
-        var item = itemArray[i];
+        const item = itemArray[i];
         if (item)
           this.banks[item.slot] = item;
       }
     }
 
     setBank(itemArray) {
-      for(var i = 0; i < itemArray.length; ++i)
+      for(let i = 0; i < itemArray.length; ++i)
       {
-        var item = itemArray[i];
+        const item = itemArray[i];
         if (item.itemKind === -1)
           this.banks[item.slot] = null;
         else
@@ -38,7 +38,7 @@ export default class BankHandler {
     isBankFull() {
       if (Object.keys(this.banks).length < this.maxNumber)
         return false;
-    	for (var i=0; i < this.maxBankNumber; i++)
+    	for (let i=0; i < this.maxBankNumber; i++)
     	{
     		if (!this.banks[i])
     			return false;

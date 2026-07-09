@@ -23,22 +23,22 @@ class EffectType {
     }
 }
 
-var getSkillEffects = function(data) {
-    var effects = [];
-    for (var rec of data) {
+const getSkillEffects = function(data) {
+    const effects = [];
+    for (let rec of data) {
         effects.push(new EffectType((rec[0] === "target"), rec[1], rec[2], rec[3]));
     }
     return effects;
 };
 
-var Skill = {};
+const Skill = {};
 Skill.Data = [];
 //Skill.Names = {};
 //Skill.Ordered = [];
-var skillsParse = fetchJsonSync('shared/data/skills2.json');
+const skillsParse = fetchJsonSync('shared/data/skills2.json');
 //var i = 0;
-for (var i in skillsParse) {
-    var value = skillsParse[i];
+for (let i in skillsParse) {
+    const value = skillsParse[i];
 
     //if (value === "undefined") continue;
     console.info(JSON.stringify(value));
@@ -60,10 +60,10 @@ for (var i in skillsParse) {
 }
 
 Skill.jqShowSkill = function(jq, skillId, jqn, size) {
-    var scale = 3;
+    const scale = 3;
     size = size || 1;
     size = size * 0.66;
-    var position = Skill.Data[skillId].iconOffset;
+    const position = Skill.Data[skillId].iconOffset;
     jq.css({
         'background-size': 'auto',
         'background-image': 'url("img/' + scale + '/misc/skillicons.png")',

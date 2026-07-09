@@ -29,8 +29,8 @@ class StoreRack {
         }
 
         rescale() {
-            var scale = this.parent.scale;
-            var id = this.id;
+            const scale = this.parent.scale;
+            const id = this.id;
             this.body.css({
              'position': 'absolute',
              'left': '0px',
@@ -45,14 +45,14 @@ class StoreRack {
             return this.body.css('display') === 'block';
         }
         setVisible(value) {
-            var self = this;
+            const self = this;
 
             this.body.css('display', value===true ? 'block' : 'none');
             this.buyButton.text('UNLOCK');
 
             this.buyButton.off().on('click', function(event) {
                 log.info("buyButton");
-                var dialog = game.appearanceDialog;
+                const dialog = game.appearanceDialog;
                 if(game && game.ready && dialog.visible) {
                     dialog.update(self.parent.itemType, game.sprites[AppearanceData[self.item.index].sprite]);
                     $('#changeLookUnlock').data("item", self.item);
@@ -72,7 +72,7 @@ class StoreRack {
             this.extra.text(item.name);
             this.price.text(item.buyPrice);
 
-            var self = this;
+            const self = this;
         }
 
         clear() {
@@ -94,14 +94,14 @@ class AppearancePage extends TabPage {
             this.rackSize = 5;
             this.pageIndex = 0;
 
-            for(var index = 0; index < this.rackSize; index++) {
+            for(let index = 0; index < this.rackSize; index++) {
                 this.racks.push(new StoreRack(this, id + index, index));
             }
         }
 
         rescale(scale) {
             this.scale = scale;
-            for(var index = 0; index < this.rackSize; index++) {
+            for(let index = 0; index < this.rackSize; index++) {
                 this.racks[index].rescale();
             }
         }
@@ -126,7 +126,7 @@ class AppearancePage extends TabPage {
 
         onData() {
             this.items = [];
-            var categoryType;
+            let categoryType;
             if (!game || !game.player || !game.player.appearances)
               return;
 
@@ -143,8 +143,8 @@ class AppearancePage extends TabPage {
         			    categoryType="weaponarcher";
         		}
 
-    		    for(var k=0; k < AppearanceData.length; ++k) {
-        			var item = AppearanceData[k];
+    		    for(let k=0; k < AppearanceData.length; ++k) {
+        			const item = AppearanceData[k];
         			if (!item)
         			    continue;
 
@@ -168,13 +168,13 @@ class AppearancePage extends TabPage {
         reload()
         {
             for(var index = this.pageIndex * this.rackSize; index < Math.min((this.pageIndex + 1) * this.rackSize, this.items.length); index++) {
-                var rack = this.racks[index - (this.pageIndex * this.rackSize)];
+                const rack = this.racks[index - (this.pageIndex * this.rackSize)];
 
                 rack.assign(this.items[index]);
                 rack.setVisible(true);
             }
             for(var index = this.items.length; index < (this.pageIndex + 1) * this.rackSize; index++) {
-                var rack = this.racks[index - (this.pageIndex * this.rackSize)];
+                const rack = this.racks[index - (this.pageIndex * this.rackSize)];
 
                 rack.setVisible(false);
             }
@@ -205,10 +205,10 @@ class StoreFrame extends TabBook {
 
             this.pageNavigator = new PageNavigator(parent, parent.scale);
 
-            var self = this;
+            const self = this;
 
             this.pageNavigator.onChange(function(sender) {
-                var activePage = self.getActivePage();
+                const activePage = self.getActivePage();
                 if(activePage && game.appearanceDialog.visible) {
                      activePage.setPageIndex(sender.getIndex() - 1);
                 }
@@ -217,7 +217,7 @@ class StoreFrame extends TabBook {
 
         rescale() {
         	this.scale = this.parent.scale;
-          for (var page of this.pages)
+          for (let page of this.pages)
             page.rescale(this.scale);
 
         	this.pageNavigator.rescale(this.scale);
@@ -229,13 +229,13 @@ class StoreFrame extends TabBook {
 
             super.setPageIndex(value); // FIX (conversion): this._super(value) -> super.setPageIndex(value)
             this.updateNavigator();
-            var activePage = this.getActivePage();
+            const activePage = this.getActivePage();
             activePage.open();
         }
 
         updateNavigator() {
-            var activePage = this.getActivePage();
-            var pageNav = this.pageNavigator;
+            const activePage = this.getActivePage();
+            const pageNav = this.pageNavigator;
             //log.info("activePage.getPageCount()="+activePage.getPageCount());
             if(activePage) {
                 if(activePage.getPageCount() > 0) {
@@ -266,16 +266,16 @@ export default class AppearanceDialog extends Dialog {
             this.modal = $('#storeDialogModal');
             this.scale=this.setScale();
 
-            var self = this;
+            let self = this;
 
             this.closeButton.click(function(event) {
-                var activePage = self.storeFrame.getActivePage();
+                const activePage = self.storeFrame.getActivePage();
                 if (activePage)
                     activePage.setVisible(false);
                 self.hide();
             });
 
-            var p = game.player;
+            const p = game.player;
             this.playerAnim = new PlayerAnim();
 
       			$('#changeLookPrev').bind("click", function(event) {
@@ -292,8 +292,8 @@ export default class AppearanceDialog extends Dialog {
             $('#changeLookUnlock').on('click', function(event) {
                 log.info("unlockButton");
                 if(game && game.ready) {
-                  var item = $(this).data("item");
-                  var strPrice = lang.data['SHOP_UNLOCK_CONFIRM'].format(item.buyPrice);
+                  const item = $(this).data("item");
+                  const strPrice = lang.data['SHOP_UNLOCK_CONFIRM'].format(item.buyPrice);
                   self.confirmDialog.confirm(strPrice, function(result) {
                       if(result) {
                           game.client.sendAppearanceUnlock(item.index, item.buyPrice);
@@ -311,7 +311,7 @@ export default class AppearanceDialog extends Dialog {
           if (this.armorLooks && this.armorLooks.length > 0)
           {
             index = this.looksArmorIndex = (this.armorLooks.length + index) % this.armorLooks.length;
-            var spriteId = this.armorLooks[index];
+            const spriteId = this.armorLooks[index];
             if (spriteId==0 || game.player.appearances[spriteId] === 1) {
 
               game.player.setSpriteByIndex(0, Number(spriteId));
@@ -342,20 +342,20 @@ export default class AppearanceDialog extends Dialog {
 
         assign(datas) {
             if (datas) {
-              var p = game.player;
+              const p = game.player;
         		  p.appearances = Utils.Base64ToBinArray(datas.shift(), AppearanceData.length);
 
-              for(var i=0; i < AppearanceData.length; i++)
+              for(let i=0; i < AppearanceData.length; i++)
               {
                 AppearanceData[i].buy = parseInt(datas.shift());
               }
             }
 
-            for (var page of this.storeFrame.pages) {
+            for (let page of this.storeFrame.pages) {
               page.onData();
             }
 
-            var categoryTypeArmor = "armor", categoryTypeWeapon = "weapon";
+            let categoryTypeArmor = "armor", categoryTypeWeapon = "weapon";
     		    if (game.player.isArcher()) {
               categoryTypeArmor="armorarcher";
       		    categoryTypeWeapon="weaponarcher";
@@ -390,9 +390,9 @@ export default class AppearanceDialog extends Dialog {
         }
 
         updateLook(spriteArmor) {
-            var self = this;
-            var anim = this.playerAnim;
-            var p = game.player;
+            const self = this;
+            const anim = this.playerAnim;
+            const p = game.player;
 
             spriteArmor = spriteArmor || p.getArmorSprite();
 
@@ -402,20 +402,20 @@ export default class AppearanceDialog extends Dialog {
 
             anim.setHTML(['#characterLookArmor','#characterLookWeapon']);
 
-            var armor = anim.sprites[0];
-            var weapon = anim.sprites[1];
+            const armor = anim.sprites[0];
+            const weapon = anim.sprites[1];
 
-            var inc = 0, inc_fn = 0;
+            let inc = 0, inc_fn = 0;
             if (this.paInterval)
               clearInterval(this.paInterval);
             //var pa = anim;
-            var fn = [anim.walk,
+            const fn = [anim.walk,
               anim.hit];
             this.paInterval = setInterval(function () {
               if (!anim.isLoaded)
                 return;
 
-              var o = (inc % 3)+1;
+              const o = (inc % 3)+1;
               fn[(inc_fn % fn.length)].bind(anim)(o);
               if (++inc_fn % fn.length === 0)
                 inc++;
@@ -450,7 +450,7 @@ export default class AppearanceDialog extends Dialog {
         }
 
         show() {
-            var self = this;
+            const self = this;
 
             this.rescale();
 
@@ -460,7 +460,7 @@ export default class AppearanceDialog extends Dialog {
             $('#storeDialogStore1Button').hide();
             $('#storeDialogStore2Button').hide();
 
-            var jq3Button = $("#storeDialogStore3Button"); // FIX: was a bare global assignment (no var), which throws ReferenceError under ES module strict mode
+            const jq3Button = $("#storeDialogStore3Button"); // FIX: was a bare global assignment (no var), which throws ReferenceError under ES module strict mode
             jq3Button.text("LOOKS");
             jq3Button.show();
 

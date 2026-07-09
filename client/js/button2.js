@@ -8,7 +8,7 @@ function isObject(value) {
 }
 
 function assign(target, source1, source2, items) {
-    var index, item;
+    let index, item;
     for (index = 0; index < items.length; index++) {
         item = items[index];
         if (isObject(source1) && !isUndefined(source1[item])) {
@@ -20,7 +20,7 @@ function assign(target, source1, source2, items) {
 }
 
 function indexOf(array_, value, default_) {
-    var result = array_.indexOf(value);
+    const result = array_.indexOf(value);
     return result >= 0 ? result : default_;
 }
 
@@ -89,7 +89,7 @@ export default class Button2 {
     }
 
     getBackgroundPosition(kind) {
-        var left = isUndefined(this.background.left) ? 0 : this.background.left,
+        const left = isUndefined(this.background.left) ? 0 : this.background.left,
             top = isUndefined(this.background.top) ? 0 : this.background.top,
             width = isUndefined(this.background.width) ? 25 : this.background.width,
             index = indexOf(this.kinds, kind, 0);

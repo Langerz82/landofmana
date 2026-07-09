@@ -39,13 +39,13 @@ export default class BubbleManager {
     create(entity, content, time) {
         if (content === undefined || content === "") return;
 
-        var id=entity.id;
+        const id=entity.id;
         var time = time || Date.now();
-        var bubble = this.bubbles[id] = new Bubble(id, entity, content, time);
+        const bubble = this.bubbles[id] = new Bubble(id, entity, content, time);
     }
 
     update(time) {
-        var self = this,
+        const self = this,
             bubblesToDelete = [];
 
         _.each(this.bubbles, function(bubble) {
@@ -61,7 +61,7 @@ export default class BubbleManager {
     }
 
     clean() {
-        var self = this,
+        const self = this,
             bubblesToDelete = [];
 
         _.each(this.bubbles, function(bubble) {
@@ -77,7 +77,7 @@ export default class BubbleManager {
     }
 
     destroyBubble(id) {
-        var bubble = this.getBubbleById(id);
+        const bubble = this.getBubbleById(id);
 
         if(bubble) {
             bubble.destroy();
@@ -86,7 +86,7 @@ export default class BubbleManager {
     }
 
     destroyEntityBubbles(entity) {
-        var self = this;
+        const self = this;
 
         _.each(this.bubbles, function(bubble) {
             if (bubble.entity === entity)

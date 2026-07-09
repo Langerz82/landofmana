@@ -2,7 +2,7 @@
 // TODO - Add Menu Option Navigation. (Assign Skill, Add stat points, Change Settings, View Leaderboard etc).
 /* global Utils, game, log, DragItem, ShortcutData, ShortcutStyle, PxGamepad */
 
-var Navigate = {
+const Navigate = {
   NONE: 0,
   LEFT: 1,
   RIGHT: 2,
@@ -10,31 +10,31 @@ var Navigate = {
   DOWN: 4
 };
 
-var GamePadShortcut = null; // FIX: was a bare global assignment (no var), which throws ReferenceError under ES module strict mode
+let GamePadShortcut = null; // FIX: was a bare global assignment (no var), which throws ReferenceError under ES module strict mode
 
-var jqInventoryWindow = $("#allinventorywindow");
-var jqMenuWindow = $("#menucontainer");
-var jqSkillWindow = $("#skillsDialog");
-var jqStatWindow = $("#statsDialog");
-var jqPlayerPopupWindow = $("#playerPopupMenuContainer");
-var jqInviteWindow = $("#partyconfirm");
-var jqQuestWindow = $("#questlog");
-var jqSocialWindow = $("#socialwindow");
-var jqSettingsWindow = $("#settings");
-var jqLeaderWindow = $("#leaderboard");
-var jqDropWindow = $("#dropDialog");
-var jqInputWindow = $("#inputDialog");
-var jqConfirmWindow = $("#dialogModalConfirm");
-var jqNotifyWindow = $("#dialogModalNotify");
-var jqDiedWindow = $("#diedwindow");
-var jqAuctionSellWindow = $("#auctionSellDialog");
-var jqAchievementWindow = $("#achievementlog");
-var jqShopWindow = $("#shopDialog");
-var jqBankWindow = $("#bankDialog");
-var jqLooksWindow = $('#appearanceDialog');
-var jqLooksPreview = $('#looksDialogPlayer');
+const jqInventoryWindow = $("#allinventorywindow");
+const jqMenuWindow = $("#menucontainer");
+const jqSkillWindow = $("#skillsDialog");
+const jqStatWindow = $("#statsDialog");
+const jqPlayerPopupWindow = $("#playerPopupMenuContainer");
+const jqInviteWindow = $("#partyconfirm");
+const jqQuestWindow = $("#questlog");
+const jqSocialWindow = $("#socialwindow");
+const jqSettingsWindow = $("#settings");
+const jqLeaderWindow = $("#leaderboard");
+const jqDropWindow = $("#dropDialog");
+const jqInputWindow = $("#inputDialog");
+const jqConfirmWindow = $("#dialogModalConfirm");
+const jqNotifyWindow = $("#dialogModalNotify");
+const jqDiedWindow = $("#diedwindow");
+const jqAuctionSellWindow = $("#auctionSellDialog");
+const jqAchievementWindow = $("#achievementlog");
+const jqShopWindow = $("#shopDialog");
+const jqBankWindow = $("#bankDialog");
+const jqLooksWindow = $('#appearanceDialog');
+const jqLooksPreview = $('#looksDialogPlayer');
 
-var selectFirstItem = {
+const selectFirstItem = {
   socialconfirm: "#socialconfirmyes",
   diedwindow: "#respawn",
   dialogModalConfirm: "#dialogModalConfirmButton1",
@@ -63,7 +63,7 @@ var selectFirstItem = {
 
 export default class Gamepad {
     constructor(game) {
-      var self = this;
+      const self = this;
 
   self.shopPageIndex = 0;
   self.craftPageIndex = 0;
@@ -137,7 +137,7 @@ export default class Gamepad {
 
     //var navigate = self.navigate[0];
     //var navigate = self.navigate[1];
-    var navigate = self.navigate;
+    const navigate = self.navigate;
 
     if (game.storeDialog.visible ||
          game.auctionDialog.visible ||
@@ -149,7 +149,7 @@ export default class Gamepad {
          self.joystickY = Utils.clamp(0,5, (self.joystickY-1));
          if (self.joystickY === 0)
          {
-           var index = self.storeDialogSide[self.joystickX];
+           const index = self.storeDialogSide[self.joystickX];
            this.setSelectedItem($(index));
            if (self.joystickX === 3)
            {
@@ -167,7 +167,7 @@ export default class Gamepad {
        {
          self.joystickY = Utils.clamp(0,5,(self.joystickY+1));
          if (self.joystickY >= 1) {
-           var index = self.storeDialogBuyButton.format(self.joystickY-1);
+           const index = self.storeDialogBuyButton.format(self.joystickY-1);
            this.setSelectedItem($(index));
          }
        }
@@ -175,7 +175,7 @@ export default class Gamepad {
        {
          if (self.joystickY === 0) {
            self.joystickX = Utils.clamp(0,3,(self.joystickX-1));
-           var index = self.storeDialogSide[self.joystickX];
+           const index = self.storeDialogSide[self.joystickX];
            this.setSelectedItem($(index));
            $(index).trigger("click");
          }
@@ -187,7 +187,7 @@ export default class Gamepad {
        {
          if (self.joystickY === 0) {
            self.joystickX = Utils.clamp(0,3,(self.joystickX+1));
-           var index = self.storeDialogSide[self.joystickX];
+           const index = self.storeDialogSide[self.joystickX];
            if (self.joystickX === 3)
            {
              self.joystickX = 0;
@@ -216,7 +216,7 @@ export default class Gamepad {
     }
     else if (jqBankWindow.is(':visible'))
     {
-      var modx = 0, mody = 0;
+      let modx = 0, mody = 0;
       if (navigate === Navigate.UP)
       {
         mody = -1;
@@ -237,8 +237,8 @@ export default class Gamepad {
       if (navigate !== 0) {
         self.joystickX = ((self.joystickX+6+modx)%6);
         self.joystickY = ((self.joystickY+16+mody)%16);
-        var index =(self.joystickY)*6+(self.joystickX);
-        var jqi = self.playerBank.format(index);
+        const index =(self.joystickY)*6+(self.joystickX);
+        const jqi = self.playerBank.format(index);
         $(jqi).get(0).scrollIntoView();
         this.setSelectedItem($(jqi));
       }
@@ -246,10 +246,10 @@ export default class Gamepad {
     }
     else if (jqMenuWindow.is(':visible'))
     {
-      var len = self.menuButtons.length;
+      const len = self.menuButtons.length;
       //if (self.joystickY == 0)
       //{
-        var mody = 0;
+        let mody = 0;
         if (navigate === Navigate.UP)
         {
           mody=-1;
@@ -261,7 +261,7 @@ export default class Gamepad {
 
       if (navigate != 0) {
         self.joystickY = (self.joystickY+mody+len)%len;
-        var index = self.menuButtons[self.joystickY];
+        const index = self.menuButtons[self.joystickY];
         this.setSelectedItem($(index));
       }
     }
@@ -270,8 +270,8 @@ export default class Gamepad {
       if (navigate == 0)
         return;
 
-      var buttons = {};
-      var modx = 0, mody = 0;
+      const buttons = {};
+      let modx = 0, mody = 0;
 
       buttons['0-0'] = self.mainButtons[0];
       buttons['1-0'] = self.mainButtons[1];
@@ -358,14 +358,14 @@ export default class Gamepad {
           self.joystickX = (self.joystickX+modx+2)%2;
           self.joystickY = (self.joystickY+mody+8)%8;
         }
-        var index = buttons[self.joystickY+'-'+self.joystickX];
+        const index = buttons[self.joystickY+'-'+self.joystickX];
         this.setSelectedItem($(index));
       }
     }
     else if (jqInventoryWindow.is(':visible'))
     {
-      var equipment = false;
-      var modx = 0, mody = 0;
+      let equipment = false;
+      let modx = 0, mody = 0;
       if (navigate === Navigate.UP)
       {
         mody = -1;
@@ -391,7 +391,7 @@ export default class Gamepad {
   				equipment = true;
   			}
 
-        var index = self.playerInventory.format((self.joystickY-1)*5+(self.joystickX));
+        let index = self.playerInventory.format((self.joystickY-1)*5+(self.joystickX));
         if (equipment) {
           index = self.playerEquipment[self.joystickX];
         }
@@ -402,8 +402,8 @@ export default class Gamepad {
     }
     else if (jqSkillWindow.is(':visible'))
     {
-      var modx = 0;
-      var mody = 0;
+      let modx = 0;
+      let mody = 0;
       if (navigate === Navigate.UP)
       {
         mody = -1;
@@ -423,7 +423,7 @@ export default class Gamepad {
       if (navigate !== 0 || !ShortcutData) {
         self.joystickX = (self.joystickX+(4 + modx)) % 4;
         self.joystickY = (self.joystickY+(2 + mody)) % 2;
-        var index = self.playerDialogSkill.format((self.joystickY)*4+(self.joystickX));
+        const index = self.playerDialogSkill.format((self.joystickY)*4+(self.joystickX));
         this.setSelectedItem($(index));
         $(index).trigger("click");
       }
@@ -433,13 +433,13 @@ export default class Gamepad {
       if (navigate === Navigate.UP)
       {
         self.joystickY = Utils.clamp(0,4,(self.joystickY-1));
-        var index = self.playerDialogStat[self.joystickY];
+        const index = self.playerDialogStat[self.joystickY];
         this.setSelectedItem($(index));
       }
       if (navigate === Navigate.DOWN)
       {
         self.joystickY = Utils.clamp(0,4,(self.joystickY+1));
-        var index = self.playerDialogStat[self.joystickY];
+        const index = self.playerDialogStat[self.joystickY];
         this.setSelectedItem($(index));
       }
     }
@@ -448,13 +448,13 @@ export default class Gamepad {
       if (navigate === Navigate.UP)
       {
         self.joystickY = Utils.clamp(0,5,(self.joystickY-1));
-        var index = self.playerSettings[self.joystickY];
+        const index = self.playerSettings[self.joystickY];
         this.setSelectedItem($(index));
       }
       if (navigate === Navigate.DOWN)
       {
         self.joystickY = Utils.clamp(0,5,(self.joystickY+1));
-        var index = self.playerSettings[self.joystickY];
+        const index = self.playerSettings[self.joystickY];
         this.setSelectedItem($(index));
       }
     }
@@ -462,12 +462,12 @@ export default class Gamepad {
     {
       if (navigate === Navigate.LEFT)
       {
-        var index = self.leaderboardselect[0];
+        const index = self.leaderboardselect[0];
         this.setSelectedItem($(index));
       }
       if (navigate === Navigate.RIGHT)
       {
-        var index = self.leaderboardselect[1];
+        const index = self.leaderboardselect[1];
         this.setSelectedItem($(index));
       }
     }
@@ -476,7 +476,7 @@ export default class Gamepad {
   self.setSelectedItem = function (val) {
     //if (self.selectedItem !== val)
     //{
-      var defHighlight = "3px solid rgb(0, 0, 255)";
+      const defHighlight = "3px solid rgb(0, 0, 255)";
       if (self.selectedItem) {
         if (!GamePadShortcut || GamePadShortcut.item != self.selectedItem)
         {
@@ -837,7 +837,7 @@ export default class Gamepad {
         }
 	    	else if (jqInventoryWindow.is(':visible'))
 	    	{
-            var inv = game.inventoryHandler;
+            const inv = game.inventoryHandler;
             if (inv.selectedItem >= 0) {
               inv.deselectItem();
               return;
@@ -960,33 +960,33 @@ export default class Gamepad {
         self.setSelectedItem(jq);
       }*/
 
-      var switchShopDialogPage = function (mod) {
-        var sides = self.storeDialogSide;
+      const switchShopDialogPage = function (mod) {
+        let sides = self.storeDialogSide;
         if (game.appearanceDialog.visible)
           sides = self.looksDialogSide;
 
-        var l = sides.length;
-        var i = (l+self.shopPageIndex+mod) % l;
+        const l = sides.length;
+        const i = (l+self.shopPageIndex+mod) % l;
         self.shopPageIndex = i;
-        var jq = $(sides[i]);
+        const jq = $(sides[i]);
 
         self.setSelectedItem(jq);
       }
 
-      var switchLooksDialogPage = function (mod) {
-        var l = self.looksDialogSide.length;
-        var i = (l+self.shopPageIndex+mod) % l;
+      const switchLooksDialogPage = function (mod) {
+        const l = self.looksDialogSide.length;
+        const i = (l+self.shopPageIndex+mod) % l;
         self.shopPageIndex = i;
-        var jq = $(self.looksDialogSide[i]);
+        const jq = $(self.looksDialogSide[i]);
 
         self.setSelectedItem(jq);
       }
 
-      var switchCraftDialogPage = function (mod) {
-        var l = 3;
-        var i = (l+self.craftPageIndex+mod) % l;
+      const switchCraftDialogPage = function (mod) {
+        const l = 3;
+        const i = (l+self.craftPageIndex+mod) % l;
         self.craftPageIndex = i;
-        var jq = $(self.craftDialogButtons.format(i));
+        const jq = $(self.craftDialogButtons.format(i));
 
         self.setSelectedItem(jq);
       }
@@ -1104,15 +1104,15 @@ export default class Gamepad {
       if (this.pxgamepad.getGamepad() === null)
         return;
 
-	    var self = this;
+	    const self = this;
 
       self.pxgamepad.update();
 
-      var fnDeadZone = function (stick, deadzone) {
-        var dzx = Math.abs(stick.x);
+      const fnDeadZone = function (stick, deadzone) {
+        const dzx = Math.abs(stick.x);
         if (dzx < deadzone)
           stick.x = 0;
-        var dzy = Math.abs(stick.y); // FIX: missing var, was an implicit global
+        const dzy = Math.abs(stick.y); // FIX: missing var, was an implicit global
         if (dzy < deadzone)
           stick.y = 0;
       };
@@ -1122,11 +1122,11 @@ export default class Gamepad {
 
       self.navigate = Navigate.NONE;
 
-			var p = game.player;
+			const p = game.player;
       if (!p || !game.started || !game.ready)
         return;
 
-			var o = p.orientation;
+			const o = p.orientation;
 			if (game.joystick && game.usejoystick)
 			{
 				if (!game.joystick.isActive())
@@ -1155,12 +1155,12 @@ export default class Gamepad {
 				clearInterval(game.autotalk);
 			}
 
-       var ignorezone = 0.25;
-       var modx = self.dpadX || self.pxgamepad.leftStick.x,
+       const ignorezone = 0.25;
+       const modx = self.dpadX || self.pxgamepad.leftStick.x,
            mody = self.dpadY || self.pxgamepad.leftStick.y;
 
-       var modxa = Math.abs(modx), modya = Math.abs(mody);
-       var mod = Math.max(modxa, modya);
+       const modxa = Math.abs(modx), modya = Math.abs(mody);
+       const mod = Math.max(modxa, modya);
        if (mod > ignorezone)
        {
     	   if (modxa > modya)
@@ -1173,15 +1173,15 @@ export default class Gamepad {
     	   }
       }
 
-      var mouse = game.mouse,
+      const mouse = game.mouse,
         width = game.renderer.renderer.screen.width,
         height = game.renderer.renderer.screen.height,
         ts = G_TILESIZE,
         speed = (ts >> 3) * game.renderer.scale;
 
-      var modx2 = self.navMouse ? (self.dpadX || self.pxgamepad.leftStick.x) : self.pxgamepad.rightStick.x,
+      const modx2 = self.navMouse ? (self.dpadX || self.pxgamepad.leftStick.x) : self.pxgamepad.rightStick.x,
           mody2 = self.navMouse ? (self.dpadY || self.pxgamepad.leftStick.y) : self.pxgamepad.rightStick.y;
-      var modxa2 = Math.abs(modx2),
+      const modxa2 = Math.abs(modx2),
           modya2 = Math.abs(mody2),
           mod2 = Math.max(modxa2, modya2);
 
@@ -1194,7 +1194,7 @@ export default class Gamepad {
      game.mouse.x = ~~(Utils.clamp(0, (width-1), mouse.x));
      game.mouse.y = ~~(Utils.clamp(0, (height-1), mouse.y));
 
-      var navigate = self.navigate;
+      const navigate = self.navigate;
       ///var navigate = self.navigate[1];
 
       if (!self.isDialogOpen() && !self.navMouse)
@@ -1303,7 +1303,7 @@ export default class Gamepad {
 
     dialogOpen(dialog) {
       this.setSelectedItem(null);
-      for (var k in selectFirstItem) {
+      for (let k in selectFirstItem) {
           if ($('#'+k).is(':visible'))
           {
             //if ($(selectFirstItem[k])[0].id)

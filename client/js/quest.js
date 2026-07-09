@@ -9,8 +9,8 @@ import ItemLoot from './data/itemlootdata.js';
 // the full explanation. Aliased from Types.QuestType now that gametypes.js is a real ES module.
 const QuestType = Types.QuestType;
 
-var getQuestObject = function(arr) {
-  var self = {};
+const getQuestObject = function(arr) {
+  const self = {};
   self.toArray = function (obj) {
     return [obj.type,
       obj.kind,
@@ -51,10 +51,10 @@ export default class Quest {
         }
 
         setDesc(desc) {
-          var questType;
+          let questType;
 
-          var questLang = lang.data["QUESTS"][parseInt(this.id).toString()];
-          var summaryIndex;
+          const questLang = lang.data["QUESTS"][parseInt(this.id).toString()];
+          let summaryIndex;
           if (questLang)
           {
             desc = desc || questLang[this.status+1];
@@ -78,7 +78,7 @@ export default class Quest {
                 summaryIndex = "USENODE";
                 break;
             }
-            var langData = lang.data[questType];
+            const langData = lang.data[questType];
             desc = desc || langData[0][this.status];
           }
           if (!desc) {
@@ -89,17 +89,17 @@ export default class Quest {
           if (!Array.isArray(desc))
             desc = [[0, desc]];
 
-          var i=0;
-          for (var d of desc)
+          let i=0;
+          for (let d of desc)
           {
-            var txt = Array.isArray(d) ? d[1] : d;
+            let txt = Array.isArray(d) ? d[1] : d;
             txt = this.setTextTemplate(txt);
             desc[i++] = [Array.isArray(d) ? d[0] : 0, txt];
           }
           this.desc = desc;
 
-          var sum = lang.data['QUEST_SUMMARY'];
-          var summary = sum.hasOwnProperty(this.id) ? sum[this.id] : sum[summaryIndex];
+          const sum = lang.data['QUEST_SUMMARY'];
+          const summary = sum.hasOwnProperty(this.id) ? sum[this.id] : sum[summaryIndex];
           this.summary = this.setTextTemplate(summary);
         }
 
@@ -107,12 +107,12 @@ export default class Quest {
           if (this.type==QuestType.GETITEMKIND)
           {
             if (this.object2) {
-              var itemLootData = ItemLoot[(this.object2.kind)];
+              const itemLootData = ItemLoot[(this.object2.kind)];
               txt = txt.replace(/%name%/g, itemLootData.name.capitalizeFirstLetter());
               txt = txt.replace(/%count%/g, this.object2.count);
             }
             if (this.object) {
-              var mobData = MobData.Kinds[this.object.kind];
+              const mobData = MobData.Kinds[this.object.kind];
               if (mobData)
                 txt = txt.replace(/%name2%/g, mobData.key.capitalizeFirstLetter());
             }
@@ -120,7 +120,7 @@ export default class Quest {
           if (this.type==QuestType.KILLMOBKIND)
           {
             if (this.object) {
-              var mobData = MobData.Kinds[this.object.kind];
+              const mobData = MobData.Kinds[this.object.kind];
               txt = txt.replace(/%name%/g, mobData.key.capitalizeFirstLetter());
               txt = txt.replace(/%count%/g, this.object.count);
               //d = d.replace('%level%', mobData.minLevel);
@@ -129,7 +129,7 @@ export default class Quest {
           if (this.type==QuestType.HIDEANDSEEK)
           {
             if (this.object) {
-              var npcData = NpcData.Kinds[this.object.kind];
+              const npcData = NpcData.Kinds[this.object.kind];
               txt = txt.replace('%name%', npcData.name);
             }
           }

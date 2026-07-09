@@ -8,15 +8,15 @@ export default class InfoManager {
             this.destroyQueue = [];
             this.infoQueue = [];
             this.index = 1;
-            var self = this;
+            const self = this;
 
 
             setInterval(function ()
             {
             	if (self.infoQueue.length > 0)
             	{
-            		var time = self.game.currentTime;
-            		var info = self.infoQueue[0];
+            		const time = self.game.currentTime;
+            		const info = self.infoQueue[0];
             		if (!info.showTime) info.showTime = time;
             		self.infos[info.id] = info;
             		if (info.isTimeToShow(time))
@@ -51,7 +51,7 @@ export default class InfoManager {
         }
 
         addInfo(info) {
-            var time = this.game.currentTime,
+            const time = this.game.currentTime,
                 self = this;
 
         		info.onDestroy(function(id) {
@@ -71,7 +71,7 @@ export default class InfoManager {
         }
 
         forEachInfo(callback) {
-            var self = this;
+            const self = this;
 
             _.each(this.infos, function(info, id) {
                 callback(info);
@@ -79,7 +79,7 @@ export default class InfoManager {
         }
 
         update(time) {
-            var self = this;
+            const self = this;
 
             this.forEachInfo(function(info) {
             	//if (info.isTimeToShow(time)) {

@@ -4,8 +4,8 @@
 /* global $ */
 import fetchJsonSync from './fetchjsonsync.js';
 
-var ItemLoot = [];
-var lootParse = fetchJsonSync('shared/data/itemloot.json');
+const ItemLoot = [];
+const lootParse = fetchJsonSync('shared/data/itemloot.json');
 $.each(lootParse, function(key, val) {
     ItemLoot[key] = {
         name: val.name,
@@ -17,8 +17,8 @@ $.each(lootParse, function(key, val) {
     };
 });
 //console.info(JSON.stringify(ItemLoot));
-var i = 0;
-for (var il of ItemLoot) {
+let i = 0;
+for (let il of ItemLoot) {
     if (il)
         //console.info(i+": "+JSON.stringify(il));
         i++

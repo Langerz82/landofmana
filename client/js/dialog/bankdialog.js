@@ -21,17 +21,17 @@ class BankSlot {
             this.index = index;
             this.item = null;
 
-            var jqParent = $("#bankDialogBank");
-            var data = "<div id=\"bankDialogBank{0}Background\" class=\"bankItemBackground\"><div id=\"bankDialogBank{0}Body\" class=\"bankItem\"></div></div>".format(index); // FIX: missing var, was leaking an implicit global
+            const jqParent = $("#bankDialogBank");
+            const data = "<div id=\"bankDialogBank{0}Background\" class=\"bankItemBackground\"><div id=\"bankDialogBank{0}Body\" class=\"bankItem\"></div></div>".format(index); // FIX: missing var, was leaking an implicit global
 
             jqParent.append(data);
 
-            var name = '#bankDialogBank' + this.index;
+            const name = '#bankDialogBank' + this.index;
             this.background = $(name + 'Background');
             this.body = $(name + 'Body');
 
-            var top = (60 * ~~(index/parent.itemsPerRow));
-            var left = (60*(index % parent.itemsPerRow));
+            const top = (60 * ~~(index/parent.itemsPerRow));
+            const left = (60*(index % parent.itemsPerRow));
 
             this.background.css({
               "top": top+"px",
@@ -39,7 +39,7 @@ class BankSlot {
             });
 
             this.rescale();
-            var self = this;
+            const self = this;
 
             this.background.data('itemSlot',this.index);
 
@@ -48,10 +48,10 @@ class BankSlot {
             this.body.attr('draggable', true);
             this.body.draggable = true;
 
-            var getRealSlot = function (slot) {
+            const getRealSlot = function (slot) {
               return slot + (self.parent.page * self.parent.pageItems);
             }
-            var moveItem = function (type, slot, start) {
+            const moveItem = function (type, slot, start) {
               start = start || false;
               if (start && DragBank === null) {
                 DragBank = {};
@@ -61,8 +61,8 @@ class BankSlot {
                 return;
               }
               if (!start && DragBank !== null) {
-                var slot2 = slot >= 0 ? getRealSlot(slot) : slot;
-                var count = (DragBank.item) ? DragBank.item.itemNumber : 1;
+                const slot2 = slot >= 0 ? getRealSlot(slot) : slot;
+                const count = (DragBank.item) ? DragBank.item.itemNumber : 1;
                 game.client.sendItemSlot([1, DragBank.type, getRealSlot(DragBank.slot), count, type, slot2]);
                 DragBank = null;
                 self.parent.deselectItem();
@@ -73,7 +73,7 @@ class BankSlot {
             });
 
             this.background.off().on('click', function(event) {
-                var slot = $(this).data("itemSlot");
+                const slot = $(this).data("itemSlot");
                 if (DragBank === null) {
                   if (self.item === null)
                     return;
@@ -91,7 +91,7 @@ class BankSlot {
             });
 
             this.body.on('dragstart', function(event) {
-              var slot = $(this).data("itemSlot");
+              const slot = $(this).data("itemSlot");
               if (DragBank === null) {
                 if (self.item === null)
                   return;
@@ -156,7 +156,7 @@ class BankSlot {
             return this.item.itemKind;
         }
         setItemName() {
-            var kind = this.item.itemKind;
+            const kind = this.item.itemKind;
             if ( ItemTypes.isLootItem(kind))
               this.itemName = ItemLoot[kind-1000].name;
             else
@@ -171,7 +171,7 @@ class BankSlot {
 
         assign(item) {
             this.item = item;
-            var kind = item.itemKind;
+            const kind = item.itemKind;
             this.setItemName(kind);
             this.itemDurabilityPercent = item.itemDurability/item.itemDurabilityMax*100;
             this.body.data('itemNumber',this.item.itemNumber);
@@ -190,8 +190,8 @@ class BankSlot {
             this.body.attr('title', '');
         }
         restore() {
-            var kind = this.item.itemKind, itemKind = kind; // FIX: itemKind was an implicit global; declare it properly
-            var scale = game.renderer.getIconScaleFactor();
+            const kind = this.item.itemKind, itemKind = kind; // FIX: itemKind was an implicit global; declare it properly
+            const scale = game.renderer.getIconScaleFactor();
 
             Items.jqShowItem(this.body, this.item, this.body);
         }
@@ -207,17 +207,17 @@ class BankFrame {
             this.pageItems = 96;
             this.itemsPerRow = 6;
 
-            var self = this;
+            const self = this;
             this.selectBankItem = function(jq) {
               if (!(game && game.ready))
                 return;
 
-              var slot = $(jq).data("itemSlot");
-              var itemNumber = $(jq).data("itemNumber");
+              const slot = $(jq).data("itemSlot");
+              const itemNumber = $(jq).data("itemNumber");
               log.info("selectInventory - click, slot:"+slot);
 
               //var realslot = slot + (self.page * self.pageItems);
-              var item = game.bankHandler.banks[slot];
+              const item = game.bankHandler.banks[slot];
               //var item = this.getItem(slot);
 
               //log.info("slot=" + slot);
@@ -236,7 +236,7 @@ class BankFrame {
               }
             };
 
-            for(var index = 0; index < this.pageItems; index++) {
+            for(let index = 0; index < this.pageItems; index++) {
                 this.bankslots.push(new BankSlot(this, index));
             }
 
@@ -251,7 +251,7 @@ class BankFrame {
         }
 
         rescale(scale) {
-            for(var index = 0; index < this.bankslots.length; index++) {
+            for(let index = 0; index < this.bankslots.length; index++) {
                 this.bankslots[index].rescale();
             }
         }
@@ -268,13 +268,13 @@ class BankFrame {
             this.page = page;
             game.bankHandler.pageIndex = page;
 
-            for(var index = 0; index < this.pageItems; index++) {
+            for(let index = 0; index < this.pageItems; index++) {
                 this.bankslots[index].release();
             }
 
             if(game && game.ready) {
-                for(var bankNumber = 0; bankNumber < this.pageItems; bankNumber++) {
-                    var item = game.bankHandler.banks[bankNumber];
+                for(let bankNumber = 0; bankNumber < this.pageItems; bankNumber++) {
+                    const item = game.bankHandler.banks[bankNumber];
                     if(item) {
                         this.bankslots[bankNumber].assign(item);
                     }
@@ -302,10 +302,10 @@ class BankFrame {
           if (slot < 0)
             return;
 
-          var background = this.bankslots[slot].background;
+          const background = this.bankslots[slot].background;
 
           if (select) {
-            var s = game.renderer.getUiScaleFactor();
+            const s = game.renderer.getUiScaleFactor();
             this.selectedItem = slot;
             background.css({
               'border': s + 'px solid white'
@@ -326,7 +326,7 @@ export default class BankDialog extends Dialog {
             this.scale=0;
             this.setScale();
 
-            var self = this;
+            const self = this;
 
             this.bankFrame = new BankFrame(this);
 

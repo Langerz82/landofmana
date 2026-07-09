@@ -6,7 +6,7 @@ export default class PlayerPopupMenu {
         this.game = game;
         this.selectedPlayer = null;
 
-        var self = this;
+        const self = this;
         $('#playerPopupMenuPartyInvite').click(function(event){
             if(self.selectedPlayer){
     	    self.game.client.sendPartyInvite(self.selectedPlayer.name, 0);
@@ -47,10 +47,10 @@ export default class PlayerPopupMenu {
 
     }
     click(player){
-        var s = this.game.renderer.scale;
-        var x = (player.x - this.game.camera.x) * s - $('#playerPopupMenuContainer').width()/2;
-        var y = (player.y - this.game.camera.y) * s - $('#playerPopupMenuContainer').height()/2;
-        var ph = this.game.socialHandler;
+        const s = this.game.renderer.scale;
+        const x = (player.x - this.game.camera.x) * s - $('#playerPopupMenuContainer').width()/2;
+        const y = (player.y - this.game.camera.y) * s - $('#playerPopupMenuContainer').height()/2;
+        const ph = this.game.socialHandler;
 
         this.selectedPlayer = player;
 

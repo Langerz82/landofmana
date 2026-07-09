@@ -2,9 +2,9 @@
 /* global JSZipUtils, JSZip */
 export default class Sprites {
       constructor(data) {
-        var self = this;
+        const self = this;
 
-        var $file = "sprites/sprites.zip";
+        const $file = "sprites/sprites.zip";
         JSZipUtils.getBinaryContent($file, function(err, data) {
             if(err) {
                 throw err; // or handle err
@@ -26,11 +26,11 @@ export default class Sprites {
       }
 
       makeSprites(data) {
-        var sprites = {};
+        const sprites = {};
 
-    	  var spriteJson = JSON.parse(data);
-        for (var id in spriteJson) {
-          var sprite = spriteJson[id];
+    	  const spriteJson = JSON.parse(data);
+        for (let id in spriteJson) {
+          const sprite = spriteJson[id];
         	sprites[sprite.id] = sprite;
         }
 

@@ -12,7 +12,7 @@ export default class Animation {
     }
 
     tick() {
-        var i = this.currentFrame.index;
+        let i = this.currentFrame.index;
 
         i = (i + 1) % this.length;
         //i = (i < this.length - 1) ? i + 1 : 0;
@@ -28,7 +28,7 @@ export default class Animation {
             }
         }
 
-        var cf = this.currentFrame;
+        const cf = this.currentFrame;
         cf.x = this.width * (i + this.col);
         cf.y = this.height * this.row;
         cf.i = (i + this.col);

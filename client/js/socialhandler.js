@@ -3,7 +3,7 @@
 
 export default class SocialHandler {
     constructor(game) {
-		var self = this;
+		const self = this;
 
 		this.game = game;
 		this.toggle = false;
@@ -32,7 +32,7 @@ export default class SocialHandler {
 
     inviteParty(invitee)
     {
-		var self = this;
+		const self = this;
 
 		// FIX: invitee.name is untrusted/server-controlled; escape before inserting as HTML to prevent XSS
 		$('#socialconfirmtitle').html("Party " + Utils.escapeHtml(invitee.name) + "?");
@@ -54,7 +54,7 @@ export default class SocialHandler {
 
     inviteGuild(guildId, guildName, invitorName)
     {
-		var self = this;
+		const self = this;
 
       // FIX: guildName is untrusted/server-controlled; escape before inserting as HTML to prevent XSS
       $('#socialconfirmtitle').html("Join Guild " + Utils.escapeHtml(guildName) + "?");
@@ -109,9 +109,9 @@ export default class SocialHandler {
 	  }
 
       // FIX: party member names are untrusted/server-controlled; escape before inserting as HTML to prevent XSS
-      var htmlStr = "<table><tr><th>Name</th></tr>";
+      let htmlStr = "<table><tr><th>Name</th></tr>";
       htmlStr += "<tr><td>" + Utils.escapeHtml(this.partymembers[0]) + " (L)</td></tr>";
-      for(var i=1; i < this.partymembers.length; ++i){
+      for(let i=1; i < this.partymembers.length; ++i){
           htmlStr += "<tr><td>" + Utils.escapeHtml(this.partymembers[i]) + "</td></tr>";
       }
       htmlStr += "</table>";
@@ -130,9 +130,9 @@ export default class SocialHandler {
 	  }
 
       // FIX: guild member names are untrusted/server-controlled; escape before inserting as HTML to prevent XSS
-      var htmlStr = "<table><tr><th>Name</th></tr>";
+      let htmlStr = "<table><tr><th>Name</th></tr>";
       htmlStr += "<tr><td>" + Utils.escapeHtml(this.guildmembers[0]) + " (L)</td></tr>";
-      for(var i=1; i < this.guildmembers.length; ++i){
+      for(let i=1; i < this.guildmembers.length; ++i){
           htmlStr += "<tr><td>" + Utils.escapeHtml(this.guildmembers[i]) + "</td></tr>";
       }
       htmlStr += "</table>";

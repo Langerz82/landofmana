@@ -2,7 +2,7 @@
 /* global Types, ItemTypes, Utils */
 
 // TODO - Make Death Sprite seperate instead of changing Armor Sprite.
-var STATE_IDLE = 0,
+const STATE_IDLE = 0,
     STATE_MOVING = 1,
     STATE_ATTACKING = 2;
 
@@ -15,7 +15,7 @@ import AppearanceData from '../data/appearancedata.js';
 export default class Player extends Character {
     constructor(id, type, map, kind, name) {
         super(id, type, map, kind);
-        var self = this;
+        const self = this;
 
         this.name = name;
 
@@ -70,7 +70,7 @@ export default class Player extends Character {
     }
 
     isArcher() {
-        var weapon = this.items.getWeapon();
+        const weapon = this.items.getWeapon();
         if (weapon && ItemTypes.isArcherWeapon(weapon.itemKind)) {
             return true;
         }
@@ -85,7 +85,7 @@ export default class Player extends Character {
     }
 
     canKeyMove() {
-        var x = this.x, y = this.y;
+        let x = this.x, y = this.y;
 
         switch (this.orientation) {
             case 1:
@@ -101,21 +101,21 @@ export default class Player extends Character {
                 x++;
                 break;
         }
-        var ov = game.isOverlapping(this, x, y);
+        const ov = game.isOverlapping(this, x, y);
         if (ov)
             log.info("isOverlapping.")
-        var ic = game.mapContainer.isColliding(x, y);
+        const ic = game.mapContainer.isColliding(x, y);
         if (ic)
             log.info("isColliding.")
         return !(ov || ic);
     }
 
     move(time, orientation, state, x, y) {
-        var self = this;
+        const self = this;
 
         this.setOrientation(orientation);
         if (state === 1 && orientation !== Types.Orientations.NONE) {
-            var lockStepTime = (G_LATENCY - (Utils.getWorldTime() - time));
+            let lockStepTime = (G_LATENCY - (Utils.getWorldTime() - time));
             lockStepTime = lockStepTime.clamp(G_UPDATE_INTERVAL, G_LATENCY);
             console.warn("lockStepTime=" + lockStepTime);
 
@@ -187,7 +187,7 @@ export default class Player extends Character {
         this.keyMove = false;
 
         if (this.holdingBlock) {
-            var pos = this.getTilePositionNextTo(this.orientation, 1);
+            const pos = this.getTilePositionNextTo(this.orientation, 1);
             this.holdingBlock.setPosition(pos[0], pos[1]);
         }
 
@@ -214,9 +214,9 @@ export default class Player extends Character {
         },
     */
     harvestOn(type) {
-        var self = this;
-        var tmptype = type;
-        var harvest = function() {
+        const self = this;
+        const tmptype = type;
+        const harvest = function() {
             self.setOrientation(self.orientation);
             self.fsm = "HARVEST";
             self.animate("atk", self.atkSpeed, 1, function() {
@@ -255,8 +255,8 @@ export default class Player extends Character {
      */
     makeAttack(entity) {
         log.info("makeAttack " + entity.id);
-        var time = game.currentTime;
-        var skillId = (this.attackSkill) ? this.attackSkill.skillId : -1;
+        const time = game.currentTime;
+        const skillId = (this.attackSkill) ? this.attackSkill.skillId : -1;
 
         if (this === entity || this.isDead || this.isDying) // sanity check.
             return null;
@@ -305,7 +305,7 @@ export default class Player extends Character {
     }
 
     setSpriteByIndex(index, num) {
-        var sprite = game.sprites[AppearanceData[num].sprite];
+        const sprite = game.sprites[AppearanceData[num].sprite];
         this.setSprite(sprite, index);
     }
 

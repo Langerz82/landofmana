@@ -29,12 +29,12 @@ class StoreRack {
 
             this.buyButton.text('Buy');
 
-            var self = this;
+            const self = this;
         }
 
         rescale() {
-            var scale = this.parent.scale;
-            var id = this.id;
+            const scale = this.parent.scale;
+            const id = this.id;
             this.body = $(id);
             this.body.css({
     	        'position': 'absolute',
@@ -51,7 +51,7 @@ class StoreRack {
             return this.body.css('display') === 'block';
         }
         setVisible(value) {
-            var self = this;
+            const self = this;
 
             this.body.css('display', value ? 'block' : 'none');
             this.buyButton.text('Buy');
@@ -74,9 +74,9 @@ class StoreRack {
             this.item = item;
             Items.jqShowItem(this.basket, this.item, this.basket);
 
-            var itemRoom = new ItemRoom(0, item.kind, 1, 900,900, 0);
-            var itemDesc = Item.getInfoMsgEx(itemRoom);
-            var itemName = ItemTypes.getName(item.kind);
+            const itemRoom = new ItemRoom(0, item.kind, 1, 900,900, 0);
+            const itemDesc = Item.getInfoMsgEx(itemRoom);
+            const itemName = ItemTypes.getName(item.kind);
             this.basket.attr('title', itemDesc);
             if (ItemTypes.isConsumableItem(item.kind)) {
               this.basket.text('');
@@ -102,14 +102,14 @@ class StorePage extends TabPage {
             this.parent = parent;
             this.rackRows = 5;
 
-            for(var index = 0; index < this.rackRows; index++) {
+            for(let index = 0; index < this.rackRows; index++) {
                 this.racks.push(new StoreRack(this, id + index, index));
             }
         }
 
         rescale(scale) {
             this.scale = scale;
-            for(var index = 0; index < this.rackRows; index++) {
+            for(let index = 0; index < this.rackRows; index++) {
                 this.racks[index].rescale();
             }
         }
@@ -134,16 +134,16 @@ class StorePage extends TabPage {
             this.items = ItemTypes.Store.getItems(this.itemType, min, max);
             log.info(JSON.stringify(this.items));
 
-            var cond = function (item) { return ItemTypes.isConsumableItem(item.kind); };
+            let cond = function (item) { return ItemTypes.isConsumableItem(item.kind); };
         		if (this.itemType==2)
                 cond = function (item) { return ItemTypes.isArmor(item.kind); }
         		if (this.itemType==3)
                 cond = function (item) { return ItemTypes.isWeapon(item.kind); }
 
-            var i=this.items.length;
+            let i=this.items.length;
             while (--i >= 0)
             {
-          	    var item = this.items[i];
+          	    const item = this.items[i];
           	    if (!cond(item))
           	    	this.items.splice(this.items.indexOf(item),1);
             }
@@ -152,8 +152,8 @@ class StorePage extends TabPage {
         reload() {
             this.clear();
 
-            for(var index = this.pageIndex * this.rackRows; index < Math.min((this.pageIndex + 1) * this.rackRows, this.items.length); index++) {
-                var rack = this.racks[index - (this.pageIndex * this.rackRows)];
+            for(let index = this.pageIndex * this.rackRows; index < Math.min((this.pageIndex + 1) * this.rackRows, this.items.length); index++) {
+                const rack = this.racks[index - (this.pageIndex * this.rackRows)];
 
                 rack.assign(this.items[index]);
                 rack.setVisible(true);
@@ -161,8 +161,8 @@ class StorePage extends TabPage {
         }
 
         clear() {
-          for(var index = 0; index < this.rackRows; index++) {
-              var rack = this.racks[index];
+          for(let index = 0; index < this.rackRows; index++) {
+              const rack = this.racks[index];
               rack.setVisible(false);
           }
         }
@@ -207,7 +207,7 @@ class StoreFrame extends TabBook {
 
             this.pageNavigator = new PageNavigator(parent, parent.scale);
             this.pageNavigator.onChange(function(sender) {
-                var activePage = self.getActivePage();
+                const activePage = self.getActivePage();
                 if(activePage && game.storeDialog.visible) {
                     log.info("self.parent.game.storeDialog.visible");
                     activePage.setPageIndex(sender.getIndex() - 1);
@@ -225,7 +225,7 @@ class StoreFrame extends TabBook {
         rescale() {
         	this.scale = this.parent.scale;
 
-          for (var page of this.pages)
+          for (let page of this.pages)
             page.rescale(this.scale);
 
         	this.pageNavigator.rescale(this.scale);
@@ -240,7 +240,7 @@ class StoreFrame extends TabBook {
 
             super.setPageIndex(value); // FIX (conversion): this._super(value) -> super.setPageIndex(value)
 
-            var activePage = this.getActivePage();
+            const activePage = this.getActivePage();
 
             if(activePage) {
                 if(activePage.getPageCount() > 1) {
@@ -258,7 +258,7 @@ class StoreFrame extends TabBook {
         }
 
         open(min,max) {
-            var self = this;
+            const self = this;
 
             //this.minLevel = min;
             //this.maxLevel = max;
@@ -282,7 +282,7 @@ export default class StoreDialog extends Dialog {
 
             this.scale=this.setScale();
 
-            var self = this;
+            const self = this;
 
             //$('#storeDialogStorePage').css('display','none');
         }
@@ -297,7 +297,7 @@ export default class StoreDialog extends Dialog {
         }
 
         show(min, max) {
-            var self = this;
+            const self = this;
 
             $('#storeDialog .frameheading div').text('SHOPS');
 
@@ -331,7 +331,7 @@ export default class StoreDialog extends Dialog {
         }
 
         hide() {
-            var activePage = this.storeFrame.getActivePage();
+            const activePage = this.storeFrame.getActivePage();
             if (activePage)
             {
                 activePage.close();

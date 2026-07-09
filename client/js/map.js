@@ -4,7 +4,7 @@ import config from './config.js';
 
 export default class Map {
     constructor(game, mapContainer) {
-        var self = this;
+        const self = this;
 
         this.game = game;
         this.mapContainer = mapContainer;
@@ -14,8 +14,8 @@ export default class Map {
         this.mapName = mapContainer.mapName;
         this.gridUpdated = false;
 
-        var mc = this.mapContainer;
-        var name = mc.mapName + "/" + mc.mapName + ".json";
+        const mc = this.mapContainer;
+        const name = mc.mapName + "/" + mc.mapName + ".json";
         try {
             mc.zip.file(name).async("string").then(function(data) {
                 self.loadMapData(JSON.parse(data));
@@ -24,7 +24,7 @@ export default class Map {
             });
         }
         catch (err) {
-            var filename = "./maps/" + name + "?v=" + config.build.version;
+            const filename = "./maps/" + name + "?v=" + config.build.version;
             $.getJSON(filename, function(data) {
                 self.loadMapData(data);
             });
@@ -43,7 +43,7 @@ export default class Map {
     }
 
     _isReady() {
-        var self = this;
+        const self = this;
         this.isLoaded = true;
         if (this.ready_func) {
             this.ready_func(self);
@@ -51,7 +51,7 @@ export default class Map {
     }
 
     _generate() {
-        var self = this;
+        const self = this;
 
         self._generateCollisionGrid();
         self._generateTileGrid();
@@ -80,10 +80,10 @@ export default class Map {
     }
 
     tileIndexToGridPosition(tileNum) {
-        var x = 0,
+        let x = 0,
             y = 0;
 
-        var getX = function(num, w) {
+        const getX = function(num, w) {
             if (num === 0) {
                 return 0;
             }
@@ -106,7 +106,7 @@ export default class Map {
 
     _generateCollisionGrid() {
         this.collision = new Array(this.height);
-        for (var i = 0; i < this.height; i++) {
+        for (let i = 0; i < this.height; i++) {
             this.collision[i] = new Uint8Array(this.collisionData.slice(i * this.width, (i + 1) * this.width));
         }
         delete this.collisionData;
@@ -115,7 +115,7 @@ export default class Map {
 
     _generateTileGrid() {
         this.tile = new Array(this.height);
-        for (var i = 0; i < this.height; i++) {
+        for (let i = 0; i < this.height; i++) {
             this.tile[i] = this.tileData.slice(i * this.width, ((i + 1) * this.width));
         }
         delete this.tileData;

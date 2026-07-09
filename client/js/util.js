@@ -6,13 +6,13 @@
     };
 };*/
 
-var Utils = {};
+const Utils = {};
 
 Utils.isInt = function(n) {
     return (n % 1) === 0;
 };
 
-var TRANSITIONEND = 'transitionend webkitTransitionEnd oTransitionEnd';
+const TRANSITIONEND = 'transitionend webkitTransitionEnd oTransitionEnd';
 
 // http://paulirish.com/2011/requestanimationframe-for-smart-animating/
 window.requestAnimFrame = (function(){
@@ -28,16 +28,16 @@ window.requestAnimFrame = (function(){
 
 Utils.getUrlVars = function() {
 	//from http://snipplr.com/view/19838/get-url-parameters/
-    var vars = {};
-    var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
+    const vars = {};
+    const parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
         vars[key] = value;
     });
     return vars;
 }
 
 Utils.distanceTo = function(x, y, x2, y2) {
-    var distX = Math.abs(x - x2);
-    var distY = Math.abs(y - y2);
+    const distX = Math.abs(x - x2);
+    const distY = Math.abs(y - y2);
 
     return (distX > distY) ? distX : distY;
 };
@@ -53,12 +53,12 @@ Utils.randomInt = (max) => Math.floor(Math.random() * (max + 1));
 Utils.randomRangeInt = (min, max) => min + Math.floor(Math.random() * (max - min + 1));
 
 Utils.fixed = function(value, length) {
-    var buffer = '00000000' + value;
+    const buffer = '00000000' + value;
     return buffer.substring(buffer.length - length);
 }
 
 String.prototype.format = String.prototype.f = function() {
-    var s = this,
+    const s = this,
         i = arguments.length;
 
     while (i--) {
@@ -68,10 +68,10 @@ String.prototype.format = String.prototype.f = function() {
 };
 
 Utils._base64ToArrayBuffer = function(base64) {
-	var bin_string = window.atob(base64);
-	var l = bin_string.length;
-	var bytes = new Uint8Array(l);
-	for (var i=0; i < l; ++i)
+	const bin_string = window.atob(base64);
+	const l = bin_string.length;
+	const bytes = new Uint8Array(l);
+	for (let i=0; i < l; ++i)
 	{
 		bytes[i] = bin_string.charCodeAt(i);
 	}
@@ -79,10 +79,10 @@ Utils._base64ToArrayBuffer = function(base64) {
 }
 
 Utils._arrayBufferToBase64 = function(buffer) {
-    var binary = '';
-    var bytes = new Uint8Array( buffer );
-    var len = bytes.byteLength;
-    for (var i = 0; i < len; i++) {
+    let binary = '';
+    const bytes = new Uint8Array( buffer );
+    const len = bytes.byteLength;
+    for (let i = 0; i < len; i++) {
         binary += String.fromCharCode( bytes[ i ] );
     }
     return window.btoa( binary );
@@ -153,7 +153,7 @@ Utils.Percent = function (val, fixed) {
 }
 
 Utils.padding = function (val, size) {
-    var s = val+"";
+    let s = val+"";
     while (s.length < size) s = "0" + s;
     return s;
 }
@@ -162,14 +162,14 @@ Utils.padding = function (val, size) {
     LOCALTIME = Date.now();
 };*/
 
-var WORLDTIME = null;
-var LOCALTIME = null;
+let WORLDTIME = null;
+let LOCALTIME = null;
 Utils.setWorldTime = function (localTime, remoteTime) {
   //WORLDTIME = new Date();
   //console.warn("localTime: "+localTime);
   //console.warn("remoteTime: "+remoteTime);
   //console.warn("Date.now(): "+Date.now());
-  var diff = ~~((Date.now()-localTime)/2);
+  const diff = ~~((Date.now()-localTime)/2);
   console.warn("Date.diff: "+diff);
   WORLDTIME = parseInt(remoteTime);
   LOCALTIME = parseInt(localTime+diff);
@@ -205,7 +205,7 @@ String.prototype.capitalizeFirstLetter = function() {
     return this.charAt(0).toUpperCase() + this.slice(1);
 }
 
-var getX = function(id, w) {
+const getX = function(id, w) {
     if(id === 0) {
         return 0;
     }
@@ -246,12 +246,12 @@ Utils.RectContains = function (a, b) {
 	return true;
 }
 
-var msleep = function (ms) {
+const msleep = function (ms) {
    return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 Number.prototype.between = function(a, b) {
-  var min = Math.min(a, b),
+  const min = Math.min(a, b),
     max = Math.max(a, b);
 
   return this >= min && this <= max;
@@ -259,7 +259,7 @@ Number.prototype.between = function(a, b) {
 
 String.prototype.format = function (args) {
   // Storing arguments into an array
-  var tmp = Array.isArray(args) ? args : arguments;
+  const tmp = Array.isArray(args) ? args : arguments;
   // Using replace for iterating over the string
   // Select the match and check whether related arguments are present.
   // If yes, then replace the match with the argument.
@@ -271,30 +271,30 @@ String.prototype.format = function (args) {
 };
 
 Utils.BinArrayToBase64 = function (uint8array) {
-  var len = Math.ceil(uint8array.length / 32);
-  var tarr = [];
-  for (var i=0; i < len; i++) {
-    var num = uint8array.slice((i*32),(i*32)+32).join('');
+  const len = Math.ceil(uint8array.length / 32);
+  const tarr = [];
+  for (let i=0; i < len; i++) {
+    const num = uint8array.slice((i*32),(i*32)+32).join('');
     //console.info("num:"+num);
     //console.info("num2:"+parseInt(num, 2));
     tarr.push(parseInt(num, 2));
   }
-  var base64 = tarr.toString('base64');
+  const base64 = tarr.toString('base64');
   return base64;
 }
 
 Utils.Base64ToBinArray = function (base64, limit) {
-  var data = base64.toString('binary');
-  var arr = data.split(",");
+  const data = base64.toString('binary');
+  const arr = data.split(",");
   //console.info(JSON.stringify(arr));
-  var uint8array = new Uint8Array(arr.length*32);
-  for (var i=0; i < arr.length; ++i)
+  const uint8array = new Uint8Array(arr.length*32);
+  for (let i=0; i < arr.length; ++i)
   {
-    var dec = parseInt(arr[i]);
-    var bin = dec.toString(2);
-    var l = bin.length;
-    var index = (i+1)*32-l;
-    for (var j=0; j < l; ++j)
+    const dec = parseInt(arr[i]);
+    const bin = dec.toString(2);
+    const l = bin.length;
+    const index = (i+1)*32-l;
+    for (let j=0; j < l; ++j)
       uint8array[index+j] = bin[j];
   }
   return uint8array.slice(0,limit);
@@ -309,9 +309,9 @@ Utils.getPositionFromGrid = function (gx, gy) {
 }
 
 Utils.objectToArray = function (object) {
-  var arr = [];
-  for (var key in object) {
-    var obj = object[key];
+  const arr = [];
+  for (let key in object) {
+    const obj = object[key];
     if (obj)
       arr.push(obj);
   }
@@ -319,8 +319,8 @@ Utils.objectToArray = function (object) {
 }
 
 Utils.getOrientationFromPath = function (p1, p2) {
-    var dx = p1[0] - p2[0];
-    var dy = p1[1] - p2[1];
+    const dx = p1[0] - p2[0];
+    const dy = p1[1] - p2[1];
 
     if (dy > 0)
       return 1;

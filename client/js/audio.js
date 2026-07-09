@@ -6,7 +6,7 @@ import Area from './area.js';
 
 export default class AudioManager {
     constructor(game) {
-        var self = this;
+        const self = this;
 
         if (game.renderer.mobile || typeof (Native) !== 'undefined')
             this.enabled = false;
@@ -65,7 +65,7 @@ export default class AudioManager {
     }
 
     load(basePath, name, loaded_callback, channels) {
-        var path = basePath + name + "." + this.extension,
+        const path = basePath + name + "." + this.extension,
             sound = document.createElement('audio'),
             self = this;
 
@@ -102,7 +102,7 @@ export default class AudioManager {
 
     loadMusic(name, handleLoaded) {
         this.load("audio/music/", name, handleLoaded, 1);
-        var music = this.sounds[name][0];
+        const music = this.sounds[name][0];
         music.loop = true;
         music.addEventListener('ended', function() {
             music.play()
@@ -113,7 +113,7 @@ export default class AudioManager {
         if (!this.sounds[name]) {
             return null;
         }
-        var sound = _.detect(this.sounds[name], function(sound) {
+        let sound = _.detect(this.sounds[name], function(sound) {
             return sound.ended || sound.paused;
         });
         if (sound && sound.ended) {
@@ -131,7 +131,7 @@ export default class AudioManager {
                 this.loadSound(name);
                 this.loadedSound[name] = true;
             }
-            var sound = this.getSound(name);
+            const sound = this.getSound(name);
             if (sound) {
                 sound.play();
             }
@@ -139,7 +139,7 @@ export default class AudioManager {
     }
 
     addArea(x, y, width, height, musicName) {
-        var area = new Area(x, y, width, height);
+        const area = new Area(x, y, width, height);
         area.musicName = musicName;
         this.areas.push(area);
     }
@@ -148,7 +148,7 @@ export default class AudioManager {
     getSurroundingMusic(entity) {
         return null; // TEMP
 
-        var music = null,
+        let music = null,
             area = _.detect(this.areas, function(area) {
                 return area.contains(entity);
             });
@@ -169,7 +169,7 @@ export default class AudioManager {
 
     updateMusic() {
         if (this.enabled) {
-            var music = this.getSurroundingMusic(this.game.player);
+            const music = this.getSurroundingMusic(this.game.player);
 
             if (music) {
                 if (!this.isCurrentMusic(music)) {
@@ -230,12 +230,12 @@ export default class AudioManager {
     }
 
     fadeOutMusic(music, ended_callback) {
-        var self = this;
+        const self = this;
         if (music && !music.sound.fadingOut) {
             this.clearFadeIn(music);
             music.sound.fadingOut = setInterval(function() {
-                var step = 0.02;
-                var volume = music.sound.volume - step; // FIX: missing var, was an implicit global
+                const step = 0.02;
+                const volume = music.sound.volume - step; // FIX: missing var, was an implicit global
 
                 if (self.enabled && volume >= step) {
                     music.sound.volume = volume;
@@ -249,12 +249,12 @@ export default class AudioManager {
     }
 
     fadeInMusic(music) {
-        var self = this;
+        const self = this;
         if (music && !music.sound.fadingIn) {
             this.clearFadeOut(music);
             music.sound.fadingIn = setInterval(function() {
-                var step = 0.01;
-                var volume = music.sound.volume + step; // FIX: missing var, was an implicit global
+                const step = 0.01;
+                const volume = music.sound.volume + step; // FIX: missing var, was an implicit global
 
                 if (self.enabled && volume < 0.75 - step) {
                     music.sound.volume = volume;
@@ -281,7 +281,7 @@ export default class AudioManager {
     }
 
     fadeOutCurrentMusic() {
-        var self = this;
+        const self = this;
         if (this.currentMusic) {
             this.fadeOutMusic(this.currentMusic, function(music) {
                 self.resetMusic(music);

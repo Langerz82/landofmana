@@ -12,7 +12,7 @@ export default class UserAlarm {
     }
 
     alarmQueue(str, delay) {
-      var self = this;
+      const self = this;
 
       delay = delay || this.hideDelay;
 
@@ -35,7 +35,7 @@ export default class UserAlarm {
     }
 
     showQueue() {
-      var self = this;
+      const self = this;
 
       if (this.disabled) {
         setTimeout(function() {
@@ -46,7 +46,7 @@ export default class UserAlarm {
 
       if (this.queue.length > 0) {
         this.showing = true;
-        var msg = this.queue.pop();
+        const msg = this.queue.pop();
         this.jqAlarm.html(msg[0]);
         this.jqAlarm.fadeIn();
         setTimeout(function() {

@@ -1,11 +1,11 @@
 // Converted from AMD (define) + Class.extend to a native ES6 module/class.
 /* global Utils */
 
-var getSummary = function (summary, data) {
-  var repl = {};
+const getSummary = function (summary, data) {
+  const repl = {};
   if (data.length > 0)
   {
-    for (var i=0; i < data.length; ++i)
+    for (let i=0; i < data.length; ++i)
       repl["%"+(i)] = data[i];
     summary = summary.replace(/%\d+/g, function(all) {
        return repl[all] || all;
@@ -29,7 +29,7 @@ export default class Achievement {
       this.objectKind = arr[4] || 0;
       this.count = arr[5] || 0;
       this.objectCount = arr[6] || 0;
-      var objectCount = this.objectCount;
+      let objectCount = this.objectCount;
       objectCount = Utils.getNumShortHand(objectCount, 0);
       this.summary = lang.data["ACHIEVEMENTS_"+this.index].format(objectCount);
     }

@@ -13,7 +13,7 @@ export default class Dialog {
     }
 
     show() {
-            var self = this;
+            const self = this;
 
             if(this.showHandler){
                 this.showHandler(this);

@@ -18,8 +18,8 @@ export default class Block extends EntityMoving {
     }
 
     place(entity) {
-        var ts = G_TILESIZE;
-        var pos = entity.nextTile();
+        const ts = G_TILESIZE;
+        const pos = entity.nextTile();
         pos[0] = pos[0].roundTo(ts);
         pos[1] = pos[1].roundTo(ts);
         if (game.mapContainer.isColliding(pos[0], pos[1]))

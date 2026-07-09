@@ -14,7 +14,7 @@ export default class InventoryStore {
             this.skillKind = 0;
             this.skillLevel = 0;
             this.experience = 0;
-            var name = '#dialogInventory' + Utils.fixed(this.index, 2);
+            const name = '#dialogInventory' + Utils.fixed(this.index, 2);
             this.background = $(name + 'Background');
             this.body = $(name + 'Body');
             this.number = $(name + 'Number');
@@ -24,7 +24,7 @@ export default class InventoryStore {
 
         rescale() {
             this.scale = this.parent.parent.scale;
-            var scale = this.scale;
+            const scale = this.scale;
 
     		    this.background.css({
         			'position': 'absolute',

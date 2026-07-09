@@ -4,18 +4,18 @@
 /* global Types, _ */
 import fetchJsonSync from './fetchjsonsync.js';
 
-var padding = function(val, size) {
-    var s = val + "";
+const padding = function(val, size) {
+    let s = val + "";
     while (s.length < size) s = "0" + s;
     return s;
 }
 
-var QuestData = {};
-var data = fetchJsonSync('shared/data/quests.json');
+const QuestData = {};
+const data = fetchJsonSync('shared/data/quests.json');
 
-var i = 0;
+let i = 0;
 _.each(data, function(quest, key) {
-    var id = padding(quest.type, 2) + padding(quest.npcId, 4) + padding(i, 3);
+    const id = padding(quest.type, 2) + padding(quest.npcId, 4) + padding(i, 3);
     QuestData[id] = quest;
     QuestData[id].id = id;
     QuestData[id].objectId = quest.objectId || 0;

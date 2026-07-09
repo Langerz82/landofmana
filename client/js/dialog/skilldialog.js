@@ -6,7 +6,7 @@ import SkillData from '../data/skilldata.js';
 
 class Skill {
         constructor(parent, i, level, position) {
-            var id = this.id = '#skill' + i;
+            const id = this.id = '#skill' + i;
             this.background = $(id);
             this.body = $(id + ' .skillbody');
             this.jqCooltime = $(id + ' .skillcd');
@@ -16,7 +16,7 @@ class Skill {
 
             this.index = i;
 
-            var data = this.data = SkillData.Data[i];
+            const data = this.data = SkillData.Data[i];
             this.cooldownDuration = (data.recharge) ? data.recharge : 2000;
             log.info(i+" = "+JSON.stringify(data));
             //log.info(JSON.stringify(SkillData.Data));
@@ -27,9 +27,9 @@ class Skill {
             this.position = position;
             this.scale = game.renderer.getUiScaleFactor();
 
-            var self = this;
+            const self = this;
 
-            var fnSelectSkill = function (index) {
+            const fnSelectSkill = function (index) {
               self.parent.clearHighlight();
               self.parent.selectedSkill = self;
               self.body.css('border', self.scale+"px solid #f00");
@@ -37,7 +37,7 @@ class Skill {
               ShortcutData = self;
             };
 
-            var clickSkill = function (index) {
+            const clickSkill = function (index) {
               if (self.parent.selectedSkill === self) {
                 if (game.player.skillHandler.execute(self.index))
                 {
@@ -71,10 +71,10 @@ class Skill {
         }
 
         cooldown() {
-          var duration = (Date.now() - this.cooltime);
-          var coolms = this.cooldownDuration;
+          const duration = (Date.now() - this.cooltime);
+          const coolms = this.cooldownDuration;
           if (duration < coolms) {
-            var counter = Math.ceil((coolms-duration)/1000);
+            const counter = Math.ceil((coolms-duration)/1000);
             this.jqCooltime.css('display', 'block');
             this.jqCooltime.html('' + counter.toFixed(0));
           }
@@ -86,8 +86,8 @@ class Skill {
         }
 
         rescale() {
-          var scale = this.scale = game.renderer.getUiScaleFactor();
-          var position = this.position;
+          const scale = this.scale = game.renderer.getUiScaleFactor();
+          const position = this.position;
 
           this.body.css({
               'position': 'absolute',
@@ -134,11 +134,11 @@ class SkillPage extends TabPage {
             super(parent, '#frameSkillsPage'); // FIX (conversion): this._super(parent, '#frameSkillsPage') -> super(parent, '#frameSkillsPage')
             this.skills = [];
             this.selectedSkill = null;
-            var self = this;
+            const self = this;
         }
 
         setSkills(skillExps) {
-      		for (var i=0; i < skillExps.length; ++i)
+      		for (let i=0; i < skillExps.length; ++i)
       		{
             this.skills[i] = {level: Types.getSkillLevel(skillExps[i]), skill: null};
       		}
@@ -154,10 +154,10 @@ class SkillPage extends TabPage {
         }
 
         clear() {
-            var scale = game.renderer.getUiScaleFactor();
-            for (var i = this.skills.length-1; i >= 0; --i)
+            const scale = game.renderer.getUiScaleFactor();
+            for (let i = this.skills.length-1; i >= 0; --i)
             {
-                var tSkill = this.skills[i];
+                const tSkill = this.skills[i];
                 //log.info("tSkill="+JSON.stringify(tSkill));
                 if(tSkill.skill) {
                     tSkill.skill.background.css({
@@ -173,23 +173,23 @@ class SkillPage extends TabPage {
         }
 
         rescale() {
-          for(var i = 0; i < this.skills.length; ++i) {
-              var skill = this.skills[i].skill;
+          for(let i = 0; i < this.skills.length; ++i) {
+              const skill = this.skills[i].skill;
               skill.rescale();
           }
         }
 
         assign() {
             //SendNative(["PlayerSkills"].concat(this.skills));
-            var scale = game.renderer.getUiScaleFactor();
-            for(var i = 0; i < this.skills.length; ++i) {
-                var tSkill = this.skills[i];
-                var data = SkillData.Data[i];
+            const scale = game.renderer.getUiScaleFactor();
+            for(let i = 0; i < this.skills.length; ++i) {
+                const tSkill = this.skills[i];
+                const data = SkillData.Data[i];
                 if(tSkill) {
                     log.info('#skill1' + i);
-                    var skill = new Skill(this, i, tSkill.level,
+                    const skill = new Skill(this, i, tSkill.level,
                         data.iconOffset);
-                    var ix = (i % 4),
+                    const ix = (i % 4),
                         iy = Math.floor(i / 4);
                     skill.background.css({
                         'position': 'absolute',
@@ -217,7 +217,7 @@ class SkillPage extends TabPage {
 
         clearHighlight() {
           this.selectedSkill = null;
-        	for(var i = 0; i < this.skills.length; ++i)
+        	for(let i = 0; i < this.skills.length; ++i)
           {
         		if (this.skills[i].skill)
         			this.skills[i].skill.body.css('border',"3px solid black");

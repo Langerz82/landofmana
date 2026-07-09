@@ -4,12 +4,12 @@
 /* global Types, $ */
 import fetchJsonSync from './fetchjsonsync.js';
 
-var MobData = {};
+const MobData = {};
 MobData.Kinds = {};
 MobData.Properties = {};
-var mobParse = fetchJsonSync('shared/data/mobs.json');
+const mobParse = fetchJsonSync('shared/data/mobs.json');
 $.each(mobParse, function(key, value) {
-    var mob = {
+    const mob = {
         key: key.toLowerCase(),
         kind: value.kind,
 

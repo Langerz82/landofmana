@@ -15,7 +15,7 @@ export default class NotifyDialog extends Dialog {
             this.notifyCallback = null;
             this.scale=this.setScale();
 
-            var self = this;
+            const self = this;
 
             this.modalNotifyButton1.click(function(event) {
                 self.hide();

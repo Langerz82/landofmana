@@ -16,7 +16,7 @@ export default class ConfirmDialog extends Dialog {
             this.confirmCallback = null;
             this.scale=this.setScale();
 
-            var self = this;
+            const self = this;
 
             this.modalConfirmButton1.click(function(event) {
                 self.hide();

@@ -4,7 +4,7 @@
 /* global Types */
 import fetchJsonSync from './fetchjsonsync.js';
 
-var NpcData = {};
+const NpcData = {};
 NpcData.npcSpeak = fetchJsonSync('shared/data/npc_english.json');
 
 NpcData.Properties = {};

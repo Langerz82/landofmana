@@ -7,7 +7,7 @@ class StatPage extends TabPage {
         constructor(parent) {
             super(parent, '#frameStatsPage'); // FIX (conversion): this._super(parent, '#frameStatsPage') -> super(parent, '#frameStatsPage')
             this.parent = parent;
-            var self = this;
+            const self = this;
             $('#charAddAttack').click(function(e) {
             	game.client.sendAddStat(1, 1);
               self.refreshStats();
@@ -31,8 +31,8 @@ class StatPage extends TabPage {
         }
 
         refreshStats() {
-            var p = game.player;
-            var stats = game.player.stats;
+            const p = game.player;
+            const stats = game.player.stats;
             $('#characterPoints').text("Free Points:\t\t"+stats.free);
             $('#characterAttack').text("Attack:\t\t"+stats.attack);
             $('#characterDefense').text("Defense:\t\t"+stats.defense);
@@ -56,9 +56,9 @@ class StatPage extends TabPage {
         }
 
         assign(data) {
-            var weapon, armor,
+            let weapon, armor,
                 width1, height1, width2, height2, width3, height3;
-            var self = this;
+            const self = this;
 
             if (game.renderer) {
                 if (game.renderer.mobile) {
@@ -72,7 +72,7 @@ class StatPage extends TabPage {
 
             data = data.parseInt();
 
-            var p = game.player;
+            const p = game.player;
             //p.exp = {};
             p.stats.exp.base = data.shift();
             p.stats.exp.attack = data.shift();
@@ -99,11 +99,11 @@ class StatPage extends TabPage {
 
             $('#characterName').text("Name\t\t"+p.name);
 
-            var xp = p.stats.exp.sword || 0;
-            var lvl = Types.getWeaponLevel(xp);
-            var fnXP = Types.weaponExp;
-            var ratio = (xp) ? (xp - fnXP[lvl-1])/(fnXP[lvl] - fnXP[lvl-1]) : 0;
-            var ratioFmt = Utils.Percent(ratio);
+            let xp = p.stats.exp.sword || 0;
+            let lvl = Types.getWeaponLevel(xp);
+            let fnXP = Types.weaponExp;
+            let ratio = (xp) ? (xp - fnXP[lvl-1])/(fnXP[lvl] - fnXP[lvl-1]) : 0;
+            let ratioFmt = Utils.Percent(ratio);
             $('#characterLevelSword').text("Sword Level\t\t"+lvl+"\t"+ratioFmt);
 
             xp = p.stats.exp.bow || 0;

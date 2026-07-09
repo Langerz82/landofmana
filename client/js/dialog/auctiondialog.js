@@ -31,8 +31,8 @@ class StoreRack {
         }
 
         rescale() {
-            var scale = this.parent.scale;
-            var id = this.id;
+            const scale = this.parent.scale;
+            const id = this.id;
             this.body = $(id);
             this.basketBackground = $(id + 'BasketBackground');
             this.basket = $(id + 'Basket');
@@ -70,7 +70,7 @@ class StoreRack {
             return this.body.css('display') === 'block';
         }
         setVisible(value) {
-            var self = this;
+            const self = this;
             this.body.css('display', value===true ? 'block' : 'none');
             if (this.parent.parent.pageIndex === 0)
             	this.buyButton.text('DELETE');
@@ -101,8 +101,8 @@ class StoreRack {
             log.info(JSON.stringify(item));
 
             Items.jqShowItem(this.basket, item.item, this.basket);
-            var itemData = ItemTypes.KindData[item.kind];
-            var itemDesc = Item.getInfoMsgEx(item.item);
+            const itemData = ItemTypes.KindData[item.kind];
+            const itemDesc = Item.getInfoMsgEx(item.item);
             this.extra.text(itemDesc);
             this.price.text(item.buyPrice + 'g');
         }
@@ -125,14 +125,14 @@ class AuctionStorePage extends TabPage {
             this.scale = scale;
             this.rackSize = 5;
 
-            for(var index = 0; index < this.rackSize; index++) {
+            for(let index = 0; index < this.rackSize; index++) {
                 this.racks.push(new StoreRack(this, id + index, index));
             }
         }
 
         rescale(scale) {
             this.scale = scale;
-            for(var index = 0; index < this.rackSize; index++) {
+            for(let index = 0; index < this.rackSize; index++) {
                 this.racks[index].rescale();
             }
         }
@@ -167,8 +167,8 @@ class AuctionStorePage extends TabPage {
         	     return;
 
             log.info("reload - this.pageIndex: "+ this.pageIndex);
-            for(var index = this.pageIndex * this.rackSize; index < Math.min((this.pageIndex + 1) * this.rackSize, this.items.length); index++) {
-                var rack = this.racks[index - (this.pageIndex * this.rackSize)];
+            for(let index = this.pageIndex * this.rackSize; index < Math.min((this.pageIndex + 1) * this.rackSize, this.items.length); index++) {
+                const rack = this.racks[index - (this.pageIndex * this.rackSize)];
 
                 rack.assign(this.items[index]);
                 rack.setVisible(true);
@@ -177,7 +177,7 @@ class AuctionStorePage extends TabPage {
         }
 
         close() {
-            for(var index = 0; index < this.rackSize; index++) {
+            for(let index = 0; index < this.rackSize; index++) {
             	this.racks[index].setVisible(false);
             }
         }
@@ -187,9 +187,9 @@ class AuctionStorePage extends TabPage {
           if (!itemData)
             this.close();
 
-  		    for(var k in itemData) {
-  			    var item = itemData[k];
-            var kind = item.item.itemKind;
+  		    for(let k in itemData) {
+  			    const item = itemData[k];
+            const kind = item.item.itemKind;
   			    this.items.push({
       				index: item.index,
       				name: ItemTypes.KindData[kind].name,
@@ -211,10 +211,10 @@ class AuctionStorePage extends TabPage {
         		if (this.itemType > 0)
         		{
         		// Find the Cheapest Item for that kind only.
-      		    for (var i = this.items.length - 1; i > 0; --i)
+      		    for (let i = this.items.length - 1; i > 0; --i)
       		    {
-          			var item = this.items[i];
-          			var prevItem = this.items[i-1];
+          			const item = this.items[i];
+          			const prevItem = this.items[i-1];
 
           			if (item.kind === prevItem.kind &&
           			    item.itemCount === prevItem.itemCount &&
@@ -259,10 +259,10 @@ class StoreFrame extends TabBook {
 
             this.pageNavigator = new PageNavigator(parent, parent.scale);
 
-            var self = this;
+            const self = this;
 
             this.pageNavigator.onChange(function(sender) {
-                var activePage = self.getActivePage();
+                const activePage = self.getActivePage();
                 if(activePage && game.auctionDialog.visible) {
                     log.info("activePage.setPageIndex("+(sender.getIndex()-1)+");");
                     activePage.setPageIndex(sender.getIndex()-1);
@@ -273,14 +273,14 @@ class StoreFrame extends TabBook {
         rescale() {
         	this.scale = this.parent.scale;
 
-          for (var page of this.pages)
+          for (let page of this.pages)
             page.rescale(this.scale);
 
         	this.pageNavigator.rescale(this.scale);
         }
 
         reload() {
-          for (var page of this.pages)
+          for (let page of this.pages)
             page.reload();
         }
 
@@ -296,7 +296,7 @@ class StoreFrame extends TabBook {
         }
 
         updatePageNav(len) {
-          var activePage = this.getActivePage();
+          const activePage = this.getActivePage();
           if(activePage) {
             if(activePage.getPageCount() > 1) {
                 this.pageNavigator.setCount(activePage.getPageCount());
@@ -337,7 +337,7 @@ export default class AuctionDialog extends Dialog {
         }
 
         show() {
-            var self = this;
+            const self = this;
 
             this.rescale();
 
@@ -348,7 +348,7 @@ export default class AuctionDialog extends Dialog {
             //$("#storeDialogStore0Button").show();
             //$("#storeDialogStore2Button").show();
 
-            var store3btn = $("#storeDialogStore3Button");
+            const store3btn = $("#storeDialogStore3Button");
             store3btn.text('SELL');
             store3btn.show();
             store3btn.off().on('click', function (event) {
@@ -368,7 +368,7 @@ export default class AuctionDialog extends Dialog {
         }
 
         hide() {
-            var activePage = this.storeFrame.getActivePage();
+            const activePage = this.storeFrame.getActivePage();
             if (activePage)
             {
                 activePage.close();

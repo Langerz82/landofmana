@@ -11,7 +11,7 @@ import Achievement from './achievement.js';
 
 export default class UserClient {
       constructor(config, useServer) {
-        var self = this;
+        const self = this;
 
         this.connection = null;
         this.config = config;
@@ -45,7 +45,7 @@ export default class UserClient {
 
       connect() {
           var self = this;
-          var url = this.config.protocol + "://"+ this.config.host +":"+ this.config.port +"/";
+          const url = this.config.protocol + "://"+ this.config.host +":"+ this.config.port +"/";
 
           log.info("Trying to connect to server : "+url);
           app.$loginInfo.text("Connecting to RRO2 server...");
@@ -76,7 +76,7 @@ export default class UserClient {
           self.onMessage = function(data) {
             // TODO: this logs every inbound packet (including login/session data) to the console; gate behind a debug/verbose flag before shipping
             console.warn("recv: "+data);
-						var fnProcessMessage = function (message) {
+						const fnProcessMessage = function (message) {
 
 							if(self.isListening) {
 		            if(self.useBison) {
@@ -100,20 +100,20 @@ export default class UserClient {
                }
              }
            };
-           var method = data.substr(0,2) ;
+           const method = data.substr(0,2) ;
 	        if (method === '2[')
 	        {
             // FIX: was stripping only 1 char (substr(1)), leaving trailing '[' and corrupting the base64 payload; strip both marker chars like gameclient.js's 'z|' handling
-            var buffer = Utils._base64ToArrayBuffer(data.substr(2));
+            const buffer = Utils._base64ToArrayBuffer(data.substr(2));
             try {
-              var message = pako.inflate(buffer, {gzip: true, to: 'string'});
+              const message = pako.inflate(buffer, {gzip: true, to: 'string'});
 						  fnProcessMessage(message);
             } catch (err) {
               console.log(err);
             }
 	        }
 	        else if (method === '1[') {
-	          var message = data.substr(1);
+	          const message = data.substr(1);
 						fnProcessMessage(message);
 	        }
           else {
@@ -142,7 +142,7 @@ export default class UserClient {
       }
 
       receiveAction(data) {
-          var action = data.shift();
+          const action = data.shift();
           if(this.handlers[action] && _.isFunction(this.handlers[action])) {
               this.handlers[action].call(this, data);
           }
@@ -152,14 +152,14 @@ export default class UserClient {
       }
 
       receiveActionBatch(actions) {
-          var self = this;
+          const self = this;
           _.each(actions, function(action) {
               self.receiveAction(action);
           });
       }
 
       sendMessage(json) {
-          var data;
+          let data;
           if(this.connection.connected === true) {
             // TODO: logs every outbound packet (including sendLoginUser's username/hash) to the console; gate behind a debug/verbose flag before shipping
             console.warn("sent=" + JSON.stringify(json));
@@ -183,17 +183,17 @@ export default class UserClient {
       }
 
       onPlayerSummary(data) {
-        var user = this.user;
+        const user = this.user;
 
         user.setPlayerSummary(data);
 
-        var count = user.playerSum.length;
-        for (var i=0; i < count; ++i)
+        const count = user.playerSum.length;
+        for (let i=0; i < count; ++i)
         {
-          var ps = user.playerSum[i];
-          var option = ps.name + " Lv" + Types.getLevel(ps.exp);
+          const ps = user.playerSum[i];
+          const option = ps.name + " Lv" + Types.getLevel(ps.exp);
 
-          var o = new Option(option, i);
+          const o = new Option(option, i);
           $('#player_select').append(o);
         }
 
@@ -216,7 +216,7 @@ export default class UserClient {
       }
 
       onWorlds(data) {
-        for (var i = 0; i < data.length; i += 4)
+        for (let i = 0; i < data.length; i += 4)
         {
           $("#player_server").append("<option value="+data[i]+">"+
             data[i+1]+" "+data[i+2]+"/"+data[i+3]+"</option");
@@ -224,7 +224,7 @@ export default class UserClient {
       }
 
       _onError(data) {
-          var message = data[0];
+          const message = data[0];
           $('#container').addClass('error');
           // FIX: XSS - server-supplied error message was inserted unescaped via .html(); escape before rendering
           $('#errorwindow .errordetails').html("<p>"+Utils.escapeHtml(message)+"</p>");
@@ -235,17 +235,17 @@ export default class UserClient {
       onVersion(data) {
         //var self;
         this.versionChecked = true;
-        var version = Number(data[0]);
-        var hash = data[1];
+        const version = Number(data[0]);
+        const hash = data[1];
         app.hashChallenge = hash;
         log.info("onVersion: hash="+hash);
 
-        var local_version = Number(config.build.version);
+        const local_version = Number(config.build.version);
         log.info("config.build.version="+local_version);
         if (version !== local_version)
         {
           $('#container').addClass('error');
-          var errmsg = "Please download the new version of Land Of Mana.<br/>";
+          let errmsg = "Please download the new version of Land Of Mana.<br/>";
 
           if (game.tablet || game.mobile) {
             errmsg += "<br/>For mobile see: <a href=\"" + config.build.updatepage +
@@ -271,7 +271,7 @@ export default class UserClient {
       }
 
       onError(data) {
-        var error = data[0];
+        const error = data[0];
 
         switch(error) {
           case 'full':

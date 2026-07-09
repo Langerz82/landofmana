@@ -15,16 +15,16 @@ import NpcStatic from './entity/npcstatic.js';
 import Block from './entity/block.js';
 import LoadData from './loaddata.js';
 
-var getX = function(num, w) {
+const getX = function(num, w) {
     if (num === 0) {
         return 0;
     }
     return (num % w === 0) ? w - 1 : (num % w) - 1;
 };
 
-var checkAnnouncement = function (self) {
+const checkAnnouncement = function (self) {
     self.announcement = null;
-    var sprite = self.pxSprite["announcement_0"];
+    const sprite = self.pxSprite["announcement_0"];
     if (sprite)
       sprite.visible = false;
     if (self.announcements.length > 0)
@@ -42,7 +42,7 @@ export default class Renderer {
     constructor(game) {
 
 
-        var self = this;
+        const self = this;
         this.game = game;
 
         this.loadData = new LoadData();
@@ -79,7 +79,7 @@ export default class Renderer {
         this.calcScreenSize(1);
 
 
-        var renderer = new PIXI.autoDetectRenderer (this.innerWidth, this.innerHeight, {
+        const renderer = new PIXI.autoDetectRenderer (this.innerWidth, this.innerHeight, {
               width: this.innerWidth,
               height: this.innerHeight,
               antialias: false,
@@ -260,10 +260,10 @@ export default class Renderer {
     }
 
     getGuiZoom() {
-      var w = window.innerWidth,
+      const w = window.innerWidth,
           h = window.innerHeight;
 
-      var zoom = 1;
+      let zoom = 1;
 
       if (this.mobile) {
         zoom *= 0.75;
@@ -284,11 +284,11 @@ export default class Renderer {
 
     getGameZoom(zoomMod) {
         zoomMod = zoomMod || 1;
-        var w = window.innerWidth,
+        const w = window.innerWidth,
             h = window.innerHeight;
 
         //var zoom = (w/window.screen.width * 0.5) + 0.5;
-        var zoom = 1;
+        let zoom = 1;
 
         if (this.mobile) {
           zoom *= 1.2;
@@ -321,9 +321,9 @@ export default class Renderer {
     }
 
     centerStage() {
-      var zoom = (1/this.gameZoom);
-      var rw = ~~(this.renderer.width);
-      var rh = ~~(this.renderer.height);
+      const zoom = (1/this.gameZoom);
+      const rw = ~~(this.renderer.width);
+      const rh = ~~(this.renderer.height);
 
       this.canvas.css({
         left: "0px",
@@ -342,10 +342,10 @@ export default class Renderer {
     guiResize() {
 
 
-      var guizoom = this.getGuiZoom();
+      const guizoom = this.getGuiZoom();
 
-					var w = Math.round($(window).width() / guizoom);
-					var h = Math.round($(window).height() / guizoom);
+					const w = Math.round($(window).width() / guizoom);
+					const h = Math.round($(window).height() / guizoom);
 
 					this.gui.width = w;
 					this.gui.height = h;
@@ -399,17 +399,17 @@ export default class Renderer {
     }
 
     drawAnnouncement() {
-      var id = "announcement_0";
+      const id = "announcement_0";
 
-      var sprite = this.pxSprite[id];
+      let sprite = this.pxSprite[id];
 
-      var announce = this.announcement;
+      const announce = this.announcement;
       if (!announce)
         return;
 
       if (!sprite)
       {
-        var style = new PIXI.TextStyle({
+        const style = new PIXI.TextStyle({
           fontFamily: "KomikaHand",
           fill: "#FFFF00",
           fontSize: 6 * this.scale,
@@ -439,7 +439,7 @@ export default class Renderer {
         }
 
         if(text && x && y) {
-            var style = this.defaultFont;
+            const style = this.defaultFont;
             if(centered) {
                 style.align = "center";
             }
@@ -447,17 +447,17 @@ export default class Renderer {
             style.strokeThickness = 4;
             style.fill = color || "white";
 
-            var pText = new PIXI.Text(text, style);
+            const pText = new PIXI.Text(text, style);
             pText.x = x * this.scale * 3;
             pText.y = y * this.scale * 3;
         }
     }
 
     drawCursor() {
-        var mx = game.mouse.x,
+        const mx = game.mouse.x,
             my = game.mouse.y;
-        var anim = game.currentCursor.currentAnimation;
-        var frame = anim.currentFrame;
+        const anim = game.currentCursor.currentAnimation;
+        const frame = anim.currentFrame;
         if (this.mobile)
           return;
 
@@ -479,8 +479,8 @@ export default class Renderer {
 
     createSprite(csprite)
     {
-      var tmp = this.getTexture(csprite.filepath).clone();
-      var sprite = new PIXI.Sprite(tmp);
+      const tmp = this.getTexture(csprite.filepath).clone();
+      const sprite = new PIXI.Sprite(tmp);
       sprite.width = csprite.width * this.gameScale;
       sprite.height = csprite.height * this.gameScale;
       sprite.flipX = false;
@@ -494,8 +494,8 @@ export default class Renderer {
 
     changeSprite(csprite, pjsSprite)
     {
-      var texture = this.getTexture(csprite.filepath);
-      var sprite = pjsSprite;
+      const texture = this.getTexture(csprite.filepath);
+      const sprite = pjsSprite;
       sprite.texture = texture;
       sprite.width = csprite.width * this.gameScale;
       sprite.height = csprite.height * this.gameScale;
@@ -507,8 +507,8 @@ export default class Renderer {
 
     drawSpriteHUD(sprite, imgX, imgY, imgW, imgH, scrX, scrY, scrW, scrH, flipX, flipY)
     {
-      var s = 2;
-      var size = this.gameScale;
+      const s = 2;
+      const size = this.gameScale;
       this.drawSprite([sprite, imgX*s, imgY*s, imgW*s, imgH*s, scrX*size, scrY*size, scrW*size, scrH*size, flipX, flipY, 0, 0, 0]);
     }
 
@@ -516,7 +516,7 @@ export default class Renderer {
     drawSprite(data)
     {
       //var s = 2; //this.scale;
-      var sprite = data[0];
+      const sprite = data[0];
 
       if (!sprite.texture.baseTexture.valid) return;
       sprite.texture.frame = new PIXI.Rectangle(data[1], data[2], data[3], data[4]);
@@ -525,8 +525,8 @@ export default class Renderer {
       sprite.width = data[7];
       sprite.height = data[8];
 
-      var flipX = data[9] || false;
-      var flipY = data[10] || false;
+      const flipX = data[9] || false;
+      const flipY = data[10] || false;
 
       if (flipX) {
         if (sprite.scale.x > 0)
@@ -557,13 +557,13 @@ export default class Renderer {
         //if (arr[0])
           //return;
 
-        var ts = G_TILESIZE;
+        const ts = G_TILESIZE;
 
          arr[2] *= ts;
          arr[3] *= ts;
 
-         var tw = this.tilesetwidth;
-         var tileset = this.tilesets[0];
+         const tw = this.tilesetwidth;
+         const tileset = this.tilesets[0];
 
          tileset.frame = new PIXI.Rectangle(0, 0, ts, ts);
          tileset.frame.interactive = false;
@@ -571,7 +571,7 @@ export default class Renderer {
          tileset.frame.x = (getX(arr[1], tw) * ts);
          tileset.frame.y = (~~((arr[1]-1) / tw) * ts);
 
-         var container = this.tiles["BACKGROUND"];
+         let container = this.tiles["BACKGROUND"];
          if (arr[0])
           container = this.tiles["FOREGROUND"];
          container.addFrame(tileset, arr[2], arr[3], ts, ts);
@@ -603,20 +603,20 @@ export default class Renderer {
 	    drawItem(entity) {
         entity.spriteChanged = game.player.isMoving();
 
-        var itemData = ItemTypes.KindData[entity.kind];
+        let itemData = ItemTypes.KindData[entity.kind];
         if (ItemTypes.isLootItem(entity.kind)) {
 	          itemData = ItemLoot[entity.kind - 1000];
 	        }
 
-        var s = 2,
+        const s = 2,
             ts = G_TILESIZE,
             w = entity.sprites[0].width,
             h = entity.sprites[0].height;
 
-        var x = itemData.offset[0] * w * s,
+        const x = itemData.offset[0] * w * s,
 	            y = itemData.offset[1] * h * s;
 
-        var eo = this.getEntityOffset(),
+        let eo = this.getEntityOffset(),
             idx = entity.x + eo[0],
             idy = entity.y + eo[1],
             dw = w,
@@ -641,10 +641,10 @@ export default class Renderer {
       var sprite = this.pxSprite["etp_"+index];
       if (!sprite)
       {
-        var gfx = new PIXI.Graphics();
-        var l = (this.tilesize >> 1);
+        const gfx = new PIXI.Graphics();
+        const l = (this.tilesize >> 1);
         this.drawTarget(gfx, 0, 0, 0xff0000, l, 1);
-        var texture = this.renderer.generateTexture(gfx);
+        const texture = this.renderer.generateTexture(gfx);
         var sprite = new PIXI.Sprite(texture);
         Container.ENTITIES.addChild(sprite);
         this.pxSprite["etp_"+index] = sprite;
@@ -680,12 +680,12 @@ export default class Renderer {
     },*/
 
     drawCenter() {
-      var sprite = this.pxSprite["center_"];
+      let sprite = this.pxSprite["center_"];
       if (!sprite)
       {
-        var gfx = new PIXI.Graphics();
+        const gfx = new PIXI.Graphics();
         this.drawTarget(gfx, 0, 0, 0xffff00, 16, 3);
-        var texture = this.renderer.generateTexture(gfx);
+        const texture = this.renderer.generateTexture(gfx);
         sprite = new PIXI.Sprite(texture);
         Container.HUD.addChild(sprite);
         sprite.anchor.set(0.5,0.5);
@@ -693,9 +693,9 @@ export default class Renderer {
 
         this.pxSprite["center_"] = sprite;
       }
-      var h = window.innerHeight / 2,
+      let h = window.innerHeight / 2,
           w = window.innerWidth / 2;
-      var c = game.camera,
+      const c = game.camera,
         p = game.player,
         gs = this.gameScale;
 
@@ -707,16 +707,16 @@ export default class Renderer {
     }
 
     drawEntityTile(index, x, y) {
-      var ts = this.tilesize;
+      const ts = this.tilesize;
 
       var sprite = this.pxSprite["et_"+index];
       if (!sprite)
       {
-        var gfx = new PIXI.Graphics();
-        var l = (this.tilesize >> 1);
+        const gfx = new PIXI.Graphics();
+        const l = (this.tilesize >> 1);
         gfx.lineStyle(2, 0x00ff00)
           .drawRoundedRect(x-l, y-l, l << 1, l << 1, 4);
-        var texture = this.renderer.generateTexture(gfx);
+        const texture = this.renderer.generateTexture(gfx);
         var sprite = new PIXI.Sprite(texture);
         Container.ENTITIES.addChild(sprite);
         this.pxSprite["et_"+index] = sprite;
@@ -729,32 +729,32 @@ export default class Renderer {
     }
 
     drawBubbles() {
-      var self = this;
+      const self = this;
       _.each(game.bubbleManager.bubbles, function(bubble) {
           self.drawBubble(bubble);
       });
     }
 
     showHarvestBar(entity) {
-      var ts = G_TILESIZE;
-      var harvestTime = entity.harvestDuration;
+      const ts = G_TILESIZE;
+      const harvestTime = entity.harvestDuration;
       if (!harvestTime)
         return;
 
-      var duration = Date.now()-entity.startHarvestTime;
-      var mod = Math.min(duration, harvestTime) / harvestTime;
+      const duration = Date.now()-entity.startHarvestTime;
+      const mod = Math.min(duration, harvestTime) / harvestTime;
       if (mod === 1)
         return;
 
-      var id = "harvestbar_ol_"+entity.id;
-      var sprite = this.pxSprite[id];
-      var s = this.gameScale;
-      var eo = this.getEntityOffset();
-      var x = (entity.x + eo[0]) * s;
-      var y = (entity.y + eo[1] - ts - (ts >> 1)) * s;
+      const id = "harvestbar_ol_"+entity.id;
+      let sprite = this.pxSprite[id];
+      const s = this.gameScale;
+      const eo = this.getEntityOffset();
+      const x = (entity.x + eo[0]) * s;
+      const y = (entity.y + eo[1] - ts - (ts >> 1)) * s;
 
-      var id2 = "harvestbar_il_"+entity.id;
-      var sprite2 = this.pxSprite[id2];
+      const id2 = "harvestbar_il_"+entity.id;
+      let sprite2 = this.pxSprite[id2];
 
       if (!sprite) {
         sprite = this.createBarOutline(x, y);
@@ -769,7 +769,7 @@ export default class Renderer {
       sprite2.x = sprite.x = x;
       sprite2.y = sprite.y = y;
 
-      var gs = this.gameScale;
+      const gs = this.gameScale;
 
       sprite2.x = x - (ts * (gs/2));
       sprite2.y = y;
@@ -781,22 +781,22 @@ export default class Renderer {
         return;
 
 
-      var mod = entity.stats.hp / entity.stats.hpMax;
+      const mod = entity.stats.hp / entity.stats.hpMax;
       if (mod === 1) {
         this.removeHealthBar(entity.id);
         return;
       }
 
-      var ts = G_TILESIZE;
-      var id = "healthbar_ol_"+entity.id;
-      var sprite = this.pxSprite[id];
-      var s = this.gameScale;
-      var eo = this.getEntityOffset();
-      var x = (entity.x + eo[0]) * s;
-      var y = (entity.y + eo[1] - ts - (ts >> 1)) * s;
+      const ts = G_TILESIZE;
+      const id = "healthbar_ol_"+entity.id;
+      let sprite = this.pxSprite[id];
+      const s = this.gameScale;
+      const eo = this.getEntityOffset();
+      const x = (entity.x + eo[0]) * s;
+      const y = (entity.y + eo[1] - ts - (ts >> 1)) * s;
 
-      var id2 = "healthbar_il_"+entity.id;
-      var sprite2 = this.pxSprite[id2];
+      const id2 = "healthbar_il_"+entity.id;
+      let sprite2 = this.pxSprite[id2];
 
       if (!sprite) {
         sprite = this.createBarOutline(x, y);
@@ -811,7 +811,7 @@ export default class Renderer {
       sprite2.x = sprite.x = x;
       sprite2.y = sprite.y = y;
 
-      var gs = this.gameScale;
+      const gs = this.gameScale;
 
       sprite2.x = x - (ts * (gs/2));
       sprite2.y = y;
@@ -819,10 +819,10 @@ export default class Renderer {
     }
 
     createBarOutline(x, y) {
-      var gfx = new PIXI.Graphics();
+      const gfx = new PIXI.Graphics();
       this.drawBarOutline(gfx, x, y);
-      var tx = this.renderer.generateTexture(gfx);
-      var sprite = new PIXI.Sprite(tx);
+      const tx = this.renderer.generateTexture(gfx);
+      const sprite = new PIXI.Sprite(tx);
       sprite.anchor.set(0.5,0.5);
       sprite.alpha = 0.75;
       Container.HUD.addChild(sprite);
@@ -830,10 +830,10 @@ export default class Renderer {
     }
 
     createBarInner(x, y, mod, color) {
-      var gfx = new PIXI.Graphics();
+      const gfx = new PIXI.Graphics();
       this.drawBarInner(gfx, x, y, color);
-      var tx = this.renderer.generateTexture(gfx);
-      var sprite = new PIXI.Sprite(tx);
+      const tx = this.renderer.generateTexture(gfx);
+      const sprite = new PIXI.Sprite(tx);
       sprite.anchor.set(0,0.5);
       sprite.alpha = 0.75;
       Container.HUD.addChild(sprite);
@@ -842,22 +842,22 @@ export default class Renderer {
 
 // TODO - Make Bubbles
     drawBubble(bubble) {
-      var eo = this.getEntityOffset();
-      var ts = G_TILESIZE;
-      var c = game.camera;
-      var s = this.scale;
-      var id = "bub_"+bubble.id;
+      const eo = this.getEntityOffset();
+      const ts = G_TILESIZE;
+      const c = game.camera;
+      const s = this.scale;
+      const id = "bub_"+bubble.id;
       var sprite = this.pxSprite[id];
-      var x = (bubble.entity.x + eo[0]) * s;
-      var y = (bubble.entity.y + eo[1]) * s;
+      let x = (bubble.entity.x + eo[0]) * s;
+      let y = (bubble.entity.y + eo[1]) * s;
       if (!sprite)
       {
-        var gfx = new PIXI.Graphics();
+        const gfx = new PIXI.Graphics();
         gfx.beginFill(0xffffff);
         gfx.lineStyle(2, 0x000000);
 
-        var tw = Math.min(bubble.content.length*12*s,80*s);
-        var style = new PIXI.TextStyle({
+        let tw = Math.min(bubble.content.length*12*s,80*s);
+        const style = new PIXI.TextStyle({
           fontFamily: "KomikaHand",
           fill: 0x000000,
           fontSize: 5 * this.scale,
@@ -868,12 +868,12 @@ export default class Renderer {
           strokeThickness: 0,
         });
 
-        var txt = new PIXI.Text(bubble.content, style);
+        const txt = new PIXI.Text(bubble.content, style);
 
         x = (bubble.entity.x + eo[0] - ts/2) * s;
         y = (bubble.entity.y + eo[1] - tw/2) * s;
 
-        var th = ~~(txt.height * 1.25);
+        const th = ~~(txt.height * 1.25);
         tw = ~~(tw * 0.75);
 
         gfx.drawEllipse(x, y, tw, th);
@@ -892,7 +892,7 @@ export default class Renderer {
         gfx.moveTo(x-ts/3, y+th);
         gfx.lineTo(x+ts/3, y+th);
 
-        var texture = this.renderer.generateTexture(gfx);
+        const texture = this.renderer.generateTexture(gfx);
 
         var sprite = new PIXI.Sprite(texture);
         sprite.cullable = true;
@@ -910,7 +910,7 @@ export default class Renderer {
       }
 
       sprite.anchor.set(0.5, 0.5);
-      var os = (ts/2*s);
+      const os = (ts/2*s);
       x -= os;
       y -= sprite.height/2 + (os*2);
       sprite.x = x;
@@ -918,19 +918,19 @@ export default class Renderer {
     }
 
     removeBubble(bubble) {
-      var sprite = this.pxSprite["bub_"+bubble.id];
+      const sprite = this.pxSprite["bub_"+bubble.id];
       Container.HUD.removeChild(sprite);
       this.pxSprite["bub_"+bubble.id] = null;
     }
 
     getEntityOffset() {
-        var cv = this.getCameraView();
-        var c = game.camera;
+        const cv = this.getCameraView();
+        const c = game.camera;
         return [cv[0], cv[1]];
     }
 
     drawEntity(entity) {
-        var sprite = entity.getSprite(),
+        const sprite = entity.getSprite(),
             anim = entity.currentAnimation;
 
         entity.spriteChanged = true;
@@ -938,7 +938,7 @@ export default class Renderer {
         if(!(anim && sprite))
           return;
 
-        var eo = this.getEntityOffset();
+        const eo = this.getEntityOffset();
         var c = game.camera,
             frame = anim.currentFrame,
             s = 2,
@@ -988,9 +988,9 @@ export default class Renderer {
             //if (!entity.sprites[1].pjsSprite)
               //entity.setWeaponSprite();
               //Container.ENTITIES.addChild(entity.pjsWeaponSprite);
-            var weapon = entity.getSprite(1);
+            const weapon = entity.getSprite(1);
             if(weapon) {
-                var weaponAnimData = weapon.animationData[anim.name],
+                const weaponAnimData = weapon.animationData[anim.name],
                     index = (weaponAnimData) ? frame.index < weaponAnimData.length ? frame.index : frame.index % weaponAnimData.length : 0,
                     wx = weapon.width * index * s,
                     wy = weapon.height * anim.row * s,
@@ -1000,7 +1000,7 @@ export default class Renderer {
                   // Dont need for now.
                   //var wox = weapon.offsetX;
                   //    woy = weapon.offsetY;
-                  var visible = !entity.hideWeapon;
+                  const visible = !entity.hideWeapon;
           				this.drawSprite([entity.pjsSprites[1], wx, wy, ww*s, wh*s,
           					ex,
           					ey,
@@ -1022,7 +1022,7 @@ export default class Renderer {
     }
 
     entityVisible(entity, flag) {
-      for (var pjsSprite of entity.pjsSprites) {
+      for (let pjsSprite of entity.pjsSprites) {
         if (pjsSprite === null)
           continue;
         pjsSprite.renderable = flag;
@@ -1033,7 +1033,7 @@ export default class Renderer {
     }
 
     drawEntities(dirtyOnly) {
-        var self = this;
+        const self = this;
         //self.drawEntity(game.player);
         if (game.player && game.player.startHarvestTime > 0)
           this.showHarvestBar(game.player);
@@ -1041,9 +1041,9 @@ export default class Renderer {
           this.removeHarvestBar(game.player.id);
         }
 
-        for (var id in game.entities)
+        for (let id in game.entities)
         {
-          var entity = game.entities[id];
+          const entity = game.entities[id];
           if (entity) {
             this.entityVisible(entity, false);
           }
@@ -1075,8 +1075,8 @@ export default class Renderer {
     }
 
     drawEntityName(entity) {
-        var color = '#FFFFFF';
-        var name = "";
+        let color = '#FFFFFF';
+        let name = "";
 
         if(entity instanceof Player && entity.isMoving && !entity.isDead) {
             color = (entity.id === this.game.playerId ? "#ffff00" : (entity.admin ? "#ff0000" : "#fcda5c"));
@@ -1084,8 +1084,8 @@ export default class Renderer {
             name = entity.name;
         }
         else if(entity instanceof Mob) {
-            var mobLvl = entity.level;
-            var playerLvl;
+            const mobLvl = entity.level;
+            let playerLvl;
 
             color = "#FFFF00";
             if (entity.data.isAggressive)
@@ -1102,7 +1102,7 @@ export default class Renderer {
             name = entity.name;
         }
     		else if(entity instanceof Item) {
-    			var item = entity;
+    			const item = entity;
           if (ItemTypes.isEquipment(item.kind)) {
             name = ItemTypes.getLevelByKind(item.kind) + '+' + item.count;
           }
@@ -1120,17 +1120,17 @@ export default class Renderer {
     			    name = ItemTypes.KindData[item.kind].modifier + '+' + item.count;
     			}
     		}
-        var s = this.gameScale;
-        var eo = this.getEntityOffset();
-        var sprite = this.pxSprite["en_"+entity.id];
+        const s = this.gameScale;
+        const eo = this.getEntityOffset();
+        let sprite = this.pxSprite["en_"+entity.id];
 
-        var ts = this.tilesize;
+        const ts = this.tilesize;
         var x = (entity.x + eo[0]) * s;
-        var y = (entity.y + eo[1] - ts) * s;
+        const y = (entity.y + eo[1] - ts) * s;
 
         if (!sprite)
         {
-          var style = new PIXI.TextStyle({
+          const style = new PIXI.TextStyle({
             fontFamily: "KomikaHand",
             fill: color,
             fontSize: 5 * this.scale,
@@ -1179,7 +1179,7 @@ export default class Renderer {
     }
 
     drawTerrain(ctx) {
-        var self = this,
+        const self = this,
             p = game.player,
             mc = game.mapContainer,
             tilesetwidth = this.tilesets[0].baseTexture.width / mc.tilesize;
@@ -1191,7 +1191,7 @@ export default class Renderer {
         if(game.started) {
   						game.camera.forEachVisibleValidPosition(function(x, y) {
   							if(mc.tileGrid[y][x] instanceof Array) {
-                  for (var id of mc.tileGrid[y][x]) {
+                  for (let id of mc.tileGrid[y][x]) {
                     self.drawTile([mc.isHighTile(id), id, x, y]);
                   }
   							}
@@ -1208,7 +1208,7 @@ export default class Renderer {
     drawAnimatedTiles() {
         return; // stub - remove.
 
-        var self = this,
+        const self = this,
             mc = this.game.mapContainer,
             tilesetwidth = this.tilesets[0].baseTexture.width / this.tilesize;
 
@@ -1221,7 +1221,7 @@ export default class Renderer {
 
 // TODO - Render in PIXIJS ?
     getFPS() {
-        var diffTime = Utils.getTime() - this.lastTime;
+        const diffTime = Utils.getTime() - this.lastTime;
 
         if (diffTime >= 1000) {
             if (this.game.player.isMoving())
@@ -1236,8 +1236,8 @@ export default class Renderer {
     }
 
     getCoordinates() {
-  				var realX = game.player.gx;
-  				var realY = game.player.gy;
+  				const realX = game.player.gx;
+  				const realY = game.player.gy;
 
   				if (this.game.player)
   				{
@@ -1247,8 +1247,8 @@ export default class Renderer {
     }
 
     getRealCoordinates() {
-  				var realX = game.player.x;
-  				var realY = game.player.y;
+  				const realX = game.player.x;
+  				const realY = game.player.y;
 
   				if (this.game.player)
   				{
@@ -1258,17 +1258,17 @@ export default class Renderer {
     }
 
     drawDebugInfo() {
-      var c = game.camera;
-      var debugInfo = "";
+      const c = game.camera;
+      let debugInfo = "";
       debugInfo += this.getFPS() + "\n";
       debugInfo += this.getCoordinates() + "\n";
       debugInfo += this.getRealCoordinates() + "\n";
 
-      var s = this.scale;
-      var sprite = this.pxSprite["pc_coords"];
+      const s = this.scale;
+      let sprite = this.pxSprite["pc_coords"];
       if (!sprite)
       {
-        var style = new PIXI.TextStyle({
+        const style = new PIXI.TextStyle({
           fontFamily: "GraphicPixel",
           fill: "white",
           fontSize: 18,
@@ -1290,15 +1290,15 @@ export default class Renderer {
 
 // TODO - Draw in PIXIJS
     drawCombatInfo() {
-      var self = this;
+      const self = this;
 
       this.game.infoManager.forEachInfo(function(info) {
-        var id = "ci_"+info.id;
+        const id = "ci_"+info.id;
 
-        var sprite = self.pxSprite[id];
+        let sprite = self.pxSprite[id];
         if (!sprite)
         {
-          var style = new PIXI.TextStyle({
+          const style = new PIXI.TextStyle({
             fontFamily: "KomikaHand",
             fill: info.fillColor,
             fontSize: info.fontSize * self.scale,
@@ -1310,8 +1310,8 @@ export default class Renderer {
           Container.HUD.addChild(sprite);
           self.pxSprite[id] = sprite;
         }
-        var left = ~~((info.x - self.camera.x)*3);
-        var top = ~~((info.y - self.camera.y - self.tilesize)*3);
+        const left = ~~((info.x - self.camera.x)*3);
+        const top = ~~((info.y - self.camera.y - self.tilesize)*3);
 
         sprite.text = info.value;
         sprite.x = left;
@@ -1321,7 +1321,7 @@ export default class Renderer {
     }
 
     removeSprite(container, id) {
-      var sprite = this.pxSprite[id];
+      const sprite = this.pxSprite[id];
       if (sprite) {
         container.removeChild(sprite);
         this.pxSprite[id] = null;
@@ -1329,31 +1329,31 @@ export default class Renderer {
     }
 
     getScreenOffset() {
-      var c = this.camera;
-      var gs = this.gameScale;
-      var cv = this.getCameraView();
+      const c = this.camera;
+      const gs = this.gameScale;
+      const cv = this.getCameraView();
 
       return [cv[0]+c.wOffX, cv[1]+c.wOffY];
     }
 
     getCameraView() {
-      var c = this.camera;
+      const c = this.camera;
 
-      var x = (-c.x);
-      var y = (-c.y);
+      const x = (-c.x);
+      const y = (-c.y);
 
       return [x,y];
     }
 
     drawBarOutline(gfx, x, y) {
-      var gs = this.gameScale;
-      var ts = G_TILESIZE;
+      const gs = this.gameScale;
+      const ts = G_TILESIZE;
 
-      var w = ts*gs;
-      var h = (ts >> 2)*gs;
+      const w = ts*gs;
+      const h = (ts >> 2)*gs;
       var x = x-(w >> 1);
       var y = y-(h >> 1);
-      var border=2;
+      const border=2;
 
       gfx.lineStyle(border, "#000000")
         .moveTo(x,y)
@@ -1366,11 +1366,11 @@ export default class Renderer {
     }
 
     drawBarInner(gfx, x, y, color) {
-      var gs = this.gameScale;
-      var ts = G_TILESIZE;
-      var w = ts*gs;
-      var h = (ts >> 2)*gs;
-      var border=2;
+      const gs = this.gameScale;
+      const ts = G_TILESIZE;
+      let w = ts*gs;
+      let h = (ts >> 2)*gs;
+      const border=2;
 
       x+=border >> 1;
       y+=border >> 1;
@@ -1454,8 +1454,8 @@ export default class Renderer {
     },*/
 
     renderStaticCanvases() {
-  				var c = this.camera;
-      var fe = c.focusEntity;
+  				const c = this.camera;
+      const fe = c.focusEntity;
 
       //log.info("c.sox:"+c.sox+",c.soy:"+c.soy);
       c.setRealCoords();
@@ -1472,12 +1472,12 @@ export default class Renderer {
       this.fegx = gx;
       this.fegy = gy;*/
 
-      var mc = game.mapContainer;
+      const mc = game.mapContainer;
       if (mc)
         mc.moveGrid();
       //this.forceRedraw = true;
 
-      var go = this.setGridOffset();
+      const go = this.setGridOffset();
       this.setTilesOffset(go[0],go[1]);
 
       //if (this.forceRedraw)
@@ -1487,26 +1487,26 @@ export default class Renderer {
     }
 
     showCutScene() {
-      var width = ~~($("#container").width()*this.gameZoom);
-      var height = ~~($("#container").height()*this.gameZoom);
+      const width = ~~($("#container").width()*this.gameZoom);
+      const height = ~~($("#container").height()*this.gameZoom);
 
-      var w = width;
-      var h = Math.floor(height/8);
-      var y2 = height;
-      var y2max = y2-h;
-      var y = -h;
-      var ymax = 0;
+      const w = width;
+      const h = Math.floor(height/8);
+      const y2 = height;
+      const y2max = y2-h;
+      const y = -h;
+      const ymax = 0;
 
       var sprite = this.pxSprite["cutscene_1"];
       var sprite2 = this.pxSprite["cutscene_2"];
       if (!sprite)
       {
-        var gfx = new PIXI.Graphics();
+        const gfx = new PIXI.Graphics();
         gfx.beginFill(0x000000)
           .drawRect(0, 0, w, h)
           .endFill();
 
-        var texture = this.renderer.generateTexture(gfx);
+        const texture = this.renderer.generateTexture(gfx);
         var sprite = new PIXI.Sprite(texture);
         Container.HUD.addChild(sprite);
         this.pxSprite["cutscene_1"] = sprite;
@@ -1525,14 +1525,14 @@ export default class Renderer {
     }
 
     setGridOffset() {
-      var c = this.camera;
+      const c = this.camera;
       //var mc = game.mapContainer;
-      var fe = c.focusEntity;
+      const fe = c.focusEntity;
       //var ts = this.tilesize;
       if (!fe) return;
 
-      var gx = fe.x >> 4;
-      var gy = fe.y >> 4;
+      const gx = fe.x >> 4;
+      const gy = fe.y >> 4;
 
       //this.sox = (fe.x - (gx * G_TILESIZE));
       //this.soy = (fe.y - (gy * G_TILESIZE));
@@ -1554,8 +1554,8 @@ export default class Renderer {
     }
 
     refreshGrid() {
-      var mc = game.mapContainer;
-      var self = this;
+      const mc = game.mapContainer;
+      const self = this;
 
       // Optimization only redraw tilegrid if it has changed.
       if (typeof(this.fnTileGridEqual) === "undefined") {
@@ -1563,11 +1563,11 @@ export default class Renderer {
           if (!(tg1.length === tg2.length && tg1[0].length === tg2[0].length))
             return false;
 
-          var ly = mc.tileGrid.length;
-          var lx = mc.tileGrid[0].length;
+          const ly = mc.tileGrid.length;
+          const lx = mc.tileGrid[0].length;
 
-          for (var y=0; y < ly; ++y) {
-            for (var x=0; x < lx; ++x) {
+          for (let y=0; y < ly; ++y) {
+            for (let x=0; x < lx; ++x) {
               if (tg1[y][x] != tg2[y][x])
                 return false;
             }
@@ -1577,7 +1577,7 @@ export default class Renderer {
       }
 
       if (mc.tileGrid) {
-        var cond = (this.tileGrid) ? this.fnTileGridEqual(this.tileGrid, mc.tileGrid) : false;
+        const cond = (this.tileGrid) ? this.fnTileGridEqual(this.tileGrid, mc.tileGrid) : false;
         if (!cond)
         {
           this.clearTiles();
@@ -1597,11 +1597,11 @@ export default class Renderer {
       x = -x;
       y = -y;
 
-      var mx = Math.abs(c.rx-c.sx);
-      var my = Math.abs(c.ry-c.sy);
+      const mx = Math.abs(c.rx-c.sx);
+      const my = Math.abs(c.ry-c.sy);
 
-      var offX = -c.wOffX;
-      var offY = -c.wOffY;
+      let offX = -c.wOffX;
+      let offY = -c.wOffY;
 
       if (c.rx < c.sx) {
         offX = Math.min(offX+mx, 0);
@@ -1610,11 +1610,11 @@ export default class Renderer {
         offY = Math.min(offY+my, 0);
       }
       if (c.rx > c.sx) {
-        var max = -c.wOffX * 2;
+        const max = -c.wOffX * 2;
         offX = Math.max(offX-mx, max);
       }
       if (c.ry > c.sy) {
-        var max = -c.wOffY * 2;
+        const max = -c.wOffY * 2;
         offY = Math.max(offY-my, max);
       }
 
@@ -1657,7 +1657,7 @@ export default class Renderer {
     },*/
 
     clearEntities() {
-        var self = this;
+        const self = this;
         self.camera.forEachInScreen(function (entity,id) {
           if (entity) {
             if (entity === game.player)

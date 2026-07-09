@@ -28,7 +28,7 @@ class Skill {
       this.slots.push(slot);
     }
     remove(slot) {
-      var index = this.slots.indexOf(slot);
+      const index = this.slots.indexOf(slot);
       if (index >= 0) {
         this.slots.splice(index, 1);
       }
@@ -44,8 +44,8 @@ class SkillActive extends Skill {
     }
 
     execute() {
-      var self = this;
-      var player = game.player;
+      const self = this;
+      const player = game.player;
 
       if (Date.now() - this.cooldownTime < this.coolTime) {
         return false;
@@ -86,7 +86,7 @@ class SkillActive extends Skill {
     }
 }
 
-var SkillFactory = {
+const SkillFactory = {
     make: function(index) {
       if (index in SkillFactory.Skills) {
         return new SkillFactory.Skills[index](index);
@@ -98,7 +98,7 @@ var SkillFactory = {
 
 SkillFactory.Skills = {};
 for (var i = 0; i < SkillData.Data.length; ++i) {
-    var skillName = SkillData.Data[i].name;
+    const skillName = SkillData.Data[i].name;
     //log.info("skillName=" + skillName);
     SkillFactory.Skills[i] = SkillActive;
 };
@@ -125,8 +125,8 @@ export default class SkillHandler {
     }
 
     addAll(skillExps) {
-      var sl = skillExps.length; // FIX: missing var, was leaking an implicit global
-      for(var i = 0; i < sl; ++i)
+      const sl = skillExps.length; // FIX: missing var, was leaking an implicit global
+      for(let i = 0; i < sl; ++i)
       {
         this.add(i, skillExps[i]);
       }
@@ -138,7 +138,7 @@ export default class SkillHandler {
 
     add(skillId, exp) {
       //log.info("skillId:" + skillId);
-      var skill = null;
+      let skill = null;
       if (skillId in this.skills) {
         skill = this.skills[skillId];
       } else {

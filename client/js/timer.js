@@ -15,7 +15,7 @@ export default class Timer {
     }
 
     isOver(time) {
-        var over = false;
+        let over = false;
 
         if (isNaN(time) || time === null || time === 0) {
             time = Date.now();
@@ -30,7 +30,7 @@ export default class Timer {
     }
 
     getRatio(time) {
-        var ratio = ((time - this.lastTime) / this.duration);
+        const ratio = ((time - this.lastTime) / this.duration);
         if (ratio >= 1.0)
             return 1.0;
         return ratio;

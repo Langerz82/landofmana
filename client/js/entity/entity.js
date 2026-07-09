@@ -51,7 +51,7 @@ export default class Entity {
     }
 
     animate(animation, speed, count, onEndCount) {
-        var oriented = ['atk', 'walk', 'idle'],
+        const oriented = ['atk', 'walk', 'idle'],
             o = this.orientation || Types.Orientations.DOWN;
 
         this.flipSpriteX = false;
@@ -79,7 +79,7 @@ export default class Entity {
 
         this.sprites[index] = sprite;
 
-        var pjsSprite = this.pjsSprites[index];
+        const pjsSprite = this.pjsSprites[index];
         if (!pjsSprite)
             this.pjsSprites[index] = game.renderer.createSprite(sprite);
         else
@@ -97,7 +97,7 @@ export default class Entity {
 
     restoreSprite(index) {
         index = index || 0;
-        var tmp = this.oldSprites[index];
+        const tmp = this.oldSprites[index];
         if (tmp)
             this.setSprite(tmp, index);
     }
@@ -108,13 +108,13 @@ export default class Entity {
     }
 
     getAnimationByName(name) {
-        var animation = null;
+        let animation = null;
 
         if (name in this.animations) {
             animation = this.animations[name];
         }
         else {
-            var e = new Error();
+            const e = new Error();
             log.error(e.stack);
             log.info("No animation called " + name);
             return null;
@@ -123,7 +123,7 @@ export default class Entity {
     }
 
     setAnimation(name, speed, count, onEndCount) {
-        var self = this;
+        const self = this;
 
         if (this.isLoaded) {
             if (this.currentAnimation && this.currentAnimation.name === name) {
@@ -133,7 +133,7 @@ export default class Entity {
             if ((this.isDying || this.isDead) && this.currentAnimation.name === "death")
                 return;
 
-            var a = this.getAnimationByName(name);
+            const a = this.getAnimationByName(name);
 
             if (a) {
                 this.currentAnimation = a;
@@ -198,13 +198,13 @@ export default class Entity {
     }
 
     _setPosition(x, y) {
-        var ts = G_TILESIZE;
+        const ts = G_TILESIZE;
 
         this.x = x;
         this.y = y;
 
-        var gx = ~~(x / ts);
-        var gy = ~~(y / ts);
+        const gx = ~~(x / ts);
+        const gy = ~~(y / ts);
 
         this.gx = gx;
         this.gy = gy;
@@ -231,7 +231,7 @@ export default class Entity {
      *
      */
     getDistanceToEntity(entity) {
-        var distX = Math.abs(entity.x - this.x),
+        const distX = Math.abs(entity.x - this.x),
             distY = Math.abs(entity.y - this.y);
 
         return (distX > distY) ? distX : distY;
@@ -242,7 +242,7 @@ export default class Entity {
      * @returns {Boolean} Whether these two entities are adjacent.
      */
     isAdjacent(entity) {
-        var adjacent = false;
+        let adjacent = false;
 
         if (entity) {
             adjacent = this.getDistanceToEntity(entity) > 1 ? false : true;
@@ -255,7 +255,7 @@ export default class Entity {
      *
      */
     isAdjacentNonDiagonal(entity) {
-        var result = false;
+        let result = false;
 
         if (this.isAdjacent(entity) && !(this.x !== entity.x && this.y !== entity.y)) {
             result = true;
@@ -279,10 +279,10 @@ export default class Entity {
     getAdjacentTiles(min, max) {
         min = min || 0;
         max = max || G_TILESIZE;
-        var x = this.x, y = this.y;
+        const x = this.x, y = this.y;
 
-        var posArray = [];
-        for (var i = min; i <= max; ++i) {
+        const posArray = [];
+        for (let i = min; i <= max; ++i) {
             posArray.push([x, y - i], [x, y + i], [x - i, y], [x + i, y]);
         }
         return posArray;
@@ -292,7 +292,7 @@ export default class Entity {
         orientation = orientation || this.orientation;
         dist = (dist || 1) * G_TILESIZE;
 
-        var pos = [this.x, this.y];
+        const pos = [this.x, this.y];
         switch (orientation) {
             case 3:
                 pos[0] -= dist;
@@ -312,8 +312,8 @@ export default class Entity {
 
     isWithinDist(x, y, dist) {
         dist = dist || G_TILESIZE;
-        var dx = Math.abs(this.x - x);
-        var dy = Math.abs(this.y - y);
+        const dx = Math.abs(this.x - x);
+        const dy = Math.abs(this.y - y);
         return (dx <= dist && dy <= dist);
     }
 
@@ -342,7 +342,7 @@ export default class Entity {
     }
 
     isOverlapping(entities) {
-        for (var entity of entities) {
+        for (let entity of entities) {
             if (!entity || this === entity)
                 continue;
             if (this.isOverlappingEntity(entity)) {

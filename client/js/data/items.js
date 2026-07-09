@@ -10,29 +10,29 @@ import fetchJsonSync from './fetchjsonsync.js';
 import Item from '../entity/item.js';
 import ItemLoot from './itemlootdata.js';
 
-var Items = {};
-var CraftData = fetchJsonSync('shared/data/craft.json');
-var id = 0;
+const Items = {};
+const CraftData = fetchJsonSync('shared/data/craft.json');
+let id = 0;
 for (var craft of CraftData) {
     craft.id = id++;
 }
 
-var getCraftData = function(index) {
-    var data = [];
-    for (var craft of CraftData) {
+const getCraftData = function(index) {
+    const data = [];
+    for (let craft of CraftData) {
         if (craft.o === index)
             data.push(craft);
     }
     return data;
 };
 
-var Staticsheet = fetchJsonSync('shared/data/staticsheet.json');
-var kindData = {};
+const Staticsheet = fetchJsonSync('shared/data/staticsheet.json');
+const kindData = {};
 kindData[0] = null;
-var itemParse = fetchJsonSync('shared/data/items2.json');
+const itemParse = fetchJsonSync('shared/data/items2.json');
 //log.info(JSON.stringify(itemParse));
 $.each(itemParse, function(itemKey, itemValue) {
-    var kind = itemValue.id;
+    const kind = itemValue.id;
     if (itemValue.type === "weapon" || itemValue.type === "weaponarcher") {
         Items[itemKey + 1] = class extends Item {
             constructor(id) {
@@ -48,7 +48,7 @@ $.each(itemParse, function(itemKey, itemValue) {
             }
         };
     }
-    var itemData = {
+    const itemData = {
         name: itemValue.name,
         type: (itemValue.type) ? itemValue.type : "object",
         damageType: (itemValue.damageType) ? itemValue.damageType : "none",
@@ -83,11 +83,11 @@ Items.itemLoad = {};
 
 Items.jqShowItem = function(jq, item, jqn, size) {
     size = size || 1;
-    var kind = item.itemKind;
-    var itemCount = item.itemNumber;
-    var itemData = ItemTypes.KindData[kind];
+    const kind = item.itemKind;
+    const itemCount = item.itemNumber;
+    let itemData = ItemTypes.KindData[kind];
     if (item.sprite) {
-        var spriteName = "item/item-" + item.sprite + ".png";
+        const spriteName = "item/item-" + item.sprite + ".png";
         itemData = {sprite: spriteName, offset: [0, 0]};
     }
     if (kind >= 1000 && kind < 2000) {
@@ -96,14 +96,14 @@ Items.jqShowItem = function(jq, item, jqn, size) {
 
     var scale = 2;
     if (itemData.staticsheet && itemData.staticsheet > 0) {
-        var data = Staticsheet[itemData.staticsheet];
+        const data = Staticsheet[itemData.staticsheet];
         if (size > 1)
             data.scale = size;
 
-        var ow = (itemData.offset[0] * data.spritewidth * data.scale);
-        var oh = (itemData.offset[1] * data.spriteheight * data.scale);
+        const ow = (itemData.offset[0] * data.spritewidth * data.scale);
+        const oh = (itemData.offset[1] * data.spriteheight * data.scale);
 
-        var margin = (56 - (data.spritewidth * data.scale)) >> 1;
+        const margin = (56 - (data.spritewidth * data.scale)) >> 1;
         jq.css({
             'display': 'block',
             'background-image': "url('img/" + scale + "/sprites/" + data.sheet + "')",
@@ -128,7 +128,7 @@ Items.jqShowItem = function(jq, item, jqn, size) {
 
         var margin = (56 - (scale * 16)) >> 1;
 
-        var resize = function(img) {
+        const resize = function(img) {
             jq.css({
                 'background-size': ~~(img.width * size) + "px " + ~~(img.height * size) + "px",
                 'background-position': '-' + (itemData.offset[0] * scale * 16 * size) + 'px -' + (itemData.offset[1] * scale * 16 * size) + 'px',
@@ -137,7 +137,7 @@ Items.jqShowItem = function(jq, item, jqn, size) {
             jq.height(scale * 16 * size);
         };
 
-        var filename = "img/" + scale + "/" + spriteName;
+        const filename = "img/" + scale + "/" + spriteName;
 
         jq.css({
             'display': 'block',
@@ -152,11 +152,11 @@ Items.jqShowItem = function(jq, item, jqn, size) {
         jq.height(scale * 16 * size);
 
         if (size > 1) {
-            var img = null;
+            let img = null;
             if (Items.itemLoad[filename]) {
                 img = Items.itemLoad[filename];
 
-                var fnResize = function(image) {
+                const fnResize = function(image) {
                     if (image.complete) {
                         resize(image);
                         return true;
@@ -164,7 +164,7 @@ Items.jqShowItem = function(jq, item, jqn, size) {
                     return false;
                 };
 
-                var res = fnResize(img);
+                const res = fnResize(img);
                 if (!res)
                     setTimeout(function() { fnResize(img); }, 50);
             }

@@ -6,7 +6,7 @@ export default class PageNavigator {
         this.body = $('#'+this.name+'PageNav');
         this.movePreviousButton = $('#'+this.name+'PageNavPrev');
         this.numbers = [];
-        for(var index = 0; index < 5; index++) {
+        for(let index = 0; index < 5; index++) {
             this.numbers.push($('#'+this.name+'PageNavNumber' + index));
         }
         this.moveNextButton = $('#'+this.name+'PageNavNext');
@@ -15,7 +15,7 @@ export default class PageNavigator {
 
         this.rescale(scale);
 
-        var self = this;
+        const self = this;
 
         this.movePreviousButton.click(function(event) {
             if (!self.parent.visible)

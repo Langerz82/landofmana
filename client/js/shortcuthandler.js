@@ -3,11 +3,11 @@
 import SkillData from './data/skilldata.js';
 import Items from './data/items.js';
 
-var DragShortcut = null; // FIX: was a bare global assignment (no var), which throws ReferenceError under ES module strict mode
+let DragShortcut = null; // FIX: was a bare global assignment (no var), which throws ReferenceError under ES module strict mode
 
 class Shortcut {
     constructor(parent, slot, type) {
-      var self = this;
+      const self = this;
 
       this.parent = parent;
       this.slot = slot;
@@ -25,8 +25,8 @@ class Shortcut {
 
       this.jq.data("slot", slot);
 
-      var fnClick = function(e) {
-        var slot = self.jq.data("slot");
+      const fnClick = function(e) {
+        const slot = self.jq.data("slot");
         if (ShortcutData || DragItem) {
           self.setup(slot);
           return false;
@@ -40,17 +40,17 @@ class Shortcut {
       this.jqb.click(fnClick);
 
       this.jq.on('dragstart', function(e) {
-        var slot = self.jq.data("slot");
+        const slot = self.jq.data("slot");
         DragShortcut = {"slot": slot};
       });
 
       this.jqb.on('drop', function(e) {
-        var slot = self.jq.data("slot");
-        var newShortcut = self.parent.shortcuts[slot];
-        var oldShortcut = null;
+        const slot = self.jq.data("slot");
+        const newShortcut = self.parent.shortcuts[slot];
+        let oldShortcut = null;
         if (DragShortcut)
           oldShortcut = self.parent.shortcuts[DragShortcut.slot];
-        var tmp = Object.assign({}, newShortcut);
+        const tmp = Object.assign({}, newShortcut);
         if (newShortcut && oldShortcut) {
           if (newShortcut.isCoolingDown)
             return;
@@ -83,7 +83,7 @@ class Shortcut {
         return;
 
       if (DragItem) {
-        var item = game.inventory.inventory[DragItem.slot];
+        const item = game.inventory.inventory[DragItem.slot];
         if (item && ItemTypes.isConsumableItem(item.itemKind)) {
           this.parent.install(slot, 1, item.itemKind);
         }
@@ -125,15 +125,15 @@ class Shortcut {
       this.jq.css("display", "block");
 
       if (this.type === 1) {
-        var count = game.inventory.getItemTotalCount(this.shortcutId);
-        var item = {itemKind: this.shortcutId, itemNumber: count};
+        const count = game.inventory.getItemTotalCount(this.shortcutId);
+        const item = {itemKind: this.shortcutId, itemNumber: count};
         Items.jqShowItem(this.jq, item, this.jq, 1);
         this.jq.css("transform", "scale("+(56/48)+")");
         return;
       }
       else if (this.type === 2) {
         // Temp not Working
-        var skill = null;
+        const skill = null;
         SkillData.jqShowSkill(this.jq, this.shortcutId, this.jq, 1);
         this.jq.css("transform", "scale("+(56/48)+")");
         return;
@@ -145,14 +145,14 @@ class Shortcut {
       if (this.cooldown && this.cooldown.cooltimeCounter > 0)
         return;
 
-      var res = false;
+      let res = false;
       // display cooldown for all
       if (this.type === 1) {
-        var item = game.inventory.getItemByKind(this.shortcutId);
+        const item = game.inventory.getItemByKind(this.shortcutId);
         if (item)
           res = game.inventory.useItem(0, item);
       } else if (this.type === 2) {
-        var skill = game.player.skillHandler.skills[this.shortcutId];
+        const skill = game.player.skillHandler.skills[this.shortcutId];
         if (skill)
           res = skill.execute();
       }
@@ -182,11 +182,11 @@ class Cooldown {
     }
 
     start(time) {
-      var self = this;
+      const self = this;
 
       this.cooltimeCounter = time;
 
-      var funcCooldown = function () {
+      const funcCooldown = function () {
         if (self.cooltimeCounter >= 0) {
           self.tick();
           self.cooltimeCounter -= 1;
@@ -200,7 +200,7 @@ class Cooldown {
 
       funcCooldown();
 
-      for (var sc of this.children) {
+      for (let sc of this.children) {
         sc.isCoolingDown = true;
         sc.jqCooldown.show();
       }
@@ -218,7 +218,7 @@ class Cooldown {
     }
 
     show() {
-      for (var sc of this.children) {
+      for (let sc of this.children) {
         sc.jqCooldown.show();
         sc.jqCooldown.html(this.cooltimeCounter);
       }
@@ -229,7 +229,7 @@ class Cooldown {
       this.cooltimeTickHandle = null;
       this.cooltimeCounter = 0;
 
-      for (var sc of this.children) {
+      for (let sc of this.children) {
         sc.isCoolingDown = false;
         sc.jqCooldown.hide();
         sc.cooldown = null;
@@ -245,8 +245,8 @@ export default class ShortcutHandler {
       this.shortcuts = [];
       this.shortcutCount = 6;
 
-      var shortcut;
-      for (var i=0; i < this.shortcutCount; ++i) {
+      let shortcut;
+      for (let i=0; i < this.shortcutCount; ++i) {
         shortcut = new Shortcut(this, i, 0);
         shortcut.clear();
         this.shortcuts.push(shortcut);
@@ -254,9 +254,9 @@ export default class ShortcutHandler {
     }
 
     installAll(arr) {
-      var shortcut;
-      var i=0;
-      for (var sc of arr) {
+      let shortcut;
+      let i=0;
+      for (let sc of arr) {
         if (sc) {
           if (sc[0] >= this.shortcutCount)
             continue;
@@ -274,7 +274,7 @@ export default class ShortcutHandler {
 
       // This is a little hacky to apply the cooldown immediately if shortcut installed.
       // Considering it's not much overhead re-showing all child cooldowns it's fine.
-      for (var sc of this.shortcuts) {
+      for (let sc of this.shortcuts) {
         if (sc && type === sc.type && shortcutId === sc.shortcutId && sc.cooldown)
         {
           sc.cooldown.show();
@@ -284,7 +284,7 @@ export default class ShortcutHandler {
     }
 
     cooldownStart(type, shortcutId) {
-        for (var slot of this.shortcuts) {
+        for (let slot of this.shortcuts) {
           if (!slot)
             continue;
 
@@ -296,10 +296,10 @@ export default class ShortcutHandler {
     }
 
     cooldownItems() {
-      var itemslot = null;
-      for (var slot of this.shortcuts) {
+      let itemslot = null;
+      for (let slot of this.shortcuts) {
         if (slot.type === 1) {
-          var cooldown = new Cooldown(slot);
+          const cooldown = new Cooldown(slot);
           cooldown.start(slot.cooldownTime);
           break;
         }
@@ -312,14 +312,14 @@ export default class ShortcutHandler {
     }
 
     refresh() {
-      for (var sc of this.shortcuts) {
+      for (let sc of this.shortcuts) {
         sc.display();
       }
     }
 
     getSameShortcuts(shortcut) {
-      var shortcuts = [];
-      for (var sc of this.shortcuts) {
+      const shortcuts = [];
+      for (let sc of this.shortcuts) {
         if (sc.type == 1 && sc.type === shortcut.type)
         {
           shortcuts.push(sc);

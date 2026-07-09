@@ -7,7 +7,7 @@ export default class AchievementHandler {
       this.progressHideDelay = 1000;
       this.showlog = false;
 
-      var self = this;
+      const self = this;
       this.closeButton = $('#achievementCloseButton');
       this.closeButton.click(function(event) {
         self.toggleShowLog();
@@ -29,8 +29,8 @@ export default class AchievementHandler {
     achievementReloadLog() {
       $("#achievementLogInfo tbody").find("tr:gt(0)").remove();
 
-      for (var achievement of game.player.achievements) {
-        var progress = Utils.Percent(achievement.count / achievement.objectCount, 0);
+      for (let achievement of game.player.achievements) {
+        const progress = Utils.Percent(achievement.count / achievement.objectCount, 0);
 
         $('#achievementLogInfo tbody').append(
           "<tr id='ad_"+achievement.index+"'>" +
@@ -41,7 +41,7 @@ export default class AchievementHandler {
     }
 
     handleAchievement(achievement) {
-      var htmlStr = '';
+      let htmlStr = '';
 
       if (achievement.count === achievement.objectCount) {
         htmlStr = '<p><h2>Achievement Completed</h2></p><p>' + achievement.summary + '</p>';

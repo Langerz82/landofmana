@@ -42,11 +42,11 @@ export default class ClientCallbacks {
 
         // data - mapIndex, mapStatus, x, y.
         client.onPlayerTeleportMap(function(data) {
-          var mapId = Number(data[0]),
+          const mapId = Number(data[0]),
               x = Number(data[2]),
               y = Number(data[3]),
               portalId = Number(data[4]);
-          var status = game.mapStatus = Number(data[1]);
+          const status = game.mapStatus = Number(data[1]);
           var p = game.player;
 
           log.info("ON PLAYER TELEPORT MAP:"+mapId+"status: "+status+",x:"+x+",y:"+y);
@@ -75,7 +75,7 @@ export default class ClientCallbacks {
             p.freeze = true;
             game.initPlayer();
             if (portalId >= 0) {
-              var orientation = game.prevMapContainer.doors[portalId].orientation;
+              const orientation = game.prevMapContainer.doors[portalId].orientation;
               p.orientation = orientation;
               //p.moveOrientation = orientation;
               //p.forceStopTeleport();
@@ -107,7 +107,7 @@ export default class ClientCallbacks {
               p.setPositionSpawn(x, y);
               //game.player.forceStop();
 
-              var c = game.camera;
+              const c = game.camera;
 
               game.initGrid();
               c.setRealCoords();
@@ -119,7 +119,7 @@ export default class ClientCallbacks {
               game.mapContainer.allReady(function() {
                 log.info("spawnPlayer - started");
 
-                var p = game.player;
+                const p = game.player;
 
                 game.addEntity(p);
 
@@ -148,12 +148,12 @@ export default class ClientCallbacks {
             //log.info("Spawned " + ItemTypes.KindData[item.kind].name + " (" + item.id + ") at "+x+", "+y);
             if (!item) return;
 
-            var x = Number(data[5]),
+            const x = Number(data[5]),
                 y = Number(data[6]),
                 count = Number(data[8]);
 
-            var kind = item.kind;
-            var sprite = null;
+            const kind = item.kind;
+            let sprite = null;
 						if (ItemTypes.isLootItem(kind))
 							sprite = game.sprites['itemloot'];
             else
@@ -170,14 +170,14 @@ export default class ClientCallbacks {
             game.updateCameraEntity(item.id, item);
         });
 
-        var spawnEntity = function(data, entity)
+        const spawnEntity = function(data, entity)
         {
-          var id = Number(data[0]);
+          const id = Number(data[0]);
           if(id === game.playerId)
             return;
 
           entity.setPosition(Number(data[5]), Number(data[6]));
-          var orientation = Number(data[7]);
+          const orientation = Number(data[7]);
           entity.level = Number(data[8]);
           if (data.length > 10 && entity instanceof Character) {
             entity.setHp(Number(data[9]));
@@ -194,8 +194,8 @@ export default class ClientCallbacks {
             //entity.level = data[10];
             entity.name = data[3];
             entity.isDying = entity.isDead = false;
-            var spriteName = data[9];
-            var animName = data[10];
+            const spriteName = data[9];
+            const animName = data[10];
             entity.weaponType = data[11];
             entity.setSprite(game.sprites[spriteName]);
             entity.animate(animName, entity.idleSpeed);
@@ -203,35 +203,35 @@ export default class ClientCallbacks {
 
           if (entity instanceof Mob)
           {
-            var spriteName = entity.getSpriteName();
+            const spriteName = entity.getSpriteName();
             entity.name = spriteName;
             entity.setSprite(game.sprites[spriteName]);
           }
           else if (entity instanceof Block)
           {
-            var nameData = data[3].split("-");
-            var spriteName = "block-"+entity.kind;
+            const nameData = data[3].split("-");
+            const spriteName = "block-"+entity.kind;
             entity.setSprite(game.sprites[spriteName]);
             entity.animate(nameData[1], entity.idleSpeed);
           }
           else if (entity.type === Types.EntityTypes.TRAP)
           {
-            var spriteName = "trap-"+entity.kind;
+            const spriteName = "trap-"+entity.kind;
             entity.setSprite(game.sprites[spriteName]);
 
-            var animName = (spriteId === 0) ? "off" : "on";
+            const animName = (spriteId === 0) ? "off" : "on";
             entity.animate(animName, entity.idleSpeed);
 
           }
           else if (entity instanceof NpcStatic)
           {
-              var uid = NpcData.Kinds[entity.kind].uid;
+              const uid = NpcData.Kinds[entity.kind].uid;
               entity.setSprite(game.sprites[uid]);
               entity.idle(2);
           }
           else if (entity instanceof NpcMove)
           {
-              var uid = "npc"+(1+(~~(entity.kind/8)%4))+"_"+(1+(entity.kind%8));
+              const uid = "npc"+(1+(~~(entity.kind/8)%4))+"_"+(1+(entity.kind%8));
               entity.setSprite(game.sprites[uid]);
               entity.npcQuestId = Number(data[8]);
               game.npc[entity.id] = entity;
@@ -246,7 +246,7 @@ export default class ClientCallbacks {
           game.addEntity(entity);
           //game.updateCameraEntity(entity.id, entity);
 
-          var entityName = entity.name;
+          let entityName = entity.name;
           //if (entity instanceof Mob)
           //  entityName = MobData.Kinds[entity.kind].name;
 
@@ -269,7 +269,7 @@ export default class ClientCallbacks {
             });
 
             entity.onRequestPath(function(x, y) {
-                var include = [];
+                const include = [];
                 var ignored = [entity], // Always ignore self
                     ignoreTarget = function(target) {
                         ignored.push(target);
@@ -281,7 +281,7 @@ export default class ClientCallbacks {
                     ignoreTarget(entity.previousTarget);
                 }
 
-                var path = game.findPath(entity, x, y, ignored, include);
+                const path = game.findPath(entity, x, y, ignored, include);
                 if (!game.pathfinder.isValidPath(path))
                 {
                   try { throw new Error(); } catch(err) { console.error("invalidpath: "+JSON.stringify(path)); }
@@ -299,7 +299,7 @@ export default class ClientCallbacks {
               entity.isDying = false;
 
               entity.onRemove(function () {
-                var p = game.player;
+                const p = game.player;
                 if(p.target === entity) {
                     p.disengage();
                 }
@@ -311,7 +311,7 @@ export default class ClientCallbacks {
               });
 
               entity.onDeath(function() {
-                var p = game.player;
+                const p = game.player;
 
                 if (entity === p)
                   return;
@@ -356,9 +356,9 @@ export default class ClientCallbacks {
             if (game.mapIndex !== Number(data[1]))
               return;
 
-          var entity = game.getEntityById(Number(data[0]));
+          const entity = game.getEntityById(Number(data[0]));
             if(entity) {
-              var entityName;
+              let entityName;
 
               if (entity instanceof Mob)
                 entityName = MobData.Kinds[entity.kind].name;
@@ -393,7 +393,7 @@ export default class ClientCallbacks {
         // data - time, mapIndex, entityId, orientation, state, moveSpeed, x, y.
         client.onEntityMove(function(data)
         {
-            var time = Number(data[0]),
+            const time = Number(data[0]),
                 map = Number(data[1]),
                 id = Number(data[2]),
                 orientation = Number(data[3]),
@@ -406,7 +406,7 @@ export default class ClientCallbacks {
                 map !== game.player.mapIndex)
               return;
 
-            var entity = game.getEntityById(id);
+            const entity = game.getEntityById(id);
             if (!entity)
             {
               log.info("UNKNOWN ENTITY")
@@ -421,7 +421,7 @@ export default class ClientCallbacks {
 
             if (entity === game.player)
             {
-              var p = entity;
+              const p = entity;
               if(!p || p.isDying || p.isDead)
                 return;
 
@@ -450,7 +450,7 @@ export default class ClientCallbacks {
         // time, mapIndex, entityId, orientation, interrupted, moveSpeed, path.
         client.onEntityMovePath(function(data)
         {
-            var time = Number(data.shift()),
+            const time = Number(data.shift()),
               map = Number(data.shift()),
               id = Number(data.shift()),
               orientation = Number(data.shift()),
@@ -458,13 +458,13 @@ export default class ClientCallbacks {
               moveSpeed = Number(data.shift());
 
             //var path = data.splice(5, data.length-5);
-            var path = data;
+            const path = data;
 
             if (game.mapStatus < 2 || game.mapIndex !== map ||
                 map !== game.player.mapIndex)
               return;
 
-            var entity = game.getEntityById(id);
+            let entity = game.getEntityById(id);
 
             if(id === game.player.id) return;
 
@@ -480,7 +480,7 @@ export default class ClientCallbacks {
             if (entity === game.player)
               return;
 
-            var lockStepTime = (G_LATENCY - (Utils.getWorldTime()-time) + G_UPDATE_INTERVAL);
+            let lockStepTime = (G_LATENCY - (Utils.getWorldTime()-time) + G_UPDATE_INTERVAL);
             lockStepTime = Utils.clamp(0,G_LATENCY,lockStepTime);
             //console.warn("lockStepTime="+lockStepTime);
             //console.warn("getDiffTime(time):"+(Date.now() - time));
@@ -490,7 +490,7 @@ export default class ClientCallbacks {
             entity.setPosition(path[0][0], path[0][1]);
             //entity.setOrientation(orientation);
 
-            var movePathFunc = function () {
+            const movePathFunc = function () {
               if (entity.isDying || entity.isDead) {
                 entity.forceStop();
                 return;
@@ -516,8 +516,8 @@ export default class ClientCallbacks {
         });
 
         client.onEntityDestroy(function(data) {
-            var id = Number(data[0]);
-            var entity = game.getEntityById(id);
+            const id = Number(data[0]);
+            const entity = game.getEntityById(id);
             if(entity) {
                 if(entity instanceof Item) {
                     game.removeItem(entity);
@@ -531,7 +531,7 @@ export default class ClientCallbacks {
         client.onCharacterDamage(function(data) {
             data.parseInt();
 
-            var sEntity = game.getEntityById(Number(data[0])),
+            const sEntity = game.getEntityById(Number(data[0])),
                 tEntity = game.getEntityById(Number(data[1])),
                 orientation = Number(data[2]),
                 hpMod = Number(data[3]),
@@ -561,10 +561,10 @@ export default class ClientCallbacks {
         });
 
         client.onPlayerStat(function(data) {
-            var statType = data[0];
-            var statValue = Number(data[1]);
-            var statChange = Number(data[2]);
-            var p = game.player;
+            const statType = data[0];
+            const statValue = Number(data[1]);
+            const statChange = Number(data[2]);
+            const p = game.player;
 
             Utils.setValueByPath(p.stats, statType, statValue);
             if (statType === "exp.base") // exp.base
@@ -578,41 +578,41 @@ export default class ClientCallbacks {
         });
 
         client.onPlayerLevelUp(function(data) {
-          var type = data[0];
-          var level = Number(data[1]);
-          var exp = Number(data[2]);
-          var p = game.player;
+          const type = data[0];
+          const level = Number(data[1]);
+          const exp = Number(data[2]);
+          const p = game.player;
 
-          var scale = game.renderer.scale;
-          var x=p.x, y=p.y, id=p.id;
+          const scale = game.renderer.scale;
+          let x=p.x, y=p.y, id=p.id;
           if (type==="base" && p.level !== level) {
               id="lu"+id+"_"+level;
-              var info = new HoveringInfo(id, "Level "+level, x, y, 5000, 'levelUp');
+              const info = new HoveringInfo(id, "Level "+level, x, y, 5000, 'levelUp');
               game.infoManager.addInfo(info);
               p.level = level;
               return;
           }
           else if (type==="attack") {
-            var curLevel = Types.getAttackLevel(p.stats.exp.attack);
+            const curLevel = Types.getAttackLevel(p.stats.exp.attack);
             if (curLevel !== level) {
               id="lau"+id+"_"+level;
-              var info = new HoveringInfo(id, "Attack Level "+level, x, y, 3500, 'minorLevelUp');
+              const info = new HoveringInfo(id, "Attack Level "+level, x, y, 3500, 'minorLevelUp');
               game.infoManager.addInfo(info);
             }
           }
           else if (type==="defense") {
-            var curLevel = Types.getDefenseLevel(p.stats.exp.defense);
+            const curLevel = Types.getDefenseLevel(p.stats.exp.defense);
             if (curLevel !== level) {
               id="ldu"+id+"_"+level;
-              var info = new HoveringInfo(id, "Defense Level "+level, x, y, 3500, 'minorLevelUp');
+              const info = new HoveringInfo(id, "Defense Level "+level, x, y, 3500, 'minorLevelUp');
               game.infoManager.addInfo(info);
             }
           }
           else if (p.stats.exp.hasOwnProperty(type)) {
-            var curLevel = Types.getWeaponLevel(p.stats.exp[type]);
+            const curLevel = Types.getWeaponLevel(p.stats.exp[type]);
             if (curLevel !== level) {
               id="wu"+id+"_"+level;
-              var info = new HoveringInfo(id, type+" Level "+level, x, y, 3500, 'minorLevelUp');
+              const info = new HoveringInfo(id, type+" Level "+level, x, y, 3500, 'minorLevelUp');
               game.infoManager.addInfo(info);
             }
             p.stats.exp[type] = exp
@@ -620,29 +620,29 @@ export default class ClientCallbacks {
         });
 
         client.onPlayerItemLevelUp(function(data) {
-          var type = Number(data[0]);
-          var level = Number(data[1]);
-          var exp = Number(data[2]);
+          const type = Number(data[0]);
+          const level = Number(data[1]);
+          const exp = Number(data[2]);
 
-          var x=game.player.x, y=game.player.y, id=game.player.id;
+          let x=game.player.x, y=game.player.y, id=game.player.id;
           if (type === 0)
           {
             id="laru"+id+"_"+level;
-            var info = new HoveringInfo(id, "Armor Level "+level, x, y, 3500, 'minorLevelUp');
+            const info = new HoveringInfo(id, "Armor Level "+level, x, y, 3500, 'minorLevelUp');
             game.infoManager.addInfo(info);
           }
           else if (type === 1)
           {
             id="lweu"+id+"_"+level;
-            var info = new HoveringInfo(id, "Weapon Level "+level, x, y, 3500, 'minorLevelUp');
+            const info = new HoveringInfo(id, "Weapon Level "+level, x, y, 3500, 'minorLevelUp');
             game.infoManager.addInfo(info);
           }
         });
 
         client.onGold(function (data) {
-          var gold = Number(data[0]);
-          var bankgold = Number(data[1]);
-          var gems = Number(data[2]);
+          const gold = Number(data[0]);
+          const bankgold = Number(data[1]);
+          const gems = Number(data[2]);
 
           game.player.gold[0] = gold;
           game.player.gold[1] = bankgold;
@@ -653,11 +653,11 @@ export default class ClientCallbacks {
         });
 
         client.onChatMessage(function(data) {
-          var entityId = Number(data[0]);
-          var message = data[1];
+          const entityId = Number(data[0]);
+          const message = data[1];
 
           if(!game.chathandler.processReceiveMessage(entityId, message)) {
-                var entity = game.getEntityById(entityId);
+                const entity = game.getEntityById(entityId);
                 if (entity)
                 {
                   if (game.camera.isVisible(entity))
@@ -677,17 +677,17 @@ export default class ClientCallbacks {
             if(game.disconnect_callback) {
                 game.disconnect_callback(message);
             }
-            for (var dialog of game.dialogs)
+            for (let dialog of game.dialogs)
               dialog.hide();
         });
 
-        var questSpeech = function (quest) {
-          var npc = game.getNpcByQuestKind(quest.npcQuestId);
+        const questSpeech = function (quest) {
+          const npc = game.getNpcByQuestKind(quest.npcQuestId);
           if (!npc)
             return;
 
-          var p = game.player;
-          var desc = quest.desc;
+          const p = game.player;
+          let desc = quest.desc;
 
           if (!Array.isArray(quest.desc))
             desc = [[0, quest.desc]];
@@ -703,8 +703,8 @@ export default class ClientCallbacks {
 
         client.onQuest(function(data){
             //data.parseInt();
-            var questId = Number(data[0]);
-            var quest = game.player.quests[questId];
+            const questId = Number(data[0]);
+            let quest = game.player.quests[questId];
             if (!quest)
             {
               quest = new Quest(data);
@@ -715,7 +715,7 @@ export default class ClientCallbacks {
                 quest.update(data);
             }
 
-            var npc = game.getNpcByQuestKind(quest.npcQuestId);
+            const npc = game.getNpcByQuestKind(quest.npcQuestId);
             if (npc)
               game.bubbleManager.destroyBubble(npc.id);
 
@@ -739,28 +739,28 @@ export default class ClientCallbacks {
 
         client.onAchievement(function (data) {
           data.parseInt();
-          var achievementId = Number(data[0]);
-          var achievement = new Achievement(data);
+          const achievementId = Number(data[0]);
+          const achievement = new Achievement(data);
           game.player.achievements[achievementId] = achievement;
           game.achievementHandler.handleAchievement(achievement);
         });
 
         client.onItemSlot(function(data){
           //data.parseInt();
-          var type = Number(data.shift());
-          var count = Number(data.shift());
-          var items = [];
-          var t = 0;
-          for (var i=0; i < count; ++i)
+          const type = Number(data.shift());
+          const count = Number(data.shift());
+          const items = [];
+          let t = 0;
+          for (let i=0; i < count; ++i)
           {
-            var slot = Number(data[t]);
-            var kind = Number(data[t+1]);
+            const slot = Number(data[t]);
+            const kind = Number(data[t+1]);
             if (kind === -1) {
               items.push({slot:slot,itemKind:-1});
               t += 2;
               continue;
             }
-            var itemRoom = new ItemRoom(
+            const itemRoom = new ItemRoom(
               Number(slot),
               Number(kind),
               Number(data[t+2]),
@@ -786,17 +786,17 @@ export default class ClientCallbacks {
         });
 
         client.onDialogue(function (data) {
-          var npcId = Number(data.shift());
-          var langCode = data.shift();
+          const npcId = Number(data.shift());
+          const langCode = data.shift();
 
-          var npc = game.getEntityById(npcId);
-          var p = game.player;
+          const npc = game.getEntityById(npcId);
+          const p = game.player;
 
-          var message;
-          var questPattern = /^QUESTS_[0-9]+$/g;
+          let message;
+          const questPattern = /^QUESTS_[0-9]+$/g;
           if (questPattern.test(langCode))
           {
-            var questId = langCode.split('_')[1];
+            const questId = langCode.split('_')[1];
             npc.questId = questId;
             message = JSON.parse(JSON.stringify(lang.data['QUESTS'][questId][0]));
           } else {
@@ -806,7 +806,7 @@ export default class ClientCallbacks {
           // Needs to do a deep copy so lang data does not get overwritten.
           if (data.length > 0) {
             if (Array.isArray(message)) {
-              for (var msg of message)
+              for (let msg of message)
               {
                 msg[1] = msg[1].format(data);
               }
@@ -829,7 +829,7 @@ export default class ClientCallbacks {
         });
 
         client.onStatInfo(function(data) {
-          var stats = {
+          const stats = {
             attack: Number(data[0]),
             defense: Number(data[1]),
             health: Number(data[2]),
@@ -852,13 +852,13 @@ export default class ClientCallbacks {
         });*/
 
         client.onAuction(function(data){
-            var type = Number(data.shift());
-            var itemCount = Number(data.shift());
+            const type = Number(data.shift());
+            const itemCount = Number(data.shift());
 
-            var itemData = [];
-            for (var i = 0; i < itemCount; ++i)
+            const itemData = [];
+            for (let i = 0; i < itemCount; ++i)
             {
-                var j = (i*9);
+                const j = (i*9);
                 itemData.push({
                     index: Number(data[j]),
                     player: data[j+1],
@@ -874,8 +874,8 @@ export default class ClientCallbacks {
             }
 
             // FIX: missing var - was an implicit global
-            var curPage = game.auctionDialog.storeFrame.getActivePage();
-            var page = game.auctionDialog.storeFrame.pages[type];
+            const curPage = game.auctionDialog.storeFrame.getActivePage();
+            const page = game.auctionDialog.storeFrame.pages[type];
             if (curPage !== page) {
               game.auctionDialog.storeFrame.setPageIndex(type);
             }
@@ -885,22 +885,22 @@ export default class ClientCallbacks {
         });
 
         client.onSkillLoad(function(datas) {
-            var skillIndex = Number(datas[0]);
-            var skillExp = Number(datas[1]);
+            const skillIndex = Number(datas[0]);
+            const skillExp = Number(datas[1]);
 
             // FIX: missing var - was an implicit global
-            var skillLevel = Types.getSkillLevel(skillExp);
+            const skillLevel = Types.getSkillLevel(skillExp);
             game.player.skillHandler.setSkill(skillIndex, skillExp);
             game.skillsDialog.page.setSkill(skillIndex, skillLevel);
         });
 
         client.onSkillXP(function(data) {
-            var skillCount = Number(data.shift());
+            const skillCount = Number(data.shift());
 
             if (skillCount === 0)
               return;
 
-            for (var i = 0; i < skillCount; ++i)
+            for (let i = 0; i < skillCount; ++i)
             {
               game.player.skillHandler.setSkill(
                 Number(data[i*2]),
@@ -913,10 +913,10 @@ export default class ClientCallbacks {
         });
 
         client.onSpeech(function (id, key, value) {
-          var entity = game.getEntityById(Number(id));
+          const entity = game.getEntityById(Number(id));
           if (!entity) return;
 
-          var msg = "";
+          let msg = "";
           if (entity instanceof Mob)
             msg = MobSpeech.Speech[key][value];
           else {
@@ -935,7 +935,7 @@ export default class ClientCallbacks {
         client.onSetSprite(function (data)
         {
 
-          var entity = game.getEntityById(Number(data[0]));
+          const entity = game.getEntityById(Number(data[0]));
           if (!entity) return;
 
           if (entity instanceof Player)
@@ -945,8 +945,8 @@ export default class ClientCallbacks {
 
             game.app.initPlayerBar();
           } else {
-            var num = Number(data[1]);
-            var sprite = game.sprites[AppearanceData[num].sprite];
+            const num = Number(data[1]);
+            const sprite = game.sprites[AppearanceData[num].sprite];
             entity.setSprite(sprite);
           }
 
@@ -955,7 +955,7 @@ export default class ClientCallbacks {
         client.onSetAnimation(function (data)
         {
 
-          var entity = game.getEntityById(Number(data[0]));
+          const entity = game.getEntityById(Number(data[0]));
           if (!entity) return;
 
           // TODO - Not yet implemented.
@@ -970,13 +970,13 @@ export default class ClientCallbacks {
         });
 
         client.onBlockModify(function (data) {
-          var entityId = Number(data[0]);
-          var type = Number(data[1]);
-          var blockId = Number(data[2]);
+          const entityId = Number(data[0]);
+          const type = Number(data[1]);
+          const blockId = Number(data[2]);
 
 
-          var entity = game.getEntityById(entityId);
-          var block = game.getEntityById(blockId);
+          const entity = game.getEntityById(entityId);
+          const block = game.getEntityById(blockId);
           if (!entity || !block)
             return;
 
@@ -989,15 +989,15 @@ export default class ClientCallbacks {
           }
         });
 
-        var onPlayerChangeHealth = function(player, points, crit) {
-            var isRegen = false;
+        const onPlayerChangeHealth = function(player, points, crit) {
+            let isRegen = false;
             if (points > 0)
               isRegen = true;
 
             if (!player || !(player instanceof Player) || player.isDead)
               return;
 
-            var isHurt = (points <= player.stats.hp);
+            const isHurt = (points <= player.stats.hp);
             if(isHurt && game.playerhurt_callback) {
                 game.playerhurt_callback();
             }
@@ -1005,7 +1005,7 @@ export default class ClientCallbacks {
             game.updateBars();
         };
 
-        var showDamageInfo = function (entity, points, x, y, crit) {
+        const showDamageInfo = function (entity, points, x, y, crit) {
             //log.info("crit="+crit);
             if(points === 0) {
               game.infoManager.addDamageInfo("miss", x, y - 15, "health");
@@ -1027,19 +1027,19 @@ export default class ClientCallbacks {
         };
 
         client.onCharacterChangePoints(function (data) {
-          var id = Number(data[0]);
-          var hp = Number(data[1]);
-          var hpMax = Number(data[2]);
-          var hpMod = Number(data[3]);
-          var ep = Number(data[4]);
-          var epMax = Number(data[5]);
-          var epMod = Number(data[6]);
-          var crit = Number(data[7]) || 0;
+          const id = Number(data[0]);
+          const hp = Number(data[1]);
+          const hpMax = Number(data[2]);
+          let hpMod = Number(data[3]);
+          const ep = Number(data[4]);
+          const epMax = Number(data[5]);
+          const epMod = Number(data[6]);
+          const crit = Number(data[7]) || 0;
 
           if (id <= 0)
             return;
 
-          var entity = game.getEntityById(id);
+          const entity = game.getEntityById(id);
           if (!entity)
             return;
 
@@ -1065,27 +1065,27 @@ export default class ClientCallbacks {
         });
 
         client.onParty(function (data) {
-          var partyType = Number(data.shift());
+          const partyType = Number(data.shift());
           if (partyType === 1) {
             game.socialHandler.setPartyMembers(data);
           }
           if (partyType === 2) {
-            var id = data[0];
-            var player = game.getEntityById(id);
+            const id = data[0];
+            const player = game.getEntityById(id);
             game.socialHandler.inviteParty(player);
 
           }
         });
 
         client.onHarvest(function (data) {
-          var id = Number(data.shift());
-          var p = game.getEntityById(id);
+          const id = Number(data.shift());
+          const p = game.getEntityById(id);
           if (!p)
             return;
 
-          var action = Number(data.shift());
+          const action = Number(data.shift());
 
-          var x=Number(data.shift()),
+          const x=Number(data.shift()),
               y=Number(data.shift());
 
           if (action === 1)
@@ -1113,7 +1113,7 @@ export default class ClientCallbacks {
             data.shift();
             data.shift();
 
-            var p = game.player;
+            const p = game.player;
 
             p.id = Number(data.shift());
             p.name = data.shift();
@@ -1166,12 +1166,12 @@ export default class ClientCallbacks {
             var itemCount = parseInt(data.shift());
             if (itemCount > 0)
             {
-              var items = [];
-              var itemArray = data.splice(0,(itemCount*6)).parseInt();
-              for(var i=0; i < itemCount; ++i)
+              const items = [];
+              const itemArray = data.splice(0,(itemCount*6)).parseInt();
+              for(let i=0; i < itemCount; ++i)
               {
-                var index = i*6;
-                var itemRoom = new ItemRoom(
+                const index = i*6;
+                const itemRoom = new ItemRoom(
                   itemArray[index+0],
                   itemArray[index+1],
                   itemArray[index+2],
@@ -1185,11 +1185,11 @@ export default class ClientCallbacks {
             }
 
             //p.sprites = [];
-            var aid = parseInt(data.shift());
-            var wid = parseInt(data.shift());
+            const aid = parseInt(data.shift());
+            const wid = parseInt(data.shift());
 
-            var aSprite = game.sprites[AppearanceData[aid].sprite];
-            var wSprite = game.sprites[AppearanceData[wid].sprite];
+            const aSprite = game.sprites[AppearanceData[aid].sprite];
+            const wSprite = game.sprites[AppearanceData[wid].sprite];
 
             p.setSprite(aSprite, 0);
             p.setSprite(wSprite, 1);
@@ -1197,12 +1197,12 @@ export default class ClientCallbacks {
             var itemCount = parseInt(data.shift());
             if (itemCount > 0)
             {
-              var items = [];
-              var itemArray = data.splice(0,(itemCount*6)).parseInt();
-              for(var i=0; i < itemCount; ++i)
+              const items = [];
+              const itemArray = data.splice(0,(itemCount*6)).parseInt();
+              for(let i=0; i < itemCount; ++i)
               {
-                var index = i*6;
-                var itemRoom = new ItemRoom(
+                const index = i*6;
+                const itemRoom = new ItemRoom(
                   itemArray[index+0],
                   itemArray[index+1],
                   itemArray[index+2],
@@ -1219,12 +1219,12 @@ export default class ClientCallbacks {
             var itemCount = parseInt(data.shift());
             if (itemCount > 0)
             {
-              var items = [];
-              var itemArray = data.splice(0,(itemCount*6)).parseInt();
-              for(var i=0; i < itemCount; ++i)
+              const items = [];
+              const itemArray = data.splice(0,(itemCount*6)).parseInt();
+              for(let i=0; i < itemCount; ++i)
               {
-                  var index = i*6;
-                  var itemRoom = new ItemRoom(
+                  const index = i*6;
+                  const itemRoom = new ItemRoom(
                     itemArray[index+0],
                     itemArray[index+1],
                     itemArray[index+2],
@@ -1238,28 +1238,28 @@ export default class ClientCallbacks {
             }
 
             p.quests = {};
-            var questCount = parseInt(data.shift());
+            const questCount = parseInt(data.shift());
             if (questCount > 0)
             {
-              var questArray = data.splice(0,(questCount*13));
+              const questArray = data.splice(0,(questCount*13));
               questArray.parseInt();
-              for(var i=0; i < questCount; ++i)
+              for(let i=0; i < questCount; ++i)
               {
-                var index = i*13;
+                const index = i*13;
                 p.quests[questArray[index]] = new Quest(questArray.slice(index,index+13));
               }
             }
 
             p.achievements = [];
-            var achieveCount = parseInt(data.shift());
+            const achieveCount = parseInt(data.shift());
             if (achieveCount > 0)
             {
-              var achieveArray = data.splice(0,(achieveCount*7));
+              const achieveArray = data.splice(0,(achieveCount*7));
               achieveArray.parseInt();
-              var achievement = null;
-              for(var i=0; i < achieveCount; ++i)
+              let achievement = null;
+              for(let i=0; i < achieveCount; ++i)
               {
-                var index = i*7;
+                const index = i*7;
                 achievement = new Achievement(achieveArray.slice(index,index+7));
                 p.achievements.push(achievement);
               }
@@ -1268,22 +1268,22 @@ export default class ClientCallbacks {
 
             p.skillHandler = new SkillHandler(self);
 
-            var skillCount = parseInt(data.shift());
-            var skillExps = data.splice(0,skillCount);
+            const skillCount = parseInt(data.shift());
+            const skillExps = data.splice(0,skillCount);
             skillExps.parseInt();
             p.setSkills(skillExps);
             game.skillDialog.page.setSkills(skillExps);
 
 
-            var shortcutCount = parseInt(data.shift());
+            const shortcutCount = parseInt(data.shift());
             if (shortcutCount > 0)
             {
-              var shortcutArray = data.splice(0,(shortcutCount*3));
+              let shortcutArray = data.splice(0,(shortcutCount*3));
               shortcutArray = shortcutArray.parseInt();
-              var shortcuts = [];
-              for(var i=0; i < shortcutCount; ++i)
+              const shortcuts = [];
+              for(let i=0; i < shortcutCount; ++i)
               {
-                var index = i*3;
+                const index = i*3;
                 shortcuts.push(shortcutArray.slice(index,index+3));
               }
               game.shortcuts.installAll(shortcuts);

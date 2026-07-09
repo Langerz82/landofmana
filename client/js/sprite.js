@@ -43,8 +43,8 @@ export default class Sprite {
     createAnimations() {
         this.animations = {};
 
-        for (var name in this.animationData) {
-            var a = this.animationData[name];
+        for (let name in this.animationData) {
+            const a = this.animationData[name];
             if (!a.hasOwnProperty('col')) a.col = 0;
             if (!a.hasOwnProperty('row')) a.row = 0;
             this.animations[name] = new Animation(name, a.length, a.col, a.row, this.width, this.height);
@@ -54,13 +54,13 @@ export default class Sprite {
     }
 
     getAnimationByName(name) {
-        var animation = null;
+        let animation = null;
 
         if (name in this.animations) {
             animation = this.animations[name];
         }
         else {
-            var e = new Error();
+            const e = new Error();
             log.error(e.stack);
             log.error("No animation called " + name);
         }
@@ -68,13 +68,13 @@ export default class Sprite {
     }
 
     setAnimation(name, speed, count, onEndCount) {
-        var self = this;
+        const self = this;
 
         if (this.currentAnimation && this.currentAnimation.name === name) {
             return;
         }
 
-        var a = this.getAnimationByName(name);
+        const a = this.getAnimationByName(name);
 
         if (a) {
             this.currentAnimation = a;

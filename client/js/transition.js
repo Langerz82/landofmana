@@ -18,16 +18,16 @@ export default class Transition {
 
     step() {
         if (this.inProgress) {
-            var inc = this.modValue;
+            const inc = this.modValue;
 
             if (inc === 0) return;
 
             if (this.updateFunction) {
-                var it;
-                var itCount = Math.abs(inc);
+                let it;
+                const itCount = Math.abs(inc);
 
-                var start = 0;
-                var mod = (inc > 0) ? 1 : -1;
+                const start = 0;
+                const mod = (inc > 0) ? 1 : -1;
                 for (it = 0; it < itCount; ++it) {
                     if (!this.inProgress) {
                         this.stop(this.object);

@@ -49,13 +49,13 @@ export default class Character extends EntityMoving {
     }
 
     resetHp() {
-        var max = this.getHpMax();
+        const max = this.getHpMax();
         this.stats.hpMax = max;
         this.stats.hp = max;
     }
 
     resetEp() {
-        var max = this.getEpMax();
+        const max = this.getEpMax();
         this.stats.epMax = max;
         this.stats.ep = max;
     }
@@ -95,7 +95,7 @@ export default class Character extends EntityMoving {
     }
 
     modHp(val) {
-        var prev = this._modHp(val);
+        const prev = this._modHp(val);
 
         if (this.stats.hp == 0) {
             this.die();
@@ -104,25 +104,25 @@ export default class Character extends EntityMoving {
     }
 
     modEp(val) {
-        var prev = this._modEp(val);
+        const prev = this._modEp(val);
         return (typeof game !== 'undefined') ? prev : this.changePoints(0, prev);
     }
 
     _modHp(val) {
-        var hp = this.stats.hp,
+        const hp = this.stats.hp,
             max = this.stats.hpMax;
 
-        var prev = hp;
+        let prev = hp;
         this.stats.hp = Utils.clamp(0, max, hp + val);
         prev -= this.stats.hp;
         return prev;
     }
 
     _modEp(val) {
-        var ep = this.stats.ep,
+        const ep = this.stats.ep,
             max = this.stats.epMax;
 
-        var prev = ep;
+        let prev = ep;
         this.stats.ep = Utils.clamp(0, max, ep + val);
         prev -= this.stats.ep;
         return prev;
@@ -137,7 +137,7 @@ export default class Character extends EntityMoving {
      ******************************************************************************/
 
     hit(orientation) {
-        var self = this;
+        const self = this;
         this.setOrientation(orientation || this.orientation);
         this.fsm = "ATTACK";
         //this.freeze = true;
@@ -173,7 +173,7 @@ export default class Character extends EntityMoving {
     }
 
     hurt() {
-        var self = this;
+        const self = this;
 
         this.stopHurting();
         this.sprite = this.hurtSprite;
@@ -250,7 +250,7 @@ export default class Character extends EntityMoving {
     }
 
     clearAttackerRefs() {
-        var self = this;
+        const self = this;
         this.forEachAttacker(function(c) {
             c.removeAttacker(self);
         });
@@ -308,9 +308,9 @@ export default class Character extends EntityMoving {
     }
 
     followAttack(entity) {
-        var found = false;
+        const found = false;
 
-        var spot = this.getClosestSpot(entity, 1, this.attackRange);
+        const spot = this.getClosestSpot(entity, 1, this.attackRange);
 
         if (spot && spot.x && spot.y)
             this.moveTo_(spot.x, spot.y);
@@ -364,7 +364,7 @@ export default class Character extends EntityMoving {
      * Removes the current attack target.
      */
     removeTarget() {
-        var self = this;
+        const self = this;
 
         if (this.target) {
             if (this.target instanceof Character) {
@@ -396,13 +396,13 @@ export default class Character extends EntityMoving {
     }
 
     canReach(entity) {
-        var ts = G_TILESIZE;
+        const ts = G_TILESIZE;
 
         if (this.attackRange === 1)
             return this.isInReach(entity.x, entity.y, this.orientation);
 
         if (this.attackRange > 1) {
-            var range = ~~(Utils.realDistance([entity.x, entity.y], [this.x, this.y]) / ts);
+            const range = ~~(Utils.realDistance([entity.x, entity.y], [this.x, this.y]) / ts);
             return range <= this.attackRange;
         }
         return false;

@@ -68,7 +68,7 @@ import GamePad from './gamepad.js';
 
 // FIX: 'sprites' was a bare implicit global (assigned in setSpriteJSON, read in loadSprites);
 // confirmed single-file usage via grep, so it's declared here as a module-scoped variable.
-var sprites;
+let sprites;
 
 // FIX (conversion): 'InventoryMode' used to be a bare cross-script global (gametypes.js's
 // top-level `const InventoryMode` was visible to sibling classic <script> tags even without a
@@ -78,7 +78,7 @@ const InventoryMode = Types.InventoryMode;
 
 export default class Game {
       constructor(app) {
-        var self = this;
+        const self = this;
 
       	  this.app = app;
             this.app.config = config;
@@ -290,12 +290,12 @@ export default class Game {
         }
 
         initCursors() {
-            var sprite = this.sprites["cursors"];
-            var target = this.sprites["target"];
+            const sprite = this.sprites["cursors"];
+            const target = this.sprites["target"];
 
             sprite.container = Container.HUD;
             target.container = Container.HUD;
-            var pjsSprite = this.renderer.createSprite(sprite);
+            const pjsSprite = this.renderer.createSprite(sprite);
             sprite.pjsSprite = pjsSprite;
             target.pjsSprite = pjsSprite;
 
@@ -327,8 +327,8 @@ export default class Game {
             this.spritesets[0] = {};
             this.sprites = this.spritesets[0];
 
-            var sprite = null;
-            for (var key in sprites) {
+            let sprite = null;
+            for (let key in sprites) {
               sprite = sprites[key];
               this.loadSprite(sprite);
             }
@@ -382,7 +382,7 @@ export default class Game {
         }
 
         addEntity(entity) {
-            var self = this;
+            const self = this;
 
             this.entities[entity.id] = entity;
             this.updateCameraEntity(entity.id, this.entities[entity.id]);
@@ -394,7 +394,7 @@ export default class Game {
               delete this.npc[entity.id];
 
             if(entity.id in this.entities) {
-                var id = entity.id;
+                const id = entity.id;
                 if (this.player.target === entity) {
                   this.player.clearTarget();
                   this.player.targetIndex = 0;
@@ -422,7 +422,7 @@ export default class Game {
         removeItem(item) {
             if(item) {
                 this.removeFromItems(item);
-                var id = item.id;
+                const id = item.id;
                 this.removeEntity(item);
             } else {
                 log.error("Cannot remove item. Unknown ID : " + item.id);
@@ -463,7 +463,7 @@ export default class Game {
 
 
         registerEntityPosition(entity) {
-            var x = entity.gx,
+            const x = entity.gx,
                 y = entity.gy;
 
             if(entity) {
@@ -479,14 +479,14 @@ export default class Game {
         }
 
         initMusicAreas() {
-            var self = this;
+            const self = this;
             //_.each(this.map.musicAreas, function(area) {
             //    self.audioManager.addArea(area.x, area.y, area.w, area.h, area.id);
             //});
         }
 
         run(server, ps) {
-        	  var self = this;
+        	  const self = this;
 
             this.player = app.user.createPlayer(ps);
 
@@ -532,7 +532,7 @@ export default class Game {
         },*/
 
         gametick() {
-          var self = this;
+          const self = this;
 
           this.processLogic = true;
 
@@ -601,8 +601,8 @@ export default class Game {
         }
 
         getNpcByQuestKind(npcQuestId){
-            for(var id in this.npc){
-                var entity = this.npc[id];
+            for(let id in this.npc){
+                const entity = this.npc[id];
                 if(entity.npcQuestId === npcQuestId){
                     return entity;
                 }
@@ -611,8 +611,8 @@ export default class Game {
         }
 
         getEntityByName(name){
-            for(var id in this.entities){
-                var entity = this.entities[id];
+            for(let id in this.entities){
+                const entity = this.entities[id];
                 if(entity.name.toLowerCase() === name.toLowerCase()){
                     return entity;
                 }
@@ -621,7 +621,7 @@ export default class Game {
         }
 
         loadGameData() {
-            var self = this;
+            const self = this;
             self.loadAudio();
 
             self.initMusicAreas();
@@ -636,7 +636,7 @@ export default class Game {
 
         teleportMaps(mapIndex, x, y, portalId)
         {
-          var self = this;
+          const self = this;
 
         	x = x || -1;
         	y = y || -1;
@@ -663,14 +663,14 @@ export default class Game {
 
         onVersionGame(data) {
           this.versionChecked = true;
-          var version = Number(data[0]);
+          const version = Number(data[0]);
 
-          var local_version = Number(config.build.version);
+          const local_version = Number(config.build.version);
           log.info("config.build.version="+local_version);
           if (version !== local_version)
           {
             $('#container').addClass('error');
-            var errmsg = "Please download the new version of Land Of Mana.<br/>";
+            let errmsg = "Please download the new version of Land Of Mana.<br/>";
 
             if (game.tablet || game.mobile) {
               errmsg += "<br/>For mobile see: <a href=\"" + config.build.updatepage +
@@ -685,14 +685,14 @@ export default class Game {
         }
 
         onWorldReady(data) {
-          var username = data[0];
-          var playername = data[1];
-          var hash = data[2];
-          var protocol = data[3];
-          var host = data[4];
-          var port = data[5];
+          const username = data[0];
+          const playername = data[1];
+          const hash = data[2];
+          const protocol = data[3];
+          const host = data[4];
+          const port = data[5];
 
-          var url = protocol + "://"+ host +":"+ port +"/";
+          const url = protocol + "://"+ host +":"+ port +"/";
 
           // Game Client takes over the processing of Messages.
           game.client = new GameClient();
@@ -756,12 +756,12 @@ export default class Game {
           // START TUTORIAL SHOW CODE.
           if (player.level === 0)
           {
-            var tutName = "["+lang.data["TUTORIAL"]+"]";
-            for (var i = 1; i <= 5; ++i)
+            const tutName = "["+lang.data["TUTORIAL"]+"]";
+            for (let i = 1; i <= 5; ++i)
             {
-              var j = 1;
+              let j = 1;
               setTimeout(function () {
-                var tutData = lang.data["TUTORIAL_"+(j++)];
+                const tutData = lang.data["TUTORIAL_"+(j++)];
                 game.chathandler.addGameNotification(tutName, tutData);
               }, (12500 * i));
             }
@@ -772,18 +772,18 @@ export default class Game {
         }
 
         addPlayerCallbacks(player) {
-          var self = this;
+          const self = this;
 
           self.player = player;
 
           self.player.onStartPathing(function(path) {
-              var i = path.length - 1,
+              const i = path.length - 1,
                   x =  path[i][0],
                   y =  path[i][1];
           });
 
           self.player.onKeyMove(function(sentMove) {
-            var p = self.player;
+            const p = self.player;
             if (!sentMove && !p.freeze)
               checkTeleport(p, p.x, p.y);
 
@@ -807,7 +807,7 @@ export default class Game {
           });
 
           self.player.onMoveStop(function () {
-            var p = self.player;
+            const p = self.player;
             log.info("player.onMoveStop");
             if (p.hasTarget())
               p.lookAtEntity(p.target);
@@ -817,7 +817,7 @@ export default class Game {
           });
 
           self.player.onAbortPathing(function(path, x, y) {
-            var p = self.player;
+            const p = self.player;
             self.client.sendMoveEntity(p, 2);
           });
 
@@ -825,11 +825,11 @@ export default class Game {
           {
             //self.teleportFromTown(p);
 
-            var dest = self.mapContainer.getDoor(p);
+            const dest = self.mapContainer.getDoor(p);
             if(!p.hasTarget() && dest) {
                 // Door Level Requirements.
-                var msg;
-                var notification;
+                let msg;
+                let notification;
                 if (dest.minLevel && self.player.level < dest.minLevel)
                 {
                   msg = "I must be Level "+dest.minLevel+" or more to proceed.";
@@ -858,7 +858,7 @@ export default class Game {
           };
 
           self.player.onStopPathing(function(x, y) {
-              var p = self.player;
+              const p = self.player;
               log.info("onStopPathing");
 
             	if (p.isDead)
@@ -894,31 +894,31 @@ export default class Game {
           });
 
           self.player.onRequestPath(function(x, y) {
-            var p = self.player;
-          	var ignored = [p]; // Always ignore self
-          	var included = [];
+            const p = self.player;
+          	const ignored = [p]; // Always ignore self
+          	const included = [];
 
               if(p.hasTarget() && !p.target.isDead) {
 
                   ignored.push(p.target);
               }
 
-              var path = self.findPath(p, x, y, ignored);
+              const path = self.findPath(p, x, y, ignored);
 
               if (path && path.length > 0)
               {
-                var orientation = p.getOrientationTo([path[1][0],path[1][1]]);
+                const orientation = p.getOrientationTo([path[1][0],path[1][1]]);
                 p.setOrientation(orientation);
                 self.client.sendMovePath(p,
                   path.length,
                   path);
-	                }
+      	                }
               return path;
           });
 
           self.player.onDeath(function() {
               log.info(self.playerId + " is dead");
-              var p = self.player;
+              const p = self.player;
 
               p.skillHandler.clear();
 
@@ -948,7 +948,7 @@ export default class Game {
         }
 
         connected(server) {
-          var self = this;
+          const self = this;
 
           if (this.hasServerPlayer)
           {
@@ -971,10 +971,10 @@ export default class Game {
         }
 
         getMousePosition() {
-            var r = this.renderer;
-            var c = this.camera;
-            var mx = this.mouse.x;
-            var my = this.mouse.y;
+            const r = this.renderer;
+            const c = this.camera;
+            let mx = this.mouse.x;
+            let my = this.mouse.y;
 
             mx = (mx + c.x);
             my = (my + c.y);
@@ -987,16 +987,16 @@ export default class Game {
 
         makePlayerInteractNextTo()
         {
-          var p = this.player;
+          const p = this.player;
 
           if (p.isDying || p.isDead)
             return;
 
-          var fnIsDead = function (entity) {
+          const fnIsDead = function (entity) {
             return entity && (entity.isDying || entity.isDead);
           }
 
-          var fnIsIgnored = function (entity) {
+          const fnIsIgnored = function (entity) {
             if (fnIsDead(entity))
               return true;
             return (entity.type === Types.EntityTypes.NPCSTATIC ||
@@ -1005,9 +1005,9 @@ export default class Game {
                 entity.type === Types.EntityTypes.NODE);
           };
 
-          var processTarget = function () {
-            var pos = p.nextTile();
-            var target = p.target;
+          const processTarget = function () {
+            const pos = p.nextTile();
+            const target = p.target;
             if (fnIsDead(target)) {
               p.clearTarget();
               return false;
@@ -1038,9 +1038,9 @@ export default class Game {
 
           // If the player is next to and facing a Harvest Tile.
           var pos = p.nextTile();
-          var type = p.items.getWeaponType();
+          const type = p.items.getWeaponType();
           if (type !== null) {
-            var gpos = Utils.getGridPosition(pos[0], pos[1]);
+            const gpos = Utils.getGridPosition(pos[0], pos[1]);
             if (this.mapContainer.isHarvestTile(gpos, type)) {
               game.processInput(pos[0], pos[1], true);
               return;
@@ -1088,7 +1088,7 @@ export default class Game {
          * Moves the current player towards a specific item.
          */
         makePlayerGoToItem(item) {
-            var p = this.player;
+            const p = this.player;
             if (!item) return;
             if (!p.isNextTooEntity(item)) {
               p.follow(item);
@@ -1099,12 +1099,12 @@ export default class Game {
         }
 
         makePlayerAttack(entity) {
-          var p = this.player;
+          const p = this.player;
           clearTimeout(p.attackInterval);
           p.attackInterval = null;
-          var skillId = (p.attackSkill) ? p.attackSkill.skillId : -1;
-          var time = this.currentTime;
-          var res = p.makeAttack(entity);
+          const skillId = (p.attackSkill) ? p.attackSkill.skillId : -1;
+          const time = this.currentTime;
+          const res = p.makeAttack(entity);
           if (!res) {
             log.info("CANNOT ATTACK.");
             return false;
@@ -1137,7 +1137,7 @@ export default class Game {
          *
          */
         makeNpcTalk(npc) {
-        	var msg;
+        	let msg;
 
           if (!npc) return;
 
@@ -1207,11 +1207,11 @@ export default class Game {
         }
 
         showDialogue() {
-          var self = this;
-          var p = game.player;
-          var entity = p.dialogueEntity;
+          const self = this;
+          const p = game.player;
+          let entity = p.dialogueEntity;
 
-          var hasFinished = function () {
+          const hasFinished = function () {
             clearTimeout(game.destroyMessageTimeout);
             game.destroyMessage();
             self.npcText.html("");
@@ -1221,9 +1221,9 @@ export default class Game {
             if (!entity)
               return;
 
-            var data = entity.dialogue[entity.dialogueIndex-1];
+            const data = entity.dialogue[entity.dialogueIndex-1];
             if (data && data.length === 3) {
-              var action = data[2];
+              const action = data[2];
               if (action === "QUEST") {
                 game.client.sendQuest(entity.id, parseInt(entity.questId), 1);
               }
@@ -1257,17 +1257,17 @@ export default class Game {
         }
 
         createMessage() {
-          var p = this.player;
-          var entity = p.dialogueEntity;
+          const p = this.player;
+          const entity = p.dialogueEntity;
           if (!entity)
             return;
 
           if (!(entity.dialogueIndex < entity.dialogue.length))
             return;
 
-          var data = entity.dialogue[entity.dialogueIndex];
-          var msgEntity = (data[0] === 0) ? entity : game.player;
-          var msg = data[1];
+          const data = entity.dialogue[entity.dialogueIndex];
+          const msgEntity = (data[0] === 0) ? entity : game.player;
+          const msg = data[1];
           if (!entity || !msg)
             return;
 
@@ -1287,7 +1287,7 @@ export default class Game {
         }
 
         destroyMessage() {
-          var entity = this.player.dialogueEntity;
+          const entity = this.player.dialogueEntity;
           if (!entity)
             return;
 
@@ -1295,8 +1295,8 @@ export default class Game {
             if (!(entity.dialogueIndex < entity.dialogue.length))
               return;
 
-            var data = entity.dialogue[entity.dialogueIndex];
-            var msgEntity = (data[0] === 0) ? entity : game.player;
+            const data = entity.dialogue[entity.dialogueIndex];
+            const msgEntity = (data[0] === 0) ? entity : game.player;
             this.bubbleManager.destroyBubble(msgEntity.id);
           }
 
@@ -1314,8 +1314,8 @@ export default class Game {
                 callback(entity);
             });*/
             cond = cond || function (e) { return true; };
-            for (var id in this.entities) {
-              var entity = this.entities[id];
+            for (let id in this.entities) {
+              const entity = this.entities[id];
               if (cond(entity))
                 callback(entity);
             }
@@ -1326,7 +1326,7 @@ export default class Game {
          * @see forEachEntity
          */
         forEachMob(callback) {
-            var cond = function (e) { return e.type === Types.EntityTypes.MOB; };
+            const cond = function (e) { return e.type === Types.EntityTypes.MOB; };
             this.forEachEntity(callback, cond);
             /*_.each(this.entities, function(entity) {
                 if(entity instanceof Mob) {
@@ -1339,9 +1339,9 @@ export default class Game {
          *
          */
         forEachVisibleTileIndex(callback) {
-            var self = this;
+            const self = this;
       			this.camera.forEachVisibleValidPosition(function(x, y) {
-                var index = self.mapContainer.GridPositionToTileIndex(x, y);
+                const index = self.mapContainer.GridPositionToTileIndex(x, y);
       			    callback(index, x, y);
       			});
         }
@@ -1350,7 +1350,7 @@ export default class Game {
          *
          */
         forEachVisibleTile(callback) {
-            var self = this,
+            const self = this,
                 mc = this.mapContainer,
                 tg = mc.tileGrid;
 
@@ -1382,10 +1382,10 @@ export default class Game {
 
         getEntitiesAround(x, y, ts, unInclude = []) {
           ts = ts || G_TILESIZE;
-          var pos = [[x+ts,y],[x-ts,y],[x,y+ts],[x,y-ts]];
-          var entity = null;
-          var entities = [];
-          for (var p of pos) {
+          const pos = [[x+ts,y],[x-ts,y],[x,y+ts],[x,y-ts]];
+          let entity = null;
+          const entities = [];
+          for (let p of pos) {
             entity = this.getEntityAt(p[0],p[1]);
             if (entity && unInclude.indexOf(entity) === -1)
               entities.push(entity);
@@ -1402,14 +1402,14 @@ export default class Game {
         	    return null;
 
             //log.info("getEntityAt:");
-            var entities = this.camera.entities,
+            const entities = this.camera.entities,
                 len = Object.keys(entities).length;
 
             //log.info("x:"+x+",y:"+y);
             if(len > 0) {
-              var entity = null;
+              let entity = null;
               //var pos = {x:x,y:y};
-              for (var k in entities) {
+              for (let k in entities) {
                   entity = entities[k];
                   if (!entity) continue;
 
@@ -1434,7 +1434,7 @@ export default class Game {
         },*/
 
         getMobAt(x, y) {
-            var entity = this.getEntityAt(x, y);
+            const entity = this.getEntityAt(x, y);
             if(entity && entity instanceof Mob) {
                 return entity;
             }
@@ -1442,7 +1442,7 @@ export default class Game {
         }
 
         getPlayerAt(x, y) {
-            var entity = this.getEntityAt(x, y);
+            const entity = this.getEntityAt(x, y);
             if(entity && (entity instanceof Player) && (entity !== this.player)) {
                 return entity;
             }
@@ -1450,7 +1450,7 @@ export default class Game {
         }
 
         getNpcAt(x, y) {
-            var entity = this.getEntityAt(x, y);
+            const entity = this.getEntityAt(x, y);
             if(entity && (entity instanceof NpcMove || entity instanceof NpcStatic)) {
                 return entity;
             }
@@ -1458,7 +1458,7 @@ export default class Game {
         }
 
         getChestAt(x, y) {
-            var entity = this.getEntityAt(x, y);
+            const entity = this.getEntityAt(x, y);
             if(entity && (entity instanceof Chest)) {
                 return entity;
             }
@@ -1469,7 +1469,7 @@ export default class Game {
             if(this.mapContainer.isOutOfBounds(x, y) || !this.itemGrid || !this.itemGrid[y]) {
                 return null;
             }
-            var items = this.itemGrid[y][x],
+            let items = this.itemGrid[y][x],
                 item = null;
 
             if(_.size(items) > 0) {
@@ -1493,7 +1493,7 @@ export default class Game {
             if(this.mapContainer.isOutOfBounds(x, y) || !this.itemGrid || !this.itemGrid[y]) {
                 return null;
             }
-            var items = this.itemGrid[y][x];
+            const items = this.itemGrid[y][x];
 
             return items;
         }
@@ -1530,10 +1530,10 @@ export default class Game {
            * Allows exact start/end positions. Ensures path is axis-aligned (no diagonals).
            */
         findPath(character, x, y, ignoreList, includeList) {
-            var ts = G_TILESIZE;
-            var self = this;
+            const ts = G_TILESIZE;
+            const self = this;
 
-            var mc = this.mapContainer;
+            const mc = this.mapContainer;
             if (!mc || !mc.gridReady || this.mapStatus < 2)
               return null;
 
@@ -1545,16 +1545,16 @@ export default class Game {
                 return null;
             }
 
-            var grid = this.mapContainer.maps[0].collision;
+            const grid = this.mapContainer.maps[0].collision;
             if (!grid) {
               console.error("game.js findPath: grid not ready for pathing.")
               return null;
             }
 
             // Exact world positions
-            var start = [character.x, character.y];
-            var endpos = Utils.fixGridPosition(x,y);
-            var end = [endpos.x, endpos.y];
+            const start = [character.x, character.y];
+            const endpos = Utils.fixGridPosition(x,y);
+            const end = [endpos.x, endpos.y];
 
             // Check if start or end is colliding
             if (mc.isColliding(character.x, character.y)) {
@@ -1566,8 +1566,8 @@ export default class Game {
               return null;
             }
 
-            var pS = [start[0]/ts, start[1]/ts];
-            var pE = [end[0]/ts, end[1]/ts];
+            const pS = [start[0]/ts, start[1]/ts];
+            const pE = [end[0]/ts, end[1]/ts];
 
             log.info("game.findPath - pS:", pS, "pE:", pE);
 
@@ -1577,8 +1577,8 @@ export default class Game {
             }
 
             // Bounds check
-            var lx = grid[0].length;
-            var ly = grid.length;
+            const lx = grid[0].length;
+            const ly = grid.length;
             if (pS[0] < 0 || pS[0] >= lx || pS[1] < 0 || pS[1] >= ly ||
                 pE[0] < 0 || pE[0] >= lx || pE[1] < 0 || pE[1] >= ly) {
               log.error("game.findPath - path coordinates outside of dimensions.");
@@ -1586,8 +1586,8 @@ export default class Game {
             }
 
             // Grid coords for AStar (integer)
-            var fpS = [Math.floor(pS[0]), Math.floor(pS[1])];
-            var fpE = [Math.floor(pE[0]), Math.floor(pE[1])];
+            const fpS = [Math.floor(pS[0]), Math.floor(pS[1])];
+            const fpE = [Math.floor(pE[0]), Math.floor(pE[1])];
 
             // Apply ignore/include lists if provided (support for entities)
             if (ignoreList || includeList) {
@@ -1596,20 +1596,20 @@ export default class Game {
               this.pathfinder.applyIncludeList_(grid, true);
             }
 
-            var gridExtra = Math.max(Math.abs(fpS[0]-fpE[0]), Math.abs(fpS[1]-fpE[1]));
+            let gridExtra = Math.max(Math.abs(fpS[0]-fpE[0]), Math.abs(fpS[1]-fpE[1]));
             gridExtra = Math.max(3,gridExtra);
 
-            var shortGrid = this.pathfinder.getShortGrid(grid, pS, pE, gridExtra);
-            var sgrid = shortGrid.crop;
-            var spS = shortGrid.substart;
-            var spE = shortGrid.subend;
-            var fspS = [Math.floor(spS[0]),Math.floor(spS[1])];
-            var fspE = [Math.floor(spE[0]),Math.floor(spE[1])];
-            var path = null;
-            var longPath = false;
+            const shortGrid = this.pathfinder.getShortGrid(grid, pS, pE, gridExtra);
+            const sgrid = shortGrid.crop;
+            const spS = shortGrid.substart;
+            const spE = shortGrid.subend;
+            const fspS = [Math.floor(spS[0]),Math.floor(spS[1])];
+            const fspE = [Math.floor(spE[0]),Math.floor(spE[1])];
+            let path = null;
+            let longPath = false;
 
             // FIX: missing var - was an implicit global
-            var gridPath = this.pathfinder.findDirectPath(sgrid, fspS, fspE);
+            let gridPath = this.pathfinder.findDirectPath(sgrid, fspS, fspE);
 
             if (!gridPath) {
               log.info("game.findPath - using short path finder.");
@@ -1645,7 +1645,7 @@ export default class Game {
             }
 
             // Convert grid path to world coordinates (tile centers initially)
-            var realpath = gridPath.map(node => [
+            let realpath = gridPath.map(node => [
               (shortGrid.minX + node[0] + 0.5) * ts,
               (shortGrid.minY + node[1] + 0.5) * ts
             ]);
@@ -1675,8 +1675,8 @@ export default class Game {
          *
          */
         movecursor() {
-            var pos = this.getMousePosition();
-            var x = pos.x, y = pos.y;
+            const pos = this.getMousePosition();
+            const x = pos.x, y = pos.y;
 
             this.cursorVisible = true;
 
@@ -1694,7 +1694,7 @@ export default class Game {
                 this.hoveringEntity = this.getEntityAt(x, y);
 
                 if((this.hoveringMob || this.hoveringPlayer || this.hoveringNpc || this.hoveringChest || this.hoveringOtherPlayer || this.hoveringItem) && !this.player.hasTarget()) {
-                    var entity = this.getEntityAt(x, y);
+                    const entity = this.getEntityAt(x, y);
                     if (!entity) return;
 
                     this.player.showTarget(entity);
@@ -1710,7 +1710,7 @@ export default class Game {
           skipOverlap = skipOverlap || false;
           skipGridCheck = skipGridCheck || false;
 
-          var o = char.orientation;
+          const o = char.orientation;
           if (o === Types.Orientations.NONE)
             return false;
 
@@ -1722,8 +1722,8 @@ export default class Game {
           }
 
           if (char instanceof Player) {
-            var block = char.holdingBlock;
-            var tile = char.nextTile(x, y);
+            const block = char.holdingBlock;
+            const tile = char.nextTile(x, y);
             if (block && this.mapContainer.isColliding(tile[0], tile[1]))
               return false;
           }
@@ -1735,11 +1735,11 @@ export default class Game {
 
           // This chunk of code makes sure character move into the grid.
           if (!skipGridCheck) {
-            var midTile = (G_TILESIZE >> 1);
-            var mx = (x % G_TILESIZE);
-            var my = (y % G_TILESIZE);
+            const midTile = (G_TILESIZE >> 1);
+            const mx = (x % G_TILESIZE);
+            const my = (y % G_TILESIZE);
             //var o = char.orientation;
-            var check = (o === 1 || o === 2) ?
+            const check = (o === 1 || o === 2) ?
               (my === midTile) : (mx === midTile);
             //log.info("skipGridCheck, mx:"+mx+", my:"+my);
             if (char.stopKeyMove && check)
@@ -1753,10 +1753,10 @@ export default class Game {
         }
 
         isOverlapping(entity, x, y) {
-            var entities = this.camera.entities;
+            const entities = this.camera.entities;
 
-            for (var k in entities) {
-              var entity2 = entities[k];
+            for (let k in entities) {
+              const entity2 = entities[k];
               //if (entity2 instanceof Item)
                 //continue;
               if (entity2 instanceof Player)
@@ -1776,16 +1776,16 @@ export default class Game {
         }
 
         playerTargetClosestEntity(inc) {
-          var p = this.player;
+          const p = this.player;
           if (!p.hasOwnProperty("targetIndex"))
             p.targetIndex = 0;
 
-          var excludeTypes = [Types.EntityTypes.NODE, Types.EntityTypes.PLAYER];
+          let excludeTypes = [Types.EntityTypes.NODE, Types.EntityTypes.PLAYER];
           if (game.mapContainer.mapIndex !== 0)
           {
             excludeTypes = excludeTypes.concat([Types.EntityTypes.NPCMOVE, Types.EntityTypes.NPCSTATIC]);
           }
-          var entity = this.entityTargetClosestEntity(p, inc, p.targetIndex, excludeTypes);
+          const entity = this.entityTargetClosestEntity(p, inc, p.targetIndex, excludeTypes);
           if (!entity)
             return false;
 
@@ -1801,10 +1801,10 @@ export default class Game {
           index = index || 0;
 
           //var entities = Utils.objectToArray(this.camera.entities);
-          var entities = this.camera.forEachInScreenArray(entity);
+          let entities = this.camera.forEachInScreenArray(entity);
           entities = entities.filter(entity => !(excludeTypes.includes(entity.type) || entity.isDying || entity.isDead));
 
-          for (var entity2 of entities) {
+          for (let entity2 of entities) {
             entity2.playerDistance = Utils.realDistanceXY(entity,entity2);
           }
 
@@ -1826,8 +1826,8 @@ export default class Game {
 
         click() {
             //console.error("game.click");
-            var pos = this.getMousePosition();
-            var p = game.player;
+            const pos = this.getMousePosition();
+            const p = game.player;
 
             if (this.joystick && this.joystick.isActive())
               return;
@@ -1843,12 +1843,12 @@ export default class Game {
             this.clickMove = true;
             //this.playerPopupMenu.close();
 
-            for (var dialog of this.dialogs) {
+            for (let dialog of this.dialogs) {
               if (dialog.visible)
                 dialog.hide();
             }
 
-            var entity = this.getEntityAt(pos.x, pos.y);
+            const entity = this.getEntityAt(pos.x, pos.y);
             if (p.setTarget(entity))
               return;
 
@@ -1865,8 +1865,8 @@ export default class Game {
          */
          processInput(px, py) {
            //var pos = {};
-           var ts = this.tilesize;
-           var p = this.player;
+           const ts = this.tilesize;
+           const p = this.player;
 
           //log.info("processInput - x:"+pos.x+",y:"+pos.y);
 
@@ -1878,11 +1878,11 @@ export default class Game {
 
         	///log.info("x="+pos.x+",y="+pos.y);
 
-          var entity = p.hasTarget() ?
+          let entity = p.hasTarget() ?
             p.target : this.getEntityAt(px, py);
 
           if (!entity && this.renderer.mobile) {
-            var entities = game.camera.getEntitiesAround(px, py, 16, [game.player]);
+            const entities = game.camera.getEntitiesAround(px, py, 16, [game.player]);
             if (entities && entities.length > 0)
             {
               entity = entities[0];
@@ -1897,9 +1897,9 @@ export default class Game {
           {
       	    //this.playerPopupMenu.close();
             //this.player.clearTarget();
-            var type = p.items.getWeaponType();
-            var gpos = Utils.getGridPosition(px, py);
-            var colliding = this.mapContainer.isColliding(px,py);
+            const type = p.items.getWeaponType();
+            const gpos = Utils.getGridPosition(px, py);
+            const colliding = this.mapContainer.isColliding(px,py);
             if (colliding && this.mapContainer.isHarvestTile(gpos, type) && p.isNextTooPosition(px, py)) {
                 // Start hit animation and send to Server harvest packet.
                 this.makePlayerHarvest(px, py);
@@ -1913,7 +1913,7 @@ export default class Game {
 
         playerInteract(entity)
         {
-          var p = this.player;
+          const p = this.player;
           if (!entity)
             return;
 
@@ -1929,7 +1929,7 @@ export default class Game {
           if (entity instanceof Block && p.isNextTooEntity(entity) &&
             p.isFacingEntity(entity))
           {
-            var block = entity;
+            const block = entity;
             if (block === p.holdingBlock) {
               block.place(p);
               p.holdingBlock = null;
@@ -1972,7 +1972,7 @@ export default class Game {
         }
 
         makePlayerHarvestEntity(entity) {
-          var p = this.player;
+          const p = this.player;
 
           if (!p.isNextTooEntity(entity)) {
             p.follow(entity);
@@ -1991,20 +1991,20 @@ export default class Game {
         }
 
         makePlayerHarvest(px, py) {
-          var p = this.player;
+          const p = this.player;
 
           if (!p.items.hasHarvestWeapon()) {
             game.showNotification(["CHAT", "HARVEST_NO_WEAPON"]);
             return;
           }
 
-          var type = p.items.getWeaponType();
+          const type = p.items.getWeaponType();
           if (type === null) {
             game.showNotification(["CHAT", "HARVEST_WRONG_TYPE", type]);
             return;
           }
 
-          var gpos = Utils.getGridPosition(px, py);
+          const gpos = Utils.getGridPosition(px, py);
           if (!this.mapContainer.isHarvestTile(gpos, type)) {
             game.showNotification(["CHAT", "HARVEST_WRONG_TYPE", type]);
             return;
@@ -2023,11 +2023,11 @@ export default class Game {
           //var ts = game.tilesize;
 
           //log.info("so:"+so[0]+","+so[1]);
-          var p = this.player;
+          const p = this.player;
           px = (Math.floor(px/G_TILESIZE)+0.5)*G_TILESIZE;
           py = (Math.floor(py/G_TILESIZE)+0.5)*G_TILESIZE;
 
-          var colliding = this.mapContainer.isCollidingPoint(px,py);
+          const colliding = this.mapContainer.isCollidingPoint(px,py);
           if (colliding)
           {
             /*if (this.renderer.mobile) {
@@ -2060,7 +2060,7 @@ export default class Game {
         updateCameraEntity(id, entity)
         {
           //log.info(id+ " updateCameraEntity");
-          var self = this;
+          const self = this;
           if (!self.camera) return;
 
           if (!entity || (entity instanceof Character && entity.isDead))
@@ -2173,7 +2173,7 @@ export default class Game {
         }
 
         updateBars() {
-            var p = this.player;
+            const p = this.player;
             if(p && this.playerhp_callback) {
                 this.playerhp_callback(p.stats.hp, p.stats.hpMax);
             }
@@ -2181,17 +2181,17 @@ export default class Game {
 
         updateExpBar(){
             if(this.player && this.playerexp_callback){
-                var exp = this.player.stats.exp.base;
-                var level = Types.getLevel(exp);
+                const exp = this.player.stats.exp.base;
+                const level = Types.getLevel(exp);
                 this.playerexp_callback(level, exp);
             }
         }
 
         showNotification(data) {
-            var group = data.shift();
-            var text = data.shift();
+            const group = data.shift();
+            const text = data.shift();
 
-            var message = lang.data[text];
+            let message = lang.data[text];
             if (message && data.length > 0)
               message = lang.data[text].format(data);
 
@@ -2228,10 +2228,10 @@ export default class Game {
         }
 
         removeObsoleteEntities() {
-            var entities = game.entities;
-            var p = game.player;
-            var entity = null;
-            for (var id in entities) {
+            const entities = game.entities;
+            const p = game.player;
+            let entity = null;
+            for (let id in entities) {
               entity = entities[id];
               if (entity)
                 continue;
@@ -2239,12 +2239,12 @@ export default class Game {
                 this.obsoleteEntities.push(entity);
             }
 
-            var nb = _.size(this.obsoleteEntities),
+            const nb = _.size(this.obsoleteEntities),
                 self = this,
                 delist = [];
 
             if(nb > 0) {
-            	for (var i=0; i < self.removeObsoleteEntitiesChunk; ++i)
+            	for (let i=0; i < self.removeObsoleteEntitiesChunk; ++i)
             	{
             		if (i === nb)
             			break;

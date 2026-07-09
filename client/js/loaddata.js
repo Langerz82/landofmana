@@ -1,13 +1,13 @@
 // Converted from AMD (define) + Class.extend to a native ES6 module/class.
 export default class LoadData {
     constructor() {
-        var self = this;
+        const self = this;
 
         this.loaded = false;
         this.tilesets = [];
 
         // Manifest Example
-        var manifest = {
+        const manifest = {
             bundles: [
                 {
                     name: 'tilesets',
@@ -53,7 +53,7 @@ export default class LoadData {
             ]
         };
 
-        var loader = new PIXI.Loader();
+        const loader = new PIXI.Loader();
 
         //const init = async function () { await Asset.init({ manifest }); };
 

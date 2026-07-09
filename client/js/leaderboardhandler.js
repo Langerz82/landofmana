@@ -6,7 +6,7 @@ export default class LeaderboardHandler {
     	this.game = game;
     	this.toggle = false;
 
-    	var self = this;
+    	const self = this;
     	$('#leaderboardclose').click(function(e){
                 self.show();
     	});
@@ -25,12 +25,12 @@ export default class LeaderboardHandler {
         }
     }
     display() {
-    	var self = this;
-    	var leaderJSON;
-    	var recordsPerPage = 10;
+    	const self = this;
+    	let leaderJSON;
+    	const recordsPerPage = 10;
 
-	  var callback = function () {
-		var leaders = [];
+	  const callback = function () {
+		const leaders = [];
 
 
 		switch($('#lbselect').val())
@@ -49,7 +49,7 @@ export default class LeaderboardHandler {
 			break;
 		    case 'pkd':
 			$.each( leaderJSON, function( key, value ) {
-				var pkd = (value.pd>0) ? Number(value.pk / value.pd).toFixed(2):0;
+				const pkd = (value.pd>0) ? Number(value.pk / value.pd).toFixed(2):0;
 				if (pkd > 0)
 					leaders.push({"key": key, "value": pkd});
 			});
@@ -75,7 +75,7 @@ export default class LeaderboardHandler {
 		    case 'tkd':
 			$.each( leaderJSON, function( key, value ) {
 
-				var tkd = (value.td>0) ? Number(value.tk / value.td).toFixed(2):0;
+				const tkd = (value.td>0) ? Number(value.tk / value.td).toFixed(2):0;
 				if (tkd > 0)
 					leaders.push({"key": key, "value": tkd});
 			});
@@ -85,11 +85,11 @@ export default class LeaderboardHandler {
 
 		leaders.sort(function (a,b) { return b.value-a.value });
 
-		var playerIndex = -1;
-		var leadersLength = leaders.length;
+		let playerIndex = -1;
+		const leadersLength = leaders.length;
 		for (var i=0; i < leadersLength; ++i)
 		{
-			var leader = leaders[i];
+			const leader = leaders[i];
 			if (self.game.player.name === leader.key)
 			{
 				playerIndex = i;
@@ -97,10 +97,10 @@ export default class LeaderboardHandler {
 			}
 		}
 
-		var recStart;
-		var recEnd;
+		let recStart;
+		let recEnd;
 
-		var pageIndex;
+		let pageIndex;
 		if (parseInt($('#lbindex').val()) > 0)
 			pageIndex = parseInt($('#lbindex').val());
 		else if (playerIndex >= 0)
@@ -120,10 +120,10 @@ export default class LeaderboardHandler {
 			recEnd = Math.min(leaders.length,recStart+recordsPerPage);
 		}
 
-		var lbdata = "<table><tr><th>Rank</th><th>Name</th><th>Score</th></tr>";
+		let lbdata = "<table><tr><th>Rank</th><th>Name</th><th>Score</th></tr>";
 		for (var i=recStart; i < recEnd; ++i)
 		{
-			var leader = leaders[i];
+			const leader = leaders[i];
 			if (i === playerIndex)
 				lbdata += "<tr class=\"lbplayer\"><td>"+(i+1)+"</td><td>"+Utils.escapeHtml(leader.key)+"</td><td>"+leader.value+"</td></tr>"; // FIX: leader.key (player name) is untrusted; escape before inserting as HTML to prevent XSS
 			else
@@ -133,9 +133,9 @@ export default class LeaderboardHandler {
 		$('#lbdata').html(lbdata);
 
 
-		var pagesCount = Math.ceil(leadersLength / recordsPerPage);
+		const pagesCount = Math.ceil(leadersLength / recordsPerPage);
 		//alert(leadersLength + " " + recordsPerPage + " " + pagesCount);
-		var pageData = ""; // FIX: was uninitialized, producing literal "undefined<option...>" on first concat
+		let pageData = ""; // FIX: was uninitialized, producing literal "undefined<option...>" on first concat
 		for (var i = 1; i <= pagesCount; ++i)
 		{
 			if (pageIndex === i)

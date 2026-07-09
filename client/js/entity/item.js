@@ -15,7 +15,7 @@ export function ItemRoom(slot, itemKind, itemNumber, itemDurability, itemDurabil
     this.itemExperience = itemExperience;
 }
 ItemRoom.toArray = function() {
-    var cols = [parseInt(this.slot),
+    const cols = [parseInt(this.slot),
         this.itemKind,
         this.itemNumber,
         this.itemDurability,
@@ -53,12 +53,12 @@ export default class Item extends Entity {
     }
 
     getInfoMsgEx(item) {
-        var msg = '';
+        let msg = '';
         if (ItemTypes.isEquipment(item.itemKind)) {
             msg = ItemTypes.getName(item.itemKind) + ": Lv " + ItemTypes.getLevelByKind(item.itemKind) + (item.itemNumber ? "+" + item.itemNumber + " " : " ") + (item.itemDurability / 10) + "/" + (item.itemDurabilityMax / 10);
             return msg;
         }
-        var name = ItemTypes.getName(item.itemKind);
+        const name = ItemTypes.getName(item.itemKind);
         return (name) ? name : '';
     }
 

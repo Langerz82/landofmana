@@ -15,7 +15,7 @@ export default class QuestHandler {
       this.hideDelay = 5000; //How long the notification shows for.
       this.showlog = false;
 
-      var self = this;
+      const self = this;
       this.closeButton = $('#questCloseButton');
       this.closeButton.click(function(event) {
         self.toggleShowLog();
@@ -44,37 +44,37 @@ export default class QuestHandler {
 
     questReloadLog() {
       this.quests = game.player.quests;
-      var self = this;
+      const self = this;
       $("#questLogInfo tbody").find("tr:gt(0)").remove();
 
-      var questIds = Object.keys(this.quests);
-      for (var i = 0; i < questIds.length; ++i) {
-        var quest = this.quests[questIds[i]];
+      const questIds = Object.keys(this.quests);
+      for (let i = 0; i < questIds.length; ++i) {
+        const quest = this.quests[questIds[i]];
         if (quest.status === 2) {
           $('#questLogInfo .qd'+quest.id).remove();
           continue;
         }
 
-        var progress = (quest.count + " / " + quest.object.count);
+        let progress = (quest.count + " / " + quest.object.count);
         if (quest.type==QuestType.GETITEMKIND)
         {
           progress = (quest.count + " / " + quest.object2.count);
         }
 
         var spriteName;
-        var itemData;
-        var idName;
+        let itemData;
+        let idName;
         if (quest.type==QuestType.GETITEMKIND)
         {
-          var kind = quest.object2.kind;
+          const kind = quest.object2.kind;
           itemData = ItemLoot[kind];
-          var spriteName = itemData.sprite;
+          let spriteName = itemData.sprite;
     			spriteName = game.sprites["itemloot"].file;
           idName = itemData.name.toLowerCase();
         }
         if (quest.type==QuestType.KILLMOBKIND)
         {
-          var mobData = MobData.Kinds[quest.object.kind];
+          const mobData = MobData.Kinds[quest.object.kind];
           spriteName = mobData.spriteName;
           idName = spriteName.toLowerCase();
         }
@@ -84,8 +84,8 @@ export default class QuestHandler {
           idName = spriteName.toLowerCase()+"_node"+quest.data1;
         }
 
-        var sprite = this.game.spritesets[0][spriteName];
-        var sprite_content = "<div class=\"img quest-img-%idName%\"></div>"
+        const sprite = this.game.spritesets[0][spriteName];
+        let sprite_content = "<div class=\"img quest-img-%idName%\"></div>"
         if (quest.type==QuestType.USENODE)
         {
           sprite_content = "<div class=\"img quest-img-%idName%\" style=\"background-image: url('"+sprite.filepath+"')\"></div>"
@@ -117,21 +117,21 @@ export default class QuestHandler {
             'height': "32px"});
         }
         if (quest.type==QuestType.KILLMOBKIND) {
-          var x = ((sprite.animationData['idle_down'].length - 1) * sprite.width)*2+sprite.width/2;
-          var y = ((sprite.animationData['idle_down'].row) * sprite.height)*2+sprite.height/2;
+          const x = ((sprite.animationData['idle_down'].length - 1) * sprite.width)*2+sprite.width/2;
+          const y = ((sprite.animationData['idle_down'].row) * sprite.height)*2+sprite.height/2;
 
-          var offset = '-' + x + 'px -' + y + 'px';
+          const offset = '-' + x + 'px -' + y + 'px';
           $('.quest-img-' + idName).css({
             "background-position": offset,
             "width": (sprite.width)+"px",
             "height": (sprite.height)+"px"});
         }
         if (quest.type==QuestType.USENODE) {
-          var animName = "node"+quest.data1;
-          var x = ((sprite.animationData[animName].length - 1) * sprite.width)*2+sprite.width/2;
-          var y = ((sprite.animationData[animName].row) * sprite.height)*2+sprite.height/2;
+          const animName = "node"+quest.data1;
+          const x = ((sprite.animationData[animName].length - 1) * sprite.width)*2+sprite.width/2;
+          const y = ((sprite.animationData[animName].row) * sprite.height)*2+sprite.height/2;
 
-          var offset = '-' + x + 'px -' + y + 'px';
+          const offset = '-' + x + 'px -' + y + 'px';
           $('.quest-img-' + idName).css({
             "background-position": offset,
             "width": (sprite.width)+"px",
@@ -153,8 +153,8 @@ export default class QuestHandler {
 
     handleQuest(quest) {
       this.quests = this.game.player.quests;
-      var type = quest.status;
-      var htmlStr = '';
+      const type = quest.status;
+      let htmlStr = '';
 
       if (type === 0) {
         htmlStr = '<p><h2>Quest Found</h2></p><p>' + quest.summary + '</p>';

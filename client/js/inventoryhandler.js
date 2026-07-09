@@ -6,7 +6,7 @@ import ItemLoot from './data/itemlootdata.js';
 
 export default class InventoryHandler {
         constructor(dialog) {
-            var self = this;
+            const self = this;
             this.rooms = [];
             this.maxNumber = 50;
             this.scale = 3;
@@ -25,9 +25,9 @@ export default class InventoryHandler {
         }
 
         setInventory(itemArray) {
-          for (var item of itemArray)
+          for (let item of itemArray)
           {
-            var i = item.slot;
+            const i = item.slot;
             if (item.itemKind === -1)
             {
               this.rooms[i] = null;
@@ -36,7 +36,7 @@ export default class InventoryHandler {
             }
 
             this.rooms[i] = item;
-            var kind = item.itemKind;
+            const kind = item.itemKind;
             if (kind >= 1000 && kind < 2000)
               item.name = ItemLoot[kind - 1000].name;
             else
@@ -49,16 +49,16 @@ export default class InventoryHandler {
         }
 
         getItemInventorySlotByKind(kind) {
-          for (var i = 0; i < this.maxNumber; i++) { // FIX: missing var, was leaking an implicit global
-            var item = this.rooms[i];
+          for (let i = 0; i < this.maxNumber; i++) { // FIX: missing var, was leaking an implicit global
+            const item = this.rooms[i];
             if (item && kind === item.itemKind)
               return i;
           }
         }
 
         isInventoryFull() {
-          for (var i = 0; i < this.maxNumber; ++i) {
-            var item = this.rooms[i];
+          for (let i = 0; i < this.maxNumber; ++i) {
+            const item = this.rooms[i];
             if (item === null) {
               return false;
             }
@@ -67,8 +67,8 @@ export default class InventoryHandler {
         }
 
         hasItem(kind, count) {
-          for (var i = 0; i < this.maxNumber; i++) { // FIX: missing var, was leaking an implicit global
-            var item = this.rooms[i];
+          for (let i = 0; i < this.maxNumber; i++) { // FIX: missing var, was leaking an implicit global
+            const item = this.rooms[i];
             if (item && kind === item.itemKind && item.itemNumber >= count) {
               return true;
             }
@@ -77,8 +77,8 @@ export default class InventoryHandler {
         }
 
         getItemCount(kind) {
-          for (var i = 0; i < this.maxNumber; i++) { // FIX: missing var, was leaking an implicit global
-            var item = this.rooms[i];
+          for (let i = 0; i < this.maxNumber; i++) { // FIX: missing var, was leaking an implicit global
+            const item = this.rooms[i];
             if (item && kind === item.itemKind) {
               return item.itemNumber;
             }
@@ -87,9 +87,9 @@ export default class InventoryHandler {
         }
 
         getItemTotalCount(kind) {
-          var total = 0;
-          for (var i = 0; i < this.maxNumber; i++) { // FIX: missing var, was leaking an implicit global
-            var item = this.rooms[i];
+          let total = 0;
+          for (let i = 0; i < this.maxNumber; i++) { // FIX: missing var, was leaking an implicit global
+            const item = this.rooms[i];
             if (item && kind === item.itemKind) {
               total += item.itemNumber;
             }
@@ -98,8 +98,8 @@ export default class InventoryHandler {
         }
 
         getItemByKind(kind) {
-          for (var i = 0; i < this.maxNumber; i++) { // FIX: missing var, was leaking an implicit global
-            var item = this.rooms[i];
+          for (let i = 0; i < this.maxNumber; i++) { // FIX: missing var, was leaking an implicit global
+            const item = this.rooms[i];
             if (item && kind === item.itemKind) {
               item.slot = i;
               return item;
@@ -109,8 +109,8 @@ export default class InventoryHandler {
         }
 
         hasItems(itemKind, itemCount){
-            var a = 0;
-            for(var item of this.rooms){
+            let a = 0;
+            for(let item of this.rooms){
                 if(item && item.itemKind === itemKind){
                 	 a += item.itemNumber;
                 	 if (a >= itemCount)
@@ -121,9 +121,9 @@ export default class InventoryHandler {
         }
 
         decInventory(realslot) {
-          var self = this;
-          var item = this.rooms[realslot];
-          var count = item.itemNumber;
+          const self = this;
+          const item = this.rooms[realslot];
+          let count = item.itemNumber;
           if (--count <= 0) {
             this.rooms[realslot] = null;
           } else {
@@ -135,16 +135,16 @@ export default class InventoryHandler {
             if (!DragItem)
               return;
 
-            var item2 = this.dialog.getItem(type, slot);
-            var item = this.dialog.getItem(DragItem.type, DragItem.slot);
+            const item2 = this.dialog.getItem(type, slot);
+            const item = this.dialog.getItem(DragItem.type, DragItem.slot);
             if (!item) {
               return;
             }
             DragItem.type2 = type;
             DragItem.slot2 = slot;
 
-            var kind = item.itemKind;
-            var count = item.itemNumber;
+            const kind = item.itemKind;
+            const count = item.itemNumber;
             if ( (this.isStackitem(item) && !item2) ||
                  (this.isStackitem(item,true) && item2 && this.isStackitem(item2, true)))
             {
@@ -158,13 +158,13 @@ export default class InventoryHandler {
         }
 
         dropItem(itemSlot) {
-            var pos = game.getMouseGridPosition();
-            var item = this.rooms[itemSlot];
+            const pos = game.getMouseGridPosition();
+            const item = this.rooms[itemSlot];
             if (!item)
               return;
 
-            var kind = item.itemKind;
-            var count = item.itemNumber;
+            const kind = item.itemKind;
+            const count = item.itemNumber;
             game.player.droppedX = pos.x;
             game.player.droppedY = pos.y;
             if(this.isStackitem(item))
@@ -183,8 +183,8 @@ export default class InventoryHandler {
         }
 
         useItem(type, item) {
-          var player = game.player;
-          var kind = item.itemKind;
+          const player = game.player;
+          const kind = item.itemKind;
           if (ItemTypes.isConsumableItem(kind)) {
             if(kind && this.dialog.coolTimeCallback === null
                && (ItemTypes.isHealingItem(kind) && player.stats.hp < player.stats.hpMax
@@ -216,7 +216,7 @@ export default class InventoryHandler {
           }
 
           if (!start && obj !== null) {
-            var action = obj.action || 1;
+            const action = obj.action || 1;
             //slot = (slot >= 0) ? this.dialog.getRealSlot(slot) : slot;
             //obj.slot = (obj.type === 0) ? this.dialog.getRealSlot(obj.slot) : obj.slot;
             game.client.sendItemSlot([action, obj.type, obj.slot, obj.item.itemNumber, type, slot]);
@@ -226,7 +226,7 @@ export default class InventoryHandler {
         }
 
         sendSplitItem(splitItem, count) {
-          var item = splitItem.item;
+          let item = splitItem.item;
           if(count > item.itemNumber)
             count = item.itemNumber;
           item.itemNumber = count;
@@ -241,7 +241,7 @@ export default class InventoryHandler {
         }
 
         sendDropItem(dropItem, count) {
-          var item = dropItem.item;
+          let item = dropItem.item;
           if (count <= 0)
             return;
           if(count > item.itemNumber)

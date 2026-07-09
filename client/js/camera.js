@@ -23,12 +23,12 @@ export default class Camera {
     }
 
     rescale(gridW, gridH) {
-        var gs = this.renderer.gameScale;
-        var w = this.renderer.innerWidth;
-        var h = this.renderer.innerHeight;
+        const gs = this.renderer.gameScale;
+        const w = this.renderer.innerWidth;
+        const h = this.renderer.innerHeight;
         log.debug("camera: w=" + w + ",h=" + h);
-        var ts = G_TILESIZE;
-        var tsgs = (ts * gs);
+        const ts = G_TILESIZE;
+        const tsgs = (ts * gs);
         this.gridW = Math.ceil(w / tsgs);
         this.gridH = Math.ceil(h / tsgs);
         this.gridW += this.gridW % 2 ? 1 : 0;
@@ -47,8 +47,8 @@ export default class Camera {
 
         this.screenX = ~~(this.screenW / gs);
         this.screenY = ~~(this.screenH / gs);
-        var tScreenW = this.gridWE * tsgs;
-        var tScreenH = this.gridHE * tsgs;
+        const tScreenW = this.gridWE * tsgs;
+        const tScreenH = this.gridHE * tsgs;
 
         this.wOffX = ~~((tScreenW - this.screenW) / (2 * gs));
         this.wOffY = ~~((tScreenH - this.screenH) / (2 * gs));
@@ -60,7 +60,7 @@ export default class Camera {
         log.debug("---------");
         log.debug("W:" + this.gridW + " H:" + this.gridH);
 
-        var mc = game.mapContainer;
+        const mc = game.mapContainer;
         if (mc) {
             mc._initGrids();
             mc.moveGrid(true);
@@ -68,18 +68,18 @@ export default class Camera {
     }
 
     setRealCoords() {
-        var mc = game.mapContainer;
-        var fe = this.focusEntity;
+        const mc = game.mapContainer;
+        const fe = this.focusEntity;
 
-        var hgw = ~~(this.screenX / 2);
-        var hgh = ~~(this.screenY / 2);
+        const hgw = ~~(this.screenX / 2);
+        const hgh = ~~(this.screenY / 2);
         //log.info("camera: hgw="+hgw+",hgh="+hgh);
 
         if (!fe)
             return;
 
-        var x = fe.x - hgw;
-        var y = fe.y - hgh;
+        const x = fe.x - hgw;
+        const y = fe.y - hgh;
 
         this.x = Utils.clamp(mc.gcsx, mc.gcex, x);
         this.y = Utils.clamp(mc.gcsy, mc.gcey, y);
@@ -87,7 +87,7 @@ export default class Camera {
         this.rx = x;
         this.ry = y;
 
-        var tMinX = this.wOffX,
+        const tMinX = this.wOffX,
             tMaxX = mc.gcex + this.wOffX,
             tMinY = this.wOffY,
             tMaxY = mc.gcey + this.wOffY;
@@ -106,11 +106,11 @@ export default class Camera {
         if (!this.gridWE || !this.gridHE)
             return;
 
-        var h = this.gridHE;
-        var w = this.gridWE;
+        const h = this.gridHE;
+        const w = this.gridWE;
         //var j=0, k=0;
-        for (var y = 0; y < h; ++y) {
-            for (var x = 0; x < w; ++x) {
+        for (let y = 0; y < h; ++y) {
+            for (let x = 0; x < w; ++x) {
                 callback(x, y);
             }
         }
@@ -126,22 +126,22 @@ export default class Camera {
 
     isVisiblePosition(x, y, extra) {
         extra = extra * this.tilesize || 0;
-        var minX = Math.max(0, this.x - extra);
-        var minY = Math.max(0, this.y - extra);
-        var maxX = Math.min(game.mapContainer.widthX, this.x + this.screenX + extra);
-        var maxY = Math.min(game.mapContainer.heightY, this.y + this.screenY + extra);
+        const minX = Math.max(0, this.x - extra);
+        const minY = Math.max(0, this.y - extra);
+        const maxX = Math.min(game.mapContainer.widthX, this.x + this.screenX + extra);
+        const maxY = Math.min(game.mapContainer.heightY, this.y + this.screenY + extra);
 
         return (y.between(minY, maxY) && x.between(minX, maxX));
     }
 
     forEachInScreenArray(entity) {
         //var self = this;
-        var entities = [];
+        const entities = [];
         var entity = entity || this.focusEntity;
 
-        var tsh = G_TILESIZE >> 1;
-        var x = (this.gridW - 1) * tsh;
-        var y = (this.gridH - 1) * tsh;
+        const tsh = G_TILESIZE >> 1;
+        const x = (this.gridW - 1) * tsh;
+        const y = (this.gridH - 1) * tsh;
 
         this.forEachInScreen(function(entity2) {
             if (entity2 === entity)
@@ -154,8 +154,8 @@ export default class Camera {
     }
 
     forEachInScreen(callback) {
-        for (var id in this.entities) {
-            var entity = this.entities[id];
+        for (let id in this.entities) {
+            const entity = this.entities[id];
             if (entity && entity instanceof Entity) {
                 callback(entity, id);
             }
@@ -163,8 +163,8 @@ export default class Camera {
     }
 
     forEachInOuterScreen(callback) {
-        for (var id in this.outEntities) {
-            var entity = this.outEntities[id];
+        for (let id in this.outEntities) {
+            const entity = this.outEntities[id];
             if (entity && entity instanceof Entity) {
                 callback(entity, id);
             }
@@ -172,17 +172,17 @@ export default class Camera {
     }
 
     getEntitiesAround(x, y, dist, unInclude = []) {
-        var minx = x - dist;
-        var miny = y - dist;
-        var maxx = x + dist;
-        var maxy = y + dist;
+        const minx = x - dist;
+        const miny = y - dist;
+        const maxx = x + dist;
+        const maxy = y + dist;
 
-        var entities = [];
-        for (var id in this.entities) {
-            var entity = this.entities[id];
+        const entities = [];
+        for (let id in this.entities) {
+            const entity = this.entities[id];
             if (entity && entity instanceof Entity) {
-                var ex = entity.x;
-                var ey = entity.y;
+                const ex = entity.x;
+                const ey = entity.y;
                 if (unInclude.indexOf(entity) >= 0)
                     continue;
 

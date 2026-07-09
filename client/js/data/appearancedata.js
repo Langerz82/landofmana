@@ -6,8 +6,8 @@
 /* global $ */
 import fetchJsonSync from './fetchjsonsync.js';
 
-var Appearances = [];
-var appearanceParse = fetchJsonSync('shared/data/appearance.json');
+const Appearances = [];
+const appearanceParse = fetchJsonSync('shared/data/appearance.json');
 
 $.each(appearanceParse, function(key, val) {
     Appearances[key] = {

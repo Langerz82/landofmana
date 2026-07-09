@@ -9,9 +9,9 @@ export default class SettingsHandler {
     	this.game = game;
     	this.app = game.app;
     	this.toggle = false;
-    	var self = this;
+    	const self = this;
 
-      var sound = localforage.getSetting
+      const sound = localforage.getSetting
 
     	$('#settingsclose').click(function(e){
                 self.show();
@@ -25,7 +25,7 @@ export default class SettingsHandler {
         }
       };
 
-      var buttonSound = $('#buttonsound');
+      const buttonSound = $('#buttonsound');
       buttonSound.click(function(e) {
         if ($(this).hasClass('active')) {
           $(this).html("Off");
@@ -42,7 +42,7 @@ export default class SettingsHandler {
       });
 
 
-      var funcChat = function (bChat)
+      const funcChat = function (bChat)
       {
         if(self.game) {
     			if(bChat) {
@@ -53,7 +53,7 @@ export default class SettingsHandler {
         }
       };
 
-      var buttonChat = $('#buttonchat');
+      const buttonChat = $('#buttonchat');
       localforage.getItem('chat', function(e, val) {
         if (!val) {
           buttonChat.html("Off");
@@ -84,7 +84,7 @@ export default class SettingsHandler {
       });
 
 
-      var funcJoystick = function (bJoystick)
+      const funcJoystick = function (bJoystick)
       {
         if(self.game) {
           if (bJoystick)
@@ -112,7 +112,7 @@ export default class SettingsHandler {
         }
       };
 
-      var buttonJoystick = $('#buttonjoystick');
+      const buttonJoystick = $('#buttonjoystick');
       localforage.getItem('joystick', function(e, val) {
         if (!val) {
           buttonJoystick.html("Off");
@@ -141,14 +141,14 @@ export default class SettingsHandler {
     		}
       });
 
-      var buttonMColor = $('#buttonmenucolor');
+      const buttonMColor = $('#buttonmenucolor');
       localforage.getItem('menucolor', function(e, val) {
         if (!val)
           return;
         buttonMColor.val(val);
       });
 
-      var buttonBColor = $('#buttonbuttoncolor');
+      const buttonBColor = $('#buttonbuttoncolor');
       localforage.getItem('buttoncolor', function(e, val) {
         if (!val)
           return;
@@ -164,7 +164,7 @@ export default class SettingsHandler {
         $('div.frame-new-button').css('background-color', this.value);
       });
 
-      var fnSetZoom = function (val) {
+      const fnSetZoom = function (val) {
         if (!game)
           return;
         game.zoom = val;
@@ -173,7 +173,7 @@ export default class SettingsHandler {
         $("#gamezoom option:selected").removeAttr("selected");
         $('#gamezoom option[value="'+val+'"]').attr("selected", true);
       }
-      var selectZoom = $('.cgamezoom');
+      const selectZoom = $('.cgamezoom');
       if(game) {
         localforage.getItem('gamezoom', function(e, val) {
           if (val)
@@ -182,12 +182,12 @@ export default class SettingsHandler {
         fnSetZoom(1.0);
       }
     	selectZoom.change(function() {
-    		var val = $('#gamezoom').val();
+    		const val = $('#gamezoom').val();
         localforage.setItem('gamezoom', val);
         fnSetZoom(val);
     	});
 
-      var fnSetShortcut = function (val) {
+      const fnSetShortcut = function (val) {
         $('#shortcut_bar').removeClass();
         $('#shortcut_bar').addClass(val);
 
@@ -195,7 +195,7 @@ export default class SettingsHandler {
         $('#shortcutstyle option[value="'+val+'"]').attr("selected", true);
         ShortcutStyle=val;
       }
-      var selectShortcut = $('#shortcutstyle');
+      const selectShortcut = $('#shortcutstyle');
       if(game) {
         localforage.getItem('shortcutstyle', function(e, val) {
             if (val)
@@ -212,16 +212,16 @@ export default class SettingsHandler {
           fnSetShortcut("horizontal-asc");
       }
     	selectShortcut.change(function() {
-    		var val = $('#shortcutstyle').val();
+    		const val = $('#shortcutstyle').val();
         localforage.setItem('shortcutstyle', val);
         fnSetShortcut(val);
     	});
     }
 
     apply() {
-        var self = this;
+        const self = this;
 
-        var buttonSound = $('#buttonsound');
+        const buttonSound = $('#buttonsound');
         localforage.getItem('sound', function(e, val) {
           if (val === 0) {
             buttonSound.html("Off");
@@ -239,7 +239,7 @@ export default class SettingsHandler {
     }
 
     show() {
-    	var self = this;
+    	const self = this;
         this.toggle = !this.toggle;
     	if (this.toggle)
     	{

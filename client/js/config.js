@@ -1,5 +1,5 @@
 // Converted from AMD (define) to a native ES6 module.
-var config = {};
+const config = {};
 fetch('./config/config_build.json')
     .then((response) => response.json())
     .then((json) => config.build = json);

@@ -50,7 +50,7 @@ export default class App {
       		   // FIX: .value is a no-op on a jQuery object; use .val() to actually set the field
       		   $('#user_password').val("");
 
-		        var self = this;
+		        const self = this;
 
             $( document ).ready(function() {
               self.jqUserWindow = $('#user_window');
@@ -80,7 +80,7 @@ export default class App {
             });
 
             $('#user_remove_confirm').click(function (event) {
-              var rpawd = $('#remove_confirm').val();
+              const rpawd = $('#remove_confirm').val();
               if (rpawd === "YES")
               {
                 if(confirm("DANGER - Remove your account PERMANENTLY?")) {
@@ -190,7 +190,7 @@ export default class App {
       }
 
       userClient() {
-        var self = this;
+        const self = this;
         this.userclient = new UserClient(config.build, this.useServer);
 
         this.userclient.fail_callback = function(reason){
@@ -216,7 +216,7 @@ export default class App {
         }
 
         initFormFields() {
-            var self = this;
+            const self = this;
 
             this.getLoadUserButton = function() { return $('#user_load'); };
             this.getCreateUserButton = function() { return $('#user_create'); };
@@ -244,20 +244,20 @@ export default class App {
         tryUserAction(action)
         {
           if(this.starting) return;        // Already loading
-          var self = this;
+          const self = this;
 
           if (action > 0)
           {
-            var username = this.$usernameinput.val();
-            var userpw = (action === 3) ? $('#remove_password').val() : this.$userpasswordinput.val();
-    		    var hash = null;
+            const username = this.$usernameinput.val();
+            const userpw = (action === 3) ? $('#remove_password').val() : this.$userpasswordinput.val();
+    		    let hash = null;
     		    if (userpw === '')
     		    	hash = $('#user_hash').val();
     		    log.info("hash="+hash);
 
             if(!this.validateUserForm(username, userpw)) return;
 
-            var user = this.user = new User(this.userclient, username, userpw);
+            const user = this.user = new User(this.userclient, username, userpw);
             this.userclient.user = this.user;
             //user.rpassword = $('#remove_password').val();
 
@@ -284,14 +284,14 @@ export default class App {
             this.jqPlayerLoad.addClass("loading");
             this.jqPlayerCreate.addClass("loading");
 
-    		    var username = this.$playernameinput.val();
-            var playerIndex = parseInt(this.jqPlayerSelect.val());
+    		    const username = this.$playernameinput.val();
+            const playerIndex = parseInt(this.jqPlayerSelect.val());
             if(action === 4 && !this.validatePlayerForm(username)) return;
 
     		    //var pClass = parseInt($('#player_class').val());
-            var server = parseInt($('#player_server').val());
+            const server = parseInt($('#player_server').val());
 
-            var ps = null;
+            let ps = null;
             if (action === 3) {
               this.userclient.sendLoginPlayer(server, playerIndex);
               ps = this.user.playerSum[playerIndex];
@@ -306,7 +306,7 @@ export default class App {
         }
 
         startGame(server, ps) {
-            var self = this;
+            const self = this;
 
             $('#gameheading').css('display','none');
 
@@ -324,7 +324,7 @@ export default class App {
         }
 
         start() {
-            var self = this;
+            const self = this;
             this.getLoadUserButton().click(function () {
               if ($("#user_load").hasClass("loading"))
                 return;
@@ -461,7 +461,7 @@ export default class App {
 
         clearValidationErrors() {
             //var fields = this.loginFormActive() ? this.loginFormFields : this.createNewCharacterFormFields;
-            var fields;
+            let fields;
             if (this.userFormActive())
             	    fields = this.userFormFields;
             else if (this.playerFormActive())
@@ -478,7 +478,7 @@ export default class App {
         }
 
         getZoom() {
-            var zoom = game.renderer.zoom * game.renderer.scaleHUD;
+            const zoom = game.renderer.zoom * game.renderer.scaleHUD;
             return zoom;
         }
 
@@ -486,13 +486,13 @@ export default class App {
             // TODO Width and Height not clamping mouse properly.
             console.info("app.setMouseCoordinates - x:"+x+",y"+y);
 
-            var r = game.renderer;
-            var scale = r.scale,
+            const r = game.renderer;
+            let scale = r.scale,
                 width = r.innerWidth,
                 height = r.innerHeight,
                 mouse = game.mouse;
 
-            var zoom = 1/r.resolution;
+            const zoom = 1/r.resolution;
 
             width = ~~(width/zoom)-1;
             height = ~~(height/zoom)-1;
@@ -505,11 +505,11 @@ export default class App {
 
 
         initPlayerBar() {
-            var self = this;
-            var player = game.player;
+            const self = this;
+            const player = game.player;
 
             if (player && !Detect.isMobile()) {
-              var anim = new PlayerAnim();
+              const anim = new PlayerAnim();
               anim.sprites = [];
               anim.addSprite(player.getSprite(0));
               anim.addSprite(player.getSprite(1));
@@ -521,16 +521,16 @@ export default class App {
         }
 
         npcDialoguePic(entity) {
-            var jqPic = $("#npcDialoguePic");
-            var scale = 2;
+            const jqPic = $("#npcDialoguePic");
+            const scale = 2;
 
-    		    var sprite = entity.getSprite();
+    		    const sprite = entity.getSprite();
 
-            var anim = sprite.animations["idle_down"];
-            var oc = anim.col * anim.width * scale;
-            var or = anim.row * anim.height * scale;
-    		    var width2 = sprite ? sprite.width * scale : 0; // FIX: missing var, was an implicit global
-    		    var height2 = sprite ? sprite.height * scale : 0; // FIX: missing var, was an implicit global
+            const anim = sprite.animations["idle_down"];
+            const oc = anim.col * anim.width * scale;
+            const or = anim.row * anim.height * scale;
+    		    const width2 = sprite ? sprite.width * scale : 0; // FIX: missing var, was an implicit global
+    		    const height2 = sprite ? sprite.height * scale : 0; // FIX: missing var, was an implicit global
 
     		    jqPic.css('width', '' + ~~(width2) + 'px');
     		    jqPic.css('height', '' + ~~(height2*0.75) + 'px');
@@ -542,8 +542,8 @@ export default class App {
 
         //Init the hud that makes it show what creature you are mousing over and attacking
         initTargetHud(){
-          var self = this;
-          var scale = game.renderer.getScaleFactor(),
+          const self = this;
+          let scale = game.renderer.getScaleFactor(),
               guiScale = game.renderer.getUiScaleFactor(),
           	  zoom = game.renderer.zoom,
               timeout,
@@ -552,14 +552,14 @@ export default class App {
           if (game.player) {
 		        game.player.onSetTarget(function(target, mouseover)
             {
-              var targetName = target.name;
+              let targetName = target.name;
               if (!(targetName && target.hasOwnProperty("stats") &&
                 target.stats.hasOwnProperty("hpMax") && target.stats.hpMax > 0))
               {
                 return;
               }
 
-              var mobData = MobData.Kinds[target.kind];
+              const mobData = MobData.Kinds[target.kind];
               if (target instanceof Mob && mobData)
               {
               	  if (mobData.name)
@@ -568,7 +568,7 @@ export default class App {
                       targetName = mobData.key;
               }
 
-  		        var el = '#target';
+  		        const el = '#target';
 
               targetName = targetName.capitalizeFirstLetter();
         			$(el+' .name').text(targetName + " Lv"+target.level);
@@ -607,18 +607,18 @@ export default class App {
         }
 
         initExpBar(){
-            var maxWidth = parseInt($('#expbar').width());
-			      var widthRate = 1.0;
-            var self = this;
+            let maxWidth = parseInt($('#expbar').width());
+			      const widthRate = 1.0;
+            const self = this;
 
-            var jqExp = $('#exp');
-            var jqExpBar = $('#expbar');
-            var jqExpLevel = $('#explevel');
+            const jqExp = $('#exp');
+            const jqExpBar = $('#expbar');
+            const jqExpLevel = $('#explevel');
 
             game.onPlayerExpChange(function(level, exp){
-              var prevLvlExp = Types.expForLevel[level-1];
-              var expInThisLevel = exp - prevLvlExp;
-              var expForLevelUp = Types.expForLevel[level] - prevLvlExp;
+              const prevLvlExp = Types.expForLevel[level-1];
+              const expInThisLevel = exp - prevLvlExp;
+              const expForLevelUp = Types.expForLevel[level] - prevLvlExp;
 
             	if (!expInThisLevel && !expForLevelUp)
             	{
@@ -629,14 +629,14 @@ export default class App {
               }
 
               maxWidth = parseInt($('#expbar').width());
-            	var rate = expInThisLevel/expForLevelUp;
+            	let rate = expInThisLevel/expForLevelUp;
               if(rate > 1){
                   rate = 1;
               } else if(rate < 0){
                   rate = 0;
               }
 
-              var rateFmt = Utils.Percent(rate,0);
+              const rateFmt = Utils.Percent(rate,0);
               jqExp.css('width', rateFmt);
              	jqExpBar.attr("title", "Exp: " + rateFmt);
              	jqExpBar.html("Exp: " + rateFmt);
@@ -645,15 +645,15 @@ export default class App {
         }
 
         initHealthBar() {
-      	    var healthMaxWidth = $("#statbars").width();
+      	    let healthMaxWidth = $("#statbars").width();
 	          log.info("healthMaxWidth="+healthMaxWidth);
 
-            var jqHealth = $("#health");
-            var jqHealthText = $('#healthtext');
+            const jqHealth = $("#health");
+            const jqHealthText = $('#healthtext');
 
             game.onPlayerHealthChange(function(hp, maxHp) {
                 healthMaxWidth = $("#statbars").width();
-                var barWidth = Math.round((healthMaxWidth / maxHp) * (hp > 0 ? hp : 0));
+                const barWidth = Math.round((healthMaxWidth / maxHp) * (hp > 0 ? hp : 0));
                 jqHealth.css('width', barWidth + "px");
                 jqHealthText.html("HP: " + hp + "/" + maxHp);
             });
@@ -662,7 +662,7 @@ export default class App {
         }
 
         blinkHealthBar() {
-            var $hitpoints = $('#health');
+            const $hitpoints = $('#health');
 
             $hitpoints.addClass('white');
             setTimeout(function() {
@@ -671,7 +671,7 @@ export default class App {
         }
 
         initMenuButton() {
-        	var self = this;
+        	const self = this;
         	log.info("initMenuButton");
 
     			$( document ).ready(function() {
@@ -705,7 +705,7 @@ export default class App {
         }
 
         initCombatBar() {
-        	var container = "#combatContainer";
+        	const container = "#combatContainer";
       		$(container).children().click(function(e) {
       			$(container).children().removeClass('lightup');
       			$(this).addClass("lightup");

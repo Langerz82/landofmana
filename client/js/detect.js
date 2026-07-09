@@ -2,7 +2,7 @@
 // other files depend on it via define(['detect'], ...) - it just set a bare global `Detect` as a
 // script side-effect and relied on consumers reading that global rather than the (effectively
 // unshimmed/undefined) injected AMD parameter. Real ES6 imports below now resolve properly.
-var Detect = {};
+const Detect = {};
 
 Detect.supportsWebSocket = function() {
     return window.WebSocket || window.MozWebSocket;

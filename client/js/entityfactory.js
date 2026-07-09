@@ -10,7 +10,7 @@ import Chest from './entity/chest.js';
 import Block from './entity/block.js';
 import Node from './entity/node.js';
 
-var EntityFactory = {};
+const EntityFactory = {};
 
 EntityFactory.createEntity = function(type, kind, id, mapIndex, name, level = 0) {
     if (!id) {

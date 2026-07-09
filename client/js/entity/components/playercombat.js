@@ -15,51 +15,51 @@ export default class PlayerCombat {
     }
 
     baseCrit() {
-        var entity = this.entity;
+        const entity = this.entity;
 
-        var itemDiff = entity.level * 2;
-        var item = entity.items.getWeapon();
+        let itemDiff = entity.level * 2;
+        const item = entity.items.getWeapon();
         if (item) {
             itemDiff = (3 * ItemTypes.getData(item.itemKind).modifier) + (item.itemNumber * 2);
         }
-        var statDiff = entity.stats.attack + (entity.stats.luck * 2);
-        var chance = Utils.clamp(0, 500, ~~(statDiff + itemDiff));
+        const statDiff = entity.stats.attack + (entity.stats.luck * 2);
+        const chance = Utils.clamp(0, 500, ~~(statDiff + itemDiff));
         log.info("player - baseCrit: " + chance);
-        var chance_out = (chance / 5).toFixed(0) + "%";
+        const chance_out = (chance / 5).toFixed(0) + "%";
         return chance_out;
         //return chance;
     }
 
     baseCritDef() {
-        var entity = this.entity;
+        const entity = this.entity;
 
-        var itemDiff = entity.level * 2;
-        for (var id in entity.items.equipment.rooms) {
+        let itemDiff = entity.level * 2;
+        for (let id in entity.items.equipment.rooms) {
             if (id === 4) continue;
-            var item = entity.items.equipment.rooms[id];
+            const item = entity.items.equipment.rooms[id];
             if (item) {
                 itemDiff += (3 * ItemTypes.getData(item.itemKind).modifier) + (item.itemNumber * 2);
             }
         }
-        var statDiff = entity.stats.defense + (entity.stats.luck * 2);
-        var chance = Utils.clamp(0, 500, ~~(statDiff + itemDiff));
+        const statDiff = entity.stats.defense + (entity.stats.luck * 2);
+        const chance = Utils.clamp(0, 500, ~~(statDiff + itemDiff));
         log.info("player - baseCritDef: " + chance);
-        var chance_out = (chance / 5).toFixed(0) + "%";
+        const chance_out = (chance / 5).toFixed(0) + "%";
         return chance_out;
         //return chance;
     }
 
     baseDamage(defender) {
-        var entity = this.entity;
+        const entity = this.entity;
 
-        var dealt, dmg;
-        var weapon = entity.items.getWeapon();
-        var level = entity.level;
+        let dealt, dmg;
+        const weapon = entity.items.getWeapon();
+        const level = entity.level;
 
         dealt = ~~(weapon ? (ItemTypes.getData(weapon.itemKind).modifier * 3 + weapon.itemNumber * 2) : level);
 
-        var lvl = Types.getAttackLevel(entity.stats.exp.attack);
-        var power = ((lvl / 50) + 1);
+        const lvl = Types.getAttackLevel(entity.stats.exp.attack);
+        let power = ((lvl / 50) + 1);
 
         power *= ((entity.items.getWeaponLevel() / 50) + 1);
 
@@ -69,15 +69,15 @@ export default class PlayerCombat {
         }
 
         // Players Stat affects Damage.
-        var mods = (entity.stats.mod && entity.stats.mod.attack ?
+        const mods = (entity.stats.mod && entity.stats.mod.attack ?
             entity.stats.mod.attack : 0);
         dealt += ~~((entity.stats.attack * 3) + mods) + entity.stats.luck;
 
-        var noobLvl = 12;
-        var noobMulti = 1 + Math.max(0, (noobLvl - entity.level) * (1 / entity.level));
+        const noobLvl = 12;
+        const noobMulti = 1 + Math.max(0, (noobLvl - entity.level) * (1 / entity.level));
 
-        var min = ~~(level * power * noobMulti * 4);
-        var max = ~~(min * 1.15);
+        let min = ~~(level * power * noobMulti * 4);
+        let max = ~~(min * 1.15);
 
         dmg = Utils.randomRangeInt(min, max) + dealt;
 
@@ -85,9 +85,9 @@ export default class PlayerCombat {
             dmg += entity.stats.mod.damage;
 
         if (defender && defender instanceof Mob) {
-            var type = entity.items.getWeaponType();
+            const type = entity.items.getWeaponType();
             if (type) {
-                var mod = defender.data.modDamage[type];
+                const mod = defender.data.modDamage[type];
                 dmg = ~~(dmg * mod);
             }
         }
@@ -100,33 +100,33 @@ export default class PlayerCombat {
     }
 
     baseDamageDef(defender) {
-        var entity = this.entity;
+        const entity = this.entity;
 
-        var dealt = 0, dmg = 0;
+        let dealt = 0, dmg = 0;
 
-        var level = entity.level + 3;
+        const level = entity.level + 3;
         log.info("baseDamageDef:");
 
         dealt = level;
-        for (var id in entity.items.equipment.rooms) {
-            var item = entity.items.equipment.rooms[id];
+        for (let id in entity.items.equipment.rooms) {
+            const item = entity.items.equipment.rooms[id];
             if (item) {
-                var eq_multi = (id === 1) ? 4 : 2;
-                var def = (ItemTypes.getData(item.itemKind).modifier * eq_multi + item.itemNumber * eq_multi);
+                const eq_multi = (id === 1) ? 4 : 2;
+                const def = (ItemTypes.getData(item.itemKind).modifier * eq_multi + item.itemNumber * eq_multi);
                 dealt += ~~(def * ((item.itemDurability / item.itemDurabilityMax * 0.5) + 0.5));
             }
         }
 
         log.info("dealt=" + dealt);
-        var lvl = Types.getDefenseLevel(entity.stats.exp.defense);
-        var power = ((lvl / 50) + 1);
+        const lvl = Types.getDefenseLevel(entity.stats.exp.defense);
+        const power = ((lvl / 50) + 1);
         log.info("power=" + power);
-        var min = ~~(level * power);
-        var max = ~~(min * 2);
+        let min = ~~(level * power);
+        let max = ~~(min * 2);
 
         log.info("dealtrange=" + dealt);
         // Players Stat affects Damage.
-        var mods = (entity.stats.mod ? entity.stats.mod.defense : 0);
+        const mods = (entity.stats.mod ? entity.stats.mod.defense : 0);
         dealt += ~~((entity.stats.defense * 4) + mods) + entity.stats.luck;
 
         log.info("dealtstats=" + dealt);

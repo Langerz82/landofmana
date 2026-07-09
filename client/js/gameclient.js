@@ -14,7 +14,7 @@ import Timer from './timer.js';
 
 export default class GameClient {
         constructor() {
-					var self = this;
+					const self = this;
 
 					this.useBison = false;
 
@@ -28,7 +28,7 @@ export default class GameClient {
 					this.onMessage = function(data) {
 	            // TODO: logs every inbound packet to the console; gate behind a debug/verbose flag before shipping
 	            console.warn("recv: "+data);
-							var fnProcessMessage = function (message) {
+							const fnProcessMessage = function (message) {
 								if(self.isListening) {
 			            if(self.useBison) {
 			              data = BISON.decode(message);
@@ -51,12 +51,12 @@ export default class GameClient {
 	               }
 	             }
 	           };
-	           var method = data.substr(0,2);
+	           const method = data.substr(0,2);
 		        if (method === 'z|')
 		        {
-	            var buffer = Utils._base64ToArrayBuffer(data.substr(2));
+	            const buffer = Utils._base64ToArrayBuffer(data.substr(2));
 	            try {
-	              var message = pako.inflate(buffer, {gzip: true, to: 'string'});
+	              const message = pako.inflate(buffer, {gzip: true, to: 'string'});
 								console.warn("message:"+message);
 							  fnProcessMessage(message);
 	            } catch (err) {
@@ -64,7 +64,7 @@ export default class GameClient {
 	            }
 		        }
 		        else if (method === '1[') {
-		          var message = data.substr(1);
+		          const message = data.substr(1);
 							fnProcessMessage(message);
 		        }
 	          else {
@@ -116,7 +116,7 @@ export default class GameClient {
 				}
 
 				connect(url, data) {
-					var self = this;
+					const self = this;
 
 					this.connection = io(url, {
             forceNew: true,
@@ -150,7 +150,7 @@ export default class GameClient {
 				}
 
 				onError(data) {
-	          var message = data[0];
+	          const message = data[0];
 	          $('#container').addClass('error');
 	          // FIX: XSS - server-supplied error message was inserted unescaped via .append(); escape before rendering
 	          $('#errorwindow .errordetails').append("<p>"+Utils.escapeHtml(message)+"</p>");
@@ -168,8 +168,8 @@ export default class GameClient {
 				}
 
 				onVersion(data) {
-	        game.onVersionGame(data);
-	      }
+		        game.onVersionGame(data);
+		      }
 
         enable() {
             this.isListening = true;
@@ -183,7 +183,7 @@ export default class GameClient {
         //},
 
         sendMessage(json) {
-          var data;
+          let data;
           if(this.connection.connected === true) {
 						//try { throw new Error() } catch (e) { console.warn("sent="+JSON.stringify(json)+e.stack); }
             // TODO: logs every outbound packet (including sendLoginPlayer's playername/hash) to the console; gate behind a debug/verbose flag before shipping
@@ -204,7 +204,7 @@ export default class GameClient {
 
         receiveAction(data) {
             //log.info("recieved=" + JSON.stringify(data));
-            var action = data.shift();
+            const action = data.shift();
             if(this.handlers[action] && _.isFunction(this.handlers[action])) {
                 this.handlers[action].call(this, data);
             }
@@ -214,7 +214,7 @@ export default class GameClient {
         }
 
         receiveActionBatch(actions) {
-            var self = this;
+            const self = this;
             _.each(actions, function(action) {
                 self.receiveAction(action);
                 //self.packets.push(action);
@@ -223,7 +223,7 @@ export default class GameClient {
         }
 
         receiveSpawn(data) {
-            var id = parseInt(data[0]),
+            const id = parseInt(data[0]),
 								type = parseInt(data[1]),
                 kind = parseInt(data[2]),
 								name = data[3].length > 0 ? data[3] : null,
@@ -241,12 +241,12 @@ export default class GameClient {
             //log.info("data="+JSON.stringify(data));
 						// If Entity exists just re-create it.
             if (game.entityIdExists(id)) {
-            	var entity = game.getEntityById(id);
+            	const entity = game.getEntityById(id);
 							game.removeEntity(entity);
             }
 
             if(type === Types.EntityTypes.ITEM || type === Types.EntityTypes.ITEMLOOT) {
-                var item = EntityFactory.createEntity(type, kind, id, mapIndex, name);
+                const item = EntityFactory.createEntity(type, kind, id, mapIndex, name);
 								item.orientation = parseInt(data[7]);
                 item.count = parseInt(data[8]);
 								item.setPosition(x, y);
@@ -255,14 +255,14 @@ export default class GameClient {
                 }
 						}
             else if(type === Types.EntityTypes.CHEST) {
-                var item = EntityFactory.createEntity(type, kind, id, mapIndex, name);
+                const item = EntityFactory.createEntity(type, kind, id, mapIndex, name);
 								item.setPosition(x, y);
                 if(this.spawn_chest_callback) {
                     this.spawn_chest_callback(data, item); // from 8
                 }
 								return;
             } else {
-								var level = parseInt(data[8]);
+								const level = parseInt(data[8]);
 								var entity = EntityFactory.createEntity(type, kind, id, mapIndex, name, level);
 								entity.setPosition(x, y);
                 if(this.spawn_character_callback) {
@@ -468,9 +468,9 @@ export default class GameClient {
         }
 
         sendMovePath(entity, length, path) {
-						var simpath = path;
+						const simpath = path;
 
-            var array = [Types.Messages.CW_MOVEPATH,
+            const array = [Types.Messages.CW_MOVEPATH,
 											Utils.getWorldTime(),
             		      entity.id,
 											entity.getOrientation(path[0], path[1]),
