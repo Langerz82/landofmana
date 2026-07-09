@@ -29,7 +29,7 @@ class Entity {
         //this.x = ;
         //this.y = Number(y);
 
-        this.orientation = Utils.randomOrientation();
+        this.orientation = 2;
     }
 
     setPosition(x, y) {

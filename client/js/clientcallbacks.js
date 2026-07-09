@@ -227,7 +227,6 @@ export default class ClientCallbacks {
           {
               const uid = NpcData.Kinds[entity.kind].uid;
               entity.setSprite(game.sprites[uid]);
-              entity.idle(2);
           }
           else if (entity instanceof NpcMove)
           {
@@ -235,7 +234,6 @@ export default class ClientCallbacks {
               entity.setSprite(game.sprites[uid]);
               entity.npcQuestId = Number(data[8]);
               game.npc[entity.id] = entity;
-              entity.idle(2);
           }
 
           if (entity instanceof EntityMoving && !(entity instanceof Block)) {

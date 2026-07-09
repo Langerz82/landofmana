@@ -41,7 +41,7 @@ class Character extends EntityMoving {
 
     this.step = 0;
 
-    this.orientation = this.setRandomOrientation();
+    this.orientation = 2;
 
     this.attackCooldown = null;
     this.moveCooldown = null;
