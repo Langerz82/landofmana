@@ -1,6 +1,8 @@
-define(['config'], function(config) {
-  var StoreHandler = Class.extend({
-    init: function(game,app) {
+// Converted from AMD (define) + Class.extend to a native ES6 module/class.
+import config from './config.js';
+
+export default class StoreHandler {
+    constructor(game,app) {
     	this.game = game;
     	this.app = app;
     	this.toggle = false;
@@ -10,14 +12,11 @@ define(['config'], function(config) {
           self.toggle = false; // FIX: `this` inside the click handler is the DOM element, not the StoreHandler; use captured `self` instead
     	});
       $('#shopDialog').hide();
-    },
+    }
 
-    show: function() {
+    show() {
       $('#shopDialog').show();
       $('#shopUsername').val(game.player.user.username);
 
     }
-
-  });
-  return StoreHandler;
-});
+}

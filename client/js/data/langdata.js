@@ -1,12 +1,14 @@
+// Converted from AMD (define) + Class.extend + RequireJS's text! plugin to a native ES6 module/class.
+// See data/fetchjsonsync.js for why jQuery's synchronous $.ajax is used here instead of fetch()/
+// JSON import attributes/Node's fs module.
+/* global $ */
+import fetchJsonSync from './fetchjsonsync.js';
 
-define(['text!../../shared/data/lang.json'], function(LangJson) {
-  	var LangData = JSON.parse(LangJson);
-    var Lang = Class.extend({
-        init: function (lang)
-        {
-          this.lang = lang;
-          this.data = LangData[lang];
-        }
-    });
-    return Lang;
-});
+var LangData = fetchJsonSync('shared/data/lang.json');
+
+export default class Lang {
+    constructor(lang) {
+        this.lang = lang;
+        this.data = LangData[lang];
+    }
+}

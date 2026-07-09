@@ -1,7 +1,6 @@
-define(['lib/class'], function() {
-
-    var LoadData = Class.extend({
-      init: function() {
+// Converted from AMD (define) + Class.extend to a native ES6 module/class.
+export default class LoadData {
+    constructor() {
         var self = this;
 
         this.loaded = false;
@@ -81,21 +80,19 @@ define(['lib/class'], function() {
 
 
         //loader.add('KomikaHand', 'fonts/KOMIKAH.TTF');
-        loader.load(function (loader, resources) {
+        loader.load(function(loader, resources) {
             self.tilesets = [
-              //resources['ts-1-0'].texture,
-              resources['ts-1-1'].texture,
-              resources['ts-1-2'].texture,
-              //resources['ts-1-3'].texture,
-              //resources['ts-1-4'].texture,
-              /*resources['ts-1-5'].texture,
-              resources['ts-1-6'].texture,
-              resources['ts-1-7'].texture,
-              resources['ts-1-8'].texture*/
+                //resources['ts-1-0'].texture,
+                resources['ts-1-1'].texture,
+                resources['ts-1-2'].texture,
+                //resources['ts-1-3'].texture,
+                //resources['ts-1-4'].texture,
+                /*resources['ts-1-5'].texture,
+                resources['ts-1-6'].texture,
+                resources['ts-1-7'].texture,
+                resources['ts-1-8'].texture*/
             ];
         });
         loader.onComplete.add(() => { self.loaded = true; })
-      }
-    });
-    return LoadData;
-});
+    }
+}

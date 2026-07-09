@@ -1,10 +1,16 @@
+// Converted from AMD (define) + Class.extend to a native ES6 module/class.
 /* global Types, Class, _, questSerial */
+import NpcData from './data/npcdata.js';
+import QuestData from './data/questdata.js';
+import MobData from './data/mobdata.js';
+import ItemLoot from './data/itemlootdata.js';
 
-define(['data/npcdata', 'data/questdata', 'data/mobdata', 'data/itemlootdata'],
-  function(NpcData, QuestData, MobData, ItemLoot)
-{
-  var QuestHandler = Class.extend({
-    init: function(game) {
+// FIX (conversion): 'QuestType' used to be a bare cross-script global; see clientcallbacks.js for
+// the full explanation. Aliased from Types.QuestType now that gametypes.js is a real ES module.
+const QuestType = Types.QuestType;
+
+export default class QuestHandler {
+    constructor(game) {
       this.game = game;
       this.hideDelay = 5000; //How long the notification shows for.
       this.showlog = false;
@@ -14,19 +20,19 @@ define(['data/npcdata', 'data/questdata', 'data/mobdata', 'data/itemlootdata'],
       this.closeButton.click(function(event) {
         self.toggleShowLog();
       });
-    },
+    }
 
-    show: function() {
+    show() {
       this.quests = this.game.player.quests;
-    },
+    }
 
-    getNPCQuest: function(questId) {
+    getNPCQuest(questId) {
       return _.find(this.quests, function(q) {
         return q.id === questId;
       });
-    },
+    }
 
-    toggleShowLog: function() {
+    toggleShowLog() {
       this.showlog = !this.showlog;
       if (this.showlog) {
         this.questReloadLog();
@@ -34,9 +40,9 @@ define(['data/npcdata', 'data/questdata', 'data/mobdata', 'data/itemlootdata'],
       } else {
         this.questHideLog();
       }
-    },
+    }
 
-    questReloadLog: function() {
+    questReloadLog() {
       this.quests = game.player.quests;
       var self = this;
       $("#questLogInfo tbody").find("tr:gt(0)").remove();
@@ -132,20 +138,20 @@ define(['data/npcdata', 'data/questdata', 'data/mobdata', 'data/itemlootdata'],
             "height": (sprite.height)+"px"});
         }
       }
-    },
+    }
 
-    questShowLog: function() {
+    questShowLog() {
       //alert("called");
       $('#questlog').css('display', 'block');
       $('#questCloseButton').css('display', 'block');
-    },
+    }
 
-    questHideLog: function() {
+    questHideLog() {
       $('#questlog').css('display', 'none');
       $('#questCloseButton').css('display', 'none');
-    },
+    }
 
-    handleQuest: function(quest) {
+    handleQuest(quest) {
       this.quests = this.game.player.quests;
       var type = quest.status;
       var htmlStr = '';
@@ -167,11 +173,9 @@ define(['data/npcdata', 'data/questdata', 'data/mobdata', 'data/itemlootdata'],
         this.questReloadLog();
         this.questShowLog();
       }
-    },
+    }
 
-    talkToNPC: function(npc) {
+    talkToNPC(npc) {
       this.game.client.sendTalkToNPC(npc.type, npc.id);
     }
-  });
-  return QuestHandler;
-});
+}

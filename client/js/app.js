@@ -1,12 +1,25 @@
+// Converted from AMD (define) + Class.extend to a native ES6 module/class.
+// NOTE: 'lib/localforage.js' is a UMD/browserify bundle (checks for CommonJS `module.exports`,
+// then AMD `define.amd`, then falls back to `window.localforage = ...`). It has no ES `export`
+// of its own, so it can't be given a named/default binding - but since neither `module`/`exports`
+// nor a RequireJS-style `define` exist in this native-ES-module setup, importing it purely for
+// its side effect still correctly falls through to the `window.localforage` branch, exactly as
+// it did as a classic <script> tag. This is the earliest point in the import graph
+// (main.js imports App before Game), so it's imported here once rather than in every consumer.
+/* global Mob, Item, Types, Utils, log, _, TRANSITIONEND, Class, localforage */
+import Detect from './detect.js';
+import Mob from './entity/mob.js';
+import Item from './entity/item.js';
+import MobData from './data/mobdata.js';
+import User, { PlayerSummary } from './user.js';
+import UserClient from './userclient.js';
+import config from './config.js';
+import PlayerAnim from './playeranim.js';
+import './lib/localforage.js';
 
-/* global Mob, Types, Item, log, _, TRANSITIONEND, Class */
-
-define(['lib/localforage', 'entity/mob', 'entity/item', 'data/mobdata', 'user', 'userclient', 'config', 'playeranim'],
-  function(localforage, Mob, Item, MobData, User, UserClient, config, PlayerAnim) {
-
-    var App = Class.extend({
-        init: function() {
-            app = this;
+export default class App {
+        constructor() {
+            window.app = this; // FIX (conversion): was a bare `app = this` assignment; this is the canonical declaration site for the cross-file `app` global, made explicit for ES module strict mode (see js/globalstate.js for the same pattern applied to other legacy shared globals)
 
             this.currentPage = 1;
             this.blinkInterval = null;
@@ -168,15 +181,15 @@ define(['lib/localforage', 'entity/mob', 'entity/item', 'data/mobdata', 'user', 
 
             this.start();
             this.connect();
-        },
+        }
 
-      connect: function() {
+      connect() {
         //var self = this;
         //var callback = self.userClient;
         config.waitForConfig(this.userClient.bind(this));
-      },
+      }
 
-      userClient: function () {
+      userClient() {
         var self = this;
         this.userclient = new UserClient(config.build, this.useServer);
 
@@ -187,9 +200,9 @@ define(['lib/localforage', 'entity/mob', 'entity/item', 'data/mobdata', 'user', 
             });
             self.started = false;
         };
-      },
+      }
 
-        setGame: function(game) {
+        setGame(game) {
             game.client = game.client;
 
             this.isMobile = game.renderer.mobile;
@@ -200,9 +213,9 @@ define(['lib/localforage', 'entity/mob', 'entity/item', 'data/mobdata', 'user', 
 
             this.initMenuButton();
             this.initCombatBar();
-        },
+        }
 
-        initFormFields: function() {
+        initFormFields() {
             var self = this;
 
             this.getLoadUserButton = function() { return $('#user_load'); };
@@ -222,13 +235,13 @@ define(['lib/localforage', 'entity/mob', 'entity/item', 'data/mobdata', 'user', 
             this.$playernameinput = $('#player_name');
             this.playerFormFields = [this.$playernameinput];
 
-        },
+        }
 
-        center: function() {
+        center() {
             window.scrollTo(0, 1);
-        },
+        }
 
-        tryUserAction: function (action)
+        tryUserAction(action)
         {
           if(this.starting) return;        // Already loading
           var self = this;
@@ -244,7 +257,7 @@ define(['lib/localforage', 'entity/mob', 'entity/item', 'data/mobdata', 'user', 
 
             if(!this.validateUserForm(username, userpw)) return;
 
-            user = this.user = new User(this.userclient, username, userpw);
+            var user = this.user = new User(this.userclient, username, userpw);
             this.userclient.user = this.user;
             //user.rpassword = $('#remove_password').val();
 
@@ -261,20 +274,18 @@ define(['lib/localforage', 'entity/mob', 'entity/item', 'data/mobdata', 'user', 
             if (action === 3)
               this.userclient.sendRemoveUser(this.user);
           }
-        },
+        }
 
-        tryPlayerAction: function(action) {
+        tryPlayerAction(action) {
           if(this.starting) return;        // Already loading
-
-          var self = this;
 
           if (action === 3 || action === 4)
           {
-            self.jqPlayerLoad.addClass("loading");
-            self.jqPlayerCreate.addClass("loading");
+            this.jqPlayerLoad.addClass("loading");
+            this.jqPlayerCreate.addClass("loading");
 
     		    var username = this.$playernameinput.val();
-            var playerIndex = parseInt(self.jqPlayerSelect.val());
+            var playerIndex = parseInt(this.jqPlayerSelect.val());
             if(action === 4 && !this.validatePlayerForm(username)) return;
 
     		    //var pClass = parseInt($('#player_class').val());
@@ -283,7 +294,7 @@ define(['lib/localforage', 'entity/mob', 'entity/item', 'data/mobdata', 'user', 
             var ps = null;
             if (action === 3) {
               this.userclient.sendLoginPlayer(server, playerIndex);
-              ps = user.playerSum[playerIndex];
+              ps = this.user.playerSum[playerIndex];
             }
             if (action === 4) {
               this.userclient.sendCreatePlayer(server, username);
@@ -292,9 +303,9 @@ define(['lib/localforage', 'entity/mob', 'entity/item', 'data/mobdata', 'user', 
             if (ps)
     		      this.startGame(server, ps);
           }
-        },
+        }
 
-        startGame: function(server, ps) {
+        startGame(server, ps) {
             var self = this;
 
             $('#gameheading').css('display','none');
@@ -310,9 +321,9 @@ define(['lib/localforage', 'entity/mob', 'entity/item', 'data/mobdata', 'user', 
 
             game.run(server, ps);
             game.start();
-        },
+        }
 
-        start: function() {
+        start() {
             var self = this;
             this.getLoadUserButton().click(function () {
               if ($("#user_load").hasClass("loading"))
@@ -342,31 +353,31 @@ define(['lib/localforage', 'entity/mob', 'entity/item', 'data/mobdata', 'user', 
                 self.showPlayerLoad();
               }
             })
-        },
+        }
 
-        showPlayerLoad: function ()
+        showPlayerLoad()
         {
           this.jqPlayerLoad.show();
           this.jqPlayerSelect.show();
           $('#lbl_player_select').show();
           this.jqPlayerCreateForm.hide();
-        },
+        }
 
-        showPlayerCreate: function ()
+        showPlayerCreate()
         {
           this.jqPlayerLoad.hide();
           this.jqPlayerSelect.hide();
           $('#lbl_player_select').hide();
           this.jqPlayerCreateForm.show();
-        },
+        }
 
-        userFormActive: function() {
+        userFormActive() {
             return this.jqUserWindow.is(":visible");
-        },
+        }
 
-        playerFormActive: function() {
+        playerFormActive() {
             return this.jqPlayerWindow.is(":visible");
-        },
+        }
 
         /**
          * Performs some basic validation on the login / create new character forms (required fields are filled
@@ -374,7 +385,7 @@ define(['lib/localforage', 'entity/mob', 'entity/item', 'data/mobdata', 'user', 
          * is currently active.
          */
 
-        validateUserForm: function(username, userpw) {
+        validateUserForm(username, userpw) {
             this.clearValidationErrors();
 
             if(!username) {
@@ -407,9 +418,9 @@ define(['lib/localforage', 'entity/mob', 'entity/item', 'data/mobdata', 'user', 
               }
             }
             return true;
-        },
+        }
 
-        validatePlayerForm: function(playername) {
+        validatePlayerForm(playername) {
             this.clearValidationErrors();
 
             if(!playername) {
@@ -429,9 +440,9 @@ define(['lib/localforage', 'entity/mob', 'entity/item', 'data/mobdata', 'user', 
             }
 
             return true;
-        },
+        }
 
-        addValidationError: function(field, errorText) {
+        addValidationError(field, errorText) {
             $('.validation-summary').html('');
             $('<span/>', {
                 'class': 'validation-error blink',
@@ -446,9 +457,9 @@ define(['lib/localforage', 'entity/mob', 'entity/item', 'data/mobdata', 'user', 
                     $(this).unbind(event);
                 });
             }
-        },
+        }
 
-        clearValidationErrors: function() {
+        clearValidationErrors() {
             //var fields = this.loginFormActive() ? this.loginFormFields : this.createNewCharacterFormFields;
             var fields;
             if (this.userFormActive())
@@ -464,14 +475,14 @@ define(['lib/localforage', 'entity/mob', 'entity/item', 'data/mobdata', 'user', 
           		    });
       		    $('.validation-error').remove();
             }
-        },
+        }
 
-        getZoom: function() {
+        getZoom() {
             var zoom = game.renderer.zoom * game.renderer.scaleHUD;
             return zoom;
-        },
+        }
 
-        setMouseCoordinates: function(x, y) {
+        setMouseCoordinates(x, y) {
             // TODO Width and Height not clamping mouse properly.
             console.info("app.setMouseCoordinates - x:"+x+",y"+y);
 
@@ -490,10 +501,10 @@ define(['lib/localforage', 'entity/mob', 'entity/item', 'data/mobdata', 'user', 
             mouse.y = ~~(Utils.clamp(0,height,y)*zoom/scale);
 
             console.info("app.setMouseCoordinates - mouse.x:"+mouse.x+",mouse.y"+mouse.y);
-        },
+        }
 
 
-        initPlayerBar: function() {
+        initPlayerBar() {
             var self = this;
             var player = game.player;
 
@@ -507,9 +518,9 @@ define(['lib/localforage', 'entity/mob', 'entity/item', 'data/mobdata', 'user', 
               anim.idle(Types.Orientations.DOWN);
               anim.show();
             }
-        },
+        }
 
-        npcDialoguePic: function (entity) {
+        npcDialoguePic(entity) {
             var jqPic = $("#npcDialoguePic");
             var scale = 2;
 
@@ -518,8 +529,8 @@ define(['lib/localforage', 'entity/mob', 'entity/item', 'data/mobdata', 'user', 
             var anim = sprite.animations["idle_down"];
             var oc = anim.col * anim.width * scale;
             var or = anim.row * anim.height * scale;
-    		    width2 = sprite ? sprite.width * scale : 0;
-    		    height2 = sprite ? sprite.height * scale : 0;
+    		    var width2 = sprite ? sprite.width * scale : 0; // FIX: missing var, was an implicit global
+    		    var height2 = sprite ? sprite.height * scale : 0; // FIX: missing var, was an implicit global
 
     		    jqPic.css('width', '' + ~~(width2) + 'px');
     		    jqPic.css('height', '' + ~~(height2*0.75) + 'px');
@@ -527,10 +538,10 @@ define(['lib/localforage', 'entity/mob', 'entity/item', 'data/mobdata', 'user', 
             jqPic.css('transform','scale(1.5)')
 
     		    jqPic.css('background-image', 'url("'+sprite.filepath+'")');
-        },
+        }
 
         //Init the hud that makes it show what creature you are mousing over and attacking
-        initTargetHud: function(){
+        initTargetHud(){
           var self = this;
           var scale = game.renderer.getScaleFactor(),
               guiScale = game.renderer.getUiScaleFactor(),
@@ -572,7 +583,7 @@ define(['lib/localforage', 'entity/mob', 'entity/item', 'data/mobdata', 'user', 
         			}
 
         			$(el).fadeIn('fast');
-		        });
+	        });
           }
 
           game.onUpdateTarget(function(target){
@@ -591,18 +602,19 @@ define(['lib/localforage', 'entity/mob', 'entity/item', 'data/mobdata', 'user', 
       			$("#target .health").css('width', (60*guiScale)+'px');
 
       			$('#combatContainer').fadeOut('fast');
-		        });
+	        });
           }
-        },
+        }
 
-        initExpBar: function(){
+        initExpBar(){
             var maxWidth = parseInt($('#expbar').width());
 			      var widthRate = 1.0;
             var self = this;
 
-            jqExp = $('#exp');
-            jqExpBar = $('#expbar');
-            jqExpLevel = $('#explevel');
+            var jqExp = $('#exp');
+            var jqExpBar = $('#expbar');
+            var jqExpLevel = $('#explevel');
+
             game.onPlayerExpChange(function(level, exp){
               var prevLvlExp = Types.expForLevel[level-1];
               var expInThisLevel = exp - prevLvlExp;
@@ -630,9 +642,9 @@ define(['lib/localforage', 'entity/mob', 'entity/item', 'data/mobdata', 'user', 
              	jqExpBar.html("Exp: " + rateFmt);
              	jqExpLevel.html(level);
             });
-        },
+        }
 
-        initHealthBar: function() {
+        initHealthBar() {
       	    var healthMaxWidth = $("#statbars").width();
 	          log.info("healthMaxWidth="+healthMaxWidth);
 
@@ -647,18 +659,18 @@ define(['lib/localforage', 'entity/mob', 'entity/item', 'data/mobdata', 'user', 
             });
 
             game.onPlayerHurt(this.blinkHealthBar.bind(this));
-        },
+        }
 
-        blinkHealthBar: function() {
+        blinkHealthBar() {
             var $hitpoints = $('#health');
 
             $hitpoints.addClass('white');
             setTimeout(function() {
                 $hitpoints.removeClass('white');
             }, 500);
-        },
+        }
 
-        initMenuButton: function() {
+        initMenuButton() {
         	var self = this;
         	log.info("initMenuButton");
 
@@ -690,26 +702,26 @@ define(['lib/localforage', 'entity/mob', 'entity/item', 'data/mobdata', 'user', 
         	$("#menucontainer").click(function(e){
 				    $("#menucontainer").fadeOut();
         	});
-        },
+        }
 
-        initCombatBar: function () {
+        initCombatBar() {
         	var container = "#combatContainer";
       		$(container).children().click(function(e) {
       			$(container).children().removeClass('lightup');
       			$(this).addClass("lightup");
       		});
       		$(container).children().eq(1).addClass("lightup");
-        },
+        }
 
-        hideIntro: function() {
+        hideIntro() {
             clearInterval(this.watchNameInputInterval);
             $('body').removeClass('intro');
             setTimeout(function() {
                 $('body').addClass('game');
             }, 500);
-        },
+        }
 
-        showChat: function(flag) {
+        showChat(flag) {
             if(game.started) {
               if (flag) {
                 $('#chatbox').addClass('active');
@@ -724,23 +736,23 @@ define(['lib/localforage', 'entity/mob', 'entity/item', 'data/mobdata', 'user', 
                 $('#chatbutton').removeClass('active');
               }
             }
-        },
+        }
 
-        showChatLog: function() {
+        showChatLog() {
             if(game.started) {
                 $('#chatbutton').addClass('active');
                 $('#chatLog').hide();
             }
-        },
+        }
 
-        hideChatLog: function() {
+        hideChatLog() {
             if(game.started) {
                 $('#chatbutton').removeClass('active');
                 $('#chatLog').css('display','flex');
             }
-        },
+        }
 
-        showDropDialog: function(dropAction) {
+        showDropDialog(dropAction) {
           if(game.started) {
             $('#dropDialog').show();
             $('#dropCount').focus();
@@ -749,18 +761,18 @@ define(['lib/localforage', 'entity/mob', 'entity/item', 'data/mobdata', 'user', 
             this.dropAction = dropAction;
             this.dropDialogPopuped = true;
           }
-        },
-        hideDropDialog: function() {
+        }
+        hideDropDialog() {
           if(game.started) {
             $('#dropDialog').hide();
             //$('#dropCount').blur();
 
             this.dropDialogPopuped = false;
           }
-        },
+        }
 
 
-        showAuctionSellDialog: function(inventoryNumber) {
+        showAuctionSellDialog(inventoryNumber) {
           if(game.started) {
             $('#auctionSellDialog').show();
             $('#auctionSellCount').focus();
@@ -769,20 +781,20 @@ define(['lib/localforage', 'entity/mob', 'entity/item', 'data/mobdata', 'user', 
             this.inventoryNumber = inventoryNumber;
             this.auctionsellDialogPopuped = true;
           }
-        },
-        hideAuctionSellDialog: function() {
+        }
+        hideAuctionSellDialog() {
           if(game.started) {
             $('#auctionSellDialog').hide();
             //$('#auctionSellCount').blur();
 
             this.auctionsellDialogPopuped = false;
           }
-        },
+        }
 
-        hideWindows: function() {
-        },
+        hideWindows() {
+        }
 
-        loadWindow: function(origin, destination) {
+        loadWindow(origin, destination) {
         	$('#'+origin).hide();
         	$('#'+destination).show();
           //$('#'+destination).focus();
@@ -792,9 +804,9 @@ define(['lib/localforage', 'entity/mob', 'entity/item', 'data/mobdata', 'user', 
           if (destination === "player_window")
             $('#user_remove').show();
           this.initFormFields();
-        },
+        }
 
-        resizeUi: function() {
+        resizeUi() {
             //log.error("resizeUi");
             if(game && game.started) {
               game.resize(game.zoom);
@@ -804,15 +816,12 @@ define(['lib/localforage', 'entity/mob', 'entity/item', 'data/mobdata', 'user', 
               this.initPlayerBar();
               game.updateBars();
             }
-        },
+        }
 
-        onUserReady: function () {
+        onUserReady() {
           app.userReady = true;
           $('#user_create').removeClass('loading');
           $('#user_load').removeClass('loading');
           app.$loginInfo.text("Connected.");
         }
-    });
-
-    return App;
-});
+}

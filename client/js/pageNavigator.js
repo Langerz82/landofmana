@@ -1,6 +1,6 @@
-define([], function() {
-  var PageNavigator = Class.extend({
-    init: function(parent, scale, name) {
+// Converted from AMD (define) + Class.extend to a native ES6 module/class.
+export default class PageNavigator {
+    constructor(parent, scale, name) {
         this.parent = parent;
         this.name = name || "store";
         this.body = $('#'+this.name+'PageNav');
@@ -33,24 +33,24 @@ define([], function() {
                 self.setIndex(self.index + 1);
             }
         });
-    },
+    }
 
-    rescale: function(scale) {
-    },
+    rescale(scale) {
+    }
 
-    getCount: function() {
+    getCount() {
         return this.count;
-    },
-    setCount: function(value) {
+    }
+    setCount(value) {
         this.count = value;
 
         this.numbers[3].html(~~(value / 10))
         this.numbers[4].html((value % 10));
-    },
-    getIndex: function() {
+    }
+    getIndex() {
         return this.index;
-    },
-    setIndex: function(value) {
+    }
+    setIndex(value) {
         this.pageChanged = (this.index !== value);
         this.index = value;
 
@@ -63,25 +63,21 @@ define([], function() {
         if(this.pageChanged && this.changeHandler) {
             this.changeHandler(this);
         }
-    },
-    getVisible: function() {
+    }
+    getVisible() {
         return this.body.css('display') === 'block';
-    },
-    setVisible: function(value) {
+    }
+    setVisible(value) {
         this.body.css('display', value ? 'block' : 'none');
-    },
+    }
 
-    onChange: function(handler) {
+    onChange(handler) {
         this.changeHandler = handler;
-    },
+    }
 
-    open: function() {
+    open() {
       this.setIndex(1);
       (this.index < this.count) ? this.setVisible(1) : this.setVisible();
 
     }
-
-  });
-
-  return PageNavigator;
-});
+}

@@ -1,4 +1,7 @@
-
+// Converted to a native ES6 module. This file never actually called AMD define() even though
+// other files depend on it via define(['detect'], ...) - it just set a bare global `Detect` as a
+// script side-effect and relied on consumers reading that global rather than the (effectively
+// unshimmed/undefined) injected AMD parameter. Real ES6 imports below now resolve properly.
 var Detect = {};
 
 Detect.supportsWebSocket = function() {
@@ -10,9 +13,9 @@ Detect.userAgentContains = function(string) {
 };
 
 Detect.isTablet = function(screenWidth) {
-    if(screenWidth > 720) {
-        if(Detect.userAgentContains('Android')
-        || Detect.userAgentContains('Mobile') || Detect.userAgentContains('iPad')) {
+    if (screenWidth > 720) {
+        if (Detect.userAgentContains('Android')
+            || Detect.userAgentContains('Mobile') || Detect.userAgentContains('iPad')) {
             return true;
         }
     }
@@ -20,12 +23,11 @@ Detect.isTablet = function(screenWidth) {
 }
 
 Detect.isMobile = function() {
-	if(Detect.userAgentContains('Mobile')
-	    || Detect.userAgentContains('iPhone'))
-	{
-	    return true;
-	}
-	return false;
+    if (Detect.userAgentContains('Mobile')
+        || Detect.userAgentContains('iPhone')) {
+        return true;
+    }
+    return false;
 }
 
 
@@ -66,3 +68,5 @@ Detect.isOpera = function() {
 Detect.isFirefoxAndroid = function() {
     return Detect.userAgentContains('Android') && Detect.userAgentContains('Firefox');
 };
+
+export default Detect;

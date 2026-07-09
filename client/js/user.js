@@ -1,5 +1,20 @@
+// Converted from AMD (define) + Class.extend to a native ES6 module/class.
+// NOTE: 'lib/sha1.js' (jsSHA v1.x) sets `window.jsSHA = function(...) {...}` directly with no
+// `this`/CommonJS/AMD checks, so importing it purely for its side effect works safely here -
+// same reasoning as lib/localforage.js in app.js. It was previously loaded as a classic <script>
+// but never actually imported anywhere, leaving the bare `jsSHA` call below broken under ES
+// modules (ReferenceError: jsSHA is not defined). CryptoJS comes from a separate vendor bundle
+// outside js/ (javascripts/crypto/index.min.js) and is expected to still be loaded via its own
+// classic <script> tag.
+import './lib/sha1.js';
+import UserClient from './userclient.js';
+import Player from './entity/player.js';
+import AppearanceData from './data/appearancedata.js';
+import Timer from './timer.js';
 
-function PlayerSummary(index, db_player) {
+/* global Types, CryptoJS */
+
+export function PlayerSummary(index, db_player) {
   this.index = index;
   this.name = db_player.name;
   //this.pClass = db_player.pClass;
@@ -24,13 +39,9 @@ PlayerSummary.prototype.toString = function () {
     return this.toArray().join(",");
 }
 
-define(['userclient', 'entity/player', 'data/appearancedata', 'timer', 'lib/sha1'],
-
 // TODO - Make a thin user client that process User related packets back and forth.
-function(UserClient, Player, AppearanceData, Timer) {
-
-  var User = Class.extend({
-      init: function(userclient, username, password) {
+export default class User {
+      constructor(userclient, username, password) {
         this.client = userclient;
         this.username = username.toLowerCase();
         this.password = password;
@@ -47,14 +58,14 @@ function(UserClient, Player, AppearanceData, Timer) {
         //log.info("hashChallenge="+hashChallenge.getHash("SHA-1","HEX"));
         this.hash = this.hash || btoa(hash);
 
-      },
+      }
 
-      setPlayerSummary: function (data)
+      setPlayerSummary(data)
       {
         var count = parseInt(data.shift());
         for (var i=0; i < count; ++i)
         {
-          j = (7 * i);
+          var j = (7 * i); // FIX: missing var, was an implicit global
 
           var ps = new PlayerSummary(parseInt(data[j]), {
             name: data[j+1],
@@ -65,9 +76,9 @@ function(UserClient, Player, AppearanceData, Timer) {
           });
           this.playerSum.push(ps);
         }
-      },
+      }
 
-      createPlayer: function (ps)
+      createPlayer(ps)
       {
         this.playerSum[ps.index] = ps;
         var player = new Player(0, 1, 0, 0, ps.name);
@@ -233,9 +244,5 @@ function(UserClient, Player, AppearanceData, Timer) {
         game.addPlayerCallbacks(player);
 
         return player;
-      },
-  });
-
-  return User;
-
-});
+      }
+}

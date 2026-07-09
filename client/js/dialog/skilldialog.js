@@ -1,6 +1,11 @@
-define(['./dialog', '../tabpage', 'data/skilldata'], function(Dialog, TabPage, SkillData) {
-    var Skill = Class.extend({
-        init: function(parent, i, level, position) {
+// Converted from AMD (define) + Class.extend to a native ES6 module/class.
+/* global Types */
+import Dialog from './dialog.js';
+import TabPage from '../tabpage.js';
+import SkillData from '../data/skilldata.js';
+
+class Skill {
+        constructor(parent, i, level, position) {
             var id = this.id = '#skill' + i;
             this.background = $(id);
             this.body = $(id + ' .skillbody');
@@ -57,15 +62,15 @@ define(['./dialog', '../tabpage', 'data/skilldata'], function(Dialog, TabPage, S
             });
 
             this.rescale();
-        },
+        }
 
-        cooldownStart: function () {
+        cooldownStart() {
           this.cooltime = Date.now();
           this.cooldown();
           this.cooltimeHandle = setInterval(this.cooldown.bind(this), 1000);
-        },
+        }
 
-        cooldown: function() {
+        cooldown() {
           var duration = (Date.now() - this.cooltime);
           var coolms = this.cooldownDuration;
           if (duration < coolms) {
@@ -78,9 +83,9 @@ define(['./dialog', '../tabpage', 'data/skilldata'], function(Dialog, TabPage, S
             clearInterval(this.cooltimeHandle);
             this.cooltimeHandle = null;
           }
-        },
+        }
 
-        rescale: function () {
+        rescale() {
           var scale = this.scale = game.renderer.getUiScaleFactor();
           var position = this.position;
 
@@ -102,15 +107,15 @@ define(['./dialog', '../tabpage', 'data/skilldata'], function(Dialog, TabPage, S
               });
           }
 
-        },
+        }
 
-        getName: function() {
+        getName() {
             return this.name;
-        },
-        getLevel: function() {
+        }
+        getLevel() {
             return this.level;
-        },
-        setLevel: function(value) {
+        }
+        setLevel(value) {
             this.level = value;
             if(value > 0) {
                 this.body.css('display', 'inline');
@@ -122,33 +127,33 @@ define(['./dialog', '../tabpage', 'data/skilldata'], function(Dialog, TabPage, S
                     this.body[0].draggable = false;
             }
         }
-    });
+}
 
-    var SkillPage = TabPage.extend({
-        init: function(parent) {
-            this._super(parent, '#frameSkillsPage');
+class SkillPage extends TabPage {
+        constructor(parent) {
+            super(parent, '#frameSkillsPage'); // FIX (conversion): this._super(parent, '#frameSkillsPage') -> super(parent, '#frameSkillsPage')
             this.skills = [];
             this.selectedSkill = null;
             var self = this;
-        },
+        }
 
-        setSkills: function(skillExps) {
+        setSkills(skillExps) {
       		for (var i=0; i < skillExps.length; ++i)
       		{
             this.skills[i] = {level: Types.getSkillLevel(skillExps[i]), skill: null};
       		}
           this.assign();
-        },
-        setSkill: function(index, level) {
+        }
+        setSkill(index, level) {
           this.skills[index] = {level: level, skill: null};
-        },
+        }
 
-        cooldownStart: function (index) {
+        cooldownStart(index) {
             if (this.skills[index])
               this.skills[index].skill.cooldownStart();
-        },
+        }
 
-        clear: function() {
+        clear() {
             var scale = game.renderer.getUiScaleFactor();
             for (var i = this.skills.length-1; i >= 0; --i)
             {
@@ -165,16 +170,16 @@ define(['./dialog', '../tabpage', 'data/skilldata'], function(Dialog, TabPage, S
                 }
             }
             this.skills.splice(0, this.skills.length);
-        },
+        }
 
-        rescale: function() {
+        rescale() {
           for(var i = 0; i < this.skills.length; ++i) {
               var skill = this.skills[i].skill;
               skill.rescale();
           }
-        },
+        }
 
-        assign: function() {
+        assign() {
             //SendNative(["PlayerSkills"].concat(this.skills));
             var scale = game.renderer.getUiScaleFactor();
             for(var i = 0; i < this.skills.length; ++i) {
@@ -208,9 +213,9 @@ define(['./dialog', '../tabpage', 'data/skilldata'], function(Dialog, TabPage, S
                     skill.setLevel(tSkill.level);
                 }
             }
-        },
+        }
 
-        clearHighlight: function() {
+        clearHighlight() {
           this.selectedSkill = null;
         	for(var i = 0; i < this.skills.length; ++i)
           {
@@ -218,11 +223,11 @@ define(['./dialog', '../tabpage', 'data/skilldata'], function(Dialog, TabPage, S
         			this.skills[i].skill.body.css('border',"3px solid black");
           }
         }
-    });
+}
 
-    SkillDialog = Dialog.extend({
-        init: function() {
-            this._super(null, '#skillsDialog');
+export default class SkillDialog extends Dialog {
+        constructor() {
+            super(null, '#skillsDialog'); // FIX (conversion): this._super(null, '#skillsDialog') -> super(null, '#skillsDialog')
             //this.frame = new Frame(this, game);
             this.addClose();
             this.page = new SkillPage(this);
@@ -234,17 +239,14 @@ define(['./dialog', '../tabpage', 'data/skilldata'], function(Dialog, TabPage, S
                 ShortcutData.parent.clearHighlight();
             	ShortcutData = null;
             });
-        },
+        }
 
-        show: function() {
+        show() {
             this.page.rescale();
-            this._super();
-        },
+            super.show(); // FIX (conversion): this._super() -> super.show()
+        }
 
-        update: function(datas) {
+        update(datas) {
             this.page.update(datas);
-        },
-    });
-
-    return SkillDialog;
-});
+        }
+}

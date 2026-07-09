@@ -1,77 +1,73 @@
+// Converted from AMD (define) + Class.extend to a native ES6 module/class.
+/* global Types, ItemTypes */
 
-define([], function() {
+export default class PlayerItems {
+    constructor(entity) {
+        this.entity = entity;
 
-    var PlayerItems = Class.extend({
-        init: function(entity) {
-            this.entity = entity;
+        this.equipment = {};
+        this.inventory = {};
+    }
 
-            this.equipment = {};
-            this.inventory = {};
-        },
+    setItems(equipment, inventory) {
+        this.equipment = equipment;
+        this.inventory = inventory;
+    }
 
-        setItems: function (equipment, inventory) {
-          this.equipment = equipment;
-          this.inventory = inventory;
-        },
+    hasWeaponType(type) {
+        var entity = this.entity;
 
-        hasWeaponType: function (type) {
-          var entity = this.entity;
+        type = type || "any";
+        if (type === "any")
+            return true;
 
-          type = type || "any";
-          if (type === "any")
-              return true;
-
-          var weapon = this.equipment.getWeapon();
-          if (!weapon)
+        var weapon = this.equipment.getWeapon();
+        if (!weapon)
             return false;
 
-          if (type) {
+        if (type) {
             return this.getWeaponType() === type;
-          }
-          return ItemTypes.isHarvestWeapon(weapon.itemKind);
-        },
+        }
+        return ItemTypes.isHarvestWeapon(weapon.itemKind);
+    }
 
-        getWeapon: function () {
-          return this.equipment.getWeapon();
-        },
+    getWeapon() {
+        return this.equipment.getWeapon();
+    }
 
-        hasWeapon: function() {
-          return this.getWeapon() !== null;
-        },
+    hasWeapon() {
+        return this.getWeapon() !== null;
+    }
 
-        getWeaponLevel: function () {
-          var entity = this.entity;
+    getWeaponLevel() {
+        var entity = this.entity;
 
-          var weapon = this.getWeapon();
-          if (!weapon)
+        var weapon = this.getWeapon();
+        if (!weapon)
             return 0;
-          var weaponData = ItemTypes.KindData[weapon.itemKind];
-          return Types.getWeaponLevel(entity.stats.exp[weaponData.type]);
-        },
+        var weaponData = ItemTypes.KindData[weapon.itemKind];
+        return Types.getWeaponLevel(entity.stats.exp[weaponData.type]);
+    }
 
-        getWeaponType : function () {
-          var weapon = this.getWeapon();
-          if (!weapon)
+    getWeaponType() {
+        var weapon = this.getWeapon();
+        if (!weapon)
             return null;
-          return ItemTypes.getType(weapon.itemKind);
-        },
+        return ItemTypes.getType(weapon.itemKind);
+    }
 
-        hasHarvestWeapon: function (type) {
-          if (type && type === "any")
-              return true;
+    hasHarvestWeapon(type) {
+        if (type && type === "any")
+            return true;
 
-          var weapon = this.getWeapon();
-          if (!weapon)
+        var weapon = this.getWeapon();
+        if (!weapon)
             return false;
 
-          var weaponData = ItemTypes.KindData[weapon.itemKind];
-          if (type) {
+        var weaponData = ItemTypes.KindData[weapon.itemKind];
+        if (type) {
             return weaponData.type === type;
-          }
-          return ItemTypes.isHarvestWeapon(weapon.itemKind);
-        },
-
-    });
-
-    return PlayerItems;
-});
+        }
+        return ItemTypes.isHarvestWeapon(weapon.itemKind);
+    }
+}

@@ -713,21 +713,19 @@
 <script src="js/lib/class.js"></script>
 <script src="js/lib/socket.io.js"></script>
 <script src="js/lib/log.js"></script>
-<!--<script src="js/compress.js" data-main="home"></script>-->
-<script src="javascripts/require.js" data-main="js/home"></script>
-<script>
-    //var require = { waitSeconds: 10 };
-    /*document.addEventListener('deviceready', function () {
-    	window.cache.clear(
-    		function() { alert("Cache cleared"); },
-    		function() { alert("Cache clear error."); });
-    });*/
-</script>
+<!-- ES6 module conversion: js/lib/class.js (the Class.extend() shim) is still needed for now -
+     every file that hasn't yet been converted to a native ES6 class depends on the global `Class`
+     it defines. Remove this line only once 100% of js/*.js has been converted. -->
+<script src="js/lib/class.js"></script>
+<script src="js/lib/socket.io.js"></script>
+<script src="js/lib/log.js"></script>
+
+<script type="module" src="js/home.js"></script>
+
 <script src="js/lib/cookie.js"></script>
 <script src="js/lib/virtualjoystick.js"></script>
 <script src="js/lib/pxgamepad.js"></script>
 <script src="js/lib/jquery.jcryption.3.0.1.js"></script>
-<!--<script src="js/util.js"></script>-->
 <script src="js/lib/underscore.min.js"></script>
 </body>
 </html>

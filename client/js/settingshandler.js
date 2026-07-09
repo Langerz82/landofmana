@@ -1,6 +1,11 @@
-define(['lib/localforage', 'lib/virtualjoystick'], function(localforage) {
-  var SettingsHandler = Class.extend({
-    init: function(game) {
+// Converted from AMD (define) + Class.extend to a native ES6 module/class.
+// NOTE: 'lib/virtualjoystick' is still loaded as a classic (non-module) script via a <script> tag
+// and exposes `VirtualJoystick` as a global, so it is not imported here. `localforage` is now
+// imported (for its window.localforage side effect) once from app.js, which the import graph
+// guarantees runs before this file, so it's still safe to use here as a bare global.
+/* global localforage, VirtualJoystick, log, ShortcutStyle */
+export default class SettingsHandler {
+    constructor(game) {
     	this.game = game;
     	this.app = game.app;
     	this.toggle = false;
@@ -211,9 +216,9 @@ define(['lib/localforage', 'lib/virtualjoystick'], function(localforage) {
         localforage.setItem('shortcutstyle', val);
         fnSetShortcut(val);
     	});
-    },
+    }
 
-    apply: function () {
+    apply() {
         var self = this;
 
         var buttonSound = $('#buttonsound');
@@ -231,9 +236,9 @@ define(['lib/localforage', 'lib/virtualjoystick'], function(localforage) {
         });
 
 
-    },
+    }
 
-    show: function() {
+    show() {
     	var self = this;
         this.toggle = !this.toggle;
     	if (this.toggle)
@@ -245,7 +250,4 @@ define(['lib/localforage', 'lib/virtualjoystick'], function(localforage) {
             $('#settings').css('display', 'none');
         }
     }
-
-  });
-  return SettingsHandler;
-});
+}

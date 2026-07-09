@@ -1,8 +1,13 @@
+// Converted from AMD (define) + Class.extend to a native ES6 module/class.
+import Character from './entity/character.js';
+import Timer from './timer.js';
+import Player from './entity/player.js';
+import EntityMoving from './entity/entitymoving.js';
 
-define(['entity/character', 'timer', 'entity/player', 'entity/entitymoving'], function(Character, Timer, Player, EntityMoving) {
+/* global Types */
 
-    var Updater = Class.extend({
-        init: function(game) {
+export default class Updater {
+        constructor(game) {
             var self = this;
             this.game = game;
             this.performanceTime = 0;
@@ -143,9 +148,9 @@ define(['entity/character', 'timer', 'entity/player', 'entity/entitymoving'], fu
 
             this.stopTransition = function (c) {
             }
-        },
+        }
 
-        update: function() {
+        update() {
             if (game.mapStatus < 2)
             	return;
 
@@ -160,9 +165,9 @@ define(['entity/character', 'timer', 'entity/player', 'entity/entitymoving'], fu
             this.updateInfos();
             this.looping = false;
             this.lastUpdateTime = Date.now();
-        },
+        }
 
-        updateCharacters: function() {
+        updateCharacters() {
             var self = this;
             var mc = game.mapContainer;
 
@@ -195,9 +200,9 @@ define(['entity/character', 'timer', 'entity/player', 'entity/entitymoving'], fu
                   self.updateCharacterPathMovement(entity);
                 }
             });
-        },
+        }
 
-        updateTransitions: function() {
+        updateTransitions() {
             var self = this,
                 m = null;
 
@@ -210,9 +215,9 @@ define(['entity/character', 'timer', 'entity/player', 'entity/entitymoving'], fu
                     m.step();
                 }
             });
-        },
+        }
 
-        updateCharacterPathMovement: function(c) {
+        updateCharacterPathMovement(c) {
             var self = this;
 
             //var ts = game.tilesize;
@@ -253,9 +258,9 @@ define(['entity/character', 'timer', 'entity/player', 'entity/entitymoving'], fu
               }
             }
 
-        },
+        }
 
-        updateCharacterKeyMovement: function(c)
+        updateCharacterKeyMovement(c)
         {
           if (c.freeze || c.isMovingPath() || c.isDying || c.isDead) {
             //log.info("character is frozen.")
@@ -290,9 +295,9 @@ define(['entity/character', 'timer', 'entity/player', 'entity/entitymoving'], fu
                                tick);
             }
           }
-        },
+        }
 
-        updatePlayerPathMovement: function(c) {
+        updatePlayerPathMovement(c) {
           if (c.isDying || c.isDead || c.freeze || c.isStunned || c.keyMove || !c.isMovingPath()) {
                   return;
           }
@@ -328,9 +333,9 @@ define(['entity/character', 'timer', 'entity/player', 'entity/entitymoving'], fu
             }
           }
 
-        },
+        }
 
-        updatePlayerKeyMovement: function(c)
+        updatePlayerKeyMovement(c)
         {
           if(!game.player)
               return;
@@ -372,9 +377,9 @@ define(['entity/character', 'timer', 'entity/player', 'entity/entitymoving'], fu
             }
           }
 
-        },
+        }
 
-        updateAnimations: function() {
+        updateAnimations() {
             var t = game.currentTime;
 
             game.camera.forEachInScreen(function(entity) {
@@ -406,28 +411,25 @@ define(['entity/character', 'timer', 'entity/player', 'entity/entitymoving'], fu
                 pa.show();
               }
             }
-        },
+        }
 
-        updateAnimatedTiles: function() {
+        updateAnimatedTiles() {
             var self = this,
                 t = game.currentTime;
 
             game.forEachAnimatedTile(function (tile) {
                 tile.animate(t);
             });
-        },
+        }
 
-        updateChatBubbles: function() {
+        updateChatBubbles() {
             var t = this.game.currentTime;
             game.bubbleManager.update(t);
-        },
+        }
 
-        updateInfos: function() {
+        updateInfos() {
             var t = this.game.currentTime;
 
             this.game.infoManager.update(t);
         }
-    });
-
-    return Updater;
-});
+}

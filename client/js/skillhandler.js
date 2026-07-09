@@ -1,44 +1,49 @@
-define(['entity/mob', 'data/skilldata', 'entity/character'], function(Mob, SkillData, Character) {
+// Converted from AMD (define) + Class.extend to a native ES6 module/class.
+import Mob from './entity/mob.js';
+import SkillData from './data/skilldata.js';
+import Character from './entity/character.js';
 
-  var Skill = Class.extend({
-    init: function(skillId) {
+/* global Types */
+
+class Skill {
+    constructor(skillId) {
       this.level = 0;
       this.slots = [];
       this.skillId = skillId;
       this.data = SkillData.Data[skillId];
-    },
+    }
 
-    getName: function() {
+    getName() {
       return this.data.name; // FIX: constructor sets this.data, not this.skillData; was always undefined
-    },
-    getLevel: function() {
+    }
+    getLevel() {
       return this.level;
-    },
-    setLevel: function(value) {
+    }
+    setLevel(value) {
       this.level = value;
-    },
+    }
 
-    clear: function() {},
-    add: function(slot) {
+    clear() {}
+    add(slot) {
       this.slots.push(slot);
-    },
-    remove: function(slot) {
+    }
+    remove(slot) {
       var index = this.slots.indexOf(slot);
       if (index >= 0) {
         this.slots.splice(index, 1);
       }
     }
-  });
+}
 
-  //var SkillPassive = Skill.extend({});
-  var SkillActive = Skill.extend({
-    init: function(skillId) {
-      this._super(skillId);
+//var SkillPassive = Skill.extend({});
+class SkillActive extends Skill {
+    constructor(skillId) {
+      super(skillId); // FIX (conversion): this._super(skillId) -> super(skillId)
 
       this.cooltime = this.data.recharge / 1000;
-    },
+    }
 
-    execute: function() {
+    execute() {
       var self = this;
       var player = game.player;
 
@@ -78,10 +83,10 @@ define(['entity/mob', 'data/skilldata', 'entity/character'], function(Mob, Skill
       //log.info("this.name="+this.name);
       player.skillHandler.pushActiveSkill(this);
       return true;
-    },
-  });
+    }
+}
 
-  var SkillFactory = {
+var SkillFactory = {
     make: function(index) {
       if (index in SkillFactory.Skills) {
         return new SkillFactory.Skills[index](index);
@@ -89,18 +94,18 @@ define(['entity/mob', 'data/skilldata', 'entity/character'], function(Mob, Skill
         return null;
       }
     }
-  };
+};
 
-  SkillFactory.Skills = {};
-  for (var i = 0; i < SkillData.Data.length; ++i) {
+SkillFactory.Skills = {};
+for (var i = 0; i < SkillData.Data.length; ++i) {
     var skillName = SkillData.Data[i].name;
     //log.info("skillName=" + skillName);
     SkillFactory.Skills[i] = SkillActive;
-  };
-  log.info("SKillFactory.Skills:" + JSON.stringify(SkillFactory.Skills));
+};
+log.info("SKillFactory.Skills:" + JSON.stringify(SkillFactory.Skills));
 
-  var SkillHandler = Class.extend({
-    init: function(game) {
+export default class SkillHandler {
+    constructor(game) {
       this.game = game;
       this.skills = [];
       this.container = $('#skillcontainer');
@@ -109,29 +114,29 @@ define(['entity/mob', 'data/skilldata', 'entity/character'], function(Mob, Skill
       $('#skillsCloseButton').click(function () {
         ShortcutData = null;
       });
-    },
+    }
 
-    getSkill: function(skillId) {
+    getSkill(skillId) {
       log.info("skillId="+skillId);
       return this.skills.In(skillId) ? this.skills[skillId] : null;
-    },
+    }
 
-    clear: function() {
-    },
+    clear() {
+    }
 
-    addAll: function (skillExps) {
+    addAll(skillExps) {
       var sl = skillExps.length; // FIX: missing var, was leaking an implicit global
       for(var i = 0; i < sl; ++i)
       {
         this.add(i, skillExps[i]);
       }
-    },
+    }
 
-    execute: function (skillId) {
+    execute(skillId) {
       return this.skills[skillId].execute();
-    },
+    }
 
-    add: function(skillId, exp) {
+    add(skillId, exp) {
       //log.info("skillId:" + skillId);
       var skill = null;
       if (skillId in this.skills) {
@@ -147,12 +152,9 @@ define(['entity/mob', 'data/skilldata', 'entity/character'], function(Mob, Skill
         skill.setLevel(Types.getSkillLevel(exp));
       }
       //alert(JSON.stringify(this.skills));
-    },
+    }
 
-    pushActiveSkill: function(activeSkill) {
+    pushActiveSkill(activeSkill) {
       this.activeSkills.push(activeSkill);
     }
-  });
-
-  return SkillHandler;
-});
+}

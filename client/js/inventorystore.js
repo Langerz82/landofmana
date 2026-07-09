@@ -1,6 +1,11 @@
-define(['entity/item', 'data/items'], function(Item, Items) {
-    var InventoryStore = Class.extend({
-        init: function(parent, index) {
+// Converted from AMD (define) + Class.extend to a native ES6 module/class.
+import Item from './entity/item.js';
+import Items from './data/items.js';
+
+/* global ItemTypes, Utils */
+
+export default class InventoryStore {
+        constructor(parent, index) {
             this.parent = parent;
             this.index = index;
             this.itemKind = null;
@@ -15,9 +20,9 @@ define(['entity/item', 'data/items'], function(Item, Items) {
             this.number = $(name + 'Number');
 
             this.rescale();
-        },
+        }
 
-        rescale: function() {
+        rescale() {
             this.scale = this.parent.parent.scale;
             var scale = this.scale;
 
@@ -52,15 +57,15 @@ define(['entity/item', 'data/items'], function(Item, Items) {
             if (this.itemKind) {
                 this.restore();
             }
-        },
+        }
 
-        getIndex: function() {
+        getIndex() {
             return this.index;
-        },
-        getItemKind: function() {
+        }
+        getItemKind() {
             return this.itemKind;
-        },
-        setItemKind: function(value) {
+        }
+        setItemKind(value) {
             if (value==null)
             {
             	    this.itemKind = null;
@@ -71,16 +76,16 @@ define(['entity/item', 'data/items'], function(Item, Items) {
             	    this.itemKind = value;
             	    this.itemName = ItemTypes.KindData[value].name;
             }
-        },
-        getItemName: function() {
+        }
+        getItemName() {
             return this.itemName;
-        },
+        }
 
-        getComment: function() {
+        getComment() {
             return Item.getInfoMsgEx(this);
-        },
+        }
 
-        assign: function(arr) {
+        assign(arr) {
         //assign: function(itemKind, itemNumber, skillKind, skillLevel, durability, durabilityMax, experience) {
             this.setItemKind(arr[0]);
             this.itemNumber = arr[1];
@@ -93,21 +98,21 @@ define(['entity/item', 'data/items'], function(Item, Items) {
             this.itemDurabilityPercent = Utils.Percent(arr[4]/arr[5]);
             this.experience = arr[6];
             this.restore();
-        },
-        clear: function() {
+        }
+        clear() {
             this.setItemKind(null);
             this.itemNumber = 0;
             this.skillKind = 0;
             this.skillLevel = 0;
             this.release();
-        },
-        release: function() {
+        }
+        release() {
             this.body.css('background-image', '');
             this.body.html("");
             this.body.attr('title', '');
             this.number.html("");
-        },
-        restore: function() {
+        }
+        restore() {
             Items.jqShowItem(this.body, this, this.number);
 
           	if (ItemTypes.isObject(this.itemKind) || ItemTypes.isCraftItem(this.itemKind)) {
@@ -117,6 +122,4 @@ define(['entity/item', 'data/items'], function(Item, Items) {
           		this.body.html(this.itemDurabilityPercent);
           	}
         }
-    });
-    return InventoryStore;
-});
+}

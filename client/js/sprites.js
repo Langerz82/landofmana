@@ -1,7 +1,7 @@
-define([],
-  function() {
-    var Sprites = Class.extend({
-      init: function (data) {
+// Converted from AMD (define) + Class.extend to a native ES6 module/class.
+/* global JSZipUtils, JSZip */
+export default class Sprites {
+      constructor(data) {
         var self = this;
 
         var $file = "sprites/sprites.zip";
@@ -23,9 +23,9 @@ define([],
             });
         });
 
-      },
+      }
 
-      makeSprites: function (data) {
+      makeSprites(data) {
         var sprites = {};
 
     	  var spriteJson = JSON.parse(data);
@@ -43,8 +43,4 @@ define([],
         return sprites;
 
       }
-
-    });
-
-    return Sprites;
-});
+}

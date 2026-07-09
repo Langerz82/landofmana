@@ -1,22 +1,41 @@
-define(['hoveringinfo',
-        'gameclient', 'audio',
-        'pathfinder', 'entity/entity', 'entity/entitymoving', 'entity/item', 'data/items', 'data/itemlootdata',
-        'entity/mob', 'entity/npcstatic', 'entity/npcmove', 'data/npcdata', 'entity/player', 'entity/character', 'entity/chest', 'entity/block',
-        'data/mobdata', 'data/mobspeech', 'data/appearancedata',
-        'quest', 'achievement',
-        'skillhandler', 'data/skilldata',
-        'data/langdata', 'gamepad'],
+// Converted from AMD (define) + Class.extend to a native ES6 module/class.
+import HoveringInfo from './hoveringinfo.js';
+import GameClient from './gameclient.js';
+import AudioManager from './audio.js';
+import Pathfinder from './pathfinder.js';
+import Entity from './entity/entity.js';
+import EntityMoving from './entity/entitymoving.js';
+import Item, { ItemRoom } from './entity/item.js';
+import Items from './data/items.js';
+import ItemLoot from './data/itemlootdata.js';
+import Mob from './entity/mob.js';
+import NpcStatic from './entity/npcstatic.js';
+import NpcMove from './entity/npcmove.js';
+import NpcData from './data/npcdata.js';
+import Player from './entity/player.js';
+import Character from './entity/character.js';
+import Chest from './entity/chest.js';
+import Block from './entity/block.js';
+import MobData from './data/mobdata.js';
+import MobSpeech from './data/mobspeech.js';
+import AppearanceData from './data/appearancedata.js';
+import Quest from './quest.js';
+import Achievement from './achievement.js';
+import SkillHandler from './skillhandler.js';
+import SkillData from './data/skilldata.js';
+import LangData from './data/langdata.js';
+import GamePad from './gamepad.js';
 
-function(HoveringInfo,
-         GameClient, AudioManager,
-         Pathfinder, Entity, EntityMoving, Item, Items, ItemLoot,
-         Mob, NpcStatic, NpcMove, NpcData, Player, Character, Chest, Block,
-         MobData, MobSpeech, AppearanceData,
-         Quest, Achievement,
-         SkillHandler, SkillData,
-         LangData, GamePad) {
-  var ClientCallbacks = Class.extend({
-      init: function(client) {
+/* global Types, ItemTypes, Utils */
+
+// FIX (conversion): 'QuestType'/'QuestStatus' used to be bare cross-script globals (gametypes.js's
+// top-level consts were visible to sibling classic <script> tags). Now that gametypes.js is a real
+// ES module, they're aliased from Types.QuestType/Types.QuestStatus instead.
+const QuestType = Types.QuestType;
+const QuestStatus = Types.QuestStatus;
+
+export default class ClientCallbacks {
+      constructor(client) {
         this.client = client;
 
         //var client = game.client;
@@ -208,6 +227,7 @@ function(HoveringInfo,
           {
               var uid = NpcData.Kinds[entity.kind].uid;
               entity.setSprite(game.sprites[uid]);
+              entity.idle(2);
           }
           else if (entity instanceof NpcMove)
           {
@@ -215,6 +235,7 @@ function(HoveringInfo,
               entity.setSprite(game.sprites[uid]);
               entity.npcQuestId = Number(data[8]);
               game.npc[entity.id] = entity;
+              entity.idle(2);
           }
 
           if (entity instanceof EntityMoving && !(entity instanceof Block)) {
@@ -852,7 +873,8 @@ function(HoveringInfo,
                 });
             }
 
-            curPage = game.auctionDialog.storeFrame.getActivePage();
+            // FIX: missing var - was an implicit global
+            var curPage = game.auctionDialog.storeFrame.getActivePage();
             var page = game.auctionDialog.storeFrame.pages[type];
             if (curPage !== page) {
               game.auctionDialog.storeFrame.setPageIndex(type);
@@ -866,7 +888,8 @@ function(HoveringInfo,
             var skillIndex = Number(datas[0]);
             var skillExp = Number(datas[1]);
 
-            skillLevel = Types.getSkillLevel(skillExp);
+            // FIX: missing var - was an implicit global
+            var skillLevel = Types.getSkillLevel(skillExp);
             game.player.skillHandler.setSkill(skillIndex, skillExp);
             game.skillsDialog.page.setSkill(skillIndex, skillLevel);
         });
@@ -1270,8 +1293,4 @@ function(HoveringInfo,
         });
 
       }
-  });
-
-  return ClientCallbacks;
-
-});
+}

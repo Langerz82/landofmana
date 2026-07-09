@@ -1,8 +1,10 @@
-/* global Types, Class */
+// Converted from AMD (define) + Class.extend to a native ES6 module/class.
+/* global ItemTypes, Class */
+import Item from './entity/item.js';
+import Items from './data/items.js';
 
-define(['entity/item', 'data/items'], function(Item, Items) {
-    var EquipmentHandler = Class.extend({
-        init: function(game) {
+export default class EquipmentHandler {
+        constructor(game) {
             var self = this;
             this.game = game;
             this.rooms = [];
@@ -16,7 +18,7 @@ define(['entity/item', 'data/items'], function(Item, Items) {
               $('#equipment'+i).data("slot", i);
               $('#equipBackground'+i).data("slot", i);
             }*/
-        },
+        }
 
 /*
         selectItem: function(realslot, select) {
@@ -37,15 +39,15 @@ define(['entity/item', 'data/items'], function(Item, Items) {
         },
 */
 
-        clearItem: function (slot) {
+        clearItem(slot) {
           $('#equipment'+slot).css({
             'background-image': "none",
             'box-shadow': "none"
           });
           $('#equipment'+slot).html('');
-        },
+        }
 
-        setEquipment: function(itemRooms) {
+        setEquipment(itemRooms) {
             for(var i = 0; i < itemRooms.length; ++i)
             {
               this.clearItem(i);
@@ -66,9 +68,9 @@ define(['entity/item', 'data/items'], function(Item, Items) {
               }
             }
             this.refreshEquipment();
-        },
+        }
 
-        refreshEquipment: function() {
+        refreshEquipment() {
           var scale = game.renderer.guiScale;
 
           // Dumped from Char dialog.
@@ -87,9 +89,9 @@ define(['entity/item', 'data/items'], function(Item, Items) {
               this.clearItem(i);
             }
           }
-        },
+        }
 
-        equip: function(item, itemSlot) {
+        equip(item, itemSlot) {
             var itemKind = item.itemKind;
 
             var equipSlot = ItemTypes.getEquipmentSlot(itemKind);
@@ -98,14 +100,14 @@ define(['entity/item', 'data/items'], function(Item, Items) {
 
             //this.menu.close();
             game.statDialog.update();
-        },
+        }
 
-        unequip: function(itemSlot) {
+        unequip(itemSlot) {
             game.client.sendItemSlot([1, 2, itemSlot, 0, 0, -1]);
             game.statDialog.update();
-        },
+        }
 
-        repairItem: function (type, itemSlot, item) {
+        repairItem(type, itemSlot, item) {
           var self = this;
           if (!item) return;
 
@@ -122,9 +124,9 @@ define(['entity/item', 'data/items'], function(Item, Items) {
                   game.client.sendStoreRepair(type, itemSlot);
               }
           });
-        },
+        }
 
-        enchantItem: function (type, itemSlot, item) {
+        enchantItem(type, itemSlot, item) {
           var self = this;
           if (!item) return;
 
@@ -141,25 +143,21 @@ define(['entity/item', 'data/items'], function(Item, Items) {
                   game.client.sendStoreEnchant(type, itemSlot);
               }
           });
-        },
+        }
 
-        useItem: function (type, item) {
+        useItem(type, item) {
           if (type === 2) {
             this.unequip(item.slot);
           }
           else {
             this.equip(item, item.slot);
           }
-        },
+        }
 
-        getWeapon: function() {
+        getWeapon() {
           if (!this.rooms)
             return null;
 
           return this.rooms[4];
-        },
-
-    });
-
-    return EquipmentHandler;
-});
+        }
+}

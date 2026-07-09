@@ -1,7 +1,11 @@
-define(['./dialog', '../tabpage'], function(Dialog, TabPage) {
-    	var StatPage = TabPage.extend({
-        init: function(parent) {
-            this._super(parent, '#frameStatsPage');
+// Converted from AMD (define) + Class.extend to a native ES6 module/class.
+/* global Types, Utils */
+import Dialog from './dialog.js';
+import TabPage from '../tabpage.js';
+
+class StatPage extends TabPage {
+        constructor(parent) {
+            super(parent, '#frameStatsPage'); // FIX (conversion): this._super(parent, '#frameStatsPage') -> super(parent, '#frameStatsPage')
             this.parent = parent;
             var self = this;
             $('#charAddAttack').click(function(e) {
@@ -24,9 +28,9 @@ define(['./dialog', '../tabpage'], function(Dialog, TabPage) {
             	game.client.sendAddStat(4, 1);
               self.refreshStats();
             });
-        },
+        }
 
-        refreshStats: function () {
+        refreshStats() {
             var p = game.player;
             var stats = game.player.stats;
             $('#characterPoints').text("Free Points:\t\t"+stats.free);
@@ -49,9 +53,9 @@ define(['./dialog', '../tabpage'], function(Dialog, TabPage) {
             	$('#charAddEnergy').css('display','inline-block');
             	$('#charAddLuck').css('display','inline-block');
             }
-        },
+        }
 
-        assign: function(data) {
+        assign(data) {
             var weapon, armor,
                 width1, height1, width2, height2, width3, height3;
             var self = this;
@@ -153,30 +157,27 @@ define(['./dialog', '../tabpage'], function(Dialog, TabPage) {
             $('#characterDefenseLevel').text("Defense Level\t\t"+lvl+"\t"+Utils.Percent(ratio));
 
         }
-    });
+}
 
-    StatDialog = Dialog.extend({
-        init: function() {
-            this._super(null, '#statsDialog');
+export default class StatDialog extends Dialog {
+        constructor() {
+            super(null, '#statsDialog'); // FIX (conversion): this._super(null, '#statsDialog') -> super(null, '#statsDialog')
 
             this.addClose();
             this.page = new StatPage(this);
-        },
+        }
 
-        show: function(index, datas) {
-            this._super();
+        show(index, datas) {
+            super.show(); // FIX (conversion): this._super() -> super.show()
             this.update();
-        },
+        }
 
-        update: function() {
+        update() {
             game.client.sendPlayerInfo();
             //this.page.assign();
-        },
+        }
 
         /*hide: function() {
             this._super();
         }*/
-    });
-
-    return StatDialog;
-});
+}

@@ -1,7 +1,9 @@
-define(['./dialog'], function(Dialog) {
-    var NotifyDialog = Dialog.extend({
-        init: function() {
-            this._super(game, '#dialogModalNotify');
+// Converted from AMD (define) + Class.extend to a native ES6 module/class.
+import Dialog from './dialog.js';
+
+export default class NotifyDialog extends Dialog {
+        constructor() {
+            super(game, '#dialogModalNotify'); // FIX (conversion): this._super(game, '#dialogModalNotify') -> super(game, '#dialogModalNotify')
             this.setScale();
 
             this.modalParent = $('#dialogModal');
@@ -22,37 +24,33 @@ define(['./dialog'], function(Dialog) {
                     self.notifyCallback();
                 }
             });
-        },
+        }
 
-        setScale: function() {
+        setScale() {
           this.scale = game.renderer.getUiScaleFactor();
-        },
+        }
 
-        rescale: function() {
+        rescale() {
         	this.setScale();
-        },
+        }
 
-        show: function() {
+        show() {
             this.rescale();
             this.modalParent.css('display', 'block');
             this.modal.css('display', 'block');
-            this._super();
-        },
+            super.show(); // FIX (conversion): this._super() -> super.show()
+        }
 
-        hide: function() {
+        hide() {
             this.modalParent.css('display', 'none');
             this.modal.css('display', 'none');
-            this._super();
-        },
+            super.hide(); // FIX (conversion): this._super() -> super.hide()
+        }
 
-        notify: function(message, callback) {
+        notify(message, callback) {
             this.notifyCallback = callback;
 
             this.modalNotifyMessage.text(message);
             this.show();
-        },
-
-    });
-
-    return NotifyDialog;
-});
+        }
+}

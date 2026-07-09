@@ -1,8 +1,8 @@
+// Converted from AMD (define) + Class.extend to a native ES6 module/class.
+import HoveringInfo from './hoveringinfo.js';
 
-define(['hoveringinfo'], function(HoveringInfo) {
-
-    var InfoManager = Class.extend({
-        init: function(game) {
+export default class InfoManager {
+        constructor(game) {
             this.game = game;
             this.infos = {};
             this.destroyQueue = [];
@@ -25,31 +25,32 @@ define(['hoveringinfo'], function(HoveringInfo) {
             		}
             	}
         	},50);
-        },
+        }
 
-        addDamageInfo: function(value, x, y, type, duration) {
+        addDamageInfo(value, x, y, type, duration) {
             this.index = (this.index >= Number.MAX_SAFE_INTEGER) ? 1 : this.index+1;
             var time = this.game.currentTime,
-                id = this.index;
+                duration = (duration)? duration : 1000,
+                id = this.index,
                 self = this,
-                info = new HoveringInfo(id, value, x, y, (duration)?duration:1000, type);
+                info = new HoveringInfo(id, value, x, y, duration, type);
 
-            		info.onDestroy(function(id) {
-                    if (!id || !self.destroyQueue) return;
-            		    self.destroyQueue.push(id);
-            		});
+        		info.onDestroy(function(id) {
+                if (!id || !self.destroyQueue) return;
+        		    self.destroyQueue.push(id);
+        		});
 
-            			if (info.interval > 0) {
-            				self.infoQueue.push(info);
-            			}
-            			else
-            			{
-            				info.showTime = time;
-            				self.infos[id] = info;
-            			}
-        },
+      			if (info.interval > 0) {
+      				self.infoQueue.push(info);
+      			}
+      			else
+      			{
+      				info.showTime = time;
+      				self.infos[id] = info;
+      			}
+        }
 
-        addInfo: function(info) {
+        addInfo(info) {
             var time = this.game.currentTime,
                 self = this;
 
@@ -67,17 +68,17 @@ define(['hoveringinfo'], function(HoveringInfo) {
       				info.showTime = time;
       				self.infos[info.id] = info;
       			}
-        },
+        }
 
-        forEachInfo: function(callback) {
+        forEachInfo(callback) {
             var self = this;
 
             _.each(this.infos, function(info, id) {
                 callback(info);
             });
-        },
+        }
 
-        update: function(time) {
+        update(time) {
             var self = this;
 
             this.forEachInfo(function(info) {
@@ -92,7 +93,4 @@ define(['hoveringinfo'], function(HoveringInfo) {
             });
             this.destroyQueue = [];
         }
-    });
-
-    return InfoManager;
-});
+}

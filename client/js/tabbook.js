@@ -1,6 +1,6 @@
-define(function() {
-  var TabBook = Class.extend({
-    init: function(id) {
+// Converted from AMD (define) + Class.extend to a native ES6 module/class.
+export default class TabBook {
+    constructor(id) {
       this.parent = parent;
       this.id = id;
       this.body = $(id);
@@ -8,15 +8,15 @@ define(function() {
       this.pageIndex = -1;
 
       this.openHandler = null;
-    },
+    }
 
-    getPageCount: function() {
+    getPageCount() {
       return this.pages.length;
-    },
-    getPageIndex: function() {
+    }
+    getPageIndex() {
       return this.pageIndex;
-    },
-    setPageIndex: function(value) {
+    }
+    setPageIndex(value) {
       if(this.pageIndex >= 0) {
         this.pages[this.pageIndex].setVisible(false);
       }
@@ -29,26 +29,23 @@ define(function() {
       } else {
         this.pageIndex = -1;
       }
-    },
-    getActivePage: function() {
+    }
+    getActivePage() {
       return this.pageIndex >= 0 ? this.pages[this.pageIndex] : null;
-    },
-    setActivePage: function(value) {
+    }
+    setActivePage(value) {
       var index = this.pages.indexOf(value);
       if(index >= 0) {
         this.setPageIndex(index);
       }
-    },
+    }
 
-    add: function(page) {
+    add(page) {
       page.setParent(this);
       this.pages.push(page);
-    },
+    }
 
-    onOpen: function(handler) {
+    onOpen(handler) {
       this.openHandler = handler;
     }
-  });
-
-  return TabBook;
-});
+}

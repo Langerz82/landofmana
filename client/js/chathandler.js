@@ -1,112 +1,113 @@
+// Converted from AMD (define) + Class.extend to a native ES6 module/class.
+/* global Utils */
 
-define([], function() {
-    var ChatHandler = Class.extend({
-        init: function(game) {
-            var self = this;
-            //this.game = game;
-            //this.client = game.client;
-            //this.kkhandler = kkhandler;
-            this.chatLog = $('#chatLog');
-            //handle global announcements server sided so
-            //they're always synced.
-            this.bumpOffDelay = 30000;
-        },
-        show: function(){
-          $('#chatLog').css('display', 'flex');
-        },
-        processSendMessage: function(message) {
-          return this.processSenders(null, message);
-        },
-        processReceiveMessage: function(entityId, message) {
-          return this.processRecievers(entityId, message);
-        },
+export default class ChatHandler {
+    constructor(game) {
+        var self = this;
+        //this.game = game;
+        //this.client = game.client;
+        //this.kkhandler = kkhandler;
+        this.chatLog = $('#chatLog');
+        //handle global announcements server sided so
+        //they're always synced.
+        this.bumpOffDelay = 30000;
+    }
+    show(){
+      $('#chatLog').css('display', 'flex');
+    }
+    processSendMessage(message) {
+      return this.processSenders(null, message);
+    }
+    processReceiveMessage(entityId, message) {
+      return this.processRecievers(entityId, message);
+    }
 
-        handleAddSpawn: function (data) {
-      		log.info("sendAddSpawn");
-      		var m = game.getMouseGridPosition();
-      		if (data.length === 2)
-      			game.client.sendAddSpawn(parseInt(data[1]), m.x, m.y);
-        },
+    handleAddSpawn(data) {
+  		log.info("sendAddSpawn");
+  		var m = game.getMouseGridPosition();
+  		if (data.length === 2)
+  			game.client.sendAddSpawn(parseInt(data[1]), m.x, m.y);
+    }
 
-        handleSaveSpawns: function (data) {
-        	game.client.sendSaveSpawns();
-        },
+    handleSaveSpawns(data) {
+    	game.client.sendSaveSpawns();
+    }
 
-        handleIdEntity: function (data) {
-      		var m = game.getMouseGridPosition();
-      		var entity = game.getEntityAt(m.x, m.y);
-      		if (entity)
-      		{
-      			// FIX: entity.name is untrusted/server-controlled; escape before inserting as HTML to prevent XSS
-      			this.addToChatLog("entity name: " + Utils.escapeHtml(entity.name) + ", id: " + entity.id +
-      			    ", kind: " + entity.kind + ", pos: (" + m.x + "," + m.y + ")");
-      		}
-        },
+    handleIdEntity(data) {
+  		var m = game.getMouseGridPosition();
+  		var entity = game.getEntityAt(m.x, m.y);
+  		if (entity)
+  		{
+  			// FIX: entity.name is untrusted/server-controlled; escape before inserting as HTML to prevent XSS
+  			this.addToChatLog("entity name: " + Utils.escapeHtml(entity.name) + ", id: " + entity.id +
+  			    ", kind: " + entity.kind + ", pos: (" + m.x + "," + m.y + ")");
+  		}
+    }
 
-        handleWarp: function (data) {
-      		var p = game.player;
-      		if (p.warpX && p.warpY)
-      		{
-      			this.teleportTo(p.warpX, p.warpY);
-      		}
-        },
+    handleWarp(data) {
+  		var p = game.player;
+  		if (p.warpX && p.warpY)
+  		{
+  			this.teleportTo(p.warpX, p.warpY);
+  		}
+    }
 
-        handlePartyInvite: function(data) {
-        	game.client.sendPartyInvite(data[0], 0);
-        },
+    handlePartyInvite(data) {
+    	game.client.sendPartyInvite(data[0], 0);
+    }
 
-        handlePartyLeader: function(data) {
-        	game.client.sendPartyLeader(data[0]);
-        },
+    handlePartyLeader(data) {
+    	game.client.sendPartyLeader(data[0]);
+    }
 
-        handlePartyLeave: function(data) {
-        	game.client.sendPartyLeave();
-        },
+    handlePartyLeave(data) {
+    	game.client.sendPartyLeave();
+    }
 
-        handlePartyKick: function(data) {
-        	game.client.sendPartyKick(data[0]);
-        },
+    handlePartyKick(data) {
+    	game.client.sendPartyKick(data[0]);
+    }
 
-        handleAutoPotion: function (data) {
-    			game.useAutoPotion = parseInt(data[0]);
-        },
+    handleAutoPotion(data) {
+			game.useAutoPotion = parseInt(data[0]);
+    }
 
-        processSenders: function(entityId, message) {
-                var data = message.split(" ",5);
-                if (!data) data[0] = message;
+    processSenders(entityId, message) {
+            var data = message.split(" ",5);
+            if (!data) data[0] = message;
 
-                switch (data.shift())
-                {
-                    case "/as":
-                        this.handleAddSpawn(data);
-                    	return true;
-                    case "/savespawns":
-                    	this.handleSaveSpawns(data);
-                    	return true;
-                    case "/id":
-                    	this.handleIdEntity(data);
-                        return true;
-                    case "/warp":
-                    	this.handleWarp(data);
-                    	return true;
-                    case "/party":
-                    case "/invite":
-                    	this.handlePartyInvite(data);
-                    	return true;
-                    case "/leader":
-                    	this.handlePartyLeader(data);
-                    	return true;
-                    case "/leave":
-                    	this.handlePartyLeave(data);
-                    	return true;
-                    case "/kick":
-                    	this.handlePartyKick(data);
-                    	return true;
-                    case "/autopotion":
-                    	this.handleAutoPotion(data);
-                    	return true;
-                }
-                			//#cli guilds
+            switch (data.shift())
+            {
+                case "/as":
+                    this.handleAddSpawn(data);
+                	return true;
+                case "/savespawns":
+                	this.handleSaveSpawns(data);
+                	return true;
+                case "/id":
+                	this.handleIdEntity(data);
+                    return true;
+                case "/warp":
+                	this.handleWarp(data);
+                	return true;
+                case "/party":
+                case "/invite":
+                	this.handlePartyInvite(data);
+                	return true;
+                case "/leader":
+                	this.handlePartyLeader(data);
+                	return true;
+                case "/leave":
+                	this.handlePartyLeave(data);
+                	return true;
+                case "/kick":
+                	this.handlePartyKick(data);
+                	return true;
+                case "/autopotion":
+                	this.handleAutoPotion(data);
+                	return true;
+            }
+            			//#cli guilds
 			var regexp = /^\/guild\ (invite|create|accept)\s+([^\s]*)|(guild:)\s*(.*)$|^\/guild\ (leave)$/i;
 			var args = message.match(regexp);
 			if(Array.isArray(args) && args.length > 1){
@@ -212,109 +213,106 @@ define([], function() {
                           return commandPatterns[pattern](message.substring(3));
                       }
                 }
-            return false;
-        },
-        processRecievers: function(entityId, message) {
-        		if (message.indexOf("/") !== 0)
-        			return false;
+        return false;
+    }
+    processRecievers(entityId, message) {
+    		if (message.indexOf("/") !== 0)
+    			return false;
 
-        		//var regexp = /^\/guild\ (invite|create|accept)\s+([^\s]*)|(guild:)\s*(.*)$|^\/guild\ (leave)$/i;
-        		//var args = message.match(regexp);
-        		//if (args) return false;
+    		//var regexp = /^\/guild\ (invite|create|accept)\s+([^\s]*)|(guild:)\s*(.*)$|^\/guild\ (leave)$/i;
+    		//var args = message.match(regexp);
+    		//if (args) return false;
 
-        		var data = message.split(" ",5);
-                if (!data) data[0] = message;
+    		var data = message.split(" ",5);
+            if (!data) data[0] = message;
 
-                switch (data[0])
-                {
-                    case "/rn":
-                        this.addRatingNotification(message.substr(4));
-                    	return true;
-                }
+            switch (data[0])
+            {
+                case "/rn":
+                    this.addRatingNotification(message.substr(4));
+                	return true;
+            }
 
-        	var pattern = message.substring(0, 3),
-                self = this,
-                commandPatterns = {
-                        // World chat
-                        "/1 ": function(entityId, message) {
-                            // FIX: message is server-relayed/untrusted chat text; escape before inserting as HTML to prevent XSS
-                            self.addToChatLog(Utils.escapeHtml(message));
-                            return true;
-                        },
-                        "// ": function(entityId, message){
-                            // FIX: message is server-relayed/untrusted chat text; escape before wrapping in trusted <font> tag to prevent XSS
-                            self.addToChatLog('<font color="#00BFFF">' + Utils.escapeHtml(message) + '</font>');
-                            return true;
-                        },
-                        "///": function(entityId, message){
-                            var i=0;
-                            var splitMsg = message.split(' ');
-                            var msg = "";
-                            for(i=0; i<splitMsg.length; i++){
-                              if(i !== 3){
-                                  msg += splitMsg[i] + " ";
-                              }
-                            }
-                            // FIX: msg is server-relayed/untrusted chat text; escape before wrapping in trusted <font> tag to prevent XSS
-                            self.addToChatLog('<font color="#FFA500">' + Utils.escapeHtml(msg) + '</font>');
-                            return true;
-                        },
-                };
-                if (pattern in commandPatterns) {
-                      if (typeof commandPatterns[pattern] === "function") {
-                          return commandPatterns[pattern](entityId, message.substring(3));
-                      }
-                }
-            return false;
-        },
-        bumpOffLog: function (delay) {
-          var delay = delay || this.bumpOffDelay;
-          var self = this;
-          $(this.chatLog).scrollTop(999999);
-          setTimeout(function () {
-            $(this.chatLog).find("p:first").remove();
-          }, delay);
-        },
+    	var pattern = message.substring(0, 3),
+            self = this,
+            commandPatterns = {
+                    // World chat
+                    "/1 ": function(entityId, message) {
+                        // FIX: message is server-relayed/untrusted chat text; escape before inserting as HTML to prevent XSS
+                        self.addToChatLog(Utils.escapeHtml(message));
+                        return true;
+                    },
+                    "// ": function(entityId, message){
+                        // FIX: message is server-relayed/untrusted chat text; escape before wrapping in trusted <font> tag to prevent XSS
+                        self.addToChatLog('<font color="#00BFFF">' + Utils.escapeHtml(message) + '</font>');
+                        return true;
+                    },
+                    "///": function(entityId, message){
+                        var i=0;
+                        var splitMsg = message.split(' ');
+                        var msg = "";
+                        for(i=0; i<splitMsg.length; i++){
+                          if(i !== 3){
+                              msg += splitMsg[i] + " ";
+                          }
+                        }
+                        // FIX: msg is server-relayed/untrusted chat text; escape before wrapping in trusted <font> tag to prevent XSS
+                        self.addToChatLog('<font color="#FFA500">' + Utils.escapeHtml(msg) + '</font>');
+                        return true;
+                    },
+            };
+            if (pattern in commandPatterns) {
+                  if (typeof commandPatterns[pattern] === "function") {
+                      return commandPatterns[pattern](entityId, message.substring(3));
+                  }
+            }
+        return false;
+    }
+    bumpOffLog(delay) {
+      var delay = delay || this.bumpOffDelay;
+      var self = this;
+      $(this.chatLog).scrollTop(999999);
+      setTimeout(function () {
+        $(this.chatLog).find("p:first").remove();
+      }, delay);
+    }
 
-        addToChatLog: function(message){
-            // FIX: message may be raw untrusted chat text (see call sites); callers now escape untrusted
-            // content before calling this, since some callers intentionally wrap pre-built trusted HTML (e.g. <font> tags)
-            var self = this;
-            var el = $('<p style="color: white">' + message + '</p>');
-            $(el).appendTo(this.chatLog);
-            this.bumpOffLog();
-        },
-        addNotification: function(message){
-            var self = this;
-            var el = $('<p style="color: rgba(128, 255, 128, 1)">' + message + '</p>');
-            $(el).appendTo(this.chatLog);
-            this.bumpOffLog();
-        },
-        addNormalChat: function(entity, message) {
-            var self = this;
-            if (!entity) return;
-            // FIX: entity.name and message are untrusted/server-controlled; escape before inserting as HTML to prevent XSS
-            var el = $('<p style="color: rgba(255, 255, 0, 1)">' + Utils.escapeHtml(entity.name) + ': ' + Utils.escapeHtml(message) + '</p>');
-            $(el).appendTo(this.chatLog);
-            this.bumpOffLog();
-        },
+    addToChatLog(message){
+        // FIX: message may be raw untrusted chat text (see call sites); callers now escape untrusted
+        // content before calling this, since some callers intentionally wrap pre-built trusted HTML (e.g. <font> tags)
+        var self = this;
+        var el = $('<p style="color: white">' + message + '</p>');
+        $(el).appendTo(this.chatLog);
+        this.bumpOffLog();
+    }
+    addNotification(message){
+        var self = this;
+        var el = $('<p style="color: rgba(128, 255, 128, 1)">' + message + '</p>');
+        $(el).appendTo(this.chatLog);
+        this.bumpOffLog();
+    }
+    addNormalChat(entity, message) {
+        var self = this;
+        if (!entity) return;
+        // FIX: entity.name and message are untrusted/server-controlled; escape before inserting as HTML to prevent XSS
+        var el = $('<p style="color: rgba(255, 255, 0, 1)">' + Utils.escapeHtml(entity.name) + ': ' + Utils.escapeHtml(message) + '</p>');
+        $(el).appendTo(this.chatLog);
+        this.bumpOffLog();
+    }
 
-        addGameNotification: function(notificationType, message) {
-            var self = this;
-            // FIX: message may be untrusted/server-controlled; escape before inserting as HTML to prevent XSS
-        	  var el = $('<p style="color: rgba(255, 255, 0, 1)">' + notificationType + ': ' + Utils.escapeHtml(message) + '</p>');
-            $(el).appendTo(this.chatLog);
-            this.bumpOffLog();
-        },
+    addGameNotification(notificationType, message) {
+        var self = this;
+        // FIX: message may be untrusted/server-controlled; escape before inserting as HTML to prevent XSS
+    	  var el = $('<p style="color: rgba(255, 255, 0, 1)">' + notificationType + ': ' + Utils.escapeHtml(message) + '</p>');
+        $(el).appendTo(this.chatLog);
+        this.bumpOffLog();
+    }
 
-        addRatingNotification: function(message) {
-            var self = this;
-            // FIX: message is untrusted/server-controlled; escape before inserting as HTML to prevent XSS
-            var el = $('<p style="color: rgba(255, 255, 0, 1)">' + Utils.escapeHtml(message) + '</p>');
-            $(el).appendTo(this.chatLog);
-            this.bumpOffLog();
-        }
-
-    });
-    return ChatHandler;
-});
+    addRatingNotification(message) {
+        var self = this;
+        // FIX: message is untrusted/server-controlled; escape before inserting as HTML to prevent XSS
+        var el = $('<p style="color: rgba(255, 255, 0, 1)">' + Utils.escapeHtml(message) + '</p>');
+        $(el).appendTo(this.chatLog);
+        this.bumpOffLog();
+    }
+}

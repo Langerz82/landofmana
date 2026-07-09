@@ -372,3 +372,5 @@ Types.SkillEffects = SkillEffects;
 if(!(typeof exports === 'undefined')) {
     module.exports = Types;
 }
+
+export default Types;

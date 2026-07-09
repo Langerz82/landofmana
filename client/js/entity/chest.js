@@ -1,29 +1,26 @@
+// Converted from AMD (define) + Class.extend to a native ES6 module/class.
+import Entity from './entity.js';
 
-define(['./entity'], function(Entity) {
+export default class Chest extends Entity {
+    constructor(id, kind) {
+        super(id, 37);
+    }
 
-    var Chest = Entity.extend({
-        init: function(id, kind) {
-            this._super(id, 37);
-        },
+    getSpriteName() {
+        return "chest";
+    }
 
-        getSpriteName: function() {
-            return "chest";
-        },
+    isMoving() {
+        return false;
+    }
 
-        isMoving: function() {
-            return false;
-        },
-
-        open: function() {
-            if(this.open_callback) {
-                this.open_callback();
-            }
-        },
-
-        onOpen: function(callback) {
-            this.open_callback = callback;
+    open() {
+        if (this.open_callback) {
+            this.open_callback();
         }
-    });
+    }
 
-    return Chest;
-});
+    onOpen(callback) {
+        this.open_callback = callback;
+    }
+}

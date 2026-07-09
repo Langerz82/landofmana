@@ -1,7 +1,16 @@
-define(['./dialog', '../tabbook', '../tabpage', 'data/appearancedata', '../pageNavigator', '../playeranim', 'data/items', 'dialog/confirmdialog'],
-  function(Dialog, TabBook, TabPage, AppearanceData, PageNavigator, PlayerAnim, Items, ConfirmDialog) {
-    var StoreRack = Class.extend({
-        init: function(parent, id, index) {
+// Converted from AMD (define) + Class.extend to a native ES6 module/class.
+import Dialog from './dialog.js';
+import TabBook from '../tabbook.js';
+import TabPage from '../tabpage.js';
+import AppearanceData from '../data/appearancedata.js';
+import PageNavigator from '../pageNavigator.js';
+import PlayerAnim from '../playeranim.js';
+/* global Utils */
+import Items from '../data/items.js';
+import ConfirmDialog from './confirmdialog.js';
+
+class StoreRack {
+        constructor(parent, id, index) {
             this.parent = parent;
             this.id = id;
             this.index = index;
@@ -17,9 +26,9 @@ define(['./dialog', '../tabbook', '../tabpage', 'data/appearancedata', '../pageN
             this.rescale();
 
             this.buyButton.text('Unlock');
-        },
+        }
 
-        rescale: function() {
+        rescale() {
             var scale = this.parent.scale;
             var id = this.id;
             this.body.css({
@@ -30,12 +39,12 @@ define(['./dialog', '../tabbook', '../tabpage', 'data/appearancedata', '../pageN
     	      if (this.item) {
     	     	     this.assign(this.item);
     	      }
-        },
+        }
 
-        getVisible: function() {
+        getVisible() {
             return this.body.css('display') === 'block';
-        },
-        setVisible: function(value) {
+        }
+        setVisible(value) {
             var self = this;
 
             this.body.css('display', value===true ? 'block' : 'none');
@@ -50,9 +59,9 @@ define(['./dialog', '../tabbook', '../tabpage', 'data/appearancedata', '../pageN
                     dialog.unlockMode(true);
                 }
             });
-        },
+        }
 
-        assign: function(item) {
+        assign(item) {
             this.item = item;
             item.itemKind = item.index;
 
@@ -64,20 +73,20 @@ define(['./dialog', '../tabbook', '../tabpage', 'data/appearancedata', '../pageN
             this.price.text(item.buyPrice);
 
             var self = this;
-        },
+        }
 
-        clear: function() {
+        clear() {
             this.basket.css('background-image', 'none')
             this.basket.attr('title', '');
             this.extra.text('');
             this.price.text('');
             this.basket.text('');
         }
-    });
+}
 
-    var AppearancePage = TabPage.extend({
-        init: function(parent, id, itemType, scale, buttonIndex) {
-            this._super(parent, id + 'Page', id + buttonIndex + 'Button');
+class AppearancePage extends TabPage {
+        constructor(parent, id, itemType, scale, buttonIndex) {
+            super(parent, id + 'Page', id + buttonIndex + 'Button'); // FIX (conversion): this._super(...) -> super(...)
             this.itemType = itemType;
             this.racks = [];
             this.items = [];
@@ -88,34 +97,34 @@ define(['./dialog', '../tabbook', '../tabpage', 'data/appearancedata', '../pageN
             for(var index = 0; index < this.rackSize; index++) {
                 this.racks.push(new StoreRack(this, id + index, index));
             }
-        },
+        }
 
-        rescale: function (scale) {
+        rescale(scale) {
             this.scale = scale;
             for(var index = 0; index < this.rackSize; index++) {
                 this.racks[index].rescale();
             }
-        },
+        }
 
-        getPageCount: function() {
+        getPageCount() {
             if (this.items)
             	    return Math.ceil(this.items.length / this.rackSize);
             return 0;
-        },
-        getPageIndex: function() {
+        }
+        getPageIndex() {
             return this.pageIndex;
-        },
+        }
 
-        setPageIndex: function(value) {
+        setPageIndex(value) {
             this.pageIndex = value;
             this.onData();
-        },
+        }
 
-        open: function() {
+        open() {
             this.setPageIndex(0);
-        },
+        }
 
-        onData: function() {
+        onData() {
             this.items = [];
             var categoryType;
             if (!game || !game.player || !game.player.appearances)
@@ -154,9 +163,9 @@ define(['./dialog', '../tabbook', '../tabpage', 'data/appearancedata', '../pageN
             this.parent.parent.showStore(true);
             if (this.parent.getPageIndex() !== 0)
               this.parent.setPageIndex(0);
-        },
+        }
 
-        reload: function()
+        reload()
         {
             for(var index = this.pageIndex * this.rackSize; index < Math.min((this.pageIndex + 1) * this.rackSize, this.items.length); index++) {
                 var rack = this.racks[index - (this.pageIndex * this.rackSize)];
@@ -169,25 +178,24 @@ define(['./dialog', '../tabbook', '../tabpage', 'data/appearancedata', '../pageN
 
                 rack.setVisible(false);
             }
-        },
-
-    });
-
-    var AppearanceArmorPage = AppearancePage.extend({
-        init: function(parent, scale) {
-            this._super(parent, '#storeDialogStore', 0, scale, 0);
         }
-    });
+}
 
-    /*var AppearanceWeaponPage = AppearancePage.extend({
-        init: function(parent, scale) {
-            this._super(parent, '#storeDialogStore', 1, scale, 1);
+class AppearanceArmorPage extends AppearancePage {
+        constructor(parent, scale) {
+            super(parent, '#storeDialogStore', 0, scale, 0); // FIX (conversion): this._super(...) -> super(...)
         }
-    });*/
+}
 
-    var StoreFrame = TabBook.extend({
-        init: function(parent) {
-            this._super('#storeDialogStore');
+/*var AppearanceWeaponPage = AppearancePage.extend({
+    init: function(parent, scale) {
+        this._super(parent, '#storeDialogStore', 1, scale, 1);
+    }
+});*/
+
+class StoreFrame extends TabBook {
+        constructor(parent) {
+            super('#storeDialogStore'); // FIX (conversion): this._super('#storeDialogStore') -> super('#storeDialogStore')
 
             this.parent = parent;
             this.scale = this.parent.scale;
@@ -205,27 +213,27 @@ define(['./dialog', '../tabbook', '../tabpage', 'data/appearancedata', '../pageN
                      activePage.setPageIndex(sender.getIndex() - 1);
                 }
             });
-        },
+        }
 
-        rescale: function() {
+        rescale() {
         	this.scale = this.parent.scale;
           for (var page of this.pages)
             page.rescale(this.scale);
 
         	this.pageNavigator.rescale(this.scale);
-        },
+        }
 
-        setPageIndex: function(value) {
+        setPageIndex(value) {
             if (!this.parent.visible)
             	    return;
 
-            this._super(value);
+            super.setPageIndex(value); // FIX (conversion): this._super(value) -> super.setPageIndex(value)
             this.updateNavigator();
             var activePage = this.getActivePage();
             activePage.open();
-        },
+        }
 
-        updateNavigator: function () {
+        updateNavigator() {
             var activePage = this.getActivePage();
             var pageNav = this.pageNavigator;
             //log.info("activePage.getPageCount()="+activePage.getPageCount());
@@ -239,20 +247,18 @@ define(['./dialog', '../tabbook', '../tabpage', 'data/appearancedata', '../pageN
                 }
                 activePage.reload();
             }
-        },
+        }
 
-        open: function() {
+        open() {
             game.client.sendAppearanceList();
             this.setPageIndex(0);
             this.getActivePage().active();
-        },
+        }
+}
 
-
-    });
-
-    var AppearanceDialog = Dialog.extend({
-        init: function(game) {
-            this._super(game, '#storeDialog');
+export default class AppearanceDialog extends Dialog {
+        constructor(game) {
+            super(game, '#storeDialog'); // FIX (conversion): this._super(game, '#storeDialog') -> super(game, '#storeDialog')
 
             this.storeFrame = new StoreFrame(this);
 
@@ -298,9 +304,9 @@ define(['./dialog', '../tabbook', '../tabpage', 'data/appearancedata', '../pageN
             });
 
             this.unlockLookMode = false;
-        },
+        }
 
-        changeLookArmor: function (index)
+        changeLookArmor(index)
         {
           if (this.armorLooks && this.armorLooks.length > 0)
           {
@@ -316,25 +322,25 @@ define(['./dialog', '../tabbook', '../tabpage', 'data/appearancedata', '../pageN
             this.updateLook();
             game.app.initPlayerBar();
           }
-        },
+        }
 
-        setScale: function() {
+        setScale() {
           this.scale = game.renderer.getUiScaleFactor();
-        },
+        }
 
-        rescale: function() {
+        rescale() {
         	this.setScale();
 		      this.storeFrame.rescale();
-        },
+        }
 
-        hide: function() {
+        hide() {
             $('#storeDialogInventory').show();
             $('#looksDialogPlayer').hide();
             $('#appearanceDialog').hide();
-            this._super();
-        },
+            super.hide(); // FIX (conversion): this._super() -> super.hide()
+        }
 
-        assign: function(datas) {
+        assign(datas) {
             if (datas) {
               var p = game.player;
         		  p.appearances = Utils.Base64ToBinArray(datas.shift(), AppearanceData.length);
@@ -376,14 +382,14 @@ define(['./dialog', '../tabbook', '../tabpage', 'data/appearancedata', '../pageN
             this.scale = game.renderer.getUiScaleFactor();
 
             this.updateLook();
-        },
+        }
 
-        update: function (itemType, sprite) {
+        update(itemType, sprite) {
           //this.playerAnim.sprites[itemType] = sprite;
           this.updateLook(sprite);
-        },
+        }
 
-        updateLook: function(spriteArmor) {
+        updateLook(spriteArmor) {
             var self = this;
             var anim = this.playerAnim;
             var p = game.player;
@@ -416,9 +422,9 @@ define(['./dialog', '../tabbook', '../tabpage', 'data/appearancedata', '../pageN
             }, 1500);
 
             anim.showHTML('#characterLook', this.scale, 3);
-        },
+        }
 
-        unlockMode: function (flag) {
+        unlockMode(flag) {
           this.showStore(flag);
           if (flag) {
             $('#changeLookPrev').hide();
@@ -430,9 +436,9 @@ define(['./dialog', '../tabbook', '../tabpage', 'data/appearancedata', '../pageN
             $('#changeLookUnlock').hide();
           }
           this.unlockLookMode = flag;
-        },
+        }
 
-        showStore: function (flag) {
+        showStore(flag) {
           if (flag) {
             $('#appearanceDialog').hide();
             $('#storeDialog').show();
@@ -441,9 +447,9 @@ define(['./dialog', '../tabbook', '../tabpage', 'data/appearancedata', '../pageN
             $('#appearanceDialog').show();
             $('#storeDialog').hide();
           }
-        },
+        }
 
-        show: function() {
+        show() {
             var self = this;
 
             this.rescale();
@@ -454,7 +460,7 @@ define(['./dialog', '../tabbook', '../tabpage', 'data/appearancedata', '../pageN
             $('#storeDialogStore1Button').hide();
             $('#storeDialogStore2Button').hide();
 
-            jq3Button = $("#storeDialogStore3Button");
+            var jq3Button = $("#storeDialogStore3Button"); // FIX: was a bare global assignment (no var), which throws ReferenceError under ES module strict mode
             jq3Button.text("LOOKS");
             jq3Button.show();
 
@@ -473,11 +479,8 @@ define(['./dialog', '../tabbook', '../tabpage', 'data/appearancedata', '../pageN
             $('#storeDialogStore div.inventoryGoldFrame').hide();
             $('#storeDialogStore div.inventoryGemsFrame').show();
 
-            this._super();
+            super.show(); // FIX (conversion): this._super() -> super.show()
 
             this.storeFrame.open();
-        },
-    });
-
-    return AppearanceDialog;
-});
+        }
+}

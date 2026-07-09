@@ -1,16 +1,16 @@
-
+// Converted from AMD (define) + Class.extend to a native ES6 module/class.
 // TODO - Add Menu Option Navigation. (Assign Skill, Add stat points, Change Settings, View Leaderboard etc).
+/* global Utils, game, log, DragItem, ShortcutData, ShortcutStyle, PxGamepad */
 
-define([], function() {
-  var Navigate = {
-    NONE: 0,
-    LEFT: 1,
-    RIGHT: 2,
-    UP: 3,
-    DOWN: 4
-  };
+var Navigate = {
+  NONE: 0,
+  LEFT: 1,
+  RIGHT: 2,
+  UP: 3,
+  DOWN: 4
+};
 
-GamePadShortcut = null;
+var GamePadShortcut = null; // FIX: was a bare global assignment (no var), which throws ReferenceError under ES module strict mode
 
 var jqInventoryWindow = $("#allinventorywindow");
 var jqMenuWindow = $("#menucontainer");
@@ -61,8 +61,8 @@ var selectFirstItem = {
   combatContainer: "#shortcut0",
 };
 
-  var Gamepad = Class.extend({
-    init: function(game) {
+export default class Gamepad {
+    constructor(game) {
       var self = this;
 
   self.shopPageIndex = 0;
@@ -666,7 +666,7 @@ var selectFirstItem = {
     		else if (jqDropWindow.is(':visible'))
     		{
     		    $("#dropAccept").trigger("click");
-            return;
+          return;
     		}
         if (jqLooksPreview.is(':visible'))
         {
@@ -877,19 +877,19 @@ var selectFirstItem = {
     		{
     	      //self.disableSelectItem();
     		    jqMenuWindow.trigger("click");
-            self.mainButtonsActive = false;
+          self.mainButtonsActive = false;
     		}
     		else if (jqDropWindow.is(':visible'))
     		{
     	      //self.disableSelectItem();
     		    $("#dropCancel").trigger("click");
-            return;
+          return;
     		}
     		else if (game.storeDialog.visible ||
-            game.auctionDialog.visible ||
-            game.appearanceDialog.visible)
+          game.auctionDialog.visible ||
+          game.appearanceDialog.visible)
     		{
-            $("#storeDialogCloseButton").trigger("click");
+          $("#storeDialogCloseButton").trigger("click");
     		    //self.disableSelectItem();
     		}
         else if (game.craftDialog.visible)
@@ -898,9 +898,9 @@ var selectFirstItem = {
     		}
     		else if (jqBankWindow.is(':visible'))
     		{
-            if (game.bankDialog.bankFrame.selectedItem >= 0)
-              game.bankDialog.bankFrame.deselectItem();
-            else
+          if (game.bankDialog.bankFrame.selectedItem >= 0)
+            game.bankDialog.bankFrame.deselectItem();
+          else
     		      $("#bankDialogCloseButton").trigger("click");
     		}
         else if (jqLooksWindow.is(':visible'))
@@ -1098,9 +1098,9 @@ var selectFirstItem = {
         self.dpadY = 0;
     	});
 
-    },
+    }
 
-    interval: function () {
+    interval() {
       if (this.pxgamepad.getGamepad() === null)
         return;
 
@@ -1112,7 +1112,7 @@ var selectFirstItem = {
         var dzx = Math.abs(stick.x);
         if (dzx < deadzone)
           stick.x = 0;
-        dzy = Math.abs(stick.y);
+        var dzy = Math.abs(stick.y); // FIX: missing var, was an implicit global
         if (dzy < deadzone)
           stick.y = 0;
       };
@@ -1249,9 +1249,9 @@ var selectFirstItem = {
         clearInterval(self.navInterval);
         self.navInterval = null;
       }
-    },
+    }
 
-    isDialogOpen: function () {
+    isDialogOpen() {
       //return jqInventoryWindow.is(':visible');
     	return game.storeDialog.visible ||
     		game.bankDialog.visible ||
@@ -1281,27 +1281,27 @@ var selectFirstItem = {
         this.mainButtonsActive;
         //this.shortcutActive;
         //this.navMouse;
-    },
+    }
 
-    isActive: function () {
+    isActive() {
     	return (this.pxgamepad.getGamepad() !== null);
-    },
+    }
 
-    navActive: function () {
+    navActive() {
     	if (this.pxgamepad.getGamepad() === null)
         return true;
       return !(this.navigate === 0);
-    },
+    }
 
-    dialogNavigate: function (direction) {
+    dialogNavigate(direction) {
      this.joystickSide = 0;
      this.joystickIndex = 0;
      this.joystickX = 0;
      this.joystickY = 0;
      //this.resetNavInterval(192);
-    },
+    }
 
-    dialogOpen: function (dialog) {
+    dialogOpen(dialog) {
       this.setSelectedItem(null);
       for (var k in selectFirstItem) {
           if ($('#'+k).is(':visible'))
@@ -1316,12 +1316,9 @@ var selectFirstItem = {
           }
       }
       this.dialogNavigate();
-    },
-
-    dialogClose: function () {
-      //this.resetNavInterval(16);
     }
 
-  });
-  return Gamepad;
-});
+    dialogClose() {
+      //this.resetNavInterval(16);
+    }
+}

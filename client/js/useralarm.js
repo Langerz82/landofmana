@@ -1,18 +1,17 @@
+// Converted from AMD (define) + Class.extend to a native ES6 module/class.
 /* global Types, Class, _, questSerial */
 
-define([], function() {
-
-  var UserAlarm = Class.extend({
-    init: function() {
+export default class UserAlarm {
+    constructor() {
       this.hideDelay = 5000; //How long the notification shows for.
 
       this.queue = [];
       this.jqAlarm = $('#useralarm');
       this.showing = false;
       this.disabled = false;
-    },
+    }
 
-    alarmQueue: function(str, delay) {
+    alarmQueue(str, delay) {
       var self = this;
 
       delay = delay || this.hideDelay;
@@ -21,21 +20,21 @@ define([], function() {
 
       if (!this.showing)
         this.showQueue();
-    },
+    }
 
-    hide: function () {
+    hide() {
       this.jqAlarm.hide();
       this.disabled = true;
-    },
+    }
 
-    show: function () {
+    show() {
       this.disabled = false;
 
       if (!this.showing)
         this.showQueue();
-    },
+    }
 
-    showQueue: function () {
+    showQueue() {
       var self = this;
 
       if (this.disabled) {
@@ -59,11 +58,9 @@ define([], function() {
       else {
         this.showing = false;
       }
-    },
+    }
 
-    alarm: function(str, delay) {
+    alarm(str, delay) {
       this.alarmQueue(str, delay);
-    },
-  });
-  return UserAlarm;
-});
+    }
+}

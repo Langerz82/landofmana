@@ -1,9 +1,8 @@
-/* global Types, Class, _, questSerial */
+// Converted from AMD (define) + Class.extend to a native ES6 module/class.
+/* global Utils, Class, _, questSerial */
 
-define([], function() {
-
-  var AchievementHandler = Class.extend({
-    init: function() {
+export default class AchievementHandler {
+    constructor() {
       this.hideDelay = 5000; //How long the notification shows for.
       this.progressHideDelay = 1000;
       this.showlog = false;
@@ -13,9 +12,9 @@ define([], function() {
       this.closeButton.click(function(event) {
         self.toggleShowLog();
       });
-    },
+    }
 
-    toggleShowLog: function() {
+    toggleShowLog() {
       this.showlog = !this.showlog;
       if (this.showlog) {
         this.achievementReloadLog();
@@ -25,9 +24,9 @@ define([], function() {
         $('#achievementlog').hide();
         //this.closeButton.hide();
       }
-    },
+    }
 
-    achievementReloadLog: function() {
+    achievementReloadLog() {
       $("#achievementLogInfo tbody").find("tr:gt(0)").remove();
 
       for (var achievement of game.player.achievements) {
@@ -39,9 +38,9 @@ define([], function() {
             "<td class='frame-stroke1'>" + progress + "</td>" +
           "</tr>");
       }
-    },
+    }
 
-    handleAchievement: function(achievement) {
+    handleAchievement(achievement) {
       var htmlStr = '';
 
       if (achievement.count === achievement.objectCount) {
@@ -50,6 +49,4 @@ define([], function() {
       }
       this.achievementReloadLog();
     }
-  });
-  return AchievementHandler;
-});
+}

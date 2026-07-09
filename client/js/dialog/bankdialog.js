@@ -1,7 +1,22 @@
-define(['./dialog', '../tabbook', '../tabpage', '../entity/item', 'data/items', 'data/itemlootdata', '../inventorystore'],
-  function(Dialog, TabBook, TabPage, Item, Items, ItemLoot, InventoryStore) {
-    var BankSlot = Class.extend({
-        init: function(parent, index) {
+// Converted from AMD (define) + Class.extend to a native ES6 module/class.
+// NOTE: `DragBank` is a cross-file shared "global" (also read/written by main.js). It relies
+// on js/globalstate.js having already run to seed `window.DragBank` under strict-mode ES
+// modules - see the comment in globalstate.js for the full explanation.
+import Dialog from './dialog.js';
+import TabBook from '../tabbook.js';
+import TabPage from '../tabpage.js';
+/* global Types, ItemTypes */
+import Item from '../entity/item.js';
+import Items from '../data/items.js';
+import ItemLoot from '../data/itemlootdata.js';
+import InventoryStore from '../inventorystore.js';
+
+// FIX (conversion): 'InventoryMode' used to be a bare cross-script global; see game.js for the
+// full explanation. Aliased from Types.InventoryMode now that gametypes.js is a real ES module.
+const InventoryMode = Types.InventoryMode;
+
+class BankSlot {
+        constructor(parent, index) {
             this.parent = parent;
             this.index = index;
             this.item = null;
@@ -79,7 +94,7 @@ define(['./dialog', '../tabbook', '../tabpage', '../entity/item', 'data/items', 
               var slot = $(this).data("itemSlot");
               if (DragBank === null) {
                 if (self.item === null)
-                  return;                
+                  return;
                 self.parent.selectBankItem(this);
                 moveItem(1, slot, true);
                 event.stopPropagation();
@@ -101,9 +116,9 @@ define(['./dialog', '../tabbook', '../tabpage', '../entity/item', 'data/items', 
                 moveItem(1, $(this).data("itemSlot"));
               }
             });
-        },
+        }
 
-        rescale: function() {
+        rescale() {
             this.scale = game.renderer.guiScale;
             if (this.scale === 1)
             {
@@ -132,29 +147,29 @@ define(['./dialog', '../tabbook', '../tabpage', '../entity/item', 'data/items', 
             if (this.item) {
                 this.restore();
             }
-        },
+        }
 
-        getIndex: function() {
+        getIndex() {
             return this.index;
-        },
-        getItemKind: function() {
+        }
+        getItemKind() {
             return this.item.itemKind;
-        },
-        setItemName: function() {
+        }
+        setItemName() {
             var kind = this.item.itemKind;
             if ( ItemTypes.isLootItem(kind))
               this.itemName = ItemLoot[kind-1000].name;
             else
       	      this.itemName = ItemTypes.KindData[kind].name;
-        },
-        getItemName: function() {
+        }
+        getItemName() {
             return this.itemName;
-        },
-        getComment: function() {
+        }
+        getComment() {
             return Item.getInfoMsgEx(this.item);
-        },
+        }
 
-        assign: function(item) {
+        assign(item) {
             this.item = item;
             var kind = item.itemKind;
             this.setItemName(kind);
@@ -163,27 +178,27 @@ define(['./dialog', '../tabbook', '../tabpage', '../entity/item', 'data/items', 
             this.background.data('itemNumber',this.item.itemNumber);
 
             this.restore();
-        },
-        clear: function() {
+        }
+        clear() {
             this.item = null;
             this.release();
-        },
-        release: function() {
+        }
+        release() {
 						this.body.css('display', 'none');
             this.body.css('background-image', '');
             this.body.html("");
             this.body.attr('title', '');
-        },
-        restore: function() {
+        }
+        restore() {
             var kind = this.item.itemKind, itemKind = kind; // FIX: itemKind was an implicit global; declare it properly
             var scale = game.renderer.getIconScaleFactor();
 
             Items.jqShowItem(this.body, this.item, this.body);
         }
-    });
+}
 
-    var BankFrame = Class.extend({
-        init: function(parent) {
+class BankFrame {
+        constructor(parent) {
             this.parent = parent;
             this.bankslots = [];
             this.page = 0;
@@ -233,23 +248,23 @@ define(['./dialog', '../tabbook', '../tabpage', '../entity/item', 'data/items', 
       	    $('#bankDialogBankGoldBody').click(function(event) {
       	    	game.app.showDropDialog("inventorygold");
       	    });
-        },
+        }
 
-        rescale: function(scale) {
+        rescale(scale) {
             for(var index = 0; index < this.bankslots.length; index++) {
                 this.bankslots[index].rescale();
             }
-        },
+        }
 
-        getItem: function (slot) {
+        getItem(slot) {
             return game.bankHandler.banks[slot];
-        },
+        }
 
-        getInventory: function(index) {
+        getInventory(index) {
             return this.bankslots[index];
-        },
+        }
 
-        open: function(page) {
+        open(page) {
             this.page = page;
             game.bankHandler.pageIndex = page;
 
@@ -265,23 +280,23 @@ define(['./dialog', '../tabbook', '../tabpage', '../entity/item', 'data/items', 
                     }
                 }
             }
-        },
+        }
 
-        select: function(slot, itemCount = 1) {
+        select(slot, itemCount = 1) {
             if (!game.inventory.isInventoryFull())
             {
                 game.client.sendItemSlot([1, 1, slot, itemCount, 0, -1]);
                 this.bankslots[slot].release();
             }
-        },
+        }
 
-        deselectItem: function() {
+        deselectItem() {
           if (this.selectedItem === null || this.selectedItem === -1)
             return;
           this.selectItem(this.selectedItem, false);
-        },
+        }
 
-        selectItem: function(slot, select) {
+        selectItem(slot, select) {
           //pageslot = realslot % this.pageItems;
           //var str = '#bankDialogBank'+pageslot+'Background';
           if (slot < 0)
@@ -302,12 +317,12 @@ define(['./dialog', '../tabbook', '../tabpage', '../entity/item', 'data/items', 
               'border': 'none'
             });
           }
-        },
-    });
+        }
+}
 
-    var BankDialog = Dialog.extend({
-        init: function(game) {
-            this._super(game, '#bankDialog');
+export default class BankDialog extends Dialog {
+        constructor(game) {
+            super(game, '#bankDialog'); // FIX (conversion): this._super(game, '#bankDialog') -> super(game, '#bankDialog')
             this.scale=0;
             this.setScale();
 
@@ -344,28 +359,24 @@ define(['./dialog', '../tabbook', '../tabpage', '../entity/item', 'data/items', 
             this.closeButton.click(function(event) {
                 self.hide();
             });
-        },
+        }
 
-        setScale: function() {
+        setScale() {
           this.scale = game.renderer.getUiScaleFactor(); // FIX: return value was never assigned to this.scale, unlike other dialogs
-        },
+        }
 
-        rescale: function() {
+        rescale() {
         	this.setScale();
 		      this.bankFrame.rescale(this.scale);
-        },
+        }
 
-        show: function() {
+        show() {
             this.rescale();
             this.bankFrame.open(this.bankFrame.page);
-            this._super();
-        },
+            super.show(); // FIX (conversion): this._super() -> super.show()
+        }
 
-        hide: function() {
-            this._super();
-        },
-
-    });
-
-    return BankDialog;
-});
+        hide() {
+            super.hide(); // FIX (conversion): this._super() -> super.hide()
+        }
+}

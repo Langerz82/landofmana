@@ -1,378 +1,377 @@
-define(['lib/astar'], function(AStar) {
+// Converted from AMD (define) + Class.extend to a native ES6 module/class.
+import AStar from './lib/astar.js';
 
-    var Pathfinder = Class.extend({
-        init: function(width, height) {
-            this.width = width;
-            this.height = height;
-            this.grid = null;
-            this.blankGrid = [];
-            this.ignored = [];
-            this.included = [];
-        },
+/* global Utils */
 
-        isValidPath: function (path) {
-            var pnode = null;
-            if (!Array.isArray(path) || path.length < 2)
-              return false;
-            for (var node of path) {
-              if (pnode) {
+export default class Pathfinder {
+    constructor(width, height) {
+        this.width = width;
+        this.height = height;
+        this.grid = null;
+        this.blankGrid = [];
+        this.ignored = [];
+        this.included = [];
+    }
+
+    isValidPath(path) {
+        var pnode = null;
+        if (!Array.isArray(path) || path.length < 2)
+            return false;
+        for (var node of path) {
+            if (pnode) {
                 if (pnode[0] === node[0] && pnode[1] === node[1])
-                  return false;
-                if (pnode[0] !== node[0] && pnode[1] !== node[1])
-                {
-                  return false;
+                    return false;
+                if (pnode[0] !== node[0] && pnode[1] !== node[1]) {
+                    return false;
                 }
-              }
-              pnode = node;
             }
-            return true;
-        },
+            pnode = node;
+        }
+        return true;
+    }
 
-        isValidGridPath: function (grid, path, isRealPath) {
-          var ts = G_TILESIZE,
-              ly = grid.length,
-              lx = grid[0].length;
+    isValidGridPath(grid, path, isRealPath) {
+        var ts = G_TILESIZE,
+            ly = grid.length,
+            lx = grid[0].length;
 
-          // Check collision from an axis, n1 to n2, n3 is for the other axis.
-          var c1to2on3 = function (n1,n2,n3,axis_x) {
+        // Check collision from an axis, n1 to n2, n3 is for the other axis.
+        var c1to2on3 = function(n1, n2, n3, axis_x) {
             //console.info("c1to2on3 - n1:"+n1+",n2:"+n2+",n3:"+n3);
-            n1 = Math.floor(n1), n2 = Math.floor(n2), n3=Math.floor(n3);
-            var i1 = Math.min(n1,n2), i2 = Math.max(n1,n2);
+            n1 = Math.floor(n1), n2 = Math.floor(n2), n3 = Math.floor(n3);
+            var i1 = Math.min(n1, n2), i2 = Math.max(n1, n2);
             if (axis_x) {
-              for (var i=i1; i <= i2; i++) {
-                if (grid[n3][i]) {
-                  return false;
+                for (var i = i1; i <= i2; i++) {
+                    if (grid[n3][i]) {
+                        return false;
+                    }
                 }
-              }
             } else {
-              for (var i=i1; i <= i2; i++) {
-                if (grid[i][n3]) {
-                  return false;
+                for (var i = i1; i <= i2; i++) {
+                    if (grid[i][n3]) {
+                        return false;
+                    }
                 }
-              }
             }
             return true;
-          }
+        }
 
-          var xf = function (x1,x2,y) {
-            return c1to2on3(x1,x2,y,true);
-          }
-          var yf = function (y1,y2,x) {
-            return c1to2on3(y1,y2,x,false);
-          }
+        var xf = function(x1, x2, y) {
+            return c1to2on3(x1, x2, y, true);
+        }
+        var yf = function(y1, y2, x) {
+            return c1to2on3(y1, y2, x, false);
+        }
 
-          var path2 = [];
-          for (var i = 0; i < path.length; i++)
-              path2[i] = path[i].slice();
+        var path2 = [];
+        for (var i = 0; i < path.length; i++)
+            path2[i] = path[i].slice();
 
-          if (isRealPath) {
+        if (isRealPath) {
             for (var coord of path2) {
-              coord[0] /= ts;
-              coord[1] /= ts;
+                coord[0] /= ts;
+                coord[1] /= ts;
             }
-          }
+        }
 
-          var pCoord = null;
+        var pCoord = null;
 
-          for (var coord of path2) {
+        for (var coord of path2) {
             if (coord[1] < 0 || coord[1] >= ly)
-              return false;
+                return false;
             if (coord[0] < 0 || coord[0] >= lx)
-              return false;
+                return false;
 
             if (pCoord) {
-              if (coord[0] != pCoord[0] && coord[1] != pCoord[1])
-                return false;
-              if (Math.abs(coord[0] - pCoord[0]) > 0) {
-                if (!xf(pCoord[0], coord[0], coord[1]))
-                  return false;
-              }
-              else if (Math.abs(coord[1] - pCoord[1]) > 0) {
-                if (!yf(pCoord[1], coord[1], coord[0]))
-                  return false;
-              }
+                if (coord[0] != pCoord[0] && coord[1] != pCoord[1])
+                    return false;
+                if (Math.abs(coord[0] - pCoord[0]) > 0) {
+                    if (!xf(pCoord[0], coord[0], coord[1]))
+                        return false;
+                }
+                else if (Math.abs(coord[1] - pCoord[1]) > 0) {
+                    if (!yf(pCoord[1], coord[1], coord[0]))
+                        return false;
+                }
             }
             pCoord = coord;
-          }
-          return true;
-        },
+        }
+        return true;
+    }
 
-        // from https://chatgpt.com/c/6a3db155-e5c4-83ec-8fac-a774dc81df12
-        getShortGrid: function (grid, start, end, e = 0) {
-            const h = grid.length, w = grid[0].length;
-            const minX = Math.max(Math.min(~~start[0], ~~end[0]) - e, 0);
-            const maxX = Math.min(Math.max(Math.ceil(start[0]), Math.ceil(end[0])) + e, w - 1);
-            const minY = Math.max(Math.min(~~start[1], ~~end[1]) - e, 0);
-            const maxY = Math.min(Math.max(Math.ceil(start[1]), Math.ceil(end[1])) + e, h - 1);
+    // from https://chatgpt.com/c/6a3db155-e5c4-83ec-8fac-a774dc81df12
+    getShortGrid(grid, start, end, e = 0) {
+        const h = grid.length, w = grid[0].length;
+        const minX = Math.max(Math.min(~~start[0], ~~end[0]) - e, 0);
+        const maxX = Math.min(Math.max(Math.ceil(start[0]), Math.ceil(end[0])) + e, w - 1);
+        const minY = Math.max(Math.min(~~start[1], ~~end[1]) - e, 0);
+        const maxY = Math.min(Math.max(Math.ceil(start[1]), Math.ceil(end[1])) + e, h - 1);
 
-            var crop = Array.from(
-                { length: maxY - minY + 1 },
-                (_, y) => new Uint8Array(grid[minY + y].slice(minX, maxX + 1))
-            );
+        var crop = Array.from(
+            { length: maxY - minY + 1 },
+            (_, y) => new Uint8Array(grid[minY + y].slice(minX, maxX + 1))
+        );
 
-            return {
-                crop,
-                minX,
-                minY,
-                substart: [start[0] - minX, start[1] - minY],
-                subend: [end[0] - minX, end[1] - minY]
-            };
-        },
+        return {
+            crop,
+            minX,
+            minY,
+            substart: [start[0] - minX, start[1] - minY],
+            subend: [end[0] - minX, end[1] - minY]
+        };
+    }
 
-        findNeighbourPath: function(start, end) {
-            var ts = G_TILESIZE;
+    findNeighbourPath(start, end) {
+        var ts = G_TILESIZE;
 
-                  // If its one space just return the start, end path.
-      			if ((Math.abs(start[0] - end[0]) <= ts && Math.abs(start[1] - end[1]) === 0) ||
-      				(Math.abs(start[1] - end[1]) <= ts && Math.abs(start[0] - end[0]) === 0))
-      					return [[start[0], start[1]],[end[0],end[1]]];
+        // If its one space just return the start, end path.
+        if ((Math.abs(start[0] - end[0]) <= ts && Math.abs(start[1] - end[1]) === 0) ||
+            (Math.abs(start[1] - end[1]) <= ts && Math.abs(start[0] - end[0]) === 0))
+            return [[start[0], start[1]], [end[0], end[1]]];
 
-      			return null;
-		    },
+        return null;
+    }
 
-        findDirectPath: function (grid, start, end) {
-          //var dx = Math.abs(Math.floor(start[0]) - Math.floor(end[0]));
-          //var dy = Math.abs(Math.floor(start[1]) - Math.floor(end[1]));
-          var dx = Math.abs(start[0] - end[0]);
-          var dy = Math.abs(start[1] - end[1]);
+    findDirectPath(grid, start, end) {
+        //var dx = Math.abs(Math.floor(start[0]) - Math.floor(end[0]));
+        //var dy = Math.abs(Math.floor(start[1]) - Math.floor(end[1]));
+        var dx = Math.abs(start[0] - end[0]);
+        var dy = Math.abs(start[1] - end[1]);
 
-          var mp = [start, end];
-          if (dx === 0 || dy === 0) {
-            if(this.isValidGridPath(grid, mp)) {
-              log.info("validpath-fdp1:"+JSON.stringify(mp));
-              return mp;
+        var mp = [start, end];
+        if (dx === 0 || dy === 0) {
+            if (this.isValidGridPath(grid, mp)) {
+                log.info("validpath-fdp1:" + JSON.stringify(mp));
+                return mp;
             }
-          }
+        }
 
-          mp = [start, [start[0],end[1]], end];
-          log.info("mp:"+JSON.stringify(mp));
-          if(this.isValidGridPath(grid, mp)) {
-            log.info("validpath-fdp2:"+JSON.stringify(mp));
+        mp = [start, [start[0], end[1]], end];
+        log.info("mp:" + JSON.stringify(mp));
+        if (this.isValidGridPath(grid, mp)) {
+            log.info("validpath-fdp2:" + JSON.stringify(mp));
             return mp;
-          }
+        }
 
-          mp = [start, [end[0],start[1]], end];
-          log.info("mp:"+JSON.stringify(mp));
-          if(this.isValidGridPath(grid, mp)) {
-            log.info("validpath-fdp3:"+JSON.stringify(mp));
+        mp = [start, [end[0], start[1]], end];
+        log.info("mp:" + JSON.stringify(mp));
+        if (this.isValidGridPath(grid, mp)) {
+            log.info("validpath-fdp3:" + JSON.stringify(mp));
             return mp;
-          }
-          return null;
-        },
+        }
+        return null;
+    }
 
-        makeNodesMidPoints: function (result) {
-          // Make nodes mid-points.
-          for (var node of result) {
+    makeNodesMidPoints(result) {
+        // Make nodes mid-points.
+        for (var node of result) {
             if (node[0] % 1 === 0)
-              node[0] += 0.5;
+                node[0] += 0.5;
             if (node[1] % 1 === 0)
-              node[1] += 0.5;
-          }
-          return result;
-        },
+                node[1] += 0.5;
+        }
+        return result;
+    }
 
-        _popAndPushNewNodeInPath: function (node, result) {
-          result.shift();
-          result.unshift([node[0], node[1]]);
-          var it2 = null;
-          for (var it of result) {
+    _popAndPushNewNodeInPath(node, result) {
+        result.shift();
+        result.unshift([node[0], node[1]]);
+        var it2 = null;
+        for (var it of result) {
             if (it2) {
-              if (~~(it2[0]) === ~~(it[0]))
-                it[0] = it2[0];
-              else if (~~(it2[1]) === ~~(it[1]))
-                it[1] = it2[1];
-              else {
-                break;
-              }
+                if (~~(it2[0]) === ~~(it[0]))
+                    it[0] = it2[0];
+                else if (~~(it2[1]) === ~~(it[1]))
+                    it[1] = it2[1];
+                else {
+                    break;
+                }
             }
             it2 = it;
-          }
-        },
+        }
+    }
 
-        convertPathToRealPath: function (result, start, end) {
-          var temp = Utils.copy2DArray(result);
+    convertPathToRealPath(result, start, end) {
+        var temp = Utils.copy2DArray(result);
 
-          if (temp.length === 2) {
+        if (temp.length === 2) {
             temp = Utils.copy2DArray([start, end]);
-          } else {
+        } else {
             this._popAndPushNewNodeInPath(start, temp);
             temp.reverse();
             this._popAndPushNewNodeInPath(end, temp);
             temp.reverse();
-          }
+        }
 
-          temp = this.makeNodesMidPoints(temp);
-          return temp;
-        },
+        temp = this.makeNodesMidPoints(temp);
+        return temp;
+    }
 
-        _fixDiagonalJumps: function(path) {
-            let fixed = [path[0]];
-            for (let i = 1; i < path.length; i++) {
-                let prev = fixed[fixed.length - 1];
-                let curr = path[i];
+    _fixDiagonalJumps(path) {
+        let fixed = [path[0]];
+        for (let i = 1; i < path.length; i++) {
+            let prev = fixed[fixed.length - 1];
+            let curr = path[i];
 
-                if (prev[0] !== curr[0] && prev[1] !== curr[1]) {
-                    // Insert corner point
-                    fixed.push([curr[0], prev[1]]);
-                }
-                fixed.push(curr);
+            if (prev[0] !== curr[0] && prev[1] !== curr[1]) {
+                // Insert corner point
+                fixed.push([curr[0], prev[1]]);
             }
-            return fixed;
-        },
+            fixed.push(curr);
+        }
+        return fixed;
+    }
 
-        dropUneededNodes: function(path) {
-            if (!Array.isArray(path) || path.length < 2)
-                return path;
+    dropUneededNodes(path) {
+        if (!Array.isArray(path) || path.length < 2)
+            return path;
 
-            var result = [path[0]];
+        var result = [path[0]];
 
-            for (var i = 1; i < path.length; i++) {
-                var curr = path[i];
-                var prev = result[result.length - 1];
+        for (var i = 1; i < path.length; i++) {
+            var curr = path[i];
+            var prev = result[result.length - 1];
 
-                // Remove consecutive duplicates.
-                if (curr[0] === prev[0] && curr[1] === prev[1])
-                    continue;
+            // Remove consecutive duplicates.
+            if (curr[0] === prev[0] && curr[1] === prev[1])
+                continue;
 
-                result.push(curr);
+            result.push(curr);
 
-                // If we have three nodes, see if the middle one is unnecessary.
-                while (result.length >= 3) {
-                    var a = result[result.length - 3];
-                    var b = result[result.length - 2];
-                    var c = result[result.length - 1];
+            // If we have three nodes, see if the middle one is unnecessary.
+            while (result.length >= 3) {
+                var a = result[result.length - 3];
+                var b = result[result.length - 2];
+                var c = result[result.length - 1];
 
-                    // Remove b if all three are on the same horizontal or vertical line.
-                    if ((a[0] === b[0] && b[0] === c[0]) ||
-                        (a[1] === b[1] && b[1] === c[1])) {
-                        result.splice(result.length - 2, 1);
-                    } else {
-                        break;
-                    }
+                // Remove b if all three are on the same horizontal or vertical line.
+                if ((a[0] === b[0] && b[0] === c[0]) ||
+                    (a[1] === b[1] && b[1] === c[1])) {
+                    result.splice(result.length - 2, 1);
+                } else {
+                    break;
                 }
             }
+        }
 
-            return result;
-        },
+        return result;
+    }
 
-        AStar: function (grid, start, end) {
-          var pStart = [~~start[0],~~start[1]];
-          var pEnd = [~~end[0],~~end[1]];
-          var path = AStar.AStar(grid, pStart, pEnd);
-          if (path)
-          {
+    AStar(grid, start, end) {
+        var pStart = [~~start[0], ~~start[1]];
+        var pEnd = [~~end[0], ~~end[1]];
+        var path = AStar.AStar(grid, pStart, pEnd);
+        if (path) {
             //path = this.convertPathToRealPath(path, start, end);
             path = this.dropUneededNodes(path);
             log.info(JSON.stringify(path));
             return path;
-          }
-          return null;
-        },
+        }
+        return null;
+    }
 
-        findShortPath: function(crop, offsetX, offsetY, start, end) {
-      			var path = this.AStar(crop, start, end);
-            if (path) {
-              console.info("pathfinder.findShortPath - path: "+JSON.stringify(path));
+    findShortPath(crop, offsetX, offsetY, start, end) {
+        var path = this.AStar(crop, start, end);
+        if (path) {
+            console.info("pathfinder.findShortPath - path: " + JSON.stringify(path));
+        }
+        return path;
+    }
+
+    findPath(grid, start, end, findIncomplete) {
+        var path;
+
+        this.applyIgnoreList_(grid, true);
+        this.applyIncludeList_(grid, true);
+
+        var path = this.AStar(grid, start, end);
+        if (path) {
+            console.info("pathfinder.findPath - path: " + JSON.stringify(path));
+        }
+        return path;
+    }
+
+    /**
+     * Finds a path which leads the closest possible to an unreachable x, y position.
+     *
+     * Whenever A* returns an empty path, it means that the destination tile is unreachable.
+     * We would like the entities to move the closest possible to it though, instead of
+     * staying where they are without moving at all. That's why we have this function which
+     * returns an incomplete path to the chosen destination.
+     *
+     * @private
+     * @returns {Array} The incomplete path towards the end position
+     */
+    findIncompletePath_(start, end) {
+        var perfect, x, y,
+            incomplete = [];
+
+        perfect = AStar.AStar(this.blankGrid, start, end);
+
+        for (var i = perfect.length - 1; i > 0; i -= 1) {
+            x = perfect[i][0];
+            y = perfect[i][1];
+
+            if (this.grid[y][x] === 0) {
+                incomplete = AStar.AStar(this.grid, start, [x, y]); // FIX (carried over): was calling AStar(...) directly instead of AStar.AStar(...); threw TypeError, breaking the fallback path
+                break;
             }
-            return path;
-        },
+        }
+        return incomplete;
+    }
 
-        findPath: function(grid, start, end, findIncomplete) {
-            var path;
+    /**
+     * Removes colliding tiles corresponding to the given entity's position in the pathing grid.
+     */
+    ignoreEntity(entity) {
+        if (entity) {
+            this.ignored.push(entity);
+        }
+    }
 
-            this.applyIgnoreList_(grid, true);
-            this.applyIncludeList_(grid, true);
+    includeEntity(entity) {
+        if (entity) {
+            this.included.push(entity);
+        }
+    }
 
-            var path = this.AStar(grid, start, end);
-            if (path) {
-              console.info("pathfinder.findPath - path: "+JSON.stringify(path));
+    applyIgnoreList_(grid, ignored) {
+        var self = this,
+            x, y;
+
+        _.each(this.ignored, function(entity) {
+            x = entity.isMoving() ? entity.nextGridX : entity.gx;
+            y = entity.isMoving() ? entity.nextGridY : entity.gy;
+
+            if (x >= 0 && y >= 0) {
+                //log.info("path.grid=["+x+","+y+"]");
+                grid[y][x] = ignored ? 0 : 1;
             }
-            return path;
-        },
+        });
+    }
 
-        /**
-         * Finds a path which leads the closest possible to an unreachable x, y position.
-         *
-         * Whenever A* returns an empty path, it means that the destination tile is unreachable.
-         * We would like the entities to move the closest possible to it though, instead of
-         * staying where they are without moving at all. That's why we have this function which
-         * returns an incomplete path to the chosen destination.
-         *
-         * @private
-         * @returns {Array} The incomplete path towards the end position
-         */
-        findIncompletePath_: function(start, end) {
-            var perfect, x, y,
-                incomplete = [];
+    applyIncludeList_(grid, included) {
+        var self = this,
+            x, y;
 
-            perfect = AStar.AStar(this.blankGrid, start, end);
+        _.each(this.included, function(entity) {
+            x = entity.isMoving() ? (entity.path.length > 0 ? entity.path[entity.path.length - 1][0] : entity.nextGridX) : entity.gx;
+            y = entity.isMoving() ? (entity.path.length > 0 ? entity.path[entity.path.length - 1][1] : entity.nextGridY) : entity.gy;
 
-            for(var i=perfect.length-1; i > 0; i -= 1) {
-                x = perfect[i][0];
-                y = perfect[i][1];
-
-                if(this.grid[y][x] === 0) {
-                    incomplete = AStar.AStar(this.grid, start, [x, y]); // FIX: was calling AStar(...) directly instead of AStar.AStar(...); threw TypeError, breaking the fallback path
-                    break;
-                }
+            if (x >= 0 && y >= 0) {
+                //log.info("path.grid=["+x+","+y+"]");
+                grid[y][x] = included ? 1 : 0;
             }
-            return incomplete;
-        },
+        });
+    }
 
-        /**
-         * Removes colliding tiles corresponding to the given entity's position in the pathing grid.
-         */
-        ignoreEntity: function(entity) {
-            if(entity) {
-                this.ignored.push(entity);
-            }
-        },
-        includeEntity: function(entity) {
-            if(entity) {
-                this.included.push(entity);
-            }
-        },
+    clearIgnoreList(grid) {
+        this.applyIgnoreList_(grid, false);
+        this.ignored = [];
+    }
 
-        applyIgnoreList_: function(grid, ignored) {
-            var self = this,
-                x, y;
-
-            _.each(this.ignored, function(entity) {
-                x = entity.isMoving() ? entity.nextGridX : entity.gx;
-                y = entity.isMoving() ? entity.nextGridY : entity.gy;
-
-                if(x >= 0 && y >= 0) {
-                	//log.info("path.grid=["+x+","+y+"]");
-                    grid[y][x] = ignored ? 0 : 1;
-                }
-            });
-        },
-
-        applyIncludeList_: function(grid, included) {
-            var self = this,
-                x, y;
-
-            _.each(this.included, function(entity) {
-                x = entity.isMoving() ? (entity.path.length > 0 ? entity.path[entity.path.length-1][0] : entity.nextGridX) : entity.gx;
-                y = entity.isMoving() ? (entity.path.length > 0 ? entity.path[entity.path.length-1][1] : entity.nextGridY) : entity.gy;
-
-                if(x >= 0 && y >= 0) {
-                	//log.info("path.grid=["+x+","+y+"]");
-                    grid[y][x] = included ? 1 : 0;
-                }
-            });
-        },
-
-        clearIgnoreList: function(grid) {
-            this.applyIgnoreList_(grid, false);
-            this.ignored = [];
-        },
-
-        clearIncludeList: function(grid) {
-            this.applyIncludeList_(grid, false);
-            this.ignored = [];
-        },
-    });
-
-    return Pathfinder;
-});
+    clearIncludeList(grid) {
+        this.applyIncludeList_(grid, false);
+        this.ignored = [];
+    }
+}

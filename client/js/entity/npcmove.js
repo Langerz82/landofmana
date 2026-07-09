@@ -1,19 +1,19 @@
+// Converted from AMD (define) + Class.extend to a native ES6 module/class.
 /* global Types */
+import Character from './character.js';
+import AppearanceData from '../data/appearancedata.js';
+import Sprites from '../sprites.js';
 
-define(['./character','data/appearancedata','../sprites'], function(Character, AppearanceData, Sprites) {
-  var NpcMove = Character.extend({
-    init: function(id, type, map, kind, name) {
-      this._super(id, type, map, kind);
-      this.mapIndex = map;
-      this.talkIndex = 0;
-      this.name = name;
-    },
+export default class NpcMove extends Character {
+    constructor(id, type, map, kind, name) {
+        super(id, type, map, kind);
+        this.mapIndex = map;
+        this.talkIndex = 0;
+        this.name = name;
+        this.orientation = 2;
+    }
 
-    getSpriteName: function() {
+    getSpriteName() {
         return game.spriteNames[this.sprites[0]];
-    },
-
-    });
-
-    return NpcMove;
-});
+    }
+}

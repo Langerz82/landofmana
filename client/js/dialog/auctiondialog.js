@@ -1,7 +1,19 @@
-define(['./dialog', '../tabbook', '../tabpage', '../entity/item', 'data/items', '../inventorystore', '../pageNavigator'],
-  function(Dialog, TabBook, TabPage, Item, Items, InventoryStore, PageNavigator) {
-    var StoreRack = Class.extend({
-        init: function(parent, id, index) {
+// Converted from AMD (define) + Class.extend to a native ES6 module/class.
+import Dialog from './dialog.js';
+import TabBook from '../tabbook.js';
+import TabPage from '../tabpage.js';
+/* global Types, ItemTypes */
+import Item from '../entity/item.js';
+import Items from '../data/items.js';
+import InventoryStore from '../inventorystore.js';
+import PageNavigator from '../pageNavigator.js';
+
+// FIX (conversion): 'InventoryMode' used to be a bare cross-script global; see game.js for the
+// full explanation. Aliased from Types.InventoryMode now that gametypes.js is a real ES module.
+const InventoryMode = Types.InventoryMode;
+
+class StoreRack {
+        constructor(parent, id, index) {
             this.parent = parent;
             this.id = id;
             this.index = index;
@@ -16,9 +28,9 @@ define(['./dialog', '../tabbook', '../tabpage', '../entity/item', 'data/items', 
             this.rescale();
 
             this.buyButton.text('BUY');
-        },
+        }
 
-        rescale: function() {
+        rescale() {
             var scale = this.parent.scale;
             var id = this.id;
             this.body = $(id);
@@ -52,12 +64,12 @@ define(['./dialog', '../tabbook', '../tabpage', '../entity/item', 'data/items', 
   	     if (this.item) {
            this.assign(this.item);
   	     }
-        },
+        }
 
-        getVisible: function() {
+        getVisible() {
             return this.body.css('display') === 'block';
-        },
-        setVisible: function(value) {
+        }
+        setVisible(value) {
             var self = this;
             this.body.css('display', value===true ? 'block' : 'none');
             if (this.parent.parent.pageIndex === 0)
@@ -82,9 +94,9 @@ define(['./dialog', '../tabbook', '../tabpage', '../entity/item', 'data/items', 
             			}
             		}
             });
-        },
+        }
 
-        assign: function(item) {
+        assign(item) {
             this.item = item;
             log.info(JSON.stringify(item));
 
@@ -93,20 +105,20 @@ define(['./dialog', '../tabbook', '../tabpage', '../entity/item', 'data/items', 
             var itemDesc = Item.getInfoMsgEx(item.item);
             this.extra.text(itemDesc);
             this.price.text(item.buyPrice + 'g');
-        },
+        }
 
-        clear: function() {
+        clear() {
             this.basket.css('background-image', 'none')
             this.basket.attr('title', '');
             this.extra.text('');
             this.price.text('');
 
         }
-    });
+}
 
-    var AuctionStorePage = TabPage.extend({
-      init: function(parent, id, itemType, items, scale, buttonIndex) {
-          this._super(parent, id + 'Page', id + buttonIndex + 'Button');
+class AuctionStorePage extends TabPage {
+      constructor(parent, id, itemType, items, scale, buttonIndex) {
+          super(parent, id + 'Page', id + buttonIndex + 'Button'); // FIX (conversion): this._super(...) -> super(...)
             this.itemType = itemType;
             this.racks = [];
             this.items = items;
@@ -116,36 +128,36 @@ define(['./dialog', '../tabbook', '../tabpage', '../entity/item', 'data/items', 
             for(var index = 0; index < this.rackSize; index++) {
                 this.racks.push(new StoreRack(this, id + index, index));
             }
-        },
+        }
 
-        rescale: function (scale) {
+        rescale(scale) {
             this.scale = scale;
             for(var index = 0; index < this.rackSize; index++) {
                 this.racks[index].rescale();
             }
-        },
+        }
 
-        getPageCount: function() {
+        getPageCount() {
             if (this.items)
             	    return Math.ceil(this.items.length / this.rackSize);
             return 0;
-        },
+        }
 
-        getPageIndex: function() {
+        getPageIndex() {
             return this.pageIndex;
-        },
+        }
 
-        setPageIndex: function(value) {
+        setPageIndex(value) {
             log.info("setPageIndex: "+ value);
             this.pageIndex = value;
             this.reload();
-        },
+        }
 
-        sendOpen: function() {
+        sendOpen() {
              game.client.sendAuctionOpen(this.itemType);
-        },
+        }
 
-        reload: function() {
+        reload() {
             for (var rack of this.racks)
               rack.clear();
 
@@ -162,15 +174,15 @@ define(['./dialog', '../tabbook', '../tabpage', '../entity/item', 'data/items', 
                 rack.setVisible(true);
             }
             this.parent.updatePageNav();
-        },
+        }
 
-        close: function() {
+        close() {
             for(var index = 0; index < this.rackSize; index++) {
             	this.racks[index].setVisible(false);
             }
-        },
+        }
 
-        setItems: function(itemData) {
+        setItems(itemData) {
           this.items = [];
           if (!itemData)
             this.close();
@@ -215,28 +227,28 @@ define(['./dialog', '../tabbook', '../tabpage', '../entity/item', 'data/items', 
       		 }
     	   }
        }
-    });
+}
 
-    var MyAuctionPage = AuctionStorePage.extend({
-        init: function(parent, scale) {
-            this._super(parent, '#storeDialogStore', 0, [], scale, 0);
-        },
-    });
-    var AuctionArmorPage = AuctionStorePage.extend({
-        init: function(parent, scale) {
-            this._super(parent, '#storeDialogStore', 1, [], scale, 1);
-        },
-    });
+class MyAuctionPage extends AuctionStorePage {
+        constructor(parent, scale) {
+            super(parent, '#storeDialogStore', 0, [], scale, 0); // FIX (conversion): this._super(...) -> super(...)
+        }
+}
+class AuctionArmorPage extends AuctionStorePage {
+        constructor(parent, scale) {
+            super(parent, '#storeDialogStore', 1, [], scale, 1); // FIX (conversion): this._super(...) -> super(...)
+        }
+}
 
-    var AuctionWeaponPage = AuctionStorePage.extend({
-        init: function(parent, scale) {
-            this._super(parent, '#storeDialogStore', 2, [], scale, 2);
-        },
-    });
+class AuctionWeaponPage extends AuctionStorePage {
+        constructor(parent, scale) {
+            super(parent, '#storeDialogStore', 2, [], scale, 2); // FIX (conversion): this._super(...) -> super(...)
+        }
+}
 
-    var StoreFrame = TabBook.extend({
-        init: function(parent) {
-            this._super('#storeDialogStore');
+class StoreFrame extends TabBook {
+        constructor(parent) {
+            super('#storeDialogStore'); // FIX (conversion): this._super('#storeDialogStore') -> super('#storeDialogStore')
 
             this.parent = parent;
             this.scale = this.parent.scale;
@@ -256,23 +268,23 @@ define(['./dialog', '../tabbook', '../tabpage', '../entity/item', 'data/items', 
                     activePage.setPageIndex(sender.getIndex()-1);
                 }
             });
-        },
+        }
 
-        rescale: function() {
+        rescale() {
         	this.scale = this.parent.scale;
 
           for (var page of this.pages)
             page.rescale(this.scale);
 
         	this.pageNavigator.rescale(this.scale);
-        },
+        }
 
-        reload: function () {
+        reload() {
           for (var page of this.pages)
             page.reload();
-        },
+        }
 
-        setPageIndex: function(page) {
+        setPageIndex(page) {
             page = page || 0;
 
             if (!game.auctionDialog.visible)
@@ -280,10 +292,10 @@ define(['./dialog', '../tabbook', '../tabpage', '../entity/item', 'data/items', 
 
             this.pages[page].sendOpen();
 
-            this._super(page);
-        },
+            super.setPageIndex(page); // FIX (conversion): this._super(page) -> super.setPageIndex(page)
+        }
 
-        updatePageNav: function(len) {
+        updatePageNav(len) {
           var activePage = this.getActivePage();
           if(activePage) {
             if(activePage.getPageCount() > 1) {
@@ -294,17 +306,17 @@ define(['./dialog', '../tabbook', '../tabpage', '../entity/item', 'data/items', 
                 this.pageNavigator.setVisible(false);
             }
           }
-        },
+        }
 
-        open: function(val) {
+        open(val) {
           this.setPageIndex(val);
           this.pageNavigator.setVisible(false);
         }
-    });
+}
 
-    var AuctionDialog = Dialog.extend({
-        init: function(game) {
-            this._super(game, '#storeDialog');
+export default class AuctionDialog extends Dialog {
+        constructor(game) {
+            super(game, '#storeDialog'); // FIX (conversion): this._super(game, '#storeDialog') -> super(game, '#storeDialog')
             this.setScale();
 
             this.storeFrame = new StoreFrame(this);
@@ -313,18 +325,18 @@ define(['./dialog', '../tabbook', '../tabpage', '../entity/item', 'data/items', 
             this.scale=this.setScale();
 
             this.addClose();
-        },
+        }
 
-        setScale: function() {
+        setScale() {
 		      this.scale = game.renderer.getUiScaleFactor();
-	      },
+	      }
 
-        rescale: function() {
+        rescale() {
         	this.setScale();
 		      this.storeFrame.rescale();
-        },
+        }
 
-        show: function() {
+        show() {
             var self = this;
 
             this.rescale();
@@ -348,23 +360,20 @@ define(['./dialog', '../tabbook', '../tabpage', '../entity/item', 'data/items', 
 
             this.storeFrame.open(0);
 
-            this._super();
+            super.show(); // FIX (conversion): this._super() -> super.show()
             $("#storeDialogStore0Button").trigger('click');
 
             $('#storeDialogStore div.inventoryGoldFrame').show();
             $('#storeDialogStore div.inventoryGemsFrame').hide();
-        },
+        }
 
-        hide: function() {
+        hide() {
             var activePage = this.storeFrame.getActivePage();
             if (activePage)
             {
                 activePage.close();
                 activePage.setVisible(false);
             }
-            this._super();
-        },
-    });
-
-    return AuctionDialog;
-});
+            super.hide(); // FIX (conversion): this._super() -> super.hide()
+        }
+}

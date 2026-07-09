@@ -1,12 +1,20 @@
-/* global Types, Class */
+// Converted from AMD (define) + Class.extend to a native ES6 module/class.
+// NOTE: `DragItem` is a cross-file shared "global" (also read/written by main.js,
+// shortcuthandler.js, inventoryhandler.js, gamepad.js). It relies on js/globalstate.js
+// having already run to seed `window.DragItem` under strict-mode ES modules - see the
+// comment in globalstate.js for the full explanation.
+/* global Types, ItemTypes, Utils, Class */
+import Button2 from './button2.js';
+import Item from './entity/item.js';
+import ItemLoot from './data/itemlootdata.js';
+import Items from './data/items.js';
 
+// FIX (conversion): 'InventoryMode' used to be a bare cross-script global; see game.js for the
+// full explanation. Aliased from Types.InventoryMode now that gametypes.js is a real ES module.
+const InventoryMode = Types.InventoryMode;
 
-
-define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
-  function(Button2, Item, ItemLoot, Items)
-{
-  var InventoryDialog = Class.extend({
-    init: function() {
+export default class InventoryDialog {
+    constructor() {
       this.maxInventoryNumber = 50;
       //this.itemListCount = 24;
       this.inventory = [];
@@ -77,9 +85,9 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
           "left": left+"px"
         });
       }
-    },
+    }
 
-    selectInventory: function(jq) {
+    selectInventory(jq) {
       if (!game || !game.ready)
         return;
 
@@ -156,9 +164,9 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
         }
         this.deselectItem();
       }
-    },
+    }
 
-    activateItem: function (type, slot, item, btnPressed) {
+    activateItem(type, slot, item, btnPressed) {
       if (item) {
         var kind = item.itemKind;
         if (game.inventoryMode === InventoryMode.MODE_AUCTION) {
@@ -207,9 +215,9 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
       } else {
         this.handler.splitItem(1, slot);
       }
-    },
+    }
 
-    selectEquipment: function (event, type, slot) {
+    selectEquipment(event, type, slot) {
       var item = this.getItem(type, slot);
       if (item !== null && DragItem && DragItem.item !== item)
         this.deselectItem();
@@ -220,9 +228,9 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
         this.handler.moveItem(2, slot, true);
         event.stopPropagation();
       }
-    },
+    }
 
-    loadInventoryEvents: function() {
+    loadInventoryEvents() {
       var self = this;
 
       var max = game.equipment.maxNumber;
@@ -389,15 +397,15 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
           game.app.showDropDialog("bankgold");
         }
       });
-    },
+    }
 
-    deselectItem: function() {
+    deselectItem() {
       DragItem = null;
       this.selectItem(this.selectedType, this.selectedItem, false);
       this.jqActionButton.hide();
-    },
+    }
 
-    selectItem: function(type, slot, select) {
+    selectItem(type, slot, select) {
       //pageslot = realslot % this.pageItems;
       var htmlItem = $('#inventoryitembackground' + slot); // FIX: missing var, was leaking an implicit global
       if (type === 2) {
@@ -416,18 +424,18 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
           'border': 'none'
         });
       }
-    },
+    }
 
-    showInventoryButton: function() {
+    showInventoryButton() {
       var scale = this.scale;
       this.inventorybutton.setBackground({
         left: 196 * scale,
         top: 314 * scale,
         width: 17 * scale
       });
-    },
+    }
 
-    refreshInventory: function(index) {
+    refreshInventory(index) {
       index = index || -1;
       if (index > -1) {
         var item = this.getItem(0,index); // FIX: missing var, was leaking an implicit global
@@ -439,20 +447,20 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
         return;
       }
       this.refreshInventoryAll();
-    },
+    }
 
-    refreshInventoryAll: function () {
+    refreshInventoryAll() {
       this.makeEmptyInventoryAll();
       this.showItems(0,this.maxInventoryNumber);
       this.funcCooldown();
-    },
+    }
 
-    setCurrency: function(gold, gems) {
+    setCurrency(gold, gems) {
       $('.inventoryGold').text(Utils.getNumShortHand(gold, 2));
       $('.inventoryGems').text(gems);
-    },
+    }
 
-    toggleInventory: function(open) {
+    toggleInventory(open) {
       this.isShowAllInventory = open || !this.isShowAllInventory;
       if (!$("#allinventorywindow").is(':visible')) {
         this.showInventory();
@@ -460,9 +468,9 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
       } else {
         this.hideInventory();
       }
-    },
+    }
 
-    showInventory: function() {
+    showInventory() {
       this.pageIndex = 0;
       $('.inventorySellGoldFrame').hide();
       var jqGemsFrame = $('#allinventorywindow .inventoryGemsFrame');
@@ -499,14 +507,14 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
       }
       this.refreshInventoryAll();
       $('#allinventorywindow').css('display', 'block');
-    },
+    }
 
-    hideInventory: function() {
+    hideInventory() {
       $('#allinventorywindow').css('display', 'none');
       game.inventoryMode = 0;
-    },
+    }
 
-    getItems: function (type, cond) {
+    getItems(type, cond) {
         var items = [];
         for (var i = 0; i < this.maxInventoryNumber; ++i) {
           var item = this.getItem(type, i);
@@ -514,16 +522,16 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
             items.push(item);
         }
         return items;
-    },
+    }
 
-    funcCooldownExec: function (item) {
+    funcCooldownExec(item) {
       var itemData = ItemTypes.KindData[item.itemKind];
       this.cooldownTime = itemData.cooldown;
       this.funcCooldown();
       game.shortcuts.cooldownItems();
-    },
+    }
 
-    funcCooldown: function() {
+    funcCooldown() {
       var self = this;
 
       var fnCooldownItems = function () {
@@ -579,9 +587,9 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
           setCooltimes();
         }
       }
-    },
+    }
 
-    getItem: function (type, slot) {
+    getItem(type, slot) {
       if (slot < 0) return null;
       if (type === 0) {
         return game.inventory.rooms[slot];
@@ -589,9 +597,9 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
       else if (type === 2)
         return game.equipment.rooms[slot];
       return null;
-    },
+    }
 
-    makeEmptyInventory: function(i) {
+    makeEmptyInventory(i) {
 
       //$('#inventoryitembackground' + i).attr('class', '');
 
@@ -607,16 +615,16 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
       $('#inventoryitem' + i).attr('title', '');
       $('#inventoryitem' + i).html('');
       $('#slot' + i).html('');
-    },
+    }
 
-    makeEmptyInventoryAll: function() {
+    makeEmptyInventoryAll() {
       for (var i = 0; i < this.maxInventoryNumber; i++)
       {
         this.makeEmptyInventory(i);
       }
-    },
+    }
 
-    showItems: function(slotStart, slotEnd) {
+    showItems(slotStart, slotEnd) {
       slotStart = slotStart || 0;
       slotEnd = slotEnd || slotStart+1;
 
@@ -686,8 +694,5 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
           }
         }
       }
-    },
-  });
-
-  return InventoryDialog;
-});
+    }
+}

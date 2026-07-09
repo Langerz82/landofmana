@@ -1,6 +1,8 @@
-define([], function() {
-  var LeaderboardHandler = Class.extend({
-    init: function(game) {
+// Converted from AMD (define) + Class.extend to a native ES6 module/class.
+/* global Types, Utils */
+
+export default class LeaderboardHandler {
+    constructor(game) {
     	this.game = game;
     	this.toggle = false;
 
@@ -8,9 +10,9 @@ define([], function() {
     	$('#leaderboardclose').click(function(e){
                 self.show();
     	});
-    },
+    }
 
-    show: function() {
+    show() {
         this.toggle = !this.toggle;
     	if (this.toggle)
     	{
@@ -21,8 +23,8 @@ define([], function() {
         {
             $('#leaderboard').css('display', 'none');
         }
-    },
-    display: function () {
+    }
+    display() {
     	var self = this;
     	var leaderJSON;
     	var recordsPerPage = 10;
@@ -156,9 +158,5 @@ define([], function() {
     	});
 
     	// FIX: removed dead/unreachable fetch() block (was after an unconditional `return;`, marked TODO - FIX)
-    },
-
-  });
-
-  return LeaderboardHandler;
-});
+    }
+}

@@ -1,31 +1,38 @@
+// Converted from AMD (define) + Class.extend to a native ES6 module/class.
+/* global Types */
+import NpcData from './data/npcdata.js';
+import QuestData from './data/questdata.js';
+import MobData from './data/mobdata.js';
+import ItemLoot from './data/itemlootdata.js';
 
-define(['data/npcdata', 'data/questdata', 'data/mobdata', 'data/itemlootdata'],
-  function(NpcData, QuestData, MobData, ItemLoot)
-{
-  var getQuestObject = function(arr) {
-    var self = {};
-    self.toArray = function (obj) {
-      return [obj.type,
-        obj.kind,
-        obj.count];
-    };
-    self.toClient = function (obj) {
-      return [obj.type,
-        obj.kind,
-        obj.count];
-    }
-    self.type = arr[0];
-    self.kind = arr[1] || 0;
-    self.count = arr[2] || 0;
-    return self;
+// FIX (conversion): 'QuestType' used to be a bare cross-script global; see clientcallbacks.js for
+// the full explanation. Aliased from Types.QuestType now that gametypes.js is a real ES module.
+const QuestType = Types.QuestType;
+
+var getQuestObject = function(arr) {
+  var self = {};
+  self.toArray = function (obj) {
+    return [obj.type,
+      obj.kind,
+      obj.count];
   };
+  self.toClient = function (obj) {
+    return [obj.type,
+      obj.kind,
+      obj.count];
+  }
+  self.type = arr[0];
+  self.kind = arr[1] || 0;
+  self.count = arr[2] || 0;
+  return self;
+};
 
-    var Quest = Class.extend({
-        init: function(arr) {
+export default class Quest {
+        constructor(arr) {
            this.update(arr);
-        },
+        }
 
-        update: function(arr) {
+        update(arr) {
           var arr = arr.parseInt();
 
           this.id = arr[0];
@@ -41,9 +48,9 @@ define(['data/npcdata', 'data/questdata', 'data/mobdata', 'data/itemlootdata'],
           if (arr.length === 13 && !isNaN(arr[10]))
             this.object2 = getQuestObject([arr[10],arr[11],arr[12]]);
           this.setDesc();
-        },
+        }
 
-        setDesc: function(desc) {
+        setDesc(desc) {
           var questType;
 
           var questLang = lang.data["QUESTS"][parseInt(this.id).toString()];
@@ -94,9 +101,9 @@ define(['data/npcdata', 'data/questdata', 'data/mobdata', 'data/itemlootdata'],
           var sum = lang.data['QUEST_SUMMARY'];
           var summary = sum.hasOwnProperty(this.id) ? sum[this.id] : sum[summaryIndex];
           this.summary = this.setTextTemplate(summary);
-        },
+        }
 
-        setTextTemplate: function (txt) {
+        setTextTemplate(txt) {
           if (this.type==QuestType.GETITEMKIND)
           {
             if (this.object2) {
@@ -135,6 +142,4 @@ define(['data/npcdata', 'data/questdata', 'data/mobdata', 'data/itemlootdata'],
           txt = txt.replace('%count2%', this.count);
           return txt;
         }
-    });
-    return Quest;
-});
+}

@@ -1,8 +1,9 @@
-define(['./dialog'], function(Dialog) {
+// Converted from AMD (define) + Class.extend to a native ES6 module/class.
+import Dialog from './dialog.js';
 
-    var ConfirmDialog = Dialog.extend({
-        init: function() {
-            this._super(game, '#dialogModalConfirm');
+export default class ConfirmDialog extends Dialog {
+        constructor() {
+            super(game, '#dialogModalConfirm'); // FIX (conversion): this._super(game, '#dialogModalConfirm') -> super(game, '#dialogModalConfirm')
             this.setScale();
 
             this.modalParent = $('#dialogModal');
@@ -31,36 +32,33 @@ define(['./dialog'], function(Dialog) {
                     self.confirmCallback(false);
                 }
             });
-        },
+        }
 
-        setScale: function() {
+        setScale() {
           this.scale = game.renderer.getUiScaleFactor();
-        },
+        }
 
-        rescale: function() {
+        rescale() {
         	this.setScale();
-        },
+        }
 
-        show: function() {
+        show() {
             this.rescale();
             this.modalParent.css('display', 'block');
             this.modal.css('display', 'block');
-            this._super();
-        },
+            super.show(); // FIX (conversion): this._super() -> super.show()
+        }
 
-        hide: function() {
+        hide() {
             this.modalParent.css('display', 'none');
             this.modal.css('display', 'none');
-            this._super();
-        },
+            super.hide(); // FIX (conversion): this._super() -> super.hide()
+        }
 
-        confirm: function(message, callback) {
+        confirm(message, callback) {
             this.confirmCallback = callback;
 
             this.modalConfirmMessage.text(message);
             this.show();
-        },
-    });
-
-    return ConfirmDialog;
-});
+        }
+}

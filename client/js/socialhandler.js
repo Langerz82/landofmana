@@ -1,6 +1,8 @@
-define([], function() {
-  var SocialHandler = Class.extend({
-    init: function(game) {
+// Converted from AMD (define) + Class.extend to a native ES6 module/class.
+/* global Utils */
+
+export default class SocialHandler {
+    constructor(game) {
 		var self = this;
 
 		this.game = game;
@@ -26,9 +28,9 @@ define([], function() {
 				self.show();
 		});
 
-    },
+    }
 
-    inviteParty: function (invitee)
+    inviteParty(invitee)
     {
 		var self = this;
 
@@ -48,9 +50,9 @@ define([], function() {
        setTimeout(function () {
          $('#socialconfirm').hide();
        }, 10000);
-    },
+    }
 
-    inviteGuild: function (guildId, guildName, invitorName)
+    inviteGuild(guildId, guildName, invitorName)
     {
 		var self = this;
 
@@ -70,9 +72,9 @@ define([], function() {
          setTimeout(function () {
            $('#socialconfirm').hide();
          }, 10000);
-    },
+    }
 
-    show: function() {
+    show() {
         this.toggle = !this.toggle;
     	if (this.toggle)
     	{
@@ -84,18 +86,18 @@ define([], function() {
         {
             $('#socialwindow').css('display', 'none');
         }
-    },
-    setPartyMembers: function(members){
+    }
+    setPartyMembers(members){
       this.partymembers = members;
       this.displayParty();
-    },
+    }
 
-    setGuildMembers: function(members){
+    setGuildMembers(members){
       this.guildmembers = members;
       this.displayGuild();
-    },
+    }
 
-    displayParty: function () {
+    displayParty() {
       if (this.partymembers.length <= 1)
       {
       	  $('#partynames').html("No party.");
@@ -114,9 +116,9 @@ define([], function() {
       }
       htmlStr += "</table>";
       $('#partynames').html(htmlStr);
-    },
+    }
 
-    displayGuild: function () {
+    displayGuild() {
       if (this.guildmembers.length <= 0)
       {
       	  $('#guildnames').html("No guild.");
@@ -136,24 +138,21 @@ define([], function() {
       htmlStr += "</table>";
       $('#guildnames').html(htmlStr);
 
-    },
-
-    isPartyLeader: function (name) {
-    	return name === this.partymembers[0];
-    },
-
-    isPartyMember: function (name) {
-    	return (this.partymembers.indexOf(name) > -1);
-    },
-
-    isGuildLeader: function (name) {
-    	return name === this.guildmembers[0];
-    },
-
-    isGuildMember: function (name) {
-    	return (this.guildmembers.indexOf(name) > -1);
     }
 
-  });
-  return SocialHandler;
-});
+    isPartyLeader(name) {
+    	return name === this.partymembers[0];
+    }
+
+    isPartyMember(name) {
+    	return (this.partymembers.indexOf(name) > -1);
+    }
+
+    isGuildLeader(name) {
+    	return name === this.guildmembers[0];
+    }
+
+    isGuildMember(name) {
+    	return (this.guildmembers.indexOf(name) > -1);
+    }
+}

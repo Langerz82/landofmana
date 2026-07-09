@@ -1,8 +1,11 @@
-/* global Types, Class */
+// Converted from AMD (define) + Class.extend to a native ES6 module/class.
+/* global ItemTypes, Class */
+import Item from './entity/item.js';
+import Items from './data/items.js';
+import ItemLoot from './data/itemlootdata.js';
 
-define(['entity/item', 'data/items', 'data/itemlootdata'], function(Item, Items, ItemLoot) {
-    var InventoryHandler = Class.extend({
-        init: function(dialog) {
+export default class InventoryHandler {
+        constructor(dialog) {
             var self = this;
             this.rooms = [];
             this.maxNumber = 50;
@@ -10,18 +13,18 @@ define(['entity/item', 'data/items', 'data/itemlootdata'], function(Item, Items,
             //this.pageItems = 24;
             this.dialog = dialog;
             dialog.handler = this;
-        },
+        }
 
-        setMaxNumber: function(maxNumber) {
+        setMaxNumber(maxNumber) {
           this.maxNumber = maxNumber;
-        },
+        }
 
-        initInventory: function(itemArray) {
+        initInventory(itemArray) {
           //this.pageIndex = 0;
           this.setInventory(itemArray);
-        },
+        }
 
-        setInventory: function(itemArray) {
+        setInventory(itemArray) {
           for (var item of itemArray)
           {
             var i = item.slot;
@@ -43,17 +46,17 @@ define(['entity/item', 'data/items', 'data/itemlootdata'], function(Item, Items,
             //if (i >= count && i < (count + this.pageItems))
               this.dialog.refreshInventory(i);
           }
-        },
+        }
 
-        getItemInventorySlotByKind: function(kind) {
+        getItemInventorySlotByKind(kind) {
           for (var i = 0; i < this.maxNumber; i++) { // FIX: missing var, was leaking an implicit global
             var item = this.rooms[i];
             if (item && kind === item.itemKind)
               return i;
           }
-        },
+        }
 
-        isInventoryFull: function() {
+        isInventoryFull() {
           for (var i = 0; i < this.maxNumber; ++i) {
             var item = this.rooms[i];
             if (item === null) {
@@ -61,9 +64,9 @@ define(['entity/item', 'data/items', 'data/itemlootdata'], function(Item, Items,
             }
           }
           return true;
-        },
+        }
 
-        hasItem: function(kind, count) {
+        hasItem(kind, count) {
           for (var i = 0; i < this.maxNumber; i++) { // FIX: missing var, was leaking an implicit global
             var item = this.rooms[i];
             if (item && kind === item.itemKind && item.itemNumber >= count) {
@@ -71,9 +74,9 @@ define(['entity/item', 'data/items', 'data/itemlootdata'], function(Item, Items,
             }
           }
           return false;
-        },
+        }
 
-        getItemCount: function(kind) {
+        getItemCount(kind) {
           for (var i = 0; i < this.maxNumber; i++) { // FIX: missing var, was leaking an implicit global
             var item = this.rooms[i];
             if (item && kind === item.itemKind) {
@@ -81,9 +84,9 @@ define(['entity/item', 'data/items', 'data/itemlootdata'], function(Item, Items,
             }
           }
           return null;
-        },
+        }
 
-        getItemTotalCount: function(kind) {
+        getItemTotalCount(kind) {
           var total = 0;
           for (var i = 0; i < this.maxNumber; i++) { // FIX: missing var, was leaking an implicit global
             var item = this.rooms[i];
@@ -92,9 +95,9 @@ define(['entity/item', 'data/items', 'data/itemlootdata'], function(Item, Items,
             }
           }
           return total;
-        },
+        }
 
-        getItemByKind: function(kind) {
+        getItemByKind(kind) {
           for (var i = 0; i < this.maxNumber; i++) { // FIX: missing var, was leaking an implicit global
             var item = this.rooms[i];
             if (item && kind === item.itemKind) {
@@ -103,9 +106,9 @@ define(['entity/item', 'data/items', 'data/itemlootdata'], function(Item, Items,
             }
           }
           return null;
-        },
+        }
 
-        hasItems: function(itemKind, itemCount){
+        hasItems(itemKind, itemCount){
             var a = 0;
             for(var item of this.rooms){
                 if(item && item.itemKind === itemKind){
@@ -115,9 +118,9 @@ define(['entity/item', 'data/items', 'data/itemlootdata'], function(Item, Items,
                 }
             }
             return false;
-        },
+        }
 
-        decInventory: function(realslot) {
+        decInventory(realslot) {
           var self = this;
           var item = this.rooms[realslot];
           var count = item.itemNumber;
@@ -126,9 +129,9 @@ define(['entity/item', 'data/items', 'data/itemlootdata'], function(Item, Items,
           } else {
             item.itemNumber = count; // FIX: decremented count was never written back, so displayed stack counts didn't update on single-use decrements
           }
-        },
+        }
 
-        splitItem: function(type, slot) {
+        splitItem(type, slot) {
             if (!DragItem)
               return;
 
@@ -152,9 +155,9 @@ define(['entity/item', 'data/items', 'data/itemlootdata'], function(Item, Items,
             } else {
               this.moveItem(type, slot);
             }
-        },
+        }
 
-        dropItem: function(itemSlot) {
+        dropItem(itemSlot) {
             var pos = game.getMouseGridPosition();
             var item = this.rooms[itemSlot];
             if (!item)
@@ -172,14 +175,14 @@ define(['entity/item', 'data/items', 'data/itemlootdata'], function(Item, Items,
             } else {
               game.client.sendItemSlot([2, 0, itemSlot, 1]);
             }
-        },
+        }
 
-        isStackitem: function (item, maxStack) {
+        isStackitem(item, maxStack) {
           return (ItemTypes.isStackedItem(item.itemKind) &&
             (item.itemNumber > 1) && (!maxStack || (maxStack && item.itemNumber < 100)));
-        },
+        }
 
-        useItem: function(type, item) {
+        useItem(type, item) {
           var player = game.player;
           var kind = item.itemKind;
           if (ItemTypes.isConsumableItem(kind)) {
@@ -199,13 +202,13 @@ define(['entity/item', 'data/items', 'data/itemlootdata'], function(Item, Items,
             return true;
           }
           return false;
-        },
+        }
 
-    		moveItem: function (type, slot, start) {
+    		moveItem(type, slot, start) {
           DragItem = this._moveItem(DragItem, type, slot, start);
-        },
+        }
 
-        _moveItem: function (obj, type, slot, start) {
+        _moveItem(obj, type, slot, start) {
           start = start || false;
 
           if (start && obj === null) {
@@ -220,9 +223,9 @@ define(['entity/item', 'data/items', 'data/itemlootdata'], function(Item, Items,
             obj = null;
           }
           return null;
-        },
+        }
 
-        sendSplitItem: function (splitItem, count) {
+        sendSplitItem(splitItem, count) {
           var item = splitItem.item;
           if(count > item.itemNumber)
             count = item.itemNumber;
@@ -235,9 +238,9 @@ define(['entity/item', 'data/items', 'data/itemlootdata'], function(Item, Items,
           {
             item = null;
           }
-        },
+        }
 
-        sendDropItem: function (dropItem, count) {
+        sendDropItem(dropItem, count) {
           var item = dropItem.item;
           if (count <= 0)
             return;
@@ -251,8 +254,5 @@ define(['entity/item', 'data/items', 'data/itemlootdata'], function(Item, Items,
           {
             item = null;
           }
-        },
-    });
-
-    return InventoryHandler;
-});
+        }
+}

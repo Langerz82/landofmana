@@ -1,8 +1,12 @@
-define(['data/skilldata', 'data/items'], function(SkillData, Items) {
-  DragShortcut = null;
+// Converted from AMD (define) + Class.extend to a native ES6 module/class.
+/* global ItemTypes */
+import SkillData from './data/skilldata.js';
+import Items from './data/items.js';
 
-  var Shortcut = Class.extend({
-    init: function(parent, slot, type) {
+var DragShortcut = null; // FIX: was a bare global assignment (no var), which throws ReferenceError under ES module strict mode
+
+class Shortcut {
+    constructor(parent, slot, type) {
       var self = this;
 
       this.parent = parent;
@@ -70,9 +74,9 @@ define(['data/skilldata', 'data/items'], function(SkillData, Items) {
       this.jq.unbind('dragover').bind('dragover', function(event) {
           event.preventDefault();
       });
-    },
+    }
 
-    setup: function (slot) {
+    setup(slot) {
       //var slot = this.jq.data("slot");
       // TODO fill.
       if (this.isCoolingDown)
@@ -94,9 +98,9 @@ define(['data/skilldata', 'data/items'], function(SkillData, Items) {
       if (this.shortcutId > -1)
         game.client.sendShortcut(this.slot, this.type, this.shortcutId);
       this.display();
-    },
+    }
 
-    install: function (slot, type, id) {
+    install(slot, type, id) {
       this.slot = slot;
       this.type = type;
       this.shortcutId = id;
@@ -109,14 +113,14 @@ define(['data/skilldata', 'data/items'], function(SkillData, Items) {
         this.cooldownTime = ~~(SkillData.Data[id].recharge / 1000);
       }
       this.display();
-    },
+    }
 
-    clear: function () {
+    clear() {
         this.jqnum.css("display", "none");
         this.jq.css("display", "none");
-    },
+    }
 
-    display: function () {
+    display() {
       this.jqnum.css("display", "block");
       this.jq.css("display", "block");
 
@@ -135,9 +139,9 @@ define(['data/skilldata', 'data/items'], function(SkillData, Items) {
         return;
       }
       this.clear();
-    },
+    }
 
-    exec: function () {
+    exec() {
       if (this.cooldown && this.cooldown.cooltimeCounter > 0)
         return;
 
@@ -157,9 +161,9 @@ define(['data/skilldata', 'data/items'], function(SkillData, Items) {
         this.parent.cooldownStart(this.type, this.shortcutId);
 
       this.display();
-    },
+    }
 
-    cooldownStart: function (time) {
+    cooldownStart(time) {
       if (this.cooldown)
         this.cooldown.done();
 
@@ -168,17 +172,16 @@ define(['data/skilldata', 'data/items'], function(SkillData, Items) {
 
       if (this.type === 2)
         game.skillDialog.page.cooldownStart(this.shortcutId);
-    },
+    }
+}
 
-  });
-
-  var Cooldown = Class.extend({
-    init: function(shortcut) {
+class Cooldown {
+    constructor(shortcut) {
       this.shortcut = shortcut;
       this.children = shortcut.parent.getSameShortcuts(shortcut);
-    },
+    }
 
-    start: function (time) {
+    start(time) {
       var self = this;
 
       this.cooltimeCounter = time;
@@ -201,9 +204,9 @@ define(['data/skilldata', 'data/items'], function(SkillData, Items) {
         sc.isCoolingDown = true;
         sc.jqCooldown.show();
       }
-    },
+    }
 
-    tick: function () {
+    tick() {
       this.children = this.shortcut.parent.getSameShortcuts(this.shortcut);
 
       if (this.cooltimeCounter === 0) {
@@ -212,16 +215,16 @@ define(['data/skilldata', 'data/items'], function(SkillData, Items) {
       }
 
       this.show();
-    },
+    }
 
-    show: function () {
+    show() {
       for (var sc of this.children) {
         sc.jqCooldown.show();
         sc.jqCooldown.html(this.cooltimeCounter);
       }
-    },
+    }
 
-    done: function () {
+    done() {
       clearInterval(this.cooltimeTickHandle);
       this.cooltimeTickHandle = null;
       this.cooltimeCounter = 0;
@@ -234,11 +237,11 @@ define(['data/skilldata', 'data/items'], function(SkillData, Items) {
       this.cooldown = null;
       this.shortcut.cooldown = null;
       // FIX: `delete this;` is a no-op (delete cannot remove a local/this binding); removed dead code, cleanup is already handled above
-    },
-  });
+    }
+}
 
-  var ShortcutHandler = Class.extend({
-    init: function() {
+export default class ShortcutHandler {
+    constructor() {
       this.shortcuts = [];
       this.shortcutCount = 6;
 
@@ -248,9 +251,9 @@ define(['data/skilldata', 'data/items'], function(SkillData, Items) {
         shortcut.clear();
         this.shortcuts.push(shortcut);
       }
-    },
+    }
 
-    installAll: function (arr) {
+    installAll(arr) {
       var shortcut;
       var i=0;
       for (var sc of arr) {
@@ -260,9 +263,9 @@ define(['data/skilldata', 'data/items'], function(SkillData, Items) {
           this.shortcuts[sc[0]].install(sc[0], sc[1], sc[2]);
         }
       }
-    },
+    }
 
-    install: function (slot, type, shortcutId) {
+    install(slot, type, shortcutId) {
       if (slot >= this.shortcutCount)
         return;
 
@@ -278,9 +281,9 @@ define(['data/skilldata', 'data/items'], function(SkillData, Items) {
           break;
         }
       }
-    },
+    }
 
-    cooldownStart: function (type, shortcutId) {
+    cooldownStart(type, shortcutId) {
         for (var slot of this.shortcuts) {
           if (!slot)
             continue;
@@ -290,9 +293,9 @@ define(['data/skilldata', 'data/items'], function(SkillData, Items) {
             slot.cooldownStart(slot.cooldownTime);
           }
         }
-    },
+    }
 
-    cooldownItems: function () {
+    cooldownItems() {
       var itemslot = null;
       for (var slot of this.shortcuts) {
         if (slot.type === 1) {
@@ -301,20 +304,20 @@ define(['data/skilldata', 'data/items'], function(SkillData, Items) {
           break;
         }
       }
-    },
+    }
 
-    exec: function (slot) {
+    exec(slot) {
       if (this.shortcuts[slot])
         this.shortcuts[slot].exec();
-    },
+    }
 
-    refresh: function () {
+    refresh() {
       for (var sc of this.shortcuts) {
         sc.display();
       }
-    },
+    }
 
-    getSameShortcuts: function (shortcut) {
+    getSameShortcuts(shortcut) {
       var shortcuts = [];
       for (var sc of this.shortcuts) {
         if (sc.type == 1 && sc.type === shortcut.type)
@@ -327,9 +330,5 @@ define(['data/skilldata', 'data/items'], function(SkillData, Items) {
         }
       }
       return shortcuts;
-    },
-
-  });
-
-  return ShortcutHandler;
-});
+    }
+}

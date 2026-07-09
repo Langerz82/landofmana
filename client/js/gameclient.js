@@ -1,14 +1,22 @@
+// Converted from AMD (define) + Class.extend to a native ES6 module/class.
+// NOTE: 'lib/pako' and 'lib/bison' remain classic (non-module) <script> globals (`pako`,
+// `BISON`), same as jQuery/underscore/PIXI elsewhere, so they are not imported here.
+/* global Types, Utils, log, Class, pako, BISON */
+import Detect from './detect.js';
+import Player from './entity/player.js';
+import EntityFactory from './entityfactory.js';
+import Mob from './entity/mob.js';
+import Item from './entity/item.js';
+import MobData from './data/mobdata.js';
+import config from './config.js';
+import ChatHandler from './chathandler.js';
+import Timer from './timer.js';
 
-/* global Types, log, Class */
+export default class GameClient {
+        constructor() {
+					var self = this;
 
-define(['lib/pako', 'entity/player', 'entityfactory', 'entity/mob', 'entity/item', 'data/mobdata', 'lib/bison', 'config', 'chathandler', 'timer', 'util'],
-	function(pako, Player, EntityFactory, Mob, Item, MobData, BISON, config, ChatHandler, Timer) {
-
-    var GameClient = Class.extend({
-        init: function() {
-						var self = this;
-
-						this.useBison = false;
+					this.useBison = false;
 
             this.enable();
 
@@ -17,7 +25,7 @@ define(['lib/pako', 'entity/player', 'entityfactory', 'entity/mob', 'entity/item
 
             this.handlers = {};
 
-						this.onMessage = function(data) {
+					this.onMessage = function(data) {
 	            // TODO: logs every inbound packet to the console; gate behind a debug/verbose flag before shipping
 	            console.warn("recv: "+data);
 							var fnProcessMessage = function (message) {
@@ -65,9 +73,9 @@ define(['lib/pako', 'entity/player', 'entityfactory', 'entity/mob', 'entity/item
 	          }
 		      };
 					log.info("Starting client/server handshake");
-        },
+        }
 
-				setHandlers: function () {
+				setHandlers() {
 					this.handlers[Types.Messages.BI_SYNCTIME] = this.onSyncTime;
 					this.handlers[Types.Messages.WC_AUCTIONOPEN] = this.auction_callback;
 					this.handlers[Types.Messages.WC_CHANGEPOINTS] = this.change_points_callback;
@@ -105,9 +113,9 @@ define(['lib/pako', 'entity/player', 'entityfactory', 'entity/mob', 'entity/item
 					this.handlers[Types.Messages.WC_VERSION] = this.onVersion;
 					this.handlers[Types.Messages.WC_PLAYER] = this.player_callback;
 					this.handlers[Types.Messages.WC_ERROR] = this.onError;
-				},
+				}
 
-				connect: function (url, data) {
+				connect(url, data) {
 					var self = this;
 
 					this.connection = io(url, {
@@ -139,42 +147,42 @@ define(['lib/pako', 'entity/player', 'entityfactory', 'entity/mob', 'entity/item
 									}
 							}
 					});
-				},
+				}
 
-				onError: function (data) {
+				onError(data) {
 	          var message = data[0];
 	          $('#container').addClass('error');
 	          // FIX: XSS - server-supplied error message was inserted unescaped via .append(); escape before rendering
 	          $('#errorwindow .errordetails').append("<p>"+Utils.escapeHtml(message)+"</p>");
 	          app.loadWindow('playerwindow','errorwindow');
 						$('#errorwindow').focus();
-	      },
+	      }
 
-				_onError: function (data) {
+				_onError(data) {
 	          this.onError(data);
-	      },
+	      }
 
-				onConnected: function (data) {
+				onConnected(data) {
 					this.sendLoginPlayer(data[0], data[1]);
 					this.sendSyncTime(Date.now());
-				},
+				}
 
-				onVersion: function (data) {
+				onVersion(data) {
 	        game.onVersionGame(data);
-	      },
+	      }
 
-        enable: function() {
+        enable() {
             this.isListening = true;
-        },
+        }
 
-        disable: function() {
+        disable() {
             this.isListening = false;
-        },
+        }
 
         //connect: function() {
         //},
 
-        sendMessage: function(json) {
+        sendMessage(json) {
           var data;
           if(this.connection.connected === true) {
 						//try { throw new Error() } catch (e) { console.warn("sent="+JSON.stringify(json)+e.stack); }
@@ -192,9 +200,9 @@ define(['lib/pako', 'entity/player', 'entityfactory', 'entity/mob', 'entity/item
 							console.log(err);
 						}
           }
-        },
+        }
 
-        receiveAction: function(data) {
+        receiveAction(data) {
             //log.info("recieved=" + JSON.stringify(data));
             var action = data.shift();
             if(this.handlers[action] && _.isFunction(this.handlers[action])) {
@@ -203,18 +211,18 @@ define(['lib/pako', 'entity/player', 'entityfactory', 'entity/mob', 'entity/item
             else {
                 log.error("Unknown action : " + action);
             }
-        },
+        }
 
-        receiveActionBatch: function(actions) {
+        receiveActionBatch(actions) {
             var self = this;
             _.each(actions, function(action) {
                 self.receiveAction(action);
                 //self.packets.push(action);
                 //log.info(JSON.stringify(action));
             });
-        },
+        }
 
-        receiveSpawn: function(data) {
+        receiveSpawn(data) {
             var id = parseInt(data[0]),
 								type = parseInt(data[1]),
                 kind = parseInt(data[2]),
@@ -261,197 +269,193 @@ define(['lib/pako', 'entity/player', 'entityfactory', 'entity/mob', 'entity/item
                     this.spawn_character_callback(data, entity); // from 6
                 }
             }
-        },
+        }
 
-				onSyncTime: function (data) {
+				onSyncTime(data) {
 	        Utils.setWorldTime(parseInt(data[0]), parseInt(data[1]))
-	      },
+	      }
 
-				onVersion: function (data) {
-	        game.onVersionGame(data);
-	      },
-
-				onParty: function (callback) {
+				onParty(callback) {
             this.party_callback = callback;
-        },
+        }
 
-				onPlayer: function (callback) {
+				onPlayer(callback) {
             this.player_callback = callback;
-        },
+        }
 
-				onPlayerInfo: function (callback) {
+				onPlayerInfo(callback) {
             this.playerinfo_callback = callback;
-        },
+        }
 
-        onDispatched: function(callback) {
+        onDispatched(callback) {
             this.dispatched_callback = callback;
-        },
+        }
 
-        onDisconnected: function(callback) {
+        onDisconnected(callback) {
             this.disconnected_callback = callback;
-        },
+        }
 
-        onLogin: function(callback) {
+        onLogin(callback) {
         	this.login_callback = callback;
-        },
+        }
 
-        onSpawnCharacter: function(callback) {
+        onSpawnCharacter(callback) {
             this.spawn_character_callback = callback;
-        },
+        }
 
-        onSpawnItem: function(callback) {
+        onSpawnItem(callback) {
             this.spawn_item_callback = callback;
-        },
+        }
 
-        onSpawnChest: function(callback) {
+        onSpawnChest(callback) {
             this.spawn_chest_callback = callback;
-        },
+        }
 
-        onDespawnEntity: function(callback) {
+        onDespawnEntity(callback) {
             this.despawn_callback = callback;
-        },
+        }
 
-        onEntityMove: function(callback) {
+        onEntityMove(callback) {
             this.move_callback = callback;
-        },
+        }
 
-        onEntityMovePath: function(callback) {
+        onEntityMovePath(callback) {
             this.movepath_callback = callback;
-        },
+        }
 
-        onPlayerTeleportMap: function(callback) {
+        onPlayerTeleportMap(callback) {
             this.teleportmap_callback = callback;
-        },
+        }
 
-        onChatMessage: function(callback) {
+        onChatMessage(callback) {
             this.chat_callback = callback;
-        },
+        }
 
-        onCharacterDamage: function(callback) {
+        onCharacterDamage(callback) {
             this.dmg_callback = callback;
-        },
+        }
 
-				onPlayerStat: function(callback) {
+				onPlayerStat(callback) {
             this.stat_callback = callback;
-        },
+        }
 
-        onPlayerLevelUp: function(callback) {
+        onPlayerLevelUp(callback) {
             this.levelup_callback = callback;
-        },
+        }
 
-        onPlayerItemLevelUp: function(callback) {
+        onPlayerItemLevelUp(callback) {
             this.itemlevelup_callback = callback;
-        },
+        }
 
-        onEntityDestroy: function(callback) {
+        onEntityDestroy(callback) {
             this.destroy_callback = callback;
-        },
+        }
 
-        onCharacterChangePoints: function(callback) {
+        onCharacterChangePoints(callback) {
             this.change_points_callback = callback;
-        },
+        }
 
-        onNotify: function(callback){
+        onNotify(callback){
             this.notify_callback = callback;
-        },
+        }
 
-				onDialogue: function(callback){
+				onDialogue(callback){
             this.dialogue_callback = callback;
-        },
+        }
 
-        onQuest: function(callback) {
+        onQuest(callback) {
             this.quest_callback = callback;
-        },
+        }
 
-				onAchievement: function(callback) {
+				onAchievement(callback) {
             this.achievement_callback = callback;
-        },
+        }
 
-        onItemSlot: function(callback) {
+        onItemSlot(callback) {
             this.itemslot_callback = callback;
-        },
+        }
 
-        onSkillInstall: function(callback) {
+        onSkillInstall(callback) {
             this.skillInstall_callback = callback;
-        },
+        }
 
-        onSkillLoad: function(callback) {
+        onSkillLoad(callback) {
             this.skillLoad_callback = callback;
-        },
+        }
 
-				onSkillXP: function(callback) {
+				onSkillXP(callback) {
             this.skillxp_callback = callback;
-        },
+        }
 
-				onSkillEffects: function (callback) {
+				onSkillEffects(callback) {
             this.skilleffects_callback = callback;
-        },
+        }
 
-        onStatInfo: function(callback) {
+        onStatInfo(callback) {
             this.statInfo_callback = callback;
-        },
+        }
 
-        onAuction: function (callback) {
+        onAuction(callback) {
             this.auction_callback = callback;
-        },
+        }
 
-        onWanted: function (callback) {
+        onWanted(callback) {
             this.wanted_callback = callback;
-        },
+        }
 
-        onAggro: function (callback) {
+        onAggro(callback) {
              this.aggro_callback = callback;
-        },
+        }
 
-        onSpeech: function (callback) {
+        onSpeech(callback) {
              this.speech_callback = callback;
-        },
+        }
 
-        onMapStatus: function (callback) {
+        onMapStatus(callback) {
         	this.mapstatus_callback = callback;
-        },
+        }
 
-				onSetSprite: function (callback) {
+				onSetSprite(callback) {
 					this.set_sprite_callback = callback;
-				},
+				}
 
-				onSetAnimation: function (callback) {
+				onSetAnimation(callback) {
 					this.set_animation_callback = callback;
-				},
+				}
 
-				onGold: function(callback) {
+				onGold(callback) {
 					this.gold_callback = callback;
-				},
+				}
 
-				onProducts: function (callback) {
+				onProducts(callback) {
 					this.products_callback = callback;
-				},
+				}
 
-				onAppearance: function (callback) {
+				onAppearance(callback) {
 					this.appearance_callback = callback;
-				},
+				}
 
-				onBlockModify: function (callback) {
+				onBlockModify(callback) {
 					this.block_callback = callback;
-				},
+				}
 
-				onHarvest: function (callback) {
+				onHarvest(callback) {
 					this.harvest_callback = callback;
-				},
+				}
 
 // SEND FUNCTIONS.
-				sendSyncTime: function(date) {
+				sendSyncTime(date) {
 						log.info("sendSyncTime");
 						this.sendMessage([Types.Messages.BI_SYNCTIME,date]);
-				},
+				}
 
-				sendLoginPlayer: function (playername, playerhash) {
+				sendLoginPlayer(playername, playerhash) {
 					this.sendMessage([Types.Messages.CW_LOGIN_PLAYER,
 														playername,
 														playerhash]);
-				},
+				}
 
-        sendMoveEntity: function(entity, action) {
+        sendMoveEntity(entity, action) {
 						//try { throw new Error(); } catch(err) { console.error(err.stack); }
 						console.info("DEBUG: sendMoveEntity: x:"+entity.x+",entity.y:"+entity.y);
             this.sendMessage([Types.Messages.CW_MOVE,
@@ -461,9 +465,9 @@ define(['lib/pako', 'entity/player', 'entityfactory', 'entity/mob', 'entity/item
 											entity.orientation,
 											entity.x,
 											entity.y]);
-        },
+        }
 
-        sendMovePath: function(entity, length, path) {
+        sendMovePath(entity, length, path) {
 						var simpath = path;
 
             var array = [Types.Messages.CW_MOVEPATH,
@@ -474,176 +478,172 @@ define(['lib/pako', 'entity/player', 'entityfactory', 'entity/mob', 'entity/item
 
             array.push(simpath);
         		this.sendMessage(array);
-        },
+        }
 
-				sendDropItem: function(item, x, y) {
+				sendDropItem(item, x, y) {
 					this.sendMessage([Types.Messages.CW_DROP,
 														x,
 														y,
 														item.id]);
-				},
+				}
 
-        sendAttack: function(player, mob, spellId) {
+        sendAttack(player, mob, spellId) {
             this.sendMessage([Types.Messages.CW_ATTACK, Utils.getWorldTime(),
                               mob.id, player.orientation, spellId]);
-        },
+        }
 
-        sendChat: function(text) {
+        sendChat(text) {
             this.sendMessage([Types.Messages.CW_CHAT,
                               text]);
-        },
+        }
 
-        sendLoot: function(item) {
+        sendLoot(item) {
             this.sendMessage([Types.Messages.CW_LOOT].concat(_.pluck(item,'id')));
-        },
+        }
 
 				// map, status, x, y
-        sendTeleportMap: function(data) {
+        sendTeleportMap(data) {
 						//if (data[1] === 0)
 							//game.renderer.blankFrame = true;
             this.sendMessage([Types.Messages.CW_TELEPORT_MAP,
             		      	  		data[0], data[1], data[2], data[3], data[4]]);
-        },
+        }
 
-        sendWho: function(ids) {
+        sendWho(ids) {
 						this.sendMessage([Types.Messages.CW_WHO,ids]);
-        },
+        }
 
-				sendWhoRequest: function() {
+				sendWhoRequest() {
 						this.sendMessage([Types.Messages.CW_REQUEST,3]);
-        },
+        }
 
-        sendDelist: function(ids) {
+        sendDelist(ids) {
             ids.unshift(Types.Messages.CW_DELIST);
             this.sendMessage(ids);
-        },
+        }
 
-        sendTalkToNPC: function (type, npcId) {
+        sendTalkToNPC(type, npcId) {
             this.sendMessage([Types.Messages.CW_TALKTONPC, type, npcId]);
-        },
+        }
 
-        sendQuest: function(entityId, questId, status){
+        sendQuest(entityId, questId, status){
             this.sendMessage([Types.Messages.CW_QUEST, entityId, questId, status]);
-        },
+        }
 
 				// category, type, inventoryNumber, count, x, y
-        sendItemSlot: function(data){
+        sendItemSlot(data){
             this.sendMessage([Types.Messages.CW_ITEMSLOT].concat(data));
-        },
+        }
 
-        sendSkill: function(type, targetId){
+        sendSkill(type, targetId){
             this.sendMessage([Types.Messages.CW_SKILL, type, targetId]);
-        },
+        }
 
-        sendShortcut: function(index, type, shortcutId) {
+        sendShortcut(index, type, shortcutId) {
             this.sendMessage([Types.Messages.CW_SHORTCUT, index, type, shortcutId]);
-        },
+        }
 
-        sendSkillLoad: function() {
+        sendSkillLoad() {
             this.sendMessage([Types.Messages.CW_SKILLLOAD]);
-        },
+        }
 
-        sendStoreSell: function(type, inventoryNumber) {
+        sendStoreSell(type, inventoryNumber) {
             this.sendMessage([Types.Messages.CW_STORESELL, type, inventoryNumber]);
-        },
-        sendStoreBuy: function(itemType, itemKind, itemCount) {
+        }
+        sendStoreBuy(itemType, itemKind, itemCount) {
             this.sendMessage([Types.Messages.CW_STOREBUY, itemType, itemKind, itemCount]);
-        },
-				sendStoreCraft: function(itemKind, itemCount) {
+        }
+				sendStoreCraft(itemKind, itemCount) {
             this.sendMessage([Types.Messages.CW_CRAFT, itemKind, itemCount]);
-        },
+        }
 
-				sendPlayerInfo: function () {
+				sendPlayerInfo() {
 					this.sendMessage([Types.Messages.CW_REQUEST, 2]);
-				},
+				}
 
-        sendAuctionOpen: function(type) {
+        sendAuctionOpen(type) {
             this.sendMessage([Types.Messages.CW_AUCTIONOPEN, type]);
-        },
-        sendAuctionSell: function(inventoryNumber, sellValue) {
+        }
+        sendAuctionSell(inventoryNumber, sellValue) {
             this.sendMessage([Types.Messages.CW_AUCTIONSELL, inventoryNumber, sellValue]);
-        },
-        sendAuctionBuy: function(index, type) {
+        }
+        sendAuctionBuy(index, type) {
             this.sendMessage([Types.Messages.CW_AUCTIONBUY, index, type]);
-        },
-        sendAuctionDelete: function(index, type) {
+        }
+        sendAuctionDelete(index, type) {
             this.sendMessage([Types.Messages.CW_AUCTIONDELETE, index, type]);
-        },
+        }
 
-        sendStoreEnchant: function(type, index) { // type 1 = Inventory, 2 = Equipment.
+        sendStoreEnchant(type, index) { // type 1 = Inventory, 2 = Equipment.
             this.sendMessage([Types.Messages.CW_STORE_MODITEM, 1, type, index]);
-        },
-        sendStoreRepair: function(type, index) { // type 1 = Inventory, 2 = Equipment.
+        }
+        sendStoreRepair(type, index) { // type 1 = Inventory, 2 = Equipment.
             this.sendMessage([Types.Messages.CW_STORE_MODITEM, 0, type, index]);
-        },
+        }
 
-        sendGold: function(type, amount, type2) {
+        sendGold(type, amount, type2) {
             this.sendMessage([Types.Messages.CW_GOLD, parseInt(type), parseInt(amount), parseInt(type2)]);
-        },
+        }
 
-        sendMapStatus: function (mapId, status) {
+        sendMapStatus(mapId, status) {
         	this.sendMessage([Types.Messages.CW_MAP_STATUS, mapId, status]);
-        },
-        sendPlayerRevive: function () {
+        }
+        sendPlayerRevive() {
         	this.sendMessage([Types.Messages.CW_REQUEST, 1]);
-        },
-        sendColorTint: function(type, value) {
+        }
+        sendColorTint(type, value) {
         	this.sendMessage([Types.Messages.CW_COLOR_TINT, type, value]);
-        },
+        }
 
-				sendAppearanceList: function() {
+				sendAppearanceList() {
 					this.sendMessage([Types.Messages.CW_REQUEST, 0]);
-				},
+				}
 
-				sendAppearanceUnlock: function(index, buy) {
+				sendAppearanceUnlock(index, buy) {
 					buy = buy || 0;
 					this.sendMessage([Types.Messages.CW_APPEARANCEUNLOCK, index, buy]);
-				},
+				}
 
-				sendLook: function (type, id) {
+				sendLook(type, id) {
 					this.sendMessage([Types.Messages.CW_LOOKUPDATE, type, id]);
-				},
+				}
 
-				sendAddStat: function(statType, points) {
+				sendAddStat(statType, points) {
 					this.sendMessage([Types.Messages.CW_STATADD, statType, points]);
-				},
+				}
 
-				sendLootMove: function (item) {
+				sendLootMove(item) {
 					this.sendMessage([Types.Messages.CW_LOOT, item.id, item.x, item.y]);
-				},
+				}
 
-				sendBlock: function (type, id, x, y) {
+				sendBlock(type, id, x, y) {
 					this.sendMessage([Types.Messages.CW_BLOCK_MODIFY, type, id, x, y]);
-				},
+				}
 
-				sendPartyInvite: function(name, status) { // 0 for request, 1, for yes, 2 for no.
+				sendPartyInvite(name, status) { // 0 for request, 1, for yes, 2 for no.
             this.sendMessage([Types.Messages.CW_PARTY, 1,
                               name, status]);
-        },
+        }
 
-				sendPartyKick: function(name) {
+				sendPartyKick(name) {
             this.sendMessage([Types.Messages.CW_PARTY, 2,
                               name, 0]);
-        },
+        }
 
-				sendPartyLeader: function(name) {
+				sendPartyLeader(name) {
             this.sendMessage([Types.Messages.CW_PARTY, 3,
                               name, 0]);
-        },
+        }
 
-        sendPartyLeave: function() {
+        sendPartyLeave() {
             this.sendMessage([Types.Messages.CW_PARTY, 4, '', 0]);
-        },
+        }
 
-				sendHarvest: function(x, y) {
+				sendHarvest(x, y) {
             this.sendMessage([Types.Messages.CW_HARVEST, x, y]);
-        },
+        }
 
-				sendHarvestEntity: function(entity) {
+				sendHarvestEntity(entity) {
             this.sendMessage([Types.Messages.CW_USE_NODE, entity.id]);
-        },
-
-
-  });
-  return GameClient;
-});
+        }
+}

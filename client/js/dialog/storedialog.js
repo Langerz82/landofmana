@@ -1,8 +1,19 @@
-define(['./dialog', '../tabbook', '../tabpage', '../entity/item', '../inventorystore', '../pageNavigator', 'data/items'],
-  function(Dialog, TabBook, TabPage, Item, InventoryStore, PageNavigator, Items) {
+// Converted from AMD (define) + Class.extend to a native ES6 module/class.
+import Dialog from './dialog.js';
+import TabBook from '../tabbook.js';
+import TabPage from '../tabpage.js';
+/* global Types, ItemTypes, Utils */
+import Item, { ItemRoom } from '../entity/item.js';
+import InventoryStore from '../inventorystore.js';
+import PageNavigator from '../pageNavigator.js';
+import Items from '../data/items.js';
 
-    var StoreRack = Class.extend({
-        init: function(parent, id, index) {
+// FIX (conversion): 'InventoryMode' used to be a bare cross-script global; see game.js for the
+// full explanation. Aliased from Types.InventoryMode now that gametypes.js is a real ES module.
+const InventoryMode = Types.InventoryMode;
+
+class StoreRack {
+        constructor(parent, id, index) {
             this.parent = parent;
             this.id = id;
             this.index = index;
@@ -19,9 +30,9 @@ define(['./dialog', '../tabbook', '../tabpage', '../entity/item', '../inventorys
             this.buyButton.text('Buy');
 
             var self = this;
-        },
+        }
 
-        rescale: function() {
+        rescale() {
             var scale = this.parent.scale;
             var id = this.id;
             this.body = $(id);
@@ -34,12 +45,12 @@ define(['./dialog', '../tabbook', '../tabpage', '../entity/item', '../inventorys
             if (this.item) {
             	     this.assign(this.item);
             }
-        },
+        }
 
-        getVisible: function() {
+        getVisible() {
             return this.body.css('display') === 'block';
-        },
-        setVisible: function(value) {
+        }
+        setVisible(value) {
             var self = this;
 
             this.body.css('display', value ? 'block' : 'none');
@@ -57,9 +68,9 @@ define(['./dialog', '../tabbook', '../tabpage', '../entity/item', '../inventorys
                   event.stopPropagation();
               });
             }
-        },
+        }
 
-        assign: function(item) {
+        assign(item) {
             this.item = item;
             Items.jqShowItem(this.basket, this.item, this.basket);
 
@@ -77,11 +88,11 @@ define(['./dialog', '../tabbook', '../tabpage', '../entity/item', '../inventorys
 
             this.price.text(Utils.getNumShortHand(item.buyPrice));
         }
-    });
+}
 
-    var StorePage = TabPage.extend({
-        init: function(parent, id, itemType, items, scale, buttonIndex) {
-            this._super(parent, id + 'Page', id + buttonIndex + 'Button');
+class StorePage extends TabPage {
+        constructor(parent, id, itemType, items, scale, buttonIndex) {
+            super(parent, id + 'Page', id + buttonIndex + 'Button'); // FIX (conversion): this._super(...) -> super(...)
             this.itemType = itemType;
             this.racks = [];
             this.items = items;
@@ -94,32 +105,32 @@ define(['./dialog', '../tabbook', '../tabpage', '../entity/item', '../inventorys
             for(var index = 0; index < this.rackRows; index++) {
                 this.racks.push(new StoreRack(this, id + index, index));
             }
-        },
+        }
 
-        rescale: function (scale) {
+        rescale(scale) {
             this.scale = scale;
             for(var index = 0; index < this.rackRows; index++) {
                 this.racks[index].rescale();
             }
-        },
+        }
 
-        getPageCount: function() {
+        getPageCount() {
             if (!this.items) return 0;
             log.info("this.items.length="+this.items.length);
             return Math.ceil(this.items.length / this.rackRows);
-        },
+        }
 
-        getPageIndex: function() {
+        getPageIndex() {
             return this.pageIndex;
-        },
+        }
 
-        setPageIndex: function(value) {
+        setPageIndex(value) {
             this.pageIndex = value;
             this.open(this.parent.minLevel,this.parent.maxLevel);
             this.reload();
-        },
+        }
 
-        open: function(min,max) {
+        open(min,max) {
             this.items = ItemTypes.Store.getItems(this.itemType, min, max);
             log.info(JSON.stringify(this.items));
 
@@ -136,9 +147,9 @@ define(['./dialog', '../tabbook', '../tabpage', '../entity/item', '../inventorys
           	    if (!cond(item))
           	    	this.items.splice(this.items.indexOf(item),1);
             }
-        },
+        }
 
-        reload: function() {
+        reload() {
             this.clear();
 
             for(var index = this.pageIndex * this.rackRows; index < Math.min((this.pageIndex + 1) * this.rackRows, this.items.length); index++) {
@@ -147,46 +158,45 @@ define(['./dialog', '../tabbook', '../tabpage', '../entity/item', '../inventorys
                 rack.assign(this.items[index]);
                 rack.setVisible(true);
             }
-        },
+        }
 
-        clear: function () {
+        clear() {
           for(var index = 0; index < this.rackRows; index++) {
               var rack = this.racks[index];
               rack.setVisible(false);
           }
-        },
+        }
 
-        close: function () {
+        close() {
           this.clear();
           this.setVisible(false);
         }
+}
 
-    });
-
-    var StorePotionPage = StorePage.extend({
-        init: function(parent, scale) {
-            this._super(parent, '#storeDialogStore', 1,
-            	    null, scale, 0);
+class StorePotionPage extends StorePage {
+        constructor(parent, scale) {
+            super(parent, '#storeDialogStore', 1,
+            	    null, scale, 0); // FIX (conversion): this._super(...) -> super(...)
         }
-    });
+}
 
-    var StoreArmorPage = StorePage.extend({
-        init: function(parent, scale) {
-            this._super(parent, '#storeDialogStore', 2,
-            	    null, scale, 1);
+class StoreArmorPage extends StorePage {
+        constructor(parent, scale) {
+            super(parent, '#storeDialogStore', 2,
+            	    null, scale, 1); // FIX (conversion): this._super(...) -> super(...)
         }
-    });
+}
 
-    var StoreWeaponPage = StorePage.extend({
-        init: function(parent, scale) {
-            this._super(parent, '#storeDialogStore', 3,
-            	    null, scale, 2);
+class StoreWeaponPage extends StorePage {
+        constructor(parent, scale) {
+            super(parent, '#storeDialogStore', 3,
+            	    null, scale, 2); // FIX (conversion): this._super(...) -> super(...)
         }
-    });
+}
 
-    var StoreFrame = TabBook.extend({
-        init: function(parent) {
-            this._super('#storeDialogStore');
+class StoreFrame extends TabBook {
+        constructor(parent) {
+            super('#storeDialogStore'); // FIX (conversion): this._super('#storeDialogStore') -> super('#storeDialogStore')
 
             this.parent = parent;
             this.scale = this.parent.scale;
@@ -210,25 +220,25 @@ define(['./dialog', '../tabbook', '../tabpage', '../entity/item', '../inventorys
 
             this.minLevel = 1;
             this.maxLevel = 100;
-        },
+        }
 
-        rescale: function() {
+        rescale() {
         	this.scale = this.parent.scale;
 
           for (var page of this.pages)
             page.rescale(this.scale);
 
         	this.pageNavigator.rescale(this.scale);
-        },
+        }
 
-        setPageIndex: function(value) {
+        setPageIndex(value) {
             if (!game.storeDialog.visible)
             {
             	    return;
             }
             this.pages[value].open(this.minLevel, this.maxLevel);
 
-            this._super(value);
+            super.setPageIndex(value); // FIX (conversion): this._super(value) -> super.setPageIndex(value)
 
             var activePage = this.getActivePage();
 
@@ -245,9 +255,9 @@ define(['./dialog', '../tabbook', '../tabpage', '../entity/item', '../inventorys
                 }
                 activePage.reload();
             }
-        },
+        }
 
-        open: function(min,max) {
+        open(min,max) {
             var self = this;
 
             //this.minLevel = min;
@@ -256,11 +266,11 @@ define(['./dialog', '../tabbook', '../tabpage', '../entity/item', '../inventorys
             this.setPageIndex(0);
             this.pages[0].setPageIndex(0);
         }
-    });
+}
 
-    var StoreDialog = Dialog.extend({
-        init: function(game) {
-            this._super(game, '#storeDialog');
+export default class StoreDialog extends Dialog {
+        constructor(game) {
+            super(game, '#storeDialog'); // FIX (conversion): this._super(game, '#storeDialog') -> super(game, '#storeDialog')
             this.setScale();
 
             this.storeFrame = new StoreFrame(this);
@@ -275,18 +285,18 @@ define(['./dialog', '../tabbook', '../tabpage', '../entity/item', '../inventorys
             var self = this;
 
             //$('#storeDialogStorePage').css('display','none');
-        },
+        }
 
-        setScale: function() {
+        setScale() {
           this.scale = game.renderer.getUiScaleFactor();
-        },
+        }
 
-        rescale: function() {
+        rescale() {
         	this.setScale();
 		      this.storeFrame.rescale();
-        },
+        }
 
-        show: function(min, max) {
+        show(min, max) {
             var self = this;
 
             $('#storeDialog .frameheading div').text('SHOPS');
@@ -313,22 +323,19 @@ define(['./dialog', '../tabbook', '../tabpage', '../entity/item', '../inventorys
 
             this.addClose();
 
-            this._super();
+            super.show(); // FIX (conversion): this._super() -> super.show()
             $("#storeDialogStore0Button").trigger('click');
 
             $('#storeDialogStore div.inventoryGoldFrame').show();
             $('#storeDialogStore div.inventoryGemsFrame').hide();
-        },
+        }
 
-        hide: function() {
+        hide() {
             var activePage = this.storeFrame.getActivePage();
             if (activePage)
             {
                 activePage.close();
             }
-            this._super();
-        },
-    });
-
-    return StoreDialog;
-});
+            super.hide(); // FIX (conversion): this._super() -> super.hide()
+        }
+}

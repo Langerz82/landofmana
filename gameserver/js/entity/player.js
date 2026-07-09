@@ -16,6 +16,7 @@ import Utils from '../utils.js';
 import { Types, ItemTypes } from '../common.js';
 import _ from 'underscore';
 import SkillData from '../data/skilldata.js';
+import { G_TILESIZE, G_SCREEN_WIDTH, G_SCREEN_HEIGHT } from '../main.js';
 
 class Player extends Character {
     constructor(world, user, connection) {

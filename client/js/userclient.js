@@ -1,7 +1,16 @@
+// Converted from AMD (define) + Class.extend to a native ES6 module/class.
+// NOTE: 'pako' and 'BISON' remain classic (non-module) <script> globals, same as in
+// gameclient.js, so they are not imported here.
+import GameClient from './gameclient.js';
+import SkillHandler from './skillhandler.js';
+import Quest from './quest.js';
+import config from './config.js';
+import Achievement from './achievement.js';
 
-define(['gameclient', 'skillhandler', 'quest', 'config', 'achievement'], function(GameClient, SkillHandler, Quest, config, Achievement) {
-  var UserClient = Class.extend({
-      init: function(config, useServer) {
+/* global Types, Utils */
+
+export default class UserClient {
+      constructor(config, useServer) {
         var self = this;
 
         this.connection = null;
@@ -24,17 +33,17 @@ define(['gameclient', 'skillhandler', 'quest', 'config', 'achievement'], functio
         this.enable();
 
         this.connect();
-      },
+      }
 
-      enable: function() {
+      enable() {
           this.isListening = true;
-      },
+      }
 
-      disable: function() {
+      disable() {
           this.isListening = false;
-      },
+      }
 
-      connect: function() {
+      connect() {
           var self = this;
           var url = this.config.protocol + "://"+ this.config.host +":"+ this.config.port +"/";
 
@@ -130,9 +139,9 @@ define(['gameclient', 'skillhandler', 'quest', 'config', 'achievement'], functio
                 }
             }
         });
-      },
+      }
 
-      receiveAction: function(data) {
+      receiveAction(data) {
           var action = data.shift();
           if(this.handlers[action] && _.isFunction(this.handlers[action])) {
               this.handlers[action].call(this, data);
@@ -140,16 +149,16 @@ define(['gameclient', 'skillhandler', 'quest', 'config', 'achievement'], functio
           else {
               log.error("Unknown action : " + action);
           }
-      },
+      }
 
-      receiveActionBatch: function(actions) {
+      receiveActionBatch(actions) {
           var self = this;
           _.each(actions, function(action) {
               self.receiveAction(action);
           });
-      },
+      }
 
-      sendMessage: function(json) {
+      sendMessage(json) {
           var data;
           if(this.connection.connected === true) {
             // TODO: logs every outbound packet (including sendLoginUser's username/hash) to the console; gate behind a debug/verbose flag before shipping
@@ -165,15 +174,17 @@ define(['gameclient', 'skillhandler', 'quest', 'config', 'achievement'], functio
             console.log(err);
           }
         }
-      },
+      }
 
-      onConnected: function() {
+      onConnected() {
         log.info("Starting client/server handshake");
 
         this.sendUserConnected();
-      },
+      }
 
-      onPlayerSummary: function (data) {
+      onPlayerSummary(data) {
+        var user = this.user;
+
         user.setPlayerSummary(data);
 
         var count = user.playerSum.length;
@@ -202,26 +213,26 @@ define(['gameclient', 'skillhandler', 'quest', 'config', 'achievement'], functio
         {
           $('#player_create_form').hide();
         }
-      },
+      }
 
-      onWorlds: function (data) {
+      onWorlds(data) {
         for (var i = 0; i < data.length; i += 4)
         {
           $("#player_server").append("<option value="+data[i]+">"+
             data[i+1]+" "+data[i+2]+"/"+data[i+3]+"</option");
         }
-      },
+      }
 
-      _onError: function (data) {
+      _onError(data) {
           var message = data[0];
           $('#container').addClass('error');
           // FIX: XSS - server-supplied error message was inserted unescaped via .html(); escape before rendering
           $('#errorwindow .errordetails').html("<p>"+Utils.escapeHtml(message)+"</p>");
           app.loadWindow('loginwindow','errorwindow');
           $('#errorwindow').focus();
-      },
+      }
 
-      onVersion: function(data) {
+      onVersion(data) {
         //var self;
         this.versionChecked = true;
         var version = Number(data[0]);
@@ -248,18 +259,18 @@ define(['gameclient', 'skillhandler', 'quest', 'config', 'achievement'], functio
           return;
         }
         app.onUserReady();
-      },
+      }
 
-      onSyncTime: function (data) {
+      onSyncTime(data) {
         setWorldTime(Number(data[0]), Number(data[1]))
-      },
+      }
 
-      onWorldReady: function (data) {
+      onWorldReady(data) {
         this.connection.disconnect();
         game.onWorldReady(data);
-      },
+      }
 
-      onError: function (data) {
+      onError(data) {
         var error = data[0];
 
         switch(error) {
@@ -280,44 +291,39 @@ define(['gameclient', 'skillhandler', 'quest', 'config', 'achievement'], functio
             return;
         }
         this._onError(data);
-      },
+      }
 
-      sendUserConnected: function() {
+      sendUserConnected() {
           this.sendMessage([Types.UserMessages.CU_CONNECT_USER]);
-      },
+      }
 
-      sendLoginUser: function (user) {
+      sendLoginUser(user) {
         this.sendMessage([Types.UserMessages.CU_LOGIN_USER,
                           user.username,
                           user.hash]);
-      },
+      }
 
-      sendCreateUser: function (user) {
+      sendCreateUser(user) {
         this.sendMessage([Types.UserMessages.CU_CREATE_USER,
                           user.username,
                           user.hash]);
-      },
+      }
 
-      sendRemoveUser: function (user) {
+      sendRemoveUser(user) {
         this.sendMessage([Types.UserMessages.CU_REMOVE_USER,
                           user.username,
                           user.hash]);
-      },
+      }
 
-      sendLoginPlayer: function (worldIndex, playerIndex) {
+      sendLoginPlayer(worldIndex, playerIndex) {
         this.sendMessage([Types.UserMessages.CU_LOGIN_PLAYER,
                           worldIndex,
                           playerIndex]);
-      },
+      }
 
-      sendCreatePlayer: function (worldIndex, playerName) {
+      sendCreatePlayer(worldIndex, playerName) {
         this.sendMessage([Types.UserMessages.CU_CREATE_PLAYER,
           worldIndex,
           playerName]);
       }
-
-  });
-
-  return UserClient;
-
-});
+}

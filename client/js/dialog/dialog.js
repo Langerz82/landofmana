@@ -1,18 +1,18 @@
-define(function() {
-    var Dialog = Class.extend({
-        init: function(game, id) {
+// Converted from AMD (define) + Class.extend to a native ES6 module/class.
+export default class Dialog {
+    constructor(game, id) {
             //this.game = game;
             this.id = id;
             this.body = $(id);
             this.visible = false;
-        },
+    }
 
-        addClose: function (closeEvent) {
+    addClose(closeEvent) {
           this.closeButton = $(this.id+' .frame-close-button');
           this.closeEvent = closeEvent;
-        },
+    }
 
-        show: function() {
+    show() {
             var self = this;
 
             if(this.showHandler){
@@ -36,9 +36,9 @@ define(function() {
               	self.hide();
               });
             }
-        },
+    }
 
-        hide: function() {
+    hide() {
             this.visible = false;
             this.showing = false;
             this.body.hide();
@@ -46,16 +46,13 @@ define(function() {
             if(this.hideHandler){
                 this.hideHandler(this);
             }
-        },
+    }
 
-        onShow: function(handler) {
+    onShow(handler) {
             this.showHandler = handler;
-        },
+    }
 
-        onHide: function(handler) {
+    onHide(handler) {
             this.hideHandler = handler;
-        }
-    });
-
-    return Dialog;
-});
+    }
+}

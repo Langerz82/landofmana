@@ -430,3 +430,5 @@ ItemTypes.ItemData = ItemData;
 if(!(typeof exports === 'undefined')) {
     module.exports = ItemTypes;
 }
+
+export default ItemTypes;
