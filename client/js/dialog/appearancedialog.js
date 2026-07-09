@@ -342,7 +342,7 @@ export default class AppearanceDialog extends Dialog {
 
         assign(datas) {
             const p = game.player;
-            if (datas) {  
+            if (datas) {
         		  p.appearances = Utils.Base64ToBinArray(datas.shift(), AppearanceData.length);
 
               for(let i=0; i < AppearanceData.length; i++)
@@ -363,8 +363,6 @@ export default class AppearanceDialog extends Dialog {
 
       	    this.armorLooks = [];
       	    this.weaponLooks = [];
-            this.looksArmorIndex = 0;
-            this.looksWeaponIndex = 0;
 
 	          for(var i=0; i < AppearanceData.length; i++)
             {
@@ -376,8 +374,10 @@ export default class AppearanceDialog extends Dialog {
             	else if (AppearanceData[i].type === categoryTypeWeapon)
             		this.weaponLooks.push(i);
             }
-            this.looksArmorIndex = this.armorLooks.indexOf(p.getSprite());
-            this.looksWeaponIndex = this.weaponLooks.indexOf(p.getSprite());
+            const currentArmorSprite = p.getSprite(0);
+            const currentWeaponSprite = p.getSprite(1);
+            this.looksArmorIndex = this.armorLooks.findIndex(spriteId => game.sprites[AppearanceData[spriteId].sprite] === currentArmorSprite);
+            this.looksWeaponIndex = this.weaponLooks.findIndex(spriteId => game.sprites[AppearanceData[spriteId].sprite] === currentWeaponSprite);
 
             this.scale = game.renderer.getUiScaleFactor();
 
@@ -466,8 +466,9 @@ export default class AppearanceDialog extends Dialog {
 
             jq3Button.off().on('click', function (event) {
                 self.unlockMode(false);
-                if (!self.unlockLookMode)
-                  self.changeLookArmor(self.looksArmorIndex);
+                if (!self.unlockLookMode) {
+                  self.changeLookArmor(self.looksArmorIndex >= 0 ? self.looksArmorIndex : 0);
+                }
             });
 
             $('#appearanceCloseButton').off().on('click', function (event) {
