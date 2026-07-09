@@ -1,6 +1,6 @@
 import _ from 'underscore';
 import BISON from 'bison';
-var useBison = false;
+const useBison = false;
 import http from 'http';
 import https from 'https';
 import { Server } from 'socket.io';
@@ -120,9 +120,9 @@ WS.WebsocketServer = class extends sServer {
 
     constructor(config) {
         super();
-        var self = this;
+        const self = this;
 
-        var app = {};
+        const app = {};
         if (config.https_cert != "") {
           app.cert = fs.readFileSync(config.https_cert);
         }
@@ -130,16 +130,16 @@ WS.WebsocketServer = class extends sServer {
           app.key = fs.readFileSync(config.https_key);
         }
 
-        var protocol = http;
+        let protocol = http;
         if (config.protocol === "https")
           protocol = https;
 
-        var client_connect = function (socket) {
+        const client_connect = function (socket) {
           console.info('Client socket connected from ' + socket.conn.remoteAddress);
           // Add remoteAddress property
           socket.remoteAddress = socket.conn.remoteAddress;
 
-          var c = new WS.socketioConnection(self._createId(), socket, self);
+          const c = new WS.socketioConnection(self._createId(), socket, self);
 
           if (self.connectionCallback) {
               self.connectionCallback(c);
@@ -207,20 +207,20 @@ WS.WebsocketServer = class extends sServer {
 WS.socketioConnection = class extends Connection {
     constructor(id, connection, server) {
         super(id, connection, server);
-        var self = this;
+        const self = this;
 
         //this.conn = connection;
 
-        var fnOnMessage = function (msg) {
+        const fnOnMessage = function (msg) {
           console.info("m="+msg);
-          var flag = msg.charAt(0);
+          const flag = msg.charAt(0);
           if (flag === "2")
           {
               // NOTE: this used to base64-decode `flag` (the single "2" prefix
               // character) instead of the actual payload, so any compressed/
               // large message from a game client failed to decompress. Mirrors
               // the fix already present in WS.userConnection below.
-              var buffer = Buffer.from(msg.substr(1), 'base64');
+              const buffer = Buffer.from(msg.substr(1), 'base64');
               zlib.gunzip(buffer, (err, buffer) => {
                 if (err)
                   console.log(err.toString());
@@ -263,8 +263,8 @@ WS.socketioConnection = class extends Connection {
     send(message) {
         //if (message.indexOf("3,")==0);
       console.info("send="+message);
-    	var self = this;
-    	var data;
+    	const self = this;
+    	let data;
       if (useBison) {
           data = BISON.encode(message);
       } else {
@@ -300,11 +300,11 @@ WS.socketioConnection = class extends Connection {
 WS.userConnection = class extends Connection {
     constructor(id, connection, server) {
         super(id, connection, server);
-        var self = this;
+        const self = this;
 
         this.fnOnMessage = function (msg) {
           console.info("m="+msg);
-          var flag = msg.charAt(0);
+          const flag = msg.charAt(0);
           // NOTE: the userserver's socketioConnection.send() (userserver/js/ws.js)
           // prefixes large/compressed messages with 'z|', while this class's own
           // send() below prefixes them with '2'. Both prefixes have to be
@@ -314,11 +314,11 @@ WS.userConnection = class extends Connection {
           // instead of the actual payload when base64-decoding, so any large
           // message from the userserver (e.g. SendLoadPlayerData) fell through
           // to JSON.parse on a corrupted string and threw.
-          var isZPrefixed = msg.charAt(0) === "z" && msg.charAt(1) === "|";
+          const isZPrefixed = msg.charAt(0) === "z" && msg.charAt(1) === "|";
           if (flag === "2" || isZPrefixed)
           {
-              var payload = isZPrefixed ? msg.substr(2) : msg.substr(1);
-              var buffer = Buffer.from(payload, 'base64');
+              const payload = isZPrefixed ? msg.substr(2) : msg.substr(1);
+              const buffer = Buffer.from(payload, 'base64');
               zlib.gunzip(buffer, (err, buffer) => {
                 if (err)
                   console.log(err.toString());
@@ -349,7 +349,7 @@ WS.userConnection = class extends Connection {
     }
 
     connect(connectString) {
-      var self = this;
+      const self = this;
 
       this._connection = io_client.connect(connectString, {reconnect: true, rejectUnauthorized: false});
 
@@ -372,7 +372,7 @@ WS.userConnection = class extends Connection {
             self.connectionUserCallback(self);
       });
 
-      var fnDisconnect = function (reason) {
+      const fnDisconnect = function (reason) {
           //try { throw new Error(); } catch (e) { console.error(e.stack); }
           console.info('USER CONNECTION CLOSED. reason=' + reason);
           if (self.closeCallback) {
@@ -393,8 +393,8 @@ WS.userConnection = class extends Connection {
     send(message) {
         //if (message.indexOf("3,")==0);
       console.info("send="+message);
-    	var self = this;
-    	var data;
+    	const self = this;
+    	let data;
       if (useBison) {
           data = BISON.encode(message);
       } else {

@@ -5,10 +5,10 @@ import Player from './entity/Player.js';
 
 /* global Types */
 
-var Formulas = {};
+const Formulas = {};
 
 Formulas.crit = function(attacker, defender) {
-	var chance = (Utils.randomRangeInt(0,200) <= Utils.clamp(5, 195, ~~(25 + attacker.combat.baseCrit() - defender.combat.baseCritDef())));
+	const chance = (Utils.randomRangeInt(0,200) <= Utils.clamp(5, 195, ~~(25 + attacker.combat.baseCrit() - defender.combat.baseCritDef())));
 	return chance;
 }
 
@@ -24,21 +24,21 @@ Formulas.crit = function(attacker, defender) {
 }*/
 
 Formulas.getAttackPower = function (attacker) {
-	var attackPower = 1;
+	let attackPower = 1;
 	if (attacker.attackTimer) {
-		var delay = (Date.now() - attacker.attackTimer)
+		const delay = (Date.now() - attacker.attackTimer)
 		attackPower = ~~(Utils.clamp(ATTACK_INTERVAL, ATTACK_MAX, delay + 100) / ATTACK_INTERVAL);
 	}
 	return attackPower;
 }
 
 Formulas.dmgAOE = function(attacker) {
-    var attackPower = Formulas.getAttackPower(attacker);
+    const attackPower = Formulas.getAttackPower(attacker);
 
     //console.warn("attackPower="+attackPower);
-		var attacker_damage = ~~(attacker.combat.baseDamage() / 2);
+		const attacker_damage = ~~(attacker.combat.baseDamage() / 2);
     console.info("attacker baseDamage="+attacker_damage);
-    var dmg = ~~(attacker_damage * attackPower);
+    const dmg = ~~(attacker_damage * attackPower);
 
     if (attacker instanceof Player && dmg > 0)
     	attacker.incAttackExp(dmg);
@@ -47,17 +47,17 @@ Formulas.dmgAOE = function(attacker) {
 };
 
 Formulas.dmg = function(attacker, defender) {
-		var attackPower = Formulas.getAttackPower(attacker);
+		const attackPower = Formulas.getAttackPower(attacker);
 
     //console.warn("attackPower="+attackPower);
-		var attacker_damage = attacker.combat.baseDamage(defender);
-		var defender_defense = defender.combat.baseDamageDef(attacker);
+		const attacker_damage = attacker.combat.baseDamage(defender);
+		const defender_defense = defender.combat.baseDamageDef(attacker);
     console.info("attacker baseDamage="+attacker_damage);
     console.info("defender baseDamageDef="+defender_defense);
-    var dmg = ~~(attacker_damage * attackPower);
-		var defensePower = attackPower;
+    let dmg = ~~(attacker_damage * attackPower);
+		const defensePower = attackPower;
 		//var defensePower = (2/3)*Math.pow(1.5,attackPower);
-		var def = ~~(defender_defense * defensePower);
+		const def = ~~(defender_defense * defensePower);
 		dmg = ~~(dmg - def);
 
 		if (attacker instanceof Mob)

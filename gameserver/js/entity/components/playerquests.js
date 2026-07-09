@@ -9,12 +9,12 @@ class PlayerQuests {
     }
 
     questAboutKill(mob, quest) {
-        var mobKind = mob.kind, mobLevel = mob.level;
+        const mobKind = mob.kind, mobLevel = mob.level;
 
-        var a = (quest.count < quest.object.count);
-        var b = (quest.type === Types.QuestType.KILLMOBKIND && a && (mobKind === quest.object.kind));
-        var c = (quest.type === Types.QuestType.KILLMOBS && a);
-        var d = (mob.level >= quest.object.level[0] && mob.level <= quest.object.level[1]);
+        const a = (quest.count < quest.object.count);
+        const b = (quest.type === Types.QuestType.KILLMOBKIND && a && (mobKind === quest.object.kind));
+        const c = (quest.type === Types.QuestType.KILLMOBS && a);
+        const d = (mob.level >= quest.object.level[0] && mob.level <= quest.object.level[1]);
         if((b || c) && d)
         {
             console.info("_questAboutKill - conditions met.")
@@ -29,9 +29,9 @@ class PlayerQuests {
     }
 
     questAboutItemCheck(target, quest) {
-        var p = this.player;
+        const p = this.player;
 
-        var lootKind = quest.object2.kind+1000;
+        const lootKind = quest.object2.kind+1000;
         if (quest.object2.type === Types.EntityTypes.ITEMLOOT &&
             quest.object.type === Types.EntityTypes.MOB &&
             quest.object.kind === target.kind &&
@@ -44,12 +44,12 @@ class PlayerQuests {
     }
 
     questAboutUseNode(quest) {
-        var p = this.player;
+        const p = this.player;
 
         quest.count++;
         if(quest.count >= quest.object.count) {
             quest.count = quest.object.count;
-            var xp = quest.object.count * 10 * p.level;
+            const xp = quest.object.count * 10 * p.level;
             this.completeQuest(quest, xp);
         } else {
             this.progressQuest(quest);
@@ -57,34 +57,34 @@ class PlayerQuests {
     }
 
     questAboutItem(quest) {
-        var p = this.player;
+        const p = this.player;
 
         console.info(JSON.stringify(quest));
-        var kind = quest.object2.kind+1000;
-        var countItems = p.inventory.hasItemCount(kind);
+        const kind = quest.object2.kind+1000;
+        const countItems = p.inventory.hasItemCount(kind);
         quest.count = countItems;
         this.progressQuest(quest);
     }
 
     questAboutFind(quest) {
-        var p = this.player;
+        const p = this.player;
         //console.info(JSON.stringify(quest));
         if(quest.count++ >= quest.object.count && quest.status === Types.QuestStatus.INPROGRESS) {
             quest.count = quest.object.count;
-            var xp = quest.object.count * 10 * p.level;
+            const xp = quest.object.count * 10 * p.level;
             this.completeQuest(quest, xp);
         }
     }
 
     questAboutItemComplete(quest, callback){
-        var p = this.player;
+        const p = this.player;
         if(quest.count >= quest.object2.count && quest.status==Types.QuestStatus.INPROGRESS) {
-            var kind = quest.object2.kind+1000;
+            const kind = quest.object2.kind+1000;
             if(!p.items.inventory.hasItemCount(kind))
                 return;
 
             p.items.inventory.removeItemKind(kind, quest.object2.count);
-            var xp = quest.object2.count * 20 * p.level;
+            const xp = quest.object2.count * 20 * p.level;
             this.completeQuest(quest, xp);
             if (callback)
                 callback(quest);
@@ -94,7 +94,7 @@ class PlayerQuests {
     }
 
     sendQuest(quest) {
-        var p = this.player;
+        const p = this.player;
         //var entityId = this.player.map.entities.getNpcByQuestId(quest.npcQuestId);
         p.sendPlayer(new Messages.Quest(quest));
     }
@@ -106,7 +106,7 @@ class PlayerQuests {
 
     completeQuest(quest, xp) {
         if (xp > 0) {
-            var multiplier = (quest.data) ? quest.data.expMultiplier : 1;
+            const multiplier = (quest.data) ? quest.data.expMultiplier : 1;
             this.player.incExp(xp * multiplier);
         }
 
@@ -131,9 +131,9 @@ class PlayerQuests {
     }
 
     hasNpcCompleteQuest(npcQuestId) {
-        var cq = this.completeQuests;
-        for (var qid in cq) {
-            var q = cq[qid];
+        const cq = this.completeQuests;
+        for (const qid in cq) {
+            const q = cq[qid];
             if (q.hasOwnProperty("npcid") && q.npcid === npcQuestId)
                 return true;
         }

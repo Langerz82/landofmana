@@ -28,12 +28,12 @@ class MapArea {
         if (elipse)
         {
             if(entity) {
-                var cx = (this.x);
-                var cy = (this.y);
-                var d = Math.sqrt(
+                const cx = (this.x);
+                const cy = (this.y);
+                const d = Math.sqrt(
                     Math.pow(entity.x - cx,2) + Math.pow(entity.y - cy,2)
                 );
-                var inElipse = (d < this.width/2 && d < this.height/2);
+                const inElipse = (d < this.width/2 && d < this.height/2);
 
                 console.log("this.elipseId="+this.elipseId);
                 return inElipse;

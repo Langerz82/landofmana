@@ -10,7 +10,7 @@ class Block extends EntityMoving {
     // none of these fields are read inside the parent constructor chain, so this
     // reordering has no observable effect on behavior.
     constructor(id, kind, x, y, map, parent, name, ix, iy) {
-        var type = Types.EntityTypes.BLOCK;
+        const type = Types.EntityTypes.BLOCK;
         super(id, type, kind, x, y, map);
         this.type = type;
         this.parent = parent;

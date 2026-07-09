@@ -5,7 +5,7 @@ import ItemData from '../data/itemdata.js';
 // TODO Make Item inherit from ItemRoom.
 class Item extends Entity {
     constructor(type, id, itemRoom, x, y, map) {
-        var kind = itemRoom.itemKind;
+        const kind = itemRoom.itemKind;
         super(id, type, kind, x, y, map);
         this.isStatic = false;
         this.isFromChest = false;
@@ -16,7 +16,7 @@ class Item extends Entity {
     }
 
     handleDespawn(params) {
-        var self = this;
+        let self = this;
 
         this.blinkTimeout = setTimeout(function () {
             params.blinkCallback();
@@ -39,7 +39,7 @@ class Item extends Entity {
     }
 
     scheduleRespawn(delay) {
-        var self = this;
+        let self = this;
         setTimeout(function () {
             if (self.respawnCallback) {
                 self.respawnCallback();

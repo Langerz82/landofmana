@@ -34,12 +34,12 @@ class PacketHandler {
         //this.loadedPlayer = false;
         //this.formatChecker = new FormatChecker();
 
-        var self = this;
+        const self = this;
 
         //this.connection.off('msg', this.player.user.listener);
         this.connection.listen(function(message) {
             console.info("recv="+JSON.stringify(message));
-            var action = parseInt(message[0]);
+            const action = parseInt(message[0]);
             if (isNaN(action)) {
                 // NOTE: pre-existing bug preserved from the original — this callback
                 // is a plain (non-arrow) function, so `this` here is not the
@@ -263,13 +263,13 @@ class PacketHandler {
 
     handleSyncTime(message) {
         console.info("handleSyncTime");
-        var clientTime = parseInt(message[0]);
+        const clientTime = parseInt(message[0]);
         //this.sendPlayer(new Messages.SyncTime(clientTime));
         this.send([Types.Messages.BI_SYNCTIME, clientTime, Date.now()]);
     }
 
     handleChat(message) {
-        var msg = Utils.sanitize(message[0]);
+        let msg = Utils.sanitize(message[0]);
         console.info("Chat: " + this.player.name + ": " + msg);
 
         if ((new Date()).getTime() > this.player.chatBanEndTime) {
@@ -279,7 +279,7 @@ class PacketHandler {
 
         if (msg) {
             msg = msg.substr(0, 256); //Will have to change the max length
-            var command = msg.split(" ", 3)
+            const command = msg.split(" ", 3)
             switch (command[0]) {
             case "/w":
                 this.send([Types.Messages.WC_NOTIFY, "CHAT", "CHATMUTED"]);
@@ -294,12 +294,12 @@ class PacketHandler {
 
     handleQuest(msg) {
         console.info("handleQuest");
-        var npcId = parseInt(msg[0]);
-        var questId = parseInt(msg[1]);
-        var status = parseInt(msg[2]);
+        const npcId = parseInt(msg[0]);
+        const questId = parseInt(msg[1]);
+        const status = parseInt(msg[2]);
 
-        var p = this.player;
-        var npc = p.map.entities.getEntityById(npcId);
+        const p = this.player;
+        const npc = p.map.entities.getEntityById(npcId);
         if (!p.isInScreen(npc)) {
             console.info("player not close enough to NPC!");
             return;
@@ -314,11 +314,11 @@ class PacketHandler {
 
     handleTalkToNPC(message) { // 30
         console.info("handleTalkToNPC");
-        var type = parseInt(message[0]);
-        var npcId = parseInt(message[1]);
+        const type = parseInt(message[0]);
+        const npcId = parseInt(message[1]);
 
-        var p = this.player;
-        var npc = p.map.entities.getEntityById(npcId);
+        const p = this.player;
+        const npc = p.map.entities.getEntityById(npcId);
         if (!p.isInScreen(npc)) {
             console.info("player not close enough to NPC!");
             return;
@@ -329,27 +329,27 @@ class PacketHandler {
     }
 
     handleAppearanceUnlock(message) {
-        var appearanceIndex = parseInt(message[0]);
-        var priceClient = parseInt(message[1]);
+        const appearanceIndex = parseInt(message[0]);
+        const priceClient = parseInt(message[1]);
 
         if (appearanceIndex < 0 || appearanceIndex >= AppearanceData.Data.length)
             return;
 
-        var itemData = AppearanceData.Data[appearanceIndex];
+        const itemData = AppearanceData.Data[appearanceIndex];
         if (!itemData)
             return;
 
         if (!(itemData.type === "armorarcher" || itemData.type === "armor"))
             return;
 
-        var price = this.server.looks.prices[appearanceIndex];
+        const price = this.server.looks.prices[appearanceIndex];
         if (price !== priceClient) {
             this.sendPlayer(new Messages.Notify("SHOP", "SHOP_MISMATCH", [itemData.name]));
             this.server.looks.sendLooks(this.player);
             return;
         }
 
-        var gemCount = 0;
+        let gemCount = 0;
 
         if (appearanceIndex >= 0) {
             gemCount = this.player.user.gems;
@@ -370,23 +370,23 @@ class PacketHandler {
     }
 
     handleLookUpdate(message) {
-        var type = parseInt(message[0]),
+        const type = parseInt(message[0]),
             id = parseInt(message[1]);
 
-        var p = this.player;
+        const p = this.player;
         if (id < 0 || id >= AppearanceData.Data.length)
             return;
         if (type < 0 || type > 1)
             return;
 
-        var itemData = AppearanceData.Data[id];
+        const itemData = AppearanceData.Data[id];
         if (!itemData)
             return;
 
         if (!(itemData.type === "armorarcher" || itemData.type === "armor"))
             return;
 
-        var appearance = this.player.user.looks[id];
+        const appearance = this.player.user.looks[id];
         if (appearance === 1) {
             if (type === 0) {
                 p.setSprite(0, id);
@@ -417,21 +417,21 @@ class PacketHandler {
 // param 7 - count of items 2.
 
     handleItemSlot(msg) { // 28
-        var self = this;
-        var action = parseInt(msg[0]);
+        const self = this;
+        const action = parseInt(msg[0]);
 
         if (this.player.isDead)
             return;
 
         // slot type, slot index, slot count.
-        var slot = [Number(msg[1]), Number(msg[2]), Number(msg[3])];
+        const slot = [Number(msg[1]), Number(msg[2]), Number(msg[3])];
         if (slot[0] === 2 && slot[1] > this.player.items.equipment.maxNumber)
             return;
-        var item = null;
+        let item = null;
         if (slot[1] >= 0)
             item = this.player.items.getStoredItem(slot[0], slot[1], slot[2]);
 
-        var slot2 = null;
+        let slot2 = null;
         if (msg.length === 6)
         {
             slot2 = [Number(msg[4]), Number(msg[5])];
@@ -455,14 +455,14 @@ class PacketHandler {
     handleLoot(message) {
         console.info("handleLoot");
 
-        var p = this.player;
-        var item = p.map.entities.getEntityById(parseInt(message[0]));
+        const p = this.player;
+        const item = p.map.entities.getEntityById(parseInt(message[0]));
         if (!item) {
             console.info("no item.");
             return;
         }
 
-        var x = parseInt(message[1]),
+        const x = parseInt(message[1]),
             y = parseInt(message[2]);
 
         if (!p.isWithinDist(x,y,24)) {
@@ -485,9 +485,9 @@ class PacketHandler {
 
     handleAttack(message) {
         //console.info("handleAttack");
-        var self = this;
-        var time = parseInt(message[0]);
-        var p = this.player;
+        const self = this;
+        const time = parseInt(message[0]);
+        const p = this.player;
 
         if (p.isDead)
             return;
@@ -502,7 +502,7 @@ class PacketHandler {
     processAttack() {
         //console.info("processAttack");
         //var self = this;
-        var p = this.player;
+        const p = this.player;
 
         if (p.attackQueue) {
             this.handleHitEntity(p, p.attackQueue);
@@ -511,14 +511,14 @@ class PacketHandler {
     }
 
     handleHitEntity(sEntity, message) { // 8
-        var self = this;
-        var p = this.player;
+        const self = this;
+        const p = this.player;
 
         //console.info("handleHitEntity");
         //var self = this;
 
         //console.info("message: "+JSON.stringify(message));
-        var targetId = parseInt(message[1]),
+        const targetId = parseInt(message[1]),
             orientation = parseInt(message[2]),
             skillId = parseInt(message[3]);
 
@@ -527,14 +527,14 @@ class PacketHandler {
             return;
         }
 
-        var tEntity = sEntity.map.entities.getEntityById(targetId);
+        const tEntity = sEntity.map.entities.getEntityById(targetId);
         if (!tEntity) {
             console.warn("invalid entity");
             return;
         }
 
         //console.warn("attackDuration: "+(Date.now() - sEntity.attackTimer));
-        var attackTime = Date.now() - sEntity.attackTimer + 100;
+        const attackTime = Date.now() - sEntity.attackTimer + 100;
         if (attackTime < ATTACK_INTERVAL) {
             console.warn("attack interval");
             return;
@@ -599,7 +599,7 @@ class PacketHandler {
           this.player.tut.attack = true;
         }*/
 
-        var fnDamage = function (sEntity, tEntity, damageObj) {
+        const fnDamage = function (sEntity, tEntity, damageObj) {
             if (sEntity instanceof Player && tEntity instanceof Mob) {
                 tEntity.mobAI.checkHitAggro(tEntity, sEntity);
             }
@@ -609,18 +609,18 @@ class PacketHandler {
         if (sEntity.effectHandler) {
             sEntity.effectHandler.interval("beforehit",0);
         }
-        var damageObj = this.calcDamage(sEntity, tEntity, null, 0); // no skill
+        const damageObj = this.calcDamage(sEntity, tEntity, null, 0); // no skill
 
-        var addDamage = 0;
+        const addDamage = 0;
         if (sEntity.effectHandler) {
             sEntity.effectHandler.interval("onhit", damageObj.damage);
-            for (var skillEffect of sEntity.activeEffects)
+            for (const skillEffect of sEntity.activeEffects)
             {
-                var data = skillEffect.data;
+                const data = skillEffect.data;
                 if (data.skillType === "attack" && data.targetType === "enemy_aoe")
                 {
-                    var damageObjAOE = this.calcDamageAOE(sEntity, null, 0);
-                    for (var target of skillEffect.targets) {
+                    const damageObjAOE = this.calcDamageAOE(sEntity, null, 0);
+                    for (const target of skillEffect.targets) {
                         if (target === tEntity)
                             continue;
                         else
@@ -641,7 +641,7 @@ class PacketHandler {
     }
 
     calcDamageAOE(sEntity, skill, attackType) {
-        var damageObj = {
+        const damageObj = {
             damage: 0,
             crit: 0,
             dot: 0
@@ -652,7 +652,7 @@ class PacketHandler {
     }
 
     calcDamage(sEntity, tEntity, skill, attackType) {
-        var damageObj = {
+        const damageObj = {
             damage: 0,
             crit: 0,
             dot: 0
@@ -662,7 +662,7 @@ class PacketHandler {
         if (damageObj.damage === 0)
             return damageObj;
 
-        var canCrit = Formulas.crit(sEntity, tEntity);
+        const canCrit = Formulas.crit(sEntity, tEntity);
         if (canCrit) {
             damageObj.damage *= 2;
             damageObj.crit = 1;
@@ -704,9 +704,9 @@ class PacketHandler {
     }
 
     handleShortcut(message) {
-        var slot = parseInt(message[0]);
-        var type = parseInt(message[1]);
-        var shortcutId = parseInt(message[2]);
+        const slot = parseInt(message[0]);
+        const type = parseInt(message[1]);
+        const shortcutId = parseInt(message[2]);
 
         if (slot < 0 || slot > 7)
             return;
@@ -720,7 +720,7 @@ class PacketHandler {
     }
 
     handleSkill(message) {
-        var skillId = parseInt(message[0]),
+        const skillId = parseInt(message[0]),
             targetId = parseInt(message[1]),
             x = parseInt(message[2]),
             y = parseInt(message[3]),
@@ -732,10 +732,10 @@ class PacketHandler {
         if (skillId < 0 || skillId >= p.skills.length)
             return;
 
-        var skill = p.skills[skillId];
+        const skill = p.skills[skillId];
 
         // Perform the skill.
-        var target;
+        let target;
         //console.info("targetId="+targetId);
         if (targetId) {
             target = p.map.entities.getEntityById(targetId);
@@ -760,7 +760,7 @@ class PacketHandler {
 
     handleSkillEffects(source, target)
     {
-        var effects = [];
+        let effects = [];
         if (!source.effects)
             return;
 
@@ -787,14 +787,14 @@ class PacketHandler {
     handleMoveEntity(message) {
         //console.info("handleMoveEntity");
         //console.info("message="+JSON.stringify(message));
-        var time = parseInt(message[0]),
+        const time = parseInt(message[0]),
             entityId = parseInt(message[1]),
             state = parseInt(message[2]),
             orientation = parseInt(message[3]),
             x = parseInt(message[4]) || -1,
             y = parseInt(message[5]) || -1;
 
-        var p = this.player;
+        const p = this.player;
         if (entityId !== p.id)
             return;
 
@@ -820,14 +820,14 @@ class PacketHandler {
             return;
         }
 
-        var arr = [time, state, orientation, x, y];
+        const arr = [time, state, orientation, x, y];
         console.info("handleMoveEntity - arr: "+JSON.stringify(arr));
         if (state === 1) {
             p.move([time, 0, p.orientation, x, y]);
         }
         p.move(arr);
 
-        var msg = new Messages.Move(p, orientation, state, x, y);
+        const msg = new Messages.Move(p, orientation, state, x, y);
         p.map.entities.sendNeighbours(p, msg, p);
 
         if (this.move_callback)
@@ -835,14 +835,14 @@ class PacketHandler {
     }
 
     handleMovePath(message) {
-        var time = parseInt(message.shift()),
+        const time = parseInt(message.shift()),
             entityId = parseInt(message.shift()),
             orientation = parseInt(message.shift()),
             interrupted = (parseInt(message.shift()) === 0) ? false : true;
 
-        var path = message[0];
+        const path = message[0];
 
-        var p = this.player;
+        const p = this.player;
         if (entityId !== p.id)
             return;
 
@@ -855,7 +855,7 @@ class PacketHandler {
 
         console.info(JSON.stringify(path));
 
-        var x = path[0][0],
+        const x = path[0][0],
             y = path[0][1];
 
         if (!p.checkStartMove(x,y)) {
@@ -871,7 +871,7 @@ class PacketHandler {
         console.info("packethandler: handleMoveEntity - movepath: "+JSON.stringify(path));
         p.movePath([time, interrupted], path);
 
-        var msg = new Messages.MovePath(p, path);
+        const msg = new Messages.MovePath(p, path);
         p.map.entities.sendNeighbours(p, msg);
     }
 
@@ -879,22 +879,22 @@ class PacketHandler {
     // and sending to wrong Map.
     handleTeleportMap(msg) {
         console.info("handleTeleportMap");
-        var self = this;
-        var mapId = parseInt(msg[0]),
+        const self = this;
+        const mapId = parseInt(msg[0]),
             status = parseInt(msg[1]);
         console.info("status="+status);
-        var x = parseInt(msg[2]), y = parseInt(msg[3]);
-        var portalId = parseInt(msg[4]);
+        let x = parseInt(msg[2]), y = parseInt(msg[3]);
+        const portalId = parseInt(msg[4]);
 
-        var p = this.player;
+        const p = this.player;
         if (status <= 0)
         {
             x = -1;
             y = -1;
         }
 
-        var mapInstanceId = null;
-        var mapName = null;
+        const mapInstanceId = null;
+        const mapName = null;
 
         if (mapId < 0 || mapId >= self.server.maps.length)
         {
@@ -902,7 +902,7 @@ class PacketHandler {
             return;
         }
 
-        var map = self.server.maps[mapId];
+        const map = self.server.maps[mapId];
         if (!(map && map.ready)) {
             console.info("Map non-existant or not ready");
             return;
@@ -938,9 +938,9 @@ class PacketHandler {
             //console.info("real mapId: " + mapId);
             var pos = {x: p.x, y: p.y};
             //console.info("handleTeleportMap - x: "+x+",y:"+y);
-            var isDoor = false;
+            let isDoor = false;
             if (portalId >= 0) {
-                var door = p.map.doors[portalId];
+                const door = p.map.doors[portalId];
                 if (door.tx >= 0 && door.ty >= 0) {
                     pos = {x: door.tx, y: door.ty};
                     pos.x += (G_TILESIZE >> 1);
@@ -1008,10 +1008,10 @@ class PacketHandler {
     //},
 
     handleStatAdd(message) {
-        var self = this;
-        var attribute = parseInt(message[0]),
+        const self = this;
+        const attribute = parseInt(message[0]),
             points = parseInt(message[1]);
-        var p = this.player;
+        const p = this.player;
 
         if (points < 0 || points > p.stats.free)
             return;
@@ -1019,7 +1019,7 @@ class PacketHandler {
         if (attribute <= 0 || attribute > 4)
             return;
 
-        var alterBars = false;
+        let alterBars = false;
         switch (attribute) {
         case 1:
             p.stats.attack += points;
@@ -1046,7 +1046,7 @@ class PacketHandler {
     }
 
     handleGold(message) {
-        var type = parseInt(message[0]),
+        const type = parseInt(message[0]),
             gold = parseInt(message[1]),
             type2 = parseInt(message[2]);
 
@@ -1080,14 +1080,14 @@ class PacketHandler {
     }
 
     handleBlock(msg) {
-        var type = parseInt(msg[0]),
+        let type = parseInt(msg[0]),
             id = parseInt(msg[1]),
             x = parseInt(msg[2]),
             y = parseInt(msg[3]);
 
-        var p = this.player;
+        const p = this.player;
 
-        var block = p.map.entities.getEntityById(id);
+        const block = p.map.entities.getEntityById(id);
         if (!block || !(block instanceof Block))
             return;
         if (!p.isNextTooEntity(block))
@@ -1114,8 +1114,8 @@ class PacketHandler {
     }
 
     handleRequest(msg) {
-        var type = parseInt(msg);
-        var p = this.player;
+        const type = parseInt(msg);
+        const p = this.player;
 
         switch (type) {
         case 0: // CW_APPEARANCELIST
@@ -1138,7 +1138,7 @@ class PacketHandler {
     }
 
     handleRevive(msg) {
-        var p = this.player;
+        const p = this.player;
         if (p.isDead === true) {
             console.info("handled Revive!!");
             p.respawn();
@@ -1153,24 +1153,24 @@ class PacketHandler {
     }
 
     handleWho(message) {
-        var ids = [];
+        let ids = [];
         if (message.length > 0)
             ids = message;
 
-        for(var id of ids)
+        for(const id of ids)
             this.player.knownIds.removeVal(id);
         //this.player.knownIds.splice(this.player.knownIds.indexOf(id), 1);
     }
 
     handleHarvest(msg) {
-        var x=parseInt(msg[0]), y=parseInt(msg[1]);
+        const x=parseInt(msg[0]), y=parseInt(msg[1]);
         this.player.harvest.onHarvest(x,y);
     }
 
     handleUseNode(msg) {
-        var id=parseInt(msg[0]);
-        var p = this.player;
-        var entity = p.map.entities.getEntityById(id);
+        const id=parseInt(msg[0]);
+        const p = this.player;
+        const entity = p.map.entities.getEntityById(id);
         if (entity)
             this.player.harvest.onHarvestEntity(entity);
     }

@@ -16,7 +16,7 @@ class AuctionRecord {
     }
 
     toArray() {
-        var cols = [
+        let cols = [
             this.playerName,
             this.price];
         cols = cols.concat(this.item.toArray());
@@ -35,17 +35,17 @@ class Auction {
     // globals.
     load(data)
     {
-        var self = this;
+        const self = this;
         console.info("auction - load: "+JSON.stringify(data));
 
         if (Array.isArray(data) && data.length === 0)
             return;
 
-        var auctions = [];
-        for (var rec of data)
+        const auctions = [];
+        for (const rec of data)
         {
-            var sData = rec.split(",");
-            var record = new AuctionRecord(
+            const sData = rec.split(",");
+            const record = new AuctionRecord(
                 sData[0],
                 parseInt(sData[1]),
                 new ItemRoom([
@@ -65,8 +65,8 @@ class Auction {
     {
         console.info("auction - save: "+JSON.stringify(this.auctions));
 
-        var data = [];
-        for(var auction of this.auctions) {
+        const data = [];
+        for(const auction of this.auctions) {
             if (auction)
                 data.push(auction.save());
         }
@@ -81,7 +81,7 @@ class Auction {
     }
 
     add(player, item, price, invIndex) {
-        var auction = new AuctionRecord(player.name, price, item);
+        const auction = new AuctionRecord(player.name, price, item);
         this.auctions.push(auction);
         player.items.inventory.setItem(invIndex, null);
         player.sendPlayer(new Messages.Notify("AUCTION","AUCTION_ADDED"));
@@ -96,14 +96,14 @@ class Auction {
     }
 
     list(player, type) {
-        var msg = [Types.Messages.WC_AUCTIONOPEN, type, 0];
-        var recCount = 0;
-        for (var auction of this.auctions) {
+        let msg = [Types.Messages.WC_AUCTIONOPEN, type, 0];
+        let recCount = 0;
+        for (const auction of this.auctions) {
             if (!auction) {
                 continue;
             }
-            var kind = auction.item.itemKind;
-            var pc = player.name === auction.playerName;
+            const kind = auction.item.itemKind;
+            const pc = player.name === auction.playerName;
             if ((type === 1 && !pc && ItemTypes.isArmor(kind)) ||
                 (type === 2 && !pc && ItemTypes.isWeapon(kind)) ||
                 (type === 0 && pc))

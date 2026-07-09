@@ -11,47 +11,47 @@ class ShopHandler {
     }
 
     handleStoreSell(message) {
-        var p = this.player;
+        const p = this.player;
 
-        var type = parseInt(message[0]);
-        var itemIndex = parseInt(message[1]);
+        const type = parseInt(message[0]);
+        const itemIndex = parseInt(message[1]);
 
-        var item = p.items.itemStore[0].rooms[itemIndex];
+        const item = p.items.itemStore[0].rooms[itemIndex];
         if (!item)
             return;
 
         //p.tut.buy = true;
         //p.tut.buy2 = true;
 
-        var kind = item.itemKind;
+        const kind = item.itemKind;
         if (ItemTypes.isConsumableItem(kind) || ItemTypes.isLootItem(kind))
             return;
 
-        var price = ItemTypes.getEnchantSellPrice(item);
+        const price = ItemTypes.getEnchantSellPrice(item);
         if (price < 0)
             return;
 
-        var itemKind = item.itemKind;
+        const itemKind = item.itemKind;
         //gold = p.gold[0];
         p.items.inventory.makeEmptyItem(itemIndex);
         p.items.modifyGold(price);
-        var itemName = ItemTypes.KindData[itemKind].name;
+        const itemName = ItemTypes.KindData[itemKind].name;
         p.sendPlayer(new Messages.Notify("SHOP","SHOP_SOLD", [itemName]));
     }
 
 // TODO - Revise beloww!!!!!!!!!!!!!!
     handleAuctionSell(message) {
-        var p = this.player;
+        const p = this.player;
 
-        var itemIndex = parseInt(message[0]),
+        const itemIndex = parseInt(message[0]),
             price = parseInt(message[1]);
         if (price < 0 || itemIndex < 0 || itemIndex >= p.items.inventory.maxNumber)
             return;
 
-        var item = p.items.inventory.rooms[itemIndex];
+        const item = p.items.inventory.rooms[itemIndex];
         console.info(JSON.stringify(item));
 
-        var kind = item.itemKind;
+        const kind = item.itemKind;
         if (ItemTypes.isConsumableItem(kind) || ItemTypes.isLootItem(kind))
             return;
 
@@ -63,35 +63,35 @@ class ShopHandler {
     }
 
     handleAuctionOpen(message) {
-        var p = this.player;
+        const p = this.player;
 
-        var type = parseInt(message[0]);
+        const type = parseInt(message[0]);
         if (type >= 0 && type <= 3)
             this.world.auction.list(this.player, type);
     }
 
     handleAuctionBuy(message) {
-        var p = this.player;
+        const p = this.player;
 
-        var auctionIndex = parseInt(message[0]),
+        const auctionIndex = parseInt(message[0]),
             type = parseInt(message[1]);
         if (auctionIndex < 0 || auctionIndex >= this.world.auction.auctions.length)
             return;
         if (type < 0 || type > 3)
             return;
 
-        var auctions = this.world.auction;
-        var auction = this.world.auction.auctions[auctionIndex];
+        const auctions = this.world.auction;
+        const auction = this.world.auction.auctions[auctionIndex];
         if (!auction)
             return;
         if (auction.playerName === p.name)
             return;
 
-        var price = auction.price;
+        const price = auction.price;
         if (price < 0)
             return;
 
-        var goldCount = p.items.gold[0];
+        const goldCount = p.items.gold[0];
 
         if (goldCount < price) {
             p.sendPlayer(new Messages.Notify("SHOP","SHOP_NOGOLD"));
@@ -103,13 +103,13 @@ class ShopHandler {
             return;
         }
 
-        var itemKind = auction.item.itemKind;
+        const itemKind = auction.item.itemKind;
         if (auctions.putItem(this.player, auction.item)) {
             p.items.modifyGold(-price);
-            var itemName = ItemTypes.KindData[itemKind].name;
+            const itemName = ItemTypes.KindData[itemKind].name;
             p.sendPlayer(new Messages.Notify("SHOP","SHOP_SOLD", [itemName]));
 
-            var auctionPlayer = this.world.getPlayerByName(auction.playerName);
+            const auctionPlayer = this.world.getPlayerByName(auction.playerName);
             if (auctionPlayer) {
                 auctionPlayer.items.modifyGold(price);
             } else {
@@ -125,17 +125,17 @@ class ShopHandler {
     }
 
     handleAuctionDelete(message) {
-        var p = this.player;
+        const p = this.player;
 
-        var auctionIndex = parseInt(message[0]),
+        const auctionIndex = parseInt(message[0]),
             type = parseInt(message[1]);
         if (auctionIndex < 0 || auctionIndex >= this.world.auction.auctions.length)
             return;
         if (type < 0 || type > 3)
             return;
 
-        var auctions = this.world.auction;
-        var auction = auctions.auctions[auctionIndex];
+        const auctions = this.world.auction;
+        const auction = auctions.auctions[auctionIndex];
         if (!auction)
             return;
 
@@ -148,10 +148,10 @@ class ShopHandler {
             return;
         }
 
-        var itemKind = auction.item.itemKind;
+        const itemKind = auction.item.itemKind;
         if (auctions.putItem(this.player, auction.item))
         {
-            var itemName = ItemTypes.KindData[itemKind].name;
+            const itemName = ItemTypes.KindData[itemKind].name;
             p.sendPlayer(new Messages.Notify("SHOP","SHOP_REMOVED", [itemName]));
             this.world.auction.remove(auctionIndex);
             this.world.auction.list(this.player, type);
@@ -159,18 +159,18 @@ class ShopHandler {
     }
 
     handleStoreModItem(msg) {
-        var p = this.player;
+        const p = this.player;
 
-        var modType = parseInt(msg[0]),
+        const modType = parseInt(msg[0]),
             type = parseInt(msg[1]),
             itemIndex = parseInt(msg[2]);
 
         //console.info("type=" + type + ",invNumber=" + inventoryNumber1);
         if (type === 0 || type === 2) {
-            var itemStore = p.items.itemStore[type];
+            const itemStore = p.items.itemStore[type];
             if (itemIndex < 0 && itemIndex >= itemStore.maxNumber)
                 return;
-            var item = p.items.itemStore[type].rooms[itemIndex];
+            const item = p.items.itemStore[type].rooms[itemIndex];
             //console.info("item=" + JSON.stringify(item));
             if (modType === 0)
                 this._repairItem(type, item, itemIndex);
@@ -184,9 +184,9 @@ class ShopHandler {
     // `var` here since ES modules are always strict mode and forbid implicit
     // globals.
     _repairItem(type, item, index) {
-        var p = this.player;
+        const p = this.player;
 
-        var itemKind = null,
+        let itemKind = null,
             price = 0;
 
         if (!(item && item.itemKind))
@@ -202,7 +202,7 @@ class ShopHandler {
         if (price <= 0)
             return;
 
-        var goldCount = p.items.gold[0];
+        const goldCount = p.items.gold[0];
         //console.info("goldCount="+goldCount+",price="+price);
         if (goldCount < price) {
             p.sendPlayer(new Messages.Notify("SHOP","SHOP_NOGOLD"));
@@ -221,7 +221,7 @@ class ShopHandler {
         item.slot = index;
 
         p.sendPlayer(new Messages.ItemSlot(type, [item]));
-        var itemName = ItemTypes.KindData[item.itemKind].name;
+        const itemName = ItemTypes.KindData[item.itemKind].name;
         p.sendPlayer(new Messages.Notify("SHOP","SHOP_REPAIRED", [itemName]));
     }
 
@@ -230,9 +230,9 @@ class ShopHandler {
     // `var` here since ES modules are always strict mode and forbid implicit
     // globals.
     _enchantItem(type, item, index) {
-        var p = this.player;
+        const p = this.player;
 
-        var itemKind = null,
+        let itemKind = null,
             price = 0;
 
         if (!(item && item.itemKind))
@@ -245,7 +245,7 @@ class ShopHandler {
         if (price <= 0)
             return;
 
-        var goldCount = p.items.gold[0];
+        const goldCount = p.items.gold[0];
         //console.info("goldCount="+goldCount+",price="+price);
         if (goldCount < price) {
             p.sendPlayer(new Messages.Notify("SHOP", "SHOP_NOGOLD"));
@@ -260,12 +260,12 @@ class ShopHandler {
         p.sendPlayer(new Messages.ItemSlot(type, [item]));
         console.info("itemNumber=" + item.itemNumber);
         p.items.modifyGold(-price);
-        var itemName = ItemTypes.KindData[item.itemKind].name;
+        const itemName = ItemTypes.KindData[item.itemKind].name;
         p.sendPlayer(new Messages.Notify("SHOP", "SHOP_ENCHANTED", [itemName]));
     }
 
     handleStoreBuy(message) {
-        var p = this.player;
+        const p = this.player;
 
         var itemType = parseInt(message[0]),
             itemKind = parseInt(message[1]),
@@ -284,7 +284,7 @@ class ShopHandler {
 
         //console.info("itemKind="+itemKind);
         //console.info(JSON.stringify(ItemTypes));
-        var itemData = ItemTypes.KindData[itemKind];
+        const itemData = ItemTypes.KindData[itemKind];
 
         var itemName = itemData.name;
         price = ItemTypes.getBuyPrice(itemKind);
@@ -301,10 +301,10 @@ class ShopHandler {
                 return;
             }
 
-            var consume = ItemTypes.isConsumableItem(itemKind);
+            const consume = ItemTypes.isConsumableItem(itemKind);
             if (consume || (!consume && p.items.inventory.hasRoom())) {
-                var item = new ItemRoom([itemKind, itemCount, 0, 0, 0]);
-                var res = p.items.inventory.putItem(item);
+                const item = new ItemRoom([itemKind, itemCount, 0, 0, 0]);
+                const res = p.items.inventory.putItem(item);
                 if (res === -1)
                     return;
                 p.items.modifyGold(-price);
@@ -320,7 +320,7 @@ class ShopHandler {
     }
 
     handleCraft(message) {
-        var p = this.player;
+        const p = this.player;
 
         var craftId = parseInt(message[0]),
             itemCount = parseInt(message[1]),
@@ -336,9 +336,9 @@ class ShopHandler {
         if (craftId < 0 || craftId >= ItemData.CraftData.length)
             return;
 
-        var craftData = ItemData.CraftData[craftId];
+        const craftData = ItemData.CraftData[craftId];
 
-        var itemKind = Number(craftData.o);
+        const itemKind = Number(craftData.o);
 
         //console.info("itemKind="+itemKind);
         //console.info(JSON.stringify(ItemTypes));
@@ -348,7 +348,7 @@ class ShopHandler {
             return;
         }
 
-        var itemData = ItemTypes.KindData[itemKind];
+        const itemData = ItemTypes.KindData[itemKind];
 
         var itemName = itemData.name;
         price = ItemTypes.getCraftPrice(itemKind);
@@ -375,7 +375,7 @@ class ShopHandler {
         if (itemData.craft.length === 0)
             return;
 
-        for (var it of craftData.i)
+        for (const it of craftData.i)
         {
             if (!p.items.inventory.hasItems(it[0],it[1]*itemCount)) {
                 p.sendPlayer(new Messages.Notify("SHOP", "SHOP_NOCRAFTITEMS"));
@@ -390,16 +390,16 @@ class ShopHandler {
         }
 
         p.items.modifyGold(-price);
-        for (var it of craftData.i)
+        for (const it of craftData.i)
         {
             p.items.inventory.removeItemKind(it[0],it[1]*itemCount);
         }
 
-        var durability = 0;
+        let durability = 0;
         if (ItemTypes.isWeapon() || ItemTypes.isArmor())
             durability = 900;
 
-        var item = new ItemRoom([itemKind, itemCount, durability, durability]);
+        const item = new ItemRoom([itemKind, itemCount, durability, durability]);
         if (p.items.inventory.putItem(item) === -1)
             return;
 

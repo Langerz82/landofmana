@@ -20,7 +20,7 @@ class PartyHandler {
     }
 
     handleParty(msg) {
-        var partyType = msg.shift();
+        const partyType = msg.shift();
         switch (partyType) {
         case 1:
             this.handleInvite(msg);
@@ -38,15 +38,15 @@ class PartyHandler {
     }
 
     handleInvite(msg) {
-        var name = msg[0];
-        var player2 = this.getPlayer(name);
+        const name = msg[0];
+        const player2 = this.getPlayer(name);
         if (!player2) {
             return;
         }
 
-        var status = msg[1];
+        const status = msg[1];
 
-        var party = this.player.party;
+        const party = this.player.party;
 
         if (this.player === player2)
             return;
@@ -91,15 +91,15 @@ class PartyHandler {
     }
 
     handleKick(msg) {
-        var name = msg[0];
-        var player2 = this.getPlayer(name);
+        const name = msg[0];
+        const player2 = this.getPlayer(name);
         if (!player2) {
             return;
         }
         if (this.player === player2)
             return;
 
-        var party = this.player.party;
+        const party = this.player.party;
 
         if (!party) {
             this.player.sendPlayer(new Messages.Notify("CHAT", "PARTY_CANNOT_KICK"));
@@ -117,8 +117,8 @@ class PartyHandler {
     }
 
     handleLeader(msg) {
-        var name = msg[0];
-        var player2 = this.getPlayer(name);
+        const name = msg[0];
+        const player2 = this.getPlayer(name);
         if (!player2) {
             return;
         }
@@ -126,7 +126,7 @@ class PartyHandler {
         if (this.player === player2)
             return;
 
-        var party = this.player.party;
+        const party = this.player.party;
         if (!party) {
             this.player.sendPlayer(new Messages.Notify("CHAT", "PARTY_NOT_LEADER"));
             return;
@@ -144,8 +144,8 @@ class PartyHandler {
     }
 
     handleLeave(msg) {
-        var party = this.player.party;
-        var leader = (party) ? party.leader : null;
+        const party = this.player.party;
+        const leader = (party) ? party.leader : null;
 
         if (leader === null)
             return;

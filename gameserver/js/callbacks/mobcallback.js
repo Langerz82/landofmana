@@ -27,12 +27,12 @@ class MobCallback {
         });
 
         entity.onRequestPath(function(x, y) {
-            var ignored = [this];
+            const ignored = [this];
 
             if (this.target)
                 ignored.push(this.target);
 
-            var path = this.map.entities.findPath(this, x, y, ignored);
+            const path = this.map.entities.findPath(this, x, y, ignored);
 
             if (path && path.length === 1)
                 console.error(this.id + " " + JSON.stringify(path));
@@ -40,7 +40,7 @@ class MobCallback {
             if (path && path.length > 1)
             {
                 this.orientation = this.getOrientation([this.x,this.y], path[1]);
-                var msg = new Messages.MovePath(this, path);
+                const msg = new Messages.MovePath(this, path);
 
                 this.map.entities.sendNeighbours(this, msg);
                 return path;
@@ -85,7 +85,7 @@ class MobCallback {
             // CommonJS source, which created an implicit global there; declared
             // with `var` here since ES modules are always strict mode and forbid
             // implicit globals.
-            var msg = new Messages.Move(this, this.orientation, 2, this.x, this.y);
+            const msg = new Messages.Move(this, this.orientation, 2, this.x, this.y);
             this.map.entities.sendNeighbours(this, msg);
 
             if (this.aiState === mobState.RETURNING) {

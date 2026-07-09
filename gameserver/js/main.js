@@ -6,7 +6,7 @@ import fs from 'fs';
 import util from 'util';
 import crypto from 'crypto';
 import BISON from 'bison';
-var useBison = false;
+const useBison = false;
 import WS from './ws.js';
 
 import ProductionConfig from './productionconfig.js';
@@ -101,7 +101,7 @@ let IS_EXITING = false;
 /* global log, Player, databaseHandler */
 
 //var worldHandler;
-var userHandler = null;
+let userHandler = null;
 //var main = null;
 //var world = null;
 
@@ -122,7 +122,7 @@ global.players = players;
 export const hashes = new Map();
 global.hashes = hashes;
 
-var Main = {};
+const Main = {};
 
 // NOTE: kept exactly as in the original -- `Main` is exported here, but
 // every method actually added below (checkSaved, safe_exit, saveServer,
@@ -141,8 +141,8 @@ export let log;
 global.log = log;
 export let gConnection;
 
-var log_file = fs.createWriteStream(__dirname + '/../console.log', {flags : 'w'});
-var log_stdout = process.stdout;
+const log_file = fs.createWriteStream(__dirname + '/../console.log', {flags : 'w'});
+const log_stdout = process.stdout;
 
 /*var get_connect_string = function () {
     if (MainConfig)
@@ -183,31 +183,31 @@ function main(config) {
 
     // redirect stdout / stderr
     log.log = function(d) { //
-      var txt = "LOG: " + util.format(d) + '\n';
+      const txt = "LOG: " + util.format(d) + '\n';
       console.info(txt);
     };
     log.info = function(d) { //
-      var txt = "INFO: " + util.format(d) + '\n';
+      const txt = "INFO: " + util.format(d) + '\n';
       console.info(txt);
     };
     log.warn = function(d) { //
-      var txt = "WARN: " + util.format(d) + '\n';
+      const txt = "WARN: " + util.format(d) + '\n';
       console.warn(txt);
     };
     log.error = function(d) { //
-      var txt = "ERROR: " + util.format(d) + '\n';
+      const txt = "ERROR: " + util.format(d) + '\n';
       console.error(txt);
     };
 
-    var production_config = new ProductionConfig(config);
+    const production_config = new ProductionConfig(config);
     if(production_config.inProduction()) {
         _.extend(config, production_config.getProductionSettings());
     }
-    var worldId = config.world_id;
+    const worldId = config.world_id;
     global.MainConfig = config;
 
     server = new WS.WebsocketServer(config);
-    var lastTotalPlayers = 0;
+    const lastTotalPlayers = 0;
     var self = this;
 
     console.info("Initializing RRO2 GameServer - World " + worldId);
@@ -223,7 +223,7 @@ function main(config) {
       console.info("server - onInit called.")
       if (!server.userConn) {
         server.userConn = new WS.userConnection(99999, server.userConn, server);
-        var connect = config.protocol+'://'+config.user_address+':'+config.user_port;
+        const connect = config.protocol+'://'+config.user_address+':'+config.user_port;
         server.userConn.connect(connect);
       }
 
@@ -248,9 +248,9 @@ function main(config) {
 
         //var self = this;
 
-        var current_date = (new Date()).valueOf().toString();
-        var random = Math.random().toString();
-        var hash = crypto.createHash('sha1').update(current_date + random).digest('hex');
+        const current_date = (new Date()).valueOf().toString();
+        const random = Math.random().toString();
+        const hash = crypto.createHash('sha1').update(current_date + random).digest('hex');
         conn.hash = hash;
         console.info("main - onConnect: hash="+hash);
 
@@ -259,7 +259,7 @@ function main(config) {
         console.info(Types.Messages.WC_VERSION);
 
       	conn.sendUTF8(Types.Messages.WC_VERSION+","+config.version+","+conn.hash);
-        var wh = new WorldHandler(server, conn);
+        const wh = new WorldHandler(server, conn);
         wh.userConnection = server.userHandler.connection;
 
         conn.worldHandler = wh;
@@ -315,7 +315,7 @@ function main(config) {
     console.info("connected");
   })*/
 
-  var signalHandler = function () {
+  const signalHandler = function () {
     main.closeServer();
   };
 
@@ -324,7 +324,7 @@ function main(config) {
   process.on('SIGQUIT', signalHandler);
   process.on('SIGHUP', signalHandler);
 
-  var cmdPrompt = function () {
+  const cmdPrompt = function () {
 
     if (process.platform === "win32") {
       readline.on("SIGINT", function () {
@@ -356,26 +356,26 @@ function main(config) {
 }
 
 function modgems (args) {
-  var playerName = args[0];
-  var gems = args[1];
+  const playerName = args[0];
+  const gems = args[1];
 
-  var player = world.getPlayerByName(playerName);
+  const player = world.getPlayerByName(playerName);
   if (player && player.user)
     player.user.modifyGems(gems);
 }
 
 function modgold (args) {
-  var playerName = args[0];
-  var gold = args[1];
+  const playerName = args[0];
+  const gold = args[1];
 
-  var player = world.getPlayerByName(playerName);
+  const player = world.getPlayerByName(playerName);
   if (player)
     player.modifyGold(gold);
 }
 
 function banplayer(args) {
-  var playerName = args[0];
-  var duration = parseInt(args[1], 10);
+  const playerName = args[0];
+  const duration = parseInt(args[1], 10);
   if (!duration) {
     console.info("banplayer - provide how many days banned.");
     return;
@@ -384,8 +384,8 @@ function banplayer(args) {
 }
 
 function banuser(args) {
-  var username = args[0];
-  var duration = parseInt(args[1], 10);
+  const username = args[0];
+  const duration = parseInt(args[1], 10);
   if (!duration) {
     console.info("banuser - provide how many days banned.");
     return;
@@ -398,8 +398,8 @@ function notify(args) {
 }
 
 function getInput(cmd) {
-    var args = cmd.split(" ");
-    var cmdarg = args[0];
+    const args = cmd.split(" ");
+    const cmdarg = args[0];
     args.shift();
     console.info("cmd: " + cmd);
 
@@ -450,7 +450,7 @@ function reloadAuction() {
 }
 
 function getWorldDistribution(worlds) {
-    var distribution = [];
+    const distribution = [];
 
     _.each(worlds, function(world) {
         distribution.push(world.playerCount);
@@ -469,8 +469,8 @@ function getConfigFile(path, callback) {
     });
 }
 
-var defaultConfigPath = './config.json';
-var customConfigPath = './config_local.json';
+const defaultConfigPath = './config.json';
+let customConfigPath = './config_local.json';
 
 process.argv.forEach(function (val, index, array) {
     if(index === 2) {
@@ -480,7 +480,7 @@ process.argv.forEach(function (val, index, array) {
 
 main.checkSaved = function () {
   console.info("Main - checkSaved!");
-  var allSaved = setInterval(function () {
+  const allSaved = setInterval(function () {
     //console.info("world.PLAYERS_SAVED:"+world.PLAYERS_SAVED);
     //console.info("world.AUCTIONS_SAVED:"+world.AUCTIONS_SAVED);
     //console.info("world.LOOKS_SAVED:"+world.LOOKS_SAVED);

@@ -1,7 +1,7 @@
 import _ from 'underscore';
 import LangJson from "../../shared/data/lang.json" with { type: 'json' };
 
-var LangData = {};
+const LangData = {};
 
 _.each( LangJson, function( val, key ) {
 	LangData[key] = val;

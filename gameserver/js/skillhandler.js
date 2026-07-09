@@ -16,25 +16,25 @@ class SkillHandler {
 
     setSkills(player, skills)
     {
-      for (var i = 0; i < skills.length; ++i)
+      for (let i = 0; i < skills.length; ++i)
       {
-        var skill = new Skill(player, i, skills[i]);
+        const skill = new Skill(player, i, skills[i]);
         player.skills[i] = skill;
       }
     }
 
     setSkill(index, exp) {
-      var skill = player.skills[index];
+      const skill = player.skills[index];
       skill.skillXP = exp;
       skill.skillLevel = Types.getSkillLevel(exp);
     }
 
     setXPs()
     {
-      var skillXPs = [];
-      for(var i=0; i < this.skills.length; ++i) {
-        var skill = this.skills[i];
-        var xp = parseInt(skill.tempXP, 10);
+      const skillXPs = [];
+      for(let i=0; i < this.skills.length; ++i) {
+        const skill = this.skills[i];
+        const xp = parseInt(skill.tempXP, 10);
         if (xp > 0)
         {
           skill.xp(xp);
@@ -83,7 +83,7 @@ class Skill {
 
     console.info("amount="+amount);
    	this.skillXP += parseInt(amount, 10);
-   	var skillLevel = Types.getSkillLevel(this.skillXP, this.skillLevel);
+   	const skillLevel = Types.getSkillLevel(this.skillXP, this.skillLevel);
    	if (skillLevel != this.skillLevel)
    	{
    		this.skillLevel = skillLevel;

@@ -18,7 +18,7 @@ class PlayerGroup {
 
   setLeader(playerName) {
       this.leader = playerName;
-      var index = this.players.indexOf(this.leader);
+      const index = this.players.indexOf(this.leader);
       if (index != 0)
         Utils.SwapElements(this.players, 0, index);
   }
@@ -32,7 +32,7 @@ class PlayerGroup {
         this.players.push(playerName);
       }
 
-      var player = this.getPlayer(playerName);
+      const player = this.getPlayer(playerName);
       if (player) {
         if(this.allowOnce && player[this.group]) {
           player[this.group].removeName(playerName);
@@ -45,7 +45,7 @@ class PlayerGroup {
 
   getPlayer(playerName) {
     if(playerName) {
-      var player = this.world.getPlayerByName(playerName);
+      const player = this.world.getPlayerByName(playerName);
       if (player)
         return player;
     }
@@ -53,13 +53,13 @@ class PlayerGroup {
   }
 
   sendPlayers(msg, sendOwner) {
-    var self = this;
+    const self = this;
     this.forEachName(function (playerName) {
       if (sendOwner && this.leader === playerName)
         return;
 
       if(playerName) {
-        var player = self.getPlayer(playerName);
+        const player = self.getPlayer(playerName);
         if (player)
           player.sendPlayer(msg);
       }
@@ -67,18 +67,18 @@ class PlayerGroup {
   }
 
   forEachName(callback) {
-    var length = this.players.length;
-    for(var i=0; i < length; ++i){
+    const length = this.players.length;
+    for(let i=0; i < length; ++i){
       if (callback)
         callback(this.players[i]);
     }
   }
 
   forEachPlayer(callback) {
-    var length = this.players.length;
-    for(var i=0; i < length; ++i){
+    const length = this.players.length;
+    for(let i=0; i < length; ++i){
       if (callback) {
-        var player = this.getPlayer(this.players[i]);
+        const player = this.getPlayer(this.players[i]);
         if (player)
           callback(player);
       }
@@ -90,7 +90,7 @@ class PlayerGroup {
     	this.leader = this.players[0];
     if (playerName) {
       if (this.containsName(playerName)) {
-        var player = this.getPlayer(playerName);
+        const player = this.getPlayer(playerName);
         if (player) {
           player[this.group] = null;
         }

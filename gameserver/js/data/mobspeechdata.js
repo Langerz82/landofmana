@@ -1,7 +1,7 @@
 import _ from 'underscore';
 import MobSpeech from "../../shared/data/mobs_speech.json" with { type: 'json' };
 
-var speech = {};
+const speech = {};
 _.each( MobSpeech, function( value, key ) {
 	//console.info(JSON.stringify(value));
 	speech[key] = value;

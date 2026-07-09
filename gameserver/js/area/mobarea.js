@@ -48,7 +48,7 @@ class MobArea extends EntityArea {
         this.mobs = [];
         if (Array.isArray(this.definite))
         {
-            for (var i of this.definite)
+            for (const i of this.definite)
             {
                 this.mobs.push(MobData.Kinds[i]);
             }
@@ -64,21 +64,21 @@ class MobArea extends EntityArea {
         // CommonJS source, which created an implicit global there; declared with
         // `var` here since ES modules are always strict mode and forbid implicit
         // globals.
-        var levelMobs = MobData.getByLevelRange(this.minLevel, this.maxLevel);
+        const levelMobs = MobData.getByLevelRange(this.minLevel, this.maxLevel);
         this.mobs = this.mobs.concat(levelMobs);
 
         if (Array.isArray(this.include)) {
-            for (var i of this.include)
+            for (const i of this.include)
             {
                 this.mobs.push(MobData.Kinds[i]);
             }
         }
 
         if (Array.isArray(this.exclude)) {
-            var i = this.mobs.length;
+            let i = this.mobs.length;
             while (--i >= 0)
             {
-                for (var j of this.exclude)
+                for (const j of this.exclude)
                 {
                     if (this.mobs[i].kind === j)
                     {
@@ -93,23 +93,23 @@ class MobArea extends EntityArea {
 
     spawnMobs() {
         //console.info("spawnMobs - nb: "+this.nb);
-        for(var i = 0; i < this.nb; ++i) {
+        for(let i = 0; i < this.nb; ++i) {
             this.addToArea(this._createRandomMobInsideArea(), this.exclude);
         }
     }
 
     _createMob(kind) {
-        var self = this;
+        const self = this;
 
         //console.info("_createMob:"+kind);
-        var	pos = self.map.entities.spaceEntityRandomApart(2,self._getRandomPositionInsideArea.bind(self,100));
+        const	pos = self.map.entities.spaceEntityRandomApart(2,self._getRandomPositionInsideArea.bind(self,100));
         if (!pos) {
             console.warn("mobarea, _createMob: no position");
             return null;
         }
 
         //console.info("pos-x:"+pos.x+", pos-y:"+pos.y+", kind="+kind);
-        var mob = self.map.entities.addMob(kind, pos.x, pos.y, this);
+        const mob = self.map.entities.addMob(kind, pos.x, pos.y, this);
 
         //self.addToArea(mob);
 
@@ -117,7 +117,7 @@ class MobArea extends EntityArea {
     }
 
     _createRandomMobInsideArea() {
-        var randomMob = 0;
+        const randomMob = 0;
         var kind = 0;
         //console.info("_createRandomMobInsideArea");
 
@@ -132,18 +132,18 @@ class MobArea extends EntityArea {
         }
 // TODO
         // Add ratio total and array containing kind.
-        var mobRatio = [];
-        var mobRatioTotal = 0;
-        var l = this.mobs.length;
+        const mobRatio = [];
+        let mobRatioTotal = 0;
+        const l = this.mobs.length;
         if (l === 0)
         {
             console.warn("mobs length === 0 aborting create.");
             return null;
         }
 
-        for(var i = 0; i < l; ++i)
+        for(let i = 0; i < l; ++i)
         {
-            for(var j = 0; j < this.mobs[i].spawnChance; ++j)
+            for(let j = 0; j < this.mobs[i].spawnChance; ++j)
             {
                 mobRatio[ (i*l+j) ] = this.mobs[i].kind;
             }
@@ -151,11 +151,11 @@ class MobArea extends EntityArea {
         }
 
         var kind = 0;
-        var randNum = Utils.randomInt(mobRatioTotal-1);
+        const randNum = Utils.randomInt(mobRatioTotal-1);
         //console.info("randNum="+randNum);
-        var r = randNum;
-        var sc = 0;
-        for (var i=0; i < this.mobs.length; ++i) {
+        let r = randNum;
+        let sc = 0;
+        for (let i=0; i < this.mobs.length; ++i) {
             sc = this.mobs[i].spawnChance;
             if (r <= sc) {
                 kind = this.mobs[i].kind;
@@ -179,7 +179,7 @@ class MobArea extends EntityArea {
 
     isNextTooEntity(entity, dist) {
         dist = dist || G_TILESIZE;
-        for (var en of this.entities)
+        for (const en of this.entities)
         {
             if (Math.abs(entity.x - en.x) <= dist &&  Math.abs(entity.y - en.y) <= dist)
                 return true;

@@ -17,9 +17,9 @@ class EntityQuests {
       if (!this.quests.hasOwnProperty(questId))
         return;
 
-      var quest = this.quests[questId];
+      const quest = this.quests[questId];
 
-      var pQuest = player.quests.getQuestById(parseInt(questId));
+      let pQuest = player.quests.getQuestById(parseInt(questId));
       if (pQuest) {
         if (pQuest.status < Types.QuestStatus.COMPLETE) {
           pQuest.status = Types.QuestStatus.INPROGRESS;
@@ -38,11 +38,11 @@ class EntityQuests {
     }
 
     giveReward(player, quest) {
-      var pquest = player.quests.completeQuests[quest.id];
+      const pquest = player.quests.completeQuests[quest.id];
       if (!pquest) return false;
 
       if (!pquest.hasOwnProperty("reward")) {
-        var count = player.inventory.hasRoomCount();
+        const count = player.inventory.hasRoomCount();
         if (quest.reward.length > 0 && count < quest.reward.length) {
           player.sendPlayer(new Messages.Notify("INVENTORY", "INVENTORY_FULL"));
           return false;
@@ -54,9 +54,9 @@ class EntityQuests {
         if (quest.gold > 0)
           player.modifyGold(parseInt(quest.gold, 10));
 
-        for (var reward of quest.reward)
+        for (const reward of quest.reward)
         {
-            var item = new ItemRoom([
+            const item = new ItemRoom([
               parseInt(reward.itemKind, 10),
               parseInt(reward.itemNumber, 10) || 1,
               parseInt(reward.itemDurability, 10) || null,
@@ -74,7 +74,7 @@ class EntityQuests {
     }
 
     hasQuest(player) {
-      for (var quest of player.quests.quests)
+      for (const quest of player.quests.quests)
       {
         if (this.entity.npcQuestId === quest.npcQuestId) {
           /*if (player.quests.hasNpcCompleteQuest(quest.npcQuestId)) {
@@ -85,8 +85,8 @@ class EntityQuests {
         }
       }
 
-      for (var id in this.quests) {
-        var quest = this.quests[id];
+      for (const id in this.quests) {
+        const quest = this.quests[id];
 
         if (player.quests.hasNpcCompleteQuest(quest.npcQuestId)) {
           if (this.giveReward(player, quest)) {
@@ -98,11 +98,11 @@ class EntityQuests {
     }
 
     getNextQuestId(player) {
-      for (var qid in this.quests) {
+      for (const qid in this.quests) {
         if (player.quests.completeQuests[qid])
           continue;
 
-        var pq = player.quests.getQuestById(qid);
+        const pq = player.quests.getQuestById(qid);
         if (pq)
           continue;
         return qid;
@@ -111,8 +111,8 @@ class EntityQuests {
     }
 
     sendNoQuest(player) {
-      var entity = this.entity;
-      var msg = new Messages.Dialogue(entity, "QUESTS_NONE", [entity.nextNpcDir, entity.nextNpcName, entity.name])
+      const entity = this.entity;
+      const msg = new Messages.Dialogue(entity, "QUESTS_NONE", [entity.nextNpcDir, entity.nextNpcName, entity.name])
       player.sendPlayer(msg);
     }
 
@@ -129,23 +129,23 @@ class EntityQuests {
     // Preserved as-is; this is a pre-existing bug unrelated to the ES module
     // conversion.
     getMobObject() {
-      var entities = self.map.entities.getMobsAround(this.entity, 35);
+      let entities = self.map.entities.getMobsAround(this.entity, 35);
       if (entities.length === 0)
         return;
 
-      var entitycount = Utils.GetGroupCountArray(entities, "kind");
+      const entitycount = Utils.GetGroupCountArray(entities, "kind");
       console.warn("entitycount="+JSON.stringify(entitycount));
       if (entitycount.length === 0)
         return null;
       log.info("entitycount="+JSON.stringify(entitycount));
       entitycount.sort(function(a, b){return b[1]-a[1]});
       log.info("entitycount="+JSON.stringify(entitycount));
-      var kind = parseInt(entitycount[0][0], 10);
+      const kind = parseInt(entitycount[0][0], 10);
 
       entities = entities.filter(function(entity) { return entity.kind === kind; });
-      var minLevel = Utils.minProp(entities, "level").level;
+      const minLevel = Utils.minProp(entities, "level").level;
 
-      var mobCount = parseInt(entitycount[0][1], 10);
+      const mobCount = parseInt(entitycount[0][1], 10);
       if (mobCount <= 0)
         return null;
       if (!MobData.Kinds[kind])
@@ -156,11 +156,11 @@ class EntityQuests {
     }
 
     createQuest(player) {
-      var qTypes = [1,2];
+      const qTypes = [1,2];
       //var qTypes = [2];
-      var questType = qTypes[Utils.randomInt(qTypes.length-1)];
+      const questType = qTypes[Utils.randomInt(qTypes.length-1)];
 
-      var pLvl = player.level;
+      const pLvl = player.level;
 
 // TODO - FIX UP QUESTS FOR NEW STRUCTURE.
       if (questType === Types.QuestType.GETITEMKIND)
@@ -176,19 +176,19 @@ class EntityQuests {
     createQuestItemKind(player) {
       console.info("GETITEMKIND");
 
-      var itemKind = Utils.randomInt(ItemLootData.ItemLoot.length-1);
-      var id = '02'+ Utils.pad(this.entity.kind,6) + Utils.pad(this.questsCount++,4);
-      var quest = player.quests.getQuestById(id);
+      const itemKind = Utils.randomInt(ItemLootData.ItemLoot.length-1);
+      const id = '02'+ Utils.pad(this.entity.kind,6) + Utils.pad(this.questsCount++,4);
+      let quest = player.quests.getQuestById(id);
       if (!quest)
       {
-        var mobObject = this.getMobObject();
+        const mobObject = this.getMobObject();
         if (!mobObject)
           return;
         mobObject.count = 0;
 
-        var itemCount = Utils.randomRangeInt(1,5);
-        var itemChance = 30*itemCount / (player.level+2);
-        var itemObject = getQuestObject([Types.EntityTypes.ITEMLOOT, itemKind,
+        const itemCount = Utils.randomRangeInt(1,5);
+        const itemChance = 30*itemCount / (player.level+2);
+        const itemObject = getQuestObject([Types.EntityTypes.ITEMLOOT, itemKind,
           itemCount, itemChance]);
 
         quest = new Quest([id, Types.QuestType.GETITEMKIND, this.entity.npcQuestId, 0, 0, 0, 0, mobObject, itemObject]);
@@ -204,15 +204,15 @@ class EntityQuests {
     createQuestKillMobKind(player) {
       console.info("KILLMOBKIND");
 
-      var id = '01'+ Utils.pad(this.entity.kind,6) + Utils.pad(this.questsCount++,4);
-      var quest = player.quests.getQuestById(id);
+      const id = '01'+ Utils.pad(this.entity.kind,6) + Utils.pad(this.questsCount++,4);
+      let quest = player.quests.getQuestById(id);
       if (!quest)
       {
-        var mobObject = this.getMobObject();
+        const mobObject = this.getMobObject();
         if (!mobObject)
           return;
-        var lw = 5;
-        var lh = Math.max(player.level-10, 10);
+        const lw = 5;
+        const lh = Math.max(player.level-10, 10);
         //log.info("KILLMOBKIND - lh="+lh);
         mobObject.count = Utils.clamp(lw, lh, (mobObject.count / 2));
         mobObject.count = Math.ceil(mobObject.count/5)*5;

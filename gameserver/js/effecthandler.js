@@ -24,8 +24,8 @@ class EffectType {
     if (this.phase != phase)
       return;
 
-    var val1 = 0, val2 = 0, statmax = 0;
-    var runModDiff = true;
+    let val1 = 0, val2 = 0, statmax = 0;
+    let runModDiff = true;
     switch (this.stat)
     {
       case "hp":
@@ -97,7 +97,7 @@ class EffectType {
   }
 
   getModDiff(skillEffect, stat, statmod, statmax) {
-    var diff = this.modValue * skillEffect.level;
+    let diff = this.modValue * skillEffect.level;
     if (this.modValue < 1)
     {
       if (statmax > 0)
@@ -167,7 +167,7 @@ class SkillEffect {
     }
 
     apply(target, targetX, targetY) {
-      var self = this;
+      const self = this;
       if (this.duration > 0) {
         this.activeTimer = 0;
         if (this.interval) {
@@ -199,7 +199,7 @@ class SkillEffect {
 
     applyEffect(effect, target, phase, damage)
     {
-        var index = target.activeEffects.indexOf(this);
+        let index = target.activeEffects.indexOf(this);
         if (phase==="start" && index < 0) {
           target.activeEffects.push(this);
           index = target.activeEffects.indexOf(this);
@@ -214,10 +214,10 @@ class SkillEffect {
     }
 
     applyEffects(phase, damage) {
-      for (var effect of this.effectTypes) {
+      for (const effect of this.effectTypes) {
         if (effect.phase === phase) {
             if (effect.isTarget) {
-              for (var target of this.targets) {
+              for (const target of this.targets) {
                 this.applyEffect(effect, target, phase, damage);
               }
             }
@@ -235,10 +235,10 @@ class SkillEffect {
     }
 
     endEffects() {
-      for (var target of this.targets) {
-        for (var self of target.activeEffects)
+      for (const target of this.targets) {
+        for (const self of target.activeEffects)
         {
-          for (var effect of self.effectTypes)
+          for (const effect of self.effectTypes)
             effect.apply(self, target, "end", 0);
         }
         target.activeEffects = [];
@@ -280,15 +280,15 @@ class SkillEffectHandler {
 
     interval(phase, damage) {
       damage = damage || 0;
-      for (var skillEffect of this.entity.activeEffects)
+      for (const skillEffect of this.entity.activeEffects)
         skillEffect.onInterval(phase, damage);
     }
 
     cast(skillId, target, x, y) {
       //var skillEffect = this.skillEffects[skillId];
-      var skill = this.skills[skillId];
-      var skillLevel = skill.skillLevel;
-      var skillEffect = new SkillEffect(this, skillId, skillLevel);
+      const skill = this.skills[skillId];
+      const skillLevel = skill.skillLevel;
+      const skillEffect = new SkillEffect(this, skillId, skillLevel);
       this.skillEffects.push(skillEffect);
       //var skill = this.skills[skillId];
       skill.xp(1);
@@ -297,7 +297,7 @@ class SkillEffectHandler {
     }
 
     removeSkillEffect(skillEffect) {
-      var index = this.skillEffects.indexOf(skillEffect);
+      const index = this.skillEffects.indexOf(skillEffect);
       if (index >= 0)
         this.skillEffects.splice(index, 1);
     }

@@ -21,19 +21,19 @@ class TrapGroup {
     }
 
     generateTraps() {
-        var width = this.width;
-        var height = this.height;
+        const width = this.width;
+        const height = this.height;
 
-        var startID = this.map.entities.entityCount;
+        const startID = this.map.entities.entityCount;
 
-        var id = 0;
-        var blockName;
-        for (var j=0; j < height; ++j) {
-            for (var i=0; i < width; ++i) {
+        let id = 0;
+        let blockName;
+        for (let j=0; j < height; ++j) {
+            for (let i=0; i < width; ++i) {
                 id = startID+(width*j+i);
                 blockName = "trap"+id+"-"+j+"_"+i;
 
-                var trap = new Trap(id, this.kind,
+                const trap = new Trap(id, this.kind,
                     (this.x+i)*G_TILESIZE, (this.y+j)*G_TILESIZE,
                     this.map, this, blockName, i, j);
                 this.map.entities.addEntity(trap);
@@ -66,19 +66,19 @@ class TrapGroup {
     //     parameter is named `entity`.
     // (4) `this.entities.getOwnProperty(id)` should be `hasOwnProperty`.
     update(entity) {
-        var dmg = this.damaging;
+        const dmg = this.damaging;
 
         if (this.switchTimer.isOver())
             this.damaging = !this.damaging;
 
         if (dmg !== this.damaging) {
             if (this.damaging) {
-                for(var trap of this.traps) {
+                for(const trap of this.traps) {
                     trap.on();
                 }
             }
             else {
-                for(var trap of this.traps) {
+                for(const trap of this.traps) {
                     trap.off();
                 }
             }
@@ -90,8 +90,8 @@ class TrapGroup {
         if (!this.isTouchingEntity(entity))
             return;
 
-        var victim = null;
-        for(var trap of this.traps)
+        let victim = null;
+        for(const trap of this.traps)
         {
             if (trip.isTouchingEntity(entity)) {
                 victim = entity;
@@ -99,7 +99,7 @@ class TrapGroup {
             }
         }
 
-        var id = entity.id;
+        const id = entity.id;
 
         if (!victim) {
             this.entities[id] = null;

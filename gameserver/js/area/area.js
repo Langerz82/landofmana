@@ -31,20 +31,20 @@ class Area {
     _getRandomPosition(xandy, dist, threshold) {
         threshold = threshold || 100;
         //console.info("_getRandomPositionInsideArea - threshold="+threshold);
-        var pos = {};
-        var valid = false;
+        const pos = {};
+        const valid = false;
 
         //console.info("pos.x: "+this.x+",pos.y:"+this.y);
-        var count = 0;
+        let count = 0;
         //console.info("threshold = "+threshold);
 
-        var dw = dist.width;
-        var dh = dist.height;
+        const dw = dist.width;
+        const dh = dist.height;
         while (count < threshold) {
             if (this.elipse) {
-                var a = Math.random() * 2 * Math.PI;
-                var rx = Utils.randomRangeInt(0,~~(dw / 2));
-                var ry = Utils.randomRangeInt(0,~~(dh / 2));
+                const a = Math.random() * 2 * Math.PI;
+                const rx = Utils.randomRangeInt(0,~~(dw / 2));
+                const ry = Utils.randomRangeInt(0,~~(dh / 2));
 
                 pos.x = Math.round(xandy.x + ~~(rx * Math.cos(a)));
                 pos.y = Math.round(xandy.y + ~~(ry * Math.sin(a)));
@@ -107,9 +107,9 @@ class Area {
                 x < this.x + this.width &&
                 y < this.y + this.height;
         } else {
-            var cx = (this.x);
-            var cy = (this.y);
-            var d = Math.sqrt(
+            const cx = (this.x);
+            const cy = (this.y);
+            const d = Math.sqrt(
                 Math.pow(x - cx, 2) + Math.pow(y - cy, 2)
             );
             //console.log("cx:"+cx+",cy:"+cy);
@@ -117,16 +117,16 @@ class Area {
             //console.log("this.x:"+this.x+",this.y:"+this.y);
             //console.log("d:"+d);
 
-            var inElipse = (d < this.width / 2);
+            const inElipse = (d < this.width / 2);
 
             //console.log("this.elipseId="+this.elipseId);
             //console.log("inElipse="+inElipse);
             if (iteration === 1 || this.excludeId === -1) {
                 return inElipse;
             } else if (iteration === 0) {
-                var res = inElipse;
+                let res = inElipse;
 
-                var prevArea = this.map.mobLiveAreas[this.elipseId];
+                const prevArea = this.map.mobLiveAreas[this.elipseId];
                 if (prevArea)
                     res = res && !prevArea.contains(x, y, 1);
 

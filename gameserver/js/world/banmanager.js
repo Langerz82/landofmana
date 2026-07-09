@@ -5,26 +5,26 @@ class BanManager {
     }
 
     saveBans() {
-        var now = Date.now();
+        const now = Date.now();
 
-        var data = [];
-        for (var username in this.userBans)
+        const data = [];
+        for (const username in this.userBans)
         {
-            var banTime = this.userBans[username];
+            const banTime = this.userBans[username];
             if (banTime < now)
                 continue;
 
-            var rec = username+","+banTime;
+            const rec = username+","+banTime;
             data.push(rec);
         }
         return data;
     }
 
     loadBans(msg) {
-        var now = Date.now();
+        const now = Date.now();
 
-        for(var rec of msg) {
-            var ban = rec.split(",");
+        for(const rec of msg) {
+            const ban = rec.split(",");
             if (now > (ban[1]))
                 continue;
             this.userBans[ban[0]] = ban[1];
@@ -42,12 +42,12 @@ class BanManager {
 
     banplayer(name, duration) {
         name = name.toLowerCase();
-        var player = this.world.getPlayerByName(name);
+        const player = this.world.getPlayerByName(name);
         if (!player) {
             console.info("worldServer, banplayer: player not in world.");
             return;
         }
-        var username = player.user.name;
+        const username = player.user.name;
         this.banuser(username, duration);
     }
 
@@ -58,7 +58,7 @@ class BanManager {
 
     save() {
         if (this.world.userHandler) {
-            var data = this.saveBans();
+            const data = this.saveBans();
             this.world.userHandler.sendBansData(data);
             return true;
         }

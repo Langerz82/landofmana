@@ -15,7 +15,7 @@ class BaseItem {
     }
 
     set(arr) {
-        var itemKind = Number(arr[0]);
+        const itemKind = Number(arr[0]);
         this.itemKind = itemKind;
         this.itemNumber = Number(arr[1]);
         this.itemDurability = arr[2] ? Number(arr[2]) : ((ItemTypes.isConsumableItem(itemKind) || ItemTypes.isCraftItem(itemKind)) ? 0 : 900);
@@ -32,7 +32,7 @@ class BaseItem {
     }
 
     toArray() {
-        var cols = [
+        const cols = [
             this.itemKind,
             this.itemNumber,
             this.itemDurability,

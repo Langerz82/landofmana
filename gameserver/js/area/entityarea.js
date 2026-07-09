@@ -9,7 +9,7 @@ class EntityArea extends Area {
     }
 
     removeFromArea(entity) {
-        var i = _.indexOf(_.pluck(this.entities, 'id'), entity.id);
+        const i = _.indexOf(_.pluck(this.entities, 'id'), entity.id);
         this.entities.splice(i, 1);
 
         if (this.isEmpty() && this.hasCompletelyRespawned && this.emptyCallback) {
@@ -48,13 +48,13 @@ class EntityArea extends Area {
     }
 
     respawn(entity, delay) {
-        var self = this;
+        const self = this;
         delay = entity.spawnDelay || delay;
 
         this.removeFromArea(entity);
 
         setTimeout(function() {
-            var	pos = self.map.entities.spaceEntityRandomApart(2, self._getRandomPositionInsideArea.bind(self,20), self.entities);
+            const	pos = self.map.entities.spaceEntityRandomApart(2, self._getRandomPositionInsideArea.bind(self,20), self.entities);
 
             if (pos) {
                 entity.spawnX = pos.x;

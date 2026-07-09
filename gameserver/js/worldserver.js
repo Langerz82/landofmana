@@ -45,7 +45,7 @@ import NotifyData from './data/notificationdata.js';
 class World {
     constructor(id, maxPlayers, socket)
     {
-        var self = this;
+        const self = this;
 
         self.id = id;
         self.maxPlayers = maxPlayers;
@@ -155,13 +155,13 @@ class World {
 
         self.onRegenTick(function()
         {
-            var fnPlayer = function(player)
+            const fnPlayer = function(player)
             {
                 if (player instanceof Player)
                 {
                     if (!player.isDead && !player.hasFullHealth() && !player.isAttacked())
                     {
-                        var packet = player.modHp(Math.floor(player.stats.hpMax / 8));
+                        const packet = player.modHp(Math.floor(player.stats.hpMax / 8));
                     }
                 }
             };
@@ -206,7 +206,7 @@ class World {
 
     savePlayers(update) {
       if (this.userHandler) {
-        var playerNameList = [];
+        const playerNameList = [];
         Utils.forEach(this.players, function (p) {
           playerNameList.push(p.name);
         });
@@ -253,7 +253,7 @@ class World {
     }
 
     update() {
-      var self = this;
+      const self = this;
 
       this.lastUpdateTime = Date.now();
       //console.info("world update called.");
@@ -275,13 +275,13 @@ class World {
 
     run()
     {
-        var self = this;
+        const self = this;
 
         setInterval(function () {
           self.update();
         }, G_UPDATE_INTERVAL);
 
-        var processPackets = function () {
+        const processPackets = function () {
           self.forEachMap(function (map) {
               if (map.updater &&
                   map.entities.players.size > 0)
@@ -304,7 +304,7 @@ class World {
 
         setInterval(function()
         {
-          for (var p of self.players) {
+          for (const p of self.players) {
             if (p.user && (Date.now() - p.user.lastPacketTime) >= 300000)
             {
                 p.connection.close("idle timeout");
@@ -357,8 +357,8 @@ class World {
         });
       }
 
-      var hpMod = -damage;
-      var epMod = 0;
+      const hpMod = -damage;
+      const epMod = 0;
       //var ep= entity.stats.ep || 0;
       //var epMax= entity.stats.epMax || 0;
 
@@ -392,7 +392,7 @@ class World {
 
     sendWorld(message)
     {
-        var self = this;
+        const self = this;
         self.forEachMap(function (map) {
             map.entities.sendBroadcast(message);
         });

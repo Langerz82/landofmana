@@ -2,13 +2,13 @@
 import Quest, { getQuestObject } from "../quest.js";
 import QuestsJson from "../../shared/data/quests.json" with { type: 'json' };
 
-var QuestData = {};
-var QuestNpcData = {};
+const QuestData = {};
+const QuestNpcData = {};
 
-for (var id in QuestsJson) {
-  var data = QuestsJson[id];
+for (const id in QuestsJson) {
+  const data = QuestsJson[id];
   console.info("data:"+JSON.stringify(data));
-  var quest = {};
+  const quest = {};
   quest.id = id;
   quest.npcQuestId = data.npcKind;
   quest.raw = data;
@@ -36,7 +36,7 @@ for (var id in QuestsJson) {
       data.object2.level || [0,99]]);
   }
 
-  var questObject = Object.assign(new Quest, quest);
+  const questObject = Object.assign(new Quest, quest);
   questObject.data = quest;
 
   QuestData[quest.id] = questObject;

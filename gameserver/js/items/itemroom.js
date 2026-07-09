@@ -17,12 +17,12 @@ class ItemRoom extends BaseItem {
     }
 
     toArray() {
-        var cols = [parseInt(this.slot)].concat(super.toArray());
+        const cols = [parseInt(this.slot)].concat(super.toArray());
         return cols;
     }
 
     toArrayNoSlot() {
-        var arr = this.toArray();
+        const arr = this.toArray();
         arr.shift();
         return arr;
     }

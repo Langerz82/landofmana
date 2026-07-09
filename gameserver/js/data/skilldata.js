@@ -1,22 +1,22 @@
 import SkillsJSON from "../../shared/data/skills2.json" with { type: 'json' };
 import { EffectType } from "../effecthandler.js";
 
-var Skills = [];
+const Skills = [];
 //var SkillNames = {};
 
-var getSkillEffects = function (data) {
-	var effects = [];
-	for (var rec of data) {
+const getSkillEffects = function (data) {
+	const effects = [];
+	for (const rec of data) {
 		effects.push(new EffectType((rec[0] === "target"), rec[1], rec[2], rec[3]));
 	}
 	return effects;
 };
 
-var i = 0;
+const i = 0;
 //console.info(JSON.stringify(SkillsJSON));
-for (var index in SkillsJSON)
+for (const index in SkillsJSON)
 {
-	var value = SkillsJSON[index];
+	const value = SkillsJSON[index];
 	console.info(index+"="+JSON.stringify(value));
 
 	//if (!value.skillType)

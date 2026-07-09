@@ -6,7 +6,7 @@ import { G_TILESIZE } from '../main.js';
 
 class Entity {
     constructor(id, type, kind, x, y, map) {
-        var self = this;
+        const self = this;
 
         this.type = type;
         this.id = id;
@@ -39,13 +39,13 @@ class Entity {
     }
 
     _setPosition(x, y) {
-      var ts = G_TILESIZE;
+      const ts = G_TILESIZE;
 
       this.x = x;
       this.y = y;
 
-      var gx = ~~(x / ts);
-      var gy = ~~(y / ts);
+      const gx = ~~(x / ts);
+      const gy = ~~(y / ts);
 
       this.gx = gx;
       this.gy = gy;
@@ -90,7 +90,7 @@ class Entity {
      *
      */
     getDistanceToEntity(entity) {
-        var distX = Math.abs(entity.x - this.x),
+        const distX = Math.abs(entity.x - this.x),
             distY = Math.abs(entity.y - this.y);
 
         return (distX > distY) ? distX : distY;
@@ -101,7 +101,7 @@ class Entity {
      * @returns {Boolean} Whether these two entities are adjacent.
      */
     isAdjacent(entity) {
-        var adjacent = false;
+        let adjacent = false;
 
         if(entity) {
         		adjacent = this.getDistanceToEntity(entity) > 1 ? false : true;
@@ -114,7 +114,7 @@ class Entity {
      *
      */
     isAdjacentNonDiagonal(entity) {
-        var result = false;
+        let result = false;
 
         if(this.isAdjacent(entity) && !(this.x !== entity.x && this.y !== entity.y)) {
             result = true;
@@ -138,10 +138,10 @@ class Entity {
     getAdjacentTiles(min, max) {
       min = min || 0;
       max = max || G_TILESIZE;
-      var x = this.x, y = this.y;
+      const x = this.x, y = this.y;
 
-      var posArray = [];
-      for(var i=min; i <= max; ++i) {
+      const posArray = [];
+      for(let i=min; i <= max; ++i) {
         posArray.push([x,y-i],[x,y+i],[x-i,y],[x+i,y]);
       }
       return posArray;
@@ -151,7 +151,7 @@ class Entity {
       orientation = orientation || this.orientation;
       dist = (dist || 1) * G_TILESIZE;
 
-      var pos = [this.x,this.y];
+      const pos = [this.x,this.y];
       switch (orientation)
       {
         case 3:
@@ -172,8 +172,8 @@ class Entity {
 
     isWithinDist(x,y,dist) {
       dist = dist || G_TILESIZE;
-      var dx = Math.abs(this.x-x);
-      var dy = Math.abs(this.y-y);
+      const dx = Math.abs(this.x-x);
+      const dy = Math.abs(this.y-y);
       return (dx <= dist && dy <= dist);
     }
 
@@ -202,7 +202,7 @@ class Entity {
     }
 
     isOverlapping(entities) {
-      for(var entity of entities) {
+      for(const entity of entities) {
         if (!entity || this === entity)
           continue;
         if (this.isOverlappingEntity(entity))

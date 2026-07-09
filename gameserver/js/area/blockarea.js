@@ -11,15 +11,15 @@ class BlockArea extends EntityArea {
     }
 
     initArea(kind, width, height) {
-        var startID = this.map.entities.entityCount;
+        const startID = this.map.entities.entityCount;
 
-        var id = 0;
-        var blockName;
-        for (var j=0; j < height; ++j) {
-            for (var i=0; i < width; ++i) {
+        let id = 0;
+        let blockName;
+        for (let j=0; j < height; ++j) {
+            for (let i=0; i < width; ++i) {
                 id = startID+(width*j+i);
                 blockName = "block"+kind+"-"+j+"_"+i;
-                var block = new Block(id, kind,
+                const block = new Block(id, kind,
                     this.x+(i*G_TILESIZE), this.y+(j*G_TILESIZE),
                     this.map, this, blockName, i, j);
                 this.map.entities.addBlock(block);
@@ -30,10 +30,10 @@ class BlockArea extends EntityArea {
     }
 
     randomizeBlocks(distApart) {
-        var self = this;
-        for (var i in this.blocks) {
-            var block = this.blocks[i];
-            var	pos = this.map.entities.spaceEntityRandomApart(distApart, self._getRandomPositionInsideArea.bind(self,30));
+        const self = this;
+        for (const i in this.blocks) {
+            const block = this.blocks[i];
+            const	pos = this.map.entities.spaceEntityRandomApart(distApart, self._getRandomPositionInsideArea.bind(self,30));
             if (pos) {
                 block.setPosition(~~(Utils.floorTo(pos.x, G_TILESIZE)), ~~(Utils.floorTo(pos.y, G_TILESIZE)));
             }
@@ -45,11 +45,11 @@ class BlockArea extends EntityArea {
 
 // TODO - FIX
     isCompleted() {
-        var b1 = this.blocks[0], b2 = null;
-        var b3 = b1;
-        var x = 0;
+        let b1 = this.blocks[0], b2 = null;
+        let b3 = b1;
+        let x = 0;
 
-        for(var i in this.blocks) {
+        for(const i in this.blocks) {
             b1 = this.blocks[i];
             x = (i % this.numX);
             if (b2) {
@@ -70,8 +70,8 @@ class BlockArea extends EntityArea {
 
     Completed() {
         console.warn("BLOCKAREA - COMPLETED.");
-        for (var i in this.blocks) {
-            var block = this.blocks[i];
+        for (const i in this.blocks) {
+            const block = this.blocks[i];
             if (!block.playerName)
                 continue;
 
@@ -93,8 +93,8 @@ class BlockArea extends EntityArea {
             this.Completed();
             if (this.complete_callback && Object.keys(this.players).length > 0)
                 this.complete_callback(this);
-            for (var i in this.blocks) {
-                var block = this.blocks[i];
+            for (const i in this.blocks) {
+                const block = this.blocks[i];
                 this.map.entities.removeEntity(block);
                 this.map.entities.sendBroadcast(block.despawn());
             }

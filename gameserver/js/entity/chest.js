@@ -20,7 +20,7 @@ class Chest extends Item {
     }
 
     handleRespawn() {
-        var self = this;
+        const self = this;
 
         this.droppedItem = false;
         if (this.area && this.area instanceof ChestArea) {
@@ -31,11 +31,11 @@ class Chest extends Item {
     setDrops() {
         this.drops = {};
 
-        var dropLevel = Math.ceil(this.level / 10) * 10;
+        const dropLevel = Math.ceil(this.level / 10) * 10;
         //console.info("dropLevel="+dropLevel);
-        for (var itemId in ItemData.Kinds)
+        for (const itemId in ItemData.Kinds)
         {
-            var item = ItemData.Kinds[itemId];
+            const item = ItemData.Kinds[itemId];
             if (!item)
                 continue;
 

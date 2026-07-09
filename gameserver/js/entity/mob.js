@@ -39,7 +39,7 @@ class Mob extends Character {
       }
       this.level = this.level;
 
-      var tx=Number(x), ty=Number(y);
+      const tx=Number(x), ty=Number(y);
       this.spawnX = tx;
       this.spawnY = ty;
 
@@ -128,7 +128,7 @@ class Mob extends Character {
         this.spawnDelay *= multi;
         this.resetHp();
 
-        for (var kind in this.drops) {
+        for (const kind in this.drops) {
           if (ItemTypes.isEquipment(kind))
             this.drops[kind] *= multi;
         }
@@ -180,11 +180,11 @@ class Mob extends Character {
     },*/
 
     onDamage(attacker, hpMod, epMod, crit, effects) {
-      var hp = this.stats.hp;
+      const hp = this.stats.hp;
       //var dmgRatio = (hpMod / this.stats.hpMax);
       //log.info("dmgRatio: "+dmgRatio)
 
-      var hpDiff = this.stats.hp;
+      let hpDiff = this.stats.hp;
 
       super.onDamage(attacker, hpMod, epMod, crit, effects);
 
@@ -265,7 +265,7 @@ class Mob extends Character {
     }
 
     getMostHated(hateRank) {
-        var i, playerId,
+        let i, playerId,
             sorted = _.sortBy(this.hatelist, function(obj) { return obj.hate; }),
             size = _.size(this.hatelist);
 
@@ -310,7 +310,7 @@ class Mob extends Character {
 
     respawn() {
       if (this.area && this.area instanceof MobArea) {
-        var	pos = this.map.entities.spaceEntityRandomApart(3, this.area._getRandomPositionInsideArea.bind(this.area,100));
+        const	pos = this.map.entities.spaceEntityRandomApart(3, this.area._getRandomPositionInsideArea.bind(this.area,100));
         console.warn("mob, handleRespawn - id:"+this.id+", pos:"+JSON.stringify(pos));
         if (pos) {
           this.setPosition(pos.x, pos.y);
@@ -389,11 +389,11 @@ class Mob extends Character {
     setItemLoot() {
       this.loot = {};
       this.lootTotal = 0;
-      for (var lootId in ItemLootData.ItemLoot)
+      for (const lootId in ItemLootData.ItemLoot)
       {
-        var loot = ItemLootData.ItemLoot[lootId];
+        const loot = ItemLootData.ItemLoot[lootId];
         //console.info(JSON.stringify(loot));
-        var chance = ~~(1000 / loot.rarity * loot.rarity);
+        const chance = ~~(1000 / loot.rarity * loot.rarity);
         if (chance > 0)
           this.loot[lootId] = chance;
         this.lootTotal += this.loot[lootId];
@@ -403,15 +403,15 @@ class Mob extends Character {
     }
 
     setDrops() {
-      var dropLevel = Math.ceil(this.level / 10) * 10;
+      const dropLevel = Math.ceil(this.level / 10) * 10;
       //console.info("dropLevel="+dropLevel);
-      for (var kind in ItemData.Kinds)
+      for (const kind in ItemData.Kinds)
       {
-    		var item = ItemData.Kinds[kind];
+    		const item = ItemData.Kinds[kind];
     		if (!item || item.legacy === 1)
     			continue;
 
-        var diff = item.level - this.level;
+        const diff = item.level - this.level;
     		if (ItemTypes.isEquipment(kind))
     		{
           if (diff >= 0 && diff < 5)
@@ -463,7 +463,7 @@ class Mob extends Character {
     }
 
     die(attacker) {
-      var self = this;
+      const self = this;
 
       //console.info("Entity is dead");
 
@@ -487,9 +487,9 @@ class Mob extends Character {
     }
 
     canReach(entity) {
-      var o = this.orientation;
+      const o = this.orientation;
       this.lookAtEntity(entity);
-      var res = super.canReach(entity);
+      const res = super.canReach(entity);
       this.orientation = o;
       return res;
     }
@@ -522,7 +522,7 @@ class Mob extends Character {
 
             if (this.stats.hp > 0)
             {
-              var hEntity = this.getMostHated();
+              const hEntity = this.getMostHated();
               if (hEntity)
                 this.createAttackLink(hEntity);
             }
@@ -542,7 +542,7 @@ class Mob extends Character {
     }
 
     endEffects() {
-      for (var skilleffect of this.activeEffects)
+      for (const skilleffect of this.activeEffects)
       {
         skilleffect.endEffects();
       }
@@ -567,10 +567,10 @@ class Mob extends Character {
 
     followAttack(entity) {
       if (entity.isMoving()) {
-        var pos = this.nextTile(entity.x,entity.y,entity.orientation);
+        const pos = this.nextTile(entity.x,entity.y,entity.orientation);
         pos[0] = Math.floor(pos[0]/G_TILESIZE) * G_TILESIZE;
         pos[1] = Math.floor(pos[1]/G_TILESIZE) * G_TILESIZE;
-        var obj = {x: pos[0], y: pos[1]};
+        const obj = {x: pos[0], y: pos[1]};
         super.followAttack(obj);
       }
       else {

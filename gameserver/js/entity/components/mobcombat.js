@@ -6,29 +6,29 @@ class MobCombat {
     }
 
     baseCrit() {
-        var entity = this.entity;
+        const entity = this.entity;
 
-        var modDiff = 0;
-        var statDiff = (entity.stats.attack+entity.stats.mod.attack);
-        var chance = ~~(Utils.clamp(5, 500, ~~(statDiff + modDiff)));
+        const modDiff = 0;
+        const statDiff = (entity.stats.attack+entity.stats.mod.attack);
+        const chance = ~~(Utils.clamp(5, 500, ~~(statDiff + modDiff)));
         //console.info("player - baseCrit: "+chance);
         return chance;
     }
 
     baseCritDef() {
-        var entity = this.entity;
+        const entity = this.entity;
 
-        var modDiff = 0;
-        var statDiff = (entity.stats.defense+entity.stats.mod.defense);
-        var chance = ~~(Utils.clamp(5, 500, ~~(statDiff + modDiff)));
+        const modDiff = 0;
+        const statDiff = (entity.stats.defense+entity.stats.mod.defense);
+        const chance = ~~(Utils.clamp(5, 500, ~~(statDiff + modDiff)));
         //console.info("player - baseCritDef: "+chance);
         return chance;
     }
 
     baseDamage() {
-        var entity = this.entity;
+        const entity = this.entity;
 
-        var dealt, absorbed, dmg;
+        let dealt, absorbed, dmg;
 
         dealt = ~~(entity.level * 12);
         dealt += (entity.stats.attack+entity.stats.mod.attack) * (6-Math.min(3, (entity.level * 0.1)));
@@ -40,9 +40,9 @@ class MobCombat {
     }
 
     baseDamageDef() {
-        var entity = this.entity;
+        const entity = this.entity;
 
-        var dealt, absorbed, dmg;
+        let dealt, absorbed, dmg;
 
         dealt = ~~(entity.level * 2);
         dealt += ((entity.stats.defense+entity.stats.mod.defense) * 2);

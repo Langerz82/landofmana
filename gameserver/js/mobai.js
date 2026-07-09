@@ -55,10 +55,10 @@ class MobAI {
     if (!mob.canMoveAI())
       return;
 
-    var players = this.map.entities.getPlayerAround(mob, mob.aggroRange);
+    const players = this.map.entities.getPlayerAround(mob, mob.aggroRange);
     //console.info("players length: "+players.length);
-    var level = (mob.level * 2);
-		for (var player of players)
+    const level = (mob.level * 2);
+		for (const player of players)
 		{
       //console.info("player.name: "+player.name);
 
@@ -93,20 +93,20 @@ class MobAI {
 	    	//console.info("mob.canAttack: "+ mob.canAttack(time));
 	    	//console.info("mob.canReach: "+mob.isAdjacentNonDiagonal(mob.target));
 
-  			if (mob.canAttack())
-  			{
-  				console.info("mob - Is Attacking");
+			if (mob.canAttack())
+			{
+				console.info("mob - Is Attacking");
 
-  				this.handleHurt(mob);
+				this.handleHurt(mob);
         }
   }
 
   update() {
-    var now = Date.now();
+    const now = Date.now();
 
     // Loop from the end to the beginning
     for (let i = this.mobsToRespawn.length - 1; i >= 0; i--) {
-      var mob = this.mobsToRespawn[i];
+      const mob = this.mobsToRespawn[i];
       if ((now - mob.respawnTime) >= mob.spawnDelay)
       {
         mob.execRespawn();
@@ -114,7 +114,7 @@ class MobAI {
       }
     }
 
-    var mobs = this.map.entities.mobs.values();
+    const mobs = this.map.entities.mobs.values();
     for(const mob of mobs)
     {
       if (mob.isDead || mob.freeze)
@@ -140,7 +140,7 @@ class MobAI {
   checkChase(mob) {
       //var self = this;
       //console.info("mobAI - checkChase.");
-      var target = mob.target;
+      const target = mob.target;
       //console.info("##### New mob can move! ######");
       if (mob.aiState === mobState.RETURNING)
         return;
@@ -216,7 +216,7 @@ class MobAI {
       else {
         if (!mob.isMovingPath())
         {
-          var entities = mob.map.entities.getCharactersAround(mob, 1);
+          const entities = mob.map.entities.getCharactersAround(mob, 1);
           if (mob.isOverlapping(entities)) {
             mob.forceStop();
             mob.follow(mob.target);
@@ -249,8 +249,8 @@ class MobAI {
             mob.lookAt(mob.target);
 
             console.info("handleHurt - mob")
-            var dmg = Formulas.dmg(mob, mob.target, mob.attackTimer);
-            var canCrit = Formulas.crit(mob, mob.target);
+            let dmg = Formulas.dmg(mob, mob.target, mob.attackTimer);
+            const canCrit = Formulas.crit(mob, mob.target);
             mob.criticalHit = false;
             if (canCrit) {
             	    dmg *= 2;
@@ -275,7 +275,7 @@ class MobAI {
         return false;
       }
 
-      var et = entity.target;
+      const et = entity.target;
       if (et && et.isDead) {
         entity.returnToSpawn();
         return true;
@@ -293,21 +293,21 @@ class MobAI {
 
   Roaming(player) {
       //var self = this;
-      var maxDistance = 6;
+      const maxDistance = 6;
 
-      var mobs = this.map.entities.getMobsAround(player, 32);
-  	  for (var mob of mobs) {
+      const mobs = this.map.entities.getMobsAround(player, 32);
+  	  for (const mob of mobs) {
         if (!mob) continue;
 
-        var rand = (Utils.randomInt(10) === 0);
+        const rand = (Utils.randomInt(10) === 0);
         if (!rand)
           continue;
 
     		//console.info("Roaming playerCount="+playerCount);
   		  if(mob.canRoam()) {
-          var area = mob.area;
-          var dist = Utils.randomInt(maxDistance) * G_TILESIZE;
-          var pos = mob.map.entities.spaceEntityRandomApart(2, area._getRandomPositionForEntity.bind(area,mob,dist), mobs);
+          const area = mob.area;
+          const dist = Utils.randomInt(maxDistance) * G_TILESIZE;
+          const pos = mob.map.entities.spaceEntityRandomApart(2, area._getRandomPositionForEntity.bind(area,mob,dist), mobs);
           if (!pos)
             continue;
 

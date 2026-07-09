@@ -6,14 +6,14 @@ import ItemTypes from '../../shared/js/itemtypes.js';
 
 //import { ItemTypes } from '../common.js';
 
-var id = 0;
-for (var craft of CraftData) {
+let id = 0;
+for (const craft of CraftData) {
 	craft.id = id++;
 }
 
-var getCraftData = function (index) {
-	var data = [];
-	for (var craft of CraftData)
+const getCraftData = function (index) {
+	const data = [];
+	for (const craft of CraftData)
 	{
 		if (craft.o === index)
 			data.push(craft);
@@ -21,12 +21,12 @@ var getCraftData = function (index) {
 	return data;
 };
 
-var KindData = {};
+const KindData = {};
 
 //console.info(ItemsJson);
 KindData[0] = null;
 _.each( ItemsJson, function( itemValue, key ) {
-	var itemData = {
+	const itemData = {
     name: itemValue.name,
     type: (itemValue.type) ? itemValue.type : "object",
     damageType: (itemValue.damageType) ? itemValue.damageType : "none",

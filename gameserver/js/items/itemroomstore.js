@@ -19,7 +19,7 @@ class ItemStore {
         //console.info("itemSlots="+JSON.stringify(itemSlots));
 
         if (items) {
-            for(var i=0; i<items.length; i++){
+            for(let i=0; i<items.length; i++){
                 this.rooms[ items[i].slot] = items[i];
             }
         }
@@ -30,8 +30,8 @@ class ItemStore {
     }
 
     hasItems(itemKind, itemCount) {
-        var a = 0;
-        for(var i in this.rooms){
+        let a = 0;
+        for(const i in this.rooms){
             //console.info("hasItems - compare: " + this.rooms[i].itemKind + "=" + itemKind);
             if(this.rooms[i] && this.rooms[i].itemKind === itemKind){
                 a += this.rooms[i].itemNumber;
@@ -43,8 +43,8 @@ class ItemStore {
     }
 
     hasItemCount(itemKind) {
-        var a = 0;
-        for(var i in this.rooms){
+        let a = 0;
+        for(const i in this.rooms){
             if(this.rooms[i] && this.rooms[i].itemKind === itemKind){
                 a += this.rooms[i].itemNumber;
             }
@@ -71,7 +71,7 @@ class ItemStore {
     }
 
     getItemCount(itemKind) {
-        for(var i in this.rooms){
+        for(const i in this.rooms){
             if(this.rooms[i] && this.rooms[i].itemKind === itemKind){
                 return this.rooms[i].itemNumber;
             }
@@ -80,7 +80,7 @@ class ItemStore {
     }
 
     getItemIndex(itemKind) {
-        for(var i in this.rooms){
+        for(const i in this.rooms){
             if(this.rooms[i] && this.rooms[i].itemKind === itemKind){
                 return i;
             }
@@ -91,7 +91,7 @@ class ItemStore {
     getEmptyIndex(start, end) {
         start = start || 0;
         end = end || this.maxNumber;
-        for(var index = start; index < end; index++) {
+        for(let index = start; index < end; index++) {
             if(!this.rooms[index]) {
                 return index;
             }
@@ -100,14 +100,14 @@ class ItemStore {
     }
 
     putItem(item) {
-        var kind = item.itemKind;
-        var consume = ItemTypes.isConsumableItem(kind);
-        var loot = ItemTypes.isLootItem(kind);
-        var craft = ItemTypes.isCraftItem(kind);
+        const kind = item.itemKind;
+        const consume = ItemTypes.isConsumableItem(kind);
+        const loot = ItemTypes.isLootItem(kind);
+        const craft = ItemTypes.isCraftItem(kind);
 
         if (consume || loot || craft)
         {
-            for(var i in this.rooms){
+            for(const i in this.rooms){
                 if (this.combineItem(item, this.rooms[i]))
                     return i;
             }
@@ -135,11 +135,11 @@ class ItemStore {
         if (item2.itemNumber === this.maxStack)
             return false;
 
-        var res = false;
-        var slot = item.slot;
-        var slot2 = item2.slot;
+        let res = false;
+        let slot = item.slot;
+        const slot2 = item2.slot;
 
-        var maxStack = this.maxStack;
+        const maxStack = this.maxStack;
         if (item2.itemNumber < maxStack) {
             item2.itemNumber += item.itemNumber;
             if (item2.itemNumber > maxStack) {
@@ -167,7 +167,7 @@ class ItemStore {
     // source, which created an implicit global there; declared with `var` here
     // since ES modules are always strict mode and forbid implicit globals.
     _putItem(item) {
-        var i = this.getEmptyIndex();
+        const i = this.getEmptyIndex();
         if (i < 0)
         {
             if (this.owner instanceof Player)
@@ -207,9 +207,9 @@ class ItemStore {
 
     removeItemKind(kind, number)
     {
-        var j=number;
-        for(var i in this.rooms){
-            var r = this.rooms[i];
+        let j=number;
+        for(const i in this.rooms){
+            let r = this.rooms[i];
             if (!r)
                 continue;
             if(r.itemKind === kind) {
@@ -228,7 +228,7 @@ class ItemStore {
     }
 
     takeOutItems(index, number) {
-        var item = this.rooms[index];
+        let item = this.rooms[index];
         if (!item)
             return null;
 
@@ -255,24 +255,24 @@ class ItemStore {
     // too, since sloppy mode only creates implicit globals on bare *assignment*,
     // not on read of an undeclared name.
     getRandomItemNumber() {
-        var item = null;
-        var itemNums = [];
-        for (var i in this.rooms)
+        let item = null;
+        const itemNums = [];
+        for (const i in this.rooms)
         {
             item = this.rooms[i];
             if (item && item.itemKind > 0) itemNums.push(id);
         }
-        var rand = Utils.randomRange(0,itemNums.length-1);
+        const rand = Utils.randomRange(0,itemNums.length-1);
         return (itemNums.length > 0) ?
             itemNums[rand] : -1;
     }
 
     toString() {
         var i=0;
-        var itemString = "" + this.maxNumber + ",";
+        let itemString = "" + this.maxNumber + ",";
 
         for(var i in this.rooms){
-            var item = this.rooms[i];
+            const item = this.rooms[i];
             if (!item) continue;
             itemString += item.toArray().join(',');
         }
@@ -280,9 +280,9 @@ class ItemStore {
     }
 
     toStringJSON() {
-        var item = null;
-        var items = [];
-        for(var i in this.rooms){
+        let item = null;
+        const items = [];
+        for(const i in this.rooms){
             item = this.rooms[i];
             if (!item) continue;
             items.push(item.toArray());

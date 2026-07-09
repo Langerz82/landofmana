@@ -18,17 +18,17 @@ class Transition {
 
   step() {
       if(this.inProgress) {
-          var inc = this.modValue;
+          const inc = this.modValue;
 
           if (inc === 0) return;
 
-          var j = 0;
+          const j = 0;
           if(this.updateFunction) {
-            var itCount = Math.abs(inc);
+            const itCount = Math.abs(inc);
 
-            var start=0;
-            var mod = (inc > 0) ? 1 : -1;
-            for (var it=0; it < itCount; ++it)
+            const start=0;
+            const mod = (inc > 0) ? 1 : -1;
+            for (let it=0; it < itCount; ++it)
             {
               if (!this.inProgress)
               {

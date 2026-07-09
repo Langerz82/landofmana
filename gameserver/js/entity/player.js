@@ -19,9 +19,9 @@ import SkillData from '../data/skilldata.js';
 
 class Player extends Character {
     constructor(world, user, connection) {
-        var map = world.maps[0];
+        const map = world.maps[0];
         super(connection.id, Types.EntityTypes.PLAYER, 1, 0, 0, map, 0);
-        var self = this;
+        const self = this;
 
         this.user = user;
         this.world = world;
@@ -103,14 +103,14 @@ class Player extends Character {
     }
 
     destroy() {
-      var self = this;
+      const self = this;
     }
 
     getState() {
-      var basestate = this._getBaseState();
-      var sprite1 = this.getSprite(0), sprite2 = this.getSprite(1);
+      const basestate = this._getBaseState();
+      const sprite1 = this.getSprite(0), sprite2 = this.getSprite(1);
 
-      var state = [this.level,
+      const state = [this.level,
         this.stats.hp,
         this.stats.hpMax,
         0,
@@ -125,10 +125,10 @@ class Player extends Character {
     }
 
     resetBars() {
-      var hp = this.stats.hp;
-      var ep = this.stats.ep;
-      var hpDiff = this.stats.hpMax - hp;
-      var epDiff = this.stats.epMax - ep;
+      const hp = this.stats.hp;
+      const ep = this.stats.ep;
+      const hpDiff = this.stats.hpMax - hp;
+      const epDiff = this.stats.epMax - ep;
       this.modHp(hpDiff);
       this.modEp(epDiff);
       //this.map.entities.sendNeighbours(this, new Messages.ChangePoints(this, hpDiff, epDiff));
@@ -139,22 +139,22 @@ class Player extends Character {
       damage = damage || 0;
       dealt = dealt || 0;
 
-      var ratio = (damage / entity.stats.hpMax);
+      const ratio = (damage / entity.stats.hpMax);
 
       var xp = ~~(entity.getXP() * ratio);
 
-      var diff = 10;
-      var div = 1/diff;
-      var mod = 1 + div + Utils.clamp(-diff,diff,(entity.level - this.level)) * div;
+      const diff = 10;
+      const div = 1/diff;
+      const mod = 1 + div + Utils.clamp(-diff,diff,(entity.level - this.level)) * div;
       var xp = ~~(xp * mod);
 
       this.incExp(xp);
       this.incWeaponExp(xp);
 
-      var weaponSlot = 4;
-      var armorDamage = Math.min(5, Math.ceil(dealt / 300));
+      const weaponSlot = 4;
+      const armorDamage = Math.min(5, Math.ceil(dealt / 300));
       log.info("player - armorDamage:" + armorDamage);
-      for (var it in this.items.equipment.rooms) {
+      for (const it in this.items.equipment.rooms) {
         if (it === weaponSlot)
           continue;
 
@@ -170,7 +170,7 @@ class Player extends Character {
       this.armorDamage = 0;
 
       // Degrade weapon if over threshold.
-      var weaponDamage = Math.min(5, Math.ceil(damage / 2000));
+      const weaponDamage = Math.min(5, Math.ceil(damage / 2000));
       if (weaponDamage > 0)
       {
           if (this.items.equipment.degradeItem(weaponSlot, 1))
@@ -184,7 +184,7 @@ class Player extends Character {
     }
 
     onDamage(attacker, hpMod, epMod, crit, effects) {
-      var hpDiff = this.stats.hp;
+      let hpDiff = this.stats.hp;
       super.onDamage(attacker, hpMod, epMod, crit, effects);
       hpDiff = hpDiff - this.stats.hp;
 
@@ -215,13 +215,13 @@ class Player extends Character {
 
     incExp(gotexp)
     {
-      var incExp = parseInt(gotexp);
+      let incExp = parseInt(gotexp);
 
       incExp = Math.ceil(incExp * this.getExpBonus());
 
-      var prevLvl = this.getLevel();
+      const prevLvl = this.getLevel();
       this.stats.exp.base = parseInt(this.stats.exp.base) + parseInt(incExp);
-      var lvl = this.getLevel();
+      const lvl = this.getLevel();
       this.sendPlayer(new Messages.Stat("exp.base", this.stats.exp.base, incExp));
 
       this.level = Types.getLevel(this.stats.exp.base);
@@ -233,13 +233,13 @@ class Player extends Character {
     }
 
     incAttackExp(gotexp){
-    	var incExp = parseInt(gotexp);
+    	let incExp = parseInt(gotexp);
 
   		incExp = Math.ceil(incExp * this.getExpBonus() * 0.25);
 
-      var prevLvl = this.getAttackLevel();
+      const prevLvl = this.getAttackLevel();
     	this.stats.exp.attack = parseInt(this.stats.exp.attack) + parseInt(incExp);
-      var lvl = this.getAttackLevel();
+      const lvl = this.getAttackLevel();
       if(prevLvl !== lvl) {
       	this.sendPlayer(new Messages.LevelUp("attack", lvl, this.stats.exp.attack));
       }
@@ -247,13 +247,13 @@ class Player extends Character {
     }
 
     incDefenseExp(gotexp){
-    	var incExp = parseInt(gotexp);
+    	let incExp = parseInt(gotexp);
 
 		  incExp = Math.ceil(incExp * this.getExpBonus());
 
-      var prevLvl = this.getDefenseLevel();
+      const prevLvl = this.getDefenseLevel();
     	this.stats.exp.defense = parseInt(this.stats.exp.defense) + parseInt(incExp);
-      var lvl = this.getDefenseLevel();
+      const lvl = this.getDefenseLevel();
       if(prevLvl !== lvl) {
       	this.sendPlayer(new Messages.LevelUp("defense", lvl, this.stats.exp.defense));
       }
@@ -261,18 +261,18 @@ class Player extends Character {
     }
 
     incWeaponExp(gotexp){
-    	var incExp = parseInt(gotexp);
+    	let incExp = parseInt(gotexp);
 
   		incExp = Math.ceil(incExp * this.getExpBonus() * 0.25);
 
-      var type = this.items.getWeaponType();
+      const type = this.items.getWeaponType();
       if (!this.stats.exp.hasOwnProperty(type))
         return null;
 
-      var xp = parseInt(this.stats.exp[type]);
-      var plvl = Types.getWeaponLevel(xp);
+      let xp = parseInt(this.stats.exp[type]);
+      const plvl = Types.getWeaponLevel(xp);
       xp = xp + incExp;
-      var clvl = Types.getWeaponLevel(xp);
+      const clvl = Types.getWeaponLevel(xp);
       this.stats.exp[type] = xp;
       if(plvl !== clvl) {
         this.sendPlayer(new Messages.LevelUp(type, clvl, xp));
@@ -282,8 +282,8 @@ class Player extends Character {
 
     getExpBonus()
     {
-      var self = this;
-      var bonus = 1;
+      const self = this;
+      let bonus = 1;
       if (this.party)
       {
         this.party.forEachPlayer(function (player) {
@@ -297,7 +297,7 @@ class Player extends Character {
     }
 
     levelUp(prevLevel) {
-      for (var i=prevLevel; i < this.level; ++i)
+      for (let i=prevLevel; i < this.level; ++i)
       {
   	    if (i < 10)
   	    {
@@ -322,11 +322,11 @@ class Player extends Character {
 
     sendPlayerToClient()
     {
-      var self = this;
+      const self = this;
 
       console.info("sendMessage");
       var i = 0;
-      var sendMessage = [
+      let sendMessage = [
           Types.Messages.WC_PLAYER,
           0,
           Date.now(),
@@ -363,8 +363,8 @@ class Player extends Character {
       console.info("sendMessage - Equipment");
       // Send All Equipment
       sendMessage.push(Object.keys(self.items.equipment.rooms).length);
-      for(var equipIndex in self.items.equipment.rooms){
-        var item = self.items.equipment.rooms[equipIndex];
+      for(const equipIndex in self.items.equipment.rooms){
+        const item = self.items.equipment.rooms[equipIndex];
         sendMessage = sendMessage.concat(item.toArray());
       }
 
@@ -378,34 +378,34 @@ class Player extends Character {
       console.info("sendMessage - Inventory");
       // Send All Inventory
       sendMessage.push(Object.keys(self.items.inventory.rooms).length);
-      for(var invIndex in self.items.inventory.rooms){
-        var item = self.items.inventory.rooms[invIndex];
+      for(const invIndex in self.items.inventory.rooms){
+        const item = self.items.inventory.rooms[invIndex];
         sendMessage = sendMessage.concat(item.toArray());
       }
 
       console.info("sendMessage - Bank");
       // Send All Bank
       sendMessage.push(Object.keys(self.items.bank.rooms).length);
-      for(var bankIndex in self.items.bank.rooms){
-        var item = self.items.bank.rooms[bankIndex];
+      for(const bankIndex in self.items.bank.rooms){
+        const item = self.items.bank.rooms[bankIndex];
         sendMessage = sendMessage.concat(item.toArray());
       }
 
 // TODO - Make Quests work with new Class.
       // Send All Quests
-      var quests = self.quests.quests.filter(function (q) { return q.status !== Types.QuestStatus.COMPLETE; });
+      const quests = self.quests.quests.filter(function (q) { return q.status !== Types.QuestStatus.COMPLETE; });
       sendMessage.push(quests.length);
-      for(var questIndex = 0; questIndex < quests.length; ++questIndex){
-          var q = quests[questIndex];
+      for(let questIndex = 0; questIndex < quests.length; ++questIndex){
+          const q = quests[questIndex];
           console.info(JSON.stringify(q));
           sendMessage = sendMessage.concat(q.toClient());
       }
 
       // SEND ACHIEVEMENTS
-      var achievements = self.achievements;
+      const achievements = self.achievements;
       sendMessage.push(achievements.length);
-      for(var achieveIndex = 0; achieveIndex < achievements.length; ++achieveIndex){
-          var achievement = achievements[achieveIndex];
+      for(let achieveIndex = 0; achieveIndex < achievements.length; ++achieveIndex){
+          const achievement = achievements[achieveIndex];
           console.info(JSON.stringify(achievement));
           sendMessage = sendMessage.concat(achievement.toClient(achievement));
       }
@@ -418,10 +418,10 @@ class Player extends Character {
       }
 
       // Send load Skill slots.
-      var len = Object.keys(self.shortcuts).length;
+      const len = Object.keys(self.shortcuts).length;
       sendMessage.push(len);
-      var sc;
-      for(var id in self.shortcuts) {
+      let sc;
+      for(const id in self.shortcuts) {
         sc = self.shortcuts[id];
         if (sc) {
           sendMessage.push(parseInt(sc[0]));
@@ -440,7 +440,7 @@ class Player extends Character {
 // TODO - Fill db_player variable assignments.
     fillPlayerInfo(db_player)
     {
-        var self = this;
+        const self = this;
         self.mapIndex = parseInt(db_player.map[0]);
         self.map =  self.world.maps[self.mapIndex];
         self.x = parseInt(db_player.map[1]);
@@ -492,19 +492,19 @@ class Player extends Character {
         db_player.stats = db_player.stats.parseInt();
 
         // Check to make sure stats are correct for level.
-        var isValidStats = function (lvl, stats) {
-            var total = 0;
+        const isValidStats = function (lvl, stats) {
+            let total = 0;
             if (lvl < 10)
               total = lvl * 10;
             else
               total = (9 * 10) + (5 * (lvl - 9));
 
-            var statTotal = stats.reduce(function(a, b) { return (a + b); }, 0);
+            const statTotal = stats.reduce(function(a, b) { return (a + b); }, 0);
 
             return (total === statTotal);
         };
 
-        var lvl = parseInt(self.level);
+        const lvl = parseInt(self.level);
         if (!isValidStats(lvl, db_player.stats))
         {
           if (lvl < 10) {
@@ -542,7 +542,7 @@ class Player extends Character {
             self.quests.completeQuests = {}
         }
         else {
-          for (var id in db_player.completeQuests)
+          for (const id in db_player.completeQuests)
           {
             if (!Number(id))
               delete db_player.completeQuests[id];
@@ -559,7 +559,7 @@ class Player extends Character {
     		self.setMoveRate(500);
 
         if (db_player.skills.length === 1) {
-          for(var i =0; i < SkillData.Skills.length; ++i)
+          for(let i =0; i < SkillData.Skills.length; ++i)
             db_player.skills[i] = 0;
         }
         self.skillHandler.setSkills(self, db_player.skills);
@@ -567,7 +567,7 @@ class Player extends Character {
         // Needs to convert shortcut into optimum data structure while
         // remaining compatibiltity with old structures.
         if (Array.isArray()) {
-          for (var shortcut of db_player.shortcuts)
+          for (const shortcut of db_player.shortcuts)
           {
             if (shortcut[0] >= 6)
               continue;
@@ -576,12 +576,12 @@ class Player extends Character {
               self.shortcuts[shortcut[0]] = shortcut;
           }
         } else {
-          for (var sid in db_player.shortcuts)
+          for (const sid in db_player.shortcuts)
           {
             if (sid >= 6)
               continue;
 
-            var shortcut = db_player.shortcuts[sid];
+            const shortcut = db_player.shortcuts[sid];
             if (shortcut)
               self.shortcuts[sid] = shortcut;
           }
@@ -597,12 +597,12 @@ class Player extends Character {
   }
 
   getHpMax() {
-  	var hp = 300 + (this.stats.health * 100);
+  	const hp = 300 + (this.stats.health * 100);
     return hp;
   }
 
   getEpMax() {
-  	var ep = 300 + (this.stats.energy * 100);
+  	const ep = 300 + (this.stats.energy * 100);
     return ep;
   }
 
@@ -637,7 +637,7 @@ class Player extends Character {
   // data = time, interrupted. path
   movePath(data, path)
   {
-    var x=path[0][0], y=path[0][1],
+    const x=path[0][0], y=path[0][1],
       x2=path[path.length-1][0], y2=path[path.length-1][1],
       time=data[0],
       interrupted=data[1];
@@ -668,7 +668,7 @@ class Player extends Character {
     if (!nm)
       return;
 
-    var time=nm[0], state=nm[1], o=nm[2], x=nm[3], y=nm[4];
+    const time=nm[0], state=nm[1], o=nm[2], x=nm[3], y=nm[4];
     console.info("nm:"+JSON.stringify(nm));
 
     this.idleTimer.restart();
@@ -686,10 +686,10 @@ class Player extends Character {
     }*/
 
     if (state === 1) {
-        var delay = 0;
+        const delay = 0;
         this.startMoveTime = time;
 
-        var execMove = function (p) {
+        const execMove = function (p) {
           if (p.movement.inProgress) {
             p.forceStop();
           }
@@ -713,8 +713,8 @@ class Player extends Character {
       //this.startMoveTime = time;
       this.ex = x;
       this.ey = y;
-      var a = (x === this.x && y === this.y);
-      var b = (this.sx === x && this.sy === y);
+      const a = (x === this.x && y === this.y);
+      const b = (this.sx === x && this.sy === y);
 
       if (a || b) {
         //console.info("player.move: this.moving_timeout cleared.");
@@ -728,7 +728,7 @@ class Player extends Character {
       // If a stop is recieved before the movement completes,
       // validate the path, and if it's legal fix then stop.
       if ((this.x === x && this.y !== y) || (this.x !== x && this.y === y)) {
-        var path = [[this.x,this.y],[x,y]];
+        const path = [[this.x,this.y],[x,y]];
         if (this.isValidGridPath(path, this.startMoveTime)) {
           this.fixMove(x, y);
         }
@@ -742,15 +742,15 @@ class Player extends Character {
   }
 
   broadcastSprites() {
-    var s1 = this.getSprite(0);
+    const s1 = this.getSprite(0);
     this.setSprite(0, s1);
-    var s2 = this.getSprite(1);
+    const s2 = this.getSprite(1);
     this.setSprite(1, s2);
     this.packetHandler.broadcast(new Messages.setSprite(this, s1, s2), false);
   }
 
   sendCurrentMove() {
-    var msg = new Messages.Move(this, this.orientation, 0, this.x, this.y);
+    const msg = new Messages.Move(this, this.orientation, 0, this.x, this.y);
     this.map.entities.sendNeighbours(this, msg);
   }
 
@@ -770,7 +770,7 @@ class Player extends Character {
 
     if (this.holdingBlock)
     {
-      var pos = this.getTilePositionNextTo();
+      const pos = this.getTilePositionNextTo();
       this.holdingBlock.setPosition(pos[0], pos[1]);
     }
   }
@@ -799,7 +799,7 @@ class Player extends Character {
 
   // type 0=Armor, 1=Weapon
   getSprite(type) {
-    var item = null;
+    let item = null;
     if (type === 1) {
       item = this.items.equipment.getWeapon();
       if (item) {
@@ -887,13 +887,13 @@ class Player extends Character {
     if (this.isDead)
       return;
 
-    var msg = super.modHp(hp);
+    const msg = super.modHp(hp);
     this.sendChangePoints(hp, 0);
     return msg;
   }
 
   modEp(ep) {
-    var msg = super.modEp(ep);
+    const msg = super.modEp(ep);
     this.sendChangePoints(0, ep);
     return msg;
   }
@@ -902,7 +902,7 @@ class Player extends Character {
     x = x || this.x;
     y = y || this.y;
 
-    var path = this.map.entities.pathfinder.getSubPath(this.path, x, y);
+    const path = this.map.entities.pathfinder.getSubPath(this.path, x, y);
     return path;
   }
 
@@ -916,7 +916,7 @@ class Player extends Character {
   }
 
   isValidGridPath(path, time) {
-    var pathfinder = this.map.entities.pathfinder;
+    const pathfinder = this.map.entities.pathfinder;
     if (!pathfinder.isValidPath(path)) {
       console.warn("isValidGridPath: isValidPath false.");
       this.resetMove(this.x,this.y);
@@ -931,7 +931,7 @@ class Player extends Character {
 
     console.info("player - isValidGridPath: "+JSON.stringify(path));
     if (time) {
-      var dist = pathfinder.getPathDistance(path);
+      const dist = pathfinder.getPathDistance(path);
       if (pathfinder.isDistanceTooFast(this.tick, dist, time)) {
         console.warn("handleMovePath: no valid path.");
         this.resetMove(this.x,this.y);
@@ -943,7 +943,7 @@ class Player extends Character {
   }
 
   isArcher() {
-    var weapon = this.items.getWeapon();
+    const weapon = this.items.getWeapon();
     if (weapon && ItemTypes.isArcherWeapon(weapon.itemKind)) {
       return true;
     }
@@ -951,10 +951,10 @@ class Player extends Character {
   }
 
   dropGold() {
-    var p = this;
+    const p = this;
 
-    var level = p.level;
-    var count = Math.ceil(Math.random() * level * 5 + level);
+    const level = p.level;
+    let count = Math.ceil(Math.random() * level * 5 + level);
     count = Math.min(count, this.items.gold[0]);
     this.items.modifyGold(-count);
     return count;

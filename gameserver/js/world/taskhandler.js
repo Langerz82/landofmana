@@ -8,7 +8,7 @@ import { Types } from '../common.js';
 //var AchievementData = AchievementJson;
 
 export function getAchievementObject(arr) {
-    var self = {};
+    const self = {};
     self.toArray = function (obj) {
         return [
             obj.index,
@@ -38,8 +38,8 @@ export function getAchievementObject(arr) {
 // source, which created an implicit global there; declared with `var` here
 // since ES modules are always strict mode and forbid implicit globals.
 export function getSavedAchievement(arr) {
-    var data = [arr[0], arr[1], arr[2], AchievementJson[arr[0]]];
-    var achievement = Object.assign(getAchievementObject(data), null);
+    const data = [arr[0], arr[1], arr[2], AchievementJson[arr[0]]];
+    const achievement = Object.assign(getAchievementObject(data), null);
     return achievement;
 }
 
@@ -47,12 +47,12 @@ export function getSavedAchievement(arr) {
 // source, which created an implicit global there; declared with `var` here
 // since ES modules are always strict mode and forbid implicit globals.
 export function getInitAchievements() {
-    var achievements = [];
-    var len = AchievementJson.length;
-    for (var i=0; i < len; ++i)
+    const achievements = [];
+    const len = AchievementJson.length;
+    for (let i=0; i < len; ++i)
     {
-        var data = [i, 0, 0, AchievementJson[i]];
-        var achievement = Object.assign(getAchievementObject(data), null);
+        const data = [i, 0, 0, AchievementJson[i]];
+        const achievement = Object.assign(getAchievementObject(data), null);
         achievements.push(achievement);
     }
     console.info("achievements: "+JSON.stringify(achievements));
@@ -60,7 +60,7 @@ export function getInitAchievements() {
 }
 
 export function PlayerEvent(eventType, object, count) {
-    var playerEvent = {};
+    const playerEvent = {};
     playerEvent.eventType = eventType;
     playerEvent.object = object;
     playerEvent.count = count;
@@ -70,15 +70,15 @@ export function PlayerEvent(eventType, object, count) {
 //   {"type": 1, "rank": 1, "objectType": 2, "objectKind": 0, "count": 10},
 class TaskHandler {
     constructor() {
-        var i=0;
+        const i=0;
         this.data = AchievementJson;
     }
 
     processEvent(player, playerEvent) {
-        var quests = player.quests;
+        const quests = player.quests;
         switch (playerEvent.eventType) {
         case Types.EventType.KILLMOB:
-            var target = playerEvent.object;
+            const target = playerEvent.object;
             target.questDrops = {};
             quests.forQuestsType(Types.QuestType.KILLMOBKIND, function (quest) {
                 quests.questAboutKill(target, quest);
@@ -102,7 +102,7 @@ class TaskHandler {
             break;
         }
 
-        for (var achievement of player.achievements) {
+        for (const achievement of player.achievements) {
             this.processAchievement(player, playerEvent, achievement, function (achievement, event) {
                 return (achievement.data.type === Types.EventType.KILLMOB &&
                     (achievement.data.objectKind === 0 || achievement.data.objectKind === event.object.kind));
@@ -115,21 +115,21 @@ class TaskHandler {
             }, 0.02);
             this.processAchievement(player, playerEvent, achievement, function (achievement, event) {
                 if (achievement.data.type === Types.EventType.USE_NODE) {
-                    var wtype = event.object.weaponType;
+                    const wtype = event.object.weaponType;
                     return (player.hasWeaponType(wtype) && wtype === achievement.data.data1);
                 }
                 return false;
             }, 5);
             this.processAchievement(player, playerEvent, achievement, function (achievement, event) {
                 if (achievement.data.type === Types.EventType.HARVEST) {
-                    var wtype = event.object.weaponType;
+                    const wtype = event.object.weaponType;
                     return (player.hasWeaponType(wtype) && wtype === "axe");
                 }
                 return false;
             }, 5);
             this.processAchievement(player, playerEvent, achievement, function (achievement, event) {
                 if (achievement.data.type === Types.EventType.USE_NODE) {
-                    var wtype = event.object.weaponType;
+                    const wtype = event.object.weaponType;
                     return (player.hasWeaponType(wtype) && wtype === achievement.data.data1);
                 }
                 return false;
@@ -145,13 +145,13 @@ class TaskHandler {
         if (!condition(achievement, event))
             return;
 
-        var ti = player.achievements.indexOf(achievement);
+        const ti = player.achievements.indexOf(achievement);
         if (ti < 0 || ti >= achievement.data.objectCount.length)
             return;
 
-        var count = event.count;
-        var objectCount = achievement.data.objectCount[achievement.rank];
-        var rankCount = achievement.data.objectCount.length;
+        let count = event.count;
+        let objectCount = achievement.data.objectCount[achievement.rank];
+        const rankCount = achievement.data.objectCount.length;
 
         if ((achievement.count + count) < objectCount) {
             achievement.count += count;
@@ -165,15 +165,15 @@ class TaskHandler {
 
             while (count > 0) {
                 objectCount = achievement.data.objectCount[achievement.rank];
-                var prevCount = achievement.count;
-                var diff = (achievement.count+count);
+                const prevCount = achievement.count;
+                const diff = (achievement.count+count);
                 achievement.count = Math.min(diff, objectCount);
                 count -= (objectCount-prevCount);
                 player.sendPlayer(new Messages.Achievement(achievement));
 
-                var xp = ~~(objectCount * expMultiplier);
-                var chatAchievement = "ACHIEVEMENTS_"+ti+"_COMPLETE";
-                var objectCountFmt = Utils.getNumShortHand(objectCount, 0);
+                const xp = ~~(objectCount * expMultiplier);
+                const chatAchievement = "ACHIEVEMENTS_"+ti+"_COMPLETE";
+                const objectCountFmt = Utils.getNumShortHand(objectCount, 0);
 
                 player.incExp(xp);
                 player.sendPlayer(new Messages.Notify("CHAT", chatAchievement, [objectCountFmt, xp]));

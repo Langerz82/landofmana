@@ -3,9 +3,9 @@ import SpawnJson from "../../shared/data/entity_spawn.json" with { type: 'json' 
 import fs from 'fs';
 
 
-var EntitySpawnData = [];
+const EntitySpawnData = [];
 
-var i=0;
+let i=0;
 //console.info(QuestsJson);
 _.each( SpawnJson, function( value, key ) {
 	EntitySpawnData[i++] = value;

@@ -11,7 +11,7 @@ class Timer {
     }
 
     isOver(time) {
-        var over = false;
+        let over = false;
 
         if (isNaN(time) || time === null || time === 0)
         {

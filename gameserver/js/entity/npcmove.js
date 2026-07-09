@@ -22,7 +22,7 @@ class NpcMove extends Character {
 
         this.name = NPCnames[kind%NPCnames.length];
 
-        var callbacks = this.map.entities.world.npcMoveCallback;
+        const callbacks = this.map.entities.world.npcMoveCallback;
         callbacks.setCallbacks(this);
 
         this.entityQuests = new EntityQuests(this);
@@ -31,12 +31,12 @@ class NpcMove extends Character {
         //this.scriptQuests = false;
 
         if (QuestData.NpcData.hasOwnProperty(this.kind)) {
-            var qData = QuestData.NpcData[this.kind];
+            const qData = QuestData.NpcData[this.kind];
             if (qData && qData.length > 0)
             {
-                var newQuest = null;
-                var pQuest = null;
-                for (var q of qData)
+                const newQuest = null;
+                const pQuest = null;
+                for (const q of qData)
                 {
                     this.entityQuests.quests[q.id] = q;
                 }
@@ -51,10 +51,10 @@ class NpcMove extends Character {
     }
 
     talk(player) {
-        var self = this;
-        var self_player = player;
+        const self = this;
+        const self_player = player;
 
-        var res = false;
+        let res = false;
         player.quests.forQuestsType(Types.QuestType.GETITEMKIND, function (q) {
             if (q.npcQuestId === self.npcQuestId) {
                 if (self_player.quests.questAboutItemComplete(q, null))
@@ -80,18 +80,18 @@ class NpcMove extends Character {
                 return;
             }
 
-            var langcode = "QUESTS_"+newQid;
-            var msg = new Messages.Dialogue(this, langcode);
+            const langcode = "QUESTS_"+newQid;
+            const msg = new Messages.Dialogue(this, langcode);
             player.sendPlayer(msg);
         }
     }
 
     randomMove() {
         if(!this.hasTarget() && !this.isDead && !this.isMoving()) {
-            var canRoam = (Utils.randomRangeInt(0,100) === 1);
+            const canRoam = (Utils.randomRangeInt(0,100) === 1);
             if(!canRoam || this.map.entities.getPlayerAroundCount(this,20) === 0)
                 return;
-            var	pos = this.map.entities.getRandomPosition(this, 2);
+            const	pos = this.map.entities.getRandomPosition(this, 2);
             if (pos && !(pos.x === this.x && pos.y === this.y))
             {
                 //if (this.map.entities.isCharacterAt(pos.x,pos.y))

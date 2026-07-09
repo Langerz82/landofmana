@@ -2,7 +2,7 @@ import sanitizer from 'sanitizer';
 import { Types, ItemTypes } from './common.js';
 import { G_TILESIZE } from './main.js';
 
-var Utils = {};
+const Utils = {};
 
 Utils.sanitize = function(string) {
     // Strip unsafe tags, then escape as html entities.
@@ -38,7 +38,7 @@ Utils.clamp = function  (min, max, value) {
 };
 
 Utils.randomOrientation = function() {
-    var o, r = Utils.random(4);
+    let o, r = Utils.random(4);
 
     if(r === 0)
         o = Types.Orientations.LEFT;
@@ -53,7 +53,7 @@ Utils.randomOrientation = function() {
 };
 
 Utils.getOrientationString = function(r) {
-    var o = "NONE";
+    let o = "NONE";
 
     if(r === 1)
         o = "UP";
@@ -98,7 +98,7 @@ Utils.getOrientationString = function(r) {
 }*/
 
 Utils.randomPositionNextTo = function (entity) {
-    var a = entity.x, b = entity.y, r = Utils.random(4);
+    let a = entity.x, b = entity.y, r = Utils.random(4);
 
     if(r === 0)
         --a;
@@ -114,7 +114,7 @@ Utils.randomPositionNextTo = function (entity) {
 
 Utils.Mixin = function(target, source) {
     if (source) {
-        for (var key, keys = Object.keys(source), l = keys.length; l--; ) {
+        for (let key, keys = Object.keys(source), l = keys.length; l--; ) {
             key = keys[l];
 
             if (source.hasOwnProperty(key)) {
@@ -126,8 +126,8 @@ Utils.Mixin = function(target, source) {
 };
 Utils.distanceTo = function(x, y, x2, y2) {
     //console.info("x="+x+",y="+y+",x2="+x2+",y2="+y2);
-    var distX = Math.abs(x - x2);
-    var distY = Math.abs(y - y2);
+    const distX = Math.abs(x - x2);
+    const distY = Math.abs(y - y2);
 
     return (distX > distY) ? distX : distY;
 };
@@ -180,7 +180,7 @@ Utils.min = function (array, colIndex) {
 }
 
 Utils.array_values = function (input) {
-	var tmp_arr = [], key = '';
+	const tmp_arr = [], key = '';
 	for (key in input) tmp_arr[tmp_arr.length] = input[key];
 	return tmp_arr;
 }
@@ -190,7 +190,7 @@ Utils.arraysEqual = function (a, b) {
   if (a === null || b === null) return false;
   if (a.length != b.length) return false;
 
-  for (var i = 0; i < a.length; ++i) {
+  for (let i = 0; i < a.length; ++i) {
     if (a[i] !== b[i]) return false;
   }
   return true;
@@ -200,9 +200,9 @@ Utils.setEquipmentBonus = function(kind) {
 	if (ItemTypes.isWeapon(kind) || ItemTypes.isArcherWeapon(kind) ||
 	    ItemTypes.isArmor(kind))
 	{
-	    var probability = Utils.random(1024);
-	    var bonus = 0;
-	    for (var i = 1; i <= 1024; i *= 2)
+	    const probability = Utils.random(1024);
+	    let bonus = 0;
+	    for (let i = 1; i <= 1024; i *= 2)
 	    {
 		if (probability < i)
 		{
@@ -215,7 +215,7 @@ Utils.setEquipmentBonus = function(kind) {
 }
 
 Utils.pad = function (val, size) {
-    var s = val+"";
+    let s = val+"";
     while (s.length < size) s = "0" + s;
     return s;
 }
@@ -225,8 +225,8 @@ Utils.checkInputName = function(name) {
     else if(name === '') return false;
     else if(name === ' ') return false;
 
-    for(var i=0; i < name.length; i++) {
-        var c = name.charCodeAt(i);
+    for(let i=0; i < name.length; i++) {
+        const c = name.charCodeAt(i);
 
         if(!((0xAC00 <= c && c <= 0xD7A3) || (0x3131 <= c && c <= 0x318E)       // Korean (Unicode blocks "Hangul Syllables" and "Hangul Compatibility Jamo")
             || (0x61 <= c && c <= 0x7A) || (0x41 <= c && c <= 0x5A)             // English (lowercase and uppercase)
@@ -306,7 +306,7 @@ Utils.Sleep = function (ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-var groupBy = function(xs, key) {
+const groupBy = function(xs, key) {
   return xs.reduce(function(rv, x) {
     (rv[x[key]] = rv[x[key]] || []).push(x);
     return rv;
@@ -314,9 +314,9 @@ var groupBy = function(xs, key) {
 };
 
 Utils.GetGroupCountArray = function (groupArray, field) {
-  var group = groupBy(groupArray, field);
-  var array = [];
-  for (var rec in group)
+  const group = groupBy(groupArray, field);
+  const array = [];
+  for (const rec in group)
   {
     array.push([rec, group[rec].length]);
   }
@@ -348,8 +348,8 @@ Utils.getPositionFromGrid = function (gx, gy) {
 }
 
 Utils.forEach = function (obj, fn) {
-  var prop = null;
-  for (var key in obj) {
+  const prop = null;
+  for (const key in obj) {
     if (obj.hasOwnProperty(key))
     {
       if (obj[key] && fn && fn(obj[key], key))
@@ -360,7 +360,7 @@ Utils.forEach = function (obj, fn) {
 }
 
 Utils.removeFromArray = function (arr, element) {
-    var index = arr.indexOf(element);
+    const index = arr.indexOf(element);
     if (index >= 0)
       arr.splice(index, 1);
 }
@@ -372,30 +372,30 @@ Utils.getLockDelay = function (time) {
 }
 
 Utils.BinArrayToBase64 = function (uint8array) {
-  var len = Math.ceil(uint8array.length / 32);
-  var tarr = [];
-  for (var i=0; i < len; i++) {
-    var num = uint8array.slice((i*32),(i*32)+32).join('');
+  const len = Math.ceil(uint8array.length / 32);
+  const tarr = [];
+  for (let i=0; i < len; i++) {
+    const num = uint8array.slice((i*32),(i*32)+32).join('');
     //console.info("num:"+num);
     //console.info("num2:"+parseInt(num, 2));
     tarr.push(parseInt(num, 2));
   }
-  var base64 = tarr.toString('base64');
+  const base64 = tarr.toString('base64');
   return base64;
 }
 
 Utils.Base64ToBinArray = function (base64, limit) {
-  var data = base64.toString('binary');
-  var arr = data.split(",");
+  const data = base64.toString('binary');
+  const arr = data.split(",");
   //console.info(JSON.stringify(arr));
-  var uint8array = new Uint8Array(arr.length*32);
-  for (var i=0; i < arr.length; ++i)
+  const uint8array = new Uint8Array(arr.length*32);
+  for (let i=0; i < arr.length; ++i)
   {
-    var dec = parseInt(arr[i]);
-    var bin = dec.toString(2);
-    var l = bin.length;
-    var index = (i+1)*32-l;
-    for (var j=0; j < l; ++j)
+    const dec = parseInt(arr[i]);
+    const bin = dec.toString(2);
+    const l = bin.length;
+    const index = (i+1)*32-l;
+    for (let j=0; j < l; ++j)
       uint8array[index+j] = bin[j];
   }
   return uint8array.slice(0,limit);
@@ -429,9 +429,9 @@ Utils.Percent = function (val, fixed) {
 }
 
 Utils.objectToArray = function (object) {
-  var arr = [];
-  for (var key in object) {
-    var obj = object[key];
+  const arr = [];
+  for (const key in object) {
+    const obj = object[key];
     if (obj)
       arr.push(obj);
   }
@@ -449,7 +449,7 @@ if (!Array.prototype.removeVal) {
       // harmless no-op when the value isn't present, not silent removal of an
       // unrelated entry.
       value: function(val){
-        var idx = this.indexOf(val);
+        const idx = this.indexOf(val);
         if (idx < 0) return [];
         return this.splice(idx, 1);
       }

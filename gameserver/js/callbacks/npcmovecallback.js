@@ -5,7 +5,7 @@ class NpcMoveCallback {
     }
 
     setCallbacks(entity) {
-        var self = entity;
+        const self = entity;
         //console.info("assigning callbacks to "+self.entity.id);
 
         entity.onStep(function (entity, x, y) {
@@ -26,11 +26,11 @@ class NpcMoveCallback {
 
         entity.onRequestPath(function (x,y) {
             //console.info("onRequestPath = " + x + "," + y);
-            var path = self.entity.map.entities.findPath(self.entity, x, y);
+            const path = self.entity.map.entities.findPath(self.entity, x, y);
             //console.info("path="+JSON.stringify(path));
             if (path && path.length > 0)
             {
-                var msg = new Messages.MovePath(self.entity, path);
+                const msg = new Messages.MovePath(self.entity, path);
                 self.entity.map.entities.sendNeighbours(self.entity, msg);
                 return path;
             }

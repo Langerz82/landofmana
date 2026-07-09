@@ -18,7 +18,7 @@ class Node extends Entity {
     }
 
     getState() {
-        var arr = this._getBaseState();
+        const arr = this._getBaseState();
         return arr.concat([this.level, this.spriteName, this.animName, this.weaponType]);
     }
 
@@ -57,7 +57,7 @@ class Node extends Entity {
     }
 
     handleRespawn() {
-        var self = this;
+        const self = this;
 
         if (this.area && this.area instanceof Area) {
             // Respawn inside the area if part of a MobArea

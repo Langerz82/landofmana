@@ -8,7 +8,7 @@ import { hashes, players } from '../main.js';
 
 class WorldHandler {
     constructor(main, connection) {
-        var self = this;
+        const self = this;
 
         this.main = main;
         this.connection = connection;
@@ -18,7 +18,7 @@ class WorldHandler {
 
         this.connection.listen(function(message) {
             console.info("recv="+JSON.stringify(message));
-            var action = parseInt(message[0]);
+            const action = parseInt(message[0]);
 
             if (action)
                 if(!formatCheck(message)) {
@@ -48,10 +48,10 @@ class WorldHandler {
 
     handleLoginPlayer(msg) {
         console.info("worldHandler, handleLoginPlayer: "+JSON.stringify(msg));
-        var playerName = msg[0],
+        const playerName = msg[0],
             playerHash = msg[1];
 
-        var player = null;
+        let player = null;
         if (hashes.hasOwnProperty(playerHash))
             player = hashes[playerHash];
 
@@ -61,7 +61,7 @@ class WorldHandler {
             return;
         }
 
-        var username = player.user.name;
+        const username = player.user.name;
         if (players.has(username)) {
             console.info("player user is already logged in.");
             this.sendPlayerMessage(new Messages.Error("user already logged in."));
@@ -88,8 +88,8 @@ class WorldHandler {
     }
 
     loadPlayerDataUserInfo(player, callback) {
-        var user = player.user;
-        var data = [
+        const user = player.user;
+        const data = [
             user.name,
             user.hash,
             Number(user.gems),
@@ -100,7 +100,7 @@ class WorldHandler {
     }
 
     loadPlayerDataInfo(player, callback) {
-        var stats = [
+        const stats = [
             player.stats.attack,
             player.stats.defense,
             player.stats.health,
@@ -108,7 +108,7 @@ class WorldHandler {
             player.stats.luck,
             player.stats.free];
 
-        var exps = [
+        const exps = [
             Utils.NaN2Zero(player.stats.exp.base),
             Utils.NaN2Zero(player.stats.exp.attack),
             Utils.NaN2Zero(player.stats.exp.defense),
@@ -121,21 +121,21 @@ class WorldHandler {
             Utils.NaN2Zero(player.stats.exp.mining),
         ];
 
-        var map = [
+        const map = [
             player.map.index,
             player.x,
             player.y,
             player.orientation];
 
-        var skillexps = [];
-        for (var i =0 ; i < player.skills.length; ++i)
+        const skillexps = [];
+        for (let i =0 ; i < player.skills.length; ++i)
             skillexps[i] = player.skills[i].skillXP;
 
         //var completeQuests = (Object.keys(player.completeQuests).length > 0) ? JSON.stringify(player.completeQuests) : 0;
 
-        var hexLooks = Utils.BinArrayToBase64(player.user.looks);
+        const hexLooks = Utils.BinArrayToBase64(player.user.looks);
 
-        var data = [
+        const data = [
             player.name,
             map.join(","),
             stats.join(","),
@@ -153,10 +153,10 @@ class WorldHandler {
     }
 
     loadPlayerDataQuests(player, callback) {
-        var quests = [];
+        const quests = [];
         //if (!player.quests.quests)
         //player.quests = [];
-        for (var quest of player.quests.quests)
+        for (const quest of player.quests.quests)
         {
             if (!quest || quest.status === Types.QuestStatus.COMPLETE  || _.isEmpty(quest))
                 continue;
@@ -168,8 +168,8 @@ class WorldHandler {
     }
 
     loadPlayerDataAchievements(player, callback) {
-        var data = "";
-        for (var achievement of player.achievements)
+        let data = "";
+        for (const achievement of player.achievements)
         {
             data += achievement.toRedis(achievement).join(',') + ",";
         }
@@ -193,20 +193,20 @@ class WorldHandler {
 
     savePlayer(player, update) {
         console.info("worldHandler - savePlayer, name:"+player.name);
-        var self = this;
+        const self = this;
 
         //console.info("SAVING PLAYER: "+player.name);
         //try { throw new Error(); } catch(err) { console.info(err.stack); }
-        var username = player.user.name;
-        var playerName = player.name;
+        const username = player.user.name;
+        const playerName = player.name;
 
-        var checkLoadDataFull = function (index, data) {
-            var objData = self.playerSaveData[playerName];
+        const checkLoadDataFull = function (index, data) {
+            const objData = self.playerSaveData[playerName];
             objData.count++;
             objData.data[index] = data;
             if (objData.count === 7)
             {
-                var msg = new UserMessages.SavePlayerData(playerName, objData.data, update);
+                const msg = new UserMessages.SavePlayerData(playerName, objData.data, update);
                 self.sendToUserServer(msg);
                 delete self.playerSaveData[playerName];
             }
@@ -216,7 +216,7 @@ class WorldHandler {
         };
 
         this.loadPlayerDataUserInfo(player, function (userName, data) {
-            var objData = {};
+            const objData = {};
             objData.data = new Array(7);
             objData.count = 0;
 

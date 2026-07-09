@@ -26,7 +26,7 @@ Messages.Spawn = class extends Message {
     	this.entity = entity;
     }
     serialize() {
-        var spawn = [Types.Messages.WC_SPAWN];
+        const spawn = [Types.Messages.WC_SPAWN];
         return spawn.concat(this.entity.getState());
     }
 };
@@ -140,7 +140,7 @@ Messages.Notify = class extends Message {
     this.vars = vars || [];
   }
   serialize() {
-    var arr =[Types.Messages.WC_NOTIFY,
+    const arr =[Types.Messages.WC_NOTIFY,
         this.group,
         this.message]
     return arr.concat(this.vars);
@@ -175,7 +175,7 @@ Messages.Quest = class extends Message {
         this.quest = quest;
     }
     serialize(){
-        var arr = this.quest.toClient();
+        const arr = this.quest.toClient();
         return ([Types.Messages.WC_QUEST]).concat(arr);
     }
 };
@@ -186,7 +186,7 @@ Messages.Achievement = class extends Message {
         this.achievement = achievement;
     }
     serialize(){
-        var arr = this.achievement.toClient(this.achievement);
+        const arr = this.achievement.toClient(this.achievement);
         return ([Types.Messages.WC_ACHIEVEMENT]).concat(arr);
     }
 };
@@ -234,7 +234,7 @@ Messages.SkillXP = class extends Message {
         this.skillXPs = skillXPs;
     }
     serialize() {
-        var arr = [Types.Messages.WC_SKILLXP];
+        const arr = [Types.Messages.WC_SKILLXP];
         arr.push(skillXPs.length);
         arr.concat(skillXPs);
         return arr;
@@ -278,8 +278,8 @@ Messages.TeleportMap = class extends Message {
 Messages.Damage = class extends Message {
     constructor(data) {
         super();
-        var attacker = data[0];
-        var target = data[1];
+        const attacker = data[0];
+        const target = data[1];
         this.entity1 = attacker;
         this.entity2 = target;
         this.hpMod = data[2];
@@ -292,7 +292,7 @@ Messages.Damage = class extends Message {
         this.effects = data[5];
     }
     serialize() {
-        var arr = [Types.Messages.WC_DAMAGE,
+        const arr = [Types.Messages.WC_DAMAGE,
           this.entity1.id,
           this.entity2.id,
           this.entity1.orientation,
@@ -315,8 +315,8 @@ Messages.StatInfo = class extends Message {
         this.player = player;
     }
     serialize() {
-      var stats = this.player.stats;
-      var data = [Types.Messages.WC_STATINFO,
+      const stats = this.player.stats;
+      const data = [Types.Messages.WC_STATINFO,
       	    stats.attack,
       	    stats.defense,
       	    stats.health,
@@ -369,11 +369,11 @@ Messages.ItemSlot = class extends Message {
     this.items = items;
   }
   serialize() {
-  		var msg = [Types.Messages.WC_ITEMSLOT,
+  		let msg = [Types.Messages.WC_ITEMSLOT,
         this.type,
         this.items.length];
-        for (var item of this.items) {
-          var arr = null;
+        for (const item of this.items) {
+          let arr = null;
           if (item.itemKind === -1)
             arr = [item.slot, item.itemKind];
           else {
@@ -438,7 +438,7 @@ Messages.List = class extends Message {
         this.ids = ids;
     }
     serialize() {
-        var list = this.ids;
+        const list = this.ids;
         list.unshift(Types.Messages.WC_LIST);
         //console.info(JSON.stringify(list));
         return list;
@@ -488,7 +488,7 @@ Messages.BlockModify = class extends Message {
       this.state = state;
     }
     serialize() {
-        var spawn = [Types.Messages.WC_SPAWN, this.id, this.state];
+        const spawn = [Types.Messages.WC_SPAWN, this.id, this.state];
         return spawn.concat(this.entity.getState());
     }
 };
@@ -562,7 +562,7 @@ Messages.setSprite = class extends Message {
         this.animName = animName;
     }
     serialize() {
-        var arr = [Types.Messages.WC_SET_SPRITE,
+        const arr = [Types.Messages.WC_SET_SPRITE,
           this.id,
           this.sprite1];
         if (typeof(this.sprite2) !== 'undefined')
@@ -596,7 +596,7 @@ Messages.Harvest = class extends Message {
         this.gy = gy;
     }
     serialize() {
-        var arr = [Types.Messages.WC_HARVEST,
+        const arr = [Types.Messages.WC_HARVEST,
           this.id,
           this.action,
           this.gx,

@@ -1,5 +1,5 @@
 const getQuestObject = function(arr) {
-  var self = {};
+  const self = {};
   self.toArray = function (obj) {
     return [obj.type,
       obj.kind,
@@ -64,7 +64,7 @@ class Quest {
     }
 
     toArray() {
-      var cols = [parseInt(this.id, 10),
+      let cols = [parseInt(this.id, 10),
         parseInt(this.type, 10),
         parseInt(this.npcQuestId, 10),
         parseInt(this.count, 10),
@@ -82,7 +82,7 @@ class Quest {
     }
 
     toClient() {
-      var cols = [this.id,
+      let cols = [this.id,
         this.type,
         this.npcQuestId,
         this.count,

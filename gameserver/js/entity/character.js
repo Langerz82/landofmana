@@ -10,7 +10,7 @@ import { G_TILESIZE } from '../main.js';
 class Character extends EntityMoving {
   constructor(id, type, kind, x, y, map) {
     super(id, type, kind, x, y, map);
-    var self = this;
+    const self = this;
 
     //this.orientation = Types.Orientations.DOWN;
 
@@ -79,17 +79,17 @@ class Character extends EntityMoving {
    }
 
   resetHp() {
-    var max = this.getHpMax();
+    const max = this.getHpMax();
     this.stats.hpMax = max;
-    var diff= max - this.stats.hp;
+    const diff= max - this.stats.hp;
     this.stats.hp = max;
     //try { throw new Error(); } catch(err) { console.info(err.stack); }
-    var msg = new Messages.ChangePoints(this, diff, 0);
+    const msg = new Messages.ChangePoints(this, diff, 0);
     this.map.entities.sendNeighbours(this, msg);
   }
 
   resetEp() {
-    var max = this.getEpMax();
+    const max = this.getEpMax();
     this.stats.epMax = max;
     this.stats.ep = max;
   }
@@ -129,30 +129,30 @@ class Character extends EntityMoving {
   }
 
   modHp(val) {
-    var prev = this._modHp(val);
+    const prev = this._modHp(val);
     return (typeof game !== 'undefined') ? prev : this.changePoints(prev, 0);
   }
 
   modEp(val) {
-    var prev = this._modEp(val);
+    const prev = this._modEp(val);
     return (typeof game !== 'undefined') ? prev : this.changePoints(0, prev);
   }
 
   _modHp(val) {
-    var hp = this.stats.hp,
+    const hp = this.stats.hp,
       max = this.stats.hpMax;
 
-    var prev = hp;
+    let prev = hp;
     this.stats.hp = Utils.clamp(0, max, hp+val);
     prev -= this.stats.hp;
     return prev;
   }
 
   _modEp(val) {
-    var ep = this.stats.ep,
+    const ep = this.stats.ep,
       max = this.stats.epMax;
 
-    var prev = ep;
+    let prev = ep;
     this.stats.ep = Utils.clamp(0, max, ep+val);
     prev -= this.stats.ep;
     return prev;
@@ -171,13 +171,13 @@ class Character extends EntityMoving {
     if (this.invincible)
       return;
 
-    var hpDiff = this._modHp(-hpMod);
-    var epDiff = this._modEp(-epMod);
+    const hpDiff = this._modHp(-hpMod);
+    const epDiff = this._modEp(-epMod);
 
     if (hpMod > 0)
       this.addAttacker(attacker);
 
-    var msg = new Messages.Damage([attacker, this, -hpDiff, -epDiff, crit, effects]);
+    const msg = new Messages.Damage([attacker, this, -hpDiff, -epDiff, crit, effects]);
     this.map.entities.sendNeighbours(attacker, msg);
   }
 
@@ -219,7 +219,7 @@ class Character extends EntityMoving {
   }
 
   hurt() {
-    var self = this;
+    const self = this;
 
     this.stopHurting();
     this.sprite = this.hurtSprite;
@@ -296,7 +296,7 @@ class Character extends EntityMoving {
   }
 
   clearAttackerRefs() {
-    var self = this;
+    const self = this;
     this.forEachAttacker(function (c) {
       c.removeAttacker(self);
     });
@@ -356,9 +356,9 @@ class Character extends EntityMoving {
   }
 
   followAttack(entity) {
-    var found = false;
+    const found = false;
 
-    var spot = this.getClosestSpot(entity, 1, this.attackRange);
+    const spot = this.getClosestSpot(entity, 1, this.attackRange);
 
     if (spot && spot.x && spot.y)
       this.moveTo_(spot.x, spot.y);
@@ -412,7 +412,7 @@ class Character extends EntityMoving {
    * Removes the current attack target.
    */
   removeTarget() {
-    var self = this;
+    const self = this;
 
     if (this.target) {
       if (this.target instanceof Character) {
@@ -443,14 +443,14 @@ class Character extends EntityMoving {
   }
 
   canReach(entity) {
-    var ts = G_TILESIZE;
+    const ts = G_TILESIZE;
 
     if (this.attackRange === 1)
       return this.isInReach(entity.x, entity.y, this.orientation);
 
     if (this.attackRange > 1)
     {
-      var range = ~~(Utils.realDistance([entity.x,entity.y],[this.x,this.y])/ts);
+      const range = ~~(Utils.realDistance([entity.x,entity.y],[this.x,this.y])/ts);
       return range <= this.attackRange;
     }
     return false;
@@ -487,7 +487,7 @@ class Character extends EntityMoving {
   },*/
 
   die(attacker) {
-    var self = this;
+    const self = this;
 
     console.info("character, die: called.");
     this.forceStop();
@@ -507,7 +507,7 @@ class Character extends EntityMoving {
   }
 
   endEffects() {
-    for (var skilleffect of this.activeEffects)
+    for (const skilleffect of this.activeEffects)
     {
       skilleffect.endEffects();
     }

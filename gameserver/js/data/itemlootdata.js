@@ -1,7 +1,7 @@
 import _ from 'underscore';
 import ItemLootJson from "../../shared/data/itemloot.json" with { type: 'json' };
 
-var ItemLoot = [];
+const ItemLoot = [];
 
 _.each( ItemLootJson, function( val, key ) {
 	ItemLoot[key] = {

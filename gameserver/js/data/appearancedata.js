@@ -1,9 +1,9 @@
 import _ from 'underscore';
 import AppearancesJson from "../../shared/data/appearance.json" with { type: 'json' };
 
-var AppearanceData = [];
+const AppearanceData = [];
 
-var ItemGearTypes = {
+const ItemGearTypes = {
   "weapon": [],
   "weaponarcher": [],
   "armor": [],

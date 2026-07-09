@@ -2,112 +2,112 @@ import { Types } from './common.js';
 import _ from 'underscore';
 /* global NotifyData */
 
-var itemKindMax = 999;
-var itemNumberMax = 100;
-var itemDurabilityMax = 1000;
-var itemExperienceMax = 9999999;
-var itemPriceMax = 99999999;
-var itemStoreMax = 96;
-var itemInventoryMax = 50;
-var itemBankMax = 96;
-var itemEquipmentMax = 5;
-var itemStoreTypeMax = 2;
+const itemKindMax = 999;
+const itemNumberMax = 100;
+const itemDurabilityMax = 1000;
+const itemExperienceMax = 9999999;
+const itemPriceMax = 99999999;
+const itemStoreMax = 96;
+const itemInventoryMax = 50;
+const itemBankMax = 96;
+const itemEquipmentMax = 5;
+const itemStoreTypeMax = 2;
 
-var craftIdMax = 99;
-var craftItemCount = 100;
+const craftIdMax = 99;
+const craftItemCount = 100;
 
-var auctionEntriesMax = 9999;
-var auctionActionMax = 3;
+const auctionEntriesMax = 9999;
+const auctionActionMax = 3;
 
-var achievementIndexMax = 99;
-var achievementRankMax = 10;
-var achievementCountMax = 999999;
+const achievementIndexMax = 99;
+const achievementRankMax = 10;
+const achievementCountMax = 999999;
 
-var skillsXPMax = 999999999;
-var mapsCountMax = 10;
-var mapCoordsMax = 16384;
-var mapIndexMax = 9;
-var orientationsMax = 4;
-var entityIdMax = 99999;
-var mapStatusMax = 3;
+const skillsXPMax = 999999999;
+const mapsCountMax = 10;
+const mapCoordsMax = 16384;
+const mapIndexMax = 9;
+const orientationsMax = 4;
+const entityIdMax = 99999;
+const mapStatusMax = 3;
 
 var questCountMax = 999;
-var questIdMax = 999999999999999;
-var questTypeMax = 9;
-var questNpcIdMax = 100;
+const questIdMax = 999999999999999;
+const questTypeMax = 9;
+const questNpcIdMax = 100;
 var questCountMax = 99;
-var questStatusMax = 5;
-var questStrDataLen = 32;
+const questStatusMax = 5;
+const questStrDataLen = 32;
 
-var questObjectTypeMax = 9;
-var questObjectKindMax = 999;
-var questObjectCountMax = 999;
-var questObjectChanceMax = 2000;
-var questObjectLevelMax = 999;
+const questObjectTypeMax = 9;
+const questObjectKindMax = 999;
+const questObjectCountMax = 999;
+const questObjectChanceMax = 2000;
+const questObjectLevelMax = 999;
 
-var entityTypeNPCMin = 5;
-var entityTypeNPCMax = 6;
+const entityTypeNPCMin = 5;
+const entityTypeNPCMax = 6;
 
-var shortcutIndexMax = 6;
-var shortcutTypeMax = 2;
-var shortcutTypeIdMax = 999;
+const shortcutIndexMax = 6;
+const shortcutTypeMax = 2;
+const shortcutTypeIdMax = 999;
 
-var usernameLenMin = 2;
-var usernameLenMax = 16;
-var userHashLenMin = 120;
-var userHashLenMax = 120;
-var playerHashLenMax = 128;
+const usernameLenMin = 2;
+const usernameLenMax = 16;
+const userHashLenMin = 120;
+const userHashLenMax = 120;
+const playerHashLenMax = 128;
 
-var playerNameLenMin = 2;
-var playerNameLenMax = 16;
-var playerColorsMaxLen = 6;
-var playerSpritesMax = 999;
-var playerPVPStatsMax = 999999;
-var playerXpMax = 999999999;
-var playerSkillXpMax = 999999999;
-var playerStatPointsMax = 1000;
-var playerStatFreePointsMax = 6000;
-var playerGoldMax = 999999999;
-var playerGemMax = 99999;
-var playerLooksTotal = 177;
-var playerLooksTotalCost = 10000;
-var playerStatMax = 5;
-var playerSkillMax = 50;
-var playerPartyMax = 6;
-var playerShortcutsMax = 7;
-var playerShortcutsType = 2;
+const playerNameLenMin = 2;
+const playerNameLenMax = 16;
+const playerColorsMaxLen = 6;
+const playerSpritesMax = 999;
+const playerPVPStatsMax = 999999;
+const playerXpMax = 999999999;
+const playerSkillXpMax = 999999999;
+const playerStatPointsMax = 1000;
+const playerStatFreePointsMax = 6000;
+const playerGoldMax = 999999999;
+const playerGemMax = 99999;
+const playerLooksTotal = 177;
+const playerLooksTotalCost = 10000;
+const playerStatMax = 5;
+const playerSkillMax = 50;
+const playerPartyMax = 6;
+const playerShortcutsMax = 7;
+const playerShortcutsType = 2;
 
-var worldNameLenMin = 2;
-var worldNameLenMax = 16;
-var worldUsersCountMin = 2;
-var worldUsersCountMax = 1000;
-var userServerPasswordLenMin = 10;
-var userServerPasswordLenMax = 128;
-var maxWorldCount = 10;
-var maxPlayersPerUser = 20;
-var worldKeyLenMin = 2;
-var worldKeyLenMax = 16;
+const worldNameLenMin = 2;
+const worldNameLenMax = 16;
+const worldUsersCountMin = 2;
+const worldUsersCountMax = 1000;
+const userServerPasswordLenMin = 10;
+const userServerPasswordLenMax = 128;
+const maxWorldCount = 10;
+const maxPlayersPerUser = 20;
+const worldKeyLenMin = 2;
+const worldKeyLenMax = 16;
 
-var serverAddressLenMin = 7;
-var serverAddressLenMax = 15;
-var serverPortMin = 1024;
-var serverPortMax = 65535;
-var serverProtocolLenMin = 2;
-var serverProtocolLenMax = 2;
+const serverAddressLenMin = 7;
+const serverAddressLenMax = 15;
+const serverPortMin = 1024;
+const serverPortMax = 65535;
+const serverProtocolLenMin = 2;
+const serverProtocolLenMax = 2;
 
 
-var userBansTotal = 1000;
-var banDateMin = 1730000000000;
-var banDateMax = 1800000000000;
+const userBansTotal = 1000;
+const banDateMin = 1730000000000;
+const banDateMax = 1800000000000;
 
-var serverDateMin = 1730000000000;
-var serverDateMax = 1800000000000;
+const serverDateMin = 1730000000000;
+const serverDateMax = 1800000000000;
 
-var maxChatLength = 256;
+const maxChatLength = 256;
 
-var isTypeValid = function (fmt,msg) {
+const isTypeValid = function (fmt,msg) {
   if (Array.isArray(fmt)) {
-    var res = _isTypeValid(fmt[0],msg);
+    const res = _isTypeValid(fmt[0],msg);
     if (!res) {
       //console.info("_isTypeValid = false");
       return false;
@@ -119,25 +119,25 @@ var isTypeValid = function (fmt,msg) {
       return true;
     }
 
-    var cfn = (fmt[0] === 'n' && msg >= fmt[1] && msg <= fmt[2]);
+    const cfn = (fmt[0] === 'n' && msg >= fmt[1] && msg <= fmt[2]);
     if (cfn) {
       //console.info("format is number and in range.");
       return true;
     }
 
-    var cfs = (fmt[0] === 's' && msg.length >= fmt[1] && msg.length <= fmt[2]);
+    const cfs = (fmt[0] === 's' && msg.length >= fmt[1] && msg.length <= fmt[2]);
     if (cfs) {
       //console.info("format is string and in range.");
       return true;
     }
 
-    var cfa = (fmt[0] === 'array' && msg.length >= fmt[1] && msg.length <= fmt[2]);
+    const cfa = (fmt[0] === 'array' && msg.length >= fmt[1] && msg.length <= fmt[2]);
     if (cfa) {
       //console.info("format is Array and in length.");
       return true;
     }
 
-    var cfo = (fmt[0] === 'object' && Object.keys(msg).length >= fmt[1] && Object.keys(msg).length <= fmt[2]);
+    const cfo = (fmt[0] === 'object' && Object.keys(msg).length >= fmt[1] && Object.keys(msg).length <= fmt[2]);
     if (cfo) {
       //console.info("format is Object and in keys range.");
       return true;
@@ -148,7 +148,7 @@ var isTypeValid = function (fmt,msg) {
   }
 };
 
-var _isTypeValid = function (fmt, msg) {
+const _isTypeValid = function (fmt, msg) {
 
   if (fmt === 'n' && _.isNumber(Number(msg))) {
       //console.info("isType is number");
@@ -336,30 +336,30 @@ class FormatChecker {
     }
 
     checkFormatData(fmt, msg) {
-        var tfmt = (Array.isArray(fmt)) ? fmt[0] : fmt;
-        var t = isTypeValid(tfmt, msg);
+        const tfmt = (Array.isArray(fmt)) ? fmt[0] : fmt;
+        const t = isTypeValid(tfmt, msg);
         if (!t) {
           console.info("isType not type or invalid.");
           return false;
         }
 
-        var cfa = (fmt[0] === 'array');
+        const cfa = (fmt[0] === 'array');
         if (cfa) {
           console.info("format is Array and in length.");
           if (fmt[3]) {
             for(var i=0; i < msg.length; ++i) {
-              var res = this.checkFormat(fmt[3], [msg[i]], true);
+              const res = this.checkFormat(fmt[3], [msg[i]], true);
               if (!res) return false;
             }
           }
         }
 
-        var cfo = (fmt[0] === 'object');
+        const cfo = (fmt[0] === 'object');
         if (cfo) {
           console.info("format is Object and in keys range.");
           if (fmt[3]) {
-            for (var id in msg[i]) {
-              var res = this.checkFormat(fmt[3], msg[i][id]);
+            for (const id in msg[i]) {
+              const res = this.checkFormat(fmt[3], msg[i][id]);
               if (!res) return false;
             }
           }
@@ -368,7 +368,7 @@ class FormatChecker {
     }
 
     checkFormat(format, message, ignoreLength) {
-      var self = this;
+      const self = this;
       //var format = format || this.formats[type];
       var ignoreLength = ignoreLength || false;
 
@@ -380,7 +380,7 @@ class FormatChecker {
               return false;
           }
 
-          var fmt = (Array.isArray(format[0])) ? format[0][0] : format[0];
+          const fmt = (Array.isArray(format[0])) ? format[0][0] : format[0];
 
           // handle empty arrays.
           if (fmt==='array' && Array.isArray(message) && message.length===0) {
@@ -392,8 +392,8 @@ class FormatChecker {
               return (Array.isArray(fmt)) ? (fmt[1]===0) : true;
           }
 
-          for (var i = 0, n = format.length; i < n; i += 1) {
-              var res = this.checkFormatData(format[i], message[i]);
+          for (let i = 0, n = format.length; i < n; i += 1) {
+              const res = this.checkFormatData(format[i], message[i]);
               if (!res) return false;
           }
           return true;
@@ -407,11 +407,11 @@ class FormatChecker {
     }
 
     check(msg) {
-        var self = this;
+        const self = this;
 
         //console.info("msg:"+JSON.stringify(msg));
-        var message = msg.slice(0);
-        var type = message.shift();
+        const message = msg.slice(0);
+        const type = message.shift();
         var format = this.formats[type];
 
         //console.info("msg: "+JSON.stringify(message));
@@ -419,7 +419,7 @@ class FormatChecker {
         if (format)
         {
             //console.info("checkFormat type:"+type);
-            var res = this.checkFormat(format, message, true);
+            const res = this.checkFormat(format, message, true);
             return res;
         }
         else if (type === Types.Messages.CW_ITEMSLOT)

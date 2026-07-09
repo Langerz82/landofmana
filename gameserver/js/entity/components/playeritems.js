@@ -23,13 +23,13 @@ class PlayerItems {
     }
 
     hasWeaponType(type) {
-        var entity = this.entity;
+        const entity = this.entity;
 
         type = type || "any";
         if (type === "any")
             return true;
 
-        var weapon = this.equipment.getWeapon();
+        const weapon = this.equipment.getWeapon();
         if (!weapon)
             return false;
 
@@ -48,17 +48,17 @@ class PlayerItems {
     }
 
     getWeaponLevel() {
-        var entity = this.entity;
+        const entity = this.entity;
 
-        var weapon = this.getWeapon();
+        const weapon = this.getWeapon();
         if (!weapon)
             return 0;
-        var weaponData = ItemTypes.KindData[weapon.itemKind];
+        const weaponData = ItemTypes.KindData[weapon.itemKind];
         return Types.getWeaponLevel(entity.stats.exp[weaponData.type]);
     }
 
     getWeaponType() {
-        var weapon = this.getWeapon();
+        const weapon = this.getWeapon();
         if (!weapon)
             return null;
         return ItemTypes.getType(weapon.itemKind);
@@ -68,11 +68,11 @@ class PlayerItems {
         if (type && type === "any")
             return true;
 
-        var weapon = this.getWeapon();
+        const weapon = this.getWeapon();
         if (!weapon)
             return false;
 
-        var weaponData = ItemTypes.KindData[weapon.itemKind];
+        const weaponData = ItemTypes.KindData[weapon.itemKind];
         if (type) {
             return weaponData.type === type;
         }
@@ -80,20 +80,20 @@ class PlayerItems {
     }
 
     handleStoreEmpty(slot, item) {
-        var entity = this.entity;
+        const entity = this.entity;
 
-        var kind = item.itemKind;
-        var store = this.itemStore[slot[0]];
-        var index = slot[1];
-        var count = slot[2];
+        const kind = item.itemKind;
+        const store = this.itemStore[slot[0]];
+        const index = slot[1];
+        let count = slot[2];
 
         if (slot[0] === 2) {
             console.error("handleStoreEmpty - Cannot empty equipment store.");
             return;
         }
 
-        var itemRoom = store.rooms[slot[1]];
-        var newItemRoom = Object.assign(new ItemRoom(), itemRoom);
+        const itemRoom = store.rooms[slot[1]];
+        const newItemRoom = Object.assign(new ItemRoom(), itemRoom);
         var item = entity.map.entities.createItem(newItemRoom, entity.x, entity.y);
         count = Utils.clamp(1, itemRoom.itemNumber, count);
 
@@ -110,14 +110,14 @@ class PlayerItems {
     }
 
     swapItem(slot, slot2) {
-        var entity = this.entity;
+        const entity = this.entity;
 
         //console.info(JSON.stringify(slot));
         //console.info(JSON.stringify(slot2));
-        var store1 = this.itemStore[slot[0]];
-        var store2 = this.itemStore[slot2[0]];
-        var room1 = store1.rooms;
-        var rs1 = room1[slot[1]];
+        const store1 = this.itemStore[slot[0]];
+        const store2 = this.itemStore[slot2[0]];
+        const room1 = store1.rooms;
+        const rs1 = room1[slot[1]];
         if (!rs1)
             return;
 
@@ -126,21 +126,21 @@ class PlayerItems {
             slot2[1] = store2.getItemTypeIndex(rs1);
         }
 
-        var room2 = store2.rooms;
-        var rs2 = null;
+        const room2 = store2.rooms;
+        let rs2 = null;
         if (slot2[1] >= 0)
             rs2 = room2[slot2[1]];
 
         if (rs1 === rs2)
             return;
 
-        var splitItem = function (slot, slot2, rs1)
+        const splitItem = function (slot, slot2, rs1)
         {
             if (slot[2] > 0 && slot[2] < rs1.itemNumber && ItemTypes.isStackedItem(rs1.itemKind))
             {
                 rs1.itemNumber -= slot[2];
                 store1.setItem(slot[1], rs1);
-                var rs2 = Object.assign(new ItemRoom(), rs1);
+                const rs2 = Object.assign(new ItemRoom(), rs1);
                 rs2.itemNumber = slot[2];
                 store2.setItem(slot2[1], rs2);
                 return true;
@@ -151,7 +151,7 @@ class PlayerItems {
         if (rs2)
         {
             if (!store2.combineItem(rs1, rs2)) {
-                var tmp = rs2;
+                const tmp = rs2;
                 if (store2.checkItem(slot2[1], rs1) && store1.checkItem(slot[1], rs2))
                 {
                     store2.setItem(slot2[1], rs1);
@@ -180,21 +180,21 @@ class PlayerItems {
 
     /* ITEM STORE FUNCTIONS */
     getStoredItem(type, slot, count) {
-        var entity = this.entity;
+        const entity = this.entity;
 
-        var store = this.itemStore[type];
+        const store = this.itemStore[type];
 
-        var rooms = store.rooms;
+        const rooms = store.rooms;
 
         //console.info("inventory: "+JSON.stringify(this.player.inventory.rooms[index]));
         if (slot < 0 || slot >= rooms.length)
             return null;
 
-        var item = rooms[slot];
+        let item = rooms[slot];
         if (!item)
             return;
 
-        var count2 = rooms[slot].itemNumber;
+        const count2 = rooms[slot].itemNumber;
         if(ItemTypes.isLootItem(item.itemKind) || ItemTypes.isConsumableItem(item.itemKind)) {
             if (count > 0 && count2 > 0 && count2 < count)
                 item = store.takeOutItems(slot, count2);
@@ -203,7 +203,7 @@ class PlayerItems {
     }
 
     modifyGold(gold, type) {
-        var entity = this.entity;
+        const entity = this.entity;
 
         type = type || 0;
         if (this.gold[type]+gold < 0)
@@ -230,7 +230,7 @@ class PlayerItems {
     // creates implicit globals on bare *assignment*, not on read of an undeclared
     // identifier.
     modifyGems(diff) {
-        var entity = this.entity;
+        const entity = this.entity;
 
         diff = parseInt(diff);
         if ((entity.user.gems - diff) < 0)
@@ -244,16 +244,16 @@ class PlayerItems {
     }
 
     handleInventoryEat(item, slot){
-        var entity = this.entity;
+        const entity = this.entity;
 
-        var kind = item.itemKind;
+        const kind = item.itemKind;
 
         if(!this.consumeTime.isOver())
             return;
 
-        var amount;
+        let amount;
 
-        var itemData = ItemTypes.KindData[kind];
+        const itemData = ItemTypes.KindData[kind];
         this.consumeTime.duration = itemData.cooldown * 1000;
 
         if (itemData.typemod === "health")

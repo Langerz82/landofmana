@@ -19,10 +19,10 @@ class TrapArea extends EntityArea {
     }
 
     addRandomGroup(kind, width, height, threshold) {
-        var pos = null;
+        let pos = null;
         var threshold = threshold || 50;
 
-        var t = 0;
+        let t = 0;
         while(t++ < threshold) {
             pos = [this.gx + Utils.randomInt((this.width/G_TILESIZE) - width),
                    this.gy + Utils.randomInt((this.height/G_TILESIZE) - height)];
@@ -38,7 +38,7 @@ class TrapArea extends EntityArea {
             return;
         }
 
-        var group = new TrapGroup(kind, pos[0], pos[1], width, height, this.map,
+        const group = new TrapGroup(kind, pos[0], pos[1], width, height, this.map,
             this.damage, this.switchInterval);
 
         this.addGroup(group);
@@ -46,10 +46,10 @@ class TrapArea extends EntityArea {
 
     isGroupEmptyPositions(pos, width, height) {
         console.info("isGroupEmptyPositions: pos=["+pos[0]+","+pos[1]+"],w="+width+",h="+height);
-        for (var i=0; i < width; ++i) {
-            for (var j=0; j < height; ++j) {
-                var x = (pos[0]+i);
-                var y = (pos[1]+j);
+        for (let i=0; i < width; ++i) {
+            for (let j=0; j < height; ++j) {
+                const x = (pos[0]+i);
+                const y = (pos[1]+j);
                 if (!this.map.entities.isGridPositionEmpty(x,y))
                 {
                     return false;
@@ -82,7 +82,7 @@ class TrapArea extends EntityArea {
         if (!this.isTouchingEntity(entity))
             return;
 
-        for (var group of this.groups) {
+        for (const group of this.groups) {
             group.update(entity);
         }
 

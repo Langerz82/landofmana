@@ -11,8 +11,8 @@ class Looks {
     {
         console.info("LOOKS INIT");
 
-        var length = AppearanceData.Data.length;
-        for (var i = 0; i < length; i++) {
+        const length = AppearanceData.Data.length;
+        for (let i = 0; i < length; i++) {
             this.prices.push(500);
         }
         this.prices[0] = 0; // Sword1
@@ -23,7 +23,7 @@ class Looks {
 
     load(data)
     {
-        var self = this;
+        const self = this;
         //console.info("LOOKS LOAD: "+JSON.stringify(data));
 
         if (!data)
@@ -42,7 +42,7 @@ class Looks {
         if (!this.prices)
             return true;
 
-        var data = this.prices.join(",");
+        const data = this.prices.join(",");
         if (world.userHandler) {
             world.userHandler.sendLooksData(data);
             return true;

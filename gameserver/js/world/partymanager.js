@@ -9,7 +9,7 @@ class PartyManager {
 
     addParty(player1, player2)
     {
-        var party = new PlayerGroup(player1, "party", true);
+        const party = new PlayerGroup(player1, "party", true);
         party.setMemberMessage(Message.Party);
         party.addName(player2.name);
         this.party.push(party);
@@ -34,7 +34,7 @@ class PartyManager {
     removePlayer(player) {
         if (player.hasOwnProperty("party") && player.party)
         {
-            var party = player.party;
+            const party = player.party;
             party.removeName(player.name);
             player.packetHandler.partyHandler.handlePartyAbandoned(party);
         }

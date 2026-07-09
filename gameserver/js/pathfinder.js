@@ -36,14 +36,14 @@ class Pathfinder {
     tolerance = tolerance || G_FRAME_INTERVAL;
 
     console.info("pathFinder - isDistanceTooFast: called.");
-    var elapsed = Date.now() - startTime;
+    const elapsed = Date.now() - startTime;
     if (elapsed === 0)
       return false;
 
-    var elapsedTicks = ~~(elapsed / G_FRAME_INTERVAL);
+    let elapsedTicks = ~~(elapsed / G_FRAME_INTERVAL);
     elapsedTicks = Math.max(elapsedTicks, 0);
 
-    var actualTicks = ~~(dist / ticks);
+    const actualTicks = ~~(dist / ticks);
     console.info("pathFinder - isDistanceTooFast: playerTicks - actualTicks: "+actualTicks+", elapsedTicks:"+elapsedTicks);
     if (actualTicks > (elapsedTicks + tolerance))
     {
@@ -70,13 +70,13 @@ class Pathfinder {
       console.warn("getPathSubDistance: dist="+dist);
       */
 
-      var count = 0;
-      var n2 = null;
+      let count = 0;
+      let n2 = null;
 
       if (!this.isInPath(path, [x, y]))
         return 0;
 
-      for (var n1 of path) {
+      for (const n1 of path) {
           if (n2) {
               if (x==n1[0] && x==n2[0] && Utils.isBetween(y,n1[1],n2[1]))
               {
@@ -99,9 +99,9 @@ class Pathfinder {
   }
 
   getPathDistance(path) {
-    var n2 = null;
-    var total = 0;
-    for (var n1 of path) {
+    let n2 = null;
+    let total = 0;
+    for (const n1 of path) {
       if (n2) {
         total += Math.abs(n1[0]-n2[0]) + Math.abs(n1[1]-n2[1]);
       }
@@ -114,15 +114,15 @@ class Pathfinder {
       if (dist < 0)
         return null;
 
-      var totalDist = this.getPathDistance(path);
-      var subDist = totalDist - dist;
-      var node2;
-      var newPath = [];
-      var subTotal = 0;
-      for (var node1 of path) {
+      const totalDist = this.getPathDistance(path);
+      const subDist = totalDist - dist;
+      let node2;
+      const newPath = [];
+      let subTotal = 0;
+      for (const node1 of path) {
         if (node2) {
-          var dx = Math.abs(node1[0]-node2[0]);
-          var dy = Math.abs(node1[1]-node2[1]);
+          const dx = Math.abs(node1[0]-node2[0]);
+          const dy = Math.abs(node1[1]-node2[1]);
           subTotal += (dx + dy);
 
           if (subTotal === subDist) {
@@ -130,8 +130,8 @@ class Pathfinder {
             break;
           }
           else if (subTotal > subDist) {
-            var node3 = node1.slice();
-            var tdiff = subTotal - subDist;
+            const node3 = node1.slice();
+            const tdiff = subTotal - subDist;
             if (dx > 0) {
               node3[0] -= tdiff;
             }
@@ -152,7 +152,7 @@ class Pathfinder {
     if (!this.isInPath(path, [x,y]))
       return null;
 
-    var lastnode = path[path.length-1];
+    const lastnode = path[path.length-1];
     if (x === lastnode[0] && y === lastnode[1])
     {
       return path.map(function(arr) {
@@ -160,13 +160,13 @@ class Pathfinder {
       });
     }
 
-    var dist = this.getPathDistance(path, x, y);
+    const dist = this.getPathDistance(path, x, y);
     return this.getPathUntil(path, dist);
   }
 
   isInPath(path, node) {
-    var n2 = null;
-    for (var n1 of path) {
+    let n2 = null;
+    for (const n1 of path) {
       if (n2) {
         if ((n1[0] === n2[0] && Utils.isBetween(node[1], n1[1], n2[1])) ||
             (n1[1] === n2[1] && Utils.isBetween(node[0], n1[0], n2[0])))
@@ -178,10 +178,10 @@ class Pathfinder {
   }
 
   isValidPath(path) {
-      var pnode = null;
+      let pnode = null;
       if (!Array.isArray(path) || path.length < 2)
         return false;
-      for (var node of path) {
+      for (const node of path) {
         if (pnode) {
           if (pnode[0] === node[0] && pnode[1] === node[1])
             return false;
@@ -196,23 +196,23 @@ class Pathfinder {
   }
 
   isValidGridPath(grid, path, isRealPath) {
-    var ts = G_TILESIZE,
+    const ts = G_TILESIZE,
         ly = grid.length,
         lx = grid[0].length;
 
     // Check collision from an axis, n1 to n2, n3 is for the other axis.
-    var c1to2on3 = function (n1,n2,n3,axis_x) {
+    const c1to2on3 = function (n1,n2,n3,axis_x) {
       //console.info("c1to2on3 - n1:"+n1+",n2:"+n2+",n3:"+n3);
       n1 = Math.floor(n1), n2 = Math.floor(n2), n3=Math.floor(n3);
-      var i1 = Math.min(n1,n2), i2 = Math.max(n1,n2);
+      const i1 = Math.min(n1,n2), i2 = Math.max(n1,n2);
       if (axis_x) {
-        for (var i=i1; i <= i2; i++) {
+        for (let i=i1; i <= i2; i++) {
           if (grid[n3][i]) {
             return false;
           }
         }
       } else {
-        for (var i=i1; i <= i2; i++) {
+        for (let i=i1; i <= i2; i++) {
           if (grid[i][n3]) {
             return false;
           }
@@ -221,27 +221,27 @@ class Pathfinder {
       return true;
     }
 
-    var xf = function (x1,x2,y) {
+    const xf = function (x1,x2,y) {
       return c1to2on3(x1,x2,y,true);
     }
-    var yf = function (y1,y2,x) {
+    const yf = function (y1,y2,x) {
       return c1to2on3(y1,y2,x,false);
     }
 
-    var path2 = [];
-    for (var i = 0; i < path.length; i++)
+    const path2 = [];
+    for (let i = 0; i < path.length; i++)
         path2[i] = path[i].slice();
 
     if (isRealPath) {
-      for (var coord of path2) {
+      for (const coord of path2) {
         coord[0] /= ts;
         coord[1] /= ts;
       }
     }
 
-    var pCoord = null;
+    let pCoord = null;
 
-    for (var coord of path2) {
+    for (const coord of path2) {
       if (coord[1] < 0 || coord[1] >= ly)
         return false;
       if (coord[0] < 0 || coord[0] >= lx)
@@ -272,7 +272,7 @@ class Pathfinder {
       const minY = Math.max(Math.min(~~start[1], ~~end[1]) - e, 0);
       const maxY = Math.min(Math.max(Math.ceil(start[1]), Math.ceil(end[1])) + e, h - 1);
 
-      var crop = Array.from(
+      const crop = Array.from(
           { length: maxY - minY + 1 },
           (_, y) => new Uint8Array(grid[minY + y].slice(minX, maxX + 1))
       );
@@ -287,7 +287,7 @@ class Pathfinder {
   }
 
   findNeighbourPath(start, end) {
-      var ts = G_TILESIZE;
+      const ts = G_TILESIZE;
 
             // If its one space just return the start, end path.
 			if ((Math.abs(start[0] - end[0]) <= ts && Math.abs(start[1] - end[1]) === 0) ||
@@ -298,12 +298,12 @@ class Pathfinder {
   }
 
   getFullFromShortPath(subpath, offsetX, offsetY) {
-    var ts = G_TILESIZE;
+    const ts = G_TILESIZE;
     if (subpath && subpath.length > 0)
     {
-      var path = [];
-      var len = subpath.length;
-      for (var j = 0; j < len; ++j)
+      const path = [];
+      const len = subpath.length;
+      for (let j = 0; j < len; ++j)
       {
         subpath[j][0] = (subpath[j][0]+offsetX)*ts;
         subpath[j][1] = (subpath[j][1]+offsetY)*ts;
@@ -318,10 +318,10 @@ class Pathfinder {
   findDirectPath(grid, start, end) {
     //var dx = Math.abs(Math.floor(start[0]) - Math.floor(end[0]));
     //var dy = Math.abs(Math.floor(start[1]) - Math.floor(end[1]));
-    var dx = Math.abs(start[0] - end[0]);
-    var dy = Math.abs(start[1] - end[1]);
+    const dx = Math.abs(start[0] - end[0]);
+    const dy = Math.abs(start[1] - end[1]);
 
-    var mp = [start, end];
+    let mp = [start, end];
     if (dx === 0 || dy === 0) {
       if(this.isValidGridPath(grid, mp)) {
         log.info("validpath-fdp1:"+JSON.stringify(mp));
@@ -347,7 +347,7 @@ class Pathfinder {
 
   makeNodesMidPoints(result) {
     // Make nodes mid-points.
-    for (var node of result) {
+    for (const node of result) {
       if (node[0] % 1 === 0)
         node[0] += 0.5;
       if (node[1] % 1 === 0)
@@ -359,8 +359,8 @@ class Pathfinder {
   _popAndPushNewNodeInPath(node, result) {
     result.shift();
     result.unshift([node[0], node[1]]);
-    var it2 = null;
-    for (var it of result) {
+    let it2 = null;
+    for (const it of result) {
       if (it2) {
         if (~~(it2[0]) === ~~(it[0]))
           it[0] = it2[0];
@@ -375,7 +375,7 @@ class Pathfinder {
   }
 
   convertPathToRealPath(result, start, end) {
-    var temp = Utils.copy2DArray(result);
+    let temp = Utils.copy2DArray(result);
 
     if (temp.length === 2) {
       temp = Utils.copy2DArray([start, end]);
@@ -394,11 +394,11 @@ class Pathfinder {
       if (!Array.isArray(path) || path.length < 2)
           return path;
 
-      var result = [path[0]];
+      const result = [path[0]];
 
-      for (var i = 1; i < path.length; i++) {
-          var curr = path[i];
-          var prev = result[result.length - 1];
+      for (let i = 1; i < path.length; i++) {
+          const curr = path[i];
+          const prev = result[result.length - 1];
 
           // Remove consecutive duplicates.
           if (curr[0] === prev[0] && curr[1] === prev[1])
@@ -408,9 +408,9 @@ class Pathfinder {
 
           // If we have three nodes, see if the middle one is unnecessary.
           while (result.length >= 3) {
-              var a = result[result.length - 3];
-              var b = result[result.length - 2];
-              var c = result[result.length - 1];
+              const a = result[result.length - 3];
+              const b = result[result.length - 2];
+              const c = result[result.length - 1];
 
               // Remove b if all three are on the same horizontal or vertical line.
               if ((a[0] === b[0] && b[0] === c[0]) ||
@@ -426,9 +426,9 @@ class Pathfinder {
   }
 
   AStar(grid, start, end) {
-    var pStart = [~~start[0],~~start[1]];
-    var pEnd = [~~end[0],~~end[1]];
-    var path = astar.AStar(grid, pStart, pEnd);
+    const pStart = [~~start[0],~~start[1]];
+    const pEnd = [~~end[0],~~end[1]];
+    let path = astar.AStar(grid, pStart, pEnd);
     if (path)
     {
       path = this.convertPathToRealPath(path, start, end);
@@ -440,7 +440,7 @@ class Pathfinder {
   }
 
   findShortPath(crop, offsetX, offsetY, start, end) {
-      var path = this.AStar(crop, start, end);
+      const path = this.AStar(crop, start, end);
       if (path) {
         console.info("pathfinder.findShortPath - path: "+JSON.stringify(path));
       }
@@ -472,12 +472,12 @@ class Pathfinder {
    * @returns {Array} The incomplete path towards the end position
    */
   findIncompletePath_(start, end) {
-      var perfect, x, y,
+      let perfect, x, y,
           incomplete = [];
 
       perfect = astar.AStar(this.blankGrid, start, end);
 
-      for(var i=perfect.length-1; i > 0; i -= 1) {
+      for(let i=perfect.length-1; i > 0; i -= 1) {
           x = perfect[i][0];
           y = perfect[i][1];
 
@@ -504,7 +504,7 @@ class Pathfinder {
   }
 
   applyIgnoreList_(grid, ignored) {
-      var self = this,
+      let self = this,
           x, y;
 
       _.each(this.ignored, function(entity) {
@@ -519,7 +519,7 @@ class Pathfinder {
   }
 
   applyIncludeList_(grid, included) {
-      var self = this,
+      let self = this,
           x, y;
 
       _.each(this.included, function(entity) {

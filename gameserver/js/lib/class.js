@@ -4,29 +4,29 @@
  * MIT Licensed.
  */
 // Inspired by base2 and Prototype
-var initializing = false, fnTest = /xyz/.test(function(){xyz;}) ? /\b_super\b/ : /.*/;
+let initializing = false, fnTest = /xyz/.test(function(){xyz;}) ? /\b_super\b/ : /.*/;
     
 // The base Class implementation (does nothing)
 Class = function() {};
 
 // Create a new Class that inherits from this class
 Class.extend = function(prop) {
-    var _super = this.prototype;
+    const _super = this.prototype;
     
     // Instantiate a base class (but only create the instance,
     // don't run the init constructor)
     initializing = true;
-    var prototype = new this();
+    const prototype = new this();
     initializing = false;
     
     // Copy the properties over onto the new prototype
-    for (var name in prop) {
+    for (const name in prop) {
         // Check if we're overwriting an existing function
         prototype[name] = typeof prop[name] === "function" &&
             typeof _super[name] === "function" && fnTest.test(prop[name]) ?
             (function(name, fn){
                 return function() {
-                    var tmp = this._super;
+                    const tmp = this._super;
                    
                     // Add a new ._super() method that is the same method
                     // but on the super-class
@@ -34,7 +34,7 @@ Class.extend = function(prop) {
                    
                     // The method only need to be bound temporarily, so we
                     // remove it when we're done executing
-                    var ret = fn.apply(this, arguments);
+                    const ret = fn.apply(this, arguments);
                     this._super = tmp;
                    
                     return ret;

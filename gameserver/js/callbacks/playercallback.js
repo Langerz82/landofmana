@@ -6,8 +6,8 @@ class PlayerCallback {
     }
 
     setCallbacks(entity) {
-        var self = this;
-        var p = entity;
+        const self = this;
+        const p = entity;
         this.player = entity;
         this.entities = p.map.entities;
 
@@ -15,16 +15,16 @@ class PlayerCallback {
         });
 
         p.onRequestPath(function (x,y) {
-            var path = this.entities.findPath(this, x, y);
+            const path = this.entities.findPath(this, x, y);
             console.info("onRequestPath, id:"+this.id+", path:"+JSON.stringify(path));
             return
         });
 
-        var attackFunc = function (p) {
+        const attackFunc = function (p) {
             p.packetHandler.processAttack();
         };
 
-        var stopPathing = function (p, x, y) {
+        const stopPathing = function (p, x, y) {
             console.info("onStopPathing");
             p.setPosition(x,y);
             //p.forceStop();
@@ -36,8 +36,8 @@ class PlayerCallback {
             attackFunc(p);
         };
 
-        var abortPathing = function (p, path, x, y) {
-            var dist = self.entities.pathfinder.getPathSubDistance(path, x, y);
+        const abortPathing = function (p, path, x, y) {
+            const dist = self.entities.pathfinder.getPathSubDistance(path, x, y);
             if (self.entities.pathfinder.isDistanceTooFast(p.tick, dist, p.startMovePathTime)) {
                 console.error("path - isDistanceTooFast = true.");
                 p.resetMove(p.sx,p.sy);
@@ -59,7 +59,7 @@ class PlayerCallback {
 
         p.checkStopDanger = function (c, o)
         {
-            var res=false;
+            let res=false;
 
             if (c.ex === -1 && c.ey === -1)
             {
@@ -70,7 +70,7 @@ class PlayerCallback {
                 return true;
             }
 
-            var x = c.x, y = c.y;
+            const x = c.x, y = c.y;
 
             if (o === 4 && x < c.ex)
             {
@@ -102,12 +102,12 @@ class PlayerCallback {
             if (!this.isMovingPath())
                 return false;
 
-            var pathfinder = this.map.entities.pathfinder;
+            const pathfinder = this.map.entities.pathfinder;
 
             if (!pathfinder.isInPath(this.path, [x,y]))
                 return true;
 
-            var dist = pathfinder.getPathSubDistance(this.path, x, y);
+            const dist = pathfinder.getPathSubDistance(this.path, x, y);
             if (!dist) {
                 if (this.path[0][0] === x && this.path[0][1] === y)
                     return false;
@@ -118,7 +118,7 @@ class PlayerCallback {
                 return true;
             }
 
-            var res = pathfinder.isDistanceTooFast(this.tick, dist, this.startMovePathTime);
+            const res = pathfinder.isDistanceTooFast(this.tick, dist, this.startMovePathTime);
             return res;
         };
 
@@ -126,7 +126,7 @@ class PlayerCallback {
             if (this.mapStatus < 2)
                 return false;
 
-            var pathfinder = this.map.entities.pathfinder;
+            const pathfinder = this.map.entities.pathfinder;
 
             //console.info("checkStartMove - player, x:"+x+",y:"+y);
             //console.info("checkStartMove - player, p.sx:"+p.sx+",p.sy:"+p.sy);
@@ -154,7 +154,7 @@ class PlayerCallback {
 
             if (this.isMoving())
             {
-                var path = [[this.sx,this.sy],[x,y]];
+                const path = [[this.sx,this.sy],[x,y]];
                 console.info("playercallback, checkStartMove, isMoving - path: "+JSON.stringify(path));
 
                 if (!pathfinder.isValidPath(path)) {
@@ -165,7 +165,7 @@ class PlayerCallback {
                     console.info("playercallback, checkStartMove, isMoving - isValidGridPath false.");
                     return false;
                 }
-                var dist = Math.abs(this.sx-x) + Math.abs(this.sy-y);
+                const dist = Math.abs(this.sx-x) + Math.abs(this.sy-y);
                 console.info("playercallback, checkStartMove, isMoving - isDistanceTooFast.");
                 return !pathfinder.isDistanceTooFast(this.tick, dist, this.startMoveTime);
             }

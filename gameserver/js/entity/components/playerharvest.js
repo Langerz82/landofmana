@@ -13,28 +13,28 @@ class PlayerHarvest {
     }
 
     _harvest(x, y, callback, duration) {
-        var p = this.player;
+        const p = this.player;
 
-        var valid = p._checkHarvest(x, y);
+        const valid = p._checkHarvest(x, y);
         if (!valid) {
             p._abortHarvest(x, y);
             return;
         }
 
-        var px = p.x, py = p.y;
-        var type = p.items.getWeaponType();
+        const px = p.x, py = p.y;
+        const type = p.items.getWeaponType();
 
         p.isHarvesting = true;
 
-        var exp = p.stats.exp.logging;
+        let exp = p.stats.exp.logging;
         if (type === "hammer")
             exp = p.stats.exp.mining;
 
-        var durationMod = Utils.clamp(0.1, 1, (1 - Types.getSkillLevel(exp)/20));
+        const durationMod = Utils.clamp(0.1, 1, (1 - Types.getSkillLevel(exp)/20));
         duration = ~~(duration * durationMod);
         clearTimeout(p.harvestTimeout);
         p.harvestTimeout = setTimeout(function () {
-            var complete = true;
+            let complete = true;
 
             if (!p.isHarvesting)
                 complete = false;
@@ -61,7 +61,7 @@ class PlayerHarvest {
     }
 
     _checkHarvest(x, y) {
-        var p = this.player;
+        const p = this.player;
         if (!p.isNextTooPosition(x,y))
             return false;
 
@@ -72,29 +72,29 @@ class PlayerHarvest {
     }
 
     onHarvestEntity(entity) {
-        var p = this.player;
-        var res = true;
+        const p = this.player;
+        let res = true;
 
-        var type = entity.weaponType;
+        const type = entity.weaponType;
         if (!p.items.hasWeaponType(type)) {
             this.sendPlayer(new Messages.Notify("CHAT", "HARVEST_WRONG_TYPE", type));
             res = false;
         }
 
-        var x= entity.x, y=entity.y;
+        const x= entity.x, y=entity.y;
         if (!res) {
             this._abortHarvest(x, y);
             return;
         }
 
-        var duration = 5000 + (entity.level*1000);
+        const duration = 5000 + (entity.level*1000);
         this._harvest(x, y, function (p) {
             p.world.taskHandler.processEvent(p, PlayerEvent(Types.EventType.USE_NODE, entity, 1));
 
             if (type === "hammer")
                 p.stats.exp.mining += 10;
             entity.die();
-            var item = p.world.loot.getDrop(p, entity, false);
+            const item = p.world.loot.getDrop(p, entity, false);
             if (item && item instanceof Item)
             {
                 item.x = x;
@@ -106,23 +106,23 @@ class PlayerHarvest {
     }
 
     _abortHarvest(x,y) {
-        var p = this.player;
+        const p = this.player;
         p.map.entities.sendNeighbours(p, new Messages.Harvest(p, 2, x, y));
         p.sendPlayer(new Messages.Notify("CHAT", "HARVEST_INVALID"));
     }
 
     onHarvest(x, y) {
-        var p = this.player;
-        var gp = Utils.getGridPosition(x,y);
+        const p = this.player;
+        const gp = Utils.getGridPosition(x,y);
 
         // NOTE: `time` was a bare (undeclared) assignment in the original CommonJS
         // source, which created an implicit global there; declared with `var` here
         // since ES modules are always strict mode and forbid implicit globals. This
         // is local-only in both versions in practice (no other file reads it).
-        var time = p.map.entities.harvest[gp.gx + "_" + gp.gy];
+        const time = p.map.entities.harvest[gp.gx + "_" + gp.gy];
 
-        var res = true;
-        var type = p.getWeaponType();
+        let res = true;
+        const type = p.getWeaponType();
         if (!type) {
             res = false;
         }
@@ -141,20 +141,20 @@ class PlayerHarvest {
         }
 
 // TODO CHECK WHY NOT ADDING ITEM AND NOT NOTIFYING CLIENT.
-        var duration = 6000;
+        const duration = 6000;
         p._harvest(x, y, function (p) {
             p.world.taskHandler.processEvent(p, PlayerEvent(Types.EventType.HARVEST, p, 1));
             if (p.getWeaponType() === "axe")
                 p.stats.exp.logging += 10;
             p.map.entities.harvest[gp.gx + "_" + gp.gy] = Date.now();
             if (p.items.inventory.hasRoom()) {
-                var kind;
+                let kind;
                 if (p.getWeaponType() === "axe")
                     kind = 320;
-                var item = new ItemRoom([kind, 1, 0, 0]);
+                const item = new ItemRoom([kind, 1, 0, 0]);
                 if (p.items.inventory.putItem(item) === -1)
                     return;
-                var data = ItemTypes.getData(item.itemKind);
+                const data = ItemTypes.getData(item.itemKind);
                 p.sendPlayer(new Messages.Notify("CHAT", "HARVEST_ADDED", data.name));
             }
         }, duration);

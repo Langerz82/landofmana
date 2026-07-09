@@ -23,7 +23,7 @@ class ChestArea extends EntityArea {
     }
 
     spawnChests() {
-        for(var i = 0; i < this.nb; i += 1) {
+        for(let i = 0; i < this.nb; i += 1) {
             this.addToArea(this._createRandomChestInsideArea());
         }
     }
@@ -33,10 +33,10 @@ class ChestArea extends EntityArea {
     }
 
     _createChest() {
-        var self = this;
-        var	pos = self.map.entities.spaceEntityRandomApart(2,self._getRandomPositionInsideArea.bind(self,20));
+        const self = this;
+        const	pos = self.map.entities.spaceEntityRandomApart(2,self._getRandomPositionInsideArea.bind(self,20));
 
-        var chest = new Chest(20000 + (++self.map.entities.entityCount), pos.x, pos.y,  self.map, self, self.minLevel, self.maxLevel);
+        const chest = new Chest(20000 + (++self.map.entities.entityCount), pos.x, pos.y,  self.map, self, self.minLevel, self.maxLevel);
 
         self.map.entities.addChest(chest);
         self.addToArea(chest);
@@ -45,13 +45,13 @@ class ChestArea extends EntityArea {
     }
 
     respawnChest(chest, delay) {
-        var self = this;
+        const self = this;
         delay = chest.spawnDelay || delay;
 
         this.removeFromArea(chest);
 
         setTimeout(function() {
-            var	pos = self.map.entities.spaceEntityRandomApart(2, self._getRandomPositionInsideArea.bind(self,20));
+            const	pos = self.map.entities.spaceEntityRandomApart(2, self._getRandomPositionInsideArea.bind(self,20));
 
             chest.x = pos.x;
             chest.y = pos.y;

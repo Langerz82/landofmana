@@ -14,21 +14,21 @@ class LootManager {
 
     handleDropItem(entity, attacker)
     {
-        var itemLoot = this.getLootItem(attacker, entity, 0);
+        const itemLoot = this.getLootItem(attacker, entity, 0);
         if (itemLoot && itemLoot instanceof Item)
         {
             console.info("LOOT ITEM SENT!")
-            var pos = Utils.fixGridPosition(entity.x,entity.y);
+            const pos = Utils.fixGridPosition(entity.x,entity.y);
             itemLoot.x = pos.x;
             itemLoot.y = pos.y;
             this.handleItemDespawn(itemLoot);
             return;
         }
 
-        var item = this.getDroppedOrStolenItem(attacker, entity, 0);
+        const item = this.getDroppedOrStolenItem(attacker, entity, 0);
         if (item && item instanceof Item)
         {
-            var pos = Utils.fixGridPosition(entity.x,entity.y);
+            const pos = Utils.fixGridPosition(entity.x,entity.y);
             item.x = pos.x;
             item.y = pos.y;
             this.handleItemDespawn(item);
@@ -62,18 +62,18 @@ class LootManager {
     // Mob)` as presumably intended.
     getLootItem(source, target, stolen)
     {
-        var self = this;
+        const self = this;
         var itemId2 = null;
 
         if ( !target instanceof Mob)
             return;
 
-        var v = Utils.randomRangeInt(0,1000);
+        let v = Utils.randomRangeInt(0,1000);
         var itemId2;
-        var drops = target.questDrops;
+        const drops = target.questDrops;
 
-        for (var d in drops) {
-            var count = drops[d];
+        for (const d in drops) {
+            const count = drops[d];
             if (v >= 0 && v < count) {
                 itemId2 = d;
                 break;
@@ -84,8 +84,8 @@ class LootManager {
         if (itemId2) {
             //console.info("itemName: "+itemName);
             //var kind = ItemTypes.getKindFromString(itemName);
-            var itemRoom = new ItemRoom([parseInt(itemId2), 1, 0, 0, 0]);
-            var lootItem = target.map.entities.createItem(itemRoom, target.x, target.y, 1);
+            const itemRoom = new ItemRoom([parseInt(itemId2), 1, 0, 0, 0]);
+            const lootItem = target.map.entities.createItem(itemRoom, target.x, target.y, 1);
             lootItem.count = 1;
             lootItem.experience = 0;
 
@@ -105,17 +105,17 @@ class LootManager {
     // unchanged since this code path would already have thrown/misbehaved in the
     // original CommonJS version too.
     getPlayerDrop(source, target, stolen) {
-        var itemIndex = target.inventory.getRandomItemNumber();
+        const itemIndex = target.inventory.getRandomItemNumber();
         if (itemIndex === -1)
             return;
-        var item = target.inventory.rooms[itemIndex];
-        var count = 1;
+        const item = target.inventory.rooms[itemIndex];
+        let count = 1;
         if (ItemTypes.isConsumableItem(item.itemKind)) {
             count = Math.floor((Math.random() * target.level + 2) / 2);
             if (count > item.itemNumber)
                 count = item.itemNumber;
         }
-        var item2;
+        let item2;
         if (stolen) {
             item2 = Object.assign(new ItemRoom(), item);
             item2.itemNumber = count;
@@ -135,12 +135,12 @@ class LootManager {
 
         target.droppedItem = true;
 
-        var drops = target.drops;
-        var v = Utils.random(1000);
-        var itemId2;
+        const drops = target.drops;
+        let v = Utils.random(1000);
+        let itemId2;
 
-        for (var itemId in drops) {
-            var count = drops[itemId];
+        for (const itemId in drops) {
+            const count = drops[itemId];
             if (v >= 0 && v < count) {
                 itemId2 = itemId;
                 break;
@@ -154,17 +154,17 @@ class LootManager {
 
         //console.info("itemName: "+itemName);
         //var kind = ItemTypes.getKindFromString(itemName);
-        var itemRoom;
+        let itemRoom;
         if (ItemTypes.isEquippable(itemId2))
         {
-            var count = Utils.setEquipmentBonus(itemId2)
+            const count = Utils.setEquipmentBonus(itemId2)
             itemRoom = new ItemRoom([itemId2, count, 0, 0, 900, 900]);
             itemRoom.itemExperience = ItemTypes.itemExpForLevel[count - 1];
         }
         else {
             itemRoom = new ItemRoom([itemId2, 1, 0, 0, 0, 0]);
         }
-        var item = target.map.entities.createItem(itemRoom, target.x, target.y, 1);
+        const item = target.map.entities.createItem(itemRoom, target.x, target.y, 1);
 
         if (stolen)
         {
@@ -185,12 +185,12 @@ class LootManager {
 
     getGoldDrop(source, target, stolen) {
         // No item drop gold.
-        var count = target.dropGold();
+        let count = target.dropGold();
         if (source instanceof Player) {
-            var targetLevel = 0;
+            let targetLevel = 0;
             targetLevel = target.level;
-            var diff = targetLevel - source.level;
-            var bonusLevel = Utils.clamp(0.1, 1.9, 1 + (diff * 0.05));
+            const diff = targetLevel - source.level;
+            const bonusLevel = Utils.clamp(0.1, 1.9, 1 + (diff * 0.05));
             count *= bonusLevel;
             count = ~~count;
         }
@@ -201,8 +201,8 @@ class LootManager {
     }
 
     getDroppedOrStolenItem(source, target, stolen) {
-        var self = this;
-        var item = null;
+        const self = this;
+        const item = null;
         if (source instanceof Player && target instanceof Player) {
             this.getGoldDrop(source, target, stolen);
             return this.getPlayerDrop(source, target, stolen);

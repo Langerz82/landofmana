@@ -15,8 +15,8 @@ class Equipment {
         console.info("itemSlots="+JSON.stringify(items));
 
         if (items) {
-            for(var i=0; i<items.length; i++){
-                var index = items[i].slot;
+            for(let i=0; i<items.length; i++){
+                const index = items[i].slot;
                 this.rooms[index] = items[i];
                 /*if (items[i] && index === this.weaponSlot) {
                   this.owner.setRange();
@@ -58,7 +58,7 @@ class Equipment {
     },*/
 
     getItemIndex(itemKind) {
-        for(var i in this.rooms){
+        for(const i in this.rooms){
             if(this.rooms[i] && this.rooms[i].itemKind === itemKind){
                 return i;
             }
@@ -88,8 +88,8 @@ class Equipment {
         if (!item)
             return true;
 
-        var kind = item.itemKind;
-        var data = ItemData.Kinds[kind];
+        const kind = item.itemKind;
+        const data = ItemData.Kinds[kind];
         //var equip = this.rooms;
         //var isArmor = ItemTypes.isArmor(kind);
 
@@ -118,8 +118,8 @@ class Equipment {
 
     getItemTypeIndex(item) {
         if (item) {
-            var kind = item.itemKind;
-            var data = ItemData.Kinds[kind];
+            const kind = item.itemKind;
+            const data = ItemData.Kinds[kind];
             if (data.type === "helm")
                 return 0;
             else if (data.type === "chest")
@@ -141,7 +141,7 @@ class Equipment {
         if (item && this.rooms[index] === item)
             return false;
 
-        var player = this.owner;
+        const player = this.owner;
 
         if (!item) {
             this.rooms[index] = null;
@@ -159,8 +159,8 @@ class Equipment {
     }
 
     canEquip(item, level) {
-        var player = this.owner;
-        var kind = item.itemKind;
+        const player = this.owner;
+        const kind = item.itemKind;
         //var level = ItemTypes.getArmorLevel(kind);
 
         if(level > player.level){
@@ -189,7 +189,7 @@ class Equipment {
     // this.makeEmptyEquipment(slot) below, but the only defined method on this
     // class is makeEmptyItem(index) — name mismatch, would throw at runtime.
     degradeItem(slot, adjustment) {
-        var item = this.rooms[slot];
+        const item = this.rooms[slot];
         if (!item)
             return;
         item.itemDurability -= adjustment;
@@ -204,13 +204,13 @@ class Equipment {
     }
 
     addExperience(slot, adjustment) {
-        var item = this.rooms[slot];
+        const item = this.rooms[slot];
         if (!item)
             return;
 
         item.itemExperience += adjustment;
-        var oldItemNumber = item.itemNumber;
-        var newItemNumber = ItemTypes.getItemLevel(item.itemExperience);
+        const oldItemNumber = item.itemNumber;
+        const newItemNumber = ItemTypes.getItemLevel(item.itemExperience);
 
         if (oldItemNumber < newItemNumber)
         {
@@ -225,10 +225,10 @@ class Equipment {
 
     toString() {
         var i=0;
-        var itemString = "" + this.maxNumber + ",";
+        let itemString = "" + this.maxNumber + ",";
 
         for(var i in this.rooms){
-            var item = this.rooms[i];
+            const item = this.rooms[i];
             if (!item) continue;
             itemString += item.toArray().join(',');
         }
@@ -236,11 +236,11 @@ class Equipment {
     }
 
     toStringJSON() {
-        var itemString = "[";
-        var isItems = false;
+        let itemString = "[";
+        let isItems = false;
 
-        for(var i=0; i<this.maxNumber; i++){
-            var item = this.rooms[i];
+        for(let i=0; i<this.maxNumber; i++){
+            const item = this.rooms[i];
             if (!item) continue;
             itemString += "["+item.toArray().join(',')+"],"
             isItems = true;

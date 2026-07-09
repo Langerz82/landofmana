@@ -10,7 +10,7 @@ import Player from './entity/player.js';
 class Updater {
 
 	constructor(ws, map) {
-    var self = this;
+    const self = this;
     this.ws = ws;
     this.server = ws;
     this.map = map;
@@ -28,20 +28,20 @@ class Updater {
     };
 
     this.charPathXF = function(c, m) {
-      var x = c.x + m;
-      var y = c.y;
+      const x = c.x + m;
+      const y = c.y;
       return self.charPath(c,x,y);
     };
 
     this.charPathYF = function(c, m) {
-      var x = c.x;
-      var y = c.y + m;
+      const x = c.x;
+      const y = c.y + m;
       return self.charPath(c,x,y);
     };
 
     this.playerPathXF = function(c, m) {
-      var x = c.x + m;
-      var y = c.y;
+      const x = c.x + m;
+      const y = c.y;
       if (x % self.whoDist === 0)
         c.map.entities.processWho(c);
       c.setPosition(x, y);
@@ -49,8 +49,8 @@ class Updater {
     };
 
     this.playerPathYF = function(c, m) {
-      var x = c.x;
-      var y = c.y + m;
+      const x = c.x;
+      const y = c.y + m;
       if (y % self.whoDist === 0)
         c.map.entities.processWho(c);
       c.setPosition(x, y);
@@ -58,7 +58,7 @@ class Updater {
     };
 
     this.playerKey = function (c,x,y) {
-      var stop = function () {
+      const stop = function () {
         c.forceStop();
         return true;
       }
@@ -77,8 +77,8 @@ class Updater {
 
     }
     this.playerKeyXF = function(c, m) {
-      var x = c.x + m;
-      var y = c.y;
+      const x = c.x + m;
+      const y = c.y;
       if (x % self.whoDist === 0)
         c.map.entities.processWho(c);
 
@@ -86,8 +86,8 @@ class Updater {
     };
 
     this.playerKeyYF = function(c, m) {
-      var x = c.x;
-      var y = c.y + m;
+      const x = c.x;
+      const y = c.y + m;
       if (y % self.whoDist === 0)
         c.map.entities.processWho(c);
 
@@ -97,12 +97,12 @@ class Updater {
 	}
 
   update() {
-      var self = this,
+      let self = this,
           m = null;
 
       this.time = Date.now();
 
-      for(var entity of this.map.entities.characters.values())
+      for(const entity of this.map.entities.characters.values())
       {
         if (entity.isDead || entity.isStunned)
         {
@@ -129,7 +129,7 @@ class Updater {
       if (c.map.isColliding(x, y))
         return true;
       if (c.holdingBlock) {
-        var pos = c.nextTile();
+        const pos = c.nextTile();
         if (c.map.isColliding(pos[0], pos[1]))
           return true;
       }
@@ -150,17 +150,17 @@ class Updater {
   }
 
   updateCharacterPathMovement(c) {
-      var self = this;
+      const self = this;
 
-      var tick=c.tick * G_FRAME_INTERVALS;
-      var o = c.orientation;
+      const tick=c.tick * G_FRAME_INTERVALS;
+      const o = c.orientation;
 
       if (c.isDead || c.freeze || c.isStunned)
       {
         return;
       }
 
-      var canMove = c.movement.inProgress === false && c.isMovingPath();
+      const canMove = c.movement.inProgress === false && c.isMovingPath();
       if(canMove) {
         if(o === Types.Orientations.LEFT) {
           c.movement.start(self.charPathXF,
@@ -186,10 +186,10 @@ class Updater {
   }
 
   updatePlayerPathMovement(c) {
-      var self = this;
+      const self = this;
 
-      var tick=c.tick * G_FRAME_INTERVALS;
-      var o = c.orientation;
+      const tick=c.tick * G_FRAME_INTERVALS;
+      const o = c.orientation;
 
       if (c.isDead || c.freeze || c.isStunned)
       {
@@ -197,7 +197,7 @@ class Updater {
       }
 
       // TODO - Changed Path check is messy.
-      var canMove = c.movement.inProgress === false && c.isMovingPath();
+      const canMove = c.movement.inProgress === false && c.isMovingPath();
       if(canMove) {
         if(o === 3) {
           c.movement.start(self.playerPathXF,
@@ -228,16 +228,16 @@ class Updater {
         return;
     }
 
-    var self = this;
-    var tick=c.tick * G_FRAME_INTERVALS;
-    var o = c.orientation;
+    const self = this;
+    const tick=c.tick * G_FRAME_INTERVALS;
+    const o = c.orientation;
 
     if (c.freeze || c.isMovingPath()) {
       //console.info("character is frozen.")
       return;
     }
 
-    var canMove = c.movement.inProgress === false && o > 0 && c.keyMove;
+    const canMove = c.movement.inProgress === false && o > 0 && c.keyMove;
     if(canMove) {
       if(o === 3) {
         c.movement.start(self.playerKeyXF,

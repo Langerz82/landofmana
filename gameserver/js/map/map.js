@@ -16,7 +16,7 @@ class Map {
         this.id = this.index = id;
         this.world = world;
         console.info("filepath: "+filepath+",filenameCollision: "+filenameCollision);
-        var self = this;
+        const self = this;
         this.name = name;
         this.isLoaded = false;
         //this.index = index;
@@ -32,7 +32,7 @@ class Map {
             }
 
             fs.readFile(filepath, function (err, file) {
-                var json = JSON.parse(file);
+                let json = JSON.parse(file);
                 //console.info("Map.load:"+JSON.stringify(json));
                 self.initMap(json);
                 json = null;
@@ -86,8 +86,8 @@ class Map {
     }
 
     tileIndexToGridPosition(tileNum) {
-        var x = 0;
-        var y = 0;
+        let x = 0;
+        let y = 0;
 
         x = tileNum % this.width;
         y = Math.floor(tileNum / this.width);
@@ -101,8 +101,8 @@ class Map {
 
     loadTileGrid(tiles) {
         this.tile = new Array(this.height);
-        for(var i = 0; i < this.height; ++i) {
-            var arr = tiles.slice(i * this.width, ((i+1) * this.width) );
+        for(let i = 0; i < this.height; ++i) {
+            const arr = tiles.slice(i * this.width, ((i+1) * this.width) );
             this.tile[i] = arr;
         }
         //delete tiles;
@@ -110,7 +110,7 @@ class Map {
 
     loadCollisionGrid(collisions) {
         this.grid = new Array(this.height);
-        for (var i = 0; i < this.height; i++) {
+        for (let i = 0; i < this.height; i++) {
             this.grid[i] = new Uint8Array(collisions.slice(i * this.width, (i + 1) * this.width));
         }
         collisions = null;
@@ -118,38 +118,38 @@ class Map {
     }
 
     GroupIdToGroupPosition(id) {
-        var posArray = id.split('-');
+        const posArray = id.split('-');
 
         return pos(parseInt(posArray[0], 10), parseInt(posArray[1], 10));
     }
 
     forEachGroup(callback) {
-        var width = this.groupWidth;
-        var height = this.groupHeight;
+        const width = this.groupWidth;
+        const height = this.groupHeight;
 
-        for (var x = 0; x < width; x += 1) {
-            for(var y = 0; y < height; y += 1) {
+        for (let x = 0; x < width; x += 1) {
+            for(let y = 0; y < height; y += 1) {
                 callback(x+'-'+y);
             }
         }
     }
 
     getGroupIdFromPosition(x, y) {
-        var w = this.zoneWidth;
-        var h = this.zoneHeight;
-        var gx = Math.floor((x) / w);
-        var gy = Math.floor((y) / h);
+        const w = this.zoneWidth;
+        const h = this.zoneHeight;
+        const gx = Math.floor((x) / w);
+        const gy = Math.floor((y) / h);
 
         return gx + '-' + gy;
     }
 
     getAdjacentGroupPositions(id) {
-        var self = this;
-        var position = this.GroupIdToGroupPosition(id);
-        var x = position.x;
-        var y = position.y;
+        const self = this;
+        const position = this.GroupIdToGroupPosition(id);
+        const x = position.x;
+        const y = position.y;
         // surrounding groups
-        var list = [pos(x-1, y-1), pos(x, y-1), pos(x+1, y-1),
+        const list = [pos(x-1, y-1), pos(x, y-1), pos(x+1, y-1),
             pos(x-1, y),   pos(x, y),   pos(x+1, y),
             pos(x-1, y+1), pos(x, y+1), pos(x+1, y+1)];
 
@@ -175,13 +175,13 @@ class Map {
     }
 
     initConnectedGroups(doors) {
-        var self = this;
+        const self = this;
 
         this.connectedGroups = {};
         _.each(doors, function (door) {
-            var groupId = self.getGroupIdFromPosition(door.x, door.y);
-            var connectedGroupId = self.getGroupIdFromPosition(door.tx, door.ty);
-            var connectedPosition = self.GroupIdToGroupPosition(connectedGroupId);
+            const groupId = self.getGroupIdFromPosition(door.x, door.y);
+            const connectedGroupId = self.getGroupIdFromPosition(door.tx, door.ty);
+            const connectedPosition = self.GroupIdToGroupPosition(connectedGroupId);
 
             if (groupId in self.connectedGroups) {
                 self.connectedGroups[groupId].push(connectedPosition);
@@ -212,13 +212,13 @@ class Map {
     },*/
 
     initMobAreas() {
-        var maList = this.mapMobAreas;
-        var self = this;
+        const maList = this.mapMobAreas;
+        const self = this;
 
         this.mobAreas = {};
 
         _.each(maList, function (ma) {
-            var mobarea = new MobArea(self, ma.id, ma.count, ma.minLevel, ma.maxLevel,
+            const mobarea = new MobArea(self, ma.id, ma.count, ma.minLevel, ma.maxLevel,
                 ma.x*G_TILESIZE, ma.y*G_TILESIZE, ma.w*G_TILESIZE, ma.h*G_TILESIZE,
                 ma.include, ma.exclude, ma.definite,
                 false, -1, ma.level);
@@ -229,13 +229,13 @@ class Map {
     }
 
     initCheckpoints(cpList) {
-        var self = this;
+        const self = this;
 
         this.checkpoints = {};
         this.startingAreas = [];
 
         _.each(cpList, function (cp) {
-            var checkpoint = new Checkpoint(self, cp.id,
+            const checkpoint = new Checkpoint(self, cp.id,
                 cp.x, cp.y, cp.w, cp.h);
             self.checkpoints[checkpoint.id] = checkpoint;
             if (cp.s === 1) {
@@ -249,8 +249,8 @@ class Map {
     }
 
     getRandomStartingPosition(area) {
-        var nbAreas = _.size(this.startingAreas);
-        var i = Utils.randomInt(nbAreas-1);
+        const nbAreas = _.size(this.startingAreas);
+        const i = Utils.randomInt(nbAreas-1);
         if (!area) area = this.startingAreas[i];
 
         //console.info("getRandomStartingPosition - none");
@@ -266,7 +266,7 @@ class Map {
         }*/
 
         if (area) {
-            var areaPos = area._getRandomPositionInsideArea.bind(area,100);
+            const areaPos = area._getRandomPositionInsideArea.bind(area,100);
             return this.entities.spaceEntityRandomApart(3,areaPos);
             //return area.getRandomPosition();
         } else {
@@ -276,7 +276,7 @@ class Map {
 
     isCollidingPoint(x, y)
     {
-        var gx = Math.floor(x / G_TILESIZE),
+        const gx = Math.floor(x / G_TILESIZE),
             gy = Math.floor(y / G_TILESIZE);
 
         if (this.isOutOfBounds(gx, gy)) {
@@ -291,7 +291,7 @@ class Map {
 
     isColliding(x, y)
     {
-        var gx = (x / G_TILESIZE),
+        const gx = (x / G_TILESIZE),
             gy = (y / G_TILESIZE),
             d = 0.49, // A little less than 0.5.
             x1 = ~~(gx-d),
@@ -299,9 +299,9 @@ class Map {
             x2 = ~~(gx+d),
             y2 = ~~(gy+d);
 
-        var arr = [[x1,y1], [x1,y2], [x2,y1], [x2,y2]];
+        const arr = [[x1,y1], [x1,y2], [x2,y1], [x2,y2]];
 
-        for (var c of arr) {
+        for (const c of arr) {
             if (this.isOutOfBounds(c[0], c[1])) {
                 return true;
             }
@@ -332,10 +332,10 @@ class Map {
 
     getRandomPositionCollide(collide) {
         collide = collide || [0,0,0,0];
-        var self = this;
-        var pos = {};
+        const self = this;
+        const pos = {};
 
-        var tries = 0;
+        let tries = 0;
         do
         {
             pos.x = Utils.randomRangeInt(0-collide[0], self.width - 1-collide[2]);
@@ -354,15 +354,15 @@ class Map {
     }
 
     getRandomPositionArea(x1, x2, y1, y2) {
-        var pos = {};
-        var ts = G_TILESIZE;
+        const pos = {};
+        const ts = G_TILESIZE;
 
         x1 = Utils.clamp(0, this.width*ts, x1);
         x2 = Utils.clamp(0, this.width*ts, x2);
         y1 = Utils.clamp(0, this.height*ts, y1);
         y2 = Utils.clamp(0, this.height*ts, y2);
 
-        var tries = 0;
+        let tries = 0;
         do
         {
             pos.x = Utils.randomRangeInt(x1, x2);
@@ -383,10 +383,10 @@ class Map {
     }
 
     getRandomPosition() {
-        var self = this;
-        var pos = {};
+        const self = this;
+        const pos = {};
 
-        var tries = 0;
+        let tries = 0;
         do
         {
             pos.x = Utils.randomRangeInt(0, self.width*G_TILESIZE);
@@ -405,14 +405,14 @@ class Map {
     }
 
     _getDoors(map) {
-        var self = this;
+        const self = this;
         console.info(JSON.stringify(map.doors));
-        var doors = [];
+        const doors = [];
         _.each(map.doors, function(door) {
             door.width = (door.width) ? door.width : 1;
             door.height = (door.height) ? door.height : 1;
             //console.info("door.tmap="+door.tmap);
-            var area = new MapArea(map, false, door.x, door.y, door.width, door.height, -1);
+            const area = new MapArea(map, false, door.x, door.y, door.width, door.height, -1);
             area.tmap = door.map ? door.map : self.id;
             area.minLevel = door.tminLevel || 0;
             area.maxLevel = door.tmaxLevel || 200;
@@ -457,19 +457,19 @@ class Map {
         if (this.isOutOfBounds(pos.gx,pos.gy))
             return false;
 
-        var tiles = this.getTiles(pos.gx,pos.gy);
+        const tiles = this.getTiles(pos.gx,pos.gy);
         console.info("tiles: "+JSON.stringify(tiles));
         if (!tiles || tiles.length === 0)
             return false;
 
         log.info("tiles="+JSON.stringify(tiles));
-        var types = {}
+        const types = {}
         types.axe = [678, 679, 698, 699, 855, 875, 274, 275, 294, 295];
 
         if (!types.hasOwnProperty(type))
             return false;
 
-        var res = false;
+        let res = false;
         if (Array.isArray(tiles)) {
             res = types[type].some(function (tile) { return tiles.includes(tile); });
         } else {

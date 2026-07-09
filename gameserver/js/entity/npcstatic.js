@@ -37,7 +37,7 @@ class NpcStatic extends Entity {
 
         //var npcIsBusy = false;
         //if (player.questStatus) {
-        for (var quest in player.quests)
+        for (const quest in player.quests)
         {
             if (quest.npcKind === this.kind)
             {

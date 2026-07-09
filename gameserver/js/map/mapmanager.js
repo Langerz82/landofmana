@@ -14,7 +14,7 @@ import { G_TILESIZE } from '../main.js';
 
 class MapManager {
     constructor(server) {
-        var self = this;
+        const self = this;
 
         this.server = server;
         this.maps = {};
@@ -29,7 +29,7 @@ class MapManager {
 
         this.maps[0] = new Map(server, 0,"map0","./maps/map0.json","");
         this.maps[0].ready(function() {
-            var map = self.maps[0];
+            const map = self.maps[0];
 
             map.entities = new MapEntities(self.id, self.server, map, self.server.database);
             map.entities.mapready();
@@ -37,7 +37,7 @@ class MapManager {
             map.entities.spawnEntities(map);
 
             map.enterCallback = function (player) {
-                var pos = map.getRandomStartingPosition();
+                const pos = map.getRandomStartingPosition();
                 return pos;
             }
             self.MapsReady();
@@ -46,7 +46,7 @@ class MapManager {
 
         self.maps[1] = new Map(server, 1,"map1","./maps/map1.json","");
         self.maps[1].ready(function() {
-            var map = self.maps[1];
+            const map = self.maps[1];
 
             map.entities = new MapEntities(self.id, self.server, map, self.server.database);
             map.entities.mapready();
@@ -55,7 +55,7 @@ class MapManager {
             //map.initMobAreas();
 
             map.mobArea = [];
-            var mobArea = new MobArea(map, 0, 25, 0, 1, 512*G_TILESIZE, 512*G_TILESIZE, 40*G_TILESIZE, 40*G_TILESIZE,
+            const mobArea = new MobArea(map, 0, 25, 0, 1, 512*G_TILESIZE, 512*G_TILESIZE, 40*G_TILESIZE, 40*G_TILESIZE,
                 [1], null, null, true, -1, null, null);
             map.mobArea.push(mobArea);
             mobArea.addMobs();
@@ -65,28 +65,28 @@ class MapManager {
             npc.name = "Old Man";
             npc.scriptQuests = false;
 
-            var prevNpc = npc;
+            let prevNpc = npc;
 
 // Only uncomment for debugging spawns.
 //setTimeout(function () {
 
-            var x=0;
-            var y=0;
-            var a = 512;
-            var b = 512;
+            let x=0;
+            let y=0;
+            let a = 512;
+            let b = 512;
             var j = 0;
-            var j_max = 0;
-            var id = 0;
-            var offset = 40;
-            var strDir = "EAST";
+            let j_max = 0;
+            let id = 0;
+            const offset = 40;
+            let strDir = "EAST";
             loop:
-            for (var i=0; i < 40; i++)
+            for (let i=0; i < 40; i++)
             {
                 if (id >= 50)
                     break loop;
 
                 j_max += (i%2==0) ? 1 : 0;
-                var dir = i % 4;
+                const dir = i % 4;
                 for (var j=1; j <= j_max; j++)
                 {
                     x = 0;
@@ -115,14 +115,14 @@ class MapManager {
 
                     id += 1;
 
-                    var ga = a * G_TILESIZE;
-                    var gb = b * G_TILESIZE;
+                    const ga = a * G_TILESIZE;
+                    const gb = b * G_TILESIZE;
 
 
                     //var mobtype = (id % (Object.keys(MobData.Kinds).length-1))+1;
-                    var w = 40 * G_TILESIZE;
-                    var h = 40 * G_TILESIZE;
-                    var mobArea1 = new MobArea(map, id, 12, 1+(id), 1+(id), ga, gb, w, h,
+                    let w = 40 * G_TILESIZE;
+                    let h = 40 * G_TILESIZE;
+                    const mobArea1 = new MobArea(map, id, 12, 1+(id), 1+(id), ga, gb, w, h,
                         null, null, null, true, -1, null);
                     map.mobArea.push(mobArea1);
                     mobArea1.addMobs();
@@ -131,7 +131,7 @@ class MapManager {
                     // Slighter tougher mobs in inner circle.
                     w = 20 * G_TILESIZE;
                     h = 20 * G_TILESIZE;
-                    var mobArea2 = new MobArea(map, id, 4, 2+(id), 2+(id), ga, gb, w, h,
+                    const mobArea2 = new MobArea(map, id, 4, 2+(id), 2+(id), ga, gb, w, h,
                         null, null, null, true, -1, null);
                     map.mobArea.push(mobArea2);
                     mobArea2.addMobs();
@@ -140,33 +140,33 @@ class MapManager {
                     // Boss is in innermost circle.
                     w = 10 * G_TILESIZE;
                     h = 10 * G_TILESIZE;
-                    var mobArea3 = new MobArea(map, id, 1, 3+(id), 3+(id), ga, gb, w, h,
+                    const mobArea3 = new MobArea(map, id, 1, 3+(id), 3+(id), ga, gb, w, h,
                         null, null, null, true, -1, null);
                     map.mobArea.push(mobArea3);
                     mobArea3.addMobs();
                     mobArea3.spawnMobs();
-                    for (var mob of mobArea3.entities) {
+                    for (const mob of mobArea3.entities) {
                         mob.createBoss(5);
                     }
 
                     w = 20 * G_TILESIZE;
                     h = 20 * G_TILESIZE;
-                    var area = new EntityArea(map, 0, ga, gb, w, h, true, -1);
+                    const area = new EntityArea(map, 0, ga, gb, w, h, true, -1);
                     var pos = area._getRandomPositionInsideArea(30*G_TILESIZE);
                     var npc = map.entities.addNpcMove(id, pos.x, pos.y);
 
-                    var area2 = new EntityArea(map, 0, ga, gb, w, h, true, -1);
+                    const area2 = new EntityArea(map, 0, ga, gb, w, h, true, -1);
 
                     prevNpc.nextNpcName = npc.name;
                     prevNpc.nextNpcDir = strDir;
                     prevNpc = npc;
 
                     if (id > 0) {
-                        var level = 1;
+                        let level = 1;
                         if (id === 9) {
-                            for (var k=0; k < 6; ++k) {
+                            for (let k=0; k < 6; ++k) {
                                 var	pos = map.entities.spaceEntityRandomApart(2,area2._getRandomPositionInsideArea.bind(area2,100));
-                                var node = new Node(++map.entities.entityCount, 3, pos.x, pos.y, map, level, level);
+                                const node = new Node(++map.entities.entityCount, 3, pos.x, pos.y, map, level, level);
                                 node.name = "node1";
                                 node.weaponType = "any";
                                 area.addToArea(node);
@@ -175,9 +175,9 @@ class MapManager {
                         }
                         else if (id === 6) {
                             level = 2;
-                            for (var k=0; k < 6; ++k) {
+                            for (let k=0; k < 6; ++k) {
                                 var	pos = map.entities.spaceEntityRandomApart(2,area2._getRandomPositionInsideArea.bind(area2,100));
-                                var node = new Node(++map.entities.entityCount, 3, pos.x, pos.y, map, level, level);
+                                const node = new Node(++map.entities.entityCount, 3, pos.x, pos.y, map, level, level);
                                 node.name = "node2";
                                 node.weaponType = "any";
                                 area.addToArea(node);
@@ -186,9 +186,9 @@ class MapManager {
                         }
                         else if (id > 10) {
                             level = Utils.clamp(1,4,~~(id/10)+1);
-                            for (var k=0; k < 10; ++k) {
+                            for (let k=0; k < 10; ++k) {
                                 var	pos = map.entities.spaceEntityRandomApart(2,area2._getRandomPositionInsideArea.bind(area2,100));
-                                var node = new Node(++map.entities.entityCount, 2, pos.x, pos.y, map, level, level);
+                                const node = new Node(++map.entities.entityCount, 2, pos.x, pos.y, map, level, level);
                                 node.name = "node"+level;
                                 node.weaponType = "hammer";
                                 area.addToArea(node);
@@ -202,7 +202,7 @@ class MapManager {
 //}, 10000);
 
             map.enterCallback = function (player) {
-                var pos = map.getRandomStartingPosition();
+                const pos = map.getRandomStartingPosition();
                 return pos;
             };
             self.MapsReady();
@@ -210,7 +210,7 @@ class MapManager {
 
         this.maps[2] = new Map(server, 2, "map2", "./maps/map2.json", "");
         this.maps[2].ready(function() {
-            var map = self.maps[2];
+            const map = self.maps[2];
 
             map.entities = new MapEntities(self.id, self.server, map, self.server.database);
             map.entities.mapready();
@@ -218,7 +218,7 @@ class MapManager {
             //map.entities.spawnEntities(map);
 
             map.enterCallback = function (player) {
-                var pos = map.getRandomStartingPosition();
+                const pos = map.getRandomStartingPosition();
                 return pos;
             }
             self.MapsReady();

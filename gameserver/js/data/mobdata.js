@@ -1,10 +1,10 @@
 import _ from 'underscore';
 import Mobs from "../../shared/data/mobs.json" with { type: 'json' };
 
-var Properties = {};
-var Kinds = {};
+const Properties = {};
+const Kinds = {};
 _.each( Mobs, function( value, key ) {
-	var mob = Properties[key.toLowerCase()] = {
+	const mob = Properties[key.toLowerCase()] = {
 		key: key.toLowerCase(),
 		kind: value.kind,
 
@@ -51,22 +51,22 @@ _.each( Mobs, function( value, key ) {
 });
 
 
-var isMob = function(kind){
+const isMob = function(kind){
     return Kinds[kind] ? true : false;
 };
 
 // NOTE: `MobKinds` is referenced here but never declared/imported anywhere
 // in the original source -- a pre-existing bug, left as-is.
-var forEachMobKind = function(callback) {
-    for(var k in MobKinds) {
+const forEachMobKind = function(callback) {
+    for(const k in MobKinds) {
         callback(MobKinds[k][0], k);
     }
 };
 
-var getByLevelRange = function(min, max) {
+const getByLevelRange = function(min, max) {
     let levelRange = [];
-    for (var k in Kinds) {
-			 var mobKind = Kinds[k];
+    for (const k in Kinds) {
+			 const mobKind = Kinds[k];
     	 if (mobKind.level > 0 && mobKind.level >= min && mobKind.level <= max)
     	     levelRange.push(mobKind);
      	 else if ((mobKind.minLevel > 0 && mobKind.maxLevel > 0) &&

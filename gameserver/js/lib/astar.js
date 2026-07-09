@@ -23,7 +23,7 @@ const AStar = (function () {
      * @author  Andrea Giammarchi
      * @license Mit Style License
      */
-    var gGrid;
+    let gGrid;
 
     function diagonalSuccessors($N, $S, $E, $W, N, S, E, W, grid, rows, cols, result, i) {
         if($N) {
@@ -62,7 +62,7 @@ const AStar = (function () {
     }
 
     function successors(find, x, y, grid, rows, cols){
-        var
+        let
             N = (y - 1),
             S = (y + 1),
             E = (x + 1),
@@ -86,7 +86,7 @@ const AStar = (function () {
     }
 
     function euclidean(start, end, f1, f2) {
-        var
+        const
             x = start.x - end.x,
             y = start.y - end.y
         ;
@@ -111,7 +111,7 @@ const AStar = (function () {
 
     function AStar(grid, start, end, f) {
           gGrid = grid;
-          var cols = grid[0].length,
+          let cols = grid[0].length,
               rows = grid.length,
               limit = cols * rows,
               f1 = Math.abs,
@@ -166,8 +166,8 @@ const AStar = (function () {
                       adj.turns = current.turns || 0;  // carry over turn count
 
                       if(!(adj.v in list)){
-                        var extra = 0;
-                        var turnPenalty = 0;
+                        const extra = 0;
+                        let turnPenalty = 0;
 
                         if (current && typeof current.dir !== 'undefined') {
                             adj.dir = getDir(adj, current);
@@ -182,7 +182,7 @@ const AStar = (function () {
                             adj.dir = getDir(adj, current);
                         }
 
-                        var stepCost = distance(adj, current, f1, f2);
+                        const stepCost = distance(adj, current, f1, f2);
 
                         adj.g = current.g + stepCost + turnPenalty;
                         adj.f = adj.g + distance(adj, endnode, f1, f2) + (adj.turns * 50); // secondary tie-breaker
