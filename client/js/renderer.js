@@ -1125,6 +1125,7 @@ define(['camera', 'entity/item', 'data/items', 'data/itemlootdata', 'entity/enti
                   Container.HUD.addChild(sprite);
                   this.pxSprite["en_"+entity.id] = sprite;
                 }
+                sprite.text = name; // FIX: .text was never reassigned after creation, so name/stack-count changes never rendered (see drawDebugInfo/drawCombatInfo pattern)
                 sprite.visible = true;
                 sprite.zIndex = (entity.y*(this.camera.gridW*ts)+entity.x);
                 sprite.x = x;

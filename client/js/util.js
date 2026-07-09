@@ -402,3 +402,15 @@ Utils.validatePositiveNumber = function(num) {
   const n = parseInt(num, 10);
   return Number.isInteger(n) && n > 0;
 };
+
+// FIX: XSS - no existing HTML-escaping helper was found in the codebase; added to sanitize server-supplied strings before inserting via .html()/.append()
+Utils.escapeHtml = function (str) {
+  if (str === null || typeof str === 'undefined')
+    return str;
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+};

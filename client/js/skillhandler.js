@@ -9,7 +9,7 @@ define(['entity/mob', 'data/skilldata', 'entity/character'], function(Mob, Skill
     },
 
     getName: function() {
-      return this.skillData.name;
+      return this.data.name; // FIX: constructor sets this.data, not this.skillData; was always undefined
     },
     getLevel: function() {
       return this.level;
@@ -120,7 +120,7 @@ define(['entity/mob', 'data/skilldata', 'entity/character'], function(Mob, Skill
     },
 
     addAll: function (skillExps) {
-      sl = skillExps.length;
+      var sl = skillExps.length; // FIX: missing var, was leaking an implicit global
       for(var i = 0; i < sl; ++i)
       {
         this.add(i, skillExps[i]);

@@ -7,7 +7,7 @@ define(['./dialog', '../tabbook', '../tabpage', '../entity/item', 'data/items', 
             this.item = null;
 
             var jqParent = $("#bankDialogBank");
-            data = "<div id=\"bankDialogBank{0}Background\" class=\"bankItemBackground\"><div id=\"bankDialogBank{0}Body\" class=\"bankItem\"></div></div>".format(index);
+            var data = "<div id=\"bankDialogBank{0}Background\" class=\"bankItemBackground\"><div id=\"bankDialogBank{0}Body\" class=\"bankItem\"></div></div>".format(index); // FIX: missing var, was leaking an implicit global
 
             jqParent.append(data);
 
@@ -175,7 +175,7 @@ define(['./dialog', '../tabbook', '../tabpage', '../entity/item', 'data/items', 
             this.body.attr('title', '');
         },
         restore: function() {
-            var kind = itemKind = this.item.itemKind;
+            var kind = this.item.itemKind, itemKind = kind; // FIX: itemKind was an implicit global; declare it properly
             var scale = game.renderer.getIconScaleFactor();
 
             Items.jqShowItem(this.body, this.item, this.body);
@@ -347,7 +347,7 @@ define(['./dialog', '../tabbook', '../tabpage', '../entity/item', 'data/items', 
         },
 
         setScale: function() {
-          game.renderer.getUiScaleFactor();
+          this.scale = game.renderer.getUiScaleFactor(); // FIX: return value was never assigned to this.scale, unlike other dialogs
         },
 
         rescale: function() {

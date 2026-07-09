@@ -32,7 +32,8 @@ define([], function() {
     {
 		var self = this;
 
-		$('#socialconfirmtitle').html("Party " + invitee.name + "?");
+		// FIX: invitee.name is untrusted/server-controlled; escape before inserting as HTML to prevent XSS
+		$('#socialconfirmtitle').html("Party " + Utils.escapeHtml(invitee.name) + "?");
 
       $('#socialconfirm').show();
 	    $('#socialconfirmyes').on('click', function(event){
@@ -53,7 +54,8 @@ define([], function() {
     {
 		var self = this;
 
-      $('#socialconfirmtitle').html("Join Guild " + guildName + "?");
+      // FIX: guildName is untrusted/server-controlled; escape before inserting as HTML to prevent XSS
+      $('#socialconfirmtitle').html("Join Guild " + Utils.escapeHtml(guildName) + "?");
 
         $('#socialconfirm').show();
   	    $('#socialconfirmyes').on('click', function(event){
@@ -104,10 +106,11 @@ define([], function() {
 		  $('#partyleave').show();
 	  }
 
+      // FIX: party member names are untrusted/server-controlled; escape before inserting as HTML to prevent XSS
       var htmlStr = "<table><tr><th>Name</th></tr>";
-      htmlStr += "<tr><td>" + this.partymembers[0] + " (L)</td></tr>";
+      htmlStr += "<tr><td>" + Utils.escapeHtml(this.partymembers[0]) + " (L)</td></tr>";
       for(var i=1; i < this.partymembers.length; ++i){
-          htmlStr += "<tr><td>" + this.partymembers[i] + "</td></tr>";
+          htmlStr += "<tr><td>" + Utils.escapeHtml(this.partymembers[i]) + "</td></tr>";
       }
       htmlStr += "</table>";
       $('#partynames').html(htmlStr);
@@ -124,10 +127,11 @@ define([], function() {
 		  $('#guildleave').show();
 	  }
 
+      // FIX: guild member names are untrusted/server-controlled; escape before inserting as HTML to prevent XSS
       var htmlStr = "<table><tr><th>Name</th></tr>";
-      htmlStr += "<tr><td>" + this.guildmembers[0] + " (L)</td></tr>";
+      htmlStr += "<tr><td>" + Utils.escapeHtml(this.guildmembers[0]) + " (L)</td></tr>";
       for(var i=1; i < this.guildmembers.length; ++i){
-          htmlStr += "<tr><td>" + this.guildmembers[i] + "</td></tr>";
+          htmlStr += "<tr><td>" + Utils.escapeHtml(this.guildmembers[i]) + "</td></tr>";
       }
       htmlStr += "</table>";
       $('#guildnames').html(htmlStr);

@@ -65,6 +65,7 @@ define(['gameclient', 'skillhandler', 'quest', 'config', 'achievement'], functio
           });
 
           self.onMessage = function(data) {
+            // TODO: this logs every inbound packet (including login/session data) to the console; gate behind a debug/verbose flag before shipping
             console.warn("recv: "+data);
 						var fnProcessMessage = function (message) {
 
@@ -78,6 +79,7 @@ define(['gameclient', 'skillhandler', 'quest', 'config', 'achievement'], functio
 		          }
 						};
            var fnRecieveAction = function (data) {
+             // TODO: logs every inbound action payload (including login data) to the console; gate behind a debug/verbose flag before shipping
              console.warn("recv: "+data);
              if(data instanceof Array) {
                if(data[0] instanceof Array) {
@@ -92,7 +94,8 @@ define(['gameclient', 'skillhandler', 'quest', 'config', 'achievement'], functio
            var method = data.substr(0,2) ;
 	        if (method === '2[')
 	        {
-            var buffer = Utils._base64ToArrayBuffer(data.substr(1));
+            // FIX: was stripping only 1 char (substr(1)), leaving trailing '[' and corrupting the base64 payload; strip both marker chars like gameclient.js's 'z|' handling
+            var buffer = Utils._base64ToArrayBuffer(data.substr(2));
             try {
               var message = pako.inflate(buffer, {gzip: true, to: 'string'});
 						  fnProcessMessage(message);
@@ -149,6 +152,7 @@ define(['gameclient', 'skillhandler', 'quest', 'config', 'achievement'], functio
       sendMessage: function(json) {
           var data;
           if(this.connection.connected === true) {
+            // TODO: logs every outbound packet (including sendLoginUser's username/hash) to the console; gate behind a debug/verbose flag before shipping
             console.warn("sent=" + JSON.stringify(json));
             if(this.useBison) {
               data = BISON.encode(json);
@@ -211,7 +215,8 @@ define(['gameclient', 'skillhandler', 'quest', 'config', 'achievement'], functio
       _onError: function (data) {
           var message = data[0];
           $('#container').addClass('error');
-          $('#errorwindow .errordetails').html("<p>"+message+"</p>");
+          // FIX: XSS - server-supplied error message was inserted unescaped via .html(); escape before rendering
+          $('#errorwindow .errordetails').html("<p>"+Utils.escapeHtml(message)+"</p>");
           app.loadWindow('loginwindow','errorwindow');
           $('#errorwindow').focus();
       },
@@ -266,12 +271,12 @@ define(['gameclient', 'skillhandler', 'quest', 'config', 'achievement'], functio
           case 'invalidusername':
           case 'ban':
           case 'passwordChanged':
-          case 'timeout':
             app.info_callback(data);
             return;
+          // FIX: removed duplicate unreachable 'timeout' case (referenced undefined `self`); merged its isTimeout logic here using `this`
           case 'timeout':
             app.info_callback(data);
-            self.isTimeout = true;
+            this.isTimeout = true;
             return;
         }
         this._onError(data);

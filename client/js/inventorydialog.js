@@ -399,7 +399,7 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
 
     selectItem: function(type, slot, select) {
       //pageslot = realslot % this.pageItems;
-      htmlItem = $('#inventoryitembackground' + slot);
+      var htmlItem = $('#inventoryitembackground' + slot); // FIX: missing var, was leaking an implicit global
       if (type === 2) {
         htmlItem = $('#equipBackground'+slot);
       }
@@ -430,7 +430,7 @@ define(['button2', 'entity/item', 'data/itemlootdata', 'data/items'],
     refreshInventory: function(index) {
       index = index || -1;
       if (index > -1) {
-        item = this.getItem(0,index);
+        var item = this.getItem(0,index); // FIX: missing var, was leaking an implicit global
         if (item)
           this.showItems(index);
         else {

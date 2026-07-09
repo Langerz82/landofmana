@@ -37,7 +37,8 @@ define([], function() {
       		var entity = game.getEntityAt(m.x, m.y);
       		if (entity)
       		{
-      			this.addToChatLog("entity name: " + entity.name + ", id: " + entity.id +
+      			// FIX: entity.name is untrusted/server-controlled; escape before inserting as HTML to prevent XSS
+      			this.addToChatLog("entity name: " + Utils.escapeHtml(entity.name) + ", id: " + entity.id +
       			    ", kind: " + entity.kind + ", pos: (" + m.x + "," + m.y + ")");
       		}
         },
@@ -200,22 +201,11 @@ define([], function() {
                           game.client.sendChat("// " + game.player.name + ": " + message);
                           return true;
                       },
-                      /*"/re": function(message) {
-                      	  self.teleportToTown();
-                          return true;
-                      },
-                      "/to": function(message) {
-                      	  self.teleportToTown();
-                          return true;
-                      },*/
+                      // FIX: removed dead commented-out /re, /to, /te command handlers (unreachable, unused)
                       "///": function(message) {
                           game.client.sendChat("/// " + game.player.name + ": " + message);
                           return true;
                       },
-                      /*"/te": function(message) {
-                      	  self.teleportTo(parseInt(data[1]), parseInt(data[2]));
-                          return true;
-                      },*/
                 };
                 if (pattern in commandPatterns) {
                       if (typeof commandPatterns[pattern] === "function") {
@@ -247,11 +237,13 @@ define([], function() {
                 commandPatterns = {
                         // World chat
                         "/1 ": function(entityId, message) {
-                            self.addToChatLog(message);
+                            // FIX: message is server-relayed/untrusted chat text; escape before inserting as HTML to prevent XSS
+                            self.addToChatLog(Utils.escapeHtml(message));
                             return true;
                         },
                         "// ": function(entityId, message){
-                            self.addToChatLog('<font color="#00BFFF">' + message + '</font>');
+                            // FIX: message is server-relayed/untrusted chat text; escape before wrapping in trusted <font> tag to prevent XSS
+                            self.addToChatLog('<font color="#00BFFF">' + Utils.escapeHtml(message) + '</font>');
                             return true;
                         },
                         "///": function(entityId, message){
@@ -263,7 +255,8 @@ define([], function() {
                                   msg += splitMsg[i] + " ";
                               }
                             }
-                            self.addToChatLog('<font color="#FFA500">' + msg + '</font>');
+                            // FIX: msg is server-relayed/untrusted chat text; escape before wrapping in trusted <font> tag to prevent XSS
+                            self.addToChatLog('<font color="#FFA500">' + Utils.escapeHtml(msg) + '</font>');
                             return true;
                         },
                 };
@@ -284,6 +277,8 @@ define([], function() {
         },
 
         addToChatLog: function(message){
+            // FIX: message may be raw untrusted chat text (see call sites); callers now escape untrusted
+            // content before calling this, since some callers intentionally wrap pre-built trusted HTML (e.g. <font> tags)
             var self = this;
             var el = $('<p style="color: white">' + message + '</p>');
             $(el).appendTo(this.chatLog);
@@ -298,21 +293,24 @@ define([], function() {
         addNormalChat: function(entity, message) {
             var self = this;
             if (!entity) return;
-            var el = $('<p style="color: rgba(255, 255, 0, 1)">' + entity.name + ': ' + message + '</p>');
+            // FIX: entity.name and message are untrusted/server-controlled; escape before inserting as HTML to prevent XSS
+            var el = $('<p style="color: rgba(255, 255, 0, 1)">' + Utils.escapeHtml(entity.name) + ': ' + Utils.escapeHtml(message) + '</p>');
             $(el).appendTo(this.chatLog);
             this.bumpOffLog();
         },
 
         addGameNotification: function(notificationType, message) {
             var self = this;
-        	  var el = $('<p style="color: rgba(255, 255, 0, 1)">' + notificationType + ': ' + message + '</p>');
+            // FIX: message may be untrusted/server-controlled; escape before inserting as HTML to prevent XSS
+        	  var el = $('<p style="color: rgba(255, 255, 0, 1)">' + notificationType + ': ' + Utils.escapeHtml(message) + '</p>');
             $(el).appendTo(this.chatLog);
             this.bumpOffLog();
         },
 
         addRatingNotification: function(message) {
             var self = this;
-            var el = $('<p style="color: rgba(255, 255, 0, 1)">' + message + '</p>');
+            // FIX: message is untrusted/server-controlled; escape before inserting as HTML to prevent XSS
+            var el = $('<p style="color: rgba(255, 255, 0, 1)">' + Utils.escapeHtml(message) + '</p>');
             $(el).appendTo(this.chatLog);
             this.bumpOffLog();
         }

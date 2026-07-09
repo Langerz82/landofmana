@@ -17,6 +17,8 @@ define(['detect','config'], function(Detect, config) {
       try {
         mc.zip.file(name).async("string").then(function(data) {
           self.loadMapData(JSON.parse(data));
+        }).catch(function(err) { // FIX: no .catch meant a rejected promise (corrupt/missing zip entry) silently left the map unloaded
+          console.error("Failed to load map data from zip: " + err);
         });
       }
       catch (err) {

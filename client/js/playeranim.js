@@ -52,11 +52,11 @@ define(['sprite','animation','timer'], function(Sprite, Animation, Timer) {
     },
 
     getSprite: function(index) {
-        return this.sprite[index];
+        return this.sprites[index]; // FIX: was this.sprite (undefined); array is this.sprites (set in init/addSprite)
     },
 
     getSpriteName: function(index) {
-        return this.sprite[index].name;
+        return this.sprites[index].name; // FIX: was this.sprite (undefined); array is this.sprites (set in init/addSprite)
     },
 
     getAnimationByName: function(name) {

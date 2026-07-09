@@ -188,20 +188,20 @@ define(['./entity', '../transition', '../timer'], function(Entity, Transition, T
      var poss = this.getSpotsAroundFrom(dest, adjStart, adjEnd);
      var sx = this.x, sy = this.y;
 
-     for (var p of poss)
-     {
-       if (this.isColliding(p.x, p.y))
-         poss.splice(poss.indexOf(p),1);
-     }
+     // FIX: was splicing poss while iterating it with for...of, which skips elements after a splice; build a filtered copy instead
+     poss = poss.filter(function(p) {
+       return !this.isColliding(p.x, p.y);
+     }, this);
 
-     entities = this.getEntitiesAround(adjEnd);
+     var entities = this.getEntitiesAround(adjEnd); // FIX: was missing var/let, leaking a global
 
      //console.info("entities: "+JSON.stringify(entities));
      var ts = G_TILESIZE;
      var tsh = ts >> 1;
 
      var x, y, tx, ty;
-     for (var p of poss) {
+     // FIX: was splicing poss inside this loop while iterating it with for...of, letting entity-occupied spots slip through; use filter instead
+     poss = poss.filter(function(p) {
        x = p.x;
        y = p.y;
        for(var e2 of entities) {
@@ -220,10 +220,11 @@ define(['./entity', '../transition', '../timer'], function(Entity, Transition, T
          if ( Math.abs(x-tx) <= tsh && Math.abs(y-ty) <= tsh)
          {
            //console.info("ENTITY ON TARGET SPOT!");
-           poss.splice(poss.indexOf(p),1);
+           return false;
          }
        }
-     }
+       return true;
+     }, this);
 
      if (poss.length === 0)
        return null;
@@ -343,7 +344,7 @@ define(['./entity', '../transition', '../timer'], function(Entity, Transition, T
 
   // New function to make coding easier.
   getPathIndex: function(step) {
-    if (!this.path === null || this.path.length === 0)
+    if (this.path === null || this.path.length === 0) // FIX: operator precedence bug; "!this.path" evaluated first, so "=== null" was always false
       return null;
     if (step < 0 || step >= this.path.length)
       return null;

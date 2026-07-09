@@ -312,7 +312,7 @@ define(['lib/astar'], function(AStar) {
                 y = perfect[i][1];
 
                 if(this.grid[y][x] === 0) {
-                    incomplete = AStar(this.grid, start, [x, y]);
+                    incomplete = AStar.AStar(this.grid, start, [x, y]); // FIX: was calling AStar(...) directly instead of AStar.AStar(...); threw TypeError, breaking the fallback path
                     break;
                 }
             }

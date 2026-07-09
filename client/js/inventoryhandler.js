@@ -46,7 +46,7 @@ define(['entity/item', 'data/items', 'data/itemlootdata'], function(Item, Items,
         },
 
         getItemInventorySlotByKind: function(kind) {
-          for (i = 0; i < this.maxNumber; i++) {
+          for (var i = 0; i < this.maxNumber; i++) { // FIX: missing var, was leaking an implicit global
             var item = this.rooms[i];
             if (item && kind === item.itemKind)
               return i;
@@ -64,7 +64,7 @@ define(['entity/item', 'data/items', 'data/itemlootdata'], function(Item, Items,
         },
 
         hasItem: function(kind, count) {
-          for (i = 0; i < this.maxNumber; i++) {
+          for (var i = 0; i < this.maxNumber; i++) { // FIX: missing var, was leaking an implicit global
             var item = this.rooms[i];
             if (item && kind === item.itemKind && item.itemNumber >= count) {
               return true;
@@ -74,7 +74,7 @@ define(['entity/item', 'data/items', 'data/itemlootdata'], function(Item, Items,
         },
 
         getItemCount: function(kind) {
-          for (i = 0; i < this.maxNumber; i++) {
+          for (var i = 0; i < this.maxNumber; i++) { // FIX: missing var, was leaking an implicit global
             var item = this.rooms[i];
             if (item && kind === item.itemKind) {
               return item.itemNumber;
@@ -85,7 +85,7 @@ define(['entity/item', 'data/items', 'data/itemlootdata'], function(Item, Items,
 
         getItemTotalCount: function(kind) {
           var total = 0;
-          for (i = 0; i < this.maxNumber; i++) {
+          for (var i = 0; i < this.maxNumber; i++) { // FIX: missing var, was leaking an implicit global
             var item = this.rooms[i];
             if (item && kind === item.itemKind) {
               total += item.itemNumber;
@@ -95,7 +95,7 @@ define(['entity/item', 'data/items', 'data/itemlootdata'], function(Item, Items,
         },
 
         getItemByKind: function(kind) {
-          for (i = 0; i < this.maxNumber; i++) {
+          for (var i = 0; i < this.maxNumber; i++) { // FIX: missing var, was leaking an implicit global
             var item = this.rooms[i];
             if (item && kind === item.itemKind) {
               item.slot = i;
@@ -123,6 +123,8 @@ define(['entity/item', 'data/items', 'data/itemlootdata'], function(Item, Items,
           var count = item.itemNumber;
           if (--count <= 0) {
             this.rooms[realslot] = null;
+          } else {
+            item.itemNumber = count; // FIX: decremented count was never written back, so displayed stack counts didn't update on single-use decrements
           }
         },
 

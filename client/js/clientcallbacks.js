@@ -121,38 +121,6 @@ function(HoveringInfo,
 
         });
 
-        /*client.onEntityList(function(list) {
-            var entityIds = _.pluck(game.entities, 'id'),
-                knownIds = _.intersection(entityIds, list),
-                newIds = _.difference(list, knownIds);
-
-            // Ask the server for spawn information about unknown entities
-            if(_.size(newIds) > 0) {
-                client.sendWho(newIds);
-            }
-        });*/
-
-        /*client.onKnownEntityList(function(list) {
-            if (!list || list.length === 0) {
-              client.sendKnowWho([]);
-              return;
-            }
-
-            if (game.camera)
-            {
-              game.camera.forEachInOuterScreen(function(entity,id) {
-                  if(!entity || entity.isDead)
-                  {
-                      game.camera.outEntities[id] = null;
-                      delete game.camera.outEntities[id];
-                  }
-              });
-            }
-
-            var entityIds = _.pluck(list, 'id');
-            client.sendKnowWho(entityIds);
-        });*/
-
         client.onLogin(function () {
         	client.sendLogin(game.player);
         });

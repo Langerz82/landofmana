@@ -123,9 +123,9 @@ define([], function() {
 		{
 			var leader = leaders[i];
 			if (i === playerIndex)
-				lbdata += "<tr class=\"lbplayer\"><td>"+(i+1)+"</td><td>"+leader.key+"</td><td>"+leader.value+"</td></tr>";
+				lbdata += "<tr class=\"lbplayer\"><td>"+(i+1)+"</td><td>"+Utils.escapeHtml(leader.key)+"</td><td>"+leader.value+"</td></tr>"; // FIX: leader.key (player name) is untrusted; escape before inserting as HTML to prevent XSS
 			else
-				lbdata += "<tr><td>"+(i+1)+"</td><td>"+leader.key+"</td><td>"+leader.value+"</td></tr>";
+				lbdata += "<tr><td>"+(i+1)+"</td><td>"+Utils.escapeHtml(leader.key)+"</td><td>"+leader.value+"</td></tr>"; // FIX: leader.key (player name) is untrusted; escape before inserting as HTML to prevent XSS
 		}
 		lbdata += "</table>";
 		$('#lbdata').html(lbdata);
@@ -133,7 +133,7 @@ define([], function() {
 
 		var pagesCount = Math.ceil(leadersLength / recordsPerPage);
 		//alert(leadersLength + " " + recordsPerPage + " " + pagesCount);
-		var pageData;
+		var pageData = ""; // FIX: was uninitialized, producing literal "undefined<option...>" on first concat
 		for (var i = 1; i <= pagesCount; ++i)
 		{
 			if (pageIndex === i)
@@ -155,29 +155,7 @@ define([], function() {
     		callback();
     	});
 
-// TODO - FIX.
-  return;
-
-	fetch('https://www.landofmana.com/play/leader.json')
-	  .then(
-	    function(response) {
-	      if (response.status !== 200) {
-      		console.log('Looks like there was a problem. Status Code: ' +
-      		  response.status);
-      		return;
-	      }
-
-	      // Examine the text in the response
-	      response.json().then(function(data) {
-      		console.log(data);
-      		leaderJSON = data;
-      		callback();
-	      });
-	    }
-	  )
-	  .catch(function(err) {
-	    console.log('Fetch Error :-S', err);
-	  });
+    	// FIX: removed dead/unreachable fetch() block (was after an unconditional `return;`, marked TODO - FIX)
     },
 
   });

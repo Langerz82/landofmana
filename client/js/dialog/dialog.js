@@ -27,7 +27,8 @@ define(function() {
               game.gamepad.dialogOpen(this.body);
 
             if (this.closeButton) {
-              this.closeButton.click( function (e) {
+              // FIX: unbind previous handler before rebinding, otherwise repeated show() calls stack duplicate click handlers
+              this.closeButton.off('click').click( function (e) {
                 if (game.gamepad)
                   game.gamepad.dialogClose();
                 if (self.closeEvent)

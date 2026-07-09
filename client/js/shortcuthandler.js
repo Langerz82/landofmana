@@ -233,7 +233,7 @@ define(['data/skilldata', 'data/items'], function(SkillData, Items) {
       }
       this.cooldown = null;
       this.shortcut.cooldown = null;
-      delete this;
+      // FIX: `delete this;` is a no-op (delete cannot remove a local/this binding); removed dead code, cleanup is already handled above
     },
   });
 

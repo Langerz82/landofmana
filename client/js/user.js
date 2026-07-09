@@ -39,9 +39,10 @@ function(UserClient, Player, AppearanceData, Timer) {
 
         var hashObj = new jsSHA(this.username+this.password, "ASCII").getHash("SHA-1","HEX");
         this.regHash = hashObj;
+        // FIX: `hash` was read before its declaration/assignment below (hoisting bug), always logging "undefined"; moved assignment before the log
+        var hash = CryptoJS.AES.encrypt(JSON.stringify(hashObj), app.hashChallenge).toString();
         log.info("User init: hash="+hash);
         log.info("User init: hashChallenge="+app.hashChallenge);
-        var hash = CryptoJS.AES.encrypt(JSON.stringify(hashObj), app.hashChallenge).toString();
         //log.info("hash="+hash.getHash("SHA-1","HEX"));
         //log.info("hashChallenge="+hashChallenge.getHash("SHA-1","HEX"));
         this.hash = this.hash || btoa(hash);

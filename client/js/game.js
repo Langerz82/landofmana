@@ -341,8 +341,9 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
             },
 
             removeEntity: function(entity) {
+                // FIX: was `delete this.npc[id]` using an undefined/wrong `id`; use entity.id so npc entries actually get removed
                 if (this.npc[entity.id])
-                  delete this.npc[id];
+                  delete this.npc[entity.id];
 
                 if(entity.id in this.entities) {
                     var id = entity.id;
@@ -1229,10 +1230,12 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
               this.audioManager.playSound("npc");
               if (data[0] === 0) {
                 this.chathandler.addNormalChat({name: "[NPC] "+msgEntity.name}, msg);
-                this.npcText.html(msgEntity.name + ": " + msg);
+                // FIX: XSS - NPC dialogue name/text was inserted unescaped via .html(); escape before rendering
+                this.npcText.html(Utils.escapeHtml(msgEntity.name) + ": " + Utils.escapeHtml(msg));
               } else {
                 game.chathandler.addNormalChat(p, msg);
-                this.npcText.html(p.name + ": " + msg);
+                // FIX: XSS - chat message name/text was inserted unescaped via .html(); escape before rendering
+                this.npcText.html(Utils.escapeHtml(p.name) + ": " + Utils.escapeHtml(msg));
               }
               game.app.npcDialoguePic(msgEntity);
               this.dialogueWindow.show();
@@ -1441,7 +1444,8 @@ function(spriteNamesJSON, localforage, InfoManager, BubbleManager,
             },
 
             getItemsAt: function(x, y) {
-                if(this.map.isOutOfBounds(x, y) || !this.itemGrid || !this.itemGrid[y]) {
+                // FIX: this.map doesn't exist on game; use this.mapContainer like the rest of the codebase
+                if(this.mapContainer.isOutOfBounds(x, y) || !this.itemGrid || !this.itemGrid[y]) {
                     return null;
                 }
                 var items = this.itemGrid[y][x];

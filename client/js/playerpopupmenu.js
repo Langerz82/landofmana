@@ -89,7 +89,8 @@ define([], function() {
             $('#playerPopupMenuContainer').css('display', 'block');
             $('#playerPopupMenuContainer').css('top', '' + y + 'px');
             $('#playerPopupMenuContainer').css('left', '' + x + 'px');
-            $('#playerPopupMenuName').html(player.name);
+            // FIX: use .text() instead of .html() - player.name is plain text content, no HTML needed, avoids XSS
+            $('#playerPopupMenuName').text(player.name);
         },
         close: function(){
             this.selectedPlayer = null;

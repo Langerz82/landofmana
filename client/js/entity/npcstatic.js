@@ -17,8 +17,8 @@ define(['./character', '../questhandler', 'data/npcdata'], function(Character, Q
         return NpcData.Kinds[this.kind].uid;
     },
 
-    getAnimationByName: function () {
-      return this._super("idle_down");
+    getAnimationByName: function (name) {
+      return this._super(name); // FIX: was ignoring the name argument and always returning "idle_down"; forward the requested animation like other entity classes
     }
   });
   return NpcStatic;

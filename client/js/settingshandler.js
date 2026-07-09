@@ -12,21 +12,7 @@ define(['lib/localforage', 'lib/virtualjoystick'], function(localforage) {
                 self.show();
     	});
 
-    	/*$('#buttonsound').click(function(e) {
-    		if ($(this).hasClass('active')) {
-    			$(this).html("Off");
-    			$(this).removeClass('active');
-          funcSound(false);
-          localforage.setItem('sound', false);
-    		}
-    		else {
-    			$(this).html("On");
-    			$(this).addClass('active');
-          funcSound(true);
-          localforage.setItem('sound', true);
-    		}
-    	});*/
-
+      // FIX: removed dead commented-out #buttonsound click handler (superseded by the buttonSound binding below)
       this.funcSound = function (bSound)
       {
         if(self.game && self.game.audioManager) {

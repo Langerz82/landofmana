@@ -31,57 +31,7 @@ define(['./entitymoving', '../timer'], function(EntityMoving, Timer) {
         game.client.sendBlock(1, this.id, this.x, this.y);
       },
 
-      /*isColliding: function (entity) {
-        var x = this.x;
-        var y = this.y;
-        var pos = {
-          "1": [x, y+G_TILESIZE],
-          "2": [x, y-G_TILESIZE],
-          "3": [x+G_TILESIZE, y],
-          "4": [x-G_TILESIZE, y]
-        }
-        var dir;
-
-        bss = G_TILESIZE >> 1;
-        for (var i=1; i < 5; ++i)
-        {
-          var p = pos[i];
-          if (entity.orientation === i && (
-              (p[0] === entity.x && Math.abs(p[1]-entity.y) <= bss) ||
-              (p[1] === entity.y && Math.abs(p[0]-entity.x) <= bss)))
-          {
-              return true;
-          }
-        }
-        return false;
-      },
-
-      isActivated: function (callback) {
-        return callback(this);
-      },
-
-      onActivated: function (callback) {
-        callback(this);
-      },
-
-      move: function (entity) {
-          var x = this.x;
-          var y = this.y;
-          var posMove = {
-            "1": [x, y-G_TILESIZE],
-            "2": [x, y+G_TILESIZE],
-            "3": [x-G_TILESIZE, y],
-            "4": [x+G_TILESIZE, y]
-          }
-
-          bss = G_TILESIZE >> 1;
-          if (this.isColliding(entity))
-          {
-            var p = posMove[i];
-            this.setMoveRate(entity.moveSpeed);
-            this.go(p[0], p[1]);
-          }
-      },*/
+      // FIX: removed dead commented-out block (isColliding/isActivated/onActivated/move) referencing undefined vars (bss, i); would error if re-enabled
 
     });
 

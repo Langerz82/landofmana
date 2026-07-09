@@ -101,11 +101,7 @@ define(['../timer'], function(Timer) {
         return this.sprites[index];
     },
 
-    getSpriteName: function(index) {
-        index = index || 0;
-        return this.sprites[index].name;
-    },
-
+    // FIX: removed dead duplicate getSpriteName(index) that was here; a second definition below silently overrode it, so this one was never called
     getAnimationByName: function(name) {
         var animation = null;
 
@@ -175,7 +171,7 @@ define(['../timer'], function(Timer) {
           return;
 
         this.isFading = true;
-        this.fadingTime.lastTime = time;
+        this.fadingTimer.lastTime = time; // FIX: was mutating fadingTime (a number) instead of fadingTimer (the Timer object); this was a no-op
     },
 
     getFadeRatio: function(time) {

@@ -144,7 +144,8 @@ define(['app', 'data/langdata', 'util',
 
             app.setGame(game);
 
-            game.useServer === "world";
+            // FIX: was a no-op comparison (===) instead of an assignment
+            game.useServer = "world";
 
             game.onGameStart(function() {
             });
@@ -749,51 +750,6 @@ define(['app', 'data/langdata', 'util',
                 $('body').addClass('tablet');
             }
         });
-
-/*
-        $('#healthbar').bind('mousedown', function (event) {
-            if(event.button === 2) {
-                return false;
-            }
-        });
-
-        $('#healthbar').bind('mouseup', function (event) {
-            if(event.button === 2) {
-                if(game.autoEattingHandler) {
-                    clearInterval(game.autoEattingHandler);
-
-                    $('#hpguide').css('display', 'none');
-                }
-                return false;
-            }
-        });
-
-        $('#hpguide').bind('mousedown', function (event) {
-            if(event.button === 2) {
-                return false;
-            }
-        });
-
-        $('#hpguide').bind('mouseup', function (event) {
-            if(event.button === 2) {
-                if(game.autoEattingHandler) {
-                    clearInterval(game.autoEattingHandler);
-
-                    $('#hpguide').css('display', 'none');
-                }
-                return false;
-            }
-        });
-*/
-
-    	/*$(window).blur(function(){
-    	  if (game && game.client && game.player && game.started);
-    	  	  //game.client.sendHasFocus(0);
-    	});
-    	$(window).focus(function(){
-    	  if (game && game.client && game.player && game.started);
-    	  	  //game.client.sendHasFocus(1);
-    	});*/
 
 	document.addEventListener('DOMContentLoaded', function () {
 	  // check whether the runtime supports screen.lockOrientation

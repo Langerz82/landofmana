@@ -26,13 +26,16 @@ define(['lib/localforage', 'entity/mob', 'entity/item', 'data/mobdata', 'user', 
 
       		   localforage.getItem('user_hash', function(e, val) {
       		   	   log.info("val="+val);
-      			     $('#user_hash').value = val;
+      			     // FIX: .value is a no-op on a jQuery object; use .val() to actually set the field
+      			     $('#user_hash').val(val);
       		   });
       		   localforage.getItem('user_name', function(e, val) {
       		   	   log.info("val="+val);
-      			     $('#user_name').value = val;
+      			     // FIX: .value is a no-op on a jQuery object; use .val() to actually set the field
+      			     $('#user_name').val(val);
       		   });
-      		   $('#user_password').value = "";
+      		   // FIX: .value is a no-op on a jQuery object; use .val() to actually set the field
+      		   $('#user_password').val("");
 
 		        var self = this;
 
@@ -156,7 +159,8 @@ define(['lib/localforage', 'entity/mob', 'entity/item', 'data/mobdata', 'user', 
                   break;
 
                   default:
-                      self.addValidationError(null, 'Failed to launch the game: ' + (result.reason ? result.reason : '(reason unknown)'));
+                      // FIX: `result` was not in scope here (would throw ReferenceError); use `data[0]`, the switch's own subject
+                      self.addValidationError(null, 'Failed to launch the game: ' + (data[0] ? data[0] : '(reason unknown)'));
                   break;
               }
 
@@ -377,7 +381,8 @@ define(['lib/localforage', 'entity/mob', 'entity/item', 'data/mobdata', 'user', 
                 this.addValidationError(this.$usernameinput, 'Please enter a username.');
                 return false;
             }
-            if (username.length < 2 && username.length > 16)
+            // FIX: `&&` made this condition impossible to hit (length can't be both <2 and >16); use `||` so it actually rejects bad lengths
+            if (username.length < 2 || username.length > 16)
             {
               this.addValidationError(this.$usernameinput, 'Please enter a username between 2 and 16 characters.');
               return false;
@@ -411,7 +416,8 @@ define(['lib/localforage', 'entity/mob', 'entity/item', 'data/mobdata', 'user', 
                 this.addValidationError(this.$playernameinput, 'Please enter a player name.');
                 return false;
             }
-            if (playername.length < 2 && playername.length > 16)
+            // FIX: `&&` made this condition impossible to hit (length can't be both <2 and >16); use `||` so it actually rejects bad lengths
+            if (playername.length < 2 || playername.length > 16)
             {
               this.addValidationError(this.$playernameinput, 'Please enter a player name between 2 and 16 characters.');
               return false;

@@ -18,6 +18,7 @@ define(['lib/pako', 'entity/player', 'entityfactory', 'entity/mob', 'entity/item
             this.handlers = {};
 
 						this.onMessage = function(data) {
+	            // TODO: logs every inbound packet to the console; gate behind a debug/verbose flag before shipping
 	            console.warn("recv: "+data);
 							var fnProcessMessage = function (message) {
 								if(self.isListening) {
@@ -30,6 +31,7 @@ define(['lib/pako', 'entity/player', 'entityfactory', 'entity/mob', 'entity/item
 			          }
 							};
 	           var fnRecieveAction = function (data) {
+	             // TODO: logs every inbound action payload to the console; gate behind a debug/verbose flag before shipping
 	             console.warn("recv: "+data);
 	             if(data instanceof Array) {
 	               if(data[0] instanceof Array) {
@@ -142,7 +144,8 @@ define(['lib/pako', 'entity/player', 'entityfactory', 'entity/mob', 'entity/item
 				onError: function (data) {
 	          var message = data[0];
 	          $('#container').addClass('error');
-	          $('#errorwindow .errordetails').append("<p>"+message+"</p>");
+	          // FIX: XSS - server-supplied error message was inserted unescaped via .append(); escape before rendering
+	          $('#errorwindow .errordetails').append("<p>"+Utils.escapeHtml(message)+"</p>");
 	          app.loadWindow('playerwindow','errorwindow');
 						$('#errorwindow').focus();
 	      },
@@ -175,6 +178,7 @@ define(['lib/pako', 'entity/player', 'entityfactory', 'entity/mob', 'entity/item
           var data;
           if(this.connection.connected === true) {
 						//try { throw new Error() } catch (e) { console.warn("sent="+JSON.stringify(json)+e.stack); }
+            // TODO: logs every outbound packet (including sendLoginPlayer's playername/hash) to the console; gate behind a debug/verbose flag before shipping
             console.warn("sent=" + JSON.stringify(json));
           	if(this.useBison) {
                 data = BISON.encode(json);
@@ -189,11 +193,6 @@ define(['lib/pako', 'entity/player', 'entityfactory', 'entity/mob', 'entity/item
 						}
           }
         },
-
-        /*receiveMessage: function(incomingData) {
-            var self = this;
-            self.rawpackets.push(incomingData);
-        },*/
 
         receiveAction: function(data) {
             //log.info("recieved=" + JSON.stringify(data));
@@ -276,10 +275,6 @@ define(['lib/pako', 'entity/player', 'entityfactory', 'entity/mob', 'entity/item
             this.party_callback = callback;
         },
 
-				/*onLooks: function (callback) {
-            this.looks_callback = callback;
-        },*/
-
 				onPlayer: function (callback) {
             this.player_callback = callback;
         },
@@ -295,10 +290,6 @@ define(['lib/pako', 'entity/player', 'entityfactory', 'entity/mob', 'entity/item
         onDisconnected: function(callback) {
             this.disconnected_callback = callback;
         },
-
-        /*onClientError: function(callback) {
-            this.clienterror_callback = callback;
-        },*/
 
         onLogin: function(callback) {
         	this.login_callback = callback;
@@ -328,22 +319,6 @@ define(['lib/pako', 'entity/player', 'entityfactory', 'entity/mob', 'entity/item
             this.movepath_callback = callback;
         },
 
-        /*onEntityAttack: function(callback) {
-            this.attack_callback = callback;
-        },*/
-
-        /*onPlayerChangeHealth: function(callback) {
-            this.health_callback = callback;
-        },*/
-
-        /*onPlayerEquipItem: function(callback) {
-            this.equip_callback = callback;
-        },*/
-
-        /*onPlayerMoveToItem: function(callback) {
-            this.lootmove_callback = callback;
-        },*/
-
         onPlayerTeleportMap: function(callback) {
             this.teleportmap_callback = callback;
         },
@@ -352,17 +327,9 @@ define(['lib/pako', 'entity/player', 'entityfactory', 'entity/mob', 'entity/item
             this.chat_callback = callback;
         },
 
-        /*onDropItem: function(callback) {
-            this.drop_callback = callback;
-        },*/
-
         onCharacterDamage: function(callback) {
             this.dmg_callback = callback;
         },
-
-        /*onPlayerKillMob: function(callback) {
-            this.kill_callback = callback;
-        },*/
 
 				onPlayerStat: function(callback) {
             this.stat_callback = callback;
@@ -375,18 +342,6 @@ define(['lib/pako', 'entity/player', 'entityfactory', 'entity/mob', 'entity/item
         onPlayerItemLevelUp: function(callback) {
             this.itemlevelup_callback = callback;
         },
-
-        /*onPopulationChange: function(callback) {
-            this.population_callback = callback;
-        },*/
-
-        /*onEntityList: function(callback) {
-            this.list_callback = callback;
-        },*/
-
-				/*onKnownEntityList: function(callback) {
-            this.known_callback = callback;
-        },*/
 
         onEntityDestroy: function(callback) {
             this.destroy_callback = callback;
@@ -404,10 +359,6 @@ define(['lib/pako', 'entity/player', 'entityfactory', 'entity/mob', 'entity/item
             this.dialogue_callback = callback;
         },
 
-        /*onBarStats: function(callback) {
-            this.barstats_callback = callback;
-        },*/
-
         onQuest: function(callback) {
             this.quest_callback = callback;
         },
@@ -415,10 +366,6 @@ define(['lib/pako', 'entity/player', 'entityfactory', 'entity/mob', 'entity/item
 				onAchievement: function(callback) {
             this.achievement_callback = callback;
         },
-
-        /*onTalkToNPC: function(callback) {
-            this.talkToNPC_callback = callback;
-        },*/
 
         onItemSlot: function(callback) {
             this.itemslot_callback = callback;
@@ -464,10 +411,6 @@ define(['lib/pako', 'entity/player', 'entityfactory', 'entity/mob', 'entity/item
         	this.mapstatus_callback = callback;
         },
 
-        /*onUpdateLook: function (callback) {
-        	this.updatelook_calllback = callback;
-        },*/
-
 				onSetSprite: function (callback) {
 					this.set_sprite_callback = callback;
 				},
@@ -507,20 +450,6 @@ define(['lib/pako', 'entity/player', 'entityfactory', 'entity/mob', 'entity/item
 														playername,
 														playerhash]);
 				},
-
-        /*sendCreate: function(player) {
-            this.sendMessage([Types.Messages.CW_CREATE_PLAYER,
-															Date.now(),
-                              player.name,
-            		      				player.pClass
-														  ]);
-        },
-
-        sendLogin: function(player) {
-            this.sendMessage([Types.Messages.CW_LOGIN_PLAYER,
-															Date.now(),
-                              player.name]);
-        },*/
 
         sendMoveEntity: function(entity, action) {
 						//try { throw new Error(); } catch(err) { console.error(err.stack); }
@@ -614,10 +543,6 @@ define(['lib/pako', 'entity/player', 'entityfactory', 'entity/mob', 'entity/item
             this.sendMessage([Types.Messages.CW_SKILLLOAD]);
         },
 
-        /*sendCharacterInfo: function() {
-            this.sendMessage([Types.Messages.CW_CHARACTERINFO]);
-        },*/
-
         sendStoreSell: function(type, inventoryNumber) {
             this.sendMessage([Types.Messages.CW_STORESELL, type, inventoryNumber]);
         },
@@ -652,12 +577,6 @@ define(['lib/pako', 'entity/player', 'entityfactory', 'entity/mob', 'entity/item
             this.sendMessage([Types.Messages.CW_STORE_MODITEM, 0, type, index]);
         },
 
-        /*sendBankStore: function(itemSlot) {
-            this.sendMessage([Types.Messages.CW_ITEMSLOT, 2, itemSlot]);
-        },
-        sendBankRetrieve: function(itemSlot) {
-            this.sendMessage([Types.Messages.CW_BANKRETRIEVE, itemSlot]);
-        },*/
         sendGold: function(type, amount, type2) {
             this.sendMessage([Types.Messages.CW_GOLD, parseInt(type), parseInt(amount), parseInt(type2)]);
         },
