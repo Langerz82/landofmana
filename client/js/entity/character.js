@@ -420,10 +420,6 @@ export default class Character extends EntityMoving {
      * BEGIN - State Function.
      ******************************************************************************/
 
-    onDeath(callback) {
-        this.death_callback = callback;
-    }
-
     hasWeapon() {
         return false;
     }

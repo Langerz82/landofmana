@@ -164,8 +164,7 @@ const Types = {
     WC_SET_SPRITE: 334,
     WC_SET_ANIMATION: 335,
     WC_BLOCK_MODIFY: 336,
-    WC_PLAYERINFO: 337,
-    WC_VERSION: 338
+    WC_VERSION: 337
   },
 
   Orientations: {
@@ -368,9 +367,5 @@ Types.QuestType = QuestType;
 Types.QuestStatus = QuestStatus;
 Types.InventoryMode = InventoryMode;
 Types.SkillEffects = SkillEffects;
-
-if(!(typeof exports === 'undefined')) {
-    module.exports = Types;
-}
 
 export default Types;

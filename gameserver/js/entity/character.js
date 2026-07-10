@@ -468,10 +468,6 @@ class Character extends EntityMoving {
  * BEGIN - State Functions.
  ******************************************************************************/
 
-  onDeath(callback) {
-      this.death_callback = callback;
-  }
-
   hasWeapon() {
       return false;
   }

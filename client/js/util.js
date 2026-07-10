@@ -58,8 +58,8 @@ Utils.fixed = function(value, length) {
 }
 
 String.prototype.format = String.prototype.f = function() {
-    const s = this,
-        i = arguments.length;
+    let s = this;
+    let i = arguments.length;
 
     while (i--) {
         s = s.replace(new RegExp('\\{' + i + '\\}', 'gm'), arguments[i]);

@@ -65,7 +65,6 @@ Skill.jqShowSkill = function(jq, skillId, jqn, size) {
     size = size * 0.66;
     const position = Skill.Data[skillId].iconOffset;
     jq.css({
-        'background-size': 'auto',
         'background-image': 'url("img/' + scale + '/misc/skillicons.png")',
         'background-position': (-position[0] * 24 * scale * size) + "px " + (-position[1] * 24 * scale * size) + "px",
         'background-repeat': 'no-repeat',

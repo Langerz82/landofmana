@@ -27,6 +27,7 @@
     "type": "module",
     "scripts": {
         "start": "nw .",
+		"build-es": "npx esbuild js/home.js --bundle --minify --format=esm --outfile=js/compress.js",
 		"build":  "node ../r.js -o baseUrl=./js paths.requireLib=./../javascripts/require name=home include=requireLib out=./js/main-built.js & uglifyjs --compress --mangle -o ./js/compress.js ./js/main-built.js ",
 		"build-linux":  "node ../r.js -o baseUrl=./js paths.requireLib=./../javascripts/require name=home include=requireLib out=./js/main-built.js && uglifyjs --compress --mangle -o ./js/compress.js ./js/main-built.js",
 		"delete": "cp ./js/compress.js . & del ./js/*.js & cp compress.js ./js",

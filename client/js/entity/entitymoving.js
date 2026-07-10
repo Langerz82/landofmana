@@ -547,7 +547,7 @@ export default class EntityMoving extends Entity {
     /// TODO - Fix, probably broken with new path code.
     isWithinPath(coords) {
         let tCoords = null;
-        if (typeof (coords) === "Object" && coords.x > 0 && coords.y > 0) {
+        if (typeof (coords) === "object" && coords.x > 0 && coords.y > 0) {
             tCoords = [coords.x, coords.y];
         } else if (Array.isArray(coords) && coords.length === 2) {
             tCoords = [coords[0], coords[1]];
