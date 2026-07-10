@@ -246,6 +246,16 @@ class PlayerItems {
     handleInventoryEat(item, slot){
         const entity = this.entity;
 
+        // FIX: getStoredItem() (above) returns null/undefined for an empty
+        // slot, and packethandler.js's CW_ITEMSLOT "eat" action passes
+        // whatever getStoredItem() returns straight through without checking
+        // it first. A client could point an eat packet at an empty inventory
+        // slot and throw a TypeError here on every such packet (previously
+        // silently swallowed by the global uncaughtException handler instead
+        // of being rejected cleanly).
+        if (!item)
+            return;
+
         const kind = item.itemKind;
 
         if(!this.consumeTime.isOver())

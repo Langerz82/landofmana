@@ -67,6 +67,13 @@ class Player extends Character {
 
         this.idleTimer = new Timer(300000);
 
+        // FIX: movement (hasMoveThrottled) and attacks (attackedTime) are
+        // both rate-limited, but chat had no cooldown at all -- a client
+        // could send CW_CHAT as fast as the socket allowed, and every
+        // message is broadcast to the whole world (sendWorld), so this was
+        // an easy flood vector. 500ms mirrors the existing attack cooldown.
+        this.chatCooldown = new Timer(500);
+
         this.quests = new PlayerQuests(this);
         this.harvest = new PlayerHarvest(this);
         this.items = new PlayerItems(this);

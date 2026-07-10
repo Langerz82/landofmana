@@ -268,6 +268,15 @@ class PacketHandler {
     }
 
     handleChat(message) {
+        // FIX: unlike movement/attacks, chat had no rate limiting at all, so
+        // a client could spam CW_CHAT as fast as the socket allowed and have
+        // every message broadcast to the entire world. Reject (rather than
+        // silently drop) so the client isn't left wondering why nothing sent.
+        if (!this.player.chatCooldown.isOver()) {
+            this.send([Types.Messages.WC_NOTIFY, "CHAT", "CHATFLOOD"]);
+            return;
+        }
+
         let msg = Utils.sanitize(message[0]);
         console.info("Chat: " + this.player.name + ": " + msg);
 

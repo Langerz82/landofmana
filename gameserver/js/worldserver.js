@@ -360,9 +360,16 @@ class World {
 
     handleDamage(entity, attacker, damage, crit)
     {
+      // FIX: `effects` was declared with `var` *inside* the `if
+      // (entity.effects)` block, so for any entity without an `.effects` map
+      // (most mobs/players most of the time) `effects` stayed `undefined`
+      // for the rest of this function -- silently passing `undefined`
+      // instead of an empty array into `JSON.stringify` and into
+      // `entity.onDamage(...)` below. Declaring it up front keeps it a
+      // well-defined `[]` regardless of which branch runs.
+      var effects = [];
       if (entity.effects) {
         console.info("entity.effects: "+JSON.stringify(entity.effects));
-        var effects = [];
 
         Utils.forEach(entity.effects, function (v, k) {
           if (v === 1)

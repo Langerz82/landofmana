@@ -1,11 +1,27 @@
 
+// NOTE: this file is dead code -- nothing in the codebase imports it anymore
+// (grep for "class.js" / "Class.extend" turns up only comments in other
+// files noting where the old pattern used to be, e.g. entity/block.js,
+// items/itemroom.js, packets/packethandler.js, ws.js). It has also been
+// superseded by native ES6 classes throughout entity/, ws.js, etc.
+// It's left in place only for historical reference; it is not safe to use
+// as-is even if someone tries to revive it:
+//   - `Class = function() {};` below assigns to an undeclared global. ES
+//     modules are always strict mode, and strict mode throws a
+//     ReferenceError on assignment to an undeclared identifier -- so simply
+//     importing this file (`import './lib/class.js'`) would crash immediately.
+//   - `Class.extend = arguments.callee` further down also throws in strict
+//     mode (`arguments.callee` is disallowed).
+// Recommend deleting this file outright once you've confirmed nothing
+// external depends on it; kept here untouched for now since removing files
+// wasn't requested.
 /* Simple JavaScript Inheritance
  * By John Resig http://ejohn.org/
  * MIT Licensed.
  */
 // Inspired by base2 and Prototype
 let initializing = false, fnTest = /xyz/.test(function(){xyz;}) ? /\b_super\b/ : /.*/;
-    
+
 // The base Class implementation (does nothing)
 Class = function() {};
 

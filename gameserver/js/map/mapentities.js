@@ -261,6 +261,17 @@ class MapEntities {
         });
     }
 
+    // FIX (perf): sendToPlayer/sendBroadcast/sendNeighbours each used to call
+    // this.processPackets() immediately after queuing, on top of the
+    // setInterval(processPackets, 16) flush already running for every map
+    // with players (worldserver.js). processPackets() iterates every queued
+    // player's packet list on the map, so every single event -- one chat
+    // message, one attack, one item pickup -- paid a full
+    // O(players-on-map) cost immediately, in addition to being flushed again
+    // a few milliseconds later by the interval. Queuing here and letting the
+    // 16ms interval be the sole flush point removes that redundant work;
+    // worst case this delays delivery by <16ms, which is already the
+    // effective batching granularity the interval assumes.
     sendToPlayer(player, message) {
         if (!message)
             return;
@@ -271,7 +282,6 @@ class MapEntities {
         {
             self.packets[player.id].push(message.serialize());
         }
-        this.processPackets();
     }
 
     sendBroadcast(message, ignoredPlayer)  {
@@ -284,7 +294,6 @@ class MapEntities {
                 packet.push(message.serialize());
             }
         });
-        this.processPackets();
     }
 
     sendNeighbours(entity, message, ignoredPlayer, areaLength)  {
@@ -308,7 +317,6 @@ class MapEntities {
                 self.packets[player.id].push(message.serialize());
             }
         }
-        this.processPackets();
     }
 
     spawnEntities(map) {

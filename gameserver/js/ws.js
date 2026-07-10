@@ -14,6 +14,24 @@ import io_client from 'socket.io-client';
 
 export default WS;
 
+// FIX: JSON.parse on incoming client data was called with no try/catch in any
+// of the message handlers below. A single malformed payload (truncated JSON,
+// bad base64, etc.) threw synchronously inside the socket 'message' event and
+// was only prevented from crashing the whole process by the blanket
+// process.on('uncaughtException', ...) handler in main.js -- which just logs
+// and swallows it, leaving no record of *which* connection sent the bad data
+// and no way to reject just that one message. This helper catches the parse
+// error locally so a bad message from one client is dropped/logged without
+// relying on the global safety net.
+function safeJsonParse(raw, onError) {
+  try {
+    return JSON.parse(raw);
+  } catch (e) {
+    onError(e);
+    return undefined;
+  }
+}
+
 /**
  * Abstract Server and Connection classes
  */
@@ -236,7 +254,12 @@ WS.socketioConnection = class extends Connection {
                     if (useBison) {
                       self.listenCallback(BISON.decode(buffer));
                     } else {
-                      self.listenCallback(JSON.parse(buffer));
+                      // FIX: see safeJsonParse above -- don't let a corrupt
+                      // decompressed payload throw inside this callback.
+                      const parsed = safeJsonParse(buffer, (e) =>
+                        console.warn('Dropping malformed compressed message from ' +
+                          self._connection.conn.remoteAddress + ': ' + e.message));
+                      if (parsed !== undefined) self.listenCallback(parsed);
                     }
                   }
                 }
@@ -249,7 +272,14 @@ WS.socketioConnection = class extends Connection {
                 self.listenCallback(BISON.decode(msg.substr(1)));
               } else {
                  //console.info("message="+message.substr(1));
-                self.listenCallback(JSON.parse(msg.substr(1)));
+                // FIX: see safeJsonParse above -- don't let one malformed
+                // message crash this handler (and fall back to the global
+                // uncaughtException handler); just drop it and keep the
+                // connection alive.
+                const parsed = safeJsonParse(msg.substr(1), (e) =>
+                  console.warn('Dropping malformed message from ' +
+                    self._connection.conn.remoteAddress + ': ' + e.message));
+                if (parsed !== undefined) self.listenCallback(parsed);
               }
             }
           }
@@ -347,7 +377,11 @@ WS.userConnection = class extends Connection {
                     if (useBison) {
                       self.listenCallback(BISON.decode(buffer));
                     } else {
-                      self.listenCallback(JSON.parse(buffer));
+                      // FIX: see safeJsonParse above -- don't let a corrupt
+                      // decompressed payload throw inside this callback.
+                      const parsed = safeJsonParse(buffer, (e) =>
+                        console.warn('Dropping malformed compressed message: ' + e.message));
+                      if (parsed !== undefined) self.listenCallback(parsed);
                     }
                   }
                 }
@@ -360,7 +394,11 @@ WS.userConnection = class extends Connection {
                 self.listenCallback(BISON.decode(msg.substr(1)));
               } else {
                  //console.info("message="+message.substr(1));
-                self.listenCallback(JSON.parse(msg.substr(1)));
+                // FIX: see safeJsonParse above -- don't let one malformed
+                // message crash this handler; just drop it and keep going.
+                const parsed = safeJsonParse(msg.substr(1), (e) =>
+                  console.warn('Dropping malformed message: ' + e.message));
+                if (parsed !== undefined) self.listenCallback(parsed);
               }
             }
           }

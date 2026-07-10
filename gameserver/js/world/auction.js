@@ -98,7 +98,14 @@ class Auction {
     list(player, type) {
         let msg = [Types.Messages.WC_AUCTIONOPEN, type, 0];
         let recCount = 0;
-        for (const auction of this.auctions) {
+        // FIX: this used to be a `for...of` loop that called
+        // `this.auctions.indexOf(auction)` per matching entry -- indexOf is
+        // itself an O(n) linear scan, so building a full listing was O(n^2)
+        // in the number of auction slots (up to auctionEntriesMax, see
+        // format.js). Iterating with an explicit index instead makes this
+        // O(n) overall.
+        for (let index = 0; index < this.auctions.length; index++) {
+            const auction = this.auctions[index];
             if (!auction) {
                 continue;
             }
@@ -108,7 +115,7 @@ class Auction {
                 (type === 2 && !pc && ItemTypes.isWeapon(kind)) ||
                 (type === 0 && pc))
             {
-                msg.push(this.auctions.indexOf(auction));
+                msg.push(index);
                 msg = msg.concat(auction.toArray());
                 ++recCount;
             }
