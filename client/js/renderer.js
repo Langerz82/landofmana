@@ -222,6 +222,12 @@ export default class Renderer {
 
         this.blankFrame = false;
 
+        // FIX: showCutScene() (letterbox bars) had no way to actually be turned on -
+        // its only caller was permanently commented out in the render loop. Added an
+        // explicit flag plus startCutScene()/endCutScene() control methods below so
+        // something (a quest trigger, server message, etc.) can actually activate it.
+        this.cutSceneActive = false;
+
         this.pxSprite = {};
 
         this.colTotal = 0;
@@ -1486,6 +1492,11 @@ export default class Renderer {
       }
     }
 
+    // FIX: this method only ever animated the letterbox bars INTO view (sprite.y
+    // incrementing toward ymax / sprite2.y decrementing toward y2max) and had no logic
+    // to ever remove them again - once shown they'd be stuck onscreen forever with no
+    // way to end the cutscene. Added a reverse branch driven by this.cutSceneActive so
+    // endCutScene() (below) actually retracts and cleans up the bars.
     showCutScene() {
       const width = ~~($("#container").width()*this.gameZoom);
       const height = ~~($("#container").height()*this.gameZoom);
@@ -1518,10 +1529,38 @@ export default class Renderer {
         sprite.y=y;
         sprite2.y=y2;
       }
-      if (sprite.y < ymax)
-        sprite.y++;
-      if (sprite2.y > y2max)
-        sprite2.y--;
+
+      if (this.cutSceneActive) {
+        if (sprite.y < ymax)
+          sprite.y++;
+        if (sprite2.y > y2max)
+          sprite2.y--;
+      } else {
+        sprite.y--;
+        sprite2.y++;
+        if (sprite.y <= y && sprite2.y >= y2) {
+          // Bars are fully retracted offscreen - tear them down so a future
+          // startCutScene() rebuilds them cleanly instead of reusing stale sprites.
+          Container.HUD.removeChild(sprite);
+          Container.HUD.removeChild(sprite2);
+          delete this.pxSprite["cutscene_1"];
+          delete this.pxSprite["cutscene_2"];
+        }
+      }
+    }
+
+    // Activates the letterbox cutscene bars; call once per frame from the render loop
+    // (see draw()) while this.cutSceneActive is true, and this.showCutScene() will
+    // animate them into view.
+    startCutScene() {
+      this.cutSceneActive = true;
+    }
+
+    // Deactivates the cutscene bars. showCutScene() keeps running for a few more frames
+    // (still gated by the same `this.pxSprite["cutscene_1"]` check in draw()) to animate
+    // them back offscreen and tear down the sprites.
+    endCutScene() {
+      this.cutSceneActive = false;
     }
 
     setGridOffset() {
@@ -1714,10 +1753,13 @@ export default class Renderer {
       //this.renderer.clear();
       this.renderStaticCanvases();
 
-      // NOTE: showCutScene() (letterbox bars) is fully implemented below but has no
-      // active caller anywhere in the client - left disabled here intentionally rather
-      // than deleted, since it's a real feature (not a stub) that may be wired up later.
-      //this.showCutScene();
+      // FIX: was permanently commented out, so showCutScene() (letterbox bars) had no
+      // caller and could never run. Now driven by this.cutSceneActive - call
+      // renderer.startCutScene()/endCutScene() to turn it on/off; the pxSprite check
+      // keeps it running for the last few frames of the retract animation after
+      // endCutScene() flips the flag back off.
+      if (this.cutSceneActive || this.pxSprite["cutscene_1"])
+        this.showCutScene();
 
       this.drawEntities();
 
