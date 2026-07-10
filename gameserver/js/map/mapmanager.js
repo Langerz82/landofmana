@@ -61,9 +61,7 @@ class MapManager {
             mobArea.addMobs();
             mobArea.spawnMobs();
 
-            // npc needs to be in mid tile or player doesn't move to him properly.
-            var pos = Utils.fixGridPosition(510*G_TILESIZE, 510*G_TILESIZE);
-            var npc = map.entities.addNpcMove(0, pos.x, pos.y);
+            var npc = map.entities.addNpcMove(0, 510*G_TILESIZE, 510*G_TILESIZE);
             npc.name = "Old Man";
             npc.scriptQuests = false;
 

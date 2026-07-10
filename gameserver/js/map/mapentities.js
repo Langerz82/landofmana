@@ -316,18 +316,15 @@ class MapEntities {
 
         //setTimeout(function () {
         _.each(self.map.spawnEntities, function(npcData) {
-            // Half grid offset 8 needed as map npc's are stored in grid values.
-            const pos = Utils.fixGridPosition(npcData.x, npcData.y);
             if (npcData.type == Types.EntityTypes.NPCMOVE) {
-
-                const npc = self.addNpcMove(npcData.id, pos.x, pos.y);
+                const npc = self.addNpcMove(npcData.id, npcData.x, npcData.y);
                 if (npcData.name)
                     npc.name = npcData.name;
                 if (npcData.scriptQuests)
                     npc.scriptQuests = npcData.scriptQuests;
             }
             if (npcData.type == Types.EntityTypes.NPCSTATIC) {
-                const npc = self.addNpcStatic(npcData.id, pos.x, pos.y);
+                const npc = self.addNpcStatic(npcData.id, npcData.x, npcData.y);
                 if (npcData.name)
                     npc.name = npcData.name;
                 if (npcData.scriptQuests)
@@ -400,7 +397,8 @@ class MapEntities {
     }
 
     addNpcStatic(kind, x, y) {
-        const npc = new NpcStatic(++this.entityCount, kind, x, y, this.map);
+        const pos = Utils.fixGridPosition(x, y);
+        const npc = new NpcStatic(++this.entityCount, kind, pos.x, pos.y, this.map);
 
         this.addEntity(npc);
         this.npcs.set(npc.id, npc);
@@ -409,7 +407,8 @@ class MapEntities {
     }
 
     addNpcMove(kind, x, y) {
-        const npc = new NpcMove(++this.entityCount, kind, x, y, this.map);
+        const pos = Utils.fixGridPosition(x, y);
+        const npc = new NpcMove(++this.entityCount, kind, pos.x, pos.y, this.map);
 
         this.addEntity(npc);
         this.npcplayers.set(npc.id, npc);
