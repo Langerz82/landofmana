@@ -41,12 +41,11 @@ class PacketHandler {
             console.info("recv="+JSON.stringify(message));
             const action = parseInt(message[0]);
             if (isNaN(action)) {
-                // NOTE: pre-existing bug preserved from the original — this callback
-                // is a plain (non-arrow) function, so `this` here is not the
-                // PacketHandler instance (it's `self` a few lines below that
-                // captures that correctly). `this.connection` would throw at
-                // runtime both here and in the original CommonJS version.
-                this.connection.close("Invalid message");
+                // FIX: this callback is a plain (non-arrow) function, so `this`
+                // here is not the PacketHandler instance -- it's `self`, captured
+                // a few lines above, that correctly refers to it. `this.connection`
+                // threw a TypeError instead of closing the malformed connection.
+                self.connection.close("Invalid message");
                 return;
             }
 
@@ -429,7 +428,15 @@ class PacketHandler {
 
         // slot type, slot index, slot count.
         const slot = [Number(msg[1]), Number(msg[2]), Number(msg[3])];
-        if (slot[0] === 2 && slot[1] > this.player.items.equipment.maxNumber)
+        // FIX: this only bounds-checked slot type 2 (bank), and against
+        // equipment's maxNumber (5) instead of the bank's own size (96, see
+        // items/bank.js) -- rejecting every valid bank slot >= 6. Worse,
+        // slot types 0 (inventory, max 50) and 1 (equipment, max 5) got no
+        // bounds check at all here. itemStore[0..2] map directly to
+        // inventory/equipment/bank (see the slot-type comment above), so
+        // validate whichever store the requested slot type actually is.
+        const itemStore = this.player.items.itemStore[slot[0]];
+        if (!itemStore || slot[1] < 0 || slot[1] >= itemStore.maxNumber)
             return;
         let item = null;
         if (slot[1] >= 0)

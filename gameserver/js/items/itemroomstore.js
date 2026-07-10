@@ -249,18 +249,17 @@ class ItemStore {
         return item;
     }
 
-    // NOTE: pre-existing bug preserved from the original — pushes a bare `id`
-    // identifier below instead of the loop variable `i` (or `item.slot`). This
-    // would throw a ReferenceError at runtime in the original CommonJS version
-    // too, since sloppy mode only creates implicit globals on bare *assignment*,
-    // not on read of an undeclared name.
+    // FIX: pushed a bare `id` identifier instead of the loop variable `i`,
+    // throwing a ReferenceError on every call (e.g. lootmanager.js's
+    // getPlayerDrop, which indexes back into `rooms` with the returned value
+    // -- `i` is exactly the right key to push for that).
     getRandomItemNumber() {
         let item = null;
         const itemNums = [];
         for (const i in this.rooms)
         {
             item = this.rooms[i];
-            if (item && item.itemKind > 0) itemNums.push(id);
+            if (item && item.itemKind > 0) itemNums.push(i);
         }
         const rand = Utils.randomRange(0,itemNums.length-1);
         return (itemNums.length > 0) ?

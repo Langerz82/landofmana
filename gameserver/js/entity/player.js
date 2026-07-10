@@ -573,7 +573,13 @@ class Player extends Character {
 
         // Needs to convert shortcut into optimum data structure while
         // remaining compatibiltity with old structures.
-        if (Array.isArray()) {
+        // FIX: Array.isArray() was called with no argument, which is always
+        // false -- so the old array-format shortcuts branch below was dead
+        // code, and every account (including old array-format ones) fell
+        // through to the object-keyed `else` branch, misreading an array's
+        // numeric indices as slot ids. Passing db_player.shortcuts restores
+        // the intended format check.
+        if (Array.isArray(db_player.shortcuts)) {
           for (const shortcut of db_player.shortcuts)
           {
             if (shortcut[0] >= 6)

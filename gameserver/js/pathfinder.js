@@ -540,7 +540,12 @@ class Pathfinder {
 
   clearIncludeList(grid) {
       this.applyIncludeList_(grid, false);
-      this.ignored = [];
+      // FIX: this was clearing `this.ignored` (copy-pasted from
+      // clearIgnoreList above) instead of `this.included`. Entities added via
+      // includeEntity() were therefore never actually removed from
+      // `this.included`, so their old grid tiles stayed marked and the list
+      // only ever grew -- a slow-building pathfinding correctness bug.
+      this.included = [];
   }
 }
 

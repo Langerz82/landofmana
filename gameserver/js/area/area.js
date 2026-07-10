@@ -11,11 +11,16 @@ class Area {
 
         this.x = x;
         this.y = y;
-        if (elipse)
-        {
-            this.x + this.width / 2;
-            this.y + this.height / 2;
-        }
+        // FIX (cleanup, not a behavior change): this `if (elipse)` block was
+        // dead code -- both lines are expression statements with no
+        // assignment, and even if they had assigned to this.x/this.y,
+        // this.width/this.height aren't set until the two lines below, so
+        // they'd have read as undefined at this point anyway. Removed rather
+        // than "fixed into life", since the class-level comment above already
+        // documents the real, current contract: callers must pass an
+        // already-centered x/y for ellipse areas. Making this block actually
+        // compute a center would silently shift every existing ellipse area
+        // caller by width/2,height/2 -- a real behavior change, not a fix.
         this.width = width;
         this.height = height;
         //this.world = world;

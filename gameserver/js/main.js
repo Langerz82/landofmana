@@ -360,8 +360,11 @@ function modgems (args) {
   const gems = args[1];
 
   const player = world.getPlayerByName(playerName);
-  if (player && player.user)
-    player.user.modifyGems(gems);
+  // FIX: modifyGems() is defined on PlayerItems (player.items), not on
+  // player.user (which just holds account data like .gems/.looks) -- this
+  // threw "not a function" whenever an admin ran the modgems console command.
+  if (player && player.items)
+    player.items.modifyGems(gems);
 }
 
 function modgold (args) {

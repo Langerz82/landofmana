@@ -488,7 +488,12 @@ function pos(x, y) {
 }
 
 function equalPositions(pos1, pos2) {
-    return pos1.x === pos2.x && pos2.y === pos2.y;
+    // FIX: the y-comparison compared pos2.y to itself (always true) instead
+    // of to pos1.y, so this only ever actually checked the x coordinate.
+    // Used by getAdjacentGroupPositions() to de-duplicate connected map
+    // groups, this could wrongly treat groups with the same x but different y
+    // as duplicates.
+    return pos1.x === pos2.x && pos1.y === pos2.y;
 }
 
 export default Map;

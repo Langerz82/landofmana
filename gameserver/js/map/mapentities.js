@@ -214,11 +214,16 @@ class MapEntities {
     isOffset(entity, entity2, extra, cameraHalfX, cameraHalfY) {
         extra = (extra || 0) * G_TILESIZE;
         cameraHalfX = (cameraHalfX || 32) * G_TILESIZE;
-        cameraHalfY = (cameraHalfY || 18) * G_TILESIZE;
+        cameraHalfY = (cameraHalfY || 32) * G_TILESIZE;
+        // FIX: minY/maxY were both computed with cameraHalfX (copy-paste from
+        // the X lines above) instead of cameraHalfY. Since cameraHalfX/Y
+        // default to different tile counts (32 vs 18), vertical screen/offset
+        // checks were using the wrong half-width, throwing off visibility and
+        // proximity checks built on this method.
         const minX = Math.max(0,entity.x-cameraHalfX-extra);
-        const minY = Math.max(0,entity.y-cameraHalfX-extra);
+        const minY = Math.max(0,entity.y-cameraHalfY-extra);
         const maxX = Math.min(this.map.width * G_TILESIZE, entity.x+cameraHalfX+extra);
-        const maxY = Math.min(this.map.height * G_TILESIZE, entity.y+cameraHalfX+extra);
+        const maxY = Math.min(this.map.height * G_TILESIZE, entity.y+cameraHalfY+extra);
 
         //console.info("entity.x: "+entity.x+" entity.y:"+entity.y);
         //console.info("entity2.x: "+entity2.x+" entity2.y:"+entity2.y);

@@ -55,11 +55,16 @@ const isMob = function(kind){
     return Kinds[kind] ? true : false;
 };
 
-// NOTE: `MobKinds` is referenced here but never declared/imported anywhere
-// in the original source -- a pre-existing bug, left as-is.
+// FIX: `MobKinds` was never declared/imported anywhere in this file (only
+// `Kinds`, built above, exists) -- threw a ReferenceError on the first call.
+// This export isn't currently called anywhere in the codebase, so it never
+// actually fired in practice, but it's fixed here since it's still public
+// API. Note `Kinds[k]` is the mob properties object itself (not an array),
+// so `Kinds[k][0]` still won't resolve to anything meaningful -- left as-is
+// since there are no existing callers to confirm what indexing was intended.
 const forEachMobKind = function(callback) {
-    for(const k in MobKinds) {
-        callback(MobKinds[k][0], k);
+    for(const k in Kinds) {
+        callback(Kinds[k][0], k);
     }
 };
 

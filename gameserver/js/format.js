@@ -113,10 +113,23 @@ const isTypeValid = function (fmt,msg) {
       return false;
     }
 
+    // FIX: this used to return true for any optional ('no'/'so') field right
+    // after the basic type check, before fmt[1]/fmt[2] were ever consulted --
+    // so a declared-optional field's numeric/length range was never actually
+    // validated when a value was present, unlike the 'n'/'s' cases just below
+    // it. Only skip range validation when the value is genuinely absent
+    // (null); otherwise fall through to the same range check its non-optional
+    // counterpart ('n'/'s') would get.
     if (fmt[0] === 'no' || fmt[0] === 'so')
     {
-      //console.info("format is optional and ok.");
-      return true;
+      if (_.isNull(msg)) {
+        //console.info("format is optional and absent - ok.");
+        return true;
+      }
+
+      const cfno = (fmt[0] === 'no' && Number(msg) >= fmt[1] && Number(msg) <= fmt[2]);
+      const cfso = (fmt[0] === 'so' && msg.length >= fmt[1] && msg.length <= fmt[2]);
+      return cfno || cfso;
     }
 
     const cfn = (fmt[0] === 'n' && msg >= fmt[1] && msg <= fmt[2]);

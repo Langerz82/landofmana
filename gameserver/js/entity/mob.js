@@ -393,7 +393,12 @@ class Mob extends Character {
       {
         const loot = ItemLootData.ItemLoot[lootId];
         //console.info(JSON.stringify(loot));
-        const chance = ~~(1000 / loot.rarity * loot.rarity);
+        // FIX: `1000 / loot.rarity * loot.rarity` algebraically cancels to a
+        // flat 1000 for any rarity value, so every loot entry got the exact
+        // same drop weight -- rarity had zero effect on odds. Dropping the
+        // stray `* loot.rarity` restores rarity as an actual divisor: higher
+        // rarity now yields a lower chance, as the field name implies.
+        const chance = ~~(1000 / loot.rarity);
         if (chance > 0)
           this.loot[lootId] = chance;
         this.lootTotal += this.loot[lootId];

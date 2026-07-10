@@ -39,12 +39,18 @@ class Node extends Entity {
     setDrops() {
         this.drops = {};
 
+        // FIX: the `else` previously only bound to the `level === 3` check
+        // (each level was a separate `if`), so level-1 and level-2 nodes fell
+        // through to the `else` too and got drops[304] added on top of their
+        // own level-specific drop. Chaining with `else if` makes the four
+        // levels mutually exclusive, as the drop IDs (301-304) imply they
+        // were meant to be.
         if (this.kind === 2) {
             if (this.level === 1)
                 this.drops[301] = 2000;
-            if (this.level === 2)
+            else if (this.level === 2)
                 this.drops[302] = 2000;
-            if (this.level === 3)
+            else if (this.level === 3)
                 this.drops[303] = 2000;
             else
                 this.drops[304] = 2000;
