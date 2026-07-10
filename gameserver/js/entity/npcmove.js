@@ -8,10 +8,6 @@ import NPCnames from '../../shared/data/npc_names.json' with { type: 'json' };
 
 class NpcMove extends Character {
     constructor(id, kind, x, y, map) {
-        // This is because the npc offsets are centered in the client.
-        x += 8;
-        y += 8;
-
         super(id, Types.EntityTypes.NPCMOVE, kind, x, y, map);
 
         this.armor = 0;

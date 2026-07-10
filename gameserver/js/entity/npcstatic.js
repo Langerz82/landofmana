@@ -6,10 +6,6 @@ import { Types } from '../common.js';
 
 class NpcStatic extends Entity {
     constructor(id, kind, x, y, map) {
-        // This is because the npc offsets are centered in the client.
-        x += 8;
-        y += 8;
-
         super(id, Types.EntityTypes.NPCSTATIC, kind, x, y, map);
 
         this.map = map;
