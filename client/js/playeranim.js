@@ -100,7 +100,10 @@ export default class PlayerAnim {
             }
         }
         else {
-            this.log_error("Not ready for animation");
+            // FIX: this.log_error doesn't exist anywhere on PlayerAnim/Entity - the
+            // codebase's convention is the global `log.error(...)` (see lib/log.js).
+            // Calling this branch threw a TypeError instead of logging the warning.
+            log.error("Not ready for animation");
         }
     }
 

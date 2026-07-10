@@ -221,10 +221,15 @@ export default class UserClient {
       }
 
       onWorlds(data) {
+        // FIX: world/server list entries were string-concatenated into <option> HTML
+        // with no escaping and an unquoted value attribute, unlike every other
+        // server-controlled string in this file (onError/onVersion already use
+        // Utils.escapeHtml). Escaped all four fields, quoted the value attribute, and
+        // closed the previously-unterminated </option tag.
         for (let i = 0; i < data.length; i += 4)
         {
-          $("#player_server").append("<option value="+data[i]+">"+
-            data[i+1]+" "+data[i+2]+"/"+data[i+3]+"</option");
+          $("#player_server").append("<option value=\""+Utils.escapeHtml(data[i])+"\">"+
+            Utils.escapeHtml(data[i+1])+" "+Utils.escapeHtml(data[i+2])+"/"+Utils.escapeHtml(data[i+3])+"</option>");
         }
       }
 

@@ -146,6 +146,12 @@ export default class Character extends EntityMoving {
             //self.freeze = false;
             self.idle(self.orientation);
         });
+        // FIX: hit() never returned a value, but Player.makeAttack() gates on
+        // `if (this.hit() && this.hasTarget())`. Since this always succeeds once called
+        // (no failure branch above), it should report success - otherwise makeAttack()
+        // always falls through to "attack_aborted" and the server is never told about
+        // the attack, even though the attack animation plays locally.
+        return true;
     }
 
     onAggro(callback) {

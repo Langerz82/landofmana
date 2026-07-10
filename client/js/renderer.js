@@ -1217,19 +1217,9 @@ export default class Renderer {
         }
     }
 
-    drawAnimatedTiles() {
-        return; // stub - remove.
-
-        const self = this,
-            mc = this.game.mapContainer,
-            tilesetwidth = this.tilesets[0].baseTexture.width / this.tilesize;
-
-        this.animatedTileCount = 0;
-        this.game.forEachAnimatedTile(function (tile) {
-          self.drawTile([0, tile.id, self.tilesets, tilesetwidth, x, y]);
-          self.animatedTileCount += 1;
-        });
-    }
+    // FIX: removed drawAnimatedTiles() - it was a stub (`return;` as its first statement,
+    // with dead/unreachable code below referencing undefined `x`/`y`) with no remaining
+    // callers anywhere in the client. Dead code removed rather than left half-implemented.
 
 // TODO - Render in PIXIJS ?
     getFPS() {
@@ -1724,6 +1714,9 @@ export default class Renderer {
       //this.renderer.clear();
       this.renderStaticCanvases();
 
+      // NOTE: showCutScene() (letterbox bars) is fully implemented below but has no
+      // active caller anywhere in the client - left disabled here intentionally rather
+      // than deleted, since it's a real feature (not a stub) that may be wired up later.
       //this.showCutScene();
 
       this.drawEntities();

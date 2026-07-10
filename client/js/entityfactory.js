@@ -39,7 +39,10 @@ EntityFactory.createEntity = function(type, kind, id, mapIndex, name, level = 0)
     // onSpawnChest handler then calls `item.setPosition(...)` on that null and throws.
     // Chest is keyed by type like every other branch below.
     else if (type === Types.EntityTypes.CHEST)
-        return new Chest(id, kind);
+        // FIX: was `new Chest(id, kind)` - Chest's constructor didn't accept mapIndex at
+        // all (see entity/chest.js fix), so chests spawned with mapIndex undefined and
+        // never rendered. Pass mapIndex through like every other branch above.
+        return new Chest(id, mapIndex, kind);
 
     return null;
 };

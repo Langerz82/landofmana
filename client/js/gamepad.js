@@ -1225,7 +1225,11 @@ export default class Gamepad {
               this.movePad = 2;
           }
         }
-        if (navigate === Navigate.NONE && navigate === Navigate.NONE && p.keyMove & this.movePad > 0)
+        // FIX: `>` binds tighter than `&`, so this was parsing as
+        // `p.keyMove & (this.movePad > 0)` (bitwise-AND against a 0/1 boolean) instead of
+        // the intended "movePad bit is set" check `(p.keyMove & this.movePad) > 0`. Broke
+        // detection of a released gamepad-driven walk direction.
+        if (navigate === Navigate.NONE && navigate === Navigate.NONE && (p.keyMove & this.movePad) > 0)
         {
           p.move(this.movePad, false);
           this.movePad = 0;

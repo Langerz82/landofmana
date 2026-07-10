@@ -159,7 +159,10 @@ export default class Player extends Character {
     hit(orientation) {
         this.fsm = "ATTACK";
         this.forceStop();
-        super.hit(orientation);
+        // FIX: was missing `return` - Character.hit() now returns true on success, but
+        // this override discarded it, so makeAttack()'s `if (this.hit() && ...)` always
+        // saw undefined/falsy and never sent the attack to the server. Propagate it.
+        return super.hit(orientation);
     }
 
     revive() {

@@ -51,12 +51,19 @@ class Skill {
 
             this.body.data('skillIndex', this.index);
 
-            this.body.bind('dragstart', function(event) {
+            // FIX: setSkills()/assign() constructs a brand-new Skill for the same
+            // `#skill<i>` DOM node every time it runs (every "player info" response, e.g.
+            // each time the stats/character dialog is opened - see clientcallbacks.js /
+            // statdialog.js). Binding without unbinding first stacked duplicate
+            // dragstart/click handlers on the shared node, so a single click executed the
+            // skill once per past dialog-open. Unbind this element's handlers before
+            // rebinding (mirrors the same fix already applied in dialog.js/socialhandler.js).
+            this.body.off('dragstart').bind('dragstart', function(event) {
               fnSelectSkill($(this).data("skillIndex"));
             	log.info("Began DragStart.")
             });
 
-            this.body.on('click', function(event){
+            this.body.off('click').on('click', function(event){
             	clickSkill($(this).data("skillIndex"));
               event.stopPropagation();
             });

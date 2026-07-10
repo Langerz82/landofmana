@@ -54,7 +54,10 @@ export default class TabPage {
         this.body.css('display', value ? 'block' : 'none');
 
         if(this.visibleChangeHandler) {
-            this.visibleChangeHandler(self, value);
+            // FIX: referenced undeclared `self` (only TabButton.setVisible has a `self`
+            // local; this is TabPage.setVisible) - would throw ReferenceError the moment
+            // any caller registered a handler via onVisibleChange(). Use `this`.
+            this.visibleChangeHandler(this, value);
         }
     }
 

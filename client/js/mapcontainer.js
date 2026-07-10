@@ -404,7 +404,10 @@ export default class MapContainer {
     isOutOfCameraBounds(x, y) {
         const ts = G_TILESIZE,
             to = G_TILESIZE >> 1;
-        return !isInt(x) || !isInt(y) || (x < to || x >= (this.width * ts - to) || y < (to) || y >= (this.height * ts - (to)));
+        // FIX: called bare `isInt(...)` (no such global) instead of `Utils.isInt(...)`
+        // (see isOutOfBounds() just above for the correct form); would throw
+        // ReferenceError the moment this method is called.
+        return !Utils.isInt(x) || !Utils.isInt(y) || (x < to || x >= (this.width * ts - to) || y < (to) || y >= (this.height * ts - (to)));
     }
 
     isHarvestTile(pos, type) {

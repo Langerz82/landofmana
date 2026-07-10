@@ -151,12 +151,17 @@ export default class LeaderboardHandler {
 
 	  };
 
-    	$('#lbselect').change(function () {
+    	// FIX: display() runs every time the leaderboard is opened (see show()), and this
+    	// bound a fresh change() handler onto the same #lbselect/#lbindex elements each
+    	// time without unbinding the previous one. Repeated opens stacked duplicate
+    	// handlers, so one dropdown change re-ran callback() (and its DOM rebuild) once
+    	// per past open. .off('change') before rebinding keeps it to a single handler.
+    	$('#lbselect').off('change').change(function () {
     		$('#lbindex').val('');
     		callback();
     	});
 
-    	$('#lbindex').change(function () {
+    	$('#lbindex').off('change').change(function () {
     		callback();
     	});
 

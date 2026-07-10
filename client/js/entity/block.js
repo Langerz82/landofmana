@@ -3,8 +3,13 @@ import EntityMoving from './entitymoving.js';
 import Timer from '../timer.js';
 
 export default class Block extends EntityMoving {
-    constructor(id, type, kind, map, name, x, y) {
-        super(id, type, map, kind, x, y);
+    // FIX: param order didn't match the call site in entityfactory.js
+    // (`new Block(id, type, mapIndex, kind, name)`), so `mapIndex` was landing in this
+    // constructor's `kind` slot and vice versa, and that swapped pair was then forwarded
+    // to Entity via super(). Camera.isVisible() gates rendering on entity.mapIndex, so
+    // blocks effectively never rendered/became interactive. Reordered to match the caller.
+    constructor(id, type, mapIndex, kind, name, x, y) {
+        super(id, type, mapIndex, kind, x, y);
 
         this.name = name;
         /*this.ready(function () {
