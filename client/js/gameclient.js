@@ -26,8 +26,10 @@ export default class GameClient {
             this.handlers = {};
 
 					this.onMessage = function(data) {
-	            // TODO: logs every inbound packet to the console; gate behind a debug/verbose flag before shipping
-	            console.warn("recv: "+data);
+	            // FIX: was console.warn'ing every inbound packet unconditionally (including
+	            // login-hash payloads) - switched to log.debug, which is already gated behind
+	            // the log level (see lib/log.js) so this is silent outside debug builds
+	            log.debug("recv: "+data);
 							const fnProcessMessage = function (message) {
 								if(self.isListening) {
 			            if(self.useBison) {
@@ -39,8 +41,8 @@ export default class GameClient {
 			          }
 							};
 	           var fnRecieveAction = function (data) {
-	             // TODO: logs every inbound action payload to the console; gate behind a debug/verbose flag before shipping
-	             console.warn("recv: "+data);
+	             // FIX: same unconditional logging issue as onMessage above - use log.debug
+	             log.debug("recv: "+data);
 	             if(data instanceof Array) {
 	               if(data[0] instanceof Array) {
 	                 // Multiple actions received
@@ -57,7 +59,7 @@ export default class GameClient {
 	            const buffer = Utils._base64ToArrayBuffer(data.substr(1));
 	            try {
 	              const message = pako.inflate(buffer, {gzip: true, to: 'string'});
-								console.warn("message:"+message);
+								log.debug("message:"+message); // FIX: unconditional console.warn -> log.debug (see onMessage above)
 							  fnProcessMessage(message);
 	            } catch (err) {
 	              console.log(err);
@@ -186,8 +188,9 @@ export default class GameClient {
           let data;
           if(this.connection.connected === true) {
 						//try { throw new Error() } catch (e) { console.warn("sent="+JSON.stringify(json)+e.stack); }
-            // TODO: logs every outbound packet (including sendLoginPlayer's playername/hash) to the console; gate behind a debug/verbose flag before shipping
-            console.warn("sent=" + JSON.stringify(json));
+            // FIX: was console.warn'ing every outbound packet unconditionally, including
+            // sendLoginPlayer's playername/hash - use log.debug (gated, see lib/log.js)
+            log.debug("sent=" + JSON.stringify(json));
           	if(this.useBison) {
                 data = BISON.encode(json);
             } else {

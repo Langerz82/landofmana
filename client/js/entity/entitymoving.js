@@ -198,6 +198,9 @@ export default class EntityMoving extends Entity {
             return !this.isColliding(p.x, p.y);
         }, this);
 
+        // FIX (carried over): was declared without `var`/`let` (implicit global leak) and the
+        // walkability filter below used to splice this array while iterating it with for...of,
+        // which skips elements and lets occupied tiles slip through; now built with .filter()
         const entities = this.getEntitiesAround(adjEnd);
 
         //console.info("entities: "+JSON.stringify(entities));
@@ -347,6 +350,9 @@ export default class EntityMoving extends Entity {
 
     // New function to make coding easier.
     getPathIndex(step) {
+        // FIX (carried over): was `if (!this.path === null || ...)` - operator precedence bug
+        // (!this.path evaluated first, then compared to null) made the condition effectively
+        // dead; fixed to `this.path === null`
         if (this.path === null || this.path.length === 0)
             return null;
         if (step < 0 || step >= this.path.length)

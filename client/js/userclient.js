@@ -7,7 +7,9 @@ import Quest from './quest.js';
 import config from './config.js';
 import Achievement from './achievement.js';
 
-/* global Types, Utils */
+/* global Types, Utils, log */
+// FIX: 'log' was used throughout this file (log.info/log.error/log.debug) but missing from
+// this eslint no-undef hint; added for consistency with gameclient.js's equivalent comment
 
 export default class UserClient {
       constructor(config, useServer) {
@@ -74,8 +76,10 @@ export default class UserClient {
           });
 
           self.onMessage = function(data) {
-            // TODO: this logs every inbound packet (including login/session data) to the console; gate behind a debug/verbose flag before shipping
-            console.warn("recv: "+data);
+            // FIX: was console.warn'ing every inbound packet unconditionally, including
+            // login/session data - use log.debug, which is already gated behind the log
+            // level (see lib/log.js) so this is silent outside debug builds
+            log.debug("recv: "+data);
 						const fnProcessMessage = function (message) {
 
 							if(self.isListening) {
@@ -88,8 +92,8 @@ export default class UserClient {
 		          }
 						};
            var fnRecieveAction = function (data) {
-             // TODO: logs every inbound action payload (including login data) to the console; gate behind a debug/verbose flag before shipping
-             console.warn("recv: "+data);
+             // FIX: same unconditional logging issue as onMessage above - use log.debug
+             log.debug("recv: "+data);
              if(data instanceof Array) {
                if(data[0] instanceof Array) {
                  // Multiple actions received
@@ -161,8 +165,9 @@ export default class UserClient {
       sendMessage(json) {
           let data;
           if(this.connection.connected === true) {
-            // TODO: logs every outbound packet (including sendLoginUser's username/hash) to the console; gate behind a debug/verbose flag before shipping
-            console.warn("sent=" + JSON.stringify(json));
+            // FIX: was console.warn'ing every outbound packet unconditionally, including
+            // sendLoginUser's username/hash - use log.debug (gated, see lib/log.js)
+            log.debug("sent=" + JSON.stringify(json));
             if(this.useBison) {
               data = BISON.encode(json);
             } else {

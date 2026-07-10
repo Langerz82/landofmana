@@ -151,6 +151,8 @@ export default class Entity {
         }
     }
 
+    // FIX (carried over): this method used to be defined twice in this class (a dead first
+    // copy, silently shadowed by this one); the duplicate has been removed
     getSpriteName(spriteNum) {
         return AppearanceData.getSpriteByID(spriteNum);
     }
@@ -176,6 +178,9 @@ export default class Entity {
             return;
 
         this.isFading = true;
+        // FIX (carried over): was setting this.fadingTime.lastTime (fadingTime is just the
+        // duration number, 1000); the actual Timer instance is this.fadingTimer - assigning
+        // to the wrong one meant fade timing never reset on respawn/teleport
         this.fadingTimer.lastTime = time;
     }
 

@@ -1041,16 +1041,16 @@ export default class Renderer {
           this.removeHarvestBar(game.player.id);
         }
 
-        for (let id in game.entities)
-        {
-          const entity = game.entities[id];
-          if (entity) {
-            this.entityVisible(entity, false);
-          }
-        }
+        // FIX: this used to walk *every* entity in game.entities each frame just to hide it
+        // before re-showing whatever was actually on screen - O(n) over the whole world on
+        // every frame. Instead, track which entity ids were on screen last frame and only
+        // flip visibility for ids that left the screen this frame.
+        const newlyVisible = {};
 
         self.camera.forEachInScreen(function (entity,id) {
           if (!entity) return;
+
+          newlyVisible[id] = true;
 
           self.drawEntityName(entity);
           if (entity !== game.player)
@@ -1072,6 +1072,18 @@ export default class Renderer {
           }
 
         });
+
+        if (this.lastVisibleEntities) {
+          for (let id in this.lastVisibleEntities) {
+            if (!newlyVisible[id]) {
+              const entity = game.entities[id];
+              if (entity) {
+                this.entityVisible(entity, false);
+              }
+            }
+          }
+        }
+        this.lastVisibleEntities = newlyVisible;
     }
 
     drawEntityName(entity) {
@@ -1460,30 +1472,28 @@ export default class Renderer {
       //log.info("c.sox:"+c.sox+",c.soy:"+c.soy);
       c.setRealCoords();
 
-      /*var gx = fe.x >> 4;
-      var gy = fe.y >> 4;
+      // FIX: restored the dirty-check that used to skip moveGrid()/refreshGrid() when the
+      // camera hasn't moved to a new grid cell. It had been commented out, so the grid was
+      // being rebuilt unconditionally every single frame - real, scaling per-frame cost.
+      const gx = fe ? fe.x >> 4 : this.fegx;
+      const gy = fe ? fe.y >> 4 : this.fegy;
       if (this.forceRedraw || (fe && (this.fegx !== gx || this.fegy !== gy)))
       {
-        var mc = game.mapContainer;
+        const mc = game.mapContainer;
         if (mc)
           mc.moveGrid();
         this.forceRedraw = true;
       }
       this.fegx = gx;
-      this.fegy = gy;*/
-
-      const mc = game.mapContainer;
-      if (mc)
-        mc.moveGrid();
-      //this.forceRedraw = true;
+      this.fegy = gy;
 
       const go = this.setGridOffset();
       this.setTilesOffset(go[0],go[1]);
 
-      //if (this.forceRedraw)
-      //{
+      if (this.forceRedraw)
+      {
         this.refreshGrid();
-      //}
+      }
     }
 
     showCutScene() {
@@ -1677,6 +1687,15 @@ export default class Renderer {
         //if (Container.HUD.children.length > 2)
           //Container.HUD.removeChildren(2,Container.HUD.children.length);
         //Container.COLLISION.removeChildren();
+        // NOTE: intentionally NOT calling Container.ENTITIES.removeChildren() here (a prior
+        // attempted fix did this and broke the player, who is redrawn a few lines down via
+        // drawEntity(game.player)). Blindly clearing the container strips out entities' PIXI
+        // sprites without resetting their cached entity.pjsSprites/entity.sprites references,
+        // so setSprite()'s "sprite unchanged" fast path never re-adds them to the display
+        // tree - the entity silently stops rendering. Cleanup of on-screen non-player entity
+        // sprites is already handled correctly (via proper removeChild calls) by
+        // clearEntities(), which callers invoke before setting blankFrame - see
+        // clientcallbacks.js's map-transition handler.
         this.pxSprite = {};
         this.clearTiles();
         //this.renderer.gl.flush();
