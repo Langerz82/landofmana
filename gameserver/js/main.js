@@ -258,7 +258,7 @@ function main(config) {
       	console.info("version sent");
         console.info(Types.Messages.WC_VERSION);
 
-      	conn.sendUTF8(Types.Messages.WC_VERSION+","+config.version+","+conn.hash);
+      	conn.sendUTF8("1["+Types.Messages.WC_VERSION+","+config.version+",\""+conn.hash+"\"]");
         const wh = new WorldHandler(server, conn);
         wh.userConnection = server.userHandler.connection;
 

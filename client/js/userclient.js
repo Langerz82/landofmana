@@ -100,11 +100,11 @@ export default class UserClient {
                }
              }
            };
-           const method = data.substr(0,2) ;
-	        if (method === '2[')
+           const method = data[0];
+	        if (method === '2')
 	        {
             // FIX: was stripping only 1 char (substr(1)), leaving trailing '[' and corrupting the base64 payload; strip both marker chars like gameclient.js's 'z|' handling
-            const buffer = Utils._base64ToArrayBuffer(data.substr(2));
+            const buffer = Utils._base64ToArrayBuffer(data.substr(1));
             try {
               const message = pako.inflate(buffer, {gzip: true, to: 'string'});
 						  fnProcessMessage(message);
@@ -112,7 +112,7 @@ export default class UserClient {
               console.log(err);
             }
 	        }
-	        else if (method === '1[') {
+	        else if (method === '1') {
 	          const message = data.substr(1);
 						fnProcessMessage(message);
 	        }

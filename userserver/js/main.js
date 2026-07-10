@@ -136,7 +136,7 @@ async function main(config) {
     console.info("version sent");
     console.info(`UC_VERSION: ${GameTypes.UserMessages.UC_VERSION}`);
 
-    conn.sendUTF8(`${GameTypes.UserMessages.UC_VERSION},${config.version},${conn.hash}`);
+    conn.sendUTF8(`1[${GameTypes.UserMessages.UC_VERSION},${config.version},"${conn.hash}"]`);
 
     const reply = [GameTypes.UserMessages.UC_WORLDS];
     let i = 0;

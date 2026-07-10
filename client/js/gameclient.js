@@ -51,10 +51,10 @@ export default class GameClient {
 	               }
 	             }
 	           };
-	           const method = data.substr(0,2);
-		        if (method === 'z|')
+	           const method = data[0];
+		        if (method === '2')
 		        {
-	            const buffer = Utils._base64ToArrayBuffer(data.substr(2));
+	            const buffer = Utils._base64ToArrayBuffer(data.substr(1));
 	            try {
 	              const message = pako.inflate(buffer, {gzip: true, to: 'string'});
 								console.warn("message:"+message);
@@ -63,7 +63,7 @@ export default class GameClient {
 	              console.log(err);
 	            }
 		        }
-		        else if (method === '1[') {
+		        else if (method === '1') {
 		          const message = data.substr(1);
 							fnProcessMessage(message);
 		        }
