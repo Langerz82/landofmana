@@ -215,11 +215,7 @@ class MapEntities {
         extra = (extra || 0) * G_TILESIZE;
         cameraHalfX = (cameraHalfX || 32) * G_TILESIZE;
         cameraHalfY = (cameraHalfY || 32) * G_TILESIZE;
-        // FIX: minY/maxY were both computed with cameraHalfX (copy-paste from
-        // the X lines above) instead of cameraHalfY. Since cameraHalfX/Y
-        // default to different tile counts (32 vs 18), vertical screen/offset
-        // checks were using the wrong half-width, throwing off visibility and
-        // proximity checks built on this method.
+
         const minX = Math.max(0,entity.x-cameraHalfX-extra);
         const minY = Math.max(0,entity.y-cameraHalfY-extra);
         const maxX = Math.min(this.map.width * G_TILESIZE, entity.x+cameraHalfX+extra);

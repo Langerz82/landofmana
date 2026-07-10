@@ -5,36 +5,34 @@ class NpcMoveCallback {
     }
 
     setCallbacks(entity) {
-        const self = entity;
+        //const self = entity;
         //console.info("assigning callbacks to "+self.entity.id);
 
         entity.onStep(function (entity, x, y) {
             //console.info("onStep = " + x + "," + y);
             try {
-                entity.map.entities.entitygrid[entity.y][entity.x] = 0;
-                entity.map.entities.entitygrid[y][x] = 1;
+                this.map.entities.entitygrid[this.y][this.x] = 0;
+                this.map.entities.entitygrid[y][x] = 1;
             }
             catch (e)
             {
                 console.info(e.stack);
-                console.info(entity.x + "," + entity.y + "," + x + "," + y);
-                console.info(entity.id);
-                console.info(entity.path);
-                console.info(entity.step);
+                console.info(this.x + "," + this.y + "," + x + "," + y);
+                console.info(this.id);
+                console.info(this.path);
+                console.info(this.step);
             }
         });
 
         entity.onRequestPath(function (x,y) {
-            //console.info("onRequestPath = " + x + "," + y);
-            const path = self.entity.map.entities.findPath(self.entity, x, y);
+            const path = this.map.entities.findPath(this, x, y);
             //console.info("path="+JSON.stringify(path));
             if (path && path.length > 0)
             {
-                const msg = new Messages.MovePath(self.entity, path);
-                self.entity.map.entities.sendNeighbours(self.entity, msg);
+                const msg = new Messages.MovePath(this, path);
+                this.map.entities.sendNeighbours(this, msg);
                 return path;
             }
-            //self.entity.forceStop();
             return null;
         });
     }

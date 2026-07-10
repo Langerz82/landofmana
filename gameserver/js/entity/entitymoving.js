@@ -348,7 +348,12 @@ class EntityMoving extends Entity {
 
   // New function to make coding easier.
   getPathIndex(step) {
-    if (!this.path === null || this.path.length === 0)
+    // FIX: `!this.path === null` first negates this.path to a boolean, then
+    // compares that boolean to null -- always false, so the null-path check
+    // never actually fired, and `this.path.length` would throw if this.path
+    // really were null. No current callers exercise this (dead code), but
+    // fixed for correctness.
+    if (this.path === null || this.path.length === 0)
       return null;
     if (step < 0 || step >= this.path.length)
       return null;

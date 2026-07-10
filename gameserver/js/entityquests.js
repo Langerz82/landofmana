@@ -124,12 +124,11 @@ class EntityQuests {
       return;
     }
 
-    // NOTE: `self` is referenced here in the original source without ever
-    // being declared/assigned in this method (likely meant `this.entity`).
-    // Preserved as-is; this is a pre-existing bug unrelated to the ES module
-    // conversion.
+    // FIX: `self` was referenced here without ever being declared/assigned
+    // in this method -- a ReferenceError on every call. `this.entity` (used
+    // consistently elsewhere in this class) is what was meant.
     getMobObject() {
-      let entities = self.map.entities.getMobsAround(this.entity, 35);
+      let entities = this.entity.map.entities.getMobsAround(this.entity, 35);
       if (entities.length === 0)
         return;
 

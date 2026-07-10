@@ -8,7 +8,6 @@ class Item extends Entity {
         const kind = itemRoom.itemKind;
         super(id, type, kind, x, y, map);
         this.isStatic = false;
-        this.isFromChest = false;
         this.orientation = Types.Orientations.DOWN;
         this.experience = 0;
         this.data = ItemData.Kinds[kind];

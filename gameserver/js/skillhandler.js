@@ -23,8 +23,12 @@ class SkillHandler {
       }
     }
 
+    // FIX: referenced a bare `player` identifier -- never defined anywhere in
+    // this class (the constructor parameter is captured on `this.player`).
+    // This export isn't currently called anywhere in the codebase, so it
+    // never actually fired in practice, but fixed since it's public API.
     setSkill(index, exp) {
-      const skill = player.skills[index];
+      const skill = this.player.skills[index];
       skill.skillXP = exp;
       skill.skillLevel = Types.getSkillLevel(exp);
     }

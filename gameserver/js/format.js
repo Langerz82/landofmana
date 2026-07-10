@@ -370,9 +370,17 @@ class FormatChecker {
         const cfo = (fmt[0] === 'object');
         if (cfo) {
           console.info("format is Object and in keys range.");
+          // FIX: this read `msg[i]` -- `i` is only ever assigned inside the
+          // sibling `cfa` ('array') branch's for-loop above, so for an
+          // 'object'-typed field `i` was always undefined here, making this
+          // silently iterate zero keys instead of validating anything.
+          // `msg` itself is the object value for this field (mirroring how
+          // the array branch treats `msg` as the array value), so iterate
+          // its own keys directly. No message format currently uses 'object'
+          // (per this.formats above), so this was latent/never exercised.
           if (fmt[3]) {
-            for (const id in msg[i]) {
-              const res = this.checkFormat(fmt[3], msg[i][id]);
+            for (const id in msg) {
+              const res = this.checkFormat(fmt[3], msg[id]);
               if (!res) return false;
             }
           }

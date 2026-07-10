@@ -1,17 +1,20 @@
-import Item from './item.js';
+import Entity from './entity.js';
 import { Types } from '../common.js';
 import Utils from '../utils.js';
 import ItemData from '../data/itemdata.js';
 import ChestArea from '../area/chestarea.js';
 
-class Chest extends Item {
-    // NOTE: preserved pre-existing bug from the original CommonJS version —
-    // Item's constructor signature is (type, id, itemRoom, x, y, map), but the
-    // super() call below only ever passed 4 arguments (id, Types.EntityTypes.CHEST,
-    // x, y), so itemRoom/the real x,y/map are never set correctly on the Entity
-    // base. Left unchanged to avoid altering original runtime behavior.
+// FIX: this now extends Entity directly (good -- Chest isn't a real item and
+// doesn't need Item's itemRoom-shaped state/getState()), but the `Entity`
+// import was missing. `extends Entity` with no import throws
+// `ReferenceError: Entity is not defined` the instant this module loads --
+// and since map/mapentities.js imports chest.js, that broke map loading
+// entirely, not just chest spawning. The super() call itself is correct:
+// Entity's constructor signature is (id, type, kind, x, y, map), which
+// `super(id, Types.EntityTypes.CHEST, id, x, y, map)` matches.
+class Chest extends Entity {
     constructor(id, x, y, map, area, minLevel, maxLevel) {
-        super(id, Types.EntityTypes.CHEST, x, y); // CHEST
+        super(id, Types.EntityTypes.CHEST, id, x, y, map);
         this.map = map;
         this.level = Utils.randomRangeInt(minLevel, maxLevel);
         this.setDrops();
@@ -20,8 +23,6 @@ class Chest extends Item {
     }
 
     handleRespawn() {
-        const self = this;
-
         this.droppedItem = false;
         if (this.area && this.area instanceof ChestArea) {
             this.area.respawnChest(this, this.spawnDelay);

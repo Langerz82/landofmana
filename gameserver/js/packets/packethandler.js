@@ -935,14 +935,13 @@ class PacketHandler {
 
             p.map.entities.removePlayer(p);
 
-            // NOTE: `pos` was a bare (undeclared) assignment in the original
-            // CommonJS source, which created an implicit global there; declared
-            // with `var` here since ES modules are always strict mode and forbid
-            // implicit globals. Its value is immediately overwritten by the next
-            // `var pos = {x: p.x, y: p.y};` below in both versions (pre-existing
-            // dead store), left unchanged.
-            var pos = map.enterCallback(p);
-
+            // FIX (cleanup): `map.enterCallback(p)` was called here but its
+            // result was immediately discarded by the `pos = {x: p.x, y: p.y}`
+            // reassignment right below, and its actual purpose (a random
+            // starting position for non-door teleports) is already handled
+            // later in this function at `pos = p.map.getRandomStartingPosition()`
+            // once `p.map` has been updated to the destination map. Removed the
+            // dead call rather than leaving a no-op that looks load-bearing.
 
             //finishTeleportMaps(mapId);
 
@@ -1061,6 +1060,17 @@ class PacketHandler {
             gold = parseInt(message[1]),
             type2 = parseInt(message[2]);
 
+        // FIX: gold[]/modifyGold() live on PlayerItems (player.items), not
+        // directly on Player -- every line below threw "not a function"
+        // (or read undefined), so bank<->inventory gold transfers were
+        // completely broken. Also added a bounds check on type/type2: the
+        // two `if (type===X && type2===Y)` branches below only ever fire for
+        // the two valid combinations, but nothing stopped an out-of-range
+        // type from indexing player.items.gold[type] above with a garbage
+        // index (gold only has 2 slots: 0 inventory, 1 bank).
+        if (type !== 0 && type !== 1)
+            return;
+
         if (gold < 0)
             return;
 
@@ -1069,7 +1079,7 @@ class PacketHandler {
             return;
         }
 
-        if (gold > this.player.gold[type])
+        if (gold > this.player.items.gold[type])
         {
             this.sendPlayer(new Messages.Notify("GOLD","INSUFFICIENT_GOLD"));
             return;
@@ -1078,15 +1088,15 @@ class PacketHandler {
         // Transfer to bank.
         if (type===0 && type2===1)
         {
-            if (this.player.modifyGold(-gold, 0))
-                this.player.modifyGold(gold, 1);
+            if (this.player.items.modifyGold(-gold, 0))
+                this.player.items.modifyGold(gold, 1);
         }
 
         // Withdraw from bank.
         if (type===1 && type2===0)
         {
-            if (this.player.modifyGold(-gold, 1))
-                this.player.modifyGold(gold, 0);
+            if (this.player.items.modifyGold(-gold, 1))
+                this.player.items.modifyGold(gold, 0);
         }
     }
 

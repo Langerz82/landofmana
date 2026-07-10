@@ -56,16 +56,18 @@ class LootManager {
         }
     }
 
-    // NOTE: pre-existing bug preserved from the original — operator precedence
-    // means `!target instanceof Mob` evaluates as `(!target) instanceof Mob`
-    // (always false, since `!target` is a boolean), not `!(target instanceof
-    // Mob)` as presumably intended.
+    // FIX: operator precedence meant `!target instanceof Mob` evaluated as
+    // `(!target) instanceof Mob` (always false, since `!target` is a
+    // boolean, and booleans are never instances of Mob) instead of the
+    // intended `!(target instanceof Mob)`. This guard clause never actually
+    // fired, so non-Mob targets (e.g. players) fell through into mob-only
+    // quest-drop logic.
     getLootItem(source, target, stolen)
     {
         const self = this;
         var itemId2 = null;
 
-        if ( !target instanceof Mob)
+        if (!(target instanceof Mob))
             return;
 
         let v = Utils.randomRangeInt(0,1000);
@@ -95,17 +97,19 @@ class LootManager {
         return null;
     }
 
-    // NOTE: `item` was a bare (undeclared) assignment in the original CommonJS
-    // source, which created an implicit global there; declared with `var` here
-    // since ES modules are always strict mode and forbid implicit globals.
-    // Also NOTE: the else-branch below references a bare `type` identifier that
-    // is never defined anywhere in this function, and calls
-    // target.map.entities.createItem(...) with 5 arguments even though that
-    // method's signature is (itemRoom, x, y) — both pre-existing bugs, left
-    // unchanged since this code path would already have thrown/misbehaved in the
-    // original CommonJS version too.
+    // FIX: three bugs here. (1) `target.inventory` doesn't exist -- inventory
+    // lives on `target.items.inventory` everywhere else in this codebase
+    // (including two lines below, and takeOutItems() at the bottom), so this
+    // threw immediately on every call. (2) the else-branch referenced a bare
+    // `type` identifier that was never defined anywhere in this function.
+    // (3) it called target.map.entities.createItem(...) with 5 arguments even
+    // though that method's signature is (itemRoom, x, y) -- and createItem()
+    // already adds the item internally, so the extra wrapping addItem() call
+    // below would have double-added the entity even if the arguments were
+    // right. Building a proper ItemRoom clone (same pattern as the `stolen`
+    // branch just above) and calling createItem() directly fixes all three.
     getPlayerDrop(source, target, stolen) {
-        const itemIndex = target.inventory.getRandomItemNumber();
+        const itemIndex = target.items.inventory.getRandomItemNumber();
         if (itemIndex === -1)
             return;
         const item = target.items.inventory.rooms[itemIndex];
@@ -122,7 +126,9 @@ class LootManager {
             source.sendPlayer(new Messages.Notify("CHAT", "ITEM_ADDED", [ItemData.Kinds[item.itemKind].name]));
         }
         else {
-            item2 = target.map.entities.addItem(target.map.entities.createItem(type, item, target.x, target.y, count));
+            const droppedRoom = Object.assign(new ItemRoom(), item);
+            droppedRoom.itemNumber = count;
+            item2 = target.map.entities.createItem(droppedRoom, target.x, target.y);
         }
         target.items.inventory.takeOutItems(itemIndex, count);
         return item2;

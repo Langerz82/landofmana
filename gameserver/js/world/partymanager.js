@@ -16,13 +16,13 @@ class PartyManager {
         return party;
     }
 
-    // NOTE: pre-existing bug preserved from the original — `.remove(party)` is
-    // not a native Array method; the rest of the codebase's own array-removal
-    // helper is named `removeVal` (see e.g. PlayerQuests.removeQuest), so this
-    // would throw a TypeError at runtime in the original CommonJS version too.
+    // FIX: `.remove(party)` isn't a native Array method -- threw a TypeError
+    // on every call. The rest of this codebase has its own array-removal
+    // polyfill for exactly this, `removeVal` (see utils.js, and its other
+    // callers in worldserver.js/packethandler.js/playergroup.js).
     removeParty(party)
     {
-        this.party.remove(party);
+        this.party.removeVal(party);
         //this.party.splice(this.party.indexOf(party), 1);
         /*this.party = _.reject(this.party, function(el)
         {

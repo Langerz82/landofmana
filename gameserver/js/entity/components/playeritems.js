@@ -277,7 +277,13 @@ class PlayerItems {
                 entity.modEp(amount);
             }
         }
-        this.items.inventory.takeOutItems(slot, 1);
+        // FIX: `this` here is the PlayerItems instance itself (this method is
+        // defined on PlayerItems), and PlayerItems has no `this.items`
+        // property -- only `this.inventory` directly (PlayerItems *is*
+        // player.items). `this.items.inventory` threw "Cannot read
+        // properties of undefined" every time a player ate/consumed an
+        // inventory item.
+        this.inventory.takeOutItems(slot, 1);
     }
 }
 
