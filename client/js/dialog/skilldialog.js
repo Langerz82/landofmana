@@ -172,7 +172,9 @@ class SkillPage extends TabPage {
                         'background-image': 'url("../img/'+scale+'/misc/itembackground.png")',
                     });
                     $('#skill' + i).attr('title', '');
-                    $('#skill' + i).html();
+                    // FIX: .html() with no argument is a getter and had no effect - the
+                    // "Lv N" label was never actually cleared. Pass an empty string to clear it.
+                    $('#skill' + i).html('');
                     tSkill.level = 0;
                 }
             }

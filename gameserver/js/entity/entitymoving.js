@@ -548,13 +548,17 @@ class EntityMoving extends Entity {
   }
 
   nextMove(x, y, o, dist) {
-    dist = dist || 1;
-    return this.nextDist(x, y, o, 1);
+      // FIX: `dist` was computed via `dist || 1` and then ignored - a hardcoded `1` was
+      // passed to nextDist() regardless, making the parameter dead/misleading. Use it.
+      dist = dist || 1;
+      return this.nextDist(x, y, o, dist);
   }
 
   nextTile(x, y, o, dist) {
-    dist = dist || G_TILESIZE;
-    return this.nextDist(x, y, o, G_TILESIZE);
+      // FIX: same issue as nextMove() above - the computed `dist` was discarded in favor of
+      // a hardcoded G_TILESIZE.
+      dist = dist || G_TILESIZE;
+      return this.nextDist(x, y, o, dist);
   }
 
   // New function to make coding easier.

@@ -527,12 +527,16 @@ export default class App {
             const scale = 2;
 
     		    const sprite = entity.getSprite();
+            // FIX: sprite.animations was dereferenced before the sprite-null checks below ran,
+            // so a falsy sprite (e.g. not loaded yet) threw instead of no-oping like the rest
+            // of this function was clearly designed to handle
+            if (!sprite) return;
 
             const anim = sprite.animations["idle_down"];
             const oc = anim.col * anim.width * scale;
             const or = anim.row * anim.height * scale;
-    		    const width2 = sprite ? sprite.width * scale : 0; // FIX: missing var, was an implicit global
-    		    const height2 = sprite ? sprite.height * scale : 0; // FIX: missing var, was an implicit global
+    		    const width2 = sprite.width * scale;
+    		    const height2 = sprite.height * scale;
 
     		    jqPic.css('width', '' + ~~(width2) + 'px');
     		    jqPic.css('height', '' + ~~(height2*0.75) + 'px');

@@ -1,5 +1,9 @@
 // Converted from AMD (define) + Class.extend to a native ES6 module/class.
 /* global Types, ItemTypes, Utils */
+// FIX: `defender instanceof Mob` below referenced a global `Mob` that was never imported here,
+// which would throw ReferenceError the first time baseDamage() is called with a defender arg
+// (currently masked because its only caller passes no defender). Import it properly.
+import Mob from '../mob.js';
 
 export default class PlayerCombat {
     constructor(entity) {

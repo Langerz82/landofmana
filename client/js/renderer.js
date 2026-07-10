@@ -436,28 +436,10 @@ export default class Renderer {
       sprite.position.y = (this.renderer.height / 4);
     }
 
-    drawText(ctx, text, x, y, centered, color, strokeColor) {
-        switch(this.scale) {
-            case 1:
-                this.strokeSize = 1; break;
-            case 2:
-                this.strokeSize = 2; break;
-        }
-
-        if(text && x && y) {
-            const style = this.defaultFont;
-            if(centered) {
-                style.align = "center";
-            }
-            style.stroke = strokeColor || "#373737";
-            style.strokeThickness = 4;
-            style.fill = color || "white";
-
-            const pText = new PIXI.Text(text, style);
-            pText.x = x * this.scale * 3;
-            pText.y = y * this.scale * 3;
-        }
-    }
+    // FIX (dead code): removed drawText() - it had no call sites anywhere in the codebase,
+    // referenced `this.defaultFont` which is never set on Renderer (would throw if reached),
+    // and the PIXI.Text it built was never added to any container or returned, so it was
+    // non-functional even if something had called it.
 
     drawCursor() {
         const mx = game.mouse.x,
@@ -1043,7 +1025,10 @@ export default class Renderer {
         //self.drawEntity(game.player);
         if (game.player && game.player.startHarvestTime > 0)
           this.showHarvestBar(game.player);
-        else {
+        // FIX: this else branch unconditionally read game.player.id, which throws if
+        // game.player is falsy; not currently reachable since renderFrame() already gates the
+        // call to drawEntities() on `!game.player`, but one refactor away from a null-deref
+        else if (game.player) {
           this.removeHarvestBar(game.player.id);
         }
 

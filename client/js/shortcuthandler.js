@@ -319,8 +319,15 @@ export default class ShortcutHandler {
 
     getSameShortcuts(shortcut) {
       const shortcuts = [];
+      // FIX: the type-1 (item) branch matched on type alone, grouping every item shortcut in
+      // the bar together regardless of shortcutId. That's inconsistent with cooldownStart()
+      // (below), which is the actual source of truth for which shortcuts share a cooldown and
+      // requires both type AND shortcutId to match - so using one consumable's cooldown was
+      // visually shown on every item shortcut, not just the one that was used. Require
+      // shortcutId here too; the two branches are now equivalent and could be merged, but kept
+      // separate to preserve the original structure.
       for (let sc of this.shortcuts) {
-        if (sc.type == 1 && sc.type === shortcut.type)
+        if (sc.type == 1 && sc.type === shortcut.type && sc.shortcutId === shortcut.shortcutId)
         {
           shortcuts.push(sc);
         }

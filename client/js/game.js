@@ -1560,7 +1560,9 @@ export default class Game {
 
             if(!this.pathfinder || !character)
             {
-                log.error("game.findPath - Error while finding the path to "+x+", "+y+" for "+character.id);
+                // FIX: was unconditionally reading character.id even in the !character branch
+                // this exists to guard against, throwing a TypeError instead of logging cleanly
+                log.error("game.findPath - Error while finding the path to "+x+", "+y+" for "+(character ? character.id : "unknown"));
                 return null;
             }
 
@@ -1950,7 +1952,11 @@ export default class Game {
           if (p.isNextTooEntity(entity) && !p.movement.inProgress) {
             p.lookAtEntity(entity);
           }
-          log.info("player target: "+p.target.id);
+          // FIX: p.target stays null when the entity was skipped above (already had a target,
+          // or entity.isDying was true), so this unconditional p.target.id threw a TypeError
+          if (p.target) {
+            log.info("player target: "+p.target.id);
+          }
 
           if (entity instanceof Block && p.isNextTooEntity(entity) &&
             p.isFacingEntity(entity))

@@ -437,7 +437,9 @@ export default class ClientCallbacks {
                 //p.sendMove(false);
                 //game.client.sendSyncTime();
                 game.client.sendSyncTime(Date.now());
-                game.renderer.forceRedraw;
+                // FIX: was a bare property reference (no-op); this is clearly meant to force a
+                // redraw after resetPosition() corrects a desynced player position
+                game.renderer.forceRedraw = true;
                 //log.info("DEBUG: p.x="+p.x+",x="+x+"p.y="+p.y+",y="+y);
               }
               return;
@@ -1270,7 +1272,10 @@ export default class ClientCallbacks {
               game.achievementHandler.achievementReloadLog();
             }
 
-            p.skillHandler = new SkillHandler(self);
+            // FIX: `self` was never declared in this scope, so it resolved to the global
+            // `window.self`, not the intended `game` object - every sibling handler in this
+            // file is constructed with `game` directly
+            p.skillHandler = new SkillHandler(game);
 
             const skillCount = parseInt(data.shift());
             const skillExps = data.splice(0,skillCount);

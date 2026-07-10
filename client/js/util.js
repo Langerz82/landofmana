@@ -57,15 +57,11 @@ Utils.fixed = function(value, length) {
     return buffer.substring(buffer.length - length);
 }
 
-String.prototype.format = String.prototype.f = function() {
-    let s = this;
-    let i = arguments.length;
-
-    while (i--) {
-        s = s.replace(new RegExp('\\{' + i + '\\}', 'gm'), arguments[i]);
-    }
-    return s;
-};
+// FIX: String.prototype.format was defined twice in this file (here and again below, near
+// Number.prototype.between); the second definition silently overwrote this one, leaving this
+// implementation dead while `.f` (aliased to this dead copy in the same statement) kept
+// pointing at it - so `.format()` and `.f()` were no longer equivalent despite looking like
+// aliases. Removed this duplicate; `.f` is now aliased to the surviving implementation below.
 
 Utils._base64ToArrayBuffer = function(base64) {
 	const bin_string = window.atob(base64);
@@ -269,6 +265,9 @@ String.prototype.format = function (args) {
     return typeof tmp[index] === 'undefined' ? match : tmp[index];
   });
 };
+// FIX: re-point the `.f` shorthand (previously aliased to a dead duplicate near the top of
+// this file) at the actual implementation that was in effect
+String.prototype.f = String.prototype.format;
 
 Utils.BinArrayToBase64 = function (uint8array) {
   const len = Math.ceil(uint8array.length / 32);

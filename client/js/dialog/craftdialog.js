@@ -164,17 +164,26 @@ class StorePage extends TabPage {
             while (--i >= 0)
             {
           	    const item = this.items[i];
-                if (!cond(item))
+                // FIX: the `item.craft.length === 0` check below was not an `else if`, so it
+                // still ran even after the item was already spliced out by the `!cond(item)`
+                // branch above. With `item` no longer in the array, `indexOf(item)` returned
+                // -1 and `splice(-1, 1)` deleted the *last* element instead - an unrelated
+                // craft item could silently vanish from the list. Made the checks mutually
+                // exclusive so a filtered-out item is only spliced once.
+                if (!cond(item)) {
           	    	this.items.splice(this.items.indexOf(item),1);
-          	    if (item.craft.length === 0)
+                }
+                else if (item.craft.length === 0) {
           	    	this.items.splice(this.items.indexOf(item),1);
+                }
                 else if (item.craft.length === 1) {
                   item.craft = item.craft[0];
                 }
                 else {
                   for (let j=0; j < item.craft.length; j++) {
-                    let newItem = Object.assign({}, item);
-                    newItem = item.craft[j];
+                    // FIX: was Object.assign({}, item) immediately discarded by the next line
+                    // reassigning newItem to item.craft[j] - the copy had zero effect
+                    const newItem = item.craft[j];
                     this.items.push(newItem);
                   }
                 }

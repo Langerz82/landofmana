@@ -314,12 +314,18 @@ export default class Character extends EntityMoving {
     }
 
     followAttack(entity) {
-        const found = false;
-
         const spot = this.getClosestSpot(entity, 1, this.attackRange);
 
-        if (spot && spot.x && spot.y)
+        // FIX: this never returned a value, but its only caller, Player.makeAttack(), branches
+        // on the return value (`if (!this.followAttack(entity)) return "attack_toofar"; else
+        // return "attack_moving";`) - so makeAttack() always reported "attack_toofar" even when
+        // a valid spot was found and movement started. Return true/false like the analogous
+        // EntityMoving.follow().
+        if (spot && spot.x && spot.y) {
             this.moveTo_(spot.x, spot.y);
+            return true;
+        }
+        return false;
     }
 
     /*******************************************************************************

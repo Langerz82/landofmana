@@ -61,8 +61,11 @@ export default class Updater {
               {
                 return true;
               }
-              if (c.map && c.map.isColliding(x, y)) {
-                try { throw new Error(); } catch (e) { console.error(e.stack); }
+              // FIX: `c.map` is never set anywhere on Entity/Character (only game.mapContainer
+              // exists), so this mid-path collision guard was permanently dead code - NPC/mob
+              // movement never actually re-checked collision here. Also dropped the leftover
+              // debug try/throw/console.error trace scaffold that sat in the dead branch.
+              if (self.game.mapContainer && self.game.mapContainer.isColliding(x, y)) {
                 return true;
               }
               c.setPosition(x, y);

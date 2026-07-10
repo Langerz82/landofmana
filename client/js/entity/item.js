@@ -61,10 +61,6 @@ export default class Item extends Entity {
         const name = ItemTypes.getName(item.itemKind);
         return (name) ? name : '';
     }
-
-    getState() {
-        this._getBaseState().concat([this.count]);
-    }
 }
 // Preserved from the original: the instance method is also copied onto the class itself so it
 // can be called as Item.getInfoMsgEx(item) as well as instance.getInfoMsgEx(item).

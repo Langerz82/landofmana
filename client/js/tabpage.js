@@ -30,7 +30,13 @@ class TabButton {
 
 export default class TabPage {
     constructor(parent, id, buttonId) {
-        this.parent;
+        // FIX: was `this.parent;` - a no-op expression statement that discarded the `parent`
+        // constructor argument entirely. Pages added via TabBook.add() got `this.parent` fixed
+        // up later by setParent(), which masked this, but SkillPage (dialog/skilldialog.js) is
+        // constructed directly (`new SkillPage(this)`) and never goes through TabBook.add(),
+        // so its `this.parent` stayed undefined for the page's entire lifetime - active()
+        // (`this.parent.setActivePage(this)`) would throw if ever called on it.
+        this.parent = parent;
         this.id = id;
         this.body = $(id);
         this.button = buttonId ? new TabButton(buttonId, this) : null;

@@ -239,7 +239,11 @@ export default class GameClient {
             //log.info("game.mapIndex:"+game.mapIndex);
             //log.info("map:"+parseInt(map));
 
-            if (!game.mapContainer.ready || game.mapContainer.mapIndex !== parseInt(mapIndex) ||
+            // FIX: `mapContainer.ready` is a method (registers a ready callback), not a
+            // boolean, so `!game.mapContainer.ready` was always false and this "don't spawn
+            // before the map is ready" guard never fired; use the actual boolean flag, as
+            // every other readiness check in the codebase does (see game.js/renderer.js)
+            if (!game.mapContainer.mapLoaded || game.mapContainer.mapIndex !== parseInt(mapIndex) ||
             	id === game.player.id)
             	return;
 
@@ -461,8 +465,10 @@ export default class GameClient {
 				}
 
         sendMoveEntity(entity, action) {
-						//try { throw new Error(); } catch(err) { console.error(err.stack); }
-						console.info("DEBUG: sendMoveEntity: x:"+entity.x+",entity.y:"+entity.y);
+            // FIX: leftover unconditional debug logging firing on every single player move;
+            // same class of issue already cleaned up elsewhere in this file (see log.debug
+            // FIX comments above) - use log.debug so it's gated behind the log level instead
+            log.debug("sendMoveEntity: x:"+entity.x+",entity.y:"+entity.y);
             this.sendMessage([Types.Messages.CW_MOVE,
 											Utils.getWorldTime(),
             		      entity.id,

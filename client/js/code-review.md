@@ -2,6 +2,33 @@
 
 Scope: full `client/js` tree (excluding `lib/` vendor code and `data/` tables). Findings from a high-level pass, grouped by severity.
 
+## Second pass (deeper dive, all fixed)
+
+A follow-up pass looked past the original findings for further bugs. All of the below are fixed; see `// FIX:` comments at each site.
+
+- `app.js` (`npcDialoguePic`) — `sprite.animations` was dereferenced before the sprite-null check ran; now guards with an early return.
+- `config.js` — the `config_build.json` fetch had no `.catch`; a failed fetch left the app polling `waitForConfig()` forever with no visible error. Added a `.catch` that logs the failure.
+- `gameclient.js` (`receiveSpawn`) — guarded on `!game.mapContainer.ready`, but `.ready` is a method (always truthy), so the "don't spawn before map ready" check never fired. Fixed to use the boolean `mapLoaded` flag.
+- `gameclient.js` (`sendMoveEntity`) — leftover unconditional `console.info` debug log on every move; switched to gated `log.debug`.
+- `game.js` (`findPath`) — the error-logging branch for a missing `character` dereferenced `character.id`, throwing instead of logging cleanly.
+- `game.js` (`playerInteract`) — `p.target.id` was logged unconditionally even when no target had been set, throwing a TypeError; now guarded.
+- `updater.js` (`charPath`) — mid-path collision guard checked `c.map`, which is never set anywhere (should be `game.mapContainer`), so it was permanently dead code; also dropped a leftover debug `try/throw/console.error` trace inside that dead branch.
+- `util.js` — `String.prototype.format` was defined twice; the second silently won, leaving the `.f` alias (bound to the first) pointing at dead code. Removed the duplicate and re-pointed `.f` at the surviving implementation.
+- `mapcontainer.js` (`isDoor`) — passed the wrong shape (`{gx,gy}`) to `Area.contains()`, which reads `.x`/`.y`, and checked `!== null` against a function that only ever returns `true`/`false` — position was ignored entirely. Fixed the shape and dropped the dead null-check.
+- `mapcontainer.js` / `sprites.js` — zip-entry load promises had no `.catch`, so a corrupt/missing entry left map/sprite loading silently stuck forever (same class of bug already fixed in `map.js`). Added `.catch` handlers.
+- `entity/character.js` (`followAttack`) — never returned a value, but its only caller (`Player.makeAttack`) branches on the return, so attacks always reported `"attack_toofar"` even when movement toward the target started. Now returns `true`/`false`.
+- `entity/components/playercombat.js` (`baseDamage`) — referenced `Mob` without importing it; would throw `ReferenceError` the first time called with a defender argument. Added the import.
+- `entity/item.js` (`getState`) — missing `return`, and called an undefined `_getBaseState()`. Fixed the return; left a TODO on the undefined base method since it has no current callers and the intended wire format is unknown.
+- `entity/components/playeritems.js` (`hasWeaponType`) — defaulted `type` to `"any"` and returned `true` immediately, before even checking for an equipped weapon, permanently orphaning the intended fallback branch. Fixed to only short-circuit on an explicit `"any"`, matching the sibling `hasHarvestWeapon`.
+- `renderer.js` (`drawText`) — dead code, no call sites, referenced an undefined `this.defaultFont` and never used its own output; removed.
+- `renderer.js` (`drawEntities`) — an `else` branch dereferenced `game.player.id` unconditionally; not currently reachable but one refactor away from a null-deref. Guarded.
+- `entity/entitymoving.js` (`nextMove`/`nextTile`) — computed a `dist` default and then ignored it, passing a hardcoded literal instead. Now actually used.
+- `dialog/craftdialog.js` (`StorePage.open`) — a filtered-out item was spliced from the list, but a following non-`else` check still ran against it, `indexOf` returned `-1`, and `splice(-1,1)` deleted an unrelated (usually the last) craft item. Made the checks mutually exclusive. Also removed a dead `Object.assign` copy that was immediately discarded.
+- `shortcuthandler.js` (`getSameShortcuts`) — the item-type branch matched on `type` alone, so using one consumable's cooldown visually applied to every item shortcut in the bar; now also requires matching `shortcutId`, consistent with `cooldownStart()`.
+- `dialog/skilldialog.js` (`SkillPage.clear`) — `.html()` called with no argument is a no-op getter; the skill label was never actually cleared. Fixed to `.html('')`.
+- `clientcallbacks.js` — a bare `game.renderer.forceRedraw;` property reference (should have been an assignment) meant the post-desync-correction redraw never actually got forced. Also `new SkillHandler(self)` referenced an undeclared `self` (resolving to `window.self`) instead of `game`.
+- `tabbook.js` / `tabpage.js` — both constructors discarded their `parent` argument (`this.parent = parent` with no declared `parent` param in `TabBook`, and a no-op `this.parent;` in `TabPage`). Subclasses that go through `TabBook.add()` were unaffected because `setParent()` fixes it up later, but `SkillPage` is constructed directly and never goes through `add()`, so its `parent` stayed `undefined` — `active()` would throw if ever triggered on it. Both constructors now correctly assign `parent`.
+
 **Status: all findings below have been fixed and verified** (syntax-checked with `node --check` across the whole non-vendor tree). See inline `// FIX:` / `// FIX (carried over):` comments at each site for what changed. By request, the `useBison`/BISON encode-decode path was kept in place rather than removed (it's still dead — `useBison` is hardcoded `false` in both `gameclient.js` and `userclient.js` — but that's now an intentional keep, not a bug); the swallowed-error fix in those `catch` blocks (now `log.error` instead of a silent `console.log`) was kept. TLS/`wss` enforcement depends on `config/config_build.json`, which lives outside this `client/js` tree and could not be verified from here — confirm separately that production builds set `protocol` to `wss`. The duplication-consolidation suggestions (shared rack/page/frame base class; `onRemove`/`canMove` dedup) were left as-is — they're refactors, not bugs, and weren't addressed in this pass.
 
 ## XSS / Security (fix first)

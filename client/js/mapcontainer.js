@@ -40,8 +40,15 @@ export default class MapContainer {
                 self.zip = zip;
                 try {
                     const filename = name;
+                    // FIX: no .catch on this promise chain meant a rejected async() read
+                    // (corrupt/missing zip entry, or bad JSON) left MapContainer permanently
+                    // stuck unloaded with no error surfaced - the surrounding try/catch only
+                    // catches synchronous setup errors, not this async rejection. Same bug
+                    // already fixed in map.js's equivalent load path.
                     zip.file(filename).async("string").then(function(data) {
                         self.loadMap(JSON.parse(data));
+                    }).catch(function(err) {
+                        console.error("Failed to load map entry from zip:", err);
                     });
                 }
                 catch (err) {
@@ -199,11 +206,12 @@ export default class MapContainer {
     }
 
     isDoor(x, y) {
+        // FIX: Area.contains() reads entity.x/entity.y (see getDoor() below), not gx/gy, and
+        // it only ever returns true/false (never null), so the old `{gx,gy}` shape combined
+        // with `!== null` meant this ignored position entirely and just matched the first
+        // door in the list (or undefined if none). Pass the correct {x, y} shape instead.
         return _.detect(this.doors, function(door) {
-            return (door.contains({
-                gx: x,
-                gy: y
-            }) !== null);
+            return door.contains({ x: x, y: y });
         });
     }
 

@@ -1,6 +1,11 @@
 // Converted from AMD (define) + Class.extend to a native ES6 module/class.
 export default class TabBook {
-    constructor(id) {
+    // FIX: constructor never declared a `parent` parameter, so `this.parent = parent` resolved
+    // to the global `window.parent`, not anything meaningful. Every current subclass
+    // (storedialog.js/craftdialog.js/auctiondialog.js/appearancedialog.js) immediately
+    // re-assigns `this.parent = parent` right after calling super(), which masked this, but
+    // any future subclass that didn't repeat that assignment would silently get window.parent.
+    constructor(id, parent) {
       this.parent = parent;
       this.id = id;
       this.body = $(id);
