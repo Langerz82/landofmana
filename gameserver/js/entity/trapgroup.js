@@ -56,15 +56,21 @@ class TrapGroup {
                entity.y >= top && entity.y <= bottom;
     }
 
-    // NOTE: several pre-existing bugs preserved unchanged from the original source
-    // (left as-is per the conversion policy of not silently fixing unrelated logic):
-    // (1) calls this.isTouchingEntity(entity) below, but the only defined method on
-    //     this class is isTouching(entity) above — name mismatch, would throw.
-    // (2) inside the `for (var trap of this.traps)` loop, checks `trip.isTouchingEntity(entity)`
-    //     — "trip" is a typo for "trap" (and isTouchingEntity doesn't exist either).
-    // (3) references a bare `player` identifier below even though this method's
-    //     parameter is named `entity`.
-    // (4) `this.entities.getOwnProperty(id)` should be `hasOwnProperty`.
+    // FIX: this method threw before ever applying trap damage, and had further
+    // broken references even past that first throw. Fixed, in order:
+    // (1) called this.isTouchingEntity(entity), but the only defined method on
+    //     this class is isTouching(entity) above -- name mismatch, threw immediately.
+    // (2) inside the `for (const trap of this.traps)` loop, checked
+    //     `trip.isTouchingEntity(entity)` -- "trip" is a typo for the loop's own
+    //     `trap` variable, and isTouchingEntity doesn't exist (same as #1); should
+    //     be `trap.isTouching(entity)`.
+    // (3) referenced a bare `player` identifier below even though this method's
+    //     parameter is named `entity` -- ReferenceError.
+    // (4) `this.entities.getOwnProperty(id)` isn't a real method (it's
+    //     `hasOwnProperty`), and `this.entities[id].isOverEntity(player)` isn't a
+    //     real Timer method either -- Timer only exposes `isOver()` (see timer.js),
+    //     which already returns true/restarts the cooldown once the damage
+    //     interval has elapsed, so no second argument is needed.
     update(entity) {
         const dmg = this.damaging;
 
@@ -87,13 +93,13 @@ class TrapGroup {
         if (!this.damaging)
             return;
 
-        if (!this.isTouchingEntity(entity))
+        if (!this.isTouching(entity))
             return;
 
         let victim = null;
         for(const trap of this.traps)
         {
-            if (trip.isTouchingEntity(entity)) {
+            if (trap.isTouching(entity)) {
                 victim = entity;
                 break;
             }
@@ -106,12 +112,12 @@ class TrapGroup {
             return;
         }
 
-        if(this.entities.getOwnProperty(id) && this.entities[id]) {
-            if (this.entities[id].isOverEntity(player))
-                player.onDamage(this, this.damage);
+        if(this.entities.hasOwnProperty(id) && this.entities[id]) {
+            if (this.entities[id].isOver())
+                entity.onDamage(this, this.damage);
         }
         else {
-            player.onDamage(this, this.damage);
+            entity.onDamage(this, this.damage);
             this.entities[id] = new Timer(this.damageInterval);
         }
     }

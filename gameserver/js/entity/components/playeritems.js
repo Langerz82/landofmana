@@ -223,12 +223,12 @@ class PlayerItems {
         return true;
     }
 
-    // NOTE: pre-existing bug preserved from the original — `p` below is never
-    // defined anywhere in this file (the constructor parameter/property is named
-    // `entity` everywhere else in this class). This would throw a ReferenceError
-    // at runtime in the original CommonJS version too, since sloppy mode only
-    // creates implicit globals on bare *assignment*, not on read of an undeclared
-    // identifier.
+    // FIX: `p` was never defined anywhere in this file (the constructor
+    // parameter/property is named `entity` everywhere else in this class, and
+    // Messages.Gold expects a player-shaped object with .items.gold/.user.gems
+    // -- see message.js). This threw a ReferenceError on every successful gem
+    // spend, right after the gems had already been deducted, so the client
+    // never got its updated gold/gems packet.
     modifyGems(diff) {
         const entity = this.entity;
 
@@ -239,7 +239,7 @@ class PlayerItems {
             return false;
         }
         entity.user.gems += diff;
-        entity.connection.send((new Messages.Gold(p)).serialize());
+        entity.connection.send((new Messages.Gold(entity)).serialize());
         return true;
     }
 

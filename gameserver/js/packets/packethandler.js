@@ -358,7 +358,11 @@ class PacketHandler {
 
             if (gemCount >= price) {
                 this.player.user.looks[appearanceIndex] = 1;
-                this.player.modifyGems(-price);
+                // FIX: modifyGems() is defined on PlayerItems (player.items),
+                // not directly on Player -- calling this.player.modifyGems(...)
+                // threw "not a function", so appearance/gem purchases never
+                // actually completed (and the gem cost was never deducted).
+                this.player.items.modifyGems(-price);
                 this.server.looks.prices[appearanceIndex] += 100;
 
                 this.sendPlayer(new Messages.Notify("SHOP", "SHOP_SOLD", [itemData.name]));
