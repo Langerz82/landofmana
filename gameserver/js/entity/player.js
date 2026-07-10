@@ -155,8 +155,13 @@ class Player extends Character {
       const weaponSlot = 4;
       const armorDamage = Math.min(5, Math.ceil(dealt / 300));
       log.info("player - armorDamage:" + armorDamage);
+      // FIX: `it` from a for...in loop is always a string, so `it ===
+      // weaponSlot` (a number) never matched -- the weapon slot was never
+      // excluded from this armor-degrade loop, so the weapon got degraded
+      // and given "armor" XP here in addition to the explicit weapon-degrade
+      // code a few lines below. Coerce to a number before comparing.
       for (const it in this.items.equipment.rooms) {
-        if (it === weaponSlot)
+        if (Number(it) === weaponSlot)
           continue;
 
         if (!this.items.equipment.rooms[it])

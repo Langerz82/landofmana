@@ -422,7 +422,13 @@ class MapEntities {
     }
 
     addSpatial(entity) {
-        if (!entity || !entity.x || !entity.y) return;
+        // FIX: `!entity.x || !entity.y` treats a legitimate coordinate of
+        // exactly 0 as "missing", silently skipping spatial-grid
+        // registration for any entity sitting at x===0 or y===0 (the map
+        // edge) -- making it invisible to proximity-based queries (combat
+        // targeting, processWho, etc). Use null/undefined checks instead of
+        // truthiness so 0 is treated as a valid coordinate.
+        if (!entity || entity.x == null || entity.y == null) return;
 
         const ts = G_TILESIZE;
         const gx = ~~(entity.x / ts);
@@ -446,7 +452,9 @@ class MapEntities {
 
     removeSpatial(entity) {
         if (entity.spatialMap) {
-            if (!entity || !entity.x || !entity.y) return;
+            // FIX: same falsy-zero bug as addSpatial above -- 0 is a valid
+            // map-edge coordinate, not a missing one.
+            if (!entity || entity.x == null || entity.y == null) return;
 
             const ts = G_TILESIZE;
             const gx = ~~(entity.x / ts);

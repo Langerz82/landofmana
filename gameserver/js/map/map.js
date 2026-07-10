@@ -391,7 +391,14 @@ class Map {
         {
             pos.x = Utils.randomRangeInt(0, self.width*G_TILESIZE);
             pos.y = Utils.randomRangeInt(0, self.height*G_TILESIZE);
-            if (self.isColliding(pos.x, pos.y))
+            // FIX: inverted -- this broke out of the retry loop when the
+            // candidate position WAS colliding, i.e. it accepted/returned
+            // positions inside walls instead of retrying for an open one.
+            // The sibling retry loops in this same file (a few lines above)
+            // correctly break when NOT colliding. Used by mapentities.js's
+            // _createNpc to place roaming NPCs, so NPCs would typically
+            // spawn stuck inside collision tiles.
+            if (!self.isColliding(pos.x, pos.y))
                 break;
         } while (tries++ < 20);
 

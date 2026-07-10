@@ -110,7 +110,11 @@ class PartyHandler {
             party.removeName(player2);
             if (player2 instanceof Player)
                 this.player.sendToPlayer(player2, new Messages.Notify("CHAT", "PARTY_PLAYER_KICKED"));
-            this.handlePartyAbandoned(party);
+            // FIX: called the nonexistent this.handlePartyAbandoned(); the
+            // only defined method is handleAbandoned(party) (see its correct
+            // use in handleLeave below). Threw every time a party leader
+            // kicked a member.
+            this.handleAbandoned(party);
         } else {
             this.player.sendPlayer(new Messages.Notify("CHAT", "PARTY_CANNOT_KICK"));
         }

@@ -61,16 +61,22 @@ const AStar = (function () {
       return gGrid[coord[0]][coord[1]];
     }
 
+    // FIX: $N/$W required N/W to be > 0, excluding valid index 0 -- compare
+    // with diagonalSuccessorsFree above, which correctly uses > -1 for the
+    // same north/west boundary check. As written, pathfinding could never
+    // move into row 0 or column 0 even when that cell was open, so entities
+    // near the map's top or left edge could get stuck or take unnecessary
+    // detours.
     function successors(find, x, y, grid, rows, cols){
         let
             N = (y - 1),
             S = (y + 1),
             E = (x + 1),
             W = (x - 1),
-            $N = N > 0 && !grids([N,x]),
+            $N = N >= 0 && !grids([N,x]),
             $S = S < (rows) && !grids([S,x]),
             $E = E < (cols) && !grids([y,E]),
-            $W = W > 0 && !grids([y,W]),
+            $W = W >= 0 && !grids([y,W]),
             result = [],
             i = 0;
 

@@ -168,7 +168,10 @@ class ShopHandler {
         //console.info("type=" + type + ",invNumber=" + inventoryNumber1);
         if (type === 0 || type === 2) {
             const itemStore = p.items.itemStore[type];
-            if (itemIndex < 0 && itemIndex >= itemStore.maxNumber)
+            // FIX: used `&&` instead of `||` -- an index can't simultaneously
+            // be negative AND >= maxNumber, so this condition could never be
+            // true and out-of-range indices were never rejected here.
+            if (itemIndex < 0 || itemIndex >= itemStore.maxNumber)
                 return;
             const item = p.items.itemStore[type].rooms[itemIndex];
             //console.info("item=" + JSON.stringify(item));
@@ -211,13 +214,22 @@ class ShopHandler {
 
         item.itemDurabilityMax -= 50;
         item.itemDurability = item.itemDurabilityMax;
+        // FIX: when an item's durability is fully worn out, `item` was set to
+        // null and the store slot emptied, but the code right after
+        // unconditionally did `item.slot = index` and then used `item` again
+        // to build the response messages -- throwing on every full-durability
+        // repair attempt instead of notifying the player it broke. Moved the
+        // slot/notify logic into each branch so the null case sends a
+        // "repaired but destroyed" style response instead of crashing.
         if (item.itemDurabilityMax <= 0) {
             item = null;
             p.items.itemStore[type].makeEmptyItem(index);
-        } else {
-            console.info("itemNumber=" + item.itemNumber);
-            p.items.modifyGold(-price);
+            p.sendPlayer(new Messages.ItemSlot(type, [{slot: index, itemKind: -1}]));
+            return;
         }
+
+        console.info("itemNumber=" + item.itemNumber);
+        p.items.modifyGold(-price);
         item.slot = index;
 
         p.sendPlayer(new Messages.ItemSlot(type, [item]));
@@ -279,7 +291,13 @@ class ShopHandler {
             return;
         }
 
-        if (itemKind < 0 || itemKind >= ItemTypes.KindData.length)
+        // FIX: ItemTypes.KindData is a plain object (keyed by item id), not
+        // an array -- `.length` is always undefined, so `itemKind >=
+        // undefined` is always false and this bounds check silently never
+        // rejected an out-of-range itemKind. `itemData` then came back
+        // undefined and `itemData.name` below threw. Use the same
+        // hasOwnProperty check the sibling handleCraft() already does correctly.
+        if (itemKind < 0 || !ItemTypes.KindData.hasOwnProperty(itemKind))
             return;
 
         //console.info("itemKind="+itemKind);

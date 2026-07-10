@@ -26,8 +26,14 @@ class Looks {
         const self = this;
         //console.info("LOOKS LOAD: "+JSON.stringify(data));
 
-        if (!data)
+        // FIX: missing return/else -- when `data` was falsy (e.g. first-ever
+        // world load with no saved looks data), this called this.reset() and
+        // then fell straight through to `data.parseInt()` anyway, throwing
+        // on the exact case it was trying to handle.
+        if (!data) {
             this.reset();
+            return;
+        }
 
         this.prices = data.parseInt();
     }

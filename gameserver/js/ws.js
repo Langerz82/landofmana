@@ -167,8 +167,15 @@ WS.WebsocketServer = class extends sServer {
             console.error(err);
         });
 
+        // FIX: `close()` invokes this callback as a plain function call
+        // (`this._close_callback(this)`), so inside the callback `this` is
+        // undefined (ES modules are strict mode) -- the server instance is
+        // only available via the `self` parameter, which was being ignored.
+        // `server.close()` (used during graceful shutdown in
+        // main.safe_exit()) threw instead of ever actually closing the
+        // HTTP/HTTPS listener.
         this.onClose(function (self) {
-          this._protoServer.close();
+          self._protoServer.close();
         });
 
         // Add a connect listener
@@ -273,9 +280,22 @@ WS.socketioConnection = class extends Connection {
 
       if (data.length >= 2048)
       {
+              // FIX: sent with a 'z|' prefix, but this class's own incoming
+              // parser (fnOnMessage above) -- and the "2" convention used
+              // consistently elsewhere in this file (WS.userConnection.send)
+              // -- only recognizes a bare "2" flag for gzip-compressed
+              // payloads. Any large message (inventories, world snapshots,
+              // etc.) sent to a connected game client used a prefix nothing
+              // on the receiving side expects. Also added the same `err`
+              // guard userConnection.send() already has, since a gzip
+              // failure previously passed `undefined` into `new Buffer(...)`.
 		      zlib.gzip(data, {level:1}, (err, buffer) => {
+			    if (err) {
+			        console.log(err.toString());
+			        return;
+			    }
 			    buffer = new Buffer(buffer).toString('base64');
-			    self.sendUTF8('z|'+buffer);
+			    self.sendUTF8('2'+buffer);
 		      });
 	    }
     	else

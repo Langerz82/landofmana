@@ -285,8 +285,13 @@ function main(config) {
     });
 
 
+    // FIX: `worlds` (plural) was never declared anywhere -- this server is
+    // single-world (the module-scoped `world`, singular, used everywhere
+    // else). Underscore's _.each on undefined silently no-ops instead of
+    // throwing, so this status callback always returned an empty
+    // distribution. Wrap the single world in an array for the helper below.
     server.onRequestStatus(function() {
-        return JSON.stringify(getWorldDistribution(worlds));
+        return JSON.stringify(getWorldDistribution([world]));
     });
 
     process.on('uncaughtException', function (e) {
@@ -324,13 +329,21 @@ function main(config) {
   process.on('SIGQUIT', signalHandler);
   process.on('SIGHUP', signalHandler);
 
-  const cmdPrompt = function () {
+  // FIX: this SIGINT-forwarding registration used to live inside cmdPrompt
+  // itself, which re-invokes on every command via setTimeout -- each call
+  // added a NEW "SIGINT" listener to the shared `readline` object without
+  // ever removing the previous one. After enough admin commands, a single
+  // Ctrl+C would re-emit "SIGINT" once per accumulated listener, running
+  // main.closeServer() (and its saveServer/readline.close/checkSaved chain)
+  // multiple times concurrently. Register it once, here, outside the
+  // recursive function.
+  if (process.platform === "win32") {
+    readline.on("SIGINT", function () {
+      process.emit("SIGINT");
+    });
+  }
 
-    if (process.platform === "win32") {
-      readline.on("SIGINT", function () {
-        process.emit("SIGINT");
-      });
-    }
+  const cmdPrompt = function () {
 
     if (!IS_EXITING && readline) {
       readline.question('Command:', function (line) {
@@ -446,10 +459,11 @@ function getInput(cmd) {
     }
 }
 
+// FIX: same undefined `worlds` (plural) issue as onRequestStatus above --
+// this server only ever has the single module-scoped `world`. The
+// "reloadauction" console command was silently doing nothing.
 function reloadAuction() {
-  _.each(worlds, function(world) {
-			world.auction.load();
-	});
+  world.auction.load();
 }
 
 function getWorldDistribution(worlds) {

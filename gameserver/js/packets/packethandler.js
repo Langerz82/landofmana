@@ -137,9 +137,9 @@ class PacketHandler {
                 break;
 
 // TODO - Fix CHaracter Info
-            case Types.Messages.CW_CHARACTERINFO:
-                self.handleCharacterInfo(message);
-                break;
+            //case Types.Messages.CW_CHARACTERINFO:
+                //self.handleCharacterInfo(message);
+                //break;
             case Types.Messages.CW_TELEPORT_MAP:
                 self.handleTeleportMap(message);
                 break;
@@ -256,9 +256,9 @@ class PacketHandler {
         this.player.sendToPlayer(player, message);
     }
 
-    handleCharacterInfo(message) {
+    /*handleCharacterInfo(message) {
         this.sendPlayer(new Messages.CharacterInfo(this.player));
-    }
+    }*/
 
     handleSyncTime(message) {
         console.info("handleSyncTime");
@@ -284,7 +284,14 @@ class PacketHandler {
                 this.send([Types.Messages.WC_NOTIFY, "CHAT", "CHATMUTED"]);
                 break;
             default:
-                this.server.sendWorld(new Messages.Chat(this.player, msg));
+                // FIX: Messages.Chat's constructor is (player, group,
+                // message) and serialize() sends [WC_CHAT, playerId, group,
+                // message] -- but this call only passed 2 args, so `msg`
+                // (the actual chat text) landed in the `group` field and
+                // `message` was undefined. Every chat packet sent to clients
+                // was malformed. This is a single world-wide channel here,
+                // so pass "world" as the group and the real text as message.
+                this.server.sendWorld(new Messages.Chat(this.player, "world", msg));
                 break;
 
             }
@@ -299,7 +306,15 @@ class PacketHandler {
 
         const p = this.player;
         const npc = p.map.entities.getEntityById(npcId);
-        if (!p.isInScreen(npc)) {
+        // FIX: isInScreen(pos) expects an [x,y] array (see the correct call
+        // in player.js's getExpBonus: isInScreen([player.x,player.y])), not a
+        // raw entity. Passing `npc` meant npc[0]/npc[1] were always
+        // undefined, so Math.abs(this.x - undefined) -> NaN -> ~~NaN -> 0,
+        // and `0 <= threshold` is always true -- the proximity check was
+        // completely defeated, letting players accept/reject quests from
+        // anywhere on the map. Also added a null-check: if npcId doesn't
+        // resolve to a real entity, `npc` is undefined and npc.x would throw.
+        if (!npc || !p.isInScreen([npc.x, npc.y])) {
             console.info("player not close enough to NPC!");
             return;
         }
@@ -318,13 +333,15 @@ class PacketHandler {
 
         const p = this.player;
         const npc = p.map.entities.getEntityById(npcId);
-        if (!p.isInScreen(npc)) {
+        // FIX: same isInScreen(npc) -> isInScreen([npc.x,npc.y]) bug as
+        // handleQuest above, plus a null-check on npc before using its
+        // coordinates.
+        if (!npc || !p.isInScreen([npc.x, npc.y])) {
             console.info("player not close enough to NPC!");
             return;
         }
 
-        if (npc)
-            npc.talk(p);
+        npc.talk(p);
     }
 
     handleAppearanceUnlock(message) {

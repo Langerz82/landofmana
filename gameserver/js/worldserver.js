@@ -88,6 +88,13 @@ class World {
 
         self.lastUpdateTime = Date.now();
 
+        // FIX: `self._idleStart` was read (in the notification-timer setup
+        // further down) but never assigned anywhere, so `notify.lastTime`
+        // became NaN at startup and the periodic world-notification system
+        // (NotifyData.Notifications) never fired -- `Date.now() - NaN` and
+        // any comparison against it is always NaN/false.
+        self._idleStart = Date.now();
+
         self.PLAYERS_SAVED = false;
         self.AUCTIONS_SAVED = false;
         self.LOOKS_SAVED = false;
@@ -216,11 +223,17 @@ class World {
         return false;
       }
 
+      // FIX: this used to disconnect every connected player instead of
+      // saving them whenever `update` was falsy -- and the only live caller
+      // of world.save() with no argument is main.js's saveServer(), which is
+      // bound to the interactive "save"/"s" console command. Typing "save"
+      // was actually mass-kicking the server instead of persisting player
+      // data. savePlayers() should always persist; shutdown-time disconnects
+      // are already handled separately by main.safe_exit() (server.close()
+      // / server.userConn.disconnect()), so the disconnect branch here was
+      // both misnamed-condition and redundant.
       Utils.forEach(this.players, function (p) {
-        if (update)
-          p.save(update);
-        else
-          p.connection.disconnect();
+        p.save(update);
       });
       return true;
     }

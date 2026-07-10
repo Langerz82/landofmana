@@ -1,9 +1,20 @@
 import Quest, { getQuestObject } from './quest.js';
 import Messages from './message.js';
 import { Types } from './common.js';
-//import Utils from './utils.js';
+import Utils from './utils.js';
+import MobData from './data/mobdata.js';
+import ItemData from './data/itemdata.js';
+import ItemLootData from './data/itemlootdata.js';
+import ItemRoom from './items/itemroom.js';
 
-/* global MobData, ItemData, ItemLootData */
+// FIX: MobData, ItemData, ItemLootData, and ItemRoom were all used throughout
+// this file (getMobObject, createQuestItemKind, giveReward) but never
+// imported -- the stale `/* global ... */` comment below was a leftover from
+// the CommonJS version where these really were implicit globals. Uncaught
+// ReferenceErrors here broke dynamic quest generation and reward-giving
+// entirely. Utils was also referenced (getMobObject/createQuestItemKind) but
+// commented out above; uncommented and switched to a real import.
+/* global log */
 
 class EntityQuests {
     constructor(entity) {

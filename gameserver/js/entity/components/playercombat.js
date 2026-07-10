@@ -35,8 +35,12 @@ class PlayerCombat {
         const entity = this.entity;
 
         let itemDiff = entity.level*2;
+        // FIX: `id` from a for...in loop is always a string ("4"), so
+        // `id === 4` never matched and the weapon slot was never excluded
+        // from this crit-defense calculation (it should be, since a weapon
+        // isn't armor). Coerce to a number before comparing.
         for (const id in entity.items.equipment.rooms) {
-            if (id === 4) continue;
+            if (Number(id) === 4) continue;
             const item = entity.items.equipment.rooms[id];
             if (item) {
                 itemDiff += (3*ItemTypes.getData(item.itemKind).modifier)+(item.itemNumber*2);
@@ -110,11 +114,15 @@ class PlayerCombat {
         //console.info("baseDamageDef:");
 
         dealt = level;
+        // FIX: same string/number mismatch as baseCritDef above -- `id` from
+        // for...in is always a string, so `id === 1` never matched and the
+        // chest slot never got its intended 4x defense multiplier (every
+        // equipped item was treated as the 2x case instead).
         for (const id in entity.items.equipment.rooms)
         {
             const item = entity.items.equipment.rooms[id];
             if (item) {
-                const eq_multi = (id === 1) ? 4 : 2;
+                const eq_multi = (Number(id) === 1) ? 4 : 2;
                 const def = (ItemTypes.getData(item.itemKind).modifier * eq_multi + item.itemNumber * eq_multi);
                 dealt += ~~(def * ((item.itemDurability / item.itemDurabilityMax * 0.5) + 0.5));
             }

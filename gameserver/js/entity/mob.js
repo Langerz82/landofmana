@@ -264,13 +264,19 @@ class Mob extends Character {
         }
     }
 
+    // FIX: _.sortBy sorts ascending, so sorted[0] was the LEAST-hated
+    // entity, not the most-hated one -- the opposite of what this method's
+    // name and its only caller (handleMobHate, picking an aggro target)
+    // need. Every mob was consistently attacking the weakest-threat player
+    // instead of whoever had actually generated the most hate. Taking the
+    // last element of the ascending sort gives the highest-hate entry.
     getMostHated(hateRank) {
         let i, playerId,
             sorted = _.sortBy(this.hatelist, function(obj) { return obj.hate; }),
             size = _.size(this.hatelist);
 
-        if(sorted && sorted[0]) {
-            return sorted[0].entity;
+        if(sorted && sorted.length > 0) {
+            return sorted[sorted.length - 1].entity;
         }
         return null;
     }

@@ -51,10 +51,10 @@ var AStar = (function() {
             S = (y + 1),
             E = (x + 1),
             W = (x - 1),
-            $N = N > 0 && !grids([N, x]),
+            $N = N >= 0 && !grids([N, x]),
             $S = S < (rows) && !grids([S, x]),
             $E = E < (cols) && !grids([y, E]),
-            $W = W > 0 && !grids([y, W]),
+            $W = W >= 0 && !grids([y, W]),
             result = [],
             i = 0;
 
