@@ -185,9 +185,9 @@ class Equipment {
         this.setItem(index, item);
     },*/
 
-    // NOTE: pre-existing bug preserved from the original — calls
-    // this.makeEmptyEquipment(slot) below, but the only defined method on this
-    // class is makeEmptyItem(index) — name mismatch, would throw at runtime.
+    // FIX: was calling the nonexistent this.makeEmptyEquipment(slot); the only
+    // defined method on this class is makeEmptyItem(index). This threw
+    // whenever equipped-item durability hit 0, breaking equipment degradation.
     degradeItem(slot, adjustment) {
         const item = this.rooms[slot];
         if (!item)
@@ -196,7 +196,7 @@ class Equipment {
         item.itemDurability = Math.max(0,item.itemDurability);
         if (item.itemDurability === 0 && item.itemDurabilityMax <= 30)
         {
-            this.makeEmptyEquipment(slot);
+            this.makeEmptyItem(slot);
             return false;
         }
         this.owner.sendPlayer(new Messages.ItemSlot(2, [item]));

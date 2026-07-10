@@ -71,15 +71,14 @@ class TrapArea extends EntityArea {
                entity.y >= top && entity.y <= bottom;
     }
 
-    // NOTE: pre-existing bug preserved from the original — calls
-    // this.isTouchingEntity(entity) below, but the only defined method on this
-    // class is isTouching(entity) above (same name-mismatch bug as in
-    // entity/trapgroup.js) — would throw at runtime.
+    // FIX: was calling the nonexistent this.isTouchingEntity(entity); the only
+    // defined method on this class is isTouching(entity) above. This threw on
+    // every update() call, so traps never actually applied damage.
     update(entity) {
         if (!this.checkTimer.isOver())
             return;
 
-        if (!this.isTouchingEntity(entity))
+        if (!this.isTouching(entity))
             return;
 
         for (const group of this.groups) {

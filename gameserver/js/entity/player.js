@@ -193,9 +193,15 @@ class Player extends Character {
 
       if (this.stats.hp <= 0)
       {
+        // FIX: this callback is a plain function passed to underscore's
+        // _.each, so `this` is undefined inside it (ES modules are always
+        // strict mode). Reading `this.id` threw a TypeError here on
+        // essentially every player death. Capture `self` before the loop and
+        // reference the dying player's id through it instead.
+        const self = this;
         _.each(this.attackers, function(attacker) {
           if (attacker.hasOwnProperty("knownIds"))
-            delete attacker.knownIds[this.id];
+            delete attacker.knownIds[self.id];
 
         });
         this.die(attacker);

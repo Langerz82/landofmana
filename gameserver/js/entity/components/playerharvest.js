@@ -122,7 +122,12 @@ class PlayerHarvest {
         const time = p.map.entities.harvest[gp.gx + "_" + gp.gy];
 
         let res = true;
-        const type = p.getWeaponType();
+        // FIX: getWeaponType() is defined on PlayerItems (p.items), not on
+        // Player itself -- as correctly called elsewhere in this same file
+        // (_checkHarvest/_harvest use p.items.getWeaponType()/hasWeaponType()).
+        // Calling p.getWeaponType() threw "not a function", breaking the
+        // harvesting flow entirely.
+        const type = p.items.getWeaponType();
         if (!type) {
             res = false;
         }
@@ -144,12 +149,15 @@ class PlayerHarvest {
         const duration = 6000;
         p._harvest(x, y, function (p) {
             p.world.taskHandler.processEvent(p, PlayerEvent(Types.EventType.HARVEST, p, 1));
-            if (p.getWeaponType() === "axe")
+            // FIX: same p.getWeaponType() -> p.items.getWeaponType() mismatch
+            // as above; both call sites here would throw and abort this
+            // harvest-completion callback before rewarding the player.
+            if (p.items.getWeaponType() === "axe")
                 p.stats.exp.logging += 10;
             p.map.entities.harvest[gp.gx + "_" + gp.gy] = Date.now();
             if (p.items.inventory.hasRoom()) {
                 let kind;
-                if (p.getWeaponType() === "axe")
+                if (p.items.getWeaponType() === "axe")
                     kind = 320;
                 const item = new ItemRoom([kind, 1, 0, 0]);
                 if (p.items.inventory.putItem(item) === -1)

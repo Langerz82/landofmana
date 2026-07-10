@@ -223,6 +223,10 @@ Messages.SkillEffects = class extends Message {
         this.effects = effects;
     }
     serialize() {
+        // NOTE: Array#concat returns a new array rather than mutating in
+        // place, but here the result is returned directly, so this one was
+        // already correct -- unlike the sibling bugs in Messages.SkillXP and
+        // Messages.Damage below where the concat result was discarded.
         return ([Types.Messages.WC_SKILLEFFECTS,
             this.id]).concat(this.effects);
     }
@@ -235,9 +239,13 @@ Messages.SkillXP = class extends Message {
     }
     serialize() {
         const arr = [Types.Messages.WC_SKILLXP];
-        arr.push(skillXPs.length);
-        arr.concat(skillXPs);
-        return arr;
+        // FIX: `skillXPs` isn't a parameter of serialize() -- only the
+        // constructor's `this.skillXPs` exists here. The bare identifier threw
+        // a ReferenceError every time a skill-XP message was sent. Also,
+        // Array#concat doesn't mutate `arr` in place; its return value must be
+        // reassigned or the pushed skill XP data is silently dropped.
+        arr.push(this.skillXPs.length);
+        return arr.concat(this.skillXPs);
     }
 };
 
@@ -303,8 +311,12 @@ Messages.Damage = class extends Message {
           this.ep,
           this.epMax,
   	      this.crit];
+        // FIX: Array#concat returns a new array instead of mutating `arr`, so
+        // the previous `arr.concat(this.effects);` (return value discarded)
+        // silently dropped combat effect data from every damage packet sent
+        // to clients. Reassign/return the concat result instead.
         if (Array.isArray(this.effects) && this.effects.length > 0)
-          arr.concat(this.effects);
+          return arr.concat(this.effects);
         return arr;
     }
 };

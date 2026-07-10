@@ -55,7 +55,12 @@ class PlayerGroup {
   sendPlayers(msg, sendOwner) {
     const self = this;
     this.forEachName(function (playerName) {
-      if (sendOwner && this.leader === playerName)
+      // FIX: this callback is a plain function passed through forEachName's
+      // callback(...) invocation, so `this` is undefined here (ES modules are
+      // strict mode, no implicit global `this`). Reading `this.leader` threw a
+      // TypeError on every call, i.e. every party join/leave (sendMembersName
+      // always calls sendPlayers(msg, true)). Use the closed-over `self` instead.
+      if (sendOwner && self.leader === playerName)
         return;
 
       if(playerName) {

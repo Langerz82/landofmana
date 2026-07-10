@@ -8,13 +8,12 @@ class MapArea {
         this.height = height;
     }
 
-    // NOTE: preserved pre-existing bug from the original — `contains` reads a bare
-    // `elipse` identifier below instead of `this.elipse` (the constructor parameter
-    // is only captured on `this.elipse`). This would throw a ReferenceError at
-    // runtime in the original CommonJS version too, since sloppy mode only creates
-    // implicit globals on bare *assignment*, not on read of an undeclared name.
+    // FIX: `contains` was reading the bare `elipse` identifier instead of the
+    // constructor parameter captured on `this.elipse`. That threw a
+    // ReferenceError on every call, breaking door/portal detection entirely
+    // (map.js's isDoor/getDoor call into this). Using `this.elipse` below.
     contains(entity) {
-        if (!elipse)
+        if (!this.elipse)
         {
             if(entity) {
                 return entity.x >= this.x
@@ -25,7 +24,7 @@ class MapArea {
                 return false;
             }
         }
-        if (elipse)
+        if (this.elipse)
         {
             if(entity) {
                 const cx = (this.x);
