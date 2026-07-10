@@ -664,10 +664,6 @@ class Player extends Character {
 
     console.info("set path");
 
-    if (this.keyMove) {
-      this.move(this.orientation, 0, this.ex, this.ey);
-    }
-
     this.sx = this.x;
     this.sy = this.y;
     this.ex = x2;
