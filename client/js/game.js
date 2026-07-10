@@ -2291,7 +2291,7 @@ export default class Game {
               // larger than that (screenX/screenY, i.e. the whole viewport in world pixels), so entities still
               // on screen were being removed. Use camera visibility (with the same 10-tile buffer margin used
               // for outEntities elsewhere) instead of a fixed, much-too-small radius.
-              if (!game.camera.isVisible(entity, 100))
+              if (!game.camera.isVisible(entity, 64))
                 this.obsoleteEntities.push(entity);
             }
 
