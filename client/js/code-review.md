@@ -2,6 +2,8 @@
 
 Scope: full `client/js` tree (excluding `lib/` vendor code and `data/` tables). Findings from a high-level pass, grouped by severity.
 
+**Status: all findings below have been fixed and verified** (syntax-checked with `node --check` across the whole non-vendor tree). See inline `// FIX:` / `// FIX (carried over):` comments at each site for what changed. By request, the `useBison`/BISON encode-decode path was kept in place rather than removed (it's still dead — `useBison` is hardcoded `false` in both `gameclient.js` and `userclient.js` — but that's now an intentional keep, not a bug); the swallowed-error fix in those `catch` blocks (now `log.error` instead of a silent `console.log`) was kept. TLS/`wss` enforcement depends on `config/config_build.json`, which lives outside this `client/js` tree and could not be verified from here — confirm separately that production builds set `protocol` to `wss`. The duplication-consolidation suggestions (shared rack/page/frame base class; `onRemove`/`canMove` dedup) were left as-is — they're refactors, not bugs, and weren't addressed in this pass.
+
 ## XSS / Security (fix first)
 
 Chat, party/guild, leaderboard, and popup-menu code inserts server- or player-controlled strings (names, messages) into the DOM via `.html()`/string concatenation with no escaping. Any player can put `<img src=x onerror=...>` in their name or a chat message and run script in every other client that sees it.

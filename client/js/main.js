@@ -92,14 +92,6 @@ window.onbeforeunload = function (e) {
         $('.barbutton').click(function() {
             $(this).toggleClass('active');
         });
-        /*
-        $('#rankingbutton').click(function(event){
-            if(app.game && app.ready && app.game.ready){
-                app.game.client.sendRanking('get');
-                app.hideAllSubwindow();
-                app.game.rankingHandler.show();
-            }
-        });*/
         $('#aboutbutton').click(function() {
             const about = $('#about_window');
             about.toggle();
@@ -112,14 +104,6 @@ window.onbeforeunload = function (e) {
         $('#chatbutton').click(function() {
           app.showChat(!$('#chatbox').hasClass('active'));
         });
-
-        /*$('#instructions').click(function() {
-            app.hideWindows();
-        });
-
-        $('#playercount').click(function() {
-         app.togglePopulationInfo();
-         }); */
 
         $('#population').click(function() {
             app.togglePopulationInfo();
@@ -582,15 +566,6 @@ var initGame = function() {
           }
       }
     };
-
-/*
-    $(document).keyup(function(e) {
-        if (e.repeat)
-          return false;
-
-        return fnMoveKeys(e, false);
-    });
-*/
 
     $(document).keydown(function (e) {
       if (e.repeat) {

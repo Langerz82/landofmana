@@ -62,7 +62,9 @@ export default class GameClient {
 								log.debug("message:"+message); // FIX: unconditional console.warn -> log.debug (see onMessage above)
 							  fnProcessMessage(message);
 	            } catch (err) {
-	              console.log(err);
+	              // FIX: was silently swallowed via console.log; surface via log.error so
+	              // decompress failures are visible/gated the same way as other errors
+	              log.error("Failed to decompress server message: " + err);
 	            }
 		        }
 		        else if (method === '1') {
@@ -187,7 +189,6 @@ export default class GameClient {
         sendMessage(json) {
           let data;
           if(this.connection.connected === true) {
-						//try { throw new Error() } catch (e) { console.warn("sent="+JSON.stringify(json)+e.stack); }
             // FIX: was console.warn'ing every outbound packet unconditionally, including
             // sendLoginPlayer's playername/hash - use log.debug (gated, see lib/log.js)
             log.debug("sent=" + JSON.stringify(json));
@@ -200,7 +201,8 @@ export default class GameClient {
 						try {
 							this.connection.send("1"+data);
 						} catch (err) {
-							console.log(err);
+							// FIX: was silently swallowed via console.log; surface via log.error
+							log.error("Failed to send message: " + err);
 						}
           }
         }

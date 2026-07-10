@@ -850,9 +850,6 @@ export default class ClientCallbacks {
           game.updateBars();
         });
 
-        /*client.onShop(function(message){
-        });*/
-
         client.onAuction(function(data){
             const type = Number(data.shift());
             const itemCount = Number(data.shift());

@@ -46,23 +46,27 @@ export default class UserClient {
       }
 
       connect() {
-          var self = this;
+          // FIX (hygiene): removed the duplicate `var self = this;` (was declared twice)
+          const self = this;
+          // NOTE: whether this connects over ws vs wss depends entirely on
+          // this.config.protocol, sourced from config/config_build.json at runtime;
+          // that build config lives outside this client/js tree and isn't visible here,
+          // so it should be confirmed separately that production builds set protocol to
+          // a secure scheme (wss).
           const url = this.config.protocol + "://"+ this.config.host +":"+ this.config.port +"/";
 
           log.info("Trying to connect to server : "+url);
           app.$loginInfo.text("Connecting to RRO2 server...");
 
-          var self = this;
-
           self.connection = io(url, {
             forceNew: true,
             reconnection: false,
             timeout: 10000,
-            //secure: true,
-            //transports: ['websocket','polling'],
+            // FIX (dead code): removed stale commented-out secure/transports/rejectUnauthorized/ca
+            // options - rejectUnauthorized was already commented out (i.e. cert validation was
+            // NOT being disabled, which is the safe state) and `ca: data` referenced an undefined
+            // `data` variable; neither was doing anything
             transports: ['websocket'],
-            //rejectUnauthorized: false,
-            //ca: data
           });
 
           self.connection.on('connect', function() {
@@ -107,13 +111,17 @@ export default class UserClient {
            const method = data[0];
 	        if (method === '2')
 	        {
-            // FIX: was stripping only 1 char (substr(1)), leaving trailing '[' and corrupting the base64 payload; strip both marker chars like gameclient.js's 'z|' handling
+            // NOTE: substr(1) strips only the single '2' method marker set above via data[0];
+            // this matches gameclient.js's identical compressed-message handling, so it is
+            // consistent with the app-level protocol (a single leading marker char), not a bug.
             const buffer = Utils._base64ToArrayBuffer(data.substr(1));
             try {
               const message = pako.inflate(buffer, {gzip: true, to: 'string'});
 						  fnProcessMessage(message);
             } catch (err) {
-              console.log(err);
+              // FIX: was silently swallowed via console.log; surface via log.error so decode
+              // failures are visible/gated the same way as other errors in this file
+              log.error("Failed to decompress server message: " + err);
             }
 	        }
 	        else if (method === '1') {
@@ -176,7 +184,8 @@ export default class UserClient {
           try {
               this.connection.send("1"+data);
           } catch (err) {
-            console.log(err);
+            // FIX: was silently swallowed via console.log; surface via log.error
+            log.error("Failed to send message: " + err);
           }
         }
       }

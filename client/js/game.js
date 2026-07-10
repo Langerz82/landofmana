@@ -509,31 +509,15 @@ export default class Game {
 
             this.gameFrame = 0;
             this.pGameFrame = -1;
-            /*if (this.animFrame)
-              requestAnimFrame(this.render.bind(this));
-            else {
-              this.renderTick = setInterval(this.render, G_UPDATE_INTERVAL);
-            }*/
             this.gameInterval = setInterval(this.gametick.bind(this), G_UPDATE_INTERVAL);
-            //this.renderInterval = setInterval(this.render.bind(self), G_UPDATE_INTERVAL);
-            //this.renderTime = performance.now();
-            this.runUpdateInRender = !this.renderer.mobile && !this.renderer.tablet;
         }
 
-        /*render: function () {
-          this.processRender = true;
-
-          if (this.runUpdateInRender)
-            this.updater.update();
-
-          this.renderer.renderFrame();
-
-          //if (this.animFrame)
-            //requestAnimFrame(this.render.bind(this));
-
-          this.processRender = false;
-        },*/
-
+        // FIX (dead code): removed the never-called rAF-driven `render()` method and the
+        // `runUpdateInRender` flag it alone relied on. gametick() (setInterval-driven) is the
+        // only active loop and always calls updater.update() once per tick; the flag/branch
+        // were vestigial from an abandoned rAF loop and, if that loop were ever re-enabled
+        // without noticing gametick's unconditional call, would have caused update() to run
+        // twice per frame on non-mobile/tablet devices.
         gametick() {
           const self = this;
 
@@ -552,25 +536,14 @@ export default class Game {
           if (self.gamepad)
             this.gamepad.interval();
 
-          //if (!this.runUpdateInRender)
-            this.updater.update();
+          this.updater.update();
 
     			if (this.mapStatus >= 2)
     			{
     				this.updateCursorLogic();
     			}
 
-          //if (!this.renderer.calledRender) {
-            /*if (this.animFrame) {
-              //cancelAnimationFrame(this.renderFrameId);
-              this.renderFrameId = requestAnimFrame(this.renderer.renderFrame.bind(this.renderer));
-              //this.renderer.calledRender = false;
-            } else {
-              this.renderer.renderFrame();
-              //this.renderer.calledRender = false;
-            }*/
-            this.renderer.renderFrame();
-          //}
+          this.renderer.renderFrame();
 
           this.processLogic = false;
         }
