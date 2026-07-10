@@ -634,11 +634,10 @@ class EntityMoving extends Entity {
    }
 
    _lookAtEntity(entity) {
-      if (entity) {
-          const orientation = this.getOrientationTo([entity.x, entity.y]);
-          this.setOrientation(orientation);
-      }
-      return this.orientation;
+       if (entity) {
+           this.lookAt(entity.x, entity.y);
+       }
+       return this.orientation;
    }
 
    lookAtTile(x, y) {

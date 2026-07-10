@@ -992,6 +992,12 @@ export default class Game {
             return { x: mx, y: my};
         }
 
+        /**
+         * Entry point: player pressed interact. Tries, in priority order: showing
+         * queued dialogue, interacting with an adjacent entity, interacting with a
+         * harvestable tile, re-engaging the current target, then falling back to
+         * the closest interactable entity.
+         */
         makePlayerInteractNextTo()
         {
           const p = this.player;
@@ -999,89 +1005,122 @@ export default class Game {
           if (p.isDying || p.isDead)
             return;
 
-          const fnIsDead = function (entity) {
-            return entity && (entity.isDying || entity.isDead);
-          }
-
-          const fnIsIgnored = function (entity) {
-            if (fnIsDead(entity))
-              return true;
-            return (entity.type === Types.EntityTypes.NPCSTATIC ||
-                entity.type === Types.EntityTypes.NPCMOVE ||
-                entity.type === Types.EntityTypes.PLAYER ||
-                entity.type === Types.EntityTypes.NODE);
-          };
-
-          const processTarget = function () {
-            const pos = p.nextTile();
-            const target = p.target;
-            if (fnIsDead(target)) {
-              p.clearTarget();
-              return false;
-            }
-
-            game.processInput(pos[0], pos[1], true);
-            return true;
-          };
-
-          var entity = p.dialogueEntity;
-          if (entity && p.isNextTooEntity(entity) && p.isFacingEntity(entity)) {
-            game.showDialogue();
+          if (this.tryShowDialogue())
             return;
-          }
 
           log.info("makePlayerInteractNextTo");
-          //var ts = this.tilesize;
 
           this.ignorePlayer = true;
 
-          var target = p.target;
-          /*if (target && target instanceof Character) {
-            if (processTarget()) return;
-          }*/
-          if (target && p.isNextTooEntity(target) && p.isFacingEntity(target)) {
-            if (processTarget()) return;
+          this.tryInteractAdjacentEntity() ||
+            this.tryInteractHarvestTile() ||
+            this.tryInteractExistingTarget() ||
+            this.tryInteractClosestEntity();
+
+          this.ignorePlayer = false;
+        }
+
+        isEntityDead(entity) {
+          return entity && (entity.isDying || entity.isDead);
+        }
+
+        /**
+         * Interacts with (or moves toward) the player's current target, using the
+         * tile the player is currently facing.
+         */
+        processTarget() {
+          const p = this.player;
+          const pos = p.nextTile();
+          if (this.isEntityDead(p.target)) {
+            p.clearTarget();
+            return false;
           }
 
-          // If the player is next to and facing a Harvest Tile.
-          var pos = p.nextTile();
-          const type = p.items.getWeaponType();
-          if (type !== null) {
-            const gpos = Utils.getGridPosition(pos[0], pos[1]);
-            if (this.mapContainer.isHarvestTile(gpos, type)) {
-              game.processInput(pos[0], pos[1], true);
-              return;
+          game.processInput(pos[0], pos[1], true);
+          return true;
+        }
+
+        tryShowDialogue() {
+          const p = this.player;
+          const entity = p.dialogueEntity;
+          if (entity && p.isNextTooEntity(entity) && p.isFacingEntity(entity)) {
+            game.showDialogue();
+            return true;
+          }
+          return false;
+        }
+
+        /**
+         * Scans all 4 cardinal tiles adjacent to the player for an entity to
+         * target, facing it before interacting.
+         */
+        tryInteractAdjacentEntity() {
+          const p = this.player;
+          for (var o = 1; o <= 4; ++o) {
+            const pos = p.nextTile(p.x, p.y, o);
+            const entity = this.getEntityAt(pos[0], pos[1]);
+            if (entity && p.isNextTooEntity(entity)) {
+              p.setTarget(entity);
+              p.lookAtEntity(entity);
+              if (this.processTarget()) return true;
             }
           }
+          return false;
+        }
 
-          entity = this.getEntityAt(pos[0], pos[1]);
-          if (entity && entity !== p && !fnIsDead(entity)) {
-            p.setTarget(entity);
-            if (p.hasTarget() && processTarget()) return;
+        /**
+         * If the player is next to and facing a Harvest Tile, interacts with it.
+         */
+        tryInteractHarvestTile() {
+          const p = this.player;
+          const type = p.items.getWeaponType();
+          if (type === null) return false;
+
+          const pos = p.nextTile();
+          const gpos = Utils.getGridPosition(pos[0], pos[1]);
+          if (this.mapContainer.isHarvestTile(gpos, type)) {
+            game.processInput(pos[0], pos[1], true);
+            return true;
+          }
+          return false;
+        }
+
+        /**
+         * Re-engages the player's already-set target if it's still visible and
+         * adjacent (covers diagonal adjacency the cardinal scan above misses).
+         */
+        tryInteractExistingTarget() {
+          const p = this.player;
+          const target = p.target;
+          if (!target) return false;
+
+          if (!game.camera.isVisible(target)) {
+            p.clearTarget();
+            return false;
           }
 
-          /*if (target && fnIsIgnored(target)) {
-            p.clearTarget();
-          }*/
-
-          if (target && !game.camera.isVisible(target)) {
-            p.clearTarget();
-          }
-
-          if (target && p.isNextTooEntity(target)) {
+          if (p.isNextTooEntity(target)) {
             if (!p.isMoving())
               p.lookAtEntity(target);
-            if (processTarget()) return;
+            return this.processTarget();
           }
+          return false;
+        }
 
-          entity = p.target;
+        /**
+         * Fallback: auto-target the closest interactable entity, but only act if
+         * targeting didn't just change (avoids acting on a brand new target the
+         * same frame it was acquired).
+         */
+        tryInteractClosestEntity() {
+          const p = this.player;
+          const prevTarget = p.target;
           p.targetIndex = 0;
           this.playerTargetClosestEntity(0);
-          if (entity != p.target)
-            return;
+          if (prevTarget !== p.target)
+            return false;
 
-          processTarget();
-          this.ignorePlayer = false;
+          return this.processTarget();
         }
 
         /**
@@ -2248,7 +2287,11 @@ export default class Game {
               // rare null one, so obsolete entities were never actually collected for cleanup; should skip nulls.
               if (!entity)
                 continue;
-              if (Math.abs(p.x - entity.x) > 64 || Math.abs(p.y - entity.y) > 64)
+              // FIX: was culling anything >64px (4 tiles) from the player, but the camera's visible area is far
+              // larger than that (screenX/screenY, i.e. the whole viewport in world pixels), so entities still
+              // on screen were being removed. Use camera visibility (with the same 10-tile buffer margin used
+              // for outEntities elsewhere) instead of a fixed, much-too-small radius.
+              if (!game.camera.isVisible(entity, 10))
                 this.obsoleteEntities.push(entity);
             }
 
