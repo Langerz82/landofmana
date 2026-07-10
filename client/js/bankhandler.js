@@ -38,7 +38,10 @@ export default class BankHandler {
     isBankFull() {
       if (Object.keys(this.banks).length < this.maxNumber)
         return false;
-    	for (let i=0; i < this.maxBankNumber; i++)
+    	// FIX: was `this.maxBankNumber`, a property that is never set anywhere (constructor only sets `this.maxNumber`);
+    	// the loop ran 0 iterations, so isBankFull() always returned true once slot count reached maxNumber, even if
+    	// some of those slots had since been cleared to null (still open)
+    	for (let i=0; i < this.maxNumber; i++)
     	{
     		if (!this.banks[i])
     			return false;

@@ -186,9 +186,12 @@ export default class InventoryHandler {
           const player = game.player;
           const kind = item.itemKind;
           if (ItemTypes.isConsumableItem(kind)) {
+            // FIX: missing parens meant `|| (isConsumable && !isHealing)` short-circuited past the leading
+            // `kind && coolTimeCallback === null` checks, so the cooldown gate was skipped entirely for
+            // non-healing consumables (e.g. mana/buff potions); now the gate applies to both branches
             if(kind && this.dialog.coolTimeCallback === null
-               && (ItemTypes.isHealingItem(kind) && player.stats.hp < player.stats.hpMax
-               && player.stats.hp > 0) || (ItemTypes.isConsumableItem(kind) && !ItemTypes.isHealingItem(kind)))
+               && ((ItemTypes.isHealingItem(kind) && player.stats.hp < player.stats.hpMax
+               && player.stats.hp > 0) || (ItemTypes.isConsumableItem(kind) && !ItemTypes.isHealingItem(kind))))
             {
                 this.decInventory(item.slot);
                 this.dialog.funcCooldownExec(item);

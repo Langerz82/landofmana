@@ -45,10 +45,12 @@ export default class SettingsHandler {
       const funcChat = function (bChat)
       {
         if(self.game) {
+          // FIX: branches were swapped (bChat=true called hideChatLog); every other toggle here (funcSound,
+          // funcJoystick) treats b<Feature>=true as "show/enable", so this was backwards
     			if(bChat) {
-    				app.hideChatLog();
-    			} else {
     				app.showChatLog();
+    			} else {
+    				app.hideChatLog();
     			}
         }
       };

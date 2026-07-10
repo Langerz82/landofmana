@@ -548,7 +548,7 @@ export default class Renderer {
       sprite.anchor.y = data[13] || 0;
 
       sprite.visible = (data.length > 14) ? data[14] : true;
-      sprite.opacity = data[15] || 1;
+      sprite.alpha = data[15] || 1; // FIX: PIXI.Sprite has no "opacity" property (that's a no-op DOM-style name); the transparency setter is "alpha"
 
     }
 

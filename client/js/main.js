@@ -127,7 +127,8 @@ window.onbeforeunload = function (e) {
 
         $('.clickable').click(function(event) {
             //event.stopPropagation();
-            fnClickFunc(e);
+            // FIX: handler's parameter is named `event`; `e` was undeclared and would throw a ReferenceError on click
+            fnClickFunc(event);
         });
 
         $('#change-password').click(function() {
@@ -204,7 +205,8 @@ var initGame = function() {
     {
       app.center();
       app.setMouseCoordinates(e.data.global.x, e.data.global.y);
-      if(game && !app.dropDialogPopuped && !app.auctioSellDialogPopuped)
+      // FIX: typo'd property name (`auctioSellDialogPopuped`) never matched app.js's `auctionsellDialogPopuped`, so this check was always true and never blocked clicks while the auction-sell dialog was open
+      if(game && !app.dropDialogPopuped && !app.auctionsellDialogPopuped)
       {
           if (!game.usejoystick)
             game.click();
@@ -527,7 +529,10 @@ var initGame = function() {
       }
 
       if(key === Types.Keys.ESCAPE) {
-          if (jqDialogModalConfirm.is(":visible")) {
+          // FIX: copy-paste bug - both branches checked jqDialogModalConfirm, so Escape did nothing while the
+          // notify dialog was visible and wrongly clicked the notify button while the confirm dialog was visible.
+          // First branch now checks jqDialogModalNotify, matching the parallel ENTER-key handler above.
+          if (jqDialogModalNotify.is(":visible")) {
             $('#dialogModalNotifyButton1').trigger("click");
             return false;
           }

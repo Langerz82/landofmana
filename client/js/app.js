@@ -298,7 +298,8 @@ export default class App {
             }
             if (action === 4) {
               this.userclient.sendCreatePlayer(server, username);
-              ps = new PlayerSummary(user.playerSum.length, {name: username});
+              // FIX: bare `user` referenced an undeclared identifier (ReferenceError under ES module strict mode); this.user is the User instance created in tryUserAction
+              ps = new PlayerSummary(this.user.playerSum.length, {name: username});
             }
             if (ps)
     		      this.startGame(server, ps);
@@ -406,7 +407,8 @@ export default class App {
 
             if (userpw.length > 0)
             {
-              if (userpw.length < 6 && userpw.length > 32)
+              // FIX: `&&` made this condition impossible to hit (length can't be both <6 and >32); use `||` so it actually rejects bad lengths
+              if (userpw.length < 6 || userpw.length > 32)
               {
                 this.addValidationError(this.$userpasswordinput, 'Please enter a user password between 6 and 32 characters.');
                 return false;

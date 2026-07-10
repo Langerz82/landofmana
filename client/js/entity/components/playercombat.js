@@ -35,7 +35,7 @@ export default class PlayerCombat {
 
         let itemDiff = entity.level * 2;
         for (let id in entity.items.equipment.rooms) {
-            if (id === 4) continue;
+            if (Number(id) === 4) continue; // FIX: for-in keys are strings, so `id === 4` never matched and the weapon slot was never skipped; coerce to number
             const item = entity.items.equipment.rooms[id];
             if (item) {
                 itemDiff += (3 * ItemTypes.getData(item.itemKind).modifier) + (item.itemNumber * 2);
@@ -111,7 +111,7 @@ export default class PlayerCombat {
         for (let id in entity.items.equipment.rooms) {
             const item = entity.items.equipment.rooms[id];
             if (item) {
-                const eq_multi = (id === 1) ? 4 : 2;
+                const eq_multi = (Number(id) === 1) ? 4 : 2; // FIX: for-in keys are strings, so `id === 1` never matched and slot 1's 4x armor multiplier was never applied; coerce to number
                 const def = (ItemTypes.getData(item.itemKind).modifier * eq_multi + item.itemNumber * eq_multi);
                 dealt += ~~(def * ((item.itemDurability / item.itemDurabilityMax * 0.5) + 0.5));
             }

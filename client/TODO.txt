@@ -1,5 +1,7 @@
 TODO:
 
+CLIENT - When you are next an NPC you cant interact with it if you are not facing it.
+
 CLIENT - When you sell an item at the shop, Armor and Weapons in shop cannot be loaded. - FIXED.
 
 CLIENT/SERVER? - The sprite changes when you enter a new map. - FIXED.

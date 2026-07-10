@@ -61,14 +61,16 @@ export default class QuestHandler {
           progress = (quest.count + " / " + quest.object2.count);
         }
 
-        var spriteName;
+        let spriteName;
         let itemData;
         let idName;
         if (quest.type==QuestType.GETITEMKIND)
         {
           const kind = quest.object2.kind;
           itemData = ItemLoot[kind];
-          let spriteName = itemData.sprite;
+          // FIX: `let spriteName` here shadowed the outer `var spriteName` (declared above), so the outer
+          // one used later (spritesets lookup, %sprite% replace) stayed undefined for GETITEMKIND quests
+          spriteName = itemData.sprite;
     			spriteName = game.sprites["itemloot"].file;
           idName = itemData.name.toLowerCase();
         }

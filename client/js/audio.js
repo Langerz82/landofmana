@@ -201,7 +201,10 @@ export default class AudioManager {
         if (music.name in this.loadedMusic &&
             this.loadedMusic[music.name] === false) {
             this.loadMusic(music.name);
-            this.loadMusic[music.name] = true;
+            // FIX: was setting a property on the `loadMusic` function itself instead of the `loadedMusic` tracking
+            // map (compare playSound's correct `this.loadedSound[name] = true`), so this track was reloaded from
+            // scratch every time playMusic() ran for it instead of just once.
+            this.loadedMusic[music.name] = true;
         }
         if (this.enabled && music && music.sound) {
             if (music.sound.fadingOut) {

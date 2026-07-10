@@ -273,7 +273,9 @@ export default class ChatHandler {
       const self = this;
       $(this.chatLog).scrollTop(999999);
       setTimeout(function () {
-        $(this.chatLog).find("p:first").remove();
+        // FIX: `this` inside a plain setTimeout callback is undefined (strict-mode ES module), so `this.chatLog` threw;
+        // use the captured `self` instead, which was declared for this purpose but never used
+        $(self.chatLog).find("p:first").remove();
       }, delay);
     }
 

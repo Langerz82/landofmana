@@ -372,6 +372,8 @@ export default class Pathfinder {
 
     clearIncludeList(grid) {
         this.applyIncludeList_(grid, false);
-        this.ignored = [];
+        // FIX: copy-paste from clearIgnoreList - was resetting `this.ignored` instead of `this.included`, so the
+        // include list was never actually cleared and stale forced-walkable tiles leaked into later pathfinding.
+        this.included = [];
     }
 }

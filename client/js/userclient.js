@@ -262,7 +262,8 @@ export default class UserClient {
       }
 
       onSyncTime(data) {
-        setWorldTime(Number(data[0]), Number(data[1]))
+        // FIX: called bare `setWorldTime` (undefined/ReferenceError) instead of `Utils.setWorldTime`, unlike the identical handler in gameclient.js
+        Utils.setWorldTime(Number(data[0]), Number(data[1]))
       }
 
       onWorldReady(data) {

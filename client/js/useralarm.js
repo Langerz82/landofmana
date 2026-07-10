@@ -46,7 +46,9 @@ export default class UserAlarm {
 
       if (this.queue.length > 0) {
         this.showing = true;
-        const msg = this.queue.pop();
+        // FIX: was `.pop()` (LIFO/stack order) on a queue that's pushed to with alarmQueue()/push(); notifications
+        // showed most-recent-first instead of in arrival order. Use `.shift()` for correct FIFO queue behavior.
+        const msg = this.queue.shift();
         this.jqAlarm.html(msg[0]);
         this.jqAlarm.fadeIn();
         setTimeout(function() {

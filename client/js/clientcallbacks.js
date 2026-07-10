@@ -219,6 +219,10 @@ export default class ClientCallbacks {
             const spriteName = "trap-"+entity.kind;
             entity.setSprite(game.sprites[spriteName]);
 
+            // FIX: missing var, was an implicit global in the old non-strict build (silently undefined, so animName
+            // was always "on"); under ES module strict mode this threw a ReferenceError, crashing all TRAP spawns.
+            // Declared locally to preserve original behavior.
+            let spriteId;
             const animName = (spriteId === 0) ? "off" : "on";
             entity.animate(animName, entity.idleSpeed);
 
@@ -910,7 +914,12 @@ export default class ClientCallbacks {
           // stub for now.
         });
 
-        client.onSpeech(function (id, key, value) {
+        // FIX: handler was declared with 3 separate params (id, key, value), but receiveAction() always invokes
+        // registered handlers with a single `data` array (`this.handlers[action].call(this, data)`), same as every
+        // other handler in this file - `id` received the whole array and `key`/`value` were always undefined, so
+        // Number(id) was NaN, getEntityById() returned null, and speech bubbles never showed.
+        client.onSpeech(function (data) {
+          const id = data[0], key = data[1], value = data[2];
           const entity = game.getEntityById(Number(id));
           if (!entity) return;
 

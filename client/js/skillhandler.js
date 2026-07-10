@@ -40,7 +40,11 @@ class SkillActive extends Skill {
     constructor(skillId) {
       super(skillId); // FIX (conversion): this._super(skillId) -> super(skillId)
 
-      this.cooltime = this.data.recharge / 1000;
+      // FIX: was `this.cooltime` (lowercase t) divided by 1000, but execute() reads `this.coolTime` (capital T),
+      // which was always undefined, so the cooldown gate never blocked repeated skill use. data.recharge is
+      // already stored in ms (see data/skilldata.js), matching how skilldialog.js's Skill class uses it directly
+      // against Date.now() diffs, so the /1000 conversion was also wrong for this ms-based comparison.
+      this.coolTime = this.data.recharge;
     }
 
     execute() {

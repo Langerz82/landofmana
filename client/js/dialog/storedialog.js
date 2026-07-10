@@ -39,7 +39,7 @@ class StoreRack {
             this.body.css({
     	        'position': 'absolute',
     	        'left': '0px',
-    	        'top': '' + (this.index * (20*this.scale)) + 'px'
+    	        'top': '' + (this.index * (20*scale)) + 'px' // FIX: was `this.scale`, which is never set on StoreRack (only StorePage sets it), so this evaluated to NaN and broke row spacing; use the local `scale` const instead
     		    });
 
             if (this.item) {

@@ -119,8 +119,10 @@ export default class Camera {
     isVisible(entity, extra) {
         extra = extra || 0;
         //log.info("isVisible: " + entity.mapIndex + "!==" + this.game.map.index);
-        if (entity.mapIndex !== game.mapIndex) return false;
+        // FIX: null-guard ran after dereferencing entity.mapIndex, so a null/undefined entity threw instead of
+        // returning false; check !entity first.
         if (!entity) return false;
+        if (entity.mapIndex !== game.mapIndex) return false;
         return this.isVisiblePosition(entity.x, entity.y, extra);
     }
 

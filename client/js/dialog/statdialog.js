@@ -107,18 +107,24 @@ class StatPage extends TabPage {
             $('#characterLevelSword').text("Sword Level\t\t"+lvl+"\t"+ratioFmt);
 
             xp = p.stats.exp.bow || 0;
+            // FIX: lvl was never recomputed for bow, so it kept the sword's level; now recomputed from bow's own xp
+            lvl = Types.getWeaponLevel(xp);
             fnXP = Types.weaponExp;
             ratio = (xp) ? (xp - fnXP[lvl-1])/(fnXP[lvl] - fnXP[lvl-1]) : 0;
             ratioFmt = Utils.Percent(ratio);
             $('#characterLevelBow').text("Bow Level\t\t"+lvl+"\t"+ratioFmt);
 
             xp = p.stats.exp.hammer || 0;
+            // FIX: lvl was never recomputed for hammer, so it kept the bow's level; now recomputed from hammer's own xp
+            lvl = Types.getWeaponLevel(xp);
             fnXP = Types.weaponExp;
             ratio = (xp) ? (xp - fnXP[lvl-1])/(fnXP[lvl] - fnXP[lvl-1]) : 0;
             ratioFmt = Utils.Percent(ratio);
             $('#characterLevelHammer').text("Hammer Level\t\t"+lvl+"\t"+ratioFmt);
 
             xp = p.stats.exp.axe || 0;
+            // FIX: lvl was never recomputed for axe, so it kept the hammer's level; now recomputed from axe's own xp
+            lvl = Types.getWeaponLevel(xp);
             fnXP = Types.weaponExp;
             ratio = (xp) ? (xp - fnXP[lvl-1])/(fnXP[lvl] - fnXP[lvl-1]) : 0;
             ratioFmt = Utils.Percent(ratio);

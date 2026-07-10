@@ -210,6 +210,9 @@ export default class Game {
             this.spritesReady = false;
 
             this.unknownEntities = [];
+            // FIX: was never initialized anywhere, so removeObsoleteEntities()'s `this.obsoleteEntities.push(...)`
+            // would throw as soon as its (separately fixed) loop condition could actually reach it.
+            this.obsoleteEntities = [];
             this.removeObsoleteEntitiesChunk = 32;
 
             this.inventoryMode = 0;
@@ -757,9 +760,13 @@ export default class Game {
           if (player.level === 0)
           {
             const tutName = "["+lang.data["TUTORIAL"]+"]";
+            // FIX: `let j = 1` was declared inside the loop body, so each of the 5 closures got its own fresh
+            // j=1 and always showed TUTORIAL_1. The original (pre-conversion) code relied on `var j` being a
+            // single counter shared/incremented across all 5 timeout closures (firing in order) to walk through
+            // TUTORIAL_1..TUTORIAL_5; hoisted here above the loop to restore that shared-counter behavior.
+            let j = 1;
             for (let i = 1; i <= 5; ++i)
             {
-              let j = 1;
               setTimeout(function () {
                 const tutData = lang.data["TUTORIAL_"+(j++)];
                 game.chathandler.addGameNotification(tutName, tutData);
@@ -1622,7 +1629,11 @@ export default class Game {
             if (!gridPath) {
               log.info("game.findPath - using long path finder.");
               path = this.pathfinder.findPath(grid, fpS, fpE, false);
-              if (gridPath) {
+              // FIX: checked the still-falsy `gridPath` instead of the just-computed `path`, and never wrote the
+              // result back to `gridPath` - the long-path fallback branch never ran and its result was discarded,
+              // so any destination that needed the long path finder was reported as unreachable.
+              if (path) {
+                gridPath = path;
                 longPath = true;
                 shortGrid.minX = 0;
                 shortGrid.minY = 0;
@@ -2233,7 +2244,9 @@ export default class Game {
             let entity = null;
             for (let id in entities) {
               entity = entities[id];
-              if (entity)
+              // FIX: inverted condition skipped every truthy (real) entity and fell through to `entity.x` on the
+              // rare null one, so obsolete entities were never actually collected for cleanup; should skip nulls.
+              if (!entity)
                 continue;
               if (Math.abs(p.x - entity.x) > 64 || Math.abs(p.y - entity.y) > 64)
                 this.obsoleteEntities.push(entity);

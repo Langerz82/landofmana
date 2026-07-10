@@ -18,11 +18,6 @@ EntityFactory.createEntity = function(type, kind, id, mapIndex, name, level = 0)
         return null;
     }
 
-    //if (isChest(id))
-    //return new Chest(id, kind);
-
-    // If Items.
-
     if (type === Types.EntityTypes.PLAYER)
         return new Player(id, type, mapIndex, kind, name);
     else if (type === Types.EntityTypes.MOB)
@@ -39,6 +34,12 @@ EntityFactory.createEntity = function(type, kind, id, mapIndex, name, level = 0)
         return new NpcMove(id, type, mapIndex, kind, name);
     else if (type === Types.EntityTypes.NODE)
         return new Node(id, mapIndex, kind);
+    // FIX: was a dead `isChest(id)` check (no such function exists) with the Chest branch
+    // commented out, so CHEST-type spawns fell through to `return null`; gameclient.js's
+    // onSpawnChest handler then calls `item.setPosition(...)` on that null and throws.
+    // Chest is keyed by type like every other branch below.
+    else if (type === Types.EntityTypes.CHEST)
+        return new Chest(id, kind);
 
     return null;
 };

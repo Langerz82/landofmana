@@ -38,7 +38,9 @@ export default class SocialHandler {
 		$('#socialconfirmtitle').html("Party " + Utils.escapeHtml(invitee.name) + "?");
 
       $('#socialconfirm').show();
-	    $('#socialconfirmyes').on('click', function(event){
+	    // FIX: missing .off() before rebinding meant repeated party invites stacked duplicate click handlers on #socialconfirmyes,
+	    // sending sendPartyInvite() multiple times per click; unbind first like #socialconfirmno already does
+	    $('#socialconfirmyes').off().on('click', function(event){
 		    self.game.client.sendPartyInvite(invitee.name, 1);
 		    $('#socialconfirm').hide();
 	    });
@@ -60,11 +62,13 @@ export default class SocialHandler {
       $('#socialconfirmtitle').html("Join Guild " + Utils.escapeHtml(guildName) + "?");
 
         $('#socialconfirm').show();
-  	    $('#socialconfirmyes').on('click', function(event){
+  	    // FIX: missing .off() before rebinding meant repeated guild invites stacked duplicate click handlers,
+  	    // sending sendGuildInviteReply() multiple times per click
+  	    $('#socialconfirmyes').off().on('click', function(event){
   		    self.game.client.sendGuildInviteReply(guildId, true);
   		    $('#socialconfirm').hide();
   	    });
-  	    $('#socialconfirmno').on('click', function(event){
+  	    $('#socialconfirmno').off().on('click', function(event){
   		    self.game.client.sendGuildInviteReply(guildId, false);
   		    $('#socialconfirm').hide();
   	    });

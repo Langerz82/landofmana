@@ -184,7 +184,7 @@ export default class PlayerAnim {
 
         let i = 0;
         for (const html of this.html) {
-            $(html).css('left', parseInt((wmax - dimensions[i][1]) / 2) + 'px');
+            $(html).css('left', parseInt((wmax - dimensions[i][0]) / 2) + 'px'); // FIX: was indexing dimensions[i][1] (height) for the horizontal centering offset instead of dimensions[i][0] (width); copy-paste from the 'top' line below
             $(html).css('top', parseInt((hmax - dimensions[i][1]) / 2) + 'px');
             i++;
         }

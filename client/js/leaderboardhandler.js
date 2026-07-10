@@ -104,7 +104,10 @@ export default class LeaderboardHandler {
 		if (parseInt($('#lbindex').val()) > 0)
 			pageIndex = parseInt($('#lbindex').val());
 		else if (playerIndex >= 0)
-			pageIndex = Math.ceil(playerIndex/recordsPerPage);
+			// FIX: Math.ceil(playerIndex/recordsPerPage) is off by one whenever playerIndex is an exact multiple
+			// of recordsPerPage (e.g. rank 11, 21, 31...), landing one page too early so the player's own row
+			// wasn't shown; page number is (0-based index / pageSize) floored, plus 1
+			pageIndex = Math.floor(playerIndex/recordsPerPage) + 1;
 		else
 			pageIndex = 1;
 
