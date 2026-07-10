@@ -1599,8 +1599,9 @@ export default class Game {
 
             // Exact world positions
             const start = [character.x, character.y];
-            const endpos = Utils.fixGridPosition(x,y);
-            const end = [endpos.x, endpos.y];
+            const end = [x, y];
+            //const endpos = Utils.fixGridPosition(x,y);
+            //const end = [endpos.x, endpos.y];
 
             // Check if start or end is colliding
             if (mc.isColliding(character.x, character.y)) {
@@ -1617,10 +1618,12 @@ export default class Game {
 
             log.info("game.findPath - pS:", pS, "pE:", pE);
 
+/*
             if (Math.abs(pS[0] - pE[0]) < 0.01 && Math.abs(pS[1] - pE[1]) < 0.01) {
               // Same tile - direct path
               return [[character.x, character.y], [x, y]];
             }
+*/
 
             // Bounds check
             const lx = grid[0].length;

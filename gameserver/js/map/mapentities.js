@@ -316,6 +316,7 @@ class MapEntities {
 
         //setTimeout(function () {
         _.each(self.map.spawnEntities, function(npcData) {
+            // Half grid offset 8 needed as map npc's are stored in grid values.
             if (npcData.type == Types.EntityTypes.NPCMOVE) {
                 const npc = self.addNpcMove(npcData.id, npcData.x, npcData.y);
                 if (npcData.name)

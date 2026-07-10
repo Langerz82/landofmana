@@ -173,8 +173,12 @@ export default class EntityMoving extends Entity {
         let x, y, deg = 0;
         for (var i = 0; i < iterations; ++i) {
             deg += sec;
-            x = ~~(x2 + (Math.cos(deg) * d));
-            y = ~~(y2 + (Math.sin(deg) * d));
+            // Math.round instead of ~~ (truncate-toward-zero). ~~ always rounds
+            // down for positive coords, which biased every candidate point
+            // toward one corner of the tile instead of landing symmetrically
+            // around dest's exact position.
+            x = x2 + ~~(Math.cos(deg) * d);
+            y = y2 + ~~(Math.sin(deg) * d);
             points.push([x, y]);
         }
         points = points.filter((v, i, a) => a.findIndex(v2 => (v2[0] === v[0] && v2[1] === v[1])) === i);
