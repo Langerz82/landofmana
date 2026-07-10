@@ -126,20 +126,54 @@ export default class Entity {
         const self = this;
 
         if (this.isLoaded) {
-            if (this.currentAnimation && this.currentAnimation.name === name) {
+            const alreadyPlaying = this.currentAnimation && this.currentAnimation.name === name;
+
+            // FIX: one-shot animations (count > 0, e.g. "atk") must always be re-armed even
+            // when an animation with the same name is already playing. Previously this bailed
+            // out for ANY repeat call with a matching name, which silently dropped the new
+            // count/onEndCount for a re-triggered attack (e.g. attacking twice quickly in the
+            // same direction) - the stale callback from the earlier call kept governing
+            // completion, and if that entity's animation object was shared, the callback could
+            // end up resetting a completely different entity's fsm, leaving this one stuck on
+            // "ATTACK" forever. Looping animations (count === 0, idle/walk) still short-circuit
+            // to avoid needlessly restarting them every frame.
+            if (alreadyPlaying && !count) {
                 return;
             }
 
-            if ((this.isDying || this.isDead) && this.currentAnimation.name === "death")
+            if ((this.isDying || this.isDead) && this.currentAnimation && this.currentAnimation.name === "death")
                 return;
 
-            const a = this.getAnimationByName(name);
+            // FIX: this is the one choke point every animation switch passes through
+            // (idle()/walk()/hit() all end up here). If something abandons an in-progress
+            // "atk" animation before it finishes its cycle - e.g. forceStop() or lookAt()
+            // forcing the character back to "idle" mid-swing - the attack animation's own
+            // completion callback (the one that resets fsm from "ATTACK" back to "IDLE")
+            // never gets to run, because updateAnimations() only ticks entity.currentAnimation
+            // and we're about to point that somewhere else. Left alone, fsm stays stuck on
+            // "ATTACK" forever and rejectMove()/move() refuse all further movement - the
+            // "jammed after an attack" bug. Resync fsm right here, whenever we're really
+            // swapping away from a still-running attack animation, so movement is guaranteed
+            // to unblock even if the attack got cut short instead of completing normally.
+            if (this.fsm === "ATTACK" && !alreadyPlaying &&
+                this.currentAnimation && this.currentAnimation.name.indexOf("atk") === 0) {
+                this.fsm = "IDLE";
+            }
 
-            if (a) {
-                this.currentAnimation = a;
-                //if(name.indexOf("atk") === 0) {
+            const template = this.getAnimationByName(name);
+
+            if (template) {
+                // FIX: animation templates live on the shared Sprite (sprite.animations) and
+                // are reused by every entity with that appearance. Assigning the template
+                // directly as currentAnimation meant multiple entities mutated the SAME
+                // count/currentFrame/endcount_callback - whichever entity called
+                // setAnimation() last "won", and other entities sharing that animation object
+                // never got their own completion callback fired (e.g. player.fsm stuck on
+                // "ATTACK"). Clone so each entity tracks its own playback state.
+                if (!alreadyPlaying) {
+                    this.currentAnimation = template.clone();
+                }
                 this.currentAnimation.reset();
-                //}
                 this.currentAnimation.setSpeed(speed);
                 this.currentAnimation.setCount(count ? count : 0, onEndCount || function() {
                     self.idle(self.orientation);

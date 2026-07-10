@@ -88,8 +88,6 @@ export default class User {
         player.items.setItems(game.equipmentHandler, game.inventory);
 
         player.forceStop = function () {
-          if (this.fsm === "ATTACK")
-            try { throw new Error(); } catch (e) { console.error(e.stack); }
           //console.error("player.forceStop - this.keyMove:"+this.keyMove);
           //console.error("player.forceStop - this.stopKeyMove:"+this.stopKeyMove);
           this.harvestOff();
@@ -98,7 +96,24 @@ export default class User {
             if (this.key_move_callback)
               this.key_move_callback(0);
           }
-          this._forceStop();
+
+          // FIX: this used to call this._forceStop() unconditionally, regardless of fsm.
+          // _forceStop() -> stop() (entitymoving.js) always finishes by calling idle(), which
+          // swaps currentAnimation away from whatever was playing. forceStop() gets called from
+          // lots of unrelated places (server sync, movement updater, teleports, etc.) - if one
+          // of those fired while the player's "atk" animation was still mid-swing, it silently
+          // cut the attack animation off. Character.forceStop() (used by every other entity)
+          // already guards against this with `!this.hasAnimation('atk')`; this local-player
+          // override never had that guard, it just logged a stack trace and did it anyway
+          // (see the try/throw that used to be here). Mirror the same guard: while genuinely
+          // still attacking and alive, leave the attack animation alone - it's already stopped
+          // any movement (hit() calls forceStop() BEFORE setting fsm = "ATTACK"), so there's
+          // nothing left here that needs stopping. entity.js's setAnimation() also now resyncs
+          // fsm back to "IDLE" if an attack animation ever does get abandoned some other way,
+          // so movement can never stay permanently blocked either way.
+          if (!(this.fsm === "ATTACK" && !this.isDying && !this.isDead)) {
+            this._forceStop();
+          }
 
           this.moveOrientation = 0;
           this.keyMove = false;
@@ -212,8 +227,14 @@ export default class User {
 
             } else if (!state) {
                 // KEY RELEASE
-                if (this.fsm === "ATTACK") return;
-
+                // FIX: this used to bail out entirely while attacking, which meant releasing
+                // a movement key mid-attack never cleared keyMove/moveOrientation/
+                // pendingKeyOrientation. The player.hit() completion callback checks
+                // self.moveOrientation to decide whether to resume movement after the attack
+                // animation finishes, so a swallowed release caused the player to keep moving
+                // on its own (or refuse further input) even though the key was already up -
+                // part of the "player gets jammed" symptom. Always clear key state on release;
+                // the attack animation itself still runs to completion regardless.
                 this.keyMove = false;
                 this.stopKeyMove = true;
                 this.moveOrientation = 0;

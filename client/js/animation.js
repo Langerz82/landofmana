@@ -41,6 +41,15 @@ export default class Animation {
         this.speed = speed;
     }
 
+    // Animation templates live on a shared Sprite (sprite.animations) and are reused by
+    // every entity with that appearance. Playback state (count/currentFrame/endcount_callback)
+    // must NOT be mutated on that shared object, or two entities attacking around the same
+    // time will stomp on each other's completion callback. clone() gives each entity its own
+    // independent playback instance derived from the shared template.
+    clone() {
+        return new Animation(this.name, this.length, this.col, this.row, this.width, this.height);
+    }
+
     setCount(count, onEndCount) {
         this.count = count;
         this.endcount_callback = onEndCount;
