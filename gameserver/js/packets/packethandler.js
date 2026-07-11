@@ -15,7 +15,7 @@ import Utils from '../utils.js';
 import { Types } from '../common.js';
 import AppearanceData from '../data/appearancedata.js';
 import SkillData from '../data/skilldata.js';
-import { G_LATENCY, G_TILESIZE, ATTACK_INTERVAL, mobState } from '../main.js';
+import { G_LATENCY, G_TILESIZE, ATTACK_INTERVAL, mobState, G_DEBUG } from '../main.js';
 import { PlayerEvent } from '../world/taskhandler.js';
 
 /* global EventType */
@@ -38,7 +38,13 @@ class PacketHandler {
 
         //this.connection.off('msg', this.player.user.listener);
         this.connection.listen(function(message) {
-            console.info("recv="+JSON.stringify(message));
+            // PERF: this fires for every single incoming packet from every
+            // connected player (movement, attacks, chat, ...). JSON.stringify
+            // on a hot path like this is real, measurable CPU cost even when
+            // nothing reads the output, so it's gated behind G_DEBUG instead
+            // of unconditionally stringifying every packet.
+            if (G_DEBUG)
+                console.info("recv="+JSON.stringify(message));
             const action = parseInt(message[0]);
             if (isNaN(action)) {
                 // FIX: this callback is a plain (non-arrow) function, so `this`
@@ -858,7 +864,10 @@ class PacketHandler {
         }
 
         const arr = [time, state, orientation, x, y];
-        console.info("handleMoveEntity - arr: "+JSON.stringify(arr));
+        // PERF: runs on every movement packet from every player; gated for
+        // the same reason as the recv() log above.
+        if (G_DEBUG)
+            console.info("handleMoveEntity - arr: "+JSON.stringify(arr));
         if (state === 1) {
             p.move([time, 0, p.orientation, x, y]);
         }
@@ -890,7 +899,9 @@ class PacketHandler {
             return;
         }
 
-        console.info(JSON.stringify(path));
+        // PERF: runs on every path packet from every player.
+        if (G_DEBUG)
+            console.info(JSON.stringify(path));
 
         const x = path[0][0],
             y = path[0][1];
@@ -905,7 +916,8 @@ class PacketHandler {
         if (!p.isValidGridPath(path))
             return;
 
-        console.info("packethandler: handleMoveEntity - movepath: "+JSON.stringify(path));
+        if (G_DEBUG)
+            console.info("packethandler: handleMoveEntity - movepath: "+JSON.stringify(path));
         p.movePath([time, interrupted], path);
 
         const msg = new Messages.MovePath(p, path);

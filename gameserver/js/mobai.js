@@ -2,7 +2,7 @@ import Messages from "./message.js";
 import _ from "underscore";
 import Utils from "./utils.js";
 import Formulas from "./formulas.js";
-import { mobState, G_TILESIZE } from './main.js';
+import { mobState, G_TILESIZE, G_DEBUG } from './main.js';
 
 class MobAI {
   constructor(ws, map){
@@ -95,7 +95,9 @@ class MobAI {
 
 			if (mob.canAttack())
 			{
-				console.info("mob - Is Attacking");
+				// PERF: fires on every mob attack tick -- gated behind G_DEBUG.
+				if (G_DEBUG)
+					console.info("mob - Is Attacking");
 
 				this.handleHurt(mob);
         }
@@ -186,7 +188,10 @@ class MobAI {
 
         if (mob.isMoving() && target.isMoving())
         {
-          console.info(mob.id+" monster and target is moving so abort.");
+          // PERF: checkChase runs per-tick for every chasing mob -- gated
+          // behind G_DEBUG.
+          if (G_DEBUG)
+            console.info(mob.id+" monster and target is moving so abort.");
           return;
         }
 
@@ -225,7 +230,8 @@ class MobAI {
           }
 
           mob.forceStop();
-          console.info(mob.id+" within range");
+          if (G_DEBUG)
+            console.info(mob.id+" within range");
           mob.setAiState(mobState.ATTACKING);
         }
 
@@ -242,13 +248,18 @@ class MobAI {
       	    return;
       	}
 
-        console.info("handleHurt.");
+        // PERF: handleHurt runs on every mob attack landed -- these
+        // console.info calls used to fire unconditionally, so they're gated
+        // behind G_DEBUG.
+        if (G_DEBUG)
+            console.info("handleHurt.");
 
         if(mob.target.stats.hp > 0)
         {
             mob.lookAt(mob.target);
 
-            console.info("handleHurt - mob")
+            if (G_DEBUG)
+                console.info("handleHurt - mob")
             let dmg = Formulas.dmg(mob, mob.target, mob.attackTimer);
             const canCrit = Formulas.crit(mob, mob.target);
             mob.criticalHit = false;
@@ -257,7 +268,8 @@ class MobAI {
             	    mob.criticalHit = true;
             }
 
-            console.info("handleHurt");
+            if (G_DEBUG)
+                console.info("handleHurt");
             this.server.handleDamage(mob.target, mob, -dmg, mob.criticalHit);
             mob.attackTimer = Date.now();
             if (mob.target.isDead)
@@ -284,7 +296,8 @@ class MobAI {
       if ((entity.distanceToPos(entity.spawnX, entity.spawnY) >= 16*G_TILESIZE) ||
           (et && entity.distanceToPos(et.x, et.y) >= 12*G_TILESIZE))
       {
-          console.info("RETURN TO SPAWN!");
+          if (G_DEBUG)
+            console.info("RETURN TO SPAWN!");
           entity.returnToSpawn();
           return true;
       }

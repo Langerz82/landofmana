@@ -69,6 +69,15 @@ export const G_INTERVAL =( G_UPDATE_INTERVAL * G_FRAME_INTERVALS);
 
 export const G_SPATIAL_SIZE = 32;
 
+// PERF: Master switch for verbose per-tick/per-packet debug logging
+// (console.info/log.info calls that JSON.stringify packets, paths, damage
+// events, etc.). Those calls run on literally every incoming packet, every
+// combat hit, and every pathfind, so leaving them unconditionally on costs
+// real CPU under load -- the string building/JSON.stringify happens whether
+// or not the log line is actually useful to anyone. Flip this to `true`
+// locally when you need to trace that behavior; keep it `false` normally.
+export const G_DEBUG = false;
+
 export const G_SCREEN_WIDTH = 34;
 export const G_SCREEN_HEIGHT = 18;
 

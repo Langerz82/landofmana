@@ -1,7 +1,7 @@
 import astar from './lib/astar.js';
 import _ from 'underscore';
 import Utils from './utils.js';
-import { G_FRAME_INTERVAL, G_TILESIZE } from './main.js';
+import { G_FRAME_INTERVAL, G_TILESIZE, G_DEBUG } from './main.js';
 
 /* global log */
 // NOTE: the original source called a bare, capitalized `AStar`/`AStar.AStar`
@@ -35,7 +35,10 @@ class Pathfinder {
   isDistanceTooFast(ticks, dist, startTime, tolerance) {
     tolerance = tolerance || G_FRAME_INTERVAL;
 
-    console.info("pathFinder - isDistanceTooFast: called.");
+    // PERF: called on every player move to check for speed-hacking --
+    // gated behind G_DEBUG like the other per-packet logging.
+    if (G_DEBUG)
+      console.info("pathFinder - isDistanceTooFast: called.");
     const elapsed = Date.now() - startTime;
     if (elapsed === 0)
       return false;
@@ -44,7 +47,8 @@ class Pathfinder {
     elapsedTicks = Math.max(elapsedTicks, 0);
 
     const actualTicks = ~~(dist / ticks);
-    console.info("pathFinder - isDistanceTooFast: playerTicks - actualTicks: "+actualTicks+", elapsedTicks:"+elapsedTicks);
+    if (G_DEBUG)
+      console.info("pathFinder - isDistanceTooFast: playerTicks - actualTicks: "+actualTicks+", elapsedTicks:"+elapsedTicks);
     if (actualTicks > (elapsedTicks + tolerance))
     {
       try { throw new Error(); } catch(err) { console.warn(err.stack); }
@@ -308,8 +312,10 @@ class Pathfinder {
         subpath[j][0] = (subpath[j][0]+offsetX)*ts;
         subpath[j][1] = (subpath[j][1]+offsetY)*ts;
       }
-      //console.info(JSON.stringify(path));
-      console.info(JSON.stringify(subpath));
+      // PERF: runs on every path computed by any entity -- gated behind
+      // G_DEBUG.
+      if (G_DEBUG)
+        console.info(JSON.stringify(subpath));
       return subpath;
     }
     return null;
@@ -321,25 +327,34 @@ class Pathfinder {
     const dx = Math.abs(start[0] - end[0]);
     const dy = Math.abs(start[1] - end[1]);
 
+    // PERF: findDirectPath is tried first for every path request (mob
+    // chasing, roaming, player click-to-move); the log.info/JSON.stringify
+    // calls below used to run unconditionally on every attempt/branch, so
+    // they're gated behind G_DEBUG.
     let mp = [start, end];
     if (dx === 0 || dy === 0) {
       if(this.isValidGridPath(grid, mp)) {
-        log.info("validpath-fdp1:"+JSON.stringify(mp));
+        if (G_DEBUG)
+          log.info("validpath-fdp1:"+JSON.stringify(mp));
         return mp;
       }
     }
 
     mp = [start, [start[0],end[1]], end];
-    log.info("mp:"+JSON.stringify(mp));
+    if (G_DEBUG)
+      log.info("mp:"+JSON.stringify(mp));
     if(this.isValidGridPath(grid, mp)) {
-      log.info("validpath-fdp2:"+JSON.stringify(mp));
+      if (G_DEBUG)
+        log.info("validpath-fdp2:"+JSON.stringify(mp));
       return mp;
     }
 
     mp = [start, [end[0],start[1]], end];
-    log.info("mp:"+JSON.stringify(mp));
+    if (G_DEBUG)
+      log.info("mp:"+JSON.stringify(mp));
     if(this.isValidGridPath(grid, mp)) {
-      log.info("validpath-fdp3:"+JSON.stringify(mp));
+      if (G_DEBUG)
+        log.info("validpath-fdp3:"+JSON.stringify(mp));
       return mp;
     }
     return null;
@@ -433,7 +448,9 @@ class Pathfinder {
     {
       path = this.convertPathToRealPath(path, start, end);
       path = this.dropUneededNodes(path);
-      log.info(JSON.stringify(path));
+      // PERF: runs on every A* solve -- gated behind G_DEBUG.
+      if (G_DEBUG)
+        log.info(JSON.stringify(path));
       return path;
     }
     return null;
@@ -441,7 +458,8 @@ class Pathfinder {
 
   findShortPath(crop, offsetX, offsetY, start, end) {
       const path = this.AStar(crop, start, end);
-      if (path) {
+      // PERF: runs on every short-path solve -- gated behind G_DEBUG.
+      if (path && G_DEBUG) {
         console.info("pathfinder.findShortPath - path: "+JSON.stringify(path));
       }
       return path;
@@ -454,7 +472,8 @@ class Pathfinder {
       this.applyIncludeList_(grid, true);
 
       var path = this.AStar(grid, start, end);
-      if (path) {
+      // PERF: runs on every findPath call -- gated behind G_DEBUG.
+      if (path && G_DEBUG) {
         console.info("pathfinder.findPath - path: "+JSON.stringify(path));
       }
       return path;

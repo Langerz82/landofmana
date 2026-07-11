@@ -115,19 +115,78 @@ const AStar = (function () {
       return 0;
     }
 
+    // PERF: A*'s open list used to be a plain array where, on every single
+    // iteration of the search, we did a full linear scan to find the
+    // lowest-f node (an O(n) scan) and then removed it with array.splice()
+    // (another O(n), since splice has to shift every following element
+    // down). That makes each step O(n) and the whole search O(n^2) in the
+    // size of the open set. A binary min-heap keyed on node.f -- the
+    // standard data structure for A*'s open list -- gets/removes the
+    // lowest-f node in O(log n) instead. This matters a lot here since
+    // pathfinding runs for every mob chase/roam tick and every player
+    // click-to-move.
+    class MinHeap {
+        constructor() {
+            this.items = [];
+        }
+
+        get length() {
+            return this.items.length;
+        }
+
+        push(node) {
+            const items = this.items;
+            items.push(node);
+            // Sift the new node up until its parent is no larger.
+            let i = items.length - 1;
+            while (i > 0) {
+                const parent = (i - 1) >> 1;
+                if (items[parent].f <= items[i].f) break;
+                const tmp = items[parent];
+                items[parent] = items[i];
+                items[i] = tmp;
+                i = parent;
+            }
+        }
+
+        pop() {
+            const items = this.items;
+            const top = items[0];
+            const last = items.pop();
+            if (items.length > 0) {
+                items[0] = last;
+                // Sift the root down to restore the heap property.
+                let i = 0;
+                const n = items.length;
+                for (;;) {
+                    const l = i * 2 + 1, r = i * 2 + 2;
+                    let smallest = i;
+                    if (l < n && items[l].f < items[smallest].f) smallest = l;
+                    if (r < n && items[r].f < items[smallest].f) smallest = r;
+                    if (smallest === i) break;
+                    const tmp = items[smallest];
+                    items[smallest] = items[i];
+                    items[i] = tmp;
+                    i = smallest;
+                }
+            }
+            return top;
+        }
+    }
+
     function AStar(grid, start, end, f) {
           gGrid = grid;
           let cols = grid[0].length,
               rows = grid.length,
-              limit = cols * rows,
               f1 = Math.abs,
               f2 = Math.max,
               list = {},
               result = [],
-              open = [{x:start[0], y:start[1], f:0, g:0, turns: 0, v:start[0]+start[1]*cols}],
-              length = 1,
-              adj, distance, find, i, j, max, min, current, next,
+              open = new MinHeap(),
+              adj, distance, find, i, j, current, next,
               endnode = {x:end[0], y:end[1], v:end[0]+end[1]*cols};
+
+          open.push({x:start[0], y:start[1], f:0, g:0, turns: 0, v:start[0]+start[1]*cols});
 
           switch (f) {
               case "Diagonal":
@@ -148,20 +207,10 @@ const AStar = (function () {
           }
           find || (find = diagonalSuccessorsFree);
 
-          do {
-              max = Infinity;  // better than limit for large grids
-              min = 0;
-              for(i = 0; i < length; ++i) {
-                  if((f = open[i].f) < max) {
-                      max = f;
-                      min = i;
-                  }
-              }
-
-              current = open.splice(min, 1)[0];
+          while (open.length > 0) {
+              current = open.pop();
 
               if (current.v !== endnode.v) {
-                  --length;
                   next = successors(find, current.x, current.y, grid, rows, cols);
 
                   for(i = 0, j = next.length; i < j; ++i){
@@ -172,7 +221,6 @@ const AStar = (function () {
                       adj.turns = current.turns || 0;  // carry over turn count
 
                       if(!(adj.v in list)){
-                        const extra = 0;
                         let turnPenalty = 0;
 
                         if (current && typeof current.dir !== 'undefined') {
@@ -193,18 +241,19 @@ const AStar = (function () {
                         adj.g = current.g + stepCost + turnPenalty;
                         adj.f = adj.g + distance(adj, endnode, f1, f2) + (adj.turns * 50); // secondary tie-breaker
 
-                        open[length++] = adj;
+                        open.push(adj);
                         list[adj.v] = 1;
                       }
                   }
               } else {
                   // Reconstruct path
-                  i = length = 0;
+                  i = 0;
                   do {
                       result[i++] = [current.x, current.y];
                   } while (current = current.p);
+                  break;
               }
-          } while (length);
+          }
 
           return (result && result.length > 0) ? result.reverse() : null; // reverse so start -> end
       }

@@ -11,6 +11,7 @@ import zlib from 'zlib';
 import connect from 'connect';
 import fs from 'fs';
 import io_client from 'socket.io-client';
+import { G_DEBUG } from './main.js';
 
 export default WS;
 
@@ -237,7 +238,13 @@ WS.socketioConnection = class extends Connection {
         //this.conn = connection;
 
         const fnOnMessage = function (msg) {
-          console.info("m="+msg);
+          // PERF: this is the raw entry point for every single message from
+          // every connected game client, ahead of any parsing/decompression
+          // -- unconditionally logging the raw payload here is even hotter
+          // than the per-action logging in packethandler.js. Gated behind
+          // G_DEBUG for the same reason.
+          if (G_DEBUG)
+            console.info("m="+msg);
           const flag = msg.charAt(0);
           if (flag === "2")
           {
@@ -299,7 +306,10 @@ WS.socketioConnection = class extends Connection {
 
     send(message) {
         //if (message.indexOf("3,")==0);
-      console.info("send="+message);
+      // PERF: called for every outgoing packet flush -- gated behind
+      // G_DEBUG for the same reason as fnOnMessage above.
+      if (G_DEBUG)
+        console.info("send="+message);
     	const self = this;
     	let data;
       if (useBison) {
@@ -450,7 +460,10 @@ WS.userConnection = class extends Connection {
 
     send(message) {
         //if (message.indexOf("3,")==0);
-      console.info("send="+message);
+      // PERF: called for every outgoing packet flush -- gated behind
+      // G_DEBUG for the same reason as fnOnMessage above.
+      if (G_DEBUG)
+        console.info("send="+message);
     	const self = this;
     	let data;
       if (useBison) {

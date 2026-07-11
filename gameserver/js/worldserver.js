@@ -39,7 +39,7 @@ import PartyManager from "./world/partymanager.js";
 import LootManager from "./world/lootmanager.js";
 
 import Utils from './utils.js';
-import { G_UPDATE_INTERVAL, players } from './main.js';
+import { G_UPDATE_INTERVAL, players, G_DEBUG } from './main.js';
 import NotifyData from './data/notificationdata.js';
 
 class World {
@@ -369,7 +369,12 @@ class World {
       // well-defined `[]` regardless of which branch runs.
       var effects = [];
       if (entity.effects) {
-        console.info("entity.effects: "+JSON.stringify(entity.effects));
+        // PERF: handleDamage runs on every single hit landed in the game.
+        // JSON.stringify-ing the effects map here unconditionally was pure
+        // overhead outside of active debugging, so it's gated behind
+        // G_DEBUG like the other per-hit/per-packet logging below.
+        if (G_DEBUG)
+          console.info("entity.effects: "+JSON.stringify(entity.effects));
 
         Utils.forEach(entity.effects, function (v, k) {
           if (v === 1)
@@ -382,9 +387,11 @@ class World {
       //var ep= entity.stats.ep || 0;
       //var epMax= entity.stats.epMax || 0;
 
-      console.info("effects: "+JSON.stringify(effects));
-      console.info("DAMAGE: "+damage);
-      console.info("CRIT: "+crit);
+      if (G_DEBUG) {
+        console.info("effects: "+JSON.stringify(effects));
+        console.info("DAMAGE: "+damage);
+        console.info("CRIT: "+crit);
+      }
 
       //attacker, hpMod, epMod, crit, effects
       entity.onDamage(attacker, hpMod, epMod, crit, effects);

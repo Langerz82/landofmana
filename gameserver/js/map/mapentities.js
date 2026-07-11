@@ -13,7 +13,7 @@ import Item from '../entity/item.js';
 import Player from '../entity/player.js';
 import { Types } from '../common.js';
 import NpcData from '../data/npcdata.js';
-import { G_TILESIZE, G_SPATIAL_SIZE } from '../main.js';
+import { G_TILESIZE, G_SPATIAL_SIZE, G_DEBUG } from '../main.js';
 
 class MapEntities {
     constructor(id, server, map) {
@@ -35,7 +35,13 @@ class MapEntities {
         this.chests = new Map();
         this.blocks = new Map();
 
-        this.packets = {};
+        // PERF: was a plain object keyed by player id, iterated everywhere
+        // (sendBroadcast/sendNeighbours/processPackets -- i.e. on every chat
+        // message, attack, spawn/despawn, and every 16ms flush tick) via
+        // Utils.forEach's `for...in` + `hasOwnProperty` loop. A Map avoids
+        // the hasOwnProperty check per entry and iterates faster than
+        // for...in over an object.
+        this.packets = new Map();
 
         this.mobAreas = [];
 //      this.chestAreas = [];
@@ -230,16 +236,20 @@ class MapEntities {
     processPackets() {
         const self = this;
 
-        if (self.packets.length > 0)
-            console.info(JSON.stringify(self.packets));
+        // NOTE: the old `self.packets.length > 0` check was dead code even
+        // before `packets` became a Map -- it was a plain object, which has
+        // no `.length`, so this always compared `undefined > 0` (always
+        // false) and the JSON.stringify of the *entire* packet queue never
+        // actually ran. Dropped rather than "fixed": wiring it up for real
+        // would mean unconditionally paying that stringify cost on this
+        // 16ms flush tick for every map with players.
 
-        // NOTE: `len` was a bare (undeclared) assignment in the original
-        // CommonJS source, which created an implicit global there; declared
-        // with `let` here since ES modules are always strict mode and forbid
-        // implicit globals.
-        Utils.forEach(this.packets, (packet, id) => {
-            let len = packet.length;
-            if (len > 0 && typeof packet !== 'undefined' && packet !== null)
+        // PERF: iterate the Map directly with for...of instead of
+        // Utils.forEach's `for...in` + `hasOwnProperty` loop -- this runs
+        // once every 16ms for every map that has players connected.
+        for (const [id, packet] of this.packets) {
+            const len = packet.length;
+            if (len > 0)
             {
                 const player = self.getEntityById(id);
                 let conn = self.server.socket.getConnection(id);
@@ -258,7 +268,7 @@ class MapEntities {
                     //delete conn;
                 }
             }
-        });
+        }
     }
 
     // FIX (perf): sendToPlayer/sendBroadcast/sendNeighbours each used to call
@@ -276,11 +286,10 @@ class MapEntities {
         if (!message)
             return;
 
-        const self = this;
-        //console.info("sent_raw: "+message;
-        if (player && player.id in self.packets)
-        {
-            self.packets[player.id].push(message.serialize());
+        if (player) {
+            const queue = this.packets.get(player.id);
+            if (queue)
+                queue.push(message.serialize());
         }
     }
 
@@ -288,33 +297,43 @@ class MapEntities {
         if (!message)
             return;
 
-        Utils.forEach(this.packets, function (packet, id) {
+        // PERF: message.serialize() (message.js) is a pure function of the
+        // message's own fields -- it doesn't vary per recipient -- so it
+        // only needs to be computed once per broadcast call instead of once
+        // per connected player. This used to re-serialize the same message
+        // from scratch for every single player on the map on every chat
+        // message, spawn, despawn, and attack broadcast. The resulting array
+        // is only ever read (never mutated) by the packet-flush/send path in
+        // processPackets()/ws.js, so sharing one reference across every
+        // player's queue is safe.
+        const serialized = message.serialize();
+        for (const [id, packet] of this.packets) {
             if (id !== ignoredPlayer)
-            {
-                packet.push(message.serialize());
-            }
-        });
+                packet.push(serialized);
+        }
     }
 
     sendNeighbours(entity, message, ignoredPlayer, areaLength)  {
         //console.info("sendNeighbours");
         const self = this;
-        //console.info(JSON.stringify(message.serialize()));
         areaLength = areaLength || 64;
         const players = self.getPlayerAround(entity, areaLength);
         players.push(entity);
 
-        //console.info(entities.length);
+        // PERF: serialize once and share the reference across recipients --
+        // see sendBroadcast above for why that's safe.
+        const serialized = message.serialize();
+
         for (const player of players) {
             // NOTE: previously `packets.hasOwnProperty(player.id) && !ignoredPlayer ||
             // (ignoredPlayer && player !== ignoredPlayer)` -- because && binds tighter
             // than ||, the ignoredPlayer branch bypassed the hasOwnProperty check
             // entirely, so a player around who isn't the ignored one but somehow has
             // no packets entry would throw on push() below instead of being skipped.
-            if (self.packets.hasOwnProperty(player.id) && (!ignoredPlayer || player !== ignoredPlayer))
+            const queue = self.packets.get(player.id);
+            if (queue && (!ignoredPlayer || player !== ignoredPlayer))
             {
-                //console.info("neighbour.id:"+neighbour.id);
-                self.packets[player.id].push(message.serialize());
+                queue.push(serialized);
             }
         }
     }
@@ -378,7 +397,7 @@ class MapEntities {
         console.info("addPlayer - player id: "+player.id);
         this.addEntity(player);
         this.players.set(player.id, player);
-        this.packets[player.id] = [];
+        this.packets.set(player.id, []);
     }
 
     addChest(chest) {
@@ -525,7 +544,7 @@ class MapEntities {
 
         self.removeEntity(player);
 
-        delete self.packets[player.id];
+        self.packets.delete(player.id);
         //delete player;
         player = null;
     }
@@ -749,12 +768,23 @@ class MapEntities {
             function(e1,e2) { return (e1 !== e2 && e2 instanceof Character); });
     }
 
+    // PERF: getMobsAround/getPlayerAround used to call getEntityAround(this.mobs, ...)
+    // / getEntityAround(this.players, ...) directly, which linearly scans
+    // *every* mob or player on the whole map and distance-checks each one --
+    // even though this class already maintains a spatial hash grid
+    // (this.spatial / getSpatialEntities) specifically to avoid that. These
+    // two are called a lot: getPlayerAround backs sendNeighbours (every
+    // move/attack/chat/block-place broadcast) and getMobsAround backs
+    // MobAI.Roaming (once per second per player). Routing them through
+    // getEntitiesAround first means they only ever look at entities in the
+    // nearby spatial cells, then filter that (much smaller) set down to the
+    // instance type wanted, instead of walking every mob/player on the map.
     getMobsAround(entity, range) {
-        return this.getEntityAround(this.mobs, entity, range);
+        return this.getEntitiesAround(entity, range).filter(e => e instanceof Mob);
     }
 
     getPlayerAround(entity, range) {
-        return this.getEntityAround(this.players, entity, range);
+        return this.getEntitiesAround(entity, range).filter(e => e instanceof Player);
     }
 
     getAroundCount(entities, entity, range) {
@@ -767,7 +797,7 @@ class MapEntities {
     }
 
     getPlayerAroundCount(entity, range) {
-        return this.getEntityAround(this.players, entity, range).length;
+        return this.getPlayerAround(entity, range).length;
     }
 
     getPartyAround(entity, range) { // entity
@@ -842,22 +872,30 @@ class MapEntities {
             const spE = shortGrid.subend;
             let subpath = null;
 
-            console.info("findDirectPath - spS:"+JSON.stringify(spS));
-            console.info("findDirectPath - spE:"+JSON.stringify(spE));
+            // PERF: findPath runs for every mob chase/roam/player click-path
+            // request -- these JSON.stringify calls used to run
+            // unconditionally on every single call, so they're gated behind
+            // G_DEBUG like the rest of the pathfinding trace logging.
+            if (G_DEBUG) {
+                console.info("findDirectPath - spS:"+JSON.stringify(spS));
+                console.info("findDirectPath - spE:"+JSON.stringify(spE));
+            }
             subpath = this.pathfinder.findDirectPath(sgrid, spS, spE);
 
             if (subpath)
             {
                 subpath = this.pathfinder.makeNodesMidPoints(subpath);
                 subpath = this.pathfinder.dropUneededNodes(subpath);
-                console.info("findDirectPath - subpath:"+JSON.stringify(subpath));
+                if (G_DEBUG)
+                    console.info("findDirectPath - subpath:"+JSON.stringify(subpath));
                 if (!this.pathfinder.isValidGridPath(sgrid, subpath)) {
                     //console.error("subpath: "+JSON.stringify(subpath));
                     try { throw new Error(); } catch (e) { console.error(e.stack); }
                     return null;
                 }
                 const res = this.pathfinder.getFullFromShortPath(subpath, shortGrid.minX, shortGrid.minY);
-                console.info("findDirectPath - res:"+JSON.stringify(res));
+                if (G_DEBUG)
+                    console.info("findDirectPath - res:"+JSON.stringify(res));
                 if (!this.pathfinder.isValidGridPath(this.map.grid, res, true)) {
                     try { throw new Error(); } catch (e) { console.error(e.stack); }
                     return null;
@@ -873,7 +911,8 @@ class MapEntities {
                     shortGrid.minX, shortGrid.minY, spS, spE);
                 if (subpath)
                     path = this.pathfinder.getFullFromShortPath(subpath, shortGrid.minX, shortGrid.minY);
-                console.info("findPath - shortPath:"+JSON.stringify(path));
+                if (G_DEBUG)
+                    console.info("findPath - shortPath:"+JSON.stringify(path));
             }
 
             if (!path) {
@@ -887,7 +926,8 @@ class MapEntities {
                     path = this.pathfinder.dropUneededNodes(path);
                     path = this.pathfinder.getFullFromShortPath(path, longGrid.minX, longGrid.minY);
                 }
-                console.info("findPath - longPath:"+JSON.stringify(path));
+                if (G_DEBUG)
+                    console.info("findPath - longPath:"+JSON.stringify(path));
             }
 
             if (!path) {
@@ -928,7 +968,8 @@ class MapEntities {
     }
 
     isGridPositionEmpty(x, y) {
-        console.info("isGridPositionEmpty: x="+x+",y="+y);
+        if (G_DEBUG)
+            console.info("isGridPositionEmpty: x="+x+",y="+y);
         if (this.map.isColliding(x, y))
             return false;
 

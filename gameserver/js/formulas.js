@@ -1,5 +1,5 @@
 import Utils from './utils.js';
-import { ATTACK_INTERVAL, ATTACK_MAX } from './main.js';
+import { ATTACK_INTERVAL, ATTACK_MAX, G_DEBUG } from './main.js';
 import Mob from './entity/mob.js';
 import Player from './entity/player.js';
 
@@ -37,7 +37,9 @@ Formulas.dmgAOE = function(attacker) {
 
     //console.warn("attackPower="+attackPower);
 		const attacker_damage = ~~(attacker.combat.baseDamage() / 2);
-    console.info("attacker baseDamage="+attacker_damage);
+    // PERF: runs on every AOE hit -- gated behind G_DEBUG.
+    if (G_DEBUG)
+        console.info("attacker baseDamage="+attacker_damage);
     const dmg = ~~(attacker_damage * attackPower);
 
     if (attacker instanceof Player && dmg > 0)
@@ -52,8 +54,12 @@ Formulas.dmg = function(attacker, defender) {
     //console.warn("attackPower="+attackPower);
 		const attacker_damage = attacker.combat.baseDamage(defender);
 		const defender_defense = defender.combat.baseDamageDef(attacker);
-    console.info("attacker baseDamage="+attacker_damage);
-    console.info("defender baseDamageDef="+defender_defense);
+    // PERF: runs on every single attack in the game (this is the main
+    // damage formula) -- gated behind G_DEBUG.
+    if (G_DEBUG) {
+        console.info("attacker baseDamage="+attacker_damage);
+        console.info("defender baseDamageDef="+defender_defense);
+    }
     let dmg = ~~(attacker_damage * attackPower);
 		const defensePower = attackPower;
 		//var defensePower = (2/3)*Math.pow(1.5,attackPower);
