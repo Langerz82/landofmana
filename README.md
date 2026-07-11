@@ -1,6 +1,8 @@
 # Land of Mana - Beta.
 formerly Retro RPG Online 2/Rogue Quest
 
+**NEWS:** I have used AI to fix allot of code, and converted the code into Javascript ES6 Modules. Allot of work has been done, soon I will add more features.
+
 Land Of Mana is a free browser MMORPG inspired by Secret of Mana and classic Zelda, playable instantly with friends and powered by an open-source JavaScript engine.
 
 🎮 Play instantly in your browser
