@@ -252,22 +252,8 @@ if (!Array.prototype.last) {
   });
 }
 
-if (!Array.prototype.parseInt) {
-  Object.defineProperty(Array.prototype, 'parseInt', {
-      value: function(){ return this.map(function (x) { return parseInt(x, 10); }); }
-  });
-}
-
-/*if (!Object.prototype.isEmpty) {
-  Object.defineProperty(Object.prototype, 'isEmpty', {
-      value: function() {
-        return (Object.keys(this).length === 0);
-      }
-  });
-}*/
-
-Utils.ArrayParseInt = function () {
-  return this.map(function (x) {
+Utils.ArrayParseInt = function (arr) {
+  return arr.map(function (x) {
     return parseInt(x, 10);
   });
 }
@@ -282,11 +268,9 @@ Utils.ceilGrid = function (val) {
     return ~~(val+0.5);
 };
 
-if (!Number.prototype.ceilGrid) {
-  Number.prototype.ceilGrid = function () {
-    return ~~(this+0.5);
-  }
-}
+// FIX: Number.prototype.ceilGrid was another built-in monkey-patch, and had
+// zero call sites anywhere in the codebase (Utils.ceilGrid above is the only
+// one actually used) -- removed as dead code.
 
 
 Utils.minProp = function (arr, prop) {
@@ -439,22 +423,13 @@ Utils.objectToArray = function (object) {
 }
 
 
-if (!Array.prototype.removeVal) {
-  Object.defineProperty(Array.prototype, 'removeVal', {
-      // NOTE: previously did `this.splice(this.indexOf(val), 1)` unconditionally.
-      // When `val` isn't in the array, indexOf returns -1, and splice(-1, 1)
-      // doesn't no-op -- it removes the LAST element of the array. Every caller
-      // (worldserver.js self.players.removeVal, packethandler.js
-      // player.knownIds.removeVal, playergroup.js, playerquests.js) expects a
-      // harmless no-op when the value isn't present, not silent removal of an
-      // unrelated entry.
-      value: function(val){
-        const idx = this.indexOf(val);
-        if (idx < 0) return [];
-        return this.splice(idx, 1);
-      }
-  });
-}
+// FIX: Array.prototype.removeVal was a built-in monkey-patch (same fragility
+// concern as parseInt above). Utils.removeFromArray below already existed as
+// a named, non-mutating-prototype equivalent with the same indexOf-guarded
+// no-op-when-absent semantics, but had zero callers -- every caller in the
+// codebase (worldserver.js, packethandler.js, playergroup.js,
+// partymanager.js, playerquests.js) has been migrated to it and the
+// prototype patch has been removed.
 
 /*
 export const removeEmpty = function (obj) {

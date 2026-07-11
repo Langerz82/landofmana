@@ -182,7 +182,9 @@ class MapEntities {
         //var knowns = [];
 
         let ids = player.knownIds;
-        ids = ids.parseInt();
+        // FIX: parseInt() was an Array.prototype monkey-patch; migrated to
+        // Utils.ArrayParseInt() (see utils.js).
+        ids = Utils.ArrayParseInt(ids);
         //console.info("knownIds: "+JSON.stringify(ids));
 
         const pgx = ~~(player.x/G_TILESIZE);
@@ -750,13 +752,15 @@ class MapEntities {
         return entities;
     }
 
-    getEachEntityAround(x, y, range) {
-        var x = ~~(x/G_TILESIZE);
-        var y = ~~(y/G_TILESIZE);
-        const r = range;
-        const entities = this.getSpatialEntities([x-r,y-r,x+r,y+r]);
-        return this.getEntityAround(entities, {x: x, y: y}, r);
-    }
+    // FIX: getEachEntityAround was unused anywhere in the codebase and was
+    // also broken -- it converted x/y to grid coordinates (dividing by
+    // G_TILESIZE) and then passed that grid-scale {x,y} as e1 into
+    // getEntityAround(), which compares against real-world entity
+    // coordinates (e2.x/e2.y) using a real-world-scale range. Comparing
+    // grid-scale numbers against world-scale numbers meant the distance
+    // filter would almost never match. Removed as dead code rather than
+    // fixed in place, since getEntitiesAround() below already covers the
+    // same "entities around a point" need for every real caller.
 
     getEntitiesAround(entity, range) {
         const x = ~~(entity.x/G_TILESIZE);
@@ -766,9 +770,14 @@ class MapEntities {
         return this.getEntityAround(entities, entity, r);
     }
 
+    // FIX: this used to re-run getEntityAround() (a second full distance
+    // check) over a list that getEntitiesAround() had already
+    // distance-filtered, just to additionally apply the `instanceof
+    // Character` check -- doubling the distance math for no reason. Filter
+    // directly instead, matching the pattern already used by
+    // getMobsAround/getPlayerAround right below.
     getCharactersAround(entity, range) {
-        return this.getEntityAround(this.getEntitiesAround(entity, range), entity, range,
-            function(e1,e2) { return (e1 !== e2 && e2 instanceof Character); });
+        return this.getEntitiesAround(entity, range).filter(e => e !== entity && e instanceof Character);
     }
 
     // PERF: getMobsAround/getPlayerAround used to call getEntityAround(this.mobs, ...)
@@ -794,9 +803,11 @@ class MapEntities {
         return this.getEntityAround(entities, entity, range).length;
     }
 
+    // FIX: same redundant-double-distance-check issue as getCharactersAround
+    // above -- getEntitiesAround() already distance-filters, so re-running
+    // getEntityAround() on its result just repeated the same check.
     getEntityAroundCount(entity, range) {
-        const entities = this.getEntitiesAround(entity, range);
-        return this.getEntityAround(entities, entity, range).length;
+        return this.getEntitiesAround(entity, range).length;
     }
 
     getPlayerAroundCount(entity, range) {

@@ -99,7 +99,9 @@ class PlayerGroup {
         if (player) {
           player[this.group] = null;
         }
-        this.players.removeVal(playerName);
+        // FIX: removeVal() was an Array.prototype monkey-patch; migrated to
+        // the named Utils.removeFromArray() helper (see utils.js).
+        Utils.removeFromArray(this.players, playerName);
         //this.players.splice(this.players.indexOf(playerName), 1);
       }
       this.sendMembersName();

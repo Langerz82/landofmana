@@ -470,7 +470,9 @@ class Player extends Character {
           db_player.sprites[2] = 151;
           db_player.sprites[3] = 50;
         }
-        self.sprites = db_player.sprites.parseInt();
+        // FIX: parseInt() was an Array.prototype monkey-patch; migrated to
+        // Utils.ArrayParseInt() (see utils.js).
+        self.sprites = Utils.ArrayParseInt(db_player.sprites);
         self.colors = db_player.colors;
 
         self.stats.exp.base = parseInt(db_player.exps[0]);
@@ -506,9 +508,11 @@ class Player extends Character {
 
         self.isDead = false;
 
-    		self.pStats = db_player.pStats.parseInt();
+    		// FIX: parseInt() was an Array.prototype monkey-patch; migrated to
+        // Utils.ArrayParseInt() (see utils.js).
+        self.pStats = Utils.ArrayParseInt(db_player.pStats);
 
-        db_player.stats = db_player.stats.parseInt();
+        db_player.stats = Utils.ArrayParseInt(db_player.stats);
 
         // Check to make sure stats are correct for level.
         const isValidStats = function (lvl, stats) {

@@ -533,8 +533,12 @@ export default class ClientCallbacks {
         });
 
         client.onCharacterDamage(function(data) {
-            data.parseInt();
-
+            // FIX: `data.parseInt();` called the old Array.prototype.parseInt
+            // monkey-patch (since removed) without capturing its return value
+            // -- it was a no-op even when the method existed, since every
+            // field below is already explicitly wrapped in Number(). Removed
+            // rather than converted to Utils.ArrayParseInt(), since keeping a
+            // discarded-result call around is just dead code.
             const sEntity = game.getEntityById(Number(data[0])),
                 tEntity = game.getEntityById(Number(data[1])),
                 orientation = Number(data[2]),
@@ -742,7 +746,13 @@ export default class ClientCallbacks {
         });
 
         client.onAchievement(function (data) {
-          data.parseInt();
+          // FIX: `data.parseInt();` called the old Array.prototype.parseInt
+          // monkey-patch (since removed) without capturing its return value
+          // -- it was a no-op even when the method existed, since
+          // Achievement.update() (called via `new Achievement(data)` below)
+          // already runs its own Utils.ArrayParseInt() on the raw array.
+          // Removed rather than converted, since keeping a discarded-result
+          // call around is just dead code.
           const achievementId = Number(data[0]);
           const achievement = new Achievement(data);
           game.player.achievements[achievementId] = achievement;
@@ -1173,7 +1183,9 @@ export default class ClientCallbacks {
             if (itemCount > 0)
             {
               const items = [];
-              const itemArray = data.splice(0,(itemCount*6)).parseInt();
+              // FIX: parseInt() was an Array.prototype monkey-patch that has
+              // been removed from util.js; migrated to Utils.ArrayParseInt().
+              const itemArray = Utils.ArrayParseInt(data.splice(0,(itemCount*6)));
               for(let i=0; i < itemCount; ++i)
               {
                 const index = i*6;
@@ -1204,7 +1216,9 @@ export default class ClientCallbacks {
             if (itemCount > 0)
             {
               const items = [];
-              const itemArray = data.splice(0,(itemCount*6)).parseInt();
+              // FIX: parseInt() was an Array.prototype monkey-patch that has
+              // been removed from util.js; migrated to Utils.ArrayParseInt().
+              const itemArray = Utils.ArrayParseInt(data.splice(0,(itemCount*6)));
               for(let i=0; i < itemCount; ++i)
               {
                 const index = i*6;
@@ -1226,7 +1240,9 @@ export default class ClientCallbacks {
             if (itemCount > 0)
             {
               const items = [];
-              const itemArray = data.splice(0,(itemCount*6)).parseInt();
+              // FIX: parseInt() was an Array.prototype monkey-patch that has
+              // been removed from util.js; migrated to Utils.ArrayParseInt().
+              const itemArray = Utils.ArrayParseInt(data.splice(0,(itemCount*6)));
               for(let i=0; i < itemCount; ++i)
               {
                   const index = i*6;
@@ -1247,8 +1263,15 @@ export default class ClientCallbacks {
             const questCount = parseInt(data.shift());
             if (questCount > 0)
             {
+              // FIX: `questArray.parseInt();` called the old
+              // Array.prototype.parseInt monkey-patch (since removed)
+              // without capturing its return value -- it was a no-op even
+              // when the method existed, since Quest.update() (called via
+              // `new Quest(...)` below) already runs its own
+              // Utils.ArrayParseInt() on the raw slice. Removed rather than
+              // converted, since keeping a discarded-result call around is
+              // just dead code.
               const questArray = data.splice(0,(questCount*13));
-              questArray.parseInt();
               for(let i=0; i < questCount; ++i)
               {
                 const index = i*13;
@@ -1260,8 +1283,15 @@ export default class ClientCallbacks {
             const achieveCount = parseInt(data.shift());
             if (achieveCount > 0)
             {
+              // FIX: `achieveArray.parseInt();` called the old
+              // Array.prototype.parseInt monkey-patch (since removed)
+              // without capturing its return value -- it was a no-op even
+              // when the method existed, since Achievement.update() (called
+              // via `new Achievement(...)` below) already runs its own
+              // Utils.ArrayParseInt() on the raw slice. Removed rather than
+              // converted, since keeping a discarded-result call around is
+              // just dead code.
               const achieveArray = data.splice(0,(achieveCount*7));
-              achieveArray.parseInt();
               let achievement = null;
               for(let i=0; i < achieveCount; ++i)
               {
@@ -1278,8 +1308,15 @@ export default class ClientCallbacks {
             p.skillHandler = new SkillHandler(game);
 
             const skillCount = parseInt(data.shift());
-            const skillExps = data.splice(0,skillCount);
-            skillExps.parseInt();
+            // FIX: `skillExps.parseInt();` called the old
+            // Array.prototype.parseInt monkey-patch without capturing its
+            // return value, so skillExps was never actually converted to
+            // numbers (unlike questArray/achieveArray above, nothing
+            // downstream re-parses this -- Skill level math in
+            // SkillHandler/skilldialog.js just divides these values, which
+            // happens to coerce strings fine, but this was clearly meant to
+            // parse before use). Fixed to capture the parsed result.
+            const skillExps = Utils.ArrayParseInt(data.splice(0,skillCount));
             p.setSkills(skillExps);
             game.skillDialog.page.setSkills(skillExps);
 
@@ -1287,8 +1324,10 @@ export default class ClientCallbacks {
             const shortcutCount = parseInt(data.shift());
             if (shortcutCount > 0)
             {
+              // FIX: parseInt() was an Array.prototype monkey-patch that has
+              // been removed from util.js; migrated to Utils.ArrayParseInt().
               let shortcutArray = data.splice(0,(shortcutCount*3));
-              shortcutArray = shortcutArray.parseInt();
+              shortcutArray = Utils.ArrayParseInt(shortcutArray);
               const shortcuts = [];
               for(let i=0; i < shortcutCount; ++i)
               {

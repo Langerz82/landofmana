@@ -1,5 +1,6 @@
 import PlayerGroup from '../playergroup.js';
 import Message from '../message.js';
+import Utils from '../utils.js';
 
 class PartyManager {
     constructor(world) {
@@ -17,12 +18,12 @@ class PartyManager {
     }
 
     // FIX: `.remove(party)` isn't a native Array method -- threw a TypeError
-    // on every call. The rest of this codebase has its own array-removal
-    // polyfill for exactly this, `removeVal` (see utils.js, and its other
-    // callers in worldserver.js/packethandler.js/playergroup.js).
+    // on every call. Uses Utils.removeFromArray() instead (see utils.js, and
+    // its other callers in worldserver.js/packethandler.js/playergroup.js/
+    // playerquests.js).
     removeParty(party)
     {
-        this.party.removeVal(party);
+        Utils.removeFromArray(this.party, party);
         //this.party.splice(this.party.indexOf(party), 1);
         /*this.party = _.reject(this.party, function(el)
         {

@@ -117,7 +117,9 @@ class World {
         self.onPlayerRemoved(function(player) {
           console.info("worldServer - onPlayerRemoved.");
           delete self.objPlayers[player.name.toLowerCase()];
-          self.players.removeVal(player);
+          // FIX: removeVal() was an Array.prototype monkey-patch; migrated to
+          // the named Utils.removeFromArray() helper (see utils.js).
+          Utils.removeFromArray(self.players, player);
           //self.players.splice(self.players.indexOf(player),1);
           self.userHandler.sendPlayerLogout(player);
           self.userHandler.sendWorldPlayerCount(self.players.length,

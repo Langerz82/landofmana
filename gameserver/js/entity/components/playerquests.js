@@ -1,5 +1,6 @@
 import Messages from '../../message.js';
 import { Types } from '../../common.js';
+import Utils from '../../utils.js';
 
 class PlayerQuests {
     constructor(player) {
@@ -117,7 +118,9 @@ class PlayerQuests {
     }
 
     removeQuest(quest) {
-        this.quests.removeVal(quest);
+        // FIX: removeVal() was an Array.prototype monkey-patch; migrated to
+        // the named Utils.removeFromArray() helper (see utils.js).
+        Utils.removeFromArray(this.quests, quest);
         //this.quests.splice(this.quests.indexOf(quest), 1);
         //delete quest;
         quest = null;

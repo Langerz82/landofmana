@@ -1216,8 +1216,15 @@ class PacketHandler {
         if (message.length > 0)
             ids = message;
 
-        for(const id of ids)
-            this.player.knownIds.removeVal(id);
+        // FIX: knownIds is populated with numeric entity ids (see
+        // mapentities.js addPlayer/addEntity -> knownIds.push(entity.id)),
+        // but ids here come straight off the wire as strings. removeVal()
+        // uses indexOf(), which is strict-equality, so "5" never matched the
+        // stored 5 -- knownIds just grew forever for the life of the
+        // session instead of being pruned as clients reported entities out
+        // of view.
+        for (const id of ids)
+            Utils.removeFromArray(this.player.knownIds, Number(id));
         //this.player.knownIds.splice(this.player.knownIds.indexOf(id), 1);
     }
 

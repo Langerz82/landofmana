@@ -1,5 +1,6 @@
 import Messages from '../message.js';
 import AppearanceData from '../data/appearancedata.js';
+import Utils from '../utils.js';
 
 class Looks {
     constructor() {
@@ -35,7 +36,9 @@ class Looks {
             return;
         }
 
-        this.prices = data.parseInt();
+        // FIX: parseInt() was an Array.prototype monkey-patch; migrated to
+        // Utils.ArrayParseInt() (see utils.js).
+        this.prices = Utils.ArrayParseInt(data);
     }
 
     // NOTE: `data` was a bare (undeclared) assignment in the original CommonJS

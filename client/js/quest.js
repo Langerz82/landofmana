@@ -33,7 +33,9 @@ export default class Quest {
         }
 
         update(arr) {
-          var arr = arr.parseInt();
+          // FIX: parseInt() was an Array.prototype monkey-patch that has
+          // been removed from util.js; migrated to Utils.ArrayParseInt().
+          var arr = Utils.ArrayParseInt(arr);
 
           this.id = arr[0];
           this.type = arr[1];

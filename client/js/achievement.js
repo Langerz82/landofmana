@@ -20,7 +20,9 @@ export default class Achievement {
     }
 
     update(arr) {
-      var arr = arr.parseInt();
+      // FIX: parseInt() was an Array.prototype monkey-patch that has been
+      // removed from util.js; migrated to Utils.ArrayParseInt().
+      var arr = Utils.ArrayParseInt(arr);
 
       this.index = arr[0];
       this.type = arr[1];

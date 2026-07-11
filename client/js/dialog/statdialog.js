@@ -70,7 +70,9 @@ class StatPage extends TabPage {
                 this.scale = 2;
             }
 
-            data = data.parseInt();
+            // FIX: parseInt() was an Array.prototype monkey-patch that has
+            // been removed from util.js; migrated to Utils.ArrayParseInt().
+            data = Utils.ArrayParseInt(data);
 
             const p = game.player;
             //p.exp = {};

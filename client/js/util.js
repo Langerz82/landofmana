@@ -208,20 +208,20 @@ const getX = function(id, w) {
     return (id % w === 0) ? w - 1  : (id % w) - 1;
 };
 
-if (!Array.prototype.parseInt) {
-  Object.defineProperty(Array.prototype, 'parseInt', {
-      value: function(){ return this.map(function (x) { return parseInt(x, 10); }); }
-  });
-}
-
 if (!Array.prototype.In) {
   Object.defineProperty(Array.prototype, 'In', {
       value: function(index) { return (index >= 0 && index < this.length); }
   });
 }
 
-Utils.ArrayParseInt = function () {
-  return this.map(function (x) {
+// FIX: this was written as `function () { return this.map(...) }`, meant to
+// be used as an Array.prototype method (Array.prototype.parseInt has since
+// been removed from this file). Called as a plain `Utils.ArrayParseInt()`,
+// `this` is `Utils` (which has no `.map`), so it would throw immediately.
+// Takes the array explicitly now; all former `.parseInt()` call sites across
+// client/js have been migrated to `Utils.ArrayParseInt(arr)`.
+Utils.ArrayParseInt = function (arr) {
+  return arr.map(function (x) {
     return parseInt(x, 10);
   });
 }
