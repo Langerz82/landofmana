@@ -14,7 +14,13 @@ export function ItemRoom(slot, itemKind, itemNumber, itemDurability, itemDurabil
     this.itemDurabilityMax = itemDurabilityMax;
     this.itemExperience = itemExperience;
 }
-ItemRoom.toArray = function() {
+// FIX: these were assigned onto the constructor function itself
+// (ItemRoom.toArray = ...) instead of ItemRoom.prototype, so
+// `new ItemRoom(...).toArray()` threw "not a function" and `.toString()`
+// silently fell back to Object.prototype.toString ("[object Object]")
+// instead of the intended CSV. Compare user.js's PlayerSummary, which
+// assigns the analogous methods onto .prototype correctly.
+ItemRoom.prototype.toArray = function() {
     const cols = [parseInt(this.slot),
         this.itemKind,
         this.itemNumber,
@@ -23,7 +29,7 @@ ItemRoom.toArray = function() {
         this.itemExperience];
     return cols;
 }
-ItemRoom.toString = function() {
+ItemRoom.prototype.toString = function() {
     return this.toArray().join(",");
 }
 

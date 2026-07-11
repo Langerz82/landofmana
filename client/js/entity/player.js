@@ -116,7 +116,13 @@ export default class Player extends Character {
         this.setOrientation(orientation);
         if (state === 1 && orientation !== Types.Orientations.NONE) {
             let lockStepTime = (G_LATENCY - (Utils.getWorldTime() - time));
-            lockStepTime = lockStepTime.clamp(G_UPDATE_INTERVAL, G_LATENCY);
+            // FIX: Number.prototype.clamp() doesn't exist -- util.js only
+            // defines Utils.clamp(min, max, value) (see the equivalent
+            // lockstep calc in clientcallbacks.js). This threw a TypeError
+            // on every server-confirmed key-move packet for the local
+            // player, crashing the state===1 branch of move() and leaving
+            // moving_callback unset (player gets stuck/desynced).
+            lockStepTime = Utils.clamp(G_UPDATE_INTERVAL, G_LATENCY, lockStepTime);
             console.warn("lockStepTime=" + lockStepTime);
 
             lockStepTime += G_LATENCY;

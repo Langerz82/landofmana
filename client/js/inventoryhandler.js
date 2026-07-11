@@ -57,9 +57,18 @@ export default class InventoryHandler {
         }
 
         isInventoryFull() {
+          // FIX: checked `item === null`, but a slot that's never been
+          // touched since login is `undefined` (a hole in the array), not
+          // `null` -- only slots explicitly emptied via a WC_ITEMSLOT update
+          // get set to null (see setInventory() above). undefined !== null,
+          // so untouched empty slots were wrongly counted as occupied,
+          // making lightly-used inventories falsely report "full" (this
+          // gates bank withdrawals in dialog/bankdialog.js). Every sibling
+          // scan method in this file (hasItem, getItemInventorySlotByKind)
+          // correctly uses a truthy check instead.
           for (let i = 0; i < this.maxNumber; ++i) {
             const item = this.rooms[i];
-            if (item === null) {
+            if (!item) {
               return false;
             }
           }

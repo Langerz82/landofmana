@@ -126,7 +126,11 @@ Utils.remainder = function (a, b)
 };
 
 Utils.getNumShortHand = function (val, fixed) {
-  if (fixed === null)
+  // FIX: an omitted argument is `undefined`, not `null` -- this guard never
+  // caught the common "call with no fixed" case (see dialog/craftdialog.js
+  // and dialog/storedialog.js price labels), so toFixed(undefined) defaulted
+  // to 0 decimal places instead of the evidently-intended 2.
+  if (fixed === null || fixed === undefined)
     fixed = 2;
 
   if (val <= 1000)

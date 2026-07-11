@@ -40,7 +40,11 @@ export default class PlayerItems {
     }
 
     hasWeapon() {
-        return this.getWeapon() !== null;
+        // FIX: equipment.getWeapon() returns this.rooms[4], which is
+        // `undefined` (not `null`) until that slot is explicitly set -- same
+        // undefined-vs-null gap as inventoryhandler.js's isInventoryFull().
+        // `!== null` would report true for an unset weapon slot.
+        return !!this.getWeapon();
     }
 
     getWeaponLevel() {

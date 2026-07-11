@@ -50,7 +50,11 @@ class StatPage extends TabPage {
             	$('#charAddAttack').css('display','inline-block');
             	$('#charAddDefense').css('display','inline-block');
             	$('#charAddHealth').css('display','inline-block');
-            	$('#charAddEnergy').css('display','inline-block');
+            	// FIX: #charAddEnergy's click handler is commented out above
+            	// (energy-point allocation is disabled -- gamepad.js also has
+            	// this button excluded from its stat-button list), but this
+            	// still showed the button, so clicking it silently did
+            	// nothing. Stopped showing it to match the rest of the app.
             	$('#charAddLuck').css('display','inline-block');
             }
         }
