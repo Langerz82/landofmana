@@ -242,6 +242,7 @@ export default class Renderer {
 
         this.resizeCanvases(1);
 
+        this.isDebugInfoVisible = false;
         //this.culler = new Culler();
     }
 
@@ -1255,7 +1256,8 @@ export default class Renderer {
       let debugInfo = "";
       debugInfo += this.getFPS() + "\n";
       debugInfo += this.getCoordinates() + "\n";
-      debugInfo += this.getRealCoordinates() + "\n";
+      if (this.isDebugInfoVisible)
+        debugInfo += this.getRealCoordinates() + "\n";
 
       const s = this.scale;
       let sprite = this.pxSprite["pc_coords"];

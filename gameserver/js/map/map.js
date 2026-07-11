@@ -289,6 +289,15 @@ class Map {
         return false;
     }
 
+    // PERF: this used to build a `[[x1,y1],[x1,y2],[x2,y1],[x2,y2]]` array
+    // (5 allocations: the outer array + 4 pair arrays) on every call just to
+    // loop over 4 fixed corners. It's called once per 1-pixel movement
+    // sub-step for every moving player (Transition.step() in transition.js
+    // iterates up to ~20 times per world tick per moving player, see
+    // updater.js playerKey -> checkCollide -> this), so at any real player
+    // count this was hundreds of thousands of short-lived array allocations
+    // per second for pure GC churn. Same 4 corners, same short-circuit
+    // order, no allocation.
     isColliding(x, y)
     {
         const gx = (x / G_TILESIZE),
@@ -299,17 +308,10 @@ class Map {
             x2 = ~~(gx+d),
             y2 = ~~(gy+d);
 
-        const arr = [[x1,y1], [x1,y2], [x2,y1], [x2,y2]];
-
-        for (const c of arr) {
-            if (this.isOutOfBounds(c[0], c[1])) {
-                return true;
-            }
-
-            if (this.isCollidingGrid(c[0], c[1])) {
-                return true;
-            }
-        }
+        if (this.isOutOfBounds(x1, y1) || this.isCollidingGrid(x1, y1)) return true;
+        if (this.isOutOfBounds(x1, y2) || this.isCollidingGrid(x1, y2)) return true;
+        if (this.isOutOfBounds(x2, y1) || this.isCollidingGrid(x2, y1)) return true;
+        if (this.isOutOfBounds(x2, y2) || this.isCollidingGrid(x2, y2)) return true;
         return false;
     }
 

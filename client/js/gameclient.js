@@ -191,11 +191,18 @@ export default class GameClient {
           if(this.connection.connected === true) {
             // FIX: was console.warn'ing every outbound packet unconditionally, including
             // sendLoginPlayer's playername/hash - use log.debug (gated, see lib/log.js)
-            log.debug("sent=" + JSON.stringify(json));
           	if(this.useBison) {
                 data = BISON.encode(json);
+                // PERF: useBison is hardcoded false (see constructor), so this
+                // branch never runs today, but keep a working log line for it.
+                log.debug("sent=" + JSON.stringify(json));
             } else {
                 data = JSON.stringify(json);
+                // PERF: this used to call JSON.stringify(json) a second time
+                // just to build the log message -- on every single outbound
+                // packet (every move/chat/attack/etc). Reuse the string
+                // already computed above instead of serializing twice.
+                log.debug("sent=" + data);
           	}
 
 						try {
