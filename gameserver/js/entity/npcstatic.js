@@ -33,7 +33,12 @@ class NpcStatic extends Entity {
 
         //var npcIsBusy = false;
         //if (player.questStatus) {
-        for (const quest in player.quests)
+        // FIX: player.quests is the PlayerQuests component instance, not an
+        // array -- `for...in` over it enumerated its own property names
+        // ("player", "quests", "completeQuests" as strings), so
+        // quest.npcKind was always undefined and this guard never fired.
+        // The actual quest list lives at player.quests.quests.
+        for (const quest of player.quests.quests)
         {
             if (quest.npcKind === this.kind)
             {

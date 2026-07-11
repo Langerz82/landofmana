@@ -77,7 +77,12 @@ class PlayerHarvest {
 
         const type = entity.weaponType;
         if (!p.items.hasWeaponType(type)) {
-            this.sendPlayer(new Messages.Notify("CHAT", "HARVEST_WRONG_TYPE", type));
+            // FIX: `this` is the PlayerHarvest component, which has no
+            // sendPlayer() -- only the Player instance (`p`) does. Threw a
+            // TypeError on every harvest attempt with the wrong tool
+            // equipped, before ever reaching the _abortHarvest() cleanup
+            // below.
+            p.sendPlayer(new Messages.Notify("CHAT", "HARVEST_WRONG_TYPE", type));
             res = false;
         }
 

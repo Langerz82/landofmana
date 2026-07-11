@@ -478,6 +478,20 @@ class PacketHandler {
         if (msg.length === 6)
         {
             slot2 = [Number(msg[4]), Number(msg[5])];
+            // FIX: `slot` above is validated against its itemStore's
+            // maxNumber, but slot2 wasn't validated at all before being
+            // handed to items.swapItem(), which indexes
+            // this.itemStore[slot2[0]] and then .rooms[slot2[1]] -- a
+            // crafted CW_ITEMSLOT packet with an out-of-range slot2 could
+            // throw deep inside swapItem(). -1 is a legitimate sentinel here
+            // (see equipmenthandler.js/bankdialog.js client callers) meaning
+            // "no specific target slot, let swapItem() place it wherever
+            // there's room" -- swapItem() already branches on
+            // `slot2[1] >= 0` for this, so only reject values that are
+            // neither -1 nor a valid in-range slot.
+            const itemStore2 = this.player.items.itemStore[slot2[0]];
+            if (!itemStore2 || (slot2[1] !== -1 && (slot2[1] < 0 || slot2[1] >= itemStore2.maxNumber)))
+                return;
             if (slot[0] === slot2[0] && slot[1] === slot2[1])
                 return;
         }
