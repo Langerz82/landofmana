@@ -60,10 +60,20 @@ class DatabaseHandler {
 
     if (config.remove_old_values === 1) {
       this.removeOldValues();
+      // FIX: this ran unconditionally on every server start (unlike
+      // removeOldValues() above, which is opt-in via config). It calls
+      // client.keys('p:*'), a blocking O(N) full-keyspace scan that stalls
+      // the single-threaded Redis server proportional to key count -- with
+      // any non-trivial player base this pauses Redis (and anything sharing
+      // that instance) on every restart. Gated behind the same
+      // remove_old_values flag as its sibling maintenance/migration task
+      // above, since that's the existing "opt-in startup migration" pattern
+      // in this file. A proper fix would use cursor-based SCAN instead of
+      // KEYS regardless of whether it's gated.
+      this.insertMissingPlayerKeys();
     }
 
     //this.replaceSkills();
-    this.insertMissingPlayerKeys();
   }
 
   replaceSkills() {

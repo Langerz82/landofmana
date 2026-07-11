@@ -177,6 +177,16 @@ class FormatChecker {
     this.formats[Types.UserMessages.CU_CREATE_PLAYER] = [
         ['n',0,maxWorldCount],
         ['s',playerNameLenMin,playerNameLenMax]];
+    // FIX: CU_REMOVE_USER had no entry here at all. check()'s final `else`
+    // branch (below) rejects and closes the connection for any message type
+    // not present in `this.formats`, and user.js's listener runs check() on
+    // every inbound message before dispatch -- so every CU_REMOVE_USER
+    // packet failed validation and account deletion never worked. Client
+    // sends [CU_REMOVE_USER, username, hash] (see
+    // client/js/userclient.js sendRemoveUser), same shape as CU_LOGIN_USER.
+    this.formats[Types.UserMessages.CU_REMOVE_USER] = [
+        ['s',usernameLenMin,usernameLenMax],
+        ['s',userHashLenMin,userHashLenMax]];
 
     this.formats[Types.UserMessages.WU_GAMESERVER_INFO] = [
         ['s',worldNameLenMin,worldNameLenMax],

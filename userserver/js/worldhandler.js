@@ -158,7 +158,9 @@ class WorldHandler {
           console.info("releasing user: "+tmp);
         }
         delete this.loggedInUsers;
-        delete this;
+        // FIX: `delete this;` is a no-op -- delete only removes properties
+        // from an object via a property reference; `this` itself isn't a
+        // deletable binding, so this line never did anything. Removed.
     }
 
     handlePlayerLoggedIn (msg) {

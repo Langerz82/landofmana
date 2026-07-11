@@ -122,7 +122,9 @@ class User {   // Assuming `cls` is still available globally or via require
     if (this.hasLoggedIn) {
       users.delete(this.name);
     }
-    delete this;
+    // FIX: `delete this;` is a no-op -- delete only removes properties from
+    // an object via a property reference; `this` itself isn't a deletable
+    // binding, so this line never did anything. Removed.
   }
 
   send(message) {
@@ -217,15 +219,26 @@ class User {   // Assuming `cls` is still available globally or via require
 
   checkUser(db_user, skip_logged_in = false) {
     const curTime = Date.now();
-    const banTime = db_user.banTime + db_user.banDuration;
+    // FIX: db_user.* fields come from Redis hgetall(), which always returns
+    // strings. "+" on two strings concatenates instead of summing -- e.g.
+    // "1700000000000" + "3600000" produced a ~20-digit number, so any real
+    // ban (non-empty banDuration) computed an expiry astronomically larger
+    // than curTime, making the ban effectively permanent. Only "worked" by
+    // coincidence because createUser seeds banDuration as ''.
+    const banTime = parseInt(db_user.banTime, 10) + parseInt(db_user.banDuration, 10);
     if (banTime > curTime) {
       this.connection.send([Types.UserMessages.UC_ERROR, "ban"]);
       this.connection.close("Closing connection to: " + (this.currentPlayer ? this.currentPlayer.name : this.name));
       return false;
     }
 
-    if (db_user.membershipTime > curTime) {
-      this.membership = true;   // Fixed potential typo (was `user.membership`)
+    // FIX: redis.js only ever stores/loads a "membership" field (see
+    // loadUser()/createUser() in redis.js) -- "membershipTime" is never set
+    // anywhere, so this was always undefined and membership could never
+    // activate. The earlier fix here addressed the `this` vs `user` typo but
+    // missed that the field name itself was wrong too.
+    if (db_user.membership > curTime) {
+      this.membership = true;
     }
 
     // Check Password
@@ -248,7 +261,11 @@ class User {   // Assuming `cls` is still available globally or via require
     }
 
     for (const wh of worldHandlers) {
-      if (wh.loggedInUsers.hasOwnProperty(this.name)) {
+      // FIX: loggedInUsers is a Map (see worldhandler.js), not a plain
+      // object -- hasOwnProperty() checks for an own JS property on the Map
+      // object itself, not an entry in the Map's storage, so this always
+      // returned false. The duplicate-login-across-worlds guard was dead.
+      if (wh.loggedInUsers.has(this.name)) {
         this.connection.send([Types.UserMessages.UC_ERROR, "loggedin"]);
         return false;
       }
