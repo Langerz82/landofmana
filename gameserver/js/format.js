@@ -329,7 +329,12 @@ class FormatChecker {
           ]],
         this.formats[Types.Messages.CW_WHO] = [['array',0,999,[
             ['n',0,entityIdMax]]
-        ]];
+        ]],
+        this.formats[Types.Messages.CW_WHO_REQUEST] = [
+          ['n',0,100],
+          ['n',0,100]
+        ];
+
         /*this.formats[Types.Messages.CW_ITEMSLOT] = [
           ['n',0,3],
           ['n',0,2],

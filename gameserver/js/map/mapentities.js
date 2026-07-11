@@ -173,9 +173,11 @@ class MapEntities {
         this.processWho(this.player);
     },*/
 
-    processWho(player, dist) {
-        dist = dist || 64;
+    processWho(player) {
         const self = this;
+        const width = player.screenWidth;
+        const height = player.screenHeight;
+
         //console.info("processWho - called.");
         const screens = [];
         //var ids = [];
@@ -191,11 +193,11 @@ class MapEntities {
         const pgy = ~~(player.y/G_TILESIZE);
 
         //console.info("x1:"+x1+",y1:"+y1+",x2:"+x2+",y2:"+y2);
-        const entities = this.getSpatialEntities([pgx - dist, pgy - dist,pgx + dist, pgy + dist]);
+        const entities = this.getSpatialEntities([pgx - width, pgy - height,pgx + width, pgy + height]);
 
         //console.info("self.entities.length: "+Object.keys(self.entities).length);
         for (const entity of entities) {
-            if (entity && !(entity === player) && self.isOffset(player, entity))
+            if (entity && !(entity === player) && this.isOffset(player, entity))
                 screens.push(entity.id);
         }
         //console.info("screens:"+JSON.stringify(screens));

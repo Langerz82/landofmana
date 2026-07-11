@@ -97,6 +97,11 @@ class Player extends Character {
         this.shortcuts = {};
 
         this.loaded = 0;
+
+        // We do not know the players screenWidth/screenHeight Grid Count,
+        // So we assume a starting value.
+        this.screenWidth = 50;
+        this.screenHeight = 50;
     }
 
     start(connection) {

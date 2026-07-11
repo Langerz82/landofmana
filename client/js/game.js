@@ -687,7 +687,7 @@ export default class Game {
             if (game.mapStatus >= 2 &&
                  !player.isMoving() && player.canObserve(game.currentTime))
             {
-                game.client.sendWhoRequest();
+                game.client.sendWhoRequest(game.camera.gridWE, game.camera.gridHE);
 
                 player.observeTimer.lastTime = game.currentTime;
             }
@@ -2273,7 +2273,8 @@ export default class Game {
               // larger than that (screenX/screenY, i.e. the whole viewport in world pixels), so entities still
               // on screen were being removed. Use camera visibility (with the same 10-tile buffer margin used
               // for outEntities elsewhere) instead of a fixed, much-too-small radius.
-              if (!game.camera.isVisible(entity, 64))
+              const extra = Math.max(game.camera.gridWE, game.camera.gridHE);
+              if (!game.camera.isVisible(entity, extra))
                 this.obsoleteEntities.push(entity);
             }
 

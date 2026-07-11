@@ -531,8 +531,8 @@ export default class GameClient {
 						this.sendMessage([Types.Messages.CW_WHO,ids]);
         }
 
-				sendWhoRequest() {
-						this.sendMessage([Types.Messages.CW_REQUEST,3]);
+				sendWhoRequest(w, h) {
+						this.sendMessage([Types.Messages.CW_WHO_REQUEST,w,h]);
         }
 
         sendDelist(ids) {

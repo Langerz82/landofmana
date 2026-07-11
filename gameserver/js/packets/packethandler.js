@@ -72,6 +72,10 @@ class PacketHandler {
                 self.handleRequest(message);
                 break;
 
+            case Types.Messages.CW_WHO_REQUEST:
+                self.handleWhoRequest(message);
+                break;
+
             case Types.Messages.CW_WHO:
                 //console.info("Who: " + self.player.name);
                 //console.info("list: " + message);
@@ -1200,10 +1204,20 @@ class PacketHandler {
         case 2: // CW_PLAYERINFO
             this.handlePlayerInfo(msg);
             break;
-        case 3: // CW_WHO REQUEST
-            p.map.entities.processWho(p);
-            break;
         }
+    }
+
+    handleWhoRequest(msg) {
+        const width = parseInt(msg[0]);
+        const height = parseInt(msg[1]);
+        const p = this.player;
+
+        if (p.screenWidth != width)
+          p.screenWidth = width;
+        if (p.screenHeight != height)
+          p.screenHeight = height;
+
+        p.map.entities.processWho(p);
     }
 
     handleAppearanceList(msg) {
