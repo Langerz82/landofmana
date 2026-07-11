@@ -394,8 +394,11 @@ function modgold (args) {
   const gold = args[1];
 
   const player = world.getPlayerByName(playerName);
-  if (player)
-    player.modifyGold(gold);
+  // FIX: modifyGold() is defined on PlayerItems (player.items), not on
+  // Player itself -- this threw "not a function" whenever an admin ran
+  // the modgold console command.
+  if (player && player.items)
+    player.items.modifyGold(gold);
 }
 
 function banplayer(args) {

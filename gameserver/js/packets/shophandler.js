@@ -49,7 +49,12 @@ class ShopHandler {
             return;
 
         const item = p.items.inventory.rooms[itemIndex];
-        console.info(JSON.stringify(item));
+        // FIX: itemIndex being within range doesn't mean the slot is
+        // occupied -- an empty room is a falsy/null entry, and dereferencing
+        // item.itemKind below crashed the handler on client-triggerable
+        // input (e.g. selling from an empty inventory slot).
+        if (!item)
+            return;
 
         const kind = item.itemKind;
         if (ItemTypes.isConsumableItem(kind) || ItemTypes.isLootItem(kind))

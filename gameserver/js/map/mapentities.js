@@ -620,8 +620,11 @@ class MapEntities {
 
     setModifyGoldByName(name, mod) {
         const player = this.getPlayerByName(name);
+        // FIX: modifyGold() is defined on PlayerItems (player.items), not on
+        // Player itself -- this threw "not a function" whenever gold was
+        // credited to an online player by name (e.g. auction payouts).
         if (player)
-            player.modifyGold(mod);
+            player.items.modifyGold(mod);
         //else
         //this.database.modifyGold(name, mod);
     }
