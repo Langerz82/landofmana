@@ -77,7 +77,12 @@ class Skill {
 
    isReady()
    {
-   	return this.skillCooldown.isOver();
+   	// FIX: skillCooldown is only constructed when skillData.recharge > 0
+   	// (see constructor above); any skill defined with recharge 0 has no
+   	// skillCooldown, so calling .isOver() on it threw a TypeError every
+   	// time a client tried to use that skill (packethandler.js gates
+   	// CW_SKILL on isReady()). A skill with no cooldown is always ready.
+   	return !this.skillCooldown || this.skillCooldown.isOver();
    }
 
    xp(amount)

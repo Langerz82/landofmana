@@ -61,8 +61,18 @@ class PartyHandler {
                 this.player.sendPlayer(new Messages.Notify("CHAT", "PARTY_PLAYER_INVITE_SENT", [player2.name]));
             }
         } else if (status === 1) {
+            // FIX: PlayerGroup.players stores name strings (see
+            // playergroup.js containsName/addName/removeName -- all keyed by
+            // `playerName`), but this passed whole Player objects. Since a
+            // Player object never strict-equals a stored name string,
+            // containsName() always returned false: removeName() silently
+            // no-op'd (never removed the departing party) and addName()
+            // pushed a Player object into an array meant to hold names
+            // (corrupting sendMembersName()'s player-list packets) while
+            // still failing its own containsName() check, so player2.party
+            // was never actually set. Pass .name instead.
             if (player2.party) {
-                player2.party.removeName(player2);
+                player2.party.removeName(player2.name);
                 //this.handlePartyAbandoned(player2.party);
             }
             if (party) {
@@ -70,7 +80,7 @@ class PartyHandler {
                     this.player.sendPlayer(new Messages.Notify("CHAT", "PARTY_MAX_PLAYERS"));
                     return;
                 }
-                party.addName(player2);
+                party.addName(player2.name);
             } else {
                 if (this.world && this.world.party)
                     this.world.party.addParty(player2, this.player);
@@ -107,7 +117,10 @@ class PartyHandler {
         }
 
         if (this.player === party.leader) {
-            party.removeName(player2);
+            // FIX: removeName() expects a name string, not a Player object
+            // (see playergroup.js) -- passing player2 meant a kicked player
+            // was never actually removed from party.players.
+            party.removeName(player2.name);
             if (player2 instanceof Player)
                 this.player.sendToPlayer(player2, new Messages.Notify("CHAT", "PARTY_PLAYER_KICKED"));
             // FIX: called the nonexistent this.handlePartyAbandoned(); the
@@ -159,7 +172,10 @@ class PartyHandler {
             return;
         }
 
-        party.removeName(this.player);
+        // FIX: removeName() expects a name string, not a Player object (see
+        // playergroup.js) -- passing this.player meant a player leaving the
+        // party was never actually removed from party.players.
+        party.removeName(this.player.name);
         this.handleAbandoned(party);
 
         this.player.sendToPlayer(leader, new Messages.Notify("CHAT", "PARTY_PLAYER_LEFT", [this.player.name]));

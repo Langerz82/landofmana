@@ -62,16 +62,20 @@ class Updater {
         c.forceStop();
         return true;
       }
+      // FIX: stop() was called but its return value discarded, so execution
+      // fell through to c.setPosition(x, y) regardless -- the collision
+      // check "fired" but never actually stopped the player from moving
+      // into the blocked tile. Return immediately once stopped.
       if (self.checkCollide(c,x,y))
       {
-        stop();
+        return stop();
       }
       c.startMoving = false;
       c.setPosition(x, y);
 
       if (c.checkStopDanger(c, c.orientation))
       {
-        stop();
+        return stop();
       }
       return false;
 
