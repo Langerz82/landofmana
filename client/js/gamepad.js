@@ -285,6 +285,25 @@ export default class Gamepad {
         buttons['1-5'] = self.playerShortcut[4];
         buttons['1-6'] = self.playerShortcut[5];
         buttons['1-7'] = self.playerShortcut[6];
+
+        if (ShortcutStyle == "horizontal-asc") {
+          if (navigate === Navigate.LEFT)
+            modx = -1;
+          if (navigate === Navigate.RIGHT)
+            modx = 1;
+        }
+        else if (ShortcutStyle == "horizontal-desc") {
+          if (navigate === Navigate.LEFT)
+            modx = 1;
+          if (navigate === Navigate.RIGHT)
+            modx = -1;
+        }
+
+        if (navigate === Navigate.UP || navigate === Navigate.DOWN) {
+          mody = 1;
+        }
+        self.joystickX = (self.joystickX+modx+8)%8;
+        self.joystickY = (self.joystickY+mody+2)%2;
       }
       if (ShortcutStyle.indexOf('vertical') == 0)
       {
@@ -295,68 +314,34 @@ export default class Gamepad {
         buttons['5-1'] = self.playerShortcut[4];
         buttons['6-1'] = self.playerShortcut[5];
         buttons['7-1'] = self.playerShortcut[6];
-      }
 
-      if (self.joystickX >= 0 && self.joystickY === 0)
-      {
-        if (navigate === Navigate.UP || navigate === Navigate.DOWN) {
-          self.joystickY = 1;
-        }
-      }
-      else {
-        if (ShortcutStyle.indexOf('horizontal') == 0)
-        {
-          if (ShortcutStyle == "horizontal-asc") {
-            if (navigate === Navigate.LEFT)
-              modx = -1;
-            if (navigate === Navigate.RIGHT)
-              modx = 1;
-          }
-          else if (ShortcutStyle == "horizontal-desc") {
-            if (navigate === Navigate.LEFT)
-              modx = 1;
-            if (navigate === Navigate.RIGHT)
-              modx = -1;
-          }
-
-          if (navigate === Navigate.UP || navigate === Navigate.DOWN) {
+        if (ShortcutStyle == "vertical-asc") {
+          if (navigate === Navigate.UP)
+            mody = -1;
+          if (navigate === Navigate.DOWN)
             mody = 1;
-          }
-          self.joystickX = (self.joystickX+modx+8)%8;
-          self.joystickY = (self.joystickY+mody+2)%2;
         }
-        if (ShortcutStyle.indexOf('vertical') == 0)
-        {
-          if (ShortcutStyle == "vertical-asc") {
-            if (navigate === Navigate.UP)
-              mody = -1;
-            if (navigate === Navigate.DOWN)
-              mody = 1;
-          }
-          else if (ShortcutStyle == "vertical-desc") {
-            if (navigate === Navigate.UP)
-              mody = 1;
-            if (navigate === Navigate.DOWN)
-              mody = -1;
-          }
-          if (navigate === Navigate.LEFT || navigate === Navigate.RIGHT) {
-            modx = 1;
-          }
-          self.joystickX = (self.joystickX+modx+2)%2;
-          self.joystickY = (self.joystickY+mody+8)%8;
+        else if (ShortcutStyle == "vertical-desc") {
+          if (navigate === Navigate.UP)
+            mody = 1;
+          if (navigate === Navigate.DOWN)
+            mody = -1;
         }
+        if (navigate === Navigate.LEFT || navigate === Navigate.RIGHT) {
+          modx = 1;
+        }
+        self.joystickX = (self.joystickX+modx+2)%2;
+        self.joystickY = (self.joystickY+mody+8)%8;
       }
 
-      if (self.joystickX >= 0 && self.joystickY === 0) {
+      if (self.joystickY === 0) {
         this.setSelectedItem($(buttons['0-0']));
       }
-      else if (self.joystickX === 0 && self.joystickY === 1)
-      {
+      else if (self.joystickX === 0) {
         this.setSelectedItem($(buttons['1-0']));
       }
       else {
-        const index = buttons[self.joystickY+'-'+self.joystickX];
-        this.setSelectedItem($(index));
+        this.setSelectedItem($(buttons[self.joystickY+'-'+self.joystickX]));
       }
       return;
     }
