@@ -635,11 +635,15 @@ class EntityMoving extends Entity {
    /**
     * Changes the character's orientation so that it is facing its target.
     */
-    lookAt(x, y) {
-        this.setOrientation(this.getOrientationTo([x, y]));
-        this.idle(this.orientation);
-        return this.orientation;
-    }
+   lookAt(x, y) {
+       this.setOrientation(this.getOrientationTo([x, y]));
+
+       if (!(typeof this.hasAnimation === "function" && !this.hasAnimation('idle'))) {
+           this.idle(this.orientation);
+       }
+
+       return this.orientation;
+   }
 
    // Orientation Code.
    lookAtEntity(entity) {

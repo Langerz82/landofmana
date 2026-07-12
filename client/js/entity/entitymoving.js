@@ -624,7 +624,11 @@ export default class EntityMoving extends Entity {
      */
     lookAt(x, y) {
         this.setOrientation(this.getOrientationTo([x, y]));
-        this.idle(this.orientation);
+
+        if (!(typeof this.hasAnimation === "function" && !this.hasAnimation('idle'))) {
+            this.idle(this.orientation);
+        }
+
         return this.orientation;
     }
 

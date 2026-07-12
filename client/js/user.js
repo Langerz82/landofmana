@@ -132,8 +132,8 @@ export default class User {
           orientation = orientation || this.orientation;
           let self = this;
 
-          //if (this.fsm === "ATTACK")
-            //return;
+          if (this.fsm === "ATTACK")
+            return;
 
           this.setOrientation(orientation || 0);
 

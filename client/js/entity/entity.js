@@ -128,16 +128,19 @@ export default class Entity {
         if (this.isLoaded) {
             const alreadyPlaying = this.currentAnimation && this.currentAnimation.name === name;
 
-            // FIX: one-shot animations (count > 0, e.g. "atk") must always be re-armed even
-            // when an animation with the same name is already playing. Previously this bailed
-            // out for ANY repeat call with a matching name, which silently dropped the new
-            // count/onEndCount for a re-triggered attack (e.g. attacking twice quickly in the
-            // same direction) - the stale callback from the earlier call kept governing
-            // completion, and if that entity's animation object was shared, the callback could
-            // end up resetting a completely different entity's fsm, leaving this one stuck on
-            // "ATTACK" forever. Looping animations (count === 0, idle/walk) still short-circuit
-            // to avoid needlessly restarting them every frame.
-            if (alreadyPlaying && !count) {
+            // FIX: one-shot animations (count > 0, e.g. "atk") must be re-armed once their
+            // current cycle has actually finished, even when an animation with the same name
+            // is already playing - otherwise a second attack in the same direction would be
+            // silently dropped (stale callback governing completion forever). BUT while the
+            // one-shot animation is still mid-cycle (currentAnimation.count > 0, i.e. it
+            // hasn't reached its last frame yet), do NOT re-arm it: something upstream (e.g.
+            // a cooldown timer that races real time slightly ahead of the animation's own
+            // frame ticks) can call hit()/animate("atk"...) again before the swing has
+            // visually finished, and re-arming here would reset() the animation back to
+            // frame 0, aborting/restarting the in-progress swing. Looping animations
+            // (count === 0, idle/walk) still short-circuit to avoid needlessly restarting
+            // them every frame.
+            if (alreadyPlaying && (!count || this.currentAnimation.count > 0)) {
                 return;
             }
 
