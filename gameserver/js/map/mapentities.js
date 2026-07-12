@@ -178,11 +178,18 @@ class MapEntities {
         //var ids = [];
         //var knowns = [];
 
-        let ids = player.knownIds;
-        // FIX: parseInt() was an Array.prototype monkey-patch; migrated to
-        // Utils.ArrayParseInt() (see utils.js).
-        ids = Utils.ArrayParseInt(ids);
-        //console.info("knownIds: "+JSON.stringify(ids));
+        // PERF: processWho is the single most frequently invoked query in the
+        // codebase (see the G_SPATIAL_SIZE comment in main.js -- it fires on
+        // essentially every move/attack/chat/spawn/despawn/harvest/block
+        // broadcast). `ids` used to be run through Utils.ArrayParseInt(),
+        // allocating a whole new array and calling parseInt() on every
+        // element -- but knownIds is only ever populated via
+        // `knownIds.push(entity.id)` (mapentities.js addPlayer/addEntity,
+        // playeritems.js), and entity ids are always real numbers (assigned
+        // from a numeric ++entityCount), never strings. That conversion was
+        // pure allocation+parsing overhead on data that was already numeric,
+        // paid on the hottest path in the game.
+        const ids = player.knownIds;
 
         const pgx = ~~(player.x/G_TILESIZE);
         const pgy = ~~(player.y/G_TILESIZE);

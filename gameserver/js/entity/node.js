@@ -4,6 +4,7 @@ import Messages from '../message.js';
 import { Types } from '../common.js';
 import Area from '../area/area.js';
 import ItemData from '../data/itemdata.js';
+import Scheduler from '../scheduler.js';
 
 class Node extends Entity {
     constructor(id, kind, x, y, map, level, type) {
@@ -136,7 +137,11 @@ class Node extends Entity {
             this.area.respawn(this, this.spawnDelay);
         }
         else {
-            setTimeout(function () {
+            // PERF: was its own setTimeout per depleted node without an
+            // area; routed through the shared Scheduler
+            // (gameserver/js/scheduler.js) instead of a live Node timer per
+            // call.
+            Scheduler.schedule(function () {
                 self.respawn();
                 if (self.respawnCallback) {
                     self.respawnCallback();

@@ -4,6 +4,7 @@ import { Types } from '../../common.js';
 import Item from '../item.js';
 import ItemRoom from '../../items/itemroom.js';
 import { PlayerEvent } from '../../world/taskhandler.js';
+import Scheduler from '../../scheduler.js';
 
 /* global EventType */
 
@@ -32,8 +33,13 @@ class PlayerHarvest {
 
         const durationMod = Utils.clamp(0.1, 1, (1 - Types.getSkillLevel(exp)/20));
         duration = ~~(duration * durationMod);
-        clearTimeout(p.harvestTimeout);
-        p.harvestTimeout = setTimeout(function () {
+        // PERF: was clearTimeout()/setTimeout() per harvest attempt; routed
+        // through the shared Scheduler (gameserver/js/scheduler.js) instead
+        // of a live Node timer per call. Scheduler.cancel() is a safe no-op
+        // for an already-fired/never-set token, exactly like clearTimeout()
+        // was on an invalid id.
+        Scheduler.cancel(p.harvestTimeout);
+        p.harvestTimeout = Scheduler.schedule(function () {
             let complete = true;
 
             if (!p.isHarvesting)

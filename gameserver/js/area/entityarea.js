@@ -1,5 +1,6 @@
 import _ from 'underscore';
 import Area from './area.js';
+import Scheduler from '../scheduler.js';
 
 class EntityArea extends Area {
     constructor(map, id, x, y, width, height, elipse, excludeId) {
@@ -60,13 +61,20 @@ class EntityArea extends Area {
         return !this.isEmpty() && (this.nbEntities === _.size(this.entities));
     }
 
+    // PERF: this runs on every mob death across every mob area in the world
+    // (and every depleted area-bound node) -- at the mob counts this codebase
+    // is benchmarked against (~875 mobs across 51 areas, see the
+    // G_SPATIAL_SIZE comment in main.js), that's potentially dozens of these
+    // pending at once during active play. Was its own setTimeout per
+    // respawn; routed through the shared Scheduler
+    // (gameserver/js/scheduler.js) instead of a live Node timer per call.
     respawn(entity, delay) {
         const self = this;
         delay = entity.spawnDelay || delay;
 
         this.removeFromArea(entity);
 
-        setTimeout(function() {
+        Scheduler.schedule(function() {
             const	pos = self.map.entities.spaceEntityRandomApart(2, self._getRandomPositionInsideArea.bind(self,20), self.entities);
 
             if (pos) {

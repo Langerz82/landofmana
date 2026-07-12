@@ -40,6 +40,7 @@ import LootManager from "./world/lootmanager.js";
 import Utils from './utils.js';
 import { G_UPDATE_INTERVAL, players, G_DEBUG } from './main.js';
 import NotifyData from './data/notificationdata.js';
+import Scheduler from './scheduler.js';
 
 class World {
     constructor(id, maxPlayers, socket)
@@ -185,7 +186,12 @@ class World {
             notify.lastTime = Date.now() - self._idleStart;
         });
 
-        setInterval(function()
+        // PERF: was its own setInterval(fn, 60000); routed through the
+        // shared Scheduler (gameserver/js/scheduler.js) instead. 60s period
+        // is far coarser than Scheduler's 50ms resolution, so this is a
+        // free consolidation (one fewer live Node timer) with no timing
+        // impact.
+        Scheduler.every(function()
         {
             Utils.forEach(self.notify, function (notify) {
               if (Date.now() - notify.lastTime >= notify.interval * 60000)
@@ -291,6 +297,16 @@ class World {
     {
         const self = this;
 
+        // NOTE: these two stay on plain setInterval() rather than the
+        // shared Scheduler (gameserver/js/scheduler.js) -- Scheduler's tick
+        // resolution is 50ms, which is coarser than both of these periods
+        // (G_UPDATE_INTERVAL is ~32ms, this one is 16ms). Routing them
+        // through it would silently cap movement smoothness and packet-flush
+        // responsiveness to Scheduler's own tick rate instead of their
+        // actual configured rate -- a real, player-visible latency
+        // regression for zero benefit (neither of these scales with entity
+        // count the way the per-entity timers Scheduler targets did; there
+        // is and only ever will be exactly one of each).
         setInterval(function () {
           self.update();
         }, G_UPDATE_INTERVAL);
@@ -306,7 +322,16 @@ class World {
         };
         setInterval(processPackets, 16);
 
-        setInterval(function()
+        // PERF: the remaining ticks below were all their own independent
+        // setInterval() calls. All run at 256ms or coarser, well above
+        // Scheduler's 50ms resolution, so routing them through
+        // Scheduler.every() (self-rescheduling on top of the same shared
+        // tick every other one-shot timer in this codebase now uses)
+        // trades 6 live Node timers for 0 additional ones, with at most a
+        // ~50ms/period (<=20%, and far less for the coarser ones) timing
+        // jitter that's irrelevant for mob AI/roaming/regen/idle-checks/
+        // saves/notifications.
+        Scheduler.every(function()
         {
             self.forEachMap(function (map) {
               if (map.entities.players.size > 0)
@@ -316,7 +341,7 @@ class World {
             });
         }, 256);
 
-        setInterval(function()
+        Scheduler.every(function()
         {
           for (const p of self.players) {
             if (p.user && (Date.now() - p.user.lastPacketTime) >= 300000)
@@ -326,7 +351,7 @@ class World {
           }
         }, 60000);
 
-        setInterval(function()
+        Scheduler.every(function()
         {
             if (self.regen_callback)
             {
@@ -334,7 +359,7 @@ class World {
             }
         }, 10000);
 
-        setInterval(function()
+        Scheduler.every(function()
         {
           self.forEachMap(function (map) {
             for (const p of map.entities.players.values()) {
@@ -343,7 +368,7 @@ class World {
           });
         }, 1000);
 
-        setInterval(function()
+        Scheduler.every(function()
         {
             self.save(true);
         }, 600000);

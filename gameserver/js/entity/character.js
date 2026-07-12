@@ -6,6 +6,7 @@ import Utils from '../utils.js';
 import { Types } from '../common.js';
 import _ from 'underscore';
 import { G_TILESIZE } from '../main.js';
+import Scheduler from '../scheduler.js';
 
 class Character extends EntityMoving {
   constructor(id, type, kind, x, y, map) {
@@ -218,17 +219,24 @@ class Character extends EntityMoving {
     this.death_callback = callback;
   }
 
+  // PERF: hurt() fires on every single hit landed, by every player/mob in
+  // combat -- the highest-frequency of the codebase's one-shot timer sites.
+  // Was its own setTimeout per hit; routed through the shared Scheduler
+  // (gameserver/js/scheduler.js) instead of a live Node timer per hit.
   hurt() {
     const self = this;
 
     this.stopHurting();
     this.sprite = this.hurtSprite;
-    this.hurting = setTimeout(this.stopHurting.bind(this), 75);
+    this.hurting = Scheduler.schedule(function () { self.stopHurting(); }, 75);
   }
 
   stopHurting() {
     this.sprite = this.normalSprite;
-    clearTimeout(this.hurting);
+    // Scheduler.cancel() is a safe no-op for an already-fired/never-set
+    // token, exactly like clearTimeout() was -- see scheduler.js.
+    Scheduler.cancel(this.hurting);
+    this.hurting = null;
   }
 
   /**

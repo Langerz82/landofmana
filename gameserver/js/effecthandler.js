@@ -1,5 +1,7 @@
 import SkillData from './data/skilldata.js';
 import { G_DEBUG } from './main.js';
+import Scheduler from './scheduler.js';
+
 // @entity Object reference to the owner of the effect.
 // @isTarget false Self, true Target.
 // @phase 0 start, 1 end, 2 interval, 3 beforehit, 4 onhit, 5 afterhit.
@@ -148,7 +150,10 @@ class SkillEffect {
       this.effectTypes = this.data.effectTypes;
       this.level = Number(skillLevel);
       //this.isActive = false;
-      this.interval = null;
+      // NOTE: used to hold a per-instance setInterval() handle; replaced by
+      // a self-rescheduling Scheduler token (see startIntervalTicking()/
+      // stopIntervalTicking() below).
+      this.intervalToken = null;
       this.targets = [];
     }
 
@@ -173,25 +178,9 @@ class SkillEffect {
     }
 
     apply(target, targetX, targetY) {
-      const self = this;
       if (this.duration > 0) {
         this.activeTimer = 0;
-        if (this.interval) {
-          clearInterval(this.interval);
-          this.interval = null;
-        }
-        this.interval = setInterval(function () {
-          if (self.activeTimer >= self.duration) {
-           self.applyEffects("end",0);
-           //self.isActive = false;
-           clearInterval(self.interval);
-           self.interval = null;
-          }
-          else{
-            self.applyEffects("interval",0);
-            self.activeTimer += 2000;
-          }
-        }, 2000);
+        this.startIntervalTicking();
       }
 
       if (this.countTotal > 0)
@@ -201,6 +190,40 @@ class SkillEffect {
       //this.isActive = true;
       this.applyEffects("start",0);
 
+    }
+
+    // PERF: was registering with a dedicated per-file setInterval (a second,
+    // separate 2000ms Node timer alongside every other one-shot timer in the
+    // codebase). Now self-reschedules through the shared Scheduler
+    // (gameserver/js/scheduler.js) -- same 2000ms cadence as before, but
+    // sharing that one codebase-wide 50ms tick instead of running its own.
+    // Scheduler.cancel() is a safe no-op for an already-fired/never-set
+    // token, so there's no need for the old "clear any existing interval
+    // first" guard either.
+    startIntervalTicking() {
+      this.intervalToken = Scheduler.schedule(() => this._tickInterval(), 2000);
+    }
+
+    stopIntervalTicking() {
+      Scheduler.cancel(this.intervalToken);
+      this.intervalToken = null;
+    }
+
+    // Invoked ~2000ms after the last startIntervalTicking()/_tickInterval()
+    // call, for as long as this effect keeps rescheduling itself. Identical
+    // body/cadence to the old per-instance setInterval callback -- the only
+    // difference is _tickInterval() now has to explicitly reschedule the
+    // next tick itself (startIntervalTicking() again) instead of an interval
+    // firing forever on its own; ending (the `if` branch) simply stops
+    // rescheduling.
+    _tickInterval() {
+      if (this.activeTimer >= this.duration) {
+        this.applyEffects("end", 0);
+      } else {
+        this.applyEffects("interval", 0);
+        this.activeTimer += 2000;
+        this.startIntervalTicking();
+      }
     }
 
     applyEffect(effect, target, phase, damage)
@@ -236,6 +259,11 @@ class SkillEffect {
       if (phase === "end") {
         this.count = 0;
         this.activeTimer = 0;
+        // PERF: cancel any pending reschedule now that this effect is done
+        // -- a harmless no-op if none is pending (e.g. a duration===0
+        // effect never had one, or _tickInterval() itself is what got us
+        // here and already didn't reschedule).
+        this.stopIntervalTicking();
         this.handler.removeSkillEffect(this);
       }
     }

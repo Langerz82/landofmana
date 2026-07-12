@@ -5,6 +5,7 @@ import Transition from "../transition.js";
 import Utils from '../utils.js';
 import { Types } from '../common.js';
 import { G_TILESIZE } from '../main.js';
+import Scheduler from '../scheduler.js';
 
 /* global log, game */
 
@@ -712,6 +713,9 @@ class EntityMoving extends Entity {
    this.remove_callback = callback;
  }
 
+ // PERF: was its own setTimeout per stun/freeze application; routed
+ // through the shared Scheduler (gameserver/js/scheduler.js) instead of a
+ // live Node timer per call.
  setFreeze(ms, callback) {
    const self = this;
    if (ms <= 0)
@@ -720,7 +724,7 @@ class EntityMoving extends Entity {
      return;
    }
    this.freeze = true;
-   this.freeze_callback = setTimeout(function() {
+   this.freeze_callback = Scheduler.schedule(function() {
      self.freeze = false;
      //this.freeze_callback = null;
      if (callback)
