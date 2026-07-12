@@ -16,7 +16,7 @@ import Utils from '../utils.js';
 import { Types, ItemTypes } from '../common.js';
 import _ from 'underscore';
 import SkillData from '../data/skilldata.js';
-import { G_TILESIZE, G_SCREEN_WIDTH, G_SCREEN_HEIGHT } from '../main.js';
+import { G_TILESIZE, G_SCREEN_WIDTH, G_SCREEN_HEIGHT, G_DEBUG } from '../main.js';
 
 class Player extends Character {
     constructor(world, user, connection) {
@@ -954,7 +954,12 @@ class Player extends Character {
       return false;
     }
 
-    console.info("player - isValidGridPath: "+JSON.stringify(path));
+    // PERF: isValidGridPath() runs on every player click-to-move path
+    // request -- this JSON.stringify ran unconditionally, unlike the
+    // equivalent per-path-request logging elsewhere in the codebase
+    // (pathfinder.js, mapentities.js) which is already gated behind G_DEBUG.
+    if (G_DEBUG)
+      console.info("player - isValidGridPath: "+JSON.stringify(path));
     if (time) {
       const dist = pathfinder.getPathDistance(path);
       if (pathfinder.isDistanceTooFast(this.tick, dist, time)) {

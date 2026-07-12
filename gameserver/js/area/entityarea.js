@@ -8,8 +8,21 @@ class EntityArea extends Area {
         this.hasCompletelyRespawned = true;
     }
 
+    // FIX/PERF: this used to build a whole throwaway array of ids via
+    // _.pluck(this.entities, 'id') just to _.indexOf() into it -- an O(n)
+    // allocation plus an O(n) scan to do what a single O(n) scan already
+    // does. Worse, if the entity wasn't actually in this.entities for any
+    // reason, _.indexOf() returns -1, and `this.entities.splice(-1, 1)`
+    // doesn't no-op -- Array.splice() treats a negative index as "count
+    // back from the end", so it silently removed this area's *last*
+    // entity instead of the (missing) target one. This runs on every mob
+    // death/respawn in the area (see respawn() below), across every mob
+    // area in the world. Finding the index directly and guarding against
+    // "not found" fixes both the wasted allocation and the wrong-entity
+    // removal.
     removeFromArea(entity) {
-        const i = _.indexOf(_.pluck(this.entities, 'id'), entity.id);
+        const i = this.entities.findIndex(e => e.id === entity.id);
+        if (i < 0) return;
         this.entities.splice(i, 1);
 
         if (this.isEmpty() && this.hasCompletelyRespawned && this.emptyCallback) {
