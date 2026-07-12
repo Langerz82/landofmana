@@ -57,8 +57,16 @@ const AStar = (function () {
         return result;
     }
 
-    function grids(coord) {
-      return gGrid[coord[0]][coord[1]];
+    // PERF: was grids(coord), called as grids([N,x])/grids([S,x])/
+    // grids([y,E])/grids([y,W]) below -- four throwaway 2-element array
+    // allocations per node expanded during a search, purely to immediately
+    // destructure them back out (gGrid[coord[0]][coord[1]]). successors()
+    // runs once per node popped off the open list, so this was 4 short-lived
+    // allocations per node examined for the entire search. Taking the two
+    // coordinates as plain arguments does the same lookup with none of the
+    // allocation.
+    function grids(a, b) {
+      return gGrid[a][b];
     }
 
     // FIX: $N/$W required N/W to be > 0, excluding valid index 0 -- compare
@@ -73,10 +81,10 @@ const AStar = (function () {
             S = (y + 1),
             E = (x + 1),
             W = (x - 1),
-            $N = N >= 0 && !grids([N,x]),
-            $S = S < (rows) && !grids([S,x]),
-            $E = E < (cols) && !grids([y,E]),
-            $W = W >= 0 && !grids([y,W]),
+            $N = N >= 0 && !gGrid[N][x],
+            $S = S < (rows) && !gGrid[S][x],
+            $E = E < (cols) && !gGrid[y][E],
+            $W = W >= 0 && !gGrid[y][W],
             result = [],
             i = 0;
 
@@ -99,8 +107,22 @@ const AStar = (function () {
         return f2(x * x + y * y);
     }
 
-    function manhattan(start, end, f1, f2) {
-        return f1(start.x - end.x) + f1(start.y - end.y);
+    // PERF: this used to take f1 as a parameter and call it (f1(...)) twice.
+    // f1 is set once in AStar() below (`f1 = Math.abs`) and never
+    // reassigned by any branch of the mode switch, so f1 is always
+    // Math.abs regardless of which distance mode runs. And every live
+    // caller in this codebase (pathfinder.js, all 5 call sites) never
+    // passes AStar's 4th `f` argument, so the switch always falls to
+    // `default` -- meaning manhattan() is the *only* distance function ever
+    // actually exercised here, and it's called twice per successor node
+    // examined (once for the step cost, once for the heuristic): the
+    // single hottest calculation in the whole search. Calling Math.abs
+    // directly removes a layer of indirect-call overhead from that path
+    // with no change in behavior (diagonal()/euclidean() below are left
+    // alone since they're dead code paths given current callers, but nothing
+    // about this change forecloses them being used in the future).
+    function manhattan(start, end) {
+        return Math.abs(start.x - end.x) + Math.abs(start.y - end.y);
     }
 
     function getDir(n1, n2) {
@@ -180,7 +202,22 @@ const AStar = (function () {
               rows = grid.length,
               f1 = Math.abs,
               f2 = Math.max,
-              list = {},
+              // PERF: was a plain object (`list = {}`) keyed by adj.v,
+              // checked/set twice per successor node considered during the
+              // search (existence check + mark). adj.v = x + y*cols is
+              // already a dense integer provably within [0, rows*cols) --
+              // successors() only ever generates in-grid neighbors -- so
+              // there's no need for a general-purpose hash map here. A plain
+              // object either pays numeric-string property hashing on every
+              // access, or (once enough distinct keys accumulate during a
+              // large search, e.g. the full-map fallback searches in
+              // pathfinder.js's findIncompletePath_) can tip into V8's
+              // slower "dictionary mode" for the rest of the search. A
+              // preallocated Uint8Array indexed directly by v gives a flat,
+              // cache-friendly, guaranteed-O(1) lookup with no hashing at
+              // all, and costs at most rows*cols bytes (e.g. a 1000x1000
+              // full-map grid is a 1MB buffer -- trivial).
+              visited = new Uint8Array(rows * cols),
               result = [],
               open = new MinHeap(),
               adj, distance, find, i, j, current, next,
@@ -220,10 +257,15 @@ const AStar = (function () {
                       adj.v = adj.x + adj.y * cols;
                       adj.turns = current.turns || 0;  // carry over turn count
 
-                      if(!(adj.v in list)){
+                      if(!visited[adj.v]){
                         let turnPenalty = 0;
 
-                        if (current && typeof current.dir !== 'undefined') {
+                        // PERF: typeof was doing extra work to answer a
+                        // question a plain comparison already answers --
+                        // current.dir reads back exactly `undefined` when
+                        // unset, so there's nothing the typeof operator's
+                        // string-based dispatch adds here.
+                        if (current && current.dir !== undefined) {
                             adj.dir = getDir(adj, current);
 
                             // Strong turn penalty
@@ -242,7 +284,7 @@ const AStar = (function () {
                         adj.f = adj.g + distance(adj, endnode, f1, f2) + (adj.turns * 50); // secondary tie-breaker
 
                         open.push(adj);
-                        list[adj.v] = 1;
+                        visited[adj.v] = 1;
                       }
                   }
               } else {
