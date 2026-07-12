@@ -473,18 +473,30 @@ class MapEntities {
         this.spatial[spy][spx].push(entity);
     }
 
+    // FIX: this used to recompute the entity's spatial cell from
+    // entity.x/entity.y at call time instead of using the cell it was
+    // actually stored under (entity.spx/entity.spy, set by addSpatial
+    // below). By the time removeSpatial runs, entity.x/entity.y already
+    // hold the *new* position -- Entity._setPosition() assigns this.x/this.y
+    // before calling removeSpatial() -- so recomputing here found the
+    // entity's *new* cell, not the old one it was actually sitting in.
+    // Whenever an entity crossed a spatial-cell boundary (which every
+    // moving mob and player does constantly), that meant this removal was a
+    // silent no-op: Utils.removeFromArray() does an indexOf lookup and just
+    // finds nothing in the wrong cell's array, and addSpatial() then pushed
+    // a second, live reference into the new cell -- leaving a permanent
+    // "ghost" entry behind in the old cell forever. Since this repeats on
+    // every boundary crossing for the lifetime of the server, the spatial
+    // arrays grew without bound, and every proximity query built on top of
+    // them (getSpatialEntities -> getPlayerAround/getMobsAround/processWho/
+    // combat targeting/pathfinding ignore-include lists) returned an
+    // ever-growing set of stale duplicate entities that had long since
+    // moved elsewhere. Using the entity's own stored spx/spy -- exactly the
+    // cell it was last added to -- removes it from the right place.
     removeSpatial(entity) {
         if (entity.spatialMap) {
-            // FIX: same falsy-zero bug as addSpatial above -- 0 is a valid
-            // map-edge coordinate, not a missing one.
-            if (!entity || entity.x == null || entity.y == null) return;
-
-            const ts = G_TILESIZE;
-            const gx = ~~(entity.x / ts);
-            const gy = ~~(entity.y / ts);
-
-            const spx = ~~(gx / this.spatialSize);
-            const spy = ~~(gy / this.spatialSize);
+            const spx = entity.spx;
+            const spy = entity.spy;
 
             // bounds check
             if (spy < 0 || spy >= this.spatial.length ||
@@ -494,7 +506,37 @@ class MapEntities {
 
             const spatial = this.spatial[spy][spx];
             Utils.removeFromArray(spatial, entity);
+            entity.spatialMap = false;
         }
+    }
+
+    // PERF: setPosition() runs on every pixel-step of every moving entity's
+    // movement -- Transition.step() (transition.js) can call it up to ~20
+    // times per single 32ms world tick for one moving character (see the
+    // PERF comment on Map.isColliding in map/map.js for the same loop) --
+    // but the entity's spatial-grid cell (a coarser bucket of G_SPATIAL_SIZE
+    // tiles, not a single tile) only actually changes on a small fraction of
+    // those steps. Previously every single step paid a full
+    // removeSpatial()+addSpatial() pair -- an indexOf+splice out of one
+    // array followed by a push into another -- regardless of whether the
+    // cell changed at all. Skipping the remove/add entirely when the
+    // newly-computed cell matches the entity's current one avoids that
+    // wasted work on the overwhelming majority of movement steps.
+    updateSpatial(entity) {
+        if (!entity || entity.x == null || entity.y == null) return;
+
+        const ts = G_TILESIZE;
+        const gx = ~~(entity.x / ts);
+        const gy = ~~(entity.y / ts);
+
+        const spx = ~~(gx / this.spatialSize);
+        const spy = ~~(gy / this.spatialSize);
+
+        if (entity.spatialMap && entity.spx === spx && entity.spy === spy)
+            return;
+
+        this.removeSpatial(entity);
+        this.addSpatial(entity);
     }
 
     removeEntity(entity) {

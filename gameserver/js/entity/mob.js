@@ -246,11 +246,19 @@ class Mob extends Character {
         });
     }
 
+    // PERF: this used to call this.hates(entity) (a linear scan of
+    // hatelist) and then, when it returned true, run a second linear scan
+    // via _.detect() to find that same entry. hatelist is small (bounded by
+    // however many characters are currently attacking this one mob) so this
+    // was never a hot-path emergency, but there's no reason to scan it
+    // twice for one lookup -- a single _.detect() covers both the "does it
+    // exist" and "get the entry" cases.
     increaseHateFor(entity, points) {
-        if (this.hates(entity)) {
-            _.detect(this.hatelist, function (obj) {
-                return obj.entity === entity;
-            }).hate += points;
+        const existing = _.detect(this.hatelist, function (obj) {
+            return obj.entity === entity;
+        });
+        if (existing) {
+            existing.hate += points;
         }
         else {
             this.hatelist.push({ entity: entity, hate: points });

@@ -324,12 +324,20 @@ class Map {
      *
      * @returns {Boolean} Whether the position is out of bounds.
      */
+    // PERF: isOutOfBounds() is called up to 4 times per isColliding() call
+    // (once per corner), and isColliding() itself runs on every ~1-pixel
+    // movement sub-step for every moving character -- Transition.step() can
+    // call it up to ~20 times per 32ms world tick per moving entity (see the
+    // PERF comment on isColliding() below). _.isNumber() is a generic
+    // underscore type-check indirection (typeof check + NaN check) where a
+    // plain typeof comparison does the same job without the function-call
+    // overhead, so it's worth inlining on a path this hot.
     isOutOfBounds(x, y) {
-        return !_.isNumber(x) || !_.isNumber(y) || (x < 0 || x >= (this.width) || y < 0 || y >= (this.height));
+        return typeof x !== 'number' || typeof y !== 'number' || (x < 0 || x >= (this.width) || y < 0 || y >= (this.height));
     }
 
     isValidPosition(x, y) {
-        return _.isNumber(x) && _.isNumber(y) && !this.isOutOfBounds(x, y) && !this.isColliding(x, y);
+        return typeof x === 'number' && typeof y === 'number' && !this.isOutOfBounds(x, y) && !this.isColliding(x, y);
     }
 
     getRandomPositionCollide(collide) {

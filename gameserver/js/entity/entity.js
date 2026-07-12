@@ -50,8 +50,15 @@ class Entity {
       this.gx = gx;
       this.gy = gy;
 
-      this.map.entities.removeSpatial(this);
-      this.map.entities.addSpatial(this);
+      // PERF/FIX: previously always called removeSpatial()+addSpatial()
+      // here, unconditionally, on every position update -- see the
+      // updateSpatial() comment in map/mapentities.js for why that both
+      // wasted work on nearly every movement step and (via a related bug in
+      // the old removeSpatial()) leaked stale duplicate entries into the
+      // spatial grid whenever an entity crossed a cell boundary.
+      // updateSpatial() only touches the spatial grid when this entity's
+      // cell actually changes.
+      this.map.entities.updateSpatial(this);
     }
 
 /*
