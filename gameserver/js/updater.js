@@ -141,17 +141,12 @@ class Updater {
     }
   }
 
-  /**
-   * Moves the player one space, if possible
-   */
-  moveCharacter(char, axis, x, y) {
-    if (this.checkCollide(char, axis, x, y)) {
-      c.setPosition(c.x, c.y);
-      console.warn("char.isColliding("+char.id+","+x+","+y+")");
-      return false;
-    }
-    return true;
-  }
+  // NOTE: `moveCharacter(char, axis, x, y)` was removed from here -- it was
+  // dead code (no callers anywhere in the codebase) and also broken: it
+  // referenced an undefined `c` (should have been `char`) and called
+  // `checkCollide(c, x, y)` with a mismatched argument list
+  // (`char, axis, x, y` instead of `char, x, y`), so it would have thrown a
+  // ReferenceError the moment anything actually called it.
 
   updateCharacterPathMovement(c) {
       const self = this;

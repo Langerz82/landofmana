@@ -2,6 +2,7 @@ import Messages from "./message.js";
 import Timer from './timer.js';
 import { Types } from './common.js';
 import SkillData from './data/skilldata.js';
+import { G_DEBUG } from './main.js';
 
 /* global SkillData */
 
@@ -90,7 +91,12 @@ class Skill {
     if (amount === 0)
       return;
 
-    console.info("amount="+amount);
+    // PERF: xp() runs on every combat skill use/XP gain for every
+    // player -- this console.info ran unconditionally, unlike comparable
+    // per-hit/per-cast logging elsewhere which is already gated behind
+    // G_DEBUG.
+    if (G_DEBUG)
+      console.info("amount="+amount);
    	this.skillXP += parseInt(amount, 10);
    	const skillLevel = Types.getSkillLevel(this.skillXP, this.skillLevel);
    	if (skillLevel != this.skillLevel)

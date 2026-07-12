@@ -1,4 +1,5 @@
 import SkillData from './data/skilldata.js';
+import { G_DEBUG } from './main.js';
 // @entity Object reference to the owner of the effect.
 // @isTarget false Self, true Target.
 // @phase 0 start, 1 end, 2 interval, 3 beforehit, 4 onhit, 5 afterhit.
@@ -132,7 +133,12 @@ class SkillEffect {
       this.source = handler.entity;
       this.skillId = Number(skillId);
       this.data = SkillData.Skills[skillId];
-      console.info("SkillEffect - skillId:"+skillId);
+      // PERF: SkillEffect is constructed on every single skill cast (every
+      // combat skill use, by every player/mob) -- this console.info ran
+      // unconditionally, unlike the equivalent per-cast/per-hit logging
+      // elsewhere in the codebase which is already gated behind G_DEBUG.
+      if (G_DEBUG)
+        console.info("SkillEffect - skillId:"+skillId);
       this.targetType = this.data.targetType;
       this.activeTimer = 0;
       this.duration = ((this.data.durationPL) ? (this.data.durationPL*this.level) : this.data.duration) || 0;

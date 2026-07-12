@@ -190,14 +190,22 @@ class EntityMoving extends Entity {
  getClosestSpot(dest, adjStart, adjEnd) {
    adjStart = adjStart || 1;
    adjEnd = adjEnd || 1;
-   const poss = this.getSpotsAroundFrom(dest, adjStart, adjEnd);
+   let poss = this.getSpotsAroundFrom(dest, adjStart, adjEnd);
    const sx = this.x, sy = this.y;
 
-   for (const p of poss)
-   {
-     if (this.isColliding(p.x, p.y))
-       poss.splice(poss.indexOf(p),1);
-   }
+   // PERF/FIX: both filtering passes below used to do
+   // `poss.splice(poss.indexOf(p), 1)` while iterating `poss` with a
+   // `for...of` loop. Splicing during for-of iteration shifts every
+   // following element down one index, so the iterator (which just advances
+   // to "the next index") silently skips the element that slid into the
+   // spot of the one just removed -- a colliding tile or an
+   // entity-occupied tile immediately after a removed one could survive the
+   // filter uninspected. This let mobs/players occasionally path onto a
+   // blocked or occupied spot. It was also O(n^2) (indexOf + splice per
+   // removal) where this is called on every follow()/followAttack() -- i.e.
+   // every mob chase step and every player attack-move. Using .filter()
+   // instead removes both the correctness bug and the O(n^2) cost.
+   poss = poss.filter(p => !this.isColliding(p.x, p.y));
 
    const entities = this.getEntitiesAround(adjEnd);
 
@@ -206,10 +214,10 @@ class EntityMoving extends Entity {
    const tsh = ts >> 1;
 
    let x, y, tx, ty;
-   for (const p of poss) {
+   poss = poss.filter(p => {
      x = p.x;
      y = p.y;
-     for(const e2 of entities) {
+     for (const e2 of entities) {
        if (!e2 || this === e2)
          continue;
        tx = e2.x;
@@ -222,13 +230,14 @@ class EntityMoving extends Entity {
            ty = tp[1];
          }
        }
-       if ( Math.abs(x-tx) <= tsh && Math.abs(y-ty) <= tsh)
+       if (Math.abs(x-tx) <= tsh && Math.abs(y-ty) <= tsh)
        {
          //console.info("ENTITY ON TARGET SPOT!");
-         poss.splice(poss.indexOf(p),1);
+         return false;
        }
      }
-   }
+     return true;
+   });
 
    if (poss.length === 0)
      return null;
