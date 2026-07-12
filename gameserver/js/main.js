@@ -23,6 +23,7 @@ import { Types } from './common.js';
 import readlineModule from 'readline';
 import { fileURLToPath } from 'url';
 import path from 'path';
+import Scheduler from './scheduler.js';
 
 // NOTE: ES modules have no `__dirname`/`__filename` (those are CommonJS-only
 // module wrapper variables). This is the standard replacement, needed so
@@ -527,18 +528,30 @@ process.argv.forEach(function (val, index, array) {
     }
 });
 
+// PERF: was setInterval(fn, 500) + clearInterval() once world.isSaved()
+// went true. Routed through the shared Scheduler (gameserver/js/scheduler.js)
+// as a self-rescheduling schedule() call instead -- Scheduler.every() isn't
+// used here because it has no cancel support (nothing else that uses it
+// needs to stop), but this loop genuinely needs to stop once saving
+// completes; not rescheduling the next poll is the equivalent of the old
+// clearInterval(). 500ms is far coarser than Scheduler's 50ms resolution,
+// and this only ever runs once, briefly, during graceful shutdown, so
+// there's no measurable win here -- purely for consistency with the rest of
+// the codebase's timer usage.
 main.checkSaved = function () {
   console.info("Main - checkSaved!");
-  const allSaved = setInterval(function () {
+  const poll = function () {
     //console.info("world.PLAYERS_SAVED:"+world.PLAYERS_SAVED);
     //console.info("world.AUCTIONS_SAVED:"+world.AUCTIONS_SAVED);
     //console.info("world.LOOKS_SAVED:"+world.LOOKS_SAVED);
     if (world.isSaved())
     {
-      clearInterval(allSaved);
       main.safe_exit();
+      return;
     }
-  }, 500);
+    Scheduler.schedule(poll, 500);
+  };
+  Scheduler.schedule(poll, 500);
 }
 
 main.safe_exit = function () {
@@ -555,7 +568,12 @@ main.safe_exit = function () {
     // Give the disconnect packet a moment to actually flush over the
     // socket before the process dies; process.exit() is immediate and can
     // otherwise cut off the pending write.
-    setTimeout(function () {
+    // PERF: was its own setTimeout; routed through the shared Scheduler
+    // (gameserver/js/scheduler.js) instead. Fires exactly once per server
+    // process lifetime (shutdown), so like checkSaved() above this is a
+    // consistency change, not a measurable win -- 200ms tolerates
+    // Scheduler's 50ms resolution with room to spare either way.
+    Scheduler.schedule(function () {
         process.exit();
     }, 200);
 };
