@@ -15,9 +15,9 @@ class PlayerHarvest {
     _harvest(x, y, callback, duration) {
         const p = this.player;
 
-        const valid = p._checkHarvest(x, y);
+        const valid = this._checkHarvest(x, y);
         if (!valid) {
-            p._abortHarvest(x, y);
+            this._abortHarvest(x, y);
             return;
         }
 
@@ -42,11 +42,11 @@ class PlayerHarvest {
             if (!(p.x === px && p.y === py))
                 complete = false;
 
-            if (!p.hasWeaponType(type))
+            if (!p.items.hasWeaponType(type))
                 complete = false;
 
             if (!complete) {
-                p._abortHarvest(x, y);
+                this._abortHarvest(x, y);
                 return;
             }
 
@@ -75,6 +75,17 @@ class PlayerHarvest {
         const p = this.player;
         let res = true;
 
+        // Guard against re-triggering an entity that's already been
+        // harvested/opened and is just waiting on its area to respawn it --
+        // die() doesn't remove it from the map, so it's still reachable via
+        // getEntityById in that window. Without this, spamming CW_USE_NODE
+        // on the same id let a player pull multiple drops out of one
+        // chest/node before it visually respawned.
+        if (entity.isDead) {
+            this._abortHarvest(entity.x, entity.y);
+            return;
+        }
+
         const type = entity.weaponType;
         if (!p.items.hasWeaponType(type)) {
             // FIX: `this` is the PlayerHarvest component, which has no
@@ -92,12 +103,19 @@ class PlayerHarvest {
             return;
         }
 
-        const duration = 5000 + (entity.level*1000);
+        // Chest nodes (Node.CHEST_KIND) open quickly and don't scale with
+        // level like a real harvest -- everything else keeps the original
+        // level-scaled duration.
+        const duration = (entity.harvestDuration !== undefined) ? entity.harvestDuration : (5000 + (entity.level*1000));
         this._harvest(x, y, function (p) {
             p.world.taskHandler.processEvent(p, PlayerEvent(Types.EventType.USE_NODE, entity, 1));
 
             if (type === "hammer")
                 p.stats.exp.mining += 10;
+
+            // Re-roll the drop table right before it's consumed -- matters
+            // most for chests, whose setDrops() is randomized by level.
+            entity.setDrops(p);
             entity.die();
             const item = p.world.loot.getDrop(p, entity, false);
             if (item && item instanceof Item)

@@ -14,7 +14,6 @@ import NpcMove from './entity/npcmove.js';
 import NpcData from './data/npcdata.js';
 import Player from './entity/player.js';
 import Character from './entity/character.js';
-import Chest from './entity/chest.js';
 import Block from './entity/block.js';
 import MobData from './data/mobdata.js';
 import MobSpeech from './data/mobspeech.js';
@@ -379,8 +378,6 @@ export default class ClientCallbacks {
                   game.removeItem(entity);
               } else if(entity instanceof Character) {
                   entity.die();
-              } else if(entity instanceof Chest) {
-                  entity.open();
               } else if(entity instanceof Block) {
                 game.removeEntity(entity);
               } else if (entity.type === Types.EntityTypes.TRAP) {

@@ -10,7 +10,6 @@ import NpcStatic from './entity/npcstatic.js';
 import NpcMove from './entity/npcmove.js';
 import Player from './entity/player.js';
 import Item from './entity/item.js';
-import Chest from './entity/chest.js';
 import Mob from './entity/mob.js';
 import Node from './entity/node.js';
 //import Main from './main.js';

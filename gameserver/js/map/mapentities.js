@@ -1,4 +1,3 @@
-import Chest from '../entity/chest.js';
 import NpcStatic from '../entity/npcstatic.js';
 import NpcMove from '../entity/npcmove.js';
 import Messages from '../message.js';
@@ -32,7 +31,6 @@ class MapEntities {
         this.items = new Map();
         this.npcs = new Map();
 //      this.pets = {};
-        this.chests = new Map();
         this.blocks = new Map();
 
         // PERF: was a plain object keyed by player id, iterated everywhere
@@ -44,7 +42,6 @@ class MapEntities {
         this.packets = new Map();
 
         this.mobAreas = [];
-//      this.chestAreas = [];
         this.groups = {};
 
         this.pathfinder = null;
@@ -402,11 +399,6 @@ class MapEntities {
         this.packets.set(player.id, []);
     }
 
-    addChest(chest) {
-        this.addEntity(chest);
-        this.chests.set(chest.id, chest);
-    }
-
     addBlock(block) {
         this.addEntity(block);
         this.blocks.set(block.id, block);
@@ -517,9 +509,6 @@ class MapEntities {
 
         if (this.players.has(entity.id))
             this.players.delete(entity.id);
-
-        if (this.chests.has(entity.id))
-            this.chests.delete(entity.id);
 
         if (this.blocks.has(entity.id))
             this.blocks.delete(entity.id);
@@ -824,27 +813,10 @@ class MapEntities {
         this.removeEntity(item);
     }
 
-    // NOTE: `handleEmptyChestArea` was removed here. It referenced a `chest`
-    // variable that was never defined (its creation line was commented out),
-    // called `self.handleItemDespawn(...)` which isn't a method on this class
-    // (that method lives on world/lootmanager.js, reached via
-    // `player.world.loot.handleItemDespawn`), and called a `self.createChest`
-    // that doesn't exist anywhere in this class either -- chest spawning and
-    // respawning is fully implemented instead on ChestArea
-    // (area/chestarea.js: spawnChests/_createChest/respawnChest). This method
-    // wasn't called from anywhere in the codebase, so nothing depended on it;
-    // reconstructing working chest-despawn logic here would mean guessing at
-    // intended behavior rather than fixing a typo, so it's been dropped
-    // rather than patched. If empty-chest-area handling turns out to still be
-    // needed, ChestArea.respawnChest looks like the right place to hook it in.
-
-    tryAddingMobToChestArea(mob) {
-        const self = this;
-        _.each(self.chestAreas, function(area) {
-            if (area.contains(mob))
-                area.addToArea(mob);
-        });
-    }
+    // NOTE: chests are now just Node entities (Node.CHEST_KIND) spawned into
+    // a regular EntityArea in mapmanager.js, so they respawn/despawn through
+    // the same generic Node/EntityArea machinery as ore & tree nodes -- no
+    // chest-specific bookkeeping is needed on this class anymore.
 
     findPath(character, x, y, ignoreList) {
         var self = this,

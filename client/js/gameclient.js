@@ -270,14 +270,7 @@ export default class GameClient {
                     this.spawn_item_callback(data, item); // from 8
                 }
 						}
-            else if(type === Types.EntityTypes.CHEST) {
-                const item = EntityFactory.createEntity(type, kind, id, mapIndex, name);
-								item.setPosition(x, y);
-                if(this.spawn_chest_callback) {
-                    this.spawn_chest_callback(data, item); // from 8
-                }
-								return;
-            } else {
+            else {
 								const level = parseInt(data[8]);
 								var entity = EntityFactory.createEntity(type, kind, id, mapIndex, name, level);
 								entity.setPosition(x, y);
@@ -321,10 +314,6 @@ export default class GameClient {
 
         onSpawnItem(callback) {
             this.spawn_item_callback = callback;
-        }
-
-        onSpawnChest(callback) {
-            this.spawn_chest_callback = callback;
         }
 
         onDespawnEntity(callback) {

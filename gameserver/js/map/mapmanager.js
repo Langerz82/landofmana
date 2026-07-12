@@ -113,7 +113,7 @@ class MapManager {
                     a += x;
                     b += y;
 
-                    id += 1;
+                    id++;
 
                     const ga = a * G_TILESIZE;
                     const gb = b * G_TILESIZE;
@@ -166,7 +166,7 @@ class MapManager {
                         if (id === 9) {
                             for (let k=0; k < 6; ++k) {
                                 var	pos = map.entities.spaceEntityRandomApart(2,area2._getRandomPositionInsideArea.bind(area2,100));
-                                const node = new Node(++map.entities.entityCount, 3, pos.x, pos.y, map, level, level);
+                                const node = new Node(++map.entities.entityCount, 3, pos.x, pos.y, map, level);
                                 node.name = "node1";
                                 node.weaponType = "any";
                                 area.addToArea(node);
@@ -177,7 +177,7 @@ class MapManager {
                             level = 2;
                             for (let k=0; k < 6; ++k) {
                                 var	pos = map.entities.spaceEntityRandomApart(2,area2._getRandomPositionInsideArea.bind(area2,100));
-                                const node = new Node(++map.entities.entityCount, 3, pos.x, pos.y, map, level, level);
+                                const node = new Node(++map.entities.entityCount, 3, pos.x, pos.y, map, level);
                                 node.name = "node2";
                                 node.weaponType = "any";
                                 area.addToArea(node);
@@ -188,12 +188,22 @@ class MapManager {
                             level = Utils.clamp(1,4,~~(id/10)+1);
                             for (let k=0; k < 10; ++k) {
                                 var	pos = map.entities.spaceEntityRandomApart(2,area2._getRandomPositionInsideArea.bind(area2,100));
-                                const node = new Node(++map.entities.entityCount, 2, pos.x, pos.y, map, level, level);
+                                const node = new Node(++map.entities.entityCount, 2, pos.x, pos.y, map, level);
                                 node.name = "node"+level;
                                 node.weaponType = "hammer";
                                 area.addToArea(node);
                                 map.entities.addEntity(node);
                             }
+                        }
+
+                        // A couple of chests per ring, scaled to the same
+                        // level as whatever nodes that ring got above.
+                        if (i >= 10) {
+                            level = Utils.clamp(1,4,~~(id/10)+1);
+                            const chestPos = map.entities.spaceEntityRandomApart(2,area2._getRandomPositionInsideArea.bind(area2,100));
+                            const chestNode = new Node(++map.entities.entityCount, Node.CHEST_KIND, chestPos.x, chestPos.y, map, level);
+                            area.addToArea(chestNode);
+                            map.entities.addEntity(chestNode);
                         }
                     }
                 }

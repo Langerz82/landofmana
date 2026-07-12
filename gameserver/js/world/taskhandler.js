@@ -120,21 +120,21 @@ class TaskHandler {
             this.processAchievement(player, playerEvent, achievement, function (achievement, event) {
                 if (achievement.data.type === Types.EventType.USE_NODE) {
                     const wtype = event.object.weaponType;
-                    return (player.hasWeaponType(wtype) && wtype === achievement.data.data1);
+                    return (player.items.hasWeaponType(wtype) && wtype === achievement.data.data1);
                 }
                 return false;
             }, 5);
             this.processAchievement(player, playerEvent, achievement, function (achievement, event) {
                 if (achievement.data.type === Types.EventType.HARVEST) {
                     const wtype = event.object.weaponType;
-                    return (player.hasWeaponType(wtype) && wtype === "axe");
+                    return (player.items.hasWeaponType(wtype) && wtype === "axe");
                 }
                 return false;
             }, 5);
             this.processAchievement(player, playerEvent, achievement, function (achievement, event) {
                 if (achievement.data.type === Types.EventType.USE_NODE) {
                     const wtype = event.object.weaponType;
-                    return (player.hasWeaponType(wtype) && wtype === achievement.data.data1);
+                    return (player.items.hasWeaponType(wtype) && wtype === achievement.data.data1);
                 }
                 return false;
             }, 5);

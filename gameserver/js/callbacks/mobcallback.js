@@ -1,6 +1,5 @@
 import Messages from '../message.js';
 import Formulas from '../formulas.js';
-import ChestArea from '../area/chestarea.js';
 import { mobState } from '../main.js';
 import Player from '../entity/player.js';
 import { PlayerEvent } from '../world/taskhandler.js';
@@ -17,9 +16,6 @@ class MobCallback {
             this.respawn();
 
             //this.map.entities.addMob(this);
-
-            //if (this.area && this.area instanceof ChestArea)
-                //mob.area.addToArea(this);
         });
 
         entity.onStep(function (x, y) {

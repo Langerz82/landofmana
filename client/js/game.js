@@ -30,7 +30,6 @@ import NpcMove from './entity/npcmove.js';
 import NpcData from './data/npcdata.js';
 import Player from './entity/player.js';
 import Character from './entity/character.js';
-import Chest from './entity/chest.js';
 import Block from './entity/block.js';
 import Node from './entity/node.js';
 import MobData from './data/mobdata.js';
@@ -867,9 +866,11 @@ export default class Game {
 
               if(p.target instanceof NpcStatic || p.target instanceof NpcMove) {
                   self.makeNpcTalk(p.target);
-              } else if(p.target instanceof Chest) {
-                  self.client.sendOpen(p.target);
-                  self.audioManager.playSound("chest");
+              } else if(p.target instanceof Node && p.target.kind === Node.CHEST_KIND) {
+                  // Chests are Nodes (Node.CHEST_KIND) opened the same way
+                  // ore/tree nodes are harvested -- reuse that flow instead
+                  // of the removed Chest-specific sendOpen().
+                  self.makePlayerHarvestEntity(p.target);
               }
           });
 
@@ -1478,7 +1479,7 @@ export default class Game {
 
         getChestAt(x, y) {
             const entity = this.getEntityAt(x, y);
-            if(entity && (entity instanceof Chest)) {
+            if(entity && (entity instanceof Node) && entity.kind === Node.CHEST_KIND) {
                 return entity;
             }
             return null;
@@ -1994,11 +1995,9 @@ export default class Game {
               return;
           }
           else if (entity instanceof Node) {
+              // Chests are Node.CHEST_KIND nodes, so this one branch already
+              // covers both ore/tree nodes and chests.
               this.makePlayerHarvestEntity(entity);
-          }
-          else if(entity instanceof Chest)
-          {
-              this.makePlayerOpenChest(entity);
           }
 
         }
@@ -2018,6 +2017,10 @@ export default class Game {
 
           p.lookAtEntity(entity);
           p.harvestOn(entity.weaponType);
+
+          if (entity.kind === Node.CHEST_KIND) {
+              this.audioManager.playSound("chest");
+          }
 
           this.client.sendHarvestEntity(entity);
         }

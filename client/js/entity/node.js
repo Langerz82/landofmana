@@ -41,3 +41,8 @@ export default class Node extends Entity {
         return super.getAnimationByName(this.name);
     }
 }
+
+// Reserved Node "kind" that identifies a chest. Must match the server's
+// Node.CHEST_KIND (gameserver/js/entity/node.js) since it's transmitted
+// as-is over the wire (the `kind` field of every spawn message).
+Node.CHEST_KIND = 99;

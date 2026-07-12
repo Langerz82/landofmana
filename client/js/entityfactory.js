@@ -6,7 +6,6 @@ import Mob from './entity/mob.js';
 import NpcStatic from './entity/npcstatic.js';
 import NpcMove from './entity/npcmove.js';
 import Player from './entity/player.js';
-import Chest from './entity/chest.js';
 import Block from './entity/block.js';
 import Node from './entity/node.js';
 
@@ -33,16 +32,10 @@ EntityFactory.createEntity = function(type, kind, id, mapIndex, name, level = 0)
     else if (type === Types.EntityTypes.NPCMOVE)
         return new NpcMove(id, type, mapIndex, kind, name);
     else if (type === Types.EntityTypes.NODE)
+        // Chests are spawned server-side as Node.CHEST_KIND nodes (see
+        // gameserver/js/entity/node.js) rather than a separate entity type,
+        // so this one branch already covers ore/tree nodes and chests alike.
         return new Node(id, mapIndex, kind);
-    // FIX: was a dead `isChest(id)` check (no such function exists) with the Chest branch
-    // commented out, so CHEST-type spawns fell through to `return null`; gameclient.js's
-    // onSpawnChest handler then calls `item.setPosition(...)` on that null and throws.
-    // Chest is keyed by type like every other branch below.
-    else if (type === Types.EntityTypes.CHEST)
-        // FIX: was `new Chest(id, kind)` - Chest's constructor didn't accept mapIndex at
-        // all (see entity/chest.js fix), so chests spawned with mapIndex undefined and
-        // never rendered. Pass mapIndex through like every other branch above.
-        return new Chest(id, mapIndex, kind);
 
     return null;
 };

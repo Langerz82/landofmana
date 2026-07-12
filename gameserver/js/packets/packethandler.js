@@ -1,5 +1,4 @@
 import Character from '../entity/character.js';
-import Chest from '../entity/chest.js';
 import Mob from '../entity/mob.js';
 import Node from '../entity/node.js';
 import Messages from '../message.js';
