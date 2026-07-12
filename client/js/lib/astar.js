@@ -81,10 +81,10 @@ const AStar = (function () {
             S = (y + 1),
             E = (x + 1),
             W = (x - 1),
-            $N = N >= 0 && !gGrid[N][x],
-            $S = S < (rows) && !gGrid[S][x],
-            $E = E < (cols) && !gGrid[y][E],
-            $W = W >= 0 && !gGrid[y][W],
+            $N = N >= 0 && !grid[N][x],
+            $S = S < (rows) && !grid[S][x],
+            $E = E < (cols) && !grid[y][E],
+            $W = W >= 0 && !grid[y][W],
             result = [],
             i = 0;
 
