@@ -297,26 +297,13 @@ export default class Gamepad {
         buttons['7-1'] = self.playerShortcut[6];
       }
 
-      if (self.joystickX >= 0 && self.joystickY == 0)
+      if (self.joystickX >= 0 && self.joystickY === 0)
       {
-        self.joystickX = 1;
-        this.setSelectedItem($(self.mainButtons[0]));
         if (navigate === Navigate.UP || navigate === Navigate.DOWN) {
-          self.joystickY++;
+          self.joystickY = 1;
         }
       }
-      else if (self.joystickX == 0 && self.joystickY >= 1)
-      {
-        self.joystickY = 1;
-        this.setSelectedItem($(self.mainButtons[1]));
-        if (navigate === Navigate.RIGHT || navigate === Navigate.LEFT) {
-          self.joystickX++;
-        }
-        if (navigate === Navigate.DOWN || navigate === Navigate.UP) {
-          self.joystickY++;
-        }
-      }
-      else if (self.joystickX != 0 || self.joystickY != 0) {
+      else {
         if (ShortcutStyle.indexOf('horizontal') == 0)
         {
           if (ShortcutStyle == "horizontal-asc") {
@@ -358,9 +345,20 @@ export default class Gamepad {
           self.joystickX = (self.joystickX+modx+2)%2;
           self.joystickY = (self.joystickY+mody+8)%8;
         }
+      }
+
+      if (self.joystickX >= 0 && self.joystickY === 0) {
+        this.setSelectedItem($(buttons['0-0']));
+      }
+      else if (self.joystickX === 0 && self.joystickY === 1)
+      {
+        this.setSelectedItem($(buttons['1-0']));
+      }
+      else {
         const index = buttons[self.joystickY+'-'+self.joystickX];
         this.setSelectedItem($(index));
       }
+      return;
     }
     else if (jqInventoryWindow.is(':visible'))
     {

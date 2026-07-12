@@ -418,4 +418,8 @@ Utils.escapeHtml = function (str) {
     .replace(/'/g, '&#39;');
 };
 
+Utils.rotateNum = function (num, mod, length) {
+  return (num + mod + length) % length;
+};
+
 export default Utils;
