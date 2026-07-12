@@ -441,11 +441,23 @@ export default class MapContainer {
 
     getTiles(gx, gy) {
         const map = this.getMap(0);
+
+        if (gy < 0 || gy >= map.tile.length)
+          return 0;
+        if (gx < 0 || gx >= map.tile[0].length)
+          return 0;
+
         return map.tile[gy][gx];
     }
 
     getCollision(gx, gy) {
         const map = this.getMap(0);
+
+        if (gy < 0 || gy >= map.tile.length)
+          return 0;
+        if (gx < 0 || gx >= map.tile[0].length)
+          return 0;
+
         return map.collision[gy][gx];
     }
 }

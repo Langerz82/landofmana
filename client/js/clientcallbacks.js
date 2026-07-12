@@ -111,7 +111,7 @@ export default class ClientCallbacks {
               game.initGrid();
               c.setRealCoords();
 
-              game.pathfinder = new Pathfinder(game.mapContainer.chunkWidth, game.mapContainer.chunkHeight);
+              game.pathfinder = new Pathfinder(0, 0);
               //game.initAnimatedTiles();
               log.info("spawnMap - Cleared");
 

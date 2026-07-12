@@ -19,8 +19,8 @@ var parser = new XMLParser(options);
 
 var source = process.argv[2],
     mode = process.argv[3] || "direct",
-    chunkWidth = process.argv[4] || 0;
-    chunkHeight = process.argv[5] || 0;
+    chunkWidth = parseInt(process.argv[4]) || 0;
+    chunkHeight = parseInt(process.argv[5]) || 0;
     destination = process.argv[6];
 
 if(!source || (mode!="direct" && mode!="client" && mode!="server")) {
@@ -66,111 +66,110 @@ function callback_function(json, jsontsx) {
 var map = {};
 
 function processClient(json, tsx, dest){
-  var mapData = processMap(json, tsx, {mode:"client"});
+  var map = processMap(json, tsx, {mode:"client"});
 
-  if (chunkWidth == 0 && chunkHeight == 0)
-  {
-    createMapFile(mapData, dest);
-    return;
-  }
-
-  chunkWidth = parseInt(chunkWidth || map.chunkWidth);
-  chunkHeight = parseInt(chunkHeight || map.chunkHeight);
-  
-  var map = mapData;
   var tile = [];
   var collision = [];
   var offset = 0;
-  for (var i=0; i < map.height; ++i)
-  {
-  	  offset = i * map.width;
-  	  tile[i] = map.data.slice(offset, offset+map.width);
-  	  collision[i] = map.collision.slice(offset, offset+map.width);
-  }
- 
-  chunkBlockWidth = Math.ceil(map.width / chunkWidth);
-  chunkBlockHeight = Math.ceil(map.height / chunkHeight);
-  chunkTotal = chunkWidth * chunkHeight;
-  var mapDataLength = map.height * map.width;
-  
-  var subMap;
-//  console.info(JSON.stringify(collision));
-  for (var a=0; a < chunkBlockHeight; ++a)
-  {
-  	    for (var b=0; b < chunkBlockWidth; ++b)
-  	    {
-  	      var subMap = {};
-  	      subMap.data = [];
-  	      subMap.collision = [];
-  	      subMap.height = chunkHeight; //((a+1)*chunkHeight > (map.height)) ? map.height % chunkHeight : chunkHeight;
-  	      subMap.width = chunkWidth; //((b+1)*chunkWidth > (map.width)) ? map.width % chunkWidth : chunkWidth;
-  	      subMap.oh = ((a+1)*chunkHeight > (map.height)) ? map.height % chunkHeight : chunkHeight;
-  	      subMap.ow = ((b+1)*chunkWidth > (map.width)) ? map.width % chunkWidth : chunkWidth;
 
-  	      var index = (a*chunkBlockHeight+b);
-  	      subMap.index = index;
+	if ((chunkWidth == 0 && chunkHeight == 0)) {
+		createMapFile(map, dest);
+		delete map.chunkWidth;
+		delete map.chunkHeight;
+		map.indexes = 1;
+	}	
+	else {
+	  for (var i=0; i < map.height; ++i)
+	  {
+		  offset = i * map.width;
+		  tile[i] = map.data.slice(offset, offset+map.width);
+		  collision[i] = map.collision.slice(offset, offset+map.width);
+	  }
 
-		  var x = b*subMap.width;
-		  var y = a*subMap.height;
+	  chunkBlockWidth = Math.ceil(map.width / chunkWidth);
+	  chunkBlockHeight = Math.ceil(map.height / chunkHeight);
+	  chunkTotal = chunkWidth * chunkHeight;
+	  var mapDataLength = map.height * map.width;
+	  
+	  var subMap;
+	//  console.info(JSON.stringify(collision));
+	  for (var a=0; a < chunkBlockHeight; ++a)
+	  {
+			for (var b=0; b < chunkBlockWidth; ++b)
+			{
+			  var subMap = {};
+			  subMap.data = [];
+			  subMap.collision = [];
+			  subMap.height = chunkHeight; //((a+1)*chunkHeight > (map.height)) ? map.height % chunkHeight : chunkHeight;
+			  subMap.width = chunkWidth; //((b+1)*chunkWidth > (map.width)) ? map.width % chunkWidth : chunkWidth;
+			  subMap.oh = ((a+1)*chunkHeight > (map.height)) ? map.height % chunkHeight : chunkHeight;
+			  subMap.ow = ((b+1)*chunkWidth > (map.width)) ? map.width % chunkWidth : chunkWidth;
 
-		  
-		  for (var i=0; i < subMap.oh; ++i)
-		  {
-		  	var section = offset + (i*map.width);
-		  	var dline = tile[y+i].slice(x, x+subMap.ow);
-		  	subMap.data = subMap.data.concat(dline);
-		  	var cline = collision[y+i].slice(x, x+subMap.ow);
-		  	subMap.collision = subMap.collision.concat(cline);
-		  	var padlen = subMap.width - subMap.ow;
-		  	for (var j=0; j < padlen; ++j)
-		  	{
-		  		subMap.data.push(0);
-		  		subMap.collision.push(1);
-		  	}
-		  }
-		  var padlen = subMap.height - subMap.oh;
-		  for (var i=0; i < padlen; ++i)
-		  {
-		  	for (var j=0; j < subMap.width; ++j)
-		  	{
-		  		subMap.data.push(0);
-		  		subMap.collision.push(1);
-		  	}
-		  }
-		  
-		  delete subMap.ow;
-		  delete subMap.oh;
+			  var index = (a*chunkBlockHeight+b);
+			  subMap.index = index;
 
-		  var subTotal = subMap.width * subMap.height;
-		  for (var i=0; i < subTotal; ++i)
-		  {
-		  	  if (!subMap.data[i])
-		  	  {
-		  	  	  subMap.data[i] = 0;
-		  	  	  subMap.collision[i] = 1;
-		  	  }
-		  	  if (subMap.data[i] == 0 && subMap.collision[i] == 0)
-		  	  	  subMap.collision[i] = 1;
-		  }
-		  
-		  if (subTotal != subMap.data.length)
-		  {
-		  	  console.error("totals not correct for index: "+subMap.index+" "+
-		  	  	  subTotal+"!="+subMap.data.length);
-		  }
-		  var subDest = dest+"_"+subMap.index;
-		  createMapFile(subMap, subDest);
-		}
-   }
-   
+			  var x = b*subMap.width;
+			  var y = a*subMap.height;
+
+			  
+			  for (var i=0; i < subMap.oh; ++i)
+			  {
+				var section = offset + (i*map.width);
+				var dline = tile[y+i].slice(x, x+subMap.ow);
+				subMap.data = subMap.data.concat(dline);
+				var cline = collision[y+i].slice(x, x+subMap.ow);
+				subMap.collision = subMap.collision.concat(cline);
+				var padlen = subMap.width - subMap.ow;
+				for (var j=0; j < padlen; ++j)
+				{
+					subMap.data.push(0);
+					subMap.collision.push(1);
+				}
+			  }
+			  var padlen = subMap.height - subMap.oh;
+			  for (var i=0; i < padlen; ++i)
+			  {
+				for (var j=0; j < subMap.width; ++j)
+				{
+					subMap.data.push(0);
+					subMap.collision.push(1);
+				}
+			  }
+			  
+			  delete subMap.ow;
+			  delete subMap.oh;
+
+			  var subTotal = subMap.width * subMap.height;
+			  for (var i=0; i < subTotal; ++i)
+			  {
+				  if (!subMap.data[i])
+				  {
+					  subMap.data[i] = 0;
+					  subMap.collision[i] = 1;
+				  }
+				  if (subMap.data[i] == 0 && subMap.collision[i] == 0)
+					  subMap.collision[i] = 1;
+			  }
+			  
+			  if (subTotal != subMap.data.length)
+			  {
+				  console.error("totals not correct for index: "+subMap.index+" "+
+					  subTotal+"!="+subMap.data.length);
+			  }
+			  var subDest = dest+"_"+subMap.index;
+			  createMapFile(subMap, subDest);
+			}
+	   }
+		map.indexes = subMap.index+1;
+		map.chunkWidth = chunkWidth;
+		map.chunkHeight = chunkHeight;
+	}
+
    delete map.data;
    delete map.collision;
    delete map.plateau;
    delete map.animated;
-   
-   map.chunkWidth = chunkWidth;
-   map.chunkHeight = chunkHeight;
-   map.indexes = subMap.index+1;
+
    if (map.width < chunkWidth)
    	   map.width = chunkWidth;
    if (map.height < chunkHeight)
