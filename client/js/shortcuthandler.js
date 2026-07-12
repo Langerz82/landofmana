@@ -83,7 +83,7 @@ class Shortcut {
         return;
 
       if (DragItem) {
-        const item = game.inventory.inventory[DragItem.slot];
+        const item = game.inventory.rooms[DragItem.slot];
         if (item && ItemTypes.isConsumableItem(item.itemKind)) {
           this.parent.install(slot, 1, item.itemKind);
         }
