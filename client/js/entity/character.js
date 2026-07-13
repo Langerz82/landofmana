@@ -408,16 +408,17 @@ export default class Character extends EntityMoving {
     }
 
     canReach(entity) {
-        const ts = G_TILESIZE;
+      const ts = G_TILESIZE;
 
-        if (this.attackRange === 1)
-            return this.isInReach(entity.x, entity.y, this.orientation);
+      if (this.attackRange === 1)
+        return this.isNextTooEntity(entity);
 
-        if (this.attackRange > 1) {
-            const range = ~~(Utils.realDistance([entity.x, entity.y], [this.x, this.y]) / ts);
-            return range <= this.attackRange;
-        }
-        return false;
+      if (this.attackRange > 1)
+      {
+        const range = ~~(Utils.realDistance([entity.x,entity.y],[this.x,this.y])/ts);
+        return range <= this.attackRange;
+      }
+      return false;
     }
 
     clearTarget() {

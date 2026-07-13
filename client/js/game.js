@@ -788,7 +788,7 @@ export default class Game {
           self.player.onMoveStop(function () {
             const p = self.player;
             log.info("player.onMoveStop");
-            if (p.hasTarget())
+            if (p.hasTarget() && p.canReachTarget())
               p.lookAtEntity(p.target);
             else {
               log.info("onMoveStop - NO TARGET!");
@@ -855,9 +855,9 @@ export default class Game {
               }*/
               //p.targetIndex = 0;
               log.info("onStopPathing - 1");
-              if (p.hasTarget())
+              if (p.hasTarget() && p.canReachTarget()) {
                 p.lookAtEntity(p.target);
-              else {
+              } else {
                 log.info("onStopPathing - NO TARGET!");
               }
               log.info("onStopPathing - 2");
