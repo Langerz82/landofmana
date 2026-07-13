@@ -32,7 +32,7 @@
 import { Types } from './common.js';
 import { z } from 'zod';
 
-const itemKindMax = 999;
+const itemKindMax = 2000;
 const itemNumberMax = 100;
 const itemDurabilityMax = 1000;
 const itemExperienceMax = 9999999;
@@ -178,6 +178,85 @@ const arrayField = (element, min, max) => z.array(element).min(min).max(max);
 // every element, or several positional ones" guesswork that the old
 // checkFormatData had to do (see the FIX comment that used to live there).
 const tupleField = (schemas) => z.tuple(schemas);
+
+// The four helpers below aren't used by any message format in this file
+// today -- gameserver's messages are all plain positional arrays. They're
+// kept here anyway so this file matches userserver/js/format.js's toolkit
+// exactly, since that file's player-save messages DO need them (CSV-string
+// fields, and dynamic-key objects like completeQuests/shortcuts). Having
+// both files build schemas out of the same helper set means a message that
+// moves between the two, or a new gameserver message that turns out to need
+// one of these shapes, doesn't require inventing it from scratch.
+
+// Some wire formats carry a number as a string (e.g. a CSV field, see
+// parseCsvFields below) rather than a real JSON number. Unlike numberField,
+// this one legitimately needs to coerce a string like "1500" into 1500
+// before range-checking it. z.coerce.number() still rejects non-numeric
+// strings ("abc" fails), so this doesn't reintroduce the old
+// isNumber(Number(x)) bug (see migration note above).
+const csvNumberField = (min, max) => z.coerce.number().min(min).max(max);
+
+// 'object' with dynamic keys all mapping to the same shaped value (e.g.
+// userserver's shortcuts keyed by slot index, or completeQuests keyed by
+// quest slot). This is the shape the old DSL's 'object' handling never
+// correctly validated in either file -- z.record() + a key-count refinement
+// replaces it directly and correctly.
+const recordField = (valueSchema, maxKeys) =>
+  z.record(z.string(), valueSchema).refine(
+    (obj) => Object.keys(obj).length <= maxKeys,
+    (obj) => ({ message: `too many keys: ${Object.keys(obj).length} > ${maxKeys}` })
+  );
+
+// Splits a CSV string into exactly `schemas.length` fields and validates
+// each one positionally. Returns { success, data|error }. Mirrors
+// userserver's checkFormatCSV, keeping its "wrong field count fails
+// immediately" check (the one part of the old code that already enforced
+// length correctly).
+const parseCsvFields = (csv, schemas) => {
+  if (typeof csv !== 'string') {
+    return { success: false, error: 'not a string' };
+  }
+  const parts = csv.split(',');
+  if (parts.length !== schemas.length) {
+    return { success: false, error: `expected ${schemas.length} fields, got ${parts.length}` };
+  }
+  const data = [];
+  for (let i = 0; i < schemas.length; i += 1) {
+    const res = schemas[i].safeParse(parts[i]);
+    if (!res.success) {
+      return { success: false, error: `field ${i}: ${res.error.issues.map((iss) => iss.message).join('; ')}` };
+    }
+    data.push(res.data);
+  }
+  return { success: true, data };
+};
+
+// Splits a comma-separated list into chunks of `size` and validates each
+// chunk against `tupleSchema` -- for a flat, repeating list of same-shaped
+// records (e.g. userserver's achievements CSV: a flat run of (index, rank,
+// count) triples). Validates every chunk, not just the first -- that was a
+// real bug in userserver's old DSL version of this (see that file's
+// migration note) worth guarding against here too if this shape ever shows
+// up in a gameserver message.
+const parseCsvChunks = (csv, size, tupleSchema) => {
+  if (typeof csv !== 'string') {
+    return { success: false, error: 'not a string' };
+  }
+  const parts = csv.split(',');
+  if (parts.length % size !== 0) {
+    return { success: false, error: `length ${parts.length} not a multiple of ${size}` };
+  }
+  const chunks = [];
+  for (let i = 0; i < parts.length; i += size) {
+    const chunk = parts.slice(i, i + size).map(Number);
+    const res = tupleSchema.safeParse(chunk);
+    if (!res.success) {
+      return { success: false, error: `chunk ${i / size}: ${res.error.issues.map((iss) => iss.message).join('; ')}` };
+    }
+    chunks.push(res.data);
+  }
+  return { success: true, data: chunks };
+};
 
 class FormatChecker {
   constructor() {

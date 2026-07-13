@@ -1,7 +1,44 @@
-//import _ from 'underscore';
-//import Types from '../shared/js/gametypes.js';
+// ============================================================================
+// MIGRATION NOTE: this file used to implement its own small positional-array
+// "DSL" for describing message shapes (tags like 'n'/'s'/'no'/'so'/'array'/
+// 'object' packed into arrays like ['n',0,99]), plus a hand-rolled recursive
+// checker (isTypeValid / _isTypeValid / checkFormat / checkFormatData) to
+// walk it -- the same approach gameserver/js/format.js used to use, and this
+// file is converted the same way and for the same reasons (see that file's
+// migration note for the full rationale). The bugs that motivated this were:
+//   - `_.isNumber(Number(msg))` is true for ANY input (Number("abc") is NaN,
+//     and NaN's typeof is still 'number'), so every 'n'/'no' field accepted
+//     objects, arrays, and garbage strings no matter what.
+//   - A nested object-of-records (completeQuests: { "<questId>": {npcid} },
+//     shortcuts: { "<index>": [n,n,n] }) needed the checker to recurse
+//     correctly through 'object' -> per-value shape, which it never did
+//     right -- this is the root of the reported "complete quests format
+//     failed" bug. (A first Zod pass fixed that recursion but still
+//     mis-modeled completeQuests' value as an [npcId,questId] tuple instead
+//     of the real {npcid} object -- see the FIX note at that schema.)
+//   - `ignoreLength: true` was used almost everywhere, so fields past what a
+//     format described were never checked (the 19-field quest record case
+//     below only ever validated 13 of its fields).
+//   - Several `this.xxx` constants referenced in the old WU_SAVE_PLAYER_DATA
+//     branch (this.playerNameMin/Max, this.usernameMin/Max) were never
+//     assigned anywhere on the class, so those checks ran against
+//     `undefined` bounds.
+//
+// This file now uses Zod (https://zod.dev) to describe every message shape,
+// with the same field-builder helpers as gameserver/js/format.js
+// (numberField, stringField, etc.) so the two files read the same way, plus
+// a few userserver-specific helpers (recordField, parseCsvFields,
+// parseCsvChunks) for the CSV-string and dynamic-key-object shapes that only
+// show up in player-save data.
+//
+// REQUIRES: `npm install zod` in this project (userserver). I don't have
+// access to package.json from here to install it myself -- please run that
+// before deploying this.
+// ============================================================================
 
-const itemKindMax = 999;
+import { z } from 'zod';
+
+const itemKindMax = 2000;
 const itemNumberMax = 100;
 const itemDurabilityMax = 1000;
 const itemExperienceMax = 9999999;
@@ -71,7 +108,7 @@ const serverAddressLenMax = 15;
 const serverPortMin = 1024;
 const serverPortMax = 65535;
 const serverProtocolLenMin = 2;
-const serverProtocolLenMax = 2;
+const serverProtocolLenMax = 5;
 
 const playerLooksTotal = 177;
 const playerLooksTotalCost = 10000;
@@ -87,650 +124,644 @@ const getItemSlots = function (type) {
   return 0;
 };
 
-const isTypeValid = function (fmt,msg) {
-  if (Array.isArray(fmt)) {
-    const res = _isTypeValid(fmt[0],msg);
-    if (!res) {
-      //console.info("_isTypeValid = false");
-      return false;
-    }
+// ----------------------------------------------------------------------------
+// Field builders. Same names/semantics as gameserver/js/format.js so both
+// files read the same way; the old DSL tag each one replaces is noted
+// alongside every use below.
+// ----------------------------------------------------------------------------
 
-    if (fmt[0] === 'no' || fmt[0] === 'so')
-    {
-      //console.info("format is optional and ok.");
-      return true;
-    }
+// 'n': a real number in [min,max]. z.number() rejects non-numbers (including
+// NaN) outright -- unlike the old `_.isNumber(Number(msg))` check, which was
+// always true no matter what was sent (see migration note above).
+const numberField = (min, max) => z.number().min(min).max(max);
 
-    const cfn = (fmt[0] === 'n' && msg >= fmt[1] && msg <= fmt[2]);
-    if (cfn) {
-      //console.info("format is number and in range.");
-      return true;
-    }
+// 'no': same as 'n', but the value may legitimately be null (e.g. a quest's
+// npcQuestId when the quest has no associated NPC).
+const optionalNumberField = (min, max) => z.union([z.null(), numberField(min, max)]);
 
-    const cfs = (fmt[0] === 's' && msg.length >= fmt[1] && msg.length <= fmt[2]);
-    if (cfs) {
-      //console.info("format is string and in range.");
-      return true;
-    }
+// 's': a string with length in [min,max].
+const stringField = (min, max) => z.string().min(min).max(max);
 
-    const cfa = (fmt[0] === 'array' && msg.length >= fmt[1] && msg.length <= fmt[2]);
-    if (cfa) {
-      //console.info("format is Array and in length.");
-      return true;
-    }
+// 'so': same as 's', but may be null.
+const optionalStringField = (min, max) => z.union([z.null(), stringField(min, max)]);
 
-    const cfo = (fmt[0] === 'object' && Object.keys(msg).length >= fmt[1] && Object.keys(msg).length <= fmt[2]);
-    if (cfo) {
-      //console.info("format is Object and in keys range.");
-      return true;
-    }
+// A handful of player-save fields arrive as a comma-separated string of
+// numbers rather than real JSON numbers (see parseCsvFields below), so
+// unlike numberField() this one legitimately needs to coerce a string like
+// "1500" into 1500 before range-checking it. z.coerce.number() still rejects
+// non-numeric strings ("abc" fails), so this doesn't reintroduce the old
+// isNumber(Number(x)) bug.
+const csvNumberField = (min, max) => z.coerce.number().min(min).max(max);
+
+// 'array' (homogeneous): every element of the array must match `element`,
+// and the array itself must have between min and max items.
+const arrayField = (element, min, max) => z.array(element).min(min).max(max);
+
+// 'array' (fixed-shape tuple), e.g. a completeQuests pair [npcId, questId]
+// or an item record [slot, kind, count, durability, durabilityMax,
+// experience]. z.tuple() enforces the exact length itself.
+const tupleField = (schemas) => z.tuple(schemas);
+
+// 'object' with dynamic keys all mapping to the same shaped value (e.g.
+// shortcuts keyed by slot index, or completeQuests keyed by quest slot).
+// This is the shape the old DSL's 'object' handling never correctly
+// validated -- that's the root of the reported "complete quests format
+// failed" bug. z.record() + a key-count refinement replaces it directly.
+const recordField = (valueSchema, maxKeys) =>
+  z.record(z.string(), valueSchema).refine(
+    (obj) => Object.keys(obj).length <= maxKeys,
+    (obj) => ({ message: `too many keys: ${Object.keys(obj).length} > ${maxKeys}` })
+  );
+
+// Splits a CSV string into exactly `schemas.length` fields and validates
+// each one positionally. Returns { success, data|error }. This replaces
+// checkFormatCSV, keeping its "wrong field count fails immediately" check
+// (the one part of the old code that already enforced length correctly).
+const parseCsvFields = (csv, schemas) => {
+  if (typeof csv !== 'string') {
+    return { success: false, error: 'not a string' };
   }
-  else {
-    return _isTypeValid(fmt,msg);
+  const parts = csv.split(',');
+  if (parts.length !== schemas.length) {
+    return { success: false, error: `expected ${schemas.length} fields, got ${parts.length}` };
   }
+  const data = [];
+  for (let i = 0; i < schemas.length; i += 1) {
+    const res = schemas[i].safeParse(parts[i]);
+    if (!res.success) {
+      return { success: false, error: `field ${i}: ${res.error.issues.map((iss) => iss.message).join('; ')}` };
+    }
+    data.push(res.data);
+  }
+  return { success: true, data };
 };
 
-const _isTypeValid = function (fmt, msg) {
-
-  if (fmt === 'n' && _.isNumber(Number(msg))) {
-      //console.info("isType is number");
-      return true;
+// Splits a comma-separated list into chunks of `size` and validates each
+// chunk against `tupleSchema`. Used for the achievements CSV field, which is
+// a flat, repeating list of (index, rank, count) triples.
+//
+// FIX: the old code only ever validated the *first* triple -- its array
+// format's inner descriptor list had 3 entries, which the checker's
+// homogeneous-vs-tuple-shaped nesting rules mishandled, so the checker
+// effectively treated the whole flat array as one 3-field record instead of
+// a repeating sequence of them, and every triple after the first went
+// unchecked. This validates every chunk.
+const parseCsvChunks = (csv, size, tupleSchema) => {
+  if (typeof csv !== 'string') {
+    return { success: false, error: 'not a string' };
   }
-  if (fmt === 's' && _.isString(msg)) {
-      //console.info("isType is string");
-      return true;
+  const parts = csv.split(',');
+  if (parts.length % size !== 0) {
+    return { success: false, error: `length ${parts.length} not a multiple of ${size}` };
   }
-  if (fmt === 'no' && (_.isNull(msg) || _.isNumber(Number(msg)))) {
-      //console.info("isType is optional number");
-      return true;
+  const chunks = [];
+  for (let i = 0; i < parts.length; i += size) {
+    const chunk = parts.slice(i, i + size).map(Number);
+    const res = tupleSchema.safeParse(chunk);
+    if (!res.success) {
+      return { success: false, error: `chunk ${i / size}: ${res.error.issues.map((iss) => iss.message).join('; ')}` };
+    }
+    chunks.push(res.data);
   }
-  if (fmt === 'so' && (_.isNull(msg) || _.isString(msg))) {
-      //console.info("isType is optional string");
-      return true;
-  }
-  if (fmt === 'array' && Array.isArray(msg)) {
-      //console.info("isType is Array");
-      return true;
-  }
-  if (fmt === 'object' && (typeof(msg) === 'object')) {
-      //console.info("isType is Object");
-      return true;
-  }
-  console.info("isType not type or invalid.");
-  console.info("fmt:"+fmt);
-  console.info("msg:"+JSON.stringify(msg));
-  return false;
+  return { success: true, data: chunks };
 };
 
 class FormatChecker {
   constructor() {
     this.formats = {};
-    this.formats[Types.UserMessages.CU_CREATE_USER] = [
-        ['s',usernameLenMin,usernameLenMax],
-        ['s',userHashLenMin,userHashLenMax]];
-    this.formats[Types.UserMessages.CU_LOGIN_USER] = [
-        ['s',usernameLenMin,usernameLenMax],
-        ['s',userHashLenMin,userHashLenMax]];
-    this.formats[Types.UserMessages.CU_LOGIN_PLAYER] = [
-        ['n',0,maxWorldCount],
-        ['n',0,maxPlayersPerUser]];
-    this.formats[Types.UserMessages.CU_CREATE_PLAYER] = [
-        ['n',0,maxWorldCount],
-        ['s',playerNameLenMin,playerNameLenMax]];
-    // FIX: CU_REMOVE_USER had no entry here at all. check()'s final `else`
-    // branch (below) rejects and closes the connection for any message type
-    // not present in `this.formats`, and user.js's listener runs check() on
-    // every inbound message before dispatch -- so every CU_REMOVE_USER
-    // packet failed validation and account deletion never worked. Client
-    // sends [CU_REMOVE_USER, username, hash] (see
+
+    this.formats[Types.UserMessages.CU_CREATE_USER] = tupleField([
+      stringField(usernameLenMin, usernameLenMax),
+      stringField(userHashLenMin, userHashLenMax),
+    ]);
+    this.formats[Types.UserMessages.CU_LOGIN_USER] = tupleField([
+      stringField(usernameLenMin, usernameLenMax),
+      stringField(userHashLenMin, userHashLenMax),
+    ]);
+    this.formats[Types.UserMessages.CU_LOGIN_PLAYER] = tupleField([
+      numberField(0, maxWorldCount),
+      numberField(0, maxPlayersPerUser),
+    ]);
+    this.formats[Types.UserMessages.CU_CREATE_PLAYER] = tupleField([
+      numberField(0, maxWorldCount),
+      stringField(playerNameLenMin, playerNameLenMax),
+    ]);
+    // FIX (pre-existing, kept): CU_REMOVE_USER had no entry here at all.
+    // check()'s final `else` branch rejects and closes the connection for
+    // any message type not present in `this.formats`, and user.js's
+    // listener runs check() on every inbound message before dispatch -- so
+    // every CU_REMOVE_USER packet failed validation and account deletion
+    // never worked. Client sends [CU_REMOVE_USER, username, hash] (see
     // client/js/userclient.js sendRemoveUser), same shape as CU_LOGIN_USER.
-    this.formats[Types.UserMessages.CU_REMOVE_USER] = [
-        ['s',usernameLenMin,usernameLenMax],
-        ['s',userHashLenMin,userHashLenMax]];
+    this.formats[Types.UserMessages.CU_REMOVE_USER] = tupleField([
+      stringField(usernameLenMin, usernameLenMax),
+      stringField(userHashLenMin, userHashLenMax),
+    ]);
 
-    this.formats[Types.UserMessages.WU_GAMESERVER_INFO] = [
-        ['s',worldNameLenMin,worldNameLenMax],
-        ['n',0,worldUsersCountMax],
-        ['n',worldUsersCountMin,worldUsersCountMax],
-        ['s',serverAddressLenMin,serverAddressLenMin],
-        ['n',serverPortMin,serverPortMax],
-        ['s',userServerPasswordLenMin,userServerPasswordLenMax],
-        ['s',worldKeyLenMin,worldKeyLenMax]];
-    this.formats[Types.UserMessages.WU_UPDATE_PLAYER_COUNT] = [
-        ['n',0,worldUsersCountMax],
-        ['n',1,worldUsersCountMax]];
+    this.formats[Types.UserMessages.WU_GAMESERVER_INFO] = tupleField([
+      stringField(worldNameLenMin, worldNameLenMax),
+      numberField(0, worldUsersCountMax),
+      numberField(worldUsersCountMin, worldUsersCountMax),
+      // FIX: this was `['s',serverAddressLenMin,serverAddressLenMin]` --
+      // both bounds were the min, so any address longer than
+      // serverAddressLenMin (7) chars (e.g. "192.168.1.100") would fail the
+      // *intended* range check. That range check was dead code in the old
+      // DSL (see migration note), so this typo never fired in practice --
+      // but now that real range checks run, it needs to be the max,
+      // matching WU_PLAYER_LOADED's identical field below.
+      stringField(serverAddressLenMin, serverAddressLenMax),
+      numberField(serverPortMin, serverPortMax),
+      stringField(userServerPasswordLenMin, userServerPasswordLenMax),
+      stringField(worldKeyLenMin, worldKeyLenMax),
+    ]);
+    this.formats[Types.UserMessages.WU_UPDATE_PLAYER_COUNT] = tupleField([
+      numberField(0, worldUsersCountMax),
+      numberField(1, worldUsersCountMax),
+    ]);
 
-    this.formats[Types.UserMessages.WU_PLAYER_LOGGED_IN] = [
-        ['n',0,1],
-        ['s',usernameLenMin,usernameLenMax],
-        ['s',playerNameLenMin,playerNameLenMax]];
-    this.formats[Types.UserMessages.WU_SAVE_PLAYERS_LIST] = [
-        ['array',0,worldUsersCountMax, [
-          ['s',playerNameLenMin,playerNameLenMax]] ]];
-    this.formats[Types.UserMessages.WU_PLAYER_LOADED] = [
-        ['s',serverProtocolLenMin,serverProtocolLenMax],
-        ['s',serverAddressLenMin,serverAddressLenMax],
-        ['n',serverPortMin,serverPortMax]];
-    this.formats[Types.UserMessages.WU_SAVE_PLAYER_LOOKS] = [
-        ['array',0,playerLooksTotal, [
-          ['n',0,playerLooksTotalCost]] ]];
-    this.formats[Types.UserMessages.WU_SAVE_USER_BANS] = [
-        ['array',0,userBansTotal, [
-          ['s',usernameLenMin,usernameLenMax],
-          ['n',banDateMin,banDateMax]] ]];
-    this.formats[Types.UserMessages.WU_ADD_PLAYER_GOLD] = [
-        ['s',playerNameLenMin,playerNameLenMax],
-        ['n',0,playerGoldMax]];
+    this.formats[Types.UserMessages.WU_PLAYER_LOGGED_IN] = tupleField([
+      numberField(0, 1),
+      stringField(usernameLenMin, usernameLenMax),
+      stringField(playerNameLenMin, playerNameLenMax),
+    ]);
+    this.formats[Types.UserMessages.WU_SAVE_PLAYERS_LIST] = tupleField([
+      arrayField(stringField(playerNameLenMin, playerNameLenMax), 0, worldUsersCountMax),
+    ]);
+    this.formats[Types.UserMessages.WU_PLAYER_LOADED] = tupleField([
+      stringField(serverProtocolLenMin, serverProtocolLenMax),
+      stringField(serverAddressLenMin, serverAddressLenMax),
+      numberField(serverPortMin, serverPortMax),
+    ]);
+    // WU_SAVE_PLAYER_LOOKS's *message* format isn't used through the normal
+    // this.formats[type] dispatch -- check() special-cases this type below
+    // because the payload arrives as a CSV string that has to be split
+    // before it can be validated. Kept here only so `this.formats[type]`
+    // resolves to something, matching what check() expects.
+    this.formats[Types.UserMessages.WU_SAVE_PLAYER_LOOKS] = arrayField(
+      csvNumberField(0, playerLooksTotalCost),
+      0,
+      playerLooksTotal
+    );
+    this.formats[Types.UserMessages.WU_SAVE_USER_BANS] = tupleField([
+      arrayField(
+        tupleField([stringField(usernameLenMin, usernameLenMax), numberField(banDateMin, banDateMax)]),
+        0,
+        userBansTotal
+      ),
+    ]);
+    this.formats[Types.UserMessages.WU_ADD_PLAYER_GOLD] = tupleField([
+      stringField(playerNameLenMin, playerNameLenMax),
+      numberField(0, playerGoldMax),
+    ]);
   }
 
-  checkFormatData(fmt, msg) {
-    const tfmt = (Array.isArray(fmt)) ? fmt[0] : fmt;
-    const t = isTypeValid(tfmt, msg);
-    if (!t) {
-      console.info("isType not type or invalid.");
-      return false;
-    }
-
-    // `i` is hoisted here (rather than scoped to the loop below) because the
-    // `cfo` branch further down reads it too, matching the original var
-    // hoisting behavior.
-    let i;
-    const cfa = (fmt[0] === 'array');
-    if (cfa) {
-      console.info("format is Array and in length.");
-      if (fmt[3]) {
-        for (i = 0; i < msg.length; ++i) {
-          const res = this.checkFormat(fmt[3], [msg[i]], true);
-          if (!res) return false;
-        }
-      }
-    }
-
-    const cfo = (fmt[0] === 'object');
-    if (cfo) {
-      console.info("format is Object and in keys range.");
-      if (fmt[3]) {
-        for (const id in msg[i]) {
-          const res = this.checkFormat(fmt[3], msg[i][id]);
-          if (!res) return false;
-        }
-      }
-    }
-    return true;
-  }
-
-  checkFormatCSV(index, msg, fmt) {
-    console.info("fnCheckFormatCSV: index:"+index);
-    if (!_.isString(msg)) {
-      console.info("fnCheckFormatCSV: message not a string.");
-      return false;
-    }
-    const arr = msg.split(",");
-    if (arr.length !== fmt.length)
-    {
-      try { throw new Error(); } catch (e) { console.error(e.stack); }
-      console.info("fnCheckFormatCSV: message incorrect length.");
-      console.info("fnCheckFormatCSV: arr.length:"+arr.length);
-      return false;
-    }
-    const res = this.checkFormat(fmt, arr, false);
-    if (!res) {
-      console.info("fnCheckFormatCSV: message check format failed.");
-      console.info("fnCheckFormatCSV: fmt:"+JSON.stringify(fmt));
-      console.info("fnCheckFormatCSV: arr:"+JSON.stringify(arr));
-      return false;
-    }
-    return true;
-  }
-
+  // Replaces checkPlayerItems: parses a JSON-string list of inventory/bank/
+  // equipment items and validates it as an array of fixed-shape item
+  // tuples.
+  //
+  // FIX: the old format here (['array',0,slots,[6 number descriptors]]) had
+  // the same missing-nesting-level bug as completeQuests below -- the
+  // 6-descriptor list described one item's shape, but needed its own
+  // single-element wrapping list to be read as "apply to every element"
+  // rather than as 6 positional message fields. Expressed correctly from
+  // scratch here as an array of 6-tuples.
   checkPlayerItems(msg, type) {
-    console.info("fnItems: type:"+type);
     let arr = null;
     try {
-      if (!_.isString(msg)) {
-        console.info("fnItems: items data not a string.");
+      if (typeof msg !== 'string') {
+        console.info('fnItems: items data not a string.');
         return false;
       }
       arr = JSON.parse(msg);
-    }
-    catch (err) {
-      console.info("fnItems: items data JSON parse failed.");
+    } catch (err) {
+      console.info('fnItems: items data JSON parse failed.');
       return false;
     }
 
-    if (!arr)
-      console.info("fnItems: items data no data.");
-
-    if (!Array.isArray(arr))
-    {
-      console.info("fnItems: items data not a array of items.");
-      return false;
+    if (!arr) {
+      console.info('fnItems: items data no data.');
     }
-    const fmt = [['array',0,getItemSlots(type),[
-        ['n',0,getItemSlots(type)], // slot index.
-        ['n',0,itemKindMax], // kind
-        ['n',0,itemNumberMax], // stack number and magic number.
-        ['n',0,itemDurabilityMax],
-        ['n',0,itemDurabilityMax],
-        ['n',0,itemExperienceMax]]
-      ]];
-    const res = this.checkFormat(fmt, [arr], true);
-    if (!res) {
-      console.info("fnItems: item array not correct format.");
-      console.info(JSON.stringify(fmt));
+
+    const slots = getItemSlots(type);
+    const itemTuple = tupleField([
+      numberField(0, slots), // slot index
+      numberField(0, itemKindMax), // kind
+      numberField(0, itemNumberMax), // stack number / magic number
+      numberField(0, itemDurabilityMax),
+      numberField(0, itemDurabilityMax),
+      numberField(0, itemExperienceMax),
+    ]);
+    const schema = arrayField(itemTuple, 0, slots);
+    const res = schema.safeParse(arr);
+    if (!res.success) {
+      console.info('fnItems: item array not correct format.');
+      console.info(JSON.stringify(res.error.issues));
       console.info(JSON.stringify(arr));
       return false;
     }
     return true;
   }
 
-  checkFormat(format, message, ignoreLength = false) {
-    const self = this;
-
-    if (format) {
-        //console.info("message:"+message);
-        //console.info("format:"+format);
-        if (!ignoreLength && message.length !== format.length) {
-            console.info("checkFormat - length incorrect. fmt:"+JSON.stringify(message)+", msg:"+JSON.stringify(format));
-            return false;
-        }
-
-        const fmt = (Array.isArray(format[0])) ? format[0][0] : format[0];
-
-        // handle empty arrays.
-        if (fmt==='array' && Array.isArray(message) && message.length===0) {
-            return (Array.isArray(fmt)) ? (fmt[1]===0) : true;
-        }
-
-        // handle empty objects.
-        if (fmt==='object' && typeof(message) === 'object' && Object.keys(message).length===0) {
-            return (Array.isArray(fmt)) ? (fmt[1]===0) : true;
-        }
-
-        for (let i = 0, n = format.length; i < n; i += 1) {
-            const res = this.checkFormatData(format[i], message[i]);
-            if (!res) return false;
-        }
-        return true;
-    }
-    else {
-        console.error('Unknown message type. ');
-        console.warn('message: ' + JSON.stringify(message));
-        console.warn('format: ' + JSON.stringify(format));
-        return false;
-    }
-  }
-
   check(msg) {
-    const self = this;
-
-    //console.info("msg:"+msg);
     const message = msg.slice(0);
     const type = message.shift();
-    const format = this.formats[type];
 
-    //console.info("type:"+type);
-    if (type === Types.UserMessages.WU_SAVE_PLAYER_DATA)
-    {
-      console.info("WU_SAVE_PLAYER_DATA");
+    if (type === Types.UserMessages.WU_SAVE_PLAYER_DATA) {
+      console.info('WU_SAVE_PLAYER_DATA');
 
-      // These are reused/reassigned repeatedly through this branch, mirroring
-      // the original var-hoisting behavior.
-      let fmt, res, data, obj, arr;
+      let res, data, obj, arr;
 
+      // message[0]: optional player name.
+      // FIX: this used to read `this.playerNameMin`/`this.playerNameMax`,
+      // which are never set anywhere on the class (always undefined). The
+      // old range check was dead code anyway (see migration note) so this
+      // never bit in practice, but the real constants are
+      // playerNameLenMin/playerNameLenMax -- same ones CU_CREATE_PLAYER
+      // uses above.
       if (message[0]) {
-        fmt = [['s',this.playerNameMin,this.playerNameMax]];
-        res = this.checkFormat(fmt, [message[0]], true);
-        if (!res) {
-          console.info("message 0 failed.")
+        res = stringField(playerNameLenMin, playerNameLenMax).safeParse(message[0]);
+        if (!res.success) {
+          console.info('message 0 failed.');
           return false;
         }
       }
 
       if (!Array.isArray(message[1])) {
-        console.info("message 1 not an array.")
+        console.info('message 1 not an array.');
         return false;
       }
       if (message[1].length !== 7) {
-        console.info("message 1 not length 7.")
+        console.info('message 1 not length 7.');
         return false;
       }
 
-      data = null;
+      // message[1][0]: optional [username, sessionHash, n, s] record.
+      // FIX: same `this.usernameMin`/`this.usernameMax` undefined-constant
+      // issue as above -- use the real usernameLenMin/usernameLenMax.
       msg = message[1][0];
       if (msg) {
-        fmt = [['s',this.usernameMin,this.usernameMax],['so',120,120],['n',0,99999],['s',45,45]];
-        res = this.checkFormat(fmt, msg, true);
-        if (!res) {
-          console.info("message arr1-0 failed.")
+        const fmt = tupleField([
+          stringField(usernameLenMin, usernameLenMax),
+          optionalStringField(120, 120),
+          numberField(0, 99999),
+          stringField(0, 45),
+        ]);
+        res = fmt.safeParse(msg);
+        if (!res.success) {
+          console.info('message arr1-0 failed.');
           return false;
         }
       }
 
-      // Player Data.
+      // message[1][1]: the main player-data record, exactly 11 fields.
       msg = message[1][1];
       if (!Array.isArray(msg)) {
-        console.info("message 1-1 not an array.")
+        console.info('message 1-1 not an array.');
         return false;
       }
       if (msg.length !== 11) {
-        console.info("message 1-1 not length 11.")
+        console.info('message 1-1 not length 11.');
         return false;
       }
-      if (!msg) {
-        console.info("message[1][1] not defined.")
-      }
+
+      // msg[0]: NOTE -- the original code never validated this field either
+      // (it jumps straight to msg[1] below). Left unvalidated here too
+      // rather than guessing at a constraint that might reject legitimate
+      // existing saves; worth following up on to find out what this field
+      // actually is and give it a real schema.
 
       // map data
-      fmt = [
-        ['n',0,mapsCountMax],
-        ['n',0,mapCoordsMax],
-        ['n',0,mapCoordsMax],
-        ['n',0,orientationsMax]];
-      res = this.checkFormatCSV(1, msg[1], fmt);
-      if (!res) {
+      res = parseCsvFields(msg[1], [
+        csvNumberField(0, mapsCountMax),
+        csvNumberField(0, mapCoordsMax),
+        csvNumberField(0, mapCoordsMax),
+        csvNumberField(0, orientationsMax),
+      ]);
+      if (!res.success) {
+        console.info('map data failed: ' + res.error);
         return false;
       }
 
       // stats data
-      fmt = [
-        ['n',0,playerStatPointsMax],
-        ['n',0,playerStatPointsMax],
-        ['n',0,playerStatPointsMax],
-        ['n',0,playerStatPointsMax],
-        ['n',0,playerStatPointsMax],
-        ['n',0,playerStatFreePointsMax]];
-      res = this.checkFormatCSV(2, msg[2], fmt);
-      if (!res) {
+      res = parseCsvFields(msg[2], [
+        csvNumberField(0, playerStatPointsMax),
+        csvNumberField(0, playerStatPointsMax),
+        csvNumberField(0, playerStatPointsMax),
+        csvNumberField(0, playerStatPointsMax),
+        csvNumberField(0, playerStatPointsMax),
+        csvNumberField(0, playerStatFreePointsMax),
+      ]);
+      if (!res.success) {
+        console.info('stats data failed: ' + res.error);
         return false;
       }
 
       // exps data
-      fmt = [
-        ['n',0,playerXpMax],
-        ['n',0,playerXpMax],
-        ['n',0,playerXpMax],
-        ['n',0,playerXpMax],
-        ['n',0,playerXpMax],
-        ['n',0,playerXpMax],
-        ['n',0,playerXpMax],
-        ['n',0,playerXpMax],
-        ['n',0,playerXpMax],
-        ['n',0,playerXpMax]];
-      res = this.checkFormatCSV(3, msg[3], fmt);
-      if (!res) {
+      res = parseCsvFields(
+        msg[3],
+        Array.from({ length: 10 }, () => csvNumberField(0, playerXpMax))
+      );
+      if (!res.success) {
+        console.info('exps data failed: ' + res.error);
         return false;
       }
 
       // gold data
-      fmt = [
-        ['n',0,playerGoldMax],
-        ['n',0,playerGoldMax]];
-      res = this.checkFormatCSV(4, msg[4], fmt);
-      if (!res) {
+      res = parseCsvFields(msg[4], [csvNumberField(0, playerGoldMax), csvNumberField(0, playerGoldMax)]);
+      if (!res.success) {
+        console.info('gold data failed: ' + res.error);
         return false;
       }
 
       // skills xp data
-      fmt = [
-        ['n',0,playerSkillXpMax],
-        ['n',0,playerSkillXpMax],
-        ['n',0,playerSkillXpMax],
-        ['n',0,playerSkillXpMax],
-        ['n',0,playerSkillXpMax],
-        ['n',0,playerSkillXpMax],
-        ['n',0,playerSkillXpMax]];
-      res = this.checkFormatCSV(5, msg[5], fmt);
-      if (!res) {
+      res = parseCsvFields(
+        msg[5],
+        Array.from({ length: 7 }, () => csvNumberField(0, playerSkillXpMax))
+      );
+      if (!res.success) {
+        console.info('skills xp data failed: ' + res.error);
         return false;
       }
 
       // pvp stats data
-      fmt = [
-        ['n',0,playerPVPStatsMax],
-        ['n',0,playerPVPStatsMax]];
-      res = this.checkFormatCSV(6, msg[6], fmt);
-      if (!res) {
+      res = parseCsvFields(msg[6], [csvNumberField(0, playerPVPStatsMax), csvNumberField(0, playerPVPStatsMax)]);
+      if (!res.success) {
+        console.info('pvp stats data failed: ' + res.error);
         return false;
       }
 
       // sprites data
-      fmt = [
-        ['n',0,playerSpritesMax],
-        ['n',0,playerSpritesMax],
-        ['n',0,playerSpritesMax],
-        ['n',0,playerSpritesMax]];
-      res = this.checkFormatCSV(7, msg[7], fmt);
-      if (!res) {
+      res = parseCsvFields(
+        msg[7],
+        Array.from({ length: 4 }, () => csvNumberField(0, playerSpritesMax))
+      );
+      if (!res.success) {
+        console.info('sprites data failed: ' + res.error);
         return false;
       }
 
-      // colors data
-      fmt = [
-        ['s',0,playerColorsMaxLen],
-        ['n',0,playerColorsMaxLen]];
-      res = this.checkFormatCSV(8, msg[8], fmt);
-      if (!res) {
+      // colors data (mixed string + CSV number)
+      res = parseCsvFields(msg[8], [stringField(0, playerColorsMaxLen), csvNumberField(0, playerColorsMaxLen)]);
+      if (!res.success) {
+        console.info('colors data failed: ' + res.error);
         return false;
       }
 
-      // shortcuts data
+      // shortcuts data: JSON object keyed by shortcut index.
       data = msg[9];
-      if (!_.isString(data)) {
-        console.info("shortcuts data not a string.");
+      if (typeof data !== 'string') {
+        console.info('shortcuts data not a string.');
         return false;
       }
       try {
         obj = JSON.parse(data);
       } catch {
-        console.info("shortcuts data, json parse invalid.");
+        console.info('shortcuts data, json parse invalid.');
         return false;
       }
-      if (typeof(obj) !== 'object') {
-        console.info("shortcuts data, data not object.");
+      if (typeof obj !== 'object' || obj === null) {
+        console.info('shortcuts data, data not object.');
         return false;
       }
-
-      const len = Object.keys(obj).length;
-      if (len > shortcutIndexMax) {
-        console.info("shortcuts data, length longer than 8");
+      {
+        const shortcutSchema = recordField(
+          tupleField([
+            numberField(0, shortcutIndexMax),
+            numberField(0, shortcutTypeMax),
+            numberField(0, shortcutTypeIdMax),
+          ]),
+          shortcutIndexMax
+        );
+        res = shortcutSchema.safeParse(obj);
+        if (!res.success) {
+          console.info('shortcuts data, shortcut format failed.');
+          console.info(JSON.stringify(res.error.issues));
+          console.info(JSON.stringify(obj));
+          return false;
+        }
       }
 
-      fmt = [['object',0,shortcutIndexMax,[
-        ['n',0,shortcutIndexMax],
-        ['n',0,shortcutTypeMax],
-        ['n',0,shortcutTypeIdMax]]
-      ]];
-      res = this.checkFormat(fmt, [obj], true);
-      if (!res) {
-        console.info("shortcuts data, shortcut format failed.");
-        console.info(JSON.stringify(fmt))
-        console.info(JSON.stringify(obj))
-        return false;
-      }
-
-      // completeQuests data
+      // completeQuests data: JSON object keyed by quest id (the key IS the
+      // quest id -- see PlayerQuests.completeQuest() in
+      // gameserver/entity/components/playerquests.js:
+      //   this.completeQuests[quest.id] = {"npcid": quest.npcQuestId};
+      // and worldhandler.js's savePlayerData(), which sends
+      // JSON.stringify(player.quests.completeQuests) as this field. So each
+      // value is a single-property OBJECT `{npcid}`, not a [npcId, questId]
+      // array pair.
+      //
+      // THIS IS THE REPORTED BUG, TWICE OVER. The old DSL's fmt guessed at
+      // an ['array',2,2,[...]] pair shape here and never validated it
+      // correctly regardless (its 'object' recursion was broken). My first
+      // Zod pass fixed the recursion but kept that same wrong tuple-pair
+      // guess, so it still failed against the real `{npcid}` object shape.
+      // z.record() of z.object({npcid}) below matches what's actually sent.
+      // Note quest.npcQuestId can be `undefined` (quests with no associated
+      // NPC), and JSON.stringify() drops undefined object properties
+      // entirely, so a value can legitimately be `{}` with no npcid key at
+      // all -- npcid must be optional, not just nullable.
       data = msg[10];
-      if (!_.isString(data)) {
-        console.info("complete quests data not a string.");
+      if (typeof data !== 'string') {
+        console.info('complete quests data not a string.');
         return false;
       }
       try {
         arr = JSON.parse(data);
-      }
-      catch {
-        console.info("complete quests JSON parse error :"+JSON.stringify(data));
+      } catch {
+        console.info('complete quests JSON parse error :' + JSON.stringify(data));
         return false;
       }
-      console.warn("complete quests: arr:"+JSON.stringify(arr));
-      if (typeof(arr) !== "object") {
-        console.info("complete quests is not an object.");
+      if (typeof arr !== 'object' || arr === null) {
+        console.info('complete quests is not an object.');
         return false;
       }
-      fmt = [['object',0,questCountMax, [
-        ['no',0,questNpcIdMax],
-        ['n',0,questIdMax]]
-      ]];
-      res = this.checkFormat(fmt, [arr], true);
-      if (!res) {
-        console.info("complete quests format failed.");
-        console.info(JSON.stringify(fmt))
-        console.info(JSON.stringify(arr))
-        return false;
+      {
+        const completeQuestsSchema = recordField(
+          z.object({ npcid: numberField(0, questNpcIdMax).nullable().optional() }),
+          questCountMax
+        );
+        res = completeQuestsSchema.safeParse(arr);
+        if (!res.success) {
+          console.info('complete quests format failed.');
+          console.info(JSON.stringify(res.error.issues));
+          console.info(JSON.stringify(arr));
+          return false;
+        }
       }
 
-      // quests data.
+      // quests data: array of up to 99 quest records. Each record is a CSV
+      // STRING (not a raw array!) with 7 base fields, optionally followed by
+      // one or two 6-field "reward object" blocks (13 or 19 fields total).
+      //
+      // FIX (real bug -- traced end to end, see chat): I originally modeled
+      // each `rec` as a plain [id,type,...] array of numbers, matching the
+      // old DSL's descriptor. That descriptor was wrong on two counts:
+      //   1. gameserver's worldhandler.js builds this array with
+      //      `quests.push(quest.toArray().join(','))` -- every record is a
+      //      CSV string, exactly like the map/stats/exps/etc. fields above.
+      //      userserver's own worldhandler.js persists it as-is via
+      //      `DBH.saveQuests(playerName, JSON.stringify(data[2]), ...)`, and
+      //      gameserver's userhandler.js reads it back with
+      //      `dataJSON[i].split(',')` before reconstructing a Quest -- so
+      //      "array of CSV strings" is the real, DB-persisted, load-bearing
+      //      format across three separate places, not a mistake to "fix" on
+      //      the sending side.
+      //   2. data1/data2 are declared numeric in Quest.toArray()
+      //      (`parseInt(this.data1, 10)`), and playerquests.js accumulates
+      //      XP into `quest.data1` as a number -- they were never strings.
+      // Also keeps the old code's 13-vs-19-field fix (two distinct field
+      // sets so both reward blocks actually get validated).
       arr = message[1][2];
-      console.info(JSON.stringify(arr));
       if (!Array.isArray(arr)) {
-        console.info("quests is not an array.");
+        console.info('quests is not an array.');
         return false;
       }
       if (arr.length > 99) {
-        console.info("quests is over 99.");
+        console.info('quests is over 99.');
         return false;
       }
 
-      const appendFmtObject = function (fmt) {
-        return fmt.concat([
-            ['n',0,questObjectTypeMax], // object type
-            ['n',0,questObjectKindMax], // object kind
-            ['n',0,questObjectCountMax], // object count
-            ['n',0,questObjectChanceMax], // object chance
-            ['n',0,questObjectLevelMax], // object level min
-            ['n',0,questObjectLevelMax] // object level max
-        ]);
-      };
+      const questBaseFields = () => [
+        csvNumberField(0, questIdMax), // id
+        csvNumberField(0, questTypeMax), // type
+        csvNumberField(0, questNpcIdMax), // npcQuestId
+        csvNumberField(0, questCountMax), // count
+        csvNumberField(0, questStatusMax), // status
+        // data1/data2: numeric quest progress data (e.g. playerquests.js
+        // accumulates mob-kill XP into quest.data1), not the string the old
+        // DSL assumed. There's no dedicated "max accumulated quest XP"
+        // constant in this codebase; playerXpMax (a player's total XP cap)
+        // is a generously large, self-documenting upper bound for a
+        // per-quest XP accumulator that must stay well under it.
+        csvNumberField(0, playerXpMax), // data1
+        csvNumberField(0, playerXpMax), // data2
+      ];
+      const questRewardFields = () => [
+        csvNumberField(0, questObjectTypeMax), // object type
+        csvNumberField(0, questObjectKindMax), // object kind
+        csvNumberField(0, questObjectCountMax), // object count
+        csvNumberField(0, questObjectChanceMax), // object chance
+        csvNumberField(0, questObjectLevelMax), // object level min
+        csvNumberField(0, questObjectLevelMax), // object level max
+      ];
 
       for (const rec of arr) {
-        fmt = [
-          ['n',0,questIdMax], // id
-          ['n',0,questTypeMax], // type
-          ['n',0,questNpcIdMax], // npcQuestId
-          ['n',0,questCountMax], // count
-          ['n',0,questStatusMax], // status
-          ['s',0,questStrDataLen], // data1
-          ['s',0,questStrDataLen] // data2
-        ];
-        if (rec.length === 13) {
-          fmt = appendFmtObject(fmt);
+        if (typeof rec !== 'string') {
+          console.info('quests format failed: record is not a string.');
+          console.info(JSON.stringify(rec));
+          return false;
         }
-        else if (rec.length === 19) {
-          fmt = appendFmtObject(fmt);
-        }
-
-        res = this.checkFormat(fmt, rec, true);
-        if (!res) {
-          console.info("quests format failed.");
-          console.info(JSON.stringify(fmt))
-          console.info(JSON.stringify(rec))
+        const fieldCount = rec.split(',').length;
+        const schemaFields =
+          fieldCount === 13
+            ? [...questBaseFields(), ...questRewardFields()]
+            : fieldCount === 19
+            ? [...questBaseFields(), ...questRewardFields(), ...questRewardFields()]
+            : questBaseFields();
+        res = parseCsvFields(rec, schemaFields);
+        if (!res.success) {
+          console.info('quests format failed.');
+          console.info(res.error);
+          console.info(JSON.stringify(rec));
           return false;
         }
       }
 
-      // achievements data.
+      // achievements data: CSV string, flat list of (index, rank, count)
+      // triples. See parseCsvChunks' comment for the "only checked the
+      // first triple" bug this fixes.
       data = message[1][3];
       if (data) {
-        if (!_.isString(data)) {
-          console.info("message arr1-3 is not a string.");
+        if (typeof data !== 'string') {
+          console.info('message arr1-3 is not a string.');
           return false;
         }
-        arr = data.split(',');
-        const count = arr.length;
-        if (count % 3 !== 0) {
-          console.info("message arr1-3 not correct achievement count.");
+        const achievementTuple = tupleField([
+          numberField(0, achievementIndexMax),
+          numberField(0, achievementRankMax),
+          numberField(0, achievementCountMax),
+        ]);
+        res = parseCsvChunks(data, 3, achievementTuple);
+        if (!res.success) {
+          console.info('message arr1-3 checkFormat failed: ' + res.error);
           return false;
         }
-        fmt = [['array',0,achievementIndexMax,[
-            ['n',0,achievementIndexMax],
-            ['n',0,achievementRankMax],
-            ['n',0,achievementCountMax]]
-          ]];
-        res = this.checkFormat(fmt, [arr], true);
-        if (!res) {
-          console.info("message arr1-3 checkFormat failed.");
-          console.info(JSON.stringify(fmt))
-          console.info(JSON.stringify(arr))
+        if (res.data.length > achievementIndexMax) {
+          console.info('message arr1-3 too many achievements.');
           return false;
         }
       }
 
-      // inventory data
+      // inventory / bank / equipment data
       data = message[1][4];
-      if (data) {
-        if (!this.checkPlayerItems(data, 0)) {
-          console.info("inventory data msg1-4 format failed. "+JSON.stringify(data));
-          return false;
-        }
+      if (data && !this.checkPlayerItems(data, 0)) {
+        console.info('inventory data msg1-4 format failed. ' + JSON.stringify(data));
+        return false;
       }
-
-      // bank data
       data = message[1][5];
-      if (data) {
-        if (!this.checkPlayerItems(data, 1)) {
-          console.info("bank data msg1-5 format failed. "+JSON.stringify(data));
-          return false;
-        }
+      if (data && !this.checkPlayerItems(data, 1)) {
+        console.info('bank data msg1-5 format failed. ' + JSON.stringify(data));
+        return false;
       }
-
-      // equipment data
       data = message[1][6];
-      if (data) {
-        if (!this.checkPlayerItems(data, 2)) {
-          console.info("equipment data msg1-6 format failed. "+JSON.stringify(data));
-          return false;
-        }
+      if (data && !this.checkPlayerItems(data, 2)) {
+        console.info('equipment data msg1-6 format failed. ' + JSON.stringify(data));
+        return false;
       }
 
       data = parseInt(message[2]);
       if (!(data === 0 || data === 1)) {
-        console.info("update not 0 or 1.")
+        console.info('update not 0 or 1.');
         return false;
       }
 
-      console.info("fmt:"+JSON.stringify(fmt));
-      console.info("message:"+JSON.stringify(message));
       return true;
     }
-    else if (type === Types.UserMessages.WU_SAVE_PLAYER_AUCTIONS) {
-      console.info("WU_SAVE_PLAYER_AUCTIONS");
-      const arr = message;
-      const fmt = [['array',0,auctionEntriesMax,[
-        ['s',0,playerNameLenMax], // playerName
-        ['n',0,itemPriceMax], // sell price
-        ['n',0,itemKindMax], // item kind
-        ['n',0,itemNumberMax], // count/magic number
-        ['n',0,itemDurabilityMax], // itemDurability
-        ['n',0,itemDurabilityMax], // itemDurabilityMax
-        ['n',0,itemExperienceMax]] // itemExperience
-      ]];
 
-      return this.checkFormat(fmt, [arr], true);
+    if (type === Types.UserMessages.WU_SAVE_PLAYER_AUCTIONS) {
+      console.info('WU_SAVE_PLAYER_AUCTIONS');
+      const schema = arrayField(
+        tupleField([
+          stringField(0, playerNameLenMax), // playerName
+          numberField(0, itemPriceMax), // sell price
+          numberField(0, itemKindMax), // item kind
+          numberField(0, itemNumberMax), // count/magic number
+          numberField(0, itemDurabilityMax), // itemDurability
+          numberField(0, itemDurabilityMax), // itemDurabilityMax
+          numberField(0, itemExperienceMax), // itemExperience
+        ]),
+        0,
+        auctionEntriesMax
+      );
+      const res = schema.safeParse(message);
+      return res.success;
     }
-    else if (type === Types.UserMessages.WU_SAVE_PLAYER_LOOKS)
-    {
-      console.info("WU_SAVE_PLAYER_LOOKS");
-      msg = message[0];
-      if (!_.isString(msg)) {
-        console.info("message is not a string.");
+
+    if (type === Types.UserMessages.WU_SAVE_PLAYER_LOOKS) {
+      console.info('WU_SAVE_PLAYER_LOOKS');
+      const csv = message[0];
+      if (typeof csv !== 'string') {
+        console.info('message is not a string.');
         return false;
       }
-      const fmt = this.formats[type];
-      const arr = msg.split(',');
-      return this.checkFormat(fmt, [arr], true);
+      const arr = csv.split(',');
+      const res = this.formats[type].safeParse(arr);
+      return res.success;
     }
-    else if (this.formats[type])
-    {
-      const res = this.checkFormat(this.formats[type], message, true);
-      return res;
+
+    if (this.formats[type]) {
+      const res = this.formats[type].safeParse(message);
+      return res.success;
     }
-    else
-    {
-        try{ throw new Error(); } catch (err) { console.info(err.stack); }
-        console.error('Unknown message type: ' + type);
-        console.warn("message="+message);
-        return false;
+
+    try {
+      throw new Error();
+    } catch (err) {
+      console.info(err.stack);
     }
+    console.error('Unknown message type: ' + type);
+    console.warn('message=' + message);
+    return false;
   }
 }
 

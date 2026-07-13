@@ -235,6 +235,15 @@ class Equipment {
         return itemString;
     }
 
+    // FIX: same missing-slot-index bug as ItemStore.toStringJSON() in
+    // itemroomstore.js -- this built each entry as "[" + item.toArray().join
+    // (',') + "]", i.e. 5 fields (kind,count,durability,durabilityMax,
+    // experience) with no slot. The load side (userhandler.js's
+    // handleLoadPlayerItems) reads itemData[0] as the slot and
+    // itemData[1..5] as the item fields, so every equipped item's fields
+    // shifted down one position on load and its slot was lost. `i` here is
+    // already the real slot (this loop is dense over 0..maxNumber, unlike
+    // ItemStore's sparse `for...in`), so it's prepended directly.
     toStringJSON() {
         let itemString = "[";
         let isItems = false;
@@ -242,7 +251,7 @@ class Equipment {
         for(let i=0; i<this.maxNumber; i++){
             const item = this.rooms[i];
             if (!item) continue;
-            itemString += "["+item.toArray().join(',')+"],"
+            itemString += "["+i+","+item.toArray().join(',')+"],"
             isItems = true;
         }
         itemString = itemString.slice(0, -1);

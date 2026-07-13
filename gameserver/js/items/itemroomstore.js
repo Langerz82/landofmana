@@ -282,6 +282,17 @@ class ItemStore {
         return itemString;
     }
 
+    // FIX: this pushed `item.toArray()` alone, which is only
+    // [kind,count,durability,durabilityMax,experience] (see
+    // BaseItem.toArray()) -- 5 fields, no slot index. But the load side
+    // (userhandler.js's handleLoadPlayerItems) reads itemData[0] as the slot
+    // and itemData[1..5] as kind/count/durability/durabilityMax/experience,
+    // i.e. it expects 6 fields with the slot first. Without the slot
+    // prepended here, every saved item's fields silently shifted down one
+    // position on load (durability read as count, experience read as
+    // durabilityMax, etc.) and the item's actual slot was lost entirely.
+    // `i` (the room index this item came from) is exactly the slot to
+    // prepend.
     toStringJSON() {
         let item = null;
         const items = [];
