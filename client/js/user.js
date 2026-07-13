@@ -9,6 +9,7 @@
 import './lib/sha1.js';
 import UserClient from './userclient.js';
 import Player from './entity/player.js';
+import EntityMoving from './entity/entitymoving.js';
 import AppearanceData from './data/appearancedata.js';
 import Timer from './timer.js';
 
@@ -118,6 +119,30 @@ export default class User {
           this.moveOrientation = 0;
           this.keyMove = false;
           this.stopKeyMove = false;
+        };
+
+        player.idle = function (orientation) {
+          // FIX: entitymoving.js's stop() (and lookAt(), and forceStop() -> _forceStop() ->
+          // stop(), etc.) call this.idle() unconditionally whenever something stops the
+          // player's movement. stop() in particular gets invoked *while the player is still
+          // mid-attack*: _stopPath() synchronously calls stop_pathing_callback (onStopPathing's
+          // handler in game.js), which - if a target is in range - calls
+          // makePlayerInteractNextTo() -> makeAttack() -> hit(), setting fsm = "ATTACK" and
+          // starting the "atk" animation *nested inside that same stop() call*. stop()'s own
+          // trailing idle() call then runs right after and immediately overwrites the
+          // just-started "atk" animation with "idle" - the attack itself (damage, sendAttack,
+          // etc.) already happened, but the swing animation never renders a frame.
+          //
+          // Rather than chase every caller of idle() (and deal with stop() potentially being
+          // reentrant via forceStop()), guard idle() itself: skip switching to the idle
+          // animation while genuinely still attacking. Mirror the exact same exception
+          // forceStop() (above) already carves out for isDying/isDead, so a character that
+          // dies/starts dying mid-swing still falls through to idle() normally instead of
+          // getting stuck. Scoped to this player instance only - other EntityMoving subclasses
+          // (mobs/NPCs) keep the base idle(), which always runs.
+          if (this.fsm === "ATTACK" && !this.isDying && !this.isDead) return;
+
+          EntityMoving.prototype.idle.call(this, orientation);
         };
 
         player.canAttack = function(time) {
