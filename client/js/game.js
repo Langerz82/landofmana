@@ -1034,8 +1034,7 @@ export default class Game {
           //clearTimeout(p.attackInterval);
           p.setTarget(entity);
           p.lookAtEntity(entity);
-          this.processTarget();
-          return;
+          return this.processTarget();
         }
 
         isEntityDead(entity) {
