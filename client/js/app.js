@@ -486,7 +486,7 @@ export default class App {
 
         setMouseCoordinates(x, y) {
             // TODO Width and Height not clamping mouse properly.
-            console.info("app.setMouseCoordinates - x:"+x+",y"+y);
+            //console.info("app.setMouseCoordinates - x:"+x+",y"+y);
 
             const r = game.renderer;
             let scale = r.scale,
@@ -502,7 +502,7 @@ export default class App {
             mouse.x = ~~(Utils.clamp(0,width,x)*zoom/scale);
             mouse.y = ~~(Utils.clamp(0,height,y)*zoom/scale);
 
-            console.info("app.setMouseCoordinates - mouse.x:"+mouse.x+",mouse.y"+mouse.y);
+            //console.info("app.setMouseCoordinates - mouse.x:"+mouse.x+",mouse.y"+mouse.y);
         }
 
 

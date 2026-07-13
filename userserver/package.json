@@ -8,7 +8,6 @@
     "original": "r.js"
   },
   "dependencies": {
-    "@mapbox/node-pre-gyp": "^1.0.8",
     "bcrypt": "^5.0.1",
     "bison": "^1.1.1",
     "buffer": "^6.0.3",

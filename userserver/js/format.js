@@ -104,7 +104,7 @@ const worldKeyLenMin = 2;
 const worldKeyLenMax = 16;
 
 const serverAddressLenMin = 7;
-const serverAddressLenMax = 15;
+const serverAddressLenMax = 99;
 const serverPortMin = 1024;
 const serverPortMax = 65535;
 const serverProtocolLenMin = 2;
