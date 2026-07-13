@@ -1044,6 +1044,13 @@ export default class Game {
          * press) is checked first, so turning toward a different adjacent
          * entity actually switches the target instead of always re-picking
          * whichever entity happens to be first in cardinal order.
+         *
+         * Targets and faces whatever entity it finds. If the player can
+         * already reach that entity (canReach - same check combat uses),
+         * it also acts on it immediately (processTarget -> processInput ->
+         * move/attack) in this same call. If not yet in reach, this call
+         * only selects/faces it; interacting again once in reach is what
+         * moves onto/attacks it.
          */
         tryInteractAdjacentEntity() {
           const p = this.player;
@@ -1061,6 +1068,7 @@ export default class Game {
             if (entity && p.isNextTooEntity(entity)) {
               p.setTarget(entity);
               p.lookAtEntity(entity);
+              if (!p.canReach(entity)) return true;
               if (this.processTarget()) return true;
             }
           }
@@ -1109,14 +1117,16 @@ export default class Game {
         /**
          * Fallback: auto-target the closest interactable entity, but only act if
          * targeting didn't just change (avoids acting on a brand new target the
-         * same frame it was acquired).
+         * same frame it was acquired) - unless the newly acquired target is
+         * already within reach, in which case there's nothing to "walk into"
+         * first and it's safe to act on it immediately.
          */
         tryInteractClosestEntity() {
           const p = this.player;
           const prevTarget = p.target;
           p.targetIndex = 0;
           this.playerTargetClosestEntity(0);
-          if (prevTarget !== p.target)
+          if (prevTarget !== p.target && !p.canReachTarget())
             return false;
 
           return this.processTarget();

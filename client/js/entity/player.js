@@ -27,6 +27,16 @@ export default class Player extends Character {
         this.atkSpeed = 64;
         this.setAttackRate(64);
 
+        // FIX: this.attackRange was never initialized here - it only ever got set later by
+        // setRange() (called once when the initial player/equipment data arrives from the
+        // server, and again on equip/unequip). Until then it stayed `undefined`, so
+        // canReach()/canReachTarget() (character.js) always fell through both the `=== 1`
+        // and `> 1` branches and returned false, no matter how close the target was. That
+        // silently broke any "is the target already in reach" check done before setRange()
+        // had run. Default to melee range (1) so canReach() is correct immediately;
+        // setRange() still overrides this once real weapon data is available.
+        this.setAttackRange(1);
+
         //this.exp = {};
         this.level = 0;
         //this.levels = {};
