@@ -356,24 +356,4 @@ export default class Player extends Character {
         this.movement.stop(); // ensure clean
     }
 
-    setTarget(character) {
-      // FIX: makePlayerAttack() (game.js) re-arms its own repeat via
-      // `setTimeout(this.makePlayerAttack.bind(this, entity), ATTACK_MAX)`, which
-      // closure-captures whatever entity was being attacked at schedule time - it never
-      // re-reads p.target when it fires. Any target switch that didn't itself go through
-      // makePlayerAttack (the bump-retarget in updater.js's playerKey, the "just select"
-      // paths, tryInteractClosestEntity, etc.) left that stale timer alive; when it next
-      // fired it called makeAttack(staleEntity), which unconditionally does
-      // this.setTarget(staleEntity) and silently reverted the player's new target back to
-      // whatever they were attacking before. setTarget() is the one choke point every
-      // target change actually flows through, so kill any pending attack-repeat here
-      // whenever the target is genuinely changing - guarantees a stale timer can never
-      // fire and fight back against a real switch.
-      if (typeof this.attackInterval !== "undefined") {
-          clearTimeout(this.attackInterval);
-          this.attackInterval = null;
-      }
-      super.setTarget(character);
-    };
-
 }
