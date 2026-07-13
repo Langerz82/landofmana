@@ -313,13 +313,11 @@ class FormatChecker {
       0,
       playerLooksTotal
     );
-    this.formats[Types.UserMessages.WU_SAVE_USER_BANS] = tupleField([
-      arrayField(
-        tupleField([stringField(usernameLenMin, usernameLenMax), numberField(banDateMin, banDateMax)]),
-        0,
-        userBansTotal
-      ),
-    ]);
+    // WU_SAVE_USER_BANS's *message* format isn't used through the normal
+    // this.formats[type] dispatch -- check() special-cases this type below
+    // (same reason/pattern as WU_SAVE_PLAYER_AUCTIONS) because each entry
+    // arrives as a CSV string, not a [username, banTime] tuple. See the FIX
+    // note at that special case for the traced proof.
     this.formats[Types.UserMessages.WU_ADD_PLAYER_GOLD] = tupleField([
       stringField(playerNameLenMin, playerNameLenMax),
       numberField(0, playerGoldMax),
@@ -484,14 +482,32 @@ class FormatChecker {
         return false;
       }
 
-      // skills xp data
-      res = parseCsvFields(
-        msg[5],
-        Array.from({ length: 7 }, () => csvNumberField(0, playerSkillXpMax))
-      );
-      if (!res.success) {
-        console.info('skills xp data failed: ' + res.error);
+      // skills xp data: CSV of per-skill XP values. worldhandler.js's
+      // loadPlayerDataInfo builds this with
+      // `for (i < player.skills.length) skillexps[i] = player.skills[i].skillXP`,
+      // and player.skills.length mirrors SkillData.Skills.length (see
+      // player.js: `for (i < SkillData.Skills.length) db_player.skills[i] = 0`
+      // and skillhandler.js's setSkills) -- a count loaded at runtime from
+      // data/shared/data/skills2.json, not a fixed constant. That data file
+      // isn't reachable from this sandbox, so its exact length can't be
+      // confirmed, but playerSkillMax=50 (the bound already used for skill
+      // IDs in gameserver/js/format.js's CW_SKILL/CW_ATTACK) strongly implies
+      // the roster isn't just 7. Hardcoding "exactly 7 fields" here
+      // (Array.from({length:7}...)) would reject every real save the moment
+      // the roster size differs from 7, so this validates every CSV field
+      // against the XP bound without asserting a fixed count.
+      if (typeof msg[5] !== 'string') {
+        console.info('skills xp data not a string.');
         return false;
+      }
+      {
+        const skillXpField = csvNumberField(0, playerSkillXpMax);
+        const skillParts = msg[5].split(',');
+        const bad = skillParts.find((part) => !skillXpField.safeParse(part).success);
+        if (bad !== undefined) {
+          console.info('skills xp data failed.');
+          return false;
+        }
       }
 
       // pvp stats data
@@ -762,6 +778,40 @@ class FormatChecker {
         const res = parseCsvFields(rec, auctionFields);
         if (!res.success) {
           console.error(`WU_SAVE_PLAYER_AUCTIONS format failed: ${res.error}`);
+          console.warn('record=' + JSON.stringify(rec));
+          return false;
+        }
+      }
+      return true;
+    }
+
+    if (type === Types.UserMessages.WU_SAVE_USER_BANS) {
+      console.info('WU_SAVE_USER_BANS');
+      // FIX (real bug -- same CSV-string pattern as WU_SAVE_PLAYER_AUCTIONS
+      // and the quests array): this modeled each entry as a raw
+      // [username, banTime] tuple, matching what looked like the obvious
+      // shape. But gameserver's world/banmanager.js builds each entry with
+      // `const rec = username+","+banTime; data.push(rec);` -- a single
+      // comma-joined STRING per ban -- and userserver's own worldhandler.js
+      // (handleSaveUserBans) passes msg[0] straight through to
+      // DBH.saveBans() without ever destructuring it into [username,
+      // banTime] pairs, confirming it's stored/expected as an array of CSV
+      // strings, not tuples. Every real ban-save message would have failed
+      // this validation under the old tuple-array schema.
+      const arr = message[0];
+      if (!Array.isArray(arr)) {
+        console.error('WU_SAVE_USER_BANS: message[0] is not an array.');
+        return false;
+      }
+      if (arr.length > userBansTotal) {
+        console.error('WU_SAVE_USER_BANS: too many entries.');
+        return false;
+      }
+      const banFields = [stringField(usernameLenMin, usernameLenMax), csvNumberField(banDateMin, banDateMax)];
+      for (const rec of arr) {
+        const res = parseCsvFields(rec, banFields);
+        if (!res.success) {
+          console.error(`WU_SAVE_USER_BANS format failed: ${res.error}`);
           console.warn('record=' + JSON.stringify(rec));
           return false;
         }

@@ -93,7 +93,6 @@ const playerHashLenMax = 128;
 
 const playerNameLenMin = 2;
 const playerNameLenMax = 16;
-const playerColorsMaxLen = 6;
 const playerSpritesMax = 999;
 const playerPVPStatsMax = 999999;
 const playerXpMax = 999999999;
@@ -321,13 +320,20 @@ class FormatChecker {
       numberField(0, itemInventoryMax),
       numberField(0, itemPriceMax),
     ]);
-    this.formats[Types.Messages.CW_BANKRETRIEVE] = tupleField([numberField(0, itemBankMax)]);
-    this.formats[Types.Messages.CW_BANKSTORE] = tupleField([numberField(0, itemInventoryMax)]);
+    // REMOVED: CW_BANKRETRIEVE, CW_BANKSTORE, CW_COLOR_TINT. Audited against
+    // the real client and gameserver source (see the packet-validation
+    // audit) and found to be dead: no client code anywhere sends any of
+    // these three message types (grepped client/js for CW_BANKRETRIEVE,
+    // CW_BANKSTORE, CW_COLOR_TINT, sendColorTint -- only the enum constant
+    // definitions turned up, no callers), and gameserver has no
+    // handleBankRetrieve/handleBankStore/handleColorTint anywhere either.
+    // Keeping schemas for packets nothing sends or handles just invites the
+    // next reader to assume they're wired up when they aren't. If/when bank
+    // retrieve/store or color tinting are actually implemented, re-add their
+    // schemas here validated against the real sender/handler code at that
+    // time (the same rigor the rest of this file was audited with), not
+    // against a guess.
     this.formats[Types.Messages.CW_CHAT] = tupleField([stringField(1, maxChatLength)]);
-    this.formats[Types.Messages.CW_COLOR_TINT] = tupleField([
-      numberField(0, 1),
-      stringField(playerColorsMaxLen, playerColorsMaxLen),
-    ]);
     this.formats[Types.Messages.CW_BLOCK_MODIFY] = tupleField([
       numberField(0, 1), // type pickup/place
       numberField(0, entityIdMax),
