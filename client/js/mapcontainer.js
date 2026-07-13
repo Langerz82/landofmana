@@ -387,6 +387,10 @@ export default class MapContainer {
     // random/edge-case sample positions.
     isColliding(x, y)
     {
+        const map = this.getMap(0);
+        if (!map)
+          return;
+
         const gx = (x / G_TILESIZE),
             gy = (y / G_TILESIZE),
             d = 0.49, // A little less than 0.5.
@@ -397,7 +401,6 @@ export default class MapContainer {
 
         if (x1 < 0 || y1 < 0 || x2 >= this.width || y2 >= this.height) return true;
 
-        const map = this.getMap(0);
         const grid = map.collision,
             row1 = grid[y1],
             row2 = grid[y2];
@@ -406,8 +409,7 @@ export default class MapContainer {
     }
 
     isCollidingGrid(gx, gy) {
-        const index = 0;
-        const map = this.maps[index];
+        const map = this.getMap(0);
         if (!map)
             return true;
 
@@ -460,6 +462,8 @@ export default class MapContainer {
 
     getTiles(gx, gy) {
         const map = this.getMap(0);
+        if (!map)
+          return;
 
         if (gy < 0 || gy >= map.tile.length)
           return 0;
@@ -471,6 +475,8 @@ export default class MapContainer {
 
     getCollision(gx, gy) {
         const map = this.getMap(0);
+        if (!map)
+          return;
 
         if (gy < 0 || gy >= map.tile.length)
           return 0;
