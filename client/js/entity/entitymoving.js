@@ -670,11 +670,6 @@ export default class EntityMoving extends Entity {
             case Types.Orientations.NONE:
                 return false;
         }
-        //console.info("isInReach:");
-        //console.info("dx:"+Math.abs(this.x-x));
-        //console.info("dy:"+Math.abs(this.y-y));
-        //console.info("xa:"+a);
-        //console.info("yb:"+b);
         return (Math.abs(this.x - x) <= a && Math.abs(this.y - y) <= b);
     }
 

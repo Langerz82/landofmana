@@ -221,19 +221,26 @@ export default class User {
             if (state && orientation !== Types.Orientations.NONE) {
                 this.moveOrientation = orientation;
 
-                // FIX: this used to call setOrientation(orientation) (previously idle(),
-                // which is worse still) here even while fsm === "ATTACK", which snapped the
-                // character's facing away from the attack mid-swing - the "atk" animation
-                // kept playing but the sprite orientation changed underneath it, looking
-                // broken. Defer the orientation change entirely while attacking instead:
-                // moveOrientation is already queued above, and hit()'s completion callback
-                // already does `self.move(self.moveOrientation, true)` once fsm resets to
-                // "IDLE" - that re-entrant call takes this same branch with fsm no longer
-                // "ATTACK", so idle(orientation) (which updates both orientation and the
-                // animation together) only ever runs once the attack has finished.
+                // FIX: this used to leave this.orientation completely untouched while
+                // fsm === "ATTACK", relying on moveOrientation (set above) as the source of
+                // truth for "which way is the player actually trying to face" until the attack
+                // finished. But moveOrientation gets reset to 0 on key release (see the `!state`
+                // branch below) - a quick tap-and-release of a direction key mid-swing (a
+                // perfectly normal way to just turn) left BOTH fields wrong by the time
+                // anything (e.g. tryInteractFacedEntity() in game.js) checked them afterward:
+                // moveOrientation back to 0, and this.orientation never caught up. Game logic
+                // (isNextTooEntity/isInReach/nextTile/targeting) all read this.orientation
+                // directly, so it needs to always be live and correct. It's safe to update it
+                // unconditionally here: setOrientation() alone doesn't touch the currently-
+                // playing "atk_<direction>" animation - that direction was already baked into
+                // the animation's name once, when hit() started it - only calling idle()/
+                // animate() again would visually interrupt the swing, so that part (along with
+                // actual movement) still stays deferred until the attack completes.
+                this.setOrientation(orientation);
+
                 if (this.fsm !== "ATTACK") {
                   this.idle(orientation);
-
+                  clearTimeout(this.attackInterval);
                   if (this.rejectMove()) {
                     return;
                   }

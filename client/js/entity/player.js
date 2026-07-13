@@ -301,7 +301,6 @@ export default class Player extends Character {
 
         this.lookAtEntity(entity);
         if (!this.canReach(entity)) {
-            //this.setTarget(entity);
             if (!this.followAttack(entity))
                 return "attack_toofar";
             else {

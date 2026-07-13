@@ -1000,7 +1000,7 @@ export default class Game {
 
           // Before any other target logic: if the player is facing an entity
           // (the tile directly ahead of them in their current orientation)
-          // and it's within isInReach(), target it and process it
+          // and it's isNextTooEntity(), target it and process it
           // (processTarget -> processInput -> move/attack) immediately, in
           // this one call - regardless of whether a different entity was
           // already targeted.
@@ -1018,10 +1018,18 @@ export default class Game {
         }
 
         /**
-         * Looks at the exact tile the player is currently facing (based on
-         * their orientation) for an entity. If one is there, isn't dying/dead,
-         * and is within isInReach() of the player, targets it and calls
-         * processTarget() in this same call.
+         * Looks at the tile the player is currently facing for an entity. If
+         * one is there, isn't dying/dead, and is next to the player, targets
+         * it and calls processTarget() in this same call.
+         *
+         * player.move() (user.js) now keeps p.orientation live at all times,
+         * including mid-attack - only the animation/movement itself stays
+         * deferred while attacking, not the logical facing - so this can
+         * just read p.orientation directly via nextTile()'s default. (It
+         * used to fall back to p.moveOrientation for this because
+         * p.orientation went stale during attacks, but moveOrientation gets
+         * cleared to 0 on key release, so a quick tap-and-release turn
+         * mid-swing left both fields wrong. See user.js for the real fix.)
          */
         tryInteractFacedEntity() {
           const p = this.player;
@@ -1031,7 +1039,6 @@ export default class Game {
           if (!entity || entity.isDying || entity.isDead) return false;
           if (!p.isNextTooEntity(entity)) return false;
 
-          //clearTimeout(p.attackInterval);
           p.setTarget(entity);
           p.lookAtEntity(entity);
           return this.processTarget();
@@ -1068,27 +1075,11 @@ export default class Game {
         }
 
         /**
-         * Finds any entity within isInReach() of the player and, if found,
-         * targets it and calls processTarget() (-> processInput -> move/
-         * attack) immediately, in this one call, regardless of whether the
-         * player already had a different target.
-         *
-         * FIX: this used to also require isFacingEntity(e) alongside
-         * isInReach(e.x, e.y). isInReach() is already a directional check -
-         * its zone is shaped around the player's current orientation (long
-         * ahead, narrow to the sides) - so it already *is* the "in reach and
-         * facing" test. isFacingEntity() separately picks a direction from
-         * whichever of dx/dy is larger, which is a cruder test and can
-         * disagree with isInReach() right at the edges: an entity mostly
-         * ahead but very slightly to one side (both offsets under half a
-         * tile, the sideways one marginally bigger) passes isInReach() but
-         * isFacingEntity() picks the other axis and fails it. The `&&` then
-         * threw out an entity the player was genuinely in reach of, this
-         * function returned false, and the chain fell through to
-         * tryInteractClosestEntity() - which only targets (its own reach
-         * gate blocks processTarget()) - so the player just saw the target
-         * change with no attack. isInReach() alone is the correct/sufficient
-         * check.
+         * Fallback for when tryInteractFacedEntity() finds nothing exactly on the
+         * faced tile (e.g. an entity that's in reach but slightly off-grid or
+         * diagonal). Scans all on-screen entities within isInReach() of the player,
+         * picks the closest, and targets + processTarget()s it immediately in this
+         * one call, regardless of whether a different entity was already targeted.
          */
         tryInteractAdjacentEntity() {
           const p = this.player;
@@ -1186,47 +1177,66 @@ export default class Game {
 
         makePlayerAttack(entity) {
           const p = this.player;
-          clearTimeout(p.attackInterval);
-          p.attackInterval = null;
-          const skillId = (p.attackSkill) ? p.attackSkill.skillId : -1;
           const time = this.currentTime;
           const res = p.makeAttack(entity);
-          if (!res) {
-            log.info("CANNOT ATTACK.");
-            return false;
-          }
-          else if (res === "attack_toofar") {
-            //this.chathandler.addNotification(lang.data["ATTACK_TOOFAR"]);
-            return false;
-          }
-          else if (res === "attack_outoftime") {
-            log.info("CANNOT ATTACK DUE TO TIME.");
-            return false;
-          }
-          else if (res === "attack_ok") {
-            this.client.sendAttack(p, p.target, skillId);
-            if (skillId != -1)
-              p.attackSkill = null;
 
-            this.audioManager.playSound("hit"+Math.floor(Math.random()*2+1));
+          switch (res) {
+            case "attack_ok": {
+              const skillId = (p.attackSkill) ? p.attackSkill.skillId : -1;
+              this.client.sendAttack(p, p.target, skillId);
+              if (skillId != -1)
+                p.attackSkill = null;
 
-            p.attackCooldown.duration = 1000;
-            p.attackCooldown.lastTime = time;
+              this.audioManager.playSound("hit" + Math.floor(Math.random() * 2 + 1));
 
-            // FIX: this used to be `setTimeout(this.makePlayerAttack.bind(this, entity),
-            // ATTACK_MAX)`, which closure-captures `entity` once and keeps re-attacking it
-            // forever regardless of what the player's target becomes later. setTarget()
-            // (character.js) now clears p.attackInterval whenever the target actually
-            // changes, but guard here too: if this repeat ever does fire after the target
-            // moved on (e.g. some other future call path sets p.target directly), bail
-            // instead of blindly re-attacking/re-targeting the stale entity.
-            p.attackInterval = setTimeout(() => {
-              if (p.target !== entity) return;
-              this.makePlayerAttack(entity);
-            }, ATTACK_MAX);
-            return true;
+              p.attackCooldown.duration = 1000;
+              p.attackCooldown.lastTime = time;
+
+              this.scheduleAttackRetry(ATTACK_MAX);
+              return true;
+            }
+
+            case "attack_outoftime":
+              // Switching targets mid-cooldown retargets immediately (see makeAttack() in
+              // player.js), but the attack itself has to wait out whatever's left of the
+              // shared, server-enforced cooldown from the *previous* target. Retry once it
+              // clears instead of requiring another interact press.
+              log.info("CANNOT ATTACK DUE TO TIME.");
+              this.scheduleAttackRetry(p.attackCooldown.duration - (time - p.attackCooldown.lastTime));
+              return false;
+
+            default: // null/undefined, "attack_toofar", "attack_moving", "attack_aborted"
+              if (!res) log.info("CANNOT ATTACK.");
+              return false;
           }
-          return false;
+        }
+
+        /**
+         * Schedules a single retry of makePlayerAttack() after `delay` ms - covers both
+         * "keep auto-attacking the same target" (delay = ATTACK_MAX, after a hit lands) and
+         * "retry a target switch that got blocked by the previous target's cooldown" (delay =
+         * whatever's left on it).
+         *
+         * Reads p.target fresh when it fires rather than closing over a specific entity, so
+         * there's no stale value to compare against and no dead end where the loop could give
+         * up: tryInteractFacedEntity() gets first shot at whatever the player is now facing,
+         * and this otherwise just falls back to attacking whatever p.target currently is.
+         */
+        scheduleAttackRetry(delay) {
+          const p = this.player;
+
+          clearTimeout(p.attackInterval);
+          // Small buffer so canAttack()'s strict `>` comparison has definitely cleared by the
+          // time this fires, rather than racing it by a millisecond.
+          p.attackInterval = setTimeout(() => {
+            if (p.isDead || p.isDying) return;
+
+            if (this.tryInteractFacedEntity())
+              return;
+
+            if (p.hasTarget())
+              this.makePlayerAttack(p.target);
+          }, Math.max(0, delay) + 16);
         }
 
         /**
