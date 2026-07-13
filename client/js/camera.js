@@ -65,6 +65,14 @@ export default class Camera {
             mc._initGrids();
             mc.moveGrid(true);
         }
+
+        if (game.client) {
+          var arr = [
+            ["screenWidth",this.gridWE],
+            ["screenHeight",this.gridHE]
+          ];
+          game.client.sendConfig(arr);
+        }
     }
 
     setRealCoords() {

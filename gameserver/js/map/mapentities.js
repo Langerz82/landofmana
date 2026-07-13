@@ -171,7 +171,8 @@ class MapEntities {
     },*/
 
     processWho(player, dist) {
-        dist = dist || 64;
+        const width = player.config.screenWidth;
+        const height = player.config.screenHeight;
         const self = this;
         //console.info("processWho - called.");
         const screens = [];
@@ -195,7 +196,8 @@ class MapEntities {
         const pgy = ~~(player.y/G_TILESIZE);
 
         //console.info("x1:"+x1+",y1:"+y1+",x2:"+x2+",y2:"+y2);
-        const entities = this.getSpatialEntities([pgx - dist, pgy - dist,pgx + dist, pgy + dist]);
+        var arr = [pgx - width, pgy - height, pgx + width, pgy + height];
+        const entities = this.getSpatialEntities(arr);
 
         //console.info("self.entities.length: "+Object.keys(self.entities).length);
         for (const entity of entities) {

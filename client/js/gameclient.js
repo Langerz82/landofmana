@@ -653,4 +653,8 @@ export default class GameClient {
 				sendHarvestEntity(entity) {
             this.sendMessage([Types.Messages.CW_USE_NODE, entity.id]);
         }
+
+        sendConfig(arr) {
+            this.sendMessage([Types.Messages.CW_CONFIG, arr]);
+        }
 }

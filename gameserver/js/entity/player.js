@@ -97,6 +97,10 @@ class Player extends Character {
         this.shortcuts = {};
 
         this.loaded = 0;
+
+        this.config = {};
+        this.config.screenWidth = 50;
+        this.config.screenHeight = 50;
     }
 
     start(connection) {

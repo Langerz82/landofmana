@@ -184,6 +184,9 @@ class PacketHandler {
             case Types.Messages.CW_USE_NODE:
                 self.handleUseNode(message);
                 break;
+            case Types.Messages.CW_CONFIG:
+                self.handleConfig(message);
+                break;
 
             default:
                 if (self.message_callback)
@@ -1252,6 +1255,16 @@ class PacketHandler {
         const entity = p.map.entities.getEntityById(id);
         if (entity)
             this.player.harvest.onHarvestEntity(entity);
+    }
+
+    handleConfig(msg) {
+      const arr = msg[0];
+      const p = this.player;
+
+      for (const val of arr) {
+        if (p.config.hasOwnProperty(val[0]))
+          p.config[ val[0]] = val[1];
+      }
     }
 }
 

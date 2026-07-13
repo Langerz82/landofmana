@@ -126,6 +126,7 @@ const Types = {
     CW_SKILL: 231,
     CW_SHORTCUT: 232,
     CW_REQUEST: 233,
+    CW_CONFIG: 234,
 
     WC_ERROR: 300,
     WC_PLAYER: 301,
