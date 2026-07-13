@@ -1,6 +1,9 @@
 TODO:
 
-CLIENT - When you are next an NPC you cant interact with it if you are not facing it.
+CLIENT - If you are next to 2 targets and you want to target another entity
+with key movement you cant because you are locked on to the other entity.
+
+CLIENT - When you are next an NPC you cant interact with it if you are not facing it. - FIXED.
 
 CLIENT - When you sell an item at the shop, Armor and Weapons in shop cannot be loaded. - FIXED.
 

@@ -788,6 +788,19 @@ export default class Game {
           self.player.onMoveStop(function () {
             const p = self.player;
             log.info("player.onMoveStop");
+
+            // FIX: this fires whenever movement.stop() runs, including when a manual
+            // key-move step gets blocked (e.g. bumping into an adjacent entity). p.keyMove
+            // is still true at this point (user.js's forceStop() override only clears it
+            // *after* calling _forceStop(), which is what triggers this callback). Without
+            // this check, turning toward a different adjacent entity via movement keys got
+            // silently reverted every tick by snapping orientation back to the old target,
+            // making it look like the player's facing was permanently locked onto it.
+            if (p.keyMove) {
+              log.info("onMoveStop - blocked key move, keeping player-chosen orientation.");
+              return;
+            }
+
             if (p.hasTarget() && p.canReachTarget())
               p.lookAtEntity(p.target);
             else {
@@ -1026,11 +1039,23 @@ export default class Game {
 
         /**
          * Scans all 4 cardinal tiles adjacent to the player for an entity to
-         * target, facing it before interacting.
+         * target, facing it before interacting. The tile the player is
+         * currently facing (i.e. the direction of the last movement key
+         * press) is checked first, so turning toward a different adjacent
+         * entity actually switches the target instead of always re-picking
+         * whichever entity happens to be first in cardinal order.
          */
         tryInteractAdjacentEntity() {
           const p = this.player;
-          for (var o = 1; o <= 4; ++o) {
+          const orientations = [1, 2, 3, 4];
+          if (p.orientation && p.orientation > 0) {
+            const idx = orientations.indexOf(p.orientation);
+            if (idx > 0) {
+              orientations.splice(idx, 1);
+              orientations.unshift(p.orientation);
+            }
+          }
+          for (const o of orientations) {
             const pos = p.nextTile(p.x, p.y, o);
             const entity = this.getEntityAt(pos[0], pos[1]);
             if (entity && p.isNextTooEntity(entity)) {

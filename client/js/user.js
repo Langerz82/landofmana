@@ -221,7 +221,22 @@ export default class User {
             if (state && orientation !== Types.Orientations.NONE) {
                 this.moveOrientation = orientation;
 
-                if (this.rejectMove()) return;
+                // FIX: idle(orientation) unconditionally switches the animation to "idle"
+                // (see entitymoving.js), so calling it here on every key press was cutting
+                // the "atk" animation off mid-swing whenever a movement key was pressed
+                // during an attack. Mirror the same fsm === "ATTACK" guard forceStop() uses
+                // below: still update orientation (needed so facing/retargeting stays in
+                // sync with the key that was pressed) but don't touch the animation while
+                // an attack is actively playing.
+                if (this.fsm === "ATTACK") {
+                  this.setOrientation(orientation);
+                } else {
+                  this.idle(orientation);
+                }
+
+                if (this.rejectMove()) {
+                  return;
+                }
 
                 this.startKeyMovement(orientation);
 
