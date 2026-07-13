@@ -162,6 +162,17 @@ const arrayField = (element, min, max) => z.array(element).min(min).max(max);
 // experience]. z.tuple() enforces the exact length itself.
 const tupleField = (schemas) => z.tuple(schemas);
 
+// Turns a failed safeParse()'s ZodError into a readable "which field, and
+// why" string, e.g. "0.npcid: Number must be less than or equal to 100" for
+// a bad completeQuests entry. `issue.path` is the exact location within the
+// value (array indices / object keys) that failed -- without this, a format
+// failure just logs a bare `false` and you're left guessing which field of
+// the message was actually bad.
+const describeZodError = (error) =>
+  error.issues
+    .map((issue) => `${issue.path.length ? issue.path.join('.') : '(root)'}: ${issue.message}`)
+    .join('; ');
+
 // 'object' with dynamic keys all mapping to the same shaped value (e.g.
 // shortcuts keyed by slot index, or completeQuests keyed by quest slot).
 // This is the shape the old DSL's 'object' handling never correctly
@@ -355,7 +366,7 @@ class FormatChecker {
     const res = schema.safeParse(arr);
     if (!res.success) {
       console.info('fnItems: item array not correct format.');
-      console.info(JSON.stringify(res.error.issues));
+      console.info(describeZodError(res.error));
       console.info(JSON.stringify(arr));
       return false;
     }
@@ -381,7 +392,7 @@ class FormatChecker {
       if (message[0]) {
         res = stringField(playerNameLenMin, playerNameLenMax).safeParse(message[0]);
         if (!res.success) {
-          console.info('message 0 failed.');
+          console.info('message 0 (player name) failed: ' + describeZodError(res.error));
           return false;
         }
       }
@@ -408,7 +419,7 @@ class FormatChecker {
         ]);
         res = fmt.safeParse(msg);
         if (!res.success) {
-          console.info('message arr1-0 failed.');
+          console.info('message arr1-0 (username/hash record) failed: ' + describeZodError(res.error));
           return false;
         }
       }
@@ -535,7 +546,7 @@ class FormatChecker {
         res = shortcutSchema.safeParse(obj);
         if (!res.success) {
           console.info('shortcuts data, shortcut format failed.');
-          console.info(JSON.stringify(res.error.issues));
+          console.info(describeZodError(res.error));
           console.info(JSON.stringify(obj));
           return false;
         }
@@ -583,7 +594,7 @@ class FormatChecker {
         res = completeQuestsSchema.safeParse(arr);
         if (!res.success) {
           console.info('complete quests format failed.');
-          console.info(JSON.stringify(res.error.issues));
+          console.info(describeZodError(res.error));
           console.info(JSON.stringify(arr));
           return false;
         }
@@ -720,21 +731,42 @@ class FormatChecker {
 
     if (type === Types.UserMessages.WU_SAVE_PLAYER_AUCTIONS) {
       console.info('WU_SAVE_PLAYER_AUCTIONS');
-      const schema = arrayField(
-        tupleField([
-          stringField(0, playerNameLenMax), // playerName
-          numberField(0, itemPriceMax), // sell price
-          numberField(0, itemKindMax), // item kind
-          numberField(0, itemNumberMax), // count/magic number
-          numberField(0, itemDurabilityMax), // itemDurability
-          numberField(0, itemDurabilityMax), // itemDurabilityMax
-          numberField(0, itemExperienceMax), // itemExperience
-        ]),
-        0,
-        auctionEntriesMax
-      );
-      const res = schema.safeParse(message);
-      return res.success;
+      // FIX (real bug -- confirmed against gametypes.js: 504 ==
+      // WU_SAVE_PLAYER_AUCTIONS): this modeled each entry as a raw
+      // [playerName, price, ...] tuple, matching the old DSL's guess. But
+      // AuctionRecord.save() (gameserver/world/auction.js) returns
+      // `[playerName,price].join(',') + ',' + item.toArrayNoSlot().join(',')`
+      // -- a single comma-joined STRING per auction -- and Auction.load()
+      // reads it back with `rec.split(",")` before reconstructing an
+      // AuctionRecord. So `message` is an array of CSV strings, exactly
+      // like the quests array (see that fix's comment for the full
+      // save/persist/load trail); it's not a raw-tuple array.
+      if (!Array.isArray(message)) {
+        console.error('WU_SAVE_PLAYER_AUCTIONS: message is not an array.');
+        return false;
+      }
+      if (message.length > auctionEntriesMax) {
+        console.error('WU_SAVE_PLAYER_AUCTIONS: too many entries.');
+        return false;
+      }
+      const auctionFields = [
+        stringField(0, playerNameLenMax), // playerName
+        csvNumberField(0, itemPriceMax), // sell price
+        csvNumberField(0, itemKindMax), // item kind
+        csvNumberField(0, itemNumberMax), // count/magic number
+        csvNumberField(0, itemDurabilityMax), // itemDurability
+        csvNumberField(0, itemDurabilityMax), // itemDurabilityMax
+        csvNumberField(0, itemExperienceMax), // itemExperience
+      ];
+      for (const rec of message) {
+        const res = parseCsvFields(rec, auctionFields);
+        if (!res.success) {
+          console.error(`WU_SAVE_PLAYER_AUCTIONS format failed: ${res.error}`);
+          console.warn('record=' + JSON.stringify(rec));
+          return false;
+        }
+      }
+      return true;
     }
 
     if (type === Types.UserMessages.WU_SAVE_PLAYER_LOOKS) {
@@ -746,11 +778,19 @@ class FormatChecker {
       }
       const arr = csv.split(',');
       const res = this.formats[type].safeParse(arr);
+      if (!res.success) {
+        console.error(`WU_SAVE_PLAYER_LOOKS format failed: ${describeZodError(res.error)}`);
+        console.warn('message=' + JSON.stringify(arr));
+      }
       return res.success;
     }
 
     if (this.formats[type]) {
       const res = this.formats[type].safeParse(message);
+      if (!res.success) {
+        console.error(`Message type ${type} format failed: ${describeZodError(res.error)}`);
+        console.warn('message=' + JSON.stringify(message));
+      }
       return res.success;
     }
 

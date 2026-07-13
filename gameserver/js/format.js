@@ -179,6 +179,17 @@ const arrayField = (element, min, max) => z.array(element).min(min).max(max);
 // checkFormatData had to do (see the FIX comment that used to live there).
 const tupleField = (schemas) => z.tuple(schemas);
 
+// Turns a failed safeParse()'s ZodError into a readable "which field, and
+// why" string, e.g. "arr[0][1]: Expected string, received number" for a
+// CW_CONFIG entry whose value was in the wrong position. `issue.path` is the
+// exact location within the message (array indices / object keys) that
+// failed -- without this, every format failure just logs a bare `false` and
+// you're left guessing which of a message's fields was actually bad.
+const describeZodError = (error) =>
+  error.issues
+    .map((issue) => `${issue.path.length ? issue.path.join('.') : '(root)'}: ${issue.message}`)
+    .join('; ');
+
 // The four helpers below aren't used by any message format in this file
 // today -- gameserver's messages are all plain positional arrays. They're
 // kept here anyway so this file matches userserver/js/format.js's toolkit
@@ -481,12 +492,31 @@ class FormatChecker {
           numberField(-1, itemBankMax), // destination slot index (-1 = unspecified)
         ]),
       ]);
-      return schema.safeParse(message).success;
+      const res = schema.safeParse(message);
+      if (!res.success) {
+        // z.union() only reports each branch's failure inside
+        // res.error.issues[i].unionErrors, so surface both branches' reasons
+        // rather than just the outer "no union branch matched".
+        const branchErrors = res.error.issues
+          .flatMap((issue) => issue.unionErrors || [])
+          .map((err) => describeZodError(err))
+          .join(' | ');
+        console.error(
+          `CW_ITEMSLOT format failed (${describeZodError(res.error)}${branchErrors ? `; branches: ${branchErrors}` : ''})`
+        );
+        console.warn('message=' + JSON.stringify(message));
+      }
+      return res.success;
     }
 
     const format = this.formats[type];
     if (format) {
-      return format.safeParse(message).success;
+      const res = format.safeParse(message);
+      if (!res.success) {
+        console.error(`Message type ${type} format failed: ${describeZodError(res.error)}`);
+        console.warn('message=' + JSON.stringify(message));
+      }
+      return res.success;
     }
 
     try {
