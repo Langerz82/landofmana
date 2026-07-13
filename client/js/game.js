@@ -868,9 +868,9 @@ export default class Game {
               }*/
               //p.targetIndex = 0;
               log.info("onStopPathing - 1");
-              if (p.hasTarget() && p.canReachTarget()) {
+              if (p.hasTarget()) {
                 p.lookAtEntity(p.target);
-                game.makePlayerInteractNextTo();
+                self.makePlayerInteractNextTo();
                 return;
               } else {
                 log.info("onStopPathing - NO TARGET!");
