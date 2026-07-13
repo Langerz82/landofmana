@@ -382,8 +382,22 @@ class FormatChecker {
       numberField(entityTypeNPCMin, entityTypeNPCMax), // npc type but not used?
       numberField(0, entityIdMax),
     ]);
+    // FIX: field 0 here is the destination map id (see
+    // packethandler.js's handleTeleportMap: `parseInt(msg[0])`, checked
+    // against `self.server.maps.length`), not a "map status" -- it was
+    // bounded with mapStatusMax (0-3), which happens to just barely cover
+    // today's 3 loaded maps (mapmanager.js currently only loads maps 0-2)
+    // but would silently start rejecting valid teleports the moment a 4th
+    // map is added. mapIndexMax (already defined, unused until now, and
+    // matching the mapsCountMax=10 "up to 10 maps" convention shared with
+    // userserver/js/format.js) is the bound that actually matches this
+    // field's meaning. Field 1 really is the separate 0/1 "status" flag
+    // client callers send (game.js/clientcallbacks.js only ever send 0 or
+    // 1 here) and field 4 (portal id, checked against `p.map.doors.length`)
+    // already reused mapIndexMax as a generous static ceiling since there's
+    // no dedicated "max doors per map" constant.
     this.formats[Types.Messages.CW_TELEPORT_MAP] = tupleField([
-      numberField(0, mapStatusMax),
+      numberField(0, mapIndexMax),
       numberField(0, 1),
       numberField(-1, mapCoordsMax),
       numberField(-1, mapCoordsMax),
