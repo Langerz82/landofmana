@@ -92,7 +92,23 @@ export default class User {
           //console.error("player.forceStop - this.keyMove:"+this.keyMove);
           //console.error("player.forceStop - this.stopKeyMove:"+this.stopKeyMove);
           this.harvestOff();
-          if (this.isMoving() && !this.isMovingPath())
+          // FIX: this used to gate the stop packet on `this.isMoving()` (the local
+          // movement.inProgress transition flag). startKeyMovement() sends the
+          // "start moving" packet synchronously on key-down, before the movement
+          // transition itself is actually kicked off by updatePlayerKeyMovement()
+          // on the next tick. On a fast tap-and-release, the key can go back up
+          // before that tick ever runs, so movement.inProgress never becomes true
+          // and isMoving() stays false the whole time - forceStop() then skipped
+          // key_move_callback(0) entirely, so the "stop" packet never went out
+          // even though a "start" packet already had. That left the server
+          // thinking the player was still walking, and left the walk animation on
+          // screen with nothing left to revert it to idle (this is the "stuck in
+          // walk animation" / missing stop packet bug). sendMove()'s own
+          // `sentMove` dedupe already makes this safe to call unconditionally - a
+          // stop packet is a no-op if we never actually sent a start - so just
+          // gate on not being mid click-to-path movement, which uses its own
+          // packet path (sendMovePath / stop_pathing_callback).
+          if (!this.isMovingPath())
           {
             if (this.key_move_callback)
               this.key_move_callback(0);
@@ -283,10 +299,32 @@ export default class User {
                 // on its own (or refuse further input) even though the key was already up -
                 // part of the "player gets jammed" symptom. Always clear key state on release;
                 // the attack animation itself still runs to completion regardless.
+                //
+                // Movement itself must NOT stop here if the transition is already
+                // in progress - the player needs to keep walking until stopKeyMove
+                // lines them up on a grid tile (see moveCharacter()'s alignment
+                // check in game.js, which calls forceStop() for us at that point).
+                // Cutting movement off immediately on key-up would stop the player
+                // mid-tile, which is exactly what stopKeyMove exists to prevent.
                 this.keyMove = false;
                 this.stopKeyMove = true;
                 this.moveOrientation = 0;
                 this.pendingKeyOrientation = null;
+
+                // FIX: the one case the grid-alignment check can never catch: a
+                // fast tap-and-release where the key goes up again before
+                // updatePlayerKeyMovement() ever calls movement.start() (that only
+                // runs on the next update tick, after startKeyMovement() already
+                // played the walk animation and sent the "start" packet
+                // synchronously on key-down). If !this.isMoving() here, the
+                // transition never started, so the grid-alignment check will never
+                // run either - nothing is ever going to revert the walk animation
+                // or tell the server we stopped. The player also hasn't actually
+                // moved off-grid in this case (movement never began), so stopping
+                // immediately is safe and doesn't skip any alignment step.
+                if (!this.isMoving()) {
+                    this.forceStop();
+                }
             }
 
             clearTimeout(this.attackInterval);
