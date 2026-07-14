@@ -50,14 +50,21 @@ class StoreRack {
             this.body.css('display', value===true ? 'block' : 'none');
             this.buyButton.text('UNLOCK');
 
-            this.buyButton.off().on('click', function(event) {
-                log.info("buyButton");
-                const dialog = game.appearanceDialog;
-                if(game && game.ready && dialog.visible) {
-                    dialog.update(self.parent.itemType, game.sprites[AppearanceData[self.item.index].sprite]);
-                    $('#changeLookUnlock').data("item", self.item);
-                    dialog.unlockMode(true);
-                }
+            const fnPreviewItem = function () {
+              const dialog = game.appearanceDialog;
+              if(game && game.ready && dialog.visible) {
+                const item = self.item;
+                dialog.update(self.parent.itemType, game.sprites[AppearanceData[item.index].sprite]);
+                $('#changeLookUnlock').data("item", item);
+                dialog.unlockMode(true);
+              }
+            };
+            this.basketBackground.off().on('click', function (event) {
+              fnPreviewItem();
+            });
+
+            this.buyButton.off().on('click', function (event) {
+              fnPreviewItem();
             });
         }
 
@@ -268,13 +275,6 @@ export default class AppearanceDialog extends Dialog {
 
             let self = this;
 
-            this.closeButton.click(function(event) {
-                const activePage = self.storeFrame.getActivePage();
-                if (activePage)
-                    activePage.setVisible(false);
-                self.hide();
-            });
-
             const p = game.player;
             this.playerAnim = new PlayerAnim();
 
@@ -425,7 +425,11 @@ export default class AppearanceDialog extends Dialog {
         }
 
         unlockMode(flag) {
-          this.showStore(flag);
+          // FIX: was `this.showStore(flag)`. showStore(true) shows the store rack list and
+          // hides the looks/character-preview panel (#appearanceDialog) - the opposite of what
+          // unlockMode(true) needs. unlockMode only toggles which buttons sit on the preview
+          // panel (Unlock vs prev/next); the panel itself must stay visible either way.
+          this.showStore(false);
           if (flag) {
             $('#changeLookPrev').hide();
             $('#changeLookNext').hide();
@@ -453,6 +457,20 @@ export default class AppearanceDialog extends Dialog {
             const self = this;
 
             this.rescale();
+
+            // FIX: #storeDialogCloseButton is the same shared DOM node StoreDialog binds via
+            // Dialog.addClose()/Dialog.show() (both dialogs reuse the '#storeDialog' frame).
+            // Dialog.show() does `this.closeButton.off('click').click(...)` every time the shop
+            // is opened, which wiped out this handler when it was only bound once in the
+            // constructor - after opening the Shop once, the Looks dialog's close (X) button
+            // stopped doing anything. Rebind on every show() instead, like #appearanceCloseButton
+            // below, so this dialog always reclaims the button when it opens.
+            this.closeButton.off('click').on('click', function(event) {
+                const activePage = self.storeFrame.getActivePage();
+                if (activePage)
+                    activePage.setVisible(false);
+                self.hide();
+            });
 
             $('#storeDialog .frameheadingtext').text('LOOKS');
 
