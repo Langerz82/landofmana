@@ -78,35 +78,6 @@ Utils.getOrientationString = function(r) {
     return o;
 };
 
-/*Utils.getOrientationFromLastMove = function(entity) {
-	if (!entity.path || entity.path.length === 0)
-		return Utils.randomOrientation();
-
-	var x2 = entity.path[entity.path.length - 1][0];
-	var y2 = entity.path[entity.path.length - 1][1];
-
-	if (entity.path.length === 1)
-	{
-		var x = entity.x;
-		var y = entity.y;
-	}
-	else
-	{
-		var x = entity.path[entity.path.length - 2][0];
-		var y = entity.path[entity.path.length - 2][1];
-	}
-
-	if (x2 > x)
-		return Types.Orientations.RIGHT;
-	else if (x2 < x)
-		return Types.Orientations.LEFT;
-	else if (y2 > y)
-		return Types.Orientations.DOWN;
-	else if (y2 < y)
-		return Types.Orientations.UP;
-
-}*/
-
 Utils.randomPositionNextTo = function (entity) {
     let a = entity.x, b = entity.y;
     const r = Utils.random(4);
@@ -161,18 +132,6 @@ Utils.NaN2Zero = function(num){
 Utils.trueFalse = function(bool){
     return bool === "true" ? true : false;
 }
-
-/*
-// EVIL
-Utils.sleep = function (milliseconds) {
-  var start = new Date().getTime();
-  for (var i = 0; i < 1e7; i++) {
-    if ((new Date().getTime() - start) > milliseconds){
-      break;
-    }
-  }
-}
-*/
 
 Utils.utilSleep = function (ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
