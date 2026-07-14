@@ -345,6 +345,33 @@ class WorldHandler {
         this.block = false;
     }
 
+    // FIX: if the client disconnects from the userserver while a login is
+    // still mid-flight -- after sendPlayerToWorld()/createPlayerToWorld()
+    // kicked off the async DBH.* calls but before this world's gameserver
+    // confirms with WU_PLAYER_LOADED (handlePlayerLoaded above) -- nothing
+    // was ever removing that player's entries from pendingLogins,
+    // playerLoadData, playerCreateData, or playerSaveData. They'd sit in
+    // memory, keyed by playername, until this whole WorldHandler is
+    // released (i.e. the gameserver itself reconnects/restarts), holding a
+    // reference to the now-dead `user`/connection the whole time.
+    // main.js's conn.onClose calls this for every disconnecting client so
+    // any login that was abandoned mid-load gets cleared out immediately
+    // instead of leaking. Each delete is a safe no-op if that player
+    // already finished loading (or never started), so this is safe to call
+    // unconditionally on every disconnect.
+    abandonPendingLogin(playername) {
+      if (!playername)
+        return;
+
+      if (this.pendingLogins.has(playername)) {
+        console.info("abandonPendingLogin: clearing pending login for "+playername);
+        this.pendingLogins.delete(playername);
+      }
+      delete this.playerLoadData[playername];
+      delete this.playerCreateData[playername];
+      delete this.playerSaveData[playername];
+    }
+
     handleCreatePlayerInfo (playername) {
       console.info("handleCreatePlayerInfo");
       const data = [
@@ -389,6 +416,11 @@ class WorldHandler {
       // the constructor for why stashing this on the shared instance
       // corrupted concurrent logins.
       this.pendingLogins.set(playername, user);
+      // Lets main.js's conn.onClose (userserver/js/main.js) find its way
+      // back to this WorldHandler if the client disconnects mid-load, so
+      // it can clean up this player's pendingLogins/playerCreateData
+      // entries instead of leaking them -- see abandonPendingLogin() below.
+      user.worldHandler = this;
 
       console.info("SENDING USERNAME: "+username);
       console.info("SENDING PLAYER: "+playername);
@@ -523,6 +555,8 @@ class WorldHandler {
       // player data (and A's eventual WorldReady reply) got stamped with
       // B's identity, and the gameserver would reject A's real hash later.
       this.pendingLogins.set(playername, user);
+      // See the matching comment in createPlayerToWorld() above.
+      user.worldHandler = this;
 
       console.info("SENDING USERNAME: "+username);
       console.info("SENDING PLAYER: "+playername);

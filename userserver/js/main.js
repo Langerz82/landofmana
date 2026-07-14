@@ -158,6 +158,19 @@ async function main(config) {
       if (user?.hasLoggedIn) {
         users.delete(user.name);
       }
+
+      // FIX: if this client disconnected while a player login was still
+      // mid-load (requested a world via sendPlayerToWorld/
+      // createPlayerToWorld but never got the WU_PLAYER_LOADED
+      // confirmation back), that world's WorldHandler would otherwise keep
+      // this player's pendingLogins/playerLoadData/playerCreateData
+      // entries around forever -- see abandonPendingLogin() in
+      // worldhandler.js. `user.worldHandler`/`user.playerName` are only
+      // set once a load has actually started, so this is a no-op for
+      // connections that never got that far.
+      if (user?.worldHandler && user.playerName) {
+        user.worldHandler.abandonPendingLogin(user.playerName);
+      }
     });
   };
 
