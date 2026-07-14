@@ -115,7 +115,7 @@ const playerLooksTotalCost = 10000;
 
 const userBansTotal = 1000;
 const banDateMin = 1730000000000;
-const banDateMax = 1800000000000;
+const banDateMax = 3000000000000;
 
 const getItemSlots = function (type) {
   if (type==0) return 50;
