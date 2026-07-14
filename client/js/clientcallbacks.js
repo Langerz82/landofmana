@@ -37,10 +37,57 @@ export default class ClientCallbacks {
       constructor(client) {
         this.client = client;
 
-        //var client = game.client;
+        // FIX (maintainability): this constructor used to contain the full body of every
+        // message handler inline as an anonymous closure (37 handlers spread across ~1300
+        // lines, plus a few shared inner helper functions - spawnEntity, questSpeech,
+        // onPlayerChangeHealth, showDamageInfo - only reachable from inside specific handlers).
+        // That made individual handlers impossible to find by name, diff in isolation, or unit
+        // test. Split each handler out into its own named method below (same name as the
+        // registration, e.g. onPlayerTeleportMap); the constructor now just wires each server
+        // message to its handler method. The four inner helpers moved to methods too (see
+        // spawnEntity(), questSpeech(), applyPlayerHealthChange(), showDamageInfo() below) - all
+        // handler bodies are otherwise unchanged from before this refactor.
+        client.onPlayerTeleportMap(this.onPlayerTeleportMap.bind(this));
+        client.onLogin(this.onLogin.bind(this));
+        client.onSpawnItem(this.onSpawnItem.bind(this));
+        client.onSpawnCharacter(this.onSpawnCharacter.bind(this));
+        client.onDespawnEntity(this.onDespawnEntity.bind(this));
+        client.onEntityMove(this.onEntityMove.bind(this));
+        client.onEntityMovePath(this.onEntityMovePath.bind(this));
+        client.onEntityDestroy(this.onEntityDestroy.bind(this));
+        client.onCharacterDamage(this.onCharacterDamage.bind(this));
+        client.onPlayerStat(this.onPlayerStat.bind(this));
+        client.onPlayerLevelUp(this.onPlayerLevelUp.bind(this));
+        client.onPlayerItemLevelUp(this.onPlayerItemLevelUp.bind(this));
+        client.onGold(this.onGold.bind(this));
+        client.onChatMessage(this.onChatMessage.bind(this));
+        client.onDisconnected(this.onDisconnected.bind(this));
+        client.onQuest(this.onQuest.bind(this));
+        client.onAchievement(this.onAchievement.bind(this));
+        client.onItemSlot(this.onItemSlot.bind(this));
+        client.onDialogue(this.onDialogue.bind(this));
+        client.onNotify(this.onNotify.bind(this));
+        client.onStatInfo(this.onStatInfo.bind(this));
+        client.onAuction(this.onAuction.bind(this));
+        client.onSkillLoad(this.onSkillLoad.bind(this));
+        client.onSkillXP(this.onSkillXP.bind(this));
+        client.onSkillEffects(this.onSkillEffects.bind(this));
+        client.onSpeech(this.onSpeech.bind(this));
+        client.onMapStatus(this.onMapStatus.bind(this));
+        client.onSetSprite(this.onSetSprite.bind(this));
+        client.onSetAnimation(this.onSetAnimation.bind(this));
+        client.onProducts(this.onProducts.bind(this));
+        client.onAppearance(this.onAppearance.bind(this));
+        client.onBlockModify(this.onBlockModify.bind(this));
+        client.onCharacterChangePoints(this.onCharacterChangePoints.bind(this));
+        client.onParty(this.onParty.bind(this));
+        client.onHarvest(this.onHarvest.bind(this));
+        client.onPlayerInfo(this.onPlayerInfo.bind(this));
+        client.onPlayer(this.onPlayer.bind(this));
+      }
 
-        // data - mapIndex, mapStatus, x, y.
-        client.onPlayerTeleportMap(function(data) {
+      // data - mapIndex, mapStatus, x, y.
+      onPlayerTeleportMap(data) {
           const mapId = Number(data[0]),
               x = Number(data[2]),
               y = Number(data[3]),
@@ -92,7 +139,7 @@ export default class ClientCallbacks {
             game.items = {};
 
             log.info("Map loaded.");
-            client.sendTeleportMap([mapId, 1, x, y, -1]);
+            this.client.sendTeleportMap([mapId, 1, x, y, -1]);
             //game.renderer.initPIXI();
             game.renderer.blankFrame = true;
             //game.initCursors();
@@ -137,13 +184,13 @@ export default class ClientCallbacks {
               //game.renderer.forceRedraw = true;
           }
 
-        });
+      }
 
-        client.onLogin(function () {
-        	client.sendLogin(game.player);
-        });
+      onLogin() {
+        	this.client.sendLogin(game.player);
+      }
 
-        client.onSpawnItem(function(data, item) {
+      onSpawnItem(data, item) {
             //log.info("Spawned " + ItemTypes.KindData[item.kind].name + " (" + item.id + ") at "+x+", "+y);
             if (!item) return;
 
@@ -167,10 +214,14 @@ export default class ClientCallbacks {
             game.addItem(item);
             game.updateCursor();
             game.updateCameraEntity(item.id, item);
-        });
+      }
 
-        const spawnEntity = function(data, entity)
-        {
+      // FIX (maintainability): was a shared inner closure (`const spawnEntity = function(data,
+      // entity) {...}`) defined in the constructor and only reachable from the onSpawnCharacter
+      // handler below; moved to a proper method since it no longer has a constructor scope to
+      // live in. Body unchanged.
+      spawnEntity(data, entity)
+      {
           const id = Number(data[0]);
           if(id === game.playerId)
             return;
@@ -346,14 +397,14 @@ export default class ClientCallbacks {
 
 
             }
-        };
+      }
 
-        client.onSpawnCharacter(function(data, entity) {
-            spawnEntity(data, entity);
-        });
+      onSpawnCharacter(data, entity) {
+            this.spawnEntity(data, entity);
+      }
 
-        // data - entityId, x, y, mapIndex
-        client.onDespawnEntity(function(data) {
+      // data - entityId, x, y, mapIndex
+      onDespawnEntity(data) {
             if (game.mapIndex !== Number(data[1]))
               return;
 
@@ -387,11 +438,11 @@ export default class ClientCallbacks {
               }
               entity.clean();
             }
-        });
+      }
 
-        // data - time, mapIndex, entityId, orientation, state, moveSpeed, x, y.
-        client.onEntityMove(function(data)
-        {
+      // data - time, mapIndex, entityId, orientation, state, moveSpeed, x, y.
+      onEntityMove(data)
+      {
             const time = Number(data[0]),
                 map = Number(data[1]),
                 id = Number(data[2]),
@@ -446,11 +497,11 @@ export default class ClientCallbacks {
             if (state)
               entity.move(time, orientation, false, x, y);
             entity.move(time, orientation, state, x, y);
-        });
+      }
 
-        // time, mapIndex, entityId, orientation, interrupted, moveSpeed, path.
-        client.onEntityMovePath(function(data)
-        {
+      // time, mapIndex, entityId, orientation, interrupted, moveSpeed, path.
+      onEntityMovePath(data)
+      {
             const time = Number(data.shift()),
               map = Number(data.shift()),
               id = Number(data.shift()),
@@ -514,9 +565,9 @@ export default class ClientCallbacks {
               movePathFunc();
             else
               setTimeout(movePathFunc, lockStepTime);
-        });
+      }
 
-        client.onEntityDestroy(function(data) {
+      onEntityDestroy(data) {
             const id = Number(data[0]);
             const entity = game.getEntityById(id);
             if(entity) {
@@ -527,9 +578,9 @@ export default class ClientCallbacks {
                 }
                 log.debug("Entity was destroyed: "+entity.id);
             }
-        });
+      }
 
-        client.onCharacterDamage(function(data) {
+      onCharacterDamage(data) {
             // FIX: `data.parseInt();` called the old Array.prototype.parseInt
             // monkey-patch (since removed) without capturing its return value
             // -- it was a no-op even when the method existed, since every
@@ -550,7 +601,7 @@ export default class ClientCallbacks {
             if (!sEntity || !tEntity)
               return;
 
-            client.change_points_callback([tEntity.id,hp,hpMax,hpMod,ep,epMax,epMod,crit]);
+            this.client.change_points_callback([tEntity.id,hp,hpMax,hpMod,ep,epMax,epMod,crit]);
 
             if(hpMod < 0) {
                 if (sEntity !== game.player) {
@@ -563,9 +614,9 @@ export default class ClientCallbacks {
             {
               sEntity.attackTime = game.currentTime;
             }
-        });
+      }
 
-        client.onPlayerStat(function(data) {
+      onPlayerStat(data) {
             const statType = data[0];
             const statValue = Number(data[1]);
             const statChange = Number(data[2]);
@@ -580,9 +631,9 @@ export default class ClientCallbacks {
               }
               game.updateExpBar();
             }
-        });
+      }
 
-        client.onPlayerLevelUp(function(data) {
+      onPlayerLevelUp(data) {
           const type = data[0];
           const level = Number(data[1]);
           const exp = Number(data[2]);
@@ -622,9 +673,9 @@ export default class ClientCallbacks {
             }
             p.stats.exp[type] = exp
           }
-        });
+      }
 
-        client.onPlayerItemLevelUp(function(data) {
+      onPlayerItemLevelUp(data) {
           const type = Number(data[0]);
           const level = Number(data[1]);
           const exp = Number(data[2]);
@@ -642,9 +693,9 @@ export default class ClientCallbacks {
             const info = new HoveringInfo(id, "Weapon Level "+level, x, y, 3500, 'minorLevelUp');
             game.infoManager.addInfo(info);
           }
-        });
+      }
 
-        client.onGold(function (data) {
+      onGold(data) {
           const gold = Number(data[0]);
           const bankgold = Number(data[1]);
           const gems = Number(data[2]);
@@ -655,9 +706,9 @@ export default class ClientCallbacks {
 
           game.inventoryDialog.setCurrency(gold, gems);
           game.bankHandler.setGold(bankgold);
-        });
+      }
 
-        client.onChatMessage(function(data) {
+      onChatMessage(data) {
           const entityId = Number(data[0]);
           const message = data[1];
 
@@ -672,10 +723,10 @@ export default class ClientCallbacks {
                 }
           }
           game.audioManager.playSound("chat");
-        });
+      }
 
-// TODO - Try and reconnect on dc.
-        client.onDisconnected(function(message) {
+      // TODO - Try and reconnect on dc.
+      onDisconnected(message) {
             if(game.player) {
                 game.player.die();
             }
@@ -684,9 +735,12 @@ export default class ClientCallbacks {
             }
             for (let dialog of game.dialogs)
               dialog.hide();
-        });
+      }
 
-        const questSpeech = function (quest) {
+      // FIX (maintainability): was a shared inner closure (`const questSpeech = function
+      // (quest) {...}`) only reachable from the onQuest handler below; moved to a method. Body
+      // unchanged.
+      questSpeech(quest) {
           const npc = game.getNpcByQuestKind(quest.npcQuestId);
           if (!npc)
             return;
@@ -704,9 +758,9 @@ export default class ClientCallbacks {
           p.dialogueEntity = npc;
 
           game.showDialogue();
-        };
+      }
 
-        client.onQuest(function(data){
+      onQuest(data){
             //data.parseInt();
             const questId = Number(data[0]);
             let quest = game.player.quests[questId];
@@ -725,7 +779,7 @@ export default class ClientCallbacks {
               game.bubbleManager.destroyBubble(npc.id);
 
             if (npc && game.player.canInteract(npc)) {
-              questSpeech(quest);
+              this.questSpeech(quest);
             }
 
             if (quest.status === 0) {
@@ -740,9 +794,9 @@ export default class ClientCallbacks {
                 game.questhandler.handleQuest(quest);
               //delete quest;
             }
-        });
+      }
 
-        client.onAchievement(function (data) {
+      onAchievement(data) {
           // FIX: `data.parseInt();` called the old Array.prototype.parseInt
           // monkey-patch (since removed) without capturing its return value
           // -- it was a no-op even when the method existed, since
@@ -754,9 +808,9 @@ export default class ClientCallbacks {
           const achievement = new Achievement(data);
           game.player.achievements[achievementId] = achievement;
           game.achievementHandler.handleAchievement(achievement);
-        });
+      }
 
-        client.onItemSlot(function(data){
+      onItemSlot(data){
           //data.parseInt();
           const type = Number(data.shift());
           const count = Number(data.shift());
@@ -794,9 +848,9 @@ export default class ClientCallbacks {
           if (type === 2) {
             game.equipmentHandler.setEquipment(items);
           }
-        });
+      }
 
-        client.onDialogue(function (data) {
+      onDialogue(data) {
           const npcId = Number(data.shift());
           const langCode = data.shift();
 
@@ -833,13 +887,13 @@ export default class ClientCallbacks {
           p.dialogueEntity = npc;
 
           game.showDialogue();
-        });
+      }
 
-        client.onNotify(function(data){
+      onNotify(data){
           game.showNotification(data);
-        });
+      }
 
-        client.onStatInfo(function(data) {
+      onStatInfo(data) {
           const stats = {
             attack: Number(data[0]),
             defense: Number(data[1]),
@@ -857,9 +911,9 @@ export default class ClientCallbacks {
           Object.assign(game.player.stats, stats);
           game.statDialog.update();
           game.updateBars();
-        });
+      }
 
-        client.onAuction(function(data){
+      onAuction(data){
             const type = Number(data.shift());
             const itemCount = Number(data.shift());
 
@@ -890,9 +944,9 @@ export default class ClientCallbacks {
             page.setPageIndex(0);
             page.setItems(itemData);
             page.reload();
-        });
+      }
 
-        client.onSkillLoad(function(datas) {
+      onSkillLoad(datas) {
             const skillIndex = Number(datas[0]);
             const skillExp = Number(datas[1]);
 
@@ -900,9 +954,9 @@ export default class ClientCallbacks {
             const skillLevel = Types.getSkillLevel(skillExp);
             game.player.skillHandler.setSkill(skillIndex, skillExp);
             game.skillsDialog.page.setSkill(skillIndex, skillLevel);
-        });
+      }
 
-        client.onSkillXP(function(data) {
+      onSkillXP(data) {
             const skillCount = Number(data.shift());
 
             if (skillCount === 0)
@@ -914,17 +968,17 @@ export default class ClientCallbacks {
                 Number(data[i*2]),
                 Number(data[i*2+1]));
             }
-        });
+      }
 
-        client.onSkillEffects(function(data){
+      onSkillEffects(data){
           // stub for now.
-        });
+      }
 
-        // FIX: handler was declared with 3 separate params (id, key, value), but receiveAction() always invokes
-        // registered handlers with a single `data` array (`this.handlers[action].call(this, data)`), same as every
-        // other handler in this file - `id` received the whole array and `key`/`value` were always undefined, so
-        // Number(id) was NaN, getEntityById() returned null, and speech bubbles never showed.
-        client.onSpeech(function (data) {
+      // FIX: handler was declared with 3 separate params (id, key, value), but receiveAction() always invokes
+      // registered handlers with a single `data` array (`this.handlers[action].call(this, data)`), same as every
+      // other handler in this file - `id` received the whole array and `key`/`value` were always undefined, so
+      // Number(id) was NaN, getEntityById() returned null, and speech bubbles never showed.
+      onSpeech(data) {
           const id = data[0], key = data[1], value = data[2];
           const entity = game.getEntityById(Number(id));
           if (!entity) return;
@@ -936,17 +990,17 @@ export default class ClientCallbacks {
             // TODO
           }
           game.createBubble(entity, msg);
-        });
+      }
 
-        client.onMapStatus(function (mapId, status)
-        {
+      onMapStatus(mapId, status)
+      {
           log.info("mapStatus="+mapId+","+status);
           game.mapIndex = Number(mapId);
           game.mapStatus = Number(status);
-        });
+      }
 
-        client.onSetSprite(function (data)
-        {
+      onSetSprite(data)
+      {
 
           const entity = game.getEntityById(Number(data[0]));
           if (!entity) return;
@@ -963,26 +1017,26 @@ export default class ClientCallbacks {
             entity.setSprite(sprite);
           }
 
-        });
+      }
 
-        client.onSetAnimation(function (data)
-        {
+      onSetAnimation(data)
+      {
 
           const entity = game.getEntityById(Number(data[0]));
           if (!entity) return;
 
           // TODO - Not yet implemented.
-        });
+      }
 
-        client.onProducts(function(data) {
+      onProducts(data) {
           game.products = data;
-        });
+      }
 
-        client.onAppearance(function (data) {
+      onAppearance(data) {
           game.appearanceDialog.assign(data);
-        });
+      }
 
-        client.onBlockModify(function (data) {
+      onBlockModify(data) {
           const entityId = Number(data[0]);
           const type = Number(data[1]);
           const blockId = Number(data[2]);
@@ -1000,9 +1054,14 @@ export default class ClientCallbacks {
             block.place(entity);
             entity.holdingBlock = null;
           }
-        });
+      }
 
-        const onPlayerChangeHealth = function(player, points, crit) {
+      // FIX (maintainability): was a shared inner closure (`const onPlayerChangeHealth =
+      // function(player, points, crit) {...}`) only reachable from the onCharacterChangePoints
+      // handler below; moved to a method and renamed from `onPlayerChangeHealth` to
+      // `applyPlayerHealthChange` to avoid reading like a registered server-message handler -
+      // every other `onXxx` method in this class is one, and this isn't. Body unchanged.
+      applyPlayerHealthChange(player, points, crit) {
             let isRegen = false;
             if (points > 0)
               isRegen = true;
@@ -1016,9 +1075,11 @@ export default class ClientCallbacks {
             }
 
             game.updateBars();
-        };
+      }
 
-        const showDamageInfo = function (entity, points, x, y, crit) {
+      // FIX (maintainability): was a shared inner closure only reachable from the
+      // onCharacterChangePoints handler below; moved to a method. Body unchanged.
+      showDamageInfo(entity, points, x, y, crit) {
             //log.info("crit="+crit);
             if(points === 0) {
               game.infoManager.addDamageInfo("miss", x, y - 15, "health");
@@ -1037,9 +1098,9 @@ export default class ClientCallbacks {
             } else {
                 game.infoManager.addDamageInfo(points, x, y - 15, "healed");
             }
-        };
+      }
 
-        client.onCharacterChangePoints(function (data) {
+      onCharacterChangePoints(data) {
           const id = Number(data[0]);
           const hp = Number(data[1]);
           const hpMax = Number(data[2]);
@@ -1056,7 +1117,7 @@ export default class ClientCallbacks {
           if (!entity)
             return;
 
-          showDamageInfo(entity, hpMod, entity.x, entity.y, crit);
+          this.showDamageInfo(entity, hpMod, entity.x, entity.y, crit);
 
           if (hpMod > hp)
             hpMod += (hp - hpMod);
@@ -1068,16 +1129,16 @@ export default class ClientCallbacks {
           {
             if (hpMod !== 0) {
               game.playerhp_callback(hp, hpMax);
-              onPlayerChangeHealth(entity, hpMod);
+              this.applyPlayerHealthChange(entity, hpMod);
             }
             game.updateBars();
           }
           else {
             game.updatetarget_callback(entity);
           }
-        });
+      }
 
-        client.onParty(function (data) {
+      onParty(data) {
           const partyType = Number(data.shift());
           if (partyType === 1) {
             game.socialHandler.setPartyMembers(data);
@@ -1088,9 +1149,9 @@ export default class ClientCallbacks {
             game.socialHandler.inviteParty(player);
 
           }
-        });
+      }
 
-        client.onHarvest(function (data) {
+      onHarvest(data) {
           const id = Number(data.shift());
           const p = game.getEntityById(id);
           if (!p)
@@ -1115,13 +1176,13 @@ export default class ClientCallbacks {
             p.forceStop();
           }
 
-        });
+      }
 
-        client.onPlayerInfo(function (data) {
+      onPlayerInfo(data) {
           game.statDialog.page.assign(data);
-        });
+      }
 
-        client.onPlayer(function(data) {
+      onPlayer(data) {
             //setWorldTime(data[0], data[1]);
             data.shift();
             data.shift();
@@ -1335,7 +1396,5 @@ export default class ClientCallbacks {
             }
 
             game.onPlayerLoad(p);
-        });
-
       }
 }

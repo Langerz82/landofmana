@@ -67,7 +67,7 @@ export default class Camera {
         }
 
         if (game.client) {
-          var arr = [
+          const arr = [
             ["screenWidth",this.gridWE],
             ["screenHeight",this.gridHE]
           ];
@@ -147,7 +147,10 @@ export default class Camera {
     forEachInScreenArray(entity) {
         //var self = this;
         const entities = [];
-        var entity = entity || this.focusEntity;
+        // FIX (var cleanup): was `var entity = entity || ...`, redeclaring the `entity`
+        // parameter with var - let/const can't redeclare a parameter name, so this is just a
+        // reassignment.
+        entity = entity || this.focusEntity;
 
         const tsh = G_TILESIZE >> 1;
         const x = (this.gridW - 1) * tsh;

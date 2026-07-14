@@ -1126,7 +1126,13 @@ export default class Renderer {
     		}
         const s = this.gameScale;
         const eo = this.getEntityOffset();
-        let sprite = this.pxSprite["en_"+entity.id];
+        // FIX: was building "en_"+entity.id twice (once to read, once to write below) - compute
+        // once and reuse. (Left the cross-method duplication where removeEntityName() etc.
+        // rebuild the same key from an id elsewhere as-is - fixing that would mean changing
+        // those methods' signatures to take the entity object everywhere they're called, for a
+        // marginal gain over a cheap string concat; not worth the call-site churn/risk.)
+        const spriteKey = "en_"+entity.id;
+        let sprite = this.pxSprite[spriteKey];
 
         const ts = this.tilesize;
         var x = (entity.x + eo[0]) * s;
@@ -1147,7 +1153,7 @@ export default class Renderer {
           sprite.interactiveChildren = false;
 
           Container.HUD.addChild(sprite);
-          this.pxSprite["en_"+entity.id] = sprite;
+          this.pxSprite[spriteKey] = sprite;
         }
         sprite.text = name; // FIX: .text was never reassigned after creation, so name/stack-count changes never rendered (see drawDebugInfo/drawCombatInfo pattern)
         sprite.visible = true;

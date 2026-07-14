@@ -40,7 +40,7 @@ export default class GameClient {
 	                fnRecieveAction(data);
 			          }
 							};
-	           var fnRecieveAction = function (data) {
+	           const fnRecieveAction = function (data) {
 	             // FIX: same unconditional logging issue as onMessage above - use log.debug
 	             log.debug("recv: "+data);
 	             if(data instanceof Array) {
@@ -72,7 +72,7 @@ export default class GameClient {
 							fnProcessMessage(message);
 		        }
 	          else {
-	            var message = data.split(",");
+	            const message = data.split(",");
 	            fnRecieveAction(message);
 	          }
 		      };
@@ -272,7 +272,7 @@ export default class GameClient {
 						}
             else {
 								const level = parseInt(data[8]);
-								var entity = EntityFactory.createEntity(type, kind, id, mapIndex, name, level);
+								const entity = EntityFactory.createEntity(type, kind, id, mapIndex, name, level);
 								entity.setPosition(x, y);
                 if(this.spawn_character_callback) {
                     this.spawn_character_callback(data, entity); // from 6

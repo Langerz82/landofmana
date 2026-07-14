@@ -8,149 +8,164 @@ import EntityMoving from './entity/entitymoving.js';
 
 export default class Updater {
         constructor(game) {
-            const self = this;
             this.game = game;
             this.performanceTime = 0;
             //this.tick = 5;
             this.lastUpdateTime = Date.now();
+        }
 
-            this.checkStopDanger = function (c)
-            {
-              const o = c.orientation;
-              let res=false;
+        // FIX (maintainability): checkStopDanger/charPath*/charKey*/playerKey*/playerPath*/
+        // stopTransition used to be assigned as closures inside the constructor
+        // (`this.charPath = function (c, x, y) {...}`, capturing a local `self`/`game` alias)
+        // instead of being real class methods. That pattern is very likely there to dodge a
+        // `this`-binding problem: these get passed around and invoked as bare function
+        // references (see Transition.start()/step() in transition.js, which stores whatever's
+        // passed as `this.updateFunction` and later calls it as `this.updateFunction(this.object,
+        // mod)` - a plain method with no `this` context supplied). A normal prototype method
+        // passed the same way (e.g. `transition.start(this.charPathXF, ...)`) would lose its
+        // `this` binding when called that way and throw.
+        //
+        // Class-field arrow functions get the same "always bound to this instance" behavior
+        // (arrow functions close over the lexical `this` of the class instance, same as the old
+        // `self` closures did) while making them real, discoverable members of the class instead
+        // of logic buried in the constructor body. Updater is only ever instantiated once per
+        // game session, so this has no effect on allocation frequency either way - it's purely
+        // about the code being readable/navigable.
+        checkStopDanger = (c) => {
+          const o = c.orientation;
+          let res=false;
 
-              if (c.ex === -1 && c.ey === -1)
-              {
-                return false;
-              }
-              if (c.x === c.ex && c.y === c.ey)
-              {
-                log.info("checkStopDanger - coordinates equal");
-                res = true;
-              }
+          if (c.ex === -1 && c.ey === -1)
+          {
+            return false;
+          }
+          if (c.x === c.ex && c.y === c.ey)
+          {
+            log.info("checkStopDanger - coordinates equal");
+            res = true;
+          }
 
-              const x = c.x, y = c.y;
+          const x = c.x, y = c.y;
 
-              if (o === Types.Orientations.LEFT && c.x < c.ex)
-              {
-                return true;
-              }
-              else if (o === Types.Orientations.RIGHT && c.x > c.ex)
-              {
-                return true;
-              }
-              else if (o === Types.Orientations.UP && c.y < c.ey)
-              {
-                return true;
-              }
-              else if (o === Types.Orientations.DOWN && c.y > c.ey)
-              {
-                return true;
-              }
-              if (res) {
-                c.setPosition(c.ex, c.ey);
-                log.info("WARN - PLAYER "+c.id+" not stopping.");
-                log.info("x :"+x+",y :"+y);
-                log.info("ex:"+c.ex+",ey:"+c.ey);
-              }
-              return res;
-            };
+          if (o === Types.Orientations.LEFT && c.x < c.ex)
+          {
+            return true;
+          }
+          else if (o === Types.Orientations.RIGHT && c.x > c.ex)
+          {
+            return true;
+          }
+          else if (o === Types.Orientations.UP && c.y < c.ey)
+          {
+            return true;
+          }
+          else if (o === Types.Orientations.DOWN && c.y > c.ey)
+          {
+            return true;
+          }
+          if (res) {
+            c.setPosition(c.ex, c.ey);
+            log.info("WARN - PLAYER "+c.id+" not stopping.");
+            log.info("x :"+x+",y :"+y);
+            log.info("ex:"+c.ex+",ey:"+c.ey);
+          }
+          return res;
+        };
 
-            this.charPath = function (c, x, y) {
-              if (c.hasChangedItsPath())
-              {
-                return true;
-              }
-              // FIX: `c.map` is never set anywhere on Entity/Character (only game.mapContainer
-              // exists), so this mid-path collision guard was permanently dead code - NPC/mob
-              // movement never actually re-checked collision here. Also dropped the leftover
-              // debug try/throw/console.error trace scaffold that sat in the dead branch.
-              if (self.game.mapContainer && self.game.mapContainer.isColliding(x, y)) {
-                return true;
-              }
-              c.setPosition(x, y);
-              return c.nextStep();
-            };
+        charPath = (c, x, y) => {
+          if (c.hasChangedItsPath())
+          {
+            return true;
+          }
+          // FIX: `c.map` is never set anywhere on Entity/Character (only game.mapContainer
+          // exists), so this mid-path collision guard was permanently dead code - NPC/mob
+          // movement never actually re-checked collision here. Also dropped the leftover
+          // debug try/throw/console.error trace scaffold that sat in the dead branch.
+          if (this.game.mapContainer && this.game.mapContainer.isColliding(x, y)) {
+            return true;
+          }
+          c.setPosition(x, y);
+          return c.nextStep();
+        };
 
-            this.charPathXF = function(c, m) {
-              const x = c.x + m, y = c.y;
-              return self.charPath(c, x, y);
-            };
+        charPathXF = (c, m) => {
+          const x = c.x + m, y = c.y;
+          return this.charPath(c, x, y);
+        };
 
-            this.charPathYF = function(c, m) {
-              const x = c.x, y = c.y + m;
-              return self.charPath(c, x, y);
-            };
+        charPathYF = (c, m) => {
+          const x = c.x, y = c.y + m;
+          return this.charPath(c, x, y);
+        };
 
-            this.charKey = function (c, x, y) {
-              if (self.checkStopDanger(c))
-              {
-                c.forceStop();
-                return true;
-              }
-              const res = game.moveCharacter(c, x, y);
-              if (res) {
-                c.setPosition(x, y);
-              } else {
-                c.forceStop();
-              }
-              return false;
-            };
+        charKey = (c, x, y) => {
+          if (this.checkStopDanger(c))
+          {
+            c.forceStop();
+            return true;
+          }
+          const res = this.game.moveCharacter(c, x, y);
+          if (res) {
+            c.setPosition(x, y);
+          } else {
+            c.forceStop();
+          }
+          return false;
+        };
 
-            this.charKeyXF = function(c, m) {
-              const x = c.x + m;
-              const y = c.y;
-              return self.charKey(c, x, y);
-            };
+        charKeyXF = (c, m) => {
+          const x = c.x + m;
+          const y = c.y;
+          return this.charKey(c, x, y);
+        };
 
-            this.charKeyYF = function(c, m) {
-              const x = c.x;
-              const y = c.y + m;
-              return self.charKey(c, x, y);
-            };
+        charKeyYF = (c, m) => {
+          const x = c.x;
+          const y = c.y + m;
+          return this.charKey(c, x, y);
+        };
 
-            this.playerKey = function (c, x, y) {
-              const res = game.moveCharacter(c, x, y);
-              if (res) {
-                c.setPosition(x, y);
-              } else {
-                c.keyMove = true;
-                c.forceStop();
-              }
-              return !res;
-            };
+        playerKey = (c, x, y) => {
+          const res = this.game.moveCharacter(c, x, y);
+          if (res) {
+            c.setPosition(x, y);
+          } else {
+            c.keyMove = true;
+            c.forceStop();
+          }
+          return !res;
+        };
 
-            this.playerKeyXF = function(c, m) {
-              const x = c.x + m;
-              const y = c.y;
-              return self.playerKey(c, x, y);
-            };
+        playerKeyXF = (c, m) => {
+          const x = c.x + m;
+          const y = c.y;
+          return this.playerKey(c, x, y);
+        };
 
-            this.playerKeyYF = function(c, m) {
-              const x = c.x;
-              const y = c.y + m;
-              return self.playerKey(c, x, y);
-            };
+        playerKeyYF = (c, m) => {
+          const x = c.x;
+          const y = c.y + m;
+          return this.playerKey(c, x, y);
+        };
 
-            this.playerPath = function (c, x, y) {
-              c.setPosition(x, y);
-              return c.nextStep();
-            };
+        playerPath = (c, x, y) => {
+          c.setPosition(x, y);
+          return c.nextStep();
+        };
 
-            this.playerPathXF = function(c, m) {
-              const x = c.x + m;
-              const y = c.y;
-              return self.playerPath(c,x,y);
-            };
+        playerPathXF = (c, m) => {
+          const x = c.x + m;
+          const y = c.y;
+          return this.playerPath(c,x,y);
+        };
 
-            this.playerPathYF = function(c, m) {
-              const x = c.x;
-              const y = c.y + m;
-              return self.playerPath(c,x,y);
-            };
+        playerPathYF = (c, m) => {
+          const x = c.x;
+          const y = c.y + m;
+          return this.playerPath(c,x,y);
+        };
 
-            this.stopTransition = function (c) {
-            }
+        stopTransition = (c) => {
         }
 
         update() {

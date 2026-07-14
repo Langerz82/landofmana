@@ -166,7 +166,7 @@ export default class ChatHandler {
 				}
 				return true;
 			}
-        	var pattern = message.substring(0, 3),
+        	const pattern = message.substring(0, 3),
                 self = this,
                 commandPatterns = {
                       	"/g ": function(message) {
@@ -269,7 +269,9 @@ export default class ChatHandler {
         return false;
     }
     bumpOffLog(delay) {
-      var delay = delay || this.bumpOffDelay;
+      // FIX (var cleanup): was `var delay = delay || ...`, redeclaring the `delay` parameter
+      // with var - let/const can't redeclare a parameter name, so this is just a reassignment.
+      delay = delay || this.bumpOffDelay;
       const self = this;
       $(this.chatLog).scrollTop(999999);
       setTimeout(function () {

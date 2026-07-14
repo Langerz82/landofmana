@@ -40,7 +40,9 @@ export default class BubbleManager {
         if (content === undefined || content === "") return;
 
         const id=entity.id;
-        var time = time || Date.now();
+        // FIX (var cleanup): was `var time = time || ...`, redeclaring the `time` parameter
+        // with var (legal, a no-op reassignment) - let/const can't redeclare a parameter name.
+        time = time || Date.now();
         const bubble = this.bubbles[id] = new Bubble(id, entity, content, time);
     }
 
