@@ -216,8 +216,22 @@ class Player extends Character {
         // reference the dying player's id through it instead.
         const self = this;
         _.each(this.attackers, function(attacker) {
+          // FIX/PERF: knownIds is a plain array of numeric entity ids (see
+          // mapentities.js addPlayer/addEntity -> knownIds.push(entity.id)),
+          // not an object keyed by id -- `delete attacker.knownIds[self.id]`
+          // was deleting (at best) an unrelated numeric index, so this dying
+          // player's id was never actually removed from the attacker's
+          // known-entities list. Worse, `delete` on an array index leaves a
+          // hole behind, which knocks V8 out of fast "packed array" mode for
+          // every future read of that array for the rest of its lifetime --
+          // paid by processWho() (mapentities.js), the single most
+          // frequently invoked query in the game, since it reads
+          // player.knownIds on essentially every move/attack/chat/spawn.
+          // Utils.removeFromArray() (the same helper packethandler.js
+          // already uses to forget ids the client has un-learned) does the
+          // actual removal without leaving a hole.
           if (attacker.hasOwnProperty("knownIds"))
-            delete attacker.knownIds[self.id];
+            Utils.removeFromArray(attacker.knownIds, self.id);
 
         });
         this.die(attacker);

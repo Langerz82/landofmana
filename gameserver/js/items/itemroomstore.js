@@ -7,6 +7,7 @@ import Player from '../entity/player.js';
 // never imported -- threw ReferenceError every time it ran, which
 // world/lootmanager.js's PvP drop logic (getPlayerDrop) relies on.
 import Utils from '../utils.js';
+import { G_DEBUG } from '../main.js';
 
 class ItemStore {
     constructor(owner, number, items) {
@@ -120,8 +121,17 @@ class ItemStore {
     }
 
     combineItem(item, item2) {
-        console.info(JSON.stringify(item));
-        console.info(JSON.stringify(item2));
+        // PERF: putItem() (above) calls combineItem() once per occupied
+        // room slot (up to maxNumber, 50) on every single item pickup/stack
+        // attempt -- these two JSON.stringify calls ran unconditionally on
+        // every one of those checks, so a single item pickup could pay up to
+        // ~100 stringify calls of full item objects whose result was never
+        // used for anything. Gated behind G_DEBUG like the equivalent
+        // per-pickup/per-attempt logging elsewhere in the codebase.
+        if (G_DEBUG) {
+            console.info(JSON.stringify(item));
+            console.info(JSON.stringify(item2));
+        }
 
         if(!item || !item2)
             return false;

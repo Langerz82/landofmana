@@ -33,7 +33,15 @@
 
 const TICK_MS = 50;
 
-const pending = [];
+// PERF: `pending` was a plain array of {token, deadline, callback} entries.
+// The tick scan below needs to walk every entry regardless of structure, but
+// cancel() (see below) only ever needs to reach *one* entry by its token --
+// keying this by token in a Map turns that from an O(n) linear scan into an
+// O(1) lookup+delete, while leaving the tick scan itself just as cheap as
+// the old array (Map iteration is not meaningfully slower than array
+// iteration for this purpose, and deleting during iteration is well-defined
+// for Maps -- see the tick loop below).
+const pending = new Map();
 let tickerStarted = false;
 let nextToken = 1;
 
@@ -43,19 +51,22 @@ function ensureTickerStarted() {
     tickerStarted = true;
     setInterval(function () {
         const now = Date.now();
-        // Loop from the end so splice() during iteration doesn't skip
-        // entries -- same technique mobAI.js uses for its mobsToRespawn scan.
-        for (let i = pending.length - 1; i >= 0; i--) {
-            const entry = pending[i];
+        // Deleting from a Map mid-iteration is safe and well-defined (unlike
+        // a plain object, and unlike splicing an array out from under a
+        // forward loop): entries already visited or deleted are simply
+        // skipped, nothing is revisited or skipped incorrectly. Mirrors the
+        // old array version's "loop backwards so splice() doesn't skip
+        // entries" trick, just without needing the trick.
+        for (const [token, entry] of pending) {
             if (now < entry.deadline)
                 continue;
             // Remove before invoking the callback: callbacks routinely
             // schedule/cancel other entries (e.g. item.js chaining its
             // despawn schedule() call from inside its blink callback, or
             // cancelling their own just-fired token as a defensive no-op) --
-            // splicing first keeps this loop's view of `pending` consistent
+            // deleting first keeps this loop's view of `pending` consistent
             // no matter what the callback does.
-            pending.splice(i, 1);
+            pending.delete(token);
             entry.callback();
         }
     }, TICK_MS);
@@ -67,10 +78,22 @@ const Scheduler = {
     schedule(callback, delay) {
         ensureTickerStarted();
         const token = nextToken++;
-        pending.push({ token, deadline: Date.now() + delay, callback });
+        pending.set(token, { deadline: Date.now() + delay, callback });
         return token;
     },
 
+    // PERF: this used to be pending.findIndex(e => e.token === token) -- an
+    // O(n) linear scan across *every* pending scheduled callback server-wide
+    // (every dropped item's blink/despawn, every stun/freeze, every depleted
+    // node/mob-area respawn, every harvest attempt, every active skill
+    // effect tick), no matter which module's timer was being cancelled. The
+    // busiest single call site is entity/character.js's hurt(), which
+    // cancels its own previous hurt-flash token on every single hit landed
+    // by every player/mob in combat -- i.e. the highest-frequency call in
+    // the game was paying for a scan sized by everyone else's pending timers
+    // too. Keying `pending` by token (see above) makes this an O(1)
+    // lookup+delete instead.
+    //
     // Cancels a pending schedule() call. Safe no-op if it already fired, was
     // already cancelled, or token is null/undefined -- mirrors the existing
     // behavior of Node's own clearTimeout() on an invalid/already-fired id,
@@ -79,9 +102,7 @@ const Scheduler = {
     cancel(token) {
         if (token == null)
             return;
-        const idx = pending.findIndex(e => e.token === token);
-        if (idx >= 0)
-            pending.splice(idx, 1);
+        pending.delete(token);
     },
 
     // setInterval() replacement: runs `callback` repeatedly, approximately
