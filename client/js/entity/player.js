@@ -97,18 +97,23 @@ export default class Player extends Character {
     canKeyMove() {
         let x = this.x, y = this.y;
 
+        // FIX: was offsetting by a bare 1 instead of a full tile (G_TILESIZE), same as
+        // Entity.getTilePositionNextTo()/EntityMoving.nextTile() do for this same kind of
+        // "position one tile over in this orientation" check. The 1-unit offset left x/y
+        // effectively unchanged relative to a G_TILESIZE-sized tile, so this always probed
+        // the player's current tile instead of the destination tile.
         switch (this.orientation) {
             case 1:
-                y--;
+                y -= G_TILESIZE;
                 break;
             case 2:
-                y++;
+                y += G_TILESIZE;
                 break;
             case 3:
-                x--;
+                x -= G_TILESIZE;
                 break;
             case 4:
-                x++;
+                x += G_TILESIZE;
                 break;
         }
         const ov = game.isOverlapping(this, x, y);

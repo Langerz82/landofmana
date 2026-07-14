@@ -5,7 +5,7 @@ export default class HoveringInfo {
         constructor(id, value, x, y, duration, type) {
             this.id = id;
             this.value = value;
-            this.duration = duration * 2;
+            this.duration = duration;
             this.x = x;
             this.y = y;
             this.opacity = 1.0;
@@ -35,23 +35,37 @@ export default class HoveringInfo {
 
         update(time) {
   				if(this.isTimeToAnimate(time)) {
+  					// FIX: capture the real elapsed gap before overwriting lastTime, and hand it to
+  					// tick() so opacity can decay by actual elapsed time instead of the nominal
+  					// `speed` value. Real tick spacing is quantized by the ~16ms game loop that
+  					// gates isTimeToAnimate() (e.g. speed:50 actually lands ~every 64ms), so using
+  					// the nominal speed for the decrement under-counts elapsed time and leaves
+  					// opacity still partially visible when isTimeToDestroy() fires.
+  					const delta = this.lastTime ? (time - this.lastTime) : 0; // FIX: this.lastTime starts at 0 (not a real timestamp); without this guard the very first tick computed delta as the full epoch time (~1.7e12 ms), instantly driving opacity hugely negative and making the info invisible from frame one.
   					this.lastTime = time;
-  					this.tick(time);
+  					this.tick(time, delta);
   				}
         }
 
-        tick(time) {
+        tick(time, delta) {
           if (this.effect === 0)
           {
             this.y -= 1;
           }
           else if (this.effect === 1)
           {
-            this.y -= Math.sin(this.angle);
-            this.x -= Math.cos(this.angle);
+            var speed = this.speed / 100;
+            this.y -= speed * Math.sin(this.angle);
+            this.x -= speed * Math.cos(this.angle);
           }
 
-  				this.opacity -= (100/this.duration);
+  				// FIX: was `100/this.duration` (and later `this.speed/this.duration`), both of
+  				// which assume a fixed tick period that doesn't match the real, loop-quantized gap
+  				// between ticks. Decrementing by the actual measured `delta` over `duration` makes
+  				// the total fade sum to exactly 1.0 by the time `duration` ms have really elapsed,
+  				// regardless of tick timing/jitter - so opacity reaches 0 right as the info is
+  				// destroyed instead of fading too fast, too slow, or incompletely.
+  				this.opacity -= (delta/this.duration);
 
   				if(this.isTimeToDestroy(time)) {
   					this.destroy();

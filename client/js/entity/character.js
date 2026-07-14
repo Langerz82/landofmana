@@ -100,6 +100,12 @@ export default class Character extends EntityMoving {
         if (this.stats.hp === 0) {
             this.die();
         }
+        // NOTE: the `typeof game !== 'undefined'` branch below calls `this.changePoints(...)`,
+        // which doesn't exist anywhere in this client codebase - it would throw if ever reached.
+        // In the browser client `game` is always defined by the time any Character exists, so
+        // this branch is unreachable dead code here (this class file looks shared with a
+        // server-side counterpart where `game` is undefined and `changePoints` presumably lives).
+        // Left as-is since there's no client-side implementation to fix it to.
         return (typeof game !== 'undefined') ? prev : this.changePoints(prev, 0);
     }
 

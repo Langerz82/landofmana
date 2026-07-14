@@ -190,8 +190,13 @@ export default class Entity {
 
     // FIX (carried over): this method used to be defined twice in this class (a dead first
     // copy, silently shadowed by this one); the duplicate has been removed
+    // FIX: was calling `AppearanceData.getSpriteByID(spriteNum)` - AppearanceData is a plain
+    // array (see data/appearancedata.js) with no such method; every other call site in the
+    // codebase (game.js, player.js, clientcallbacks.js, appearancedialog.js) indexes it directly
+    // as `AppearanceData[idx].sprite`, so do the same here.
     getSpriteName(spriteNum) {
-        return AppearanceData.getSpriteByID(spriteNum);
+        const data = AppearanceData[spriteNum];
+        return data ? data.sprite : null;
     }
 
     setVisible(value) {
