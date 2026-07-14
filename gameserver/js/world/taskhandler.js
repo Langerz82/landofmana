@@ -71,6 +71,42 @@ export function PlayerEvent(eventType, object, count) {
     return playerEvent;
 }
 
+// PERF: these 5 condition checks used to be anonymous closures allocated
+// fresh on every single processEvent() call (once per KILLMOB/DAMAGE/
+// LOOTITEM/USE_NODE/HARVEST event -- see callbacks/mobcallback.js's
+// per-kill calls, and per-loot/per-harvest elsewhere), regardless of
+// whether any achievement in the player's list actually matched. None of
+// them close over anything but their own (achievement, event) parameters
+// plus `player` (only used by the USE_NODE/HARVEST checks, for
+// hasWeaponType), so they're hoisted here to module scope and built once,
+// with `player` passed in as an explicit third argument instead of being
+// captured.
+const isKillMobAchievement = (achievement, event) =>
+    (achievement.data.type === Types.EventType.KILLMOB &&
+        (achievement.data.objectKind === 0 || achievement.data.objectKind === event.object.kind));
+
+const isLootItemAchievement = (achievement, event) =>
+    (achievement.data.type === Types.EventType.LOOTITEM && event.object.hasOwnProperty("enemyDrop"));
+
+const isDamageAchievement = (achievement, event) =>
+    (achievement.data.type === Types.EventType.DAMAGE);
+
+const isUseNodeWeaponAchievement = (achievement, event, player) => {
+    if (achievement.data.type === Types.EventType.USE_NODE) {
+        const wtype = event.object.weaponType;
+        return (player.items.hasWeaponType(wtype) && wtype === achievement.data.data1);
+    }
+    return false;
+};
+
+const isHarvestAxeAchievement = (achievement, event, player) => {
+    if (achievement.data.type === Types.EventType.HARVEST) {
+        const wtype = event.object.weaponType;
+        return (player.items.hasWeaponType(wtype) && wtype === "axe");
+    }
+    return false;
+};
+
 //   {"type": 1, "rank": 1, "objectType": 2, "objectKind": 0, "count": 10},
 class TaskHandler {
     constructor() {
@@ -106,50 +142,33 @@ class TaskHandler {
             break;
         }
 
-        for (const achievement of player.achievements) {
-            this.processAchievement(player, playerEvent, achievement, function (achievement, event) {
-                return (achievement.data.type === Types.EventType.KILLMOB &&
-                    (achievement.data.objectKind === 0 || achievement.data.objectKind === event.object.kind));
-            }, 2);
-            this.processAchievement(player, playerEvent, achievement, function (achievement, event) {
-                return (achievement.data.type === Types.EventType.LOOTITEM && event.object.hasOwnProperty("enemyDrop"));
-            }, 5);
-            this.processAchievement(player, playerEvent, achievement, function (achievement, event) {
-                return (achievement.data.type === Types.EventType.DAMAGE);
-            }, 0.02);
-            this.processAchievement(player, playerEvent, achievement, function (achievement, event) {
-                if (achievement.data.type === Types.EventType.USE_NODE) {
-                    const wtype = event.object.weaponType;
-                    return (player.items.hasWeaponType(wtype) && wtype === achievement.data.data1);
-                }
-                return false;
-            }, 5);
-            this.processAchievement(player, playerEvent, achievement, function (achievement, event) {
-                if (achievement.data.type === Types.EventType.HARVEST) {
-                    const wtype = event.object.weaponType;
-                    return (player.items.hasWeaponType(wtype) && wtype === "axe");
-                }
-                return false;
-            }, 5);
-            this.processAchievement(player, playerEvent, achievement, function (achievement, event) {
-                if (achievement.data.type === Types.EventType.USE_NODE) {
-                    const wtype = event.object.weaponType;
-                    return (player.items.hasWeaponType(wtype) && wtype === achievement.data.data1);
-                }
-                return false;
-            }, 5);
+        // PERF: was `for (const achievement of player.achievements)`, with
+        // processAchievement() below recovering the achievement's index via
+        // `player.achievements.indexOf(achievement)` -- an O(n) linear scan
+        // repeated on every one of the 5 processAchievement() calls per
+        // achievement per event (so O(n^2) overall across a player's whole
+        // achievement list, up to achievementIndexMax=99 entries per
+        // format.js). .entries() keeps the same for-of shape as the
+        // original while handing back the index for free, same as a plain
+        // indexed loop would.
+        for (const [ti, achievement] of player.achievements.entries()) {
+            this.processAchievement(player, playerEvent, achievement, ti, isKillMobAchievement, 2);
+            this.processAchievement(player, playerEvent, achievement, ti, isLootItemAchievement, 5);
+            this.processAchievement(player, playerEvent, achievement, ti, isDamageAchievement, 0.02);
+            this.processAchievement(player, playerEvent, achievement, ti, isUseNodeWeaponAchievement, 5);
+            this.processAchievement(player, playerEvent, achievement, ti, isHarvestAxeAchievement, 5);
+            this.processAchievement(player, playerEvent, achievement, ti, isUseNodeWeaponAchievement, 5);
 
         }
     }
 
-    processAchievement(player, event, achievement, condition, expMultiplier) {
+    processAchievement(player, event, achievement, ti, condition, expMultiplier) {
         if (event.eventType !== achievement.data.type)
             return;
 
-        if (!condition(achievement, event))
+        if (!condition(achievement, event, player))
             return;
 
-        const ti = player.achievements.indexOf(achievement);
         if (ti < 0 || ti >= achievement.data.objectCount.length)
             return;
 

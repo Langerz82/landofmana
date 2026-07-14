@@ -459,9 +459,51 @@ class FormatChecker {
       arrayField(tupleField([stringField(0, 99), numberOrStringField(0, mapCoordsMax, 0, 99)]), 0, 10),
     ]);
 
-    // CW_ITEMSLOT is handled specially in check() below (see the comment
-    // there) because its shape varies: 4 fields normally, 6 when the client
-    // is also specifying a second (destination) slot for a swap.
+    // CW_ITEMSLOT: shape varies -- 4 fields normally, 6 when the client is
+    // also specifying a second (destination) slot for a swap. slot: [action,
+    // slotType, slotIndex, slotCount], optionally followed by a destination
+    // slot [slotType2, slotIndex2] (see handleItemSlot in packethandler.js,
+    // which is the authority on this shape and does its own
+    // per-store-type bounds checking against the real
+    // inventory/equipment/bank sizes).
+    //
+    // FIX: the old code guarded the 6-field variant with `message.len === 7`
+    // -- `.len` isn't a real Array property (it's always undefined), and
+    // even ignoring that typo, handleItemSlot checks `msg.length === 6`, not
+    // 7. So the extra 2 fields were never actually validated; this checks
+    // the real, both-cases-correct shape. It also replaces
+    // `this.inventoryMax`/`this.itemCountMax`, which were never assigned
+    // anywhere on this class (always undefined) -- the closest real
+    // constants are itemBankMax (the largest of the three item stores, used
+    // here as a generous shared upper bound since the handler re-validates
+    // the exact per-store-type size itself) and itemNumberMax (the
+    // stack/magic-number bound used for item counts elsewhere in this
+    // file).
+    //
+    // PERF: this schema used to be rebuilt from scratch (a fresh
+    // `baseSlot` array plus a fresh z.union([...]) call) inside check() on
+    // EVERY CW_ITEMSLOT packet, unlike every other message type in this
+    // file, whose schema is built once here in the constructor and just
+    // safeParse()'d per packet. check() is called from
+    // packets/packethandler.js for every incoming client packet, and
+    // CW_ITEMSLOT covers eating/swapping/dropping/equipping items -- one of
+    // the most frequent player actions in an active session. Building it
+    // once here, like everything else in this file, removes that
+    // per-packet schema-construction cost.
+    const itemSlotBaseSlot = [
+      numberField(0, 2), // action: 0 eat, 1 swap, 2 drop
+      numberField(0, 2), // slot type: 0 inventory, 1 equipment, 2 bank
+      numberField(0, itemBankMax), // slot index
+      numberField(0, itemNumberMax), // slot count
+    ];
+    this.itemSlotFormat = z.union([
+      tupleField(itemSlotBaseSlot),
+      tupleField([
+        ...itemSlotBaseSlot,
+        numberField(0, 2), // destination slot type
+        numberField(-1, itemBankMax), // destination slot index (-1 = unspecified)
+      ]),
+    ]);
 
     // NOTE - The following need no parameters so they are grouped into 1 packet type.
     // CW_APPEARANCELIST
@@ -480,39 +522,7 @@ class FormatChecker {
     const type = message.shift();
 
     if (type === Types.Messages.CW_ITEMSLOT) {
-      // slot: [action, slotType, slotIndex, slotCount], optionally followed
-      // by a destination slot [slotType2, slotIndex2] when swapping between
-      // two stores (see handleItemSlot in packethandler.js, which is the
-      // authority on this shape and does its own per-store-type bounds
-      // checking against the real inventory/equipment/bank sizes).
-      //
-      // FIX: the old code guarded the 6-field variant with
-      // `message.len === 7` -- `.len` isn't a real Array property (it's
-      // always undefined), and even ignoring that typo, handleItemSlot
-      // checks `msg.length === 6`, not 7. So the extra 2 fields were never
-      // actually validated; this checks the real, both-cases-correct shape.
-      // It also replaces `this.inventoryMax`/`this.itemCountMax`, which were
-      // never assigned anywhere on this class (always undefined) -- the
-      // closest real constants are itemBankMax (the largest of the three
-      // item stores, used here as a generous shared upper bound since the
-      // handler re-validates the exact per-store-type size itself) and
-      // itemNumberMax (the stack/magic-number bound used for item counts
-      // elsewhere in this file).
-      const baseSlot = [
-        numberField(0, 2), // action: 0 eat, 1 swap, 2 drop
-        numberField(0, 2), // slot type: 0 inventory, 1 equipment, 2 bank
-        numberField(0, itemBankMax), // slot index
-        numberField(0, itemNumberMax), // slot count
-      ];
-      const schema = z.union([
-        tupleField(baseSlot),
-        tupleField([
-          ...baseSlot,
-          numberField(0, 2), // destination slot type
-          numberField(-1, itemBankMax), // destination slot index (-1 = unspecified)
-        ]),
-      ]);
-      const res = schema.safeParse(message);
+      const res = this.itemSlotFormat.safeParse(message);
       if (!res.success) {
         // z.union() only reports each branch's failure inside
         // res.error.issues[i].unionErrors, so surface both branches' reasons
