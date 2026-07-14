@@ -52,16 +52,25 @@ Utils.randomOrientation = function() {
     return o;
 };
 
+// FIX: this used hardcoded numbers (1/2/3/4) that don't match
+// Types.Orientations' actual UP/DOWN/LEFT/RIGHT values -- randomOrientation()
+// just above (and everywhere else that reads Types.Orientations.*, e.g.
+// entitymoving.js/updater.js) compares against the real enum members
+// instead of guessing their numeric values. The only caller of this function
+// is a debug console.info in callbacks/playercallback.js, so this only ever
+// printed the wrong direction name in a log line -- but comparing against
+// Types.Orientations.* directly makes it correct regardless of what those
+// values actually are, instead of silently drifting out of sync again.
 Utils.getOrientationString = function(r) {
     let o = "NONE";
 
-    if(r === 1)
+    if(r === Types.Orientations.UP)
         o = "UP";
-    else if(r === 2)
+    else if(r === Types.Orientations.DOWN)
         o = "DOWN";
-    else if(r === 3)
+    else if(r === Types.Orientations.LEFT)
         o = "LEFT";
-    else if(r === 4)
+    else if(r === Types.Orientations.RIGHT)
         o = "RIGHT";
 
     //console.info("orientation: " + o);
@@ -389,8 +398,15 @@ Utils.SwapElements = function (arr, i1, i2) {
   [arr[i1], arr[i2]] = [arr[i2], arr[i1]];
 }
 
+// FIX: was `fixed === null` -- omitting the second argument entirely (the
+// normal way to ask for the default) passes `undefined`, not `null`, so the
+// intended default of 2 decimal places never actually applied unless a
+// caller explicitly passed `null`. toFixed(undefined) still "works" (it
+// defaults to 0 digits per spec), so this silently rounded to whole numbers
+// instead of 2 decimals for any caller that just omitted the argument.
+// `== null` catches both null and undefined.
 Utils.getNumShortHand = function (val, fixed) {
-  if (fixed === null)
+  if (fixed == null)
     fixed = 2;
 
   if (val <= 1000)
@@ -405,8 +421,12 @@ Utils.getNumShortHand = function (val, fixed) {
     return (val/1000000000000).toFixed(fixed)+"T";
 }
 
+// FIX: same `=== null` vs `== null` issue as getNumShortHand() above --
+// omitting `fixed` passes `undefined`, which `=== null` doesn't catch, so
+// the intended default silently never applied for a caller that just
+// omitted the argument.
 Utils.Percent = function (val, fixed) {
-  if (fixed === null)
+  if (fixed == null)
     fixed = 0;
 
   return Number(val * 100).toFixed(fixed) + "%";

@@ -46,7 +46,14 @@ const itemStoreTypeMax = 2;
 const craftIdMax = 99;
 const craftItemCount = 100;
 
-const auctionEntriesMax = 9999;
+// FIX: exported (was a plain module-local const) so world/auction.js can
+// cap how many listings it will ever actually create at the same number
+// this file already uses to bound the client-supplied auction index for
+// CW_AUCTIONBUY/CW_AUCTIONDELETE. Previously those were two independent
+// numbers that happened to only be enforced on the read side -- see the
+// FIX comment on Auction.add() in world/auction.js for what that let
+// happen once more than this many auctions had ever been listed.
+export const auctionEntriesMax = 9999;
 const auctionActionMax = 3;
 
 const achievementIndexMax = 99;

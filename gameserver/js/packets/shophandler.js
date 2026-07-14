@@ -61,9 +61,19 @@ class ShopHandler {
             return;
 
         if (kind) {
-            this.world.auction.add(this.player, item, price, itemIndex);
-            this.world.auction.list(this.player, 0);
-            p.items.inventory.setItem(itemIndex, null);
+            // FIX: add() now reports whether the listing actually happened
+            // (see the FIX comment on Auction.add() in world/auction.js --
+            // it can decline once the auction house is at capacity). It
+            // already clears the inventory slot itself on success, so the
+            // extra unconditional `p.items.inventory.setItem(itemIndex,
+            // null)` that used to run here regardless was both redundant on
+            // success and, on a declined/full listing, would have wiped the
+            // item out of the player's inventory anyway even though it was
+            // never actually listed -- a real item-loss bug. Only refresh
+            // the auction listing view if the item was actually added.
+            if (this.world.auction.add(this.player, item, price, itemIndex)) {
+                this.world.auction.list(this.player, 0);
+            }
         }
     }
 
@@ -437,8 +447,17 @@ class ShopHandler {
             return;
         }
 
+        // FIX: isWeapon()/isArmor() were called with no argument, so `kind`
+        // was always undefined inside them and both always returned false
+        // -- every crafted item (weapons and armor included) silently got
+        // durability 0/0 instead of 900. Worse, _repairItem() above bails
+        // out early when `item.itemDurability === item.itemDurabilityMax`
+        // (0 === 0 here), so a crafted weapon/armor piece came out
+        // permanently stuck at 0 durability with no way to repair it.
+        // Passing itemKind (already resolved above from craftData.o) fixes
+        // both checks.
         let durability = 0;
-        if (ItemTypes.isWeapon() || ItemTypes.isArmor())
+        if (ItemTypes.isWeapon(itemKind) || ItemTypes.isArmor(itemKind))
             durability = 900;
 
         // FIX: gold and crafting materials used to be deducted BEFORE

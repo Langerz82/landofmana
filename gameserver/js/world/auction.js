@@ -4,6 +4,9 @@ import ItemRoom from '../items/itemroom.js';
 // never imported here (only Types was) -- threw ReferenceError every time a
 // player browsed the armor or weapon auction category.
 import { GameTypes, ItemTypes } from '../common.js';
+// FIX: see the FIX comment on add() below -- this is the same bound
+// format.js already uses to validate the client-supplied auction index.
+import { auctionEntriesMax } from '../format.js';
 
 class AuctionRecord {
     constructor(playerName, price, item) {
@@ -82,11 +85,29 @@ class Auction {
         return false;
     }
 
+    // FIX: nothing here ever capped this.auctions.length, even though
+    // CW_AUCTIONBUY/CW_AUCTIONDELETE (see format.js) only ever validate a
+    // client-supplied index up to auctionEntriesMax (9999). remove() below
+    // never shrinks the array (it just nulls out a slot), so length only
+    // ever grows -- once more than auctionEntriesMax listings had ever been
+    // created, any new one landed at an index no client could ever
+    // reference again: permanently un-buyable and un-deletable, silently
+    // losing that player's item for good. Rejecting new listings once at
+    // capacity (and telling the player, instead of silently swallowing
+    // their item) closes that off. Returns true/false so callers (see
+    // packets/shophandler.js's handleAuctionSell) can avoid removing the
+    // item from the player's inventory when the listing didn't happen.
     add(player, item, price, invIndex) {
+        if (this.auctions.length >= auctionEntriesMax) {
+            player.sendPlayer(new Messages.Notify("AUCTION","AUCTION_FULL"));
+            return false;
+        }
+
         const auction = new AuctionRecord(player.name, price, item);
         this.auctions.push(auction);
         player.items.inventory.setItem(invIndex, null);
         player.sendPlayer(new Messages.Notify("AUCTION","AUCTION_ADDED"));
+        return true;
     }
 
     remove(index) {

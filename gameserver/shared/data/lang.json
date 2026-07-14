@@ -39,6 +39,7 @@
     "SHOP_NOSPACE": "There is not enough space in your inventory.",
     "SHOP_MISMATCH": "The price has been changed, please try again.",
     "AUCTION_ADDED": "The auction item you listed has been added.",
+    "AUCTION_FULL": "The auction is full.",
     "SHOP_NOCRAFTITEMS": "You do not have enough craft Items.",
     "SHOP_MISSINGITEMS": "You are missing {0} {1}'s",
     "SHOP_UNLOCK_CONFIRM": "Do you want to unlock this appearance for {0} gems?",

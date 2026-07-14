@@ -286,7 +286,13 @@ class World {
 
     forEachMap(callback) {
       Utils.forEach(this.maps, function (map) {
-        if (map && map.ready && map.isLoaded && map.entities && callback)
+        // FIX: was `map.ready` -- map.js's `ready` is a method (registers
+        // the onLoad callback), not a flag; see the FIX comment in
+        // map.js's initMap() for why relying on it as a boolean here was
+        // fragile (it only read "truthy" because a function reference is
+        // always truthy, not because it meaningfully signaled load state).
+        // `isReady` is the actual boolean map.js sets once loading finishes.
+        if (map && map.isReady && map.isLoaded && map.entities && callback)
           callback(map);
       });
     }

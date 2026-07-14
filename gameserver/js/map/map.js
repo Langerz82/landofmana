@@ -31,8 +31,31 @@ class Map {
                 return;
             }
 
+            // FIX: neither `err` nor a parse failure was ever checked here.
+            // If the read failed, `file` is undefined and JSON.parse(undefined)
+            // throws synchronously inside this async fs.readFile callback --
+            // uncatchable by any surrounding try/catch, so it only ever got
+            // caught (and silently swallowed, just logged) by main.js's
+            // process-wide 'uncaughtException' handler. Either way self.initMap()
+            // never ran, this map's `isLoaded`/`ready` flags never flipped, and
+            // mapManager's onMapsReady() (which waits on every map) could hang
+            // forever with no clear error pointing at which map or why. Checking
+            // `err` and wrapping JSON.parse in its own try/catch turns both
+            // failure modes into a clear, localized log instead of a silent hang.
             fs.readFile(filepath, function (err, file) {
-                let json = JSON.parse(file);
+                if (err) {
+                    console.error("Map.load: failed to read " + filepath + ": " + err.message);
+                    return;
+                }
+
+                let json;
+                try {
+                    json = JSON.parse(file);
+                } catch (e) {
+                    console.error("Map.load: failed to parse " + filepath + ": " + e.message);
+                    return;
+                }
+
                 //console.info("Map.load:"+JSON.stringify(json));
                 self.initMap(json);
                 json = null;
@@ -77,7 +100,21 @@ class Map {
         this.doors = this._getDoors(thismap);
 
         this.isLoaded = true;
-        this.ready = true;
+        // FIX: this used to be `this.ready = true` -- but `ready` is also
+        // the name of the method just below that registers `readyFunc`.
+        // Assigning a boolean to `this.ready` creates an own instance
+        // property that shadows the prototype method of the same name for
+        // this instance from this point on. It only "worked" because
+        // mapmanager.js only ever calls `map.ready(callback)` once, right
+        // after construction, before this async load finishes -- so the
+        // method is still callable at the one point anything calls it. Any
+        // future code path that calls `map.ready(...)` again after the map
+        // has already loaded would throw ("map.ready is not a function"),
+        // since `this.ready` is `true` by then. `isReady` avoids the
+        // collision entirely; `isLoaded` (already set above) is what
+        // worldserver.js's forEachMap() actually keys off, so this is kept
+        // only for anything else that may read it.
+        this.isReady = true;
         this.readyFunc(this);
     }
 

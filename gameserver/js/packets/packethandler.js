@@ -986,7 +986,15 @@ class PacketHandler {
         }
 
         const map = self.server.maps[mapId];
-        if (!(map && map.ready)) {
+        // FIX: was `map.ready` -- that's map.js's method that registers the
+        // onLoad callback, not a load-state flag (see the FIX comments in
+        // map.js's initMap() and worldserver.js's forEachMap() for the same
+        // issue). A function reference is always truthy, so this check
+        // never actually caught a target map that hadn't finished loading
+        // yet -- it passed unconditionally as long as `map` existed at all,
+        // letting a player teleport onto a map whose `entities`/`doors`
+        // might not be initialized yet. `isReady` is the real boolean.
+        if (!(map && map.isReady)) {
             console.info("Map non-existant or not ready");
             return;
         }
