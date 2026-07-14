@@ -143,27 +143,42 @@ export default class SettingsHandler {
     		}
       });
 
+      const changeMColor = function (val) {
+        $(':root').css('--pixel-bg', val);
+        $('div.frame-heading').css('background-color', val);
+        $('div.frame-content').css('background-color', val);
+        $('div.frame-panel').css('background-color', val);
+
+      };
+
       const buttonMColor = $('#buttonmenucolor');
       localforage.getItem('menucolor', function(e, val) {
         if (!val)
           return;
+        changeMColor(val);
         buttonMColor.val(val);
       });
+
+    	buttonMColor.change(function(e) {
+        localforage.setItem('menucolor', this.value);
+        changeMColor(this.value);
+      });
+
+      const changeBColor = function (val) {
+        $('div.frame-new-button').css('background-color', val);
+      };
 
       const buttonBColor = $('#buttonbuttoncolor');
       localforage.getItem('buttoncolor', function(e, val) {
         if (!val)
           return;
-        $('div.frame-new-button').css('background-color', val);
+        changeBColor(val);
         buttonBColor.val(val);
       });
 
-    	buttonMColor.change(function(e) {
-        localforage.setItem('menucolor', this.value);
-      });
       $('#buttonbuttoncolor').change(function(e) {
         localforage.setItem('buttoncolor', this.value);
-        $('div.frame-new-button').css('background-color', this.value);
+        changeBColor(this.value);
       });
 
       const fnSetZoom = function (val) {
