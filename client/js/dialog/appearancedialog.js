@@ -130,16 +130,16 @@ class AppearancePage extends TabPage {
             if (!game || !game.player || !game.player.appearances)
               return;
 
-            if (this.itemType==0)
+            if (this.itemType===0)
                 categoryType="armor";
-            if (this.itemType==1)
+            if (this.itemType===1)
                 categoryType="weapon";
 
     		    if (game.player.isArcher())
     		    {
-              if (this.itemType==0)
+              if (this.itemType===0)
         			    categoryType="armorarcher";
-        			if (this.itemType==1)
+        			if (this.itemType===1)
         			    categoryType="weaponarcher";
         		}
 
@@ -167,13 +167,13 @@ class AppearancePage extends TabPage {
 
         reload()
         {
-            for(var index = this.pageIndex * this.rackSize; index < Math.min((this.pageIndex + 1) * this.rackSize, this.items.length); index++) {
+            for(let index = this.pageIndex * this.rackSize; index < Math.min((this.pageIndex + 1) * this.rackSize, this.items.length); index++) {
                 const rack = this.racks[index - (this.pageIndex * this.rackSize)];
 
                 rack.assign(this.items[index]);
                 rack.setVisible(true);
             }
-            for(var index = this.items.length; index < (this.pageIndex + 1) * this.rackSize; index++) {
+            for(let index = this.items.length; index < (this.pageIndex + 1) * this.rackSize; index++) {
                 const rack = this.racks[index - (this.pageIndex * this.rackSize)];
 
                 rack.setVisible(false);
@@ -312,7 +312,7 @@ export default class AppearanceDialog extends Dialog {
           {
             index = this.looksArmorIndex = (this.armorLooks.length + index) % this.armorLooks.length;
             const spriteId = this.armorLooks[index];
-            if (spriteId==0 || game.player.appearances[spriteId] === 1) {
+            if (spriteId===0 || game.player.appearances[spriteId] === 1) {
 
               game.player.setSpriteByIndex(0, Number(spriteId));
 
@@ -364,7 +364,7 @@ export default class AppearanceDialog extends Dialog {
       	    this.armorLooks = [];
       	    this.weaponLooks = [];
 
-	          for(var i=0; i < AppearanceData.length; i++)
+	          for(let i=0; i < AppearanceData.length; i++)
             {
               if (p.appearances[i] === 0)
                 continue;

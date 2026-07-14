@@ -101,7 +101,7 @@ const SkillFactory = {
 };
 
 SkillFactory.Skills = {};
-for (var i = 0; i < SkillData.Data.length; ++i) {
+for (let i = 0; i < SkillData.Data.length; ++i) {
     const skillName = SkillData.Data[i].name;
     //log.info("skillName=" + skillName);
     SkillFactory.Skills[i] = SkillActive;

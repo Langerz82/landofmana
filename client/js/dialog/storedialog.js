@@ -135,9 +135,9 @@ class StorePage extends TabPage {
             log.info(JSON.stringify(this.items));
 
             let cond = function (item) { return ItemTypes.isConsumableItem(item.kind); };
-        		if (this.itemType==2)
+        		if (this.itemType===2)
                 cond = function (item) { return ItemTypes.isArmor(item.kind); }
-        		if (this.itemType==3)
+        		if (this.itemType===3)
                 cond = function (item) { return ItemTypes.isWeapon(item.kind); }
 
             let i=this.items.length;
@@ -216,7 +216,10 @@ class StoreFrame extends TabBook {
 
             });
 
-            var self = this;
+            // FIX (var cleanup): was `var self = this;` declared after the onChange callback
+            // above that reads `self` - safe as const because the callback only actually runs
+            // later (on a page-navigator change event), by which time this line has executed.
+            const self = this;
 
             this.minLevel = 1;
             this.maxLevel = 100;

@@ -41,13 +41,13 @@ export default class Pathfinder {
             n1 = Math.floor(n1), n2 = Math.floor(n2), n3 = Math.floor(n3);
             const i1 = Math.min(n1, n2), i2 = Math.max(n1, n2);
             if (axis_x) {
-                for (var i = i1; i <= i2; i++) {
+                for (let i = i1; i <= i2; i++) {
                     if (grid[n3][i]) {
                         return false;
                     }
                 }
             } else {
-                for (var i = i1; i <= i2; i++) {
+                for (let i = i1; i <= i2; i++) {
                     if (grid[i][n3]) {
                         return false;
                     }
@@ -68,7 +68,7 @@ export default class Pathfinder {
             path2[i] = path[i].slice();
 
         if (isRealPath) {
-            for (var coord of path2) {
+            for (let coord of path2) {
                 coord[0] /= ts;
                 coord[1] /= ts;
             }
@@ -76,14 +76,14 @@ export default class Pathfinder {
 
         let pCoord = null;
 
-        for (var coord of path2) {
+        for (let coord of path2) {
             if (coord[1] < 0 || coord[1] >= ly)
                 return false;
             if (coord[0] < 0 || coord[0] >= lx)
                 return false;
 
             if (pCoord) {
-                if (coord[0] != pCoord[0] && coord[1] != pCoord[1])
+                if (coord[0] !== pCoord[0] && coord[1] !== pCoord[1])
                     return false;
                 if (Math.abs(coord[0] - pCoord[0]) > 0) {
                     if (!xf(pCoord[0], coord[0], coord[1]))
@@ -296,12 +296,10 @@ export default class Pathfinder {
     }
 
     findPath(grid, start, end, findIncomplete) {
-        var path;
-
         this.applyIgnoreList_(grid, true);
         this.applyIncludeList_(grid, true);
 
-        var path = this.AStar(grid, start, end);
+        const path = this.AStar(grid, start, end);
         // PERF/FIX: see findShortPath() above - was an unconditional console.info(JSON.stringify(...)).
         if (path && (log.level === "debug" || log.level === "info")) {
             log.info("pathfinder.findPath - path: " + JSON.stringify(path));

@@ -172,7 +172,7 @@ export default class Gamepad {
            $(index).trigger("click");
          }
          else {
-           var index = self.storeDialogBuyButton.format(self.joystickY-1);
+           const index = self.storeDialogBuyButton.format(self.joystickY-1);
            this.setSelectedItem($(index));
          }
        }
@@ -272,7 +272,7 @@ export default class Gamepad {
           mody=1;
         }
 
-      if (navigate != 0) {
+      if (navigate !== 0) {
         self.joystickY = (self.joystickY+mody+len)%len;
         const index = self.menuButtons[self.joystickY];
         this.setSelectedItem($(index));
@@ -280,7 +280,7 @@ export default class Gamepad {
     }
     else if (self.mainButtonsActive)
     {
-      if (navigate == 0)
+      if (navigate === 0)
         return;
 
       const buttons = {};
@@ -289,7 +289,7 @@ export default class Gamepad {
       buttons['0-0'] = self.mainButtons[0];
       buttons['1-0'] = self.mainButtons[1];
 
-      if (ShortcutStyle.indexOf('horizontal') == 0)
+      if (ShortcutStyle.indexOf('horizontal') === 0)
       {
         buttons['1-1'] = self.playerShortcut[0];
         buttons['1-2'] = self.playerShortcut[1];
@@ -299,13 +299,13 @@ export default class Gamepad {
         buttons['1-6'] = self.playerShortcut[5];
         buttons['1-7'] = self.playerShortcut[6];
 
-        if (ShortcutStyle == "horizontal-asc") {
+        if (ShortcutStyle === "horizontal-asc") {
           if (navigate === Navigate.LEFT)
             modx = -1;
           if (navigate === Navigate.RIGHT)
             modx = 1;
         }
-        else if (ShortcutStyle == "horizontal-desc") {
+        else if (ShortcutStyle === "horizontal-desc") {
           if (navigate === Navigate.LEFT)
             modx = 1;
           if (navigate === Navigate.RIGHT)
@@ -318,7 +318,7 @@ export default class Gamepad {
         self.joystickX = (self.joystickX+modx+8)%8;
         self.joystickY = (self.joystickY+mody+2)%2;
       }
-      if (ShortcutStyle.indexOf('vertical') == 0)
+      if (ShortcutStyle.indexOf('vertical') === 0)
       {
         buttons['1-1'] = self.playerShortcut[0];
         buttons['2-1'] = self.playerShortcut[1];
@@ -328,13 +328,13 @@ export default class Gamepad {
         buttons['6-1'] = self.playerShortcut[5];
         buttons['7-1'] = self.playerShortcut[6];
 
-        if (ShortcutStyle == "vertical-asc") {
+        if (ShortcutStyle === "vertical-asc") {
           if (navigate === Navigate.UP)
             mody = -1;
           if (navigate === Navigate.DOWN)
             mody = 1;
         }
-        else if (ShortcutStyle == "vertical-desc") {
+        else if (ShortcutStyle === "vertical-desc") {
           if (navigate === Navigate.UP)
             mody = 1;
           if (navigate === Navigate.DOWN)
@@ -474,7 +474,7 @@ export default class Gamepad {
     //{
       const defHighlight = "3px solid rgb(0, 0, 255)";
       if (self.selectedItem) {
-        if (!GamePadShortcut || GamePadShortcut.item != self.selectedItem)
+        if (!GamePadShortcut || GamePadShortcut.item !== self.selectedItem)
         {
           self.selectedItem.css('border', self.selectedItemBorder);
           self.selectedItemBorder = null;
@@ -1230,7 +1230,7 @@ export default class Gamepad {
         self.funcNavigation();
       }*/
 
-      if (navigate != 0) {
+      if (navigate !== 0) {
         if (!self.navInterval)
           self.funcNavigation();
         if (self.navInterval == null)

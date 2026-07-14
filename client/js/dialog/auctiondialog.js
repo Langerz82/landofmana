@@ -158,7 +158,7 @@ class AuctionStorePage extends TabPage {
         }
 
         reload() {
-            for (var rack of this.racks)
+            for (let rack of this.racks)
               rack.clear();
 
             this.close();

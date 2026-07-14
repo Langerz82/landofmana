@@ -97,7 +97,7 @@ export default class Character extends EntityMoving {
     modHp(val) {
         const prev = this._modHp(val);
 
-        if (this.stats.hp == 0) {
+        if (this.stats.hp === 0) {
             this.die();
         }
         return (typeof game !== 'undefined') ? prev : this.changePoints(prev, 0);

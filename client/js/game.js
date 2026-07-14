@@ -820,7 +820,11 @@ export default class Game {
             self.client.sendMoveEntity(p, 2);
           });
 
-          var checkTeleport = function (p, x, y)
+          // FIX (var cleanup): callbacks registered earlier in this method (onKeyMove,
+          // onStopPathing) reference checkTeleport before this declaration textually, but they
+          // only actually run later in response to player events - by then this line has
+          // already executed, so const is safe despite the forward reference.
+          const checkTeleport = function (p, x, y)
           {
             //self.teleportFromTown(p);
 
@@ -1193,7 +1197,7 @@ export default class Game {
             case "attack_ok": {
               const skillId = (p.attackSkill) ? p.attackSkill.skillId : -1;
               this.client.sendAttack(p, p.target, skillId);
-              if (skillId != -1)
+              if (skillId !== -1)
                 p.attackSkill = null;
 
               this.audioManager.playSound("hit" + Math.floor(Math.random() * 2 + 1));

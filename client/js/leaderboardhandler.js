@@ -87,7 +87,7 @@ export default class LeaderboardHandler {
 
 		let playerIndex = -1;
 		const leadersLength = leaders.length;
-		for (var i=0; i < leadersLength; ++i)
+		for (let i=0; i < leadersLength; ++i)
 		{
 			const leader = leaders[i];
 			if (self.game.player.name === leader.key)
@@ -124,7 +124,7 @@ export default class LeaderboardHandler {
 		}
 
 		let lbdata = "<table><tr><th>Rank</th><th>Name</th><th>Score</th></tr>";
-		for (var i=recStart; i < recEnd; ++i)
+		for (let i=recStart; i < recEnd; ++i)
 		{
 			const leader = leaders[i];
 			if (i === playerIndex)
@@ -139,7 +139,7 @@ export default class LeaderboardHandler {
 		const pagesCount = Math.ceil(leadersLength / recordsPerPage);
 		//alert(leadersLength + " " + recordsPerPage + " " + pagesCount);
 		let pageData = ""; // FIX: was uninitialized, producing literal "undefined<option...>" on first concat
-		for (var i = 1; i <= pagesCount; ++i)
+		for (let i = 1; i <= pagesCount; ++i)
 		{
 			if (pageIndex === i)
 			    pageData += "<option value=\""+i+"\" selected>"+i+"</option>";

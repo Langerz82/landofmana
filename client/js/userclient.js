@@ -95,7 +95,7 @@ export default class UserClient {
                 fnRecieveAction(data);
 		          }
 						};
-           var fnRecieveAction = function (data) {
+           const fnRecieveAction = function (data) {
              // FIX: same unconditional logging issue as onMessage above - use log.debug
              log.debug("recv: "+data);
              if(data instanceof Array) {
@@ -129,7 +129,7 @@ export default class UserClient {
 						fnProcessMessage(message);
 	        }
           else {
-            var message = data.split(",");
+            const message = data.split(",");
             fnRecieveAction(message);
           }
 	      };

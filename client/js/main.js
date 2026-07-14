@@ -135,7 +135,11 @@ window.onbeforeunload = function (e) {
     });
 };
 
-var initGame = function() {
+// FIX (var cleanup): initGame() is called (line ~132) from inside a deferred callback that
+// only runs after the whole module has finished evaluating, so by the time it's actually
+// invoked this declaration has long since run - safe as const despite the call site appearing
+// earlier in the file.
+const initGame = function() {
     const canvas = document.getElementById("entities"),
         input = document.getElementById("chatinput");
 
@@ -406,7 +410,7 @@ var initGame = function() {
           if (!fnCondition())
             return;
 
-          for (var k of key.value) {
+          for (let k of key.value) {
             if (event.which === k) {
               if (key.isUp && key.press) {
                 key.press();
@@ -424,7 +428,7 @@ var initGame = function() {
           if (!fnCondition())
             return;
 
-          for (var k of key.value) {
+          for (let k of key.value) {
             if (event.which === k) {
               if (key.isDown && key.release) {
                 key.release();

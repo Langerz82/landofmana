@@ -171,7 +171,7 @@ export default class EntityMoving extends Entity {
         let points = [];
         const sec = 2 * Math.PI / iterations;
         let x, y, deg = 0;
-        for (var i = 0; i < iterations; ++i) {
+        for (let i = 0; i < iterations; ++i) {
             deg += sec;
             // Math.round instead of ~~ (truncate-toward-zero). ~~ always rounds
             // down for positive coords, which biased every candidate point
@@ -185,7 +185,7 @@ export default class EntityMoving extends Entity {
 
         const coords = [];
         let p, tp, len = points.length;
-        for (var i = 0; i < len; ++i) {
+        for (let i = 0; i < len; ++i) {
             p = points[i];
             coords.push({d: Utils.realDistance([sx, sy], p), x: p[0], y: p[1]});
         }
@@ -652,10 +652,13 @@ export default class EntityMoving extends Entity {
     }
 
     isInReach(x, y, o, r, rs) {
-        var o = o || this.orientation;
+        // FIX (var cleanup): o/rs/r here were redeclaring their own parameters with var - illegal
+        // with let/const, so these are just reassignments now (order preserved: rs before r,
+        // since r's default reads rs).
+        o = o || this.orientation;
         const ts = G_TILESIZE;
-        var rs = rs || ts >> 1;
-        var r = r || ts + rs;
+        rs = rs || ts >> 1;
+        r = r || ts + rs;
 
         let a = rs, b = rs;
         switch (o) {

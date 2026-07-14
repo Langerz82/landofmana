@@ -13,7 +13,7 @@ import ItemLoot from './itemlootdata.js';
 const Items = {};
 const CraftData = fetchJsonSync('shared/data/craft.json');
 let id = 0;
-for (var craft of CraftData) {
+for (let craft of CraftData) {
     craft.id = id++;
 }
 
@@ -67,7 +67,7 @@ $.each(itemParse, function(itemKey, itemValue) {
         craft: getCraftData(kind)
     };
 
-    if (itemData.type == "object")
+    if (itemData.type === "object")
         itemData.cooldown = (itemValue.cooldown) ? itemValue.cooldown : 10;
 
     kindData[kind] = itemData;
@@ -94,7 +94,12 @@ Items.jqShowItem = function(jq, item, jqn, size) {
         itemData = ItemLoot[kind - 1000];
     }
 
-    var scale = 2;
+    // FIX (var cleanup): this and the `var scale = 3` in the else branch below were two
+    // separate var declarations of the same name in the same function - legal because var
+    // ignores block boundaries, and harmless here because the if/else branches are mutually
+    // exclusive and each only reads its own value within its own branch. Converting both to
+    // block-scoped declarations is behaviorally identical for that reason.
+    const scale = 2;
     if (itemData.staticsheet && itemData.staticsheet > 0) {
         const data = Staticsheet[itemData.staticsheet];
         if (size > 1)
@@ -117,16 +122,16 @@ Items.jqShowItem = function(jq, item, jqn, size) {
 
     }
     else {
-        var spriteName = itemData.sprite;
+        let spriteName = itemData.sprite;
         if (kind >= 1000 && kind < 2000) {
             spriteName = game.sprites["itemloot"].file;
         } else if (ItemTypes.isEquippable(kind)) {
             spriteName = game.sprites["items"].file;
         }
 
-        var scale = 3;
+        const scale = 3;
 
-        var margin = (56 - (scale * 16)) >> 1;
+        const margin = (56 - (scale * 16)) >> 1;
 
         const resize = function(img) {
             jq.css({

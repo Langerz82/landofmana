@@ -94,14 +94,14 @@ class StoreRack {
 
             let i=0;
             let html="<span class='craftBecomes'>&lt;&lt;&nbsp;</span><div class='craftReqs'>";
-            for (var it of item.craft.i) {
+            for (let it of item.craft.i) {
               it.name = "craft_"+item.kind+"_"+i;
               html += "<div class='craftitem'><div id='"+it.name+"'></div></div>";
               i++;
             }
             this.extra.html(html+"</div>");
 
-            for (var it of item.craft.i) {
+            for (let it of item.craft.i) {
               const itemData = {itemKind: it[0], itemNumber: it[1]};
               Items.jqShowItem($('#'+it.name), itemData, $('#'+it.name));
             }
@@ -155,9 +155,9 @@ class StorePage extends TabPage {
             log.info(JSON.stringify(this.items));
 
             let cond = function (item) { return true; };
-        		if (this.itemType==2)
+        		if (this.itemType===2)
                 cond = function (item) { return ItemTypes.isArmor(item.kind); }
-        		if (this.itemType==3)
+        		if (this.itemType===3)
                 cond = function (item) { return ItemTypes.isWeapon(item.kind); }
 
             let i=this.items.length;
@@ -261,7 +261,10 @@ class StoreFrame extends TabBook {
 
             });
 
-            var self = this;
+            // FIX (var cleanup): was `var self = this;` declared after the onChange callback
+            // above that reads `self` - safe as const because the callback only actually runs
+            // later (on a page-navigator change event), by which time this line has executed.
+            const self = this;
 
             this.minLevel = 1;
             this.maxLevel = 100;

@@ -327,7 +327,7 @@ export default class ShortcutHandler {
       // shortcutId here too; the two branches are now equivalent and could be merged, but kept
       // separate to preserve the original structure.
       for (let sc of this.shortcuts) {
-        if (sc.type == 1 && sc.type === shortcut.type && sc.shortcutId === shortcut.shortcutId)
+        if (sc.type === 1 && sc.type === shortcut.type && sc.shortcutId === shortcut.shortcutId)
         {
           shortcuts.push(sc);
         }

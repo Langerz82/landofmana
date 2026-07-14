@@ -70,7 +70,7 @@ export default class HoveringInfo {
 }
 
 // DEFINE(this stays module-scope; HoveringInfo constructor references it at call time, after module init completes, so hoisting order is safe)
-var damageInfoData = {
+const damageInfoData = {
     "levelUp": {
       fill: 0x00FFFF,
       stroke: 0x000000,

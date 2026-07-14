@@ -29,8 +29,12 @@ export default class InfoManager {
 
         addDamageInfo(value, x, y, type, duration) {
             this.index = (this.index >= Number.MAX_SAFE_INTEGER) ? 1 : this.index+1;
-            var time = this.game.currentTime,
-                duration = (duration)? duration : 1000,
+            // FIX (var cleanup): `duration` here was redeclaring the `duration` parameter via
+            // var (legal, a no-op reassignment) inside the same multi-declaration statement as
+            // genuinely new variables - let/const can't redeclare a parameter, so it's split out
+            // into a plain reassignment below and the rest converted to const.
+            duration = (duration)? duration : 1000;
+            const time = this.game.currentTime,
                 id = this.index,
                 self = this,
                 info = new HoveringInfo(id, value, x, y, duration, type);

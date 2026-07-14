@@ -627,14 +627,14 @@ export default class Renderer {
 	    }
 
     drawEntityTargetPos(index, x, y) {
-      var sprite = this.pxSprite["etp_"+index];
+      let sprite = this.pxSprite["etp_"+index];
       if (!sprite)
       {
         const gfx = new PIXI.Graphics();
         const l = (this.tilesize >> 1);
         this.drawTarget(gfx, 0, 0, 0xff0000, l, 1);
         const texture = this.renderer.generateTexture(gfx);
-        var sprite = new PIXI.Sprite(texture);
+        sprite = new PIXI.Sprite(texture);
         Container.ENTITIES.addChild(sprite);
         this.pxSprite["etp_"+index] = sprite;
         sprite.anchor.set(0.5);
@@ -698,7 +698,7 @@ export default class Renderer {
     drawEntityTile(index, x, y) {
       const ts = this.tilesize;
 
-      var sprite = this.pxSprite["et_"+index];
+      let sprite = this.pxSprite["et_"+index];
       if (!sprite)
       {
         const gfx = new PIXI.Graphics();
@@ -706,7 +706,7 @@ export default class Renderer {
         gfx.lineStyle(2, 0x00ff00)
           .drawRoundedRect(x-l, y-l, l << 1, l << 1, 4);
         const texture = this.renderer.generateTexture(gfx);
-        var sprite = new PIXI.Sprite(texture);
+        sprite = new PIXI.Sprite(texture);
         Container.ENTITIES.addChild(sprite);
         this.pxSprite["et_"+index] = sprite;
         sprite.anchor.set(0.5);
@@ -836,7 +836,7 @@ export default class Renderer {
       const c = game.camera;
       const s = this.scale;
       const id = "bub_"+bubble.id;
-      var sprite = this.pxSprite[id];
+      let sprite = this.pxSprite[id];
       let x = (bubble.entity.x + eo[0]) * s;
       let y = (bubble.entity.y + eo[1]) * s;
       if (!sprite)
@@ -883,7 +883,7 @@ export default class Renderer {
 
         const texture = this.renderer.generateTexture(gfx);
 
-        var sprite = new PIXI.Sprite(texture);
+        sprite = new PIXI.Sprite(texture);
         sprite.cullable = true;
         sprite.anchor.set(0.5,0.5);
         sprite.alpha = 0.85;
@@ -928,7 +928,9 @@ export default class Renderer {
           return;
 
         const eo = this.getEntityOffset();
-        var c = game.camera,
+        // FIX (var cleanup): `ey` in this multi-declaration is reassigned below (`ey -= (ts >>
+        // 1)` for NpcMove entities), so the whole group needs `let`, not `const`.
+        let c = game.camera,
             frame = anim.currentFrame,
             s = 2,
             x = frame.x * s,
@@ -1135,7 +1137,7 @@ export default class Renderer {
         let sprite = this.pxSprite[spriteKey];
 
         const ts = this.tilesize;
-        var x = (entity.x + eo[0]) * s;
+        const x = (entity.x + eo[0]) * s;
         const y = (entity.y + eo[1] - ts) * s;
 
         if (!sprite)
@@ -1206,7 +1208,7 @@ export default class Renderer {
                   }
   							}
   							else {
-  								var id = mc.tileGrid[y][x];
+  								const id = mc.tileGrid[y][x];
   								if(id) {
                     self.drawTile([mc.isHighTile(id), id, x, y]);
   								}
@@ -1352,8 +1354,10 @@ export default class Renderer {
 
       const w = ts*gs;
       const h = (ts >> 2)*gs;
-      var x = x-(w >> 1);
-      var y = y-(h >> 1);
+      // FIX (var cleanup): x/y here were redeclaring their own parameters with var - illegal
+      // with let/const, so these are just reassignments now.
+      x = x-(w >> 1);
+      y = y-(h >> 1);
       const border=2;
 
       gfx.lineStyle(border, "#000000")
@@ -1501,8 +1505,8 @@ export default class Renderer {
       const y = -h;
       const ymax = 0;
 
-      var sprite = this.pxSprite["cutscene_1"];
-      var sprite2 = this.pxSprite["cutscene_2"];
+      let sprite = this.pxSprite["cutscene_1"];
+      let sprite2 = this.pxSprite["cutscene_2"];
       if (!sprite)
       {
         const gfx = new PIXI.Graphics();
@@ -1511,11 +1515,11 @@ export default class Renderer {
           .endFill();
 
         const texture = this.renderer.generateTexture(gfx);
-        var sprite = new PIXI.Sprite(texture);
+        sprite = new PIXI.Sprite(texture);
         Container.HUD.addChild(sprite);
         this.pxSprite["cutscene_1"] = sprite;
 
-        var sprite2 = new PIXI.Sprite(texture);
+        sprite2 = new PIXI.Sprite(texture);
         Container.HUD.addChild(sprite2);
         this.pxSprite["cutscene_2"] = sprite2;
 
@@ -1600,7 +1604,7 @@ export default class Renderer {
 
           for (let y=0; y < ly; ++y) {
             for (let x=0; x < lx; ++x) {
-              if (tg1[y][x] != tg2[y][x])
+              if (tg1[y][x] !== tg2[y][x])
                 return false;
             }
           }
@@ -1620,7 +1624,7 @@ export default class Renderer {
     }
 
     setTilesOffset(x,y) {
-      var //ts = this.tilesize,
+      const //ts = this.tilesize,
           c = game.camera,
           //p = game.player,
           gs = this.gameScale;

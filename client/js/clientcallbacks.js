@@ -93,7 +93,7 @@ export default class ClientCallbacks {
               y = Number(data[3]),
               portalId = Number(data[4]);
           const status = game.mapStatus = Number(data[1]);
-          var p = game.player;
+          const p = game.player;
 
           log.info("ON PLAYER TELEPORT MAP:"+mapId+"status: "+status+",x:"+x+",y:"+y);
 
@@ -322,7 +322,7 @@ export default class ClientCallbacks {
 
             entity.onRequestPath(function(x, y) {
                 const include = [];
-                var ignored = [entity], // Always ignore self
+                const ignored = [entity], // Always ignore self
                     ignoreTarget = function(target) {
                         ignored.push(target);
                     };
@@ -475,7 +475,7 @@ export default class ClientCallbacks {
               if(!p || p.isDying || p.isDead)
                 return;
 
-              if (!(p.x==x && p.y==y))
+              if (!(p.x===x && p.y===y))
               {
                 console.warn("PLAYER NOT IN CORRECT POSITION.");
                 //log.info("DEBUG: p.x="+p.x+",x="+x+"p.y="+p.y+",y="+y);
@@ -1237,7 +1237,13 @@ export default class ClientCallbacks {
             p.stats.free = parseInt(data.shift());
 
             // TODO fix item inits, and skill functions.
-            var itemCount = parseInt(data.shift());
+            // FIX (var cleanup): this method reuses `itemCount` as a scratch variable for three
+            // separate item lists below (equipment/inventory/bank) via three sequential `var
+            // itemCount = ...` redeclarations - legal for var (same function-scoped variable,
+            // reassigned each time) but a SyntaxError if all three became `let`/`const` at this
+            // same scope level. Declared once here with `let`; the other two occurrences below
+            // are now plain reassignments.
+            let itemCount = parseInt(data.shift());
             if (itemCount > 0)
             {
               const items = [];
@@ -1270,7 +1276,7 @@ export default class ClientCallbacks {
             p.setSprite(aSprite, 0);
             p.setSprite(wSprite, 1);
 
-            var itemCount = parseInt(data.shift());
+            itemCount = parseInt(data.shift());
             if (itemCount > 0)
             {
               const items = [];
@@ -1294,7 +1300,7 @@ export default class ClientCallbacks {
             }
             p.setRange();
 
-            var itemCount = parseInt(data.shift());
+            itemCount = parseInt(data.shift());
             if (itemCount > 0)
             {
               const items = [];

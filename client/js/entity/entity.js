@@ -72,7 +72,7 @@ export default class Entity {
             throw "Sprite error";
         }
 
-        if (sprite == this.sprites[index])
+        if (sprite === this.sprites[index])
             return;
 
         this.oldSprites[index] = this.sprites[index];
@@ -86,7 +86,7 @@ export default class Entity {
             this.pjsSprites[index] = game.renderer.changeSprite(this.sprites[index], pjsSprite);
 
         // The main sprite Animations are used only.
-        if (index == 0)
+        if (index === 0)
             this.animations = sprite.animations;
 
         this.isLoaded = true;

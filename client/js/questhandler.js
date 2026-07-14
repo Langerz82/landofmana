@@ -56,7 +56,7 @@ export default class QuestHandler {
         }
 
         let progress = (quest.count + " / " + quest.object.count);
-        if (quest.type==QuestType.GETITEMKIND)
+        if (quest.type===QuestType.GETITEMKIND)
         {
           progress = (quest.count + " / " + quest.object2.count);
         }
@@ -64,7 +64,7 @@ export default class QuestHandler {
         let spriteName;
         let itemData;
         let idName;
-        if (quest.type==QuestType.GETITEMKIND)
+        if (quest.type===QuestType.GETITEMKIND)
         {
           const kind = quest.object2.kind;
           itemData = ItemLoot[kind];
@@ -74,13 +74,13 @@ export default class QuestHandler {
     			spriteName = game.sprites["itemloot"].file;
           idName = itemData.name.toLowerCase();
         }
-        if (quest.type==QuestType.KILLMOBKIND)
+        if (quest.type===QuestType.KILLMOBKIND)
         {
           const mobData = MobData.Kinds[quest.object.kind];
           spriteName = mobData.spriteName;
           idName = spriteName.toLowerCase();
         }
-        if (quest.type==QuestType.USENODE)
+        if (quest.type===QuestType.USENODE)
         {
           spriteName = "nodeset"+quest.object.kind;
           idName = spriteName.toLowerCase()+"_node"+quest.data1;
@@ -88,15 +88,15 @@ export default class QuestHandler {
 
         const sprite = this.game.spritesets[0][spriteName];
         let sprite_content = "<div class=\"img quest-img-%idName%\"></div>"
-        if (quest.type==QuestType.USENODE)
+        if (quest.type===QuestType.USENODE)
         {
           sprite_content = "<div class=\"img quest-img-%idName%\" style=\"background-image: url('"+sprite.filepath+"')\"></div>"
         }
-        else if (quest.type==QuestType.GETITEMKIND)
+        else if (quest.type===QuestType.GETITEMKIND)
         {
           sprite_content = "<div class=\"img quest-img-%idName%\" style=\"background-image: url('img/2/sprites/%sprite%')\"></div>"
         }
-        else if (quest.type==QuestType.KILLMOBKIND)
+        else if (quest.type===QuestType.KILLMOBKIND)
         {
           sprite_content = "<div class=\"img quest-img-%idName%\" style=\"background-image: url('"+sprite.filepath+"')\"></div>"
           //sprite_content = "<div class=\"img quest-img-%idName%\" style=\"background-image: url('img/2/sprites/%sprite%.png')\"></div>"
@@ -112,13 +112,13 @@ export default class QuestHandler {
             "<td class='frame-stroke1'>" + progress + "</td>" +
           "</tr>");
 
-        if (quest.type==QuestType.GETITEMKIND) {
+        if (quest.type===QuestType.GETITEMKIND) {
           $('.quest-img-' + idName).css({
             'background-position': '-' + (itemData.offset[0] * 32) + 'px -' + (itemData.offset[1] * 32) + 'px',
             'width': "32px",
             'height': "32px"});
         }
-        if (quest.type==QuestType.KILLMOBKIND) {
+        if (quest.type===QuestType.KILLMOBKIND) {
           const x = ((sprite.animationData['idle_down'].length - 1) * sprite.width)*2+sprite.width/2;
           const y = ((sprite.animationData['idle_down'].row) * sprite.height)*2+sprite.height/2;
 
@@ -128,7 +128,7 @@ export default class QuestHandler {
             "width": (sprite.width)+"px",
             "height": (sprite.height)+"px"});
         }
-        if (quest.type==QuestType.USENODE) {
+        if (quest.type===QuestType.USENODE) {
           const animName = "node"+quest.data1;
           const x = ((sprite.animationData[animName].length - 1) * sprite.width)*2+sprite.width/2;
           const y = ((sprite.animationData[animName].row) * sprite.height)*2+sprite.height/2;

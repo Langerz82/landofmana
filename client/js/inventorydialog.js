@@ -234,7 +234,7 @@ export default class InventoryDialog {
       const self = this;
 
       const max = game.equipment.maxNumber;
-      for (var i = 0; i < max; i++) {
+      for (let i = 0; i < max; i++) {
         $('#equipment' + i).attr('draggable', true);
         $('#equipment' + i).draggable = true;
 
@@ -299,7 +299,7 @@ export default class InventoryDialog {
         });
       }
 
-      for (var i = 0; i < this.maxInventoryNumber; i++) {
+      for (let i = 0; i < this.maxInventoryNumber; i++) {
         $('#inventoryitem'+i).attr('draggable', true);
         $('#inventoryitem'+i).draggable = true;
 
@@ -538,7 +538,7 @@ export default class InventoryDialog {
         const cond = function (item) { return ItemTypes.isConsumableItem(item.itemKind); };
         const items = self.getItems(0, cond);
         const cooldowns = [];
-        for (var item of items) {
+        for (let item of items) {
           //var slot = item.slot % self.pageItems;
           cooldowns.push($('#inventoryHL'+item.slot));
         }
@@ -558,7 +558,7 @@ export default class InventoryDialog {
 
       const setCooltimes = function () {
         self.cooldowns = fnCooldownItems();
-        if (self.cooldownTime == 0) {
+        if (self.cooldownTime === 0) {
           resetCooltimeItems();
           clearInterval(self.coolTimeCallback);
           self.coolTimeCallback = null;

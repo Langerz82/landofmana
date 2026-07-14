@@ -35,7 +35,9 @@ export default class Quest {
         update(arr) {
           // FIX: parseInt() was an Array.prototype monkey-patch that has
           // been removed from util.js; migrated to Utils.ArrayParseInt().
-          var arr = Utils.ArrayParseInt(arr);
+          // FIX (var cleanup): was `var arr = ...`, redeclaring the `arr` parameter with var -
+          // let/const can't redeclare a parameter, so this is just a reassignment.
+          arr = Utils.ArrayParseInt(arr);
 
           this.id = arr[0];
           this.type = arr[1];
@@ -106,7 +108,7 @@ export default class Quest {
         }
 
         setTextTemplate(txt) {
-          if (this.type==QuestType.GETITEMKIND)
+          if (this.type===QuestType.GETITEMKIND)
           {
             if (this.object2) {
               const itemLootData = ItemLoot[(this.object2.kind)];
@@ -119,7 +121,7 @@ export default class Quest {
                 txt = txt.replace(/%name2%/g, mobData.key.capitalizeFirstLetter());
             }
           }
-          if (this.type==QuestType.KILLMOBKIND)
+          if (this.type===QuestType.KILLMOBKIND)
           {
             if (this.object) {
               const mobData = MobData.Kinds[this.object.kind];
@@ -128,14 +130,14 @@ export default class Quest {
               //d = d.replace('%level%', mobData.minLevel);
             }
           }
-          if (this.type==QuestType.HIDEANDSEEK)
+          if (this.type===QuestType.HIDEANDSEEK)
           {
             if (this.object) {
               const npcData = NpcData.Kinds[this.object.kind];
               txt = txt.replace('%name%', npcData.name);
             }
           }
-          if (this.type==QuestType.USENODE)
+          if (this.type===QuestType.USENODE)
           {
             if (this.object) {
               txt = txt.replace(/%count%/g, this.object.count);
