@@ -298,7 +298,12 @@ class FormatChecker {
     this.formats[Types.UserMessages.WU_SAVE_PLAYERS_LIST] = tupleField([
       arrayField(stringField(playerNameLenMin, playerNameLenMax), 0, worldUsersCountMax),
     ]);
+    // FIX: added the leading playerName field to match the gameserver now
+    // sending it (gameserver/js/user/userhandler.js's handleLoadPlayerData)
+    // so worldhandler.js's handlePlayerLoaded can correlate this response
+    // to the right pending login instead of guessing via shared state.
     this.formats[Types.UserMessages.WU_PLAYER_LOADED] = tupleField([
+      stringField(playerNameLenMin, playerNameLenMax),
       stringField(serverProtocolLenMin, serverProtocolLenMax),
       stringField(serverAddressLenMin, serverAddressLenMax),
       numberField(serverPortMin, serverPortMax),
