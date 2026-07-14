@@ -34,7 +34,7 @@ div.frame-heading
   width:60%;
   /*height:50%;*/
 
-  background-color: #0096ff;
+  background-color: var(--pixel-bg);
   z-index:9;
 
   /*border: 4px ridge #888;
@@ -72,7 +72,7 @@ div.frame-heading div
 div.frame-content {
   display: block;
   position: absolute;
-  background-color: #0096ff;
+  background-color: var(--pixel-bg);
   z-index:10;
   /*border-radius: 16px;
   border: 4px ridge #888;*/
@@ -157,7 +157,7 @@ div.frame-panel {
   display: block;
   position: absolute;
 
-  background-color: #0096ff;
+  background-color: var(--pixel-bg);
 
   /*border-radius: 5% / 5%;
 

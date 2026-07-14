@@ -145,10 +145,6 @@ export default class SettingsHandler {
 
       const changeMColor = function (val) {
         $(':root').css('--pixel-bg', val);
-        $('div.frame-heading').css('background-color', val);
-        $('div.frame-content').css('background-color', val);
-        $('div.frame-panel').css('background-color', val);
-
       };
 
       const buttonMColor = $('#buttonmenucolor');
