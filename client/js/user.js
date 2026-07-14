@@ -132,9 +132,35 @@ export default class User {
             this._forceStop();
           }
 
+          // FIX: move() (below) can queue a direction change here by writing the
+          // *orientation number* into stopKeyMove instead of a plain `true` (see
+          // there for why) while the previous tile-step was still finishing. Read
+          // that back out before the generic cleanup below blanks stopKeyMove to
+          // false. A plain key-release also sets stopKeyMove to boolean `true` -
+          // typeof tells the two apart (1-4 are numbers, `true` is not), so a bare
+          // release still just stops here with nothing queued to resume.
+          const queuedOrientation = (typeof this.stopKeyMove === "number") ? this.stopKeyMove : null;
+
           this.moveOrientation = 0;
           this.keyMove = false;
           this.stopKeyMove = false;
+
+          // By the time forceStop() runs here, moveCharacter()'s grid-alignment
+          // check has already snapped x/y onto the grid (that's what triggered
+          // this stop in the first place), so it's now safe to start walking the
+          // queued direction from a properly aligned tile instead of an arbitrary
+          // sub-tile pixel offset.
+          //
+          // Deliberately not rechecking rejectMove()/moveThrottle here (see
+          // scheduleMoveRetry's recheckThrottle=false below): that was already
+          // checked once, at the moment the player asked to turn (see move()'s
+          // stopKeyMove-queuing branch). Rechecking it again here, later, could
+          // land inside that same throttle window if the tile finished aligning
+          // quickly, reject the resume, and leave the player facing the new
+          // direction but permanently frozen with nothing left queued to retry.
+          if (queuedOrientation !== null) {
+            this.scheduleMoveRetry(queuedOrientation, G_UPDATE_INTERVAL, null, false);
+          }
         };
 
         player.idle = function (orientation) {
@@ -220,6 +246,28 @@ export default class User {
           return false;
         };
 
+        // Single choke point for every deferred "try to walk this way" retry used
+        // below (the post-alignment resume in forceStop(), and the throttle retry
+        // in move()) - one setTimeout call site instead of one per case. Just
+        // re-enters move() itself once the wait is up, rather than re-deriving its
+        // setOrientation/idle/startKeyMovement sequence here.
+        // `isStillWanted`, if given, is rechecked right before acting in case the
+        // player's input changed during the wait (e.g. released the key, or
+        // turned again). `recheckThrottle` controls move()'s skipThrottleCheck
+        // (inverted): only the immediate-press throttle retry wants move() to
+        // recheck rejectMove()/moveThrottle() again; the post-alignment resume
+        // already checked it once up front and must NOT check it again (see
+        // forceStop() above for why) - move() would otherwise silently drop the
+        // resume if a second throttle window happened to still be active.
+        player.scheduleMoveRetry = function (orientation, delay, isStillWanted, recheckThrottle) {
+          clearTimeout(this.moveRetryTimeout);
+          const self = this;
+          this.moveRetryTimeout = setTimeout(function () {
+            if (isStillWanted && !isStillWanted()) return;
+            self.move(orientation, true, !recheckThrottle);
+          }, delay);
+        };
+
         player.rejectMove = function () {
           if (this.fsm === "ATTACK") {
             return true;
@@ -256,10 +304,70 @@ export default class User {
             return this._moveTo(x, y, callback);
         };
 
-        player.move = function (orientation, state) {
+        // `skipThrottleCheck` is only ever passed by scheduleMoveRetry's post-alignment
+        // resume (see there): that resume already ran the mid-tile-guard/moveThrottle
+        // checks below once, at the moment the player originally asked to turn, and
+        // must NOT run them a second time here - a later, second throttle window could
+        // still be active even though the first check passed, which would silently
+        // drop the resume and freeze the player facing the new direction. An ordinary
+        // key press always leaves this false and gets the normal checks.
+        player.move = function (orientation, state, skipThrottleCheck) {
             if (this.isDying || this.isDead) return;
 
             if (state && orientation !== Types.Orientations.NONE) {
+
+                // FIX: pressing a new direction while already key-moving used to fall
+                // straight through to startKeyMovement() -> resetMovementState() ->
+                // movement.stop(), which just flips movement.inProgress off wherever the
+                // pixel-by-pixel transition happened to be at that instant. moveCharacter()'s
+                // grid-alignment check (and everything downstream that assumes
+                // x/y % G_TILESIZE === G_TILESIZE >> 1) then broke, because the player was
+                // left sitting mid-tile instead of on the grid - this was the "change
+                // direction and the player ends up off-grid" bug. Mirror what already
+                // happens on key release instead: leave the in-flight transition alone and
+                // just flag stopKeyMove so moveCharacter() snaps onto the next grid-aligned
+                // point and stops the transition on its own.
+                //
+                // stopKeyMove doubles as the queued direction here: moveCharacter()'s
+                // check only ever tests it for truthiness, and a release sets it to
+                // plain `true` with nothing to resume, so writing the orientation
+                // number (1-4) into it instead of `true` needs no separate field - it's
+                // still truthy, and forceStop() (above) tells the two apart with
+                // typeof before resuming whichever direction (if any) is queued there.
+                //
+                // Gated on this.orientation (not moveOrientation/keyMove): a fast
+                // key-roll - releasing the old direction and pressing the new one a frame
+                // apart, which is the common case, not the exception - has already run the
+                // release branch below by the time this press arrives, clearing keyMove/
+                // moveOrientation to false/0. Checking those let this guard get skipped
+                // entirely on that path, falling into the immediate reset and reproducing
+                // the exact same off-grid bug. this.orientation is never touched by the
+                // release branch, so it still reliably reflects whichever direction the
+                // in-flight transition is actually walking, release or no release.
+                if (!skipThrottleCheck && this.movement.inProgress && !this.isMovingPath() && this.orientation !== orientation) {
+                  // FIX: the resume used to run the queued turn back through
+                  // rejectMove() (via move()) once alignment was reached. That check
+                  // rechecked this.moveThrottle(G_ROUNDTRIP) at *resume* time - i.e. a
+                  // second, later throttle window from the one an ordinary immediate
+                  // press would hit. If the tile finished aligning quickly (well within
+                  // one throttle window of some earlier move), the resume would find
+                  // itself still "throttled", forceStop() with nothing left queued to
+                  // resume it, and leave the player facing the new direction but
+                  // permanently frozen - no further input was going to nudge it since
+                  // nothing re-queues on its own. Check reject conditions once, here, at
+                  // the moment the player actually asked to turn (matching what an
+                  // immediate press already does), and let the resume skip the recheck
+                  // entirely. Deliberately not calling the full rejectMove(): its
+                  // keyMove branch force-stops the in-flight walk, which is exactly the
+                  // off-grid interruption this whole code path exists to avoid.
+                  if (this.fsm === "ATTACK" || this.moveThrottle(G_ROUNDTRIP)) {
+                    return;
+                  }
+
+                  this.stopKeyMove = orientation;
+                  return;
+                }
+
                 this.moveOrientation = orientation;
 
                 // FIX: this used to leave this.orientation completely untouched while
@@ -282,7 +390,25 @@ export default class User {
                 if (this.fsm !== "ATTACK") {
                   this.idle(orientation);
                   clearTimeout(this.attackInterval);
-                  if (this.rejectMove()) {
+                  if (!skipThrottleCheck && this.rejectMove()) {
+                    // FIX: rejectMove() can only be true here via its moveThrottle
+                    // branch (the enclosing if already rules out fsm === "ATTACK",
+                    // and rejectMove()'s keyMove branch returns false, not true).
+                    // This used to just bail, leaving the player facing the
+                    // just-pressed direction (setOrientation already ran above) but
+                    // never actually walking. Holding a key down doesn't refire
+                    // press() again (see keyboard()'s isDown/isUp guard in
+                    // main.js), so with both direction keys held and no further
+                    // keyup/keydown cycle coming, nothing was left to retry - the
+                    // player looked permanently frozen mid-turn. Retry once the
+                    // throttle window clears, as long as this is still the
+                    // direction being asked for by then (moveOrientation gets
+                    // reset to 0 on release, or overwritten by a newer press, if
+                    // the input changed while we waited).
+                    const self = this;
+                    this.scheduleMoveRetry(orientation, G_ROUNDTRIP, function () {
+                      return self.moveOrientation === orientation;
+                    }, true);
                     return;
                   }
 
@@ -292,13 +418,13 @@ export default class User {
             } else if (!state) {
                 // KEY RELEASE
                 // FIX: this used to bail out entirely while attacking, which meant releasing
-                // a movement key mid-attack never cleared keyMove/moveOrientation/
-                // pendingKeyOrientation. The player.hit() completion callback checks
-                // self.moveOrientation to decide whether to resume movement after the attack
-                // animation finishes, so a swallowed release caused the player to keep moving
-                // on its own (or refuse further input) even though the key was already up -
-                // part of the "player gets jammed" symptom. Always clear key state on release;
-                // the attack animation itself still runs to completion regardless.
+                // a movement key mid-attack never cleared keyMove/moveOrientation. The
+                // player.hit() completion callback checks self.moveOrientation to decide
+                // whether to resume movement after the attack animation finishes, so a
+                // swallowed release caused the player to keep moving on its own (or refuse
+                // further input) even though the key was already up - part of the "player
+                // gets jammed" symptom. Always clear key state on release; the attack
+                // animation itself still runs to completion regardless.
                 //
                 // Movement itself must NOT stop here if the transition is already
                 // in progress - the player needs to keep walking until stopKeyMove
@@ -306,10 +432,15 @@ export default class User {
                 // check in game.js, which calls forceStop() for us at that point).
                 // Cutting movement off immediately on key-up would stop the player
                 // mid-tile, which is exactly what stopKeyMove exists to prevent.
+                //
+                // Setting stopKeyMove to plain `true` here (rather than an orientation
+                // number) also cancels any direction change queued by the press branch
+                // above - forceStop()'s typeof check treats `true` as "just stop,
+                // nothing to resume", same as it always has for an ordinary release.
                 this.keyMove = false;
                 this.stopKeyMove = true;
                 this.moveOrientation = 0;
-                this.pendingKeyOrientation = null;
+                clearTimeout(this.moveRetryTimeout);
 
                 // FIX: the one case the grid-alignment check can never catch: a
                 // fast tap-and-release where the key goes up again before

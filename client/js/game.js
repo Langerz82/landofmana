@@ -829,7 +829,10 @@ export default class Game {
             //self.teleportFromTown(p);
 
             const dest = self.mapContainer.getDoor(p);
-            if(!p.hasTarget() && dest) {
+            // FIX: was gated on !p.hasTarget(), so stopping on a door/portal tile while
+            // targeting something (e.g. a mob) silently skipped the teleport. Door tile
+            // position is what should matter here, not target state.
+            if(dest) {
                 // Door Level Requirements.
                 let msg;
                 let notification;
@@ -879,6 +882,13 @@ export default class Game {
               }*/
               //p.targetIndex = 0;
               log.info("onStopPathing - 1");
+
+              // FIX: checkTeleport used to run only after this hasTarget() block, but that
+              // block returns early when the player has a target - so stopping on a door
+              // tile while targeting something (e.g. a mob) never triggered the teleport.
+              // Run it first so doors/portals always fire on stop, regardless of target.
+              checkTeleport(p, x, y);
+
               if (p.hasTarget()) {
                 p.lookAtEntity(p.target);
                 self.makePlayerInteractNextTo();
@@ -887,8 +897,6 @@ export default class Game {
                 log.info("onStopPathing - NO TARGET!");
               }
               log.info("onStopPathing - 2");
-
-              checkTeleport(p, x, y);
 
               if(p.target instanceof NpcStatic || p.target instanceof NpcMove) {
                   self.makeNpcTalk(p.target);
