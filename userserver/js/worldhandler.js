@@ -499,7 +499,7 @@ class WorldHandler {
       }
       DBH.loadLooks(this.world.key, function (key, db_data) {
         let data = db_data.split(',');
-        data = data.parseInt();
+        data = Utils.ArrayParseInt(data);
         self.sendMessage( new UserMessages.LoadPlayerLooks(data));
       });
     }
