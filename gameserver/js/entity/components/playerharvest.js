@@ -42,7 +42,18 @@ class PlayerHarvest {
         // for an already-fired/never-set token, exactly like clearTimeout()
         // was on an invalid id.
         Scheduler.cancel(p.harvestTimeout);
-        p.harvestTimeout = Scheduler.schedule(function () {
+        // FIX: was `Scheduler.schedule(function () {...})` -- a plain
+        // function expression. Scheduler invokes scheduled callbacks as a
+        // bare `entry.callback()` (scheduler.js), so in strict-mode ES
+        // modules `this` inside a plain function called that way is
+        // `undefined`, not the PlayerHarvest instance. `this._abortHarvest`
+        // below threw a TypeError every time a harvest was interrupted
+        // before completing (player moved, swapped weapon, or got attacked
+        // mid-harvest -- packethandler.js clears `isHarvesting` on attack)
+        // -- i.e. on the normal "walked away mid-chop" path, not just a
+        // rare edge case. An arrow function closes over the enclosing
+        // `this` lexically instead of depending on how it's invoked.
+        p.harvestTimeout = Scheduler.schedule(() => {
             let complete = true;
 
             if (!p.isHarvesting)

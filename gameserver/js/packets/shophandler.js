@@ -319,8 +319,24 @@ class ShopHandler {
         const itemName = itemData.name;
         price = ItemTypes.getBuyPrice(itemKind);
         if (price > 0) {
+            // FIX: for a "buy multiple" item kind, itemCount is correctly
+            // overridden from the server-side itemData.buycount, ignoring
+            // whatever the client sent. But for every OTHER item kind,
+            // itemCount was left as-is -- the raw client-supplied value
+            // (format.js allows 0-100 for this field), while `price` stays
+            // the flat single-unit price and is never scaled by itemCount
+            // (unlike the sibling handleCraft(), which does `price = price
+            // * itemCount`). A client could request itemCount=100 on any
+            // non-buy-multiple item and receive 100 units of it for the
+            // price of 1 -- a straightforward gold/item duplication
+            // exploit. Non-buy-multiple items are only ever meant to be
+            // purchased one at a time, so force itemCount to 1 here,
+            // matching handleCraft()'s equivalent `else { itemCount = 1;
+            // }` branch.
             if (ItemTypes.Store.isBuyMultiple(itemKind)) {
                 itemCount = itemData.buycount;
+            } else {
+                itemCount = 1;
             }
             goldCount = p.items.gold[0];
             //console.info("goldCount="+goldCount);
@@ -421,19 +437,30 @@ class ShopHandler {
             return;
         }
 
+        let durability = 0;
+        if (ItemTypes.isWeapon() || ItemTypes.isArmor())
+            durability = 900;
+
+        // FIX: gold and crafting materials used to be deducted BEFORE
+        // attempting to place the crafted item, with no rollback if
+        // putItem() then returned -1 (no room) -- unlike handleStoreBuy()
+        // just above, which already creates+places the item first and only
+        // deducts gold once that succeeds. hasRoom() is checked right
+        // above and nothing between here and putItem() can consume a room
+        // slot, so this wasn't practically triggerable today, but it's the
+        // same "deduct first, trust a later step" ordering that's a latent
+        // risk the moment inventory/stacking logic changes. Creating and
+        // placing the item first, deducting only on success, matches
+        // handleStoreBuy()'s safer ordering.
+        const item = new ItemRoom([itemKind, itemCount, durability, durability]);
+        if (p.items.inventory.putItem(item) === -1)
+            return;
+
         p.items.modifyGold(-price);
         for (const it of craftData.i)
         {
             p.items.inventory.removeItemKind(it[0],it[1]*itemCount);
         }
-
-        let durability = 0;
-        if (ItemTypes.isWeapon() || ItemTypes.isArmor())
-            durability = 900;
-
-        const item = new ItemRoom([itemKind, itemCount, durability, durability]);
-        if (p.items.inventory.putItem(item) === -1)
-            return;
 
         p.sendPlayer(new Messages.Notify("SHOP", "SHOP_BUY", [itemName]));
     }

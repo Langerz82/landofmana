@@ -285,12 +285,28 @@ class SkillEffect {
       }
     }
 
+    // FIX: this applies the "end" phase directly via effect.apply(), which
+    // is what applyEffects("end", ...) above also does -- but unlike
+    // applyEffects(), this never followed up with stopIntervalTicking() or
+    // handler.removeSkillEffect(self) for the SkillEffect (`self`) being
+    // ended. This is the path Character.die()/Mob.destroy() reach (via
+    // Character.endEffects() -> skilleffect.endEffects()) when an entity
+    // dies or is removed while effects are active on it -- without this
+    // cleanup, each such SkillEffect's Scheduler-driven _tickInterval()
+    // (effecthandler.js's startIntervalTicking()) kept firing every 2s for
+    // up to its remaining duration, re-applying "interval"/"end" phases
+    // against `this.targets` (which can include entities other than the
+    // one that died/was removed, e.g. an AOE buff), and the dead
+    // SkillEffect lingered in handler.skillEffects until it finally expired
+    // on its own.
     endEffects() {
       for (const target of this.targets) {
         for (const self of target.activeEffects)
         {
           for (const effect of self.effectTypes)
             effect.apply(self, target, "end", 0);
+          self.stopIntervalTicking();
+          self.handler.removeSkillEffect(self);
         }
         target.activeEffects = [];
       }

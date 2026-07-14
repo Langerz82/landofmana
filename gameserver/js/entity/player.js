@@ -2,7 +2,6 @@
 /* global log, databaseHandler, QuestStatus, SkillData */
 import Character from './character.js';
 import Messages from "../message.js";
-import Formulas from "../formulas.js";
 import SkillHandler from "../skillhandler.js";
 import SkillEffectHandler from "../effecthandler.js";
 import PacketHandler from "../packets/packethandler.js";
@@ -10,7 +9,6 @@ import PlayerQuests from "./components/playerquests.js";
 import PlayerHarvest from "./components/playerharvest.js";
 import PlayerItems from "./components/playeritems.js";
 import PlayerCombat from "./components/playercombat.js";
-import Quest from "../quest.js";
 import Timer from '../timer.js';
 import Utils from '../utils.js';
 import { Types, ItemTypes } from '../common.js';
@@ -114,8 +112,30 @@ class Player extends Character {
       this.sendPlayerToClient();
     }
 
+    // FIX: was an empty stub. removeEntity() (map/mapentities.js) calls
+    // destroy() on every entity it removes -- Mob.destroy() already uses
+    // that hook to clean up its own combat state (forgetEveryone/
+    // clearTarget/endEffects), but Player never did anything equivalent.
+    // Since map/mapentities.js's removePlayer() (reached from every
+    // disconnect, via worldserver.js's packetHandler.onExit) is the only
+    // place a player is actually removed, and nothing else ever told mobs
+    // attacking a departed player to let go: any mob whose target was this
+    // player kept `target.isDead === false` forever (isDead is only set by
+    // die(), never by disconnect) and stayed locked onto a ghost -- landing
+    // "damage" that drops loot for nobody, and via mobai.js's checkAggro()
+    // early-returning while hasTarget() is true, making that mob
+    // permanently unavailable to aggro any real nearby player. This is not
+    // a rare edge case -- "player disconnects mid-fight" (tab close,
+    // connection drop) happens constantly on a live server.
+    // clean() (Character, inherited) disengages/idles every attacker
+    // currently targeting this player; removeTarget() releases whatever
+    // this player was themselves attacking (mirroring Mob.destroy()'s own
+    // clearTarget()); endEffects() stops any buffs/DOTs still active on
+    // this player from continuing to tick against a now-gone entity.
     destroy() {
-      const self = this;
+      this.clean();
+      this.removeTarget();
+      this.endEffects();
     }
 
     getState() {

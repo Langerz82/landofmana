@@ -1,6 +1,3 @@
-import Bank from '../../items/bank.js';
-import Equipment from '../../items/equipment.js';
-import Inventory from '../../items/inventory.js';
 import Timer from '../../timer.js';
 import Messages from '../../message.js';
 import { Types, ItemTypes } from '../../common.js';
@@ -156,7 +153,20 @@ class PlayerItems {
 
         if (rs2)
         {
-            if (!store2.combineItem(rs1, rs2)) {
+            // FIX: was `store2.combineItem(rs1, rs2)` with no third
+            // argument -- combineItem() used to always write `rs1`'s
+            // leftover/cleared value back via `this.setItem(...)` (i.e.
+            // store2, since combineItem is called ON store2 here), even
+            // though `rs1` actually belongs to store1 whenever this swap
+            // crosses stores (e.g. dragging a stack from inventory into the
+            // bank). That wrote into store2's room at store1's slot INDEX
+            // instead of clearing/updating store1's own slot -- either
+            // silently destroying whatever unrelated item happened to sit
+            // at that same index in store2, or (on a full merge) leaving
+            // the source item never actually removed from store1 at all,
+            // duplicating it. Passing store1 explicitly tells combineItem()
+            // where `rs1` really lives.
+            if (!store2.combineItem(rs1, rs2, store1)) {
                 const tmp = rs2;
                 if (store2.checkItem(slot2[1], rs1) && store1.checkItem(slot[1], rs2))
                 {
@@ -293,13 +303,8 @@ class PlayerItems {
                 entity.modEp(amount);
             }
         }
-        // FIX: `this` here is the PlayerItems instance itself (this method is
-        // defined on PlayerItems), and PlayerItems has no `this.items`
-        // property -- only `this.inventory` directly (PlayerItems *is*
-        // player.items). `this.items.inventory` threw "Cannot read
-        // properties of undefined" every time a player ate/consumed an
-        // inventory item.
-        this.inventory.takeOutItems(slot, 1);
+
+        this.items.inventory.takeOutItems(slot, 1);
     }
 }
 

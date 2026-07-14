@@ -160,9 +160,23 @@ class LootManager {
             v -= count;
         }
 
-// TODO CHECK CODE AS ITEM IS NOT PROVIDING ITEM KIND.
+        // FIX: `itemId` from a `for...in` loop is always a string (object
+        // keys are strings even when numeric-looking, the same class of
+        // bug already fixed elsewhere in this codebase -- see
+        // entity/components/playercombat.js's baseCritDef/baseDamageDef).
+        // `itemId2` was left as that string and used directly below in
+        // `ItemTypes.isEquippable(itemId2)` -- this is exactly what the
+        // "ITEM IS NOT PROVIDING ITEM KIND" TODO was flagging: an
+        // equippable drop's kind wouldn't compare/lookup correctly as a
+        // string, misclassifying it as non-equippable and building the
+        // dropped ItemRoom with the wrong durability/experience defaults
+        // for its actual kind. `new ItemRoom(...)` further down happens to
+        // self-heal via its own `Number(arr[0])` coercion, but that's after
+        // the isEquippable check already ran on the raw string. Coercing
+        // once here fixes it at the source.
         if (!itemId2)
             return null;
+        itemId2 = Number(itemId2);
 
         //console.info("itemName: "+itemName);
         //var kind = ItemTypes.getKindFromString(itemName);

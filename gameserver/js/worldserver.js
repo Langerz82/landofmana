@@ -9,7 +9,6 @@ import Character from './entity/character.js';
 import NpcStatic from './entity/npcstatic.js';
 import NpcMove from './entity/npcmove.js';
 import Player from './entity/player.js';
-import Item from './entity/item.js';
 import Mob from './entity/mob.js';
 import Node from './entity/node.js';
 //import Main from './main.js';
@@ -19,7 +18,6 @@ import MapManager from './map/mapmanager.js';
 
 import Messages from './message.js';
 
-import util from "util";
 import Pathfinder from "./pathfinder.js";
 
 import Updater from "./updater.js";

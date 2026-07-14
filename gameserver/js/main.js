@@ -295,7 +295,19 @@ function main(config) {
 
       	conn.sendUTF8("1["+Types.Messages.WC_VERSION+","+config.version+",\""+conn.hash+"\"]");
         const wh = new WorldHandler(server, conn);
-        wh.userConnection = server.userHandler.connection;
+        // FIX: `server.userHandler` is only assigned inside the async
+        // server.userConn.onConnectUser(...) callback above (fires once
+        // this gameserver's own connection to the userserver completes) --
+        // any player connection accepted before that finishes (a server
+        // restart racing with reconnecting clients, or a slow/flaky
+        // userserver link) threw "Cannot read properties of undefined
+        // (reading 'connection')" for every client connecting in that
+        // window. worldhandler.js's sendToUserServer() already handles
+        // `this.userConnection` being unset gracefully (logs and no-ops
+        // instead of throwing), so guarding here just lets that existing
+        // fallback do its job instead of crashing before it gets the
+        // chance.
+        wh.userConnection = server.userHandler ? server.userHandler.connection : null;
 
         conn.worldHandler = wh;
 

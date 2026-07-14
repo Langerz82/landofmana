@@ -1,4 +1,3 @@
-import BaseItem from '../items/baseitem.js';
 import Messages from '../message.js';
 import ItemRoom from '../items/itemroom.js';
 // FIX: list() below calls ItemTypes.isArmor()/isWeapon() but ItemTypes was

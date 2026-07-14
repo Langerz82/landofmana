@@ -1,6 +1,5 @@
 import _ from 'underscore';
 import NPCsJSON from "../../shared/data/npcs.json" with { type: 'json' };
-import NPCspeak from "../../shared/data/npc_english.json" with { type: 'json' };
 import NPCnames from "../../shared/data/npc_names_eng.json" with { type: 'json' };
 
 const Properties = {};

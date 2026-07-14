@@ -165,7 +165,7 @@ const Types = {
     WC_SET_SPRITE: 334,
     WC_SET_ANIMATION: 335,
     WC_BLOCK_MODIFY: 336,
-    WC_VERSION: 337
+    WC_VERSION: 338
   },
 
   Orientations: {

@@ -92,6 +92,7 @@
     "HARVEST_ADDED": "{0} has been added to your inventory",
     "HARVEST_WRONG_TYPE": "You need to have a {0}.",
     "HARVEST_NO_WEAPON": "You do not have a harvest item equipped.",
+    "TELEPORT_LEVEL_REQUIRED": "You must be at least level {0} and less than level {1} to use teleport.",
 
     "QUESTS_REWARD": [
       [0, "Here is your reward."],

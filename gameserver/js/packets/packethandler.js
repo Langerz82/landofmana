@@ -4,7 +4,6 @@ import Node from '../entity/node.js';
 import Messages from '../message.js';
 import Formulas from '../formulas.js';
 import { check as formatCheck } from '../format.js';
-import SkillHandler from '../skillhandler.js';
 import PartyHandler from './partyhandler.js';
 import ShopHandler from './shophandler.js';
 import Item from '../entity/item.js';
@@ -462,13 +461,18 @@ class PacketHandler {
 
         // slot type, slot index, slot count.
         const slot = [Number(msg[1]), Number(msg[2]), Number(msg[3])];
-        // FIX: this only bounds-checked slot type 2 (bank), and against
-        // equipment's maxNumber (5) instead of the bank's own size (96, see
-        // items/bank.js) -- rejecting every valid bank slot >= 6. Worse,
-        // slot types 0 (inventory, max 50) and 1 (equipment, max 5) got no
-        // bounds check at all here. itemStore[0..2] map directly to
-        // inventory/equipment/bank (see the slot-type comment above), so
-        // validate whichever store the requested slot type actually is.
+        // FIX: this only bounds-checked slot type 2, and against
+        // equipment's maxNumber (5) instead of that slot type's real store
+        // size -- rejecting valid slots for whichever store type 2 actually
+        // is. Worse, the other two slot types got no bounds check at all
+        // here. itemStore[0..2] map to inventory(max 50)/bank(max 96,
+        // items/bank.js)/equipment(max 5, items/equipment.js) respectively
+        // -- confirmed against user/userhandler.js's handleLoadPlayerItems,
+        // which is the code that actually constructs and assigns
+        // itemStore[type] for type 0/1/2 (an earlier version of this
+        // comment had the 1/2 order backwards: bank is slot type 1, not
+        // equipment). Validate whichever store the requested slot type
+        // actually is.
         const itemStore = this.player.items.itemStore[slot[0]];
         if (!itemStore || slot[1] < 0 || slot[1] >= itemStore.maxNumber)
             return;
@@ -800,6 +804,20 @@ class PacketHandler {
             target = p.map.entities.getEntityById(targetId);
             if (!target)
                 return;
+            // FIX: any entity id the client has seen (Item, Block, Node,
+            // NpcStatic -- not just Player/Mob) is a valid, reachable
+            // getEntityById() result, but only Character (Player/Mob)
+            // subclasses have the `activeEffects` skill-effect state that
+            // effectHandler.cast() below needs for "enemy"/"ally"-targeted
+            // skills. Casting at a non-Character id reached
+            // effecthandler.js's applyEffect() -> target.activeEffects
+            // .indexOf(...) and threw -- but only *after* skill.xp(1) had
+            // already run and the SkillEffect was already registered in
+            // skillEffects with no cleanup path, since the "end" phase that
+            // normally deregisters it was never reached. Reject before any
+            // of that happens.
+            if (!(target instanceof Character))
+                return;
         }
         //console.info("targetid="+targetId);
 
@@ -1005,6 +1023,27 @@ class PacketHandler {
             let isDoor = false;
             if (portalId >= 0) {
                 const door = p.map.doors[portalId];
+                // FIX: `portalId` was only checked as a valid index into the
+                // CURRENT map's doors array -- it names one specific real
+                // door, but that door's own destination (`door.tmap`, set
+                // in map.js's _getDoors) was never cross-checked against the
+                // client-supplied `mapId` this handler otherwise trusts.
+                // Nor was the door's level gate (`door.minLevel`/
+                // `door.maxLevel`, also set in _getDoors) ever enforced. A
+                // client could pick any valid door index on their current
+                // map and pair it with any other ready map's id to land at
+                // that door's tx/ty on an arbitrary destination map,
+                // bypassing whatever level requirement that door was
+                // configured with. Both are cheap, well-defined checks
+                // against data the door object already carries.
+                if (door.tmap !== mapId) {
+                    console.info("Teleport door does not lead to requested map.");
+                    return;
+                }
+                if (p.level < door.minLevel || p.level > door.maxLevel) {
+                    p.sendPlayer(new Messages.Notify("CHAT", "TELEPORT_LEVEL_REQUIRED", [door.minLevel, door.maxLevel]));
+                    return;
+                }
                 if (door.tx >= 0 && door.ty >= 0) {
                     pos = {x: door.tx, y: door.ty};
                     pos.x += (G_TILESIZE >> 1);
@@ -1262,7 +1301,17 @@ class PacketHandler {
         const id=parseInt(msg[0]);
         const p = this.player;
         const entity = p.map.entities.getEntityById(id);
-        if (entity)
+        // FIX: any entity id the client has seen was accepted here, not
+        // just Node ids -- onHarvestEntity() (playerharvest.js) happened to
+        // self-guard for non-Node entities today (entity.isDead/
+        // entity.weaponType are simply undefined on them, routing cleanly
+        // into the existing "wrong weapon type" abort), but that's an
+        // accident of what onHarvestEntity() currently touches, not a real
+        // guarantee -- a future change trusting entity.level/entity.setDrops
+        // more directly there would turn this into a live crash the same
+        // way the untyped target in handleSkill() did. Checking the type
+        // here is cheap and makes the real invariant explicit.
+        if (entity && entity instanceof Node)
             this.player.harvest.onHarvestEntity(entity);
     }
 

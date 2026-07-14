@@ -1,5 +1,4 @@
 /* global databaseHandler, log */
-import ItemRoom from './itemroom.js';
 import Messages from '../message.js';
 import { ItemTypes } from '../common.js';
 import Player from '../entity/player.js';
@@ -120,7 +119,28 @@ class ItemStore {
         return this._putItem(item);
     }
 
-    combineItem(item, item2) {
+    // FIX: `item` (the source, being merged away) and `item2` (the
+    // destination, already living in `this` store) used to both get
+    // written back via `this.setItem(...)` -- fine for putItem()'s own
+    // call below, where both items already belong to the same store, but
+    // NOT for playeritems.js's swapItem(), which calls this cross-store as
+    // `store2.combineItem(rs1, rs2)` to merge a stack being dragged from
+    // one item store (e.g. inventory) into another (e.g. bank). In that
+    // case `item` (rs1) belongs to store1, not `this` (store2) -- but its
+    // own leftover/cleared value was still written via `this.setItem(slot,
+    // item)`, i.e. into store2's room at store1's slot INDEX. Depending on
+    // what happened to occupy that same index number in store2, this
+    // either silently destroyed an unrelated item there, or (in the
+    // "fully merged" case, item=null) left the source item never actually
+    // removed from store1 at all -- functionally duplicating it (it stays
+    // in store1 while an equal-or-larger stack now also exists in store2).
+    // `sourceStore` (new, optional, defaults to `this` so the existing
+    // single-store putItem() call site is unaffected) lets the caller
+    // specify where `item` actually lives so it gets written back there
+    // instead.
+    combineItem(item, item2, sourceStore) {
+        sourceStore = sourceStore || this;
+
         // PERF: putItem() (above) calls combineItem() once per occupied
         // room slot (up to maxNumber, 50) on every single item pickup/stack
         // attempt -- these two JSON.stringify calls ran unconditionally on
@@ -187,7 +207,10 @@ class ItemStore {
             item2 = null;
         }
 
-        this.setItem(slot, item);
+        // `item` belongs to sourceStore (may differ from `this` -- see the
+        // FIX comment above), `item2` always belongs to `this` (the store
+        // this method was called on).
+        sourceStore.setItem(slot, item);
         this.setItem(slot2, item2);
         return res;
     }
