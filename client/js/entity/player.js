@@ -340,20 +340,4 @@ export default class Player extends Character {
         return super.nextStep();
     }
 
-    startKeyMovement(orientation) {
-        if (this.isDying || this.isDead) return;
-
-        this.resetMovementState();           // clean old state
-        this.setOrientation(orientation);
-
-        this.keyMove = true;
-        this.stopKeyMove = false;
-        this.moveOrientation = orientation;
-
-        this.walk(orientation);
-        if (this.key_move_callback) this.key_move_callback(1);
-
-        this.movement.stop(); // ensure clean
-    }
-
 }

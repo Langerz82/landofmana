@@ -479,6 +479,22 @@ export default class User {
           return this.observeTimer.isOver();
         };
 
+        player.startKeyMovement = function (orientation) {
+            if (this.isDying || this.isDead) return;
+
+            this.resetMovementState();           // clean old state
+            this.setOrientation(orientation);
+
+            this.keyMove = true;
+            this.stopKeyMove = false;
+            this.moveOrientation = orientation;
+
+            this.walk(orientation);
+            if (this.key_move_callback) this.key_move_callback(1);
+
+            this.movement.stop(); // ensure clean
+        };
+
         game.addPlayerCallbacks(player);
 
         return player;
