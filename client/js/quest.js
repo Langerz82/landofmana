@@ -34,7 +34,7 @@ export default class Quest {
 
         update(arr) {
           // FIX: parseInt() was an Array.prototype monkey-patch that has
-          // been removed from util.js; migrated to Utils.ArrayParseInt().
+          // been removed from utils.js; migrated to Utils.ArrayParseInt().
           // FIX (var cleanup): was `var arr = ...`, redeclaring the `arr` parameter with var -
           // let/const can't redeclare a parameter, so this is just a reassignment.
           arr = Utils.ArrayParseInt(arr);

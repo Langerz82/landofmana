@@ -2,7 +2,7 @@
 // Was: define(['../timer'], function(Timer) { var Entity = Class.extend({ init: ..., ... }); return Entity; });
 //
 // NOTE ON GLOBALS: Utils, Types, _, log, game, G_TILESIZE and AppearanceData are still
-// legacy globals provided by not-yet-converted scripts (util.js, data/*.js, main.js, etc).
+// legacy globals provided by not-yet-converted scripts (utils.js, data/*.js, main.js, etc).
 // They are read here but never assigned, so they're safe under ES module strict mode.
 import Timer from '../timer.js';
 

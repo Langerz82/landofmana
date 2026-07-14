@@ -10,7 +10,7 @@
 // js/lib/underscore.min.js's top-level `var p = this` UMD-style attach, which only works in a
 // non-strict classic <script> (where top-level `this` is `window`); ES modules always run
 // strict, where top-level `this` is `undefined`, so this file can't be safely `import`ed.
-// Types/ItemTypes/Utils ARE real ES module exports (gametypes.js/itemtypes.js/util.js), but the
+// Types/ItemTypes/Utils ARE real ES module exports (gametypes.js/itemtypes.js/utils.js), but the
 // rest of the codebase still references them as bare globals like the above, so globaltypes.js
 // imports them once and re-exposes them as window globals - it must run before main.js, whose
 // import graph pulls in every data/*.js file that reads these bare globals at import time.

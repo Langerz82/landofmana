@@ -1,4 +1,4 @@
-// Side-effect module: shared/js/gametypes.js, shared/js/itemtypes.js, and util.js are real ES
+// Side-effect module: shared/js/gametypes.js, shared/js/itemtypes.js, and utils.js are real ES
 // modules (export default Types/ItemTypes/Utils), but every other file in this codebase
 // references Types/ItemTypes/Utils as bare globals (Types.X, ItemTypes.X, Utils.X), the same way
 // jQuery ($), underscore (_), PIXI, pako, BISON, and localforage are referenced. This module
@@ -13,7 +13,7 @@
 // js/globalstate.js.
 import Types from '../shared/js/gametypes.js';
 import ItemTypes from '../shared/js/itemtypes.js';
-import Utils from './util.js';
+import Utils from './utils.js';
 
 window.Types = Types;
 window.ItemTypes = ItemTypes;

@@ -131,7 +131,7 @@ export default class Player extends Character {
         this.setOrientation(orientation);
         if (state === 1 && orientation !== Types.Orientations.NONE) {
             let lockStepTime = (G_LATENCY - (Utils.getWorldTime() - time));
-            // FIX: Number.prototype.clamp() doesn't exist -- util.js only
+            // FIX: Number.prototype.clamp() doesn't exist -- utils.js only
             // defines Utils.clamp(min, max, value) (see the equivalent
             // lockstep calc in clientcallbacks.js). This threw a TypeError
             // on every server-confirmed key-move packet for the local

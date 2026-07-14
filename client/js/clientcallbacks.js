@@ -1248,7 +1248,7 @@ export default class ClientCallbacks {
             {
               const items = [];
               // FIX: parseInt() was an Array.prototype monkey-patch that has
-              // been removed from util.js; migrated to Utils.ArrayParseInt().
+              // been removed from utils.js; migrated to Utils.ArrayParseInt().
               const itemArray = Utils.ArrayParseInt(data.splice(0,(itemCount*6)));
               for(let i=0; i < itemCount; ++i)
               {
@@ -1281,7 +1281,7 @@ export default class ClientCallbacks {
             {
               const items = [];
               // FIX: parseInt() was an Array.prototype monkey-patch that has
-              // been removed from util.js; migrated to Utils.ArrayParseInt().
+              // been removed from utils.js; migrated to Utils.ArrayParseInt().
               const itemArray = Utils.ArrayParseInt(data.splice(0,(itemCount*6)));
               for(let i=0; i < itemCount; ++i)
               {
@@ -1305,7 +1305,7 @@ export default class ClientCallbacks {
             {
               const items = [];
               // FIX: parseInt() was an Array.prototype monkey-patch that has
-              // been removed from util.js; migrated to Utils.ArrayParseInt().
+              // been removed from utils.js; migrated to Utils.ArrayParseInt().
               const itemArray = Utils.ArrayParseInt(data.splice(0,(itemCount*6)));
               for(let i=0; i < itemCount; ++i)
               {
@@ -1389,7 +1389,7 @@ export default class ClientCallbacks {
             if (shortcutCount > 0)
             {
               // FIX: parseInt() was an Array.prototype monkey-patch that has
-              // been removed from util.js; migrated to Utils.ArrayParseInt().
+              // been removed from utils.js; migrated to Utils.ArrayParseInt().
               let shortcutArray = data.splice(0,(shortcutCount*3));
               shortcutArray = Utils.ArrayParseInt(shortcutArray);
               const shortcuts = [];
