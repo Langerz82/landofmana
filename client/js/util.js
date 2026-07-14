@@ -26,12 +26,17 @@ window.requestAnimFrame = (function(){
           //};
 })();
 
+// FIX: was using String.replace() purely for its side effect - the callback populated `vars`
+// as a side effect while the actual return value of replace() (`parts`) was thrown away. That
+// works, but it's a fragile way to "iterate" matches (easy to break under refactor, and the
+// unused `parts`/discarded-return-value shape reads like a bug at a glance). Rewritten with
+// matchAll() to make the iteration explicit; same signature and return shape as before.
 Utils.getUrlVars = function() {
 	//from http://snipplr.com/view/19838/get-url-parameters/
     const vars = {};
-    const parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
-        vars[key] = value;
-    });
+    for (const match of window.location.href.matchAll(/[?&]+([^=&]+)=([^&]*)/gi)) {
+        vars[match[1]] = match[2];
+    }
     return vars;
 }
 
@@ -273,6 +278,13 @@ String.prototype.format = function (args) {
 // this file) at the actual implementation that was in effect
 String.prototype.f = String.prototype.format;
 
+// NOTE: despite the name, this is NOT real base64. `tarr.toString('base64')` below is
+// Array.prototype.toString, which ignores its argument and just comma-joins `tarr` - so the
+// "base64" here is really a comma-separated string of 32-bit chunk values. It's internally
+// consistent (Base64ToBinArray() below decodes this exact comma-joined format, and
+// appearancedialog.js relies on that pairing to round-trip player appearance data), so it isn't
+// broken - but don't "fix" it into real base64 without updating both ends and re-checking the
+// wire format server-side.
 Utils.BinArrayToBase64 = function (uint8array) {
   const len = Math.ceil(uint8array.length / 32);
   const tarr = [];

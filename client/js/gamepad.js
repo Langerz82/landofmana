@@ -12,6 +12,19 @@ const Navigate = {
 
 let GamePadShortcut = null; // FIX: was a bare global assignment (no var), which throws ReferenceError under ES module strict mode
 
+// PERF: previously declared as a closure inside interval(), which runs once per game tick
+// whenever a gamepad is connected - that allocated a new function object every ~1 tick for no
+// reason, since it doesn't capture any per-instance state (`stick`/`deadzone` are just
+// parameters). Hoisted to a module-level function so it's created once.
+function applyDeadZone(stick, deadzone) {
+  const dzx = Math.abs(stick.x);
+  if (dzx < deadzone)
+    stick.x = 0;
+  const dzy = Math.abs(stick.y);
+  if (dzy < deadzone)
+    stick.y = 0;
+}
+
 const jqInventoryWindow = $("#allinventorywindow");
 const jqMenuWindow = $("#menucontainer");
 const jqSkillWindow = $("#skillsDialog");
@@ -1091,17 +1104,8 @@ export default class Gamepad {
 
       self.pxgamepad.update();
 
-      const fnDeadZone = function (stick, deadzone) {
-        const dzx = Math.abs(stick.x);
-        if (dzx < deadzone)
-          stick.x = 0;
-        const dzy = Math.abs(stick.y); // FIX: missing var, was an implicit global
-        if (dzy < deadzone)
-          stick.y = 0;
-      };
-
-      fnDeadZone(self.pxgamepad.leftStick, 0.10);
-      fnDeadZone(self.pxgamepad.rightStick, 0.10);
+      applyDeadZone(self.pxgamepad.leftStick, 0.10);
+      applyDeadZone(self.pxgamepad.rightStick, 0.10);
 
       self.navigate = Navigate.NONE;
 

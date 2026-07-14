@@ -138,25 +138,33 @@ export default class Pathfinder {
         const dx = Math.abs(start[0] - end[0]);
         const dy = Math.abs(start[1] - end[1]);
 
+        // PERF: findDirectPath() runs on essentially every click-to-move request. The
+        // JSON.stringify() calls below used to run unconditionally as arguments to
+        // log.info(), which itself is a no-op unless log.level is "debug"/"info" (see
+        // lib/log.js) - so in the common (non-debug) case we were paying to stringify
+        // these arrays on every path request just to throw the string away. Gate the
+        // stringify behind the same check log.info() does internally.
+        const debugLogging = log.level === "debug" || log.level === "info";
+
         let mp = [start, end];
         if (dx === 0 || dy === 0) {
             if (this.isValidGridPath(grid, mp)) {
-                log.info("validpath-fdp1:" + JSON.stringify(mp));
+                if (debugLogging) log.info("validpath-fdp1:" + JSON.stringify(mp));
                 return mp;
             }
         }
 
         mp = [start, [start[0], end[1]], end];
-        log.info("mp:" + JSON.stringify(mp));
+        if (debugLogging) log.info("mp:" + JSON.stringify(mp));
         if (this.isValidGridPath(grid, mp)) {
-            log.info("validpath-fdp2:" + JSON.stringify(mp));
+            if (debugLogging) log.info("validpath-fdp2:" + JSON.stringify(mp));
             return mp;
         }
 
         mp = [start, [end[0], start[1]], end];
-        log.info("mp:" + JSON.stringify(mp));
+        if (debugLogging) log.info("mp:" + JSON.stringify(mp));
         if (this.isValidGridPath(grid, mp)) {
-            log.info("validpath-fdp3:" + JSON.stringify(mp));
+            if (debugLogging) log.info("validpath-fdp3:" + JSON.stringify(mp));
             return mp;
         }
         return null;
@@ -264,7 +272,12 @@ export default class Pathfinder {
         if (path) {
             //path = this.convertPathToRealPath(path, start, end);
             path = this.dropUneededNodes(path);
-            log.info(JSON.stringify(path));
+            // PERF: was an unconditional log.info(JSON.stringify(path)) - AStar() is the
+            // fallback pathfinder called on every path request that didn't resolve via the
+            // cheap findDirectPath()/findShortPath() checks, so this stringified every fallback
+            // path even with logging off. Gate it the same way findDirectPath() now does.
+            if (log.level === "debug" || log.level === "info")
+              log.info(JSON.stringify(path));
             return path;
         }
         return null;
@@ -272,8 +285,12 @@ export default class Pathfinder {
 
     findShortPath(crop, offsetX, offsetY, start, end) {
         const path = this.AStar(crop, start, end);
-        if (path) {
-            console.info("pathfinder.findShortPath - path: " + JSON.stringify(path));
+        // PERF/FIX: was console.info(...), which (unlike log.info) always logs and always pays
+        // the JSON.stringify() cost regardless of log level - moved to the same gated log.info
+        // pattern used elsewhere in this file so production builds don't stringify+spam the
+        // console on every short-path resolution.
+        if (path && (log.level === "debug" || log.level === "info")) {
+            log.info("pathfinder.findShortPath - path: " + JSON.stringify(path));
         }
         return path;
     }
@@ -285,8 +302,9 @@ export default class Pathfinder {
         this.applyIncludeList_(grid, true);
 
         var path = this.AStar(grid, start, end);
-        if (path) {
-            console.info("pathfinder.findPath - path: " + JSON.stringify(path));
+        // PERF/FIX: see findShortPath() above - was an unconditional console.info(JSON.stringify(...)).
+        if (path && (log.level === "debug" || log.level === "info")) {
+            log.info("pathfinder.findPath - path: " + JSON.stringify(path));
         }
         return path;
     }

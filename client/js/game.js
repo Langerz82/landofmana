@@ -681,8 +681,15 @@ export default class Game {
         onPlayerLoad(player) {
           log.info("Received player ID from server : "+ player.id);
 
+          // FIX: this setInterval's handle was never stored, so if onPlayerLoad() ever fires
+          // more than once in a session (e.g. reconnect) each call added another interval that
+          // was never cleared - a growing set of duplicate "who request" pings running forever.
+          // Store the handle and clear any previous one before creating a new one.
+          if (this.zoneCheckInterval)
+            clearInterval(this.zoneCheckInterval);
+
           // Make zoning possible.
-          setInterval(function() {
+          this.zoneCheckInterval = setInterval(function() {
             if (game.mapStatus >= 2 &&
                  !player.isMoving() && player.canObserve(game.currentTime))
             {
@@ -1259,48 +1266,50 @@ export default class Game {
             return;
           }
 
-          if (NpcData.Kinds[npc.kind].title==="Craft")
+          // FIX/PERF: was re-computing `NpcData.Kinds[npc.kind].title` (an array index + object
+          // property read) on every branch of this chain instead of once. Cached here.
+          //
+          // NOTE: the "Craft" check below is intentionally left as a standalone `if`, not folded
+          // into the `if/else if` chain that follows it (as it was before this refactor) - a
+          // Craft-titled NPC's title never matches "Beginner shop"/"Bank"/etc., so it always also
+          // falls through into the default `else` branch at the bottom (destroy bubble / run
+          // questhandler.talkToNPC / play npc sound) in addition to opening the craft dialog.
+          // That looks like it could be a copy-paste bug (every other dialog-opening branch is
+          // exclusive), but changing it would change live NPC-interaction behavior, so it's
+          // preserved as-is here rather than silently "fixed" - worth a deliberate decision by
+          // whoever owns the NPC/quest design.
+          const title = NpcData.Kinds[npc.kind].title;
+
+          // FIX: `this.gamepad.isActive() && this.gamepad.dialogNavigate()` was duplicated
+          // inside every dialog-opening branch below (Craft/Beginner shop/Bank/Enchant/Repair/
+          // Auction all mutually exclusive on `title`, so at most one ever fired anyway).
+          // Replaced with a single flag checked once after the chain.
+          let openedDialog = false;
+
+          if (title === "Craft")
       		{
   		    	this.craftDialog.show(1,100);
-          	if (this.gamepad.isActive())
-      			{
-      				this.gamepad.dialogNavigate();
-      			}
+            openedDialog = true;
           }
-          if (NpcData.Kinds[npc.kind].title==="Beginner shop")
+          if (title === "Beginner shop")
       		{
   		    	this.storeDialog.show(1,100);
-          	if (this.gamepad.isActive())
-      			{
-      				this.gamepad.dialogNavigate();
-      			}
-          } else if (NpcData.Kinds[npc.kind].title==="Bank") {
+            openedDialog = true;
+          } else if (title === "Bank") {
           	this.bankDialog.show();
-          	if (this.gamepad.isActive())
-      			{
-      				this.gamepad.dialogNavigate();
-      			}
-          } else if (NpcData.Kinds[npc.kind].title==="Enchant") {
+            openedDialog = true;
+          } else if (title === "Enchant") {
             game.inventoryMode = InventoryMode.MODE_ENCHANT;
           	this.inventoryDialog.showInventory();
-          	if (this.gamepad.isActive())
-      			{
-      				this.gamepad.dialogNavigate();
-      			}
-          } else if (NpcData.Kinds[npc.kind].title==="Repair") {
+            openedDialog = true;
+          } else if (title === "Repair") {
             game.inventoryMode = InventoryMode.MODE_REPAIR;
           	this.inventoryDialog.showInventory();
-          	if (this.gamepad.isActive())
-      			{
-      				this.gamepad.dialogNavigate();
-      			}
-          } else if (NpcData.Kinds[npc.kind].title==="Auction") {
+            openedDialog = true;
+          } else if (title === "Auction") {
           	this.auctionDialog.show();
-          	if (this.gamepad.isActive())
-      			{
-      				this.gamepad.dialogNavigate();
-      			}
-          } else if (NpcData.Kinds[npc.kind].title==="Looks") {
+            openedDialog = true;
+          } else if (title === "Looks") {
           	this.appearanceDialog.show();
           } else {
           	  this.bubbleManager.destroyBubble(npc.id);
@@ -1311,6 +1320,10 @@ export default class Game {
                   this.audioManager.playSound("npc");
               }
           }
+
+          if (openedDialog && this.gamepad.isActive())
+            this.gamepad.dialogNavigate();
+
           this.player.removeTarget();
         }
 
