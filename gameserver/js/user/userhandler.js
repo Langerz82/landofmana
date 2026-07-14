@@ -136,7 +136,14 @@ class UserHandler {
         console.info("player hash: "+player.hash);
         hashes[player.hash] = player;
         this.player = null;
-        this.send([Types.UserMessages.WU_PLAYER_LOADED,
+        // FIX: this used to omit playerName, so the userserver's
+        // WorldHandler.handlePlayerLoaded (userserver/js/worldhandler.js)
+        // had no way to know which pending login this response belonged
+        // to -- it fell back to a shared `this.user` field that a second,
+        // concurrent login could already have overwritten, routing the
+        // "world ready" reply to the wrong client. Including playerName
+        // lets that handler look up the correct pending login instead.
+        this.send([Types.UserMessages.WU_PLAYER_LOADED, playerName,
             MainConfig.protocol,MainConfig.address,MainConfig.port]);
     }
 

@@ -20,6 +20,26 @@ class WorldHandler {
         this.playerCreateData = {};
         this.loggedInUsers = new Map();
 
+        // FIX: this WorldHandler instance is a singleton shared by every
+        // player logging into this world (one instance per connected
+        // gameserver -- see main.js's `worldHandlers` array), not one per
+        // player. sendPlayerToWorld()/createPlayerToWorld() used to stash
+        // the player's `user` object on the shared `this.user` field while
+        // several async DB calls (DBH.loadPlayerUserInfo, etc.) were still
+        // in flight. If a second player logged in before the first
+        // player's DB calls resolved, `this.user` got overwritten with the
+        // second player's `user` -- so the first player's load-data
+        // package (and the eventual WorldReady reply routed via
+        // sendClient()) got stamped with the WRONG user's hash/connection.
+        // The gameserver then failed to find that (mismatched) hash in its
+        // `hashes` map and disconnected the client -- exactly the
+        // "second player logs in, another connection closes" symptom.
+        // `playerLoadData`/`playerCreateData` above already avoid this by
+        // being keyed per-playername; `pendingLogins` does the same for
+        // the `user` object itself, so concurrent logins can no longer
+        // clobber each other.
+        this.pendingLogins = new Map();
+
         this.block = false;
         this.listener = function(message) {
           console.info("recv[0]="+message);
@@ -85,9 +105,14 @@ class WorldHandler {
       this.connection.send(message);
     }
 
-    sendClient(message) {
-      if (this.user)
-        this.user.connection.send(message.serialize());
+    // FIX: used to read the shared `this.user` singleton instead of taking
+    // the target user explicitly -- see the `pendingLogins` comment in the
+    // constructor. That meant a reply could get routed to whichever
+    // player's login happened to be the most recent, not necessarily the
+    // player the message was actually about.
+    sendClient(user, message) {
+      if (user)
+        user.connection.send(message.serialize());
       else {
         console.warn("sendClient called without user set: "+JSON.stringify(message.serialize()))
       }
@@ -158,6 +183,7 @@ class WorldHandler {
           console.info("releasing user: "+tmp);
         }
         delete this.loggedInUsers;
+        delete this.pendingLogins;
         // FIX: `delete this;` is a no-op -- delete only removes properties
         // from an object via a property reference; `this` itself isn't a
         // deletable binding, so this line never did anything. Removed.
@@ -297,11 +323,24 @@ class WorldHandler {
 
     handlePlayerLoaded (msg) {
         console.info("handlePlayerLoaded");
-        const protocol = msg[0],
-            address = msg[1],
-            port = msg[2];
+        // FIX: the gameserver now includes playerName as the first field
+        // (see gameserver/js/user/userhandler.js's handleLoadPlayerData) so
+        // this response can be matched back to the right pending login via
+        // `pendingLogins` instead of assuming it's whichever user happens
+        // to be sitting in the old shared `this.user` field.
+        const playerName = msg[0],
+            protocol = msg[1],
+            address = msg[2],
+            port = msg[3];
 
-        this.sendClient(new UserMessages.WorldReady(this.user,
+        const user = this.pendingLogins.get(playerName);
+        if (!user) {
+            console.warn("handlePlayerLoaded: no pending login for player "+playerName);
+            return;
+        }
+        this.pendingLogins.delete(playerName);
+
+        this.sendClient(user, new UserMessages.WorldReady(user,
           protocol, address, port));
         this.block = false;
     }
@@ -346,7 +385,10 @@ class WorldHandler {
 
       this.block = true;
       user.playerName = playername;
-      this.user = user;
+      // FIX: was `this.user = user` -- see the `pendingLogins` comment in
+      // the constructor for why stashing this on the shared instance
+      // corrupted concurrent logins.
+      this.pendingLogins.set(playername, user);
 
       console.info("SENDING USERNAME: "+username);
       console.info("SENDING PLAYER: "+playername);
@@ -374,8 +416,13 @@ class WorldHandler {
 
         self.playerCreateData[playerName] = objData;
 
+        // FIX: was `self.user.hash` -- `user` is this call's own closure
+        // parameter (unique per invocation), while `self.user` was the
+        // shared instance field that a concurrent login could have already
+        // overwritten by the time this async DB callback fires. Using the
+        // closure-captured `user` makes this immune to that race.
         // Little bit of a workaround to marshal user data across.
-        data.unshift(self.user.hash);
+        data.unshift(user.hash);
         data.unshift(username);
 
         checkLoadDataFull(0, data);
@@ -467,7 +514,15 @@ class WorldHandler {
       const self = this;
 
       user.playerName = playername;
-      this.user = user;
+      // FIX: was `this.user = user` -- see the `pendingLogins` comment in
+      // the constructor. This is the exact race from the reported bug:
+      // Player A calls sendPlayerToWorld(), its DB load starts (async);
+      // Player B calls sendPlayerToWorld() before A's DB load finishes and
+      // overwrites `this.user`; when A's DB callback below finally runs,
+      // `self.user.hash` would resolve to B's hash, not A's -- so A's
+      // player data (and A's eventual WorldReady reply) got stamped with
+      // B's identity, and the gameserver would reject A's real hash later.
+      this.pendingLogins.set(playername, user);
 
       console.info("SENDING USERNAME: "+username);
       console.info("SENDING PLAYER: "+playername);
@@ -494,8 +549,11 @@ class WorldHandler {
 
         self.playerLoadData[playername] = objData;
 
+        // FIX: was `self.user.hash` -- see the FIX comment above this
+        // function. `user` is this call's own closure parameter and can't
+        // be clobbered by a concurrent login the way `self.user` could.
         // Little bit of a workaround to marshal user data across.
-        db_data.unshift(self.user.hash);
+        db_data.unshift(user.hash);
         db_data.unshift(username);
         checkLoadDataFull(0, db_data);
 
