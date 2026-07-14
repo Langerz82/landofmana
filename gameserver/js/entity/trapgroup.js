@@ -14,7 +14,13 @@ class TrapGroup {
         this.map = map;
         this.damaging = false;
         this.switchTimer = new Timer(interval || 1000);
-        this.damage = this.damage || 0;
+        // FIX: was `this.damage = this.damage || 0` -- reading
+        // `this.damage` before it was ever assigned, so it was always
+        // `undefined` and this always evaluated to 0, silently discarding
+        // the real `damage` constructor parameter (passed in from
+        // area/traparea.js's addRandomGroup()). Every trap group dealt 0
+        // damage regardless of configuration.
+        this.damage = damage || 0;
         this.damageInterval = 1000;
 
         this.generateTraps();
@@ -99,7 +105,17 @@ class TrapGroup {
         let victim = null;
         for(const trap of this.traps)
         {
-            if (trap.isTouching(entity)) {
+            // FIX: `isTouching` is a bounding-box check defined only on
+            // TrapGroup (above) and TrapArea, using this.width/this.height
+            // -- individual Trap instances (entity/trap.js) don't have
+            // those and don't define isTouching themselves, so this threw
+            // "trap.isTouching is not a function" the instant a damaging
+            // group's update() ran with an entity inside its bounding box.
+            // Trap extends EntityMoving -> Entity, which already provides
+            // isOverEntity() (a "within half a tile" point check) -- the
+            // right per-tile check for "is this entity standing on this
+            // specific trap tile."
+            if (trap.isOverEntity(entity)) {
                 victim = entity;
                 break;
             }

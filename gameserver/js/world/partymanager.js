@@ -37,7 +37,15 @@ class PartyManager {
         {
             const party = player.party;
             party.removeName(player.name);
-            player.packetHandler.partyHandler.handlePartyAbandoned(party);
+            // FIX: called the nonexistent handlePartyAbandoned(); the only
+            // defined method is handleAbandoned(party) (packets/partyhandler.js,
+            // see its correct use in handleLeave/handleKick there). This threw
+            // on every disconnect of a partied player, which is invoked from
+            // worldserver.js's packetHandler.onExit callback -- the throw
+            // aborted everything after it in that callback (removing the
+            // player from the world's `players` map and from
+            // map.entities), leaving a permanent ghost session behind.
+            player.packetHandler.partyHandler.handleAbandoned(party);
         }
     }
 

@@ -56,7 +56,14 @@ class PartyHandler {
                 this.player.sendPlayer(new Messages.Notify("CHAT", "PARTY_MAX_PLAYERS"));
                 return;
             }
-            if ((!party || party.leader) && player2 instanceof Player) {
+            // FIX: `party.leader` is a name string (see playergroup.js
+            // setLeader), so `(!party || party.leader)` only ever tested
+            // "party.leader is a non-empty string" -- true for every
+            // existing party regardless of who's inviting, letting any
+            // member send invites instead of just the leader. Compare
+            // identity by name instead, matching the pattern used by
+            // handleKick/handleLeader below.
+            if ((!party || party.leader === this.player.name) && player2 instanceof Player) {
                 this.player.sendToPlayer(player2, new Messages.PartyInvite(this.player.id));
                 this.player.sendPlayer(new Messages.Notify("CHAT", "PARTY_PLAYER_INVITE_SENT", [player2.name]));
             }
@@ -116,7 +123,11 @@ class PartyHandler {
             return;
         }
 
-        if (this.player === party.leader) {
+        // FIX: `party.leader` is a name string (playergroup.js), but this
+        // compared it to a Player object with `===` -- always false, so the
+        // real party leader could never kick anyone (always fell through to
+        // "PARTY_CANNOT_KICK" below). Compare by name instead.
+        if (this.player.name === party.leader) {
             // FIX: removeName() expects a name string, not a Player object
             // (see playergroup.js) -- passing player2 meant a kicked player
             // was never actually removed from party.players.
@@ -149,22 +160,35 @@ class PartyHandler {
             return;
         }
 
-        if (this.player === party.leader) {
+        // FIX: same Player-object-vs-name-string comparison bug as
+        // handleKick above -- always false, so leadership could never
+        // actually be transferred by the real leader. Also `party.leader`
+        // is already the name string itself (playergroup.js), not a Player
+        // object, so `.name` below was always undefined; use it directly.
+        if (this.player.name === party.leader) {
             party.setLeader(player2.name);
 
             this.player.sendToPlayer(player2, new Messages.Notify("CHAT", "PARTY_YOU_LEADER"));
-            this.player.sendPlayer(new Messages.Notify("CHAT", "PARTY_PLAYER_LEADER", [party.leader.name]));
+            this.player.sendPlayer(new Messages.Notify("CHAT", "PARTY_PLAYER_LEADER", [party.leader]));
         } else {
-            this.player.sendPlayer(new Messages.Notify("CHAT", "PARTY_IS_LEADER", [party.leader.name]));
+            this.player.sendPlayer(new Messages.Notify("CHAT", "PARTY_IS_LEADER", [party.leader]));
         }
         party.sendMembersName();
     }
 
     handleLeave(msg) {
         const party = this.player.party;
-        const leader = (party) ? party.leader : null;
+        // FIX: `leader` used to be `party.leader` itself -- a name string
+        // (playergroup.js), not a Player object -- but was then passed
+        // straight into sendToPlayer() (which indexes player.id, so a
+        // string silently no-ops there) and compared with `this.player !==
+        // leader` (Player-vs-string, always true, so "you left" fired
+        // unconditionally regardless of whether this.player actually was
+        // the leader). Keep the name for identity comparisons and resolve
+        // the actual Player object separately for sendToPlayer.
+        const leaderName = (party) ? party.leader : null;
 
-        if (leader === null)
+        if (leaderName === null)
             return;
 
         if (!party) {
@@ -178,10 +202,12 @@ class PartyHandler {
         party.removeName(this.player.name);
         this.handleAbandoned(party);
 
-        this.player.sendToPlayer(leader, new Messages.Notify("CHAT", "PARTY_PLAYER_LEFT", [this.player.name]));
+        const leaderPlayer = this.world.getPlayerByName(leaderName);
+        if (leaderPlayer)
+            this.player.sendToPlayer(leaderPlayer, new Messages.Notify("CHAT", "PARTY_PLAYER_LEFT", [this.player.name]));
 
-        if (this.player !== leader)
-            this.player.sendPlayer(new Messages.Notify("CHAT", "PARTY_YOU_LEFT", [leader.name]));
+        if (this.player.name !== leaderName)
+            this.player.sendPlayer(new Messages.Notify("CHAT", "PARTY_YOU_LEFT", [leaderName]));
 
     }
 
@@ -191,9 +217,18 @@ class PartyHandler {
 
         this.player.sendPlayer(new Messages.Notify("CHAT", "PARTY_ALL_LEFT"));
         this.player.sendPlayer(new Messages.Party([]));
-        if (this.player !== party.players[0] && party.players[0] instanceof Player) {
-            this.player.sendToPlayer(party.players[0], new Messages.Notify("CHAT", "PARTY_ALL_LEFT"));
-            this.player.sendToPlayer(party.players[0], new Messages.Party([]));
+
+        // FIX: `party.players[0]` is a name string (playergroup.js), never
+        // a Player object -- `instanceof Player` was always false, so the
+        // last remaining party member was never notified their party had
+        // disbanded. Resolve the name to the actual online Player first.
+        const remainingName = party.players[0];
+        if (this.player.name !== remainingName) {
+            const remainingPlayer = this.world.getPlayerByName(remainingName);
+            if (remainingPlayer) {
+                this.player.sendToPlayer(remainingPlayer, new Messages.Notify("CHAT", "PARTY_ALL_LEFT"));
+                this.player.sendToPlayer(remainingPlayer, new Messages.Party([]));
+            }
         }
         if (this.world && this.world.party)
             this.world.party.removeParty(party);

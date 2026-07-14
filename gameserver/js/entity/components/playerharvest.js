@@ -1,6 +1,9 @@
 import Messages from '../../message.js';
 import Utils from '../../utils.js';
-import { Types } from '../../common.js';
+// FIX: onHarvest()'s completion callback below calls ItemTypes.getData(...)
+// but ItemTypes was never imported here (only Types was) -- threw
+// ReferenceError every time a basic tile-harvest completed successfully.
+import { GameTypes, ItemTypes } from '../../common.js';
 import Item from '../item.js';
 import ItemRoom from '../../items/itemroom.js';
 import { PlayerEvent } from '../../world/taskhandler.js';
@@ -31,7 +34,7 @@ class PlayerHarvest {
         if (type === "hammer")
             exp = p.stats.exp.mining;
 
-        const durationMod = Utils.clamp(0.1, 1, (1 - Types.getSkillLevel(exp)/20));
+        const durationMod = Utils.clamp(0.1, 1, (1 - GameTypes.getSkillLevel(exp)/20));
         duration = ~~(duration * durationMod);
         // PERF: was clearTimeout()/setTimeout() per harvest attempt; routed
         // through the shared Scheduler (gameserver/js/scheduler.js) instead
@@ -114,7 +117,7 @@ class PlayerHarvest {
         // level-scaled duration.
         const duration = (entity.harvestDuration !== undefined) ? entity.harvestDuration : (5000 + (entity.level*1000));
         this._harvest(x, y, function (p) {
-            p.world.taskHandler.processEvent(p, PlayerEvent(Types.EventType.USE_NODE, entity, 1));
+            p.world.taskHandler.processEvent(p, PlayerEvent(GameTypes.EventType.USE_NODE, entity, 1));
 
             if (type === "hammer")
                 p.stats.exp.mining += 10;
@@ -174,10 +177,15 @@ class PlayerHarvest {
             return;
         }
 
-// TODO CHECK WHY NOT ADDING ITEM AND NOT NOTIFYING CLIENT.
+        // FIX: was `p._harvest(...)` -- `_harvest` is defined on
+        // PlayerHarvest (this class), not on Player (`p`). This threw a
+        // TypeError immediately, before the completion callback below ever
+        // ran, which is exactly the symptom the old "TODO CHECK WHY NOT
+        // ADDING ITEM AND NOT NOTIFYING CLIENT" comment above was
+        // describing -- basic tile harvesting never actually completed.
         const duration = 6000;
-        p._harvest(x, y, function (p) {
-            p.world.taskHandler.processEvent(p, PlayerEvent(Types.EventType.HARVEST, p, 1));
+        this._harvest(x, y, function (p) {
+            p.world.taskHandler.processEvent(p, PlayerEvent(GameTypes.EventType.HARVEST, p, 1));
             // FIX: same p.getWeaponType() -> p.items.getWeaponType() mismatch
             // as above; both call sites here would throw and abort this
             // harvest-completion callback before rewarding the player.

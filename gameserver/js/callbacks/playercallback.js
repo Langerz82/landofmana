@@ -23,7 +23,15 @@ class PlayerCallback {
             // (player.js isValidGridPath, pathfinder.js findPath, etc.).
             if (G_DEBUG)
                 console.info("onRequestPath, id:"+this.id+", path:"+JSON.stringify(path));
-            return
+            // FIX: was a bare `return` (undefined), discarding the computed
+            // `path` -- the sibling mob/NPC onRequestPath callbacks
+            // (callbacks/mobcallback.js, callbacks/npcmovecallback.js) both
+            // correctly return their computed path. Whatever calls this
+            // callback (entitymoving.js's requestPathfindingTo -> _moveTo)
+            // checks `if (path) this.followPath(path)`, so returning
+            // undefined here silently meant a player's path request never
+            // resulted in movement.
+            return path;
         });
 
         const attackFunc = function (p) {

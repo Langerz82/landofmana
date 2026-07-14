@@ -81,7 +81,16 @@ class PlayerQuests {
         const p = this.player;
         if(quest.count >= quest.object2.count && quest.status==Types.QuestStatus.INPROGRESS) {
             const kind = quest.object2.kind+1000;
-            if(!p.items.inventory.hasItemCount(kind))
+            // FIX: hasItemCount(kind) returns the raw total count, used
+            // here only as a truthy "has at least 1" gate instead of "has
+            // at least quest.object2.count". quest.count (checked above) is
+            // a cached snapshot from the last LOOTITEM event and can be
+            // stale if the player has since spent/dropped/sold the item, so
+            // this was the only live check standing between an
+            // under-stocked player and a free completion. hasItems() (used
+            // correctly elsewhere in this file, e.g. questAboutItemCheck)
+            // checks real sufficiency.
+            if(!p.items.inventory.hasItems(kind, quest.object2.count))
                 return;
 
             p.items.inventory.removeItemKind(kind, quest.object2.count);

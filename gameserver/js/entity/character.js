@@ -95,24 +95,34 @@ class Character extends EntityMoving {
     this.stats.ep = max;
   }
 
+  // FIX: these four used `val = val || default`, which treats an explicit
+  // 0 the same as "no argument passed" and silently substitutes the max
+  // instead. Every current call site only ever calls these with no
+  // argument (entity/player.js, packets/packethandler.js), where falling
+  // back to the max is exactly the intended default, so this was never hit
+  // in practice -- but it's a live trap for the next caller that needs
+  // e.g. setHp(0) (an instant-kill effect), which would silently full-heal
+  // instead. Checking for null/undefined instead of falsiness preserves
+  // the "no argument -> default to max" behavior while letting an explicit
+  // 0 through.
   setHp(val) {
-    val = val || this.getHpMax();
+    val = (val == null) ? this.getHpMax() : val;
     this.stats.hp = val;
   }
 
   setEp(val) {
-    val = val || this.getEpMax();
+    val = (val == null) ? this.getEpMax() : val;
     this.stats.ep = val;
   }
 
   setHpMax(val) {
-    val = val || this.getHpMax();
+    val = (val == null) ? this.getHpMax() : val;
     this.stats.hpMax = val;
     this.stats.hp = val;
   }
 
   setEpMax(val) {
-    val = val || this.getEpMax();
+    val = (val == null) ? this.getEpMax() : val;
     this.stats.epMax = val;
     this.stats.ep = val;
   }

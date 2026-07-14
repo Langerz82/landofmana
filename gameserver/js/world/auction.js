@@ -1,7 +1,10 @@
 import BaseItem from '../items/baseitem.js';
 import Messages from '../message.js';
 import ItemRoom from '../items/itemroom.js';
-import { Types } from '../common.js';
+// FIX: list() below calls ItemTypes.isArmor()/isWeapon() but ItemTypes was
+// never imported here (only Types was) -- threw ReferenceError every time a
+// player browsed the armor or weapon auction category.
+import { GameTypes, ItemTypes } from '../common.js';
 
 class AuctionRecord {
     constructor(playerName, price, item) {
@@ -96,7 +99,7 @@ class Auction {
     }
 
     list(player, type) {
-        let msg = [Types.Messages.WC_AUCTIONOPEN, type, 0];
+        let msg = [GameTypes.Messages.WC_AUCTIONOPEN, type, 0];
         let recCount = 0;
         // FIX: this used to be a `for...of` loop that called
         // `this.auctions.indexOf(auction)` per matching entry -- indexOf is

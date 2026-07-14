@@ -160,9 +160,17 @@ class MobArea extends EntityArea {
         //console.info("randNum="+randNum);
         let r = randNum;
         let sc = 0;
+        // FIX: was `r <= sc` -- for cumulative-weight selection over
+        // `r` in [0, total-1], the correct boundary is `r < sc`; `<=` let
+        // each mob's slot "steal" one extra value from the next mob's
+        // range, which both skewed the distribution toward earlier mobs in
+        // the list and could make the last mob in the list unreachable
+        // entirely (e.g. 3 equal-weight mobs, total=3, r in {0,1,2}: mob0
+        // matched both r=0 and r=1, mob1 only matched r=2, mob2 never
+        // matched anything).
         for (let i=0; i < this.mobs.length; ++i) {
             sc = this.mobs[i].spawnChance;
-            if (r <= sc) {
+            if (r < sc) {
                 kind = this.mobs[i].kind;
                 break;
             }

@@ -85,15 +85,23 @@ class EffectType {
       case "damage":
         target.stats.mod.damage = this.diff;
         break;
+      // FIX: both branches read `this.modVal`, which is never assigned
+      // anywhere on this class -- only `this.modValue` (constructor above)
+      // is real. `this.modVal` was always `undefined`: "freeze" always took
+      // the else branch (`undefined === 1` is false), silently no-op'ing --
+      // or actively un-freezing -- every freeze/stun effect; "slow" did
+      // `moveSpeed += undefined`, permanently corrupting that entity's
+      // moveSpeed to NaN (serialized straight to the client in
+      // message.js's Move/MovePath messages).
       case "freeze":
-        if (this.modVal === 1)
+        if (this.modValue === 1)
           target.freeze = true;
         else {
           target.freeze = false;
         }
         break;
       case "slow":
-        target.moveSpeed += this.modVal;
+        target.moveSpeed += this.modValue;
         break;
     }
     return;

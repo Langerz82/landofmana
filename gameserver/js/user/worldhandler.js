@@ -68,8 +68,20 @@ class WorldHandler {
             this.connection.disconnect();
             return;
         }
-        players.set(username, player);
 
+        // FIX: `players.set(username, player)` used to run here, before the
+        // ban/world checks below. Both of those checks' early-return
+        // branches (banned user, or world/world.ban not set) call
+        // this.connection.disconnect() -- which only closes the socket
+        // (ws.js), it does NOT remove the entry from `players` -- that only
+        // happens via the packetHandler.onExit cleanup wired up inside
+        // player.start(), which those branches return before reaching. So a
+        // banned (or misconfigured-world) login attempt left a permanent
+        // entry in `players`, and the `players.has(username)` check above
+        // would then reject every future login attempt for that username,
+        // forever, even after an unban -- until the process restarted.
+        // Moving the `players.set()` to after both checks means it only
+        // happens once we're actually committed to letting the player in.
         if (player.world && player.world.ban) {
             if (player.world.ban.isUserBanned(username)) {
                 console.info("player user is banned from server.");
@@ -81,6 +93,8 @@ class WorldHandler {
             console.warn("handleLoginPlayer: world or world ban not set");
             return;
         }
+
+        players.set(username, player);
 
         player.start(this.connection);
 

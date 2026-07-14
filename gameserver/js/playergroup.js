@@ -91,8 +91,15 @@ class PlayerGroup {
   }
 
   removeName(playerName) {
-    if (playerName === this.leader)
-    	this.leader = this.players[0];
+    // FIX: `this.leader = this.players[0]` used to run BEFORE the removal
+    // below. setLeader() always keeps the current leader at index 0, so at
+    // the moment the departing leader's own name was reassigned here,
+    // `this.players[0]` was still that same departing name -- a no-op.
+    // Leadership never actually transferred to a remaining member; `leader`
+    // was left pointing at a name no longer present in `players` at all.
+    // Removing first, then picking the new players[0], actually promotes
+    // whoever's next in line (or leaves `leader` undefined if the group is
+    // now empty).
     if (playerName) {
       if (this.containsName(playerName)) {
         const player = this.getPlayer(playerName);
@@ -104,6 +111,8 @@ class PlayerGroup {
         Utils.removeFromArray(this.players, playerName);
         //this.players.splice(this.players.indexOf(playerName), 1);
       }
+      if (playerName === this.leader)
+        this.leader = this.players[0];
       this.sendMembersName();
     }
   }

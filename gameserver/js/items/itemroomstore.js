@@ -160,8 +160,23 @@ class ItemStore {
                 item.itemNumber = item2.itemNumber - maxStack;
                 item2.itemNumber = Math.min(item2.itemNumber, maxStack);
                 //this.setItem(slot, null); //  NOT NEEDED.
-                if (item.slot === -1)
+                if (item.slot === -1) {
                     slot = this.getEmptyIndex();
+                    // FIX: getEmptyIndex() returning -1 (no free room) used
+                    // to fall straight through to `this.setItem(slot,
+                    // item)` below with slot still -1, storing the overflow
+                    // remainder under room key "-1" -- outside the normal
+                    // 0..maxNumber-1 range that toString()/toStringJSON()
+                    // (and the client's fixed-size inventory grid) assume.
+                    // Mirror _putItem()'s own "no room" handling instead:
+                    // notify the player and drop the overflow reference
+                    // rather than corrupt the room map.
+                    if (slot < 0) {
+                        if (this.owner instanceof Player)
+                            this.owner.sendPlayer(this.fullMessage);
+                        item = null;
+                    }
+                }
             } else {
                 item = null;
             }
@@ -219,8 +234,21 @@ class ItemStore {
     {
     }
 
+    // FIX: this used to walk `this.rooms` and destroy every matching stack
+    // it found -- even when the total available was less than `number` --
+    // before falling through to `return false`. A caller checking the
+    // return value for "did this actually succeed" got a false negative
+    // AFTER the items were already gone, with no rollback (e.g.
+    // playerquests.js's questAboutItemComplete used to gate on a cheaper
+    // "has at least 1" check instead of "has enough", so it could reach
+    // here with too few items and still lose them all for nothing).
+    // Checking sufficiency via hasItems() up front, before mutating
+    // anything, makes an insufficient-quantity call a true no-op.
     removeItemKind(kind, number)
     {
+        if (!this.hasItems(kind, number))
+            return false;
+
         let j=number;
         for(const i in this.rooms){
             let r = this.rooms[i];
@@ -236,6 +264,15 @@ class ItemStore {
                     r = null;
                 }
                 this.setItem(i, r);
+                // FIX: also fixes a separate pre-existing bug -- without
+                // this early return, fully consuming the *exact* remaining
+                // amount across one or more whole stacks (no leftover
+                // remainder to hit the `r.itemNumber > j` branch above)
+                // fell through to the loop's own `return false` at the
+                // bottom, misreporting a fully-successful removal as a
+                // failure.
+                if (j <= 0)
+                    return true;
             }
         }
         return false;
