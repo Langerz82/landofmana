@@ -165,14 +165,23 @@ class SkillEffect {
           return [target];
         case "ally":
           return [target];
-        case "ally_aoe":
-          var arr = target.map.entities.getPlayerAround(target, this.data.aoe);
+        // NOTE: these two `case` bodies used to both declare `var arr`
+        // with no block braces of their own -- harmless under `var`
+        // (function-scoped, and only one case ever runs per call since
+        // each returns immediately), but `let`/`const` forbid redeclaring
+        // in the same block scope, and a bare `switch` body is one shared
+        // block across every case. Wrapping each case in its own `{ }`
+        // gives each `arr` its own scope.
+        case "ally_aoe": {
+          const arr = target.map.entities.getPlayerAround(target, this.data.aoe);
           arr.unshift(this.source);
           return arr;
-        case "enemy_aoe":
-          var arr = target.map.entities.getMobsAround(target, this.data.aoe);
+        }
+        case "enemy_aoe": {
+          const arr = target.map.entities.getMobsAround(target, this.data.aoe);
           arr.unshift(target);
           return arr;
+        }
       };
       return [];
     }

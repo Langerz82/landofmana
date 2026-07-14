@@ -63,13 +63,17 @@ class NpcMove extends Character {
         if (Object.keys(this.entityQuests.quests).length === 0) {
             this.entityQuests.dynamicQuests(player);
         } else {
-            var newQid = -1;
-
             if (this.entityQuests.hasQuest(player)) {
                 return;
             }
 
-            var newQid = this.entityQuests.getNextQuestId(player);
+            // NOTE: this used to be declared twice with `var newQid` (a
+            // no-op `= -1` initializer above that nothing ever read, since
+            // every path between it and here either returns or overwrites
+            // it) -- harmless under `var`'s redeclaration rules but a
+            // SyntaxError under `let`/`const`. Consolidated to the one
+            // live declaration.
+            const newQid = this.entityQuests.getNextQuestId(player);
 
             if (!newQid) {
                 this.entityQuests.sendNoQuest(player);

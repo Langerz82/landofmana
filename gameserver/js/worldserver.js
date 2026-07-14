@@ -393,7 +393,7 @@ class World {
       // instead of an empty array into `JSON.stringify` and into
       // `entity.onDamage(...)` below. Declaring it up front keeps it a
       // well-defined `[]` regardless of which branch runs.
-      var effects = [];
+      const effects = [];
       if (entity.effects) {
         // PERF: handleDamage runs on every single hit landed in the game.
         // JSON.stringify-ing the effects map here unconditionally was pure

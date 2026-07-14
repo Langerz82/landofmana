@@ -153,12 +153,16 @@ class Player extends Character {
 
       const ratio = (damage / entity.stats.hpMax);
 
-      var xp = ~~(entity.getXP() * ratio);
+      let xp = ~~(entity.getXP() * ratio);
 
       const diff = 10;
       const div = 1/diff;
       const mod = 1 + div + Utils.clamp(-diff,diff,(entity.level - this.level)) * div;
-      var xp = ~~(xp * mod);
+      // NOTE: was a second `var xp = ...` -- redeclaring is a no-op under
+      // `var` (same binding), but `let` forbids redeclaring in the same
+      // scope. This is a genuine reassignment (xp built from its own prior
+      // value), so it's just `xp =` here, not a second `let`.
+      xp = ~~(xp * mod);
 
       this.incExp(xp);
       this.incWeaponExp(xp);
@@ -362,7 +366,6 @@ class Player extends Character {
       const self = this;
 
       console.info("sendMessage");
-      var i = 0;
       let sendMessage = [
           Types.Messages.WC_PLAYER,
           0,
@@ -450,7 +453,13 @@ class Player extends Character {
       // Send install skills
       self.effectHandler = new SkillEffectHandler(self);
       sendMessage.push(self.skills.length);
-      for(var i=0; i < self.skills.length; ++i) {
+      // NOTE: there used to be an unused `var i = 0;` all the way up near
+      // the top of this function (dead -- nothing read it before this loop
+      // re-initialized `i` to 0 again anyway, since `var` is function-scoped
+      // and this was the only real use). Removed it and scoped `i` to the
+      // loop with `let`, which is block-scoped and can't leak/collide the
+      // way the old function-wide `var i` could.
+      for(let i=0; i < self.skills.length; ++i) {
         sendMessage.push(parseInt(self.skills[i].skillXP));
       }
 

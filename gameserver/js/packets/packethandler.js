@@ -1000,7 +1000,7 @@ class PacketHandler {
             //finishTeleportMaps(mapId);
 
             //console.info("real mapId: " + mapId);
-            var pos = {x: p.x, y: p.y};
+            let pos = {x: p.x, y: p.y};
             //console.info("handleTeleportMap - x: "+x+",y:"+y);
             let isDoor = false;
             if (portalId >= 0) {
@@ -1184,8 +1184,14 @@ class PacketHandler {
             block.update(this.player);
             p.holdingBlock = null;
         }
-        var msg = new Messages.BlockModify(block, p.id, type);
-        p.map.entities.sendNeighbours(p, msg, p);
+        // NOTE: `handleBlock`'s `msg` parameter is the raw [type,id,x,y]
+        // packet array, fully consumed by the destructuring at the top of
+        // this function. Rather than reuse/overwrite that binding for the
+        // outgoing message, it gets its own name (sendMsg) so the incoming
+        // packet param and the outgoing message being built are never the
+        // same variable.
+        const sendMsg = new Messages.BlockModify(block, p.id, type);
+        p.map.entities.sendNeighbours(p, sendMsg, p);
     }
 
     handleRequest(msg) {
@@ -1218,8 +1224,11 @@ class PacketHandler {
             console.info("handled Revive!!");
             p.respawn();
             p.map.entities.sendNeighbours(p, new Messages.Spawn(p), p);
-            var msg = new Messages.Move(p, p.orientation, 2, p.x, p.y);
-            this.sendPlayer(msg);
+            // NOTE: `handleRevive`'s `msg` parameter is unused in this
+            // function -- the outgoing message gets its own name (sendMsg)
+            // instead of reusing/overwriting the `msg` parameter binding.
+            const sendMsg = new Messages.Move(p, p.orientation, 2, p.x, p.y);
+            this.sendPlayer(sendMsg);
         }
     }
 

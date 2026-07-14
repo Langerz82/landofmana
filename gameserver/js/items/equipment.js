@@ -224,10 +224,13 @@ class Equipment {
     }
 
     toString() {
-        var i=0;
+        // NOTE: there used to be a `var i=0;` here too -- dead (nothing
+        // read it before the `for...in` loop below rebound `i` to each
+        // room key anyway). Removed; the loop variable is now `const`,
+        // scoped to the loop.
         let itemString = "" + this.maxNumber + ",";
 
-        for(var i in this.rooms){
+        for(const i in this.rooms){
             const item = this.rooms[i];
             if (!item) continue;
             itemString += item.toArray().join(',');

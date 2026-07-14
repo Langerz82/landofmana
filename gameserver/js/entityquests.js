@@ -59,7 +59,12 @@ class EntityQuests {
           return false;
         }
 
-        var msg = new Messages.Dialogue(this.entity, "QUESTS_REWARD", [this.entity.name]);
+        // NOTE: `msg` is reused/reassigned inside the reward loop below
+        // (each rewarded item sends its own "ITEM_ADDED" notify through
+        // the same binding), so it stays `let`; the loop's own
+        // `var msg = ...` is now a plain reassignment instead of a second
+        // declaration.
+        let msg = new Messages.Dialogue(this.entity, "QUESTS_REWARD", [this.entity.name]);
         player.sendPlayer(msg);
 
         if (quest.gold > 0)
@@ -75,7 +80,7 @@ class EntityQuests {
               parseInt(reward.itemExperience, 10) || 0]);
 
             player.items.inventory.putItem(item);
-            var msg = new Messages.Notify("CHAT", "ITEM_ADDED", [ItemData.Kinds[item.itemKind].name])
+            msg = new Messages.Notify("CHAT", "ITEM_ADDED", [ItemData.Kinds[item.itemKind].name])
             player.sendPlayer(msg);
         }
         pquest.reward = 1;

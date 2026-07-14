@@ -466,12 +466,14 @@ class Pathfinder {
   }
 
   findPath(grid, start, end, findIncomplete) {
-      var path;
-
+      // NOTE: `path` used to be declared twice with `var` -- an empty
+      // `var path;` up here (dead: nothing read it before the real
+      // assignment below) and then `var path = this.AStar(...)`.
+      // Consolidated to the one live declaration.
       this.applyIgnoreList_(grid, true);
       this.applyIncludeList_(grid, true);
 
-      var path = this.AStar(grid, start, end);
+      const path = this.AStar(grid, start, end);
       // PERF: runs on every findPath call -- gated behind G_DEBUG.
       if (path && G_DEBUG) {
         console.info("pathfinder.findPath - path: "+JSON.stringify(path));

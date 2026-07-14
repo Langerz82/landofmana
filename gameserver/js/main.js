@@ -209,7 +209,13 @@ function main(config) {
     });
 
     //main = this;
-    var self = this;
+    // NOTE: `self` used to be declared twice with `var self = this;` in
+    // this function (harmless under `var` -- same binding, same value both
+    // times, since `this` can't change mid-function) -- a SyntaxError under
+    // `let`/`const`. Neither declaration is actually read anywhere in this
+    // function, but consolidating to one rather than deleting outright to
+    // keep this a mechanical var->const pass rather than a dead-code prune.
+    const self = this;
 
     // redirect stdout / stderr
     log.log = function(d) { //
@@ -238,7 +244,6 @@ function main(config) {
 
     server = new WS.WebsocketServer(config);
     const lastTotalPlayers = 0;
-    var self = this;
 
     console.info("Initializing RRO2 GameServer - World " + worldId);
 

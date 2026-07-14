@@ -118,7 +118,6 @@ class MobArea extends EntityArea {
 
     _createRandomMobInsideArea() {
         const randomMob = 0;
-        var kind = 0;
         //console.info("_createRandomMobInsideArea");
 
         //console.info(JSON.stringify(this.mobs));
@@ -150,7 +149,13 @@ class MobArea extends EntityArea {
             mobRatioTotal += this.mobs[i].spawnChance;
         }
 
-        var kind = 0;
+        // NOTE: this used to be a second `var kind = 0;` -- harmless under
+        // `var` (function-scoped, redeclaration is a no-op) but a
+        // SyntaxError under `let`/`const` (block-scoped, redeclaration in
+        // the same scope throws). The first declaration above was never
+        // read before this point, so this is the only live one; converted
+        // to `let` since `kind` is reassigned in the loop below.
+        let kind = 0;
         const randNum = Utils.randomInt(mobRatioTotal-1);
         //console.info("randNum="+randNum);
         let r = randNum;

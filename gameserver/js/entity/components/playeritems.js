@@ -94,7 +94,13 @@ class PlayerItems {
 
         const itemRoom = store.rooms[slot[1]];
         const newItemRoom = Object.assign(new ItemRoom(), itemRoom);
-        var item = entity.map.entities.createItem(newItemRoom, entity.x, entity.y);
+        // NOTE: this used to be `var item = ...`, redeclaring the `item`
+        // parameter above (legal under `var`, which just reassigns the
+        // existing binding; a SyntaxError under `let`/`const`). Just a plain
+        // reassignment here -- `item` now points at the newly-created
+        // dropped-item entity instead of the store-slot item that was
+        // passed in.
+        item = entity.map.entities.createItem(newItemRoom, entity.x, entity.y);
         count = Utils.clamp(1, itemRoom.itemNumber, count);
 
         if(!ItemTypes.isEquippable(kind)) {

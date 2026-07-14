@@ -20,7 +20,12 @@ class TrapArea extends EntityArea {
 
     addRandomGroup(kind, width, height, threshold) {
         let pos = null;
-        var threshold = threshold || 50;
+        // NOTE: this used to be `var threshold = threshold || 50;` --
+        // `var` redeclaring a parameter name just reassigns the existing
+        // binding (legal, if confusing); `let`/`const` doing the same
+        // throws a SyntaxError ("already been declared"). `threshold` is
+        // already a parameter, so this is just a plain reassignment.
+        threshold = threshold || 50;
 
         let t = 0;
         while(t++ < threshold) {

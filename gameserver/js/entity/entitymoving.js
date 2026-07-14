@@ -666,10 +666,15 @@ class EntityMoving extends Entity {
    }
 
    isInReach(x,y,o,r,rs) {
-     var o = o || this.orientation;
+     // NOTE: these three were `var o = o || ...`/`var rs = rs || ...`/
+     // `var r = r || ...` -- redeclaring a parameter with `var` just
+     // reassigns the existing binding (legal); doing the same with
+     // `let`/`const` throws ("already been declared"). All three are
+     // already parameters, so these are just plain reassignments.
+     o = o || this.orientation;
      const ts = G_TILESIZE;
-     var rs = rs || ts >> 1;
-     var r = r || ts + rs;
+     rs = rs || ts >> 1;
+     r = r || ts + rs;
 
      let a = rs, b = rs;
      switch (o) {

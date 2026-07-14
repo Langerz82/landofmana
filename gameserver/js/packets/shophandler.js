@@ -284,13 +284,20 @@ class ShopHandler {
     handleStoreBuy(message) {
         const p = this.player;
 
-        var itemType = parseInt(message[0]),
-            itemKind = parseInt(message[1]),
-            itemCount = parseInt(message[2]),
-            itemName = null,
-            price = 0,
-            goldCount = 0,
-            buyCount = 0;
+        // NOTE: this used to be one `var` chain declaring all seven of
+        // these together, including `itemName = null` -- dead, since
+        // nothing read it before it was redeclared as `var itemName =
+        // itemData.name` further down (once itemData exists). Split by
+        // actual mutability: itemType/itemKind/buyCount are never
+        // reassigned (const); itemCount/price/goldCount are (let);
+        // itemName's real declaration moved down to where its value is
+        // actually available.
+        const itemType = parseInt(message[0]);
+        const itemKind = parseInt(message[1]);
+        let itemCount = parseInt(message[2]);
+        let price = 0;
+        let goldCount = 0;
+        const buyCount = 0;
 
         if (!itemKind || itemCount <= 0) {
             return;
@@ -309,7 +316,7 @@ class ShopHandler {
         //console.info(JSON.stringify(ItemTypes));
         const itemData = ItemTypes.KindData[itemKind];
 
-        var itemName = itemData.name;
+        const itemName = itemData.name;
         price = ItemTypes.getBuyPrice(itemKind);
         if (price > 0) {
             if (ItemTypes.Store.isBuyMultiple(itemKind)) {
@@ -345,12 +352,14 @@ class ShopHandler {
     handleCraft(message) {
         const p = this.player;
 
-        var craftId = parseInt(message[0]),
-            itemCount = parseInt(message[1]),
-            itemName = null,
-            price = 0,
-            goldCount = 0,
-            buyCount = 0;
+        // NOTE: same story as handleStoreBuy above -- split a single `var`
+        // chain (which included a dead `itemName = null` initializer) by
+        // actual mutability.
+        const craftId = parseInt(message[0]);
+        let itemCount = parseInt(message[1]);
+        let price = 0;
+        let goldCount = 0;
+        const buyCount = 0;
 
         if (itemCount <= 0) {
             return;
@@ -373,7 +382,7 @@ class ShopHandler {
 
         const itemData = ItemTypes.KindData[itemKind];
 
-        var itemName = itemData.name;
+        const itemName = itemData.name;
         price = ItemTypes.getCraftPrice(itemKind);
         if (price < 0)
             return;

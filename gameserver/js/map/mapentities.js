@@ -196,7 +196,7 @@ class MapEntities {
         const pgy = ~~(player.y/G_TILESIZE);
 
         //console.info("x1:"+x1+",y1:"+y1+",x2:"+x2+",y2:"+y2);
-        var arr = [pgx - width, pgy - height, pgx + width, pgy + height];
+        const arr = [pgx - width, pgy - height, pgx + width, pgy + height];
         const entities = this.getSpatialEntities(arr);
 
         //console.info("self.entities.length: "+Object.keys(self.entities).length);
@@ -746,9 +746,12 @@ class MapEntities {
         const def_conditional = function (e1,e2) { return e1 !== e2; };
         conditional = conditional || def_conditional;
         //console.info("getEntityAround, range: "+range+",x:"+x+",y:"+y);
-        var e2;
+        // NOTE: there used to be a `var e2;` here too, ahead of the loop --
+        // dead (nothing read it before the `for` loop below redeclared/
+        // reinitialized `e2` on its own), and would collide with `const`
+        // (redeclaration in the same scope) if kept.
         const group = this.getSpatialEntities([gx-r,gy-r,gx+r,gy+r]);
-        for (var e2 of group) {
+        for (const e2 of group) {
             if (conditional(entity,e2))
             {
                 //console.info("getEntityAround, pushed:"+e2.id);
@@ -870,15 +873,21 @@ class MapEntities {
     // chest-specific bookkeeping is needed on this class anymore.
 
     findPath(character, x, y, ignoreList) {
-        var self = this,
-            path = [];
+        // NOTE: `path` used to be initialized twice -- `var path = [];` up
+        // here (dead: nothing ever reads it before the block below
+        // overwrites it, and the no-pathfinder/no-character early-out just
+        // below returns `null` directly without ever touching `path`) and
+        // then `var path = null;` again inside the `if`. Harmless
+        // redeclaration under `var`; a SyntaxError under `let`. Consolidated
+        // to the one live declaration, scoped to where it's actually used.
+        const self = this;
 
         //console.info("PATHFINDER CODE");
 
         if(this.pathfinder && character)
         {
             const grid = self.map.grid;
-            var path = null;
+            let path = null;
             const pS =[character.x, character.y];
             const ts = G_TILESIZE;
 

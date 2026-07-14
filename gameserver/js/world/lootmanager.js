@@ -65,13 +65,19 @@ class LootManager {
     getLootItem(source, target, stolen)
     {
         const self = this;
-        var itemId2 = null;
 
         if (!(target instanceof Mob))
             return;
 
         let v = Utils.randomRangeInt(0,1000);
-        var itemId2;
+        // NOTE: `itemId2` used to be declared twice with `var` -- once here
+        // (`= null`) and once more, bare, right after the `if` above.
+        // Redeclaring without an initializer is a no-op under `var` (the
+        // `null` from the first declaration survived); a SyntaxError under
+        // `let`. Consolidated to the one declaration, moved to just above
+        // where it's actually used (reassigned in the loop below, read at
+        // the `if (itemId2)` check further down).
+        let itemId2 = null;
         const drops = target.questDrops;
 
         for (const d in drops) {

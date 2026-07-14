@@ -61,7 +61,12 @@ class MapManager {
             mobArea.addMobs();
             mobArea.spawnMobs();
 
-            var npc = map.entities.addNpcMove(0, 510*G_TILESIZE, 510*G_TILESIZE);
+            // NOTE: `npc` is reassigned inside the spawn loop below (each
+            // ring's npc becomes the new `prevNpc`), so it stays `let`
+            // rather than `const`; the loop's own `var npc = ...` is now a
+            // plain reassignment of this same binding instead of a second
+            // declaration (see below).
+            let npc = map.entities.addNpcMove(0, 510*G_TILESIZE, 510*G_TILESIZE);
             npc.name = "Old Man";
             npc.scriptQuests = false;
 
@@ -74,7 +79,11 @@ class MapManager {
             let y=0;
             let a = 512;
             let b = 512;
-            var j = 0;
+            // NOTE: there used to be a `var j = 0;` here too -- dead
+            // (nothing read it before the labeled loop's own
+            // `for (var j=1; ...)` below reinitialized it to 1 every outer
+            // iteration anyway, since `var` is function-scoped). Removed;
+            // the for-loop's `j` is now `let`, scoped to that loop.
             let j_max = 0;
             let id = 0;
             const offset = 40;
@@ -87,7 +96,7 @@ class MapManager {
 
                 j_max += (i%2==0) ? 1 : 0;
                 const dir = i % 4;
-                for (var j=1; j <= j_max; j++)
+                for (let j=1; j <= j_max; j++)
                 {
                     x = 0;
                     y = 0;
@@ -152,8 +161,15 @@ class MapManager {
                     w = 20 * G_TILESIZE;
                     h = 20 * G_TILESIZE;
                     const area = new EntityArea(map, 0, ga, gb, w, h, true, -1);
-                    var pos = area._getRandomPositionInsideArea(30*G_TILESIZE);
-                    var npc = map.entities.addNpcMove(id, pos.x, pos.y);
+                    // NOTE: `pos` is reused/reassigned further down (the
+                    // per-node-type branches below each recompute it before
+                    // spawning a node), so it's `let` rather than `const`;
+                    // those later `var pos = ...` occurrences are now plain
+                    // reassignments of this same binding. Same story for
+                    // `npc` here -- reassigns the outer `let npc` declared
+                    // above instead of redeclaring it.
+                    let pos = area._getRandomPositionInsideArea(30*G_TILESIZE);
+                    npc = map.entities.addNpcMove(id, pos.x, pos.y);
 
                     const area2 = new EntityArea(map, 0, ga, gb, w, h, true, -1);
 
@@ -165,7 +181,7 @@ class MapManager {
                         let level = 1;
                         if (id === 9) {
                             for (let k=0; k < 6; ++k) {
-                                var	pos = map.entities.spaceEntityRandomApart(2,area2._getRandomPositionInsideArea.bind(area2,100));
+                                pos = map.entities.spaceEntityRandomApart(2,area2._getRandomPositionInsideArea.bind(area2,100));
                                 const node = new Node(++map.entities.entityCount, 3, pos.x, pos.y, map, level);
                                 node.name = "node1";
                                 node.weaponType = "any";
@@ -176,7 +192,7 @@ class MapManager {
                         else if (id === 6) {
                             level = 2;
                             for (let k=0; k < 6; ++k) {
-                                var	pos = map.entities.spaceEntityRandomApart(2,area2._getRandomPositionInsideArea.bind(area2,100));
+                                pos = map.entities.spaceEntityRandomApart(2,area2._getRandomPositionInsideArea.bind(area2,100));
                                 const node = new Node(++map.entities.entityCount, 3, pos.x, pos.y, map, level);
                                 node.name = "node2";
                                 node.weaponType = "any";
@@ -187,7 +203,7 @@ class MapManager {
                         else if (id > 10) {
                             level = Utils.clamp(1,4,~~(id/10)+1);
                             for (let k=0; k < 10; ++k) {
-                                var	pos = map.entities.spaceEntityRandomApart(2,area2._getRandomPositionInsideArea.bind(area2,100));
+                                pos = map.entities.spaceEntityRandomApart(2,area2._getRandomPositionInsideArea.bind(area2,100));
                                 const node = new Node(++map.entities.entityCount, 2, pos.x, pos.y, map, level);
                                 node.name = "node"+level;
                                 node.weaponType = "hammer";
