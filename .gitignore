@@ -24,3 +24,5 @@ client.zip
 client/shared
 gameserver/shared
 userserver/shared
+./*.sh
+./*.bat
