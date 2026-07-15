@@ -376,17 +376,42 @@ class WorldHandler {
     // reference to the now-dead `user`/connection the whole time.
     // main.js's conn.onClose calls this for every disconnecting client so
     // any login that was abandoned mid-load gets cleared out immediately
-    // instead of leaking. Each delete is a safe no-op if that player
-    // already finished loading (or never started), so this is safe to call
-    // unconditionally on every disconnect.
+    // instead of leaking.
+    //
+    // FIX: this used to run all three deletes unconditionally, on the claim
+    // that each is "a safe no-op if that player already finished loading."
+    // That's true for playerLoadData/playerCreateData -- they're deleted
+    // the moment the 7-piece load handshake completes (see
+    // sendPlayerToWorld/createPlayerToWorld above) -- but it's false for
+    // playerSaveData: that entry is set up at the *end* of that same
+    // handshake and stays alive for as long as the player is in-game,
+    // getting reused on every autosave and on the final logout save (see
+    // handleSavePlayerData above). Since main.js's conn.onClose calls this
+    // for *every* disconnect -- not just abandoned mid-login ones -- a
+    // normal logout was hitting this too. And a normal logout is exactly
+    // when the gameserver is asynchronously gathering that player's data to
+    // send a final WU_SAVE_PLAYER_DATA. The client's userserver-side
+    // connection closing and the gameserver's async save prep are two
+    // independent races with no ordering guarantee between them, so this
+    // cleanup would routinely win the race and delete
+    // playerSaveData[playername] out from under an in-flight (or
+    // about-to-arrive) save -- producing "CANNOT SAVE PLAYER AS NOT SENT TO
+    // GAME SERVER" on what should have been an ordinary logout save.
+    // This function's actual job is cleaning up an *abandoned* login: one
+    // that never reached the pendingLogins/WU_PLAYER_LOADED handshake (see
+    // handlePlayerLoaded above). If pendingLogins doesn't have this
+    // playername, the player already finished logging in, so none of this
+    // per-login state is stale -- playerSaveData in particular may be
+    // actively in use -- and none of it should be touched here.
     abandonPendingLogin(playername) {
       if (!playername)
         return;
 
-      if (this.pendingLogins.has(playername)) {
-        console.info("abandonPendingLogin: clearing pending login for "+playername);
-        this.pendingLogins.delete(playername);
-      }
+      if (!this.pendingLogins.has(playername))
+        return;
+
+      console.info("abandonPendingLogin: clearing pending login for "+playername);
+      this.pendingLogins.delete(playername);
       delete this.playerLoadData[playername];
       delete this.playerCreateData[playername];
       delete this.playerSaveData[playername];
