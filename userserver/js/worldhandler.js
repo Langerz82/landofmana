@@ -258,9 +258,29 @@ class WorldHandler {
 
         const update = (parseInt(msg[2]) === 1);
 
+        // FIX: this used to `return` here -- silently discarding the whole
+        // save payload (all 7 DB writes below) -- whenever playerName
+        // wasn't already a key in playerSaveData. That guard was meant to
+        // catch stale saves for a player this WorldHandler never loaded,
+        // but it also fires for two legitimate cases where the gameserver
+        // is holding perfectly good save data:
+        //   1. This WorldHandler instance is per gameserver *connection*
+        //      (see `new WorldHandler(...)` in main.js), not per player. If
+        //      the gameserver reconnects mid-session, a brand new instance
+        //      with an empty playerSaveData is created here, but players
+        //      already logged in on the gameserver side don't re-run the
+        //      load handshake -- so their next save arrives "unregistered"
+        //      even though they're a normal connected player.
+        //   2. A save can race ahead of the load handshake finishing (the
+        //      handshake sets playerSaveData[playerName] only after all 7
+        //      load pieces are collected -- see sendPlayerToWorld/
+        //      createPlayerToWorld above).
+        // In both cases the incoming data[] is valid and safe to persist,
+        // so instead of dropping it we self-register the player here and
+        // fall through to the normal save path. Downgraded to console.info
+        // since this is now a handled/recovered case, not a lost save.
         if (!this.playerSaveData.hasOwnProperty(playerName)) {
-          console.warn("CANNOT SAVE PLAYER AS NOT SENT TO GAME SERVER.");
-          return;
+          console.info("handleSavePlayerData: "+playerName+" was not registered in playerSaveData (likely a gameserver reconnect or a save that raced the load handshake) -- self-registering and continuing with save instead of dropping it.");
         }
 
         this.playerSaveData[playerName] = 0;

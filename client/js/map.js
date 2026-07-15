@@ -1,6 +1,6 @@
 // Converted from AMD (define) + Class.extend to a native ES6 module/class.
 import Detect from './detect.js';
-import config from './config.js';
+import fetchJsonSync from './data/fetchjsonsync.js';
 
 export default class Map {
     constructor(game, mapContainer) {
@@ -37,22 +37,18 @@ export default class Map {
             // on this Map's .ready() callback: LoadMaps()'s per-map callback never fires,
             // inc never reaches count, OnAllReady() never runs, and game.mapContainer's
             // allReady() callback (registered in clientcallbacks.js's status===2 handler)
-            // never gets invoked either -- leaving the player stuck mid-transition. Adding
-            // .fail() surfaces the failure and retries once with a cache-busting timestamp,
-            // matching the same pattern already used for the container's own zip-load retry
-            // in mapcontainer.js.
-            const filename = "./maps/" + name + "?v=" + config.build.version;
-            $.getJSON(filename, function(data) {
-                self.loadMapData(data);
-            }).fail(function(jqXHR, textStatus, errorThrown) {
-                console.error("Failed to load map data via getJSON fallback for " + self.mapName + ": " + textStatus + " " + errorThrown + " -- retrying with cache-busting param");
-                const retryFilename = filename + "&t=" + Date.now();
-                $.getJSON(retryFilename, function(data) {
-                    self.loadMapData(data);
-                }).fail(function(jqXHR2, textStatus2, errorThrown2) {
-                    console.error("Retry also failed to load map data for " + self.mapName + ": " + textStatus2 + " " + errorThrown2);
-                });
-            });
+            // never gets invoked either -- leaving the player stuck mid-transition. Using
+            // fetchJsonSync (same shared helper the data/*.js modules and sprites.js's
+            // zip fallback use) gets the ?version= cache-busting param for free -- no
+            // per-request timestamp here, since that would force a fresh download of
+            // this map's JSON on every single load instead of only on a new build.
+            const filename = "./maps/" + name;
+            try {
+                self.loadMapData(fetchJsonSync(filename));
+            }
+            catch (fallbackErr) {
+                console.error("Failed to load map data via fetchJsonSync fallback for " + self.mapName + ": " + fallbackErr);
+            }
         }
     }
 

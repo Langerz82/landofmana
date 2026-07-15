@@ -5,6 +5,7 @@ import Area from './area.js';
 import Detect from './detect.js';
 import Map from './map.js';
 import config from './config.js';
+import fetchJsonSync from './data/fetchjsonsync.js';
 
 export default class MapContainer {
     constructor(game, mapIndex, mapName) {
@@ -29,11 +30,20 @@ export default class MapContainer {
 
         JSZipUtils.getBinaryContent($file, function(err, data) {
             if (err) {
-                const filename = "./maps/" + name + "?v=" + config.build.version;
-                $.getJSON(filename, function(data) {
-                    self.loadMap(data);
-                });
-                throw err; // or handle err
+                // FIX: switched from a fire-and-forget $.getJSON with no error handling
+                // (plus a `throw err` that did nothing but log an uncaught exception,
+                // since the getJSON call above it was already async and unaffected by it)
+                // to fetchJsonSync, wrapped in try/catch so a failed fallback is actually
+                // surfaced instead of silently leaving the container stuck unloaded.
+                console.error("Failed to load map zip for " + self.mapName + ":", err);
+                const filename = "./maps/" + name;
+                try {
+                    self.loadMap(fetchJsonSync(filename));
+                }
+                catch (fallbackErr) {
+                    console.error("Failed to load map data via fetchJsonSync fallback for " + self.mapName + ":", fallbackErr);
+                }
+                return;
             }
 
             JSZip.loadAsync(data).then(function(zip) {
@@ -69,11 +79,19 @@ export default class MapContainer {
                 // recover. Falling back to the direct (non-zip) JSON fetch here -- the
                 // same fallback already used for getBinaryContent's own `err` branch above
                 // -- means a bad cached zip no longer permanently strands the map load.
+                // Uses fetchJsonSync (wrapped in try/catch, since it throws rather than
+                // taking a .fail() callback), relying on its own automatic "?version="
+                // param -- no per-request timestamp, since that would force a fresh
+                // download of this map's JSON on every single load instead of only on
+                // a new build.
                 console.error("Failed to load map zip for " + self.mapName + ":", err);
-                const filename = "./maps/" + name + "?v=" + config.build.version + "&t=" + Date.now();
-                $.getJSON(filename, function(data) {
-                    self.loadMap(data);
-                });
+                const filename = "./maps/" + name;
+                try {
+                    self.loadMap(fetchJsonSync(filename));
+                }
+                catch (fallbackErr) {
+                    console.error("Failed to load map data via fetchJsonSync fallback for " + self.mapName + ":", fallbackErr);
+                }
             });
         });
 

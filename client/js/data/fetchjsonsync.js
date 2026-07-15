@@ -26,9 +26,12 @@ export default function fetchJsonSync(path) {
     let failure = null;
 
     const version = config.build ? config.build.version : undefined;
-    const url = version
+    let url = path;
+    if (url.indexOf('?v='+version) === -1) {
+      url = version
         ? path + (path.indexOf('?') === -1 ? '?' : '&') + 'v=' + version
         : path;
+    }
 
     $.ajax({
         url: url,
