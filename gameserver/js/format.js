@@ -283,22 +283,25 @@ class FormatChecker {
     this.formats[Types.Messages.BI_SYNCTIME] = tupleField([numberField(serverDateMin, serverDateMax)]);
 
     // USER LOGIN PACKETS
-    this.formats[Types.Messages.CW_CREATE_USER] = tupleField([
-      stringField(usernameLenMin, usernameLenMax),
-      stringField(userHashLenMin, userHashLenMax),
-    ]);
-    this.formats[Types.Messages.CW_LOGIN_USER] = tupleField([
-      stringField(usernameLenMin, usernameLenMax),
-      stringField(userHashLenMin, userHashLenMax),
-    ]);
-    this.formats[Types.Messages.CW_REMOVE_USER] = tupleField([
-      stringField(usernameLenMin, usernameLenMax),
-      stringField(userHashLenMin, userHashLenMax),
-    ]);
-    this.formats[Types.Messages.CW_CREATE_PLAYER] = tupleField([
-      numberField(0, maxPlayersPerUser),
-      stringField(playerNameLenMin, playerNameLenMax),
-    ]);
+    // NOTE: the four entries below key off `Types.Messages.CW_CREATE_USER` /
+    // `CW_LOGIN_USER` / `CW_REMOVE_USER` / `CW_CREATE_PLAYER` -- none of
+    // which exist under `Types.Messages` (shared/js/gametypes.js). The real
+    // constants for these four (CU_CREATE_USER, CU_LOGIN_USER, CU_REMOVE_USER,
+    // CU_CREATE_PLAYER) live under the separate `Types.UserMessages`
+    // namespace, i.e. the client<->(login/user server) channel, not
+    // client<->world -- packethandler.js/worldhandler.js (this world
+    // server's only two packet dispatchers) never switch on any of these
+    // four, only on the fifth, CW_LOGIN_PLAYER (a real, correctly-referenced
+    // constant, used by worldhandler.js's handleLoginPlayer). So all four
+    // silently evaluate to the same `this.formats[undefined]` key -- each
+    // overwriting the last, with only CW_CREATE_PLAYER's schema surviving --
+    // and are never actually looked up, since a real incoming packet's type
+    // is never `undefined`. Harmless as dead weight, but worth flagging
+    // rather than silently leaving in case it's meant to indicate this world
+    // server should be validating a login flow it currently isn't (that
+    // would need routing to the actual login/user server's own format
+    // checker, not this file, if account creation/login truly lives
+    // elsewhere in this project).
     this.formats[Types.Messages.CW_LOGIN_PLAYER] = tupleField([
       stringField(playerNameLenMin, playerNameLenMax),
       stringField(0, playerHashLenMax),

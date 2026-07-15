@@ -238,7 +238,16 @@ Messages.SkillXP = class extends Message {
         this.skillXPs = skillXPs;
     }
     serialize() {
-        const arr = [Types.Messages.WC_SKILLXP];
+        // FIX: was `Types.Messages.WC_SKILLXP` (no underscore) -- the real
+        // constant, defined in shared/js/gametypes.js, is `WC_SKILL_XP`
+        // (332), so this resolved to `undefined` instead of a real message
+        // type. skillhandler.js's setXPs() sends this on every skill-XP
+        // flush (i.e. routinely, via any XP-granting action -- see
+        // callbacks/mobcallback.js's onKilled), so every skill-XP packet's
+        // very first field -- the type the client's packet router switches
+        // on -- was `undefined`, silently failing to match any client-side
+        // handler instead of updating the skill XP display.
+        const arr = [Types.Messages.WC_SKILL_XP];
         // FIX: `skillXPs` isn't a parameter of serialize() -- only the
         // constructor's `this.skillXPs` exists here. The bare identifier threw
         // a ReferenceError every time a skill-XP message was sent. Also,
@@ -344,6 +353,17 @@ Messages.StatInfo = class extends Message {
     }
 };
 
+// NOTE: `Types.Messages.WC_LOOKUPDATE` below doesn't exist (only
+// `CW_LOOKUPDATE`, the opposite client-to-world direction, is defined in
+// shared/js/gametypes.js) -- serialize() would send `undefined` as this
+// message's type. Currently harmless: nothing in gameserver/js ever
+// constructs a `Messages.UpdateLook` (grepped for it) -- the real
+// look/sprite-update path is player.js's broadcastSprites(), which sends
+// `Messages.setSprite` (a real, correctly-referenced WC_SET_SPRITE) instead.
+// This class looks like an older format broadcastSprites() has since
+// replaced; left in place undeleted in case something still expects it,
+// but flagging rather than fixing blind since there's no live caller to
+// verify what type constant (if any) it should actually use.
 Messages.UpdateLook = class extends Message {
     constructor(player) {
         super();
@@ -492,6 +512,19 @@ Messages.Gold = class extends Message {
   }
 };
 
+// NOTE: this sends `Types.Messages.WC_SPAWN` -- the same type constant
+// Messages.Spawn (above) uses -- but with `this.id`/`this.state` spliced in
+// before the entity state array, so the actual payload shape here
+// ([WC_SPAWN, id, state, ...block.getState()]) doesn't match a real
+// Messages.Spawn payload ([WC_SPAWN, ...entity.getState()]) at all; a
+// client-side handler keyed on WC_SPAWN and expecting entity.getState()
+// right after the type would misread `this.id`/`this.state` as the start of
+// that array (which itself starts with the block's own id). There's a
+// dedicated, currently-unused `WC_BLOCK_MODIFY` (336) constant defined in
+// shared/js/gametypes.js that looks like the intended type for this. Not
+// changed here since I don't have visibility into the client's packet
+// router to confirm it isn't specifically expecting this WC_SPAWN shape for
+// blocks -- flagging for whoever can check that side.
 Messages.BlockModify = class extends Message {
     constructor(entity, id, state) {
         super();

@@ -303,16 +303,17 @@ class ShopHandler {
         // these together, including `itemName = null` -- dead, since
         // nothing read it before it was redeclared as `var itemName =
         // itemData.name` further down (once itemData exists). Split by
-        // actual mutability: itemType/itemKind/buyCount are never
-        // reassigned (const); itemCount/price/goldCount are (let);
-        // itemName's real declaration moved down to where its value is
-        // actually available.
+        // actual mutability: itemType/itemKind are never reassigned
+        // (const); itemCount/price/goldCount are (let); itemName's real
+        // declaration moved down to where its value is actually available.
+        // Also dropped a `const buyCount = 0;` from that same chain -- dead,
+        // nothing in this function ever read it (the real buy-count check
+        // below correctly reads itemData.buyCount instead).
         const itemType = parseInt(message[0]);
         const itemKind = parseInt(message[1]);
         let itemCount = parseInt(message[2]);
         let price = 0;
         let goldCount = 0;
-        const buyCount = 0;
 
         if (!itemKind || itemCount <= 0) {
             return;
@@ -384,13 +385,13 @@ class ShopHandler {
         const p = this.player;
 
         // NOTE: same story as handleStoreBuy above -- split a single `var`
-        // chain (which included a dead `itemName = null` initializer) by
+        // chain (which included a dead `itemName = null` initializer and a
+        // dead `buyCount = 0` never read anywhere in this function) by
         // actual mutability.
         const craftId = parseInt(message[0]);
         let itemCount = parseInt(message[1]);
         let price = 0;
         let goldCount = 0;
-        const buyCount = 0;
 
         if (itemCount <= 0) {
             return;

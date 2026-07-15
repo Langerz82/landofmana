@@ -347,7 +347,7 @@
 		"spriteName":"item-flask",
 		"offset":[0,0],
 		"buy": 10,
-		"buycount":10
+		"buyCount":10
 	},
 	{
 		"id":35,
@@ -359,7 +359,7 @@
 		"spriteName":"item-burger",
 		"offset":[0,0],
 		"buy": 30,
-		"buycount":10
+		"buyCount":10
 	},
 	{
 		"id":36,
@@ -371,7 +371,7 @@
 		"spriteName":"item-bigflask",
 		"offset":[0,0],
 		"buy": 50,
-		"buycount":10
+		"buyCount":10
 	},
 
 	{

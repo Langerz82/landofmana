@@ -359,12 +359,6 @@ ItemTypes.getItemListBy = (itemType, minLevel, maxLevel) => {
         itemNumber: item.buyCount,
         craft: item.craft
       });
-    // FIX: both branches below used `item.buyCount` (capital C) -- the real
-    // field, as set in gameserver's data/itemdata.js (and as used correctly
-    // by the itemType==4/itemType==1 branches above, and by `itemNumber`
-    // right below in these same two branches), is lowercase `buyCount`.
-    // `item.buyCount` is always undefined, so every armor/weapon shop
-    // listing built here reported an undefined buy count.
     } else if (itemType == 2 && ItemTypes.isArmor(k) &&
       item.modifier >= minLevel && item.modifier <= maxLevel) {
       ItemsList.push({
@@ -419,11 +413,6 @@ ItemTypes.Store = {
     if (!item) return false;
     return item.buy >= 2;
   },
-  // FIX: same `buyCount`/`buyCount` casing mismatch as getItemListBy()
-  // above -- the real field is lowercase `buyCount` (see isBuyMultiple()
-  // right above, which already reads it correctly). `item.buyCount` is
-  // always undefined, so this returned 1 for every item regardless of its
-  // actual configured buy-stack count.
   getBuyCount: (id) => {
     const item = KindData[id];
     if (!item) return false;
