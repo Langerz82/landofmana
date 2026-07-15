@@ -37,7 +37,7 @@ Utils.arraysEqual = function (a, b) {
 
 Utils.array_values = function (input) {
 	const tmp_arr = [], key = '';
-	for (key in input) tmp_arr[tmp_arr.length] = input[key];
+	for (const key in input) tmp_arr[tmp_arr.length] = input[key];
 	return tmp_arr;
 }
 
