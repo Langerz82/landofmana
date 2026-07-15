@@ -1,4 +1,4 @@
 #!/bin/bash
-ln -s ./shared client/shared
-ln -s ./shared gameserver/shared
-ln -s ./shared userserver/shared
+ln -sr ./shared client/shared
+ln -sr ./shared gameserver/shared
+ln -sr ./shared userserver/shared
