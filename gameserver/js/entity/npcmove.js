@@ -4,7 +4,7 @@ import EntityQuests from '../entityquests.js';
 import Utils from '../utils.js';
 import { Types } from '../common.js';
 import QuestData from '../data/questdata.js';
-import NPCnames from '../../shared/data/npc_names.json' with { type: 'json' };
+import NPCnames from '../../data/npc_names.json' with { type: 'json' };
 
 class NpcMove extends Character {
     constructor(id, kind, x, y, map) {

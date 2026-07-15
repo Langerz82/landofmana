@@ -5,7 +5,6 @@
 import fetchJsonSync from './fetchjsonsync.js';
 
 const NpcData = {};
-NpcData.npcSpeak = fetchJsonSync('shared/data/npc_english.json');
 
 NpcData.Properties = {};
 NpcData.Kinds = fetchJsonSync('shared/data/npcs.json');

@@ -351,10 +351,10 @@
 	},
 	{
 		"id":35,
-		"name": "Burger +250 Energy",
+		"name": "Burger +500 Energy",
 		"type":"object",
 		"typemod":"energy",
-		"modifier":250,
+		"modifier":500,
 		"sprite":"item/item-burger.png",
 		"spriteName":"item-burger",
 		"offset":[0,0],

@@ -1,5 +1,5 @@
 import _ from 'underscore';
-import SpawnJson from "../../shared/data/entity_spawn.json" with { type: 'json' };
+import SpawnJson from "../../data/entity_spawn.json" with { type: 'json' };
 import fs from 'fs';
 
 
@@ -18,7 +18,7 @@ export function addSpawn(id, x, y) {
 
 export function saveSpawns() {
 	//console.info(JSON.stringify(EntitySpawnData));
-	fs.writeFile("./shared/data/entity_spawn.json", JSON.stringify(EntitySpawnData), function (err,data) {
+	fs.writeFile("../../data/entity_spawn.json", JSON.stringify(EntitySpawnData), function (err,data) {
 		if (err) {
 			return console.info(err);
 		}

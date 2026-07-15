@@ -26,7 +26,7 @@ const getCraftData = function(index) {
     return data;
 };
 
-const Staticsheet = fetchJsonSync('shared/data/staticsheet.json');
+const Staticsheet = fetchJsonSync('data/staticsheet.json');
 const kindData = {};
 kindData[0] = null;
 const itemParse = fetchJsonSync('shared/data/items2.json');

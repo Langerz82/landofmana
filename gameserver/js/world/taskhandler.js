@@ -1,6 +1,6 @@
 import EntityMoving from '../entity/entitymoving.js';
 import Messages from '../message.js';
-import AchievementJson from '../../shared/data/achievements.json' with { type: 'json' };
+import AchievementJson from '../../data/achievements.json' with { type: 'json' };
 import { Types } from '../common.js';
 // FIX: processAchievement() below calls Utils.getNumShortHand() but Utils
 // was never imported -- threw ReferenceError every time a player completed
