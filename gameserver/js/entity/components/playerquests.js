@@ -70,7 +70,15 @@ class PlayerQuests {
     questAboutFind(quest) {
         const p = this.player;
         //console.info(JSON.stringify(quest));
-        if(quest.count++ >= quest.object.count && quest.status === Types.QuestStatus.INPROGRESS) {
+        // FIX: was `quest.count++ >= quest.object.count` (postfix) -- the
+        // comparison ran against the OLD count before incrementing, so a
+        // "find N" quest actually needed N+1 finds to complete. Every other
+        // count-up-to-target quest handler in this file increments first:
+        // questAboutUseNode does `quest.count++; if (quest.count >=
+        // quest.object.count)`, and questAboutKill does
+        // `++quest.count === quest.object.count`. Switched to prefix `++`
+        // here to match that same complete-exactly-at-target behavior.
+        if(++quest.count >= quest.object.count && quest.status === Types.QuestStatus.INPROGRESS) {
             quest.count = quest.object.count;
             const xp = quest.object.count * 10 * p.level;
             this.completeQuest(quest, xp);

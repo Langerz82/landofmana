@@ -37,6 +37,23 @@
 // ============================================================================
 
 import { z } from 'zod';
+// FIX: this file uses `Types.UserMessages.*` throughout (the constructor
+// below, plus the WU_SAVE_PLAYER_DATA/WU_SAVE_PLAYER_AUCTIONS/
+// WU_SAVE_USER_BANS special cases in check()) but never imported `Types` --
+// unlike gameserver/js/format.js, which does `import { Types } from
+// './common.js'`. It only worked by accident: userserver/js/main.js's very
+// first import is `./common.js`, which does `global.Types = Types` as a
+// side effect, and since this module's own `const checker = new
+// FormatChecker()` (bottom of this file) runs at import time, it happened
+// to always execute after that global was already set, given main.js's
+// current import order (common.js, then user.js/worldhandler.js, which
+// import this file). Reorder those imports, or load this file from any
+// entry point that doesn't happen to pull in common.js first (a test file,
+// a script, a future refactor), and every `Types.UserMessages.X` reference
+// throws `ReferenceError: Types is not defined` before the module finishes
+// loading. Importing it directly here removes that hidden load-order
+// dependency, matching the gameserver file's pattern.
+import { Types } from './common.js';
 
 const itemKindMax = 2000;
 const itemNumberMax = 100;

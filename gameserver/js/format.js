@@ -89,9 +89,15 @@ const questObjectLevelMax = 999;
 const entityTypeNPCMin = 5;
 const entityTypeNPCMax = 6;
 
-const shortcutIndexMax = 6;
-const shortcutTypeMax = 2;
-const shortcutTypeIdMax = 999;
+// REMOVED: shortcutIndexMax/shortcutTypeMax/shortcutTypeIdMax. Audited
+// against every use of these names in this file (see the packet-validation
+// audit) and found unused -- CW_SHORTCUT below bounds its three fields with
+// playerShortcutsMax/playerShortcutsType/itemKindMax instead, so these three
+// were dead leftovers that didn't match what's actually enforced. Left
+// dead, they'd mislead the next reader into thinking CW_SHORTCUT uses a
+// 0-6/0-2/0-999 bound when it doesn't. (userserver/js/format.js has its own
+// same-named constants that ARE live there, for its shortcuts save-data
+// record -- unrelated to this file.)
 
 const usernameLenMin = 2;
 const usernameLenMax = 16;
@@ -113,7 +119,13 @@ const playerLooksTotal = 177;
 const playerLooksTotalCost = 10000;
 const playerStatMax = 5;
 const playerSkillMax = 50;
-const playerPartyMax = 6;
+// REMOVED: playerPartyMax. Was only ever used, incorrectly, as CW_PARTY's
+// name-length bound (see the FIX comment at that schema) -- the real
+// "max players in a party" limit is enforced separately in
+// partyhandler.js's handleInvite (`party.players.length >= 5`), not via
+// this constant. Nothing else in this file or the wider gameserver
+// referenced it, so removing it rather than leaving a same-looking, never-
+// consulted constant for the next reader to trip over the same way.
 const playerShortcutsMax = 7;
 const playerShortcutsType = 2;
 
@@ -132,15 +144,21 @@ const serverAddressLenMin = 7;
 const serverAddressLenMax = 15;
 const serverPortMin = 1024;
 const serverPortMax = 65535;
-const serverProtocolLenMin = 2;
-const serverProtocolLenMax = 2;
+// REMOVED: serverProtocolLenMin/serverProtocolLenMax (were 2/2, matching
+// only a 2-char protocol like "ws"). Unused in this file -- this side never
+// validates its own outgoing WU_PLAYER_LOADED message (that's the
+// receiving userserver's job, via its own format.js, which correctly
+// allows up to 5 chars for "https"). Left in, a future CW_/WU_ schema added
+// here that reused this name would silently inherit a bound too narrow for
+// the protocol strings this codebase actually sends.
 
 const userBansTotal = 1000;
-const banDateMin = 1730000000000;
-const banDateMax = 1800000000000;
+// REMOVED: banDateMin/banDateMax. Unused in this file -- WU_SAVE_USER_BANS
+// is an outgoing message (gameserver -> userserver) validated on the
+// *receiving* side by userserver/js/format.js's own banDateMin/banDateMax,
+// not here.
 
 const serverDateMin = 1730000000000;
-const serverDateMax = 1800000000000;
 
 const maxChatLength = 256;
 
@@ -155,6 +173,35 @@ const maxChatLength = 256;
 // always true no matter what was sent (see migration note above). This is
 // the first time these fields are genuinely validated.
 const numberField = (min, max) => z.number().min(min).max(max);
+
+// A client-supplied timestamp field (BI_SYNCTIME's arg, and the leading
+// "time" field of CW_ATTACK/CW_MOVE/CW_MOVEPATH).
+//
+// FIX: this used to be `numberField(serverDateMin, serverDateMax)` with
+// serverDateMax hardcoded to 1800000000000 -- January 15, 2027. Every
+// schema in this file is built ONCE, when this module first loads, and
+// reused for the life of the process, so that ceiling doesn't move with
+// the calendar: the moment a real client's clock (Date.now()) passes that
+// date, EVERY sync/attack/move/movepath packet from EVERY player fails
+// this check, and packethandler.js's check() closes the sender's
+// connection on format failure -- i.e. this was a scheduled outage with no
+// code change required to trigger it. Re-evaluating the upper bound
+// against Date.now() at *parse* time (via .refine(), not .max(), which
+// bakes its bound in at schema-build time) removes the expiration date
+// while keeping the same "reject wildly bogus timestamps" sanity check
+// this field actually needs. The window is generous (1 day either side of
+// server time) to tolerate real client clock drift/skew without needing to
+// know exactly how these fields get used downstream (lag compensation /
+// interpolation, not strict clock sync -- see handleSyncTime/
+// handleMoveEntity in packethandler.js).
+const serverDateWindowMs = 24 * 60 * 60 * 1000; // 1 day
+const serverDateField = () =>
+  z.number()
+    .min(serverDateMin)
+    .refine(
+      (val) => val <= Date.now() + serverDateWindowMs,
+      (val) => ({ message: `timestamp ${val} too far in the future (now=${Date.now()})` })
+    );
 
 // 'no': same as 'n', but the value may legitimately be null (e.g. CW_PARTY's
 // third field).
@@ -280,7 +327,7 @@ class FormatChecker {
   constructor() {
     this.formats = {};
 
-    this.formats[Types.Messages.BI_SYNCTIME] = tupleField([numberField(serverDateMin, serverDateMax)]);
+    this.formats[Types.Messages.BI_SYNCTIME] = tupleField([serverDateField()]);
 
     // USER LOGIN PACKETS
     // NOTE: the four entries below key off `Types.Messages.CW_CREATE_USER` /
@@ -313,7 +360,7 @@ class FormatChecker {
       numberField(0, playerGemMax),
     ]);
     this.formats[Types.Messages.CW_ATTACK] = tupleField([
-      numberField(serverDateMin, serverDateMax),
+      serverDateField(),
       numberField(0, entityIdMax),
       numberField(0, orientationsMax),
       numberField(-1, playerSkillMax),
@@ -361,7 +408,7 @@ class FormatChecker {
       numberField(0, mapCoordsMax),
     ]);
     this.formats[Types.Messages.CW_MOVE] = tupleField([
-      numberField(serverDateMin, serverDateMax),
+      serverDateField(),
       numberField(0, entityIdMax),
       numberField(0, 2), // move type
       numberField(0, orientationsMax),
@@ -431,7 +478,21 @@ class FormatChecker {
     ]);
     this.formats[Types.Messages.CW_PARTY] = tupleField([
       numberField(0, 4),
-      optionalStringField(0, playerPartyMax),
+      // FIX: this field is the target PLAYER'S NAME (see partyhandler.js's
+      // handleInvite/handleKick/handleLeader, all of which read it as
+      // `msg[0]` and pass it to getPlayer(name)) -- but it was bounded with
+      // playerPartyMax (6, the max *number of players in a party*, used
+      // correctly elsewhere for `party.players.length >= 5` checks), not a
+      // name-length constant. Since real player names are 2-16 characters
+      // (playerNameLenMin/playerNameLenMax, the bound every other
+      // player-name field in this file uses), any invite/kick/leader-
+      // transfer aimed at a player with a name over 6 characters (the vast
+      // majority of real names) failed this check -- and packethandler.js
+      // closes the SENDER's connection on format failure, so this didn't
+      // just silently no-op the party action, it disconnected the player
+      // who tried it. Confirmed with a quick check: "Bob" (3 chars) passed,
+      // "Langerz82" (9 chars) did not.
+      optionalStringField(playerNameLenMin, playerNameLenMax),
       optionalNumberField(0, 3),
     ]);
     this.formats[Types.Messages.CW_HARVEST] = tupleField([
@@ -445,7 +506,7 @@ class FormatChecker {
       numberField(0, questTypeMax),
     ]);
     this.formats[Types.Messages.CW_MOVEPATH] = tupleField([
-      numberField(serverDateMin, serverDateMax),
+      serverDateField(),
       numberField(0, entityIdMax),
       numberField(0, orientationsMax),
       numberField(0, 1),

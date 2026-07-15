@@ -166,6 +166,16 @@ class WorldHandler {
             callback(player.name, data);
     }
 
+    // NOTE: this sends `quests` as a real JS array of comma-joined strings,
+    // while userhandler.js's handleLoadPlayerQuests (load side) does
+    // JSON.parse(msg) on the way back in -- looks mismatched in isolation,
+    // but it isn't: userserver/js/worldhandler.js's handleSavePlayerData
+    // explicitly does `JSON.stringify(data[2])` before persisting this array
+    // to Redis, and hands the same JSON string back unchanged on load. So
+    // the array shape here is exactly what the userserver expects to
+    // JSON.stringify, and JSON.parse on the other end is the correct inverse
+    // of that -- confirmed by reading through userserver's worldhandler.js
+    // and redis.js.
     loadPlayerDataQuests(player, callback) {
         const quests = [];
         //if (!player.quests.quests)

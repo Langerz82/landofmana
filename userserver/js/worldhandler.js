@@ -2,7 +2,31 @@
 
 import formatChecker from "./format.js";
 import UserMessages from "./usermessage.js";
+// FIX: this file used `Types.UserMessages.*` (in the `listener` below) and
+// `Utils.ArrayParseInt` (in sendLooksToWorld) with no import for either --
+// same missing-import pattern just fixed in format.js, and for the same
+// reason it didn't already blow up: every reference here lives inside a
+// runtime callback (the connection listener, or a DBH.* callback), not at
+// module-load time, so by the time any of them actually run, main.js has
+// long since imported common.js and set global.Types/global.Utils. Safe in
+// practice, but still a hidden load-order dependency for no reason -- Types
+// and Utils are both static, already-resolved exports from common.js with
+// no import cycle back to this file (unlike MainConfig/DBH/users/
+// worldHandlers below, which really are runtime-populated globals owned by
+// main.js -- see the note above the class for why those are left as-is).
+import { Types, Utils } from './common.js';
 
+// NOTE: MainConfig (used in handleGameServerInfo), DBH (used throughout),
+// users (used in handlePlayerLoggedIn), and worldHandlers are still
+// referenced as bare globals, not imports. Unlike Types/Utils above, these
+// are genuinely mutable runtime state owned by userserver/js/main.js (see
+// `global.MainConfig = null` / `global.DBH = null` / `global.users = new
+// Map()` there, populated later as config loads and connections come in),
+// and main.js is this file's own importer -- importing back from it would
+// be a real circular dependency, not just a missing static import. Left as
+// the same global-object pattern the rest of this codebase already uses
+// for this kind of shared mutable state, rather than restructuring the
+// startup sequence as part of a packet-validation pass.
 class WorldHandler {
     constructor(main, connection) {
         const self = this;
@@ -155,6 +179,20 @@ class WorldHandler {
         console.warn("handleSavePlayerLooks: world is not set.");
         return;
       }
+      // NOTE (checked, not changed): `msg` here is always a single-element
+      // array wrapping the full looks CSV string (see world/looks.js's
+      // `this.prices.join(",")` on the sending side, and format.js's
+      // WU_SAVE_PLAYER_LOOKS special case, which validates `message[0]` as
+      // that CSV string). redis.js's saveLooks(worldKey, looks, callback)
+      // calls `looks.join(",")` on its second argument -- i.e. it requires
+      // an ARRAY, not a raw string (strings have no .join method). Passing
+      // `msg` (the array) is correct: Array.prototype.join on a
+      // single-element array just stringifies that one element with no
+      // separator, so `[csvString].join(",")` reconstructs `csvString`
+      // exactly. An earlier pass here "fixed" this to `msg[0]` (the bare
+      // string) on the theory that unwrapping it was clearer -- that's
+      // wrong: `msg[0].join is not a function` throws on every save,
+      // confirmed with a quick check. Reverted; `msg` is the correct call.
       DBH.saveLooks(this.world.key, msg, function (key, data) {
         self.SAVED_LOOKS = true;
       });

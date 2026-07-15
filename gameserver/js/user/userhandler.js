@@ -220,6 +220,18 @@ class UserHandler {
     // CommonJS source, which created an implicit global there; declared with
     // `var` here since ES modules are always strict mode and forbid implicit
     // globals.
+    //
+    // NOTE: `msg` here looks like it should be the raw JS array
+    // loadPlayerDataQuests() built on the save side (worldhandler.js:
+    // `quests.push(quest.toArray().join(','))`), which would make this
+    // JSON.parse(msg) look wrong -- but it's correct. Confirmed by reading
+    // userserver/js/worldhandler.js's handleSavePlayerData(), which does
+    // `DBH.saveQuests(playerName, JSON.stringify(data[2]), ...)` before
+    // persisting to Redis, and userserver/js/redis.js's loadQuests() returns
+    // that same JSON string back verbatim via `hget`. So by the time this
+    // handler sees `msg`, it really is a JSON-encoded string (an array of
+    // comma-joined quest-field strings), and JSON.parse + the per-record
+    // .split(',') below is the correct way to unpack it.
     handleLoadPlayerQuests(msg) {
         console.info("handleLoadPlayerQuests: "+JSON.stringify(msg));
         const player = this.player;
