@@ -151,14 +151,17 @@ class TaskHandler {
         // format.js). .entries() keeps the same for-of shape as the
         // original while handing back the index for free, same as a plain
         // indexed loop would.
+        // FIX: isUseNodeWeaponAchievement was listed twice (identical args),
+        // so every USE_NODE event double-processed that one achievement --
+        // double-counting its progress and double-paying its XP reward.
+        // Removed the duplicate call; only 5 distinct conditions are defined
+        // above, so there was no missing 6th check to restore.
         for (const [ti, achievement] of player.achievements.entries()) {
             this.processAchievement(player, playerEvent, achievement, ti, isKillMobAchievement, 2);
             this.processAchievement(player, playerEvent, achievement, ti, isLootItemAchievement, 5);
             this.processAchievement(player, playerEvent, achievement, ti, isDamageAchievement, 0.02);
             this.processAchievement(player, playerEvent, achievement, ti, isUseNodeWeaponAchievement, 5);
             this.processAchievement(player, playerEvent, achievement, ti, isHarvestAxeAchievement, 5);
-            this.processAchievement(player, playerEvent, achievement, ti, isUseNodeWeaponAchievement, 5);
-
         }
     }
 

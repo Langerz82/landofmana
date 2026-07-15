@@ -304,7 +304,12 @@ class PlayerItems {
             }
         }
 
-        this.items.inventory.takeOutItems(slot, 1);
+        // FIX: was `this.items.inventory.takeOutItems(...)` -- `this` here is
+        // already the PlayerItems instance (player.items), which has
+        // `this.inventory` directly, not `this.items`. That threw a
+        // TypeError on every "eat" action, so the consumed item was never
+        // removed from inventory (infinite-use/duplication bug).
+        this.inventory.takeOutItems(slot, 1);
     }
 }
 

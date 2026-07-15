@@ -771,7 +771,11 @@ class PacketHandler {
         const type = parseInt(message[1]);
         const shortcutId = parseInt(message[2]);
 
-        if (slot < 0 || slot > 7)
+        // FIX: was `slot > 7`, accepting 8 shortcut slots -- but player.js's
+        // load path (fillPlayerInfo) only restores slots < 6, so anything
+        // saved into slot 6/7 silently vanished on the next login. Capped
+        // here to match what's actually persisted.
+        if (slot < 0 || slot > 5)
             return;
 
         if (type === 2) {

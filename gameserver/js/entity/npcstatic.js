@@ -17,17 +17,22 @@ class NpcStatic extends Entity {
         console.info("kind: "+this.kind);
         if (this.kind === 44)
         {
-            console.info("THIS IS FOR COLLECTING ITEMS NPC.")
-            if (player.questStatus) {
-                for (let [key, questStatus] of Object.entries(player.questStatus))
-                {
-                    console.info("questStatus"+JSON.stringify(questStatus));
-                    if (questStatus.type==1 && questStatus.count <= questStatus.objectCount)
-                    {
-                        player.questAboutItem(questStatus, null);
-                    }
-                }
-            }
+            // FIX: this "collecting items" NPC branch was dead code that
+            // would throw if it ever ran. `player.questStatus` is never set
+            // anywhere in the codebase (the real quest list lives at
+            // `player.quests.quests`, as used below), so the `if` guard
+            // always evaluated false. Even if it had fired,
+            // `player.questAboutItem(...)` doesn't exist -- that method is
+            // `player.quests.questAboutItem(quest)`, and it takes a single
+            // quest object rather than the two-argument
+            // `(questStatus, null)` shape used here. The `type`/`count`/
+            // `objectCount` field names referenced also don't match the
+            // current quest schema (`quest.type`/`quest.object.count`), and
+            // no NPC in data/npcdata.js is currently defined with kind 44,
+            // so this path is unreachable today either way. Left disabled
+            // rather than rewritten, since doing this NPC's "collect items"
+            // flow correctly (deciding what quest(s) it should progress and
+            // how) needs game-design input, not a mechanical fix.
             return;
         }
 

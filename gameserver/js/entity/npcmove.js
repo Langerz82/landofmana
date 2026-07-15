@@ -91,7 +91,12 @@ class NpcMove extends Character {
             const canRoam = (Utils.randomRangeInt(0,100) === 1);
             if(!canRoam || this.map.entities.getPlayerAroundCount(this,20) === 0)
                 return;
-            const	pos = this.map.entities.getRandomPosition(this, 2);
+            // FIX: was `this.map.entities.getRandomPosition(this, 2)` --
+            // getRandomPosition() only exists on Map (zero-arg), not on
+            // MapEntities, so this threw on every roam attempt and broke
+            // ambient NPC wandering entirely. Matches the pattern used in
+            // mapentities.js's own NPC-spawn code.
+            const	pos = this.map.getRandomPosition();
             if (pos && !(pos.x === this.x && pos.y === this.y))
             {
                 //if (this.map.entities.isCharacterAt(pos.x,pos.y))

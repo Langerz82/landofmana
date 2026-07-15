@@ -2,6 +2,15 @@ import Map from './map.js';
 import MapEntities from './mapentities.js';
 
 //var BlockArea = require("../area/blockarea");
+// NOTE: TrapArea/TrapGroup (area/traparea.js, entity/trapgroup.js,
+// entity/trap.js) are intentionally left unwired -- nothing in this file or
+// elsewhere instantiates TrapArea, so the whole trap-damage system is
+// currently inert. Beyond just being unwired, entity/trap.js's on()/off()
+// also depend on Messages.SwapSprite, which is commented out in message.js
+// (see the NOTE there), so re-enabling this feature needs both this import
+// restored *and* that message type implemented/uncommented -- not something
+// to flip back on without deciding the trap system is actually meant to
+// ship.
 //var TrapArea = require("../area/traparea");
 import MobArea from '../area/mobarea.js';
 import EntityArea from '../area/entityarea.js';
