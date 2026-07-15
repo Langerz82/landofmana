@@ -50,6 +50,29 @@ export default class App {
       		   // FIX: .value is a no-op on a jQuery object; use .val() to actually set the field
       		   $('#user_password').val("");
 
+      		   // FIX: menucolor/buttoncolor were only ever read from localforage and applied
+      		   // inside SettingsHandler's constructor (settingshandler.js), which isn't created
+      		   // until game.run() - i.e. after the player logs in/is created. The login and
+      		   // character-select screens (#user_window/#player_window, both already in the DOM
+      		   // at this point) use the same --pixel-bg CSS var and .frame-new-button background
+      		   // as the in-game UI, so they were stuck showing the default colors instead of the
+      		   // player's saved choice until after login. Applied here too, at App construction
+      		   // (i.e. as soon as the document is ready - see main.js's $(document).ready that
+      		   // creates App), so the login screen picks up the saved colors immediately.
+      		   // SettingsHandler.apply()/constructor still re-applies these once the game starts
+      		   // (harmless - same value) and remains the place the color-picker inputs' change
+      		   // handlers get bound.
+      		   localforage.getItem('menucolor', function(e, val) {
+      		   	   if (!val) return;
+      			     $(':root').css('--pixel-bg', val);
+      			     $('#buttonmenucolor').val(val);
+      		   });
+      		   localforage.getItem('buttoncolor', function(e, val) {
+      		   	   if (!val) return;
+      			     $('div.frame-new-button').css('background-color', val);
+      			     $('#buttonbuttoncolor').val(val);
+      		   });
+
 		        const self = this;
 
             $( document ).ready(function() {
