@@ -512,19 +512,29 @@ Messages.Gold = class extends Message {
   }
 };
 
-// NOTE: this sends `Types.Messages.WC_SPAWN` -- the same type constant
-// Messages.Spawn (above) uses -- but with `this.id`/`this.state` spliced in
-// before the entity state array, so the actual payload shape here
-// ([WC_SPAWN, id, state, ...block.getState()]) doesn't match a real
-// Messages.Spawn payload ([WC_SPAWN, ...entity.getState()]) at all; a
-// client-side handler keyed on WC_SPAWN and expecting entity.getState()
-// right after the type would misread `this.id`/`this.state` as the start of
-// that array (which itself starts with the block's own id). There's a
-// dedicated, currently-unused `WC_BLOCK_MODIFY` (336) constant defined in
-// shared/js/gametypes.js that looks like the intended type for this. Not
-// changed here since I don't have visibility into the client's packet
-// router to confirm it isn't specifically expecting this WC_SPAWN shape for
-// blocks -- flagging for whoever can check that side.
+// FIX (real, confirmed live bug -- the previous pass here flagged this but
+// couldn't verify it without seeing the client): this sent
+// `Types.Messages.WC_SPAWN` -- the same type Messages.Spawn (above) uses --
+// with `this.id`/`this.state` spliced in before the block's own
+// entity.getState(), so the payload was `[WC_SPAWN, playerId, type,
+// ...block.getState()]`. But client/js/clientcallbacks.js registers a real
+// `onBlockModify(data)` handler for `Types.Messages.WC_BLOCK_MODIFY` (336,
+// via `client.onBlockModify(...)` in its constructor) that expects
+// `[entityId, type, blockId]` -- since this sent WC_SPAWN instead, that
+// handler never fired at all. The packet instead reached
+// gameclient.js's receiveSpawn (WC_SPAWN's real handler), which read
+// `id = data[0]` as `this.id` (the ACTING PLAYER's id, per handleBlock in
+// packethandler.js: `new Messages.BlockModify(block, p.id, type)`), then
+// did `if (game.entityIdExists(id)) { ...; game.removeEntity(entity); }`
+// followed by creating a new entity from `type`/`kind` values that were
+// actually the block-modify type flag (0/1) and the first element of the
+// block's own getState() array -- garbage as far as receiveSpawn is
+// concerned. Concretely: every time a nearby player picked up or placed a
+// block, every other client watching would have that player's own entity
+// deleted from their view and replaced with a bogus one built from block
+// state data. Sending the real WC_BLOCK_MODIFY type with the
+// [entityId, type, blockId] shape onBlockModify actually expects fixes
+// both the misrouting and the malformed payload.
 Messages.BlockModify = class extends Message {
     constructor(entity, id, state) {
         super();
@@ -533,8 +543,7 @@ Messages.BlockModify = class extends Message {
       this.state = state;
     }
     serialize() {
-        const spawn = [Types.Messages.WC_SPAWN, this.id, this.state];
-        return spawn.concat(this.entity.getState());
+        return [Types.Messages.WC_BLOCK_MODIFY, this.id, this.state, this.entity.id];
     }
 };
 

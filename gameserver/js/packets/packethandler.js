@@ -24,17 +24,11 @@ class PacketHandler {
         this.user = player.user;
         this.connection = player.connection;
         this.world = this.server = player.world;
-//    this.map = player.map;
-//    this.entities = player.map.entities;
         this.partyHandler = new PartyHandler(this);
         this.shopHandler = new ShopHandler(this);
 
-        //this.loadedPlayer = false;
-        //this.formatChecker = new FormatChecker();
-
         const self = this;
 
-        //this.connection.off('msg', this.player.user.listener);
         this.connection.listen(function(message) {
             // PERF: this fires for every single incoming packet from every
             // connected player (movement, attacks, chat, ...). JSON.stringify
@@ -71,8 +65,6 @@ class PacketHandler {
                 break;
 
             case Types.Messages.CW_WHO:
-                //console.info("Who: " + self.player.name);
-                //console.info("list: " + message);
                 self.handleWho(message);
                 break;
 
@@ -89,7 +81,6 @@ class PacketHandler {
                 break;
 
             case Types.Messages.CW_ATTACK:
-                //console.info("Player: " + self.player.name + " hit: " + message[1]);
                 self.handleAttack(message);
                 break;
 
@@ -98,15 +89,12 @@ class PacketHandler {
                 break;
 
             case Types.Messages.CW_STORESELL:
-                //console.info("Player: " + self.player.name + " store sell: " + message[1]);
                 self.shopHandler.handleStoreSell(message);
                 break;
             case Types.Messages.CW_STOREBUY:
-                //console.info("Player: " + self.player.name + " store buy: " + message[1] + " " + message[2] + " " + message[3]);
                 self.shopHandler.handleStoreBuy(message);
                 break;
             case Types.Messages.CW_CRAFT:
-                //console.info("Player: " + self.player.name + " store buy: " + message[1] + " " + message[2] + " " + message[3]);
                 self.shopHandler.handleCraft(message);
                 break;
             case Types.Messages.CW_APPEARANCEUNLOCK:
@@ -116,34 +104,25 @@ class PacketHandler {
                 self.handleLookUpdate(message);
                 break;
             case Types.Messages.CW_AUCTIONSELL:
-                //console.info("Player: " + self.player.name + " auction sell: " + message[0]);
                 self.shopHandler.handleAuctionSell(message);
                 break;
 
             case Types.Messages.CW_AUCTIONBUY:
-                //console.info("Player: " + self.player.name + " auction buy: " + message[0]);
                 self.shopHandler.handleAuctionBuy(message);
                 break;
 
             case Types.Messages.CW_AUCTIONOPEN:
-                //console.info("Player: " + self.player.name + " auction open: " + message[0]);
                 self.shopHandler.handleAuctionOpen(message);
                 break;
 
             case Types.Messages.CW_AUCTIONDELETE:
-                //console.info("Player: " + self.player.name + " auction delete: " + message[0]);
                 self.shopHandler.handleAuctionDelete(message);
                 break;
 
             case Types.Messages.CW_STORE_MODITEM:
-                //console.info("Player: " + self.player.name + " store enchant: " + message[0]);
                 self.shopHandler.handleStoreModItem(message);
                 break;
 
-// TODO - Fix CHaracter Info
-            //case Types.Messages.CW_CHARACTERINFO:
-                //self.handleCharacterInfo(message);
-                //break;
             case Types.Messages.CW_TELEPORT_MAP:
                 self.handleTeleportMap(message);
                 break;
@@ -211,13 +190,6 @@ class PacketHandler {
 
     }
 
-/*
-  setMap: function (map) {
-      this.map = map;
-      this.entities = map.entities;
-  },
-*/
-
     timeout() {
         this.connection.sendUTF8("timeout");
         this.connection.close("Player was idle for too long");
@@ -233,10 +205,6 @@ class PacketHandler {
     onExit(callback) {
         console.info("packetHandler, onExit.");
         this.exit_callback = callback;
-        /*try {
-        throw new Error()
-        }
-        catch (e) { console.info(e.stack); }*/
     }
 
     onMove(callback) {
@@ -263,14 +231,9 @@ class PacketHandler {
         this.player.sendToPlayer(player, message);
     }
 
-    /*handleCharacterInfo(message) {
-        this.sendPlayer(new Messages.CharacterInfo(this.player));
-    }*/
-
     handleSyncTime(message) {
         console.info("handleSyncTime");
         const clientTime = parseInt(message[0]);
-        //this.sendPlayer(new Messages.SyncTime(clientTime));
         this.send([Types.Messages.BI_SYNCTIME, clientTime, Date.now()]);
     }
 
@@ -562,7 +525,6 @@ class PacketHandler {
     }
 
     handleAttack(message) {
-        //console.info("handleAttack");
         const self = this;
         const time = parseInt(message[0]);
         const p = this.player;
@@ -578,8 +540,6 @@ class PacketHandler {
     }
 
     processAttack() {
-        //console.info("processAttack");
-        //var self = this;
         const p = this.player;
 
         if (p.attackQueue) {
@@ -592,10 +552,6 @@ class PacketHandler {
         const self = this;
         const p = this.player;
 
-        //console.info("handleHitEntity");
-        //var self = this;
-
-        //console.info("message: "+JSON.stringify(message));
         const targetId = parseInt(message[1]),
             orientation = parseInt(message[2]),
             skillId = parseInt(message[3]);
@@ -611,7 +567,6 @@ class PacketHandler {
             return;
         }
 
-        //console.warn("attackDuration: "+(Date.now() - sEntity.attackTimer));
         const attackTime = Date.now() - sEntity.attackTimer + 100;
         if (attackTime < ATTACK_INTERVAL) {
             console.warn("attack interval");
@@ -638,7 +593,6 @@ class PacketHandler {
 
 // TODO fill sEntity, tEntity.
 
-        //console.info("player.x:"+this.player.x+",this.player.y:"+this.player.y+",mob.x"+mob.x+",mob.y:"+mob.y);
         if (sEntity.map.isColliding(sEntity.x, sEntity.y)) {
             console.warn("char.isColliding("+sEntity.id+","+sEntity.x+","+sEntity.y+")");
             return;
@@ -653,7 +607,6 @@ class PacketHandler {
 
         if (sEntity === this.player) {
             if (!sEntity.canReach(tEntity)) {
-                //try { throw new Error() } catch (e) { console.error(e.stack); }
                 console.info("Player not close enough!");
                 console.info("p.x:" + sEntity.x + ",p.y:" + sEntity.y);
                 console.info("e.x:" + tEntity.x + ",e.y:" + tEntity.y);
@@ -666,16 +619,10 @@ class PacketHandler {
                 return;
             }
             sEntity.isHarvesting = false;
-//      sEntity.lastAction = Date.now();
         }
 
         sEntity.isBlocking = false;
-//    sEntity.attackedTime.duration = 500;
         sEntity.hasAttacked = true;
-
-        /*if (sEntity === this.player && tEntity instanceof Mob) {
-          this.player.tut.attack = true;
-        }*/
 
         const fnDamage = function (sEntity, tEntity, damageObj) {
             if (sEntity instanceof Player && tEntity instanceof Mob) {
@@ -689,7 +636,6 @@ class PacketHandler {
         }
         const damageObj = this.calcDamage(sEntity, tEntity, null, 0); // no skill
 
-        const addDamage = 0;
         if (sEntity.effectHandler) {
             sEntity.effectHandler.interval("onhit", damageObj.damage);
             for (const skillEffect of sEntity.activeEffects)
@@ -707,7 +653,6 @@ class PacketHandler {
                 }
             }
         }
-        //damageObj.damage += addDamage;
         fnDamage(sEntity, tEntity, damageObj);
 
         if (sEntity.attackTimer)
@@ -748,12 +693,6 @@ class PacketHandler {
         return damageObj;
     }
 
-    // NOTE: the only remaining bare `self` reference in this method is inside
-    // the commented-out `//self.server.broadcastAttacker(sEntity);` line
-    // below -- dead code, never executed, so it can't throw. Every live
-    // statement here already correctly uses `this.` (this.server,
-    // this.player). Didn't find anything else "entity vars"-shaped wrong
-    // with sEntity/tEntity usage in this method on review.
     dealDamage(sEntity, tEntity, dmg, crit) {
         if (!tEntity) return;
 
@@ -764,10 +703,7 @@ class PacketHandler {
         if (sEntity instanceof Player)
             sEntity.weaponDamage += dmg;
 
-        //console.info("DAMAGE OCCURED "+dmg);
-        //console.info("dmg="+dmg);
         if (tEntity instanceof Player) {
-            //tEntity.stats.hp -= dmg;
             if (tEntity.isDead) {
                 if (sEntity === this.player)
                     this.player.map.entities.sendBroadcast(new Messages.Notify("CHAT","COMBAT_PLAYERKILLED", [sEntity.name, tEntity.name]));
@@ -775,7 +711,6 @@ class PacketHandler {
                 sEntity.pStats.pk++;
                 tEntity.pStats.pd++;
             }
-            //self.server.broadcastAttacker(sEntity);
         }
     }
 
@@ -816,7 +751,6 @@ class PacketHandler {
 
         // Perform the skill.
         let target;
-        //console.info("targetId="+targetId);
         if (targetId) {
             target = p.map.entities.getEntityById(targetId);
             if (!target)
@@ -836,18 +770,12 @@ class PacketHandler {
             if (!(target instanceof Character))
                 return;
         }
-        //console.info("targetid="+targetId);
 
         // Make sure the skill is ready.
         if (!skill.isReady())
             return;
 
-        //console.info ("skill.skillLevel="+skill.skillLevel);
-        //console.info ("type="+type);
-
         p.effectHandler.cast(skillId, target, x, y);
-
-        //skill.tempXP = Math.min(skill.tempXP++,1);
 
         this.handleSkillEffects(p, target);
     }
@@ -879,8 +807,6 @@ class PacketHandler {
 
     // TODO map enforce for all calls.
     handleMoveEntity(message) {
-        //console.info("handleMoveEntity");
-        //console.info("message="+JSON.stringify(message));
         const time = parseInt(message[0]),
             entityId = parseInt(message[1]),
             state = parseInt(message[2]),
@@ -909,7 +835,6 @@ class PacketHandler {
         }
 
         if (state === 1 && !p.checkStartMove(x,y)) {
-            //console.error("handleMoveEntity - checkStartMove.");
             p.resetMove(p.x,p.y);
             return;
         }
@@ -993,9 +918,6 @@ class PacketHandler {
             y = -1;
         }
 
-        const mapInstanceId = null;
-        const mapName = null;
-
         if (mapId < 0 || mapId >= self.server.maps.length)
         {
             console.info("Map non-index");
@@ -1021,11 +943,9 @@ class PacketHandler {
             return;
         }
 
-        //console.warn("mapIndex: p.map.mapIndex:"+map.index);
         if (status === 0) {
             p.forceStop();
             p.mapStatus = 0;
-            //this.handleClearMap();
             p.clearTarget();
 
             p.handleTeleport();
@@ -1040,11 +960,7 @@ class PacketHandler {
             // once `p.map` has been updated to the destination map. Removed the
             // dead call rather than leaving a no-op that looks load-bearing.
 
-            //finishTeleportMaps(mapId);
-
-            //console.info("real mapId: " + mapId);
             let pos = {x: p.x, y: p.y};
-            //console.info("handleTeleportMap - x: "+x+",y:"+y);
             let isDoor = false;
             if (portalId >= 0) {
                 const door = p.map.doors[portalId];
@@ -1084,24 +1000,6 @@ class PacketHandler {
 
             if (!isDoor) {
                 pos = p.map.getRandomStartingPosition();
-
-                /*if (p.map.index === 0 || (typeof p.prevPosX === "undefined" &&
-                    typeof p.prevPosY === "undefined"))
-                {
-                  p.prevPosX = p.x;
-                  p.prevPosY = p.y;
-                  pos = p.map.getRandomStartingPosition();
-                }
-                else if (p.map.index === 1)
-                {
-                  if (p.hasOwnProperty("prevPosX") && p.hasOwnProperty("prevPosY"))
-                    pos = {x: p.prevPosX, y: p.prevPosY};
-                  else
-                    pos = p.map.getRandomStartingPosition();
-                }
-                else {
-                  pos = p.map.getRandomStartingPosition();
-                }*/
             }
 
             p.map.entities.addPlayer(p);
@@ -1110,12 +1008,10 @@ class PacketHandler {
             p.forceStop();
             p.move([Date.now(),3,1,pos.x,pos.y]);
 
-            //console.info("trying to send.");
             self.send([Types.Messages.WC_TELEPORT_MAP, mapId, 1, p.x, p.y, portalId]);
         }
         else if (status === 1) {
             p.mapStatus = 2;
-            //self.handleSpawnMap(mapId, p.x, p.y);
 
             p.knownIds = [];
 
@@ -1126,14 +1022,6 @@ class PacketHandler {
             self.send([Types.Messages.WC_TELEPORT_MAP, mapId, 2, p.x, p.y, portalId]);
         }
     }
-
-    /*handleSpawnMap: function(mapId, x, y) {
-        var p = this.player;
-
-      },*/
-
-    //handleClearMap: function() {
-    //},
 
     handleStatAdd(message) {
         const self = this;
@@ -1301,20 +1189,35 @@ class PacketHandler {
     }
 
     handleWho(message) {
-        let ids = [];
-        if (message.length > 0)
-            ids = message;
+        // FIX (real, still-live bug on top of the string/number one below):
+        // client/js/gameclient.js's sendWho(ids) sends
+        // `[Types.Messages.CW_WHO, ids]` -- `ids` (a real array, e.g.
+        // `delist` built in game.js via `delist.push(entity.id)`) is one
+        // NESTED element of the outer message, matching CW_WHO's format.js
+        // schema (`tupleField([arrayField(numberField(...),0,999)])` --
+        // i.e. "one field, which is an array"). So after packethandler.js's
+        // outer `message.shift()` removes the packet type, `message` here
+        // is `[idsArray]` -- a ONE-ELEMENT array whose sole element is the
+        // real ids array -- not the flat ids list this code assumed.
+        // `if (message.length > 0) ids = message;` therefore always set
+        // `ids` to that one-element wrapper, so the loop below ran exactly
+        // once with `id` bound to the whole ids ARRAY, and
+        // `Number(idsArray)` is NaN for any array with more than one entry
+        // (confirmed: sending ids=[5,17,42] computed Number()->NaN every
+        // time, never 5/17/42). Utils.removeFromArray()'s indexOf() never
+        // matches NaN against a real stored id, so this was a silent
+        // no-op regardless of what the client sent -- this.player.knownIds
+        // was never actually pruned, just grew for the life of the
+        // session. The FIX comment this replaces already fixed the
+        // string-vs-number half of that (Number(id) is still correct and
+        // needed once `ids` is unwrapped correctly below); it just didn't
+        // catch that `ids` itself was still the wrong, one-level-too-deep
+        // array. Read message[0] (the real ids array) instead of treating
+        // `message` itself as the ids list.
+        const ids = (message[0] && message[0].length > 0) ? message[0] : [];
 
-        // FIX: knownIds is populated with numeric entity ids (see
-        // mapentities.js addPlayer/addEntity -> knownIds.push(entity.id)),
-        // but ids here come straight off the wire as strings. removeVal()
-        // uses indexOf(), which is strict-equality, so "5" never matched the
-        // stored 5 -- knownIds just grew forever for the life of the
-        // session instead of being pruned as clients reported entities out
-        // of view.
         for (const id of ids)
             Utils.removeFromArray(this.player.knownIds, Number(id));
-        //this.player.knownIds.splice(this.player.knownIds.indexOf(id), 1);
     }
 
     handleHarvest(msg) {

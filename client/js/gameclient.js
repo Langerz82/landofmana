@@ -85,6 +85,15 @@ export default class GameClient {
 					this.handlers[Types.Messages.WC_CHANGEPOINTS] = this.change_points_callback;
 					this.handlers[Types.Messages.WC_CHAT] = this.chat_callback;
 					this.handlers[Types.Messages.WC_DAMAGE] = this.dmg_callback;
+					// NOTE (packet-validation audit): `Types.Messages.WC_DESTROY` doesn't exist in
+					// shared/js/gametypes.js's Messages enum (no server-side sender was found
+					// either - grepped gameserver/js for WC_DESTROY/Messages.Destroy, no matches),
+					// so this key is `undefined` and always was. `destroy_callback` is also never
+					// assigned anywhere (no `client.onDestroy(...)` registration exists in
+					// clientcallbacks.js), so this line is inert on both ends - not a live bug, just
+					// vestigial dead wiring for a message type that was apparently removed (entity
+					// removal is handled via WC_DESPAWN instead). Left in place rather than deleted
+					// since there's no live caller to confirm it's safe to remove outright.
 					this.handlers[Types.Messages.WC_DESTROY] = this.destroy_callback;
 					this.handlers[Types.Messages.WC_GOLD] = this.gold_callback;
 					this.handlers[Types.Messages.WC_ITEMSLOT] = this.itemslot_callback;
@@ -100,7 +109,16 @@ export default class GameClient {
 					this.handlers[Types.Messages.WC_ACHIEVEMENT] = this.achievement_callback;
 					this.handlers[Types.Messages.WC_SKILLEFFECTS] = this.skilleffects_callback;
 					this.handlers[Types.Messages.WC_SKILLLOAD] = this.skillLoad_callback;
-					this.handlers[Types.Messages.WC_SKILLXP] = this.skillxp_callback;
+					// FIX (packet-validation audit): this read Types.Messages.WC_SKILLXP, but the
+					// shared enum (shared/js/gametypes.js) only defines WC_SKILL_XP (with an
+					// underscore) = 332. WC_SKILLXP was undefined, so this line registered
+					// skillxp_callback under this.handlers["undefined"] (computed-property access
+					// stringifies an undefined key). Every real WC_SKILL_XP=332 packet from the
+					// server then found nothing at this.handlers[332] and fell through to
+					// receiveAction's "Unknown action" branch - skill-XP-gain packets were silently
+					// dropped and skillxp_callback was never invoked from the network. Corrected to
+					// match the real constant name.
+					this.handlers[Types.Messages.WC_SKILL_XP] = this.skillxp_callback;
 					this.handlers[Types.Messages.WC_SPAWN] = this.receiveSpawn;
 					this.handlers[Types.Messages.WC_SPEECH] = this.speech_callback;
 					this.handlers[Types.Messages.WC_DIALOGUE] = this.dialogue_callback;
@@ -449,6 +467,22 @@ export default class GameClient {
 				}
 
 // SEND FUNCTIONS.
+// REMOVED (packet-validation audit): sendDropItem/sendMapStatus/
+// sendSkillLoad/sendDelist referenced Types.Messages constants that don't
+// exist in shared/js/gametypes.js's Messages enum (CW_DROP, CW_MAP_STATUS,
+// CW_SKILLLOAD, CW_DELIST -- each resolved to `undefined`, which
+// packethandler.js's `isNaN(parseInt(message[0]))` check would reject by
+// closing the connection), and sendLoot's payload shape didn't match
+// CW_LOOT's format.js schema. Checked every caller in client/js (including
+// the commented-out sendLoot call in game.js's onStopPathing) -- none of
+// these five were ever actually invoked live: real drop-item goes through
+// inventoryhandler.js's own sendDropItem() (`sendItemSlot([2, type, slot,
+// count])`), map status through sendTeleportMap(), and single-item loot
+// through sendLootMove() below. sendColorTint (CW_COLOR_TINT is a real
+// type, unlike the four above) was also unused -- gameserver/js/format.js's
+// schema for it was already removed for the same reason. Removed all six
+// rather than leave dead, unreachable methods for the next person to
+// mistake for working code.
 				sendSyncTime(date) {
 						log.info("sendSyncTime");
 						this.sendMessage([Types.Messages.BI_SYNCTIME,date]);
@@ -487,13 +521,6 @@ export default class GameClient {
         		this.sendMessage(array);
         }
 
-				sendDropItem(item, x, y) {
-					this.sendMessage([Types.Messages.CW_DROP,
-														x,
-														y,
-														item.id]);
-				}
-
         sendAttack(player, mob, spellId) {
             this.sendMessage([Types.Messages.CW_ATTACK, Utils.getWorldTime(),
                               mob.id, player.orientation, spellId]);
@@ -504,14 +531,8 @@ export default class GameClient {
                               text]);
         }
 
-        sendLoot(item) {
-            this.sendMessage([Types.Messages.CW_LOOT].concat(_.pluck(item,'id')));
-        }
-
 				// map, status, x, y
         sendTeleportMap(data) {
-						//if (data[1] === 0)
-							//game.renderer.blankFrame = true;
             this.sendMessage([Types.Messages.CW_TELEPORT_MAP,
             		      	  		data[0], data[1], data[2], data[3], data[4]]);
         }
@@ -522,11 +543,6 @@ export default class GameClient {
 
 				sendWhoRequest() {
 						this.sendMessage([Types.Messages.CW_REQUEST,3]);
-        }
-
-        sendDelist(ids) {
-            ids.unshift(Types.Messages.CW_DELIST);
-            this.sendMessage(ids);
         }
 
         sendTalkToNPC(type, npcId) {
@@ -548,10 +564,6 @@ export default class GameClient {
 
         sendShortcut(index, type, shortcutId) {
             this.sendMessage([Types.Messages.CW_SHORTCUT, index, type, shortcutId]);
-        }
-
-        sendSkillLoad() {
-            this.sendMessage([Types.Messages.CW_SKILLLOAD]);
         }
 
         sendStoreSell(type, inventoryNumber) {
@@ -581,10 +593,19 @@ export default class GameClient {
             this.sendMessage([Types.Messages.CW_AUCTIONDELETE, index, type]);
         }
 
-        sendStoreEnchant(type, index) { // type 1 = Inventory, 2 = Equipment.
+        // FIX (comment only, checked -- not a behavior bug): this said "type 1
+        // = Inventory, 2 = Equipment", but gameserver's handleStoreModItem
+        // (packethandler.js) only accepts type 0 (inventory) or type 2
+        // (equipment) -- type 1 would silently no-op (itemStore[1] is bank,
+        // not repairable/enchantable via this path). Confirmed every real
+        // caller (equipmenthandler.js's repairItem/enchantItem, ultimately
+        // fed by inventorydialog.js's `data('itemType', 0 or 2)`) only ever
+        // passes 0 or 2, so this never actually misfired -- the comment was
+        // just wrong about which number means "inventory".
+        sendStoreEnchant(type, index) { // type 0 = Inventory, 2 = Equipment.
             this.sendMessage([Types.Messages.CW_STORE_MODITEM, 1, type, index]);
         }
-        sendStoreRepair(type, index) { // type 1 = Inventory, 2 = Equipment.
+        sendStoreRepair(type, index) { // type 0 = Inventory, 2 = Equipment.
             this.sendMessage([Types.Messages.CW_STORE_MODITEM, 0, type, index]);
         }
 
@@ -592,14 +613,8 @@ export default class GameClient {
             this.sendMessage([Types.Messages.CW_GOLD, parseInt(type), parseInt(amount), parseInt(type2)]);
         }
 
-        sendMapStatus(mapId, status) {
-        	this.sendMessage([Types.Messages.CW_MAP_STATUS, mapId, status]);
-        }
         sendPlayerRevive() {
         	this.sendMessage([Types.Messages.CW_REQUEST, 1]);
-        }
-        sendColorTint(type, value) {
-        	this.sendMessage([Types.Messages.CW_COLOR_TINT, type, value]);
         }
 
 				sendAppearanceList() {
