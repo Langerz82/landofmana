@@ -150,7 +150,52 @@ export default class App {
                   break;
 
                   case 'playerexists':
-                      self.addValidationError(null, 'The playername you entered is not available.');
+                  // FIX: tryPlayerAction() adds the "loading" class to jqPlayerLoad/
+                  // jqPlayerCreate before sending the create/login request (used to block
+                  // double-submits while a request is in flight), but nothing ever removed
+                  // it again for the player-create/-load buttons specifically (unlike
+                  // onUserReady(), which does this for the user-level buttons). Since the
+                  // server doesn't close the connection for this error (it's meant to be
+                  // retryable - just pick another name), the buttons were staying permanently
+                  // disabled after the first failed attempt, silently swallowing every retry
+                  // via the "hasClass('loading') return;" guards in the click handlers.
+                  //
+                  // Kept disabled on purpose until the player actually edits the name field
+                  // to something different (resubmitting the exact same taken name should
+                  // still no-op rather than silently retry).
+                  case 'invalidname':
+                      // FIX: server (userserver/js/user.js handleCreatePlayer) sends
+                      // "invalidname" for a rejected player name, not "invalidusername" - that
+                      // code is only ever sent for the separate user-account flow. This case
+                      // never matched anything before, so a bad player name fell through to
+                      // the generic `default` branch (confusing message) and had the same
+                      // stuck-button bug as 'playerexists' above.
+                      self.addValidationError(self.$playernameinput,
+                          data[0] === 'playerexists' ?
+                              'The playername you entered is not available.' :
+                              'Please enter player name alpha numeric characters only.');
+
+                      // FIX: `keypress` doesn't fire reliably on mobile virtual keyboards -
+                      // autocomplete/predictive-text taps, swipe typing, and many IME-driven
+                      // soft keyboards commit text without dispatching key events at all - so
+                      // relying on it (as addValidationError's own built-in clear-on-keypress
+                      // does) could leave the button disabled forever on mobile even after the
+                      // player changed the name. `input` fires on any value change regardless
+                      // of input method, so listen for that instead and explicitly compare
+                      // against the name that just failed, rather than clearing on the first
+                      // event - retyping the exact same taken name shouldn't silently
+                      // re-enable the button either.
+                      const failedPlayerName = self.$playernameinput.val();
+                      self.$playernameinput.off('input.playerNameRetry')
+                          .on('input.playerNameRetry', function() {
+                              if (self.$playernameinput.val() === failedPlayerName) return;
+
+                              self.$playernameinput.off('input.playerNameRetry');
+                              self.$playernameinput.removeClass('field-error');
+                              $('.validation-error').remove();
+                              self.jqPlayerLoad.removeClass("loading");
+                              self.jqPlayerCreate.removeClass("loading");
+                          });
                   break;
 
                   case 'invalidusername':
