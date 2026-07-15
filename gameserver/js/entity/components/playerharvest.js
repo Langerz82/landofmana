@@ -204,6 +204,19 @@ class PlayerHarvest {
                 p.stats.exp.logging += 10;
             p.map.entities.harvest[gp.gx + "_" + gp.gy] = Date.now();
             if (p.items.inventory.hasRoom()) {
+                // NOTE: `kind` is only ever set for "axe" -- a "hammer"
+                // (mining) harvest reaching here would create an ItemRoom
+                // with itemKind=undefined (BaseItem.set()'s Number(undefined)
+                // -> NaN), which ItemData.Kinds[item.itemKind] below has no
+                // entry for and .name would throw on. Currently unreachable
+                // in practice: map.js's isHarvestTile() only defines a tile
+                // set for type "axe" (types.hammer doesn't exist there), so
+                // onHarvest() can never actually complete for a "hammer"
+                // weapon today -- tile-based mining just isn't wired up yet
+                // (mining via Node entities/onHarvestEntity() above is a
+                // separate, already-working path). Flagging so whoever adds
+                // minable tiles to isHarvestTile() also fills in the ore
+                // item kind here.
                 let kind;
                 if (p.items.getWeaponType() === "axe")
                     kind = 320;

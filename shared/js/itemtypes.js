@@ -154,7 +154,15 @@ ItemTypes.getRepairPrice = (item) => {
     value = ItemTypes.getEnchantPrice(item, true) / 10;
   }
   const mp = ((item.itemDurabilityMax / 900) * (1 - (item.itemDurability / item.itemDurabilityMax)));
-  log.info(`getRepairPrice - mp: ${mp}`);
+  // FIX: was `log.info(...)` -- `log` only exists as a bare identifier
+  // inside the gameserver process (main.js does `global.log = log`, the
+  // same bridge pattern used throughout gameserver/js). This file is
+  // shared between the client and the server; every other debug log in
+  // this same file already uses `console.info` (which works in both a
+  // browser and Node), so `log.info` here was the odd one out and would
+  // throw a ReferenceError if this ever runs client-side (e.g. a repair-
+  // price tooltip computed in the browser before sending a request).
+  console.info(`getRepairPrice - mp: ${mp}`);
   value *= Clamp(0, 1, mp);
   return 1 + ~~(value);
 };
@@ -281,14 +289,23 @@ ItemTypes.isStackedItem = (kind) => {
     ItemTypes.isConsumableItem(kind);
 };
 
+// FIX: `for (const k in kindData)` -- lowercase `kindData` isn't declared
+// anywhere in this file/module (the real data lives in the module-scope
+// `KindData`, capital K, set via setKindData() above and used by every
+// other function here). This threw a ReferenceError on every call.
 ItemTypes.forEachKind = (callback) => {
-  for (const k in kindData) {
+  for (const k in KindData) {
     callback(KindData[k], k);
   }
 };
 
+// FIX: all three of these called `Types.forEachKind(...)` -- `Types` is the
+// unrelated object exported by gametypes.js, which has no `forEachKind`
+// method at all (that's defined on `ItemTypes`, immediately above). This
+// threw "Types.forEachKind is not a function" on every call. Self-reference
+// the local `ItemTypes.forEachKind` instead.
 ItemTypes.forEachArmorKind = (callback) => {
-  Types.forEachKind((kind, kindName) => {
+  ItemTypes.forEachKind((kind, kindName) => {
     if (ItemTypes.isArmor(kind)) {
       callback(kind, kindName);
     }
@@ -296,7 +313,7 @@ ItemTypes.forEachArmorKind = (callback) => {
 };
 
 ItemTypes.forEachWeaponKind = (callback) => {
-  Types.forEachKind((kind, kindName) => {
+  ItemTypes.forEachKind((kind, kindName) => {
     if (ItemTypes.isWeapon(kind)) {
       callback(kind, kindName);
     }
@@ -304,7 +321,7 @@ ItemTypes.forEachWeaponKind = (callback) => {
 };
 
 ItemTypes.forEachArcherWeaponKind = (callback) => {
-  Types.forEachKind((kind, kindName) => {
+  ItemTypes.forEachKind((kind, kindName) => {
     if (ItemTypes.isArcherWeapon(kind)) {
       callback(kind, kindName);
     }
@@ -322,11 +339,11 @@ ItemTypes.getItemListBy = (itemType, minLevel, maxLevel) => {
         name: item.name,
         kind: k,
         type: item.type,
-        buyCount: item.buycount,
+        buyCount: item.buyCount,
         buyPrice: item.buy,
         craftPrice: ItemTypes.getCraftPrice(k),
         itemKind: k,
-        itemNumber: item.buycount,
+        itemNumber: item.buyCount,
         craft: item.craft
       });
     }
@@ -335,13 +352,19 @@ ItemTypes.getItemListBy = (itemType, minLevel, maxLevel) => {
         name: item.name,
         kind: k,
         type: item.type,
-        buyCount: item.buycount,
+        buyCount: item.buyCount,
         buyPrice: item.buy,
         craftPrice: ItemTypes.getCraftPrice(k),
         itemKind: k,
-        itemNumber: item.buycount,
+        itemNumber: item.buyCount,
         craft: item.craft
       });
+    // FIX: both branches below used `item.buyCount` (capital C) -- the real
+    // field, as set in gameserver's data/itemdata.js (and as used correctly
+    // by the itemType==4/itemType==1 branches above, and by `itemNumber`
+    // right below in these same two branches), is lowercase `buyCount`.
+    // `item.buyCount` is always undefined, so every armor/weapon shop
+    // listing built here reported an undefined buy count.
     } else if (itemType == 2 && ItemTypes.isArmor(k) &&
       item.modifier >= minLevel && item.modifier <= maxLevel) {
       ItemsList.push({
@@ -353,7 +376,7 @@ ItemTypes.getItemListBy = (itemType, minLevel, maxLevel) => {
         craftPrice: ItemTypes.getCraftPrice(k),
         rank: item.level,
         itemKind: k,
-        itemNumber: item.buycount,
+        itemNumber: item.buyCount,
         craft: item.craft
       });
     } else if (itemType == 3 && ItemTypes.isWeapon(k) &&
@@ -367,7 +390,7 @@ ItemTypes.getItemListBy = (itemType, minLevel, maxLevel) => {
         craftPrice: ItemTypes.getCraftPrice(k),
         rank: item.level,
         itemKind: k,
-        itemNumber: item.buycount,
+        itemNumber: item.buyCount,
         craft: item.craft
       });
     }
@@ -389,13 +412,18 @@ ItemTypes.Store = {
   isBuyMultiple: (id) => {
     const item = KindData[id];
     if (!item) return false;
-    return item.buycount > 0;
+    return item.buyCount > 0;
   },
   isSell: (id) => {
     const item = KindData[id];
     if (!item) return false;
     return item.buy >= 2;
   },
+  // FIX: same `buyCount`/`buyCount` casing mismatch as getItemListBy()
+  // above -- the real field is lowercase `buyCount` (see isBuyMultiple()
+  // right above, which already reads it correctly). `item.buyCount` is
+  // always undefined, so this returned 1 for every item regardless of its
+  // actual configured buy-stack count.
   getBuyCount: (id) => {
     const item = KindData[id];
     if (!item) return false;

@@ -335,7 +335,7 @@ class ShopHandler {
         price = ItemTypes.getBuyPrice(itemKind);
         if (price > 0) {
             // FIX: for a "buy multiple" item kind, itemCount is correctly
-            // overridden from the server-side itemData.buycount, ignoring
+            // overridden from the server-side itemData.buyCount, ignoring
             // whatever the client sent. But for every OTHER item kind,
             // itemCount was left as-is -- the raw client-supplied value
             // (format.js allows 0-100 for this field), while `price` stays
@@ -349,7 +349,7 @@ class ShopHandler {
             // matching handleCraft()'s equivalent `else { itemCount = 1;
             // }` branch.
             if (ItemTypes.Store.isBuyMultiple(itemKind)) {
-                itemCount = itemData.buycount;
+                itemCount = itemData.buyCount;
             } else {
                 itemCount = 1;
             }
@@ -419,7 +419,7 @@ class ShopHandler {
             return;
 
         if (ItemTypes.Store.isBuyMultiple(itemKind)) {
-            itemCount = (itemCount < itemData.buycount) ? itemCount : itemData.buycount;
+            itemCount = (itemCount < itemData.buyCount) ? itemCount : itemData.buyCount;
         } else {
             itemCount = 1;
         }

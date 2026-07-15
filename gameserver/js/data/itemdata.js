@@ -37,7 +37,7 @@ _.each( ItemsJson, function( itemValue, key ) {
     spriteName: (itemValue.spriteName) ? itemValue.spriteName : "",
     offset: (itemValue.offset) ? itemValue.offset : [0,0],
     buy: (itemValue.buy) ? itemValue.buy : 0,
-    buycount: (itemValue.buycount) ? itemValue.buycount : 1,
+    buyCount: (itemValue.buyCount) ? itemValue.buyCount : 1,
     staticsheet: (itemValue.staticsheet > 0) ? itemValue.staticsheet : 0,
     level: (itemValue.level) ? itemValue.level : itemValue.modifier,
     legacy: (itemValue.legacy) ? itemValue.legacy : 0,

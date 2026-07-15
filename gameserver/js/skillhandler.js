@@ -102,7 +102,28 @@ class Skill {
    	if (skillLevel != this.skillLevel)
    	{
    		this.skillLevel = skillLevel;
-      this.player.effectHandler.skillEffects[this.skillIndex].level = skillLevel;
+      // FIX: `skillEffects` (effecthandler.js's SkillEffectHandler) is a
+      // flat list of currently-*active* SkillEffect instances, pushed on
+      // cast() and spliced out again once their "end" phase fires -- it is
+      // NOT a fixed array with one stable slot per skill index (that would
+      // have needed the commented-out pre-population loop in
+      // SkillEffectHandler's constructor, which was never actually enabled).
+      // Indexing it by `this.skillIndex` here assumed the old, unused
+      // design: any time XP flushed in from setXPs() (every mob kill --
+      // see callbacks/mobcallback.js's onKilled) pushed a skill to a new
+      // level while `skillEffects` had fewer than skillIndex+1 entries --
+      // i.e. essentially always, since active effects are transient --
+      // this threw "Cannot set properties of undefined (setting 'level')"
+      // and skipped the SkillLoad notify below entirely, silently failing
+      // to tell the client about the level-up. Search for the (0 or more)
+      // currently-active SkillEffect(s) that actually belong to this skill
+      // instead, so an in-progress buff/DOT picks up the new level without
+      // guessing at array position, and so leveling up with no active
+      // effect (the common case) is simply a no-op here rather than a crash.
+      for (const skillEffect of this.player.effectHandler.skillEffects) {
+        if (skillEffect.skillId === this.skillIndex)
+          skillEffect.level = skillLevel;
+      }
    		this.player.sendPlayer(new Messages.SkillLoad(this.skillIndex, this.skillXP));
    	}
    }

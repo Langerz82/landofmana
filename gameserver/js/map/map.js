@@ -7,7 +7,7 @@ import MapArea from '../area/maparea.js';
 import MobArea from '../area/mobarea.js';
 //import Utils from '../utils.js';
 import _ from 'underscore';
-import { G_TILESIZE } from '../main.js';
+import { G_TILESIZE, G_DEBUG } from '../main.js';
 
 /* global log */
 
@@ -530,18 +530,26 @@ class Map {
             x / (this.chunkWidth * this.tilesize));
     }
 
+    // PERF: called once per CW_HARVEST packet (playerharvest.js's
+    // onHarvest(), the basic tile-harvest path) -- these three logs,
+    // including two JSON.stringify calls over the tile list, ran
+    // unconditionally on every harvest attempt. Gated behind G_DEBUG like
+    // the equivalent per-packet logging elsewhere in the codebase.
     isHarvestTile(pos, type) {
-        console.info("isHarvestTile");
+        if (G_DEBUG)
+            console.info("isHarvestTile");
         //var gx = pos.x >> 4, gy = pos.y >> 4;
         if (this.isOutOfBounds(pos.gx,pos.gy))
             return false;
 
         const tiles = this.getTiles(pos.gx,pos.gy);
-        console.info("tiles: "+JSON.stringify(tiles));
+        if (G_DEBUG) {
+            console.info("tiles: "+JSON.stringify(tiles));
+            log.info("tiles="+JSON.stringify(tiles));
+        }
         if (!tiles || tiles.length === 0)
             return false;
 
-        log.info("tiles="+JSON.stringify(tiles));
         const types = {}
         types.axe = [678, 679, 698, 699, 855, 875, 274, 275, 294, 295];
 

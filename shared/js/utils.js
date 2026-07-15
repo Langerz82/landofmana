@@ -34,8 +34,12 @@ Utils.arraysEqual = function (a, b) {
   return true;
 }
 
+// NOTE: was `const tmp_arr = [], key = '';` -- the outer `key` is unused/dead
+// (the `for (const key in input)` loop below declares its own `key`, scoped
+// to the loop, which shadows it; nothing ever reads the outer one). Same
+// dead-variable pattern already cleaned up elsewhere in this codebase.
 Utils.array_values = function (input) {
-	const tmp_arr = [], key = '';
+	const tmp_arr = [];
 	for (const key in input) tmp_arr[tmp_arr.length] = input[key];
 	return tmp_arr;
 }
@@ -148,8 +152,18 @@ Utils.floorToGrid = function (num, nth) {
     return Math.floor(num / nth) * nth;
 };
 
+// NOTE: was `const prop = null;` here, unused -- dead (same pattern already
+// cleaned up in several other files across this codebase). Also worth
+// knowing: `if (obj[key] && fn && ...)` skips any entry whose *value* is
+// falsy (0, "", false, null, undefined) without ever calling `fn` for it --
+// every current call site in gameserver/js happens to iterate objects/maps
+// of always-truthy values (Map/Player/entity instances, etc.), so this
+// hasn't been an observed problem, but it's a real footgun for a generic
+// "for each key/value" helper if it's ever used to iterate something that
+// can legitimately hold e.g. a 0. Left as-is since changing it is a
+// behavior change with call sites outside gameserver/js (userserver,
+// client) this review didn't have visibility into.
 Utils.forEach = function (obj, fn) {
-  const prop = null;
   for (const key in obj) {
     if (obj.hasOwnProperty(key))
     {

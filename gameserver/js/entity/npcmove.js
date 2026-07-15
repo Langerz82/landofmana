@@ -30,8 +30,11 @@ class NpcMove extends Character {
             const qData = QuestData.NpcData[this.kind];
             if (qData && qData.length > 0)
             {
-                const newQuest = null;
-                const pQuest = null;
+                // NOTE: was `const newQuest = null;` / `const pQuest = null;`
+                // here, both unused -- dead (nothing in the loop below reads
+                // them; same pattern already cleaned up elsewhere in this
+                // codebase, e.g. area/mobarea.js, world/taskhandler.js,
+                // transition.js, entity/components/mobcombat.js).
                 for (const q of qData)
                 {
                     this.entityQuests.quests[q.id] = q;
