@@ -72,7 +72,19 @@ Copy client directory to a http Server in the root directory, then to access in 
 If you need to change the Servers address, in client/config/config_build.js, then enter the IP address or hostname of your server and modify as needed.
 If you change the IP address you might have to edit the CORS header in the client/index.html file to allow it to communicate with the server.
 
+### Shared Directory
+The client, gameserver, userserver all need to access the shared directory.
+Either copy the shared directory into all 3 other sub-directories or create a directory links with:
+
+Windows run: **link-shared-win.bat**
+
+Linux run: **link-shared-linux.sh**
+
+You will have to modify these files if you have different paths for your gameserver, userserver, and client.
+
+
 ## Linux Instructions for Servers:
+
 ### For Setup User Server:
 ```
 sudo apt-get update
