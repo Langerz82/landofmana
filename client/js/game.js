@@ -622,9 +622,15 @@ export default class Game {
             this.prevMapContainer = this.mapContainer;
             //if (mapIndex == this.mapContainer.mapIndex)
               //return;
+            if (mapIndex === this.mapContainer.mapIndex) {
+              this.mapStatus = 0;
+              self.client.sendTeleportMap([mapIndex, 0, x, y, portalId]);
+              return;
+            }
 
             this.mapContainer = null;
           }
+
 
           log.info("teleportMaps");
           this.mapStatus = 0;
@@ -828,6 +834,35 @@ export default class Game {
           {
             //self.teleportFromTown(p);
 
+            // FIX: landing tile of a teleport can itself sit on (or inside) another
+            // door's area -- either the same door you just left (same-map teleport
+            // whose destination re-enters its own trigger area) or a genuinely
+            // different one placed nearby by map design. p.forceStop() -- called
+            // multiple times over the course of a teleport's status 0->2 handshake --
+            // calls key_move_callback(0) (user.js's forceStop() override), which
+            // re-enters this exact function via onKeyMove. That meant simply arriving
+            // on a door tile via teleport could immediately re-trigger another
+            // teleport before the player ever took a real movement action.
+            //
+            // This used to be a one-shot flag (checked and cleared right here), on
+            // the assumption that only one spurious re-entry could happen. It can't
+            // be one-shot: entitymoving.js's stop() (reached via forceStop() ->
+            // _forceStop()) unconditionally clears p.freeze as part of what it does,
+            // so even setting p.freeze = true right before teleporting only survives
+            // the *first* of status===1's two forceStop() calls -- that call's own
+            // stop() clears freeze again before the second call runs, so freeze can
+            // never be relied on to stay true across multiple forceStop() calls
+            // within a single transition. suppressTeleportCheck itself isn't touched
+            // by forceStop()/stop() at all, so instead of clearing it after the first
+            // read, leave it true here and let it block every spurious re-entry for
+            // the whole transition -- it's only cleared explicitly once the
+            // transition truly finishes (clientcallbacks.js's fnReady, alongside
+            // p.freeze = false). A genuine subsequent player movement, which only
+            // happens after that point, is unaffected.
+            if (p.suppressTeleportCheck) {
+              return;
+            }
+
             const dest = self.mapContainer.getDoor(p);
             // FIX: was gated on !p.hasTarget(), so stopping on a door/portal tile while
             // targeting something (e.g. a mob) silently skipped the teleport. Door tile
@@ -852,6 +887,48 @@ export default class Game {
                 p.setOrientation(dest.orientation);
 
                 p.buttonMoving = false;
+                // suppressTeleportCheck (checked/cleared at the top of this function)
+                // is the mechanism that actually prevents re-entry -- see the comment
+                // up there for why it has to stay true across the whole transition
+                // instead of being one-shot. freeze is set here too, but that's for
+                // its own job of blocking real player movement input
+                // (updater.js/onKeyMove) during the transition, not for gating
+                // checkTeleport re-entry.
+                p.freeze = true;
+
+                // FIX: this was the missing piece -- suppressTeleportCheck was
+                // checked at the top of this function and cleared in
+                // clientcallbacks.js's fnReady, but nothing ever set it true, so
+                // the guard never actually engaged. Every forceStop() call during
+                // the status 0->2 handshake could re-enter checkTeleport via
+                // onKeyMove, and landing on/near another door (a mirrored teleport
+                // pair, or a door whose destination re-enters its own trigger area)
+                // fired a second real teleport before the first one finished,
+                // producing the infinite back-and-forth loop.
+                p.suppressTeleportCheck = true;
+
+                // FIX: if the player was still holding/turning a movement key at the
+                // exact moment they stepped onto this door, user.js's move() can have
+                // queued a direction into p.stopKeyMove (a number, not the plain
+                // `true` a release sets) for forceStop() to resume once the in-flight
+                // tile-step finishes aligning. forceStop() (called repeatedly over the
+                // teleport's status 0->2 handshake) reads that queued orientation and
+                // hands it to scheduleMoveRetry(), which arms a setTimeout that calls
+                // move() again completely on its own, no further key press involved.
+                // That timeout doesn't know a teleport happened -- it fires later,
+                // after the player has already been relocated to the destination tile,
+                // and blindly resumes walking in whatever direction was queued
+                // *before* the teleport. If that direction happens to walk the player
+                // onto another door (easy to hit by accident when two teleport tiles
+                // are placed to mirror each other), checkTeleport fires again for real
+                // with no suppression window active by then, teleporting again with no
+                // player input -- exactly the automatic back-and-forth being reported.
+                // Whatever movement was queued before the teleport has no meaning once
+                // the player's position has been replaced by the teleport itself, so
+                // cancel the pending retry and drop the queued direction here.
+                clearTimeout(p.moveRetryTimeout);
+                p.stopKeyMove = false;
+
                 self.teleportMaps(dest.tmap, dest.tx, dest.ty, dest.id);
 
                 //self.updatePlateauMode();

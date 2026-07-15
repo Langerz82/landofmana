@@ -24,11 +24,35 @@ export default class Map {
             });
         }
         catch (err) {
+            console.error(JSON.stringify(err));
+            // FIX: this fallback (taken whenever mc.zip.file(name) throws synchronously --
+            // most commonly because mc.zip itself is still undefined, i.e. this child Map
+            // got constructed before the parent MapContainer's own zip finished loading,
+            // a race that's much more likely to land here on a repeat/same-map teleport)
+            // only ever had a success callback. $.getJSON has no error handling, so if this
+            // one request doesn't succeed -- e.g. a stale cached response for this exact URL
+            // on a map you've already visited, since unlike the container's own zip URL this
+            // one carries no cache-busting param -- loadMapData() (the only thing that calls
+            // _isReady()) never runs. That silently stalls everything downstream that waits
+            // on this Map's .ready() callback: LoadMaps()'s per-map callback never fires,
+            // inc never reaches count, OnAllReady() never runs, and game.mapContainer's
+            // allReady() callback (registered in clientcallbacks.js's status===2 handler)
+            // never gets invoked either -- leaving the player stuck mid-transition. Adding
+            // .fail() surfaces the failure and retries once with a cache-busting timestamp,
+            // matching the same pattern already used for the container's own zip-load retry
+            // in mapcontainer.js.
             const filename = "./maps/" + name + "?v=" + config.build.version;
             $.getJSON(filename, function(data) {
                 self.loadMapData(data);
+            }).fail(function(jqXHR, textStatus, errorThrown) {
+                console.error("Failed to load map data via getJSON fallback for " + self.mapName + ": " + textStatus + " " + errorThrown + " -- retrying with cache-busting param");
+                const retryFilename = filename + "&t=" + Date.now();
+                $.getJSON(retryFilename, function(data) {
+                    self.loadMapData(data);
+                }).fail(function(jqXHR2, textStatus2, errorThrown2) {
+                    console.error("Retry also failed to load map data for " + self.mapName + ": " + textStatus2 + " " + errorThrown2);
+                });
             });
-            console.error(JSON.stringify(err));
         }
     }
 

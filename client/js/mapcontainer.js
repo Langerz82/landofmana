@@ -54,6 +54,26 @@ export default class MapContainer {
                 catch (err) {
                     console.error(JSON.stringify(err));
                 }
+            }).catch(function(err) {
+                // FIX: this outer JSZip.loadAsync(data) promise had no .catch at all --
+                // unlike the inner zip.file(...).async() chain right above (see its FIX
+                // comment), a rejection here was a fully unhandled promise rejection.
+                // self.loadMap() (the only thing that calls _initMap()) was never reached,
+                // so the MapContainer was left permanently stuck with isLoaded=false,
+                // width/height undefined, and collisionGrid/tileGrid never populated --
+                // with nothing logged to explain why. This is exactly what happens when a
+                // teleport re-requests the same "./maps/<name>.zip?v=..." URL and the
+                // browser serves a stale/partial response out of its HTTP cache (e.g. a
+                // 304 revalidation) that JSZip can't parse as a valid zip: loadAsync()
+                // rejects, and previously nothing ever called loadMap()/_initMap() to
+                // recover. Falling back to the direct (non-zip) JSON fetch here -- the
+                // same fallback already used for getBinaryContent's own `err` branch above
+                // -- means a bad cached zip no longer permanently strands the map load.
+                console.error("Failed to load map zip for " + self.mapName + ":", err);
+                const filename = "./maps/" + name + "?v=" + config.build.version + "&t=" + Date.now();
+                $.getJSON(filename, function(data) {
+                    self.loadMap(data);
+                });
             });
         });
 
@@ -69,6 +89,24 @@ export default class MapContainer {
         this.data = data;
         this._initMap(this.data);
         this.mapLoaded = true;
+
+        // FIX: this is the other side of the race moveGrid()'s `!this.mapLoaded`
+        // guard protects against -- the child Map sub-object (this.maps[0]) can
+        // finish loading, and flip gridReady, *before* this container's own
+        // _initMap()/_initGrids() (just above) has run. When that happens,
+        // moveGrid() bailed out early every time it was called while
+        // gridReady was true but mapLoaded wasn't, and nothing was left to retry
+        // it once mapLoaded finally did flip true here -- so the grid could stay
+        // permanently unbuilt instead of just late. If gridReady is already true
+        // by the time we get here, the grids are now safe to build (this._initMap()
+        // above already ran _initGrids()), so do it immediately rather than
+        // hoping a future render-loop dirty-check happens to retrigger it.
+        if (this.gridReady) {
+            this.moveGrid();
+            if (game.renderer)
+                game.renderer.forceRedraw = true;
+        }
+
         this._isReady();
     }
 
@@ -273,8 +311,11 @@ export default class MapContainer {
 
         for (let i in this.maps) {
             map = this.maps[i];
-            map.ready(function() {
-                this.gridUpdated = true;
+            // `map` is closed over from this loop (same pattern getMap()'s equivalent
+            // callback just above uses), so this always refers to the right Map instance
+            // regardless of how the callback ends up getting invoked below.
+            const onMapReady = function() {
+                map.gridUpdated = true;
                 if ((++self.inc) === self.count) {
                     self.OnAllReady();
                     self.inc = 0;
@@ -282,7 +323,31 @@ export default class MapContainer {
                     game.renderer.forceRedraw = true;
                     self.gridReady = true;
                 }
-            });
+            };
+
+            // FIX: teleportMaps() (game.js) reuses this same MapContainer -- and
+            // therefore this same already-loaded Map instance -- for a same-map
+            // teleport, instead of constructing a fresh MapContainer/Map pair like
+            // every other teleport. map.ready(fn) just overwrites map.js's single
+            // ready_func slot, and _isReady() (which invokes it) only ever runs once,
+            // at the end of that Map's original loadMapData() call. Registering a new
+            // callback here via map.ready(onMapReady) on a Map that already finished
+            // loading in a previous cycle meant onMapReady would never run again --
+            // self.inc never incremented, OnAllReady() never fired, and
+            // game.mapContainer.allReady()'s callback (clientcallbacks.js's fnReady,
+            // which is what finally clears p.freeze) silently stalled forever,
+            // leaving the player stuck frozen after every same-map teleport. When the
+            // map is already loaded, run onMapReady via a resolved-promise microtask
+            // instead of waiting on a .ready() callback that will never fire --
+            // deferred (not synchronous) so it still lands *after* the synchronous
+            // game.initGrid() -> ... -> game.mapContainer.allReady(...) sequence in
+            // clientcallbacks.js has finished registering *this* cycle's callback,
+            // same ordering guarantee a real async load would have provided.
+            if (map.isLoaded) {
+                Promise.resolve().then(onMapReady);
+            } else {
+                map.ready(onMapReady);
+            }
             //  map.loadMap();
         }
     }
@@ -310,7 +375,23 @@ export default class MapContainer {
         const c = game.camera;
         const fe = c.focusEntity;
 
-        if (!fe || !this.gridReady)
+        // FIX: was only gated on `this.gridReady`, which is flipped by the child
+        // `Map` sub-object (this.maps[0], map.js) finishing its own load -- a load
+        // that doesn't actually depend on this MapContainer being ready. map.js's
+        // constructor reads from `mc.zip`, but if this container's own _GO.json
+        // zip entry (JSZip.loadAsync in this class's constructor) hasn't resolved
+        // yet, `mc.zip` is still undefined, so `mc.zip.file(...)` throws
+        // synchronously there, gets caught, and Map falls back to a plain
+        // (uncompressed) JSON fetch -- which can easily finish, and flip
+        // gridReady, before this container's own zip download+decompress+
+        // _initMap()/_initGrids() has run. _initGrids() is what actually
+        // allocates this.collisionGrid[i]/this.tileGrid[i] as arrays; running
+        // _updateGrid() before it has means writing into rows that don't exist
+        // yet (throws, or leaves the grid built wrong/incomplete). `mapLoaded` is
+        // set at the end of loadMap(), right after _initMap()/_initGrids() runs,
+        // so requiring it here as well guarantees the grids are actually
+        // allocated before _updateGrid() ever touches them.
+        if (!fe || !this.gridReady || !this.mapLoaded)
             return false;
 
         this.reloadMaps();
@@ -325,7 +406,6 @@ export default class MapContainer {
         //console.warn("_updateGrid - called.")
         const c = game.camera;
         const fe = c.focusEntity;
-        const dim = map.dimensions;
 
         const cgw = c.gridWE;
         const cgh = c.gridHE;

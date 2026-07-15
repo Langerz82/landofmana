@@ -482,7 +482,17 @@ class Map {
             door.height = (door.height) ? door.height : 1;
             //console.info("door.tmap="+door.tmap);
             const area = new MapArea(map, false, door.x, door.y, door.width, door.height, -1);
-            area.tmap = door.map ? door.map : self.id;
+            // FIX: was reading `door.map`, but the raw door data (and every other
+            // target-* field here, and the client's identical _getDoors in
+            // mapcontainer.js) uses the `t`-prefixed key `tmap`. Reading the wrong
+            // key meant this always fell through to `self.id`, so the server's
+            // computed door.tmap disagreed with the mapId the client (correctly)
+            // sent in CW_TELEPORT_MAP, tripping the door.tmap!==mapId check in
+            // packethandler.js's handleTeleportMap and rejecting the teleport with
+            // "Teleport door does not lead to requested map." Also switched the
+            // fallback test from truthy to `>= 0` so a legitimate destination of
+            // map index 0 (falsy) isn't mistaken for "unset".
+            area.tmap = (door.tmap >= 0) ? door.tmap : self.id;
             area.minLevel = door.tminLevel || 0;
             area.maxLevel = door.tmaxLevel || 200;
             area.orientation = door.to || 2;

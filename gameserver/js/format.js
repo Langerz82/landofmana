@@ -67,6 +67,7 @@ const mapIndexMax = 9;
 const orientationsMax = 4;
 const entityIdMax = 99999;
 const mapStatusMax = 3;
+const mapPortalMax = 999;
 
 // NOTE: the original code declared `questCountMax` twice (999, then 99).
 // var's redeclare-and-overwrite behavior meant 99 was the value actually in
@@ -414,7 +415,7 @@ class FormatChecker {
       numberField(0, 1),
       numberField(-1, mapCoordsMax),
       numberField(-1, mapCoordsMax),
-      numberField(-1, mapIndexMax),
+      numberField(-1, mapPortalMax),
     ]);
     this.formats[Types.Messages.CW_SKILL] = tupleField([
       numberField(0, playerSkillMax),
