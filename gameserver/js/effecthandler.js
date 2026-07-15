@@ -100,6 +100,25 @@ class EffectType {
           target.freeze = false;
         }
         break;
+      // NOTE: no skill in shared/data/skills2.json currently uses a "slow"
+      // effect (grepped for it), so this branch is presently dead code --
+      // but it looks broken for whenever one is added: unlike "attack"/
+      // "defense"/"damage" above (which SET target.stats.mod.<stat> to a
+      // freshly-computed diff every phase, including a modValue-of-0 "end"
+      // entry that overwrites it back to 0), this ADDS modValue to
+      // moveSpeed. A "start" (+X) then "end" (+0, going by the same
+      // start/end pairing pattern every other effect in skills2.json uses)
+      // would permanently leave moveSpeed slowed, never reversing it. It
+      // also writes moveSpeed directly instead of going through
+      // setMoveRate() (entitymoving.js), which is what keeps
+      // `walkSpeed`/`tick` in sync with it -- `tick` in particular feeds
+      // pathfinder.js's isDistanceTooFast() speed-hack check, so a
+      // moveSpeed change that skips setMoveRate() could desync that too.
+      // Left alone rather than guess-fixed, since the right fix depends on
+      // the intended mechanic (e.g. should multiple stacking slows be
+      // additive deltas restored on their own "end", or should this go
+      // through setMoveRate() with a saved base speed) -- flagging for
+      // whoever adds the first "slow" skill.
       case "slow":
         target.moveSpeed += this.modValue;
         break;

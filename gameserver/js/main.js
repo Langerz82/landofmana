@@ -109,6 +109,19 @@ export const ATTACK_MAX = 1000;
 
 export const PLAYER_SAVE_INTERVAL = 1800000;
 
+// NOTE: STUCK is currently unused -- nothing in the codebase ever calls
+// mob.setAiState(mobState.STUCK), even though mobai.js's checkReturn() has a
+// branch that treats it the same as CHASING/ROAMING. It looks like it was
+// meant to be set from checkChase()'s "can't reach a target that hasn't
+// moved" case (see the FIX comment there), but never was -- which used to
+// mean a mob in that situation could sit forever, never re-checked by
+// checkReturn() at all. That's fixed now by re-running checkReturn() from
+// inside the existing CHASING state instead (mobai.js), so introducing an
+// actual STUCK transition wasn't necessary to fix the soft-lock. Left
+// defined (and still accepted by checkReturn()) as a reserved value rather
+// than removed, in case a future change wants a state that's visibly
+// distinct from "actively pathing toward target" (e.g. for a different
+// client-side animation) -- just be aware nothing sets it today.
 export const mobState = {
     IDLE: 1,
     ROAMING: 2,

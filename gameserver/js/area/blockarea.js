@@ -13,6 +13,15 @@ class BlockArea extends EntityArea {
     initArea(kind, width, height) {
         const startID = this.map.entities.entityCount;
 
+        // FIX: `width` (the row length blocks are laid out with, right
+        // below) was never stored anywhere on `this` -- isCompleted() below
+        // reads `this.numX` to figure out where each row wraps, which was
+        // always `undefined`. `i % undefined` is `NaN` for every `i`, so
+        // isCompleted()'s `x === 0` "start of a new row" branch could never
+        // fire; every consecutive block pair, including the ones spanning a
+        // row boundary, fell through to the "same row" check instead.
+        this.numX = width;
+
         let id = 0;
         let blockName;
         for (let j=0; j < height; ++j) {
@@ -43,7 +52,20 @@ class BlockArea extends EntityArea {
         }
     }
 
-// TODO - FIX
+    // FIX: the `this.numX` read below was always `undefined` before
+    // initArea() started setting it (see the FIX comment there) -- that's
+    // fixed now, so the row-wrap branch (`x === 0`) actually runs. Left as
+    // "TODO" was: whether the `||` in both branches below is intentional.
+    // As written, a row-start pair passes if EITHER it dropped exactly one
+    // tile in y OR has the same x, and a same-row pair passes if EITHER
+    // it's exactly one tile apart in x OR has the same y -- i.e. either
+    // half of "properly adjacent" is independently sufficient, not both
+    // required together. That may be deliberately lenient (e.g. to tolerate
+    // sub-tile rounding on one axis), but it also means a block that's
+    // right on x/y-axis with its neighbor but wildly off on the other axis
+    // would still pass. Not changing this without being able to verify
+    // against real puzzle-solve gameplay -- flagging it for whoever touches
+    // this next.
     isCompleted() {
         let b1 = this.blocks[0], b2 = null;
         let b3 = b1;

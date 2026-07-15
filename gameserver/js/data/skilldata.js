@@ -12,7 +12,9 @@ const getSkillEffects = function (data) {
 	return effects;
 };
 
-const i = 0;
+// NOTE: was `const i = 0;` here, unused -- dead even under the old `var i=0;`
+// this was ported from (nothing in the loop below ever read it; same pattern
+// already cleaned up in a couple of other files in this codebase).
 //console.info(JSON.stringify(SkillsJSON));
 for (const index in SkillsJSON)
 {

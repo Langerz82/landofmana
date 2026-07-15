@@ -129,9 +129,19 @@ class MobArea extends EntityArea {
             //console.info("kind_first: "+this.mobs[0].kind);
             return this._createMob(this.mobs[0].kind);
         }
-// TODO
-        // Add ratio total and array containing kind.
-        const mobRatio = [];
+        // FIX/PERF: this used to also build a `mobRatio` array here (one
+        // entry per unit of spawnChance, for every mob in this area) as an
+        // alternate way to pick a weighted-random kind by direct index. That
+        // approach was superseded by the cumulative-weight loop below (`for
+        // (let i=0; i < this.mobs.length; ++i) { ... if (r < sc) ... }`,
+        // see its own FIX comment a few lines down) -- mobRatio was left
+        // populated but never read again (the one place that used it,
+        // `kind = mobRatio[randNum];` below, has been commented out for a
+        // while). Building it cost an O(sum of every mob's spawnChance)
+        // loop -- with enough mob kinds/weights configured for an area,
+        // potentially a lot of wasted array writes on every single mob
+        // spawn -- purely to compute mobRatioTotal, which a plain sum does
+        // just as well without the throwaway array.
         let mobRatioTotal = 0;
         const l = this.mobs.length;
         if (l === 0)
@@ -142,10 +152,6 @@ class MobArea extends EntityArea {
 
         for(let i = 0; i < l; ++i)
         {
-            for(let j = 0; j < this.mobs[i].spawnChance; ++j)
-            {
-                mobRatio[ (i*l+j) ] = this.mobs[i].kind;
-            }
             mobRatioTotal += this.mobs[i].spawnChance;
         }
 
@@ -181,12 +187,6 @@ class MobArea extends EntityArea {
             console.warn("mob kind === 0 aborting create.");
             return null;
         }
-        //if ()
-        //kind = mobRatio[randNum];
-        //kind = this.mobs[Utils.random(this.mobs.length-1)].kind;
-
-        //}
-        //console.info("kind_ratio: "+kind);
         return this._createMob(kind);
     }
 

@@ -1,6 +1,6 @@
 import Quest, { getQuestObject } from './quest.js';
 import Messages from './message.js';
-import { Types } from './common.js';
+import { Types, ItemTypes } from './common.js';
 import Utils from './utils.js';
 import MobData from './data/mobdata.js';
 import ItemData from './data/itemdata.js';
@@ -72,12 +72,36 @@ class EntityQuests {
 
         for (const reward of quest.reward)
         {
+            // FIX: `parseInt(reward.itemDurability, 10) || 0` sends `0`
+            // whenever the field is simply absent (parseInt(undefined) is
+            // NaN, and `NaN || 0` is `0`) -- and every reward entry actually
+            // defined right now (shared/data/quests.json's one reward,
+            // {"itemKind": 100}, a "Leather Chest 1" armor piece) omits
+            // itemDurability entirely. items/baseitem.js's set() treats `0`
+            // as a real, explicit value (`arr[2] != null` is true for 0, so
+            // it uses `Number(0)` instead of falling back to its own
+            // 900-durability default for equipment) -- so `|| 0` here handed
+            // out that reward as a broken, 0-durability item every time,
+            // instead of a fresh one. `|| null` has the same "field missing
+            // vs. explicit 0" collapsing problem in the other direction (an
+            // intentionally-0-durability reward would get silently repaired
+            // to full instead) -- checking for NaN specifically distinguishes
+            // "not a number" (field absent -> let baseitem.js apply its
+            // default) from "the number zero" (field present and really is
+            // 0 -> keep it 0).
+            const durability = parseInt(reward.itemDurability, 10);
+            const durabilityMax = parseInt(reward.itemDurabilityMax, 10);
             const item = new ItemRoom([
               parseInt(reward.itemKind, 10),
               parseInt(reward.itemNumber, 10) || 1,
-              parseInt(reward.itemDurability, 10) || null,
-              parseInt(reward.itemDurabilityMax, 10) || null,
+              Number.isNaN(durability) ? null : durability,
+              Number.isNaN(durabilityMax) ? null : durabilityMax,
               parseInt(reward.itemExperience, 10) || 0]);
+
+            if (ItemTypes.isEquipment(item.itemKind)) {
+              item.itemDurability = 900;
+              item.itemDurabilityMax = 900;
+            }
 
             player.items.inventory.putItem(item);
             msg = new Messages.Notify("CHAT", "ITEM_ADDED", [ItemData.Kinds[item.itemKind].name])

@@ -72,10 +72,12 @@ class Area {
                 count++;
                 continue;
             }
-            else {
-                break;
-            }
-            count++;
+            // NOTE: there used to be a trailing `count++;` here, after this
+            // if/else -- both branches above either `continue` or `break`,
+            // so it could never actually execute. Removed as dead code; it
+            // wasn't causing a double-increment (or anything else), just
+            // never ran.
+            break;
         }
         if (count >= threshold) {
             console.error("_getRandomPosition exceeded:" + pos.x + "," + pos.y);

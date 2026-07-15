@@ -34,7 +34,15 @@ class MapArea {
                 );
                 const inElipse = (d < this.width/2 && d < this.height/2);
 
-                console.log("this.elipseId="+this.elipseId);
+                // FIX/PERF: was `console.log("this.elipseId="+this.elipseId);`
+                // here, unconditionally, on every call -- this.elipseId is never
+                // assigned anywhere on MapArea (same dead-property issue already
+                // fixed in area.js's own elipseId reference), so this always
+                // logged "undefined" and did nothing useful. contains() is the
+                // hot path map.js's isDoor()/getDoor() call on every relevant
+                // player move, so this was unconditional log spam on a per-move
+                // check. Removed rather than gated behind G_DEBUG, since there's
+                // no real elipseId value here to ever report.
                 return inElipse;
             } else {
                 return false;
