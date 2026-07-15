@@ -1,0 +1,11 @@
+{
+  "0": {"type": 0, "text": "Kill %count Monsters Level %level or more"},
+  "1": {"type": 2, "text": "%names! Kill %count of em"},
+  "2": {"type": 2, "text": "I am dying kill %count of %names"},
+  "3": {"type": 2, "text": "%names have destroyed my home kill %count"},
+  "4": {"type": 2, "text": "%names have swarmed us kill %count"},
+  "5": {"type": 2, "text": "We've been overtaken by %names kill %count"},
+  "6": {"type": 2, "text": "Kill %count %names for fun, there evil."},
+  "7": {"type": 1, "text": "Get %count %name. Return them to Collect in town."},
+  "8": {"type": 4, "text": "Find %name. We playing hide and seek!"}
+}

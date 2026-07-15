@@ -1,0 +1,10 @@
+[
+	["scorpion","mob//scorpion.png"],
+	["squirrel","mob//squirrel.png"],
+  ["npc0","npc//npc0.png"],
+	["npc1","npc//npc1.png"],
+	["npc2","npc//npc2.png"],
+	["npc3","npc//npc3.png"],
+	["npc4","npc//npc4.png"],
+	["goldaxe","weapon//goldaxe.png"],
+]

@@ -1,0 +1,182 @@
+[
+{
+	"npcId":44,
+	"type": 3,
+	"name": "Intro 1",
+	"talk": "Kill %d Monsters Level 1 or more",
+	"objectCount": 25,
+	"minLevel":1,
+	"maxLevel":200
+},
+{
+	"npcId":44,
+	"type": 3,
+	"name": "Intro 2",
+	"talk": "Kill %d Monsters Level 5 or more",
+	"objectCount":25,
+	"minLevel":5,
+	"maxLevel":200
+},
+{
+	"npcId":44,
+	"type": 3,
+	"name": "Intro 3",
+	"talk": "Kill %d Monsters Level 10 or more",
+	"objectCount":50,
+	"minLevel":10,
+	"maxLevel":200
+},
+{
+	"npcId":44,
+	"type": 3,
+	"name": "Intro 4",
+	"talk": "Kill %d Monsters Level 15 or more",
+	"objectCount":50,
+	"minLevel":15,
+	"maxLevel":200
+},
+{
+	"npcId":44,
+	"type": 3,
+	"name": "Intro 5",
+	"talk": "Kill %d Monsters Level 20 or more",
+	"objectCount":50,
+	"minLevel":20,
+	"maxLevel":200
+},
+{
+	"npcId":44,
+	"type": 3,
+	"name": "Intro 6",
+	"talk": "Kill %d Monsters Level 25 or more",
+	"objectCount": 50,
+	"minLevel":25,
+	"maxLevel":200
+},
+{
+	"npcId":44,
+	"type": 3,
+	"name": "Intro 7",
+	"talk": "Kill %d Monsters Level 30 or more",
+	"objectCount": 50,
+	"minLevel":30,
+	"maxLevel":200
+},
+{
+	"npcId":44,
+	"type": 3,
+	"name": "Intro 8",
+	"talk": "Kill %d Monsters Level 35 or more",
+	"objectCount": 50,
+	"minLevel":35,
+	"maxLevel":200
+},
+{
+	"npcId":44,
+	"type": 3,
+	"name": "Intro 9",
+	"talk": "Kill %d Monsters Level 40 or more",
+	"objectCount": 50,
+	"minLevel":40,
+	"maxLevel":200
+},
+{
+	"npcId":44,
+	"type": 3,
+	"name": "Intro 10",
+	"talk": "Kill %d Monsters Level 45 or more",
+	"objectCount": 50,
+	"minLevel":45,
+	"maxLevel":200
+},
+{
+	"npcId":44,
+	"type": 3,
+	"name": "Intro 11",
+	"talk": "Kill %d Monsters Level 50 or more",
+	"objectCount": 100,
+	"minLevel":50,
+	"maxLevel":200
+},
+{
+	"npcId":44,
+	"type": 3,
+	"name": "Intro 12",
+	"talk": "Kill %d Monsters Level 55 or more",
+	"objectCount": 100,
+	"minLevel":55,
+	"maxLevel":200
+},
+{
+	"npcId":44,
+	"type": 3,
+	"name": "Intro 13",
+	"talk": "Kill %d Monsters Level 60 or more",
+	"objectCount": 100,
+	"minLevel":60,
+	"maxLevel":200
+},
+{
+	"npcId":44,
+	"type": 3,
+	"name": "Intro 14",
+	"talk": "Kill %d Monsters Level 65 or more",
+	"objectCount":100,
+	"minLevel":65,
+	"maxLevel":200
+},
+{
+	"npcId":44,
+	"type": 3,
+	"name": "Intro 15",
+	"talk": "Kill %d Monsters Level 70 or more",
+	"objectCount":100,
+	"minLevel":70,
+	"maxLevel":200
+},
+{
+	"npcId":44,
+	"type": 3,
+	"name": "Intro 16",
+	"talk": "Kill %d Monsters Level 75 or more",
+	"objectCount":100,
+	"minLevel":75,
+	"maxLevel":200
+},
+{
+	"npcId":44,
+	"type": 3,
+	"name": "Intro 17",
+	"talk": "Kill %d Monsters Level 80 or more",
+	"objectCount":100,
+	"minLevel":80,
+	"maxLevel":200
+},
+{
+	"npcId":44,
+	"type": 3,
+	"name": "Intro 18",
+	"talk": "Kill %d Monsters Level 85 or more",
+	"objectCount":100,
+	"minLevel":70,
+	"maxLevel":200
+},
+{
+	"npcId":44,
+	"type": 3,
+	"name": "Intro 19",
+	"talk": "Kill %d Monsters Level 90 or more",
+	"objectCount":100,
+	"minLevel":70,
+	"maxLevel":200
+},
+{
+	"npcId":44,
+	"type": 3,
+	"name": "Intro 20",
+	"talk": "Kill %d Monsters Level 100 or more",
+	"objectCount":100,
+	"minLevel":100,
+	"maxLevel":200
+}
+]

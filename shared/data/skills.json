@@ -1,0 +1,155 @@
+[
+	{
+	    "name":"Beserker",
+	    "skillType":"haste-attack",
+	    "target":"self",
+	    "duration":10,
+	    "recharge":20,
+	    "perLevel": 2,
+	    "iconOffset": [1,7],
+	    "detail": "Beserker [l] - Speeds up your attack by [u]% for 10 seconds,"
+	},
+
+	{
+	    "name":"Explosive Attack",
+	    "skillType": "damage",
+	    "recharge":10,
+	    "aoe": 2,
+	    "perLevel": 2,
+	    "iconOffset": [3,12],
+	    "detail": "Explosive Attack [l] - Does an AoE attack of range 2 for +[u]% damage,"
+	},
+	{
+	    "name":"Deadly Attack",
+	    "skillType":"damage",
+	    "recharge":10,
+	    "perLevel": 5,
+	    "iconOffset": [4,7],
+	    "detail": "Deadly Attack [l] - Does an attack of +[u]% damage,"
+	},
+	{
+	    "name":"Daze",
+	    "skillType":"daze",
+	    "duration":5,
+	    "recharge":20,
+	    "perLevel": 2,
+	    "iconOffset": [0,12],
+	    "detail": "Daze [l] - Dazes the target of -[u]% chance to hit for 5 seconds."
+	},
+	{
+	    "name":"Pickpocket",
+	    "target":"front",
+	    "skillType":"pickpocket",
+	    "recharge":20,
+	    "baseLevel":30,
+	    "perLevel":5,
+	    "iconOffset": [7,4],
+	    "detail": "Pickpocket [l] - [u]% Raw Chance to pickpocket a Character or Monster."
+	},
+	{
+	    "name":"Run",
+	    "skillType":"haste-move",
+	    "target":"self",
+	    "duration":10,
+	    "recharge":20,
+	    "perLevel":2,
+	    "iconOffset": [13,10],
+	    "detail": "Run [l] - Move [u]% quicker for 10 seconds."
+	},
+	{
+	    "name":"Slow",
+	    "skillType":"slow",
+	    "duration":10,
+	    "recharge":10,
+	    "perLevel":2,
+	    "iconOffset": [3,5],
+	    "detail": "Slow [l] - Slows target for [u]% for 10 seconds."
+	},
+	{
+	    "name":"Invincible",
+	    "skillType":"invincible",
+	    "target":"self",
+	    "recharge":30,
+	    "perLevel":1,
+	    "iconOffset": [10,11],
+	    "detail": "Incvincible [l] - Invincible for [u] seconds."
+	},
+	{
+	    "name":"Shield",
+	    "skillType":"defence",
+	    "target":"self",
+	    "recharge":20,
+	    "duration":10,
+	    "perLevel":5,
+	    "iconOffset": [9,0],
+	    "detail": "Shield [l] - Blocks +[u]% damage for 10 seconds."
+	},
+	{
+	    "name":"Provoke",
+	    "skillType":"provoke",
+	    "recharge":10,
+	    "aoe":2,
+	    "perLevel":5,
+	    "iconOffset": [8,3],
+	    "detail": "Provoke [l] - Makes target hate you for +[u] points."
+	},
+	{
+	    "name":"Heal",
+	    "skillType":"heal",
+	    "target":"self",
+	    "recharge":10,
+	    "perLevel":2,
+	    "iconOffset": [6,5],
+	    "detail": "Heal [l] - Heals you for [u]%."
+	},
+	{
+	    "name":"Accuracy",
+	    "skillType":"accuracy",
+	    "target":"self",
+	    "recharge":20,
+	    "duration":5,
+	    "perLevel":2,
+	    "iconOffset": [5,13],
+	    "detail": "Accuracy [l] - Increases your chance to hit by [u]% for 5 seconds."
+	},
+	{
+	    "name":"Vampirysm",
+	    "skillType":"dr",
+	    "target":"self",
+	    "recharge":20,
+	    "duration":5,
+	    "perLevel":10,
+	    "iconOffset": [10,7],
+	    "detail": "Vampyrism [l] - For damage gain +[u]% health for 5 seconds."
+	},
+	{
+	    "name":"Venom",
+	    "skillType":"dot",
+	    "recharge":20,
+	    "duration":5,
+	    "perLevel":5,
+	    "iconOffset": [11,6],
+	    "detail": "Venom [l] - Damage +[u]% every second for 5 seconds."
+	},
+	{
+	    "name":"Party Heal",
+	    "skillType":"partyheal",
+	    "target":"self",
+	    "aoe":10,
+	    "recharge":20,
+	    "perLevel":1,
+	    "iconOffset": [13,6],
+	    "detail": "Party Heal [l] - Heals party for [u]% within 10 blocks."
+	},
+	{
+	    "name":"Bloodlust",
+	    "skillType":"partycrit",
+	    "target":"self",
+	    "aoe":10,
+	    "duration":5,
+	    "recharge":20,
+	    "perLevel":1,
+	    "iconOffset": [8,13],
+	    "detail": "Party Crit [l] - Party Crit for +[u]% within 10 blocks for 5 seconds."
+	}
+]
