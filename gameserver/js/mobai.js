@@ -180,12 +180,6 @@ class MobAI {
           return;
         }
 
-        if (!target.isMoving() && mob.ptx === mob.target.x && mob.pty === mob.target.y)
-        {
-          //console.info(mob.id+" path same as before and expensive.");
-          return;
-        }
-
         if (mob.isMoving() && target.isMoving())
         {
           // PERF: checkChase runs per-tick for every chasing mob -- gated
@@ -199,6 +193,32 @@ class MobAI {
 
           if (this.checkReturn(mob))
             return;
+
+          // FIX: this "target hasn't moved since our last attempt, don't
+          // waste a pathfind" shortcut used to sit above, before the
+          // mob.canMoveAI() check, and returned unconditionally -- forever,
+          // on every future tick, once ptx/pty locked onto a stationary
+          // target the mob couldn't reach. That permanently skipped
+          // checkReturn() (just above) too, since checkReturn() was only
+          // ever reached past this shortcut. A mob that finished chasing to
+          // a spot but still couldn't quite reach its target (e.g. blocked
+          // by terrain, or the target stopped just out of range) would sit
+          // there forever: not attacking, not re-pathing, not giving up and
+          // returning to spawn. mobState.STUCK exists in main.js and
+          // checkReturn() below already has a branch for it, but nothing
+          // ever set it -- this shortcut is what needed to feed
+          // checkReturn(), not a separate state. Moving it here (inside the
+          // same canMoveAI() cooldown gate as the expensive path below, and
+          // after checkReturn() gets its shot) keeps the "don't re-pathfind
+          // against an unchanged target" optimization while guaranteeing
+          // checkReturn()'s distance-based give-up check keeps running on
+          // that same cadence instead of being permanently bypassed.
+          if (!target.isMoving() && mob.ptx === mob.target.x && mob.pty === mob.target.y)
+          {
+            //console.info(mob.id+" path same as before and expensive.");
+            mob.setMoveAI(Utils.randomRangeInt(25,50));
+            return;
+          }
 
           mob.setMoveAI(Utils.randomRangeInt(25,50));
           mob.ptx = target.x;

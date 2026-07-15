@@ -571,8 +571,11 @@ class EntityMoving extends Entity {
       return this.nextDist(x, y, o, dist);
   }
 
-  // New function to make coding easier.
-  /// TODO - Fix, probably broken with new path code.
+  // NOTE: no caller anywhere in the server codebase currently (grepped for
+  // isWithinPath()) -- dead code. Left as-is rather than guess-fixed, since
+  // the original "probably broken with new path code" TODO gives no
+  // reproduction and there's no live call site to verify a fix against.
+  // Treat as unverified/unsafe to call until it has a real caller and a test.
   isWithinPath(coords) {
     let tCoords = null;
     if (typeof(coords) === "object" && coords.x > 0 && coords.y > 0) {
@@ -623,9 +626,17 @@ class EntityMoving extends Entity {
         return 0;
     }
 
+   // NOTE: Types.Orientations.NONE is 0, so `if (orientation)` is also the
+   // "was an explicit direction actually passed" check -- calling this with
+   // NONE/0 (or omitting the argument) is a deliberate no-op that leaves the
+   // entity facing whatever direction it already was, not a bug. (The old
+   // trailing `orientation || 0` was dead code either way: inside this `if`,
+   // orientation is already known truthy, so it can never take the `|| 0`
+   // fallback.) If a future caller ever needs to force-reset orientation to
+   // NONE specifically, it'll need a different entry point than this one.
    setOrientation(orientation) {
      if (orientation) {
-       this.orientation = orientation || 0;
+       this.orientation = orientation;
      }
    }
 

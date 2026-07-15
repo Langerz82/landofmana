@@ -111,8 +111,25 @@ class Equipment {
         return true;
     }
 
+    // FIX: this was missing `return`, so setItem() always returned `undefined`
+    // (falsy) regardless of whether _setItem() actually succeeded. playeritems.js's
+    // swapItem() relies on that return value as its "did the item actually get
+    // placed" gate before clearing the source slot:
+    //   if (store2.setItem(slot2[1], rs1))
+    //       store1.setItem(slot[1], null);
+    // Every time an item was equipped into a previously-EMPTY equipment slot (the
+    // ordinary "equip from inventory/bank" action), that `if` was always false --
+    // _setItem() had already written the item into this.rooms[index] and stamped
+    // item.slot to the new equipment index, but the source store's slot was never
+    // cleared. The same item object ended up referenced from two slots at once
+    // (one stale dictionary key still pointing at an object whose .slot now says
+    // otherwise), which is exactly what could make an item look equipped in the
+    // current session but come back wrong -- or vanish -- on the next
+    // save/load (toStringJSON()/userhandler.js serialize by walking `rooms`,
+    // using each item's own .slot). This is the root cause of the
+    // "swapping equipment items to different boxes deletes item" bug.
     setItem(index, item) {
-        this._setItem(index, item);
+        return this._setItem(index, item);
     }
 
     getItemTypeIndex(item) {
@@ -133,7 +150,10 @@ class Equipment {
         return -1;
     }
 
-// TODO swapping equipment items to different boxes deletes item.
+    // NOTE: was flagged "swapping equipment items to different boxes deletes
+    // item" -- see the FIX comment on setItem() above, which was the actual
+    // cause (a missing `return` there made every caller-side success check
+    // on this method's result always false).
     _setItem(index, item)
     {
 

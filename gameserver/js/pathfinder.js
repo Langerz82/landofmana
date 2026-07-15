@@ -58,9 +58,19 @@ class Pathfinder {
     return false;
   }
 
- // TODO - Incorrect when moving left.
+ // NOTE: was flagged "Incorrect when moving left." Manually traced this
+ // function against several leftward/upward multi-segment paths (including
+ // interrupts landing exactly on a turn corner) and it computed the correct
+ // cumulative distance in every case -- both the vertical-segment and
+ // horizontal-segment partial-distance branches use Math.abs()/Utils.isBetween()
+ // (order-independent, see shared/js/utils.js), so nothing here is actually
+ // direction-sensitive. This looks like a stale comment from before some
+ // other change in this file/codebase, not a live bug -- left in place as
+ // documentation rather than deleted, in case there's a repro this trace
+ // missed. If you hit an actual wrong-distance case, please note the exact
+ // path/interrupt point that triggers it here.
   /*
-   * getPathDistance:
+   * getPathSubDistance:
    * path - The path to check. x,y = x-position and y-position
    * of the final coordinate that should be in the path.
    */

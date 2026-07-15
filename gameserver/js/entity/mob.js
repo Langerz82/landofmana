@@ -278,10 +278,12 @@ class Mob extends Character {
     // need. Every mob was consistently attacking the weakest-threat player
     // instead of whoever had actually generated the most hate. Taking the
     // last element of the ascending sort gives the highest-hate entry.
-    getMostHated(hateRank) {
-        let i, playerId,
-            sorted = _.sortBy(this.hatelist, function(obj) { return obj.hate; }),
-            size = _.size(this.hatelist);
+    // NOTE: was `getMostHated(hateRank)` with unused `i`/`playerId`/`size`
+    // locals -- `hateRank` has never had a caller (the only call site,
+    // handleMobHate() below, always calls this with no argument), and
+    // `i`/`playerId`/`size` were never read anywhere in the body.
+    getMostHated() {
+        const sorted = _.sortBy(this.hatelist, function(obj) { return obj.hate; });
 
         if(sorted && sorted.length > 0) {
             return sorted[sorted.length - 1].entity;

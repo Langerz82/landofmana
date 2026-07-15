@@ -109,8 +109,9 @@ const isHarvestAxeAchievement = (achievement, event, player) => {
 
 //   {"type": 1, "rank": 1, "objectType": 2, "objectKind": 0, "count": 10},
 class TaskHandler {
+    // NOTE: was `const i=0;` here, unused -- dead even under the old `var i=0;`
+    // this was ported from (nothing in the constructor ever read it).
     constructor() {
-        const i=0;
         this.data = AchievementJson;
     }
 

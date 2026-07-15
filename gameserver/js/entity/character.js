@@ -275,10 +275,14 @@ class Character extends EntityMoving {
    * @param {Character} character The attacking character.
    * @returns {Boolean} Whether this is an attacker of this character.
    */
+  // PERF: was gated behind `if (Object.keys(this.attackers).length === 0)
+  // return false;` -- an array allocation on every call (this is checked by
+  // mobai.js's checkHitAggro() on every hit landed against an idle mob) just
+  // to answer a question the hasOwnProperty()+identity check right below
+  // already answers correctly on its own for an empty `attackers` too
+  // (hasOwnProperty() on an empty object is simply false). No behavior
+  // change, one fewer allocation per call.
   isAttackedBy(character) {
-    if (Object.keys(this.attackers).length === 0) {
-      return false;
-    }
     return this.attackers.hasOwnProperty(character.id) &&
       this.attackers[character.id] === character;
   }
@@ -428,9 +432,10 @@ class Character extends EntityMoving {
   /**
    * Removes the current attack target.
    */
+  // NOTE: was `const self = this;` here, unused -- nothing in this method
+  // needed a captured reference to `this` (no nested callback loses binding
+  // the way hurt()/setFreeze() elsewhere in this file do).
   removeTarget() {
-    const self = this;
-
     if (this.target) {
       if (this.target instanceof Character) {
         this.target.removeAttacker(this);

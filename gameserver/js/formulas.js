@@ -90,6 +90,14 @@ Formulas.pickPocket = function (source, target, chance)
 
 Formulas.mindControl = function (source, target)
 {
+    // FIX: divided by source.level with no guard -- a level-0 source (any
+    // future entity that can reach this formula without going through the
+    // normal player/mob leveling paths, e.g. a scripted/test entity) would
+    // divide by zero, making the upper bound Infinity/NaN and
+    // Utils.randomRange() behave unpredictably instead of the intended
+    // "never mind-controllable" outcome.
+    if (source.level <= 0)
+        return false;
     if (target.level <= source.level && ~~(Utils.randomRange(0,~~(target.level * 50 /source.level))) === 0)
 	    return true;
     return false
@@ -105,6 +113,10 @@ Formulas.energy = function(entityLevel) {
     //This requires more work, look around "kind".
 };
 
+// NOTE: unimplemented stub -- always returns undefined. No call site in the
+// server codebase currently reaches this (grepped for getExpArray()); left
+// in place rather than removed in case it's part of a planned/external API
+// surface, but treat any current caller of this as a latent bug.
 Formulas.getExpArray = function() {
 
     //just return the EXP Array here.
