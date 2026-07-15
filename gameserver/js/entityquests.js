@@ -99,8 +99,10 @@ class EntityQuests {
               parseInt(reward.itemExperience, 10) || 0]);
 
             if (ItemTypes.isEquipment(item.itemKind)) {
-              item.itemDurability = 900;
-              item.itemDurabilityMax = 900;
+              if (!item.itemDurability)
+                item.itemDurability = 900;
+              if (!item.itemDurabilityMax)
+                item.itemDurabilityMax = 900;
             }
 
             player.items.inventory.putItem(item);

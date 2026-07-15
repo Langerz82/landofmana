@@ -39,7 +39,12 @@ class ShopHandler {
         p.sendPlayer(new Messages.Notify("SHOP","SHOP_SOLD", [itemName]));
     }
 
-// TODO - Revise beloww!!!!!!!!!!!!!!
+    // NOTE: was flagged "Revise below!!!!!!!!!!!!!!" -- the specific issues
+    // that comment was almost certainly about (missing empty-slot guard,
+    // and the auction-full/declined-listing item-loss bug) are already
+    // covered by the two FIX comments below. Nothing else stood out on
+    // review; left as a plain NOTE rather than deleting outright in case
+    // there's a concern this pass didn't catch.
     handleAuctionSell(message) {
         const p = this.player;
 

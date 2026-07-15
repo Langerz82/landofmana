@@ -28,7 +28,10 @@ class MobCombat {
     baseDamage() {
         const entity = this.entity;
 
-        let dealt, absorbed, dmg;
+        // NOTE: was `let dealt, absorbed, dmg;` -- `absorbed` unused, dead
+        // (same pattern already cleaned up elsewhere in this codebase, e.g.
+        // area/mobarea.js, world/taskhandler.js, transition.js).
+        let dealt, dmg;
 
         dealt = ~~(entity.level * 12);
         dealt += (entity.stats.attack+entity.stats.mod.attack) * (6-Math.min(3, (entity.level * 0.1)));
@@ -42,7 +45,8 @@ class MobCombat {
     baseDamageDef() {
         const entity = this.entity;
 
-        let dealt, absorbed, dmg;
+        // NOTE: same unused `absorbed` removed here as in baseDamage() above.
+        let dealt, dmg;
 
         dealt = ~~(entity.level * 2);
         dealt += ((entity.stats.defense+entity.stats.mod.defense) * 2);

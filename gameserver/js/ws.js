@@ -300,7 +300,13 @@ WS.socketioConnection = class extends Connection {
                 self.closeCallback();
             }
             //self._connection.conn.close();
-            delete self._server.removeConnection(self.id);
+            // FIX: `delete` was applied to the return value of
+            // removeConnection() (a plain function call, not a property
+            // reference) -- a no-op that did nothing beyond what
+            // removeConnection() already does internally (it deletes the
+            // entry from this._connections itself). Harmless but misleading;
+            // call it directly.
+            self._server.removeConnection(self.id);
         });
     }
 

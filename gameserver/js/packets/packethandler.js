@@ -525,10 +525,25 @@ class PacketHandler {
             return;
         }
 
-        const x = parseInt(message[1]),
-            y = parseInt(message[2]);
-
-        if (!p.isWithinDist(x,y,24)) {
+        // FIX: this checked the player's distance against the
+        // CLIENT-SUPPLIED x/y (message[1]/message[2]) instead of the item
+        // entity's actual server-side position (item.x/item.y). A crafted
+        // CW_LOOT packet could set x/y to the player's own current
+        // position -- trivially passing isWithinDist() regardless of where
+        // the item entity actually was -- letting a client loot any item
+        // anywhere on the map just by knowing its entity id. Checking
+        // against the item's real, authoritative position closes that off;
+        // message[1]/message[2] are no longer needed once the check uses
+        // the entity itself.
+        // FIX: a subsequent edit changed this to `p.canReachEntity(item)`,
+        // but that method doesn't exist anywhere in the codebase (Player/
+        // Character only has `canReach()`, which is a weapon-attackRange
+        // check meant for combat, not a generic proximity helper) --
+        // every CW_LOOT packet would throw a TypeError here, breaking
+        // looting entirely. `isWithinDistEntity()` (entity/entity.js) is
+        // the real, existing helper for "is this entity within N pixels of
+        // me" and keeps the same 24px pickup radius as before.
+        if (!p.isWithinDistEntity(item, 24)) {
             console.info("Player is not close enough to item.")
             return;
         }
@@ -733,14 +748,12 @@ class PacketHandler {
         return damageObj;
     }
 
-// TODO - Fix entity vars.
-    // NOTE: pre-existing bug preserved from the original — this method references
-    // a bare `self` below that is never defined anywhere in this function (unlike
-    // handleAttack/handleHitEntity above, this method never does `var self =
-    // this;`). Under the old prototype-based Class.extend pattern this was just a
-    // plain method, not a closure nested inside init(), so it never had access to
-    // init()'s local `self` either — this would throw a ReferenceError at runtime
-    // in the original CommonJS version too.
+    // NOTE: the only remaining bare `self` reference in this method is inside
+    // the commented-out `//self.server.broadcastAttacker(sEntity);` line
+    // below -- dead code, never executed, so it can't throw. Every live
+    // statement here already correctly uses `this.` (this.server,
+    // this.player). Didn't find anything else "entity vars"-shaped wrong
+    // with sEntity/tEntity usage in this method on review.
     dealDamage(sEntity, tEntity, dmg, crit) {
         if (!tEntity) return;
 

@@ -22,11 +22,16 @@ class Transition {
 
           if (inc === 0) return;
 
-          const j = 0;
+          // NOTE: was `const j = 0;` here, unused -- dead code (nothing in
+          // this method ever reads it; same pattern already cleaned up in a
+          // handful of other files across this codebase, e.g.
+          // area/mobarea.js, world/taskhandler.js, data/skilldata.js,
+          // map/mapmanager.js).
           if(this.updateFunction) {
             const itCount = Math.abs(inc);
 
-            const start=0;
+            // NOTE: was `const start=0;` here too, unused -- same dead-code
+            // pattern as `j` above.
             const mod = (inc > 0) ? 1 : -1;
             for (let it=0; it < itCount; ++it)
             {
