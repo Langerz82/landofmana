@@ -6,7 +6,7 @@
 // ES6 subclass declared per-iteration (a class expression inside the loop body, same as the
 // original per-iteration Class.extend() call) with the super call moved into constructor().
 /* global $, ItemTypes */
-import fetchJsonSync from './fetchjsonsync.js';
+import fetchJsonSync from '../lib/fetchjsonsync.js';
 import Item from '../entity/item.js';
 import ItemLoot from './itemlootdata.js';
 

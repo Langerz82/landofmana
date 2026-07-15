@@ -1,6 +1,6 @@
 // Converted from AMD (define) + Class.extend to a native ES6 module/class.
 import Detect from './detect.js';
-import fetchJsonSync from './data/fetchjsonsync.js';
+import fetchJsonSync from './lib/fetchjsonsync.js';
 
 export default class Map {
     constructor(game, mapContainer) {

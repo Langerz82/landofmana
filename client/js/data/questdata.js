@@ -2,7 +2,7 @@
 // See data/fetchjsonsync.js for why jQuery's synchronous $.ajax is used here instead of fetch()/
 // JSON import attributes/Node's fs module.
 /* global Types, _ */
-import fetchJsonSync from './fetchjsonsync.js';
+import fetchJsonSync from '../lib/fetchjsonsync.js';
 
 const padding = function(val, size) {
     let s = val + "";

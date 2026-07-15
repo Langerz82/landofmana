@@ -4,7 +4,7 @@
 // this module expects a plain array export, not a Promise, so the JSON is loaded synchronously
 // via jQuery's AJAX ($.ajax with async: false) instead of fetch() - see data/fetchjsonsync.js.
 /* global $ */
-import fetchJsonSync from './fetchjsonsync.js';
+import fetchJsonSync from '../lib/fetchjsonsync.js';
 
 const Appearances = [];
 const appearanceParse = fetchJsonSync('shared/data/appearance.json');

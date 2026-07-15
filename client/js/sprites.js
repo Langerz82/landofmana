@@ -1,6 +1,6 @@
 // Converted from AMD (define) + Class.extend to a native ES6 module/class.
 /* global JSZipUtils, JSZip */
-import fetchJsonSync from './data/fetchjsonsync.js';
+import fetchJsonSync from './lib/fetchjsonsync.js';
 
 export default class Sprites {
       constructor(data) {

@@ -5,7 +5,7 @@ import Area from './area.js';
 import Detect from './detect.js';
 import Map from './map.js';
 import config from './config.js';
-import fetchJsonSync from './data/fetchjsonsync.js';
+import fetchJsonSync from './lib/fetchjsonsync.js';
 
 export default class MapContainer {
     constructor(game, mapIndex, mapName) {

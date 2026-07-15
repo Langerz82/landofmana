@@ -10,7 +10,7 @@
 // value (e.g. `define(['data/skilldata'], function(SkillData) {...})`), so scoping them to this
 // module only is safe.
 /* global Types */
-import fetchJsonSync from './fetchjsonsync.js';
+import fetchJsonSync from '../lib/fetchjsonsync.js';
 
 class EffectType {
     constructor(isTarget, phase, stat, modValue) {
