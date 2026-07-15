@@ -6,6 +6,7 @@ import ItemRoom from '../items/itemroom.js';
 import Messages from '../message.js';
 import ItemData from '../data/itemdata.js';
 import { ItemTypes } from '../common.js';
+import { G_TILESIZE } from '../main.js';
 
 class LootManager {
     constructor(world) {
@@ -18,7 +19,7 @@ class LootManager {
         if (itemLoot && itemLoot instanceof Item)
         {
             console.info("LOOT ITEM SENT!")
-            const pos = Utils.fixGridPosition(entity.x,entity.y);
+            const pos = Utils.fixGridPosition(G_TILESIZE, entity.x, entity.y);
             itemLoot.x = pos.x;
             itemLoot.y = pos.y;
             this.handleItemDespawn(itemLoot);
@@ -28,7 +29,7 @@ class LootManager {
         const item = this.getDroppedOrStolenItem(attacker, entity, 0);
         if (item && item instanceof Item)
         {
-            const pos = Utils.fixGridPosition(entity.x,entity.y);
+            const pos = Utils.fixGridPosition(G_TILESIZE, entity.x, entity.y);
             item.x = pos.x;
             item.y = pos.y;
             this.handleItemDespawn(item);

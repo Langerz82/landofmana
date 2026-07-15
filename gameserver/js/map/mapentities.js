@@ -427,7 +427,7 @@ class MapEntities {
     }
 
     addNpcStatic(kind, x, y) {
-        const pos = Utils.fixGridPosition(x, y);
+        const pos = Utils.fixGridPosition(G_TILESIZE, x, y);
         const npc = new NpcStatic(++this.entityCount, kind, pos.x, pos.y, this.map);
 
         this.addEntity(npc);
@@ -437,7 +437,7 @@ class MapEntities {
     }
 
     addNpcMove(kind, x, y) {
-        const pos = Utils.fixGridPosition(x, y);
+        const pos = Utils.fixGridPosition(G_TILESIZE, x, y);
         const npc = new NpcMove(++this.entityCount, kind, pos.x, pos.y, this.map);
 
         this.addEntity(npc);
