@@ -20,3 +20,7 @@ userserver/run.js
 
 tools/maps/converter/processmap.log
 client.zip
+
+client/shared
+gameserver/shared
+userserver/shared
