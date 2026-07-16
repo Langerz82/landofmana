@@ -52,6 +52,11 @@ class MobCallback {
             //console.info("x:"+x+",y:"+y);
             //console.info("onStopPathing - mob.id: "+this.id);
 
+            // TEMP-DEBUG: see the matching note in mob.js returnToSpawn()/
+            // returnedToSpawn(). This fires on every clean path completion,
+            // not just RETURNING ones -- filter the log for this mob's id.
+            console.info("RETURNING-DEBUG onStopPathing id="+this.id+" aiState="+this.aiState+" x="+x+" y="+y);
+
             if (this.aiState === mobState.RETURNING) {
                 this.returnedToSpawn();
                 //this.returningToSpawn = false;
@@ -82,6 +87,12 @@ class MobCallback {
             // implicit globals.
             const msg = new Messages.Move(this, this.orientation, 2, this.x, this.y);
             this.map.entities.sendNeighbours(this, msg);
+
+            // TEMP-DEBUG: see the matching note in mob.js returnToSpawn()/
+            // returnedToSpawn(). If this ever logs with aiState RETURNING,
+            // that's proof case 4 (interrupted return path) is actually
+            // reachable in live play, not just in theory.
+            console.info("RETURNING-DEBUG onAbortPathing id="+this.id+" aiState="+this.aiState+" x="+x+" y="+y);
 
             // FIX: this used to just `return` when a RETURNING mob's path
             // got aborted mid-walk (as opposed to completing cleanly, which

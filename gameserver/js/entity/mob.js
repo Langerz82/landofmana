@@ -371,7 +371,12 @@ class Mob extends Character {
         this.forgetEveryone();
         this.invincible = true;
         this.freeze = false;
+        // TEMP-DEBUG: tracking the "mob permanently stuck/unattackable" bug
+        // report -- grep server logs for "RETURNING-DEBUG" to see the full
+        // lifecycle of every RETURNING transition. Remove once root-caused.
+        console.info("RETURNING-DEBUG enter id="+this.id+" x="+this.x+" y="+this.y+" spawnX="+this.spawnX+" spawnY="+this.spawnY);
         if (this.x === this.spawnX && this.y === this.spawnY) {
+          console.info("RETURNING-DEBUG already-at-spawn id="+this.id);
           this.returnedToSpawn();
           return;
         }
@@ -379,8 +384,10 @@ class Mob extends Character {
         //this.returningToSpawn = true;
         //console.info("returnToSpawn - Path: "+JSON.stringify(this.path))
         //console.info("returnToSpawn - mob.id: "+this.id);
+        console.info("RETURNING-DEBUG path-requested id="+this.id+" pathLen="+(this.path ? this.path.length : 0));
         if (!this.path || this.path.length === 0) {
           try { throw new Error(); } catch(err) { console.error(err.stack); }
+          console.info("RETURNING-DEBUG no-path-fallback id="+this.id);
           this.returnedToSpawn();
         }
         //this.setAiState(mobState.RETURNING);
@@ -523,6 +530,11 @@ class Mob extends Character {
       console.info("mob.returnedToSpawn");
       //console.warn("mob.returnedToSpawn: mob id "+this.id+", actual delay:"+(Date.now()-this.startReturn));
       console.info("st - id="+this.id+",x="+this.spawnX+",y="+this.spawnY);
+      // TEMP-DEBUG: pairs with the "RETURNING-DEBUG enter" log in
+      // returnToSpawn() -- every "enter" should be followed by an "exit"
+      // shortly after. A mob id that shows "enter" but never "exit" is the
+      // stuck-mob bug caught in the act.
+      console.info("RETURNING-DEBUG exit id="+this.id+" aiState="+this.aiState+" x="+this.x+" y="+this.y);
       if (!(this.x == this.spawnX && this.y === this.spawnY)) {
         //console.error("mob, returnedToSpawn: incorrect spawn coords.");
         //console.error("mob, returnedToSpawn: sx:"+this.spawnX+", sy:"+this.spawnY);
