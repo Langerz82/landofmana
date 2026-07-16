@@ -9,7 +9,7 @@ import _ from 'underscore';
 import MobData from '../data/mobdata.js';
 import ItemData from '../data/itemdata.js';
 import ItemLootData from '../data/itemlootdata.js';
-import { mobState, G_TILESIZE } from '../main.js';
+import { mobState, G_TILESIZE, G_DEBUG } from '../main.js';
 import Player from './player.js';
 
 /* global _, Player */
@@ -282,13 +282,18 @@ class Mob extends Character {
     // locals -- `hateRank` has never had a caller (the only call site,
     // handleMobHate() below, always calls this with no argument), and
     // `i`/`playerId`/`size` were never read anywhere in the body.
+    // PERF: this only ever needs the single highest-hate entry but was
+    // allocating a new array and doing a full O(n log n) sort to get it.
+    // Called from handleMobHate() -- i.e. on every hit landed on an
+    // aggro'd mob. A single O(n) scan for the max is equivalent and
+    // avoids the allocation + sort on that hot path.
     getMostHated() {
-        const sorted = _.sortBy(this.hatelist, function(obj) { return obj.hate; });
-
-        if(sorted && sorted.length > 0) {
-            return sorted[sorted.length - 1].entity;
+        let best = null;
+        for (const obj of this.hatelist) {
+            if (!best || obj.hate > best.hate)
+                best = obj;
         }
-        return null;
+        return best ? best.entity : null;
     }
 
     forgetPlayer(playerId) {
@@ -327,7 +332,13 @@ class Mob extends Character {
     respawn() {
       if (this.area && this.area instanceof MobArea) {
         const	pos = this.map.entities.spaceEntityRandomApart(3, this.area._getRandomPositionInsideArea.bind(this.area,100));
-        console.warn("mob, handleRespawn - id:"+this.id+", pos:"+JSON.stringify(pos));
+        // PERF: fires on every mob respawn across every mob area on the
+        // map -- respawn volume during active farming/combat isn't
+        // negligible (this server targets ~875 mobs across 51 areas, see
+        // G_SPATIAL_SIZE in main.js). JSON.stringify + unconditional
+        // console.warn on that path is pure diagnostic cost; gate it.
+        if (G_DEBUG)
+            console.warn("mob, handleRespawn - id:"+this.id+", pos.x:"+(pos && pos.x)+", pos.y:"+(pos && pos.y));
         if (pos) {
           this.setPosition(pos.x, pos.y);
         }
@@ -374,9 +385,17 @@ class Mob extends Character {
         // TEMP-DEBUG: tracking the "mob permanently stuck/unattackable" bug
         // report -- grep server logs for "RETURNING-DEBUG" to see the full
         // lifecycle of every RETURNING transition. Remove once root-caused.
-        console.info("RETURNING-DEBUG enter id="+this.id+" x="+this.x+" y="+this.y+" spawnX="+this.spawnX+" spawnY="+this.spawnY);
+        // PERF: returnToSpawn() fires routinely under real combat load
+        // (every kill, retreat, or line-of-sight loss with an aggro'd mob),
+        // so these were left unconditional even though they're the same
+        // per-event debug logging the rest of the codebase gates behind
+        // G_DEBUG. The no-path fallback also paid for a throw/catch purely
+        // to capture a stack trace on a path that isn't an actual error.
+        if (G_DEBUG)
+            console.info("RETURNING-DEBUG enter id="+this.id+" x="+this.x+" y="+this.y+" spawnX="+this.spawnX+" spawnY="+this.spawnY);
         if (this.x === this.spawnX && this.y === this.spawnY) {
-          console.info("RETURNING-DEBUG already-at-spawn id="+this.id);
+          if (G_DEBUG)
+              console.info("RETURNING-DEBUG already-at-spawn id="+this.id);
           this.returnedToSpawn();
           return;
         }
@@ -384,10 +403,13 @@ class Mob extends Character {
         //this.returningToSpawn = true;
         //console.info("returnToSpawn - Path: "+JSON.stringify(this.path))
         //console.info("returnToSpawn - mob.id: "+this.id);
-        console.info("RETURNING-DEBUG path-requested id="+this.id+" pathLen="+(this.path ? this.path.length : 0));
+        if (G_DEBUG)
+            console.info("RETURNING-DEBUG path-requested id="+this.id+" pathLen="+(this.path ? this.path.length : 0));
         if (!this.path || this.path.length === 0) {
-          try { throw new Error(); } catch(err) { console.error(err.stack); }
-          console.info("RETURNING-DEBUG no-path-fallback id="+this.id);
+          if (G_DEBUG) {
+              try { throw new Error(); } catch(err) { console.error(err.stack); }
+              console.info("RETURNING-DEBUG no-path-fallback id="+this.id);
+          }
           this.returnedToSpawn();
         }
         //this.setAiState(mobState.RETURNING);
@@ -527,14 +549,19 @@ class Mob extends Character {
     }
 
     returnedToSpawn() {
-      console.info("mob.returnedToSpawn");
-      //console.warn("mob.returnedToSpawn: mob id "+this.id+", actual delay:"+(Date.now()-this.startReturn));
-      console.info("st - id="+this.id+",x="+this.spawnX+",y="+this.spawnY);
       // TEMP-DEBUG: pairs with the "RETURNING-DEBUG enter" log in
       // returnToSpawn() -- every "enter" should be followed by an "exit"
       // shortly after. A mob id that shows "enter" but never "exit" is the
       // stuck-mob bug caught in the act.
-      console.info("RETURNING-DEBUG exit id="+this.id+" aiState="+this.aiState+" x="+this.x+" y="+this.y);
+      // PERF: fires on every mob that returns to spawn -- a routine, high
+      // frequency event under real combat load. Gated behind G_DEBUG like
+      // the rest of this per-event debug logging.
+      if (G_DEBUG) {
+          console.info("mob.returnedToSpawn");
+          //console.warn("mob.returnedToSpawn: mob id "+this.id+", actual delay:"+(Date.now()-this.startReturn));
+          console.info("st - id="+this.id+",x="+this.spawnX+",y="+this.spawnY);
+          console.info("RETURNING-DEBUG exit id="+this.id+" aiState="+this.aiState+" x="+this.x+" y="+this.y);
+      }
       if (!(this.x == this.spawnX && this.y === this.spawnY)) {
         //console.error("mob, returnedToSpawn: incorrect spawn coords.");
         //console.error("mob, returnedToSpawn: sx:"+this.spawnX+", sy:"+this.spawnY);
@@ -548,7 +575,12 @@ class Mob extends Character {
 
     handleMobHate(tEntity, hatePoints)
     {
-        console.info("handleMobHate");
+        // PERF: fires on every successful hit landed on any mob -- the
+        // single highest-frequency combat event in the game. Every other
+        // per-hit log site in this codebase is gated behind G_DEBUG for
+        // exactly this reason; this one was missed.
+        if (G_DEBUG)
+            console.info("handleMobHate");
         if (tEntity && tEntity instanceof Player)
         {
             this.increaseHateFor(tEntity, hatePoints);

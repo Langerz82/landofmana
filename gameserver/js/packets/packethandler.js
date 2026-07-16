@@ -1231,8 +1231,15 @@ class PacketHandler {
         // `message` itself as the ids list.
         const ids = (message[0] && message[0].length > 0) ? message[0] : [];
 
-        for (const id of ids)
-            Utils.removeFromArray(this.player.knownIds, Number(id));
+        // PERF: Utils.removeFromArray() is indexOf+splice, O(n) per call.
+        // Calling it once per id against the same knownIds array made this
+        // O(n*m) (n = knownIds size, m = ids to remove) -- and knownIds is
+        // "the single most frequently invoked query in the game" per the
+        // processWho comments elsewhere in this file. A CW_WHO request can
+        // carry dozens-to-hundreds of stale ids at once (map transitions).
+        // Build a Set of ids to drop and do a single filter() pass instead.
+        const removeSet = new Set(ids.map(Number));
+        this.player.knownIds = this.player.knownIds.filter((id) => !removeSet.has(id));
     }
 
     handleHarvest(msg) {
