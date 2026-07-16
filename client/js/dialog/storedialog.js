@@ -86,7 +86,8 @@ class StoreRack {
               this.extra.text(itemName);
             }
 
-            this.price.text(Utils.getNumShortHand(item.buyPrice));
+            const price = ItemTypes.getBuyPrice(item.kind);
+            this.price.text(Utils.getNumShortHand(price));
         }
 }
 
