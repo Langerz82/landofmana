@@ -404,7 +404,17 @@ class WorldHandler {
           checkPlayerSaved(playerName);
         });
 
-        DBH.saveItems(playerName, 1, "bank", data[5], function (playerName) {
+        // REFACTOR: bank is account-level now (u:<username> "bank" field,
+        // shared across every character on the account) instead of
+        // per-character -- see redis.js's loadUserBank()/saveUserBank()/
+        // migrateBankToUser() for the full rationale. `playerName` is
+        // still passed through (in addition to `username`) since
+        // saveUserBank() needs it as the fallback key for an account
+        // migrateBankToUser() left on its old per-character bank storage
+        // (too many combined bank items to fit one shared bank). Note
+        // checkPlayerSaved() below needs the closure's `playerName`
+        // regardless, not whatever this callback gets handed back.
+        DBH.saveUserBank(username, playerName, data[5], function () {
           checkPlayerSaved(playerName);
         });
 
@@ -602,8 +612,19 @@ class WorldHandler {
         data = self.handleCreatePlayerItems(playerName);
         checkLoadDataFull(4, data);
 
-        data = self.handleCreatePlayerItems(playerName);
-        checkLoadDataFull(5, data);
+        // BANK -- account-level now; a brand-new character should see
+        // whatever's already in the shared account bank (other characters
+        // on this same account may already have items in it), not start
+        // with an empty default the way a genuinely new inventory/
+        // equipment loadout does. redis.js's loadUserBank() always calls
+        // back (even for a brand-new account with no "bank" field yet,
+        // defaulting to "[]") so this can't hang this create-handshake the
+        // way handleCreatePlayerItems()'s synchronous "[]" never could
+        // anyway, but the way loadItems()'s "silently skip if missing"
+        // convention would have.
+        DBH.loadUserBank(username, playerName, function (username, db_data) {
+          checkLoadDataFull(5, db_data);
+        });
 
         data = self.handleCreatePlayerItems(playerName);
         checkLoadDataFull(6, data);
@@ -735,8 +756,12 @@ class WorldHandler {
         DBH.loadItems(playername, 0, "inventory", function (playername, db_data) {
           checkLoadDataFull(4, db_data);
         });
-        // BANK
-        DBH.loadItems(playername, 1, "bank", function (playername, db_data) {
+        // BANK -- account-level now; see redis.js's loadUserBank() for why
+        // this needs both `username` (the shared-bank key) and
+        // `playername` (the legacy per-character fallback key, used if
+        // migrateBankToUser() left this account on its old per-character
+        // bank storage).
+        DBH.loadUserBank(username, playername, function (username, db_data) {
           checkLoadDataFull(5, db_data);
         });
         // EQUIPMENT

@@ -7,6 +7,17 @@ import bcrypt from "bcrypt";
 
 let client;
 
+// Bank capacity -- matches userserver/js/format.js's getItemSlots(1) (type
+// 1 = bank -> 96 slots). Duplicated here rather than imported since this
+// file already duplicates small cross-cutting constants like this rather
+// than reaching into format.js's validation layer (which is a different
+// concern -- payload shape/range checking -- from this file's plain
+// Redis reads/writes). Used by migrateBankToUser() below to decide whether
+// an account's combined per-character bank items fit in one shared bank
+// at the same size the gameserver/format.js already enforce per
+// character.
+const bankSlots = 96;
+
 const hgetarray = function (hash, key, callback) {
   if (Array.isArray(key)) {
     const m = client.multi();
@@ -80,19 +91,23 @@ class DatabaseHandler {
 
     //this.replaceSkills();
 
-    // Gold field migration -- unlike removeOldValues()/insertMissingPlayerKeys()
-    // above, this is NOT gated behind a config flag. Those are opt-in
-    // housekeeping; this one guarantees every player's currency is on the
-    // gold_0/gold_1 fields before anything can touch it, so it always runs,
+    // Startup migrations -- unlike removeOldValues()/insertMissingPlayerKeys()
+    // above, neither of these is gated behind a config flag. Those are
+    // opt-in housekeeping; these guarantee player data is on the current
+    // storage scheme before anything can touch it, so they always run,
     // every startup. Constructing a DatabaseHandler is now the single place
-    // that kicks this off -- no call site elsewhere can forget to run it.
+    // that kicks both off -- no call site elsewhere can forget to run them.
     //
-    // A constructor can't be awaited, so the in-progress migration is handed
-    // back as a Promise instead of a constructor callback: main.js does
-    // `await global.DBH.migrationReady` right after `new DatabaseHandlerClass(config)`
-    // and doesn't proceed to accept connections until it resolves (rejects
-    // straight through if migrateGoldFields() reports an error).
-    this.migrationReady = new Promise((resolve, reject) => {
+    // A constructor can't be awaited, so the in-progress migrations are
+    // handed back as a single Promise instead of a constructor callback:
+    // main.js does `await global.DBH.migrationReady` right after
+    // `new DatabaseHandlerClass(config)` and doesn't proceed to accept
+    // connections until both resolve (rejects straight through if either
+    // migrateGoldFields() or migrateBankToUser() reports an error). The two
+    // run concurrently via Promise.all -- they touch disjoint fields
+    // (gold_0/gold_1 vs. bank) and neither reads anything the other writes,
+    // so there's no ordering dependency between them.
+    const goldMigration = new Promise((resolve, reject) => {
       this.migrateGoldFields((err) => {
         if (err) {
           reject(err);
@@ -101,6 +116,16 @@ class DatabaseHandler {
         }
       });
     });
+    const bankMigration = new Promise((resolve, reject) => {
+      this.migrateBankToUser((err) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve();
+        }
+      });
+    });
+    this.migrationReady = Promise.all([goldMigration, bankMigration]);
   }
 
   replaceSkills() {
@@ -746,14 +771,18 @@ class DatabaseHandler {
 
   // ITEMS - BEGIN. New item store functions.
 
-  // FIX: worldhandler.js's 3 call sites (inventory/bank/equipment) briefly
-  // passed a 5th "maxNumber" argument -- (playername, type, storeType,
-  // maxNumber, callback) -- while this only declared 4 params, which
-  // silently bound maxNumber (e.g. 50) to this method's `callback` parameter
-  // and dropped the real callback function entirely, throwing "callback is
-  // not a function" on every player login. worldhandler.js's call sites no
-  // longer pass maxNumber (it was never used here anyway), so this stays at
-  // 4 params to match.
+  // FIX: worldhandler.js's call sites (inventory/bank/equipment, back when
+  // all three were per-character) briefly passed a 5th "maxNumber" argument
+  // -- (playername, type, storeType, maxNumber, callback) -- while this
+  // only declared 4 params, which silently bound maxNumber (e.g. 50) to
+  // this method's `callback` parameter and dropped the real callback
+  // function entirely, throwing "callback is not a function" on every
+  // player login. worldhandler.js's call sites no longer pass maxNumber (it
+  // was never used here anyway), so this stays at 4 params to match.
+  //
+  // REFACTOR: bank moved to the account level (see loadUserBank()/
+  // saveUserBank()/migrateBankToUser() below) -- this is now only used for
+  // inventory and equipment, both still genuinely per-character.
   loadItems(playerName, type, storeType, callback) {
     const pKey = "p:" + playerName;
 
@@ -783,6 +812,300 @@ class DatabaseHandler {
       }
       if (callback) {
         callback(playerName);
+      }
+    });
+  }
+
+  // BANK -- account-level (u:<username> "bank" field) for accounts
+  // migrateBankToUser() below was able to merge, not per-character. A user
+  // can have up to maxPlayersPerUser (format.js) characters, and bank is
+  // meant to be shared across all of them rather than siloed per character
+  // the way inventory/equipment (loadItems()/saveItems() above) still are.
+  // See migrateBankToUser() below for the one-time migration that
+  // consolidates each account's existing per-character bank contents into
+  // this shared field, and worldhandler.js's createPlayerToWorld()/
+  // sendPlayerToWorld()/handleSavePlayerData() for the call sites.
+  //
+  // Not every account necessarily ends up on the shared field, though:
+  // migrateBankToUser() refuses to merge (and leaves the "bank" field
+  // unset) for an account whose characters' combined bank items don't fit
+  // in one shared bank -- see the FIX comment on mergeAndWrite() there.
+  // loadUserBank()/saveUserBank() both need `playerName` (in addition to
+  // `username`) so they can fall back to that one character's own
+  // p:<playerName> "bank" field in that case -- the account keeps working
+  // exactly as it did before this refactor, just without the
+  // shared-across-characters convenience.
+  //
+  // FIX: unlike loadItems() -- which is only ever called for a character
+  // that's always already had "[]" (or real item JSON) saved for it --
+  // this can legitimately be called for a brand-new user account with no
+  // "bank" field yet (the very first character ever created on that
+  // account, in createPlayerToWorld()). Silently not calling back on
+  // missing data (loadItems()'s convention, meant for data that should
+  // always already exist) would hang that character's create handshake
+  // forever (checkLoadDataFull() would never reach its count of 7), so
+  // this always calls back, defaulting to an empty bank rather than
+  // treating "no bank yet" as an error.
+  loadUserBank(username, playerName, callback) {
+    const uKey = "u:" + username;
+
+    client.hget(uKey, "bank", (err, data) => {
+      if (err) {
+        console.warn("redis.loadUserBank: " + JSON.stringify(err));
+      }
+
+      if (data != null) {
+        // Migrated -- the shared account-level bank is the source of
+        // truth for this account.
+        if (callback) {
+          callback(username, data);
+        }
+        return;
+      }
+
+      // No account-level bank yet: either this account hasn't been
+      // migrated (migrateBankToUser() runs at every startup, so in
+      // practice this means it just aborted the merge for this account --
+      // see the FIX comment on mergeAndWrite() below), or this is a
+      // brand-new account with no characters at all yet. Either way, this
+      // character's own pre-existing p:<playerName> "bank" field is the
+      // right place to read from, so nothing appears to have vanished.
+      const pKey = "p:" + playerName;
+      client.hget(pKey, "bank", (err2, legacyData) => {
+        if (err2) {
+          console.warn("redis.loadUserBank (legacy fallback): " + JSON.stringify(err2));
+        }
+        if (callback) {
+          callback(username, legacyData || "[]");
+        }
+      });
+    });
+  }
+
+  saveUserBank(username, playerName, data, callback) {
+    const uKey = "u:" + username;
+
+    // Save wherever the matching loadUserBank() call would read from, so
+    // the two stay consistent for an account migrateBankToUser() left on
+    // the legacy per-character scheme -- see the comment above
+    // loadUserBank() for why that can happen.
+    client.hget(uKey, "bank", (err, existing) => {
+      if (err) {
+        console.warn("redis.saveUserBank: " + JSON.stringify(err));
+      }
+
+      const key = (existing != null) ? uKey : ("p:" + playerName);
+
+      console.info("saveUserBank: " + data);
+      client.hset(key, "bank", data, (err2, replies) => {
+        if (err2 || !data || data === "") {
+          console.warn(err2);
+          console.warn(JSON.stringify(replies));
+          console.warn(JSON.stringify(data));
+          return;
+        }
+        if (callback) {
+          callback(username);
+        }
+      });
+    });
+  }
+
+  // One-time (idempotent, re-run-safe) migration: consolidates every user's
+  // existing per-character bank contents (p:<playerName> "bank" field, one
+  // per character) into the new shared account-level bank (u:<username>
+  // "bank" field) -- see the REFACTOR comment on loadItems() and the
+  // comment on loadUserBank()/saveUserBank() above for why bank moved to
+  // the account level. Runs automatically at every startup (see
+  // migrationReady in the constructor, same "blocking, before accepting
+  // connections" pattern as migrateGoldFields()), and is safe to run
+  // repeatedly: any user that already has a "bank" field is left
+  // untouched, so accounts already migrated on a previous startup (or
+  // created fresh straight into the new scheme) are skipped.
+  //
+  // Merge strategy (an explicit product decision, not a default picked
+  // here): every character's bank items are combined into the one shared
+  // bank, in the order the characters appear in the user's "players" list
+  // (i.e. creation order). Re-slotting (each item's slot renumbered
+  // sequentially starting from 0) only happens when there are 2 or more
+  // characters -- that's the only case where it's actually needed, since
+  // each character independently used its own 0..(bankSlots-1) slot
+  // numbering, so simply concatenating raw items from more than one
+  // character would collide multiple characters' items onto the same slot
+  // number. A single-character account has no such collision risk (that
+  // character's own slot numbering is already valid and collision-free),
+  // so its items are carried over with their existing slots untouched.
+  //
+  // FIX: this used to merge unconditionally and drop (with a log) any
+  // items beyond the bankSlots (96) cap -- silently discarding a player's
+  // items on a routine startup migration is a real data-loss risk. Instead,
+  // the combined item count across every character is checked against
+  // bankSlots *before* anything is merged: if it doesn't fit, this
+  // account's migration is aborted outright (nothing is written, "bank"
+  // stays unset) rather than truncated. loadUserBank()/saveUserBank()
+  // above both fall back to each character's own pre-existing
+  // p:<playerName> "bank" field whenever the account has no merged "bank"
+  // field, so an aborted account keeps working exactly as it did before
+  // this refactor -- it just doesn't get the shared-across-characters
+  // bank until it no longer needs the fallback. Since the "already
+  // migrated" skip check above is the "bank" field's presence, an aborted
+  // account is retried automatically on every subsequent startup, so one
+  // that later drops enough items to fit gets merged on a future restart
+  // with no manual intervention.
+  //
+  // Same client.keys(...) full-keyspace scan caveat as
+  // removeOldValues()/insertMissingPlayerKeys()/migrateGoldFields() above:
+  // blocks the single-threaded Redis server for O(N) key count, and this
+  // one is heavier still (one extra read per character, not just per
+  // user) -- fine at the account/character counts this codebase has run
+  // with, would want cursor-based SCAN instead of KEYS at much larger
+  // scale.
+  //
+  // `callback(err)` fires once every user has been checked (err is null on
+  // success).
+  migrateBankToUser(callback) {
+    client.keys('u:*', (err, userKeys) => {
+      if (err) {
+        if (callback) callback(err);
+        return;
+      }
+
+      if (userKeys.length === 0) {
+        console.info("migrateBankToUser: no users found, nothing to migrate.");
+        if (callback) callback(null);
+        return;
+      }
+
+      let remaining = userKeys.length;
+      let migratedCount = 0;
+      let abortedCount = 0;
+      let firstError = null;
+
+      const checkDone = () => {
+        remaining--;
+        if (remaining === 0) {
+          console.info("migrateBankToUser: complete -- migrated " + migratedCount +
+            " of " + userKeys.length + " user(s), " + abortedCount +
+            " left on the legacy per-character bank (too many combined items to fit one shared bank).");
+          if (callback) callback(firstError);
+        }
+      };
+
+      for (const uKey of userKeys) {
+        client.multi()
+          .hget(uKey, "bank")
+          .hget(uKey, "players")
+          .exec((err, raw) => {
+            if (err) {
+              console.error("migrateBankToUser: read failed for " + uKey + ": " + JSON.stringify(err));
+              firstError = firstError || err;
+              checkDone();
+              return;
+            }
+
+            const [existingBank, playersCsv] = raw;
+
+            if (existingBank != null) {
+              // Already on the new field -- nothing to migrate.
+              checkDone();
+              return;
+            }
+
+            const playerNames = (typeof playersCsv === 'string' && playersCsv !== '')
+              ? playersCsv.split(',')
+              : [];
+
+            if (playerNames.length === 0) {
+              // No characters at all yet -- nothing to merge, just seed an
+              // empty shared bank so this account counts as migrated.
+              client.hset(uKey, "bank", "[]", (err) => {
+                if (err) {
+                  console.error("migrateBankToUser: write failed for " + uKey + ": " + JSON.stringify(err));
+                  firstError = firstError || err;
+                } else {
+                  migratedCount++;
+                }
+                checkDone();
+              });
+              return;
+            }
+
+            let playersRemaining = playerNames.length;
+            const perPlayerBanks = new Array(playerNames.length);
+
+            const mergeAndWrite = () => {
+              // Check the combined total *before* merging anything -- see
+              // the FIX comment above migrateBankToUser() for why this
+              // aborts rather than truncates when it doesn't fit.
+              const totalItems = perPlayerBanks.reduce((sum, items) => sum + items.length, 0);
+
+              if (totalItems > bankSlots) {
+                console.warn("migrateBankToUser: " + uKey + " has " + totalItems +
+                  " combined bank item(s) across " + playerNames.length +
+                  " character(s), more than the " + bankSlots + "-slot shared " +
+                  "bank can hold -- leaving this account on its existing " +
+                  "per-character bank storage instead of merging.");
+                abortedCount++;
+                checkDone();
+                return;
+              }
+
+              let merged;
+              if (playerNames.length >= 2) {
+                // 2+ characters -- re-slot every item sequentially starting
+                // from 0 across all of them combined. item[0] was that
+                // character's own independent slot index, which would
+                // otherwise collide with an item already placed from an
+                // earlier character in this same merge.
+                merged = [];
+                for (const items of perPlayerBanks) {
+                  for (const item of items) {
+                    merged.push([merged.length, ...item.slice(1)]);
+                  }
+                }
+              } else {
+                // Exactly one character -- nothing to collide with, so its
+                // existing slot numbering is carried over unchanged.
+                merged = perPlayerBanks[0].slice();
+              }
+
+              client.hset(uKey, "bank", JSON.stringify(merged), (err) => {
+                if (err) {
+                  console.error("migrateBankToUser: write failed for " + uKey + ": " + JSON.stringify(err));
+                  firstError = firstError || err;
+                } else {
+                  migratedCount++;
+                }
+                checkDone();
+              });
+            };
+
+            playerNames.forEach((playerName, i) => {
+              client.hget("p:" + playerName, "bank", (err, bankJson) => {
+                if (err) {
+                  console.error("migrateBankToUser: read failed for p:" + playerName + ": " + JSON.stringify(err));
+                }
+
+                let items = [];
+                if (typeof bankJson === 'string' && bankJson !== '') {
+                  try {
+                    const parsed = JSON.parse(bankJson);
+                    if (Array.isArray(parsed)) {
+                      items = parsed;
+                    }
+                  } catch (parseErr) {
+                    console.warn("migrateBankToUser: p:" + playerName + "'s bank JSON was invalid, treating as empty: " + parseErr.message);
+                  }
+                }
+                perPlayerBanks[i] = items;
+
+                playersRemaining--;
+                if (playersRemaining === 0) {
+                  mergeAndWrite();
+                }
+              });
+            });
+          });
       }
     });
   }
