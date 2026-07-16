@@ -388,7 +388,7 @@ class WorldHandler {
           checkPlayerSaved(playerName);
         });
 
-        DBH.savePlayerInfo(playerName, data[1], function (playerName) {
+        Accounts.savePlayerInfo(playerName, data[1], function (playerName) {
           checkPlayerSaved(playerName);
         });
 
@@ -499,7 +499,18 @@ class WorldHandler {
         "0,0,0,0",                           // map
         "2,2,2,2,2,0",                       // stats
         "0,0,0,0,0,0,0,0,0,0",               // exps
-        "0,0",                               // gold
+        // REFACTOR: gold_0/gold_1 are two flat elements now, not a CSV
+        // string and not a nested [gold0, gold1] array either -- this array
+        // is sent straight to the gameserver as the initial in-memory
+        // player data for a brand-new player (see createPlayerToWorld()
+        // below and gameserver's userhandler.js handleLoadPlayerInfo(),
+        // which expects gold_0/gold_1 at these two flat positions). A
+        // hardcoded "0,0" string here would have been silently misread as
+        // per-character array access (db_player.gold[0]/[1] on a string) on
+        // the gameserver side -- only happened to still work by coincidence
+        // because both digits are "0".
+        0,                                    // gold_0
+        0,                                    // gold_1
         "0,0,0,0,0,0,0",                     // skills
         "0,0",                               // pStats
         "77,0,151,50",                       // sprites

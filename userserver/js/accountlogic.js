@@ -20,33 +20,6 @@
 // exports from common.js (Types, Utils) or runtime-populated globals owned
 // by main.js (users), not a circular import back to this file.
 
-// FIX: moved here from redis.js's loadPlayerInfo() -- see loadPlayerInfo()
-// below for how it's used. Repairs a malformed "gold" field (wrong field
-// count, non-numeric entries, or the literal text "NaN") before it's ever
-// handed to a gameserver. A prior bug in modifyGold()'s Lua script (see
-// redis.js) could corrupt this field into an uneven-field-count CSV string
-// (e.g. "100,,50,"), and once a gameserver loaded that malformed data, an
-// in-memory NaN on its side could round-trip straight back here as the
-// literal text "NaN" on the next save -- producing the
-// "field 1: Invalid input: expected number, received NaN"
-// WU_SAVE_PLAYER_DATA validation failure. Note: if a field was already
-// corrupted, its real prior value is unrecoverable at this point (it was
-// already overwritten upstream), so this resets that field to 0 rather
-// than restoring lost gold.
-const sanitizeGoldField = (raw) => {
-  const parts = (typeof raw === 'string' ? raw.split(',') : []);
-  let changed = (parts.length !== 2);
-  const clean = [0, 1].map((i) => {
-    const n = parseInt(parts[i], 10);
-    if (!Number.isFinite(n) || n < 0) {
-      changed = true;
-      return 0;
-    }
-    return n;
-  });
-  return { value: clean.join(','), changed };
-};
-
 class AccountLogic {
   constructor(dbh) {
     this.dbh = dbh;
@@ -396,24 +369,71 @@ class AccountLogic {
     });
   }
 
-  // FIX: see sanitizeGoldField() above -- repair a malformed "gold" field
-  // before it's ever handed to a gameserver, and persist the repair back to
-  // Redis (via setPlayerGold()) so this doesn't need to be re-detected on
-  // every subsequent load. This decision used to live inline in redis.js's
-  // loadPlayerInfo(); that method now just hands back raw hget results.
+  // FIX: this used to run a repair pass (sanitizeGoldField()) here,
+  // clamping a negative gold_0/gold_1 back to 0 and persisting the repair
+  // via setPlayerGold(). Removed -- there's no remaining path that can ever
+  // put a negative value into gold_0/gold_1 in the first place:
+  //   - The only full-write path, savePlayerInfo() below, is gated by
+  //     userserver/js/format.js's WU_SAVE_PLAYER_DATA check (msg[4] is
+  //     validated as a [number>=0, number>=0] tuple) *before*
+  //     worldhandler.js ever calls this class's savePlayerInfo() -- a save
+  //     with a negative gold value fails that check and the whole
+  //     connection gets closed, so the negative value never reaches Redis
+  //     at all.
+  //   - The only other direct mutation, modifyGold()'s HINCRBY (redis.js),
+  //     is called from exactly one place (transferOfflineGold() above) with
+  //     an amount that's already clamped to >= 0 by
+  //     addPlayerGoldOffline()'s own clamp -- it can only add, never
+  //     subtract, so it can't be the source of a negative value either.
+  // (The gameserver-side race this used to guard against -- two
+  // near-simultaneous shop purchases both passing playeritems.js's
+  // in-memory affordability check before either lands -- can still produce
+  // a negative value in the gameserver's own in-memory gold, but that
+  // negative value just fails the format check above and the whole save is
+  // rejected; it never makes it into Redis as a silently-corrupted value.)
+  //
+  // REFACTOR: gold_0/gold_1 are two flat elements (indices 4,5) all the way
+  // through now -- the WU_SAVE_PLAYER_DATA wire format (gameserver's
+  // worldhandler.js), this record, and redis.js's raw storage shape are all
+  // exactly the same 12-element layout (name, map, stats, exps, gold_0,
+  // gold_1, skills, pStats, sprites, colors, shortcuts, completeQuests), so
+  // there's no reshaping left to do at all -- redis.js's loadPlayerInfo()
+  // hands `raw` straight back as `data` here. The one thing still needed is
+  // turning gold_0/gold_1 from Redis's raw hget strings into real numbers
+  // (Redis has no numeric type -- everything comes back as a string or
+  // null), which is why this function still exists rather than being a bare
+  // passthrough to this.dbh.loadPlayerInfo().
   loadPlayerInfo(playerName, callback) {
-    this.dbh.loadPlayerInfo(playerName, (playername, data) => {
-      const goldFix = sanitizeGoldField(data[4]);
-      if (goldFix.changed) {
-        console.warn("AccountLogic.loadPlayerInfo - repairing malformed gold field for '" + playername + "': " + JSON.stringify(data[4]) + " -> " + goldFix.value);
-        this.dbh.setPlayerGold(playername, goldFix.value);
-      }
-      data[4] = goldFix.value;
+    this.dbh.loadPlayerInfo(playerName, (playername, raw) => {
+      const data = raw.slice();
+      data[4] = parseInt(raw[4], 10) || 0;
+      data[5] = parseInt(raw[5], 10) || 0;
 
       if (callback) {
         callback(playername, data);
       }
     });
+  }
+
+  // FIX: replaced a broken first attempt at this that referenced two
+  // variables -- `index`, `colors` -- that didn't exist anywhere in this
+  // function's scope, so calling it threw a ReferenceError immediately. It
+  // also called the bare `DBH` global instead of the constructor-injected
+  // `this.dbh` every other method in this class goes through (see the
+  // class-level comment above -- the whole point of injecting `dbh` is that
+  // this class never touches a raw client/global directly).
+  //
+  // REFACTOR: `data` arrives here in the WU_SAVE_PLAYER_DATA wire shape the
+  // gameserver builds (gameserver/js/user/worldhandler.js) -- gold_0/gold_1
+  // are two flat elements (data[4], data[5]) now, matching every other field
+  // in this record and matching redis.js's raw storage shape 1:1, so there's
+  // no reshaping left to do here either -- this is now a plain passthrough
+  // to this.dbh.savePlayerInfo(). worldhandler.js still calls this method
+  // (not DBH.savePlayerInfo() directly), keeping the same call path in case
+  // this ever needs real business logic again, the way loadPlayerInfo()
+  // above still does.
+  savePlayerInfo(playerName, data, callback) {
+    this.dbh.savePlayerInfo(playerName, data, callback);
   }
 }
 

@@ -212,13 +212,22 @@ class UserHandler {
             "map": msg[1].split(","),
             "stats": msg[2].split(","),
             "exps": msg[3].split(","),
-            "gold": msg[4].split(","),
-            "skills": msg[5].split(","),
-            "pStats": msg[6].split(","),
-            "sprites": msg[7].split(","),
-            "colors": msg[8].split(","),
-            "shortcuts": msg[9],
-            "completeQuests": msg[10]
+            // REFACTOR: userserver now sends gold_0/gold_1 as two flat
+            // elements (msg[4], msg[5]) instead of a CSV string or a nested
+            // [gold0, gold1] array -- see the REFACTOR comment on
+            // AccountLogic.loadPlayerInfo()/savePlayerInfo()
+            // (userserver/js/accountlogic.js) for the full trail. Wrapped
+            // into a small array here purely for fillPlayerInfo()'s
+            // convenience (player.js reads db_player.gold[0]/[1]); nothing
+            // left to split. Every field below is shifted one index later
+            // than before to make room for the extra top-level element.
+            "gold": [msg[4], msg[5]],
+            "skills": msg[6].split(","),
+            "pStats": msg[7].split(","),
+            "sprites": msg[8].split(","),
+            "colors": msg[9].split(","),
+            "shortcuts": msg[10],
+            "completeQuests": msg[11]
         };
 
         console.info("shortcuts: "+JSON.stringify(data_player.shortcuts));

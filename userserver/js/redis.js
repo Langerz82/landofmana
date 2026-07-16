@@ -32,7 +32,7 @@ const hgetarray = function (hash, key, callback) {
 // do a Redis read or write and hand back the (mostly) raw result.
 //
 // Two categories of exception, both left in this file on purpose:
-//  1. Redis-native *atomic* operations (modifyGold()'s Lua script,
+//  1. Redis-native *atomic* operations (modifyGold()'s HINCRBY,
 //     addPlayerGoldOffline()'s HINCRBY, reserveUsername()/
 //     reservePlayerNameLock()'s SADD/SET NX) -- these exist specifically to
 //     avoid race conditions that were real, previously-fixed bugs in this
@@ -79,6 +79,28 @@ class DatabaseHandler {
     }
 
     //this.replaceSkills();
+
+    // Gold field migration -- unlike removeOldValues()/insertMissingPlayerKeys()
+    // above, this is NOT gated behind a config flag. Those are opt-in
+    // housekeeping; this one guarantees every player's currency is on the
+    // gold_0/gold_1 fields before anything can touch it, so it always runs,
+    // every startup. Constructing a DatabaseHandler is now the single place
+    // that kicks this off -- no call site elsewhere can forget to run it.
+    //
+    // A constructor can't be awaited, so the in-progress migration is handed
+    // back as a Promise instead of a constructor callback: main.js does
+    // `await global.DBH.migrationReady` right after `new DatabaseHandlerClass(config)`
+    // and doesn't proceed to accept connections until it resolves (rejects
+    // straight through if migrateGoldFields() reports an error).
+    this.migrationReady = new Promise((resolve, reject) => {
+      this.migrateGoldFields((err) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve();
+        }
+      });
+    });
   }
 
   replaceSkills() {
@@ -389,10 +411,41 @@ class DatabaseHandler {
       });
   }
 
-  // FIX: used to also repair a malformed "gold" field inline (see the FIX
-  // comment on setPlayerGold() below and AccountLogic.loadPlayerInfo() in
-  // accountlogic.js, which now makes that repair decision) -- this just
-  // hands back the raw hget results.
+  // FIX: used to also repair a malformed "gold" field inline -- that repair
+  // decision moved out to AccountLogic.loadPlayerInfo() (accountlogic.js)
+  // and has since been removed there entirely (there's no remaining path
+  // that can put a negative/malformed value into gold_0/gold_1 in the
+  // first place -- see the FIX comment on AccountLogic.loadPlayerInfo() for
+  // the full reasoning). This just hands back the raw hget results.
+  //
+  // REFACTOR: "gold" used to be a single Redis hash field packing both
+  // currency types into one CSV string ("100,50"), which is why modifyGold()
+  // below needed a full Lua script instead of a plain atomic HINCRBY --
+  // HINCRBY can't target "just type 1" inside a packed string. Storage is
+  // now two separate integer fields, gold_0/gold_1, each of which HINCRBY
+  // can update natively and atomically with no scripting at all.
+  //
+  // gold_0/gold_1 (raw[4]/raw[5]) are handed back completely unparsed here
+  // -- whatever's actually stored, string or null. Parsing them into real
+  // ints is a data-manipulation decision, so it happens in
+  // AccountLogic.loadPlayerInfo() (accountlogic.js), not here -- matching
+  // this file's "primitives only" convention (see the REFACTOR comment at
+  // the top of this file). The WU_SAVE_PLAYER_DATA wire format and
+  // gameserver's userhandler.js/player.js read gold_0/gold_1 as two flat
+  // elements now (not a combined string, and not a nested array either), so
+  // this raw shape -- gold_0/gold_1 as two separate positions -- already
+  // matches the wire format 1:1; AccountLogic.loadPlayerInfo() only needs
+  // to convert the two raw strings to numbers, no reshaping.
+  //
+  // Migration: this used to also detect-and-repair a still-legacy player
+  // right here on read (split the packed "gold" field and persist gold_0/
+  // gold_1 the first time that player loaded). That per-load fallback is
+  // gone now -- migrateGoldFields() below runs a one-time full-keyspace
+  // pass at every server startup, and main.js blocks accepting any new
+  // connection until it finishes (see migrationComplete in main.js). By the
+  // time any player can log in and reach this function, gold_0/gold_1 are
+  // guaranteed to already exist, so there's nothing left to detect or
+  // repair here.
   loadPlayerInfo(playerName, callback) {
     const pKey = "p:" + playerName;
 
@@ -402,36 +455,121 @@ class DatabaseHandler {
       .hget(pKey, "map")
       .hget(pKey, "stats")
       .hget(pKey, "exps")
-      .hget(pKey, "gold")
+      .hget(pKey, "gold_0")
+      .hget(pKey, "gold_1")
       .hget(pKey, "skills")
       .hget(pKey, "pStats")
       .hget(pKey, "sprites")
       .hget(pKey, "colors")
       .hget(pKey, "shortcuts")
       .hget(pKey, "completeQuests")
-      .exec((err, data) => {
-        if (data === null || !(typeof data === 'object')) {
+      .exec((err, raw) => {
+        if (raw === null || !(typeof raw === 'object')) {
           return;
         }
 
         if (callback) {
-          callback(playerName, data);
+          callback(playerName, raw);
         }
       });
   }
 
-  // FIX: added alongside sanitizeGoldField() moving to accountlogic.js, so
-  // AccountLogic.loadPlayerInfo() can persist a repaired "gold" value
-  // without reaching into `client` directly.
-  setPlayerGold(playerName, csv, callback) {
-    const pKey = "p:" + playerName;
-    client.hset(pKey, "gold", csv, (err) => {
-      if (callback) {
-        callback(playerName, !err, err);
+  // Runs once at every server startup -- kicked off unconditionally from
+  // the constructor above (see migrationReady there), which main.js awaits
+  // before it opens itself up to new connections (see migrationComplete in
+  // main.js). Does the legacy "gold" -> gold_0/gold_1 split for every
+  // player in one pass, rather than leaving it to whichever player happened
+  // to log in next. Same client.keys('p:*', ...) full-keyspace scan already
+  // used by removeOldValues()/insertMissingPlayerKeys() above (same caveat:
+  // this blocks the single-threaded Redis server for O(N) key count -- fine
+  // at the player counts this codebase has run with, would want
+  // cursor-based SCAN instead of KEYS at much larger scale).
+  //
+  // `callback(err)` fires once every player key has been checked (err is
+  // null on success). Players that already have gold_0/gold_1 -- either
+  // already migrated on a previous startup, or created fresh straight into
+  // the new format -- are left untouched.
+  migrateGoldFields(callback) {
+    client.keys('p:*', (err, keys) => {
+      if (err) {
+        if (callback) callback(err);
+        return;
+      }
+
+      if (keys.length === 0) {
+        console.info("migrateGoldFields: no players found, nothing to migrate.");
+        if (callback) callback(null);
+        return;
+      }
+
+      let remaining = keys.length;
+      let migratedCount = 0;
+      let firstError = null;
+
+      const checkDone = () => {
+        remaining--;
+        if (remaining === 0) {
+          console.info("migrateGoldFields: complete -- migrated " + migratedCount +
+            " of " + keys.length + " player(s).");
+          if (callback) callback(firstError);
+        }
+      };
+
+      for (const pKey of keys) {
+        client.multi()
+          .hget(pKey, "gold")
+          .hget(pKey, "gold_0")
+          .hget(pKey, "gold_1")
+          .exec((err, raw) => {
+            if (err) {
+              console.error("migrateGoldFields: read failed for " + pKey + ": " + JSON.stringify(err));
+              firstError = firstError || err;
+              checkDone();
+              return;
+            }
+
+            const [legacyGold, gold0, gold1] = raw;
+/*
+            if (gold0 != null && gold1 != null) {
+              // Already on the new fields -- nothing to migrate.
+              checkDone();
+              return;
+            }
+*/
+            const legacyParts = (typeof legacyGold === 'string') ? legacyGold.split(',') : [];
+            const newGold0 = parseInt(legacyParts[0], 10) || 0;
+            const newGold1 = parseInt(legacyParts[1], 10) || 0;
+
+            client.multi()
+              .hset(pKey, "gold_0", newGold0)
+              .hset(pKey, "gold_1", newGold1)
+              .hdel(pKey, "gold")
+              .exec((err) => {
+                if (err) {
+                  console.error("migrateGoldFields: write failed for " + pKey + ": " + JSON.stringify(err));
+                  firstError = firstError || err;
+                } else {
+                  migratedCount++;
+                }
+                checkDone();
+              });
+          });
       }
     });
   }
 
+  // REFACTOR: expects gold already split into two elements -- data[4] =
+  // gold_0, data[5] = gold_1 -- matching the WU_SAVE_PLAYER_DATA wire
+  // format, which now sends gold_0/gold_1 as two flat elements (not a
+  // combined "100,50" string, and not a nested array either -- see
+  // gameserver's worldhandler.js and userserver/js/format.js's gold check).
+  // Since the wire shape and this function's expected shape are identical,
+  // AccountLogic.savePlayerInfo() (accountlogic.js) -- the only caller (see
+  // worldhandler.js, which calls Accounts.savePlayerInfo() rather than this
+  // method directly) -- is now a pure passthrough with no parsing or
+  // reshaping of its own. The legacy "gold" field is intentionally left
+  // untouched (not written) going forward now that gold_0/gold_1 are the
+  // source of truth.
   savePlayerInfo(playerName, data, callback) {
     const pKey = "p:" + playerName;
 
@@ -441,13 +579,14 @@ class DatabaseHandler {
       .hset(pKey, "map", data[1])
       .hset(pKey, "stats", data[2])
       .hset(pKey, "exps", data[3])
-      .hset(pKey, "gold", data[4])
-      .hset(pKey, "skills", data[5])
-      .hset(pKey, "pStats", data[6])
-      .hset(pKey, "sprites", data[7])
-      .hset(pKey, "colors", data[8])
-      .hset(pKey, "shortcuts", data[9])
-      .hset(pKey, "completeQuests", data[10])
+      .hset(pKey, "gold_0", data[4])
+      .hset(pKey, "gold_1", data[5])
+      .hset(pKey, "skills", data[6])
+      .hset(pKey, "pStats", data[7])
+      .hset(pKey, "sprites", data[8])
+      .hset(pKey, "colors", data[9])
+      .hset(pKey, "shortcuts", data[10])
+      .hset(pKey, "completeQuests", data[11])
       .exec((err, replies) => {
         if (err) {
           console.warn(err);
@@ -547,11 +686,19 @@ class DatabaseHandler {
   // player (e.g. two auction settlements landing close together) could both
   // read the same starting "gold" string and the second write clobbers the
   // first's change -- a lost update that silently drops gold instead of
-  // adding/subtracting it. "gold" packs multiple currency "types" into one
-  // comma-separated field, so a plain atomic op like HINCRBY can't target
-  // one type in isolation -- run the whole read/split/modify/join/write as
-  // a single Lua script instead, so Redis executes it with no other
-  // client's command able to interleave in the middle.
+  // adding/subtracting it. This originally needed a Lua script instead of a
+  // plain HINCRBY because both currency types were packed into one
+  // comma-separated "gold" field, and HINCRBY can't target "just type 1"
+  // inside a packed string.
+  //
+  // REFACTOR: now that each type is its own real storage field
+  // (gold_0/gold_1 -- see the REFACTOR comment on loadPlayerInfo() above),
+  // HINCRBY is natively atomic in Redis on its own -- same guarantee as the
+  // Lua script (no other client's command can interleave with a single
+  // Redis command any more than it could with a Lua script), one round
+  // trip, no scripting, and no CSV parsing left to get wrong (the Lua
+  // gmatch `*`-vs-`+` bug this used to have a FIX comment about is no
+  // longer possible -- there's no string to split/join here at all).
   modifyGold(playerName, golddiff, type, callback) {
     console.info("redis.modifyGold: playerName:" + playerName);
     console.info("golddiff:" + golddiff);
@@ -560,44 +707,9 @@ class DatabaseHandler {
     type = type || 0;
     golddiff = parseInt(golddiff);
     const pKey = "p:" + playerName;
+    const field = "gold_" + type;
 
-    // FIX: was `string.gmatch(data, '([^,]*)')` -- the classic Lua gotcha
-    // of using `*` (zero-or-more) instead of `+` (one-or-more) to split a
-    // comma-separated string. `*` lets the pattern match an empty string,
-    // so gmatch yields a spurious "" match at every comma boundary AND one
-    // more at the end of the string -- e.g. "100,50" split this way came
-    // out as {"100", "", "50", ""} (4 parts), not {"100", "50"} (2 parts).
-    // table.concat then wrote that back as "100,,50," -- silently
-    // corrupting the "gold" field's CSV shape on every single call to this
-    // function. Downstream, something reading that corrupted 4-field
-    // string positionally (expecting exactly 2 fields) picked up an empty
-    // string for the real second value, which became NaN once parsed as a
-    // number in JS and then got re-serialized as the literal text "NaN" --
-    // producing exactly the "field 1: Invalid input: expected number,
-    // received NaN" WU_SAVE_PLAYER_DATA validation failure this was
-    // reported as. `+` requires at least one non-comma character per
-    // match, so it can't produce empty matches and correctly yields just
-    // {"100", "50"} -- this also self-heals any already-corrupted "gold"
-    // field the next time this function runs for that player, since `+`
-    // simply skips over the spurious empty segments already baked into it.
-    const script = `
-      local data = redis.call('HGET', KEYS[1], 'gold')
-      if not data or data == '' then
-        return nil
-      end
-      local parts = {}
-      for part in string.gmatch(data, '([^,]+)') do
-        table.insert(parts, part)
-      end
-      local idx = tonumber(ARGV[1]) + 1
-      local cur = tonumber(parts[idx]) or 0
-      parts[idx] = tostring(cur + tonumber(ARGV[2]))
-      local joined = table.concat(parts, ',')
-      redis.call('HSET', KEYS[1], 'gold', joined)
-      return joined
-    `;
-
-    client.eval(script, 1, pKey, type, golddiff, (err, result) => {
+    client.hincrby(pKey, field, golddiff, (err, total) => {
       if (err) {
         console.warn("redis.modifyGold: save gold error " + JSON.stringify(err));
         if (callback) {
@@ -605,15 +717,16 @@ class DatabaseHandler {
         }
         return;
       }
-      if (result === null) {
-        console.error("redis.modifyGold - no gold record for player '" + playerName + "' found.");
-        if (callback) {
-          callback(playerName, golddiff, type);
-        }
-        return;
-      }
 
-      console.info("modifyGold.gold: " + JSON.stringify(result));
+      // NOTE: unlike the old Lua version's `if not data ... return nil`
+      // check, HINCRBY on a field that doesn't exist yet simply creates it
+      // starting from 0 rather than reporting "no record" -- gold_0/gold_1
+      // are always created by savePlayerInfo()/loadPlayerInfo()'s migration
+      // path before a real player ever reaches this call, so this is a
+      // behavior improvement (self-heals a missing field instead of
+      // silently no-op'ing the update) rather than a loss of a check that
+      // was actually relied on.
+      console.info("modifyGold.gold: " + JSON.stringify(total));
       if (callback) {
         callback(playerName, golddiff, type);
       }

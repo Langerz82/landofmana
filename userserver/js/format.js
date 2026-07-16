@@ -444,14 +444,14 @@ class FormatChecker {
         }
       }
 
-      // message[1][1]: the main player-data record, exactly 11 fields.
+      // message[1][1]: the main player-data record, exactly 12 fields.
       msg = message[1][1];
       if (!Array.isArray(msg)) {
         console.info('message 1-1 not an array.');
         return false;
       }
-      if (msg.length !== 11) {
-        console.info('message 1-1 not length 11.');
+      if (msg.length !== 12) {
+        console.info('message 1-1 not length 12.');
         return false;
       }
 
@@ -497,10 +497,22 @@ class FormatChecker {
         return false;
       }
 
-      // gold data
-      res = parseCsvFields(msg[4], [csvNumberField(0, playerGoldMax), csvNumberField(0, playerGoldMax)]);
+      // gold data: two real number fields now (msg[4]=gold_0, msg[5]=gold_1)
+      // -- not a CSV string, and not a nested [gold0, gold1] array either.
+      // worldhandler.js (gameserver) sends player.items.gold[0]/[1] as two
+      // separate top-level elements, matching the flat shape every other
+      // field in this record already uses, and matching redis.js's raw
+      // gold_0/gold_1 storage fields 1:1 -- see the REFACTOR comment on
+      // AccountLogic.loadPlayerInfo()/savePlayerInfo() (accountlogic.js) for
+      // the full trail.
+      res = numberField(0, playerGoldMax).safeParse(msg[4]);
       if (!res.success) {
-        console.info('gold data failed: ' + res.error);
+        console.info('gold_0 data failed: ' + describeZodError(res.error));
+        return false;
+      }
+      res = numberField(0, playerGoldMax).safeParse(msg[5]);
+      if (!res.success) {
+        console.info('gold_1 data failed: ' + describeZodError(res.error));
         return false;
       }
 
@@ -518,13 +530,13 @@ class FormatChecker {
       // (Array.from({length:7}...)) would reject every real save the moment
       // the roster size differs from 7, so this validates every CSV field
       // against the XP bound without asserting a fixed count.
-      if (typeof msg[5] !== 'string') {
+      if (typeof msg[6] !== 'string') {
         console.info('skills xp data not a string.');
         return false;
       }
       {
         const skillXpField = csvNumberField(0, playerSkillXpMax);
-        const skillParts = msg[5].split(',');
+        const skillParts = msg[6].split(',');
         const bad = skillParts.find((part) => !skillXpField.safeParse(part).success);
         if (bad !== undefined) {
           console.info('skills xp data failed.');
@@ -533,7 +545,7 @@ class FormatChecker {
       }
 
       // pvp stats data
-      res = parseCsvFields(msg[6], [csvNumberField(0, playerPVPStatsMax), csvNumberField(0, playerPVPStatsMax)]);
+      res = parseCsvFields(msg[7], [csvNumberField(0, playerPVPStatsMax), csvNumberField(0, playerPVPStatsMax)]);
       if (!res.success) {
         console.info('pvp stats data failed: ' + res.error);
         return false;
@@ -541,7 +553,7 @@ class FormatChecker {
 
       // sprites data
       res = parseCsvFields(
-        msg[7],
+        msg[8],
         Array.from({ length: 4 }, () => csvNumberField(0, playerSpritesMax))
       );
       if (!res.success) {
@@ -550,14 +562,14 @@ class FormatChecker {
       }
 
       // colors data (mixed string + CSV number)
-      res = parseCsvFields(msg[8], [stringField(0, playerColorsMaxLen), csvNumberField(0, playerColorsMaxLen)]);
+      res = parseCsvFields(msg[9], [stringField(0, playerColorsMaxLen), csvNumberField(0, playerColorsMaxLen)]);
       if (!res.success) {
         console.info('colors data failed: ' + res.error);
         return false;
       }
 
       // shortcuts data: JSON object keyed by shortcut index.
-      data = msg[9];
+      data = msg[10];
       if (typeof data !== 'string') {
         console.info('shortcuts data not a string.');
         return false;
@@ -609,7 +621,7 @@ class FormatChecker {
       // NPC), and JSON.stringify() drops undefined object properties
       // entirely, so a value can legitimately be `{}` with no npcid key at
       // all -- npcid must be optional, not just nullable.
-      data = msg[10];
+      data = msg[11];
       if (typeof data !== 'string') {
         console.info('complete quests data not a string.');
         return false;

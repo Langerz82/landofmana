@@ -97,6 +97,18 @@ async function main(config) {
   const self = this;
   setupLogging();
 
+  // Gates server.onConnect below -- flipped to true once the gold-field
+  // migration that `new DatabaseHandlerClass(config)` kicks off (see
+  // migrationReady in redis.js's constructor) resolves. The underlying
+  // transport (WS.WebsocketServer's _protoServer.listen(), below) starts
+  // accepting raw TCP/socket.io connections immediately on construction
+  // regardless -- there's no clean hook to delay that without restructuring
+  // ws.js -- so this flag is checked at the top of onConnect() instead: any
+  // connection that arrives before migration finishes is closed immediately
+  // rather than wired up to the game/login logic. Once true, this never
+  // flips back.
+  let migrationComplete = false;
+
   const production_config = new ProductionConfig(config);
   if (production_config.inProduction()) {
     Object.assign(config, production_config.getProductionSettings());
@@ -115,10 +127,25 @@ async function main(config) {
       global.DBH = global.databaseHandler = new DatabaseHandlerClass(config);
       global.Accounts = new AccountLogic(global.DBH);
       console.log("REDIS SERVER CREATED!!!!!!!!!!!!!");
+
+      // migrateGoldFields() (redis.js) starts running the instant DBH is
+      // constructed above -- await its migrationReady promise here so
+      // nothing past this point (including migrationComplete below) runs
+      // until every player's legacy "gold" field has been split into
+      // gold_0/gold_1. Deliberately left inside this same try/catch --
+      // same fail-fast posture as a failed DB connection: a migration that
+      // can't finish means gold_0/gold_1 can't be trusted for every player,
+      // and silently refusing every connection forever is worse than a
+      // loud crash at startup.
+      console.info("Running startup gold-field migration (legacy 'gold' -> gold_0/gold_1)...");
+      await global.DBH.migrationReady;
+      console.info("Gold field migration complete -- now accepting connections.");
   } catch (err) {
-      console.error("Database handler initialization failed:", err);
+      console.error("Database handler initialization / gold field migration failed:", err);
       process.exit(1);
   }
+
+  migrationComplete = true;
 
   //const selector = DatabaseSelector(config);
   //selector(config);
@@ -185,6 +212,17 @@ async function main(config) {
   };
 
   server.onConnect((conn) => {
+    // FIX: without this check, a connection arriving while
+    // migrateGoldFields() is still running would get wired up to the full
+    // login/gameplay flow against a player database that might not be
+    // fully migrated yet -- exactly the race the blocking startup migration
+    // above exists to avoid. Reject and close instead of listening.
+    if (!migrationComplete) {
+      console.warn("onConnect: rejecting connection -- gold field migration still in progress.");
+      conn.close("Server is still starting up, please try again shortly.");
+      return;
+    }
+
     const listener = (message) => {
       console.info(`recv[0]=${message}`);
       const action = parseInt(message[0], 10);

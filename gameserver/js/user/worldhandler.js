@@ -166,7 +166,16 @@ class WorldHandler {
             map.join(","),
             stats.join(","),
             exps.join(","),
-            player.items.gold.join(","),
+            // REFACTOR: gold_0/gold_1 as two separate flat elements now,
+            // instead of one joined CSV string or one nested [gold0, gold1]
+            // array -- matches every other field in this record (flat
+            // values, no nesting) and matches redis.js's gold_0/gold_1
+            // storage fields 1:1, so userserver's AccountLogic no longer
+            // needs to reshape this record at all (see
+            // AccountLogic.savePlayerInfo() in userserver/js/accountlogic.js
+            // for the full trail). Shifts every field below by one index.
+            player.items.gold[0],
+            player.items.gold[1],
             skillexps.join(","),
             player.pStats.join(","),
             player.sprites.join(","),
