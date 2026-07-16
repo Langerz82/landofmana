@@ -597,7 +597,14 @@ class MapEntities {
         this.sendBroadcast(player.despawn(0));
         this.removeEntity(player);
 
-        delete this.npcplayers.get(player.id);
+        // FIX: `this.npcplayers` is a Map, not a plain object -- `delete`
+        // only removes object properties, so `delete this.npcplayers.get(...)`
+        // was a complete no-op (it deleted a property off the *returned
+        // value*, then discarded that too). Use Map#delete() to actually
+        // remove the entry. (No current callers of removeNpcPlayer exist in
+        // the codebase today, so this was latent rather than an active
+        // leak -- flagging for whenever NPC-player removal gets wired up.)
+        this.npcplayers.delete(player.id);
     }
 
     createItem(itemRoom, x, y) {

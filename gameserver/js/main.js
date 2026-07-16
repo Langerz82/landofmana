@@ -442,7 +442,22 @@ function modgems (args) {
 
 function modgold (args) {
   const playerName = args[0];
-  const gold = args[1];
+  // FIX: this was passed straight through as the raw console-input
+  // string. PlayerItems.modifyGold() checks `this.gold[type]+gold < 0`
+  // BEFORE parseInt-ing `gold` (it only parses right before applying the
+  // change), so a string argument here triggered JS string concatenation
+  // in that guard (e.g. 100 + "-50" -> "100-50", a non-numeric string
+  // that always fails `< 0`) -- silently defeating the check meant to
+  // stop this admin command from driving a player's gold negative.
+  // Parsing here, like every other caller of modifyGold already does,
+  // keeps the guard working as a real numeric comparison.
+  const gold = parseInt(args[1], 10);
+  // FIX: a non-numeric args[1] (bad console input) parses to NaN, and
+  // `NaN < 0` is false, so the same negative-balance guard above would
+  // let it straight through and corrupt this.gold[type] to NaN. Reject
+  // it here rather than trusting the guard to catch it.
+  if (isNaN(gold))
+    return;
 
   const player = world.getPlayerByName(playerName);
   // FIX: modifyGold() is defined on PlayerItems (player.items), not on
@@ -545,8 +560,13 @@ function reloadAuction() {
 function getWorldDistribution(worlds) {
     const distribution = [];
 
+    // FIX: World (worldserver.js) never defines a `playerCount` property --
+    // connected players are tracked in `self.players`, an array, so
+    // `world.playerCount` was always undefined. Every status poll of this
+    // (e.g. server.onRequestStatus) reported `[undefined]` instead of the
+    // real player count for each world. Use `players.length` instead.
     _.each(worlds, function(world) {
-        distribution.push(world.playerCount);
+        distribution.push(world.players.length);
     });
     return distribution;
 }
