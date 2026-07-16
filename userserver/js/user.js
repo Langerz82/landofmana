@@ -39,6 +39,17 @@ function safeCompare(a, b) {
 // pulling them in via import would be a real circular dependency rather
 // than a missing static import. Left as-is.
 
+// FIX: bcrypt was already imported into this file but never actually
+// called anywhere -- passwords were hashed with a single round of salted
+// SHA-1, a fast general-purpose hash with no configurable work factor and
+// trivially brute-forceable at billions of guesses/sec on commodity GPU
+// hardware if a DB dump ever leaked. New accounts (handleCreateUser below)
+// and password resets (main.js's changePassword) now hash with bcrypt
+// instead, and checkUser() transparently upgrades existing legacy accounts
+// to bcrypt on their next successful login. 10 rounds is bcrypt's own
+// documented reasonable-default cost factor as of this writing.
+const BCRYPT_SALT_ROUNDS = 10;
+
 class PlayerSummary {
   constructor(index, db_player) {
     this.index = index;
@@ -188,21 +199,34 @@ class User {   // Assuming `cls` is still available globally or via require
 
     const bytes = CryptoJS.AES.decrypt(hash, this.hashChallenge);
     const decrypt = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
-    const current_date = (new Date()).valueOf().toString();
-    const random = Math.random().toString();
-    const salt = crypto.createHash('sha1').update(current_date + random).digest('hex');
-    hash = crypto.createHash('sha1').update(decrypt + salt).digest('hex');
 
     try {
       if (!Utils.checkInputName(self.name)) {
         self.connection.send([Types.UserMessages.UC_ERROR, "invalidusername"]);
         return;
       }
-      self.hash = hash;
-      self.salt = salt;
-      self.loggedInDate = Date.now();
 
-      DBH.createUser(self);
+      // FIX: new accounts are now hashed with bcrypt instead of a single
+      // round of sha1(password + salt) -- see BCRYPT_SALT_ROUNDS above for
+      // why. bcrypt embeds its own per-hash salt in the resulting string, so
+      // the separate `salt` field is no longer needed here (left blank;
+      // checkUser() still reads it for legacy accounts). Using the async
+      // bcrypt.hash (not hashSync) since bcrypt is deliberately slow and
+      // this server is single-process -- a sync call would stall every
+      // other connection on this server for the duration of the hash.
+      bcrypt.hash(decrypt, BCRYPT_SALT_ROUNDS, (err, bcryptHash) => {
+        if (err) {
+          console.error("handleCreateUser - bcrypt.hash failed: " + err.message);
+          self.connection.send([Types.UserMessages.UC_ERROR, "servererror"]);
+          return;
+        }
+
+        self.hash = bcryptHash;
+        self.salt = "";
+        self.loggedInDate = Date.now();
+
+        DBH.createUser(self);
+      });
     } catch (e) {
       console.info('message=' + e.message);
       console.info('stack=' + e.stack);
@@ -288,8 +312,17 @@ class User {   // Assuming `cls` is still available globally or via require
     }
   }
 
-  checkUser(db_user, skip_logged_in = false) {
+  // FIX: password verification now has to support bcrypt (see the FIX
+  // comment on BCRYPT_SALT_ROUNDS / handleCreateUser below for why), and
+  // bcrypt.compare() is inherently async -- there's no synchronous
+  // constant-time bcrypt check available. That means checkUser() itself can
+  // no longer synchronously `return true/false` the way it used to; both
+  // call sites (redis.js's removeUser() and loadUser()) now pass a
+  // `callback(matched)` instead of branching on this method's return value.
+  checkUser(db_user, skip_logged_in = false, callback) {
     const curTime = Date.now();
+    const done = (result) => { if (callback) callback(result); };
+
     // FIX: db_user.* fields come from Redis hgetall(), which always returns
     // strings. "+" on two strings concatenates instead of summing -- e.g.
     // "1700000000000" + "3600000" produced a ~20-digit number, so any real
@@ -300,7 +333,8 @@ class User {   // Assuming `cls` is still available globally or via require
     if (banTime > curTime) {
       this.connection.send([Types.UserMessages.UC_ERROR, "ban"]);
       this.connection.close("Closing connection to: " + (this.currentPlayer ? this.currentPlayer.name : this.name));
-      return false;
+      done(false);
+      return;
     }
 
     // FIX: redis.js only ever stores/loads a "membership" field (see
@@ -315,62 +349,102 @@ class User {   // Assuming `cls` is still available globally or via require
     // Check Password
     const bytes = CryptoJS.AES.decrypt(this.hash, this.hashChallenge);
     const decrypt = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
-    const hash = crypto.createHash('sha1').update(decrypt + db_user.salt).digest('hex');
 
-    console.info("checkUser: " + hash + " !== " + db_user.hash);
-    // FIX: plain `!==` on a stored password hash short-circuits on the first
-    // mismatched character -- a timing side channel against a value that
-    // gates authentication. Compare in constant time instead.
-    if (!safeCompare(hash, db_user.hash)) {
-      // FIX: was hardcoded `> 3`, which (since it fires strictly *after* the increment)
-      // actually allowed 4 wrong attempts before closing, not 3 as the old comment above
-      // this.passwordTries claimed. Made configurable via MainConfig.max_password_attempts
-      // (defaults to 3) and switched to the same "triesRemaining reaches 0" shape as
-      // usernameTries above/DatabaseHandler.createUser in redis.js, so a configured value of
-      // 3 means exactly 3 real attempts before lockout. Also now tells the client how many
-      // attempts remain (data[1]) so it can show that instead of just "incorrect".
-      //
-      // FIX: was `MainConfig.max_password_attempts || 3`, which also falls back to 3 for an
-      // explicit `0` (0 is falsy in JS) - meaning an admin who deliberately configured "no
-      // retries, lock out immediately" would silently get 3 retries instead. Check for
-      // "unset" with typeof so 0 is honored as a real value and only a missing/non-numeric
-      // config key falls back to the default.
-      const configuredMaxPasswordAttempts = (typeof MainConfig !== "undefined" && MainConfig) ?
-          MainConfig.max_password_attempts : undefined;
-      const maxAttempts = (typeof configuredMaxPasswordAttempts === "number") ?
-          configuredMaxPasswordAttempts : 3;
-      const triesRemaining = maxAttempts - (++this.passwordTries);
+    const finishCheck = (passwordMatches) => {
+      if (!passwordMatches) {
+        // FIX: was hardcoded `> 3`, which (since it fires strictly *after* the increment)
+        // actually allowed 4 wrong attempts before closing, not 3 as the old comment above
+        // this.passwordTries claimed. Made configurable via MainConfig.max_password_attempts
+        // (defaults to 3) and switched to the same "triesRemaining reaches 0" shape as
+        // usernameTries above/DatabaseHandler.createUser in redis.js, so a configured value of
+        // 3 means exactly 3 real attempts before lockout. Also now tells the client how many
+        // attempts remain (data[1]) so it can show that instead of just "incorrect".
+        //
+        // FIX: was `MainConfig.max_password_attempts || 3`, which also falls back to 3 for an
+        // explicit `0` (0 is falsy in JS) - meaning an admin who deliberately configured "no
+        // retries, lock out immediately" would silently get 3 retries instead. Check for
+        // "unset" with typeof so 0 is honored as a real value and only a missing/non-numeric
+        // config key falls back to the default.
+        const configuredMaxPasswordAttempts = (typeof MainConfig !== "undefined" && MainConfig) ?
+            MainConfig.max_password_attempts : undefined;
+        const maxAttempts = (typeof configuredMaxPasswordAttempts === "number") ?
+            configuredMaxPasswordAttempts : 3;
+        const triesRemaining = maxAttempts - (++this.passwordTries);
 
-      if (triesRemaining <= 0) {
-        this.connection.send([Types.UserMessages.UC_ERROR, "invalidlogin", 0]);
-        this.connection.close("Wrong Password: " + this.name);
-      } else {
-        this.connection.send([Types.UserMessages.UC_ERROR, "invalidlogin", triesRemaining]);
+        if (triesRemaining <= 0) {
+          this.connection.send([Types.UserMessages.UC_ERROR, "invalidlogin", 0]);
+          this.connection.close("Wrong Password: " + this.name);
+        } else {
+          this.connection.send([Types.UserMessages.UC_ERROR, "invalidlogin", triesRemaining]);
+        }
+        done(false);
+        return;
       }
-      return false;
-    }
 
-    console.info("LOGIN: " + this.name);
-    if (users.has(this.name)) {
-      this.connection.send([Types.UserMessages.UC_ERROR, "loggedin"]);
-      return false;
-    }
-
-    for (const wh of worldHandlers) {
-      // FIX: loggedInUsers is a Map (see worldhandler.js), not a plain
-      // object -- hasOwnProperty() checks for an own JS property on the Map
-      // object itself, not an entry in the Map's storage, so this always
-      // returned false. The duplicate-login-across-worlds guard was dead.
-      if (wh.loggedInUsers.has(this.name)) {
+      console.info("LOGIN: " + this.name);
+      if (users.has(this.name)) {
         this.connection.send([Types.UserMessages.UC_ERROR, "loggedin"]);
-        return false;
+        done(false);
+        return;
       }
+
+      for (const wh of worldHandlers) {
+        // FIX: loggedInUsers is a Map (see worldhandler.js), not a plain
+        // object -- hasOwnProperty() checks for an own JS property on the Map
+        // object itself, not an entry in the Map's storage, so this always
+        // returned false. The duplicate-login-across-worlds guard was dead.
+        if (wh.loggedInUsers.has(this.name)) {
+          this.connection.send([Types.UserMessages.UC_ERROR, "loggedin"]);
+          done(false);
+          return;
+        }
+      }
+
+      users.set(this.name, this);
+      this.hasLoggedIn = true;
+
+      done(true);
+    };
+
+    // FIX: accounts can now be stored as either the legacy sha1(password +
+    // salt) or a bcrypt hash (see BCRYPT_SALT_ROUNDS / handleCreateUser
+    // below) -- bcrypt hashes always start with "$2a$"/"$2b$"/"$2y$", which
+    // a hex sha1 digest never does, so that prefix reliably tells the two
+    // formats apart without needing a separate schema-version field.
+    const isBcryptHash = typeof db_user.hash === "string" && /^\$2[aby]\$/.test(db_user.hash);
+    if (isBcryptHash) {
+      bcrypt.compare(decrypt, db_user.hash, (err, match) => {
+        if (err) {
+          console.error("checkUser - bcrypt.compare failed: " + err.message);
+          finishCheck(false);
+          return;
+        }
+        finishCheck(match);
+      });
+    } else {
+      const hash = crypto.createHash('sha1').update(decrypt + db_user.salt).digest('hex');
+      console.info("checkUser: " + hash + " !== " + db_user.hash);
+      // FIX: plain `!==` on a stored password hash short-circuits on the
+      // first mismatched character -- a timing side channel against a value
+      // that gates authentication. Compare in constant time instead.
+      const matched = safeCompare(hash, db_user.hash);
+      if (matched) {
+        // Successful login on a legacy sha1+salt account -- transparently
+        // upgrade it to bcrypt now that we have the plaintext password in
+        // hand (it's never stored, only ever used in-memory for this one
+        // comparison). Fire-and-forget: a failure here just means the
+        // account stays on the legacy format and gets another upgrade
+        // attempt on its next login, it doesn't block this one.
+        bcrypt.hash(decrypt, BCRYPT_SALT_ROUNDS, (err, newHash) => {
+          if (err) {
+            console.error("checkUser - bcrypt upgrade hash failed: " + err.message);
+            return;
+          }
+          DBH.savePassword(this.name, newHash, "");
+        });
+      }
+      finishCheck(matched);
     }
-
-    users.set(this.name, this);
-    this.hasLoggedIn = true;
-
-    return true;
   }
 
   sendPlayers(db_players) {

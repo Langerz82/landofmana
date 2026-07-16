@@ -206,38 +206,68 @@ class DatabaseHandler {
         return;
       }
 
-      const lenLooks = AppearanceData.Data.length;
-      user.looks = new Uint8Array(lenLooks);
-      for (let i = 0; i < lenLooks; ++i) {
-        user.looks[i] = 0;
-      }
+      // FIX: this whole method was check-then-act -- ExistsUsername() (an
+      // async smembers scan) had to come back false before anything below
+      // ran, but nothing stopped two concurrent registrations for the same
+      // username from both passing that check before either had written
+      // anything. Whichever one's saveUserInfo() below landed second would
+      // silently overwrite the first's hash/salt, letting the last request
+      // "win" the account out from under the first registrant. SADD is
+      // atomic in Redis -- it returns 0 if the member was already present --
+      // so use it here as the actual reservation against the same "usr" set
+      // saveUserInfo() already adds to, rather than only checking it first.
+      // Whichever request's SADD lands first reserves the name; the loser
+      // sees added === 0 and bails before writing anything else. (The
+      // ExistsUsername scan above is case-insensitive and stays in front of
+      // this as a defense-in-depth check for any differently-cased legacy
+      // data -- SADD itself is case-sensitive, but usernames are expected to
+      // already be lowercased by the caller, user.js's handleCreateUser.)
+      client.sadd("usr", user.name, (err, added) => {
+        if (err) {
+          console.error("createUser - usr SADD failed: " + JSON.stringify(err));
+          user.handleUsernameTaken();
+          return;
+        }
+        if (!added) {
+          // Lost the race: another request reserved this exact username
+          // between the ExistsUsername check above and this SADD.
+          user.handleUsernameTaken();
+          return;
+        }
 
-      user.looks[0] = 1;
-      user.looks[50] = 1;
-      user.looks[77] = 1;
-      user.looks[151] = 1;
+        const lenLooks = AppearanceData.Data.length;
+        user.looks = new Uint8Array(lenLooks);
+        for (let i = 0; i < lenLooks; ++i) {
+          user.looks[i] = 0;
+        }
 
-      user.gems = 2000;
+        user.looks[0] = 1;
+        user.looks[50] = 1;
+        user.looks[77] = 1;
+        user.looks[151] = 1;
 
-      const curTime = new Date().getTime();
-      const data = [
-        user.hash,
-        user.salt,
-        0,
-        '',
-        curTime,
-        0,
-        '',
-        user.gems,
-        Utils.BinArrayToBase64(user.looks),
-        user.connection._connection.remoteAddress
-      ];
+        user.gems = 2000;
 
-      this.saveUserInfo(user.name, data, (username, data) => {
-        user.hasLoggedIn = true;
-        users.set(user.name, user);
+        const curTime = new Date().getTime();
+        const data = [
+          user.hash,
+          user.salt,
+          0,
+          '',
+          curTime,
+          0,
+          '',
+          user.gems,
+          Utils.BinArrayToBase64(user.looks),
+          user.connection._connection.remoteAddress
+        ];
 
-        this.sendPlayers(user);
+        this.saveUserInfo(user.name, data, (username, data) => {
+          user.hasLoggedIn = true;
+          users.set(user.name, user);
+
+          this.sendPlayers(user);
+        });
       });
     });
   }
@@ -309,21 +339,26 @@ class DatabaseHandler {
 
       console.info(JSON.stringify(db_user));
       console.error("USER CHECK USER");
-      if (user.checkUser(db_user, true)) {
-        console.error("USER CHECK USER SUCCESS");
-        const playerNames = data.players.split(",");
-        for (let i = 0; i < playerNames.length; ++i) {
-          const pKey = "p:" + playerNames[i];
-          client.del(pKey);
+      // FIX: checkUser() can no longer synchronously return true/false now
+      // that it may need to bcrypt.compare() (inherently async) -- see the
+      // FIX comment on checkUser() in user.js. Pass a callback instead.
+      user.checkUser(db_user, true, (matched) => {
+        if (matched) {
+          console.error("USER CHECK USER SUCCESS");
+          const playerNames = data.players.split(",");
+          for (let i = 0; i < playerNames.length; ++i) {
+            const pKey = "p:" + playerNames[i];
+            client.del(pKey);
+          }
+          client.del(uKey);
+          client.srem("usr", user.name);
+          user.connection.send([Types.UserMessages.UC_ERROR, "removed_user_ok"]);
+          user.connection.close();
+          return;
         }
-        client.del(uKey);
-        client.srem("usr", user.name);
-        user.connection.send([Types.UserMessages.UC_ERROR, "removed_user_ok"]);
+        user.connection.send([Types.UserMessages.UC_ERROR, "removed_user_fail"]);
         user.connection.close();
-        return;
-      }
-      user.connection.send([Types.UserMessages.UC_ERROR, "removed_user_fail"]);
-      user.connection.close();
+      });
     });
   }
 
@@ -381,7 +416,15 @@ class DatabaseHandler {
         user.looks = db_user.looks;
         user.gems = db_user.gems;
 
-        if (user.checkUser(db_user)) {
+        // FIX: checkUser() can no longer synchronously return true/false now
+        // that it may need to bcrypt.compare() (inherently async) -- see the
+        // FIX comment on checkUser() in user.js. Pass a callback instead
+        // (this function's own return value was already discarded by the
+        // enclosing client.hgetall callback either way).
+        user.checkUser(db_user, false, (matched) => {
+          if (!matched) {
+            return;
+          }
           const ipAddress = user.connection._connection.remoteAddress;
           // Was reading "ipAddesses" (typo) which never matched the stored
           // "ipAddresses" field, so this always fell into the first branch and
@@ -398,9 +441,7 @@ class DatabaseHandler {
           client.hset(uKey, "lastLoginTime", new Date().getTime());
 
           this.sendPlayers(user);
-          return true;
-        }
-        return false;
+        });
       });
     });
   }
@@ -465,8 +506,24 @@ class DatabaseHandler {
     });
   }
 
+  // FIX: this only ever checked ExistsPlayerName() and reported true/false --
+  // the actual reservation (sadd("player", data[0])) didn't happen until
+  // savePlayerInfo(), which fires only after a full round trip through
+  // worldhandler.js's createPlayerToWorld() -> gameserver load ->
+  // WU_SAVE_PLAYER_DATA handshake (multiple seconds, not a single async
+  // tick). Two different users could both pass the ExistsPlayerName check
+  // here for the same name within that window, and whichever's
+  // savePlayerInfo() landed second would silently overwrite the other's
+  // "p:<name>" character data. Take out a short-lived, self-expiring
+  // reservation lock right here instead (SET NX -- atomic "only if not
+  // already set" -- with a TTL so an abandoned/failed creation doesn't
+  // permanently squat the name forever). savePlayerInfo()'s own
+  // sadd("player", data[0]) is still the real, permanent reservation once
+  // creation actually succeeds; this just closes the gap before that.
   createPlayer(playerName, callback) {
-    // Check if playerName is taken
+    const nameLower = playerName.toLowerCase();
+
+    // Check if playerName is already a permanent record.
     this.ExistsPlayerName(playerName, (name, res) => {
       if (res) {
         if (callback) {
@@ -474,10 +531,29 @@ class DatabaseHandler {
         }
         return;
       }
-      console.info("CREATING PLAYER");
-      if (callback) {
-        callback(playerName, true);
-      }
+
+      client.set("player_pending:" + nameLower, "1", "NX", "EX", 60, (err, lockRes) => {
+        if (err) {
+          console.error("createPlayer - reservation lock failed: " + JSON.stringify(err));
+          if (callback) {
+            callback(playerName, false);
+          }
+          return;
+        }
+        if (!lockRes) {
+          // Someone else is already in the middle of creating this exact
+          // player name right now.
+          if (callback) {
+            callback(playerName, false);
+          }
+          return;
+        }
+
+        console.info("CREATING PLAYER");
+        if (callback) {
+          callback(playerName, true);
+        }
+      });
     });
   }
 
@@ -575,30 +651,43 @@ class DatabaseHandler {
       });
   }
 
+  // FIX: was hget -> compute new value in JS -> hset, a classic
+  // read-modify-write race. Two concurrent calls for the same player (e.g.
+  // two auction settlements landing close together) could both read the
+  // same starting value, and the second write clobbers the first's change --
+  // a lost update that silently drops gold instead of adding it. HINCRBY is
+  // atomic in Redis, so use it instead of a manual get-then-set round trip.
+  // Still check the field exists first (HINCRBY on a missing field would
+  // just create it at goldAmount, silently masking what used to be a real
+  // "no record for this player" error condition).
   addPlayerGoldOffline(playerName, goldAmount) {
     console.info("redis.addPlayerGoldOffline: playerName:" + playerName);
     console.info("goldAmount:" + goldAmount);
 
     const pKey = "p:" + playerName;
-    client.hget(pKey, "goldoffline", (err, data) => {
-      console.info("modifyGold.gold: " + JSON.stringify(data));
-      if (!data) {
-        console.error("redis.addPlayerGoldOffline - no goldoffline record for player '" + playerName + "' found.");
-        return;
-      }
-      if (err || !data || data === "") {
-        console.warn(err);
-        console.warn(JSON.stringify(data));
+    client.hexists(pKey, "goldoffline", (err, exists) => {
+      if (err || !exists) {
+        if (err) {
+          console.warn("redis.addPlayerGoldOffline: " + JSON.stringify(err));
+        } else {
+          console.error("redis.addPlayerGoldOffline - no goldoffline record for player '" + playerName + "' found.");
+        }
         return;
       }
 
-      const currentGold = parseInt(data);
-      console.info("currentGold:" + currentGold);
-      const totalGold = Math.max(0, (currentGold + goldAmount));
-
-      client.hset(pKey, "goldoffline", totalGold, (err) => {
+      client.hincrby(pKey, "goldoffline", goldAmount, (err, total) => {
         if (err) {
           console.warn("redis.addPlayerGoldOffline: save error, " + JSON.stringify(err));
+          return;
+        }
+        // Preserve the previous Math.max(0, ...) clamp -- goldAmount can be
+        // negative (a deduction), and this field should never go below 0.
+        if (total < 0) {
+          client.hset(pKey, "goldoffline", 0, (err) => {
+            if (err) {
+              console.warn("redis.addPlayerGoldOffline: clamp error, " + JSON.stringify(err));
+            }
+          });
         }
       });
     });
@@ -657,6 +746,16 @@ class DatabaseHandler {
     });
   }
 
+  // FIX: was hget -> compute new CSV string in JS -> hset, a classic
+  // read-modify-write race. Two concurrent modifyGold calls for the same
+  // player (e.g. two auction settlements landing close together) could both
+  // read the same starting "gold" string and the second write clobbers the
+  // first's change -- a lost update that silently drops gold instead of
+  // adding/subtracting it. "gold" packs multiple currency "types" into one
+  // comma-separated field, so a plain atomic op like HINCRBY can't target
+  // one type in isolation -- run the whole read/split/modify/join/write as
+  // a single Lua script instead, so Redis executes it with no other
+  // client's command able to interleave in the middle.
   modifyGold(playerName, golddiff, type, callback) {
     console.info("redis.modifyGold: playerName:" + playerName);
     console.info("golddiff:" + golddiff);
@@ -665,35 +764,44 @@ class DatabaseHandler {
     type = type || 0;
     golddiff = parseInt(golddiff);
     const pKey = "p:" + playerName;
-    //console.info(pKey+","+golddiff+","+type);
-    client.hget(pKey, "gold", (err, data) => {
-      console.info("modifyGold.gold: " + JSON.stringify(data));
-      if (!data) {
+
+    const script = `
+      local data = redis.call('HGET', KEYS[1], 'gold')
+      if not data or data == '' then
+        return nil
+      end
+      local parts = {}
+      for part in string.gmatch(data, '([^,]*)') do
+        table.insert(parts, part)
+      end
+      local idx = tonumber(ARGV[1]) + 1
+      local cur = tonumber(parts[idx]) or 0
+      parts[idx] = tostring(cur + tonumber(ARGV[2]))
+      local joined = table.concat(parts, ',')
+      redis.call('HSET', KEYS[1], 'gold', joined)
+      return joined
+    `;
+
+    client.eval(script, 1, pKey, type, golddiff, (err, result) => {
+      if (err) {
+        console.warn("redis.modifyGold: save gold error " + JSON.stringify(err));
+        if (callback) {
+          callback(playerName, golddiff, type);
+        }
+        return;
+      }
+      if (result === null) {
         console.error("redis.modifyGold - no gold record for player '" + playerName + "' found.");
         if (callback) {
           callback(playerName, golddiff, type);
         }
         return;
       }
-      if (err || !data || data === "") {
-        console.warn(err);
-        console.warn(JSON.stringify(data));
-        if (callback) {
-          callback(playerName, golddiff, type);
-        }
-        return;
-      }
 
-      const gold = data.split(",");
-      gold[type] = parseInt(gold[type]) + golddiff;
-      client.hset(pKey, "gold", gold.join(","), (err) => {
-        if (err) {
-          console.warn("redis.modifyGold: save gold error " + JSON.stringify(err));
-        }
-        if (callback) {
-          callback(playerName, golddiff, type);
-        }
-      });
+      console.info("modifyGold.gold: " + JSON.stringify(result));
+      if (callback) {
+        callback(playerName, golddiff, type);
+      }
     });
   }
 

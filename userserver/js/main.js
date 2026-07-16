@@ -2,6 +2,7 @@ import * as common from './common.js';
 
 import fs from 'fs';
 import crypto from 'crypto';
+import bcrypt from 'bcrypt';
 import Metrics from './metrics.js';
 import ProductionConfig from './productionconfig.js';
 import User from './user.js';
@@ -245,19 +246,23 @@ function changePassword(args) {
   const username = args[0];
   const password = args[1];
 
-  // FIX: this computed sha1(username + password) and saved only `hash`.
-  // checkUser() (user.js) verifies logins as sha1(password + db_user.salt)
-  // using the account's existing salt -- a completely different formula, so
-  // no password entered after running this admin command could ever produce
-  // a matching hash again, permanently locking the account out. Mint a
-  // fresh salt (same pattern createUser() in user.js uses for a brand new
-  // credential) and compute the hash the same way checkUser() expects, then
-  // save both together via the updated savePassword().
-  const current_date = (new Date()).valueOf().toString();
-  const random = Math.random().toString();
-  const salt = crypto.createHash('sha1').update(current_date + random).digest('hex');
-  const hash = crypto.createHash('sha1').update(password + salt).digest('hex');
-  DBH.savePassword(username, hash, salt);
+  // FIX: this originally computed sha1(username + password) and saved only
+  // `hash` -- a completely different formula than what checkUser() (user.js)
+  // verifies logins against, permanently locking out any account this ran
+  // against. That was first fixed by matching checkUser()'s legacy
+  // sha1(password + salt) formula; now that accounts are hashed with bcrypt
+  // (see BCRYPT_SALT_ROUNDS in user.js), this admin reset does the same, so
+  // a reset account ends up in the same, stronger format as a freshly
+  // created or already-upgraded one instead of dropping back to the legacy
+  // scheme. bcrypt embeds its own salt, so the separate `salt` field is left
+  // blank here too, same as user.js's handleCreateUser.
+  bcrypt.hash(password, 10, (err, hash) => {
+    if (err) {
+      console.error("changePassword - bcrypt.hash failed: " + err.message);
+      return;
+    }
+    DBH.savePassword(username, hash, "");
+  });
 }
 
 function getInput(cmd) {
