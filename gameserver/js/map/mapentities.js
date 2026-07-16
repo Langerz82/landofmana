@@ -207,11 +207,23 @@ class MapEntities {
         //console.info("screens:"+JSON.stringify(screens));
         //console.info("ids:"+JSON.stringify(ids));
 
-        const screenIds = (ids && ids.length > 0) ? _.difference(screens, ids) : screens;
+        // PERF: `_.difference(screens, ids)` calls `_.contains(ids, ...)` (a
+        // linear indexOf-style scan of `ids`) once per element of `screens`,
+        // so this was O(screens.length * ids.length) -- on the single
+        // hottest query in the codebase (see the PERF comment on `ids`
+        // above), paid on essentially every move/attack/chat/spawn/despawn.
+        // `ids` (player.knownIds) only grows as a player explores/fights, so
+        // this got quadratically worse the longer someone played and the
+        // busier the area around them was. Building a Set from `ids` once
+        // and filtering `screens` against it does the same de-dup in
+        // O(screens.length + ids.length), with O(1) membership checks
+        // instead of O(ids.length) ones.
+        const knownSet = (ids && ids.length > 0) ? new Set(ids) : null;
+        const screenIds = knownSet ? screens.filter((id) => !knownSet.has(id)) : screens;
 
         //console.info(JSON.stringify(screenIds));
 
-        _.each(screenIds, function(id) {
+        for (const id of screenIds) {
             const entity = self.getEntityById(id);
             if(entity && !(entity === player))
             {
@@ -222,7 +234,7 @@ class MapEntities {
                     self.sendToPlayer(player, msg);
                 }
             }
-        });
+        }
     }
 
     isOffset(entity, entity2, extra, cameraHalfX, cameraHalfY) {
