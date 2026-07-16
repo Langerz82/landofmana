@@ -550,8 +550,15 @@ class Player extends Character {
 
         self.level = Types.getLevel(self.stats.exp.base);
 
-        self.items.gold[0] = parseInt(db_player.gold[0]);
-        self.items.gold[1] = parseInt(db_player.gold[1]);
+        // REFACTOR: db_player.gold[0]/[1] are already real numbers now --
+        // userserver sends gold as a real [gold0, gold1] array, not a CSV
+        // string (see userhandler.js's handleLoadPlayerInfo()), so this
+        // parseInt() is no longer an actual string-to-number parse. Kept
+        // (with a radix and `|| 0` fallback, matching how gold_0/gold_1 are
+        // guarded everywhere else on the userserver side) as cheap defensive
+        // coercion rather than trusting the wire payload outright.
+        self.items.gold[0] = parseInt(db_player.gold[0], 10) || 0;
+        self.items.gold[1] = parseInt(db_player.gold[1], 10) || 0;
 
         self.isDead = false;
 
