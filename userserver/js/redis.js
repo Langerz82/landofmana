@@ -235,32 +235,7 @@ class DatabaseHandler {
           return;
         }
 
-        const lenLooks = AppearanceData.Data.length;
-        user.looks = new Uint8Array(lenLooks);
-        for (let i = 0; i < lenLooks; ++i) {
-          user.looks[i] = 0;
-        }
-
-        user.looks[0] = 1;
-        user.looks[50] = 1;
-        user.looks[77] = 1;
-        user.looks[151] = 1;
-
-        user.gems = 2000;
-
-        const curTime = new Date().getTime();
-        const data = [
-          user.hash,
-          user.salt,
-          0,
-          '',
-          curTime,
-          0,
-          '',
-          user.gems,
-          Utils.BinArrayToBase64(user.looks),
-          user.connection._connection.remoteAddress
-        ];
+        let data = user.createDefaultValues();
 
         this.saveUserInfo(user.name, data, (username, data) => {
           user.hasLoggedIn = true;
@@ -381,6 +356,13 @@ class DatabaseHandler {
         }
         //console.info(replies.toString());
 
+        // FIX: this redeclared `const db_user` in the same scope --
+        // SyntaxError: Identifier 'db_user' has already been declared. Since
+        // this is a top-level module parse error (not something caught by a
+        // try/catch at runtime), it broke loading this entire file, which
+        // means the whole userserver process couldn't start. user.loadUser()
+        // mutates and returns the same object it's given, so there's no
+        // need for a second binding here at all -- just call it.
         const db_user = {
           "hash": data.hash,
           "salt": data.salt,
@@ -391,30 +373,17 @@ class DatabaseHandler {
           "players": data.players,
           "ipAddresses": data.ipAddresses,
           "gems": data.gems,
+          // FIX: was `"looks": data.looks2`. User.prototype.loadUser() in
+          // user.js reads this field as `db_user.looks2` (to decode the
+          // saved base64 appearance data) -- naming it "looks" here meant
+          // that check was always undefined/falsy, so the decode branch
+          // never ran and every login silently reset the player's saved
+          // look to the all-zero/beginner default instead of loading what
+          // they actually had saved.
+          "looks2": data.looks2
         };
 
-        if (!data.gems) {
-          db_user.gems = 2000;
-        } else {
-          db_user.gems = parseInt(data.gems);
-        }
-
-        const len = AppearanceData.Data.length;
-        db_user.looks = new Uint8Array(len);
-        if (data.looks2) {
-          db_user.looks = Utils.Base64ToBinArray(data.looks2, len);
-        }
-
-        // [77,0,151,50] - Beginner Looks values.
-        db_user.looks[0] = 1;
-        db_user.looks[50] = 1;
-        db_user.looks[77] = 1;
-        db_user.looks[151] = 1;
-
-        console.info(JSON.stringify(db_user));
-
-        user.looks = db_user.looks;
-        user.gems = db_user.gems;
+        user.loadUser(db_user);
 
         // FIX: checkUser() can no longer synchronously return true/false now
         // that it may need to bcrypt.compare() (inherently async) -- see the
@@ -765,13 +734,32 @@ class DatabaseHandler {
     golddiff = parseInt(golddiff);
     const pKey = "p:" + playerName;
 
+    // FIX: was `string.gmatch(data, '([^,]*)')` -- the classic Lua gotcha
+    // of using `*` (zero-or-more) instead of `+` (one-or-more) to split a
+    // comma-separated string. `*` lets the pattern match an empty string,
+    // so gmatch yields a spurious "" match at every comma boundary AND one
+    // more at the end of the string -- e.g. "100,50" split this way came
+    // out as {"100", "", "50", ""} (4 parts), not {"100", "50"} (2 parts).
+    // table.concat then wrote that back as "100,,50," -- silently
+    // corrupting the "gold" field's CSV shape on every single call to this
+    // function. Downstream, something reading that corrupted 4-field
+    // string positionally (expecting exactly 2 fields) picked up an empty
+    // string for the real second value, which became NaN once parsed as a
+    // number in JS and then got re-serialized as the literal text "NaN" --
+    // producing exactly the "field 1: Invalid input: expected number,
+    // received NaN" WU_SAVE_PLAYER_DATA validation failure this was
+    // reported as. `+` requires at least one non-comma character per
+    // match, so it can't produce empty matches and correctly yields just
+    // {"100", "50"} -- this also self-heals any already-corrupted "gold"
+    // field the next time this function runs for that player, since `+`
+    // simply skips over the spurious empty segments already baked into it.
     const script = `
       local data = redis.call('HGET', KEYS[1], 'gold')
       if not data or data == '' then
         return nil
       end
       local parts = {}
-      for part in string.gmatch(data, '([^,]*)') do
+      for part in string.gmatch(data, '([^,]+)') do
         table.insert(parts, part)
       end
       local idx = tonumber(ARGV[1]) + 1

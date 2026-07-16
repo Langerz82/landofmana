@@ -382,26 +382,39 @@ class User {   // Assuming `cls` is still available globally or via require
       }
 
       console.info("LOGIN: " + this.name);
-      if (users.has(this.name)) {
-        this.connection.send([Types.UserMessages.UC_ERROR, "loggedin"]);
-        done(false);
-        return;
-      }
-
-      for (const wh of worldHandlers) {
-        // FIX: loggedInUsers is a Map (see worldhandler.js), not a plain
-        // object -- hasOwnProperty() checks for an own JS property on the Map
-        // object itself, not an entry in the Map's storage, so this always
-        // returned false. The duplicate-login-across-worlds guard was dead.
-        if (wh.loggedInUsers.has(this.name)) {
+      // FIX: `skip_logged_in` was accepted as a parameter but never actually
+      // read anywhere in this method -- dead. removeUser() (redis.js) calls
+      // checkUser(db_user, true, callback) specifically to skip this
+      // "already logged in" rejection, because a user requesting account
+      // deletion is necessarily already logged in (that's the only way
+      // they'd have an authenticated connection to send CU_REMOVE_USER
+      // from) -- that's an expected, legitimate state there, not a
+      // duplicate-login attempt. Without honoring the flag, a correct
+      // password on account removal still got rejected here with "loggedin"
+      // and removeUser() reported that back to the client as
+      // removed_user_fail, even though the password check itself passed.
+      if (!skip_logged_in) {
+        if (users.has(this.name)) {
           this.connection.send([Types.UserMessages.UC_ERROR, "loggedin"]);
           done(false);
           return;
         }
-      }
 
-      users.set(this.name, this);
-      this.hasLoggedIn = true;
+        for (const wh of worldHandlers) {
+          // FIX: loggedInUsers is a Map (see worldhandler.js), not a plain
+          // object -- hasOwnProperty() checks for an own JS property on the Map
+          // object itself, not an entry in the Map's storage, so this always
+          // returned false. The duplicate-login-across-worlds guard was dead.
+          if (wh.loggedInUsers.has(this.name)) {
+            this.connection.send([Types.UserMessages.UC_ERROR, "loggedin"]);
+            done(false);
+            return;
+          }
+        }
+
+        users.set(this.name, this);
+        this.hasLoggedIn = true;
+      }
 
       done(true);
     };
@@ -575,6 +588,69 @@ class User {   // Assuming `cls` is still available globally or via require
       console.info("No world Handler!");
     }
     return true;
+  }
+
+  createDefaultValues() {
+    const lenLooks = AppearanceData.Data.length;
+    this.looks = new Uint8Array(lenLooks);
+    for (let i = 0; i < lenLooks; ++i) {
+      this.looks[i] = 0;
+    }
+
+    this.looks[0] = 1;
+    this.looks[50] = 1;
+    this.looks[77] = 1;
+    this.looks[151] = 1;
+
+    this.gems = 2000;
+
+    const curTime = new Date().getTime();
+    const data = [
+      this.hash,
+      this.salt,
+      0,
+      '',
+      curTime,
+      0,
+      '',
+      this.gems,
+      Utils.BinArrayToBase64(this.looks),
+      this.connection._connection.remoteAddress
+    ];
+
+    return data;
+  }
+
+  loadUser(db_user) {
+    if (!db_user.gems) {
+      db_user.gems = 2000;
+    } else {
+      db_user.gems = parseInt(db_user.gems);
+    }
+
+    const len = AppearanceData.Data.length;
+    db_user.looks = new Uint8Array(len);
+    if (db_user.looks2) {
+      db_user.looks = Utils.Base64ToBinArray(db_user.looks2, len);
+    }
+
+    // [77,0,151,50] - Beginner Looks values.
+    db_user.looks[0] = 1;
+    db_user.looks[50] = 1;
+    db_user.looks[77] = 1;
+    db_user.looks[151] = 1;
+
+    console.info(JSON.stringify(db_user));
+
+    // FIX: was `user.looks = ...` / `user.gems = ...` -- `user` isn't
+    // defined anywhere in this method's scope (no such parameter or local),
+    // so this threw ReferenceError: user is not defined on every login.
+    // Should be `this`, same as the equivalent assignments in
+    // createDefaultValues() above.
+    this.looks = db_user.looks;
+    this.gems = db_user.gems;
+
+    return db_user;
   }
 }
 
