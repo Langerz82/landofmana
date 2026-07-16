@@ -104,20 +104,29 @@ class EffectType {
       case "ep":
         target.modEp(this.diff);
         break;
+      // FIX: "attack"/"defense"/"damage" used to do a flat
+      // `target.stats.mod.<stat> = this.diff` here -- a straight
+      // overwrite, not additive. That's fine for a single skill acting
+      // alone (the only case exercised by the current skill roster: one
+      // skill per affected stat), but two concurrently active effects on
+      // the same stat would stomp on each other -- the second cast's
+      // "start" would silently discard the first cast's bonus, and
+      // whichever effect's "end" fired first would zero out *both* (every
+      // skill's "end" entry uses modValue 0, so the reset was always to a
+      // flat 0, not "subtract what I added"). Routed through
+      // applyStacking() below instead, which tracks each cast's own
+      // contribution separately (keyed on the per-cast SkillEffect
+      // instance + target + stat) and adds/removes exactly that amount,
+      // so multiple concurrent buffs on the same stat stack correctly and
+      // each one's "end" only undoes its own share.
       case "attack":
-        //if (this.diff > target.stats.mod.attack) {
-          target.stats.mod.attack = this.diff;
-          //this.active = true;
-        //}
+        this.applyStacking(skillEffect, target, "attack");
         break;
       case "defense":
-        //if (this.diff > target.stats.mod.defense) {
-          target.stats.mod.defense = this.diff;
-          //this.active = true;
-        //}
+        this.applyStacking(skillEffect, target, "defense");
         break;
       case "damage":
-        target.stats.mod.damage = this.diff;
+        this.applyStacking(skillEffect, target, "damage");
         break;
       // FIX: both branches read `this.modVal`, which is never assigned
       // anywhere on this class -- only `this.modValue` (constructor above)
@@ -158,6 +167,29 @@ class EffectType {
         break;
     }
     return;
+  }
+
+  // Applies this effect's contribution to target.stats.mod[stat]
+  // additively instead of overwriting it, so multiple concurrently active
+  // effects on the same stat (from different casts, possibly different
+  // skills) stack instead of clobbering each other. `skillEffect` is the
+  // per-cast SkillEffect instance (unlike `this`, the EffectType, which is
+  // a shared singleton reused by every cast of this skill by every
+  // player/mob -- see SkillData.Skills' construction in skilldata.js), so
+  // it's the right place to remember exactly how much *this* cast added
+  // for *this* target/stat: on "end" (or any removal), we subtract that
+  // remembered amount instead of trusting the freshly-computed diff (which
+  // is always 0 for an "end" phase, since every skill's "end" entry uses
+  // modValue 0 -- see the FIX comment on the "slow" case below) to mean
+  // "reset to zero" for the whole shared stat.
+  applyStacking(skillEffect, target, stat) {
+    skillEffect.appliedMods = skillEffect.appliedMods || {};
+    const key = target.id + ":" + stat;
+    const prevApplied = skillEffect.appliedMods[key] || 0;
+    const newApplied = (this.phase === "end") ? 0 : this.diff;
+
+    target.stats.mod[stat] = (target.stats.mod[stat] || 0) - prevApplied + newApplied;
+    skillEffect.appliedMods[key] = newApplied;
   }
 
   getModDiff(skillEffect, stat, statmod, statmax) {
