@@ -46,8 +46,24 @@ class EffectType {
         val2 = val1 = target.stats.defense;
         break;
       case "damage":
-        val1 = 0;
-        val2 = damage;
+        // FIX: was `val1 = 0; val2 = damage;`. getModDiff() below only
+        // ever reads its `stat` param (this case's val1) and `statmax`
+        // (left at 0 here, same as the "attack"/"defense" cases just
+        // above) -- `statmod` (val2) is accepted but never actually used
+        // anywhere in getModDiff(). So a percentage-based "damage" effect
+        // (modValue < 1, meant to scale off the incoming `damage` amount
+        // the same way "attack"/"defense" percentage effects scale off
+        // the caster's current stat) always multiplied against the
+        // hardcoded 0 in getModDiff()'s `diff = Math.round(diff * stat)`
+        // branch, and then `if (stat === 0) return diff;` short-circuited
+        // to 0 immediately after -- silently no-op'ing the whole effect.
+        // Setting val1 (and val2, mirroring the attack/defense pattern)
+        // to the real `damage` baseline lets the percentage branch -- and
+        // the "nothing to take a % of yet" guard -- work off the actual
+        // value instead of an always-0 placeholder. Flat per-level damage
+        // effects (modValue >= 1, e.g. the two currently-defined "damage"
+        // skills) are unaffected -- that branch never reads `stat` at all.
+        val1 = val2 = damage;
         break;
       default:
         runModDiff = false;

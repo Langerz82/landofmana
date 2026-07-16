@@ -173,7 +173,21 @@ class TaskHandler {
         if (!condition(achievement, event, player))
             return;
 
-        if (ti < 0 || ti >= achievement.data.objectCount.length)
+        // FIX: was `ti < 0 || ti >= achievement.data.objectCount.length` --
+        // `ti` is this achievement's index in the player's whole
+        // achievement *list* (from the .entries() loop above), which has
+        // nothing to do with `achievement.data.objectCount`, the per-rank
+        // threshold array for this one achievement. The very next line
+        // indexes that same array with `achievement.rank`, which is
+        // clearly what this bounds check is meant to guard -- comparing
+        // the unrelated `ti` instead only avoided throwing by coincidence
+        // (every achievement so far happens to sit at a list index smaller
+        // than its own objectCount.length). Any achievement added later
+        // whose objectCount array is shorter than its position in the
+        // list would have silently stopped processing forever; any
+        // achievement whose `rank` legitimately reached objectCount.length
+        // would throw here instead of being caught.
+        if (achievement.rank < 0 || achievement.rank >= achievement.data.objectCount.length)
             return;
 
         let count = event.count;
