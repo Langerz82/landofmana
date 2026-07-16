@@ -207,11 +207,28 @@ class PlayerItems {
         const entity = this.entity;
 
         const store = this.itemStore[type];
+        // FIX: `store` can be undefined for an out-of-range `type` (only
+        // 0/1/2 are ever assigned in itemStore) -- currently masked
+        // because packethandler.js's handleItemSlot() already checks
+        // `itemStore` truthiness before ever calling this, but this method
+        // has no callers-beware protection of its own.
+        if (!store)
+            return null;
 
         const rooms = store.rooms;
 
         //console.info("inventory: "+JSON.stringify(this.player.inventory.rooms[index]));
-        if (slot < 0 || slot >= rooms.length)
+        // FIX: was `slot >= rooms.length` -- `rooms` is a plain `{}`
+        // dictionary keyed by slot index (see items/itemroomstore.js),
+        // not an array, so `.length` is always `undefined` and
+        // `slot >= undefined` is always `false`. This bounds check has
+        // therefore never actually rejected an over-large slot -- only
+        // ever caught `slot < 0`. Currently masked the same way as the
+        // `type` check above (handleItemSlot() already validates slot
+        // against the real store's maxNumber before calling in), but this
+        // method should enforce its own contract rather than rely
+        // entirely on every future caller remembering to pre-check it.
+        if (slot < 0 || slot >= store.maxNumber)
             return null;
 
         let item = rooms[slot];

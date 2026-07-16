@@ -67,23 +67,19 @@ class PlayerQuests {
         this.progressQuest(quest);
     }
 
-    questAboutFind(quest) {
-        const p = this.player;
-        //console.info(JSON.stringify(quest));
-        // FIX: was `quest.count++ >= quest.object.count` (postfix) -- the
-        // comparison ran against the OLD count before incrementing, so a
-        // "find N" quest actually needed N+1 finds to complete. Every other
-        // count-up-to-target quest handler in this file increments first:
-        // questAboutUseNode does `quest.count++; if (quest.count >=
-        // quest.object.count)`, and questAboutKill does
-        // `++quest.count === quest.object.count`. Switched to prefix `++`
-        // here to match that same complete-exactly-at-target behavior.
-        if(++quest.count >= quest.object.count && quest.status === Types.QuestStatus.INPROGRESS) {
-            quest.count = quest.object.count;
-            const xp = quest.object.count * 10 * p.level;
-            this.completeQuest(quest, xp);
-        }
-    }
+    // NOTE: questAboutFind() (would have handled Types.QuestType.HIDEANDSEEK
+    // -- shared/js/gametypes.js) was removed from here. It had no callers
+    // anywhere in the codebase -- taskhandler.js's processEvent() only ever
+    // dispatches KILLMOBKIND/GETITEMKIND/USENODE quest types (there's no
+    // EventType for "found" something, and no quest in shared/data/quests.json
+    // uses type 4/HIDEANDSEEK either), so this was unreachable dead code, not
+    // a live feature with a broken call site. A previous pass already fixed
+    // an off-by-one in its completion check (postfix vs. prefix `++quest.count`)
+    // without noticing it was unreachable either way. Left out rather than
+    // fixed-in-place, matching how other confirmed-dead methods have been
+    // handled elsewhere in this codebase (e.g. mapentities.js's
+    // getEachEntityAround) -- if HIDEANDSEEK quests are wired up later, this
+    // logic (and the fix) can be resurrected from version control.
 
     questAboutItemComplete(quest, callback){
         const p = this.player;

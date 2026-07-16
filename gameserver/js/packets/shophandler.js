@@ -16,7 +16,20 @@ class ShopHandler {
         const type = parseInt(message[0]);
         const itemIndex = parseInt(message[1]);
 
-        const item = p.items.itemStore[0].rooms[itemIndex];
+        // FIX: unlike its sibling handlers (handleAuctionSell,
+        // handleStoreModItem, both just below), this had no explicit
+        // bounds check on itemIndex before indexing into the store. Not
+        // currently exploitable -- `rooms` is a plain object keyed by
+        // index, not an array, so an out-of-range numeric key just reads
+        // back `undefined` and the `!item` guard right after catches it --
+        // but it's a landmine for a future refactor to an array-backed
+        // store, and inconsistent with the pattern used everywhere else in
+        // this file. Aligning it here.
+        const itemStore = p.items.itemStore[0];
+        if (itemIndex < 0 || itemIndex >= itemStore.maxNumber)
+            return;
+
+        const item = itemStore.rooms[itemIndex];
         if (!item)
             return;
 

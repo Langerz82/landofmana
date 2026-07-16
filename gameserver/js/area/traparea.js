@@ -64,13 +64,28 @@ class TrapArea extends EntityArea {
         return true;
     }
 
+    // FIX: was multiplying this.x/this.y/this.width/this.height by
+    // G_TILESIZE, treating them as grid-scale coordinates. But Area's
+    // constructor (area.js) stores x/y/width/height exactly as passed in
+    // (this.x = x, no /G_TILESIZE conversion -- that's what the separate
+    // this.gx/this.gy grid-scale fields are for), the same convention
+    // Area.contains() already relies on (`x < this.x + this.width`,
+    // comparing directly against world-scale coordinates with no scaling).
+    // entity.x/entity.y are always world-scale too, so multiplying this
+    // area's bounds by G_TILESIZE here inflated them by a factor of
+    // G_TILESIZE, making isTouching() true almost everywhere (or, past
+    // map edges, effectively never matching intended trap placement) --
+    // whichever direction it broke, trap bounds would never correspond to
+    // where the trap was actually placed. Currently dead code -- TrapArea
+    // is never instantiated anywhere (see mapmanager.js's own NOTE) -- but
+    // fixed for correctness in case the trap system is re-enabled later.
     isTouching(entity) {
         const ts = G_TILESIZE;
         const half = ts >> 1;
-        const left   = this.x * ts - half;
-        const right  = (this.x + this.width) * ts + half;
-        const top    = this.y * ts - half;
-        const bottom = (this.y + this.height) * ts + half;
+        const left   = this.x - half;
+        const right  = this.x + this.width + half;
+        const top    = this.y - half;
+        const bottom = this.y + this.height + half;
 
         return entity.x >= left && entity.x <= right &&
                entity.y >= top && entity.y <= bottom;

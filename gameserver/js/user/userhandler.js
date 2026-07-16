@@ -190,7 +190,14 @@ class UserHandler {
         player.name = playerName;
         player.hash = hash;
         player.loaded = 0;
-        player.worldHandler = user.worldHandler;
+        // NOTE: was `player.worldHandler = user.worldHandler;` -- `user`
+        // (built just above) never has a `.worldHandler` property set on
+        // it anywhere (only `.userHandler`), so this always assigned
+        // `undefined`. Nothing ever reads `player.worldHandler` either --
+        // the real save path is `player.connection.worldHandler`
+        // (entity/player.js's save(), populated by `conn.worldHandler = wh`
+        // in main.js), a completely separate field. Removed as dead code
+        // rather than "fixed", since there's nothing for it to actually do.
         this.player = player;
 
         this.loadedPlayer = true;
