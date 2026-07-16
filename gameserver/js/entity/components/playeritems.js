@@ -79,6 +79,14 @@ class PlayerItems {
     handleStoreEmpty(slot, item) {
         const entity = this.entity;
 
+        // FIX: getStoredItem() returns null/undefined for a genuinely empty
+        // slot (same case handleInventoryEat() already guards against,
+        // above) but this dereferenced `item.itemKind` unconditionally --
+        // a crafted CW_ITEMSLOT drop packet pointed at an empty slot threw
+        // a TypeError here on every attempt.
+        if (!item)
+            return;
+
         const kind = item.itemKind;
         const store = this.itemStore[slot[0]];
         const index = slot[1];
@@ -211,10 +219,24 @@ class PlayerItems {
             return;
 
         const count2 = rooms[slot].itemNumber;
-        if(ItemTypes.isLootItem(item.itemKind) || ItemTypes.isConsumableItem(item.itemKind)) {
-            if (count > 0 && count2 > 0 && count2 < count)
-                item = store.takeOutItems(slot, count2);
-        }
+        // FIX: when a client requested more (`count`) than the slot
+        // actually holds (`count2`), this used to call
+        // store.takeOutItems(slot, count2) -- i.e. remove the *entire*
+        // stack from the store right here, as a side effect of just
+        // looking the item up. takeOutItems() reduces itemNumber to 0 and
+        // returns null in that case, so getStoredItem() then returned null
+        // too -- meaning the caller (handleInventoryEat/handleStoreEmpty)
+        // saw "no item here" and did nothing further, while the entire
+        // stack had already been silently deleted from the store above.
+        // Any client could trigger this just by padding the count field on
+        // an eat/drop packet (CW_ITEMSLOT) above their real stack size.
+        // Neither caller actually needs this method to pre-remove or
+        // pre-clamp anything: handleStoreEmpty() already clamps its own
+        // count against the live room's itemNumber before calling
+        // takeOutItems() itself, and handleInventoryEat() always consumes
+        // exactly 1 regardless of the requested count. So just return the
+        // item unchanged and let each caller's own (already-correct)
+        // removal logic decide how much actually comes out.
         return item;
     }
 

@@ -62,7 +62,25 @@ class EffectType {
       case "hp":
         //var oldhp = target.stats.hp;
         //target.stats.hp += this.diff;
-        target.modHp(this.diff);
+        // FIX: this used to always call target.modHp(this.diff) directly,
+        // for both healing (diff > 0) and damage (diff < 0 -- e.g. a
+        // poison/DoT-style skill's "interval" phase). modHp()/_modHp()
+        // never checks target.invincible -- that guard lives solely in
+        // onDamage() (character.js) -- so a DoT effect already ticking on
+        // a target that becomes invincible mid-duration (e.g. a mob's
+        // invuln window while returning to spawn, mob.js's
+        // returnToSpawn()) kept dealing damage every interval tick
+        // regardless of invincibility. Routing negative diffs (actual
+        // damage) through onDamage() instead closes that bypass, and as a
+        // side effect also makes a killing DoT tick correctly trigger
+        // Mob.die()/attacker-tracking the same way a normal hit does
+        // (modHp() alone never did either). Healing (diff >= 0) is left on
+        // the modHp() path unchanged -- invincible was never meant to
+        // block being healed.
+        if (this.diff < 0)
+          target.onDamage(skillEffect.source, -this.diff, 0, false, 0);
+        else
+          target.modHp(this.diff);
         //target.stats.hp = Utils.clamp(0, target.stats.hpMax, target.stats.hp);
         //if (target instanceof Player)
           //target.sendChangePoints((target.stats.hp-oldhp),0);

@@ -769,6 +769,21 @@ class PacketHandler {
             // of that happens.
             if (!(target instanceof Character))
                 return;
+
+            // FIX: unlike handleHitEntity() (the plain-attack path, which
+            // gates on sEntity.canReach(tEntity) before doing anything),
+            // this had no distance check at all -- a client could send
+            // CW_SKILL with any entity id it had ever seen on the map and
+            // get full skill damage/heal/effects applied instantly,
+            // regardless of actual distance from the caster. That's a
+            // map-wide ranged-attack/heal hack, and it also let skill.xp(1)
+            // (below) be farmed for free from a safe distance. Reuse the
+            // same canReach() range gate the base attack path already
+            // trusts -- it's keyed off the caster's own attackRange, so
+            // melee and ranged characters are still bound by whatever range
+            // rules already apply to their normal attacks.
+            if (!p.canReach(target))
+                return;
         }
 
         // Make sure the skill is ready.

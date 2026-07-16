@@ -1010,7 +1010,24 @@ class MapEntities {
     }
 
     spaceEntityRandomApart(dist, callback_func, entities, entity, threshold) {
-        entities = entities || this.entities.values();
+        // FIX: was `this.entities.values()` -- a one-shot MapIterator, not
+        // an Array or a Map. getAroundCount() below routes into
+        // getEntityAround(), which only knows how to walk an Array or a
+        // real Map (`group instanceof Map`); anything else (including a
+        // MapIterator) falls through to Utils.forEach(), which does
+        // `for...in` + hasOwnProperty() -- a MapIterator has no enumerable
+        // own properties, so that loop always ran zero times. That made
+        // getAroundCount() always return 0, so the `while (count > 0 ...)`
+        // spacing loop below always exited after exactly one attempt,
+        // silently accepting the very first randomly-generated candidate
+        // position with no actual overlap check. Every call site that
+        // relies on this default (player spawn placement in map.js, NPC
+        // placement, node/chest placement in mapmanager.js, block
+        // placement in blockarea.js) could end up stacking an entity
+        // directly on top of another. Passing the live Map itself (instead
+        // of an iterator over it) lets getEntityAround()'s existing
+        // `instanceof Map` branch iterate it correctly.
+        entities = entities || this.entities;
         threshold = threshold || 100;
         let pos = null;
         let count = 1;

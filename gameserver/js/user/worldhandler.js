@@ -52,8 +52,20 @@ class WorldHandler {
             playerHash = msg[1];
 
         let player = null;
-        if (hashes.hasOwnProperty(playerHash))
-            player = hashes[playerHash];
+        // FIX: was `hashes.hasOwnProperty(playerHash)` / `hashes[playerHash]`
+        // -- treating the `hashes` Map as a plain object -- paired with
+        // userhandler.js writing into it the same way (see the matching fix
+        // there). Neither side ever called hashes.delete(), so a login hash
+        // was never invalidated after being used: the same one-time token
+        // could be replayed later to fetch the same `player` object again,
+        // and every login permanently leaked one entry for the life of the
+        // process. Using the real Map API and deleting the entry the moment
+        // it's consumed here (whether or not the login ultimately succeeds
+        // past the checks below) closes both the leak and the replay.
+        if (hashes.has(playerHash)) {
+            player = hashes.get(playerHash);
+            hashes.delete(playerHash);
+        }
 
         if (!player) {
             console.info("player hash does not exist.");

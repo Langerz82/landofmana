@@ -134,7 +134,19 @@ class UserHandler {
 
         const player = this.player;
         console.info("player hash: "+player.hash);
-        hashes[player.hash] = player;
+        // FIX: was `hashes[player.hash] = player` -- a plain bracket
+        // property assignment on a Map instance instead of hashes.set().
+        // The property write "worked" (Map is still a regular object you
+        // can bolt properties onto) but nothing downstream could ever
+        // remove it that way -- worldhandler.js's consuming side read it
+        // back with hasOwnProperty()/bracket access too (see the matching
+        // fix there), and neither side ever called hashes.delete(), so
+        // every single login permanently leaked one entry into `hashes`
+        // for the life of the process. Using the real Map API here (paired
+        // with the .delete() added in worldhandler.js's handleLoginPlayer)
+        // lets the one-time login hash actually get cleaned up once it's
+        // been consumed.
+        hashes.set(player.hash, player);
         this.player = null;
         // FIX: this used to omit playerName, so the userserver's
         // WorldHandler.handlePlayerLoaded (userserver/js/worldhandler.js)
