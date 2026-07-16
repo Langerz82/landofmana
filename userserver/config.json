@@ -19,6 +19,8 @@
 
   "server_name" : "RRO2",
   "world_id": 1,
+  "max_username_attempts": 5,
+  "max_password_attempts": 3,
   "production": "heroku",
   "database": "redis",
   "version":99,

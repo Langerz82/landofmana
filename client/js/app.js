@@ -160,16 +160,69 @@ export default class App {
                       self.addValidationError(null, "Timeout whilst attempting to establish connection to RSO servers.");
                   break;
 
-                  case 'invalidlogin':
-                      // Login information was not correct (either username or password)
-                      self.addValidationError(null, 'The username or password you entered is incorrect.');
+                  case 'invalidlogin': {
+                      // FIX: server now tracks failed-password attempts (User.checkUser in
+                      // userserver/js/user.js) and sends how many attempts remain as data[1]
+                      // (configurable via MainConfig.max_password_attempts, default 3),
+                      // closing the connection only once exhausted, instead of the old fixed
+                      // (and inconsistently-off-by-one) threshold. data[1] is only present for
+                      // a wrong-password hit against a real account - the "username doesn't
+                      // exist at all" case (redis.js loadUser) reuses this same "invalidlogin"
+                      // code deliberately, with no count, to avoid revealing whether the
+                      // username exists.
+                      const triesRemaining = data[1];
+                      if (typeof triesRemaining !== "number") {
+                          self.addValidationError(null, 'The username or password you entered is incorrect.');
+                      } else if (triesRemaining > 0) {
+                          self.addValidationError(null,
+                              'The username or password you entered is incorrect. ' + triesRemaining +
+                              ' attempt' + (triesRemaining === 1 ? '' : 's') + ' remaining.');
+                      } else {
+                          // FIX: the connection is actually closed at this point (server-side
+                          // lockout after MainConfig.max_password_attempts), but the shown
+                          // message was identical to the plain "incorrect" case above/below -
+                          // nothing told the player they'd been disconnected rather than just
+                          // getting the password wrong again. Say so explicitly.
+                          self.$loginInfo.text("Disconnected.");
+                          self.addValidationError(null, 'You have been disconnected: too many incorrect login attempts.');
+                      }
+                      // FIX: clear this error (whether retryable or the disconnected message
+                      // above) as soon as the player edits either field, instead of leaving a
+                      // stale "incorrect"/"disconnected" message up after they've already
+                      // started fixing their input.
+                      self.clearErrorOnFieldsChange(self.userFormFields);
                       //self.getUsernameField().focus();
+                  }
                   break;
 
-                  case 'userexists':
-                      // Attempted to create a new user, but the username was taken
-                      self.$loginInfo.text("Disconnected.");
-                      self.addValidationError(null, 'The username you entered is not available.');
+                  case 'userexists': {
+                      // FIX: server (userserver/js/redis.js DatabaseHandler.createUser) no
+                      // longer disconnects on the first "username taken" hit - it now allows a
+                      // configurable number of retries (MainConfig.max_username_attempts,
+                      // default 5) before closing, and sends how many attempts remain as
+                      // data[1]. Only show "Disconnected." once the connection was actually
+                      // closed (triesRemaining === 0); otherwise tell the player how many
+                      // attempts they have left and let them retry with a different name.
+                      const triesRemaining = data[1];
+                      if (triesRemaining > 0) {
+                          self.addValidationError(self.$usernameinput,
+                              'The username you entered is not available. ' + triesRemaining +
+                              ' attempt' + (triesRemaining === 1 ? '' : 's') + ' remaining.');
+                      } else {
+                          // FIX: the connection is actually closed at this point (server-side
+                          // lockout after MainConfig.max_username_attempts), but the shown
+                          // message was identical to the plain "not available" retry case
+                          // above - nothing told the player they'd been disconnected rather
+                          // than just needing to pick another name. Say so explicitly.
+                          self.$loginInfo.text("Disconnected.");
+                          self.addValidationError(null, 'You have been disconnected: too many attempts with an unavailable username.');
+                      }
+                      // FIX: clear this error (whether retryable or the disconnected message
+                      // above) as soon as the player edits either field, instead of leaving a
+                      // stale "not available"/"disconnected" message up after they've already
+                      // started changing their input.
+                      self.clearErrorOnFieldsChange(self.userFormFields);
+                  }
                   break;
 
                   case 'playerexists':
@@ -198,27 +251,15 @@ export default class App {
                               'The playername you entered is not available.' :
                               'Please enter player name alpha numeric characters only.');
 
-                      // FIX: `keypress` doesn't fire reliably on mobile virtual keyboards -
-                      // autocomplete/predictive-text taps, swipe typing, and many IME-driven
-                      // soft keyboards commit text without dispatching key events at all - so
-                      // relying on it (as addValidationError's own built-in clear-on-keypress
-                      // does) could leave the button disabled forever on mobile even after the
-                      // player changed the name. `input` fires on any value change regardless
-                      // of input method, so listen for that instead and explicitly compare
-                      // against the name that just failed, rather than clearing on the first
-                      // event - retyping the exact same taken name shouldn't silently
-                      // re-enable the button either.
-                      const failedPlayerName = self.$playernameinput.val();
-                      self.$playernameinput.off('input.playerNameRetry')
-                          .on('input.playerNameRetry', function() {
-                              if (self.$playernameinput.val() === failedPlayerName) return;
-
-                              self.$playernameinput.off('input.playerNameRetry');
-                              self.$playernameinput.removeClass('field-error');
-                              $('.validation-error').remove();
-                              self.jqPlayerLoad.removeClass("loading");
-                              self.jqPlayerCreate.removeClass("loading");
-                          });
+                      // FIX: also re-enables the Create/Load buttons (see the "loading" class
+                      // comment above) once the name is actually edited - clearErrorOnFieldsChange
+                      // uses `input` rather than `keypress` specifically so this isn't reliant
+                      // on key events, which mobile virtual keyboards (autocomplete/predictive-
+                      // text taps, swipe typing, IME-driven soft keyboards) don't always fire.
+                      self.clearErrorOnFieldsChange([self.$playernameinput], function() {
+                          self.jqPlayerLoad.removeClass("loading");
+                          self.jqPlayerCreate.removeClass("loading");
+                      });
                   break;
 
                   case 'invalidusername':
@@ -527,6 +568,42 @@ export default class App {
                     $(this).unbind(event);
                 });
             }
+        }
+
+        /**
+         * Wires up a listener on each of `fields` so that once any of them is edited to a
+         * different value than it currently holds, the active validation error (message +
+         * field highlighting) is cleared.
+         *
+         * Uses the `input` event rather than `keypress` (which is what addValidationError's
+         * own built-in clear-on-keypress above uses) - `keypress` doesn't fire reliably on
+         * mobile virtual keyboards (autocomplete/predictive-text taps, swipe typing, and many
+         * IME-driven soft keyboards commit text without dispatching key events at all), so an
+         * error/disabled state tied to it could get stuck on mobile even after the player
+         * changed the value. Compares against each field's value at call time rather than
+         * clearing on the first event, so retyping the exact same (still-invalid) value
+         * doesn't clear the error either.
+         *
+         * `extraCleanup`, if given, runs once alongside the built-in clearing (e.g.
+         * re-enabling a disabled button tied to the same error).
+         */
+        clearErrorOnFieldsChange(fields, extraCleanup) {
+            const originalValues = fields.map(function(field) { return field.val(); });
+
+            const clear = function() {
+                fields.forEach(function(field) {
+                    field.off('input.errorRetry');
+                    field.removeClass('field-error');
+                });
+                $('.validation-error').remove();
+                if (extraCleanup) extraCleanup();
+            };
+
+            fields.forEach(function(field, i) {
+                field.off('input.errorRetry').on('input.errorRetry', function() {
+                    if (field.val() !== originalValues[i]) clear();
+                });
+            });
         }
 
         clearValidationErrors() {

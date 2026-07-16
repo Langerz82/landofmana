@@ -196,8 +196,13 @@ class DatabaseHandler {
     // Check if username is taken
     this.ExistsUsername(user.name, (name, res) => {
       if (res) {
-        user.connection.send([Types.UserMessages.UC_ERROR, "userexists"]);
-        user.connection.close("Username not available: " + user.name);
+        // FIX: was closing the connection on the very first "username taken" hit, so a
+        // player who fat-fingered or picked an already-registered name got booted back to a
+        // dead connection with one shot at registration. The attempt-counting/lockout logic
+        // now lives on User (handleUsernameTaken() in user.js, next to the equivalent
+        // passwordTries handling in checkUser()) rather than here, since it's User's own
+        // state (usernameTries/connection) being managed, not anything DB-specific.
+        user.handleUsernameTaken();
         return;
       }
 

@@ -1,4 +1,4 @@
-/* global require, module, log, DBH */
+/* global require, module, log, DBH, MainConfig */
 
 import crypto from 'crypto';
 import bcrypt from 'bcrypt';
@@ -6,6 +6,25 @@ import CryptoJS from "crypto-js";
 
 import UserMessages from "./usermessage.js";
 import formatChecker from "./format.js";
+// FIX: same missing-import pattern fixed in format.js and worldhandler.js
+// -- Types (used throughout this file's listener/handlers, e.g.
+// Types.UserMessages.CU_CREATE_USER) and Utils (Utils.sanitize/btoa/
+// checkInputName) were referenced with no import, relying on
+// global.Types/global.Utils having already been set by common.js by the
+// time any of these runtime handlers fire. Safe in practice for the same
+// reason as worldhandler.js (nothing here runs at module-load time), but
+// still a hidden dependency on main.js's import order for no reason, since
+// both are static, non-circular exports from common.js.
+import { Types, Utils } from './common.js';
+
+// NOTE: DBH, users, and worldHandlers are still referenced as bare globals
+// below (e.g. DBH.createUser, users.has, worldHandlers.length) -- same
+// reasoning as the equivalent note in worldhandler.js: these are mutable
+// runtime state owned by main.js (global.DBH = null / global.users = new
+// Map() / global.worldHandlers = [], populated as the app starts up and
+// connections come in), and main.js is this file's own importer, so
+// pulling them in via import would be a real circular dependency rather
+// than a missing static import. Left as-is.
 
 class PlayerSummary {
   constructor(index, db_player) {
@@ -64,6 +83,14 @@ class User {   // Assuming `cls` is still available globally or via require
     // incrementing an undefined value produces NaN forever, which made
     // `NaN > 3` always false and disabled the lockout-after-3-tries check.
     this.passwordTries = 0;
+
+    // Same reasoning as passwordTries above - must start at 0. Counts
+    // "username already taken" hits during registration (see
+    // DatabaseHandler.createUser in redis.js), which now allows a
+    // configurable number of retries (MainConfig.max_username_attempts)
+    // before actually closing the connection, instead of disconnecting on
+    // the very first taken name.
+    this.usernameTries = 0;
 
     this.lastPacketTime = Date.now();
 
@@ -169,6 +196,28 @@ class User {   // Assuming `cls` is still available globally or via require
     }
   }
 
+  // Records a failed "username already taken" registration attempt (called from
+  // DatabaseHandler.createUser in redis.js) and enforces the configurable
+  // MainConfig.max_username_attempts lockout (defaults to 5 if unset/non-numeric - `0` is
+  // honored as an explicit "lock out immediately" value). Mirrors checkUser()'s
+  // passwordTries handling below, just for registration instead of login. Sends the
+  // UC_ERROR itself (with however many attempts remain as the 3rd element) and only closes
+  // the connection once attempts are exhausted.
+  handleUsernameTaken() {
+    const configuredMaxUsernameAttempts = (typeof MainConfig !== "undefined" && MainConfig) ?
+        MainConfig.max_username_attempts : undefined;
+    const maxAttempts = (typeof configuredMaxUsernameAttempts === "number") ?
+        configuredMaxUsernameAttempts : 5;
+    const triesRemaining = maxAttempts - (++this.usernameTries);
+
+    if (triesRemaining <= 0) {
+      this.connection.send([Types.UserMessages.UC_ERROR, "userexists", 0]);
+      this.connection.close("Username not available: " + this.name + " (max attempts reached)");
+    } else {
+      this.connection.send([Types.UserMessages.UC_ERROR, "userexists", triesRemaining]);
+    }
+  }
+
   handleLoginUser(message) {
     let name = Utils.sanitize(message[0]);
     let hash = Utils.sanitize(message[1]);
@@ -181,8 +230,17 @@ class User {   // Assuming `cls` is still available globally or via require
     console.info("self.name=" + this.name);
     try {
       // Validate the username
+      // FIX: `Types.UserMessages.SC_ERROR` doesn't exist anywhere in
+      // shared/js/gametypes.js's UserMessages enum (only UC_ERROR does --
+      // see the identical `Types.UserMessages.UC_ERROR` sends immediately
+      // below this and throughout this file/handleCreateUser above). Since
+      // `Types.UserMessages.SC_ERROR` reads as `undefined`, this was
+      // sending `[undefined, "invalidname"]` to the client on an invalid
+      // login username instead of a real UC_ERROR packet -- the client had
+      // no defined message type to route that to, so the rejection was
+      // silently lost instead of showing the user why their login failed.
       if (!Utils.checkInputName(this.name)) {
-        this.connection.send([Types.UserMessages.SC_ERROR, "invalidname"]);
+        this.connection.send([Types.UserMessages.UC_ERROR, "invalidname"]);
         return;
       }
       if (users.has(this.name)) {
@@ -248,9 +306,31 @@ class User {   // Assuming `cls` is still available globally or via require
 
     console.info("checkUser: " + hash + " !== " + db_user.hash);
     if (hash !== db_user.hash) {
-      this.connection.send([Types.UserMessages.UC_ERROR, "invalidlogin"]);
-      if (++this.passwordTries > 3)
+      // FIX: was hardcoded `> 3`, which (since it fires strictly *after* the increment)
+      // actually allowed 4 wrong attempts before closing, not 3 as the old comment above
+      // this.passwordTries claimed. Made configurable via MainConfig.max_password_attempts
+      // (defaults to 3) and switched to the same "triesRemaining reaches 0" shape as
+      // usernameTries above/DatabaseHandler.createUser in redis.js, so a configured value of
+      // 3 means exactly 3 real attempts before lockout. Also now tells the client how many
+      // attempts remain (data[1]) so it can show that instead of just "incorrect".
+      //
+      // FIX: was `MainConfig.max_password_attempts || 3`, which also falls back to 3 for an
+      // explicit `0` (0 is falsy in JS) - meaning an admin who deliberately configured "no
+      // retries, lock out immediately" would silently get 3 retries instead. Check for
+      // "unset" with typeof so 0 is honored as a real value and only a missing/non-numeric
+      // config key falls back to the default.
+      const configuredMaxPasswordAttempts = (typeof MainConfig !== "undefined" && MainConfig) ?
+          MainConfig.max_password_attempts : undefined;
+      const maxAttempts = (typeof configuredMaxPasswordAttempts === "number") ?
+          configuredMaxPasswordAttempts : 3;
+      const triesRemaining = maxAttempts - (++this.passwordTries);
+
+      if (triesRemaining <= 0) {
+        this.connection.send([Types.UserMessages.UC_ERROR, "invalidlogin", 0]);
         this.connection.close("Wrong Password: " + this.name);
+      } else {
+        this.connection.send([Types.UserMessages.UC_ERROR, "invalidlogin", triesRemaining]);
+      }
       return false;
     }
 
