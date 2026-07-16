@@ -388,7 +388,11 @@ class WorldHandler {
           checkPlayerSaved(playerName);
         });
 
-        Accounts.savePlayerInfo(playerName, data[1], function (playerName) {
+        // NOTE: `username` is required now (in addition to playerName) --
+        // AccountLogic.savePlayerInfo() needs it to route gold_1 (data[1][5])
+        // to the shared account-level field or this character's own legacy
+        // field -- see redis.js's savePlayerInfo() REFACTOR comment.
+        Accounts.savePlayerInfo(username, playerName, data[1], function (playerName) {
           checkPlayerSaved(playerName);
         });
 
@@ -743,7 +747,12 @@ class WorldHandler {
         db_data.unshift(username);
         checkLoadDataFull(0, db_data);
 
-        Accounts.loadPlayerInfo(playername, function (playername, db_data) {
+        // NOTE: `username` is required now (in addition to playername) --
+        // AccountLogic.loadPlayerInfo() needs it to read gold_1 from the
+        // shared account-level field (falling back to this character's own
+        // legacy field if the account hasn't been combined) -- see
+        // redis.js's loadPlayerInfo() REFACTOR comment.
+        Accounts.loadPlayerInfo(username, playername, function (playername, db_data) {
           checkLoadDataFull(1, db_data);
         });
         DBH.loadQuests(playername, function (playername, db_data) {

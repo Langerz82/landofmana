@@ -18,6 +18,14 @@ let client;
 // character.
 const bankSlots = 96;
 
+// Gold cap -- matches userserver/js/format.js's playerGoldMax, the same
+// bound WU_SAVE_PLAYER_DATA's numberField(0, playerGoldMax) enforces on
+// every gold_0/gold_1 save. Duplicated here for the same reason bankSlots
+// above is (see that comment). Used by migrateGold1ToUser() below to
+// decide whether an account's combined per-character gold_1 total still
+// fits under the cap a future save could ever pass validation with.
+const playerGoldMax = 999999999;
+
 const hgetarray = function (hash, key, callback) {
   if (Array.isArray(key)) {
     const m = client.multi();
@@ -450,17 +458,32 @@ class DatabaseHandler {
   // now two separate integer fields, gold_0/gold_1, each of which HINCRBY
   // can update natively and atomically with no scripting at all.
   //
-  // gold_0/gold_1 (raw[4]/raw[5]) are handed back completely unparsed here
-  // -- whatever's actually stored, string or null. Parsing them into real
-  // ints is a data-manipulation decision, so it happens in
+  // REFACTOR: gold_1 (unlike gold_0) is account-level now (u:<username>
+  // "gold_1" field), shared across every character on the account, the same
+  // way bank moved to the account level -- see migrateGold1ToUser() below
+  // for the one-time migration that combines each account's existing
+  // per-character gold_1 values into this shared field, and the FIX comment
+  // there for why some accounts stay on the legacy per-character field
+  // instead. `username` is needed here (in addition to `playerName`) purely
+  // to read that shared field; if the account has no merged "gold_1" yet
+  // (not migrated, or migrateGold1ToUser() aborted for it), this falls back
+  // to this character's own pre-existing p:<playerName> "gold_1" field so
+  // nothing appears to have vanished -- same fallback pattern as
+  // loadUserBank() below.
+  //
+  // gold_0/gold_1 are handed back completely unparsed here -- whatever's
+  // actually stored, string or null. Parsing them into real ints is a
+  // data-manipulation decision, so it happens in
   // AccountLogic.loadPlayerInfo() (accountlogic.js), not here -- matching
   // this file's "primitives only" convention (see the REFACTOR comment at
   // the top of this file). The WU_SAVE_PLAYER_DATA wire format and
   // gameserver's userhandler.js/player.js read gold_0/gold_1 as two flat
   // elements now (not a combined string, and not a nested array either), so
-  // this raw shape -- gold_0/gold_1 as two separate positions -- already
-  // matches the wire format 1:1; AccountLogic.loadPlayerInfo() only needs
-  // to convert the two raw strings to numbers, no reshaping.
+  // the shape handed back here -- gold_0/gold_1 as two separate positions in
+  // the same 12-element record as before -- already matches the wire format
+  // 1:1; AccountLogic.loadPlayerInfo() only needs to convert the two raw
+  // strings to numbers, no reshaping, even though gold_1's underlying Redis
+  // key is now sometimes a different hash than the rest of this record.
   //
   // Migration: this used to also detect-and-repair a still-legacy player
   // right here on read (split the packed "gold" field and persist gold_0/
@@ -469,10 +492,11 @@ class DatabaseHandler {
   // pass at every server startup, and main.js blocks accepting any new
   // connection until it finishes (see migrationComplete in main.js). By the
   // time any player can log in and reach this function, gold_0/gold_1 are
-  // guaranteed to already exist, so there's nothing left to detect or
-  // repair here.
-  loadPlayerInfo(playerName, callback) {
+  // guaranteed to already exist somewhere (account-level or per-character),
+  // so there's nothing left to detect or repair here.
+  loadPlayerInfo(username, playerName, callback) {
     const pKey = "p:" + playerName;
+    const uKey = "u:" + username;
 
     client.hdel(pKey, "skillSlots");
     client.multi()
@@ -481,6 +505,7 @@ class DatabaseHandler {
       .hget(pKey, "stats")
       .hget(pKey, "exps")
       .hget(pKey, "gold_0")
+      .hget(uKey, "gold_1")
       .hget(pKey, "gold_1")
       .hget(pKey, "skills")
       .hget(pKey, "pStats")
@@ -493,8 +518,19 @@ class DatabaseHandler {
           return;
         }
 
+        const [name, map, stats, exps, gold0, userGold1, legacyGold1,
+          skills, pStats, sprites, colors, shortcuts, completeQuests] = raw;
+
+        // Prefer the shared account-level value; fall back to this
+        // character's own legacy field if the account hasn't been merged
+        // (see the REFACTOR comment above).
+        const gold1 = (userGold1 != null) ? userGold1 : legacyGold1;
+
+        const result = [name, map, stats, exps, gold0, gold1,
+          skills, pStats, sprites, colors, shortcuts, completeQuests];
+
         if (callback) {
-          callback(playerName, raw);
+          callback(playerName, result);
         }
       });
   }
@@ -511,9 +547,14 @@ class DatabaseHandler {
   // cursor-based SCAN instead of KEYS at much larger scale).
   //
   // `callback(err)` fires once every player key has been checked (err is
-  // null on success). Players that already have gold_0/gold_1 -- either
+  // null on success) AND every account's gold_1 combine pass
+  // (migrateGold1ToUser() below) has also finished -- this runs the legacy
+  // "gold" -> gold_0/gold_1 per-character split first, then chains straight
+  // into migrateGold1ToUser() once every player is done, since that second
+  // pass needs every character's gold_1 to already exist before it can sum
+  // them per account. Players that already have gold_0/gold_1 -- either
   // already migrated on a previous startup, or created fresh straight into
-  // the new format -- are left untouched.
+  // the new format -- are left untouched by this first pass.
   migrateGoldFields(callback) {
     client.keys('p:*', (err, keys) => {
       if (err) {
@@ -523,7 +564,7 @@ class DatabaseHandler {
 
       if (keys.length === 0) {
         console.info("migrateGoldFields: no players found, nothing to migrate.");
-        if (callback) callback(null);
+        this.migrateGold1ToUser(callback);
         return;
       }
 
@@ -536,7 +577,11 @@ class DatabaseHandler {
         if (remaining === 0) {
           console.info("migrateGoldFields: complete -- migrated " + migratedCount +
             " of " + keys.length + " player(s).");
-          if (callback) callback(firstError);
+          // Per-character gold_0/gold_1 now guaranteed to exist for every
+          // player -- safe to combine gold_1 per account.
+          this.migrateGold1ToUser((err2) => {
+            if (callback) callback(firstError || err2);
+          });
         }
       };
 
@@ -554,13 +599,44 @@ class DatabaseHandler {
             }
 
             const [legacyGold, gold0, gold1] = raw;
-/*
-            if (gold0 != null && gold1 != null) {
-              // Already on the new fields -- nothing to migrate.
+
+            // FIX: this skip check used to be commented out entirely, so
+            // this loop unconditionally re-derived gold_0/gold_1 from the
+            // legacy "gold" field on EVERY startup -- including players
+            // who'd already been split (or created fresh straight into
+            // gold_0/gold_1, never having had a "gold" field at all).
+            // Since "gold" is deleted the first time a player is actually
+            // split (see the hdel(pKey, "gold") below), every subsequent
+            // restart found no legacy field, computed legacyParts as [],
+            // and silently overwrote gold_0/gold_1 with 0 -- wiping real
+            // currency on every restart after the first. This was
+            // especially damaging for migrateGold1ToUser()'s
+            // abort-and-fallback accounts (see the FIX comment there):
+            // their per-character gold_1 IS the real, currently-active
+            // balance for an over-cap account, and this bug reset it to 0
+            // right before migrateGold1ToUser() re-summed it, letting an
+            // over-cap account silently "succeed" on the next restart with
+            // a bogus zeroed total instead of staying correctly aborted.
+            //
+            // gold_0 alone is a reliable "already split" signal: it's one
+            // of the two fields this function's own write below always
+            // sets together (in the same multi/exec), and it's also always
+            // set directly by a normal player save
+            // (AccountLogic.savePlayerInfo() -> this.savePlayerInfo()
+            // above) once a player exists at all -- so if it's present,
+            // there's nothing left to derive from a legacy "gold" field.
+            // gold_1 is deliberately NOT part of this check: unlike
+            // gold_0, migrateGold1ToUser() below intentionally deletes a
+            // player's per-character gold_1 once it's been successfully
+            // combined into the shared account-level field (see the
+            // Cleanup comment there), so a missing gold_1 on an
+            // already-split player just means that combine succeeded, not
+            // that this split still needs to run.
+            if (gold0 != null) {
               checkDone();
               return;
             }
-*/
+
             const legacyParts = (typeof legacyGold === 'string') ? legacyGold.split(',') : [];
             const newGold0 = parseInt(legacyParts[0], 10) || 0;
             const newGold1 = parseInt(legacyParts[1], 10) || 0;
@@ -583,6 +659,179 @@ class DatabaseHandler {
     });
   }
 
+  // One-time (idempotent, re-run-safe) migration: combines every user's
+  // characters' individual gold_1 values (already guaranteed to exist by
+  // the per-character pass above) into one shared account-level gold_1
+  // (u:<username> "gold_1" field) -- mirrors migrateBankToUser()'s
+  // account-level bank field, for the same reason: an account's characters
+  // now share one gold_1 pool instead of each holding their own. Chained
+  // automatically from the end of migrateGoldFields() above (see there),
+  // every startup, and is safe to run repeatedly: any user that already has
+  // a "gold_1" field is left untouched, so accounts already combined on a
+  // previous startup (or created fresh straight into the new scheme) are
+  // skipped.
+  //
+  // Combine strategy: every character's own gold_1 is summed (order doesn't
+  // matter here the way it does for migrateBankToUser()'s items -- plain
+  // numbers have no slot to collide over, only a total).
+  //
+  // FIX-equivalent (same shape as migrateBankToUser()'s slot-cap check): if
+  // the combined total would exceed playerGoldMax (userserver/js/format.js)
+  // -- the same cap WU_SAVE_PLAYER_DATA's numberField(0, playerGoldMax)
+  // already enforces on every future gold_1 save -- writing that total
+  // would leave the account with a value no legitimate save could ever pass
+  // validation with again. So exactly like the bank's slot-cap case, this
+  // aborts (leaves "gold_1" unset) rather than writing an out-of-range
+  // total; loadPlayerInfo()/savePlayerInfo() above both fall back to each
+  // character's own p:<playerName> "gold_1" field whenever the account has
+  // no merged field, so an aborted account keeps working exactly as it did
+  // before. Retried automatically every startup (same "gold_1" field
+  // presence check), so an account that later drops enough gold to fit
+  // combines on a future restart with no manual intervention.
+  //
+  // Cleanup: once a combine actually succeeds for an account, every
+  // combined character's now-redundant p:<playerName> "gold_1" field is
+  // deleted -- there's no fallback reason left to keep it once the shared
+  // "gold_1" field exists. An aborted account's per-character "gold_1"
+  // fields are deliberately left alone, since those are still the active
+  // data for that account.
+  //
+  // Same client.keys(...) full-keyspace scan caveat as
+  // removeOldValues()/insertMissingPlayerKeys()/migrateGoldFields()/
+  // migrateBankToUser() above.
+  //
+  // `callback(err)` fires once every user has been checked (err is null on
+  // success).
+  migrateGold1ToUser(callback) {
+    client.keys('u:*', (err, userKeys) => {
+      if (err) {
+        if (callback) callback(err);
+        return;
+      }
+
+      if (userKeys.length === 0) {
+        console.info("migrateGold1ToUser: no users found, nothing to migrate.");
+        if (callback) callback(null);
+        return;
+      }
+
+      let remaining = userKeys.length;
+      let migratedCount = 0;
+      let abortedCount = 0;
+      let firstError = null;
+
+      const checkDone = () => {
+        remaining--;
+        if (remaining === 0) {
+          console.info("migrateGold1ToUser: complete -- combined " + migratedCount +
+            " of " + userKeys.length + " user(s), " + abortedCount +
+            " left on the legacy per-character gold_1 (combined total exceeds " +
+            playerGoldMax + ").");
+          if (callback) callback(firstError);
+        }
+      };
+
+      for (const uKey of userKeys) {
+        client.multi()
+          .hget(uKey, "gold_1")
+          .hget(uKey, "players")
+          .exec((err, raw) => {
+            if (err) {
+              console.error("migrateGold1ToUser: read failed for " + uKey + ": " + JSON.stringify(err));
+              firstError = firstError || err;
+              checkDone();
+              return;
+            }
+
+            const [existingGold1, playersCsv] = raw;
+
+            if (existingGold1 != null) {
+              // Already on the new field -- nothing to combine.
+              checkDone();
+              return;
+            }
+
+            const playerNames = (typeof playersCsv === 'string' && playersCsv !== '')
+              ? playersCsv.split(',')
+              : [];
+
+            if (playerNames.length === 0) {
+              // No characters at all yet -- nothing to combine, just seed a
+              // zero shared balance so this account counts as migrated.
+              client.hset(uKey, "gold_1", 0, (err) => {
+                if (err) {
+                  console.error("migrateGold1ToUser: write failed for " + uKey + ": " + JSON.stringify(err));
+                  firstError = firstError || err;
+                } else {
+                  migratedCount++;
+                }
+                checkDone();
+              });
+              return;
+            }
+
+            let playersRemaining = playerNames.length;
+            let total = 0;
+
+            playerNames.forEach((playerName) => {
+              client.hget("p:" + playerName, "gold_1", (err, value) => {
+                if (err) {
+                  console.error("migrateGold1ToUser: read failed for p:" + playerName + ": " + JSON.stringify(err));
+                }
+
+                total += parseInt(value, 10) || 0;
+
+                playersRemaining--;
+                if (playersRemaining === 0) {
+                  if (total > playerGoldMax) {
+                    console.warn("migrateGold1ToUser: " + uKey + " has a combined gold_1 total of " +
+                      total + " across " + playerNames.length + " character(s), more than the " +
+                      playerGoldMax + " cap -- leaving this account on its existing per-character " +
+                      "gold_1 instead of combining.");
+                    abortedCount++;
+                    checkDone();
+                    return;
+                  }
+
+                  client.hset(uKey, "gold_1", total, (err) => {
+                    if (err) {
+                      console.error("migrateGold1ToUser: write failed for " + uKey + ": " + JSON.stringify(err));
+                      firstError = firstError || err;
+                      checkDone();
+                      return;
+                    }
+
+                    migratedCount++;
+
+                    // The shared account-level gold_1 is now the source of
+                    // truth for this account -- each character's own
+                    // p:<playerName> "gold_1" field is redundant from here
+                    // on (loadPlayerInfo()/savePlayerInfo() only ever fall
+                    // back to it when the account has no "gold_1" field at
+                    // all, which is no longer true), so clean up the stale
+                    // per-character copies rather than leaving them behind.
+                    let deleteRemaining = playerNames.length;
+                    playerNames.forEach((playerName) => {
+                      client.hdel("p:" + playerName, "gold_1", (err2) => {
+                        if (err2) {
+                          console.warn("migrateGold1ToUser: failed to delete stale p:" + playerName +
+                            " gold_1 field: " + JSON.stringify(err2));
+                        }
+                        deleteRemaining--;
+                        if (deleteRemaining === 0) {
+                          checkDone();
+                        }
+                      });
+                    });
+                  });
+                }
+              });
+            });
+          });
+      }
+    });
+  }
+
   // REFACTOR: expects gold already split into two elements -- data[4] =
   // gold_0, data[5] = gold_1 -- matching the WU_SAVE_PLAYER_DATA wire
   // format, which now sends gold_0/gold_1 as two flat elements (not a
@@ -595,34 +844,53 @@ class DatabaseHandler {
   // reshaping of its own. The legacy "gold" field is intentionally left
   // untouched (not written) going forward now that gold_0/gold_1 are the
   // source of truth.
-  savePlayerInfo(playerName, data, callback) {
+  //
+  // REFACTOR: gold_1 is account-level now -- see the REFACTOR comment on
+  // loadPlayerInfo() above for the full rationale. `username` is needed
+  // here (in addition to `playerName`) to know which hash gold_1 belongs
+  // in: the shared u:<username> "gold_1" field if this account has been
+  // merged, or this character's own legacy p:<playerName> "gold_1" field if
+  // not (mirroring saveUserBank()'s existing/legacy check below). Every
+  // character on a merged account writes to the same shared field, so
+  // whichever character saves last "wins" -- the same last-write-wins
+  // tradeoff saveUserBank() already accepts for the shared bank.
+  savePlayerInfo(username, playerName, data, callback) {
     const pKey = "p:" + playerName;
+    const uKey = "u:" + username;
 
-    client.multi()
-      .sadd("player", data[0])
-      .hset(pKey, "name", data[0])
-      .hset(pKey, "map", data[1])
-      .hset(pKey, "stats", data[2])
-      .hset(pKey, "exps", data[3])
-      .hset(pKey, "gold_0", data[4])
-      .hset(pKey, "gold_1", data[5])
-      .hset(pKey, "skills", data[6])
-      .hset(pKey, "pStats", data[7])
-      .hset(pKey, "sprites", data[8])
-      .hset(pKey, "colors", data[9])
-      .hset(pKey, "shortcuts", data[10])
-      .hset(pKey, "completeQuests", data[11])
-      .exec((err, replies) => {
-        if (err) {
-          console.warn(err);
-          console.warn(JSON.stringify(replies));
-          return;
-        }
+    client.hget(uKey, "gold_1", (err, existingGold1) => {
+      if (err) {
+        console.warn("redis.savePlayerInfo: " + JSON.stringify(err));
+      }
 
-        if (callback) {
-          callback(playerName);
-        }
-      });
+      const gold1Key = (existingGold1 != null) ? uKey : pKey;
+
+      client.multi()
+        .sadd("player", data[0])
+        .hset(pKey, "name", data[0])
+        .hset(pKey, "map", data[1])
+        .hset(pKey, "stats", data[2])
+        .hset(pKey, "exps", data[3])
+        .hset(pKey, "gold_0", data[4])
+        .hset(gold1Key, "gold_1", data[5])
+        .hset(pKey, "skills", data[6])
+        .hset(pKey, "pStats", data[7])
+        .hset(pKey, "sprites", data[8])
+        .hset(pKey, "colors", data[9])
+        .hset(pKey, "shortcuts", data[10])
+        .hset(pKey, "completeQuests", data[11])
+        .exec((err2, replies) => {
+          if (err2) {
+            console.warn(err2);
+            console.warn(JSON.stringify(replies));
+            return;
+          }
+
+          if (callback) {
+            callback(playerName);
+          }
+        });
+    });
   }
 
   // FIX: was hget -> compute new value in JS -> hset, a classic
@@ -953,6 +1221,13 @@ class DatabaseHandler {
   // that later drops enough items to fit gets merged on a future restart
   // with no manual intervention.
   //
+  // Cleanup: once a merge actually succeeds for an account, every merged
+  // character's now-redundant p:<playerName> "bank" field is deleted (see
+  // mergeAndWrite() below) -- there's no fallback reason left to keep it
+  // once the shared "bank" field exists. An aborted account's
+  // per-character "bank" fields are deliberately left alone, since those
+  // are still the active data for that account.
+  //
   // Same client.keys(...) full-keyspace scan caveat as
   // removeOldValues()/insertMissingPlayerKeys()/migrateGoldFields() above:
   // blocks the single-threaded Redis server for O(N) key count, and this
@@ -1073,10 +1348,32 @@ class DatabaseHandler {
                 if (err) {
                   console.error("migrateBankToUser: write failed for " + uKey + ": " + JSON.stringify(err));
                   firstError = firstError || err;
-                } else {
-                  migratedCount++;
+                  checkDone();
+                  return;
                 }
-                checkDone();
+
+                migratedCount++;
+
+                // The shared account-level bank is now the source of truth
+                // for this account -- each character's own p:<playerName>
+                // "bank" field is redundant from here on (loadUserBank()/
+                // saveUserBank() only ever fall back to it when the account
+                // has no "bank" field at all, which is no longer true), so
+                // clean up the stale per-character copies rather than
+                // leaving them behind.
+                let deleteRemaining = playerNames.length;
+                playerNames.forEach((playerName) => {
+                  client.hdel("p:" + playerName, "bank", (err2) => {
+                    if (err2) {
+                      console.warn("migrateBankToUser: failed to delete stale p:" + playerName +
+                        " bank field: " + JSON.stringify(err2));
+                    }
+                    deleteRemaining--;
+                    if (deleteRemaining === 0) {
+                      checkDone();
+                    }
+                  });
+                });
               });
             };
 

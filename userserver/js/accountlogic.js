@@ -403,8 +403,15 @@ class AccountLogic {
   // (Redis has no numeric type -- everything comes back as a string or
   // null), which is why this function still exists rather than being a bare
   // passthrough to this.dbh.loadPlayerInfo().
-  loadPlayerInfo(playerName, callback) {
-    this.dbh.loadPlayerInfo(playerName, (playername, raw) => {
+  //
+  // REFACTOR: `username` is now required (in addition to `playerName`) --
+  // redis.js's loadPlayerInfo() needs it to read gold_1 from the shared
+  // account-level field (u:<username>) instead of (or as a fallback from)
+  // this character's own field, now that gold_1 has moved to the account
+  // level the same way bank did -- see the REFACTOR comment on redis.js's
+  // loadPlayerInfo() for the full rationale.
+  loadPlayerInfo(username, playerName, callback) {
+    this.dbh.loadPlayerInfo(username, playerName, (playername, raw) => {
       const data = raw.slice();
       data[4] = parseInt(raw[4], 10) || 0;
       data[5] = parseInt(raw[5], 10) || 0;
@@ -432,8 +439,13 @@ class AccountLogic {
   // (not DBH.savePlayerInfo() directly), keeping the same call path in case
   // this ever needs real business logic again, the way loadPlayerInfo()
   // above still does.
-  savePlayerInfo(playerName, data, callback) {
-    this.dbh.savePlayerInfo(playerName, data, callback);
+  //
+  // REFACTOR: `username` is now required (in addition to `playerName`) --
+  // redis.js's savePlayerInfo() needs it to know whether gold_1 (data[5])
+  // belongs in the shared account-level field or this character's own
+  // legacy field, matching loadPlayerInfo() above.
+  savePlayerInfo(username, playerName, data, callback) {
+    this.dbh.savePlayerInfo(username, playerName, data, callback);
   }
 }
 
