@@ -41,6 +41,35 @@ const getItemsStoreCount = function (type) {
   return 50;
 };
 
+// FIX: added to repair a malformed "gold" field before it's ever handed to
+// a gameserver. A prior bug in modifyGold()'s Lua script (below) could
+// corrupt this field into an uneven-field-count CSV string (e.g.
+// "100,,50,"), and once a gameserver loaded that malformed data, an
+// in-memory NaN on its side could round-trip straight back here as the
+// literal text "NaN" on the next save -- producing the
+// "field 1: Invalid input: expected number, received NaN"
+// WU_SAVE_PLAYER_DATA validation failure. Rather than relying on every
+// downstream consumer to defend against a bad "gold" value, sanitize it
+// once, here, at the data layer, and repair the stored Redis value too so
+// an affected account self-heals permanently the next time it's loaded --
+// not just for that one in-memory session. Note: if a field was already
+// corrupted, its real prior value is unrecoverable at this point (it was
+// already overwritten upstream), so this resets that field to 0 rather
+// than restoring lost gold.
+const sanitizeGoldField = (raw) => {
+  const parts = (typeof raw === 'string' ? raw.split(',') : []);
+  let changed = (parts.length !== 2);
+  const clean = [0, 1].map((i) => {
+    const n = parseInt(parts[i], 10);
+    if (!Number.isFinite(n) || n < 0) {
+      changed = true;
+      return 0;
+    }
+    return n;
+  });
+  return { value: clean.join(','), changed };
+};
+
 // TODO Array parseInt where appropriate.
 
 class DatabaseHandler {
@@ -584,6 +613,18 @@ class DatabaseHandler {
         if (data === null || !(typeof data === 'object')) {
           return;
         }
+
+        // FIX: see sanitizeGoldField() above -- repair a malformed "gold"
+        // field (index 4 here, matching the .hget(pKey, "gold") position
+        // above) before it's ever handed to a gameserver, and persist the
+        // repair back to Redis so this doesn't need to be re-detected on
+        // every subsequent load.
+        const goldFix = sanitizeGoldField(data[4]);
+        if (goldFix.changed) {
+          console.warn("redis.loadPlayerInfo - repairing malformed gold field for '" + playerName + "': " + JSON.stringify(data[4]) + " -> " + goldFix.value);
+          client.hset(pKey, "gold", goldFix.value);
+        }
+        data[4] = goldFix.value;
 
         if (callback) {
           callback(playerName, data);

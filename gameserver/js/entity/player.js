@@ -550,26 +550,8 @@ class Player extends Character {
 
         self.level = Types.getLevel(self.stats.exp.base);
 
-        // FIX: parseInt() on a missing/malformed gold field (e.g. an
-        // out-of-range index into a "gold" CSV that had been corrupted --
-        // see the FIX comment on the Lua script in userserver/js/redis.js's
-        // modifyGold(), which used to produce exactly this kind of
-        // malformed data) silently produced NaN, which then got loaded
-        // straight into live memory here. From there, every subsequent
-        // save did `player.items.gold.join(",")` (worldhandler.js), and
-        // joining an array containing the *number* NaN stringifies it as
-        // the literal text "NaN" -- which is what actually tripped the
-        // "field 1: Invalid input: expected number, received NaN"
-        // WU_SAVE_PLAYER_DATA validation failure on the userserver side,
-        // and then got written back into Redis as that same literal text.
-        // Falling back to 0 here breaks the propagation at its source
-        // regardless of what malformed input arrives, and self-heals any
-        // already-corrupted account the next time they load in -- though
-        // note that whatever the real prior value was is unrecoverable by
-        // this point (it was already overwritten with "NaN" upstream), so
-        // this resets it to 0 rather than restoring lost gold.
-        self.items.gold[0] = parseInt(db_player.gold[0]) || 0;
-        self.items.gold[1] = parseInt(db_player.gold[1]) || 0;
+        self.items.gold[0] = parseInt(db_player.gold[0]);
+        self.items.gold[1] = parseInt(db_player.gold[1]);
 
         self.isDead = false;
 
