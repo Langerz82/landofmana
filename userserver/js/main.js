@@ -9,6 +9,7 @@ import User from './user.js';
 import WorldHandler from './worldhandler.js';
 //import Utils from './utils.js';
 import redis from './redis.js';
+import AccountLogic from './accountlogic.js';
 import UserMessages from './usermessage.js';
 
 // Add these:
@@ -49,6 +50,13 @@ const log_stdout = process.stdout;
 global.MainConfig = null;
 global.DBH = null;
 global.databaseHandler = null;
+// REFACTOR: business logic (account/player creation, login, removal,
+// offline-gold-transfer orchestration -- see accountlogic.js) that used to
+// live inside DatabaseHandler (redis.js) now lives here instead, exposed
+// the same way DBH is: a global set up once at startup, referenced as a
+// bare identifier elsewhere (user.js, worldhandler.js) per this codebase's
+// existing convention for runtime-populated globals owned by main.js.
+global.Accounts = null;
 global.worldHandlers = [];
 global.users = new Map();
 
@@ -105,6 +113,7 @@ async function main(config) {
       const DatabaseHandlerClass = selectorModule.default || selectorModule;
 
       global.DBH = global.databaseHandler = new DatabaseHandlerClass(config);
+      global.Accounts = new AccountLogic(global.DBH);
       console.log("REDIS SERVER CREATED!!!!!!!!!!!!!");
   } catch (err) {
       console.error("Database handler initialization failed:", err);

@@ -30,14 +30,18 @@ function safeCompare(a, b) {
   return crypto.timingSafeEqual(bufA, bufB);
 }
 
-// NOTE: DBH, users, and worldHandlers are still referenced as bare globals
-// below (e.g. DBH.createUser, users.has, worldHandlers.length) -- same
-// reasoning as the equivalent note in worldhandler.js: these are mutable
-// runtime state owned by main.js (global.DBH = null / global.users = new
-// Map() / global.worldHandlers = [], populated as the app starts up and
-// connections come in), and main.js is this file's own importer, so
-// pulling them in via import would be a real circular dependency rather
-// than a missing static import. Left as-is.
+// NOTE: DBH, Accounts, users, and worldHandlers are still referenced as bare
+// globals below (e.g. Accounts.createUser, users.has, worldHandlers.length)
+// -- same reasoning as the equivalent note in worldhandler.js: these are
+// mutable runtime state owned by main.js (global.DBH = null / global.Accounts
+// = null / global.users = new Map() / global.worldHandlers = [], populated
+// as the app starts up and connections come in), and main.js is this file's
+// own importer, so pulling them in via import would be a real circular
+// dependency rather than a missing static import. Left as-is. (Accounts is
+// the account/player business-logic layer -- see accountlogic.js -- calls
+// that used to go to DBH directly for account creation/removal/login and
+// player creation now go to Accounts instead; DBH itself is still used
+// directly here for simple data operations like savePassword.)
 
 // FIX: bcrypt was already imported into this file but never actually
 // called anywhere -- passwords were hashed with a single round of salted
@@ -225,7 +229,7 @@ class User {   // Assuming `cls` is still available globally or via require
         self.salt = "";
         self.loggedInDate = Date.now();
 
-        DBH.createUser(self);
+        Accounts.createUser(self);
       });
     } catch (e) {
       console.info('message=' + e.message);
@@ -289,7 +293,7 @@ class User {   // Assuming `cls` is still available globally or via require
       this.hash = hash;
       this.loggedInDate = Date.now();
 
-      DBH.loadUser(this);
+      Accounts.loadUser(this);
     } catch (e) {
       console.info('message=' + e.message);
       console.info('stack=' + e.stack);
@@ -305,7 +309,7 @@ class User {   // Assuming `cls` is still available globally or via require
     try {
       self.hash = hash;
 
-      DBH.removeUser(self);
+      Accounts.removeUser(self);
     } catch (e) {
       console.info('message=' + e.message);
       console.info('stack=' + e.stack);
@@ -509,7 +513,7 @@ class User {   // Assuming `cls` is still available globally or via require
     console.info("self.player.name=" + db_player.name);
 
     try {
-      DBH.createPlayer(db_player.name, (playername, res) => {
+      Accounts.createPlayer(db_player.name, (playername, res) => {
         // FIX: getWorldHandler() can return null (worldIndex out of the
         // *currently connected* worldHandlers range -- format.js only
         // validates against the static maxWorldCount, not the live
@@ -588,69 +592,6 @@ class User {   // Assuming `cls` is still available globally or via require
       console.info("No world Handler!");
     }
     return true;
-  }
-
-  createDefaultValues() {
-    const lenLooks = AppearanceData.Data.length;
-    this.looks = new Uint8Array(lenLooks);
-    for (let i = 0; i < lenLooks; ++i) {
-      this.looks[i] = 0;
-    }
-
-    this.looks[0] = 1;
-    this.looks[50] = 1;
-    this.looks[77] = 1;
-    this.looks[151] = 1;
-
-    this.gems = 2000;
-
-    const curTime = new Date().getTime();
-    const data = [
-      this.hash,
-      this.salt,
-      0,
-      '',
-      curTime,
-      0,
-      '',
-      this.gems,
-      Utils.BinArrayToBase64(this.looks),
-      this.connection._connection.remoteAddress
-    ];
-
-    return data;
-  }
-
-  loadUser(db_user) {
-    if (!db_user.gems) {
-      db_user.gems = 2000;
-    } else {
-      db_user.gems = parseInt(db_user.gems);
-    }
-
-    const len = AppearanceData.Data.length;
-    db_user.looks = new Uint8Array(len);
-    if (db_user.looks2) {
-      db_user.looks = Utils.Base64ToBinArray(db_user.looks2, len);
-    }
-
-    // [77,0,151,50] - Beginner Looks values.
-    db_user.looks[0] = 1;
-    db_user.looks[50] = 1;
-    db_user.looks[77] = 1;
-    db_user.looks[151] = 1;
-
-    console.info(JSON.stringify(db_user));
-
-    // FIX: was `user.looks = ...` / `user.gems = ...` -- `user` isn't
-    // defined anywhere in this method's scope (no such parameter or local),
-    // so this threw ReferenceError: user is not defined on every login.
-    // Should be `this`, same as the equivalent assignments in
-    // createDefaultValues() above.
-    this.looks = db_user.looks;
-    this.gems = db_user.gems;
-
-    return db_user;
   }
 }
 

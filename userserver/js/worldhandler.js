@@ -1,4 +1,4 @@
-/* global require, module, log, DBH */
+/* global require, module, log, DBH, Accounts */
 
 import crypto from 'crypto';
 import formatChecker from "./format.js";
@@ -347,7 +347,7 @@ class WorldHandler {
             try {
               self.playerSaveData[playerName]++;
               if (self.playerSaveData[playerName] === 7) {
-                DBH.createPlayerNameInUser(username, playerName);
+                Accounts.createPlayerNameInUser(username, playerName);
                 // FIX: this transferOfflineGold call used to be gated on the
                 // ENTIRE playerSaveData map being empty, rather than on this
                 // specific player's save finishing. With more than one player
@@ -370,7 +370,7 @@ class WorldHandler {
                 // to actually confirm -- a small (single Redis round-trip)
                 // window versus before, traded for actually firing this call
                 // for every player instead of almost never.)
-                DBH.transferOfflineGold(playerName, function (playerName) {});
+                Accounts.transferOfflineGold(playerName, function (playerName) {});
                 if (!update) {
                   delete self.playerSaveData[playerName];
                   users.delete(username);
@@ -400,15 +400,15 @@ class WorldHandler {
           checkPlayerSaved(playerName);
         });
 
-        DBH.saveItems(playerName, 0, data[4], function (playerName) {
+        DBH.saveItems(playerName, 0, "inventory", data[4], function (playerName) {
           checkPlayerSaved(playerName);
         });
 
-        DBH.saveItems(playerName, 1, data[5], function (playerName) {
+        DBH.saveItems(playerName, 1, "bank", data[5], function (playerName) {
           checkPlayerSaved(playerName);
         });
 
-        DBH.saveItems(playerName, 2, data[6], function (playerName) {
+        DBH.saveItems(playerName, 2, "equipment", data[6], function (playerName) {
           checkPlayerSaved(playerName);
         });
       } catch (err) {
@@ -561,7 +561,7 @@ class WorldHandler {
         }
       };
 
-      DBH.loadPlayerUserInfo(user, function (username, data) {
+      Accounts.loadPlayerUserInfo(user, function (username, data) {
         const objData = {};
         objData.data = new Array(7);
         objData.count = 0;
@@ -696,7 +696,7 @@ class WorldHandler {
         }
       };
 
-      DBH.loadPlayerUserInfo(user, function (username, db_data) {
+      Accounts.loadPlayerUserInfo(user, function (username, db_data) {
         const objData = {};
         objData.data = new Array(7);
         objData.count = 0;
@@ -711,7 +711,7 @@ class WorldHandler {
         db_data.unshift(username);
         checkLoadDataFull(0, db_data);
 
-        DBH.loadPlayerInfo(playername, function (playername, db_data) {
+        Accounts.loadPlayerInfo(playername, function (playername, db_data) {
           checkLoadDataFull(1, db_data);
         });
         DBH.loadQuests(playername, function (playername, db_data) {
@@ -721,15 +721,15 @@ class WorldHandler {
           checkLoadDataFull(3, db_data);
         });
         // INVENTORY
-        DBH.loadItems(playername, 0, function (playername, db_data) {
+        DBH.loadItems(playername, 0, "inventory", function (playername, db_data) {
           checkLoadDataFull(4, db_data);
         });
         // BANK
-        DBH.loadItems(playername, 1, function (playername, db_data) {
+        DBH.loadItems(playername, 1, "bank", function (playername, db_data) {
           checkLoadDataFull(5, db_data);
         });
         // EQUIPMENT
-        DBH.loadItems(playername, 2, function (playername, db_data) {
+        DBH.loadItems(playername, 2, "equipment", function (playername, db_data) {
           checkLoadDataFull(6, db_data);
         });
       });

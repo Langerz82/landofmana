@@ -19,59 +19,35 @@ const hgetarray = function (hash, key, callback) {
   }
 };
 
-const getStoreTypeNew = function(type) {
-  let sType;
-  switch (type) {
-    case 0: // Inventory Item
-      sType = "inventory";
-      break;
-    case 1: // Bank Item
-      sType = "bank";
-      break;
-    case 2: // Equipped Item
-      sType = "equipment";
-      break;
-  }
-  return sType;
-};
-
-const getItemsStoreCount = function (type) {
-  if (type === 1) return 96;
-  if (type === 2) return 5;
-  return 50;
-};
-
-// FIX: added to repair a malformed "gold" field before it's ever handed to
-// a gameserver. A prior bug in modifyGold()'s Lua script (below) could
-// corrupt this field into an uneven-field-count CSV string (e.g.
-// "100,,50,"), and once a gameserver loaded that malformed data, an
-// in-memory NaN on its side could round-trip straight back here as the
-// literal text "NaN" on the next save -- producing the
-// "field 1: Invalid input: expected number, received NaN"
-// WU_SAVE_PLAYER_DATA validation failure. Rather than relying on every
-// downstream consumer to defend against a bad "gold" value, sanitize it
-// once, here, at the data layer, and repair the stored Redis value too so
-// an affected account self-heals permanently the next time it's loaded --
-// not just for that one in-memory session. Note: if a field was already
-// corrupted, its real prior value is unrecoverable at this point (it was
-// already overwritten upstream), so this resets that field to 0 rather
-// than restoring lost gold.
-const sanitizeGoldField = (raw) => {
-  const parts = (typeof raw === 'string' ? raw.split(',') : []);
-  let changed = (parts.length !== 2);
-  const clean = [0, 1].map((i) => {
-    const n = parseInt(parts[i], 10);
-    if (!Number.isFinite(n) || n < 0) {
-      changed = true;
-      return 0;
-    }
-    return n;
-  });
-  return { value: clean.join(','), changed };
-};
-
 // TODO Array parseInt where appropriate.
 
+// REFACTOR: this file used to also hold account/player *business logic*
+// (createUser, removeUser, loadUser, createPlayer, createPlayerNameInUser,
+// sendPlayers, transferOfflineGold, and the "gold" field sanitization
+// decision) mixed in with plain Redis reads/writes. That logic now lives in
+// accountlogic.js's AccountLogic class (exposed as the global `Accounts`,
+// set up in main.js next to `DBH`), which calls back into the primitives
+// below rather than touching `client` directly. DatabaseHandler here is
+// meant to be just the data store/retrieval layer: given fixed parameters,
+// do a Redis read or write and hand back the (mostly) raw result.
+//
+// Two categories of exception, both left in this file on purpose:
+//  1. Redis-native *atomic* operations (modifyGold()'s Lua script,
+//     addPlayerGoldOffline()'s HINCRBY, reserveUsername()/
+//     reservePlayerNameLock()'s SADD/SET NX) -- these exist specifically to
+//     avoid race conditions that were real, previously-fixed bugs in this
+//     codebase (see the FIX comments on each). Their correctness depends on
+//     running as a single Redis-side operation; pulling the surrounding
+//     computation out into a separate JS-side "logic" layer that does a
+//     plain get-then-set would silently reintroduce those races. The
+//     *decision to call* them still lives in AccountLogic -- only the
+//     atomic primitive itself stays here.
+//  2. Bulk key-housekeeping/migration scripts (replaceSkills,
+//     removeOldValues, insertMissingPlayerKeys, createPlayerKeys) -- these
+//     only ever touch raw Redis keys (client.keys/del/hdel/sadd), never
+//     reference `user`/`users`/`worldHandlers` or any app-level object, so
+//     they're data-layer maintenance rather than account/session business
+//     logic.
 class DatabaseHandler {
   constructor(config) {
     // You may now connect a client to the Redis server bound to port 6379.
@@ -219,60 +195,27 @@ class DatabaseHandler {
     });
   }
 
-  createUser(user) {
-    const uKey = "u:" + user.name;
-
-    // Check if username is taken
-    this.ExistsUsername(user.name, (name, res) => {
-      if (res) {
-        // FIX: was closing the connection on the very first "username taken" hit, so a
-        // player who fat-fingered or picked an already-registered name got booted back to a
-        // dead connection with one shot at registration. The attempt-counting/lockout logic
-        // now lives on User (handleUsernameTaken() in user.js, next to the equivalent
-        // passwordTries handling in checkUser()) rather than here, since it's User's own
-        // state (usernameTries/connection) being managed, not anything DB-specific.
-        user.handleUsernameTaken();
-        return;
+  // FIX: extracted straight out of createUser() (formerly in this file, now
+  // AccountLogic.createUser() in accountlogic.js) so the atomic SADD -- the
+  // actual fix for the username-registration race, see the FIX comment that
+  // used to sit here -- stays a single Redis-side primitive. SADD is atomic
+  // in Redis (returns 0 if the member was already present), which is what
+  // makes it safe as a "reserve this name" operation under concurrent
+  // requests; a non-atomic check-then-write in a separate logic layer would
+  // reintroduce that race.
+  reserveUsername(name, callback) {
+    client.sadd("usr", name, (err, added) => {
+      if (callback) {
+        callback(name, !err && !!added, err);
       }
+    });
+  }
 
-      // FIX: this whole method was check-then-act -- ExistsUsername() (an
-      // async smembers scan) had to come back false before anything below
-      // ran, but nothing stopped two concurrent registrations for the same
-      // username from both passing that check before either had written
-      // anything. Whichever one's saveUserInfo() below landed second would
-      // silently overwrite the first's hash/salt, letting the last request
-      // "win" the account out from under the first registrant. SADD is
-      // atomic in Redis -- it returns 0 if the member was already present --
-      // so use it here as the actual reservation against the same "usr" set
-      // saveUserInfo() already adds to, rather than only checking it first.
-      // Whichever request's SADD lands first reserves the name; the loser
-      // sees added === 0 and bails before writing anything else. (The
-      // ExistsUsername scan above is case-insensitive and stays in front of
-      // this as a defense-in-depth check for any differently-cased legacy
-      // data -- SADD itself is case-sensitive, but usernames are expected to
-      // already be lowercased by the caller, user.js's handleCreateUser.)
-      client.sadd("usr", user.name, (err, added) => {
-        if (err) {
-          console.error("createUser - usr SADD failed: " + JSON.stringify(err));
-          user.handleUsernameTaken();
-          return;
-        }
-        if (!added) {
-          // Lost the race: another request reserved this exact username
-          // between the ExistsUsername check above and this SADD.
-          user.handleUsernameTaken();
-          return;
-        }
-
-        let data = user.createDefaultValues();
-
-        this.saveUserInfo(user.name, data, (username, data) => {
-          user.hasLoggedIn = true;
-          users.set(user.name, user);
-
-          this.sendPlayers(user);
-        });
-      });
+  unreserveUsername(name, callback) {
+    client.srem("usr", name, (err, removed) => {
+      if (callback) {
+        callback(name, !err, err);
+      }
     });
   }
 
@@ -325,233 +268,21 @@ class DatabaseHandler {
     client.hset(uKey, "salt", salt);
   }
 
-  removeUser(user) {
-    const uKey = "u:" + user.name;
-
-    //console.error("uKey:"+uKey);
-    client.hgetall(uKey, (err, data) => {
-      console.info("replies: " + data);
-      console.info(JSON.stringify(data));
-      if (data === null || !(typeof data === 'object')) {
-        return;
-      }
-
-      const db_user = {
-        "hash": data.hash,
-        "salt": data.salt
-      };
-
-      console.info(JSON.stringify(db_user));
-      console.error("USER CHECK USER");
-      // FIX: checkUser() can no longer synchronously return true/false now
-      // that it may need to bcrypt.compare() (inherently async) -- see the
-      // FIX comment on checkUser() in user.js. Pass a callback instead.
-      user.checkUser(db_user, true, (matched) => {
-        if (matched) {
-          console.error("USER CHECK USER SUCCESS");
-          const playerNames = data.players.split(",");
-          for (let i = 0; i < playerNames.length; ++i) {
-            const pKey = "p:" + playerNames[i];
-            client.del(pKey);
-          }
-          client.del(uKey);
-          client.srem("usr", user.name);
-          user.connection.send([Types.UserMessages.UC_ERROR, "removed_user_ok"]);
-          user.connection.close();
-          return;
-        }
-        user.connection.send([Types.UserMessages.UC_ERROR, "removed_user_fail"]);
-        user.connection.close();
-      });
-    });
-  }
-
-  // TODO load created Player summaries too.
-  loadUser(user) {
-    const uKey = "u:" + user.name;
-    const curTime = new Date().getTime();
-
-    this.ExistsUsername(user.name, (name, res) => {
-      if (!res) {
-        user.connection.send([Types.UserMessages.UC_ERROR, "invalidlogin"]);
-        return false;
-      }
-
-      client.hgetall(uKey, (err, data) => {
-        console.info("replies: " + data);
-        console.info(JSON.stringify(data));
-        if (data === null || !(typeof data === 'object')) {
-          return false;
-        }
-        //console.info(replies.toString());
-
-        // FIX: this redeclared `const db_user` in the same scope --
-        // SyntaxError: Identifier 'db_user' has already been declared. Since
-        // this is a top-level module parse error (not something caught by a
-        // try/catch at runtime), it broke loading this entire file, which
-        // means the whole userserver process couldn't start. user.loadUser()
-        // mutates and returns the same object it's given, so there's no
-        // need for a second binding here at all -- just call it.
-        const db_user = {
-          "hash": data.hash,
-          "salt": data.salt,
-          "banTime": data.banTime,
-          "banDuration": data.banDuration,
-          "lastLoginTime": data.lastLoginTime,
-          "membership": data.membership,
-          "players": data.players,
-          "ipAddresses": data.ipAddresses,
-          "gems": data.gems,
-          // FIX: was `"looks": data.looks2`. User.prototype.loadUser() in
-          // user.js reads this field as `db_user.looks2` (to decode the
-          // saved base64 appearance data) -- naming it "looks" here meant
-          // that check was always undefined/falsy, so the decode branch
-          // never ran and every login silently reset the player's saved
-          // look to the all-zero/beginner default instead of loading what
-          // they actually had saved.
-          "looks2": data.looks2
-        };
-
-        user.loadUser(db_user);
-
-        // FIX: checkUser() can no longer synchronously return true/false now
-        // that it may need to bcrypt.compare() (inherently async) -- see the
-        // FIX comment on checkUser() in user.js. Pass a callback instead
-        // (this function's own return value was already discarded by the
-        // enclosing client.hgetall callback either way).
-        user.checkUser(db_user, false, (matched) => {
-          if (!matched) {
-            return;
-          }
-          const ipAddress = user.connection._connection.remoteAddress;
-          // Was reading "ipAddesses" (typo) which never matched the stored
-          // "ipAddresses" field, so this always fell into the first branch and
-          // overwrote the IP history with just the current IP on every login.
-          // Also `toString(...)` was called as a bare function rather than
-          // String(data.ipAddresses)/data.ipAddresses.toString().
-          if (!data.ipAddresses) {
-            client.hset(uKey, "ipAddresses", ipAddress);
-          } else {
-            if (!String(data.ipAddresses).includes(ipAddress)) {
-              client.hset(uKey, "ipAddresses", db_user.ipAddresses + "," + ipAddress);
-            }
-          }
-          client.hset(uKey, "lastLoginTime", new Date().getTime());
-
-          this.sendPlayers(user);
-        });
-      });
-    });
-  }
-
-  createPlayerNameInUser(username, playerName, callback) {
+  deleteUserRecord(username, callback) {
     const uKey = "u:" + username;
-    // Create Player Name in User account.
-    client.hget(uKey, "players", (err, reply) => {
-      let db_players = [];
-      if (reply) {
-        db_players = reply.split(",");
-      }
-
-      if (!db_players.includes(playerName)) {
-        db_players.push(playerName);
-        client.hset(uKey, "players", db_players.join(","));
-      }
+    client.del(uKey, (err) => {
       if (callback) {
-        callback();
+        callback(username, !err, err);
       }
     });
   }
 
-  sendPlayers(user) {
-    const uKey = "u:" + user.name;
-    client.hget(uKey, "players", (err, reply) => {
-      console.info("players_reply:" + reply);
-      if (reply === null || reply === "") {
-        user.sendPlayers();
-        return;
+  deletePlayerRecord(playerName, callback) {
+    const pKey = "p:" + playerName;
+    client.del(pKey, (err) => {
+      if (callback) {
+        callback(playerName, !err, err);
       }
-      const playerNames = reply.split(",");
-      const db_players = [];
-      let count = 0;
-      for (let i = 0; i < playerNames.length; ++i) {
-        const pKey = "p:" + playerNames[i];
-        console.info("pKey:" + pKey);
-        const keyArray = ["name", "map", "exps", "colors", "sprites"];
-        hgetarray(pKey, keyArray, (err, reply) => {
-          if (err || !reply[0]) {
-            console.info("redis - sendPlayers, err:" + JSON.stringify(err));
-            ++count;
-            return;
-          }
-
-          //console.info("err:"+JSON.stringify(err));
-          console.info("reply:" + JSON.stringify(reply));
-          const db_player = {
-            "name": reply[0],
-            "map": reply[1].split(",")[0], // MapIndex.
-            // "pClass": reply[2] || 0,
-            "exp": reply[2].split(",")[0], // Base XP.
-            "colors": reply[3].split(","),
-            "sprites": reply[4].split(",")
-          };
-          db_players.push(db_player);
-          if (++count === playerNames.length) {
-            user.sendPlayers(db_players);
-          }
-        });
-      }
-    });
-  }
-
-  // FIX: this only ever checked ExistsPlayerName() and reported true/false --
-  // the actual reservation (sadd("player", data[0])) didn't happen until
-  // savePlayerInfo(), which fires only after a full round trip through
-  // worldhandler.js's createPlayerToWorld() -> gameserver load ->
-  // WU_SAVE_PLAYER_DATA handshake (multiple seconds, not a single async
-  // tick). Two different users could both pass the ExistsPlayerName check
-  // here for the same name within that window, and whichever's
-  // savePlayerInfo() landed second would silently overwrite the other's
-  // "p:<name>" character data. Take out a short-lived, self-expiring
-  // reservation lock right here instead (SET NX -- atomic "only if not
-  // already set" -- with a TTL so an abandoned/failed creation doesn't
-  // permanently squat the name forever). savePlayerInfo()'s own
-  // sadd("player", data[0]) is still the real, permanent reservation once
-  // creation actually succeeds; this just closes the gap before that.
-  createPlayer(playerName, callback) {
-    const nameLower = playerName.toLowerCase();
-
-    // Check if playerName is already a permanent record.
-    this.ExistsPlayerName(playerName, (name, res) => {
-      if (res) {
-        if (callback) {
-          callback(playerName, false);
-        }
-        return;
-      }
-
-      client.set("player_pending:" + nameLower, "1", "NX", "EX", 60, (err, lockRes) => {
-        if (err) {
-          console.error("createPlayer - reservation lock failed: " + JSON.stringify(err));
-          if (callback) {
-            callback(playerName, false);
-          }
-          return;
-        }
-        if (!lockRes) {
-          // Someone else is already in the middle of creating this exact
-          // player name right now.
-          if (callback) {
-            callback(playerName, false);
-          }
-          return;
-        }
-
-        console.info("CREATING PLAYER");
-        if (callback) {
-          callback(playerName, true);
-        }
-      });
     });
   }
 
@@ -571,8 +302,78 @@ class DatabaseHandler {
     });
   }
 
-  loadPlayerUserInfo(user, callback) {
-    const uKey = "u:" + user.name;
+  getUserPlayerNames(username, callback) {
+    const uKey = "u:" + username;
+    client.hget(uKey, "players", (err, reply) => {
+      if (callback) {
+        callback(username, reply);
+      }
+    });
+  }
+
+  setUserPlayerNames(username, csv, callback) {
+    const uKey = "u:" + username;
+    client.hset(uKey, "players", csv, (err) => {
+      if (callback) {
+        callback(username, !err, err);
+      }
+    });
+  }
+
+  getPlayerSummaryFields(playerName, callback) {
+    const pKey = "p:" + playerName;
+    const keyArray = ["name", "map", "exps", "colors", "sprites"];
+    hgetarray(pKey, keyArray, (err, reply) => {
+      if (callback) {
+        callback(playerName, err, reply);
+      }
+    });
+  }
+
+  setUserIpAddresses(username, value, callback) {
+    const uKey = "u:" + username;
+    client.hset(uKey, "ipAddresses", value, (err) => {
+      if (callback) {
+        callback(username, !err, err);
+      }
+    });
+  }
+
+  setUserLastLoginTime(username, value, callback) {
+    const uKey = "u:" + username;
+    client.hset(uKey, "lastLoginTime", value, (err) => {
+      if (callback) {
+        callback(username, !err, err);
+      }
+    });
+  }
+
+  // FIX: extracted straight out of createPlayer() (formerly in this file,
+  // now AccountLogic.createPlayer() in accountlogic.js) so the atomic SET
+  // NX EX -- the actual fix for the player-name-registration race, see the
+  // FIX comment that used to sit here -- stays a single Redis-side
+  // primitive. A short-lived, self-expiring reservation lock (NX = only if
+  // not already set, EX = auto-expire) is what closes the multi-second
+  // window between checking a name is free and that player's data actually
+  // being saved; a non-atomic check-then-write in a separate logic layer
+  // would reintroduce that race.
+  reservePlayerNameLock(name, ttlSeconds, callback) {
+    const nameLower = name.toLowerCase();
+    client.set("player_pending:" + nameLower, "1", "NX", "EX", ttlSeconds, (err, lockRes) => {
+      if (callback) {
+        callback(name, !err && !!lockRes, err);
+      }
+    });
+  }
+
+  // FIX: used to take the full `user` object (reading user.name/user.looks
+  // directly) and apply a default-fill for a missing "looks2" value inline.
+  // That default-fill is a business-logic decision (accountlogic.js's
+  // AccountLogic.loadPlayerUserInfo() now makes it, using the same
+  // user.looks fallback), not a data-retrieval concern -- this just takes a
+  // plain username and hands back the raw [gems, looks2] pair.
+  loadPlayerUserInfo(username, callback) {
+    const uKey = "u:" + username;
 
     client.multi()
       .hget(uKey, "gems")
@@ -582,17 +383,16 @@ class DatabaseHandler {
           return;
         }
 
-        if (data[1] === null) {
-          const b64 = Utils.BinArrayToBase64(user.looks);
-          data[1] = b64;
-        }
-
         if (callback) {
-          callback(user.name, data);
+          callback(username, data);
         }
       });
   }
 
+  // FIX: used to also repair a malformed "gold" field inline (see the FIX
+  // comment on setPlayerGold() below and AccountLogic.loadPlayerInfo() in
+  // accountlogic.js, which now makes that repair decision) -- this just
+  // hands back the raw hget results.
   loadPlayerInfo(playerName, callback) {
     const pKey = "p:" + playerName;
 
@@ -614,22 +414,22 @@ class DatabaseHandler {
           return;
         }
 
-        // FIX: see sanitizeGoldField() above -- repair a malformed "gold"
-        // field (index 4 here, matching the .hget(pKey, "gold") position
-        // above) before it's ever handed to a gameserver, and persist the
-        // repair back to Redis so this doesn't need to be re-detected on
-        // every subsequent load.
-        const goldFix = sanitizeGoldField(data[4]);
-        if (goldFix.changed) {
-          console.warn("redis.loadPlayerInfo - repairing malformed gold field for '" + playerName + "': " + JSON.stringify(data[4]) + " -> " + goldFix.value);
-          client.hset(pKey, "gold", goldFix.value);
-        }
-        data[4] = goldFix.value;
-
         if (callback) {
           callback(playerName, data);
         }
       });
+  }
+
+  // FIX: added alongside sanitizeGoldField() moving to accountlogic.js, so
+  // AccountLogic.loadPlayerInfo() can persist a repaired "gold" value
+  // without reaching into `client` directly.
+  setPlayerGold(playerName, csv, callback) {
+    const pKey = "p:" + playerName;
+    client.hset(pKey, "gold", csv, (err) => {
+      if (callback) {
+        callback(playerName, !err, err);
+      }
+    });
   }
 
   savePlayerInfo(playerName, data, callback) {
@@ -699,20 +499,6 @@ class DatabaseHandler {
             }
           });
         }
-      });
-    });
-  }
-
-  transferOfflineGold(playerName, callback) {
-    console.info("redis.transferOfflineGold: playerName:" + playerName);
-
-    this.getGoldOffline(playerName, (playerName, addGold) => {
-      this.modifyGold(playerName, addGold, 0, (playerName) => {
-        this.resetGoldOffline(playerName, (playerName) => {
-          if (callback) {
-            callback(playerName);
-          }
-        });
       });
     });
   }
@@ -847,13 +633,18 @@ class DatabaseHandler {
 
   // ITEMS - BEGIN. New item store functions.
 
-  loadItems(playerName, type, callback) {
+  // FIX: worldhandler.js's 3 call sites (inventory/bank/equipment) briefly
+  // passed a 5th "maxNumber" argument -- (playername, type, storeType,
+  // maxNumber, callback) -- while this only declared 4 params, which
+  // silently bound maxNumber (e.g. 50) to this method's `callback` parameter
+  // and dropped the real callback function entirely, throwing "callback is
+  // not a function" on every player login. worldhandler.js's call sites no
+  // longer pass maxNumber (it was never used here anyway), so this stays at
+  // 4 params to match.
+  loadItems(playerName, type, storeType, callback) {
     const pKey = "p:" + playerName;
 
-    const maxNumber = getItemsStoreCount(type);
-    const sType = getStoreTypeNew(type);
-
-    client.hget(pKey, sType, (err, data) => {
+    client.hget(pKey, storeType, (err, data) => {
       if (err || !data || data === "") {
         console.warn(err);
         console.warn(JSON.stringify(data));
@@ -865,13 +656,12 @@ class DatabaseHandler {
     });
   }
 
-  saveItems(playerName, type, data, callback) {
+  saveItems(playerName, type, storeType, data, callback) {
     const pKey = "p:" + playerName;
-    const sType = getStoreTypeNew(type);
     console.info("saveItems: " + data);
     console.info("pKey: " + pKey);
-    console.info("sType: " + sType);
-    client.hset(pKey, sType, data, (err, replies) => {
+    console.info("storeType: " + storeType);
+    client.hset(pKey, storeType, data, (err, replies) => {
       if (err || !data || data === "") {
         console.warn(err);
         console.warn(JSON.stringify(replies));
