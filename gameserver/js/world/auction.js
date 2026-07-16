@@ -43,7 +43,22 @@ class Auction {
         const self = this;
         console.info("auction - load: "+JSON.stringify(data));
 
-        if (Array.isArray(data) && data.length === 0)
+        // FIX: this only ever gets real data pushed asynchronously from
+        // the userserver (see user/userhandler.js#handleLoadPlayerAuctions),
+        // but main.js's "reloadauction" console command called this with no
+        // argument at all. `Array.isArray(undefined)` is false, so the old
+        // `Array.isArray(data) && data.length === 0` guard didn't catch
+        // that case, and `for (const rec of data)` below threw
+        // "data is not iterable" -- only caught by the top-level
+        // uncaughtException handler, so the command silently did nothing
+        // useful. Guard against any non-array `data` explicitly so a bad or
+        // missing call degrades to a safe no-op instead of throwing.
+        if (!Array.isArray(data)) {
+            console.warn("auction - load: no data supplied, skipping.");
+            return;
+        }
+
+        if (data.length === 0)
             return;
 
         const auctions = [];
@@ -98,7 +113,19 @@ class Auction {
     // packets/shophandler.js's handleAuctionSell) can avoid removing the
     // item from the player's inventory when the listing didn't happen.
     add(player, item, price, invIndex) {
-        if (this.auctions.length >= auctionEntriesMax) {
+        // FIX: remove() below only nulls a slot rather than shrinking the
+        // array, so this.auctions.length only ever grew. Gating capacity on
+        // raw array length meant that once auctionEntriesMax listings had
+        // EVER been created, every future add() was rejected permanently --
+        // even with thousands of sold/delisted (null) slots sitting empty.
+        // Count only the still-active (non-null) listings against the cap
+        // instead, so capacity is actually reclaimed as items sell or get
+        // delisted. (Left as an append-only array rather than reusing null
+        // slots in place, so existing auction indices already handed out to
+        // clients via list() stay stable and never get silently reused for
+        // a different listing.)
+        const activeCount = this.auctions.reduce((n, a) => n + (a ? 1 : 0), 0);
+        if (activeCount >= auctionEntriesMax) {
             player.sendPlayer(new Messages.Notify("AUCTION","AUCTION_FULL"));
             return false;
         }

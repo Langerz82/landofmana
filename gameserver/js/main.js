@@ -523,10 +523,23 @@ function getInput(cmd) {
 }
 
 // FIX: same undefined `worlds` (plural) issue as onRequestStatus above --
-// this server only ever has the single module-scoped `world`. The
-// "reloadauction" console command was silently doing nothing.
+// this server only ever has the single module-scoped `world`. Beyond that,
+// world.auction.load() was called with no argument at all -- auction data
+// only ever arrives asynchronously as a push from the userserver (see
+// user/userhandler.js#handleLoadPlayerAuctions), there's no message this
+// server can send to request a fresh copy on demand. That undefined `data`
+// made it into Auction.load()'s `for (const rec of data)` loop and threw
+// "data is not iterable", caught only by the top-level uncaughtException
+// handler -- so the command silently did nothing useful (and spammed the
+// error log) instead of reloading anything. auction.js's load() now guards
+// against non-array input and no-ops safely, but there's still nothing
+// meaningful for this command to do until a request/response message to
+// the userserver exists, so it just logs that explicitly instead of
+// pretending to succeed.
 function reloadAuction() {
-  world.auction.load();
+  console.info("reloadauction: no on-demand auction data source from the " +
+    "userserver exists -- auction data is only refreshed via " +
+    "UW_LOAD_PLAYER_AUCTIONS pushes. No-op.");
 }
 
 function getWorldDistribution(worlds) {
