@@ -83,7 +83,20 @@ class MobCallback {
             const msg = new Messages.Move(this, this.orientation, 2, this.x, this.y);
             this.map.entities.sendNeighbours(this, msg);
 
+            // FIX: this used to just `return` when a RETURNING mob's path
+            // got aborted mid-walk (as opposed to completing cleanly, which
+            // is handled by onStopPathing above via returnedToSpawn()).
+            // Since aiState never got reset, the mob stayed stuck in
+            // RETURNING forever: mobai.js's update loop unconditionally
+            // skips RETURNING mobs (no more AI ticks), and
+            // packethandler.js's handleHitEntity unconditionally blocks
+            // attacks on RETURNING targets -- so an aborted return-to-spawn
+            // path permanently bricked the mob: frozen in place, invincible,
+            // and silently unattackable. Routing this through
+            // returnedToSpawn() (same as the clean-completion path) resets
+            // its position/behaviour/state instead of leaving it stranded.
             if (this.aiState === mobState.RETURNING) {
+                this.returnedToSpawn();
                 return;
             }
 
