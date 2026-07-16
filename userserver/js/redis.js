@@ -278,9 +278,17 @@ class DatabaseHandler {
       });
   }
 
-  savePassword(username, hash) {
+  // FIX: only ever saved `hash`, never `salt`. checkUser() (user.js) verifies
+  // logins as sha1(password + db_user.salt), using whatever salt is already
+  // on the account -- so a hash computed with a brand-new salt (as main.js's
+  // changePassword admin command now does, matching createUser()'s pattern
+  // of always minting a fresh salt for a fresh credential) would never
+  // verify against the old salt still stored here. Save both together so
+  // the two stay consistent.
+  savePassword(username, hash, salt) {
     const uKey = "u:" + username;
     client.hset(uKey, "hash", hash);
+    client.hset(uKey, "salt", salt);
   }
 
   removeUser(user) {

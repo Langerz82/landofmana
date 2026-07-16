@@ -245,8 +245,19 @@ function changePassword(args) {
   const username = args[0];
   const password = args[1];
 
-  const hash = crypto.createHash('sha1').update(username + password).digest('hex');
-  DBH.savePassword(username, hash);
+  // FIX: this computed sha1(username + password) and saved only `hash`.
+  // checkUser() (user.js) verifies logins as sha1(password + db_user.salt)
+  // using the account's existing salt -- a completely different formula, so
+  // no password entered after running this admin command could ever produce
+  // a matching hash again, permanently locking the account out. Mint a
+  // fresh salt (same pattern createUser() in user.js uses for a brand new
+  // credential) and compute the hash the same way checkUser() expects, then
+  // save both together via the updated savePassword().
+  const current_date = (new Date()).valueOf().toString();
+  const random = Math.random().toString();
+  const salt = crypto.createHash('sha1').update(current_date + random).digest('hex');
+  const hash = crypto.createHash('sha1').update(password + salt).digest('hex');
+  DBH.savePassword(username, hash, salt);
 }
 
 function getInput(cmd) {

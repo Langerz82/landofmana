@@ -1,5 +1,6 @@
 /* global require, module, log, DBH */
 
+import crypto from 'crypto';
 import formatChecker from "./format.js";
 import UserMessages from "./usermessage.js";
 // FIX: this file used `Types.UserMessages.*` (in the `listener` below) and
@@ -15,6 +16,21 @@ import UserMessages from "./usermessage.js";
 // worldHandlers below, which really are runtime-populated globals owned by
 // main.js -- see the note above the class for why those are left as-is).
 import { Types, Utils } from './common.js';
+
+// FIX: added for handleGameServerInfo()'s shared-secret comparison below --
+// plain `===` on a password/secret string short-circuits on the first
+// mismatched character, a timing side channel against the boundary that
+// decides which connections are trusted as a real gameserver (and so get
+// handed auction/looks/ban data). Not added to the shared Utils
+// (shared/js/utils.js) since that file is also bundled into the browser
+// client, where Node's `crypto` module isn't available.
+function safeCompare(a, b) {
+  const bufA = Buffer.from(String(a), 'utf8');
+  const bufB = Buffer.from(String(b), 'utf8');
+  if (bufA.length !== bufB.length)
+    return false;
+  return crypto.timingSafeEqual(bufA, bufB);
+}
 
 // NOTE: MainConfig (used in handleGameServerInfo), DBH (used throughout),
 // users (used in handlePlayerLoggedIn), and worldHandlers are still
@@ -255,7 +271,7 @@ class WorldHandler {
         key: msg[6]
       };
 
-      if (world.password === MainConfig.user_password) {
+      if (safeCompare(world.password, MainConfig.user_password)) {
         this.game_server = true;
       }
       else {
@@ -332,15 +348,36 @@ class WorldHandler {
               self.playerSaveData[playerName]++;
               if (self.playerSaveData[playerName] === 7) {
                 DBH.createPlayerNameInUser(username, playerName);
+                // FIX: this transferOfflineGold call used to be gated on the
+                // ENTIRE playerSaveData map being empty, rather than on this
+                // specific player's save finishing. With more than one player
+                // connected through this WorldHandler, the map only empties
+                // once every player has logged out (delete only happens
+                // below, and only when `!update`) -- so a given player's
+                // offline-earned gold (e.g. from an auction sale settled
+                // while they were offline) was effectively only ever
+                // transferred on the rare case they happened to be the last
+                // one to disconnect. Fire it right here, per player, as soon
+                // as their own save has actually completed. (Left the
+                // `self.SAVED_PLAYERS = true` assignment out of this
+                // callback -- that flag is a separate "every connected
+                // player's save is fully done" signal used by
+                // savedWorldState() to gate a graceful shutdown; it's set by
+                // the map-empty check below, which still only becomes true
+                // once every player has actually logged out. Note: that
+                // check now fires as soon as the map empties, rather than
+                // waiting for the last player's transferOfflineGold DB write
+                // to actually confirm -- a small (single Redis round-trip)
+                // window versus before, traded for actually firing this call
+                // for every player instead of almost never.)
+                DBH.transferOfflineGold(playerName, function (playerName) {});
                 if (!update) {
                   delete self.playerSaveData[playerName];
                   users.delete(username);
                 }
               }
               if (Object.keys(self.playerSaveData).length === 0) {
-                DBH.transferOfflineGold(playerName, function (playerName) {
-                  self.SAVED_PLAYERS = true;
-                });
+                self.SAVED_PLAYERS = true;
               }
             } catch (err) {
               console.error("handleSavePlayerData - checkPlayerSaved failed for "+playerName+": "+err.stack);

@@ -17,6 +17,19 @@ import formatChecker from "./format.js";
 // both are static, non-circular exports from common.js.
 import { Types, Utils } from './common.js';
 
+// FIX: added for checkUser()'s password-hash comparison below -- plain
+// `!==` on a hash string short-circuits on the first mismatched character,
+// a timing side channel against a real auth boundary. Not added to the
+// shared Utils (shared/js/utils.js) since that file is also bundled into
+// the browser client, where Node's `crypto` module isn't available.
+function safeCompare(a, b) {
+  const bufA = Buffer.from(String(a), 'utf8');
+  const bufB = Buffer.from(String(b), 'utf8');
+  if (bufA.length !== bufB.length)
+    return false;
+  return crypto.timingSafeEqual(bufA, bufB);
+}
+
 // NOTE: DBH, users, and worldHandlers are still referenced as bare globals
 // below (e.g. DBH.createUser, users.has, worldHandlers.length) -- same
 // reasoning as the equivalent note in worldhandler.js: these are mutable
@@ -305,7 +318,10 @@ class User {   // Assuming `cls` is still available globally or via require
     const hash = crypto.createHash('sha1').update(decrypt + db_user.salt).digest('hex');
 
     console.info("checkUser: " + hash + " !== " + db_user.hash);
-    if (hash !== db_user.hash) {
+    // FIX: plain `!==` on a stored password hash short-circuits on the first
+    // mismatched character -- a timing side channel against a value that
+    // gates authentication. Compare in constant time instead.
+    if (!safeCompare(hash, db_user.hash)) {
       // FIX: was hardcoded `> 3`, which (since it fires strictly *after* the increment)
       // actually allowed 4 wrong attempts before closing, not 3 as the old comment above
       // this.passwordTries claimed. Made configurable via MainConfig.max_password_attempts
@@ -407,6 +423,18 @@ class User {   // Assuming `cls` is still available globally or via require
 
     try {
       DBH.createPlayer(db_player.name, (playername, res) => {
+        // FIX: getWorldHandler() can return null (worldIndex out of the
+        // *currently connected* worldHandlers range -- format.js only
+        // validates against the static maxWorldCount, not the live
+        // connected-world count). That null wasn't checked here, unlike the
+        // equivalent loginPlayer() path just below, which does guard it.
+        // Once this async DB callback fired, `worldHandler.createPlayerToWorld`
+        // threw an uncaught TypeError instead of reporting a clean error to
+        // the client.
+        if (!worldHandler) {
+          self.connection.send([Types.UserMessages.UC_ERROR, "noworldhandler"]);
+          return;
+        }
         if (res) {
           worldHandler.createPlayerToWorld(self, self.name, playername);
         } else {

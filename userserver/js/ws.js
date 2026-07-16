@@ -181,17 +181,32 @@ WS.socketioConnection = class extends Connection {
             console.info("m=" + msg);
             const flag = msg.charAt(0);
 
+            // FIX: JSON.parse (and BISON.decode) on client-controlled bytes
+            // ran with no try/catch -- a malformed (non-JSON) message threw
+            // synchronously inside this 'message' handler. The process-wide
+            // uncaughtException handler in main.js kept the server from
+            // hard-crashing, but the throw happened mid-dispatch with no
+            // defined recovery. Parse defensively and just drop the message
+            // on failure instead.
             if (flag === "2") {
                 const buffer = Buffer.from(msg.substr(1), 'base64'); // fixed: was using flag only
                 zlib.gunzip(buffer, (err, decompressed) => {
                     if (err) console.log(err.toString());
                     else if (self.listenCallback) {
-                        self.listenCallback(useBison ? BISON.decode(decompressed) : JSON.parse(decompressed));
+                        try {
+                            self.listenCallback(useBison ? BISON.decode(decompressed) : JSON.parse(decompressed));
+                        } catch (parseErr) {
+                            console.warn("socketioConnection: failed to parse decompressed message, dropping: " + parseErr.message);
+                        }
                     }
                 });
             } else if (self.listenCallback) {
                 const payload = msg.substr(1);
-                self.listenCallback(useBison ? BISON.decode(payload) : JSON.parse(payload));
+                try {
+                    self.listenCallback(useBison ? BISON.decode(payload) : JSON.parse(payload));
+                } catch (parseErr) {
+                    console.warn("socketioConnection: failed to parse message, dropping: " + parseErr.message);
+                }
             }
         };
 
@@ -247,17 +262,29 @@ WS.userConnection = class extends Connection {
             console.info("m=" + msg);
             const flag = msg.charAt(0);
 
+            // FIX: same unguarded JSON.parse/BISON.decode issue as
+            // socketioConnection above -- a malformed message from the
+            // gameserver side of this connection threw synchronously here
+            // with no recovery. Parse defensively and drop the message.
             if (flag === "2") {
                 const buffer = Buffer.from(msg.substr(1), 'base64');
                 zlib.gunzip(buffer, (err, decompressed) => {
                     if (err) console.log(err.toString());
                     else if (self.listenCallback) {
-                        self.listenCallback(useBison ? BISON.decode(decompressed) : JSON.parse(decompressed));
+                        try {
+                            self.listenCallback(useBison ? BISON.decode(decompressed) : JSON.parse(decompressed));
+                        } catch (parseErr) {
+                            console.warn("userConnection: failed to parse decompressed message, dropping: " + parseErr.message);
+                        }
                     }
                 });
             } else if (self.listenCallback) {
                 const payload = msg.substr(1);
-                self.listenCallback(useBison ? BISON.decode(payload) : JSON.parse(payload));
+                try {
+                    self.listenCallback(useBison ? BISON.decode(payload) : JSON.parse(payload));
+                } catch (parseErr) {
+                    console.warn("userConnection: failed to parse message, dropping: " + parseErr.message);
+                }
             }
         };
     }
