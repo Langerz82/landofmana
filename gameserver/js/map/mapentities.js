@@ -1075,8 +1075,21 @@ class MapEntities {
         const entities = this.getEntitiesAround(pos, 1);
         if (entities.length === 0)
             return true;
+        // FIX: isOverPosition(x, y) (entity.js) takes two separate numeric
+        // coordinates -- it's the "*Position" half of that class's own
+        // convention (compare isOverEntity(entity), which unpacks an
+        // object; isOverPosition(x, y) does not). Passing the whole `pos`
+        // object as the single `x` argument left `y` undefined, so
+        // isWithinDist()'s `this.x - x` subtracted an object from a number
+        // (NaN) every time, making this overlap check always return false
+        // regardless of actual position -- this function would always
+        // report a position as empty even when occupied. Only reachable
+        // today via TrapArea.isGroupEmptyPositions() (area/traparea.js),
+        // which is dead code (TrapArea is never instantiated -- see the
+        // NOTE in map/mapmanager.js), so fixed for correctness rather than
+        // for any currently-observed symptom.
         for (const entity of entities) {
-            if (entity.isOverPosition(pos))
+            if (entity.isOverPosition(pos.x, pos.y))
                 return false;
         }
         return true;

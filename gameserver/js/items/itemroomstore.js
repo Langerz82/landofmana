@@ -355,17 +355,17 @@ class ItemStore {
         return itemString;
     }
 
-    // FIX: this pushed `item.toArray()` alone, which is only
-    // [kind,count,durability,durabilityMax,experience] (see
-    // BaseItem.toArray()) -- 5 fields, no slot index. But the load side
-    // (userhandler.js's handleLoadPlayerItems) reads itemData[0] as the slot
-    // and itemData[1..5] as kind/count/durability/durabilityMax/experience,
-    // i.e. it expects 6 fields with the slot first. Without the slot
-    // prepended here, every saved item's fields silently shifted down one
-    // position on load (durability read as count, experience read as
-    // durabilityMax, etc.) and the item's actual slot was lost entirely.
-    // `i` (the room index this item came from) is exactly the slot to
-    // prepend.
+    // NOTE: a stale comment here used to claim `item.toArray()` returns only
+    // [kind,count,durability,durabilityMax,experience] (BaseItem.toArray(),
+    // 5 fields, no slot) and needed the room index `i` prepended to match
+    // userhandler.js's handleLoadPlayerItems (which reads itemData[0] as the
+    // slot). That's wrong: every item actually held in `rooms` is an
+    // ItemRoom (items/itemroom.js), whose own toArray() override already
+    // does `[this.slot].concat(super.toArray())` -- 6 fields, slot first --
+    // and setItem() below always keeps item.slot in sync with the room index
+    // it's stored under. Prepending `i` on top of that (as a since-reverted
+    // change here briefly did) double-counted the slot, corrupting the save
+    // format instead of fixing it. `item.toArray()` alone is correct as-is.
     toStringJSON() {
         let item = null;
         const items = [];
