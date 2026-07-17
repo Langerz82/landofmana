@@ -276,7 +276,7 @@ class MobAI {
 
         if(mob.target.stats.hp > 0)
         {
-            mob.lookAt(mob.target);
+            mob.lookAtEntity(mob.target);
 
             if (G_DEBUG)
                 console.info("handleHurt - mob")

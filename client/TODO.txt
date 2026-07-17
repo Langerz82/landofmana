@@ -1,7 +1,10 @@
 TODO:
 
+CLIENT - If the player is not facing the target attacks and is in range, the
+  attack is considered valid.
+
 CLIENT - If you are next to 2 targets and you want to target another entity
-with key movement you cant because you are locked on to the other entity.
+with key movement you cant because you are locked on to the other entity. - FIXED.
 
 CLIENT - When you are next an NPC you cant interact with it if you are not facing it. - FIXED.
 
@@ -14,7 +17,6 @@ SERVER - When client closes connection, user is still being registered as logged
 [Improvement] CLIENT MOBILE - Make menu Items a little bigger.
 
 [BUG] CLIENT MOBILE - Attack with AOE causes continued AOE damage.
-
 
 CLIENT/SERVER - Work out why Exp keeps on resetting.
 

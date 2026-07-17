@@ -662,8 +662,8 @@ export default class ClientCallbacks {
 
             if(hpMod < 0) {
                 if (sEntity !== game.player) {
-                  sEntity.lookAtEntity(tEntity);
-                  sEntity.hit(sEntity.orientation);
+                  //sEntity.lookAtEntity(tEntity);
+                  sEntity.hit(orientation);
                 }
             }
 

@@ -196,6 +196,12 @@ class Entity {
         return this.isWithinDist(x, y, G_TILESIZE);
     }
 
+    isAdjacentEntity(entity, dist = G_TILESIZE) {
+        const dx = Math.abs(this.x - entity.x);
+        const dy = Math.abs(this.y - entity.y);
+        return (dx + dy) <= dist;
+    }
+
     isOverEntity(entity) {
         return this.isWithinDist(entity.x, entity.y, (G_TILESIZE >> 1));
     }

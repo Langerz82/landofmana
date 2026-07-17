@@ -468,7 +468,7 @@ class Character extends EntityMoving {
     const ts = G_TILESIZE;
 
     if (this.attackRange === 1)
-      return this.isNextTooEntity(entity);
+      return this.isAdjacentEntity(entity) && this.isFacingEntity(entity);
 
     if (this.attackRange > 1)
     {

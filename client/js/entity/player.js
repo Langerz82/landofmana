@@ -314,6 +314,17 @@ export default class Player extends Character {
         }
         log.info("CAN REACH TARGET!!");
 
+        // NOTE: canReach() above already encodes the right facing rule per
+        // attackRange - melee (attackRange === 1) requires isAdjacentEntity()
+        // && isFacingEntity(), ranged (attackRange > 1) is distance-only. A
+        // separate, unconditional isFacingEntity() check used to live here;
+        // it was correct back when canReach() required facing for every
+        // attackRange, but once facing became melee-only, this stray check
+        // started rejecting valid ranged attacks (attackRange > 1) whenever
+        // the character wasn't facing a target that was nonetheless in
+        // range - something canReach() explicitly allows for ranged. Removed
+        // rather than scoped to attackRange === 1, since that would just be
+        // re-deriving what canReach() already decided.
         if (!this.canAttack(time)) {
             log.info("CANNOT ATTACK DUE TO TIME.");
             return "attack_outoftime";

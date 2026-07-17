@@ -710,7 +710,29 @@ class EntityMoving extends Entity {
 
 
    isFacing(x, y) {
-     return this.orientation === this.getOrientationTo([x, y]);
+       // NOTE: getOrientation() returns NONE(0) when dx===dy (the target is on
+       // a perfect diagonal), since neither axis "wins" the tie. Comparing
+       // this.orientation straight against getOrientationTo() would then
+       // reject every diagonal target regardless of which way the entity is
+       // actually facing - but 8-directional melee range (isNextTooEntity)
+       // explicitly allows diagonal adjacency, so diagonal attacks need to be
+       // facing-checkable too. On a tie, accept either of the two cardinal
+       // directions that point toward the target (e.g. a target to the
+       // northeast is "faced" by either UP or RIGHT).
+       const dx = x - this.x;
+       const dy = y - this.y;
+       const absX = Math.abs(dx);
+       const absY = Math.abs(dy);
+
+       if (absX === 0 && absY === 0) {
+           return true;
+       }
+       if (absX === absY) {
+           const horiz = dx > 0 ? Types.Orientations.RIGHT : Types.Orientations.LEFT;
+           const vert = dy > 0 ? Types.Orientations.DOWN : Types.Orientations.UP;
+           return this.orientation === horiz || this.orientation === vert;
+       }
+       return this.orientation === this.getOrientationTo([x, y]);
    }
 
    isFacingEntity(entity) {

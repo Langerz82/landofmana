@@ -1135,7 +1135,7 @@ export default class Game {
           const entity = this.getEntityAt(pos[0], pos[1]);
 
           if (!entity || entity.isDying || entity.isDead) return false;
-          if (!p.isNextTooEntity(entity)) return false;
+          if (!p.canReach(entity)) return false;
 
           p.setTarget(entity);
           p.lookAtEntity(entity);
@@ -1303,7 +1303,7 @@ export default class Game {
               this.scheduleAttackRetry(p.attackCooldown.duration - (time - p.attackCooldown.lastTime));
               return false;
 
-            default: // null/undefined, "attack_toofar", "attack_moving", "attack_aborted"
+            default: // null/undefined, "attack_toofar", "attack_moving", "attack_aborted", "attack_notfacing"
               if (!res) log.info("CANNOT ATTACK.");
               return false;
           }
