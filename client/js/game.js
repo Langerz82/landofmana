@@ -1214,7 +1214,7 @@ export default class Game {
 
         /**
          * Re-engages the player's already-set target if it's still visible and
-         * adjacent (covers diagonal adjacency the cardinal scan above misses).
+         * within reach (covers diagonal adjacency the cardinal scan above misses).
          */
         tryInteractExistingTarget() {
           const p = this.player;
@@ -1226,7 +1226,21 @@ export default class Game {
             return false;
           }
 
-          if (p.isNextTooEntity(target)) {
+          // FIX: this used to check p.isNextTooEntity(target), which is a hardcoded
+          // 1-tile melee check (isWithinDist(G_TILESIZE)) - it ignores attackRange
+          // entirely. For a ranged weapon (attackRange > 1) a target sitting well
+          // within range but more than 1 tile away failed this check, so this
+          // function always returned false for it. That sent every re-run of the
+          // interact chain (onStopPathing, attack retries, the interact
+          // shortcut/key) straight through to tryInteractClosestEntity(), whose
+          // playerTargetClosestEntity(0) call unconditionally overwrites p.target
+          // with whatever on-screen entity is physically nearest - clobbering the
+          // ranged target the player actually clicked, even though it was already
+          // valid and attackable. Use canReachTarget() instead, which defers to
+          // canReach()/attackRange and is true for melee-adjacent targets as well
+          // as ranged targets within attackRange, so a valid target of any range
+          // is re-engaged here before the closest-entity fallback ever runs.
+          if (p.canReachTarget()) {
             if (!p.isMoving())
               p.lookAtEntity(target);
             return this.processTarget();
