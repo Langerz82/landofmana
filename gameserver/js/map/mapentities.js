@@ -931,8 +931,26 @@ class MapEntities {
                 return null;
             }
 
+            // PERF: unlike the isValidGridPath()/character-position sanity
+            // checks further down in this function (genuine invariant
+            // violations -- the pathfinding math produced something that
+            // shouldn't be possible -- which is why those are left as
+            // unconditional anomaly signals), a start===end path request is
+            // an ordinary, expected outcome, not a bug: it's simply "no path
+            // needed". findPath()'s own callers (entitymoving.js's
+            // requestPathfindingTo -> _moveTo) already treat a null return as
+            // a normal no-op. Combat routinely hits this -- e.g.
+            // mobai.js's checkChase() calls mob.follow(target) again on every
+            // tick a mob stays overlapping its target, and getClosestSpot()
+            // can resolve to the mob's own current position when it's
+            // already correctly placed -- so this was paying for a full
+            // stack-trace capture and log on a frequent, routine combat path.
+            // Gated behind G_DEBUG like the equivalent per-request diagnostic
+            // logging elsewhere in this codebase.
             if (pS[0] === pE[0] && pS[1] === pE[1]) {
-                try { throw new Error(); } catch(err) { console.info(err.stack); }
+                if (G_DEBUG) {
+                    try { throw new Error(); } catch(err) { console.info(err.stack); }
+                }
                 //console.warn("findPath - path coordinates are the same.")
                 return null;
             }

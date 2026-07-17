@@ -11,6 +11,13 @@ import { G_TILESIZE, G_DEBUG } from '../main.js';
 
 /* global log */
 
+// PERF: used to be built fresh inside isHarvestTile() on every single call
+// (once per CW_HARVEST packet) -- see the PERF comment on isHarvestTile()
+// below. The tile id list is static, so it's hoisted here and built once.
+const HARVEST_TILE_TYPES = {
+    axe: [678, 679, 698, 699, 855, 875, 274, 275, 294, 295]
+};
+
 class Map {
     constructor(world, id, name, filepath, filenameCollision) {
         this.id = this.index = id;
@@ -535,6 +542,12 @@ class Map {
     // including two JSON.stringify calls over the tile list, ran
     // unconditionally on every harvest attempt. Gated behind G_DEBUG like
     // the equivalent per-packet logging elsewhere in the codebase.
+    //
+    // PERF: this method also used to build `types = {axe: [...10 tile ids]}`
+    // -- a fresh object + array literal -- on every single call, just to look
+    // up one property it immediately discarded. Since the tile id list never
+    // varies, it's hoisted to the module-level HARVEST_TILE_TYPES constant
+    // below and built once instead of once per harvest attempt.
     isHarvestTile(pos, type) {
         if (G_DEBUG)
             console.info("isHarvestTile");
@@ -550,17 +563,14 @@ class Map {
         if (!tiles || tiles.length === 0)
             return false;
 
-        const types = {}
-        types.axe = [678, 679, 698, 699, 855, 875, 274, 275, 294, 295];
-
-        if (!types.hasOwnProperty(type))
+        if (!HARVEST_TILE_TYPES.hasOwnProperty(type))
             return false;
 
         let res = false;
         if (Array.isArray(tiles)) {
-            res = types[type].some(function (tile) { return tiles.includes(tile); });
+            res = HARVEST_TILE_TYPES[type].some(function (tile) { return tiles.includes(tile); });
         } else {
-            res = types[type].includes(tiles);
+            res = HARVEST_TILE_TYPES[type].includes(tiles);
         }
         return res;
     }

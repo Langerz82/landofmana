@@ -1,5 +1,5 @@
 import Messages from '../message.js';
-import { mobState } from '../main.js';
+import { mobState, G_DEBUG } from '../main.js';
 import Player from '../entity/player.js';
 import { PlayerEvent } from '../world/taskhandler.js';
 
@@ -29,7 +29,15 @@ class MobCallback {
 
             const path = this.map.entities.findPath(this, x, y, ignored);
 
-            if (path && path.length === 1)
+            // PERF: onRequestPath fires on every mob roam/chase/return-to-spawn
+            // path request -- a routine, high-frequency event under real combat
+            // load (see the PERF comments on mobai.js's checkChase/Roaming for
+            // the same call volume). A 1-node path here isn't a true anomaly
+            // (findPath() can legitimately resolve to a single point), so this
+            // console.error + JSON.stringify ran unconditionally on a path that
+            // isn't actually erroring; gated behind G_DEBUG like the equivalent
+            // per-event diagnostic logging elsewhere in this codebase.
+            if (G_DEBUG && path && path.length === 1)
                 console.error(this.id + " " + JSON.stringify(path));
 
             if (path && path.length > 1)
@@ -55,7 +63,14 @@ class MobCallback {
             // TEMP-DEBUG: see the matching note in mob.js returnToSpawn()/
             // returnedToSpawn(). This fires on every clean path completion,
             // not just RETURNING ones -- filter the log for this mob's id.
-            console.info("RETURNING-DEBUG onStopPathing id="+this.id+" aiState="+this.aiState+" x="+x+" y="+y);
+            // PERF: onStopPathing runs for every mob that finishes any path
+            // (roam, chase, or return-to-spawn) -- a routine, high-frequency
+            // event under real combat load across every mob on the map. This
+            // ran unconditionally while the matching "RETURNING-DEBUG" logs in
+            // mob.js's returnToSpawn()/returnedToSpawn() are already gated
+            // behind G_DEBUG; gating this one too for consistency.
+            if (G_DEBUG)
+                console.info("RETURNING-DEBUG onStopPathing id="+this.id+" aiState="+this.aiState+" x="+x+" y="+y);
 
             if (this.aiState === mobState.RETURNING) {
                 this.returnedToSpawn();
@@ -92,7 +107,12 @@ class MobCallback {
             // returnedToSpawn(). If this ever logs with aiState RETURNING,
             // that's proof case 4 (interrupted return path) is actually
             // reachable in live play, not just in theory.
-            console.info("RETURNING-DEBUG onAbortPathing id="+this.id+" aiState="+this.aiState+" x="+x+" y="+y);
+            // PERF: onAbortPathing runs for every mob whose in-progress path
+            // gets interrupted (target moved, blocked, etc.) -- same routine,
+            // high-frequency combat event as onStopPathing above. Gated behind
+            // G_DEBUG for the same reason.
+            if (G_DEBUG)
+                console.info("RETURNING-DEBUG onAbortPathing id="+this.id+" aiState="+this.aiState+" x="+x+" y="+y);
 
             // FIX: this used to just `return` when a RETURNING mob's path
             // got aborted mid-walk (as opposed to completing cleanly, which
