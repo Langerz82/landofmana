@@ -561,7 +561,15 @@ class MapEntities {
     }
 
     removeEntity(entity) {
-        console.error("removeEntity: "+entity.id);
+        // PERF: removeEntity runs on every mob death, item pickup/despawn,
+        // and block pickup -- not the absolute hottest path in the game,
+        // but frequent enough during active combat/looting that it doesn't
+        // belong on the unconditional path. Also mislabeled as an error:
+        // this fires on ordinary, expected entity removal, not an anomaly.
+        // Gated behind G_DEBUG (and downgraded to info) to match the
+        // logging convention used elsewhere in this file/codebase.
+        if (G_DEBUG)
+            console.info("removeEntity: "+entity.id);
         this.removeSpatial(entity);
 
         if (this.mobs.has(entity.id))

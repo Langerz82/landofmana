@@ -108,7 +108,14 @@ class Pathfinder {
           }
           n2 = n1;
       }
-      console.info("pathfinder - getPathSubDistance: count="+count);
+      // PERF: getPathSubDistance runs on every move/path packet from every
+      // player (via checkPathInterrupt/checkStartMove -- see the PERF
+      // comments in callbacks/playercallback.js for why that's the hottest
+      // packet-handling path in the game). This console.info ran
+      // unconditionally on every call; gated behind G_DEBUG like the rest
+      // of the per-packet logging in this file.
+      if (G_DEBUG)
+        console.info("pathfinder - getPathSubDistance: count="+count);
       return count;
   }
 
