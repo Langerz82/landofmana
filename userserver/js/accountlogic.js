@@ -10,14 +10,15 @@
 // few operations (username/player-name reservation, gold updates) stay as
 // atomic primitives in redis.js instead of moving here.
 //
-// NOTE: this class used to also own offline-gold-transfer sequencing
-// (transferOfflineGold(), calling redis.js's getGoldOffline()/
-// resetGoldOffline(), later takeGoldOffline()/addGoldOffline()) -- removed
-// entirely now that offline gold credits are folded into gold_0 at *load*
-// time inside redis.js's loadPlayerInfo() instead, with no separate
-// business-logic step left to sequence here (see loadPlayerInfo()'s FIX
-// comment, redis.js, and the REFACTOR comment further down this file where
-// transferOfflineGold() used to live).
+// NOTE: this class used to also own offline-gold-transfer sequencing as a
+// separate method (transferOfflineGold(), calling redis.js's
+// getGoldOffline()/resetGoldOffline(), later takeGoldOffline()/
+// addGoldOffline()) with its own call site in worldhandler.js, fired once a
+// player's save had completed. That separate method and call site are gone
+// -- folding staged "goldoffline" into gold_0 is now just one more step
+// inside this class's own loadPlayerInfo() below, run at load time instead
+// of save time (see that function's FIX comment, and the REFACTOR comment
+// further down this file where transferOfflineGold() used to live).
 //
 // Instantiated once in main.js as `global.Accounts` (right after `DBH` is
 // created), taking the `DBH` instance via constructor injection so it only
@@ -350,13 +351,15 @@ class AccountLogic {
   // point a player's save completed (logout or autosave). Removed entirely:
   // offline gold credits (addPlayerGoldOffline(), redis.js, called from
   // userserver's worldhandler.js handleAddPlayerGold()) are now folded into
-  // gold_0 at *load* time instead, inside redis.js's loadPlayerInfo() --
-  // see that function's FIX comment for why crediting at load time (rather
-  // than at save time) is what actually removes the "live session's next
-  // autosave clobbers the credit" race, instead of just working around it
-  // with a staged field that needed a second call site to reconcile. There
-  // is nothing left for this method to do, so it -- and its only call site
-  // (worldhandler.js's checkPlayerSaved) -- have been removed.
+  // gold_0 at *load* time instead, inside this class's own loadPlayerInfo()
+  // below (redis.js's loadPlayerInfo() only reads "goldoffline" and
+  // atomically clears it -- see that function's FIX comment for why
+  // crediting at load time, rather than at save time, is what actually
+  // removes the "live session's next autosave clobbers the credit" race,
+  // instead of just working around it with a staged field that needed a
+  // second call site to reconcile). There is nothing left for this method
+  // to do, so it -- and its only call site (worldhandler.js's
+  // checkPlayerSaved) -- have been removed.
 
   // FIX: the "looks2 missing -> default-fill from user.looks" decision used
   // to live inline in redis.js's loadPlayerUserInfo(), which took the whole
@@ -388,16 +391,13 @@ class AccountLogic {
   //     with a negative gold value fails that check and the whole
   //     connection gets closed, so the negative value never reaches Redis
   //     at all.
-  //   - The other direct mutation path, redis.js's modifyGold() HINCRBY, has
-  //     no caller left in userserver at all now that transferOfflineGold()
-  //     (which used to be its one call site here) is gone -- offline gold
-  //     credits go through addPlayerGoldOffline() -> "goldoffline" instead,
-  //     folded into gold_0 at load time (see loadPlayerInfo()'s FIX comment,
-  //     redis.js), never through modifyGold(). Even when modifyGold() was
-  //     the call path, the amount was already clamped to >= 0 by
-  //     addPlayerGoldOffline()'s own clamp -- it could only add, never
-  //     subtract, so it couldn't have been the source of a negative value
-  //     either.
+  //   - The other direct mutation path, redis.js's modifyGold() HINCRBY, is
+  //     now called from this class's own loadPlayerInfo() below (persisting
+  //     whatever was staged in "goldoffline" -- addPlayerGoldOffline() --
+  //     straight to gold_0 once it's read back out at load time), and the
+  //     amount passed is always whatever addPlayerGoldOffline() had clamped
+  //     to >= 0 -- it can only add, never subtract, so it can't be the
+  //     source of a negative value either.
   // (The gameserver-side race this used to guard against -- two
   // near-simultaneous shop purchases both passing playeritems.js's
   // in-memory affordability check before either lands -- can still produce
@@ -410,12 +410,11 @@ class AccountLogic {
   // worldhandler.js), this record, and redis.js's raw storage shape are all
   // exactly the same 12-element layout (name, map, stats, exps, gold_0,
   // gold_1, skills, pStats, sprites, colors, shortcuts, completeQuests), so
-  // there's no reshaping left to do at all -- redis.js's loadPlayerInfo()
-  // hands `raw` straight back as `data` here. The one thing still needed is
-  // turning gold_0/gold_1 from Redis's raw hget strings into real numbers
-  // (Redis has no numeric type -- everything comes back as a string or
-  // null), which is why this function still exists rather than being a bare
-  // passthrough to this.dbh.loadPlayerInfo().
+  // there's no reshaping left to do for those two -- just turning gold_0/
+  // gold_1 from Redis's raw hget strings into real numbers (Redis has no
+  // numeric type -- everything comes back as a string or null), which is
+  // why this function still exists rather than being a bare passthrough to
+  // this.dbh.loadPlayerInfo().
   //
   // REFACTOR: `username` is now required (in addition to `playerName`) --
   // redis.js's loadPlayerInfo() needs it to read gold_1 from the shared
@@ -423,11 +422,35 @@ class AccountLogic {
   // this character's own field, now that gold_1 has moved to the account
   // level the same way bank did -- see the REFACTOR comment on redis.js's
   // loadPlayerInfo() for the full rationale.
+  //
+  // FIX: redis.js's loadPlayerInfo() now hands back a 13th raw element --
+  // whatever was staged in "goldoffline" (addPlayerGoldOffline(), redis.js),
+  // already atomically read-and-cleared there so nothing can double-count
+  // or get lost to a concurrent credit (see that function's FIX comment).
+  // Deciding what that amount *means* -- add it to gold_0 -- is a data
+  // manipulation decision, so it happens here rather than in redis.js
+  // (matching this codebase's "primitives in redis.js, decisions in
+  // AccountLogic" convention). `data` is trimmed back to the original
+  // 12-element shape before going any further: this record still needs to
+  // match the WU_SAVE_PLAYER_DATA wire format 1:1 once worldhandler.js
+  // forwards it to the gameserver, and "goldoffline" has no place on that
+  // wire. The credit itself is persisted immediately via modifyGold()'s
+  // atomic HINCRBY -- fired without waiting on its callback, same as
+  // addPlayerGoldOffline()'s own call sites -- rather than left to whenever
+  // this session's next save happens to write gold_0 back out; that keeps
+  // the credit durable in Redis right away instead of only living in this
+  // in-memory `data` until some later save commits it.
   loadPlayerInfo(username, playerName, callback) {
     this.dbh.loadPlayerInfo(username, playerName, (playername, raw) => {
-      const data = raw.slice();
+      const data = raw.slice(0, 12);
       data[4] = parseInt(raw[4], 10) || 0;
       data[5] = parseInt(raw[5], 10) || 0;
+
+      const offlineGold = parseInt(raw[12], 10) || 0;
+      if (offlineGold !== 0) {
+        data[4] += offlineGold;
+        this.dbh.modifyGold(playername, offlineGold, 0, () => {});
+      }
 
       if (callback) {
         callback(playername, data);

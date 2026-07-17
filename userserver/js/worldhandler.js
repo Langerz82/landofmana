@@ -353,15 +353,16 @@ class WorldHandler {
                 // folding anything staged in "goldoffline" into gold_0 at
                 // logout/autosave time. That's gone now: offline gold credits
                 // (addPlayerGoldOffline(), redis.js) are instead folded into
-                // gold_0 at *load* time, in loadPlayerInfo() (redis.js), before
-                // the gameserver ever takes gold_0 as this session's in-memory
-                // starting value -- see that function's FIX comment for why
-                // folding at load time (rather than at save time) is what
-                // actually closes the "live session's next autosave clobbers
-                // the credit" race, instead of just working around it with a
-                // separate staged field that still needed a second call site
-                // to reconcile. transferOfflineGold()/addGoldOffline() are
-                // removed entirely; there's nothing left here to call.
+                // gold_0 at *load* time, in AccountLogic.loadPlayerInfo()
+                // (accountlogic.js), before the gameserver ever takes gold_0
+                // as this session's in-memory starting value -- see that
+                // function's FIX comment for why folding at load time (rather
+                // than at save time) is what actually closes the "live
+                // session's next autosave clobbers the credit" race, instead
+                // of just working around it with a separate staged field
+                // that still needed a second call site to reconcile.
+                // transferOfflineGold()/addGoldOffline() are removed
+                // entirely; there's nothing left here to call.
                 if (!update) {
                   delete self.playerSaveData[playerName];
                   users.delete(username);
@@ -676,15 +677,15 @@ class WorldHandler {
     // write getting clobbered by a live session's next autosave. Simpler
     // fix: always stage through addPlayerGoldOffline() (redis.js), which
     // just HINCRBYs the amount into this player's "goldoffline" field, no
-    // online check needed at all. That field gets folded into gold_0 --
-    // exactly once, atomically -- the next time this player's data is
-    // loaded (loadPlayerInfo(), redis.js), which happens before the
-    // gameserver ever takes gold_0 as this session's in-memory starting
-    // value, so there's no live session left to clobber it. If the player
-    // happens to be online on some *other* world right now, the credit
-    // simply waits in "goldoffline" until their next login, same as if they
-    // were fully offline -- no reverse playerName -> username/world lookup
-    // needed either.
+    // online check needed at all. That field gets read, atomically cleared,
+    // and folded into gold_0 the next time this player's data is loaded
+    // (AccountLogic.loadPlayerInfo(), accountlogic.js), which happens
+    // before the gameserver ever takes gold_0 as this session's in-memory
+    // starting value, so there's no live session left to clobber it. If the
+    // player happens to be online on some *other* world right now, the
+    // credit simply waits in "goldoffline" until their next login, same as
+    // if they were fully offline -- no reverse playerName -> username/world
+    // lookup needed either.
     handleAddPlayerGold (msg) {
         const playerName = msg[0];
         const goldAmount = parseInt(msg[1]);
