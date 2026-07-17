@@ -615,7 +615,22 @@ class Player extends Character {
 
         // if quests old format create empty.
         // if quests new but id not a Number delete.
-        if (Array.isArray(db_player.completeQuests)) {
+        // FIX: db_player.completeQuests is `null`/`undefined` for any player
+        // whose Redis hash never got a "completeQuests" field written (new
+        // characters, or characters that never completed a quest -- see
+        // redis.js's loadPlayerInfo(), where a missing hash field comes back
+        // from hget() as `null`). That fell through to the `else` branch
+        // below, which did `self.quests.completeQuests = db_player.completeQuests`
+        // unconditionally -- assigning `null`/`undefined` straight onto the
+        // player instead of defaulting to `{}`. The next save then sent
+        // JSON.stringify(null) === "null" as the completeQuests field, which
+        // userserver/js/format.js correctly rejects ("complete quests is not
+        // an object"), and userserver/js/worldhandler.js's listener responds
+        // to any format-check failure by closing the whole gameserver<->
+        // userserver connection (self.connection.close(...)) -- not just
+        // dropping that one save -- which is why a single player with an
+        // uninitialized quest log could disconnect the entire gameserver.
+        if (Array.isArray(db_player.completeQuests) || db_player.completeQuests == null) {
             self.quests.completeQuests = {}
         }
         else {
