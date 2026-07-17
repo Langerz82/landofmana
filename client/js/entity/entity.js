@@ -359,9 +359,8 @@ export default class Entity {
 
     isWithinDist(x, y, dist) {
         dist = dist || G_TILESIZE;
-        const dx = Math.abs(this.x - x);
-        const dy = Math.abs(this.y - y);
-        return (dx <= dist && dy <= dist);
+        var rd = Utils.realDistance([this.x,this.y],[x,y]);
+        return (rd <= dist);
     }
 
     isWithinDistEntity(entity, dist) {

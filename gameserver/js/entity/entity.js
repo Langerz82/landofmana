@@ -177,11 +177,10 @@ class Entity {
       return pos;
     }
 
-    isWithinDist(x,y,dist) {
-      dist = dist || G_TILESIZE;
-      const dx = Math.abs(this.x-x);
-      const dy = Math.abs(this.y-y);
-      return (dx <= dist && dy <= dist);
+    isWithinDist(x, y, dist) {
+        dist = dist || G_TILESIZE;
+        var rd = Utils.realDistance([this.x,this.y],[x,y]);
+        return (rd <= dist);
     }
 
     isWithinDistEntity(entity, dist) {
