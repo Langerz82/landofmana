@@ -100,21 +100,28 @@ class DatabaseHandler {
     //this.replaceSkills();
 
     // Startup migrations -- unlike removeOldValues()/insertMissingPlayerKeys()
-    // above, neither of these is gated behind a config flag. Those are
+    // above, none of these are gated behind a config flag. Those are
     // opt-in housekeeping; these guarantee player data is on the current
     // storage scheme before anything can touch it, so they always run,
     // every startup. Constructing a DatabaseHandler is now the single place
-    // that kicks both off -- no call site elsewhere can forget to run them.
+    // that kicks them all off -- no call site elsewhere can forget to run
+    // them.
     //
     // A constructor can't be awaited, so the in-progress migrations are
     // handed back as a single Promise instead of a constructor callback:
     // main.js does `await global.DBH.migrationReady` right after
     // `new DatabaseHandlerClass(config)` and doesn't proceed to accept
-    // connections until both resolve (rejects straight through if either
-    // migrateGoldFields() or migrateBankToUser() reports an error). The two
-    // run concurrently via Promise.all -- they touch disjoint fields
-    // (gold_0/gold_1 vs. bank) and neither reads anything the other writes,
-    // so there's no ordering dependency between them.
+    // connections until it resolves (rejects straight through if either
+    // migrateGoldFields()/migrateBankToUser() reports an error).
+    //
+    // REFACTOR: this used to also chain a migrateOfflineGold() step after
+    // migrateGoldFields(), sweeping any "goldoffline" balance into the
+    // shared account-level gold_1 in one startup pass. Removed: offline
+    // gold's real destination is a player's own gold_0, not the shared
+    // gold_1, and that fold now happens per-player at *load* time instead
+    // (see loadPlayerInfo()'s FIX comment) -- which handles every account
+    // eventually, migrated or not, online-only or not, without needing a
+    // separate startup sweep or an account/gold_1-shaped migration at all.
     const goldMigration = new Promise((resolve, reject) => {
       this.migrateGoldFields((err) => {
         if (err) {
@@ -494,6 +501,33 @@ class DatabaseHandler {
   // time any player can log in and reach this function, gold_0/gold_1 are
   // guaranteed to already exist somewhere (account-level or per-character),
   // so there's nothing left to detect or repair here.
+  //
+  // FIX: folds any gold staged in "goldoffline" (addPlayerGoldOffline(),
+  // below) into gold_0 right here, on load, before handing gold_0 back to
+  // the caller (userserver's worldhandler.js, which uses it as the
+  // gameserver session's in-memory starting value). This used to happen at
+  // *save* time instead -- AccountLogic.transferOfflineGold() (accountlogic.js)
+  // read-and-cleared "goldoffline" and credited gold_0 once a player's save
+  // had completed -- which only worked because that credit then had to
+  // race the *next* load reading a still-stale gold_0. Folding at load time
+  // instead removes the race entirely: by the time this player's session
+  // starts, gold_0 already reflects the credit, so that session's own
+  // autosaves just keep writing the correct value forward -- there's no
+  // window left where a live session's in-memory gold_0 could clobber it.
+  //
+  // FIX: reads and clears "goldoffline" in the *same* multi/exec as the
+  // rest of this record (the hdel is unconditional and a no-op if nothing
+  // was staged), rather than reading it here and clearing it in a separate
+  // follow-up call. A separate follow-up clear would reopen exactly the
+  // race takeGoldOffline()/addGoldOffline() used to exist to close: a
+  // concurrent addPlayerGoldOffline() HINCRBY landing in the gap between
+  // "read what's staged" and "clear it" would get silently wiped out by
+  // that clear, without ever being folded in. Doing both in one multi
+  // closes that gap the same way those removed methods did. Crediting
+  // gold_0 itself is then a separate atomic HINCRBY (only issued when
+  // something was actually staged) -- safe as its own step since it's
+  // purely additive and doesn't depend on the value it clobbers-or-doesn't,
+  // unlike the clear above.
   loadPlayerInfo(username, playerName, callback) {
     const pKey = "p:" + playerName;
     const uKey = "u:" + username;
@@ -507,6 +541,8 @@ class DatabaseHandler {
       .hget(pKey, "gold_0")
       .hget(uKey, "gold_1")
       .hget(pKey, "gold_1")
+      .hget(pKey, "goldoffline")
+      .hdel(pKey, "goldoffline")
       .hget(pKey, "skills")
       .hget(pKey, "pStats")
       .hget(pKey, "sprites")
@@ -518,7 +554,8 @@ class DatabaseHandler {
           return;
         }
 
-        const [name, map, stats, exps, gold0, userGold1, legacyGold1,
+        const [name, map, stats, exps, gold0, userGold1, legacyGold1, goldOffline,
+          /* hdel("goldoffline") reply, unused */ ,
           skills, pStats, sprites, colors, shortcuts, completeQuests] = raw;
 
         // Prefer the shared account-level value; fall back to this
@@ -526,12 +563,40 @@ class DatabaseHandler {
         // (see the REFACTOR comment above).
         const gold1 = (userGold1 != null) ? userGold1 : legacyGold1;
 
-        const result = [name, map, stats, exps, gold0, gold1,
-          skills, pStats, sprites, colors, shortcuts, completeQuests];
+        const finish = (finalGold0) => {
+          const result = [name, map, stats, exps, finalGold0, gold1,
+            skills, pStats, sprites, colors, shortcuts, completeQuests];
 
-        if (callback) {
-          callback(playerName, result);
+          if (callback) {
+            callback(playerName, result);
+          }
+        };
+
+        const offlineAmount = parseInt(goldOffline, 10) || 0;
+        if (offlineAmount === 0) {
+          finish(gold0);
+          return;
         }
+
+        // "goldoffline" is already atomically cleared above (part of the
+        // same multi that read it) -- this HINCRBY just applies the amount
+        // it held. If this specific call fails (a real Redis error, not a
+        // race -- the read-and-clear already committed), the credit is
+        // lost rather than reflected in gold_0; logged so it's visible, but
+        // there's no staged value left to retry from since the clear above
+        // already committed. This mirrors the same narrow, logged-not-
+        // recovered failure window this file already accepts for other
+        // multi-step writes (e.g. migrateGold1ToUser()'s per-player cleanup
+        // after its combine succeeds).
+        client.hincrby(pKey, "gold_0", offlineAmount, (err2, newGold0) => {
+          if (err2) {
+            console.warn("redis.loadPlayerInfo: failed to credit gold_0 with staged goldoffline (" +
+              offlineAmount + ") for " + playerName + ": " + JSON.stringify(err2));
+            finish(gold0);
+            return;
+          }
+          finish(newGold0);
+        });
       });
   }
 
@@ -832,6 +897,16 @@ class DatabaseHandler {
     });
   }
 
+  // REFACTOR: this file used to also have a migrateOfflineGold() migration
+  // here, run once at startup right after migrateGoldFields(), sweeping any
+  // pre-existing "goldoffline" balance into the shared account-level
+  // gold_1. Removed along with addGoldOffline()/transferOfflineGold() --
+  // offline gold's destination is a player's own gold_0, not gold_1, and
+  // loadPlayerInfo() above now folds "goldoffline" into gold_0 for any
+  // player the moment they next load, migrated account or not, so there's
+  // no leftover balance a separate startup sweep still needs to catch, and
+  // no gold_1-shaped migration left to write.
+
   // REFACTOR: expects gold already split into two elements -- data[4] =
   // gold_0, data[5] = gold_1 -- matching the WU_SAVE_PLAYER_DATA wire
   // format, which now sends gold_0/gold_1 as two flat elements (not a
@@ -899,77 +974,52 @@ class DatabaseHandler {
   // same starting value, and the second write clobbers the first's change --
   // a lost update that silently drops gold instead of adding it. HINCRBY is
   // atomic in Redis, so use it instead of a manual get-then-set round trip.
-  // Still check the field exists first (HINCRBY on a missing field would
-  // just create it at goldAmount, silently masking what used to be a real
-  // "no record for this player" error condition).
+  //
+  // FIX: used to check the field exists first via hexists (HINCRBY on a
+  // missing field would just create it at goldAmount, which used to mask a
+  // real "no record for this player" error condition, back when
+  // "goldoffline" was expected to already exist on every real player). That
+  // assumption no longer holds: loadPlayerInfo() (below) now folds whatever
+  // is staged here into gold_0 on every login and then hdels the field
+  // entirely (not resets it to 0) -- so a real player can legitimately have
+  // no "goldoffline" field at all between logging in and the next credit
+  // landing here. Requiring it to pre-exist would silently drop exactly the
+  // credits this function exists to stage. HINCRBY on a missing field
+  // self-heals by creating it at goldAmount instead -- same tradeoff
+  // modifyGold() below already accepts, and for the same reason: a
+  // genuinely bogus playerName here would still fail well before this call
+  // (there's no path that reaches WU_ADD_PLAYER_GOLD for a name nothing
+  // ever created).
+  //
+  // REFACTOR: this used to be a two-step design -- stage into "goldoffline"
+  // here, then a separate getGoldOffline()/resetGoldOffline() (later
+  // takeGoldOffline()/addGoldOffline()) pair read it back out and credited
+  // gold_0 once the player's next save completed. That whole second half is
+  // gone: "goldoffline" is now folded into gold_0 at *load* time instead,
+  // inside loadPlayerInfo() below (see its FIX comment for why load time,
+  // not save time, is what actually closes the "live session's autosave
+  // clobbers the credit" race). This function's own job hasn't changed --
+  // still just atomically add goldAmount to "goldoffline" -- there's simply
+  // no separate addGoldOffline()/transferOfflineGold() left to call
+  // afterward.
   addPlayerGoldOffline(playerName, goldAmount) {
     console.info("redis.addPlayerGoldOffline: playerName:" + playerName);
     console.info("goldAmount:" + goldAmount);
 
     const pKey = "p:" + playerName;
-    client.hexists(pKey, "goldoffline", (err, exists) => {
-      if (err || !exists) {
-        if (err) {
-          console.warn("redis.addPlayerGoldOffline: " + JSON.stringify(err));
-        } else {
-          console.error("redis.addPlayerGoldOffline - no goldoffline record for player '" + playerName + "' found.");
-        }
-        return;
-      }
-
-      client.hincrby(pKey, "goldoffline", goldAmount, (err, total) => {
-        if (err) {
-          console.warn("redis.addPlayerGoldOffline: save error, " + JSON.stringify(err));
-          return;
-        }
-        // Preserve the previous Math.max(0, ...) clamp -- goldAmount can be
-        // negative (a deduction), and this field should never go below 0.
-        if (total < 0) {
-          client.hset(pKey, "goldoffline", 0, (err) => {
-            if (err) {
-              console.warn("redis.addPlayerGoldOffline: clamp error, " + JSON.stringify(err));
-            }
-          });
-        }
-      });
-    });
-  }
-
-  resetGoldOffline(playerName, callback) {
-    console.info("redis.resetGoldOffline: playerName:" + playerName);
-    const pKey = "p:" + playerName;
-    client.hset(pKey, "goldoffline", 0, (err, data) => {
+    client.hincrby(pKey, "goldoffline", goldAmount, (err, total) => {
       if (err) {
-        console.info("redis.resetGoldOffline: " + JSON.stringify(err));
-      }
-      if (callback) {
-        callback(playerName);
-      }
-    });
-  }
-
-  getGoldOffline(playerName, callback) {
-    console.info("redis.getGoldOffline: playerName:" + playerName);
-    const pKey = "p:" + playerName;
-    //console.info(pKey+","+golddiff+","+type);
-    client.hget(pKey, "goldoffline", (err, data) => {
-      console.info("getGoldOffline.gold: " + JSON.stringify(data));
-      if (!data) {
-        console.error("redis.getGoldOffline - no gold record for player '" + playerName + "' found.");
-        if (callback) {
-          callback(playerName, 0);
-        }
+        console.warn("redis.addPlayerGoldOffline: save error, " + JSON.stringify(err));
         return;
       }
-      if (err || !data || data === "") {
-        console.warn(err);
-        console.warn(JSON.stringify(data));
-        return;
-      }
-
-      const gold = data.split(",");
-      if (callback) {
-        callback(playerName, parseInt(gold[0]));
+      // Preserve the previous Math.max(0, ...) clamp -- goldAmount can be
+      // negative (a deduction), and this field should never go below 0.
+      if (total < 0) {
+        client.hset(pKey, "goldoffline", 0, (err) => {
+          if (err) {
+            console.warn("redis.addPlayerGoldOffline: clamp error, " + JSON.stringify(err));
+          }
+        });
       }
     });
   }

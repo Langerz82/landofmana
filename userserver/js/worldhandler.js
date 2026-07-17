@@ -348,29 +348,20 @@ class WorldHandler {
               self.playerSaveData[playerName]++;
               if (self.playerSaveData[playerName] === 7) {
                 Accounts.createPlayerNameInUser(username, playerName);
-                // FIX: this transferOfflineGold call used to be gated on the
-                // ENTIRE playerSaveData map being empty, rather than on this
-                // specific player's save finishing. With more than one player
-                // connected through this WorldHandler, the map only empties
-                // once every player has logged out (delete only happens
-                // below, and only when `!update`) -- so a given player's
-                // offline-earned gold (e.g. from an auction sale settled
-                // while they were offline) was effectively only ever
-                // transferred on the rare case they happened to be the last
-                // one to disconnect. Fire it right here, per player, as soon
-                // as their own save has actually completed. (Left the
-                // `self.SAVED_PLAYERS = true` assignment out of this
-                // callback -- that flag is a separate "every connected
-                // player's save is fully done" signal used by
-                // savedWorldState() to gate a graceful shutdown; it's set by
-                // the map-empty check below, which still only becomes true
-                // once every player has actually logged out. Note: that
-                // check now fires as soon as the map empties, rather than
-                // waiting for the last player's transferOfflineGold DB write
-                // to actually confirm -- a small (single Redis round-trip)
-                // window versus before, traded for actually firing this call
-                // for every player instead of almost never.)
-                Accounts.transferOfflineGold(playerName, function (playerName) {});
+                // REFACTOR: this used to also fire Accounts.transferOfflineGold()
+                // here, per player, as soon as their own save had completed --
+                // folding anything staged in "goldoffline" into gold_0 at
+                // logout/autosave time. That's gone now: offline gold credits
+                // (addPlayerGoldOffline(), redis.js) are instead folded into
+                // gold_0 at *load* time, in loadPlayerInfo() (redis.js), before
+                // the gameserver ever takes gold_0 as this session's in-memory
+                // starting value -- see that function's FIX comment for why
+                // folding at load time (rather than at save time) is what
+                // actually closes the "live session's next autosave clobbers
+                // the credit" race, instead of just working around it with a
+                // separate staged field that still needed a second call site
+                // to reconcile. transferOfflineGold()/addGoldOffline() are
+                // removed entirely; there's nothing left here to call.
                 if (!update) {
                   delete self.playerSaveData[playerName];
                   users.delete(username);
@@ -671,9 +662,33 @@ class WorldHandler {
       });
     }
 
+    // NOTE: this only ever arrives for a player the gameserver's own
+    // shophandler.js already couldn't find locally (an auction settling for
+    // a seller who isn't logged into that world -- see its
+    // getPlayerByName()/sendPlayerGold() call site). If the seller *is*
+    // found locally, shophandler.js credits player.items.gold in memory
+    // directly and this message is never sent at all -- see that call site.
+    //
+    // REFACTOR: this used to re-check `playerSaveData` here and branch --
+    // stage via addPlayerGoldOffline() if the player turned out to still
+    // have an active session on this world, otherwise write gold_0 directly
+    // via modifyGold(). That branch only existed to avoid a direct gold_0
+    // write getting clobbered by a live session's next autosave. Simpler
+    // fix: always stage through addPlayerGoldOffline() (redis.js), which
+    // just HINCRBYs the amount into this player's "goldoffline" field, no
+    // online check needed at all. That field gets folded into gold_0 --
+    // exactly once, atomically -- the next time this player's data is
+    // loaded (loadPlayerInfo(), redis.js), which happens before the
+    // gameserver ever takes gold_0 as this session's in-memory starting
+    // value, so there's no live session left to clobber it. If the player
+    // happens to be online on some *other* world right now, the credit
+    // simply waits in "goldoffline" until their next login, same as if they
+    // were fully offline -- no reverse playerName -> username/world lookup
+    // needed either.
     handleAddPlayerGold (msg) {
         const playerName = msg[0];
         const goldAmount = parseInt(msg[1]);
+
         DBH.addPlayerGoldOffline(playerName, goldAmount);
     }
 
