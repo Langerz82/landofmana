@@ -29,8 +29,9 @@ class BaseItem {
         const itemKind = Number(arr[0]);
         this.itemKind = itemKind;
         this.itemNumber = Number(arr[1]);
-        this.itemDurability = (arr[2] != null) ? Number(arr[2]) : ((ItemTypes.isConsumableItem(itemKind) || ItemTypes.isCraftItem(itemKind)) ? 0 : 900);
-        this.itemDurabilityMax = (arr[3] != null) ? Number(arr[3]) : ((ItemTypes.isConsumableItem(itemKind) || ItemTypes.isCraftItem(itemKind)) ? 0 : 900);
+        const itemDurability = ItemTypes.isEquipment(itemKind) ? 900 : 0;
+        this.itemDurability = (arr[2] === 0) ? itemDurability : Number(arr[2]);
+        this.itemDurabilityMax = (arr[3] === 0) ? itemDurability : Number(arr[3]);
         this.itemExperience = Number(arr[4]) || 0;
     }
 

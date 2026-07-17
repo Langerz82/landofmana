@@ -230,10 +230,31 @@ class WorldHandler {
     }
 
     sendToUserServer(msg) {
-        if (this.userConnection)
-            this.userConnection.send(msg.serialize());
+        // FIX: `this.userConnection` used to be a snapshot taken once, in
+        // main.js's server.onConnect handler, at the moment the player's
+        // socket connected (`wh.userConnection = server.userHandler ? ... :
+        // null`). `server.userHandler` is only populated asynchronously once
+        // this gameserver's own outbound connection to the userserver
+        // finishes -- so any player who connected before that completed (a
+        // gameserver restart racing reconnecting clients, or a slow/flaky
+        // userserver link) got `userConnection` permanently stuck at `null`
+        // for the rest of that session, with no re-assignment ever
+        // happening afterward. Since disconnect-triggered `savePlayer()` is
+        // typically the only save a session gets (no periodic autosave
+        // exists), every send silently no-op'd here and the whole session's
+        // state -- equipped items, inventory, stats, everything -- was lost
+        // with only an easily-missed `console.info` log.
+        // Reading `this.main.userHandler` (the live `server` object, see the
+        // `new WorldHandler(server, conn)` call site) at send-time instead
+        // of caching a stale snapshot means every send always uses whatever
+        // userserver connection is current -- including after the initial
+        // connect finishes, and after any later reconnect.
+        const userHandler = this.main && this.main.userHandler;
+        const userConnection = this.userConnection || (userHandler && userHandler.connection);
+        if (userConnection)
+            userConnection.send(msg.serialize());
         else
-            console.info("worldHandler: sendToUserServer called without userConnection being set: "+JSON.stringify(msg.serialize()));
+            console.error("worldHandler: sendToUserServer called without userConnection being set (player save/message lost): "+JSON.stringify(msg.serialize()));
     }
 
     savePlayer(player, update) {

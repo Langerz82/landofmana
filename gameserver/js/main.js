@@ -308,19 +308,22 @@ function main(config) {
 
       	conn.sendUTF8("1["+Types.Messages.WC_VERSION+","+config.version+",\""+conn.hash+"\"]");
         const wh = new WorldHandler(server, conn);
-        // FIX: `server.userHandler` is only assigned inside the async
-        // server.userConn.onConnectUser(...) callback above (fires once
-        // this gameserver's own connection to the userserver completes) --
-        // any player connection accepted before that finishes (a server
-        // restart racing with reconnecting clients, or a slow/flaky
-        // userserver link) threw "Cannot read properties of undefined
-        // (reading 'connection')" for every client connecting in that
-        // window. worldhandler.js's sendToUserServer() already handles
-        // `this.userConnection` being unset gracefully (logs and no-ops
-        // instead of throwing), so guarding here just lets that existing
-        // fallback do its job instead of crashing before it gets the
-        // chance.
-        wh.userConnection = server.userHandler ? server.userHandler.connection : null;
+        // FIX: this used to snapshot `wh.userConnection = server.userHandler
+        // ? server.userHandler.connection : null` once, right here, at
+        // player-connect time. `server.userHandler` is only assigned inside
+        // the async server.userConn.onConnectUser(...) callback above (fires
+        // once this gameserver's own connection to the userserver
+        // completes), so any player who connected before that finished (a
+        // server restart racing reconnecting clients, or a slow/flaky
+        // userserver link) got a permanent `null` snapshot -- it was never
+        // re-assigned for the rest of that session. Since disconnect-time
+        // save is normally the only save a session gets, every subsequent
+        // sendToUserServer() call (including the disconnect save itself)
+        // silently no-op'd, silently dropping that player's data (e.g. an
+        // item equipped right before disconnecting never persisted).
+        // worldhandler.js's sendToUserServer() now looks up
+        // `this.main.userHandler` live at send-time instead of relying on a
+        // cached snapshot, so no assignment is needed here at all.
 
         conn.worldHandler = wh;
 

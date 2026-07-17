@@ -1135,7 +1135,7 @@ export default class Game {
           const entity = this.getEntityAt(pos[0], pos[1]);
 
           if (!entity || entity.isDying || entity.isDead) return false;
-          if (!p.canReach(entity)) return false;
+          if (!(p.isAdjacentEntity(entity) && p.isFacingEntity(entity))) return false;
 
           p.setTarget(entity);
           p.lookAtEntity(entity);
