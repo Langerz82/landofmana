@@ -2147,6 +2147,12 @@ export default class Game {
             }
 
             if (entity) {
+              if (p.isNextTooEntity(entity)) {
+                p.setTarget(entity);
+                p.lookAtEntity(entity);
+                this.processInput(pos.x, pos.y);
+                return;
+              }
               if (!p.hasTarget()) {
                   p.setTarget(entity);
                   return;
@@ -2155,10 +2161,6 @@ export default class Game {
                   p.setTarget(entity);
                   return;
               }
-              /*if (p.dialogueEntity) {
-                game.showDialogue();
-                return;
-              }*/
             } else {
               p.clearTarget();
             }
