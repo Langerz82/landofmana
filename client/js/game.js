@@ -1258,13 +1258,13 @@ export default class Game {
           if (fnProcessTile(pos[0],pos[1]))
             return true;
 
-          /*const spots = p.getSpotsAround(p, 1);
+          const spots = p.getSpotsAround(p, 1);
           for (const spot of spots) {
             if (pos[0] === spot.x && pos[1] === spot.y)
               continue;
             if (fnProcessTile(spot.x,spot.y))
               return true;
-          }*/
+          }
 
           return false;
         }
@@ -2214,9 +2214,18 @@ export default class Game {
             const type = p.items.getWeaponType();
             const gpos = Utils.getGridPosition(px, py);
             const colliding = this.mapContainer.isColliding(px,py);
-            if (colliding && this.mapContainer.isHarvestTile(gpos, type) && p.isNextTooPosition(px, py)) {
-                // Start hit animation and send to Server harvest packet.
-                this.makePlayerHarvest(px, py);
+            // FIX: isNextTooPosition() used to be checked against px/py directly -- the
+            // *exact pixel the player clicked*, which can be anywhere within the target
+            // tile. A tile's far corner from the player can be up to 16*sqrt(2)=~22.6
+            // units away (Euclidean) even though the near corner is within the 16-unit
+            // reach and it's the same, clearly-in-range tile. That made harvesting only
+            // register when the click landed on whichever corner happened to be closest
+            // to the player (reported as "only works clicking bottom-right of the
+            // tile"). Checking reach against the tile's center instead makes the result
+            // depend on which tile you clicked, not where inside it.
+            var tileCenter = Utils.fixGridPosition(G_TILESIZE, px, py);
+            if (colliding && this.mapContainer.isHarvestTile(gpos, type) && p.isNextTooEntity(tileCenter)) {
+                this.makePlayerHarvest(tileCenter.x, tileCenter.y);
                 return;
             }
 
