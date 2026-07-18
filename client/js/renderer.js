@@ -332,11 +332,21 @@ export default class Renderer {
       const rw = ~~(this.renderer.width);
       const rh = ~~(this.renderer.height);
 
+      // FIX: width/height were passed as "Npx !important" through jQuery's .css(), which
+      // sets them via elem.style[prop] = value - assigning a value containing "!important"
+      // that way is invalid per CSSOM and the browser silently drops the whole declaration,
+      // so #canvas's box was never actually resized to match the renderer's buffer size.
+      // Also missing transform-origin: with the default "50% 50%", scaling a box whose
+      // actual (stale) size didn't match rw/rh pushed the canvas off-center and partially
+      // off-screen instead of scaling from the top-left corner where left/top:0 assumed it
+      // would. #gui (styled in main.css) already sets transform-origin: top left for the
+      // same reason - #canvas needs it too.
       this.canvas.css({
         left: "0px",
         top:  "0px",
-        width: rw + "px !important",
-        height: rh + "px !important",
+        width: rw + "px",
+        height: rh + "px",
+        transformOrigin: "top left",
         transform: "scale("+zoom+")",
       });
     }
