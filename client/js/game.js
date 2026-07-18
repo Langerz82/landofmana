@@ -776,8 +776,10 @@ export default class Game {
 
           self.player.onKeyMove(function(sentMove) {
             const p = self.player;
-            if (!sentMove && !p.freeze)
+            if (!sentMove && !p.freeze) {
               checkTeleport(p, p.x, p.y);
+              //self.makePlayerInteractNextTo();
+            }
 
             p.sendMove(sentMove ? 1 : 0);
             //if (!p.freeze)
@@ -968,11 +970,8 @@ export default class Game {
 
               if (p.hasTarget()) {
                 p.lookAtEntity(p.target);
-                self.makePlayerInteractNextTo();
-                return;
-              } else {
-                log.info("onStopPathing - NO TARGET!");
               }
+              self.makePlayerInteractNextTo();
               log.info("onStopPathing - 2");
 
               if(p.target instanceof NpcStatic || p.target instanceof NpcMove) {
@@ -1108,7 +1107,7 @@ export default class Game {
           this.ignorePlayer = true;
 
           this.tryInteractAdjacentEntity() ||
-            this.tryInteractHarvestTile() ||
+            this.tryInteractHarvestTiles() ||
             this.tryInteractExistingTarget() ||
             this.tryInteractClosestEntity();
 
@@ -1198,16 +1197,72 @@ export default class Game {
         /**
          * If the player is next to and facing a Harvest Tile, interacts with it.
          */
-        tryInteractHarvestTile() {
+        tryInteractHarvestTiles() {
           const p = this.player;
+
+          if (p.hasTarget())
+            return false;
+
           const type = p.items.getWeaponType();
           if (type === null) return false;
 
+          // FIX: was a plain (non-arrow) function expression, called bare
+          // below (fnProcessTile(...), not this.fnProcessTile(...)) -- in a
+          // class method under strict mode (always true for ES modules/class
+          // bodies), a bare function call has `this === undefined`, so
+          // `this.mapContainer` threw a TypeError on every single
+          // invocation. That broke both call sites below equally (the
+          // direct facing-tile check via p.nextTile() and the surrounding-
+          // tiles fallback loop), and since nothing here catches the
+          // exception, it unwound straight out of tryInteractHarvestTiles()
+          // and past its caller's `this.ignorePlayer = true`/`= false` pair
+          // (makePlayerInteractNextTo()), skipping the reset. An arrow
+          // function closes over the enclosing tryInteractHarvestTiles()'s
+          // `this` (the game instance) lexically instead, matching the
+          // `game.processInput` call just below it.
+          //
+          // FIX: this used to call game.processInput(x, y, true) once a tile
+          // was confirmed harvestable -- but processInput() (below in this
+          // file) doesn't act on the (x, y) it's given at all when the
+          // player currently has a target: `entity = p.hasTarget() ?
+          // p.target : this.getEntityAt(px, py)` re-interacts with whatever
+          // p.target already is and never reaches its own isHarvestTile()
+          // branch. makePlayerInteractNextTo() -> tryInteractHarvestTiles()
+          // is reached from onStopPathing() specifically inside its
+          // `if (p.hasTarget())` block, so in exactly the scenario that
+          // drives this whole chain, p.hasTarget() is true - meaning this
+          // never actually harvested the tile it just found, for either the
+          // faced tile or the surrounding ones; it silently re-triggered the
+          // player's existing target instead, while still returning `true`
+          // here (only isHarvestTile() was checked, not what processInput()
+          // did with it) as if it had succeeded. The third `true` argument
+          // never did anything either - processInput(px, py) only declares
+          // two parameters. Calling makePlayerHarvest() directly (it
+          // re-validates weapon/tile itself and doesn't consult p.target at
+          // all) actually harvests the tile regardless of current target.
+          // (Dropped the p.lookAt(x, y) call that used to sit here, too --
+          // makePlayerHarvest() already calls p.lookAtTile(px, py) itself
+          // right before starting the harvest, immediately overwriting
+          // whatever orientation this would have set.)
+          const fnProcessTile = (x, y) => {
+            const gpos = Utils.getGridPosition(x, y);
+            if (game.mapContainer.isHarvestTile(gpos, type)) {
+              game.makePlayerHarvest(x, y);
+              return true;
+            }
+            return false;
+          };
+
           const pos = p.nextTile();
-          const gpos = Utils.getGridPosition(pos[0], pos[1]);
-          if (this.mapContainer.isHarvestTile(gpos, type)) {
-            game.processInput(pos[0], pos[1], true);
+          if (fnProcessTile(pos[0],pos[1]))
             return true;
+
+          const spots = p.getSpotsAround(p, 1);
+          for (const spot of spots) {
+            if (pos[0] === spot.x && pos[1] === spot.y)
+              continue;
+            if (fnProcessTile(spot.x,spot.y))
+              return true;
           }
           return false;
         }
