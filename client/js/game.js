@@ -970,8 +970,9 @@ export default class Game {
 
               if (p.hasTarget()) {
                 p.lookAtEntity(p.target);
+                self.makePlayerInteractNextTo();
               }
-              self.makePlayerInteractNextTo();
+
               log.info("onStopPathing - 2");
 
               if(p.target instanceof NpcStatic || p.target instanceof NpcMove) {
@@ -1257,13 +1258,14 @@ export default class Game {
           if (fnProcessTile(pos[0],pos[1]))
             return true;
 
-          const spots = p.getSpotsAround(p, 1);
+          /*const spots = p.getSpotsAround(p, 1);
           for (const spot of spots) {
             if (pos[0] === spot.x && pos[1] === spot.y)
               continue;
             if (fnProcessTile(spot.x,spot.y))
               return true;
-          }
+          }*/
+
           return false;
         }
 
@@ -2128,7 +2130,6 @@ export default class Game {
             if (p.movement.inProgress)
               return;
 
-            this.clickMove = true;
             //this.playerPopupMenu.close();
 
             for (let dialog of this.dialogs) {
@@ -2137,10 +2138,29 @@ export default class Game {
             }
 
             const entity = this.getEntityAt(pos.x, pos.y);
-            if (p.setTarget(entity))
-              return;
 
-            this.processInput(pos.x,pos.y);
+            if (entity) {
+              if (!p.hasTarget()) {
+                  p.setTarget(entity);
+                  return;
+              }
+              else if (entity != p.target) {
+                  p.setTarget(entity);
+                  return;
+              }
+            }
+
+            // Second click landing back on the already-targeted entity ->
+            // actually act on it, at the mouse's game/world coordinates
+            // (pos.x/pos.y, already camera-adjusted by getMousePosition()
+            // above -- not raw screen coordinates).
+            if (entity && entity === p.target) {
+                this.processInput(pos.x, pos.y);
+                return;
+            }
+
+            this.clickMove = true;
+            this.processInput(pos.x, pos.y);
             this.clickMove = false;
         }
 
