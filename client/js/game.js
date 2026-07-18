@@ -2138,6 +2138,13 @@ export default class Game {
             }
 
             const entity = this.getEntityAt(pos.x, pos.y);
+            if (!entity && this.renderer.mobile) {
+              const entities = game.camera.getEntitiesAround(pos.x, pos.y, 16, [p]);
+              if (entities && entities.length > 0)
+              {
+                entity = entities[0];
+              }
+            }
 
             if (entity) {
               if (!p.hasTarget()) {
@@ -2188,15 +2195,6 @@ export default class Game {
 
           let entity = p.hasTarget() ?
             p.target : this.getEntityAt(px, py);
-
-          if (!entity && this.renderer.mobile) {
-            const entities = game.camera.getEntitiesAround(px, py, 16, [game.player]);
-            if (entities && entities.length > 0)
-            {
-              entity = entities[0];
-              p.setTarget(entity);
-            }
-          }
 
           if (entity && !entity.isDying) {
             this.playerInteract(entity);
