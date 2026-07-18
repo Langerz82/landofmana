@@ -2269,24 +2269,18 @@ export default class Game {
           const colliding = this.mapContainer.isCollidingPoint(px,py);
           if (colliding)
           {
-            /*if (this.renderer.mobile) {
-              for (var i=1; i <= 4; i++) {
-                var tile = p.nextTile(px,py,i);
-                var tx = tile[0];
-                var ty = tile[1];
-                if (!this.mapContainer.isCollidingPoint(tx,ty))
-                {
-									this.makePlayerGoTo(tx, ty);
-                  return;
-                }
+            const spots = p.getSortedTilesAround(px, py);
+            for(const node of spots) {
+              if (!this.mapContainer.isCollidingPoint(node.x,node.y)) {
+                this.makePlayerGoTo(node.x, node.y);
+                return;
               }
-            }*/
+            }
           }
           else {
               this.makePlayerGoTo(px, py);
           }
         }
-
 
         /*speakToNPC: function (entity) {
           var p = this.player;

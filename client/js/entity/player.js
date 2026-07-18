@@ -352,6 +352,24 @@ export default class Player extends Character {
         this.setSprite(sprite, index);
     }
 
+    // Returns the tiles immediately surrounding (x, y) - the destination
+    // tile's four cardinal neighbors, the same candidate set
+    // getClosestSpot()/getSpotsAround() (entitymoving.js) build - as
+    // {d, x, y} tile nodes, sorted nearest-to-farthest by real-world
+    // distance from this player's current position (this.x/this.y).
+    // getSpotsAround() already computes `d` that way (it measures from
+    // `this`, the entity the method is called on - here, this player), so
+    // no extra distance calculation is needed, just the sort. Unlike
+    // getClosestSpot(), this returns every candidate node instead of just
+    // the nearest one, and doesn't filter out colliding/occupied tiles -
+    // callers that need a single walkable spot should keep using
+    // getClosestSpot() instead.
+    getSortedTilesAround(x, y) {
+        const nodes = this.getSpotsAround({x: x, y: y}, 1);
+        nodes.sort(function(a, b) { return a.d - b.d; });
+        return nodes;
+    }
+
     nextStep() {
         return super.nextStep();
     }
