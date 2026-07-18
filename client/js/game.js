@@ -2123,7 +2123,7 @@ export default class Game {
               return;
 
             if (p.dialogueEntity) {
-              game.showDialogue();
+              if (game.tryShowDialogue());
               return;
             }
 
@@ -2155,6 +2155,12 @@ export default class Game {
                   p.setTarget(entity);
                   return;
               }
+              /*if (p.dialogueEntity) {
+                game.showDialogue();
+                return;
+              }*/
+            } else {
+              p.clearTarget();
             }
 
             // Second click landing back on the already-targeted entity ->
