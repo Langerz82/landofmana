@@ -126,7 +126,7 @@ export default class Map {
 
     _generateCollisionGrid() {
         this.collision = new Array(this.height);
-        for (let i = 0; i < this.height; i++) {
+        for (let i = 0; i < this.height; ++i) {
             this.collision[i] = new Uint8Array(this.collisionData.slice(i * this.width, (i + 1) * this.width));
         }
         delete this.collisionData;
@@ -135,8 +135,13 @@ export default class Map {
 
     _generateTileGrid() {
         this.tile = new Array(this.height);
-        for (let i = 0; i < this.height; i++) {
-            this.tile[i] = this.tileData.slice(i * this.width, ((i + 1) * this.width));
+        for (let tile of this.tileData) {
+          if (tile instanceof Array)
+            tile = new Uint32Array(tile);
+        }
+        for (let i = 0; i < this.height; ++i) {
+          const arr = this.tileData.slice(i * this.width, ((i+1) * this.width));
+          this.tile[i] = arr;
         }
         delete this.tileData;
         log.debug("tile grid generated.");

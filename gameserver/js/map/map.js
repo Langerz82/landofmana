@@ -144,17 +144,20 @@ class Map {
     }
 
     loadTileGrid(tiles) {
+        for (let tile of tiles) {
+          if (tile instanceof Array)
+            tile = new Uint32Array(tile);
+        }
         this.tile = new Array(this.height);
         for(let i = 0; i < this.height; ++i) {
-            const arr = tiles.slice(i * this.width, ((i+1) * this.width) );
+            const arr = tiles.slice(i * this.width, ((i+1) * this.width));
             this.tile[i] = arr;
         }
-        //delete tiles;
     }
 
     loadCollisionGrid(collisions) {
         this.grid = new Array(this.height);
-        for (let i = 0; i < this.height; i++) {
+        for (let i = 0; i < this.height; ++i) {
             this.grid[i] = new Uint8Array(collisions.slice(i * this.width, (i + 1) * this.width));
         }
         collisions = null;
@@ -171,8 +174,8 @@ class Map {
         const width = this.groupWidth;
         const height = this.groupHeight;
 
-        for (let x = 0; x < width; x += 1) {
-            for(let y = 0; y < height; y += 1) {
+        for (let x = 0; x < width; ++x) {
+            for(let y = 0; y < height; ++y) {
                 callback(x+'-'+y);
             }
         }
