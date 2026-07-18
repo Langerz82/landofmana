@@ -2137,7 +2137,7 @@ export default class Game {
                 dialog.hide();
             }
 
-            const entity = this.getEntityAt(pos.x, pos.y);
+            let entity = this.getEntityAt(pos.x, pos.y);
             if (!entity && this.renderer.mobile) {
               const entities = game.camera.getEntitiesAround(pos.x, pos.y, 16, [p]);
               if (entities && entities.length > 0)
