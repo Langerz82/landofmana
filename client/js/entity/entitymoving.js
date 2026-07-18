@@ -156,10 +156,10 @@ export default class EntityMoving extends Entity {
         return coords;
     }
 
-    getSpotsAround(dest, adjDist) {
+    getSpotsAround(dest, adjDist, startBlocks = 4) {
         adjDist = adjDist || 1;
         const d = adjDist * G_TILESIZE;
-        const iterations = adjDist * 4;
+        const iterations = adjDist * startBlocks;
 
         const pos = [dest.x, dest.y];
         const x2 = pos[0],

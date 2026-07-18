@@ -184,7 +184,7 @@ export default class Camera {
         }
     }
 
-    getEntitiesAround(x, y, dist, unInclude = []) {
+    getEntitiesAround(x, y, dist, exclude = []) {
         const minx = x - dist;
         const miny = y - dist;
         const maxx = x + dist;
@@ -196,7 +196,7 @@ export default class Camera {
             if (entity && entity instanceof Entity) {
                 const ex = entity.x;
                 const ey = entity.y;
-                if (unInclude.indexOf(entity) >= 0)
+                if (exclude.indexOf(entity) >= 0)
                     continue;
 
                 if (ex >= minx && ex <= maxx && ey >= miny && ey <= maxy)

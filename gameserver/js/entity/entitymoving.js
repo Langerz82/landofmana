@@ -156,36 +156,40 @@ class EntityMoving extends Entity {
    return coords;
  }
 
- getSpotsAround(dest, adjDist) {
-   adjDist = adjDist || 1;
-   const d = adjDist * G_TILESIZE;
-   const iterations = adjDist * 4;
+ getSpotsAround(dest, adjDist, startBlocks = 4) {
+     adjDist = adjDist || 1;
+     const d = adjDist * G_TILESIZE;
+     const iterations = adjDist * startBlocks;
 
-   const pos = [dest.x, dest.y];
-   const x2 = pos[0],
-       y2 = pos[1];
+     const pos = [dest.x, dest.y];
+     const x2 = pos[0],
+         y2 = pos[1];
 
-   const sx = this.x,
-       sy = this.y;
+     const sx = this.x,
+         sy = this.y;
 
-   let points = [];
-   const sec = 2 * Math.PI / iterations;
-   let x, y, deg = 0;
-   for (let i = 0; i < iterations; ++i) {
-     deg += sec;
-     x = ~~(x2 + (Math.cos(deg)*d));
-     y = ~~(y2 + (Math.sin(deg)*d));
-     points.push([x,y]);
-   }
-   points = points.filter((v,i,a)=>a.findIndex(v2=>(v2[0]===v[0] && v2[1]===v[1]))===i);
+     let points = [];
+     const sec = 2 * Math.PI / iterations;
+     let x, y, deg = 0;
+     for (let i = 0; i < iterations; ++i) {
+         deg += sec;
+         // Math.round instead of ~~ (truncate-toward-zero). ~~ always rounds
+         // down for positive coords, which biased every candidate point
+         // toward one corner of the tile instead of landing symmetrically
+         // around dest's exact position.
+         x = x2 + ~~(Math.cos(deg) * d);
+         y = y2 + ~~(Math.sin(deg) * d);
+         points.push([x, y]);
+     }
+     points = points.filter((v, i, a) => a.findIndex(v2 => (v2[0] === v[0] && v2[1] === v[1])) === i);
 
-   const coords = [];
-   let p, tp, len = points.length;
-   for (let i=0; i < len; ++i) {
-     p = points[i];
-     coords.push({d: Utils.realDistance([sx,sy],p),x: p[0], y: p[1]});
-   }
-   return coords;
+     const coords = [];
+     let p, tp, len = points.length;
+     for (let i = 0; i < len; ++i) {
+         p = points[i];
+         coords.push({d: Utils.realDistance([sx, sy], p), x: p[0], y: p[1]});
+     }
+     return coords;
  }
 
  getClosestSpot(dest, adjStart, adjEnd) {
