@@ -33,15 +33,8 @@ const itemParse = fetchJsonSync('shared/data/items2.json');
 //log.info(JSON.stringify(itemParse));
 $.each(itemParse, function(itemKey, itemValue) {
     const kind = itemValue.id;
-    if (itemValue.type === "weapon" || itemValue.type === "weaponarcher") {
-        Items[itemKey + 1] = class extends Item {
-            constructor(id) {
-                super(id, parseInt(itemKey), itemValue.type);
-            }
-        };
-    }
-    else if (ItemTypes.isArmor(kind) ||
-        itemValue.type === "object" || itemValue.type === "craft") {
+    if (itemValue.type === "weapon" || itemValue.type === "weaponarcher" ||
+        ItemTypes.isArmor(kind) || itemValue.type === "object" || itemValue.type === "craft") {
         Items[itemKey + 1] = class extends Item {
             constructor(id) {
                 super(id, parseInt(itemKey), itemValue.type);
@@ -50,25 +43,24 @@ $.each(itemParse, function(itemKey, itemValue) {
     }
     const itemData = {
         name: itemValue.name,
-        type: (itemValue.type) ? itemValue.type : "object",
-        damageType: (itemValue.damageType) ? itemValue.damageType : "none",
-        typemod: (itemValue.typemod) ? itemValue.typemod : "none",
-        modifier: (itemValue.modifier) ? itemValue.modifier : 0,
-        hand: (itemValue.hand) ? itemValue.hand : 0,
-        sprite: (itemValue.sprite) ? itemValue.sprite : "",
-        spriteName: (itemValue.spriteName) ? itemValue.spriteName : "",
-        offset: (itemValue.offset) ? itemValue.offset : [0, 0],
-        buy: (itemValue.buy) ? itemValue.buy : 0,
-        buyCount: (itemValue.buyCount) ? itemValue.buyCount : 1,
-        staticsheet: (itemValue.staticsheet > 0) ? itemValue.staticsheet : 0,
-        level: (itemValue.level) ? itemValue.level : itemValue.modifier,
-        legacy: (itemValue.legacy) ? itemValue.legacy : 0,
-        //craft: (itemValue.craft) ? itemValue.craft : [],
+        type: itemValue.type || "object",
+        damageType: itemValue.damageType || "none",
+        typemod: itemValue.typemod || "none",
+        modifier: itemValue.modifier || 0,
+        hand: itemValue.hand || 0,
+        sprite: itemValue.sprite || "",
+        spriteName: itemValue.spriteName || "",
+        offset: itemValue.offset || [0, 0],
+        buy: itemValue.buy || 0,
+        buyCount: itemValue.buyCount || 1,
+        staticsheet: itemValue.staticsheet > 0 ? itemValue.staticsheet : 0,
+        level: itemValue.level || itemValue.modifier,
+        legacy: itemValue.legacy || 0,
         craft: getCraftData(kind)
     };
 
     if (itemData.type === "object")
-        itemData.cooldown = (itemValue.cooldown) ? itemValue.cooldown : 10;
+        itemData.cooldown = itemValue.cooldown || 10;
 
     kindData[kind] = itemData;
 });

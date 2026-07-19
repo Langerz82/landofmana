@@ -33,30 +33,21 @@ const getSkillEffects = function(data) {
 
 const Skill = {};
 Skill.Data = [];
-//Skill.Names = {};
-//Skill.Ordered = [];
 const skillsParse = fetchJsonSync('shared/data/skills2.json');
-//var i = 0;
-for (let i in skillsParse) {
-    const value = skillsParse[i];
-
-    //if (value === "undefined") continue;
-    console.info(JSON.stringify(value));
+for (const value of skillsParse) {
     Skill.Data.push({
         name: value.name,
         iconOffset: value.iconOffset,
         detail: value.detail,
         skillType: value.skillType,
-        targetType: value.targetType ? value.targetType : 0,
-        duration: value.duration ? value.duration : 0,
-        durationPL: value.durationPL ? value.durationPL : 0,
+        targetType: value.targetType || 0,
+        duration: value.duration || 0,
+        durationPL: value.durationPL || 0,
         recharge: value.recharge ? value.recharge * 1000 : 0,
-        aoe: value.aoe ? value.aoe : 0,
-        countTotal: value.countTotal ? value.countTotal : 0,
+        aoe: value.aoe || 0,
+        countTotal: value.countTotal || 0,
         effectTypes: getSkillEffects(value.effects)
     });
-    //Skill.Names[value.name] = Skill.Data[i];
-    //Skill.Ordered[j++] = Skill.Data[i];
 }
 
 Skill.jqShowSkill = function(jq, skillId, jqn, size) {
@@ -74,7 +65,5 @@ Skill.jqShowSkill = function(jq, skillId, jqn, size) {
         jqn.html("");
     }
 };
-
-log.info(JSON.stringify(Skill));
 
 export default Skill;

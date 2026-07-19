@@ -14,7 +14,7 @@ NpcData.Kinds.forEach(function(value, key) {
 });
 
 NpcData.isNpc = function(kind) {
-    return NpcData.Kinds[kind] ? true : false;
+    return !!NpcData.Kinds[kind];
 };
 
 export default NpcData;
