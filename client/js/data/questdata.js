@@ -9,12 +9,14 @@ const padding = (val, size) => String(val).padStart(size, "0");
 const QuestData = {};
 const data = fetchJsonSync('shared/data/quests.json');
 
-data.forEach((quest, i) => {
+let i = 0;
+Object.values(data).forEach((quest) => {
     const id = padding(quest.type, 2) + padding(quest.npcId, 4) + padding(i, 3);
     QuestData[id] = quest;
     QuestData[id].id = id;
     QuestData[id].objectId = quest.objectId || 0;
     QuestData[id].objectCount = quest.objectCount || 0;
+    i++;
 });
 
 export default QuestData;
