@@ -321,8 +321,6 @@ export default class App {
         }
 
         initFormFields() {
-            const self = this;
-
             this.getLoadUserButton = function() { return $('#user_load'); };
             this.getCreateUserButton = function() { return $('#user_create'); };
             this.getLoadPlayerButton = function() { return $('#player_load'); };
@@ -349,7 +347,6 @@ export default class App {
         tryUserAction(action)
         {
           if(this.starting) return;        // Already loading
-          const self = this;
 
           if (action > 0)
           {
@@ -410,8 +407,6 @@ export default class App {
         }
 
         startGame(server, ps) {
-            const self = this;
-
             $('#gameheading').css('display','none');
 
             if (game.started)
@@ -606,7 +601,7 @@ export default class App {
 
             if (fields)
             {
-      		    $.each(fields, function(i, field) {
+      		    fields.forEach((field) => {
           			if (field.hasClass('field-error'))
           			    field.removeClass('field-error');
           		    });
@@ -640,7 +635,6 @@ export default class App {
 
 
         initPlayerBar() {
-            const self = this;
             const player = game.player;
 
             if (player && !Detect.isMobile()) {
@@ -681,12 +675,7 @@ export default class App {
 
         //Init the hud that makes it show what creature you are mousing over and attacking
         initTargetHud(){
-          const self = this;
-          let scale = game.renderer.getScaleFactor(),
-              guiScale = game.renderer.getUiScaleFactor(),
-          	  zoom = game.renderer.zoom,
-              timeout,
-              ts = game.renderer.tilesize;
+          const guiScale = game.renderer.getUiScaleFactor();
 
           if (game.player) {
 		        game.player.onSetTarget(function(target, mouseover)
@@ -728,9 +717,6 @@ export default class App {
           	log.info("targetHealth: "+target.stats.hp+" "+target.stats.hpMax);
               $("#target-health").css('width', Math.round(target.stats.hp/target.stats.hpMax*60*guiScale)+'px');
               $("#target-healthtext").html("HP: "+target.stats.hp + "/" + target.stats.hpMax);
-              /*if(game.player.inspecting && game.player.inspecting.id === target.id){
-                  $("#inspector .health").css('width', Utils.Percent(target.healthPoints/target.maxHp, 0));
-              }*/
           });
 
           if (game.player) {
@@ -745,8 +731,6 @@ export default class App {
 
         initExpBar(){
             let maxWidth = parseInt($('#expbar').width());
-			      const widthRate = 1.0;
-            const self = this;
 
             const jqExp = $('#exp');
             const jqExpBar = $('#expbar');
@@ -766,12 +750,7 @@ export default class App {
               }
 
               maxWidth = parseInt($('#expbar').width());
-            	let rate = expInThisLevel/expForLevelUp;
-              if(rate > 1){
-                  rate = 1;
-              } else if(rate < 0){
-                  rate = 0;
-              }
+            	const rate = Utils.clamp(0, 1, expInThisLevel/expForLevelUp);
 
               const rateFmt = Utils.Percent(rate,0);
               jqExp.css('width', rateFmt);
@@ -808,7 +787,6 @@ export default class App {
         }
 
         initMenuButton() {
-        	const self = this;
         	log.info("initMenuButton");
 
     			$( document ).ready(function() {

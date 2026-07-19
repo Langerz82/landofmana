@@ -700,10 +700,7 @@ export default class Renderer {
     }
 
     drawBubbles() {
-      const self = this;
-      _.each(game.bubbleManager.bubbles, function(bubble) {
-          self.drawBubble(bubble);
-      });
+      Object.values(game.bubbleManager.bubbles).forEach((bubble) => this.drawBubble(bubble));
     }
 
     showHarvestBar(entity) {
@@ -1556,7 +1553,6 @@ export default class Renderer {
 
     refreshGrid() {
       const mc = game.mapContainer;
-      const self = this;
 
       // Optimization only redraw tilegrid if it has changed.
       if (typeof(this.fnTileGridEqual) === "undefined") {
@@ -1589,9 +1585,7 @@ export default class Renderer {
     }
 
     setTilesOffset(x,y) {
-      const //ts = this.tilesize,
-          c = game.camera,
-          //p = game.player,
+      const c = game.camera,
           gs = this.gameScale;
 
       x = -x;

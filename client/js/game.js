@@ -431,26 +431,6 @@ export default class Game {
           this.mapContainer.reloadMaps(true);
         }
 
-        /**
-         *
-         */
-        /*initAnimatedTiles: function() {
-            var self = this,
-                m = this.map;
-
-            this.animatedTiles = [];
-            this.forEachVisibleTile(function (id, index) {
-                if(m.isAnimatedTile(id)) {
-                    var tile = new AnimatedTile(id, m.getTileAnimationLength(id), m.getTileAnimationDelay(id), index),
-                        pos = self.map.tileIndexToGridPosition(tile.index);
-
-                    tile.x = pos.x;
-                    tile.y = pos.y;
-                    self.animatedTiles.push(tile);
-                }
-            }, 0, false);
-        },*/
-
 
         registerEntityPosition(entity) {
             const x = entity.gx,
@@ -469,8 +449,6 @@ export default class Game {
         }
 
         initMusicAreas() {
-            const self = this;
-            //_.each(this.map.musicAreas, function(area) {
         }
 
         run(server, ps) {
@@ -919,15 +897,6 @@ export default class Game {
             	if (p.isDead)
                   return;
 
-              /*if(self.isItemAt(x, y)) {
-                  var items = self.getItemsAt(x, y);
-
-                  try {
-                      self.client.sendLoot(items);
-                  } catch(e) {
-                      throw e;
-                  }
-              }*/
               log.info("onStopPathing - 1");
 
               // FIX: checkTeleport used to run only after this hasTarget() block, but that
@@ -1556,9 +1525,6 @@ export default class Game {
          * @param {Function} callback The function to call back (must accept one entity argument).
          */
         forEachEntity(callback, cond) {
-            /*_.each(this.entities, function(entity) {
-                callback(entity);
-            });*/
             cond = cond || function (e) { return true; };
             for (let id in this.entities) {
               const entity = this.entities[id];
@@ -1574,11 +1540,6 @@ export default class Game {
         forEachMob(callback) {
             const cond = function (e) { return e.type === Types.EntityTypes.MOB; };
             this.forEachEntity(callback, cond);
-            /*_.each(this.entities, function(entity) {
-                if(entity instanceof Mob) {
-                    callback(entity);
-                }
-            });*/
         }
 
         /**
@@ -1603,7 +1564,7 @@ export default class Game {
             if(mc.gridReady) {
                 this.forEachVisibleTileIndex(function(index, x, y) {
                     if(_.isArray(tg[y][x])) {
-                        _.each(tg[y][x], function(index, x, y) {
+                        tg[y][x].forEach(function(index, x, y) {
                             callback(index, x, y);
                         });
                     }
@@ -1620,9 +1581,7 @@ export default class Game {
          */
         forEachAnimatedTile(callback) {
             if(this.animatedTiles) {
-                _.each(this.animatedTiles, function(tile) {
-                    callback(tile);
-                });
+                this.animatedTiles.forEach(callback);
             }
         }
 
@@ -1662,18 +1621,6 @@ export default class Game {
             }
             return null;
         }
-
-        /*getEntityByName: function (name) {
-        	var entity;
-        	$.each(this.entities, function (i, v) {
-    	        if (v instanceof Player && v.name.toLowerCase() === name.toLowerCase())
-    	        {
-    	        	entity = v;
-    	        	return false;
-    	        }
-        	});
-        	return entity;
-        },*/
 
         getMobAt(x, y) {
             const entity = this.getEntityAt(x, y);
@@ -1716,10 +1663,10 @@ export default class Game {
 
             if(_.size(items) > 0) {
                 // If there are potions/burgers stacked with equipment items on the same tile, always get expendable items first.
-                _.each(items, function(i) {
+                Object.values(items).forEach(function(i) {
                     if(ItemTypes.isConsumableItem(i.kind)) {
                         item = i;
-                    };
+                    }
                 });
 
                 // Else, get the first item of the stack
@@ -1813,13 +1760,6 @@ export default class Game {
             const pE = [end[0]/ts, end[1]/ts];
 
             log.info("game.findPath - pS:", pS, "pE:", pE);
-
-/*
-            if (Math.abs(pS[0] - pE[0]) < 0.01 && Math.abs(pS[1] - pE[1]) < 0.01) {
-              // Same tile - direct path
-              return [[character.x, character.y], [x, y]];
-            }
-*/
 
             // Bounds check
             const lx = grid[0].length;
@@ -2296,14 +2236,6 @@ export default class Game {
           }
         }
 
-        /*speakToNPC: function (entity) {
-          var p = this.player;
-          if (!p.isWithinDistEntity(entity, 24))
-            p.follow(entity);
-  				else
-  					this.makeNpcTalk(entity);
-        },*/
-
         updateCameraEntity(id, entity)
         {
           const self = this;
@@ -2404,9 +2336,6 @@ export default class Game {
             this.updateExpBar();
 
             this.inventoryDialog.refreshInventory();
-            /*if (this.player && this.player.skillHandler) {
-                this.player.skillHandler.displayShortcuts();
-            }*/
             if (this.storeDialog.visible)
             	this.storeDialog.rescale();
             if (this.bankDialog.visible) {

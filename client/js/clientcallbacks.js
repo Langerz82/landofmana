@@ -220,12 +220,6 @@ export default class ClientCallbacks {
                 game.app.releaseKeys();
               };
 
-/*
-              if (game.mapContainer.allready) {
-                fnReady();
-                return;
-              }
-*/
               game.mapContainer.allReady(function() {
                 this.allready = true;
                 fnReady();
@@ -254,7 +248,6 @@ export default class ClientCallbacks {
 
 						item.setSprite(sprite);
 						item.wasDropped = true;
-						log.info("x:"+x+",y:"+y);
 						item.setPosition(x, y);
 						item.count = parseInt(count);
 

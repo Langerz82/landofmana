@@ -1244,7 +1244,7 @@ export default class Gamepad {
     navActive() {
     	if (this.pxgamepad.getGamepad() === null)
         return true;
-      return !(this.navigate === 0);
+      return this.navigate !== 0;
     }
 
     dialogNavigate(direction) {
@@ -1260,10 +1260,6 @@ export default class Gamepad {
           if ($('#'+k).is(':visible'))
           {
               this.setSelectedItem($(selectFirstItem[k]));
-            /*else {
-              var index = selectFirstItem[k];
-              this.setSelectedItem($(index));
-            }*/
             break;
           }
       }
@@ -1271,6 +1267,5 @@ export default class Gamepad {
     }
 
     dialogClose() {
-      //this.resetNavInterval(16);
     }
 }
