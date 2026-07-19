@@ -4,6 +4,7 @@
     "protocol": "https",
     "useLocalAPI": false,
     "dispatcher": false,
+    "debug": 0,
     "version":99,
     "updatepage":"https://play.google.com/store/apps/details?id=com.retrorpgonline2",
     "productpage":"../products/"

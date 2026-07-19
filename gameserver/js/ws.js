@@ -369,7 +369,16 @@ WS.userConnection = class extends Connection {
         const self = this;
 
         this.fnOnMessage = function (msg) {
-          console.info("m="+msg);
+          // PERF: this is the raw entry point for every message on the
+          // gameserver<->userserver link (player saves, auction/looks/ban
+          // pushes, world-info, etc.). Its sibling handler right above
+          // (WS.socketioConnection's fnOnMessage, the per-game-client path)
+          // already gates this identical raw-payload log behind G_DEBUG;
+          // this one was missed. Lower volume than the per-player game
+          // traffic, but there's no reason to unconditionally log every raw
+          // payload here either.
+          if (G_DEBUG)
+            console.info("m="+msg);
           const flag = msg.charAt(0);
           // NOTE: the userserver's socketioConnection.send() (userserver/js/ws.js)
           // prefixes large/compressed messages with 'z|', while this class's own

@@ -9,6 +9,7 @@
   "https_key": "",
   "ip": "0.0.0.0",
   "debug_level": "debug",
+  "debug": 0,
   "nb_players_per_world": 100,
   "nb_worlds": 1,
   "metrics_enabled": false,

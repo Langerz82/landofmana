@@ -95,9 +95,18 @@ export const G_SPATIAL_SIZE = 24;
 // events, etc.). Those calls run on literally every incoming packet, every
 // combat hit, and every pathfind, so leaving them unconditionally on costs
 // real CPU under load -- the string building/JSON.stringify happens whether
-// or not the log line is actually useful to anyone. Flip this to `true`
-// locally when you need to trace that behavior; keep it `false` normally.
-export const G_DEBUG = false;
+// or not the log line is actually useful to anyone.
+//
+// `false` here is just the fallback in case config.json has no `debug` key
+// (or fails to load before something reads G_DEBUG). The real switch is
+// config.json's `"debug": 0`/`"debug": 1` -- see main(config) below, which
+// overwrites this with `!!config.debug` once the config file is read. This
+// has to be `let`, not `const`: every other module that gates logging on
+// G_DEBUG does `import { G_DEBUG } from './main.js'`, and ES module named
+// imports are live bindings -- reassigning the exported `let` here at
+// startup is what makes every one of those already-imported references see
+// the config-driven value, with no extra plumbing needed anywhere else.
+export let G_DEBUG = false;
 
 export const G_SCREEN_WIDTH = 34;
 export const G_SCREEN_HEIGHT = 18;
@@ -252,6 +261,19 @@ function main(config) {
     if(production_config.inProduction()) {
         _.extend(config, production_config.getProductionSettings());
     }
+
+    // Config-driven override of the G_DEBUG master switch (see the NOTE on
+    // its declaration above): `"debug": 1` in config.json (or
+    // config_local.json, or a production_hosts/*.js override merged in just
+    // above) turns on the verbose per-packet/per-tick logging this server
+    // otherwise keeps off; `0` (or the key being absent -- `config.debug` is
+    // then `undefined`, and `!!undefined` is `false`) keeps it off. Done
+    // after the production-settings merge so a production_hosts override can
+    // still win over the plain config.json value, same as every other
+    // setting merged above.
+    G_DEBUG = !!config.debug;
+    console.info("G_DEBUG = " + G_DEBUG + " (config.debug = " + config.debug + ")");
+
     const worldId = config.world_id;
     global.MainConfig = config;
 
