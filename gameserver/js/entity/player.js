@@ -503,53 +503,56 @@ class Player extends Character {
       }
     }
 
-// TODO - Fill db_player variable assignments.
-    fillPlayerInfo(db_player)
-    {
-        const self = this;
-        self.mapIndex = parseInt(db_player.map[0]);
-        self.map =  self.world.maps[self.mapIndex];
-        self.x = parseInt(db_player.map[1]);
-        self.y = parseInt(db_player.map[2]);
-        self.orientation = parseInt(db_player.map[3]);
+    _loadMapState(db_player) {
+        this.mapIndex = parseInt(db_player.map[0]);
+        this.map = this.world.maps[this.mapIndex];
+        this.x = parseInt(db_player.map[1]);
+        this.y = parseInt(db_player.map[2]);
+        this.orientation = parseInt(db_player.map[3]);
+    }
 
+    _loadSprites(db_player) {
         if (db_player.sprites.length === 2) {
           db_player.sprites[2] = 151;
           db_player.sprites[3] = 50;
         }
         // FIX: parseInt() was an Array.prototype monkey-patch; migrated to
         // Utils.ArrayParseInt() (see utils.js).
-        self.sprites = Utils.ArrayParseInt(db_player.sprites);
-        self.colors = db_player.colors;
+        this.sprites = Utils.ArrayParseInt(db_player.sprites);
+        this.colors = db_player.colors;
+    }
 
-        self.stats.exp.base = parseInt(db_player.exps[0]);
-        self.stats.exp.attack = parseInt(db_player.exps[1]);
-        self.stats.exp.defense = parseInt(db_player.exps[2]);
-        self.stats.exp.move = parseInt(db_player.exps[3]);
+    _loadExp(db_player) {
+        this.stats.exp.base = parseInt(db_player.exps[0]);
+        this.stats.exp.attack = parseInt(db_player.exps[1]);
+        this.stats.exp.defense = parseInt(db_player.exps[2]);
+        this.stats.exp.move = parseInt(db_player.exps[3]);
         if (db_player.exps.length >= 8)
         {
-          self.stats.exp.sword = parseInt(db_player.exps[4]);
-          self.stats.exp.bow = parseInt(db_player.exps[5]);
-          self.stats.exp.hammer = parseInt(db_player.exps[6]);
-          self.stats.exp.axe = parseInt(db_player.exps[7]);
+          this.stats.exp.sword = parseInt(db_player.exps[4]);
+          this.stats.exp.bow = parseInt(db_player.exps[5]);
+          this.stats.exp.hammer = parseInt(db_player.exps[6]);
+          this.stats.exp.axe = parseInt(db_player.exps[7]);
         }
         else {
-          self.stats.exp.sword = 0;
-          self.stats.exp.bow = 0;
-          self.stats.exp.hammer = 0;
-          self.stats.exp.axe = 0;
+          this.stats.exp.sword = 0;
+          this.stats.exp.bow = 0;
+          this.stats.exp.hammer = 0;
+          this.stats.exp.axe = 0;
         }
         if (db_player.exps.length === 10)
         {
-          self.stats.exp.logging = parseInt(db_player.exps[8]);
-          self.stats.exp.mining = parseInt(db_player.exps[9]);
+          this.stats.exp.logging = parseInt(db_player.exps[8]);
+          this.stats.exp.mining = parseInt(db_player.exps[9]);
         } else {
-          self.stats.exp.logging = 0;
-          self.stats.exp.mining = 0;
+          this.stats.exp.logging = 0;
+          this.stats.exp.mining = 0;
         }
 
-        self.level = Types.getLevel(self.stats.exp.base);
+        this.level = Types.getLevel(this.stats.exp.base);
+    }
 
+    _loadGold(db_player) {
         // REFACTOR: db_player.gold[0]/[1] are already real numbers now --
         // userserver sends gold as a real [gold0, gold1] array, not a CSV
         // string (see userhandler.js's handleLoadPlayerInfo()), so this
@@ -557,14 +560,14 @@ class Player extends Character {
         // (with a radix and `|| 0` fallback, matching how gold_0/gold_1 are
         // guarded everywhere else on the userserver side) as cheap defensive
         // coercion rather than trusting the wire payload outright.
-        self.items.gold[0] = parseInt(db_player.gold[0], 10) || 0;
-        self.items.gold[1] = parseInt(db_player.gold[1], 10) || 0;
+        this.items.gold[0] = parseInt(db_player.gold[0], 10) || 0;
+        this.items.gold[1] = parseInt(db_player.gold[1], 10) || 0;
+    }
 
-        self.isDead = false;
-
-    		// FIX: parseInt() was an Array.prototype monkey-patch; migrated to
+    _loadPStats(db_player) {
+        // FIX: parseInt() was an Array.prototype monkey-patch; migrated to
         // Utils.ArrayParseInt() (see utils.js).
-        self.pStats = Utils.ArrayParseInt(db_player.pStats);
+        this.pStats = Utils.ArrayParseInt(db_player.pStats);
 
         db_player.stats = Utils.ArrayParseInt(db_player.stats);
 
@@ -581,38 +584,40 @@ class Player extends Character {
             return (total === statTotal);
         };
 
-        const lvl = parseInt(self.level);
+        const lvl = parseInt(this.level);
         if (!isValidStats(lvl, db_player.stats))
         {
           if (lvl < 10) {
-            self.stats.attack = lvl*2;
-      			self.stats.defense = lvl*2;
-      			self.stats.health = lvl*2;
-            self.stats.energy = lvl*2;
-      			self.stats.luck = lvl*2;
+            this.stats.attack = lvl*2;
+      			this.stats.defense = lvl*2;
+      			this.stats.health = lvl*2;
+            this.stats.energy = lvl*2;
+      			this.stats.luck = lvl*2;
 
-            self.stats.free = 0;
+            this.stats.free = 0;
           }
           else {
-            self.stats.attack = 18;
-      			self.stats.defense = 18;
-      			self.stats.health = 18;
-            self.stats.energy = 18;
-      			self.stats.luck = 18;
+            this.stats.attack = 18;
+      			this.stats.defense = 18;
+      			this.stats.health = 18;
+            this.stats.energy = 18;
+      			this.stats.luck = 18;
 
-            self.stats.free = (lvl-9)*5;
+            this.stats.free = (lvl-9)*5;
           }
         }
         else {
-          self.stats.attack = db_player.stats[0];
-          self.stats.defense = db_player.stats[1];
-          self.stats.health = db_player.stats[2];
-          self.stats.energy = db_player.stats[3];
-          self.stats.luck = db_player.stats[4];
+          this.stats.attack = db_player.stats[0];
+          this.stats.defense = db_player.stats[1];
+          this.stats.health = db_player.stats[2];
+          this.stats.energy = db_player.stats[3];
+          this.stats.luck = db_player.stats[4];
 
-          self.stats.free = db_player.stats[5];
+          this.stats.free = db_player.stats[5];
         }
+    }
 
+    _loadQuests(db_player) {
         // if quests old format create empty.
         // if quests new but id not a Number delete.
         // FIX: db_player.completeQuests is `null`/`undefined` for any player
@@ -631,7 +636,7 @@ class Player extends Character {
         // dropping that one save -- which is why a single player with an
         // uninitialized quest log could disconnect the entire gameserver.
         if (Array.isArray(db_player.completeQuests) || db_player.completeQuests == null) {
-            self.quests.completeQuests = {}
+            this.quests.completeQuests = {}
         }
         else {
           for (const id in db_player.completeQuests)
@@ -639,23 +644,27 @@ class Player extends Character {
             if (!Number(id))
               delete db_player.completeQuests[id];
           }
-          self.quests.completeQuests = db_player.completeQuests;
+          this.quests.completeQuests = db_player.completeQuests;
         }
+    }
 
-        self.setHpMax();
-        self.setEpMax();
+    _initDerivedStats() {
+        this.setHpMax();
+        this.setEpMax();
 
-    		//console.info("self.stats.health="+self.stats.health);
-        self.resetBars();
-    		//console.info("self.stats.hp="+self.stats.hp);
-    		self.setMoveRate(500);
+        this.resetBars();
+        this.setMoveRate(500);
+    }
 
+    _loadSkills(db_player) {
         if (db_player.skills.length === 1) {
           for(let i =0; i < SkillData.Skills.length; ++i)
             db_player.skills[i] = 0;
         }
-        self.skillHandler.setSkills(self, db_player.skills);
+        this.skillHandler.setSkills(this, db_player.skills);
+    }
 
+    _loadShortcuts(db_player) {
         // Needs to convert shortcut into optimum data structure while
         // remaining compatibiltity with old structures.
         // FIX: Array.isArray() was called with no argument, which is always
@@ -671,7 +680,7 @@ class Player extends Character {
               continue;
 
             if (shortcut)
-              self.shortcuts[shortcut[0]] = shortcut;
+              this.shortcuts[shortcut[0]] = shortcut;
           }
         } else {
           for (const sid in db_player.shortcuts)
@@ -681,13 +690,37 @@ class Player extends Character {
 
             const shortcut = db_player.shortcuts[sid];
             if (shortcut)
-              self.shortcuts[sid] = shortcut;
+              this.shortcuts[sid] = shortcut;
           }
         }
+    }
 
-        self.attackTimer = Date.now();
+// TODO - Fill db_player variable assignments.
+    // SIMPLIFY: this used to be a single ~185-line function mixing map/
+    // position restore, sprite migration, exp/level parsing, gold parsing,
+    // a stat-total validity check, quest-log sanitization, skill loading,
+    // and shortcut-format migration in one body. Broken into the named
+    // steps above (each keeping its original FIX/NOTE comments) so each
+    // concern can be read/tested on its own; call order and behavior are
+    // unchanged.
+    fillPlayerInfo(db_player)
+    {
+        this._loadMapState(db_player);
+        this._loadSprites(db_player);
+        this._loadExp(db_player);
+        this._loadGold(db_player);
 
-        //console.info("playerId: "+self.id);
+        this.isDead = false;
+
+        this._loadPStats(db_player);
+        this._loadQuests(db_player);
+        this._initDerivedStats();
+        this._loadSkills(db_player);
+        this._loadShortcuts(db_player);
+
+        this.attackTimer = Date.now();
+
+        //console.info("playerId: "+this.id);
     }
 
   sendChangePoints(health, energy) {

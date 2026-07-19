@@ -10,6 +10,21 @@ class ShopHandler {
         this.player = this.ph.player;
     }
 
+    // SIMPLIFY: the "does the player have enough gold? if not, notify
+    // SHOP_NOGOLD and bail" check was copy-pasted (with minor formatting
+    // differences) in handleAuctionBuy, _repairItem, _enchantItem,
+    // handleStoreBuy, and handleCraft below. Centralized here -- already
+    // sends the notify on failure, so callers just do
+    // `if (!this._requireGold(price)) return;`.
+    _requireGold(price) {
+        const p = this.player;
+        if (p.items.gold[0] < price) {
+            p.sendPlayer(new Messages.Notify("SHOP","SHOP_NOGOLD"));
+            return false;
+        }
+        return true;
+    }
+
     handleStoreSell(message) {
         const p = this.player;
 
@@ -124,12 +139,8 @@ class ShopHandler {
         if (price < 0)
             return;
 
-        const goldCount = p.items.gold[0];
-
-        if (goldCount < price) {
-            p.sendPlayer(new Messages.Notify("SHOP","SHOP_NOGOLD"));
+        if (!this._requireGold(price))
             return;
-        }
 
         if (!p.items.inventory.hasRoom()) {
             p.sendPlayer(new Messages.Notify("SHOP","SHOP_NOSPACE"));
@@ -215,10 +226,6 @@ class ShopHandler {
         }
     }
 
-    // NOTE: `goldCount` was a bare (undeclared) assignment in the original
-    // CommonJS source, which created an implicit global there; declared with
-    // `var` here since ES modules are always strict mode and forbid implicit
-    // globals.
     _repairItem(type, item, index) {
         const p = this.player;
 
@@ -238,12 +245,8 @@ class ShopHandler {
         if (price <= 0)
             return;
 
-        const goldCount = p.items.gold[0];
-        //console.info("goldCount="+goldCount+",price="+price);
-        if (goldCount < price) {
-            p.sendPlayer(new Messages.Notify("SHOP","SHOP_NOGOLD"));
+        if (!this._requireGold(price))
             return;
-        }
 
         item.itemDurabilityMax -= 50;
         item.itemDurability = item.itemDurabilityMax;
@@ -270,10 +273,6 @@ class ShopHandler {
         p.sendPlayer(new Messages.Notify("SHOP","SHOP_REPAIRED", [itemName]));
     }
 
-    // NOTE: `goldCount` was a bare (undeclared) assignment in the original
-    // CommonJS source, which created an implicit global there; declared with
-    // `var` here since ES modules are always strict mode and forbid implicit
-    // globals.
     _enchantItem(type, item, index) {
         const p = this.player;
 
@@ -290,12 +289,8 @@ class ShopHandler {
         if (price <= 0)
             return;
 
-        const goldCount = p.items.gold[0];
-        //console.info("goldCount="+goldCount+",price="+price);
-        if (goldCount < price) {
-            p.sendPlayer(new Messages.Notify("SHOP", "SHOP_NOGOLD"));
+        if (!this._requireGold(price))
             return;
-        }
 
         item.itemExperience = ItemTypes.itemExpForLevel[item.itemNumber - 1];
         item.itemNumber++;
@@ -317,16 +312,17 @@ class ShopHandler {
         // nothing read it before it was redeclared as `var itemName =
         // itemData.name` further down (once itemData exists). Split by
         // actual mutability: itemType/itemKind are never reassigned
-        // (const); itemCount/price/goldCount are (let); itemName's real
-        // declaration moved down to where its value is actually available.
-        // Also dropped a `const buyCount = 0;` from that same chain -- dead,
-        // nothing in this function ever read it (the real buy-count check
-        // below correctly reads itemData.buyCount instead).
+        // (const); itemCount/price are (let); itemName's real declaration
+        // moved down to where its value is actually available. Also dropped
+        // a `const buyCount = 0;` from that same chain -- dead, nothing in
+        // this function ever read it (the real buy-count check below
+        // correctly reads itemData.buyCount instead). `goldCount` (also
+        // part of the original chain) is gone entirely now -- see
+        // ShopHandler._requireGold().
         const itemType = parseInt(message[0]);
         const itemKind = parseInt(message[1]);
         let itemCount = parseInt(message[2]);
         let price = 0;
-        let goldCount = 0;
 
         if (!itemKind || itemCount <= 0) {
             return;
@@ -367,14 +363,8 @@ class ShopHandler {
             } else {
                 itemCount = 1;
             }
-            goldCount = p.items.gold[0];
-            //console.info("goldCount="+goldCount);
-            //console.info("itemCount="+itemCount);
-
-            if (goldCount < price) {
-                p.sendPlayer(new Messages.Notify("SHOP","SHOP_NOGOLD"));
+            if (!this._requireGold(price))
                 return;
-            }
 
             const consume = ItemTypes.isConsumableItem(itemKind);
             if (consume || (!consume && p.items.inventory.hasRoom())) {
@@ -404,7 +394,6 @@ class ShopHandler {
         const craftId = parseInt(message[0]);
         let itemCount = parseInt(message[1]);
         let price = 0;
-        let goldCount = 0;
 
         if (itemCount <= 0) {
             return;
@@ -440,14 +429,8 @@ class ShopHandler {
 
         price = price * itemCount;
 
-        goldCount = p.items.gold[0];
-        //console.info("goldCount="+goldCount);
-        //console.info("itemCount="+itemCount);
-
-        if (goldCount < price) {
-            p.sendPlayer(new Messages.Notify("SHOP","SHOP_NOGOLD"));
+        if (!this._requireGold(price))
             return;
-        }
 
         if (itemData.craft.length === 0)
             return;

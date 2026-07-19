@@ -106,8 +106,82 @@ class Connection {
         throw 'Not implemented';
     }
 
+    // SIMPLIFY: WS.socketioConnection and WS.userConnection used to each
+    // define their own copy of this decode/dispatch logic (flag check,
+    // base64 decode, gunzip, safeJsonParse, listenCallback dispatch),
+    // differing only in whether the userserver's 'z|' prefix is recognized
+    // and whether a remote address is available to log. Both subclasses now
+    // just call this with `acceptZPrefix` set appropriately; behavior for
+    // each caller is unchanged (see NOTE on WS.userConnection below re: the
+    // 'z|' prefix).
+    _decodeAndDispatch(msg, acceptZPrefix) {
+        // PERF: this is the raw entry point for every message on either
+        // connection type (per-game-client traffic on socketioConnection,
+        // gameserver<->userserver traffic on userConnection) -- unconditionally
+        // logging the raw payload here is hot, so it's gated behind G_DEBUG.
+        if (G_DEBUG)
+          console.info("m="+msg);
+
+        const flag = msg.charAt(0);
+        const isZPrefixed = acceptZPrefix && flag === "z" && msg.charAt(1) === "|";
+        // Only socketioConnection's underlying socket.io socket exposes
+        // `.conn.remoteAddress`; userConnection's io_client socket doesn't,
+        // so this naturally comes out blank there (matching prior behavior).
+        const addr = this._connection && this._connection.conn ? this._connection.conn.remoteAddress : undefined;
+        const addrSuffix = addr ? (' from ' + addr) : '';
+
+        if (flag === "2" || isZPrefixed) {
+            const payload = isZPrefixed ? msg.substr(2) : msg.substr(1);
+            const buffer = Buffer.from(payload, 'base64');
+            zlib.gunzip(buffer, (err, buffer) => {
+              if (err) { console.log(err.toString()); return; }
+              if (!this.listenCallback) return;
+              if (useBison) {
+                this.listenCallback(BISON.decode(buffer));
+              } else {
+                // FIX: see safeJsonParse above -- don't let a corrupt
+                // decompressed payload throw inside this callback.
+                const parsed = safeJsonParse(buffer, (e) =>
+                  console.warn('Dropping malformed compressed message' + addrSuffix + ': ' + e.message));
+                if (parsed !== undefined) this.listenCallback(parsed);
+              }
+            });
+        } else {
+            if (!this.listenCallback) return;
+            if (useBison) {
+              this.listenCallback(BISON.decode(msg.substr(1)));
+            } else {
+              // FIX: see safeJsonParse above -- don't let one malformed
+              // message crash this handler; just drop it and keep going.
+              const parsed = safeJsonParse(msg.substr(1), (e) =>
+                console.warn('Dropping malformed message' + addrSuffix + ': ' + e.message));
+              if (parsed !== undefined) this.listenCallback(parsed);
+            }
+        }
+    }
+
+    // SIMPLIFY: both subclasses duplicated this JSON.stringify / gzip-if-large
+    // / base64 / '1'|'2' prefix logic verbatim (only the gzip error log
+    // differed). Moved here; subclasses only need to implement sendUTF8().
     send(message) {
-        throw 'Not implemented';
+      // PERF: called for every outgoing packet flush -- gated behind
+      // G_DEBUG for the same reason as _decodeAndDispatch above.
+      if (G_DEBUG)
+        console.info("send="+message);
+      const data = useBison ? BISON.encode(message) : JSON.stringify(message);
+
+      if (data.length >= 2048) {
+        zlib.gzip(data, {level:1}, (err, buffer) => {
+          if (err) {
+              console.error(this.constructor.name + '.send - gzip failed: ' + err);
+              return;
+          }
+          const encoded = Buffer.from(buffer).toString('base64');
+          this.sendUTF8('2'+encoded);
+        });
+      } else {
+        this.sendUTF8('1'+data);
+      }
     }
 
     sendUTF8(data) {
@@ -237,59 +311,14 @@ WS.socketioConnection = class extends Connection {
 
         //this.conn = connection;
 
+        // NOTE: this used to base64-decode `flag` (the single "2" prefix
+        // character) instead of the actual payload, so any compressed/large
+        // message from a game client failed to decompress. Decode logic now
+        // lives in the shared Connection._decodeAndDispatch (see base class
+        // above); this connection type only ever needs the plain "2" flag,
+        // not the userserver's 'z|' variant, so acceptZPrefix is false.
         const fnOnMessage = function (msg) {
-          // PERF: this is the raw entry point for every single message from
-          // every connected game client, ahead of any parsing/decompression
-          // -- unconditionally logging the raw payload here is even hotter
-          // than the per-action logging in packethandler.js. Gated behind
-          // G_DEBUG for the same reason.
-          if (G_DEBUG)
-            console.info("m="+msg);
-          const flag = msg.charAt(0);
-          if (flag === "2")
-          {
-              // NOTE: this used to base64-decode `flag` (the single "2" prefix
-              // character) instead of the actual payload, so any compressed/
-              // large message from a game client failed to decompress. Mirrors
-              // the fix already present in WS.userConnection below.
-              const buffer = Buffer.from(msg.substr(1), 'base64');
-              zlib.gunzip(buffer, (err, buffer) => {
-                if (err)
-                  console.log(err.toString());
-                else {
-                  if (self.listenCallback) {
-                    if (useBison) {
-                      self.listenCallback(BISON.decode(buffer));
-                    } else {
-                      // FIX: see safeJsonParse above -- don't let a corrupt
-                      // decompressed payload throw inside this callback.
-                      const parsed = safeJsonParse(buffer, (e) =>
-                        console.warn('Dropping malformed compressed message from ' +
-                          self._connection.conn.remoteAddress + ': ' + e.message));
-                      if (parsed !== undefined) self.listenCallback(parsed);
-                    }
-                  }
-                }
-              });
-          }
-          else
-          {
-            if (self.listenCallback) {
-              if (useBison) {
-                self.listenCallback(BISON.decode(msg.substr(1)));
-              } else {
-                 //console.info("message="+message.substr(1));
-                // FIX: see safeJsonParse above -- don't let one malformed
-                // message crash this handler (and fall back to the global
-                // uncaughtException handler); just drop it and keep the
-                // connection alive.
-                const parsed = safeJsonParse(msg.substr(1), (e) =>
-                  console.warn('Dropping malformed message from ' +
-                    self._connection.conn.remoteAddress + ': ' + e.message));
-                if (parsed !== undefined) self.listenCallback(parsed);
-              }
-            }
-          }
+          self._decodeAndDispatch(msg, false);
         };
 
         this._connection.on('message', fnOnMessage);
@@ -310,45 +339,8 @@ WS.socketioConnection = class extends Connection {
         });
     }
 
-    send(message) {
-        //if (message.indexOf("3,")==0);
-      // PERF: called for every outgoing packet flush -- gated behind
-      // G_DEBUG for the same reason as fnOnMessage above.
-      if (G_DEBUG)
-        console.info("send="+message);
-    	const self = this;
-    	let data;
-      if (useBison) {
-          data = BISON.encode(message);
-      } else {
-          data = JSON.stringify(message);
-      }
-
-      if (data.length >= 2048)
-      {
-              // FIX: sent with a 'z|' prefix, but this class's own incoming
-              // parser (fnOnMessage above) -- and the "2" convention used
-              // consistently elsewhere in this file (WS.userConnection.send)
-              // -- only recognizes a bare "2" flag for gzip-compressed
-              // payloads. Any large message (inventories, world snapshots,
-              // etc.) sent to a connected game client used a prefix nothing
-              // on the receiving side expects. Also added the same `err`
-              // guard userConnection.send() already has, since a gzip
-              // failure previously passed `undefined` into `new Buffer(...)`.
-		      zlib.gzip(data, {level:1}, (err, buffer) => {
-			    if (err) {
-			        console.log(err.toString());
-			        return;
-			    }
-			    buffer = new Buffer(buffer).toString('base64');
-			    self.sendUTF8('2'+buffer);
-		      });
-	    }
-    	else
-    	{
-    		self.sendUTF8('1'+data);
-    	}
-    }
+    // send() lives on the shared Connection base class now (see NOTE there
+    // about the 'z|' vs '2' prefix mixup this used to have).
 
     sendUTF8(data) {
         //console.info("sendUTF8 - "+data);
@@ -368,65 +360,15 @@ WS.userConnection = class extends Connection {
         super(id, connection, server);
         const self = this;
 
+        // NOTE: the userserver's socketioConnection.send() (userserver/js/ws.js)
+        // prefixes large/compressed messages with 'z|', while this class's own
+        // send() (shared Connection.send() now) prefixes them with '2'. Both
+        // prefixes have to be recognized here since this connection receives
+        // messages sent by whichever of those two implementations is on the
+        // other end -- so unlike WS.socketioConnection above, this one passes
+        // acceptZPrefix=true into the shared decoder.
         this.fnOnMessage = function (msg) {
-          // PERF: this is the raw entry point for every message on the
-          // gameserver<->userserver link (player saves, auction/looks/ban
-          // pushes, world-info, etc.). Its sibling handler right above
-          // (WS.socketioConnection's fnOnMessage, the per-game-client path)
-          // already gates this identical raw-payload log behind G_DEBUG;
-          // this one was missed. Lower volume than the per-player game
-          // traffic, but there's no reason to unconditionally log every raw
-          // payload here either.
-          if (G_DEBUG)
-            console.info("m="+msg);
-          const flag = msg.charAt(0);
-          // NOTE: the userserver's socketioConnection.send() (userserver/js/ws.js)
-          // prefixes large/compressed messages with 'z|', while this class's own
-          // send() below prefixes them with '2'. Both prefixes have to be
-          // recognized here since this connection receives messages sent by
-          // whichever of those two implementations is on the other end. This
-          // used to only check for "2" and also used `flag` (a single character)
-          // instead of the actual payload when base64-decoding, so any large
-          // message from the userserver (e.g. SendLoadPlayerData) fell through
-          // to JSON.parse on a corrupted string and threw.
-          const isZPrefixed = msg.charAt(0) === "z" && msg.charAt(1) === "|";
-          if (flag === "2" || isZPrefixed)
-          {
-              const payload = isZPrefixed ? msg.substr(2) : msg.substr(1);
-              const buffer = Buffer.from(payload, 'base64');
-              zlib.gunzip(buffer, (err, buffer) => {
-                if (err)
-                  console.log(err.toString());
-                else {
-                  if (self.listenCallback) {
-                    if (useBison) {
-                      self.listenCallback(BISON.decode(buffer));
-                    } else {
-                      // FIX: see safeJsonParse above -- don't let a corrupt
-                      // decompressed payload throw inside this callback.
-                      const parsed = safeJsonParse(buffer, (e) =>
-                        console.warn('Dropping malformed compressed message: ' + e.message));
-                      if (parsed !== undefined) self.listenCallback(parsed);
-                    }
-                  }
-                }
-              });
-          }
-          else
-          {
-            if (self.listenCallback) {
-              if (useBison) {
-                self.listenCallback(BISON.decode(msg.substr(1)));
-              } else {
-                 //console.info("message="+message.substr(1));
-                // FIX: see safeJsonParse above -- don't let one malformed
-                // message crash this handler; just drop it and keep going.
-                const parsed = safeJsonParse(msg.substr(1), (e) =>
-                  console.warn('Dropping malformed message: ' + e.message));
-                if (parsed !== undefined) self.listenCallback(parsed);
-              }
-            }
-          }
+          self._decodeAndDispatch(msg, true);
         };
 
     }
@@ -473,36 +415,7 @@ WS.userConnection = class extends Connection {
       this.connectionUserCallback = callback;
     }
 
-    send(message) {
-        //if (message.indexOf("3,")==0);
-      // PERF: called for every outgoing packet flush -- gated behind
-      // G_DEBUG for the same reason as fnOnMessage above.
-      if (G_DEBUG)
-        console.info("send="+message);
-    	const self = this;
-    	let data;
-      if (useBison) {
-          data = BISON.encode(message);
-      } else {
-          data = JSON.stringify(message);
-      }
-
-      if (data.length >= 2048)
-      {
-		      zlib.gzip(data, {level:1}, (err, buffer) => {
-			    if (err) {
-			        console.error("userConnection.send - gzip failed: " + err);
-			        return;
-			    }
-			    buffer = Buffer.from(buffer).toString('base64');
-			    self.sendUTF8('2'+buffer);
-		      });
-	    }
-    	else
-    	{
-    		self.sendUTF8('1'+data);
-    	}
-    }
+    // send() lives on the shared Connection base class now.
 
     disconnect() {
       console.info("USER CONNECTION - DISCONNECT.");

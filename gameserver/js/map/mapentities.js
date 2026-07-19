@@ -438,24 +438,25 @@ class MapEntities {
         return mob;
     }
 
-    addNpcStatic(kind, x, y) {
+    // SIMPLIFY: addNpcStatic/addNpcMove were identical apart from which NPC
+    // class to construct and which Map to register the result in.
+    // Consolidated into this helper; each public method is now a one-liner.
+    _addNpc(NpcClass, targetMap, kind, x, y) {
         const pos = Utils.fixGridPosition(G_TILESIZE, x, y);
-        const npc = new NpcStatic(++this.entityCount, kind, pos.x, pos.y, this.map);
+        const npc = new NpcClass(++this.entityCount, kind, pos.x, pos.y, this.map);
 
         this.addEntity(npc);
-        this.npcs.set(npc.id, npc);
+        targetMap.set(npc.id, npc);
 
         return npc;
     }
 
+    addNpcStatic(kind, x, y) {
+        return this._addNpc(NpcStatic, this.npcs, kind, x, y);
+    }
+
     addNpcMove(kind, x, y) {
-        const pos = Utils.fixGridPosition(G_TILESIZE, x, y);
-        const npc = new NpcMove(++this.entityCount, kind, pos.x, pos.y, this.map);
-
-        this.addEntity(npc);
-        this.npcplayers.set(npc.id, npc);
-
-        return npc;
+        return this._addNpc(NpcMove, this.npcplayers, kind, x, y);
     }
 
     addItem(item) {

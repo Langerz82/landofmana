@@ -546,13 +546,6 @@ class Character extends EntityMoving {
     this.remove_callback = callback;
   }
 
-  canMove() {
-    if (this.isDead === false && this.moveCooldown.isOver()) {
-      return true;
-    }
-    return false;
-  }
-
   clean() {
     this.forEachAttacker(function(attacker) {
       attacker.disengage();

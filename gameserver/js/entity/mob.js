@@ -609,14 +609,6 @@ class Mob extends Character {
       this.freeze = false;
     }
 
-    endEffects() {
-      for (const skilleffect of this.activeEffects)
-      {
-        skilleffect.endEffects();
-      }
-      this.activeEffects = [];
-    }
-
     goRoam(pos) {
       this.go(pos.x, pos.y);
 

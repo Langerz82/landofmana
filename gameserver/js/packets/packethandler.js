@@ -795,29 +795,28 @@ class PacketHandler {
         this.handleSkillEffects(p, target);
     }
 
+    // SIMPLIFY: this used to build the "which effect ids are currently
+    // active" list twice with copy-pasted loops (once for source, once for
+    // target). Factored the loop out; behavior unchanged.
+    _getActiveEffectIds(entity) {
+        const effects = [];
+        for (const [k, v] of Object.entries(entity.effects)) {
+            if (v === 1)
+                effects.push(parseInt(k));
+        }
+        return effects;
+    }
+
     handleSkillEffects(source, target)
     {
-        let effects = [];
         if (!source.effects)
             return;
 
-        for (let [k,v] of Object.entries(source.effects))
-        {
-            if (v === 1)
-                effects.push(parseInt(k));
-        }
-        this.sendToPlayer(source, new Messages.SkillEffects(source, effects));
-        effects = [];
+        this.sendToPlayer(source, new Messages.SkillEffects(source, this._getActiveEffectIds(source)));
 
         if (!target) return;
 
-        for (let [k,v] of Object.entries(target.effects))
-        {
-            if (v === 1)
-                effects.push(parseInt(k));
-        }
-        this.sendToPlayer(source, new Messages.SkillEffects(target, effects));
-
+        this.sendToPlayer(source, new Messages.SkillEffects(target, this._getActiveEffectIds(target)));
     }
 
     // TODO map enforce for all calls.
