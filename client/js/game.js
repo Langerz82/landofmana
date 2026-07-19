@@ -1308,7 +1308,23 @@ export default class Game {
               this.scheduleAttackRetry(p.attackCooldown.duration - (time - p.attackCooldown.lastTime));
               return false;
 
-            default: // null/undefined, "attack_toofar", "attack_moving", "attack_aborted", "attack_notfacing"
+            // FIX: attack_toofar/attack_aborted used to fall into the default branch below,
+            // which schedules nothing - so a temporary pathfinding block (followAttack() in
+            // character.js failing to find a spot, attack_toofar) or a same-tick target-death
+            // race (hasTarget() flipping false between setTarget() and the hit() check,
+            // attack_aborted) silently ended the auto-attack loop until the player pressed
+            // interact again, even though the obstruction was often gone a moment later.
+            // attack_moving doesn't need this - it already self-heals via onStopPathing() ->
+            // makePlayerInteractNextTo() once the player finishes walking in. Keep probing
+            // here too as long as there's still a target; it stops on its own once the target
+            // is cleared or dies (p.hasTarget() goes false).
+            case "attack_toofar":
+            case "attack_aborted":
+              if (p.hasTarget())
+                this.scheduleAttackRetry(ATTACK_MAX);
+              return false;
+
+            default: // null/undefined, "attack_moving", "attack_notfacing"
               if (!res) log.info("CANNOT ATTACK.");
               return false;
           }

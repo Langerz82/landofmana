@@ -447,7 +447,13 @@ export default class User {
                 }
             }
 
-            clearTimeout(this.attackInterval);
+            // FIX: this used to run unconditionally after both branches above, so releasing
+            // a movement key (the `!state` / KEY RELEASE branch, which doesn't move the
+            // player) also killed game.js's auto-attack retry chain (scheduleAttackRetry()'s
+            // p.attackInterval) - tapping a direction key to turn while auto-attacking, then
+            // releasing it, silently ended the attack loop. The actual "player is moving"
+            // press branch above already clears it itself (when fsm !== "ATTACK", right
+            // before startKeyMovement()), so it only needs to happen there.
         };
 
         player.resetMovementState = function() {
@@ -482,6 +488,7 @@ export default class User {
             if (this.key_move_callback) this.key_move_callback(1);
 
             this.movement.stop(); // ensure clean
+            clearTimeout(this.attackInterval);
         };
 
         game.addPlayerCallbacks(player);
