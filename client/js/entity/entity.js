@@ -5,6 +5,7 @@
 // legacy globals provided by not-yet-converted scripts (utils.js, data/*.js, main.js, etc).
 // They are read here but never assigned, so they're safe under ES module strict mode.
 import Timer from '../timer.js';
+import Utils from '../utils.js';
 
 export default class Entity {
     constructor(id, type, mapIndex, kind) {
