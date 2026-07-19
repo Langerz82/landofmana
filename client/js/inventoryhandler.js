@@ -6,11 +6,9 @@ import ItemLoot from './data/itemlootdata.js';
 
 export default class InventoryHandler {
         constructor(dialog) {
-            const self = this;
             this.rooms = [];
             this.maxNumber = 50;
             this.scale = 3;
-            //this.pageItems = 24;
             this.dialog = dialog;
             dialog.handler = this;
         }
@@ -20,7 +18,6 @@ export default class InventoryHandler {
         }
 
         initInventory(itemArray) {
-          //this.pageIndex = 0;
           this.setInventory(itemArray);
         }
 
@@ -42,9 +39,7 @@ export default class InventoryHandler {
             else
               item.name = ItemTypes.KindData[kind].name;
 
-            //var count = this.dialog.getRealSlot();
-            //if (i >= count && i < (count + this.pageItems))
-              this.dialog.refreshInventory(i);
+            this.dialog.refreshInventory(i);
           }
         }
 
@@ -130,7 +125,6 @@ export default class InventoryHandler {
         }
 
         decInventory(realslot) {
-          const self = this;
           const item = this.rooms[realslot];
           let count = item.itemNumber;
           if (--count <= 0) {
@@ -152,7 +146,6 @@ export default class InventoryHandler {
             DragItem.type2 = type;
             DragItem.slot2 = slot;
 
-            const kind = item.itemKind;
             const count = item.itemNumber;
             if ( (this.isStackitem(item) && !item2) ||
                  (this.isStackitem(item,true) && item2 && this.isStackitem(item2, true)))
@@ -172,7 +165,6 @@ export default class InventoryHandler {
             if (!item)
               return;
 
-            const kind = item.itemKind;
             const count = item.itemNumber;
             game.player.droppedX = pos.x;
             game.player.droppedY = pos.y;
@@ -229,8 +221,6 @@ export default class InventoryHandler {
 
           if (!start && obj !== null) {
             const action = obj.action || 1;
-            //slot = (slot >= 0) ? this.dialog.getRealSlot(slot) : slot;
-            //obj.slot = (obj.type === 0) ? this.dialog.getRealSlot(obj.slot) : obj.slot;
             game.client.sendItemSlot([action, obj.type, obj.slot, obj.item.itemNumber, type, slot]);
             obj = null;
           }

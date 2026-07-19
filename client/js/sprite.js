@@ -7,7 +7,6 @@ export default class Sprite {
         this.file = data.file;
         this.scale = scale;
         this.container = container;
-        //this.isLoaded = false;
         this.offsetX = 0;
         this.offsetY = 0;
         this.data = data;
@@ -15,14 +14,6 @@ export default class Sprite {
         this.loadJSON(data);
 
         this.createAnimations();
-
-        /*this.whiteSprite = {
-            isLoaded: true,
-        };
-        this.silhouetteSprite = {
-            isLoaded: true,
-        };*/
-        //this.rsprite = null;
     }
 
     loadJSON(data) {
@@ -36,8 +27,8 @@ export default class Sprite {
         this.animationData = data.animations;
         this.width = data.width;
         this.height = data.height;
-        this.offsetX = (data.offset_x !== undefined) ? data.offset_x : -16;
-        this.offsetY = (data.offset_y !== undefined) ? data.offset_y : -16;
+        this.offsetX = data.offset_x ?? -16;
+        this.offsetY = data.offset_y ?? -16;
     }
 
     createAnimations() {

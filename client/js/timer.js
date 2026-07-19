@@ -21,7 +21,6 @@ export default class Timer {
             time = Date.now();
         }
 
-        //log.info("Timer.isOver - lasttime: "+this.lastTime+", duration: "+(time - this.lastTime));
         if (this.lastTime === 0 || (time - this.lastTime) > this.duration) {
             over = true;
             this.lastTime = time;
@@ -30,9 +29,6 @@ export default class Timer {
     }
 
     getRatio(time) {
-        const ratio = ((time - this.lastTime) / this.duration);
-        if (ratio >= 1.0)
-            return 1.0;
-        return ratio;
+        return Math.min((time - this.lastTime) / this.duration, 1.0);
     }
 }

@@ -25,8 +25,6 @@ export default class Transition {
             if (this.updateFunction) {
                 let it;
                 const itCount = Math.abs(inc);
-
-                const start = 0;
                 const mod = (inc > 0) ? 1 : -1;
                 for (it = 0; it < itCount; ++it) {
                     if (!this.inProgress) {
@@ -42,11 +40,6 @@ export default class Transition {
             }
         }
     }
-
-    /*restart(currentTime, startValue, endValue) {
-        this.start(currentTime, this.updateFunction, this.stopFunction, this.startValue, this.endValue, this.duration);
-        this.step(currentTime);
-    },*/
 
     stop() {
         if (this.stopFunction)

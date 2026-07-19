@@ -37,7 +37,6 @@ export default class Pathfinder {
 
         // Check collision from an axis, n1 to n2, n3 is for the other axis.
         const c1to2on3 = function(n1, n2, n3, axis_x) {
-            //console.info("c1to2on3 - n1:"+n1+",n2:"+n2+",n3:"+n3);
             n1 = Math.floor(n1), n2 = Math.floor(n2), n3 = Math.floor(n3);
             const i1 = Math.min(n1, n2), i2 = Math.max(n1, n2);
             if (axis_x) {
@@ -133,8 +132,6 @@ export default class Pathfinder {
     }
 
     findDirectPath(grid, start, end) {
-        //var dx = Math.abs(Math.floor(start[0]) - Math.floor(end[0]));
-        //var dy = Math.abs(Math.floor(start[1]) - Math.floor(end[1]));
         const dx = Math.abs(start[0] - end[0]);
         const dy = Math.abs(start[1] - end[1]);
 
@@ -270,7 +267,6 @@ export default class Pathfinder {
         const pEnd = [~~end[0], ~~end[1]];
         let path = AStar.AStar(grid, pStart, pEnd);
         if (path) {
-            //path = this.convertPathToRealPath(path, start, end);
             path = this.dropUneededNodes(path);
             // PERF: was an unconditional log.info(JSON.stringify(path)) - AStar() is the
             // fallback pathfinder called on every path request that didn't resolve via the
@@ -352,33 +348,25 @@ export default class Pathfinder {
     }
 
     applyIgnoreList_(grid, ignored) {
-        const self = this;
-        let x, y;
-
-        _.each(this.ignored, function(entity) {
-            x = entity.isMoving() ? entity.nextGridX : entity.gx;
-            y = entity.isMoving() ? entity.nextGridY : entity.gy;
+        for (const entity of this.ignored) {
+            const x = entity.isMoving() ? entity.nextGridX : entity.gx;
+            const y = entity.isMoving() ? entity.nextGridY : entity.gy;
 
             if (x >= 0 && y >= 0) {
-                //log.info("path.grid=["+x+","+y+"]");
                 grid[y][x] = ignored ? 0 : 1;
             }
-        });
+        }
     }
 
     applyIncludeList_(grid, included) {
-        const self = this;
-        let x, y;
-
-        _.each(this.included, function(entity) {
-            x = entity.isMoving() ? (entity.path.length > 0 ? entity.path[entity.path.length - 1][0] : entity.nextGridX) : entity.gx;
-            y = entity.isMoving() ? (entity.path.length > 0 ? entity.path[entity.path.length - 1][1] : entity.nextGridY) : entity.gy;
+        for (const entity of this.included) {
+            const x = entity.isMoving() ? (entity.path.length > 0 ? entity.path[entity.path.length - 1][0] : entity.nextGridX) : entity.gx;
+            const y = entity.isMoving() ? (entity.path.length > 0 ? entity.path[entity.path.length - 1][1] : entity.nextGridY) : entity.gy;
 
             if (x >= 0 && y >= 0) {
-                //log.info("path.grid=["+x+","+y+"]");
                 grid[y][x] = included ? 1 : 0;
             }
-        });
+        }
     }
 
     clearIgnoreList(grid) {

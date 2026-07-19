@@ -91,7 +91,6 @@ export default class Gamepad {
 
 
   self.playerInventory = "#inventoryitembackground{0}";
-  //self.playerInventoryButtons = ["#inventoryGearItems", "#inventoryGear2Items"];
   self.playerBank = "#bankDialogBank{0}Background";
   self.playerEquipment = ["#equipBackground0","#equipBackground1","#equipBackground2","#equipBackground3","#equipBackground4"];
   self.playerShortcut = ["#attack-shortcut","#scbackground0","#scbackground1","#scbackground2","#scbackground3","#scbackground4","#scbackground5"];
@@ -137,7 +136,6 @@ export default class Gamepad {
       self.funcNavigation();
     }, speed);
   }
-  //self.resetNavInterval(180);
 
   self.funcNavigation = function () {
     if (self.navNone) {
@@ -148,8 +146,6 @@ export default class Gamepad {
       return;
     }
 
-    //var navigate = self.navigate[0];
-    //var navigate = self.navigate[1];
     const navigate = self.navigate;
 
     if (game.storeDialog.visible ||
@@ -255,12 +251,10 @@ export default class Gamepad {
         $(jqi).get(0).scrollIntoView();
         this.setSelectedItem($(jqi));
       }
-      //return;
     }
     else if (jqMenuWindow.is(':visible'))
     {
       const len = self.menuButtons.length;
-      //if (self.joystickY == 0)
       //{
         let mody = 0;
         if (navigate === Navigate.UP)
@@ -470,7 +464,6 @@ export default class Gamepad {
   };
 
   self.setSelectedItem = function (val) {
-    //if (self.selectedItem !== val)
     //{
       const defHighlight = "3px solid rgb(0, 0, 255)";
       if (self.selectedItem) {
@@ -490,7 +483,6 @@ export default class Gamepad {
     //}
   };
 
-  //setInterval(self.funcNavigation, 1000);
 
 
 	self.pxgamepad = new PxGamepad();
@@ -532,7 +524,6 @@ export default class Gamepad {
       return;
     }
     if (self.rightTopPressed) {
-      //self.pressShortcut(6);
       return;
     }
 
@@ -580,7 +571,6 @@ export default class Gamepad {
 
   self.pxgamepad.buttonOff('x', function() {
     log.info("buttonOff = x");
-    //self.navMouse = false;
 	});
 
   self.pxgamepad.buttonOn('y', function() {
@@ -589,7 +579,6 @@ export default class Gamepad {
       return;
     }
     if (self.rightTopPressed) {
-      //self.pressShortcut(7);
       return;
     }
 
@@ -676,7 +665,6 @@ export default class Gamepad {
     		{
           if (game.selectedSkill) {
             $(self.playerShortcut.format(self.shortcutAssign)).trigger("click");
-            //self.shortcutAssign = (self.shortcutAssign+1) % 8;
             self.mainButtonsActive = false;
             self.joystickX = 0;
             self.joystickY = 0;
@@ -752,10 +740,8 @@ export default class Gamepad {
 
               /*if (self.selectedItem.attr('id') === 'charactermenu')
               {
-                //self.setSelectedItem(null);
                 self.setSelectedItem($("#inventorybutton"));
               }*/
-              //self.setSelectedItem(null);
               /*if (self.selectedItem[0].id === 'shortcutbutton')
               {
                 self.shortcutActive = true;
@@ -769,7 +755,6 @@ export default class Gamepad {
      }
      else
      {
-         //self.shortcutActive = !self.shortcutActive;
         if (self.navMouse)
           game.click();
         else
@@ -843,7 +828,6 @@ export default class Gamepad {
 	    	}
 	    	else if (jqQuestWindow.is(':visible'))
 	    	{
-	    	    //self.disableSelectItem();
 	    	    $("#questCloseButton").trigger("click");
 	    	}
         else if (jqAchievementWindow.is(':visible'))
@@ -852,17 +836,14 @@ export default class Gamepad {
         }
 	    	else if (jqSocialWindow.is(':visible'))
 	    	{
-	    	    //self.disableSelectItem();
 	    	    $("#socialclose").trigger("click");
 	    	}
 	    	else if (jqSettingsWindow.is(':visible'))
 	    	{
-	    	    //self.disableSelectItem();
 	    	    $("#settingsclose").trigger("click");
 	    	}
 	    	else if (jqLeaderWindow.is(':visible'))
 	    	{
-	    	    //self.disableSelectItem();
 	    	    $("#leaderboardclose").trigger("click");
 	    	}
         else if (jqShopWindow.is(':visible'))
@@ -871,13 +852,11 @@ export default class Gamepad {
 	    	}
     		else if (jqMenuWindow.is(':visible'))
     		{
-    	      //self.disableSelectItem();
     		    jqMenuWindow.trigger("click");
           self.mainButtonsActive = false;
     		}
     		else if (jqDropWindow.is(':visible'))
     		{
-    	      //self.disableSelectItem();
     		    $("#dropCancel").trigger("click");
           return;
     		}
@@ -886,7 +865,6 @@ export default class Gamepad {
           game.appearanceDialog.visible)
     		{
           $("#storeDialogCloseButton").trigger("click");
-    		    //self.disableSelectItem();
     		}
         else if (game.craftDialog.visible)
     		{
@@ -915,7 +893,6 @@ export default class Gamepad {
         if (!self.isDialogOpen())
         {
       		self.joystickIndex = 0;
-          //self.resetNavInterval(16);
           self.setSelectedItem(null);
           self.joystickX = -1;
           self.joystickY = -1;
@@ -932,7 +909,6 @@ export default class Gamepad {
         /*if ($("#attackContainer").is(':visible') && self.selectedItem && self.shortcutActive)
             self.selectedItem.trigger("click");
         self.shortcutActive = false;*/
-        //game.click();
 
 
 
@@ -990,11 +966,9 @@ export default class Gamepad {
       self.pxgamepad.buttonOn('leftTop', function() {
         if (jqInventoryWindow.is(':visible'))
         {
-          //switchInventoryDialogPage(-1);
           return;
         }
         if (jqBankWindow.is(':visible')) {
-          //switchBankDialogPage(-1);
           return;
         }
         if (game.appearanceDialog.visible) {
@@ -1019,11 +993,9 @@ export default class Gamepad {
       self.pxgamepad.buttonOn('rightTop', function() {
         if (jqInventoryWindow.is(':visible'))
         {
-          //switchInventoryDialogPage(1);
           return;
         }
         if (jqBankWindow.is(':visible')) {
-          //switchBankDialogPage(1);
           return;
         }
         if (game.appearanceDialog.visible) {
@@ -1049,7 +1021,6 @@ export default class Gamepad {
 
 
       // Default.
-	    //selectJoystickSide();
 
 	    self.joystickSide = 0;
 	    self.joystickIndex = 0;
@@ -1182,32 +1153,27 @@ export default class Gamepad {
      game.mouse.y = ~~(Utils.clamp(0, (height-1), mouse.y));
 
       const navigate = self.navigate;
-      ///var navigate = self.navigate[1];
 
       if (!self.isDialogOpen() && !self.navMouse)
       {
         if (!game.player.keyMove) {
           if (navigate === Navigate.LEFT)
           {
-              //log.info("moveLeft = true");
               p.move(3, true);
               this.movePad = 3;
           }
           if (navigate === Navigate.RIGHT)
           {
-              //log.info("moveRight = true");
               p.move(4, true);
               this.movePad = 4;
           }
           if (navigate === Navigate.UP)
           {
-              //log.info("moveUp = true");
               p.move(1, true);
               this.movePad = 1;
           }
           if (navigate === Navigate.DOWN)
           {
-              //log.info("moveDown = true");
               p.move(2, true);
               this.movePad = 2;
           }
@@ -1243,7 +1209,6 @@ export default class Gamepad {
     }
 
     isDialogOpen() {
-      //return jqInventoryWindow.is(':visible');
     	return game.storeDialog.visible ||
     		game.bankDialog.visible ||
     		game.auctionDialog.visible ||
@@ -1270,8 +1235,6 @@ export default class Gamepad {
         jqLooksWindow.is(':visible') ||
         jqLooksPreview.is(':visible') ||
         this.mainButtonsActive;
-        //this.shortcutActive;
-        //this.navMouse;
     }
 
     isActive() {
@@ -1289,7 +1252,6 @@ export default class Gamepad {
      this.joystickIndex = 0;
      this.joystickX = 0;
      this.joystickY = 0;
-     //this.resetNavInterval(192);
     }
 
     dialogOpen(dialog) {
@@ -1297,7 +1259,6 @@ export default class Gamepad {
       for (let k in selectFirstItem) {
           if ($('#'+k).is(':visible'))
           {
-            //if ($(selectFirstItem[k])[0].id)
               this.setSelectedItem($(selectFirstItem[k]));
             /*else {
               var index = selectFirstItem[k];

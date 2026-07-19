@@ -13,8 +13,6 @@ import Achievement from './achievement.js';
 
 export default class UserClient {
       constructor(config, useServer) {
-        const self = this;
-
         this.connection = null;
         this.config = config;
 
@@ -164,10 +162,7 @@ export default class UserClient {
       }
 
       receiveActionBatch(actions) {
-          const self = this;
-          _.each(actions, function(action) {
-              self.receiveAction(action);
-          });
+          actions.forEach(action => this.receiveAction(action));
       }
 
       sendMessage(json) {
@@ -259,7 +254,6 @@ export default class UserClient {
       }
 
       onVersion(data) {
-        //var self;
         this.versionChecked = true;
         const version = Number(data[0]);
         const hash = data[1];

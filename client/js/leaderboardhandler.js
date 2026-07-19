@@ -81,7 +81,6 @@ export default class LeaderboardHandler {
 			});
 			break;
 		}
-		//log.info(JSON.stringify(leaders));
 
 		leaders.sort(function (a,b) { return b.value-a.value });
 
@@ -111,7 +110,6 @@ export default class LeaderboardHandler {
 		else
 			pageIndex = 1;
 
-		//alert(pageIndex);
 		if (pageIndex > 0)
 		{
 			recStart = (pageIndex-1) * recordsPerPage;
@@ -137,7 +135,6 @@ export default class LeaderboardHandler {
 
 
 		const pagesCount = Math.ceil(leadersLength / recordsPerPage);
-		//alert(leadersLength + " " + recordsPerPage + " " + pagesCount);
 		let pageData = ""; // FIX: was uninitialized, producing literal "undefined<option...>" on first concat
 		for (let i = 1; i <= pagesCount; ++i)
 		{

@@ -8,14 +8,10 @@ export default class Area {
     }
 
     contains(entity) {
-        //var ts = TILESIZE;
-        if (entity) {
-            return entity.x >= this.x
-                && entity.y >= this.y
-                && entity.x < this.x + this.width
-                && entity.y < this.y + this.height;
-        } else {
-            return false;
-        }
+        return !!entity
+            && entity.x >= this.x
+            && entity.y >= this.y
+            && entity.x < this.x + this.width
+            && entity.y < this.y + this.height;
     }
 }

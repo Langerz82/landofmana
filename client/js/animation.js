@@ -15,7 +15,6 @@ export default class Animation {
         let i = this.currentFrame.index;
 
         i = (i + 1) % this.length;
-        //i = (i < this.length - 1) ? i + 1 : 0;
 
         if (this.count > 0) {
             if (i === 0) {

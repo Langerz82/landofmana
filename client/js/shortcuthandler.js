@@ -77,7 +77,6 @@ class Shortcut {
     }
 
     setup(slot) {
-      //var slot = this.jq.data("slot");
       // TODO fill.
       if (this.isCoolingDown)
         return;
@@ -107,7 +106,6 @@ class Shortcut {
 
       if (this.type === 1) {
         this.cooldownTime = ItemTypes.KindData[id].cooldown;
-        //this.itemKind = this.shortcutId;
       }
       else if (this.type === 2) {
         this.cooldownTime = ~~(SkillData.Data[id].recharge / 1000);
@@ -133,7 +131,6 @@ class Shortcut {
       }
       else if (this.type === 2) {
         // Temp not Working
-        const skill = null;
         SkillData.jqShowSkill(this.jq, this.shortcutId, this.jq, 1);
         this.jq.css("transform", "scale("+(56/48)+")");
         return;
@@ -254,8 +251,6 @@ export default class ShortcutHandler {
     }
 
     installAll(arr) {
-      let shortcut;
-      let i=0;
       for (let sc of arr) {
         if (sc) {
           if (sc[0] >= this.shortcutCount)
@@ -296,7 +291,6 @@ export default class ShortcutHandler {
     }
 
     cooldownItems() {
-      let itemslot = null;
       for (let slot of this.shortcuts) {
         if (slot.type === 1) {
           const cooldown = new Cooldown(slot);
@@ -319,19 +313,15 @@ export default class ShortcutHandler {
 
     getSameShortcuts(shortcut) {
       const shortcuts = [];
-      // FIX: the type-1 (item) branch matched on type alone, grouping every item shortcut in
-      // the bar together regardless of shortcutId. That's inconsistent with cooldownStart()
+      // FIX: the type-1 (item) branch used to match on type alone, grouping every item shortcut
+      // in the bar together regardless of shortcutId. That's inconsistent with cooldownStart()
       // (below), which is the actual source of truth for which shortcuts share a cooldown and
       // requires both type AND shortcutId to match - so using one consumable's cooldown was
-      // visually shown on every item shortcut, not just the one that was used. Require
-      // shortcutId here too; the two branches are now equivalent and could be merged, but kept
-      // separate to preserve the original structure.
+      // visually shown on every item shortcut, not just the one that was used. Now requiring
+      // shortcutId here too, the old type-1-only branch is a strict subset of the general
+      // type+shortcutId match below, so the two have been collapsed into one check.
       for (let sc of this.shortcuts) {
-        if (sc.type === 1 && sc.type === shortcut.type && sc.shortcutId === shortcut.shortcutId)
-        {
-          shortcuts.push(sc);
-        }
-        else if (sc.type === shortcut.type && sc.shortcutId === shortcut.shortcutId)
+        if (sc.type === shortcut.type && sc.shortcutId === shortcut.shortcutId)
         {
           shortcuts.push(sc);
         }

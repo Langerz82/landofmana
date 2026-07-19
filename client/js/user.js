@@ -18,7 +18,6 @@ import Timer from './timer.js';
 export function PlayerSummary(index, db_player) {
   this.index = index;
   this.name = db_player.name;
-  //this.pClass = db_player.pClass;
   this.exp = db_player.exp || 0;
   this.colors = db_player.colors || [0,0];
   this.sprites = db_player.sprites || [0,0];
@@ -28,7 +27,6 @@ export function PlayerSummary(index, db_player) {
 PlayerSummary.prototype.toArray = function () {
   return [this.index,
     this.name,
-    //this.pClass,
     this.exp,
     this.colors[0],
     this.colors[1],
@@ -55,8 +53,6 @@ export default class User {
         const hash = CryptoJS.AES.encrypt(JSON.stringify(hashObj), app.hashChallenge).toString();
         log.info("User init: hash="+hash);
         log.info("User init: hashChallenge="+app.hashChallenge);
-        //log.info("hash="+hash.getHash("SHA-1","HEX"));
-        //log.info("hashChallenge="+hashChallenge.getHash("SHA-1","HEX"));
         this.hash = this.hash || btoa(hash);
 
       }
@@ -70,7 +66,6 @@ export default class User {
 
           const ps = new PlayerSummary(parseInt(data[j]), {
             name: data[j+1],
-            //pClass: parseInt(data[j+2]),
             exp: parseInt(data[j+2]),
             colors: [data[j+3], data[j+4]],
             sprites: [data[j+5], data[j+6]]
@@ -89,8 +84,6 @@ export default class User {
         player.items.setItems(game.equipmentHandler, game.inventory);
 
         player.forceStop = function () {
-          //console.error("player.forceStop - this.keyMove:"+this.keyMove);
-          //console.error("player.forceStop - this.stopKeyMove:"+this.stopKeyMove);
           this.harvestOff();
           // FIX: this used to gate the stop packet on `this.isMoving()` (the local
           // movement.inProgress transition flag). startKeyMovement() sends the
@@ -188,10 +181,7 @@ export default class User {
         };
 
         player.canAttack = function(time) {
-            if(this.isDead === false && this.attackCooldown.isOver(time)) {
-                return true;
-            }
-            return false;
+            return this.isDead === false && this.attackCooldown.isOver(time);
         };
 
         // Note - freeze might be needed disable for now.
@@ -227,7 +217,6 @@ export default class User {
           if (orientation === 0)
             return true;
           return game.moveCharacter(this, pos[0], pos[1], false, true);
-          //return game.moveCharacter(this, this.x, this.y, false, true);
         };
 
         player.sendMove = function (state) {

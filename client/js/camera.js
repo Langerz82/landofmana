@@ -39,11 +39,8 @@ export default class Camera {
 
         this.screenW = w;
         this.screenH = h;
-        //this.screenWE = ~~(this.gridWE*tsgs*zoom);
-        //this.screenHE = ~~(this.gridHE*tsgs*zoom);
 
         log.debug("camera: this.screenW=" + this.screenW + ",this.screenH=" + this.screenH);
-        //log.debug("camera: this.screenW2="+this.screenW2+",this.screenH2="+this.screenH2);
 
         this.screenX = ~~(this.screenW / gs);
         this.screenY = ~~(this.screenH / gs);
@@ -53,9 +50,6 @@ export default class Camera {
         this.wOffX = ~~((tScreenW - this.screenW) / (2 * gs));
         this.wOffY = ~~((tScreenH - this.screenH) / (2 * gs));
         log.debug("camera: this.wOffX=" + this.wOffX + ",this.wOffY=" + this.wOffY);
-        //log.debug("camera: this.cOffX="+this.cOffX+",this.cOffY="+this.cOffY);
-        //this.eOffX = this.wOffX-ts;
-        //this.eOffY = this.wOffY-ts;
 
         log.debug("---------");
         log.debug("W:" + this.gridW + " H:" + this.gridH);
@@ -81,7 +75,6 @@ export default class Camera {
 
         const hgw = ~~(this.screenX / 2);
         const hgh = ~~(this.screenY / 2);
-        //log.info("camera: hgw="+hgw+",hgh="+hgh);
 
         if (!fe)
             return;
@@ -116,7 +109,6 @@ export default class Camera {
 
         const h = this.gridHE;
         const w = this.gridWE;
-        //var j=0, k=0;
         for (let y = 0; y < h; ++y) {
             for (let x = 0; x < w; ++x) {
                 callback(x, y);
@@ -126,7 +118,6 @@ export default class Camera {
 
     isVisible(entity, extra) {
         extra = extra || 0;
-        //log.info("isVisible: " + entity.mapIndex + "!==" + this.game.map.index);
         // FIX: null-guard ran after dereferencing entity.mapIndex, so a null/undefined entity threw instead of
         // returning false; check !entity first.
         if (!entity) return false;
@@ -145,7 +136,6 @@ export default class Camera {
     }
 
     forEachInScreenArray(entity) {
-        //var self = this;
         const entities = [];
         // FIX (var cleanup): was `var entity = entity || ...`, redeclaring the `entity`
         // parameter with var - let/const can't redeclare a parameter name, so this is just a

@@ -10,7 +10,6 @@ export default class Updater {
         constructor(game) {
             this.game = game;
             this.performanceTime = 0;
-            //this.tick = 5;
             this.lastUpdateTime = Date.now();
         }
 
@@ -191,8 +190,6 @@ export default class Updater {
 
 				// TODO - Optimization not working.
             // This code is intensive.
-            //var frames = Math.max(1, ~~((Date.now() - this.lastUpdateTime) / G_UPDATE_INTERVAL));
-            //console.warn("uc ticks="+ticks);
             game.forEachEntity(function(entity) {
                 self.game.updateCameraEntity(entity.id, entity);
                 if (!(entity instanceof EntityMoving))
@@ -201,7 +198,6 @@ export default class Updater {
                 entity.tickFrames = 0;
                 if (entity.tick > 0) {
                   entity.tickFrames = entity.tick;
-                  //console.warn("entity.tickFrames:"+entity.tickFrames);
                 }
                 if (entity instanceof Player)
                 {
@@ -238,11 +234,7 @@ export default class Updater {
         updateCharacterPathMovement(c) {
             const self = this;
 
-            //var ts = game.tilesize;
             const tick = c.tickFrames;
-            //console.warn("tick="+tick);
-            //var speed = c.moveSpeed;
-            //var time = this.game.currentTime;
             const o = c.orientation;
 
             if (c.freeze || c.isStunned || c.isDying || c.isDead)
@@ -281,7 +273,6 @@ export default class Updater {
         updateCharacterKeyMovement(c)
         {
           if (c.freeze || c.isMovingPath() || c.isDying || c.isDead) {
-            //log.info("character is frozen.")
             return;
           }
 
@@ -408,7 +399,6 @@ export default class Updater {
 
                 if(anim && !entity.isStun) {
                     if(anim.update(t)) {
-                        //entity.setDirty();
                     }
                 }
             });
@@ -424,8 +414,6 @@ export default class Updater {
               if (pa.currentAnimation) {
                 const animName = pa.currentAnimation.name;
                 pa.currentAnimation.update(t);
-                //for (var sprite of pa.sprites)
-                  //sprite.currentAnimation.update(t);
                 pa.show();
               }
             }

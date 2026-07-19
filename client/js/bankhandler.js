@@ -3,30 +3,21 @@
 
 export default class BankHandler {
     constructor(game) {
-        const self = this;
-
         this.game = game;
         this.maxNumber = 96;
         this.banks = {};
     }
 
     initBank(itemArray) {
-      for(let i = 0; i < itemArray.length; ++i)
-      {
-        const item = itemArray[i];
+      for (const item of itemArray) {
         if (item)
           this.banks[item.slot] = item;
       }
     }
 
     setBank(itemArray) {
-      for(let i = 0; i < itemArray.length; ++i)
-      {
-        const item = itemArray[i];
-        if (item.itemKind === -1)
-          this.banks[item.slot] = null;
-        else
-          this.banks[item.slot] = item;
+      for (const item of itemArray) {
+        this.banks[item.slot] = item.itemKind === -1 ? null : item;
       }
     }
 

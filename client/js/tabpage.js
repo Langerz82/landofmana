@@ -19,7 +19,6 @@ class TabButton {
         return this.body.attr('class') === 'active';
     }
     setVisible(value) {
-        const self = this;
         if(value) {
             this.body.addClass('active');
         } else {

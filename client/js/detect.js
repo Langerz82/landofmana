@@ -13,21 +13,12 @@ Detect.userAgentContains = function(string) {
 };
 
 Detect.isTablet = function(screenWidth) {
-    if (screenWidth > 720) {
-        if (Detect.userAgentContains('Android')
-            || Detect.userAgentContains('Mobile') || Detect.userAgentContains('iPad')) {
-            return true;
-        }
-    }
-    return false;
+    return screenWidth > 720 &&
+        (Detect.userAgentContains('Android') || Detect.userAgentContains('Mobile') || Detect.userAgentContains('iPad'));
 }
 
 Detect.isMobile = function() {
-    if (Detect.userAgentContains('Mobile')
-        || Detect.userAgentContains('iPhone')) {
-        return true;
-    }
-    return false;
+    return Detect.userAgentContains('Mobile') || Detect.userAgentContains('iPhone');
 }
 
 
@@ -49,7 +40,6 @@ Detect.isEdgeOnWindows = function() {
 
 
 Detect.isFirefox = function() {
-    //alert("useragent="+navigator.userAgent);
     return Detect.userAgentContains('Firefox');
 };
 

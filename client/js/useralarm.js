@@ -12,8 +12,6 @@ export default class UserAlarm {
     }
 
     alarmQueue(str, delay) {
-      const self = this;
-
       delay = delay || this.hideDelay;
 
       this.queue.push([str, delay]);

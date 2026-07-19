@@ -11,10 +11,7 @@ class Bubble {
         game.renderer.drawBubble(this);
     }
     isOver(time) {
-        if(this.timer.isOver(time)) {
-            return true;
-        }
-        return false;
+        return this.timer.isOver(time);
     }
     destroy() {
         game.renderer.removeBubble(this);
@@ -43,38 +40,22 @@ export default class BubbleManager {
         // FIX (var cleanup): was `var time = time || ...`, redeclaring the `time` parameter
         // with var (legal, a no-op reassignment) - let/const can't redeclare a parameter name.
         time = time || Date.now();
-        const bubble = this.bubbles[id] = new Bubble(id, entity, content, time);
+        this.bubbles[id] = new Bubble(id, entity, content, time);
     }
 
     update(time) {
-        const self = this,
-            bubblesToDelete = [];
-
-        _.each(this.bubbles, function(bubble) {
-            if(bubble.isOver(time)) {
+        for (const bubble of Object.values(this.bubbles)) {
+            if (bubble.isOver(time)) {
                 bubble.destroy();
-                bubblesToDelete.push(bubble.id);
+                delete this.bubbles[bubble.id];
             }
-        });
-
-        _.each(bubblesToDelete, function(id) {
-            delete self.bubbles[id];
-        });
+        }
     }
 
     clean() {
-        const self = this,
-            bubblesToDelete = [];
-
-        _.each(this.bubbles, function(bubble) {
+        for (const bubble of Object.values(this.bubbles)) {
             bubble.destroy();
-            bubblesToDelete.push(bubble.id);
-        });
-
-        _.each(bubblesToDelete, function(id) {
-            delete self.bubbles[id];
-        });
-
+        }
         this.bubbles = {};
     }
 
@@ -88,20 +69,15 @@ export default class BubbleManager {
     }
 
     destroyEntityBubbles(entity) {
-        const self = this;
-
-        _.each(this.bubbles, function(bubble) {
-            if (bubble.entity === entity)
-            {
-              bubble.destroy();
-              delete self.bubbles[bubble.id];
+        for (const bubble of Object.values(this.bubbles)) {
+            if (bubble.entity === entity) {
+                bubble.destroy();
+                delete this.bubbles[bubble.id];
             }
-        });
+        }
     }
 
     forEachBubble(callback) {
-        _.each(this.bubbles, function(bubble) {
-            callback(bubble);
-        });
+        Object.values(this.bubbles).forEach(callback);
     }
 }

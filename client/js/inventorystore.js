@@ -86,7 +86,6 @@ export default class InventoryStore {
         }
 
         assign(arr) {
-        //assign: function(itemKind, itemNumber, skillKind, skillLevel, durability, durabilityMax, experience) {
             this.setItemKind(arr[0]);
             this.itemNumber = arr[1];
             this.skillKind = arr[2];
@@ -115,10 +114,7 @@ export default class InventoryStore {
         restore() {
             Items.jqShowItem(this.body, this, this.number);
 
-          	if (ItemTypes.isObject(this.itemKind) || ItemTypes.isCraftItem(this.itemKind)) {
-            }
-          	else
-          	{
+          	if (!ItemTypes.isObject(this.itemKind) && !ItemTypes.isCraftItem(this.itemKind)) {
           		this.body.html(this.itemDurabilityPercent);
           	}
         }

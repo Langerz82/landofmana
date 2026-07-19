@@ -41,7 +41,6 @@ export default class Button2 {
         this.blinkHandle = null;
         this.body = $(this.id);
         this.bodytext = $(this.id2);
-        /*this.body.css('display', this.visible ? 'inline-block' : 'none');*/
         this.kind = -1;
         this.clickHandler = null;
 
@@ -51,17 +50,11 @@ export default class Button2 {
             if (this.enabled && this.clickHandler) {
                 this.clickHandler(this, event);
             }
-            //event.preventDefault();
-            //event.stopPropagation();
-            //return false;
         }.bind(this));
         this.bodytext.bind('click', function(event) {
             if (this.enabled && this.clickHandler) {
                 this.clickHandler(this, event);
             }
-            //event.preventDefault();
-            //event.stopPropagation();
-            //return false;
         }.bind(this));
 
         if (this.kinds.indexOf(3) >= 0) {
@@ -75,12 +68,6 @@ export default class Button2 {
             }.bind(this));
         }
     }
-
-    /*setImage(image) {
-    	if (this.body) {
-    		this.body.css('background-image', 'url=("'+image+') !important');
-    	}
-    },*/
 
     setBackground(background) {
         this.background = background;

@@ -152,9 +152,7 @@ export default class GameClient {
             self.onConnected(data);
           });
 
-					//this.connection.removeListener('message', userclient.onMessage);
 					this.connection.on('message', function(e) {
-							//console.warn("recv="+e);
 							self.onMessage(e);
 							return false;
 					});
@@ -201,8 +199,6 @@ export default class GameClient {
             this.isListening = false;
         }
 
-        //connect: function() {
-        //},
 
         sendMessage(json) {
           let data;
@@ -233,7 +229,6 @@ export default class GameClient {
         }
 
         receiveAction(data) {
-            //log.info("recieved=" + JSON.stringify(data));
             const action = data.shift();
             if(this.handlers[action] && _.isFunction(this.handlers[action])) {
                 this.handlers[action].call(this, data);
@@ -244,12 +239,7 @@ export default class GameClient {
         }
 
         receiveActionBatch(actions) {
-            const self = this;
-            _.each(actions, function(action) {
-                self.receiveAction(action);
-                //self.packets.push(action);
-                //log.info(JSON.stringify(action));
-            });
+            actions.forEach(action => this.receiveAction(action));
         }
 
         receiveSpawn(data) {
@@ -261,8 +251,6 @@ export default class GameClient {
 								x = parseInt(data[5]),
 								y = parseInt(data[6]);
 
-            //log.info("game.mapIndex:"+game.mapIndex);
-            //log.info("map:"+parseInt(map));
 
             // FIX: `mapContainer.ready` is a method (registers a ready callback), not a
             // boolean, so `!game.mapContainer.ready` was always false and this "don't spawn
@@ -272,7 +260,6 @@ export default class GameClient {
             	id === game.player.id)
             	return;
 
-            //log.info("data="+JSON.stringify(data));
 						// If Entity exists just re-create it.
             if (game.entityIdExists(id)) {
             	const entity = game.getEntityById(id);

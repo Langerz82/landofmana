@@ -35,7 +35,6 @@ class Skill {
     }
 }
 
-//var SkillPassive = Skill.extend({});
 class SkillActive extends Skill {
     constructor(skillId) {
       super(skillId); // FIX (conversion): this._super(skillId) -> super(skillId)
@@ -57,12 +56,8 @@ class SkillActive extends Skill {
 
       if (this.data.skillType === "attack") {
         player.attackSkill = this;
-        //this.activated = false;
         if (!player.attackInterval)
           game.makePlayerInteractNextTo();
-        //player.attackSkill = null;
-        //if (!this.activated)
-          //return false;
         if (this.execute_callback)
           this.execute_callback(self);
 
@@ -84,7 +79,6 @@ class SkillActive extends Skill {
       }
 
       this.cooldownTime = Date.now();
-      //log.info("this.name="+this.name);
       player.skillHandler.pushActiveSkill(this);
       return true;
     }
@@ -102,11 +96,8 @@ const SkillFactory = {
 
 SkillFactory.Skills = {};
 for (let i = 0; i < SkillData.Data.length; ++i) {
-    const skillName = SkillData.Data[i].name;
-    //log.info("skillName=" + skillName);
     SkillFactory.Skills[i] = SkillActive;
-};
-log.info("SKillFactory.Skills:" + JSON.stringify(SkillFactory.Skills));
+}
 
 export default class SkillHandler {
     constructor(game) {
@@ -121,7 +112,6 @@ export default class SkillHandler {
     }
 
     getSkill(skillId) {
-      log.info("skillId="+skillId);
       return this.skills.In(skillId) ? this.skills[skillId] : null;
     }
 
@@ -141,13 +131,11 @@ export default class SkillHandler {
     }
 
     add(skillId, exp) {
-      //log.info("skillId:" + skillId);
       let skill = null;
       if (skillId in this.skills) {
         skill = this.skills[skillId];
       } else {
         skill = SkillFactory.make(skillId);
-        //log.info("skill=" + JSON.stringify(skill));
         if (skill) {
           this.skills[skillId] = skill;
         }
@@ -155,7 +143,6 @@ export default class SkillHandler {
       if (skill) {
         skill.setLevel(Types.getSkillLevel(exp));
       }
-      //alert(JSON.stringify(this.skills));
     }
 
     pushActiveSkill(activeSkill) {

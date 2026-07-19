@@ -63,18 +63,15 @@ export default class Map {
     }
 
     _isReady() {
-        const self = this;
         this.isLoaded = true;
         if (this.ready_func) {
-            this.ready_func(self);
+            this.ready_func(this);
         }
     }
 
     _generate() {
-        const self = this;
-
-        self._generateCollisionGrid();
-        self._generateTileGrid();
+        this._generateCollisionGrid();
+        this._generateTileGrid();
     }
 
     _initTilesets() {
@@ -135,10 +132,6 @@ export default class Map {
 
     _generateTileGrid() {
         this.tile = new Array(this.height);
-        for (let tile of this.tileData) {
-          if (tile instanceof Array)
-            tile = new Uint32Array(tile);
-        }
         for (let i = 0; i < this.height; ++i) {
           const arr = this.tileData.slice(i * this.width, ((i+1) * this.width));
           this.tile[i] = arr;

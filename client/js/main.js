@@ -23,7 +23,6 @@ window.log = console;
 window.G_LATENCY = 75;
 window.G_ROUNDTRIP = window.G_LATENCY * 2;
 window.G_UPDATE_INTERVAL = 16;
-//G_RENDER_INTERVAL = 16;
 window.G_TILESIZE = 16;
 
 window.ATTACK_INTERVAL = 1000;
@@ -34,15 +33,12 @@ window.Container = {
   "BACKGROUND": new PIXI.Container(),
   "ENTITIES": new PIXI.Container(),
   "FOREGROUND": new PIXI.Container(),
-//  COLLISION: new PIXI.Container(),
-//  COLLISION2: new PIXI.Container(),
   "HUD": new PIXI.Container(),
   "HUD2": new PIXI.Container()
 };
 
 
 window.Container.STAGE.interactive = false;
-//Container.STAGE.hitArea = new PIXI.Rectangle(0, 0, Container, 100);
 
 Object.freeze(window.Container);
 
@@ -110,7 +106,6 @@ window.onbeforeunload = function (e) {
         });
 
         $('.clickable').click(function(event) {
-            //event.stopPropagation();
             // FIX: handler's parameter is named `event`; `e` was undeclared and would throw a ReferenceError on click
             fnClickFunc(event);
         });
@@ -179,7 +174,6 @@ const initGame = function() {
     });
 
     app.initHealthBar();
-    //app.initEnergyBar();
     app.initExpBar();
     app.initPlayerBar();
 
@@ -247,7 +241,6 @@ const initGame = function() {
     self.skillButton.onClick(function(sender, event) {
         app.toggleSkill();
     });
-    //game.skillDialog.button = this.skillButton;
     app.toggleSkill = function() {
   				if(game && game.ready) {
   					game.skillDialog.show();
@@ -317,7 +310,6 @@ const initGame = function() {
     });
     $(document).bind('mouseup', function(event) {
         if(event.button === 2 && game.ready) {
-            //game.rightClick();
             return false;
         }
     });
@@ -365,7 +357,6 @@ const initGame = function() {
         app.setMouseCoordinates(x, y);
         if(game.started) {
             game.updateCursor();
-            //game.movecursor();
         }
     });
 
@@ -393,8 +384,6 @@ const initGame = function() {
       return game.player && game.started && game.mapStatus >= 2 && !jqChatbox.hasClass('active') && !jqDropDialog.is(":visible")
        && !jqAuctionSellDialog.is(":visible") && !jqDialogModalNotify.is(":visible") && !jqDialogModalConfirm.is(":visible");
     };
-
-    const fnGameKeys = fnCondition;
 
     const keyboard = function (value) {
         const key = {
@@ -530,7 +519,7 @@ const initGame = function() {
           }
       }
 
-      if (fnGameKeys()) {
+      if (fnCondition()) {
           switch(key) {
               case Types.Keys.T:
                   game.playerTargetClosestEntity(1);
@@ -647,7 +636,6 @@ const initGame = function() {
                 }
                 jqChatInput.val('');
                 app.showChat(false);
-                //jqForeground.focus();
                 return false;
             } else {
                 app.showChat(false);
@@ -675,7 +663,6 @@ const initGame = function() {
 
 
     jqDropAccept.click(function(event) {
-        //var pos = game.getMouseGridPosition();
         let count = parseInt($('#dropCount').val());
         if(count > 0) {
         	if (app.dropAction === "bankgold") // Send to bank.

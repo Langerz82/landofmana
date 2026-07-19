@@ -14,7 +14,6 @@ export default class MapContainer {
         this.game = game;
         this.mapIndex = mapIndex;
         this.mapName = mapName;
-        //this.data = [];
         this.isLoaded = false;
         this.mapLoaded = false;
         this.gridReady = false;
@@ -95,15 +94,10 @@ export default class MapContainer {
             });
         });
 
-        //this.mapShifted = false;
-        //this.skipGridMove = true;
-        //this.loadMap(mapName);
     }
 
     loadMap(data) {
-        //var useWorker = false;
         this.isLoaded = false;
-        //this._loadMap(useWorker, mapName);
         this.data = data;
         this._initMap(this.data);
         this.mapLoaded = true;
@@ -164,7 +158,6 @@ export default class MapContainer {
         this.tilesize = map.tilesize;
 
         this.musicAreas = map.musicAreas || [];
-        this.high = map.high || [];
         this.high = {};
         for (let h of map.high) {
             this.high[h] = true;
@@ -174,8 +167,6 @@ export default class MapContainer {
         this.doors = this._getDoors(map);
         this.checkpoints = this._getCheckpoints(map);
 
-        //this.gridWidth = c.gridWE;
-        //this.gridHeight = c.gridHE;
 
         this.gcsx = 0;
         this.gcsy = 0;
@@ -229,9 +220,7 @@ export default class MapContainer {
      * @see Renderer.drawHighTiles
      */
     isHighTile(id) {
-        //return this.high.hasOwnProperty(id);
         return this.high[(id)];
-        //return _.indexOf(this.high, id + 1) >= 0;
     }
 
     /**
@@ -303,12 +292,8 @@ export default class MapContainer {
         let map;
         if (!this.maps[index]) {
             map = new Map(this.game, this, index);
-            //map.ready(this.MapReady);
             map.ready(function() {
-                //self._updateMapOffsets(map);
-                //self._updateGrid(map);
                 map.gridUpdated = true;
-                //map.refreshMap = true;
                 game.renderer.forceRedraw = true;
             });
 
@@ -366,7 +351,6 @@ export default class MapContainer {
             } else {
                 map.ready(onMapReady);
             }
-            //  map.loadMap();
         }
     }
 
@@ -421,7 +405,6 @@ export default class MapContainer {
     }
 
     _updateGrid(map) {
-        //console.warn("_updateGrid - called.")
         const c = game.camera;
         const fe = c.focusEntity;
 
@@ -451,14 +434,7 @@ export default class MapContainer {
         const gx = Math.floor(x / G_TILESIZE),
             gy = Math.floor(y / G_TILESIZE);
 
-        if (this.isOutOfBounds(gx, gy)) {
-            return true;
-        }
-
-        if (this.isCollidingGrid(gx, gy)) {
-            return true;
-        }
-        return false;
+        return this.isOutOfBounds(gx, gy) || this.isCollidingGrid(gx, gy);
     }
 
     // PERF: this used to build a `[[x1,y1],[x1,y2],[x2,y1],[x2,y2]]` array
@@ -538,12 +514,10 @@ export default class MapContainer {
     }
 
     isHarvestTile(pos, type) {
-        //var gx = pos.x >> 4, gy = pos.y >> 4;
         const tiles = this.getTiles(pos.gx, pos.gy);
         if (!tiles || tiles.length === 0)
             return false;
 
-        log.info("tiles=" + JSON.stringify(tiles));
         const types = {}
         types.axe = [678, 679, 698, 699, 855, 875, 274, 275, 294, 295];
         if (!types.hasOwnProperty(type))

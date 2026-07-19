@@ -77,7 +77,6 @@ export default class PageNavigator {
 
     open() {
       this.setIndex(1);
-      (this.index < this.count) ? this.setVisible(1) : this.setVisible();
-
+      this.setVisible(this.index < this.count);
     }
 }

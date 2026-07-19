@@ -33,7 +33,7 @@ export default class InfoManager {
             // var (legal, a no-op reassignment) inside the same multi-declaration statement as
             // genuinely new variables - let/const can't redeclare a parameter, so it's split out
             // into a plain reassignment below and the rest converted to const.
-            duration = (duration)? duration : 1000;
+            duration = duration || 1000;
             const time = this.game.currentTime,
                 id = this.index,
                 self = this,
@@ -75,25 +75,17 @@ export default class InfoManager {
         }
 
         forEachInfo(callback) {
-            const self = this;
-
-            _.each(this.infos, function(info, id) {
-                callback(info);
-            });
+            Object.values(this.infos).forEach(callback);
         }
 
         update(time) {
-            const self = this;
-
             this.forEachInfo(function(info) {
-            	//if (info.isTimeToShow(time)) {
-            		info.update(time);
-                //}
+                info.update(time);
             });
 
-            _.each(this.destroyQueue, function(id) {
+            this.destroyQueue.forEach((id) => {
                 game.renderer.removeSprite(Container.HUD, "ci_"+id);
-                delete self.infos[id];
+                delete this.infos[id];
             });
             this.destroyQueue = [];
         }

@@ -50,7 +50,6 @@ export default class Renderer {
         PIXI.settings.SCALE_MODE = PIXI.SCALE_MODES.HARD_EDGE;
         PIXI.settings.ROUND_PIXELS = false;
         PIXI.settings.SORTABLE_CHILDREN = true;
-        //PIXI.settings.FAIL_IF_MAJOR_PERFORMANCE_CAVEAT = false;
 
         PIXI.tilemap.Constant = {
             maxTextures: 8,
@@ -74,7 +73,6 @@ export default class Renderer {
         this.scale = this.getScaleFactor();
 
         this.resolution = 1;
-        //this.gameZoom = this.getGameZoom(1);
 
         this.calcScreenSize(1);
 
@@ -97,7 +95,6 @@ export default class Renderer {
            'cursor' : 'none'
         });
 
-        //this.centerStage();
 
         console.warn(this.renderer.type);
         if (this.renderer.type === PIXI.WEBGL_RENDERER){
@@ -109,9 +106,6 @@ export default class Renderer {
         this.renderer.view.style.position = "absolute";
         this.renderer.view.style.display = "block";
         this.renderer.view.id = "game";
-        //this.renderer.resize(window.innerWidth, window.innerHeight);
-        //Container.STAGE.width = window.innerWidth;
-        //Container.STAGE.height = window.innerHeight;
 
         this.docCanvas = document.getElementById("canvas");
         this.docCanvas.appendChild(this.renderer.view);
@@ -120,19 +114,14 @@ export default class Renderer {
         Container.STAGE.addChild(Container.BACKGROUND);
         Container.STAGE.addChild(Container.ENTITIES);
         Container.STAGE.addChild(Container.FOREGROUND);
-        //Container.STAGE.addChild(Container.COLLISION);
-        //Container.STAGE.addChild(Container.COLLISION2);
         Container.STAGE.addChild(Container.HUD);
         Container.STAGE.addChild(Container.HUD2);
 
-        //Container.BACKGROUND.sortableChildren = true;
         Container.ENTITIES.sortableChildren = true;
 
         Container.BACKGROUND.zIndex = 1;
         Container.ENTITIES.zIndex = 2;
         Container.FOREGROUND.zIndex = 3;
-        //Container.COLLISION.zIndex = 4;
-        //Container.COLLISION2.zIndex = 5;
         Container.HUD.zIndex = 4;
         Container.HUD2.zIndex = 5;
 
@@ -146,10 +135,6 @@ export default class Renderer {
         Container.ENTITIES.scale.y = this.gameScale;
         Container.FOREGROUND.scale.x = this.gameScale;
         Container.FOREGROUND.scale.y = this.gameScale;
-        //Container.COLLISION.scale.x = this.gameScale;
-        //Container.COLLISION.scale.y = this.gameScale;
-        //Container.COLLISION2.scale.x = 1;
-        //Container.COLLISION2.scale.y = 1;
         Container.HUD.scale.x = this.scaleHUD;
         Container.HUD.scale.y = this.scaleHUD;
         Container.HUD2.scale.x = 1;
@@ -159,8 +144,6 @@ export default class Renderer {
         Container.BACKGROUND.interactive = false;
         Container.ENTITIES.interactive = false;
         Container.FOREGROUND.interactive = false;
-        //Container.COLLISION.interactive = false;
-        //Container.COLLISION2.interactive = false;
         Container.HUD.interactive = false;
         Container.HUD2.interactive = false;
 
@@ -168,8 +151,6 @@ export default class Renderer {
         Container.BACKGROUND.interactiveChildren = false;
         Container.ENTITIES.interactiveChildren = false;
         Container.FOREGROUND.interactiveChildren = false;
-        //Container.COLLISION.interactiveChildren = false;
-        //Container.COLLISION2.interactiveChildren = false;
         Container.HUD.interactiveChildren = false;
         Container.HUD2.interactiveChildren = false;
 
@@ -195,7 +176,6 @@ export default class Renderer {
 
         this.lastTime = 0;
         this.frameCount = 0;
-        //this.maxFPS = this.FPS;
         this.realFPS = 0;
         this.movingFPS = this.FPS;
         this.fullscreen = true;
@@ -243,7 +223,6 @@ export default class Renderer {
         this.resizeCanvases(1);
 
         this.isDebugInfoVisible = false;
-        //this.culler = new Culler();
     }
 
     calcScreenSize(zoomMod) {
@@ -294,7 +273,6 @@ export default class Renderer {
         const w = window.innerWidth,
             h = window.innerHeight;
 
-        //var zoom = (w/window.screen.width * 0.5) + 0.5;
         let zoom = 1;
 
         if (this.mobile) {
@@ -387,7 +365,6 @@ export default class Renderer {
       this.camera.setRealCoords();
 
       this.forceRedraw = true;
-      //this.renderFrame();
     }
 
     initFPS() {
@@ -442,7 +419,6 @@ export default class Renderer {
       sprite.text = announce[0];
       sprite.updateTransform();
       sprite.updateText();
-      //sprite.style = sprite.pstyle;
       sprite.position.x = (this.renderer.width / 2);
       sprite.position.y = (this.renderer.height / 4);
     }
@@ -514,7 +490,6 @@ export default class Renderer {
     // array: sprite, imgX, imgY, imgW, imgH, scrX, scrY, scrW, scrH, flipX, flipY, z, anchorX, anchorY, visible, opacity
     drawSprite(data)
     {
-      //var s = 2; //this.scale;
       const sprite = data[0];
 
       if (!sprite.texture.baseTexture.valid) return;
@@ -553,8 +528,6 @@ export default class Renderer {
 
     // containerName, tileid, x, y
     drawTile(arr) {
-        //if (arr[0])
-          //return;
 
         const ts = G_TILESIZE;
 
@@ -621,7 +594,6 @@ export default class Renderer {
             dw = w,
             dh = h,
             z = (entity.y*(game.camera.gridW*ts)+entity.x) * 2;
-            //z = (y*(game.camera.gridW*ts)+x)*((game.camera.gridW*ts)*(game.camera.gridH*ts))+2;
 
         if (ItemTypes.isLootItem(entity.kind) || ItemTypes.isCraftItem(entity.kind)) {
           dw /= 2;
@@ -973,7 +945,6 @@ export default class Renderer {
           this.removeSprite(Container.ENTITIES, "et_"+entity.id);
         }
 
-        //this.drawEntityTargetPos(entity.id, ex, ey);
         entity.fadeRatio = entity.getFadeRatio(this.game.currentTime);
 
         try {
@@ -986,9 +957,6 @@ export default class Renderer {
         catch (err) { log.info(err.message); log.info(err.stack); }
 
         if(entity instanceof Player && !(entity.isDead || entity.isDying)) {
-            //if (!entity.sprites[1].pjsSprite)
-              //entity.setWeaponSprite();
-              //Container.ENTITIES.addChild(entity.pjsWeaponSprite);
             const weapon = entity.getSprite(1);
             if(weapon) {
                 const weaponAnimData = weapon.animationData[anim.name],
@@ -999,8 +967,6 @@ export default class Renderer {
                     wh = weapon.height;
 
                   // Dont need for now.
-                  //var wox = weapon.offsetX;
-                  //    woy = weapon.offsetY;
                   const visible = !entity.hideWeapon;
           				this.drawSprite([entity.pjsSprites[1], wx, wy, ww*s, wh*s,
           					ex,
@@ -1029,13 +995,10 @@ export default class Renderer {
         pjsSprite.renderable = flag;
         pjsSprite.visible = flag;
       }
-      //if (this.pxSprite.hasOwnProperty("en_"+entity.id) && this.pxSprite["en_"+entity.id])
-        //this.pxSprite["en_"+entity.id].visible = flag;
     }
 
     drawEntities(dirtyOnly) {
         const self = this;
-        //self.drawEntity(game.player);
         if (game.player && game.player.startHarvestTime > 0)
           this.showHarvestBar(game.player);
         // FIX: this else branch unconditionally read game.player.id, which throws if
@@ -1206,7 +1169,6 @@ export default class Renderer {
             mc = game.mapContainer,
             tilesetwidth = this.tilesets[0].baseTexture.width / mc.tilesize;
 
-        //var m = game.map;
 
         self.tilesetwidth = tilesetwidth;
 
@@ -1433,7 +1395,6 @@ export default class Renderer {
         var index = 0;
         g.camera.forEachVisibleValidPosition(function(x, y) {
           if (mc.collisionGrid[y][x]) {
-            //console.warn("tile drawn");
             self.drawCollisionTile(index++, x, y, color);
           }
         });
@@ -1472,7 +1433,6 @@ export default class Renderer {
   				const c = this.camera;
       const fe = c.focusEntity;
 
-      //log.info("c.sox:"+c.sox+",c.soy:"+c.soy);
       c.setRealCoords();
 
       // FIX: restored the dirty-check that used to skip moveGrid()/refreshGrid() when the
@@ -1572,16 +1532,12 @@ export default class Renderer {
 
     setGridOffset() {
       const c = this.camera;
-      //var mc = game.mapContainer;
       const fe = c.focusEntity;
-      //var ts = this.tilesize;
       if (!fe) return;
 
       const gx = fe.x >> 4;
       const gy = fe.y >> 4;
 
-      //this.sox = (fe.x - (gx * G_TILESIZE));
-      //this.soy = (fe.y - (gy * G_TILESIZE));
 
       this.sox = fe.x % G_TILESIZE;
       this.soy = fe.y % G_TILESIZE;
@@ -1590,7 +1546,6 @@ export default class Renderer {
       {
         console.error("NOT EQUAL");
       }*/
-      //log.info("setGridOffset: r.sox:"+c.sox+"r.soy:"+c.soy);
 
       if (!c.scrollX) this.sox = 0;
       if (!c.scrollY) this.soy = 0;
@@ -1638,7 +1593,6 @@ export default class Renderer {
           c = game.camera,
           //p = game.player,
           gs = this.gameScale;
-          //mc = game.mapContainer;
 
       x = -x;
       y = -y;
@@ -1677,10 +1631,6 @@ export default class Renderer {
       Container.BACKGROUND.y = y;
       Container.FOREGROUND.x = x;
       Container.FOREGROUND.y = y;
-      //Container.COLLISION.x = x;
-      //Container.COLLISION.y = y;
-      //Container.COLLISION2.x = x;
-      //Container.COLLISION2.y = y;
 
     }
 
@@ -1714,15 +1664,11 @@ export default class Renderer {
     }
 
     renderFrame() {
-      //this.calledRender = false;
       if (!game.ready || this.blankFrame)
       {
 // TODO Make compatible with all sprites.
         Container.HUD.removeChildren();
         Container.HUD2.removeChildren();
-        //if (Container.HUD.children.length > 2)
-          //Container.HUD.removeChildren(2,Container.HUD.children.length);
-        //Container.COLLISION.removeChildren();
         // NOTE: intentionally NOT calling Container.ENTITIES.removeChildren() here (a prior
         // attempted fix did this and broke the player, who is redrawn a few lines down via
         // drawEntity(game.player)). Blindly clearing the container strips out entities' PIXI
@@ -1734,10 +1680,8 @@ export default class Renderer {
         // clientcallbacks.js's map-transition handler.
         this.pxSprite = {};
         this.clearTiles();
-        //this.renderer.gl.flush();
         this.renderer.render(Container.STAGE);
 
-        //game.initCursors();
         this.blankFrame = false;
         this.forceRedraw = true;
         this.drawEntity(game.player);
@@ -1746,7 +1690,6 @@ export default class Renderer {
         return;
       }
 
-      //this.forceRedraw = true;
 
       if (!game.ready || !game.player || game.mapStatus < 2 ||
           !game.mapContainer.gridReady || this.tilesets.length === 0 ||
@@ -1757,7 +1700,6 @@ export default class Renderer {
 
       this.delta = Date.now() - this.last;
 
-      //this.renderer.clear();
       this.renderStaticCanvases();
 
       // FIX: was permanently commented out, so showCutScene() (letterbox bars) had no
@@ -1770,21 +1712,14 @@ export default class Renderer {
 
       this.drawEntities();
 
-      //Container.HUD.clear();
       this.drawAnnouncement();
 
-      //this.drawEntityNames();
       this.drawBubbles();
 
       this.drawCombatInfo();
       this.drawDebugInfo();
-      //this.drawCombatHitBar();
       this.drawCursor();
 
-      //this.drawCenter();
-      //this.drawEdgeLine();
-      //this.drawTopLeft();
-      //Container.STAGE.sortChildren();
 
       /*this.culler.cull(Container.STAGE, {
         "x":0,
@@ -1794,7 +1729,6 @@ export default class Renderer {
       });*/
 
       this.renderer.render(Container.STAGE);
-      //this.renderer.gl.flush();
 
       this.last = Date.now();
 

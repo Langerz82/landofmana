@@ -6,8 +6,6 @@ import Area from './area.js';
 
 export default class AudioManager {
     constructor(game) {
-        const self = this;
-
         if (game.renderer.mobile || typeof (Native) !== 'undefined')
             this.enabled = false;
         else
@@ -44,7 +42,7 @@ export default class AudioManager {
             "npc-end": false
         };
 
-        if (!(Detect.isSafari() && Detect.isWindows())) {} else {
+        if (Detect.isSafari() && Detect.isWindows()) {
             this.enabled = false; // Disable audio on Safari Windows
         }
     }
@@ -57,9 +55,6 @@ export default class AudioManager {
             }
         } else {
             this.stopMusic(this.currentMusic);
-            /*if (this.currentMusic) {
-              this.currentMusic = null;
-            }*/
         }
         return this.enabled;
     }
@@ -147,24 +142,6 @@ export default class AudioManager {
     // TODO fix.
     getSurroundingMusic(entity) {
         return null; // TEMP
-
-        let music = null,
-            area = _.detect(this.areas, function(area) {
-                return area.contains(entity);
-            });
-
-        if (area) {
-            music = {
-                sound: this.getSound(area.musicName),
-                name: area.musicName
-            };
-        } else {
-            music = {
-                sound: this.getSound("map" + game.map.index),
-                name: "map" + game.map.index
-            };
-        }
-        return music;
     }
 
     updateMusic() {
@@ -176,12 +153,6 @@ export default class AudioManager {
                     if (this.currentMusic) {
                         this.fadeOutCurrentMusic();
                     }
-                    /*if (music.name in this.loadedMusic &&
-                    	this.loadedMusic[music.name] === false)
-                    {
-                    	this.loadMusic(music.name);
-                    	this.loadedMusic[music.name] = true;
-                    }*/
                     this.playMusic(music);
                 }
             } else {

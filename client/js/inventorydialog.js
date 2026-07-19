@@ -16,12 +16,10 @@ const InventoryMode = Types.InventoryMode;
 export default class InventoryDialog {
     constructor() {
       this.maxInventoryNumber = 50;
-      //this.itemListCount = 24;
       this.inventory = [];
 
       this.scale = game.renderer.getUiScaleFactor();
       this.xscale = game.renderer.getIconScaleFactor();
-      log.info("this.scale=" + this.scale);
 
       this.inventorybutton = new Button2('#inventorybutton', {
         background: {
@@ -41,8 +39,6 @@ export default class InventoryDialog {
 
       this.selectedItem = -1;
 
-      //this.pageIndex = 0;
-      //this.pageItems = 24;
 
       const self = this;
 
@@ -65,11 +61,6 @@ export default class InventoryDialog {
         self.deselectItem();
         self.refreshInventoryAll();
       });
-      /*$('#inventoryGear2Items').click(function(event) {
-        self.pageIndex = 1;
-        self.deselectItem();
-        self.refreshInventoryAll();
-      });*/
 
       const itemsPerRow = 5;
       const jqInventoryOffset = $("#inventoryoffset");
@@ -94,8 +85,6 @@ export default class InventoryDialog {
       const type = $(jq).data("itemType");
       const slot = $(jq).data("itemSlot");
 
-      log.info("selectInventory - click, slot:"+slot+", type:"+type);
-
       const item = this.getItem(type, slot);
 
       $('.inventorySellGold').html("0");
@@ -114,8 +103,6 @@ export default class InventoryDialog {
             return;
         }
       }
-      //log.info("slot=" + slot);
-      //log.info("inventories " + JSON.stringify(this.inventory));
       if (item && this.selectedItem !== slot) {
           $('.inventorySellGoldFrame').show();
           this.selectItem(type, this.selectedItem, false);
@@ -385,7 +372,6 @@ export default class InventoryDialog {
         const type = parseInt($(this).data('itemType'));
         const slot = parseInt($(this).data('itemSlot'));
 
-        log.info("invActionButton - click, type:"+type+", slot:"+slot);
         const item = self.getItem(type, slot);
 
         self.activateItem(type, slot, item, true);
@@ -406,7 +392,6 @@ export default class InventoryDialog {
     }
 
     selectItem(type, slot, select) {
-      //pageslot = realslot % this.pageItems;
       let htmlItem = $('#inventoryitembackground' + slot); // FIX: missing var, was leaking an implicit global
       if (type === 2) {
         htmlItem = $('#equipBackground'+slot);
@@ -539,7 +524,6 @@ export default class InventoryDialog {
         const items = self.getItems(0, cond);
         const cooldowns = [];
         for (let item of items) {
-          //var slot = item.slot % self.pageItems;
           cooldowns.push($('#inventoryHL'+item.slot));
         }
         return cooldowns;
@@ -601,7 +585,6 @@ export default class InventoryDialog {
 
     makeEmptyInventory(i) {
 
-      //$('#inventoryitembackground' + i).attr('class', '');
 
       const cooltime = $('#inventoryHL' + i);
       cooltime.css({
@@ -628,9 +611,6 @@ export default class InventoryDialog {
       slotStart = slotStart || 0;
       slotEnd = slotEnd || slotStart+1;
 
-      log.info("this.scale=" + this.scale);
-      const scale = this.scale;
-
       // TODO - Work out why not emptying item shortcuts.
       for (let slot = slotStart; slot < slotEnd; ++slot)
       {
@@ -642,7 +622,6 @@ export default class InventoryDialog {
         }
 
         const itemKind = item.itemKind;
-        const itemNumber = item.itemNumber;
 
         if (itemKind > 0) {
           const jq = $('#inventoryitem' + slot);

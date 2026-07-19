@@ -103,8 +103,6 @@ export default class ClientCallbacks {
             game.mapStatus = 2;
             p.forceStop();
             p.clearTarget();
-            //game.player.path = null;
-            //game.player.step = 0;
             return;
           }
 
@@ -112,11 +110,9 @@ export default class ClientCallbacks {
           {
             log.info("spawnMap");
 
-            //if (game.player.isMoving())
             p.forceStop();
             game.mapIndex = mapId;
             p.mapIndex = mapId;
-            //game.player.forceStop();
             p.clearTarget();
             game.initPlayer();
             // FIX: this used to run *before* game.initPlayer(), but initPlayer()
@@ -160,10 +156,7 @@ export default class ClientCallbacks {
 
             log.info("Map loaded.");
             this.client.sendTeleportMap([mapId, 1, x, y, -1]);
-            //game.renderer.initPIXI();
             game.renderer.blankFrame = true;
-            //game.initCursors();
-            //game.setCursor("hand");
           }
 
           if (status === 2)
@@ -171,7 +164,6 @@ export default class ClientCallbacks {
               log.info("spawnMap - Loaded");
 
               p.setPositionSpawn(x, y);
-              //game.player.forceStop();
 
               const c = game.camera;
 
@@ -179,7 +171,6 @@ export default class ClientCallbacks {
               c.setRealCoords();
 
               game.pathfinder = new Pathfinder(0, 0);
-              //game.initAnimatedTiles();
               log.info("spawnMap - Cleared");
 
               const fnReady = function () {
@@ -248,7 +239,6 @@ export default class ClientCallbacks {
       }
 
       onSpawnItem(data, item) {
-            //log.info("Spawned " + ItemTypes.KindData[item.kind].name + " (" + item.id + ") at "+x+", "+y);
             if (!item) return;
 
             const x = Number(data[5]),
@@ -298,7 +288,6 @@ export default class ClientCallbacks {
           }
           if (entity.type === Types.EntityTypes.NODE)
           {
-            //entity.level = data[10];
             entity.name = data[3];
             entity.isDying = entity.isDead = false;
             const spriteName = data[9];
@@ -353,11 +342,8 @@ export default class ClientCallbacks {
           }
 
           game.addEntity(entity);
-          //game.updateCameraEntity(entity.id, entity);
 
           let entityName = entity.name;
-          //if (entity instanceof Mob)
-          //  entityName = MobData.Kinds[entity.kind].name;
 
           if (entity instanceof NpcStatic)
             entityName = NpcData.Kinds[entity.kind].uid;
@@ -535,17 +521,13 @@ export default class ClientCallbacks {
               if (!(p.x===x && p.y===y))
               {
                 console.warn("PLAYER NOT IN CORRECT POSITION.");
-                //log.info("DEBUG: p.x="+p.x+",x="+x+"p.y="+p.y+",y="+y);
                 // Dirty hack to avoid sending a incorrect packet in forcestop.
                 p.resetPosition(x,y);
                 p.setFreeze(G_ROUNDTRIP);
-                //p.sendMove(false);
-                //game.client.sendSyncTime();
                 game.client.sendSyncTime(Date.now());
                 // FIX: was a bare property reference (no-op); this is clearly meant to force a
                 // redraw after resetPosition() corrects a desynced player position
                 game.renderer.forceRedraw = true;
-                //log.info("DEBUG: p.x="+p.x+",x="+x+"p.y="+p.y+",y="+y);
               }
               return;
             }
@@ -563,10 +545,9 @@ export default class ClientCallbacks {
               map = Number(data.shift()),
               id = Number(data.shift()),
               orientation = Number(data.shift()),
-              interrupted = (data.shift() ? true : false),
+              interrupted = !!data.shift(),
               moveSpeed = Number(data.shift());
 
-            //var path = data.splice(5, data.length-5);
             const path = data;
 
             if (game.mapStatus < 2 || game.mapIndex !== map ||
@@ -591,13 +572,9 @@ export default class ClientCallbacks {
 
             let lockStepTime = (G_LATENCY - (Utils.getWorldTime()-time) + G_UPDATE_INTERVAL);
             lockStepTime = Utils.clamp(0,G_LATENCY,lockStepTime);
-            //console.warn("lockStepTime="+lockStepTime);
-            //console.warn("getDiffTime(time):"+(Date.now() - time));
-            //console.warn("recv - lockStepTime="+lockStepTime);
 
             entity.forceStop();
             entity.setPosition(path[0][0], path[0][1]);
-            //entity.setOrientation(orientation);
 
             const movePathFunc = function () {
               if (entity.isDying || entity.isDead) {
@@ -613,7 +590,6 @@ export default class ClientCallbacks {
                 entity.setMoveRate(moveSpeed);
               }
 
-              //console.info("onEntityMovePath: "+JSON.stringify(path));
               entity.movePath(path);
               entity = null;
             };
@@ -662,7 +638,6 @@ export default class ClientCallbacks {
 
             if(hpMod < 0) {
                 if (sEntity !== game.player) {
-                  //sEntity.lookAtEntity(tEntity);
                   sEntity.hit(orientation);
                 }
             }
@@ -818,7 +793,6 @@ export default class ClientCallbacks {
       }
 
       onQuest(data){
-            //data.parseInt();
             const questId = Number(data[0]);
             let quest = game.player.quests[questId];
             if (!quest)
@@ -827,7 +801,6 @@ export default class ClientCallbacks {
               game.player.quests[questId] = quest;
             }
             else {
-               //if (quest.status !== QuestStatus.COMPLETE)
                 quest.update(data);
             }
 
@@ -843,13 +816,10 @@ export default class ClientCallbacks {
               game.questhandler.handleQuest(quest);
             }
 
-            //if (quest.status > 0)
-              //game.questhandler.handleQuest(quest);
 
             if (quest.status === QuestStatus.COMPLETE) {
               if (quest.type === QuestType.KILLMOBKIND || quest.type === QuestType.KILLMOBS)
                 game.questhandler.handleQuest(quest);
-              //delete quest;
             }
       }
 
@@ -868,7 +838,6 @@ export default class ClientCallbacks {
       }
 
       onItemSlot(data){
-          //data.parseInt();
           const type = Number(data.shift());
           const count = Number(data.shift());
           const items = [];
@@ -964,7 +933,6 @@ export default class ClientCallbacks {
             epMax: Number(data[9])
           };
 
-          //game.player.stats = stats;
           Object.assign(game.player.stats, stats);
           game.statDialog.update();
           game.updateBars();
@@ -1137,7 +1105,6 @@ export default class ClientCallbacks {
       // FIX (maintainability): was a shared inner closure only reachable from the
       // onCharacterChangePoints handler below; moved to a method. Body unchanged.
       showDamageInfo(entity, points, x, y, crit) {
-            //log.info("crit="+crit);
             if(points === 0) {
               game.infoManager.addDamageInfo("miss", x, y - 15, "health");
               return;
@@ -1240,7 +1207,6 @@ export default class ClientCallbacks {
       }
 
       onPlayer(data) {
-            //setWorldTime(data[0], data[1]);
             data.shift();
             data.shift();
 
@@ -1255,7 +1221,6 @@ export default class ClientCallbacks {
 
             p.setHpMax(Number(data.shift()));
             p.setEpMax(Number(data.shift()));
-            //p.setClass(parseInt(data.shift()));
 
             p.stats.exp = {
               base: parseInt(data.shift()),
@@ -1323,7 +1288,6 @@ export default class ClientCallbacks {
               game.equipmentHandler.setEquipment(items);
             }
 
-            //p.sprites = [];
             const aid = parseInt(data.shift());
             const wid = parseInt(data.shift());
 

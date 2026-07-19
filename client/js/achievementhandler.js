@@ -19,10 +19,8 @@ export default class AchievementHandler {
       if (this.showlog) {
         this.achievementReloadLog();
         $('#achievementlog').show();
-        //this.closeButton.show();
       } else {
         $('#achievementlog').hide();
-        //this.closeButton.hide();
       }
     }
 

@@ -15,7 +15,6 @@ export default class HoveringInfo {
             this.fillColor = damageInfoData[type].fill;
             this.strokeColor = damageInfoData[type].stroke;
             this.fontSize = damageInfoData[type].fontSize;
-            //this.showTime = game.currentTime;
             this.angle = Utils.randomRangeInt(20,160) / 180 * Math.PI;
             this.infoData = damageInfoData[type];
             this.effect = damageInfoData[type].effect || 0;

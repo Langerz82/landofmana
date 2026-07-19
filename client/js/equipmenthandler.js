@@ -5,39 +5,11 @@ import Items from './data/items.js';
 
 export default class EquipmentHandler {
         constructor(game) {
-            const self = this;
             this.game = game;
             this.rooms = [];
             this.maxNumber = 5;
             this.scale = 3;
-
-            /*for (var i=0; i < this.maxNumber; ++i)
-            {
-              $('#equipment'+i).attr('draggable', true);
-              $('#equipment'+i).draggable = true;
-              $('#equipment'+i).data("slot", i);
-              $('#equipBackground'+i).data("slot", i);
-            }*/
         }
-
-/*
-        selectItem: function(realslot, select) {
-          var self = this;
-          log.info("equipment - selectItem" + realslot);
-          if (select) {
-            this.selectedItem = realslot;
-            $('#equipBackground' + realslot).css({
-              'border': self.scale + 'px solid white'
-            });
-          }
-          else {
-            $('#equipBackground' + realslot).css({
-              'border': 'none'
-            });
-            this.selectedItem = -1;
-          }
-        },
-*/
 
         clearItem(slot) {
           $('#equipment'+slot).css({
@@ -82,7 +54,7 @@ export default class EquipmentHandler {
             if (item && item.itemKind > 0 && item.itemKind < 1000) {
               item.name = ItemTypes.KindData[item.itemKind].name;
             }
-            if (jqElement && item) {
+            if (item) {
               Items.jqShowItem($(jqElement), item, $(jqElement));
             }
             else {
@@ -98,7 +70,6 @@ export default class EquipmentHandler {
             if (equipSlot > -1)
               game.client.sendItemSlot([1, 0, itemSlot, 0, 2, equipSlot]);
 
-            //this.menu.close();
             game.statDialog.update();
         }
 
@@ -108,7 +79,6 @@ export default class EquipmentHandler {
         }
 
         repairItem(type, itemSlot, item) {
-          const self = this;
           if (!item) return;
 
           if(!game.ready) return;
@@ -127,7 +97,6 @@ export default class EquipmentHandler {
         }
 
         enchantItem(type, itemSlot, item) {
-          const self = this;
           if (!item) return;
 
           if(!game.ready) return;

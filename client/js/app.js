@@ -109,7 +109,6 @@ export default class App {
                 if(confirm("DANGER - Remove your account PERMANENTLY?")) {
                   if (confirm("DANGER - Are you really sure to remove your account FOREVER?")) {
                     app.tryUserAction(3);
-                    //location.reload();
                   }
                 }
                 $('#remove_window').hide();
@@ -191,7 +190,6 @@ export default class App {
                       // stale "incorrect"/"disconnected" message up after they've already
                       // started fixing their input.
                       self.clearErrorOnFieldsChange(self.userFormFields);
-                      //self.getUsernameField().focus();
                   }
                   break;
 
@@ -293,8 +291,6 @@ export default class App {
         }
 
       connect() {
-        //var self = this;
-        //var callback = self.userClient;
         config.waitForConfig(this.userClient.bind(this));
       }
 
@@ -368,7 +364,6 @@ export default class App {
 
             const user = this.user = new User(this.userclient, username, userpw);
             this.userclient.user = this.user;
-            //user.rpassword = $('#remove_password').val();
 
             if ($('#user_save').is(':checked'))
             {
@@ -397,7 +392,6 @@ export default class App {
             const playerIndex = parseInt(this.jqPlayerSelect.val());
             if(action === 4 && !this.validatePlayerForm(username)) return;
 
-    		    //var pClass = parseInt($('#player_class').val());
             const server = parseInt($('#player_server').val());
 
             let ps = null;
@@ -451,11 +445,8 @@ export default class App {
               if (self.jqPlayerCreate.hasClass("loading"))
                 return;
 
-              //self.jqPlayerLoad.addClass("loading");
-              //self.jqPlayerCreate.addClass("loading");
               self.tryPlayerAction(3);
             });
-            //this.getCreatePlayerButton().click(function () {});
             this.getBackButton().click(function () {
               if (self.jqPlayerLoad.is(":visible"))
                 self.loadWindow('player_window', 'user_window');
@@ -607,7 +598,6 @@ export default class App {
         }
 
         clearValidationErrors() {
-            //var fields = this.loginFormActive() ? this.loginFormFields : this.createNewCharacterFormFields;
             let fields;
             if (this.userFormActive())
             	    fields = this.userFormFields;
@@ -631,7 +621,6 @@ export default class App {
 
         setMouseCoordinates(x, y) {
             // TODO Width and Height not clamping mouse properly.
-            //console.info("app.setMouseCoordinates - x:"+x+",y"+y);
 
             const r = game.renderer;
             let scale = r.scale,
@@ -647,7 +636,6 @@ export default class App {
             mouse.x = ~~(Utils.clamp(0,width,x)*zoom/scale);
             mouse.y = ~~(Utils.clamp(0,height,y)*zoom/scale);
 
-            //console.info("app.setMouseCoordinates - mouse.x:"+mouse.x+",mouse.y"+mouse.y);
         }
 
 
@@ -724,7 +712,6 @@ export default class App {
               targetName = targetName.capitalizeFirstLetter();
         			$(el+' .name').text(targetName + " Lv"+target.level);
 
-        			//$(el+' .name').css('text-transform', 'capitalize');
 
         			if(target.stats.hp) {
         			    $("#target-health").css('width', Math.round(target.stats.hp/target.stats.hpMax*60*guiScale)+'px');
@@ -739,7 +726,6 @@ export default class App {
 
           game.onUpdateTarget(function(target){
           	log.info("targetHealth: "+target.stats.hp+" "+target.stats.hpMax);
-              //$("#target .health").css('width', Math.round(target.healthPoints/target.maxHp*90*scale)+'px');
               $("#target-health").css('width', Math.round(target.stats.hp/target.stats.hpMax*60*guiScale)+'px');
               $("#target-healthtext").html("HP: "+target.stats.hp + "/" + target.stats.hpMax);
               /*if(game.player.inspecting && game.player.inspecting.id === target.id){
@@ -877,13 +863,11 @@ export default class App {
               if (flag) {
                 $('#chatbox').addClass('active');
                 $('#chatinput').focus();
-                //$('#chatbutton').addClass('active');
                 $('#chatbutton').addClass('active');
               }
               else {
                 $('#chatbox').removeClass('active');
                 $('#chatinput').blur();
-                //$('#chatbutton').removeClass('active');
                 $('#chatbutton').removeClass('active');
               }
             }
@@ -916,7 +900,6 @@ export default class App {
         hideDropDialog() {
           if(game.started) {
             $('#dropDialog').hide();
-            //$('#dropCount').blur();
 
             this.dropDialogPopuped = false;
           }
@@ -936,7 +919,6 @@ export default class App {
         hideAuctionSellDialog() {
           if(game.started) {
             $('#auctionSellDialog').hide();
-            //$('#auctionSellCount').blur();
 
             this.auctionsellDialogPopuped = false;
           }
@@ -948,7 +930,6 @@ export default class App {
         loadWindow(origin, destination) {
         	$('#'+origin).hide();
         	$('#'+destination).show();
-          //$('#'+destination).focus();
           if (destination !== "user_window") {
             $('#aboutbutton').hide();
           }
@@ -958,7 +939,6 @@ export default class App {
         }
 
         resizeUi() {
-            //log.error("resizeUi");
             if(game && game.started) {
               game.resize(game.zoom);
               this.initHealthBar();

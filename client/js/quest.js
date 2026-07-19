@@ -10,21 +10,11 @@ import ItemLoot from './data/itemlootdata.js';
 const QuestType = Types.QuestType;
 
 const getQuestObject = function(arr) {
-  const self = {};
-  self.toArray = function (obj) {
-    return [obj.type,
-      obj.kind,
-      obj.count];
+  return {
+    type: arr[0],
+    kind: arr[1] || 0,
+    count: arr[2] || 0
   };
-  self.toClient = function (obj) {
-    return [obj.type,
-      obj.kind,
-      obj.count];
-  }
-  self.type = arr[0];
-  self.kind = arr[1] || 0;
-  self.count = arr[2] || 0;
-  return self;
 };
 
 export default class Quest {
@@ -108,40 +98,37 @@ export default class Quest {
         }
 
         setTextTemplate(txt) {
-          if (this.type===QuestType.GETITEMKIND)
-          {
-            if (this.object2) {
-              const itemLootData = ItemLoot[(this.object2.kind)];
-              txt = txt.replace(/%name%/g, itemLootData.name.capitalizeFirstLetter());
-              txt = txt.replace(/%count%/g, this.object2.count);
-            }
-            if (this.object) {
-              const mobData = MobData.Kinds[this.object.kind];
-              if (mobData)
-                txt = txt.replace(/%name2%/g, mobData.key.capitalizeFirstLetter());
-            }
-          }
-          if (this.type===QuestType.KILLMOBKIND)
-          {
-            if (this.object) {
-              const mobData = MobData.Kinds[this.object.kind];
-              txt = txt.replace(/%name%/g, mobData.key.capitalizeFirstLetter());
-              txt = txt.replace(/%count%/g, this.object.count);
-              //d = d.replace('%level%', mobData.minLevel);
-            }
-          }
-          if (this.type===QuestType.HIDEANDSEEK)
-          {
-            if (this.object) {
-              const npcData = NpcData.Kinds[this.object.kind];
-              txt = txt.replace('%name%', npcData.name);
-            }
-          }
-          if (this.type===QuestType.USENODE)
-          {
-            if (this.object) {
-              txt = txt.replace(/%count%/g, this.object.count);
-            }
+          switch (this.type) {
+            case QuestType.GETITEMKIND:
+              if (this.object2) {
+                const itemLootData = ItemLoot[(this.object2.kind)];
+                txt = txt.replace(/%name%/g, itemLootData.name.capitalizeFirstLetter());
+                txt = txt.replace(/%count%/g, this.object2.count);
+              }
+              if (this.object) {
+                const mobData = MobData.Kinds[this.object.kind];
+                if (mobData)
+                  txt = txt.replace(/%name2%/g, mobData.key.capitalizeFirstLetter());
+              }
+              break;
+            case QuestType.KILLMOBKIND:
+              if (this.object) {
+                const mobData = MobData.Kinds[this.object.kind];
+                txt = txt.replace(/%name%/g, mobData.key.capitalizeFirstLetter());
+                txt = txt.replace(/%count%/g, this.object.count);
+              }
+              break;
+            case QuestType.HIDEANDSEEK:
+              if (this.object) {
+                const npcData = NpcData.Kinds[this.object.kind];
+                txt = txt.replace('%name%', npcData.name);
+              }
+              break;
+            case QuestType.USENODE:
+              if (this.object) {
+                txt = txt.replace(/%count%/g, this.object.count);
+              }
+              break;
           }
           txt = txt.replace('%count2%', this.count);
           return txt;

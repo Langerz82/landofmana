@@ -11,8 +11,6 @@ export default class SettingsHandler {
     	this.toggle = false;
     	const self = this;
 
-      const sound = localforage.getSetting
-
     	$('#settingsclose').click(function(e){
                 self.show();
     	});
@@ -97,12 +95,6 @@ export default class SettingsHandler {
               game            : self.game,
               container		: document.getElementById('canvas'),
               mouseSupport	: true,
-              //stationaryBase  : true,
-              //baseX : 50 * self.renderer.scale,
-              //baseY : $('#container').height() - (60 * self.renderer.scale),
-
-              //limitStickTravel: true,
-              //stickRadius: 20 * self.renderer.scale,
               });
           }
           else
@@ -252,7 +244,6 @@ export default class SettingsHandler {
     }
 
     show() {
-    	const self = this;
         this.toggle = !this.toggle;
     	if (this.toggle)
     	{

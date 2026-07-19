@@ -27,7 +27,6 @@ export default class PlayerAnim {
 
     loadAnimations(sprite) {
         const animations = sprite.createAnimations();
-        //sprite.animations = animations;
         for (let id in animations) {
             if (!this.animations[id])
                 this.animations[id] = animations[id];
@@ -85,8 +84,7 @@ export default class PlayerAnim {
                 return;
             }
 
-            const s = this.sprite,
-                a = this.getAnimationByName(name);
+            const a = this.getAnimationByName(name);
 
             if (a) {
                 this.currentAnimation = a;
@@ -129,9 +127,9 @@ export default class PlayerAnim {
         this.flipSpriteX = false;
         this.flipSpriteY = false;
 
-        if (_.indexOf(oriented, animation) >= 0) {
+        if (oriented.includes(animation)) {
             animation += "_" + (o === Types.Orientations.LEFT ? "right" : Types.getOrientationAsString(o));
-            this.flipSpriteX = (this.orientation === Types.Orientations.LEFT) ? true : false;
+            this.flipSpriteX = this.orientation === Types.Orientations.LEFT;
         }
 
         this.setAnimation(animation, speed, count, onEndCount);

@@ -126,14 +126,12 @@ export default class Game {
 
 
             // Item Info
-            //this.itemInfoOn = true;
 
             // combat
             this.infoManager = new InfoManager(this);
             this.questhandler = new QuestHandler(this);
             this.achievementHandler = new AchievementHandler();
             this.chathandler = new ChatHandler(this);
-            //this.playerPopupMenu = new PlayerPopupMenu(this);
             this.socialHandler = new SocialHandler(this);
 
             this.leaderboardHandler = new LeaderboardHandler(this);
@@ -155,7 +153,6 @@ export default class Game {
             this.dialogs = [];
             this.statDialog = new StatDialog();
             this.skillDialog = new SkillDialog();
-            //this.equipmentHandler = new EquipmentHandler(this);
             this.userAlarm = new UserAlarm();
 
             this.dialogs.push(this.statDialog);
@@ -185,11 +182,8 @@ export default class Game {
              * Settings - For player
              */
 
-            //this.moveEntityThreshold = 11;
-            //this.showPlayerNames = true;
             this.musicOn = true;
             this.sfxOn = true;
-            //this.frameColour = "default";
             this.ignorePlayer = false;
 
             this.mapStatus = 0;
@@ -197,11 +191,7 @@ export default class Game {
             this.mapNames = ["map0", "map1", "map2"];
 
             this.gameTime = 0;
-            //this.updateTick = G_UPDATE_INTERVAL;
-            //this.renderTick = G_RENDER_INTERVAL;
-            //this.renderTime = 0;
             this.updateTime = 0;
-            //this.updateRender = 0;
 
             this.previousDelta = 0;
             this.animFrame = (typeof(requestAnimFrame) !== "undefined");
@@ -237,7 +227,6 @@ export default class Game {
         setSpriteJSON() {
 
           sprites = this.spriteJSON.sprites;
-          //this.spriteNames = this.spriteJSON.getSpriteList();
           this.loadSprites();
           this.spritesReady = true;
         }
@@ -460,7 +449,6 @@ export default class Game {
                     self.animatedTiles.push(tile);
                 }
             }, 0, false);
-            //log.info("Initialized animated tiles.");
         },*/
 
 
@@ -483,8 +471,6 @@ export default class Game {
         initMusicAreas() {
             const self = this;
             //_.each(this.map.musicAreas, function(area) {
-            //    self.audioManager.addArea(area.x, area.y, area.w, area.h, area.id);
-            //});
         }
 
         run(server, ps) {
@@ -571,7 +557,6 @@ export default class Game {
             	return this.items[id];
             }
             //else {
-            //    log.info("Unknown entity id : " + id, true);
             //}
         }
 
@@ -606,7 +591,6 @@ export default class Game {
 
             self.setCursor("hand");
 
-//                self.settingsHandler.apply();
         }
 
         teleportMaps(mapIndex, x, y, portalId)
@@ -620,8 +604,6 @@ export default class Game {
 
           if (this.mapContainer) {
             this.prevMapContainer = this.mapContainer;
-            //if (mapIndex == this.mapContainer.mapIndex)
-              //return;
             if (mapIndex === this.mapContainer.mapIndex) {
               this.mapStatus = 0;
               self.client.sendTeleportMap([mapIndex, 0, x, y, portalId]);
@@ -634,7 +616,6 @@ export default class Game {
 
           log.info("teleportMaps");
           this.mapStatus = 0;
-          //delete this.mapContainer;
           this.mapContainer = new MapContainer(this, mapIndex, this.mapNames[mapIndex]);
 
           this.mapContainer.ready(function () {
@@ -721,11 +702,8 @@ export default class Game {
           {
             $('#intro').hide();
             $('#container').fadeIn(1000);
-            //$('#container').css('opacity', '100');
           }
 
-          //var ts = game.tilesize;
-          //game.teleportMaps(0);
       	  game.teleportMaps(1);
 
           //Welcome message
@@ -735,10 +713,8 @@ export default class Game {
 
           if(game.hasNeverStarted) {
               game.start();
-              //app.info_callback({success: true});
           }
 
-          //log.info("game.currentTime="+game.currentTime);
           player.attackTime = game.currentTime;
 
           // START TUTORIAL SHOW CODE.
@@ -778,14 +754,10 @@ export default class Game {
             const p = self.player;
             if (!sentMove && !p.freeze) {
               checkTeleport(p, p.x, p.y);
-              //self.makePlayerInteractNextTo();
             }
 
             p.sendMove(sentMove ? 1 : 0);
-            //if (!p.freeze)
             //f (p.sentMoving !== sentMove) {
-              //p.sendMove(sentMove ? 1 : 0);
-              //p.sentMoving = sentMove;
             //}
           });
 
@@ -834,7 +806,6 @@ export default class Game {
           // already executed, so const is safe despite the forward reference.
           const checkTeleport = function (p, x, y)
           {
-            //self.teleportFromTown(p);
 
             // FIX: landing tile of a teleport can itself sit on (or inside) another
             // door's area -- either the same door you just left (same-map teleport
@@ -933,7 +904,6 @@ export default class Game {
 
                 self.teleportMaps(dest.tmap, dest.tx, dest.ty, dest.id);
 
-                //self.updatePlateauMode();
 
                 if(dest.portal) {
                     self.audioManager.playSound("teleport");
@@ -949,7 +919,6 @@ export default class Game {
             	if (p.isDead)
                   return;
 
-              //self.client.sendMoveEntity(p, 2);
               /*if(self.isItemAt(x, y)) {
                   var items = self.getItemsAt(x, y);
 
@@ -959,7 +928,6 @@ export default class Game {
                       throw e;
                   }
               }*/
-              //p.targetIndex = 0;
               log.info("onStopPathing - 1");
 
               // FIX: checkTeleport used to run only after this hasTarget() block, but that
@@ -1014,8 +982,6 @@ export default class Game {
 
               p.skillHandler.clear();
 
-              //p.oldSprite = p.getArmorSprite();
-              //log.info("oldSprite="+p.oldSprite);
               p.forceStop();
               p.setSprite(self.sprites["death"]);
 
@@ -1338,7 +1304,6 @@ export default class Game {
             if (!item) return;
             if (!p.isNextTooEntity(item)) {
               p.follow(item);
-              //this.player.isLootMoving = true;
             } else {
               this.client.sendLootMove(item);
             }
@@ -1682,19 +1647,15 @@ export default class Game {
             if(!this.mapContainer.mapLoaded)
         	    return null;
 
-            //log.info("getEntityAt:");
             const entities = this.camera.entities,
                 len = Object.keys(entities).length;
 
-            //log.info("x:"+x+",y:"+y);
             if(len > 0) {
               let entity = null;
-              //var pos = {x:x,y:y};
               for (let k in entities) {
                   entity = entities[k];
                   if (!entity) continue;
 
-                  //log.info("x2:"+entity.x+",y2:"+entity.y);
                   if (entity.isOverPosition(x,y))
                     return entity;
               }
@@ -1837,8 +1798,6 @@ export default class Game {
             // Exact world positions
             const start = [character.x, character.y];
             const end = [x, y];
-            //const endpos = Utils.fixGridPosition(x,y);
-            //const end = [endpos.x, endpos.y];
 
             // Check if start or end is colliding
             if (mc.isColliding(character.x, character.y)) {
@@ -1921,7 +1880,6 @@ export default class Game {
             }
 
             // Use AStar
-            //var gridPath = this.pathfinder.AStar(grid, fpS, fpE);
 
             // Restore grid if we modified it
             if (ignoreList || includeList) {
@@ -1975,7 +1933,6 @@ export default class Game {
 
             if(this.mapContainer.gridReady && this.player && !this.renderer.mobile && !this.renderer.tablet) {
                 this.hoveringMob = this.isMobAt(x, y);
-                //log.info("isMobAt x="+x+"y="+y);
                 this.hoveringPlayer = this.isPlayerAt(x, y);
                 this.hoveringItem = this.isItemAt(x, y);
                 this.hoveringNpc = this.isNpcAt(x, y);
@@ -2004,10 +1961,7 @@ export default class Game {
           if (o === Types.Orientations.NONE)
             return false;
 
-          //var cy = (o == 1 || o == 2) ? y : char.y;
-          //var cx = (o == 3 || o == 4) ? x : char.x;
           if (this.mapContainer.isColliding(x, y)) {
-            //char.setPosition(x,y);
             return false;
           }
 
@@ -2019,7 +1973,6 @@ export default class Game {
           }
 
           if (!skipOverlap && this.isOverlapping(char, x, y)) {
-            //console.warn("this.isOverlapping("+char.id+","+x+","+y+")");
             return false;
           }
 
@@ -2028,10 +1981,8 @@ export default class Game {
             const midTile = (G_TILESIZE >> 1);
             const mx = (x % G_TILESIZE);
             const my = (y % G_TILESIZE);
-            //var o = char.orientation;
             const check = (o === 1 || o === 2) ?
               (my === midTile) : (mx === midTile);
-            //log.info("skipGridCheck, mx:"+mx+", my:"+my);
             if (char.stopKeyMove && check)
             {
               char.setPosition(x,y);
@@ -2047,8 +1998,6 @@ export default class Game {
 
             for (let k in entities) {
               const entity2 = entities[k];
-              //if (entity2 instanceof Item)
-                //continue;
               if (entity2 instanceof Player)
                 continue;
               if (entity instanceof Player && entity.holdingBlock === entity2)
@@ -2084,13 +2033,9 @@ export default class Game {
         }
 
         entityTargetClosestEntity(entity, inc, index, excludeTypes) {
-          //var self = this;
-          //var ts = this.tilesize;
-          //var cm = this.camera;
 
           index = index || 0;
 
-          //var entities = Utils.objectToArray(this.camera.entities);
           let entities = this.camera.forEachInScreenArray(entity);
           entities = entities.filter(entity => !(excludeTypes.includes(entity.type) || entity.isDying || entity.isDead));
 
@@ -2115,7 +2060,6 @@ export default class Game {
         }
 
         click() {
-            //console.error("game.click");
             const pos = this.getMousePosition();
             const p = game.player;
 
@@ -2130,7 +2074,6 @@ export default class Game {
             if (p.movement.inProgress)
               return;
 
-            //this.playerPopupMenu.close();
 
             for (let dialog of this.dialogs) {
               if (dialog.visible)
@@ -2187,11 +2130,9 @@ export default class Game {
          * Processes game logic when the user triggers a click/touch event during the game.
          */
          processInput(px, py) {
-           //var pos = {};
            const ts = this.tilesize;
            const p = this.player;
 
-          //log.info("processInput - x:"+pos.x+",y:"+pos.y);
 
           if (!this.started || !this.player || this.player.isDead)
               return;
@@ -2199,7 +2140,6 @@ export default class Game {
           px = Utils.clamp(0, this.mapContainer.widthX, px);
           py = Utils.clamp(0, this.mapContainer.heightY, py);
 
-        	///log.info("x="+pos.x+",y="+pos.y);
 
           let entity = p.hasTarget() ?
             p.target : this.getEntityAt(px, py);
@@ -2209,8 +2149,6 @@ export default class Game {
           }
           else
           {
-      	    //this.playerPopupMenu.close();
-            //this.player.clearTarget();
             const type = p.items.getWeaponType();
             const gpos = Utils.getGridPosition(px, py);
             const colliding = this.mapContainer.isColliding(px,py);
@@ -2270,7 +2208,6 @@ export default class Game {
           if(entity instanceof Player && entity !== this.player)
           {
               this.makePlayerAttack(entity);
-              //this.playerPopupMenu.click(entity);
           }
           else if(entity instanceof Mob ||
                   (entity instanceof Player && entity !== this.player && this.player.pvpTarget === entity))
@@ -2337,12 +2274,8 @@ export default class Game {
         }
 
         clickMoveTo(px, py) {
-          //var self = this;
           log.info("makePlayerGoTo");
-          //var tsh = G_TILESIZE >> 1;
-          //var ts = game.tilesize;
 
-          //log.info("so:"+so[0]+","+so[1]);
           const p = this.player;
           px = (Math.floor(px/G_TILESIZE)+0.5)*G_TILESIZE;
           py = (Math.floor(py/G_TILESIZE)+0.5)*G_TILESIZE;
@@ -2373,13 +2306,11 @@ export default class Game {
 
         updateCameraEntity(id, entity)
         {
-          //log.info(id+ " updateCameraEntity");
           const self = this;
           if (!self.camera) return;
 
           if (!entity || (entity instanceof Character && entity.isDead))
           {
-            //log.info(id+ " updateCameraEntity - Deleted.");
 
             self.camera.entities[id] = null;
             self.camera.outEntities[id] = null;
@@ -2391,7 +2322,6 @@ export default class Game {
 
           if (!self.camera.entities[id] && self.camera.isVisible(entity, 1))
           {
-              //log.info(id+ " updateCameraEntity - in Screen Edges");
               self.camera.entities[id] = entity;
               self.camera.outEntities[id] = entity;
               return;
@@ -2420,11 +2350,9 @@ export default class Game {
 
             this.updateBars();
 
-            //this.addEntity(p);
             this.initPlayer(true);
 
             this.started = true;
-            //this.client.enable();
             this.client.sendPlayerRevive();
 
             log.debug("Finished respawn");

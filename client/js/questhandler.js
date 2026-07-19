@@ -27,9 +27,7 @@ export default class QuestHandler {
     }
 
     getNPCQuest(questId) {
-      return _.find(this.quests, function(q) {
-        return q.id === questId;
-      });
+      return Object.values(this.quests).find(q => q.id === questId);
     }
 
     toggleShowLog() {
@@ -44,7 +42,6 @@ export default class QuestHandler {
 
     questReloadLog() {
       this.quests = game.player.quests;
-      const self = this;
       $("#questLogInfo tbody").find("tr:gt(0)").remove();
 
       const questIds = Object.keys(this.quests);
@@ -99,7 +96,6 @@ export default class QuestHandler {
         else if (quest.type===QuestType.KILLMOBKIND)
         {
           sprite_content = "<div class=\"img quest-img-%idName%\" style=\"background-image: url('"+sprite.filepath+"')\"></div>"
-          //sprite_content = "<div class=\"img quest-img-%idName%\" style=\"background-image: url('img/2/sprites/%sprite%.png')\"></div>"
         }
 
         sprite_content = sprite_content.replace(/%idName%/g, idName);
@@ -143,7 +139,6 @@ export default class QuestHandler {
     }
 
     questShowLog() {
-      //alert("called");
       $('#questlog').css('display', 'block');
       $('#questCloseButton').css('display', 'block');
     }
