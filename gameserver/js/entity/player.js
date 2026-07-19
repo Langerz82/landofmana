@@ -742,7 +742,15 @@ class Player extends Character {
 
     this.idleTimer.restart();
 
-    console.info("set path");
+    // PERF: movePath() runs on every click-to-move path packet from every
+    // player -- one of the two or three hottest packet types in the game
+    // (see the "hottest path" PERF comments in map/mapentities.js's
+    // processWho and callbacks/playercallback.js's checkStartMove). This
+    // console.info fired unconditionally, unlike the equivalent per-packet
+    // logging already gated behind G_DEBUG everywhere else in this
+    // codebase (packethandler.js, playercallback.js, pathfinder.js).
+    if (G_DEBUG)
+        console.info("set path");
 
     this.sx = this.x;
     this.sy = this.y;
@@ -763,7 +771,14 @@ class Player extends Character {
       return;
 
     const time=nm[0], state=nm[1], o=nm[2], x=nm[3], y=nm[4];
-    console.info("nm:"+JSON.stringify(nm));
+    // PERF: move() runs on every CW_MOVE packet from every player -- the
+    // single most frequent packet type in the game (every key-down/key-up).
+    // JSON.stringify-ing the whole packet here on every call is real,
+    // measurable cost paid whether or not anyone's watching the log; gated
+    // behind G_DEBUG like the identical per-packet logging in
+    // packethandler.js/playercallback.js.
+    if (G_DEBUG)
+        console.info("nm:"+JSON.stringify(nm));
 
     this.idleTimer.restart();
 
@@ -814,8 +829,14 @@ class Player extends Character {
         //console.info("player.move: this.moving_timeout cleared.");
         //clearTimeout(this.moving_timeout);
         this.fixMove(x,y);
-        console.info("player.move, resetMove - x:"+x+", y:"+y);
-        console.info("player.move, resetMove - this.x:"+this.x+", this.y:"+this.y);
+        // PERF: this is the ordinary "player stopped moving" branch, hit on
+        // every released movement key from every player -- not an anomaly,
+        // so (like the rest of this function) gated behind G_DEBUG instead
+        // of logging unconditionally on every stop.
+        if (G_DEBUG) {
+            console.info("player.move, resetMove - x:"+x+", y:"+y);
+            console.info("player.move, resetMove - this.x:"+this.x+", this.y:"+this.y);
+        }
         return;
       }
 
@@ -829,9 +850,17 @@ class Player extends Character {
         return;
       }
 
+      // PERF/NOTE: this is the actual anomaly signal (client-reported stop
+      // position didn't match any of the accepted cases above), so the
+      // single summary line stays unconditional -- matching the convention
+      // used by playercallback.js's correctMove() for the same kind of
+      // desync warning. The coordinate dump is gated behind G_DEBUG since
+      // it's diagnostic detail, not the signal itself.
       console.warn("player.move: not stopping.");
-      console.warn("player.move, stop - x:"+x+", y:"+y);
-      console.warn("player.move, stop - this.x:"+this.x+", this.y:"+this.y);
+      if (G_DEBUG) {
+          console.warn("player.move, stop - x:"+x+", y:"+y);
+          console.warn("player.move, stop - this.x:"+this.x+", this.y:"+this.y);
+      }
     }
   }
 
@@ -914,7 +943,19 @@ class Player extends Character {
   }
 
   resetMove(x,y) {
-    try { throw new Error(); } catch(err) { console.error(err.stack); }
+    // PERF: resetMove() is the server's "reject/correct this move" path --
+    // called from packethandler.js's handleMoveEntity/handleMovePath on
+    // every throttle violation, invalid path, or speed-hack rejection, and
+    // from playercallback.js's abortPathing on every too-fast path
+    // interrupt. All of those are routine outcomes under ordinary network
+    // jitter/lag, not just malicious clients, so this ran on a fairly
+    // frequent, everyday path. Capturing a full stack trace (throw+catch)
+    // purely to log it is real, avoidable cost; gated behind G_DEBUG like
+    // the equivalent diagnostic-only stack captures elsewhere in the
+    // codebase (e.g. map/mapentities.js's findPath).
+    if (G_DEBUG) {
+        try { throw new Error(); } catch(err) { console.error(err.stack); }
+    }
     this.fixMove(x,y);
     this.sendCurrentMove();
   }

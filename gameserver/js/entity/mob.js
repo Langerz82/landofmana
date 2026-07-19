@@ -37,7 +37,10 @@ class Mob extends Character {
       	else
       		this.level = Utils.randomRangeInt(this.data.minLevel, this.data.maxLevel);
       }
-      this.level = this.level;
+      // NOTE: was `this.level = this.level;` -- a no-op self-assignment
+      // left over from a previous edit (this.level is already fully set by
+      // whichever branch above ran). Removed rather than "fixed", since
+      // there's nothing for it to do.
 
       const tx=Number(x), ty=Number(y);
       this.spawnX = tx;
