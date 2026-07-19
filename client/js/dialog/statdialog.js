@@ -79,11 +79,9 @@ class StatPage extends TabPage {
             data = Utils.ArrayParseInt(data);
 
             const p = game.player;
-            //p.exp = {};
             p.stats.exp.base = data.shift();
             p.stats.exp.attack = data.shift();
             p.stats.exp.defense = data.shift();
-            //p.exp.move = data.shift();
             p.stats.exp.sword = data.shift();
             p.stats.exp.bow = data.shift();
             p.stats.exp.hammer = data.shift();
@@ -186,7 +184,6 @@ export default class StatDialog extends Dialog {
 
         update() {
             game.client.sendPlayerInfo();
-            //this.page.assign();
         }
 
         /*hide: function() {

@@ -203,7 +203,6 @@ class BankFrame {
             this.bankslots = [];
             this.page = 0;
 
-            //this.pageIndex = 0;
             this.pageItems = 96;
             this.itemsPerRow = 6;
 
@@ -216,12 +215,8 @@ class BankFrame {
               const itemNumber = $(jq).data("itemNumber");
               log.info("selectInventory - click, slot:"+slot);
 
-              //var realslot = slot + (self.page * self.pageItems);
               const item = game.bankHandler.banks[slot];
-              //var item = this.getItem(slot);
 
-              //log.info("slot=" + slot);
-              //log.info("inventories " + JSON.stringify(self.inventory));
               if (item) {
                 if (self.selectedItem !== slot) {
                   if (self.selectedItem != null)
@@ -297,8 +292,6 @@ class BankFrame {
         }
 
         selectItem(slot, select) {
-          //pageslot = realslot % this.pageItems;
-          //var str = '#bankDialogBank'+pageslot+'Background';
           if (slot < 0)
             return;
 

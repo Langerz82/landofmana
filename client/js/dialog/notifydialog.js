@@ -13,7 +13,6 @@ export default class NotifyDialog extends Dialog {
             this.modalNotifyButton1 = $('#dialogModalNotifyButton1');
 
             this.notifyCallback = null;
-            this.scale=this.setScale();
 
             const self = this;
 

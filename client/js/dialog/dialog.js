@@ -1,7 +1,6 @@
 // Converted from AMD (define) + Class.extend to a native ES6 module/class.
 export default class Dialog {
     constructor(game, id) {
-            //this.game = game;
             this.id = id;
             this.body = $(id);
             this.visible = false;

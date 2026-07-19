@@ -80,7 +80,6 @@ class StoreRack {
                 if (self.item)
                 {
             			if(game && game.ready && game.auctionDialog.visible) {
-            			    //alert("auction buy");
             			    if (self.parent.parent.pageIndex === 0) {
             				      game.client.sendAuctionDelete(self.item.index, self.parent.itemType);
                       }
@@ -322,7 +321,6 @@ export default class AuctionDialog extends Dialog {
             this.storeFrame = new StoreFrame(this);
 
             this.modal = $('#storeDialogModal');
-            this.scale=this.setScale();
 
             this.addClose();
         }
@@ -345,8 +343,6 @@ export default class AuctionDialog extends Dialog {
 
             $("#storeDialogStore0Button").text('LIST');
             $("#storeDialog .storebuttons").show();
-            //$("#storeDialogStore0Button").show();
-            //$("#storeDialogStore2Button").show();
 
             const store3btn = $("#storeDialogStore3Button");
             store3btn.text('SELL');

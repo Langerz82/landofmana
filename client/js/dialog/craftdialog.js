@@ -88,7 +88,6 @@ class StoreRack {
             if (ItemTypes.isConsumableItem(item.kind)) {
               this.basket.text('');
             } else {
-              //this.basket.text(ItemTypes.getLevelByKind(item.kind) +"+1");
               this.extra.text(itemName);
             }
 
@@ -189,7 +188,6 @@ class StorePage extends TabPage {
                 }
             }
             log.info("this.items="+JSON.stringify(this.items));
-            //this.setPageIndex(0);
             this.reload();
         }
 
@@ -256,7 +254,6 @@ class StoreFrame extends TabBook {
                 if(activePage && game.craftDialog.visible) {
                     log.info("self.parent.game.craftDialog.visible");
                     activePage.setPageIndex(sender.getIndex() - 1);
-                    //activePage.reload();
                 }
 
             });
@@ -292,7 +289,6 @@ class StoreFrame extends TabBook {
 
             if(activePage) {
                 if(activePage.getPageCount() > 1) {
-                    //log.info("activePage.getPageCount()="+activePage.getPageCount());
                     this.pageNavigator.setCount(activePage.getPageCount());
                     this.pageNavigator.setIndex(activePage.getPageIndex() + 1);
                     this.pageNavigator.open();
@@ -312,15 +308,12 @@ class StoreFrame extends TabBook {
             this.maxLevel = max;
 
             //for(var index = 0; index < this.pages.length; index++) {
-            //    this.pages[index].open(min,max);
             //}
 
             this.setPageIndex(0);
             this.pages[0].setPageIndex(0);
-            //this.pagePotion.open(min,max);
 
 
-            //this.pageNavigator.open();
         }
 }
 
@@ -333,10 +326,6 @@ export default class CraftDialog extends Dialog {
 
             this.sellButton = $('#craftDialogStore3Button');
             this.sellButton.hide();
-
-            //this.modal = $('#dialogModal');
-
-            this.scale=this.setScale();
 
             const self = this;
 
@@ -358,7 +347,6 @@ export default class CraftDialog extends Dialog {
             $('#craftDialog .frameheadingtext').text('CRAFT');
 
             $("#craftDialogStore0Button").text('MISC');
-            //$("#craftDialogStore0Button").removeClass('active');
             $("#craftDialogStore0Button").show();
 
             this.rescale();

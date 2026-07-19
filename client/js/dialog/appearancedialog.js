@@ -15,7 +15,6 @@ class StoreRack {
             this.id = id;
             this.index = index;
             this.body = $(id);
-            //this.body.data.index = index;
             this.basketBackground = $(id + 'BasketBackground');
             this.basket = $(id + 'Basket');
             this.extra = $(id + 'Extra');
@@ -208,7 +207,6 @@ class StoreFrame extends TabBook {
             this.scale = this.parent.scale;
 
             this.add(new AppearanceArmorPage(parent, this.scale));
-            //this.add(new AppearanceWeaponPage(parent, this.scale));
 
             this.pageNavigator = new PageNavigator(parent, parent.scale);
 
@@ -243,7 +241,6 @@ class StoreFrame extends TabBook {
         updateNavigator() {
             const activePage = this.getActivePage();
             const pageNav = this.pageNavigator;
-            //log.info("activePage.getPageCount()="+activePage.getPageCount());
             if(activePage) {
                 if(activePage.getPageCount() > 0) {
                     pageNav.setCount(activePage.getPageCount());
@@ -271,7 +268,7 @@ export default class AppearanceDialog extends Dialog {
 
             this.closeButton = $('#storeDialogCloseButton');
             this.modal = $('#storeDialogModal');
-            this.scale=this.setScale();
+            this.setScale();
 
             let self = this;
 
@@ -385,7 +382,6 @@ export default class AppearanceDialog extends Dialog {
         }
 
         update(itemType, sprite) {
-          //this.playerAnim.sprites[itemType] = sprite;
           this.updateLook(sprite);
         }
 
@@ -408,7 +404,6 @@ export default class AppearanceDialog extends Dialog {
             let inc = 0, inc_fn = 0;
             if (this.paInterval)
               clearInterval(this.paInterval);
-            //var pa = anim;
             const fn = [anim.walk,
               anim.hit];
             this.paInterval = setInterval(function () {

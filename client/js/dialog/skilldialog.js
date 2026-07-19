@@ -19,8 +19,6 @@ class Skill {
             const data = this.data = SkillData.Data[i];
             this.cooldownDuration = (data.recharge) ? data.recharge : 2000;
             log.info(i+" = "+JSON.stringify(data));
-            //log.info(JSON.stringify(SkillData.Data));
-            //log.info("SkillData.Data[id].name"+SkillData.Data[id].name);
             this.detail = data.detail.replace('[l]',this.level)
             	.replace('[u]', data.baseLevel+data.perLevel*this.level);
 
@@ -165,7 +163,6 @@ class SkillPage extends TabPage {
             for (let i = this.skills.length-1; i >= 0; --i)
             {
                 const tSkill = this.skills[i];
-                //log.info("tSkill="+JSON.stringify(tSkill));
                 if(tSkill.skill) {
                     tSkill.skill.background.css({
                         //'display': 'none'
@@ -189,7 +186,6 @@ class SkillPage extends TabPage {
         }
 
         assign() {
-            //SendNative(["PlayerSkills"].concat(this.skills));
             const scale = game.renderer.getUiScaleFactor();
             for(let i = 0; i < this.skills.length; ++i) {
                 const tSkill = this.skills[i];
@@ -209,7 +205,6 @@ class SkillPage extends TabPage {
                         'display': 'block'
                     });
                     this.skills[i].skill = skill;
-                    //log.info("this.skills[id].skill="+JSON.stringify(this.skills[id].skill));
                     $('#skill' + i).attr('title', data.name + " Lv: " + tSkill.level);
                     $('#skill' + i + ' .skillbody').css({
                         'text-align': 'center',
@@ -237,7 +232,6 @@ class SkillPage extends TabPage {
 export default class SkillDialog extends Dialog {
         constructor() {
             super(null, '#skillsDialog'); // FIX (conversion): this._super(null, '#skillsDialog') -> super(null, '#skillsDialog')
-            //this.frame = new Frame(this, game);
             this.addClose();
             this.page = new SkillPage(this);
 

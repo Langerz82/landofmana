@@ -82,7 +82,6 @@ class StoreRack {
               this.basket.text('');
               this.extra.text((item.buyCount > 0 ? 'x' + item.buyCount : '')+" "+itemDesc);
             } else {
-              //this.basket.text(ItemTypes.getLevelByKind(item.kind) +"+1");
               this.extra.text(itemName);
             }
 
@@ -212,7 +211,6 @@ class StoreFrame extends TabBook {
                 if(activePage && game.storeDialog.visible) {
                     log.info("self.parent.game.storeDialog.visible");
                     activePage.setPageIndex(sender.getIndex() - 1);
-                    //activePage.reload();
                 }
 
             });
@@ -248,7 +246,6 @@ class StoreFrame extends TabBook {
 
             if(activePage) {
                 if(activePage.getPageCount() > 1) {
-                    //log.info("activePage.getPageCount()="+activePage.getPageCount());
                     this.pageNavigator.setCount(activePage.getPageCount());
                     this.pageNavigator.setIndex(activePage.getPageIndex() + 1);
                     this.pageNavigator.open();
@@ -264,8 +261,6 @@ class StoreFrame extends TabBook {
         open(min,max) {
             const self = this;
 
-            //this.minLevel = min;
-            //this.maxLevel = max;
 
             this.setPageIndex(0);
             this.pages[0].setPageIndex(0);
@@ -282,13 +277,7 @@ export default class StoreDialog extends Dialog {
             this.sellButton = $('#storeDialogStore3Button');
             this.sellButton.show();
 
-            //this.modal = $('#dialogModal');
-
-            this.scale=this.setScale();
-
             const self = this;
-
-            //$('#storeDialogStorePage').css('display','none');
         }
 
         setScale() {
@@ -306,10 +295,6 @@ export default class StoreDialog extends Dialog {
             $('#storeDialog .frameheading div').text('SHOPS');
 
             $("#storeDialogStore0Button").text('CONSUME');
-            //$("#storeDialogStore0Button").removeClass('active');
-            //$("#storeDialogStore0Button").show();
-            //$("#storeDialogStore1Button").show();
-            //$("#storeDialogStore2Button").show();
             $("#storeDialog .storebuttons").show();
 
             this.sellButton.text('SELL');
