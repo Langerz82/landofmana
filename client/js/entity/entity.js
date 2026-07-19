@@ -58,9 +58,9 @@ export default class Entity {
         this.flipSpriteX = false;
         this.flipSpriteY = false;
 
-        if (_.indexOf(oriented, animation) >= 0) {
+        if (oriented.includes(animation)) {
             animation += "_" + (o === Types.Orientations.LEFT ? "right" : Types.getOrientationAsString(o));
-            this.flipSpriteX = (this.orientation === Types.Orientations.LEFT) ? true : false;
+            this.flipSpriteX = this.orientation === Types.Orientations.LEFT;
         }
 
         this.setAnimation(animation, speed, count, onEndCount);
@@ -209,11 +209,7 @@ export default class Entity {
     }
 
     toggleVisibility() {
-        if (this.visible) {
-            this.setVisible(false);
-        } else {
-            this.setVisible(true);
-        }
+        this.setVisible(!this.visible);
     }
 
     fadeInEntity(time) {
@@ -259,8 +255,6 @@ export default class Entity {
     }
 
     setPositionSpawn(x, y) {
-        log.info("setPositionSpawn - x:" + x + "y:" + y);
-
         this.setPosition(x, y);
 
         this.spawnGx = this.gx;
@@ -282,7 +276,7 @@ export default class Entity {
         const distX = Math.abs(entity.x - this.x),
             distY = Math.abs(entity.y - this.y);
 
-        return (distX > distY) ? distX : distY;
+        return Math.max(distX, distY);
     }
 
     /**
@@ -290,26 +284,14 @@ export default class Entity {
      * @returns {Boolean} Whether these two entities are adjacent.
      */
     isAdjacent(entity) {
-        let adjacent = false;
-
-        if (entity) {
-            adjacent = this.getDistanceToEntity(entity) > 1 ? false : true;
-        }
-
-        return adjacent;
+        return !!entity && this.getDistanceToEntity(entity) <= 1;
     }
 
     /**
      *
      */
     isAdjacentNonDiagonal(entity) {
-        let result = false;
-
-        if (this.isAdjacent(entity) && !(this.x !== entity.x && this.y !== entity.y)) {
-            result = true;
-        }
-
-        return result;
+        return this.isAdjacent(entity) && !(this.x !== entity.x && this.y !== entity.y);
     }
 
     isDiagonallyAdjacent(entity) {
@@ -360,8 +342,8 @@ export default class Entity {
 
     isWithinDist(x, y, dist) {
         dist = dist || G_TILESIZE;
-        var rd = Utils.realDistance([this.x,this.y],[x,y]);
-        return (rd <= dist);
+        const rd = Utils.realDistance([this.x, this.y], [x, y]);
+        return rd <= dist;
     }
 
     isWithinDistEntity(entity, dist) {
@@ -373,8 +355,8 @@ export default class Entity {
     }
 
     isNextTooTile(x, y) {
-        var tileCenter = Utils.fixGridPosition(G_TILESIZE, x, y);
-        return this.isWithinDist(tileCenter.x, tileCenter.y, (G_TILESIZE));
+        const tileCenter = Utils.fixGridPosition(G_TILESIZE, x, y);
+        return this.isWithinDist(tileCenter.x, tileCenter.y, G_TILESIZE);
     }
 
     isNextTooPosition(x, y) {

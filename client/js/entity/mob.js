@@ -34,17 +34,12 @@ export default class Mob extends Character {
         this.isAggressive = this.data.isAggressive;
 
         this.moveSpeed = this.data.moveSpeed;
-        //this.tick = this.data.tick;
         this.setMoveRate(this.moveSpeed);
 
         this.setAttackRate(this.data.attackRate);
-        //this.setAggroRate(this.data.reactionDelay);
-
-        //this.orientation = Utils.randomOrientation();
     }
 
     getSpriteName() {
-        log.info("spriteName=" + MobData.Kinds[this.kind].spriteName);
         return MobData.Kinds[this.kind].spriteName;
     }
 }

@@ -25,7 +25,6 @@ export default class Node extends Entity {
     }
 
     die() {
-        //this.isDead = true;
         if (this.death_callback)
             this.death_callback();
     }

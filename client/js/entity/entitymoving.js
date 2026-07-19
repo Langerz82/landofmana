@@ -58,7 +58,6 @@ export default class EntityMoving extends Entity {
     }
 
     requestPathfindingTo(x, y) {
-        //log.info(JSON.stringify(this.path));
         if (Array.isArray(this.path) && this.path.length > 0) {
             return this.path;
         } else if (this.request_path_callback) {
@@ -207,7 +206,6 @@ export default class EntityMoving extends Entity {
         // which skips elements and lets occupied tiles slip through; now built with .filter()
         const entities = this.getEntitiesAround(adjEnd);
 
-        //console.info("entities: "+JSON.stringify(entities));
         const ts = G_TILESIZE;
         const tsh = ts >> 1;
 
@@ -229,7 +227,6 @@ export default class EntityMoving extends Entity {
                     }
                 }
                 if (Math.abs(x - tx) <= tsh && Math.abs(y - ty) <= tsh) {
-                    //console.info("ENTITY ON TARGET SPOT!");
                     return false;
                 }
             }
@@ -460,7 +457,7 @@ export default class EntityMoving extends Entity {
     }
 
     hasChangedItsPath() {
-        return !(this.newDestination === null);
+        return this.newDestination !== null;
     }
 
     setPath(path) {
@@ -490,10 +487,7 @@ export default class EntityMoving extends Entity {
     }
 
     canMove() {
-        if (this.isDead === false && this.moveCooldown.isOver()) {
-            return true;
-        }
-        return false;
+        return !this.isDead && this.moveCooldown.isOver();
     }
 
     getLastPosition() {
@@ -728,7 +722,6 @@ export default class EntityMoving extends Entity {
         this.freeze = true;
         this.freeze_callback = setTimeout(function() {
             self.freeze = false;
-            //this.freeze_callback = null;
             if (callback)
                 callback(self);
         }, ms);

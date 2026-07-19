@@ -41,11 +41,11 @@ export default class Character extends EntityMoving {
      * BEGIN - Stat Functions.
      ******************************************************************************/
     getHpMax() {
-        return (this.stats) ? this.stats.hpMax : 0;
+        return this.stats ? this.stats.hpMax : 0;
     }
 
     getEpMax() {
-        return (this.stats) ? this.stats.epMax : 0;
+        return this.stats ? this.stats.epMax : 0;
     }
 
     resetHp() {
@@ -146,10 +146,8 @@ export default class Character extends EntityMoving {
         const self = this;
         this.setOrientation(orientation || this.orientation);
         this.fsm = "ATTACK";
-        //this.freeze = true;
         this.animate("atk", this.atkSpeed, 1, function() {
             self.fsm = "IDLE";
-            //self.freeze = false;
             self.idle(self.orientation);
         });
         // FIX: hit() never returned a value, but Player.makeAttack() gates on
@@ -204,7 +202,6 @@ export default class Character extends EntityMoving {
     engage(character) {
         this.attackingMode = true;
         this.setTarget(character);
-        //this.follow(character);
     }
 
     disengage() {
@@ -233,7 +230,7 @@ export default class Character extends EntityMoving {
     }
 
     isAttacked() {
-        return !(Object.keys(this.attackers).length === 0);
+        return Object.keys(this.attackers).length > 0;
     }
 
     /**
@@ -273,9 +270,7 @@ export default class Character extends EntityMoving {
      * @param {Function} callback Function which must accept one character argument.
      */
     forEachAttacker(callback) {
-        _.each(this.attackers, function(attacker) {
-            callback(attacker);
-        });
+        Object.values(this.attackers).forEach(callback);
     }
 
     /**
@@ -299,10 +294,7 @@ export default class Character extends EntityMoving {
     }
 
     canAttack() {
-        if (this.isDead === false && this.attackCooldown.isOver()) {
-            return true;
-        }
-        return false;
+        return !this.isDead && this.attackCooldown.isOver();
     }
 
     setAttackRate(rate) {
@@ -347,7 +339,6 @@ export default class Character extends EntityMoving {
      * @param {Character} character The target character.
      */
     setTarget(character) {
-        //try { throw new Error(); } catch(err) { console.error(err.stack); }
         if (character === null || character.isDying || character.isDead) {
             this.removeTarget();
             return;
@@ -402,7 +393,7 @@ export default class Character extends EntityMoving {
      * @returns {Boolean} Whether this character has a target.
      */
     hasTarget() {
-        return !(this.target === null);
+        return this.target !== null;
     }
 
     canReachTarget() {
@@ -475,10 +466,7 @@ export default class Character extends EntityMoving {
     }
 
     canMove() {
-        if (this.isDead === false && this.moveCooldown.isOver()) {
-            return true;
-        }
-        return false;
+        return !this.isDead && this.moveCooldown.isOver();
     }
 
     clean() {

@@ -21,13 +21,12 @@ export function ItemRoom(slot, itemKind, itemNumber, itemDurability, itemDurabil
 // instead of the intended CSV. Compare user.js's PlayerSummary, which
 // assigns the analogous methods onto .prototype correctly.
 ItemRoom.prototype.toArray = function() {
-    const cols = [parseInt(this.slot),
+    return [parseInt(this.slot),
         this.itemKind,
         this.itemNumber,
         this.itemDurability,
         this.itemDurabilityMax,
         this.itemExperience];
-    return cols;
 }
 ItemRoom.prototype.toString = function() {
     return this.toArray().join(",");
@@ -40,18 +39,12 @@ export default class Item extends Entity {
         this.kind = kind;
         this.type = type;
         this.wasDropped = false;
-        //this.itemDurability = durability;
-        //this.itemDurabilityMax = durabilityMax;
-        //this.itemExperience = experience;
         this.count = 1;
     }
 
     getItemSpriteName() {
-        if (ItemTypes.KindData[this.kind].sprite !== "") {
-            log.info("item-" + ItemTypes.KindData[this.kind].sprite);
-            return "item-" + ItemTypes.KindData[this.kind].sprite;
-        }
-        return null;
+        const sprite = ItemTypes.KindData[this.kind].sprite;
+        return sprite !== "" ? "item-" + sprite : null;
     }
 
     getInfoMsg() {
@@ -64,8 +57,7 @@ export default class Item extends Entity {
             msg = ItemTypes.getName(item.itemKind) + ": Lv " + ItemTypes.getLevelByKind(item.itemKind) + (item.itemNumber ? "+" + item.itemNumber + " " : " ") + (item.itemDurability / 10) + "/" + (item.itemDurabilityMax / 10);
             return msg;
         }
-        const name = ItemTypes.getName(item.itemKind);
-        return (name) ? name : '';
+        return ItemTypes.getName(item.itemKind) || '';
     }
 }
 // Preserved from the original: the instance method is also copied onto the class itself so it

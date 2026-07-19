@@ -28,10 +28,7 @@ export default class PlayerCombat {
         }
         const statDiff = entity.stats.attack + (entity.stats.luck * 2);
         const chance = Utils.clamp(0, 500, ~~(statDiff + itemDiff));
-        log.info("player - baseCrit: " + chance);
-        const chance_out = (chance / 5).toFixed(0) + "%";
-        return chance_out;
-        //return chance;
+        return (chance / 5).toFixed(0) + "%";
     }
 
     baseCritDef() {
@@ -47,10 +44,7 @@ export default class PlayerCombat {
         }
         const statDiff = entity.stats.defense + (entity.stats.luck * 2);
         const chance = Utils.clamp(0, 500, ~~(statDiff + itemDiff));
-        log.info("player - baseCritDef: " + chance);
-        const chance_out = (chance / 5).toFixed(0) + "%";
-        return chance_out;
-        //return chance;
+        return (chance / 5).toFixed(0) + "%";
     }
 
     baseDamage(defender) {
@@ -100,18 +94,14 @@ export default class PlayerCombat {
         max = ~~((max + dealt) * 3);
 
         return [min, max];
-        //return dmg;
     }
 
     baseDamageDef(defender) {
         const entity = this.entity;
 
-        let dealt = 0, dmg = 0;
-
         const level = entity.level + 3;
-        log.info("baseDamageDef:");
 
-        dealt = level;
+        let dealt = level;
         for (let id in entity.items.equipment.rooms) {
             const item = entity.items.equipment.rooms[id];
             if (item) {
@@ -121,26 +111,20 @@ export default class PlayerCombat {
             }
         }
 
-        log.info("dealt=" + dealt);
         const lvl = Types.getDefenseLevel(entity.stats.exp.defense);
         const power = ((lvl / 50) + 1);
-        log.info("power=" + power);
         let min = ~~(level * power);
         let max = ~~(min * 2);
 
-        log.info("dealtrange=" + dealt);
         // Players Stat affects Damage.
         const mods = (entity.stats.mod ? entity.stats.mod.defense : 0);
         dealt += ~~((entity.stats.defense * 4) + mods) + entity.stats.luck;
 
-        log.info("dealtstats=" + dealt);
-
-        dmg = Utils.randomRangeInt(min, max) + dealt;
+        Utils.randomRangeInt(min, max); // NOTE: result unused, but kept to preserve prior RNG draw sequence
 
         min = ~~(min + dealt);
         max = ~~((max + dealt) * 1.75);
 
         return [min, max];
-        //return dmg;
     }
 }

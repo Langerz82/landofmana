@@ -2,10 +2,6 @@
 /* global Types, ItemTypes, Utils */
 
 // TODO - Make Death Sprite seperate instead of changing Armor Sprite.
-const STATE_IDLE = 0,
-    STATE_MOVING = 1,
-    STATE_ATTACKING = 2;
-
 import Entity from './entity.js';
 import Character from './character.js';
 import PlayerCombat from './components/playercombat.js';
@@ -37,9 +33,7 @@ export default class Player extends Character {
         // setRange() still overrides this once real weapon data is available.
         this.setAttackRange(1);
 
-        //this.exp = {};
         this.level = 0;
-        //this.levels = {};
 
         this.stats = {
             exp: {}
@@ -60,7 +54,6 @@ export default class Player extends Character {
 
     isMovingAll() {
         return !this.freeze && (this.isMoving() || this.orientation !== Types.Orientations.NONE);
-        //return true;
     }
 
     setSkill(index, exp) {
@@ -81,10 +74,7 @@ export default class Player extends Character {
 
     isArcher() {
         const weapon = this.items.getWeapon();
-        if (weapon && ItemTypes.isArcherWeapon(weapon.itemKind)) {
-            return true;
-        }
-        return false;
+        return !!(weapon && ItemTypes.isArcherWeapon(weapon.itemKind));
     }
 
     setRange() {
@@ -214,29 +204,8 @@ export default class Player extends Character {
             const pos = this.getTilePositionNextTo(this.orientation, 1);
             this.holdingBlock.setPosition(pos[0], pos[1]);
         }
-
-        //log.info("setPosition, rx:"+(x % G_TILESIZE)+", ry:"+(y % G_TILESIZE));
     }
-    /*
-        followPath: function(path) {
-          this._followPath(path);
-        },
 
-        _followPath: function(path) {
-            if(path.length > 1) { // Length of 1 means the player has clicked on himself
-                this.path = path;
-                this.step = 1;
-
-                if(this.start_pathing_callback) {
-                    this.start_pathing_callback(path);
-                    this.updateMovement();
-                }
-                if(this.before_move_callback) {
-                    this.before_move_callback();
-                }
-            }
-        },
-    */
     harvestOn(type) {
         const self = this;
         const tmptype = type;
@@ -368,10 +337,6 @@ export default class Player extends Character {
         const nodes = this.getSpotsAround({x: x, y: y}, 1);
         nodes.sort(function(a, b) { return a.d - b.d; });
         return nodes;
-    }
-
-    nextStep() {
-        return super.nextStep();
     }
 
 }

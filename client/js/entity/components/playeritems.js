@@ -15,14 +15,12 @@ export default class PlayerItems {
     }
 
     hasWeaponType(type) {
-        const entity = this.entity;
-
         // FIX: was defaulting `type` to "any" and returning true immediately, before even
         // checking whether the entity has a weapon equipped, and *before* the `type` param
         // could ever be falsy again - which made the final `isHarvestWeapon` fallback below
         // permanently unreachable dead code. Mirrors the (correct) pattern used by the sibling
         // hasHarvestWeapon() just below in this file: only short-circuit on an explicit "any".
-        if (type && type === "any")
+        if (type === "any")
             return true;
 
         const weapon = this.equipment.getWeapon();
@@ -65,7 +63,7 @@ export default class PlayerItems {
     }
 
     hasHarvestWeapon(type) {
-        if (type && type === "any")
+        if (type === "any")
             return true;
 
         const weapon = this.getWeapon();

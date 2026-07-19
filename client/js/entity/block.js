@@ -12,9 +12,6 @@ export default class Block extends EntityMoving {
         super(id, type, mapIndex, kind, x, y);
 
         this.name = name;
-        /*this.ready(function () {
-          self.animate("idle", self.idleSpeed);
-        })*/
     }
 
     pickup(entity) {
