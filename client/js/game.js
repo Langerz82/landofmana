@@ -2214,17 +2214,8 @@ export default class Game {
             const type = p.items.getWeaponType();
             const gpos = Utils.getGridPosition(px, py);
             const colliding = this.mapContainer.isColliding(px,py);
-            // FIX: isNextTooPosition() used to be checked against px/py directly -- the
-            // *exact pixel the player clicked*, which can be anywhere within the target
-            // tile. A tile's far corner from the player can be up to 16*sqrt(2)=~22.6
-            // units away (Euclidean) even though the near corner is within the 16-unit
-            // reach and it's the same, clearly-in-range tile. That made harvesting only
-            // register when the click landed on whichever corner happened to be closest
-            // to the player (reported as "only works clicking bottom-right of the
-            // tile"). Checking reach against the tile's center instead makes the result
-            // depend on which tile you clicked, not where inside it.
-            var tileCenter = Utils.fixGridPosition(G_TILESIZE, px, py);
-            if (colliding && this.mapContainer.isHarvestTile(gpos, type) && p.isNextTooEntity(tileCenter)) {
+
+            if (colliding && this.mapContainer.isHarvestTile(gpos, type) && p.isNextTooTile(px, py)) {
                 this.makePlayerHarvest(tileCenter.x, tileCenter.y);
                 return;
             }

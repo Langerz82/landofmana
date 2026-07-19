@@ -191,6 +191,11 @@ class Entity {
         return this.isWithinDist(entity.x, entity.y, G_TILESIZE);
     }
 
+    isNextTooTile(x, y) {
+        var tileCenter = Utils.fixGridPosition(G_TILESIZE, x, y);
+        return this.isWithinDist(tileCenter.x, tileCenter.y, (G_TILESIZE));
+    }
+
     isNextTooPosition(x, y) {
         return this.isWithinDist(x, y, G_TILESIZE);
     }
