@@ -47,15 +47,6 @@ class Equipment {
         this.setItem(index, null);
     }
 
-    /*getItemCount: function(itemKind){
-    	for(var i in this.rooms){
-            if(this.rooms[i].itemKind === itemKind){
-                return this.rooms[i].itemNumber;
-            }
-        }
-        return 0;
-    },*/
-
     getItemIndex(itemKind) {
         for(const i in this.rooms){
             if(this.rooms[i] && this.rooms[i].itemKind === itemKind){

@@ -1,5 +1,4 @@
 import astar from './lib/astar.js';
-import _ from 'underscore';
 import Utils from './utils.js';
 import { G_FRAME_INTERVAL, G_TILESIZE, G_DEBUG } from './main.js';
 
@@ -541,34 +540,33 @@ class Pathfinder {
       }
   }
 
+  // PERF/SIMPLIFY: `this.ignored`/`this.included` are plain arrays, and
+  // findPath() calls both of these on every single pathfinding request
+  // (mob chase/roam, player click-to-move, etc). Swapped the underscore
+  // _.each() closures for plain for...of loops -- same behavior, one less
+  // function-call layer per entity on a genuinely hot path.
   applyIgnoreList_(grid, ignored) {
-      let self = this,
-          x, y;
-
-      _.each(this.ignored, function(entity) {
-          x = entity.isMoving() ? entity.nextGridX : entity.gx;
-          y = entity.isMoving() ? entity.nextGridY : entity.gy;
+      for (const entity of this.ignored) {
+          const x = entity.isMoving() ? entity.nextGridX : entity.gx;
+          const y = entity.isMoving() ? entity.nextGridY : entity.gy;
 
           if(x >= 0 && y >= 0) {
           	//console.info("path.grid=["+x+","+y+"]");
               grid[y][x] = ignored ? 0 : 1;
           }
-      });
+      }
   }
 
   applyIncludeList_(grid, included) {
-      let self = this,
-          x, y;
-
-      _.each(this.included, function(entity) {
-          x = entity.isMoving() ? (entity.path.length > 0 ? entity.path[entity.path.length-1][0] : entity.nextGridX) : entity.gx;
-          y = entity.isMoving() ? (entity.path.length > 0 ? entity.path[entity.path.length-1][1] : entity.nextGridY) : entity.gy;
+      for (const entity of this.included) {
+          const x = entity.isMoving() ? (entity.path.length > 0 ? entity.path[entity.path.length-1][0] : entity.nextGridX) : entity.gx;
+          const y = entity.isMoving() ? (entity.path.length > 0 ? entity.path[entity.path.length-1][1] : entity.nextGridY) : entity.gy;
 
           if(x >= 0 && y >= 0) {
           	//console.info("path.grid=["+x+","+y+"]");
               grid[y][x] = included ? 1 : 0;
           }
-      });
+      }
   }
 
   clearIgnoreList(grid) {

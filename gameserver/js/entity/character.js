@@ -3,7 +3,6 @@ import Messages from "../message.js";
 import Timer from "../timer.js";
 import Utils from '../utils.js';
 import { Types } from '../common.js';
-import _ from 'underscore';
 import { G_TILESIZE } from '../main.js';
 import Scheduler from '../scheduler.js';
 
@@ -25,7 +24,12 @@ class Character extends EntityMoving {
     // Combat
     this.target = null;
     this.unconfirmedTarget = null;
-    this.attackers = {};
+    // SIMPLIFY/PERF: was a plain object keyed by attacker id, accessed via
+    // hasOwnProperty()/delete/_.each -- switched to a Map so isAttackedBy()/
+    // isAttacked()/removeAttacker()/forEachAttacker() below can use
+    // Map#has/#size/#delete/native iteration instead, and this file no
+    // longer needs underscore just for this one loop.
+    this.attackers = new Map();
 
     // Health
     this.stats = {};
@@ -275,20 +279,17 @@ class Character extends EntityMoving {
    * @param {Character} character The attacking character.
    * @returns {Boolean} Whether this is an attacker of this character.
    */
-  // PERF: was gated behind `if (Object.keys(this.attackers).length === 0)
-  // return false;` -- an array allocation on every call (this is checked by
-  // mobai.js's checkHitAggro() on every hit landed against an idle mob) just
-  // to answer a question the hasOwnProperty()+identity check right below
-  // already answers correctly on its own for an empty `attackers` too
-  // (hasOwnProperty() on an empty object is simply false). No behavior
-  // change, one fewer allocation per call.
+  // PERF: `attackers` is a Map (see constructor) -- has()+get() identity
+  // check below are both O(1) with no allocation, same as the array-
+  // allocation-free behavior this PERF fix originally established when
+  // `attackers` was still a plain object.
   isAttackedBy(character) {
-    return this.attackers.hasOwnProperty(character.id) &&
-      this.attackers[character.id] === character;
+    return this.attackers.has(character.id) &&
+      this.attackers.get(character.id) === character;
   }
 
   isAttacked() {
-    return !(Object.keys(this.attackers).length === 0);
+    return this.attackers.size !== 0;
   }
 
   /**
@@ -297,7 +298,7 @@ class Character extends EntityMoving {
    */
   addAttacker(character) {
     if (!this.isAttackedBy(character)) {
-      this.attackers[character.id] = character;
+      this.attackers.set(character.id, character);
     }
   }
 
@@ -309,11 +310,11 @@ class Character extends EntityMoving {
     if (!this.isAttacked()) {
       return;
     }
-    delete this.attackers[character.id];
+    this.attackers.delete(character.id);
   }
 
   removeAttackers() {
-    this.attackers = {};
+    this.attackers.clear();
   }
 
   clearAttackerRefs() {
@@ -328,9 +329,9 @@ class Character extends EntityMoving {
    * @param {Function} callback Function which must accept one character argument.
    */
   forEachAttacker(callback) {
-    _.each(this.attackers, function(attacker) {
+    for (const attacker of this.attackers.values()) {
       callback(attacker);
-    });
+    }
   }
 
   /**

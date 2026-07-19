@@ -522,13 +522,19 @@ class Mob extends Character {
 
       this.map.entities.sendBroadcast(this.despawn());
 
-      _.each(this.attackers, function(attacker) {
+      // SIMPLIFY/PERF: `attackers` is a Map now (see character.js
+      // constructor) -- underscore's _.each() reads plain-object keys via
+      // Object.keys(), which is always empty for a Map, so the old
+      // `_.each(this.attackers, ...)` here would have silently iterated
+      // zero attackers after that change. Iterating .values() directly
+      // avoids that trap entirely.
+      for (const attacker of this.attackers.values()) {
         if (self.on_killed_callback) {
           self.on_killed_callback(attacker, self.damageCount[attacker.id]);
         }
         attacker.onKillEntity(self, self.damageCount[attacker.id],
           self.dealtCount[attacker.id]);
-      });
+      }
 
       super.die(attacker);
 

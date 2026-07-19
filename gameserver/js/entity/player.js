@@ -239,7 +239,13 @@ class Player extends Character {
         // essentially every player death. Capture `self` before the loop and
         // reference the dying player's id through it instead.
         const self = this;
-        _.each(this.attackers, function(attacker) {
+        // SIMPLIFY/PERF: `attackers` is a Map now (see character.js
+        // constructor) -- underscore's _.each() reads plain-object keys via
+        // Object.keys(), which is always empty for a Map, so the old
+        // `_.each(this.attackers, ...)` here would have silently iterated
+        // zero attackers after that change. Iterating .values() directly
+        // avoids that trap entirely.
+        for (const attacker of this.attackers.values()) {
           // FIX/PERF: knownIds is a plain array of numeric entity ids (see
           // mapentities.js addPlayer/addEntity -> knownIds.push(entity.id)),
           // not an object keyed by id -- `delete attacker.knownIds[self.id]`
@@ -257,7 +263,7 @@ class Player extends Character {
           if (attacker.hasOwnProperty("knownIds"))
             Utils.removeFromArray(attacker.knownIds, self.id);
 
-        });
+        }
         this.die(attacker);
       }
     }

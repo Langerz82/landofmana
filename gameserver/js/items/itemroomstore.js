@@ -74,22 +74,22 @@ class ItemStore {
         this.setItem(index, null);
     }
 
-    getItemCount(itemKind) {
+    // SIMPLIFY: getItemCount()/getItemIndex() were identical "scan rooms for
+    // the first matching itemKind" loops, only differing in what they
+    // returned once found. Shared here; behavior (first match wins) is
+    // unchanged.
+    _findFirstByKind(itemKind) {
         for(const i in this.rooms){
             if(this.rooms[i] && this.rooms[i].itemKind === itemKind){
-                return this.rooms[i].itemNumber;
+                return { index: i, item: this.rooms[i] };
             }
         }
-        return 0;
+        return null;
     }
 
     getItemIndex(itemKind) {
-        for(const i in this.rooms){
-            if(this.rooms[i] && this.rooms[i].itemKind === itemKind){
-                return i;
-            }
-        }
-        return -1;
+        const found = this._findFirstByKind(itemKind);
+        return found ? found.index : -1;
     }
 
     getEmptyIndex(start, end) {

@@ -80,16 +80,6 @@ export default class InventoryHandler {
           return false;
         }
 
-        getItemCount(kind) {
-          for (let i = 0; i < this.maxNumber; i++) { // FIX: missing var, was leaking an implicit global
-            const item = this.rooms[i];
-            if (item && kind === item.itemKind) {
-              return item.itemNumber;
-            }
-          }
-          return null;
-        }
-
         getItemTotalCount(kind) {
           let total = 0;
           for (let i = 0; i < this.maxNumber; i++) { // FIX: missing var, was leaking an implicit global

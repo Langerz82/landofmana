@@ -57,6 +57,24 @@ class LootManager {
         }
     }
 
+    // SIMPLIFY: getLootItem() and getDrop() below both pick a weighted
+    // random entry from a `{id: chance}`-style drops object via the same
+    // "roll a number, walk entries subtracting each chance until the roll
+    // lands inside one" scan. Shared here; returns the matching id (a
+    // string, since these are for...in keys) or null if the roll doesn't
+    // land in any entry (e.g. drops don't sum to the full roll range).
+    _pickWeighted(drops, roll) {
+        let v = roll;
+        for (const id in drops) {
+            const count = drops[id];
+            if (v >= 0 && v < count) {
+                return id;
+            }
+            v -= count;
+        }
+        return null;
+    }
+
     // FIX: operator precedence meant `!target instanceof Mob` evaluated as
     // `(!target) instanceof Mob` (always false, since `!target` is a
     // boolean, and booleans are never instances of Mob) instead of the
@@ -70,25 +88,14 @@ class LootManager {
         if (!(target instanceof Mob))
             return;
 
-        let v = Utils.randomRangeInt(0,1000);
         // NOTE: `itemId2` used to be declared twice with `var` -- once here
         // (`= null`) and once more, bare, right after the `if` above.
         // Redeclaring without an initializer is a no-op under `var` (the
         // `null` from the first declaration survived); a SyntaxError under
-        // `let`. Consolidated to the one declaration, moved to just above
-        // where it's actually used (reassigned in the loop below, read at
-        // the `if (itemId2)` check further down).
-        let itemId2 = null;
+        // `let`. Consolidated to the one declaration -- now just the return
+        // value of the shared _pickWeighted() scan above.
         const drops = target.questDrops;
-
-        for (const d in drops) {
-            const count = drops[d];
-            if (v >= 0 && v < count) {
-                itemId2 = d;
-                break;
-            }
-            v -= count;
-        }
+        const itemId2 = this._pickWeighted(drops, Utils.randomRangeInt(0,1000));
 
         if (itemId2) {
             //console.info("itemName: "+itemName);
@@ -149,17 +156,7 @@ class LootManager {
         target.droppedItem = true;
 
         const drops = target.drops;
-        let v = Utils.random(1000);
-        let itemId2;
-
-        for (const itemId in drops) {
-            const count = drops[itemId];
-            if (v >= 0 && v < count) {
-                itemId2 = itemId;
-                break;
-            }
-            v -= count;
-        }
+        let itemId2 = this._pickWeighted(drops, Utils.random(1000));
 
         // FIX: `itemId` from a `for...in` loop is always a string (object
         // keys are strings even when numeric-looking, the same class of
