@@ -27,6 +27,22 @@ class ItemStore {
                 this.rooms[ items[i].slot] = items[i];
             }
         }
+
+        // PERF/FIX: hasRoom()/hasRoomCount() used to compute
+        // Object.keys(this.rooms).length on every call -- besides the
+        // allocation, this actually counts every slot INDEX ever touched,
+        // not the number currently holding an item: makeEmptyItem() sets an
+        // emptied slot to `null` rather than truly removing it (see
+        // setItem() below), so once a store had ever been filled to
+        // maxNumber, Object.keys().length stayed at maxNumber forever after
+        // -- hasRoom() would report "full" permanently even after most
+        // items were sold/used, silently blocking store purchases/crafting
+        // (see shophandler.js/playerharvest.js callers). `_occupiedCount`
+        // tracks the real number of non-null rooms incrementally (see
+        // setItem()); seeded here with one one-time scan of the initial
+        // `items` rather than trusting a running count of `items.length`,
+        // in case of null/duplicate-slot entries in saved data.
+        this._occupiedCount = Object.values(this.rooms).filter(Boolean).length;
     }
 
     hasItem(itemKind) {
@@ -59,25 +75,32 @@ class ItemStore {
     hasRoomCount(start, end) {
         start = start || 0;
         end = end || this.maxNumber;
-        return this.maxNumber - Object.keys(this.rooms).length;
+        return this.maxNumber - this._occupiedCount;
     }
 
     hasRoom(start, end) {
         start = start || 0;
         end = end || this.maxNumber;
-        return Object.keys(this.rooms).length < this.maxNumber;
+        return this._occupiedCount < this.maxNumber;
     }
 
     makeEmptyItem(index) {
-        this.rooms[index] = null;
-        delete this.rooms[index];
+        // SIMPLIFY: the direct `this.rooms[index] = null; delete
+        // this.rooms[index];` that used to be here was a no-op in practice
+        // -- the setItem(index, null) call right after it unconditionally
+        // rewrites this.rooms[index] to null anyway, so nothing downstream
+        // ever observed the brief deleted state. setItem() is also now
+        // where _occupiedCount is maintained (see constructor/setItem), so
+        // routing through it here (instead of mutating rooms directly) keeps
+        // that count correct.
         this.setItem(index, null);
     }
 
-    // SIMPLIFY: getItemCount()/getItemIndex() were identical "scan rooms for
-    // the first matching itemKind" loops, only differing in what they
-    // returned once found. Shared here; behavior (first match wins) is
-    // unchanged.
+    // SIMPLIFY: backs getItemIndex() below -- scans for the first room
+    // holding a matching itemKind and returns both its index and the item.
+    // (getItemCount() below now delegates to hasItemCount() instead of this,
+    // since "first match" was the wrong semantics for a count -- see its
+    // own comment.)
     _findFirstByKind(itemKind) {
         for(const i in this.rooms){
             if(this.rooms[i] && this.rooms[i].itemKind === itemKind){
@@ -90,6 +113,17 @@ class ItemStore {
     getItemIndex(itemKind) {
         const found = this._findFirstByKind(itemKind);
         return found ? found.index : -1;
+    }
+
+    // FIX: this used to return just the first matching room's itemNumber
+    // (via the same "first match wins" scan getItemIndex() above uses)
+    // instead of the total held across every room slot with this itemKind
+    // -- a single itemKind can be split across multiple stacks/slots (see
+    // combineItem()'s maxStack-overflow handling), so this undercounted
+    // whenever that happened. Iterates every room and sums from 0 instead,
+    // same as hasItemCount() (now identical to it).
+    getItemCount(itemKind) {
+        return this.hasItemCount(itemKind);
     }
 
     getEmptyIndex(start, end) {
@@ -238,6 +272,12 @@ class ItemStore {
 
     setItem(index, item)
     {
+        // PERF/FIX: this is the single place this.rooms is ever actually
+        // mutated (see makeEmptyItem() and the constructor), so it's also
+        // where _occupiedCount is kept in sync -- see the constructor
+        // comment above for why this replaced Object.keys(this.rooms).length.
+        const wasOccupied = !!this.rooms[index];
+
         if (!item) {
             this.rooms[index] = null;
             item = {slot: index, itemKind: -1};
@@ -249,6 +289,11 @@ class ItemStore {
             this.rooms[index] = item;
             item.slot = index;
         }
+
+        const isOccupied = !!this.rooms[index];
+        if (isOccupied !== wasOccupied)
+            this._occupiedCount += isOccupied ? 1 : -1;
+
         this.owner.sendPlayer(new Messages.ItemSlot(this.typeIndex, [item]));
         return true;
     }

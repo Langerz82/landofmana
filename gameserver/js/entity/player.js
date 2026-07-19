@@ -428,9 +428,23 @@ class Player extends Character {
 
       console.info("sendMessage - Equipment");
       // Send All Equipment
-      sendMessage.push(Object.keys(self.items.equipment.rooms).length);
-      for(const equipIndex in self.items.equipment.rooms){
-        const item = self.items.equipment.rooms[equipIndex];
+      // FIX: this used to push Object.keys(self.items.equipment.rooms).length
+      // as the item count, then loop `for...in` over every key -- including
+      // slots that had been un-equipped and were left sitting there as
+      // `null` (Equipment.makeEmptyItem() sets a slot to null rather than
+      // actually removing its key -- same underlying pattern as
+      // itemroomstore.js's ItemStore, see the _occupiedCount FIX comment
+      // there) -- and called item.toArray() on them unconditionally.
+      // getState() backs Messages.Spawn.serialize(), so any player who had
+      // ever unequipped something would throw a TypeError here on every
+      // subsequent login/respawn/spawn-to-nearby-player. Filtering out null
+      // slots up front keeps the item list AND the pushed count consistent
+      // with each other -- the client parses exactly `count` item entries
+      // next, so a mismatch between the two would misalign every field
+      // after this in the message, not just the equipment list.
+      const equipItems = Object.values(self.items.equipment.rooms).filter(Boolean);
+      sendMessage.push(equipItems.length);
+      for (const item of equipItems) {
         sendMessage = sendMessage.concat(item.toArray());
       }
 
@@ -443,17 +457,24 @@ class Player extends Character {
 
       console.info("sendMessage - Inventory");
       // Send All Inventory
-      sendMessage.push(Object.keys(self.items.inventory.rooms).length);
+      // FIX: same bug as equipment above. `_occupiedCount` (itemroomstore.js)
+      // already tracks the real number of occupied rooms incrementally, so
+      // it's used for the pushed count here instead of the stale
+      // Object.keys(rooms).length; the loop below still null-guards
+      // defensively rather than assuming the two can never drift apart.
+      sendMessage.push(self.items.inventory._occupiedCount);
       for(const invIndex in self.items.inventory.rooms){
         const item = self.items.inventory.rooms[invIndex];
+        if (!item) continue;
         sendMessage = sendMessage.concat(item.toArray());
       }
 
       console.info("sendMessage - Bank");
       // Send All Bank
-      sendMessage.push(Object.keys(self.items.bank.rooms).length);
+      sendMessage.push(self.items.bank._occupiedCount);
       for(const bankIndex in self.items.bank.rooms){
         const item = self.items.bank.rooms[bankIndex];
+        if (!item) continue;
         sendMessage = sendMessage.concat(item.toArray());
       }
 
