@@ -61,7 +61,7 @@ import StoreDialog from './dialog/storedialog.js';
 import AuctionDialog from './dialog/auctiondialog.js';
 import CraftDialog from './dialog/craftdialog.js';
 import BankDialog from './dialog/bankdialog.js';
-import GamePad from './gamepad.js';
+import GamePad from './gamepad/gamepad.js';
 
 // Game's own behavior is split across these mixin modules for readability (game.js had grown
 // to ~2500 lines). Each install* call below merges plain-function methods onto Game.prototype;

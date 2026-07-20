@@ -23,7 +23,7 @@ import Achievement from '../achievement.js';
 import SkillHandler from '../skillhandler.js';
 import SkillData from '../data/skilldata.js';
 import LangData from '../data/langdata.js';
-import GamePad from '../gamepad.js';
+import GamePad from '../gamepad/gamepad.js';
 
 /* global Types, ItemTypes, Utils */
 
