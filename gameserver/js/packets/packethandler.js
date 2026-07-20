@@ -719,13 +719,32 @@ class PacketHandler {
         const type = parseInt(message[1]);
         const shortcutId = parseInt(message[2]);
 
-        // FIX: was `slot > 7`, accepting 8 shortcut slots -- but player.js's
-        // load path (fillPlayerInfo) only restores slots < 6, so anything
-        // saved into slot 6/7 silently vanished on the next login. Capped
-        // here to match what's actually persisted.
+        // A shortcut's type is always 1 (item) or 2 (skill) -- there is no
+        // type 0. format.js's CW_SHORTCUT schema already enforces this same
+        // [1, 2] range, so this is a second explicit guard, not the source
+        // of truth for it.
+        if (type < 1 || type > 2)
+          return;
+
+        // Slot is always 0-5 (player.js's load path, fillPlayerInfo, only
+        // restores slots < 6) regardless of shortcut type. format.js's
+        // CW_SHORTCUT schema now enforces this same [0, 5] range via
+        // playerShortcutsMax, so -- like the type check above -- this is a
+        // second explicit guard, not the source of truth for it.
+        //
+        // FIX: this bound used to only run inside an `if (type === 1)`
+        // branch, leaving type === 2 (skill) shortcuts free to save into
+        // slot 6/7 (back when format.js's own bound was also looser, 0-7).
+        // Slot validity doesn't depend on shortcut type, so this check now
+        // runs unconditionally for both.
         if (slot < 0 || slot > 5)
             return;
 
+        // type === 1 (item): shortcutId is an item kind, already bounded
+        // against itemKindMax by format.js's CW_SHORTCUT schema, so no extra
+        // check is needed here.
+        // type === 2 (skill): shortcutId indexes SkillData.Skills, a much
+        // smaller list than itemKindMax, so it needs its own tighter bound.
         if (type === 2) {
             if (shortcutId < 0 || shortcutId >= SkillData.Skills.length)
                 return;

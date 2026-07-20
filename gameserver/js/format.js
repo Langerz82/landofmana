@@ -126,8 +126,25 @@ const playerSkillMax = 50;
 // this constant. Nothing else in this file or the wider gameserver
 // referenced it, so removing it rather than leaving a same-looking, never-
 // consulted constant for the next reader to trip over the same way.
-const playerShortcutsMax = 7;
-const playerShortcutsType = 2;
+// FIX: was 7 (allowing slots 0-7), but player.js's load path
+// (fillPlayerInfo) only restores slots < 6, and packethandler.js's
+// handleShortcut only ever writes into slots 0-5 -- so a shortcut saved into
+// slot 6/7 would pass this schema check but then silently vanish on the
+// next login. Lowered to 5 so CW_SHORTCUT's slot field is bounded to the
+// same 0-5 range that's actually persisted and handled, instead of
+// format.js being looser than every other layer that touches shortcuts.
+const playerShortcutsMax = 5;
+// CORRECTION: a previous pass here lowered playerShortcutsTypeMin from 1 to
+// 0, on the mistaken assumption that CW_SHORTCUT's type field reused the
+// unrelated 0=Armor/1=Weapon scheme documented on player.js's
+// setSprite/getSprite (those two methods are about equipment sprite slots,
+// not shortcuts, and just happen to sit near shortcut-handling code).
+// Confirmed with the project owner: a shortcut's type is always either 1
+// (item) or 2 (skill) -- there is no type 0 for shortcuts. Restored the
+// original, correct bound of [1, 2] so a malformed/bogus type 0 is rejected
+// by format.js as intended, instead of being let through.
+const playerShortcutsTypeMin = 1;
+const playerShortcutsTypeMax = 2;
 
 const worldNameLenMin = 2;
 const worldNameLenMax = 16;
@@ -473,7 +490,7 @@ class FormatChecker {
     ]);
     this.formats[Types.Messages.CW_SHORTCUT] = tupleField([
       numberField(0, playerShortcutsMax),
-      numberField(0, playerShortcutsType),
+      numberField(playerShortcutsTypeMin, playerShortcutsTypeMax),
       numberField(0, itemKindMax),
     ]);
     this.formats[Types.Messages.CW_PARTY] = tupleField([
