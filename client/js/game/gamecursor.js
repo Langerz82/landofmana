@@ -1,6 +1,6 @@
 // Mixin extracted from game.js: Cursor state: sprite cursors, hover-driven cursor logic, mouse->grid position helpers.
 // Applied onto Game.prototype via install*(...) call in game.js; not a standalone class.
-import Player from './entity/player.js';
+import Player from '../entity/player.js';
 /* global Container, G_TILESIZE, log */
 
 export function installGameCursor(proto) {

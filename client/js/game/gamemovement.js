@@ -1,7 +1,7 @@
 // Mixin extracted from game.js: Pathfinding and movement: findPath, moveCharacter/isOverlapping, teleportMaps, makePlayerGoTo/GoToItem, clickMoveTo.
 // Applied onto Game.prototype via install*(...) call in game.js; not a standalone class.
-import Player from './entity/player.js';
-import MapContainer from './mapcontainer.js';
+import Player from '../entity/player.js';
+import MapContainer from '../mapcontainer.js';
 /* global Utils, G_TILESIZE, log */
 
 export function installGameMovement(proto) {

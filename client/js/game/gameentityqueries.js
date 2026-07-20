@@ -1,10 +1,10 @@
 // Mixin extracted from game.js: Read-only entity/grid lookups: getEntityAt/getMobAt/getPlayerAt/etc, isXAt predicates, forEach* iteration helpers.
 // Applied onto Game.prototype via install*(...) call in game.js; not a standalone class.
-import Mob from './entity/mob.js';
-import Player from './entity/player.js';
-import NpcMove from './entity/npcmove.js';
-import NpcStatic from './entity/npcstatic.js';
-import Node from './entity/node.js';
+import Mob from '../entity/mob.js';
+import Player from '../entity/player.js';
+import NpcMove from '../entity/npcmove.js';
+import NpcStatic from '../entity/npcstatic.js';
+import Node from '../entity/node.js';
 /* global Types, ItemTypes, _ */
 
 export function installGameEntityQueries(proto) {

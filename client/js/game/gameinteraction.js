@@ -1,13 +1,13 @@
 // Mixin extracted from game.js: Targeting/interaction/combat: the tryInteract* chain, click/rightClick/processInput, playerInteract, attack + harvest.
 // Applied onto Game.prototype via install*(...) call in game.js; not a standalone class.
-import Player from './entity/player.js';
-import NpcMove from './entity/npcmove.js';
-import NpcStatic from './entity/npcstatic.js';
-import Node from './entity/node.js';
-import Item from './entity/item.js';
-import Block from './entity/block.js';
-import Character from './entity/character.js';
-import NpcData from './data/npcdata.js';
+import Player from '../entity/player.js';
+import NpcMove from '../entity/npcmove.js';
+import NpcStatic from '../entity/npcstatic.js';
+import Node from '../entity/node.js';
+import Item from '../entity/item.js';
+import Block from '../entity/block.js';
+import Character from '../entity/character.js';
+import NpcData from '../data/npcdata.js';
 /* global Types, ATTACK_MAX, Utils, log, game */
 const InventoryMode = Types.InventoryMode;
 
