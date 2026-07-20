@@ -56,10 +56,10 @@ export default class EquipmentHandler {
               item.name = ItemTypes.KindData[item.itemKind].name;
             }
             if (item) {
-              // FIX: `scale` was computed above but never passed through, so
-              // jqShowItem() always fell back to its default size of 1 and
-              // equipped-item icons never scaled with the UI's guiScale.
-              Items.jqShowItem($(jqElement), item, $(jqElement), scale);
+              // Note: jqShowItem()'s `size` param is left at its default (1)
+              // here intentionally - passing `scale` (game.renderer.guiScale)
+              // makes equipped-item icons render far too large.
+              Items.jqShowItem($(jqElement), item, $(jqElement));
             }
             else {
               this.clearItem(i);
