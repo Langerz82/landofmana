@@ -9,6 +9,7 @@ export default class EquipmentHandler {
             this.rooms = [];
             this.maxNumber = 5;
             this.scale = 3;
+            this.weaponSlot = 4;
         }
 
         clearItem(slot) {
@@ -27,7 +28,7 @@ export default class EquipmentHandler {
               if (item.itemKind === -1) {
                 this.rooms[item.slot] = null;
 
-                if (item.slot === 4)
+                if (item.slot === this.weaponSlot)
                   game.player.setRange();
 
                 continue;
@@ -35,7 +36,7 @@ export default class EquipmentHandler {
               if (item) {
                 this.rooms[item.slot] = item;
 
-                if (item.slot === 4)
+                if (item.slot === this.weaponSlot)
                   game.player.setRange();
               }
             }
@@ -55,7 +56,10 @@ export default class EquipmentHandler {
               item.name = ItemTypes.KindData[item.itemKind].name;
             }
             if (item) {
-              Items.jqShowItem($(jqElement), item, $(jqElement));
+              // FIX: `scale` was computed above but never passed through, so
+              // jqShowItem() always fell back to its default size of 1 and
+              // equipped-item icons never scaled with the UI's guiScale.
+              Items.jqShowItem($(jqElement), item, $(jqElement), scale);
             }
             else {
               this.clearItem(i);
@@ -67,10 +71,14 @@ export default class EquipmentHandler {
             const itemKind = item.itemKind;
 
             const equipSlot = ItemTypes.getEquipmentSlot(itemKind);
-            if (equipSlot > -1)
+            // FIX: statDialog.update() used to run unconditionally, even when
+            // the item isn't equippable (equipSlot === -1) and nothing was
+            // actually sent/equipped. Only refresh the stat dialog when an
+            // equip request was actually sent.
+            if (equipSlot > -1) {
               game.client.sendItemSlot([1, 0, itemSlot, 0, 2, equipSlot]);
-
-            game.statDialog.update();
+              game.statDialog.update();
+            }
         }
 
         unequip(itemSlot) {
@@ -127,6 +135,26 @@ export default class EquipmentHandler {
           if (!this.rooms)
             return null;
 
-          return this.rooms[4];
+          return this.rooms[this.weaponSlot];
+        }
+
+        forEachArmor(callback) {
+          // FIX: previously looked up the id via `this.rooms.indexOf(item)`
+          // instead of using the real loop index. `rooms` routinely holds
+          // multiple null/undefined (empty) slots, and indexOf() always
+          // returns the *first* matching index -- so every empty slot after
+          // the first got tagged with the wrong id (and the weapon-slot skip
+          // could fail to trigger when the weapon slot itself was empty and
+          // an earlier slot was also empty). Currently masked because the
+          // only caller (playercombat.js baseDamageDef) skips falsy items,
+          // but the id was wrong regardless. Use the actual index instead.
+          for (let id = 0; id < this.rooms.length; ++id) {
+            const item = this.rooms[id];
+            if (!item)
+              continue;
+            if (id === this.weaponSlot)
+              continue;
+            callback(id, this.rooms[id]);
+          }
         }
 }

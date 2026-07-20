@@ -14,17 +14,58 @@ class ItemStore {
         this.number = number;
 
         this.typeIndex = 0;
-        this.maxNumber = 50;
+        // FIX: this used to be hardcoded to 50 here regardless of the
+        // `number` constructor parameter, relying on subclasses (Bank)
+        // to overwrite `this.maxNumber` right after calling super(). That
+        // was harmless while `rooms` was a Map/plain object (nothing sized
+        // off maxNumber until later reads), but rooms below is now a
+        // fixed-length array allocated in THIS constructor, before any
+        // subclass override runs -- so it has to be sized off the real
+        // capacity from the start. `number` is exactly that value (every
+        // caller already passes the correct capacity: 50 for Inventory, 96
+        // for Bank -- see user/userhandler.js), so use it directly; `|| 50`
+        // only covers a caller omitting it entirely.
+        this.maxNumber = number || 50;
         this.maxStack = 100;
         this.fullMessage = new Messages.Notify("ITEMSTORE", "ITEMSTORE_FULL");
 
-        this.rooms = {};
+        // PERF: was a plain object (`{}`), then a Map, keyed by slot index.
+        // The object version's `for...in` iteration yielded string keys,
+        // causing real string-vs-number `===` bugs (already fixed
+        // individually in playercombat.js/player.js for the sibling
+        // Equipment.rooms object before that was fixed at the source too).
+        // The Map version fixed that, but slot indices here are a small,
+        // fixed, dense range (0..maxNumber-1, maxNumber <= 96) known
+        // up front -- exactly the case a plain array is faster at: no
+        // hashing/bucket lookup per get/set, and V8 keeps a fully-populated
+        // numeric array in its fast "packed elements" representation, which
+        // is a plain contiguous-memory scan on iteration (hasItems(),
+        // toString(), etc. all walk every slot). Pre-filling every slot
+        // with `null` up front (rather than leaving indices unset) is what
+        // keeps it in that packed mode instead of degrading to a sparse/
+        // "holey" array. Real `for`/`for...of` loops over an array (used
+        // throughout this file) yield real numeric indices, same as the Map
+        // did -- the original bug class doesn't come back.
+        this.rooms = new Array(this.maxNumber).fill(null);
         console.info("number="+number);
         //console.info("itemSlots="+JSON.stringify(itemSlots));
 
         if (items) {
             for(let i=0; i<items.length; i++){
-                this.rooms[ items[i].slot] = items[i];
+                const slot = items[i].slot;
+                // FIX: a Map/plain object accepted any key with no bounds
+                // implications; a fixed-length array does not -- writing
+                // past the end via bracket assignment would silently grow
+                // the array and (worse) leave it in "holey" mode for every
+                // index in between, undoing the whole point of this being a
+                // fixed array. Guard against a corrupted/out-of-range slot
+                // in saved data instead of letting it quietly widen the
+                // array.
+                if (slot < 0 || slot >= this.maxNumber) {
+                    console.warn("ItemStore: dropping saved item with out-of-range slot "+slot+" (maxNumber="+this.maxNumber+")");
+                    continue;
+                }
+                this.rooms[slot] = items[i];
             }
         }
 
@@ -42,7 +83,7 @@ class ItemStore {
         // setItem()); seeded here with one one-time scan of the initial
         // `items` rather than trusting a running count of `items.length`,
         // in case of null/duplicate-slot entries in saved data.
-        this._occupiedCount = Object.values(this.rooms).filter(Boolean).length;
+        this._occupiedCount = this.rooms.filter(Boolean).length;
     }
 
     hasItem(itemKind) {
@@ -51,10 +92,9 @@ class ItemStore {
 
     hasItems(itemKind, itemCount) {
         let a = 0;
-        for(const i in this.rooms){
-            //console.info("hasItems - compare: " + this.rooms[i].itemKind + "=" + itemKind);
-            if(this.rooms[i] && this.rooms[i].itemKind === itemKind){
-                a += this.rooms[i].itemNumber;
+        for(const item of this.rooms){
+            if(item && item.itemKind === itemKind){
+                a += item.itemNumber;
                 if (a >= itemCount)
                     return true;
             }
@@ -64,9 +104,9 @@ class ItemStore {
 
     hasItemCount(itemKind) {
         let a = 0;
-        for(const i in this.rooms){
-            if(this.rooms[i] && this.rooms[i].itemKind === itemKind){
-                a += this.rooms[i].itemNumber;
+        for(const item of this.rooms){
+            if(item && item.itemKind === itemKind){
+                a += item.itemNumber;
             }
         }
         return a;
@@ -102,9 +142,10 @@ class ItemStore {
     // since "first match" was the wrong semantics for a count -- see its
     // own comment.)
     _findFirstByKind(itemKind) {
-        for(const i in this.rooms){
-            if(this.rooms[i] && this.rooms[i].itemKind === itemKind){
-                return { index: i, item: this.rooms[i] };
+        for(let index = 0; index < this.rooms.length; index++){
+            const item = this.rooms[index];
+            if(item && item.itemKind === itemKind){
+                return { index, item };
             }
         }
         return null;
@@ -145,7 +186,7 @@ class ItemStore {
 
         if (consume || loot || craft)
         {
-            for(const i in this.rooms){
+            for(let i = 0; i < this.rooms.length; i++){
                 if (this.combineItem(item, this.rooms[i]))
                     return i;
             }
@@ -272,10 +313,24 @@ class ItemStore {
 
     setItem(index, item)
     {
-        // PERF/FIX: this is the single place this.rooms is ever actually
+        // FIX: this is the single place this.rooms is ever actually
         // mutated (see makeEmptyItem() and the constructor), so it's also
-        // where _occupiedCount is kept in sync -- see the constructor
-        // comment above for why this replaced Object.keys(this.rooms).length.
+        // the right choke point to guard the fixed-array invariant --
+        // rooms is now a fixed-length array (see the constructor comment),
+        // and writing past its bounds via bracket assignment would
+        // silently grow it and leave it "holey", undoing the point of it
+        // being a fixed array. Every current caller already keeps `index`
+        // in range (getEmptyIndex()/_putItem() only ever hand back
+        // 0..maxNumber-1 or -1, and callers elsewhere bounds-check against
+        // maxNumber before calling in -- see shophandler.js), but this
+        // method should enforce its own contract rather than rely on every
+        // future caller remembering to.
+        if (index < 0 || index >= this.maxNumber)
+            return false;
+
+        // PERF/FIX: this is also where _occupiedCount is kept in sync --
+        // see the constructor comment above for why this replaced
+        // Object.keys(this.rooms).length.
         const wasOccupied = !!this.rooms[index];
 
         if (!item) {
@@ -318,7 +373,7 @@ class ItemStore {
             return false;
 
         let j=number;
-        for(const i in this.rooms){
+        for(let i = 0; i < this.rooms.length; i++){
             let r = this.rooms[i];
             if (!r)
                 continue;
@@ -373,11 +428,10 @@ class ItemStore {
     // getPlayerDrop, which indexes back into `rooms` with the returned value
     // -- `i` is exactly the right key to push for that).
     getRandomItemNumber() {
-        let item = null;
         const itemNums = [];
-        for (const i in this.rooms)
+        for (let i = 0; i < this.rooms.length; i++)
         {
-            item = this.rooms[i];
+            const item = this.rooms[i];
             if (item && item.itemKind > 0) itemNums.push(i);
         }
         const rand = Utils.randomRange(0,itemNums.length-1);
@@ -386,14 +440,9 @@ class ItemStore {
     }
 
     toString() {
-        // NOTE: there used to be a `var i=0;` here too -- dead (nothing
-        // read it before the `for...in` loop below rebound `i` to each
-        // room key anyway). Removed; the loop variable is now `const`,
-        // scoped to the loop.
         let itemString = "" + this.maxNumber + ",";
 
-        for(const i in this.rooms){
-            const item = this.rooms[i];
+        for(const item of this.rooms){
             if (!item) continue;
             itemString += item.toArray().join(',');
         }
@@ -412,10 +461,8 @@ class ItemStore {
     // change here briefly did) double-counted the slot, corrupting the save
     // format instead of fixing it. `item.toArray()` alone is correct as-is.
     toStringJSON() {
-        let item = null;
         const items = [];
-        for(const i in this.rooms){
-            item = this.rooms[i];
+        for(const item of this.rooms){
             if (!item) continue;
             items.push(item.toArray());
         }

@@ -35,17 +35,20 @@ class PlayerCombat {
         const entity = this.entity;
 
         let itemDiff = entity.level*2;
-        // FIX: `id` from a for...in loop is always a string ("4"), so
-        // `id === 4` never matched and the weapon slot was never excluded
-        // from this crit-defense calculation (it should be, since a weapon
-        // isn't armor). Coerce to a number before comparing.
-        for (const id in entity.items.equipment.rooms) {
-            if (Number(id) === 4) continue;
-            const item = entity.items.equipment.rooms[id];
+        // FIX: `id` used to come from a for...in loop, always a string
+        // ("4"), so `id === 4` never matched and the weapon slot was never
+        // excluded from this crit-defense calculation (it should be, since
+        // a weapon isn't armor). equipment.rooms is now a fixed-length
+        // array (items/equipment.js) rather than an object/Map, so this uses
+        // the same forEachArmor() helper baseDamageDef() below already uses
+        // -- it iterates real numeric slot indices and already excludes the
+        // weapon slot, instead of hand-rolling the same loop/exclusion here
+        // too.
+        entity.items.equipment.forEachArmor((id, item) => {
             if (item) {
                 itemDiff += (3*ItemTypes.getData(item.itemKind).modifier)+(item.itemNumber*2);
             }
-        }
+        });
         const statDiff = entity.stats.defense + (entity.stats.luck*2);
         const chance = Utils.clamp(0, 500, ~~(statDiff + itemDiff));
         //console.info("player - baseCritDef: "+chance);
@@ -114,19 +117,22 @@ class PlayerCombat {
         //console.info("baseDamageDef:");
 
         dealt = level;
-        // FIX: same string/number mismatch as baseCritDef above -- `id` from
-        // for...in is always a string, so `id === 1` never matched and the
-        // chest slot never got its intended 4x defense multiplier (every
-        // equipped item was treated as the 2x case instead).
-        for (const id in entity.items.equipment.rooms)
-        {
-            const item = entity.items.equipment.rooms[id];
-            if (item) {
-                const eq_multi = (Number(id) === 1) ? 4 : 2;
-                const def = (ItemTypes.getData(item.itemKind).modifier * eq_multi + item.itemNumber * eq_multi);
-                dealt += ~~(def * ((item.itemDurability / item.itemDurabilityMax * 0.5) + 0.5));
-            }
-        }
+        // FIX: same string/number mismatch as baseCritDef above -- `id` used
+        // to come from a for...in loop, always a string, so `id === 1` never
+        // matched and the chest slot never got its intended 4x defense
+        // multiplier (every equipped item was treated as the 2x case
+        // instead). Fixed the same way: equipment.rooms is now a fixed-
+        // length array (items/equipment.js) indexed by the real numeric
+        // slot. This callback references `id`, which forEachArmor()
+        // supplies as the first callback argument -- `callback(id, item)`
+        // -- so the parameter order here has to match that.
+        entity.items.equipment.forEachArmor((id, item) => {
+          if (item) {
+              const eq_multi = (id === 1) ? 4 : 2;
+              const def = (ItemTypes.getData(item.itemKind).modifier * eq_multi + item.itemNumber * eq_multi);
+              dealt += ~~(def * ((item.itemDurability / item.itemDurabilityMax * 0.5) + 0.5));
+          }
+        });
 
         //console.info("dealt="+dealt);
         const lvl = Types.getDefenseLevel(entity.stats.exp.defense);

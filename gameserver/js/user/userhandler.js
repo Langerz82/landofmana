@@ -13,6 +13,46 @@ import Equipment from '../items/equipment.js';
 import { hashes } from '../main.js';
 import { getInitAchievements, getSavedAchievement } from '../world/taskhandler.js';
 
+// FIX: unlike the client-facing (CW_*) channel, which validates every packet
+// against a strict Zod schema before dispatch (see format.js and
+// worldhandler.js's connection.listen), messages arriving here from the
+// userserver process were dispatched with no shape validation at all --
+// every handler below indexes straight into `message`/`data` assuming
+// specific array lengths and nesting (most sharply handleLoadPlayerData,
+// which reads `data[0][1]` and hands `data[1..6]` to six other handlers
+// that each assume their own shape). This is lower severity than the
+// client-facing gap since the userserver is an operator-controlled process,
+// not an untrusted client, but a malformed/corrupted payload (a userserver
+// bug, a bad Redis record, a version mismatch between the two processes
+// after a partial deploy) still threw deep inside a handler instead of
+// failing cleanly at the door. This isn't a full Zod schema like format.js
+// -- this channel's save-data shapes are deeply nested and specific enough
+// that reimplementing them field-by-field isn't worth it for an
+// operator-controlled link -- but it catches the common failure mode
+// (wrong length, wrong type, missing nested array) for the handler that
+// actually dereferences nested structure before any of its own handlers run.
+function isValidUserMessage(action, message) {
+    switch (action) {
+    case Types.UserMessages.UW_LOAD_PLAYER_DATA:
+        // [playerName, [userInfo, info, quests, achievements, inv, bank, equip]]
+        // -- userInfo itself is read as data[0][1] (hash) before
+        // handleLoadUserInfo() even runs, so it needs its own shape check.
+        return Array.isArray(message) && message.length === 2 &&
+            typeof message[0] === "string" &&
+            Array.isArray(message[1]) && message[1].length === 7 &&
+            Array.isArray(message[1][0]) && message[1][0].length >= 4;
+    case Types.UserMessages.UW_LOAD_PLAYER_AUCTIONS:
+    case Types.UserMessages.UW_LOAD_PLAYER_LOOKS:
+    case Types.UserMessages.UW_LOAD_USER_BANS:
+        return Array.isArray(message);
+    case Types.UserMessages.UW_WORLD_SAVE:
+    case Types.UserMessages.UW_WORLD_CLOSE:
+        return true; // no payload fields are read for either.
+    default:
+        return true; // unknown actions fall through untouched, same as before.
+    }
+}
+
 class UserHandler {
     constructor(main, server, world, connection) {
         const self = this;
@@ -27,6 +67,11 @@ class UserHandler {
             console.info("recv="+JSON.stringify(message));
             const action = parseInt(message[0]);
             message.shift();
+
+            if (!isValidUserMessage(action, message)) {
+                console.warn("userHandler: rejected malformed message for action "+action+": "+JSON.stringify(message));
+                return;
+            }
 
             switch (action) {
             case Types.UserMessages.UW_LOAD_PLAYER_DATA:
@@ -314,18 +359,34 @@ class UserHandler {
         const items = [];
 
         console.info("getItems - data="+msg);
-        const dataJSON = JSON.parse(msg);
-        for (const itemData of dataJSON) {
-            if (itemData) {
-                const item = new ItemRoom([
-                    parseInt(itemData[1]),
-                    parseInt(itemData[2]),
-                    parseInt(itemData[3]),
-                    parseInt(itemData[4]),
-                    parseInt(itemData[5])]);
-                item.slot = parseInt(itemData[0]);
-                items.push(item);
+        // FIX: this JSON.parse(msg) used to run unguarded, unlike the
+        // near-identical handleLoadPlayerQuests() above (which wraps the
+        // same parse-then-loop shape in try/catch and logs a warning on
+        // failure). A malformed/corrupted item payload from the userserver
+        // threw synchronously here, inside the connection's message
+        // handler -- caught only by main.js's process-wide
+        // uncaughtException handler, leaving the player session half
+        // loaded with no clean recovery path. Matching the quests handler's
+        // pattern: on failure, log and fall back to an empty item list
+        // (items stays []) so the inventory/bank/equipment store below is
+        // still constructed, just empty, instead of crashing.
+        try {
+            const dataJSON = JSON.parse(msg);
+            for (const itemData of dataJSON) {
+                if (itemData) {
+                    const item = new ItemRoom([
+                        parseInt(itemData[1]),
+                        parseInt(itemData[2]),
+                        parseInt(itemData[3]),
+                        parseInt(itemData[4]),
+                        parseInt(itemData[5])]);
+                    item.slot = parseInt(itemData[0]);
+                    items.push(item);
+                }
             }
+        }
+        catch (err) {
+            console.warn(err.stack);
         }
         let storeType = null;
         if (type === 0){

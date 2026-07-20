@@ -137,8 +137,35 @@ class Auction {
         return true;
     }
 
+    // FIX: this used to just null the slot and never shrink the array, so
+    // this.auctions.length only ever grew for the life of the process --
+    // once a listing sold/expired, its slot stayed as a permanent null
+    // placeholder that list()/save() still had to scan past forever. Full
+    // compaction/reindexing isn't safe here: packets/shophandler.js's
+    // handleAuctionBuy/handleAuctionDelete hold onto a client-supplied
+    // `auctionIndex` across several checks and callbacks before finally
+    // calling remove(index) -- reassigning a *different* listing to that
+    // same index in between (as a naive compact-and-reindex would) could
+    // let a buy/delete meant for one item silently resolve against whatever
+    // new listing got shuffled into its old slot. Instead, after nulling
+    // the slot, trim any now-trailing run of null slots off the end of the
+    // array. This is always safe (nothing still references an index past
+    // the new end -- those slots are empty) and, since listings tend to
+    // resolve roughly in the order they were created, keeps
+    // this.auctions.length tracking "highest index still in use + 1"
+    // instead of "total listings ever created" in the common case.
     remove(index) {
+        if (index < 0 || index >= this.auctions.length)
+            return;
+
         this.auctions[index] = null;
+
+        let end = this.auctions.length;
+        while (end > 0 && this.auctions[end - 1] === null)
+            --end;
+
+        if (end < this.auctions.length)
+            this.auctions.length = end;
     }
 
     putItem(player, item) {

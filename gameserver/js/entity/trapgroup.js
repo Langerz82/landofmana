@@ -2,6 +2,13 @@ import Trap from './trap.js';
 import Timer from '../timer.js';
 import { G_TILESIZE } from '../main.js';
 
+// FIX/DEAD CODE: TrapGroup is never instantiated anywhere in the codebase --
+// only area/traparea.js's addRandomGroup() constructs one, and TrapArea
+// itself is never instantiated either (map/mapmanager.js explicitly leaves
+// both unwired; see the NOTE there and in entity/trap.js). Treat this whole
+// file as not-implemented until TrapArea is actually wired into
+// mapmanager.js and Messages.SwapSprite (trap.js's on()/off()) is
+// implemented for real.
 class TrapGroup {
     constructor(kind, x, y, width, height, map, damage, interval) {
         this.kind = kind;

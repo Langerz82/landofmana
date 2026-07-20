@@ -9,13 +9,38 @@ class Equipment {
         this.number = number;
         this.maxNumber = 5;
         this.weaponSlot = 4;
-        this.rooms = {};
+        // PERF: was a plain object keyed by slot index (iterated via
+        // `for...in`, which yields string keys -- the cause of the
+        // string-vs-number `===` bugs already fixed individually in
+        // player.js and playercombat.js), then briefly a Map keyed by the
+        // real numeric slot index. Slot indices here are a small, fixed,
+        // dense range (0..4, always exactly 5 slots) known up front -- a
+        // plain array is faster for that than a Map: no hashing/bucket
+        // lookup per get/set, and V8 keeps a fully-populated numeric array
+        // in its fast "packed elements" representation, which iterates as a
+        // plain contiguous-memory scan. Pre-filling every slot with `null`
+        // up front (rather than leaving indices unset) is what keeps it in
+        // that packed mode. Real `for`/`for...of` loops over an array
+        // (used throughout this file) yield real numeric indices, same as
+        // the Map did, so the original string-key bug class doesn't come
+        // back either.
+        this.rooms = new Array(this.maxNumber).fill(null);
         console.info("number="+number);
         console.info("itemSlots="+JSON.stringify(items));
 
         if (items) {
             for(let i=0; i<items.length; i++){
                 const index = items[i].slot;
+                // FIX: a Map accepted any key with no bounds implications;
+                // a fixed-length array does not -- writing past its end via
+                // bracket assignment would silently grow it and leave it
+                // "holey" in between, undoing the point of a fixed array.
+                // Guard against a corrupted/out-of-range slot in saved data
+                // instead of letting it quietly widen the array.
+                if (index < 0 || index >= this.maxNumber) {
+                    console.warn("Equipment: dropping saved item with out-of-range slot "+index+" (maxNumber="+this.maxNumber+")");
+                    continue;
+                }
                 this.rooms[index] = items[i];
                 /*if (items[i] && index === this.weaponSlot) {
                   this.owner.setRange();
@@ -42,14 +67,13 @@ class Equipment {
     },*/
 
     makeEmptyItem(index) {
-        this.rooms[index] = null;
-        delete this.rooms[index];
         this.setItem(index, null);
     }
 
     getItemIndex(itemKind) {
-        for(const i in this.rooms){
-            if(this.rooms[i] && this.rooms[i].itemKind === itemKind){
+        for(let i = 0; i < this.rooms.length; i++){
+            const item = this.rooms[i];
+            if(item && item.itemKind === itemKind){
                 return i;
             }
         }
@@ -96,7 +120,7 @@ class Equipment {
         if (index==3 && !(data.type === "boots" && this.canEquip(item, data.level)))
             return false;
         //var isWeapon = ItemTypes.isWeapon(kind);
-        if (index==4 && !(ItemTypes.isWeapon(kind) && this.canEquip(item, ItemTypes.getWeaponLevel(kind))))
+        if (index==this.weaponSlot && !(ItemTypes.isWeapon(kind) && this.canEquip(item, ItemTypes.getWeaponLevel(kind))))
             return false;
 
         return true;
@@ -136,7 +160,7 @@ class Equipment {
             else if (data.type === "boots")
                 return 3;
             else if (ItemTypes.isWeapon(kind))
-                return 4;
+                return this.weaponSlot;
         }
         return -1;
     }
@@ -147,6 +171,12 @@ class Equipment {
     // on this method's result always false).
     _setItem(index, item)
     {
+        // FIX: rooms is now a fixed-length array (see the constructor
+        // comment above) -- an out-of-range index would silently grow it
+        // and leave it "holey", undoing the point of a fixed array. Guard
+        // it here, at the single place rooms is ever mutated.
+        if (index < 0 || index >= this.maxNumber)
+            return false;
 
         if (item && this.rooms[index] === item)
             return false;
@@ -240,8 +270,7 @@ class Equipment {
         // scoped to the loop.
         let itemString = "" + this.maxNumber + ",";
 
-        for(const i in this.rooms){
-            const item = this.rooms[i];
+        for(const item of this.rooms){
             if (!item) continue;
             itemString += item.toArray().join(',');
         }
@@ -262,10 +291,8 @@ class Equipment {
     // corrupting the save format instead of fixing it. `item.toArray()`
     // alone is correct as-is.
     toStringJSON() {
-        let item = null;
         const items = [];
-        for(const i in this.rooms){
-            item = this.rooms[i];
+        for(const item of this.rooms){
             if (!item) continue;
             items.push(item.toArray());
         }
@@ -273,11 +300,31 @@ class Equipment {
     }
 
     getWeapon() {
-        return this.rooms[4];
+        return this.rooms[this.weaponSlot];
     }
 
     getArmor() {
         return this.rooms[1];
+    }
+
+    // Iterates every equipped armor slot (everything except weaponSlot),
+    // skipping empty slots before invoking the callback -- every current
+    // caller (playercombat.js's baseCritDef/baseDamageDef, player.js's
+    // armor-degrade loop) starts with an `if (item)`/`if (!item) return`
+    // guard anyway, so filtering here just avoids a wasted callback call
+    // per empty slot instead of changing what runs. `id` is the real array
+    // index (rooms is a fixed-length array -- see the constructor comment
+    // above), not a lookup, so it's always correct even when multiple
+    // slots are empty.
+    forEachArmor(callback) {
+      for (let id = 0; id < this.rooms.length; ++id) {
+        const item = this.rooms[id];
+        if (!item)
+          continue;
+        if (id === this.weaponSlot)
+          continue;
+        callback(id, this.rooms[id]);
+      }
     }
 }
 

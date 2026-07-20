@@ -127,8 +127,10 @@ class PlayerItems {
         //console.info(JSON.stringify(slot2));
         const store1 = this.itemStore[slot[0]];
         const store2 = this.itemStore[slot2[0]];
-        const room1 = store1.rooms;
-        const rs1 = room1[slot[1]];
+        // store.rooms is a fixed-length array (items/itemroomstore.js,
+        // items/equipment.js), indexed by the real numeric slot -- plain
+        // bracket access is correct and fastest here.
+        const rs1 = store1.rooms[slot[1]];
         if (!rs1)
             return;
 
@@ -137,10 +139,9 @@ class PlayerItems {
             slot2[1] = store2.getItemTypeIndex(rs1);
         }
 
-        const room2 = store2.rooms;
         let rs2 = null;
         if (slot2[1] >= 0)
-            rs2 = room2[slot2[1]];
+            rs2 = store2.rooms[slot2[1]];
 
         if (rs1 === rs2)
             return;
@@ -215,27 +216,28 @@ class PlayerItems {
         if (!store)
             return null;
 
-        const rooms = store.rooms;
-
         //console.info("inventory: "+JSON.stringify(this.player.inventory.rooms[index]));
-        // FIX: was `slot >= rooms.length` -- `rooms` is a plain `{}`
-        // dictionary keyed by slot index (see items/itemroomstore.js),
-        // not an array, so `.length` is always `undefined` and
-        // `slot >= undefined` is always `false`. This bounds check has
-        // therefore never actually rejected an over-large slot -- only
-        // ever caught `slot < 0`. Currently masked the same way as the
-        // `type` check above (handleItemSlot() already validates slot
-        // against the real store's maxNumber before calling in), but this
-        // method should enforce its own contract rather than rely
-        // entirely on every future caller remembering to pre-check it.
+        // FIX: was `slot >= rooms.length` -- at the time, `rooms` was keyed
+        // by slot index as a plain `{}` dictionary (later a Map), not an
+        // array, so `.length` was always `undefined` and `slot >=
+        // undefined` was always `false`. This bounds check therefore never
+        // actually rejected an over-large slot -- only ever caught `slot <
+        // 0`. rooms is a real fixed-length array now (see the FIX comment
+        // on items/itemroomstore.js), so `rooms.length` would work today,
+        // but checking against `store.maxNumber` directly is still the
+        // more robust contract to enforce here (masked the same way as the
+        // `type` check above -- handleItemSlot() already validates slot
+        // against the real store's maxNumber before calling in -- but this
+        // method shouldn't rely entirely on every future caller
+        // remembering to pre-check it).
         if (slot < 0 || slot >= store.maxNumber)
             return null;
 
-        let item = rooms[slot];
+        let item = store.rooms[slot];
         if (!item)
             return;
 
-        const count2 = rooms[slot].itemNumber;
+        const count2 = item.itemNumber;
         // FIX: when a client requested more (`count`) than the slot
         // actually holds (`count2`), this used to call
         // store.takeOutItems(slot, count2) -- i.e. remove the *entire*

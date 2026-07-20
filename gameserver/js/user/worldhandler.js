@@ -15,6 +15,18 @@ class WorldHandler {
         //this.userHandler = userHandler;
 
         this.playerSaveData = {};
+        // FIX: savePlayer() below has no guard against two overlapping saves
+        // for the same player (e.g. the periodic autosave landing back-to-
+        // back with a disconnect-triggered save). It only works today
+        // because every loadPlayerData*() helper invokes its callback
+        // synchronously, so playerSaveData[playerName] is fully built and
+        // flushed within one savePlayer() call before a second one could
+        // ever interleave. A future change that makes any of those loaders
+        // genuinely async (e.g. a real DB round-trip) would let a second
+        // call's objData silently stomp the first's mid-flight, corrupting
+        // or dropping a save. Tracked here so savePlayer() can refuse to
+        // start a second save for a player that already has one in flight.
+        this.savesInProgress = new Set();
 
         this.connection.listen(function(message) {
             console.info("recv="+JSON.stringify(message));
@@ -266,6 +278,17 @@ class WorldHandler {
         const username = player.user.name;
         const playerName = player.name;
 
+        // FIX: guard against a second savePlayer() call for the same player
+        // starting while one is already in flight -- see the
+        // this.savesInProgress NOTE in the constructor above. Skipping (and
+        // logging) a re-entrant call is safer than letting it silently
+        // reset/stomp self.playerSaveData[playerName] mid-build.
+        if (self.savesInProgress.has(playerName)) {
+            console.warn("worldHandler - savePlayer, name:"+playerName+" - a save is already in progress for this player; skipping overlapping call.");
+            return;
+        }
+        self.savesInProgress.add(playerName);
+
         const checkLoadDataFull = function (index, data) {
             const objData = self.playerSaveData[playerName];
             objData.count++;
@@ -275,6 +298,7 @@ class WorldHandler {
                 const msg = new UserMessages.SavePlayerData(playerName, objData.data, update);
                 self.sendToUserServer(msg);
                 delete self.playerSaveData[playerName];
+                self.savesInProgress.delete(playerName);
             }
             else {
                 self.playerSaveData[playerName] = objData;

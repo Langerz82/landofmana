@@ -187,27 +187,33 @@ class Player extends Character {
       this.incExp(xp);
       this.incWeaponExp(xp);
 
-      const weaponSlot = 4;
+      // NOTE: still needed below for the explicit weapon-degrade call
+      // (degradeItem(weaponSlot, ...)) after the armor loop -- only the
+      // armor-degrade loop's own hand-rolled weapon-slot exclusion was
+      // removed in favor of forEachArmor() (see the FIX comment below).
+      const weaponSlot = this.items.equipment.weaponSlot;
       const armorDamage = Math.min(5, Math.ceil(dealt / 300));
       log.info("player - armorDamage:" + armorDamage);
-      // FIX: `it` from a for...in loop is always a string, so `it ===
-      // weaponSlot` (a number) never matched -- the weapon slot was never
-      // excluded from this armor-degrade loop, so the weapon got degraded
-      // and given "armor" XP here in addition to the explicit weapon-degrade
-      // code a few lines below. Coerce to a number before comparing.
-      for (const it in this.items.equipment.rooms) {
-        if (Number(it) === weaponSlot)
-          continue;
-
-        if (!this.items.equipment.rooms[it])
-          continue;
+      // FIX: `it` used to come from a for...in loop over equipment.rooms
+      // (originally a plain object, then briefly a Map), which yields
+      // string keys, so `it === weaponSlot` (a number) never matched --
+      // the weapon slot was never excluded from this armor-degrade loop,
+      // so the weapon got degraded and given "armor" XP here in addition
+      // to the explicit weapon-degrade code a few lines below. equipment.js
+      // already has forEachArmor() (added for playercombat.js's defense
+      // calc) which both excludes the weapon slot and hands back real
+      // numeric ids -- reusing it here instead of hand-rolling the same
+      // loop/exclusion a second time.
+      this.items.equipment.forEachArmor((it, equippedItem) => {
+        if (!equippedItem)
+          return;
         //log.info("armor: "+this.equipment[it].toString());
         if (armorDamage > 0)
         {
             if (this.items.equipment.degradeItem(it, 1))
               this.items.equipment.addExperience(it, armorDamage);
         }
-      }
+      });
       this.armorDamage = 0;
 
       // Degrade weapon if over threshold.
@@ -442,7 +448,7 @@ class Player extends Character {
       // with each other -- the client parses exactly `count` item entries
       // next, so a mismatch between the two would misalign every field
       // after this in the message, not just the equipment list.
-      const equipItems = Object.values(self.items.equipment.rooms).filter(Boolean);
+      const equipItems = self.items.equipment.rooms.filter(Boolean);
       sendMessage.push(equipItems.length);
       for (const item of equipItems) {
         sendMessage = sendMessage.concat(item.toArray());
@@ -463,8 +469,7 @@ class Player extends Character {
       // Object.keys(rooms).length; the loop below still null-guards
       // defensively rather than assuming the two can never drift apart.
       sendMessage.push(self.items.inventory._occupiedCount);
-      for(const invIndex in self.items.inventory.rooms){
-        const item = self.items.inventory.rooms[invIndex];
+      for(const item of self.items.inventory.rooms){
         if (!item) continue;
         sendMessage = sendMessage.concat(item.toArray());
       }
@@ -472,8 +477,7 @@ class Player extends Character {
       console.info("sendMessage - Bank");
       // Send All Bank
       sendMessage.push(self.items.bank._occupiedCount);
-      for(const bankIndex in self.items.bank.rooms){
-        const item = self.items.bank.rooms[bankIndex];
+      for(const item of self.items.bank.rooms){
         if (!item) continue;
         sendMessage = sendMessage.concat(item.toArray());
       }

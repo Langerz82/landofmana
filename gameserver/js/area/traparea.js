@@ -4,6 +4,11 @@ import TrapGroup from '../entity/trapgroup.js';
 import Utils from '../utils.js';
 import { G_TILESIZE } from '../main.js';
 
+// FIX/DEAD CODE: TrapArea is never instantiated anywhere in the codebase --
+// map/mapmanager.js explicitly leaves it (and TrapGroup) unwired; see the
+// NOTE there. Treat this whole file, entity/trapgroup.js, and entity/trap.js
+// as not-implemented until TrapArea is actually wired into mapmanager.js and
+// Messages.SwapSprite (trap.js's on()/off()) is implemented for real.
 class TrapArea extends EntityArea {
     constructor(map, id, x, y, width, height, damage, switchInterval) {
         super(map, id, x, y, width, height);

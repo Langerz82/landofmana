@@ -45,6 +45,20 @@ class EffectType {
       case "defense":
         val2 = val1 = target.stats.defense;
         break;
+      case "slow":
+        // FIX: "slow" used to skip this switch entirely (fell through to
+        // `default: runModDiff = false`), so this.diff was never computed
+        // for it and the bottom switch's `target.moveSpeed += this.modValue`
+        // applied the raw, unscaled modValue directly instead of a
+        // level-scaled diff. Treating "slow" like "attack"/"defense" here
+        // (val1/val2 = the stat being modified, statmax = 0) lets
+        // getModDiff() compute a proper per-level diff off the entity's
+        // current moveSpeed, and lets applyMoveSpeedStacking() (below) use
+        // that diff the same way applyStacking() uses attack/defense/damage
+        // diffs.
+        statmax = 0;
+        val2 = val1 = target.moveSpeed;
+        break;
       case "damage":
         // FIX: was `val1 = 0; val2 = damage;`. getModDiff() below only
         // ever reads its `stat` param (this case's val1) and `statmax`
@@ -143,27 +157,23 @@ class EffectType {
           target.freeze = false;
         }
         break;
-      // NOTE: no skill in shared/data/skills2.json currently uses a "slow"
-      // effect (grepped for it), so this branch is presently dead code --
-      // but it looks broken for whenever one is added: unlike "attack"/
-      // "defense"/"damage" above (which SET target.stats.mod.<stat> to a
-      // freshly-computed diff every phase, including a modValue-of-0 "end"
-      // entry that overwrites it back to 0), this ADDS modValue to
-      // moveSpeed. A "start" (+X) then "end" (+0, going by the same
-      // start/end pairing pattern every other effect in skills2.json uses)
-      // would permanently leave moveSpeed slowed, never reversing it. It
-      // also writes moveSpeed directly instead of going through
-      // setMoveRate() (entitymoving.js), which is what keeps
-      // `walkSpeed`/`tick` in sync with it -- `tick` in particular feeds
-      // pathfinder.js's isDistanceTooFast() speed-hack check, so a
-      // moveSpeed change that skips setMoveRate() could desync that too.
-      // Left alone rather than guess-fixed, since the right fix depends on
-      // the intended mechanic (e.g. should multiple stacking slows be
-      // additive deltas restored on their own "end", or should this go
-      // through setMoveRate() with a saved base speed) -- flagging for
-      // whoever adds the first "slow" skill.
+      // FIX: no skill in shared/data/skills2.json uses a "slow" effect yet
+      // (grepped for it), so this branch was dead code, but it was broken
+      // for whenever one gets added: unlike "attack"/"defense"/"damage"
+      // above, this used to ADD modValue directly to moveSpeed with no
+      // reversal on "end" (a "start"(+X)/"end"(+0) pair, the pattern every
+      // other effect in skills2.json uses, would have permanently left the
+      // target slowed) and wrote moveSpeed directly instead of through
+      // setMoveRate() (entitymoving.js) -- which is what keeps
+      // `walkSpeed`/`tick` in sync with it, and `tick` in particular feeds
+      // pathfinder.js's isDistanceTooFast() speed-hack check. Now routed
+      // through applyMoveSpeedStacking() (below), which mirrors
+      // applyStacking()'s per-cast tracking (so concurrent slows stack and
+      // each "end" only undoes its own share) but goes through
+      // setMoveRate() against a saved base speed instead of writing
+      // target.stats.mod, since moveSpeed isn't part of that object.
       case "slow":
-        target.moveSpeed += this.modValue;
+        this.applyMoveSpeedStacking(skillEffect, target);
         break;
     }
     return;
@@ -190,6 +200,33 @@ class EffectType {
 
     target.stats.mod[stat] = (target.stats.mod[stat] || 0) - prevApplied + newApplied;
     skillEffect.appliedMods[key] = newApplied;
+  }
+
+  // Same per-cast stacking/reversal scheme as applyStacking() above, but for
+  // moveSpeed: moveSpeed isn't part of target.stats.mod (it's a plain
+  // property on the entity, set absolutely via setMoveRate() rather than
+  // read additively at use-time like stats.attack/defense), so the running
+  // total of active "slow" contributions is kept separately on
+  // target.moveSpeedMod and re-applied through setMoveRate() against a
+  // saved, never-modified target.baseMoveSpeed. This keeps walkSpeed/tick
+  // (setMoveRate()'s side effects) in sync the same way a normal
+  // construction-time or respawn-time speed change would.
+  applyMoveSpeedStacking(skillEffect, target) {
+    // Capture the entity's un-slowed speed once, before the first slow is
+    // ever applied to it, so repeated stacking/unstacking always computes
+    // off the real baseline instead of a previously-slowed value.
+    if (target.baseMoveSpeed === undefined)
+      target.baseMoveSpeed = target.moveSpeed;
+
+    skillEffect.appliedMods = skillEffect.appliedMods || {};
+    const key = target.id + ":moveSpeed";
+    const prevApplied = skillEffect.appliedMods[key] || 0;
+    const newApplied = (this.phase === "end") ? 0 : this.diff;
+
+    target.moveSpeedMod = (target.moveSpeedMod || 0) - prevApplied + newApplied;
+    skillEffect.appliedMods[key] = newApplied;
+
+    target.setMoveRate(target.baseMoveSpeed + target.moveSpeedMod);
   }
 
   getModDiff(skillEffect, stat, statmod, statmax) {

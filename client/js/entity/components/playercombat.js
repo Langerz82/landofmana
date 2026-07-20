@@ -99,32 +99,49 @@ export default class PlayerCombat {
     baseDamageDef(defender) {
         const entity = this.entity;
 
-        const level = entity.level + 3;
+        let dealt = 0, dmg = 0;
 
-        let dealt = level;
-        for (let id in entity.items.equipment.rooms) {
-            const item = entity.items.equipment.rooms[id];
-            if (item) {
-                const eq_multi = (Number(id) === 1) ? 4 : 2; // FIX: for-in keys are strings, so `id === 1` never matched and slot 1's 4x armor multiplier was never applied; coerce to number
-                const def = (ItemTypes.getData(item.itemKind).modifier * eq_multi + item.itemNumber * eq_multi);
-                dealt += ~~(def * ((item.itemDurability / item.itemDurabilityMax * 0.5) + 0.5));
-            }
-        }
+        const level = entity.level+3;
+        //console.info("baseDamageDef:");
 
+        dealt = level;
+        // FIX: same string/number mismatch as baseCritDef above -- `id` used
+        // to come from a for...in loop, always a string, so `id === 1` never
+        // matched and the chest slot never got its intended 4x defense
+        // multiplier (every equipped item was treated as the 2x case
+        // instead). Fixed the same way: this callback receives `id` from
+        // forEachArmor() (equipmenthandler.js), which now supplies the real
+        // numeric slot index as its first callback argument --
+        // `callback(id, item)` -- so the parameter order here has to match
+        // that.
+        entity.items.equipment.forEachArmor((id, item) => {
+          if (item) {
+              const eq_multi = (id === 1) ? 4 : 2;
+              const def = (ItemTypes.getData(item.itemKind).modifier * eq_multi + item.itemNumber * eq_multi);
+              dealt += ~~(def * ((item.itemDurability / item.itemDurabilityMax * 0.5) + 0.5));
+          }
+        });
+
+        //console.info("dealt="+dealt);
         const lvl = Types.getDefenseLevel(entity.stats.exp.defense);
         const power = ((lvl / 50) + 1);
-        let min = ~~(level * power);
-        let max = ~~(min * 2);
+        //console.info("power="+power);
+        let min = ~~(level*power);
+        let max = ~~(min*2);
 
+        //console.info("dealtrange="+dealt);
         // Players Stat affects Damage.
         const mods = (entity.stats.mod ? entity.stats.mod.defense : 0);
-        dealt += ~~((entity.stats.defense * 4) + mods) + entity.stats.luck;
+        dealt += ~~((entity.stats.defense*4)+mods) + entity.stats.luck;
 
-        Utils.randomRangeInt(min, max); // NOTE: result unused, but kept to preserve prior RNG draw sequence
+        //console.info("dealtstats="+dealt);
+
+        dmg = Utils.randomRangeInt(min, max) + dealt;
 
         min = ~~(min + dealt);
-        max = ~~((max + dealt) * 1.75);
+        max = ~~((max+dealt) * 1.75);
 
-        return [min, max];
+        return [min,max];
+        //return dmg;
     }
 }

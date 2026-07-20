@@ -215,12 +215,30 @@ WS.WebsocketServer = class extends sServer {
         super();
         const self = this;
 
+        // FIX: these two readFileSync() calls had no try/catch, so a bad
+        // path in config (typo, wrong working directory, file removed/
+        // rotated since config was written) threw an unhandled ENOENT deep
+        // inside `fs` at startup -- a generic Node stack trace with no
+        // indication of which config field or file was actually the
+        // problem. Wrapping each individually and re-throwing with the
+        // field name and path attached turns that into an actionable error
+        // message while still failing startup immediately (a missing
+        // cert/key when https_cert/https_key is explicitly configured is
+        // not a safe condition to silently continue past).
         const app = {};
         if (config.https_cert != "") {
-          app.cert = fs.readFileSync(config.https_cert);
+          try {
+            app.cert = fs.readFileSync(config.https_cert);
+          } catch (err) {
+            throw new Error("WebsocketServer: failed to read config.https_cert (\""+config.https_cert+"\"): "+err.message);
+          }
         }
         if (config.https_key != "") {
-          app.key = fs.readFileSync(config.https_key);
+          try {
+            app.key = fs.readFileSync(config.https_key);
+          } catch (err) {
+            throw new Error("WebsocketServer: failed to read config.https_key (\""+config.https_key+"\"): "+err.message);
+          }
         }
 
         let protocol = http;

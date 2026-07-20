@@ -258,7 +258,13 @@ export default class Game {
 
             this.inventoryDialog = new InventoryDialog();
             this.inventoryHandler = new InventoryHandler(this.inventoryDialog);
-            this.equipmentHandler = new EquipmentHandler();
+            // FIX: constructor takes `game` and stores it as `this.game`, but no
+            // argument was ever passed here, so `this.game` was permanently
+            // undefined. Every method in EquipmentHandler works around this by
+            // reading the bare global `game` instead, which happens to resolve
+            // via window.game -- but that makes the constructor param/this.game
+            // dead and misleading. Pass it through like InventoryHandler does.
+            this.equipmentHandler = new EquipmentHandler(this);
 
             this.inventory = this.inventoryHandler;
             this.equipment = this.equipmentHandler;
