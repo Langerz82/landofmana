@@ -16,7 +16,7 @@ import MobArea from '../area/mobarea.js';
 // explicit import so this file's real dependency is visible at the top.
 import Utils from '../utils.js';
 import _ from 'underscore';
-import { G_TILESIZE, G_DEBUG } from '../main.js';
+import { G_TILESIZE, G_DEBUG } from '../constants.js';
 
 /* global log */
 

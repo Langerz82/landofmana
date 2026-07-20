@@ -1,6 +1,6 @@
 import Trap from './trap.js';
 import Timer from '../timer.js';
-import { G_TILESIZE } from '../main.js';
+import { G_TILESIZE } from '../constants.js';
 
 // FIX/DEAD CODE: TrapGroup is never instantiated anywhere in the codebase --
 // only area/traparea.js's addRandomGroup() constructs one, and TrapArea

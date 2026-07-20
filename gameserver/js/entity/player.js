@@ -14,7 +14,7 @@ import Utils from '../utils.js';
 import { Types, ItemTypes } from '../common.js';
 import _ from 'underscore';
 import SkillData from '../data/skilldata.js';
-import { G_TILESIZE, G_SCREEN_WIDTH, G_SCREEN_HEIGHT, G_DEBUG } from '../main.js';
+import { G_TILESIZE, G_SCREEN_WIDTH, G_SCREEN_HEIGHT, G_DEBUG } from '../constants.js';
 
 class Player extends Character {
     constructor(world, user, connection) {
@@ -84,7 +84,6 @@ class Player extends Character {
         this.ex = -1;
         this.ey = -1;
 
-//        this.moveOrientation = 0;
 
         this.achievements = [];
 
@@ -163,7 +162,6 @@ class Player extends Character {
       const epDiff = this.stats.epMax - ep;
       this.modHp(hpDiff);
       this.modEp(epDiff);
-      //this.map.entities.sendNeighbours(this, new Messages.ChangePoints(this, hpDiff, epDiff));
     }
 
 
@@ -207,7 +205,6 @@ class Player extends Character {
       this.items.equipment.forEachArmor((it, equippedItem) => {
         if (!equippedItem)
           return;
-        //log.info("armor: "+this.equipment[it].toString());
         if (armorDamage > 0)
         {
             if (this.items.equipment.degradeItem(it, 1))
@@ -223,11 +220,8 @@ class Player extends Character {
           if (this.items.equipment.degradeItem(weaponSlot, 1))
             this.items.equipment.addExperience(weaponSlot, weaponDamage);
       }
-      //target.addWeaponExp(target.weaponDamage);
       this.weaponDamage = 0;
 
-      //this.damageCount[entity.id] = 0;
-      //this.dealtCount[entity.id] = 0;
     }
 
     onDamage(attacker, hpMod, epMod, crit, effects) {
@@ -459,7 +453,6 @@ class Player extends Character {
       sendMessage.push(self.getSprite(0));
       sendMessage.push(self.getSprite(1));
 
-      //console.info("inventory=" +JSON.stringify(self.inventory.rooms));
 
       console.info("sendMessage - Inventory");
       // Send All Inventory
@@ -751,7 +744,6 @@ class Player extends Character {
 
         this.attackTimer = Date.now();
 
-        //console.info("playerId: "+this.id);
     }
 
   sendChangePoints(health, energy) {
@@ -868,30 +860,23 @@ class Player extends Character {
           }
           p.moving_timeout = null;
           p.startMoving = true;
-//          self.moveOrientation = o;
           p.orientation = o;
           p.keyMove = true;
           return;
         };
-        //if (delay <= 0)
           execMove(this);
-        //else
-          //this.moving_timeout = setTimeout(execMove, delay);
     }
     else if (state === 0) {
       /*if (!(this.sx === x && this.sy === y)) {
         try { throw new Error(); } catch (e) { console.error(e.stack); }
       }*/
 
-      //this.startMoveTime = time;
       this.ex = x;
       this.ey = y;
       const a = (x === this.x && y === this.y);
       const b = (this.sx === x && this.sy === y);
 
       if (a || b) {
-        //console.info("player.move: this.moving_timeout cleared.");
-        //clearTimeout(this.moving_timeout);
         this.fixMove(x,y);
         // PERF: this is the ordinary "player stopped moving" branch, hit on
         // every released movement key from every player -- not an anomaly,
@@ -943,15 +928,12 @@ class Player extends Character {
 
   respawn() {
     this.isDead = false;
-    //this.isDying = false;
     this.freeze = false;
-    //this.hasEnteredGame = true;
     this.resetBars();
 
   }
 
   setPosition(x, y) {
-    //console.info("setPosition - x:"+x+",y:"+y);
     //try { throw new Error(); } catch (e) { console.info(e.stack); }
     super.setPosition(x,y);
 
@@ -1025,8 +1007,6 @@ class Player extends Character {
   }
 
   fixMove(x,y) {
-    //try { throw new Error(); } catch(err) { console.warn(err.stack); }
-    //this.interrupted = false;
     this.forceStop();
     this.setPosition(x, y);
   }
@@ -1107,7 +1087,6 @@ class Player extends Character {
 
   interruptPath(x, y) {
     if (this.isMovingPath()) {
-      //p.abort_pathing_callback(x, y);
       this.setPosition(x,y);
       this.interrupted = true;
       this.forceStop();

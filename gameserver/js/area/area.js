@@ -1,5 +1,5 @@
 import Utils from '../utils.js';
-import { G_TILESIZE } from '../main.js';
+import { G_TILESIZE } from '../constants.js';
 
 // IMPORTANT - X,Y are center cordinates for elipses only. For default rectangle its top-left.
 class Area {

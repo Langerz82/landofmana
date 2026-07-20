@@ -13,10 +13,55 @@ import Utils from '../utils.js';
 import { Types } from '../common.js';
 import AppearanceData from '../data/appearancedata.js';
 import SkillData from '../data/skilldata.js';
-import { G_LATENCY, G_TILESIZE, ATTACK_INTERVAL, mobState, G_DEBUG } from '../main.js';
+import { G_LATENCY, G_TILESIZE, ATTACK_INTERVAL, mobState, G_DEBUG } from '../constants.js';
 import { PlayerEvent } from '../world/taskhandler.js';
 
 /* global EventType */
+
+// Dispatch table for incoming packets: maps a packet's numeric action code
+// (Types.Messages.*) to the handler that services it. This used to be a
+// ~30-case switch inline in the connection.listen() callback below -- same
+// behavior, but as a Map: it's built once at module load (not re-built or
+// re-parsed per connection or per packet), adding/removing a packet type is
+// a one-line table entry instead of editing control flow, and dispatch is
+// a single Map#get instead of a linear scan through cases. Each entry is a
+// thin `(handler, message) => ...` wrapper rather than a bare method
+// reference so calls that need to go through `shopHandler`/`partyHandler`
+// (instead of a method directly on the PacketHandler) look the same as
+// everything else in the table.
+const PACKET_HANDLERS = new Map([
+    [Types.Messages.BI_SYNCTIME, (h, message) => h.handleSyncTime(message)],
+    [Types.Messages.CW_REQUEST, (h, message) => h.handleRequest(message)],
+    [Types.Messages.CW_WHO, (h, message) => h.handleWho(message)],
+    [Types.Messages.CW_CHAT, (h, message) => h.handleChat(message)],
+    [Types.Messages.CW_MOVE, (h, message) => h.handleMoveEntity(message)],
+    [Types.Messages.CW_MOVEPATH, (h, message) => h.handleMovePath(message)],
+    [Types.Messages.CW_ATTACK, (h, message) => h.handleAttack(message)],
+    [Types.Messages.CW_ITEMSLOT, (h, message) => h.handleItemSlot(message)],
+    [Types.Messages.CW_STORESELL, (h, message) => h.shopHandler.handleStoreSell(message)],
+    [Types.Messages.CW_STOREBUY, (h, message) => h.shopHandler.handleStoreBuy(message)],
+    [Types.Messages.CW_CRAFT, (h, message) => h.shopHandler.handleCraft(message)],
+    [Types.Messages.CW_APPEARANCEUNLOCK, (h, message) => h.handleAppearanceUnlock(message)],
+    [Types.Messages.CW_LOOKUPDATE, (h, message) => h.handleLookUpdate(message)],
+    [Types.Messages.CW_AUCTIONSELL, (h, message) => h.shopHandler.handleAuctionSell(message)],
+    [Types.Messages.CW_AUCTIONBUY, (h, message) => h.shopHandler.handleAuctionBuy(message)],
+    [Types.Messages.CW_AUCTIONOPEN, (h, message) => h.shopHandler.handleAuctionOpen(message)],
+    [Types.Messages.CW_AUCTIONDELETE, (h, message) => h.shopHandler.handleAuctionDelete(message)],
+    [Types.Messages.CW_STORE_MODITEM, (h, message) => h.shopHandler.handleStoreModItem(message)],
+    [Types.Messages.CW_TELEPORT_MAP, (h, message) => h.handleTeleportMap(message)],
+    [Types.Messages.CW_LOOT, (h, message) => h.handleLoot(message)],
+    [Types.Messages.CW_TALKTONPC, (h, message) => h.handleTalkToNPC(message)],
+    [Types.Messages.CW_QUEST, (h, message) => h.handleQuest(message)],
+    [Types.Messages.CW_GOLD, (h, message) => h.handleGold(message)],
+    [Types.Messages.CW_STATADD, (h, message) => h.handleStatAdd(message)],
+    [Types.Messages.CW_SKILL, (h, message) => h.handleSkill(message)],
+    [Types.Messages.CW_SHORTCUT, (h, message) => h.handleShortcut(message)],
+    [Types.Messages.CW_BLOCK_MODIFY, (h, message) => h.handleBlock(message)],
+    [Types.Messages.CW_PARTY, (h, message) => h.partyHandler.handleParty(message)],
+    [Types.Messages.CW_HARVEST, (h, message) => h.handleHarvest(message)],
+    [Types.Messages.CW_USE_NODE, (h, message) => h.handleUseNode(message)],
+    [Types.Messages.CW_CONFIG, (h, message) => h.handleConfig(message)],
+]);
 
 class PacketHandler {
     constructor(player, connection, worldServer) {
@@ -55,121 +100,31 @@ class PacketHandler {
 
             self.user.lastPacketTime = Date.now();
 
-            switch (action) {
-            case Types.Messages.BI_SYNCTIME:
-                self.handleSyncTime(message);
-                break;
-
-            case Types.Messages.CW_REQUEST:
-                self.handleRequest(message);
-                break;
-
-            case Types.Messages.CW_WHO:
-                self.handleWho(message);
-                break;
-
-            case Types.Messages.CW_CHAT:
-                self.handleChat(message);
-                break;
-
-            case Types.Messages.CW_MOVE:
-                self.handleMoveEntity(message);
-                break;
-
-            case Types.Messages.CW_MOVEPATH:
-                self.handleMovePath(message);
-                break;
-
-            case Types.Messages.CW_ATTACK:
-                self.handleAttack(message);
-                break;
-
-            case Types.Messages.CW_ITEMSLOT:
-                self.handleItemSlot(message);
-                break;
-
-            case Types.Messages.CW_STORESELL:
-                self.shopHandler.handleStoreSell(message);
-                break;
-            case Types.Messages.CW_STOREBUY:
-                self.shopHandler.handleStoreBuy(message);
-                break;
-            case Types.Messages.CW_CRAFT:
-                self.shopHandler.handleCraft(message);
-                break;
-            case Types.Messages.CW_APPEARANCEUNLOCK:
-                self.handleAppearanceUnlock(message);
-                break;
-            case Types.Messages.CW_LOOKUPDATE:
-                self.handleLookUpdate(message);
-                break;
-            case Types.Messages.CW_AUCTIONSELL:
-                self.shopHandler.handleAuctionSell(message);
-                break;
-
-            case Types.Messages.CW_AUCTIONBUY:
-                self.shopHandler.handleAuctionBuy(message);
-                break;
-
-            case Types.Messages.CW_AUCTIONOPEN:
-                self.shopHandler.handleAuctionOpen(message);
-                break;
-
-            case Types.Messages.CW_AUCTIONDELETE:
-                self.shopHandler.handleAuctionDelete(message);
-                break;
-
-            case Types.Messages.CW_STORE_MODITEM:
-                self.shopHandler.handleStoreModItem(message);
-                break;
-
-            case Types.Messages.CW_TELEPORT_MAP:
-                self.handleTeleportMap(message);
-                break;
-            case Types.Messages.CW_LOOT:
-                self.handleLoot(message);
-                break;
-            case Types.Messages.CW_TALKTONPC:
-                self.handleTalkToNPC(message);
-                break;
-            case Types.Messages.CW_QUEST:
-                self.handleQuest(message);
-                break;
-            case Types.Messages.CW_GOLD:
-                self.handleGold(message);
-                break;
-            case Types.Messages.CW_STATADD:
-                self.handleStatAdd(message);
-                break;
-            case Types.Messages.CW_SKILL:
-                self.handleSkill(message);
-                break;
-            case Types.Messages.CW_SHORTCUT:
-                self.handleShortcut(message);
-                break;
-            case Types.Messages.CW_BLOCK_MODIFY:
-                self.handleBlock(message);
-                break;
-
-            case Types.Messages.CW_PARTY:
-                self.partyHandler.handleParty(message);
-                break;
-
-            case Types.Messages.CW_HARVEST:
-                self.handleHarvest(message);
-                break;
-
-            case Types.Messages.CW_USE_NODE:
-                self.handleUseNode(message);
-                break;
-            case Types.Messages.CW_CONFIG:
-                self.handleConfig(message);
-                break;
-
-            default:
-                if (self.message_callback)
+            // FIX: wrapped in try/catch -- this listen() callback runs directly
+            // on socket.io's event emitter, which has no catch of its own around
+            // listener callbacks. Previously, any handler throwing (malformed
+            // payload, unexpected null, etc.) would propagate out of here
+            // uncaught; depending on where/how Node surfaces an exception thrown
+            // from inside an event emitter's listener, that risked taking down
+            // the whole process -- and every other connected player's
+            // connection with it -- over one bad packet from one client.
+            // Containing it here means a single player can, at worst, break
+            // their own connection.
+            try {
+                const handler = PACKET_HANDLERS.get(action);
+                if (handler) {
+                    handler(self, message);
+                } else if (self.message_callback) {
+                    // NOTE: kept exactly as in the original default case --
+                    // this checks `self.message_callback` but invokes
+                    // `self.player.message_callback`, two different properties.
+                    // Pre-existing quirk, not introduced by this refactor; left
+                    // as-is since fixing it would be a behavior change outside
+                    // the scope of converting the switch to a dispatch table.
                     self.player.message_callback(message);
-                break;
+                }
+            } catch (err) {
+                console.error("PacketHandler: error handling action=" + action + " for player " + (self.player && self.player.name) + ": " + (err && err.stack || err));
             }
         });
 

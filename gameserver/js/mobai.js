@@ -2,7 +2,7 @@ import Messages from "./message.js";
 import _ from "underscore";
 import Utils from "./utils.js";
 import Formulas from "./formulas.js";
-import { mobState, G_TILESIZE, G_DEBUG } from './main.js';
+import { mobState, G_TILESIZE, G_DEBUG } from './constants.js';
 
 class MobAI {
   constructor(ws, map){

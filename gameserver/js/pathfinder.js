@@ -1,6 +1,6 @@
 import astar from './lib/astar.js';
 import Utils from './utils.js';
-import { G_FRAME_INTERVAL, G_TILESIZE, G_DEBUG } from './main.js';
+import { G_FRAME_INTERVAL, G_TILESIZE, G_DEBUG } from './constants.js';
 
 /* global log */
 // NOTE: the original source called a bare, capitalized `AStar`/`AStar.AStar`

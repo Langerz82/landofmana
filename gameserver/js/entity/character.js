@@ -3,7 +3,7 @@ import Messages from "../message.js";
 import Timer from "../timer.js";
 import Utils from '../utils.js';
 import { Types } from '../common.js';
-import { G_TILESIZE } from '../main.js';
+import { G_TILESIZE } from '../constants.js';
 import Scheduler from '../scheduler.js';
 
 class Character extends EntityMoving {

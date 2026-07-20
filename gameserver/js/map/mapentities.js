@@ -12,7 +12,7 @@ import Item from '../entity/item.js';
 import Player from '../entity/player.js';
 import { Types } from '../common.js';
 import NpcData from '../data/npcdata.js';
-import { G_TILESIZE, G_SPATIAL_SIZE, G_DEBUG } from '../main.js';
+import { G_TILESIZE, G_SPATIAL_SIZE, G_DEBUG } from '../constants.js';
 
 class MapEntities {
     constructor(id, server, map) {
@@ -20,17 +20,14 @@ class MapEntities {
         this.map = map;
         this.server = server;
         this.world = server;
-//    	this.database = database;
 
         this.entities = new Map();
         this.players = new Map();
         this.characters = new Map();
         this.npcplayers = new Map();
         this.mobs = new Map();
-//      this.attackers = {};
         this.items = new Map();
         this.npcs = new Map();
-//      this.pets = {};
         this.blocks = new Map();
 
         // PERF: was a plain object keyed by player id, iterated everywhere
@@ -82,7 +79,6 @@ class MapEntities {
         const x2 = ~~(Math.min(arr[2],this.map.width-1) / this.spatialSize);
         const y2 = ~~(Math.min(arr[3],this.map.height-1) / this.spatialSize);
 
-        //console.info("getSpatialEntities - x1:"+x1+",y1:"+y1+",x2:"+x2+",y2:"+y2);
         const res = [];
         const l1 = this.spatial.length;
         let l2 = 0;
@@ -96,8 +92,6 @@ class MapEntities {
                   continue;*/
                 for (const entity of this.spatial[j][i]) {
                     if (!entity) continue;
-                    //console.info("id:"+id);
-                    //console.info("entity.id:"+entity.id);
                     res.push(entity);
                 }
             }
@@ -108,7 +102,6 @@ class MapEntities {
     mapready() {
         this.initPathFinder();
         this.initPathingGrid();
-        //this.initZoneGroups();
 
         this.mobAI = new MobAI(this.server, this.map);
     }
@@ -119,14 +112,10 @@ class MapEntities {
 
     spawnNpcs(count) {
         let npc;
-        //console.info("SPAWN NPCS");
-        //if (this.map === this.server.maps[0]) // World Map
-        //{
         for(let i = 0; i < count; ++i)
         {
             npc = this._createNpc("Npc"+i);
         }
-        //  }
     }
 
     _createNpc(name) {
@@ -141,7 +130,6 @@ class MapEntities {
         const npc = new NpcMove(++this.entityCount, 0, pos.x * G_TILESIZE, pos.y * G_TILESIZE, self.map);
 
         self.addNpcMove(npc);
-        //self.sendBroadcast(npc.spawn());
         return npc;
     }
 
@@ -174,10 +162,7 @@ class MapEntities {
         const width = player.config.screenWidth;
         const height = player.config.screenHeight;
         const self = this;
-        //console.info("processWho - called.");
         const screens = [];
-        //var ids = [];
-        //var knowns = [];
 
         // PERF: processWho is the single most frequently invoked query in the
         // codebase (see the G_SPATIAL_SIZE comment in main.js -- it fires on
@@ -195,17 +180,13 @@ class MapEntities {
         const pgx = ~~(player.x/G_TILESIZE);
         const pgy = ~~(player.y/G_TILESIZE);
 
-        //console.info("x1:"+x1+",y1:"+y1+",x2:"+x2+",y2:"+y2);
         const arr = [pgx - width, pgy - height, pgx + width, pgy + height];
         const entities = this.getSpatialEntities(arr);
 
-        //console.info("self.entities.length: "+Object.keys(self.entities).length);
         for (const entity of entities) {
             if (entity && !(entity === player) && self.isOffset(player, entity))
                 screens.push(entity.id);
         }
-        //console.info("screens:"+JSON.stringify(screens));
-        //console.info("ids:"+JSON.stringify(ids));
 
         // PERF: `_.difference(screens, ids)` calls `_.contains(ids, ...)` (a
         // linear indexOf-style scan of `ids`) once per element of `screens`,
@@ -221,7 +202,6 @@ class MapEntities {
         const knownSet = (ids && ids.length > 0) ? new Set(ids) : null;
         const screenIds = knownSet ? screens.filter((id) => !knownSet.has(id)) : screens;
 
-        //console.info(JSON.stringify(screenIds));
 
         for (const id of screenIds) {
             const entity = self.getEntityById(id);
@@ -247,9 +227,6 @@ class MapEntities {
         const maxX = Math.min(this.map.width * G_TILESIZE, entity.x+cameraHalfX+extra);
         const maxY = Math.min(this.map.height * G_TILESIZE, entity.y+cameraHalfY+extra);
 
-        //console.info("entity.x: "+entity.x+" entity.y:"+entity.y);
-        //console.info("entity2.x: "+entity2.x+" entity2.y:"+entity2.y);
-        //console.info("minX:"+minX+",maxX:"+maxX+",minY:"+minY+",maxY:"+maxY);
         return (entity2.y >= minY && entity2.y <= maxY && entity2.x >= minX && entity2.x <= maxX);
     }
 
@@ -285,7 +262,6 @@ class MapEntities {
                     conn.send(packets);
                 } else {
                     conn = null;
-                    //delete conn;
                 }
             }
         }
@@ -334,7 +310,6 @@ class MapEntities {
     }
 
     sendNeighbours(entity, message, ignoredPlayer, areaLength)  {
-        //console.info("sendNeighbours");
         const self = this;
         areaLength = areaLength || 64;
         const players = self.getPlayerAround(entity, areaLength);
@@ -397,7 +372,6 @@ class MapEntities {
     /*spawnEntity: function(kind, x, y, map) {
         var self = this;
         var entity;
-        //console.info("kind="+kind);
         if (NpcData.isNpc(kind)) {
             entity = self.addNpc(kind, x, y, map);
         }
@@ -696,7 +670,6 @@ class MapEntities {
         if (player)
             player.items.modifyGold(mod);
         //else
-        //this.database.modifyGold(name, mod);
     }
 
     // NOTE: `entities` was a bare (undeclared) assignment in the original
@@ -773,7 +746,6 @@ class MapEntities {
         const entities = [];
         const def_conditional = function (e1,e2) { return e1 !== e2; };
         conditional = conditional || def_conditional;
-        //console.info("getEntityAround, range: "+range+",x:"+x+",y:"+y);
         // NOTE: there used to be a `var e2;` here too, ahead of the loop --
         // dead (nothing read it before the `for` loop below redeclared/
         // reinitialized `e2` on its own), and would collide with `const`
@@ -782,7 +754,6 @@ class MapEntities {
         for (const e2 of group) {
             if (conditional(entity,e2))
             {
-                //console.info("getEntityAround, pushed:"+e2.id);
                 entities.push(e2);
             }
         }
@@ -910,7 +881,6 @@ class MapEntities {
         // to the one live declaration, scoped to where it's actually used.
         const self = this;
 
-        //console.info("PATHFINDER CODE");
 
         if(this.pathfinder && character)
         {
@@ -921,14 +891,12 @@ class MapEntities {
 
             if (this.map.isColliding(character.x, character.y))
             {
-                //console.warn("findPath - isColliding start.");
                 return null;
             }
 
             const pE = [x,y];
             if (this.map.isColliding(x, y))
             {
-                //console.warn("findPath - isColliding end.");
                 return null;
             }
 
@@ -952,7 +920,6 @@ class MapEntities {
                 if (G_DEBUG) {
                     try { throw new Error(); } catch(err) { console.info(err.stack); }
                 }
-                //console.warn("findPath - path coordinates are the same.")
                 return null;
             }
 
@@ -981,7 +948,6 @@ class MapEntities {
                 if (G_DEBUG)
                     console.info("findDirectPath - subpath:"+JSON.stringify(subpath));
                 if (!this.pathfinder.isValidGridPath(sgrid, subpath)) {
-                    //console.error("subpath: "+JSON.stringify(subpath));
                     try { throw new Error(); } catch (e) { console.error(e.stack); }
                     return null;
                 }
@@ -996,9 +962,6 @@ class MapEntities {
             }
 
             if (!path) {
-                //console.warn("findPath - shortPath: attempting.");
-                //console.info("grid:"+JSON.stringify(grid));
-                //console.info(JSON.stringify(shortGrid));
                 subpath = this.pathfinder.findShortPath(sgrid,
                     shortGrid.minX, shortGrid.minY, spS, spE);
                 if (subpath)

@@ -1,5 +1,5 @@
 import SkillData from './data/skilldata.js';
-import { G_DEBUG } from './main.js';
+import { G_DEBUG } from './constants.js';
 import Scheduler from './scheduler.js';
 
 // @entity Object reference to the owner of the effect.

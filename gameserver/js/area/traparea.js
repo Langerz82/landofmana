@@ -2,7 +2,7 @@ import EntityArea from './entityarea.js';
 import Timer from '../timer.js';
 import TrapGroup from '../entity/trapgroup.js';
 import Utils from '../utils.js';
-import { G_TILESIZE } from '../main.js';
+import { G_TILESIZE } from '../constants.js';
 
 // FIX/DEAD CODE: TrapArea is never instantiated anywhere in the codebase --
 // map/mapmanager.js explicitly leaves it (and TrapGroup) unwired; see the

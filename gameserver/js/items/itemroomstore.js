@@ -6,7 +6,7 @@ import Player from '../entity/player.js';
 // never imported -- threw ReferenceError every time it ran, which
 // world/lootmanager.js's PvP drop logic (getPlayerDrop) relies on.
 import Utils from '../utils.js';
-import { G_DEBUG } from '../main.js';
+import { G_DEBUG } from '../constants.js';
 
 class ItemStore {
     constructor(owner, number, items) {

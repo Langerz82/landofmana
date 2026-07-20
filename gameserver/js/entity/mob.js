@@ -9,7 +9,7 @@ import _ from 'underscore';
 import MobData from '../data/mobdata.js';
 import ItemData from '../data/itemdata.js';
 import ItemLootData from '../data/itemlootdata.js';
-import { mobState, G_TILESIZE, G_DEBUG } from '../main.js';
+import { mobState, G_TILESIZE, G_DEBUG } from '../constants.js';
 import Player from './player.js';
 
 /* global _, Player */

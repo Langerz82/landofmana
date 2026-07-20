@@ -17,7 +17,7 @@ import EntityArea from '../area/entityarea.js';
 import Node from '../entity/node.js';
 //var TrapGroup = require("../entity/trapgroup");
 import Utils from '../utils.js';
-import { G_TILESIZE } from '../main.js';
+import { G_TILESIZE } from '../constants.js';
 
 class MapManager {
     constructor(server) {

@@ -1,7 +1,7 @@
 import EntityArea from './entityarea.js';
 import Block from '../entity/block.js';
 import Utils from '../utils.js';
-import { G_TILESIZE } from '../main.js';
+import { G_TILESIZE } from '../constants.js';
 
 class BlockArea extends EntityArea {
     constructor(map, id, x, y, width, height, elipse) {

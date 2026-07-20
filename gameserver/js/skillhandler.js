@@ -2,7 +2,7 @@ import Messages from "./message.js";
 import Timer from './timer.js';
 import { Types } from './common.js';
 import SkillData from './data/skilldata.js';
-import { G_DEBUG } from './main.js';
+import { G_DEBUG } from './constants.js';
 
 /* global SkillData */
 

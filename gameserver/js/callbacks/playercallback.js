@@ -1,6 +1,6 @@
 import Utils from '../utils.js';
 import Mob from '../entity/mob.js';
-import { G_DEBUG } from '../main.js';
+import { G_DEBUG } from '../constants.js';
 
 class PlayerCallback {
     constructor() {

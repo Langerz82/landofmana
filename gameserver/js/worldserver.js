@@ -36,7 +36,10 @@ import PartyManager from "./world/partymanager.js";
 import LootManager from "./world/lootmanager.js";
 
 import Utils from './utils.js';
-import { G_UPDATE_INTERVAL, players, G_DEBUG } from './main.js';
+// `players` is live server state owned by main.js; G_UPDATE_INTERVAL/G_DEBUG
+// are static constants that moved to constants.js (see that file's header).
+import { players } from './main.js';
+import { G_UPDATE_INTERVAL, G_DEBUG } from './constants.js';
 import NotifyData from './data/notificationdata.js';
 import Scheduler from './scheduler.js';
 

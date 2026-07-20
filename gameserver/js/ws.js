@@ -11,7 +11,7 @@ import zlib from 'zlib';
 import connect from 'connect';
 import fs from 'fs';
 import io_client from 'socket.io-client';
-import { G_DEBUG } from './main.js';
+import { G_DEBUG } from './constants.js';
 
 export default WS;
 

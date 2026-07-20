@@ -6,7 +6,7 @@ import ItemRoom from '../items/itemroom.js';
 import Messages from '../message.js';
 import ItemData from '../data/itemdata.js';
 import { ItemTypes } from '../common.js';
-import { G_TILESIZE } from '../main.js';
+import { G_TILESIZE } from '../constants.js';
 
 class LootManager {
     constructor(world) {

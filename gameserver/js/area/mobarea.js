@@ -3,7 +3,7 @@ import _ from 'underscore';
 import Messages from '../message.js';
 import Utils from '../utils.js';
 import MobData from '../data/mobdata.js';
-import { G_TILESIZE } from '../main.js';
+import { G_TILESIZE } from '../constants.js';
 
 class MobArea extends EntityArea {
     constructor(map, id, nb, minLevel, maxLevel, x, y, width, height, include, exclude, definite, elipse, excludeId, level) {

@@ -1,5 +1,5 @@
 import Utils from './utils.js';
-import { ATTACK_INTERVAL, ATTACK_MAX, G_DEBUG } from './main.js';
+import { ATTACK_INTERVAL, ATTACK_MAX, G_DEBUG } from './constants.js';
 import Mob from './entity/mob.js';
 import Player from './entity/player.js';
 

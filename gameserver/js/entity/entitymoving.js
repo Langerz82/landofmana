@@ -4,7 +4,7 @@ import Timer from "../timer.js";
 import Transition from "../transition.js";
 import Utils from '../utils.js';
 import { Types } from '../common.js';
-import { G_TILESIZE } from '../main.js';
+import { G_TILESIZE } from '../constants.js';
 import Scheduler from '../scheduler.js';
 
 /* global log, game */
