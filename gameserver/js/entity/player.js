@@ -1,5 +1,5 @@
 
-/* global log, databaseHandler, QuestStatus, SkillData */
+/* global log, databaseHandler, QuestStatus */
 import Character from './character.js';
 import Messages from "../message.js";
 import SkillHandler from "../skillhandler.js";
@@ -9,12 +9,23 @@ import PlayerQuests from "./components/playerquests.js";
 import PlayerHarvest from "./components/playerharvest.js";
 import PlayerItems from "./components/playeritems.js";
 import PlayerCombat from "./components/playercombat.js";
+import PlayerProgression from "./components/playerprogression.js";
+import PlayerPersistence from "./components/playerpersistence.js";
 import Timer from '../timer.js';
 import Utils from '../utils.js';
 import { Types, ItemTypes } from '../common.js';
-import _ from 'underscore';
-import SkillData from '../data/skilldata.js';
 import { G_TILESIZE, G_SCREEN_WIDTH, G_SCREEN_HEIGHT, G_DEBUG } from '../constants.js';
+
+// Split out of this file -- leveling/XP moved to
+// components/playerprogression.js, database load/restore moved to
+// components/playerpersistence.js, and onKillEntity/dropGold moved into the
+// existing components/playercombat.js (onDamage/modHp/modEp/resetBars
+// stayed here: onDamage/modHp/modEp override Character and need
+// `super.X()`, and resetBars -- despite initially moving to playercombat.js
+// too -- turned out not to be a combat concept at all, see the NOTE on it
+// below). Every method that had an external caller keeps its name and is
+// still callable exactly the same way -- `player.X(...)` -- as a one-line
+// delegate, so nothing outside this file needed to change.
 
 class Player extends Character {
     constructor(world, user, connection) {
@@ -76,6 +87,8 @@ class Player extends Character {
         this.harvest = new PlayerHarvest(this);
         this.items = new PlayerItems(this);
         this.combat = new PlayerCombat(this);
+        this.progression = new PlayerProgression(this);
+        this.persistence = new PlayerPersistence(this);
 
         this.knownIds = [];
 
@@ -138,90 +151,15 @@ class Player extends Character {
     }
 
     getState() {
-      const basestate = this._getBaseState();
-      const sprite1 = this.getSprite(0), sprite2 = this.getSprite(1);
-
-      const state = [this.level,
-        this.stats.hp,
-        this.stats.hpMax,
-        0,
-        sprite1, sprite2,
-  	    0, 0];
-
-      return basestate.concat(state);
+      return this.progression.getState();
     }
 
     send(message) {
         this.connection.send(message);
     }
 
-    resetBars() {
-      const hp = this.stats.hp;
-      const ep = this.stats.ep;
-      const hpDiff = this.stats.hpMax - hp;
-      const epDiff = this.stats.epMax - ep;
-      this.modHp(hpDiff);
-      this.modEp(epDiff);
-    }
-
-
     onKillEntity(entity, damage, dealt) {
-      damage = damage || 0;
-      dealt = dealt || 0;
-
-      const ratio = (damage / entity.stats.hpMax);
-
-      let xp = ~~(entity.getXP() * ratio);
-
-      const diff = 10;
-      const div = 1/diff;
-      const mod = 1 + div + Utils.clamp(-diff,diff,(entity.level - this.level)) * div;
-      // NOTE: was a second `var xp = ...` -- redeclaring is a no-op under
-      // `var` (same binding), but `let` forbids redeclaring in the same
-      // scope. This is a genuine reassignment (xp built from its own prior
-      // value), so it's just `xp =` here, not a second `let`.
-      xp = ~~(xp * mod);
-
-      this.incExp(xp);
-      this.incWeaponExp(xp);
-
-      // NOTE: still needed below for the explicit weapon-degrade call
-      // (degradeItem(weaponSlot, ...)) after the armor loop -- only the
-      // armor-degrade loop's own hand-rolled weapon-slot exclusion was
-      // removed in favor of forEachArmor() (see the FIX comment below).
-      const weaponSlot = this.items.equipment.weaponSlot;
-      const armorDamage = Math.min(5, Math.ceil(dealt / 300));
-      log.info("player - armorDamage:" + armorDamage);
-      // FIX: `it` used to come from a for...in loop over equipment.rooms
-      // (originally a plain object, then briefly a Map), which yields
-      // string keys, so `it === weaponSlot` (a number) never matched --
-      // the weapon slot was never excluded from this armor-degrade loop,
-      // so the weapon got degraded and given "armor" XP here in addition
-      // to the explicit weapon-degrade code a few lines below. equipment.js
-      // already has forEachArmor() (added for playercombat.js's defense
-      // calc) which both excludes the weapon slot and hands back real
-      // numeric ids -- reusing it here instead of hand-rolling the same
-      // loop/exclusion a second time.
-      this.items.equipment.forEachArmor((it, equippedItem) => {
-        if (!equippedItem)
-          return;
-        if (armorDamage > 0)
-        {
-            if (this.items.equipment.degradeItem(it, 1))
-              this.items.equipment.addExperience(it, armorDamage);
-        }
-      });
-      this.armorDamage = 0;
-
-      // Degrade weapon if over threshold.
-      const weaponDamage = Math.min(5, Math.ceil(damage / 2000));
-      if (weaponDamage > 0)
-      {
-          if (this.items.equipment.degradeItem(weaponSlot, 1))
-            this.items.equipment.addExperience(weaponSlot, weaponDamage);
-      }
-      this.weaponDamage = 0;
-
+      return this.combat.onKillEntity(entity, damage, dealt);
     }
 
     onDamage(attacker, hpMod, epMod, crit, effects) {
@@ -269,122 +207,39 @@ class Player extends Character {
     }
 
     getLevel() {
-      return Types.getLevel(this.stats.exp.base);
+      return this.progression.getLevel();
     }
 
     getAttackLevel() {
-      return Types.getAttackLevel(this.stats.exp.attack);
+      return this.progression.getAttackLevel();
     }
 
     getDefenseLevel() {
-      return Types.getDefenseLevel(this.stats.exp.defense);
+      return this.progression.getDefenseLevel();
     }
 
-    incExp(gotexp)
-    {
-      let incExp = parseInt(gotexp);
-
-      incExp = Math.ceil(incExp * this.getExpBonus());
-
-      const prevLvl = this.getLevel();
-      this.stats.exp.base = parseInt(this.stats.exp.base) + parseInt(incExp);
-      const lvl = this.getLevel();
-      this.sendPlayer(new Messages.Stat("exp.base", this.stats.exp.base, incExp));
-
-      this.level = Types.getLevel(this.stats.exp.base);
-      if(prevLvl !== lvl) {
-      	this.levelUp(prevLvl);
-      }
-
-      return incExp;
+    incExp(gotexp) {
+      return this.progression.incExp(gotexp);
     }
 
-    incAttackExp(gotexp){
-    	let incExp = parseInt(gotexp);
-
-  		incExp = Math.ceil(incExp * this.getExpBonus() * 0.25);
-
-      const prevLvl = this.getAttackLevel();
-    	this.stats.exp.attack = parseInt(this.stats.exp.attack) + parseInt(incExp);
-      const lvl = this.getAttackLevel();
-      if(prevLvl !== lvl) {
-      	this.sendPlayer(new Messages.LevelUp("attack", lvl, this.stats.exp.attack));
-      }
-      return incExp;
+    incAttackExp(gotexp) {
+      return this.progression.incAttackExp(gotexp);
     }
 
-    incDefenseExp(gotexp){
-    	let incExp = parseInt(gotexp);
-
-		  incExp = Math.ceil(incExp * this.getExpBonus());
-
-      const prevLvl = this.getDefenseLevel();
-    	this.stats.exp.defense = parseInt(this.stats.exp.defense) + parseInt(incExp);
-      const lvl = this.getDefenseLevel();
-      if(prevLvl !== lvl) {
-      	this.sendPlayer(new Messages.LevelUp("defense", lvl, this.stats.exp.defense));
-      }
-      return incExp;
+    incDefenseExp(gotexp) {
+      return this.progression.incDefenseExp(gotexp);
     }
 
-    incWeaponExp(gotexp){
-    	let incExp = parseInt(gotexp);
-
-  		incExp = Math.ceil(incExp * this.getExpBonus() * 0.25);
-
-      const type = this.items.getWeaponType();
-      if (!this.stats.exp.hasOwnProperty(type))
-        return null;
-
-      let xp = parseInt(this.stats.exp[type]);
-      const plvl = Types.getWeaponLevel(xp);
-      xp = xp + incExp;
-      const clvl = Types.getWeaponLevel(xp);
-      this.stats.exp[type] = xp;
-      if(plvl !== clvl) {
-        this.sendPlayer(new Messages.LevelUp(type, clvl, xp));
-      }
-      return incExp;
+    incWeaponExp(gotexp) {
+      return this.progression.incWeaponExp(gotexp);
     }
 
-    getExpBonus()
-    {
-      const self = this;
-      let bonus = 1;
-      if (this.party)
-      {
-        this.party.forEachPlayer(function (player) {
-          if (self.isInScreen([player.x,player.y]))
-          {
-            bonus += 0.15;
-          }
-        });
-      }
-      return bonus;
+    getExpBonus() {
+      return this.progression.getExpBonus();
     }
 
     levelUp(prevLevel) {
-      for (let i=prevLevel; i < this.level; ++i)
-      {
-  	    if (i < 10)
-  	    {
-  	    	this.stats.attack+=2;
-  	    	this.stats.defense+=2;
-  	    	this.stats.health+=2;
-  	    	this.stats.energy+=2;
-  	    	this.stats.luck+=2;
-  	    }
-  	    else
-  	    {
-  	    	this.stats.free += 5;
-  	    }
-      }
-      this.setHpMax();
-      this.setEpMax();
-    	this.sendPlayer(new Messages.StatInfo(this));
-	    this.resetBars();
-	    this.sendPlayer(new Messages.ChangePoints(this, 0, 0));
-	    this.sendPlayer(new Messages.LevelUp("base", this.level, this.stats.exp.base));
+      return this.progression.levelUp(prevLevel);
     }
 
     sendPlayerToClient()
@@ -527,223 +382,8 @@ class Player extends Character {
       }
     }
 
-    _loadMapState(db_player) {
-        this.mapIndex = parseInt(db_player.map[0]);
-        this.map = this.world.maps[this.mapIndex];
-        this.x = parseInt(db_player.map[1]);
-        this.y = parseInt(db_player.map[2]);
-        this.orientation = parseInt(db_player.map[3]);
-    }
-
-    _loadSprites(db_player) {
-        if (db_player.sprites.length === 2) {
-          db_player.sprites[2] = 151;
-          db_player.sprites[3] = 50;
-        }
-        // FIX: parseInt() was an Array.prototype monkey-patch; migrated to
-        // Utils.ArrayParseInt() (see utils.js).
-        this.sprites = Utils.ArrayParseInt(db_player.sprites);
-        this.colors = db_player.colors;
-    }
-
-    _loadExp(db_player) {
-        this.stats.exp.base = parseInt(db_player.exps[0]);
-        this.stats.exp.attack = parseInt(db_player.exps[1]);
-        this.stats.exp.defense = parseInt(db_player.exps[2]);
-        this.stats.exp.move = parseInt(db_player.exps[3]);
-        if (db_player.exps.length >= 8)
-        {
-          this.stats.exp.sword = parseInt(db_player.exps[4]);
-          this.stats.exp.bow = parseInt(db_player.exps[5]);
-          this.stats.exp.hammer = parseInt(db_player.exps[6]);
-          this.stats.exp.axe = parseInt(db_player.exps[7]);
-        }
-        else {
-          this.stats.exp.sword = 0;
-          this.stats.exp.bow = 0;
-          this.stats.exp.hammer = 0;
-          this.stats.exp.axe = 0;
-        }
-        if (db_player.exps.length === 10)
-        {
-          this.stats.exp.logging = parseInt(db_player.exps[8]);
-          this.stats.exp.mining = parseInt(db_player.exps[9]);
-        } else {
-          this.stats.exp.logging = 0;
-          this.stats.exp.mining = 0;
-        }
-
-        this.level = Types.getLevel(this.stats.exp.base);
-    }
-
-    _loadGold(db_player) {
-        // REFACTOR: db_player.gold[0]/[1] are already real numbers now --
-        // userserver sends gold as a real [gold0, gold1] array, not a CSV
-        // string (see userhandler.js's handleLoadPlayerInfo()), so this
-        // parseInt() is no longer an actual string-to-number parse. Kept
-        // (with a radix and `|| 0` fallback, matching how gold_0/gold_1 are
-        // guarded everywhere else on the userserver side) as cheap defensive
-        // coercion rather than trusting the wire payload outright.
-        this.items.gold[0] = parseInt(db_player.gold[0], 10) || 0;
-        this.items.gold[1] = parseInt(db_player.gold[1], 10) || 0;
-    }
-
-    _loadPStats(db_player) {
-        // FIX: parseInt() was an Array.prototype monkey-patch; migrated to
-        // Utils.ArrayParseInt() (see utils.js).
-        this.pStats = Utils.ArrayParseInt(db_player.pStats);
-
-        db_player.stats = Utils.ArrayParseInt(db_player.stats);
-
-        // Check to make sure stats are correct for level.
-        const isValidStats = function (lvl, stats) {
-            let total = 0;
-            if (lvl < 10)
-              total = lvl * 10;
-            else
-              total = (9 * 10) + (5 * (lvl - 9));
-
-            const statTotal = stats.reduce(function(a, b) { return (a + b); }, 0);
-
-            return (total === statTotal);
-        };
-
-        const lvl = parseInt(this.level);
-        if (!isValidStats(lvl, db_player.stats))
-        {
-          if (lvl < 10) {
-            this.stats.attack = lvl*2;
-      			this.stats.defense = lvl*2;
-      			this.stats.health = lvl*2;
-            this.stats.energy = lvl*2;
-      			this.stats.luck = lvl*2;
-
-            this.stats.free = 0;
-          }
-          else {
-            this.stats.attack = 18;
-      			this.stats.defense = 18;
-      			this.stats.health = 18;
-            this.stats.energy = 18;
-      			this.stats.luck = 18;
-
-            this.stats.free = (lvl-9)*5;
-          }
-        }
-        else {
-          this.stats.attack = db_player.stats[0];
-          this.stats.defense = db_player.stats[1];
-          this.stats.health = db_player.stats[2];
-          this.stats.energy = db_player.stats[3];
-          this.stats.luck = db_player.stats[4];
-
-          this.stats.free = db_player.stats[5];
-        }
-    }
-
-    _loadQuests(db_player) {
-        // if quests old format create empty.
-        // if quests new but id not a Number delete.
-        // FIX: db_player.completeQuests is `null`/`undefined` for any player
-        // whose Redis hash never got a "completeQuests" field written (new
-        // characters, or characters that never completed a quest -- see
-        // redis.js's loadPlayerInfo(), where a missing hash field comes back
-        // from hget() as `null`). That fell through to the `else` branch
-        // below, which did `self.quests.completeQuests = db_player.completeQuests`
-        // unconditionally -- assigning `null`/`undefined` straight onto the
-        // player instead of defaulting to `{}`. The next save then sent
-        // JSON.stringify(null) === "null" as the completeQuests field, which
-        // userserver/js/format.js correctly rejects ("complete quests is not
-        // an object"), and userserver/js/worldhandler.js's listener responds
-        // to any format-check failure by closing the whole gameserver<->
-        // userserver connection (self.connection.close(...)) -- not just
-        // dropping that one save -- which is why a single player with an
-        // uninitialized quest log could disconnect the entire gameserver.
-        if (Array.isArray(db_player.completeQuests) || db_player.completeQuests == null) {
-            this.quests.completeQuests = {}
-        }
-        else {
-          for (const id in db_player.completeQuests)
-          {
-            if (!Number(id))
-              delete db_player.completeQuests[id];
-          }
-          this.quests.completeQuests = db_player.completeQuests;
-        }
-    }
-
-    _initDerivedStats() {
-        this.setHpMax();
-        this.setEpMax();
-
-        this.resetBars();
-        this.setMoveRate(500);
-    }
-
-    _loadSkills(db_player) {
-        if (db_player.skills.length === 1) {
-          for(let i =0; i < SkillData.Skills.length; ++i)
-            db_player.skills[i] = 0;
-        }
-        this.skillHandler.setSkills(this, db_player.skills);
-    }
-
-    _loadShortcuts(db_player) {
-        // Needs to convert shortcut into optimum data structure while
-        // remaining compatibiltity with old structures.
-        // FIX: Array.isArray() was called with no argument, which is always
-        // false -- so the old array-format shortcuts branch below was dead
-        // code, and every account (including old array-format ones) fell
-        // through to the object-keyed `else` branch, misreading an array's
-        // numeric indices as slot ids. Passing db_player.shortcuts restores
-        // the intended format check.
-        if (Array.isArray(db_player.shortcuts)) {
-          for (const shortcut of db_player.shortcuts)
-          {
-            if (shortcut[0] >= 6)
-              continue;
-
-            if (shortcut)
-              this.shortcuts[shortcut[0]] = shortcut;
-          }
-        } else {
-          for (const sid in db_player.shortcuts)
-          {
-            if (sid >= 6)
-              continue;
-
-            const shortcut = db_player.shortcuts[sid];
-            if (shortcut)
-              this.shortcuts[sid] = shortcut;
-          }
-        }
-    }
-
-// TODO - Fill db_player variable assignments.
-    // SIMPLIFY: this used to be a single ~185-line function mixing map/
-    // position restore, sprite migration, exp/level parsing, gold parsing,
-    // a stat-total validity check, quest-log sanitization, skill loading,
-    // and shortcut-format migration in one body. Broken into the named
-    // steps above (each keeping its original FIX/NOTE comments) so each
-    // concern can be read/tested on its own; call order and behavior are
-    // unchanged.
-    fillPlayerInfo(db_player)
-    {
-        this._loadMapState(db_player);
-        this._loadSprites(db_player);
-        this._loadExp(db_player);
-        this._loadGold(db_player);
-
-        this.isDead = false;
-
-        this._loadPStats(db_player);
-        this._loadQuests(db_player);
-        this._initDerivedStats();
-        this._loadSkills(db_player);
-        this._loadShortcuts(db_player);
-
-        this.attackTimer = Date.now();
-
+    fillPlayerInfo(db_player) {
+        return this.persistence.fillPlayerInfo(db_player);
     }
 
   sendChangePoints(health, energy) {
@@ -1042,7 +682,7 @@ class Player extends Character {
   }
 
   getXP() {
-    return 20 * this.level;
+    return this.progression.getXP();
   }
 
   setMap(map) {
@@ -1075,6 +715,21 @@ class Player extends Character {
     const msg = super.modEp(ep);
     this.sendChangePoints(0, ep);
     return msg;
+  }
+
+  // NOTE: kept here rather than in components/playercombat.js -- it's built
+  // directly from modHp/modEp above (same reasoning: not really a combat
+  // concept), and its actual callers (respawn() below, progression.js's
+  // levelUp(), persistence.js's _initDerivedStats()) are lifecycle/
+  // progression/load, not combat. Mob has its own separate resetBars()
+  // (mob.js), so this isn't shared Character behavior either.
+  resetBars() {
+    const hp = this.stats.hp;
+    const ep = this.stats.ep;
+    const hpDiff = this.stats.hpMax - hp;
+    const epDiff = this.stats.epMax - ep;
+    this.modHp(hpDiff);
+    this.modEp(epDiff);
   }
 
   getSubPath(x,y) {
@@ -1134,13 +789,7 @@ class Player extends Character {
   }
 
   dropGold() {
-    const p = this;
-
-    const level = p.level;
-    let count = Math.ceil(Math.random() * level * 5 + level);
-    count = Math.min(count, this.items.gold[0]);
-    this.items.modifyGold(-count);
-    return count;
+    return this.combat.dropGold();
   }
 
 }

@@ -2,6 +2,8 @@ import Utils from '../../utils.js';
 import { Types, ItemTypes } from '../../common.js';
 import Mob from '../mob.js';
 
+/* global log */
+
 class PlayerCombat {
     constructor(entity) {
         this.entity = entity;
@@ -155,6 +157,89 @@ class PlayerCombat {
 
         //return [min,max];
         return dmg;
+    }
+
+    // Split out of entity/player.js -- onKillEntity/dropGold are
+    // combat-outcome bookkeeping (post-kill XP/gear-degrade, death gold
+    // drop -- the only external caller of dropGold is
+    // world/lootmanager.js's getGoldDrop(), computing loot during combat
+    // resolution), the same domain as the damage-calc methods above.
+    // resetBars() was moved here too at first, but it isn't actually a
+    // combat concept -- its callers are respawn()/levelUp()/
+    // playerpersistence.js's _initDerivedStats(), never anything
+    // combat-related, and Mob has its own separate resetBars() (mob.js), so
+    // it isn't even shared Character behavior. It moved back to Player
+    // itself, next to modHp/modEp (which it's built directly from, and
+    // which stayed on Player for the same "not really combat-specific"
+    // reason -- see the NOTE there). onKillEntity/dropGold don't call
+    // super, so they still move here cleanly.
+    onKillEntity(entity2, damage, dealt) {
+      const entity = this.entity;
+      damage = damage || 0;
+      dealt = dealt || 0;
+
+      const ratio = (damage / entity2.stats.hpMax);
+
+      let xp = ~~(entity2.getXP() * ratio);
+
+      const diff = 10;
+      const div = 1/diff;
+      const mod = 1 + div + Utils.clamp(-diff,diff,(entity2.level - entity.level)) * div;
+      // NOTE: was a second `var xp = ...` -- redeclaring is a no-op under
+      // `var` (same binding), but `let` forbids redeclaring in the same
+      // scope. This is a genuine reassignment (xp built from its own prior
+      // value), so it's just `xp =` here, not a second `let`.
+      xp = ~~(xp * mod);
+
+      entity.incExp(xp);
+      entity.incWeaponExp(xp);
+
+      // NOTE: still needed below for the explicit weapon-degrade call
+      // (degradeItem(weaponSlot, ...)) after the armor loop -- only the
+      // armor-degrade loop's own hand-rolled weapon-slot exclusion was
+      // removed in favor of forEachArmor() (see the FIX comment below).
+      const weaponSlot = entity.items.equipment.weaponSlot;
+      const armorDamage = Math.min(5, Math.ceil(dealt / 300));
+      log.info("player - armorDamage:" + armorDamage);
+      // FIX: `it` used to come from a for...in loop over equipment.rooms
+      // (originally a plain object, then briefly a Map), which yields
+      // string keys, so `it === weaponSlot` (a number) never matched --
+      // the weapon slot was never excluded from this armor-degrade loop,
+      // so the weapon got degraded and given "armor" XP here in addition
+      // to the explicit weapon-degrade code a few lines below. equipment.js
+      // already has forEachArmor() (added for playercombat.js's defense
+      // calc) which both excludes the weapon slot and hands back real
+      // numeric ids -- reusing it here instead of hand-rolling the same
+      // loop/exclusion a second time.
+      entity.items.equipment.forEachArmor((it, equippedItem) => {
+        if (!equippedItem)
+          return;
+        if (armorDamage > 0)
+        {
+            if (entity.items.equipment.degradeItem(it, 1))
+              entity.items.equipment.addExperience(it, armorDamage);
+        }
+      });
+      entity.armorDamage = 0;
+
+      // Degrade weapon if over threshold.
+      const weaponDamage = Math.min(5, Math.ceil(damage / 2000));
+      if (weaponDamage > 0)
+      {
+          if (entity.items.equipment.degradeItem(weaponSlot, 1))
+            entity.items.equipment.addExperience(weaponSlot, weaponDamage);
+      }
+      entity.weaponDamage = 0;
+
+    }
+
+    dropGold() {
+      const entity = this.entity;
+      const level = entity.level;
+      let count = Math.ceil(Math.random() * level * 5 + level);
+      count = Math.min(count, entity.items.gold[0]);
+      entity.items.modifyGold(-count);
+      return count;
     }
 }
 
