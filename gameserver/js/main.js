@@ -278,7 +278,11 @@ function main(config) {
     global.MainConfig = config;
 
     server = new WS.WebsocketServer(config);
-    const lastTotalPlayers = 0;
+
+    // FIX: removed `const lastTotalPlayers = 0;` -- never read or updated
+    // anywhere below; the world-status reporting code recomputes the player
+    // distribution fresh via getWorldDistribution() instead, so this was
+    // dead leftover state from an earlier version of that reporting logic.
 
     console.info("Initializing RRO2 GameServer - World " + worldId);
 

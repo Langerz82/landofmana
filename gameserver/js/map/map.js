@@ -5,7 +5,16 @@ import Checkpoint from '../area/checkpoint.js';
 import Area from '../area/area.js';
 import MapArea from '../area/maparea.js';
 import MobArea from '../area/mobarea.js';
-//import Utils from '../utils.js';
+// FIX: this import was commented out, but getRandomStartingPosition(),
+// getRandomPositionCollide(), getRandomPositionArea(), and getRandomPosition()
+// below all still call Utils.randomInt/randomRangeInt/clamp. It only worked
+// because common.js does `global.Utils = Utils;` as a side effect and
+// happens to load before this file -- every other file in the codebase has
+// been migrated off that global, so silently relying on it here is fragile:
+// removing the global.Utils assignment (or changing import order) would
+// break player/NPC spawn placement with no compile-time signal. Restored the
+// explicit import so this file's real dependency is visible at the top.
+import Utils from '../utils.js';
 import _ from 'underscore';
 import { G_TILESIZE, G_DEBUG } from '../main.js';
 

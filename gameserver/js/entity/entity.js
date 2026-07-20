@@ -179,7 +179,9 @@ class Entity {
 
     isWithinDist(x, y, dist) {
         dist = dist || G_TILESIZE;
-        var rd = Utils.realDistance([this.x,this.y],[x,y]);
+        // FIX: var -> let, matching the rest of the codebase's var->let/const
+        // migration (this was one of the last two leftover `var`s in the file).
+        let rd = Utils.realDistance([this.x,this.y],[x,y]);
         return (rd <= dist);
     }
 
@@ -192,7 +194,9 @@ class Entity {
     }
 
     isNextTooTile(x, y) {
-        var tileCenter = Utils.fixGridPosition(G_TILESIZE, x, y);
+        // FIX: var -> let, matching the rest of the codebase's var->let/const
+        // migration.
+        let tileCenter = Utils.fixGridPosition(G_TILESIZE, x, y);
         return this.isWithinDist(tileCenter.x, tileCenter.y, (G_TILESIZE));
     }
 

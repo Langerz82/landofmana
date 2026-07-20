@@ -68,7 +68,10 @@ class World {
 
         self.itemCount = 0;
 
-        self.uselessDebugging = false;
+        // FIX: removed `self.uselessDebugging = false;` -- dead, never read
+        // anywhere in the codebase, just a leftover from an earlier debug
+        // pass that was misleading future readers into thinking it did
+        // something.
 
         self.mapManager.onMapsReady(function ()
         {

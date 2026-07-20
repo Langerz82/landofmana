@@ -1264,13 +1264,40 @@ class PacketHandler {
             this.player.harvest.onHarvestEntity(entity);
     }
 
+    // FIX: format.js only bounds this packet's numeric value against
+    // mapCoordsMax (16384) -- a generic pixel-coordinate limit, not a real
+    // limit on screenWidth/screenHeight specifically. Those two config keys
+    // are the radius MapEntities.processWho() (the hottest spatial query in
+    // the engine, run on every move/attack/chat/spawn/despawn) uses to decide
+    // how much of the map to scan for a player. Without a dedicated clamp
+    // here, a client could set either to something close to 16384 to (a)
+    // see/track every entity on the whole map regardless of its actual
+    // camera size (a wallhack/radar-style cheat), and (b) force a full-map
+    // scan on every single hot-path call instead of a local-neighborhood
+    // one, for a cheap, repeatable perf hit. Clamped to the real default
+    // (50, see player.js's constructor) plus a little headroom for
+    // legitimately larger screens/zoom levels, independent of whatever
+    // format.js allows generically for this field. (Using inline
+    // Math.min/max rather than a Utils helper here since utils.js re-exports
+    // from a shared module outside this project's tree that wasn't
+    // reachable to confirm a clamp() helper exists on it.)
+    static MAX_SCREEN_DIM = 100;
+
     handleConfig(msg) {
       const arr = msg[0];
       const p = this.player;
 
       for (const val of arr) {
-        if (p.config.hasOwnProperty(val[0]))
-          p.config[ val[0]] = val[1];
+        const key = val[0];
+        let value = val[1];
+
+        if (!p.config.hasOwnProperty(key))
+          continue;
+
+        if (key === 'screenWidth' || key === 'screenHeight')
+          value = Math.max(1, Math.min(value, PacketHandler.MAX_SCREEN_DIM));
+
+        p.config[key] = value;
       }
     }
 }

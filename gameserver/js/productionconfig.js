@@ -15,7 +15,24 @@ class ProductionConfig {
     constructor(config) {
 
         this.config = config;
+
+        // FIX: config.production was concatenated straight into a require()
+        // path with no validation. It's operator-controlled config today
+        // (not remote/client input), so this wasn't reachable as a live
+        // path-traversal bug, but there was nothing here stopping a value
+        // like '../../../../etc/passwd%00' or '../secrets/whatever' from
+        // being require()'d if this field's provenance ever changed (e.g.
+        // became settable from a merged/less-trusted config source). Added a
+        // whitelist check as cheap defense-in-depth: only plain filename
+        // characters are allowed, matching what a real production_hosts/*.js
+        // module name should look like.
+        const isSafeProductionName = typeof config.production === 'string' &&
+            /^[A-Za-z0-9_-]+$/.test(config.production);
+
         try {
+            if (!isSafeProductionName)
+                throw new Error('Invalid config.production value: ' + config.production);
+
             this.production = require('../production_hosts/' + config.production + '.js');
         }
         catch(err) {
