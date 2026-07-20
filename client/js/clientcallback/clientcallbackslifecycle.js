@@ -1,93 +1,28 @@
-// Converted from AMD (define) + Class.extend to a native ES6 module/class.
-import HoveringInfo from './hoveringinfo.js';
-import GameClient from './gameclient.js';
-import AudioManager from './audio.js';
-import Pathfinder from './pathfinder.js';
-import Entity from './entity/entity.js';
-import EntityMoving from './entity/entitymoving.js';
-import Item, { ItemRoom } from './entity/item.js';
-import Items from './data/items.js';
-import ItemLoot from './data/itemlootdata.js';
-import Mob from './entity/mob.js';
-import NpcStatic from './entity/npcstatic.js';
-import NpcMove from './entity/npcmove.js';
-import NpcData from './data/npcdata.js';
-import Player from './entity/player.js';
-import Character from './entity/character.js';
-import Block from './entity/block.js';
-import MobData from './data/mobdata.js';
-import MobSpeech from './data/mobspeech.js';
-import AppearanceData from './data/appearancedata.js';
-import Quest from './quest.js';
-import Achievement from './achievement.js';
-import SkillHandler from './skillhandler.js';
-import SkillData from './data/skilldata.js';
-import LangData from './data/langdata.js';
-import GamePad from './gamepad.js';
+// Mixin extracted from clientcallbacks.js: Entity/map lifecycle: spawn/despawn/move/destroy, sprite/animation/block updates, map transitions, and the big initial onPlayer() state deserialization.
+// Applied onto ClientCallbacks.prototype via install*(...) call in clientcallbacks.js; not a standalone class.
+import Pathfinder from '../pathfinder.js';
+import Entity from '../entity/entity.js';
+import EntityMoving from '../entity/entitymoving.js';
+import Item, { ItemRoom } from '../entity/item.js';
+import ItemLoot from '../data/itemlootdata.js';
+import Mob from '../entity/mob.js';
+import NpcStatic from '../entity/npcstatic.js';
+import NpcMove from '../entity/npcmove.js';
+import NpcData from '../data/npcdata.js';
+import Player from '../entity/player.js';
+import Character from '../entity/character.js';
+import Block from '../entity/block.js';
+import MobData from '../data/mobdata.js';
+import AppearanceData from '../data/appearancedata.js';
+import Quest from '../quest.js';
+import Achievement from '../achievement.js';
+import SkillHandler from '../skillhandler.js';
+/* global Types, ItemTypes, Utils, log, game */
 
-/* global Types, ItemTypes, Utils */
-
-// FIX (conversion): 'QuestType'/'QuestStatus' used to be bare cross-script globals (gametypes.js's
-// top-level consts were visible to sibling classic <script> tags). Now that gametypes.js is a real
-// ES module, they're aliased from Types.QuestType/Types.QuestStatus instead.
-const QuestType = Types.QuestType;
-const QuestStatus = Types.QuestStatus;
-
-export default class ClientCallbacks {
-      constructor(client) {
-        this.client = client;
-
-        // FIX (maintainability): this constructor used to contain the full body of every
-        // message handler inline as an anonymous closure (37 handlers spread across ~1300
-        // lines, plus a few shared inner helper functions - spawnEntity, questSpeech,
-        // onPlayerChangeHealth, showDamageInfo - only reachable from inside specific handlers).
-        // That made individual handlers impossible to find by name, diff in isolation, or unit
-        // test. Split each handler out into its own named method below (same name as the
-        // registration, e.g. onPlayerTeleportMap); the constructor now just wires each server
-        // message to its handler method. The four inner helpers moved to methods too (see
-        // spawnEntity(), questSpeech(), applyPlayerHealthChange(), showDamageInfo() below) - all
-        // handler bodies are otherwise unchanged from before this refactor.
-        client.onPlayerTeleportMap(this.onPlayerTeleportMap.bind(this));
-        client.onLogin(this.onLogin.bind(this));
-        client.onSpawnItem(this.onSpawnItem.bind(this));
-        client.onSpawnCharacter(this.onSpawnCharacter.bind(this));
-        client.onDespawnEntity(this.onDespawnEntity.bind(this));
-        client.onEntityMove(this.onEntityMove.bind(this));
-        client.onEntityMovePath(this.onEntityMovePath.bind(this));
-        client.onEntityDestroy(this.onEntityDestroy.bind(this));
-        client.onCharacterDamage(this.onCharacterDamage.bind(this));
-        client.onPlayerStat(this.onPlayerStat.bind(this));
-        client.onPlayerLevelUp(this.onPlayerLevelUp.bind(this));
-        client.onPlayerItemLevelUp(this.onPlayerItemLevelUp.bind(this));
-        client.onGold(this.onGold.bind(this));
-        client.onChatMessage(this.onChatMessage.bind(this));
-        client.onDisconnected(this.onDisconnected.bind(this));
-        client.onQuest(this.onQuest.bind(this));
-        client.onAchievement(this.onAchievement.bind(this));
-        client.onItemSlot(this.onItemSlot.bind(this));
-        client.onDialogue(this.onDialogue.bind(this));
-        client.onNotify(this.onNotify.bind(this));
-        client.onStatInfo(this.onStatInfo.bind(this));
-        client.onAuction(this.onAuction.bind(this));
-        client.onSkillLoad(this.onSkillLoad.bind(this));
-        client.onSkillXP(this.onSkillXP.bind(this));
-        client.onSkillEffects(this.onSkillEffects.bind(this));
-        client.onSpeech(this.onSpeech.bind(this));
-        client.onMapStatus(this.onMapStatus.bind(this));
-        client.onSetSprite(this.onSetSprite.bind(this));
-        client.onSetAnimation(this.onSetAnimation.bind(this));
-        client.onProducts(this.onProducts.bind(this));
-        client.onAppearance(this.onAppearance.bind(this));
-        client.onBlockModify(this.onBlockModify.bind(this));
-        client.onCharacterChangePoints(this.onCharacterChangePoints.bind(this));
-        client.onParty(this.onParty.bind(this));
-        client.onHarvest(this.onHarvest.bind(this));
-        client.onPlayerInfo(this.onPlayerInfo.bind(this));
-        client.onPlayer(this.onPlayer.bind(this));
-      }
+export function installClientCallbacksLifecycle(proto) {
 
       // data - mapIndex, mapStatus, x, y.
-      onPlayerTeleportMap(data) {
+      proto.onPlayerTeleportMap = function(data) {
           const mapId = Number(data[0]),
               x = Number(data[2]),
               y = Number(data[3]),
@@ -226,13 +161,10 @@ export default class ClientCallbacks {
               });
           }
 
-      }
+      };
 
-      onLogin() {
-        	this.client.sendLogin(game.player);
-      }
 
-      onSpawnItem(data, item) {
+      proto.onSpawnItem = function(data, item) {
             if (!item) return;
 
             const x = Number(data[5]),
@@ -254,13 +186,14 @@ export default class ClientCallbacks {
             game.addItem(item);
             game.updateCursor();
             game.updateCameraEntity(item.id, item);
-      }
+      };
+
 
       // FIX (maintainability): was a shared inner closure (`const spawnEntity = function(data,
       // entity) {...}`) defined in the constructor and only reachable from the onSpawnCharacter
       // handler below; moved to a proper method since it no longer has a constructor scope to
       // live in. Body unchanged.
-      spawnEntity(data, entity)
+      proto.spawnEntity = function(data, entity)
       {
           const id = Number(data[0]);
           if(id === game.playerId)
@@ -433,14 +366,16 @@ export default class ClientCallbacks {
 
 
             }
-      }
+      };
 
-      onSpawnCharacter(data, entity) {
+
+      proto.onSpawnCharacter = function(data, entity) {
             this.spawnEntity(data, entity);
-      }
+      };
+
 
       // data - entityId, x, y, mapIndex
-      onDespawnEntity(data) {
+      proto.onDespawnEntity = function(data) {
             if (game.mapIndex !== Number(data[1]))
               return;
 
@@ -474,10 +409,11 @@ export default class ClientCallbacks {
               }
               entity.clean();
             }
-      }
+      };
+
 
       // data - time, mapIndex, entityId, orientation, state, moveSpeed, x, y.
-      onEntityMove(data)
+      proto.onEntityMove = function(data)
       {
             const time = Number(data[0]),
                 map = Number(data[1]),
@@ -529,10 +465,11 @@ export default class ClientCallbacks {
             if (state)
               entity.move(time, orientation, false, x, y);
             entity.move(time, orientation, state, x, y);
-      }
+      };
+
 
       // time, mapIndex, entityId, orientation, interrupted, moveSpeed, path.
-      onEntityMovePath(data)
+      proto.onEntityMovePath = function(data)
       {
             const time = Number(data.shift()),
               map = Number(data.shift()),
@@ -591,9 +528,10 @@ export default class ClientCallbacks {
               movePathFunc();
             else
               setTimeout(movePathFunc, lockStepTime);
-      }
+      };
 
-      onEntityDestroy(data) {
+
+      proto.onEntityDestroy = function(data) {
             const id = Number(data[0]);
             const entity = game.getEntityById(id);
             if(entity) {
@@ -604,420 +542,18 @@ export default class ClientCallbacks {
                 }
                 log.debug("Entity was destroyed: "+entity.id);
             }
-      }
-
-      onCharacterDamage(data) {
-            // FIX: `data.parseInt();` called the old Array.prototype.parseInt
-            // monkey-patch (since removed) without capturing its return value
-            // -- it was a no-op even when the method existed, since every
-            // field below is already explicitly wrapped in Number(). Removed
-            // rather than converted to Utils.ArrayParseInt(), since keeping a
-            // discarded-result call around is just dead code.
-            const sEntity = game.getEntityById(Number(data[0])),
-                tEntity = game.getEntityById(Number(data[1])),
-                orientation = Number(data[2]),
-                hpMod = Number(data[3]),
-                hp = Number(data[4]),
-                hpMax = Number(data[5]),
-                epMod = Number(data[6]),
-                ep = Number(data[7]),
-                epMax = Number(data[8]),
-                crit = (data[9] === 1);
-
-            if (!sEntity || !tEntity)
-              return;
-
-            this.client.change_points_callback([tEntity.id,hp,hpMax,hpMod,ep,epMax,epMod,crit]);
-
-            if(hpMod < 0) {
-                if (sEntity !== game.player) {
-                  sEntity.hit(orientation);
-                }
-            }
-
-            if (game.player === sEntity) // sanity
-            {
-              sEntity.attackTime = game.currentTime;
-            }
-      }
-
-      onPlayerStat(data) {
-            const statType = data[0];
-            const statValue = Number(data[1]);
-            const statChange = Number(data[2]);
-            const p = game.player;
-
-            Utils.setValueByPath(p.stats, statType, statValue);
-            if (statType === "exp.base") // exp.base
-            {
-              p.level = Types.getLevel(statValue)
-              if (statChange > 0) {
-                game.infoManager.addDamageInfo("+"+statChange+" exp", p.x, p.y, "experience", 3000);
-              }
-              game.updateExpBar();
-            }
-      }
-
-      onPlayerLevelUp(data) {
-          const type = data[0];
-          const level = Number(data[1]);
-          const exp = Number(data[2]);
-          const p = game.player;
-
-          const scale = game.renderer.scale;
-          let x=p.x, y=p.y, id=p.id;
-          if (type==="base" && p.level !== level) {
-              id="lu"+id+"_"+level;
-              const info = new HoveringInfo(id, "Level "+level, x, y, 5000, 'levelUp');
-              game.infoManager.addInfo(info);
-              p.level = level;
-              return;
-          }
-          else if (type==="attack") {
-            const curLevel = Types.getAttackLevel(p.stats.exp.attack);
-            if (curLevel !== level) {
-              id="lau"+id+"_"+level;
-              const info = new HoveringInfo(id, "Attack Level "+level, x, y, 3500, 'minorLevelUp');
-              game.infoManager.addInfo(info);
-            }
-          }
-          else if (type==="defense") {
-            const curLevel = Types.getDefenseLevel(p.stats.exp.defense);
-            if (curLevel !== level) {
-              id="ldu"+id+"_"+level;
-              const info = new HoveringInfo(id, "Defense Level "+level, x, y, 3500, 'minorLevelUp');
-              game.infoManager.addInfo(info);
-            }
-          }
-          else if (p.stats.exp.hasOwnProperty(type)) {
-            const curLevel = Types.getWeaponLevel(p.stats.exp[type]);
-            if (curLevel !== level) {
-              id="wu"+id+"_"+level;
-              const info = new HoveringInfo(id, type+" Level "+level, x, y, 3500, 'minorLevelUp');
-              game.infoManager.addInfo(info);
-            }
-            p.stats.exp[type] = exp
-          }
-      }
-
-      onPlayerItemLevelUp(data) {
-          const type = Number(data[0]);
-          const level = Number(data[1]);
-          const exp = Number(data[2]);
-
-          let x=game.player.x, y=game.player.y, id=game.player.id;
-          if (type === 0)
-          {
-            id="laru"+id+"_"+level;
-            const info = new HoveringInfo(id, "Armor Level "+level, x, y, 3500, 'minorLevelUp');
-            game.infoManager.addInfo(info);
-          }
-          else if (type === 1)
-          {
-            id="lweu"+id+"_"+level;
-            const info = new HoveringInfo(id, "Weapon Level "+level, x, y, 3500, 'minorLevelUp');
-            game.infoManager.addInfo(info);
-          }
-      }
-
-      onGold(data) {
-          const gold = Number(data[0]);
-          const bankgold = Number(data[1]);
-          const gems = Number(data[2]);
-
-          game.player.gold[0] = gold;
-          game.player.gold[1] = bankgold;
-          game.player.gems = gems;
-
-          game.inventoryDialog.setCurrency(gold, gems);
-          game.bankHandler.setGold(bankgold);
-      }
-
-      onChatMessage(data) {
-          const entityId = Number(data[0]);
-          const message = data[1];
-
-          if(!game.chathandler.processReceiveMessage(entityId, message)) {
-                const entity = game.getEntityById(entityId);
-                if (entity)
-                {
-                  if (game.camera.isVisible(entity))
-                    game.bubbleManager.create(entity, message);
-
-                  game.chathandler.addNormalChat(entity, message);
-                }
-          }
-          game.audioManager.playSound("chat");
-      }
-
-      // TODO - Try and reconnect on dc.
-      onDisconnected(message) {
-            if(game.player) {
-                game.player.die();
-            }
-            if(game.disconnect_callback) {
-                game.disconnect_callback(message);
-            }
-            for (let dialog of game.dialogs)
-              dialog.hide();
-      }
-
-      // FIX (maintainability): was a shared inner closure (`const questSpeech = function
-      // (quest) {...}`) only reachable from the onQuest handler below; moved to a method. Body
-      // unchanged.
-      questSpeech(quest) {
-          const npc = game.getNpcByQuestKind(quest.npcQuestId);
-          if (!npc)
-            return;
-
-          const p = game.player;
-          let desc = quest.desc;
-
-          if (!Array.isArray(quest.desc))
-            desc = [[0, quest.desc]];
-
-          npc.dialogue = desc;
-          npc.dialogueIndex = 0;
-          npc.quest = quest;
-
-          p.dialogueEntity = npc;
-
-          game.showDialogue();
-      }
-
-      onQuest(data){
-            const questId = Number(data[0]);
-            let quest = game.player.quests[questId];
-            if (!quest)
-            {
-              quest = new Quest(data);
-              game.player.quests[questId] = quest;
-            }
-            else {
-                quest.update(data);
-            }
-
-            const npc = game.getNpcByQuestKind(quest.npcQuestId);
-            if (npc)
-              game.bubbleManager.destroyBubble(npc.id);
-
-            if (npc && game.player.canInteract(npc)) {
-              this.questSpeech(quest);
-            }
-
-            if (quest.status === 0) {
-              game.questhandler.handleQuest(quest);
-            }
+      };
 
 
-            if (quest.status === QuestStatus.COMPLETE) {
-              if (quest.type === QuestType.KILLMOBKIND || quest.type === QuestType.KILLMOBS)
-                game.questhandler.handleQuest(quest);
-            }
-      }
-
-      onAchievement(data) {
-          // FIX: `data.parseInt();` called the old Array.prototype.parseInt
-          // monkey-patch (since removed) without capturing its return value
-          // -- it was a no-op even when the method existed, since
-          // Achievement.update() (called via `new Achievement(data)` below)
-          // already runs its own Utils.ArrayParseInt() on the raw array.
-          // Removed rather than converted, since keeping a discarded-result
-          // call around is just dead code.
-          const achievementId = Number(data[0]);
-          const achievement = new Achievement(data);
-          game.player.achievements[achievementId] = achievement;
-          game.achievementHandler.handleAchievement(achievement);
-      }
-
-      onItemSlot(data){
-          const type = Number(data.shift());
-          const count = Number(data.shift());
-          const items = [];
-          let t = 0;
-          for (let i=0; i < count; ++i)
-          {
-            const slot = Number(data[t]);
-            const kind = Number(data[t+1]);
-            if (kind === -1) {
-              items.push({slot:slot,itemKind:-1});
-              t += 2;
-              continue;
-            }
-            const itemRoom = new ItemRoom(
-              Number(slot),
-              Number(kind),
-              Number(data[t+2]),
-              Number(data[t+3]),
-              Number(data[t+4]),
-              Number(data[t+5]),
-            );
-            t += 6;
-            items.push(itemRoom);
-          }
-          if (type === 0) {
-            game.inventory.setInventory(items);
-            game.shortcuts.refresh();
-          }
-          else if (type === 1) {
-            game.bankHandler.setBank(items);
-            if (game.bankDialog.visible)
-              game.bankDialog.bankFrame.open(game.bankDialog.bankFrame.page);
-          }
-          if (type === 2) {
-            game.equipmentHandler.setEquipment(items);
-          }
-      }
-
-      onDialogue(data) {
-          const npcId = Number(data.shift());
-          const langCode = data.shift();
-
-          const npc = game.getEntityById(npcId);
-          const p = game.player;
-
-          let message;
-          const questPattern = /^QUESTS_[0-9]+$/g;
-          if (questPattern.test(langCode))
-          {
-            const questId = langCode.split('_')[1];
-            npc.questId = questId;
-            message = JSON.parse(JSON.stringify(lang.data['QUESTS'][questId][0]));
-          } else {
-            message = JSON.parse(JSON.stringify(lang.data[langCode]));
-          }
-
-          // Needs to do a deep copy so lang data does not get overwritten.
-          if (data.length > 0) {
-            if (Array.isArray(message)) {
-              for (let msg of message)
-              {
-                msg[1] = msg[1].format(data);
-              }
-            }
-            else {
-              message[1] = message[1].format(data);
-            }
-          }
-
-          npc.dialogue = message;
-          npc.dialogueIndex = 0;
-
-          p.dialogueEntity = npc;
-
-          game.showDialogue();
-      }
-
-      onNotify(data){
-          game.showNotification(data);
-      }
-
-      onStatInfo(data) {
-          const stats = {
-            attack: Number(data[0]),
-            defense: Number(data[1]),
-            health: Number(data[2]),
-            energy: Number(data[3]),
-            luck: Number(data[4]),
-            free: Number(data[5]),
-            hp: Number(data[6]),
-            hpMax: Number(data[7]),
-            ep: Number(data[8]),
-            epMax: Number(data[9])
-          };
-
-          Object.assign(game.player.stats, stats);
-          game.statDialog.update();
-          game.updateBars();
-      }
-
-      onAuction(data){
-            const type = Number(data.shift());
-            const itemCount = Number(data.shift());
-
-            const itemData = [];
-            for (let i = 0; i < itemCount; ++i)
-            {
-                const j = (i*9);
-                itemData.push({
-                    index: Number(data[j]),
-                    player: data[j+1],
-                    buy: Number(data[j+2]),
-                    item: new ItemRoom (
-                      Number(data[j+3]),
-                      Number(data[j+4]),
-                      Number(data[j+5]),
-                      Number(data[j+6]),
-                      Number(data[j+7]),
-                      Number(data[j+8]))
-                });
-            }
-
-            // FIX: missing var - was an implicit global
-            const curPage = game.auctionDialog.storeFrame.getActivePage();
-            const page = game.auctionDialog.storeFrame.pages[type];
-            if (curPage !== page) {
-              game.auctionDialog.storeFrame.setPageIndex(type);
-            }
-            page.setPageIndex(0);
-            page.setItems(itemData);
-            page.reload();
-      }
-
-      onSkillLoad(datas) {
-            const skillIndex = Number(datas[0]);
-            const skillExp = Number(datas[1]);
-
-            // FIX: missing var - was an implicit global
-            const skillLevel = Types.getSkillLevel(skillExp);
-            game.player.skillHandler.setSkill(skillIndex, skillExp);
-            game.skillsDialog.page.setSkill(skillIndex, skillLevel);
-      }
-
-      onSkillXP(data) {
-            const skillCount = Number(data.shift());
-
-            if (skillCount === 0)
-              return;
-
-            for (let i = 0; i < skillCount; ++i)
-            {
-              game.player.skillHandler.setSkill(
-                Number(data[i*2]),
-                Number(data[i*2+1]));
-            }
-      }
-
-      onSkillEffects(data){
-          // stub for now.
-      }
-
-      // FIX: handler was declared with 3 separate params (id, key, value), but receiveAction() always invokes
-      // registered handlers with a single `data` array (`this.handlers[action].call(this, data)`), same as every
-      // other handler in this file - `id` received the whole array and `key`/`value` were always undefined, so
-      // Number(id) was NaN, getEntityById() returned null, and speech bubbles never showed.
-      onSpeech(data) {
-          const id = data[0], key = data[1], value = data[2];
-          const entity = game.getEntityById(Number(id));
-          if (!entity) return;
-
-          let msg = "";
-          if (entity instanceof Mob)
-            msg = MobSpeech.Speech[key][value];
-          else {
-            // TODO
-          }
-          game.createBubble(entity, msg);
-      }
-
-      onMapStatus(mapId, status)
+      proto.onMapStatus = function(mapId, status)
       {
           log.info("mapStatus="+mapId+","+status);
           game.mapIndex = Number(mapId);
           game.mapStatus = Number(status);
-      }
+      };
 
-      onSetSprite(data)
+
+      proto.onSetSprite = function(data)
       {
 
           const entity = game.getEntityById(Number(data[0]));
@@ -1035,26 +571,20 @@ export default class ClientCallbacks {
             entity.setSprite(sprite);
           }
 
-      }
+      };
 
-      onSetAnimation(data)
+
+      proto.onSetAnimation = function(data)
       {
 
           const entity = game.getEntityById(Number(data[0]));
           if (!entity) return;
 
           // TODO - Not yet implemented.
-      }
+      };
 
-      onProducts(data) {
-          game.products = data;
-      }
 
-      onAppearance(data) {
-          game.appearanceDialog.assign(data);
-      }
-
-      onBlockModify(data) {
+      proto.onBlockModify = function(data) {
           const entityId = Number(data[0]);
           const type = Number(data[1]);
           const blockId = Number(data[2]);
@@ -1072,134 +602,15 @@ export default class ClientCallbacks {
             block.place(entity);
             entity.holdingBlock = null;
           }
-      }
+      };
 
-      // FIX (maintainability): was a shared inner closure (`const onPlayerChangeHealth =
-      // function(player, points, crit) {...}`) only reachable from the onCharacterChangePoints
-      // handler below; moved to a method and renamed from `onPlayerChangeHealth` to
-      // `applyPlayerHealthChange` to avoid reading like a registered server-message handler -
-      // every other `onXxx` method in this class is one, and this isn't. Body unchanged.
-      applyPlayerHealthChange(player, points, crit) {
-            let isRegen = false;
-            if (points > 0)
-              isRegen = true;
 
-            if (!player || !(player instanceof Player) || player.isDead)
-              return;
-
-            const isHurt = (points <= player.stats.hp);
-            if(isHurt && game.playerhurt_callback) {
-                game.playerhurt_callback();
-            }
-
-            game.updateBars();
-      }
-
-      // FIX (maintainability): was a shared inner closure only reachable from the
-      // onCharacterChangePoints handler below; moved to a method. Body unchanged.
-      showDamageInfo(entity, points, x, y, crit) {
-            if(points === 0) {
-              game.infoManager.addDamageInfo("miss", x, y - 15, "health");
-              return;
-            }
-
-            if(points < 0) {
-                if (crit > 0) {
-                    game.infoManager.addDamageInfo(-points, x, y - 15, "crit", 1500, crit);
-                }
-                else {
-                  game.infoManager.addDamageInfo(-points, x, y - 15, "inflicted");
-                }
-                if (game.camera.isVisible(entity))
-                  game.audioManager.playSound("hurt");
-            } else {
-                game.infoManager.addDamageInfo(points, x, y - 15, "healed");
-            }
-      }
-
-      onCharacterChangePoints(data) {
-          const id = Number(data[0]);
-          const hp = Number(data[1]);
-          const hpMax = Number(data[2]);
-          let hpMod = Number(data[3]);
-          const ep = Number(data[4]);
-          const epMax = Number(data[5]);
-          const epMod = Number(data[6]);
-          const crit = Number(data[7]) || 0;
-
-          if (id <= 0)
-            return;
-
-          const entity = game.getEntityById(id);
-          if (!entity)
-            return;
-
-          this.showDamageInfo(entity, hpMod, entity.x, entity.y, crit);
-
-          if (hpMod > hp)
-            hpMod += (hp - hpMod);
-
-          entity.modHp(hpMod);
-          entity.modEp(epMod);
-
-          if (entity === game.player)
-          {
-            if (hpMod !== 0) {
-              game.playerhp_callback(hp, hpMax);
-              this.applyPlayerHealthChange(entity, hpMod);
-            }
-            game.updateBars();
-          }
-          else {
-            game.updatetarget_callback(entity);
-          }
-      }
-
-      onParty(data) {
-          const partyType = Number(data.shift());
-          if (partyType === 1) {
-            game.socialHandler.setPartyMembers(data);
-          }
-          if (partyType === 2) {
-            const id = data[0];
-            const player = game.getEntityById(id);
-            game.socialHandler.inviteParty(player);
-
-          }
-      }
-
-      onHarvest(data) {
-          const id = Number(data.shift());
-          const p = game.getEntityById(id);
-          if (!p)
-            return;
-
-          const action = Number(data.shift());
-
-          const x=Number(data.shift()),
-              y=Number(data.shift());
-
-          if (action === 1)
-          {
-            if (p.fsm !== "HARVEST") {
-              p.lookAtTile(x, y);
-              p.harvestOn();
-            }
-            if (p === game.player)
-              p.harvestDuration = Number(data.shift());
-
-          }
-          if (action === 2) {
-            p.forceStop();
-          }
-
-      }
-
-      onPlayerInfo(data) {
+      proto.onPlayerInfo = function(data) {
           game.statDialog.page.assign(data);
-      }
+      };
 
-      onPlayer(data) {
+
+      proto.onPlayer = function(data) {
             data.shift();
             data.shift();
 
@@ -1416,5 +827,6 @@ export default class ClientCallbacks {
             }
 
             game.onPlayerLoad(p);
-      }
+      };
+
 }

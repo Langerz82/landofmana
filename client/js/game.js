@@ -14,7 +14,7 @@ import Sprite from './sprite.js';
 import Sprites from './sprites.js';
 import AnimatedTile from './tile.js';
 import GameClient from './gameclient.js';
-import ClientCallbacks from './clientcallbacks.js';
+import ClientCallbacks from './clientcallback/clientcallbacks.js';
 import AudioManager from './audio.js';
 import Updater from './updater.js';
 import Pathfinder from './pathfinder.js';

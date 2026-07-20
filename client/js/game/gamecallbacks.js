@@ -2,7 +2,7 @@
 // Applied onto Game.prototype via install*(...) call in game.js; not a standalone class.
 import config from '../config.js';
 import GameClient from '../gameclient.js';
-import ClientCallbacks from '../clientcallbacks.js';
+import ClientCallbacks from '../clientcallback/clientcallbacks.js';
 import NpcMove from '../entity/npcmove.js';
 import NpcStatic from '../entity/npcstatic.js';
 import Node from '../entity/node.js';
