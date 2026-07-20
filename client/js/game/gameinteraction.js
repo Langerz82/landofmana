@@ -7,7 +7,9 @@ import Node from '../entity/node.js';
 import Item from '../entity/item.js';
 import Block from '../entity/block.js';
 import Character from '../entity/character.js';
+import Mob from '../entity/mob.js';
 import NpcData from '../data/npcdata.js';
+
 /* global Types, ATTACK_MAX, Utils, log, game */
 const InventoryMode = Types.InventoryMode;
 
