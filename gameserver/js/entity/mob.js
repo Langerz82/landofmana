@@ -1,19 +1,24 @@
 import Character from './character.js';
-import Messages from '../message.js';
 import MobCombat from './components/mobcombat.js';
-import MobArea from '../area/mobarea.js';
+import MobAggro from './components/mobaggro.js';
+import MobRespawn from './components/mobrespawn.js';
+import MobAIState from './components/mobaistate.js';
 import Utils from '../utils.js';
-import Timer from '../timer.js';
-import { Types, ItemTypes } from '../common.js';
-import _ from 'underscore';
+import { Types } from '../common.js';
 import MobData from '../data/mobdata.js';
-import ItemData from '../data/itemdata.js';
-import ItemLootData from '../data/itemlootdata.js';
-import { mobState, G_TILESIZE, G_DEBUG } from '../constants.js';
-import Player from './player.js';
+import { mobState, G_TILESIZE } from '../constants.js';
 
-/* global _, Player */
-
+// mob.js was split into entity/components/mobaggro.js (hate-list tracking
+// + aggro decisions), entity/components/mobrespawn.js (boss/loot/drop
+// setup + the death -> respawn -> return-to-spawn lifecycle), and
+// entity/components/mobaistate.js (roam/move-tick AI state hooks), plus
+// dropGold/getXP moving into the pre-existing entity/components/
+// mobcombat.js. Every extracted method keeps a thin delegate here (see
+// below) so no external call site (callbacks/mobcallback.js, mobai.js,
+// packets/combathandler.js, etc.) had to change. Methods that call
+// super.X() (onDamage, canReach, followAttack, die) can't be delegate-
+// wrapped that way and stay directly on Mob, same reasoning as Player's
+// onDamage/modHp/modEp.
 class Mob extends Character {
     constructor(id, kind, x, y, map, mobArea) {
 
@@ -24,6 +29,11 @@ class Mob extends Character {
 
     	//console.info("constructor x:"+x+",y:"+y);
     	//console.info("this.kind="+this.kind);
+
+      this.combat = new MobCombat(this);
+      this.aggro = new MobAggro(this);
+      this.respawner = new MobRespawn(this);
+      this.aiHandler = new MobAIState(this);
 
     	this.data = MobData.Kinds[this.kind];
 	    //console.info(JSON.stringify(this.data));
@@ -120,58 +130,35 @@ class Mob extends Character {
 
       this.resetHp();
       this.resetEp();
-
-      this.combat = new MobCombat(this);
     }
 
+    // --- Aggro / hate-list delegates (entity/components/mobaggro.js) ---
     createBoss(multi) {
-        this.creatureMulti = multi;
-        this.stats.hp *= multi;
-        this.stats.hpMax *= multi;
-        this.spawnDelay *= multi;
-        this.resetHp();
-
-        for (const kind in this.drops) {
-          if (ItemTypes.isEquipment(kind))
-            this.drops[kind] *= multi;
-        }
+        return this.respawner.createBoss(multi);
     }
 
     getXP() {
-      return this.data.xp *
-        this.data.attackMod *
-        this.data.defenseMod *
-        this.data.attackRateMod *
-        this.data.hpMod *
-        this.level *
-        this.creatureMulti;
+      return this.combat.getXP();
     }
 
-    setMoveAI(duration)
-    {
-    	this.moveAICooldown = new Timer(duration);
+    setMoveAI(duration) {
+        return this.aiHandler.setMoveAI(duration);
     }
-    canMoveAI()
-    {
-    	return this.moveAICooldown.isOver();
+    canMoveAI() {
+        return this.aiHandler.canMoveAI();
     }
-    resetMoveAI(time)
-    {
-    	this.moveAICooldown.lastTime = time;
+    resetMoveAI(time) {
+        return this.aiHandler.resetMoveAI(time);
     }
 
-    setAggroRate(duration)
-    {
-    	this.aggroCooldown = new Timer(duration);
-
+    setAggroRate(duration) {
+        return this.aggro.setAggroRate(duration);
     }
-    canAggro()
-    {
-    	return this.aggroCooldown.isOver();
+    canAggro() {
+        return this.aggro.canAggro();
     }
-    resetAggro(time)
-    {
-    	this.aggroCooldown.lastTime = time;
+    resetAggro(time) {
+        return this.aggro.resetAggro(time);
     }
 
     onKilled(callback) {
@@ -244,178 +231,52 @@ class Mob extends Character {
     },*/
 
     hates(entity) {
-        return _.any(this.hatelist, function(obj) {
-            return obj.entity === entity;
-        });
+        return this.aggro.hates(entity);
     }
 
-    // PERF: this used to call this.hates(entity) (a linear scan of
-    // hatelist) and then, when it returned true, run a second linear scan
-    // via _.detect() to find that same entry. hatelist is small (bounded by
-    // however many characters are currently attacking this one mob) so this
-    // was never a hot-path emergency, but there's no reason to scan it
-    // twice for one lookup -- a single _.detect() covers both the "does it
-    // exist" and "get the entry" cases.
     increaseHateFor(entity, points) {
-        const existing = _.detect(this.hatelist, function (obj) {
-            return obj.entity === entity;
-        });
-        if (existing) {
-            existing.hate += points;
-        }
-        else {
-            this.hatelist.push({ entity: entity, hate: points });
-        }
-
-        if (this.returnTimeout) {
-            // Prevent the mob from returning to its spawning position
-            // since it has aggroed a new player
-            clearTimeout(this.returnTimeout);
-            this.returnTimeout = null;
-        }
+        return this.aggro.increaseHateFor(entity, points);
     }
 
-    // FIX: _.sortBy sorts ascending, so sorted[0] was the LEAST-hated
-    // entity, not the most-hated one -- the opposite of what this method's
-    // name and its only caller (handleMobHate, picking an aggro target)
-    // need. Every mob was consistently attacking the weakest-threat player
-    // instead of whoever had actually generated the most hate. Taking the
-    // last element of the ascending sort gives the highest-hate entry.
-    // NOTE: was `getMostHated(hateRank)` with unused `i`/`playerId`/`size`
-    // locals -- `hateRank` has never had a caller (the only call site,
-    // handleMobHate() below, always calls this with no argument), and
-    // `i`/`playerId`/`size` were never read anywhere in the body.
-    // PERF: this only ever needs the single highest-hate entry but was
-    // allocating a new array and doing a full O(n log n) sort to get it.
-    // Called from handleMobHate() -- i.e. on every hit landed on an
-    // aggro'd mob. A single O(n) scan for the max is equivalent and
-    // avoids the allocation + sort on that hot path.
     getMostHated() {
-        let best = null;
-        for (const obj of this.hatelist) {
-            if (!best || obj.hate > best.hate)
-                best = obj;
-        }
-        return best ? best.entity : null;
+        return this.aggro.getMostHated();
     }
 
     forgetPlayer(playerId) {
-        this.hatelist = _.reject(this.hatelist, function(obj) { return obj.entity.id === playerId; });
-        //this.tankerlist = _.reject(this.tankerlist, function(obj) { return obj.id === playerId; });
-
-        if(this.hatelist.length === 0 /*|| this.tankerlist === 0*/) {
-            this.returnToSpawn();
-        }
+        return this.aggro.forgetPlayer(playerId);
     }
 
     forgetEveryone() {
-        this.hatelist = [];
-        this.damageCount = {};
-        this.dealtCount = {};
-        this.clearAttackerRefs();
-        this.removeAttackers();
+        return this.aggro.forgetEveryone();
     }
 
+    // --- Respawn / spawn-lifecycle delegates (entity/components/mobrespawn.js) ---
     execRespawn() {
-      if (this.respawnCallback) {
-          this.respawnCallback();
-      }
-      //this.respawn();
+      return this.respawner.execRespawn();
     }
 
     handleRespawn() {
-        this.respawnTime = Date.now();
-        this.mobAI.mobsToRespawn.push(this);
+        return this.respawner.handleRespawn();
     }
 
     onRespawn(callback) {
-        this.respawnCallback = callback;
+        return this.respawner.onRespawn(callback);
     }
 
     respawn() {
-      if (this.area && this.area instanceof MobArea) {
-        const	pos = this.map.entities.spaceEntityRandomApart(3, this.area._getRandomPositionInsideArea.bind(this.area,100));
-        // PERF: fires on every mob respawn across every mob area on the
-        // map -- respawn volume during active farming/combat isn't
-        // negligible (this server targets ~875 mobs across 51 areas, see
-        // G_SPATIAL_SIZE in main.js). JSON.stringify + unconditional
-        // console.warn on that path is pure diagnostic cost; gate it.
-        if (G_DEBUG)
-            console.warn("mob, handleRespawn - id:"+this.id+", pos.x:"+(pos && pos.x)+", pos.y:"+(pos && pos.y));
-        if (pos) {
-          this.setPosition(pos.x, pos.y);
-        }
-      }
-      this.spawnX = this.x;
-      this.spawnY = this.y;
-      this.isDead = false;
-      this.droppedItem = false;
-      this.invincible = false;
-      this.resetBehaviour();
-      this.activeEffects = [];
-      this.map.entities.sendNeighbours(this, new Messages.Spawn(this));
+      return this.respawner.respawn();
     }
 
     resetBehaviour() {
-      this.disengage();
-      this.forceStop();
-      this.forgetEveryone();
-      this.setAiState(mobState.IDLE);
-      this.freeze = false;
+      return this.respawner.resetBehaviour();
     }
 
     resetPosition() {
-    	  ///var x=this.spawnX, y=this.spawnY;
-        this.setPosition(this.spawnX, this.spawnY);
-        //var msg = new Messages.Move(this, this.orientation, false, this.x, this.y);
-        //this.map.entities.sendNeighbours(this, msg);
+    	  return this.respawner.resetPosition();
     }
 
     returnToSpawn() {
-        //var self = this;
-
-        if (this.aiState === mobState.RETURNING)
-          return;
-
-        this.forceStop();
-        this.setAiState(mobState.RETURNING);
-
-        if (this.hasTarget())
-          this.clearTarget();
-        this.forgetEveryone();
-        this.invincible = true;
-        this.freeze = false;
-        // TEMP-DEBUG: tracking the "mob permanently stuck/unattackable" bug
-        // report -- grep server logs for "RETURNING-DEBUG" to see the full
-        // lifecycle of every RETURNING transition. Remove once root-caused.
-        // PERF: returnToSpawn() fires routinely under real combat load
-        // (every kill, retreat, or line-of-sight loss with an aggro'd mob),
-        // so these were left unconditional even though they're the same
-        // per-event debug logging the rest of the codebase gates behind
-        // G_DEBUG. The no-path fallback also paid for a throw/catch purely
-        // to capture a stack trace on a path that isn't an actual error.
-        if (G_DEBUG)
-            console.info("RETURNING-DEBUG enter id="+this.id+" x="+this.x+" y="+this.y+" spawnX="+this.spawnX+" spawnY="+this.spawnY);
-        if (this.x === this.spawnX && this.y === this.spawnY) {
-          if (G_DEBUG)
-              console.info("RETURNING-DEBUG already-at-spawn id="+this.id);
-          this.returnedToSpawn();
-          return;
-        }
-        this.go(this.spawnX, this.spawnY);
-        //this.returningToSpawn = true;
-        //console.info("returnToSpawn - Path: "+JSON.stringify(this.path))
-        //console.info("returnToSpawn - mob.id: "+this.id);
-        if (G_DEBUG)
-            console.info("RETURNING-DEBUG path-requested id="+this.id+" pathLen="+(this.path ? this.path.length : 0));
-        if (!this.path || this.path.length === 0) {
-          if (G_DEBUG) {
-              try { throw new Error(); } catch(err) { console.error(err.stack); }
-              console.info("RETURNING-DEBUG no-path-fallback id="+this.id);
-          }
-          this.returnedToSpawn();
-        }
-        //this.setAiState(mobState.RETURNING);
+        return this.respawner.returnToSpawn();
     }
 
     onMove(callback) {
@@ -435,62 +296,12 @@ class Mob extends Character {
     }
 
     setItemLoot() {
-      this.loot = {};
-      this.lootTotal = 0;
-      for (const lootId in ItemLootData.ItemLoot)
-      {
-        const loot = ItemLootData.ItemLoot[lootId];
-        //console.info(JSON.stringify(loot));
-        // FIX: `1000 / loot.rarity * loot.rarity` algebraically cancels to a
-        // flat 1000 for any rarity value, so every loot entry got the exact
-        // same drop weight -- rarity had zero effect on odds. Dropping the
-        // stray `* loot.rarity` restores rarity as an actual divisor: higher
-        // rarity now yields a lower chance, as the field name implies.
-        const chance = ~~(1000 / loot.rarity);
-        if (chance > 0)
-          this.loot[lootId] = chance;
-        this.lootTotal += this.loot[lootId];
-      }
-      //this.lootTotal *= ((200 - this.level)/50);
-      this.lootTotal = ~~(this.lootTotal);
+      return this.respawner.setItemLoot();
     }
 
     setDrops() {
-      const dropLevel = Math.ceil(this.level / 10) * 10;
-      //console.info("dropLevel="+dropLevel);
-      for (const kind in ItemData.Kinds)
-      {
-    		const item = ItemData.Kinds[kind];
-    		if (!item || item.legacy === 1)
-    			continue;
-
-        const diff = item.level - this.level;
-    		if (ItemTypes.isEquipment(kind))
-    		{
-          if (diff >= 0 && diff < 5)
-            this.drops[kind] = 1;
-          if (diff >= -5 && diff < 0)
-            this.drops[kind] = 2;
-          if (diff >= -10 && diff < -5)
-            this.drops[kind] = 5;
-    		}
-      }
-
-      if (this.level >= 15 && this.level < 25)
-        this.drops[310] = 250;
-      if (this.level >= 25 && this.level < 35)
-        this.drops[311] = 250;
-      if (this.level >= 35 && this.level < 45)
-        this.drops[312] = 250;
-      if (this.level >= 45)
-        this.drops[313] = 250;
-
-      // Potions.
-      if (this.level < 20)
-        this.drops[34] = 250;
-      else
-        this.drops[36] = 250;
-   }
+      return this.respawner.setDrops();
+    }
 
    Speech(key, value) {
 		/*if (this.data.isSpeech === 0)
@@ -507,12 +318,9 @@ class Mob extends Character {
       return this._getBaseState().concat([this.level, this.stats.hp, this.stats.hpMax]);
     }
 
+    // --- AI-state delegates (entity/components/mobaistate.js) ---
     setAiState(state) {
-      //if (this.aiState === mobState.RETURNING)
-      //console.error("mob, setAiState - state:"+state);
-      //try { throw new Error(); } catch(err) { console.error(err.stack); }
-      this.aiState = state;
-      //console.info(this.id + " has set aiState: " + state);
+      return this.aiHandler.setAiState(state);
     }
 
     die(attacker) {
@@ -554,81 +362,27 @@ class Mob extends Character {
     }
 
     dropGold() {
-      return Utils.randomRangeInt(this.level * 2, this.level * 3) * (this.creatureMulti);
+      return this.combat.dropGold();
     }
 
     returnedToSpawn() {
-      // TEMP-DEBUG: pairs with the "RETURNING-DEBUG enter" log in
-      // returnToSpawn() -- every "enter" should be followed by an "exit"
-      // shortly after. A mob id that shows "enter" but never "exit" is the
-      // stuck-mob bug caught in the act.
-      // PERF: fires on every mob that returns to spawn -- a routine, high
-      // frequency event under real combat load. Gated behind G_DEBUG like
-      // the rest of this per-event debug logging.
-      if (G_DEBUG) {
-          console.info("mob.returnedToSpawn");
-          //console.warn("mob.returnedToSpawn: mob id "+this.id+", actual delay:"+(Date.now()-this.startReturn));
-          console.info("st - id="+this.id+",x="+this.spawnX+",y="+this.spawnY);
-          console.info("RETURNING-DEBUG exit id="+this.id+" aiState="+this.aiState+" x="+this.x+" y="+this.y);
-      }
-      if (!(this.x == this.spawnX && this.y === this.spawnY)) {
-        //console.error("mob, returnedToSpawn: incorrect spawn coords.");
-        //console.error("mob, returnedToSpawn: sx:"+this.spawnX+", sy:"+this.spawnY);
-        //console.error("mob, returnedToSpawn: x:"+this.x+", y:"+this.y);
-      }
-      this.resetHp();
-      this.resetPosition();
-      this.resetBehaviour();
-      this.invincible = false;
+      return this.respawner.returnedToSpawn();
     }
 
-    handleMobHate(tEntity, hatePoints)
-    {
-        // PERF: fires on every successful hit landed on any mob -- the
-        // single highest-frequency combat event in the game. Every other
-        // per-hit log site in this codebase is gated behind G_DEBUG for
-        // exactly this reason; this one was missed.
-        if (G_DEBUG)
-            console.info("handleMobHate");
-        if (tEntity && tEntity instanceof Player)
-        {
-            this.increaseHateFor(tEntity, hatePoints);
-
-            if (this.stats.hp > 0)
-            {
-              const hEntity = this.getMostHated();
-              if (hEntity)
-                this.createAttackLink(hEntity);
-            }
-        }
+    handleMobHate(tEntity, hatePoints) {
+        return this.aggro.handleMobHate(tEntity, hatePoints);
     }
 
-    aggroPlayer(player, dmg)
-    {
-      dmg = dmg || 1;
-
-      this.resetAggro(0);
-      this.attackingMode = true;
-    	this.handleMobHate(player, 1);
-      this.setAiState(mobState.AGGRO);
-      this.attackTimer = Date.now();
-      this.freeze = false;
+    aggroPlayer(player, dmg) {
+      return this.aggro.aggroPlayer(player, dmg);
     }
 
     goRoam(pos) {
-      this.go(pos.x, pos.y);
-
-      if (this.path)
-      {
-        this.setAiState(mobState.ROAMING);
-        this.spawnX = pos.x;
-        this.spawnY = pos.y;
-      }
+      return this.aiHandler.goRoam(pos);
     }
 
     canRoam() {
-      return !this.hasTarget() && !this.isDead && !this.isReturning &&
-        !this.isMoving() && this.aiState === mobState.IDLE;
+      return this.aiHandler.canRoam();
     }
 
     followAttack(entity) {

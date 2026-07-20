@@ -55,6 +55,26 @@ class MobCombat {
         //console.info("player - baseDamageDef: "+dmg);
         return dmg;
     }
+
+    // Split out of entity/mob.js -- dropGold/getXP are combat-outcome
+    // values (how much gold/xp killing this mob awards), the same domain
+    // as the damage-calc methods above, and follow the same
+    // constructor(entity) delegation as playercombat.js's dropGold.
+    dropGold() {
+      const entity = this.entity;
+      return Utils.randomRangeInt(entity.level * 2, entity.level * 3) * (entity.creatureMulti);
+    }
+
+    getXP() {
+      const entity = this.entity;
+      return entity.data.xp *
+        entity.data.attackMod *
+        entity.data.defenseMod *
+        entity.data.attackRateMod *
+        entity.data.hpMod *
+        entity.level *
+        entity.creatureMulti;
+    }
 }
 
 export default MobCombat;
