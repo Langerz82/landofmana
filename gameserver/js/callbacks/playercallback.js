@@ -35,7 +35,11 @@ class PlayerCallback {
         });
 
         const attackFunc = function (p) {
-            p.packetHandler.processAttack();
+            // processAttack() moved into packets/combathandler.js as part of
+            // splitting packethandler.js's combat logic out of the core
+            // packet-handling class; reached the same way partymanager.js
+            // already reaches packetHandler.partyHandler.handleAbandoned().
+            p.packetHandler.combatHandler.processAttack();
         };
 
         const stopPathing = function (p, x, y) {

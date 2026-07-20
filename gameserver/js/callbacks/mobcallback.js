@@ -120,7 +120,7 @@ class MobCallback {
             // Since aiState never got reset, the mob stayed stuck in
             // RETURNING forever: mobai.js's update loop unconditionally
             // skips RETURNING mobs (no more AI ticks), and
-            // packethandler.js's handleHitEntity unconditionally blocks
+            // packets/combathandler.js's handleHitEntity unconditionally blocks
             // attacks on RETURNING targets -- so an aborted return-to-spawn
             // path permanently bricked the mob: frozen in place, invincible,
             // and silently unattackable. Routing this through
