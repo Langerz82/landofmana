@@ -6,7 +6,7 @@ import './globalstate.js';
 import Detect from './detect.js';
 import InfoManager from './infomanager.js';
 import BubbleManager from './bubble.js';
-import Renderer from './renderer.js';
+import Renderer from './renderer/renderer.js';
 import Map from './map.js';
 import MapContainer from './mapcontainer.js';
 import Animation from './animation.js';

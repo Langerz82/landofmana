@@ -1,19 +1,19 @@
 // Converted from AMD (define) + Class.extend to a native ES6 module/class.
 /* global Types, ItemTypes, Utils, Detect, Class, _, log, font */
-import Detect from './detect.js';
-import Camera from './camera.js';
-import Item from './entity/item.js';
-import Items from './data/items.js';
-import ItemLoot from './data/itemlootdata.js';
-import Entity from './entity/entity.js';
-import Character from './entity/character.js';
-import Player from './entity/player.js';
-import Timer from './timer.js';
-import Mob from './entity/mob.js';
-import NpcMove from './entity/npcmove.js';
-import NpcStatic from './entity/npcstatic.js';
-import Block from './entity/block.js';
-import LoadData from './loaddata.js';
+import Detect from '../detect.js';
+import Camera from '../camera.js';
+import Item from '../entity/item.js';
+import Items from '../data/items.js';
+import ItemLoot from '../data/itemlootdata.js';
+import Entity from '../entity/entity.js';
+import Character from '../entity/character.js';
+import Player from '../entity/player.js';
+import Timer from '../timer.js';
+import Mob from '../entity/mob.js';
+import NpcMove from '../entity/npcmove.js';
+import NpcStatic from '../entity/npcstatic.js';
+import Block from '../entity/block.js';
+import LoadData from '../loaddata.js';
 
 // FIX (split cleanup): getX() moved to rendererdraw.js - it's only used by drawTile(),
 // which now lives there; keeping a second copy here would be dead code.
