@@ -5,7 +5,6 @@ import MobAI from '../mobai.js';
 import _ from 'underscore';
 import Utils from '../utils.js';
 import { ItemTypes } from '../common.js';
-import Pathfinder from '../pathfinder.js';
 import Character from '../entity/character.js';
 import Mob from '../entity/mob.js';
 import Item from '../entity/item.js';
@@ -13,7 +12,27 @@ import Player from '../entity/player.js';
 import { Types } from '../common.js';
 import NpcData from '../data/npcdata.js';
 import { G_TILESIZE, G_SPATIAL_SIZE, G_DEBUG } from '../constants.js';
+import SpatialIndex from './spatialindex.js';
+import MapPathfindingService from './pathfindingservice.js';
+import MapBroadcaster from './mapbroadcaster.js';
 
+// This file used to hold the spatial-grid mechanics, the pathfinding
+// orchestration, and the per-player packet queue directly, alongside the
+// entity registry (the players/mobs/items/... Maps) and the proximity-query
+// helpers built on top of them. The first three were self-contained enough
+// to move out into spatialindex.js/pathfindingservice.js/mapbroadcaster.js;
+// the registry and query methods stayed here because they call into each
+// other and into the spatial index constantly (e.g. removeEntity() touches
+// six different Maps and calls removeSpatial(); processWho() chains
+// getSpatialEntities() -> isOffset() -> getEntityById() -> sendToPlayer()),
+// so splitting those further would trade a flat, readable file for a maze
+// of cross-object back-references. Every method this class used to
+// implement directly for the extracted concerns (getSpatialEntities/
+// addSpatial/removeSpatial/updateSpatial, initPathFinder/initPathingGrid/
+// findPath, processPackets/sendToPlayer/sendBroadcast/sendNeighbours) is
+// still callable exactly the same way -- `map.entities.X(...)` -- as a
+// one-line delegate to the relevant helper, so nothing outside this file
+// needed to change.
 class MapEntities {
     constructor(id, server, map) {
         this.id = id;
@@ -30,13 +49,8 @@ class MapEntities {
         this.npcs = new Map();
         this.blocks = new Map();
 
-        // PERF: was a plain object keyed by player id, iterated everywhere
-        // (sendBroadcast/sendNeighbours/processPackets -- i.e. on every chat
-        // message, attack, spawn/despawn, and every 16ms flush tick) via
-        // Utils.forEach's `for...in` + `hasOwnProperty` loop. A Map avoids
-        // the hasOwnProperty check per entry and iterates faster than
-        // for...in over an object.
-        this.packets = new Map();
+        this.broadcaster = new MapBroadcaster(this);
+        this.pathfindingService = new MapPathfindingService(this);
 
         this.mobAreas = [];
         this.groups = {};
@@ -45,8 +59,6 @@ class MapEntities {
         this.pathingGrid = null;
 
         this.zoneGroupsReady = false;
-
-        this.maxPackets = 10;
 
         this.entityCount = 0;
 
@@ -60,43 +72,11 @@ class MapEntities {
     }
 
     initSpatialEntities(size) {
-        this.spatial = [];
-        this.spatialSize = size;
-        const spatialWidth = Math.ceil(this.map.width / size);
-        const spatialHeight = Math.ceil(this.map.height / size);
-        for(let i=0, j=0; i < spatialHeight; i++) {
-            this.spatial[i] = [];
-            for(j=0; j < spatialWidth; j++) {
-                this.spatial[i][j] = [];
-            }
-        }
+        this.spatialIndex = new SpatialIndex(this.map, size);
     }
 
-    getSpatialEntities(arr)
-    {
-        const x1 = ~~(Math.max(arr[0],0) / this.spatialSize);
-        const y1 = ~~(Math.max(arr[1],0) / this.spatialSize);
-        const x2 = ~~(Math.min(arr[2],this.map.width-1) / this.spatialSize);
-        const y2 = ~~(Math.min(arr[3],this.map.height-1) / this.spatialSize);
-
-        const res = [];
-        const l1 = this.spatial.length;
-        let l2 = 0;
-        for(let j = y1, i=0; j <= y2; ++j)
-        {
-            l2 = this.spatial[j].length;
-            for(i = x1; i <= x2; ++i) {
-                /*if (j < 0 || j >= l1)
-                  continue;
-                if (i < 0 || i >= l2)
-                  continue;*/
-                for (const entity of this.spatial[j][i]) {
-                    if (!entity) continue;
-                    res.push(entity);
-                }
-            }
-        }
-        return res;
+    getSpatialEntities(arr) {
+        return this.spatialIndex.getSpatialEntities(arr);
     }
 
     mapready() {
@@ -107,7 +87,7 @@ class MapEntities {
     }
 
     initPathFinder() {
-        this.pathfinder = new Pathfinder(this.map.width, this.map.height);
+        this.pathfindingService.initPathFinder();
     }
 
     spawnNpcs(count) {
@@ -134,24 +114,7 @@ class MapEntities {
     }
 
     initPathingGrid() {
-        const map = this.map,
-            self = this;
-        console.info("pathinggrid height:"+map.height+", width:"+map.width);
-
-        const grid = new Array(map.height);
-        for(let i=0; i < map.height; ++i) {
-            grid[i] = new Uint8Array(map.width);
-            for(let j=0; j < map.width; ++j) {
-                if (map.grid[i][j])
-                    grid[i][j] = 1;
-                else
-                    grid[i][j] = 0;
-            }
-        }
-        self.entitygrid = grid.slice(0);
-        //self.pathingGrid = grid.slice(0);
-
-        console.info("Initialized the pathing grid with static colliding cells.");
+        this.pathfindingService.initPathingGrid();
     }
 
     /*pushSpawnsToPlayer: function(player, ids) {
@@ -231,106 +194,19 @@ class MapEntities {
     }
 
     processPackets() {
-        const self = this;
-
-        // NOTE: the old `self.packets.length > 0` check was dead code even
-        // before `packets` became a Map -- it was a plain object, which has
-        // no `.length`, so this always compared `undefined > 0` (always
-        // false) and the JSON.stringify of the *entire* packet queue never
-        // actually ran. Dropped rather than "fixed": wiring it up for real
-        // would mean unconditionally paying that stringify cost on this
-        // 16ms flush tick for every map with players.
-
-        // PERF: iterate the Map directly with for...of instead of
-        // Utils.forEach's `for...in` + `hasOwnProperty` loop -- this runs
-        // once every 16ms for every map that has players connected.
-        for (const [id, packet] of this.packets) {
-            const len = packet.length;
-            if (len > 0)
-            {
-                const player = self.getEntityById(id);
-                let conn = self.server.socket.getConnection(id);
-                if (player && player.map && player.mapStatus >= 2 && conn !== null && typeof conn !== 'undefined')
-                {
-                    const packets = [];
-                    for (let i =0; i < self.maxPackets; ++i)
-                    {
-                        if (packet.length === 0)
-                            break;
-                        packets.push(packet.shift());
-                    }
-                    conn.send(packets);
-                } else {
-                    conn = null;
-                }
-            }
-        }
+        this.broadcaster.processPackets();
     }
 
-    // FIX (perf): sendToPlayer/sendBroadcast/sendNeighbours each used to call
-    // this.processPackets() immediately after queuing, on top of the
-    // setInterval(processPackets, 16) flush already running for every map
-    // with players (worldserver.js). processPackets() iterates every queued
-    // player's packet list on the map, so every single event -- one chat
-    // message, one attack, one item pickup -- paid a full
-    // O(players-on-map) cost immediately, in addition to being flushed again
-    // a few milliseconds later by the interval. Queuing here and letting the
-    // 16ms interval be the sole flush point removes that redundant work;
-    // worst case this delays delivery by <16ms, which is already the
-    // effective batching granularity the interval assumes.
     sendToPlayer(player, message) {
-        if (!message)
-            return;
-
-        if (player) {
-            const queue = this.packets.get(player.id);
-            if (queue)
-                queue.push(message.serialize());
-        }
+        this.broadcaster.sendToPlayer(player, message);
     }
 
-    sendBroadcast(message, ignoredPlayer)  {
-        if (!message)
-            return;
-
-        // PERF: message.serialize() (message.js) is a pure function of the
-        // message's own fields -- it doesn't vary per recipient -- so it
-        // only needs to be computed once per broadcast call instead of once
-        // per connected player. This used to re-serialize the same message
-        // from scratch for every single player on the map on every chat
-        // message, spawn, despawn, and attack broadcast. The resulting array
-        // is only ever read (never mutated) by the packet-flush/send path in
-        // processPackets()/ws.js, so sharing one reference across every
-        // player's queue is safe.
-        const serialized = message.serialize();
-        for (const [id, packet] of this.packets) {
-            if (id !== ignoredPlayer)
-                packet.push(serialized);
-        }
+    sendBroadcast(message, ignoredPlayer) {
+        this.broadcaster.sendBroadcast(message, ignoredPlayer);
     }
 
-    sendNeighbours(entity, message, ignoredPlayer, areaLength)  {
-        const self = this;
-        areaLength = areaLength || 64;
-        const players = self.getPlayerAround(entity, areaLength);
-        players.push(entity);
-
-        // PERF: serialize once and share the reference across recipients --
-        // see sendBroadcast above for why that's safe.
-        const serialized = message.serialize();
-
-        for (const player of players) {
-            // NOTE: previously `packets.hasOwnProperty(player.id) && !ignoredPlayer ||
-            // (ignoredPlayer && player !== ignoredPlayer)` -- because && binds tighter
-            // than ||, the ignoredPlayer branch bypassed the hasOwnProperty check
-            // entirely, so a player around who isn't the ignored one but somehow has
-            // no packets entry would throw on push() below instead of being skipped.
-            const queue = self.packets.get(player.id);
-            if (queue && (!ignoredPlayer || player !== ignoredPlayer))
-            {
-                queue.push(serialized);
-            }
-        }
+    sendNeighbours(entity, message, ignoredPlayer, areaLength) {
+        this.broadcaster.sendNeighbours(entity, message, ignoredPlayer, areaLength);
     }
 
     spawnEntities(map) {
@@ -391,7 +267,7 @@ class MapEntities {
         console.info("addPlayer - player id: "+player.id);
         this.addEntity(player);
         this.players.set(player.id, player);
-        this.packets.set(player.id, []);
+        this.broadcaster.registerPlayer(player.id);
     }
 
     addBlock(block) {
@@ -441,98 +317,15 @@ class MapEntities {
     }
 
     addSpatial(entity) {
-        // FIX: `!entity.x || !entity.y` treats a legitimate coordinate of
-        // exactly 0 as "missing", silently skipping spatial-grid
-        // registration for any entity sitting at x===0 or y===0 (the map
-        // edge) -- making it invisible to proximity-based queries (combat
-        // targeting, processWho, etc). Use null/undefined checks instead of
-        // truthiness so 0 is treated as a valid coordinate.
-        if (!entity || entity.x == null || entity.y == null) return;
-
-        const ts = G_TILESIZE;
-        const gx = ~~(entity.x / ts);
-        const gy = ~~(entity.y / ts);
-
-        const spx = ~~(gx / this.spatialSize);
-        const spy = ~~(gy / this.spatialSize);
-
-        // bounds check
-        if (spy < 0 || spy >= this.spatial.length ||
-            spx < 0 || spx >= this.spatial[spy].length) {
-            return;
-        }
-
-        entity.spx = spx;
-        entity.spy = spy;
-        entity.spatialMap = true;
-
-        this.spatial[spy][spx].push(entity);
+        this.spatialIndex.add(entity);
     }
 
-    // FIX: this used to recompute the entity's spatial cell from
-    // entity.x/entity.y at call time instead of using the cell it was
-    // actually stored under (entity.spx/entity.spy, set by addSpatial
-    // below). By the time removeSpatial runs, entity.x/entity.y already
-    // hold the *new* position -- Entity._setPosition() assigns this.x/this.y
-    // before calling removeSpatial() -- so recomputing here found the
-    // entity's *new* cell, not the old one it was actually sitting in.
-    // Whenever an entity crossed a spatial-cell boundary (which every
-    // moving mob and player does constantly), that meant this removal was a
-    // silent no-op: Utils.removeFromArray() does an indexOf lookup and just
-    // finds nothing in the wrong cell's array, and addSpatial() then pushed
-    // a second, live reference into the new cell -- leaving a permanent
-    // "ghost" entry behind in the old cell forever. Since this repeats on
-    // every boundary crossing for the lifetime of the server, the spatial
-    // arrays grew without bound, and every proximity query built on top of
-    // them (getSpatialEntities -> getPlayerAround/getMobsAround/processWho/
-    // combat targeting/pathfinding ignore-include lists) returned an
-    // ever-growing set of stale duplicate entities that had long since
-    // moved elsewhere. Using the entity's own stored spx/spy -- exactly the
-    // cell it was last added to -- removes it from the right place.
     removeSpatial(entity) {
-        if (entity.spatialMap) {
-            const spx = entity.spx;
-            const spy = entity.spy;
-
-            // bounds check
-            if (spy < 0 || spy >= this.spatial.length ||
-                spx < 0 || spx >= this.spatial[spy].length) {
-                return;
-            }
-
-            const spatial = this.spatial[spy][spx];
-            Utils.removeFromArray(spatial, entity);
-            entity.spatialMap = false;
-        }
+        this.spatialIndex.remove(entity);
     }
 
-    // PERF: setPosition() runs on every pixel-step of every moving entity's
-    // movement -- Transition.step() (transition.js) can call it up to ~20
-    // times per single 32ms world tick for one moving character (see the
-    // PERF comment on Map.isColliding in map/map.js for the same loop) --
-    // but the entity's spatial-grid cell (a coarser bucket of G_SPATIAL_SIZE
-    // tiles, not a single tile) only actually changes on a small fraction of
-    // those steps. Previously every single step paid a full
-    // removeSpatial()+addSpatial() pair -- an indexOf+splice out of one
-    // array followed by a push into another -- regardless of whether the
-    // cell changed at all. Skipping the remove/add entirely when the
-    // newly-computed cell matches the entity's current one avoids that
-    // wasted work on the overwhelming majority of movement steps.
     updateSpatial(entity) {
-        if (!entity || entity.x == null || entity.y == null) return;
-
-        const ts = G_TILESIZE;
-        const gx = ~~(entity.x / ts);
-        const gy = ~~(entity.y / ts);
-
-        const spx = ~~(gx / this.spatialSize);
-        const spy = ~~(gy / this.spatialSize);
-
-        if (entity.spatialMap && entity.spx === spx && entity.spy === spy)
-            return;
-
-        this.removeSpatial(entity);
-        this.addSpatial(entity);
+        this.spatialIndex.update(entity);
     }
 
     removeEntity(entity) {
@@ -581,7 +374,7 @@ class MapEntities {
 
         self.removeEntity(player);
 
-        self.packets.delete(player.id);
+        self.broadcaster.unregisterPlayer(player.id);
         //delete player;
         player = null;
     }
@@ -872,150 +665,7 @@ class MapEntities {
     // chest-specific bookkeeping is needed on this class anymore.
 
     findPath(character, x, y, ignoreList) {
-        // NOTE: `path` used to be initialized twice -- `var path = [];` up
-        // here (dead: nothing ever reads it before the block below
-        // overwrites it, and the no-pathfinder/no-character early-out just
-        // below returns `null` directly without ever touching `path`) and
-        // then `var path = null;` again inside the `if`. Harmless
-        // redeclaration under `var`; a SyntaxError under `let`. Consolidated
-        // to the one live declaration, scoped to where it's actually used.
-        const self = this;
-
-
-        if(this.pathfinder && character)
-        {
-            const grid = self.map.grid;
-            let path = null;
-            const pS =[character.x, character.y];
-            const ts = G_TILESIZE;
-
-            if (this.map.isColliding(character.x, character.y))
-            {
-                return null;
-            }
-
-            const pE = [x,y];
-            if (this.map.isColliding(x, y))
-            {
-                return null;
-            }
-
-            // PERF: unlike the isValidGridPath()/character-position sanity
-            // checks further down in this function (genuine invariant
-            // violations -- the pathfinding math produced something that
-            // shouldn't be possible -- which is why those are left as
-            // unconditional anomaly signals), a start===end path request is
-            // an ordinary, expected outcome, not a bug: it's simply "no path
-            // needed". findPath()'s own callers (entitymoving.js's
-            // requestPathfindingTo -> _moveTo) already treat a null return as
-            // a normal no-op. Combat routinely hits this -- e.g.
-            // mobai.js's checkChase() calls mob.follow(target) again on every
-            // tick a mob stays overlapping its target, and getClosestSpot()
-            // can resolve to the mob's own current position when it's
-            // already correctly placed -- so this was paying for a full
-            // stack-trace capture and log on a frequent, routine combat path.
-            // Gated behind G_DEBUG like the equivalent per-request diagnostic
-            // logging elsewhere in this codebase.
-            if (pS[0] === pE[0] && pS[1] === pE[1]) {
-                if (G_DEBUG) {
-                    try { throw new Error(); } catch(err) { console.info(err.stack); }
-                }
-                return null;
-            }
-
-            const fgpS = [~~(pS[0]/ts), ~~(pS[1]/ts)];
-            const fgpE = [~~(pE[0]/ts), ~~(pE[1]/ts)];
-            const shortGrid = this.pathfinder.getShortGrid(grid, fgpS, fgpE, 3);
-            const sgrid = shortGrid.crop;
-            const spS = shortGrid.substart;
-            const spE = shortGrid.subend;
-            let subpath = null;
-
-            // PERF: findPath runs for every mob chase/roam/player click-path
-            // request -- these JSON.stringify calls used to run
-            // unconditionally on every single call, so they're gated behind
-            // G_DEBUG like the rest of the pathfinding trace logging.
-            if (G_DEBUG) {
-                console.info("findDirectPath - spS:"+JSON.stringify(spS));
-                console.info("findDirectPath - spE:"+JSON.stringify(spE));
-            }
-            subpath = this.pathfinder.findDirectPath(sgrid, spS, spE);
-
-            if (subpath)
-            {
-                subpath = this.pathfinder.makeNodesMidPoints(subpath);
-                subpath = this.pathfinder.dropUneededNodes(subpath);
-                if (G_DEBUG)
-                    console.info("findDirectPath - subpath:"+JSON.stringify(subpath));
-                if (!this.pathfinder.isValidGridPath(sgrid, subpath)) {
-                    try { throw new Error(); } catch (e) { console.error(e.stack); }
-                    return null;
-                }
-                const res = this.pathfinder.getFullFromShortPath(subpath, shortGrid.minX, shortGrid.minY);
-                if (G_DEBUG)
-                    console.info("findDirectPath - res:"+JSON.stringify(res));
-                if (!this.pathfinder.isValidGridPath(this.map.grid, res, true)) {
-                    try { throw new Error(); } catch (e) { console.error(e.stack); }
-                    return null;
-                }
-                return res;
-            }
-
-            if (!path) {
-                subpath = this.pathfinder.findShortPath(sgrid,
-                    shortGrid.minX, shortGrid.minY, spS, spE);
-                if (subpath)
-                    path = this.pathfinder.getFullFromShortPath(subpath, shortGrid.minX, shortGrid.minY);
-                if (G_DEBUG)
-                    console.info("findPath - shortPath:"+JSON.stringify(path));
-            }
-
-            if (!path) {
-                console.warn("findPath - DANGER - findPath LONGGG");
-                // PERF/FIX: this fallback's padding was 10 tiles. Benchmarked
-                // getShortGrid+findShortPath (the actual crop+A* pipeline)
-                // across synthetic sparse/medium/dense terrain at several
-                // start->end distances: in dense/maze-like obstacle areas
-                // (the exact case this fallback exists for -- it only runs
-                // after the primary e=3 short-grid attempt already failed),
-                // e=10 still left a meaningful chunk of searches failing
-                // outright (returning no path at all): 8.3% at 20 tiles,
-                // 5% at 40 tiles, 3.3% at 70 tiles. The failure-rate curve
-                // flattens out around e=15-16 (going bigger than that pays
-                // for a larger crop without meaningfully reducing failures
-                // further -- the remaining few percent are genuinely
-                // disconnected/blocked regions no amount of padding fixes).
-                // 16 trades a somewhat larger crop on this already-rare
-                // "DANGER" path for meaningfully fewer total pathfinding
-                // failures in dense terrain.
-                const longGrid = this.pathfinder.getShortGrid(grid, fgpS, fgpE, 16);
-                const lpS = longGrid.substart;
-                const lpE = longGrid.subend;
-                path = this.pathfinder.findShortPath(longGrid.crop,
-                    longGrid.minX, longGrid.minY, lpS, lpE);
-                if (path) {
-                    path = this.pathfinder.dropUneededNodes(path);
-                    path = this.pathfinder.getFullFromShortPath(path, longGrid.minX, longGrid.minY);
-                }
-                if (G_DEBUG)
-                    console.info("findPath - longPath:"+JSON.stringify(path));
-            }
-
-            if (!path) {
-                console.error("findPath - Error while finding the path to "+x+", "+y+" for "+character.id);
-                return null;
-            }
-            if (!this.pathfinder.isValidGridPath(this.map.grid, path, true)) {
-                try { throw new Error(); } catch (e) { console.error(e.stack); }
-                return null;
-            }
-            if (!(path[0][0] === character.x && path[0][1] === character.y)) {
-                try { throw new Error(); } catch (e) { console.error(e.stack); }
-                return null;
-            }
-            return path;
-        }
-        return null;
+        return this.pathfindingService.findPath(character, x, y, ignoreList);
     }
 
     spaceEntityRandomApart(dist, callback_func, entities, entity, threshold) {
