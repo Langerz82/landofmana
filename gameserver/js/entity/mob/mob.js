@@ -1,12 +1,12 @@
-import Character from './character/character.js';
-import MobCombat from './components/mobcombat.js';
-import MobAggro from './components/mobaggro.js';
-import MobRespawn from './components/mobrespawn.js';
-import MobAIState from './components/mobaistate.js';
-import Utils from '../utils.js';
-import { Types } from '../common.js';
-import MobData from '../data/mobdata.js';
-import { mobState, G_TILESIZE } from '../constants.js';
+import Character from '../character/character.js';
+import MobCombat from './mobcombat.js';
+import MobAggro from './mobaggro.js';
+import MobRespawn from './mobrespawn.js';
+import MobAIState from './mobaistate.js';
+import Utils from '../../utils.js';
+import { Types } from '../../common.js';
+import MobData from '../../data/mobdata.js';
+import { mobState, G_TILESIZE } from '../../constants.js';
 
 // mob.js was split into entity/components/mobaggro.js (hate-list tracking
 // + aggro decisions), entity/components/mobrespawn.js (boss/loot/drop

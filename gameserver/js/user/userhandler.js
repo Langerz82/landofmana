@@ -1,7 +1,7 @@
 /* global log, DBH, MainConfig */
 import UserMessages from './usermessage.js';
 import { Types } from '../common.js';
-import Player from '../entity/player.js';
+import Player from '../entity/player/player.js';
 import Utils from '../utils.js';
 import AppearanceData from '../data/appearancedata.js';
 import Quest, { getQuestObject } from '../quest.js';

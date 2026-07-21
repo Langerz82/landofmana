@@ -1,5 +1,5 @@
-import Mob from '../entity/mob.js';
-import Player from '../entity/player.js';
+import Mob from '../entity/mob/mob.js';
+import Player from '../entity/player/player.js';
 import Messages from '../message.js';
 import Formulas from '../formulas.js';
 import { ATTACK_INTERVAL, mobState } from '../constants.js';

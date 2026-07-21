@@ -1,7 +1,7 @@
 /* global databaseHandler, log */
 import Messages from '../message.js';
 import { ItemTypes } from '../common.js';
-import Player from '../entity/player.js';
+import Player from '../entity/player/player.js';
 // FIX: getRandomItemNumber() below calls Utils.randomRange() but Utils was
 // never imported -- threw ReferenceError every time it ran, which
 // world/lootmanager.js's PvP drop logic (getPlayerDrop) relies on.

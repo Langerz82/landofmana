@@ -1,5 +1,5 @@
 import Messages from '../message.js';
-import Player from '../entity/player.js';
+import Player from '../entity/player/player.js';
 
 class PartyHandler {
     constructor(packetHandler) {

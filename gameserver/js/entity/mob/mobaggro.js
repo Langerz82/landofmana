@@ -1,5 +1,5 @@
 import _ from 'underscore';
-import Player from '../player.js';
+import Player from '../player/player.js';
 import Timer from '../../timer.js';
 import { mobState, G_DEBUG } from '../../constants.js';
 

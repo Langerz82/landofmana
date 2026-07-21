@@ -1,5 +1,5 @@
 import Utils from '../utils.js';
-import Mob from '../entity/mob.js';
+import Mob from '../entity/mob/mob.js';
 import { G_DEBUG } from '../constants.js';
 
 class PlayerCallback {

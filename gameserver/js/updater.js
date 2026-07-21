@@ -3,7 +3,7 @@ import _ from "underscore";
 //import Utils from "./utils.js";
 import { Types } from './common.js';
 import { G_TILESIZE, G_FRAME_INTERVALS } from './constants.js';
-import Player from './entity/player.js';
+import Player from './entity/player/player.js';
 
 /* global Player */
 

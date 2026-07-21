@@ -1,20 +1,20 @@
 
 /* global log, databaseHandler, QuestStatus */
-import Character from './character/character.js';
-import Messages from "../message.js";
-import SkillHandler from "../skillhandler.js";
-import SkillEffectHandler from "../effecthandler/effecthandler.js";
-import PacketHandler from "../packets/packethandler.js";
-import PlayerQuests from "./components/playerquests.js";
-import PlayerHarvest from "./components/playerharvest.js";
-import PlayerItems from "./components/playeritems.js";
-import PlayerCombat from "./components/playercombat.js";
-import PlayerProgression from "./components/playerprogression.js";
-import PlayerPersistence from "./components/playerpersistence.js";
-import Timer from '../timer.js';
-import Utils from '../utils.js';
-import { Types, ItemTypes } from '../common.js';
-import { G_TILESIZE, G_SCREEN_WIDTH, G_SCREEN_HEIGHT, G_DEBUG } from '../constants.js';
+import Character from '../character/character.js';
+import Messages from "../../message.js";
+import SkillHandler from "../../skillhandler.js";
+import SkillEffectHandler from "../../effecthandler/effecthandler.js";
+import PacketHandler from "../../packets/packethandler.js";
+import PlayerQuests from "./playerquests.js";
+import PlayerHarvest from "./playerharvest.js";
+import PlayerItems from "./playeritems.js";
+import PlayerCombat from "./playercombat.js";
+import PlayerProgression from "./playerprogression.js";
+import PlayerPersistence from "./playerpersistence.js";
+import Timer from '../../timer.js';
+import Utils from '../../utils.js';
+import { Types, ItemTypes } from '../../common.js';
+import { G_TILESIZE, G_SCREEN_WIDTH, G_SCREEN_HEIGHT, G_DEBUG } from '../../constants.js';
 
 // Split out of this file -- leveling/XP moved to
 // components/playerprogression.js, database load/restore moved to

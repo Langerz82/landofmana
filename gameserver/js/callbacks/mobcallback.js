@@ -1,6 +1,6 @@
 import Messages from '../message.js';
 import { mobState, G_DEBUG } from '../constants.js';
-import Player from '../entity/player.js';
+import Player from '../entity/player/player.js';
 import { PlayerEvent } from '../world/taskhandler.js';
 
 /* global EventType */

@@ -1,6 +1,6 @@
 import Utils from '../../utils.js';
 import { Types, ItemTypes } from '../../common.js';
-import Mob from '../mob.js';
+import Mob from '../mob/mob.js';
 
 /* global log */
 
