@@ -44,7 +44,7 @@ import AchievementHandler from './achievementhandler.js';
 import UserAlarm from './useralarm.js';
 import EquipmentHandler from './equipmenthandler.js';
 import InventoryHandler from './inventoryhandler.js';
-import InventoryDialog from './inventorydialog.js';
+import InventoryDialog from './inventorydialog/inventorydialog.js';
 import ShortcutHandler from './shortcuthandler.js';
 import BankHandler from './bankhandler.js';
 import SocialHandler from './socialhandler.js';
