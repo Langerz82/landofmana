@@ -1,7 +1,10 @@
-// Mixin extracted from entitymoving.js: spatial queries (the file's original 'Grid Functions'
-// BEGIN/END blocks) - getSpotsAround/getClosestSpot/isColliding/getEntitiesAround/isNear/
-// nextDist/nextTile/isWithinPath.
-// Applied onto EntityMoving.prototype via install*(...) call in entitymoving.js; not a standalone class.
+// Mixin extracted from entitymoving.js: spatial queries -- the file's original 'Grid
+// Functions' BEGIN/END blocks (candidate-spot search around a destination,
+// collision/entity-occupancy queries, simple tile-distance helpers) - getSpotsAround/
+// getClosestSpot/isColliding/getEntitiesAround/isNear/nextDist/nextTile/isWithinPath.
+// Installed directly onto EntityMoving.prototype via install*(...) call in
+// entitymoving.js; not a standalone class -- see entitymovingpath.js's header comment
+// for why a mixin rather than a composed sub-object.
 /* global Utils, G_TILESIZE, game */
 
 export function installEntityMovingSpatial(proto) {
@@ -60,13 +63,23 @@ export function installEntityMovingSpatial(proto) {
             let poss = this.getSpotsAroundFrom(dest, adjStart, adjEnd);
             const sx = this.x, sy = this.y;
 
+            // PERF/FIX (carried over): the walkability filter here used to be declared
+            // without `var`/`let` (an implicit global leak) and both filtering passes
+            // below used to do `poss.splice(poss.indexOf(p), 1)` while iterating `poss`
+            // with a `for...of` loop. Splicing during for-of iteration shifts every
+            // following element down one index, so the iterator (which just advances
+            // to "the next index") silently skips the element that slid into the
+            // spot of the one just removed -- a colliding tile or an
+            // entity-occupied tile immediately after a removed one could survive the
+            // filter uninspected. This let mobs/players occasionally path onto a
+            // blocked or occupied spot. It was also O(n^2) (indexOf + splice per
+            // removal) where this is called on every follow()/followAttack() -- i.e.
+            // every mob chase step and every player attack-move. Using .filter()
+            // instead removes both the correctness bug and the O(n^2) cost.
             poss = poss.filter(function(p) {
                 return !this.isColliding(p.x, p.y);
             }, this);
 
-            // FIX (carried over): was declared without `var`/`let` (implicit global leak) and the
-            // walkability filter below used to splice this array while iterating it with for...of,
-            // which skips elements and lets occupied tiles slip through; now built with .filter()
             const entities = this.getEntitiesAround(adjEnd);
 
             const ts = G_TILESIZE;
@@ -165,6 +178,11 @@ export function installEntityMovingSpatial(proto) {
             return this.nextDist(x, y, o, dist);
         };
 
+        // NOTE: no caller anywhere in the client or server codebase currently (grepped
+        // for isWithinPath()) -- dead code. Left as-is rather than guess-fixed, since
+        // the original "probably broken with new path code" TODO gives no reproduction
+        // and there's no live call site to verify a fix against. Treat as
+        // unverified/unsafe to call until it has a real caller and a test.
         proto.isWithinPath = function(coords) {
             let tCoords = null;
             if (typeof (coords) === "object" && coords.x > 0 && coords.y > 0) {

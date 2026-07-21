@@ -1,7 +1,12 @@
-// Mixin extracted from entitymoving.js: pathfinding/movement-state functions (the file's
-// original 'Movement Functions' BEGIN/END blocks) - moveTo_/followPath/nextStep/movePath/
-// stop/idle/walk and related state and callback registration.
-// Applied onto EntityMoving.prototype via install*(...) call in entitymoving.js; not a standalone class.
+// Mixin extracted from entitymoving.js: pathfinding/movement-state functions -- the file's
+// original 'Movement Functions' BEGIN/END blocks (moveTo_/followPath/nextStep/movePath/
+// stop/idle/walk and related state and callback registration). Installed directly onto
+// EntityMoving.prototype via install*(...) call in entitymoving.js, not composed as a
+// separate sub-object/standalone class, so every existing call site (`entity.moveTo_(...)`,
+// `entity.stop()`, etc., throughout character.js/mob.js/player.js and the per-tick
+// movement/AI update loops -- updater.js on both sides, plus mobai.js on the server)
+// keeps working unchanged -- Character (and everything that extends it) inherits this
+// exactly as if it were still written directly in the class body.
 import Timer from '../../timer.js';
 /* global Types, log */
 
@@ -179,9 +184,11 @@ export function installEntityMovingPath(proto) {
         };
 
         proto.getPathIndex = function(step) {
-            // FIX (carried over): was `if (!this.path === null || ...)` - operator precedence bug
-            // (!this.path evaluated first, then compared to null) made the condition effectively
-            // dead; fixed to `this.path === null`
+            // FIX (carried over): was `if (!this.path === null || ...)` - operator precedence
+            // bug (!this.path evaluated first, then compared to null) made the null-path check
+            // effectively dead, and `this.path.length` would throw if this.path really were
+            // null; fixed to `this.path === null`. No current callers exercise this path
+            // (dead code either way), but fixed for correctness.
             if (this.path === null || this.path.length === 0)
                 return null;
             if (step < 0 || step >= this.path.length)
