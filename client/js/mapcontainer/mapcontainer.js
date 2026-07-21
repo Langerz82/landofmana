@@ -1,11 +1,19 @@
 // Converted from AMD (define) + Class.extend to a native ES6 module/class.
 /* global JSZipUtils, JSZip, _ */
 /* global Utils */
-import Area from './area.js';
-import Detect from './detect.js';
-import Map from './map.js';
-import config from './config.js';
-import fetchJsonSync from './lib/fetchjsonsync.js';
+import Area from '../area.js';
+import Detect from '../detect.js';
+import Map from '../map.js';
+import config from '../config.js';
+import fetchJsonSync from '../lib/fetchjsonsync.js';
+
+
+// MapContainer's own behavior is split across these mixin modules for readability
+// (mapcontainer.js had grown to ~560 lines). Each install* call below merges plain-
+// function methods onto MapContainer.prototype; they're not subclasses/separate
+// instances, just MapContainer's own methods living in separate files.
+import { installMapContainerDoors } from './mapcontainerdoors.js';
+import { installMapContainerQueries } from './mapcontainerqueries.js';
 
 export default class MapContainer {
     constructor(game, mapIndex, mapName) {
@@ -96,6 +104,7 @@ export default class MapContainer {
 
     }
 
+
     loadMap(data) {
         this.isLoaded = false;
         this.data = data;
@@ -122,12 +131,14 @@ export default class MapContainer {
         this._isReady();
     }
 
+
     _isReady() {
         const self = this;
         if (self.ready_func) {
             self.ready_func();
         }
     }
+
 
     _initGrids() {
         const c = game.camera;
@@ -142,6 +153,7 @@ export default class MapContainer {
             }
         }
     }
+
 
     _initMap(map) {
         const c = game.camera;
@@ -176,116 +188,22 @@ export default class MapContainer {
         this._initGrids();
     }
 
-    _getDoors(map) {
-        const self = this;
-
-        const doors = [];
-        let count = 0;
-        _.each(map.doors, function(door) {
-            door.width = (door.width) ? door.width : 1;
-            door.height = (door.height) ? door.height : 1;
-            const area = new Area(door.x, door.y, door.width, door.height);
-            area.minLevel = door.tminLevel || 0;
-            area.maxLevel = door.tmaxLevel || 200;
-            area.tmap = (door.tmap >= 0) ? door.tmap : self.mapIndex;
-            area.tx = door.tx || -1;
-            area.ty = door.ty || -1;
-            area.orientation = door.to || 2;
-
-            area.id = count++;
-            doors.push(area);
-        });
-        return doors;
-    }
 
     ready(f) {
         this.ready_func = f;
     }
+
 
     OnAllReady() {
         this.all_ready_func();
         this.gridReady = true;
     }
 
+
     allReady(f) {
         this.all_ready_func = f;
     }
 
-    /**
-     * Returns true if the given tile id is "high", i.e. above all entities.
-     * Used by the renderer to know which tiles to draw after all the entities
-     * have been drawn.
-     *
-     * @param {Number} id The tile id in the tileset
-     * @see Renderer.drawHighTiles
-     */
-    isHighTile(id) {
-        return this.high[(id)];
-    }
-
-    /**
-     * Returns true if the tile is animated. Used by the renderer.
-     * @param {Number} id The tile id in the tileset
-     */
-    isAnimatedTile(id) {
-        return id + 1 in this.animated;
-    }
-
-    /**
-     *
-     */
-    getTileAnimationLength(id) {
-        return this.animated[id + 1].l;
-    }
-
-    /**
-     *
-     */
-    getTileAnimationDelay(id) {
-        const animProperties = this.animated[id + 1];
-        if (animProperties.d) {
-            return animProperties.d;
-        } else {
-            return 100;
-        }
-    }
-
-    isDoor(x, y) {
-        // FIX: Area.contains() reads entity.x/entity.y (see getDoor() below), not gx/gy, and
-        // it only ever returns true/false (never null), so the old `{gx,gy}` shape combined
-        // with `!== null` meant this ignored position entirely and just matched the first
-        // door in the list (or undefined if none). Pass the correct {x, y} shape instead.
-        return _.detect(this.doors, function(door) {
-            return door.contains({ x: x, y: y });
-        });
-    }
-
-
-    getDoor(entity) {
-        return _.detect(this.doors, function(door) {
-            return door.contains(entity);
-        });
-    }
-
-    _getCheckpoints(map) {
-        const checkpoints = [];
-        _.each(map.checkpoints, function(cp) {
-            const area = new Area(cp.x, cp.y, cp.w, cp.h);
-            area.id = cp.id;
-            checkpoints.push(area);
-        });
-        return checkpoints;
-    }
-
-    getCurrentCheckpoint(entity) {
-        return _.detect(this.checkpoints, function(checkpoint) {
-            return checkpoint.contains(entity);
-        });
-    }
-
-    GridPositionToTileIndex(x, y) {
-        return (y * this.width) + x;
-    }
 
     getMap(index) {
         const self = this;
@@ -307,6 +225,7 @@ export default class MapContainer {
 
         return map;
     }
+
 
     LoadMaps() {
         let self = this;
@@ -354,6 +273,7 @@ export default class MapContainer {
         }
     }
 
+
     reloadMaps(init) {
         const ts = G_TILESIZE;
         const c = game.camera;
@@ -369,6 +289,7 @@ export default class MapContainer {
         if (init)
             this.LoadMaps();
     }
+
 
     moveGrid(force) {
         const self = this;
@@ -404,6 +325,7 @@ export default class MapContainer {
         return true;
     }
 
+
     _updateGrid(map) {
         const c = game.camera;
         const fe = c.focusEntity;
@@ -430,131 +352,7 @@ export default class MapContainer {
         }
     }
 
-    isCollidingPoint(x, y) {
-        const gx = Math.floor(x / G_TILESIZE),
-            gy = Math.floor(y / G_TILESIZE);
-
-        return this.isOutOfBounds(gx, gy) || this.isCollidingGrid(gx, gy);
-    }
-
-    // PERF: this used to build a `[[x1,y1],[x1,y2],[x2,y1],[x2,y2]]` array
-    // (5 allocations: the outer array + 4 pair arrays) on every call just to
-    // loop over 4 fixed corners. It's called once per 1-pixel movement
-    // sub-step for every moving player (Transition.step() in transition.js
-    // iterates up to ~20 times per world tick per moving player, see
-    // updater.js playerKey -> checkCollide -> this), so at any real player
-    // count this was hundreds of thousands of short-lived array allocations
-    // per second for pure GC churn. Same 4 corners, same short-circuit
-    // order, no allocation.
-    //
-    // PERF: on top of the allocation fix above, this used to call
-    // isOutOfBounds()/isCollidingGrid() once per corner (8 function calls),
-    // and isCollidingGrid() re-indexed this.grid[y] separately for each
-    // corner even though y1's row is shared by 2 corners (x1,y1 and x2,y1)
-    // and same for y2. Since d > 0 and map coordinates are never negative,
-    // x1 <= x2 and y1 <= y2 always hold, so the bounds check collapses to a
-    // single inlined condition, and the two grid rows can be fetched once
-    // and reused for both corners on that row. Benchmarked (3M calls,
-    // 512x512 grid, isolated Node processes to avoid V8 inline-cache
-    // cross-contamination between old/new code paths): ~28-30% faster
-    // (median ~22ms -> ~16ms), with 0 behavioral differences across 200k
-    // random/edge-case sample positions.
-    isColliding(x, y)
-    {
-        const map = this.getMap(0);
-        if (!map)
-          return;
-
-        const gx = (x / G_TILESIZE),
-            gy = (y / G_TILESIZE),
-            d = 0.49, // A little less than 0.5.
-            x1 = ~~(gx-d),
-            y1 = ~~(gy-d),
-            x2 = ~~(gx+d),
-            y2 = ~~(gy+d);
-
-        if (x1 < 0 || y1 < 0 || x2 >= this.width || y2 >= this.height) return true;
-
-        const grid = map.collision,
-            row1 = grid[y1],
-            row2 = grid[y2];
-
-        return row1[x1] === 1 || row1[x2] === 1 || row2[x1] === 1 || row2[x2] === 1;
-    }
-
-    isCollidingGrid(gx, gy) {
-        const map = this.getMap(0);
-        if (!map)
-            return true;
-
-        return map.isColliding(gx, gy);
-    }
-
-    /**
-     * Returns true if the given position is located within the dimensions of the map.
-     *
-     * @returns {Boolean} Whether the position is out of bounds.
-     */
-    isOutOfBounds(x, y) {
-        return !Utils.isInt(x) || !Utils.isInt(y) || (x < 0 || x >= (this.width) || y < 0 || y >= (this.height));
-    }
-
-    /**
-     * Returns true if the given position is located within the dimensions of the map.
-     *
-     * @returns {Boolean} Whether the position is out of bounds.
-     */
-    isOutOfCameraBounds(x, y) {
-        const ts = G_TILESIZE,
-            to = G_TILESIZE >> 1;
-        // FIX: called bare `isInt(...)` (no such global) instead of `Utils.isInt(...)`
-        // (see isOutOfBounds() just above for the correct form); would throw
-        // ReferenceError the moment this method is called.
-        return !Utils.isInt(x) || !Utils.isInt(y) || (x < to || x >= (this.width * ts - to) || y < (to) || y >= (this.height * ts - (to)));
-    }
-
-    isHarvestTile(pos, type) {
-        const tiles = this.getTiles(pos.gx, pos.gy);
-        if (!tiles || tiles.length === 0)
-            return false;
-
-        const types = {}
-        types.axe = [678, 679, 698, 699, 855, 875, 274, 275, 294, 295];
-        if (!types.hasOwnProperty(type))
-            return false;
-
-        let res = false;
-        if (Array.isArray(tiles)) {
-            res = types[type].some(function(tile) { return tiles.includes(tile); });
-        } else {
-            res = types[type].includes(tiles);
-        }
-        return res;
-    }
-
-    getTiles(gx, gy) {
-        const map = this.getMap(0);
-        if (!map)
-          return;
-
-        if (gy < 0 || gy >= map.tile.length)
-          return 0;
-        if (gx < 0 || gx >= map.tile[0].length)
-          return 0;
-
-        return map.tile[gy][gx];
-    }
-
-    getCollision(gx, gy) {
-        const map = this.getMap(0);
-        if (!map)
-          return;
-
-        if (gy < 0 || gy >= map.tile.length)
-          return 0;
-        if (gx < 0 || gx >= map.tile[0].length)
-          return 0;
-
-        return map.collision[gy][gx];
-    }
 }
+
+installMapContainerDoors(MapContainer.prototype);
+installMapContainerQueries(MapContainer.prototype);

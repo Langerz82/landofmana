@@ -8,7 +8,7 @@ import InfoManager from './infomanager.js';
 import BubbleManager from './bubble.js';
 import Renderer from './renderer/renderer.js';
 import Map from './map.js';
-import MapContainer from './mapcontainer.js';
+import MapContainer from './mapcontainer/mapcontainer.js';
 import Animation from './animation.js';
 import Sprite from './sprite.js';
 import Sprites from './sprites.js';
