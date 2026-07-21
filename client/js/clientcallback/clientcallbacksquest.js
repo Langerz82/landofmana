@@ -2,6 +2,9 @@
 // Applied onto ClientCallbacks.prototype via install*(...) call in clientcallbacks.js; not a standalone class.
 import Mob from '../entity/mob.js';
 import MobSpeech from '../data/mobspeech.js';
+import Achievement from '../achievement.js';
+import Quest from '../quest.js';
+
 /* global Types, game */
 const QuestType = Types.QuestType;
 const QuestStatus = Types.QuestStatus;
