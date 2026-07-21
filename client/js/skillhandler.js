@@ -1,7 +1,7 @@
 // Converted from AMD (define) + Class.extend to a native ES6 module/class.
 import Mob from './entity/mob.js';
 import SkillData from './data/skilldata.js';
-import Character from './entity/character.js';
+import Character from './entity/character/character.js';
 
 /* global Types */
 

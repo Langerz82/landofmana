@@ -4,7 +4,7 @@ import GameClient from '../gameclient/gameclient.js';
 import AudioManager from '../audio.js';
 import Pathfinder from '../pathfinder.js';
 import Entity from '../entity/entity.js';
-import EntityMoving from '../entity/entitymoving.js';
+import EntityMoving from '../entity/entitymoving/entitymoving.js';
 import Item, { ItemRoom } from '../entity/item.js';
 import Items from '../data/items.js';
 import ItemLoot from '../data/itemlootdata.js';
@@ -12,8 +12,8 @@ import Mob from '../entity/mob.js';
 import NpcStatic from '../entity/npcstatic.js';
 import NpcMove from '../entity/npcmove.js';
 import NpcData from '../data/npcdata.js';
-import Player from '../entity/player.js';
-import Character from '../entity/character.js';
+import Player from '../entity/player/player.js';
+import Character from '../entity/character/character.js';
 import Block from '../entity/block.js';
 import MobData from '../data/mobdata.js';
 import MobSpeech from '../data/mobspeech.js';
@@ -38,7 +38,11 @@ const QuestStatus = Types.QuestStatus;
 // (clientcallbacks.js had grown to ~1400 lines across 40+ server-event handlers). Each
 // install* call below merges plain-function methods onto ClientCallbacks.prototype; they're
 // not subclasses/separate instances, just ClientCallbacks' own methods living in separate files.
-import { installClientCallbacksLifecycle } from './clientcallbackslifecycle.js';
+import { installClientCallbacksMap } from './clientcallbacksmap.js';
+import { installClientCallbacksSpawn } from './clientcallbacksspawn.js';
+import { installClientCallbacksMovement } from './clientcallbacksmovement.js';
+import { installClientCallbacksUpdates } from './clientcallbacksupdates.js';
+import { installClientCallbacksPlayerState } from './clientcallbacksplayerstate.js';
 import { installClientCallbacksCombat } from './clientcallbackscombat.js';
 import { installClientCallbacksQuest } from './clientcallbacksquest.js';
 import { installClientCallbacksInventory } from './clientcallbacksinventory.js';
@@ -100,7 +104,11 @@ export default class ClientCallbacks {
 
 }
 
-installClientCallbacksLifecycle(ClientCallbacks.prototype);
+installClientCallbacksMap(ClientCallbacks.prototype);
+installClientCallbacksSpawn(ClientCallbacks.prototype);
+installClientCallbacksMovement(ClientCallbacks.prototype);
+installClientCallbacksUpdates(ClientCallbacks.prototype);
+installClientCallbacksPlayerState(ClientCallbacks.prototype);
 installClientCallbacksCombat(ClientCallbacks.prototype);
 installClientCallbacksQuest(ClientCallbacks.prototype);
 installClientCallbacksInventory(ClientCallbacks.prototype);

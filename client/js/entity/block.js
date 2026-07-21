@@ -1,5 +1,5 @@
 // Converted from AMD (define) + Class.extend to a native ES6 module/class.
-import EntityMoving from './entitymoving.js';
+import EntityMoving from './entitymoving/entitymoving.js';
 import Timer from '../timer.js';
 
 export default class Block extends EntityMoving {

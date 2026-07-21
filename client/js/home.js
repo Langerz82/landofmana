@@ -15,4 +15,4 @@
 // imports them once and re-exposes them as window globals - it must run before main.js, whose
 // import graph pulls in every data/*.js file that reads these bare globals at import time.
 import './globaltypes.js';
-import './main.js';
+import './main/main.js';

@@ -6,8 +6,8 @@ import Item from '../entity/item.js';
 import Items from '../data/items.js';
 import ItemLoot from '../data/itemlootdata.js';
 import Entity from '../entity/entity.js';
-import Character from '../entity/character.js';
-import Player from '../entity/player.js';
+import Character from '../entity/character/character.js';
+import Player from '../entity/player/player.js';
 import Timer from '../timer.js';
 import Mob from '../entity/mob.js';
 import NpcMove from '../entity/npcmove.js';
@@ -39,7 +39,11 @@ const checkAnnouncement = function (self) {
 // Renderer.prototype; they're not subclasses/separate instances, just Renderer's own methods
 // living in separate files.
 import { installRendererScaling } from './rendererscaling.js';
-import { installRendererDraw } from './rendererdraw.js';
+import { installRendererDrawSprites } from './rendererdrawsprites.js';
+import { installRendererDrawEntities } from './rendererdrawentities.js';
+import { installRendererDrawBars } from './rendererdrawbars.js';
+import { installRendererDrawNames } from './rendererdrawnames.js';
+import { installRendererDrawHud } from './rendererdrawhud.js';
 
 export default class Renderer {
     constructor(game) {
@@ -478,4 +482,8 @@ export default class Renderer {
 }
 
 installRendererScaling(Renderer.prototype);
-installRendererDraw(Renderer.prototype);
+installRendererDrawSprites(Renderer.prototype);
+installRendererDrawEntities(Renderer.prototype);
+installRendererDrawBars(Renderer.prototype);
+installRendererDrawNames(Renderer.prototype);
+installRendererDrawHud(Renderer.prototype);

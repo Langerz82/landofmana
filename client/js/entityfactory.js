@@ -5,7 +5,7 @@ import Item from './entity/item.js';
 import Mob from './entity/mob.js';
 import NpcStatic from './entity/npcstatic.js';
 import NpcMove from './entity/npcmove.js';
-import Player from './entity/player.js';
+import Player from './entity/player/player.js';
 import Block from './entity/block.js';
 import Node from './entity/node.js';
 

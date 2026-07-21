@@ -12,7 +12,7 @@ import Mob from '../entity/mob.js';
 import Item from '../entity/item.js';
 import MobData from '../data/mobdata.js';
 import User, { PlayerSummary } from '../user.js';
-import UserClient from '../userclient.js';
+import UserClient from '../userclient/userclient.js';
 import config from '../config.js';
 import PlayerAnim from '../playeranim.js';
 import '../lib/localforage.js';

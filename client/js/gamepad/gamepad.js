@@ -89,7 +89,10 @@ const selectFirstItem = {
 //  - runGamepadNavigation(self, navigate): the funcNavigation() UI-context dispatch
 //  - installGamepadButtons(self): registers all the PxGamepad button handlers
 import { runGamepadNavigation } from './gamepadnavigation.js';
-import { installGamepadButtons } from './gamepadbuttons.js';
+import { installGamepadButtonsFace } from './gamepadbuttonsface.js';
+import { installGamepadButtonsAction } from './gamepadbuttonsaction.js';
+import { installGamepadButtonsCancel } from './gamepadbuttonscancel.js';
+import { installGamepadButtonsDpad } from './gamepadbuttonsdpad.js';
 
 export default class Gamepad {
     constructor(game) {
@@ -206,7 +209,10 @@ export default class Gamepad {
 	}*/
 
 
-  installGamepadButtons(self);
+  installGamepadButtonsFace(self);
+  installGamepadButtonsAction(self);
+  installGamepadButtonsCancel(self);
+  installGamepadButtonsDpad(self);
 
     }
 

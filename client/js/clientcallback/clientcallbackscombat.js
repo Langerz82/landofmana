@@ -1,7 +1,7 @@
 // Mixin extracted from clientcallbacks.js: Combat/stats: damage, level-up (player/attack/item), stat changes, health-change bookkeeping and floating damage numbers.
 // Applied onto ClientCallbacks.prototype via install*(...) call in clientcallbacks.js; not a standalone class.
 import HoveringInfo from '../hoveringinfo.js';
-import Player from '../entity/player.js';
+import Player from '../entity/player/player.js';
 /* global Types, Utils, log, game */
 
 export function installClientCallbacksCombat(proto) {

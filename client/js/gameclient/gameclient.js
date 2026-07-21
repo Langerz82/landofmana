@@ -3,13 +3,13 @@
 // `BISON`), same as jQuery/underscore/PIXI elsewhere, so they are not imported here.
 /* global Types, Utils, log, Class, pako, BISON */
 import Detect from '../detect.js';
-import Player from '../entity/player.js';
+import Player from '../entity/player/player.js';
 import EntityFactory from '../entityfactory.js';
 import Mob from '../entity/mob.js';
 import Item from '../entity/item.js';
 import MobData from '../data/mobdata.js';
 import config from '../config.js';
-import ChatHandler from '../chathandler.js';
+import ChatHandler from '../chathandler/chathandler.js';
 import Timer from '../timer.js';
 
 // GameClient's own behavior is split across these mixin modules for readability

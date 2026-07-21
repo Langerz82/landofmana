@@ -1,6 +1,6 @@
 // Converted from AMD (define) + Class.extend to a native ES6 module/class.
 /* global Utils */
-import Character from './character.js';
+import Character from './character/character.js';
 import MobData from '../data/mobdata.js';
 
 export default class Mob extends Character {

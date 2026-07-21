@@ -1,6 +1,6 @@
 // Converted from AMD (define) + Class.extend to a native ES6 module/class.
 /* global Types */
-import Character from './character.js';
+import Character from './character/character.js';
 import AppearanceData from '../data/appearancedata.js';
 import Sprites from '../sprites.js';
 
