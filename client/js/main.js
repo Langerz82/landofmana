@@ -4,7 +4,7 @@
 // PIXI, $, console, StatusBar, screen, Types, Utils remain classic (non-module) globals as
 // established throughout this conversion (Types/Utils are exposed via js/globaltypes.js, which
 // home.js imports before this file).
-import App from './app.js';
+import App from './app/app.js';
 import LangData from './data/langdata.js';
 import Detect from './detect.js';
 import Button2 from './button2.js';
