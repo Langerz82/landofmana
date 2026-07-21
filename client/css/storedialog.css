@@ -26,11 +26,8 @@
         -moz-user-select: none;
         -webkit-user-select: none;
         display: none;
-				cursor: pointer;
-				pointer-events: auto;
-        /*top:18px;
-        margin-top:0;*/
-        z-index: 14;
+		cursor: pointer;
+		pointer-events: auto;
     }
 
     #storeDialog div div div * {
