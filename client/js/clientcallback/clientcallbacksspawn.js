@@ -46,6 +46,23 @@ export function installClientCallbacksSpawn(proto) {
           if(id === game.playerId)
             return;
 
+          // DEBUG-VERIFY (monster teleport bug): if a MOVE/MOVE_PATH for this id was dropped
+          // earlier because the entity wasn't known yet (see clientcallbacksmovement.js /
+          // game.unknownEntityDrops), compare that dropped destination to where we're spawning
+          // it now. A large gap here is the confirmation: the entity's rendered position never
+          // caught up to the dropped move, so this spawn is the visible "jump."
+          const droppedMove = game.unknownEntityDrops && game.unknownEntityDrops[id];
+          if (droppedMove) {
+            const spawnX = Number(data[5]), spawnY = Number(data[6]);
+            const dist = Math.hypot(spawnX - droppedMove.x, spawnY - droppedMove.y);
+            console.warn(
+              "[teleport-debug] entity id="+id+" had a dropped "+droppedMove.source+
+              " to ("+droppedMove.x+","+droppedMove.y+") "+(Date.now()-droppedMove.droppedAt)+
+              "ms before spawning at ("+spawnX+","+spawnY+") - distance="+dist.toFixed(2)
+            );
+            delete game.unknownEntityDrops[id];
+          }
+
           entity.setPosition(Number(data[5]), Number(data[6]));
           const orientation = Number(data[7]);
           entity.level = Number(data[8]);

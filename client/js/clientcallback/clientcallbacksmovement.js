@@ -24,6 +24,11 @@ export function installClientCallbacksMovement(proto) {
             {
               log.info("UNKNOWN ENTITY")
               game.unknownEntities.push(id);
+              // DEBUG-VERIFY (monster teleport bug): record the position this dropped MOVE
+              // packet wanted to set, so spawnEntity() can later compare it against where the
+              // entity actually gets spawned and reveal the gap that reads as a teleport.
+              console.warn("[teleport-debug] onEntityMove dropped id="+id+" wanted=("+x+","+y+") atTime="+time);
+              game.unknownEntityDrops[id] = { x, y, time, source: "move", droppedAt: Date.now() };
               return;
             }
             if(entity.isDying || entity.isDead)
@@ -80,6 +85,10 @@ export function installClientCallbacksMovement(proto) {
             if (!entity)
             {
               game.unknownEntities.push(id);
+              // DEBUG-VERIFY (monster teleport bug): same recording as onEntityMove, but for
+              // a dropped path packet - path[0] is where it would have first snapped to.
+              console.warn("[teleport-debug] onEntityMovePath dropped id="+id+" wanted=("+path[0][0]+","+path[0][1]+") atTime="+time);
+              game.unknownEntityDrops[id] = { x: path[0][0], y: path[0][1], time, source: "movePath", droppedAt: Date.now() };
               return;
             }
 

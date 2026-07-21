@@ -212,6 +212,12 @@ export default class Game {
             this.spritesReady = false;
 
             this.unknownEntities = [];
+            // DEBUG-VERIFY (monster teleport bug): tracks move/movePath packets that were
+            // dropped because the entity wasn't spawned client-side yet, keyed by entity id.
+            // Read by spawnEntity() in clientcallbacksspawn.js to prove/disprove that dropped
+            // moves are the cause of monsters appearing to jump to a new spot. Safe to remove
+            // once confirmed - it's diagnostic only, doesn't change behavior.
+            this.unknownEntityDrops = {};
             // FIX: was never initialized anywhere, so removeObsoleteEntities()'s `this.obsoleteEntities.push(...)`
             // would throw as soon as its (separately fixed) loop condition could actually reach it.
             this.obsoleteEntities = [];
