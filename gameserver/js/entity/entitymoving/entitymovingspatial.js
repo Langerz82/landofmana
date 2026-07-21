@@ -98,7 +98,6 @@ export function installEntityMovingSpatial(proto) {
 
         const entities = this.getEntitiesAround(adjEnd);
 
-        //console.info("entities: "+JSON.stringify(entities));
         const ts = G_TILESIZE;
         const tsh = ts >> 1;
 
@@ -122,7 +121,6 @@ export function installEntityMovingSpatial(proto) {
                     }
                 }
                 if (Math.abs(x - tx) <= tsh && Math.abs(y - ty) <= tsh) {
-                    //console.info("ENTITY ON TARGET SPOT!");
                     return false;
                 }
             }

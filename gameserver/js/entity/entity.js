@@ -100,7 +100,7 @@ class Entity {
         const distX = Math.abs(entity.x - this.x),
             distY = Math.abs(entity.y - this.y);
 
-        return distX > distY ? distX : distY;
+        return Math.max(distX, distY);
     }
 
     /**
@@ -108,29 +108,17 @@ class Entity {
      * @returns {Boolean} Whether these two entities are adjacent.
      */
     isAdjacent(entity) {
-        let adjacent = false;
-
-        if (entity) {
-            adjacent = this.getDistanceToEntity(entity) > 1 ? false : true;
-        }
-
-        return adjacent;
+        return !!entity && this.getDistanceToEntity(entity) <= 1;
     }
 
     /**
      *
      */
     isAdjacentNonDiagonal(entity) {
-        let result = false;
-
-        if (
+        return (
             this.isAdjacent(entity) &&
             !(this.x !== entity.x && this.y !== entity.y)
-        ) {
-            result = true;
-        }
-
-        return result;
+        );
     }
 
     isDiagonallyAdjacent(entity) {
@@ -182,9 +170,7 @@ class Entity {
 
     isWithinDist(x, y, dist) {
         dist = dist || G_TILESIZE;
-        // FIX: var -> let, matching the rest of the codebase's var->let/const
-        // migration (this was one of the last two leftover `var`s in the file).
-        let rd = Utils.realDistance([this.x, this.y], [x, y]);
+        const rd = Utils.realDistance([this.x, this.y], [x, y]);
         return rd <= dist;
     }
 
@@ -197,9 +183,7 @@ class Entity {
     }
 
     isNextTooTile(x, y) {
-        // FIX: var -> let, matching the rest of the codebase's var->let/const
-        // migration.
-        let tileCenter = Utils.fixGridPosition(G_TILESIZE, x, y);
+        const tileCenter = Utils.fixGridPosition(G_TILESIZE, x, y);
         return this.isWithinDist(tileCenter.x, tileCenter.y, G_TILESIZE);
     }
 

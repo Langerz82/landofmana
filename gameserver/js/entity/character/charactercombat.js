@@ -207,7 +207,6 @@ export function installCharacterCombat(proto) {
     proto.engage = function (character) {
         this.attackingMode = true;
         this.setTarget(character);
-        //this.follow(character);
     };
 
     proto.disengage = function () {
@@ -305,10 +304,7 @@ export function installCharacterCombat(proto) {
     };
 
     proto.canAttack = function () {
-        if (this.isDead === false && this.attackCooldown.isOver()) {
-            return true;
-        }
-        return false;
+        return !this.isDead && this.attackCooldown.isOver();
     };
 
     proto.setAttackRate = function (rate) {
@@ -326,11 +322,18 @@ export function installCharacterCombat(proto) {
     };
 
     proto.followAttack = function (entity) {
-        const found = false;
-
         const spot = this.getClosestSpot(entity, 1, this.attackRange);
 
-        if (spot && spot.x && spot.y) this.moveTo_(spot.x, spot.y);
+        // FIX: this never returned a value, but its only caller, Player.makeAttack(), branches
+        // on the return value (`if (!this.followAttack(entity)) return "attack_toofar"; else
+        // return "attack_moving";`) - so makeAttack() always reported "attack_toofar" even when
+        // a valid spot was found and movement started. Return true/false like the analogous
+        // EntityMoving.follow().
+        if (spot && spot.x && spot.y) {
+            this.moveTo_(spot.x, spot.y);
+            return true;
+        }
+        return false;
     };
 
     /*******************************************************************************

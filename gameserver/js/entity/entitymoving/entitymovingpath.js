@@ -311,7 +311,7 @@ export function installEntityMovingPath(proto) {
     };
 
     proto.hasChangedItsPath = function () {
-        return !(this.newDestination === null);
+        return this.newDestination !== null;
     };
 
     proto.setPath = function (path) {
@@ -344,10 +344,7 @@ export function installEntityMovingPath(proto) {
     };
 
     proto.canMove = function () {
-        if (this.isDead === false && this.moveCooldown.isOver()) {
-            return true;
-        }
-        return false;
+        return !this.isDead && this.moveCooldown.isOver();
     };
 
     proto.getLastPosition = function () {

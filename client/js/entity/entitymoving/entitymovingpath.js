@@ -81,10 +81,16 @@ export function installEntityMovingPath(proto) {
         this.newDestination = { x: x, y: y };
     };
 
+    /**
+     *
+     */
     proto.go = function (x, y) {
         this.moveTo_(x, y);
     };
 
+    /**
+     * Makes the character follow another one.
+     */
     proto.follow = function (entity, min, max) {
         min = min || 1;
         max = max || 1;
@@ -124,6 +130,9 @@ export function installEntityMovingPath(proto) {
         this.stop();
     };
 
+    /**
+     * Stops a moving character.
+     */
     proto.stop = function () {
         if (this.isMoving() && !this.isMovingPath()) {
             if (this.movestop_callback) this.movestop_callback();
@@ -185,6 +194,7 @@ export function installEntityMovingPath(proto) {
         this.tick = Math.round(1000 / this.moveSpeed);
     };
 
+    // New function to make coding easier.
     proto.getPathIndex = function (step) {
         // FIX (carried over): was `if (!this.path === null || ...)` - operator precedence
         // bug (!this.path evaluated first, then compared to null) made the null-path check

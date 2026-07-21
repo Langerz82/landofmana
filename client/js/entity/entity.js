@@ -398,7 +398,7 @@ export default class Entity {
     }
 
     isOverlapping(entities) {
-        for (let entity of entities) {
+        for (const entity of entities) {
             if (!entity || this === entity) continue;
             if (this.isOverlappingEntity(entity)) {
                 return true;

@@ -4,14 +4,18 @@
 //        return EntityMoving;
 //      });
 // this._super(...) inside init() -> super(...) inside constructor() (the only _super call in this file).
+// Split (see entitymovingpath.js/entitymovingspatial.js/entitymovingorientation.js):
+// this file used to implement the "Movement Functions"/"Grid Functions"/
+// "Orientation Functions" sections directly in the class body (it had grown
+// to ~733 lines). Those are now installed onto EntityMoving.prototype from
+// sibling files via the same installXxx(proto) mixin pattern used for
+// character.js's split -- external behavior and every
+// `entity.moveTo_(...)`/`entity.stop()`/`entity.isFacing(...)`-style call
+// site throughout character.js/mob.js/player.js/updater.js is unchanged.
+// Only the constructor and "Misc Functions" section remain here.
 /* global Types, Utils */
 import Entity from '../entity.js';
 import Transition from '../../transition.js';
-
-// EntityMoving's own behavior is split across these mixin modules for readability
-// (entitymoving.js had grown to ~733 lines). Each install* call below merges plain-
-// function methods onto EntityMoving.prototype; they're not subclasses/separate
-// instances, just EntityMoving's own methods living in separate files.
 import { installEntityMovingPath } from './entitymovingpath.js';
 import { installEntityMovingSpatial } from './entitymovingspatial.js';
 import { installEntityMovingOrientation } from './entitymovingorientation.js';
@@ -40,6 +44,10 @@ export default class EntityMoving extends Entity {
         this.freeze = false;
     }
 
+    /*******************************************************************************
+     * BEGIN - Misc Functions.
+     ******************************************************************************/
+
     onRemove(callback) {
         this.remove_callback = callback;
     }
@@ -56,6 +64,10 @@ export default class EntityMoving extends Entity {
             if (callback) callback(self);
         }, ms);
     }
+
+    /*******************************************************************************
+     * END - Misc Functions.
+     ******************************************************************************/
 }
 
 installEntityMovingPath(EntityMoving.prototype);

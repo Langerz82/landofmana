@@ -57,6 +57,10 @@ export function installCharacterCombat(proto) {
         clearTimeout(this.hurting);
     };
 
+    /**
+     * Makes the character attack another character. Same as Character.follow but with an auto-attacking behavior.
+     * @see Character.follow
+     */
     proto.engage = function (character) {
         this.attackingMode = true;
         this.setTarget(character);
@@ -67,39 +71,56 @@ export function installCharacterCombat(proto) {
         this.removeTarget();
     };
 
+    /**
+     * Returns true if the character is currently attacking.
+     */
     proto.isAttacking = function () {
         return this.attackingMode;
     };
 
+    /**
+     * Returns true if this character is currently attacked by a given character.
+     * @param {Character} character The attacking character.
+     * @returns {Boolean} Whether this is an attacker of this character.
+     */
+    // PERF: `attackers` is a Map (see character.js constructor) -- has()+get()
+    // identity check below are both O(1) with no allocation, same as the
+    // array-allocation-free behavior this PERF fix originally established
+    // when `attackers` was still a plain object.
     proto.isAttackedBy = function (character) {
-        if (Object.keys(this.attackers).length === 0) {
-            return false;
-        }
         return (
-            this.attackers.hasOwnProperty(character.id) &&
-            this.attackers[character.id] === character
+            this.attackers.has(character.id) &&
+            this.attackers.get(character.id) === character
         );
     };
 
     proto.isAttacked = function () {
-        return Object.keys(this.attackers).length > 0;
+        return this.attackers.size !== 0;
     };
 
+    /**
+     * Registers a character as a current attacker of this one.
+     * @param {Character} character The attacking character.
+     */
     proto.addAttacker = function (character) {
         if (!this.isAttackedBy(character)) {
-            this.attackers[character.id] = character;
+            this.attackers.set(character.id, character);
         }
     };
 
+    /**
+     * Unregisters a character as a current attacker of this one.
+     * @param {Character} character The attacking character.
+     */
     proto.removeAttacker = function (character) {
         if (!this.isAttacked()) {
             return;
         }
-        delete this.attackers[character.id];
+        this.attackers.delete(character.id);
     };
 
     proto.removeAttackers = function () {
-        this.attackers = {};
+        this.attackers.clear();
     };
 
     proto.clearAttackerRefs = function () {
@@ -109,14 +130,32 @@ export function installCharacterCombat(proto) {
         });
     };
 
+    /**
+     * Loops through all the characters currently attacking this one.
+     * @param {Function} callback Function which must accept one character argument.
+     */
     proto.forEachAttacker = function (callback) {
-        Object.values(this.attackers).forEach(callback);
+        for (const attacker of this.attackers.values()) {
+            callback(attacker);
+        }
     };
 
+    /**
+     * Marks this character as waiting to attack a target.
+     * By sending an "attack" message, the server will later confirm (or not)
+     * that this character is allowed to acquire this target.
+     *
+     * @param {Character} character The target character
+     */
     proto.waitToAttack = function (character) {
         this.unconfirmedTarget = character;
     };
 
+    /**
+     * Returns true if this character is currently waiting to attack the target character.
+     * @param {Character} character The target character.
+     * @returns {Boolean} Whether this character is waiting to attack.
+     */
     proto.isWaitingToAttack = function (character) {
         return this.unconfirmedTarget === character;
     };
@@ -153,4 +192,8 @@ export function installCharacterCombat(proto) {
         }
         return false;
     };
+
+    /*******************************************************************************
+     * END - Combat Functions.
+     ******************************************************************************/
 }

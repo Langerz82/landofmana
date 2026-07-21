@@ -37,15 +37,22 @@ export default class PlayerCombat {
         const entity = this.entity;
 
         let itemDiff = entity.level * 2;
-        for (let id in entity.items.equipment.rooms) {
-            if (Number(id) === 4) continue; // FIX: for-in keys are strings, so `id === 4` never matched and the weapon slot was never skipped; coerce to number
-            const item = entity.items.equipment.rooms[id];
+        // FIX: `id` used to come from a for...in loop, always a string
+        // ("4"), so `id === 4` never matched and the weapon slot was never
+        // excluded from this crit-defense calculation (it should be, since
+        // a weapon isn't armor). equipment.rooms is a fixed-length array
+        // (equipmenthandler.js) rather than an object/Map, so this uses the
+        // same forEachArmor() helper baseDamageDef() below already uses --
+        // it iterates real numeric slot indices and already excludes the
+        // weapon slot, instead of hand-rolling the same loop/exclusion here
+        // too.
+        entity.items.equipment.forEachArmor((id, item) => {
             if (item) {
                 itemDiff +=
                     3 * ItemTypes.getData(item.itemKind).modifier +
                     item.itemNumber * 2;
             }
-        }
+        });
         const statDiff = entity.stats.defense + entity.stats.luck * 2;
         const chance = Utils.clamp(0, 500, ~~(statDiff + itemDiff));
         return (chance / 5).toFixed(0) + '%';

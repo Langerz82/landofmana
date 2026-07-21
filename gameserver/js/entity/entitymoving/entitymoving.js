@@ -62,7 +62,6 @@ class EntityMoving extends Entity {
         this.freeze = true;
         this.freeze_callback = Scheduler.schedule(function () {
             self.freeze = false;
-            //this.freeze_callback = null;
             if (callback) callback(self);
         }, ms);
     }

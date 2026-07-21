@@ -19,10 +19,12 @@ class PlayerItems {
         this.consumeTime = new Timer(10000);
     }
 
+    // FIX: was defaulting `type` to "any" and returning true immediately, before even
+    // checking whether the entity has a weapon equipped, and *before* the `type` param
+    // could ever be falsy again - which made the final `isHarvestWeapon` fallback below
+    // permanently unreachable dead code. Mirrors the (correct) pattern used by the sibling
+    // hasHarvestWeapon() just below in this file: only short-circuit on an explicit "any".
     hasWeaponType(type) {
-        const entity = this.entity;
-
-        type = type || 'any';
         if (type === 'any') return true;
 
         const weapon = this.equipment.getWeapon();
@@ -38,8 +40,13 @@ class PlayerItems {
         return this.equipment.getWeapon();
     }
 
+    // NOTE: equipment.rooms here is always pre-filled with `null` (see
+    // items/equipment.js), so `!== null` is already correct in this
+    // codebase's context -- kept as `!!` anyway to match the client's
+    // equivalent (client's rooms array is sparse and can hold `undefined`
+    // for a never-set slot, where `!== null` would be wrong).
     hasWeapon() {
-        return this.getWeapon() !== null;
+        return !!this.getWeapon();
     }
 
     getWeaponLevel() {
@@ -58,7 +65,7 @@ class PlayerItems {
     }
 
     hasHarvestWeapon(type) {
-        if (type && type === 'any') return true;
+        if (type === 'any') return true;
 
         const weapon = this.getWeapon();
         if (!weapon) return false;

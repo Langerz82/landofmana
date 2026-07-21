@@ -88,9 +88,7 @@ export function installEntityMovingSpatial(proto) {
         // removal) where this is called on every follow()/followAttack() -- i.e.
         // every mob chase step and every player attack-move. Using .filter()
         // instead removes both the correctness bug and the O(n^2) cost.
-        poss = poss.filter(function (p) {
-            return !this.isColliding(p.x, p.y);
-        }, this);
+        poss = poss.filter((p) => !this.isColliding(p.x, p.y));
 
         const entities = this.getEntitiesAround(adjEnd);
 
@@ -98,10 +96,10 @@ export function installEntityMovingSpatial(proto) {
         const tsh = ts >> 1;
 
         let x, y, tx, ty;
-        poss = poss.filter(function (p) {
+        poss = poss.filter((p) => {
             x = p.x;
             y = p.y;
-            for (let e2 of entities) {
+            for (const e2 of entities) {
                 if (!e2 || this === e2) continue;
                 tx = e2.x;
                 ty = e2.y;
@@ -121,7 +119,7 @@ export function installEntityMovingSpatial(proto) {
                 }
             }
             return true;
-        }, this);
+        });
 
         if (poss.length === 0) return null;
 

@@ -22,7 +22,6 @@ export function installCharacterTargeting(proto) {
      * @param {Character} character The target character.
      */
     proto.setTarget = function (character) {
-        //try { throw new Error(); } catch(err) { console.error(err.stack); }
         if (character === null || character.isDying || character.isDead) {
             this.removeTarget();
             return;
@@ -81,7 +80,7 @@ export function installCharacterTargeting(proto) {
      * @returns {Boolean} Whether this character has a target.
      */
     proto.hasTarget = function () {
-        return !(this.target === null);
+        return this.target !== null;
     };
 
     proto.canReachTarget = function () {

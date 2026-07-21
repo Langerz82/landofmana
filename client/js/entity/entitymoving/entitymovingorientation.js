@@ -1,9 +1,14 @@
-// Mixin extracted from entitymoving.js: facing/orientation functions (the file's original
-// 'Orientation Functions' BEGIN/END block) - getOrientation/setOrientation/lookAt/isInReach/isFacing.
-// Applied onto EntityMoving.prototype via install*(...) call in entitymoving.js; not a standalone class.
+// Extracted from entitymoving.js: the "Orientation Functions" section
+// (facing direction math, look-at helpers, reach/facing checks). Installed
+// directly onto EntityMoving.prototype -- see entitymovingpath.js's
+// header comment for why a mixin rather than a composed sub-object.
 /* global Types, Utils, G_TILESIZE */
 
 export function installEntityMovingOrientation(proto) {
+    /*******************************************************************************
+     * BEGIN - Orientation Functions.
+     ******************************************************************************/
+
     proto.getOrientation = function (p1, p2) {
         const x = Math.abs(p1[0] - p2[0]);
         const y = Math.abs(p1[1] - p2[1]);
@@ -19,9 +24,17 @@ export function installEntityMovingOrientation(proto) {
         return 0;
     };
 
+    // NOTE: Types.Orientations.NONE is 0, so `if (orientation)` is also the
+    // "was an explicit direction actually passed" check -- calling this with
+    // NONE/0 (or omitting the argument) is a deliberate no-op that leaves the
+    // entity facing whatever direction it already was, not a bug. (The old
+    // trailing `orientation || 0` was dead code either way: inside this `if`,
+    // orientation is already known truthy, so it can never take the `|| 0`
+    // fallback.) If a future caller ever needs to force-reset orientation to
+    // NONE specifically, it'll need a different entry point than this one.
     proto.setOrientation = function (orientation) {
         if (orientation) {
-            this.orientation = orientation || 0;
+            this.orientation = orientation;
         }
     };
 
@@ -29,6 +42,9 @@ export function installEntityMovingOrientation(proto) {
         return this.getOrientation([this.x, this.y], arr);
     };
 
+    /**
+     * Changes the character's orientation so that it is facing its target.
+     */
     proto.lookAt = function (x, y) {
         this.setOrientation(this.getOrientationTo([x, y]));
 
@@ -42,6 +58,7 @@ export function installEntityMovingOrientation(proto) {
         return this.orientation;
     };
 
+    // Orientation Code.
     proto.lookAtEntity = function (entity) {
         this._lookAtEntity(entity);
     };
@@ -61,9 +78,11 @@ export function installEntityMovingOrientation(proto) {
     };
 
     proto.isInReach = function (x, y, o, r, rs) {
-        // FIX (var cleanup): o/rs/r here were redeclaring their own parameters with var - illegal
-        // with let/const, so these are just reassignments now (order preserved: rs before r,
-        // since r's default reads rs).
+        // NOTE: these three were `var o = o || ...`/`var rs = rs || ...`/
+        // `var r = r || ...` -- redeclaring a parameter with `var` just
+        // reassigns the existing binding (legal); doing the same with
+        // `let`/`const` throws ("already been declared"). All three are
+        // already parameters, so these are just plain reassignments.
         o = o || this.orientation;
         const ts = G_TILESIZE;
         rs = rs || ts >> 1;
@@ -117,4 +136,8 @@ export function installEntityMovingOrientation(proto) {
     proto.isFacingEntity = function (entity) {
         return this.isFacing(entity.x, entity.y);
     };
+
+    /*******************************************************************************
+     * END - Orientation Functions.
+     ******************************************************************************/
 }

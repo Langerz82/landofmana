@@ -807,10 +807,7 @@ class Player extends Character {
 
     isArcher() {
         const weapon = this.items.getWeapon();
-        if (weapon && ItemTypes.isArcherWeapon(weapon.itemKind)) {
-            return true;
-        }
-        return false;
+        return !!(weapon && ItemTypes.isArcherWeapon(weapon.itemKind));
     }
 
     dropGold() {

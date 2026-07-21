@@ -1,6 +1,8 @@
-// Mixin extracted from entity/character.js: attack-target tracking behavior
-// (Character's own "Target Functions" section). Applied onto Character.prototype via
-// installCharacterTargeting(...) call in character.js; not a standalone class.
+// Extracted from character.js: the "Target Functions" section (set/remove/
+// query the character's current attack target). Installed directly onto
+// Character.prototype (see charactercombat.js's header comment for why a
+// mixin rather than a composed sub-object -- callers use `character.setTarget(...)`
+// directly, not `character.targeting.setTarget(...)`).
 // NOTE: circular import back to character.js is intentional and safe here - Character is
 // only referenced inside removeTarget()'s function body (for an `instanceof` check), never
 // at module-evaluation time, so by the time removeTarget() actually runs the Character
@@ -10,6 +12,14 @@ import Character from './character.js';
 /* global G_TILESIZE */
 
 export function installCharacterTargeting(proto) {
+    /*******************************************************************************
+     * BEGIN - Target Functions.
+     ******************************************************************************/
+
+    /**
+     * Sets this character's attack target. It can only have one target at any time.
+     * @param {Character} character The target character.
+     */
     proto.setTarget = function (character) {
         if (character === null || character.isDying || character.isDead) {
             this.removeTarget();
@@ -44,9 +54,13 @@ export function installCharacterTargeting(proto) {
         }
     };
 
+    /**
+     * Removes the current attack target.
+     */
+    // NOTE: was `const self = this;` here, unused -- nothing in this method
+    // needed a captured reference to `this` (no nested callback loses binding
+    // the way hurt()/setFreeze() elsewhere in this file do).
     proto.removeTarget = function () {
-        const self = this;
-
         if (this.target) {
             if (this.target instanceof Character) {
                 this.target.removeAttacker(this);
@@ -56,11 +70,14 @@ export function installCharacterTargeting(proto) {
             this.target = null;
         }
     };
-
     proto.onRemoveTarget = function (callback) {
         this.removetarget_callback = callback;
     };
 
+    /**
+     * Returns true if this character has a current attack target.
+     * @returns {Boolean} Whether this character has a target.
+     */
     proto.hasTarget = function () {
         return this.target !== null;
     };
@@ -89,4 +106,8 @@ export function installCharacterTargeting(proto) {
     proto.clearTarget = function () {
         this.target = null;
     };
+
+    /*******************************************************************************
+     * END - Target Functions.
+     ******************************************************************************/
 }
