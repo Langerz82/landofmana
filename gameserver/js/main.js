@@ -7,7 +7,7 @@ import util from 'util';
 import crypto from 'crypto';
 import BISON from 'bison';
 const useBison = false;
-import WS from './ws.js';
+import WS from './ws/ws.js';
 
 import ProductionConfig from './productionconfig.js';
 import UserHandler from './user/userhandler.js';

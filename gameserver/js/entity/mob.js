@@ -1,4 +1,4 @@
-import Character from './character.js';
+import Character from './character/character.js';
 import MobCombat from './components/mobcombat.js';
 import MobAggro from './components/mobaggro.js';
 import MobRespawn from './components/mobrespawn.js';

@@ -1,9 +1,9 @@
 
 /* global log, databaseHandler, QuestStatus */
-import Character from './character.js';
+import Character from './character/character.js';
 import Messages from "../message.js";
 import SkillHandler from "../skillhandler.js";
-import SkillEffectHandler from "../effecthandler.js";
+import SkillEffectHandler from "../effecthandler/effecthandler.js";
 import PacketHandler from "../packets/packethandler.js";
 import PlayerQuests from "./components/playerquests.js";
 import PlayerHarvest from "./components/playerharvest.js";

@@ -1,4 +1,4 @@
-import EntityMoving from './entitymoving.js';
+import EntityMoving from './entitymoving/entitymoving.js';
 import Messages from '../message.js';
 import { Types } from '../common.js';
 

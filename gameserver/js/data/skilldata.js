@@ -1,5 +1,5 @@
 import SkillsJSON from "../../shared/data/skills2.json" with { type: 'json' };
-import { EffectType } from "../effecthandler.js";
+import { EffectType } from "../effecthandler/effecthandler.js";
 
 const Skills = [];
 //var SkillNames = {};

@@ -1,4 +1,4 @@
-import Character from './character.js';
+import Character from './character/character.js';
 import Messages from '../message.js';
 import EntityQuests from '../entityquests.js';
 import Utils from '../utils.js';

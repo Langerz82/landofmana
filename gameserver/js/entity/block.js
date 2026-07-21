@@ -1,4 +1,4 @@
-import EntityMoving from './entitymoving.js';
+import EntityMoving from './entitymoving/entitymoving.js';
 import { Types } from '../common.js';
 
 class Block extends EntityMoving {

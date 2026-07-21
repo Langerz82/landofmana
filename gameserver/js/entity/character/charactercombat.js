@@ -1,88 +1,30 @@
-import EntityMoving from "./entitymoving.js";
-import Messages from "../message.js";
-import Timer from "../timer.js";
-import Utils from '../utils.js';
-import { Types } from '../common.js';
-import { G_TILESIZE } from '../constants.js';
-import Scheduler from '../scheduler.js';
+// Extracted from character.js: the "Stat Functions" and "Combat Functions"
+// sections (hp/ep get/set/mod, damage application, attacker tracking, attack
+// rate/range, engage/disengage). Installed directly onto Character.prototype
+// (not composed as a sub-object) so every existing call site
+// (`character.setHp(...)`, `character.onDamage(...)`, etc., throughout
+// mob.js/player.js/mobai.js/packets/*) keeps working unchanged -- Player and
+// Mob both extend Character, so this is inherited exactly as if it were
+// still written directly in the class body.
+import Messages from "../../message.js";
+import Timer from "../../timer.js";
+import Utils from '../../utils.js';
+import Scheduler from '../../scheduler.js';
 
-class Character extends EntityMoving {
-  constructor(id, type, kind, x, y, map) {
-    super(id, type, kind, x, y, map);
-    const self = this;
-
-    //this.orientation = Types.Orientations.DOWN;
-
-    // Speeds
-    this.atkSpeed = 100;
-    this.moveSpeed = 100;
-    this.setMoveRate(this.moveSpeed);
-    this.walkSpeed = 150;
-    this.idleSpeed = Utils.randomInt(750, 1000);
-    this.setAttackRate(1024);
-
-    // Combat
-    this.target = null;
-    this.unconfirmedTarget = null;
-    // SIMPLIFY/PERF: was a plain object keyed by attacker id, accessed via
-    // hasOwnProperty()/delete/_.each -- switched to a Map so isAttackedBy()/
-    // isAttacked()/removeAttacker()/forEachAttacker() below can use
-    // Map#has/#size/#delete/native iteration instead, and this file no
-    // longer needs underscore just for this one loop.
-    this.attackers = new Map();
-
-    // Health
-    this.stats = {};
-    this.stats.hp = 0;
-    this.stats.hpMax = 0;
-    this.stats.ep = 0;
-    this.stats.epMax = 0;
-
-    // Modes
-//    this.isDying = false;
-    this.isDead = false;
-    this.attackingMode = false;
-
-    this.step = 0;
-
-    this.orientation = 2;
-
-    this.attackCooldown = null;
-    this.moveCooldown = null;
-
-    this.freeze = false;
-
-    this.activeEffects = [];
-    this.effects = {};
-    this.invincible = false;
-
-    this.mod = {
-      accuracy: 1,
-      damage: 1,
-      defence: 1,
-      attack: 1,
-      attackTime: 1,
-      crit: 1,
-      dot: 0,
-      dr: 0,
-      time: 0,
-      daze: 0,
-      hate: 0
-    };
-  }
+export function installCharacterCombat(proto) {
 
 /*******************************************************************************
  * BEGIN - Stat Functions.
  ******************************************************************************/
-   getHpMax() {
+   proto.getHpMax = function() {
      return (this.stats) ? this.stats.hpMax : 0;
    }
 
-   getEpMax() {
+   proto.getEpMax = function() {
      return (this.stats) ? this.stats.epMax : 0;
    }
 
-  resetHp() {
+  proto.resetHp = function() {
     const max = this.getHpMax();
     this.stats.hpMax = max;
     const diff= max - this.stats.hp;
@@ -92,7 +34,7 @@ class Character extends EntityMoving {
     this.map.entities.sendNeighbours(this, msg);
   }
 
-  resetEp() {
+  proto.resetEp = function() {
     const max = this.getEpMax();
     this.stats.epMax = max;
     this.stats.ep = max;
@@ -108,51 +50,51 @@ class Character extends EntityMoving {
   // instead. Checking for null/undefined instead of falsiness preserves
   // the "no argument -> default to max" behavior while letting an explicit
   // 0 through.
-  setHp(val) {
+  proto.setHp = function(val) {
     val = (val == null) ? this.getHpMax() : val;
     this.stats.hp = val;
   }
 
-  setEp(val) {
+  proto.setEp = function(val) {
     val = (val == null) ? this.getEpMax() : val;
     this.stats.ep = val;
   }
 
-  setHpMax(val) {
+  proto.setHpMax = function(val) {
     val = (val == null) ? this.getHpMax() : val;
     this.stats.hpMax = val;
     this.stats.hp = val;
   }
 
-  setEpMax(val) {
+  proto.setEpMax = function(val) {
     val = (val == null) ? this.getEpMax() : val;
     this.stats.epMax = val;
     this.stats.ep = val;
   }
 
-  hasFullHealth() {
+  proto.hasFullHealth = function() {
     return this.stats.hp === this.stats.hpMax;
   }
 
-  hasFullEnergy() {
+  proto.hasFullEnergy = function() {
     return this.stats.ep === this.stats.epMax;
   }
 
-  setAttackRange(range) {
+  proto.setAttackRange = function(range) {
     this.attackRange = range;
   }
 
-  modHp(val) {
+  proto.modHp = function(val) {
     const prev = this._modHp(val);
     return (typeof game !== 'undefined') ? prev : this.changePoints(prev, 0);
   }
 
-  modEp(val) {
+  proto.modEp = function(val) {
     const prev = this._modEp(val);
     return (typeof game !== 'undefined') ? prev : this.changePoints(0, prev);
   }
 
-  _modHp(val) {
+  proto._modHp = function(val) {
     const hp = this.stats.hp,
       max = this.stats.hpMax;
 
@@ -162,7 +104,7 @@ class Character extends EntityMoving {
     return prev;
   }
 
-  _modEp(val) {
+  proto._modEp = function(val) {
     const ep = this.stats.ep,
       max = this.stats.epMax;
 
@@ -172,11 +114,11 @@ class Character extends EntityMoving {
     return prev;
   }
 
-  changePoints(modhp, modep) {
+  proto.changePoints = function(modhp, modep) {
     return new Messages.ChangePoints(this, modhp, modep);
   }
 
-  onDamage(attacker, hpMod, epMod, crit, effects) {
+  proto.onDamage = function(attacker, hpMod, epMod, crit, effects) {
     hpMod = hpMod || 0;
     epMod = epMod || 0;
     crit = crit || 0;
@@ -203,32 +145,32 @@ class Character extends EntityMoving {
  * BEGIN - Combat Functions.
  ******************************************************************************/
 
-  hit(orientation) {
+  proto.hit = function(orientation) {
     this.setOrientation(orientation);
     this.stop();
   }
 
-  onAggro(callback) {
+  proto.onAggro = function(callback) {
     this.aggro_callback = callback;
   }
 
-  onCheckAggro(callback) {
+  proto.onCheckAggro = function(callback) {
     this.checkaggro_callback = callback;
   }
 
-  checkAggro() {
+  proto.checkAggro = function() {
     if (this.checkaggro_callback) {
       this.checkaggro_callback();
     }
   }
 
-  aggro(character) {
+  proto.aggro = function(character) {
     if (this.aggro_callback) {
       this.aggro_callback(character);
     }
   }
 
-  onDeath(callback) {
+  proto.onDeath = function(callback) {
     this.death_callback = callback;
   }
 
@@ -236,7 +178,7 @@ class Character extends EntityMoving {
   // combat -- the highest-frequency of the codebase's one-shot timer sites.
   // Was its own setTimeout per hit; routed through the shared Scheduler
   // (gameserver/js/scheduler.js) instead of a live Node timer per hit.
-  hurt() {
+  proto.hurt = function() {
     const self = this;
 
     this.stopHurting();
@@ -244,7 +186,7 @@ class Character extends EntityMoving {
     this.hurting = Scheduler.schedule(function () { self.stopHurting(); }, 75);
   }
 
-  stopHurting() {
+  proto.stopHurting = function() {
     this.sprite = this.normalSprite;
     // Scheduler.cancel() is a safe no-op for an already-fired/never-set
     // token, exactly like clearTimeout() was -- see scheduler.js.
@@ -256,13 +198,13 @@ class Character extends EntityMoving {
    * Makes the character attack another character. Same as Character.follow but with an auto-attacking behavior.
    * @see Character.follow
    */
-  engage(character) {
+  proto.engage = function(character) {
     this.attackingMode = true;
     this.setTarget(character);
     //this.follow(character);
   }
 
-  disengage() {
+  proto.disengage = function() {
     this.attackingMode = false;
     this.removeTarget();
   }
@@ -270,7 +212,7 @@ class Character extends EntityMoving {
   /**
    * Returns true if the character is currently attacking.
    */
-  isAttacking() {
+  proto.isAttacking = function() {
     return this.attackingMode;
   }
 
@@ -283,12 +225,12 @@ class Character extends EntityMoving {
   // check below are both O(1) with no allocation, same as the array-
   // allocation-free behavior this PERF fix originally established when
   // `attackers` was still a plain object.
-  isAttackedBy(character) {
+  proto.isAttackedBy = function(character) {
     return this.attackers.has(character.id) &&
       this.attackers.get(character.id) === character;
   }
 
-  isAttacked() {
+  proto.isAttacked = function() {
     return this.attackers.size !== 0;
   }
 
@@ -296,7 +238,7 @@ class Character extends EntityMoving {
    * Registers a character as a current attacker of this one.
    * @param {Character} character The attacking character.
    */
-  addAttacker(character) {
+  proto.addAttacker = function(character) {
     if (!this.isAttackedBy(character)) {
       this.attackers.set(character.id, character);
     }
@@ -306,18 +248,18 @@ class Character extends EntityMoving {
    * Unregisters a character as a current attacker of this one.
    * @param {Character} character The attacking character.
    */
-  removeAttacker(character) {
+  proto.removeAttacker = function(character) {
     if (!this.isAttacked()) {
       return;
     }
     this.attackers.delete(character.id);
   }
 
-  removeAttackers() {
+  proto.removeAttackers = function() {
     this.attackers.clear();
   }
 
-  clearAttackerRefs() {
+  proto.clearAttackerRefs = function() {
     const self = this;
     this.forEachAttacker(function (c) {
       c.removeAttacker(self);
@@ -328,7 +270,7 @@ class Character extends EntityMoving {
    * Loops through all the characters currently attacking this one.
    * @param {Function} callback Function which must accept one character argument.
    */
-  forEachAttacker(callback) {
+  proto.forEachAttacker = function(callback) {
     for (const attacker of this.attackers.values()) {
       callback(attacker);
     }
@@ -341,7 +283,7 @@ class Character extends EntityMoving {
    *
    * @param {Character} character The target character
    */
-  waitToAttack(character) {
+  proto.waitToAttack = function(character) {
     this.unconfirmedTarget = character;
   }
 
@@ -350,22 +292,22 @@ class Character extends EntityMoving {
    * @param {Character} character The target character.
    * @returns {Boolean} Whether this character is waiting to attack.
    */
-  isWaitingToAttack(character) {
+  proto.isWaitingToAttack = function(character) {
     return (this.unconfirmedTarget === character);
   }
 
-  canAttack() {
+  proto.canAttack = function() {
     if (this.isDead === false && this.attackCooldown.isOver()) {
       return true;
     }
     return false;
   }
 
-  setAttackRate(rate) {
+  proto.setAttackRate = function(rate) {
     this.attackCooldown = new Timer(rate);
   }
 
-  createAttackLink(target)
+  proto.createAttackLink = function(target)
   {
       if (this.hasTarget())
       {
@@ -377,7 +319,7 @@ class Character extends EntityMoving {
       this.addAttacker(target);
   }
 
-  followAttack(entity) {
+  proto.followAttack = function(entity) {
     const found = false;
 
     const spot = this.getClosestSpot(entity, 1, this.attackRange);
@@ -390,174 +332,4 @@ class Character extends EntityMoving {
  * END - Combat Functions.
  ******************************************************************************/
 
-/*******************************************************************************
- * BEGIN - Target Functions.
- ******************************************************************************/
-
-   /**
-    * Sets this character's attack target. It can only have one target at any time.
-    * @param {Character} character The target character.
-    */
-   setTarget(character) {
-       //try { throw new Error(); } catch(err) { console.error(err.stack); }
-        if (character === null || character.isDying || character.isDead) {
-        	     this.removeTarget();
-        	     return;
-        }
-        if(this.target !== character) { // If it's not already set as the target
-           if(this.hasTarget()) {
-               this.removeTarget(); // Cleanly remove the previous one
-           }
-           this.target = character;
-           if(this.settarget_callback){
-               this.settarget_callback(character, true);
-           }
-       } else {
-           console.debug(character.id + " is already the target of " + this.id);
-       }
-   }
-
-   onSetTarget(callback) {
-     this.settarget_callback = callback;
-   }
-
-   showTarget(character) {
-     if(this.inspecting !== character && character !== this){
-       this.inspecting = character;
-       if(this.settarget_callback && this.target){
-         this.settarget_callback(character, true);
-       }
-     }
-   }
-
-  /**
-   * Removes the current attack target.
-   */
-  // NOTE: was `const self = this;` here, unused -- nothing in this method
-  // needed a captured reference to `this` (no nested callback loses binding
-  // the way hurt()/setFreeze() elsewhere in this file do).
-  removeTarget() {
-    if (this.target) {
-      if (this.target instanceof Character) {
-        this.target.removeAttacker(this);
-      }
-      if (this.removetarget_callback) this.removetarget_callback(this.target.id);
-      this.target = null;
-    }
-  }
-  onRemoveTarget(callback) {
-    this.removetarget_callback = callback;
-  }
-
-  /**
-   * Returns true if this character has a current attack target.
-   * @returns {Boolean} Whether this character has a target.
-   */
-  hasTarget() {
-    return !(this.target === null);
-  }
-
-  canReachTarget() {
-      return this.canReach(this.target);
-  }
-
-  canInteract(entity) {
-      return this.isNextTooEntity(entity) && this.isFacingEntity(entity);
-  }
-
-  canReach(entity) {
-    if (this.attackRange === 1)
-      return this.isNextTooEntity(entity) && this.isFacingEntity(entity);
-
-    if (this.attackRange > 1)
-    {
-      return this.isWithinDistEntity(entity, this.attackRange * G_TILESIZE);
-    }
-    return false;
-  }
-
-  clearTarget() {
-    this.target = null;
-  }
-
-/*******************************************************************************
- * END - Target Functions.
- ******************************************************************************/
-
-/*******************************************************************************
- * BEGIN - State Functions.
- ******************************************************************************/
-
-  hasWeapon() {
-      return false;
-  }
-
-  /**
-   *
-   */
-  /*dead() {
-    this.isDead = true;
-    this.isDying = false;
-    this.forceStop();
-    this.freeze = true;
-  },*/
-
-  die(attacker) {
-    const self = this;
-
-    console.info("character, die: called.");
-    this.forceStop();
-    //try { throw new Error(); } catch(err) { console.info(err.stack); }
-    this.removeTarget();
-    //this.isDying = true;
-    this.isDead = true;
-    this.freeze = true;
-    clearTimeout(this.moveTimeout);
-
-    this.removeAttackers();
-    this.endEffects();
-
-    if (this.death_callback) {
-      this.death_callback(attacker);
-    }
-  }
-
-  endEffects() {
-    for (const skilleffect of this.activeEffects)
-    {
-      skilleffect.endEffects();
-    }
-    this.activeEffects = [];
-  }
-
-  /*dying() {
-    this.isDead = false;
-    this.isDying = true;
-  },*/
-
-/*******************************************************************************
- * END - State Functions.
- ******************************************************************************/
-
-/*******************************************************************************
- * BEGIN - Misc Functions.
- ******************************************************************************/
-
-  onRemove(callback) {
-    this.remove_callback = callback;
-  }
-
-  clean() {
-    this.forEachAttacker(function(attacker) {
-      attacker.disengage();
-      attacker.idle();
-    });
-  }
-
-/*******************************************************************************
- * END - Misc Function.
- ******************************************************************************/
-
 }
-
-export default Character;

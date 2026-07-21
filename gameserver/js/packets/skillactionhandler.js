@@ -1,4 +1,4 @@
-import Character from '../entity/character.js';
+import Character from '../entity/character/character.js';
 import Messages from '../message.js';
 
 // Split out of packethandler.js -- CW_SKILL (actually casting a skill),

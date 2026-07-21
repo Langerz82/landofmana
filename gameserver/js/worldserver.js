@@ -5,7 +5,7 @@ import _ from "underscore";
 import Log from 'log';
 import Entity from './entity/entity.js';
 
-import Character from './entity/character.js';
+import Character from './entity/character/character.js';
 import NpcStatic from './entity/npcstatic.js';
 import NpcMove from './entity/npcmove.js';
 import Player from './entity/player.js';

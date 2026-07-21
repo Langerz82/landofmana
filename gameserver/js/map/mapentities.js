@@ -5,7 +5,7 @@ import MobAI from '../mobai.js';
 import _ from 'underscore';
 import Utils from '../utils.js';
 import { ItemTypes } from '../common.js';
-import Character from '../entity/character.js';
+import Character from '../entity/character/character.js';
 import Mob from '../entity/mob.js';
 import Item from '../entity/item.js';
 import Player from '../entity/player.js';
