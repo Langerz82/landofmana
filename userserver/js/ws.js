@@ -1,4 +1,3 @@
-
 import BISON from 'bison';
 let useBison = false;
 import http from 'http';
@@ -99,7 +98,12 @@ class Connection {
     }
 
     close(logError) {
-        console.info('Closing connection to ' + this._connection.remoteAddress + '. ' + logError);
+        console.info(
+            'Closing connection to ' +
+                this._connection.remoteAddress +
+                '. ' +
+                logError
+        );
         this._connection.conn.close();
     }
 }
@@ -120,10 +124,12 @@ WS.WebsocketServer = class extends sServer {
             app.key = fs.readFileSync(config.https_key);
         }
 
-        const protocol = config.protocol === "https" ? https : http;
+        const protocol = config.protocol === 'https' ? https : http;
 
         const client_connect = (socket) => {
-            console.info('Client socket connected from ' + socket.conn.remoteAddress);
+            console.info(
+                'Client socket connected from ' + socket.conn.remoteAddress
+            );
             socket.remoteAddress = socket.conn.remoteAddress;
 
             const c = new WS.socketioConnection(self._createId(), socket, self);
@@ -155,7 +161,7 @@ WS.WebsocketServer = class extends sServer {
     }
 
     _createId() {
-        return 50000 + (this._counter++);
+        return 50000 + this._counter++;
     }
 
     broadcast(message) {
@@ -178,7 +184,7 @@ WS.socketioConnection = class extends Connection {
         const self = this;
 
         const fnOnMessage = (msg) => {
-            console.info("m=" + msg);
+            console.info('m=' + msg);
             const flag = msg.charAt(0);
 
             // FIX: JSON.parse (and BISON.decode) on client-controlled bytes
@@ -188,24 +194,36 @@ WS.socketioConnection = class extends Connection {
             // hard-crashing, but the throw happened mid-dispatch with no
             // defined recovery. Parse defensively and just drop the message
             // on failure instead.
-            if (flag === "2") {
+            if (flag === '2') {
                 const buffer = Buffer.from(msg.substr(1), 'base64'); // fixed: was using flag only
                 zlib.gunzip(buffer, (err, decompressed) => {
                     if (err) console.log(err.toString());
                     else if (self.listenCallback) {
                         try {
-                            self.listenCallback(useBison ? BISON.decode(decompressed) : JSON.parse(decompressed));
+                            self.listenCallback(
+                                useBison
+                                    ? BISON.decode(decompressed)
+                                    : JSON.parse(decompressed)
+                            );
                         } catch (parseErr) {
-                            console.warn("socketioConnection: failed to parse decompressed message, dropping: " + parseErr.message);
+                            console.warn(
+                                'socketioConnection: failed to parse decompressed message, dropping: ' +
+                                    parseErr.message
+                            );
                         }
                     }
                 });
             } else if (self.listenCallback) {
                 const payload = msg.substr(1);
                 try {
-                    self.listenCallback(useBison ? BISON.decode(payload) : JSON.parse(payload));
+                    self.listenCallback(
+                        useBison ? BISON.decode(payload) : JSON.parse(payload)
+                    );
                 } catch (parseErr) {
-                    console.warn("socketioConnection: failed to parse message, dropping: " + parseErr.message);
+                    console.warn(
+                        'socketioConnection: failed to parse message, dropping: ' +
+                            parseErr.message
+                    );
                 }
             }
         };
@@ -213,15 +231,18 @@ WS.socketioConnection = class extends Connection {
         this._connection.on('message', fnOnMessage);
 
         this._connection.on('disconnect', () => {
-            console.info('Client closed socket ' + self._connection.conn.remoteAddress);
+            console.info(
+                'Client closed socket ' + self._connection.conn.remoteAddress
+            );
             if (self.closeCallback) self.closeCallback(self._connection);
-            if (self._server.disconnectionCallback) self._server.disconnectionCallback(self);
+            if (self._server.disconnectionCallback)
+                self._server.disconnectionCallback(self);
             self._server.removeConnection(self.id);
         });
     }
 
     send(message) {
-        console.info("send=" + message);
+        console.info('send=' + message);
         const self = this;
         const data = useBison ? BISON.encode(message) : JSON.stringify(message);
 
@@ -259,31 +280,43 @@ WS.userConnection = class extends Connection {
         const self = this;
 
         this.fnOnMessage = (msg) => {
-            console.info("m=" + msg);
+            console.info('m=' + msg);
             const flag = msg.charAt(0);
 
             // FIX: same unguarded JSON.parse/BISON.decode issue as
             // socketioConnection above -- a malformed message from the
             // gameserver side of this connection threw synchronously here
             // with no recovery. Parse defensively and drop the message.
-            if (flag === "2") {
+            if (flag === '2') {
                 const buffer = Buffer.from(msg.substr(1), 'base64');
                 zlib.gunzip(buffer, (err, decompressed) => {
                     if (err) console.log(err.toString());
                     else if (self.listenCallback) {
                         try {
-                            self.listenCallback(useBison ? BISON.decode(decompressed) : JSON.parse(decompressed));
+                            self.listenCallback(
+                                useBison
+                                    ? BISON.decode(decompressed)
+                                    : JSON.parse(decompressed)
+                            );
                         } catch (parseErr) {
-                            console.warn("userConnection: failed to parse decompressed message, dropping: " + parseErr.message);
+                            console.warn(
+                                'userConnection: failed to parse decompressed message, dropping: ' +
+                                    parseErr.message
+                            );
                         }
                     }
                 });
             } else if (self.listenCallback) {
                 const payload = msg.substr(1);
                 try {
-                    self.listenCallback(useBison ? BISON.decode(payload) : JSON.parse(payload));
+                    self.listenCallback(
+                        useBison ? BISON.decode(payload) : JSON.parse(payload)
+                    );
                 } catch (parseErr) {
-                    console.warn("userConnection: failed to parse message, dropping: " + parseErr.message);
+                    console.warn(
+                        'userConnection: failed to parse message, dropping: ' +
+                            parseErr.message
+                    );
                 }
             }
         };
@@ -298,7 +331,9 @@ WS.userConnection = class extends Connection {
         });
 
         this._connection.on('connect_error', (err) => {
-            console.info('Failed to establish a connection to the servers, or lost connection');
+            console.info(
+                'Failed to establish a connection to the servers, or lost connection'
+            );
             console.info(JSON.stringify(err));
         });
 
@@ -321,7 +356,7 @@ WS.userConnection = class extends Connection {
     }
 
     send(message) {
-        console.info("send=" + message);
+        console.info('send=' + message);
         const self = this;
         const data = useBison ? BISON.encode(message) : JSON.stringify(message);
 
@@ -338,15 +373,15 @@ WS.userConnection = class extends Connection {
     }
 
     disconnect() {
-        console.info("USER CONNECTION - DISCONNECT.");
+        console.info('USER CONNECTION - DISCONNECT.');
         if (this._connection) this._connection.disconnect();
     }
 
     sendUTF8(data) {
         if (this._connection) {
-            this._connection.emit("message", data);
+            this._connection.emit('message', data);
         } else {
-            console.error("this connection not set.");
+            console.error('this connection not set.');
         }
     }
 };

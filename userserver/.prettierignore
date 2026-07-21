@@ -1,0 +1,11 @@
+# Dependencies
+node_modules/
+
+# Third-party / vendored libraries - never reformat
+js/lib/
+
+# Generated/empty scratch dirs and build artifacts
+js/ws_tmp/
+userserver.zip
+package-lock.json
+console.log

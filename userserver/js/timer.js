@@ -16,7 +16,7 @@ class Timer {
             time = Date.now();
         }
 
-        if ((time - this.lastTime) > this.duration) {
+        if (time - this.lastTime > this.duration) {
             over = true;
             this.lastTime = time;
         }

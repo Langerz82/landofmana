@@ -1,0 +1,11 @@
+# Third-party / vendored libraries - never reformat
+lib/
+
+# Generated/bundled build output, not hand-written source
+compress.js
+
+# Minified or archived files
+*.min.js
+*.old
+*.bak
+*.map

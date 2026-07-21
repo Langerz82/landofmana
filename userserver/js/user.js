@@ -2,10 +2,10 @@
 
 import crypto from 'crypto';
 import bcrypt from 'bcrypt';
-import CryptoJS from "crypto-js";
+import CryptoJS from 'crypto-js';
 
-import UserMessages from "./usermessage.js";
-import formatChecker from "./format.js";
+import UserMessages from './usermessage.js';
+import formatChecker from './format.js';
 // FIX: same missing-import pattern fixed in format.js and worldhandler.js
 // -- Types (used throughout this file's listener/handlers, e.g.
 // Types.UserMessages.CU_CREATE_USER) and Utils (Utils.sanitize/btoa/
@@ -23,11 +23,10 @@ import { Types, Utils } from './common.js';
 // shared Utils (shared/js/utils.js) since that file is also bundled into
 // the browser client, where Node's `crypto` module isn't available.
 function safeCompare(a, b) {
-  const bufA = Buffer.from(String(a), 'utf8');
-  const bufB = Buffer.from(String(b), 'utf8');
-  if (bufA.length !== bufB.length)
-    return false;
-  return crypto.timingSafeEqual(bufA, bufB);
+    const bufA = Buffer.from(String(a), 'utf8');
+    const bufB = Buffer.from(String(b), 'utf8');
+    if (bufA.length !== bufB.length) return false;
+    return crypto.timingSafeEqual(bufA, bufB);
 }
 
 // NOTE: DBH, Accounts, users, and worldHandlers are still referenced as bare
@@ -55,544 +54,620 @@ function safeCompare(a, b) {
 const BCRYPT_SALT_ROUNDS = 10;
 
 class PlayerSummary {
-  constructor(index, db_player) {
-    this.index = index;
-    this.name = db_player.name;
-    this.exp = db_player.exp;
-    this.colors = db_player.colors;
-    this.sprites = db_player.sprites;
-  }
+    constructor(index, db_player) {
+        this.index = index;
+        this.name = db_player.name;
+        this.exp = db_player.exp;
+        this.colors = db_player.colors;
+        this.sprites = db_player.sprites;
+    }
 
-  toArray() {
-    return [
-      this.index,
-      this.name,
-      this.exp,
-      this.colors[0],
-      this.colors[1],
-      this.sprites[0],
-      this.sprites[1]
-    ];
-  }
+    toArray() {
+        return [
+            this.index,
+            this.name,
+            this.exp,
+            this.colors[0],
+            this.colors[1],
+            this.sprites[0],
+            this.sprites[1]
+        ];
+    }
 
-  toString() {
-    return this.toArray().join(",");
-  }
+    toString() {
+        return this.toArray().join(',');
+    }
 }
 
-class User {   // Assuming `cls` is still available globally or via require
-  constructor(main, connection) {
-    const self = this;
+class User {
+    // Assuming `cls` is still available globally or via require
+    constructor(main, connection) {
+        const self = this;
 
-    this.main = main;
-    this.connection = connection;
-    this.hashChallenge = connection.hash;
-    connection.user = this;
+        this.main = main;
+        this.connection = connection;
+        this.hashChallenge = connection.hash;
+        connection.user = this;
 
-    this.worldConnection = null;
+        this.worldConnection = null;
 
-    this.currentPlayer = null;
-    this.players = [];
+        this.currentPlayer = null;
+        this.players = [];
 
-    this.loadedUser = false;
-    this.loadedPlayer = false;
-    this.player_loggedin = false;
+        this.loadedUser = false;
+        this.loadedPlayer = false;
+        this.player_loggedin = false;
 
-    // Initialize Looks Array.
-    this.looks = new Uint8Array(AppearanceData.Data.length);
-    this.looks[0] = 1;
-    this.looks[50] = 1;
-    this.looks[77] = 1;
-    this.looks[151] = 1;
+        // Initialize Looks Array.
+        this.looks = new Uint8Array(AppearanceData.Data.length);
+        this.looks[0] = 1;
+        this.looks[50] = 1;
+        this.looks[77] = 1;
+        this.looks[151] = 1;
 
-    this.gems = 0;
+        this.gems = 0;
 
-    // Must start at 0 -- checkUser() does `++this.passwordTries`, and
-    // incrementing an undefined value produces NaN forever, which made
-    // `NaN > 3` always false and disabled the lockout-after-3-tries check.
-    this.passwordTries = 0;
+        // Must start at 0 -- checkUser() does `++this.passwordTries`, and
+        // incrementing an undefined value produces NaN forever, which made
+        // `NaN > 3` always false and disabled the lockout-after-3-tries check.
+        this.passwordTries = 0;
 
-    // Same reasoning as passwordTries above - must start at 0. Counts
-    // "username already taken" hits during registration (see
-    // DatabaseHandler.createUser in redis.js), which now allows a
-    // configurable number of retries (MainConfig.max_username_attempts)
-    // before actually closing the connection, instead of disconnecting on
-    // the very first taken name.
-    this.usernameTries = 0;
+        // Same reasoning as passwordTries above - must start at 0. Counts
+        // "username already taken" hits during registration (see
+        // DatabaseHandler.createUser in redis.js), which now allows a
+        // configurable number of retries (MainConfig.max_username_attempts)
+        // before actually closing the connection, instead of disconnecting on
+        // the very first taken name.
+        this.usernameTries = 0;
 
-    this.lastPacketTime = Date.now();
+        this.lastPacketTime = Date.now();
 
-    this.listener = function (message) {
-      console.info("recv[0]=" + message);
-      const action = parseInt(message[0]);
-      if (!action) return;
+        this.listener = function (message) {
+            console.info('recv[0]=' + message);
+            const action = parseInt(message[0]);
+            if (!action) return;
 
-      if (!formatChecker.check(message)) {
-        self.connection.close("Invalid value " + action + " packet format: " + message);
-        return;
-      }
-      message.shift();
+            if (!formatChecker.check(message)) {
+                self.connection.close(
+                    'Invalid value ' + action + ' packet format: ' + message
+                );
+                return;
+            }
+            message.shift();
 
-      switch (action) {
-        case Types.UserMessages.CU_CREATE_USER:
-          self.handleCreateUser(message);
-          return;
-        case Types.UserMessages.CU_LOGIN_USER:
-          self.handleLoginUser(message);
-          return;
-      }
+            switch (action) {
+                case Types.UserMessages.CU_CREATE_USER:
+                    self.handleCreateUser(message);
+                    return;
+                case Types.UserMessages.CU_LOGIN_USER:
+                    self.handleLoginUser(message);
+                    return;
+            }
 
-      if (!self.loadedUser) {
-        console.info("Cannot Login User: " + message);
-        return;
-      }
+            if (!self.loadedUser) {
+                console.info('Cannot Login User: ' + message);
+                return;
+            }
 
-      switch (action) {
-        case Types.UserMessages.CU_CREATE_PLAYER:
-          self.handleCreatePlayer(message);
-          return;
-        case Types.UserMessages.CU_LOGIN_PLAYER:
-          self.handleLoginPlayer(message);
-          return;
-        case Types.UserMessages.CU_REMOVE_USER:
-          self.handleRemoveUser(message);
-          return;
-      }
+            switch (action) {
+                case Types.UserMessages.CU_CREATE_PLAYER:
+                    self.handleCreatePlayer(message);
+                    return;
+                case Types.UserMessages.CU_LOGIN_PLAYER:
+                    self.handleLoginPlayer(message);
+                    return;
+                case Types.UserMessages.CU_REMOVE_USER:
+                    self.handleRemoveUser(message);
+                    return;
+            }
 
-      if (!self.loadedPlayer) {
-        console.info("Cannot Login: " + message);
-        return;
-      }
-    };
+            if (!self.loadedPlayer) {
+                console.info('Cannot Login: ' + message);
+                return;
+            }
+        };
 
-    this.connection.listen(this.listener);
-  }
-
-  onClose() {
-    console.info("onClose - called");
-    clearTimeout(this.disconnectTimeout);
-
-    console.warn("User.onClose - called.");
-
-    if (this.hasLoggedIn) {
-      users.delete(this.name);
+        this.connection.listen(this.listener);
     }
-    // FIX: `delete this;` is a no-op -- delete only removes properties from
-    // an object via a property reference; `this` itself isn't a deletable
-    // binding, so this line never did anything. Removed.
-  }
 
-  send(message) {
-    this.connection.send(message);
-  }
+    onClose() {
+        console.info('onClose - called');
+        clearTimeout(this.disconnectTimeout);
 
-  sendWorld(message) {
-    this.worldConnection.send(message);
-  }
+        console.warn('User.onClose - called.');
 
-  handleCreateUser(message) {
-    const self = this;
-    let name = Utils.sanitize(message[0]);
-    let hash = Utils.sanitize(message[1]);
-    hash = Utils.btoa(hash);
-
-    console.info("Starting Client/Server Handshake");
-
-    self.name = name.substr(0, 16).trim().toLowerCase();
-    console.info("self.user.name=" + self.name);
-
-    const bytes = CryptoJS.AES.decrypt(hash, this.hashChallenge);
-    const decrypt = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
-
-    try {
-      if (!Utils.checkInputName(self.name)) {
-        self.connection.send([Types.UserMessages.UC_ERROR, "invalidusername"]);
-        return;
-      }
-
-      // FIX: new accounts are now hashed with bcrypt instead of a single
-      // round of sha1(password + salt) -- see BCRYPT_SALT_ROUNDS above for
-      // why. bcrypt embeds its own per-hash salt in the resulting string, so
-      // the separate `salt` field is no longer needed here (left blank;
-      // checkUser() still reads it for legacy accounts). Using the async
-      // bcrypt.hash (not hashSync) since bcrypt is deliberately slow and
-      // this server is single-process -- a sync call would stall every
-      // other connection on this server for the duration of the hash.
-      bcrypt.hash(decrypt, BCRYPT_SALT_ROUNDS, (err, bcryptHash) => {
-        if (err) {
-          console.error("handleCreateUser - bcrypt.hash failed: " + err.message);
-          self.connection.send([Types.UserMessages.UC_ERROR, "servererror"]);
-          return;
+        if (this.hasLoggedIn) {
+            users.delete(this.name);
         }
-
-        self.hash = bcryptHash;
-        self.salt = "";
-        self.loggedInDate = Date.now();
-
-        Accounts.createUser(self);
-      });
-    } catch (e) {
-      console.info('message=' + e.message);
-      console.info('stack=' + e.stack);
-    }
-  }
-
-  // Records a failed "username already taken" registration attempt (called from
-  // DatabaseHandler.createUser in redis.js) and enforces the configurable
-  // MainConfig.max_username_attempts lockout (defaults to 5 if unset/non-numeric - `0` is
-  // honored as an explicit "lock out immediately" value). Mirrors checkUser()'s
-  // passwordTries handling below, just for registration instead of login. Sends the
-  // UC_ERROR itself (with however many attempts remain as the 3rd element) and only closes
-  // the connection once attempts are exhausted.
-  handleUsernameTaken() {
-    const configuredMaxUsernameAttempts = (typeof MainConfig !== "undefined" && MainConfig) ?
-        MainConfig.max_username_attempts : undefined;
-    const maxAttempts = (typeof configuredMaxUsernameAttempts === "number") ?
-        configuredMaxUsernameAttempts : 5;
-    const triesRemaining = maxAttempts - (++this.usernameTries);
-
-    if (triesRemaining <= 0) {
-      this.connection.send([Types.UserMessages.UC_ERROR, "userexists", 0]);
-      this.connection.close("Username not available: " + this.name + " (max attempts reached)");
-    } else {
-      this.connection.send([Types.UserMessages.UC_ERROR, "userexists", triesRemaining]);
-    }
-  }
-
-  handleLoginUser(message) {
-    let name = Utils.sanitize(message[0]);
-    let hash = Utils.sanitize(message[1]);
-    hash = Utils.btoa(hash);
-
-    console.info("Starting Client/Server Handshake");
-
-    this.name = name.substr(0, 16).trim().toLowerCase();
-
-    console.info("self.name=" + this.name);
-    try {
-      // Validate the username
-      // FIX: `Types.UserMessages.SC_ERROR` doesn't exist anywhere in
-      // shared/js/gametypes.js's UserMessages enum (only UC_ERROR does --
-      // see the identical `Types.UserMessages.UC_ERROR` sends immediately
-      // below this and throughout this file/handleCreateUser above). Since
-      // `Types.UserMessages.SC_ERROR` reads as `undefined`, this was
-      // sending `[undefined, "invalidname"]` to the client on an invalid
-      // login username instead of a real UC_ERROR packet -- the client had
-      // no defined message type to route that to, so the rejection was
-      // silently lost instead of showing the user why their login failed.
-      if (!Utils.checkInputName(this.name)) {
-        this.connection.send([Types.UserMessages.UC_ERROR, "invalidname"]);
-        return;
-      }
-      if (users.has(this.name)) {
-        this.connection.send([Types.UserMessages.UC_ERROR, "loggedin"]);
-        this.connection.close("user logged in.");
-        return;
-      }
-
-      this.hash = hash;
-      this.loggedInDate = Date.now();
-
-      Accounts.loadUser(this);
-    } catch (e) {
-      console.info('message=' + e.message);
-      console.info('stack=' + e.stack);
-    }
-  }
-
-  handleRemoveUser(message) {
-    const self = this;
-    let hash = Utils.sanitize(message[1]);
-    hash = Utils.btoa(hash);
-
-    console.info("self.name=" + self.name);
-    try {
-      self.hash = hash;
-
-      Accounts.removeUser(self);
-    } catch (e) {
-      console.info('message=' + e.message);
-      console.info('stack=' + e.stack);
-    }
-  }
-
-  // FIX: password verification now has to support bcrypt (see the FIX
-  // comment on BCRYPT_SALT_ROUNDS / handleCreateUser below for why), and
-  // bcrypt.compare() is inherently async -- there's no synchronous
-  // constant-time bcrypt check available. That means checkUser() itself can
-  // no longer synchronously `return true/false` the way it used to; both
-  // call sites (redis.js's removeUser() and loadUser()) now pass a
-  // `callback(matched)` instead of branching on this method's return value.
-  checkUser(db_user, skip_logged_in = false, callback) {
-    const curTime = Date.now();
-    const done = (result) => { if (callback) callback(result); };
-
-    // FIX: db_user.* fields come from Redis hgetall(), which always returns
-    // strings. "+" on two strings concatenates instead of summing -- e.g.
-    // "1700000000000" + "3600000" produced a ~20-digit number, so any real
-    // ban (non-empty banDuration) computed an expiry astronomically larger
-    // than curTime, making the ban effectively permanent. Only "worked" by
-    // coincidence because createUser seeds banDuration as ''.
-    const banTime = parseInt(db_user.banTime, 10) + parseInt(db_user.banDuration, 10);
-    if (banTime > curTime) {
-      this.connection.send([Types.UserMessages.UC_ERROR, "ban"]);
-      this.connection.close("Closing connection to: " + (this.currentPlayer ? this.currentPlayer.name : this.name));
-      done(false);
-      return;
+        // FIX: `delete this;` is a no-op -- delete only removes properties from
+        // an object via a property reference; `this` itself isn't a deletable
+        // binding, so this line never did anything. Removed.
     }
 
-    // FIX: redis.js only ever stores/loads a "membership" field (see
-    // loadUser()/createUser() in redis.js) -- "membershipTime" is never set
-    // anywhere, so this was always undefined and membership could never
-    // activate. The earlier fix here addressed the `this` vs `user` typo but
-    // missed that the field name itself was wrong too.
-    if (db_user.membership > curTime) {
-      this.membership = true;
+    send(message) {
+        this.connection.send(message);
     }
 
-    // Check Password
-    const bytes = CryptoJS.AES.decrypt(this.hash, this.hashChallenge);
-    const decrypt = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
+    sendWorld(message) {
+        this.worldConnection.send(message);
+    }
 
-    const finishCheck = (passwordMatches) => {
-      if (!passwordMatches) {
-        // FIX: was hardcoded `> 3`, which (since it fires strictly *after* the increment)
-        // actually allowed 4 wrong attempts before closing, not 3 as the old comment above
-        // this.passwordTries claimed. Made configurable via MainConfig.max_password_attempts
-        // (defaults to 3) and switched to the same "triesRemaining reaches 0" shape as
-        // usernameTries above/DatabaseHandler.createUser in redis.js, so a configured value of
-        // 3 means exactly 3 real attempts before lockout. Also now tells the client how many
-        // attempts remain (data[1]) so it can show that instead of just "incorrect".
-        //
-        // FIX: was `MainConfig.max_password_attempts || 3`, which also falls back to 3 for an
-        // explicit `0` (0 is falsy in JS) - meaning an admin who deliberately configured "no
-        // retries, lock out immediately" would silently get 3 retries instead. Check for
-        // "unset" with typeof so 0 is honored as a real value and only a missing/non-numeric
-        // config key falls back to the default.
-        const configuredMaxPasswordAttempts = (typeof MainConfig !== "undefined" && MainConfig) ?
-            MainConfig.max_password_attempts : undefined;
-        const maxAttempts = (typeof configuredMaxPasswordAttempts === "number") ?
-            configuredMaxPasswordAttempts : 3;
-        const triesRemaining = maxAttempts - (++this.passwordTries);
+    handleCreateUser(message) {
+        const self = this;
+        let name = Utils.sanitize(message[0]);
+        let hash = Utils.sanitize(message[1]);
+        hash = Utils.btoa(hash);
+
+        console.info('Starting Client/Server Handshake');
+
+        self.name = name.substr(0, 16).trim().toLowerCase();
+        console.info('self.user.name=' + self.name);
+
+        const bytes = CryptoJS.AES.decrypt(hash, this.hashChallenge);
+        const decrypt = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
+
+        try {
+            if (!Utils.checkInputName(self.name)) {
+                self.connection.send([
+                    Types.UserMessages.UC_ERROR,
+                    'invalidusername'
+                ]);
+                return;
+            }
+
+            // FIX: new accounts are now hashed with bcrypt instead of a single
+            // round of sha1(password + salt) -- see BCRYPT_SALT_ROUNDS above for
+            // why. bcrypt embeds its own per-hash salt in the resulting string, so
+            // the separate `salt` field is no longer needed here (left blank;
+            // checkUser() still reads it for legacy accounts). Using the async
+            // bcrypt.hash (not hashSync) since bcrypt is deliberately slow and
+            // this server is single-process -- a sync call would stall every
+            // other connection on this server for the duration of the hash.
+            bcrypt.hash(decrypt, BCRYPT_SALT_ROUNDS, (err, bcryptHash) => {
+                if (err) {
+                    console.error(
+                        'handleCreateUser - bcrypt.hash failed: ' + err.message
+                    );
+                    self.connection.send([
+                        Types.UserMessages.UC_ERROR,
+                        'servererror'
+                    ]);
+                    return;
+                }
+
+                self.hash = bcryptHash;
+                self.salt = '';
+                self.loggedInDate = Date.now();
+
+                Accounts.createUser(self);
+            });
+        } catch (e) {
+            console.info('message=' + e.message);
+            console.info('stack=' + e.stack);
+        }
+    }
+
+    // Records a failed "username already taken" registration attempt (called from
+    // DatabaseHandler.createUser in redis.js) and enforces the configurable
+    // MainConfig.max_username_attempts lockout (defaults to 5 if unset/non-numeric - `0` is
+    // honored as an explicit "lock out immediately" value). Mirrors checkUser()'s
+    // passwordTries handling below, just for registration instead of login. Sends the
+    // UC_ERROR itself (with however many attempts remain as the 3rd element) and only closes
+    // the connection once attempts are exhausted.
+    handleUsernameTaken() {
+        const configuredMaxUsernameAttempts =
+            typeof MainConfig !== 'undefined' && MainConfig
+                ? MainConfig.max_username_attempts
+                : undefined;
+        const maxAttempts =
+            typeof configuredMaxUsernameAttempts === 'number'
+                ? configuredMaxUsernameAttempts
+                : 5;
+        const triesRemaining = maxAttempts - ++this.usernameTries;
 
         if (triesRemaining <= 0) {
-          this.connection.send([Types.UserMessages.UC_ERROR, "invalidlogin", 0]);
-          this.connection.close("Wrong Password: " + this.name);
+            this.connection.send([
+                Types.UserMessages.UC_ERROR,
+                'userexists',
+                0
+            ]);
+            this.connection.close(
+                'Username not available: ' +
+                    this.name +
+                    ' (max attempts reached)'
+            );
         } else {
-          this.connection.send([Types.UserMessages.UC_ERROR, "invalidlogin", triesRemaining]);
+            this.connection.send([
+                Types.UserMessages.UC_ERROR,
+                'userexists',
+                triesRemaining
+            ]);
         }
-        done(false);
-        return;
-      }
+    }
 
-      console.info("LOGIN: " + this.name);
-      // FIX: `skip_logged_in` was accepted as a parameter but never actually
-      // read anywhere in this method -- dead. removeUser() (redis.js) calls
-      // checkUser(db_user, true, callback) specifically to skip this
-      // "already logged in" rejection, because a user requesting account
-      // deletion is necessarily already logged in (that's the only way
-      // they'd have an authenticated connection to send CU_REMOVE_USER
-      // from) -- that's an expected, legitimate state there, not a
-      // duplicate-login attempt. Without honoring the flag, a correct
-      // password on account removal still got rejected here with "loggedin"
-      // and removeUser() reported that back to the client as
-      // removed_user_fail, even though the password check itself passed.
-      if (!skip_logged_in) {
-        if (users.has(this.name)) {
-          this.connection.send([Types.UserMessages.UC_ERROR, "loggedin"]);
-          done(false);
-          return;
+    handleLoginUser(message) {
+        let name = Utils.sanitize(message[0]);
+        let hash = Utils.sanitize(message[1]);
+        hash = Utils.btoa(hash);
+
+        console.info('Starting Client/Server Handshake');
+
+        this.name = name.substr(0, 16).trim().toLowerCase();
+
+        console.info('self.name=' + this.name);
+        try {
+            // Validate the username
+            // FIX: `Types.UserMessages.SC_ERROR` doesn't exist anywhere in
+            // shared/js/gametypes.js's UserMessages enum (only UC_ERROR does --
+            // see the identical `Types.UserMessages.UC_ERROR` sends immediately
+            // below this and throughout this file/handleCreateUser above). Since
+            // `Types.UserMessages.SC_ERROR` reads as `undefined`, this was
+            // sending `[undefined, "invalidname"]` to the client on an invalid
+            // login username instead of a real UC_ERROR packet -- the client had
+            // no defined message type to route that to, so the rejection was
+            // silently lost instead of showing the user why their login failed.
+            if (!Utils.checkInputName(this.name)) {
+                this.connection.send([
+                    Types.UserMessages.UC_ERROR,
+                    'invalidname'
+                ]);
+                return;
+            }
+            if (users.has(this.name)) {
+                this.connection.send([Types.UserMessages.UC_ERROR, 'loggedin']);
+                this.connection.close('user logged in.');
+                return;
+            }
+
+            this.hash = hash;
+            this.loggedInDate = Date.now();
+
+            Accounts.loadUser(this);
+        } catch (e) {
+            console.info('message=' + e.message);
+            console.info('stack=' + e.stack);
         }
+    }
 
-        for (const wh of worldHandlers) {
-          // FIX: loggedInUsers is a Map (see worldhandler.js), not a plain
-          // object -- hasOwnProperty() checks for an own JS property on the Map
-          // object itself, not an entry in the Map's storage, so this always
-          // returned false. The duplicate-login-across-worlds guard was dead.
-          if (wh.loggedInUsers.has(this.name)) {
-            this.connection.send([Types.UserMessages.UC_ERROR, "loggedin"]);
+    handleRemoveUser(message) {
+        const self = this;
+        let hash = Utils.sanitize(message[1]);
+        hash = Utils.btoa(hash);
+
+        console.info('self.name=' + self.name);
+        try {
+            self.hash = hash;
+
+            Accounts.removeUser(self);
+        } catch (e) {
+            console.info('message=' + e.message);
+            console.info('stack=' + e.stack);
+        }
+    }
+
+    // FIX: password verification now has to support bcrypt (see the FIX
+    // comment on BCRYPT_SALT_ROUNDS / handleCreateUser below for why), and
+    // bcrypt.compare() is inherently async -- there's no synchronous
+    // constant-time bcrypt check available. That means checkUser() itself can
+    // no longer synchronously `return true/false` the way it used to; both
+    // call sites (redis.js's removeUser() and loadUser()) now pass a
+    // `callback(matched)` instead of branching on this method's return value.
+    checkUser(db_user, skip_logged_in = false, callback) {
+        const curTime = Date.now();
+        const done = (result) => {
+            if (callback) callback(result);
+        };
+
+        // FIX: db_user.* fields come from Redis hgetall(), which always returns
+        // strings. "+" on two strings concatenates instead of summing -- e.g.
+        // "1700000000000" + "3600000" produced a ~20-digit number, so any real
+        // ban (non-empty banDuration) computed an expiry astronomically larger
+        // than curTime, making the ban effectively permanent. Only "worked" by
+        // coincidence because createUser seeds banDuration as ''.
+        const banTime =
+            parseInt(db_user.banTime, 10) + parseInt(db_user.banDuration, 10);
+        if (banTime > curTime) {
+            this.connection.send([Types.UserMessages.UC_ERROR, 'ban']);
+            this.connection.close(
+                'Closing connection to: ' +
+                    (this.currentPlayer ? this.currentPlayer.name : this.name)
+            );
             done(false);
             return;
-          }
         }
 
-        users.set(this.name, this);
-        this.hasLoggedIn = true;
-      }
-
-      done(true);
-    };
-
-    // FIX: accounts can now be stored as either the legacy sha1(password +
-    // salt) or a bcrypt hash (see BCRYPT_SALT_ROUNDS / handleCreateUser
-    // below) -- bcrypt hashes always start with "$2a$"/"$2b$"/"$2y$", which
-    // a hex sha1 digest never does, so that prefix reliably tells the two
-    // formats apart without needing a separate schema-version field.
-    const isBcryptHash = typeof db_user.hash === "string" && /^\$2[aby]\$/.test(db_user.hash);
-    if (isBcryptHash) {
-      bcrypt.compare(decrypt, db_user.hash, (err, match) => {
-        if (err) {
-          console.error("checkUser - bcrypt.compare failed: " + err.message);
-          finishCheck(false);
-          return;
+        // FIX: redis.js only ever stores/loads a "membership" field (see
+        // loadUser()/createUser() in redis.js) -- "membershipTime" is never set
+        // anywhere, so this was always undefined and membership could never
+        // activate. The earlier fix here addressed the `this` vs `user` typo but
+        // missed that the field name itself was wrong too.
+        if (db_user.membership > curTime) {
+            this.membership = true;
         }
-        finishCheck(match);
-      });
-    } else {
-      const hash = crypto.createHash('sha1').update(decrypt + db_user.salt).digest('hex');
-      console.info("checkUser: " + hash + " !== " + db_user.hash);
-      // FIX: plain `!==` on a stored password hash short-circuits on the
-      // first mismatched character -- a timing side channel against a value
-      // that gates authentication. Compare in constant time instead.
-      const matched = safeCompare(hash, db_user.hash);
-      if (matched) {
-        // Successful login on a legacy sha1+salt account -- transparently
-        // upgrade it to bcrypt now that we have the plaintext password in
-        // hand (it's never stored, only ever used in-memory for this one
-        // comparison). Fire-and-forget: a failure here just means the
-        // account stays on the legacy format and gets another upgrade
-        // attempt on its next login, it doesn't block this one.
-        bcrypt.hash(decrypt, BCRYPT_SALT_ROUNDS, (err, newHash) => {
-          if (err) {
-            console.error("checkUser - bcrypt upgrade hash failed: " + err.message);
-            return;
-          }
-          DBH.savePassword(this.name, newHash, "");
-        });
-      }
-      finishCheck(matched);
-    }
-  }
 
-  sendPlayers(db_players) {
-    this.loadedUser = true;
-    if (!Array.isArray(db_players)) {
-      this.connection.send([Types.UserMessages.UC_PLAYER_SUM, "0"]);
-      return;
-    }
+        // Check Password
+        const bytes = CryptoJS.AES.decrypt(this.hash, this.hashChallenge);
+        const decrypt = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
 
-    const sendMsg = [Types.UserMessages.UC_PLAYER_SUM, db_players.length];
-    for (let i = 0; i < db_players.length; ++i) {
-      const dbp = db_players[i];
-      const playerSum = new PlayerSummary(i, dbp);
-      this.players.push(playerSum);
-      sendMsg.push(...playerSum.toArray());
-    }
-    this.connection.send(sendMsg);
-  }
+        const finishCheck = (passwordMatches) => {
+            if (!passwordMatches) {
+                // FIX: was hardcoded `> 3`, which (since it fires strictly *after* the increment)
+                // actually allowed 4 wrong attempts before closing, not 3 as the old comment above
+                // this.passwordTries claimed. Made configurable via MainConfig.max_password_attempts
+                // (defaults to 3) and switched to the same "triesRemaining reaches 0" shape as
+                // usernameTries above/DatabaseHandler.createUser in redis.js, so a configured value of
+                // 3 means exactly 3 real attempts before lockout. Also now tells the client how many
+                // attempts remain (data[1]) so it can show that instead of just "incorrect".
+                //
+                // FIX: was `MainConfig.max_password_attempts || 3`, which also falls back to 3 for an
+                // explicit `0` (0 is falsy in JS) - meaning an admin who deliberately configured "no
+                // retries, lock out immediately" would silently get 3 retries instead. Check for
+                // "unset" with typeof so 0 is honored as a real value and only a missing/non-numeric
+                // config key falls back to the default.
+                const configuredMaxPasswordAttempts =
+                    typeof MainConfig !== 'undefined' && MainConfig
+                        ? MainConfig.max_password_attempts
+                        : undefined;
+                const maxAttempts =
+                    typeof configuredMaxPasswordAttempts === 'number'
+                        ? configuredMaxPasswordAttempts
+                        : 3;
+                const triesRemaining = maxAttempts - ++this.passwordTries;
 
-  handleCreatePlayer(message) {
-    const self = this;
-    const worldIndex = parseInt(message[0]);
-    let name = Utils.sanitize(message[1]);
+                if (triesRemaining <= 0) {
+                    this.connection.send([
+                        Types.UserMessages.UC_ERROR,
+                        'invalidlogin',
+                        0
+                    ]);
+                    this.connection.close('Wrong Password: ' + this.name);
+                } else {
+                    this.connection.send([
+                        Types.UserMessages.UC_ERROR,
+                        'invalidlogin',
+                        triesRemaining
+                    ]);
+                }
+                done(false);
+                return;
+            }
 
-    const worldHandler = this.getWorldHandler(worldIndex);
+            console.info('LOGIN: ' + this.name);
+            // FIX: `skip_logged_in` was accepted as a parameter but never actually
+            // read anywhere in this method -- dead. removeUser() (redis.js) calls
+            // checkUser(db_user, true, callback) specifically to skip this
+            // "already logged in" rejection, because a user requesting account
+            // deletion is necessarily already logged in (that's the only way
+            // they'd have an authenticated connection to send CU_REMOVE_USER
+            // from) -- that's an expected, legitimate state there, not a
+            // duplicate-login attempt. Without honoring the flag, a correct
+            // password on account removal still got rejected here with "loggedin"
+            // and removeUser() reported that back to the client as
+            // removed_user_fail, even though the password check itself passed.
+            if (!skip_logged_in) {
+                if (users.has(this.name)) {
+                    this.connection.send([
+                        Types.UserMessages.UC_ERROR,
+                        'loggedin'
+                    ]);
+                    done(false);
+                    return;
+                }
 
-    const tmpPlayer = { name };
+                for (const wh of worldHandlers) {
+                    // FIX: loggedInUsers is a Map (see worldhandler.js), not a plain
+                    // object -- hasOwnProperty() checks for an own JS property on the Map
+                    // object itself, not an entry in the Map's storage, so this always
+                    // returned false. The duplicate-login-across-worlds guard was dead.
+                    if (wh.loggedInUsers.has(this.name)) {
+                        this.connection.send([
+                            Types.UserMessages.UC_ERROR,
+                            'loggedin'
+                        ]);
+                        done(false);
+                        return;
+                    }
+                }
 
-    console.info("Starting Client/Server Handshake");
+                users.set(this.name, this);
+                this.hasLoggedIn = true;
+            }
 
-    tmpPlayer.name = tmpPlayer.name.substr(0, 16).trim();
+            done(true);
+        };
 
-    if (!Utils.checkInputName(tmpPlayer.name)) {
-      this.connection.send([Types.UserMessages.UC_ERROR, "invalidname"]); // Fixed: was `user.`
-      return;
-    }
-
-    const db_player = {
-      name: tmpPlayer.name,
-      map: 0,
-      exp: 0,
-      colors: [0, 0],
-      sprites: [0, 0]
-    };
-
-    const playerSummary = new PlayerSummary(this.players.length, db_player);
-    this.players.push(playerSummary);
-
-    console.info("self.player.name=" + db_player.name);
-
-    try {
-      Accounts.createPlayer(db_player.name, (playername, res) => {
-        // FIX: getWorldHandler() can return null (worldIndex out of the
-        // *currently connected* worldHandlers range -- format.js only
-        // validates against the static maxWorldCount, not the live
-        // connected-world count). That null wasn't checked here, unlike the
-        // equivalent loginPlayer() path just below, which does guard it.
-        // Once this async DB callback fired, `worldHandler.createPlayerToWorld`
-        // threw an uncaught TypeError instead of reporting a clean error to
-        // the client.
-        if (!worldHandler) {
-          self.connection.send([Types.UserMessages.UC_ERROR, "noworldhandler"]);
-          return;
-        }
-        if (res) {
-          worldHandler.createPlayerToWorld(self, self.name, playername);
+        // FIX: accounts can now be stored as either the legacy sha1(password +
+        // salt) or a bcrypt hash (see BCRYPT_SALT_ROUNDS / handleCreateUser
+        // below) -- bcrypt hashes always start with "$2a$"/"$2b$"/"$2y$", which
+        // a hex sha1 digest never does, so that prefix reliably tells the two
+        // formats apart without needing a separate schema-version field.
+        const isBcryptHash =
+            typeof db_user.hash === 'string' &&
+            /^\$2[aby]\$/.test(db_user.hash);
+        if (isBcryptHash) {
+            bcrypt.compare(decrypt, db_user.hash, (err, match) => {
+                if (err) {
+                    console.error(
+                        'checkUser - bcrypt.compare failed: ' + err.message
+                    );
+                    finishCheck(false);
+                    return;
+                }
+                finishCheck(match);
+            });
         } else {
-          self.connection.send([Types.UserMessages.UC_ERROR, "playerexists"]);
+            const hash = crypto
+                .createHash('sha1')
+                .update(decrypt + db_user.salt)
+                .digest('hex');
+            console.info('checkUser: ' + hash + ' !== ' + db_user.hash);
+            // FIX: plain `!==` on a stored password hash short-circuits on the
+            // first mismatched character -- a timing side channel against a value
+            // that gates authentication. Compare in constant time instead.
+            const matched = safeCompare(hash, db_user.hash);
+            if (matched) {
+                // Successful login on a legacy sha1+salt account -- transparently
+                // upgrade it to bcrypt now that we have the plaintext password in
+                // hand (it's never stored, only ever used in-memory for this one
+                // comparison). Fire-and-forget: a failure here just means the
+                // account stays on the legacy format and gets another upgrade
+                // attempt on its next login, it doesn't block this one.
+                bcrypt.hash(decrypt, BCRYPT_SALT_ROUNDS, (err, newHash) => {
+                    if (err) {
+                        console.error(
+                            'checkUser - bcrypt upgrade hash failed: ' +
+                                err.message
+                        );
+                        return;
+                    }
+                    DBH.savePassword(this.name, newHash, '');
+                });
+            }
+            finishCheck(matched);
         }
-      });
-    } catch (e) {
-      console.info('message=' + e.message);
-      console.info('stack=' + e.stack);
-    }
-  }
-
-  handleLoginPlayer(message) {
-    console.info("user.handleLoginPlayer - called.");
-    const worldIndex = parseInt(message[0]);
-    const playerIndex = parseInt(message[1]);
-
-    if (playerIndex < 0 || playerIndex >= this.players.length) return false;
-
-    const user = users.get(this.name);
-    if (user) {
-      const elapsedTime = Date.now() - user.loggedInDate;
-      console.info("user.handleLoginPlayer - elapsedTime: " + elapsedTime);
-      if (elapsedTime > 60000) {
-        this.connection.send([Types.UserMessages.UC_ERROR, "timeout"]);
-        this.connection.close("user elapsed time");
-        return;
-      }
-    } else {
-      this.connection.send([Types.UserMessages.UC_ERROR, "loggedin"]);
-      this.connection.close("user logged in.");
-      return;
     }
 
-    this.loginPlayer(worldIndex, this.players[playerIndex]);
-  }
+    sendPlayers(db_players) {
+        this.loadedUser = true;
+        if (!Array.isArray(db_players)) {
+            this.connection.send([Types.UserMessages.UC_PLAYER_SUM, '0']);
+            return;
+        }
 
-  getWorldHandler(worldIndex) {
-    if (worldIndex < 0 || worldIndex >= worldHandlers.length) {
-      console.info("getWorldHandler - worldIndex out of range.");
-      return null;
+        const sendMsg = [Types.UserMessages.UC_PLAYER_SUM, db_players.length];
+        for (let i = 0; i < db_players.length; ++i) {
+            const dbp = db_players[i];
+            const playerSum = new PlayerSummary(i, dbp);
+            this.players.push(playerSum);
+            sendMsg.push(...playerSum.toArray());
+        }
+        this.connection.send(sendMsg);
     }
 
-    console.info("worldIndex: " + worldIndex);
-    const worldHandler = worldHandlers[worldIndex];
-    if (!worldHandler) {
-      console.info("No world Handler!");
-      this.connection.close("no world handler.");
-      return null;
+    handleCreatePlayer(message) {
+        const self = this;
+        const worldIndex = parseInt(message[0]);
+        let name = Utils.sanitize(message[1]);
+
+        const worldHandler = this.getWorldHandler(worldIndex);
+
+        const tmpPlayer = { name };
+
+        console.info('Starting Client/Server Handshake');
+
+        tmpPlayer.name = tmpPlayer.name.substr(0, 16).trim();
+
+        if (!Utils.checkInputName(tmpPlayer.name)) {
+            this.connection.send([Types.UserMessages.UC_ERROR, 'invalidname']); // Fixed: was `user.`
+            return;
+        }
+
+        const db_player = {
+            name: tmpPlayer.name,
+            map: 0,
+            exp: 0,
+            colors: [0, 0],
+            sprites: [0, 0]
+        };
+
+        const playerSummary = new PlayerSummary(this.players.length, db_player);
+        this.players.push(playerSummary);
+
+        console.info('self.player.name=' + db_player.name);
+
+        try {
+            Accounts.createPlayer(db_player.name, (playername, res) => {
+                // FIX: getWorldHandler() can return null (worldIndex out of the
+                // *currently connected* worldHandlers range -- format.js only
+                // validates against the static maxWorldCount, not the live
+                // connected-world count). That null wasn't checked here, unlike the
+                // equivalent loginPlayer() path just below, which does guard it.
+                // Once this async DB callback fired, `worldHandler.createPlayerToWorld`
+                // threw an uncaught TypeError instead of reporting a clean error to
+                // the client.
+                if (!worldHandler) {
+                    self.connection.send([
+                        Types.UserMessages.UC_ERROR,
+                        'noworldhandler'
+                    ]);
+                    return;
+                }
+                if (res) {
+                    worldHandler.createPlayerToWorld(
+                        self,
+                        self.name,
+                        playername
+                    );
+                } else {
+                    self.connection.send([
+                        Types.UserMessages.UC_ERROR,
+                        'playerexists'
+                    ]);
+                }
+            });
+        } catch (e) {
+            console.info('message=' + e.message);
+            console.info('stack=' + e.stack);
+        }
     }
-    return worldHandler;
-  }
 
-  loginPlayer(worldIndex, playerSummary) {
-    console.info("user.loginPlayer - called");
-    const worldHandler = this.getWorldHandler(worldIndex);
+    handleLoginPlayer(message) {
+        console.info('user.handleLoginPlayer - called.');
+        const worldIndex = parseInt(message[0]);
+        const playerIndex = parseInt(message[1]);
 
-    const playerName = playerSummary.name;
-    this.playerName = playerName;
+        if (playerIndex < 0 || playerIndex >= this.players.length) return false;
 
-    if (worldHandler) {
-      worldHandler.sendPlayerToWorld(this, this.name, playerName);
-    } else {
-      console.info("No world Handler!");
+        const user = users.get(this.name);
+        if (user) {
+            const elapsedTime = Date.now() - user.loggedInDate;
+            console.info(
+                'user.handleLoginPlayer - elapsedTime: ' + elapsedTime
+            );
+            if (elapsedTime > 60000) {
+                this.connection.send([Types.UserMessages.UC_ERROR, 'timeout']);
+                this.connection.close('user elapsed time');
+                return;
+            }
+        } else {
+            this.connection.send([Types.UserMessages.UC_ERROR, 'loggedin']);
+            this.connection.close('user logged in.');
+            return;
+        }
+
+        this.loginPlayer(worldIndex, this.players[playerIndex]);
     }
-    return true;
-  }
+
+    getWorldHandler(worldIndex) {
+        if (worldIndex < 0 || worldIndex >= worldHandlers.length) {
+            console.info('getWorldHandler - worldIndex out of range.');
+            return null;
+        }
+
+        console.info('worldIndex: ' + worldIndex);
+        const worldHandler = worldHandlers[worldIndex];
+        if (!worldHandler) {
+            console.info('No world Handler!');
+            this.connection.close('no world handler.');
+            return null;
+        }
+        return worldHandler;
+    }
+
+    loginPlayer(worldIndex, playerSummary) {
+        console.info('user.loginPlayer - called');
+        const worldHandler = this.getWorldHandler(worldIndex);
+
+        const playerName = playerSummary.name;
+        this.playerName = playerName;
+
+        if (worldHandler) {
+            worldHandler.sendPlayerToWorld(this, this.name, playerName);
+        } else {
+            console.info('No world Handler!');
+        }
+        return true;
+    }
 }
 
 export default User;

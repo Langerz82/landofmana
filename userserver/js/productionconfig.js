@@ -11,7 +11,9 @@ class ProductionConfig {
         this.config = config;
 
         try {
-            this.production = require('../production_hosts/' + config.production + '.js');
+            this.production = require(
+                '../production_hosts/' + config.production + '.js'
+            );
         } catch (err) {
             this.production = null;
         }
