@@ -5,12 +5,15 @@
 // throughout character.js/mob.js/player.js/mobai.js/updater.js) keeps
 // working unchanged -- Character (and everything that extends it) inherits
 // this exactly as if it were still written directly in the class body.
+// NOTE: file renamed from entitymovingmovement.js to entitymovingpath.js
+// (and installEntityMovingMovement -> installEntityMovingPath) to match
+// the client's naming for this same split (client's entitymovingpath.js).
 import Timer from '../../timer.js';
 import { Types } from '../../common.js';
 
 /* global log, game */
 
-export function installEntityMovingMovement(proto) {
+export function installEntityMovingPath(proto) {
 
 /*******************************************************************************
  * BEGIN - Movement Functions.

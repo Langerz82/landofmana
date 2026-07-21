@@ -1,14 +1,17 @@
 // Extracted from entitymoving.js: the two "Grid Functions" sections
 // (candidate-spot search around a destination, collision/entity-occupancy
 // queries, simple tile-distance helpers). Installed directly onto
-// EntityMoving.prototype -- see entitymovingmovement.js's header comment for
+// EntityMoving.prototype -- see entitymovingpath.js's header comment for
 // why a mixin rather than a composed sub-object.
+// NOTE: file renamed from entitymovinggrid.js to entitymovingspatial.js
+// (and installEntityMovingGrid -> installEntityMovingSpatial) to match
+// the client's naming for this same split (client's entitymovingspatial.js).
 import Utils from '../../utils.js';
 import { G_TILESIZE } from '../../constants.js';
 
 /* global game */
 
-export function installEntityMovingGrid(proto) {
+export function installEntityMovingSpatial(proto) {
 
 /*******************************************************************************
  * BEGIN - Grid Functions.

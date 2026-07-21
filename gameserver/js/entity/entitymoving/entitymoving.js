@@ -1,4 +1,4 @@
-// Split (see entitymovingmovement.js/entitymovinggrid.js/entitymovingorientation.js):
+// Split (see entitymovingpath.js/entitymovingspatial.js/entitymovingorientation.js):
 // this file used to implement the "Movement Functions"/"Grid Functions"/
 // "Orientation Functions" sections directly in the class body (it had grown
 // to ~780 lines). Those are now installed onto EntityMoving.prototype from
@@ -11,8 +11,8 @@ import Entity from "../entity.js";
 import Scheduler from '../../scheduler.js';
 import Transition from "../../transition.js";
 import Utils from '../../utils.js';
-import { installEntityMovingMovement } from './entitymovingmovement.js';
-import { installEntityMovingGrid } from './entitymovinggrid.js';
+import { installEntityMovingPath } from './entitymovingpath.js';
+import { installEntityMovingSpatial } from './entitymovingspatial.js';
 import { installEntityMovingOrientation } from './entitymovingorientation.js';
 
 /* global log, game */
@@ -75,8 +75,8 @@ class EntityMoving extends Entity {
 
 }
 
-installEntityMovingMovement(EntityMoving.prototype);
-installEntityMovingGrid(EntityMoving.prototype);
+installEntityMovingPath(EntityMoving.prototype);
+installEntityMovingSpatial(EntityMoving.prototype);
 installEntityMovingOrientation(EntityMoving.prototype);
 
 export default EntityMoving;

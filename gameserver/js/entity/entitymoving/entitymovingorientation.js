@@ -1,6 +1,6 @@
 // Extracted from entitymoving.js: the "Orientation Functions" section
 // (facing direction math, look-at helpers, reach/facing checks). Installed
-// directly onto EntityMoving.prototype -- see entitymovingmovement.js's
+// directly onto EntityMoving.prototype -- see entitymovingpath.js's
 // header comment for why a mixin rather than a composed sub-object.
 import Utils from '../../utils.js';
 import { Types } from '../../common.js';
