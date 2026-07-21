@@ -1,6 +1,6 @@
 // Converted from AMD (define) + Class.extend to a native ES6 module/class.
 import HoveringInfo from '../hoveringinfo.js';
-import GameClient from '../gameclient.js';
+import GameClient from '../gameclient/gameclient.js';
 import AudioManager from '../audio.js';
 import Pathfinder from '../pathfinder.js';
 import Entity from '../entity/entity.js';

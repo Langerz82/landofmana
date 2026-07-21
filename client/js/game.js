@@ -13,7 +13,7 @@ import Animation from './animation.js';
 import Sprite from './sprite.js';
 import Sprites from './sprites.js';
 import AnimatedTile from './tile.js';
-import GameClient from './gameclient.js';
+import GameClient from './gameclient/gameclient.js';
 import ClientCallbacks from './clientcallback/clientcallbacks.js';
 import AudioManager from './audio.js';
 import Updater from './updater.js';

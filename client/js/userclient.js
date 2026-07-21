@@ -1,7 +1,7 @@
 // Converted from AMD (define) + Class.extend to a native ES6 module/class.
 // NOTE: 'pako' and 'BISON' remain classic (non-module) <script> globals, same as in
 // gameclient.js, so they are not imported here.
-import GameClient from './gameclient.js';
+import GameClient from './gameclient/gameclient.js';
 import SkillHandler from './skillhandler.js';
 import Quest from './quest.js';
 import config from './config.js';
