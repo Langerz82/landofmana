@@ -46,8 +46,7 @@ let tickerStarted = false;
 let nextToken = 1;
 
 function ensureTickerStarted() {
-    if (tickerStarted)
-        return;
+    if (tickerStarted) return;
     tickerStarted = true;
     setInterval(function () {
         const now = Date.now();
@@ -58,8 +57,7 @@ function ensureTickerStarted() {
         // old array version's "loop backwards so splice() doesn't skip
         // entries" trick, just without needing the trick.
         for (const [token, entry] of pending) {
-            if (now < entry.deadline)
-                continue;
+            if (now < entry.deadline) continue;
             // Remove before invoking the callback: callbacks routinely
             // schedule/cancel other entries (e.g. item.js chaining its
             // despawn schedule() call from inside its blink callback, or
@@ -100,8 +98,7 @@ const Scheduler = {
     // so callers can keep unconditionally cancelling a possibly-null token
     // the same way they used to with clearTimeout().
     cancel(token) {
-        if (token == null)
-            return;
+        if (token == null) return;
         pending.delete(token);
     },
 

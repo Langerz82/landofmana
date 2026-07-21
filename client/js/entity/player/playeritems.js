@@ -20,12 +20,10 @@ export default class PlayerItems {
         // could ever be falsy again - which made the final `isHarvestWeapon` fallback below
         // permanently unreachable dead code. Mirrors the (correct) pattern used by the sibling
         // hasHarvestWeapon() just below in this file: only short-circuit on an explicit "any".
-        if (type === "any")
-            return true;
+        if (type === 'any') return true;
 
         const weapon = this.equipment.getWeapon();
-        if (!weapon)
-            return false;
+        if (!weapon) return false;
 
         if (type) {
             return this.getWeaponType() === type;
@@ -49,26 +47,22 @@ export default class PlayerItems {
         const entity = this.entity;
 
         const weapon = this.getWeapon();
-        if (!weapon)
-            return 0;
+        if (!weapon) return 0;
         const weaponData = ItemTypes.KindData[weapon.itemKind];
         return Types.getWeaponLevel(entity.stats.exp[weaponData.type]);
     }
 
     getWeaponType() {
         const weapon = this.getWeapon();
-        if (!weapon)
-            return null;
+        if (!weapon) return null;
         return ItemTypes.getType(weapon.itemKind);
     }
 
     hasHarvestWeapon(type) {
-        if (type === "any")
-            return true;
+        if (type === 'any') return true;
 
         const weapon = this.getWeapon();
-        if (!weapon)
-            return false;
+        if (!weapon) return false;
 
         const weaponData = ItemTypes.KindData[weapon.itemKind];
         if (type) {

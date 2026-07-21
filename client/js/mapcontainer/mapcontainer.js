@@ -7,7 +7,6 @@ import Map from '../map.js';
 import config from '../config.js';
 import fetchJsonSync from '../lib/fetchjsonsync.js';
 
-
 // MapContainer's own behavior is split across these mixin modules for readability
 // (mapcontainer.js had grown to ~560 lines). Each install* call below merges plain-
 // function methods onto MapContainer.prototype; they're not subclasses/separate
@@ -32,78 +31,98 @@ export default class MapContainer {
         this.count = 0;
         this.inc = 0;
 
-        const $file = "./maps/" + this.mapName + ".zip?v=" + config.build.version;
-        const name = self.mapName + "/" + self.mapName + "_GO.json";
+        const $file =
+            './maps/' + this.mapName + '.zip?v=' + config.build.version;
+        const name = self.mapName + '/' + self.mapName + '_GO.json';
 
-        JSZipUtils.getBinaryContent($file, function(err, data) {
+        JSZipUtils.getBinaryContent($file, function (err, data) {
             if (err) {
                 // FIX: switched from a fire-and-forget $.getJSON with no error handling
                 // (plus a `throw err` that did nothing but log an uncaught exception,
                 // since the getJSON call above it was already async and unaffected by it)
                 // to fetchJsonSync, wrapped in try/catch so a failed fallback is actually
                 // surfaced instead of silently leaving the container stuck unloaded.
-                console.error("Failed to load map zip for " + self.mapName + ":", err);
-                const filename = "./maps/" + name;
+                console.error(
+                    'Failed to load map zip for ' + self.mapName + ':',
+                    err
+                );
+                const filename = './maps/' + name;
                 try {
                     self.loadMap(fetchJsonSync(filename));
-                }
-                catch (fallbackErr) {
-                    console.error("Failed to load map data via fetchJsonSync fallback for " + self.mapName + ":", fallbackErr);
+                } catch (fallbackErr) {
+                    console.error(
+                        'Failed to load map data via fetchJsonSync fallback for ' +
+                            self.mapName +
+                            ':',
+                        fallbackErr
+                    );
                 }
                 return;
             }
 
-            JSZip.loadAsync(data).then(function(zip) {
-                self.zip = zip;
-                try {
-                    const filename = name;
-                    // FIX: no .catch on this promise chain meant a rejected async() read
-                    // (corrupt/missing zip entry, or bad JSON) left MapContainer permanently
-                    // stuck unloaded with no error surfaced - the surrounding try/catch only
-                    // catches synchronous setup errors, not this async rejection. Same bug
-                    // already fixed in map.js's equivalent load path.
-                    zip.file(filename).async("string").then(function(data) {
-                        self.loadMap(JSON.parse(data));
-                    }).catch(function(err) {
-                        console.error("Failed to load map entry from zip:", err);
-                    });
-                }
-                catch (err) {
-                    console.error(JSON.stringify(err));
-                }
-            }).catch(function(err) {
-                // FIX: this outer JSZip.loadAsync(data) promise had no .catch at all --
-                // unlike the inner zip.file(...).async() chain right above (see its FIX
-                // comment), a rejection here was a fully unhandled promise rejection.
-                // self.loadMap() (the only thing that calls _initMap()) was never reached,
-                // so the MapContainer was left permanently stuck with isLoaded=false,
-                // width/height undefined, and collisionGrid/tileGrid never populated --
-                // with nothing logged to explain why. This is exactly what happens when a
-                // teleport re-requests the same "./maps/<name>.zip?v=..." URL and the
-                // browser serves a stale/partial response out of its HTTP cache (e.g. a
-                // 304 revalidation) that JSZip can't parse as a valid zip: loadAsync()
-                // rejects, and previously nothing ever called loadMap()/_initMap() to
-                // recover. Falling back to the direct (non-zip) JSON fetch here -- the
-                // same fallback already used for getBinaryContent's own `err` branch above
-                // -- means a bad cached zip no longer permanently strands the map load.
-                // Uses fetchJsonSync (wrapped in try/catch, since it throws rather than
-                // taking a .fail() callback), relying on its own automatic "?version="
-                // param -- no per-request timestamp, since that would force a fresh
-                // download of this map's JSON on every single load instead of only on
-                // a new build.
-                console.error("Failed to load map zip for " + self.mapName + ":", err);
-                const filename = "./maps/" + name;
-                try {
-                    self.loadMap(fetchJsonSync(filename));
-                }
-                catch (fallbackErr) {
-                    console.error("Failed to load map data via fetchJsonSync fallback for " + self.mapName + ":", fallbackErr);
-                }
-            });
+            JSZip.loadAsync(data)
+                .then(function (zip) {
+                    self.zip = zip;
+                    try {
+                        const filename = name;
+                        // FIX: no .catch on this promise chain meant a rejected async() read
+                        // (corrupt/missing zip entry, or bad JSON) left MapContainer permanently
+                        // stuck unloaded with no error surfaced - the surrounding try/catch only
+                        // catches synchronous setup errors, not this async rejection. Same bug
+                        // already fixed in map.js's equivalent load path.
+                        zip.file(filename)
+                            .async('string')
+                            .then(function (data) {
+                                self.loadMap(JSON.parse(data));
+                            })
+                            .catch(function (err) {
+                                console.error(
+                                    'Failed to load map entry from zip:',
+                                    err
+                                );
+                            });
+                    } catch (err) {
+                        console.error(JSON.stringify(err));
+                    }
+                })
+                .catch(function (err) {
+                    // FIX: this outer JSZip.loadAsync(data) promise had no .catch at all --
+                    // unlike the inner zip.file(...).async() chain right above (see its FIX
+                    // comment), a rejection here was a fully unhandled promise rejection.
+                    // self.loadMap() (the only thing that calls _initMap()) was never reached,
+                    // so the MapContainer was left permanently stuck with isLoaded=false,
+                    // width/height undefined, and collisionGrid/tileGrid never populated --
+                    // with nothing logged to explain why. This is exactly what happens when a
+                    // teleport re-requests the same "./maps/<name>.zip?v=..." URL and the
+                    // browser serves a stale/partial response out of its HTTP cache (e.g. a
+                    // 304 revalidation) that JSZip can't parse as a valid zip: loadAsync()
+                    // rejects, and previously nothing ever called loadMap()/_initMap() to
+                    // recover. Falling back to the direct (non-zip) JSON fetch here -- the
+                    // same fallback already used for getBinaryContent's own `err` branch above
+                    // -- means a bad cached zip no longer permanently strands the map load.
+                    // Uses fetchJsonSync (wrapped in try/catch, since it throws rather than
+                    // taking a .fail() callback), relying on its own automatic "?version="
+                    // param -- no per-request timestamp, since that would force a fresh
+                    // download of this map's JSON on every single load instead of only on
+                    // a new build.
+                    console.error(
+                        'Failed to load map zip for ' + self.mapName + ':',
+                        err
+                    );
+                    const filename = './maps/' + name;
+                    try {
+                        self.loadMap(fetchJsonSync(filename));
+                    } catch (fallbackErr) {
+                        console.error(
+                            'Failed to load map data via fetchJsonSync fallback for ' +
+                                self.mapName +
+                                ':',
+                            fallbackErr
+                        );
+                    }
+                });
         });
-
     }
-
 
     loadMap(data) {
         this.isLoaded = false;
@@ -124,13 +143,11 @@ export default class MapContainer {
         // hoping a future render-loop dirty-check happens to retrigger it.
         if (this.gridReady) {
             this.moveGrid();
-            if (game.renderer)
-                game.renderer.forceRedraw = true;
+            if (game.renderer) game.renderer.forceRedraw = true;
         }
 
         this._isReady();
     }
-
 
     _isReady() {
         const self = this;
@@ -138,7 +155,6 @@ export default class MapContainer {
             self.ready_func();
         }
     }
-
 
     _initGrids() {
         const c = game.camera;
@@ -153,7 +169,6 @@ export default class MapContainer {
             }
         }
     }
-
 
     _initMap(map) {
         const c = game.camera;
@@ -179,38 +194,33 @@ export default class MapContainer {
         this.doors = this._getDoors(map);
         this.checkpoints = this._getCheckpoints(map);
 
-
         this.gcsx = 0;
         this.gcsy = 0;
-        this.gcex = ((this.width) * ts) - ~~(c.screenW / gs);
-        this.gcey = ((this.height) * ts) - ~~(c.screenH / gs);
+        this.gcex = this.width * ts - ~~(c.screenW / gs);
+        this.gcey = this.height * ts - ~~(c.screenH / gs);
 
         this._initGrids();
     }
 
-
     ready(f) {
         this.ready_func = f;
     }
-
 
     OnAllReady() {
         this.all_ready_func();
         this.gridReady = true;
     }
 
-
     allReady(f) {
         this.all_ready_func = f;
     }
-
 
     getMap(index) {
         const self = this;
         let map;
         if (!this.maps[index]) {
             map = new Map(this.game, this, index);
-            map.ready(function() {
+            map.ready(function () {
                 map.gridUpdated = true;
                 game.renderer.forceRedraw = true;
             });
@@ -220,12 +230,10 @@ export default class MapContainer {
         } else {
             map = this.maps[index];
         }
-        if (map && !map.isLoaded)
-            return null;
+        if (map && !map.isLoaded) return null;
 
         return map;
     }
-
 
     LoadMaps() {
         let self = this;
@@ -236,9 +244,9 @@ export default class MapContainer {
             // `map` is closed over from this loop (same pattern getMap()'s equivalent
             // callback just above uses), so this always refers to the right Map instance
             // regardless of how the callback ends up getting invoked below.
-            const onMapReady = function() {
+            const onMapReady = function () {
                 map.gridUpdated = true;
-                if ((++self.inc) === self.count) {
+                if (++self.inc === self.count) {
                     self.OnAllReady();
                     self.inc = 0;
                     self.moveGrid(true);
@@ -273,23 +281,20 @@ export default class MapContainer {
         }
     }
 
-
     reloadMaps(init) {
         const ts = G_TILESIZE;
         const c = game.camera;
         const fe = c.focusEntity;
-        if (!fe)
-            return false;
+        if (!fe) return false;
 
-        const gx = fe.gx, gy = fe.gy;
+        const gx = fe.gx,
+            gy = fe.gy;
 
         if (!this.maps[0]) {
             this.getMap(0);
         }
-        if (init)
-            this.LoadMaps();
+        if (init) this.LoadMaps();
     }
-
 
     moveGrid(force) {
         const self = this;
@@ -314,8 +319,7 @@ export default class MapContainer {
         // set at the end of loadMap(), right after _initMap()/_initGrids() runs,
         // so requiring it here as well guarantees the grids are actually
         // allocated before _updateGrid() ever touches them.
-        if (!fe || !this.gridReady || !this.mapLoaded)
-            return false;
+        if (!fe || !this.gridReady || !this.mapLoaded) return false;
 
         this.reloadMaps();
 
@@ -325,20 +329,20 @@ export default class MapContainer {
         return true;
     }
 
-
     _updateGrid(map) {
         const c = game.camera;
         const fe = c.focusEntity;
 
         const cgw = c.gridWE;
         const cgh = c.gridHE;
-        const cgwh = (cgw >> 1);
-        const cghh = (cgh >> 1);
+        const cgwh = cgw >> 1;
+        const cghh = cgh >> 1;
 
-        let gx = fe.x >> 4, gy = fe.y >> 4;
+        let gx = fe.x >> 4,
+            gy = fe.y >> 4;
 
-        gx = Utils.clamp(0, (this.width - cgw), (gx - cgwh)),
-        gy = Utils.clamp(0, (this.height - cgh), (gy - cghh));
+        ((gx = Utils.clamp(0, this.width - cgw, gx - cgwh)),
+            (gy = Utils.clamp(0, this.height - cgh, gy - cghh)));
 
         const ox = gx;
         const oy = gy;
@@ -351,7 +355,6 @@ export default class MapContainer {
             }
         }
     }
-
 }
 
 installMapContainerDoors(MapContainer.prototype);

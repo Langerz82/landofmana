@@ -18,7 +18,7 @@ ItemTypes.getData = (k) => {
 ItemTypes.getName = (kind) => {
   try {
     const item = KindData[kind];
-    if (!item) return '';
+    if (!item) return "";
     return item.name;
   } catch (e) {
     console.error(`No name found for item: ${KindData[kind]}`);
@@ -51,12 +51,18 @@ ItemTypes.getArmorLevel = (kind) => {
 ItemTypes.getItemByLevel = (type, level) => {
   for (const kind in KindData) {
     const item = KindData[kind];
-    if ((item.type == "armor" || item.type == "armorarcher") &&
-      item.type == type && level == item.modifier) {
+    if (
+      (item.type == "armor" || item.type == "armorarcher") &&
+      item.type == type &&
+      level == item.modifier
+    ) {
       return item;
     }
-    if ((item.type == "weapon" || item.type == "weaponarcher") &&
-      item.type == type && level == item.modifier) {
+    if (
+      (item.type == "weapon" || item.type == "weaponarcher") &&
+      item.type == type &&
+      level == item.modifier
+    ) {
       return item;
     }
   }
@@ -98,7 +104,7 @@ ItemTypes.getBuyPrice = (kind) => {
   } else if (ItemTypes.isWeapon(kind)) {
     return Math.floor(item.modifier * item.modifier * 5);
   } else if (type == "object" && item.buy > 0) {
-    if (item.buyCount > 1) return (item.buy * item.buyCount);
+    if (item.buyCount > 1) return item.buy * item.buyCount;
     else return item.buy;
   }
   return 0;
@@ -134,8 +140,13 @@ ItemTypes.getEnchantPrice = (item, current = false) => {
 
   const baseLevel = data.modifier;
   console.info(`getEnchantPrice: ${ItemTypes.itemExpForLevel[enchantLevel]}`);
-  const cost = Math.floor(baseLevel * baseLevel * 10 * Math.pow(2, enchantLevel) *
-    (1 - (experience / ItemTypes.itemExpForLevel[enchantLevel])));
+  const cost = Math.floor(
+    baseLevel *
+      baseLevel *
+      10 *
+      Math.pow(2, enchantLevel) *
+      (1 - experience / ItemTypes.itemExpForLevel[enchantLevel]),
+  );
   console.info(`cost: ${cost}`);
   return cost;
 };
@@ -153,7 +164,9 @@ ItemTypes.getRepairPrice = (item) => {
   if (item.itemNumber > 1) {
     value = ItemTypes.getEnchantPrice(item, true) / 10;
   }
-  const mp = ((item.itemDurabilityMax / 900) * (1 - (item.itemDurability / item.itemDurabilityMax)));
+  const mp =
+    (item.itemDurabilityMax / 900) *
+    (1 - item.itemDurability / item.itemDurabilityMax);
   // FIX: was `log.info(...)` -- `log` only exists as a bare identifier
   // inside the gameserver process (main.js does `global.log = log`, the
   // same bridge pattern used throughout gameserver/js). This file is
@@ -164,7 +177,7 @@ ItemTypes.getRepairPrice = (item) => {
   // price tooltip computed in the browser before sending a request).
   console.info(`getRepairPrice - mp: ${mp}`);
   value *= Clamp(0, 1, mp);
-  return 1 + ~~(value);
+  return 1 + ~~value;
 };
 
 ItemTypes.isEquippable = (kind) =>
@@ -176,7 +189,12 @@ ItemTypes.isEquippable = (kind) =>
 ItemTypes.isClothes = (kind) => {
   const item = KindData[kind];
   if (!item) return false;
-  return (item.type === "helm" || item.type === "chest" || item.type === "gloves" || item.type === "boots");
+  return (
+    item.type === "helm" ||
+    item.type === "chest" ||
+    item.type === "gloves" ||
+    item.type === "boots"
+  );
 };
 
 ItemTypes.isArmor = (kind) => {
@@ -229,16 +247,13 @@ ItemTypes.getEquipmentSlot = (kind) => {
 ItemTypes.isMeleeWeapon = (kind) => {
   const item = KindData[kind];
   if (!item) return false;
-  return item.type === "sword" ||
-    item.type === "hammer" ||
-    item.type === "axe";
+  return item.type === "sword" || item.type === "hammer" || item.type === "axe";
 };
 
 ItemTypes.isHarvestWeapon = (kind) => {
   const item = KindData[kind];
   if (!item) return false;
-  return item.type === "hammer" ||
-    item.type === "axe";
+  return item.type === "hammer" || item.type === "axe";
 };
 
 ItemTypes.isArcherWeapon = (kind) => {
@@ -270,23 +285,31 @@ ItemTypes.isConsumableItem = (kind) => {
 ItemTypes.isHealingItem = (kind) => {
   const item = KindData[kind];
   if (!item) return false;
-  return item.type === "object" && (item.typemod == "health" || item.typemod == "healthpercent");
+  return (
+    item.type === "object" &&
+    (item.typemod == "health" || item.typemod == "healthpercent")
+  );
 };
 
 ItemTypes.isItem = (kind) => {
   const item = ItemTypes.KindData[kind];
   if (!item) return false;
-  return ItemTypes.isArmor(kind) || ItemTypes.isWeapon(kind) ||
+  return (
+    ItemTypes.isArmor(kind) ||
+    ItemTypes.isWeapon(kind) ||
     item.type == "object" ||
-    item.type == "craft";
+    item.type == "craft"
+  );
 };
 
 ItemTypes.isStackedItem = (kind) => {
   const item = KindData[kind];
   if (!item) return false;
-  return ItemTypes.isCraftItem(kind) ||
+  return (
+    ItemTypes.isCraftItem(kind) ||
     ItemTypes.isLootItem(kind) ||
-    ItemTypes.isConsumableItem(kind);
+    ItemTypes.isConsumableItem(kind)
+  );
 };
 
 // FIX: `for (const k in kindData)` -- lowercase `kindData` isn't declared
@@ -344,7 +367,7 @@ ItemTypes.getItemListBy = (itemType, minLevel, maxLevel) => {
         craftPrice: ItemTypes.getCraftPrice(k),
         itemKind: k,
         itemNumber: item.buyCount,
-        craft: item.craft
+        craft: item.craft,
       });
     }
     if (itemType == 1 && item.type == "object" && item.buy > 0) {
@@ -357,10 +380,14 @@ ItemTypes.getItemListBy = (itemType, minLevel, maxLevel) => {
         craftPrice: ItemTypes.getCraftPrice(k),
         itemKind: k,
         itemNumber: item.buyCount,
-        craft: item.craft
+        craft: item.craft,
       });
-    } else if (itemType == 2 && ItemTypes.isArmor(k) &&
-      item.modifier >= minLevel && item.modifier <= maxLevel) {
+    } else if (
+      itemType == 2 &&
+      ItemTypes.isArmor(k) &&
+      item.modifier >= minLevel &&
+      item.modifier <= maxLevel
+    ) {
       ItemsList.push({
         name: item.name,
         kind: k,
@@ -371,10 +398,14 @@ ItemTypes.getItemListBy = (itemType, minLevel, maxLevel) => {
         rank: item.level,
         itemKind: k,
         itemNumber: item.buyCount,
-        craft: item.craft
+        craft: item.craft,
       });
-    } else if (itemType == 3 && ItemTypes.isWeapon(k) &&
-      item.modifier >= minLevel && item.modifier <= maxLevel) {
+    } else if (
+      itemType == 3 &&
+      ItemTypes.isWeapon(k) &&
+      item.modifier >= minLevel &&
+      item.modifier <= maxLevel
+    ) {
       ItemsList.push({
         name: item.name,
         kind: k,
@@ -385,7 +416,7 @@ ItemTypes.getItemListBy = (itemType, minLevel, maxLevel) => {
         rank: item.level,
         itemKind: k,
         itemNumber: item.buyCount,
-        craft: item.craft
+        craft: item.craft,
       });
     }
   }
@@ -419,22 +450,24 @@ ItemTypes.Store = {
     return item.buyCount > 1 ? item.buyCount : 1;
   },
 
-  getItems: (type, min, max) => ItemTypes.getItemListBy(type, min, max)
+  getItems: (type, min, max) => ItemTypes.getItemListBy(type, min, max),
 };
 
 ItemTypes.itemExpForLevel = [];
 ItemTypes.itemExpForLevel[0] = 0;
 
 for (let i = 1; i < 30; i++) {
-  const points = Math.floor((i * 150) * Math.pow(2, i / 10));
+  const points = Math.floor(i * 150 * Math.pow(2, i / 10));
   ItemTypes.itemExpForLevel[i] = points;
 }
 
 ItemTypes.getItemLevel = (exp) => {
   if (exp == 0) return 1;
   for (let i = 1; i < 30; i++) {
-    if (exp > ItemTypes.itemExpForLevel[i - 1] &&
-      exp <= ItemTypes.itemExpForLevel[i]) {
+    if (
+      exp > ItemTypes.itemExpForLevel[i - 1] &&
+      exp <= ItemTypes.itemExpForLevel[i]
+    ) {
       return i;
     }
   }

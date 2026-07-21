@@ -5,25 +5,22 @@ import Utils from './utils.js';
 const Messages = {};
 export default Messages;
 
-class Message {
-
-}
+class Message {}
 
 Messages.SyncTime = class extends Message {
     constructor(localtime) {
         super();
-    	this.localtime = localtime;
+        this.localtime = localtime;
     }
     serialize() {
-        return [Types.Messages.BI_SYNCTIME,
-          this.localtime, Date.now()];
+        return [Types.Messages.BI_SYNCTIME, this.localtime, Date.now()];
     }
 };
 
 Messages.Spawn = class extends Message {
     constructor(entity) {
         super();
-    	this.entity = entity;
+        this.entity = entity;
     }
     serialize() {
         const spawn = [Types.Messages.WC_SPAWN];
@@ -38,11 +35,15 @@ Messages.Despawn = class extends Message {
         this.mapIndex = entity.map.index;
         this.x = entity.x;
         this.y = entity.y;
-
     }
     serialize() {
-        return [Types.Messages.WC_DESPAWN, this.id,
-                this.mapIndex, this.x, this.y];
+        return [
+            Types.Messages.WC_DESPAWN,
+            this.id,
+            this.mapIndex,
+            this.x,
+            this.y
+        ];
     }
 };
 
@@ -62,43 +63,46 @@ Messages.Despawn = class extends Message {
 Messages.Move = class extends Message {
     constructor(entity, orientation, state, x, y) {
         super();
-        this.time = Date.now(),
-        this.entity = entity,
-        this.orientation = orientation;
+        ((this.time = Date.now()),
+            (this.entity = entity),
+            (this.orientation = orientation));
         this.state = state;
         this.x = x || this.entity.x;
         this.y = y || this.entity.y;
     }
     serialize() {
-        return [Types.Messages.WC_MOVE,
+        return [
+            Types.Messages.WC_MOVE,
             this.time,
             this.entity.map.index,
             this.entity.id,
-        		parseInt(this.orientation, 10),
-        		this.state,
+            parseInt(this.orientation, 10),
+            this.state,
             this.entity.moveSpeed,
             this.x,
-            this.y];
+            this.y
+        ];
     }
 };
 
 Messages.MovePath = class extends Message {
     constructor(entity, path) {
         super();
-        this.time = Date.now(),
-        this.entity = entity,
-        this.path = path,
-        this.orientation = entity.orientation;
+        ((this.time = Date.now()),
+            (this.entity = entity),
+            (this.path = path),
+            (this.orientation = entity.orientation));
     }
     serialize() {
-        return ([Types.Messages.WC_MOVEPATH,
-              this.time,
-              this.entity.map.index,
-            	this.entity.id,
-          		parseInt(this.orientation, 10),
-              this.entity.interrupted = (this.entity.interrupted ? 1 : 0),
-              this.entity.moveSpeed,
-            ]).concat(this.path);
+        return [
+            Types.Messages.WC_MOVEPATH,
+            this.time,
+            this.entity.map.index,
+            this.entity.id,
+            parseInt(this.orientation, 10),
+            (this.entity.interrupted = this.entity.interrupted ? 1 : 0),
+            this.entity.moveSpeed
+        ].concat(this.path);
     }
 };
 
@@ -114,37 +118,40 @@ Messages.ChangePoints = class extends Message {
         this.modep = modep;
     }
     serialize() {
-        return [Types.Messages.WC_CHANGEPOINTS,
-          this.id,
-          this.hp, this.hpMax, this.modhp,
-          this.ep, this.epMax, this.modep];
+        return [
+            Types.Messages.WC_CHANGEPOINTS,
+            this.id,
+            this.hp,
+            this.hpMax,
+            this.modhp,
+            this.ep,
+            this.epMax,
+            this.modep
+        ];
     }
 };
 
 Messages.Error = class extends Message {
-  constructor(message) {
-    super();
-    this.message = message;
-  }
-  serialize() {
-    return [Types.Messages.WC_ERROR,
-            this.message];
-  }
+    constructor(message) {
+        super();
+        this.message = message;
+    }
+    serialize() {
+        return [Types.Messages.WC_ERROR, this.message];
+    }
 };
 
 Messages.Notify = class extends Message {
-  constructor(group, message, vars) {
-    super();
-    this.group = group;
-    this.message = message;
-    this.vars = vars || [];
-  }
-  serialize() {
-    const arr =[Types.Messages.WC_NOTIFY,
-        this.group,
-        this.message]
-    return arr.concat(this.vars);
-  }
+    constructor(group, message, vars) {
+        super();
+        this.group = group;
+        this.message = message;
+        this.vars = vars || [];
+    }
+    serialize() {
+        const arr = [Types.Messages.WC_NOTIFY, this.group, this.message];
+        return arr.concat(this.vars);
+    }
 };
 
 Messages.Dialogue = class extends Message {
@@ -155,7 +162,9 @@ Messages.Dialogue = class extends Message {
         this.vars = vars || [];
     }
     serialize() {
-        return [Types.Messages.WC_DIALOGUE, this.id, this.langcode].concat(this.vars);
+        return [Types.Messages.WC_DIALOGUE, this.id, this.langcode].concat(
+            this.vars
+        );
     }
 };
 
@@ -174,9 +183,9 @@ Messages.Quest = class extends Message {
         super();
         this.quest = quest;
     }
-    serialize(){
+    serialize() {
         const arr = this.quest.toClient();
-        return ([Types.Messages.WC_QUEST]).concat(arr);
+        return [Types.Messages.WC_QUEST].concat(arr);
     }
 };
 
@@ -185,9 +194,9 @@ Messages.Achievement = class extends Message {
         super();
         this.achievement = achievement;
     }
-    serialize(){
+    serialize() {
         const arr = this.achievement.toClient(this.achievement);
-        return ([Types.Messages.WC_ACHIEVEMENT]).concat(arr);
+        return [Types.Messages.WC_ACHIEVEMENT].concat(arr);
     }
 };
 
@@ -202,7 +211,6 @@ Messages.Log = class extends Message {
     }
 };
 
-
 Messages.SkillLoad = class extends Message {
     constructor(index, exp) {
         super();
@@ -210,9 +218,7 @@ Messages.SkillLoad = class extends Message {
         this.exp = exp;
     }
     serialize() {
-        return [Types.Messages.WC_SKILLLOAD,
-            this.index,
-            this.exp];
+        return [Types.Messages.WC_SKILLLOAD, this.index, this.exp];
     }
 };
 
@@ -227,8 +233,7 @@ Messages.SkillEffects = class extends Message {
         // place, but here the result is returned directly, so this one was
         // already correct -- unlike the sibling bugs in Messages.SkillXP and
         // Messages.Damage below where the concat result was discarded.
-        return ([Types.Messages.WC_SKILLEFFECTS,
-            this.id]).concat(this.effects);
+        return [Types.Messages.WC_SKILLEFFECTS, this.id].concat(this.effects);
     }
 };
 
@@ -266,27 +271,31 @@ Messages.Chat = class extends Message {
         this.message = message;
     }
     serialize() {
-        return [Types.Messages.WC_CHAT,
-                this.playerId,
-                this.group,
-                this.message];
+        return [
+            Types.Messages.WC_CHAT,
+            this.playerId,
+            this.group,
+            this.message
+        ];
     }
 };
 
 Messages.TeleportMap = class extends Message {
     constructor(entity, subIndex, status) {
         super();
-        this.entity = entity,
-        this.subIndex = subIndex,
-        this.status = status;
+        ((this.entity = entity),
+            (this.subIndex = subIndex),
+            (this.status = status));
     }
     serialize() {
-        return [Types.Messages.WC_TELEPORT_MAP,
-                this.entity.map.index,
-        	      this.subIndex,
-                this.status,
-                this.entity.x,
-                this.entity.y];
+        return [
+            Types.Messages.WC_TELEPORT_MAP,
+            this.entity.map.index,
+            this.subIndex,
+            this.status,
+            this.entity.x,
+            this.entity.y
+        ];
     }
 };
 
@@ -305,27 +314,29 @@ Messages.Damage = class extends Message {
         this.epMod = data[3];
         this.ep = target.stats.ep || 0;
         this.epMax = target.stats.epMax || 0;
-        this.crit = (data[4]) ? 1 : 0;
+        this.crit = data[4] ? 1 : 0;
         this.effects = data[5];
     }
     serialize() {
-        const arr = [Types.Messages.WC_DAMAGE,
-          this.entity1.id,
-          this.entity2.id,
-          this.entity1.orientation,
-          this.hpMod,
-          this.hp,
-          this.hpMax,
-          this.epMod,
-          this.ep,
-          this.epMax,
-  	      this.crit];
+        const arr = [
+            Types.Messages.WC_DAMAGE,
+            this.entity1.id,
+            this.entity2.id,
+            this.entity1.orientation,
+            this.hpMod,
+            this.hp,
+            this.hpMax,
+            this.epMod,
+            this.ep,
+            this.epMax,
+            this.crit
+        ];
         // FIX: Array#concat returns a new array instead of mutating `arr`, so
         // the previous `arr.concat(this.effects);` (return value discarded)
         // silently dropped combat effect data from every damage packet sent
         // to clients. Reassign/return the concat result instead.
         if (Array.isArray(this.effects) && this.effects.length > 0)
-          return arr.concat(this.effects);
+            return arr.concat(this.effects);
         return arr;
     }
 };
@@ -336,20 +347,21 @@ Messages.StatInfo = class extends Message {
         this.player = player;
     }
     serialize() {
-      const stats = this.player.stats;
-      const data = [Types.Messages.WC_STATINFO,
-      	    stats.attack,
-      	    stats.defense,
-      	    stats.health,
-      	    stats.energy,
-      	    stats.luck,
-      	    stats.free,
+        const stats = this.player.stats;
+        const data = [
+            Types.Messages.WC_STATINFO,
+            stats.attack,
+            stats.defense,
+            stats.health,
+            stats.energy,
+            stats.luck,
+            stats.free,
             stats.hp,
             stats.hpMax,
             stats.ep,
             stats.epMax
-      ];
-      return data;
+        ];
+        return data;
     }
 };
 
@@ -370,12 +382,14 @@ Messages.UpdateLook = class extends Message {
         this.player = player;
     }
     serialize() {
-      return [Types.Messages.WC_LOOKUPDATE,
+        return [
+            Types.Messages.WC_LOOKUPDATE,
             this.player.id,
             this.player.sprites[0],
-      	    this.player.sprites[1],
-      	    this.player.colors[0],
-      	    this.player.colors[1]];
+            this.player.sprites[1],
+            this.player.colors[0],
+            this.player.colors[1]
+        ];
     }
 };
 
@@ -395,43 +409,42 @@ Messages.AppearanceList = class extends Message {
 // type 2 - EQUIPMENT
 
 Messages.ItemSlot = class extends Message {
-  constructor(type, items) {
-    super();
-    this.type = type;
-    this.items = items;
-  }
-  serialize() {
-  		let msg = [Types.Messages.WC_ITEMSLOT,
-        this.type,
-        this.items.length];
+    constructor(type, items) {
+        super();
+        this.type = type;
+        this.items = items;
+    }
+    serialize() {
+        let msg = [Types.Messages.WC_ITEMSLOT, this.type, this.items.length];
         for (const item of this.items) {
-          let arr = null;
-          if (item.itemKind === -1)
-            arr = [item.slot, item.itemKind];
-          else {
-            //log.warn("Messages.ItemSlot - item:" + JSON.stringify(item));
-            arr = item.toArray();
-          }
-          msg = msg.concat(arr);
+            let arr = null;
+            if (item.itemKind === -1) arr = [item.slot, item.itemKind];
+            else {
+                //log.warn("Messages.ItemSlot - item:" + JSON.stringify(item));
+                arr = item.toArray();
+            }
+            msg = msg.concat(arr);
         }
-      return msg;
-   }
+        return msg;
+    }
 };
 
 Messages.ItemLevelUp = class extends Message {
-  constructor(index, item) {
-    super();
-    this.index = index;
-    this.item = item;
-  }
-  serialize() {
-  	if (this.item) {
-    	return [Types.Messages.WC_ITEMLEVELUP,
-    		this.index,
-    		this.item.itemNumber,
-    		this.item.itemExperience];
-  	}
-  }
+    constructor(index, item) {
+        super();
+        this.index = index;
+        this.item = item;
+    }
+    serialize() {
+        if (this.item) {
+            return [
+                Types.Messages.WC_ITEMLEVELUP,
+                this.index,
+                this.item.itemNumber,
+                this.item.itemExperience
+            ];
+        }
+    }
 };
 
 Messages.Stat = class extends Message {
@@ -442,10 +455,7 @@ Messages.Stat = class extends Message {
         this.change = change;
     }
     serialize() {
-        return [Types.Messages.WC_STAT,
-                this.type,
-                this.value,
-                this.change];
+        return [Types.Messages.WC_STAT, this.type, this.value, this.change];
     }
 };
 
@@ -457,10 +467,7 @@ Messages.LevelUp = class extends Message {
         this.exp = exp;
     }
     serialize() {
-        return [Types.Messages.WC_LEVELUP,
-                this.type,
-                this.level,
-                this.exp];
+        return [Types.Messages.WC_LEVELUP, this.type, this.level, this.exp];
     }
 };
 
@@ -490,9 +497,9 @@ Messages.AuctionOpen = class extends Message {
 Messages.Speech = class extends Message {
     constructor(entity, kind, value) {
         super();
-       this.entityid = entity.id;
-    	 this.kind = kind;
-    	 this.value = value;
+        this.entityid = entity.id;
+        this.kind = kind;
+        this.value = value;
     }
     serialize() {
         return [Types.Messages.WC_SPEECH, this.entityid, this.kind, this.value];
@@ -500,16 +507,15 @@ Messages.Speech = class extends Message {
 };
 
 Messages.Gold = class extends Message {
-	constructor(player) {
-	    super();
-		this.invgold = player.items.gold[0];
-    this.bankgold = player.items.gold[1];
-    this.gems = player.user.gems;
-	}
-	serialize() {
-		return [Types.Messages.WC_GOLD, this.invgold, this.bankgold,
-          this.gems];
-  }
+    constructor(player) {
+        super();
+        this.invgold = player.items.gold[0];
+        this.bankgold = player.items.gold[1];
+        this.gems = player.user.gems;
+    }
+    serialize() {
+        return [Types.Messages.WC_GOLD, this.invgold, this.bankgold, this.gems];
+    }
 };
 
 // FIX (real, confirmed live bug -- the previous pass here flagged this but
@@ -538,12 +544,17 @@ Messages.Gold = class extends Message {
 Messages.BlockModify = class extends Message {
     constructor(entity, id, state) {
         super();
-    	this.entity = entity;
-      this.id = id;
-      this.state = state;
+        this.entity = entity;
+        this.id = id;
+        this.state = state;
     }
     serialize() {
-        return [Types.Messages.WC_BLOCK_MODIFY, this.id, this.state, this.entity.id];
+        return [
+            Types.Messages.WC_BLOCK_MODIFY,
+            this.id,
+            this.state,
+            this.entity.id
+        ];
     }
 };
 
@@ -573,16 +584,17 @@ Messages.PlayerInfo = class extends Message {
         this.player = player;
     }
     serialize() {
-        return [Types.Messages.WC_PLAYERINFO,
-          this.player.stats.exp.base,
-          this.player.stats.exp.attack,
-          this.player.stats.exp.defense,
-          this.player.stats.exp.sword,
-          this.player.stats.exp.bow,
-          this.player.stats.exp.hammer,
-          this.player.stats.exp.axe,
-          this.player.stats.exp.logging,
-          this.player.stats.exp.mining
+        return [
+            Types.Messages.WC_PLAYERINFO,
+            this.player.stats.exp.base,
+            this.player.stats.exp.attack,
+            this.player.stats.exp.defense,
+            this.player.stats.exp.sword,
+            this.player.stats.exp.bow,
+            this.player.stats.exp.hammer,
+            this.player.stats.exp.axe,
+            this.player.stats.exp.logging,
+            this.player.stats.exp.mining
         ];
     }
 };
@@ -616,13 +628,9 @@ Messages.setSprite = class extends Message {
         this.animName = animName;
     }
     serialize() {
-        const arr = [Types.Messages.WC_SET_SPRITE,
-          this.id,
-          this.sprite1];
-        if (typeof(this.sprite2) !== 'undefined')
-          arr.push(this.sprite2);
-        if (typeof(this.animName) !== 'undefined')
-          arr.push(this.animName);
+        const arr = [Types.Messages.WC_SET_SPRITE, this.id, this.sprite1];
+        if (typeof this.sprite2 !== 'undefined') arr.push(this.sprite2);
+        if (typeof this.animName !== 'undefined') arr.push(this.animName);
         return arr;
     }
 };
@@ -634,9 +642,7 @@ Messages.setAnimation = class extends Message {
         this.animation = animation;
     }
     serialize() {
-        return [Types.Messages.WC_SET_ANIMATION,
-          this.id,
-          this.animation];
+        return [Types.Messages.WC_SET_ANIMATION, this.id, this.animation];
     }
 };
 
@@ -650,13 +656,14 @@ Messages.Harvest = class extends Message {
         this.gy = gy;
     }
     serialize() {
-        const arr = [Types.Messages.WC_HARVEST,
-          this.id,
-          this.action,
-          this.gx,
-          this.gy];
-        if (this.duration > 0)
-          arr.push(this.duration);
+        const arr = [
+            Types.Messages.WC_HARVEST,
+            this.id,
+            this.action,
+            this.gx,
+            this.gy
+        ];
+        if (this.duration > 0) arr.push(this.duration);
         return arr;
     }
 };

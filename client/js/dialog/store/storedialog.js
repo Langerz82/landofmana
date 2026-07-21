@@ -13,63 +13,62 @@ import StoreFrame from './storeframe.js';
 const InventoryMode = Types.InventoryMode;
 
 export default class StoreDialog extends Dialog {
-        constructor(game) {
-            super(game, '#storeDialog'); // FIX (conversion): this._super(game, '#storeDialog') -> super(game, '#storeDialog')
-            this.setScale();
+    constructor(game) {
+        super(game, '#storeDialog'); // FIX (conversion): this._super(game, '#storeDialog') -> super(game, '#storeDialog')
+        this.setScale();
 
-            this.storeFrame = new StoreFrame(this);
+        this.storeFrame = new StoreFrame(this);
 
-            this.sellButton = $('#storeDialogStore3Button');
-            this.sellButton.show();
+        this.sellButton = $('#storeDialogStore3Button');
+        this.sellButton.show();
 
-            const self = this;
+        const self = this;
+    }
+
+    setScale() {
+        this.scale = game.renderer.getUiScaleFactor();
+    }
+
+    rescale() {
+        this.setScale();
+        this.storeFrame.rescale();
+    }
+
+    show(min, max) {
+        const self = this;
+
+        $('#storeDialog .frameheading div').text('SHOPS');
+
+        $('#storeDialogStore0Button').text('CONSUME');
+        $('#storeDialog .storebuttons').show();
+
+        this.sellButton.text('SELL');
+        this.sellButton.show();
+
+        this.sellButton.off().on('click', function (event) {
+            game.inventoryMode = InventoryMode.MODE_SELL;
+            game.inventoryDialog.showInventory(true);
+            game.inventoryDialog.backPage = self;
+            self.hide();
+        });
+
+        this.rescale();
+        this.storeFrame.open(min, max);
+
+        this.addClose();
+
+        super.show(); // FIX (conversion): this._super() -> super.show()
+        $('#storeDialogStore0Button').trigger('click');
+
+        $('#storeDialogStore div.inventoryGoldFrame').show();
+        $('#storeDialogStore div.inventoryGemsFrame').hide();
+    }
+
+    hide() {
+        const activePage = this.storeFrame.getActivePage();
+        if (activePage) {
+            activePage.close();
         }
-
-        setScale() {
-          this.scale = game.renderer.getUiScaleFactor();
-        }
-
-        rescale() {
-        	this.setScale();
-		      this.storeFrame.rescale();
-        }
-
-        show(min, max) {
-            const self = this;
-
-            $('#storeDialog .frameheading div').text('SHOPS');
-
-            $("#storeDialogStore0Button").text('CONSUME');
-            $("#storeDialog .storebuttons").show();
-
-            this.sellButton.text('SELL');
-            this.sellButton.show();
-
-            this.sellButton.off().on('click', function (event) {
-              game.inventoryMode = InventoryMode.MODE_SELL;
-              game.inventoryDialog.showInventory(true);
-              game.inventoryDialog.backPage = self;
-              self.hide();
-            });
-
-            this.rescale();
-            this.storeFrame.open(min, max);
-
-            this.addClose();
-
-            super.show(); // FIX (conversion): this._super() -> super.show()
-            $("#storeDialogStore0Button").trigger('click');
-
-            $('#storeDialogStore div.inventoryGoldFrame').show();
-            $('#storeDialogStore div.inventoryGemsFrame').hide();
-        }
-
-        hide() {
-            const activePage = this.storeFrame.getActivePage();
-            if (activePage)
-            {
-                activePage.close();
-            }
-            super.hide(); // FIX (conversion): this._super() -> super.hide()
-        }
+        super.hide(); // FIX (conversion): this._super() -> super.hide()
+    }
 }

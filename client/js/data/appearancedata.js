@@ -6,7 +6,7 @@
 import fetchJsonSync from '../lib/fetchjsonsync.js';
 
 const appearanceParse = fetchJsonSync('shared/data/appearance.json');
-const Appearances = appearanceParse.map(val => ({
+const Appearances = appearanceParse.map((val) => ({
     name: val.name,
     type: val.type,
     sprite: val.sprite,

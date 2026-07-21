@@ -18,6 +18,8 @@ export default class NpcMove extends Character {
         // anywhere (only a commented-out line in game.js), so this always threw, and
         // `this.sprites[0]` holds a Sprite object/null rather than a lookup key anyway.
         // Use the same uid formula clientcallbacks.js uses when spawning an NpcMove.
-        return "npc" + (1 + (~~(this.kind / 8) % 4)) + "_" + (1 + (this.kind % 8));
+        return (
+            'npc' + (1 + (~~(this.kind / 8) % 4)) + '_' + (1 + (this.kind % 8))
+        );
     }
 }

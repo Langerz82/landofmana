@@ -11,9 +11,7 @@ import { createRequire } from 'module';
 const require = createRequire(import.meta.url);
 
 class ProductionConfig {
-
     constructor(config) {
-
         this.config = config;
 
         // FIX: config.production was concatenated straight into a require()
@@ -26,30 +24,33 @@ class ProductionConfig {
         // whitelist check as cheap defense-in-depth: only plain filename
         // characters are allowed, matching what a real production_hosts/*.js
         // module name should look like.
-        const isSafeProductionName = typeof config.production === 'string' &&
+        const isSafeProductionName =
+            typeof config.production === 'string' &&
             /^[A-Za-z0-9_-]+$/.test(config.production);
 
         try {
             if (!isSafeProductionName)
-                throw new Error('Invalid config.production value: ' + config.production);
+                throw new Error(
+                    'Invalid config.production value: ' + config.production
+                );
 
-            this.production = require('../production_hosts/' + config.production + '.js');
-        }
-        catch(err) {
+            this.production = require(
+                '../production_hosts/' + config.production + '.js'
+            );
+        } catch (err) {
             this.production = null;
         }
-
     }
 
     inProduction() {
-        if(this.production !== null) {
+        if (this.production !== null) {
             return this.production.isActive();
         }
         return false;
     }
 
     getProductionSettings() {
-        if(this.inProduction()) {
+        if (this.inProduction()) {
             return this.production;
         }
     }

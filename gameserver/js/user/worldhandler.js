@@ -28,13 +28,18 @@ class WorldHandler {
         // start a second save for a player that already has one in flight.
         this.savesInProgress = new Set();
 
-        this.connection.listen(function(message) {
-            console.info("recv="+JSON.stringify(message));
+        this.connection.listen(function (message) {
+            console.info('recv=' + JSON.stringify(message));
             const action = parseInt(message[0]);
 
             if (action)
-                if(!formatCheck(message)) {
-                    self.connection.close("Invalid "+Types.getMessageTypeAsString(action)+" message format: "+message);
+                if (!formatCheck(message)) {
+                    self.connection.close(
+                        'Invalid ' +
+                            Types.getMessageTypeAsString(action) +
+                            ' message format: ' +
+                            message
+                    );
                     return;
                 }
             message.shift();
@@ -43,12 +48,10 @@ class WorldHandler {
                 self.handleLoginPlayer(message);
                 return;
             }
-
         });
     }
 
-    onExit() {
-    }
+    onExit() {}
 
     sendPlayer(message) {
         this.connection.send(message);
@@ -59,7 +62,7 @@ class WorldHandler {
     }
 
     handleLoginPlayer(msg) {
-        console.info("worldHandler, handleLoginPlayer: "+JSON.stringify(msg));
+        console.info('worldHandler, handleLoginPlayer: ' + JSON.stringify(msg));
         const playerName = msg[0],
             playerHash = msg[1];
 
@@ -80,15 +83,17 @@ class WorldHandler {
         }
 
         if (!player) {
-            console.info("player hash does not exist.");
+            console.info('player hash does not exist.');
             this.connection.disconnect();
             return;
         }
 
         const username = player.user.name;
         if (players.has(username)) {
-            console.info("player user is already logged in.");
-            this.sendPlayerMessage(new Messages.Error("user already logged in."));
+            console.info('player user is already logged in.');
+            this.sendPlayerMessage(
+                new Messages.Error('user already logged in.')
+            );
             this.connection.disconnect();
             return;
         }
@@ -108,13 +113,13 @@ class WorldHandler {
         // happens once we're actually committed to letting the player in.
         if (player.world && player.world.ban) {
             if (player.world.ban.isUserBanned(username)) {
-                console.info("player user is banned from server.");
-                this.sendPlayerMessage(new Messages.Error("user is banned."));
+                console.info('player user is banned from server.');
+                this.sendPlayerMessage(new Messages.Error('user is banned.'));
                 this.connection.disconnect();
                 return;
             }
         } else {
-            console.warn("handleLoginPlayer: world or world ban not set");
+            console.warn('handleLoginPlayer: world or world ban not set');
             return;
         }
 
@@ -122,7 +127,9 @@ class WorldHandler {
 
         player.start(this.connection);
 
-        this.sendToUserServer(new UserMessages.playerLoggedIn(1,player.user.name, playerName));
+        this.sendToUserServer(
+            new UserMessages.playerLoggedIn(1, player.user.name, playerName)
+        );
     }
 
     loadPlayerDataUserInfo(player, callback) {
@@ -131,10 +138,10 @@ class WorldHandler {
             user.name,
             user.hash,
             Number(user.gems),
-            Utils.BinArrayToBase64(user.looks)];
+            Utils.BinArrayToBase64(user.looks)
+        ];
 
-        if (callback)
-            callback(user.name, data);
+        if (callback) callback(user.name, data);
     }
 
     loadPlayerDataInfo(player, callback) {
@@ -144,7 +151,8 @@ class WorldHandler {
             player.stats.health,
             player.stats.energy,
             player.stats.luck,
-            player.stats.free];
+            player.stats.free
+        ];
 
         const exps = [
             Utils.NaN2Zero(player.stats.exp.base),
@@ -156,17 +164,13 @@ class WorldHandler {
             Utils.NaN2Zero(player.stats.exp.hammer),
             Utils.NaN2Zero(player.stats.exp.axe),
             Utils.NaN2Zero(player.stats.exp.logging),
-            Utils.NaN2Zero(player.stats.exp.mining),
+            Utils.NaN2Zero(player.stats.exp.mining)
         ];
 
-        const map = [
-            player.map.index,
-            player.x,
-            player.y,
-            player.orientation];
+        const map = [player.map.index, player.x, player.y, player.orientation];
 
         const skillexps = [];
-        for (let i =0 ; i < player.skills.length; ++i)
+        for (let i = 0; i < player.skills.length; ++i)
             skillexps[i] = player.skills[i].skillXP;
 
         //var completeQuests = (Object.keys(player.completeQuests).length > 0) ? JSON.stringify(player.completeQuests) : 0;
@@ -175,9 +179,9 @@ class WorldHandler {
 
         const data = [
             player.name,
-            map.join(","),
-            stats.join(","),
-            exps.join(","),
+            map.join(','),
+            stats.join(','),
+            exps.join(','),
             // REFACTOR: gold_0/gold_1 as two separate flat elements now,
             // instead of one joined CSV string or one nested [gold0, gold1]
             // array -- matches every other field in this record (flat
@@ -188,15 +192,15 @@ class WorldHandler {
             // for the full trail). Shifts every field below by one index.
             player.items.gold[0],
             player.items.gold[1],
-            skillexps.join(","),
-            player.pStats.join(","),
-            player.sprites.join(","),
-            player.colors.join(","),
+            skillexps.join(','),
+            player.pStats.join(','),
+            player.sprites.join(','),
+            player.colors.join(','),
             JSON.stringify(player.shortcuts),
-            JSON.stringify(player.quests.completeQuests)];
+            JSON.stringify(player.quests.completeQuests)
+        ];
 
-        if (callback)
-            callback(player.name, data);
+        if (callback) callback(player.name, data);
     }
 
     // NOTE: this sends `quests` as a real JS array of comma-joined strings,
@@ -213,32 +217,36 @@ class WorldHandler {
         const quests = [];
         //if (!player.quests.quests)
         //player.quests = [];
-        for (const quest of player.quests.quests)
-        {
-            if (!quest || quest.status === Types.QuestStatus.COMPLETE  || _.isEmpty(quest))
+        for (const quest of player.quests.quests) {
+            if (
+                !quest ||
+                quest.status === Types.QuestStatus.COMPLETE ||
+                _.isEmpty(quest)
+            )
                 continue;
             quests.push(quest.toArray().join(','));
         }
 
-        if (callback)
-            callback(player.name, quests);
+        if (callback) callback(player.name, quests);
     }
 
     loadPlayerDataAchievements(player, callback) {
-        let data = "";
-        for (const achievement of player.achievements)
-        {
-            data += achievement.toRedis(achievement).join(',') + ",";
+        let data = '';
+        for (const achievement of player.achievements) {
+            data += achievement.toRedis(achievement).join(',') + ',';
         }
-        data = data.slice(0,-1);
+        data = data.slice(0, -1);
 
-        if (callback)
-            callback(player.name, data);
+        if (callback) callback(player.name, data);
     }
 
     loadPlayerDataItems(player, type, callback) {
         if (callback)
-            callback(player.name, type, player.items.itemStore[type].toStringJSON());
+            callback(
+                player.name,
+                type,
+                player.items.itemStore[type].toStringJSON()
+            );
     }
 
     sendToUserServer(msg) {
@@ -262,15 +270,18 @@ class WorldHandler {
         // userserver connection is current -- including after the initial
         // connect finishes, and after any later reconnect.
         const userHandler = this.main && this.main.userHandler;
-        const userConnection = this.userConnection || (userHandler && userHandler.connection);
-        if (userConnection)
-            userConnection.send(msg.serialize());
+        const userConnection =
+            this.userConnection || (userHandler && userHandler.connection);
+        if (userConnection) userConnection.send(msg.serialize());
         else
-            console.error("worldHandler: sendToUserServer called without userConnection being set (player save/message lost): "+JSON.stringify(msg.serialize()));
+            console.error(
+                'worldHandler: sendToUserServer called without userConnection being set (player save/message lost): ' +
+                    JSON.stringify(msg.serialize())
+            );
     }
 
     savePlayer(player, update) {
-        console.info("worldHandler - savePlayer, name:"+player.name);
+        console.info('worldHandler - savePlayer, name:' + player.name);
         const self = this;
 
         //console.info("SAVING PLAYER: "+player.name);
@@ -284,7 +295,11 @@ class WorldHandler {
         // logging) a re-entrant call is safer than letting it silently
         // reset/stomp self.playerSaveData[playerName] mid-build.
         if (self.savesInProgress.has(playerName)) {
-            console.warn("worldHandler - savePlayer, name:"+playerName+" - a save is already in progress for this player; skipping overlapping call.");
+            console.warn(
+                'worldHandler - savePlayer, name:' +
+                    playerName +
+                    ' - a save is already in progress for this player; skipping overlapping call.'
+            );
             return;
         }
         self.savesInProgress.add(playerName);
@@ -293,14 +308,16 @@ class WorldHandler {
             const objData = self.playerSaveData[playerName];
             objData.count++;
             objData.data[index] = data;
-            if (objData.count === 7)
-            {
-                const msg = new UserMessages.SavePlayerData(playerName, objData.data, update);
+            if (objData.count === 7) {
+                const msg = new UserMessages.SavePlayerData(
+                    playerName,
+                    objData.data,
+                    update
+                );
                 self.sendToUserServer(msg);
                 delete self.playerSaveData[playerName];
                 self.savesInProgress.delete(playerName);
-            }
-            else {
+            } else {
                 self.playerSaveData[playerName] = objData;
             }
         };

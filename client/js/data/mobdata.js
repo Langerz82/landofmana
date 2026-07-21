@@ -28,7 +28,9 @@ for (const [key, value] of Object.entries(mobParse)) {
 
         attackRate: value.attackRateMod ? value.attackRateMod * 1000 : 1000,
         reactionDelay: value.reactionMod ? value.reactionMod * 768 : 768,
-        moveSpeed: value.moveSpeedMod ? ~~(300 + (200 * value.moveSpeedMod)) : 500,
+        moveSpeed: value.moveSpeedMod
+            ? ~~(300 + 200 * value.moveSpeedMod)
+            : 500,
         idleSpeed: value.idleSpeedMod ? value.idleSpeedMod * 1000 : 1000,
 
         respawn: value.respawnMod ? value.respawnMod * 60000 : 60000,

@@ -32,14 +32,13 @@ window.ATTACK_INTERVAL = 1000;
 window.ATTACK_MAX = 1000;
 
 window.Container = {
-  "STAGE": new PIXI.Container(),
-  "BACKGROUND": new PIXI.Container(),
-  "ENTITIES": new PIXI.Container(),
-  "FOREGROUND": new PIXI.Container(),
-  "HUD": new PIXI.Container(),
-  "HUD2": new PIXI.Container()
+    STAGE: new PIXI.Container(),
+    BACKGROUND: new PIXI.Container(),
+    ENTITIES: new PIXI.Container(),
+    FOREGROUND: new PIXI.Container(),
+    HUD: new PIXI.Container(),
+    HUD2: new PIXI.Container()
 };
-
 
 window.Container.STAGE.interactive = false;
 
@@ -47,85 +46,85 @@ Object.freeze(window.Container);
 
 // FIX (conversion): 'lang' is another canonical cross-file global declaration site (was a bare
 // 'lang = new LangData("EN")').
-window.lang = new LangData("EN");
+window.lang = new LangData('EN');
 
-const initApp = function(server) {
+const initApp = function (server) {
+    const startEvents = function () {
+        if (typeof StatusBar !== 'undefined') StatusBar.hide();
+    };
+    document.addEventListener('deviceready', startEvents, false);
 
-	const startEvents = function () {
-    if (typeof(StatusBar) !== 'undefined')
-    	    StatusBar.hide();
+    window.onbeforeunload = function (e) {
+        if (typeof userclient !== 'undefined' && userclient.connection)
+            userclient.connection.close();
+        else if (
+            typeof game !== 'undefined' &&
+            game.client &&
+            game.client.connection
+        )
+            game.client.connection.close();
+    };
 
-}
-document.addEventListener("deviceready", startEvents, false);
-
-window.onbeforeunload = function (e) {
-  if (typeof userclient !== "undefined" && userclient.connection)
-    userclient.connection.close();
-  else if (typeof game !== "undefined" && game.client && game.client.connection)
-    game.client.connection.close();
-};
-
- 	 $(document).ready(function() {
-
+    $(document).ready(function () {
         app = new App();
         app.center();
 
         DragItem = null;
         DragBank = null;
 
-        if(Detect.isWindows()) {
+        if (Detect.isWindows()) {
             // Workaround for graphical glitches on text
             $('body').addClass('windows');
         }
 
-        if(Detect.isOpera()) {
+        if (Detect.isOpera()) {
             // Fix for no pointer events
             $('body').addClass('opera');
         }
 
-        if(Detect.isFirefoxAndroid()) {
+        if (Detect.isFirefoxAndroid()) {
             // Remove chat placeholder
             $('#chatinput').removeAttr('placeholder');
         }
 
-        $('.barbutton').click(function() {
+        $('.barbutton').click(function () {
             $(this).toggleClass('active');
         });
-        $('#aboutbutton').click(function() {
+        $('#aboutbutton').click(function () {
             const about = $('#about_window');
             about.toggle();
         });
-        $('#aboutclose').click(function() {
+        $('#aboutclose').click(function () {
             const about = $('#about_window');
             about.hide();
         });
 
-        $('#chatbutton').click(function() {
-          app.showChat(!$('#chatbox').hasClass('active'));
+        $('#chatbutton').click(function () {
+            app.showChat(!$('#chatbox').hasClass('active'));
         });
 
-        $('#population').click(function() {
+        $('#population').click(function () {
             app.togglePopulationInfo();
         });
 
-        $('.clickable').click(function(event) {
+        $('.clickable').click(function (event) {
             // FIX: handler's parameter is named `event`; `e` was undeclared and would throw a ReferenceError on click
             fnClickFunc(event);
         });
 
-        $('#change-password').click(function() {
+        $('#change-password').click(function () {
             app.loadWindow('loginWindow', 'passwordWindow');
         });
 
-        $('#attack-shortcut').click(function() {
-          game.makePlayerInteractNextTo();
+        $('#attack-shortcut').click(function () {
+            game.makePlayerInteractNextTo();
         });
 
-        $('.close').click(function() {
+        $('.close').click(function () {
             app.hideWindows();
         });
 
-        log.info("App initialized.");
+        log.info('App initialized.');
 
         initGame();
 
@@ -137,9 +136,9 @@ window.onbeforeunload = function (e) {
 // only runs after the whole module has finished evaluating, so by the time it's actually
 // invoked this declaration has long since run - safe as const despite the call site appearing
 // earlier in the file.
-const initGame = function() {
-    const canvas = document.getElementById("entities"),
-        input = document.getElementById("chatinput");
+const initGame = function () {
+    const canvas = document.getElementById('entities'),
+        input = document.getElementById('chatinput');
 
     // FIX (conversion): 'game' is another canonical cross-file global declaration site (was a
     // bare 'game = new Game(app)').
@@ -149,30 +148,31 @@ const initGame = function() {
     app.setGame(game);
 
     // FIX: was a no-op comparison (===) instead of an assignment
-    game.useServer = "world";
+    game.useServer = 'world';
 
-    game.onGameStart(function() {
-    });
+    game.onGameStart(function () {});
 
-    game.onDisconnect(function(message) {
-        $('#errorwindow').find('p').html(message+"<em>Disconnected. Please reload the page.</em>");
+    game.onDisconnect(function (message) {
+        $('#errorwindow')
+            .find('p')
+            .html(message + '<em>Disconnected. Please reload the page.</em>');
         $('#errorwindow').show();
         $('#errorwindow').focus();
     });
 
-    game.onClientError(function(message) {
+    game.onClientError(function (message) {
         $('#errorwindow').find('p').html(message);
         $('#errorwindow').show();
         $('#errorwindow').focus();
     });
 
-    game.onPlayerDeath(function() {
+    game.onPlayerDeath(function () {
         game.player.dead();
         $('#diedwindow').show();
         $('#diedwindow').focus();
     });
 
-    game.onNotification(function(message) {
+    game.onNotification(function (message) {
         app.showMessage(message);
     });
 
@@ -186,29 +186,25 @@ const initGame = function() {
     $('#emailinput').attr('value', '');
     $('#chatbox').attr('value', '');
 
-    const fnClickFunc = function (e)
-    {
-      app.center();
-      app.setMouseCoordinates(e.data.global.x, e.data.global.y);
-      // FIX: typo'd property name (`auctioSellDialogPopuped`) never matched app.js's `auctionsellDialogPopuped`, so this check was always true and never blocked clicks while the auction-sell dialog was open
-      if(game && !app.dropDialogPopuped && !app.auctionsellDialogPopuped)
-      {
-          if (!game.usejoystick)
-            game.click();
-      }
-      app.hideWindows();
-      event.stopPropagation();
+    const fnClickFunc = function (e) {
+        app.center();
+        app.setMouseCoordinates(e.data.global.x, e.data.global.y);
+        // FIX: typo'd property name (`auctioSellDialogPopuped`) never matched app.js's `auctionsellDialogPopuped`, so this check was always true and never blocked clicks while the auction-sell dialog was open
+        if (game && !app.dropDialogPopuped && !app.auctionsellDialogPopuped) {
+            if (!game.usejoystick) game.click();
+        }
+        app.hideWindows();
+        event.stopPropagation();
     };
 
     $(document).ready(function () {
-		    $('#gui').on('click', function(event) {
-				//event.preventDefault();
-
-		    });
-	          game.inventoryDialog.loadInventoryEvents();
+        $('#gui').on('click', function (event) {
+            //event.preventDefault();
+        });
+        game.inventoryDialog.loadInventoryEvents();
     });
-    $('#respawn').click(function(event) {
-        game.audioManager.playSound("revive");
+    $('#respawn').click(function (event) {
+        game.audioManager.playSound('revive');
         game.respawnPlayer();
         $('#diedwindow').hide();
     });
@@ -219,26 +215,26 @@ const initGame = function() {
 
     installMainDialogs();
 
-    if(game.tablet) {
+    if (game.tablet) {
         $('body').addClass('tablet');
     }
 
-	document.addEventListener('DOMContentLoaded', function () {
-	  // check whether the runtime supports screen.lockOrientation
-	  if (screen.lockOrientation) {
-	    // lock the orientation
-	    screen.lockOrientation('landscape');
-	  }
+    document.addEventListener('DOMContentLoaded', function () {
+        // check whether the runtime supports screen.lockOrientation
+        if (screen.lockOrientation) {
+            // lock the orientation
+            screen.lockOrientation('landscape');
+        }
 
-	  // ...rest of the application code...
-	});
+        // ...rest of the application code...
+    });
 
-	// FIX (conversion): was a bare 'console = {}' fallback assignment; console is a host global
-	// that always exists in browser/NW.js contexts, so this branch is unreachable in practice,
-	// but the assignment is made explicit for ES module strict mode in case it ever is.
-	if(typeof console === "undefined"){
-	      window.console = {};
-	}
+    // FIX (conversion): was a bare 'console = {}' fallback assignment; console is a host global
+    // that always exists in browser/NW.js contexts, so this branch is unreachable in practice,
+    // but the assignment is made explicit for ES module strict mode in case it ever is.
+    if (typeof console === 'undefined') {
+        window.console = {};
+    }
 };
 
 initApp();

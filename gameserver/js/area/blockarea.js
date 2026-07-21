@@ -24,30 +24,43 @@ class BlockArea extends EntityArea {
 
         let id = 0;
         let blockName;
-        for (let j=0; j < height; ++j) {
-            for (let i=0; i < width; ++i) {
-                id = startID+(width*j+i);
-                blockName = "block"+kind+"-"+j+"_"+i;
-                const block = new Block(id, kind,
-                    this.x+(i*G_TILESIZE), this.y+(j*G_TILESIZE),
-                    this.map, this, blockName, i, j);
+        for (let j = 0; j < height; ++j) {
+            for (let i = 0; i < width; ++i) {
+                id = startID + (width * j + i);
+                blockName = 'block' + kind + '-' + j + '_' + i;
+                const block = new Block(
+                    id,
+                    kind,
+                    this.x + i * G_TILESIZE,
+                    this.y + j * G_TILESIZE,
+                    this.map,
+                    this,
+                    blockName,
+                    i,
+                    j
+                );
                 this.map.entities.addBlock(block);
                 this.blocks.push(block);
             }
         }
-        this.map.entities.entityCount += (width*height);
+        this.map.entities.entityCount += width * height;
     }
 
     randomizeBlocks(distApart) {
         const self = this;
         for (const i in this.blocks) {
             const block = this.blocks[i];
-            const	pos = this.map.entities.spaceEntityRandomApart(distApart, self._getRandomPositionInsideArea.bind(self,30));
+            const pos = this.map.entities.spaceEntityRandomApart(
+                distApart,
+                self._getRandomPositionInsideArea.bind(self, 30)
+            );
             if (pos) {
-                block.setPosition(~~(Utils.floorTo(pos.x, G_TILESIZE)), ~~(Utils.floorTo(pos.y, G_TILESIZE)));
-            }
-            else {
-                console.error("BlockArea - randomizeBlocks: failed.");
+                block.setPosition(
+                    ~~Utils.floorTo(pos.x, G_TILESIZE),
+                    ~~Utils.floorTo(pos.y, G_TILESIZE)
+                );
+            } else {
+                console.error('BlockArea - randomizeBlocks: failed.');
             }
         }
     }
@@ -67,21 +80,21 @@ class BlockArea extends EntityArea {
     // against real puzzle-solve gameplay -- flagging it for whoever touches
     // this next.
     isCompleted() {
-        let b1 = this.blocks[0], b2 = null;
+        let b1 = this.blocks[0],
+            b2 = null;
         let b3 = b1;
         let x = 0;
 
-        for(const i in this.blocks) {
+        for (const i in this.blocks) {
             b1 = this.blocks[i];
-            x = (i % this.numX);
+            x = i % this.numX;
             if (b2) {
                 if (x === 0) {
-                    if (!((b1.y - b3.y) === G_TILESIZE || (b1.x - b3.x) === 0))
+                    if (!(b1.y - b3.y === G_TILESIZE || b1.x - b3.x === 0))
                         return false;
                     b3 = b1;
-                }
-                else {
-                    if (!((b2.x - b1.x) === G_TILESIZE || (b2.y - b1.y) === 0))
+                } else {
+                    if (!(b2.x - b1.x === G_TILESIZE || b2.y - b1.y === 0))
                         return false;
                 }
             }
@@ -91,11 +104,10 @@ class BlockArea extends EntityArea {
     }
 
     Completed() {
-        console.warn("BLOCKAREA - COMPLETED.");
+        console.warn('BLOCKAREA - COMPLETED.');
         for (const i in this.blocks) {
             const block = this.blocks[i];
-            if (!block.playerName)
-                continue;
+            if (!block.playerName) continue;
 
             if (this.players.hasOwnProperty(block.playerName))
                 this.players[block.playerName]++;
@@ -110,8 +122,7 @@ class BlockArea extends EntityArea {
     }
 
     update() {
-        if (this.isCompleted())
-        {
+        if (this.isCompleted()) {
             this.Completed();
             if (this.complete_callback && Object.keys(this.players).length > 0)
                 this.complete_callback(this);

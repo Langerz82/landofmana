@@ -15,126 +15,119 @@ import { installUpdaterMovement } from './updatermovement.js';
 /* global Types */
 
 export default class Updater {
-        constructor(game) {
-            this.game = game;
-            this.performanceTime = 0;
-            this.lastUpdateTime = Date.now();
+    constructor(game) {
+        this.game = game;
+        this.performanceTime = 0;
+        this.lastUpdateTime = Date.now();
 
-            installUpdaterMovement(this);
-        }
+        installUpdaterMovement(this);
+    }
 
-        update() {
-            if (game.mapStatus < 2)
-            	return;
+    update() {
+        if (game.mapStatus < 2) return;
 
-            this.looping = true;
+        this.looping = true;
 
-            this.updateCharacters();
-            this.updateTransitions();
+        this.updateCharacters();
+        this.updateTransitions();
 
-            this.updateAnimations();
-            //this.updateAnimatedTiles();
-            this.updateChatBubbles();
-            this.updateInfos();
-            this.looping = false;
-            this.lastUpdateTime = Date.now();
-        }
+        this.updateAnimations();
+        //this.updateAnimatedTiles();
+        this.updateChatBubbles();
+        this.updateInfos();
+        this.looping = false;
+        this.lastUpdateTime = Date.now();
+    }
 
-        updateCharacters() {
-            const self = this;
-            const mc = game.mapContainer;
+    updateCharacters() {
+        const self = this;
+        const mc = game.mapContainer;
 
-				// TODO - Optimization not working.
-            // This code is intensive.
-            game.forEachEntity(function(entity) {
-                self.game.updateCameraEntity(entity.id, entity);
-                if (!(entity instanceof EntityMoving))
-                  return;
+        // TODO - Optimization not working.
+        // This code is intensive.
+        game.forEachEntity(function (entity) {
+            self.game.updateCameraEntity(entity.id, entity);
+            if (!(entity instanceof EntityMoving)) return;
 
-                entity.tickFrames = 0;
-                if (entity.tick > 0) {
-                  entity.tickFrames = entity.tick;
-                }
-                if (entity instanceof Player)
-                {
-                  if (entity === game.player) {
+            entity.tickFrames = 0;
+            if (entity.tick > 0) {
+                entity.tickFrames = entity.tick;
+            }
+            if (entity instanceof Player) {
+                if (entity === game.player) {
                     self.updatePlayerPathMovement(entity);
                     self.updatePlayerKeyMovement(entity);
-                  }
-                  else {
+                } else {
                     self.updateCharacterKeyMovement(entity);
                     self.updateCharacterPathMovement(entity);
-                  }
                 }
-                else if (entity instanceof Character) {
-                  self.updateCharacterPathMovement(entity);
-                }
-            });
-        }
-
-        updateTransitions() {
-            let self = this,
-                m = null;
-
-            game.forEachEntity(function(entity) {
-            		if (!entity || entity.freeze || entity.isDead || entity.isDying)
-            			return;
-
-                m = entity.movement;
-                if(m && m.inProgress) {
-                    m.step();
-                }
-            });
-        }
-
-        updateAnimations() {
-            const t = game.currentTime;
-
-            game.camera.forEachInScreen(function(entity) {
-                if (!entity)
-                	return;
-
-            	const anim = entity.currentAnimation;
-
-                if(anim && !entity.isStun) {
-                    if(anim.update(t)) {
-                    }
-                }
-            });
-
-            const target = this.game.targetAnimation;
-            if(target) {
-                target.update(t);
+            } else if (entity instanceof Character) {
+                self.updateCharacterPathMovement(entity);
             }
+        });
+    }
 
-            if (game.appearanceDialog.visible)
-            {
-              const pa = game.appearanceDialog.playerAnim;
-              if (pa.currentAnimation) {
+    updateTransitions() {
+        let self = this,
+            m = null;
+
+        game.forEachEntity(function (entity) {
+            if (!entity || entity.freeze || entity.isDead || entity.isDying)
+                return;
+
+            m = entity.movement;
+            if (m && m.inProgress) {
+                m.step();
+            }
+        });
+    }
+
+    updateAnimations() {
+        const t = game.currentTime;
+
+        game.camera.forEachInScreen(function (entity) {
+            if (!entity) return;
+
+            const anim = entity.currentAnimation;
+
+            if (anim && !entity.isStun) {
+                if (anim.update(t)) {
+                }
+            }
+        });
+
+        const target = this.game.targetAnimation;
+        if (target) {
+            target.update(t);
+        }
+
+        if (game.appearanceDialog.visible) {
+            const pa = game.appearanceDialog.playerAnim;
+            if (pa.currentAnimation) {
                 const animName = pa.currentAnimation.name;
                 pa.currentAnimation.update(t);
                 pa.show();
-              }
             }
         }
+    }
 
-        updateAnimatedTiles() {
-            const self = this,
-                t = game.currentTime;
+    updateAnimatedTiles() {
+        const self = this,
+            t = game.currentTime;
 
-            game.forEachAnimatedTile(function (tile) {
-                tile.animate(t);
-            });
-        }
+        game.forEachAnimatedTile(function (tile) {
+            tile.animate(t);
+        });
+    }
 
-        updateChatBubbles() {
-            const t = this.game.currentTime;
-            game.bubbleManager.update(t);
-        }
+    updateChatBubbles() {
+        const t = this.game.currentTime;
+        game.bubbleManager.update(t);
+    }
 
-        updateInfos() {
-            const t = this.game.currentTime;
+    updateInfos() {
+        const t = this.game.currentTime;
 
-            this.game.infoManager.update(t);
-        }
+        this.game.infoManager.update(t);
+    }
 }

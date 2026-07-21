@@ -12,69 +12,82 @@ import { G_FRAME_INTERVAL, G_TILESIZE, G_DEBUG } from './constants.js';
 // through the properly imported `astar` module instead.
 
 class Pathfinder {
-  constructor(width, height) {
-      this.width = width;
-      this.height = height;
-      this.grid = null;
-      this.blankGrid = [];
-      this.initBlankGrid_();
-      this.ignored = [];
-      this.included = [];
-  }
+    constructor(width, height) {
+        this.width = width;
+        this.height = height;
+        this.grid = null;
+        this.blankGrid = [];
+        this.initBlankGrid_();
+        this.ignored = [];
+        this.included = [];
+    }
 
-  initBlankGrid_() {
-      /*for(var i=0; i < this.height; i += 1) {
+    initBlankGrid_() {
+        /*for(var i=0; i < this.height; i += 1) {
           this.blankGrid[i] = [];
           for(var j=0; j < this.width; j += 1) {
               this.blankGrid[i][j] = 0;
           }
       }*/
-  }
-
-  isDistanceTooFast(ticks, dist, startTime, tolerance) {
-    tolerance = tolerance || G_FRAME_INTERVAL;
-
-    // PERF: called on every player move to check for speed-hacking --
-    // gated behind G_DEBUG like the other per-packet logging.
-    if (G_DEBUG)
-      console.info("pathFinder - isDistanceTooFast: called.");
-    const elapsed = Date.now() - startTime;
-    if (elapsed === 0)
-      return false;
-
-    let elapsedTicks = ~~(elapsed / G_FRAME_INTERVAL);
-    elapsedTicks = Math.max(elapsedTicks, 0);
-
-    const actualTicks = ~~(dist / ticks);
-    if (G_DEBUG)
-      console.info("pathFinder - isDistanceTooFast: playerTicks - actualTicks: "+actualTicks+", elapsedTicks:"+elapsedTicks);
-    if (actualTicks > (elapsedTicks + tolerance))
-    {
-      try { throw new Error(); } catch(err) { console.warn(err.stack); }
-      console.warn("pathFinder - isDistanceTooFast: SPEED HACK DETECTED. playerTicks - actualTicks: "+actualTicks+", elapsedTicks:"+elapsedTicks+", tolerance:"+tolerance);
-      return true;
     }
-    return false;
-  }
 
- // NOTE: was flagged "Incorrect when moving left." Manually traced this
- // function against several leftward/upward multi-segment paths (including
- // interrupts landing exactly on a turn corner) and it computed the correct
- // cumulative distance in every case -- both the vertical-segment and
- // horizontal-segment partial-distance branches use Math.abs()/Utils.isBetween()
- // (order-independent, see shared/js/utils.js), so nothing here is actually
- // direction-sensitive. This looks like a stale comment from before some
- // other change in this file/codebase, not a live bug -- left in place as
- // documentation rather than deleted, in case there's a repro this trace
- // missed. If you hit an actual wrong-distance case, please note the exact
- // path/interrupt point that triggers it here.
-  /*
-   * getPathSubDistance:
-   * path - The path to check. x,y = x-position and y-position
-   * of the final coordinate that should be in the path.
-   */
-  getPathSubDistance(path, x, y) {
-      /*
+    isDistanceTooFast(ticks, dist, startTime, tolerance) {
+        tolerance = tolerance || G_FRAME_INTERVAL;
+
+        // PERF: called on every player move to check for speed-hacking --
+        // gated behind G_DEBUG like the other per-packet logging.
+        if (G_DEBUG) console.info('pathFinder - isDistanceTooFast: called.');
+        const elapsed = Date.now() - startTime;
+        if (elapsed === 0) return false;
+
+        let elapsedTicks = ~~(elapsed / G_FRAME_INTERVAL);
+        elapsedTicks = Math.max(elapsedTicks, 0);
+
+        const actualTicks = ~~(dist / ticks);
+        if (G_DEBUG)
+            console.info(
+                'pathFinder - isDistanceTooFast: playerTicks - actualTicks: ' +
+                    actualTicks +
+                    ', elapsedTicks:' +
+                    elapsedTicks
+            );
+        if (actualTicks > elapsedTicks + tolerance) {
+            try {
+                throw new Error();
+            } catch (err) {
+                console.warn(err.stack);
+            }
+            console.warn(
+                'pathFinder - isDistanceTooFast: SPEED HACK DETECTED. playerTicks - actualTicks: ' +
+                    actualTicks +
+                    ', elapsedTicks:' +
+                    elapsedTicks +
+                    ', tolerance:' +
+                    tolerance
+            );
+            return true;
+        }
+        return false;
+    }
+
+    // NOTE: was flagged "Incorrect when moving left." Manually traced this
+    // function against several leftward/upward multi-segment paths (including
+    // interrupts landing exactly on a turn corner) and it computed the correct
+    // cumulative distance in every case -- both the vertical-segment and
+    // horizontal-segment partial-distance branches use Math.abs()/Utils.isBetween()
+    // (order-independent, see shared/js/utils.js), so nothing here is actually
+    // direction-sensitive. This looks like a stale comment from before some
+    // other change in this file/codebase, not a live bug -- left in place as
+    // documentation rather than deleted, in case there's a repro this trace
+    // missed. If you hit an actual wrong-distance case, please note the exact
+    // path/interrupt point that triggers it here.
+    /*
+     * getPathSubDistance:
+     * path - The path to check. x,y = x-position and y-position
+     * of the final coordinate that should be in the path.
+     */
+    getPathSubDistance(path, x, y) {
+        /*
       var subpath = this.getSubPath(path, x, y);
       if (!subpath)
         return 0;
@@ -83,506 +96,515 @@ class Pathfinder {
       console.warn("getPathSubDistance: dist="+dist);
       */
 
-      let count = 0;
-      let n2 = null;
+        let count = 0;
+        let n2 = null;
 
-      if (!this.isInPath(path, [x, y]))
-        return 0;
+        if (!this.isInPath(path, [x, y])) return 0;
 
-      for (const n1 of path) {
-          if (n2) {
-              if (x==n1[0] && x==n2[0] && Utils.isBetween(y,n1[1],n2[1]))
-              {
-                count += Math.abs(n2[1]-y);
-                break;
-              }
-              if (y==n1[1] && y==n2[1] && Utils.isBetween(x,n1[0],n2[0]))
-              {
-                count += Math.abs(n2[0]-x);
-                break;
-              }
-              else {
-                count += Math.abs(n1[0]-n2[0]) + Math.abs(n1[1]-n2[1]);
-              }
-          }
-          n2 = n1;
-      }
-      // PERF: getPathSubDistance runs on every move/path packet from every
-      // player (via checkPathInterrupt/checkStartMove -- see the PERF
-      // comments in callbacks/playercallback.js for why that's the hottest
-      // packet-handling path in the game). This console.info ran
-      // unconditionally on every call; gated behind G_DEBUG like the rest
-      // of the per-packet logging in this file.
-      if (G_DEBUG)
-        console.info("pathfinder - getPathSubDistance: count="+count);
-      return count;
-  }
-
-  getPathDistance(path) {
-    let n2 = null;
-    let total = 0;
-    for (const n1 of path) {
-      if (n2) {
-        total += Math.abs(n1[0]-n2[0]) + Math.abs(n1[1]-n2[1]);
-      }
-      n2 = n1;
-    }
-    return total;
-  }
-
-  getPathUntil(path, dist) {
-      if (dist < 0)
-        return null;
-
-      const totalDist = this.getPathDistance(path);
-      const subDist = totalDist - dist;
-      let node2;
-      const newPath = [];
-      let subTotal = 0;
-      for (const node1 of path) {
-        if (node2) {
-          const dx = Math.abs(node1[0]-node2[0]);
-          const dy = Math.abs(node1[1]-node2[1]);
-          subTotal += (dx + dy);
-
-          if (subTotal === subDist) {
-            newPath.push(node1.slice());
-            break;
-          }
-          else if (subTotal > subDist) {
-            const node3 = node1.slice();
-            const tdiff = subTotal - subDist;
-            if (dx > 0) {
-              node3[0] -= tdiff;
+        for (const n1 of path) {
+            if (n2) {
+                if (
+                    x == n1[0] &&
+                    x == n2[0] &&
+                    Utils.isBetween(y, n1[1], n2[1])
+                ) {
+                    count += Math.abs(n2[1] - y);
+                    break;
+                }
+                if (
+                    y == n1[1] &&
+                    y == n2[1] &&
+                    Utils.isBetween(x, n1[0], n2[0])
+                ) {
+                    count += Math.abs(n2[0] - x);
+                    break;
+                } else {
+                    count += Math.abs(n1[0] - n2[0]) + Math.abs(n1[1] - n2[1]);
+                }
             }
-            if (dy > 0) {
-              node3[1] -= tdiff;
-            }
-            newPath.push(node3);
-            break;
-          }
+            n2 = n1;
         }
-        node2 = node1;
-        newPath.push(node1);
-      }
-      return newPath;
-  }
-
-  getSubPath(path, x, y) {
-    if (!this.isInPath(path, [x,y]))
-      return null;
-
-    const lastnode = path[path.length-1];
-    if (x === lastnode[0] && y === lastnode[1])
-    {
-      return path.map(function(arr) {
-        return arr.slice();
-      });
-    }
-
-    const dist = this.getPathDistance(path, x, y);
-    return this.getPathUntil(path, dist);
-  }
-
-  isInPath(path, node) {
-    let n2 = null;
-    for (const n1 of path) {
-      if (n2) {
-        if ((n1[0] === n2[0] && Utils.isBetween(node[1], n1[1], n2[1])) ||
-            (n1[1] === n2[1] && Utils.isBetween(node[0], n1[0], n2[0])))
-          return true;
-      }
-      n2 = n1;
-    }
-    return false;
-  }
-
-  isValidPath(path) {
-      let pnode = null;
-      if (!Array.isArray(path) || path.length < 2)
-        return false;
-      for (const node of path) {
-        if (pnode) {
-          if (pnode[0] === node[0] && pnode[1] === node[1])
-            return false;
-          if (pnode[0] !== node[0] && pnode[1] !== node[1])
-          {
-            return false;
-          }
-        }
-        pnode = node;
-      }
-      return true;
-  }
-
-  isValidGridPath(grid, path, isRealPath) {
-    const ts = G_TILESIZE,
-        ly = grid.length,
-        lx = grid[0].length;
-
-    // Check collision from an axis, n1 to n2, n3 is for the other axis.
-    const c1to2on3 = function (n1,n2,n3,axis_x) {
-      //console.info("c1to2on3 - n1:"+n1+",n2:"+n2+",n3:"+n3);
-      n1 = Math.floor(n1), n2 = Math.floor(n2), n3=Math.floor(n3);
-      const i1 = Math.min(n1,n2), i2 = Math.max(n1,n2);
-      if (axis_x) {
-        for (let i=i1; i <= i2; i++) {
-          if (grid[n3][i]) {
-            return false;
-          }
-        }
-      } else {
-        for (let i=i1; i <= i2; i++) {
-          if (grid[i][n3]) {
-            return false;
-          }
-        }
-      }
-      return true;
-    }
-
-    const xf = function (x1,x2,y) {
-      return c1to2on3(x1,x2,y,true);
-    }
-    const yf = function (y1,y2,x) {
-      return c1to2on3(y1,y2,x,false);
-    }
-
-    const path2 = [];
-    for (let i = 0; i < path.length; i++)
-        path2[i] = path[i].slice();
-
-    if (isRealPath) {
-      for (const coord of path2) {
-        coord[0] /= ts;
-        coord[1] /= ts;
-      }
-    }
-
-    let pCoord = null;
-
-    for (const coord of path2) {
-      if (coord[1] < 0 || coord[1] >= ly)
-        return false;
-      if (coord[0] < 0 || coord[0] >= lx)
-        return false;
-
-      if (pCoord) {
-        if (coord[0] != pCoord[0] && coord[1] != pCoord[1])
-          return false;
-        if (Math.abs(coord[0] - pCoord[0]) > 0) {
-          if (!xf(pCoord[0], coord[0], coord[1]))
-            return false;
-        }
-        else if (Math.abs(coord[1] - pCoord[1]) > 0) {
-          if (!yf(pCoord[1], coord[1], coord[0]))
-            return false;
-        }
-      }
-      pCoord = coord;
-    }
-    return true;
-  }
-
-  // from https://chatgpt.com/c/6a3db155-e5c4-83ec-8fac-a774dc81df12
-  getShortGrid(grid, start, end, e = 0) {
-      const h = grid.length, w = grid[0].length;
-      const minX = Math.max(Math.min(~~start[0], ~~end[0]) - e, 0);
-      const maxX = Math.min(Math.max(Math.ceil(start[0]), Math.ceil(end[0])) + e, w - 1);
-      const minY = Math.max(Math.min(~~start[1], ~~end[1]) - e, 0);
-      const maxY = Math.min(Math.max(Math.ceil(start[1]), Math.ceil(end[1])) + e, h - 1);
-
-      const crop = Array.from(
-          { length: maxY - minY + 1 },
-          (_, y) => new Uint8Array(grid[minY + y].slice(minX, maxX + 1))
-      );
-
-      return {
-          crop,
-          minX,
-          minY,
-          substart: [start[0] - minX, start[1] - minY],
-          subend: [end[0] - minX, end[1] - minY]
-      };
-  }
-
-  findNeighbourPath(start, end) {
-      const ts = G_TILESIZE;
-
-            // If its one space just return the start, end path.
-			if ((Math.abs(start[0] - end[0]) <= ts && Math.abs(start[1] - end[1]) === 0) ||
-				(Math.abs(start[1] - end[1]) <= ts && Math.abs(start[0] - end[0]) === 0))
-					return [[start[0], start[1]],[end[0],end[1]]];
-
-			return null;
-  }
-
-  getFullFromShortPath(subpath, offsetX, offsetY) {
-    const ts = G_TILESIZE;
-    if (subpath && subpath.length > 0)
-    {
-      const path = [];
-      const len = subpath.length;
-      for (let j = 0; j < len; ++j)
-      {
-        subpath[j][0] = (subpath[j][0]+offsetX)*ts;
-        subpath[j][1] = (subpath[j][1]+offsetY)*ts;
-      }
-      // PERF: runs on every path computed by any entity -- gated behind
-      // G_DEBUG.
-      if (G_DEBUG)
-        console.info(JSON.stringify(subpath));
-      return subpath;
-    }
-    return null;
-  }
-
-  findDirectPath(grid, start, end) {
-    //var dx = Math.abs(Math.floor(start[0]) - Math.floor(end[0]));
-    //var dy = Math.abs(Math.floor(start[1]) - Math.floor(end[1]));
-    const dx = Math.abs(start[0] - end[0]);
-    const dy = Math.abs(start[1] - end[1]);
-
-    // PERF: findDirectPath is tried first for every path request (mob
-    // chasing, roaming, player click-to-move); the log.info/JSON.stringify
-    // calls below used to run unconditionally on every attempt/branch, so
-    // they're gated behind G_DEBUG.
-    let mp = [start, end];
-    if (dx === 0 || dy === 0) {
-      if(this.isValidGridPath(grid, mp)) {
+        // PERF: getPathSubDistance runs on every move/path packet from every
+        // player (via checkPathInterrupt/checkStartMove -- see the PERF
+        // comments in callbacks/playercallback.js for why that's the hottest
+        // packet-handling path in the game). This console.info ran
+        // unconditionally on every call; gated behind G_DEBUG like the rest
+        // of the per-packet logging in this file.
         if (G_DEBUG)
-          log.info("validpath-fdp1:"+JSON.stringify(mp));
-        return mp;
-      }
+            console.info('pathfinder - getPathSubDistance: count=' + count);
+        return count;
     }
 
-    mp = [start, [start[0],end[1]], end];
-    if (G_DEBUG)
-      log.info("mp:"+JSON.stringify(mp));
-    if(this.isValidGridPath(grid, mp)) {
-      if (G_DEBUG)
-        log.info("validpath-fdp2:"+JSON.stringify(mp));
-      return mp;
-    }
-
-    mp = [start, [end[0],start[1]], end];
-    if (G_DEBUG)
-      log.info("mp:"+JSON.stringify(mp));
-    if(this.isValidGridPath(grid, mp)) {
-      if (G_DEBUG)
-        log.info("validpath-fdp3:"+JSON.stringify(mp));
-      return mp;
-    }
-    return null;
-  }
-
-  makeNodesMidPoints(result) {
-    // Make nodes mid-points.
-    for (const node of result) {
-      if (node[0] % 1 === 0)
-        node[0] += 0.5;
-      if (node[1] % 1 === 0)
-        node[1] += 0.5;
-    }
-    return result;
-  }
-
-  _popAndPushNewNodeInPath(node, result) {
-    result.shift();
-    result.unshift([node[0], node[1]]);
-    let it2 = null;
-    for (const it of result) {
-      if (it2) {
-        if (~~(it2[0]) === ~~(it[0]))
-          it[0] = it2[0];
-        else if (~~(it2[1]) === ~~(it[1]))
-          it[1] = it2[1];
-        else {
-          break;
+    getPathDistance(path) {
+        let n2 = null;
+        let total = 0;
+        for (const n1 of path) {
+            if (n2) {
+                total += Math.abs(n1[0] - n2[0]) + Math.abs(n1[1] - n2[1]);
+            }
+            n2 = n1;
         }
-      }
-      it2 = it;
-    }
-  }
-
-  convertPathToRealPath(result, start, end) {
-    let temp = Utils.copy2DArray(result);
-
-    if (temp.length === 2) {
-      temp = Utils.copy2DArray([start, end]);
-    } else {
-      this._popAndPushNewNodeInPath(start, temp);
-      temp.reverse();
-      this._popAndPushNewNodeInPath(end, temp);
-      temp.reverse();
+        return total;
     }
 
-    temp = this.makeNodesMidPoints(temp);
-    return temp;
-  }
+    getPathUntil(path, dist) {
+        if (dist < 0) return null;
 
-  dropUneededNodes(path) {
-      if (!Array.isArray(path) || path.length < 2)
-          return path;
+        const totalDist = this.getPathDistance(path);
+        const subDist = totalDist - dist;
+        let node2;
+        const newPath = [];
+        let subTotal = 0;
+        for (const node1 of path) {
+            if (node2) {
+                const dx = Math.abs(node1[0] - node2[0]);
+                const dy = Math.abs(node1[1] - node2[1]);
+                subTotal += dx + dy;
 
-      const result = [path[0]];
-
-      for (let i = 1; i < path.length; i++) {
-          const curr = path[i];
-          const prev = result[result.length - 1];
-
-          // Remove consecutive duplicates.
-          if (curr[0] === prev[0] && curr[1] === prev[1])
-              continue;
-
-          result.push(curr);
-
-          // If we have three nodes, see if the middle one is unnecessary.
-          while (result.length >= 3) {
-              const a = result[result.length - 3];
-              const b = result[result.length - 2];
-              const c = result[result.length - 1];
-
-              // Remove b if all three are on the same horizontal or vertical line.
-              if ((a[0] === b[0] && b[0] === c[0]) ||
-                  (a[1] === b[1] && b[1] === c[1])) {
-                  result.splice(result.length - 2, 1);
-              } else {
-                  break;
-              }
-          }
-      }
-
-      return result;
-  }
-
-  AStar(grid, start, end) {
-    const pStart = [~~start[0],~~start[1]];
-    const pEnd = [~~end[0],~~end[1]];
-    let path = astar.AStar(grid, pStart, pEnd);
-    if (path)
-    {
-      path = this.convertPathToRealPath(path, start, end);
-      path = this.dropUneededNodes(path);
-      // PERF: runs on every A* solve -- gated behind G_DEBUG.
-      if (G_DEBUG)
-        log.info(JSON.stringify(path));
-      return path;
+                if (subTotal === subDist) {
+                    newPath.push(node1.slice());
+                    break;
+                } else if (subTotal > subDist) {
+                    const node3 = node1.slice();
+                    const tdiff = subTotal - subDist;
+                    if (dx > 0) {
+                        node3[0] -= tdiff;
+                    }
+                    if (dy > 0) {
+                        node3[1] -= tdiff;
+                    }
+                    newPath.push(node3);
+                    break;
+                }
+            }
+            node2 = node1;
+            newPath.push(node1);
+        }
+        return newPath;
     }
-    return null;
-  }
 
-  findShortPath(crop, offsetX, offsetY, start, end) {
-      const path = this.AStar(crop, start, end);
-      // PERF: runs on every short-path solve -- gated behind G_DEBUG.
-      if (path && G_DEBUG) {
-        console.info("pathfinder.findShortPath - path: "+JSON.stringify(path));
-      }
-      return path;
-  }
+    getSubPath(path, x, y) {
+        if (!this.isInPath(path, [x, y])) return null;
 
-  findPath(grid, start, end, findIncomplete) {
-      // NOTE: `path` used to be declared twice with `var` -- an empty
-      // `var path;` up here (dead: nothing read it before the real
-      // assignment below) and then `var path = this.AStar(...)`.
-      // Consolidated to the one live declaration.
-      this.applyIgnoreList_(grid, true);
-      this.applyIncludeList_(grid, true);
+        const lastnode = path[path.length - 1];
+        if (x === lastnode[0] && y === lastnode[1]) {
+            return path.map(function (arr) {
+                return arr.slice();
+            });
+        }
 
-      const path = this.AStar(grid, start, end);
-      // PERF: runs on every findPath call -- gated behind G_DEBUG.
-      if (path && G_DEBUG) {
-        console.info("pathfinder.findPath - path: "+JSON.stringify(path));
-      }
-      return path;
-  }
+        const dist = this.getPathDistance(path, x, y);
+        return this.getPathUntil(path, dist);
+    }
 
-  /**
-   * Finds a path which leads the closest possible to an unreachable x, y position.
-   *
-   * Whenever A* returns an empty path, it means that the destination tile is unreachable.
-   * We would like the entities to move the closest possible to it though, instead of
-   * staying where they are without moving at all. That's why we have this function which
-   * returns an incomplete path to the chosen destination.
-   *
-   * @private
-   * @returns {Array} The incomplete path towards the end position
-   */
-  findIncompletePath_(start, end) {
-      let perfect, x, y,
-          incomplete = [];
+    isInPath(path, node) {
+        let n2 = null;
+        for (const n1 of path) {
+            if (n2) {
+                if (
+                    (n1[0] === n2[0] &&
+                        Utils.isBetween(node[1], n1[1], n2[1])) ||
+                    (n1[1] === n2[1] && Utils.isBetween(node[0], n1[0], n2[0]))
+                )
+                    return true;
+            }
+            n2 = n1;
+        }
+        return false;
+    }
 
-      perfect = astar.AStar(this.blankGrid, start, end);
+    isValidPath(path) {
+        let pnode = null;
+        if (!Array.isArray(path) || path.length < 2) return false;
+        for (const node of path) {
+            if (pnode) {
+                if (pnode[0] === node[0] && pnode[1] === node[1]) return false;
+                if (pnode[0] !== node[0] && pnode[1] !== node[1]) {
+                    return false;
+                }
+            }
+            pnode = node;
+        }
+        return true;
+    }
 
-      for(let i=perfect.length-1; i > 0; i -= 1) {
-          x = perfect[i][0];
-          y = perfect[i][1];
+    isValidGridPath(grid, path, isRealPath) {
+        const ts = G_TILESIZE,
+            ly = grid.length,
+            lx = grid[0].length;
 
-          if(this.grid[y][x] === 0) {
-              incomplete = astar.AStar(this.grid, start, [x, y]);
-              break;
-          }
-      }
-      return incomplete;
-  }
+        // Check collision from an axis, n1 to n2, n3 is for the other axis.
+        const c1to2on3 = function (n1, n2, n3, axis_x) {
+            //console.info("c1to2on3 - n1:"+n1+",n2:"+n2+",n3:"+n3);
+            ((n1 = Math.floor(n1)),
+                (n2 = Math.floor(n2)),
+                (n3 = Math.floor(n3)));
+            const i1 = Math.min(n1, n2),
+                i2 = Math.max(n1, n2);
+            if (axis_x) {
+                for (let i = i1; i <= i2; i++) {
+                    if (grid[n3][i]) {
+                        return false;
+                    }
+                }
+            } else {
+                for (let i = i1; i <= i2; i++) {
+                    if (grid[i][n3]) {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        };
 
-  /**
-   * Removes colliding tiles corresponding to the given entity's position in the pathing grid.
-   */
-  ignoreEntity(entity) {
-      if(entity) {
-          this.ignored.push(entity);
-      }
-  }
-  includeEntity(entity) {
-      if(entity) {
-          this.included.push(entity);
-      }
-  }
+        const xf = function (x1, x2, y) {
+            return c1to2on3(x1, x2, y, true);
+        };
+        const yf = function (y1, y2, x) {
+            return c1to2on3(y1, y2, x, false);
+        };
 
-  // PERF/SIMPLIFY: `this.ignored`/`this.included` are plain arrays, and
-  // findPath() calls both of these on every single pathfinding request
-  // (mob chase/roam, player click-to-move, etc). Swapped the underscore
-  // _.each() closures for plain for...of loops -- same behavior, one less
-  // function-call layer per entity on a genuinely hot path.
-  applyIgnoreList_(grid, ignored) {
-      for (const entity of this.ignored) {
-          const x = entity.isMoving() ? entity.nextGridX : entity.gx;
-          const y = entity.isMoving() ? entity.nextGridY : entity.gy;
+        const path2 = [];
+        for (let i = 0; i < path.length; i++) path2[i] = path[i].slice();
 
-          if(x >= 0 && y >= 0) {
-          	//console.info("path.grid=["+x+","+y+"]");
-              grid[y][x] = ignored ? 0 : 1;
-          }
-      }
-  }
+        if (isRealPath) {
+            for (const coord of path2) {
+                coord[0] /= ts;
+                coord[1] /= ts;
+            }
+        }
 
-  applyIncludeList_(grid, included) {
-      for (const entity of this.included) {
-          const x = entity.isMoving() ? (entity.path.length > 0 ? entity.path[entity.path.length-1][0] : entity.nextGridX) : entity.gx;
-          const y = entity.isMoving() ? (entity.path.length > 0 ? entity.path[entity.path.length-1][1] : entity.nextGridY) : entity.gy;
+        let pCoord = null;
 
-          if(x >= 0 && y >= 0) {
-          	//console.info("path.grid=["+x+","+y+"]");
-              grid[y][x] = included ? 1 : 0;
-          }
-      }
-  }
+        for (const coord of path2) {
+            if (coord[1] < 0 || coord[1] >= ly) return false;
+            if (coord[0] < 0 || coord[0] >= lx) return false;
 
-  clearIgnoreList(grid) {
-      this.applyIgnoreList_(grid, false);
-      this.ignored = [];
-  }
+            if (pCoord) {
+                if (coord[0] != pCoord[0] && coord[1] != pCoord[1])
+                    return false;
+                if (Math.abs(coord[0] - pCoord[0]) > 0) {
+                    if (!xf(pCoord[0], coord[0], coord[1])) return false;
+                } else if (Math.abs(coord[1] - pCoord[1]) > 0) {
+                    if (!yf(pCoord[1], coord[1], coord[0])) return false;
+                }
+            }
+            pCoord = coord;
+        }
+        return true;
+    }
 
-  clearIncludeList(grid) {
-      this.applyIncludeList_(grid, false);
-      // FIX: this was clearing `this.ignored` (copy-pasted from
-      // clearIgnoreList above) instead of `this.included`. Entities added via
-      // includeEntity() were therefore never actually removed from
-      // `this.included`, so their old grid tiles stayed marked and the list
-      // only ever grew -- a slow-building pathfinding correctness bug.
-      this.included = [];
-  }
+    // from https://chatgpt.com/c/6a3db155-e5c4-83ec-8fac-a774dc81df12
+    getShortGrid(grid, start, end, e = 0) {
+        const h = grid.length,
+            w = grid[0].length;
+        const minX = Math.max(Math.min(~~start[0], ~~end[0]) - e, 0);
+        const maxX = Math.min(
+            Math.max(Math.ceil(start[0]), Math.ceil(end[0])) + e,
+            w - 1
+        );
+        const minY = Math.max(Math.min(~~start[1], ~~end[1]) - e, 0);
+        const maxY = Math.min(
+            Math.max(Math.ceil(start[1]), Math.ceil(end[1])) + e,
+            h - 1
+        );
+
+        const crop = Array.from(
+            { length: maxY - minY + 1 },
+            (_, y) => new Uint8Array(grid[minY + y].slice(minX, maxX + 1))
+        );
+
+        return {
+            crop,
+            minX,
+            minY,
+            substart: [start[0] - minX, start[1] - minY],
+            subend: [end[0] - minX, end[1] - minY]
+        };
+    }
+
+    findNeighbourPath(start, end) {
+        const ts = G_TILESIZE;
+
+        // If its one space just return the start, end path.
+        if (
+            (Math.abs(start[0] - end[0]) <= ts &&
+                Math.abs(start[1] - end[1]) === 0) ||
+            (Math.abs(start[1] - end[1]) <= ts &&
+                Math.abs(start[0] - end[0]) === 0)
+        )
+            return [
+                [start[0], start[1]],
+                [end[0], end[1]]
+            ];
+
+        return null;
+    }
+
+    getFullFromShortPath(subpath, offsetX, offsetY) {
+        const ts = G_TILESIZE;
+        if (subpath && subpath.length > 0) {
+            const path = [];
+            const len = subpath.length;
+            for (let j = 0; j < len; ++j) {
+                subpath[j][0] = (subpath[j][0] + offsetX) * ts;
+                subpath[j][1] = (subpath[j][1] + offsetY) * ts;
+            }
+            // PERF: runs on every path computed by any entity -- gated behind
+            // G_DEBUG.
+            if (G_DEBUG) console.info(JSON.stringify(subpath));
+            return subpath;
+        }
+        return null;
+    }
+
+    findDirectPath(grid, start, end) {
+        //var dx = Math.abs(Math.floor(start[0]) - Math.floor(end[0]));
+        //var dy = Math.abs(Math.floor(start[1]) - Math.floor(end[1]));
+        const dx = Math.abs(start[0] - end[0]);
+        const dy = Math.abs(start[1] - end[1]);
+
+        // PERF: findDirectPath is tried first for every path request (mob
+        // chasing, roaming, player click-to-move); the log.info/JSON.stringify
+        // calls below used to run unconditionally on every attempt/branch, so
+        // they're gated behind G_DEBUG.
+        let mp = [start, end];
+        if (dx === 0 || dy === 0) {
+            if (this.isValidGridPath(grid, mp)) {
+                if (G_DEBUG) log.info('validpath-fdp1:' + JSON.stringify(mp));
+                return mp;
+            }
+        }
+
+        mp = [start, [start[0], end[1]], end];
+        if (G_DEBUG) log.info('mp:' + JSON.stringify(mp));
+        if (this.isValidGridPath(grid, mp)) {
+            if (G_DEBUG) log.info('validpath-fdp2:' + JSON.stringify(mp));
+            return mp;
+        }
+
+        mp = [start, [end[0], start[1]], end];
+        if (G_DEBUG) log.info('mp:' + JSON.stringify(mp));
+        if (this.isValidGridPath(grid, mp)) {
+            if (G_DEBUG) log.info('validpath-fdp3:' + JSON.stringify(mp));
+            return mp;
+        }
+        return null;
+    }
+
+    makeNodesMidPoints(result) {
+        // Make nodes mid-points.
+        for (const node of result) {
+            if (node[0] % 1 === 0) node[0] += 0.5;
+            if (node[1] % 1 === 0) node[1] += 0.5;
+        }
+        return result;
+    }
+
+    _popAndPushNewNodeInPath(node, result) {
+        result.shift();
+        result.unshift([node[0], node[1]]);
+        let it2 = null;
+        for (const it of result) {
+            if (it2) {
+                if (~~it2[0] === ~~it[0]) it[0] = it2[0];
+                else if (~~it2[1] === ~~it[1]) it[1] = it2[1];
+                else {
+                    break;
+                }
+            }
+            it2 = it;
+        }
+    }
+
+    convertPathToRealPath(result, start, end) {
+        let temp = Utils.copy2DArray(result);
+
+        if (temp.length === 2) {
+            temp = Utils.copy2DArray([start, end]);
+        } else {
+            this._popAndPushNewNodeInPath(start, temp);
+            temp.reverse();
+            this._popAndPushNewNodeInPath(end, temp);
+            temp.reverse();
+        }
+
+        temp = this.makeNodesMidPoints(temp);
+        return temp;
+    }
+
+    dropUneededNodes(path) {
+        if (!Array.isArray(path) || path.length < 2) return path;
+
+        const result = [path[0]];
+
+        for (let i = 1; i < path.length; i++) {
+            const curr = path[i];
+            const prev = result[result.length - 1];
+
+            // Remove consecutive duplicates.
+            if (curr[0] === prev[0] && curr[1] === prev[1]) continue;
+
+            result.push(curr);
+
+            // If we have three nodes, see if the middle one is unnecessary.
+            while (result.length >= 3) {
+                const a = result[result.length - 3];
+                const b = result[result.length - 2];
+                const c = result[result.length - 1];
+
+                // Remove b if all three are on the same horizontal or vertical line.
+                if (
+                    (a[0] === b[0] && b[0] === c[0]) ||
+                    (a[1] === b[1] && b[1] === c[1])
+                ) {
+                    result.splice(result.length - 2, 1);
+                } else {
+                    break;
+                }
+            }
+        }
+
+        return result;
+    }
+
+    AStar(grid, start, end) {
+        const pStart = [~~start[0], ~~start[1]];
+        const pEnd = [~~end[0], ~~end[1]];
+        let path = astar.AStar(grid, pStart, pEnd);
+        if (path) {
+            path = this.convertPathToRealPath(path, start, end);
+            path = this.dropUneededNodes(path);
+            // PERF: runs on every A* solve -- gated behind G_DEBUG.
+            if (G_DEBUG) log.info(JSON.stringify(path));
+            return path;
+        }
+        return null;
+    }
+
+    findShortPath(crop, offsetX, offsetY, start, end) {
+        const path = this.AStar(crop, start, end);
+        // PERF: runs on every short-path solve -- gated behind G_DEBUG.
+        if (path && G_DEBUG) {
+            console.info(
+                'pathfinder.findShortPath - path: ' + JSON.stringify(path)
+            );
+        }
+        return path;
+    }
+
+    findPath(grid, start, end, findIncomplete) {
+        // NOTE: `path` used to be declared twice with `var` -- an empty
+        // `var path;` up here (dead: nothing read it before the real
+        // assignment below) and then `var path = this.AStar(...)`.
+        // Consolidated to the one live declaration.
+        this.applyIgnoreList_(grid, true);
+        this.applyIncludeList_(grid, true);
+
+        const path = this.AStar(grid, start, end);
+        // PERF: runs on every findPath call -- gated behind G_DEBUG.
+        if (path && G_DEBUG) {
+            console.info('pathfinder.findPath - path: ' + JSON.stringify(path));
+        }
+        return path;
+    }
+
+    /**
+     * Finds a path which leads the closest possible to an unreachable x, y position.
+     *
+     * Whenever A* returns an empty path, it means that the destination tile is unreachable.
+     * We would like the entities to move the closest possible to it though, instead of
+     * staying where they are without moving at all. That's why we have this function which
+     * returns an incomplete path to the chosen destination.
+     *
+     * @private
+     * @returns {Array} The incomplete path towards the end position
+     */
+    findIncompletePath_(start, end) {
+        let perfect,
+            x,
+            y,
+            incomplete = [];
+
+        perfect = astar.AStar(this.blankGrid, start, end);
+
+        for (let i = perfect.length - 1; i > 0; i -= 1) {
+            x = perfect[i][0];
+            y = perfect[i][1];
+
+            if (this.grid[y][x] === 0) {
+                incomplete = astar.AStar(this.grid, start, [x, y]);
+                break;
+            }
+        }
+        return incomplete;
+    }
+
+    /**
+     * Removes colliding tiles corresponding to the given entity's position in the pathing grid.
+     */
+    ignoreEntity(entity) {
+        if (entity) {
+            this.ignored.push(entity);
+        }
+    }
+    includeEntity(entity) {
+        if (entity) {
+            this.included.push(entity);
+        }
+    }
+
+    // PERF/SIMPLIFY: `this.ignored`/`this.included` are plain arrays, and
+    // findPath() calls both of these on every single pathfinding request
+    // (mob chase/roam, player click-to-move, etc). Swapped the underscore
+    // _.each() closures for plain for...of loops -- same behavior, one less
+    // function-call layer per entity on a genuinely hot path.
+    applyIgnoreList_(grid, ignored) {
+        for (const entity of this.ignored) {
+            const x = entity.isMoving() ? entity.nextGridX : entity.gx;
+            const y = entity.isMoving() ? entity.nextGridY : entity.gy;
+
+            if (x >= 0 && y >= 0) {
+                //console.info("path.grid=["+x+","+y+"]");
+                grid[y][x] = ignored ? 0 : 1;
+            }
+        }
+    }
+
+    applyIncludeList_(grid, included) {
+        for (const entity of this.included) {
+            const x = entity.isMoving()
+                ? entity.path.length > 0
+                    ? entity.path[entity.path.length - 1][0]
+                    : entity.nextGridX
+                : entity.gx;
+            const y = entity.isMoving()
+                ? entity.path.length > 0
+                    ? entity.path[entity.path.length - 1][1]
+                    : entity.nextGridY
+                : entity.gy;
+
+            if (x >= 0 && y >= 0) {
+                //console.info("path.grid=["+x+","+y+"]");
+                grid[y][x] = included ? 1 : 0;
+            }
+        }
+    }
+
+    clearIgnoreList(grid) {
+        this.applyIgnoreList_(grid, false);
+        this.ignored = [];
+    }
+
+    clearIncludeList(grid) {
+        this.applyIncludeList_(grid, false);
+        // FIX: this was clearing `this.ignored` (copy-pasted from
+        // clearIgnoreList above) instead of `this.included`. Entities added via
+        // includeEntity() were therefore never actually removed from
+        // `this.included`, so their old grid tiles stayed marked and the list
+        // only ever grew -- a slow-building pathfinding correctness bug.
+        this.included = [];
+    }
 }
 
 export default Pathfinder;

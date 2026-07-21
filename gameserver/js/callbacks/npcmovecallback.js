@@ -1,8 +1,7 @@
 import Messages from '../message.js';
 
 class NpcMoveCallback {
-    constructor() {
-    }
+    constructor() {}
 
     setCallbacks(entity) {
         //const self = entity;
@@ -37,11 +36,10 @@ class NpcMoveCallback {
             }
         });
 
-        entity.onRequestPath(function (x,y) {
+        entity.onRequestPath(function (x, y) {
             const path = this.map.entities.findPath(this, x, y);
             //console.info("path="+JSON.stringify(path));
-            if (path && path.length > 0)
-            {
+            if (path && path.length > 0) {
                 const msg = new Messages.MovePath(this, path);
                 this.map.entities.sendNeighbours(this, msg);
                 return path;

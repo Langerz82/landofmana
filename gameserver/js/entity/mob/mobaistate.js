@@ -21,41 +21,45 @@ class MobAIState {
     }
 
     setMoveAI(duration) {
-    	this.entity.moveAICooldown = new Timer(duration);
+        this.entity.moveAICooldown = new Timer(duration);
     }
 
     canMoveAI() {
-    	return this.entity.moveAICooldown.isOver();
+        return this.entity.moveAICooldown.isOver();
     }
 
     resetMoveAI(time) {
-    	this.entity.moveAICooldown.lastTime = time;
+        this.entity.moveAICooldown.lastTime = time;
     }
 
     setAiState(state) {
-      //if (this.aiState === mobState.RETURNING)
-      //console.error("mob, setAiState - state:"+state);
-      //try { throw new Error(); } catch(err) { console.error(err.stack); }
-      this.entity.aiState = state;
-      //console.info(this.id + " has set aiState: " + state);
+        //if (this.aiState === mobState.RETURNING)
+        //console.error("mob, setAiState - state:"+state);
+        //try { throw new Error(); } catch(err) { console.error(err.stack); }
+        this.entity.aiState = state;
+        //console.info(this.id + " has set aiState: " + state);
     }
 
     goRoam(pos) {
-      const entity = this.entity;
-      entity.go(pos.x, pos.y);
+        const entity = this.entity;
+        entity.go(pos.x, pos.y);
 
-      if (entity.path)
-      {
-        entity.setAiState(mobState.ROAMING);
-        entity.spawnX = pos.x;
-        entity.spawnY = pos.y;
-      }
+        if (entity.path) {
+            entity.setAiState(mobState.ROAMING);
+            entity.spawnX = pos.x;
+            entity.spawnY = pos.y;
+        }
     }
 
     canRoam() {
-      const entity = this.entity;
-      return !entity.hasTarget() && !entity.isDead && !entity.isReturning &&
-        !entity.isMoving() && entity.aiState === mobState.IDLE;
+        const entity = this.entity;
+        return (
+            !entity.hasTarget() &&
+            !entity.isDead &&
+            !entity.isReturning &&
+            !entity.isMoving() &&
+            entity.aiState === mobState.IDLE
+        );
     }
 }
 

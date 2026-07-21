@@ -19,47 +19,49 @@ class MapPathfindingService {
     }
 
     initPathFinder() {
-        this.me.pathfinder = new Pathfinder(this.me.map.width, this.me.map.height);
+        this.me.pathfinder = new Pathfinder(
+            this.me.map.width,
+            this.me.map.height
+        );
     }
 
     initPathingGrid() {
         const map = this.me.map;
-        console.info("pathinggrid height:"+map.height+", width:"+map.width);
+        console.info(
+            'pathinggrid height:' + map.height + ', width:' + map.width
+        );
 
         const grid = new Array(map.height);
-        for(let i=0; i < map.height; ++i) {
+        for (let i = 0; i < map.height; ++i) {
             grid[i] = new Uint8Array(map.width);
-            for(let j=0; j < map.width; ++j) {
-                if (map.grid[i][j])
-                    grid[i][j] = 1;
-                else
-                    grid[i][j] = 0;
+            for (let j = 0; j < map.width; ++j) {
+                if (map.grid[i][j]) grid[i][j] = 1;
+                else grid[i][j] = 0;
             }
         }
         this.me.entitygrid = grid.slice(0);
 
-        console.info("Initialized the pathing grid with static colliding cells.");
+        console.info(
+            'Initialized the pathing grid with static colliding cells.'
+        );
     }
 
     findPath(character, x, y, ignoreList) {
         const pathfinder = this.me.pathfinder;
         const map = this.me.map;
 
-        if(pathfinder && character)
-        {
+        if (pathfinder && character) {
             const grid = map.grid;
             let path = null;
-            const pS =[character.x, character.y];
+            const pS = [character.x, character.y];
             const ts = G_TILESIZE;
 
-            if (map.isColliding(character.x, character.y))
-            {
+            if (map.isColliding(character.x, character.y)) {
                 return null;
             }
 
-            const pE = [x,y];
-            if (map.isColliding(x, y))
-            {
+            const pE = [x, y];
+            if (map.isColliding(x, y)) {
                 return null;
             }
 
@@ -81,13 +83,17 @@ class MapPathfindingService {
             // logging elsewhere in this codebase.
             if (pS[0] === pE[0] && pS[1] === pE[1]) {
                 if (G_DEBUG) {
-                    try { throw new Error(); } catch(err) { console.info(err.stack); }
+                    try {
+                        throw new Error();
+                    } catch (err) {
+                        console.info(err.stack);
+                    }
                 }
                 return null;
             }
 
-            const fgpS = [~~(pS[0]/ts), ~~(pS[1]/ts)];
-            const fgpE = [~~(pE[0]/ts), ~~(pE[1]/ts)];
+            const fgpS = [~~(pS[0] / ts), ~~(pS[1] / ts)];
+            const fgpE = [~~(pE[0] / ts), ~~(pE[1] / ts)];
             const shortGrid = pathfinder.getShortGrid(grid, fgpS, fgpE, 3);
             const sgrid = shortGrid.crop;
             const spS = shortGrid.substart;
@@ -99,42 +105,66 @@ class MapPathfindingService {
             // unconditionally on every single call, so they're gated behind
             // G_DEBUG like the rest of the pathfinding trace logging.
             if (G_DEBUG) {
-                console.info("findDirectPath - spS:"+JSON.stringify(spS));
-                console.info("findDirectPath - spE:"+JSON.stringify(spE));
+                console.info('findDirectPath - spS:' + JSON.stringify(spS));
+                console.info('findDirectPath - spE:' + JSON.stringify(spE));
             }
             subpath = pathfinder.findDirectPath(sgrid, spS, spE);
 
-            if (subpath)
-            {
+            if (subpath) {
                 subpath = pathfinder.makeNodesMidPoints(subpath);
                 subpath = pathfinder.dropUneededNodes(subpath);
                 if (G_DEBUG)
-                    console.info("findDirectPath - subpath:"+JSON.stringify(subpath));
+                    console.info(
+                        'findDirectPath - subpath:' + JSON.stringify(subpath)
+                    );
                 if (!pathfinder.isValidGridPath(sgrid, subpath)) {
-                    try { throw new Error(); } catch (e) { console.error(e.stack); }
+                    try {
+                        throw new Error();
+                    } catch (e) {
+                        console.error(e.stack);
+                    }
                     return null;
                 }
-                const res = pathfinder.getFullFromShortPath(subpath, shortGrid.minX, shortGrid.minY);
+                const res = pathfinder.getFullFromShortPath(
+                    subpath,
+                    shortGrid.minX,
+                    shortGrid.minY
+                );
                 if (G_DEBUG)
-                    console.info("findDirectPath - res:"+JSON.stringify(res));
+                    console.info('findDirectPath - res:' + JSON.stringify(res));
                 if (!pathfinder.isValidGridPath(map.grid, res, true)) {
-                    try { throw new Error(); } catch (e) { console.error(e.stack); }
+                    try {
+                        throw new Error();
+                    } catch (e) {
+                        console.error(e.stack);
+                    }
                     return null;
                 }
                 return res;
             }
 
             if (!path) {
-                subpath = pathfinder.findShortPath(sgrid,
-                    shortGrid.minX, shortGrid.minY, spS, spE);
+                subpath = pathfinder.findShortPath(
+                    sgrid,
+                    shortGrid.minX,
+                    shortGrid.minY,
+                    spS,
+                    spE
+                );
                 if (subpath)
-                    path = pathfinder.getFullFromShortPath(subpath, shortGrid.minX, shortGrid.minY);
+                    path = pathfinder.getFullFromShortPath(
+                        subpath,
+                        shortGrid.minX,
+                        shortGrid.minY
+                    );
                 if (G_DEBUG)
-                    console.info("findPath - shortPath:"+JSON.stringify(path));
+                    console.info(
+                        'findPath - shortPath:' + JSON.stringify(path)
+                    );
             }
 
             if (!path) {
-                console.warn("findPath - DANGER - findPath LONGGG");
+                console.warn('findPath - DANGER - findPath LONGGG');
                 // PERF/FIX: this fallback's padding was 10 tiles. Benchmarked
                 // getShortGrid+findShortPath (the actual crop+A* pipeline)
                 // across synthetic sparse/medium/dense terrain at several
@@ -154,26 +184,50 @@ class MapPathfindingService {
                 const longGrid = pathfinder.getShortGrid(grid, fgpS, fgpE, 16);
                 const lpS = longGrid.substart;
                 const lpE = longGrid.subend;
-                path = pathfinder.findShortPath(longGrid.crop,
-                    longGrid.minX, longGrid.minY, lpS, lpE);
+                path = pathfinder.findShortPath(
+                    longGrid.crop,
+                    longGrid.minX,
+                    longGrid.minY,
+                    lpS,
+                    lpE
+                );
                 if (path) {
                     path = pathfinder.dropUneededNodes(path);
-                    path = pathfinder.getFullFromShortPath(path, longGrid.minX, longGrid.minY);
+                    path = pathfinder.getFullFromShortPath(
+                        path,
+                        longGrid.minX,
+                        longGrid.minY
+                    );
                 }
                 if (G_DEBUG)
-                    console.info("findPath - longPath:"+JSON.stringify(path));
+                    console.info('findPath - longPath:' + JSON.stringify(path));
             }
 
             if (!path) {
-                console.error("findPath - Error while finding the path to "+x+", "+y+" for "+character.id);
+                console.error(
+                    'findPath - Error while finding the path to ' +
+                        x +
+                        ', ' +
+                        y +
+                        ' for ' +
+                        character.id
+                );
                 return null;
             }
             if (!pathfinder.isValidGridPath(map.grid, path, true)) {
-                try { throw new Error(); } catch (e) { console.error(e.stack); }
+                try {
+                    throw new Error();
+                } catch (e) {
+                    console.error(e.stack);
+                }
                 return null;
             }
             if (!(path[0][0] === character.x && path[0][1] === character.y)) {
-                try { throw new Error(); } catch (e) { console.error(e.stack); }
+                try {
+                    throw new Error();
+                } catch (e) {
+                    console.error(e.stack);
+                }
                 return null;
             }
             return path;

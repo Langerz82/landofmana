@@ -92,9 +92,8 @@ class MapEntities {
 
     spawnNpcs(count) {
         let npc;
-        for(let i = 0; i < count; ++i)
-        {
-            npc = this._createNpc("Npc"+i);
+        for (let i = 0; i < count; ++i) {
+            npc = this._createNpc('Npc' + i);
         }
     }
 
@@ -105,9 +104,17 @@ class MapEntities {
         // source, which created an implicit global there; declared with `var`
         // here since ES modules are always strict mode and forbid implicit
         // globals.
-        const pos = this.spaceEntityRandomApart(2, function () { return self.map.getRandomPosition(); });
+        const pos = this.spaceEntityRandomApart(2, function () {
+            return self.map.getRandomPosition();
+        });
 
-        const npc = new NpcMove(++this.entityCount, 0, pos.x * G_TILESIZE, pos.y * G_TILESIZE, self.map);
+        const npc = new NpcMove(
+            ++this.entityCount,
+            0,
+            pos.x * G_TILESIZE,
+            pos.y * G_TILESIZE,
+            self.map
+        );
 
         self.addNpcMove(npc);
         return npc;
@@ -140,8 +147,8 @@ class MapEntities {
         // paid on the hottest path in the game.
         const ids = player.knownIds;
 
-        const pgx = ~~(player.x/G_TILESIZE);
-        const pgy = ~~(player.y/G_TILESIZE);
+        const pgx = ~~(player.x / G_TILESIZE);
+        const pgy = ~~(player.y / G_TILESIZE);
 
         const arr = [pgx - width, pgy - height, pgx + width, pgy + height];
         const entities = this.getSpatialEntities(arr);
@@ -162,14 +169,14 @@ class MapEntities {
         // and filtering `screens` against it does the same de-dup in
         // O(screens.length + ids.length), with O(1) membership checks
         // instead of O(ids.length) ones.
-        const knownSet = (ids && ids.length > 0) ? new Set(ids) : null;
-        const screenIds = knownSet ? screens.filter((id) => !knownSet.has(id)) : screens;
-
+        const knownSet = ids && ids.length > 0 ? new Set(ids) : null;
+        const screenIds = knownSet
+            ? screens.filter((id) => !knownSet.has(id))
+            : screens;
 
         for (const id of screenIds) {
             const entity = self.getEntityById(id);
-            if(entity && !(entity === player))
-            {
+            if (entity && !(entity === player)) {
                 player.knownIds.push(entity.id);
                 self.sendToPlayer(player, entity.spawn());
                 if (entity.path) {
@@ -185,12 +192,23 @@ class MapEntities {
         cameraHalfX = (cameraHalfX || 32) * G_TILESIZE;
         cameraHalfY = (cameraHalfY || 32) * G_TILESIZE;
 
-        const minX = Math.max(0,entity.x-cameraHalfX-extra);
-        const minY = Math.max(0,entity.y-cameraHalfY-extra);
-        const maxX = Math.min(this.map.width * G_TILESIZE, entity.x+cameraHalfX+extra);
-        const maxY = Math.min(this.map.height * G_TILESIZE, entity.y+cameraHalfY+extra);
+        const minX = Math.max(0, entity.x - cameraHalfX - extra);
+        const minY = Math.max(0, entity.y - cameraHalfY - extra);
+        const maxX = Math.min(
+            this.map.width * G_TILESIZE,
+            entity.x + cameraHalfX + extra
+        );
+        const maxY = Math.min(
+            this.map.height * G_TILESIZE,
+            entity.y + cameraHalfY + extra
+        );
 
-        return (entity2.y >= minY && entity2.y <= maxY && entity2.x >= minX && entity2.x <= maxX);
+        return (
+            entity2.y >= minY &&
+            entity2.y <= maxY &&
+            entity2.x >= minX &&
+            entity2.x <= maxX
+        );
     }
 
     processPackets() {
@@ -206,40 +224,41 @@ class MapEntities {
     }
 
     sendNeighbours(entity, message, ignoredPlayer, areaLength) {
-        this.broadcaster.sendNeighbours(entity, message, ignoredPlayer, areaLength);
+        this.broadcaster.sendNeighbours(
+            entity,
+            message,
+            ignoredPlayer,
+            areaLength
+        );
     }
 
     spawnEntities(map) {
         const self = this;
 
         //setTimeout(function () {
-        _.each(self.map.spawnEntities, function(npcData) {
+        _.each(self.map.spawnEntities, function (npcData) {
             if (npcData.type == Types.EntityTypes.NPCMOVE) {
                 const npc = self.addNpcMove(npcData.id, npcData.x, npcData.y);
-                if (npcData.name)
-                    npc.name = npcData.name;
+                if (npcData.name) npc.name = npcData.name;
                 if (npcData.scriptQuests)
                     npc.scriptQuests = npcData.scriptQuests;
             }
             if (npcData.type == Types.EntityTypes.NPCSTATIC) {
                 const npc = self.addNpcStatic(npcData.id, npcData.x, npcData.y);
-                if (npcData.name)
-                    npc.name = npcData.name;
+                if (npcData.name) npc.name = npcData.name;
                 if (npcData.scriptQuests)
                     npc.scriptQuests = npcData.scriptQuests;
             }
-
         });
         //},10000);
 
         console.info(JSON.stringify(self.map.staticEntities));
-        _.each(self.map.staticEntities, function(kind, tid) {
-
+        _.each(self.map.staticEntities, function (kind, tid) {
             const pos = map.tileIndexToGridPosition(tid);
 
-            console.info("kind:"+kind);
+            console.info('kind:' + kind);
             if (NpcData.isNpc(kind)) {
-                console.info("npc:" + kind + ",x:"+pos.x+",y:"+pos.y);
+                console.info('npc:' + kind + ',x:' + pos.x + ',y:' + pos.y);
                 self.addNpcStatic(kind, pos.x, pos.y);
             }
         });
@@ -259,12 +278,11 @@ class MapEntities {
 
     addEntity(entity) {
         this.entities.set(entity.id, entity);
-        if (entity instanceof Character)
-            this.characters.set(entity.id, entity);
+        if (entity instanceof Character) this.characters.set(entity.id, entity);
     }
 
     addPlayer(player) {
-        console.info("addPlayer - player id: "+player.id);
+        console.info('addPlayer - player id: ' + player.id);
         this.addEntity(player);
         this.players.set(player.id, player);
         this.broadcaster.registerPlayer(player.id);
@@ -293,7 +311,13 @@ class MapEntities {
     // Consolidated into this helper; each public method is now a one-liner.
     _addNpc(NpcClass, targetMap, kind, x, y) {
         const pos = Utils.fixGridPosition(G_TILESIZE, x, y);
-        const npc = new NpcClass(++this.entityCount, kind, pos.x, pos.y, this.map);
+        const npc = new NpcClass(
+            ++this.entityCount,
+            kind,
+            pos.x,
+            pos.y,
+            this.map
+        );
 
         this.addEntity(npc);
         targetMap.set(npc.id, npc);
@@ -336,27 +360,20 @@ class MapEntities {
         // this fires on ordinary, expected entity removal, not an anomaly.
         // Gated behind G_DEBUG (and downgraded to info) to match the
         // logging convention used elsewhere in this file/codebase.
-        if (G_DEBUG)
-            console.info("removeEntity: "+entity.id);
+        if (G_DEBUG) console.info('removeEntity: ' + entity.id);
         this.removeSpatial(entity);
 
-        if (this.mobs.has(entity.id))
-            this.mobs.delete(entity.id);
+        if (this.mobs.has(entity.id)) this.mobs.delete(entity.id);
 
-        if (this.items.has(entity.id))
-            this.items.delete(entity.id);
+        if (this.items.has(entity.id)) this.items.delete(entity.id);
 
-        if (this.players.has(entity.id))
-            this.players.delete(entity.id);
+        if (this.players.has(entity.id)) this.players.delete(entity.id);
 
-        if (this.blocks.has(entity.id))
-            this.blocks.delete(entity.id);
+        if (this.blocks.has(entity.id)) this.blocks.delete(entity.id);
 
-        if (this.characters.has(entity.id))
-            this.characters.delete(entity.id);
+        if (this.characters.has(entity.id)) this.characters.delete(entity.id);
 
-        if (this.entities.has(entity.id))
-            this.entities.delete(entity.id);
+        if (this.entities.has(entity.id)) this.entities.delete(entity.id);
 
         entity.destroy();
     }
@@ -364,13 +381,12 @@ class MapEntities {
     removePlayer(player) {
         //try { throw new Error(); } catch (e) { console.error(e.stack); }
 
-        console.info("removePlayer-called");
+        console.info('removePlayer-called');
         const self = this;
 
-        if (player instanceof Player)
-            this.sendBroadcast(player.despawn());
+        if (player instanceof Player) this.sendBroadcast(player.despawn());
 
-        console.info("deleting player traces..");
+        console.info('deleting player traces..');
 
         self.removeEntity(player);
 
@@ -380,7 +396,7 @@ class MapEntities {
     }
 
     removeNpcPlayer(player) {
-        console.info("removePlayer-called");
+        console.info('removePlayer-called');
 
         this.sendBroadcast(player.despawn(0));
         this.removeEntity(player);
@@ -396,11 +412,11 @@ class MapEntities {
     }
 
     createItem(itemRoom, x, y) {
-        const id = (++this.entityCount);
+        const id = ++this.entityCount;
         let item = null;
 
         let type = Types.EntityTypes.ITEM;
-        if(!ItemTypes.isEquippable(itemRoom.itemKind))
+        if (!ItemTypes.isEquippable(itemRoom.itemKind))
             type = Types.EntityTypes.ITEMLOOT;
         item = new Item(type, id, itemRoom, x, y, this.map);
         this.addItem(item);
@@ -446,11 +462,9 @@ class MapEntities {
         return this.entities.get(Number(id));
     }
 
-    getPlayerByName(name)
-    {
+    getPlayerByName(name) {
         for (const p of this.players.values()) {
-            if (p.name === name)
-                return p;
+            if (p.name === name) return p;
         }
         return null;
     }
@@ -460,8 +474,7 @@ class MapEntities {
         // FIX: modifyGold() is defined on PlayerItems (player.items), not on
         // Player itself -- this threw "not a function" whenever gold was
         // credited to an online player by name (e.g. auction payouts).
-        if (player)
-            player.items.modifyGold(mod);
+        if (player) player.items.modifyGold(mod);
         //else
     }
 
@@ -469,25 +482,23 @@ class MapEntities {
     // CommonJS source, which created an implicit global there; declared with
     // `var` here since ES modules are always strict mode and forbid implicit
     // globals.
-    getEntitiesByPosition(x,y) {
+    getEntitiesByPosition(x, y) {
         const entities = [];
-        this.forEachEntity(function(e) {
-            if (e.x === x && e.y === y)
-                entities.push(e);
+        this.forEachEntity(function (e) {
+            if (e.x === x && e.y === y) entities.push(e);
         });
         return entities;
     }
 
-    isCharacterAt(x,y) {
+    isCharacterAt(x, y) {
         return this.entitygrid[y][x] === 1;
     }
 
-    isMobAt(x,y) {
+    isMobAt(x, y) {
         let result = false;
         this.forEachMob(function (mob) {
             const pos = mob.getLastPosition();
-            if (x === pos[0] && y === pos[1])
-                result = true;
+            if (x === pos[0] && y === pos[1]) result = true;
         });
         return result;
     }
@@ -512,19 +523,17 @@ class MapEntities {
 
     forEachCharacter(callback) {
         for (const entity of this.entities.values()) {
-            if (entity instanceof Character)
-                callback(entity);
+            if (entity instanceof Character) callback(entity);
         }
     }
 
     forEachNpcPlayer(callback) {
         for (const entity of this.npcplayers.values()) {
-            if (entity instanceof Character)
-                callback(entity);
+            if (entity instanceof Character) callback(entity);
         }
     }
 
-// TODO - Minimize function calls so you can pass type to loop through, and the additional condition.
+    // TODO - Minimize function calls so you can pass type to loop through, and the additional condition.
     getEntitySpatialCount(entity, range, conditional) {
         return this.getEntityAroundSpatial(entity, range, conditional).length;
     }
@@ -537,16 +546,17 @@ class MapEntities {
         const gy = ~~(entity.y / G_TILESIZE);
 
         const entities = [];
-        const def_conditional = function (e1,e2) { return e1 !== e2; };
+        const def_conditional = function (e1, e2) {
+            return e1 !== e2;
+        };
         conditional = conditional || def_conditional;
         // NOTE: there used to be a `var e2;` here too, ahead of the loop --
         // dead (nothing read it before the `for` loop below redeclared/
         // reinitialized `e2` on its own), and would collide with `const`
         // (redeclaration in the same scope) if kept.
-        const group = this.getSpatialEntities([gx-r,gy-r,gx+r,gy+r]);
+        const group = this.getSpatialEntities([gx - r, gy - r, gx + r, gy + r]);
         for (const e2 of group) {
-            if (conditional(entity,e2))
-            {
+            if (conditional(entity, e2)) {
                 entities.push(e2);
             }
         }
@@ -560,27 +570,30 @@ class MapEntities {
     getEntityAround(group, e1, range, conditional) {
         range *= G_TILESIZE;
         const entities = [];
-        conditional = conditional || function (e1, e2) { return e1 !== e2; };
+        conditional =
+            conditional ||
+            function (e1, e2) {
+                return e1 !== e2;
+            };
         const compare = function (e1, e2) {
-            return (Math.abs(e2.x-e1.x) <= range && Math.abs(e2.y-e1.y) <= range &&
-                conditional(e1,e2))
+            return (
+                Math.abs(e2.x - e1.x) <= range &&
+                Math.abs(e2.y - e1.y) <= range &&
+                conditional(e1, e2)
+            );
         };
         if (Array.isArray(group)) {
             for (const e2 of group) {
-                if (compare(e1,e2))
-                    entities.push(e2);
+                if (compare(e1, e2)) entities.push(e2);
             }
         } else {
             if (group instanceof Map) {
                 for (const e2 of group.values()) {
-                    if (compare(e1,e2))
-                        entities.push(e2);
+                    if (compare(e1, e2)) entities.push(e2);
                 }
-            }
-            else {
+            } else {
                 Utils.forEach(group, function (e2) {
-                    if (compare(e1,e2))
-                        entities.push(e2);
+                    if (compare(e1, e2)) entities.push(e2);
                 });
             }
         }
@@ -598,10 +611,10 @@ class MapEntities {
     // same "entities around a point" need for every real caller.
 
     getEntitiesAround(entity, range) {
-        const x = ~~(entity.x/G_TILESIZE);
-        const y = ~~(entity.y/G_TILESIZE);
+        const x = ~~(entity.x / G_TILESIZE);
+        const y = ~~(entity.y / G_TILESIZE);
         const r = range;
-        const entities = this.getSpatialEntities([x-r,y-r,x+r,y+r]);
+        const entities = this.getSpatialEntities([x - r, y - r, x + r, y + r]);
         return this.getEntityAround(entities, entity, r);
     }
 
@@ -612,7 +625,9 @@ class MapEntities {
     // directly instead, matching the pattern already used by
     // getMobsAround/getPlayerAround right below.
     getCharactersAround(entity, range) {
-        return this.getEntitiesAround(entity, range).filter(e => e !== entity && e instanceof Character);
+        return this.getEntitiesAround(entity, range).filter(
+            (e) => e !== entity && e instanceof Character
+        );
     }
 
     // PERF: getMobsAround/getPlayerAround used to call getEntityAround(this.mobs, ...)
@@ -627,11 +642,15 @@ class MapEntities {
     // nearby spatial cells, then filter that (much smaller) set down to the
     // instance type wanted, instead of walking every mob/player on the map.
     getMobsAround(entity, range) {
-        return this.getEntitiesAround(entity, range).filter(e => e instanceof Mob);
+        return this.getEntitiesAround(entity, range).filter(
+            (e) => e instanceof Mob
+        );
     }
 
     getPlayerAround(entity, range) {
-        return this.getEntitiesAround(entity, range).filter(e => e instanceof Player);
+        return this.getEntitiesAround(entity, range).filter(
+            (e) => e instanceof Player
+        );
     }
 
     getAroundCount(entities, entity, range) {
@@ -649,12 +668,12 @@ class MapEntities {
         return this.getPlayerAround(entity, range).length;
     }
 
-    getPartyAround(entity, range) { // entity
+    getPartyAround(entity, range) {
+        // entity
         return this.getEntityAround(entity.party.players, entity, range);
     }
 
-    itemDespawn(item)
-    {
+    itemDespawn(item) {
         this.sendNeighbours(item, new Messages.Despawn(item));
         this.removeEntity(item);
     }
@@ -690,13 +709,11 @@ class MapEntities {
         threshold = threshold || 100;
         let pos = null;
         let count = 1;
-        const param = (entity && entity.collision) ? entity.collision : null;
+        const param = entity && entity.collision ? entity.collision : null;
         let iter = 0;
 
-        while (count > 0 && iter < threshold)
-        {
-            if (callback_func)
-            {
+        while (count > 0 && iter < threshold) {
+            if (callback_func) {
                 pos = callback_func(param);
                 count = pos ? this.getAroundCount(entities, pos, dist) : 0;
             }
@@ -706,15 +723,12 @@ class MapEntities {
     }
 
     isGridPositionEmpty(x, y) {
-        if (G_DEBUG)
-            console.info("isGridPositionEmpty: x="+x+",y="+y);
-        if (this.map.isColliding(x, y))
-            return false;
+        if (G_DEBUG) console.info('isGridPositionEmpty: x=' + x + ',y=' + y);
+        if (this.map.isColliding(x, y)) return false;
 
-        const pos = {x: x, y: y};
+        const pos = { x: x, y: y };
         const entities = this.getEntitiesAround(pos, 1);
-        if (entities.length === 0)
-            return true;
+        if (entities.length === 0) return true;
         // FIX: isOverPosition(x, y) (entity.js) takes two separate numeric
         // coordinates -- it's the "*Position" half of that class's own
         // convention (compare isOverEntity(entity), which unpacks an
@@ -729,8 +743,7 @@ class MapEntities {
         // NOTE in map/mapmanager.js), so fixed for correctness rather than
         // for any currently-observed symptom.
         for (const entity of entities) {
-            if (entity.isOverPosition(pos.x, pos.y))
-                return false;
+            if (entity.isOverPosition(pos.x, pos.y)) return false;
         }
         return true;
     }

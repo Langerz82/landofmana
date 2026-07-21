@@ -24,8 +24,7 @@ export default class Block extends EntityMoving {
         const pos = entity.nextTile();
         pos[0] = pos[0].roundTo(ts);
         pos[1] = pos[1].roundTo(ts);
-        if (game.mapContainer.isColliding(pos[0], pos[1]))
-            return;
+        if (game.mapContainer.isColliding(pos[0], pos[1])) return;
 
         this.setPosition(pos[0], pos[1]);
         entity.holdingBlock = null;

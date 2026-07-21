@@ -6,7 +6,7 @@ const EventType = {
   KILLPLAYER: 3,
   DAMAGE: 4,
   USE_NODE: 5,
-  HARVEST: 6
+  HARVEST: 6,
 };
 
 const QuestType = {
@@ -14,13 +14,13 @@ const QuestType = {
   GETITEMKIND: 2,
   KILLMOBS: 3,
   HIDEANDSEEK: 4,
-  USENODE: 5
+  USENODE: 5,
 };
 
 const QuestStatus = {
   STARTED: 0,
   INPROGRESS: 1,
-  COMPLETE: 2
+  COMPLETE: 2,
 };
 
 const InventoryMode = {
@@ -29,20 +29,20 @@ const InventoryMode = {
   MODE_REPAIR: 2,
   MODE_ENCHANT: 3,
   MODE_BANK: 4,
-  MODE_AUCTION: 5
+  MODE_AUCTION: 5,
 };
 
 const SkillEffects = {
   SkillType: {
     SELF: 0,
     TARGET: 1,
-    ATTACK: 2
+    ATTACK: 2,
   },
   TargetType: {
     SELF: 0,
     ENEMY: 1,
     PLAYER_AOE: 2,
-    ENEMY_AOE: 3
+    ENEMY_AOE: 3,
   },
   EffectStat: {
     HP: 0,
@@ -51,8 +51,8 @@ const SkillEffects = {
     DEFENSE: 3,
     DAMAGE: 4,
     FREEZE: 5,
-    MOVESPEED: 6
-  }
+    MOVESPEED: 6,
+  },
 };
 
 const Types = {
@@ -87,7 +87,7 @@ const Types = {
     UW_WORLD_SAVE: 603,
     UW_WORLD_CLOSE: 604,
     UW_LOAD_PLAYER_DATA: 605,
-    UW_LOAD_USER_BANS: 606
+    UW_LOAD_USER_BANS: 606,
   },
 
   Messages: {
@@ -165,7 +165,7 @@ const Types = {
     WC_SET_SPRITE: 334,
     WC_SET_ANIMATION: 335,
     WC_BLOCK_MODIFY: 336,
-    WC_VERSION: 338
+    WC_VERSION: 338,
   },
 
   Orientations: {
@@ -173,7 +173,7 @@ const Types = {
     UP: 1,
     DOWN: 2,
     LEFT: 3,
-    RIGHT: 4
+    RIGHT: 4,
   },
 
   EntityTypes: {
@@ -187,7 +187,7 @@ const Types = {
     CHEST: 7,
     BLOCK: 8,
     TRAP: 9,
-    NODE: 10
+    NODE: 10,
   },
 
   Keys: {
@@ -220,7 +220,7 @@ const Types = {
     KEY_6: 54,
     KEY_7: 55,
     KEY_8: 56,
-    KEY_9: 57
+    KEY_9: 57,
   },
 
   Skills: {
@@ -231,14 +231,14 @@ const Types = {
     ADDEXPERIENCE: 5,
     ATTACKWITHBLOOD: 6,
     CRITICALATTACK: 7,
-    CRITICALRATIO: 8
+    CRITICALRATIO: 8,
   },
 
   PlayerClass: {
     FIGHTER: 0,
     ARCHER: 1,
     DEFENDER: 2,
-    MAGE: 3
+    MAGE: 3,
   },
 
   PlayerState: {
@@ -248,8 +248,8 @@ const Types = {
     Aggro: 3,
     Hurting: 4,
     GettingItems: 5,
-    FollowPlayer: 6
-  }
+    FollowPlayer: 6,
+  },
 };
 
 const EntityTypes = Types.EntityTypes;
@@ -269,18 +269,18 @@ Types.skillExp[0] = 0;
 Types.weaponExp[0] = 0;
 
 for (let i = 1; i < 50; i++) {
-  const points = Math.floor((i * 300) * Math.pow(1.5, i / 5));
+  const points = Math.floor(i * 300 * Math.pow(1.5, i / 5));
   console.info(`level_${i}=${points}`);
   Types.expForLevel[i] = points;
-  Types.defenseExp[i] = (points * 10) + 50;
-  Types.attackExp[i] = (points * 10) + 50;
-  Types.moveExp[i] = (points * 5) + 20;
+  Types.defenseExp[i] = points * 10 + 50;
+  Types.attackExp[i] = points * 10 + 50;
+  Types.moveExp[i] = points * 5 + 20;
   Types.skillExp[i] = ~~(points / 1.5);
-  Types.weaponExp[i] = (points * 10) + 50;
+  Types.weaponExp[i] = points * 10 + 50;
 }
 
 Types.getLevel = (exp) => {
-  if (typeof exp === 'undefined' || exp == 0) return 1;
+  if (typeof exp === "undefined" || exp == 0) return 1;
   for (let i = 1; i < 200; i++) {
     if (exp < Types.expForLevel[i]) {
       return i;
@@ -330,7 +330,7 @@ Types.getWeaponLevel = (exp) => {
 };
 
 Types.getSkillLevel = (exp, level = 1) => {
-  if (typeof exp === 'undefined' || exp == 0) return 1;
+  if (typeof exp === "undefined" || exp == 0) return 1;
   for (let i = level; i < 10; i++) {
     if (exp < Types.skillExp[i]) {
       return i;
@@ -343,10 +343,14 @@ Types.isPlayer = (kind) => kind === 1 || kind === 222;
 
 Types.getOrientationAsString = (orientation) => {
   switch (orientation) {
-    case Types.Orientations.LEFT: return "left";
-    case Types.Orientations.RIGHT: return "right";
-    case Types.Orientations.UP: return "up";
-    case Types.Orientations.DOWN: return "down";
+    case Types.Orientations.LEFT:
+      return "left";
+    case Types.Orientations.RIGHT:
+      return "right";
+    case Types.Orientations.UP:
+      return "up";
+    case Types.Orientations.DOWN:
+      return "down";
   }
 };
 

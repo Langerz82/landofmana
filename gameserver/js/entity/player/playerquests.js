@@ -10,20 +10,24 @@ class PlayerQuests {
     }
 
     questAboutKill(mob, quest) {
-        const mobKind = mob.kind, mobLevel = mob.level;
+        const mobKind = mob.kind,
+            mobLevel = mob.level;
 
-        const a = (quest.count < quest.object.count);
-        const b = (quest.type === Types.QuestType.KILLMOBKIND && a && (mobKind === quest.object.kind));
-        const c = (quest.type === Types.QuestType.KILLMOBS && a);
-        const d = (mob.level >= quest.object.level[0] && mob.level <= quest.object.level[1]);
-        if((b || c) && d)
-        {
-            console.info("_questAboutKill - conditions met.")
+        const a = quest.count < quest.object.count;
+        const b =
+            quest.type === Types.QuestType.KILLMOBKIND &&
+            a &&
+            mobKind === quest.object.kind;
+        const c = quest.type === Types.QuestType.KILLMOBS && a;
+        const d =
+            mob.level >= quest.object.level[0] &&
+            mob.level <= quest.object.level[1];
+        if ((b || c) && d) {
+            console.info('_questAboutKill - conditions met.');
             quest.data1 += ~~(mob.stats.xp / 1.5);
-            if(++quest.count === quest.object.count) {
+            if (++quest.count === quest.object.count) {
                 this.completeQuest(quest, quest.data1);
-            }
-            else {
+            } else {
                 this.progressQuest(quest);
             }
         }
@@ -32,14 +36,16 @@ class PlayerQuests {
     questAboutItemCheck(target, quest) {
         const p = this.player;
 
-        const lootKind = quest.object2.kind+1000;
-        if (quest.object2.type === Types.EntityTypes.ITEMLOOT &&
+        const lootKind = quest.object2.kind + 1000;
+        if (
+            quest.object2.type === Types.EntityTypes.ITEMLOOT &&
             quest.object.type === Types.EntityTypes.MOB &&
             quest.object.kind === target.kind &&
             quest.status != Types.QuestStatus.COMPLETE &&
-            (quest.count < quest.object2.count || p.items.inventory.hasItemCount(lootKind) < quest.object2.count))
-        {
-            target.questDrops[lootKind] = parseInt(quest.object2.chance*10);
+            (quest.count < quest.object2.count ||
+                p.items.inventory.hasItemCount(lootKind) < quest.object2.count)
+        ) {
+            target.questDrops[lootKind] = parseInt(quest.object2.chance * 10);
             quest.object2.chance += 1;
         }
     }
@@ -48,7 +54,7 @@ class PlayerQuests {
         const p = this.player;
 
         quest.count++;
-        if(quest.count >= quest.object.count) {
+        if (quest.count >= quest.object.count) {
             quest.count = quest.object.count;
             const xp = quest.object.count * 10 * p.level;
             this.completeQuest(quest, xp);
@@ -61,7 +67,7 @@ class PlayerQuests {
         const p = this.player;
 
         console.info(JSON.stringify(quest));
-        const kind = quest.object2.kind+1000;
+        const kind = quest.object2.kind + 1000;
         const countItems = p.items.inventory.hasItemCount(kind);
         quest.count = countItems;
         this.progressQuest(quest);
@@ -81,10 +87,13 @@ class PlayerQuests {
     // getEachEntityAround) -- if HIDEANDSEEK quests are wired up later, this
     // logic (and the fix) can be resurrected from version control.
 
-    questAboutItemComplete(quest, callback){
+    questAboutItemComplete(quest, callback) {
         const p = this.player;
-        if(quest.count >= quest.object2.count && quest.status==Types.QuestStatus.INPROGRESS) {
-            const kind = quest.object2.kind+1000;
+        if (
+            quest.count >= quest.object2.count &&
+            quest.status == Types.QuestStatus.INPROGRESS
+        ) {
+            const kind = quest.object2.kind + 1000;
             // FIX: hasItemCount(kind) returns the raw total count, used
             // here only as a truthy "has at least 1" gate instead of "has
             // at least quest.object2.count". quest.count (checked above) is
@@ -94,14 +103,12 @@ class PlayerQuests {
             // under-stocked player and a free completion. hasItems() (used
             // correctly elsewhere in this file, e.g. questAboutItemCheck)
             // checks real sufficiency.
-            if(!p.items.inventory.hasItems(kind, quest.object2.count))
-                return;
+            if (!p.items.inventory.hasItems(kind, quest.object2.count)) return;
 
             p.items.inventory.removeItemKind(kind, quest.object2.count);
             const xp = quest.object2.count * 20 * p.level;
             this.completeQuest(quest, xp);
-            if (callback)
-                callback(quest);
+            if (callback) callback(quest);
             return true;
         }
         return false;
@@ -120,13 +127,13 @@ class PlayerQuests {
 
     completeQuest(quest, xp) {
         if (xp > 0) {
-            const multiplier = (quest.data) ? quest.data.expMultiplier : 1;
+            const multiplier = quest.data ? quest.data.expMultiplier : 1;
             this.player.incExp(xp * multiplier);
         }
 
         quest.status = Types.QuestStatus.COMPLETE;
         this.sendQuest(quest);
-        this.completeQuests[quest.id] = {"npcid":quest.npcQuestId};
+        this.completeQuests[quest.id] = { npcid: quest.npcQuestId };
         this.removeQuest(quest);
     }
 
@@ -139,7 +146,7 @@ class PlayerQuests {
         quest = null;
     }
 
-    foundQuest(quest){
+    foundQuest(quest) {
         //console.info("foundQuest="+questId);
         this.quests.push(quest);
         quest.status = Types.QuestStatus.STARTED;
@@ -150,14 +157,16 @@ class PlayerQuests {
         const cq = this.completeQuests;
         for (const qid in cq) {
             const q = cq[qid];
-            if (q.hasOwnProperty("npcid") && q.npcid === npcQuestId)
+            if (q.hasOwnProperty('npcid') && q.npcid === npcQuestId)
                 return true;
         }
         return false;
     }
 
     getQuestById(id) {
-        return this.quests.find(function (q) { return q.id === id; });
+        return this.quests.find(function (q) {
+            return q.id === id;
+        });
     }
 
     hasQuest(id) {
@@ -173,9 +182,7 @@ class PlayerQuests {
 
     // Use modern array methods
     forQuestsType(type, callback) {
-        this.quests
-            .filter(q => q.type === type)
-            .forEach(callback);
+        this.quests.filter((q) => q.type === type).forEach(callback);
     }
 }
 

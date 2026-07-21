@@ -11,168 +11,194 @@ const QuestType = Types.QuestType;
 
 export default class QuestHandler {
     constructor(game) {
-      this.game = game;
-      this.hideDelay = 5000; //How long the notification shows for.
-      this.showlog = false;
+        this.game = game;
+        this.hideDelay = 5000; //How long the notification shows for.
+        this.showlog = false;
 
-      const self = this;
-      this.closeButton = $('#questCloseButton');
-      this.closeButton.click(function(event) {
-        self.toggleShowLog();
-      });
+        const self = this;
+        this.closeButton = $('#questCloseButton');
+        this.closeButton.click(function (event) {
+            self.toggleShowLog();
+        });
     }
 
     show() {
-      this.quests = this.game.player.quests;
+        this.quests = this.game.player.quests;
     }
 
     getNPCQuest(questId) {
-      return Object.values(this.quests).find(q => q.id === questId);
+        return Object.values(this.quests).find((q) => q.id === questId);
     }
 
     toggleShowLog() {
-      this.showlog = !this.showlog;
-      if (this.showlog) {
-        this.questReloadLog();
-        this.questShowLog();
-      } else {
-        this.questHideLog();
-      }
+        this.showlog = !this.showlog;
+        if (this.showlog) {
+            this.questReloadLog();
+            this.questShowLog();
+        } else {
+            this.questHideLog();
+        }
     }
 
     questReloadLog() {
-      this.quests = game.player.quests;
-      $("#questLogInfo tbody").find("tr:gt(0)").remove();
+        this.quests = game.player.quests;
+        $('#questLogInfo tbody').find('tr:gt(0)').remove();
 
-      const questIds = Object.keys(this.quests);
-      for (let i = 0; i < questIds.length; ++i) {
-        const quest = this.quests[questIds[i]];
-        if (quest.status === 2) {
-          $('#questLogInfo .qd'+quest.id).remove();
-          continue;
-        }
+        const questIds = Object.keys(this.quests);
+        for (let i = 0; i < questIds.length; ++i) {
+            const quest = this.quests[questIds[i]];
+            if (quest.status === 2) {
+                $('#questLogInfo .qd' + quest.id).remove();
+                continue;
+            }
 
-        let progress = (quest.count + " / " + quest.object.count);
-        if (quest.type===QuestType.GETITEMKIND)
-        {
-          progress = (quest.count + " / " + quest.object2.count);
-        }
+            let progress = quest.count + ' / ' + quest.object.count;
+            if (quest.type === QuestType.GETITEMKIND) {
+                progress = quest.count + ' / ' + quest.object2.count;
+            }
 
-        let spriteName;
-        let itemData;
-        let idName;
-        if (quest.type===QuestType.GETITEMKIND)
-        {
-          const kind = quest.object2.kind;
-          itemData = ItemLoot[kind];
-          // FIX: `let spriteName` here shadowed the outer `var spriteName` (declared above), so the outer
-          // one used later (spritesets lookup, %sprite% replace) stayed undefined for GETITEMKIND quests
-          spriteName = itemData.sprite;
-    			spriteName = game.sprites["itemloot"].file;
-          idName = itemData.name.toLowerCase();
-        }
-        if (quest.type===QuestType.KILLMOBKIND)
-        {
-          const mobData = MobData.Kinds[quest.object.kind];
-          spriteName = mobData.spriteName;
-          idName = spriteName.toLowerCase();
-        }
-        if (quest.type===QuestType.USENODE)
-        {
-          spriteName = "nodeset"+quest.object.kind;
-          idName = spriteName.toLowerCase()+"_node"+quest.data1;
-        }
+            let spriteName;
+            let itemData;
+            let idName;
+            if (quest.type === QuestType.GETITEMKIND) {
+                const kind = quest.object2.kind;
+                itemData = ItemLoot[kind];
+                // FIX: `let spriteName` here shadowed the outer `var spriteName` (declared above), so the outer
+                // one used later (spritesets lookup, %sprite% replace) stayed undefined for GETITEMKIND quests
+                spriteName = itemData.sprite;
+                spriteName = game.sprites['itemloot'].file;
+                idName = itemData.name.toLowerCase();
+            }
+            if (quest.type === QuestType.KILLMOBKIND) {
+                const mobData = MobData.Kinds[quest.object.kind];
+                spriteName = mobData.spriteName;
+                idName = spriteName.toLowerCase();
+            }
+            if (quest.type === QuestType.USENODE) {
+                spriteName = 'nodeset' + quest.object.kind;
+                idName = spriteName.toLowerCase() + '_node' + quest.data1;
+            }
 
-        const sprite = this.game.spritesets[0][spriteName];
-        let sprite_content = "<div class=\"img quest-img-%idName%\"></div>"
-        if (quest.type===QuestType.USENODE)
-        {
-          sprite_content = "<div class=\"img quest-img-%idName%\" style=\"background-image: url('"+sprite.filepath+"')\"></div>"
-        }
-        else if (quest.type===QuestType.GETITEMKIND)
-        {
-          sprite_content = "<div class=\"img quest-img-%idName%\" style=\"background-image: url('img/2/sprites/%sprite%')\"></div>"
-        }
-        else if (quest.type===QuestType.KILLMOBKIND)
-        {
-          sprite_content = "<div class=\"img quest-img-%idName%\" style=\"background-image: url('"+sprite.filepath+"')\"></div>"
-        }
+            const sprite = this.game.spritesets[0][spriteName];
+            let sprite_content = '<div class="img quest-img-%idName%"></div>';
+            if (quest.type === QuestType.USENODE) {
+                sprite_content =
+                    '<div class="img quest-img-%idName%" style="background-image: url(\'' +
+                    sprite.filepath +
+                    '\')"></div>';
+            } else if (quest.type === QuestType.GETITEMKIND) {
+                sprite_content =
+                    '<div class="img quest-img-%idName%" style="background-image: url(\'img/2/sprites/%sprite%\')"></div>';
+            } else if (quest.type === QuestType.KILLMOBKIND) {
+                sprite_content =
+                    '<div class="img quest-img-%idName%" style="background-image: url(\'' +
+                    sprite.filepath +
+                    '\')"></div>';
+            }
 
-        sprite_content = sprite_content.replace(/%idName%/g, idName);
-        sprite_content = sprite_content.replace(/%sprite%/g, spriteName);
+            sprite_content = sprite_content.replace(/%idName%/g, idName);
+            sprite_content = sprite_content.replace(/%sprite%/g, spriteName);
 
-        $('#questLogInfo tbody').append(
-          "<tr id='qd"+quest.id+"'>" +
-            "<td class='frame-stroke1'>" + sprite_content + "</td>" +
-            "<td class='frame-stroke1'>" + quest.summary + "</td>" +
-            "<td class='frame-stroke1'>" + progress + "</td>" +
-          "</tr>");
+            $('#questLogInfo tbody').append(
+                "<tr id='qd" +
+                    quest.id +
+                    "'>" +
+                    "<td class='frame-stroke1'>" +
+                    sprite_content +
+                    '</td>' +
+                    "<td class='frame-stroke1'>" +
+                    quest.summary +
+                    '</td>' +
+                    "<td class='frame-stroke1'>" +
+                    progress +
+                    '</td>' +
+                    '</tr>'
+            );
 
-        if (quest.type===QuestType.GETITEMKIND) {
-          $('.quest-img-' + idName).css({
-            'background-position': '-' + (itemData.offset[0] * 32) + 'px -' + (itemData.offset[1] * 32) + 'px',
-            'width': "32px",
-            'height': "32px"});
+            if (quest.type === QuestType.GETITEMKIND) {
+                $('.quest-img-' + idName).css({
+                    'background-position':
+                        '-' +
+                        itemData.offset[0] * 32 +
+                        'px -' +
+                        itemData.offset[1] * 32 +
+                        'px',
+                    width: '32px',
+                    height: '32px'
+                });
+            }
+            if (quest.type === QuestType.KILLMOBKIND) {
+                const x =
+                    (sprite.animationData['idle_down'].length - 1) *
+                        sprite.width *
+                        2 +
+                    sprite.width / 2;
+                const y =
+                    sprite.animationData['idle_down'].row * sprite.height * 2 +
+                    sprite.height / 2;
+
+                const offset = '-' + x + 'px -' + y + 'px';
+                $('.quest-img-' + idName).css({
+                    'background-position': offset,
+                    width: sprite.width + 'px',
+                    height: sprite.height + 'px'
+                });
+            }
+            if (quest.type === QuestType.USENODE) {
+                const animName = 'node' + quest.data1;
+                const x =
+                    (sprite.animationData[animName].length - 1) *
+                        sprite.width *
+                        2 +
+                    sprite.width / 2;
+                const y =
+                    sprite.animationData[animName].row * sprite.height * 2 +
+                    sprite.height / 2;
+
+                const offset = '-' + x + 'px -' + y + 'px';
+                $('.quest-img-' + idName).css({
+                    'background-position': offset,
+                    width: sprite.width + 'px',
+                    height: sprite.height + 'px'
+                });
+            }
         }
-        if (quest.type===QuestType.KILLMOBKIND) {
-          const x = ((sprite.animationData['idle_down'].length - 1) * sprite.width)*2+sprite.width/2;
-          const y = ((sprite.animationData['idle_down'].row) * sprite.height)*2+sprite.height/2;
-
-          const offset = '-' + x + 'px -' + y + 'px';
-          $('.quest-img-' + idName).css({
-            "background-position": offset,
-            "width": (sprite.width)+"px",
-            "height": (sprite.height)+"px"});
-        }
-        if (quest.type===QuestType.USENODE) {
-          const animName = "node"+quest.data1;
-          const x = ((sprite.animationData[animName].length - 1) * sprite.width)*2+sprite.width/2;
-          const y = ((sprite.animationData[animName].row) * sprite.height)*2+sprite.height/2;
-
-          const offset = '-' + x + 'px -' + y + 'px';
-          $('.quest-img-' + idName).css({
-            "background-position": offset,
-            "width": (sprite.width)+"px",
-            "height": (sprite.height)+"px"});
-        }
-      }
     }
 
     questShowLog() {
-      $('#questlog').css('display', 'block');
-      $('#questCloseButton').css('display', 'block');
+        $('#questlog').css('display', 'block');
+        $('#questCloseButton').css('display', 'block');
     }
 
     questHideLog() {
-      $('#questlog').css('display', 'none');
-      $('#questCloseButton').css('display', 'none');
+        $('#questlog').css('display', 'none');
+        $('#questCloseButton').css('display', 'none');
     }
 
     handleQuest(quest) {
-      this.quests = this.game.player.quests;
-      const type = quest.status;
-      let htmlStr = '';
+        this.quests = this.game.player.quests;
+        const type = quest.status;
+        let htmlStr = '';
 
-      if (type === 0) {
-        htmlStr = '<p><h2>Quest Found</h2></p><p>' + quest.summary + '</p>';
-        game.userAlarm.alarm(htmlStr, this.hideDelay);
-        this.questReloadLog();
-      }
-      else if (type === 2)
-      {
-        htmlStr = '<p><h2>Quest Completed</h2></p><p>' + quest.summary + '</p>';
-        game.userAlarm.alarm(htmlStr, this.hideDelay);
-        quest = null;
-        this.questReloadLog();
-      }
+        if (type === 0) {
+            htmlStr = '<p><h2>Quest Found</h2></p><p>' + quest.summary + '</p>';
+            game.userAlarm.alarm(htmlStr, this.hideDelay);
+            this.questReloadLog();
+        } else if (type === 2) {
+            htmlStr =
+                '<p><h2>Quest Completed</h2></p><p>' + quest.summary + '</p>';
+            game.userAlarm.alarm(htmlStr, this.hideDelay);
+            quest = null;
+            this.questReloadLog();
+        }
 
-      if (this.showlog) {
-        this.questReloadLog();
-        this.questShowLog();
-      }
+        if (this.showlog) {
+            this.questReloadLog();
+            this.questShowLog();
+        }
     }
 
     talkToNPC(npc) {
-      this.game.client.sendTalkToNPC(npc.type, npc.id);
+        this.game.client.sendTalkToNPC(npc.type, npc.id);
     }
 }

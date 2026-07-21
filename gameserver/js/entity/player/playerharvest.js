@@ -25,16 +25,20 @@ class PlayerHarvest {
             return;
         }
 
-        const px = p.x, py = p.y;
+        const px = p.x,
+            py = p.y;
         const type = p.items.getWeaponType();
 
         p.isHarvesting = true;
 
         let exp = p.stats.exp.logging;
-        if (type === "hammer")
-            exp = p.stats.exp.mining;
+        if (type === 'hammer') exp = p.stats.exp.mining;
 
-        const durationMod = Utils.clamp(0.1, 1, (1 - GameTypes.getSkillLevel(exp)/20));
+        const durationMod = Utils.clamp(
+            0.1,
+            1,
+            1 - GameTypes.getSkillLevel(exp) / 20
+        );
         duration = ~~(duration * durationMod);
         // PERF: was clearTimeout()/setTimeout() per harvest attempt; routed
         // through the shared Scheduler (gameserver/js/scheduler.js) instead
@@ -56,37 +60,31 @@ class PlayerHarvest {
         p.harvestTimeout = Scheduler.schedule(() => {
             let complete = true;
 
-            if (!p.isHarvesting)
-                complete = false;
+            if (!p.isHarvesting) complete = false;
 
-            if (!(p.x === px && p.y === py))
-                complete = false;
+            if (!(p.x === px && p.y === py)) complete = false;
 
-            if (!p.items.hasWeaponType(type))
-                complete = false;
+            if (!p.items.hasWeaponType(type)) complete = false;
 
             if (!complete) {
                 this._abortHarvest(x, y);
                 return;
             }
 
-            if (callback)
-                callback(p);
+            if (callback) callback(p);
 
             p.map.entities.sendNeighbours(p, new Messages.Harvest(p, 2, x, y));
         }, duration);
 
         p.map.entities.sendNeighbours(p, new Messages.Harvest(p, 1, x, y), p);
-        p.sendPlayer( new Messages.Harvest(p, 1, x, y, duration));
+        p.sendPlayer(new Messages.Harvest(p, 1, x, y, duration));
     }
 
     _checkHarvest(x, y) {
         const p = this.player;
-        if (!p.isNextTooPosition(x,y))
-            return false;
+        if (!p.isNextTooPosition(x, y)) return false;
 
-        if (!p.items.hasWeaponType())
-            return false;
+        if (!p.items.hasWeaponType()) return false;
 
         return true;
     }
@@ -113,11 +111,14 @@ class PlayerHarvest {
             // TypeError on every harvest attempt with the wrong tool
             // equipped, before ever reaching the _abortHarvest() cleanup
             // below.
-            p.sendPlayer(new Messages.Notify("CHAT", "HARVEST_WRONG_TYPE", type));
+            p.sendPlayer(
+                new Messages.Notify('CHAT', 'HARVEST_WRONG_TYPE', type)
+            );
             res = false;
         }
 
-        const x= entity.x, y=entity.y;
+        const x = entity.x,
+            y = entity.y;
         if (!res) {
             this._abortHarvest(x, y);
             return;
@@ -126,43 +127,52 @@ class PlayerHarvest {
         // Chest nodes (Node.CHEST_KIND) open quickly and don't scale with
         // level like a real harvest -- everything else keeps the original
         // level-scaled duration.
-        const duration = (entity.harvestDuration !== undefined) ? entity.harvestDuration : (5000 + (entity.level*1000));
-        this._harvest(x, y, function (p) {
-            p.world.taskHandler.processEvent(p, PlayerEvent(GameTypes.EventType.USE_NODE, entity, 1));
+        const duration =
+            entity.harvestDuration !== undefined
+                ? entity.harvestDuration
+                : 5000 + entity.level * 1000;
+        this._harvest(
+            x,
+            y,
+            function (p) {
+                p.world.taskHandler.processEvent(
+                    p,
+                    PlayerEvent(GameTypes.EventType.USE_NODE, entity, 1)
+                );
 
-            if (type === "hammer")
-                p.stats.exp.mining += 10;
+                if (type === 'hammer') p.stats.exp.mining += 10;
 
-            // Re-roll the drop table right before it's consumed -- matters
-            // most for chests, whose setDrops() is randomized by level.
-            entity.setDrops(p);
-            entity.die();
-            const item = p.world.loot.getDrop(p, entity, false);
-            if (item && item instanceof Item)
-            {
-                item.x = x;
-                item.y = y;
-                p.world.loot.handleItemDespawn(item);
-            }
-            return;
-        }, duration);
+                // Re-roll the drop table right before it's consumed -- matters
+                // most for chests, whose setDrops() is randomized by level.
+                entity.setDrops(p);
+                entity.die();
+                const item = p.world.loot.getDrop(p, entity, false);
+                if (item && item instanceof Item) {
+                    item.x = x;
+                    item.y = y;
+                    p.world.loot.handleItemDespawn(item);
+                }
+                return;
+            },
+            duration
+        );
     }
 
-    _abortHarvest(x,y) {
+    _abortHarvest(x, y) {
         const p = this.player;
         p.map.entities.sendNeighbours(p, new Messages.Harvest(p, 2, x, y));
-        p.sendPlayer(new Messages.Notify("CHAT", "HARVEST_INVALID"));
+        p.sendPlayer(new Messages.Notify('CHAT', 'HARVEST_INVALID'));
     }
 
     onHarvest(x, y) {
         const p = this.player;
-        const gp = Utils.getGridPosition(x,y);
+        const gp = Utils.getGridPosition(x, y);
 
         // NOTE: `time` was a bare (undeclared) assignment in the original CommonJS
         // source, which created an implicit global there; declared with `var` here
         // since ES modules are always strict mode and forbid implicit globals. This
         // is local-only in both versions in practice (no other file reads it).
-        const time = p.map.entities.harvest[gp.gx + "_" + gp.gy];
+        const time = p.map.entities.harvest[gp.gx + '_' + gp.gy];
 
         let res = true;
         // FIX: getWeaponType() is defined on PlayerItems (p.items), not on
@@ -175,11 +185,13 @@ class PlayerHarvest {
             res = false;
         }
         if (res && !p.map.isHarvestTile(gp, type)) {
-            p.sendPlayer(new Messages.Notify("CHAT", "HARVEST_WRONG_TYPE", type));
+            p.sendPlayer(
+                new Messages.Notify('CHAT', 'HARVEST_WRONG_TYPE', type)
+            );
             res = false;
         }
 
-        if (res && time && (Date.now() - time) < 60000) {
+        if (res && time && Date.now() - time < 60000) {
             res = false;
         }
 
@@ -195,38 +207,46 @@ class PlayerHarvest {
         // ADDING ITEM AND NOT NOTIFYING CLIENT" comment above was
         // describing -- basic tile harvesting never actually completed.
         const duration = 6000;
-        this._harvest(x, y, function (p) {
-            p.world.taskHandler.processEvent(p, PlayerEvent(GameTypes.EventType.HARVEST, p, 1));
-            // FIX: same p.getWeaponType() -> p.items.getWeaponType() mismatch
-            // as above; both call sites here would throw and abort this
-            // harvest-completion callback before rewarding the player.
-            if (p.items.getWeaponType() === "axe")
-                p.stats.exp.logging += 10;
-            p.map.entities.harvest[gp.gx + "_" + gp.gy] = Date.now();
-            if (p.items.inventory.hasRoom()) {
-                // NOTE: `kind` is only ever set for "axe" -- a "hammer"
-                // (mining) harvest reaching here would create an ItemRoom
-                // with itemKind=undefined (BaseItem.set()'s Number(undefined)
-                // -> NaN), which ItemData.Kinds[item.itemKind] below has no
-                // entry for and .name would throw on. Currently unreachable
-                // in practice: map.js's isHarvestTile() only defines a tile
-                // set for type "axe" (types.hammer doesn't exist there), so
-                // onHarvest() can never actually complete for a "hammer"
-                // weapon today -- tile-based mining just isn't wired up yet
-                // (mining via Node entities/onHarvestEntity() above is a
-                // separate, already-working path). Flagging so whoever adds
-                // minable tiles to isHarvestTile() also fills in the ore
-                // item kind here.
-                let kind;
-                if (p.items.getWeaponType() === "axe")
-                    kind = 320;
-                const item = new ItemRoom([kind, 1, 0, 0]);
-                if (p.items.inventory.putItem(item) === -1)
-                    return;
-                const data = ItemTypes.getData(item.itemKind);
-                p.sendPlayer(new Messages.Notify("CHAT", "HARVEST_ADDED", data.name));
-            }
-        }, duration);
+        this._harvest(
+            x,
+            y,
+            function (p) {
+                p.world.taskHandler.processEvent(
+                    p,
+                    PlayerEvent(GameTypes.EventType.HARVEST, p, 1)
+                );
+                // FIX: same p.getWeaponType() -> p.items.getWeaponType() mismatch
+                // as above; both call sites here would throw and abort this
+                // harvest-completion callback before rewarding the player.
+                if (p.items.getWeaponType() === 'axe')
+                    p.stats.exp.logging += 10;
+                p.map.entities.harvest[gp.gx + '_' + gp.gy] = Date.now();
+                if (p.items.inventory.hasRoom()) {
+                    // NOTE: `kind` is only ever set for "axe" -- a "hammer"
+                    // (mining) harvest reaching here would create an ItemRoom
+                    // with itemKind=undefined (BaseItem.set()'s Number(undefined)
+                    // -> NaN), which ItemData.Kinds[item.itemKind] below has no
+                    // entry for and .name would throw on. Currently unreachable
+                    // in practice: map.js's isHarvestTile() only defines a tile
+                    // set for type "axe" (types.hammer doesn't exist there), so
+                    // onHarvest() can never actually complete for a "hammer"
+                    // weapon today -- tile-based mining just isn't wired up yet
+                    // (mining via Node entities/onHarvestEntity() above is a
+                    // separate, already-working path). Flagging so whoever adds
+                    // minable tiles to isHarvestTile() also fills in the ore
+                    // item kind here.
+                    let kind;
+                    if (p.items.getWeaponType() === 'axe') kind = 320;
+                    const item = new ItemRoom([kind, 1, 0, 0]);
+                    if (p.items.inventory.putItem(item) === -1) return;
+                    const data = ItemTypes.getData(item.itemKind);
+                    p.sendPlayer(
+                        new Messages.Notify('CHAT', 'HARVEST_ADDED', data.name)
+                    );
+                }
+            },
+            duration
+        );
     }
 }
 

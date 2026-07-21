@@ -19,20 +19,19 @@ import LoadData from '../loaddata.js';
 // which now lives there; keeping a second copy here would be dead code.
 const checkAnnouncement = function (self) {
     self.announcement = null;
-    const sprite = self.pxSprite["announcement_0"];
-    if (sprite)
-      sprite.visible = false;
-    if (self.announcements.length > 0)
-    {
-      self.announcement = self.announcements.shift();
-      if (sprite)
-        sprite.visible = true;
+    const sprite = self.pxSprite['announcement_0'];
+    if (sprite) sprite.visible = false;
+    if (self.announcements.length > 0) {
+        self.announcement = self.announcements.shift();
+        if (sprite) sprite.visible = true;
     }
-    setTimeout(function () { checkAnnouncement(self); },
-      (self.announcement) ? self.announcement[1] : 5000
+    setTimeout(
+        function () {
+            checkAnnouncement(self);
+        },
+        self.announcement ? self.announcement[1] : 5000
     );
 };
-
 
 // Renderer's own behavior is split across these mixin modules for readability (renderer.js
 // had grown to ~1730 lines). Each install* call below merges plain-function methods onto
@@ -47,8 +46,6 @@ import { installRendererDrawHud } from './rendererdrawhud.js';
 
 export default class Renderer {
     constructor(game) {
-
-
         const self = this;
         this.game = game;
 
@@ -64,17 +61,23 @@ export default class Renderer {
             boundSize: 4096,
             boundCountPerBuffer: 4,
             use32bitIndex: true,
-            SCALE_MODE: PIXI.SCALE_MODES.LINEAR,
+            SCALE_MODE: PIXI.SCALE_MODES.LINEAR
         };
         PIXI.settings.PRECISION_FRAGMENT = PIXI.PRECISION.HIGH;
 
         WebFont.load({
             custom: {
-                families: ['KomikaHand','GraphicPixel','AdvoCut']
+                families: ['KomikaHand', 'GraphicPixel', 'AdvoCut']
             },
-            loading: function() { console.log('Font(s) Loading'); },
-            active: function() { console.log('Font(s) Loaded'); },
-            inactive: function() { console.log('Font(s) Failure'); }
+            loading: function () {
+                console.log('Font(s) Loading');
+            },
+            active: function () {
+                console.log('Font(s) Loaded');
+            },
+            inactive: function () {
+                console.log('Font(s) Failure');
+            }
         });
 
         this.scale = this.getScaleFactor();
@@ -83,40 +86,44 @@ export default class Renderer {
 
         this.calcScreenSize(1);
 
-
-        const renderer = new PIXI.autoDetectRenderer (this.innerWidth, this.innerHeight, {
-              width: this.innerWidth,
-              height: this.innerHeight,
-              antialias: false,
-              transparent: false,
-              resolution: this.resolution,
-              autoResize: true,
-              class: "clickable"
-          });
+        const renderer = new PIXI.autoDetectRenderer(
+            this.innerWidth,
+            this.innerHeight,
+            {
+                width: this.innerWidth,
+                height: this.innerHeight,
+                antialias: false,
+                transparent: false,
+                resolution: this.resolution,
+                autoResize: true,
+                class: 'clickable'
+            }
+        );
         this.renderer = renderer;
         // Assuming 'renderer' is your PIXI renderer object
         this.renderer.plugins.interaction.autoPreventDefault = false;
 
-        this.canvas = $("#canvas");
+        this.canvas = $('#canvas');
         this.canvas.css({
-           'cursor' : 'none'
+            cursor: 'none'
         });
 
-
         console.warn(this.renderer.type);
-        if (this.renderer.type === PIXI.WEBGL_RENDERER){
-           console.warn('Using WebGL');
-         } else {
-           console.warn('Using Canvas');
-         };
+        if (this.renderer.type === PIXI.WEBGL_RENDERER) {
+            console.warn('Using WebGL');
+        } else {
+            console.warn('Using Canvas');
+        }
 
-        this.renderer.view.style.position = "absolute";
-        this.renderer.view.style.display = "block";
-        this.renderer.view.id = "game";
+        this.renderer.view.style.position = 'absolute';
+        this.renderer.view.style.display = 'block';
+        this.renderer.view.id = 'game';
 
-        this.docCanvas = document.getElementById("canvas");
+        this.docCanvas = document.getElementById('canvas');
         this.docCanvas.appendChild(this.renderer.view);
-        this.docCanvas.firstElementChild.getContext("2d", { willReadFrequently: true })
+        this.docCanvas.firstElementChild.getContext('2d', {
+            willReadFrequently: true
+        });
 
         Container.STAGE.addChild(Container.BACKGROUND);
         Container.STAGE.addChild(Container.ENTITIES);
@@ -161,7 +168,6 @@ export default class Renderer {
         Container.HUD.interactiveChildren = false;
         Container.HUD2.interactiveChildren = false;
 
-
         this.resources = {};
         this.tiles = {};
 
@@ -169,7 +175,7 @@ export default class Renderer {
         this.tilesize = G_TILESIZE;
 
         this.upscaledRendering = true;
-			        this.rescaling = true;
+        this.rescaling = true;
         this.supportsSilhouettes = this.upscaledRendering;
         this.isFirefox = Detect.isFirefox();
         this.isCanary = Detect.isCanaryOnWindows();
@@ -221,51 +227,56 @@ export default class Renderer {
 
         this.hitbarWidth = 0;
 
-        this.pushAnnouncement("Welcome to Land Of Mana!", 5000);
+        this.pushAnnouncement('Welcome to Land Of Mana!', 5000);
         checkAnnouncement(this);
 
         this.gui = document.getElementById('gui');
-        this.hitbar = document.getElementById("energy");
+        this.hitbar = document.getElementById('energy');
 
         this.resizeCanvases(1);
 
         this.isDebugInfoVisible = false;
     }
 
-
     createCamera() {
         this.camera = new Camera(game, this);
         this.camera.focusEntity = game.player;
     }
 
-
     initFPS() {
         this.FPS = 60;
     }
 
-
     initPIXI() {
-      this.tilesets = this.loadData.tilesets;
-      this.tiles.BACKGROUND = new PIXI.tilemap.CompositeRectTileLayer(0, this.tilesets);
-      this.tiles.FOREGROUND = new PIXI.tilemap.CompositeRectTileLayer(0, this.tilesets);
+        this.tilesets = this.loadData.tilesets;
+        this.tiles.BACKGROUND = new PIXI.tilemap.CompositeRectTileLayer(
+            0,
+            this.tilesets
+        );
+        this.tiles.FOREGROUND = new PIXI.tilemap.CompositeRectTileLayer(
+            0,
+            this.tilesets
+        );
 
-      this.tiles.BACKGROUND.interactive = false;
-      this.tiles.FOREGROUND.interactive = false;
+        this.tiles.BACKGROUND.interactive = false;
+        this.tiles.FOREGROUND.interactive = false;
 
-      this.tiles.BACKGROUND.interactiveChildren = false;
-      this.tiles.FOREGROUND.interactiveChildren = false;
+        this.tiles.BACKGROUND.interactiveChildren = false;
+        this.tiles.FOREGROUND.interactiveChildren = false;
 
-      Container.BACKGROUND.addChild(this.tiles.BACKGROUND);
-      Container.FOREGROUND.addChild(this.tiles.FOREGROUND);
+        Container.BACKGROUND.addChild(this.tiles.BACKGROUND);
+        Container.FOREGROUND.addChild(this.tiles.FOREGROUND);
 
-      this.textStyleName = new PIXI.TextStyle({fontFamily: 'KomikaHand', stroke: 'black', strokeThickness: 3});
+        this.textStyleName = new PIXI.TextStyle({
+            fontFamily: 'KomikaHand',
+            stroke: 'black',
+            strokeThickness: 3
+        });
     }
-
 
     pushAnnouncement(text, duration) {
-    	this.announcements.push([text, duration]);
+        this.announcements.push([text, duration]);
     }
-
 
     /*drawCollision: function () {
       var self = this,
@@ -312,77 +323,74 @@ export default class Renderer {
     },*/
 
     renderStaticCanvases() {
-  				const c = this.camera;
-      const fe = c.focusEntity;
+        const c = this.camera;
+        const fe = c.focusEntity;
 
-      c.setRealCoords();
+        c.setRealCoords();
 
-      // FIX: restored the dirty-check that used to skip moveGrid()/refreshGrid() when the
-      // camera hasn't moved to a new grid cell. It had been commented out, so the grid was
-      // being rebuilt unconditionally every single frame - real, scaling per-frame cost.
-      const gx = fe ? fe.x >> 4 : this.fegx;
-      const gy = fe ? fe.y >> 4 : this.fegy;
-      if (this.forceRedraw || (fe && (this.fegx !== gx || this.fegy !== gy)))
-      {
-        const mc = game.mapContainer;
-        if (mc)
-          mc.moveGrid();
-        this.forceRedraw = true;
-      }
-      this.fegx = gx;
-      this.fegy = gy;
+        // FIX: restored the dirty-check that used to skip moveGrid()/refreshGrid() when the
+        // camera hasn't moved to a new grid cell. It had been commented out, so the grid was
+        // being rebuilt unconditionally every single frame - real, scaling per-frame cost.
+        const gx = fe ? fe.x >> 4 : this.fegx;
+        const gy = fe ? fe.y >> 4 : this.fegy;
+        if (
+            this.forceRedraw ||
+            (fe && (this.fegx !== gx || this.fegy !== gy))
+        ) {
+            const mc = game.mapContainer;
+            if (mc) mc.moveGrid();
+            this.forceRedraw = true;
+        }
+        this.fegx = gx;
+        this.fegy = gy;
 
-      const go = this.setGridOffset();
-      this.setTilesOffset(go[0],go[1]);
+        const go = this.setGridOffset();
+        this.setTilesOffset(go[0], go[1]);
 
-      if (this.forceRedraw)
-      {
-        this.refreshGrid();
-      }
+        if (this.forceRedraw) {
+            this.refreshGrid();
+        }
     }
-
 
     refreshGrid() {
-      const mc = game.mapContainer;
+        const mc = game.mapContainer;
 
-      // Optimization only redraw tilegrid if it has changed.
-      if (typeof(this.fnTileGridEqual) === "undefined") {
-        this.fnTileGridEqual = function (tg1, tg2) {
-          if (!(tg1.length === tg2.length && tg1[0].length === tg2[0].length))
-            return false;
+        // Optimization only redraw tilegrid if it has changed.
+        if (typeof this.fnTileGridEqual === 'undefined') {
+            this.fnTileGridEqual = function (tg1, tg2) {
+                if (!(
+                    tg1.length === tg2.length && tg1[0].length === tg2[0].length
+                ))
+                    return false;
 
-          const ly = tg2.length;
-          const lx = tg2[0].length;
+                const ly = tg2.length;
+                const lx = tg2[0].length;
 
-          for (let y=0; y < ly; ++y) {
-            for (let x=0; x < lx; ++x) {
-              if (tg1[y][x] !== tg2[y][x])
-                return false;
-            }
-          }
-          return true;
-        };
-      }
-
-      if (mc.tileGrid) {
-        const cond = (this.tileGrid) ? this.fnTileGridEqual(this.tileGrid, mc.tileGrid) : false;
-        if (!cond)
-        {
-          this.clearTiles();
-          this.drawTerrain();
-          this.tileGrid = mc.tileGrid.map(row => row.slice());
+                for (let y = 0; y < ly; ++y) {
+                    for (let x = 0; x < lx; ++x) {
+                        if (tg1[y][x] !== tg2[y][x]) return false;
+                    }
+                }
+                return true;
+            };
         }
-      }
-    }
 
+        if (mc.tileGrid) {
+            const cond = this.tileGrid
+                ? this.fnTileGridEqual(this.tileGrid, mc.tileGrid)
+                : false;
+            if (!cond) {
+                this.clearTiles();
+                this.drawTerrain();
+                this.tileGrid = mc.tileGrid.map((row) => row.slice());
+            }
+        }
+    }
 
     clearTiles() {
-      if (this.tiles.BACKGROUND)
-        this.tiles.BACKGROUND.clear();
-      if (this.tiles.FOREGROUND)
-        this.tiles.FOREGROUND.clear();
+        if (this.tiles.BACKGROUND) this.tiles.BACKGROUND.clear();
+        if (this.tiles.FOREGROUND) this.tiles.FOREGROUND.clear();
     }
-
 
     /*clearFullTiles: function () {
       Container.BACKGROUND.children[0].clear();
@@ -397,88 +405,87 @@ export default class Renderer {
 
     clearEntities() {
         const self = this;
-        self.camera.forEachInScreen(function (entity,id) {
-          if (entity) {
-            if (entity === game.player)
-              return;
-            self.removeEntity(entity);
-          }
+        self.camera.forEachInScreen(function (entity, id) {
+            if (entity) {
+                if (entity === game.player) return;
+                self.removeEntity(entity);
+            }
         });
     }
 
-
     renderFrame() {
-      if (!game.ready || this.blankFrame)
-      {
-// TODO Make compatible with all sprites.
-        Container.HUD.removeChildren();
-        Container.HUD2.removeChildren();
-        // NOTE: intentionally NOT calling Container.ENTITIES.removeChildren() here (a prior
-        // attempted fix did this and broke the player, who is redrawn a few lines down via
-        // drawEntity(game.player)). Blindly clearing the container strips out entities' PIXI
-        // sprites without resetting their cached entity.pjsSprites/entity.sprites references,
-        // so setSprite()'s "sprite unchanged" fast path never re-adds them to the display
-        // tree - the entity silently stops rendering. Cleanup of on-screen non-player entity
-        // sprites is already handled correctly (via proper removeChild calls) by
-        // clearEntities(), which callers invoke before setting blankFrame - see
-        // clientcallbacks.js's map-transition handler.
-        this.pxSprite = {};
-        this.clearTiles();
-        this.renderer.render(Container.STAGE);
+        if (!game.ready || this.blankFrame) {
+            // TODO Make compatible with all sprites.
+            Container.HUD.removeChildren();
+            Container.HUD2.removeChildren();
+            // NOTE: intentionally NOT calling Container.ENTITIES.removeChildren() here (a prior
+            // attempted fix did this and broke the player, who is redrawn a few lines down via
+            // drawEntity(game.player)). Blindly clearing the container strips out entities' PIXI
+            // sprites without resetting their cached entity.pjsSprites/entity.sprites references,
+            // so setSprite()'s "sprite unchanged" fast path never re-adds them to the display
+            // tree - the entity silently stops rendering. Cleanup of on-screen non-player entity
+            // sprites is already handled correctly (via proper removeChild calls) by
+            // clearEntities(), which callers invoke before setting blankFrame - see
+            // clientcallbacks.js's map-transition handler.
+            this.pxSprite = {};
+            this.clearTiles();
+            this.renderer.render(Container.STAGE);
 
-        this.blankFrame = false;
-        this.forceRedraw = true;
-        this.drawEntity(game.player);
-        game.initCursors();
-        game.setCursor("hand");
-        return;
-      }
+            this.blankFrame = false;
+            this.forceRedraw = true;
+            this.drawEntity(game.player);
+            game.initCursors();
+            game.setCursor('hand');
+            return;
+        }
 
+        if (
+            !game.ready ||
+            !game.player ||
+            game.mapStatus < 2 ||
+            !game.mapContainer.gridReady ||
+            this.tilesets.length === 0 ||
+            !this.loadData.loaded
+        ) {
+            this.forceRedraw = true;
+            return;
+        }
 
-      if (!game.ready || !game.player || game.mapStatus < 2 ||
-          !game.mapContainer.gridReady || this.tilesets.length === 0 ||
-          !this.loadData.loaded) {
-        this.forceRedraw = true;
-        return;
-      }
+        this.delta = Date.now() - this.last;
 
-      this.delta = Date.now() - this.last;
+        this.renderStaticCanvases();
 
-      this.renderStaticCanvases();
+        // FIX: was permanently commented out, so showCutScene() (letterbox bars) had no
+        // caller and could never run. Now driven by this.cutSceneActive - call
+        // renderer.startCutScene()/endCutScene() to turn it on/off; the pxSprite check
+        // keeps it running for the last few frames of the retract animation after
+        // endCutScene() flips the flag back off.
+        if (this.cutSceneActive || this.pxSprite['cutscene_1'])
+            this.showCutScene();
 
-      // FIX: was permanently commented out, so showCutScene() (letterbox bars) had no
-      // caller and could never run. Now driven by this.cutSceneActive - call
-      // renderer.startCutScene()/endCutScene() to turn it on/off; the pxSprite check
-      // keeps it running for the last few frames of the retract animation after
-      // endCutScene() flips the flag back off.
-      if (this.cutSceneActive || this.pxSprite["cutscene_1"])
-        this.showCutScene();
+        this.drawEntities();
 
-      this.drawEntities();
+        this.drawAnnouncement();
 
-      this.drawAnnouncement();
+        this.drawBubbles();
 
-      this.drawBubbles();
+        this.drawCombatInfo();
+        this.drawDebugInfo();
+        this.drawCursor();
 
-      this.drawCombatInfo();
-      this.drawDebugInfo();
-      this.drawCursor();
-
-
-      /*this.culler.cull(Container.STAGE, {
+        /*this.culler.cull(Container.STAGE, {
         "x":0,
         "y":0,
         "width": window.innerWidth,
         "height": window.innerHeight
       });*/
 
-      this.renderer.render(Container.STAGE);
+        this.renderer.render(Container.STAGE);
 
-      this.last = Date.now();
+        this.last = Date.now();
 
-      this.forceRedraw = false;
+        this.forceRedraw = false;
     }
-
 }
 
 installRendererScaling(Renderer.prototype);

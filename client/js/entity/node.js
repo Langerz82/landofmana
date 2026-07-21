@@ -25,8 +25,7 @@ export default class Node extends Entity {
     }
 
     die() {
-        if (this.death_callback)
-            this.death_callback();
+        if (this.death_callback) this.death_callback();
     }
 
     onDeath(callback) {
@@ -34,8 +33,7 @@ export default class Node extends Entity {
     }
 
     getAnimationByName() {
-        if (this.isDying)
-            return super.getAnimationByName("death");
+        if (this.isDying) return super.getAnimationByName('death');
 
         return super.getAnimationByName(this.name);
     }

@@ -113,12 +113,12 @@ export default class Character extends EntityMoving {
         // this branch is unreachable dead code here (this class file looks shared with a
         // server-side counterpart where `game` is undefined and `changePoints` presumably lives).
         // Left as-is since there's no client-side implementation to fix it to.
-        return (typeof game !== 'undefined') ? prev : this.changePoints(prev, 0);
+        return typeof game !== 'undefined' ? prev : this.changePoints(prev, 0);
     }
 
     modEp(val) {
         const prev = this._modEp(val);
-        return (typeof game !== 'undefined') ? prev : this.changePoints(0, prev);
+        return typeof game !== 'undefined' ? prev : this.changePoints(0, prev);
     }
 
     _modHp(val) {
@@ -192,7 +192,7 @@ export default class Character extends EntityMoving {
     }
 
     clean() {
-        this.forEachAttacker(function(attacker) {
+        this.forEachAttacker(function (attacker) {
             attacker.disengage();
             attacker.idle();
         });

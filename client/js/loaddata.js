@@ -11,12 +11,14 @@ export default class LoadData {
         loader.add('ts-1-1', 'img/common/ts-1-1.png');
         loader.add('ts-1-2', 'img/common/ts-1-2.png');
 
-        loader.load(function(loader, resources) {
+        loader.load(function (loader, resources) {
             self.tilesets = [
                 resources['ts-1-1'].texture,
-                resources['ts-1-2'].texture,
+                resources['ts-1-2'].texture
             ];
         });
-        loader.onComplete.add(() => { self.loaded = true; })
+        loader.onComplete.add(() => {
+            self.loaded = true;
+        });
     }
 }

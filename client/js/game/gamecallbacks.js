@@ -9,155 +9,151 @@ import Node from '../entity/node.js';
 /* global lang, log */
 
 export function installGameCallbacks(proto) {
-        proto.onVersionGame = function(data) {
-          this.versionChecked = true;
-          const version = Number(data[0]);
+    proto.onVersionGame = function (data) {
+        this.versionChecked = true;
+        const version = Number(data[0]);
 
-          const local_version = Number(config.build.version);
-          log.info("config.build.version="+local_version);
-          if (version !== local_version)
-          {
+        const local_version = Number(config.build.version);
+        log.info('config.build.version=' + local_version);
+        if (version !== local_version) {
             $('#container').addClass('error');
-            let errmsg = "Please download the new version of Land Of Mana.<br/>";
+            let errmsg =
+                'Please download the new version of Land Of Mana.<br/>';
 
             if (game.tablet || game.mobile) {
-              errmsg += "<br/>For mobile see: <a href=\"" + config.build.updatepage +
-                "\" target=\"_self\">UPDATE LINK</a> or search Google play for \"Land of Mana\".";
+                errmsg +=
+                    '<br/>For mobile see: <a href="' +
+                    config.build.updatepage +
+                    '" target="_self">UPDATE LINK</a> or search Google play for "Land of Mana".';
             } else {
-              errmsg += "<br/>For most browsers press Ctrl+F5 to reload the game cache files.";
+                errmsg +=
+                    '<br/>For most browsers press Ctrl+F5 to reload the game cache files.';
             }
             game.clienterror_callback(errmsg);
             if (game.tablet || game.mobile)
-              window.location.replace(config.build.updatepage);
-          }
-        };
+                window.location.replace(config.build.updatepage);
+        }
+    };
 
-        proto.onWorldReady = function(data) {
-          const username = data[0];
-          const playername = data[1];
-          const hash = data[2];
-          const protocol = data[3];
-          const host = data[4];
-          const port = data[5];
+    proto.onWorldReady = function (data) {
+        const username = data[0];
+        const playername = data[1];
+        const hash = data[2];
+        const protocol = data[3];
+        const host = data[4];
+        const port = data[5];
 
-          const url = protocol + "://"+ host +":"+ port +"/";
+        const url = protocol + '://' + host + ':' + port + '/';
 
-          // Game Client takes over the processing of Messages.
-          game.client = new GameClient();
+        // Game Client takes over the processing of Messages.
+        game.client = new GameClient();
 
-          game.client.callbacks = new ClientCallbacks(game.client);
-          game.client.setHandlers();
+        game.client.callbacks = new ClientCallbacks(game.client);
+        game.client.setHandlers();
 
-          game.client.connect(url, [playername,hash]);
-        };
+        game.client.connect(url, [playername, hash]);
+    };
 
-        proto.onPlayerLoad = function(player) {
-          log.info("Received player ID from server : "+ player.id);
+    proto.onPlayerLoad = function (player) {
+        log.info('Received player ID from server : ' + player.id);
 
-          // FIX: this setInterval's handle was never stored, so if onPlayerLoad() ever fires
-          // more than once in a session (e.g. reconnect) each call added another interval that
-          // was never cleared - a growing set of duplicate "who request" pings running forever.
-          // Store the handle and clear any previous one before creating a new one.
-          if (this.zoneCheckInterval)
-            clearInterval(this.zoneCheckInterval);
+        // FIX: this setInterval's handle was never stored, so if onPlayerLoad() ever fires
+        // more than once in a session (e.g. reconnect) each call added another interval that
+        // was never cleared - a growing set of duplicate "who request" pings running forever.
+        // Store the handle and clear any previous one before creating a new one.
+        if (this.zoneCheckInterval) clearInterval(this.zoneCheckInterval);
 
-          // Make zoning possible.
-          this.zoneCheckInterval = setInterval(function() {
-            if (game.mapStatus >= 2 &&
-                 !player.isMoving() && player.canObserve(game.currentTime))
-            {
+        // Make zoning possible.
+        this.zoneCheckInterval = setInterval(function () {
+            if (
+                game.mapStatus >= 2 &&
+                !player.isMoving() &&
+                player.canObserve(game.currentTime)
+            ) {
                 game.client.sendWhoRequest();
 
                 player.observeTimer.lastTime = game.currentTime;
             }
-          }, player.moveSpeed * 4);
+        }, player.moveSpeed * 4);
 
-          game.renderer.initPIXI();
+        game.renderer.initPIXI();
 
-          game.app.initPlayerBar();
+        game.app.initPlayerBar();
 
-          game.updateBars();
-          game.updateExpBar();
+        game.updateBars();
+        game.updateExpBar();
 
-          log.info("onWelcome");
+        log.info('onWelcome');
 
-      	  $('.validation-summary').text("Loading Map..");
+        $('.validation-summary').text('Loading Map..');
 
-          // TODO - Maybe this is better in main or app class as html.
-          if ($('#player_window').is(':visible'))
-          {
+        // TODO - Maybe this is better in main or app class as html.
+        if ($('#player_window').is(':visible')) {
             $('#intro').hide();
             $('#container').fadeIn(1000);
-          }
+        }
 
-      	  game.teleportMaps(1);
+        game.teleportMaps(1);
 
-          //Welcome message
-          game.chathandler.show();
+        //Welcome message
+        game.chathandler.show();
 
-          game.gamestart_callback();
+        game.gamestart_callback();
 
-          if(game.hasNeverStarted) {
-              game.start();
-          }
+        if (game.hasNeverStarted) {
+            game.start();
+        }
 
-          player.attackTime = game.currentTime;
+        player.attackTime = game.currentTime;
 
-          // START TUTORIAL SHOW CODE.
-          if (player.level === 0)
-          {
-            const tutName = "["+lang.data["TUTORIAL"]+"]";
+        // START TUTORIAL SHOW CODE.
+        if (player.level === 0) {
+            const tutName = '[' + lang.data['TUTORIAL'] + ']';
             // FIX: `let j = 1` was declared inside the loop body, so each of the 5 closures got its own fresh
             // j=1 and always showed TUTORIAL_1. The original (pre-conversion) code relied on `var j` being a
             // single counter shared/incremented across all 5 timeout closures (firing in order) to walk through
             // TUTORIAL_1..TUTORIAL_5; hoisted here above the loop to restore that shared-counter behavior.
             let j = 1;
-            for (let i = 1; i <= 5; ++i)
-            {
-              setTimeout(function () {
-                const tutData = lang.data["TUTORIAL_"+(j++)];
-                game.chathandler.addGameNotification(tutName, tutData);
-              }, (12500 * i));
+            for (let i = 1; i <= 5; ++i) {
+                setTimeout(function () {
+                    const tutData = lang.data['TUTORIAL_' + j++];
+                    game.chathandler.addGameNotification(tutName, tutData);
+                }, 12500 * i);
             }
-          }
-        };
+        }
+    };
 
-        proto.addPlayerCallbacks = function(player) {
-          const self = this;
+    proto.addPlayerCallbacks = function (player) {
+        const self = this;
 
-          self.player = player;
+        self.player = player;
 
-          self.player.onStartPathing(function(path) {
-              const i = path.length - 1,
-                  x =  path[i][0],
-                  y =  path[i][1];
-          });
+        self.player.onStartPathing(function (path) {
+            const i = path.length - 1,
+                x = path[i][0],
+                y = path[i][1];
+        });
 
-          self.player.onKeyMove(function(sentMove) {
+        self.player.onKeyMove(function (sentMove) {
             const p = self.player;
             if (!sentMove && !p.freeze) {
-              checkTeleport(p, p.x, p.y);
+                checkTeleport(p, p.x, p.y);
             }
 
             p.sendMove(sentMove ? 1 : 0);
             //f (p.sentMoving !== sentMove) {
             //}
-          });
+        });
 
-          self.player.onBeforeMove(function() {
+        self.player.onBeforeMove(function () {});
 
-          });
+        self.player.onBeforeStep(function () {});
 
-          self.player.onBeforeStep(function() {
+        self.player.onStep(function () {});
 
-          });
-
-          self.player.onStep(function() {
-          });
-
-          self.player.onMoveStop(function () {
+        self.player.onMoveStop(function () {
             const p = self.player;
-            log.info("player.onMoveStop");
+            log.info('player.onMoveStop');
 
             // FIX: this fires whenever movement.stop() runs, including when a manual
             // key-move step gets blocked (e.g. bumping into an adjacent entity). p.keyMove
@@ -167,29 +163,28 @@ export function installGameCallbacks(proto) {
             // silently reverted every tick by snapping orientation back to the old target,
             // making it look like the player's facing was permanently locked onto it.
             if (p.keyMove) {
-              log.info("onMoveStop - blocked key move, keeping player-chosen orientation.");
-              return;
+                log.info(
+                    'onMoveStop - blocked key move, keeping player-chosen orientation.'
+                );
+                return;
             }
 
-            if (p.hasTarget() && p.canReachTarget())
-              p.lookAtEntity(p.target);
+            if (p.hasTarget() && p.canReachTarget()) p.lookAtEntity(p.target);
             else {
-              log.info("onMoveStop - NO TARGET!");
+                log.info('onMoveStop - NO TARGET!');
             }
-          });
+        });
 
-          self.player.onAbortPathing(function(path, x, y) {
+        self.player.onAbortPathing(function (path, x, y) {
             const p = self.player;
             self.client.sendMoveEntity(p, 2);
-          });
+        });
 
-          // FIX (var cleanup): callbacks registered earlier in this method (onKeyMove,
-          // onStopPathing) reference checkTeleport before this declaration textually, but they
-          // only actually run later in response to player events - by then this line has
-          // already executed, so const is safe despite the forward reference.
-          const checkTeleport = function (p, x, y)
-          {
-
+        // FIX (var cleanup): callbacks registered earlier in this method (onKeyMove,
+        // onStopPathing) reference checkTeleport before this declaration textually, but they
+        // only actually run later in response to player events - by then this line has
+        // already executed, so const is safe despite the forward reference.
+        const checkTeleport = function (p, x, y) {
             // FIX: landing tile of a teleport can itself sit on (or inside) another
             // door's area -- either the same door you just left (same-map teleport
             // whose destination re-enters its own trigger area) or a genuinely
@@ -216,28 +211,35 @@ export function installGameCallbacks(proto) {
             // p.freeze = false). A genuine subsequent player movement, which only
             // happens after that point, is unaffected.
             if (p.suppressTeleportCheck) {
-              return;
+                return;
             }
 
             const dest = self.mapContainer.getDoor(p);
             // FIX: was gated on !p.hasTarget(), so stopping on a door/portal tile while
             // targeting something (e.g. a mob) silently skipped the teleport. Door tile
             // position is what should matter here, not target state.
-            if(dest) {
+            if (dest) {
                 // Door Level Requirements.
                 let msg;
                 let notification;
-                if (dest.minLevel && self.player.level < dest.minLevel)
-                {
-                  msg = "I must be Level "+dest.minLevel+" or more to proceed.";
-                  notification = "You must be Level "+dest.minLevel+" or more to proceed.";
+                if (dest.minLevel && self.player.level < dest.minLevel) {
+                    msg =
+                        'I must be Level ' +
+                        dest.minLevel +
+                        ' or more to proceed.';
+                    notification =
+                        'You must be Level ' +
+                        dest.minLevel +
+                        ' or more to proceed.';
                 }
 
-                if (msg)
-                {
-                  self.bubbleManager.create(self.player, msg);
-                  self.chathandler.addGameNotification("Notification", notification);
-                  return;
+                if (msg) {
+                    self.bubbleManager.create(self.player, msg);
+                    self.chathandler.addGameNotification(
+                        'Notification',
+                        notification
+                    );
+                    return;
                 }
 
                 p.setOrientation(dest.orientation);
@@ -287,111 +289,106 @@ export function installGameCallbacks(proto) {
 
                 self.teleportMaps(dest.tmap, dest.tx, dest.ty, dest.id);
 
-
-                if(dest.portal) {
-                    self.audioManager.playSound("teleport");
+                if (dest.portal) {
+                    self.audioManager.playSound('teleport');
                 }
-
             }
-          };
+        };
 
-          self.player.onStopPathing(function(x, y) {
-              const p = self.player;
-              log.info("onStopPathing");
+        self.player.onStopPathing(function (x, y) {
+            const p = self.player;
+            log.info('onStopPathing');
 
-            	if (p.isDead)
-                  return;
+            if (p.isDead) return;
 
-              log.info("onStopPathing - 1");
+            log.info('onStopPathing - 1');
 
-              // FIX: checkTeleport used to run only after this hasTarget() block, but that
-              // block returns early when the player has a target - so stopping on a door
-              // tile while targeting something (e.g. a mob) never triggered the teleport.
-              // Run it first so doors/portals always fire on stop, regardless of target.
-              checkTeleport(p, x, y);
+            // FIX: checkTeleport used to run only after this hasTarget() block, but that
+            // block returns early when the player has a target - so stopping on a door
+            // tile while targeting something (e.g. a mob) never triggered the teleport.
+            // Run it first so doors/portals always fire on stop, regardless of target.
+            checkTeleport(p, x, y);
 
-              if (p.hasTarget()) {
+            if (p.hasTarget()) {
                 p.lookAtEntity(p.target);
                 self.makePlayerInteractNextTo();
-              }
+            }
 
-              log.info("onStopPathing - 2");
+            log.info('onStopPathing - 2');
 
-              if(p.target instanceof NpcStatic || p.target instanceof NpcMove) {
-                  self.makeNpcTalk(p.target);
-              } else if(p.target instanceof Node && p.target.kind === Node.CHEST_KIND) {
-                  // Chests are Nodes (Node.CHEST_KIND) opened the same way
-                  // ore/tree nodes are harvested -- reuse that flow instead
-                  // of the removed Chest-specific sendOpen().
-                  self.makePlayerHarvestEntity(p.target);
-              }
-          });
+            if (p.target instanceof NpcStatic || p.target instanceof NpcMove) {
+                self.makeNpcTalk(p.target);
+            } else if (
+                p.target instanceof Node &&
+                p.target.kind === Node.CHEST_KIND
+            ) {
+                // Chests are Nodes (Node.CHEST_KIND) opened the same way
+                // ore/tree nodes are harvested -- reuse that flow instead
+                // of the removed Chest-specific sendOpen().
+                self.makePlayerHarvestEntity(p.target);
+            }
+        });
 
-          self.player.onRequestPath(function(x, y) {
+        self.player.onRequestPath(function (x, y) {
             const p = self.player;
-          	const ignored = [p]; // Always ignore self
-          	const included = [];
+            const ignored = [p]; // Always ignore self
+            const included = [];
 
-              if(p.hasTarget() && !p.target.isDead) {
+            if (p.hasTarget() && !p.target.isDead) {
+                ignored.push(p.target);
+            }
 
-                  ignored.push(p.target);
-              }
+            const path = self.findPath(p, x, y, ignored);
 
-              const path = self.findPath(p, x, y, ignored);
-
-              if (path && path.length > 0)
-              {
-                const orientation = p.getOrientationTo([path[1][0],path[1][1]]);
+            if (path && path.length > 0) {
+                const orientation = p.getOrientationTo([
+                    path[1][0],
+                    path[1][1]
+                ]);
                 p.setOrientation(orientation);
-                self.client.sendMovePath(p,
-                  path.length,
-                  path);
-      	                }
-              return path;
-          });
+                self.client.sendMovePath(p, path.length, path);
+            }
+            return path;
+        });
 
-          self.player.onDeath(function() {
-              log.info(self.playerId + " is dead");
-              const p = self.player;
+        self.player.onDeath(function () {
+            log.info(self.playerId + ' is dead');
+            const p = self.player;
 
-              p.skillHandler.clear();
+            p.skillHandler.clear();
 
-              p.forceStop();
-              p.setSprite(self.sprites["death"]);
+            p.forceStop();
+            p.setSprite(self.sprites['death']);
 
-              p.animate("death", 150, 1, function() {
-                  log.info(self.playerId + " was removed");
+            p.animate('death', 150, 1, function () {
+                log.info(self.playerId + ' was removed');
 
-                  p.isDead = true;
-                  self.updateCameraEntity(p.id, null);
+                p.isDead = true;
+                self.updateCameraEntity(p.id, null);
 
-                  setTimeout(function() {
-                      self.playerdeath_callback();
-                  }, 1000);
-              });
+                setTimeout(function () {
+                    self.playerdeath_callback();
+                }, 1000);
+            });
 
-              self.audioManager.fadeOutCurrentMusic();
-              self.audioManager.playSound("death");
-          });
+            self.audioManager.fadeOutCurrentMusic();
+            self.audioManager.playSound('death');
+        });
 
-          self.player.onHasMoved(function(player) {
-          });
+        self.player.onHasMoved(function (player) {});
+    };
 
-        };
+    proto.connected = function (server) {
+        const self = this;
 
-        proto.connected = function(server) {
-          const self = this;
-
-          if (this.hasServerPlayer)
-          {
-            if(this.client.connectgame_callback) {
-              this.client.connectgame_callback();
+        if (this.hasServerPlayer) {
+            if (this.client.connectgame_callback) {
+                this.client.connectgame_callback();
             }
             return;
-          }
+        }
 
-          this.client.connection.send("startgame,"+server);
-          this.hasServerPlayer = true;
-        };
-
+        this.client.connection.send('startgame,' + server);
+        this.hasServerPlayer = true;
+    };
 }

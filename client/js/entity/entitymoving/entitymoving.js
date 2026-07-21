@@ -51,13 +51,11 @@ export default class EntityMoving extends Entity {
             return;
         }
         this.freeze = true;
-        this.freeze_callback = setTimeout(function() {
+        this.freeze_callback = setTimeout(function () {
             self.freeze = false;
-            if (callback)
-                callback(self);
+            if (callback) callback(self);
         }, ms);
     }
-
 }
 
 installEntityMovingPath(EntityMoving.prototype);

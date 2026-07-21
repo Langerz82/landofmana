@@ -16,7 +16,7 @@ class NpcMove extends Character {
         this.gender = kind % 2;
         this.setMoveRate(350);
 
-        this.name = NPCnames[kind%NPCnames.length];
+        this.name = NPCnames[kind % NPCnames.length];
 
         const callbacks = this.map.entities.world.npcMoveCallback;
         callbacks.setCallbacks(this);
@@ -28,15 +28,13 @@ class NpcMove extends Character {
 
         if (QuestData.NpcData.hasOwnProperty(this.kind)) {
             const qData = QuestData.NpcData[this.kind];
-            if (qData && qData.length > 0)
-            {
+            if (qData && qData.length > 0) {
                 // NOTE: was `const newQuest = null;` / `const pQuest = null;`
                 // here, both unused -- dead (nothing in the loop below reads
                 // them; same pattern already cleaned up elsewhere in this
                 // codebase, e.g. area/mobarea.js, world/taskhandler.js,
                 // transition.js, entity/components/mobcombat.js).
-                for (const q of qData)
-                {
+                for (const q of qData) {
                     this.entityQuests.quests[q.id] = q;
                 }
             }
@@ -60,8 +58,7 @@ class NpcMove extends Character {
                     res = true;
             }
         });
-        if (res)
-            return;
+        if (res) return;
 
         if (Object.keys(this.entityQuests.quests).length === 0) {
             this.entityQuests.dynamicQuests(player);
@@ -83,25 +80,27 @@ class NpcMove extends Character {
                 return;
             }
 
-            const langcode = "QUESTS_"+newQid;
+            const langcode = 'QUESTS_' + newQid;
             const msg = new Messages.Dialogue(this, langcode);
             player.sendPlayer(msg);
         }
     }
 
     randomMove() {
-        if(!this.hasTarget() && !this.isDead && !this.isMoving()) {
-            const canRoam = (Utils.randomRangeInt(0,100) === 1);
-            if(!canRoam || this.map.entities.getPlayerAroundCount(this,20) === 0)
+        if (!this.hasTarget() && !this.isDead && !this.isMoving()) {
+            const canRoam = Utils.randomRangeInt(0, 100) === 1;
+            if (
+                !canRoam ||
+                this.map.entities.getPlayerAroundCount(this, 20) === 0
+            )
                 return;
             // FIX: was `this.map.entities.getRandomPosition(this, 2)` --
             // getRandomPosition() only exists on Map (zero-arg), not on
             // MapEntities, so this threw on every roam attempt and broke
             // ambient NPC wandering entirely. Matches the pattern used in
             // mapentities.js's own NPC-spawn code.
-            const	pos = this.map.getRandomPosition();
-            if (pos && !(pos.x === this.x && pos.y === this.y))
-            {
+            const pos = this.map.getRandomPosition();
+            if (pos && !(pos.x === this.x && pos.y === this.y)) {
                 //if (this.map.entities.isCharacterAt(pos.x,pos.y))
                 //   return;
                 this.go(pos.x, pos.y);
@@ -111,11 +110,9 @@ class NpcMove extends Character {
     }
 
     checkMove(time) {
-        if (this.isDead)
-            return;
+        if (this.isDead) return;
 
-        if (!this.freeze && this.isMoving() && this.canMove())
-        {
+        if (!this.freeze && this.isMoving() && this.canMove()) {
             this.nextStep();
         }
     }

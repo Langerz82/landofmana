@@ -29,33 +29,30 @@ class PlayerHandler {
         // the two valid combinations, but nothing stopped an out-of-range
         // type from indexing player.items.gold[type] above with a garbage
         // index (gold only has 2 slots: 0 inventory, 1 bank).
-        if (type !== 0 && type !== 1)
-            return;
+        if (type !== 0 && type !== 1) return;
 
-        if (gold < 0)
-            return;
+        if (gold < 0) return;
 
         if (gold > 9999999) {
-            this.ph.sendPlayer(new Messages.Notify("GOLD","MAX_TRANSFER"));
+            this.ph.sendPlayer(new Messages.Notify('GOLD', 'MAX_TRANSFER'));
             return;
         }
 
-        if (gold > this.player.items.gold[type])
-        {
-            this.ph.sendPlayer(new Messages.Notify("GOLD","INSUFFICIENT_GOLD"));
+        if (gold > this.player.items.gold[type]) {
+            this.ph.sendPlayer(
+                new Messages.Notify('GOLD', 'INSUFFICIENT_GOLD')
+            );
             return;
         }
 
         // Transfer to bank.
-        if (type===0 && type2===1)
-        {
+        if (type === 0 && type2 === 1) {
             if (this.player.items.modifyGold(-gold, 0))
                 this.player.items.modifyGold(gold, 1);
         }
 
         // Withdraw from bank.
-        if (type===1 && type2===0)
-        {
+        if (type === 1 && type2 === 0) {
             if (this.player.items.modifyGold(-gold, 1))
                 this.player.items.modifyGold(gold, 0);
         }
@@ -67,27 +64,25 @@ class PlayerHandler {
             points = parseInt(message[1]);
         const p = this.player;
 
-        if (points < 0 || points > p.stats.free)
-            return;
+        if (points < 0 || points > p.stats.free) return;
 
-        if (attribute <= 0 || attribute > 4)
-            return;
+        if (attribute <= 0 || attribute > 4) return;
 
         let alterBars = false;
         switch (attribute) {
-        case 1:
-            p.stats.attack += points;
-            break;
-        case 2:
-            p.stats.defense += points;
-            break;
-        case 3:
-            p.stats.health += points;
-            alterBars = true;
-            break;
-        case 4:
-            p.stats.luck += points;
-            break;
+            case 1:
+                p.stats.attack += points;
+                break;
+            case 2:
+                p.stats.defense += points;
+                break;
+            case 3:
+                p.stats.health += points;
+                alterBars = true;
+                break;
+            case 4:
+                p.stats.luck += points;
+                break;
         }
         p.stats.free -= points;
 

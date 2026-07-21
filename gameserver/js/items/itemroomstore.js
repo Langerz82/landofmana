@@ -27,7 +27,7 @@ class ItemStore {
         // only covers a caller omitting it entirely.
         this.maxNumber = number || 50;
         this.maxStack = 100;
-        this.fullMessage = new Messages.Notify("ITEMSTORE", "ITEMSTORE_FULL");
+        this.fullMessage = new Messages.Notify('ITEMSTORE', 'ITEMSTORE_FULL');
 
         // PERF: was a plain object (`{}`), then a Map, keyed by slot index.
         // The object version's `for...in` iteration yielded string keys,
@@ -47,11 +47,11 @@ class ItemStore {
         // throughout this file) yield real numeric indices, same as the Map
         // did -- the original bug class doesn't come back.
         this.rooms = new Array(this.maxNumber).fill(null);
-        console.info("number="+number);
+        console.info('number=' + number);
         //console.info("itemSlots="+JSON.stringify(itemSlots));
 
         if (items) {
-            for(let i=0; i<items.length; i++){
+            for (let i = 0; i < items.length; i++) {
                 const slot = items[i].slot;
                 // FIX: a Map/plain object accepted any key with no bounds
                 // implications; a fixed-length array does not -- writing
@@ -62,7 +62,13 @@ class ItemStore {
                 // in saved data instead of letting it quietly widen the
                 // array.
                 if (slot < 0 || slot >= this.maxNumber) {
-                    console.warn("ItemStore: dropping saved item with out-of-range slot "+slot+" (maxNumber="+this.maxNumber+")");
+                    console.warn(
+                        'ItemStore: dropping saved item with out-of-range slot ' +
+                            slot +
+                            ' (maxNumber=' +
+                            this.maxNumber +
+                            ')'
+                    );
                     continue;
                 }
                 this.rooms[slot] = items[i];
@@ -92,11 +98,10 @@ class ItemStore {
 
     hasItems(itemKind, itemCount) {
         let a = 0;
-        for(const item of this.rooms){
-            if(item && item.itemKind === itemKind){
+        for (const item of this.rooms) {
+            if (item && item.itemKind === itemKind) {
                 a += item.itemNumber;
-                if (a >= itemCount)
-                    return true;
+                if (a >= itemCount) return true;
             }
         }
         return false;
@@ -104,8 +109,8 @@ class ItemStore {
 
     hasItemCount(itemKind) {
         let a = 0;
-        for(const item of this.rooms){
-            if(item && item.itemKind === itemKind){
+        for (const item of this.rooms) {
+            if (item && item.itemKind === itemKind) {
                 a += item.itemNumber;
             }
         }
@@ -142,9 +147,9 @@ class ItemStore {
     // since "first match" was the wrong semantics for a count -- see its
     // own comment.)
     _findFirstByKind(itemKind) {
-        for(let index = 0; index < this.rooms.length; index++){
+        for (let index = 0; index < this.rooms.length; index++) {
             const item = this.rooms[index];
-            if(item && item.itemKind === itemKind){
+            if (item && item.itemKind === itemKind) {
                 return { index, item };
             }
         }
@@ -170,8 +175,8 @@ class ItemStore {
     getEmptyIndex(start, end) {
         start = start || 0;
         end = end || this.maxNumber;
-        for(let index = start; index < end; index++) {
-            if(!this.rooms[index]) {
+        for (let index = start; index < end; index++) {
+            if (!this.rooms[index]) {
                 return index;
             }
         }
@@ -184,11 +189,9 @@ class ItemStore {
         const loot = ItemTypes.isLootItem(kind);
         const craft = ItemTypes.isCraftItem(kind);
 
-        if (consume || loot || craft)
-        {
-            for(let i = 0; i < this.rooms.length; i++){
-                if (this.combineItem(item, this.rooms[i]))
-                    return i;
+        if (consume || loot || craft) {
+            for (let i = 0; i < this.rooms.length; i++) {
+                if (this.combineItem(item, this.rooms[i])) return i;
             }
         }
         return this._putItem(item);
@@ -228,21 +231,19 @@ class ItemStore {
             console.info(JSON.stringify(item2));
         }
 
-        if(!item || !item2)
-            return false;
+        if (!item || !item2) return false;
 
-        if(item.itemKind !== item2.itemKind)
-            return false;
+        if (item.itemKind !== item2.itemKind) return false;
 
-        if (ItemTypes.isEquippable(item.itemKind) ||
-            ItemTypes.isEquippable(item2.itemKind)) {
+        if (
+            ItemTypes.isEquippable(item.itemKind) ||
+            ItemTypes.isEquippable(item2.itemKind)
+        ) {
             return false;
         }
 
-        if (item.itemNumber === this.maxStack)
-            return false;
-        if (item2.itemNumber === this.maxStack)
-            return false;
+        if (item.itemNumber === this.maxStack) return false;
+        if (item2.itemNumber === this.maxStack) return false;
 
         let res = false;
         let slot = item.slot;
@@ -278,7 +279,7 @@ class ItemStore {
             res = true;
         }
 
-        if(item2.itemNumber <= 0) {
+        if (item2.itemNumber <= 0) {
             item2 = null;
         }
 
@@ -295,24 +296,21 @@ class ItemStore {
     // since ES modules are always strict mode and forbid implicit globals.
     _putItem(item) {
         const i = this.getEmptyIndex();
-        if (i < 0)
-        {
+        if (i < 0) {
             if (this.owner instanceof Player)
                 this.owner.sendPlayer(this.fullMessage);
             return -1;
-        }
-        else {
+        } else {
             this.setItem(i, item);
             return i;
         }
     }
 
     checkItem(index, item) {
-        return (item);
+        return item;
     }
 
-    setItem(index, item)
-    {
+    setItem(index, item) {
         // FIX: this is the single place this.rooms is ever actually
         // mutated (see makeEmptyItem() and the constructor), so it's also
         // the right choke point to guard the fixed-array invariant --
@@ -325,8 +323,7 @@ class ItemStore {
         // maxNumber before calling in -- see shophandler.js), but this
         // method should enforce its own contract rather than rely on every
         // future caller remembering to.
-        if (index < 0 || index >= this.maxNumber)
-            return false;
+        if (index < 0 || index >= this.maxNumber) return false;
 
         // PERF/FIX: this is also where _occupiedCount is kept in sync --
         // see the constructor comment above for why this replaced
@@ -335,11 +332,9 @@ class ItemStore {
 
         if (!item) {
             this.rooms[index] = null;
-            item = {slot: index, itemKind: -1};
-        }
-        else {
-            if (!this.checkItem(index, item))
-                return false;
+            item = { slot: index, itemKind: -1 };
+        } else {
+            if (!this.checkItem(index, item)) return false;
 
             this.rooms[index] = item;
             item.slot = index;
@@ -353,9 +348,7 @@ class ItemStore {
         return true;
     }
 
-    save()
-    {
-    }
+    save() {}
 
     // FIX: this used to walk `this.rooms` and destroy every matching stack
     // it found -- even when the total available was less than `number` --
@@ -367,17 +360,14 @@ class ItemStore {
     // here with too few items and still lose them all for nothing).
     // Checking sufficiency via hasItems() up front, before mutating
     // anything, makes an insufficient-quantity call a true no-op.
-    removeItemKind(kind, number)
-    {
-        if (!this.hasItems(kind, number))
-            return false;
+    removeItemKind(kind, number) {
+        if (!this.hasItems(kind, number)) return false;
 
-        let j=number;
-        for(let i = 0; i < this.rooms.length; i++){
+        let j = number;
+        for (let i = 0; i < this.rooms.length; i++) {
             let r = this.rooms[i];
-            if (!r)
-                continue;
-            if(r.itemKind === kind) {
+            if (!r) continue;
+            if (r.itemKind === kind) {
                 if (r.itemNumber > j) {
                     r.itemNumber -= j;
                     this.setItem(i, r);
@@ -394,8 +384,7 @@ class ItemStore {
                 // fell through to the loop's own `return false` at the
                 // bottom, misreporting a fully-successful removal as a
                 // failure.
-                if (j <= 0)
-                    return true;
+                if (j <= 0) return true;
             }
         }
         return false;
@@ -403,11 +392,9 @@ class ItemStore {
 
     takeOutItems(index, number) {
         let item = this.rooms[index];
-        if (!item)
-            return null;
+        if (!item) return null;
 
-        if (number > item.itemNumber)
-            return null;
+        if (number > item.itemNumber) return null;
 
         if (ItemTypes.isEquippable(item.itemKind)) {
             this.setItem(index, null);
@@ -416,8 +403,7 @@ class ItemStore {
 
         item.itemNumber -= number;
 
-        if (item.itemNumber === 0)
-            item = null;
+        if (item.itemNumber === 0) item = null;
 
         this.setItem(index, item);
         return item;
@@ -429,20 +415,18 @@ class ItemStore {
     // -- `i` is exactly the right key to push for that).
     getRandomItemNumber() {
         const itemNums = [];
-        for (let i = 0; i < this.rooms.length; i++)
-        {
+        for (let i = 0; i < this.rooms.length; i++) {
             const item = this.rooms[i];
             if (item && item.itemKind > 0) itemNums.push(i);
         }
-        const rand = Utils.randomRange(0,itemNums.length-1);
-        return (itemNums.length > 0) ?
-            itemNums[rand] : -1;
+        const rand = Utils.randomRange(0, itemNums.length - 1);
+        return itemNums.length > 0 ? itemNums[rand] : -1;
     }
 
     toString() {
-        let itemString = "" + this.maxNumber + ",";
+        let itemString = '' + this.maxNumber + ',';
 
-        for(const item of this.rooms){
+        for (const item of this.rooms) {
             if (!item) continue;
             itemString += item.toArray().join(',');
         }
@@ -462,7 +446,7 @@ class ItemStore {
     // format instead of fixing it. `item.toArray()` alone is correct as-is.
     toStringJSON() {
         const items = [];
-        for(const item of this.rooms){
+        for (const item of this.rooms) {
             if (!item) continue;
             items.push(item.toArray());
         }

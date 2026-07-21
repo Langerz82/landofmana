@@ -22,7 +22,7 @@ class MobAggro {
 
     hates(target) {
         const entity = this.entity;
-        return _.any(entity.hatelist, function(obj) {
+        return _.any(entity.hatelist, function (obj) {
             return obj.entity === target;
         });
     }
@@ -41,8 +41,7 @@ class MobAggro {
         });
         if (existing) {
             existing.hate += points;
-        }
-        else {
+        } else {
             entity.hatelist.push({ entity: target, hate: points });
         }
 
@@ -73,18 +72,19 @@ class MobAggro {
         const entity = this.entity;
         let best = null;
         for (const obj of entity.hatelist) {
-            if (!best || obj.hate > best.hate)
-                best = obj;
+            if (!best || obj.hate > best.hate) best = obj;
         }
         return best ? best.entity : null;
     }
 
     forgetPlayer(playerId) {
         const entity = this.entity;
-        entity.hatelist = _.reject(entity.hatelist, function(obj) { return obj.entity.id === playerId; });
+        entity.hatelist = _.reject(entity.hatelist, function (obj) {
+            return obj.entity.id === playerId;
+        });
         //this.tankerlist = _.reject(this.tankerlist, function(obj) { return obj.id === playerId; });
 
-        if(entity.hatelist.length === 0 /*|| this.tankerlist === 0*/) {
+        if (entity.hatelist.length === 0 /*|| this.tankerlist === 0*/) {
             entity.returnToSpawn();
         }
     }
@@ -116,17 +116,13 @@ class MobAggro {
         // single highest-frequency combat event in the game. Every other
         // per-hit log site in this codebase is gated behind G_DEBUG for
         // exactly this reason; this one was missed.
-        if (G_DEBUG)
-            console.info("handleMobHate");
-        if (tEntity && tEntity instanceof Player)
-        {
+        if (G_DEBUG) console.info('handleMobHate');
+        if (tEntity && tEntity instanceof Player) {
             entity.increaseHateFor(tEntity, hatePoints);
 
-            if (entity.stats.hp > 0)
-            {
-              const hEntity = entity.getMostHated();
-              if (hEntity)
-                entity.createAttackLink(hEntity);
+            if (entity.stats.hp > 0) {
+                const hEntity = entity.getMostHated();
+                if (hEntity) entity.createAttackLink(hEntity);
             }
         }
     }

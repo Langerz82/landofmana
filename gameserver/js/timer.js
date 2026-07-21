@@ -5,25 +5,22 @@ class Timer {
         this.duration = duration;
     }
 
-    restart(startTime)
-    {
-      this.lastTime = startTime || Date.now();
+    restart(startTime) {
+        this.lastTime = startTime || Date.now();
     }
 
     isOver(time) {
         let over = false;
 
-        if (isNaN(time) || time === null || time === 0)
-        {
-          time = Date.now();
+        if (isNaN(time) || time === null || time === 0) {
+            time = Date.now();
         }
 
         //console.info("time="+time);
         //console.info("this.lastTime="+this.lastTime);
         //console.info("this.durationTime="+(time - this.lastTime));
 
-        if((time - this.lastTime) > this.duration)
-        {
+        if (time - this.lastTime > this.duration) {
             //console.info("this.lastTime="+this.lastTime);
             //console.info("time="+time);
             //console.info("this.duration="+this.duration);
@@ -41,7 +38,6 @@ class Timer {
         }
         return over;
     }*/
-
 }
 
 export default Timer;

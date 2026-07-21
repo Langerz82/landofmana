@@ -22,42 +22,47 @@ class WorldActionHandler {
         // every message broadcast to the entire world. Reject (rather than
         // silently drop) so the client isn't left wondering why nothing sent.
         if (!this.player.chatCooldown.isOver()) {
-            this.ph.send([Types.Messages.WC_NOTIFY, "CHAT", "CHATFLOOD"]);
+            this.ph.send([Types.Messages.WC_NOTIFY, 'CHAT', 'CHATFLOOD']);
             return;
         }
 
         let msg = Utils.sanitize(message[0]);
-        console.info("Chat: " + this.player.name + ": " + msg);
+        console.info('Chat: ' + this.player.name + ': ' + msg);
 
-        if ((new Date()).getTime() > this.player.chatBanEndTime) {
-            this.ph.send([Types.Messages.WC_NOTIFY, "CHAT", "CHATMUTED"]);
+        if (new Date().getTime() > this.player.chatBanEndTime) {
+            this.ph.send([Types.Messages.WC_NOTIFY, 'CHAT', 'CHATMUTED']);
             return;
         }
 
         if (msg) {
             msg = msg.substr(0, 256); //Will have to change the max length
-            const command = msg.split(" ", 3)
+            const command = msg.split(' ', 3);
             switch (command[0]) {
-            case "/w":
-                this.ph.send([Types.Messages.WC_NOTIFY, "CHAT", "CHATMUTED"]);
-                break;
-            default:
-                // FIX: Messages.Chat's constructor is (player, group,
-                // message) and serialize() sends [WC_CHAT, playerId, group,
-                // message] -- but this call only passed 2 args, so `msg`
-                // (the actual chat text) landed in the `group` field and
-                // `message` was undefined. Every chat packet sent to clients
-                // was malformed. This is a single world-wide channel here,
-                // so pass "world" as the group and the real text as message.
-                this.world.sendWorld(new Messages.Chat(this.player, "world", msg));
-                break;
-
+                case '/w':
+                    this.ph.send([
+                        Types.Messages.WC_NOTIFY,
+                        'CHAT',
+                        'CHATMUTED'
+                    ]);
+                    break;
+                default:
+                    // FIX: Messages.Chat's constructor is (player, group,
+                    // message) and serialize() sends [WC_CHAT, playerId, group,
+                    // message] -- but this call only passed 2 args, so `msg`
+                    // (the actual chat text) landed in the `group` field and
+                    // `message` was undefined. Every chat packet sent to clients
+                    // was malformed. This is a single world-wide channel here,
+                    // so pass "world" as the group and the real text as message.
+                    this.world.sendWorld(
+                        new Messages.Chat(this.player, 'world', msg)
+                    );
+                    break;
             }
         }
     }
 
     handleQuest(msg) {
-        console.info("handleQuest");
+        console.info('handleQuest');
         const npcId = parseInt(msg[0]);
         const questId = parseInt(msg[1]);
         const status = parseInt(msg[2]);
@@ -73,19 +78,19 @@ class WorldActionHandler {
         // anywhere on the map. Also added a null-check: if npcId doesn't
         // resolve to a real entity, `npc` is undefined and npc.x would throw.
         if (!npc || !p.isInScreen([npc.x, npc.y])) {
-            console.info("player not close enough to NPC!");
+            console.info('player not close enough to NPC!');
             return;
         }
 
-        if (status === 1)
-            npc.entityQuests.acceptQuest(p, questId);
+        if (status === 1) npc.entityQuests.acceptQuest(p, questId);
         else {
             npc.entityQuests.rejectQuest(p, questId);
         }
     }
 
-    handleTalkToNPC(message) { // 30
-        console.info("handleTalkToNPC");
+    handleTalkToNPC(message) {
+        // 30
+        console.info('handleTalkToNPC');
         const type = parseInt(message[0]);
         const npcId = parseInt(message[1]);
 
@@ -95,7 +100,7 @@ class WorldActionHandler {
         // handleQuest above, plus a null-check on npc before using its
         // coordinates.
         if (!npc || !p.isInScreen([npc.x, npc.y])) {
-            console.info("player not close enough to NPC!");
+            console.info('player not close enough to NPC!');
             return;
         }
 
@@ -111,22 +116,18 @@ class WorldActionHandler {
         const p = this.player;
 
         const block = p.map.entities.getEntityById(id);
-        if (!block || !(block instanceof Block))
-            return;
-        if (!p.isNextTooEntity(block))
-            return;
+        if (!block || !(block instanceof Block)) return;
+        if (!p.isNextTooEntity(block)) return;
 
         if (type === 0) // pickup
         {
             p.holdingBlock = block;
-        }
-        else if (type === 1) //place
+        } else if (type === 1) //place
         {
             x = Utils.roundTo(x, G_TILESIZE);
             y = Utils.roundTo(y, G_TILESIZE);
 
-            if (p.map.isColliding(x, y))
-                return;
+            if (p.map.isColliding(x, y)) return;
 
             block.setPosition(x, y);
             block.update(this.player);
@@ -143,12 +144,13 @@ class WorldActionHandler {
     }
 
     handleHarvest(msg) {
-        const x=parseInt(msg[0]), y=parseInt(msg[1]);
-        this.player.harvest.onHarvest(x,y);
+        const x = parseInt(msg[0]),
+            y = parseInt(msg[1]);
+        this.player.harvest.onHarvest(x, y);
     }
 
     handleUseNode(msg) {
-        const id=parseInt(msg[0]);
+        const id = parseInt(msg[0]);
         const p = this.player;
         const entity = p.map.entities.getEntityById(id);
         // FIX: any entity id the client has seen was accepted here, not

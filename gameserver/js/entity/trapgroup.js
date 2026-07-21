@@ -41,32 +41,44 @@ class TrapGroup {
 
         let id = 0;
         let blockName;
-        for (let j=0; j < height; ++j) {
-            for (let i=0; i < width; ++i) {
-                id = startID+(width*j+i);
-                blockName = "trap"+id+"-"+j+"_"+i;
+        for (let j = 0; j < height; ++j) {
+            for (let i = 0; i < width; ++i) {
+                id = startID + (width * j + i);
+                blockName = 'trap' + id + '-' + j + '_' + i;
 
-                const trap = new Trap(id, this.kind,
-                    (this.x+i)*G_TILESIZE, (this.y+j)*G_TILESIZE,
-                    this.map, this, blockName, i, j);
+                const trap = new Trap(
+                    id,
+                    this.kind,
+                    (this.x + i) * G_TILESIZE,
+                    (this.y + j) * G_TILESIZE,
+                    this.map,
+                    this,
+                    blockName,
+                    i,
+                    j
+                );
                 this.map.entities.addEntity(trap);
                 this.traps.push(trap);
             }
         }
 
-        this.map.entities.entityCount += (width*height);
+        this.map.entities.entityCount += width * height;
     }
 
     isTouching(entity) {
         const ts = G_TILESIZE;
         const half = ts >> 1;
-        const left   = this.x * ts - half;
-        const right  = (this.x + this.width) * ts + half;
-        const top    = this.y * ts - half;
+        const left = this.x * ts - half;
+        const right = (this.x + this.width) * ts + half;
+        const top = this.y * ts - half;
         const bottom = (this.y + this.height) * ts + half;
 
-        return entity.x >= left && entity.x <= right &&
-               entity.y >= top && entity.y <= bottom;
+        return (
+            entity.x >= left &&
+            entity.x <= right &&
+            entity.y >= top &&
+            entity.y <= bottom
+        );
     }
 
     // FIX: this method threw before ever applying trap damage, and had further
@@ -87,31 +99,26 @@ class TrapGroup {
     update(entity) {
         const dmg = this.damaging;
 
-        if (this.switchTimer.isOver())
-            this.damaging = !this.damaging;
+        if (this.switchTimer.isOver()) this.damaging = !this.damaging;
 
         if (dmg !== this.damaging) {
             if (this.damaging) {
-                for(const trap of this.traps) {
+                for (const trap of this.traps) {
                     trap.on();
                 }
-            }
-            else {
-                for(const trap of this.traps) {
+            } else {
+                for (const trap of this.traps) {
                     trap.off();
                 }
             }
         }
 
-        if (!this.damaging)
-            return;
+        if (!this.damaging) return;
 
-        if (!this.isTouching(entity))
-            return;
+        if (!this.isTouching(entity)) return;
 
         let victim = null;
-        for(const trap of this.traps)
-        {
+        for (const trap of this.traps) {
             // FIX: `isTouching` is a bounding-box check defined only on
             // TrapGroup (above) and TrapArea, using this.width/this.height
             // -- individual Trap instances (entity/trap.js) don't have
@@ -135,11 +142,9 @@ class TrapGroup {
             return;
         }
 
-        if(this.entities.hasOwnProperty(id) && this.entities[id]) {
-            if (this.entities[id].isOver())
-                entity.onDamage(this, this.damage);
-        }
-        else {
+        if (this.entities.hasOwnProperty(id) && this.entities[id]) {
+            if (this.entities[id].isOver()) entity.onDamage(this, this.damage);
+        } else {
             entity.onDamage(this, this.damage);
             this.entities[id] = new Timer(this.damageInterval);
         }

@@ -1,61 +1,65 @@
 //import Utils from "../utils.js";
-import Quest, { getQuestObject } from "../quest.js";
-import QuestsJson from "../../shared/data/quests.json" with { type: 'json' };
+import Quest, { getQuestObject } from '../quest.js';
+import QuestsJson from '../../shared/data/quests.json' with { type: 'json' };
 
 const QuestData = {};
 const QuestNpcData = {};
 
 for (const id in QuestsJson) {
-  const data = QuestsJson[id];
-  console.info("data:"+JSON.stringify(data));
-  const quest = {};
-  quest.id = id;
-  quest.npcQuestId = data.npcKind;
-  quest.raw = data;
-  quest.npcKind = data.npcKind;
-  quest.type = data.type;
-  quest.level = data.level;
-  quest.data1 = data.data1 || 0;
-  quest.data2 = data.data2 || 0;
-  quest.count = 0;
-  quest.status = 0;
-  quest.gold = data.gold || 0;
-  quest.reward = data.reward || [];
-  quest.expMultiplier = data.expMultiplier || 1;
+    const data = QuestsJson[id];
+    console.info('data:' + JSON.stringify(data));
+    const quest = {};
+    quest.id = id;
+    quest.npcQuestId = data.npcKind;
+    quest.raw = data;
+    quest.npcKind = data.npcKind;
+    quest.type = data.type;
+    quest.level = data.level;
+    quest.data1 = data.data1 || 0;
+    quest.data2 = data.data2 || 0;
+    quest.count = 0;
+    quest.status = 0;
+    quest.gold = data.gold || 0;
+    quest.reward = data.reward || [];
+    quest.expMultiplier = data.expMultiplier || 1;
 
-  // FIX: was passing `data.object.level` (a 2-element [low, high] array,
-  // e.g. [3,5] -- see shared/data/quests.json) as a single element of the
-  // outer array, producing a 5-element array. getQuestObject() (quest.js)
-  // branches on `arr.length === 5` for that shape and does
-  // `self.level = [parseInt(arr[4], 10), 99]` -- parseInt() on an array
-  // argument coerces it via .toString() first (`[3,5]` -> "3,5" ->
-  // parseInt -> 3), so the authored upper bound was silently discarded
-  // and every quest's level ceiling became 99 instead of its real value.
-  // Spreading the level array into the outer array instead produces a
-  // proper 6-element array, which hits getQuestObject()'s 6-arg branch
-  // and reads both bounds correctly.
-  if (data.object) {
-    quest.object = getQuestObject([data.object.type, data.object.kind,
-      data.object.count || 0,
-      data.object.chance || 0,
-      ...(data.object.level || [0,99])]);
-  }
-  if (data.object2) {
-    quest.object2 = getQuestObject([data.object2.type, data.object2.kind,
-      data.object2.count || 0,
-      data.object2.chance || 0,
-      ...(data.object2.level || [0,99])]);
-  }
+    // FIX: was passing `data.object.level` (a 2-element [low, high] array,
+    // e.g. [3,5] -- see shared/data/quests.json) as a single element of the
+    // outer array, producing a 5-element array. getQuestObject() (quest.js)
+    // branches on `arr.length === 5` for that shape and does
+    // `self.level = [parseInt(arr[4], 10), 99]` -- parseInt() on an array
+    // argument coerces it via .toString() first (`[3,5]` -> "3,5" ->
+    // parseInt -> 3), so the authored upper bound was silently discarded
+    // and every quest's level ceiling became 99 instead of its real value.
+    // Spreading the level array into the outer array instead produces a
+    // proper 6-element array, which hits getQuestObject()'s 6-arg branch
+    // and reads both bounds correctly.
+    if (data.object) {
+        quest.object = getQuestObject([
+            data.object.type,
+            data.object.kind,
+            data.object.count || 0,
+            data.object.chance || 0,
+            ...(data.object.level || [0, 99])
+        ]);
+    }
+    if (data.object2) {
+        quest.object2 = getQuestObject([
+            data.object2.type,
+            data.object2.kind,
+            data.object2.count || 0,
+            data.object2.chance || 0,
+            ...(data.object2.level || [0, 99])
+        ]);
+    }
 
-  const questObject = Object.assign(new Quest, quest);
-  questObject.data = quest;
+    const questObject = Object.assign(new Quest(), quest);
+    questObject.data = quest;
 
-  QuestData[quest.id] = questObject;
+    QuestData[quest.id] = questObject;
 
-  if (!QuestNpcData[quest.npcKind])
-    QuestNpcData[quest.npcKind] = [];
-  QuestNpcData[quest.npcKind].push(questObject);
-
+    if (!QuestNpcData[quest.npcKind]) QuestNpcData[quest.npcKind] = [];
+    QuestNpcData[quest.npcKind].push(questObject);
 }
 
 console.info(JSON.stringify(QuestNpcData));

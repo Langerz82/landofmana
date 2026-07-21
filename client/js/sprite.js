@@ -20,9 +20,10 @@ export default class Sprite {
         this.id = data.id;
 
         if (this.file || data.file)
-            this.filepath = "img/" + this.scale + "/sprites/" + this.file;
+            this.filepath = 'img/' + this.scale + '/sprites/' + this.file;
         else
-            this.filepath = "img/" + this.scale + "/sprites/" + this.id + ".png";
+            this.filepath =
+                'img/' + this.scale + '/sprites/' + this.id + '.png';
 
         this.animationData = data.animations;
         this.width = data.width;
@@ -38,7 +39,14 @@ export default class Sprite {
             const a = this.animationData[name];
             if (!a.hasOwnProperty('col')) a.col = 0;
             if (!a.hasOwnProperty('row')) a.row = 0;
-            this.animations[name] = new Animation(name, a.length, a.col, a.row, this.width, this.height);
+            this.animations[name] = new Animation(
+                name,
+                a.length,
+                a.col,
+                a.row,
+                this.width,
+                this.height
+            );
         }
 
         return this.animations;
@@ -49,11 +57,10 @@ export default class Sprite {
 
         if (name in this.animations) {
             animation = this.animations[name];
-        }
-        else {
+        } else {
             const e = new Error();
             log.error(e.stack);
-            log.error("No animation called " + name);
+            log.error('No animation called ' + name);
         }
         return animation;
     }

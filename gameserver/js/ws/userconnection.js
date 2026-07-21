@@ -17,69 +17,76 @@ export default class UserConnection extends Connection {
         // other end -- so unlike WS.socketioConnection above, this one passes
         // acceptZPrefix=true into the shared decoder.
         this.fnOnMessage = function (msg) {
-          self._decodeAndDispatch(msg, true);
+            self._decodeAndDispatch(msg, true);
         };
-
     }
 
     connect(connectString) {
-      const self = this;
+        const self = this;
 
-      this._connection = io_client.connect(connectString, {reconnect: true, rejectUnauthorized: false});
+        this._connection = io_client.connect(connectString, {
+            reconnect: true,
+            rejectUnauthorized: false
+        });
 
-      this._connection.on('connect_error', function(err){
-        console.info('Failed to establish a connection to the servers, or lost     connection');
-        console.info(JSON.stringify(err));
-      });
+        this._connection.on('connect_error', function (err) {
+            console.info(
+                'Failed to establish a connection to the servers, or lost     connection'
+            );
+            console.info(JSON.stringify(err));
+        });
 
-      this._connection.on('error', function(err){
-        console.error(JSON.stringify(err));
-      });
+        this._connection.on('error', function (err) {
+            console.error(JSON.stringify(err));
+        });
 
-      this._connection.on('message', this.fnOnMessage);
+        this._connection.on('message', this.fnOnMessage);
 
-      this._connection.on('connect', function (socket) {
-          console.info('CONNECTED! YAYYYY');
+        this._connection.on('connect', function (socket) {
+            console.info('CONNECTED! YAYYYY');
 
-          self._connection.off('message').on('message', self.fnOnMessage);
-          if (self.connectionUserCallback)
-            self.connectionUserCallback(self);
-      });
+            self._connection.off('message').on('message', self.fnOnMessage);
+            if (self.connectionUserCallback) self.connectionUserCallback(self);
+        });
 
-      const fnDisconnect = function (reason) {
-          //try { throw new Error(); } catch (e) { console.error(e.stack); }
-          console.info('USER CONNECTION CLOSED. reason=' + reason);
-          if (self.closeCallback) {
-              self.closeCallback();
-          }
-          self.disconnect();
-          //self._connection.disconnect();
-          //self._connection.offAny();
-          //delete self._connection;
-      };
-      this._connection.on('disconnect', fnDisconnect);
+        const fnDisconnect = function (reason) {
+            //try { throw new Error(); } catch (e) { console.error(e.stack); }
+            console.info('USER CONNECTION CLOSED. reason=' + reason);
+            if (self.closeCallback) {
+                self.closeCallback();
+            }
+            self.disconnect();
+            //self._connection.disconnect();
+            //self._connection.offAny();
+            //delete self._connection;
+        };
+        this._connection.on('disconnect', fnDisconnect);
     }
 
     onConnectUser(callback) {
-      this.connectionUserCallback = callback;
+        this.connectionUserCallback = callback;
     }
 
     // send() lives on the shared Connection base class now.
 
     disconnect() {
-      console.info("USER CONNECTION - DISCONNECT.");
-      //this._connection.removeAllListeners(['message']);
-      this._connection.disconnect();
-      //this._connection.off();
+        console.info('USER CONNECTION - DISCONNECT.');
+        //this._connection.removeAllListeners(['message']);
+        this._connection.disconnect();
+        //this._connection.off();
     }
 
     sendUTF8(data) {
         //console.info("sendUTF8 - "+data);
         if (this._connection) {
-          this._connection.emit("message", data);
+            this._connection.emit('message', data);
         } else {
-          console.error("this connection not set.");
-          try { throw new Error(); } catch (e) { console.warn(e.stack); }
+            console.error('this connection not set.');
+            try {
+                throw new Error();
+            } catch (e) {
+                console.warn(e.stack);
+            }
         }
     }
 }

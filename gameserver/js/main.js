@@ -32,17 +32,17 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const readline = readlineModule.createInterface({
-  input: process.stdin,
-  output: process.stdout
+    input: process.stdin,
+    output: process.stdout
 });
 
-let packageName = "com.retrorpgonline2";
+let packageName = 'com.retrorpgonline2';
 
 //let verifier = null;
 
 let IO_STATES = {
-	MSG_BUYPRODUCT: 1,
-	MSG_ERRORPRODUCT: 2,
+    MSG_BUYPRODUCT: 1,
+    MSG_ERRORPRODUCT: 2
 };
 
 // The G_*/ATTACK_*/mobState constants that used to live here have moved to
@@ -108,7 +108,9 @@ export let log;
 global.log = log;
 export let gConnection;
 
-const log_file = fs.createWriteStream(__dirname + '/../console.log', {flags : 'w'});
+const log_file = fs.createWriteStream(__dirname + '/../console.log', {
+    flags: 'w'
+});
 const log_stdout = process.stdout;
 
 /*var get_connect_string = function () {
@@ -118,31 +120,30 @@ const log_stdout = process.stdout;
 }*/
 
 function main(config) {
-
     log = new LogModule(LogModule.INFO || LogModule.DEBUG || LogModule.ERROR);
     global.log = log;
     console.isEnabled = true;
 
     //console.log = console.info;
-    Object.defineProperty(log, "log", {
-      value: undefined,
-      writable: true,
-      enumerable: true
+    Object.defineProperty(log, 'log', {
+        value: undefined,
+        writable: true,
+        enumerable: true
     });
-    Object.defineProperty(log, "info", {
-      value: undefined,
-      writable: true,
-      enumerable: true
+    Object.defineProperty(log, 'info', {
+        value: undefined,
+        writable: true,
+        enumerable: true
     });
-    Object.defineProperty(log, "warn", {
-      value: undefined,
-      writable: true,
-      enumerable: true
+    Object.defineProperty(log, 'warn', {
+        value: undefined,
+        writable: true,
+        enumerable: true
     });
-    Object.defineProperty(log, "error", {
-      value: undefined,
-      writable: true,
-      enumerable: true
+    Object.defineProperty(log, 'error', {
+        value: undefined,
+        writable: true,
+        enumerable: true
     });
 
     //main = this;
@@ -155,25 +156,29 @@ function main(config) {
     const self = this;
 
     // redirect stdout / stderr
-    log.log = function(d) { //
-      const txt = "LOG: " + util.format(d) + '\n';
-      console.info(txt);
+    log.log = function (d) {
+        //
+        const txt = 'LOG: ' + util.format(d) + '\n';
+        console.info(txt);
     };
-    log.info = function(d) { //
-      const txt = "INFO: " + util.format(d) + '\n';
-      console.info(txt);
+    log.info = function (d) {
+        //
+        const txt = 'INFO: ' + util.format(d) + '\n';
+        console.info(txt);
     };
-    log.warn = function(d) { //
-      const txt = "WARN: " + util.format(d) + '\n';
-      console.warn(txt);
+    log.warn = function (d) {
+        //
+        const txt = 'WARN: ' + util.format(d) + '\n';
+        console.warn(txt);
     };
-    log.error = function(d) { //
-      const txt = "ERROR: " + util.format(d) + '\n';
-      console.error(txt);
+    log.error = function (d) {
+        //
+        const txt = 'ERROR: ' + util.format(d) + '\n';
+        console.error(txt);
     };
 
     const production_config = new ProductionConfig(config);
-    if(production_config.inProduction()) {
+    if (production_config.inProduction()) {
         _.extend(config, production_config.getProductionSettings());
     }
 
@@ -187,7 +192,9 @@ function main(config) {
     // still win over the plain config.json value, same as every other
     // setting merged above.
     setG_DEBUG(!!config.debug);
-    console.info("G_DEBUG = " + G_DEBUG + " (config.debug = " + config.debug + ")");
+    console.info(
+        'G_DEBUG = ' + G_DEBUG + ' (config.debug = ' + config.debug + ')'
+    );
 
     const worldId = config.world_id;
     global.MainConfig = config;
@@ -199,7 +206,7 @@ function main(config) {
     // distribution fresh via getWorldDistribution() instead, so this was
     // dead leftover state from an earlier version of that reporting logic.
 
-    console.info("Initializing RRO2 GameServer - World " + worldId);
+    console.info('Initializing RRO2 GameServer - World ' + worldId);
 
     world = new WorldServer('world', config.nb_players_per_world, server);
     world.run();
@@ -209,45 +216,64 @@ function main(config) {
     //server.exit = main.exit;
     //server.saveServer = main.saveServer;
     server.onStart(function (server) {
-      console.info("server - onInit called.")
-      if (!server.userConn) {
-        server.userConn = new WS.userConnection(99999, server.userConn, server);
-        const connect = config.protocol+'://'+config.user_address+':'+config.user_port;
-        server.userConn.connect(connect);
-      }
+        console.info('server - onInit called.');
+        if (!server.userConn) {
+            server.userConn = new WS.userConnection(
+                99999,
+                server.userConn,
+                server
+            );
+            const connect =
+                config.protocol +
+                '://' +
+                config.user_address +
+                ':' +
+                config.user_port;
+            server.userConn.connect(connect);
+        }
 
-      server.userConn.onConnectUser(function (conn) {
-        gConnection = conn;
-        console.info("onConnectUser - Connected");
-        this.send([Types.UserMessages.WU_CONNECT_WORLD]);
+        server.userConn.onConnectUser(function (conn) {
+            gConnection = conn;
+            console.info('onConnectUser - Connected');
+            this.send([Types.UserMessages.WU_CONNECT_WORLD]);
 
-        console.info("server.enterWorld");
-        userHandler = new UserHandler(main, server, world, conn);
-        server.userHandler = userHandler;
-        world.userHandler = userHandler;
+            console.info('server.enterWorld');
+            userHandler = new UserHandler(main, server, world, conn);
+            server.userHandler = userHandler;
+            world.userHandler = userHandler;
 
-        //setTimeout(function () {
-          userHandler.sendWorldInfo(config);
-        //}, 10000);
-      });
-    })
+            //setTimeout(function () {
+            userHandler.sendWorldInfo(config);
+            //}, 10000);
+        });
+    });
     server.start();
 
-    server.onConnect(function(conn) {
-
+    server.onConnect(function (conn) {
         //var self = this;
 
-        const current_date = (new Date()).valueOf().toString();
+        const current_date = new Date().valueOf().toString();
         const random = Math.random().toString();
-        const hash = crypto.createHash('sha1').update(current_date + random).digest('hex');
+        const hash = crypto
+            .createHash('sha1')
+            .update(current_date + random)
+            .digest('hex');
         conn.hash = hash;
-        console.info("main - onConnect: hash="+hash);
+        console.info('main - onConnect: hash=' + hash);
 
-      	console.info(JSON.stringify(config));
-      	console.info("version sent");
+        console.info(JSON.stringify(config));
+        console.info('version sent');
         console.info(Types.Messages.WC_VERSION);
 
-      	conn.sendUTF8("1["+Types.Messages.WC_VERSION+","+config.version+",\""+conn.hash+"\"]");
+        conn.sendUTF8(
+            '1[' +
+                Types.Messages.WC_VERSION +
+                ',' +
+                config.version +
+                ',"' +
+                conn.hash +
+                '"]'
+        );
         const wh = new WorldHandler(server, conn);
         // FIX: this used to snapshot `wh.userConnection = server.userHandler
         // ? server.userHandler.connection : null` once, right here, at
@@ -267,12 +293,10 @@ function main(config) {
         // cached snapshot, so no assignment is needed here at all.
 
         conn.worldHandler = wh;
-
     });
 
-    server.enterWorld = function (conn)
-    {
-        console.info("server.enterWorld");
+    server.enterWorld = function (conn) {
+        console.info('server.enterWorld');
         //console.info(JSON.stringify(conn));
         //var user = new User(self, conn);
         /*var user = {};
@@ -283,18 +307,16 @@ function main(config) {
         return user;*/
     };
 
-    server.onError(function() {
-        console.error(Array.prototype.join.call(arguments, ", "));
-
+    server.onError(function () {
+        console.error(Array.prototype.join.call(arguments, ', '));
     });
-
 
     // FIX: `worlds` (plural) was never declared anywhere -- this server is
     // single-world (the module-scoped `world`, singular, used everywhere
     // else). Underscore's _.each on undefined silently no-ops instead of
     // throwing, so this status callback always returned an empty
     // distribution. Wrap the single world in an array for the helper below.
-    server.onRequestStatus(function() {
+    server.onRequestStatus(function () {
         return JSON.stringify(getWorldDistribution([world]));
     });
 
@@ -303,181 +325,173 @@ function main(config) {
         console.info(JSON.stringify(e));
 
         console.error('uncaughtException: ' + e.stack);
-
     });
 
-	server._ioServer.on('connection', (socket) => {
-	  console.log('connected');
+    server._ioServer.on('connection', (socket) => {
+        console.log('connected');
+    });
 
-	});
+    server._ioServer.on('disconnect', function () {
+        console.log('disconnected');
+    });
 
-  server._ioServer.on('disconnect', function() {
-    console.log('disconnected');
-  });
+    server._ioServer.on('msg', (message) => {
+        console.log('msg=' + JSON.stringify(message));
+        //io.emit('msg', message);
+    });
 
-  server._ioServer.on('msg', (message) => {
-  console.log("msg="+JSON.stringify(message));
-  //io.emit('msg', message);
-  });
-
-  /*server._ioServer.connect(1342, "localhost", function () {
+    /*server._ioServer.connect(1342, "localhost", function () {
     console.info("connected");
   })*/
 
-  const signalHandler = function () {
-    main.closeServer();
-  };
+    const signalHandler = function () {
+        main.closeServer();
+    };
 
-  process.on('SIGINT', signalHandler);
-  process.on('SIGTERM', signalHandler);
-  process.on('SIGQUIT', signalHandler);
-  process.on('SIGHUP', signalHandler);
+    process.on('SIGINT', signalHandler);
+    process.on('SIGTERM', signalHandler);
+    process.on('SIGQUIT', signalHandler);
+    process.on('SIGHUP', signalHandler);
 
-  // FIX: this SIGINT-forwarding registration used to live inside cmdPrompt
-  // itself, which re-invokes on every command via setTimeout -- each call
-  // added a NEW "SIGINT" listener to the shared `readline` object without
-  // ever removing the previous one. After enough admin commands, a single
-  // Ctrl+C would re-emit "SIGINT" once per accumulated listener, running
-  // main.closeServer() (and its saveServer/readline.close/checkSaved chain)
-  // multiple times concurrently. Register it once, here, outside the
-  // recursive function.
-  if (process.platform === "win32") {
-    readline.on("SIGINT", function () {
-      process.emit("SIGINT");
-    });
-  }
-
-  const cmdPrompt = function () {
-
-    if (!IS_EXITING && readline) {
-      readline.question('Command:', function (line) {
-        //console.info("line: " + line);
-        getInput(line);
-
-        //Utils.utilSleep(100);
-        setTimeout(cmdPrompt, 100);
-      });
+    // FIX: this SIGINT-forwarding registration used to live inside cmdPrompt
+    // itself, which re-invokes on every command via setTimeout -- each call
+    // added a NEW "SIGINT" listener to the shared `readline` object without
+    // ever removing the previous one. After enough admin commands, a single
+    // Ctrl+C would re-emit "SIGINT" once per accumulated listener, running
+    // main.closeServer() (and its saveServer/readline.close/checkSaved chain)
+    // multiple times concurrently. Register it once, here, outside the
+    // recursive function.
+    if (process.platform === 'win32') {
+        readline.on('SIGINT', function () {
+            process.emit('SIGINT');
+        });
     }
-  };
-  /*var cmdStart = function () {
+
+    const cmdPrompt = function () {
+        if (!IS_EXITING && readline) {
+            readline.question('Command:', function (line) {
+                //console.info("line: " + line);
+                getInput(line);
+
+                //Utils.utilSleep(100);
+                setTimeout(cmdPrompt, 100);
+            });
+        }
+    };
+    /*var cmdStart = function () {
     cmdPrompt();
   };*/
 
-  cmdPrompt();
-  //setInterval(cmdPrompt, 1000);
-  /*process.nextTick(function () {
+    cmdPrompt();
+    //setInterval(cmdPrompt, 1000);
+    /*process.nextTick(function () {
     for (var w of worlds)
       worlds.update();
   });*/
-
 }
 
-function modgems (args) {
-  const playerName = args[0];
-  const gems = args[1];
+function modgems(args) {
+    const playerName = args[0];
+    const gems = args[1];
 
-  const player = world.getPlayerByName(playerName);
-  // FIX: modifyGems() is defined on PlayerItems (player.items), not on
-  // player.user (which just holds account data like .gems/.looks) -- this
-  // threw "not a function" whenever an admin ran the modgems console command.
-  if (player && player.items)
-    player.items.modifyGems(gems);
+    const player = world.getPlayerByName(playerName);
+    // FIX: modifyGems() is defined on PlayerItems (player.items), not on
+    // player.user (which just holds account data like .gems/.looks) -- this
+    // threw "not a function" whenever an admin ran the modgems console command.
+    if (player && player.items) player.items.modifyGems(gems);
 }
 
-function modgold (args) {
-  const playerName = args[0];
-  // FIX: this was passed straight through as the raw console-input
-  // string. PlayerItems.modifyGold() checks `this.gold[type]+gold < 0`
-  // BEFORE parseInt-ing `gold` (it only parses right before applying the
-  // change), so a string argument here triggered JS string concatenation
-  // in that guard (e.g. 100 + "-50" -> "100-50", a non-numeric string
-  // that always fails `< 0`) -- silently defeating the check meant to
-  // stop this admin command from driving a player's gold negative.
-  // Parsing here, like every other caller of modifyGold already does,
-  // keeps the guard working as a real numeric comparison.
-  const gold = parseInt(args[1], 10);
-  // FIX: a non-numeric args[1] (bad console input) parses to NaN, and
-  // `NaN < 0` is false, so the same negative-balance guard above would
-  // let it straight through and corrupt this.gold[type] to NaN. Reject
-  // it here rather than trusting the guard to catch it.
-  if (isNaN(gold))
-    return;
+function modgold(args) {
+    const playerName = args[0];
+    // FIX: this was passed straight through as the raw console-input
+    // string. PlayerItems.modifyGold() checks `this.gold[type]+gold < 0`
+    // BEFORE parseInt-ing `gold` (it only parses right before applying the
+    // change), so a string argument here triggered JS string concatenation
+    // in that guard (e.g. 100 + "-50" -> "100-50", a non-numeric string
+    // that always fails `< 0`) -- silently defeating the check meant to
+    // stop this admin command from driving a player's gold negative.
+    // Parsing here, like every other caller of modifyGold already does,
+    // keeps the guard working as a real numeric comparison.
+    const gold = parseInt(args[1], 10);
+    // FIX: a non-numeric args[1] (bad console input) parses to NaN, and
+    // `NaN < 0` is false, so the same negative-balance guard above would
+    // let it straight through and corrupt this.gold[type] to NaN. Reject
+    // it here rather than trusting the guard to catch it.
+    if (isNaN(gold)) return;
 
-  const player = world.getPlayerByName(playerName);
-  // FIX: modifyGold() is defined on PlayerItems (player.items), not on
-  // Player itself -- this threw "not a function" whenever an admin ran
-  // the modgold console command.
-  if (player && player.items)
-    player.items.modifyGold(gold);
+    const player = world.getPlayerByName(playerName);
+    // FIX: modifyGold() is defined on PlayerItems (player.items), not on
+    // Player itself -- this threw "not a function" whenever an admin ran
+    // the modgold console command.
+    if (player && player.items) player.items.modifyGold(gold);
 }
 
 function banplayer(args) {
-  const playerName = args[0];
-  const duration = parseInt(args[1], 10);
-  if (!duration) {
-    console.info("banplayer - provide how many days banned.");
-    return;
-  }
-  world.ban.banplayer(playerName, duration);
+    const playerName = args[0];
+    const duration = parseInt(args[1], 10);
+    if (!duration) {
+        console.info('banplayer - provide how many days banned.');
+        return;
+    }
+    world.ban.banplayer(playerName, duration);
 }
 
 function banuser(args) {
-  const username = args[0];
-  const duration = parseInt(args[1], 10);
-  if (!duration) {
-    console.info("banuser - provide how many days banned.");
-    return;
-  }
-  world.ban.banuser(username, duration);
+    const username = args[0];
+    const duration = parseInt(args[1], 10);
+    if (!duration) {
+        console.info('banuser - provide how many days banned.');
+        return;
+    }
+    world.ban.banuser(username, duration);
 }
 
 function notify(args) {
-  world.notifyWorld(args.join(" "));
+    world.notifyWorld(args.join(' '));
 }
 
 function getInput(cmd) {
-    const args = cmd.split(" ");
+    const args = cmd.split(' ');
     const cmdarg = args[0];
     args.shift();
-    console.info("cmd: " + cmd);
+    console.info('cmd: ' + cmd);
 
-    switch (cmdarg)
-    {
-      case "notify":
-      case "say":
-      case "announce":
-        notify(args);
-        break;
-      case "banplayer":
-        banplayer(args);
-        break;
-      case "banuser":
-        banuser(args);
-        break;
-      case "modgems":
-        modgems(args);
-        break;
-      case "modgold":
-        modgold(args);
-        break;
-      case "exit":
-      case "quit":
-      case 'q':
-      case 'x':
-        main.closeServer();
-        break;
-      case "s":
-      case "save":
-        main.saveServer();
-        break;
-      case "forcequit":
-        main.closeServer();
-        break;
-      case "reloadauction":
-        reloadAuction();
-        break;
-      default:
-        console.info("Unknown command.")
+    switch (cmdarg) {
+        case 'notify':
+        case 'say':
+        case 'announce':
+            notify(args);
+            break;
+        case 'banplayer':
+            banplayer(args);
+            break;
+        case 'banuser':
+            banuser(args);
+            break;
+        case 'modgems':
+            modgems(args);
+            break;
+        case 'modgold':
+            modgold(args);
+            break;
+        case 'exit':
+        case 'quit':
+        case 'q':
+        case 'x':
+            main.closeServer();
+            break;
+        case 's':
+        case 'save':
+            main.saveServer();
+            break;
+        case 'forcequit':
+            main.closeServer();
+            break;
+        case 'reloadauction':
+            reloadAuction();
+            break;
+        default:
+            console.info('Unknown command.');
     }
 }
 
@@ -496,9 +510,11 @@ function getInput(cmd) {
 // the userserver exists, so it just logs that explicitly instead of
 // pretending to succeed.
 function reloadAuction() {
-  console.info("reloadauction: no on-demand auction data source from the " +
-    "userserver exists -- auction data is only refreshed via " +
-    "UW_LOAD_PLAYER_AUCTIONS pushes. No-op.");
+    console.info(
+        'reloadauction: no on-demand auction data source from the ' +
+            'userserver exists -- auction data is only refreshed via ' +
+            'UW_LOAD_PLAYER_AUCTIONS pushes. No-op.'
+    );
 }
 
 function getWorldDistribution(worlds) {
@@ -509,15 +525,15 @@ function getWorldDistribution(worlds) {
     // `world.playerCount` was always undefined. Every status poll of this
     // (e.g. server.onRequestStatus) reported `[undefined]` instead of the
     // real player count for each world. Use `players.length` instead.
-    _.each(worlds, function(world) {
+    _.each(worlds, function (world) {
         distribution.push(world.players.length);
     });
     return distribution;
 }
 
 function getConfigFile(path, callback) {
-    fs.readFile(path, 'utf8', function(err, json_string) {
-        if(err) {
+    fs.readFile(path, 'utf8', function (err, json_string) {
+        if (err) {
             //console.info("This server can be customized by creating a configuration file named: " + err.path);
             callback(null);
         } else {
@@ -530,7 +546,7 @@ const defaultConfigPath = './config.json';
 let customConfigPath = './config_local.json';
 
 process.argv.forEach(function (val, index, array) {
-    if(index === 2) {
+    if (index === 2) {
         customConfigPath = val;
     }
 });
@@ -546,20 +562,19 @@ process.argv.forEach(function (val, index, array) {
 // there's no measurable win here -- purely for consistency with the rest of
 // the codebase's timer usage.
 main.checkSaved = function () {
-  console.info("Main - checkSaved!");
-  const poll = function () {
-    //console.info("world.PLAYERS_SAVED:"+world.PLAYERS_SAVED);
-    //console.info("world.AUCTIONS_SAVED:"+world.AUCTIONS_SAVED);
-    //console.info("world.LOOKS_SAVED:"+world.LOOKS_SAVED);
-    if (world.isSaved())
-    {
-      main.safe_exit();
-      return;
-    }
+    console.info('Main - checkSaved!');
+    const poll = function () {
+        //console.info("world.PLAYERS_SAVED:"+world.PLAYERS_SAVED);
+        //console.info("world.AUCTIONS_SAVED:"+world.AUCTIONS_SAVED);
+        //console.info("world.LOOKS_SAVED:"+world.LOOKS_SAVED);
+        if (world.isSaved()) {
+            main.safe_exit();
+            return;
+        }
+        Scheduler.schedule(poll, 500);
+    };
     Scheduler.schedule(poll, 500);
-  };
-  Scheduler.schedule(poll, 500);
-}
+};
 
 main.safe_exit = function () {
     // Gracefully tell the userserver we're going away. Without this, the
@@ -590,32 +605,33 @@ main.safe_exit = function () {
 }*/
 
 main.saveServer = function () {
-  console.info("Main - saveServer!");
-  if (world && userHandler) {
-    world.userHandler = userHandler;
-    world.save();
-  }
-  else {
-    process.exit(1);
-  }
-}
+    console.info('Main - saveServer!');
+    if (world && userHandler) {
+        world.userHandler = userHandler;
+        world.save();
+    } else {
+        process.exit(1);
+    }
+};
 
 main.closeServer = function () {
-  console.info("Main - closeServer!");
-  IS_EXITING = true;
-  main.saveServer();
-  readline.close();
-  main.checkSaved();
-}
+    console.info('Main - closeServer!');
+    IS_EXITING = true;
+    main.saveServer();
+    readline.close();
+    main.checkSaved();
+};
 
-getConfigFile(defaultConfigPath, function(defaultConfig) {
-    getConfigFile(customConfigPath, function(localConfig) {
-        if(localConfig) {
+getConfigFile(defaultConfigPath, function (defaultConfig) {
+    getConfigFile(customConfigPath, function (localConfig) {
+        if (localConfig) {
             main(localConfig);
-        } else if(defaultConfig) {
+        } else if (defaultConfig) {
             main(defaultConfig);
         } else {
-            console.error("Server cannot start without any configuration file.");
+            console.error(
+                'Server cannot start without any configuration file.'
+            );
             process.exit(1);
         }
     });

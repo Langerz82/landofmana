@@ -4,29 +4,35 @@ import Pathfinder from '../pathfinder.js';
 /* global log, game */
 
 export function installClientCallbacksMap(proto) {
+    proto.onPlayerTeleportMap = function (data) {
+        const mapId = Number(data[0]),
+            x = Number(data[2]),
+            y = Number(data[3]),
+            portalId = Number(data[4]);
+        const status = (game.mapStatus = Number(data[1]));
+        const p = game.player;
 
-      proto.onPlayerTeleportMap = function(data) {
-          const mapId = Number(data[0]),
-              x = Number(data[2]),
-              y = Number(data[3]),
-              portalId = Number(data[4]);
-          const status = game.mapStatus = Number(data[1]);
-          const p = game.player;
+        log.info(
+            'ON PLAYER TELEPORT MAP:' +
+                mapId +
+                'status: ' +
+                status +
+                ',x:' +
+                x +
+                ',y:' +
+                y
+        );
 
-          log.info("ON PLAYER TELEPORT MAP:"+mapId+"status: "+status+",x:"+x+",y:"+y);
-
-          if (status === -1)
-          {
+        if (status === -1) {
             game.mapIndex = 0;
             game.mapStatus = 2;
             p.forceStop();
             p.clearTarget();
             return;
-          }
+        }
 
-          if (status === 1)
-          {
-            log.info("spawnMap");
+        if (status === 1) {
+            log.info('spawnMap');
 
             p.forceStop();
             game.mapIndex = mapId;
@@ -54,11 +60,14 @@ export function installClientCallbacksMap(proto) {
             // stays true until the legitimate final forceStop() at status 2
             // (below) actually completes the transition.
             p.freeze = true;
-            if (portalId >= 0 && portalId < game.prevMapContainer.doors.length) {
-              const portal = game.prevMapContainer.doors[portalId];
-              const orientation = portal.orientation;
-              p.orientation = orientation;
-              p.suppressTeleportCheck = true;
+            if (
+                portalId >= 0 &&
+                portalId < game.prevMapContainer.doors.length
+            ) {
+                const portal = game.prevMapContainer.doors[portalId];
+                const orientation = portal.orientation;
+                p.orientation = orientation;
+                p.suppressTeleportCheck = true;
             }
 
             game.renderer.clearEntities();
@@ -72,27 +81,26 @@ export function installClientCallbacksMap(proto) {
             delete game.items;
             game.items = {};
 
-            log.info("Map loaded.");
+            log.info('Map loaded.');
             this.client.sendTeleportMap([mapId, 1, x, y, -1]);
             game.renderer.blankFrame = true;
-          }
+        }
 
-          if (status === 2)
-          {
-              log.info("spawnMap - Loaded");
+        if (status === 2) {
+            log.info('spawnMap - Loaded');
 
-              p.setPositionSpawn(x, y);
+            p.setPositionSpawn(x, y);
 
-              const c = game.camera;
+            const c = game.camera;
 
-              game.initGrid();
-              c.setRealCoords();
+            game.initGrid();
+            c.setRealCoords();
 
-              game.pathfinder = new Pathfinder(0, 0);
-              log.info("spawnMap - Cleared");
+            game.pathfinder = new Pathfinder(0, 0);
+            log.info('spawnMap - Cleared');
 
-              const fnReady = function () {
-                log.info("spawnPlayer - started");
+            const fnReady = function () {
+                log.info('spawnPlayer - started');
 
                 const p = game.player;
 
@@ -102,10 +110,10 @@ export function installClientCallbacksMap(proto) {
 
                 game.mapStatus = 2;
 
-                log.info("moveGrid");
+                log.info('moveGrid');
 
                 game.renderer.forceRedraw = true;
-                log.info("spawnPlayer - finished");
+                log.info('spawnPlayer - finished');
 
                 p.forceStop();
 
@@ -136,21 +144,18 @@ export function installClientCallbacksMap(proto) {
                 p.suppressTeleportCheck = false;
 
                 game.app.releaseKeys();
-              };
+            };
 
-              game.mapContainer.allReady(function() {
+            game.mapContainer.allReady(function () {
                 this.allready = true;
                 fnReady();
-              });
-          }
+            });
+        }
+    };
 
-      };
-
-      proto.onMapStatus = function(mapId, status)
-      {
-          log.info("mapStatus="+mapId+","+status);
-          game.mapIndex = Number(mapId);
-          game.mapStatus = Number(status);
-      };
-
+    proto.onMapStatus = function (mapId, status) {
+        log.info('mapStatus=' + mapId + ',' + status);
+        game.mapIndex = Number(mapId);
+        game.mapStatus = Number(status);
+    };
 }

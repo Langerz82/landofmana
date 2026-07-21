@@ -19,7 +19,7 @@ class ShopHandler {
     _requireGold(price) {
         const p = this.player;
         if (p.items.gold[0] < price) {
-            p.sendPlayer(new Messages.Notify("SHOP","SHOP_NOGOLD"));
+            p.sendPlayer(new Messages.Notify('SHOP', 'SHOP_NOGOLD'));
             return false;
         }
         return true;
@@ -41,12 +41,10 @@ class ShopHandler {
         // store, and inconsistent with the pattern used everywhere else in
         // this file. Aligning it here.
         const itemStore = p.items.itemStore[0];
-        if (itemIndex < 0 || itemIndex >= itemStore.maxNumber)
-            return;
+        if (itemIndex < 0 || itemIndex >= itemStore.maxNumber) return;
 
         const item = itemStore.rooms[itemIndex];
-        if (!item)
-            return;
+        if (!item) return;
 
         //p.tut.buy = true;
         //p.tut.buy2 = true;
@@ -56,15 +54,14 @@ class ShopHandler {
             return;
 
         const price = ItemTypes.getEnchantSellPrice(item);
-        if (price < 0)
-            return;
+        if (price < 0) return;
 
         const itemKind = item.itemKind;
         //gold = p.gold[0];
         p.items.inventory.makeEmptyItem(itemIndex);
         p.items.modifyGold(price);
         const itemName = ItemTypes.KindData[itemKind].name;
-        p.sendPlayer(new Messages.Notify("SHOP","SHOP_SOLD", [itemName]));
+        p.sendPlayer(new Messages.Notify('SHOP', 'SHOP_SOLD', [itemName]));
     }
 
     // NOTE: was flagged "Revise below!!!!!!!!!!!!!!" -- the specific issues
@@ -78,7 +75,11 @@ class ShopHandler {
 
         const itemIndex = parseInt(message[0]),
             price = parseInt(message[1]);
-        if (price < 0 || itemIndex < 0 || itemIndex >= p.items.inventory.maxNumber)
+        if (
+            price < 0 ||
+            itemIndex < 0 ||
+            itemIndex >= p.items.inventory.maxNumber
+        )
             return;
 
         const item = p.items.inventory.rooms[itemIndex];
@@ -86,8 +87,7 @@ class ShopHandler {
         // occupied -- an empty room is a falsy/null entry, and dereferencing
         // item.itemKind below crashed the handler on client-triggerable
         // input (e.g. selling from an empty inventory slot).
-        if (!item)
-            return;
+        if (!item) return;
 
         const kind = item.itemKind;
         if (ItemTypes.isConsumableItem(kind) || ItemTypes.isLootItem(kind))
@@ -114,8 +114,7 @@ class ShopHandler {
         const p = this.player;
 
         const type = parseInt(message[0]);
-        if (type >= 0 && type <= 3)
-            this.world.auction.list(this.player, type);
+        if (type >= 0 && type <= 3) this.world.auction.list(this.player, type);
     }
 
     handleAuctionBuy(message) {
@@ -123,27 +122,25 @@ class ShopHandler {
 
         const auctionIndex = parseInt(message[0]),
             type = parseInt(message[1]);
-        if (auctionIndex < 0 || auctionIndex >= this.world.auction.auctions.length)
+        if (
+            auctionIndex < 0 ||
+            auctionIndex >= this.world.auction.auctions.length
+        )
             return;
-        if (type < 0 || type > 3)
-            return;
+        if (type < 0 || type > 3) return;
 
         const auctions = this.world.auction;
         const auction = this.world.auction.auctions[auctionIndex];
-        if (!auction)
-            return;
-        if (auction.playerName === p.name)
-            return;
+        if (!auction) return;
+        if (auction.playerName === p.name) return;
 
         const price = auction.price;
-        if (price < 0)
-            return;
+        if (price < 0) return;
 
-        if (!this._requireGold(price))
-            return;
+        if (!this._requireGold(price)) return;
 
         if (!p.items.inventory.hasRoom()) {
-            p.sendPlayer(new Messages.Notify("SHOP","SHOP_NOSPACE"));
+            p.sendPlayer(new Messages.Notify('SHOP', 'SHOP_NOSPACE'));
             return;
         }
 
@@ -151,16 +148,23 @@ class ShopHandler {
         if (auctions.putItem(this.player, auction.item)) {
             p.items.modifyGold(-price);
             const itemName = ItemTypes.KindData[itemKind].name;
-            p.sendPlayer(new Messages.Notify("SHOP","SHOP_SOLD", [itemName]));
+            p.sendPlayer(new Messages.Notify('SHOP', 'SHOP_SOLD', [itemName]));
 
-            const auctionPlayer = this.world.getPlayerByName(auction.playerName);
+            const auctionPlayer = this.world.getPlayerByName(
+                auction.playerName
+            );
             if (auctionPlayer) {
                 auctionPlayer.items.modifyGold(price);
             } else {
                 if (this.world.userHandler)
-                    this.world.userHandler.sendPlayerGold(auction.playerName, price);
+                    this.world.userHandler.sendPlayerGold(
+                        auction.playerName,
+                        price
+                    );
                 else {
-                    console.warn("packetHander handleAuctionBuy: no world userHandler.");
+                    console.warn(
+                        'packetHander handleAuctionBuy: no world userHandler.'
+                    );
                 }
             }
             this.world.auction.remove(auctionIndex);
@@ -173,30 +177,32 @@ class ShopHandler {
 
         const auctionIndex = parseInt(message[0]),
             type = parseInt(message[1]);
-        if (auctionIndex < 0 || auctionIndex >= this.world.auction.auctions.length)
+        if (
+            auctionIndex < 0 ||
+            auctionIndex >= this.world.auction.auctions.length
+        )
             return;
-        if (type < 0 || type > 3)
-            return;
+        if (type < 0 || type > 3) return;
 
         const auctions = this.world.auction;
         const auction = auctions.auctions[auctionIndex];
-        if (!auction)
-            return;
+        if (!auction) return;
 
         if (auction.playerName !== p.name) {
             return;
         }
 
         if (!p.items.inventory.hasRoom()) {
-            p.sendPlayer(new Messages.Notify("SHOP", "SHOP_NOSPACE"));
+            p.sendPlayer(new Messages.Notify('SHOP', 'SHOP_NOSPACE'));
             return;
         }
 
         const itemKind = auction.item.itemKind;
-        if (auctions.putItem(this.player, auction.item))
-        {
+        if (auctions.putItem(this.player, auction.item)) {
             const itemName = ItemTypes.KindData[itemKind].name;
-            p.sendPlayer(new Messages.Notify("SHOP","SHOP_REMOVED", [itemName]));
+            p.sendPlayer(
+                new Messages.Notify('SHOP', 'SHOP_REMOVED', [itemName])
+            );
             this.world.auction.remove(auctionIndex);
             this.world.auction.list(this.player, type);
         }
@@ -215,14 +221,11 @@ class ShopHandler {
             // FIX: used `&&` instead of `||` -- an index can't simultaneously
             // be negative AND >= maxNumber, so this condition could never be
             // true and out-of-range indices were never rejected here.
-            if (itemIndex < 0 || itemIndex >= itemStore.maxNumber)
-                return;
+            if (itemIndex < 0 || itemIndex >= itemStore.maxNumber) return;
             const item = p.items.itemStore[type].rooms[itemIndex];
             //console.info("item=" + JSON.stringify(item));
-            if (modType === 0)
-                this._repairItem(type, item, itemIndex);
-            if (modType === 1)
-                this._enchantItem(type, item, itemIndex);
+            if (modType === 0) this._repairItem(type, item, itemIndex);
+            if (modType === 1) this._enchantItem(type, item, itemIndex);
         }
     }
 
@@ -232,21 +235,16 @@ class ShopHandler {
         let itemKind = null,
             price = 0;
 
-        if (!(item && item.itemKind))
-            return;
+        if (!(item && item.itemKind)) return;
 
-        if (!ItemTypes.isEquipment(item.itemKind))
-            return;
+        if (!ItemTypes.isEquipment(item.itemKind)) return;
 
-        if (item.itemDurability === item.itemDurabilityMax)
-            return;
+        if (item.itemDurability === item.itemDurabilityMax) return;
 
-        price = ~~(ItemTypes.getRepairPrice(item));
-        if (price <= 0)
-            return;
+        price = ~~ItemTypes.getRepairPrice(item);
+        if (price <= 0) return;
 
-        if (!this._requireGold(price))
-            return;
+        if (!this._requireGold(price)) return;
 
         item.itemDurabilityMax -= 50;
         item.itemDurability = item.itemDurabilityMax;
@@ -260,17 +258,19 @@ class ShopHandler {
         if (item.itemDurabilityMax <= 0) {
             item = null;
             p.items.itemStore[type].makeEmptyItem(index);
-            p.sendPlayer(new Messages.ItemSlot(type, [{slot: index, itemKind: -1}]));
+            p.sendPlayer(
+                new Messages.ItemSlot(type, [{ slot: index, itemKind: -1 }])
+            );
             return;
         }
 
-        console.info("itemNumber=" + item.itemNumber);
+        console.info('itemNumber=' + item.itemNumber);
         p.items.modifyGold(-price);
         item.slot = index;
 
         p.sendPlayer(new Messages.ItemSlot(type, [item]));
         const itemName = ItemTypes.KindData[item.itemKind].name;
-        p.sendPlayer(new Messages.Notify("SHOP","SHOP_REPAIRED", [itemName]));
+        p.sendPlayer(new Messages.Notify('SHOP', 'SHOP_REPAIRED', [itemName]));
     }
 
     _enchantItem(type, item, index) {
@@ -279,18 +279,14 @@ class ShopHandler {
         let itemKind = null,
             price = 0;
 
-        if (!(item && item.itemKind))
-            return;
+        if (!(item && item.itemKind)) return;
 
-        if (!ItemTypes.isEquipment(item.itemKind))
-            return;
+        if (!ItemTypes.isEquipment(item.itemKind)) return;
 
         price = ItemTypes.getEnchantPrice(item);
-        if (price <= 0)
-            return;
+        if (price <= 0) return;
 
-        if (!this._requireGold(price))
-            return;
+        if (!this._requireGold(price)) return;
 
         item.itemExperience = ItemTypes.itemExpForLevel[item.itemNumber - 1];
         item.itemNumber++;
@@ -298,10 +294,10 @@ class ShopHandler {
         item.slot = index;
 
         p.sendPlayer(new Messages.ItemSlot(type, [item]));
-        console.info("itemNumber=" + item.itemNumber);
+        console.info('itemNumber=' + item.itemNumber);
         p.items.modifyGold(-price);
         const itemName = ItemTypes.KindData[item.itemKind].name;
-        p.sendPlayer(new Messages.Notify("SHOP", "SHOP_ENCHANTED", [itemName]));
+        p.sendPlayer(new Messages.Notify('SHOP', 'SHOP_ENCHANTED', [itemName]));
     }
 
     handleStoreBuy(message) {
@@ -363,25 +359,24 @@ class ShopHandler {
             } else {
                 itemCount = 1;
             }
-            if (!this._requireGold(price))
-                return;
+            if (!this._requireGold(price)) return;
 
             const consume = ItemTypes.isConsumableItem(itemKind);
             if (consume || (!consume && p.items.inventory.hasRoom())) {
                 const item = new ItemRoom([itemKind, itemCount, 0, 0, 0]);
                 const res = p.items.inventory.putItem(item);
-                if (res === -1)
-                    return;
+                if (res === -1) return;
                 p.items.modifyGold(-price);
-                p.sendPlayer(new Messages.Notify("SHOP", "SHOP_BUY", [itemName]));
+                p.sendPlayer(
+                    new Messages.Notify('SHOP', 'SHOP_BUY', [itemName])
+                );
                 /*if (!p.tut.equip) {
                   p.tutChat("TUTORIAL_EQUIP", 10, "equip");
                 }*/
             } else {
-                p.sendPlayer(new Messages.Notify("SHOP", "SHOP_NOSPACE"));
+                p.sendPlayer(new Messages.Notify('SHOP', 'SHOP_NOSPACE'));
             }
         }
-
     }
 
     handleCraft(message) {
@@ -399,8 +394,7 @@ class ShopHandler {
             return;
         }
 
-        if (craftId < 0 || craftId >= ItemData.CraftData.length)
-            return;
+        if (craftId < 0 || craftId >= ItemData.CraftData.length) return;
 
         const craftData = ItemData.CraftData[craftId];
 
@@ -408,9 +402,10 @@ class ShopHandler {
 
         //console.info("itemKind="+itemKind);
         //console.info(JSON.stringify(ItemTypes));
-        if (!ItemTypes.KindData.hasOwnProperty(itemKind))
-        {
-            console.error("handleCraft - itemData not found for kind: "+itemKind);
+        if (!ItemTypes.KindData.hasOwnProperty(itemKind)) {
+            console.error(
+                'handleCraft - itemData not found for kind: ' + itemKind
+            );
             return;
         }
 
@@ -418,34 +413,30 @@ class ShopHandler {
 
         const itemName = itemData.name;
         price = ItemTypes.getCraftPrice(itemKind);
-        if (price < 0)
-            return;
+        if (price < 0) return;
 
         if (ItemTypes.Store.isBuyMultiple(itemKind)) {
-            itemCount = (itemCount < itemData.buyCount) ? itemCount : itemData.buyCount;
+            itemCount =
+                itemCount < itemData.buyCount ? itemCount : itemData.buyCount;
         } else {
             itemCount = 1;
         }
 
         price = price * itemCount;
 
-        if (!this._requireGold(price))
-            return;
+        if (!this._requireGold(price)) return;
 
-        if (itemData.craft.length === 0)
-            return;
+        if (itemData.craft.length === 0) return;
 
-        for (const it of craftData.i)
-        {
-            if (!p.items.inventory.hasItems(it[0],it[1]*itemCount)) {
-                p.sendPlayer(new Messages.Notify("SHOP", "SHOP_NOCRAFTITEMS"));
+        for (const it of craftData.i) {
+            if (!p.items.inventory.hasItems(it[0], it[1] * itemCount)) {
+                p.sendPlayer(new Messages.Notify('SHOP', 'SHOP_NOCRAFTITEMS'));
                 return;
             }
         }
 
-        if (!p.items.inventory.hasRoom())
-        {
-            p.sendPlayer(new Messages.Notify("SHOP", "SHOP_NOSPACE"));
+        if (!p.items.inventory.hasRoom()) {
+            p.sendPlayer(new Messages.Notify('SHOP', 'SHOP_NOSPACE'));
             return;
         }
 
@@ -473,17 +464,20 @@ class ShopHandler {
         // risk the moment inventory/stacking logic changes. Creating and
         // placing the item first, deducting only on success, matches
         // handleStoreBuy()'s safer ordering.
-        const item = new ItemRoom([itemKind, itemCount, durability, durability]);
-        if (p.items.inventory.putItem(item) === -1)
-            return;
+        const item = new ItemRoom([
+            itemKind,
+            itemCount,
+            durability,
+            durability
+        ]);
+        if (p.items.inventory.putItem(item) === -1) return;
 
         p.items.modifyGold(-price);
-        for (const it of craftData.i)
-        {
-            p.items.inventory.removeItemKind(it[0],it[1]*itemCount);
+        for (const it of craftData.i) {
+            p.items.inventory.removeItemKind(it[0], it[1] * itemCount);
         }
 
-        p.sendPlayer(new Messages.Notify("SHOP", "SHOP_BUY", [itemName]));
+        p.sendPlayer(new Messages.Notify('SHOP', 'SHOP_BUY', [itemName]));
     }
 }
 

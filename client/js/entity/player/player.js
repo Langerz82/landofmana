@@ -43,7 +43,7 @@ export default class Player extends Character {
         this.keyMove = false;
         this.pendingKeyOrientation = null;
 
-        this.fsm = "IDLE";
+        this.fsm = 'IDLE';
         this.sprites = [null, null];
         this.pjsSprites = [null, null];
         this.oldSprites = [null, null];
@@ -53,7 +53,10 @@ export default class Player extends Character {
     }
 
     isMovingAll() {
-        return !this.freeze && (this.isMoving() || this.orientation !== Types.Orientations.NONE);
+        return (
+            !this.freeze &&
+            (this.isMoving() || this.orientation !== Types.Orientations.NONE)
+        );
     }
 
     setSkill(index, exp) {
@@ -85,7 +88,8 @@ export default class Player extends Character {
     }
 
     canKeyMove() {
-        let x = this.x, y = this.y;
+        let x = this.x,
+            y = this.y;
 
         // FIX: was offsetting by a bare 1 instead of a full tile (G_TILESIZE), same as
         // Entity.getTilePositionNextTo()/EntityMoving.nextTile() do for this same kind of
@@ -107,11 +111,9 @@ export default class Player extends Character {
                 break;
         }
         const ov = game.isOverlapping(this, x, y);
-        if (ov)
-            log.info("isOverlapping.")
+        if (ov) log.info('isOverlapping.');
         const ic = game.mapContainer.isColliding(x, y);
-        if (ic)
-            log.info("isColliding.")
+        if (ic) log.info('isColliding.');
         return !(ov || ic);
     }
 
@@ -120,19 +122,23 @@ export default class Player extends Character {
 
         this.setOrientation(orientation);
         if (state === 1 && orientation !== Types.Orientations.NONE) {
-            let lockStepTime = (G_LATENCY - (Utils.getWorldTime() - time));
+            let lockStepTime = G_LATENCY - (Utils.getWorldTime() - time);
             // FIX: Number.prototype.clamp() doesn't exist -- utils.js only
             // defines Utils.clamp(min, max, value) (see the equivalent
             // lockstep calc in clientcallbacks.js). This threw a TypeError
             // on every server-confirmed key-move packet for the local
             // player, crashing the state===1 branch of move() and leaving
             // moving_callback unset (player gets stuck/desynced).
-            lockStepTime = Utils.clamp(G_UPDATE_INTERVAL, G_LATENCY, lockStepTime);
-            console.warn("lockStepTime=" + lockStepTime);
+            lockStepTime = Utils.clamp(
+                G_UPDATE_INTERVAL,
+                G_LATENCY,
+                lockStepTime
+            );
+            console.warn('lockStepTime=' + lockStepTime);
 
             lockStepTime += G_LATENCY;
-            clearTimeout(this.moving_callback)
-            this.moving_callback = setTimeout(function() {
+            clearTimeout(this.moving_callback);
+            this.moving_callback = setTimeout(function () {
                 self.forceStop();
                 self.setPosition(x, y);
                 self.ex = -1;
@@ -142,8 +148,7 @@ export default class Player extends Character {
                 self.freeze = false;
                 self.keyMove = true;
             }, lockStepTime);
-        }
-        else if (state === 0 || orientation === Types.Orientations.NONE) {
+        } else if (state === 0 || orientation === Types.Orientations.NONE) {
             this.ex = x;
             this.ey = y;
             if (!this.movement.inProgress || this.moving_callback) {
@@ -152,8 +157,7 @@ export default class Player extends Character {
                 clearTimeout(this.moving_callback);
                 this.moving_callback = null;
             }
-        }
-        else if (state === 2 && orientation !== Types.Orientations.NONE) {
+        } else if (state === 2 && orientation !== Types.Orientations.NONE) {
             this.forceStop();
             this.setPosition(x, y);
             this.ex = -1;
@@ -168,7 +172,7 @@ export default class Player extends Character {
     }
 
     hit(orientation) {
-        this.fsm = "ATTACK";
+        this.fsm = 'ATTACK';
         this.forceStop();
         // FIX: was missing `return` - Character.hit() now returns true on success, but
         // this override discarded it, so makeAttack()'s `if (this.hit() && ...)` always
@@ -193,7 +197,7 @@ export default class Player extends Character {
         this.forceStop();
         this.setOrientation(Types.Orientations.DOWN);
         this.idle(this.orientation);
-        this.fsm = "IDLE";
+        this.fsm = 'IDLE';
     }
 
     setPosition(x, y) {
@@ -209,18 +213,17 @@ export default class Player extends Character {
     harvestOn(type) {
         const self = this;
         const tmptype = type;
-        const harvest = function() {
+        const harvest = function () {
             self.setOrientation(self.orientation);
-            self.fsm = "HARVEST";
-            self.animate("atk", self.atkSpeed, 1, function() {
+            self.fsm = 'HARVEST';
+            self.animate('atk', self.atkSpeed, 1, function () {
                 self.idle(self.orientation);
             });
-            if (tmptype === "any")
-                self.hideWeapon = true;
+            if (tmptype === 'any') self.hideWeapon = true;
         };
         harvest();
         clearInterval(this.harvestTimeout);
-        this.harvestTimeout = setInterval(function() {
+        this.harvestTimeout = setInterval(function () {
             if (!self.harvestTimeout) {
                 self.forceStop();
                 return;
@@ -235,7 +238,7 @@ export default class Player extends Character {
     }
 
     harvestOff() {
-        if (this.fsm === "HARVEST") {
+        if (this.fsm === 'HARVEST') {
             clearInterval(this.harvestTimeout);
             this.harvestTimeout = null;
             this.startHarvestTime = 0;
@@ -247,11 +250,12 @@ export default class Player extends Character {
      *
      */
     makeAttack(entity) {
-        log.info("makeAttack " + entity.id);
+        log.info('makeAttack ' + entity.id);
         const time = game.currentTime;
-        const skillId = (this.attackSkill) ? this.attackSkill.skillId : -1;
+        const skillId = this.attackSkill ? this.attackSkill.skillId : -1;
 
-        if (this === entity || this.isDead || this.isDying) // sanity check.
+        if (this === entity || this.isDead || this.isDying)
+            // sanity check.
             return null;
 
         if (entity && entity.isDead) {
@@ -275,13 +279,12 @@ export default class Player extends Character {
 
         this.lookAtEntity(entity);
         if (!this.canReach(entity)) {
-            if (!this.followAttack(entity))
-                return "attack_toofar";
+            if (!this.followAttack(entity)) return 'attack_toofar';
             else {
-                return "attack_moving";
+                return 'attack_moving';
             }
         }
-        log.info("CAN REACH TARGET!!");
+        log.info('CAN REACH TARGET!!');
 
         // NOTE: canReach() above already encodes the right facing rule per
         // attackRange - melee (attackRange === 1) requires isAdjacentEntity()
@@ -295,17 +298,16 @@ export default class Player extends Character {
         // rather than scoped to attackRange === 1, since that would just be
         // re-deriving what canReach() already decided.
         if (!this.canAttack(time)) {
-            log.info("CANNOT ATTACK DUE TO TIME.");
-            return "attack_outoftime";
+            log.info('CANNOT ATTACK DUE TO TIME.');
+            return 'attack_outoftime';
         }
 
         if (this.hit() && this.hasTarget()) {
-            if (this.attackSkill)
-                this.attackSkill.activated = true;
-            return "attack_ok";
+            if (this.attackSkill) this.attackSkill.activated = true;
+            return 'attack_ok';
         }
 
-        return "attack_aborted";
+        return 'attack_aborted';
     }
 
     resetPosition(x, y) {
@@ -313,7 +315,7 @@ export default class Player extends Character {
         this.keyMove = false;
         this.forceStop();
         this.setPosition(x, y);
-        this.fsm = "IDLE";
+        this.fsm = 'IDLE';
     }
 
     setSpriteByIndex(index, num) {
@@ -334,9 +336,10 @@ export default class Player extends Character {
     // callers that need a single walkable spot should keep using
     // getClosestSpot() instead.
     getSortedTilesAround(x, y) {
-        const nodes = this.getSpotsAround({x: x, y: y}, 1);
-        nodes.sort(function(a, b) { return a.d - b.d; });
+        const nodes = this.getSpotsAround({ x: x, y: y }, 1);
+        nodes.sort(function (a, b) {
+            return a.d - b.d;
+        });
         return nodes;
     }
-
 }

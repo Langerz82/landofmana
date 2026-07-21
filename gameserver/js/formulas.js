@@ -7,10 +7,16 @@ import Player from './entity/player/player.js';
 
 const Formulas = {};
 
-Formulas.crit = function(attacker, defender) {
-	const chance = (Utils.randomRangeInt(0,200) <= Utils.clamp(5, 195, ~~(25 + attacker.combat.baseCrit() - defender.combat.baseCritDef())));
-	return chance;
-}
+Formulas.crit = function (attacker, defender) {
+    const chance =
+        Utils.randomRangeInt(0, 200) <=
+        Utils.clamp(
+            5,
+            195,
+            ~~(25 + attacker.combat.baseCrit() - defender.combat.baseCritDef())
+        );
+    return chance;
+};
 
 /*Formulas.hit = function(attacker, defender) {
 // TODO
@@ -24,92 +30,90 @@ Formulas.crit = function(attacker, defender) {
 }*/
 
 Formulas.getAttackPower = function (attacker) {
-	let attackPower = 1;
-	if (attacker.attackTimer) {
-		const delay = (Date.now() - attacker.attackTimer)
-		attackPower = ~~(Utils.clamp(ATTACK_INTERVAL, ATTACK_MAX, delay + 100) / ATTACK_INTERVAL);
-	}
-	return attackPower;
-}
+    let attackPower = 1;
+    if (attacker.attackTimer) {
+        const delay = Date.now() - attacker.attackTimer;
+        attackPower = ~~(
+            Utils.clamp(ATTACK_INTERVAL, ATTACK_MAX, delay + 100) /
+            ATTACK_INTERVAL
+        );
+    }
+    return attackPower;
+};
 
-Formulas.dmgAOE = function(attacker) {
+Formulas.dmgAOE = function (attacker) {
     const attackPower = Formulas.getAttackPower(attacker);
 
     //console.warn("attackPower="+attackPower);
-		const attacker_damage = ~~(attacker.combat.baseDamage() / 2);
+    const attacker_damage = ~~(attacker.combat.baseDamage() / 2);
     // PERF: runs on every AOE hit -- gated behind G_DEBUG.
-    if (G_DEBUG)
-        console.info("attacker baseDamage="+attacker_damage);
+    if (G_DEBUG) console.info('attacker baseDamage=' + attacker_damage);
     const dmg = ~~(attacker_damage * attackPower);
 
-    if (attacker instanceof Player && dmg > 0)
-    	attacker.incAttackExp(dmg);
+    if (attacker instanceof Player && dmg > 0) attacker.incAttackExp(dmg);
 
-    return ~~(dmg);
+    return ~~dmg;
 };
 
-Formulas.dmg = function(attacker, defender) {
-		const attackPower = Formulas.getAttackPower(attacker);
+Formulas.dmg = function (attacker, defender) {
+    const attackPower = Formulas.getAttackPower(attacker);
 
     //console.warn("attackPower="+attackPower);
-		const attacker_damage = attacker.combat.baseDamage(defender);
-		const defender_defense = defender.combat.baseDamageDef(attacker);
+    const attacker_damage = attacker.combat.baseDamage(defender);
+    const defender_defense = defender.combat.baseDamageDef(attacker);
     // PERF: runs on every single attack in the game (this is the main
     // damage formula) -- gated behind G_DEBUG.
     if (G_DEBUG) {
-        console.info("attacker baseDamage="+attacker_damage);
-        console.info("defender baseDamageDef="+defender_defense);
+        console.info('attacker baseDamage=' + attacker_damage);
+        console.info('defender baseDamageDef=' + defender_defense);
     }
     let dmg = ~~(attacker_damage * attackPower);
-		const defensePower = attackPower;
-		//var defensePower = (2/3)*Math.pow(1.5,attackPower);
-		const def = ~~(defender_defense * defensePower);
-		dmg = ~~(dmg - def);
+    const defensePower = attackPower;
+    //var defensePower = (2/3)*Math.pow(1.5,attackPower);
+    const def = ~~(defender_defense * defensePower);
+    dmg = ~~(dmg - def);
 
-		if (attacker instanceof Mob)
-			dmg = ~~(Math.pow(dmg, 0.9));
+    if (attacker instanceof Mob) dmg = ~~Math.pow(dmg, 0.9);
 
-    dmg = Utils.clamp(1,5000, dmg);
+    dmg = Utils.clamp(1, 5000, dmg);
 
-    if (attacker instanceof Player && dmg > 0)
-    	attacker.incAttackExp(dmg);
+    if (attacker instanceof Player && dmg > 0) attacker.incAttackExp(dmg);
 
-    if (defender instanceof Player && dmg > 0)
-    	defender.incDefenseExp(dmg);
+    if (defender instanceof Player && dmg > 0) defender.incDefenseExp(dmg);
 
-    return ~~(dmg);
+    return ~~dmg;
     //return 1;
 };
 
-Formulas.pickPocket = function (source, target, chance)
-{
-    if ( target.level - source.level + ~~(Utils.randomRange(0,100)) <= chance)
-	    return true;
-    return false
-}
+Formulas.pickPocket = function (source, target, chance) {
+    if (target.level - source.level + ~~Utils.randomRange(0, 100) <= chance)
+        return true;
+    return false;
+};
 
-Formulas.mindControl = function (source, target)
-{
+Formulas.mindControl = function (source, target) {
     // FIX: divided by source.level with no guard -- a level-0 source (any
     // future entity that can reach this formula without going through the
     // normal player/mob leveling paths, e.g. a scripted/test entity) would
     // divide by zero, making the upper bound Infinity/NaN and
     // Utils.randomRange() behave unpredictably instead of the intended
     // "never mind-controllable" outcome.
-    if (source.level <= 0)
-        return false;
-    if (target.level <= source.level && ~~(Utils.randomRange(0,~~(target.level * 50 /source.level))) === 0)
-	    return true;
-    return false
-}
-
-Formulas.hp = function(entityLevel) {
-    return 100 + (entityLevel * 40);
+    if (source.level <= 0) return false;
+    if (
+        target.level <= source.level &&
+        ~~Utils.randomRange(0, ~~((target.level * 50) / source.level)) === 0
+    )
+        return true;
+    return false;
 };
 
-Formulas.energy = function(entityLevel) {
+Formulas.hp = function (entityLevel) {
+    return 100 + entityLevel * 40;
+};
+
+Formulas.energy = function (entityLevel) {
     //Do not check kind yet, will be implemented later on.
-    return 100 + (entityLevel * 30);
+    return 100 + entityLevel * 30;
     //This requires more work, look around "kind".
 };
 
@@ -117,8 +121,7 @@ Formulas.energy = function(entityLevel) {
 // server codebase currently reaches this (grepped for getExpArray()); left
 // in place rather than removed in case it's part of a planned/external API
 // surface, but treat any current caller of this as a latent bug.
-Formulas.getExpArray = function() {
-
+Formulas.getExpArray = function () {
     //just return the EXP Array here.
 };
 

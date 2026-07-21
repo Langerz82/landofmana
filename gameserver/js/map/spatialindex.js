@@ -20,28 +20,26 @@ class SpatialIndex {
         this.spatial = [];
         const spatialWidth = Math.ceil(map.width / size);
         const spatialHeight = Math.ceil(map.height / size);
-        for(let i=0, j=0; i < spatialHeight; i++) {
+        for (let i = 0, j = 0; i < spatialHeight; i++) {
             this.spatial[i] = [];
-            for(j=0; j < spatialWidth; j++) {
+            for (j = 0; j < spatialWidth; j++) {
                 this.spatial[i][j] = [];
             }
         }
     }
 
-    getSpatialEntities(arr)
-    {
-        const x1 = ~~(Math.max(arr[0],0) / this.spatialSize);
-        const y1 = ~~(Math.max(arr[1],0) / this.spatialSize);
-        const x2 = ~~(Math.min(arr[2],this.map.width-1) / this.spatialSize);
-        const y2 = ~~(Math.min(arr[3],this.map.height-1) / this.spatialSize);
+    getSpatialEntities(arr) {
+        const x1 = ~~(Math.max(arr[0], 0) / this.spatialSize);
+        const y1 = ~~(Math.max(arr[1], 0) / this.spatialSize);
+        const x2 = ~~(Math.min(arr[2], this.map.width - 1) / this.spatialSize);
+        const y2 = ~~(Math.min(arr[3], this.map.height - 1) / this.spatialSize);
 
         const res = [];
         const l1 = this.spatial.length;
         let l2 = 0;
-        for(let j = y1, i=0; j <= y2; ++j)
-        {
+        for (let j = y1, i = 0; j <= y2; ++j) {
             l2 = this.spatial[j].length;
-            for(i = x1; i <= x2; ++i) {
+            for (i = x1; i <= x2; ++i) {
                 /*if (j < 0 || j >= l1)
                   continue;
                 if (i < 0 || i >= l2)
@@ -72,8 +70,12 @@ class SpatialIndex {
         const spy = ~~(gy / this.spatialSize);
 
         // bounds check
-        if (spy < 0 || spy >= this.spatial.length ||
-            spx < 0 || spx >= this.spatial[spy].length) {
+        if (
+            spy < 0 ||
+            spy >= this.spatial.length ||
+            spx < 0 ||
+            spx >= this.spatial[spy].length
+        ) {
             return;
         }
 
@@ -110,8 +112,12 @@ class SpatialIndex {
             const spy = entity.spy;
 
             // bounds check
-            if (spy < 0 || spy >= this.spatial.length ||
-                spx < 0 || spx >= this.spatial[spy].length) {
+            if (
+                spy < 0 ||
+                spy >= this.spatial.length ||
+                spx < 0 ||
+                spx >= this.spatial[spy].length
+            ) {
                 return;
             }
 

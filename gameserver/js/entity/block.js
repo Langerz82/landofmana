@@ -21,8 +21,7 @@ class Block extends EntityMoving {
     }
 
     isCompleted(player) {
-        if (this.parent.isCompleted())
-            this.parent.onComplete();
+        if (this.parent.isCompleted()) this.parent.onComplete();
     }
 
     getState() {

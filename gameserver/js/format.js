@@ -213,30 +213,35 @@ const numberField = (min, max) => z.number().min(min).max(max);
 // handleMoveEntity in packethandler.js).
 const serverDateWindowMs = 24 * 60 * 60 * 1000; // 1 day
 const serverDateField = () =>
-  z.number()
-    .min(serverDateMin)
-    .refine(
-      (val) => val <= Date.now() + serverDateWindowMs,
-      (val) => ({ message: `timestamp ${val} too far in the future (now=${Date.now()})` })
-    );
+    z
+        .number()
+        .min(serverDateMin)
+        .refine(
+            (val) => val <= Date.now() + serverDateWindowMs,
+            (val) => ({
+                message: `timestamp ${val} too far in the future (now=${Date.now()})`
+            })
+        );
 
 // 'no': same as 'n', but the value may legitimately be null (e.g. CW_PARTY's
 // third field).
-const optionalNumberField = (min, max) => z.union([z.null(), numberField(min, max)]);
+const optionalNumberField = (min, max) =>
+    z.union([z.null(), numberField(min, max)]);
 
 // 's': a string with length in [min,max].
 const stringField = (min, max) => z.string().min(min).max(max);
 
 // 'so': same as 's', but may be null.
-const optionalStringField = (min, max) => z.union([z.null(), stringField(min, max)]);
+const optionalStringField = (min, max) =>
+    z.union([z.null(), stringField(min, max)]);
 
 // 'ns'/'nso': accepts EITHER a real number (checked against [numMin,numMax])
 // OR a string (checked against [strMin,strMax] length) -- e.g. a CW_CONFIG
 // value that might be 1920 (a screen width) or "dark" (a theme name).
 const numberOrStringField = (numMin, numMax, strMin, strMax) =>
-  z.union([numberField(numMin, numMax), stringField(strMin, strMax)]);
+    z.union([numberField(numMin, numMax), stringField(strMin, strMax)]);
 const optionalNumberOrStringField = (numMin, numMax, strMin, strMax) =>
-  z.union([z.null(), numberOrStringField(numMin, numMax, strMin, strMax)]);
+    z.union([z.null(), numberOrStringField(numMin, numMax, strMin, strMax)]);
 
 // 'array' (homogeneous): every element of the array must match `element`,
 // and the array itself must have between min and max items.
@@ -257,9 +262,12 @@ const tupleField = (schemas) => z.tuple(schemas);
 // failed -- without this, every format failure just logs a bare `false` and
 // you're left guessing which of a message's fields was actually bad.
 const describeZodError = (error) =>
-  error.issues
-    .map((issue) => `${issue.path.length ? issue.path.join('.') : '(root)'}: ${issue.message}`)
-    .join('; ');
+    error.issues
+        .map(
+            (issue) =>
+                `${issue.path.length ? issue.path.join('.') : '(root)'}: ${issue.message}`
+        )
+        .join('; ');
 
 // The four helpers below aren't used by any message format in this file
 // today -- gameserver's messages are all plain positional arrays. They're
@@ -284,10 +292,12 @@ const csvNumberField = (min, max) => z.coerce.number().min(min).max(max);
 // correctly validated in either file -- z.record() + a key-count refinement
 // replaces it directly and correctly.
 const recordField = (valueSchema, maxKeys) =>
-  z.record(z.string(), valueSchema).refine(
-    (obj) => Object.keys(obj).length <= maxKeys,
-    (obj) => ({ message: `too many keys: ${Object.keys(obj).length} > ${maxKeys}` })
-  );
+    z.record(z.string(), valueSchema).refine(
+        (obj) => Object.keys(obj).length <= maxKeys,
+        (obj) => ({
+            message: `too many keys: ${Object.keys(obj).length} > ${maxKeys}`
+        })
+    );
 
 // Splits a CSV string into exactly `schemas.length` fields and validates
 // each one positionally. Returns { success, data|error }. Mirrors
@@ -295,22 +305,28 @@ const recordField = (valueSchema, maxKeys) =>
 // immediately" check (the one part of the old code that already enforced
 // length correctly).
 const parseCsvFields = (csv, schemas) => {
-  if (typeof csv !== 'string') {
-    return { success: false, error: 'not a string' };
-  }
-  const parts = csv.split(',');
-  if (parts.length !== schemas.length) {
-    return { success: false, error: `expected ${schemas.length} fields, got ${parts.length}` };
-  }
-  const data = [];
-  for (let i = 0; i < schemas.length; i += 1) {
-    const res = schemas[i].safeParse(parts[i]);
-    if (!res.success) {
-      return { success: false, error: `field ${i}: ${res.error.issues.map((iss) => iss.message).join('; ')}` };
+    if (typeof csv !== 'string') {
+        return { success: false, error: 'not a string' };
     }
-    data.push(res.data);
-  }
-  return { success: true, data };
+    const parts = csv.split(',');
+    if (parts.length !== schemas.length) {
+        return {
+            success: false,
+            error: `expected ${schemas.length} fields, got ${parts.length}`
+        };
+    }
+    const data = [];
+    for (let i = 0; i < schemas.length; i += 1) {
+        const res = schemas[i].safeParse(parts[i]);
+        if (!res.success) {
+            return {
+                success: false,
+                error: `field ${i}: ${res.error.issues.map((iss) => iss.message).join('; ')}`
+            };
+        }
+        data.push(res.data);
+    }
+    return { success: true, data };
 };
 
 // Splits a comma-separated list into chunks of `size` and validates each
@@ -321,332 +337,366 @@ const parseCsvFields = (csv, schemas) => {
 // migration note) worth guarding against here too if this shape ever shows
 // up in a gameserver message.
 const parseCsvChunks = (csv, size, tupleSchema) => {
-  if (typeof csv !== 'string') {
-    return { success: false, error: 'not a string' };
-  }
-  const parts = csv.split(',');
-  if (parts.length % size !== 0) {
-    return { success: false, error: `length ${parts.length} not a multiple of ${size}` };
-  }
-  const chunks = [];
-  for (let i = 0; i < parts.length; i += size) {
-    const chunk = parts.slice(i, i + size).map(Number);
-    const res = tupleSchema.safeParse(chunk);
-    if (!res.success) {
-      return { success: false, error: `chunk ${i / size}: ${res.error.issues.map((iss) => iss.message).join('; ')}` };
+    if (typeof csv !== 'string') {
+        return { success: false, error: 'not a string' };
     }
-    chunks.push(res.data);
-  }
-  return { success: true, data: chunks };
+    const parts = csv.split(',');
+    if (parts.length % size !== 0) {
+        return {
+            success: false,
+            error: `length ${parts.length} not a multiple of ${size}`
+        };
+    }
+    const chunks = [];
+    for (let i = 0; i < parts.length; i += size) {
+        const chunk = parts.slice(i, i + size).map(Number);
+        const res = tupleSchema.safeParse(chunk);
+        if (!res.success) {
+            return {
+                success: false,
+                error: `chunk ${i / size}: ${res.error.issues.map((iss) => iss.message).join('; ')}`
+            };
+        }
+        chunks.push(res.data);
+    }
+    return { success: true, data: chunks };
 };
 
 class FormatChecker {
-  constructor() {
-    this.formats = {};
+    constructor() {
+        this.formats = {};
 
-    this.formats[Types.Messages.BI_SYNCTIME] = tupleField([serverDateField()]);
+        this.formats[Types.Messages.BI_SYNCTIME] = tupleField([
+            serverDateField()
+        ]);
 
-    // USER LOGIN PACKETS
-    // NOTE: the four entries below key off `Types.Messages.CW_CREATE_USER` /
-    // `CW_LOGIN_USER` / `CW_REMOVE_USER` / `CW_CREATE_PLAYER` -- none of
-    // which exist under `Types.Messages` (shared/js/gametypes.js). The real
-    // constants for these four (CU_CREATE_USER, CU_LOGIN_USER, CU_REMOVE_USER,
-    // CU_CREATE_PLAYER) live under the separate `Types.UserMessages`
-    // namespace, i.e. the client<->(login/user server) channel, not
-    // client<->world -- packethandler.js/worldhandler.js (this world
-    // server's only two packet dispatchers) never switch on any of these
-    // four, only on the fifth, CW_LOGIN_PLAYER (a real, correctly-referenced
-    // constant, used by worldhandler.js's handleLoginPlayer). So all four
-    // silently evaluate to the same `this.formats[undefined]` key -- each
-    // overwriting the last, with only CW_CREATE_PLAYER's schema surviving --
-    // and are never actually looked up, since a real incoming packet's type
-    // is never `undefined`. Harmless as dead weight, but worth flagging
-    // rather than silently leaving in case it's meant to indicate this world
-    // server should be validating a login flow it currently isn't (that
-    // would need routing to the actual login/user server's own format
-    // checker, not this file, if account creation/login truly lives
-    // elsewhere in this project).
-    this.formats[Types.Messages.CW_LOGIN_PLAYER] = tupleField([
-      stringField(playerNameLenMin, playerNameLenMax),
-      stringField(0, playerHashLenMax),
-    ]);
-    // END USER LOGIN PACKETS
+        // USER LOGIN PACKETS
+        // NOTE: the four entries below key off `Types.Messages.CW_CREATE_USER` /
+        // `CW_LOGIN_USER` / `CW_REMOVE_USER` / `CW_CREATE_PLAYER` -- none of
+        // which exist under `Types.Messages` (shared/js/gametypes.js). The real
+        // constants for these four (CU_CREATE_USER, CU_LOGIN_USER, CU_REMOVE_USER,
+        // CU_CREATE_PLAYER) live under the separate `Types.UserMessages`
+        // namespace, i.e. the client<->(login/user server) channel, not
+        // client<->world -- packethandler.js/worldhandler.js (this world
+        // server's only two packet dispatchers) never switch on any of these
+        // four, only on the fifth, CW_LOGIN_PLAYER (a real, correctly-referenced
+        // constant, used by worldhandler.js's handleLoginPlayer). So all four
+        // silently evaluate to the same `this.formats[undefined]` key -- each
+        // overwriting the last, with only CW_CREATE_PLAYER's schema surviving --
+        // and are never actually looked up, since a real incoming packet's type
+        // is never `undefined`. Harmless as dead weight, but worth flagging
+        // rather than silently leaving in case it's meant to indicate this world
+        // server should be validating a login flow it currently isn't (that
+        // would need routing to the actual login/user server's own format
+        // checker, not this file, if account creation/login truly lives
+        // elsewhere in this project).
+        this.formats[Types.Messages.CW_LOGIN_PLAYER] = tupleField([
+            stringField(playerNameLenMin, playerNameLenMax),
+            stringField(0, playerHashLenMax)
+        ]);
+        // END USER LOGIN PACKETS
 
-    this.formats[Types.Messages.CW_APPEARANCEUNLOCK] = tupleField([
-      numberField(0, playerLooksTotal),
-      numberField(0, playerGemMax),
-    ]);
-    this.formats[Types.Messages.CW_ATTACK] = tupleField([
-      serverDateField(),
-      numberField(0, entityIdMax),
-      numberField(0, orientationsMax),
-      numberField(-1, playerSkillMax),
-    ]);
-    this.formats[Types.Messages.CW_AUCTIONBUY] = tupleField([
-      numberField(0, auctionEntriesMax),
-      numberField(0, auctionActionMax),
-    ]);
-    this.formats[Types.Messages.CW_AUCTIONDELETE] = tupleField([
-      numberField(0, auctionEntriesMax),
-      numberField(0, auctionActionMax),
-    ]);
-    this.formats[Types.Messages.CW_AUCTIONOPEN] = tupleField([numberField(0, auctionActionMax)]);
-    this.formats[Types.Messages.CW_AUCTIONSELL] = tupleField([
-      numberField(0, itemInventoryMax),
-      numberField(0, itemPriceMax),
-    ]);
-    // REMOVED: CW_BANKRETRIEVE, CW_BANKSTORE, CW_COLOR_TINT. Audited against
-    // the real client and gameserver source (see the packet-validation
-    // audit) and found to be dead: no client code anywhere sends any of
-    // these three message types (grepped client/js for CW_BANKRETRIEVE,
-    // CW_BANKSTORE, CW_COLOR_TINT, sendColorTint -- only the enum constant
-    // definitions turned up, no callers), and gameserver has no
-    // handleBankRetrieve/handleBankStore/handleColorTint anywhere either.
-    // Keeping schemas for packets nothing sends or handles just invites the
-    // next reader to assume they're wired up when they aren't. If/when bank
-    // retrieve/store or color tinting are actually implemented, re-add their
-    // schemas here validated against the real sender/handler code at that
-    // time (the same rigor the rest of this file was audited with), not
-    // against a guess.
-    this.formats[Types.Messages.CW_CHAT] = tupleField([stringField(1, maxChatLength)]);
-    this.formats[Types.Messages.CW_BLOCK_MODIFY] = tupleField([
-      numberField(0, 1), // type pickup/place
-      numberField(0, entityIdMax),
-      numberField(0, mapCoordsMax),
-      numberField(0, mapCoordsMax),
-    ]);
-    this.formats[Types.Messages.CW_LOOKUPDATE] = tupleField([
-      numberField(0, 1), // type
-      numberField(0, playerSpritesMax),
-    ]);
-    this.formats[Types.Messages.CW_LOOT] = tupleField([
-      numberField(0, entityIdMax),
-      numberField(0, mapCoordsMax),
-      numberField(0, mapCoordsMax),
-    ]);
-    this.formats[Types.Messages.CW_MOVE] = tupleField([
-      serverDateField(),
-      numberField(0, entityIdMax),
-      numberField(0, 2), // move type
-      numberField(0, orientationsMax),
-      numberField(0, mapCoordsMax),
-      numberField(0, mapCoordsMax),
-    ]);
-    this.formats[Types.Messages.CW_GOLD] = tupleField([
-      numberField(0, 1), // type (inventory,bank)
-      numberField(0, playerGoldMax),
-      numberField(0, 1), // type2 (inventory,bank)
-    ]);
-    this.formats[Types.Messages.CW_STATADD] = tupleField([
-      numberField(1, playerStatMax),
-      numberField(1, 1), // stat point add
-    ]);
-    this.formats[Types.Messages.CW_STOREBUY] = tupleField([
-      numberField(1, 3), // item type
-      numberField(0, itemKindMax),
-      numberField(0, itemNumberMax),
-    ]);
-    this.formats[Types.Messages.CW_CRAFT] = tupleField([
-      numberField(0, craftIdMax),
-      numberField(0, craftItemCount),
-    ]);
-    this.formats[Types.Messages.CW_STORE_MODITEM] = tupleField([
-      numberField(0, 2), // modType
-      numberField(0, 2), // type
-      numberField(0, itemInventoryMax),
-    ]);
-    this.formats[Types.Messages.CW_STORESELL] = tupleField([
-      numberField(0, itemStoreTypeMax),
-      numberField(0, itemInventoryMax),
-    ]);
-    this.formats[Types.Messages.CW_TALKTONPC] = tupleField([
-      numberField(entityTypeNPCMin, entityTypeNPCMax), // npc type but not used?
-      numberField(0, entityIdMax),
-    ]);
-    // FIX: field 0 here is the destination map id (see
-    // packethandler.js's handleTeleportMap: `parseInt(msg[0])`, checked
-    // against `self.server.maps.length`), not a "map status" -- it was
-    // bounded with mapStatusMax (0-3), which happens to just barely cover
-    // today's 3 loaded maps (mapmanager.js currently only loads maps 0-2)
-    // but would silently start rejecting valid teleports the moment a 4th
-    // map is added. mapIndexMax (already defined, unused until now, and
-    // matching the mapsCountMax=10 "up to 10 maps" convention shared with
-    // userserver/js/format.js) is the bound that actually matches this
-    // field's meaning. Field 1 really is the separate 0/1 "status" flag
-    // client callers send (game.js/clientcallbacks.js only ever send 0 or
-    // 1 here) and field 4 (portal id, checked against `p.map.doors.length`)
-    // already reused mapIndexMax as a generous static ceiling since there's
-    // no dedicated "max doors per map" constant.
-    this.formats[Types.Messages.CW_TELEPORT_MAP] = tupleField([
-      numberField(0, mapIndexMax),
-      numberField(0, 1),
-      numberField(-1, mapCoordsMax),
-      numberField(-1, mapCoordsMax),
-      numberField(-1, mapPortalMax),
-    ]);
-    this.formats[Types.Messages.CW_SKILL] = tupleField([
-      numberField(0, playerSkillMax),
-      numberField(0, entityIdMax),
-    ]);
-    this.formats[Types.Messages.CW_SHORTCUT] = tupleField([
-      numberField(0, playerShortcutsMax),
-      numberField(playerShortcutsTypeMin, playerShortcutsTypeMax),
-      numberField(0, itemKindMax),
-    ]);
-    this.formats[Types.Messages.CW_PARTY] = tupleField([
-      numberField(0, 4),
-      // FIX: this field is the target PLAYER'S NAME (see partyhandler.js's
-      // handleInvite/handleKick/handleLeader, all of which read it as
-      // `msg[0]` and pass it to getPlayer(name)) -- but it was bounded with
-      // playerPartyMax (6, the max *number of players in a party*, used
-      // correctly elsewhere for `party.players.length >= 5` checks), not a
-      // name-length constant. Since real player names are 2-16 characters
-      // (playerNameLenMin/playerNameLenMax, the bound every other
-      // player-name field in this file uses), any invite/kick/leader-
-      // transfer aimed at a player with a name over 6 characters (the vast
-      // majority of real names) failed this check -- and packethandler.js
-      // closes the SENDER's connection on format failure, so this didn't
-      // just silently no-op the party action, it disconnected the player
-      // who tried it. Confirmed with a quick check: "Bob" (3 chars) passed,
-      // "Langerz82" (9 chars) did not.
-      optionalStringField(playerNameLenMin, playerNameLenMax),
-      optionalNumberField(0, 3),
-    ]);
-    this.formats[Types.Messages.CW_HARVEST] = tupleField([
-      numberField(0, mapCoordsMax),
-      numberField(0, mapCoordsMax),
-    ]);
-    this.formats[Types.Messages.CW_USE_NODE] = tupleField([numberField(0, entityIdMax)]);
-    this.formats[Types.Messages.CW_QUEST] = tupleField([
-      numberField(0, entityIdMax),
-      numberField(0, questIdMax),
-      numberField(0, questTypeMax),
-    ]);
-    this.formats[Types.Messages.CW_MOVEPATH] = tupleField([
-      serverDateField(),
-      numberField(0, entityIdMax),
-      numberField(0, orientationsMax),
-      numberField(0, 1),
-      // Each waypoint is an [x,y] tuple; the path itself has 2-16 waypoints.
-      arrayField(tupleField([numberField(0, mapCoordsMax), numberField(0, mapCoordsMax)]), 2, 16),
-    ]);
-    this.formats[Types.Messages.CW_WHO] = tupleField([arrayField(numberField(0, entityIdMax), 0, 999)]);
-    this.formats[Types.Messages.CW_CONFIG] = tupleField([
-      // Each entry is a ["key", value] pair, where value can be a number or
-      // a string; 0-10 entries per message.
-      //
-      // FIX: the old DSL entry used ['ns',0,99,0,99] here -- a numeric range
-      // of 0-99 for the VALUE, which is almost certainly a copy-paste of the
-      // adjacent string-length bound rather than an intentional limit. That
-      // range check was dead code in the old checker (see migration note),
-      // so it never actually rejected anything -- but camera.js's real
-      // sendConfig() call sends screenWidth/screenHeight values like 1920
-      // and 1080, both well over 99. Now that the numeric range genuinely
-      // gets enforced, it needs a bound that fits real config values; using
-      // mapCoordsMax (16384) here since these are still screen/pixel-scale
-      // numbers, well short of anything that indicates abuse.
-      arrayField(tupleField([stringField(0, 99), numberOrStringField(0, mapCoordsMax, 0, 99)]), 0, 10),
-    ]);
+        this.formats[Types.Messages.CW_APPEARANCEUNLOCK] = tupleField([
+            numberField(0, playerLooksTotal),
+            numberField(0, playerGemMax)
+        ]);
+        this.formats[Types.Messages.CW_ATTACK] = tupleField([
+            serverDateField(),
+            numberField(0, entityIdMax),
+            numberField(0, orientationsMax),
+            numberField(-1, playerSkillMax)
+        ]);
+        this.formats[Types.Messages.CW_AUCTIONBUY] = tupleField([
+            numberField(0, auctionEntriesMax),
+            numberField(0, auctionActionMax)
+        ]);
+        this.formats[Types.Messages.CW_AUCTIONDELETE] = tupleField([
+            numberField(0, auctionEntriesMax),
+            numberField(0, auctionActionMax)
+        ]);
+        this.formats[Types.Messages.CW_AUCTIONOPEN] = tupleField([
+            numberField(0, auctionActionMax)
+        ]);
+        this.formats[Types.Messages.CW_AUCTIONSELL] = tupleField([
+            numberField(0, itemInventoryMax),
+            numberField(0, itemPriceMax)
+        ]);
+        // REMOVED: CW_BANKRETRIEVE, CW_BANKSTORE, CW_COLOR_TINT. Audited against
+        // the real client and gameserver source (see the packet-validation
+        // audit) and found to be dead: no client code anywhere sends any of
+        // these three message types (grepped client/js for CW_BANKRETRIEVE,
+        // CW_BANKSTORE, CW_COLOR_TINT, sendColorTint -- only the enum constant
+        // definitions turned up, no callers), and gameserver has no
+        // handleBankRetrieve/handleBankStore/handleColorTint anywhere either.
+        // Keeping schemas for packets nothing sends or handles just invites the
+        // next reader to assume they're wired up when they aren't. If/when bank
+        // retrieve/store or color tinting are actually implemented, re-add their
+        // schemas here validated against the real sender/handler code at that
+        // time (the same rigor the rest of this file was audited with), not
+        // against a guess.
+        this.formats[Types.Messages.CW_CHAT] = tupleField([
+            stringField(1, maxChatLength)
+        ]);
+        this.formats[Types.Messages.CW_BLOCK_MODIFY] = tupleField([
+            numberField(0, 1), // type pickup/place
+            numberField(0, entityIdMax),
+            numberField(0, mapCoordsMax),
+            numberField(0, mapCoordsMax)
+        ]);
+        this.formats[Types.Messages.CW_LOOKUPDATE] = tupleField([
+            numberField(0, 1), // type
+            numberField(0, playerSpritesMax)
+        ]);
+        this.formats[Types.Messages.CW_LOOT] = tupleField([
+            numberField(0, entityIdMax),
+            numberField(0, mapCoordsMax),
+            numberField(0, mapCoordsMax)
+        ]);
+        this.formats[Types.Messages.CW_MOVE] = tupleField([
+            serverDateField(),
+            numberField(0, entityIdMax),
+            numberField(0, 2), // move type
+            numberField(0, orientationsMax),
+            numberField(0, mapCoordsMax),
+            numberField(0, mapCoordsMax)
+        ]);
+        this.formats[Types.Messages.CW_GOLD] = tupleField([
+            numberField(0, 1), // type (inventory,bank)
+            numberField(0, playerGoldMax),
+            numberField(0, 1) // type2 (inventory,bank)
+        ]);
+        this.formats[Types.Messages.CW_STATADD] = tupleField([
+            numberField(1, playerStatMax),
+            numberField(1, 1) // stat point add
+        ]);
+        this.formats[Types.Messages.CW_STOREBUY] = tupleField([
+            numberField(1, 3), // item type
+            numberField(0, itemKindMax),
+            numberField(0, itemNumberMax)
+        ]);
+        this.formats[Types.Messages.CW_CRAFT] = tupleField([
+            numberField(0, craftIdMax),
+            numberField(0, craftItemCount)
+        ]);
+        this.formats[Types.Messages.CW_STORE_MODITEM] = tupleField([
+            numberField(0, 2), // modType
+            numberField(0, 2), // type
+            numberField(0, itemInventoryMax)
+        ]);
+        this.formats[Types.Messages.CW_STORESELL] = tupleField([
+            numberField(0, itemStoreTypeMax),
+            numberField(0, itemInventoryMax)
+        ]);
+        this.formats[Types.Messages.CW_TALKTONPC] = tupleField([
+            numberField(entityTypeNPCMin, entityTypeNPCMax), // npc type but not used?
+            numberField(0, entityIdMax)
+        ]);
+        // FIX: field 0 here is the destination map id (see
+        // packethandler.js's handleTeleportMap: `parseInt(msg[0])`, checked
+        // against `self.server.maps.length`), not a "map status" -- it was
+        // bounded with mapStatusMax (0-3), which happens to just barely cover
+        // today's 3 loaded maps (mapmanager.js currently only loads maps 0-2)
+        // but would silently start rejecting valid teleports the moment a 4th
+        // map is added. mapIndexMax (already defined, unused until now, and
+        // matching the mapsCountMax=10 "up to 10 maps" convention shared with
+        // userserver/js/format.js) is the bound that actually matches this
+        // field's meaning. Field 1 really is the separate 0/1 "status" flag
+        // client callers send (game.js/clientcallbacks.js only ever send 0 or
+        // 1 here) and field 4 (portal id, checked against `p.map.doors.length`)
+        // already reused mapIndexMax as a generous static ceiling since there's
+        // no dedicated "max doors per map" constant.
+        this.formats[Types.Messages.CW_TELEPORT_MAP] = tupleField([
+            numberField(0, mapIndexMax),
+            numberField(0, 1),
+            numberField(-1, mapCoordsMax),
+            numberField(-1, mapCoordsMax),
+            numberField(-1, mapPortalMax)
+        ]);
+        this.formats[Types.Messages.CW_SKILL] = tupleField([
+            numberField(0, playerSkillMax),
+            numberField(0, entityIdMax)
+        ]);
+        this.formats[Types.Messages.CW_SHORTCUT] = tupleField([
+            numberField(0, playerShortcutsMax),
+            numberField(playerShortcutsTypeMin, playerShortcutsTypeMax),
+            numberField(0, itemKindMax)
+        ]);
+        this.formats[Types.Messages.CW_PARTY] = tupleField([
+            numberField(0, 4),
+            // FIX: this field is the target PLAYER'S NAME (see partyhandler.js's
+            // handleInvite/handleKick/handleLeader, all of which read it as
+            // `msg[0]` and pass it to getPlayer(name)) -- but it was bounded with
+            // playerPartyMax (6, the max *number of players in a party*, used
+            // correctly elsewhere for `party.players.length >= 5` checks), not a
+            // name-length constant. Since real player names are 2-16 characters
+            // (playerNameLenMin/playerNameLenMax, the bound every other
+            // player-name field in this file uses), any invite/kick/leader-
+            // transfer aimed at a player with a name over 6 characters (the vast
+            // majority of real names) failed this check -- and packethandler.js
+            // closes the SENDER's connection on format failure, so this didn't
+            // just silently no-op the party action, it disconnected the player
+            // who tried it. Confirmed with a quick check: "Bob" (3 chars) passed,
+            // "Langerz82" (9 chars) did not.
+            optionalStringField(playerNameLenMin, playerNameLenMax),
+            optionalNumberField(0, 3)
+        ]);
+        this.formats[Types.Messages.CW_HARVEST] = tupleField([
+            numberField(0, mapCoordsMax),
+            numberField(0, mapCoordsMax)
+        ]);
+        this.formats[Types.Messages.CW_USE_NODE] = tupleField([
+            numberField(0, entityIdMax)
+        ]);
+        this.formats[Types.Messages.CW_QUEST] = tupleField([
+            numberField(0, entityIdMax),
+            numberField(0, questIdMax),
+            numberField(0, questTypeMax)
+        ]);
+        this.formats[Types.Messages.CW_MOVEPATH] = tupleField([
+            serverDateField(),
+            numberField(0, entityIdMax),
+            numberField(0, orientationsMax),
+            numberField(0, 1),
+            // Each waypoint is an [x,y] tuple; the path itself has 2-16 waypoints.
+            arrayField(
+                tupleField([
+                    numberField(0, mapCoordsMax),
+                    numberField(0, mapCoordsMax)
+                ]),
+                2,
+                16
+            )
+        ]);
+        this.formats[Types.Messages.CW_WHO] = tupleField([
+            arrayField(numberField(0, entityIdMax), 0, 999)
+        ]);
+        this.formats[Types.Messages.CW_CONFIG] = tupleField([
+            // Each entry is a ["key", value] pair, where value can be a number or
+            // a string; 0-10 entries per message.
+            //
+            // FIX: the old DSL entry used ['ns',0,99,0,99] here -- a numeric range
+            // of 0-99 for the VALUE, which is almost certainly a copy-paste of the
+            // adjacent string-length bound rather than an intentional limit. That
+            // range check was dead code in the old checker (see migration note),
+            // so it never actually rejected anything -- but camera.js's real
+            // sendConfig() call sends screenWidth/screenHeight values like 1920
+            // and 1080, both well over 99. Now that the numeric range genuinely
+            // gets enforced, it needs a bound that fits real config values; using
+            // mapCoordsMax (16384) here since these are still screen/pixel-scale
+            // numbers, well short of anything that indicates abuse.
+            arrayField(
+                tupleField([
+                    stringField(0, 99),
+                    numberOrStringField(0, mapCoordsMax, 0, 99)
+                ]),
+                0,
+                10
+            )
+        ]);
 
-    // CW_ITEMSLOT: shape varies -- 4 fields normally, 6 when the client is
-    // also specifying a second (destination) slot for a swap. slot: [action,
-    // slotType, slotIndex, slotCount], optionally followed by a destination
-    // slot [slotType2, slotIndex2] (see handleItemSlot in packethandler.js,
-    // which is the authority on this shape and does its own
-    // per-store-type bounds checking against the real
-    // inventory/equipment/bank sizes).
-    //
-    // FIX: the old code guarded the 6-field variant with `message.len === 7`
-    // -- `.len` isn't a real Array property (it's always undefined), and
-    // even ignoring that typo, handleItemSlot checks `msg.length === 6`, not
-    // 7. So the extra 2 fields were never actually validated; this checks
-    // the real, both-cases-correct shape. It also replaces
-    // `this.inventoryMax`/`this.itemCountMax`, which were never assigned
-    // anywhere on this class (always undefined) -- the closest real
-    // constants are itemBankMax (the largest of the three item stores, used
-    // here as a generous shared upper bound since the handler re-validates
-    // the exact per-store-type size itself) and itemNumberMax (the
-    // stack/magic-number bound used for item counts elsewhere in this
-    // file).
-    //
-    // PERF: this schema used to be rebuilt from scratch (a fresh
-    // `baseSlot` array plus a fresh z.union([...]) call) inside check() on
-    // EVERY CW_ITEMSLOT packet, unlike every other message type in this
-    // file, whose schema is built once here in the constructor and just
-    // safeParse()'d per packet. check() is called from
-    // packets/packethandler.js for every incoming client packet, and
-    // CW_ITEMSLOT covers eating/swapping/dropping/equipping items -- one of
-    // the most frequent player actions in an active session. Building it
-    // once here, like everything else in this file, removes that
-    // per-packet schema-construction cost.
-    const itemSlotBaseSlot = [
-      numberField(0, 2), // action: 0 eat, 1 swap, 2 drop
-      numberField(0, 2), // slot type: 0 inventory, 1 equipment, 2 bank
-      numberField(0, itemBankMax), // slot index
-      numberField(0, itemNumberMax), // slot count
-    ];
-    this.itemSlotFormat = z.union([
-      tupleField(itemSlotBaseSlot),
-      tupleField([
-        ...itemSlotBaseSlot,
-        numberField(0, 2), // destination slot type
-        numberField(-1, itemBankMax), // destination slot index (-1 = unspecified)
-      ]),
-    ]);
+        // CW_ITEMSLOT: shape varies -- 4 fields normally, 6 when the client is
+        // also specifying a second (destination) slot for a swap. slot: [action,
+        // slotType, slotIndex, slotCount], optionally followed by a destination
+        // slot [slotType2, slotIndex2] (see handleItemSlot in packethandler.js,
+        // which is the authority on this shape and does its own
+        // per-store-type bounds checking against the real
+        // inventory/equipment/bank sizes).
+        //
+        // FIX: the old code guarded the 6-field variant with `message.len === 7`
+        // -- `.len` isn't a real Array property (it's always undefined), and
+        // even ignoring that typo, handleItemSlot checks `msg.length === 6`, not
+        // 7. So the extra 2 fields were never actually validated; this checks
+        // the real, both-cases-correct shape. It also replaces
+        // `this.inventoryMax`/`this.itemCountMax`, which were never assigned
+        // anywhere on this class (always undefined) -- the closest real
+        // constants are itemBankMax (the largest of the three item stores, used
+        // here as a generous shared upper bound since the handler re-validates
+        // the exact per-store-type size itself) and itemNumberMax (the
+        // stack/magic-number bound used for item counts elsewhere in this
+        // file).
+        //
+        // PERF: this schema used to be rebuilt from scratch (a fresh
+        // `baseSlot` array plus a fresh z.union([...]) call) inside check() on
+        // EVERY CW_ITEMSLOT packet, unlike every other message type in this
+        // file, whose schema is built once here in the constructor and just
+        // safeParse()'d per packet. check() is called from
+        // packets/packethandler.js for every incoming client packet, and
+        // CW_ITEMSLOT covers eating/swapping/dropping/equipping items -- one of
+        // the most frequent player actions in an active session. Building it
+        // once here, like everything else in this file, removes that
+        // per-packet schema-construction cost.
+        const itemSlotBaseSlot = [
+            numberField(0, 2), // action: 0 eat, 1 swap, 2 drop
+            numberField(0, 2), // slot type: 0 inventory, 1 equipment, 2 bank
+            numberField(0, itemBankMax), // slot index
+            numberField(0, itemNumberMax) // slot count
+        ];
+        this.itemSlotFormat = z.union([
+            tupleField(itemSlotBaseSlot),
+            tupleField([
+                ...itemSlotBaseSlot,
+                numberField(0, 2), // destination slot type
+                numberField(-1, itemBankMax) // destination slot index (-1 = unspecified)
+            ])
+        ]);
 
-    // NOTE - The following need no parameters so they are grouped into 1 packet type.
-    // CW_APPEARANCELIST
-    // CW_PLAYER_REVIVE
-    // CW_PLAYERINFO
-    // CW_WHO REQUEST
-    this.formats[Types.Messages.CW_REQUEST] = tupleField([numberField(0, 3)]);
-  }
-
-  check(msg) {
-    // Never mutate the caller's array -- packethandler.js/worldhandler.js
-    // both still need the untouched `message` (including its leading type)
-    // after this returns, so they can shift the type off themselves once
-    // validation passes.
-    const message = msg.slice(0);
-    const type = message.shift();
-
-    if (type === Types.Messages.CW_ITEMSLOT) {
-      const res = this.itemSlotFormat.safeParse(message);
-      if (!res.success) {
-        // z.union() only reports each branch's failure inside
-        // res.error.issues[i].unionErrors, so surface both branches' reasons
-        // rather than just the outer "no union branch matched".
-        const branchErrors = res.error.issues
-          .flatMap((issue) => issue.unionErrors || [])
-          .map((err) => describeZodError(err))
-          .join(' | ');
-        console.error(
-          `CW_ITEMSLOT format failed (${describeZodError(res.error)}${branchErrors ? `; branches: ${branchErrors}` : ''})`
-        );
-        console.warn('message=' + JSON.stringify(message));
-      }
-      return res.success;
+        // NOTE - The following need no parameters so they are grouped into 1 packet type.
+        // CW_APPEARANCELIST
+        // CW_PLAYER_REVIVE
+        // CW_PLAYERINFO
+        // CW_WHO REQUEST
+        this.formats[Types.Messages.CW_REQUEST] = tupleField([
+            numberField(0, 3)
+        ]);
     }
 
-    const format = this.formats[type];
-    if (format) {
-      const res = format.safeParse(message);
-      if (!res.success) {
-        console.error(`Message type ${type} format failed: ${describeZodError(res.error)}`);
-        console.warn('message=' + JSON.stringify(message));
-      }
-      return res.success;
-    }
+    check(msg) {
+        // Never mutate the caller's array -- packethandler.js/worldhandler.js
+        // both still need the untouched `message` (including its leading type)
+        // after this returns, so they can shift the type off themselves once
+        // validation passes.
+        const message = msg.slice(0);
+        const type = message.shift();
 
-    try {
-      throw new Error();
-    } catch (err) {
-      console.info(err.stack);
+        if (type === Types.Messages.CW_ITEMSLOT) {
+            const res = this.itemSlotFormat.safeParse(message);
+            if (!res.success) {
+                // z.union() only reports each branch's failure inside
+                // res.error.issues[i].unionErrors, so surface both branches' reasons
+                // rather than just the outer "no union branch matched".
+                const branchErrors = res.error.issues
+                    .flatMap((issue) => issue.unionErrors || [])
+                    .map((err) => describeZodError(err))
+                    .join(' | ');
+                console.error(
+                    `CW_ITEMSLOT format failed (${describeZodError(res.error)}${branchErrors ? `; branches: ${branchErrors}` : ''})`
+                );
+                console.warn('message=' + JSON.stringify(message));
+            }
+            return res.success;
+        }
+
+        const format = this.formats[type];
+        if (format) {
+            const res = format.safeParse(message);
+            if (!res.success) {
+                console.error(
+                    `Message type ${type} format failed: ${describeZodError(res.error)}`
+                );
+                console.warn('message=' + JSON.stringify(message));
+            }
+            return res.success;
+        }
+
+        try {
+            throw new Error();
+        } catch (err) {
+            console.info(err.stack);
+        }
+        console.error('Unknown message type: ' + type);
+        console.warn('msg=' + JSON.stringify(msg));
+        return false;
     }
-    console.error('Unknown message type: ' + type);
-    console.warn('msg=' + JSON.stringify(msg));
-    return false;
-  }
 }
 
 const checker = new FormatChecker();

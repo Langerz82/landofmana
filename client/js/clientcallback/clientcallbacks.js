@@ -33,7 +33,6 @@ import GamePad from '../gamepad/gamepad.js';
 const QuestType = Types.QuestType;
 const QuestStatus = Types.QuestStatus;
 
-
 // ClientCallbacks' own behavior is split across these mixin modules for readability
 // (clientcallbacks.js had grown to ~1400 lines across 40+ server-event handlers). Each
 // install* call below merges plain-function methods onto ClientCallbacks.prototype; they're
@@ -50,7 +49,7 @@ import { installClientCallbacksSkills } from './clientcallbacksskills.js';
 import { installClientCallbacksSocial } from './clientcallbackssocial.js';
 
 export default class ClientCallbacks {
-      constructor(client) {
+    constructor(client) {
         this.client = client;
 
         // FIX (maintainability): this constructor used to contain the full body of every
@@ -100,8 +99,7 @@ export default class ClientCallbacks {
         client.onHarvest(this.onHarvest.bind(this));
         client.onPlayerInfo(this.onPlayerInfo.bind(this));
         client.onPlayer(this.onPlayer.bind(this));
-      }
-
+    }
 }
 
 installClientCallbacksMap(ClientCallbacks.prototype);

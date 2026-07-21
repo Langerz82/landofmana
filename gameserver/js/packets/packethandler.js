@@ -45,34 +45,112 @@ const PACKET_HANDLERS = new Map([
     [Types.Messages.BI_SYNCTIME, (h, message) => h.handleSyncTime(message)],
     [Types.Messages.CW_REQUEST, (h, message) => h.handleRequest(message)],
     [Types.Messages.CW_WHO, (h, message) => h.handleWho(message)],
-    [Types.Messages.CW_CHAT, (h, message) => h.worldActionHandler.handleChat(message)],
-    [Types.Messages.CW_MOVE, (h, message) => h.movementHandler.handleMoveEntity(message)],
-    [Types.Messages.CW_MOVEPATH, (h, message) => h.movementHandler.handleMovePath(message)],
-    [Types.Messages.CW_ATTACK, (h, message) => h.combatHandler.handleAttack(message)],
-    [Types.Messages.CW_ITEMSLOT, (h, message) => h.itemActionHandler.handleItemSlot(message)],
-    [Types.Messages.CW_STORESELL, (h, message) => h.shopHandler.handleStoreSell(message)],
-    [Types.Messages.CW_STOREBUY, (h, message) => h.shopHandler.handleStoreBuy(message)],
-    [Types.Messages.CW_CRAFT, (h, message) => h.shopHandler.handleCraft(message)],
-    [Types.Messages.CW_APPEARANCEUNLOCK, (h, message) => h.itemActionHandler.handleAppearanceUnlock(message)],
-    [Types.Messages.CW_LOOKUPDATE, (h, message) => h.itemActionHandler.handleLookUpdate(message)],
-    [Types.Messages.CW_AUCTIONSELL, (h, message) => h.shopHandler.handleAuctionSell(message)],
-    [Types.Messages.CW_AUCTIONBUY, (h, message) => h.shopHandler.handleAuctionBuy(message)],
-    [Types.Messages.CW_AUCTIONOPEN, (h, message) => h.shopHandler.handleAuctionOpen(message)],
-    [Types.Messages.CW_AUCTIONDELETE, (h, message) => h.shopHandler.handleAuctionDelete(message)],
-    [Types.Messages.CW_STORE_MODITEM, (h, message) => h.shopHandler.handleStoreModItem(message)],
-    [Types.Messages.CW_TELEPORT_MAP, (h, message) => h.movementHandler.handleTeleportMap(message)],
-    [Types.Messages.CW_LOOT, (h, message) => h.itemActionHandler.handleLoot(message)],
-    [Types.Messages.CW_TALKTONPC, (h, message) => h.worldActionHandler.handleTalkToNPC(message)],
-    [Types.Messages.CW_QUEST, (h, message) => h.worldActionHandler.handleQuest(message)],
-    [Types.Messages.CW_GOLD, (h, message) => h.playerHandler.handleGold(message)],
-    [Types.Messages.CW_STATADD, (h, message) => h.playerHandler.handleStatAdd(message)],
-    [Types.Messages.CW_SKILL, (h, message) => h.skillActionHandler.handleSkill(message)],
+    [
+        Types.Messages.CW_CHAT,
+        (h, message) => h.worldActionHandler.handleChat(message)
+    ],
+    [
+        Types.Messages.CW_MOVE,
+        (h, message) => h.movementHandler.handleMoveEntity(message)
+    ],
+    [
+        Types.Messages.CW_MOVEPATH,
+        (h, message) => h.movementHandler.handleMovePath(message)
+    ],
+    [
+        Types.Messages.CW_ATTACK,
+        (h, message) => h.combatHandler.handleAttack(message)
+    ],
+    [
+        Types.Messages.CW_ITEMSLOT,
+        (h, message) => h.itemActionHandler.handleItemSlot(message)
+    ],
+    [
+        Types.Messages.CW_STORESELL,
+        (h, message) => h.shopHandler.handleStoreSell(message)
+    ],
+    [
+        Types.Messages.CW_STOREBUY,
+        (h, message) => h.shopHandler.handleStoreBuy(message)
+    ],
+    [
+        Types.Messages.CW_CRAFT,
+        (h, message) => h.shopHandler.handleCraft(message)
+    ],
+    [
+        Types.Messages.CW_APPEARANCEUNLOCK,
+        (h, message) => h.itemActionHandler.handleAppearanceUnlock(message)
+    ],
+    [
+        Types.Messages.CW_LOOKUPDATE,
+        (h, message) => h.itemActionHandler.handleLookUpdate(message)
+    ],
+    [
+        Types.Messages.CW_AUCTIONSELL,
+        (h, message) => h.shopHandler.handleAuctionSell(message)
+    ],
+    [
+        Types.Messages.CW_AUCTIONBUY,
+        (h, message) => h.shopHandler.handleAuctionBuy(message)
+    ],
+    [
+        Types.Messages.CW_AUCTIONOPEN,
+        (h, message) => h.shopHandler.handleAuctionOpen(message)
+    ],
+    [
+        Types.Messages.CW_AUCTIONDELETE,
+        (h, message) => h.shopHandler.handleAuctionDelete(message)
+    ],
+    [
+        Types.Messages.CW_STORE_MODITEM,
+        (h, message) => h.shopHandler.handleStoreModItem(message)
+    ],
+    [
+        Types.Messages.CW_TELEPORT_MAP,
+        (h, message) => h.movementHandler.handleTeleportMap(message)
+    ],
+    [
+        Types.Messages.CW_LOOT,
+        (h, message) => h.itemActionHandler.handleLoot(message)
+    ],
+    [
+        Types.Messages.CW_TALKTONPC,
+        (h, message) => h.worldActionHandler.handleTalkToNPC(message)
+    ],
+    [
+        Types.Messages.CW_QUEST,
+        (h, message) => h.worldActionHandler.handleQuest(message)
+    ],
+    [
+        Types.Messages.CW_GOLD,
+        (h, message) => h.playerHandler.handleGold(message)
+    ],
+    [
+        Types.Messages.CW_STATADD,
+        (h, message) => h.playerHandler.handleStatAdd(message)
+    ],
+    [
+        Types.Messages.CW_SKILL,
+        (h, message) => h.skillActionHandler.handleSkill(message)
+    ],
     [Types.Messages.CW_SHORTCUT, (h, message) => h.handleShortcut(message)],
-    [Types.Messages.CW_BLOCK_MODIFY, (h, message) => h.worldActionHandler.handleBlock(message)],
-    [Types.Messages.CW_PARTY, (h, message) => h.partyHandler.handleParty(message)],
-    [Types.Messages.CW_HARVEST, (h, message) => h.worldActionHandler.handleHarvest(message)],
-    [Types.Messages.CW_USE_NODE, (h, message) => h.worldActionHandler.handleUseNode(message)],
-    [Types.Messages.CW_CONFIG, (h, message) => h.handleConfig(message)],
+    [
+        Types.Messages.CW_BLOCK_MODIFY,
+        (h, message) => h.worldActionHandler.handleBlock(message)
+    ],
+    [
+        Types.Messages.CW_PARTY,
+        (h, message) => h.partyHandler.handleParty(message)
+    ],
+    [
+        Types.Messages.CW_HARVEST,
+        (h, message) => h.worldActionHandler.handleHarvest(message)
+    ],
+    [
+        Types.Messages.CW_USE_NODE,
+        (h, message) => h.worldActionHandler.handleUseNode(message)
+    ],
+    [Types.Messages.CW_CONFIG, (h, message) => h.handleConfig(message)]
 ]);
 
 class PacketHandler {
@@ -92,26 +170,30 @@ class PacketHandler {
 
         const self = this;
 
-        this.connection.listen(function(message) {
+        this.connection.listen(function (message) {
             // PERF: this fires for every single incoming packet from every
             // connected player (movement, attacks, chat, ...). JSON.stringify
             // on a hot path like this is real, measurable CPU cost even when
             // nothing reads the output, so it's gated behind G_DEBUG instead
             // of unconditionally stringifying every packet.
-            if (G_DEBUG)
-                console.info("recv="+JSON.stringify(message));
+            if (G_DEBUG) console.info('recv=' + JSON.stringify(message));
             const action = parseInt(message[0]);
             if (isNaN(action)) {
                 // FIX: this callback is a plain (non-arrow) function, so `this`
                 // here is not the PacketHandler instance -- it's `self`, captured
                 // a few lines above, that correctly refers to it. `this.connection`
                 // threw a TypeError instead of closing the malformed connection.
-                self.connection.close("Invalid message");
+                self.connection.close('Invalid message');
                 return;
             }
 
-            if(!formatCheck(message)) {
-                self.connection.close("Invalid "+Types.getMessageTypeAsString(action)+" message format: "+message);
+            if (!formatCheck(message)) {
+                self.connection.close(
+                    'Invalid ' +
+                        Types.getMessageTypeAsString(action) +
+                        ' message format: ' +
+                        message
+                );
                 return;
             }
             message.shift();
@@ -142,41 +224,51 @@ class PacketHandler {
                     self.player.message_callback(message);
                 }
             } catch (err) {
-                console.error("PacketHandler: error handling action=" + action + " for player " + (self.player && self.player.name) + ": " + (err && err.stack || err));
+                console.error(
+                    'PacketHandler: error handling action=' +
+                        action +
+                        ' for player ' +
+                        (self.player && self.player.name) +
+                        ': ' +
+                        ((err && err.stack) || err)
+                );
             }
         });
 
-        this.connection.onClose(function() {
-            console.info("Player: " + self.player.name + " has exited the world.");
+        this.connection.onClose(function () {
+            console.info(
+                'Player: ' + self.player.name + ' has exited the world.'
+            );
 
             self.player.save();
 
-            console.info("REMOVING PLAYER FROM WORLD.");
+            console.info('REMOVING PLAYER FROM WORLD.');
 
             if (self.exit_callback) {
-                console.info("exit callback.");
+                console.info('exit callback.');
                 self.exit_callback(self.player);
             }
 
-            console.info("onClose - called");
+            console.info('onClose - called');
         });
-
     }
 
     timeout() {
-        this.connection.sendUTF8("timeout");
-        this.connection.close("Player was idle for too long");
+        this.connection.sendUTF8('timeout');
+        this.connection.close('Player was idle for too long');
     }
 
     broadcast(message, ignoreSelf) {
         if (this.broadcast_callback) {
-            this.broadcast_callback(message, ignoreSelf === undefined ? true : ignoreSelf);
+            this.broadcast_callback(
+                message,
+                ignoreSelf === undefined ? true : ignoreSelf
+            );
         }
     }
 
-
     onExit(callback) {
-        console.info("packetHandler, onExit.");
+        console.info('packetHandler, onExit.');
         this.exit_callback = callback;
     }
 
@@ -205,7 +297,7 @@ class PacketHandler {
     }
 
     handleSyncTime(message) {
-        console.info("handleSyncTime");
+        console.info('handleSyncTime');
         const clientTime = parseInt(message[0]);
         this.send([Types.Messages.BI_SYNCTIME, clientTime, Date.now()]);
     }
@@ -215,18 +307,18 @@ class PacketHandler {
         const p = this.player;
 
         switch (type) {
-        case 0: // CW_APPEARANCELIST
-            this.handleAppearanceList(msg);
-            break;
-        case 1: // CW_PLAYER_REVIVE
-            this.handleRevive(msg);
-            break;
-        case 2: // CW_PLAYERINFO
-            this.handlePlayerInfo(msg);
-            break;
-        case 3: // CW_WHO REQUEST
-            p.map.entities.processWho(p);
-            break;
+            case 0: // CW_APPEARANCELIST
+                this.handleAppearanceList(msg);
+                break;
+            case 1: // CW_PLAYER_REVIVE
+                this.handleRevive(msg);
+                break;
+            case 2: // CW_PLAYERINFO
+                this.handlePlayerInfo(msg);
+                break;
+            case 3: // CW_WHO REQUEST
+                p.map.entities.processWho(p);
+                break;
         }
     }
 
@@ -237,7 +329,7 @@ class PacketHandler {
     handleRevive(msg) {
         const p = this.player;
         if (p.isDead === true) {
-            console.info("handled Revive!!");
+            console.info('handled Revive!!');
             p.respawn();
             p.map.entities.sendNeighbours(p, new Messages.Spawn(p), p);
             // NOTE: `handleRevive`'s `msg` parameter is unused in this
@@ -278,7 +370,7 @@ class PacketHandler {
         // catch that `ids` itself was still the wrong, one-level-too-deep
         // array. Read message[0] (the real ids array) instead of treating
         // `message` itself as the ids list.
-        const ids = (message[0] && message[0].length > 0) ? message[0] : [];
+        const ids = message[0] && message[0].length > 0 ? message[0] : [];
 
         // PERF: Utils.removeFromArray() is indexOf+splice, O(n) per call.
         // Calling it once per id against the same knownIds array made this
@@ -288,9 +380,10 @@ class PacketHandler {
         // carry dozens-to-hundreds of stale ids at once (map transitions).
         // Build a Set of ids to drop and do a single filter() pass instead.
         const removeSet = new Set(ids.map(Number));
-        this.player.knownIds = this.player.knownIds.filter((id) => !removeSet.has(id));
+        this.player.knownIds = this.player.knownIds.filter(
+            (id) => !removeSet.has(id)
+        );
     }
-
 
     // FIX: format.js only bounds this packet's numeric value against
     // mapCoordsMax (16384) -- a generic pixel-coordinate limit, not a real
@@ -325,8 +418,7 @@ class PacketHandler {
         // type 0. format.js's CW_SHORTCUT schema already enforces this same
         // [1, 2] range, so this is a second explicit guard, not the source
         // of truth for it.
-        if (type < 1 || type > 2)
-          return;
+        if (type < 1 || type > 2) return;
 
         // Slot is always 0-5 (player.js's load path, fillPlayerInfo, only
         // restores slots < 6) regardless of shortcut type. format.js's
@@ -339,8 +431,7 @@ class PacketHandler {
         // slot 6/7 (back when format.js's own bound was also looser, 0-7).
         // Slot validity doesn't depend on shortcut type, so this check now
         // runs unconditionally for both.
-        if (slot < 0 || slot > 5)
-            return;
+        if (slot < 0 || slot > 5) return;
 
         // type === 1 (item): shortcutId is an item kind, already bounded
         // against itemKindMax by format.js's CW_SHORTCUT schema, so no extra
@@ -348,29 +439,30 @@ class PacketHandler {
         // type === 2 (skill): shortcutId indexes SkillData.Skills, a much
         // smaller list than itemKindMax, so it needs its own tighter bound.
         if (type === 2) {
-            if (shortcutId < 0 || shortcutId >= SkillData.Skills.length)
-                return;
+            if (shortcutId < 0 || shortcutId >= SkillData.Skills.length) return;
         }
 
         this.player.shortcuts[slot] = [slot, type, shortcutId];
     }
 
     handleConfig(msg) {
-      const arr = msg[0];
-      const p = this.player;
+        const arr = msg[0];
+        const p = this.player;
 
-      for (const val of arr) {
-        const key = val[0];
-        let value = val[1];
+        for (const val of arr) {
+            const key = val[0];
+            let value = val[1];
 
-        if (!p.config.hasOwnProperty(key))
-          continue;
+            if (!p.config.hasOwnProperty(key)) continue;
 
-        if (key === 'screenWidth' || key === 'screenHeight')
-          value = Math.max(1, Math.min(value, PacketHandler.MAX_SCREEN_DIM));
+            if (key === 'screenWidth' || key === 'screenHeight')
+                value = Math.max(
+                    1,
+                    Math.min(value, PacketHandler.MAX_SCREEN_DIM)
+                );
 
-        p.config[key] = value;
-      }
+            p.config[key] = value;
+        }
     }
 }
 

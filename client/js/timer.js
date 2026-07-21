@@ -21,7 +21,7 @@ export default class Timer {
             time = Date.now();
         }
 
-        if (this.lastTime === 0 || (time - this.lastTime) > this.duration) {
+        if (this.lastTime === 0 || time - this.lastTime > this.duration) {
             over = true;
             this.lastTime = time;
         }

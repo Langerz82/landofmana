@@ -30,7 +30,7 @@ export default class Entity {
         this.isFading = false;
 
         this.prevOrientation = null;
-        this.name = "";
+        this.name = '';
 
         this.fadingTime = 1000;
         this.fadingTimer = new Timer(this.fadingTime, Utils.getTime());
@@ -46,8 +46,7 @@ export default class Entity {
 
     /* Sprite and Animation - START */
     hasAnimation(type) {
-        if (!this.currentAnimation)
-            return false;
+        if (!this.currentAnimation) return false;
         return this.currentAnimation.name.indexOf(type) === 0;
     }
 
@@ -59,7 +58,11 @@ export default class Entity {
         this.flipSpriteY = false;
 
         if (oriented.includes(animation)) {
-            animation += "_" + (o === Types.Orientations.LEFT ? "right" : Types.getOrientationAsString(o));
+            animation +=
+                '_' +
+                (o === Types.Orientations.LEFT
+                    ? 'right'
+                    : Types.getOrientationAsString(o));
             this.flipSpriteX = this.orientation === Types.Orientations.LEFT;
         }
 
@@ -69,12 +72,11 @@ export default class Entity {
     setSprite(sprite, index) {
         index = index || 0;
         if (!sprite) {
-            log.error(this.id + " : sprite is null", true);
-            throw "Sprite error";
+            log.error(this.id + ' : sprite is null', true);
+            throw 'Sprite error';
         }
 
-        if (sprite === this.sprites[index])
-            return;
+        if (sprite === this.sprites[index]) return;
 
         this.oldSprites[index] = this.sprites[index];
 
@@ -84,11 +86,13 @@ export default class Entity {
         if (!pjsSprite)
             this.pjsSprites[index] = game.renderer.createSprite(sprite);
         else
-            this.pjsSprites[index] = game.renderer.changeSprite(this.sprites[index], pjsSprite);
+            this.pjsSprites[index] = game.renderer.changeSprite(
+                this.sprites[index],
+                pjsSprite
+            );
 
         // The main sprite Animations are used only.
-        if (index === 0)
-            this.animations = sprite.animations;
+        if (index === 0) this.animations = sprite.animations;
 
         this.isLoaded = true;
         if (this.ready_func) {
@@ -99,8 +103,7 @@ export default class Entity {
     restoreSprite(index) {
         index = index || 0;
         const tmp = this.oldSprites[index];
-        if (tmp)
-            this.setSprite(tmp, index);
+        if (tmp) this.setSprite(tmp, index);
     }
 
     getSprite(index) {
@@ -113,11 +116,10 @@ export default class Entity {
 
         if (name in this.animations) {
             animation = this.animations[name];
-        }
-        else {
+        } else {
             const e = new Error();
             log.error(e.stack);
-            log.info("No animation called " + name);
+            log.info('No animation called ' + name);
             return null;
         }
         return animation;
@@ -127,7 +129,8 @@ export default class Entity {
         const self = this;
 
         if (this.isLoaded) {
-            const alreadyPlaying = this.currentAnimation && this.currentAnimation.name === name;
+            const alreadyPlaying =
+                this.currentAnimation && this.currentAnimation.name === name;
 
             // FIX: one-shot animations (count > 0, e.g. "atk") must be re-armed once their
             // current cycle has actually finished, even when an animation with the same name
@@ -145,7 +148,11 @@ export default class Entity {
                 return;
             }
 
-            if ((this.isDying || this.isDead) && this.currentAnimation && this.currentAnimation.name === "death")
+            if (
+                (this.isDying || this.isDead) &&
+                this.currentAnimation &&
+                this.currentAnimation.name === 'death'
+            )
                 return;
 
             // FIX: this is the one choke point every animation switch passes through
@@ -159,9 +166,13 @@ export default class Entity {
             // "jammed after an attack" bug. Resync fsm right here, whenever we're really
             // swapping away from a still-running attack animation, so movement is guaranteed
             // to unblock even if the attack got cut short instead of completing normally.
-            if (this.fsm === "ATTACK" && !alreadyPlaying &&
-                this.currentAnimation && this.currentAnimation.name.indexOf("atk") === 0) {
-                this.fsm = "IDLE";
+            if (
+                this.fsm === 'ATTACK' &&
+                !alreadyPlaying &&
+                this.currentAnimation &&
+                this.currentAnimation.name.indexOf('atk') === 0
+            ) {
+                this.fsm = 'IDLE';
             }
 
             const template = this.getAnimationByName(name);
@@ -179,13 +190,16 @@ export default class Entity {
                 }
                 this.currentAnimation.reset();
                 this.currentAnimation.setSpeed(speed);
-                this.currentAnimation.setCount(count ? count : 0, onEndCount || function() {
-                    self.idle(self.orientation);
-                });
+                this.currentAnimation.setCount(
+                    count ? count : 0,
+                    onEndCount ||
+                        function () {
+                            self.idle(self.orientation);
+                        }
+                );
             }
-        }
-        else {
-            this.log_error("Not ready for animation");
+        } else {
+            this.log_error('Not ready for animation');
         }
     }
 
@@ -213,8 +227,7 @@ export default class Entity {
     }
 
     fadeInEntity(time) {
-        if (this.lockfadeIn === true)
-            return;
+        if (this.lockfadeIn === true) return;
 
         this.isFading = true;
         // FIX (carried over): was setting this.fadingTime.lastTime (fadingTime is just the
@@ -224,8 +237,7 @@ export default class Entity {
     }
 
     getFadeRatio(time) {
-        if (this.lockfadeIn === true)
-            return 1.0;
+        if (this.lockfadeIn === true) return 1.0;
 
         if (this.fadingTimer.isOver(time)) {
             this.isFading = false;
@@ -291,7 +303,10 @@ export default class Entity {
      *
      */
     isAdjacentNonDiagonal(entity) {
-        return this.isAdjacent(entity) && !(this.x !== entity.x && this.y !== entity.y);
+        return (
+            this.isAdjacent(entity) &&
+            !(this.x !== entity.x && this.y !== entity.y)
+        );
     }
 
     isDiagonallyAdjacent(entity) {
@@ -309,7 +324,8 @@ export default class Entity {
     getAdjacentTiles(min, max) {
         min = min || 0;
         max = max || G_TILESIZE;
-        const x = this.x, y = this.y;
+        const x = this.x,
+            y = this.y;
 
         const posArray = [];
         for (let i = min; i <= max; ++i) {
@@ -351,7 +367,7 @@ export default class Entity {
     }
 
     isNextTooEntity(entity) {
-        return this.isWithinDist(entity.x, entity.y, (G_TILESIZE));
+        return this.isWithinDist(entity.x, entity.y, G_TILESIZE);
     }
 
     isNextTooTile(x, y) {
@@ -360,21 +376,21 @@ export default class Entity {
     }
 
     isNextTooPosition(x, y) {
-        return this.isWithinDist(x, y, (G_TILESIZE));
+        return this.isWithinDist(x, y, G_TILESIZE);
     }
 
     isAdjacentEntity(entity, dist = G_TILESIZE) {
         const dx = Math.abs(this.x - entity.x);
         const dy = Math.abs(this.y - entity.y);
-        return (dx + dy) <= dist;
+        return dx + dy <= dist;
     }
 
     isOverEntity(entity) {
-        return this.isWithinDist(entity.x, entity.y, (G_TILESIZE >> 1));
+        return this.isWithinDist(entity.x, entity.y, G_TILESIZE >> 1);
     }
 
     isOverPosition(x, y) {
-        return this.isWithinDist(x, y, (G_TILESIZE >> 1));
+        return this.isWithinDist(x, y, G_TILESIZE >> 1);
     }
 
     isOverlappingEntity(entity) {
@@ -383,8 +399,7 @@ export default class Entity {
 
     isOverlapping(entities) {
         for (let entity of entities) {
-            if (!entity || this === entity)
-                continue;
+            if (!entity || this === entity) continue;
             if (this.isOverlappingEntity(entity)) {
                 return true;
             }
@@ -392,6 +407,5 @@ export default class Entity {
         return false;
     }
 
-    clean() {
-    }
+    clean() {}
 }

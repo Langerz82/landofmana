@@ -2,14 +2,14 @@
 export default class PageNavigator {
     constructor(parent, scale, name) {
         this.parent = parent;
-        this.name = name || "store";
-        this.body = $('#'+this.name+'PageNav');
-        this.movePreviousButton = $('#'+this.name+'PageNavPrev');
+        this.name = name || 'store';
+        this.body = $('#' + this.name + 'PageNav');
+        this.movePreviousButton = $('#' + this.name + 'PageNavPrev');
         this.numbers = [];
-        for(let index = 0; index < 5; index++) {
-            this.numbers.push($('#'+this.name+'PageNavNumber' + index));
+        for (let index = 0; index < 5; index++) {
+            this.numbers.push($('#' + this.name + 'PageNavNumber' + index));
         }
-        this.moveNextButton = $('#'+this.name+'PageNavNext');
+        this.moveNextButton = $('#' + this.name + 'PageNavNext');
 
         this.changeHandler = null;
 
@@ -17,26 +17,23 @@ export default class PageNavigator {
 
         const self = this;
 
-        this.movePreviousButton.click(function(event) {
-            if (!self.parent.visible)
-              return;
+        this.movePreviousButton.click(function (event) {
+            if (!self.parent.visible) return;
 
-            if(self.index > 1) {
+            if (self.index > 1) {
                 self.setIndex(self.index - 1);
             }
         });
-        this.moveNextButton.click(function(event) {
-            if (!self.parent.visible)
-              return;
+        this.moveNextButton.click(function (event) {
+            if (!self.parent.visible) return;
 
-            if(self.index < self.count) {
+            if (self.index < self.count) {
                 self.setIndex(self.index + 1);
             }
         });
     }
 
-    rescale(scale) {
-    }
+    rescale(scale) {}
 
     getCount() {
         return this.count;
@@ -44,23 +41,26 @@ export default class PageNavigator {
     setCount(value) {
         this.count = value;
 
-        this.numbers[3].html(~~(value / 10))
-        this.numbers[4].html((value % 10));
+        this.numbers[3].html(~~(value / 10));
+        this.numbers[4].html(value % 10);
     }
     getIndex() {
         return this.index;
     }
     setIndex(value) {
-        this.pageChanged = (this.index !== value);
+        this.pageChanged = this.index !== value;
         this.index = value;
 
-        this.numbers[0].html(~~(value / 10))
-        this.numbers[1].html((value % 10));
+        this.numbers[0].html(~~(value / 10));
+        this.numbers[1].html(value % 10);
 
         this.movePreviousButton.attr('class', this.index > 1 ? 'enabled' : '');
-        this.moveNextButton.attr('class', this.index < this.count ? 'enabled' : '');
+        this.moveNextButton.attr(
+            'class',
+            this.index < this.count ? 'enabled' : ''
+        );
 
-        if(this.pageChanged && this.changeHandler) {
+        if (this.pageChanged && this.changeHandler) {
             this.changeHandler(this);
         }
     }
@@ -76,7 +76,7 @@ export default class PageNavigator {
     }
 
     open() {
-      this.setIndex(1);
-      this.setVisible(this.index < this.count);
+        this.setIndex(1);
+        this.setVisible(this.index < this.count);
     }
 }

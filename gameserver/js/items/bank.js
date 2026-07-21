@@ -8,7 +8,7 @@ class Bank extends ItemRoomStore {
 
         this.typeIndex = 1;
         this.maxNumber = 96;
-        this.fullMessage = new Messages.Notify("BANK", "BANK_FULL");
+        this.fullMessage = new Messages.Notify('BANK', 'BANK_FULL');
     }
 }
 

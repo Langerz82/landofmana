@@ -8,9 +8,8 @@ class Looks {
         this.reset();
     }
 
-    reset()
-    {
-        console.info("LOOKS INIT");
+    reset() {
+        console.info('LOOKS INIT');
 
         const length = AppearanceData.Data.length;
         for (let i = 0; i < length; i++) {
@@ -22,8 +21,7 @@ class Looks {
         this.prices[151] = 0; // Cloth armor
     }
 
-    load(data)
-    {
+    load(data) {
         const self = this;
         //console.info("LOOKS LOAD: "+JSON.stringify(data));
 
@@ -44,14 +42,12 @@ class Looks {
     // NOTE: `data` was a bare (undeclared) assignment in the original CommonJS
     // source, which created an implicit global there; declared with `var` here
     // since ES modules are always strict mode and forbid implicit globals.
-    save(world)
-    {
-        console.info("LOOKS SAVED");
+    save(world) {
+        console.info('LOOKS SAVED');
 
-        if (!this.prices)
-            return true;
+        if (!this.prices) return true;
 
-        const data = this.prices.join(",");
+        const data = this.prices.join(',');
         if (world.userHandler) {
             world.userHandler.sendLooksData(data);
             return true;

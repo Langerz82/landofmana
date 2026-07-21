@@ -33,35 +33,54 @@ class TrapArea extends EntityArea {
         threshold = threshold || 50;
 
         let t = 0;
-        while(t++ < threshold) {
-            pos = [this.gx + Utils.randomInt((this.width/G_TILESIZE) - width),
-                   this.gy + Utils.randomInt((this.height/G_TILESIZE) - height)];
+        while (t++ < threshold) {
+            pos = [
+                this.gx + Utils.randomInt(this.width / G_TILESIZE - width),
+                this.gy + Utils.randomInt(this.height / G_TILESIZE - height)
+            ];
 
-            if (this.isGroupEmptyPositions(pos, width, height))
-                break;
+            if (this.isGroupEmptyPositions(pos, width, height)) break;
 
             pos = null;
         }
 
         if (!pos) {
-            console.error("TrapArea - addRandomGroup - failed, threshold reached.")
+            console.error(
+                'TrapArea - addRandomGroup - failed, threshold reached.'
+            );
             return;
         }
 
-        const group = new TrapGroup(kind, pos[0], pos[1], width, height, this.map,
-            this.damage, this.switchInterval);
+        const group = new TrapGroup(
+            kind,
+            pos[0],
+            pos[1],
+            width,
+            height,
+            this.map,
+            this.damage,
+            this.switchInterval
+        );
 
         this.addGroup(group);
     }
 
     isGroupEmptyPositions(pos, width, height) {
-        console.info("isGroupEmptyPositions: pos=["+pos[0]+","+pos[1]+"],w="+width+",h="+height);
-        for (let i=0; i < width; ++i) {
-            for (let j=0; j < height; ++j) {
-                const x = (pos[0]+i);
-                const y = (pos[1]+j);
-                if (!this.map.entities.isGridPositionEmpty(x,y))
-                {
+        console.info(
+            'isGroupEmptyPositions: pos=[' +
+                pos[0] +
+                ',' +
+                pos[1] +
+                '],w=' +
+                width +
+                ',h=' +
+                height
+        );
+        for (let i = 0; i < width; ++i) {
+            for (let j = 0; j < height; ++j) {
+                const x = pos[0] + i;
+                const y = pos[1] + j;
+                if (!this.map.entities.isGridPositionEmpty(x, y)) {
                     return false;
                 }
             }
@@ -87,29 +106,30 @@ class TrapArea extends EntityArea {
     isTouching(entity) {
         const ts = G_TILESIZE;
         const half = ts >> 1;
-        const left   = this.x - half;
-        const right  = this.x + this.width + half;
-        const top    = this.y - half;
+        const left = this.x - half;
+        const right = this.x + this.width + half;
+        const top = this.y - half;
         const bottom = this.y + this.height + half;
 
-        return entity.x >= left && entity.x <= right &&
-               entity.y >= top && entity.y <= bottom;
+        return (
+            entity.x >= left &&
+            entity.x <= right &&
+            entity.y >= top &&
+            entity.y <= bottom
+        );
     }
 
     // FIX: was calling the nonexistent this.isTouchingEntity(entity); the only
     // defined method on this class is isTouching(entity) above. This threw on
     // every update() call, so traps never actually applied damage.
     update(entity) {
-        if (!this.checkTimer.isOver())
-            return;
+        if (!this.checkTimer.isOver()) return;
 
-        if (!this.isTouching(entity))
-            return;
+        if (!this.isTouching(entity)) return;
 
         for (const group of this.groups) {
             group.update(entity);
         }
-
     }
 }
 

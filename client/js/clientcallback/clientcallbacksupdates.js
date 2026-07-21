@@ -6,54 +6,43 @@ import AppearanceData from '../data/appearancedata.js';
 /* global game */
 
 export function installClientCallbacksUpdates(proto) {
+    proto.onSetSprite = function (data) {
+        const entity = game.getEntityById(Number(data[0]));
+        if (!entity) return;
 
-      proto.onSetSprite = function(data)
-      {
-
-          const entity = game.getEntityById(Number(data[0]));
-          if (!entity) return;
-
-          if (entity instanceof Player)
-          {
+        if (entity instanceof Player) {
             entity.setSpriteByIndex(0, Number(data[1]));
             entity.setSpriteByIndex(1, Number(data[2]));
 
             game.app.initPlayerBar();
-          } else {
+        } else {
             const num = Number(data[1]);
             const sprite = game.sprites[AppearanceData[num].sprite];
             entity.setSprite(sprite);
-          }
+        }
+    };
 
-      };
+    proto.onSetAnimation = function (data) {
+        const entity = game.getEntityById(Number(data[0]));
+        if (!entity) return;
 
-      proto.onSetAnimation = function(data)
-      {
+        // TODO - Not yet implemented.
+    };
 
-          const entity = game.getEntityById(Number(data[0]));
-          if (!entity) return;
+    proto.onBlockModify = function (data) {
+        const entityId = Number(data[0]);
+        const type = Number(data[1]);
+        const blockId = Number(data[2]);
 
-          // TODO - Not yet implemented.
-      };
+        const entity = game.getEntityById(entityId);
+        const block = game.getEntityById(blockId);
+        if (!entity || !block) return;
 
-      proto.onBlockModify = function(data) {
-          const entityId = Number(data[0]);
-          const type = Number(data[1]);
-          const blockId = Number(data[2]);
-
-
-          const entity = game.getEntityById(entityId);
-          const block = game.getEntityById(blockId);
-          if (!entity || !block)
-            return;
-
-          if (type === 0) {
+        if (type === 0) {
             block.pickup(entity);
-          }
-          else if (type === 1) {
+        } else if (type === 1) {
             block.place(entity);
             entity.holdingBlock = null;
-          }
-      };
-
+        }
+    };
 }

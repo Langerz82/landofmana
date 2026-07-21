@@ -13,12 +13,10 @@ class LootManager {
         this.world = world;
     }
 
-    handleDropItem(entity, attacker)
-    {
+    handleDropItem(entity, attacker) {
         const itemLoot = this.getLootItem(attacker, entity, 0);
-        if (itemLoot && itemLoot instanceof Item)
-        {
-            console.info("LOOT ITEM SENT!")
+        if (itemLoot && itemLoot instanceof Item) {
+            console.info('LOOT ITEM SENT!');
             const pos = Utils.fixGridPosition(G_TILESIZE, entity.x, entity.y);
             itemLoot.x = pos.x;
             itemLoot.y = pos.y;
@@ -27,8 +25,7 @@ class LootManager {
         }
 
         const item = this.getDroppedOrStolenItem(attacker, entity, 0);
-        if (item && item instanceof Item)
-        {
+        if (item && item instanceof Item) {
             const pos = Utils.fixGridPosition(G_TILESIZE, entity.x, entity.y);
             item.x = pos.x;
             item.y = pos.y;
@@ -37,23 +34,18 @@ class LootManager {
         }
     }
 
-    handleItemDespawn(item)
-    {
-        if (item)
-        {
-            item.handleDespawn(
-                {
-                    beforeBlinkDelay: 20000,
-                    blinkCallback: function()
-                    {
-                        //item.map.entities.pushToAdjacentGroups(item.group, new Messages.Blink(item));
-                    },
-                    blinkingDuration: 10000,
-                    despawnCallback: function()
-                    {
-                        item.map.entities.itemDespawn(item);
-                    }
-                });
+    handleItemDespawn(item) {
+        if (item) {
+            item.handleDespawn({
+                beforeBlinkDelay: 20000,
+                blinkCallback: function () {
+                    //item.map.entities.pushToAdjacentGroups(item.group, new Messages.Blink(item));
+                },
+                blinkingDuration: 10000,
+                despawnCallback: function () {
+                    item.map.entities.itemDespawn(item);
+                }
+            });
         }
     }
 
@@ -81,12 +73,10 @@ class LootManager {
     // intended `!(target instanceof Mob)`. This guard clause never actually
     // fired, so non-Mob targets (e.g. players) fell through into mob-only
     // quest-drop logic.
-    getLootItem(source, target, stolen)
-    {
+    getLootItem(source, target, stolen) {
         const self = this;
 
-        if (!(target instanceof Mob))
-            return;
+        if (!(target instanceof Mob)) return;
 
         // NOTE: `itemId2` used to be declared twice with `var` -- once here
         // (`= null`) and once more, bare, right after the `if` above.
@@ -95,13 +85,21 @@ class LootManager {
         // `let`. Consolidated to the one declaration -- now just the return
         // value of the shared _pickWeighted() scan above.
         const drops = target.questDrops;
-        const itemId2 = this._pickWeighted(drops, Utils.randomRangeInt(0,1000));
+        const itemId2 = this._pickWeighted(
+            drops,
+            Utils.randomRangeInt(0, 1000)
+        );
 
         if (itemId2) {
             //console.info("itemName: "+itemName);
             //var kind = ItemTypes.getKindFromString(itemName);
             const itemRoom = new ItemRoom([parseInt(itemId2), 1, 0, 0, 0]);
-            const lootItem = target.map.entities.createItem(itemRoom, target.x, target.y, 1);
+            const lootItem = target.map.entities.createItem(
+                itemRoom,
+                target.x,
+                target.y,
+                1
+            );
             lootItem.count = 1;
             lootItem.experience = 0;
 
@@ -124,25 +122,30 @@ class LootManager {
     // branch just above) and calling createItem() directly fixes all three.
     getPlayerDrop(source, target, stolen) {
         const itemIndex = target.items.inventory.getRandomItemNumber();
-        if (itemIndex === -1)
-            return;
+        if (itemIndex === -1) return;
         const item = target.items.inventory.rooms[itemIndex];
         let count = 1;
         if (ItemTypes.isConsumableItem(item.itemKind)) {
             count = Math.floor((Math.random() * target.level + 2) / 2);
-            if (count > item.itemNumber)
-                count = item.itemNumber;
+            if (count > item.itemNumber) count = item.itemNumber;
         }
         let item2;
         if (stolen) {
             item2 = Object.assign(new ItemRoom(), item);
             item2.itemNumber = count;
-            source.sendPlayer(new Messages.Notify("CHAT", "ITEM_ADDED", [ItemData.Kinds[item.itemKind].name]));
-        }
-        else {
+            source.sendPlayer(
+                new Messages.Notify('CHAT', 'ITEM_ADDED', [
+                    ItemData.Kinds[item.itemKind].name
+                ])
+            );
+        } else {
             const droppedRoom = Object.assign(new ItemRoom(), item);
             droppedRoom.itemNumber = count;
-            item2 = target.map.entities.createItem(droppedRoom, target.x, target.y);
+            item2 = target.map.entities.createItem(
+                droppedRoom,
+                target.x,
+                target.y
+            );
         }
         target.items.inventory.takeOutItems(itemIndex, count);
         return item2;
@@ -150,8 +153,7 @@ class LootManager {
 
     getDrop(source, target, stolen) {
         //console.info("getDroppedItem");
-        if (target.droppedItem === true)
-            return;
+        if (target.droppedItem === true) return;
 
         target.droppedItem = true;
 
@@ -172,32 +174,35 @@ class LootManager {
         // self-heal via its own `Number(arr[0])` coercion, but that's after
         // the isEquippable check already ran on the raw string. Coercing
         // once here fixes it at the source.
-        if (!itemId2)
-            return null;
+        if (!itemId2) return null;
         itemId2 = Number(itemId2);
 
         //console.info("itemName: "+itemName);
         //var kind = ItemTypes.getKindFromString(itemName);
         let itemRoom;
-        if (ItemTypes.isEquippable(itemId2))
-        {
-            const count = Utils.setEquipmentBonus(itemId2)
+        if (ItemTypes.isEquippable(itemId2)) {
+            const count = Utils.setEquipmentBonus(itemId2);
             itemRoom = new ItemRoom([itemId2, count, 0, 0, 900, 900]);
             itemRoom.itemExperience = ItemTypes.itemExpForLevel[count - 1];
-        }
-        else {
+        } else {
             itemRoom = new ItemRoom([itemId2, 1, 0, 0, 0, 0]);
         }
-        const item = target.map.entities.createItem(itemRoom, target.x, target.y, 1);
+        const item = target.map.entities.createItem(
+            itemRoom,
+            target.x,
+            target.y,
+            1
+        );
 
-        if (stolen)
-        {
+        if (stolen) {
             if (source instanceof Player)
-                source.sendPlayer(new Messages.Notify("CHAT", "ITEM_ADDED", [ItemData.Kinds[item.itemKind].name]));
+                source.sendPlayer(
+                    new Messages.Notify('CHAT', 'ITEM_ADDED', [
+                        ItemData.Kinds[item.itemKind].name
+                    ])
+                );
             return itemRoom;
-        }
-        else
-        {
+        } else {
             if (target.data && target.data.dropBonus)
                 item.count += target.data.dropBonus;
 
@@ -214,7 +219,7 @@ class LootManager {
             let targetLevel = 0;
             targetLevel = target.level;
             const diff = targetLevel - source.level;
-            const bonusLevel = Utils.clamp(0.1, 1.9, 1 + (diff * 0.05));
+            const bonusLevel = Utils.clamp(0.1, 1.9, 1 + diff * 0.05);
             count *= bonusLevel;
             count = ~~count;
         }

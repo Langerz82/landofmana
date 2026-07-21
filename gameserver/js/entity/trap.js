@@ -49,20 +49,30 @@ class Trap extends EntityMoving {
     // instead of an opaque crash.
     on() {
         this.active = true;
-        if (typeof Messages.SwapSprite !== "function") {
-            console.warn("Trap.on() - Messages.SwapSprite is not implemented; skipping sendNeighbours.");
+        if (typeof Messages.SwapSprite !== 'function') {
+            console.warn(
+                'Trap.on() - Messages.SwapSprite is not implemented; skipping sendNeighbours.'
+            );
             return;
         }
-        this.map.entities.sendNeighbours(this, new Messages.SwapSprite(this.id, 1));
+        this.map.entities.sendNeighbours(
+            this,
+            new Messages.SwapSprite(this.id, 1)
+        );
     }
 
     off() {
         this.active = false;
-        if (typeof Messages.SwapSprite !== "function") {
-            console.warn("Trap.off() - Messages.SwapSprite is not implemented; skipping sendNeighbours.");
+        if (typeof Messages.SwapSprite !== 'function') {
+            console.warn(
+                'Trap.off() - Messages.SwapSprite is not implemented; skipping sendNeighbours.'
+            );
             return;
         }
-        this.map.entities.sendNeighbours(this, new Messages.SwapSprite(this.id, 0));
+        this.map.entities.sendNeighbours(
+            this,
+            new Messages.SwapSprite(this.id, 0)
+        );
     }
 }
 

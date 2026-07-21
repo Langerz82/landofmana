@@ -9,79 +9,73 @@ export function installMainDialogs() {
     // undeclared bare identifiers here (ReferenceError: jqDropAccept is not defined). jQuery
     // selector re-declaration across split files is safe (idempotent DOM lookups, see
     // appearancerack.js/appearanceframe.js etc. for the same pattern), so just re-query them here.
-    const jqDropAccept = $("#dropAccept");
-    const jqDropCancel = $("#dropCancel");
+    const jqDropAccept = $('#dropAccept');
+    const jqDropCancel = $('#dropCancel');
 
-    jqDropAccept.click(function(event) {
+    jqDropAccept.click(function (event) {
         let count = parseInt($('#dropCount').val());
-        if(count > 0) {
-        	if (app.dropAction === "bankgold") // Send to bank.
-        	{
-            const gold = game.player.gold[0];
-        		if (count > gold) count=gold;
-        		game.client.sendGold(0, count, 1);
-        	}
-        	else if (app.dropAction === "inventorygold") // Send to inventory.
-        	{
-            const bgold = game.player.gold[1];
-        		if (count > bgold) count=bgold;
-        		game.client.sendGold(1, count, 0);
-        	}
-          else if (app.dropAction === "splititems") // Split Items.
-          {
-            game.inventory.sendSplitItem(game.app.SplitItem, count);
-            game.app.SplitItem = null;
-          }
-        	else if (app.dropAction === "dropItems") // Drop Items
-        	{
-            game.inventory.sendDropItem(game.app.DropItem, count);
-            game.app.DropItem = null;
-        	}
+        if (count > 0) {
+            if (app.dropAction === 'bankgold') // Send to bank.
+            {
+                const gold = game.player.gold[0];
+                if (count > gold) count = gold;
+                game.client.sendGold(0, count, 1);
+            } else if (app.dropAction === 'inventorygold') // Send to inventory.
+            {
+                const bgold = game.player.gold[1];
+                if (count > bgold) count = bgold;
+                game.client.sendGold(1, count, 0);
+            } else if (app.dropAction === 'splititems') // Split Items.
+            {
+                game.inventory.sendSplitItem(game.app.SplitItem, count);
+                game.app.SplitItem = null;
+            } else if (app.dropAction === 'dropItems') // Drop Items
+            {
+                game.inventory.sendDropItem(game.app.DropItem, count);
+                game.app.DropItem = null;
+            }
         }
 
         setTimeout(function () {
             app.hideDropDialog();
         }, 100);
-
     });
 
-    jqDropCancel.click(function(event) {
+    jqDropCancel.click(function (event) {
         setTimeout(function () {
             app.hideDropDialog();
         }, 100);
-
     });
 
-    $('#auctionSellAccept').click(function(event) {
+    $('#auctionSellAccept').click(function (event) {
         try {
             const count = parseInt($('#auctionSellCount').val());
-            if(count > 0) {
-                game.client.sendAuctionSell(app.inventoryNumber,count);
+            if (count > 0) {
+                game.client.sendAuctionSell(app.inventoryNumber, count);
                 game.inventoryDialog.inventory[app.inventoryNumber] = null;
             }
-        } catch(e) {
-        }
+        } catch (e) {}
 
         setTimeout(function () {
             app.hideAuctionSellDialog();
         }, 100);
     });
 
-    $('#auctionSellCancel').click(function(event) {
+    $('#auctionSellCancel').click(function (event) {
         setTimeout(function () {
             app.hideAuctionSellDialog();
         }, 100);
     });
 
-    $('#nameinput').focusin(function() {
+    $('#nameinput').focusin(function () {
         $('#name-tooltip').addClass('visible');
     });
 
-    $('#nameinput').focusout(function() {
+    $('#nameinput').focusout(function () {
         $('#name-tooltip').removeClass('visible');
     });
 
-    $('#nameinput').keypress(function(event) {
+    $('#nameinput').keypress(function (event) {
         $('#name-tooltip').removeClass('visible');
     });
 }

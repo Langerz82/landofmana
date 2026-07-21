@@ -8,10 +8,12 @@ export default class Area {
     }
 
     contains(entity) {
-        return !!entity
-            && entity.x >= this.x
-            && entity.y >= this.y
-            && entity.x < this.x + this.width
-            && entity.y < this.y + this.height;
+        return (
+            !!entity &&
+            entity.x >= this.x &&
+            entity.y >= this.y &&
+            entity.x < this.x + this.width &&
+            entity.y < this.y + this.height
+        );
     }
 }

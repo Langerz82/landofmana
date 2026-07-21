@@ -6,40 +6,39 @@ import Area from './area.js';
 
 export default class AudioManager {
     constructor(game) {
-        if (game.renderer.mobile || typeof (Native) !== 'undefined')
+        if (game.renderer.mobile || typeof Native !== 'undefined')
             this.enabled = false;
-        else
-            this.enabled = true;
-        this.extension = "ogg";
+        else this.enabled = true;
+        this.extension = 'ogg';
         this.sounds = {};
         this.game = game;
         this.currentMusic = null;
         this.areas = [];
         this.loadedMusic = {
-            "map0": false,
-            "map1": false,
-            "map2": false,
-            "map3": false
+            map0: false,
+            map1: false,
+            map2: false,
+            map3: false
         };
 
         this.loadedSound = {
-            "loot": false,
-            "hit1": false,
-            "hit2": false,
-            "hurt": false,
-            "heal": false,
-            "chat": false,
-            "revive": false,
-            "death": false,
-            "firefox": false,
-            "achievement": false,
-            "kill1": false,
-            "kill2": false,
-            "noloot": false,
-            "teleport": false,
-            "chest": false,
-            "npc": false,
-            "npc-end": false
+            loot: false,
+            hit1: false,
+            hit2: false,
+            hurt: false,
+            heal: false,
+            chat: false,
+            revive: false,
+            death: false,
+            firefox: false,
+            achievement: false,
+            kill1: false,
+            kill2: false,
+            noloot: false,
+            teleport: false,
+            chest: false,
+            npc: false,
+            'npc-end': false
         };
 
         if (Detect.isSafari() && Detect.isWindows()) {
@@ -60,7 +59,7 @@ export default class AudioManager {
     }
 
     load(basePath, name, loaded_callback, channels) {
-        const path = basePath + name + "." + this.extension,
+        const path = basePath + name + '.' + this.extension,
             sound = document.createElement('audio'),
             self = this;
 
@@ -68,47 +67,63 @@ export default class AudioManager {
         // which threw "'caller', 'callee', and 'arguments' properties may not be accessed on
         // strict mode functions..." as soon as a sound/music file finished loading. Named the
         // function expression and referenced it by name instead of arguments.callee.
-        sound.addEventListener('canplaythrough', function onCanPlayThrough(e) {
-            this.removeEventListener('canplaythrough', onCanPlayThrough, false);
-            log.debug(path + " is ready to play.");
-            if (loaded_callback) {
-                loaded_callback();
-            }
-        }, false);
-        sound.addEventListener('error', function(e) {
-            log.error("Error: " + path + " could not be loaded.");
-            self.sounds[name] = null;
-        }, false);
+        sound.addEventListener(
+            'canplaythrough',
+            function onCanPlayThrough(e) {
+                this.removeEventListener(
+                    'canplaythrough',
+                    onCanPlayThrough,
+                    false
+                );
+                log.debug(path + ' is ready to play.');
+                if (loaded_callback) {
+                    loaded_callback();
+                }
+            },
+            false
+        );
+        sound.addEventListener(
+            'error',
+            function (e) {
+                log.error('Error: ' + path + ' could not be loaded.');
+                self.sounds[name] = null;
+            },
+            false
+        );
 
-        sound.preload = "auto";
+        sound.preload = 'auto';
         sound.autobuffer = true;
         sound.src = path;
         sound.load();
 
         this.sounds[name] = [sound];
-        _.times(channels - 1, function() {
+        _.times(channels - 1, function () {
             self.sounds[name].push(sound.cloneNode(true));
         });
     }
 
     loadSound(name, handleLoaded) {
-        this.load("audio/sounds/", name, handleLoaded, 4);
+        this.load('audio/sounds/', name, handleLoaded, 4);
     }
 
     loadMusic(name, handleLoaded) {
-        this.load("audio/music/", name, handleLoaded, 1);
+        this.load('audio/music/', name, handleLoaded, 1);
         const music = this.sounds[name][0];
         music.loop = true;
-        music.addEventListener('ended', function() {
-            music.play()
-        }, false);
+        music.addEventListener(
+            'ended',
+            function () {
+                music.play();
+            },
+            false
+        );
     }
 
     getSound(name) {
         if (!this.sounds[name]) {
             return null;
         }
-        let sound = _.detect(this.sounds[name], function(sound) {
+        let sound = _.detect(this.sounds[name], function (sound) {
             return sound.ended || sound.paused;
         });
         if (sound && sound.ended) {
@@ -121,8 +136,7 @@ export default class AudioManager {
 
     playSound(name) {
         if (this.enabled) {
-            if (name in this.loadedSound &&
-                this.loadedSound[name] === false) {
+            if (name in this.loadedSound && this.loadedSound[name] === false) {
                 this.loadSound(name);
                 this.loadedSound[name] = true;
             }
@@ -158,19 +172,20 @@ export default class AudioManager {
             } else {
                 this.fadeOutCurrentMusic();
             }
-        }
-        else {
+        } else {
             this.fadeOutCurrentMusic();
         }
     }
 
     isCurrentMusic(music) {
-        return this.currentMusic && (music.name === this.currentMusic.name);
+        return this.currentMusic && music.name === this.currentMusic.name;
     }
 
     playMusic(music) {
-        if (music.name in this.loadedMusic &&
-            this.loadedMusic[music.name] === false) {
+        if (
+            music.name in this.loadedMusic &&
+            this.loadedMusic[music.name] === false
+        ) {
             this.loadMusic(music.name);
             // FIX: was setting a property on the `loadMusic` function itself instead of the `loadedMusic` tracking
             // map (compare playSound's correct `this.loadedSound[name] = true`), so this track was reloaded from
@@ -207,7 +222,7 @@ export default class AudioManager {
         const self = this;
         if (music && !music.sound.fadingOut) {
             this.clearFadeIn(music);
-            music.sound.fadingOut = setInterval(function() {
+            music.sound.fadingOut = setInterval(function () {
                 const step = 0.02;
                 const volume = music.sound.volume - step; // FIX: missing var, was an implicit global
 
@@ -226,7 +241,7 @@ export default class AudioManager {
         const self = this;
         if (music && !music.sound.fadingIn) {
             this.clearFadeOut(music);
-            music.sound.fadingIn = setInterval(function() {
+            music.sound.fadingIn = setInterval(function () {
                 const step = 0.01;
                 const volume = music.sound.volume + step; // FIX: missing var, was an implicit global
 
@@ -257,7 +272,7 @@ export default class AudioManager {
     fadeOutCurrentMusic() {
         const self = this;
         if (this.currentMusic) {
-            this.fadeOutMusic(this.currentMusic, function(music) {
+            this.fadeOutMusic(this.currentMusic, function (music) {
                 self.resetMusic(music);
             });
             this.currentMusic = null;

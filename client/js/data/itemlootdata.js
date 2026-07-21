@@ -4,7 +4,7 @@
 import fetchJsonSync from '../lib/fetchjsonsync.js';
 
 const lootParse = fetchJsonSync('shared/data/itemloot.json');
-const ItemLoot = lootParse.map(val => ({
+const ItemLoot = lootParse.map((val) => ({
     name: val.name,
     rarity: val.rarity,
     sprite: val.sprite,

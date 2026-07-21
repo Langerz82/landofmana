@@ -8,10 +8,8 @@ class TabButton {
 
         this.visibleChangeHandler = null;
 
-
-        this.body.on('click', function(event) {
-            if (self.page.parent.parent.showing)
-              self.page.active();
+        this.body.on('click', function (event) {
+            if (self.page.parent.parent.showing) self.page.active();
         });
     }
 
@@ -19,7 +17,7 @@ class TabButton {
         return this.body.attr('class') === 'active';
     }
     setVisible(value) {
-        if(value) {
+        if (value) {
             this.body.addClass('active');
         } else {
             this.body.removeClass('active');
@@ -53,12 +51,12 @@ export default class TabPage {
         return this.body.css('display') === 'block';
     }
     setVisible(value) {
-        if(this.button) {
+        if (this.button) {
             this.button.setVisible(value);
         }
         this.body.css('display', value ? 'block' : 'none');
 
-        if(this.visibleChangeHandler) {
+        if (this.visibleChangeHandler) {
             // FIX: referenced undeclared `self` (only TabButton.setVisible has a `self`
             // local; this is TabPage.setVisible) - would throw ReferenceError the moment
             // any caller registered a handler via onVisibleChange(). Use `this`.
@@ -67,7 +65,7 @@ export default class TabPage {
     }
 
     active() {
-        if(this.parent) {
+        if (this.parent) {
             this.parent.setActivePage(this);
         }
     }

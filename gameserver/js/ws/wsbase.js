@@ -19,28 +19,26 @@ const useBison = false;
 // error locally so a bad message from one client is dropped/logged without
 // relying on the global safety net.
 function safeJsonParse(raw, onError) {
-  try {
-    return JSON.parse(raw);
-  } catch (e) {
-    onError(e);
-    return undefined;
-  }
+    try {
+        return JSON.parse(raw);
+    } catch (e) {
+        onError(e);
+        return undefined;
+    }
 }
 
 /**
  * Abstract Server and Connection classes
  */
 export class sServer {
-    constructor() {
-    }
+    constructor() {}
 
     start() {
-      if (this.startCallback)
-        this.startCallback(this);
+        if (this.startCallback) this.startCallback(this);
     }
 
     onStart(callback) {
-      this.startCallback = callback;
+        this.startCallback = callback;
     }
 
     onConnect(callback) {
@@ -72,12 +70,11 @@ export class sServer {
     }
 
     onClose(callback) {
-      this._close_callback = callback;
+        this._close_callback = callback;
     }
 
     close() {
-      if (this._close_callback)
-        this._close_callback(this);
+        if (this._close_callback) this._close_callback(this);
     }
 }
 
@@ -113,43 +110,61 @@ export class Connection {
         // connection type (per-game-client traffic on socketioConnection,
         // gameserver<->userserver traffic on userConnection) -- unconditionally
         // logging the raw payload here is hot, so it's gated behind G_DEBUG.
-        if (G_DEBUG)
-          console.info("m="+msg);
+        if (G_DEBUG) console.info('m=' + msg);
 
         const flag = msg.charAt(0);
-        const isZPrefixed = acceptZPrefix && flag === "z" && msg.charAt(1) === "|";
+        const isZPrefixed =
+            acceptZPrefix && flag === 'z' && msg.charAt(1) === '|';
         // Only socketioConnection's underlying socket.io socket exposes
         // `.conn.remoteAddress`; userConnection's io_client socket doesn't,
         // so this naturally comes out blank there (matching prior behavior).
-        const addr = this._connection && this._connection.conn ? this._connection.conn.remoteAddress : undefined;
-        const addrSuffix = addr ? (' from ' + addr) : '';
+        const addr =
+            this._connection && this._connection.conn
+                ? this._connection.conn.remoteAddress
+                : undefined;
+        const addrSuffix = addr ? ' from ' + addr : '';
 
-        if (flag === "2" || isZPrefixed) {
+        if (flag === '2' || isZPrefixed) {
             const payload = isZPrefixed ? msg.substr(2) : msg.substr(1);
             const buffer = Buffer.from(payload, 'base64');
             zlib.gunzip(buffer, (err, buffer) => {
-              if (err) { console.log(err.toString()); return; }
-              if (!this.listenCallback) return;
-              if (useBison) {
-                this.listenCallback(BISON.decode(buffer));
-              } else {
-                // FIX: see safeJsonParse above -- don't let a corrupt
-                // decompressed payload throw inside this callback.
-                const parsed = safeJsonParse(buffer, (e) =>
-                  console.warn('Dropping malformed compressed message' + addrSuffix + ': ' + e.message));
-                if (parsed !== undefined) this.listenCallback(parsed);
-              }
+                if (err) {
+                    console.log(err.toString());
+                    return;
+                }
+                if (!this.listenCallback) return;
+                if (useBison) {
+                    this.listenCallback(BISON.decode(buffer));
+                } else {
+                    // FIX: see safeJsonParse above -- don't let a corrupt
+                    // decompressed payload throw inside this callback.
+                    const parsed = safeJsonParse(buffer, (e) =>
+                        console.warn(
+                            'Dropping malformed compressed message' +
+                                addrSuffix +
+                                ': ' +
+                                e.message
+                        )
+                    );
+                    if (parsed !== undefined) this.listenCallback(parsed);
+                }
             });
         } else {
             if (!this.listenCallback) return;
             if (useBison) {
-              this.listenCallback(BISON.decode(msg.substr(1)));
+                this.listenCallback(BISON.decode(msg.substr(1)));
             } else {
-              // FIX: see safeJsonParse above -- don't let one malformed
-              // message crash this handler; just drop it and keep going.
-              const parsed = safeJsonParse(msg.substr(1), (e) =>
-                console.warn('Dropping malformed message' + addrSuffix + ': ' + e.message));
-              if (parsed !== undefined) this.listenCallback(parsed);
+                // FIX: see safeJsonParse above -- don't let one malformed
+                // message crash this handler; just drop it and keep going.
+                const parsed = safeJsonParse(msg.substr(1), (e) =>
+                    console.warn(
+                        'Dropping malformed message' +
+                            addrSuffix +
+                            ': ' +
+                            e.message
+                    )
+                );
+                if (parsed !== undefined) this.listenCallback(parsed);
             }
         }
     }
@@ -158,24 +173,25 @@ export class Connection {
     // / base64 / '1'|'2' prefix logic verbatim (only the gzip error log
     // differed). Moved here; subclasses only need to implement sendUTF8().
     send(message) {
-      // PERF: called for every outgoing packet flush -- gated behind
-      // G_DEBUG for the same reason as _decodeAndDispatch above.
-      if (G_DEBUG)
-        console.info("send="+message);
-      const data = useBison ? BISON.encode(message) : JSON.stringify(message);
+        // PERF: called for every outgoing packet flush -- gated behind
+        // G_DEBUG for the same reason as _decodeAndDispatch above.
+        if (G_DEBUG) console.info('send=' + message);
+        const data = useBison ? BISON.encode(message) : JSON.stringify(message);
 
-      if (data.length >= 2048) {
-        zlib.gzip(data, {level:1}, (err, buffer) => {
-          if (err) {
-              console.error(this.constructor.name + '.send - gzip failed: ' + err);
-              return;
-          }
-          const encoded = Buffer.from(buffer).toString('base64');
-          this.sendUTF8('2'+encoded);
-        });
-      } else {
-        this.sendUTF8('1'+data);
-      }
+        if (data.length >= 2048) {
+            zlib.gzip(data, { level: 1 }, (err, buffer) => {
+                if (err) {
+                    console.error(
+                        this.constructor.name + '.send - gzip failed: ' + err
+                    );
+                    return;
+                }
+                const encoded = Buffer.from(buffer).toString('base64');
+                this.sendUTF8('2' + encoded);
+            });
+        } else {
+            this.sendUTF8('1' + data);
+        }
     }
 
     sendUTF8(data) {
@@ -183,7 +199,12 @@ export class Connection {
     }
 
     close(logError) {
-        console.info('Closing connection to ' + this._connection.remoteAddress + '. ' + logError);
+        console.info(
+            'Closing connection to ' +
+                this._connection.remoteAddress +
+                '. ' +
+                logError
+        );
         this._connection.conn.close();
     }
 }

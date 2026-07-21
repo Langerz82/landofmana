@@ -18,10 +18,10 @@ export const G_ROUNDTRIP = G_LATENCY * 2;
 export const G_TILESIZE = 16;
 
 export const G_FRAME_INTERVALS = 2;
-export const G_FRAME_INTERVAL_EXACT = (1000/60);
-export const G_FRAME_INTERVAL = ~~(G_FRAME_INTERVAL_EXACT);
-export const G_UPDATE_INTERVAL = ~~(G_FRAME_INTERVAL*G_FRAME_INTERVALS);
-export const G_INTERVAL =( G_UPDATE_INTERVAL * G_FRAME_INTERVALS);
+export const G_FRAME_INTERVAL_EXACT = 1000 / 60;
+export const G_FRAME_INTERVAL = ~~G_FRAME_INTERVAL_EXACT;
+export const G_UPDATE_INTERVAL = ~~(G_FRAME_INTERVAL * G_FRAME_INTERVALS);
+export const G_INTERVAL = G_UPDATE_INTERVAL * G_FRAME_INTERVALS;
 
 // PERF: spatial-hash cell size (in tiles) used by map/mapentities.js's
 // spatial grid (getSpatialEntities/addSpatial/removeSpatial), which backs

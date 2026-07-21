@@ -25,7 +25,7 @@ export default class Transition {
             if (this.updateFunction) {
                 let it;
                 const itCount = Math.abs(inc);
-                const mod = (inc > 0) ? 1 : -1;
+                const mod = inc > 0 ? 1 : -1;
                 for (it = 0; it < itCount; ++it) {
                     if (!this.inProgress) {
                         this.stop(this.object);
@@ -42,8 +42,7 @@ export default class Transition {
     }
 
     stop() {
-        if (this.stopFunction)
-            this.stopFunction(this.object);
+        if (this.stopFunction) this.stopFunction(this.object);
 
         this.inProgress = false;
     }

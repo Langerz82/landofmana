@@ -20,31 +20,31 @@ class ItemActionHandler {
         this.world = this.ph.world;
     }
 
-// param 1 - action type.
-// type 0 eat.
-// type 1 equip.
-// type 2 move item.
-// type 3 drop item.
-// type 4 store item.
+    // param 1 - action type.
+    // type 0 eat.
+    // type 1 equip.
+    // type 2 move item.
+    // type 3 drop item.
+    // type 4 store item.
 
-// param 2 - slot type.
-// slot 0 inventory.
-// slot 1 equipment.
-// slot 2 bank.
+    // param 2 - slot type.
+    // slot 0 inventory.
+    // slot 1 equipment.
+    // slot 2 bank.
 
-// param 3 slot index. (0-48).
-// param 4 count of items.
+    // param 3 slot index. (0-48).
+    // param 4 count of items.
 
-// param 5 - slot type 2.
-// param 6 - slot index 2.
-// param 7 - count of items 2.
+    // param 5 - slot type 2.
+    // param 6 - slot index 2.
+    // param 7 - count of items 2.
 
-    handleItemSlot(msg) { // 28
+    handleItemSlot(msg) {
+        // 28
         const self = this;
         const action = parseInt(msg[0]);
 
-        if (this.player.isDead)
-            return;
+        if (this.player.isDead) return;
 
         // slot type, slot index, slot count.
         const slot = [Number(msg[1]), Number(msg[2]), Number(msg[3])];
@@ -61,15 +61,13 @@ class ItemActionHandler {
         // equipment). Validate whichever store the requested slot type
         // actually is.
         const itemStore = this.player.items.itemStore[slot[0]];
-        if (!itemStore || slot[1] < 0 || slot[1] >= itemStore.maxNumber)
-            return;
+        if (!itemStore || slot[1] < 0 || slot[1] >= itemStore.maxNumber) return;
         let item = null;
         if (slot[1] >= 0)
             item = this.player.items.getStoredItem(slot[0], slot[1], slot[2]);
 
         let slot2 = null;
-        if (msg.length === 6)
-        {
+        if (msg.length === 6) {
             slot2 = [Number(msg[4]), Number(msg[5])];
             // FIX: `slot` above is validated against its itemStore's
             // maxNumber, but slot2 wasn't validated at all before being
@@ -83,18 +81,20 @@ class ItemActionHandler {
             // `slot2[1] >= 0` for this, so only reject values that are
             // neither -1 nor a valid in-range slot.
             const itemStore2 = this.player.items.itemStore[slot2[0]];
-            if (!itemStore2 || (slot2[1] !== -1 && (slot2[1] < 0 || slot2[1] >= itemStore2.maxNumber)))
+            if (
+                !itemStore2 ||
+                (slot2[1] !== -1 &&
+                    (slot2[1] < 0 || slot2[1] >= itemStore2.maxNumber))
+            )
                 return;
-            if (slot[0] === slot2[0] && slot[1] === slot2[1])
-                return;
+            if (slot[0] === slot2[0] && slot[1] === slot2[1]) return;
         }
         if (action === 0) {
             this.player.items.handleInventoryEat(item, slot[1]);
-        }
-        else if (action === 1) {
+        } else if (action === 1) {
             this.player.items.swapItem(slot, slot2);
-        }
-        else if (action === 2) { // drop item.
+        } else if (action === 2) {
+            // drop item.
             this.player.items.handleStoreEmpty(slot, item);
         }
     }
@@ -103,12 +103,12 @@ class ItemActionHandler {
     // source, which created an implicit global there; declared with `var` here
     // since ES modules are always strict mode and forbid implicit globals.
     handleLoot(message) {
-        console.info("handleLoot");
+        console.info('handleLoot');
 
         const p = this.player;
         const item = p.map.entities.getEntityById(parseInt(message[0]));
         if (!item) {
-            console.info("no item.");
+            console.info('no item.');
             return;
         }
 
@@ -131,17 +131,19 @@ class ItemActionHandler {
         // the real, existing helper for "is this entity within N pixels of
         // me" and keeps the same 24px pickup radius as before.
         if (!p.isWithinDistEntity(item, 24)) {
-            console.info("Player is not close enough to item.")
+            console.info('Player is not close enough to item.');
             return;
         }
 
-        console.info("item="+item.toString());
-        if (item.enemyDrop)
-            console.info("enemyDrop");
+        console.info('item=' + item.toString());
+        if (item.enemyDrop) console.info('enemyDrop');
 
         if (item instanceof Item) {
             if (p.items.inventory.putItem(item.room) >= 0) {
-                this.world.taskHandler.processEvent(p, PlayerEvent(Types.EventType.LOOTITEM, item, 1));
+                this.world.taskHandler.processEvent(
+                    p,
+                    PlayerEvent(Types.EventType.LOOTITEM, item, 1)
+                );
                 this.ph.broadcast(item.despawn(), false);
                 p.map.entities.removeEntity(item);
             }
@@ -152,19 +154,23 @@ class ItemActionHandler {
         const appearanceIndex = parseInt(message[0]);
         const priceClient = parseInt(message[1]);
 
-        if (appearanceIndex < 0 || appearanceIndex >= AppearanceData.Data.length)
+        if (
+            appearanceIndex < 0 ||
+            appearanceIndex >= AppearanceData.Data.length
+        )
             return;
 
         const itemData = AppearanceData.Data[appearanceIndex];
-        if (!itemData)
-            return;
+        if (!itemData) return;
 
-        if (!(itemData.type === "armorarcher" || itemData.type === "armor"))
+        if (!(itemData.type === 'armorarcher' || itemData.type === 'armor'))
             return;
 
         const price = this.world.looks.prices[appearanceIndex];
         if (price !== priceClient) {
-            this.ph.sendPlayer(new Messages.Notify("SHOP", "SHOP_MISMATCH", [itemData.name]));
+            this.ph.sendPlayer(
+                new Messages.Notify('SHOP', 'SHOP_MISMATCH', [itemData.name])
+            );
             this.world.looks.sendLooks(this.player);
             return;
         }
@@ -174,7 +180,7 @@ class ItemActionHandler {
         if (appearanceIndex >= 0) {
             gemCount = this.player.user.gems;
 
-            console.info("gemCount=" + gemCount);
+            console.info('gemCount=' + gemCount);
 
             if (gemCount >= price) {
                 this.player.user.looks[appearanceIndex] = 1;
@@ -185,10 +191,12 @@ class ItemActionHandler {
                 this.player.items.modifyGems(-price);
                 this.world.looks.prices[appearanceIndex] += 100;
 
-                this.ph.sendPlayer(new Messages.Notify("SHOP", "SHOP_SOLD", [itemData.name]));
+                this.ph.sendPlayer(
+                    new Messages.Notify('SHOP', 'SHOP_SOLD', [itemData.name])
+                );
                 this.world.looks.sendLooks(this.player);
             } else {
-                this.ph.sendPlayer(new Messages.Notify("SHOP", "SHOP_NOGEMS"));
+                this.ph.sendPlayer(new Messages.Notify('SHOP', 'SHOP_NOGEMS'));
             }
         }
     }
@@ -198,16 +206,13 @@ class ItemActionHandler {
             id = parseInt(message[1]);
 
         const p = this.player;
-        if (id < 0 || id >= AppearanceData.Data.length)
-            return;
-        if (type < 0 || type > 1)
-            return;
+        if (id < 0 || id >= AppearanceData.Data.length) return;
+        if (type < 0 || type > 1) return;
 
         const itemData = AppearanceData.Data[id];
-        if (!itemData)
-            return;
+        if (!itemData) return;
 
-        if (!(itemData.type === "armorarcher" || itemData.type === "armor"))
+        if (!(itemData.type === 'armorarcher' || itemData.type === 'armor'))
             return;
 
         const appearance = this.player.user.looks[id];
@@ -219,7 +224,6 @@ class ItemActionHandler {
 
         p.broadcastSprites();
     }
-
 }
 
 export default ItemActionHandler;

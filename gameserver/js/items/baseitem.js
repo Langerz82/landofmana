@@ -2,16 +2,17 @@ import { ItemTypes } from '../common.js';
 
 class BaseItem {
     constructor(arr) {
-        if (Array.isArray(arr))
-            this.set(arr);
+        if (Array.isArray(arr)) this.set(arr);
     }
 
     assign(item) {
-        this.set([Number(item.itemKind),
+        this.set([
+            Number(item.itemKind),
             Number(item.itemNumber),
             Number(item.itemDurability),
             Number(item.itemDurabilityMax),
-            Number(item.itemExperience)]);
+            Number(item.itemExperience)
+        ]);
     }
 
     // FIX: `arr[2] ? ... : default` / `arr[3] ? ... : default` used truthy
@@ -30,8 +31,8 @@ class BaseItem {
         this.itemKind = itemKind;
         this.itemNumber = Number(arr[1]);
         const itemDurability = ItemTypes.isEquipment(itemKind) ? 900 : 0;
-        this.itemDurability = (arr[2] === 0) ? itemDurability : Number(arr[2]);
-        this.itemDurabilityMax = (arr[3] === 0) ? itemDurability : Number(arr[3]);
+        this.itemDurability = arr[2] === 0 ? itemDurability : Number(arr[2]);
+        this.itemDurabilityMax = arr[3] === 0 ? itemDurability : Number(arr[3]);
         this.itemExperience = Number(arr[4]) || 0;
     }
 
@@ -40,7 +41,7 @@ class BaseItem {
     }
 
     save() {
-        return this.toArray().join(",");
+        return this.toArray().join(',');
     }
 
     toArray() {
@@ -49,7 +50,8 @@ class BaseItem {
             this.itemNumber,
             this.itemDurability,
             this.itemDurabilityMax,
-            this.itemExperience];
+            this.itemExperience
+        ];
         return cols;
     }
 }

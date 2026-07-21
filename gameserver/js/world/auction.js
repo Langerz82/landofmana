@@ -16,14 +16,15 @@ class AuctionRecord {
     }
 
     save() {
-        return [this.playerName,
-            this.price].join(",") + "," + this.item.toArrayNoSlot().join(",");
+        return (
+            [this.playerName, this.price].join(',') +
+            ',' +
+            this.item.toArrayNoSlot().join(',')
+        );
     }
 
     toArray() {
-        let cols = [
-            this.playerName,
-            this.price];
+        let cols = [this.playerName, this.price];
         cols = cols.concat(this.item.toArray());
         return cols;
     }
@@ -38,10 +39,9 @@ class Auction {
     // CommonJS source, which created an implicit global there; declared with
     // `var` here since ES modules are always strict mode and forbid implicit
     // globals.
-    load(data)
-    {
+    load(data) {
         const self = this;
-        console.info("auction - load: "+JSON.stringify(data));
+        console.info('auction - load: ' + JSON.stringify(data));
 
         // FIX: this only ever gets real data pushed asynchronously from
         // the userserver (see user/userhandler.js#handleLoadPlayerAuctions),
@@ -54,17 +54,15 @@ class Auction {
         // useful. Guard against any non-array `data` explicitly so a bad or
         // missing call degrades to a safe no-op instead of throwing.
         if (!Array.isArray(data)) {
-            console.warn("auction - load: no data supplied, skipping.");
+            console.warn('auction - load: no data supplied, skipping.');
             return;
         }
 
-        if (data.length === 0)
-            return;
+        if (data.length === 0) return;
 
         const auctions = [];
-        for (const rec of data)
-        {
-            const sData = rec.split(",");
+        for (const rec of data) {
+            const sData = rec.split(',');
             const record = new AuctionRecord(
                 sData[0],
                 parseInt(sData[1]),
@@ -73,29 +71,27 @@ class Auction {
                     parseInt(sData[3]),
                     parseInt(sData[4]),
                     parseInt(sData[5]),
-                    parseInt(sData[6])])
+                    parseInt(sData[6])
+                ])
             );
             auctions.push(record);
         }
-        if (auctions)
-            this.auctions = auctions;
+        if (auctions) this.auctions = auctions;
     }
 
-    save(world)
-    {
-        console.info("auction - save: "+JSON.stringify(this.auctions));
+    save(world) {
+        console.info('auction - save: ' + JSON.stringify(this.auctions));
 
         const data = [];
-        for(const auction of this.auctions) {
-            if (auction)
-                data.push(auction.save());
+        for (const auction of this.auctions) {
+            if (auction) data.push(auction.save());
         }
 
         if (world.userHandler) {
             world.userHandler.sendAuctionsData(data);
             return true;
         } else {
-            console.info("save: world.userHandler not set.");
+            console.info('save: world.userHandler not set.');
         }
         return false;
     }
@@ -126,14 +122,14 @@ class Auction {
         // a different listing.)
         const activeCount = this.auctions.reduce((n, a) => n + (a ? 1 : 0), 0);
         if (activeCount >= auctionEntriesMax) {
-            player.sendPlayer(new Messages.Notify("AUCTION","AUCTION_FULL"));
+            player.sendPlayer(new Messages.Notify('AUCTION', 'AUCTION_FULL'));
             return false;
         }
 
         const auction = new AuctionRecord(player.name, price, item);
         this.auctions.push(auction);
         player.items.inventory.setItem(invIndex, null);
-        player.sendPlayer(new Messages.Notify("AUCTION","AUCTION_ADDED"));
+        player.sendPlayer(new Messages.Notify('AUCTION', 'AUCTION_ADDED'));
         return true;
     }
 
@@ -155,17 +151,14 @@ class Auction {
     // this.auctions.length tracking "highest index still in use + 1"
     // instead of "total listings ever created" in the common case.
     remove(index) {
-        if (index < 0 || index >= this.auctions.length)
-            return;
+        if (index < 0 || index >= this.auctions.length) return;
 
         this.auctions[index] = null;
 
         let end = this.auctions.length;
-        while (end > 0 && this.auctions[end - 1] === null)
-            --end;
+        while (end > 0 && this.auctions[end - 1] === null) --end;
 
-        if (end < this.auctions.length)
-            this.auctions.length = end;
+        if (end < this.auctions.length) this.auctions.length = end;
     }
 
     putItem(player, item) {
@@ -188,10 +181,11 @@ class Auction {
             }
             const kind = auction.item.itemKind;
             const pc = player.name === auction.playerName;
-            if ((type === 1 && !pc && ItemTypes.isArmor(kind)) ||
+            if (
+                (type === 1 && !pc && ItemTypes.isArmor(kind)) ||
                 (type === 2 && !pc && ItemTypes.isWeapon(kind)) ||
-                (type === 0 && pc))
-            {
+                (type === 0 && pc)
+            ) {
                 msg.push(index);
                 msg = msg.concat(auction.toArray());
                 ++recCount;

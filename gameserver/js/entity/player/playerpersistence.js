@@ -29,8 +29,8 @@ class PlayerPersistence {
     _loadSprites(db_player) {
         const entity = this.entity;
         if (db_player.sprites.length === 2) {
-          db_player.sprites[2] = 151;
-          db_player.sprites[3] = 50;
+            db_player.sprites[2] = 151;
+            db_player.sprites[3] = 50;
         }
         // FIX: parseInt() was an Array.prototype monkey-patch; migrated to
         // Utils.ArrayParseInt() (see utils.js).
@@ -44,26 +44,23 @@ class PlayerPersistence {
         entity.stats.exp.attack = parseInt(db_player.exps[1]);
         entity.stats.exp.defense = parseInt(db_player.exps[2]);
         entity.stats.exp.move = parseInt(db_player.exps[3]);
-        if (db_player.exps.length >= 8)
-        {
-          entity.stats.exp.sword = parseInt(db_player.exps[4]);
-          entity.stats.exp.bow = parseInt(db_player.exps[5]);
-          entity.stats.exp.hammer = parseInt(db_player.exps[6]);
-          entity.stats.exp.axe = parseInt(db_player.exps[7]);
-        }
-        else {
-          entity.stats.exp.sword = 0;
-          entity.stats.exp.bow = 0;
-          entity.stats.exp.hammer = 0;
-          entity.stats.exp.axe = 0;
-        }
-        if (db_player.exps.length === 10)
-        {
-          entity.stats.exp.logging = parseInt(db_player.exps[8]);
-          entity.stats.exp.mining = parseInt(db_player.exps[9]);
+        if (db_player.exps.length >= 8) {
+            entity.stats.exp.sword = parseInt(db_player.exps[4]);
+            entity.stats.exp.bow = parseInt(db_player.exps[5]);
+            entity.stats.exp.hammer = parseInt(db_player.exps[6]);
+            entity.stats.exp.axe = parseInt(db_player.exps[7]);
         } else {
-          entity.stats.exp.logging = 0;
-          entity.stats.exp.mining = 0;
+            entity.stats.exp.sword = 0;
+            entity.stats.exp.bow = 0;
+            entity.stats.exp.hammer = 0;
+            entity.stats.exp.axe = 0;
+        }
+        if (db_player.exps.length === 10) {
+            entity.stats.exp.logging = parseInt(db_player.exps[8]);
+            entity.stats.exp.mining = parseInt(db_player.exps[9]);
+        } else {
+            entity.stats.exp.logging = 0;
+            entity.stats.exp.mining = 0;
         }
 
         entity.level = Types.getLevel(entity.stats.exp.base);
@@ -93,46 +90,43 @@ class PlayerPersistence {
         // Check to make sure stats are correct for level.
         const isValidStats = function (lvl, stats) {
             let total = 0;
-            if (lvl < 10)
-              total = lvl * 10;
-            else
-              total = (9 * 10) + (5 * (lvl - 9));
+            if (lvl < 10) total = lvl * 10;
+            else total = 9 * 10 + 5 * (lvl - 9);
 
-            const statTotal = stats.reduce(function(a, b) { return (a + b); }, 0);
+            const statTotal = stats.reduce(function (a, b) {
+                return a + b;
+            }, 0);
 
-            return (total === statTotal);
+            return total === statTotal;
         };
 
         const lvl = parseInt(entity.level);
-        if (!isValidStats(lvl, db_player.stats))
-        {
-          if (lvl < 10) {
-            entity.stats.attack = lvl*2;
-      			entity.stats.defense = lvl*2;
-      			entity.stats.health = lvl*2;
-            entity.stats.energy = lvl*2;
-      			entity.stats.luck = lvl*2;
+        if (!isValidStats(lvl, db_player.stats)) {
+            if (lvl < 10) {
+                entity.stats.attack = lvl * 2;
+                entity.stats.defense = lvl * 2;
+                entity.stats.health = lvl * 2;
+                entity.stats.energy = lvl * 2;
+                entity.stats.luck = lvl * 2;
 
-            entity.stats.free = 0;
-          }
-          else {
-            entity.stats.attack = 18;
-      			entity.stats.defense = 18;
-      			entity.stats.health = 18;
-            entity.stats.energy = 18;
-      			entity.stats.luck = 18;
+                entity.stats.free = 0;
+            } else {
+                entity.stats.attack = 18;
+                entity.stats.defense = 18;
+                entity.stats.health = 18;
+                entity.stats.energy = 18;
+                entity.stats.luck = 18;
 
-            entity.stats.free = (lvl-9)*5;
-          }
-        }
-        else {
-          entity.stats.attack = db_player.stats[0];
-          entity.stats.defense = db_player.stats[1];
-          entity.stats.health = db_player.stats[2];
-          entity.stats.energy = db_player.stats[3];
-          entity.stats.luck = db_player.stats[4];
+                entity.stats.free = (lvl - 9) * 5;
+            }
+        } else {
+            entity.stats.attack = db_player.stats[0];
+            entity.stats.defense = db_player.stats[1];
+            entity.stats.health = db_player.stats[2];
+            entity.stats.energy = db_player.stats[3];
+            entity.stats.luck = db_player.stats[4];
 
-          entity.stats.free = db_player.stats[5];
+            entity.stats.free = db_player.stats[5];
         }
     }
 
@@ -155,16 +149,16 @@ class PlayerPersistence {
         // userserver connection (self.connection.close(...)) -- not just
         // dropping that one save -- which is why a single player with an
         // uninitialized quest log could disconnect the entire gameserver.
-        if (Array.isArray(db_player.completeQuests) || db_player.completeQuests == null) {
-            entity.quests.completeQuests = {}
-        }
-        else {
-          for (const id in db_player.completeQuests)
-          {
-            if (!Number(id))
-              delete db_player.completeQuests[id];
-          }
-          entity.quests.completeQuests = db_player.completeQuests;
+        if (
+            Array.isArray(db_player.completeQuests) ||
+            db_player.completeQuests == null
+        ) {
+            entity.quests.completeQuests = {};
+        } else {
+            for (const id in db_player.completeQuests) {
+                if (!Number(id)) delete db_player.completeQuests[id];
+            }
+            entity.quests.completeQuests = db_player.completeQuests;
         }
     }
 
@@ -180,8 +174,8 @@ class PlayerPersistence {
     _loadSkills(db_player) {
         const entity = this.entity;
         if (db_player.skills.length === 1) {
-          for(let i =0; i < SkillData.Skills.length; ++i)
-            db_player.skills[i] = 0;
+            for (let i = 0; i < SkillData.Skills.length; ++i)
+                db_player.skills[i] = 0;
         }
         entity.skillHandler.setSkills(entity, db_player.skills);
     }
@@ -197,28 +191,22 @@ class PlayerPersistence {
         // numeric indices as slot ids. Passing db_player.shortcuts restores
         // the intended format check.
         if (Array.isArray(db_player.shortcuts)) {
-          for (const shortcut of db_player.shortcuts)
-          {
-            if (shortcut[0] >= 6)
-              continue;
+            for (const shortcut of db_player.shortcuts) {
+                if (shortcut[0] >= 6) continue;
 
-            if (shortcut)
-              entity.shortcuts[shortcut[0]] = shortcut;
-          }
+                if (shortcut) entity.shortcuts[shortcut[0]] = shortcut;
+            }
         } else {
-          for (const sid in db_player.shortcuts)
-          {
-            if (sid >= 6)
-              continue;
+            for (const sid in db_player.shortcuts) {
+                if (sid >= 6) continue;
 
-            const shortcut = db_player.shortcuts[sid];
-            if (shortcut)
-              entity.shortcuts[sid] = shortcut;
-          }
+                const shortcut = db_player.shortcuts[sid];
+                if (shortcut) entity.shortcuts[sid] = shortcut;
+            }
         }
     }
 
-// TODO - Fill db_player variable assignments.
+    // TODO - Fill db_player variable assignments.
     // SIMPLIFY: this used to be a single ~185-line function mixing map/
     // position restore, sprite migration, exp/level parsing, gold parsing,
     // a stat-total validity check, quest-log sanitization, skill loading,
@@ -226,8 +214,7 @@ class PlayerPersistence {
     // steps above (each keeping its original FIX/NOTE comments) so each
     // concern can be read/tested on its own; call order and behavior are
     // unchanged.
-    fillPlayerInfo(db_player)
-    {
+    fillPlayerInfo(db_player) {
         const entity = this.entity;
         this._loadMapState(db_player);
         this._loadSprites(db_player);
@@ -243,7 +230,6 @@ class PlayerPersistence {
         this._loadShortcuts(db_player);
 
         entity.attackTimer = Date.now();
-
     }
 }
 

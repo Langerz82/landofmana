@@ -1,10 +1,10 @@
 // Converted from AMD (define) + Class.extend to a native ES6 module/class.
 function isUndefined(value) {
-    return (typeof value) === 'undefined';
+    return typeof value === 'undefined';
 }
 
 function isObject(value) {
-    return (typeof value) === 'object';
+    return typeof value === 'object';
 }
 
 function assign(target, source1, source2, items) {
@@ -27,13 +27,26 @@ function indexOf(array_, value, default_) {
 export default class Button2 {
     // kind - normal: 0, disabled: 1, downed: 2, overed: 3, blinked: 4
     constructor(id, configure) {
-        this.id = id + "button";
-        this.id2 = id + "text";
-        this.background = {}
-        assign(this.background, configure.background, Button2.configure.background, ['left', 'top', 'width']);
-        this.kinds = isObject(configure.kinds) ? configure.kinds : (isObject(Button2.configure.kinds) ? Button2.configure.kinds : [0]);
-        this.visible = isUndefined(configure.visible) ? true : configure.visible;
-        this.enabled = isUndefined(configure.enabled) ? true : configure.enabled;
+        this.id = id + 'button';
+        this.id2 = id + 'text';
+        this.background = {};
+        assign(
+            this.background,
+            configure.background,
+            Button2.configure.background,
+            ['left', 'top', 'width']
+        );
+        this.kinds = isObject(configure.kinds)
+            ? configure.kinds
+            : isObject(Button2.configure.kinds)
+              ? Button2.configure.kinds
+              : [0];
+        this.visible = isUndefined(configure.visible)
+            ? true
+            : configure.visible;
+        this.enabled = isUndefined(configure.enabled)
+            ? true
+            : configure.enabled;
         this.downed = isUndefined(configure.downed) ? false : configure.downed;
         this.overed = false;
         this.blinked = false;
@@ -46,26 +59,38 @@ export default class Button2 {
 
         this.refresh();
 
-        this.body.bind('click', function(event) {
-            if (this.enabled && this.clickHandler) {
-                this.clickHandler(this, event);
-            }
-        }.bind(this));
-        this.bodytext.bind('click', function(event) {
-            if (this.enabled && this.clickHandler) {
-                this.clickHandler(this, event);
-            }
-        }.bind(this));
+        this.body.bind(
+            'click',
+            function (event) {
+                if (this.enabled && this.clickHandler) {
+                    this.clickHandler(this, event);
+                }
+            }.bind(this)
+        );
+        this.bodytext.bind(
+            'click',
+            function (event) {
+                if (this.enabled && this.clickHandler) {
+                    this.clickHandler(this, event);
+                }
+            }.bind(this)
+        );
 
         if (this.kinds.indexOf(3) >= 0) {
-            this.body.unbind('mouseover').bind('mouseover', function(event) {
-                this.overed = true;
-                this.refresh();
-            }.bind(this));
-            this.body.unbind('mouseout').bind('mouseout', function(event) {
-                this.overed = false;
-                this.refresh();
-            }.bind(this));
+            this.body.unbind('mouseover').bind(
+                'mouseover',
+                function (event) {
+                    this.overed = true;
+                    this.refresh();
+                }.bind(this)
+            );
+            this.body.unbind('mouseout').bind(
+                'mouseout',
+                function (event) {
+                    this.overed = false;
+                    this.refresh();
+                }.bind(this)
+            );
         }
     }
 
@@ -76,11 +101,15 @@ export default class Button2 {
     }
 
     getBackgroundPosition(kind) {
-        const left = isUndefined(this.background.left) ? 0 : this.background.left,
+        const left = isUndefined(this.background.left)
+                ? 0
+                : this.background.left,
             top = isUndefined(this.background.top) ? 0 : this.background.top,
-            width = isUndefined(this.background.width) ? 25 : this.background.width,
+            width = isUndefined(this.background.width)
+                ? 25
+                : this.background.width,
             index = indexOf(this.kinds, kind, 0);
-        return '-' + (left + (width * index)) + 'px -' + (top) + 'px';
+        return '-' + (left + width * index) + 'px -' + top + 'px';
     }
 
     setBackgroundPosition(kind) {
@@ -90,7 +119,19 @@ export default class Button2 {
 
     refresh() {
         if (this.visible) {
-            this.setBackgroundPosition(this.enabled ? (this.overed ? 3 : (this.downed ? 2 : (this.blinked ? (this.blinkFlag ? 4 : 0) : 0))) : 1);
+            this.setBackgroundPosition(
+                this.enabled
+                    ? this.overed
+                        ? 3
+                        : this.downed
+                          ? 2
+                          : this.blinked
+                            ? this.blinkFlag
+                                ? 4
+                                : 0
+                            : 0
+                    : 1
+            );
         }
     }
 
@@ -135,12 +176,15 @@ export default class Button2 {
     blink(flag) {
         if (this.enabled) {
             if (flag) {
-                if ((this.kinds.indexOf(4) >= 0) && !this.blinked) {
+                if (this.kinds.indexOf(4) >= 0 && !this.blinked) {
                     this.blinkFlag = false;
-                    this.blinkHandle = setInterval(function() {
-                        this.blinkFlag = !this.blinkFlag;
-                        this.refresh();
-                    }.bind(this), 500);
+                    this.blinkHandle = setInterval(
+                        function () {
+                            this.blinkFlag = !this.blinkFlag;
+                            this.refresh();
+                        }.bind(this),
+                        500
+                    );
                     this.blinked = true;
                 }
             } else {

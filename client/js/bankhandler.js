@@ -9,16 +9,15 @@ export default class BankHandler {
     }
 
     initBank(itemArray) {
-      for (const item of itemArray) {
-        if (item)
-          this.banks[item.slot] = item;
-      }
+        for (const item of itemArray) {
+            if (item) this.banks[item.slot] = item;
+        }
     }
 
     setBank(itemArray) {
-      for (const item of itemArray) {
-        this.banks[item.slot] = item.itemKind === -1 ? null : item;
-      }
+        for (const item of itemArray) {
+            this.banks[item.slot] = item.itemKind === -1 ? null : item;
+        }
     }
 
     setGold(gold) {
@@ -27,16 +26,13 @@ export default class BankHandler {
     }
 
     isBankFull() {
-      if (Object.keys(this.banks).length < this.maxNumber)
-        return false;
-    	// FIX: was `this.maxBankNumber`, a property that is never set anywhere (constructor only sets `this.maxNumber`);
-    	// the loop ran 0 iterations, so isBankFull() always returned true once slot count reached maxNumber, even if
-    	// some of those slots had since been cleared to null (still open)
-    	for (let i=0; i < this.maxNumber; i++)
-    	{
-    		if (!this.banks[i])
-    			return false;
-    	}
-    	return true;
+        if (Object.keys(this.banks).length < this.maxNumber) return false;
+        // FIX: was `this.maxBankNumber`, a property that is never set anywhere (constructor only sets `this.maxNumber`);
+        // the loop ran 0 iterations, so isBankFull() always returned true once slot count reached maxNumber, even if
+        // some of those slots had since been cleared to null (still open)
+        for (let i = 0; i < this.maxNumber; i++) {
+            if (!this.banks[i]) return false;
+        }
+        return true;
     }
 }

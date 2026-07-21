@@ -33,7 +33,10 @@ class Item extends Entity {
         // handles were.
         this.blinkToken = Scheduler.schedule(() => {
             params.blinkCallback();
-            this.despawnToken = Scheduler.schedule(params.despawnCallback, params.blinkingDuration);
+            this.despawnToken = Scheduler.schedule(
+                params.despawnCallback,
+                params.blinkingDuration
+            );
         }, params.beforeBlinkDelay);
     }
 
@@ -79,7 +82,7 @@ class Item extends Entity {
             parseInt(this.id, 10),
             parseInt(this.type),
             parseInt(this.room.itemKind),
-            (this.data && this.data.hasOwnProperty('name')) ? this.data.name : '' ,
+            this.data && this.data.hasOwnProperty('name') ? this.data.name : '',
             parseInt(this.map.index),
             parseInt(this.x),
             parseInt(this.y),
@@ -92,14 +95,22 @@ class Item extends Entity {
         return this.data.name;
     }
 
-    toString(){
-        return this.room.itemKind + " "
-             + this.room.itemNumber + " "
-             + this.room.itemDurability + " "
-             + this.room.itemDurabilityMax + " "
-             + this.room.itemExperience + " "
-             + this.x + " "
-             + this.y;
+    toString() {
+        return (
+            this.room.itemKind +
+            ' ' +
+            this.room.itemNumber +
+            ' ' +
+            this.room.itemDurability +
+            ' ' +
+            this.room.itemDurabilityMax +
+            ' ' +
+            this.room.itemExperience +
+            ' ' +
+            this.x +
+            ' ' +
+            this.y
+        );
     }
 }
 

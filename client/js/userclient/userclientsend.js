@@ -6,39 +6,47 @@
 /* global Types */
 
 export function installUserClientSend(proto) {
+    proto.sendUserConnected = function () {
+        this.sendMessage([Types.UserMessages.CU_CONNECT_USER]);
+    };
 
-          proto.sendUserConnected = function() {
-              this.sendMessage([Types.UserMessages.CU_CONNECT_USER]);
-          };
+    proto.sendLoginUser = function (user) {
+        this.sendMessage([
+            Types.UserMessages.CU_LOGIN_USER,
+            user.username,
+            user.hash
+        ]);
+    };
 
-          proto.sendLoginUser = function(user) {
-            this.sendMessage([Types.UserMessages.CU_LOGIN_USER,
-                              user.username,
-                              user.hash]);
-          };
+    proto.sendCreateUser = function (user) {
+        this.sendMessage([
+            Types.UserMessages.CU_CREATE_USER,
+            user.username,
+            user.hash
+        ]);
+    };
 
-          proto.sendCreateUser = function(user) {
-            this.sendMessage([Types.UserMessages.CU_CREATE_USER,
-                              user.username,
-                              user.hash]);
-          };
+    proto.sendRemoveUser = function (user) {
+        this.sendMessage([
+            Types.UserMessages.CU_REMOVE_USER,
+            user.username,
+            user.hash
+        ]);
+    };
 
-          proto.sendRemoveUser = function(user) {
-            this.sendMessage([Types.UserMessages.CU_REMOVE_USER,
-                              user.username,
-                              user.hash]);
-          };
+    proto.sendLoginPlayer = function (worldIndex, playerIndex) {
+        this.sendMessage([
+            Types.UserMessages.CU_LOGIN_PLAYER,
+            worldIndex,
+            playerIndex
+        ]);
+    };
 
-          proto.sendLoginPlayer = function(worldIndex, playerIndex) {
-            this.sendMessage([Types.UserMessages.CU_LOGIN_PLAYER,
-                              worldIndex,
-                              playerIndex]);
-          };
-
-          proto.sendCreatePlayer = function(worldIndex, playerName) {
-            this.sendMessage([Types.UserMessages.CU_CREATE_PLAYER,
-              worldIndex,
-              playerName]);
-          };
-
+    proto.sendCreatePlayer = function (worldIndex, playerName) {
+        this.sendMessage([
+            Types.UserMessages.CU_CREATE_PLAYER,
+            worldIndex,
+            playerName
+        ]);
+    };
 }

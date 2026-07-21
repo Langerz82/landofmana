@@ -9,7 +9,10 @@ export default class Mob extends Character {
 
         this.data = MobData.Kinds[this.kind];
 
-        this.idleSpeed = Utils.randomRangeInt(~~(this.data.idleSpeed * 2 / 3), ~~(this.data.idleSpeed * 4 / 3));
+        this.idleSpeed = Utils.randomRangeInt(
+            ~~((this.data.idleSpeed * 2) / 3),
+            ~~((this.data.idleSpeed * 4) / 3)
+        );
 
         this.level = level || this.data.level;
 

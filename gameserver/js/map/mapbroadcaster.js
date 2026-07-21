@@ -48,17 +48,19 @@ class MapBroadcaster {
         // once every 16ms for every map that has players connected.
         for (const [id, packet] of this.packets) {
             const len = packet.length;
-            if (len > 0)
-            {
+            if (len > 0) {
                 const player = self.me.getEntityById(id);
                 let conn = self.me.server.socket.getConnection(id);
-                if (player && player.map && player.mapStatus >= 2 && conn !== null && typeof conn !== 'undefined')
-                {
+                if (
+                    player &&
+                    player.map &&
+                    player.mapStatus >= 2 &&
+                    conn !== null &&
+                    typeof conn !== 'undefined'
+                ) {
                     const packets = [];
-                    for (let i =0; i < self.maxPackets; ++i)
-                    {
-                        if (packet.length === 0)
-                            break;
+                    for (let i = 0; i < self.maxPackets; ++i) {
+                        if (packet.length === 0) break;
                         packets.push(packet.shift());
                     }
                     conn.send(packets);
@@ -81,19 +83,16 @@ class MapBroadcaster {
     // worst case this delays delivery by <16ms, which is already the
     // effective batching granularity the interval assumes.
     sendToPlayer(player, message) {
-        if (!message)
-            return;
+        if (!message) return;
 
         if (player) {
             const queue = this.packets.get(player.id);
-            if (queue)
-                queue.push(message.serialize());
+            if (queue) queue.push(message.serialize());
         }
     }
 
-    sendBroadcast(message, ignoredPlayer)  {
-        if (!message)
-            return;
+    sendBroadcast(message, ignoredPlayer) {
+        if (!message) return;
 
         // PERF: message.serialize() (message.js) is a pure function of the
         // message's own fields -- it doesn't vary per recipient -- so it
@@ -106,12 +105,11 @@ class MapBroadcaster {
         // player's queue is safe.
         const serialized = message.serialize();
         for (const [id, packet] of this.packets) {
-            if (id !== ignoredPlayer)
-                packet.push(serialized);
+            if (id !== ignoredPlayer) packet.push(serialized);
         }
     }
 
-    sendNeighbours(entity, message, ignoredPlayer, areaLength)  {
+    sendNeighbours(entity, message, ignoredPlayer, areaLength) {
         const self = this;
         areaLength = areaLength || 64;
         const players = self.me.getPlayerAround(entity, areaLength);
@@ -128,8 +126,7 @@ class MapBroadcaster {
             // entirely, so a player around who isn't the ignored one but somehow has
             // no packets entry would throw on push() below instead of being skipped.
             const queue = self.packets.get(player.id);
-            if (queue && (!ignoredPlayer || player !== ignoredPlayer))
-            {
+            if (queue && (!ignoredPlayer || player !== ignoredPlayer)) {
                 queue.push(serialized);
             }
         }

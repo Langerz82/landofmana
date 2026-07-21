@@ -13,26 +13,26 @@ class MapArea {
     // ReferenceError on every call, breaking door/portal detection entirely
     // (map.js's isDoor/getDoor call into this). Using `this.elipse` below.
     contains(entity) {
-        if (!this.elipse)
-        {
-            if(entity) {
-                return entity.x >= this.x
-                    && entity.y >= this.y
-                    && entity.x < this.x + this.width
-                    && entity.y < this.y + this.height;
+        if (!this.elipse) {
+            if (entity) {
+                return (
+                    entity.x >= this.x &&
+                    entity.y >= this.y &&
+                    entity.x < this.x + this.width &&
+                    entity.y < this.y + this.height
+                );
             } else {
                 return false;
             }
         }
-        if (this.elipse)
-        {
-            if(entity) {
-                const cx = (this.x);
-                const cy = (this.y);
+        if (this.elipse) {
+            if (entity) {
+                const cx = this.x;
+                const cy = this.y;
                 const d = Math.sqrt(
-                    Math.pow(entity.x - cx,2) + Math.pow(entity.y - cy,2)
+                    Math.pow(entity.x - cx, 2) + Math.pow(entity.y - cy, 2)
                 );
-                const inElipse = (d < this.width/2 && d < this.height/2);
+                const inElipse = d < this.width / 2 && d < this.height / 2;
 
                 // FIX/PERF: was `console.log("this.elipseId="+this.elipseId);`
                 // here, unconditionally, on every call -- this.elipseId is never
@@ -48,7 +48,6 @@ class MapArea {
                 return false;
             }
         }
-
     }
 }
 

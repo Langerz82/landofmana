@@ -26,9 +26,9 @@ export default class Camera {
         const gs = this.renderer.gameScale;
         const w = this.renderer.innerWidth;
         const h = this.renderer.innerHeight;
-        log.debug("camera: w=" + w + ",h=" + h);
+        log.debug('camera: w=' + w + ',h=' + h);
         const ts = G_TILESIZE;
-        const tsgs = (ts * gs);
+        const tsgs = ts * gs;
         this.gridW = Math.ceil(w / tsgs);
         this.gridH = Math.ceil(h / tsgs);
         this.gridW += this.gridW % 2 ? 1 : 0;
@@ -40,7 +40,12 @@ export default class Camera {
         this.screenW = w;
         this.screenH = h;
 
-        log.debug("camera: this.screenW=" + this.screenW + ",this.screenH=" + this.screenH);
+        log.debug(
+            'camera: this.screenW=' +
+                this.screenW +
+                ',this.screenH=' +
+                this.screenH
+        );
 
         this.screenX = ~~(this.screenW / gs);
         this.screenY = ~~(this.screenH / gs);
@@ -49,10 +54,12 @@ export default class Camera {
 
         this.wOffX = ~~((tScreenW - this.screenW) / (2 * gs));
         this.wOffY = ~~((tScreenH - this.screenH) / (2 * gs));
-        log.debug("camera: this.wOffX=" + this.wOffX + ",this.wOffY=" + this.wOffY);
+        log.debug(
+            'camera: this.wOffX=' + this.wOffX + ',this.wOffY=' + this.wOffY
+        );
 
-        log.debug("---------");
-        log.debug("W:" + this.gridW + " H:" + this.gridH);
+        log.debug('---------');
+        log.debug('W:' + this.gridW + ' H:' + this.gridH);
 
         const mc = game.mapContainer;
         if (mc) {
@@ -61,11 +68,11 @@ export default class Camera {
         }
 
         if (game.client) {
-          const arr = [
-            ["screenWidth",this.gridWE],
-            ["screenHeight",this.gridHE]
-          ];
-          game.client.sendConfig(arr);
+            const arr = [
+                ['screenWidth', this.gridWE],
+                ['screenHeight', this.gridHE]
+            ];
+            game.client.sendConfig(arr);
         }
     }
 
@@ -76,8 +83,7 @@ export default class Camera {
         const hgw = ~~(this.screenX / 2);
         const hgh = ~~(this.screenY / 2);
 
-        if (!fe)
-            return;
+        if (!fe) return;
 
         const x = fe.x - hgw;
         const y = fe.y - hgh;
@@ -93,8 +99,8 @@ export default class Camera {
             tMinY = this.wOffY,
             tMaxY = mc.gcey + this.wOffY;
 
-        this.scrollX = (x > tMinX && x <= tMaxX);
-        this.scrollY = (y > tMinY && y <= tMaxY);
+        this.scrollX = x > tMinX && x <= tMaxX;
+        this.scrollY = y > tMinY && y <= tMaxY;
 
         this.sx = Utils.clamp(tMinX, tMaxX, x);
         this.sy = Utils.clamp(tMinY, tMaxY, y);
@@ -104,8 +110,7 @@ export default class Camera {
     }
 
     forEachVisibleValidPosition(callback) {
-        if (!this.gridWE || !this.gridHE)
-            return;
+        if (!this.gridWE || !this.gridHE) return;
 
         const h = this.gridHE;
         const w = this.gridWE;
@@ -129,10 +134,16 @@ export default class Camera {
         extra = extra * this.tilesize || 0;
         const minX = Math.max(0, this.x - extra);
         const minY = Math.max(0, this.y - extra);
-        const maxX = Math.min(game.mapContainer.widthX, this.x + this.screenX + extra);
-        const maxY = Math.min(game.mapContainer.heightY, this.y + this.screenY + extra);
+        const maxX = Math.min(
+            game.mapContainer.widthX,
+            this.x + this.screenX + extra
+        );
+        const maxY = Math.min(
+            game.mapContainer.heightY,
+            this.y + this.screenY + extra
+        );
 
-        return (y.between(minY, maxY) && x.between(minX, maxX));
+        return y.between(minY, maxY) && x.between(minX, maxX);
     }
 
     forEachInScreenArray(entity) {
@@ -146,11 +157,12 @@ export default class Camera {
         const x = (this.gridW - 1) * tsh;
         const y = (this.gridH - 1) * tsh;
 
-        this.forEachInScreen(function(entity2) {
-            if (entity2 === entity)
-                return;
-            if (Math.abs(entity.x - entity2.x) < x &&
-                Math.abs(entity.y - entity2.y) < y)
+        this.forEachInScreen(function (entity2) {
+            if (entity2 === entity) return;
+            if (
+                Math.abs(entity.x - entity2.x) < x &&
+                Math.abs(entity.y - entity2.y) < y
+            )
                 entities.push(entity2);
         });
         return entities;
@@ -186,8 +198,7 @@ export default class Camera {
             if (entity && entity instanceof Entity) {
                 const ex = entity.x;
                 const ey = entity.y;
-                if (exclude.indexOf(entity) >= 0)
-                    continue;
+                if (exclude.indexOf(entity) >= 0) continue;
 
                 if (ex >= minx && ex <= maxx && ey >= miny && ey <= maxy)
                     entities.push(entity);

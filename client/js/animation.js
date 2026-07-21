@@ -30,7 +30,7 @@ export default class Animation {
         const cf = this.currentFrame;
         cf.x = this.width * (i + this.col);
         cf.y = this.height * this.row;
-        cf.i = (i + this.col);
+        cf.i = i + this.col;
         cf.j = this.row;
 
         cf.index = i;
@@ -46,7 +46,14 @@ export default class Animation {
     // time will stomp on each other's completion callback. clone() gives each entity its own
     // independent playback instance derived from the shared template.
     clone() {
-        return new Animation(this.name, this.length, this.col, this.row, this.width, this.height);
+        return new Animation(
+            this.name,
+            this.length,
+            this.col,
+            this.row,
+            this.width,
+            this.height
+        );
     }
 
     setCount(count, onEndCount) {
@@ -55,11 +62,11 @@ export default class Animation {
     }
 
     isTimeToAnimate(time) {
-        return (time - this.lastTime) > this.speed;
+        return time - this.lastTime > this.speed;
     }
 
     update(time) {
-        if (this.lastTime === 0 && this.name.substr(0, 3) === "atk") {
+        if (this.lastTime === 0 && this.name.substr(0, 3) === 'atk') {
             this.lastTime = time;
         }
 
@@ -74,6 +81,12 @@ export default class Animation {
 
     reset() {
         this.lastTime = 0;
-        this.currentFrame = { index: 0, x: this.col * this.width, y: this.row * this.height, i: this.col, j: this.row};
+        this.currentFrame = {
+            index: 0,
+            x: this.col * this.width,
+            y: this.row * this.height,
+            i: this.col,
+            j: this.row
+        };
     }
 }

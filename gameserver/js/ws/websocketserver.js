@@ -37,49 +37,66 @@ export default class WebsocketServer extends sServer {
         // cert/key when https_cert/https_key is explicitly configured is
         // not a safe condition to silently continue past).
         const app = {};
-        if (config.https_cert != "") {
-          try {
-            app.cert = fs.readFileSync(config.https_cert);
-          } catch (err) {
-            throw new Error("WebsocketServer: failed to read config.https_cert (\""+config.https_cert+"\"): "+err.message);
-          }
+        if (config.https_cert != '') {
+            try {
+                app.cert = fs.readFileSync(config.https_cert);
+            } catch (err) {
+                throw new Error(
+                    'WebsocketServer: failed to read config.https_cert ("' +
+                        config.https_cert +
+                        '"): ' +
+                        err.message
+                );
+            }
         }
-        if (config.https_key != "") {
-          try {
-            app.key = fs.readFileSync(config.https_key);
-          } catch (err) {
-            throw new Error("WebsocketServer: failed to read config.https_key (\""+config.https_key+"\"): "+err.message);
-          }
+        if (config.https_key != '') {
+            try {
+                app.key = fs.readFileSync(config.https_key);
+            } catch (err) {
+                throw new Error(
+                    'WebsocketServer: failed to read config.https_key ("' +
+                        config.https_key +
+                        '"): ' +
+                        err.message
+                );
+            }
         }
 
         let protocol = http;
-        if (config.protocol === "https")
-          protocol = https;
+        if (config.protocol === 'https') protocol = https;
 
         const client_connect = function (socket) {
-          console.info('Client socket connected from ' + socket.conn.remoteAddress);
-          // Add remoteAddress property
-          socket.remoteAddress = socket.conn.remoteAddress;
+            console.info(
+                'Client socket connected from ' + socket.conn.remoteAddress
+            );
+            // Add remoteAddress property
+            socket.remoteAddress = socket.conn.remoteAddress;
 
-          const c = new SocketioConnection(self._createId(), socket, self);
+            const c = new SocketioConnection(self._createId(), socket, self);
 
-          if (self.connectionCallback) {
-              self.connectionCallback(c);
-          }
+            if (self.connectionCallback) {
+                self.connectionCallback(c);
+            }
 
-          self.addConnection(c);
+            self.addConnection(c);
         };
 
         this._protoServer = protocol.createServer(app);
-        this._protoServer.listen(config.port, config.ip, function serverOnlyListening() {
-            console.info('Server (only) is listening on port ' + config.port);
-        });
+        this._protoServer.listen(
+            config.port,
+            config.ip,
+            function serverOnlyListening() {
+                console.info(
+                    'Server (only) is listening on port ' + config.port
+                );
+            }
+        );
         this._ioServer = new Server(this._protoServer, {
-          cors: {
-            origin: '*',
-          },
+            cors: {
+                origin: '*'
+            }
         });
-// TODO Add one socket connection to Server that connects to User.
+        // TODO Add one socket connection to Server that connects to User.
 
         //var c = new WS.UserConnection(self._createId(), socket, self);
         this._ioServer.on('connection', function webSocketListener(socket) {
@@ -97,19 +114,18 @@ export default class WebsocketServer extends sServer {
         // main.safe_exit()) threw instead of ever actually closing the
         // HTTP/HTTPS listener.
         this.onClose(function (self) {
-          self._protoServer.close();
+            self._protoServer.close();
         });
 
         // Add a connect listener
-
     }
 
     _createId() {
-        return 50000 + (this._counter++);
+        return 50000 + this._counter++;
     }
 
     broadcast(message) {
-        this.forEachConnection(function(connection) {
+        this.forEachConnection(function (connection) {
             connection.send(message);
         });
     }
@@ -126,5 +142,4 @@ export default class WebsocketServer extends sServer {
     sendUserUTF8(data) {
       this.userConn.emit("message", data);
     },*/
-
 }

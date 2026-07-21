@@ -23,4 +23,4 @@ window.ShortcutData = window.ShortcutData ?? null;
 // gamepad.js with no seed anywhere - a ReferenceError under ES module strict mode. Seeded
 // here like its siblings above; "horizontal-asc" matches settingshandler.js's own fallback
 // default (see its fnSetShortcut("horizontal-asc") call for non-mobile/tablet renderers).
-window.ShortcutStyle = window.ShortcutStyle ?? "horizontal-asc";
+window.ShortcutStyle = window.ShortcutStyle ?? 'horizontal-asc';

@@ -28,8 +28,7 @@ export default class PlayerAnim {
     loadAnimations(sprite) {
         const animations = sprite.createAnimations();
         for (let id in animations) {
-            if (!this.animations[id])
-                this.animations[id] = animations[id];
+            if (!this.animations[id]) this.animations[id] = animations[id];
         }
 
         this.isLoaded = true;
@@ -40,8 +39,8 @@ export default class PlayerAnim {
 
     addSprite(sprite) {
         if (!sprite) {
-            log.error(this.id + " : sprite is null", true);
-            throw "Sprite error";
+            log.error(this.id + ' : sprite is null', true);
+            throw 'Sprite error';
         }
 
         this.sprites.push(sprite);
@@ -66,11 +65,10 @@ export default class PlayerAnim {
 
         if (name in this.animations) {
             animation = this.animations[name];
-        }
-        else {
+        } else {
             const e = new Error();
             log.error(e.stack);
-            log.info("No animation called " + name);
+            log.info('No animation called ' + name);
             return null;
         }
         return animation;
@@ -88,36 +86,39 @@ export default class PlayerAnim {
 
             if (a) {
                 this.currentAnimation = a;
-                if (name.indexOf("atk") === 0) {
+                if (name.indexOf('atk') === 0) {
                     this.currentAnimation.reset();
                 }
                 this.currentAnimation.setSpeed(speed);
-                this.currentAnimation.setCount(count ? count : 0, onEndCount || function() {
-                    self.idle();
-                });
+                this.currentAnimation.setCount(
+                    count ? count : 0,
+                    onEndCount ||
+                        function () {
+                            self.idle();
+                        }
+                );
             }
-        }
-        else {
+        } else {
             // FIX: this.log_error doesn't exist anywhere on PlayerAnim/Entity - the
             // codebase's convention is the global `log.error(...)` (see lib/log.js).
             // Calling this branch threw a TypeError instead of logging the warning.
-            log.error("Not ready for animation");
+            log.error('Not ready for animation');
         }
     }
 
     idle(orientation) {
         this.orientation = orientation;
-        this.animate("idle", this.speeds.idle);
+        this.animate('idle', this.speeds.idle);
     }
 
     hit(orientation) {
         this.orientation = orientation;
-        this.animate("atk", this.speeds.attack, 1);
+        this.animate('atk', this.speeds.attack, 1);
     }
 
     walk(orientation) {
         this.orientation = orientation;
-        this.animate("walk", this.speeds.walk);
+        this.animate('walk', this.speeds.walk);
     }
 
     animate(animation, speed, count, onEndCount) {
@@ -128,7 +129,11 @@ export default class PlayerAnim {
         this.flipSpriteY = false;
 
         if (oriented.includes(animation)) {
-            animation += "_" + (o === Types.Orientations.LEFT ? "right" : Types.getOrientationAsString(o));
+            animation +=
+                '_' +
+                (o === Types.Orientations.LEFT
+                    ? 'right'
+                    : Types.getOrientationAsString(o));
             this.flipSpriteX = this.orientation === Types.Orientations.LEFT;
         }
 
@@ -144,43 +149,45 @@ export default class PlayerAnim {
             s = game.renderer.gameScale;
 
         let i = 0;
-        const types = ["armor", "weapon"];
+        const types = ['armor', 'weapon'];
         for (const sprite of this.sprites) {
             const anim = this.currentAnimation;
             const frame = anim.currentFrame;
             const div = $(this.html[i]);
-            const w = (sprite.width * s);
-            const h = (sprite.height * s);
+            const w = sprite.width * s;
+            const h = sprite.height * s;
             const x = frame.i * w;
             const y = frame.j * h;
 
             div.css('width', w + 'px');
             div.css('height', h + 'px');
-            div.css('background-image', "url('img/2/sprites/" + sprite.name + ".png')");
-            div.css('background-size', (w * 5) + 'px ' + (h * 9) + 'px ');
+            div.css(
+                'background-image',
+                "url('img/2/sprites/" + sprite.name + ".png')"
+            );
+            div.css('background-size', w * 5 + 'px ' + h * 9 + 'px ');
             div.css('background-position', '-' + x + 'px -' + y + 'px');
             i++;
         }
     }
 
     showHTML(jqRoot, gameScale, scale) {
-        let wmax = 0, hmax = 0;
+        let wmax = 0,
+            hmax = 0;
         const dimensions = [];
         for (const sprite of this.sprites) {
             const w = sprite ? sprite.width * scale : 0;
             const h = sprite ? sprite.height * scale : 0;
             dimensions.push([w, h]);
-            if (w > wmax)
-                wmax = w;
-            if (h > hmax)
-                hmax = h;
+            if (w > wmax) wmax = w;
+            if (h > hmax) hmax = h;
         }
 
         $(jqRoot).css({
             'margin-left': '-' + parseInt(wmax / 2) + 'px',
             'margin-top': '-' + parseInt(hmax / 2) + 'px',
-            'width': wmax + 'px',
-            'height': hmax + 'px'
+            width: wmax + 'px',
+            height: hmax + 'px'
         });
 
         let i = 0;

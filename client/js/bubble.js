@@ -27,16 +27,16 @@ export default class BubbleManager {
     }
 
     getBubbleById(id) {
-        if(id in this.bubbles) {
+        if (id in this.bubbles) {
             return this.bubbles[id];
         }
         return null;
     }
 
     create(entity, content, time) {
-        if (content === undefined || content === "") return;
+        if (content === undefined || content === '') return;
 
-        const id=entity.id;
+        const id = entity.id;
         // FIX (var cleanup): was `var time = time || ...`, redeclaring the `time` parameter
         // with var (legal, a no-op reassignment) - let/const can't redeclare a parameter name.
         time = time || Date.now();
@@ -62,7 +62,7 @@ export default class BubbleManager {
     destroyBubble(id) {
         const bubble = this.getBubbleById(id);
 
-        if(bubble) {
+        if (bubble) {
             bubble.destroy();
             delete this.bubbles[id];
         }

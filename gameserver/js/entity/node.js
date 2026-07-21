@@ -24,8 +24,8 @@ class Node extends Entity {
         // table and open duration differ.
         if (kind === Node.CHEST_KIND) {
             this.isChest = true;
-            this.weaponType = "any";
-            this.spriteName = "chest";
+            this.weaponType = 'any';
+            this.spriteName = 'chest';
             // NOTE: the client's Node.getAnimationByName() override looks up
             // the animation by `this.name`, not by the orientation-suffixed
             // name animate() would normally compute -- so `name` has to be
@@ -33,21 +33,25 @@ class Node extends Entity {
             // ("idle_down" is the only one defined). This name is never
             // shown to the player (renderer.drawEntityName() has no NODE
             // branch), so the odd-looking value is harmless.
-            this.name = "idle_down";
-            this.animName = "idle";
+            this.name = 'idle_down';
+            this.animName = 'idle';
             this.spawnDelay = 300000;
             this.harvestDuration = 1000;
-        }
-        else {
+        } else {
             this.spawnDelay = 60000;
-            this.spriteName = "nodeset"+kind;
-            this.animName = "node"+type;
+            this.spriteName = 'nodeset' + kind;
+            this.animName = 'node' + type;
         }
     }
 
     getState() {
         const arr = this._getBaseState();
-        return arr.concat([this.level, this.spriteName, this.animName, this.weaponType]);
+        return arr.concat([
+            this.level,
+            this.spriteName,
+            this.animName,
+            this.weaponType
+        ]);
     }
 
     onDeath(callback) {
@@ -74,14 +78,10 @@ class Node extends Entity {
         // levels mutually exclusive, as the drop IDs (301-304) imply they
         // were meant to be.
         if (this.kind === 2) {
-            if (this.level === 1)
-                this.drops[301] = 2000;
-            else if (this.level === 2)
-                this.drops[302] = 2000;
-            else if (this.level === 3)
-                this.drops[303] = 2000;
-            else
-                this.drops[304] = 2000;
+            if (this.level === 1) this.drops[301] = 2000;
+            else if (this.level === 2) this.drops[302] = 2000;
+            else if (this.level === 3) this.drops[303] = 2000;
+            else this.drops[304] = 2000;
         }
         // Merged in from the old standalone Chest entity: drop table scales
         // with level (rounded up to the nearest 10) and favors
@@ -91,25 +91,23 @@ class Node extends Entity {
 
             for (const itemId in ItemData.Kinds) {
                 const item = ItemData.Kinds[itemId];
-                if (!item)
-                    continue;
-                if (item.legacy === 1)
-                    continue;
+                if (!item) continue;
+                if (item.legacy === 1) continue;
 
-                if (item.typemod === "attack" || item.typemod === "defense") {
+                if (item.typemod === 'attack' || item.typemod === 'defense') {
                     switch (dropLevel) {
-                    case item.modifier+10:
-                        this.drops[itemId] = 50;
-                        break;
-                    case item.modifier:
-                        this.drops[itemId] = 20;
-                        break;
-                    case item.modifier-10:
-                        this.drops[itemId] = 5;
-                        break;
-                    case item.modifier-20:
-                        this.drops[itemId] = 1;
-                        break;
+                        case item.modifier + 10:
+                            this.drops[itemId] = 50;
+                            break;
+                        case item.modifier:
+                            this.drops[itemId] = 20;
+                            break;
+                        case item.modifier - 10:
+                            this.drops[itemId] = 5;
+                            break;
+                        case item.modifier - 20:
+                            this.drops[itemId] = 1;
+                            break;
                     }
                 }
             }
@@ -135,8 +133,7 @@ class Node extends Entity {
         if (this.area && this.area instanceof Area) {
             // Respawn inside the area if part of a MobArea
             this.area.respawn(this, this.spawnDelay);
-        }
-        else {
+        } else {
             // PERF: was its own setTimeout per depleted node without an
             // area; routed through the shared Scheduler
             // (gameserver/js/scheduler.js) instead of a live Node timer per

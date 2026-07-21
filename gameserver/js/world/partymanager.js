@@ -8,9 +8,8 @@ class PartyManager {
         this.party = [];
     }
 
-    addParty(player1, player2)
-    {
-        const party = new PlayerGroup(player1, "party", true);
+    addParty(player1, player2) {
+        const party = new PlayerGroup(player1, 'party', true);
         party.setMemberMessage(Message.Party);
         party.addName(player2.name);
         this.party.push(party);
@@ -21,8 +20,7 @@ class PartyManager {
     // on every call. Uses Utils.removeFromArray() instead (see utils.js, and
     // its other callers in worldserver.js/packethandler.js/playergroup.js/
     // playerquests.js).
-    removeParty(party)
-    {
+    removeParty(party) {
         Utils.removeFromArray(this.party, party);
         //this.party.splice(this.party.indexOf(party), 1);
         /*this.party = _.reject(this.party, function(el)
@@ -33,8 +31,7 @@ class PartyManager {
     }
 
     removePlayer(player) {
-        if (player.hasOwnProperty("party") && player.party)
-        {
+        if (player.hasOwnProperty('party') && player.party) {
             const party = player.party;
             party.removeName(player.name);
             // FIX: called the nonexistent handlePartyAbandoned(); the only
@@ -48,8 +45,6 @@ class PartyManager {
             player.packetHandler.partyHandler.handleAbandoned(party);
         }
     }
-
-
 }
 
 export default PartyManager;

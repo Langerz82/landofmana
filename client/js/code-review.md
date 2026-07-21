@@ -74,7 +74,7 @@ Chat, party/guild, leaderboard, and popup-menu code inserts server- or player-co
 
 - `dialog.js:29-37` — `show()` adds a new close-button click listener every time without unbinding the old one; repeat dialog opens stack handlers, firing `hide()` multiple times per click.
 - `mapcontainer.js:295-341` + `renderer.js:1442-1452` — per-frame grid rebuild runs unconditionally; the dirty-check that used to skip it when the camera hasn't moved is commented out. Real, scaling per-frame cost.
-- `renderer.js:1015-1030` — `drawEntities` walks *all* entities every frame to hide them before re-showing on-screen ones; should track only entities that left the screen.
+- `renderer.js:1015-1030` — `drawEntities` walks _all_ entities every frame to hide them before re-showing on-screen ones; should track only entities that left the screen.
 - `renderer.js:1648-1668` — blank-frame branch clears HUD containers but leaves entity sprites (`Container.ENTITIES`) in the display tree — orphaned PIXI objects accumulate.
 - `game.js` — `useUpdateInRender` flag exists but its branch is commented out, so update logic may double-run on some devices.
 - `game.js` — entity lookups (`forEachEntity`, `isOverlapping`, `getEntityAt`) are O(n) linear scans run on every mouse-move/tick; fine now, worth revisiting if entity counts grow.
@@ -103,4 +103,5 @@ Several loop counters and locals are assigned without declaration, leaking into 
 - Confirm production sockets always connect over `wss` — commented-out `rejectUnauthorized`/`ca` options nearby suggest TLS verification was toggled during development.
 
 ---
-*Reviewed via 3 parallel passes (core/networking, entities/rendering, UI/dialogs/handlers). `lib/` vendor code and `data/*.js` static tables were skipped.*
+
+_Reviewed via 3 parallel passes (core/networking, entities/rendering, UI/dialogs/handlers). `lib/` vendor code and `data/*.js` static tables were skipped._

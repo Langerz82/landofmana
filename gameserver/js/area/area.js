@@ -16,7 +16,6 @@ class Area {
 
         this.map = map;
 
-
         this.elipse = elipse || false;
         //this.elipseId = elipseId || -1;
         this.excludeId = excludeId || -1;
@@ -38,8 +37,8 @@ class Area {
         while (count < threshold) {
             if (this.elipse) {
                 const a = Math.random() * 2 * Math.PI;
-                const rx = Utils.randomRangeInt(0,~~(dw / 2));
-                const ry = Utils.randomRangeInt(0,~~(dh / 2));
+                const rx = Utils.randomRangeInt(0, ~~(dw / 2));
+                const ry = Utils.randomRangeInt(0, ~~(dh / 2));
 
                 pos.x = Math.round(xandy.x + ~~(rx * Math.cos(a)));
                 pos.y = Math.round(xandy.y + ~~(ry * Math.sin(a)));
@@ -65,8 +64,7 @@ class Area {
                 continue;
             }
 
-            if (this.map.isColliding(pos.x, pos.y))
-            {
+            if (this.map.isColliding(pos.x, pos.y)) {
                 //console.info("isColliding - true: "+pos.x+","+pos.y);
                 //console.info("_getRandomPosition: map colliding.");
                 count++;
@@ -80,7 +78,7 @@ class Area {
             break;
         }
         if (count >= threshold) {
-            console.error("_getRandomPosition exceeded:" + pos.x + "," + pos.y);
+            console.error('_getRandomPosition exceeded:' + pos.x + ',' + pos.y);
             //process.exit(1);
             return null;
         }
@@ -89,7 +87,11 @@ class Area {
 
     _getRandomPositionForEntity(entity, dist, threshold) {
         //var obj = {x: entity.x, y: entity.y};
-        return this._getRandomPosition(entity, {"width": dist, "height": dist}, threshold);
+        return this._getRandomPosition(
+            entity,
+            { width: dist, height: dist },
+            threshold
+        );
     }
 
     _getRandomPositionInsideArea(threshold) {
@@ -99,22 +101,22 @@ class Area {
     contains(x, y, iteration) {
         //iteration = iteration;
         if (!this.elipse) {
-            return x >= this.x &&
+            return (
+                x >= this.x &&
                 y >= this.y &&
                 x < this.x + this.width &&
-                y < this.y + this.height;
-        } else {
-            const cx = (this.x);
-            const cy = (this.y);
-            const d = Math.sqrt(
-                Math.pow(x - cx, 2) + Math.pow(y - cy, 2)
+                y < this.y + this.height
             );
+        } else {
+            const cx = this.x;
+            const cy = this.y;
+            const d = Math.sqrt(Math.pow(x - cx, 2) + Math.pow(y - cy, 2));
             //console.log("cx:"+cx+",cy:"+cy);
             //console.log("this.width:"+this.width+",this.height:"+this.height);
             //console.log("this.x:"+this.x+",this.y:"+this.y);
             //console.log("d:"+d);
 
-            const inElipse = (d < this.width / 2);
+            const inElipse = d < this.width / 2;
 
             //console.log("this.elipseId="+this.elipseId);
             //console.log("inElipse="+inElipse);
@@ -135,9 +137,9 @@ class Area {
                 // thrown against (`Cannot read properties of undefined`)
                 // the first time this branch was reached. Guarded in case a
                 // map never populated mobAreas at all.
-                const prevArea = this.map.mobAreas && this.map.mobAreas[this.excludeId];
-                if (prevArea)
-                    res = res && !prevArea.contains(x, y, 1);
+                const prevArea =
+                    this.map.mobAreas && this.map.mobAreas[this.excludeId];
+                if (prevArea) res = res && !prevArea.contains(x, y, 1);
 
                 return res;
             }

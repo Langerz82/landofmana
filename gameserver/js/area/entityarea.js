@@ -22,11 +22,15 @@ class EntityArea extends Area {
     // "not found" fixes both the wasted allocation and the wrong-entity
     // removal.
     removeFromArea(entity) {
-        const i = this.entities.findIndex(e => e.id === entity.id);
+        const i = this.entities.findIndex((e) => e.id === entity.id);
         if (i < 0) return;
         this.entities.splice(i, 1);
 
-        if (this.isEmpty() && this.hasCompletelyRespawned && this.emptyCallback) {
+        if (
+            this.isEmpty() &&
+            this.hasCompletelyRespawned &&
+            this.emptyCallback
+        ) {
             this.hasCompletelyRespawned = false;
             this.emptyCallback();
         }
@@ -52,13 +56,13 @@ class EntityArea extends Area {
     }
 
     isEmpty() {
-        return !_.any(this.entities, function(entity) {
+        return !_.any(this.entities, function (entity) {
             return !entity.isDead;
         });
     }
 
     isFull() {
-        return !this.isEmpty() && (this.nbEntities === _.size(this.entities));
+        return !this.isEmpty() && this.nbEntities === _.size(this.entities);
     }
 
     // PERF: this runs on every mob death across every mob area in the world
@@ -74,13 +78,17 @@ class EntityArea extends Area {
 
         this.removeFromArea(entity);
 
-        Scheduler.schedule(function() {
-            const	pos = self.map.entities.spaceEntityRandomApart(2, self._getRandomPositionInsideArea.bind(self,20), self.entities);
+        Scheduler.schedule(function () {
+            const pos = self.map.entities.spaceEntityRandomApart(
+                2,
+                self._getRandomPositionInsideArea.bind(self, 20),
+                self.entities
+            );
 
             if (pos) {
                 entity.spawnX = pos.x;
                 entity.spawnY = pos.y;
-                entity.setPosition(pos.x,pos.y);
+                entity.setPosition(pos.x, pos.y);
             }
 
             entity.respawn();

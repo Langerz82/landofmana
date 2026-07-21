@@ -4,7 +4,7 @@
 /* global Types */
 import fetchJsonSync from '../lib/fetchjsonsync.js';
 
-const padding = (val, size) => String(val).padStart(size, "0");
+const padding = (val, size) => String(val).padStart(size, '0');
 
 const QuestData = {};
 const data = fetchJsonSync('shared/data/quests.json');

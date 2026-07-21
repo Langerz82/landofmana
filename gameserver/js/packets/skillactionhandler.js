@@ -23,11 +23,9 @@ class SkillActionHandler {
             y = parseInt(message[3]),
             p = this.player;
 
-        if (p.isDead)
-            return;
+        if (p.isDead) return;
 
-        if (skillId < 0 || skillId >= p.skills.length)
-            return;
+        if (skillId < 0 || skillId >= p.skills.length) return;
 
         const skill = p.skills[skillId];
 
@@ -35,8 +33,7 @@ class SkillActionHandler {
         let target;
         if (targetId) {
             target = p.map.entities.getEntityById(targetId);
-            if (!target)
-                return;
+            if (!target) return;
             // FIX: any entity id the client has seen (Item, Block, Node,
             // NpcStatic -- not just Player/Mob) is a valid, reachable
             // getEntityById() result, but only Character (Player/Mob)
@@ -49,8 +46,7 @@ class SkillActionHandler {
             // skillEffects with no cleanup path, since the "end" phase that
             // normally deregisters it was never reached. Reject before any
             // of that happens.
-            if (!(target instanceof Character))
-                return;
+            if (!(target instanceof Character)) return;
 
             // FIX: unlike handleHitEntity() (the plain-attack path, in
             // combathandler.js, which gates on sEntity.canReach(tEntity)
@@ -65,13 +61,11 @@ class SkillActionHandler {
             // attackRange, so melee and ranged characters are still bound
             // by whatever range rules already apply to their normal
             // attacks.
-            if (!p.canReach(target))
-                return;
+            if (!p.canReach(target)) return;
         }
 
         // Make sure the skill is ready.
-        if (!skill.isReady())
-            return;
+        if (!skill.isReady()) return;
 
         p.effectHandler.cast(skillId, target, x, y);
 
@@ -84,22 +78,25 @@ class SkillActionHandler {
     _getActiveEffectIds(entity) {
         const effects = [];
         for (const [k, v] of Object.entries(entity.effects)) {
-            if (v === 1)
-                effects.push(parseInt(k));
+            if (v === 1) effects.push(parseInt(k));
         }
         return effects;
     }
 
-    handleSkillEffects(source, target)
-    {
-        if (!source.effects)
-            return;
+    handleSkillEffects(source, target) {
+        if (!source.effects) return;
 
-        this.ph.sendToPlayer(source, new Messages.SkillEffects(source, this._getActiveEffectIds(source)));
+        this.ph.sendToPlayer(
+            source,
+            new Messages.SkillEffects(source, this._getActiveEffectIds(source))
+        );
 
         if (!target) return;
 
-        this.ph.sendToPlayer(source, new Messages.SkillEffects(target, this._getActiveEffectIds(target)));
+        this.ph.sendToPlayer(
+            source,
+            new Messages.SkillEffects(target, this._getActiveEffectIds(target))
+        );
     }
 }
 

@@ -22,7 +22,7 @@ class Entity {
         this.visible = true;
         this.isFading = false;
 
-        this.name = "";
+        this.name = '';
 
         // Position
         this.setPosition(Number(x), Number(y));
@@ -33,35 +33,35 @@ class Entity {
     }
 
     setPosition(x, y) {
-      //console.info("setPosition - x:"+x+",y:"+y);
-      //try { throw new Error(); } catch (e) { console.info(e.stack); }
-      this._setPosition(x,y);
+        //console.info("setPosition - x:"+x+",y:"+y);
+        //try { throw new Error(); } catch (e) { console.info(e.stack); }
+        this._setPosition(x, y);
     }
 
     _setPosition(x, y) {
-      const ts = G_TILESIZE;
+        const ts = G_TILESIZE;
 
-      this.x = x;
-      this.y = y;
+        this.x = x;
+        this.y = y;
 
-      const gx = ~~(x / ts);
-      const gy = ~~(y / ts);
+        const gx = ~~(x / ts);
+        const gy = ~~(y / ts);
 
-      this.gx = gx;
-      this.gy = gy;
+        this.gx = gx;
+        this.gy = gy;
 
-      // PERF/FIX: previously always called removeSpatial()+addSpatial()
-      // here, unconditionally, on every position update -- see the
-      // updateSpatial() comment in map/mapentities.js for why that both
-      // wasted work on nearly every movement step and (via a related bug in
-      // the old removeSpatial()) leaked stale duplicate entries into the
-      // spatial grid whenever an entity crossed a cell boundary.
-      // updateSpatial() only touches the spatial grid when this entity's
-      // cell actually changes.
-      this.map.entities.updateSpatial(this);
+        // PERF/FIX: previously always called removeSpatial()+addSpatial()
+        // here, unconditionally, on every position update -- see the
+        // updateSpatial() comment in map/mapentities.js for why that both
+        // wasted work on nearly every movement step and (via a related bug in
+        // the old removeSpatial()) leaked stale duplicate entries into the
+        // spatial grid whenever an entity crossed a cell boundary.
+        // updateSpatial() only touches the spatial grid when this entity's
+        // cell actually changes.
+        this.map.entities.updateSpatial(this);
     }
 
-/*
+    /*
     setPositionGrid(x, y) {
         var ts = G_TILESIZE;
 
@@ -77,12 +77,12 @@ class Entity {
 */
 
     setPositionSpawn(x, y) {
-      log.info("setPositionSpawn - x:"+x+"y:"+y);
+        log.info('setPositionSpawn - x:' + x + 'y:' + y);
 
-      this.setPosition(x, y);
+        this.setPosition(x, y);
 
-      this.spawnGx = this.gx;
-      this.spawnGy = this.gy;
+        this.spawnGx = this.gx;
+        this.spawnGy = this.gy;
     }
 
     ready(f) {
@@ -90,7 +90,7 @@ class Entity {
     }
 
     onRemove(callback) {
-      this.remove_callback = callback;
+        this.remove_callback = callback;
     }
 
     /**
@@ -100,7 +100,7 @@ class Entity {
         const distX = Math.abs(entity.x - this.x),
             distY = Math.abs(entity.y - this.y);
 
-        return (distX > distY) ? distX : distY;
+        return distX > distY ? distX : distY;
     }
 
     /**
@@ -110,8 +110,8 @@ class Entity {
     isAdjacent(entity) {
         let adjacent = false;
 
-        if(entity) {
-        		adjacent = this.getDistanceToEntity(entity) > 1 ? false : true;
+        if (entity) {
+            adjacent = this.getDistanceToEntity(entity) > 1 ? false : true;
         }
 
         return adjacent;
@@ -123,7 +123,10 @@ class Entity {
     isAdjacentNonDiagonal(entity) {
         let result = false;
 
-        if(this.isAdjacent(entity) && !(this.x !== entity.x && this.y !== entity.y)) {
+        if (
+            this.isAdjacent(entity) &&
+            !(this.x !== entity.x && this.y !== entity.y)
+        ) {
             result = true;
         }
 
@@ -143,46 +146,46 @@ class Entity {
     }
 
     getAdjacentTiles(min, max) {
-      min = min || 0;
-      max = max || G_TILESIZE;
-      const x = this.x, y = this.y;
+        min = min || 0;
+        max = max || G_TILESIZE;
+        const x = this.x,
+            y = this.y;
 
-      const posArray = [];
-      for(let i=min; i <= max; ++i) {
-        posArray.push([x,y-i],[x,y+i],[x-i,y],[x+i,y]);
-      }
-      return posArray;
+        const posArray = [];
+        for (let i = min; i <= max; ++i) {
+            posArray.push([x, y - i], [x, y + i], [x - i, y], [x + i, y]);
+        }
+        return posArray;
     }
 
     getTilePositionNextTo(orientation, dist) {
-      orientation = orientation || this.orientation;
-      dist = (dist || 1) * G_TILESIZE;
+        orientation = orientation || this.orientation;
+        dist = (dist || 1) * G_TILESIZE;
 
-      const pos = [this.x,this.y];
-      switch (orientation)
-      {
-        case 3:
-          pos[0] -= dist;
-          break;
-        case 4:
-          pos[0] += dist;
-          break;
-        case 1:
-          pos[1] -= dist;
-          break;
-        case 2:
-          pos[1] += dist;
-          break;
-      }
-      return pos;
+        const pos = [this.x, this.y];
+        switch (orientation) {
+            case 3:
+                pos[0] -= dist;
+                break;
+            case 4:
+                pos[0] += dist;
+                break;
+            case 1:
+                pos[1] -= dist;
+                break;
+            case 2:
+                pos[1] += dist;
+                break;
+        }
+        return pos;
     }
 
     isWithinDist(x, y, dist) {
         dist = dist || G_TILESIZE;
         // FIX: var -> let, matching the rest of the codebase's var->let/const
         // migration (this was one of the last two leftover `var`s in the file).
-        let rd = Utils.realDistance([this.x,this.y],[x,y]);
-        return (rd <= dist);
+        let rd = Utils.realDistance([this.x, this.y], [x, y]);
+        return rd <= dist;
     }
 
     isWithinDistEntity(entity, dist) {
@@ -197,7 +200,7 @@ class Entity {
         // FIX: var -> let, matching the rest of the codebase's var->let/const
         // migration.
         let tileCenter = Utils.fixGridPosition(G_TILESIZE, x, y);
-        return this.isWithinDist(tileCenter.x, tileCenter.y, (G_TILESIZE));
+        return this.isWithinDist(tileCenter.x, tileCenter.y, G_TILESIZE);
     }
 
     isNextTooPosition(x, y) {
@@ -207,69 +210,65 @@ class Entity {
     isAdjacentEntity(entity, dist = G_TILESIZE) {
         const dx = Math.abs(this.x - entity.x);
         const dy = Math.abs(this.y - entity.y);
-        return (dx + dy) <= dist;
+        return dx + dy <= dist;
     }
 
     isOverEntity(entity) {
-        return this.isWithinDist(entity.x, entity.y, (G_TILESIZE >> 1));
+        return this.isWithinDist(entity.x, entity.y, G_TILESIZE >> 1);
     }
 
     isOverPosition(x, y) {
-        return this.isWithinDist(x, y, (G_TILESIZE >> 1));
+        return this.isWithinDist(x, y, G_TILESIZE >> 1);
     }
 
     isOverlappingEntity(entity) {
-      return this.isWithinDist(entity.x,entity.y, G_TILESIZE-1);
+        return this.isWithinDist(entity.x, entity.y, G_TILESIZE - 1);
     }
 
     isOverlapping(entities) {
-      for(const entity of entities) {
-        if (!entity || this === entity)
-          continue;
-        if (this.isOverlappingEntity(entity))
-        {
-          return true;
+        for (const entity of entities) {
+            if (!entity || this === entity) continue;
+            if (this.isOverlappingEntity(entity)) {
+                return true;
+            }
         }
-      }
-      return false;
+        return false;
     }
 
-/* SERVER FUNCTIONS - START */
+    /* SERVER FUNCTIONS - START */
 
-  _getBaseState() {
-    return [
-      parseInt(this.id, 10),
-      parseInt(this.type),
-      parseInt(this.kind),
-      this.name,
-      parseInt(this.map.index),
-      parseInt(this.x),
-      parseInt(this.y),
-      parseInt(this.orientation || 0)
-    ];
-  }
+    _getBaseState() {
+        return [
+            parseInt(this.id, 10),
+            parseInt(this.type),
+            parseInt(this.kind),
+            this.name,
+            parseInt(this.map.index),
+            parseInt(this.x),
+            parseInt(this.y),
+            parseInt(this.orientation || 0)
+        ];
+    }
 
-  getState() {
-    return this._getBaseState();
-  }
+    getState() {
+        return this._getBaseState();
+    }
 
-  setRandomOrientation() {
-    this.orientation = Utils.randomRangeInt(1,4);
-  }
+    setRandomOrientation() {
+        this.orientation = Utils.randomRangeInt(1, 4);
+    }
 
-  spawn() {
-    return new Messages.Spawn(this);
-  }
+    spawn() {
+        return new Messages.Spawn(this);
+    }
 
-  despawn() {
-    return new Messages.Despawn(this);
-  }
+    despawn() {
+        return new Messages.Despawn(this);
+    }
 
-/* SERVER FUNCTIONS - END */
+    /* SERVER FUNCTIONS - END */
 
-  clean() {
-  }
-
+    clean() {}
 }
 
 export default Entity;

@@ -20,13 +20,15 @@ export default class SocketioConnection extends Connection {
         // above); this connection type only ever needs the plain "2" flag,
         // not the userserver's 'z|' variant, so acceptZPrefix is false.
         const fnOnMessage = function (msg) {
-          self._decodeAndDispatch(msg, false);
+            self._decodeAndDispatch(msg, false);
         };
 
         this._connection.on('message', fnOnMessage);
 
         this._connection.on('disconnect', function () {
-            console.info('Client closed socket ' + self._connection.conn.remoteAddress);
+            console.info(
+                'Client closed socket ' + self._connection.conn.remoteAddress
+            );
             if (self.closeCallback) {
                 self.closeCallback();
             }
@@ -50,8 +52,7 @@ export default class SocketioConnection extends Connection {
     }
 
     disconnect() {
-      //console.info("USER CONNECTION - DISCONNECT.");
-      this._connection.disconnect();
+        //console.info("USER CONNECTION - DISCONNECT.");
+        this._connection.disconnect();
     }
-
 }

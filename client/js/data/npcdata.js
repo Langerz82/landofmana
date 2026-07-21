@@ -8,12 +8,12 @@ const NpcData = {};
 
 NpcData.Properties = {};
 NpcData.Kinds = fetchJsonSync('shared/data/npcs.json');
-NpcData.Kinds.forEach(function(value, key) {
+NpcData.Kinds.forEach(function (value, key) {
     value.title = value.name || value.uid;
     NpcData.Properties[value.uid] = value;
 });
 
-NpcData.isNpc = function(kind) {
+NpcData.isNpc = function (kind) {
     return !!NpcData.Kinds[kind];
 };
 

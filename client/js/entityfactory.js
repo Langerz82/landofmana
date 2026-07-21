@@ -11,9 +11,19 @@ import Node from './entity/node.js';
 
 const EntityFactory = {};
 
-EntityFactory.createEntity = function(type, kind, id, mapIndex, name, level = 0) {
+EntityFactory.createEntity = function (
+    type,
+    kind,
+    id,
+    mapIndex,
+    name,
+    level = 0
+) {
     if (!id) {
-        log.info("ERROR - kind is undefined: " + kind + " " + id + " " + name, true);
+        log.info(
+            'ERROR - kind is undefined: ' + kind + ' ' + id + ' ' + name,
+            true
+        );
         return null;
     }
 
@@ -26,7 +36,7 @@ EntityFactory.createEntity = function(type, kind, id, mapIndex, name, level = 0)
             return new NpcStatic(id, type, mapIndex, kind);
         case Types.EntityTypes.ITEM:
         case Types.EntityTypes.ITEMLOOT:
-            return new Item(id, type, mapIndex, kind, "item");
+            return new Item(id, type, mapIndex, kind, 'item');
         case Types.EntityTypes.BLOCK:
             return new Block(id, type, mapIndex, kind, name);
         case Types.EntityTypes.TRAP:

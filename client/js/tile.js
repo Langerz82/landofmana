@@ -1,8 +1,7 @@
 // Converted from AMD (define) + Class.extend to a native ES6 module/class.
 // `Tile` was a local-only base class (never returned/exported by the original module, only used
 // as AnimatedTile's parent) - preserved as module-local, not exported, for fidelity.
-class Tile {
-}
+class Tile {}
 
 export default class AnimatedTile extends Tile {
     constructor(id, length, speed, index) {
@@ -16,7 +15,7 @@ export default class AnimatedTile extends Tile {
     }
 
     tick() {
-        if ((this.id - this.startId) < this.length - 1) {
+        if (this.id - this.startId < this.length - 1) {
             this.id += 1;
         } else {
             this.id = this.startId;
@@ -24,7 +23,7 @@ export default class AnimatedTile extends Tile {
     }
 
     animate(time) {
-        if ((time - this.lastTime) > this.speed) {
+        if (time - this.lastTime > this.speed) {
             this.tick();
             this.lastTime = time;
             return true;

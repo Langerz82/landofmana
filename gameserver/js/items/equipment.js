@@ -25,11 +25,11 @@ class Equipment {
         // the Map did, so the original string-key bug class doesn't come
         // back either.
         this.rooms = new Array(this.maxNumber).fill(null);
-        console.info("number="+number);
-        console.info("itemSlots="+JSON.stringify(items));
+        console.info('number=' + number);
+        console.info('itemSlots=' + JSON.stringify(items));
 
         if (items) {
-            for(let i=0; i<items.length; i++){
+            for (let i = 0; i < items.length; i++) {
                 const index = items[i].slot;
                 // FIX: a Map accepted any key with no bounds implications;
                 // a fixed-length array does not -- writing past its end via
@@ -38,7 +38,13 @@ class Equipment {
                 // Guard against a corrupted/out-of-range slot in saved data
                 // instead of letting it quietly widen the array.
                 if (index < 0 || index >= this.maxNumber) {
-                    console.warn("Equipment: dropping saved item with out-of-range slot "+index+" (maxNumber="+this.maxNumber+")");
+                    console.warn(
+                        'Equipment: dropping saved item with out-of-range slot ' +
+                            index +
+                            ' (maxNumber=' +
+                            this.maxNumber +
+                            ')'
+                    );
                     continue;
                 }
                 this.rooms[index] = items[i];
@@ -71,9 +77,9 @@ class Equipment {
     }
 
     getItemIndex(itemKind) {
-        for(let i = 0; i < this.rooms.length; i++){
+        for (let i = 0; i < this.rooms.length; i++) {
             const item = this.rooms[i];
-            if(item && item.itemKind === itemKind){
+            if (item && item.itemKind === itemKind) {
                 return i;
             }
         }
@@ -99,28 +105,44 @@ class Equipment {
     }
 
     checkItem(index, item) {
-        if (!item)
-            return true;
+        if (!item) return true;
 
         const kind = item.itemKind;
         const data = ItemData.Kinds[kind];
         //var equip = this.rooms;
         //var isArmor = ItemTypes.isArmor(kind);
 
-        if (!ItemTypes.isEquipment(kind))
-            return false;
+        if (!ItemTypes.isEquipment(kind)) return false;
 
-        if (index==0 && !(data.type === "helm" && this.canEquip(item, data.level)))
+        if (
+            index == 0 &&
+            !(data.type === 'helm' && this.canEquip(item, data.level))
+        )
             return false;
         //if (slot==1 && (!isArmor || !this.canEquip(item, ItemTypes.getArmorLevel(kind))))
-        if (index==1 && !(data.type === "chest" && this.canEquip(item, data.level)))
+        if (
+            index == 1 &&
+            !(data.type === 'chest' && this.canEquip(item, data.level))
+        )
             return false;
-        if (index==2 && !(data.type === "gloves" && this.canEquip(item, data.level)))
+        if (
+            index == 2 &&
+            !(data.type === 'gloves' && this.canEquip(item, data.level))
+        )
             return false;
-        if (index==3 && !(data.type === "boots" && this.canEquip(item, data.level)))
+        if (
+            index == 3 &&
+            !(data.type === 'boots' && this.canEquip(item, data.level))
+        )
             return false;
         //var isWeapon = ItemTypes.isWeapon(kind);
-        if (index==this.weaponSlot && !(ItemTypes.isWeapon(kind) && this.canEquip(item, ItemTypes.getWeaponLevel(kind))))
+        if (
+            index == this.weaponSlot &&
+            !(
+                ItemTypes.isWeapon(kind) &&
+                this.canEquip(item, ItemTypes.getWeaponLevel(kind))
+            )
+        )
             return false;
 
         return true;
@@ -151,16 +173,11 @@ class Equipment {
         if (item) {
             const kind = item.itemKind;
             const data = ItemData.Kinds[kind];
-            if (data.type === "helm")
-                return 0;
-            else if (data.type === "chest")
-                return 1;
-            else if (data.type === "gloves")
-                return 2;
-            else if (data.type === "boots")
-                return 3;
-            else if (ItemTypes.isWeapon(kind))
-                return this.weaponSlot;
+            if (data.type === 'helm') return 0;
+            else if (data.type === 'chest') return 1;
+            else if (data.type === 'gloves') return 2;
+            else if (data.type === 'boots') return 3;
+            else if (ItemTypes.isWeapon(kind)) return this.weaponSlot;
         }
         return -1;
     }
@@ -169,27 +186,22 @@ class Equipment {
     // item" -- see the FIX comment on setItem() above, which was the actual
     // cause (a missing `return` there made every caller-side success check
     // on this method's result always false).
-    _setItem(index, item)
-    {
+    _setItem(index, item) {
         // FIX: rooms is now a fixed-length array (see the constructor
         // comment above) -- an out-of-range index would silently grow it
         // and leave it "holey", undoing the point of a fixed array. Guard
         // it here, at the single place rooms is ever mutated.
-        if (index < 0 || index >= this.maxNumber)
-            return false;
+        if (index < 0 || index >= this.maxNumber) return false;
 
-        if (item && this.rooms[index] === item)
-            return false;
+        if (item && this.rooms[index] === item) return false;
 
         const player = this.owner;
 
         if (!item) {
             this.rooms[index] = null;
-            item = {slot: index, itemKind: -1};
-        }
-        else {
-            if (!this.checkItem(index, item))
-                return false;
+            item = { slot: index, itemKind: -1 };
+        } else {
+            if (!this.checkItem(index, item)) return false;
 
             this.rooms[index] = item;
             item.slot = index;
@@ -203,16 +215,17 @@ class Equipment {
         const kind = item.itemKind;
         //var level = ItemTypes.getArmorLevel(kind);
 
-        if(level > player.level){
-            player.sendPlayer(new Messages.Notify("EQUIP", "EQUIPMENT_LEVEL", [level]));
+        if (level > player.level) {
+            player.sendPlayer(
+                new Messages.Notify('EQUIP', 'EQUIPMENT_LEVEL', [level])
+            );
             return false;
         }
 
         return true;
     }
 
-    save()
-    {
+    save() {
         //databaseHandler.saveItems(this.owner, 2, this.rooms);
     }
 
@@ -230,12 +243,10 @@ class Equipment {
     // whenever equipped-item durability hit 0, breaking equipment degradation.
     degradeItem(slot, adjustment) {
         const item = this.rooms[slot];
-        if (!item)
-            return;
+        if (!item) return;
         item.itemDurability -= adjustment;
-        item.itemDurability = Math.max(0,item.itemDurability);
-        if (item.itemDurability === 0 && item.itemDurabilityMax <= 30)
-        {
+        item.itemDurability = Math.max(0, item.itemDurability);
+        if (item.itemDurability === 0 && item.itemDurabilityMax <= 30) {
             this.makeEmptyItem(slot);
             return false;
         }
@@ -245,15 +256,13 @@ class Equipment {
 
     addExperience(slot, adjustment) {
         const item = this.rooms[slot];
-        if (!item)
-            return;
+        if (!item) return;
 
         item.itemExperience += adjustment;
         const oldItemNumber = item.itemNumber;
         const newItemNumber = ItemTypes.getItemLevel(item.itemExperience);
 
-        if (oldItemNumber < newItemNumber)
-        {
+        if (oldItemNumber < newItemNumber) {
             item.itemNumber++;
             this.owner.sendPlayer(new Messages.ItemLevelUp(slot, item));
         }
@@ -268,9 +277,9 @@ class Equipment {
         // read it before the `for...in` loop below rebound `i` to each
         // room key anyway). Removed; the loop variable is now `const`,
         // scoped to the loop.
-        let itemString = "" + this.maxNumber + ",";
+        let itemString = '' + this.maxNumber + ',';
 
-        for(const item of this.rooms){
+        for (const item of this.rooms) {
             if (!item) continue;
             itemString += item.toArray().join(',');
         }
@@ -292,7 +301,7 @@ class Equipment {
     // alone is correct as-is.
     toStringJSON() {
         const items = [];
-        for(const item of this.rooms){
+        for (const item of this.rooms) {
             if (!item) continue;
             items.push(item.toArray());
         }
@@ -317,14 +326,12 @@ class Equipment {
     // above), not a lookup, so it's always correct even when multiple
     // slots are empty.
     forEachArmor(callback) {
-      for (let id = 0; id < this.rooms.length; ++id) {
-        const item = this.rooms[id];
-        if (!item)
-          continue;
-        if (id === this.weaponSlot)
-          continue;
-        callback(id, this.rooms[id]);
-      }
+        for (let id = 0; id < this.rooms.length; ++id) {
+            const item = this.rooms[id];
+            if (!item) continue;
+            if (id === this.weaponSlot) continue;
+            callback(id, this.rooms[id]);
+        }
     }
 }
 

@@ -7,9 +7,9 @@
 // `entity.moveTo_(...)`/`entity.stop()`/`entity.isFacing(...)`-style call
 // site throughout character.js/mob.js/player.js/mobai.js/updater.js is
 // unchanged. Only the constructor and "Misc Functions" section remain here.
-import Entity from "../entity.js";
+import Entity from '../entity.js';
 import Scheduler from '../../scheduler.js';
-import Transition from "../../transition.js";
+import Transition from '../../transition.js';
 import Utils from '../../utils.js';
 import { installEntityMovingPath } from './entitymovingpath.js';
 import { installEntityMovingSpatial } from './entitymovingspatial.js';
@@ -18,61 +18,58 @@ import { installEntityMovingOrientation } from './entitymovingorientation.js';
 /* global log, game */
 
 class EntityMoving extends Entity {
-  constructor(id, type, kind, x, y, map) {
-    super(id, type, kind, x, y, map);
-    const self = this;
+    constructor(id, type, kind, x, y, map) {
+        super(id, type, kind, x, y, map);
+        const self = this;
 
-    // Speeds
-    this.moveSpeed = 100;
-    this.setMoveRate(this.moveSpeed);
-    this.walkSpeed = 150;
-    this.idleSpeed = Utils.randomRangeInt(750, 1000);
+        // Speeds
+        this.moveSpeed = 100;
+        this.setMoveRate(this.moveSpeed);
+        this.walkSpeed = 150;
+        this.idleSpeed = Utils.randomRangeInt(750, 1000);
 
-    this.step = 0;
+        this.step = 0;
 
-    this.orientation = 2; // DOWN
+        this.orientation = 2; // DOWN
 
-    // Pathing
-    this.movement = new Transition(this);
-    this.moveCooldown = null;
-    this.path = null;
-    this.newDestination = null;
-    this.interrupted = false;
+        // Pathing
+        this.movement = new Transition(this);
+        this.moveCooldown = null;
+        this.path = null;
+        this.newDestination = null;
+        this.interrupted = false;
 
-    this.freeze = false;
-  }
+        this.freeze = false;
+    }
 
- /*******************************************************************************
-  * BEGIN - Misc Functions.
-  ******************************************************************************/
+    /*******************************************************************************
+     * BEGIN - Misc Functions.
+     ******************************************************************************/
 
- onRemove(callback) {
-   this.remove_callback = callback;
- }
+    onRemove(callback) {
+        this.remove_callback = callback;
+    }
 
- // PERF: was its own setTimeout per stun/freeze application; routed
- // through the shared Scheduler (gameserver/js/scheduler.js) instead of a
- // live Node timer per call.
- setFreeze(ms, callback) {
-   const self = this;
-   if (ms <= 0)
-   {
-     self.freeze = false;
-     return;
-   }
-   this.freeze = true;
-   this.freeze_callback = Scheduler.schedule(function() {
-     self.freeze = false;
-     //this.freeze_callback = null;
-     if (callback)
-       callback(self);
-   }, ms);
- }
+    // PERF: was its own setTimeout per stun/freeze application; routed
+    // through the shared Scheduler (gameserver/js/scheduler.js) instead of a
+    // live Node timer per call.
+    setFreeze(ms, callback) {
+        const self = this;
+        if (ms <= 0) {
+            self.freeze = false;
+            return;
+        }
+        this.freeze = true;
+        this.freeze_callback = Scheduler.schedule(function () {
+            self.freeze = false;
+            //this.freeze_callback = null;
+            if (callback) callback(self);
+        }, ms);
+    }
 
-/*******************************************************************************
- * END - Misc Functions.
- ******************************************************************************/
-
+    /*******************************************************************************
+     * END - Misc Functions.
+     ******************************************************************************/
 }
 
 installEntityMovingPath(EntityMoving.prototype);

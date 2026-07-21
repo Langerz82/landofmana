@@ -23,10 +23,12 @@ class EffectType {
     }
 }
 
-const getSkillEffects = function(data) {
+const getSkillEffects = function (data) {
     const effects = [];
     for (let rec of data) {
-        effects.push(new EffectType((rec[0] === "target"), rec[1], rec[2], rec[3]));
+        effects.push(
+            new EffectType(rec[0] === 'target', rec[1], rec[2], rec[3])
+        );
     }
     return effects;
 };
@@ -50,19 +52,23 @@ for (const value of skillsParse) {
     });
 }
 
-Skill.jqShowSkill = function(jq, skillId, jqn, size) {
+Skill.jqShowSkill = function (jq, skillId, jqn, size) {
     const scale = 3;
     size = size || 1;
     size = size * 0.66;
     const position = Skill.Data[skillId].iconOffset;
     jq.css({
         'background-image': 'url("img/' + scale + '/misc/skillicons.png")',
-        'background-position': (-position[0] * 24 * scale * size) + "px " + (-position[1] * 24 * scale * size) + "px",
+        'background-position':
+            -position[0] * 24 * scale * size +
+            'px ' +
+            -position[1] * 24 * scale * size +
+            'px',
         'background-repeat': 'no-repeat',
-        'background-size': (1080 * size) + 'px ' + (1008 * size) + 'px '
+        'background-size': 1080 * size + 'px ' + 1008 * size + 'px '
     });
     if (jqn) {
-        jqn.html("");
+        jqn.html('');
     }
 };
 

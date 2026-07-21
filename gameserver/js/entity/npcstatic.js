@@ -1,5 +1,4 @@
 import Entity from './entity.js';
-import Player from './player.js';
 //import Utils from '../utils.js';
 import Messages from '../message.js';
 import { Types } from '../common.js';
@@ -11,12 +10,10 @@ class NpcStatic extends Entity {
         this.map = map;
     }
 
-    talk(player)
-    {
-        console.info("talk");
-        console.info("kind: "+this.kind);
-        if (this.kind === 44)
-        {
+    talk(player) {
+        console.info('talk');
+        console.info('kind: ' + this.kind);
+        if (this.kind === 44) {
             // FIX: this "collecting items" NPC branch was dead code that
             // would throw if it ever ran. `player.questStatus` is never set
             // anywhere in the codebase (the real quest list lives at
@@ -43,16 +40,13 @@ class NpcStatic extends Entity {
         // ("player", "quests", "completeQuests" as strings), so
         // quest.npcKind was always undefined and this guard never fired.
         // The actual quest list lives at player.quests.quests.
-        for (const quest of player.quests.quests)
-        {
-            if (quest.npcKind === this.kind)
-            {
+        for (const quest of player.quests.quests) {
+            if (quest.npcKind === this.kind) {
                 //npcIsBusy = true;
                 return;
             }
         }
         //}
-
     }
 }
 

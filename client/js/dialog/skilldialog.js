@@ -5,251 +5,256 @@ import TabPage from '../tabpage.js';
 import SkillData from '../data/skilldata.js';
 
 class Skill {
-        constructor(parent, i, level, position) {
-            const id = this.id = '#skill' + i;
-            this.background = $(id);
-            this.body = $(id + ' .skillbody');
-            this.jqCooltime = $(id + ' .skillcd');
-            this.levels = [];
-            this.level = level;
-            this.parent = parent;
+    constructor(parent, i, level, position) {
+        const id = (this.id = '#skill' + i);
+        this.background = $(id);
+        this.body = $(id + ' .skillbody');
+        this.jqCooltime = $(id + ' .skillcd');
+        this.levels = [];
+        this.level = level;
+        this.parent = parent;
 
-            this.index = i;
+        this.index = i;
 
-            const data = this.data = SkillData.Data[i];
-            this.cooldownDuration = (data.recharge) ? data.recharge : 2000;
-            log.info(i+" = "+JSON.stringify(data));
-            this.detail = data.detail.replace('[l]',this.level)
-            	.replace('[u]', data.baseLevel+data.perLevel*this.level);
+        const data = (this.data = SkillData.Data[i]);
+        this.cooldownDuration = data.recharge ? data.recharge : 2000;
+        log.info(i + ' = ' + JSON.stringify(data));
+        this.detail = data.detail
+            .replace('[l]', this.level)
+            .replace('[u]', data.baseLevel + data.perLevel * this.level);
 
-            this.position = position;
-            this.scale = game.renderer.getUiScaleFactor();
+        this.position = position;
+        this.scale = game.renderer.getUiScaleFactor();
 
-            const self = this;
+        const self = this;
 
-            const fnSelectSkill = function (index) {
-              self.parent.clearHighlight();
-              self.parent.selectedSkill = self;
-              self.body.css('border', self.scale+"px solid #f00");
-              $('#skillDetail').html(self.detail);
-              ShortcutData = self;
-            };
+        const fnSelectSkill = function (index) {
+            self.parent.clearHighlight();
+            self.parent.selectedSkill = self;
+            self.body.css('border', self.scale + 'px solid #f00');
+            $('#skillDetail').html(self.detail);
+            ShortcutData = self;
+        };
 
-            const clickSkill = function (index) {
-              if (self.parent.selectedSkill === self) {
-                if (game.player.skillHandler.execute(self.index))
-                {
-                  self.cooldownStart();
-                  game.shortcuts.cooldownStart(2, self.index);
+        const clickSkill = function (index) {
+            if (self.parent.selectedSkill === self) {
+                if (game.player.skillHandler.execute(self.index)) {
+                    self.cooldownStart();
+                    game.shortcuts.cooldownStart(2, self.index);
                 }
-              } else {
+            } else {
                 fnSelectSkill(index);
-              }
-            };
+            }
+        };
 
-            this.body.data('skillIndex', this.index);
+        this.body.data('skillIndex', this.index);
 
-            // FIX: setSkills()/assign() constructs a brand-new Skill for the same
-            // `#skill<i>` DOM node every time it runs (every "player info" response, e.g.
-            // each time the stats/character dialog is opened - see clientcallbacks.js /
-            // statdialog.js). Binding without unbinding first stacked duplicate
-            // dragstart/click handlers on the shared node, so a single click executed the
-            // skill once per past dialog-open. Unbind this element's handlers before
-            // rebinding (mirrors the same fix already applied in dialog.js/socialhandler.js).
-            this.body.off('dragstart').bind('dragstart', function(event) {
-              fnSelectSkill($(this).data("skillIndex"));
-            	log.info("Began DragStart.")
-            });
+        // FIX: setSkills()/assign() constructs a brand-new Skill for the same
+        // `#skill<i>` DOM node every time it runs (every "player info" response, e.g.
+        // each time the stats/character dialog is opened - see clientcallbacks.js /
+        // statdialog.js). Binding without unbinding first stacked duplicate
+        // dragstart/click handlers on the shared node, so a single click executed the
+        // skill once per past dialog-open. Unbind this element's handlers before
+        // rebinding (mirrors the same fix already applied in dialog.js/socialhandler.js).
+        this.body.off('dragstart').bind('dragstart', function (event) {
+            fnSelectSkill($(this).data('skillIndex'));
+            log.info('Began DragStart.');
+        });
 
-            this.body.off('click').on('click', function(event){
-            	clickSkill($(this).data("skillIndex"));
-              event.stopPropagation();
-            });
+        this.body.off('click').on('click', function (event) {
+            clickSkill($(this).data('skillIndex'));
+            event.stopPropagation();
+        });
 
-            this.rescale();
-        }
+        this.rescale();
+    }
 
-        cooldownStart() {
-          this.cooltime = Date.now();
-          this.cooldown();
-          this.cooltimeHandle = setInterval(this.cooldown.bind(this), 1000);
-        }
+    cooldownStart() {
+        this.cooltime = Date.now();
+        this.cooldown();
+        this.cooltimeHandle = setInterval(this.cooldown.bind(this), 1000);
+    }
 
-        cooldown() {
-          const duration = (Date.now() - this.cooltime);
-          const coolms = this.cooldownDuration;
-          if (duration < coolms) {
-            const counter = Math.ceil((coolms-duration)/1000);
+    cooldown() {
+        const duration = Date.now() - this.cooltime;
+        const coolms = this.cooldownDuration;
+        if (duration < coolms) {
+            const counter = Math.ceil((coolms - duration) / 1000);
             this.jqCooltime.css('display', 'block');
             this.jqCooltime.html('' + counter.toFixed(0));
-          }
-          else {
+        } else {
             this.jqCooltime.css('display', 'none');
             clearInterval(this.cooltimeHandle);
             this.cooltimeHandle = null;
-          }
         }
+    }
 
-        rescale() {
-          const scale = this.scale = game.renderer.getUiScaleFactor();
-          const position = this.position;
+    rescale() {
+        const scale = (this.scale = game.renderer.getUiScaleFactor());
+        const position = this.position;
 
-          this.body.css({
-              'position': 'absolute',
-              'left': '0',
-              'top': '0',
-              'width': 24 * scale,
-              'height': 24 * scale,
-              'display': 'none'
-          });
-          if(position) {
-              this.body.css({
-                  'background-image': 'url("img/' + scale + '/misc/skillicons.png")',
-                  'background-position': (-position[0]*24*scale)+"px "+(-position[1]*24*scale)+"px" ,
-                  'background-size': (360 * scale) + "px " + (336 * scale) + "px",
-                  'display': 'block',
-                  'border': scale+"px solid #000"
-              });
-          }
+        this.body.css({
+            position: 'absolute',
+            left: '0',
+            top: '0',
+            width: 24 * scale,
+            height: 24 * scale,
+            display: 'none'
+        });
+        if (position) {
+            this.body.css({
+                'background-image':
+                    'url("img/' + scale + '/misc/skillicons.png")',
+                'background-position':
+                    -position[0] * 24 * scale +
+                    'px ' +
+                    -position[1] * 24 * scale +
+                    'px',
+                'background-size': 360 * scale + 'px ' + 336 * scale + 'px',
+                display: 'block',
+                border: scale + 'px solid #000'
+            });
+        }
+    }
 
+    getName() {
+        return this.name;
+    }
+    getLevel() {
+        return this.level;
+    }
+    setLevel(value) {
+        this.level = value;
+        if (value > 0) {
+            this.body.css('display', 'inline');
+            if (this.body[0]) this.body[0].draggable = true;
+        } else {
+            this.body.css('display', 'none');
+            if (this.body[0]) this.body[0].draggable = false;
         }
-
-        getName() {
-            return this.name;
-        }
-        getLevel() {
-            return this.level;
-        }
-        setLevel(value) {
-            this.level = value;
-            if(value > 0) {
-                this.body.css('display', 'inline');
-                if (this.body[0])
-                    this.body[0].draggable = true;
-            } else {
-                this.body.css('display', 'none');
-                if (this.body[0])
-                    this.body[0].draggable = false;
-            }
-        }
+    }
 }
 
 class SkillPage extends TabPage {
-        constructor(parent) {
-            super(parent, '#frameSkillsPage'); // FIX (conversion): this._super(parent, '#frameSkillsPage') -> super(parent, '#frameSkillsPage')
-            this.skills = [];
-            this.selectedSkill = null;
-            const self = this;
-        }
+    constructor(parent) {
+        super(parent, '#frameSkillsPage'); // FIX (conversion): this._super(parent, '#frameSkillsPage') -> super(parent, '#frameSkillsPage')
+        this.skills = [];
+        this.selectedSkill = null;
+        const self = this;
+    }
 
-        setSkills(skillExps) {
-      		for (let i=0; i < skillExps.length; ++i)
-      		{
-            this.skills[i] = {level: Types.getSkillLevel(skillExps[i]), skill: null};
-      		}
-          this.assign();
+    setSkills(skillExps) {
+        for (let i = 0; i < skillExps.length; ++i) {
+            this.skills[i] = {
+                level: Types.getSkillLevel(skillExps[i]),
+                skill: null
+            };
         }
-        setSkill(index, level) {
-          this.skills[index] = {level: level, skill: null};
-        }
+        this.assign();
+    }
+    setSkill(index, level) {
+        this.skills[index] = { level: level, skill: null };
+    }
 
-        cooldownStart(index) {
-            if (this.skills[index])
-              this.skills[index].skill.cooldownStart();
-        }
+    cooldownStart(index) {
+        if (this.skills[index]) this.skills[index].skill.cooldownStart();
+    }
 
-        clear() {
-            const scale = game.renderer.getUiScaleFactor();
-            for (let i = this.skills.length-1; i >= 0; --i)
-            {
-                const tSkill = this.skills[i];
-                if(tSkill.skill) {
-                    tSkill.skill.background.css({
-                        //'display': 'none'
-                        'background-image': 'url("../img/'+scale+'/misc/itembackground.png")',
-                    });
-                    $('#skill' + i).attr('title', '');
-                    // FIX: .html() with no argument is a getter and had no effect - the
-                    // "Lv N" label was never actually cleared. Pass an empty string to clear it.
-                    $('#skill' + i).html('');
-                    tSkill.level = 0;
-                }
-            }
-            this.skills.splice(0, this.skills.length);
-        }
-
-        rescale() {
-          for(let i = 0; i < this.skills.length; ++i) {
-              const skill = this.skills[i].skill;
-              skill.rescale();
-          }
-        }
-
-        assign() {
-            const scale = game.renderer.getUiScaleFactor();
-            for(let i = 0; i < this.skills.length; ++i) {
-                const tSkill = this.skills[i];
-                const data = SkillData.Data[i];
-                if(tSkill) {
-                    log.info('#skill1' + i);
-                    const skill = new Skill(this, i, tSkill.level,
-                        data.iconOffset);
-                    const ix = (i % 4),
-                        iy = Math.floor(i / 4);
-                    skill.background.css({
-                        'position': 'absolute',
-                        'left': (ix * 26 * scale) + 'px',
-                        'top': (iy * 26 * scale) + 'px',
-                        'width': (24*scale)+'px',
-                        'height': (24*scale)+'px',
-                        'display': 'block'
-                    });
-                    this.skills[i].skill = skill;
-                    $('#skill' + i).attr('title', data.name + " Lv: " + tSkill.level);
-                    $('#skill' + i + ' .skillbody').css({
-                        'text-align': 'center',
-                        'color': '#fff',
-                        'line-height': (24*scale)+'px',
-                        'font-size': (6*scale)+'px',
-                        'font-weight': 'bold'
-                    });
-                    $('#skill' + i + ' .skillbody').html("Lv "+tSkill.level);
-                    skill.setLevel(tSkill.level);
-                }
+    clear() {
+        const scale = game.renderer.getUiScaleFactor();
+        for (let i = this.skills.length - 1; i >= 0; --i) {
+            const tSkill = this.skills[i];
+            if (tSkill.skill) {
+                tSkill.skill.background.css({
+                    //'display': 'none'
+                    'background-image':
+                        'url("../img/' + scale + '/misc/itembackground.png")'
+                });
+                $('#skill' + i).attr('title', '');
+                // FIX: .html() with no argument is a getter and had no effect - the
+                // "Lv N" label was never actually cleared. Pass an empty string to clear it.
+                $('#skill' + i).html('');
+                tSkill.level = 0;
             }
         }
+        this.skills.splice(0, this.skills.length);
+    }
 
-        clearHighlight() {
-          this.selectedSkill = null;
-        	for(let i = 0; i < this.skills.length; ++i)
-          {
-        		if (this.skills[i].skill)
-        			this.skills[i].skill.body.css('border',"3px solid black");
-          }
+    rescale() {
+        for (let i = 0; i < this.skills.length; ++i) {
+            const skill = this.skills[i].skill;
+            skill.rescale();
         }
+    }
+
+    assign() {
+        const scale = game.renderer.getUiScaleFactor();
+        for (let i = 0; i < this.skills.length; ++i) {
+            const tSkill = this.skills[i];
+            const data = SkillData.Data[i];
+            if (tSkill) {
+                log.info('#skill1' + i);
+                const skill = new Skill(this, i, tSkill.level, data.iconOffset);
+                const ix = i % 4,
+                    iy = Math.floor(i / 4);
+                skill.background.css({
+                    position: 'absolute',
+                    left: ix * 26 * scale + 'px',
+                    top: iy * 26 * scale + 'px',
+                    width: 24 * scale + 'px',
+                    height: 24 * scale + 'px',
+                    display: 'block'
+                });
+                this.skills[i].skill = skill;
+                $('#skill' + i).attr(
+                    'title',
+                    data.name + ' Lv: ' + tSkill.level
+                );
+                $('#skill' + i + ' .skillbody').css({
+                    'text-align': 'center',
+                    color: '#fff',
+                    'line-height': 24 * scale + 'px',
+                    'font-size': 6 * scale + 'px',
+                    'font-weight': 'bold'
+                });
+                $('#skill' + i + ' .skillbody').html('Lv ' + tSkill.level);
+                skill.setLevel(tSkill.level);
+            }
+        }
+    }
+
+    clearHighlight() {
+        this.selectedSkill = null;
+        for (let i = 0; i < this.skills.length; ++i) {
+            if (this.skills[i].skill)
+                this.skills[i].skill.body.css('border', '3px solid black');
+        }
+    }
 }
 
 export default class SkillDialog extends Dialog {
-        constructor() {
-            super(null, '#skillsDialog'); // FIX (conversion): this._super(null, '#skillsDialog') -> super(null, '#skillsDialog')
-            this.addClose();
-            this.page = new SkillPage(this);
+    constructor() {
+        super(null, '#skillsDialog'); // FIX (conversion): this._super(null, '#skillsDialog') -> super(null, '#skillsDialog')
+        this.addClose();
+        this.page = new SkillPage(this);
 
-            ShortcutData = null;
+        ShortcutData = null;
 
-            $('#skillsCloseButton').add('#skillsDialog').add('#game').on('click', function(event){
-              if (ShortcutData)
-                ShortcutData.parent.clearHighlight();
-            	ShortcutData = null;
+        $('#skillsCloseButton')
+            .add('#skillsDialog')
+            .add('#game')
+            .on('click', function (event) {
+                if (ShortcutData) ShortcutData.parent.clearHighlight();
+                ShortcutData = null;
             });
-        }
+    }
 
-        show() {
-            this.page.rescale();
-            super.show(); // FIX (conversion): this._super() -> super.show()
-        }
+    show() {
+        this.page.rescale();
+        super.show(); // FIX (conversion): this._super() -> super.show()
+    }
 
-        update(datas) {
-            this.page.update(datas);
-        }
+    update(datas) {
+        this.page.update(datas);
+    }
 }

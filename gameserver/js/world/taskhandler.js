@@ -21,7 +21,8 @@ export function getAchievementObject(arr) {
             obj.data.objectType,
             obj.data.objectKind,
             obj.count,
-            obj.data.objectCount[obj.rank]];
+            obj.data.objectCount[obj.rank]
+        ];
     };
     self.toClient = function (obj) {
         return obj.toArray(obj);
@@ -53,13 +54,12 @@ export function getSavedAchievement(arr) {
 export function getInitAchievements() {
     const achievements = [];
     const len = AchievementJson.length;
-    for (let i=0; i < len; ++i)
-    {
+    for (let i = 0; i < len; ++i) {
         const data = [i, 0, 0, AchievementJson[i]];
         const achievement = Object.assign(getAchievementObject(data), null);
         achievements.push(achievement);
     }
-    console.info("achievements: "+JSON.stringify(achievements));
+    console.info('achievements: ' + JSON.stringify(achievements));
     return achievements;
 }
 
@@ -82,19 +82,24 @@ export function PlayerEvent(eventType, object, count) {
 // with `player` passed in as an explicit third argument instead of being
 // captured.
 const isKillMobAchievement = (achievement, event) =>
-    (achievement.data.type === Types.EventType.KILLMOB &&
-        (achievement.data.objectKind === 0 || achievement.data.objectKind === event.object.kind));
+    achievement.data.type === Types.EventType.KILLMOB &&
+    (achievement.data.objectKind === 0 ||
+        achievement.data.objectKind === event.object.kind);
 
 const isLootItemAchievement = (achievement, event) =>
-    (achievement.data.type === Types.EventType.LOOTITEM && event.object.hasOwnProperty("enemyDrop"));
+    achievement.data.type === Types.EventType.LOOTITEM &&
+    event.object.hasOwnProperty('enemyDrop');
 
 const isDamageAchievement = (achievement, event) =>
-    (achievement.data.type === Types.EventType.DAMAGE);
+    achievement.data.type === Types.EventType.DAMAGE;
 
 const isUseNodeWeaponAchievement = (achievement, event, player) => {
     if (achievement.data.type === Types.EventType.USE_NODE) {
         const wtype = event.object.weaponType;
-        return (player.items.hasWeaponType(wtype) && wtype === achievement.data.data1);
+        return (
+            player.items.hasWeaponType(wtype) &&
+            wtype === achievement.data.data1
+        );
     }
     return false;
 };
@@ -102,7 +107,7 @@ const isUseNodeWeaponAchievement = (achievement, event, player) => {
 const isHarvestAxeAchievement = (achievement, event, player) => {
     if (achievement.data.type === Types.EventType.HARVEST) {
         const wtype = event.object.weaponType;
-        return (player.items.hasWeaponType(wtype) && wtype === "axe");
+        return player.items.hasWeaponType(wtype) && wtype === 'axe';
     }
     return false;
 };
@@ -118,29 +123,44 @@ class TaskHandler {
     processEvent(player, playerEvent) {
         const quests = player.quests;
         switch (playerEvent.eventType) {
-        case Types.EventType.KILLMOB:
-            const target = playerEvent.object;
-            target.questDrops = {};
-            quests.forQuestsType(Types.QuestType.KILLMOBKIND, function (quest) {
-                quests.questAboutKill(target, quest);
-            });
-            quests.forQuestsType(Types.QuestType.GETITEMKIND, function (quest) {
-                quests.questAboutItemCheck(target, quest);
-            });
-            break;
-        case Types.EventType.LOOTITEM:
-            quests.forQuestsType(Types.QuestType.GETITEMKIND, function (quest) {
-                if (quest.object2.kind === (playerEvent.object.kind-1000)) {
-                    quests.questAboutItem(quest);
-                }
-            });
-            break;
-        case Types.EventType.USE_NODE:
-            quests.forQuestsType(Types.QuestType.USENODE, function (quest) {
-                if (quest.object.kind === playerEvent.object.kind && quest.data1 === playerEvent.object.level)
-                    quests.questAboutUseNode(quest);
-            });
-            break;
+            case Types.EventType.KILLMOB:
+                const target = playerEvent.object;
+                target.questDrops = {};
+                quests.forQuestsType(
+                    Types.QuestType.KILLMOBKIND,
+                    function (quest) {
+                        quests.questAboutKill(target, quest);
+                    }
+                );
+                quests.forQuestsType(
+                    Types.QuestType.GETITEMKIND,
+                    function (quest) {
+                        quests.questAboutItemCheck(target, quest);
+                    }
+                );
+                break;
+            case Types.EventType.LOOTITEM:
+                quests.forQuestsType(
+                    Types.QuestType.GETITEMKIND,
+                    function (quest) {
+                        if (
+                            quest.object2.kind ===
+                            playerEvent.object.kind - 1000
+                        ) {
+                            quests.questAboutItem(quest);
+                        }
+                    }
+                );
+                break;
+            case Types.EventType.USE_NODE:
+                quests.forQuestsType(Types.QuestType.USENODE, function (quest) {
+                    if (
+                        quest.object.kind === playerEvent.object.kind &&
+                        quest.data1 === playerEvent.object.level
+                    )
+                        quests.questAboutUseNode(quest);
+                });
+                break;
         }
 
         // PERF: was `for (const achievement of player.achievements)`, with
@@ -158,20 +178,60 @@ class TaskHandler {
         // Removed the duplicate call; only 5 distinct conditions are defined
         // above, so there was no missing 6th check to restore.
         for (const [ti, achievement] of player.achievements.entries()) {
-            this.processAchievement(player, playerEvent, achievement, ti, isKillMobAchievement, 2);
-            this.processAchievement(player, playerEvent, achievement, ti, isLootItemAchievement, 5);
-            this.processAchievement(player, playerEvent, achievement, ti, isDamageAchievement, 0.02);
-            this.processAchievement(player, playerEvent, achievement, ti, isUseNodeWeaponAchievement, 5);
-            this.processAchievement(player, playerEvent, achievement, ti, isHarvestAxeAchievement, 5);
+            this.processAchievement(
+                player,
+                playerEvent,
+                achievement,
+                ti,
+                isKillMobAchievement,
+                2
+            );
+            this.processAchievement(
+                player,
+                playerEvent,
+                achievement,
+                ti,
+                isLootItemAchievement,
+                5
+            );
+            this.processAchievement(
+                player,
+                playerEvent,
+                achievement,
+                ti,
+                isDamageAchievement,
+                0.02
+            );
+            this.processAchievement(
+                player,
+                playerEvent,
+                achievement,
+                ti,
+                isUseNodeWeaponAchievement,
+                5
+            );
+            this.processAchievement(
+                player,
+                playerEvent,
+                achievement,
+                ti,
+                isHarvestAxeAchievement,
+                5
+            );
         }
     }
 
-    processAchievement(player, event, achievement, ti, condition, expMultiplier) {
-        if (event.eventType !== achievement.data.type)
-            return;
+    processAchievement(
+        player,
+        event,
+        achievement,
+        ti,
+        condition,
+        expMultiplier
+    ) {
+        if (event.eventType !== achievement.data.type) return;
 
-        if (!condition(achievement, event, player))
-            return;
+        if (!condition(achievement, event, player)) return;
 
         // FIX: was `ti < 0 || ti >= achievement.data.objectCount.length` --
         // `ti` is this achievement's index in the player's whole
@@ -187,39 +247,49 @@ class TaskHandler {
         // list would have silently stopped processing forever; any
         // achievement whose `rank` legitimately reached objectCount.length
         // would throw here instead of being caught.
-        if (achievement.rank < 0 || achievement.rank >= achievement.data.objectCount.length)
+        if (
+            achievement.rank < 0 ||
+            achievement.rank >= achievement.data.objectCount.length
+        )
             return;
 
         let count = event.count;
         let objectCount = achievement.data.objectCount[achievement.rank];
         const rankCount = achievement.data.objectCount.length;
 
-        if ((achievement.count + count) < objectCount) {
+        if (achievement.count + count < objectCount) {
             achievement.count += count;
-        }
-        else {
-
-            if (achievement.rank === (rankCount-1) && achievement.count === objectCount)
-            {
+        } else {
+            if (
+                achievement.rank === rankCount - 1 &&
+                achievement.count === objectCount
+            ) {
                 return;
             }
 
             while (count > 0) {
                 objectCount = achievement.data.objectCount[achievement.rank];
                 const prevCount = achievement.count;
-                const diff = (achievement.count+count);
+                const diff = achievement.count + count;
                 achievement.count = Math.min(diff, objectCount);
-                count -= (objectCount-prevCount);
+                count -= objectCount - prevCount;
                 player.sendPlayer(new Messages.Achievement(achievement));
 
                 const xp = ~~(objectCount * expMultiplier);
-                const chatAchievement = "ACHIEVEMENTS_"+ti+"_COMPLETE";
+                const chatAchievement = 'ACHIEVEMENTS_' + ti + '_COMPLETE';
                 const objectCountFmt = Utils.getNumShortHand(objectCount, 0);
 
                 player.incExp(xp);
-                player.sendPlayer(new Messages.Notify("CHAT", chatAchievement, [objectCountFmt, xp]));
-                if (achievement.rank === (rankCount-1) && achievement.count === objectCount)
-                {
+                player.sendPlayer(
+                    new Messages.Notify('CHAT', chatAchievement, [
+                        objectCountFmt,
+                        xp
+                    ])
+                );
+                if (
+                    achievement.rank === rankCount - 1 &&
+                    achievement.count === objectCount
+                ) {
                     return;
                 }
 

@@ -13,7 +13,7 @@ class ItemRoom extends BaseItem {
     }
 
     toRedis() {
-        return this.toArray().join(",");
+        return this.toArray().join(',');
     }
 
     toArray() {

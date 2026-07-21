@@ -17,11 +17,10 @@ for (let craft of CraftData) {
     craft.id = id++;
 }
 
-const getCraftData = function(index) {
+const getCraftData = function (index) {
     const data = [];
     for (let craft of CraftData) {
-        if (craft.o === index)
-            data.push(craft);
+        if (craft.o === index) data.push(craft);
     }
     return data;
 };
@@ -31,10 +30,15 @@ const kindData = {};
 kindData[0] = null;
 const itemParse = fetchJsonSync('shared/data/items2.json');
 //log.info(JSON.stringify(itemParse));
-$.each(itemParse, function(itemKey, itemValue) {
+$.each(itemParse, function (itemKey, itemValue) {
     const kind = itemValue.id;
-    if (itemValue.type === "weapon" || itemValue.type === "weaponarcher" ||
-        ItemTypes.isArmor(kind) || itemValue.type === "object" || itemValue.type === "craft") {
+    if (
+        itemValue.type === 'weapon' ||
+        itemValue.type === 'weaponarcher' ||
+        ItemTypes.isArmor(kind) ||
+        itemValue.type === 'object' ||
+        itemValue.type === 'craft'
+    ) {
         Items[itemKey + 1] = class extends Item {
             constructor(id) {
                 super(id, parseInt(itemKey), itemValue.type);
@@ -43,13 +47,13 @@ $.each(itemParse, function(itemKey, itemValue) {
     }
     const itemData = {
         name: itemValue.name,
-        type: itemValue.type || "object",
-        damageType: itemValue.damageType || "none",
-        typemod: itemValue.typemod || "none",
+        type: itemValue.type || 'object',
+        damageType: itemValue.damageType || 'none',
+        typemod: itemValue.typemod || 'none',
         modifier: itemValue.modifier || 0,
         hand: itemValue.hand || 0,
-        sprite: itemValue.sprite || "",
-        spriteName: itemValue.spriteName || "",
+        sprite: itemValue.sprite || '',
+        spriteName: itemValue.spriteName || '',
         offset: itemValue.offset || [0, 0],
         buy: itemValue.buy || 0,
         buyCount: itemValue.buyCount || 1,
@@ -59,7 +63,7 @@ $.each(itemParse, function(itemKey, itemValue) {
         craft: getCraftData(kind)
     };
 
-    if (itemData.type === "object")
+    if (itemData.type === 'object')
         itemData.cooldown = itemValue.cooldown || 10;
 
     kindData[kind] = itemData;
@@ -67,20 +71,20 @@ $.each(itemParse, function(itemKey, itemValue) {
 
 ItemTypes.setKindData(kindData);
 
-Items.getStaticSheet = function() {
+Items.getStaticSheet = function () {
     return Staticsheet;
-}
+};
 
 Items.itemLoad = {};
 
-Items.jqShowItem = function(jq, item, jqn, size) {
+Items.jqShowItem = function (jq, item, jqn, size) {
     size = size || 1;
     const kind = item.itemKind;
     const itemCount = item.itemNumber;
     let itemData = ItemTypes.KindData[kind];
     if (item.sprite) {
-        const spriteName = "item/item-" + item.sprite + ".png";
-        itemData = {sprite: spriteName, offset: [0, 0]};
+        const spriteName = 'item/item-' + item.sprite + '.png';
+        itemData = { sprite: spriteName, offset: [0, 0] };
     }
     if (kind >= 1000 && kind < 2000) {
         itemData = ItemLoot[kind - 1000];
@@ -94,55 +98,68 @@ Items.jqShowItem = function(jq, item, jqn, size) {
     const scale = 2;
     if (itemData.staticsheet && itemData.staticsheet > 0) {
         const data = Staticsheet[itemData.staticsheet];
-        if (size > 1)
-            data.scale = size;
+        if (size > 1) data.scale = size;
 
-        const ow = (itemData.offset[0] * data.spritewidth * data.scale);
-        const oh = (itemData.offset[1] * data.spriteheight * data.scale);
+        const ow = itemData.offset[0] * data.spritewidth * data.scale;
+        const oh = itemData.offset[1] * data.spriteheight * data.scale;
 
-        const margin = (56 - (data.spritewidth * data.scale)) >> 1;
+        const margin = (56 - data.spritewidth * data.scale) >> 1;
         jq.css({
-            'display': 'block',
-            'background-image': "url('img/" + scale + "/sprites/" + data.sheet + "')",
-            'background-size': ~~(data.width * data.scale) + "px " + ~~(data.height * data.scale) + "px",
+            display: 'block',
+            'background-image':
+                "url('img/" + scale + '/sprites/' + data.sheet + "')",
+            'background-size':
+                ~~(data.width * data.scale) +
+                'px ' +
+                ~~(data.height * data.scale) +
+                'px',
             'background-position': '-' + ow + 'px -' + oh + 'px',
-            'margin': margin + 'px',
-            'line-height': (51 - (margin << 1)) + 'px'
+            margin: margin + 'px',
+            'line-height': 51 - (margin << 1) + 'px'
         });
         jq.width(data.spritewidth * data.scale);
         jq.height(data.spriteheight * data.scale);
-
-    }
-    else {
+    } else {
         let spriteName = itemData.sprite;
         if (kind >= 1000 && kind < 2000) {
-            spriteName = game.sprites["itemloot"].file;
+            spriteName = game.sprites['itemloot'].file;
         } else if (ItemTypes.isEquippable(kind)) {
-            spriteName = game.sprites["items"].file;
+            spriteName = game.sprites['items'].file;
         }
 
         const scale = 3;
 
-        const margin = (56 - (scale * 16)) >> 1;
+        const margin = (56 - scale * 16) >> 1;
 
-        const resize = function(img) {
+        const resize = function (img) {
             jq.css({
-                'background-size': ~~(img.width * size) + "px " + ~~(img.height * size) + "px",
-                'background-position': '-' + (itemData.offset[0] * scale * 16 * size) + 'px -' + (itemData.offset[1] * scale * 16 * size) + 'px',
+                'background-size':
+                    ~~(img.width * size) + 'px ' + ~~(img.height * size) + 'px',
+                'background-position':
+                    '-' +
+                    itemData.offset[0] * scale * 16 * size +
+                    'px -' +
+                    itemData.offset[1] * scale * 16 * size +
+                    'px'
             });
             jq.width(scale * 16 * size);
             jq.height(scale * 16 * size);
         };
 
-        const filename = "img/" + scale + "/" + spriteName;
+        const filename = 'img/' + scale + '/' + spriteName;
 
         jq.css({
-            'display': 'block',
+            display: 'block',
             'background-image': "url('" + filename + "')",
-            'background-size': "auto",
-            'background-position': '-' + (itemData.offset[0] * scale * 16) + 'px -' + (itemData.offset[1] * scale * 16) + 'px',
-            'margin': margin + 'px',
-            'line-height': (51 - (margin << 1)) + 'px'
+            'background-size': 'auto',
+            'background-position':
+                '-' +
+                itemData.offset[0] * scale * 16 +
+                'px -' +
+                itemData.offset[1] * scale * 16 +
+                'px',
+            margin: margin + 'px',
+            'line-height': 51 - (margin << 1) + 'px'
         });
 
         jq.width(scale * 16 * size);
@@ -153,7 +170,7 @@ Items.jqShowItem = function(jq, item, jqn, size) {
             if (Items.itemLoad[filename]) {
                 img = Items.itemLoad[filename];
 
-                const fnResize = function(image) {
+                const fnResize = function (image) {
                     if (image.complete) {
                         resize(image);
                         return true;
@@ -163,12 +180,13 @@ Items.jqShowItem = function(jq, item, jqn, size) {
 
                 const res = fnResize(img);
                 if (!res)
-                    setTimeout(function() { fnResize(img); }, 50);
-            }
-            else {
+                    setTimeout(function () {
+                        fnResize(img);
+                    }, 50);
+            } else {
                 img = new Image();
                 img.src = filename;
-                img.onload = function() {
+                img.onload = function () {
                     resize(img);
                 };
                 Items.itemLoad[filename] = img;
@@ -183,11 +201,9 @@ Items.jqShowItem = function(jq, item, jqn, size) {
         if (ItemTypes.isEquippable(kind)) {
             jqn.html(ItemTypes.getLevelByKind(kind) + '+' + itemCount);
         } else {
-            if (itemCount > 1)
-                jqn.html(itemCount);
+            if (itemCount > 1) jqn.html(itemCount);
         }
     }
-
 };
 
 export default Items;

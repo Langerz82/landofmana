@@ -20,15 +20,15 @@ import EntitySpawnData from './entityspawndata.js';
 // bare global should `import` them from here (or directly from their own
 // module) instead.
 export {
-  MobData,
-  SkillData,
-  ItemData,
-  AppearanceData,
-  MobSpeechData,
-  ItemLootData,
-  NpcData,
-  LangData,
-  QuestData,
-  NotifyData,
-  EntitySpawnData,
+    MobData,
+    SkillData,
+    ItemData,
+    AppearanceData,
+    MobSpeechData,
+    ItemLootData,
+    NpcData,
+    LangData,
+    QuestData,
+    NotifyData,
+    EntitySpawnData
 };
