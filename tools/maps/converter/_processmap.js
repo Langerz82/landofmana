@@ -28,9 +28,10 @@ module.exports = function processMap(json, jsontsx, options) {
         chunkHeight: 0,
         collision: [],
         doors: [],
-        checkpoints: []
-
+        checkpoints: [],
+        camera: []
     };
+
     mode = options.mode;
     
     if(mode === "client") {
@@ -41,10 +42,10 @@ module.exports = function processMap(json, jsontsx, options) {
         map.musicAreas = [];
     }
     if(mode === "server") {
-    	map.data = [];
-		//map.high = [];
-		map.entities = [];
-		map.mobAreas = [];
+        map.data = [];
+        //map.high = [];
+        map.entities = [];
+        map.mobAreas = [];
     }
 
     console.info("Processing map info...");
@@ -52,72 +53,72 @@ module.exports = function processMap(json, jsontsx, options) {
     map.height = TiledJSON.height;
     
     var length = map.width * map.height;
-	for(var i = 0; i < length; i += 1)
-		if (!map.data[i])
-			map.data[i] = 0;
+    for(var i = 0; i < length; i += 1)
+        if (!map.data[i])
+            map.data[i] = 0;
     
     if (TiledJSON.editorsettings && TiledJSON.editorsettings.chunksize)
     {
-    	map.chunkWidth = TiledJSON.editorsettings.chunksize.width;
-    	map.chunkHeight = TiledJSON.editorsettings.chunksize.height;
+        map.chunkWidth = TiledJSON.editorsettings.chunksize.width;
+        map.chunkHeight = TiledJSON.editorsettings.chunksize.height;
     }
     map.tilesize = TiledJSON.tilewidth;
     console.debug("Map is [" + map.width + "x" + map.height + "] Tile Size: " + map.tilesize);
     
     var length = map.width * map.height;
-	for(var i = 0; i < length; i += 1)
-		map.collision[i] = 0;
+    for(var i = 0; i < length; i += 1)
+        map.collision[i] = 0;
 /*
-	_.each(TiledJSON.tilesets, function(val) {
-		//console.info(JSON.stringify(val))
-		if (val.source === "Mobs.tsx")
-			entitiesFirstGid = val.firstgid;
-	});
+    _.each(TiledJSON.tilesets, function(val) {
+        //console.info(JSON.stringify(val))
+        if (val.source === "Mobs.tsx")
+            entitiesFirstGid = val.firstgid;
+    });
 */
-	//console.info(JSON.stringify(TiledJSON.tilesets));
-	console.info("tilesets");
-	_.each(TiledJSON.tilesets, function (value) {
-		if (value.source === "tilesheet.tsx")
-		{
-			console.info("tilesheet");
-			//console.info(JSON.stringify(value));
-		}
-	});
+    //console.info(JSON.stringify(TiledJSON.tilesets));
+    console.info("tilesets");
+    _.each(TiledJSON.tilesets, function (value) {
+        if (value.source === "tilesheet.tsx")
+        {
+            console.info("tilesheet");
+            //console.info(JSON.stringify(value));
+        }
+    });
 
-	console.info("iterate through tileset tile properties");
-	_.each(TsxJSON.tileset.tile, function(value) {
-		//console.info(value);
-		var tileId = parseInt(value['@_id'], 10) + 1;
-		//console.info("*** Processing Tile ID " + tileId);
-		if (tileId >= 272 && tileId <= 275)
-			console.info(value);
+    console.info("iterate through tileset tile properties");
+    _.each(TsxJSON.tileset.tile, function(value) {
+        //console.info(value);
+        var tileId = parseInt(value['@_id'], 10) + 1;
+        //console.info("*** Processing Tile ID " + tileId);
+        if (tileId >= 272 && tileId <= 275)
+            console.info(value);
 
-		if (value.hasOwnProperty("properties")) {
-			
-			//console.info("properties:"+JSON.stringify(value.properties));
-			var prop = getPropertyXmlList(value.properties);
-			//console.log("prop:"+JSON.stringify(prop));
+        if (value.hasOwnProperty("properties")) {
+            
+            //console.info("properties:"+JSON.stringify(value.properties));
+            var prop = getPropertyXmlList(value.properties);
+            //console.log("prop:"+JSON.stringify(prop));
 
-			if (prop.hasOwnProperty("v") && mode === "client") {
-				//console.info("Tile ID [" + tileId + "] is a high tile (obscures foreground)");
-				map.high.push(tileId);
-			}
+            if (prop.hasOwnProperty("v") && mode === "client") {
+                //console.info("Tile ID [" + tileId + "] is a high tile (obscures foreground)");
+                map.high.push(tileId);
+            }
 
-			if (prop.hasOwnProperty("c")) {
-				//console.info("Tile ID [" + tileId + "] is a collision tile");
-				collidingTiles[tileId] = true;
-			}
-		}
+            if (prop.hasOwnProperty("c")) {
+                //console.info("Tile ID [" + tileId + "] is a collision tile");
+                collidingTiles[tileId] = true;
+            }
+        }
 
-		if (value.hasOwnProperty("objectgroup")) {
-			_.each(value.objectgroup, function(data) {
-					if (data["@_id"] == 1) {
-						//console.info("Tile ID [" + tileId + "] is a collision tile");
-						collidingTiles[tileId] = true;
-					}
-			});
-		}
-	});
+        if (value.hasOwnProperty("objectgroup")) {
+            _.each(value.objectgroup, function(data) {
+                    if (data["@_id"] == 1) {
+                        //console.info("Tile ID [" + tileId + "] is a collision tile");
+                        collidingTiles[tileId] = true;
+                    }
+            });
+        }
+    });
 
     // iterate through layers and process
     console.info("* Phase 2 Layer Processing");
@@ -130,131 +131,152 @@ module.exports = function processMap(json, jsontsx, options) {
             console.info("** Processing map checkpoints...");
             var areas = layer.objects;
             var count = 0;
-			
+            
             // iterate through the checkpoints
             _.each(areas, function(area) {
-				console.info(JSON.stringify(area));
-				if (area.properties) {
-					var prop = getPropertyList(area.properties);
-					var cp = {
-						id: ++count,
-						x: ~~(area.x),
-						y: ~~(area.y),
-						w: ~~(area.width),
-						h: ~~(area.height),
-						s: prop.s,
-					};
-					map.checkpoints.push(cp);
-				}
+                console.info(JSON.stringify(area));
+                if (area.properties) {
+                    var prop = getPropertyList(area.properties);
+                    var cp = {
+                        id: ++count,
+                        x: ~~(area.x),
+                        y: ~~(area.y),
+                        w: ~~(area.width),
+                        h: ~~(area.height),
+                        s: prop.s,
+                    };
+                    map.checkpoints.push(cp);
+                }
             });
         }
 
-		else if(layerName === "doors"){
-			 console.info("Processing doors...");
-			 //console.info(JSON.stringify(layer));
-			 var areas = layer.objects;
-			 if (areas) {
-				 for(var i = 0; i < areas.length; i++){
-					 var prop = getPropertyList(areas[i].properties);
-					 //console.info(JSON.stringify(prop));
-					 var doorArea = {
-						 x: ~~(areas[i].x),
-						 y: ~~(areas[i].y),
-						 width: ~~(areas[i].width),
-						 height: ~~(areas[i].height),
-						 o: "d",
-					 };
-					 if (prop.tmap >= 0) doorArea.tmap = prop.tmap;
-					 if (prop.tMinLevel) doorArea.tMinLevel = prop.tMinLevel;
-					 if (prop.tMaxLevel) doorArea.tMaxLevel = prop.tMaxLevel;
-					 if (prop.tx) doorArea.tx = prop.tx;
-					 if (prop.ty) doorArea.ty = prop.ty;
-					 if (prop.o) doorArea.to = getOrientation(prop.o);
-					 map.doors.push(doorArea);
-				 }
-			 }
-		}
+        else if (layerName === "camera") {
+            console.info("** Processing map camera...");
+            var areas = layer.objects;
+            var count = 0;
+            
+            // iterate through the checkpoints
+            _.each(areas, function(area) {
+                console.info(JSON.stringify(area));
+                if (area) {
+                    var cp = {
+                        id: ++count,
+                        x: ~~(area.x),
+                        y: ~~(area.y),
+                        w: ~~(area.width),
+                        h: ~~(area.height)
+                    };
+                    map.camera.push(cp);
+                }
+            });
+        }
 
-		else if(layerName === "doors_old"){
-			 console.info("Processing doors...");
-			 //console.info(JSON.stringify(layer));
-			 var areas = layer.objects;
-			 if (areas) {
-				 for(var i = 0; i < areas.length; i++){
-					 var prop = getPropertyList(areas[i].properties);
-					 //console.info(JSON.stringify(prop));
-					 var doorArea = {
-						 x: ~~(areas[i].x),
-						 y: ~~(areas[i].y),
-						 width: ~~(areas[i].width),
-						 height: ~~(areas[i].height),
-						 to: 2
-					 };
-					 if (prop.tmap >= 0) doorArea.tmap = prop.tmap;
-					 if (prop.tMinLevel) doorArea.tMinLevel = prop.tMinLevel;
-					 if (prop.tMaxLevel) doorArea.tMaxLevel = prop.tMaxLevel;
-					 if (prop.x) doorArea.tx = prop.x * G_TILESIZE;
-					 if (prop.y) doorArea.ty = prop.y * G_TILESIZE;
-					 if (prop.o) doorArea.to = getOrientation(prop.o);
-					 map.doors.push(doorArea);
-				 }
-			 }
-		}
+        else if(layerName === "doors"){
+             console.info("Processing doors...");
+             //console.info(JSON.stringify(layer));
+             var areas = layer.objects;
+             if (areas) {
+                 for(var i = 0; i < areas.length; i++){
+                     var prop = getPropertyList(areas[i].properties);
+                     //console.info(JSON.stringify(prop));
+                     var doorArea = {
+                         x: ~~(areas[i].x),
+                         y: ~~(areas[i].y),
+                         width: ~~(areas[i].width),
+                         height: ~~(areas[i].height),
+                         o: "d",
+                     };
+                     if (prop.tmap >= 0) doorArea.tmap = prop.tmap;
+                     if (prop.tMinLevel) doorArea.tMinLevel = prop.tMinLevel;
+                     if (prop.tMaxLevel) doorArea.tMaxLevel = prop.tMaxLevel;
+                     if (prop.tx) doorArea.tx = prop.tx;
+                     if (prop.ty) doorArea.ty = prop.ty;
+                     if (prop.o) doorArea.to = getOrientation(prop.o);
+                     map.doors.push(doorArea);
+                 }
+             }
+        }
 
-		else if(layerName === "entities"){
-			if (mode == "server") {
-					 console.info("Processing entities...");
-					 //console.info(JSON.stringify(layer));
-					 var areas = layer.objects;
-					 if (areas) {
-						 for(var i = 0; i < areas.length; i++){
-							 var prop = getPropertyList(areas[i].properties);
-							 //console.info(JSON.stringify(prop));
-							 var entityArea = {
-								 x: ~~(areas[i].x),
-								 y: ~~(areas[i].y),
-								 type: prop.type,
-								 id: prop.id,
-								 name: prop.name || "",
-							 };
-							 if (prop.scriptQuests) {
-								 entityArea.scriptQuests = prop.scriptQuests;
-							 }
-							 map.entities.push(entityArea);
-						 }
-					 }
-			}
-			else
-				return;
-		}
+        else if(layerName === "doors_old"){
+             console.info("Processing doors...");
+             //console.info(JSON.stringify(layer));
+             var areas = layer.objects;
+             if (areas) {
+                 for(var i = 0; i < areas.length; i++){
+                     var prop = getPropertyList(areas[i].properties);
+                     //console.info(JSON.stringify(prop));
+                     var doorArea = {
+                         x: ~~(areas[i].x),
+                         y: ~~(areas[i].y),
+                         width: ~~(areas[i].width),
+                         height: ~~(areas[i].height),
+                         to: 2
+                     };
+                     if (prop.tmap >= 0) doorArea.tmap = prop.tmap;
+                     if (prop.tMinLevel) doorArea.tMinLevel = prop.tMinLevel;
+                     if (prop.tMaxLevel) doorArea.tMaxLevel = prop.tMaxLevel;
+                     if (prop.x) doorArea.tx = prop.x * G_TILESIZE;
+                     if (prop.y) doorArea.ty = prop.y * G_TILESIZE;
+                     if (prop.o) doorArea.to = getOrientation(prop.o);
+                     map.doors.push(doorArea);
+                 }
+             }
+        }
 
-		else if(layer.name === "mobareas"){
-			if (mode == "server") {
-					 console.info("Processing mobareas...");
-					 var areas = layer.objects;
-					 console.info(JSON.stringify(areas));
-					 //return;
-					 for(var i = 0; i < areas.length; i++){
-						 console.info(areas[i]);
-						 var prop = getPropertyList(areas[i].properties);
-						 var area = {
-							 id: i,
-							 count: prop.count,
-							 minLevel: prop.minLevel,
-							 maxLevel: prop.maxLevel,
-							 x: ~~(areas[i].x),
-							 y: ~~(areas[i].y),
-							 w: ~~(areas[i].width),
-							 h: ~~(areas[i].height),
-							 include: prop.include || '',
-							 exclude: prop.exclude || '',
-							 definite: prop.definite || '',
-							 level: prop.level || '',
-						 };
-						 map.mobAreas.push(area);
-					 }
-			}
-		}
+        else if(layerName === "entities"){
+            if (mode == "server") {
+                     console.info("Processing entities...");
+                     //console.info(JSON.stringify(layer));
+                     var areas = layer.objects;
+                     if (areas) {
+                         for(var i = 0; i < areas.length; i++){
+                             var prop = getPropertyList(areas[i].properties);
+                             //console.info(JSON.stringify(prop));
+                             var entityArea = {
+                                 x: ~~(areas[i].x),
+                                 y: ~~(areas[i].y),
+                                 type: prop.type,
+                                 id: prop.id,
+                                 name: prop.name || "",
+                             };
+                             if (prop.scriptQuests) {
+                                 entityArea.scriptQuests = prop.scriptQuests;
+                             }
+                             map.entities.push(entityArea);
+                         }
+                     }
+            }
+            else
+                return;
+        }
+
+        else if(layer.name === "mobareas"){
+            if (mode == "server") {
+                     console.info("Processing mobareas...");
+                     var areas = layer.objects;
+                     console.info(JSON.stringify(areas));
+                     //return;
+                     for(var i = 0; i < areas.length; i++){
+                         console.info(areas[i]);
+                         var prop = getPropertyList(areas[i].properties);
+                         var area = {
+                             id: i,
+                             count: prop.count,
+                             minLevel: prop.minLevel,
+                             maxLevel: prop.maxLevel,
+                             x: ~~(areas[i].x),
+                             y: ~~(areas[i].y),
+                             w: ~~(areas[i].width),
+                             h: ~~(areas[i].height),
+                             include: prop.include || '',
+                             exclude: prop.exclude || '',
+                             definite: prop.definite || '',
+                             level: prop.level || '',
+                         };
+                         map.mobAreas.push(area);
+                     }
+            }
+        }
 
     });
 
@@ -265,60 +287,60 @@ module.exports = function processMap(json, jsontsx, options) {
     }
 
     // If combined empty layer then make it a collision.
-	for (var i = 0, max = length; i < max; i += 1) {
-		if(map.data[i] === undefined) {
-			map.collision[i] = 1;
-		}
-	}
+    for (var i = 0, max = length; i < max; i += 1) {
+        if(map.data[i] === undefined) {
+            map.collision[i] = 1;
+        }
+    }
 
     return map;
 };
 
 var getPropertyXmlList = function (properties) {
-	props = {}
-	for (var id in properties) {
-		prop = properties[id];
-		if (Array.isArray(prop)) {
-			for (var p of prop) {
-				props[p["@_name"]] = p["@_value"];
-			}
-		}
-		else {
-			//console.info(JSON.stringify(prop));
-			props[prop["@_name"]] = prop["@_value"];
-		}
-	}
-	return props;
+    props = {}
+    for (var id in properties) {
+        prop = properties[id];
+        if (Array.isArray(prop)) {
+            for (var p of prop) {
+                props[p["@_name"]] = p["@_value"];
+            }
+        }
+        else {
+            //console.info(JSON.stringify(prop));
+            props[prop["@_name"]] = prop["@_value"];
+        }
+    }
+    return props;
 };
 
 var getPropertyList = function (properties) {
-	props = {}
-	for (var prop of properties) {
-		if (prop.type === "bool")
-			props[prop.name] = prop.value;
-		if (prop.type === "string")
-			props[prop.name] = prop.value;
-		if (prop.type === "int")
-			props[prop.name] = parseInt(prop.value);
-		if (prop.type === "float")
-			props[prop.name] = parseFloat(prop.value);
-	}
-	return props;
+    props = {}
+    for (var prop of properties) {
+        if (prop.type === "bool")
+            props[prop.name] = prop.value;
+        if (prop.type === "string")
+            props[prop.name] = prop.value;
+        if (prop.type === "int")
+            props[prop.name] = parseInt(prop.value);
+        if (prop.type === "float")
+            props[prop.name] = parseFloat(prop.value);
+    }
+    return props;
 };
 
 var getOrientation = function (orientation) {
-	switch (orientation) {
-	  case 'u':
-		return 1;
-	  case 'd':
-		return 2;
-	  case 'l':
-		return 3;
-	  case 'r':
-		return 4;
-	  default:
-		return 1;
-	}
+    switch (orientation) {
+      case 'u':
+        return 1;
+      case 'd':
+        return 2;
+      case 'l':
+        return 3;
+      case 'r':
+        return 4;
+      default:
+        return 1;
+    }
 }
 
 var processLayer = function(layer) {
@@ -338,39 +360,39 @@ var processLayer = function(layer) {
             }
         }*/
     }
-	else if(layerType === "tilelayer" && layerName === "blocking") {
-		console.info("Processing blocking tiles...");
-		for(var i=0; i < tiles.length; i += 1) {
-			var gid = tiles[i];
-			// colliding tiles
-			if(gid > 0) {
-				map.collision[i] = 1;
-			}
-		}
-	}
+    else if(layerType === "tilelayer" && layerName === "blocking") {
+        console.info("Processing blocking tiles...");
+        for(var i=0; i < tiles.length; i += 1) {
+            var gid = tiles[i];
+            // colliding tiles
+            if(gid > 0) {
+                map.collision[i] = 1;
+            }
+        }
+    }
     else if(layerType === "tilelayer" && /*layer.visible !== 0 &&*/ 
-    	layerName !== "_entities" && layerName !== "collision") 
+        layerName !== "_entities" && layerName !== "collision") 
     {
         //console.info("*** Process raw layer data...");
         for(var j = 0; j < tiles.length; j += 1) {
             var gid = tiles[j];
 
-			// set tile gid in the tilesheet
-			if(gid > 0) {
-				if(!map.data[j]) {
-					map.data[j] = gid;
-				}
-				else if(map.data[j] instanceof Array) {
-					map.data[j].unshift(gid);
-				}
-				else {
-					map.data[j] = [gid, map.data[j]];
-				}
-			}
+            // set tile gid in the tilesheet
+            if(gid > 0) {
+                if(!map.data[j]) {
+                    map.data[j] = gid;
+                }
+                else if(map.data[j] instanceof Array) {
+                    map.data[j].unshift(gid);
+                }
+                else {
+                    map.data[j] = [gid, map.data[j]];
+                }
+            }
 
             // colliding tiles
             if(gid > 0 && gid in collidingTiles) {
-            	map.collision[j] = 1;
+                map.collision[j] = 1;
             }
         }
     }

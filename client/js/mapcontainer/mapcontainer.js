@@ -28,6 +28,7 @@ export default class MapContainer {
         this.collisionGrid = [];
         this.tileGrid = [];
         this.itemGrid = [];
+        this.currentCameraArea = null;
         this.count = 0;
         this.inc = 0;
 
@@ -192,9 +193,18 @@ export default class MapContainer {
         this.animated = map.animated;
         this.doors = this._getDoors(map);
         this.checkpoints = this._getCheckpoints(map);
+        this.camera = this._getCameraArea(map);
 
-        this.gcsx = 0;
-        this.gcsy = 0;
+        // Reset rather than carry over from whatever map was loaded before -
+        // _updateGrid() (below) is what actually keeps this current, but it
+        // hasn't run yet for this (possibly brand new) map/entity, and a
+        // stale reference here would make the _updateScrollBounds() call
+        // just below compute bounds against the WRONG map's area.
+        this.currentCameraArea = null;
+
+        // gcsx/gcsy are computed by _updateScrollBounds() itself now (see its
+        // own comment) - they come out as 0 here since this.currentCameraArea
+        // is still null at map-load time.
         this._updateScrollBounds();
 
         this._initGrids();
@@ -252,11 +262,52 @@ export default class MapContainer {
     // the entity/tile alignment and edge-scroll-jump fixes from actually taking
     // effect. Pulled out into its own method so camera.rescale() can re-run it too
     // (see camera.js) whenever the map is already loaded.
+    // FIX (cameraArea room-lock sync): oxMax/oyMax/gcsx/gcex/gcsy/gcey used to
+    // always describe the FULL MAP's scrollable range. _updateGrid() (below)
+    // separately re-clamped its own tile-window gx/gy to an active
+    // cameraArea's edges, but camera.js's setRealCoords() - which clamps the
+    // continuous, pixel-precise this.x/this.y entities are drawn relative to
+    // - kept clamping against these same full-map gcsx/gcex/gcsy/gcey. That
+    // breaks the `this.x == ox*ts + wOffX` alignment invariant documented
+    // above the instant the tile window freezes at an area edge but the
+    // pixel camera doesn't: the tile buffer and every entity on screen drift
+    // apart, which is what showed up as stutter/desync right at a
+    // cameraArea's edge. Fixed by making this method itself area-aware (via
+    // `this.currentCameraArea`, set by _updateGrid() before calling this) so
+    // every consumer - this method's own oxMax/oyMax/gcsx/gcex/gcsy/gcey,
+    // _updateGrid()'s gx/gy clamp, and camera.js's clamp/centering - reads
+    // the SAME active range and freezes at the SAME world pixel. Reduces to
+    // exactly the prior full-map-only behavior whenever no cameraArea is
+    // active (gx0/gy0 are 0, gx1/gy1 are width-1/height-1, same as before).
     _updateScrollBounds() {
         if (typeof this.width === 'undefined') return;
 
         const c = game.camera;
         const ts = G_TILESIZE;
+
+        const area = this.currentCameraArea;
+        let gx0, gy0, gx1, gy1;
+        if (area) {
+            const b = this.getCameraAreaGridBounds(area);
+            gx0 = b.gx0;
+            gy0 = b.gy0;
+            gx1 = b.gx1;
+            gy1 = b.gy1;
+        } else {
+            gx0 = 0;
+            gy0 = 0;
+            gx1 = this.width - 1;
+            gy1 = this.height - 1;
+        }
+
+        // The current scroll range, in tile-grid columns/rows - either the
+        // whole map (no active cameraArea) or the area's own footprint.
+        // _updateGrid() reuses these directly for its gx/gy clamp and its
+        // "which cells to blank" check.
+        this.scrollGx0 = gx0;
+        this.scrollGy0 = gy0;
+        this.scrollGx1 = gx1;
+        this.scrollGy1 = gy1;
 
         // FIX (bottom-right edge: tile invisible / entity walks off-screen):
         // lx/ly used to be `floor((screenX+wOffX)/ts)` - "the largest local column
@@ -295,8 +346,20 @@ export default class MapContainer {
         const lx = Math.floor((c.screenX + c.wOffX - marginPx) / ts);
         const ly = Math.floor((c.screenY + c.wOffY - marginPx) / ts);
 
-        this.oxMax = this.width - 1 - lx;
-        this.oyMax = this.height - 1 - ly;
+        // gx1/gy1 (the last in-range column/row - either the map's or the
+        // active area's) stands in for the old hardcoded `this.width - 1` /
+        // `this.height - 1`; identical to those when no area is active.
+        this.oxMax = gx1 - lx;
+        this.oyMax = gy1 - ly;
+
+        // gcsx/gcsy (the near scroll bound) used to always be the map's own
+        // origin (0), set once in _initMap(). It's now the active range's
+        // own origin in world pixels - still 0 whenever that range is the
+        // whole map (gx0/gy0 above are 0 in that case), but an active
+        // cameraArea's own left/top edge otherwise, so camera.js's clamp has
+        // a near bound that matches this method's far bound (gcex/gcey).
+        this.gcsx = gx0 * ts;
+        this.gcsy = gy0 * ts;
 
         this.gcex = this.oxMax * ts + c.wOffX;
         this.gcey = this.oyMax * ts + c.wOffY;
@@ -441,29 +504,42 @@ export default class MapContainer {
         let gx = fe.x >> 4,
             gy = fe.y >> 4;
 
-        // FIX: Utils.clamp(0, this.width - cgw, ...) assumes this.width - cgw >= 0
-        // (i.e. the map is at least as big as the visible screen grid). When the map
-        // grid is smaller than gridWE/gridHE, this.width - cgw (or height - cgh) goes
-        // negative, so the clamp's max is below its min - clamp() always collapses
-        // that to the (negative) max, pinning the map against one edge instead of
-        // scrolling with the player, with all the out-of-bounds padding stuck on the
-        // opposite side ("clipped" look). Center the map on that axis instead when
-        // it doesn't fill the screen grid.
+        // Refresh which cameraArea (if any) the player is currently standing
+        // in, then recompute oxMax/oyMax/gcsx/gcex/gcsy/gcey to match (see
+        // _updateScrollBounds()'s own comment) BEFORE using them below - this
+        // is what keeps this tile window and camera.js's pixel-precise
+        // entity camera (which reads those same gcsx/gcex/gcsy/gcey in
+        // setRealCoords()) frozen at the exact same world pixel at a
+        // cameraArea's edge, instead of drifting apart.
+        this.currentCameraArea = this.getCurrentCameraArea(fe) || null;
+        this._updateScrollBounds();
+
+        const cols = this.scrollGx1 - this.scrollGx0 + 1;
+        const rows = this.scrollGy1 - this.scrollGy0 + 1;
+
+        // FIX: Utils.clamp(gx0, gx0 + width - cgw, ...) assumes the scroll range is
+        // at least as big as the visible screen grid. When it's smaller than
+        // gridWE/gridHE, the clamp's max is below its min - clamp() always collapses
+        // that to the (negative-relative-to-min) max, pinning the range against one
+        // edge instead of scrolling with the player, with all the out-of-bounds
+        // padding stuck on the opposite side ("clipped" look). Center on that axis
+        // instead when the range doesn't fill the screen grid - this applies equally
+        // to the whole map (the original case this was written for) and to an active
+        // cameraArea smaller than the viewport.
         //
         // FIX (far edge never visible): the upper clamp bound used to just be
-        // `this.width - cgw` / `this.height - cgh` (i.e. "the map's last column/row
-        // lands in the buffered array's very last column/row"). That's wrong in
-        // general - see _updateScrollBounds()'s oxMax/oyMax (mapcontainer.js) for the
-        // full derivation of why, and why oxMax/oyMax (computed there, and kept in
-        // sync with gcex/gcey) is the correct bound instead.
+        // "the range's last column/row lands in the buffered array's very last
+        // column/row". That's wrong in general - see _updateScrollBounds()'s
+        // oxMax/oyMax for the full derivation of why, and why oxMax/oyMax (computed
+        // there, and kept in sync with gcex/gcey) is the correct bound instead.
         gx =
-            this.width < cgw
-                ? ~~((this.width - cgw) / 2)
-                : Utils.clamp(0, this.oxMax, gx - cgwh);
+            cols < cgw
+                ? this.scrollGx0 + ~~((cols - cgw) / 2)
+                : Utils.clamp(this.scrollGx0, this.oxMax, gx - cgwh);
         gy =
-            this.height < cgh
-                ? ~~((this.height - cgh) / 2)
-                : Utils.clamp(0, this.oyMax, gy - cghh);
+            rows < cgh
+                ? this.scrollGy0 + ~~((rows - cgh) / 2)
+                : Utils.clamp(this.scrollGy0, this.oyMax, gy - cghh);
 
         const ox = gx;
         const oy = gy;
@@ -471,6 +547,22 @@ export default class MapContainer {
         for (let i = 0, k = oy, l = ox; i < cgh; ++i, ++k) {
             l = ox;
             for (let j = 0; j < cgw; ++j, ++l) {
+                // Outside the active scroll range (the whole map when no
+                // cameraArea is active, in which case this is always false -
+                // getTiles()/getCollision() already return 0 for any l/k out
+                // of the map's own bounds; an active cameraArea's own
+                // footprint otherwise) - leave the cell blank instead of
+                // loading the map's tile there.
+                if (
+                    l < this.scrollGx0 ||
+                    l > this.scrollGx1 ||
+                    k < this.scrollGy0 ||
+                    k > this.scrollGy1
+                ) {
+                    this.collisionGrid[i][j] = false;
+                    this.tileGrid[i][j] = 0;
+                    continue;
+                }
                 this.collisionGrid[i][j] = this.getCollision(l, k);
                 this.tileGrid[i][j] = this.getTiles(l, k);
             }

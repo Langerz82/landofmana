@@ -1,7 +1,7 @@
 // Mixin extracted from mapcontainer.js: Doors/checkpoints/tile-animation lookups: _getDoors/isDoor/getDoor, _getCheckpoints/getCurrentCheckpoint, isHighTile/isAnimatedTile/getTileAnimation*.
 // Applied onto MapContainer.prototype via install*(...) call in mapcontainer.js; not a standalone class.
 import Area from '../area.js';
-/* global _ */
+/* global _, G_TILESIZE */
 
 export function installMapContainerDoors(proto) {
     proto._getDoors = function (map) {
@@ -95,5 +95,38 @@ export function installMapContainerDoors(proto) {
         return _.detect(this.checkpoints, function (checkpoint) {
             return checkpoint.contains(entity);
         });
+    };
+
+    proto._getCameraArea = function (map) {
+        const areas = [];
+        _.each(map.camera, function (ca) {
+            const area = new Area(ca.x, ca.y, ca.w, ca.h);
+            area.id = ca.id;
+            areas.push(area);
+        });
+        return areas;
+    };
+
+    proto.getCurrentCameraArea = function (entity) {
+        return _.detect(this.camera, function (area) {
+            return area.contains(entity);
+        });
+    };
+
+    // Converts a cameraArea's pixel-space Area (x/y/width/height, straight
+    // from the Tiled map data - see _getCameraArea() above) into inclusive
+    // tile-grid column/row bounds, in the same (l, k)/(gx, gy) coordinate
+    // space MapContainer's tileGrid/collisionGrid and getTiles()/
+    // getCollision() use. Used by _updateGrid() (mapcontainer.js) to
+    // restrict tile loading and camera scrolling to the area's own footprint
+    // while the player is standing inside it.
+    proto.getCameraAreaGridBounds = function (area) {
+        const ts = G_TILESIZE;
+        return {
+            gx0: Math.floor(area.x / ts),
+            gy0: Math.floor(area.y / ts),
+            gx1: Math.ceil((area.x + area.width) / ts) - 1,
+            gy1: Math.ceil((area.y + area.height) / ts) - 1
+        };
     };
 }

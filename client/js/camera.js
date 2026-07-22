@@ -124,21 +124,49 @@ export default class Camera {
         // SAME ox/oy mapcontainer.js will use, then derive this.x/this.y from it via
         // the exact entity/tile alignment invariant established below for the normal
         // (non-centered) case - this.x == ox*ts + wOffX - so both stay pixel-exact.
+        // FIX (cameraArea room-lock sync): the too-narrow branches here used to
+        // always center against the full map (`mc.width`/`mc.height`, with an
+        // implicit origin of tile column/row 0 - true only because mc.gcsx/mc.gcsy
+        // were always exactly 0). mc.gcsx/gcex/gcsy/gcey (mapcontainer.js's
+        // _updateScrollBounds()) now describe either the full map or an active
+        // cameraArea's own footprint, so centering has to use that same range's
+        // own column/row count and origin (mc.scrollGx0/scrollGy0) instead of
+        // hardcoding the map's. Reduces to exactly the old formula whenever no
+        // cameraArea is active, since scrollGx0/scrollGy0 are 0 and
+        // scrollGx1-scrollGx0+1/scrollGy1-scrollGy0+1 equal mc.width/mc.height then.
+        const scrollCols = mc.scrollGx1 - mc.scrollGx0 + 1;
+        const scrollRows = mc.scrollGy1 - mc.scrollGy0 + 1;
+
         this.x =
             mc.gcex < mc.gcsx
-                ? ~~((mc.width - this.gridWE) / 2) * G_TILESIZE + this.wOffX
+                ? (mc.scrollGx0 + ~~((scrollCols - this.gridWE) / 2)) *
+                      G_TILESIZE +
+                  this.wOffX
                 : Utils.clamp(mc.gcsx, mc.gcex, x);
         this.y =
             mc.gcey < mc.gcsy
-                ? ~~((mc.height - this.gridHE) / 2) * G_TILESIZE + this.wOffY
+                ? (mc.scrollGy0 + ~~((scrollRows - this.gridHE) / 2)) *
+                      G_TILESIZE +
+                  this.wOffY
                 : Utils.clamp(mc.gcsy, mc.gcey, y);
 
         this.rx = x;
         this.ry = y;
 
-        const tMinX = this.wOffX,
+        // FIX (cameraArea room-lock sync): tMinX/tMinY used to be the bare
+        // constant this.wOffX/this.wOffY - correct only because mc.gcsx/mc.gcsy
+        // were always 0 (the map's own origin), same assumption as the centering
+        // branch just above. Now that mc.gcsx/mc.gcsy can be an active
+        // cameraArea's own (nonzero) left/top edge, the near bound has to shift
+        // with it the same way tMaxX/tMaxY already shift with mc.gcex/mc.gcey -
+        // otherwise this near-edge smoothing window (and rendererscaling.js's
+        // setGridOffset(), which is gated on the scrollX/scrollY this produces)
+        // stays keyed to world pixel 0 instead of the area's actual near edge.
+        // Reduces to exactly `this.wOffX`/`this.wOffY` whenever mc.gcsx/mc.gcsy
+        // are 0 (no active cameraArea).
+        const tMinX = mc.gcsx + this.wOffX,
             tMaxX = mc.gcex + this.wOffX,
-            tMinY = this.wOffY,
+            tMinY = mc.gcsy + this.wOffY,
             tMaxY = mc.gcey + this.wOffY;
 
         // FIX (edge jump, take 2): scrollX/scrollY gate whether rendererscaling.js's
