@@ -1,10 +1,23 @@
 
 :root {
 	--pixel-bg: #0096ff; /* Inner background color */
-	--pixel-border: black; /* Inner border color: */
-	--pixel-border-2: white; /* Middle border color: */
-	--pixel-border-3: var(--pixel-border); /* Outer border color */
+	--pixel-border: color-mix(in srgb, var(--pixel-bg) 50%, #999999); /* Inner border color: */
+	--pixel-border-3: color-mix(in srgb, var(--pixel-bg) 50%, #000000); /* Middle border color: */
+	--pixel-border-2: color-mix(in srgb, var(--pixel-bg) 50%, #ffffff); /* Outer border color */
 	--pixel: 2px; /* Pixel size */
+    --pixel-main-bg: var(--pixel-bg);
+    --pixel-main-bg2: color-mix(in srgb, var(--pixel-bg) 40%, #000000);
+}
+
+#intro, #container {
+  padding:0;margin:0;
+  width:100%;
+  height:100%;
+  background: var(--pixel-bg);
+  background: -moz-linear-gradient(180deg, var(--pixel-main-bg) 0%, var(--pixel-main-bg2) 100%);
+  background: -webkit-linear-gradient(180deg, var(--pixel-main-bg) 0%, var(--pixel-main-bg2) 100%);
+  background: linear-gradient(180deg, var(--pixel-main-bg) 0%, var(--pixel-main-bg2) 100%);
+  /*filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#020024",endColorstr="#00d4ff",GradientType=1);*/
 }
 
 div.frame{

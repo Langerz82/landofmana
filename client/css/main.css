@@ -75,17 +75,6 @@ body {
   height:100%;
 }
 
-#intro, #container {
-  padding:0;margin:0;
-  width:100%;
-  height:100%;
-  background: rgb(202 246 255);
-  background: -moz-linear-gradient(0deg, rgb(9,9,121) 0%, rgb(5,96,179) 25%, rgb(202 246 255) 100%);
-  background: -webkit-linear-gradient(0deg, rgb(9,9,121) 0%, rgb(5,96,179) 25%, rgb(202 246 255) 100%);
-  background: linear-gradient(0deg, rgb(9,9,121) 0%, rgb(5,96,179) 25%, rgb(202 246 255) 100%);
-  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#020024",endColorstr="#00d4ff",GradientType=1);
-}
-
 #game-heading {
   position: absolute;
       width: 360px;
