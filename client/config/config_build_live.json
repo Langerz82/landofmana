@@ -5,7 +5,7 @@
     "useLocalAPI": false,
     "dispatcher": false,
     "debug": 0,
-    "version":100,
+    "version":101,
     "updatepage":"https://play.google.com/store/apps/details?id=com.retrorpgonline2",
     "productpage":"../products/"
 }

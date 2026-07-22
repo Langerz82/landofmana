@@ -21,7 +21,7 @@
   "world_id": 1,
   "production": "heroku",
 
-  "version":100,
+  "version":101,
   "verify_email": "",
   "verify_key": "",
   "world_name": "North America",
