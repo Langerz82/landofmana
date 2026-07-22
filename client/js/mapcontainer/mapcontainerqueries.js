@@ -43,10 +43,25 @@ export function installMapContainerQueries(proto) {
         const gx = x / G_TILESIZE,
             gy = y / G_TILESIZE,
             d = 0.49, // A little less than 0.5.
-            x1 = ~~(gx - d),
-            y1 = ~~(gy - d),
-            x2 = ~~(gx + d),
-            y2 = ~~(gy + d);
+            // FIX (off-by-one at the near/top-left map edge): `~~` truncates toward
+            // zero, not down - for a character centered in the map's edge tile
+            // (e.g. x=8, gx=0.5), taking one more full grid step past the true edge
+            // (x=-8, gx=-0.5, i.e. the nonexistent "tile -1") gives
+            // `~~(gx-d)=~~(-0.99)=0` (still non-negative!), so the `x1 < 0` bounds
+            // check below never caught it - the player could walk one full tile
+            // past the left/top edge into space _updateGrid()'s tile-sampling
+            // window (mapcontainer.js) never renders (it's clamped to a minimum of
+            // world tile 0), matching the "off by one at (0,0), can walk off the
+            // rendered map" report. Math.floor rounds down for negative values too
+            // (Math.floor(-0.99) = -1), so that illegal step is correctly caught,
+            // while the legitimate edge-tile position (gx=0.5) is unaffected. The
+            // far/bottom-right edge never had this bug - `x2 >= this.width` below
+            // already works correctly for positive overshoot, where truncating
+            // toward zero and rounding down agree.
+            x1 = Math.floor(gx - d),
+            y1 = Math.floor(gy - d),
+            x2 = Math.floor(gx + d),
+            y2 = Math.floor(gy + d);
 
         if (x1 < 0 || y1 < 0 || x2 >= this.width || y2 >= this.height)
             return true;

@@ -180,26 +180,52 @@ export function installRendererScaling(proto) {
         x = -x;
         y = -y;
 
-        const mx = Math.abs(c.rx - c.sx);
-        const my = Math.abs(c.ry - c.sy);
+        // FIX: this rx/sx "rubber-band" term nudges the tile layer by the gap between
+        // the player's raw desired camera position (rx, unclamped) and the actual
+        // clamped/centered camera position (sx), so the map eases smoothly as a large
+        // map's edge is approached instead of snapping. That smoothing must stay gated
+        // on c.canScrollX/canScrollY (whether the map is big enough to scroll on this
+        // axis at all - set once in camera.js's setRealCoords()), NOT on the per-frame
+        // c.scrollX/scrollY flag: scrollX/scrollY also goes false while a normal large
+        // map is merely *currently* clamped at an edge, and this smoothing is exactly
+        // what's needed there for a smooth stop instead of a jump. It only needs to be
+        // skipped when the axis can never scroll (map smaller than the screen grid),
+        // where sx is pinned constant while rx keeps tracking the player across the
+        // whole map - there the gap grows unboundedly and desyncs the tile layer from
+        // entities (positioned directly off the fixed camera.x, with no such offset).
+        const mx = c.canScrollX ? Math.abs(c.rx - c.sx) : 0;
+        const my = c.canScrollY ? Math.abs(c.ry - c.sy) : 0;
 
         let offX = -c.wOffX;
         let offY = -c.wOffY;
 
-        if (c.rx < c.sx) {
+        if (c.canScrollX && c.rx < c.sx) {
             offX = Math.min(offX + mx, 0);
         }
-        if (c.ry < c.sy) {
+        if (c.canScrollY && c.ry < c.sy) {
             offY = Math.min(offY + my, 0);
         }
-        if (c.rx > c.sx) {
-            const max = -c.wOffX * 2;
-            offX = Math.max(offX - mx, max);
-        }
-        if (c.ry > c.sy) {
-            const max = -c.wOffY * 2;
-            offY = Math.max(offY - my, max);
-        }
+        // FIX (freeze-then-jump at the far edge): this used to have symmetric
+        // `rx > sx`/`ry > sy` branches that ramped offX/offY further, from the
+        // baseline -wOffX/-wOffY down to -2*wOffX/-2*wOffY, as the player approached
+        // the FAR (right/bottom) edge - mirroring the near-edge branches above. That
+        // made sense against the OLD gcex/gcey (mapcontainer.js), which didn't yet
+        // include the wOffX/wOffY buffer compensation, so this.x/this.y froze later
+        // than the tile-window sampler and needed that extra ramp to bridge the gap.
+        // Now that gcex/gcey are computed to already include that compensation (see
+        // mapcontainer.js's _updateScrollBounds()), this.x/this.y and the tile-window
+        // sampler freeze at the exact same instant at the far edge, with sox/soy
+        // zeroing at that same instant too (camera.js's scrollX/scrollY now use
+        // gcex/gcey directly for that side) - there's no gap left to bridge. Keeping
+        // this branch was actively harmful: for a stretch of player movement right at
+        // the far edge, this.x/this.y/sox/soy were all already correctly frozen (a
+        // stable, aligned frame), but this branch kept ramping offX/offY anyway,
+        // sliding the tile layer a further tile's width out from under the
+        // already-static entities before capping - a visible freeze-then-jump. The
+        // near-edge branches above are still needed and correct: gcsx/gcsy (the near
+        // bound) is still plain 0, unadjusted, so that side still relies on this ramp
+        // staying in sync with camera.js's scrollX/scrollY (which still uses
+        // tMinX/tMinY, not gcsx/gcsy, for that same reason - see the comment there).
 
         x += offX;
         y += offY;

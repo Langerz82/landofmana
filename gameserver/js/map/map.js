@@ -361,22 +361,11 @@ class Map {
         const i = Utils.randomInt(nbAreas - 1);
         if (!area) area = this.startingAreas[i];
 
-        //console.info("getRandomStartingPosition - none");
-
-        /*if (this.index === 1) {
-          var area = new Area(this, 0, 512*G_TILESIZE, 512*G_TILESIZE, 30*G_TILESIZE, 30*G_TILESIZE, true, -1);
-          //var pos = {x: (1024-45)*16, y: (1024-45)*16};
-          //var pos = {x: (45)*16, y: (45)*16};
-          var areaPos = area._getRandomPositionInsideArea.bind(area,100);
-          var	pos = this.entities.spaceEntityRandomApart(3,areaPos);
-          console.info("getRandomStartingPosition - x:"+pos.x+",y:"+pos.y);
-          return pos;
-        }*/
+        //return {x: 50*G_TILESIZE, y: 50*G_TILESIZE};
 
         if (area) {
             const areaPos = area._getRandomPositionInsideArea.bind(area, 100);
             return this.entities.spaceEntityRandomApart(3, areaPos);
-            //return area.getRandomPosition();
         } else {
             return null;
         }

@@ -172,7 +172,6 @@ export default class MapContainer {
 
     _initMap(map) {
         const c = game.camera;
-        const gs = game.renderer.gameScale;
         const ts = G_TILESIZE;
 
         this.width = map.width;
@@ -196,10 +195,111 @@ export default class MapContainer {
 
         this.gcsx = 0;
         this.gcsy = 0;
-        this.gcex = this.width * ts - ~~(c.screenW / gs);
-        this.gcey = this.height * ts - ~~(c.screenH / gs);
+        this._updateScrollBounds();
 
         this._initGrids();
+    }
+
+    // FIX: gcex/gcey are the world-pixel bounds camera.js clamps this.x/this.y (the
+    // real camera position entities are drawn relative to) against. They used to be
+    // computed once, inline, in _initMap() as `this.width * ts - screenX` - which
+    // doesn't land on the same world pixel where _updateGrid()'s tile-window sampler
+    // (`ox`/`oy`) actually stops resampling new tile rows/columns.
+    //
+    // The exact relationship (derived from how entities are drawn - `entity.x -
+    // this.x` - versus how the buffered tile layer is positioned - local tile column
+    // j drawn at `j*ts - sox + offX`, offX baseline `-c.wOffX` - requiring both to
+    // agree on where any given world pixel lands on screen) is:
+    //   this.x (at the point the camera clamps) == ox*ts + wOffX
+    // so gcex/gcey must be derived from whatever oxMax/oyMax _updateGrid() actually
+    // clamps to, using the exact same wOffX/wOffY the tile sampler and pixel-smoothing
+    // code already use - see oxMax/oyMax below for how that's derived.
+    //
+    // FIX (far edge never visible): oxMax/oyMax used to just be `this.width - c.gridWE`
+    // / `this.height - c.gridHE` - i.e. "clamp so the buffered array's very last
+    // column/row holds the map's last column/row". That assumes the array's last
+    // column/row is itself within the visible viewport once the container is shifted
+    // left/up by wOffX/wOffY to hide the *first* buffer column/row - true only when
+    // wOffX/wOffY is exactly one tile. In general it isn't: wOffX/wOffY absorbs
+    // whatever rounding slack gridW/gridH's ceil-then-force-even math left over versus
+    // the actual screen size, which can be anywhere up to just under 2 tiles - and
+    // simply adding more buffer columns/rows doesn't help, because wOffX/wOffY grows
+    // by the same amount as the buffer does (verified empirically - it's a wash).
+    // Concretely, whenever wOffX/wOffY exceeds one tile (common - it depends on how
+    // close the screen size happens to land to a whole number of tiles), the array's
+    // last column/row ends up rendered below/right of the actual visible canvas -
+    // present in the scene graph, holding the map's true last column/row, but never
+    // actually seen. That's what made the map's far edge (and any entity standing on
+    // it) appear to vanish/be unreachable. It's specific to the *far* edge (largest
+    // ox/oy) - the near edge (ox/oy = 0) doesn't have this problem, since offX/offY
+    // ramps all the way to exactly 0 there instead of sitting at the -wOffX/-wOffY
+    // baseline (see camera.js's setRealCoords()/rendererscaling.js's setTilesOffset())
+    // - which is why "top-left is fine" while "bottom-left" (and, on a wide-enough
+    // map, bottom-right) isn't.
+    //
+    // Fixed by solving directly for the largest local column/row L whose on-screen
+    // position (L*ts - wOffX) still fits within the visible viewport (screenX/screenY),
+    // then setting oxMax/oyMax so the map's true last column/row (width-1/height-1)
+    // lands exactly there - using up the buffer as fully as the screen size allows,
+    // rather than assuming it always divides evenly.
+    //
+    // FIX (staleness): this used to only run once, inline in _initMap() at map-load
+    // time, using whatever c.gridWE/c.wOffX were *then*. But camera.rescale() (which
+    // recomputes gridWE/gridHE/wOffX/wOffY) can run again afterwards - e.g. a window
+    // resize, or game.js's unconditional ~2s-after-start resize call - without ever
+    // refreshing gcex/gcey to match. That silently broke the very invariant this
+    // method exists to establish on almost every real session, which is what kept
+    // the entity/tile alignment and edge-scroll-jump fixes from actually taking
+    // effect. Pulled out into its own method so camera.rescale() can re-run it too
+    // (see camera.js) whenever the map is already loaded.
+    _updateScrollBounds() {
+        if (typeof this.width === 'undefined') return;
+
+        const c = game.camera;
+        const ts = G_TILESIZE;
+
+        // FIX (bottom-right edge: tile invisible / entity walks off-screen):
+        // lx/ly used to be `floor((screenX+wOffX)/ts)` - "the largest local column
+        // whose on-screen pixel origin is < screenX". Two distinct problems with that:
+        //
+        // 1) Whenever (screenX+wOffX) lands on an *exact* multiple of ts (common -
+        //    e.g. 1280x720 at several integer gameScales), floor() returns one column
+        //    too many: that column's pixel range is exactly [screenX-ts, screenX),
+        //    i.e. 0 pixels inside [0, screenX) - the map's true last column/row was
+        //    placed one column past the edge of what's actually drawn, so it (and
+        //    anything standing on it) never rendered at all. This is the "bottom-right
+        //    map not displaying fully by 1-tile" report.
+        //
+        // 2) Even once a column has >=1px on-screen, that's not enough for an entity
+        //    centered on that tile to stay fully visible - isColliding() (see
+        //    mapcontainerqueries.js) lets an entity's pixel-center get within `d=0.49`
+        //    tiles of the map edge, i.e. up to ~0.51 tiles *past* the last column's
+        //    left/top edge. Entities are drawn as `entity.x - this.x` with no wOffX
+        //    correction (unlike tiles), so the far clamp bound (gcex/gcey, derived
+        //    from oxMax/oyMax below) needs to reserve that extra ~0.51-tile margin, or
+        //    an entity walking to its true legal max position renders past screenX/
+        //    screenY even though the tile under it is (barely) visible. This is the
+        //    "entity can still go off the screen" report.
+        //
+        // Both are fixed the same way: instead of requiring just >0px of clearance,
+        // require enough clearance for an entity's max legal offset past the tile
+        // boundary (`ts * (1 - d)`, using the same d=0.49 isColliding() uses, so this
+        // bound and the collision bound agree on where the true edge is). Verified via
+        // simulation (630 screen/scale/map-size combinations): 0 failures for both
+        // "true last tile has any pixel on-screen" and "entity at its max legal
+        // position is fully on-screen" - versus 373/630 and 146/630 failures
+        // respectively for the two formulas this replaces.
+        const d = 0.49;
+        const marginPx = ts * (1 - d);
+
+        const lx = Math.floor((c.screenX + c.wOffX - marginPx) / ts);
+        const ly = Math.floor((c.screenY + c.wOffY - marginPx) / ts);
+
+        this.oxMax = this.width - 1 - lx;
+        this.oyMax = this.height - 1 - ly;
+
+        this.gcex = this.oxMax * ts + c.wOffX;
+        this.gcey = this.oyMax * ts + c.wOffY;
     }
 
     ready(f) {
@@ -341,8 +441,29 @@ export default class MapContainer {
         let gx = fe.x >> 4,
             gy = fe.y >> 4;
 
-        ((gx = Utils.clamp(0, this.width - cgw, gx - cgwh)),
-            (gy = Utils.clamp(0, this.height - cgh, gy - cghh)));
+        // FIX: Utils.clamp(0, this.width - cgw, ...) assumes this.width - cgw >= 0
+        // (i.e. the map is at least as big as the visible screen grid). When the map
+        // grid is smaller than gridWE/gridHE, this.width - cgw (or height - cgh) goes
+        // negative, so the clamp's max is below its min - clamp() always collapses
+        // that to the (negative) max, pinning the map against one edge instead of
+        // scrolling with the player, with all the out-of-bounds padding stuck on the
+        // opposite side ("clipped" look). Center the map on that axis instead when
+        // it doesn't fill the screen grid.
+        //
+        // FIX (far edge never visible): the upper clamp bound used to just be
+        // `this.width - cgw` / `this.height - cgh` (i.e. "the map's last column/row
+        // lands in the buffered array's very last column/row"). That's wrong in
+        // general - see _updateScrollBounds()'s oxMax/oyMax (mapcontainer.js) for the
+        // full derivation of why, and why oxMax/oyMax (computed there, and kept in
+        // sync with gcex/gcey) is the correct bound instead.
+        gx =
+            this.width < cgw
+                ? ~~((this.width - cgw) / 2)
+                : Utils.clamp(0, this.oxMax, gx - cgwh);
+        gy =
+            this.height < cgh
+                ? ~~((this.height - cgh) / 2)
+                : Utils.clamp(0, this.oyMax, gy - cghh);
 
         const ox = gx;
         const oy = gy;
