@@ -3252,6 +3252,17 @@
         }, 
         {
          "draworder":"topdown",
+         "id":283,
+         "name":"camera",
+         "objects":[],
+         "opacity":1,
+         "type":"objectgroup",
+         "visible":true,
+         "x":0,
+         "y":0
+        }, 
+        {
+         "draworder":"topdown",
          "id":95,
          "name":"checkpoints",
          "objects":[
@@ -3278,8 +3289,8 @@
          "x":0,
          "y":0
         }],
- "nextlayerid":283,
- "nextobjectid":2701,
+ "nextlayerid":284,
+ "nextobjectid":2702,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.10.2",
