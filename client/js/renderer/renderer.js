@@ -390,6 +390,21 @@ export default class Renderer {
     clearTiles() {
         if (this.tiles.BACKGROUND) this.tiles.BACKGROUND.clear();
         if (this.tiles.FOREGROUND) this.tiles.FOREGROUND.clear();
+        // FIX (same-screen teleport blank map): refreshGrid()'s dirty-check skips
+        // clearTiles()+drawTerrain() whenever mc.tileGrid deep-equals the cached
+        // this.tileGrid. The blank-frame transition (renderFrame's blankFrame
+        // branch, triggered on every teleport) calls clearTiles() directly to wipe
+        // the BACKGROUND/FOREGROUND graphics for one frame, but never touched the
+        // cached this.tileGrid. For a cross-map teleport the destination's tile
+        // content differs, so the next refreshGrid() naturally finds a mismatch
+        // and redraws. But teleporting to a new position on the *same* screen
+        // often produces an identical visible tileGrid, so the equality check
+        // passed, drawTerrain() was skipped, and the wiped BACKGROUND/FOREGROUND
+        // graphics were never redrawn - leaving the map permanently blank behind
+        // the player. Clearing the cache here forces the next refreshGrid() call
+        // to treat it as a mismatch and actually redraw terrain, regardless of
+        // whether the tile content changed.
+        this.tileGrid = null;
     }
 
     /*clearFullTiles: function () {
