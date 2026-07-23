@@ -139,13 +139,13 @@ export function installRendererDrawEntities(proto) {
 
             newlyVisible[id] = true;
 
-            const res = true;
+            let res = true;
 
             if (currentCameraArea)
             {
                 const entityCameraArea = game.mapContainer.getCurrentCameraArea(entity);
                 res = currentCameraArea === entityCameraArea;
-                this.entityVisible(entity, res);
+                self.entityVisible(entity, res);
             }
 
             if (res) {
