@@ -350,7 +350,22 @@ var processLayer = function(layer) {
 
     var tiles = layer.data;
     
-    if(mode === "client" && layerName === "plateau") {
+    if(layerName === "plateau") {
+        // FIX: this branch used to be gated on `mode === "client"`, so it
+        // only ever ran (and skipped the layer) for client builds. For
+        // "server" mode the condition was false, so plateau tiles fell
+        // through into the generic tilelayer branch below, which flags
+        // map.collision[j]=1 for any painted tile whose gid carries the
+        // tileset's collision tag ('c' property / objectgroup id=1).
+        // Plateau is an elevation/overlay layer, not a walls layer -- it's
+        // deliberately excluded from collision on the client for that
+        // reason -- so the server's compiled collision grid ended up with
+        // extra false-positive solid tiles (map2 alone had 576 cells whose
+        // *only* source of collision was a plateau tile) wherever a plateau
+        // tile happened to reuse a gid that's tagged collidable for its
+        // normal (wall/cliff) use elsewhere in the tileset. Dropping the
+        // mode check makes plateau always skip collision/data processing,
+        // matching the client behavior that was already correct.
         console.info("*** Processing plateau tiles...");
         /*for(var i = 0; i < tiles.length; i += 1) {
             var gid = tiles[i];
