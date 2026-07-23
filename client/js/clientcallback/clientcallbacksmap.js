@@ -34,6 +34,23 @@ export function installClientCallbacksMap(proto) {
         if (status === 1) {
             log.info('spawnMap');
 
+            // FIX (same-screen teleport flicker): blankFrame below exists to hide the
+            // pop-in of a *new* screen loading (different map, or the same map scrolled
+            // to a different area) by wiping the BACKGROUND/FOREGROUND tile graphics for
+            // one frame (renderer.js's renderFrame -> clearTiles()). When the door's
+            // destination (x,y) is already inside the current camera viewport - e.g. two
+            // nearby portals on the same screen, or a portal that just nudges the player
+            // a few tiles - nothing about the visible map actually changes, so that wipe
+            // just produces a needless flash-to-black with nothing to redraw it against
+            // (refreshGrid()'s dirty-check often finds the tileGrid unchanged and skips
+            // drawTerrain() entirely - see clearTiles()'s own comment). Must be computed
+            // here, before game.mapIndex is overwritten just below, since it needs the
+            // map the player is *leaving* and the camera's pre-teleport viewport.
+            const isSameScreen =
+                game.mapIndex === mapId &&
+                !!game.mapContainer &&
+                game.camera.isVisiblePosition(x, y);
+
             p.forceStop();
             game.mapIndex = mapId;
             p.mapIndex = mapId;
@@ -83,7 +100,9 @@ export function installClientCallbacksMap(proto) {
 
             log.info('Map loaded.');
             this.client.sendTeleportMap([mapId, 1, x, y, -1]);
-            game.renderer.blankFrame = true;
+            if (!isSameScreen) {
+                game.renderer.blankFrame = true;
+            }
         }
 
         if (status === 2) {
