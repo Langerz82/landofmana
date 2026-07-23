@@ -133,20 +133,33 @@ export function installRendererDrawEntities(proto) {
         // flip visibility for ids that left the screen this frame.
         const newlyVisible = {};
 
+        const currentCameraArea = game.mapContainer.currentCameraArea;
         self.camera.forEachInScreen(function (entity, id) {
             if (!entity) return;
 
             newlyVisible[id] = true;
 
-            self.drawEntityName(entity);
-            if (entity !== game.player) self.showHealthBar(entity);
+            const res = true;
 
-            if (entity instanceof Item) {
-                self.drawItem(entity);
+            if (currentCameraArea)
+            {
+                const entityCameraArea = game.mapContainer.getCurrentCameraArea(entity);
+                res = currentCameraArea === entityCameraArea;
+                this.entityVisible(entity, res);
             }
-            if (entity instanceof Entity) {
-                self.entityVisible(entity, true);
-                if (!entity.isDead) self.drawEntity(entity);
+
+            if (res) {
+                self.drawEntityName(entity);
+                if (entity !== game.player) self.showHealthBar(entity);
+
+
+                if (entity instanceof Item) {
+                    self.drawItem(entity);
+                }
+                if (entity instanceof Entity) {
+                    self.entityVisible(entity, true);
+                    if (!entity.isDead) self.drawEntity(entity);
+                }
             }
 
             if (entity.isDying || entity.isDead) {
