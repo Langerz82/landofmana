@@ -48,10 +48,35 @@ class MobArea extends EntityArea {
             }
         }
 
+        // `weight` is a fixed-size array of relative spawn chances, one
+        // entry per level from minLevel to maxLevel (index 0 = minLevel,
+        // last index = maxLevel). e.g. minLevel=1, maxLevel=3,
+        // weight=[4,2,1] -> level 1 is 4-in-7, level 2 is 2-in-7, level 3
+        // is 1-in-7. May arrive as a real array or as a CSV string (map
+        // JSON stores it the same way as `include`/`exclude`).
+        // NOTE: this used to read from `include` instead of the `weight`
+        // param -- a copy/paste bug that meant this.weight never reflected
+        // the actual weight data, and level selection (see mob.js) fell
+        // back to a uniform random pick within range regardless of any
+        // weight configured on the area.
         this.weight = [];
-        if (include) {
-            if (typeof include === 'string' && include.indexOf(',') >= 0)
-                this.weight = include.split(',');
+        if (weight) {
+            if (Array.isArray(weight)) {
+                this.weight = weight.map(Number);
+            } else if (typeof weight === 'string' && weight.indexOf(',') >= 0) {
+                this.weight = weight.split(',').map(Number);
+            } else {
+                const w = Number(weight);
+                if (!Number.isNaN(w)) this.weight = [w];
+            }
+        }
+        if (
+            this.weight.length > 0 &&
+            this.weight.length !== this.maxLevel - this.minLevel + 1
+        ) {
+            console.warn(
+                `mobarea ${id}: weight array length (${this.weight.length}) does not match level range ${this.minLevel}-${this.maxLevel} (expected ${this.maxLevel - this.minLevel + 1}); mismatched levels will fall back to uniform selection.`
+            );
         }
 
         this.setNumberOfEntities(this.nb);
@@ -202,6 +227,41 @@ class MobArea extends EntityArea {
             return null;
         }
         return this._createMob(kind);
+    }
+
+    // Picks a level in [min, max] (the intersection of a mob kind's own
+    // level range and this area's level range -- see mob.js). If this area
+    // has a valid `weight` array, the pick is weighted per-level using it
+    // (this.weight[level - this.minLevel]); levels outside the array's
+    // range, or with a non-positive weight, are excluded. Falls back to a
+    // uniform pick across [min, max] when there's no usable weight data.
+    getRandomLevel(min, max) {
+        if (Array.isArray(this.weight) && this.weight.length > 0) {
+            let total = 0;
+            const levels = [];
+            const weights = [];
+            for (let lvl = min; lvl <= max; ++lvl) {
+                const w = Number(this.weight[lvl - this.minLevel]);
+                if (!(w > 0)) continue;
+                levels.push(lvl);
+                weights.push(w);
+                total += w;
+            }
+
+            if (levels.length > 0) {
+                // Same cumulative-weight pattern as the mob-kind selection
+                // above: r uniform in [0, total-1], walk the running sum
+                // and stop at the first weight that r falls under.
+                let r = Utils.randomInt(total - 1);
+                for (let i = 0; i < levels.length; ++i) {
+                    if (r < weights[i]) return levels[i];
+                    r -= weights[i];
+                }
+                return levels[levels.length - 1];
+            }
+        }
+
+        return Utils.randomRangeInt(min, max);
     }
 
     isNextTooEntity(entity, dist) {

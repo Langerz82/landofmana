@@ -192,8 +192,8 @@ class MapManager {
                         null
                     );
                     map.mobAreas.push(mobArea1);
-                    //mobArea1.addMobs();
-                    //mobArea1.spawnMobs();
+                    mobArea1.addMobs();
+                    mobArea1.spawnMobs();
 
                     // Slighter tougher mobs in inner circle.
                     w = 20 * G_TILESIZE;
@@ -216,8 +216,8 @@ class MapManager {
                         null
                     );
                     map.mobAreas.push(mobArea2);
-                    //mobArea2.addMobs();
-                    //mobArea2.spawnMobs();
+                    mobArea2.addMobs();
+                    mobArea2.spawnMobs();
 
                     // Boss is in innermost circle.
                     w = 10 * G_TILESIZE;
@@ -240,8 +240,8 @@ class MapManager {
                         null
                     );
                     map.mobAreas.push(mobArea3);
-                    //mobArea3.addMobs();
-                    //mobArea3.spawnMobs();
+                    mobArea3.addMobs();
+                    mobArea3.spawnMobs();
                     for (const mob of mobArea3.entities) {
                         mob.createBoss(5);
                     }

@@ -308,7 +308,29 @@ class MobAI {
             //console.info("Roaming playerCount="+playerCount);
             if (mob.canRoam()) {
                 const area = mob.area;
+                // NOTE: every mob is spawned through a MobArea, which sets
+                // mob.area synchronously right after creation (see
+                // mobarea.js spawnMobs() -> addToArea()), so in practice a
+                // roaming mob always has one. Guarding here anyway rather
+                // than assuming it: without this, a mob with no area would
+                // throw trying to bind area._getRandomPositionForEntity
+                // below, and that exception would propagate out of this
+                // shared per-tick loop and skip every other mob still left
+                // to process this tick, not just this one.
+                if (!area) continue;
+
                 const dist = Utils.randomInt(maxDistance) * G_TILESIZE;
+                // FIX/NOTE: area._getRandomPositionForEntity (inherited
+                // from Area, see area.js) rejects any candidate position
+                // that fails `this.contains(...)`, retrying (up to its own
+                // threshold) until it finds one inside the bounds -- bound
+                // to `area` here, so every candidate is checked against
+                // *this mob's own* area, guaranteeing the roam
+                // destination stays within it. Returns null if no valid
+                // in-area, non-colliding spot is found, which the
+                // `if (!pos) continue;` below already treats as "don't
+                // roam this tick" rather than falling back to an
+                // out-of-area position.
                 const pos = mob.map.entities.spaceEntityRandomApart(
                     2,
                     area._getRandomPositionForEntity.bind(area, mob, dist),

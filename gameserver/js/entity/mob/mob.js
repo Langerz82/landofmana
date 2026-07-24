@@ -40,7 +40,10 @@ class Mob extends Character {
         if (this.data.level > 0) this.level = this.data.level;
         else {
             if (mobArea)
-                this.level = Utils.randomRangeInt(
+                // Weighted by mobArea.weight when the area defines one
+                // (see MobArea.getRandomLevel); otherwise uniform, same as
+                // before.
+                this.level = mobArea.getRandomLevel(
                     Math.max(this.data.minLevel, mobArea.minLevel),
                     Math.min(this.data.maxLevel, mobArea.maxLevel)
                 );
