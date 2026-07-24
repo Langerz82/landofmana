@@ -117,32 +117,8 @@ class Area {
             //console.log("d:"+d);
 
             const inElipse = d < this.width / 2;
+            return inElipse;
 
-            //console.log("this.elipseId="+this.elipseId);
-            //console.log("inElipse="+inElipse);
-            if (iteration === 1 || this.excludeId === -1) {
-                return inElipse;
-            } else if (iteration === 0) {
-                let res = inElipse;
-
-                // FIX: was `this.map.mobLiveAreas[this.elipseId]` --
-                // `this.elipseId` is never assigned anywhere (the only line
-                // that would set it, above in the constructor, is
-                // commented out), so this always looked up `undefined`; the
-                // id that's actually populated is `this.excludeId` (see the
-                // constructor). `map.mobLiveAreas` also doesn't exist
-                // anywhere in the codebase -- the real id-keyed collection
-                // of spawned MobAreas is `map.mobAreas` (see
-                // map/map.js's initMobAreas()), which this would have
-                // thrown against (`Cannot read properties of undefined`)
-                // the first time this branch was reached. Guarded in case a
-                // map never populated mobAreas at all.
-                const prevArea =
-                    this.map.mobAreas && this.map.mobAreas[this.excludeId];
-                if (prevArea) res = res && !prevArea.contains(x, y, 1);
-
-                return res;
-            }
             return false;
         }
     }

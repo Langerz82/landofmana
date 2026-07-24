@@ -47,6 +47,11 @@ class MapManager {
             map.entities.mapready();
 
             map.entities.spawnEntities(map);
+            // FIX: was `map.initMobAreas(thismap.mobAreas)` called eagerly
+            // inside Map.initMap(), before `map.entities` existed -- see the
+            // FIX comment in map.js's initMap(). Deferred to here, now that
+            // `map.entities` is assigned above.
+            map.initMobAreas(map.mobAreasData);
 
             map.enterCallback = function (player) {
                 const pos = map.getRandomStartingPosition();
@@ -68,9 +73,17 @@ class MapManager {
             map.entities.mapready();
 
             //map.entities.spawnEntities(map);
-            //map.initMobAreas();
+            // FIX: this was a stale no-op comment -- the actual automatic
+            // call to initMobAreas() lived inside Map.initMap() and fired
+            // unconditionally (and too early, before `map.entities` existed;
+            // see map.js's initMap() FIX comment) regardless of this line
+            // being commented out. Restored for real here, now that
+            // `map.entities` is assigned above, so map1's JSON-defined
+            // mobAreas still spawn in addition to the procedural ring mobs
+            // built below (matching the original intent of this file).
+            map.initMobAreas(map.mobAreasData);
 
-            map.mobArea = [];
+            //map.mobArea = [];
             const mobArea = new MobArea(
                 map,
                 0,
@@ -89,7 +102,7 @@ class MapManager {
                 null,
                 null
             );
-            map.mobArea.push(mobArea);
+            map.mobAreas.push(mobArea);
             mobArea.addMobs();
             mobArea.spawnMobs();
 
@@ -178,9 +191,9 @@ class MapManager {
                         -1,
                         null
                     );
-                    map.mobArea.push(mobArea1);
-                    mobArea1.addMobs();
-                    mobArea1.spawnMobs();
+                    map.mobAreas.push(mobArea1);
+                    //mobArea1.addMobs();
+                    //mobArea1.spawnMobs();
 
                     // Slighter tougher mobs in inner circle.
                     w = 20 * G_TILESIZE;
@@ -202,9 +215,9 @@ class MapManager {
                         -1,
                         null
                     );
-                    map.mobArea.push(mobArea2);
-                    mobArea2.addMobs();
-                    mobArea2.spawnMobs();
+                    map.mobAreas.push(mobArea2);
+                    //mobArea2.addMobs();
+                    //mobArea2.spawnMobs();
 
                     // Boss is in innermost circle.
                     w = 10 * G_TILESIZE;
@@ -226,9 +239,9 @@ class MapManager {
                         -1,
                         null
                     );
-                    map.mobArea.push(mobArea3);
-                    mobArea3.addMobs();
-                    mobArea3.spawnMobs();
+                    map.mobAreas.push(mobArea3);
+                    //mobArea3.addMobs();
+                    //mobArea3.spawnMobs();
                     for (const mob of mobArea3.entities) {
                         mob.createBoss(5);
                     }
@@ -384,6 +397,10 @@ class MapManager {
             map.entities.mapready();
 
             //map.entities.spawnEntities(map);
+            // FIX: see the matching FIX comment on map.maps[0]'s ready()
+            // callback above -- this used to fire too early, inside
+            // Map.initMap(), before `map.entities` existed.
+            map.initMobAreas(map.mobAreasData);
 
             map.enterCallback = function (player) {
                 const pos = map.getRandomStartingPosition();

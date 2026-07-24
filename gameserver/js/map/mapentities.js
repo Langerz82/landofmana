@@ -52,7 +52,7 @@ class MapEntities {
         this.broadcaster = new MapBroadcaster(this);
         this.pathfindingService = new MapPathfindingService(this);
 
-        this.mobAreas = [];
+        //this.mobAreas = [];
         this.groups = {};
 
         this.pathfinder = null;

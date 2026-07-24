@@ -105,7 +105,7 @@ class Map {
         this.staticChests = thismap.staticChests;
         this.staticEntities = thismap.staticEntities;
         this.spawnEntities = thismap.entities;
-        //this.mobAreas = [];
+        this.mobAreas = [];
 
         this.generateCollisions = true;
 
@@ -121,8 +121,24 @@ class Map {
         //this.initPVPAreas(thismap.pvpAreas);
         this.loadTileGrid(thismap.data);
         this.loadCollisionGrid(thismap.collision);
-        this.mapMobAreas = thismap.mobAreas;
-        //this.initMobAreas(thismap.mobAreas);
+        //setTimeout(() => {
+            //this.mobArea = [];
+            // FIX: this used to call `this.initMobAreas(thismap.mobAreas)`
+            // synchronously right here. MobArea.spawnMobs() ->
+            // _createMob() reads `self.map.entities.spaceEntityRandomApart`,
+            // but `this.entities` isn't assigned until MapManager's
+            // ready() callback (see mapmanager.js), which only fires at
+            // the very end of this method (`this.readyFunc(this)` below) --
+            // i.e. strictly after this point. So for any map whose JSON
+            // defines a non-empty `mobAreas` (map1, map2 do; map0 doesn't,
+            // which is why this only surfaced there), spawnMobs ran with
+            // `entities` still undefined and threw "Cannot read properties
+            // of undefined (reading 'spaceEntityRandomApart')". Stashing
+            // the raw data here instead and letting MapManager call
+            // `map.initMobAreas(map.mobAreasData)` itself once `entities`
+            // exists.
+            this.mobAreasData = thismap.mobAreas;
+        //},10000);
         this.initCheckpoints(thismap.checkpoints);
         this.doors = this._getDoors(thismap);
 
@@ -300,34 +316,38 @@ class Map {
         return this.waitingArea[minigame].value;
     },*/
 
-    initMobAreas() {
-        const maList = this.mapMobAreas;
+    initMobAreas(mobAreas) {
+        //const maList = this.mapMobAreas;
         const self = this;
 
-        this.mobAreas = {};
+        //this.mobAreas = {};
 
-        _.each(maList, function (ma) {
-            const mobarea = new MobArea(
-                self,
-                ma.id,
-                ma.count,
-                ma.minLevel,
-                ma.maxLevel,
-                ma.x * G_TILESIZE,
-                ma.y * G_TILESIZE,
-                ma.w * G_TILESIZE,
-                ma.h * G_TILESIZE,
-                ma.include,
-                ma.exclude,
-                ma.definite,
-                false,
-                -1,
-                ma.level
-            );
-            self.mobAreas[ma.id] = mobarea;
-            mobarea.addMobs();
-            mobarea.spawnMobs();
-        });
+        //setTimeout(() => {
+            _.each(mobAreas, function (ma) {
+                const mobarea = new MobArea(
+                    self,
+                    ma.id,
+                    ma.count,
+                    ma.minLevel,
+                    ma.maxLevel,
+                    ma.x,
+                    ma.y,
+                    ma.w,
+                    ma.h,
+                    ma.include,
+                    ma.exclude,
+                    ma.definite,
+                    false,
+                    -1,
+                    ma.level,
+                    ma.weight
+                );
+                //self.mobAreas[ma.id] = mobarea;
+                self.mobAreas.push(mobarea);
+                mobarea.addMobs();
+                mobarea.spawnMobs();
+            });
+        //}, 10000);
     }
 
     initCheckpoints(cpList) {

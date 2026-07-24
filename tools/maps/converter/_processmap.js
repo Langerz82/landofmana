@@ -260,18 +260,19 @@ module.exports = function processMap(json, jsontsx, options) {
                          console.info(areas[i]);
                          var prop = getPropertyList(areas[i].properties);
                          var area = {
-                             id: i,
-                             count: prop.count,
-                             minLevel: prop.minLevel,
-                             maxLevel: prop.maxLevel,
-                             x: ~~(areas[i].x),
-                             y: ~~(areas[i].y),
-                             w: ~~(areas[i].width),
-                             h: ~~(areas[i].height),
-                             include: prop.include || '',
-                             exclude: prop.exclude || '',
-                             definite: prop.definite || '',
-                             level: prop.level || '',
+                            id: i,
+                            count: prop.count,
+                            minLevel: prop.minLevel,
+                            maxLevel: prop.maxLevel,
+                            x: ~~(areas[i].x),
+                            y: ~~(areas[i].y),
+                            w: ~~(areas[i].width),
+                            h: ~~(areas[i].height),
+                            include: prop.include || '',
+                            exclude: prop.exclude || '',
+                            definite: prop.definite || '',
+                            level: prop.level || '',
+							weight: prop.weight || '',
                          };
                          map.mobAreas.push(area);
                      }

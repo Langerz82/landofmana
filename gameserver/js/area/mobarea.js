@@ -21,7 +21,8 @@ class MobArea extends EntityArea {
         definite,
         elipse,
         excludeId,
-        level
+        level,
+        weight
     ) {
         super(map, id, x, y, width, height, elipse, excludeId);
         this.nb = nb;
@@ -30,7 +31,7 @@ class MobArea extends EntityArea {
         this.respawns = [];
         this.level = level;
 
-        this.include = null;
+        this.include = [];
         if (include) {
             if (typeof include === 'string' && include.indexOf(',') >= 0)
                 this.include = include.split(',');
@@ -38,13 +39,19 @@ class MobArea extends EntityArea {
                 this.include = [include];
             }
         }
-        this.exclude = null;
+        this.exclude = [];
         if (exclude) {
             if (typeof exclude === 'string' && exclude.indexOf(',') >= 0)
                 this.exclude = exclude.split(',');
             else {
                 this.exclude = [exclude];
             }
+        }
+
+        this.weight = [];
+        if (include) {
+            if (typeof include === 'string' && include.indexOf(',') >= 0)
+                this.weight = include.split(',');
         }
 
         this.setNumberOfEntities(this.nb);
