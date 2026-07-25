@@ -117,7 +117,7 @@ class MapManager {
                 510 * G_TILESIZE
             );
             npc.name = 'Old Man';
-            npc.scriptQuests = false;
+            npc.setQuests(["200000","200001"]);
 
             let prevNpc = npc;
 
@@ -260,6 +260,41 @@ class MapManager {
                         30 * G_TILESIZE
                     );
                     npc = map.entities.addNpcMove(id, pos.x, pos.y);
+                    let quests = null;
+                    switch (id) {
+                        case 1:
+                            quests = ["200100"];
+                            break;
+                        case 2:
+                            quests = ["200200"];
+                            break;
+                        case 3:
+                            quests = ["200300"];
+                            break;
+                        case 4:
+                            quests = ["200400"];
+                            break;
+                        case 5:
+                            quests = ["200500"];
+                            break;
+                        case 6:
+                            quests = ["200600"];
+                            break;
+                        case 7:
+                            quests = ["200700"];
+                            break;
+                        case 8:
+                            quests = ["200800"];
+                            break;
+                        case 9:
+                            quests = ["200900"];
+                            break;
+                        case 10:
+                            quests = ["201000"];
+                            break;
+                    }
+                    if (quests)
+                        npc.setQuests(quests);
 
                     const area2 = new EntityArea(
                         map,
@@ -401,6 +436,7 @@ class MapManager {
             // callback above -- this used to fire too early, inside
             // Map.initMap(), before `map.entities` existed.
             map.initMobAreas(map.mobAreasData);
+            map.entities.spawnEntities(map);
 
             map.enterCallback = function (player) {
                 const pos = map.getRandomStartingPosition();

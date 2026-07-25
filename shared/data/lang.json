@@ -250,7 +250,25 @@
           [0, "Kill %count% Goblins come back to me for a reward."]
         ],
         ["Kill %count% Goblins come back for reward."]
-      ]
+        ],
+        "300000": [
+            [
+              [0, "Kill 10 rats", "QUEST"]
+            ],
+            [
+              [0, "Come back when they are dead muhahaha."]
+            ],
+            ["Kill %count% %name%'s"]
+        ],
+        "300001": [
+            [
+              [0, "Kill 20 rats", "QUEST"]
+            ],
+            [
+              [0, "Come back when they are dead muhahaha."]
+            ],
+            ["Kill %count% %name%'s"]
+        ]
     },
 
     "QUESTS_MOB": [
@@ -281,7 +299,8 @@
       "200700": "Kill %count% Skeletons.",
       "200800": "Get %count% Skulls from Skeletons.",
       "200900": "Destroy %count% Fires.",
-      "201000": "Kill %count% Goblins."
+      "300000": "Kill %count% Rats.",
+      "300001": "Kill %count% Rats."
     }
   }
 }

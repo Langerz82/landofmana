@@ -93,5 +93,23 @@
 		"level": 0,
 		"object": {"type": 2, "kind": 4, "count": 20},
 		"reward": [{"itemKind": 100}]
+	},
+    "300000": {
+		"npcKind": 0,
+		"name": "Intro 1-1",
+		"type": 1,
+		"level": 0,
+		"object": {"type": 2, "kind": 1, "count": 10},
+		"gold": 50,
+		"expMultiplier": 2
+	},
+	"300001": {
+		"npcKind": 0,
+		"name": "Intro 1-2",
+		"type": 1,
+		"level": 0,
+		"object": {"type": 2, "kind": 1, "count": 20},
+		"gold": 100
 	}
+
 }

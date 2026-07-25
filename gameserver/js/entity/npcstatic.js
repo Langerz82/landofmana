@@ -1,53 +1,72 @@
 import Entity from './entity.js';
-//import Utils from '../utils.js';
 import Messages from '../message.js';
+import EntityQuests from '../entityquests.js';
+import Utils from '../utils.js';
 import { Types } from '../common.js';
+import QuestData from '../data/questdata.js';
+import NPCnames from '../../data/npc_names.json' with { type: 'json' };
 
 class NpcStatic extends Entity {
     constructor(id, kind, x, y, map) {
         super(id, Types.EntityTypes.NPCSTATIC, kind, x, y, map);
 
-        this.map = map;
+        this.armor = 0;
+        this.weapon = 0;
+
+        this.gender = kind % 2;
+
+        this.name = NPCnames[kind % NPCnames.length];
+
+        this.entityQuests = new EntityQuests(this);
+        this.npcQuestId = this.kind;
+    }
+
+    setQuests(quests) {
+        this.entityQuests.quests = {};
+        for (const qid of quests) {
+            this.entityQuests.quests[qid] = QuestData.Data[qid];
+        }
     }
 
     talk(player) {
-        console.info('talk');
-        console.info('kind: ' + this.kind);
-        if (this.kind === 44) {
-            // FIX: this "collecting items" NPC branch was dead code that
-            // would throw if it ever ran. `player.questStatus` is never set
-            // anywhere in the codebase (the real quest list lives at
-            // `player.quests.quests`, as used below), so the `if` guard
-            // always evaluated false. Even if it had fired,
-            // `player.questAboutItem(...)` doesn't exist -- that method is
-            // `player.quests.questAboutItem(quest)`, and it takes a single
-            // quest object rather than the two-argument
-            // `(questStatus, null)` shape used here. The `type`/`count`/
-            // `objectCount` field names referenced also don't match the
-            // current quest schema (`quest.type`/`quest.object.count`), and
-            // no NPC in data/npcdata.js is currently defined with kind 44,
-            // so this path is unreachable today either way. Left disabled
-            // rather than rewritten, since doing this NPC's "collect items"
-            // flow correctly (deciding what quest(s) it should progress and
-            // how) needs game-design input, not a mechanical fix.
-            return;
-        }
+        const self = this;
+        const self_player = player;
 
-        //var npcIsBusy = false;
-        //if (player.questStatus) {
-        // FIX: player.quests is the PlayerQuests component instance, not an
-        // array -- `for...in` over it enumerated its own property names
-        // ("player", "quests", "completeQuests" as strings), so
-        // quest.npcKind was always undefined and this guard never fired.
-        // The actual quest list lives at player.quests.quests.
-        for (const quest of player.quests.quests) {
-            if (quest.npcKind === this.kind) {
-                //npcIsBusy = true;
+        let res = false;
+        player.quests.forQuestsType(Types.QuestType.GETITEMKIND, function (q) {
+            if (q.npcQuestId === self.npcQuestId) {
+                if (self_player.quests.questAboutItemComplete(q, null))
+                    res = true;
+            }
+        });
+        if (res) return;
+
+        if (Object.keys(this.entityQuests.quests).length === 0) {
+            this.entityQuests.dynamicQuests(player);
+        } else {
+            if (this.entityQuests.hasQuest(player)) {
                 return;
             }
+
+            // NOTE: this used to be declared twice with `var newQid` (a
+            // no-op `= -1` initializer above that nothing ever read, since
+            // every path between it and here either returns or overwrites
+            // it) -- harmless under `var`'s redeclaration rules but a
+            // SyntaxError under `let`/`const`. Consolidated to the one
+            // live declaration.
+            const newQid = this.entityQuests.getNextQuestId(player);
+
+            if (!newQid) {
+                this.entityQuests.sendNoQuest(player);
+                return;
+            }
+
+            const langcode = 'QUESTS_' + newQid;
+            const msg = new Messages.Dialogue(this, langcode);
+            player.sendPlayer(msg);
         }
-        //}
     }
+
 }
 
 export default NpcStatic;

@@ -23,21 +23,12 @@ class NpcMove extends Character {
 
         this.entityQuests = new EntityQuests(this);
         this.npcQuestId = this.kind;
+    }
 
-        //this.scriptQuests = false;
-
-        if (QuestData.NpcData.hasOwnProperty(this.kind)) {
-            const qData = QuestData.NpcData[this.kind];
-            if (qData && qData.length > 0) {
-                // NOTE: was `const newQuest = null;` / `const pQuest = null;`
-                // here, both unused -- dead (nothing in the loop below reads
-                // them; same pattern already cleaned up elsewhere in this
-                // codebase, e.g. area/mobarea.js, world/taskhandler.js,
-                // transition.js, entity/components/mobcombat.js).
-                for (const q of qData) {
-                    this.entityQuests.quests[q.id] = q;
-                }
-            }
+    setQuests(quests) {
+        this.entityQuests.quests = {};
+        for (const qid of quests) {
+            this.entityQuests.quests[qid] = QuestData.Data[qid];
         }
     }
 

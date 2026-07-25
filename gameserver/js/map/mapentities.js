@@ -237,22 +237,20 @@ class MapEntities {
 
         //setTimeout(function () {
         _.each(self.map.spawnEntities, function (npcData) {
+            let npc = null;
             if (npcData.type == Types.EntityTypes.NPCMOVE) {
-                const npc = self.addNpcMove(npcData.id, npcData.x, npcData.y);
-                if (npcData.name) npc.name = npcData.name;
-                if (npcData.scriptQuests)
-                    npc.scriptQuests = npcData.scriptQuests;
+                npc = self.addNpcMove(npcData.id, npcData.x, npcData.y);
             }
             if (npcData.type == Types.EntityTypes.NPCSTATIC) {
-                const npc = self.addNpcStatic(npcData.id, npcData.x, npcData.y);
-                if (npcData.name) npc.name = npcData.name;
-                if (npcData.scriptQuests)
-                    npc.scriptQuests = npcData.scriptQuests;
+                npc = self.addNpcStatic(npcData.id, npcData.x, npcData.y);
             }
+            if (npcData.name) npc.name = npcData.name;
+            if (npcData.quests)
+                npc.setQuests(npcData.quests.split(','));
         });
         //},10000);
 
-        console.info(JSON.stringify(self.map.staticEntities));
+        /*console.info(JSON.stringify(self.map.staticEntities));
         _.each(self.map.staticEntities, function (kind, tid) {
             const pos = map.tileIndexToGridPosition(tid);
 
@@ -261,7 +259,7 @@ class MapEntities {
                 console.info('npc:' + kind + ',x:' + pos.x + ',y:' + pos.y);
                 self.addNpcStatic(kind, pos.x, pos.y);
             }
-        });
+        });*/
     }
 
     /*spawnEntity: function(kind, x, y, map) {

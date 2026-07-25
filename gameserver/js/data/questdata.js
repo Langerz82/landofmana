@@ -57,13 +57,9 @@ for (const id in QuestsJson) {
     questObject.data = quest;
 
     QuestData[quest.id] = questObject;
-
-    if (!QuestNpcData[quest.npcKind]) QuestNpcData[quest.npcKind] = [];
-    QuestNpcData[quest.npcKind].push(questObject);
 }
 
-console.info(JSON.stringify(QuestNpcData));
 //console.info(QuestData);
 export const Data = QuestData;
-export const NpcData = QuestNpcData;
-export default { Data, NpcData };
+
+export default { Data };
