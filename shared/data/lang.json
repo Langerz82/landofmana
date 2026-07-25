@@ -105,6 +105,11 @@
       [1, "Thanks {2}."]
     ],
 
+    "QUESTS_NONE_2": [
+      [0, "I have no more quests for you."],
+      [1, "Thanks {0}."]
+    ],
+
     "QUESTS": {
       "200000": [
         [

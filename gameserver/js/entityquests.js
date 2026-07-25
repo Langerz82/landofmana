@@ -152,12 +152,18 @@ class EntityQuests {
 
     sendNoQuest(player) {
         const entity = this.entity;
-        const msg = new Messages.Dialogue(entity, 'QUESTS_NONE', [
-            entity.nextNpcDir,
-            entity.nextNpcName,
-            entity.name
-        ]);
-        player.sendPlayer(msg);
+        if (entity.nextNpcDir) {
+            const msg = new Messages.Dialogue(entity, 'QUESTS_NONE', [
+                entity.nextNpcDir,
+                entity.nextNpcName,
+                entity.name
+            ]);
+            player.sendPlayer(msg);
+        }
+        else {
+            const msg = new Messages.Dialogue(entity, 'QUESTS_NONE_2', [entity.name]);
+            player.sendPlayer(msg);
+        }
     }
 
     dynamicQuests(player) {
