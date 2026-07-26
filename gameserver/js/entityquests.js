@@ -33,6 +33,15 @@ class EntityQuests {
         let pQuest = player.quests.getQuestById(parseInt(questId));
         if (pQuest) {
             if (pQuest.status < Types.QuestStatus.COMPLETE) {
+                // FIX: this player's copy of the quest can predate the
+                // npcQuestId format change (or simply be stale) and still be
+                // carrying QuestData's shared, kind-based npcQuestId (see the
+                // FIX below on the fresh-accept path for why that breaks
+                // client-side quest speech). Re-stamping it here too means a
+                // simple re-sync (re-talking to the NPC while the quest is
+                // already in progress) self-heals it, not just a brand new
+                // accept.
+                pQuest.npcQuestId = this.entity.npcQuestId;
                 pQuest.status = Types.QuestStatus.INPROGRESS;
                 player.quests.progressQuest(pQuest);
                 return;
@@ -41,6 +50,28 @@ class EntityQuests {
 
         pQuest = Object.assign(new Quest(), quest);
         pQuest.data = quest.data;
+        // FIX: `quest` here is QuestData.Data[questId] -- one shared object
+        // reused by every NPC instance and every player that's ever offered
+        // this authored quest -- and its npcQuestId is `data.npcKind`
+        // (questdata.js), an NPC *kind*, not an NPC instance. That's fine
+        // server-side (EntityQuests.ownsQuest() never consults npcQuestId
+        // for authored quests -- it checks `this.quests` membership
+        // instead), but this same npcQuestId also rides along to the client
+        // on every Quest message (quest.toClient(), message.js's
+        // Messages.Quest), and the client uses exactly that field to find
+        // which on-screen NPC a quest's dialogue/bubble belongs to
+        // (client/js/game/gameentityqueries.js's getNpcByQuestKind(), called
+        // from clientcallbacksquest.js's onQuest()/questSpeech() --
+        // `entity.npcQuestId === quest.npcQuestId`). Since NPC instances now
+        // report a globally-unique per-instance npcQuestId of their own (see
+        // entity/npcstatic.js / entity/npcmove.js), leaving this at the
+        // shared kind value means it can never match the accepting NPC's own
+        // npcQuestId again -- getNpcByQuestKind() always returns null, and
+        // quest-accept/progress/complete speech silently stops appearing for
+        // every authored quest. Stamping the accepting NPC's own npcQuestId
+        // onto this player's copy (not the shared QuestData template) is
+        // what makes the two line back up.
+        pQuest.npcQuestId = this.entity.npcQuestId;
         player.quests.foundQuest(pQuest);
     }
 
@@ -150,6 +181,22 @@ class EntityQuests {
     hasQuest(player) {
         for (const quest of player.quests.quests) {
             if (this.ownsQuest(player, quest)) {
+                // FIX: this is the actual "already in progress, re-talk to
+                // the NPC" path -- separate from acceptQuest()'s first-accept
+                // path (see the FIX comment there for the full npcQuestId/
+                // client "quest speech" story). A quest can reach this loop
+                // still carrying a stale npcQuestId that predates that fix
+                // entirely: one accepted under the old code and never
+                // re-synced since, or one reloaded straight from a Redis
+                // save written before this fix existed (handleLoadPlayerQuests
+                // reconstructs the Quest verbatim from whatever was
+                // persisted, npcQuestId included). ownsQuest() having just
+                // confirmed this NPC instance really does own the quest
+                // means this.entity.npcQuestId is the authoritative value
+                // regardless of what's currently stored on it, so stamp it
+                // here too -- every re-sync self-heals a stale value instead
+                // of only fixing it going forward from a fresh accept.
+                quest.npcQuestId = this.entity.npcQuestId;
                 /*if (player.quests.hasNpcCompleteQuest(quest.npcQuestId)) {
             continue;
           }*/

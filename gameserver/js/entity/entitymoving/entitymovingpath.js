@@ -35,11 +35,33 @@ export function installEntityMovingPath(proto) {
         }
     };
 
+    // FIX: the `Array.isArray(this.path) && this.path.length > 0` branch used
+    // to short-circuit here and just hand back the *existing* `this.path`
+    // unchanged, without ever calling the real pathfinder (request_path_callback
+    // -> map/pathfindingservice.js's findPath()) -- for the requested `x, y`
+    // or otherwise. There are exactly two callers of this method: _moveTo()'s
+    // `else` branch below only reaches this function when `!this.isMovingPath()`,
+    // i.e. `this.path` is already empty there, so that branch could never
+    // actually fire from that call site. The other caller is nextStep()'s
+    // `hasChangedItsPath()` redirect (this file, further down) -- the exact
+    // mechanism mobrespawn.js's returnToSpawn() relies on via continueTo() to
+    // redirect a mob that's *currently mid-chase-path* toward its spawn point
+    // once its target dies. That's precisely when `this.path` is guaranteed
+    // non-empty (it's still the old chase path), so this branch fired on
+    // every single one of those redirects and handed back the stale chase
+    // path -- computed to reach the target's last known position, not the
+    // new destination -- instead of ever pathfinding to spawnX/spawnY. The
+    // mob then kept walking (a restarted, from-step-0 replay of) that
+    // no-longer-relevant route, whose waypoints/orientations were never
+    // validated against this new leg of travel -- exactly what let
+    // updater.js's charPath() land on a genuinely blocked tile (its own
+    // isCollidingPoint() check firing on a "should be collision-free" path)
+    // for RETURNING mobs after a player died. Always calling the real
+    // pathfinder here means every redirect -- return-to-spawn or otherwise --
+    // gets a fresh, collision-checked path to the actual requested
+    // destination.
     proto.requestPathfindingTo = function (x, y) {
-        //log.info(JSON.stringify(this.path));
-        if (Array.isArray(this.path) && this.path.length > 0) {
-            return this.path;
-        } else if (this.request_path_callback) {
+        if (this.request_path_callback) {
             return this.request_path_callback(x, y);
         } else {
             log.info(

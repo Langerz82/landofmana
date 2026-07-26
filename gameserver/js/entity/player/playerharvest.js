@@ -16,10 +16,30 @@ class PlayerHarvest {
         this.player = player;
     }
 
-    _harvest(x, y, callback, duration) {
+    // FIX: `_harvest()` had no idea what weapon type (if any) the entity
+    // being harvested actually requires -- both its own up-front check
+    // (_checkHarvest()) and its completion check below called
+    // `p.items.hasWeaponType()` with no argument at all, which skips the
+    // `type === 'any'` short-circuit and falls straight to "does the player
+    // have *some* harvest-capable weapon equipped" (see PlayerItems.
+    // hasWeaponType()). That's correct for tile-harvesting (onHarvest()
+    // below never had a fixed "required type" to check against; the
+    // already-equipped weapon's type is what's being harvested with in that
+    // case), but wrong for onHarvestEntity(): an entity like a chest with
+    // `weaponType: 'any'` is supposed to mean "no tool required at all", yet
+    // a player with nothing equipped got rejected here even though
+    // onHarvestEntity()'s own up-front check (which *does* pass the real
+    // `entity.weaponType`) had just approved them -- the harvest looked like
+    // it started, then failed with the generic "cannot use this" abort
+    // message the moment this ran. Threading the entity's actual required
+    // type through as `weaponType` (left `undefined` by onHarvest()'s
+    // tile-harvest call site, preserving its existing generic-check
+    // behavior exactly) lets `hasWeaponType()`'s `'any'` short-circuit
+    // actually take effect here too.
+    _harvest(x, y, callback, duration, weaponType) {
         const p = this.player;
 
-        const valid = this._checkHarvest(x, y);
+        const valid = this._checkHarvest(x, y, weaponType);
         if (!valid) {
             this._abortHarvest(x, y);
             return;
@@ -27,6 +47,11 @@ class PlayerHarvest {
 
         const px = p.x,
             py = p.y;
+        // NOTE: this `type` is the player's own currently-equipped weapon
+        // type (used below only to decide logging vs. mining exp) -- a
+        // separate concern from `weaponType` (the entity's *required* type,
+        // checked via _checkHarvest() above and again in the completion
+        // callback below).
         const type = p.items.getWeaponType();
 
         p.isHarvesting = true;
@@ -64,7 +89,7 @@ class PlayerHarvest {
 
             if (!(p.x === px && p.y === py)) complete = false;
 
-            if (!p.items.hasWeaponType(type)) complete = false;
+            if (!p.items.hasWeaponType(weaponType)) complete = false;
 
             if (!complete) {
                 this._abortHarvest(x, y);
@@ -80,18 +105,17 @@ class PlayerHarvest {
         p.sendPlayer(new Messages.Harvest(p, 1, x, y, duration));
     }
 
-    _checkHarvest(x, y) {
+    _checkHarvest(x, y, weaponType) {
         const p = this.player;
         if (!p.isNextTooPosition(x, y)) return false;
 
-        if (!p.items.hasWeaponType()) return false;
+        if (!p.items.hasWeaponType(weaponType)) return false;
 
         return true;
     }
 
     onHarvestEntity(entity) {
         const p = this.player;
-        let res = true;
 
         // Guard against re-triggering an entity that's already been
         // harvested/opened and is just waiting on its area to respawn it --
@@ -105,6 +129,9 @@ class PlayerHarvest {
         }
 
         const type = entity.weaponType;
+        const x = entity.x,
+            y = entity.y;
+
         if (!p.items.hasWeaponType(type)) {
             // FIX: `this` is the PlayerHarvest component, which has no
             // sendPlayer() -- only the Player instance (`p`) does. Threw a
@@ -114,13 +141,13 @@ class PlayerHarvest {
             p.sendPlayer(
                 new Messages.Notify('CHAT', 'HARVEST_WRONG_TYPE', type)
             );
-            res = false;
-        }
-
-        const x = entity.x,
-            y = entity.y;
-        if (!res) {
-            this._abortHarvest(x, y);
+            // FIX: this used to fall through into the shared `_abortHarvest`
+            // call below instead of returning here -- so a wrong-tool
+            // attempt showed HARVEST_WRONG_TYPE *and* the generic
+            // HARVEST_INVALID ("cannot use this") notify back-to-back,
+            // making the real reason easy to miss under a second, vaguer
+            // message. Return immediately; there's nothing left to abort
+            // that this notify doesn't already cover.
             return;
         }
 
@@ -154,7 +181,8 @@ class PlayerHarvest {
                 }
                 return;
             },
-            duration
+            duration,
+            type
         );
     }
 

@@ -30,10 +30,26 @@ export function installEntityMovingPath(proto) {
         }
     };
 
+    // FIX: mirrors the gameserver's identical fix (entity/entitymoving/
+    // entitymovingpath.js) -- the `Array.isArray(this.path) && this.path.length
+    // > 0` branch used to short-circuit here and just hand back the *existing*
+    // `this.path` unchanged, without ever calling the real pathfinder
+    // (request_path_callback) for the requested `x, y`. There are exactly two
+    // callers of this method: _moveTo()'s `else` branch below only reaches
+    // this function when `!this.isMovingPath()`, i.e. `this.path` is already
+    // empty there, so that branch could never actually fire from that call
+    // site. The other caller is nextStep()'s `hasChangedItsPath()` redirect
+    // (this file, further down) -- reached whenever continueTo() retargets an
+    // entity that's *currently mid-path* toward a new destination (e.g. the
+    // server-driven mob returning to spawn once its target dies). That's
+    // precisely when `this.path` is guaranteed non-empty (it's still the old
+    // path), so this branch fired on every one of those redirects and handed
+    // back the stale path -- computed for the old destination, not the new
+    // one -- instead of ever pathfinding to the actual new `x, y`. Always
+    // calling the real pathfinder here means every redirect gets a fresh path
+    // to the actual requested destination.
     proto.requestPathfindingTo = function (x, y) {
-        if (Array.isArray(this.path) && this.path.length > 0) {
-            return this.path;
-        } else if (this.request_path_callback) {
+        if (this.request_path_callback) {
             return this.request_path_callback(x, y);
         } else {
             log.info(

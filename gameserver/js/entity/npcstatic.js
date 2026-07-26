@@ -49,6 +49,17 @@ class NpcStatic extends Entity {
         // to (see EntityQuests.ownsQuest for the full rationale).
         player.quests.forQuestsType(Types.QuestType.GETITEMKIND, function (q) {
             if (self.entityQuests.ownsQuest(self_player, q)) {
+                // FIX: self-heal a stale/shared npcQuestId on this quest
+                // before completing it, same reasoning as the FIX comments
+                // on EntityQuests.acceptQuest()/hasQuest() -- ownsQuest()
+                // just confirmed `self` really is the NPC this quest
+                // belongs to, so its npcQuestId is authoritative regardless
+                // of what q.npcQuestId currently holds. Without this, the
+                // COMPLETE-status Quest message this turn-in sends can
+                // still carry an npcQuestId the client's
+                // getNpcByQuestKind() can't match to any on-screen NPC,
+                // silently dropping the completion's quest speech.
+                q.npcQuestId = self.npcQuestId;
                 if (self_player.quests.questAboutItemComplete(q, null))
                     res = true;
             }
