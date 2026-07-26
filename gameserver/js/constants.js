@@ -102,3 +102,26 @@ export let G_DEBUG = false;
 export function setG_DEBUG(value) {
     G_DEBUG = value;
 }
+
+// Multiplier used to build a globally-unique, ascending npcQuestId for every
+// NpcStatic/NpcMove instance (see entity/npcstatic.js and entity/npcmove.js):
+// `npcQuestId = mapIndex * G_NPC_QUEST_ID_MAP_OFFSET + entity.id`.
+//
+// mapmanager.js's maps[N] = new Map(server, N, ...) assigns each map's index
+// synchronously, at MapManager construction time -- before any map's async
+// .ready() callback (JSON file load) has fired. entity.id itself
+// (mapentities.js's `++this.entityCount`) only ever increments inside one
+// map's own .ready() callback, which runs single-threaded start-to-finish
+// once invoked, in the same fixed code order every time (the same
+// spawnEntities JSON array, or the same procedural ring loop, in the same
+// sequence). So both halves of this formula are fixed by static data/code
+// order, never by which map's .ready() callback happens to fire first --
+// giving every NPC the same npcQuestId on every server start regardless of
+// map-load race timing, while keeping ids ascending (grouped by map, then by
+// creation order within it) and collision-free across maps.
+//
+// 1,000,000 is comfortable headroom: map1's procedural spawn (the densest of
+// the three, ~50 NPCs plus its mob/node/chest population) tops out at a few
+// thousand entityCount values, nowhere near enough to spill into the next
+// map's id range.
+export const G_NPC_QUEST_ID_MAP_OFFSET = 1000000;

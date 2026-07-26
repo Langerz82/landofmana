@@ -79,7 +79,28 @@ const orientationsMax = 4;
 const questCountMax = 99;
 const questIdMax = 999999999999999;
 const questTypeMax = 9;
-const questNpcIdMax = 100;
+// FIX: was a flat 100 -- big enough for the old scheme (npcQuestId ===
+// entity.kind, a small NPC-species id) but not the current one. gameserver's
+// entity/npcstatic.js and entity/npcmove.js now set
+// `npcQuestId = mapIndex * G_NPC_QUEST_ID_MAP_OFFSET + entity.id` (offset ==
+// 1,000,000, see the G_NPC_QUEST_ID_MAP_OFFSET comment in gameserver's
+// constants.js) so every NPC instance gets a globally-unique, ascending id
+// instead of one shared by every NPC of the same kind. mapsCountMax (above)
+// is this codebase's existing cap on how many maps can ever exist (only 3
+// are defined today -- gameserver's mapmanager.js's maps[0..2] -- but the
+// format layer has always allowed up to 10), so the highest npcQuestId any
+// of those maps' NPCs could ever be assigned is just under
+// mapsCountMax * 1,000,000. This file is a separate project from gameserver
+// (no shared import), so the derivation is spelled out here rather than
+// computed from an imported constant -- keep this in lockstep with
+// gameserver/js/format.js's same-named constant (and with
+// G_NPC_QUEST_ID_MAP_OFFSET itself) if either ever changes.
+//
+// This bound is what's actually enforced on the live save/load path: every
+// completeQuests {npcid} entry and every persisted quest record's
+// npcQuestId field (both below) is validated against it before
+// saveQuests()/redis.js's hset ever writes it, and on every load.
+const questNpcIdMax = mapsCountMax * 1000000 - 1;
 const questStatusMax = 5;
 const questStrDataLen = 32;
 

@@ -30,6 +30,7 @@
 // ============================================================================
 
 import { Types } from './common.js';
+import { G_NPC_QUEST_ID_MAP_OFFSET } from './constants.js';
 import { z } from 'zod';
 
 const itemKindMax = 2000;
@@ -76,7 +77,27 @@ const mapPortalMax = 999;
 const questCountMax = 99;
 const questIdMax = 999999999999999;
 const questTypeMax = 9;
-const questNpcIdMax = 100;
+// FIX: was a flat 100 -- big enough for the old scheme (npcQuestId ===
+// entity.kind, a small NPC-species id) but not the current one.
+// entity/npcstatic.js and entity/npcmove.js now set
+// `npcQuestId = mapIndex * G_NPC_QUEST_ID_MAP_OFFSET + entity.id` (see the
+// G_NPC_QUEST_ID_MAP_OFFSET comment in constants.js) so every NPC instance
+// gets a globally-unique, ascending id instead of one shared by every NPC of
+// the same kind. mapsCountMax (above) is this codebase's existing cap on
+// how many maps can ever exist (only 3 are defined today -- mapmanager.js's
+// maps[0..2] -- but the format layer has always allowed up to 10), so the
+// highest npcQuestId any of those maps' NPCs could ever be assigned is just
+// under mapsCountMax * G_NPC_QUEST_ID_MAP_OFFSET.
+//
+// NOTE: this constant isn't actually read anywhere in this file today --
+// CW_QUEST (below) only validates questId/questType, since npcQuestId is
+// server-generated and never trusted from an inbound client packet. Bumped
+// anyway to stay in lockstep with userserver/js/format.js's same-named,
+// same-value constant (see the NOTE on questCountMax above for why these two
+// files keep matching constants in sync), which *does* enforce this bound,
+// on the full quest record persisted via saveQuests()/loadQuests()
+// (userserver/js/redis.js).
+const questNpcIdMax = mapsCountMax * G_NPC_QUEST_ID_MAP_OFFSET - 1;
 const questStatusMax = 5;
 const questStrDataLen = 32;
 

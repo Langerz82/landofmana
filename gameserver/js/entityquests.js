@@ -6,6 +6,7 @@ import MobData from './data/mobdata.js';
 import ItemData from './data/itemdata.js';
 import ItemLootData from './data/itemlootdata.js';
 import ItemRoom from './items/itemroom.js';
+import QuestData from './data/questdata.js';
 
 // FIX: MobData, ItemData, ItemLootData, and ItemRoom were all used throughout
 // this file (getMobObject, createQuestItemKind, giveReward) but never
@@ -44,6 +45,36 @@ class EntityQuests {
     }
 
     rejectQuest(player, questId) {}
+
+    // FIX: matching used to be "this.entity.npcQuestId === quest.npcQuestId",
+    // i.e. purely by NPC *kind*. Since npcQuestId is just entity.kind, any
+    // NPC sharing that kind -- not only the one map spawn entry that was
+    // actually given this quest via setQuests() -- would satisfy the check,
+    // letting the player progress/complete/collect a reward for a quest
+    // from the wrong NPC instance. Authored quests (present in QuestData,
+    // the shared/data/quests.json set) are now owned exclusively by the NPC
+    // instance(s) whose spawn entry listed this exact quest id (tracked in
+    // this.quests via setQuests()). Procedurally generated quests
+    // (createQuestItemKind/createQuestKillMobKind) are never registered in
+    // this.quests and have no single owning spawn entry, so they keep the
+    // kind-based fallback -- that ambiguity is intentional for them. That
+    // fallback also now requires the player to still be on this NPC's map:
+    // kind alone doesn't rule out a same-kind NPC on a different map, and
+    // player.map can briefly disagree with the map an entity actually lives
+    // on during teleport/map-transition (see the door.tmap/mapId handling
+    // in map.js and movementhandler.js), so this guards that window too.
+    ownsQuest(player, quest) {
+        if (this.quests.hasOwnProperty(quest.id)) return true;
+
+        if (!QuestData.Data.hasOwnProperty(quest.id)) {
+            return (
+                this.entity.npcQuestId === quest.npcQuestId &&
+                this.entity.map.id === player.map.id
+            );
+        }
+
+        return false;
+    }
 
     giveReward(player, quest) {
         const pquest = player.quests.completeQuests[quest.id];
@@ -118,7 +149,7 @@ class EntityQuests {
 
     hasQuest(player) {
         for (const quest of player.quests.quests) {
-            if (this.entity.npcQuestId === quest.npcQuestId) {
+            if (this.ownsQuest(player, quest)) {
                 /*if (player.quests.hasNpcCompleteQuest(quest.npcQuestId)) {
             continue;
           }*/
@@ -130,7 +161,12 @@ class EntityQuests {
         for (const id in this.quests) {
             const quest = this.quests[id];
 
-            if (player.quests.hasNpcCompleteQuest(quest.npcQuestId)) {
+            // FIX: was player.quests.hasNpcCompleteQuest(quest.npcQuestId),
+            // a kind-based check -- any completed quest from any same-kind
+            // NPC would satisfy it, handing out this NPC's reward for a
+            // different NPC's completed quest. giveReward() itself already
+            // keys strictly off quest.id, so the gate here should too.
+            if (player.quests.completeQuests.hasOwnProperty(quest.id)) {
                 if (this.giveReward(player, quest)) {
                     return true;
                 }

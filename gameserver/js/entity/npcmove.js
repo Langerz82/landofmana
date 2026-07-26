@@ -4,6 +4,7 @@ import EntityQuests from '../entityquests.js';
 import Utils from '../utils.js';
 import { Types } from '../common.js';
 import QuestData from '../data/questdata.js';
+import { G_NPC_QUEST_ID_MAP_OFFSET } from '../constants.js';
 import NPCnames from '../../data/npc_names.json' with { type: 'json' };
 
 class NpcMove extends Character {
@@ -22,7 +23,15 @@ class NpcMove extends Character {
         callbacks.setCallbacks(this);
 
         this.entityQuests = new EntityQuests(this);
-        this.npcQuestId = this.kind;
+        // FIX: was `this.kind` -- shared by every NPC of the same species,
+        // which is exactly what let a same-kind NPC stand in for the one a
+        // quest was actually assigned to (see EntityQuests.ownsQuest).
+        // mapIndex/id are both fixed by static map order and this map's own
+        // single-threaded spawn sequence (see the G_NPC_QUEST_ID_MAP_OFFSET
+        // comment in constants.js), so this is unique to this NPC instance,
+        // ascending, and reproducible on every server start regardless of
+        // which map finishes its async load first.
+        this.npcQuestId = this.mapIndex * G_NPC_QUEST_ID_MAP_OFFSET + this.id;
     }
 
     setQuests(quests) {
@@ -43,8 +52,13 @@ class NpcMove extends Character {
         const self_player = player;
 
         let res = false;
+        // FIX: was matching on `q.npcQuestId === self.npcQuestId` (NPC
+        // kind), so any NPC of the same kind could complete another NPC
+        // instance's item-turn-in quest. self.entityQuests.ownsQuest()
+        // scopes this to the NPC instance the quest was actually assigned
+        // to (see EntityQuests.ownsQuest for the full rationale).
         player.quests.forQuestsType(Types.QuestType.GETITEMKIND, function (q) {
-            if (q.npcQuestId === self.npcQuestId) {
+            if (self.entityQuests.ownsQuest(self_player, q)) {
                 if (self_player.quests.questAboutItemComplete(q, null))
                     res = true;
             }

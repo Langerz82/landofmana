@@ -140,7 +140,24 @@ class DatabaseHandler {
                 }
             });
         });
-        this.migrationReady = Promise.all([goldMigration, bankMigration]);
+        // See purgeStaleNewQuests() below: unlike the two migrations above
+        // (which are always safe to re-run and re-check their own per-player
+        // "already done" signal), this one is a run-once-ever flag-gated
+        // purge of the pre-npcQuestId-format-change 'newquests' data.
+        const newQuestsPurge = new Promise((resolve, reject) => {
+            this.purgeStaleNewQuests((err) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve();
+                }
+            });
+        });
+        this.migrationReady = Promise.all([
+            goldMigration,
+            bankMigration,
+            newQuestsPurge
+        ]);
     }
 
     replaceSkills() {
@@ -203,12 +220,125 @@ class DatabaseHandler {
                 const key = keys[i];
                 console.info(key);
                 if (key.startsWith('p:')) {
-                    client.hdel(key, 'newquests');
-                    client.hdel(key, 'newquests2');
+                    // 'newquests'/'newquests2' used to be wiped here too, but
+                    // that made them a manual, config-gated, *repeatable* wipe
+                    // (this whole function only runs when an admin opts in via
+                    // remove_old_values, with no memory of ever having run
+                    // before) -- fine for the other one-off keys above, but
+                    // wrong for 'newquests': it's the live saveQuests()/
+                    // loadQuests() field, so wiping it on every opted-in
+                    // restart would also erase perfectly valid quests saved
+                    // after the very first wipe. That's now handled by
+                    // purgeStaleNewQuests() instead (see below and the
+                    // constructor), which runs unconditionally but only ever
+                    // actually purges once, self-disabling via the
+                    // 'migrations:newquests_purged' flag.
                     client.hdel(key, 'completeQuests');
                     client.hdel(key, 'completeQuests2');
                 }
             }
+        });
+    }
+
+    // One-time (run-once-ever, never re-run) startup migration. The
+    // npcQuestId scheme changed from "shared by every NPC of the same kind"
+    // to "globally unique per NPC instance" (see gameserver's
+    // entity/npcstatic.js / entity/npcmove.js). Every already-saved
+    // 'newquests' entry (a player's active/in-progress quest list -- see
+    // saveQuests()/loadQuests() below) was written under the old scheme, so
+    // its stored npcQuestId can never match any NPC again -- those quests
+    // are permanently stuck, un-completable dead weight rather than harmless
+    // leftovers. This clears 'newquests'/'newquests2' for every player
+    // exactly once -- the first startup after this migration exists -- and
+    // never touches them again afterward.
+    //
+    // Unlike removeOldValues() above (config-gated via remove_old_values,
+    // and re-runs in full every time an admin opts in -- fine for that
+    // function's other one-off keys, wrong for a *live* field), this always
+    // runs, every startup, same as migrateGoldFields()/migrateBankToUser()
+    // below -- but the 'migrations:newquests_purged' flag makes the *work*
+    // run only once ever: a plain top-level key (not a per-player hash
+    // field, since "does this player already have newquests" isn't a valid
+    // signal -- a legitimately-saved post-migration quest looks identical to
+    // a stale pre-migration one), checked before doing anything and set only
+    // after every player has been purged. A server that's already migrated
+    // skips the whole client.keys('p:*', ...) scan on every subsequent
+    // restart, no matter how many quests get saved under the new scheme in
+    // between.
+    //
+    // `callback(err)` fires once every player has been checked (or
+    // immediately, if the flag shows this already ran).
+    purgeStaleNewQuests(callback) {
+        const flagKey = 'migrations:newquests_purged';
+
+        client.get(flagKey, (err, already) => {
+            if (err) {
+                console.error(
+                    'purgeStaleNewQuests: flag read failed: ' +
+                        JSON.stringify(err)
+                );
+                if (callback) callback(err);
+                return;
+            }
+
+            if (already) {
+                console.info('purgeStaleNewQuests: already run, skipping.');
+                if (callback) callback(null);
+                return;
+            }
+
+            client.keys('p:*', (err2, keys) => {
+                if (err2) {
+                    if (callback) callback(err2);
+                    return;
+                }
+
+                if (keys.length === 0) {
+                    console.info(
+                        'purgeStaleNewQuests: no players found, nothing to purge.'
+                    );
+                    client.set(flagKey, '1', (err3) => {
+                        if (callback) callback(err3 || null);
+                    });
+                    return;
+                }
+
+                let remaining = keys.length;
+                let firstError = null;
+
+                const checkDone = () => {
+                    remaining--;
+                    if (remaining === 0) {
+                        console.info(
+                            'purgeStaleNewQuests: complete -- cleared stale newquests for ' +
+                                keys.length +
+                                ' player(s).'
+                        );
+                        client.set(flagKey, '1', (err4) => {
+                            if (callback) callback(firstError || err4 || null);
+                        });
+                    }
+                };
+
+                for (const pKey of keys) {
+                    client
+                        .multi()
+                        .hdel(pKey, 'newquests')
+                        .hdel(pKey, 'newquests2')
+                        .exec((err5) => {
+                            if (err5) {
+                                console.error(
+                                    'purgeStaleNewQuests: hdel failed for ' +
+                                        pKey +
+                                        ': ' +
+                                        JSON.stringify(err5)
+                                );
+                                firstError = firstError || err5;
+                            }
+                            checkDone();
+                        });
+                }
+            });
         });
     }
 
