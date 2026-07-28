@@ -4,7 +4,6 @@ import SkillData from './skilldata.js';
 //}, 10000);
 import ItemData from './itemdata.js';
 import AppearanceData from './appearancedata.js';
-import MobSpeechData from './mobspeechdata.js';
 import ItemLootData from './itemlootdata.js';
 import NpcData from './npcdata.js';
 import LangData from './langdata.js';
@@ -24,7 +23,6 @@ export {
     SkillData,
     ItemData,
     AppearanceData,
-    MobSpeechData,
     ItemLootData,
     NpcData,
     LangData,

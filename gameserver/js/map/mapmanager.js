@@ -260,39 +260,15 @@ class MapManager {
                         30 * G_TILESIZE
                     );
                     npc = map.entities.addNpcMove(id, pos.x, pos.y);
-                    let quests = null;
-                    switch (id) {
-                        case 1:
-                            quests = ["200100"];
-                            break;
-                        case 2:
-                            quests = ["200200"];
-                            break;
-                        case 3:
-                            quests = ["200300"];
-                            break;
-                        case 4:
-                            quests = ["200400"];
-                            break;
-                        case 5:
-                            quests = ["200500"];
-                            break;
-                        case 6:
-                            quests = ["200600"];
-                            break;
-                        case 7:
-                            quests = ["200700"];
-                            break;
-                        case 8:
-                            quests = ["200800"];
-                            break;
-                        case 9:
-                            quests = ["200900"];
-                            break;
-                        case 10:
-                            quests = ["201000"];
-                            break;
-                    }
+                    // FIX (condensed): every case here was just
+                    // "200000 + id*100" for id 1-10, and no other id gets a
+                    // quest (id 0 is 'Old Man', set explicitly above; id > 10
+                    // gets none). Same result, one line instead of a
+                    // 10-case switch.
+                    const quests =
+                        id >= 1 && id <= 10
+                            ? [String(200000 + id * 100)]
+                            : null;
                     if (quests)
                         npc.setQuests(quests);
 

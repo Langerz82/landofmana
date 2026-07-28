@@ -248,6 +248,7 @@ class MapEntities {
             if (npcData.quests)
                 npc.setQuests(npcData.quests.split(','));
         });
+
         //},10000);
 
         /*console.info(JSON.stringify(self.map.staticEntities));

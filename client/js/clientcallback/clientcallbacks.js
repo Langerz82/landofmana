@@ -16,7 +16,6 @@ import Player from '../entity/player/player.js';
 import Character from '../entity/character/character.js';
 import Block from '../entity/block.js';
 import MobData from '../data/mobdata.js';
-import MobSpeech from '../data/mobspeech.js';
 import AppearanceData from '../data/appearancedata.js';
 import Quest from '../quest.js';
 import Achievement from '../achievement.js';

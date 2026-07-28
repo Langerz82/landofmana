@@ -239,8 +239,8 @@ module.exports = function processMap(json, jsontsx, options) {
                                  id: prop.id,
                                  name: prop.name || "",
                              };
-                             if (prop.scriptQuests) {
-                                 entityArea.scriptQuests = prop.scriptQuests;
+                             if (prop.quests) {
+                                 entityArea.quests = prop.quests;
                              }
                              map.entities.push(entityArea);
                          }

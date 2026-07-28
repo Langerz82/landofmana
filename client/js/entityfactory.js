@@ -33,7 +33,7 @@ EntityFactory.createEntity = function (
         case Types.EntityTypes.MOB:
             return new Mob(id, type, mapIndex, kind, name, level);
         case Types.EntityTypes.NPCSTATIC:
-            return new NpcStatic(id, type, mapIndex, kind);
+            return new NpcStatic(id, type, mapIndex, kind, name);
         case Types.EntityTypes.ITEM:
         case Types.EntityTypes.ITEMLOOT:
             return new Item(id, type, mapIndex, kind, 'item');

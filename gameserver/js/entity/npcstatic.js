@@ -37,6 +37,21 @@ class NpcStatic extends Entity {
         }
     }
 
+    // FIX: NpcStatic had no getState() override, so it fell back to
+    // Entity.getState() (just _getBaseState(), 8 fields) and never sent
+    // npcQuestId over the wire at all -- unlike NpcMove, which appends it
+    // as field 8 here. That's why the client's clientcallbacksspawn.js
+    // could set entity.npcQuestId / register the entity in game.npc for a
+    // spawned NpcMove but not for a spawned NpcStatic, which meant
+    // game.getNpcByQuestKind() (used by onQuest -> questSpeech to show the
+    // "quest in progress" dialogue automatically) could never resolve a
+    // static NPC and silently never showed anything for it, even though
+    // this.npcQuestId was already being computed correctly in the
+    // constructor above for both classes.
+    getState() {
+        return this._getBaseState().concat(this.npcQuestId);
+    }
+
     talk(player) {
         const self = this;
         const self_player = player;

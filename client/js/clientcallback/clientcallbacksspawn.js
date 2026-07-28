@@ -120,6 +120,15 @@ export function installClientCallbacksSpawn(proto) {
         } else if (entity instanceof NpcStatic) {
             const uid = NpcData.Kinds[entity.kind].uid;
             entity.setSprite(game.sprites[uid]);
+            // FIX: NpcMove registered itself here (npcQuestId + game.npc) but
+            // NpcStatic never did, so game.getNpcByQuestKind() (used by
+            // onQuest -> questSpeech to auto-show the "quest in progress"
+            // dialogue) could never find a static NPC. Now that
+            // gameserver/js/entity/npcstatic.js's getState() sends
+            // npcQuestId as field 8 too (matching NpcMove), mirror the same
+            // registration here.
+            entity.npcQuestId = Number(data[8]);
+            game.npc[entity.id] = entity;
         } else if (entity instanceof NpcMove) {
             const uid =
                 'npc' +
@@ -140,9 +149,9 @@ export function installClientCallbacksSpawn(proto) {
 
         let entityName = entity.name;
 
-        if (entity instanceof NpcStatic)
+        if (!entityName && entity instanceof NpcStatic)
             entityName = NpcData.Kinds[entity.kind].uid;
-        else if (entity instanceof Item)
+        if (entity instanceof Item)
             entityName = ItemTypes.KindData[entity.kind].name;
 
         log.debug(

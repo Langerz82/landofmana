@@ -33,7 +33,6 @@ import Character from './entity/character/character.js';
 import Block from './entity/block.js';
 import Node from './entity/node.js';
 import MobData from './data/mobdata.js';
-import MobSpeech from './data/mobspeech.js';
 import config from './config.js';
 import ChatHandler from './chathandler/chathandler.js';
 import PlayerPopupMenu from './playerpopupmenu.js';

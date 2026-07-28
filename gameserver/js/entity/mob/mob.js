@@ -310,12 +310,6 @@ class Mob extends Character {
     }
 
     Speech(key, value) {
-        /*if (this.data.isSpeech === 0)
-			return;
-
-   	   	if (!value)
-			value = Utils.random(MobSpeechData.Speech[key].length-1);
-		return new Messages.Speech(this, key, value);*/
         return null;
     }
 

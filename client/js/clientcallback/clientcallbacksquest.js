@@ -1,7 +1,6 @@
 // Mixin extracted from clientcallbacks.js: Quests/achievements/dialogue/NPC speech.
 // Applied onto ClientCallbacks.prototype via install*(...) call in clientcallbacks.js; not a standalone class.
 import Mob from '../entity/mob.js';
-import MobSpeech from '../data/mobspeech.js';
 import Achievement from '../achievement.js';
 import Quest from '../quest.js';
 
@@ -125,10 +124,6 @@ export function installClientCallbacksQuest(proto) {
         if (!entity) return;
 
         let msg = '';
-        if (entity instanceof Mob) msg = MobSpeech.Speech[key][value];
-        else {
-            // TODO
-        }
         game.createBubble(entity, msg);
     };
 }
