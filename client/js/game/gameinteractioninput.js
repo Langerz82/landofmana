@@ -90,7 +90,7 @@ export function installGameInteractionInput(proto) {
                 this.mapContainer.isHarvestTile(gpos, type) &&
                 p.isNextTooTile(px, py)
             ) {
-                this.makePlayerHarvest(tileCenter.x, tileCenter.y);
+                this.makePlayerHarvest(px, py);
                 return;
             }
 

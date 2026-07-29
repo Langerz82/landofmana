@@ -99,7 +99,7 @@ class WorldActionHandler {
         // FIX: same isInScreen(npc) -> isInScreen([npc.x,npc.y]) bug as
         // handleQuest above, plus a null-check on npc before using its
         // coordinates.
-        if (!npc || !p.isInScreen([npc.x, npc.y])) {
+        if (!npc || !p.isNextTooEntity(npc)) {
             console.info('player not close enough to NPC!');
             return;
         }
@@ -144,8 +144,15 @@ class WorldActionHandler {
     }
 
     handleHarvest(msg) {
-        const x = parseInt(msg[0]),
-            y = parseInt(msg[1]);
+        const x = parseInt(msg[0], 10),
+            y = parseInt(msg[1], 10);
+
+
+        if (!this.player.isNextTooTile(x,y)) {
+            console.info("player is not nextTooTile.");
+            return;
+        }
+
         this.player.harvest.onHarvest(x, y);
     }
 

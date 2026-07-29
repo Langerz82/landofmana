@@ -1791,7 +1791,18 @@ class DatabaseHandler {
             if (err || !data || data === '') {
                 console.warn(err);
                 console.warn(JSON.stringify(data));
-                data = [];
+                // FIX: was `data = []` -- a real array, not a JSON string.
+                // This value goes straight over the wire to the gameserver's
+                // handleLoadPlayerQuests() (userhandler.js), which does
+                // `JSON.parse(msg)`. JSON.parse coerces a non-string argument
+                // via ToString first, so JSON.parse([]) becomes
+                // JSON.parse("") -- "Unexpected end of JSON input" on every
+                // login for any player with no "newquests" field (e.g. every
+                // player after purgeStaleNewQuests() wipes it). saveQuests()
+                // always stores a JSON string, and the brand-new-player path
+                // (handleCreatePlayerQuests() in worldhandler.js) already
+                // returns the string '[]' -- match that shape here too.
+                data = '[]';
             }
             console.info(pKey);
             console.info('getItems - data=' + data);
