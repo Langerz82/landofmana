@@ -28,23 +28,36 @@ class MovementHandler {
         const p = this.player;
         if (entityId !== p.id) return;
 
-        if (state == 1 && p.hasMoveThrottled(G_LATENCY)) {
-            console.warn('handleMoveEntity - moveThrottled');
+        // PERF/FIX: these reject-path console.warn/error calls used to run
+        // unconditionally, right next to the `arr` log a few lines down
+        // which *was* already gated with a PERF comment explaining exactly
+        // this cost. Since these are reject paths, a client that moves
+        // faster than allowed or with bad coordinates controls exactly how
+        // often they fire, at whatever packet rate the connection allows --
+        // gated the same way. Also switched `==` to `===` (line below) for
+        // consistency with the rest of this function.
+        if (state === 1 && p.hasMoveThrottled(G_LATENCY)) {
+            if (G_DEBUG) console.warn('handleMoveEntity - moveThrottled');
             p.resetMove(p.x, p.y);
             return;
         }
 
         if (state === 2) {
             if (!p.checkStartMove(x, y)) {
-                console.error(
-                    'handleMoveEntity, checkStartMove - x:' + x + ',y:' + y
-                );
-                console.error(
-                    'handleMoveEntity, checkStartMove - p.x:' +
-                        p.x +
-                        ',p.y:' +
-                        p.y
-                );
+                if (G_DEBUG) {
+                    console.error(
+                        'handleMoveEntity, checkStartMove - x:' +
+                            x +
+                            ',y:' +
+                            y
+                    );
+                    console.error(
+                        'handleMoveEntity, checkStartMove - p.x:' +
+                            p.x +
+                            ',p.y:' +
+                            p.y
+                    );
+                }
                 p.resetMove(p.x, p.y);
             }
             p.forceStop();
@@ -85,7 +98,7 @@ class MovementHandler {
 
         if (path && p.hasMoveThrottled(G_LATENCY)) {
             p.resetMove(p.x, p.y);
-            console.warn('handleMoveEntity - moveThrottled');
+            if (G_DEBUG) console.warn('handleMoveEntity - moveThrottled');
             return;
         }
 

@@ -83,6 +83,18 @@ class MobRespawn {
         entity.droppedItem = false;
         entity.invincible = false;
         entity.resetBehaviour();
+        // NOTE: this used to be the only cleanup for any SkillEffect still
+        // active on the mob at respawn time -- a raw array reset, with none
+        // of the per-effect stopIntervalTicking()/handler.removeSkillEffect()
+        // cleanup that effecthandler/skilleffect.js's endEffects() does. In
+        // practice this is already safe: respawn() only ever runs after
+        // Character.die() -> this.endEffects() (character.js) has already
+        // run and cleared this same array via the SkillEffect's own
+        // endEffects() (now fixed to properly clean up per-effect instead of
+        // wiping every effect on every target -- see skilleffect.js). Left
+        // as a plain reset here rather than removed, since it's a harmless
+        // no-op safety net if that invariant is ever violated (e.g. a future
+        // respawn path that doesn't go through die() first).
         entity.activeEffects = [];
         entity.map.entities.sendNeighbours(entity, new Messages.Spawn(entity));
     }
@@ -227,8 +239,20 @@ class MobRespawn {
             // stray `* loot.rarity` restores rarity as an actual divisor: higher
             // rarity now yields a lower chance, as the field name implies.
             const chance = ~~(1000 / loot.rarity);
-            if (chance > 0) entity.loot[lootId] = chance;
-            entity.lootTotal += entity.loot[lootId];
+            // FIX: `entity.lootTotal += entity.loot[lootId]` used to run
+            // unconditionally, even when chance <= 0 left entity.loot[lootId]
+            // unassigned (undefined). `lootTotal += undefined` turns
+            // lootTotal into NaN, which then poisons every subsequent += in
+            // this loop -- and since this loops over the *global*
+            // ItemLootData.ItemLoot table on every single mob's
+            // setItemLoot() call, a single loot entry anywhere with
+            // rarity > 1000 would silently zero out lootTotal (the final
+            // `~~NaN` below truncates to 0) for every mob in the game. Only
+            // accumulate when a chance was actually assigned.
+            if (chance > 0) {
+                entity.loot[lootId] = chance;
+                entity.lootTotal += chance;
+            }
         }
         //this.lootTotal *= ((200 - this.level)/50);
         entity.lootTotal = ~~entity.lootTotal;

@@ -23,8 +23,15 @@ class BanManager {
 
         for (const rec of msg) {
             const ban = rec.split(',');
-            if (now > ban[1]) continue;
-            this.userBans[ban[0]] = ban[1];
+            // FIX: `ban[1]` is a string from split() -- `now > ban[1]` and
+            // `this.userBans[ban[0]] = ban[1]` happened to still work via
+            // JS's numeric-string coercion on `<`/`>` and isUserBanned()'s
+            // `> Date.now()` check, but banuser() (below) stores a real
+            // number for the same map. Parsing here keeps the stored type
+            // consistent between both code paths.
+            const banTime = parseInt(ban[1], 10);
+            if (now > banTime) continue;
+            this.userBans[ban[0]] = banTime;
         }
     }
 

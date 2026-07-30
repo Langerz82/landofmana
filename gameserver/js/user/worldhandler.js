@@ -5,6 +5,7 @@ import Messages from '../message.js';
 import { Types } from '../common.js';
 import Utils from '../utils.js';
 import { hashes, players } from '../main.js';
+import { G_DEBUG } from '../constants.js';
 
 class WorldHandler {
     constructor(main, connection) {
@@ -29,7 +30,10 @@ class WorldHandler {
         this.savesInProgress = new Set();
 
         this.connection.listen(function (message) {
-            console.info('recv=' + JSON.stringify(message));
+            // PERF: unconditional JSON.stringify + log on every message on
+            // this connection -- gated behind G_DEBUG like the equivalent
+            // logging on the client-facing channel (packets/packethandler.js).
+            if (G_DEBUG) console.info('recv=' + JSON.stringify(message));
             const action = parseInt(message[0]);
 
             if (action)
@@ -44,9 +48,31 @@ class WorldHandler {
                 }
             message.shift();
 
-            if (action === Types.Messages.CW_LOGIN_PLAYER) {
-                self.handleLoginPlayer(message);
-                return;
+            // FIX: this listener runs directly on socket.io's event emitter
+            // (no catch of its own around listener callbacks) and, unlike
+            // packets/packethandler.js's identical pattern (which has a
+            // documented FIX for exactly this), had no try/catch -- any
+            // exception thrown inside handleLoginPlayer() (a malformed
+            // login payload hitting an edge case, a downstream failure,
+            // etc.) would propagate out uncaught. This listener is reachable
+            // by a client that hasn't even logged in yet, so a crafted
+            // CW_LOGIN_PLAYER payload could crash the whole gameserver
+            // process -- and every other connected player's session with
+            // it -- before authentication has even happened. Wrapping
+            // mirrors packethandler.js's containment: at worst, one bad
+            // login attempt breaks its own connection.
+            try {
+                if (action === Types.Messages.CW_LOGIN_PLAYER) {
+                    self.handleLoginPlayer(message);
+                    return;
+                }
+            } catch (err) {
+                console.error(
+                    'WorldHandler: error handling action=' +
+                        action +
+                        ': ' +
+                        ((err && err.stack) || err)
+                );
             }
         });
     }

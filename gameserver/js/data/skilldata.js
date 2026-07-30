@@ -1,5 +1,6 @@
 import SkillsJSON from '../../shared/data/skills2.json' with { type: 'json' };
 import { EffectType } from '../effecthandler/effecthandler.js';
+import { G_DEBUG } from '../constants.js';
 
 const Skills = [];
 //var SkillNames = {};
@@ -20,7 +21,10 @@ const getSkillEffects = function (data) {
 //console.info(JSON.stringify(SkillsJSON));
 for (const index in SkillsJSON) {
     const value = SkillsJSON[index];
-    console.info(index + '=' + JSON.stringify(value));
+    // PERF: module-load-time only (once per skill, once for the table
+    // below) so low runtime cost, but same unaddressed anti-pattern as the
+    // per-request logging fixed elsewhere -- gated behind G_DEBUG.
+    if (G_DEBUG) console.info(index + '=' + JSON.stringify(value));
 
     //if (!value.skillType)
     //continue;
@@ -42,7 +46,7 @@ for (const index in SkillsJSON) {
     });
 }
 
-console.info('skills: ' + JSON.stringify(Skills));
+if (G_DEBUG) console.info('skills: ' + JSON.stringify(Skills));
 
 export { Skills };
 export default { Skills };

@@ -37,7 +37,9 @@ export default class WebsocketServer extends sServer {
         // cert/key when https_cert/https_key is explicitly configured is
         // not a safe condition to silently continue past).
         const app = {};
-        if (config.https_cert != '') {
+        // FIX: was `!=` on both of the checks below -- switched to `!==`
+        // for consistency with the `===`/`!==` convention used elsewhere.
+        if (config.https_cert !== '') {
             try {
                 app.cert = fs.readFileSync(config.https_cert);
             } catch (err) {
@@ -49,7 +51,7 @@ export default class WebsocketServer extends sServer {
                 );
             }
         }
-        if (config.https_key != '') {
+        if (config.https_key !== '') {
             try {
                 app.key = fs.readFileSync(config.https_key);
             } catch (err) {

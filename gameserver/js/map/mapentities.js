@@ -238,15 +238,21 @@ class MapEntities {
         //setTimeout(function () {
         _.each(self.map.spawnEntities, function (npcData) {
             let npc = null;
-            if (npcData.type == Types.EntityTypes.NPCMOVE) {
+            if (npcData.type === Types.EntityTypes.NPCMOVE) {
                 npc = self.addNpcMove(npcData.id, npcData.x, npcData.y);
             }
-            if (npcData.type == Types.EntityTypes.NPCSTATIC) {
+            if (npcData.type === Types.EntityTypes.NPCSTATIC) {
                 npc = self.addNpcStatic(npcData.id, npcData.x, npcData.y);
             }
-            if (npcData.name) npc.name = npcData.name;
-            if (npcData.quests)
-                npc.setQuests(npcData.quests.split(','));
+            // FIX: if npcData.type matched neither NPCMOVE nor NPCSTATIC,
+            // `npc` stayed null and `npc.name = ...` below threw, aborting
+            // map load entirely for one bad/unexpected spawn entry. Guard
+            // on `npc` being set before touching it. Also switched `==` to
+            // `===` above for consistency.
+            if (npc) {
+                if (npcData.name) npc.name = npcData.name;
+                if (npcData.quests) npc.setQuests(npcData.quests.split(','));
+            }
         });
 
         //},10000);
@@ -372,6 +378,14 @@ class MapEntities {
 
         if (this.characters.has(entity.id)) this.characters.delete(entity.id);
 
+        // FIX: removeEntity() cleaned up every other per-type registry
+        // (mobs/items/players/blocks/characters/entities) but not `npcs`
+        // (static NPCs, see addNpcStatic() above) -- static NPCs are
+        // effectively immortal today so nothing currently exercises this,
+        // but the moment anything does remove one through this generic
+        // path, it would stay referenced here forever.
+        if (this.npcs.has(entity.id)) this.npcs.delete(entity.id);
+
         if (this.entities.has(entity.id)) this.entities.delete(entity.id);
 
         entity.destroy();
@@ -434,7 +448,18 @@ class MapEntities {
         const self = this;
 
         item.isStatic = true;
-        item.onRespawn(self.addStaticItem.bind(self, item));
+        // FIX: was `item.onRespawn(self.addStaticItem.bind(self, item))` --
+        // item.onRespawn()'s callback (entity/item.js) is invoked with ZERO
+        // arguments, but `bind(self, item)` pre-fills addStaticItem's
+        // *first* parameter with `item`, so on respawn the call became
+        // `addStaticItem(item, undefined)`: `map` bound to the item, `item`
+        // itself undefined, and `item.isStatic = true` threw on undefined.
+        // No current callers of addStaticItem exist anywhere in the
+        // codebase, so this was inert, but a real crash the moment
+        // static-item respawn is wired up. `map` was unused inside this
+        // method anyway, so the respawn callback just needs to re-add the
+        // same `item`.
+        item.onRespawn(() => self.addItem(item));
 
         return self.addItem(item);
     }
@@ -539,8 +564,9 @@ class MapEntities {
 
     getEntityAroundSpatial(entity, range, conditional) {
         const r = range || 1;
-        const x = entity.x;
-        const y = entity.y;
+        // FIX: removed unused `const x = entity.x; const y = entity.y;` --
+        // never read; `gx`/`gy` below (the values actually used for the
+        // spatial query) are computed independently.
         const gx = ~~(entity.x / G_TILESIZE);
         const gy = ~~(entity.y / G_TILESIZE);
 
@@ -668,7 +694,13 @@ class MapEntities {
     }
 
     getPartyAround(entity, range) {
-        // entity
+        // FIX: `entity.party` is routinely undefined for unparted players --
+        // every other call site that touches `.party` in this codebase
+        // guards it first (world/partymanager.js, packets/partyhandler.js,
+        // entity/player/playerprogression.js). This method has no current
+        // callers, but as written it would throw the first time one is
+        // added and an unparted entity reached it.
+        if (!entity.party) return [];
         return this.getEntityAround(entity.party.players, entity, range);
     }
 

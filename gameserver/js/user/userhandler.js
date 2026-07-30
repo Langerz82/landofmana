@@ -15,6 +15,7 @@ import {
     getInitAchievements,
     getSavedAchievement
 } from '../world/taskhandler.js';
+import { G_DEBUG } from '../constants.js';
 
 // FIX: unlike the client-facing (CW_*) channel, which validates every packet
 // against a strict Zod schema before dispatch (see format.js and
@@ -72,7 +73,12 @@ class UserHandler {
         this.userHandlerPackets = [];
 
         this.connection.listen(function (message) {
-            console.info('recv=' + JSON.stringify(message));
+            // PERF: unconditional JSON.stringify + log of every message on
+            // this connection, including full save-data payloads (items,
+            // quests, achievements) on every login/save round-trip. Gated
+            // behind G_DEBUG like the equivalent logging on the
+            // client-facing channel.
+            if (G_DEBUG) console.info('recv=' + JSON.stringify(message));
             const action = parseInt(message[0]);
             message.shift();
 
@@ -86,25 +92,45 @@ class UserHandler {
                 return;
             }
 
-            switch (action) {
-                case Types.UserMessages.UW_LOAD_PLAYER_DATA:
-                    self.handleLoadPlayerData(message);
-                    return;
-                case Types.UserMessages.UW_LOAD_PLAYER_AUCTIONS:
-                    self.handleLoadPlayerAuctions(message);
-                    return;
-                case Types.UserMessages.UW_LOAD_PLAYER_LOOKS:
-                    self.handleLoadPlayerLooks(message);
-                    return;
-                case Types.UserMessages.UW_LOAD_USER_BANS:
-                    self.handleLoadUserBans(message);
-                    return;
-                case Types.UserMessages.UW_WORLD_SAVE:
-                    self.handleWorldSave(message);
-                    return;
-                case Types.UserMessages.UW_WORLD_CLOSE:
-                    self.handleWorldClose(message);
-                    return;
+            // FIX: wrapped the dispatch in try/catch, mirroring
+            // packets/packethandler.js's identical fix. isValidUserMessage()
+            // above only shape-checks a subset of actions (e.g.
+            // UW_LOAD_PLAYER_AUCTIONS/LOOKS/BANS are only checked with
+            // Array.isArray, not their full expected shape) -- if a handler
+            // throws for a reason that shallow check misses, the exception
+            // would otherwise escape this socket listener uncaught. Lower
+            // severity than the client-facing channel since this is the
+            // operator-controlled userserver link, not an untrusted client,
+            // but the same containment that was applied there was never
+            // mirrored here.
+            try {
+                switch (action) {
+                    case Types.UserMessages.UW_LOAD_PLAYER_DATA:
+                        self.handleLoadPlayerData(message);
+                        return;
+                    case Types.UserMessages.UW_LOAD_PLAYER_AUCTIONS:
+                        self.handleLoadPlayerAuctions(message);
+                        return;
+                    case Types.UserMessages.UW_LOAD_PLAYER_LOOKS:
+                        self.handleLoadPlayerLooks(message);
+                        return;
+                    case Types.UserMessages.UW_LOAD_USER_BANS:
+                        self.handleLoadUserBans(message);
+                        return;
+                    case Types.UserMessages.UW_WORLD_SAVE:
+                        self.handleWorldSave(message);
+                        return;
+                    case Types.UserMessages.UW_WORLD_CLOSE:
+                        self.handleWorldClose(message);
+                        return;
+                }
+            } catch (err) {
+                console.error(
+                    'UserHandler: error handling action=' +
+                        action +
+                        ': ' +
+                        ((err && err.stack) || err)
+                );
             }
         });
 
@@ -136,7 +162,12 @@ class UserHandler {
     }
 
     handleLoadPlayerAuctions(msg) {
-        console.info('handleLoadPlayerAuctions: ' + JSON.stringify(msg));
+        // PERF: this and the JSON.stringify logs in every other handler
+        // below run once per login/save round-trip and can serialize a
+        // player's entire save blob (items, quests, achievements). Gated
+        // behind G_DEBUG like the dispatch-level log above.
+        if (G_DEBUG)
+            console.info('handleLoadPlayerAuctions: ' + JSON.stringify(msg));
 
         if (!msg) return;
 
@@ -144,7 +175,8 @@ class UserHandler {
     }
 
     handleLoadPlayerLooks(msg) {
-        console.info('handleLoadPlayerLooks: ' + JSON.stringify(msg));
+        if (G_DEBUG)
+            console.info('handleLoadPlayerLooks: ' + JSON.stringify(msg));
 
         if (!msg) return;
 
@@ -152,7 +184,8 @@ class UserHandler {
     }
 
     handleLoadUserBans(msg) {
-        console.info('handleLoadUserBans: ' + JSON.stringify(msg));
+        if (G_DEBUG)
+            console.info('handleLoadUserBans: ' + JSON.stringify(msg));
 
         if (!msg) return;
 
@@ -174,7 +207,8 @@ class UserHandler {
             return;
         }
 
-        console.info('handleLoadPlayerData data: ' + JSON.stringify(data));
+        if (G_DEBUG)
+            console.info('handleLoadPlayerData data: ' + JSON.stringify(data));
         this.handleLoadUserInfo(playerName, data[0]);
         this.handleLoadPlayerInfo(data[1]);
         this.handleLoadPlayerQuests(data[2]);
@@ -219,7 +253,8 @@ class UserHandler {
     // source, which created an implicit global there; declared with `var` here
     // since ES modules are always strict mode and forbid implicit globals.
     handleLoadUserInfo(playerName, msg) {
-        console.info('handleLoadUserInfo: ' + JSON.stringify(msg));
+        if (G_DEBUG)
+            console.info('handleLoadUserInfo: ' + JSON.stringify(msg));
 
         const username = msg[0],
             hash = msg[1],
@@ -260,7 +295,8 @@ class UserHandler {
     }
 
     handleLoadPlayerInfo(msg) {
-        console.info('handleLoadPlayerInfo: ' + JSON.stringify(msg));
+        if (G_DEBUG)
+            console.info('handleLoadPlayerInfo: ' + JSON.stringify(msg));
         const player = this.player;
         //console.info(msg.toString());
         const data_player = {
@@ -286,7 +322,10 @@ class UserHandler {
             completeQuests: msg[11]
         };
 
-        console.info('shortcuts: ' + JSON.stringify(data_player.shortcuts));
+        if (G_DEBUG)
+            console.info(
+                'shortcuts: ' + JSON.stringify(data_player.shortcuts)
+            );
         console.info(
             'completeQuests: ' + JSON.stringify(data_player.completeQuests)
         );
@@ -319,16 +358,20 @@ class UserHandler {
     // comma-joined quest-field strings), and JSON.parse + the per-record
     // .split(',') below is the correct way to unpack it.
     handleLoadPlayerQuests(msg) {
-        console.info('handleLoadPlayerQuests: ' + JSON.stringify(msg));
+        if (G_DEBUG)
+            console.info('handleLoadPlayerQuests: ' + JSON.stringify(msg));
         const player = this.player;
 
-        console.info('msg=' + msg);
+        // PERF: duplicate of the JSON.stringify log right above (same
+        // `msg`) -- also gated behind G_DEBUG.
+        if (G_DEBUG) console.info('msg=' + msg);
         try {
             const dataJSON = JSON.parse(msg);
             for (let i = 0; i < dataJSON.length; i++) {
                 const questData = dataJSON[i].split(',');
                 if (questData) {
-                    console.info(JSON.stringify(questData));
+                    // PERF: runs once per saved quest in this loop.
+                    if (G_DEBUG) console.info(JSON.stringify(questData));
                     const quest = new Quest(questData.splice(0, 7));
                     if (questData.length > 0)
                         quest.object = getQuestObject(questData.splice(0, 6));
@@ -346,7 +389,10 @@ class UserHandler {
     }
 
     handleLoadPlayerAchievements(msg) {
-        console.info('handleLoadPlayerAchievements: ' + JSON.stringify(msg));
+        if (G_DEBUG)
+            console.info(
+                'handleLoadPlayerAchievements: ' + JSON.stringify(msg)
+            );
         const player = this.player;
 
         const achievements = getInitAchievements();
@@ -366,7 +412,8 @@ class UserHandler {
     // `var` here since ES modules are always strict mode and forbid implicit
     // globals.
     handleLoadPlayerItems(type, msg) {
-        console.info('handleLoadPlayerItems: ' + JSON.stringify(msg));
+        if (G_DEBUG)
+            console.info('handleLoadPlayerItems: ' + JSON.stringify(msg));
         const player = this.player;
         const items = [];
 
@@ -464,7 +511,10 @@ class UserHandler {
     }
 
     sendPlayersList(data) {
-        console.info('userHandler - sendPlayersList: ' + JSON.stringify(data));
+        if (G_DEBUG)
+            console.info(
+                'userHandler - sendPlayersList: ' + JSON.stringify(data)
+            );
         this.sendToUserServer(new UserMessages.SavePlayersList(data));
     }
 }

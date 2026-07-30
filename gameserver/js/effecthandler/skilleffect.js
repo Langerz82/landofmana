@@ -162,30 +162,32 @@ export class SkillEffect {
         }
     }
 
-    // FIX: this applies the "end" phase directly via effect.apply(), which
-    // is what applyEffects("end", ...) above also does -- but unlike
-    // applyEffects(), this never followed up with stopIntervalTicking() or
-    // handler.removeSkillEffect(self) for the SkillEffect (`self`) being
-    // ended. This is the path Character.die()/Mob.destroy() reach (via
-    // Character.endEffects() -> skilleffect.endEffects()) when an entity
-    // dies or is removed while effects are active on it -- without this
-    // cleanup, each such SkillEffect's Scheduler-driven _tickInterval()
-    // (effecthandler.js's startIntervalTicking()) kept firing every 2s for
-    // up to its remaining duration, re-applying "interval"/"end" phases
-    // against `this.targets` (which can include entities other than the
-    // one that died/was removed, e.g. an AOE buff), and the dead
-    // SkillEffect lingered in handler.skillEffects until it finally expired
-    // on its own.
+    // FIX: the previous version of this method looped `for (const self of
+    // target.activeEffects)` and then did `target.activeEffects = []` --
+    // i.e. it force-ended and wiped EVERY SkillEffect active on each of
+    // `this.targets`, not just `this` one. This is the path Character.die()/
+    // Mob.destroy() reach (via Character.endEffects() -> this method) when
+    // an entity dies or is removed while effects are active on it. For an
+    // AOE heal/buff/debuff, `this.targets` includes entities other than the
+    // one that died -- so if a healer died while their party-wide
+    // heal-over-time was active, every other party member's completely
+    // unrelated buffs/debuffs (from any source) got force-ended and wiped
+    // too, just because they happened to also be a target of the dying
+    // entity's effect.
+    //
+    // The actual fix is simpler than the old body: this.applyEffects('end',
+    // 0) already does exactly the right thing per-target -- for each of
+    // `this.targets` it calls `this.applyEffect(effect, target, 'end', 0)`,
+    // which (see applyEffect() above) applies the effect AND splices only
+    // `this` SkillEffect out of that target's activeEffects array, leaving
+    // every other active effect on the target untouched. And since
+    // phase==='end', applyEffects() also resets count/activeTimer and calls
+    // this.stopIntervalTicking()/this.handler.removeSkillEffect(this) --
+    // which is the cleanup this method's own name promises (and the
+    // original FIX comment here intended), just scoped correctly to `this`
+    // effect instead of every effect on every target.
     endEffects() {
-        for (const target of this.targets) {
-            for (const self of target.activeEffects) {
-                for (const effect of self.effectTypes)
-                    effect.apply(self, target, 'end', 0);
-                self.stopIntervalTicking();
-                self.handler.removeSkillEffect(self);
-            }
-            target.activeEffects = [];
-        }
+        this.applyEffects('end', 0);
     }
 
     onInterval(phase, damage) {

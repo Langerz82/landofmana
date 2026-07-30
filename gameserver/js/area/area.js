@@ -118,8 +118,8 @@ class Area {
 
             const inElipse = d < this.width / 2;
             return inElipse;
-
-            return false;
+            // FIX: removed an unreachable `return false;` that followed the
+            // real return statement above -- dead code, no behavior change.
         }
     }
 }

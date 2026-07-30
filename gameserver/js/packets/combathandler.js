@@ -2,7 +2,7 @@ import Mob from '../entity/mob/mob.js';
 import Player from '../entity/player/player.js';
 import Messages from '../message.js';
 import Formulas from '../formulas.js';
-import { ATTACK_INTERVAL, mobState } from '../constants.js';
+import { ATTACK_INTERVAL, mobState, G_DEBUG } from '../constants.js';
 
 // Split out of packethandler.js (see that file's dispatch table) as part of
 // breaking up a single ~1300-line class -- this is the melee/skill-damage
@@ -22,7 +22,9 @@ class CombatHandler {
 
     handleAttack(message) {
         const self = this;
-        const time = parseInt(message[0]);
+        // FIX: removed `const time = parseInt(message[0]);` -- never used
+        // anywhere in this method; computed on every single attack packet
+        // for no purpose.
         const p = this.player;
 
         if (p.isDead) return;
@@ -52,20 +54,30 @@ class CombatHandler {
             orientation = parseInt(message[2]),
             skillId = parseInt(message[3]);
 
+        // PERF/FIX: every console.warn/console.info below in this reject-path
+        // sequence used to run unconditionally. These are all reached by
+        // rejected CW_ATTACK packets, and unlike the equivalent "happy path"
+        // logging elsewhere in this codebase (which is G_DEBUG-gated),
+        // rejection is entirely client-controlled -- a client attacking
+        // faster than ATTACK_INTERVAL, out of range, or at an invalid
+        // target hits these on every packet at whatever rate the connection
+        // allows. That's a client-triggerable log-volume/string-concat cost
+        // vector, not just diagnostic noise. Gated the same way the rest of
+        // this codebase gates per-packet logging.
         if (targetId < 0) {
-            console.warn('invalid targetId');
+            if (G_DEBUG) console.warn('invalid targetId');
             return;
         }
 
         const tEntity = sEntity.map.entities.getEntityById(targetId);
         if (!tEntity) {
-            console.warn('invalid entity');
+            if (G_DEBUG) console.warn('invalid entity');
             return;
         }
 
         const attackTime = Date.now() - sEntity.attackTimer + 100;
         if (attackTime < ATTACK_INTERVAL) {
-            console.warn('attack interval');
+            if (G_DEBUG) console.warn('attack interval');
             return;
         }
 
@@ -77,7 +89,7 @@ class CombatHandler {
                 tEntity.level < 20 ||
                 Math.abs(sEntity.level - tEntity.level) > 10)
         ) {
-            console.warn('pvp invalid diff');
+            if (G_DEBUG) console.warn('pvp invalid diff');
             return;
         }
 
@@ -87,22 +99,23 @@ class CombatHandler {
             this.ph.sendPlayer(
                 new Messages.Notify('CHAT', 'COMBAT_TARGETINVINCIBLE')
             );
-            console.warn('target invincible');
+            if (G_DEBUG) console.warn('target invincible');
             return;
         }
 
         // TODO fill sEntity, tEntity.
 
         if (sEntity.map.isColliding(sEntity.x, sEntity.y)) {
-            console.warn(
-                'char.isColliding(' +
-                    sEntity.id +
-                    ',' +
-                    sEntity.x +
-                    ',' +
-                    sEntity.y +
-                    ')'
-            );
+            if (G_DEBUG)
+                console.warn(
+                    'char.isColliding(' +
+                        sEntity.id +
+                        ',' +
+                        sEntity.x +
+                        ',' +
+                        sEntity.y +
+                        ')'
+                );
             return;
         }
 
@@ -120,20 +133,22 @@ class CombatHandler {
 
         if (sEntity === this.player) {
             if (!sEntity.canReach(tEntity)) {
-                console.info('Player not close enough!');
-                console.info('p.x:' + sEntity.x + ',p.y:' + sEntity.y);
-                console.info('e.x:' + tEntity.x + ',e.y:' + tEntity.y);
-                console.info(
-                    'dx:' +
-                        Math.abs(sEntity.x - tEntity.x) +
-                        ',dy:' +
-                        Math.abs(sEntity.y - tEntity.y)
-                );
+                if (G_DEBUG) {
+                    console.info('Player not close enough!');
+                    console.info('p.x:' + sEntity.x + ',p.y:' + sEntity.y);
+                    console.info('e.x:' + tEntity.x + ',e.y:' + tEntity.y);
+                    console.info(
+                        'dx:' +
+                            Math.abs(sEntity.x - tEntity.x) +
+                            ',dy:' +
+                            Math.abs(sEntity.y - tEntity.y)
+                    );
+                }
                 return;
             }
 
             if (!sEntity.attackedTime.isOver()) {
-                console.warn('attackedTime is not over.');
+                if (G_DEBUG) console.warn('attackedTime is not over.');
                 return;
             }
             sEntity.isHarvesting = false;

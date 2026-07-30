@@ -2,6 +2,7 @@
 import Messages from '../message.js';
 import ItemData from '../data/itemdata.js';
 import { ItemTypes } from '../common.js';
+import { G_DEBUG } from '../constants.js';
 
 class Equipment {
     constructor(owner, number, items) {
@@ -25,8 +26,12 @@ class Equipment {
         // the Map did, so the original string-key bug class doesn't come
         // back either.
         this.rooms = new Array(this.maxNumber).fill(null);
-        console.info('number=' + number);
-        console.info('itemSlots=' + JSON.stringify(items));
+        // PERF: fires on every Equipment load (every login/reconnect) --
+        // gated behind G_DEBUG like equivalent load-time logging elsewhere.
+        if (G_DEBUG) {
+            console.info('number=' + number);
+            console.info('itemSlots=' + JSON.stringify(items));
+        }
 
         if (items) {
             for (let i = 0; i < items.length; i++) {
@@ -115,29 +120,29 @@ class Equipment {
         if (!ItemTypes.isEquipment(kind)) return false;
 
         if (
-            index == 0 &&
+            index === 0 &&
             !(data.type === 'helm' && this.canEquip(item, data.level))
         )
             return false;
         //if (slot==1 && (!isArmor || !this.canEquip(item, ItemTypes.getArmorLevel(kind))))
         if (
-            index == 1 &&
+            index === 1 &&
             !(data.type === 'chest' && this.canEquip(item, data.level))
         )
             return false;
         if (
-            index == 2 &&
+            index === 2 &&
             !(data.type === 'gloves' && this.canEquip(item, data.level))
         )
             return false;
         if (
-            index == 3 &&
+            index === 3 &&
             !(data.type === 'boots' && this.canEquip(item, data.level))
         )
             return false;
         //var isWeapon = ItemTypes.isWeapon(kind);
         if (
-            index == this.weaponSlot &&
+            index === this.weaponSlot &&
             !(
                 ItemTypes.isWeapon(kind) &&
                 this.canEquip(item, ItemTypes.getWeaponLevel(kind))

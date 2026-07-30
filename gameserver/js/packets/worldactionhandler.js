@@ -27,7 +27,6 @@ class WorldActionHandler {
         }
 
         let msg = Utils.sanitize(message[0]);
-        console.info('Chat: ' + this.player.name + ': ' + msg);
 
         if (new Date().getTime() > this.player.chatBanEndTime) {
             this.ph.send([Types.Messages.WC_NOTIFY, 'CHAT', 'CHATMUTED']);
@@ -36,6 +35,12 @@ class WorldActionHandler {
 
         if (msg) {
             msg = msg.substr(0, 256); //Will have to change the max length
+            // FIX: this log used to run before the mute-check above and
+            // before the 256-char truncation below -- so a muted player's
+            // rejected message still got logged, and an unbounded-length
+            // message was logged in full before being capped. Moved after
+            // both so it reflects what actually gets processed.
+            console.info('Chat: ' + this.player.name + ': ' + msg);
             const command = msg.split(' ', 3);
             switch (command[0]) {
                 case '/w':
@@ -132,6 +137,14 @@ class WorldActionHandler {
             block.setPosition(x, y);
             block.update(this.player);
             p.holdingBlock = null;
+        } else {
+            // FIX: previously the BlockModify broadcast below ran
+            // unconditionally, even when `type` matched neither the
+            // pickup (0) nor place (1) branch above -- so a client sending
+            // any other `type` value caused a phantom "block modified"
+            // notification to be broadcast to nearby players with no
+            // actual state change. Bail out here instead.
+            return;
         }
         // NOTE: `handleBlock`'s `msg` parameter is the raw [type,id,x,y]
         // packet array, fully consumed by the destructuring at the top of

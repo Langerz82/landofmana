@@ -11,6 +11,7 @@ import EntityMoving from '../entitymoving/entitymoving.js';
 import Utils from '../../utils.js';
 import { installCharacterCombat } from './charactercombat.js';
 import { installCharacterTargeting } from './charactertargeting.js';
+import { G_DEBUG } from '../../constants.js';
 
 class Character extends EntityMoving {
     constructor(id, type, kind, x, y, map) {
@@ -98,7 +99,11 @@ class Character extends EntityMoving {
     die(attacker) {
         const self = this;
 
-        console.info('character, die: called.');
+        // PERF: Character.die() is the shared death path for both players
+        // and mobs -- with continuous combat across hundreds of mobs, this
+        // was an unconditional, high-frequency log. Gated behind G_DEBUG
+        // like equivalent per-event logging elsewhere.
+        if (G_DEBUG) console.info('character, die: called.');
         this.forceStop();
         //try { throw new Error(); } catch(err) { console.info(err.stack); }
         this.removeTarget();
@@ -135,9 +140,11 @@ class Character extends EntityMoving {
      * BEGIN - Misc Functions.
      ******************************************************************************/
 
-    onRemove(callback) {
-        this.remove_callback = callback;
-    }
+    // FIX: removed a duplicate `onRemove(callback) { this.remove_callback =
+    // callback; }` that was identical to entity/entity.js's base
+    // implementation (Character extends EntityMoving extends Entity), so it
+    // was dead redundant code shadowing the inherited one with an identical
+    // body -- no behavior change from removing it.
 
     canMove() {
         return !this.isDead && this.moveCooldown.isOver();

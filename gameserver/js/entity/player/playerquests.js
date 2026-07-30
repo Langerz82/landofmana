@@ -1,6 +1,7 @@
 import Messages from '../../message.js';
 import { Types } from '../../common.js';
 import Utils from '../../utils.js';
+import { G_DEBUG } from '../../constants.js';
 
 class PlayerQuests {
     constructor(player) {
@@ -23,7 +24,11 @@ class PlayerQuests {
             mob.level >= quest.object.level[0] &&
             mob.level <= quest.object.level[1];
         if ((b || c) && d) {
-            console.info('_questAboutKill - conditions met.');
+            // PERF: fires on every mob kill that progresses a
+            // KILLMOBKIND/KILLMOBS quest -- routine during normal grinding.
+            // Gated behind G_DEBUG like the equivalent per-event logging
+            // elsewhere (e.g. mobrespawn.js's RETURNING-DEBUG logs).
+            if (G_DEBUG) console.info('_questAboutKill - conditions met.');
             quest.data1 += ~~(mob.stats.xp / 1.5);
             if (++quest.count === quest.object.count) {
                 this.completeQuest(quest, quest.data1);
@@ -41,7 +46,10 @@ class PlayerQuests {
             quest.object2.type === Types.EntityTypes.ITEMLOOT &&
             quest.object.type === Types.EntityTypes.MOB &&
             quest.object.kind === target.kind &&
-            quest.status != Types.QuestStatus.COMPLETE &&
+            // FIX: was `!=` -- switched to `!==` for consistency with the
+            // strict equality used elsewhere in this file (quest.status is
+            // always a numeric enum, so no behavior change).
+            quest.status !== Types.QuestStatus.COMPLETE &&
             (quest.count < quest.object2.count ||
                 p.items.inventory.hasItemCount(lootKind) < quest.object2.count)
         ) {
@@ -66,7 +74,11 @@ class PlayerQuests {
     questAboutItem(quest) {
         const p = this.player;
 
-        console.info(JSON.stringify(quest));
+        // PERF: fires on every GETITEMKIND quest progress check (effectively
+        // per relevant item pickup while such a quest is active) --
+        // unconditional JSON.stringify, gated behind G_DEBUG like equivalent
+        // per-event logging elsewhere.
+        if (G_DEBUG) console.info(JSON.stringify(quest));
         const kind = quest.object2.kind + 1000;
         const countItems = p.items.inventory.hasItemCount(kind);
         quest.count = countItems;
@@ -91,7 +103,8 @@ class PlayerQuests {
         const p = this.player;
         if (
             quest.count >= quest.object2.count &&
-            quest.status == Types.QuestStatus.INPROGRESS
+            // FIX: was `==` -- switched to `===` for consistency.
+            quest.status === Types.QuestStatus.INPROGRESS
         ) {
             const kind = quest.object2.kind + 1000;
             // FIX: hasItemCount(kind) returns the raw total count, used

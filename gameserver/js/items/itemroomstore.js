@@ -47,7 +47,10 @@ class ItemStore {
         // throughout this file) yield real numeric indices, same as the Map
         // did -- the original bug class doesn't come back.
         this.rooms = new Array(this.maxNumber).fill(null);
-        console.info('number=' + number);
+        // PERF: fires on every Inventory/Bank load (every login/reconnect)
+        // -- gated behind G_DEBUG like equivalent load-time logging
+        // elsewhere.
+        if (G_DEBUG) console.info('number=' + number);
         //console.info("itemSlots="+JSON.stringify(itemSlots));
 
         if (items) {

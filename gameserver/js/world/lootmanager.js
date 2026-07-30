@@ -230,8 +230,10 @@ class LootManager {
     }
 
     getDroppedOrStolenItem(source, target, stolen) {
-        const self = this;
-        const item = null;
+        // FIX: removed `const item = null;` (never read; every branch below
+        // returns directly instead of assigning into it) and `const self =
+        // this;` (also never read -- every branch below already uses
+        // `this` directly).
         if (source instanceof Player && target instanceof Player) {
             this.getGoldDrop(source, target, stolen);
             return this.getPlayerDrop(source, target, stolen);

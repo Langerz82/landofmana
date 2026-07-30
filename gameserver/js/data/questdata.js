@@ -1,13 +1,16 @@
 //import Utils from "../utils.js";
 import Quest, { getQuestObject } from '../quest.js';
 import QuestsJson from '../../shared/data/quests.json' with { type: 'json' };
+import { G_DEBUG } from '../constants.js';
 
 const QuestData = {};
 const QuestNpcData = {};
 
 for (const id in QuestsJson) {
     const data = QuestsJson[id];
-    console.info('data:' + JSON.stringify(data));
+    // PERF: module-load-time only (once per quest) -- gated behind G_DEBUG
+    // for consistency with the same fix applied elsewhere.
+    if (G_DEBUG) console.info('data:' + JSON.stringify(data));
     const quest = {};
     quest.id = id;
     quest.npcQuestId = data.npcKind;

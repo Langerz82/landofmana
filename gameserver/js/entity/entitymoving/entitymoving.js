@@ -46,9 +46,10 @@ class EntityMoving extends Entity {
      * BEGIN - Misc Functions.
      ******************************************************************************/
 
-    onRemove(callback) {
-        this.remove_callback = callback;
-    }
+    // FIX: removed a duplicate `onRemove(callback) { this.remove_callback =
+    // callback; }` -- identical to entity/entity.js's base implementation
+    // (EntityMoving extends Entity), so it was dead redundant code with no
+    // behavior change from removing it.
 
     // PERF: was its own setTimeout per stun/freeze application; routed
     // through the shared Scheduler (gameserver/js/scheduler.js) instead of a

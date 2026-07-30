@@ -37,8 +37,21 @@ _.each(Mobs, function (value, key) {
             : 500,
         //tick: 1, //(value.moveSpeedMod) ? (value.moveSpeedMod*2) : 2,
         respawn: value.respawnMod ? value.respawnMod * 30000 : 30000,
-        dropRate: value.dropRate ? value.dropRate : 1,
-        spawnChance: value.spawnChance ? value.spawnChance : 50,
+        // FIX: was `value.dropRate ? value.dropRate : 1` / `value.spawnChance
+        // ? value.spawnChance : 50` -- a truthy check, same bug class
+        // documented and fixed in items/baseitem.js's durability handling.
+        // A mob authored with dropRate:0 or spawnChance:0 (intentionally no
+        // drops / never spawns) would silently get the non-zero default
+        // instead. Checking for undefined instead of falsiness treats an
+        // explicit 0 as the real value it is. (Not applied to the other
+        // *Mod fields above/below -- those are multipliers where 0 would
+        // make the mob non-functional (0 hp, 0 attack, etc.), a far less
+        // plausible intentional authored value, and changing them risks
+        // altering existing mob balance without visibility into the actual
+        // shared/data/mobs.json values.)
+        dropRate: value.dropRate === undefined ? 1 : value.dropRate,
+        spawnChance:
+            value.spawnChance === undefined ? 50 : value.spawnChance,
 
         dropBonus: value.dropBonus ? value.dropBonus : 0,
         drops: value.drops ? value.drops : null,
