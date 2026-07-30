@@ -315,6 +315,13 @@ Utils.NaN2Zero = function (num) {
     }
 };
 
+// NOTE: same "skips falsy values" footgun already documented on
+// Utils.forEach() above -- `if (obj)` drops any entry whose *value* is
+// falsy (0, "", false, null, undefined), not just missing keys. No live
+// caller found in gameserver/js or client/js (this review didn't have
+// visibility into userserver), so left as-is rather than guessing at a
+// behavior change for a function this review couldn't confirm every
+// caller of.
 Utils.objectToArray = function (object) {
     const arr = [];
     for (const key in object) {
@@ -340,12 +347,11 @@ Utils.Percent = function (val, fixed) {
     return Number(val * 100).toFixed(fixed) + '%';
 };
 
+// FIX: simplified the `if (...) return true; else return false;` shape to
+// a direct boolean return -- same pattern as trueFalse() above, no
+// behavior change.
 Utils.percentToBool = function (percent) {
-    if (Math.random() < percent * 0.01) {
-        return true;
-    } else {
-        return false;
-    }
+    return Math.random() < percent * 0.01;
 };
 
 Utils.random = function (range) {
@@ -387,11 +393,7 @@ Utils.randomRangeInt = (min, max) =>
     min + Math.floor(Math.random() * (max - min + 1));
 
 Utils.ratioToBool = function (ratio) {
-    if (Math.random() < ratio) {
-        return true;
-    } else {
-        return false;
-    }
+    return Math.random() < ratio;
 };
 
 Utils.realDistance = function (p1, p2) {
@@ -484,8 +486,11 @@ Utils.SwapElements = function (arr, i1, i2) {
     [arr[i1], arr[i2]] = [arr[i2], arr[i1]];
 };
 
+// FIX: simplified `return bool === 'true' ? true : false;` to the
+// equivalent `return bool === 'true';` -- the ternary was redundant, no
+// behavior change.
 Utils.trueFalse = function (bool) {
-    return bool === 'true' ? true : false;
+    return bool === 'true';
 };
 
 Utils.utilSleep = function (ms) {

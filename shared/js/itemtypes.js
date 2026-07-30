@@ -133,13 +133,27 @@ ItemTypes.getEnchantPrice = (item, current = false) => {
     if (!item) return NaN;
 
     const data = KindData[item.itemKind];
+    // FIX: `data.modifier` a few lines below used to run with no null-check
+    // on `data`, unlike every other lookup in this file (getData(),
+    // getWeaponLevel(), getArmorLevel(), etc. all guard `!item`/`!data`
+    // first). If item.itemKind isn't in KindData (a legacy/removed item
+    // still sitting in someone's inventory, or corrupted item data), this
+    // threw a TypeError -- reachable from both the client (equipmenthandler.js's
+    // enchantItem(), called directly on the "Enchant" button click) and the
+    // server (packets/shophandler.js's enchant validation).
+    if (!data) return NaN;
     const enchantLevel = current ? item.itemNumber : item.itemNumber + 1;
     if (enchantLevel >= 25) return NaN;
 
     const experience = item.itemExperience;
 
     const baseLevel = data.modifier;
-    console.info(`getEnchantPrice: ${ItemTypes.itemExpForLevel[enchantLevel]}`);
+    // PERF: these two console.info calls ran unconditionally on every
+    // enchant-price calculation -- both the client's price-preview button
+    // click and the server's own re-validation of that price. Neither
+    // affects the returned cost; removed as debug residue rather than
+    // gated, since there's no G_DEBUG (or equivalent) reliably available in
+    // this file's shared gameserver/userserver/client context.
     const cost = Math.floor(
         baseLevel *
             baseLevel *
@@ -147,7 +161,6 @@ ItemTypes.getEnchantPrice = (item, current = false) => {
             Math.pow(2, enchantLevel) *
             (1 - experience / ItemTypes.itemExpForLevel[enchantLevel])
     );
-    console.info(`cost: ${cost}`);
     return cost;
 };
 
@@ -167,15 +180,12 @@ ItemTypes.getRepairPrice = (item) => {
     const mp =
         (item.itemDurabilityMax / 900) *
         (1 - item.itemDurability / item.itemDurabilityMax);
-    // FIX: was `log.info(...)` -- `log` only exists as a bare identifier
-    // inside the gameserver process (main.js does `global.log = log`, the
-    // same bridge pattern used throughout gameserver/js). This file is
-    // shared between the client and the server; every other debug log in
-    // this same file already uses `console.info` (which works in both a
-    // browser and Node), so `log.info` here was the odd one out and would
-    // throw a ReferenceError if this ever runs client-side (e.g. a repair-
-    // price tooltip computed in the browser before sending a request).
-    console.info(`getRepairPrice - mp: ${mp}`);
+    // PERF: this used to be an unconditional console.info(`getRepairPrice -
+    // mp: ${mp}`), on the same repair-price-preview path as
+    // getEnchantPrice() above (client button click + server-side
+    // re-validation). Removed as debug residue for the same reason --
+    // doesn't affect the returned value, and no G_DEBUG (or equivalent)
+    // reliably available in this shared gameserver/userserver/client file.
     value *= Clamp(0, 1, mp);
     return 1 + ~~value;
 };
@@ -448,7 +458,17 @@ ItemTypes.Store = {
     },
     getBuyCount: (id) => {
         const item = KindData[id];
-        if (!item) return false;
+        // FIX: was `return false` for a missing item -- every sibling
+        // predicate in this object (isBuy/isBuyMultiple/isSell) is a
+        // boolean check where `false` is the right "no" answer, but this
+        // one returns a count, not a boolean. `false` coerces to 0 in
+        // arithmetic (e.g. `price * getBuyCount(id)`), silently zeroing out
+        // a calculation instead of surfacing the missing-item case. No
+        // current caller in gameserver/js or client/js (only reachable from
+        // userserver, which this review didn't have visibility into), but
+        // returning 1 -- the same fallback already used for a present item
+        // with buyCount <= 1 -- keeps the return type consistently numeric.
+        if (!item) return 1;
         return item.buyCount > 1 ? item.buyCount : 1;
     },
 

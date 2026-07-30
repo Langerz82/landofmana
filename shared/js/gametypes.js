@@ -252,7 +252,10 @@ const Types = {
     }
 };
 
-const EntityTypes = Types.EntityTypes;
+// FIX: removed `const EntityTypes = Types.EntityTypes;` -- declared but
+// never read anywhere else in this file (not exported, not referenced
+// again); every actual usage elsewhere in the codebase already goes
+// through `Types.EntityTypes` directly. Dead code.
 
 Types.expForLevel = [];
 Types.defenseExp = [];
@@ -268,9 +271,15 @@ Types.moveExp[0] = 0;
 Types.skillExp[0] = 0;
 Types.weaponExp[0] = 0;
 
+// FIX: was `console.info(\`level_${i}=${points}\`)` inside this loop --
+// this file loads once at module-init time in every process that imports
+// it (gameserver, userserver, AND the client), so this printed 49 lines
+// unconditionally on every server startup and every single page load in
+// every player's browser console, with no functional purpose (the
+// computed value is only ever used via the Types.*Exp[] arrays built
+// right below it). Removed as debug residue.
 for (let i = 1; i < 50; i++) {
     const points = Math.floor(i * 300 * Math.pow(1.5, i / 5));
-    console.info(`level_${i}=${points}`);
     Types.expForLevel[i] = points;
     Types.defenseExp[i] = points * 10 + 50;
     Types.attackExp[i] = points * 10 + 50;
@@ -279,9 +288,23 @@ for (let i = 1; i < 50; i++) {
     Types.weaponExp[i] = points * 10 + 50;
 }
 
+// PERF: these five functions all used to loop `i < 200`, but every backing
+// array (expForLevel/attackExp/defenseExp/moveExp/weaponExp) is only ever
+// populated for indices 1-49 (see the build loop above). For any exp value
+// at or above the level-49 threshold, `Types.*Exp[i]` is `undefined` for
+// i >= 50, and `exp < undefined` is always false in JS -- so the loop never
+// finds a match there and always ran out to i=199 before falling through to
+// `return 50`, instead of stopping at i=49 where the real data ends. Same
+// return value either way (both paths hit `return 50`), just up to 4x more
+// wasted iterations per call. getAttackLevel()/getDefenseLevel() in
+// particular are called from the combat damage-calculation path
+// (entity/player/playercombat.js) and the XP-gain flow
+// (entity/player/playerprogression.js, which calls each twice per hit --
+// once before, once after adding XP) -- i.e. at least twice per combat hit,
+// for every player, every attack. Tightened to the real data range.
 Types.getLevel = (exp) => {
     if (typeof exp === 'undefined' || exp == 0) return 1;
-    for (let i = 1; i < 200; i++) {
+    for (let i = 1; i < 50; i++) {
         if (exp < Types.expForLevel[i]) {
             return i;
         }
@@ -291,7 +314,7 @@ Types.getLevel = (exp) => {
 
 Types.getAttackLevel = (exp) => {
     if (exp == 0) return 1;
-    for (let i = 1; i < 200; i++) {
+    for (let i = 1; i < 50; i++) {
         if (exp < Types.attackExp[i]) {
             return i;
         }
@@ -301,7 +324,7 @@ Types.getAttackLevel = (exp) => {
 
 Types.getDefenseLevel = (exp) => {
     if (exp == 0) return 1;
-    for (let i = 1; i < 200; i++) {
+    for (let i = 1; i < 50; i++) {
         if (exp < Types.defenseExp[i]) {
             return i;
         }
@@ -311,7 +334,7 @@ Types.getDefenseLevel = (exp) => {
 
 Types.getMoveLevel = (exp) => {
     if (exp == 0) return 1;
-    for (let i = 1; i < 200; i++) {
+    for (let i = 1; i < 50; i++) {
         if (exp < Types.moveExp[i]) {
             return i;
         }
@@ -321,7 +344,7 @@ Types.getMoveLevel = (exp) => {
 
 Types.getWeaponLevel = (exp) => {
     if (exp == 0) return 1;
-    for (let i = 1; i < 200; i++) {
+    for (let i = 1; i < 50; i++) {
         if (exp < Types.weaponExp[i]) {
             return i;
         }
