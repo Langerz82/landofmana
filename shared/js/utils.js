@@ -315,18 +315,16 @@ Utils.NaN2Zero = function (num) {
     }
 };
 
-// NOTE: same "skips falsy values" footgun already documented on
-// Utils.forEach() above -- `if (obj)` drops any entry whose *value* is
-// falsy (0, "", false, null, undefined), not just missing keys. No live
-// caller found in gameserver/js or client/js (this review didn't have
-// visibility into userserver), so left as-is rather than guessing at a
-// behavior change for a function this review couldn't confirm every
-// caller of.
+// FIX: was `if (obj) arr.push(obj);` -- the same "skips falsy values"
+// footgun documented on Utils.forEach() above. That silently dropped any
+// entry whose *value* was falsy (0, "", false, null), not just missing
+// keys, so e.g. an object with a legitimately-0 value lost that entry
+// entirely instead of getting a 0 in the result. Now includes every own
+// enumerable value regardless of truthiness.
 Utils.objectToArray = function (object) {
     const arr = [];
     for (const key in object) {
-        const obj = object[key];
-        if (obj) arr.push(obj);
+        if (object.hasOwnProperty(key)) arr.push(object[key]);
     }
     return arr;
 };
