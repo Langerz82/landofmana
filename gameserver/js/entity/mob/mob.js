@@ -332,7 +332,16 @@ class Mob extends Character {
 
         //console.info("Entity is dead");
 
-        this.map.entities.sendBroadcast(this.despawn());
+        // FIX: was `sendBroadcast(this.despawn())` -- broadcast the death
+        // notification to every player on the whole map, regardless of
+        // distance. Mob death is the highest-frequency despawn event in the
+        // game (this server targets ~875 mobs across 51 areas under active
+        // combat, see G_SPATIAL_SIZE in constants.js), unlike node.js's die()
+        // (a much rarer event), which already scopes its despawn to nearby
+        // players via sendNeighbours(). despawn() returns the same
+        // Messages.Despawn(this) node.js's own despawn broadcast uses, so
+        // this switches to the same nearby-only scoping.
+        this.map.entities.sendNeighbours(this, this.despawn());
 
         // SIMPLIFY/PERF: `attackers` is a Map now (see character.js
         // constructor) -- underscore's _.each() reads plain-object keys via

@@ -120,15 +120,17 @@ class ItemStore {
         return a;
     }
 
-    hasRoomCount(start, end) {
-        start = start || 0;
-        end = end || this.maxNumber;
+    // FIX: dropped the `start`/`end` parameters -- confirmed via search that
+    // no caller anywhere in the codebase passes them (every call site uses
+    // hasRoom()/hasRoomCount() with no args), and they were never actually
+    // used by either method despite being accepted and normalized -- the
+    // signature promised ranged behavior (unlike getEmptyIndex() below,
+    // which does honor the same params correctly) it never delivered.
+    hasRoomCount() {
         return this.maxNumber - this._occupiedCount;
     }
 
-    hasRoom(start, end) {
-        start = start || 0;
-        end = end || this.maxNumber;
+    hasRoom() {
         return this._occupiedCount < this.maxNumber;
     }
 
@@ -260,7 +262,24 @@ class ItemStore {
                 item2.itemNumber = Math.min(item2.itemNumber, maxStack);
                 //this.setItem(slot, null); //  NOT NEEDED.
                 if (item.slot === -1) {
-                    slot = this.getEmptyIndex();
+                    // FIX: was `this.getEmptyIndex()` -- picks a free slot
+                    // number out of `this` (the destination store's
+                    // layout), but `item`/`slot` here belong to
+                    // `sourceStore` (which can differ from `this` -- see
+                    // the FIX comment above this method), and the result is
+                    // used a few lines down as `sourceStore.setItem(slot,
+                    // item)`. A free index in `this`'s layout isn't
+                    // necessarily free (or even in bounds) in
+                    // `sourceStore`'s layout -- could silently overwrite
+                    // whatever occupies that index in sourceStore. Confirmed
+                    // this specific branch is unreachable via the current
+                    // cross-store call site (playeritems.js's swapItem()
+                    // always passes an `item` that already has a real slot
+                    // -- setItem() keeps item.slot in sync with its actual
+                    // room index, per this file's own invariant), but fixed
+                    // as a latent footgun rather than left relying on that
+                    // invariant never changing.
+                    slot = sourceStore.getEmptyIndex();
                     // FIX: getEmptyIndex() returning -1 (no free room) used
                     // to fall straight through to `this.setItem(slot,
                     // item)` below with slot still -1, storing the overflow
@@ -271,8 +290,16 @@ class ItemStore {
                     // notify the player and drop the overflow reference
                     // rather than corrupt the room map.
                     if (slot < 0) {
-                        if (this.owner instanceof Player)
-                            this.owner.sendPlayer(this.fullMessage);
+                        // FIX: was `this.owner`/`this.fullMessage` -- same
+                        // "which store does this belong to" mistake as the
+                        // getEmptyIndex() call above. The overflow item that
+                        // couldn't be placed belongs to sourceStore, so the
+                        // "store full" notification should go to
+                        // sourceStore's owner, not this store's.
+                        if (sourceStore.owner instanceof Player)
+                            sourceStore.owner.sendPlayer(
+                                sourceStore.fullMessage
+                            );
                         item = null;
                     }
                 }

@@ -265,7 +265,12 @@ class PlayerHarvest {
                     // item kind here.
                     let kind;
                     if (p.items.getWeaponType() === 'axe') kind = 320;
-                    const item = new ItemRoom([kind, 1, 0, 0]);
+                    // FIX: was `[kind, 1, 0, 0]` -- baseitem.js's set() now
+                    // only treats null/undefined as "use default
+                    // durability" (see its FIX comment); null gives this
+                    // freshly-harvested item its correct default durability
+                    // instead of durability 0.
+                    const item = new ItemRoom([kind, 1, null, null]);
                     if (p.items.inventory.putItem(item) === -1) return;
                     const data = ItemTypes.getData(item.itemKind);
                     p.sendPlayer(

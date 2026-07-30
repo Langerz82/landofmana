@@ -93,7 +93,17 @@ class LootManager {
         if (itemId2) {
             //console.info("itemName: "+itemName);
             //var kind = ItemTypes.getKindFromString(itemName);
-            const itemRoom = new ItemRoom([parseInt(itemId2), 1, 0, 0, 0]);
+            // FIX: was `[..., 0, 0, 0]` -- baseitem.js's set() now only
+            // treats null/undefined as "use default durability" (see its
+            // FIX comment). null gives this fresh quest-drop item its
+            // correct default durability instead of landing at durability 0.
+            const itemRoom = new ItemRoom([
+                parseInt(itemId2),
+                1,
+                null,
+                null,
+                0
+            ]);
             const lootItem = target.map.entities.createItem(
                 itemRoom,
                 target.x,
@@ -182,10 +192,20 @@ class LootManager {
         let itemRoom;
         if (ItemTypes.isEquippable(itemId2)) {
             const count = Utils.setEquipmentBonus(itemId2);
-            itemRoom = new ItemRoom([itemId2, count, 0, 0, 900, 900]);
+            // FIX: was `[itemId2, count, 0, 0, 900, 900]` -- durability/
+            // durabilityMax (arr[2]/arr[3]) now use null instead of 0 for
+            // "use default durability" (see baseitem.js's FIX comment). The
+            // trailing `900, 900` were arr[4]/arr[5]: arr[4] would be
+            // itemExperience, but it's immediately overwritten by the
+            // itemExpForLevel assignment right below, and set() only ever
+            // reads arr[0..4] -- arr[5] was never read at all. Left both
+            // out rather than guessing at unexplained intent.
+            itemRoom = new ItemRoom([itemId2, count, null, null]);
             itemRoom.itemExperience = ItemTypes.itemExpForLevel[count - 1];
         } else {
-            itemRoom = new ItemRoom([itemId2, 1, 0, 0, 0, 0]);
+            // FIX: was `[itemId2, 1, 0, 0, 0, 0]` -- same null-for-default
+            // fix; arr[5] here was likewise never read by set().
+            itemRoom = new ItemRoom([itemId2, 1, null, null, 0]);
         }
         const item = target.map.entities.createItem(
             itemRoom,

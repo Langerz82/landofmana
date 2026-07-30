@@ -363,7 +363,14 @@ class ShopHandler {
 
             const consume = ItemTypes.isConsumableItem(itemKind);
             if (consume || (!consume && p.items.inventory.hasRoom())) {
-                const item = new ItemRoom([itemKind, itemCount, 0, 0, 0]);
+                // FIX: was `new ItemRoom([itemKind, itemCount, 0, 0, 0])` --
+                // baseitem.js's set() now only treats null/undefined as
+                // "use the default durability", not 0 (see its own FIX
+                // comment: a literal 0 here used to be indistinguishable
+                // from a genuinely-broken reloaded item's real saved
+                // durability). Passing null for a freshly bought item
+                // correctly gives it full default durability.
+                const item = new ItemRoom([itemKind, itemCount, null, null, 0]);
                 const res = p.items.inventory.putItem(item);
                 if (res === -1) return;
                 p.items.modifyGold(-price);

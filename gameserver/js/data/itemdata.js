@@ -39,12 +39,21 @@ _.each(ItemsJson, function (itemValue, key) {
         staticsheet: itemValue.staticsheet > 0 ? itemValue.staticsheet : 0,
         level: itemValue.level ? itemValue.level : itemValue.modifier,
         legacy: itemValue.legacy ? itemValue.legacy : 0,
-        cooldown: itemValue.cooldown ? itemValue.cooldown : 10,
+        // FIX: was `itemValue.cooldown ? itemValue.cooldown : 10` (here and
+        // in the `itemData.type === 'object'` branch below) -- a truthy
+        // check, the same bug class documented and fixed in
+        // items/baseitem.js's durability handling and data/mobdata.js's
+        // dropRate/spawnChance. An item authored with cooldown:0
+        // (intentionally instant-reuse) would silently get a 10-tick
+        // cooldown instead. Checking for undefined instead of falsiness
+        // treats an explicit 0 as the real value it is.
+        cooldown: itemValue.cooldown === undefined ? 10 : itemValue.cooldown,
         craft: getCraftData(itemValue.id)
     };
 
-    if (itemData.type == 'object')
-        itemData.cooldown = itemValue.cooldown ? itemValue.cooldown : 10;
+    if (itemData.type === 'object')
+        itemData.cooldown =
+            itemValue.cooldown === undefined ? 10 : itemValue.cooldown;
 
     KindData[itemValue.id] = itemData;
 });
