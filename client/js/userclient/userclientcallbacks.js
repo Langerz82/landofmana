@@ -97,6 +97,15 @@ export function installUserClientCallbacks(proto) {
     };
 
     proto.onWorldReady = function (data) {
+        // FIX: this deliberately closes the login/lobby-server connection as
+        // part of the normal handoff to the gameserver (the player is done
+        // with the userserver at this point) - that's expected, not a
+        // failure. userclient.js's 'disconnect' socket handler used to be
+        // dead (see its own FIX comment), so this never showed anything; now
+        // that it's wired up to actually report disconnects, it needs to be
+        // told this one is intentional so it doesn't show a spurious
+        // "connection lost" error during a completely normal transition.
+        this.intentionalDisconnect = true;
         this.connection.disconnect();
         game.onWorldReady(data);
     };

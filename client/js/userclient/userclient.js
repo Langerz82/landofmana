@@ -178,6 +178,15 @@ export default class UserClient {
             // no login-form message, nothing. Removed the dead guard so the
             // error is actually shown, and also invoke fail_callback (see
             // connect_error above) so the login form reflects it too.
+            //
+            // NOTE: onWorldReady() (userclientcallbacks.js) deliberately calls
+            // connection.disconnect() as the normal handoff from the
+            // userserver to the gameserver once login is complete - that's
+            // expected behavior, not a lost/failed connection, so it sets
+            // self.intentionalDisconnect first and this handler must skip
+            // showing an error for it.
+            if (self.intentionalDisconnect) return;
+
             const reason = self.isTimeout
                 ? 'You have been disconnected for being inactive for too long'
                 : 'The connection to RRO2 has been lost.';
