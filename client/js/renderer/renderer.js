@@ -466,6 +466,10 @@ export default class Renderer {
             return;
         }
 
+        // NOTE: this.delta/this.last are computed every frame but this.delta is
+        // never read anywhere else in the codebase - dead bookkeeping. Cheap
+        // (two Date.now() calls), so left in place rather than removed in case
+        // something (e.g. a future debug overlay) is meant to read it.
         this.delta = Date.now() - this.last;
 
         this.renderStaticCanvases();

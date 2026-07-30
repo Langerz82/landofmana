@@ -179,10 +179,14 @@ Items.jqShowItem = function (jq, item, jqn, size) {
                 };
 
                 const res = fnResize(img);
-                if (!res)
-                    setTimeout(function () {
-                        fnResize(img);
-                    }, 50);
+                // FIX: was a single setTimeout(fnResize, 50) retry -- if the
+                // cached image still wasn't complete after that one 50ms
+                // check (e.g. slow network), it gave up silently and the
+                // sprite was left unsized forever. Attach a real onload
+                // handler instead, matching the else-branch below, so it
+                // resizes whenever the image actually finishes loading no
+                // matter how long that takes.
+                if (!res) img.onload = () => resize(img);
             } else {
                 img = new Image();
                 img.src = filename;

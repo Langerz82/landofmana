@@ -37,6 +37,16 @@ export default class PlayerPopupMenu {
                     // Player has 60 seconds of battle time.
                     setTimeout(function () {
                         if (self.game.player) self.game.player.pvpTarget = null;
+                        // NOTE: game.makePlayerAttackAuto doesn't exist anywhere in this
+                        // codebase (not even in the pre-conversion backup) - this
+                        // clearInterval() is a silent no-op (clearInterval(undefined)
+                        // doesn't throw). The rest of the codebase tracks the player's
+                        // auto-attack loop as `p.attackInterval` (cleared via
+                        // clearTimeout - see gameinteractioncombat.js/
+                        // playerlocalmovement.js), so if this was meant to cancel an
+                        // in-progress auto-attack against the expired pvpTarget, it
+                        // never did. Flagging rather than guessing at the intended
+                        // target - not confident enough this needs one to invent it.
                         clearInterval(self.game.makePlayerAttackAuto);
                     }, 60000);
                 }

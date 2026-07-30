@@ -89,9 +89,15 @@ export default class UserClient {
         });
 
         self.connection.on('connect_error', function (e) {
-            self._onError([
-                'There has been an error connecting to RSO server try again soon.'
-            ]);
+            const reason =
+                'There has been an error connecting to RSO server try again soon.';
+            self._onError([reason]);
+            // FIX: fail_callback is set by app.js's userClient() right after
+            // constructing this UserClient, but nothing here ever called it -
+            // the login form had no way to learn a connection attempt had
+            // failed (only the separate #errorwindow shown by _onError above
+            // reflected it). Wire it up so both fire together.
+            if (self.fail_callback) self.fail_callback(reason);
             log.error(e, true);
         });
 
@@ -152,23 +158,31 @@ export default class UserClient {
         self.connection.on('message', this.onMessage);
 
         self.connection.on('error', function (e) {
-            self._onError([
-                'There has been an error connecting to RSO server try again soon.'
-            ]);
+            const reason =
+                'There has been an error connecting to RSO server try again soon.';
+            self._onError([reason]);
+            // FIX: same fail_callback wiring as connect_error above.
+            if (self.fail_callback) self.fail_callback(reason);
             log.error(e, true);
         });
 
         self.connection.on('disconnect', function () {
             log.debug('Connection closed');
-            if (self.disconnected_callback) {
-                if (self.isTimeout) {
-                    self._onError([
-                        'You have been disconnected for being inactive for too long'
-                    ]);
-                } else {
-                    self._onError(['The connection to RRO2 has been lost.']);
-                }
-            }
+            // FIX: this whole block used to be gated behind
+            // `if (self.disconnected_callback)`, but nothing anywhere ever set
+            // that property - UserClient has no onDisconnected-style setter
+            // (unlike GameClient; compare gameclientcallbacks.js's
+            // onDisconnected(), which clientcallbacks.js actually calls). So
+            // this condition was always false and a lost connection to the
+            // login/lobby server failed completely silently: no error window,
+            // no login-form message, nothing. Removed the dead guard so the
+            // error is actually shown, and also invoke fail_callback (see
+            // connect_error above) so the login form reflects it too.
+            const reason = self.isTimeout
+                ? 'You have been disconnected for being inactive for too long'
+                : 'The connection to RRO2 has been lost.';
+            self._onError([reason]);
+            if (self.fail_callback) self.fail_callback(reason);
         });
     }
 

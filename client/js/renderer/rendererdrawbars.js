@@ -31,7 +31,14 @@ export function installRendererDrawBars(proto) {
             this.pxSprite[id2] = sprite2;
         }
 
-        sprite2.zindex = sprite.zIndex =
+        // FIX: was `sprite2.zindex` (lowercase) -- PIXI reads `zIndex`
+        // (capital I), so this set a new, never-read plain property on
+        // sprite2 instead of its real zIndex. sprite2 (the colored fill)
+        // never got its depth updated, while sprite (the bar outline) did
+        // -- with PIXI.settings.SORTABLE_CHILDREN enabled (renderer.js),
+        // the fill could render at the wrong depth relative to names/HUD
+        // elements for every damaged/harvesting entity.
+        sprite2.zIndex = sprite.zIndex =
             entity.y * (this.camera.gridW * ts) + entity.x;
         sprite2.mod = mod;
 
@@ -71,7 +78,14 @@ export function installRendererDrawBars(proto) {
             this.pxSprite[id2] = sprite2;
         }
 
-        sprite2.zindex = sprite.zIndex =
+        // FIX: was `sprite2.zindex` (lowercase) -- PIXI reads `zIndex`
+        // (capital I), so this set a new, never-read plain property on
+        // sprite2 instead of its real zIndex. sprite2 (the colored fill)
+        // never got its depth updated, while sprite (the bar outline) did
+        // -- with PIXI.settings.SORTABLE_CHILDREN enabled (renderer.js),
+        // the fill could render at the wrong depth relative to names/HUD
+        // elements for every damaged/harvesting entity.
+        sprite2.zIndex = sprite.zIndex =
             entity.y * (this.camera.gridW * ts) + entity.x;
         sprite2.mod = mod;
 

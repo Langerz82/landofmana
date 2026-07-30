@@ -197,13 +197,21 @@ export function installClientCallbacksCombat(proto) {
     // handler below; moved to a method and renamed from `onPlayerChangeHealth` to
     // `applyPlayerHealthChange` to avoid reading like a registered server-message handler -
     // every other `onXxx` method in this class is one, and this isn't. Body unchanged.
+    // FIX: `isHurt` was `points <= player.stats.hp` -- comparing the raw
+    // change-in-hp delta (positive for heals/regen, negative for damage,
+    // same convention showDamageInfo() below uses via `points < 0`) against
+    // the player's *post-change* hp. Since onCharacterChangePoints() calls
+    // entity.modHp(hpMod) before this runs, player.stats.hp is already the
+    // new value -- so `points <= player.stats.hp` was true for virtually
+    // any normal heal or damage tick, not just damage, firing the "hurt"
+    // flash (game.playerhurt_callback -> blinkHealthBar, app/appui.js) on
+    // regen/heals too. The dead `isRegen` local (computed but never read)
+    // was already the right idea, just not wired to `isHurt` -- a heal/
+    // regen is exactly the case that should NOT trigger the hurt flash.
     proto.applyPlayerHealthChange = function (player, points, crit) {
-        let isRegen = false;
-        if (points > 0) isRegen = true;
-
         if (!player || !(player instanceof Player) || player.isDead) return;
 
-        const isHurt = points <= player.stats.hp;
+        const isHurt = points < 0;
         if (isHurt && game.playerhurt_callback) {
             game.playerhurt_callback();
         }

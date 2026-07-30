@@ -21,7 +21,21 @@ import { installMainDialogs } from './maindialogs.js';
 // canonical declaration site for these cross-file "global" identifiers (see js/globalstate.js
 // for the same pattern applied to DragItem/DragBank/ShortcutData).
 window.app = null;
-window.log = console;
+// FIX: was `window.log = console;`, unconditionally overwriting whatever
+// `log` already is. lib/log.js sets up its own level-gated Logger
+// (defaulting to "error" so log.debug()/log.info() -- ~230 call sites
+// across the client, including gameclient.js's per-packet recv/send
+// logging -- are silent by default; see that file's own FIX comment for
+// the full story) via a bare `log = new Logger("error");` assignment,
+// which (since log.js runs as a classic, non-strict script) creates an
+// implicit `window.log`. This file is part of the ES-module bundle, and
+// module scripts always execute after classic scripts have run -- so this
+// line ran *after* log.js's, unconditionally stomping the level-gated
+// Logger back to plain `console`, silently undoing that entire fix and
+// making every log.debug()/log.info() call fire unconditionally again in
+// production. Only fall back to `console` if log.js's Logger somehow isn't
+// present, instead of always overwriting it.
+window.log = window.log || console;
 
 window.G_LATENCY = 75;
 window.G_ROUNDTRIP = window.G_LATENCY * 2;
@@ -194,7 +208,16 @@ const initGame = function () {
             if (!game.usejoystick) game.click();
         }
         app.hideWindows();
-        event.stopPropagation();
+        // FIX: was `event.stopPropagation()` -- this function's own parameter
+        // is named `e` (see signature above), not `event`. `event` isn't
+        // declared anywhere in this function or its enclosing scope, so this
+        // only "worked" via the deprecated implicit `window.event` global --
+        // which Firefox has never supported, so this threw
+        // `ReferenceError: event is not defined` on every click through
+        // `.clickable` in Firefox. This is the mirror image of the bug
+        // already fixed a few lines up (line ~124), where the click handler's
+        // parameter really is named `event`.
+        e.stopPropagation();
     };
 
     $(document).ready(function () {

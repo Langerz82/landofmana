@@ -2,6 +2,13 @@
 // Applied onto MapContainer.prototype via install*(...) call in mapcontainer.js; not a standalone class.
 /* global Utils, G_TILESIZE */
 
+// FIX (perf): was rebuilt (new object + new array literal) on every single
+// isHarvestTile() call below, which runs on every hover/cursor-position check.
+// The tile-kind data is static, so build it once at module load instead.
+const HARVEST_TILE_TYPES = {
+    axe: [678, 679, 698, 699, 855, 875, 274, 275, 294, 295]
+};
+
 export function installMapContainerQueries(proto) {
     proto.GridPositionToTileIndex = function (x, y) {
         return y * this.width + x;
@@ -123,8 +130,7 @@ export function installMapContainerQueries(proto) {
         const tiles = this.getTiles(pos.gx, pos.gy);
         if (!tiles || tiles.length === 0) return false;
 
-        const types = {};
-        types.axe = [678, 679, 698, 699, 855, 875, 274, 275, 294, 295];
+        const types = HARVEST_TILE_TYPES;
         if (!types.hasOwnProperty(type)) return false;
 
         let res = false;

@@ -3,7 +3,9 @@
 // ShortcutHandler) together; split into sibling files (shortcut.js/cooldown.js), same pattern
 // used for dialog/appearancedialog.js. This file now keeps only the ShortcutHandler class.
 import Shortcut from './shortcut.js';
-import Cooldown from './cooldown.js';
+// FIX: Cooldown import is no longer used directly here now that cooldownItems()
+// goes through slot.cooldownStart() instead of constructing its own Cooldown
+// instance (see that method below).
 
 export default class ShortcutHandler {
     constructor() {
@@ -58,14 +60,21 @@ export default class ShortcutHandler {
         }
     }
 
-    cooldownItems() {
-        for (let slot of this.shortcuts) {
-            if (slot.type === 1) {
-                const cooldown = new Cooldown(slot);
-                cooldown.start(slot.cooldownTime);
-                break;
-            }
-        }
+    cooldownItems(itemKind) {
+        // FIX: used to match only on `type === 1` and apply a cooldown to the
+        // FIRST item-type shortcut found, regardless of whether it was the
+        // consumable actually used -- with 6 hotbar slots, having two
+        // different consumables slotted put the cooldown overlay on the
+        // wrong slot. It also constructed a brand-new Cooldown(slot) directly
+        // and called .start() on that throwaway instance instead of the
+        // existing slot.cooldownStart(), so slot.cooldown itself was never
+        // set -- Shortcut.exec()'s own cooldown guard never saw it, letting
+        // the player re-trigger that hotbar slot before the real
+        // server-tracked cooldown ended. Item shortcuts are just type 1, so
+        // this is now a thin wrapper around the already-correct
+        // cooldownStart(type, shortcutId), which matches both type AND
+        // shortcutId and goes through slot.cooldownStart() properly.
+        this.cooldownStart(1, itemKind);
     }
 
     exec(slot) {

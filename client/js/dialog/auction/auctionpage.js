@@ -88,7 +88,12 @@ export class AuctionStorePage extends TabPage {
                 player: item.player,
                 buyPrice: item.buy,
                 item: item.item,
-                rank: ItemTypes.KindData[kind].modifier
+                rank: ItemTypes.KindData[kind].modifier,
+                // FIX: this used to be left unset, so the sort key and the dedup
+                // check below both read `undefined`. Alias the real stack count
+                // (item.item.itemNumber, from the nested ItemRoom - see entity/item.js)
+                // so both actually compare real data.
+                itemCount: item.item.itemNumber
             });
         }
 
@@ -108,11 +113,23 @@ export class AuctionStorePage extends TabPage {
                     const item = this.items[i];
                     const prevItem = this.items[i - 1];
 
+                    // FIX: itemSkillKind/itemSkillLevel don't exist anywhere in this
+                    // codebase (gameserver, shared, or client) - always undefined on
+                    // both sides, so this whole condition silently reduced to just
+                    // `item.kind === prevItem.kind` (itemCount was undefined too,
+                    // before the fix above), deduping ANY two listings of the same
+                    // item kind down to one regardless of stack size or durability/
+                    // experience differences. Compare the real per-listing fields
+                    // that distinguish otherwise-identical-kind auction entries
+                    // instead: stack count plus the ItemRoom instance's durability/
+                    // experience (see entity/item.js).
                     if (
                         item.kind === prevItem.kind &&
                         item.itemCount === prevItem.itemCount &&
-                        item.itemSkillKind === prevItem.itemSkillKind &&
-                        item.itemSkillLevel === prevItem.itemSkillLevel
+                        item.item.itemDurabilityMax ===
+                            prevItem.item.itemDurabilityMax &&
+                        item.item.itemExperience ===
+                            prevItem.item.itemExperience
                     ) {
                         this.items.splice(i, 1);
                     }

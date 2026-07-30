@@ -116,6 +116,15 @@ export function installClientCallbacksQuest(proto) {
     // registered handlers with a single `data` array (`this.handlers[action].call(this, data)`), same as every
     // other handler in this file - `id` received the whole array and `key`/`value` were always undefined, so
     // Number(id) was NaN, getEntityById() returned null, and speech bubbles never showed.
+    //
+    // FIX (round 2): two more bugs on top of the above -- `game.createBubble` doesn't exist
+    // anywhere in this codebase (the real API is `game.bubbleManager.create(entity, content)`,
+    // used correctly by clientcallbackssocial.js's onChatMessage), and `msg` was hardcoded to
+    // `''` instead of being built from `key`/`value` -- so even after fixing the method name,
+    // BubbleManager.create() would have early-returned on the empty content (bubble.js's own
+    // `if (content === undefined || content === '') return;` guard). Mirrors onDialogue()'s
+    // lang.data[...] lookup above: `key` is a lang table key (matches Messages.Speech's `kind`
+    // field, gameserver/js/message.js), `value` is the format argument.
     proto.onSpeech = function (data) {
         const id = data[0],
             key = data[1],
@@ -123,7 +132,7 @@ export function installClientCallbacksQuest(proto) {
         const entity = game.getEntityById(Number(id));
         if (!entity) return;
 
-        let msg = '';
-        game.createBubble(entity, msg);
+        const msg = lang.data[key] ? lang.data[key].format(value) : '';
+        game.bubbleManager.create(entity, msg);
     };
 }

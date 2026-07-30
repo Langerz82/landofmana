@@ -40,9 +40,18 @@ export function installChatHandlerCommands(proto) {
     };
 
     proto.handleWarp = function (data) {
-        const p = game.player;
-        if (p.warpX && p.warpY) {
-            this.teleportTo(p.warpX, p.warpY);
+        // FIX: was `this.teleportTo(p.warpX, p.warpY)` - teleportTo doesn't
+        // exist anywhere, and p.warpX/p.warpY are never assigned anywhere
+        // either (verified across gameserver/shared/client), so this command
+        // was entirely dead - the guard was always false, and even if it
+        // weren't, the call itself would throw. The warp button (mainui.js's
+        // app.toggleWarp) already does the real thing this command is meant
+        // to trigger: `game.teleportMaps(0)` sends the player to map 0's
+        // default spawn (x/y default to -1 inside teleportMaps, resolved
+        // server-side). Reuse that same, already-working path instead of
+        // inventing new warp-coordinate plumbing.
+        if (game && game.ready) {
+            game.teleportMaps(0);
         }
     };
 
@@ -135,8 +144,19 @@ export function installChatHandlerCommands(proto) {
                             );
                         } else if (status < 0) {
                             this.addNotification("Sorry to say it's too late…");
-                            setTimeout(function () {
-                                self.addNotification(
+                            // FIX: was `setTimeout(function () { self.addNotification(...) },
+                            // 2500)` -- `self` isn't declared until `const ... self = this ...`
+                            // a few lines below (line ~170), but this `case 'accept':` block
+                            // (part of the guild-command switch, which returns early via
+                            // `return true;` right after the switch) runs and returns before
+                            // that declaration is ever reached. `self` stays in the temporal
+                            // dead zone forever for this code path, so the setTimeout callback
+                            // threw `ReferenceError: Cannot access 'self' before initialization`
+                            // 2.5s after a player accepted a stale guild invite. Using an arrow
+                            // function here closes over the outer method's own `this` directly,
+                            // with no dependency on the later `self` declaration.
+                            setTimeout(() => {
+                                this.addNotification(
                                     'Find someone and ask for another invite.'
                                 );
                             }, 2500);

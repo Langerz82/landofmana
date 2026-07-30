@@ -342,10 +342,17 @@ export default class App {
         this.userclient = new UserClient(config.build, this.useServer);
 
         this.userclient.fail_callback = function (reason) {
-            self.info_callback({
-                success: false,
-                reason: reason
-            });
+            // FIX: info_callback's switch reads `data[0]` (see its cases just
+            // above - 'timeout'/'invalidlogin'/etc are all string tags read
+            // from data[0]); passing a plain {success, reason} object here
+            // meant data[0] was always undefined, so this always fell through
+            // to the generic "(reason unknown)" default-branch message
+            // regardless of what `reason` actually said. This was also never
+            // actually called from anywhere until userclient.js's
+            // connect_error/error/disconnect handlers were wired up to invoke
+            // it - pass the shape info_callback actually expects now that it
+            // is.
+            self.info_callback([reason]);
             self.started = false;
         };
     }

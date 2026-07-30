@@ -239,11 +239,24 @@ export default class InventoryHandler {
     sendSplitItem(splitItem, count) {
         let item = splitItem.item;
         if (count > item.itemNumber) count = item.itemNumber;
+        // FIX: this used to overwrite item.itemNumber with `count` (so
+        // _moveItem()'s outgoing packet carries the split amount, not the
+        // full stack -- see _moveItem() above, which reads obj.item.itemNumber
+        // to build that packet), then afterward did `item.itemNumber -=
+        // count`, which always landed on 0 regardless of the original stack
+        // size. `item` is the live object referenced by
+        // game.inventory.rooms[slot] (InventoryDialog.getItem() returns it
+        // directly, no clone), so this corrupted the source stack's
+        // client-side count to 0 until the next server broadcast overwrote
+        // it. Capture the real original count first so the remainder is
+        // `originalCount - count`, matching the correct sibling
+        // sendDropItem() below.
+        const originalCount = item.itemNumber;
         item.itemNumber = count;
 
         splitItem = this._moveItem(splitItem, splitItem.type2, splitItem.slot2);
 
-        item.itemNumber -= count;
+        item.itemNumber = originalCount - count;
         if (item.itemNumber === 0) {
             item = null;
         }

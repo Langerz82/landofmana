@@ -129,6 +129,7 @@ export default class Pathfinder {
         };
     }
 
+    // NOTE: no live callers anywhere in gameserver/shared/client - dead code.
     findNeighbourPath(start, end) {
         const ts = G_TILESIZE;
 
@@ -328,6 +329,12 @@ export default class Pathfinder {
      *
      * @private
      * @returns {Array} The incomplete path towards the end position
+     *
+     * NOTE: no live callers anywhere in gameserver/shared/client - dead code.
+     * (A `perfect` array from AStar.AStar() with no null-guard looked
+     * suspicious on first read, but AStar.AStar() never returns null/undefined
+     * anywhere in lib/astar.js - always an array, possibly empty - so that's
+     * not an actual bug.)
      */
     findIncompletePath_(start, end) {
         let perfect,

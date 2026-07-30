@@ -209,7 +209,10 @@ export default class Game {
 
         this.spritesReady = false;
 
-        this.unknownEntities = [];
+        // FIX: removed this.unknownEntities = [] -- it was only ever pushed to
+        // (onEntityMove/onEntityMovePath in clientcallbacksmovement.js) and never
+        // read anywhere, so it grew forever for the life of the session with no
+        // consumer. The actual diagnostic data lives in unknownEntityDrops below.
         // DEBUG-VERIFY (monster teleport bug): tracks move/movePath packets that were
         // dropped because the entity wasn't spawned client-side yet, keyed by entity id.
         // Read by spawnEntity() in clientcallbacksspawn.js to prove/disprove that dropped
@@ -378,15 +381,16 @@ export default class Game {
         this.mapContainer.reloadMaps(true);
     }
 
+    // NOTE: no live callers anywhere in gameserver/shared/client - dead code.
     registerEntityPosition(entity) {
-        const x = entity.gx,
-            y = entity.gy;
-
-        if (entity) {
-            if (entity instanceof Item) {
-                this.itemGrid[y][x][entity.id] = entity;
-                this.items[entity.id] = entity;
-            }
+        // FIX: was dereferencing entity.gx/entity.gy *before* the `if (entity)`
+        // null-check below, so that check could never actually prevent a crash
+        // on a null/undefined entity - moved the check first.
+        if (entity && entity instanceof Item) {
+            const x = entity.gx,
+                y = entity.gy;
+            this.itemGrid[y][x][entity.id] = entity;
+            this.items[entity.id] = entity;
         }
     }
 

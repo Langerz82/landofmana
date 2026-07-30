@@ -58,6 +58,16 @@ export default class AchievementHandler {
                 '</p>';
             game.userAlarm.alarm(htmlStr, this.hideDelay);
         }
-        this.achievementReloadLog();
+        // FIX (perf): was rebuilding the entire achievement log table (DOM
+        // remove + re-append per achievement) every single time any
+        // achievement progressed, even while the log panel is closed and
+        // invisible. questhandler.js's equivalent handler already gates its
+        // own log rebuild behind `if (this.showlog)` - mirror that here.
+        // toggleShowLog() already reloads the log when it's opened, so
+        // nothing is missed: the log is simply rebuilt lazily instead of on
+        // every progress tick.
+        if (this.showlog) {
+            this.achievementReloadLog();
+        }
     }
 }

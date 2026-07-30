@@ -23,8 +23,6 @@ const AStar = (function () {
      * @author  Andrea Giammarchi
      * @license Mit Style License
      */
-    let gGrid;
-
     function diagonalSuccessors($N, $S, $E, $W, N, S, E, W, grid, rows, cols, result, i) {
         if($N) {
             $E && !grid[N][E] && (result[i++] = {x:E, y:N});
@@ -57,17 +55,12 @@ const AStar = (function () {
         return result;
     }
 
-    // PERF: was grids(coord), called as grids([N,x])/grids([S,x])/
-    // grids([y,E])/grids([y,W]) below -- four throwaway 2-element array
-    // allocations per node expanded during a search, purely to immediately
-    // destructure them back out (gGrid[coord[0]][coord[1]]). successors()
-    // runs once per node popped off the open list, so this was 4 short-lived
-    // allocations per node examined for the entire search. Taking the two
-    // coordinates as plain arguments does the same lookup with none of the
-    // allocation.
-    function grids(a, b) {
-      return gGrid[a][b];
-    }
+    // FIX (dead code): removed the now-unused `grids(a, b)` helper and its
+    // backing `gGrid` module variable. A prior perf pass rewrote successors()
+    // to take the grid directly as a parameter instead of calling grids(...),
+    // but left both the old helper and the write-only `gGrid = grid` assignment
+    // in AStar() below behind - gGrid was written every search but never read
+    // by anything once grids() itself had no remaining callers.
 
     // FIX: $N/$W required N/W to be > 0, excluding valid index 0 -- compare
     // with diagonalSuccessorsFree above, which correctly uses > -1 for the
@@ -197,7 +190,6 @@ const AStar = (function () {
     }
 
     function AStar(grid, start, end, f) {
-          gGrid = grid;
           let cols = grid[0].length,
               rows = grid.length,
               f1 = Math.abs,

@@ -89,10 +89,18 @@ export function installGameEntityQueries(proto) {
             tg = mc.tileGrid;
 
         if (mc.gridReady) {
+            // NOTE: forEachVisibleTile has no live callers anywhere in
+            // gameserver/shared/client (verified via search) - dead code.
             this.forEachVisibleTileIndex(function (index, x, y) {
                 if (_.isArray(tg[y][x])) {
-                    tg[y][x].forEach(function (index, x, y) {
-                        callback(index, x, y);
+                    // FIX: Array.prototype.forEach's callback receives
+                    // (element, arrayIndex, array), so the old parameter names
+                    // `(index, x, y)` here shadowed the outer tile-grid x/y with
+                    // the stack position and the array itself - callback() was
+                    // invoked with garbage coordinates instead of the real grid
+                    // x/y. Renamed the inner params so the outer x/y are used.
+                    tg[y][x].forEach(function (stackedIndex) {
+                        callback(stackedIndex, x, y);
                     });
                 } else {
                     if (!_.isNaN(tg[y][x])) callback(tg[y][x], x, y);
@@ -135,17 +143,19 @@ export function installGameEntityQueries(proto) {
     proto.getEntityAt = function (x, y) {
         if (!this.mapContainer.mapLoaded) return null;
 
-        const entities = this.camera.entities,
-            len = Object.keys(entities).length;
+        // PERF: was computing `Object.keys(entities).length` on every call just
+        // to guard against an empty object - that allocates a full array of keys
+        // (thrown away immediately) on every single lookup, and this runs very
+        // often (movecursor() alone calls into this several times per mouse
+        // move). A for-in loop over an empty object simply doesn't iterate, so
+        // the guard was unnecessary - dropped it.
+        const entities = this.camera.entities;
+        let entity = null;
+        for (let k in entities) {
+            entity = entities[k];
+            if (!entity) continue;
 
-        if (len > 0) {
-            let entity = null;
-            for (let k in entities) {
-                entity = entities[k];
-                if (!entity) continue;
-
-                if (entity.isOverPosition(x, y)) return entity;
-            }
+            if (entity.isOverPosition(x, y)) return entity;
         }
         return null;
     };

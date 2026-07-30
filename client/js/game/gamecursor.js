@@ -120,7 +120,10 @@ export function installGameCursor(proto) {
             this.hoveringPlayer = this.isPlayerAt(x, y);
             this.hoveringItem = this.isItemAt(x, y);
             this.hoveringNpc = this.isNpcAt(x, y);
-            this.hoveringOtherPlayer = this.isPlayerAt(x, y);
+            // FIX (perf): was a second, identical `this.isPlayerAt(x, y)` call --
+            // same x/y as hoveringPlayer just above, re-scanning every entity in
+            // this.camera.entities again for nothing. Reuse the result.
+            this.hoveringOtherPlayer = this.hoveringPlayer;
             this.hoveringChest = this.isChestAt(x, y);
             this.hoveringEntity = this.getEntityAt(x, y);
 
@@ -133,7 +136,9 @@ export function installGameCursor(proto) {
                     this.hoveringItem) &&
                 !this.player.hasTarget()
             ) {
-                const entity = this.getEntityAt(x, y);
+                // FIX (perf): was a duplicate `this.getEntityAt(x, y)` call --
+                // same x/y already computed into this.hoveringEntity above.
+                const entity = this.hoveringEntity;
                 if (!entity) return;
 
                 this.player.showTarget(entity);

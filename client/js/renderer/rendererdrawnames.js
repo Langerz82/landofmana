@@ -12,7 +12,20 @@ export function installRendererDrawNames(proto) {
         let color = '#FFFFFF';
         let name = '';
 
-        if (entity instanceof Player && entity.isMoving && !entity.isDead) {
+        // FIX: `entity.isMoving` was missing `()` -- isMoving is a method
+        // (entity/entitymoving/entitymovingpath.js), not a boolean property,
+        // so this always evaluated to the function reference (always
+        // truthy), regardless of whether the player was actually moving.
+        // That looks like a bug, but "fixing" it to a real `entity.isMoving()`
+        // call would be a worse regression: this is an if/else-if chain with
+        // no other branch that matches a live Player, so a stationary player
+        // would fall through every branch and get name='' -- every player's
+        // nameplate would blink out the instant they stopped moving, which
+        // isn't how this has ever visibly behaved (the always-truthy
+        // reference is what's made every player's name display continuously
+        // regardless of movement this whole time). Removed the check rather
+        // than "fixing" it into real gating.
+        if (entity instanceof Player && !entity.isDead) {
             color =
                 entity.id === this.game.playerId
                     ? '#ffff00'

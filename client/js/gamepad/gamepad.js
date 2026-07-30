@@ -376,6 +376,14 @@ export default class Gamepad {
         }
     }
 
+    // NOTE (perf): called every gamepad tick (movePad(), ~60/s while a gamepad is
+    // connected) and does up to ~20 `.is(':visible')` jQuery calls, each of which
+    // forces a layout/style read. The game.*.visible checks above are cheap plain
+    // property reads and are deliberately ordered first so the `||` chain
+    // short-circuits before reaching the jQuery checks in the common case, but
+    // with everything closed this still walks the full list every tick. A real
+    // fix would track visibility via the dialogs' own show/hide calls instead of
+    // polling the DOM - left as-is since that's a bigger refactor than this pass.
     isDialogOpen() {
         return (
             game.storeDialog.visible ||

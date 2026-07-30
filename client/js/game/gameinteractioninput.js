@@ -11,8 +11,19 @@ export function installGameInteractionInput(proto) {
         if (this.joystick && this.joystick.isActive()) return;
 
         if (p.dialogueEntity) {
-            if (game.tryShowDialogue());
-            return;
+            // FIX: was `if (game.tryShowDialogue());` - a stray semicolon turned
+            // the if-body into an empty statement, so the `return;` below ran
+            // unconditionally regardless of tryShowDialogue()'s result. That
+            // meant ANY click while p.dialogueEntity was set (which stays set
+            // for the duration of a quest-NPC conversation - see
+            // clientcallbacksquest.js/gamedialogue.js) was swallowed entirely,
+            // even after walking away from the NPC, blocking all
+            // targeting/attacking/looting until the dialogue was formally
+            // closed. gameinteractiontarget.js's own tryShowDialogue() call
+            // site (`if (this.tryShowDialogue()) return;`) shows the intended
+            // form: only short-circuit the click when a dialogue was actually
+            // shown; otherwise fall through to normal click handling below.
+            if (game.tryShowDialogue()) return;
         }
 
         if (p.movement.inProgress) return;
@@ -41,7 +52,9 @@ export function installGameInteractionInput(proto) {
             if (!p.hasTarget()) {
                 p.setTarget(entity);
                 return;
-            } else if (entity != p.target) {
+                // FIX: was `!=` - inconsistent with the strict `===` check for
+                // the same comparison a few lines below (entity === p.target).
+            } else if (entity !== p.target) {
                 p.setTarget(entity);
                 return;
             }

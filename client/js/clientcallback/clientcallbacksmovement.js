@@ -23,7 +23,8 @@ export function installClientCallbacksMovement(proto) {
         const entity = game.getEntityById(id);
         if (!entity) {
             log.info('UNKNOWN ENTITY');
-            game.unknownEntities.push(id);
+            // FIX: removed dead `game.unknownEntities.push(id)` -- that array was
+            // never read anywhere, just grew unbounded for the whole session.
             // DEBUG-VERIFY (monster teleport bug): record the position this dropped MOVE
             // packet wanted to set, so spawnEntity() can later compare it against where the
             // entity actually gets spawned and reveal the gap that reads as a teleport.
@@ -95,7 +96,7 @@ export function installClientCallbacksMovement(proto) {
         if (id === game.player.id) return;
 
         if (!entity) {
-            game.unknownEntities.push(id);
+            // FIX: removed dead `game.unknownEntities.push(id)` -- see onEntityMove above.
             // DEBUG-VERIFY (monster teleport bug): same recording as onEntityMove, but for
             // a dropped path packet - path[0] is where it would have first snapped to.
             console.warn(

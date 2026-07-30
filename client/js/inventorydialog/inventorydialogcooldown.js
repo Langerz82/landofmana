@@ -8,7 +8,11 @@ export function installInventoryDialogCooldown(proto) {
         const itemData = ItemTypes.KindData[item.itemKind];
         this.cooldownTime = itemData.cooldown;
         this.funcCooldown();
-        game.shortcuts.cooldownItems();
+        // FIX: cooldownItems() used to take no argument and just grab the
+        // first item-type shortcut it found; now that it matches on the
+        // specific item's shortcutId (see shortcuthandler.js), the kind
+        // actually used has to be passed through.
+        game.shortcuts.cooldownItems(item.itemKind);
     };
 
     proto.funcCooldown = function () {

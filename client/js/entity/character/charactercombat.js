@@ -44,6 +44,12 @@ export function installCharacterCombat(proto) {
         this.death_callback = callback;
     };
 
+    // NOTE: hurt()/stopHurting() are never called anywhere in gameserver, shared,
+    // or client - dead code. They'd also be broken if ever invoked: hurtSprite/
+    // normalSprite are never assigned anywhere either, so this.sprite would just
+    // get set to undefined. Left in place (not deleted) since removing unused-but-
+    // harmless API surface is a judgment call outside this pass's scope - flagging
+    // for a decision on whether to wire up a real hit-flash effect or delete this.
     proto.hurt = function () {
         const self = this;
 
