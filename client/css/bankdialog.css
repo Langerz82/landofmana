@@ -28,10 +28,7 @@
         height: 18px;
     }
 
-    #bankGoldFrame .goldIcon {
-        display:inline-block;
-    }
-
+    
     #bankGoldFrame .bankGold {
         position: absolute;
         bottom:0;

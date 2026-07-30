@@ -1,6 +1,3 @@
-#selectClassSwitch2 {
-	pointer-events:auto;
-}
 
 #user_window input, #user_window select {
 	font-family:'GraphicPixel';
@@ -47,43 +44,10 @@
 	color:#000;
 }
 
-#registerwindow {
-	display: none;
-}
 
-#registerwindow input[type=text],
-#registerwindow input[type=password],
-#registerwindow select
-{
-	background-color:#fff !important;
-	border: 2px solid black;
-	color:#000;
-}
 
-#registerwindow input,
-#registerwindow select
-{
-	font-family:'pixel-emulator';
-	width:50%;
-	text-align:center;
-	color:#000;
-	box-sizing: none;
-	background-color:#fff;
-	font-size:18px;
-}
 
-#registerwindow input:focus {
-	color:#000;
-}
 
-#registerwindow input:-webkit-autofill,
-#registerwindow input:-webkit-autofill:hover,
-#registerwindow input:-webkit-autofill:focus,
-#registerwindow input:-webkit-autofill:active {
-    -webkit-animation: autofill 0s forwards;
-    animation: autofill 0s forwards;
-    color:#000;
-}
 
 #about_window {
 	display: none;
@@ -277,11 +241,6 @@
 	width:50%;
 }
 
-#player_class {
-	position:absolute;
-	top:118px;
-	left:150px;
-}
 
 #player_create {
 	position:absolute;

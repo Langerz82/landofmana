@@ -15,16 +15,7 @@
 	display:none;
 }
 
-#test {
-	pointer-events: auto;
-	display:block;
-	z-index:25;
-}
 
-#test *, #testyes, #testno {
-	pointer-events: auto;
-	cursor: default;
-}
 
 	#party {
 		position: absolute;

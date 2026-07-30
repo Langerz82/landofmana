@@ -24,8 +24,8 @@
 	color:white;
 }
 
-#characterName, #characterLevel, #characterAttackLevel,#characterDefenseLevel,#characterMoveLevel, #characterExp,
-#characterBaseHit, #characterBaseCrit, #characterBaseDamage, #characterBaseHitDef, #characterBaseCritDef, #characterBaseDamageDef {
+#characterName, #characterLevel, #characterAttackLevel,#characterDefenseLevel,
+#characterBaseCrit, #characterBaseDamage, #characterBaseCritDef, #characterBaseDamageDef {
 	color:#fff;
 }
 
@@ -96,7 +96,7 @@ pointer-events: auto;
 	left:0;
 }
 
-#characterName, #characterLevel, #characterAttackLevel, #characterDefenseLevel, #characterExp,
+#characterName, #characterLevel, #characterAttackLevel, #characterDefenseLevel,
 #characterLevelSword, #characterLevelBow, #characterLevelHammer, #characterLevelAxe,
 #characterLevelLogging, #characterLevelMining {
   position: relative;
@@ -122,17 +122,6 @@ pointer-events: auto;
 	font-size: 16px;
 }
 
-#characterCloseButton {
-  position: absolute;
-  right: 3px;
-  top: 3px;
-  width: 32px;
-  height: 32px;
-  cursor: pointer;
-  z-index:15;
-	background: url('../img/2/misc/close-button.png' ) no-repeat;
-  pointer-events: auto;
-}
 
 
 #characterPoints {

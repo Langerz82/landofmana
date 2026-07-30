@@ -86,12 +86,7 @@
     line-height: 26px;
   }*/
 
-  #inventorySellGold {
-    position:absolute;
-    bottom:0;
-    right:150px;
-  }
-    div.inventoryitembackground {
+      div.inventoryitembackground {
       position: absolute;
       width: 56px;
       height: 57px;

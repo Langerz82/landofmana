@@ -14,16 +14,7 @@
 	font-family: 'GraphicPixel';
 }
 
-#playerbackground {
-	background-color: none;
-}
 
-#shortcutbutton {
-	position:absolute;
-	right:0;
-	bottom:96px;
-	opacity:0.75;
-}
 
 #statbars .frame-border {
 	border: 2px solid black;

@@ -11,28 +11,8 @@
 
     }
 
-    #characterLook3 {
-        position: absolute;
-        left: 50% !important;
-        top: 35% !important;
-        margin-left:-72px;
-        margin-top:-72px
-    }
-    #characterLookArmor3, #characterLookWeapon3 {
-        position: absolute;
-    }
-
-    #armorColor {
-  		position:absolute;
-  		top:60px;
-  		left:24px;
-  	}
-  	#weaponColor {
-  		position:absolute;
-  		top:60px;
-  		right:24px;
-  	}
-
+        
+      	
     #characterLook {
         position: absolute;
         left: 50%;
