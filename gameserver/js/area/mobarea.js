@@ -28,6 +28,17 @@ class MobArea extends EntityArea {
         this.nb = nb;
         this.minLevel = minLevel;
         this.maxLevel = maxLevel;
+        // FIX: addMobs(level) below used to do `this.minLevel = level +
+        // this.minLevel` in place -- fine for the current codebase (every
+        // call site invokes addMobs() with no arguments, exactly once per
+        // instance), but if addMobs(level) is ever re-invoked on the same
+        // MobArea, the offset would compound on top of the
+        // already-adjusted value each time instead of being computed from a
+        // stable base. Keeping the original, never-mutated values around
+        // lets addMobs() compute from a fixed base regardless of how many
+        // times it's called.
+        this.baseMinLevel = minLevel;
+        this.baseMaxLevel = maxLevel;
         this.respawns = [];
         this.level = level;
 
@@ -100,9 +111,13 @@ class MobArea extends EntityArea {
             return;
         }
 
+        // FIX: computed from baseMinLevel/baseMaxLevel (fixed at
+        // construction) instead of mutating this.minLevel/this.maxLevel in
+        // place -- see the constructor comment. Idempotent no matter how
+        // many times addMobs(level) is called.
         if (level && this.level) {
-            this.minLevel = level + this.minLevel;
-            this.maxLevel = level + this.maxLevel;
+            this.minLevel = level + this.baseMinLevel;
+            this.maxLevel = level + this.baseMaxLevel;
         }
 
         // NOTE: `levelMobs` was a bare (undeclared) assignment in the original

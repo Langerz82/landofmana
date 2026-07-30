@@ -326,16 +326,45 @@ class UserHandler {
             console.info(
                 'shortcuts: ' + JSON.stringify(data_player.shortcuts)
             );
-        console.info(
-            'completeQuests: ' + JSON.stringify(data_player.completeQuests)
-        );
+        // PERF: was unconditional -- missed in an earlier pass over this
+        // file's other JSON.stringify logging. Gated behind G_DEBUG like
+        // the shortcuts log right above it.
+        if (G_DEBUG)
+            console.info(
+                'completeQuests: ' + JSON.stringify(data_player.completeQuests)
+            );
 
+        // FIX: both JSON.parse calls below used to run unguarded -- unlike
+        // handleLoadPlayerQuests()/handleLoadPlayerItems() further down in
+        // this same file, which already wrap their equivalent parse in
+        // try/catch specifically because a malformed/corrupted payload
+        // (userserver bug, bad Redis record, version mismatch after a
+        // partial deploy) would otherwise throw synchronously inside this
+        // connection's message listener. Matching that same pattern here:
+        // on failure, log and leave the field as its raw (unparsed) value
+        // rather than crash the whole load.
         if (data_player.shortcuts) {
-            data_player.shortcuts = JSON.parse(data_player.shortcuts);
+            try {
+                data_player.shortcuts = JSON.parse(data_player.shortcuts);
+            } catch (err) {
+                console.warn(
+                    'handleLoadPlayerInfo: failed to parse shortcuts: ' +
+                        err.stack
+                );
+            }
         }
 
         if (data_player.completeQuests) {
-            data_player.completeQuests = JSON.parse(data_player.completeQuests);
+            try {
+                data_player.completeQuests = JSON.parse(
+                    data_player.completeQuests
+                );
+            } catch (err) {
+                console.warn(
+                    'handleLoadPlayerInfo: failed to parse completeQuests: ' +
+                        err.stack
+                );
+            }
         }
 
         player.fillPlayerInfo(data_player);
@@ -417,7 +446,9 @@ class UserHandler {
         const player = this.player;
         const items = [];
 
-        console.info('getItems - data=' + msg);
+        // PERF: was unconditional -- missed in an earlier pass over this
+        // file's logging.
+        if (G_DEBUG) console.info('getItems - data=' + msg);
         // FIX: this JSON.parse(msg) used to run unguarded, unlike the
         // near-identical handleLoadPlayerQuests() above (which wraps the
         // same parse-then-loop shape in try/catch and logs a warning on

@@ -566,7 +566,24 @@ function getConfigFile(path, callback) {
             //console.info("This server can be customized by creating a configuration file named: " + err.path);
             callback(null);
         } else {
-            callback(JSON.parse(json_string));
+            // FIX: this JSON.parse ran unguarded -- a config file with a
+            // syntax error (a stray comma, a missing quote) crashed with a
+            // raw, unhelpful "Unexpected token" SyntaxError instead of
+            // pointing at the actual problem. This is a startup-time,
+            // operator-controlled file (not client input), so failing loudly
+            // is the right call -- but with a clear error naming the file,
+            // not an opaque stack trace.
+            try {
+                callback(JSON.parse(json_string));
+            } catch (parseErr) {
+                console.error(
+                    'Failed to parse config file "' +
+                        path +
+                        '": ' +
+                        parseErr.message
+                );
+                process.exit(1);
+            }
         }
     });
 }
