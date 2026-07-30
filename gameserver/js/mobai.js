@@ -331,6 +331,15 @@ class MobAI {
                 // `if (!pos) continue;` below already treats as "don't
                 // roam this tick" rather than falling back to an
                 // out-of-area position.
+                // NOTE: checked for an O(n^2) risk here since this runs
+                // once/sec/player over every mob in radius 32 -- but `mobs`
+                // is already the spatially-filtered result of
+                // getMobsAround() above (nearby mobs only, not every mob on
+                // the map), and spaceEntityRandomApart()'s internal overlap
+                // check (mapentities.js) is a plain array scan over that
+                // same small, pre-filtered list. So this is O(nearby mobs)
+                // per candidate position, not O(all mobs) -- no change
+                // needed here.
                 const pos = mob.map.entities.spaceEntityRandomApart(
                     2,
                     area._getRandomPositionForEntity.bind(area, mob, dist),

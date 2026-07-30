@@ -50,7 +50,10 @@ class SkillHandler {
 class Skill {
     constructor(player, skillIndex, skillXP) {
         this.player = player;
-        console.info('skillIndex:' + skillIndex);
+        // PERF: fires once per skill per player on every login/setSkills()
+        // load -- unconditional, unlike the same file's xp() a few lines
+        // down which already gates its console.info behind G_DEBUG.
+        if (G_DEBUG) console.info('skillIndex:' + skillIndex);
         this.skillData = SkillData.Skills[skillIndex];
         this.skillIndex = skillIndex;
         this.skillLevel = Types.getSkillLevel(skillXP);
@@ -86,7 +89,10 @@ class Skill {
         if (G_DEBUG) console.info('amount=' + amount);
         this.skillXP += parseInt(amount, 10);
         const skillLevel = Types.getSkillLevel(this.skillXP, this.skillLevel);
-        if (skillLevel != this.skillLevel) {
+        // FIX: switched `!=` to `!==` for consistency with strict equality
+        // used elsewhere in this file (skillLevel/this.skillLevel are always
+        // numbers, so no behavior change).
+        if (skillLevel !== this.skillLevel) {
             this.skillLevel = skillLevel;
             // FIX: `skillEffects` (effecthandler.js's SkillEffectHandler) is a
             // flat list of currently-*active* SkillEffect instances, pushed on

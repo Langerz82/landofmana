@@ -11,6 +11,39 @@ import { G_FRAME_INTERVAL, G_TILESIZE, G_DEBUG } from './constants.js';
 // a real ES module (no global leakage), these calls have been updated to go
 // through the properly imported `astar` module instead.
 
+// PERF: hoisted out of isValidGridPath, which used to recreate these as 3
+// closures (c1to2on3, xf, yf) on every single call. isValidGridPath is
+// called up to 3x per path request from findDirectPath -- the path tried
+// first for every mob chase, mob roam, and player click-to-move -- so this
+// was allocating 3 functions per call on the hottest pathfinding code path.
+// Now these are plain module-level functions that take `grid` as an
+// explicit argument instead of closing over it, so nothing is allocated.
+function gridCollidesOnAxis(grid, n1, n2, n3, axisX) {
+    n1 = Math.floor(n1);
+    n2 = Math.floor(n2);
+    n3 = Math.floor(n3);
+    const i1 = Math.min(n1, n2),
+        i2 = Math.max(n1, n2);
+    if (axisX) {
+        for (let i = i1; i <= i2; i++) {
+            if (grid[n3][i]) return false;
+        }
+    } else {
+        for (let i = i1; i <= i2; i++) {
+            if (grid[i][n3]) return false;
+        }
+    }
+    return true;
+}
+
+function gridCollidesX(grid, x1, x2, y) {
+    return gridCollidesOnAxis(grid, x1, x2, y, true);
+}
+
+function gridCollidesY(grid, y1, y2, x) {
+    return gridCollidesOnAxis(grid, y1, y2, x, false);
+}
+
 class Pathfinder {
     constructor(width, height) {
         this.width = width;
@@ -52,11 +85,11 @@ class Pathfinder {
                     elapsedTicks
             );
         if (actualTicks > elapsedTicks + tolerance) {
-            try {
-                throw new Error();
-            } catch (err) {
-                console.warn(err.stack);
-            }
+            // PERF/FIX: was a `try { throw new Error(); } catch (err) {
+            // console.warn(err.stack); }` -- consolidated into
+            // Utils.captureStack() (utils.js), which does the same thing
+            // (`new Error().stack`) without the pointless throw/catch.
+            console.warn(Utils.captureStack());
             console.warn(
                 'pathFinder - isDistanceTooFast: SPEED HACK DETECTED. playerTicks - actualTicks: ' +
                     actualTicks +
@@ -104,16 +137,20 @@ class Pathfinder {
         for (const n1 of path) {
             if (n2) {
                 if (
-                    x == n1[0] &&
-                    x == n2[0] &&
+                    // FIX: was `==`/`!=` here and below -- switched to
+                    // strict equality for consistency with the rest of the
+                    // file (operands are always numbers, so no behavior
+                    // change).
+                    x === n1[0] &&
+                    x === n2[0] &&
                     Utils.isBetween(y, n1[1], n2[1])
                 ) {
                     count += Math.abs(n2[1] - y);
                     break;
                 }
                 if (
-                    y == n1[1] &&
-                    y == n2[1] &&
+                    y === n1[1] &&
+                    y === n2[1] &&
                     Utils.isBetween(x, n1[0], n2[0])
                 ) {
                     count += Math.abs(n2[0] - x);
@@ -233,37 +270,6 @@ class Pathfinder {
             ly = grid.length,
             lx = grid[0].length;
 
-        // Check collision from an axis, n1 to n2, n3 is for the other axis.
-        const c1to2on3 = function (n1, n2, n3, axis_x) {
-            //console.info("c1to2on3 - n1:"+n1+",n2:"+n2+",n3:"+n3);
-            ((n1 = Math.floor(n1)),
-                (n2 = Math.floor(n2)),
-                (n3 = Math.floor(n3)));
-            const i1 = Math.min(n1, n2),
-                i2 = Math.max(n1, n2);
-            if (axis_x) {
-                for (let i = i1; i <= i2; i++) {
-                    if (grid[n3][i]) {
-                        return false;
-                    }
-                }
-            } else {
-                for (let i = i1; i <= i2; i++) {
-                    if (grid[i][n3]) {
-                        return false;
-                    }
-                }
-            }
-            return true;
-        };
-
-        const xf = function (x1, x2, y) {
-            return c1to2on3(x1, x2, y, true);
-        };
-        const yf = function (y1, y2, x) {
-            return c1to2on3(y1, y2, x, false);
-        };
-
         const path2 = [];
         for (let i = 0; i < path.length; i++) path2[i] = path[i].slice();
 
@@ -281,12 +287,14 @@ class Pathfinder {
             if (coord[0] < 0 || coord[0] >= lx) return false;
 
             if (pCoord) {
-                if (coord[0] != pCoord[0] && coord[1] != pCoord[1])
+                if (coord[0] !== pCoord[0] && coord[1] !== pCoord[1])
                     return false;
                 if (Math.abs(coord[0] - pCoord[0]) > 0) {
-                    if (!xf(pCoord[0], coord[0], coord[1])) return false;
+                    if (!gridCollidesX(grid, pCoord[0], coord[0], coord[1]))
+                        return false;
                 } else if (Math.abs(coord[1] - pCoord[1]) > 0) {
-                    if (!yf(pCoord[1], coord[1], coord[0])) return false;
+                    if (!gridCollidesY(grid, pCoord[1], coord[1], coord[0]))
+                        return false;
                 }
             }
             pCoord = coord;

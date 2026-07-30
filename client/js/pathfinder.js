@@ -3,6 +3,41 @@ import AStar from './lib/astar.js';
 
 /* global Utils */
 
+// PERF: hoisted out of isValidGridPath, which used to recreate these as 3
+// closures (c1to2on3, xf, yf) on every single call. isValidGridPath is
+// called up to 3x per path request from findDirectPath -- the path tried
+// first for every entity move/click-to-move (see findDirectPath below,
+// "runs on essentially every click-to-move request") -- so this was
+// allocating 3 functions per call on the hottest pathfinding code path.
+// Now these are plain module-level functions that take `grid` as an
+// explicit argument instead of closing over it, so nothing is allocated.
+// (Mirrors the same fix applied to gameserver/js/pathfinder.js.)
+function gridCollidesOnAxis(grid, n1, n2, n3, axisX) {
+    n1 = Math.floor(n1);
+    n2 = Math.floor(n2);
+    n3 = Math.floor(n3);
+    const i1 = Math.min(n1, n2),
+        i2 = Math.max(n1, n2);
+    if (axisX) {
+        for (let i = i1; i <= i2; i++) {
+            if (grid[n3][i]) return false;
+        }
+    } else {
+        for (let i = i1; i <= i2; i++) {
+            if (grid[i][n3]) return false;
+        }
+    }
+    return true;
+}
+
+function gridCollidesX(grid, x1, x2, y) {
+    return gridCollidesOnAxis(grid, x1, x2, y, true);
+}
+
+function gridCollidesY(grid, y1, y2, x) {
+    return gridCollidesOnAxis(grid, y1, y2, x, false);
+}
+
 export default class Pathfinder {
     constructor(width, height) {
         this.width = width;
@@ -33,36 +68,6 @@ export default class Pathfinder {
             ly = grid.length,
             lx = grid[0].length;
 
-        // Check collision from an axis, n1 to n2, n3 is for the other axis.
-        const c1to2on3 = function (n1, n2, n3, axis_x) {
-            ((n1 = Math.floor(n1)),
-                (n2 = Math.floor(n2)),
-                (n3 = Math.floor(n3)));
-            const i1 = Math.min(n1, n2),
-                i2 = Math.max(n1, n2);
-            if (axis_x) {
-                for (let i = i1; i <= i2; i++) {
-                    if (grid[n3][i]) {
-                        return false;
-                    }
-                }
-            } else {
-                for (let i = i1; i <= i2; i++) {
-                    if (grid[i][n3]) {
-                        return false;
-                    }
-                }
-            }
-            return true;
-        };
-
-        const xf = function (x1, x2, y) {
-            return c1to2on3(x1, x2, y, true);
-        };
-        const yf = function (y1, y2, x) {
-            return c1to2on3(y1, y2, x, false);
-        };
-
         const path2 = [];
         for (let i = 0; i < path.length; i++) path2[i] = path[i].slice();
 
@@ -83,9 +88,11 @@ export default class Pathfinder {
                 if (coord[0] !== pCoord[0] && coord[1] !== pCoord[1])
                     return false;
                 if (Math.abs(coord[0] - pCoord[0]) > 0) {
-                    if (!xf(pCoord[0], coord[0], coord[1])) return false;
+                    if (!gridCollidesX(grid, pCoord[0], coord[0], coord[1]))
+                        return false;
                 } else if (Math.abs(coord[1] - pCoord[1]) > 0) {
-                    if (!yf(pCoord[1], coord[1], coord[0])) return false;
+                    if (!gridCollidesY(grid, pCoord[1], coord[1], coord[0]))
+                        return false;
                 }
             }
             pCoord = coord;

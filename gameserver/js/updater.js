@@ -1,8 +1,8 @@
 import Messages from './message.js';
 import _ from 'underscore';
-//import Utils from "./utils.js";
+import Utils from './utils.js';
 import { Types } from './common.js';
-import { G_TILESIZE, G_FRAME_INTERVALS } from './constants.js';
+import { G_TILESIZE, G_FRAME_INTERVALS, G_DEBUG } from './constants.js';
 import Player from './entity/player/player.js';
 
 /* global Player */
@@ -20,11 +20,18 @@ class Updater {
         // TODO - Changed Path check is messy.
         this.charPath = function (c, x, y) {
             if (c.map.isCollidingPoint(x, y)) {
-                try {
-                    throw new Error();
-                } catch (e) {
-                    console.error(e.stack);
-                }
+                // PERF: this is on the movement hot path -- charPath runs
+                // for every step of every moving character -- and used to
+                // capture+log a full stack trace unconditionally on every
+                // collision, unlike comparable diagnostic logging elsewhere
+                // in this codebase which is gated behind G_DEBUG. Gated the
+                // same way; if path-smoothing/rounding produces frequent
+                // off-by-one collisions under load, this avoids paying for
+                // a stack capture on every one of them in production.
+                // PERF/FIX: also consolidated the try/throw/catch itself
+                // into Utils.captureStack() (utils.js) -- it was never
+                // needed; `new Error().stack` alone gives the same trace.
+                if (G_DEBUG) console.error(Utils.captureStack());
             }
             c.setPosition(x, y);
             return c.nextStep();

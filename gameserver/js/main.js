@@ -40,7 +40,8 @@ let packageName = 'com.retrorpgonline2';
 
 //let verifier = null;
 
-let IO_STATES = {
+// FIX: was `let` but never reassigned anywhere in this file.
+const IO_STATES = {
     MSG_BUYPRODUCT: 1,
     MSG_ERRORPRODUCT: 2
 };
@@ -75,10 +76,18 @@ let userHandler = null;
 //var userHandler;
 
 //worlds = [];
+// FIX: `global.server`/`global.world` were only ever set here, to `null`,
+// and never resynced when `server`/`world` are actually assigned real
+// values further down (in main()) -- so anything reading `global.server`/
+// `global.world` would always see `null`. Nothing in gameserver/js
+// currently reads them (confirmed via search), but the pattern is
+// dangerous to leave as-is since `global.log` right below does resync
+// correctly and invites the same assumption here. The initial `global.*=`
+// lines are dropped (assigning `null`/`undefined` to a global achieves
+// nothing); `global.server`/`global.world` are now set at the same time as
+// the real assignment, in main() below.
 let server = null;
-global.server = server;
 let world = null;
-global.world = world;
 
 // `players`/`hashes` are mutated in place (Map#set/#delete) rather than
 // reassigned, so they're safe to export as `const` for the other converted
@@ -101,8 +110,15 @@ const Main = {};
 // conversion.
 export default Main;
 
+// FIX: `global.MainConfig = config` further down (in main()) updated the
+// global but never the exported `MainConfig` binding declared here, so any
+// future `import { MainConfig } from './main.js'` would always see
+// `undefined` even after startup. No current importer relies on this
+// (confirmed via search), but fixed at the source (see main() below, which
+// now assigns both) rather than left as a trap. Dropped the pointless
+// `global.MainConfig = MainConfig` (undefined) init line for the same
+// reason as `server`/`world` above.
 export let MainConfig;
-global.MainConfig = MainConfig;
 
 export let log;
 global.log = log;
@@ -197,9 +213,16 @@ function main(config) {
     );
 
     const worldId = config.world_id;
+    // FIX: also assign the exported `MainConfig` binding (see declaration
+    // above), not just `global.MainConfig` -- previously only the global
+    // was kept in sync.
+    MainConfig = config;
     global.MainConfig = config;
 
+    // FIX: also assign `global.server`, kept in sync with the local
+    // `server` variable (see declaration above).
     server = new WS.WebsocketServer(config);
+    global.server = server;
 
     // FIX: removed `const lastTotalPlayers = 0;` -- never read or updated
     // anywhere below; the world-status reporting code recomputes the player
@@ -209,6 +232,9 @@ function main(config) {
     console.info('Initializing RRO2 GameServer - World ' + worldId);
 
     world = new WorldServer('world', config.nb_players_per_world, server);
+    // FIX: also assign `global.world`, kept in sync with the local `world`
+    // variable (see declaration above).
+    global.world = world;
     world.run();
     world.name = config.world_name;
 
@@ -261,7 +287,10 @@ function main(config) {
         conn.hash = hash;
         console.info('main - onConnect: hash=' + hash);
 
-        console.info(JSON.stringify(config));
+        // PERF: this dumped the entire (unchanging, since startup) server
+        // config on every single client connection -- gated behind
+        // G_DEBUG like the rest of this file's per-connection logging.
+        if (G_DEBUG) console.info(JSON.stringify(config));
         console.info('version sent');
         console.info(Types.Messages.WC_VERSION);
 

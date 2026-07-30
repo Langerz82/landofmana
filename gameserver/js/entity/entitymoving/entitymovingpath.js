@@ -12,6 +12,7 @@
 // for this same split (client's entitymovingpath.js).
 import Timer from '../../timer.js';
 import { Types } from '../../common.js';
+import Utils from '../../utils.js';
 
 /* global log, game */
 
@@ -70,11 +71,10 @@ export function installEntityMovingPath(proto) {
             log.info(
                 'char x:' + this.x + ',y: ' + this.y + ', x:' + x + 'y: ' + y
             );
-            try {
-                throw new Error();
-            } catch (e) {
-                log.info(e.stack);
-            }
+            // PERF/FIX: consolidated into Utils.captureStack() (utils.js) --
+            // the throw/catch was unnecessary; `new Error().stack` alone
+            // gives the same trace.
+            log.info(Utils.captureStack());
             return null;
         }
     };

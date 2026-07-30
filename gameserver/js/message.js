@@ -201,13 +201,20 @@ Messages.Achievement = class extends Message {
 };
 
 Messages.Log = class extends Message {
+    // FIX: was `this.message.unshift(...)`, mutating the caller's array
+    // directly in the constructor instead of building a fresh one like
+    // every other Message subclass in this file. Currently unused (no call
+    // sites), but a landmine the moment it is: unshift on the caller's own
+    // array corrupts any reference they still hold, and calling
+    // serialize() more than once would double-prepend the type tag. Now
+    // stores the array as-is and builds a new array on serialize(),
+    // matching the pattern used everywhere else here.
     constructor(message) {
         super();
         this.message = message;
-        this.message.unshift(Types.Messages.WC_LOG);
     }
     serialize() {
-        return this.message;
+        return [Types.Messages.WC_LOG, ...this.message];
     }
 };
 
@@ -472,15 +479,19 @@ Messages.LevelUp = class extends Message {
 };
 
 Messages.List = class extends Message {
+    // FIX: serialize() used to `unshift()` the type tag onto `this.ids`
+    // directly -- mutating the caller's own array instead of returning a
+    // fresh one like every other Message subclass here. Currently unused
+    // (no call sites), but the same landmine as Messages.Log above: it
+    // corrupts any array reference the caller still holds, and a second
+    // serialize() call would double-prepend the tag. Builds a new array
+    // instead.
     constructor(ids) {
         super();
         this.ids = ids;
     }
     serialize() {
-        const list = this.ids;
-        list.unshift(Types.Messages.WC_LIST);
-        //console.info(JSON.stringify(list));
-        return list;
+        return [Types.Messages.WC_LIST, ...this.ids];
     }
 };
 

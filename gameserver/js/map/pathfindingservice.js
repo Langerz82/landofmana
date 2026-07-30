@@ -1,5 +1,6 @@
 import Pathfinder from '../pathfinder.js';
 import { G_TILESIZE, G_DEBUG } from '../constants.js';
+import Utils from '../utils.js';
 
 // Split out of map/mapentities.js -- findPath() alone was ~150 lines, the
 // single biggest method in that file, and (unlike the entity-registry/
@@ -82,13 +83,11 @@ class MapPathfindingService {
             // Gated behind G_DEBUG like the equivalent per-request diagnostic
             // logging elsewhere in this codebase.
             if (pS[0] === pE[0] && pS[1] === pE[1]) {
-                if (G_DEBUG) {
-                    try {
-                        throw new Error();
-                    } catch (err) {
-                        console.info(err.stack);
-                    }
-                }
+                // PERF/FIX: consolidated the try/throw/catch stack capture
+                // into Utils.captureStack() (utils.js) -- see that file for
+                // why the throw/catch was unnecessary in the first place.
+                // Still gated behind G_DEBUG as before.
+                if (G_DEBUG) console.info(Utils.captureStack());
                 return null;
             }
 
@@ -118,11 +117,9 @@ class MapPathfindingService {
                         'findDirectPath - subpath:' + JSON.stringify(subpath)
                     );
                 if (!pathfinder.isValidGridPath(sgrid, subpath)) {
-                    try {
-                        throw new Error();
-                    } catch (e) {
-                        console.error(e.stack);
-                    }
+                    // PERF/FIX: consolidated into Utils.captureStack(), see
+                    // above.
+                    console.error(Utils.captureStack());
                     return null;
                 }
                 const res = pathfinder.getFullFromShortPath(
@@ -133,11 +130,9 @@ class MapPathfindingService {
                 if (G_DEBUG)
                     console.info('findDirectPath - res:' + JSON.stringify(res));
                 if (!pathfinder.isValidGridPath(map.grid, res, true)) {
-                    try {
-                        throw new Error();
-                    } catch (e) {
-                        console.error(e.stack);
-                    }
+                    // PERF/FIX: consolidated into Utils.captureStack(), see
+                    // above.
+                    console.error(Utils.captureStack());
                     return null;
                 }
                 return res;
@@ -215,19 +210,13 @@ class MapPathfindingService {
                 return null;
             }
             if (!pathfinder.isValidGridPath(map.grid, path, true)) {
-                try {
-                    throw new Error();
-                } catch (e) {
-                    console.error(e.stack);
-                }
+                // PERF/FIX: consolidated into Utils.captureStack(), see
+                // above.
+                console.error(Utils.captureStack());
                 return null;
             }
             if (!(path[0][0] === character.x && path[0][1] === character.y)) {
-                try {
-                    throw new Error();
-                } catch (e) {
-                    console.error(e.stack);
-                }
+                console.error(Utils.captureStack());
                 return null;
             }
             return path;

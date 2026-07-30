@@ -3,6 +3,7 @@
 // Behavior unchanged.
 import io_client from 'socket.io-client';
 import { Connection } from './wsbase.js';
+import Utils from '../utils.js';
 
 export default class UserConnection extends Connection {
     constructor(id, connection, server) {
@@ -82,11 +83,10 @@ export default class UserConnection extends Connection {
             this._connection.emit('message', data);
         } else {
             console.error('this connection not set.');
-            try {
-                throw new Error();
-            } catch (e) {
-                console.warn(e.stack);
-            }
+            // PERF/FIX: consolidated into Utils.captureStack() (utils.js) --
+            // the throw/catch was unnecessary; `new Error().stack` alone
+            // gives the same trace.
+            console.warn(Utils.captureStack());
         }
     }
 }

@@ -7,6 +7,7 @@ import ItemData from './data/itemdata.js';
 import ItemLootData from './data/itemlootdata.js';
 import ItemRoom from './items/itemroom.js';
 import QuestData from './data/questdata.js';
+import { G_DEBUG } from './constants.js';
 
 // FIX: MobData, ItemData, ItemLootData, and ItemRoom were all used throughout
 // this file (getMobObject, createQuestItemKind, giveReward) but never
@@ -264,13 +265,19 @@ class EntityQuests {
         if (entities.length === 0) return;
 
         const entitycount = Utils.GetGroupCountArray(entities, 'kind');
-        console.warn('entitycount=' + JSON.stringify(entitycount));
+        // PERF: this ran on every NPC dynamic-quest lookup and unconditionally
+        // JSON.stringify'd + logged the same array 3 times (once before the
+        // length check, again before sort, again after -- the pre-sort log
+        // was pure duplication). Gated behind G_DEBUG like the rest of this
+        // codebase's per-request logging, and dropped the redundant middle
+        // call.
+        if (G_DEBUG)
+            console.warn('entitycount=' + JSON.stringify(entitycount));
         if (entitycount.length === 0) return null;
-        log.info('entitycount=' + JSON.stringify(entitycount));
         entitycount.sort(function (a, b) {
             return b[1] - a[1];
         });
-        log.info('entitycount=' + JSON.stringify(entitycount));
+        if (G_DEBUG) log.info('entitycount=' + JSON.stringify(entitycount));
         const kind = parseInt(entitycount[0][0], 10);
 
         entities = entities.filter(function (entity) {

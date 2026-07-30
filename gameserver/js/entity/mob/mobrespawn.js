@@ -4,6 +4,7 @@ import ItemData from '../../data/itemdata.js';
 import ItemLootData from '../../data/itemlootdata.js';
 import { ItemTypes } from '../../common.js';
 import { mobState, G_DEBUG } from '../../constants.js';
+import Utils from '../../utils.js';
 
 // Split out of entity/mob.js -- everything to do with a mob's spawn/death/
 // respawn lifecycle (boss scaling, loot-table + drop-table setup, going
@@ -158,11 +159,10 @@ class MobRespawn {
             );
         if (!entity.path || entity.path.length === 0) {
             if (G_DEBUG) {
-                try {
-                    throw new Error();
-                } catch (err) {
-                    console.error(err.stack);
-                }
+                // PERF/FIX: consolidated into Utils.captureStack()
+                // (utils.js) -- the throw/catch was unnecessary; `new
+                // Error().stack` alone gives the same trace.
+                console.error(Utils.captureStack());
                 console.info(
                     'RETURNING-DEBUG no-path-fallback id=' + entity.id
                 );

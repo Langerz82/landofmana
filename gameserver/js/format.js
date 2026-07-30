@@ -32,6 +32,7 @@
 import { Types } from './common.js';
 import { G_NPC_QUEST_ID_MAP_OFFSET } from './constants.js';
 import { z } from 'zod';
+import Utils from './utils.js';
 
 const itemKindMax = 2000;
 const itemNumberMax = 100;
@@ -709,11 +710,10 @@ class FormatChecker {
             return res.success;
         }
 
-        try {
-            throw new Error();
-        } catch (err) {
-            console.info(err.stack);
-        }
+        // PERF/FIX: consolidated the try/throw/catch stack capture into
+        // Utils.captureStack() (utils.js) -- the throw/catch was
+        // unnecessary; `new Error().stack` alone gives the same trace.
+        console.info(Utils.captureStack());
         console.error('Unknown message type: ' + type);
         console.warn('msg=' + JSON.stringify(msg));
         return false;

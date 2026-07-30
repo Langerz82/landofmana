@@ -184,9 +184,13 @@ class World {
                         !player.hasFullHealth() &&
                         !player.isAttacked()
                     ) {
-                        const packet = player.modHp(
-                            Math.floor(player.stats.hpMax / 8)
-                        );
+                        // FIX: was `const packet = player.modHp(...)` --
+                        // the return value was never used. Verified
+                        // modHp() (player.js) already sends the
+                        // change-points notification internally via
+                        // sendChangePoints(), so this wasn't a missed
+                        // notification, just a dead local.
+                        player.modHp(Math.floor(player.stats.hpMax / 8));
                     }
                 }
             };

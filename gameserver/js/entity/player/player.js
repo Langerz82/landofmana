@@ -663,13 +663,10 @@ class Player extends Character {
         // purely to log it is real, avoidable cost; gated behind G_DEBUG like
         // the equivalent diagnostic-only stack captures elsewhere in the
         // codebase (e.g. map/mapentities.js's findPath).
-        if (G_DEBUG) {
-            try {
-                throw new Error();
-            } catch (err) {
-                console.error(err.stack);
-            }
-        }
+        // PERF/FIX: consolidated the try/throw/catch into Utils.captureStack()
+        // (utils.js) -- the throw/catch was unnecessary; `new Error().stack`
+        // alone gives the same trace. Still gated behind G_DEBUG as before.
+        if (G_DEBUG) console.error(Utils.captureStack());
         this.fixMove(x, y);
         this.sendCurrentMove();
     }
