@@ -184,7 +184,13 @@ Utils.GetGroupCountArray = function (groupArray, field) {
     for (const rec in group) {
         array.push([rec, group[rec].length]);
     }
-    console.info(JSON.stringify(array));
+    // FIX: unconditional console.info of the built array, on gameserver's
+    // only call site (entityquests.js's getMobObject(), a per-NPC-dialogue
+    // dynamic-quest lookup already gated behind G_DEBUG at the call site --
+    // this internal log wasn't, so it kept firing regardless). This file is
+    // shared across gameserver/userserver/client, none of which guarantee a
+    // G_DEBUG global is available here, and the log has no effect on the
+    // returned value -- pure debug residue. Removed rather than gated.
     array.sort(function (a, b) {
         return a[1] - b[1];
     });
