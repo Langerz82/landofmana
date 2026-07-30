@@ -1,24 +1,24 @@
-#allinventorywindow{
+#allinventorywindow {
     display: none;
     color: white;
     text-align: center;
     pointer-events: auto;
-    z-index:14;
-		width:340px;
-		margin-left: -170px;
+    z-index: 14;
+    width: 340px;
+    margin-left: -170px;
 }
 
 .gemsicon {
-  position:absolute;
-  left:0;
-  display: inline-block;
-  background-image: url("../img/3/item/item-gem.png");
-  background-size: 16px 16px;
+    position: absolute;
+    left: 0;
+    display: inline-block;
+    background-image: url("../img/3/item/item-gem.png");
+    background-size: 16px 16px;
 }
 
 .inventoryGoldFrame .inventoryGold {
     position: absolute;
-    bottom:0;
+    bottom: 0;
     color: #fff;
     text-align: left;
     font-family: "GraphicPixel";
@@ -26,51 +26,50 @@
 
 .inventoryGemsFrame .inventoryGems {
     position: absolute;
-    bottom:0;
+    bottom: 0;
     color: #fff;
     text-align: left;
     font-family: "GraphicPixel";
 }
 
-    #inventory {
-      position: absolute;
-      top: 90px;
-    }
+#inventory {
+    position: absolute;
+    top: 90px;
+}
 
-    #inventory span
-  	{
-  		position:absolute;
-  		left:5px;
-  		top:0;
-  		font-family: "GraphicPixel";
-  		font-size:16px;
-  	}
+#inventory span {
+    position: absolute;
+    left: 5px;
+    top: 0;
+    font-family: "GraphicPixel";
+    font-size: 16px;
+}
 
-    #inventoryoffset {
-    	position: absolute;
-    	left:0;
-    	top:20px;
-		  pointer-events: auto;
-      height: 240px;
-      overflow-y: scroll;
-      width: 320px;
-    }
+#inventoryoffset {
+    position: absolute;
+    left: 0;
+    top: 20px;
+    pointer-events: auto;
+    height: 240px;
+    overflow-y: scroll;
+    width: 320px;
+}
 
-    #inventoryoffset div * {
-      font-family: "GraphicPixel";
-    }
+#inventoryoffset div * {
+    font-family: "GraphicPixel";
+}
 
-  #invActionButton {
-    position:absolute;
-		bottom:-12px;
-		right:0;
+#invActionButton {
+    position: absolute;
+    bottom: -12px;
+    right: 0;
     display: none;
     height: 32px;
     line-height: 28px;
-    margin:0;
-  }
+    margin: 0;
+}
 
-  /*#inventoryGearItems {
+/*#inventoryGearItems {
     position:absolute;
 		top:0;
 		left:0;
@@ -86,140 +85,148 @@
     line-height: 26px;
   }*/
 
-      div.inventoryitembackground {
-      position: absolute;
-      width: 56px;
-      height: 57px;
-      background: url('../img/3/misc/itembackground.png' ) no-repeat;
-      pointer-events: auto;
-    }
-    div.inventoryitem {
-        position: absolute;
-        margin:auto;
-        width: 48px;
-        height: 48px;
-        background-color: rgba(0, 0, 0, 0);
-    		cursor: pointer;
-    		pointer-events: auto;
-    		text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;
-    		line-height: 48px;
-    		color: #FFFFFF;
-    		font-size:18px;
-        text-align:center;
-    }
-    div.inventoryhighlight {
-      position: absolute;
-      margin:2px;
-      width: 52px;
-      height: 52px;
-      border-radius:6px;
-      text-align: center;
-      font-size: 21px;
-      color: white;
-      cursor: default;
-      pointer-events: none;
-    }
-
-	/* Character - Equipment */
-	#equipment
-	{
-		position:absolute;
-		left:0;
-		top:10px;
-    height:100px;
-	}
-
-	#equipment span
-	{
-		position:absolute;
-		left:5px;
-		top:0;
-    /*height:30px;*/
-		font-family: "GraphicPixel";
-		font-size:16px;
-		/*vertical-align: bottom;*/
-		/*line-height: 42px;*/
-	}
-
-  #equipment div * {
-    font-family: "GraphicPixel";
-  }
-
-  #equipmentOffset {
+div.inventoryitembackground {
     position: absolute;
-    top:20px;
-  }
+    width: 56px;
+    height: 57px;
+    background: url("../img/3/misc/itembackground.png") no-repeat;
+    pointer-events: auto;
+}
+div.inventoryitem {
+    position: absolute;
+    margin: auto;
+    width: 48px;
+    height: 48px;
+    background-color: rgba(0, 0, 0, 0);
+    cursor: pointer;
+    pointer-events: auto;
+    text-shadow:
+        -1px 0 black,
+        0 1px black,
+        1px 0 black,
+        0 -1px black;
+    line-height: 48px;
+    color: #ffffff;
+    font-size: 18px;
+    text-align: center;
+}
+div.inventoryhighlight {
+    position: absolute;
+    margin: 2px;
+    width: 52px;
+    height: 52px;
+    border-radius: 6px;
+    text-align: center;
+    font-size: 21px;
+    color: white;
+    cursor: default;
+    pointer-events: none;
+}
 
-  #equipBackground0, #equipBackground1, #equipBackground2, #equipBackground3, #equipBackground4
-  {
-      position: absolute;
-      width: 56px;
-      height: 57px;
-      background: url('../img/3/misc/itembackground.png' ) no-repeat;
-      pointer-events: auto;
-      /*right:0;*/
-  }
+/* Character - Equipment */
+#equipment {
+    position: absolute;
+    left: 0;
+    top: 10px;
+    height: 100px;
+}
 
-	#equipBackground0
-	{
-    left:0;
+#equipment span {
+    position: absolute;
+    left: 5px;
+    top: 0;
+    /*height:30px;*/
+    font-family: "GraphicPixel";
+    font-size: 16px;
+    /*vertical-align: bottom;*/
+    /*line-height: 42px;*/
+}
+
+#equipment div * {
+    font-family: "GraphicPixel";
+}
+
+#equipmentOffset {
+    position: absolute;
+    top: 20px;
+}
+
+#equipBackground0,
+#equipBackground1,
+#equipBackground2,
+#equipBackground3,
+#equipBackground4 {
+    position: absolute;
+    width: 56px;
+    height: 57px;
+    background: url("../img/3/misc/itembackground.png") no-repeat;
+    pointer-events: auto;
+    /*right:0;*/
+}
+
+#equipBackground0 {
+    left: 0;
     background-position: -56px 0;
-	}
-	#equipBackground1
-	{
+}
+#equipBackground1 {
     left: 60px;
     background-position: -56px -57px;
-	}
-  #equipBackground2
-	{
+}
+#equipBackground2 {
     left: 120px;
     background-position: 0 -57px;
-	}
-  #equipBackground3
-	{
+}
+#equipBackground3 {
     left: 180px;
     background-position: -56px -114px;
-	}
-  #equipBackground4
-	{
+}
+#equipBackground4 {
     left: 240px;
     background-position: 0 0;
-	}
+}
 
-  #equipment0, #equipment1, #equipment2, #equipment3, #equipment4 {
+#equipment0,
+#equipment1,
+#equipment2,
+#equipment3,
+#equipment4 {
     position: absolute;
-    top:0;
+    top: 0;
     margin: 3px;
     width: 48px;
     height: 48px;
     background-color: rgba(0, 0, 0, 0);
     cursor: pointer;
     pointer-events: auto;
-    text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;
+    text-shadow:
+        -1px 0 black,
+        0 1px black,
+        1px 0 black,
+        0 -1px black;
     line-height: 48px;
-    color: #FFF;
-    font-size:18px;
-    text-align:center;
-  }
+    color: #fff;
+    font-size: 18px;
+    text-align: center;
+}
 
-    #allinventorywindow div.inventoryGoldFrame {
-    		position:absolute;
-        left: 0;
-        bottom: 0;
-        width: 120px;
-        height: 18px;
-    }
+#allinventorywindow div.inventoryGoldFrame {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 120px;
+    height: 18px;
+}
 
-    .goldicon {
-      position:absolute;
-      left:0px;
-      display: inline-block;
-			width: 16px;
-			height: 16px;
+.goldicon {
+    position: absolute;
+    left: 0px;
+    display: inline-block;
+    width: 16px;
+    height: 16px;
 
-			background-image: url("../img/3/item/item-gold.png");
-      background-size: 96px 16px;
-		}
+    background-image: url("../img/3/item/item-gold.png");
+    background-size: 96px 16px;
+}
 
 /*    #allinventorywindow div.inventoryGemsFrame {
         position:absolute;
@@ -235,53 +242,51 @@
 		}
 */
 
-    .inventoryGoldFrame .inventoryGold {
-        left:18px;
-        font-size:21px;
-        line-height:21px;
-    }
+.inventoryGoldFrame .inventoryGold {
+    left: 18px;
+    font-size: 21px;
+    line-height: 21px;
+}
 
-    .inventoryGemsFrame .inventoryGems {
-        left:18px;
-        font-size:21px;
-        line-height:21px;
-    }
+.inventoryGemsFrame .inventoryGems {
+    left: 18px;
+    font-size: 21px;
+    line-height: 21px;
+}
 
-    #storeDialogStore div.inventoryGoldFrame
-    {
-      position:absolute;
-      bottom:0;
-      left:0;
-      height:18px;
-    }
+#storeDialogStore div.inventoryGoldFrame {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 18px;
+}
 
-    #storeDialogStore div.inventoryGemsFrame
-    {
-      position:absolute;
-      bottom:0;
-      left:0;
-      height:18px;
-    }
+#storeDialogStore div.inventoryGemsFrame {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 18px;
+}
 
-    div.inventorySellGoldFrame {
-    		position:absolute;
-				right: 200px;
-        bottom: 0;
-        width: 0;
-        height: 21px;
-        text-align:right;
-    }
+div.inventorySellGoldFrame {
+    position: absolute;
+    right: 200px;
+    bottom: 0;
+    width: 0;
+    height: 21px;
+    text-align: right;
+}
 
-    .inventorySellGoldFrame .inventorySellGold {
-        position: absolute;
-        bottom:0;
-        left:18px;
-        font-size:21px;
-        line-height:21px;
-        color: #fff;
-        text-align: left;
-    }
+.inventorySellGoldFrame .inventorySellGold {
+    position: absolute;
+    bottom: 0;
+    left: 18px;
+    font-size: 21px;
+    line-height: 21px;
+    color: #fff;
+    text-align: left;
+}
 
-     .inventorySellGoldFrame * {
-       font-family: "GraphicPixel";
-     }
+.inventorySellGoldFrame * {
+    font-family: "GraphicPixel";
+}

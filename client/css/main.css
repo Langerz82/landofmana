@@ -9,20 +9,93 @@
   }
 }*/
 
-#about{display:block;text-align:center;}
-#about2{position:absolute; text-align:center; bottom:0;display:block;}
-#about, #about * {font-size: 20px;font-family: 'GraphicPixel';color:#fff;margin:2%}
-#about2, #about2 * {font-size: 20px;font-family: 'GraphicPixel';color:#fff;margin:2%;}
+#about {
+    display: block;
+    text-align: center;
+}
+#about2 {
+    position: absolute;
+    text-align: center;
+    bottom: 0;
+    display: block;
+}
+#about,
+#about * {
+    font-size: 20px;
+    font-family: "GraphicPixel";
+    color: #fff;
+    margin: 2%;
+}
+#about2,
+#about2 * {
+    font-size: 20px;
+    font-family: "GraphicPixel";
+    color: #fff;
+    margin: 2%;
+}
 
-html, body, div, span, applet, object, iframe,
-h1, h2, h3, h4, h5, h6, p, blockquote, pre,
-a, abbr, acronym, address, big, cite, code,
-del, dfn, em, font, img, ins, kbd, q, s, samp,
-small, strike, strong, sub, sup, tt, var,
-b, u, i, center,
-dl, dt, dd, ol, ul, li,
-fieldset, form, label, legend,
-table, caption, tbody, tfoot, thead, tr, th, td {
+html,
+body,
+div,
+span,
+applet,
+object,
+iframe,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+blockquote,
+pre,
+a,
+abbr,
+acronym,
+address,
+big,
+cite,
+code,
+del,
+dfn,
+em,
+font,
+img,
+ins,
+kbd,
+q,
+s,
+samp,
+small,
+strike,
+strong,
+sub,
+sup,
+tt,
+var,
+b,
+u,
+i,
+center,
+dl,
+dt,
+dd,
+ol,
+ul,
+li,
+fieldset,
+form,
+label,
+legend,
+table,
+caption,
+tbody,
+tfoot,
+thead,
+tr,
+th,
+td {
     margin: 0;
     padding: 0;
     border: 0;
@@ -30,21 +103,25 @@ table, caption, tbody, tfoot, thead, tr, th, td {
     font-size: 16px;
     vertical-align: baseline;
     /*background: transparent;*/
-    font-family:'pixel-emulator';
+    font-family: "pixel-emulator";
 }
 
 body {
     line-height: 1;
 }
-ol, ul {
+ol,
+ul {
     list-style: none;
 }
-blockquote, q {
+blockquote,
+q {
     quotes: none;
 }
-blockquote:before, blockquote:after,
-q:before, q:after {
-    content: '';
+blockquote:before,
+blockquote:after,
+q:before,
+q:after {
+    content: "";
     content: none;
 }
 :focus {
@@ -60,86 +137,122 @@ table {
     border-collapse: collapse;
     border-spacing: 0;
 }
-article, aside, details, figcaption, figure,
-footer, header, hgroup, menu, nav, section {
+article,
+aside,
+details,
+figcaption,
+figure,
+footer,
+header,
+hgroup,
+menu,
+nav,
+section {
     display: block;
 }
 
-.gp {font-family: 'GraphicPixel', sans-serif;}
+.gp {
+    font-family: "GraphicPixel", sans-serif;
+}
 
-
-html {}
+html {
+}
 body {
-  padding:0;margin:0;
-  width:100%;
-  height:100%;
+    padding: 0;
+    margin: 0;
+    width: 100%;
+    height: 100%;
 }
 
 #game-heading {
-  position: absolute;
-      width: 360px;
-      height: 60px;
-      background-image: url(../img/common/landofmana.png);
-      left: 50%;
-      top: 5%;
-      margin-left: -180px;
-      background-size: 100%;
+    position: absolute;
+    width: 360px;
+    height: 60px;
+    background-image: url(../img/common/landofmana.png);
+    left: 50%;
+    top: 5%;
+    margin-left: -180px;
+    background-size: 100%;
 }
 
+#intro {
+    position: absolute;
+    left: 0;
+    top: 0;
+    z-index: 20;
+    width: 100%;
+    height: 100%;
+}
 
-#intro {position:absolute;left:0;top:0;z-index: 20;width:100%;height:100%;}
-
-#container {z-index:0;position:absolute;left:0;top:0;width:100%;height:100%;overflow: hidden;display:none;}
+#container {
+    z-index: 0;
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    display: none;
+}
 /*#container * {z-index: 10}*/
 
-
 #game {
-  z-index: 5;
-  position: absolute;
-  border:2px solid black;
-  cursor:none;
+    z-index: 5;
+    position: absolute;
+    border: 2px solid black;
+    cursor: none;
 }
 
 #canvas {
-  -moz-user-select:none;-webkit-user-select:none;-o-user-select:none;-ms-user-select:none;
-  z-index:10;
-  position: absolute;
-  left:0;
-  top: 0;
-  background: rgb(0 0 0);
+    -moz-user-select: none;
+    -webkit-user-select: none;
+    -o-user-select: none;
+    -ms-user-select: none;
+    z-index: 10;
+    position: absolute;
+    left: 0;
+    top: 0;
+    background: rgb(0 0 0);
 }
 
 #canvas canvas {
-  position: absolute;
-  left:0;
-  top:0;
+    position: absolute;
+    left: 0;
+    top: 0;
 }
 
-.started #canvas {cursor:none;}
+.started #canvas {
+    cursor: none;
+}
 #canvas.clickable {
-    -webkit-tap-highlight-color:rgba(0,0,0,0);
-    pointer-events:all;
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+    pointer-events: all;
 }
 
-h1 {font-weight:normal;}
+h1 {
+    font-weight: normal;
+}
 
-.preload {}
+.preload {
+}
 
-
-div.clear{
+div.clear {
     float: left;
     clear: both;
     width: 100%;
 }
 
-#dropDialog *, #auctionSellDialog *, #dropCount * {
+#dropDialog *,
+#auctionSellDialog *,
+#dropCount * {
     pointer-events: all;
-    cursor:default;
+    cursor: default;
 }
 
-#dropDialog, #auctionSellDialog {
-    font-family:'GraphicPixel';
-    color:#e3e3e3;
+#dropDialog,
+#auctionSellDialog {
+    font-family: "GraphicPixel";
+    color: #e3e3e3;
     position: absolute;
     width: 300px;
     height: 200px;
@@ -151,45 +264,59 @@ div.clear{
     border-radius: 6px 6px 6px 6px;
     display: none;
     opacity: 0.85;
-    z-index:15;
+    z-index: 15;
 }
 
-
-#dropTitle, #auctionSellTitle {
-    font-family:'GraphicPixel';
+#dropTitle,
+#auctionSellTitle {
+    font-family: "GraphicPixel";
     text-align: center;
     padding: 10px;
 }
 
-#dropCount, #auctionSellCount {
-    padding:10px;
+#dropCount,
+#auctionSellCount {
+    padding: 10px;
 }
 
-#dropDialog .frame-new-button, #auctionSellDialog .frame-new-button {
+#dropDialog .frame-new-button,
+#auctionSellDialog .frame-new-button {
     position: absolute;
     display: block;
-    bottom:0;
+    bottom: 0;
     margin-left: 15px;
     margin-right: 15px;
 }
 
 #dropDialog .frame-new-button:nth-child(1 of .frame-new-button),
-#auctionSellDialog .frame-new-button:nth-child(1 of .frame-new-button)
-{
+#auctionSellDialog .frame-new-button:nth-child(1 of .frame-new-button) {
     right: 0;
 }
 
 #dropDialog .frame-new-button:nth-child(2 of .frame-new-button),
-#auctionSellDialog .frame-new-button:nth-child(2 of .frame-new-button)
-{
+#auctionSellDialog .frame-new-button:nth-child(2 of .frame-new-button) {
     left: 0;
 }
 
-
-.validation-error {color:#880000;}
-@keyframes blink { 0% {color:red;} 100% {color:#880000;}}
-@-webkit-keyframes blink { 0% {color:red;} 100% {color:#880000;}}
-
+.validation-error {
+    color: #880000;
+}
+@keyframes blink {
+    0% {
+        color: red;
+    }
+    100% {
+        color: #880000;
+    }
+}
+@-webkit-keyframes blink {
+    0% {
+        color: red;
+    }
+    100% {
+        color: #880000;
+    }
+}
 
 /*#intro {position:absolute;left:0;top:0;z-index: 20;width:100%;height:100%;}
 
@@ -199,8 +326,20 @@ footer div  {display:inline-block;}
 .close:hover {cursor:pointer;}
 */
 
-#nameinput::-webkit-input-placeholder  {color:#fff;}
-#resize-check {position:absolute;height:0;top:0;left:0;-moz-transition:0.001s height ease;-webkit-transition:0.001s height ease;-o-transition:0.001s height ease;-ms-transition:0.001s height ease;transition:0.001s height ease;}
+#nameinput::-webkit-input-placeholder {
+    color: #fff;
+}
+#resize-check {
+    position: absolute;
+    height: 0;
+    top: 0;
+    left: 0;
+    -moz-transition: 0.001s height ease;
+    -webkit-transition: 0.001s height ease;
+    -o-transition: 0.001s height ease;
+    -ms-transition: 0.001s height ease;
+    transition: 0.001s height ease;
+}
 
 /*
 #name-tooltip {width:400px;height:30px;padding:10px 0;font-size:20px;background:#373737;position:absolute;left:50%;margin-left:-200px;color:#fff;border-radius:8px;line-height:30px;top:-40px;opacity:0;-moz-transition:0.25s opacity ease;-webkit-transition:0.25s opacity ease;-o-transition:0.25s opacity ease;-ms-transition:0.25s opacity ease;transition:0.25s opacity ease;pointer-events:none;}
@@ -211,94 +350,110 @@ footer div  {display:inline-block;}
 .opera #name-tooltip.visible {display:block;}
 */
 
-	#gui {
-		position: absolute;
-		left:0;
-		top: 0;
-		transform-origin: top left;
-		-moz-user-select:none;-webkit-user-select:none;-o-user-select:none;-ms-user-select:none;
-		z-index:10;
-		pointer-events:none;
-		cursor:none;
-	}
+#gui {
+    position: absolute;
+    left: 0;
+    top: 0;
+    transform-origin: top left;
+    -moz-user-select: none;
+    -webkit-user-select: none;
+    -o-user-select: none;
+    -ms-user-select: none;
+    z-index: 10;
+    pointer-events: none;
+    cursor: none;
+}
 
+#playerPopupMenuContainer {
+    position: absolute;
+    width: 150px;
+    height: 170px;
+    background: rgba(0, 0, 0, 0.5);
+    display: none;
+    pointer-events: all;
+    cursor: pointer;
+}
+#playerPopupMenuContainer div {
+    position: absolute;
+    left: 0px;
+    width: 150px;
+    height: 36px;
+    background: rgba(0, 0, 0, 0);
+    color: rgba(255, 255, 255, 1);
+    font-size: 24px;
+    text-align: center;
+    margin-top: 12px;
+}
+#playerPopupMenuName {
+    top: 0px;
+}
+#playerPopupMenuAttack {
+    top: 36px;
+}
+#playerPopupMenuPartyInvite {
+    top: 72px;
+}
+#playerPopupMenuPartyLeader {
+    top: 72px;
+}
+#playerPopupMenuPartyKick {
+    top: 108px;
+}
 
+#chatbox {
+    position: absolute;
+    left: 50%;
+    bottom: 25%;
+    width: 500px;
+    height: 32px;
+    margin-left: -250px;
+    display: none;
+    background-color: #000;
+    opacity: 0.5;
+    z-index: 20;
+}
 
-    #playerPopupMenuContainer{
-        position: absolute;
-        width: 150px;
-        height: 170px;
-        background: rgba(0, 0, 0, 0.5);
-        display: none;
-        pointer-events: all;
-        cursor: pointer;
-    }
-    #playerPopupMenuContainer div {
-        position: absolute;
-        left: 0px;
-        width: 150px;
-        height: 36px;
-        background: rgba(0, 0, 0, 0);
-        color: rgba(255, 255, 255, 1);
-        font-size: 24px;
-        text-align: center;
-        margin-top: 12px;
-    }
-    #playerPopupMenuName{ top: 0px; }
-    #playerPopupMenuAttack{ top: 36px; }
-    #playerPopupMenuPartyInvite{ top: 72px; }
-    #playerPopupMenuPartyLeader{ top: 72px; }
-    #playerPopupMenuPartyKick{ top: 108px; }
-    
-    #chatbox {
-        position: absolute;
-        left: 50%;
-        bottom: 25%;
-        width: 500px;
-        height: 32px;
-        margin-left: -250px;
-        display: none;
-        background-color: #000;
-        opacity: 0.5;
-        z-index: 20;
-    }
+#chatbox.active {
+    display: block;
+}
+#chatbox input {
+    font-size: 16px;
+    color: #eee;
+    background: none;
+    width: 90%;
+    border: 0;
+    margin-left: 2%;
+    padding: 7px 0;
+}
+#chatbox .legend {
+    position: absoute;
+    top: -20px;
+    left: 10px;
+    padding: 4px 6px;
+    color: #fff;
+    background: rgba(45, 45, 45, 0.8);
+    z_index: 4;
+    border-radius: 3px 3px 0 0;
+    diplay: none;
+}
+#chatbox .legend p {
+    line-height: 1;
+}
 
-    #chatbox.active {
-        display: block;
-    }
-    #chatbox input {
-        font-size:16px;
-        color:#eee;
-        background:none;
-        width:90%;
-        border:0;
-        margin-left:2%;
-        padding:7px 0;
-    }
-    #chatbox .legend{
-        position: absoute;
-        top: -20px;
-        left: 10px;
-        padding: 4px 6px;
-        color: #FFF;
-        background: rgba(45,45,45,0.8);
-        z_index: 4;
-        border-radius: 3px 3px 0 0;
-        diplay: none;
-    }
-    #chatbox .legend p{
-        line-height: 1;
-    }
+.button.delete {
+    background-position: -687px -153px;
+}
+.button.delete:active {
+    background-position: 0 -2178px;
+}
+.validation-error {
+    font-size: 22px;
+}
 
-            .button.delete {background-position:-687px -153px;}
-    .button.delete:active {background-position:0 -2178px;}
-    .validation-error {font-size:22px;}
+tr:hover {
+    background: rgba(0, 128, 0, 0.5);
+}
 
-    tr:hover {
-        background: rgba(0, 128, 0, 0.5);
-    }
-
-                                    
-    
-    
-    #resize-check {height:3px;}
+#resize-check {
+    height: 3px;
+}

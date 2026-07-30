@@ -1,117 +1,113 @@
-
-
 #achievementlog {
-	position: absolute;
-	display: none;
-	pointer-events: all;
+    position: absolute;
+    display: none;
+    pointer-events: all;
 }
 
-#achievementLogScroll
-{
-	height:390px;
-	overflow-y: scroll;
+#achievementLogScroll {
+    height: 390px;
+    overflow-y: scroll;
 }
 
 #achievementLogInfo * {
-	color: white;
-	font-size:18px;
+    color: white;
+    font-size: 18px;
 }
 
 #achievementLogInfo {
-	border-collapse: separate;
-	border-spacing:6px !important;
+    border-collapse: separate;
+    border-spacing: 6px !important;
 }
 
 #achievementLogInfo th {
-	font-size:24px;
+    font-size: 24px;
 }
 
 #achievementLogInfo td {
-	font-family:"GraphicPixel";
-	font-size: 21px;
-	font-weight: normal;
+    font-family: "GraphicPixel";
+    font-size: 21px;
+    font-weight: normal;
 }
 
 #questLogInfo .img {
-	display:inline-block;
-	vertical-align:middle;
-	text-align:center;
+    display: inline-block;
+    vertical-align: middle;
+    text-align: center;
 }
 
 #questlog {
-	position: absolute;
-	display: none;
-	pointer-events: all;
+    position: absolute;
+    display: none;
+    pointer-events: all;
 }
 
-#questLogScroll
-{
-	height:390px;
-	overflow-y: scroll;
+#questLogScroll {
+    height: 390px;
+    overflow-y: scroll;
 }
 
 #questLogInfo * {
-	color: white;
-	font-size:18px;
+    color: white;
+    font-size: 18px;
 }
 
 #questLogInfo {
-	border-collapse: separate;
-	border-spacing:6px !important;
+    border-collapse: separate;
+    border-spacing: 6px !important;
 }
 
 #questLogInfo th {
-	font-size:24px;
+    font-size: 24px;
 }
 
 #questLogInfo td {
-	font-family:"GraphicPixel"
+    font-family: "GraphicPixel";
 }
 
 #useralarm {
-	background: rgba(0, 0, 0, 0.4);
-	text-align: center;
-	color: rgba(255, 255, 255, 1);
-	display: none;
-	position: absolute;
-	top: 75%;
-	left: 50%;
-	margin-left: -220px;
-	margin-top: -75px;
-	width: 440px;
-	height: 150px;
-	cursor:none;
-	padding:6px 12px 6px 12px;
-	border-radius:12px;
-  pointer-events: none;
+    background: rgba(0, 0, 0, 0.4);
+    text-align: center;
+    color: rgba(255, 255, 255, 1);
+    display: none;
+    position: absolute;
+    top: 75%;
+    left: 50%;
+    margin-left: -220px;
+    margin-top: -75px;
+    width: 440px;
+    height: 150px;
+    cursor: none;
+    padding: 6px 12px 6px 12px;
+    border-radius: 12px;
+    pointer-events: none;
 }
 
 #useralarm * {
-	font-family:"GraphicPixel";
-	font-size: 21px;
+    font-family: "GraphicPixel";
+    font-size: 21px;
 }
 
 #useralarm h2 {
-	font-size: 24px;
+    font-size: 24px;
 }
 
 #questLogInfo {
-	font-size:16px;
-	pointer-events:none;
+    font-size: 16px;
+    pointer-events: none;
 }
 
 #questLogInfo col:nth-child(1) {
-	width: 25%;
+    width: 25%;
 }
 #questLogInfo col:nth-child(2) {
-	width: 50%;
-	height:80px;
+    width: 50%;
+    height: 80px;
 }
 
 #questLogInfo col:nth-child(3) {
-	width: 25%;
+    width: 25%;
 }
 
 #questLogInfo tr {
-	height:60px;
+    height: 60px;
 }

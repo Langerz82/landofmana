@@ -1,16 +1,17 @@
-#statsDialog, #skillsDialog {
-	cursor: default;
-	-moz-user-select: none;
-	-webkit-user-select: none;
-	display: none;
-	cursor: pointer;
-	pointer-events: auto;
-	/*font-family:'pixel-emulator';*/
+#statsDialog,
+#skillsDialog {
+    cursor: default;
+    -moz-user-select: none;
+    -webkit-user-select: none;
+    display: none;
+    cursor: pointer;
+    pointer-events: auto;
+    /*font-family:'pixel-emulator';*/
 }
 
 #skillsDialog {
-	width: 350px;
-	margin-left: -175px;
+    width: 350px;
+    margin-left: -175px;
 }
 
 #characterAttack,
@@ -18,133 +19,142 @@
 #characterHealth,
 #characterEnergy,
 #characterLuck,
-#characterPoints
-{
-	display:inline-block;
-	color:white;
+#characterPoints {
+    display: inline-block;
+    color: white;
 }
 
-#characterName, #characterLevel, #characterAttackLevel,#characterDefenseLevel,
-#characterBaseCrit, #characterBaseDamage, #characterBaseCritDef, #characterBaseDamageDef {
-	color:#fff;
+#characterName,
+#characterLevel,
+#characterAttackLevel,
+#characterDefenseLevel,
+#characterBaseCrit,
+#characterBaseDamage,
+#characterBaseCritDef,
+#characterBaseDamageDef {
+    color: #fff;
 }
 
 #charAddAttack,
 #charAddDefense,
 #charAddHealth,
 #charAddEnergy,
-#charAddLuck
-{
-display:none;
-color:black;
-pointer-events: auto;
+#charAddLuck {
+    display: none;
+    color: black;
+    pointer-events: auto;
 }
 
-#frameSkillsPage, #frameStatsPage
-{
-  position: absolute;
-  left: 2%;
-  top: 2%;
-  width: 96%;
-  height: 96%;
+#frameSkillsPage,
+#frameStatsPage {
+    position: absolute;
+    left: 2%;
+    top: 2%;
+    width: 96%;
+    height: 96%;
 }
 
 #frameStatsPage div span.newFieldName {
-	display: block;
-	padding-bottom:6%;
+    display: block;
+    padding-bottom: 6%;
 }
 
 #characterInfo {
-  position: absolute;
-  left: 2%;
-  top: 2%;
-  width: 58%;
+    position: absolute;
+    left: 2%;
+    top: 2%;
+    width: 58%;
 }
 
 #characterInfo div {
-	font-family:'GraphicPixel';
-	color: #fff;
+    font-family: "GraphicPixel";
+    color: #fff;
 }
 
 #characterStats {
-  position: absolute;
-  left: 60%;
-  top: 2%;
-  width: 38%;
+    position: absolute;
+    left: 60%;
+    top: 2%;
+    width: 38%;
 }
 
 #characterStats div * {
-	font-family:'GraphicPixel';
+    font-family: "GraphicPixel";
 }
 
 #skillDetail {
-	position: absolute;
-	left:0px;
-	top:0px;
-	width:90%;
-	height:20%;
-	font-family:'GraphicPixel';
-	font-size:16px;
-	font-weight: bold;
-	padding:1%;
-	color: #fff;
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    width: 90%;
+    height: 20%;
+    font-family: "GraphicPixel";
+    font-size: 16px;
+    font-weight: bold;
+    padding: 1%;
+    color: #fff;
 }
 
 #skillList {
-	position: absolute;
-	top:22%;
-	left:0;
+    position: absolute;
+    top: 22%;
+    left: 0;
 }
 
-#characterName, #characterLevel, #characterAttackLevel, #characterDefenseLevel,
-#characterLevelSword, #characterLevelBow, #characterLevelHammer, #characterLevelAxe,
-#characterLevelLogging, #characterLevelMining {
-  position: relative;
-  width: 240px;
-  height: 24px;
-  font-size: 16px;
+#characterName,
+#characterLevel,
+#characterAttackLevel,
+#characterDefenseLevel,
+#characterLevelSword,
+#characterLevelBow,
+#characterLevelHammer,
+#characterLevelAxe,
+#characterLevelLogging,
+#characterLevelMining {
+    position: relative;
+    width: 240px;
+    height: 24px;
+    font-size: 16px;
 }
-
 
 #playerDamageInfo {
-	position: absolute;
-	left: 60%;
-	bottom: 2%;
+    position: absolute;
+    left: 60%;
+    bottom: 2%;
 }
 
 #playerDamageInfo div {
-	font-family:'GraphicPixel';
+    font-family: "GraphicPixel";
 }
 
-#characterBaseCrit, #characterBaseCritDef, #characterBaseDamageDef,
-#characterBaseDamage, #characterBaseDamageDef {
-	width: 240px;
-	font-size: 16px;
+#characterBaseCrit,
+#characterBaseCritDef,
+#characterBaseDamageDef,
+#characterBaseDamage,
+#characterBaseDamageDef {
+    width: 240px;
+    font-size: 16px;
 }
-
-
 
 #characterPoints {
-	font-weight: 900;
+    font-weight: 900;
 }
 #characterPoints,
 #characterAttack,
 #characterDefense,
 #characterHealth,
 #characterEnergy,
-#characterLuck
-{
-	margin-bottom:6%;
-	font-size:16px;
-	width:110px !important;
+#characterLuck {
+    margin-bottom: 6%;
+    font-size: 16px;
+    width: 110px !important;
 }
 
 #charAddAttack,
 #charAddDefense,
 #charAddHealth,
 #charAddEnergy,
-#charAddLuck
-{
-	width:40px !important;
-	height:40px !important;
+#charAddLuck {
+    width: 40px !important;
+    height: 40px !important;
 }

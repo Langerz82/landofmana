@@ -1,14 +1,14 @@
-
-#user_window input, #user_window select {
-	font-family:'GraphicPixel';
-	width:50%;
-	text-align:center;
-	color:#000;
-	box-sizing: none;
-	font-size:18px;
+#user_window input,
+#user_window select {
+    font-family: "GraphicPixel";
+    width: 50%;
+    text-align: center;
+    color: #000;
+    box-sizing: none;
+    font-size: 18px;
 }
 #user_window input:focus {
-	color:#000;
+    color: #000;
 }
 
 #user_window input:-webkit-autofill,
@@ -17,333 +17,344 @@
 #user_window input:-webkit-autofill:active {
     -webkit-animation: autofill 0s forwards;
     animation: autofill 0s forwards;
-    color:#000;
+    color: #000;
 }
 
 @keyframes autofill {
     100% {
-        color:#000;
+        color: #000;
     }
 }
 @-webkit-keyframes autofill {
     100% {
-        color:#000;
+        color: #000;
     }
 }
 
 #user_window input.field-error {
-	background:rgba(255,0,0,0.1);border-color:#f84444;
+    background: rgba(255, 0, 0, 0.1);
+    border-color: #f84444;
 }
 
-#player_window input[type=text],
-#player_window input[type=password],
-#player_window select
-{
-	background-color:#fff !important;
-	border: 2px solid black;
-	color:#000;
-}
-
-
-
-
-
-
-#about_window {
-	display: none;
-	z-index: 15;
-	opacity: 1;
-}
-
-#user_window, #player_window, #remove_window, #about_window {
-	position:absolute;
-	width:350px;
-	height:340px;
-	top:50%;
-	left:50%;
-	margin-left:-175px;
-	margin-top:-170px;
-	color: white;
-	z-index:5;
+#player_window input[type="text"],
+#player_window input[type="password"],
+#player_window select {
+    background-color: #fff !important;
+    border: 2px solid black;
+    color: #000;
 }
 
 #about_window {
-	z-index:10;
+    display: none;
+    z-index: 15;
+    opacity: 1;
+}
+
+#user_window,
+#player_window,
+#remove_window,
+#about_window {
+    position: absolute;
+    width: 350px;
+    height: 340px;
+    top: 50%;
+    left: 50%;
+    margin-left: -175px;
+    margin-top: -170px;
+    color: white;
+    z-index: 5;
+}
+
+#about_window {
+    z-index: 10;
 }
 
 #aboutbutton {
-	position: absolute;
-	left: 0px;
-	bottom: 0px;
-	opacity: 0.75;
-	z-index: 1;
+    position: absolute;
+    left: 0px;
+    bottom: 0px;
+    opacity: 0.75;
+    z-index: 1;
 }
 
 #remove_window {
-	display: none;
-	z-index: 10;
-	opacity: 1 !important;
+    display: none;
+    z-index: 10;
+    opacity: 1 !important;
 }
 
 #remove_window * {
-	font-family: 'GraphicPixel';
+    font-family: "GraphicPixel";
 }
 
-#user_window {font-size:18px;}
-#user_window input {font-size:18px;}
+#user_window {
+    font-size: 18px;
+}
+#user_window input {
+    font-size: 18px;
+}
 
 .validation-summary {
-	position:absolute;
-	top:150px;
-	left:10px;
-	width:328px;
-	height:40px;
-	color:white;
-	font-size:18px;
-	font-family: 'GraphicPixel';
+    position: absolute;
+    top: 150px;
+    left: 10px;
+    width: 328px;
+    height: 40px;
+    color: white;
+    font-size: 18px;
+    font-family: "GraphicPixel";
 }
 
 .validation-error {
-	position:relative;
-	left: 10px;
-	color: red;
-	font-size:18px;
-	font-family: 'GraphicPixel';
+    position: relative;
+    left: 10px;
+    color: red;
+    font-size: 18px;
+    font-family: "GraphicPixel";
 }
 
-#lbl_user_name, #lbl_user_password, #lbl_user_remember {
-	position:absolute;
-	width:120px;
-	text-align:right;
-	left:10px;
+#lbl_user_name,
+#lbl_user_password,
+#lbl_user_remember {
+    position: absolute;
+    width: 120px;
+    text-align: right;
+    left: 10px;
 }
 #lbl_user_name {
-	top:15px;
+    top: 15px;
 }
 #lbl_user_password {
-	top:60px;
+    top: 60px;
 }
 #lbl_user_remember {
-	top:110px;
-	width:250px;
+    top: 110px;
+    width: 250px;
 }
 
 #user_name {
-	position:absolute;
-	top:15px;
-	left:150px;
+    position: absolute;
+    top: 15px;
+    left: 150px;
 }
 #user_password {
-	position:absolute;
-	top:60px;
-	left:150px;
-
+    position: absolute;
+    top: 60px;
+    left: 150px;
 }
 #user_remember {
-	position:absolute;
-	top:100px;
-	left:200px;
-	width:32px;
-	height:32px;
-	cursor: pointer;
+    position: absolute;
+    top: 100px;
+    left: 200px;
+    width: 32px;
+    height: 32px;
+    cursor: pointer;
 }
 
 #user_load {
-	position:absolute;
-	bottom:0;
-	right:3%;
-	width:140px;
-	height:50px;
-	line-height:40px;
-	cursor: pointer;
+    position: absolute;
+    bottom: 0;
+    right: 3%;
+    width: 140px;
+    height: 50px;
+    line-height: 40px;
+    cursor: pointer;
 }
 
 #user_create {
-	position:absolute;
-	bottom:0;
-	left:3%;
-	width:140px;
-	height:50px;
-	line-height:40px;
-	cursor: pointer;
+    position: absolute;
+    bottom: 0;
+    left: 3%;
+    width: 140px;
+    height: 50px;
+    line-height: 40px;
+    cursor: pointer;
 }
 
 #user_remove {
-	position:absolute;
-	bottom:0;
-	right:0;
-	width:140px;
-	height:50px;
-	line-height:40px;
-	color: white;
-	cursor: pointer;
-	display: none;
-	opacity: 0.75;
-	z-index: 1;
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 140px;
+    height: 50px;
+    line-height: 40px;
+    color: white;
+    cursor: pointer;
+    display: none;
+    opacity: 0.75;
+    z-index: 1;
 }
 
 #user_load.loading:after,
 #user_create.loading:after {
-  content: " ";
-  z-index: 10;
-  display: block;
-  position: absolute;
-  height: 95%;
-  top: 0;
-  left: 0;
-  right: 0;
-  background: rgba(0, 0, 0, 0.5);
-	border: 2px solid rgba(0, 0, 0, 0.0);
-  border-radius: 10px;
+    content: " ";
+    z-index: 10;
+    display: block;
+    position: absolute;
+    height: 95%;
+    top: 0;
+    left: 0;
+    right: 0;
+    background: rgba(0, 0, 0, 0.5);
+    border: 2px solid rgba(0, 0, 0, 0);
+    border-radius: 10px;
 }
 
 #player_window {
-	display: none;
+    display: none;
 }
 
-#player_window, #player_window input {font-size:18px;}
+#player_window,
+#player_window input {
+    font-size: 18px;
+}
 
-#lbl_player_select, #lbl_player_name, #lbl_player_class, #lbl_player_server {
-	position:absolute;
-	width: 130px;
-	text-align:right;
-	left: 0;
+#lbl_player_select,
+#lbl_player_name,
+#lbl_player_class,
+#lbl_player_server {
+    position: absolute;
+    width: 130px;
+    text-align: right;
+    left: 0;
 }
 #lbl_player_select {
-	top:76px;
+    top: 76px;
 }
 #lbl_player_server {
-	top:34px;
+    top: 34px;
 }
 #lbl_player_name {
-	top:76px;
+    top: 76px;
 }
 #lbl_player_class {
-	top:118px;
+    top: 118px;
 }
 
 #player_select {
-	position:absolute;
-	top:76px;
-	left:150px;
+    position: absolute;
+    top: 76px;
+    left: 150px;
 }
 
 #player_server {
-	position:absolute;
-	top:34px;
-	left:150px;
+    position: absolute;
+    top: 34px;
+    left: 150px;
 }
 
 #player_name {
-	position:absolute;
-	top:76px;
-	left:150px;
-	width:50%;
+    position: absolute;
+    top: 76px;
+    left: 150px;
+    width: 50%;
 }
 
-
 #player_create {
-	position:absolute;
-	bottom:0;
-	left:3%;
-	width:140px;
-	height:50px;
-	line-height:40px;
-	cursor: pointer;
+    position: absolute;
+    bottom: 0;
+    left: 3%;
+    width: 140px;
+    height: 50px;
+    line-height: 40px;
+    cursor: pointer;
 }
 
 #player_load {
-	position:absolute;
-	bottom:0;
-	right:3%;
-	width:140px;
-	height:50px;
-	line-height:40px;
-	cursor: pointer;
+    position: absolute;
+    bottom: 0;
+    right: 3%;
+    width: 140px;
+    height: 50px;
+    line-height: 40px;
+    cursor: pointer;
 }
 
 #player_load.loading:after,
 #player_create.loading:after {
-  content: " ";
-  z-index: 10;
-  display: block;
-  position: absolute;
-  height: 95%;
-  top: 0;
-  left: 0;
-  right: 0;
-  background: rgba(0, 0, 0, 0.5);
-	border: 2px solid rgba(0, 0, 0, 0.0);
-  border-radius: 10px;
+    content: " ";
+    z-index: 10;
+    display: block;
+    position: absolute;
+    height: 95%;
+    top: 0;
+    left: 0;
+    right: 0;
+    background: rgba(0, 0, 0, 0.5);
+    border: 2px solid rgba(0, 0, 0, 0);
+    border-radius: 10px;
 }
 
-#errorwindow, .alert {
-	position:absolute;
-	z-index:100;
+#errorwindow,
+.alert {
+    position: absolute;
+    z-index: 100;
 }
 
-#errorwindow .error, #errorwindow .error * {
-	font-family: "GraphicPixel";
+#errorwindow .error,
+#errorwindow .error * {
+    font-family: "GraphicPixel";
 }
 
 #errorwindow {
-	display:none;
-	opacity: 1;
-	z-index:100;
+    display: none;
+    opacity: 1;
+    z-index: 100;
 }
 
 .errordetails {
-	position:absolute;
-	top:2%;
-	left:2%;
-	width:90%;
+    position: absolute;
+    top: 2%;
+    left: 2%;
+    width: 90%;
 }
 
-.errordetails, .errordetails * {
-	color:#fff;
-	font-size:18px;
-	font-family:'GraphicPixel';
-	text-align:center;
+.errordetails,
+.errordetails * {
+    color: #fff;
+    font-size: 18px;
+    font-family: "GraphicPixel";
+    text-align: center;
 }
 
 .errorback {
-	position:absolute;
-	bottom:2%;
-	left:35%;
-	height: 50px;
-	line-height: 40px;
-	width: 30%;
+    position: absolute;
+    bottom: 2%;
+    left: 35%;
+    height: 50px;
+    line-height: 40px;
+    width: 30%;
 }
 
 .errorback * {
-	color:#fff;
-	text-decoration:none;
-	font-size: 24px;
+    color: #fff;
+    text-decoration: none;
+    font-size: 24px;
 }
 
 #diedwindow {
-	display:none;
-	z-index:50;
-	cursor: default;
-	pointer-events: auto;
+    display: none;
+    z-index: 50;
+    cursor: default;
+    pointer-events: auto;
 }
 
 #respawn {
-	position:absolute;
-	top:25%;
-	left:25%;
-	width:50%;
-	height:45px;
-	cursor: pointer;
-	pointer-events:all;
+    position: absolute;
+    top: 25%;
+    left: 25%;
+    width: 50%;
+    height: 45px;
+    cursor: pointer;
+    pointer-events: all;
 }
 
 #user_remove_confirm {
-	position:absolute;
-	bottom:0;
-	left:3%;
-	width:140px;
-	height:50px;
-	line-height:40px;
-	cursor: pointer;
+    position: absolute;
+    bottom: 0;
+    left: 3%;
+    width: 140px;
+    height: 50px;
+    line-height: 40px;
+    cursor: pointer;
 }

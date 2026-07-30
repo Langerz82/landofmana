@@ -1,71 +1,73 @@
+#bankDialog {
+    font-family: "GraphicPixel";
+    -moz-user-select: none;
+    -webkit-user-select: none;
+    display: none;
+    cursor: pointer;
+    pointer-events: auto;
+    width: 400px;
+    margin-left: -200px;
+}
 
-    #bankDialog {
-        font-family: 'GraphicPixel';
-        -moz-user-select: none;
-        -webkit-user-select: none;
-        display: none;
-	      cursor: pointer;
-	      pointer-events: auto;
-        width:400px;
-        margin-left:-200px;
-    }
+#bankDialogBank {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 380px;
+    height: 75%;
+    overflow-y: scroll;
+    margin: 10px;
+}
 
-    #bankDialogBank {
-        position: absolute;
-        left: 0;
-        top: 0;
-        width: 380px;
-        height: 75%;
-        overflow-y: scroll;
-        margin: 10px;
-    }
+#bankGoldFrame {
+    position: absolute;
+    left: 10px;
+    bottom: 0;
+    width: 150px;
+    height: 18px;
+}
 
-    #bankGoldFrame {
-    		position:absolute;
-				left: 10px;
-        bottom: 0;
-        width: 150px;
-        height: 18px;
-    }
+#bankGoldFrame .bankGold {
+    position: absolute;
+    bottom: 0;
+    left: 18px;
+    font-size: 18px;
+    line-height: 18px;
+    color: #fff;
+    text-align: left;
+    text-shadow:
+        -1px 0 black,
+        0 1px black,
+        1px 0 black,
+        0 -1px black;
+    font-family: "GraphicPixel";
+}
 
-    
-    #bankGoldFrame .bankGold {
-        position: absolute;
-        bottom:0;
-        left:18px;
-        font-size:18px;
-        line-height:18px;
-        color: #fff;
-        text-align: left;
-        text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;
-        font-family: 'GraphicPixel';
-    }
+.bankItemBackground {
+    position: absolute;
+    width: 57px;
+    height: 56px;
+    background-image: url("../img/3/misc/itembackground.png");
+}
 
-    .bankItemBackground {
-      position: absolute;
-      width: 57px;
-      height: 56px;
-      background-image: url("../img/3/misc/itembackground.png");
-    }
+.bankItem {
+    position: absolute;
+    width: 48px;
+    height: 45px;
+    bottom: 3px;
+    line-height: 48px;
+    text-shadow: -1px 0 black 0 1px black 1px 0 black 0 -1px black;
+    color: white;
+    font-size: 18px;
+    text-align: center;
+    font-family: "GraphicPixel";
+    margin: 3px;
+}
 
-    .bankItem {
-      position: absolute;
-      width: 48px;
-      height: 45px;
-      bottom: 3px;
-      line-height: 48px;
-      text-shadow: -1px 0 black 0 1px black 1px 0 black 0 -1px black;
-      color: white;
-      font-size: 18px;
-      text-align: center;
-      font-family: 'GraphicPixel';
-      margin: 3px;
-    }
-
-    #bankDialogStoreButton {
-      position: absolute;
-      width:100px !important;
-      height:36px;
-      right: 0;
-      bottom: 0;
-    }
+#bankDialogStoreButton {
+    position: absolute;
+    width: 100px !important;
+    height: 36px;
+    right: 0;
+    bottom: 0;
+}

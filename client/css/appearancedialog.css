@@ -1,53 +1,52 @@
-
-    #appearanceDialog {
-        display:none;
-        pointer-events:all;
-        cursor: default;
-        z-index:14;
-        width:450px;
-/*        margin-left:-225px;
+#appearanceDialog {
+    display: none;
+    pointer-events: all;
+    cursor: default;
+    z-index: 14;
+    width: 450px;
+    /*        margin-left:-225px;
         top:18px;
         margin-top:0;*/
+}
 
-    }
+#characterLook {
+    position: absolute;
+    left: 50%;
+    margin-left: -45px;
+    top: 50%;
+    margin-top: -45px;
+    width: 96px;
+    height: 96px;
+}
+#changeLookPrev,
+#changeLookNext,
+#changeLookUnlock {
+    position: absolute;
+    width: 120px;
+    height: 24px;
+    font-size: 18px;
+    line-height: 21px;
+    color: #fff;
+}
+#changeLookPrev {
+    left: 18px;
+    top: 270px;
+}
+#changeLookUnlock {
+    left: 50%;
+    margin-left: -60px;
+    top: 270px;
+}
+#changeLookNext {
+    right: 18px;
+    top: 270px;
+}
 
-        
-      	
-    #characterLook {
-        position: absolute;
-        left: 50%;
-        margin-left:-45px;
-        top: 50%;
-        margin-top:-45px;
-        width: 96px;
-        height: 96px;
-    }
-    #changeLookPrev, #changeLookNext, #changeLookUnlock {
-    	position: absolute;
-    	width:120px;
-    	height:24px;
-    	font-size:18px;
-      line-height:21px;
-    	color: #fff;
-    }
-    #changeLookPrev {
-    	left:18px;
-    	top:270px;
-    }
-    #changeLookUnlock {
-      left: 50%;
-      margin-left: -60px;
-      top:270px;
-    }
-    #changeLookNext {
-    	right:18px;
-    	top:270px;
-    }
-
-    #characterLookArmor, #characterLookWeapon {
-        position: absolute;
-        width: 100%;
-        height: 100%;
-        background-size: 480px;
-        background-position: 0px -512px;
-    }
+#characterLookArmor,
+#characterLookWeapon {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-size: 480px;
+    background-position: 0px -512px;
+}

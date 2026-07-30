@@ -1,84 +1,77 @@
 #settings {
-	display:none;
-	color:#fff;
-	cursor: default;
-	pointer-events: auto;
+    display: none;
+    color: #fff;
+    cursor: default;
+    pointer-events: auto;
 }
 
 #settings div * {
-	font-family: 'GraphicPixel' !important;
+    font-family: "GraphicPixel" !important;
 }
 
-intput[type="color"]
-{
-	cursor: pointer;
-	pointer-events: auto;
+intput[type="color"] {
+    cursor: pointer;
+    pointer-events: auto;
 }
 
 #buttonchat,
 #buttonsound,
 #buttonjoystick,
 #buttonmenucolor,
-#buttonbuttoncolor
-{
-	position:relative;
-	display:inline-block;
-	text-align:center;
-	pointer-events:all;
-	cursor: pointer;
-	padding:0;
-	margin:0;
+#buttonbuttoncolor {
+    position: relative;
+    display: inline-block;
+    text-align: center;
+    pointer-events: all;
+    cursor: pointer;
+    padding: 0;
+    margin: 0;
 }
 
+#settingchat,
+#settingsound,
+#settingjoystick,
+#settingzoom,
+#settingmenucolor,
+#settingbuttoncolor,
+#settingshortcut {
+    position: relative;
+    display: inline-block;
+    font-family: "pixel-emulator";
+    font-size: 24px;
+    color: #fff;
+    width: 180px;
+}
 
-	#settingchat,
-	#settingsound,
-	#settingjoystick,
-	#settingzoom,
-	#settingmenucolor,
-	#settingbuttoncolor,
-	#settingshortcut
-	{
-		position:relative;
-		display:inline-block;
-		font-family: 'pixel-emulator';
-		font-size:24px;
-		color:#fff;
-		width:180px;
-	}
+#buttonchat,
+#buttonsound,
+#buttonjoystick,
+#buttonmenucolor,
+#buttonbuttoncolor {
+    position: relative;
+    display: inline-block;
+    text-align: center;
+    pointer-events: all;
+    height: 40px;
+    width: 120px;
+    cursor: pointer;
+    padding: 0;
+    margin: 0;
+}
 
-	#buttonchat,
-	#buttonsound,
-	#buttonjoystick,
-	#buttonmenucolor,
-	#buttonbuttoncolor
-	{
-		position:relative;
-		display:inline-block;
-		text-align:center;
-		pointer-events:all;
-		height:40px;
-		width:120px;
-		cursor: pointer;
-		padding:0;
-		margin:0;
+.cgamezoom,
+.cshortcutstyle {
+    position: relative;
+    display: inline-block;
+    font-size: 18px;
+    background-color: black;
+    width: 200px;
+    height: 40px;
+    overflow: hidden;
+    color: #fff;
+    text-align: center;
+}
 
-	}
-
-	.cgamezoom, .cshortcutstyle
-	{
-		position:relative;
-		display:inline-block;
-		font-size:18px;
-		background-color: black;
-		width:200px;
-		height:40px;
-		overflow: hidden;
-		color:#fff;
-		text-align:center;
-	}
-
-	#settings div.active
-	{
-		color:#fff;
-	}
+#settings div.active {
+    color: #fff;
+}
