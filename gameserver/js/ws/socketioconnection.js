@@ -17,10 +17,11 @@ export default class SocketioConnection extends Connection {
         // character) instead of the actual payload, so any compressed/large
         // message from a game client failed to decompress. Decode logic now
         // lives in the shared Connection._decodeAndDispatch (see base class
-        // above); this connection type only ever needs the plain "2" flag,
-        // not the userserver's 'z|' variant, so acceptZPrefix is false.
+        // above); this connection type only ever needs the plain "2" flag --
+        // the userserver's legacy 'z|' variant is no longer recognized
+        // anywhere (see that method's FIX comment).
         const fnOnMessage = function (msg) {
-            self._decodeAndDispatch(msg, false);
+            self._decodeAndDispatch(msg);
         };
 
         this._connection.on('message', fnOnMessage);

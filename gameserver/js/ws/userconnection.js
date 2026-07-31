@@ -11,14 +11,13 @@ export default class UserConnection extends Connection {
         const self = this;
 
         // NOTE: the userserver's socketioConnection.send() (userserver/js/ws.js)
-        // prefixes large/compressed messages with 'z|', while this class's own
-        // send() (shared Connection.send() now) prefixes them with '2'. Both
-        // prefixes have to be recognized here since this connection receives
-        // messages sent by whichever of those two implementations is on the
-        // other end -- so unlike WS.socketioConnection above, this one passes
-        // acceptZPrefix=true into the shared decoder.
+        // used to prefix large/compressed messages with 'z|'; it now always
+        // uses the same '2' prefix this class's own send() (shared
+        // Connection.send()) uses, so both ends of this link agree on one
+        // format. The shared decoder (wsbase.js's _decodeAndDispatch) no
+        // longer accepts a 'z|' variant at all -- see its FIX comment.
         this.fnOnMessage = function (msg) {
-            self._decodeAndDispatch(msg, true);
+            self._decodeAndDispatch(msg);
         };
     }
 

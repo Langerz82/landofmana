@@ -100,12 +100,22 @@ export class Connection {
     // SIMPLIFY: WS.socketioConnection and WS.userConnection used to each
     // define their own copy of this decode/dispatch logic (flag check,
     // base64 decode, gunzip, safeJsonParse, listenCallback dispatch),
-    // differing only in whether the userserver's 'z|' prefix is recognized
-    // and whether a remote address is available to log. Both subclasses now
-    // just call this with `acceptZPrefix` set appropriately; behavior for
-    // each caller is unchanged (see NOTE on WS.userConnection below re: the
-    // 'z|' prefix).
-    _decodeAndDispatch(msg, acceptZPrefix) {
+    // differing only in whether the userserver's legacy 'z|' prefix was
+    // recognized and whether a remote address is available to log. Both
+    // subclasses now just call this; behavior for each caller is unchanged.
+    //
+    // FIX: dropped the `acceptZPrefix` parameter and its `isZPrefixed`
+    // check. 'z|' was userserver/js/ws.js's old compressed-message prefix;
+    // that file's socketioConnection.send()/userConnection.send() both now
+    // always emit the plain "2" prefix instead (see the FIX comment there
+    // -- 'z|' was never even parseable on the receiving end, since nothing
+    // here strips it before base64-decoding except this now-removed
+    // branch). With no sender left anywhere in this codebase that emits
+    // 'z|', the `isZPrefixed` branch and the two-character payload offset
+    // it fed into `payload` were unreachable dead code, not a live
+    // compatibility path -- removed rather than left as a landmine for a
+    // future reader to assume still matters.
+    _decodeAndDispatch(msg) {
         // PERF: this is the raw entry point for every message on either
         // connection type (per-game-client traffic on socketioConnection,
         // gameserver<->userserver traffic on userConnection) -- unconditionally
@@ -113,8 +123,6 @@ export class Connection {
         if (G_DEBUG) console.info('m=' + msg);
 
         const flag = msg.charAt(0);
-        const isZPrefixed =
-            acceptZPrefix && flag === 'z' && msg.charAt(1) === '|';
         // Only socketioConnection's underlying socket.io socket exposes
         // `.conn.remoteAddress`; userConnection's io_client socket doesn't,
         // so this naturally comes out blank there (matching prior behavior).
@@ -124,8 +132,8 @@ export class Connection {
                 : undefined;
         const addrSuffix = addr ? ' from ' + addr : '';
 
-        if (flag === '2' || isZPrefixed) {
-            const payload = isZPrefixed ? msg.substr(2) : msg.substr(1);
+        if (flag === '2') {
+            const payload = msg.substr(1);
             const buffer = Buffer.from(payload, 'base64');
             zlib.gunzip(buffer, (err, buffer) => {
                 if (err) {
