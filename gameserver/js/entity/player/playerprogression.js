@@ -1,5 +1,6 @@
 import Messages from '../../message.js';
 import { Types } from '../../common.js';
+import Utils from '../../utils.js';
 
 // Split out of entity/player.js -- leveling/XP was one of the largest
 // self-contained clusters directly on the Player class body (base/attack/
@@ -122,6 +123,16 @@ class PlayerProgression {
         return incExp;
     }
 
+    // FIX: this had no upper bound -- each same-party member standing in
+    // screen range added another flat +0.15, and partymanager.js enforces no
+    // max party size at all, so the multiplier grew without limit for a
+    // large enough group standing together (trivially farmable with extra
+    // accounts). Clamped to a max of 2x (a "full" ~6-7 member party's worth
+    // of bonus, 0.15 * 7 = 1.05 on top of the base 1) so grouping past that
+    // stops paying off further instead of scaling exp gain arbitrarily. This
+    // cap is a reasonable default, not a value pulled from any documented
+    // design intent elsewhere in this codebase -- tune it if the intended
+    // "full party" bonus is meant to be higher or lower.
     getExpBonus() {
         const entity = this.entity;
         const self = entity;
@@ -133,7 +144,7 @@ class PlayerProgression {
                 }
             });
         }
-        return bonus;
+        return Utils.clamp(1, 2, bonus);
     }
 
     levelUp(prevLevel) {

@@ -311,13 +311,26 @@ class PlayerItems {
         if (!item) return;
 
         const kind = item.itemKind;
+        const itemData = ItemTypes.KindData[kind];
 
+        // FIX: `this.consumeTime.duration` used to only get set to this
+        // item's own cooldown *after* the isOver() gate below had already
+        // run -- so isOver() was always checking this attempt against
+        // whatever cooldown the PREVIOUSLY eaten item left behind (or this
+        // Timer's original 10000ms constructor default, on the very first
+        // eat of a session), not this item's actual configured cooldown.
+        // Eating a short-cooldown item and then a long-cooldown one let the
+        // long-cooldown item be reused far sooner than intended (and eating
+        // in the opposite order made the short-cooldown item wait longer
+        // than intended). Timer.isOver() (timer.js) already resets
+        // `lastTime` as a side effect when it returns true, so setting
+        // `duration` to this item's own cooldown right before calling it is
+        // enough to gate this attempt against the correct value -- no other
+        // change needed.
+        this.consumeTime.duration = itemData.cooldown * 1000;
         if (!this.consumeTime.isOver()) return;
 
         let amount;
-
-        const itemData = ItemTypes.KindData[kind];
-        this.consumeTime.duration = itemData.cooldown * 1000;
 
         if (itemData.typemod === 'health') {
             amount = itemData.modifier;
