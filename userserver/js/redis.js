@@ -209,6 +209,24 @@ class DatabaseHandler {
         ]);
     }
 
+    // FIX: `let j` was redeclared to 0 at the top of every outer-loop
+    // iteration, so `keys[j++]` inside the async hget() callback always
+    // resolved to `keys[0]` -- whichever player's callback happened to
+    // fire, this reset keys[0]'s "skills" field, not the current key's.
+    // Redis reply callbacks don't necessarily fire back in the same order
+    // the requests were issued, so this wasn't even consistently "reset
+    // the first player" -- it was reset-whoever's-callback-won-the-race,
+    // every time, for every matching key. Using the already-captured
+    // `key` (this iteration's own closure variable, not a shared/reset
+    // counter re-deriving an index into `keys`) fixes that -- each
+    // callback now always resets the same key it was looked up from.
+    // Also restored the `count !== 7` guard (previously commented out,
+    // and shadowing the outer loop's own `len` under the same name):
+    // without it this unconditionally wipes every matching player's
+    // skills back to zero on every run, not just the malformed ones this
+    // migration exists to repair. Still unused (see the commented-out
+    // call site in the constructor above) -- left disabled; this just
+    // corrects the bug for whenever it's actually needed again.
     replaceSkills() {
         client.scanKeys('p:*', (err, keys) => {
             if (err) return console.log(err);
@@ -217,16 +235,12 @@ class DatabaseHandler {
                 const key = keys[i];
                 console.info(key);
                 if (key.startsWith('p:')) {
-                    let j = 0;
                     client.hget(key, 'skills', (err, data) => {
-                        //console.info(JSON.stringify(err));
-                        const len = data.split(',').length;
-                        //console.info("skills count:"+len);
-                        //if (len !== 7) {
-                        const k = keys[j++];
-                        //console.info("resetting skills." + k);
-                        client.hset(k, 'skills', '0,0,0,0,0,0,0');
-                        //}
+                        if (err || !data) return;
+                        const count = data.split(',').length;
+                        if (count !== 7) {
+                            client.hset(key, 'skills', '0,0,0,0,0,0,0');
+                        }
                     });
                 }
             }
@@ -426,13 +440,49 @@ class DatabaseHandler {
         return this.isNameInSet('player', name, callback);
     }
 
+    // PERF: this used to unconditionally SMEMBERS the *entire* set --
+    // every registered username, or every existing player name in the
+    // game -- on every single call, then walk the full result in JS to
+    // do a case-insensitive match. Both callers (ExistsUsername/
+    // ExistsPlayerName above) sit on the hottest paths in this server:
+    // ExistsUsername runs on every login and every registration attempt,
+    // ExistsPlayerName on every character-creation attempt. Redis is
+    // single-threaded, so SMEMBERS on a keyspace-sized set blocks every
+    // other client's command for the duration of the fetch, and that cost
+    // only grows as the account/character count grows -- unlike a normal
+    // key lookup, this doesn't stay flat with player-base size.
+    //
+    // SISMEMBER against the exact, as-given name is an O(1) Redis-side
+    // check and covers the overwhelmingly common case cheaply: a login
+    // for an existing username, or a "name already taken" retry during
+    // registration/character-creation, is normally checking a name in
+    // exactly the case it was originally stored under (SADD is
+    // case-sensitive; both callers already normalize case before this is
+    // ever reached -- user.js lowercases usernames, and reservePlayerNameLock
+    // above already keys its own lock off name.toLowerCase() for the same
+    // reason). Only the genuine "name truly doesn't exist yet" path
+    // (successful new registration/creation, the far less frequent case)
+    // or a differently-cased legacy record falls through to the full
+    // case-insensitive SMEMBERS scan below -- kept exactly as it was, as
+    // the defense-in-depth check it already served as, just no longer
+    // paid on every call.
     isNameInSet(setName, name, callback) {
         const nameLower = name.toLowerCase();
-        client.smembers(setName, (err, reply) => {
-            reply = reply.map((rec) => rec.toLowerCase());
-            if (callback) {
-                callback(name, reply.includes(nameLower));
+
+        client.sismember(setName, name, (err, exact) => {
+            if (!err && exact) {
+                if (callback) {
+                    callback(name, true);
+                }
+                return;
             }
+
+            client.smembers(setName, (err2, reply) => {
+                reply = (reply || []).map((rec) => rec.toLowerCase());
+                if (callback) {
+                    callback(name, reply.includes(nameLower));
+                }
+            });
         });
     }
 

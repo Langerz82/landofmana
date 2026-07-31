@@ -241,24 +241,38 @@ WS.socketioConnection = class extends Connection {
         });
     }
 
+    // FIX: the >= 2048 branch used to compress with the async zlib.gzip(),
+    // only calling sendUTF8() once its callback fired on a later tick,
+    // while the `else` branch below sends straight away, synchronously, in
+    // the same tick send() was called in. send() is called synchronously,
+    // one message at a time, all over this codebase (e.g. sendNeighbours()/
+    // sendBroadcast() firing several sends back-to-back for the same
+    // connection in one tick) -- so a large (>=2048 byte) message followed
+    // immediately by a small one could have its actual wire write happen
+    // *after* the smaller message's, reordering otherwise-sequential game
+    // state (a bulk sync followed by a quick notify, say) on arrival at the
+    // client. gzip at level 1 (fastest) is cheap enough to run
+    // synchronously here, which keeps every send() call's outbound write
+    // in the same relative order it was called in, matching the `else`
+    // branch's already-synchronous behavior instead of racing it.
     send(message) {
         console.info('send=' + message);
-        const self = this;
         const data = useBison ? BISON.encode(message) : JSON.stringify(message);
 
         if (data.length >= 2048) {
-            zlib.gzip(data, { level: 1 }, (err, buffer) => {
-                if (!err) {
-                    const encoded = Buffer.from(buffer).toString('base64');
-                    // Must match the "2" flag checked by fnOnMessage's decompression
-                    // branch above (and the flag userConnection.send() below actually
-                    // uses) -- sending "z|" here meant every payload >= 2048 bytes was
-                    // unparseable garbage on the receiving end.
-                    self.sendUTF8('2' + encoded);
-                }
-            });
+            try {
+                const buffer = zlib.gzipSync(data, { level: 1 });
+                const encoded = buffer.toString('base64');
+                // Must match the "2" flag checked by fnOnMessage's decompression
+                // branch above (and the flag userConnection.send() below actually
+                // uses) -- sending "z|" here meant every payload >= 2048 bytes was
+                // unparseable garbage on the receiving end.
+                this.sendUTF8('2' + encoded);
+            } catch (err) {
+                console.error('socketioConnection.send: gzip failed: ' + err.message);
+            }
         } else {
-            self.sendUTF8('1' + data);
+            this.sendUTF8('1' + data);
         }
     }
 
@@ -355,20 +369,29 @@ WS.userConnection = class extends Connection {
         this.connectionUserCallback = callback;
     }
 
+    // FIX: same async-gzip-vs-sync-send ordering issue as
+    // socketioConnection.send() above -- see that method's FIX comment for
+    // the full explanation. A large (>=2048 byte) message from the
+    // gameserver side of this connection could arrive after a smaller one
+    // sent right after it, since only the small one's write was
+    // synchronous. Switched to zlib.gzipSync() for the same reason: cheap
+    // at level 1, and keeps this method's writes ordered the same as its
+    // own call order instead of at the mercy of when the gzip callback
+    // happened to fire.
     send(message) {
         console.info('send=' + message);
-        const self = this;
         const data = useBison ? BISON.encode(message) : JSON.stringify(message);
 
         if (data.length >= 2048) {
-            zlib.gzip(data, { level: 1 }, (err, buffer) => {
-                if (!err) {
-                    const encoded = Buffer.from(buffer).toString('base64');
-                    self.sendUTF8('2' + encoded);
-                }
-            });
+            try {
+                const buffer = zlib.gzipSync(data, { level: 1 });
+                const encoded = buffer.toString('base64');
+                this.sendUTF8('2' + encoded);
+            } catch (err) {
+                console.error('userConnection.send: gzip failed: ' + err.message);
+            }
         } else {
-            self.sendUTF8('1' + data);
+            this.sendUTF8('1' + data);
         }
     }
 
