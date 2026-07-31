@@ -36,18 +36,21 @@ export default class PlayerPopupMenu {
                     self.game.player.pvpTarget = self.selectedPlayer;
                     // Player has 60 seconds of battle time.
                     setTimeout(function () {
-                        if (self.game.player) self.game.player.pvpTarget = null;
-                        // NOTE: game.makePlayerAttackAuto doesn't exist anywhere in this
-                        // codebase (not even in the pre-conversion backup) - this
-                        // clearInterval() is a silent no-op (clearInterval(undefined)
-                        // doesn't throw). The rest of the codebase tracks the player's
-                        // auto-attack loop as `p.attackInterval` (cleared via
-                        // clearTimeout - see gameinteractioncombat.js/
-                        // playerlocalmovement.js), so if this was meant to cancel an
-                        // in-progress auto-attack against the expired pvpTarget, it
-                        // never did. Flagging rather than guessing at the intended
-                        // target - not confident enough this needs one to invent it.
-                        clearInterval(self.game.makePlayerAttackAuto);
+                        // FIX: was `clearInterval(self.game.makePlayerAttackAuto)` --
+                        // `game.makePlayerAttackAuto` doesn't exist anywhere in this
+                        // codebase, so that call was a silent no-op
+                        // (clearInterval(undefined) doesn't throw). The player's
+                        // auto-attack retry loop is tracked as `player.attackInterval`,
+                        // a setTimeout handle (see gameinteractioncombat.js's
+                        // scheduleAttackRetry()), cleared via clearTimeout everywhere
+                        // else in the codebase. Cancel that instead, so an in-progress
+                        // auto-attack against this pvpTarget actually stops once its
+                        // 60-second battle timer expires, rather than continuing to
+                        // retry against a target that's no longer a valid attack target.
+                        if (self.game.player) {
+                            clearTimeout(self.game.player.attackInterval);
+                            self.game.player.pvpTarget = null;
+                        }
                     }, 60000);
                 }
             }

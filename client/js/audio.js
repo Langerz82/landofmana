@@ -154,6 +154,19 @@ export default class AudioManager {
     }
 
     // TODO fix.
+    //
+    // NOTE (investigated, not implemented): this isn't just a stubbed lookup
+    // -- `this.areas` (populated only via addArea() above) has no live
+    // callers anywhere in the codebase (verified via search; the only other
+    // reference is compress.js, a bundled copy of this same source, not a
+    // separate caller), so `this.areas` is always empty regardless of what
+    // this function does with it. Area-based music switching needs the
+    // missing half of this feature first -- something that actually calls
+    // addArea() with real per-map area/music data -- before a real
+    // "find which area `entity` is standing in and return its musicName"
+    // implementation here would ever return anything but null anyway. Not
+    // guessing at where that data should come from (map JSON? a per-map
+    // config alongside loaddata.js?) without knowing the intended source.
     getSurroundingMusic(entity) {
         return null; // TEMP
     }

@@ -34,10 +34,6 @@ const IO_STATES = {
     MSG_ERRORPRODUCT: 2
 };
 
-let SAVING_SERVER = false;
-let AUCTION_SAVED = false;
-let PLAYERS_SAVED = false;
-
 // Global setup
 import Log from 'log';
 import util from 'util';
@@ -61,7 +57,20 @@ global.worldHandlers = [];
 global.users = new Map();
 
 // Logging setup
-global.log = new Log(Log.INFO || Log.DEBUG || Log.ERROR);
+//
+// FIX: was `new Log(Log.INFO || Log.DEBUG || Log.ERROR)`, written against an
+// older "log" package API (a Log class with static INFO/DEBUG/ERROR level
+// constants and a constructor that takes one of them). The installed "log"
+// dependency (see package.json) is a newer, unrelated package under the same
+// name that exports a namespace-based logger factory with no INFO/DEBUG/ERROR
+// statics at all -- so Log.INFO/Log.DEBUG/Log.ERROR were always undefined and
+// the constructor argument did nothing (verified: `new Log(undefined)` and
+// `new Log()` produce an identical empty instance). Simplified to `new Log()`
+// since the argument was inert either way; setupLogging() below immediately
+// overwrites .log/.info/.warn/.error on this instance with plain
+// console.log/warn/error wrappers, which is what this codebase actually
+// relies on for logging, not anything from the "log" package's own API.
+global.log = new Log();
 
 function setupLogging() {
     console.isEnabled = true;

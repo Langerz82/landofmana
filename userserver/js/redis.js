@@ -1345,6 +1345,22 @@ class DatabaseHandler {
     // REFACTOR: bank moved to the account level (see loadUserBank()/
     // saveUserBank()/migrateBankToUser() below) -- this is now only used for
     // inventory and equipment, both still genuinely per-character.
+    //
+    // FIX: used to silently `return` without invoking `callback` at all on
+    // missing/empty data, on the assumption (see the old comment this
+    // replaces, and the one on loadUserBank() below) that a character
+    // calling this always already has "[]" (or real item JSON) saved for it.
+    // That assumption isn't actually guaranteed: worldhandler.js's
+    // createPlayerToWorld() only returns handleCreatePlayerItems()'s "[]" as
+    // in-memory data for the brand-new character's initial
+    // SendLoadPlayerData -- it never persists that to Redis. Any character
+    // that hasn't been through a real save yet (server restart/crash, or
+    // simply logging out right after creation, before an autosave lands) has
+    // no `storeType` field in Redis at all, so the very next login silently
+    // skipped calling back here and hung that login's checkLoadDataFull()
+    // forever waiting for its count of 7 -- the same class of bug already
+    // fixed for loadQuests()/loadUserBank() elsewhere in this file. Now
+    // defaults to an empty item list and always calls back instead.
     loadItems(playerName, type, storeType, callback) {
         const pKey = 'p:' + playerName;
 
@@ -1352,7 +1368,7 @@ class DatabaseHandler {
             if (err || !data || data === '') {
                 console.warn(err);
                 console.warn(JSON.stringify(data));
-                return;
+                data = '[]';
             }
             if (callback) {
                 callback(playerName, data);
@@ -1398,16 +1414,13 @@ class DatabaseHandler {
     // exactly as it did before this refactor, just without the
     // shared-across-characters convenience.
     //
-    // FIX: unlike loadItems() -- which is only ever called for a character
-    // that's always already had "[]" (or real item JSON) saved for it --
-    // this can legitimately be called for a brand-new user account with no
-    // "bank" field yet (the very first character ever created on that
-    // account, in createPlayerToWorld()). Silently not calling back on
-    // missing data (loadItems()'s convention, meant for data that should
-    // always already exist) would hang that character's create handshake
-    // forever (checkLoadDataFull() would never reach its count of 7), so
-    // this always calls back, defaulting to an empty bank rather than
-    // treating "no bank yet" as an error.
+    // NOTE: this can legitimately be called for a brand-new user account with
+    // no "bank" field yet (the very first character ever created on that
+    // account, in createPlayerToWorld()). Always calls back, defaulting to an
+    // empty bank rather than treating "no bank yet" as an error -- the same
+    // defensive convention loadItems()/loadAchievements() (see their own FIX
+    // comments) were brought in line with after the same missing-field/hang
+    // bug turned out to affect them too.
     loadUserBank(username, playerName, callback) {
         const uKey = 'u:' + username;
 
@@ -1842,6 +1855,16 @@ class DatabaseHandler {
         });
     }
 
+    // FIX: used to silently `return` without invoking `callback` at all on
+    // missing/empty data -- but handleCreatePlayerAchievements() (worldhandler.js)
+    // only returns '[]' as in-memory data for a brand-new character's initial
+    // SendLoadPlayerData, it never persists that to Redis. Any character that
+    // hasn't been through a real save yet has no 'achievements' field at all,
+    // so the very next login silently skipped calling back here and hung that
+    // login's checkLoadDataFull() forever waiting for its count of 7 -- the
+    // same class of bug already fixed for loadQuests()/loadUserBank()/
+    // loadItems() elsewhere in this file. Now defaults to an empty
+    // achievements list and always calls back instead.
     loadAchievements(playerName, callback) {
         console.info('loadAchievement');
         const pKey = 'p:' + playerName;
@@ -1849,7 +1872,7 @@ class DatabaseHandler {
             if (err || !data || data === '') {
                 console.warn(err);
                 console.warn(JSON.stringify(data));
-                return;
+                data = '[]';
             }
             if (callback) {
                 callback(playerName, data);

@@ -2,6 +2,33 @@
 // Applied onto ClientCallbacks.prototype via install*(...) call in clientcallbacks.js; not a standalone class.
 /* global Utils, log, game, G_ROUNDTRIP, G_LATENCY, G_UPDATE_INTERVAL */
 
+// FIX: game.unknownEntityDrops (below) is only ever cleaned up per-id when
+// that entity actually spawns (see clientcallbacksspawn.js) -- an id that
+// gets its MOVE/MOVEPATH packets dropped repeatedly but never spawns on this
+// client (e.g. it's simply never in range/interest for this player) leaked
+// an entry forever, growing unbounded over a long session. This is
+// temporary DEBUG-VERIFY instrumentation for tracking down the "monster
+// teleport" bug, not something worth a bigger structural fix, but it should
+// still be bounded rather than leak indefinitely -- prune the oldest entries
+// whenever the table grows past MAX_UNKNOWN_ENTITY_DROPS.
+const MAX_UNKNOWN_ENTITY_DROPS = 200;
+
+function recordUnknownEntityDrop(id, entry) {
+    game.unknownEntityDrops[id] = entry;
+
+    const ids = Object.keys(game.unknownEntityDrops);
+    if (ids.length > MAX_UNKNOWN_ENTITY_DROPS) {
+        ids
+            .sort(
+                (a, b) =>
+                    game.unknownEntityDrops[a].droppedAt -
+                    game.unknownEntityDrops[b].droppedAt
+            )
+            .slice(0, ids.length - MAX_UNKNOWN_ENTITY_DROPS)
+            .forEach((staleId) => delete game.unknownEntityDrops[staleId]);
+    }
+}
+
 export function installClientCallbacksMovement(proto) {
     proto.onEntityMove = function (data) {
         const time = Number(data[0]),
@@ -38,13 +65,13 @@ export function installClientCallbacksMovement(proto) {
                     ') atTime=' +
                     time
             );
-            game.unknownEntityDrops[id] = {
+            recordUnknownEntityDrop(id, {
                 x,
                 y,
                 time,
                 source: 'move',
                 droppedAt: Date.now()
-            };
+            });
             return;
         }
         if (entity.isDying || entity.isDead) {
@@ -109,13 +136,13 @@ export function installClientCallbacksMovement(proto) {
                     ') atTime=' +
                     time
             );
-            game.unknownEntityDrops[id] = {
+            recordUnknownEntityDrop(id, {
                 x: path[0][0],
                 y: path[0][1],
                 time,
                 source: 'movePath',
                 droppedAt: Date.now()
-            };
+            });
             return;
         }
 

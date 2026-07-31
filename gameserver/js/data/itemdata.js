@@ -37,7 +37,21 @@ _.each(ItemsJson, function (itemValue, key) {
         buy: itemValue.buy ? itemValue.buy : 0,
         buyCount: itemValue.buyCount ? itemValue.buyCount : 1,
         staticsheet: itemValue.staticsheet > 0 ? itemValue.staticsheet : 0,
-        level: itemValue.level ? itemValue.level : itemValue.modifier,
+        // FIX: was `itemValue.level ? itemValue.level : itemValue.modifier`,
+        // the same truthy-check bug class already fixed for `cooldown` below
+        // (and documented in items/baseitem.js/data/mobdata.js) -- an item
+        // authored with an explicit level of 0 would fall through to
+        // `modifier` instead. No current item in shared/data/items2.json has
+        // level:0 (verified), so this hasn't bitten yet, but checking for
+        // undefined instead of falsiness is the correct guard for the same
+        // reason it was for cooldown. The modifier fallback itself is
+        // intentional: legacy items (legacy:1, predating the "level" field --
+        // e.g. the early Crude Club/Sword line) never got a real level
+        // authored, and their modifier value (10/20/30/40/50...) already
+        // scales the same way a level would for drop-table comparisons
+        // (mobrespawn.js's setDrops()), so it stays as the fallback.
+        level:
+            itemValue.level !== undefined ? itemValue.level : itemValue.modifier,
         legacy: itemValue.legacy ? itemValue.legacy : 0,
         // FIX: was `itemValue.cooldown ? itemValue.cooldown : 10` (here and
         // in the `itemData.type === 'object'` branch below) -- a truthy

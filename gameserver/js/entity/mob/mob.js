@@ -116,7 +116,6 @@ class Mob extends Character {
 
         this.orientation = Utils.randomOrientation();
 
-        this.isReturning = false;
         this.target = null;
         this.droppedItem = false;
 

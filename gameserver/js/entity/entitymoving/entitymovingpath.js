@@ -296,7 +296,24 @@ export function installEntityMovingPath(proto) {
             path = this.requestPathfindingTo(x, y);
 
             this.newDestination = null;
-            this.followPath(path);
+
+            // FIX: mirrors the client's identical fix (client's
+            // entitymovingpath.js). followPath(null) is a silent no-op (see
+            // its own `if (!path) return;` above) when requestPathfindingTo()
+            // can't find a route to the new destination -- e.g.
+            // mobrespawn.js's returnToSpawn() redirect failing to path back to
+            // spawn -- this used to leave `this.path`/`this.step` exactly as
+            // they were left by nextStepPath() above (a partially-consumed
+            // *old* path toward a destination this entity is no longer trying
+            // to reach), so the entity kept walking out the rest of a stale
+            // route instead of stopping. Mirrors the `stop` branch below ("no
+            // path to continue on" -> forceStop()) for the same situation
+            // reached via a redirect instead of path completion/interruption.
+            if (path) {
+                this.followPath(path);
+            } else {
+                this.forceStop();
+            }
             return true;
         }
 

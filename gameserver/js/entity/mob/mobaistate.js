@@ -51,12 +51,19 @@ class MobAIState {
         }
     }
 
+    // FIX: dropped a dead `!entity.isReturning` check. `isReturning` was set
+    // to `false` once in the Mob constructor and never assigned anywhere
+    // else, so it was always `true`-negated here -- a no-op condition that
+    // implied a "returning to spawn" guard this method didn't actually have.
+    // The real guard is `entity.aiState === mobState.IDLE` below: a mob
+    // that's returning to spawn has aiState === mobState.RETURNING (see
+    // MobRespawn.returnToSpawn()), which already fails this check on its
+    // own, so removing the dead field changes nothing behaviorally.
     canRoam() {
         const entity = this.entity;
         return (
             !entity.hasTarget() &&
             !entity.isDead &&
-            !entity.isReturning &&
             !entity.isMoving() &&
             entity.aiState === mobState.IDLE
         );

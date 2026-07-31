@@ -149,6 +149,19 @@ export function installGameEntityQueries(proto) {
         // often (movecursor() alone calls into this several times per mouse
         // move). A for-in loop over an empty object simply doesn't iterate, so
         // the guard was unnecessary - dropped it.
+        //
+        // PERF (evaluated, not changed): this linear scan was flagged as a
+        // potential O(n) hot path needing a grid index. It doesn't -
+        // `this.camera.entities` (unlike `this.entities`, the full
+        // world/map entity table) is populated only with entities the camera
+        // currently considers visible (see gameinteractiontarget.js's
+        // updateVisibleEntities()-style add/remove via camera.isVisible()),
+        // so `entities` here is already bounded to on-screen entity count -
+        // realistically a few dozen at most for this game's viewport/zoom,
+        // never "every entity on the map". Each iteration is a cheap
+        // isOverPosition() distance check with an early return on match, so
+        // building and maintaining a spatial grid index for this would add
+        // real complexity for no measurable win at that scale.
         const entities = this.camera.entities;
         let entity = null;
         for (let k in entities) {

@@ -174,6 +174,14 @@ export function installCharacterCombat(proto) {
         this.attackCooldown = new Timer(rate);
     };
 
+    // NOTE: registers each side as an attacker of the other (both
+    // `target.addAttacker(this)` and `this.addAttacker(target)`), not just
+    // "this attacks target" one-way. That's intentional, not a copy-paste
+    // slip: `addAttacker` is this codebase's aggro-tracking list (who's
+    // currently engaged with whom), used elsewhere to know who to notify/
+    // clean up on death, disengage, etc. for *both* participants in a fight,
+    // not a one-directional "who is my target" relationship (that part is
+    // `setTarget` above, which is one-way).
     proto.createAttackLink = function (target) {
         if (this.hasTarget()) {
             this.removeTarget();
