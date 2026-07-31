@@ -160,13 +160,15 @@ export function installRendererDrawHud(proto) {
     };
 
     proto.drawCursor = function () {
+        if (this.mobile) return;
+        if (!this.game.currentCursor) return;
+
         const mx = game.mouse.x,
             my = game.mouse.y;
         const anim = game.currentCursor.currentAnimation;
-        const frame = anim.currentFrame;
-        if (this.mobile) return;
 
-        if (this.game.currentCursor) {
+        if (anim) {
+            const frame = anim.currentFrame;
             this.drawSpriteHUD(
                 game.currentCursor.pjsSprite,
                 frame.x,

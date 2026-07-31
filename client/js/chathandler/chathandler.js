@@ -53,8 +53,15 @@ export default class ChatHandler {
     }
     addNotification(message) {
         const self = this;
+        // FIX: message can come from game.js's showNotification(), which formats server-supplied
+        // WC_NOTIFY data into a lang string via .format(data) - unlike every sibling addXxx method
+        // in this file (addNormalChat/addGameNotification/addRatingNotification), this one was
+        // never escaped before being inserted as HTML, a live XSS gap if any formatted argument
+        // ever includes user-controlled text (e.g. a player/guild name).
         const el = $(
-            '<p style="color: rgba(128, 255, 128, 1)">' + message + '</p>'
+            '<p style="color: rgba(128, 255, 128, 1)">' +
+                Utils.escapeHtml(message) +
+                '</p>'
         );
         $(el).appendTo(this.chatLog);
         this.bumpOffLog();

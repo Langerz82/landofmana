@@ -8,9 +8,7 @@ import ProductionConfig from './productionconfig.js';
 import User from './user.js';
 import WorldHandler from './worldhandler.js';
 //import Utils from './utils.js';
-import redis from './redis.js';
 import AccountLogic from './accountlogic.js';
-import UserMessages from './usermessage.js';
 
 // Add these:
 import ws from './ws.js';

@@ -131,7 +131,13 @@ class BlockArea extends EntityArea {
                 this.map.entities.removeEntity(block);
                 this.map.entities.sendBroadcast(block.despawn());
             }
-            delete this;
+            // NOTE: `delete this;` used to sit here -- `delete` only removes
+            // object properties; applied to `this` itself it's a silent
+            // no-op (doesn't deregister this BlockArea from whatever list
+            // holds it, doesn't free anything). Removed as dead code rather
+            // than "fixed", since there's nothing in this codebase today
+            // that instantiates BlockArea to know what real cleanup (if any)
+            // should replace it.
         }
     }
 }

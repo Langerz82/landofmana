@@ -81,6 +81,10 @@ export function installClientCallbacksQuest(proto) {
         const npc = game.getEntityById(npcId);
         const p = game.player;
 
+        // Server-driven npcId with no matching client-side entity (e.g. despawned/unknown) -
+        // avoid crashing on the npc.dialogue/npc.questId writes below.
+        if (!npc) return;
+
         let message;
         const questPattern = /^QUESTS_[0-9]+$/g;
         if (questPattern.test(langCode)) {

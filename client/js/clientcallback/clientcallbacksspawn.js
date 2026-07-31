@@ -80,8 +80,13 @@ export function installClientCallbacksSpawn(proto) {
         const orientation = Number(data[7]);
         entity.level = Number(data[8]);
         if (data.length > 10 && entity instanceof Character) {
-            entity.setHp(Number(data[9]));
+            // FIX: setHpMax() (character.js) unconditionally sets stats.hp = hpMax as well
+            // (it's the "just learned the max, default current to full" init path) - calling
+            // it after setHp() clobbered the real spawned hp value with the max, so every
+            // spawned character/mob visually appeared at full health regardless of the
+            // server-sent current hp. Set the max first, then apply the real current hp.
             entity.setHpMax(Number(data[10]));
+            entity.setHp(Number(data[9]));
         }
 
         if (entity.type === Types.EntityTypes.PLAYER) {

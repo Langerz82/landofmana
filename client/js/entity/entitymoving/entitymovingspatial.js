@@ -164,13 +164,13 @@ export function installEntityMovingSpatial(proto) {
         dist = dist || 1;
 
         switch (o) {
-            case 1: // N
+            case 1: // UP
                 return [x, y - dist];
-            case 2: // S
+            case 2: // DOWN
                 return [x, y + dist];
-            case 3: // E
+            case 3: // LEFT
                 return [x - dist, y];
-            case 4: // W
+            case 4: // RIGHT
                 return [x + dist, y];
         }
         return [x, y];

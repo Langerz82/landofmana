@@ -72,6 +72,15 @@ export default class StoreFrame extends TabBook {
     open(min, max) {
         const self = this;
 
+        // FIX: unlike the near-identical craftframe.js's open(min, max), this never applied
+        // the passed-in min/max to this.minLevel/this.maxLevel - setPageIndex() below (via
+        // this.pages[value].open(this.minLevel, this.maxLevel)) always used whatever the
+        // constructor set them to (1, 100), silently ignoring any different range a caller
+        // asked for. Currently every real caller happens to pass (1, 100) too, so this had no
+        // visible effect yet, but it's a live trap for a level-gated store.
+        this.minLevel = min;
+        this.maxLevel = max;
+
         this.setPageIndex(0);
         this.pages[0].setPageIndex(0);
     }

@@ -54,6 +54,11 @@ export default class EntityMoving extends Entity {
 
     setFreeze(ms, callback) {
         const self = this;
+        // FIX: a previously-scheduled freeze_callback timeout was never cleared, so a second
+        // setFreeze() call while one was already pending left both timers running - the
+        // earlier (shorter) one would still fire and set freeze=false early, undoing the
+        // later call's longer freeze duration.
+        clearTimeout(this.freeze_callback);
         if (ms <= 0) {
             self.freeze = false;
             return;

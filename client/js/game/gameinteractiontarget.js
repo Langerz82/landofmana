@@ -326,6 +326,7 @@ export function installGameInteractionTarget(proto) {
             openedDialog = true;
         } else if (title === 'Looks') {
             this.appearanceDialog.show();
+            openedDialog = true;
         } else {
             this.bubbleManager.destroyBubble(npc.id);
             msg = this.questhandler.talkToNPC(npc);

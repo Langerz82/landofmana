@@ -10,7 +10,10 @@ export function installClientCallbacksSkills(proto) {
         // FIX: missing var - was an implicit global
         const skillLevel = Types.getSkillLevel(skillExp);
         game.player.skillHandler.setSkill(skillIndex, skillExp);
-        game.skillsDialog.page.setSkill(skillIndex, skillLevel);
+        // FIX: `game.skillsDialog` does not exist (game.js only sets up `game.skillDialog`,
+        // see clientcallbacksplayerstate.js's onPlayer using `game.skillDialog.page.setSkills`)
+        // -- this threw "Cannot read properties of undefined" on every WC_SKILLLOAD packet.
+        game.skillDialog.page.setSkill(skillIndex, skillLevel);
     };
 
     proto.onSkillXP = function (data) {

@@ -1308,14 +1308,26 @@ class DatabaseHandler {
         });
     }
 
+    // FIX: was hget -> compute new value in JS -> hset, the same
+    // read-modify-write race already fixed for modifyGold()/
+    // addPlayerGoldOffline() above (see those FIX comments) -- two
+    // concurrent modifyGems() calls for the same user could both read the
+    // same starting "gems" value, and the second write clobbers the
+    // first's change, silently dropping a gems credit/debit instead of
+    // applying it. HINCRBY is atomic in Redis, so use it instead of a
+    // manual get-then-set round trip; also self-heals a missing "gems"
+    // field by creating it at `diff` rather than producing NaN from
+    // parseInt(null).
     modifyGems(username, diff) {
         const uKey = 'u:' + username;
-        diff = parseInt(diff);
+        diff = parseInt(diff, 10) || 0;
 
-        client.hget(uKey, 'gems', (err, data) => {
-            let gems = parseInt(data);
-            gems += diff;
-            client.hset(uKey, 'gems', gems);
+        client.hincrby(uKey, 'gems', diff, (err) => {
+            if (err) {
+                console.warn(
+                    'redis.modifyGems: save error ' + JSON.stringify(err)
+                );
+            }
         });
     }
 
