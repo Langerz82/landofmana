@@ -179,9 +179,20 @@ class Map {
         return y * this.width + x + 1;
     }
 
+    // FIX: the conversion loop reassigned the `tile` loop variable to a
+    // converted Uint32Array but never wrote it back into `tiles` --
+    // `for...of`'s loop variable is just a local binding to each element's
+    // value, not a reference back into the array, so `tile = new
+    // Uint32Array(tile)` only changed what the local `tile` bound to for the
+    // rest of that one iteration and was then discarded. A map cell can hold
+    // either a single tile id or an array of stacked tile ids (see
+    // isHarvestTile()'s `Array.isArray(tiles)` branch below), and multi-layer
+    // cells were meant to be converted to the more memory/perf-efficient
+    // Uint32Array here -- silently never happening. Iterating by index and
+    // assigning back into `tiles[i]` actually performs the conversion.
     loadTileGrid(tiles) {
-        for (let tile of tiles) {
-            if (tile instanceof Array) tile = new Uint32Array(tile);
+        for (let i = 0; i < tiles.length; ++i) {
+            if (tiles[i] instanceof Array) tiles[i] = new Uint32Array(tiles[i]);
         }
         this.tile = new Array(this.height);
         for (let i = 0; i < this.height; ++i) {

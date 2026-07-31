@@ -97,7 +97,12 @@ export function installClientCallbacksMovement(proto) {
         }
 
         entity.setMoveRate(moveSpeed);
-        if (state) entity.move(time, orientation, false, x, y);
+        // FIX: removed a dead pre-call (`entity.move(time, orientation, false, x, y)`)
+        // that ran before this one whenever `state` was truthy. EntityMoving's move()
+        // (entitymovingpath.js) only branches on `state === 1`/`=== 0`/`=== 2` (strict
+        // equality), so passing the literal boolean `false` never matched any branch --
+        // that call only re-set orientation, which this real call does again anyway.
+        // Net effect was identical with or without it; removed as dead code.
         entity.move(time, orientation, state, x, y);
     };
 
