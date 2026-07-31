@@ -11,7 +11,11 @@ import WorldHandler from './worldhandler.js';
 import AccountLogic from './accountlogic.js';
 
 // Add these:
-import ws from './ws.js';
+// REFACTOR: ws.js was split into ws/ (wsbase.js/socketioconnection.js/
+// websocketserver.js/ws.js) -- see that folder's own header comments.
+// `ws.WebsocketServer`/`ws.socketioConnection` below are unaffected, same
+// external shape as before.
+import ws from './ws/ws.js';
 import DatabaseSelector from './databaseselector.js';
 
 //import _ from 'underscore';
