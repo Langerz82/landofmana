@@ -1,9 +1,11 @@
 /* global Types, log, client */
 
-import crypto from 'crypto';
-import fs from 'fs';
+// FIX: dropped unused `crypto`/`fs`/`bcrypt` imports (verified: none of the
+// three are referenced anywhere in this file). Leftover from before this
+// file's account/player business logic -- including password hashing --
+// moved out to accountlogic.js's AccountLogic class (see the REFACTOR
+// comment below); this file's own job is now just plain Redis reads/writes.
 import redis from 'redis';
-import bcrypt from 'bcrypt';
 
 let client;
 
@@ -36,6 +38,57 @@ const hgetarray = function (hash, key, callback) {
     } else {
         client.hget(hash, key, callback);
     }
+};
+
+// FIX: replaces every `client.keys(pattern, callback)` call in this file.
+// KEYS walks the entire keyspace in one blocking pass before returning
+// anything -- Redis is single-threaded, so every other command (every other
+// player's login/save/gameplay action touching Redis) queues up and waits
+// for the whole scan to finish. That's fine at small key counts (sub-second,
+// unnoticeable) but becomes a real, growing pause on every server restart as
+// the player base grows -- several call sites below already carried FIX/
+// NOTE comments flagging exactly this and describing SCAN as the proper
+// fix. SCAN does the same "find keys matching this pattern" job
+// incrementally: fetch a batch + cursor, repeat until the cursor comes back
+// to '0', with each individual call cheap enough not to block other clients.
+// Same `(err, keys)` callback signature as `client.keys()` -- a drop-in
+// replacement, no call site needed to change its own logic, just swap which
+// method it calls.
+//
+// No consistency guarantee across the full walk (a key added/removed
+// mid-scan may or may not be included) -- irrelevant for every caller here,
+// which are one-time startup migrations/maintenance passes over
+// already-existing keys, not reads that need a point-in-time snapshot.
+const scanKeys = function (pattern, callback) {
+    let cursor = '0';
+    let found = [];
+
+    const scanOnce = function () {
+        client.scan(
+            cursor,
+            'MATCH',
+            pattern,
+            'COUNT',
+            1000,
+            (err, reply) => {
+                if (err) {
+                    callback(err);
+                    return;
+                }
+
+                cursor = reply[0];
+                found = found.concat(reply[1]);
+
+                if (cursor === '0') {
+                    callback(null, found);
+                } else {
+                    scanOnce();
+                }
+            }
+        );
+    };
+
+    scanOnce();
 };
 
 // TODO Array parseInt where appropriate.
@@ -80,20 +133,16 @@ class DatabaseHandler {
         // client.connect(); // v4
 
         client.hgetarray = hgetarray;
+        client.scanKeys = scanKeys;
         this.ready = true;
 
         if (config.remove_old_values === 1) {
             this.removeOldValues();
             // FIX: this ran unconditionally on every server start (unlike
-            // removeOldValues() above, which is opt-in via config). It calls
-            // client.keys('p:*'), a blocking O(N) full-keyspace scan that stalls
-            // the single-threaded Redis server proportional to key count -- with
-            // any non-trivial player base this pauses Redis (and anything sharing
-            // that instance) on every restart. Gated behind the same
-            // remove_old_values flag as its sibling maintenance/migration task
-            // above, since that's the existing "opt-in startup migration" pattern
-            // in this file. A proper fix would use cursor-based SCAN instead of
-            // KEYS regardless of whether it's gated.
+            // removeOldValues() above, which is opt-in via config). Gated
+            // behind the same remove_old_values flag as its sibling
+            // maintenance/migration task above, since that's the existing
+            // "opt-in startup migration" pattern in this file.
             this.insertMissingPlayerKeys();
         }
 
@@ -161,7 +210,7 @@ class DatabaseHandler {
     }
 
     replaceSkills() {
-        client.keys('p:*', (err, keys) => {
+        client.scanKeys('p:*', (err, keys) => {
             if (err) return console.log(err);
 
             for (let i = 0, len = keys.length; i < len; i++) {
@@ -189,7 +238,7 @@ class DatabaseHandler {
         client.del('s:auction');
         client.del('l:looks');
 
-        client.keys('b:bans-*', (err, keys) => {
+        client.scanKeys('b:bans-*', (err, keys) => {
             if (err) return console.log(err);
 
             for (const key of keys) {
@@ -197,7 +246,7 @@ class DatabaseHandler {
             }
         });
 
-        client.keys('s:auction-*', (err, keys) => {
+        client.scanKeys('s:auction-*', (err, keys) => {
             if (err) return console.log(err);
 
             for (const key of keys) {
@@ -205,7 +254,7 @@ class DatabaseHandler {
             }
         });
 
-        client.keys('l:looks-*', (err, keys) => {
+        client.scanKeys('l:looks-*', (err, keys) => {
             if (err) return console.log(err);
 
             for (const key of keys) {
@@ -213,7 +262,7 @@ class DatabaseHandler {
             }
         });
 
-        client.keys('p:*', (err, keys) => {
+        client.scanKeys('p:*', (err, keys) => {
             if (err) return console.log(err);
 
             for (let i = 0, len = keys.length; i < len; i++) {
@@ -287,7 +336,7 @@ class DatabaseHandler {
                 return;
             }
 
-            client.keys('p:*', (err2, keys) => {
+            client.scanKeys('p:*', (err2, keys) => {
                 if (err2) {
                     if (callback) callback(err2);
                     return;
@@ -343,7 +392,7 @@ class DatabaseHandler {
     }
 
     insertMissingPlayerKeys() {
-        client.keys('p:*', (err, keys) => {
+        client.scanKeys('p:*', (err, keys) => {
             if (err) return console.log(err);
 
             client.smembers('player', (err, reply) => {
@@ -358,7 +407,7 @@ class DatabaseHandler {
     }
 
     createPlayerKeys() {
-        client.keys('p:*', (err, arr) => {
+        client.scanKeys('p:*', (err, arr) => {
             for (const rec of arr) {
                 console.info('rec=' + rec);
                 const playerName = rec.substr(2);
@@ -739,11 +788,9 @@ class DatabaseHandler {
     // before it opens itself up to new connections (see migrationComplete in
     // main.js). Does the legacy "gold" -> gold_0/gold_1 split for every
     // player in one pass, rather than leaving it to whichever player happened
-    // to log in next. Same client.keys('p:*', ...) full-keyspace scan already
-    // used by removeOldValues()/insertMissingPlayerKeys() above (same caveat:
-    // this blocks the single-threaded Redis server for O(N) key count -- fine
-    // at the player counts this codebase has run with, would want
-    // cursor-based SCAN instead of KEYS at much larger scale).
+    // to log in next. Uses the same scanKeys('p:*', ...) helper as
+    // removeOldValues()/insertMissingPlayerKeys() above (see its FIX comment
+    // for why this is SCAN-based rather than a single blocking KEYS call).
     //
     // `callback(err)` fires once every player key has been checked (err is
     // null on success) AND every account's gold_1 combine pass
@@ -755,7 +802,7 @@ class DatabaseHandler {
     // already migrated on a previous startup, or created fresh straight into
     // the new format -- are left untouched by this first pass.
     migrateGoldFields(callback) {
-        client.keys('p:*', (err, keys) => {
+        client.scanKeys('p:*', (err, keys) => {
             if (err) {
                 if (callback) callback(err);
                 return;
@@ -917,14 +964,14 @@ class DatabaseHandler {
     // fields are deliberately left alone, since those are still the active
     // data for that account.
     //
-    // Same client.keys(...) full-keyspace scan caveat as
-    // removeOldValues()/insertMissingPlayerKeys()/migrateGoldFields()/
-    // migrateBankToUser() above.
+    // Uses the same scanKeys(...) helper as removeOldValues()/
+    // insertMissingPlayerKeys()/migrateGoldFields()/migrateBankToUser()
+    // above.
     //
     // `callback(err)` fires once every user has been checked (err is null on
     // success).
     migrateGold1ToUser(callback) {
-        client.keys('u:*', (err, userKeys) => {
+        client.scanKeys('u:*', (err, userKeys) => {
             if (err) {
                 if (callback) callback(err);
                 return;
@@ -1538,18 +1585,15 @@ class DatabaseHandler {
     // per-character "bank" fields are deliberately left alone, since those
     // are still the active data for that account.
     //
-    // Same client.keys(...) full-keyspace scan caveat as
-    // removeOldValues()/insertMissingPlayerKeys()/migrateGoldFields() above:
-    // blocks the single-threaded Redis server for O(N) key count, and this
-    // one is heavier still (one extra read per character, not just per
-    // user) -- fine at the account/character counts this codebase has run
-    // with, would want cursor-based SCAN instead of KEYS at much larger
-    // scale.
+    // Uses the same scanKeys(...) helper as removeOldValues()/
+    // insertMissingPlayerKeys()/migrateGoldFields() above -- this one is
+    // heavier still (one extra read per character, not just per user), so
+    // avoiding a single blocking KEYS call matters even more here.
     //
     // `callback(err)` fires once every user has been checked (err is null on
     // success).
     migrateBankToUser(callback) {
-        client.keys('u:*', (err, userKeys) => {
+        client.scanKeys('u:*', (err, userKeys) => {
             if (err) {
                 if (callback) callback(err);
                 return;
