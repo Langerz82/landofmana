@@ -120,8 +120,36 @@ class Character extends EntityMoving {
         }
     }
 
+    // FIX: was `for (const skilleffect of this.activeEffects)` -- iterating
+    // the live array directly. skilleffect.endEffects() (skilleffect.js)
+    // calls applyEffects('end', 0) -> applyEffect(), which splices `this`
+    // SkillEffect back out of EVERY one of its targets' own activeEffects
+    // array once its 'end' phase runs -- and this character is always one
+    // of those targets (that's the only way its SkillEffect instance could
+    // have ended up in `this.activeEffects` to begin with). So each loop
+    // iteration was mutating the very array the for...of loop was reading
+    // from: removing the current element shifts every later element down
+    // one index, and the loop's next step then reads whatever shifted into
+    // the just-vacated slot -- silently skipping the effect that used to be
+    // two positions ahead. With 2+ simultaneously active effects (routine
+    // in real combat -- multiple DOTs/buffs/debuffs stacking from different
+    // sources), roughly every other effect never got its own endEffects()
+    // called: its interval-tick Scheduler token was never cancelled (kept
+    // firing every 2000ms against a now-dead/removed entity), it was never
+    // removed from its caster's SkillEffectHandler.skillEffects list (a
+    // permanent per-skipped-effect leak for the life of the process), and
+    // for an AOE effect, any OTHER target it's still active on never got
+    // this specific instance's 'end' phase applied by this cleanup path.
+    // This runs on every death (die(), above) AND every disconnect/removal
+    // (mob.js's destroy(), player.js's destroy()), so it's not a rare edge
+    // case. Iterating a snapshot (slice()) instead means the live-array
+    // splicing inside the loop body can no longer affect which elements
+    // this loop still has left to visit -- every effect present at the
+    // start of the call gets its endEffects() invoked exactly once, same
+    // as the final `this.activeEffects = []` reset below already assumed
+    // was happening.
     endEffects() {
-        for (const skilleffect of this.activeEffects) {
+        for (const skilleffect of this.activeEffects.slice()) {
             skilleffect.endEffects();
         }
         this.activeEffects = [];
