@@ -425,14 +425,45 @@ export default class Game {
             this.gametick.bind(this),
             G_UPDATE_INTERVAL
         );
+
+        // FIX (jerky/low-FPS scrolling): rendering used to happen synchronously at the
+        // end of gametick() below, i.e. driven by the same setInterval(G_UPDATE_INTERVAL)
+        // timer as the logic update. setInterval isn't synced to the browser's actual
+        // paint/vsync cycle - it drifts under load and, unlike requestAnimationFrame, has
+        // no way to skip/catch up when a single tick runs long - so frames were painted
+        // at irregular real-world intervals even though the timer's nominal period never
+        // changed. That read as visible stutter, worst during camera scrolling: every
+        // tile-grid boundary crossing triggers a real redraw spike in refreshGrid()/
+        // drawTerrain() (renderer.js), landing right when the interval's timing is least
+        // reliable. Decoupled here: gametick() (the setInterval callback) stays exactly
+        // on its fixed-interval logic tick - movement/animation stepping is itself
+        // quantized to G_UPDATE_INTERVAL-sized ticks (see updatermovement.js), so that
+        // timing can't change without a much bigger rewrite - while rendering now runs on
+        // its own requestAnimationFrame loop, painting whichever entity positions the
+        // most recent logic tick computed, at the display's own refresh cadence. A rAF
+        // frame that lands between two logic ticks just repaints the same (unchanged)
+        // state, which is far less visually jarring than an unevenly-timed new frame.
+        this._boundRenderLoop = this.renderLoop.bind(this);
+        this.renderFrameId = (window.requestAnimFrame || requestAnimationFrame)(
+            this._boundRenderLoop
+        );
     }
 
-    // FIX (dead code): removed the never-called rAF-driven `render()` method and the
-    // `runUpdateInRender` flag it alone relied on. gametick() (setInterval-driven) is the
-    // only active loop and always calls updater.update() once per tick; the flag/branch
-    // were vestigial from an abandoned rAF loop and, if that loop were ever re-enabled
-    // without noticing gametick's unconditional call, would have caused update() to run
-    // twice per frame on non-mobile/tablet devices.
+    // FIX (dead code, see above): this WAS the never-called rAF-driven `render()` method
+    // referenced by the old FIX comment here (removed along with the `runUpdateInRender`
+    // flag it alone relied on, since neither was wired up to anything at the time). It's
+    // reinstated now as the real render loop, called from its own requestAnimationFrame
+    // chain (see run()) rather than from gametick() - see run()'s FIX comment for why.
+    renderLoop() {
+        if (this.isStopped) return;
+
+        this.renderer.renderFrame();
+
+        this.renderFrameId = (window.requestAnimFrame || requestAnimationFrame)(
+            this._boundRenderLoop
+        );
+    }
+
     gametick() {
         const self = this;
 
@@ -456,7 +487,9 @@ export default class Game {
             this.updateCursorLogic();
         }
 
-        this.renderer.renderFrame();
+        // FIX: renderer.renderFrame() moved out of this setInterval-driven tick and into
+        // its own requestAnimationFrame loop (renderLoop(), started alongside this
+        // interval in run()) - see run()'s FIX comment for the full explanation.
 
         this.processLogic = false;
     }
@@ -471,6 +504,16 @@ export default class Game {
     stop() {
         log.info('Game stopped.');
         this.isStopped = true;
+
+        // FIX: stop the new rAF render loop too (see run()'s FIX comment) - gameInterval
+        // itself was never actually cleared here either (isStopped alone gates gametick()
+        // into an early return every tick instead), but that pre-existing gap isn't this
+        // change's to fix; cancelling the rAF chain at least prevents this addition from
+        // leaving its own loop spinning forever after stop().
+        if (this.renderFrameId) {
+            (window.cancelAnimationFrame || function () {})(this.renderFrameId);
+            this.renderFrameId = null;
+        }
     }
 
     loadGameData() {
