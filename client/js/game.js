@@ -468,7 +468,18 @@ export default class Game {
             this.updateCursorLogic();
         }
 
-        requestAnimFrame(this.renderer.renderFrame());
+        // FIX: was `requestAnimFrame(this.renderer.renderFrame());` - renderFrame() was called
+        // immediately (its return value, not the function, was what got passed to
+        // requestAnimFrame), and requestAnimFrame itself was undefined until the ASI bug in
+        // utils.js was fixed, so this threw "requestAnimFrame is not a function" every tick.
+        // Now that requestAnimFrame actually works, pass it a real callback (bound so `this`
+        // inside renderFrame() still refers to the renderer) instead of invoking renderFrame()
+        // eagerly. NOTE: this decouples the paint from this fixed-interval tick - the render
+        // now happens on the browser's next vsync rather than synchronously inside gametick(),
+        // and requestAnimFrame callbacks pause while the tab is backgrounded (setInterval does
+        // not), so a backgrounded tab will keep ticking game logic without rendering until it's
+        // foregrounded again.
+        requestAnimFrame(this.renderer.renderFrame.bind(this.renderer));
 
         this.processLogic = false;
     }
