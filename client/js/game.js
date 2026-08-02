@@ -456,7 +456,7 @@ export default class Game {
             this.updateCursorLogic();
         }
 
-        this.renderer.renderFrame();
+        requestAnimFrame(this.renderer.renderFrame());
 
         this.processLogic = false;
     }

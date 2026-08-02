@@ -132,14 +132,16 @@ Utils._base64ToArrayBuffer = function (base64) {
 const TRANSITIONEND = 'transitionend webkitTransitionEnd oTransitionEnd';
 
 // http://paulirish.com/2011/requestanimationframe-for-smart-animating/
-window.requestAnimFrame = (function () {
-    return (
+    window.requestAnimFrame = (function () {
+    return
         window.requestAnimationFrame ||
         window.webkitRequestAnimationFrame ||
         window.mozRequestAnimationFrame ||
         window.oRequestAnimationFrame ||
-        window.msRequestAnimationFrame
-    );
+        window.msRequestAnimationFrame ||
+        function(/* function */ callback, /* DOMElement */ element){
+          window.setTimeout(callback, 16);
+        };
 })();
 
 // FIX: String.prototype.format was defined twice in this file (once near the top, again down
