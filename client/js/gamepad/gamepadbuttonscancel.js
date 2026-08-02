@@ -73,7 +73,13 @@ export function installGamepadButtonsCancel(self) {
             } else if (self.jqStatWindow.is(':visible')) {
                 self.jqStatsCloseButton.trigger('click');
             } else if (self.jqInventoryWindow.is(':visible')) {
-                const inv = game.inventoryHandler;
+                // FIX: was `game.inventoryHandler`, which has neither `selectedItem` nor
+                // `deselectItem()` - that selection state lives on `game.inventoryDialog`
+                // (see inventorydialog/inventorydialogselection.js). `inv.selectedItem` was
+                // always undefined, so this branch never fired and the cancel button always
+                // fell through to closing the whole inventory window instead of just
+                // deselecting the highlighted item.
+                const inv = game.inventoryDialog;
                 if (inv.selectedItem >= 0) {
                     inv.deselectItem();
                     return;

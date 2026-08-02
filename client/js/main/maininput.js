@@ -5,6 +5,10 @@
 // Called once from main.js's initGame(); reads/writes the same bare `game`/`app` globals
 // every other file in this codebase uses (see globalstate.js), not passed as parameters.
 /* global Types, game, app */
+// FIX: Detect.isFirefoxAndroid() is called below but this module never imported Detect,
+// so every chat-input focus event threw "ReferenceError: Detect is not defined" and the
+// placeholder-restore logic that follows it never ran, on any browser.
+import Detect from '../detect.js';
 
 export function installMainInput() {
     $(document).bind('mousedown', function (event) {

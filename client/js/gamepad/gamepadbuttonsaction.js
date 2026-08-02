@@ -77,8 +77,16 @@ export function installGamepadButtonsAction(self) {
                 else self.jqChangeLookNext.trigger('click');
                 return;
             } else if (self.jqSkillWindow.is(':visible')) {
-                if (game.selectedSkill) {
-                    $(self.playerShortcut.format(self.shortcutAssign)).trigger(
+                // FIX: was `game.selectedSkill`, which is never assigned anywhere - the real
+                // selection state is `game.skillDialog.page.selectedSkill` (set in
+                // dialog/skilldialog.js's fnSelectSkill). Also
+                // `self.playerShortcut.format(self.shortcutAssign)` called .format() (a
+                // String.prototype method, see utils.js) on `playerShortcut`, which is an
+                // array of shortcut-slot selectors indexed by position elsewhere in this file
+                // family (see gamepadbuttonsface.js/gamepadnavigation.js) - should be indexed
+                // the same way here.
+                if (game.skillDialog.page.selectedSkill) {
+                    $(self.playerShortcut[self.shortcutAssign]).trigger(
                         'click'
                     );
                     self.mainButtonsActive = false;

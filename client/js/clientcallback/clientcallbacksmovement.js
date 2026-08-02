@@ -55,7 +55,11 @@ export function installClientCallbacksMovement(proto) {
             // DEBUG-VERIFY (monster teleport bug): record the position this dropped MOVE
             // packet wanted to set, so spawnEntity() can later compare it against where the
             // entity actually gets spawned and reveal the gap that reads as a teleport.
-            console.warn(
+            // FIX: was an unconditional console.warn - fires on every dropped move packet,
+            // which is exactly what happens under packet loss/high latency, flooding the
+            // console. Everything else in this file already went through this same gated
+            // log.debug migration; this one was added afterward and left ungated.
+            log.debug(
                 '[teleport-debug] onEntityMove dropped id=' +
                     id +
                     ' wanted=(' +
@@ -84,7 +88,10 @@ export function installClientCallbacksMovement(proto) {
             if (!p || p.isDying || p.isDead) return;
 
             if (!(p.x === x && p.y === y)) {
-                console.warn('PLAYER NOT IN CORRECT POSITION.');
+                // FIX: was an unconditional console.warn - desync corrections aren't rare
+                // under normal latency, so this could flood the console; gated like the rest
+                // of this file's diagnostic logging.
+                log.debug('PLAYER NOT IN CORRECT POSITION.');
                 // Dirty hack to avoid sending a incorrect packet in forcestop.
                 p.resetPosition(x, y);
                 p.setFreeze(G_ROUNDTRIP);
@@ -131,7 +138,9 @@ export function installClientCallbacksMovement(proto) {
             // FIX: removed dead `game.unknownEntities.push(id)` -- see onEntityMove above.
             // DEBUG-VERIFY (monster teleport bug): same recording as onEntityMove, but for
             // a dropped path packet - path[0] is where it would have first snapped to.
-            console.warn(
+            // FIX: was an unconditional console.warn - same flooding risk as onEntityMove
+            // above, gated the same way.
+            log.debug(
                 '[teleport-debug] onEntityMovePath dropped id=' +
                     id +
                     ' wanted=(' +

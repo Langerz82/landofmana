@@ -119,6 +119,15 @@ export function installClientCallbacksSpawn(proto) {
             // FIX: missing var, was an implicit global in the old non-strict build (silently undefined, so animName
             // was always "on"); under ES module strict mode this threw a ReferenceError, crashing all TRAP spawns.
             // Declared locally to preserve original behavior.
+            // FLAG (not fixed): `spriteId` is still never assigned from `data`, so
+            // `spriteId === 0` is always false and every trap spawns/animates 'on' regardless
+            // of its real armed/disarmed state - trap entities can never visually show as
+            // disarmed. Left unresolved rather than guessing which `data[n]` field carries
+            // this: unlike the other fields read in this function (level, hp, sprite index),
+            // there's no existing read of a trap on/off flag anywhere else in the client to
+            // infer the correct index from, and the server-side spawn payload isn't visible
+            // from this repo. Confirm the field with whoever owns the gameserver spawn
+            // encoding before wiring this up.
             let spriteId;
             const animName = spriteId === 0 ? 'off' : 'on';
             entity.animate(animName, entity.idleSpeed);

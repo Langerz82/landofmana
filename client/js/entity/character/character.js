@@ -163,6 +163,14 @@ export default class Character extends EntityMoving {
      * BEGIN - State Functions.
      ******************************************************************************/
 
+    // FLAG (not fixed): always returns false regardless of actual state - the real weapon
+    // check is `PlayerItems.hasWeapon()` (entity/player/playeritems.js), a mixin installed
+    // on Player only. Confirmed via repo-wide search that nothing currently calls
+    // `.hasWeapon()` on a bare Character/Mob/NpcMove/NpcStatic instance, so this is presently
+    // dead rather than a live bug - but it's a landmine for whichever of those subclasses
+    // gets a real weapon check wired up next, since Character itself has no `equipment`/
+    // `getWeapon()` to delegate to. Left as a hardcoded placeholder rather than guessing a
+    // generic implementation; remove or replace when a real use case shows up.
     hasWeapon() {
         return false;
     }

@@ -61,6 +61,14 @@ export default class Item extends Entity {
         return sprite !== '' ? 'item-' + sprite : null;
     }
 
+    // FLAG (not fixed): getInfoMsg() passes `this` (the Item entity) into getInfoMsgEx(),
+    // which reads item.itemKind/itemNumber/itemDurability/itemDurabilityMax - none of which
+    // this class's constructor ever sets (it only sets kind/type/wasDropped/count). It would
+    // produce "undefined: Lv undefined..." or throw if ever called. Zero call sites currently
+    // (every real caller uses the static `Item.getInfoMsgEx(itemRoom)` form with an actual
+    // ItemRoom instance instead, e.g. data/items.js, dialog/bank/bankslot.js) - same class of
+    // latent bug as the old _getBaseState() issue. Left unfixed rather than guessing a field
+    // mapping, since the intended instance-method wire format is unclear; wire up or remove.
     getInfoMsg() {
         return this.getInfoMsgEx(this);
     }

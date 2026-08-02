@@ -265,6 +265,12 @@ export default class SkillDialog extends Dialog {
     }
 
     update(datas) {
-        this.page.update(datas);
+        // FIX: was `this.page.update(datas)` - SkillPage has no `update` method (only
+        // setSkills/setSkill/assign/clear/rescale/clearHighlight), so this threw if ever
+        // called. No current caller invokes SkillDialog.update() (real callers use
+        // game.skillDialog.page.setSkills()/setSkill() directly), so this was unreachable
+        // rather than a live bug - fixed by delegating to setSkills(), the method whose
+        // signature (an array of skill exps) matches this method's `datas` param.
+        this.page.setSkills(datas);
     }
 }

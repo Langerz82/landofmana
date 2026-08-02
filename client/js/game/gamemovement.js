@@ -168,8 +168,11 @@ export function installGameMovement(proto) {
                 fspE
             );
             if (gridPath)
+                // FIX: logged `path`, which is still null at this point (`path` isn't assigned
+                // until the long-path fallback branch further below) - should log `gridPath`,
+                // the value just computed by the short-path finder above.
                 log.info(
-                    'game.findPath - validpath-mp4:' + JSON.stringify(path)
+                    'game.findPath - validpath-mp4:' + JSON.stringify(gridPath)
                 );
         }
 

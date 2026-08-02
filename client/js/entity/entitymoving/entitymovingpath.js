@@ -113,7 +113,10 @@ export function installEntityMovingPath(proto) {
 
         const spot = this.getClosestSpot(entity, min, max);
 
-        if (spot && spot.x && spot.y) {
+        // FIX: `spot.x && spot.y` treated a legitimate walkable spot at world coordinate
+        // x===0 or y===0 as falsy, silently refusing to move there (map-edge case). Check for
+        // presence, not truthiness.
+        if (spot && spot.x != null && spot.y != null) {
             this.moveTo_(spot.x, spot.y);
             return true;
         }

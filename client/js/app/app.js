@@ -444,7 +444,10 @@ export default class App {
     }
 
     setGame(game) {
-        game.client = game.client;
+        // FIX (dead code): removed `game.client = game.client;` - a no-op self-assignment,
+        // likely a leftover from a refactor where this was meant to assign `this.client`
+        // (App doesn't currently have/use a `.client` property, so left out rather than
+        // guessing that was the intent).
 
         this.isMobile = game.renderer.mobile;
         this.isTablet = game.renderer.tablet;

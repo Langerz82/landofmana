@@ -166,6 +166,10 @@ export function installClientCallbacksMap(proto) {
             };
 
             game.mapContainer.allReady(function () {
+                // NOTE: `this.allready` (bound to mapContainer via allReady()'s
+                // all_ready_func.call(this) - not a bug) is write-only; nothing in the
+                // codebase currently reads it. Left in place as a harmless state flag rather
+                // than removed, in case external/debug code relies on inspecting it.
                 this.allready = true;
                 fnReady();
             });

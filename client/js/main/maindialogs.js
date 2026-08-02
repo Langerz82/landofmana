@@ -58,7 +58,11 @@ export function installMainDialogs() {
             const count = parseInt(jqAuctionSellCount.val());
             if (count > 0) {
                 game.client.sendAuctionSell(app.inventoryNumber, count);
-                game.inventoryDialog.inventory[app.inventoryNumber] = null;
+                // FIX (dead code): removed `game.inventoryDialog.inventory[app.inventoryNumber]
+                // = null;` - InventoryDialog.inventory is initialized in its constructor but
+                // never read anywhere in the codebase (confirmed via repo-wide search); real
+                // inventory state lives in game.inventory.rooms (InventoryHandler). Vestigial
+                // from before the inventory/handler split.
             }
         } catch (e) {}
 

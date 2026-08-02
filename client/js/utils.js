@@ -132,16 +132,22 @@ Utils._base64ToArrayBuffer = function (base64) {
 const TRANSITIONEND = 'transitionend webkitTransitionEnd oTransitionEnd';
 
 // http://paulirish.com/2011/requestanimationframe-for-smart-animating/
-    window.requestAnimFrame = (function () {
-    return
+window.requestAnimFrame = (function () {
+    // FIX: `return` followed by a newline before the expression triggered automatic
+    // semicolon insertion (ASI), silently turning this into `return;` - the IIFE always
+    // returned undefined, so window.requestAnimFrame was never actually assigned a working
+    // function (every caller, e.g. game.js's gametick(), threw "requestAnimFrame is not a
+    // function"). Keeping the return and its expression on the same line avoids the ASI trap.
+    return (
         window.requestAnimationFrame ||
         window.webkitRequestAnimationFrame ||
         window.mozRequestAnimationFrame ||
         window.oRequestAnimationFrame ||
         window.msRequestAnimationFrame ||
-        function(/* function */ callback, /* DOMElement */ element){
-          window.setTimeout(callback, 16);
-        };
+        function (/* function */ callback, /* DOMElement */ element) {
+            window.setTimeout(callback, 16);
+        }
+    );
 })();
 
 // FIX: String.prototype.format was defined twice in this file (once near the top, again down

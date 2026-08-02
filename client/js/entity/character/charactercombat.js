@@ -200,7 +200,10 @@ export function installCharacterCombat(proto) {
         // return "attack_moving";`) - so makeAttack() always reported "attack_toofar" even when
         // a valid spot was found and movement started. Return true/false like the analogous
         // EntityMoving.follow().
-        if (spot && spot.x && spot.y) {
+        // FIX: `spot.x && spot.y` treated a legitimate walkable spot at world coordinate
+        // x===0 or y===0 as falsy, silently refusing to attack-move there (map-edge case,
+        // same bug as EntityMoving.follow()). Check for presence, not truthiness.
+        if (spot && spot.x != null && spot.y != null) {
             this.moveTo_(spot.x, spot.y);
             return true;
         }

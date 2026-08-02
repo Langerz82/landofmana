@@ -29,7 +29,19 @@ export default class LeaderboardHandler {
     }
     display() {
         const self = this;
-        let leaderJSON;
+        // FIX: was `let leaderJSON;` with no assignment anywhere in the file or the rest of the
+        // codebase - every $.each(leaderJSON, ...) below silently no-op'd on `undefined`, so the
+        // leaderboard rendered as a permanently empty table. This was caused by an earlier
+        // cleanup pass (see the FIX note near the bottom of this method) that removed a
+        // fetch()-based population of leaderJSON, believing it was dead/unreachable code - it
+        // was actually the only place leaderJSON was ever set.
+        // TODO: leaderJSON needs to be populated from the server before callback() runs (e.g.
+        // `fetch(<leaderboard endpoint>).then(r => r.json()).then(data => { leaderJSON = data;
+        // callback(); })`). There's no existing REST endpoint or WC_* socket message for this in
+        // the codebase to restore verbatim - confirm the real route/message with the server side
+        // before wiring this back up. Defaulting to {} here so the UI at least renders a
+        // deterministic empty table instead of silently doing nothing.
+        let leaderJSON = {};
         const recordsPerPage = 10;
 
         const callback = function () {
@@ -176,6 +188,10 @@ export default class LeaderboardHandler {
             callback();
         });
 
-        // FIX: removed dead/unreachable fetch() block (was after an unconditional `return;`, marked TODO - FIX)
+        // FIX: previously removed as a dead/unreachable fetch() block (was after an
+        // unconditional `return;`, marked TODO - FIX) - but per the TODO at the top of this
+        // method, that fetch() was the only assignment site for leaderJSON, so removing it
+        // broke the feature entirely rather than just deleting dead code. Restore a working
+        // fetch here once the correct server endpoint is confirmed.
     }
 }

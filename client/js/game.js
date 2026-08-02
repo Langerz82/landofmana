@@ -205,7 +205,9 @@ export default class Game {
         this.updateTime = 0;
 
         this.previousDelta = 0;
-        this.animFrame = typeof requestAnimFrame !== 'undefined';
+        // FIX (dead code): removed this.animFrame - always evaluated to false (requestAnimFrame
+        // was never actually defined on window, see utils.js) and had no readers anywhere in
+        // the codebase.
 
         this.spritesReady = false;
 
@@ -372,7 +374,8 @@ export default class Game {
     removeItem(item) {
         if (item) {
             this.removeFromItems(item);
-            const id = item.id;
+            // FIX (dead code): removed `const id = item.id;` - computed but never read
+            // (removeEntity() below is called with `item` directly, not `id`).
             this.removeEntity(item);
         } else {
             log.error('Cannot remove item. Unknown ID : ' + item.id);
