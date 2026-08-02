@@ -9,17 +9,17 @@ export default class StoreRack {
         this.parent = parent;
         this.id = id;
         this.index = index;
-        this.body = $(id);
-        this.basketBackground = $(id + 'BasketBackground');
-        this.basket = $(id + 'Basket');
-        this.extra = $(id + 'Extra');
-        this.price = $(id + 'Price');
-        this.buyButton = $(id + 'BuyButton');
+        this.jqBody = $(id);
+        this.jqBasketBackground = $(id + 'BasketBackground');
+        this.jqBasket = $(id + 'Basket');
+        this.jqExtra = $(id + 'Extra');
+        this.jqPrice = $(id + 'Price');
+        this.jqBuyButton = $(id + 'BuyButton');
         this.item = null;
 
         this.rescale();
 
-        this.buyButton.text('Buy');
+        this.jqBuyButton.text('Buy');
 
         const self = this;
     }
@@ -27,8 +27,10 @@ export default class StoreRack {
     rescale() {
         const scale = this.parent.scale;
         const id = this.id;
-        this.body = $(id);
-        this.body.css({
+        // FIX: rescale() used to re-run `$(id)` on every call, re-querying a DOM node
+        // already cached in the constructor (id never changes for a rack instance).
+        // Reuse the cached this.jqBody instead.
+        this.jqBody.css({
             position: 'absolute',
             left: '0px',
             top: '' + this.index * (20 * scale) + 'px' // FIX: was `this.scale`, which is never set on StoreRack (only StorePage sets it), so this evaluated to NaN and broke row spacing; use the local `scale` const instead
@@ -40,15 +42,15 @@ export default class StoreRack {
     }
 
     getVisible() {
-        return this.body.css('display') === 'block';
+        return this.jqBody.css('display') === 'block';
     }
     setVisible(value) {
         const self = this;
 
-        this.body.css('display', value ? 'block' : 'none');
-        this.buyButton.text('Buy');
+        this.jqBody.css('display', value ? 'block' : 'none');
+        this.jqBuyButton.text('Buy');
         if (value) {
-            this.buyButton.off().on('click', function (event) {
+            this.jqBuyButton.off().on('click', function (event) {
                 if (self.item.buyPrice > game.player.gold[0]) {
                     game.showNotification(['SHOP', 'SHOP_NOGOLD']);
                     return;
@@ -67,22 +69,22 @@ export default class StoreRack {
 
     assign(item) {
         this.item = item;
-        Items.jqShowItem(this.basket, this.item, this.basket);
+        Items.jqShowItem(this.jqBasket, this.item, this.jqBasket);
 
         const itemRoom = new ItemRoom(0, item.kind, 1, 900, 900, 0);
         const itemDesc = Item.getInfoMsgEx(itemRoom);
         const itemName = ItemTypes.getName(item.kind);
-        this.basket.attr('title', itemDesc);
+        this.jqBasket.attr('title', itemDesc);
         if (ItemTypes.isConsumableItem(item.kind)) {
-            this.basket.text('');
-            this.extra.text(
+            this.jqBasket.text('');
+            this.jqExtra.text(
                 (item.buyCount > 0 ? 'x' + item.buyCount : '') + ' ' + itemDesc
             );
         } else {
-            this.extra.text(itemName);
+            this.jqExtra.text(itemName);
         }
 
         const price = ItemTypes.getBuyPrice(item.kind);
-        this.price.text(Utils.getNumShortHand(price));
+        this.jqPrice.text(Utils.getNumShortHand(price));
     }
 }

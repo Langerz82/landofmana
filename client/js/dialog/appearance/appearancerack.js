@@ -8,23 +8,23 @@ export default class StoreRack {
         this.parent = parent;
         this.id = id;
         this.index = index;
-        this.body = $(id);
-        this.basketBackground = $(id + 'BasketBackground');
-        this.basket = $(id + 'Basket');
-        this.extra = $(id + 'Extra');
-        this.price = $(id + 'Price');
-        this.buyButton = $(id + 'BuyButton');
+        this.jqBody = $(id);
+        this.jqBasketBackground = $(id + 'BasketBackground');
+        this.jqBasket = $(id + 'Basket');
+        this.jqExtra = $(id + 'Extra');
+        this.jqPrice = $(id + 'Price');
+        this.jqBuyButton = $(id + 'BuyButton');
         this.item = null;
 
         this.rescale();
 
-        this.buyButton.text('Unlock');
+        this.jqBuyButton.text('Unlock');
     }
 
     rescale() {
         const scale = this.parent.scale;
         const id = this.id;
-        this.body.css({
+        this.jqBody.css({
             position: 'absolute',
             left: '0px',
             top: '' + this.index * (18 * scale) + 'px'
@@ -35,13 +35,13 @@ export default class StoreRack {
     }
 
     getVisible() {
-        return this.body.css('display') === 'block';
+        return this.jqBody.css('display') === 'block';
     }
     setVisible(value) {
         const self = this;
 
-        this.body.css('display', value === true ? 'block' : 'none');
-        this.buyButton.text('UNLOCK');
+        this.jqBody.css('display', value === true ? 'block' : 'none');
+        this.jqBuyButton.text('UNLOCK');
 
         const fnPreviewItem = function () {
             const dialog = game.appearanceDialog;
@@ -51,15 +51,17 @@ export default class StoreRack {
                     self.parent.itemType,
                     game.sprites[AppearanceData[item.index].sprite]
                 );
-                $('#changeLookUnlock').data('item', item);
+                // NOTE: reuses AppearanceDialog's cached jqChangeLookUnlock (same
+                // '#changeLookUnlock' selector) instead of re-querying the DOM here.
+                dialog.jqChangeLookUnlock.data('item', item);
                 dialog.unlockMode(true);
             }
         };
-        this.basketBackground.off().on('click', function (event) {
+        this.jqBasketBackground.off().on('click', function (event) {
             fnPreviewItem();
         });
 
-        this.buyButton.off().on('click', function (event) {
+        this.jqBuyButton.off().on('click', function (event) {
             fnPreviewItem();
         });
     }
@@ -69,19 +71,19 @@ export default class StoreRack {
         item.itemKind = item.index;
 
         this.scale = this.parent.scale;
-        Items.jqShowItem(this.basket, this.item, this.basket);
-        this.basket.text('');
-        this.extra.text(item.name);
-        this.price.text(item.buyPrice);
+        Items.jqShowItem(this.jqBasket, this.item, this.jqBasket);
+        this.jqBasket.text('');
+        this.jqExtra.text(item.name);
+        this.jqPrice.text(item.buyPrice);
 
         const self = this;
     }
 
     clear() {
-        this.basket.css('background-image', 'none');
-        this.basket.attr('title', '');
-        this.extra.text('');
-        this.price.text('');
-        this.basket.text('');
+        this.jqBasket.css('background-image', 'none');
+        this.jqBasket.attr('title', '');
+        this.jqExtra.text('');
+        this.jqPrice.text('');
+        this.jqBasket.text('');
     }
 }

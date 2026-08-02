@@ -26,18 +26,19 @@ export function installInventoryDialogDisplay(proto) {
     };
 
     proto.makeEmptyInventory = function (i) {
-        const cooltime = $('#inventoryHL' + i);
+        const cooltime = this.jqInventoryHighlights[i];
         cooltime.css({
             'background-color': 'transparent'
         });
 
-        $('#inventoryitem' + i).css({
+        const jqItem = this.jqInventoryItems[i];
+        jqItem.css({
             display: 'none',
             'background-image': 'none'
         });
-        $('#inventoryitem' + i).attr('title', '');
-        $('#inventoryitem' + i).html('');
-        $('#slot' + i).html('');
+        jqItem.attr('title', '');
+        jqItem.html('');
+        this.jqSlots[i].html('');
     };
 
     proto.makeEmptyInventoryAll = function () {
@@ -61,11 +62,11 @@ export function installInventoryDialogDisplay(proto) {
             const itemKind = item.itemKind;
 
             if (itemKind > 0) {
-                const jq = $('#inventoryitem' + slot);
+                const jq = this.jqInventoryItems[slot];
                 Items.jqShowItem(jq, item, jq);
             }
 
-            const highlight = $('#inventoryHL' + slot);
+            const highlight = this.jqInventoryHighlights[slot];
 
             if (
                 game.inventoryMode === InventoryMode.MODE_SELL ||

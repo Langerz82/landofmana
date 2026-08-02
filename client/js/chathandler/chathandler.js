@@ -15,13 +15,13 @@ export default class ChatHandler {
         //this.game = game;
         //this.client = game.client;
         //this.kkhandler = kkhandler;
-        this.chatLog = $('#chatLog');
+        this.jqChatLog = $('#chatLog');
         //handle global announcements server sided so
         //they're always synced.
         this.bumpOffDelay = 30000;
     }
     show() {
-        $('#chatLog').css('display', 'flex');
+        this.jqChatLog.css('display', 'flex');
     }
     processSendMessage(message) {
         return this.processSenders(null, message);
@@ -35,11 +35,11 @@ export default class ChatHandler {
         // with var - let/const can't redeclare a parameter name, so this is just a reassignment.
         delay = delay || this.bumpOffDelay;
         const self = this;
-        $(this.chatLog).scrollTop(999999);
+        this.jqChatLog.scrollTop(999999);
         setTimeout(function () {
             // FIX: `this` inside a plain setTimeout callback is undefined (strict-mode ES module), so `this.chatLog` threw;
             // use the captured `self` instead, which was declared for this purpose but never used
-            $(self.chatLog).find('p:first').remove();
+            self.jqChatLog.find('p:first').remove();
         }, delay);
     }
 
@@ -48,7 +48,7 @@ export default class ChatHandler {
         // content before calling this, since some callers intentionally wrap pre-built trusted HTML (e.g. <font> tags)
         const self = this;
         const el = $('<p style="color: white">' + message + '</p>');
-        $(el).appendTo(this.chatLog);
+        $(el).appendTo(this.jqChatLog);
         this.bumpOffLog();
     }
     addNotification(message) {
@@ -63,7 +63,7 @@ export default class ChatHandler {
                 Utils.escapeHtml(message) +
                 '</p>'
         );
-        $(el).appendTo(this.chatLog);
+        $(el).appendTo(this.jqChatLog);
         this.bumpOffLog();
     }
     addNormalChat(entity, message) {
@@ -77,7 +77,7 @@ export default class ChatHandler {
                 Utils.escapeHtml(message) +
                 '</p>'
         );
-        $(el).appendTo(this.chatLog);
+        $(el).appendTo(this.jqChatLog);
         this.bumpOffLog();
     }
 
@@ -91,7 +91,7 @@ export default class ChatHandler {
                 Utils.escapeHtml(message) +
                 '</p>'
         );
-        $(el).appendTo(this.chatLog);
+        $(el).appendTo(this.jqChatLog);
         this.bumpOffLog();
     }
 
@@ -103,7 +103,7 @@ export default class ChatHandler {
                 Utils.escapeHtml(message) +
                 '</p>'
         );
-        $(el).appendTo(this.chatLog);
+        $(el).appendTo(this.jqChatLog);
         this.bumpOffLog();
     }
 }

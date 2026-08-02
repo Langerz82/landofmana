@@ -8,13 +8,13 @@ export function installAppValidation(proto) {
         if (this.starting) return; // Already loading
 
         if (action > 0) {
-            const username = this.$usernameinput.val();
+            const username = this.jqUsernameInput.val();
             const userpw =
                 action === 3
-                    ? $('#remove_password').val()
-                    : this.$userpasswordinput.val();
+                    ? this.jqRemovePassword.val()
+                    : this.jqUserPasswordInput.val();
             let hash = null;
-            if (userpw === '') hash = $('#user_hash').val();
+            if (userpw === '') hash = this.jqUserHashInput.val();
             log.info('hash=' + hash);
 
             if (!this.validateUserForm(username, userpw)) return;
@@ -26,7 +26,7 @@ export function installAppValidation(proto) {
             ));
             this.userclient.user = this.user;
 
-            if ($('#user_save').is(':checked')) {
+            if (this.jqUserSave.is(':checked')) {
                 localforage.setItem('user_name', username);
                 localforage.setItem('user_hash', this.user.hash);
             }
@@ -44,11 +44,14 @@ export function installAppValidation(proto) {
             this.jqPlayerLoad.addClass('loading');
             this.jqPlayerCreate.addClass('loading');
 
-            const username = this.$playernameinput.val();
+            const username = this.jqPlayerNameInput.val();
             const playerIndex = parseInt(this.jqPlayerSelect.val());
             if (action === 4 && !this.validatePlayerForm(username)) return;
 
-            const server = parseInt($('#player_server').val());
+            // Reuses UserClient's own cached lookup (userclient/userclient.js caches
+            // this.jqPlayerServer for the same '#player_server' element already) instead of
+            // re-querying the DOM here.
+            const server = parseInt(this.userclient.jqPlayerServer.val());
 
             let ps = null;
             if (action === 3) {
@@ -85,7 +88,7 @@ export function installAppValidation(proto) {
 
         if (!username) {
             this.addValidationError(
-                this.$usernameinput,
+                this.jqUsernameInput,
                 'Please enter a username.'
             );
             return false;
@@ -93,14 +96,14 @@ export function installAppValidation(proto) {
         // FIX: `&&` made this condition impossible to hit (length can't be both <2 and >16); use `||` so it actually rejects bad lengths
         if (username.length < 2 || username.length > 16) {
             this.addValidationError(
-                this.$usernameinput,
+                this.jqUsernameInput,
                 'Please enter a username between 2 and 16 characters.'
             );
             return false;
         }
         if (username === username.replace(/^[A-Za-z0-9]+$/, '')) {
             this.addValidationError(
-                this.$usernameinput,
+                this.jqUsernameInput,
                 'Please enter username alpha numeric characters only.'
             );
             return false;
@@ -110,7 +113,7 @@ export function installAppValidation(proto) {
             // FIX: `&&` made this condition impossible to hit (length can't be both <6 and >32); use `||` so it actually rejects bad lengths
             if (userpw.length < 6 || userpw.length > 32) {
                 this.addValidationError(
-                    this.$userpasswordinput,
+                    this.jqUserPasswordInput,
                     'Please enter a user password between 6 and 32 characters.'
                 );
                 return false;
@@ -123,7 +126,7 @@ export function installAppValidation(proto) {
                 )
             ) {
                 this.addValidationError(
-                    this.$userpasswordinput,
+                    this.jqUserPasswordInput,
                     'Please enter password alpha numeric, and special characters only.'
                 );
                 return false;
@@ -137,7 +140,7 @@ export function installAppValidation(proto) {
 
         if (!playername) {
             this.addValidationError(
-                this.$playernameinput,
+                this.jqPlayerNameInput,
                 'Please enter a player name.'
             );
             return false;
@@ -145,14 +148,14 @@ export function installAppValidation(proto) {
         // FIX: `&&` made this condition impossible to hit (length can't be both <2 and >16); use `||` so it actually rejects bad lengths
         if (playername.length < 2 || playername.length > 16) {
             this.addValidationError(
-                this.$playernameinput,
+                this.jqPlayerNameInput,
                 'Please enter a player name between 2 and 16 characters.'
             );
             return false;
         }
         if (playername === playername.replace(/^[A-Za-z0-9]+$/, '')) {
             this.addValidationError(
-                this.$playernameinput,
+                this.jqPlayerNameInput,
                 'Please enter player name alpha numeric characters only.'
             );
             return false;
@@ -162,16 +165,22 @@ export function installAppValidation(proto) {
     };
 
     proto.addValidationError = function (field, errorText) {
-        $('.validation-summary').html('');
+        // this.jqValidationSummary cached once in App's constructor (app.js).
+        this.jqValidationSummary.html('');
         $('<span/>', {
             class: 'validation-error blink',
             text: errorText
-        }).appendTo('.validation-summary');
+        }).appendTo(this.jqValidationSummary);
 
         if (field) {
             field.addClass('field-error').select();
             field.keypress(function (event) {
                 field.removeClass('field-error');
+                // TODO: '.validation-error' spans are created/destroyed dynamically (see the
+                // $('<span/>', ...) above) rather than being static page elements, so this
+                // must re-query live DOM state on every keypress instead of reusing a lookup
+                // cached at construction time - a cached reference would go stale as soon as
+                // addValidationError() creates a new span or this handler removes the old one.
                 $('.validation-error').remove();
                 $(this).unbind(event);
             });
@@ -205,6 +214,8 @@ export function installAppValidation(proto) {
                 field.off('input.errorRetry');
                 field.removeClass('field-error');
             });
+            // TODO: not cached - '.validation-error' spans are created/destroyed dynamically
+            // (see addValidationError above), so this must re-query live DOM state each time.
             $('.validation-error').remove();
             if (extraCleanup) extraCleanup();
         };
@@ -226,6 +237,8 @@ export function installAppValidation(proto) {
                 if (field.hasClass('field-error'))
                     field.removeClass('field-error');
             });
+            // TODO: not cached - '.validation-error' spans are created/destroyed dynamically
+            // (see addValidationError above), so this must re-query live DOM state each time.
             $('.validation-error').remove();
         }
     };

@@ -11,7 +11,10 @@ export default class SettingsHandler {
         this.toggle = false;
         const self = this;
 
-        $('#settingsclose').click(function (e) {
+        this.jqSettings = $('#settings');
+
+        const jqSettingsClose = $('#settingsclose');
+        jqSettingsClose.click(function (e) {
             self.show();
         });
 
@@ -22,8 +25,10 @@ export default class SettingsHandler {
             }
         };
 
-        const buttonSound = $('#buttonsound');
-        buttonSound.click(function (e) {
+        // FIX: cached on `this` (not a constructor-local const) because apply() also needs
+        // this same element and used to perform a second, redundant $('#buttonsound') lookup.
+        this.jqButtonSound = $('#buttonsound');
+        this.jqButtonSound.click(function (e) {
             if ($(this).hasClass('active')) {
                 $(this).html('Off');
                 $(this).removeClass('active');
@@ -49,20 +54,20 @@ export default class SettingsHandler {
             }
         };
 
-        const buttonChat = $('#buttonchat');
+        const jqButtonChat = $('#buttonchat');
         localforage.getItem('chat', function (e, val) {
             if (!val) {
-                buttonChat.html('Off');
-                buttonChat.removeClass('active');
+                jqButtonChat.html('Off');
+                jqButtonChat.removeClass('active');
                 funcChat(false);
             } else {
-                buttonChat.html('On');
-                buttonChat.addClass('active');
+                jqButtonChat.html('On');
+                jqButtonChat.addClass('active');
                 funcChat(true);
             }
         });
 
-        buttonChat.click(function (e) {
+        jqButtonChat.click(function (e) {
             if ($(this).hasClass('active')) {
                 $(this).html('Off');
                 $(this).removeClass('active');
@@ -94,20 +99,20 @@ export default class SettingsHandler {
             }
         };
 
-        const buttonJoystick = $('#buttonjoystick');
+        const jqButtonJoystick = $('#buttonjoystick');
         localforage.getItem('joystick', function (e, val) {
             if (!val) {
-                buttonJoystick.html('Off');
-                buttonJoystick.removeClass('active');
+                jqButtonJoystick.html('Off');
+                jqButtonJoystick.removeClass('active');
                 funcJoystick(false);
             } else {
-                buttonJoystick.html('On');
-                buttonJoystick.addClass('active');
+                jqButtonJoystick.html('On');
+                jqButtonJoystick.addClass('active');
                 funcJoystick(true);
             }
         });
 
-        buttonJoystick.click(function (e) {
+        jqButtonJoystick.click(function (e) {
             if ($(this).hasClass('active')) {
                 $(this).html('Off');
                 $(this).removeClass('active');
@@ -121,71 +126,76 @@ export default class SettingsHandler {
             }
         });
 
+        const jqRoot = $(':root');
         const changeMColor = function (val) {
-            $(':root').css('--pixel-bg', val);
+            jqRoot.css('--pixel-bg', val);
         };
 
-        const buttonMColor = $('#buttonmenucolor');
+        const jqButtonMColor = $('#buttonmenucolor');
         localforage.getItem('menucolor', function (e, val) {
             if (!val) return;
             changeMColor(val);
-            buttonMColor.val(val);
+            jqButtonMColor.val(val);
         });
 
-        buttonMColor.change(function (e) {
+        jqButtonMColor.change(function (e) {
             localforage.setItem('menucolor', this.value);
             changeMColor(this.value);
         });
 
+        const jqFrameNewButton = $('div.frame-new-button');
         const changeBColor = function (val) {
-            $('div.frame-new-button').css('background-color', val);
+            jqFrameNewButton.css('background-color', val);
         };
 
-        const buttonBColor = $('#buttonbuttoncolor');
+        const jqButtonBColor = $('#buttonbuttoncolor');
         localforage.getItem('buttoncolor', function (e, val) {
             if (!val) return;
             changeBColor(val);
-            buttonBColor.val(val);
+            jqButtonBColor.val(val);
         });
 
-        $('#buttonbuttoncolor').change(function (e) {
+        jqButtonBColor.change(function (e) {
             localforage.setItem('buttoncolor', this.value);
             changeBColor(this.value);
         });
 
+        const jqGamezoom = $('#gamezoom');
         const fnSetZoom = function (val) {
             if (!game) return;
             game.zoom = val;
             game.resize(val);
 
-            $('#gamezoom option:selected').removeAttr('selected');
-            $('#gamezoom option[value="' + val + '"]').attr('selected', true);
+            jqGamezoom.find('option:selected').removeAttr('selected');
+            jqGamezoom
+                .find('option[value="' + val + '"]')
+                .attr('selected', true);
         };
-        const selectZoom = $('.cgamezoom');
+        const jqSelectZoom = $('.cgamezoom');
         if (game) {
             localforage.getItem('gamezoom', function (e, val) {
                 if (val) fnSetZoom(val);
             });
             fnSetZoom(1.0);
         }
-        selectZoom.change(function () {
-            const val = $('#gamezoom').val();
+        jqSelectZoom.change(function () {
+            const val = jqGamezoom.val();
             localforage.setItem('gamezoom', val);
             fnSetZoom(val);
         });
 
+        const jqShortcutBar = $('#shortcut_bar');
+        const jqShortcutStyle = $('#shortcutstyle');
         const fnSetShortcut = function (val) {
-            $('#shortcut_bar').removeClass();
-            $('#shortcut_bar').addClass(val);
+            jqShortcutBar.removeClass();
+            jqShortcutBar.addClass(val);
 
-            $('#shortcutstyle option:selected').removeAttr('selected');
-            $('#shortcutstyle option[value="' + val + '"]').attr(
-                'selected',
-                true
-            );
+            jqShortcutStyle.find('option:selected').removeAttr('selected');
+            jqShortcutStyle
+                .find('option[value="' + val + '"]')
+                .attr('selected', true);
             ShortcutStyle = val;
         };
-        const selectShortcut = $('#shortcutstyle');
         if (game) {
             localforage.getItem('shortcutstyle', function (e, val) {
                 if (val) fnSetShortcut(val);
@@ -198,8 +208,8 @@ export default class SettingsHandler {
                 }
             } else fnSetShortcut('horizontal-asc');
         }
-        selectShortcut.change(function () {
-            const val = $('#shortcutstyle').val();
+        jqShortcutStyle.change(function () {
+            const val = jqShortcutStyle.val();
             localforage.setItem('shortcutstyle', val);
             fnSetShortcut(val);
         });
@@ -208,15 +218,14 @@ export default class SettingsHandler {
     apply() {
         const self = this;
 
-        const buttonSound = $('#buttonsound');
         localforage.getItem('sound', function (e, val) {
             if (val === 0) {
-                buttonSound.html('Off');
-                buttonSound.removeClass('active');
+                self.jqButtonSound.html('Off');
+                self.jqButtonSound.removeClass('active');
                 self.funcSound(false);
             } else {
-                buttonSound.html('On');
-                buttonSound.addClass('active');
+                self.jqButtonSound.html('On');
+                self.jqButtonSound.addClass('active');
                 self.funcSound(true);
             }
         });
@@ -225,9 +234,9 @@ export default class SettingsHandler {
     show() {
         this.toggle = !this.toggle;
         if (this.toggle) {
-            $('#settings').css('display', 'block');
+            this.jqSettings.css('display', 'block');
         } else {
-            $('#settings').css('display', 'none');
+            this.jqSettings.css('display', 'none');
         }
     }
 }

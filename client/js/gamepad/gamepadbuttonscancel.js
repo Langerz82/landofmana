@@ -1,29 +1,38 @@
 // Extracted from gamepad.js/gamepadbuttons.js: the 'b' (cancel/back) button binding.
 // Installed once from gamepad.js's constructor via install*(self).
-import {
-    jqAchievementWindow,
-    jqAuctionSellWindow,
-    jqBankWindow,
-    jqConfirmWindow,
-    jqDiedWindow,
-    jqDropWindow,
-    jqInventoryWindow,
-    jqLeaderWindow,
-    jqLooksPreview,
-    jqLooksWindow,
-    jqMenuWindow,
-    jqNotifyWindow,
-    jqPlayerPopupWindow,
-    jqQuestWindow,
-    jqSettingsWindow,
-    jqShopWindow,
-    jqSkillWindow,
-    jqSocialWindow,
-    jqStatWindow
-} from './gamepad.js';
 /* global game, log */
 
 export function installGamepadButtonsCancel(self) {
+    // Selector lookups used repeatedly inside the 'b' button handler below - cached once here
+    // (installGamepadButtonsCancel runs once, from Gamepad's constructor) as properties on
+    // `self` (the Gamepad instance) instead of re-querying the DOM on every button press.
+    // jqAchievementWindow/jqAuctionSellWindow/jqBankWindow/jqConfirmWindow/jqDiedWindow/
+    // jqDropWindow/jqInventoryWindow/jqLeaderWindow/jqLooksPreview/jqLooksWindow/jqMenuWindow/
+    // jqNotifyWindow/jqPlayerPopupWindow/jqQuestWindow/jqSettingsWindow/jqShopWindow/
+    // jqSkillWindow/jqSocialWindow/jqStatWindow are already set on `self` by Gamepad's
+    // constructor (gamepad.js) before this function runs.
+    self.jqDialogModalConfirmButton2 = $('#dialogModalConfirmButton2');
+    self.jqDialogModalNotifyButton1 = $('#dialogModalNotifyButton1');
+    self.jqRespawn = $('#respawn');
+    self.jqAuctionSellCancel = $('#auctionSellCancel');
+    self.jqSocialConfirm = $('#socialconfirm');
+    self.jqSocialConfirmNo = $('#socialconfirmno');
+    self.jqChatbox = $('#chatbox');
+    self.jqSkillsCloseButton = $('#skillsCloseButton');
+    self.jqStatsCloseButton = $('#statsCloseButton');
+    self.jqInventoryCloseButton = $('#inventoryCloseButton');
+    self.jqQuestCloseButton = $('#questCloseButton');
+    self.jqAchievementCloseButton = $('#achievementCloseButton');
+    self.jqSocialClose = $('#socialclose');
+    self.jqSettingsClose = $('#settingsclose');
+    self.jqLeaderboardClose = $('#leaderboardclose');
+    self.jqShopCloseButton = $('#shopCloseButton');
+    self.jqDropCancel = $('#dropCancel');
+    self.jqStoreDialogCloseButton = $('#storeDialogCloseButton');
+    self.jqCraftDialogCloseButton = $('#craftDialogCloseButton');
+    self.jqBankDialogCloseButton = $('#bankDialogCloseButton');
+    self.jqAppearanceCloseButton = $('#appearanceCloseButton');
+
     self.pxgamepad.buttonOn('b', function () {
         log.info('buttonOn = b');
         if (self.leftTopPressed) {
@@ -36,75 +45,75 @@ export function installGamepadButtonsCancel(self) {
         }
 
         if (self.isDialogOpen()) {
-            if (jqConfirmWindow.is(':visible')) {
-                $('#dialogModalConfirmButton2').trigger('click');
+            if (self.jqConfirmWindow.is(':visible')) {
+                self.jqDialogModalConfirmButton2.trigger('click');
                 return;
             }
-            if (jqNotifyWindow.is(':visible')) {
-                $('#dialogModalNotifyButton1').trigger('click');
+            if (self.jqNotifyWindow.is(':visible')) {
+                self.jqDialogModalNotifyButton1.trigger('click');
                 return;
             }
-            if (jqDiedWindow.is(':visible')) {
-                $('#respawn').trigger('click');
+            if (self.jqDiedWindow.is(':visible')) {
+                self.jqRespawn.trigger('click');
                 return;
             }
-            if (jqAuctionSellWindow.is(':visible')) {
-                $('#auctionSellCancel').trigger('click');
+            if (self.jqAuctionSellWindow.is(':visible')) {
+                self.jqAuctionSellCancel.trigger('click');
                 return;
             }
-            if ($('#socialconfirm').is(':visible')) {
-                $('#socialconfirmno').trigger('click');
-                $('#socialconfirm').css('display', 'none');
-            } else if (jqPlayerPopupWindow.is(':visible')) {
+            if (self.jqSocialConfirm.is(':visible')) {
+                self.jqSocialConfirmNo.trigger('click');
+                self.jqSocialConfirm.css('display', 'none');
+            } else if (self.jqPlayerPopupWindow.is(':visible')) {
                 game.playerPopupMenu.close();
-            } else if ($('#chatbox').is(':visible')) {
-                $('#chatbox').hide();
-            } else if (jqSkillWindow.is(':visible')) {
-                $('#skillsCloseButton').trigger('click');
-            } else if (jqStatWindow.is(':visible')) {
-                $('#statsCloseButton').trigger('click');
-            } else if (jqInventoryWindow.is(':visible')) {
+            } else if (self.jqChatbox.is(':visible')) {
+                self.jqChatbox.hide();
+            } else if (self.jqSkillWindow.is(':visible')) {
+                self.jqSkillsCloseButton.trigger('click');
+            } else if (self.jqStatWindow.is(':visible')) {
+                self.jqStatsCloseButton.trigger('click');
+            } else if (self.jqInventoryWindow.is(':visible')) {
                 const inv = game.inventoryHandler;
                 if (inv.selectedItem >= 0) {
                     inv.deselectItem();
                     return;
                 } else {
-                    $('#inventoryCloseButton').trigger('click');
+                    self.jqInventoryCloseButton.trigger('click');
                 }
-            } else if (jqQuestWindow.is(':visible')) {
-                $('#questCloseButton').trigger('click');
-            } else if (jqAchievementWindow.is(':visible')) {
-                $('#achievementCloseButton').trigger('click');
-            } else if (jqSocialWindow.is(':visible')) {
-                $('#socialclose').trigger('click');
-            } else if (jqSettingsWindow.is(':visible')) {
-                $('#settingsclose').trigger('click');
-            } else if (jqLeaderWindow.is(':visible')) {
-                $('#leaderboardclose').trigger('click');
-            } else if (jqShopWindow.is(':visible')) {
-                $('#shopCloseButton').trigger('click');
-            } else if (jqMenuWindow.is(':visible')) {
-                jqMenuWindow.trigger('click');
+            } else if (self.jqQuestWindow.is(':visible')) {
+                self.jqQuestCloseButton.trigger('click');
+            } else if (self.jqAchievementWindow.is(':visible')) {
+                self.jqAchievementCloseButton.trigger('click');
+            } else if (self.jqSocialWindow.is(':visible')) {
+                self.jqSocialClose.trigger('click');
+            } else if (self.jqSettingsWindow.is(':visible')) {
+                self.jqSettingsClose.trigger('click');
+            } else if (self.jqLeaderWindow.is(':visible')) {
+                self.jqLeaderboardClose.trigger('click');
+            } else if (self.jqShopWindow.is(':visible')) {
+                self.jqShopCloseButton.trigger('click');
+            } else if (self.jqMenuWindow.is(':visible')) {
+                self.jqMenuWindow.trigger('click');
                 self.mainButtonsActive = false;
-            } else if (jqDropWindow.is(':visible')) {
-                $('#dropCancel').trigger('click');
+            } else if (self.jqDropWindow.is(':visible')) {
+                self.jqDropCancel.trigger('click');
                 return;
             } else if (
                 game.storeDialog.visible ||
                 game.auctionDialog.visible ||
                 game.appearanceDialog.visible
             ) {
-                $('#storeDialogCloseButton').trigger('click');
+                self.jqStoreDialogCloseButton.trigger('click');
             } else if (game.craftDialog.visible) {
-                $('#craftDialogCloseButton').trigger('click');
-            } else if (jqBankWindow.is(':visible')) {
+                self.jqCraftDialogCloseButton.trigger('click');
+            } else if (self.jqBankWindow.is(':visible')) {
                 if (game.bankDialog.bankFrame.selectedItem >= 0)
                     game.bankDialog.bankFrame.deselectItem();
-                else $('#bankDialogCloseButton').trigger('click');
-            } else if (jqLooksWindow.is(':visible')) {
-                $('#appearanceCloseButton').trigger('click');
-            } else if (jqLooksPreview.is(':visible')) {
-                $('#appearanceCloseButton').trigger('click');
+                else self.jqBankDialogCloseButton.trigger('click');
+            } else if (self.jqLooksWindow.is(':visible')) {
+                self.jqAppearanceCloseButton.trigger('click');
+            } else if (self.jqLooksPreview.is(':visible')) {
+                self.jqAppearanceCloseButton.trigger('click');
             } else if (self.mainButtonsActive) {
                 self.mainButtonsActive = false;
                 self.setSelectedItem(null);

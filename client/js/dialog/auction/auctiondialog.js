@@ -19,7 +19,16 @@ export default class AuctionDialog extends Dialog {
 
         this.storeFrame = new StoreFrame(this);
 
-        this.modal = $('#storeDialogModal');
+        this.jqModal = $('#storeDialogModal');
+
+        // Cached once here and reused by show() below instead of re-querying the DOM
+        // every time the dialog is shown.
+        this.jqFrameHeadingDiv = $('#storeDialog .frameheading div');
+        this.jqStore0Button = $('#storeDialogStore0Button');
+        this.jqStoreButtons = $('#storeDialog .storebuttons');
+        this.jqStore3Button = $('#storeDialogStore3Button');
+        this.jqGoldFrame = $('#storeDialogStore div.inventoryGoldFrame');
+        this.jqGemsFrame = $('#storeDialogStore div.inventoryGemsFrame');
 
         this.addClose();
     }
@@ -38,15 +47,14 @@ export default class AuctionDialog extends Dialog {
 
         this.rescale();
 
-        $('#storeDialog .frameheading div').text('AUCTION');
+        this.jqFrameHeadingDiv.text('AUCTION');
 
-        $('#storeDialogStore0Button').text('LIST');
-        $('#storeDialog .storebuttons').show();
+        this.jqStore0Button.text('LIST');
+        this.jqStoreButtons.show();
 
-        const store3btn = $('#storeDialogStore3Button');
-        store3btn.text('SELL');
-        store3btn.show();
-        store3btn.off().on('click', function (event) {
+        this.jqStore3Button.text('SELL');
+        this.jqStore3Button.show();
+        this.jqStore3Button.off().on('click', function (event) {
             game.inventoryMode = InventoryMode.MODE_AUCTION;
             game.inventoryDialog.backPage = self;
             self.hide();
@@ -56,10 +64,10 @@ export default class AuctionDialog extends Dialog {
         this.storeFrame.open(0);
 
         super.show(); // FIX (conversion): this._super() -> super.show()
-        $('#storeDialogStore0Button').trigger('click');
+        this.jqStore0Button.trigger('click');
 
-        $('#storeDialogStore div.inventoryGoldFrame').show();
-        $('#storeDialogStore div.inventoryGemsFrame').hide();
+        this.jqGoldFrame.show();
+        this.jqGemsFrame.hide();
     }
 
     hide() {

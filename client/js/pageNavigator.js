@@ -3,13 +3,13 @@ export default class PageNavigator {
     constructor(parent, scale, name) {
         this.parent = parent;
         this.name = name || 'store';
-        this.body = $('#' + this.name + 'PageNav');
-        this.movePreviousButton = $('#' + this.name + 'PageNavPrev');
-        this.numbers = [];
+        this.jqBody = $('#' + this.name + 'PageNav');
+        this.jqMovePreviousButton = $('#' + this.name + 'PageNavPrev');
+        this.jqNumbers = [];
         for (let index = 0; index < 5; index++) {
-            this.numbers.push($('#' + this.name + 'PageNavNumber' + index));
+            this.jqNumbers.push($('#' + this.name + 'PageNavNumber' + index));
         }
-        this.moveNextButton = $('#' + this.name + 'PageNavNext');
+        this.jqMoveNextButton = $('#' + this.name + 'PageNavNext');
 
         this.changeHandler = null;
 
@@ -17,14 +17,14 @@ export default class PageNavigator {
 
         const self = this;
 
-        this.movePreviousButton.click(function (event) {
+        this.jqMovePreviousButton.click(function (event) {
             if (!self.parent.visible) return;
 
             if (self.index > 1) {
                 self.setIndex(self.index - 1);
             }
         });
-        this.moveNextButton.click(function (event) {
+        this.jqMoveNextButton.click(function (event) {
             if (!self.parent.visible) return;
 
             if (self.index < self.count) {
@@ -41,8 +41,8 @@ export default class PageNavigator {
     setCount(value) {
         this.count = value;
 
-        this.numbers[3].html(~~(value / 10));
-        this.numbers[4].html(value % 10);
+        this.jqNumbers[3].html(~~(value / 10));
+        this.jqNumbers[4].html(value % 10);
     }
     getIndex() {
         return this.index;
@@ -51,11 +51,14 @@ export default class PageNavigator {
         this.pageChanged = this.index !== value;
         this.index = value;
 
-        this.numbers[0].html(~~(value / 10));
-        this.numbers[1].html(value % 10);
+        this.jqNumbers[0].html(~~(value / 10));
+        this.jqNumbers[1].html(value % 10);
 
-        this.movePreviousButton.attr('class', this.index > 1 ? 'enabled' : '');
-        this.moveNextButton.attr(
+        this.jqMovePreviousButton.attr(
+            'class',
+            this.index > 1 ? 'enabled' : ''
+        );
+        this.jqMoveNextButton.attr(
             'class',
             this.index < this.count ? 'enabled' : ''
         );
@@ -65,10 +68,10 @@ export default class PageNavigator {
         }
     }
     getVisible() {
-        return this.body.css('display') === 'block';
+        return this.jqBody.css('display') === 'block';
     }
     setVisible(value) {
-        this.body.css('display', value ? 'block' : 'none');
+        this.jqBody.css('display', value ? 'block' : 'none');
     }
 
     onChange(handler) {

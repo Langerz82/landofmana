@@ -7,7 +7,13 @@ export default class LeaderboardHandler {
         this.toggle = false;
 
         const self = this;
-        $('#leaderboardclose').click(function (e) {
+        this.jqLeaderboard = $('#leaderboard');
+        this.jqLbSelect = $('#lbselect');
+        this.jqLbIndex = $('#lbindex');
+        this.jqLbData = $('#lbdata');
+
+        const jqLeaderboardClose = $('#leaderboardclose');
+        jqLeaderboardClose.click(function (e) {
             self.show();
         });
     }
@@ -15,10 +21,10 @@ export default class LeaderboardHandler {
     show() {
         this.toggle = !this.toggle;
         if (this.toggle) {
-            $('#leaderboard').css('display', 'block');
+            this.jqLeaderboard.css('display', 'block');
             this.display();
         } else {
-            $('#leaderboard').css('display', 'none');
+            this.jqLeaderboard.css('display', 'none');
         }
     }
     display() {
@@ -29,7 +35,7 @@ export default class LeaderboardHandler {
         const callback = function () {
             const leaders = [];
 
-            switch ($('#lbselect').val()) {
+            switch (self.jqLbSelect.val()) {
                 case 'xp':
                     $.each(leaderJSON, function (key, value) {
                         if (value.xp > 0)
@@ -101,8 +107,8 @@ export default class LeaderboardHandler {
             let recEnd;
 
             let pageIndex;
-            if (parseInt($('#lbindex').val()) > 0)
-                pageIndex = parseInt($('#lbindex').val());
+            if (parseInt(self.jqLbIndex.val()) > 0)
+                pageIndex = parseInt(self.jqLbIndex.val());
             else if (playerIndex >= 0)
                 // FIX: Math.ceil(playerIndex/recordsPerPage) is off by one whenever playerIndex is an exact multiple
                 // of recordsPerPage (e.g. rank 11, 21, 31...), landing one page too early so the player's own row
@@ -142,7 +148,7 @@ export default class LeaderboardHandler {
                         '</td></tr>'; // FIX: leader.key (player name) is untrusted; escape before inserting as HTML to prevent XSS
             }
             lbdata += '</table>';
-            $('#lbdata').html(lbdata);
+            self.jqLbData.html(lbdata);
 
             const pagesCount = Math.ceil(leadersLength / recordsPerPage);
             let pageData = ''; // FIX: was uninitialized, producing literal "undefined<option...>" on first concat
@@ -152,8 +158,8 @@ export default class LeaderboardHandler {
                         '<option value="' + i + '" selected>' + i + '</option>';
                 else pageData += '<option value="' + i + '">' + i + '</option>';
             }
-            $('#lbindex').empty();
-            $('#lbindex').html(pageData);
+            self.jqLbIndex.empty();
+            self.jqLbIndex.html(pageData);
         };
 
         // FIX: display() runs every time the leaderboard is opened (see show()), and this
@@ -161,18 +167,14 @@ export default class LeaderboardHandler {
         // time without unbinding the previous one. Repeated opens stacked duplicate
         // handlers, so one dropdown change re-ran callback() (and its DOM rebuild) once
         // per past open. .off('change') before rebinding keeps it to a single handler.
-        $('#lbselect')
-            .off('change')
-            .change(function () {
-                $('#lbindex').val('');
-                callback();
-            });
+        self.jqLbSelect.off('change').change(function () {
+            self.jqLbIndex.val('');
+            callback();
+        });
 
-        $('#lbindex')
-            .off('change')
-            .change(function () {
-                callback();
-            });
+        self.jqLbIndex.off('change').change(function () {
+            callback();
+        });
 
         // FIX: removed dead/unreachable fetch() block (was after an unconditional `return;`, marked TODO - FIX)
     }

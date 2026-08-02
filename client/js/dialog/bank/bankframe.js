@@ -39,12 +39,13 @@ export default class BankFrame {
             this.bankslots.push(new BankSlot(this, index));
         }
 
-        this.goldNumber = $('.bankGold');
+        this.jqGoldNumber = $('.bankGold');
 
         this.selectedBank = null;
         this.selectedItem = null;
 
-        $('#bankDialogBankGoldBody').click(function (event) {
+        const jqBankGoldBody = $('#bankDialogBankGoldBody');
+        jqBankGoldBody.click(function (event) {
             game.app.showDropDialog('inventorygold');
         });
     }
@@ -100,7 +101,7 @@ export default class BankFrame {
     selectItem(slot, select) {
         if (slot < 0) return;
 
-        const background = this.bankslots[slot].background;
+        const background = this.bankslots[slot].jqBackground;
 
         if (select) {
             const s = game.renderer.getUiScaleFactor();

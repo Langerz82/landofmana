@@ -15,8 +15,26 @@ export default class AppearanceDialog extends Dialog {
 
         this.storeFrame = new StoreFrame(this);
 
-        this.closeButton = $('#storeDialogCloseButton');
-        this.modal = $('#storeDialogModal');
+        this.jqCloseButton = $('#storeDialogCloseButton');
+        this.jqModal = $('#storeDialogModal');
+
+        // Cached once here and reused by hide()/unlockMode()/showStore()/show() below
+        // instead of re-querying the DOM every time those methods run.
+        this.jqChangeLookPrev = $('#changeLookPrev');
+        this.jqChangeLookNext = $('#changeLookNext');
+        this.jqChangeLookUnlock = $('#changeLookUnlock');
+        this.jqStoreDialogInventory = $('#storeDialogInventory');
+        this.jqLooksDialogPlayer = $('#looksDialogPlayer');
+        this.jqAppearanceDialog = $('#appearanceDialog');
+        this.jqStoreDialogFrameHeadingText = $('#storeDialog .frameheadingtext');
+        this.jqStoreDialogStore0Button = $('#storeDialogStore0Button');
+        this.jqStoreDialogStore1Button = $('#storeDialogStore1Button');
+        this.jqStoreDialogStore2Button = $('#storeDialogStore2Button');
+        this.jqStore3Button = $('#storeDialogStore3Button');
+        this.jqAppearanceCloseButton = $('#appearanceCloseButton');
+        this.jqStoreDialogGoldFrame = $('#storeDialogStore div.inventoryGoldFrame');
+        this.jqStoreDialogGemsFrame = $('#storeDialogStore div.inventoryGemsFrame');
+
         this.setScale();
 
         let self = this;
@@ -24,18 +42,18 @@ export default class AppearanceDialog extends Dialog {
         const p = game.player;
         this.playerAnim = new PlayerAnim();
 
-        $('#changeLookPrev').bind('click', function (event) {
+        this.jqChangeLookPrev.bind('click', function (event) {
             self.changeLookArmor(--self.looksArmorIndex);
-            $('#changeLookUnlock').hide();
+            self.jqChangeLookUnlock.hide();
         });
 
-        $('#changeLookNext').bind('click', function (event) {
+        this.jqChangeLookNext.bind('click', function (event) {
             self.changeLookArmor(++self.looksArmorIndex);
-            $('#changeLookUnlock').hide();
+            self.jqChangeLookUnlock.hide();
         });
 
         this.confirmDialog = new ConfirmDialog();
-        $('#changeLookUnlock').on('click', function (event) {
+        this.jqChangeLookUnlock.on('click', function (event) {
             log.info('unlockButton');
             if (game && game.ready) {
                 const item = $(this).data('item');
@@ -84,9 +102,9 @@ export default class AppearanceDialog extends Dialog {
     }
 
     hide() {
-        $('#storeDialogInventory').show();
-        $('#looksDialogPlayer').hide();
-        $('#appearanceDialog').hide();
+        this.jqStoreDialogInventory.show();
+        this.jqLooksDialogPlayer.hide();
+        this.jqAppearanceDialog.hide();
         super.hide(); // FIX (conversion): this._super() -> super.hide()
     }
 
@@ -185,24 +203,26 @@ export default class AppearanceDialog extends Dialog {
         // panel (Unlock vs prev/next); the panel itself must stay visible either way.
         this.showStore(false);
         if (flag) {
-            $('#changeLookPrev').hide();
-            $('#changeLookNext').hide();
-            $('#changeLookUnlock').show();
+            this.jqChangeLookPrev.hide();
+            this.jqChangeLookNext.hide();
+            this.jqChangeLookUnlock.show();
         } else {
-            $('#changeLookPrev').show();
-            $('#changeLookNext').show();
-            $('#changeLookUnlock').hide();
+            this.jqChangeLookPrev.show();
+            this.jqChangeLookNext.show();
+            this.jqChangeLookUnlock.hide();
         }
         this.unlockLookMode = flag;
     }
 
     showStore(flag) {
+        // NOTE: '#storeDialog' is this dialog's own root element, already cached as
+        // this.jqBody by the base Dialog constructor (super(game, '#storeDialog')).
         if (flag) {
-            $('#appearanceDialog').hide();
-            $('#storeDialog').show();
+            this.jqAppearanceDialog.hide();
+            this.jqBody.show();
         } else {
-            $('#appearanceDialog').show();
-            $('#storeDialog').hide();
+            this.jqAppearanceDialog.show();
+            this.jqBody.hide();
         }
     }
 
@@ -213,28 +233,27 @@ export default class AppearanceDialog extends Dialog {
 
         // FIX: #storeDialogCloseButton is the same shared DOM node StoreDialog binds via
         // Dialog.addClose()/Dialog.show() (both dialogs reuse the '#storeDialog' frame).
-        // Dialog.show() does `this.closeButton.off('click').click(...)` every time the shop
+        // Dialog.show() does `this.jqCloseButton.off('click').click(...)` every time the shop
         // is opened, which wiped out this handler when it was only bound once in the
         // constructor - after opening the Shop once, the Looks dialog's close (X) button
         // stopped doing anything. Rebind on every show() instead, like #appearanceCloseButton
         // below, so this dialog always reclaims the button when it opens.
-        this.closeButton.off('click').on('click', function (event) {
+        this.jqCloseButton.off('click').on('click', function (event) {
             const activePage = self.storeFrame.getActivePage();
             if (activePage) activePage.setVisible(false);
             self.hide();
         });
 
-        $('#storeDialog .frameheadingtext').text('LOOKS');
+        this.jqStoreDialogFrameHeadingText.text('LOOKS');
 
-        $('#storeDialogStore0Button').text('ARMOR');
-        $('#storeDialogStore1Button').hide();
-        $('#storeDialogStore2Button').hide();
+        this.jqStoreDialogStore0Button.text('ARMOR');
+        this.jqStoreDialogStore1Button.hide();
+        this.jqStoreDialogStore2Button.hide();
 
-        const jq3Button = $('#storeDialogStore3Button'); // FIX: was a bare global assignment (no var), which throws ReferenceError under ES module strict mode
-        jq3Button.text('LOOKS');
-        jq3Button.show();
+        this.jqStore3Button.text('LOOKS');
+        this.jqStore3Button.show();
 
-        jq3Button.off().on('click', function (event) {
+        this.jqStore3Button.off().on('click', function (event) {
             self.unlockMode(false);
             if (!self.unlockLookMode) {
                 self.changeLookArmor(
@@ -243,16 +262,16 @@ export default class AppearanceDialog extends Dialog {
             }
         });
 
-        $('#appearanceCloseButton')
+        this.jqAppearanceCloseButton
             .off()
             .on('click', function (event) {
                 self.showStore(true);
             });
 
-        $('#looksDialogPlayer').css('display', 'block');
+        this.jqLooksDialogPlayer.css('display', 'block');
 
-        $('#storeDialogStore div.inventoryGoldFrame').hide();
-        $('#storeDialogStore div.inventoryGemsFrame').show();
+        this.jqStoreDialogGoldFrame.hide();
+        this.jqStoreDialogGemsFrame.show();
 
         super.show(); // FIX (conversion): this._super() -> super.show()
 

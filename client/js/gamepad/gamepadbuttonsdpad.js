@@ -1,10 +1,17 @@
 // Extracted from gamepad.js/gamepadbuttons.js: shoulder buttons (leftTop/rightTop, plus
 // their shop/looks/craft dialog page-switch helpers) and the dpad direction bindings.
 // Installed once from gamepad.js's constructor via install*(self).
-import { jqBankWindow, jqInventoryWindow } from './gamepad.js';
 /* global game */
 
 export function installGamepadButtonsDpad(self) {
+    // Selector lookups checked repeatedly in the shoulder-button handlers below - cached once
+    // here (installGamepadButtonsDpad runs once, from Gamepad's constructor) as properties on
+    // `self` (the Gamepad instance) instead of re-querying the DOM on every button press.
+    // jqBankWindow/jqInventoryWindow are already set on `self` by Gamepad's constructor
+    // (gamepad.js) before this function runs.
+    self.jqStoreDialogStore = $('#storeDialogStore');
+    self.jqCraftDialog = $('#craftDialog');
+
     /*var switchInventoryDialogPage = function (mod) {
         var l = self.playerInventoryButtons.length;
         var i = (l+self.invPageIndex+mod) % l;
@@ -54,21 +61,21 @@ export function installGamepadButtonsDpad(self) {
     };
 
     self.pxgamepad.buttonOn('leftTop', function () {
-        if (jqInventoryWindow.is(':visible')) {
+        if (self.jqInventoryWindow.is(':visible')) {
             return;
         }
-        if (jqBankWindow.is(':visible')) {
+        if (self.jqBankWindow.is(':visible')) {
             return;
         }
         if (game.appearanceDialog.visible) {
             switchLooksDialogPage(-1);
             return;
         }
-        if ($('#storeDialogStore').is(':visible')) {
+        if (self.jqStoreDialogStore.is(':visible')) {
             switchShopDialogPage(-1);
             return;
         }
-        if ($('#craftDialog').is(':visible')) {
+        if (self.jqCraftDialog.is(':visible')) {
             switchCraftDialogPage(-1);
             return;
         }
@@ -80,21 +87,21 @@ export function installGamepadButtonsDpad(self) {
     });
 
     self.pxgamepad.buttonOn('rightTop', function () {
-        if (jqInventoryWindow.is(':visible')) {
+        if (self.jqInventoryWindow.is(':visible')) {
             return;
         }
-        if (jqBankWindow.is(':visible')) {
+        if (self.jqBankWindow.is(':visible')) {
             return;
         }
         if (game.appearanceDialog.visible) {
             switchLooksDialogPage(1);
             return;
         }
-        if ($('#storeDialogStore').is(':visible')) {
+        if (self.jqStoreDialogStore.is(':visible')) {
             switchShopDialogPage(1);
             return;
         }
-        if ($('#craftDialog').is(':visible')) {
+        if (self.jqCraftDialog.is(':visible')) {
             switchCraftDialogPage(1);
             return;
         }

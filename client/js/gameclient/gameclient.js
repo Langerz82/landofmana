@@ -30,6 +30,10 @@ export default class GameClient {
         this.tablet = Detect.isTablet(window.innerWidth);
         this.mobile = Detect.isMobile();
 
+        this.jqContainer = $('#container');
+        this.jqErrorWindowDetails = $('#errorwindow .errordetails');
+        this.jqErrorWindow = $('#errorwindow');
+
         this.handlers = {};
 
         this.onMessage = function (data) {
@@ -186,13 +190,13 @@ export default class GameClient {
 
     onError(data) {
         const message = data[0];
-        $('#container').addClass('error');
+        this.jqContainer.addClass('error');
         // FIX: XSS - server-supplied error message was inserted unescaped via .append(); escape before rendering
-        $('#errorwindow .errordetails').append(
+        this.jqErrorWindowDetails.append(
             '<p>' + Utils.escapeHtml(message) + '</p>'
         );
         app.loadWindow('playerwindow', 'errorwindow');
-        $('#errorwindow').focus();
+        this.jqErrorWindow.focus();
     }
 
     _onError(data) {

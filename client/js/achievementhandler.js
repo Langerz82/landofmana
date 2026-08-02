@@ -8,8 +8,10 @@ export default class AchievementHandler {
         this.showlog = false;
 
         const self = this;
-        this.closeButton = $('#achievementCloseButton');
-        this.closeButton.click(function (event) {
+        this.jqCloseButton = $('#achievementCloseButton');
+        this.jqAchievementLog = $('#achievementlog');
+        this.jqAchievementLogInfoBody = $('#achievementLogInfo tbody');
+        this.jqCloseButton.click(function (event) {
             self.toggleShowLog();
         });
     }
@@ -18,14 +20,14 @@ export default class AchievementHandler {
         this.showlog = !this.showlog;
         if (this.showlog) {
             this.achievementReloadLog();
-            $('#achievementlog').show();
+            this.jqAchievementLog.show();
         } else {
-            $('#achievementlog').hide();
+            this.jqAchievementLog.hide();
         }
     }
 
     achievementReloadLog() {
-        $('#achievementLogInfo tbody').find('tr:gt(0)').remove();
+        this.jqAchievementLogInfoBody.find('tr:gt(0)').remove();
 
         for (let achievement of game.player.achievements) {
             const progress = Utils.Percent(
@@ -33,7 +35,7 @@ export default class AchievementHandler {
                 0
             );
 
-            $('#achievementLogInfo tbody').append(
+            this.jqAchievementLogInfoBody.append(
                 "<tr id='ad_" +
                     achievement.index +
                     "'>" +

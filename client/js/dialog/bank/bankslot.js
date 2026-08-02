@@ -24,13 +24,13 @@ export default class BankSlot {
         jqParent.append(data);
 
         const name = '#bankDialogBank' + this.index;
-        this.background = $(name + 'Background');
-        this.body = $(name + 'Body');
+        this.jqBackground = $(name + 'Background');
+        this.jqBody = $(name + 'Body');
 
         const top = 60 * ~~(index / parent.itemsPerRow);
         const left = 60 * (index % parent.itemsPerRow);
 
-        this.background.css({
+        this.jqBackground.css({
             top: top + 'px',
             left: left + 'px'
         });
@@ -38,12 +38,12 @@ export default class BankSlot {
         this.rescale();
         const self = this;
 
-        this.background.data('itemSlot', this.index);
+        this.jqBackground.data('itemSlot', this.index);
 
-        this.body.data('itemSlot', this.index);
+        this.jqBody.data('itemSlot', this.index);
 
-        this.body.attr('draggable', true);
-        this.body.draggable = true;
+        this.jqBody.attr('draggable', true);
+        this.jqBody.draggable = true;
 
         const getRealSlot = function (slot) {
             return slot + self.parent.page * self.parent.pageItems;
@@ -73,9 +73,9 @@ export default class BankSlot {
             }
         };
 
-        this.body.off().on('click', function (event) {});
+        this.jqBody.off().on('click', function (event) {});
 
-        this.background.off().on('click', function (event) {
+        this.jqBackground.off().on('click', function (event) {
             const slot = $(this).data('itemSlot');
             if (DragBank === null) {
                 if (self.item === null) return;
@@ -89,7 +89,7 @@ export default class BankSlot {
             event.stopPropagation();
         });
 
-        this.body.on('dragstart', function (event) {
+        this.jqBody.on('dragstart', function (event) {
             const slot = $(this).data('itemSlot');
             if (DragBank === null) {
                 if (self.item === null) return;
@@ -99,14 +99,14 @@ export default class BankSlot {
             }
         });
 
-        this.body.on('dragover', function (event) {
+        this.jqBody.on('dragover', function (event) {
             event.preventDefault();
         });
-        this.background.on('dragover', function (event) {
+        this.jqBackground.on('dragover', function (event) {
             event.preventDefault();
         });
 
-        this.background.on('drop', function (event) {
+        this.jqBackground.on('drop', function (event) {
             if (DragBank) {
                 if ($(this).data('itemSlot') === DragBank.slot) return;
 
@@ -118,19 +118,19 @@ export default class BankSlot {
     rescale() {
         this.scale = game.renderer.guiScale;
         if (this.scale === 1) {
-            this.background.css({
+            this.jqBackground.css({
                 position: 'absolute',
                 left: '' + (0 + Math.floor(this.index % 6) * 18) + 'px',
                 top: '' + (0 + Math.floor(this.index / 6) * 18) + 'px'
             });
         } else if (this.scale === 2) {
-            this.background.css({
+            this.jqBackground.css({
                 position: 'absolute',
                 left: '' + (0 + Math.floor(this.index % 6) * 50) + 'px',
                 top: '' + (0 + Math.floor(this.index / 6) * 50) + 'px'
             });
         } else if (this.scale === 3) {
-            this.background.css({
+            this.jqBackground.css({
                 position: 'absolute',
                 left: '' + (0 + Math.floor(this.index % 6) * 60) + 'px',
                 top: '' + (0 + Math.floor(this.index / 6) * 60) + 'px'
@@ -166,8 +166,8 @@ export default class BankSlot {
         this.setItemName(kind);
         this.itemDurabilityPercent =
             (item.itemDurability / item.itemDurabilityMax) * 100;
-        this.body.data('itemNumber', this.item.itemNumber);
-        this.background.data('itemNumber', this.item.itemNumber);
+        this.jqBody.data('itemNumber', this.item.itemNumber);
+        this.jqBackground.data('itemNumber', this.item.itemNumber);
 
         this.restore();
     }
@@ -176,16 +176,16 @@ export default class BankSlot {
         this.release();
     }
     release() {
-        this.body.css('display', 'none');
-        this.body.css('background-image', '');
-        this.body.html('');
-        this.body.attr('title', '');
+        this.jqBody.css('display', 'none');
+        this.jqBody.css('background-image', '');
+        this.jqBody.html('');
+        this.jqBody.attr('title', '');
     }
     restore() {
         const kind = this.item.itemKind,
             itemKind = kind; // FIX: itemKind was an implicit global; declare it properly
         const scale = game.renderer.getIconScaleFactor();
 
-        Items.jqShowItem(this.body, this.item, this.body);
+        Items.jqShowItem(this.jqBody, this.item, this.jqBody);
     }
 }

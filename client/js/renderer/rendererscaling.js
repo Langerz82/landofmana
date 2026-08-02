@@ -87,7 +87,7 @@ export function installRendererScaling(proto) {
         // off-screen instead of scaling from the top-left corner where left/top:0 assumed it
         // would. #gui (styled in main.css) already sets transform-origin: top left for the
         // same reason - #canvas needs it too.
-        this.canvas.css({
+        this.jqCanvas.css({
             left: '0px',
             top: '0px',
             width: rw + 'px',

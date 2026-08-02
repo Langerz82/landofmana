@@ -8,7 +8,7 @@ export default class TabBook {
     constructor(id, parent) {
         this.parent = parent;
         this.id = id;
-        this.body = $(id);
+        this.jqBody = $(id);
         this.pages = [];
         this.pageIndex = -1;
 

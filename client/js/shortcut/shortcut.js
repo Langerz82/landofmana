@@ -18,18 +18,18 @@ export default class Shortcut {
         this.shortcutId = -1;
         this.cooldownTime = 0;
 
-        this.jq = $('#shortcut' + slot);
-        this.jqb = $('#scbackground' + slot);
+        this.jqBody = $('#shortcut' + slot);
+        this.jqBackground = $('#scbackground' + slot);
         this.jqCooldown = $('#scCD' + slot);
-        this.jqnum = $('#shortcutnum' + slot);
+        this.jqNum = $('#shortcutnum' + slot);
 
-        this.jq.attr('draggable', true);
-        this.jq.draggable = true;
+        this.jqBody.attr('draggable', true);
+        this.jqBody.draggable = true;
 
-        this.jq.data('slot', slot);
+        this.jqBody.data('slot', slot);
 
         const fnClick = function (e) {
-            const slot = self.jq.data('slot');
+            const slot = self.jqBody.data('slot');
             if (ShortcutData || DragItem) {
                 self.setup(slot);
                 return false;
@@ -40,15 +40,15 @@ export default class Shortcut {
             return false;
         };
 
-        this.jqb.click(fnClick);
+        this.jqBackground.click(fnClick);
 
-        this.jq.on('dragstart', function (e) {
-            const slot = self.jq.data('slot');
+        this.jqBody.on('dragstart', function (e) {
+            const slot = self.jqBody.data('slot');
             DragShortcut = { slot: slot };
         });
 
-        this.jqb.on('drop', function (e) {
-            const slot = self.jq.data('slot');
+        this.jqBackground.on('drop', function (e) {
+            const slot = self.jqBody.data('slot');
             const newShortcut = self.parent.shortcuts[slot];
             let oldShortcut = null;
             if (DragShortcut)
@@ -71,10 +71,10 @@ export default class Shortcut {
             DragItem = null;
         });
 
-        this.jqb.unbind('dragover').bind('dragover', function (event) {
+        this.jqBackground.unbind('dragover').bind('dragover', function (event) {
             event.preventDefault();
         });
-        this.jq.unbind('dragover').bind('dragover', function (event) {
+        this.jqBody.unbind('dragover').bind('dragover', function (event) {
             event.preventDefault();
         });
     }
@@ -115,24 +115,24 @@ export default class Shortcut {
     }
 
     clear() {
-        this.jqnum.css('display', 'none');
-        this.jq.css('display', 'none');
+        this.jqNum.css('display', 'none');
+        this.jqBody.css('display', 'none');
     }
 
     display() {
-        this.jqnum.css('display', 'block');
-        this.jq.css('display', 'block');
+        this.jqNum.css('display', 'block');
+        this.jqBody.css('display', 'block');
 
         if (this.type === 1) {
             const count = game.inventory.getItemTotalCount(this.shortcutId);
             const item = { itemKind: this.shortcutId, itemNumber: count };
-            Items.jqShowItem(this.jq, item, this.jq, 1);
-            this.jq.css('transform', 'scale(' + 56 / 48 + ')');
+            Items.jqShowItem(this.jqBody, item, this.jqBody, 1);
+            this.jqBody.css('transform', 'scale(' + 56 / 48 + ')');
             return;
         } else if (this.type === 2) {
             // Temp not Working
-            SkillData.jqShowSkill(this.jq, this.shortcutId, this.jq, 1);
-            this.jq.css('transform', 'scale(' + 56 / 48 + ')');
+            SkillData.jqShowSkill(this.jqBody, this.shortcutId, this.jqBody, 1);
+            this.jqBody.css('transform', 'scale(' + 56 / 48 + ')');
             return;
         }
         this.clear();

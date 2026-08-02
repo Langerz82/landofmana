@@ -52,14 +52,14 @@ export default class Button2 {
         this.blinked = false;
         this.blinkFlag = false;
         this.blinkHandle = null;
-        this.body = $(this.id);
-        this.bodytext = $(this.id2);
+        this.jqBody = $(this.id);
+        this.jqBodyText = $(this.id2);
         this.kind = -1;
         this.clickHandler = null;
 
         this.refresh();
 
-        this.body.bind(
+        this.jqBody.bind(
             'click',
             function (event) {
                 if (this.enabled && this.clickHandler) {
@@ -67,7 +67,7 @@ export default class Button2 {
                 }
             }.bind(this)
         );
-        this.bodytext.bind(
+        this.jqBodyText.bind(
             'click',
             function (event) {
                 if (this.enabled && this.clickHandler) {
@@ -77,14 +77,14 @@ export default class Button2 {
         );
 
         if (this.kinds.indexOf(3) >= 0) {
-            this.body.unbind('mouseover').bind(
+            this.jqBody.unbind('mouseover').bind(
                 'mouseover',
                 function (event) {
                     this.overed = true;
                     this.refresh();
                 }.bind(this)
             );
-            this.body.unbind('mouseout').bind(
+            this.jqBody.unbind('mouseout').bind(
                 'mouseout',
                 function (event) {
                     this.overed = false;
@@ -114,7 +114,10 @@ export default class Button2 {
 
     setBackgroundPosition(kind) {
         this.kind = kind;
-        this.body.css('background-position', this.getBackgroundPosition(kind));
+        this.jqBody.css(
+            'background-position',
+            this.getBackgroundPosition(kind)
+        );
     }
 
     refresh() {
@@ -137,12 +140,12 @@ export default class Button2 {
 
     show() {
         this.visible = true;
-        this.body.show();
+        this.jqBody.show();
     }
 
     hide() {
         this.visible = false;
-        this.body.hide();
+        this.jqBody.hide();
     }
 
     enable() {

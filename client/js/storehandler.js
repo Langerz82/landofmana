@@ -7,15 +7,20 @@ export default class StoreHandler {
         this.app = app;
         this.toggle = false;
         const self = this;
-        $('#shopCloseButton').click(function (e) {
-            $('#shopDialog').hide();
+
+        this.jqShopDialog = $('#shopDialog');
+        this.jqShopUsername = $('#shopUsername');
+
+        const jqShopCloseButton = $('#shopCloseButton');
+        jqShopCloseButton.click(function (e) {
+            self.jqShopDialog.hide();
             self.toggle = false; // FIX: `this` inside the click handler is the DOM element, not the StoreHandler; use captured `self` instead
         });
-        $('#shopDialog').hide();
+        this.jqShopDialog.hide();
     }
 
     show() {
-        $('#shopDialog').show();
-        $('#shopUsername').val(game.player.user.username);
+        this.jqShopDialog.show();
+        this.jqShopUsername.val(game.player.user.username);
     }
 }

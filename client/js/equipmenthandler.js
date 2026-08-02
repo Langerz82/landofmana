@@ -10,14 +10,29 @@ export default class EquipmentHandler {
         this.maxNumber = 5;
         this.scale = 3;
         this.weaponSlot = 4;
+
+        // FIX: slot elements are looked up (and cached) lazily via
+        // getJqEquipmentSlot() instead of eagerly here, since setEquipment()
+        // can be called with an itemRooms array longer than maxNumber (see
+        // clearItem() below) - caching only known-good indices up front
+        // could leave a hole for out-of-range slots.
+        this.jqEquipmentSlots = [];
+    }
+
+    getJqEquipmentSlot(slot) {
+        if (!this.jqEquipmentSlots[slot]) {
+            this.jqEquipmentSlots[slot] = $('#equipment' + slot);
+        }
+        return this.jqEquipmentSlots[slot];
     }
 
     clearItem(slot) {
-        $('#equipment' + slot).css({
+        const jqEquipment = this.getJqEquipmentSlot(slot);
+        jqEquipment.css({
             'background-image': 'none',
             'box-shadow': 'none'
         });
-        $('#equipment' + slot).html('');
+        jqEquipment.html('');
     }
 
     setEquipment(itemRooms) {
@@ -47,7 +62,7 @@ export default class EquipmentHandler {
 
         for (let i = 0; i < this.maxNumber; ++i) {
             const item = this.rooms[i];
-            const jqElement = '#equipment' + i;
+            const jqEquipment = this.getJqEquipmentSlot(i);
 
             if (item && item.itemKind > 0 && item.itemKind < 1000) {
                 item.name = ItemTypes.KindData[item.itemKind].name;
@@ -56,7 +71,7 @@ export default class EquipmentHandler {
                 // Note: jqShowItem()'s `size` param is left at its default (1)
                 // here intentionally - passing `scale` (game.renderer.guiScale)
                 // makes equipped-item icons render far too large.
-                Items.jqShowItem($(jqElement), item, $(jqElement));
+                Items.jqShowItem(jqEquipment, item, jqEquipment);
             } else {
                 this.clearItem(i);
             }

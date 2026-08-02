@@ -11,8 +11,8 @@ export function installGameDialogue(proto) {
         const hasFinished = function () {
             clearTimeout(game.destroyMessageTimeout);
             game.destroyMessage();
-            self.npcText.html('');
-            self.dialogueWindow.hide();
+            self.jqNpcText.html('');
+            self.jqDialogueWindow.hide();
             game.userAlarm.hide();
 
             if (!entity) return;
@@ -74,18 +74,18 @@ export function installGameDialogue(proto) {
                 msg
             );
             // FIX: XSS - NPC dialogue name/text was inserted unescaped via .html(); escape before rendering
-            this.npcText.html(
+            this.jqNpcText.html(
                 Utils.escapeHtml(msgEntity.name) + ': ' + Utils.escapeHtml(msg)
             );
         } else {
             game.chathandler.addNormalChat(p, msg);
             // FIX: XSS - chat message name/text was inserted unescaped via .html(); escape before rendering
-            this.npcText.html(
+            this.jqNpcText.html(
                 Utils.escapeHtml(p.name) + ': ' + Utils.escapeHtml(msg)
             );
         }
         game.app.npcDialoguePic(msgEntity);
-        this.dialogueWindow.show();
+        this.jqDialogueWindow.show();
     };
 
     proto.destroyMessage = function () {
@@ -101,7 +101,7 @@ export function installGameDialogue(proto) {
         }
 
         this.audioManager.playSound('npc-end');
-        this.npcText.html('');
-        this.dialogueWindow.hide();
+        this.jqNpcText.html('');
+        this.jqDialogueWindow.hide();
     };
 }

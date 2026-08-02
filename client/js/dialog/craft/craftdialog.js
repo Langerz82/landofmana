@@ -14,12 +14,20 @@ export default class CraftDialog extends Dialog {
 
         this.craftFrame = new StoreFrame(this);
 
-        this.sellButton = $('#craftDialogStore3Button');
-        this.sellButton.hide();
+        this.jqSellButton = $('#craftDialogStore3Button');
+        this.jqSellButton.hide();
+
+        // Cached once here and reused by show() below instead of re-querying the DOM
+        // every time the dialog is shown.
+        this.jqFrameHeadingText = $('#craftDialog .frameheadingtext');
+        this.jqStore0Button = $('#craftDialogStore0Button');
+        this.jqGoldFrame = $('#storeDialogStore div.inventoryGoldFrame');
+        this.jqGemsFrame = $('#storeDialogStore div.inventoryGemsFrame');
 
         const self = this;
 
-        $('#craftDialogStorePage').css('display', 'none');
+        const jqCraftDialogStorePage = $('#craftDialogStorePage');
+        jqCraftDialogStorePage.css('display', 'none');
     }
 
     setScale() {
@@ -34,10 +42,10 @@ export default class CraftDialog extends Dialog {
     show(min, max) {
         const self = this;
 
-        $('#craftDialog .frameheadingtext').text('CRAFT');
+        this.jqFrameHeadingText.text('CRAFT');
 
-        $('#craftDialogStore0Button').text('MISC');
-        $('#craftDialogStore0Button').show();
+        this.jqStore0Button.text('MISC');
+        this.jqStore0Button.show();
 
         this.rescale();
         this.craftFrame.open(min, max);
@@ -45,10 +53,10 @@ export default class CraftDialog extends Dialog {
         this.addClose();
 
         super.show(); // FIX (conversion): this._super() -> super.show()
-        $('#craftDialogStore0Button').trigger('click');
+        this.jqStore0Button.trigger('click');
 
-        $('#storeDialogStore div.inventoryGoldFrame').show();
-        $('#storeDialogStore div.inventoryGemsFrame').hide();
+        this.jqGoldFrame.show();
+        this.jqGemsFrame.hide();
     }
 
     hide() {

@@ -15,9 +15,9 @@ export default class InventoryStore {
         this.skillLevel = 0;
         this.experience = 0;
         const name = '#dialogInventory' + Utils.fixed(this.index, 2);
-        this.background = $(name + 'Background');
-        this.body = $(name + 'Body');
-        this.number = $(name + 'Number');
+        this.jqBackground = $(name + 'Background');
+        this.jqBody = $(name + 'Body');
+        this.jqNumber = $(name + 'Number');
 
         this.rescale();
     }
@@ -26,7 +26,7 @@ export default class InventoryStore {
         this.scale = this.parent.parent.scale;
         const scale = this.scale;
 
-        this.background.css({
+        this.jqBackground.css({
             position: 'absolute',
             left:
                 '' +
@@ -41,7 +41,7 @@ export default class InventoryStore {
             'background-image': 'url("img/' + scale + '/storedialogsheet.png")',
             'background-position': -300 * scale + 'px ' + -180 * scale + 'px'
         });
-        this.body.css({
+        this.jqBody.css({
             position: 'absolute',
             width: 16 * scale + 'px',
             height: 16 * scale + 'px',
@@ -53,7 +53,7 @@ export default class InventoryStore {
             'font-size': 6 * scale + 'px',
             'text-align': 'center'
         });
-        this.number.css({
+        this.jqNumber.css({
             'margin-top': 16 * scale + 'px',
             color: '#fff',
             'font-size': 6 * scale + 'px',
@@ -111,19 +111,19 @@ export default class InventoryStore {
         this.release();
     }
     release() {
-        this.body.css('background-image', '');
-        this.body.html('');
-        this.body.attr('title', '');
-        this.number.html('');
+        this.jqBody.css('background-image', '');
+        this.jqBody.html('');
+        this.jqBody.attr('title', '');
+        this.jqNumber.html('');
     }
     restore() {
-        Items.jqShowItem(this.body, this, this.number);
+        Items.jqShowItem(this.jqBody, this, this.jqNumber);
 
         if (
             !ItemTypes.isObject(this.itemKind) &&
             !ItemTypes.isCraftItem(this.itemKind)
         ) {
-            this.body.html(this.itemDurabilityPercent);
+            this.jqBody.html(this.itemDurabilityPercent);
         }
     }
 }

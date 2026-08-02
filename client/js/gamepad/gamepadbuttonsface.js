@@ -1,15 +1,20 @@
 // Extracted from gamepad.js/gamepadbuttons.js: select/x/y face-button bindings
 // plus the shared pressShortcut() helper they (and 'a'/'b') call.
 // Installed once from gamepad.js's constructor via install*(self).
-import {
-    setGamePadShortcut,
-    jqBankWindow,
-    jqInventoryWindow,
-    jqSkillWindow
-} from './gamepad.js';
+import { setGamePadShortcut } from './gamepad.js';
 /* global DragItem, ShortcutData, game, log */
 
 export function installGamepadButtonsFace(self) {
+    // Selector lookups used repeatedly inside the button handlers below - cached once here
+    // (installGamepadButtonsFace runs once, from Gamepad's constructor) as properties on
+    // `self` (the Gamepad instance) instead of re-querying the DOM on every button press.
+    // jqBankWindow/jqInventoryWindow/jqSkillWindow/jqCharacterMenu are already set on `self`
+    // by Gamepad's constructor (gamepad.js) before this function runs.
+    self.jqInventoryGoldFrame = $('#allinventorywindow .inventoryGoldFrame');
+    self.jqBankGoldFrame = $('#bankGoldFrame');
+    self.jqInvActionButton = $('#invActionButton');
+    self.jqBankDialogStoreButton = $('#bankDialogStoreButton');
+
     self.pxgamepad.buttonOn('select', function () {
         log.info('buttonOn = select');
         if (self.mainButtonsActive) {
@@ -18,7 +23,7 @@ export function installGamepadButtonsFace(self) {
             return;
         }
 
-        self.setSelectedItem($('#charactermenu'));
+        self.setSelectedItem(self.jqCharacterMenu);
         self.mainButtonsActive = true;
         self.joystickX = 0;
         self.joystickY = 0;
@@ -38,7 +43,7 @@ export function installGamepadButtonsFace(self) {
             return;
         }
 
-        if (jqInventoryWindow.is(':visible')) {
+        if (self.jqInventoryWindow.is(':visible')) {
             if (!DragItem) self.selectedItem.trigger('click');
             if (DragItem) {
                 setGamePadShortcut({
@@ -52,11 +57,11 @@ export function installGamepadButtonsFace(self) {
                 return;
             }
 
-            $('#allinventorywindow .inventoryGoldFrame').trigger('click');
+            self.jqInventoryGoldFrame.trigger('click');
             return;
         }
 
-        if (jqSkillWindow.is(':visible')) {
+        if (self.jqSkillWindow.is(':visible')) {
             if (ShortcutData) {
                 setGamePadShortcut({
                     x: self.joystickX,
@@ -70,8 +75,8 @@ export function installGamepadButtonsFace(self) {
             }
         }
 
-        if (jqBankWindow.is(':visible')) {
-            $('#bankGoldFrame').trigger('click');
+        if (self.jqBankWindow.is(':visible')) {
+            self.jqBankGoldFrame.trigger('click');
             return;
         }
 
@@ -92,11 +97,11 @@ export function installGamepadButtonsFace(self) {
             return;
         }
 
-        if (jqInventoryWindow.is(':visible')) {
-            $('#invActionButton').trigger('click');
+        if (self.jqInventoryWindow.is(':visible')) {
+            self.jqInvActionButton.trigger('click');
         }
-        if (jqBankWindow.is(':visible')) {
-            $('#bankDialogStoreButton').trigger('click');
+        if (self.jqBankWindow.is(':visible')) {
+            self.jqBankDialogStoreButton.trigger('click');
         }
 
         log.info('buttonOn = y');

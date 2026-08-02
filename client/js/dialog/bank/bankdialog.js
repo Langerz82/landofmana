@@ -23,33 +23,38 @@ export default class BankDialog extends Dialog {
 
         this.bankFrame = new BankFrame(this);
 
-        this.storeButton = $('#bankDialogStoreButton');
-        this.storeButton.off().on('click', function (event) {
+        this.jqStoreButton = $('#bankDialogStoreButton');
+        this.jqStoreButton.off().on('click', function (event) {
             game.inventoryMode = InventoryMode.MODE_BANK;
             game.inventoryDialog.showInventory();
             game.inventoryDialog.backPage = self;
             self.hide();
         });
 
-        $('#bankGoldFrame').click(function (event) {
+        const jqBankGoldFrame = $('#bankGoldFrame');
+        jqBankGoldFrame.click(function (event) {
             game.app.showDropDialog('inventorygold');
         });
 
-        $('#bankDialog0Button').click(function (event) {
+        const jqBankDialog0Button = $('#bankDialog0Button');
+        jqBankDialog0Button.click(function (event) {
             self.bankFrame.open(0);
         });
-        $('#bankDialog1Button').click(function (event) {
+        const jqBankDialog1Button = $('#bankDialog1Button');
+        jqBankDialog1Button.click(function (event) {
             self.bankFrame.open(1);
         });
-        $('#bankDialog2Button').click(function (event) {
+        const jqBankDialog2Button = $('#bankDialog2Button');
+        jqBankDialog2Button.click(function (event) {
             self.bankFrame.open(2);
         });
-        $('#bankDialog3Button').click(function (event) {
+        const jqBankDialog3Button = $('#bankDialog3Button');
+        jqBankDialog3Button.click(function (event) {
             self.bankFrame.open(3);
         });
 
-        this.closeButton = $('#bankDialogCloseButton');
-        this.closeButton.click(function (event) {
+        this.jqCloseButton = $('#bankDialogCloseButton');
+        this.jqCloseButton.click(function (event) {
             self.hide();
         });
     }

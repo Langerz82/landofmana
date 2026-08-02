@@ -10,19 +10,31 @@ export function installInventoryDialogEvents(proto) {
         const self = this;
 
         const max = game.equipment.maxNumber;
+        // Cache-on-first-use: these can't be cached in InventoryDialog's constructor
+        // because `game.equipment` doesn't exist yet at that point (see the
+        // jqEquipmentSlots/jqEquipmentBackgrounds comment in inventorydialog.js).
+        // loadInventoryEvents() only runs once ($(document).ready, from main.js), so
+        // populating the arrays here is equivalent to constructor-time caching.
+        self.jqEquipmentSlots = [];
+        self.jqEquipmentBackgrounds = [];
         for (let i = 0; i < max; i++) {
-            $('#equipment' + i).attr('draggable', true);
-            $('#equipment' + i).draggable = true;
+            const jqEquipment = $('#equipment' + i);
+            const jqEquipBackground = $('#equipBackground' + i);
+            self.jqEquipmentSlots[i] = jqEquipment;
+            self.jqEquipmentBackgrounds[i] = jqEquipBackground;
 
-            $('#equipment' + i).data('itemType', 2);
-            $('#equipment' + i).data('itemSlot', i);
+            jqEquipment.attr('draggable', true);
+            jqEquipment.draggable = true;
 
-            $('#equipBackground' + i).data('itemType', 2);
-            $('#equipBackground' + i).data('itemSlot', i);
+            jqEquipment.data('itemType', 2);
+            jqEquipment.data('itemSlot', i);
 
-            $('#equipment' + i).on('click', function (event) {});
+            jqEquipBackground.data('itemType', 2);
+            jqEquipBackground.data('itemSlot', i);
 
-            $('#equipBackground' + i).on('click', function (event) {
+            jqEquipment.on('click', function (event) {});
+
+            jqEquipBackground.on('click', function (event) {
                 const type = $(this).data('itemType');
                 const slot = $(this).data('itemSlot');
 
@@ -48,19 +60,19 @@ export function installInventoryDialogEvents(proto) {
                 event.stopPropagation();
             });
 
-            $('#equipment' + i).on('dragstart', function (event) {
+            jqEquipment.on('dragstart', function (event) {
                 const slot = $(this).data('itemSlot');
                 self.selectEquipment(event, 2, slot);
             });
 
-            $('#equipment' + i).on('dragover', function (event) {
+            jqEquipment.on('dragover', function (event) {
                 event.preventDefault();
             });
-            $('#equipBackground' + i).on('dragover', function (event) {
+            jqEquipBackground.on('dragover', function (event) {
                 event.preventDefault();
             });
 
-            $('#equipBackground' + i).on('drop', function (event) {
+            jqEquipBackground.on('drop', function (event) {
                 if (DragItem) {
                     if ($(this).data('itemSlot') === DragItem.slot) return;
 
@@ -71,15 +83,18 @@ export function installInventoryDialogEvents(proto) {
         }
 
         for (let i = 0; i < this.maxInventoryNumber; i++) {
-            $('#inventoryitem' + i).attr('draggable', true);
-            $('#inventoryitem' + i).draggable = true;
+            const jqInventoryItem = self.jqInventoryItems[i];
+            const jqInventoryItemBackground = self.jqInventoryItemBackgrounds[i];
 
-            $('#inventoryitem' + i).data('itemType', 0);
-            $('#inventoryitem' + i).data('itemSlot', i);
-            $('#inventoryitembackground' + i).data('itemType', 0);
-            $('#inventoryitembackground' + i).data('itemSlot', i);
+            jqInventoryItem.attr('draggable', true);
+            jqInventoryItem.draggable = true;
 
-            $('#inventoryitembackground' + i).on('click', function (event) {
+            jqInventoryItem.data('itemType', 0);
+            jqInventoryItem.data('itemSlot', i);
+            jqInventoryItemBackground.data('itemType', 0);
+            jqInventoryItemBackground.data('itemSlot', i);
+
+            jqInventoryItemBackground.on('click', function (event) {
                 const type = $(this).data('itemType');
                 const slot = $(this).data('itemSlot');
 
@@ -105,7 +120,7 @@ export function installInventoryDialogEvents(proto) {
                 event.stopPropagation();
             });
 
-            $('#inventoryitem' + i).on('dragstart', function (event) {
+            jqInventoryItem.on('dragstart', function (event) {
                 if (self.selectedItem < 0) {
                     self.selectInventory(this);
                     self.handler.moveItem(0, $(this).data('itemSlot'), true);
@@ -113,15 +128,15 @@ export function installInventoryDialogEvents(proto) {
                 }
             });
 
-            $('#inventoryitembackground' + i).on('dragover', function (event) {
+            jqInventoryItemBackground.on('dragover', function (event) {
                 event.preventDefault();
             });
 
-            $('#inventoryitem' + i).on('dragover', function (event) {
+            jqInventoryItem.on('dragover', function (event) {
                 event.preventDefault();
             });
 
-            $('#inventoryitembackground' + i).on('drop', function (event) {
+            jqInventoryItemBackground.on('drop', function (event) {
                 if (DragItem) {
                     if ($(this).data('itemSlot') === DragItem.slot) return;
 
@@ -131,11 +146,12 @@ export function installInventoryDialogEvents(proto) {
             });
         }
 
-        $('#game').on('dragover', function (event) {
+        const jqGame = $('#game');
+        jqGame.on('dragover', function (event) {
             event.preventDefault();
         });
 
-        $('#game').on('drop', function (event) {
+        jqGame.on('drop', function (event) {
             game.app.setMouseCoordinates(event);
 
             const invCheck = DragItem && DragItem.slot >= 0;
@@ -147,8 +163,10 @@ export function installInventoryDialogEvents(proto) {
             }
         });
 
-        this.sellButton = $('#invActionButton');
-        this.sellButton.off().on('click', function (event) {
+        // NOTE: was previously re-fetched into this.sellButton, duplicating the
+        // already-cached this.jqActionButton ($('#invActionButton')) from the
+        // InventoryDialog constructor; reuse the cached reference instead.
+        this.jqActionButton.off().on('click', function (event) {
             const type = parseInt($(this).data('itemType'));
             const slot = parseInt($(this).data('itemSlot'));
 
@@ -158,12 +176,11 @@ export function installInventoryDialogEvents(proto) {
             self.deselectItem();
         });
 
-        $('.inventoryGoldFrame')
-            .off()
-            .on('click', function (event) {
-                if (game.inventoryMode === InventoryMode.MODE_BANK) {
-                    game.app.showDropDialog('bankgold');
-                }
-            });
+        const jqInventoryGoldFrame = $('.inventoryGoldFrame');
+        jqInventoryGoldFrame.off().on('click', function (event) {
+            if (game.inventoryMode === InventoryMode.MODE_BANK) {
+                game.app.showDropDialog('bankgold');
+            }
+        });
     };
 }

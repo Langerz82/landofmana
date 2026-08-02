@@ -32,7 +32,29 @@ export default class App {
         this.blinkInterval = null;
         this.ready = false;
 
-        this.initFormFields();
+        // Cached here (previously a separate initFormFields() method, called both from here
+        // and from every appui.js loadWindow() call even though these are static form fields
+        // that never change after the DOM is ready) - moved directly into the constructor and
+        // set once. Must run before this.loadWindow(...) below, which uses jqAboutButton/
+        // jqUserRemove.
+        this.jqUserLoad = $('#user_load');
+        this.jqUserCreate = $('#user_create');
+        this.jqPlayerCancel = $('#player_cancel');
+        this.jqUserRemove = $('#user_remove');
+        this.jqAboutButton = $('#aboutbutton');
+        this.jqRemovePassword = $('#remove_password');
+        this.jqUserSave = $('#user_save');
+
+        // Login form fields
+        this.jqUsernameInput = $('#user_name');
+        this.jqUserPasswordInput = $('#user_password');
+        this.jqUserHashInput = $('#user_hash');
+        this.userFormFields = [this.jqUsernameInput, this.jqUserPasswordInput];
+
+        // Create new character form fields
+        this.jqPlayerNameInput = $('#player_name');
+        this.playerFormFields = [this.jqPlayerNameInput];
+
         this.dropDialogPopuped = false;
         this.auctionsellDialogPopuped = false;
 
@@ -43,18 +65,24 @@ export default class App {
         this.classNames = ['user_window', 'player_window'];
         this.loadWindow(this.classNames[1], this.classNames[0]);
 
+        // Hoisted above the localforage callbacks below (was previously declared further
+        // down, just before the first place it was needed) so those callbacks - which are
+        // plain (non-arrow) functions and don't have their own bound `this` - can close over
+        // `self` to reuse the already-cached form-field lookups instead of re-querying.
+        const self = this;
+
         localforage.getItem('user_hash', function (e, val) {
             log.info('val=' + val);
             // FIX: .value is a no-op on a jQuery object; use .val() to actually set the field
-            $('#user_hash').val(val);
+            self.jqUserHashInput.val(val);
         });
         localforage.getItem('user_name', function (e, val) {
             log.info('val=' + val);
             // FIX: .value is a no-op on a jQuery object; use .val() to actually set the field
-            $('#user_name').val(val);
+            self.jqUsernameInput.val(val);
         });
         // FIX: .value is a no-op on a jQuery object; use .val() to actually set the field
-        $('#user_password').val('');
+        this.jqUserPasswordInput.val('');
 
         // FIX: menucolor/buttoncolor were only ever read from localforage and applied
         // inside SettingsHandler's constructor (settingshandler.js), which isn't created
@@ -70,46 +98,104 @@ export default class App {
         // handlers get bound.
         localforage.getItem('menucolor', function (e, val) {
             if (!val) return;
-            $(':root').css('--pixel-bg', val);
-            $('#buttonmenucolor').val(val);
+            self.jqRoot.css('--pixel-bg', val);
+            self.jqButtonMenuColor.val(val);
         });
         localforage.getItem('buttoncolor', function (e, val) {
             if (!val) return;
-            $('div.frame-new-button').css('background-color', val);
-            $('#buttonbuttoncolor').val(val);
+            self.jqFrameNewButton.css('background-color', val);
+            self.jqButtonButtonColor.val(val);
         });
 
-        const self = this;
+        // NOTE: previously wrapped in its own `$(document).ready(function () {...})`, but
+        // App is only ever constructed from inside main.js's own `$(document).ready(...)`
+        // (the only `new App()` call site in the codebase) - by the time this constructor
+        // runs, the DOM is already guaranteed ready, so that inner wrapper only ever fired
+        // synchronously anyway. Flattened out so these are direct constructor-level
+        // assignments instead of being nested inside a callback.
+        this.jqUserWindow = $('#user_window');
+        this.jqPlayerWindow = $('#player_window');
 
-        $(document).ready(function () {
-            self.jqUserWindow = $('#user_window');
-            self.jqPlayerWindow = $('#player_window');
+        this.jqPlayerSelect = $('#player_select');
+        this.jqPlayerLoad = $('#player_load');
+        this.jqPlayerCreate = $('#player_create');
+        this.jqPlayerCreateForm = $('#player_create_form');
+        this.jqLblPlayerSelect = $('#lbl_player_select');
 
-            self.jqPlayerSelect = $('#player_select');
-            self.jqPlayerLoad = $('#player_load');
-            self.jqPlayerCreate = $('#player_create');
-            self.jqPlayerCreateForm = $('#player_create_form');
-        });
+        // Cached here for appui.js's showChat/showChatLog/hideChatLog/showDropDialog/
+        // hideDropDialog/showAuctionSellDialog/hideAuctionSellDialog (mixed onto
+        // App.prototype via installAppUI, so `this` there is this same App instance) -
+        // those previously re-queried these on every call instead of reusing a cached lookup.
+        this.jqChatbox = $('#chatbox');
+        this.jqChatInput = $('#chatinput');
+        this.jqChatButton = $('#chatbutton');
+        this.jqChatLog = $('#chatLog');
+        this.jqDropDialog = $('#dropDialog');
+        this.jqAuctionSellDialog = $('#auctionSellDialog');
 
-        this.$loginInfo = $('#loginInfo');
+        this.jqLoginInfo = $('#loginInfo');
+        this.jqGameHeading = $('#gameheading');
 
-        $('#error_refresh').click(function (event) {
+        // Cached here for appui.js's initTargetHud/initExpBar/initHealthBar/blinkHealthBar/
+        // initMenuButton/initCombatBar/npcDialoguePic/hideIntro/showDropDialog/
+        // showAuctionSellDialog and appvalidation.js's addValidationError (mixed onto
+        // App.prototype via installAppUI/installAppValidation) - those methods run repeatedly
+        // over the app's lifetime (e.g. initTargetHud/initExpBar/initHealthBar via
+        // resizeUi(), npcDialoguePic per dialogue line, showDropDialog/showAuctionSellDialog
+        // per dialog open) and previously re-queried these static elements fresh on every
+        // call instead of reusing a single lookup made once here.
+        this.jqTarget = $('#target');
+        this.jqTargetName = $('#target .name');
+        this.jqTargetHealth = $('#target-health');
+        this.jqTargetHealthText = $('#target-healthtext');
+        this.jqTargetHealthChild = $('#target .health');
+        this.jqCombatContainer = $('#combatContainer');
+        this.jqExp = $('#exp');
+        this.jqExpBar = $('#expbar');
+        this.jqExpLevel = $('#explevel');
+        this.jqStatBars = $('#statbars');
+        this.jqHealth = $('#health');
+        this.jqHealthText = $('#healthtext');
+        this.jqMenuContainer = $('#menucontainer');
+        this.jqCharacterMenu = $('#charactermenu');
+        this.jqNpcDialoguePic = $('#npcDialoguePic');
+        this.jqBody = $('body');
+        this.jqDropCount = $('#dropCount');
+        this.jqAuctionSellCount = $('#auctionSellCount');
+        this.jqValidationSummary = $('.validation-summary');
+        // Used by the localforage 'menucolor'/'buttoncolor' callbacks above - those callbacks
+        // fire asynchronously (after this constructor has already finished running), so
+        // computing these here instead of inside the callbacks doesn't change behavior, it
+        // just avoids nesting the selector lookups inside a callback closure.
+        this.jqRoot = $(':root');
+        this.jqButtonMenuColor = $('#buttonmenucolor');
+        this.jqFrameNewButton = $('div.frame-new-button');
+        this.jqButtonButtonColor = $('#buttonbuttoncolor');
+
+        const jqErrorRefresh = $('#error_refresh');
+        jqErrorRefresh.click(function (event) {
             location.reload();
         });
 
-        $('#cmdQuit').click(function (event) {
+        const jqCmdQuit = $('#cmdQuit');
+        jqCmdQuit.click(function (event) {
             navigator.app.exitApp();
         });
 
-        $('#user_remove').click(function (event) {
-            $('#remove_window').show();
+        const jqRemoveWindow = $('#remove_window');
+        const jqRemoveConfirm = $('#remove_confirm');
+
+        this.jqUserRemove.click(function (event) {
+            jqRemoveWindow.show();
         });
-        $('#user_close').click(function (event) {
-            $('#remove_window').hide();
+        const jqUserClose = $('#user_close');
+        jqUserClose.click(function (event) {
+            jqRemoveWindow.hide();
         });
 
-        $('#user_remove_confirm').click(function (event) {
-            const rpawd = $('#remove_confirm').val();
+        const jqUserRemoveConfirm = $('#user_remove_confirm');
+        jqUserRemoveConfirm.click(function (event) {
+            const rpawd = jqRemoveConfirm.val();
             if (rpawd === 'YES') {
                 if (confirm('DANGER - Remove your account PERMANENTLY?')) {
                     if (
@@ -120,17 +206,17 @@ export default class App {
                         app.tryUserAction(3);
                     }
                 }
-                $('#remove_window').hide();
+                jqRemoveWindow.hide();
             }
         });
 
-        $('#player_window').ready(function () {
+        self.jqPlayerWindow.ready(function () {
             self.jqPlayerCreateForm.hide();
             self.jqPlayerLoad.hide();
             self.jqPlayerCreate.show();
         });
 
-        $('#player_select').change(function () {
+        self.jqPlayerSelect.change(function () {
             if ($(this).val() === -1) {
                 self.jqPlayerLoad.hide();
                 self.jqPlayerCreate.show();
@@ -141,16 +227,16 @@ export default class App {
             }
         });
 
-        $('#player_create').click(function () {
+        self.jqPlayerCreate.click(function () {
             if (self.jqPlayerLoad.hasClass('loading')) return;
 
             if (self.jqPlayerCreate.hasClass('loading')) return;
 
             if (self.jqPlayerCreateForm.is(':visible')) self.tryPlayerAction(4);
 
-            if ($('#player_name').val() === '') {
+            if (self.jqPlayerNameInput.val() === '') {
                 app.showPlayerCreate();
-                $('#player_name').focus();
+                self.jqPlayerNameInput.focus();
             }
         });
 
@@ -196,7 +282,7 @@ export default class App {
                             // message was identical to the plain "incorrect" case above/below -
                             // nothing told the player they'd been disconnected rather than just
                             // getting the password wrong again. Say so explicitly.
-                            self.$loginInfo.text('Disconnected.');
+                            self.jqLoginInfo.text('Disconnected.');
                             self.addValidationError(
                                 null,
                                 'You have been disconnected: too many incorrect login attempts.'
@@ -222,7 +308,7 @@ export default class App {
                         const triesRemaining = data[1];
                         if (triesRemaining > 0) {
                             self.addValidationError(
-                                self.$usernameinput,
+                                self.jqUsernameInput,
                                 'The username you entered is not available. ' +
                                     triesRemaining +
                                     ' attempt' +
@@ -235,7 +321,7 @@ export default class App {
                             // message was identical to the plain "not available" retry case
                             // above - nothing told the player they'd been disconnected rather
                             // than just needing to pick another name. Say so explicitly.
-                            self.$loginInfo.text('Disconnected.');
+                            self.jqLoginInfo.text('Disconnected.');
                             self.addValidationError(
                                 null,
                                 'You have been disconnected: too many attempts with an unavailable username.'
@@ -271,7 +357,7 @@ export default class App {
                     // the generic `default` branch (confusing message) and had the same
                     // stuck-button bug as 'playerexists' above.
                     self.addValidationError(
-                        self.$playernameinput,
+                        self.jqPlayerNameInput,
                         data[0] === 'playerexists'
                             ? 'The playername you entered is not available.'
                             : 'Please enter player name alpha numeric characters only.'
@@ -283,7 +369,7 @@ export default class App {
                     // on key events, which mobile virtual keyboards (autocomplete/predictive-
                     // text taps, swipe typing, IME-driven soft keyboards) don't always fire.
                     self.clearErrorOnFieldsChange(
-                        [self.$playernameinput],
+                        [self.jqPlayerNameInput],
                         function () {
                             self.jqPlayerLoad.removeClass('loading');
                             self.jqPlayerCreate.removeClass('loading');
@@ -370,35 +456,8 @@ export default class App {
         this.initCombatBar();
     }
 
-    initFormFields() {
-        this.getLoadUserButton = function () {
-            return $('#user_load');
-        };
-        this.getCreateUserButton = function () {
-            return $('#user_create');
-        };
-        this.getLoadPlayerButton = function () {
-            return $('#player_load');
-        };
-        this.getCreatePlayerButton = function () {
-            return $('#player_create');
-        };
-        this.getBackButton = function () {
-            return $('#player_cancel');
-        };
-
-        // Login form fields
-        this.$usernameinput = $('#user_name');
-        this.$userpasswordinput = $('#user_password');
-        this.userFormFields = [this.$usernameinput, this.$userpasswordinput];
-
-        // Create new character form fields
-        this.$playernameinput = $('#player_name');
-        this.playerFormFields = [this.$playernameinput];
-    }
-
     startGame(server, ps) {
-        $('#gameheading').css('display', 'none');
+        this.jqGameHeading.css('display', 'none');
 
         if (game.started) return;
 
@@ -414,21 +473,21 @@ export default class App {
 
     start() {
         const self = this;
-        this.getLoadUserButton().click(function () {
-            if ($('#user_load').hasClass('loading')) return;
+        this.jqUserLoad.click(function () {
+            if (self.jqUserLoad.hasClass('loading')) return;
             self.tryUserAction(1);
         });
-        this.getCreateUserButton().click(function () {
-            if ($('#user_create').hasClass('loading')) return;
+        this.jqUserCreate.click(function () {
+            if (self.jqUserCreate.hasClass('loading')) return;
             self.tryUserAction(2);
         });
-        this.getLoadPlayerButton().click(function () {
+        this.jqPlayerLoad.click(function () {
             if (self.jqPlayerLoad.hasClass('loading')) return;
             if (self.jqPlayerCreate.hasClass('loading')) return;
 
             self.tryPlayerAction(3);
         });
-        this.getBackButton().click(function () {
+        this.jqPlayerCancel.click(function () {
             if (self.jqPlayerLoad.is(':visible'))
                 self.loadWindow('player_window', 'user_window');
             else {

@@ -21,6 +21,17 @@ export default class UserClient {
         this.connection = null;
         this.config = config;
 
+        // NOTE: cached here (rather than lazily in userclient/userclientcallbacks.js,
+        // where jqContainer is also used) since that file's proto.onVersion etc. are
+        // mixed onto UserClient.prototype and run with `this` bound to this instance -
+        // see installUserClientCallbacks(UserClient.prototype) below.
+        this.jqContainer = $('#container');
+        this.jqErrorWindowDetails = $('#errorwindow .errordetails');
+        this.jqErrorWindow = $('#errorwindow');
+        this.jqPlayerSelect = $('#player_select');
+        this.jqPlayerServer = $('#player_server');
+        this.jqPlayerCreateForm = $('#player_create_form');
+
         this.handlers = {};
         this.handlers[Types.UserMessages.UC_WORLD_READY] = this.onWorldReady;
 
@@ -65,7 +76,7 @@ export default class UserClient {
             '/';
 
         log.info('Trying to connect to server : ' + url);
-        app.$loginInfo.text('Connecting to RRO2 server...');
+        app.jqLoginInfo.text('Connecting to RRO2 server...');
 
         self.connection = io(url, {
             forceNew: true,
@@ -243,13 +254,13 @@ export default class UserClient {
 
     _onError(data) {
         const message = data[0];
-        $('#container').addClass('error');
+        this.jqContainer.addClass('error');
         // FIX: XSS - server-supplied error message was inserted unescaped via .html(); escape before rendering
-        $('#errorwindow .errordetails').html(
+        this.jqErrorWindowDetails.html(
             '<p>' + Utils.escapeHtml(message) + '</p>'
         );
         app.loadWindow('loginwindow', 'errorwindow');
-        $('#errorwindow').focus();
+        this.jqErrorWindow.focus();
     }
 }
 

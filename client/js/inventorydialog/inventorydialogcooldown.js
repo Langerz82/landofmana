@@ -25,7 +25,7 @@ export function installInventoryDialogCooldown(proto) {
             const items = self.getItems(0, cond);
             const cooldowns = [];
             for (let item of items) {
-                cooldowns.push($('#inventoryHL' + item.slot));
+                cooldowns.push(self.jqInventoryHighlights[item.slot]);
             }
             return cooldowns;
         };

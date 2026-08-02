@@ -6,6 +6,7 @@ export default class BankHandler {
         this.game = game;
         this.maxNumber = 96;
         this.banks = {};
+        this.jqBankGold = $('.bankGold');
     }
 
     initBank(itemArray) {
@@ -22,7 +23,7 @@ export default class BankHandler {
 
     setGold(gold) {
         this.gold = parseInt(gold);
-        $('.bankGold').text(this.gold);
+        this.jqBankGold.text(this.gold);
     }
 
     isBankFull() {

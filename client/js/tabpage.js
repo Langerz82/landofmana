@@ -3,24 +3,24 @@ class TabButton {
     constructor(id, page) {
         const self = this;
         this.id = id;
-        this.body = $(id);
+        this.jqBody = $(id);
         this.page = page;
 
         this.visibleChangeHandler = null;
 
-        this.body.on('click', function (event) {
+        this.jqBody.on('click', function (event) {
             if (self.page.parent.parent.showing) self.page.active();
         });
     }
 
     getVisible() {
-        return this.body.attr('class') === 'active';
+        return this.jqBody.attr('class') === 'active';
     }
     setVisible(value) {
         if (value) {
-            this.body.addClass('active');
+            this.jqBody.addClass('active');
         } else {
-            this.body.removeClass('active');
+            this.jqBody.removeClass('active');
         }
     }
 }
@@ -35,7 +35,7 @@ export default class TabPage {
         // (`this.parent.setActivePage(this)`) would throw if ever called on it.
         this.parent = parent;
         this.id = id;
-        this.body = $(id);
+        this.jqBody = $(id);
         this.button = buttonId ? new TabButton(buttonId, this) : null;
 
         this.activeHandler = null;
@@ -48,13 +48,13 @@ export default class TabPage {
         this.parent = value;
     }
     getVisible() {
-        return this.body.css('display') === 'block';
+        return this.jqBody.css('display') === 'block';
     }
     setVisible(value) {
         if (this.button) {
             this.button.setVisible(value);
         }
-        this.body.css('display', value ? 'block' : 'none');
+        this.jqBody.css('display', value ? 'block' : 'none');
 
         if (this.visibleChangeHandler) {
             // FIX: referenced undeclared `self` (only TabButton.setVisible has a `self`

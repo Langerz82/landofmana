@@ -11,9 +11,15 @@ export function installMainDialogs() {
     // appearancerack.js/appearanceframe.js etc. for the same pattern), so just re-query them here.
     const jqDropAccept = $('#dropAccept');
     const jqDropCancel = $('#dropCancel');
+    const jqDropCount = $('#dropCount');
+    const jqAuctionSellAccept = $('#auctionSellAccept');
+    const jqAuctionSellCancel = $('#auctionSellCancel');
+    const jqAuctionSellCount = $('#auctionSellCount');
+    const jqNameInput = $('#nameinput');
+    const jqNameTooltip = $('#name-tooltip');
 
     jqDropAccept.click(function (event) {
-        let count = parseInt($('#dropCount').val());
+        let count = parseInt(jqDropCount.val());
         if (count > 0) {
             if (app.dropAction === 'bankgold') // Send to bank.
             {
@@ -47,9 +53,9 @@ export function installMainDialogs() {
         }, 100);
     });
 
-    $('#auctionSellAccept').click(function (event) {
+    jqAuctionSellAccept.click(function (event) {
         try {
-            const count = parseInt($('#auctionSellCount').val());
+            const count = parseInt(jqAuctionSellCount.val());
             if (count > 0) {
                 game.client.sendAuctionSell(app.inventoryNumber, count);
                 game.inventoryDialog.inventory[app.inventoryNumber] = null;
@@ -61,21 +67,21 @@ export function installMainDialogs() {
         }, 100);
     });
 
-    $('#auctionSellCancel').click(function (event) {
+    jqAuctionSellCancel.click(function (event) {
         setTimeout(function () {
             app.hideAuctionSellDialog();
         }, 100);
     });
 
-    $('#nameinput').focusin(function () {
-        $('#name-tooltip').addClass('visible');
+    jqNameInput.focusin(function () {
+        jqNameTooltip.addClass('visible');
     });
 
-    $('#nameinput').focusout(function () {
-        $('#name-tooltip').removeClass('visible');
+    jqNameInput.focusout(function () {
+        jqNameTooltip.removeClass('visible');
     });
 
-    $('#nameinput').keypress(function (event) {
-        $('#name-tooltip').removeClass('visible');
+    jqNameInput.keypress(function (event) {
+        jqNameTooltip.removeClass('visible');
     });
 }

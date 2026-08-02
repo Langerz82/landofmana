@@ -19,8 +19,16 @@ export default class StoreDialog extends Dialog {
 
         this.storeFrame = new StoreFrame(this);
 
-        this.sellButton = $('#storeDialogStore3Button');
-        this.sellButton.show();
+        this.jqSellButton = $('#storeDialogStore3Button');
+        this.jqSellButton.show();
+
+        // Cached once here and reused by show() below instead of re-querying the DOM
+        // every time the dialog is shown.
+        this.jqFrameHeadingDiv = $('#storeDialog .frameheading div');
+        this.jqStore0Button = $('#storeDialogStore0Button');
+        this.jqStoreButtons = $('#storeDialog .storebuttons');
+        this.jqGoldFrame = $('#storeDialogStore div.inventoryGoldFrame');
+        this.jqGemsFrame = $('#storeDialogStore div.inventoryGemsFrame');
 
         const self = this;
     }
@@ -37,15 +45,15 @@ export default class StoreDialog extends Dialog {
     show(min, max) {
         const self = this;
 
-        $('#storeDialog .frameheading div').text('SHOPS');
+        this.jqFrameHeadingDiv.text('SHOPS');
 
-        $('#storeDialogStore0Button').text('CONSUME');
-        $('#storeDialog .storebuttons').show();
+        this.jqStore0Button.text('CONSUME');
+        this.jqStoreButtons.show();
 
-        this.sellButton.text('SELL');
-        this.sellButton.show();
+        this.jqSellButton.text('SELL');
+        this.jqSellButton.show();
 
-        this.sellButton.off().on('click', function (event) {
+        this.jqSellButton.off().on('click', function (event) {
             game.inventoryMode = InventoryMode.MODE_SELL;
             game.inventoryDialog.showInventory(true);
             game.inventoryDialog.backPage = self;
@@ -58,10 +66,10 @@ export default class StoreDialog extends Dialog {
         this.addClose();
 
         super.show(); // FIX (conversion): this._super() -> super.show()
-        $('#storeDialogStore0Button').trigger('click');
+        this.jqStore0Button.trigger('click');
 
-        $('#storeDialogStore div.inventoryGoldFrame').show();
-        $('#storeDialogStore div.inventoryGemsFrame').hide();
+        this.jqGoldFrame.show();
+        this.jqGemsFrame.hide();
     }
 
     hide() {

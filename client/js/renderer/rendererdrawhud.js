@@ -184,8 +184,8 @@ export function installRendererDrawHud(proto) {
     };
 
     proto.showCutScene = function () {
-        const width = ~~($('#container').width() * this.gameZoom);
-        const height = ~~($('#container').height() * this.gameZoom);
+        const width = ~~(this.jqContainer.width() * this.gameZoom);
+        const height = ~~(this.jqContainer.height() * this.gameZoom);
 
         const w = width;
         const h = Math.floor(height / 8);

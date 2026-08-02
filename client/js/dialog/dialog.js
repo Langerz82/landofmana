@@ -2,12 +2,12 @@
 export default class Dialog {
     constructor(game, id) {
         this.id = id;
-        this.body = $(id);
+        this.jqBody = $(id);
         this.visible = false;
     }
 
     addClose(closeEvent) {
-        this.closeButton = $(this.id + ' .frame-close-button');
+        this.jqCloseButton = $(this.id + ' .frame-close-button');
         this.closeEvent = closeEvent;
     }
 
@@ -18,15 +18,15 @@ export default class Dialog {
             this.showHandler(this);
         }
 
-        this.body.show();
+        this.jqBody.show();
         this.visible = true;
         this.showing = true;
 
-        if (game.gamepad) game.gamepad.dialogOpen(this.body);
+        if (game.gamepad) game.gamepad.dialogOpen(this.jqBody);
 
-        if (this.closeButton) {
+        if (this.jqCloseButton) {
             // FIX: unbind previous handler before rebinding, otherwise repeated show() calls stack duplicate click handlers
-            this.closeButton.off('click').click(function (e) {
+            this.jqCloseButton.off('click').click(function (e) {
                 if (game.gamepad) game.gamepad.dialogClose();
                 if (self.closeEvent) self.closeEvent(e);
                 self.hide();
@@ -37,7 +37,7 @@ export default class Dialog {
     hide() {
         this.visible = false;
         this.showing = false;
-        this.body.hide();
+        this.jqBody.hide();
 
         if (this.hideHandler) {
             this.hideHandler(this);

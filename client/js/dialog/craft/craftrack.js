@@ -9,17 +9,17 @@ export default class StoreRack {
         this.parent = parent;
         this.id = id;
         this.index = index;
-        this.body = $(id);
-        this.basketBackground = $(id + 'BasketBackground');
-        this.basket = $(id + 'Basket');
-        this.extra = $(id + 'Extra');
-        this.price = $(id + 'Price');
-        this.buyButton = $(id + 'BuyButton');
+        this.jqBody = $(id);
+        this.jqBasketBackground = $(id + 'BasketBackground');
+        this.jqBasket = $(id + 'Basket');
+        this.jqExtra = $(id + 'Extra');
+        this.jqPrice = $(id + 'Price');
+        this.jqBuyButton = $(id + 'BuyButton');
         this.item = null;
 
         this.rescale();
 
-        this.buyButton.text('Craft');
+        this.jqBuyButton.text('Craft');
 
         const self = this;
     }
@@ -27,8 +27,10 @@ export default class StoreRack {
     rescale() {
         const scale = this.parent.scale;
         const id = this.id;
-        this.body = $(id);
-        this.body.css({
+        // FIX: rescale() used to re-run `$(id)` on every call, re-querying a DOM node
+        // already cached in the constructor (id never changes for a rack instance).
+        // Reuse the cached this.jqBody instead.
+        this.jqBody.css({
             position: 'absolute',
             left: '0px',
             top: '' + this.index * (20 * scale) + 'px'
@@ -40,15 +42,15 @@ export default class StoreRack {
     }
 
     getVisible() {
-        return this.body.css('display') === 'block';
+        return this.jqBody.css('display') === 'block';
     }
     setVisible(value) {
         const self = this;
 
-        this.body.css('display', value ? 'block' : 'none');
-        this.buyButton.text('Craft');
+        this.jqBody.css('display', value ? 'block' : 'none');
+        this.jqBuyButton.text('Craft');
         if (value) {
-            this.buyButton.off().on('click', function (event) {
+            this.jqBuyButton.off().on('click', function (event) {
                 let noItems = false;
                 for (let it of self.item.craft.i) {
                     if (!game.inventory.hasItems(it[0], it[1])) {
@@ -79,16 +81,16 @@ export default class StoreRack {
 
     assign(item) {
         this.item = item;
-        Items.jqShowItem(this.basket, this.item, this.basket);
+        Items.jqShowItem(this.jqBasket, this.item, this.jqBasket);
 
         const itemRoom = new ItemRoom(0, item.kind, 1, 900, 900, 0);
         const itemDesc = Item.getInfoMsgEx(itemRoom);
         const itemName = ItemTypes.getName(item.kind);
-        this.basket.attr('title', itemDesc);
+        this.jqBasket.attr('title', itemDesc);
         if (ItemTypes.isConsumableItem(item.kind)) {
-            this.basket.text('');
+            this.jqBasket.text('');
         } else {
-            this.extra.text(itemName);
+            this.jqExtra.text(itemName);
         }
 
         let i = 0;
@@ -100,13 +102,17 @@ export default class StoreRack {
                 "<div class='craftitem'><div id='" + it.name + "'></div></div>";
             i++;
         }
-        this.extra.html(html + '</div>');
+        this.jqExtra.html(html + '</div>');
 
+        // NOTE: `$('#' + it.name)` here is intentionally not cached in the constructor -
+        // these per-craft-ingredient elements don't exist until the this.jqExtra.html(...)
+        // call immediately above creates them, and they're recreated fresh (new DOM nodes)
+        // every time assign() runs with a different item, so the old cache would be stale.
         for (let it of item.craft.i) {
             const itemData = { itemKind: it[0], itemNumber: it[1] };
             Items.jqShowItem($('#' + it.name), itemData, $('#' + it.name));
         }
 
-        this.price.text(Utils.getNumShortHand(item.craftPrice));
+        this.jqPrice.text(Utils.getNumShortHand(item.craftPrice));
     }
 }

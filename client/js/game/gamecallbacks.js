@@ -16,7 +16,7 @@ export function installGameCallbacks(proto) {
         const local_version = Number(config.build.version);
         log.info('config.build.version=' + local_version);
         if (version !== local_version) {
-            $('#container').addClass('error');
+            this.jqContainer.addClass('error');
             let errmsg =
                 'Please download the new version of Land Of Mana.<br/>';
 
@@ -85,12 +85,12 @@ export function installGameCallbacks(proto) {
 
         log.info('onWelcome');
 
-        $('.validation-summary').text('Loading Map..');
+        this.jqValidationSummary.text('Loading Map..');
 
         // TODO - Maybe this is better in main or app class as html.
-        if ($('#player_window').is(':visible')) {
-            $('#intro').hide();
-            $('#container').fadeIn(1000);
+        if (this.jqPlayerWindow.is(':visible')) {
+            this.jqIntro.hide();
+            this.jqContainer.fadeIn(1000);
         }
 
         game.teleportMaps(1);

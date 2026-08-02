@@ -18,24 +18,27 @@ export function installUserClientCallbacks(proto) {
             const option = ps.name + ' Lv' + Types.getLevel(ps.exp);
 
             const o = new Option(option, i);
-            $('#player_select').append(o);
+            this.jqPlayerSelect.append(o);
         }
 
         app.loadWindow('user_window', 'player_window');
-        $('#player_select').focus();
+        this.jqPlayerSelect.focus();
 
         if (count > 0) {
-            $('#player_select option[value="' + (count - 1) + '"]').attr(
-                'selected',
-                true
+            // NOTE: this targets the specific <option> just appended above, so it can't
+            // be hoisted to a constructor-cached selector - the value (and thus the
+            // element it matches) changes on every call.
+            const jqSelectedOption = this.jqPlayerSelect.find(
+                'option[value="' + (count - 1) + '"]'
             );
+            jqSelectedOption.attr('selected', true);
             app.showPlayerLoad();
         }
 
         if (count === 0) {
             app.showPlayerCreate();
         } else {
-            $('#player_create_form').hide();
+            this.jqPlayerCreateForm.hide();
         }
     };
 
@@ -46,7 +49,7 @@ export function installUserClientCallbacks(proto) {
         // Utils.escapeHtml). Escaped all four fields, quoted the value attribute, and
         // closed the previously-unterminated </option tag.
         for (let i = 0; i < data.length; i += 4) {
-            $('#player_server').append(
+            this.jqPlayerServer.append(
                 '<option value="' +
                     Utils.escapeHtml(data[i]) +
                     '">' +
@@ -70,7 +73,7 @@ export function installUserClientCallbacks(proto) {
         const local_version = Number(config.build.version);
         log.info('config.build.version=' + local_version);
         if (version !== local_version) {
-            $('#container').addClass('error');
+            this.jqContainer.addClass('error');
             let errmsg =
                 'Please download the new version of Land Of Mana.<br/>';
 

@@ -51,8 +51,8 @@ export default class InventoryDialog {
 
         this.jqActionButton = $('#invActionButton');
 
-        this.closeButton = $('#inventoryCloseButton');
-        this.closeButton.click(function (event) {
+        this.jqCloseButton = $('#inventoryCloseButton');
+        this.jqCloseButton.click(function (event) {
             game.inventoryMode = InventoryMode.MODE_NORMAL;
             self.deselectItem();
             self.hideInventory();
@@ -63,11 +63,34 @@ export default class InventoryDialog {
             }
         });
 
-        $('#inventoryGearItems').click(function (event) {
+        const jqInventoryGearItems = $('#inventoryGearItems');
+        jqInventoryGearItems.click(function (event) {
             self.pageIndex = 0;
             self.deselectItem();
             self.refreshInventoryAll();
         });
+
+        this.jqAllInventoryWindow = $('#allinventorywindow');
+        this.jqGemsFrame = $('#allinventorywindow .inventoryGemsFrame');
+        this.jqInventoryGold = $('.inventoryGold');
+        this.jqInventoryGems = $('.inventoryGems');
+        this.jqInventorySellGoldFrame = $('.inventorySellGoldFrame');
+        this.jqInventorySellGold = $('.inventorySellGold');
+        this.jqAuctionSellCount = $('#auctionSellCount');
+
+        // Equipment slot elements (#equipment{i} / #equipBackground{i}) belong to
+        // EquipmentHandler, which isn't constructed yet at this point (see game.js -
+        // `equipmentHandler` is created after `inventoryDialog`), so `game.equipment`
+        // isn't available here. These are cached on first use instead, in
+        // loadInventoryEvents() (inventorydialogevents.js), which itself only runs
+        // once $(document).ready fires from main.js.
+        this.jqEquipmentSlots = null;
+        this.jqEquipmentBackgrounds = null;
+
+        this.jqInventoryItemBackgrounds = [];
+        this.jqInventoryItems = [];
+        this.jqInventoryHighlights = [];
+        this.jqSlots = [];
 
         const itemsPerRow = 5;
         const jqInventoryOffset = $('#inventoryoffset');
@@ -84,6 +107,15 @@ export default class InventoryDialog {
                 top: top + 'px',
                 left: left + 'px'
             });
+            this.jqInventoryItemBackgrounds[i] = jqInventoryBackground;
+            this.jqInventoryItems[i] = $('#inventoryitem' + i);
+            this.jqInventoryHighlights[i] = $('#inventoryHL' + i);
+            // TODO: '#slot{i}' isn't created anywhere in this codebase (only
+            // referenced from makeEmptyInventory in inventorydialogdisplay.js);
+            // may be an orphaned leftover from an older UI. Cached here regardless
+            // since caching an (empty) selection is behavior-equivalent to
+            // re-querying it each time.
+            this.jqSlots[i] = $('#slot' + i);
         }
     }
 
@@ -97,15 +129,15 @@ export default class InventoryDialog {
     }
 
     setCurrency(gold, gems) {
-        $('.inventoryGold').text(Utils.getNumShortHand(gold, 2));
-        $('.inventoryGems').text(gems);
+        this.jqInventoryGold.text(Utils.getNumShortHand(gold, 2));
+        this.jqInventoryGems.text(gems);
     }
 
     toggleInventory(open) {
         this.isShowAllInventory = open || !this.isShowAllInventory;
-        if (!$('#allinventorywindow').is(':visible')) {
+        if (!this.jqAllInventoryWindow.is(':visible')) {
             this.showInventory();
-            game.gamepad.dialogOpen($('#allinventorywindow'));
+            game.gamepad.dialogOpen(this.jqAllInventoryWindow);
         } else {
             this.hideInventory();
         }
@@ -113,38 +145,36 @@ export default class InventoryDialog {
 
     showInventory() {
         this.pageIndex = 0;
-        $('.inventorySellGoldFrame').hide();
-        const jqGemsFrame = $('#allinventorywindow .inventoryGemsFrame');
-        const jqActionButton = $('#invActionButton');
-        jqGemsFrame.hide();
+        this.jqInventorySellGoldFrame.hide();
+        this.jqGemsFrame.hide();
         if (game.inventoryMode === InventoryMode.MODE_AUCTION) {
-            jqActionButton.text('LIST');
-            jqActionButton.show();
+            this.jqActionButton.text('LIST');
+            this.jqActionButton.show();
         } else if (game.inventoryMode === InventoryMode.MODE_SELL) {
-            jqActionButton.text('SELL');
-            //jqActionButton.show();
+            this.jqActionButton.text('SELL');
+            //this.jqActionButton.show();
         } else if (game.inventoryMode === InventoryMode.MODE_ENCHANT) {
-            jqActionButton.text('ENCHANT');
-            //jqActionButton.show();
+            this.jqActionButton.text('ENCHANT');
+            //this.jqActionButton.show();
         } else if (game.inventoryMode === InventoryMode.MODE_REPAIR) {
-            jqActionButton.text('REPAIR');
-            //jqActionButton.show();
+            this.jqActionButton.text('REPAIR');
+            //this.jqActionButton.show();
         } else if (game.inventoryMode === InventoryMode.MODE_BANK) {
-            jqActionButton.text('BANK');
-            //jqActionButton.show();
+            this.jqActionButton.text('BANK');
+            //this.jqActionButton.show();
         } else if (game.inventoryMode === InventoryMode.MODE_NORMAL) {
-            jqActionButton.text('DROP');
-            //jqActionButton.show();
-            jqGemsFrame.show();
+            this.jqActionButton.text('DROP');
+            //this.jqActionButton.show();
+            this.jqGemsFrame.show();
         } else {
-            jqActionButton.hide();
+            this.jqActionButton.hide();
         }
         this.refreshInventoryAll();
-        $('#allinventorywindow').css('display', 'block');
+        this.jqAllInventoryWindow.css('display', 'block');
     }
 
     hideInventory() {
-        $('#allinventorywindow').css('display', 'none');
+        this.jqAllInventoryWindow.css('display', 'none');
         game.inventoryMode = 0;
     }
 

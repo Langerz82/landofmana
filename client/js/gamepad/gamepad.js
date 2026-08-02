@@ -34,28 +34,6 @@ function applyDeadZone(stick, deadzone) {
     if (dzy < deadzone) stick.y = 0;
 }
 
-export const jqInventoryWindow = $('#allinventorywindow');
-export const jqMenuWindow = $('#menucontainer');
-export const jqSkillWindow = $('#skillsDialog');
-export const jqStatWindow = $('#statsDialog');
-export const jqPlayerPopupWindow = $('#playerPopupMenuContainer');
-const jqInviteWindow = $('#partyconfirm');
-export const jqQuestWindow = $('#questlog');
-export const jqSocialWindow = $('#socialwindow');
-export const jqSettingsWindow = $('#settings');
-export const jqLeaderWindow = $('#leaderboard');
-export const jqDropWindow = $('#dropDialog');
-const jqInputWindow = $('#inputDialog');
-export const jqConfirmWindow = $('#dialogModalConfirm');
-export const jqNotifyWindow = $('#dialogModalNotify');
-export const jqDiedWindow = $('#diedwindow');
-export const jqAuctionSellWindow = $('#auctionSellDialog');
-export const jqAchievementWindow = $('#achievementlog');
-export const jqShopWindow = $('#shopDialog');
-export const jqBankWindow = $('#bankDialog');
-export const jqLooksWindow = $('#appearanceDialog');
-export const jqLooksPreview = $('#looksDialogPlayer');
-
 const selectFirstItem = {
     socialconfirm: '#socialconfirmyes',
     diedwindow: '#respawn',
@@ -99,6 +77,46 @@ import { installGamepadButtonsDpad } from './gamepadbuttonsdpad.js';
 export default class Gamepad {
     constructor(game) {
         const self = this;
+
+        // These were previously module-level `export const jqXxx = $(...)` singletons in this
+        // file, shared by import across gamepadbuttonsaction.js/cancel.js/face.js/dpad.js/
+        // navigation.js. Since only one Gamepad instance is ever created, they're now set once
+        // here, in the constructor, and threaded through to those mixin files via `self`
+        // (which they already receive as their install*(self) parameter) instead of being
+        // imported as shared module bindings.
+        self.jqInventoryWindow = $('#allinventorywindow');
+        self.jqMenuWindow = $('#menucontainer');
+        self.jqSkillWindow = $('#skillsDialog');
+        self.jqStatWindow = $('#statsDialog');
+        self.jqPlayerPopupWindow = $('#playerPopupMenuContainer');
+        self.jqInviteWindow = $('#partyconfirm');
+        self.jqQuestWindow = $('#questlog');
+        self.jqSocialWindow = $('#socialwindow');
+        self.jqSettingsWindow = $('#settings');
+        self.jqLeaderWindow = $('#leaderboard');
+        self.jqDropWindow = $('#dropDialog');
+        self.jqInputWindow = $('#inputDialog');
+        self.jqConfirmWindow = $('#dialogModalConfirm');
+        self.jqNotifyWindow = $('#dialogModalNotify');
+        self.jqDiedWindow = $('#diedwindow');
+        self.jqAuctionSellWindow = $('#auctionSellDialog');
+        self.jqAchievementWindow = $('#achievementlog');
+        self.jqShopWindow = $('#shopDialog');
+        self.jqBankWindow = $('#bankDialog');
+        self.jqLooksWindow = $('#appearanceDialog');
+        self.jqLooksPreview = $('#looksDialogPlayer');
+        // Shared by installGamepadButtonsAction/installGamepadButtonsFace (both previously
+        // declared their own identical `const jqCharacterMenu = $('#charactermenu')`).
+        self.jqCharacterMenu = $('#charactermenu');
+        // Used by runGamepadNavigation() (gamepadnavigation.js), which - unlike the
+        // install*(self) mixins above - runs on every navigation tick rather than once, so
+        // its own selector caching has to live here in the constructor rather than in that
+        // function itself. jqChangeLookNext is also used by installGamepadButtonsAction
+        // (previously its own separate `const jqChangeLookNext = $('#changeLookNext')`).
+        self.jqStorePageNavPrev = $('#storePageNavPrev');
+        self.jqStorePageNavNext = $('#storePageNavNext');
+        self.jqChangeLookPrev = $('#changeLookPrev');
+        self.jqChangeLookNext = $('#changeLookNext');
 
         self.shopPageIndex = 0;
         self.craftPageIndex = 0;
@@ -391,26 +409,26 @@ export default class Gamepad {
             game.auctionDialog.visible ||
             game.appearanceDialog.visible ||
             game.craftDialog.visible ||
-            jqMenuWindow.is(':visible') ||
-            jqInventoryWindow.is(':visible') ||
-            jqSkillWindow.is(':visible') ||
-            jqStatWindow.is(':visible') ||
-            jqPlayerPopupWindow.is(':visible') ||
-            jqInviteWindow.is(':visible') ||
-            jqQuestWindow.is(':visible') ||
-            jqAchievementWindow.is(':visible') ||
-            jqSocialWindow.is(':visible') ||
-            jqSettingsWindow.is(':visible') ||
-            jqLeaderWindow.is(':visible') ||
-            jqDropWindow.is(':visible') ||
-            jqInputWindow.is(':visible') ||
-            jqConfirmWindow.is(':visible') ||
-            jqNotifyWindow.is(':visible') ||
-            jqAuctionSellWindow.is(':visible') ||
-            jqDiedWindow.is(':visible') ||
-            jqShopWindow.is(':visible') ||
-            jqLooksWindow.is(':visible') ||
-            jqLooksPreview.is(':visible') ||
+            this.jqMenuWindow.is(':visible') ||
+            this.jqInventoryWindow.is(':visible') ||
+            this.jqSkillWindow.is(':visible') ||
+            this.jqStatWindow.is(':visible') ||
+            this.jqPlayerPopupWindow.is(':visible') ||
+            this.jqInviteWindow.is(':visible') ||
+            this.jqQuestWindow.is(':visible') ||
+            this.jqAchievementWindow.is(':visible') ||
+            this.jqSocialWindow.is(':visible') ||
+            this.jqSettingsWindow.is(':visible') ||
+            this.jqLeaderWindow.is(':visible') ||
+            this.jqDropWindow.is(':visible') ||
+            this.jqInputWindow.is(':visible') ||
+            this.jqConfirmWindow.is(':visible') ||
+            this.jqNotifyWindow.is(':visible') ||
+            this.jqAuctionSellWindow.is(':visible') ||
+            this.jqDiedWindow.is(':visible') ||
+            this.jqShopWindow.is(':visible') ||
+            this.jqLooksWindow.is(':visible') ||
+            this.jqLooksPreview.is(':visible') ||
             this.mainButtonsActive
         );
     }

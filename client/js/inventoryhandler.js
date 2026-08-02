@@ -11,6 +11,8 @@ export default class InventoryHandler {
         this.scale = 3;
         this.dialog = dialog;
         dialog.handler = this;
+
+        this.jqDropCount = $('#dropCount');
     }
 
     setMaxNumber(maxNumber) {
@@ -141,7 +143,7 @@ export default class InventoryHandler {
                 item2 &&
                 this.isStackitem(item2, true))
         ) {
-            $('#dropCount').val(count);
+            this.jqDropCount.val(count);
 
             game.app.SplitItem = DragItem;
             game.app.showDropDialog('splititems');
@@ -159,7 +161,7 @@ export default class InventoryHandler {
         game.player.droppedX = pos.x;
         game.player.droppedY = pos.y;
         if (this.isStackitem(item)) {
-            $('#dropCount').val(count);
+            this.jqDropCount.val(count);
             game.app.DropItem = DragItem;
             game.app.showDropDialog('dropItems');
         } else {

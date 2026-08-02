@@ -8,23 +8,35 @@ export default class SocialHandler {
         this.game = game;
         this.toggle = false;
 
+        this.jqPartyLeave = $('#partyleave');
+        this.jqPartyNames = $('#partynames');
+        this.jqGuildLeave = $('#guildleave');
+        this.jqGuildNames = $('#guildnames');
+        this.jqSocialWindow = $('#socialwindow');
+        this.jqSocialConfirmTitle = $('#socialconfirmtitle');
+        this.jqSocialConfirm = $('#socialconfirm');
+        this.jqSocialConfirmYes = $('#socialconfirmyes');
+        this.jqSocialConfirmNo = $('#socialconfirmno');
+
         this.partymembers = [];
-        $('#partyleave').click(function (event) {
+        this.jqPartyLeave.click(function (event) {
             self.game.client.sendPartyLeave();
-            $('#partynames').html('');
+            self.jqPartyNames.html('');
             self.show();
         });
-        $('#partyclose').click(function (e) {
+        const jqPartyClose = $('#partyclose');
+        jqPartyClose.click(function (e) {
             self.show();
         });
 
         this.guildmembers = [];
-        $('#guildleave').click(function (event) {
+        this.jqGuildLeave.click(function (event) {
             self.game.client.sendLeaveGuild();
-            $('#guildnames').html('');
+            self.jqGuildNames.html('');
             self.show();
         });
-        $('#socialclose').click(function (e) {
+        const jqSocialClose = $('#socialclose');
+        jqSocialClose.click(function (e) {
             self.show();
         });
     }
@@ -33,28 +45,24 @@ export default class SocialHandler {
         const self = this;
 
         // FIX: invitee.name is untrusted/server-controlled; escape before inserting as HTML to prevent XSS
-        $('#socialconfirmtitle').html(
+        this.jqSocialConfirmTitle.html(
             'Party ' + Utils.escapeHtml(invitee.name) + '?'
         );
 
-        $('#socialconfirm').show();
+        this.jqSocialConfirm.show();
         // FIX: missing .off() before rebinding meant repeated party invites stacked duplicate click handlers on #socialconfirmyes,
         // sending sendPartyInvite() multiple times per click; unbind first like #socialconfirmno already does
-        $('#socialconfirmyes')
-            .off()
-            .on('click', function (event) {
-                self.game.client.sendPartyInvite(invitee.name, 1);
-                $('#socialconfirm').hide();
-            });
-        $('#socialconfirmno')
-            .off()
-            .on('click', function (event) {
-                self.game.client.sendPartyInvite(invitee.name, 2);
-                $('#socialconfirm').hide();
-            });
+        this.jqSocialConfirmYes.off().on('click', function (event) {
+            self.game.client.sendPartyInvite(invitee.name, 1);
+            self.jqSocialConfirm.hide();
+        });
+        this.jqSocialConfirmNo.off().on('click', function (event) {
+            self.game.client.sendPartyInvite(invitee.name, 2);
+            self.jqSocialConfirm.hide();
+        });
 
         setTimeout(function () {
-            $('#socialconfirm').hide();
+            self.jqSocialConfirm.hide();
         }, 10000);
     }
 
@@ -62,28 +70,24 @@ export default class SocialHandler {
         const self = this;
 
         // FIX: guildName is untrusted/server-controlled; escape before inserting as HTML to prevent XSS
-        $('#socialconfirmtitle').html(
+        this.jqSocialConfirmTitle.html(
             'Join Guild ' + Utils.escapeHtml(guildName) + '?'
         );
 
-        $('#socialconfirm').show();
+        this.jqSocialConfirm.show();
         // FIX: missing .off() before rebinding meant repeated guild invites stacked duplicate click handlers,
         // sending sendGuildInviteReply() multiple times per click
-        $('#socialconfirmyes')
-            .off()
-            .on('click', function (event) {
-                self.game.client.sendGuildInviteReply(guildId, true);
-                $('#socialconfirm').hide();
-            });
-        $('#socialconfirmno')
-            .off()
-            .on('click', function (event) {
-                self.game.client.sendGuildInviteReply(guildId, false);
-                $('#socialconfirm').hide();
-            });
+        this.jqSocialConfirmYes.off().on('click', function (event) {
+            self.game.client.sendGuildInviteReply(guildId, true);
+            self.jqSocialConfirm.hide();
+        });
+        this.jqSocialConfirmNo.off().on('click', function (event) {
+            self.game.client.sendGuildInviteReply(guildId, false);
+            self.jqSocialConfirm.hide();
+        });
 
         setTimeout(function () {
-            $('#socialconfirm').hide();
+            self.jqSocialConfirm.hide();
         }, 10000);
     }
 
@@ -92,9 +96,9 @@ export default class SocialHandler {
         if (this.toggle) {
             this.displayParty();
             this.displayGuild();
-            $('#socialwindow').css('display', 'block');
+            this.jqSocialWindow.css('display', 'block');
         } else {
-            $('#socialwindow').css('display', 'none');
+            this.jqSocialWindow.css('display', 'none');
         }
     }
     setPartyMembers(members) {
@@ -109,10 +113,10 @@ export default class SocialHandler {
 
     displayParty() {
         if (this.partymembers.length <= 1) {
-            $('#partynames').html('No party.');
+            this.jqPartyNames.html('No party.');
             return;
         } else {
-            $('#partyleave').show();
+            this.jqPartyLeave.show();
         }
 
         // FIX: party member names are untrusted/server-controlled; escape before inserting as HTML to prevent XSS
@@ -128,15 +132,15 @@ export default class SocialHandler {
                 '</td></tr>';
         }
         htmlStr += '</table>';
-        $('#partynames').html(htmlStr);
+        this.jqPartyNames.html(htmlStr);
     }
 
     displayGuild() {
         if (this.guildmembers.length <= 0) {
-            $('#guildnames').html('No guild.');
+            this.jqGuildNames.html('No guild.');
             return;
         } else {
-            $('#guildleave').show();
+            this.jqGuildLeave.show();
         }
 
         // FIX: guild member names are untrusted/server-controlled; escape before inserting as HTML to prevent XSS
@@ -152,7 +156,7 @@ export default class SocialHandler {
                 '</td></tr>';
         }
         htmlStr += '</table>';
-        $('#guildnames').html(htmlStr);
+        this.jqGuildNames.html(htmlStr);
     }
 
     isPartyLeader(name) {

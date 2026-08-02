@@ -6,25 +6,25 @@ export default class ConfirmDialog extends Dialog {
         super(game, '#dialogModalConfirm'); // FIX (conversion): this._super(game, '#dialogModalConfirm') -> super(game, '#dialogModalConfirm')
         this.setScale();
 
-        this.modalParent = $('#dialogModal');
-        this.modal = $('#dialogModalConfirm');
+        this.jqModalParent = $('#dialogModal');
+        this.jqModal = $('#dialogModalConfirm');
 
-        this.modalConfirmMessage = $('#dialogModalConfirmMessage');
-        this.modalConfirmButton1 = $('#dialogModalConfirmButton1');
-        this.modalConfirmButton2 = $('#dialogModalConfirmButton2');
+        this.jqModalConfirmMessage = $('#dialogModalConfirmMessage');
+        this.jqModalConfirmButton1 = $('#dialogModalConfirmButton1');
+        this.jqModalConfirmButton2 = $('#dialogModalConfirmButton2');
 
         this.confirmCallback = null;
 
         const self = this;
 
-        this.modalConfirmButton1.click(function (event) {
+        this.jqModalConfirmButton1.click(function (event) {
             self.hide();
 
             if (self.confirmCallback) {
                 self.confirmCallback(true);
             }
         });
-        this.modalConfirmButton2.click(function (event) {
+        this.jqModalConfirmButton2.click(function (event) {
             self.hide();
 
             if (self.confirmCallback) {
@@ -43,21 +43,21 @@ export default class ConfirmDialog extends Dialog {
 
     show() {
         this.rescale();
-        this.modalParent.css('display', 'block');
-        this.modal.css('display', 'block');
+        this.jqModalParent.css('display', 'block');
+        this.jqModal.css('display', 'block');
         super.show(); // FIX (conversion): this._super() -> super.show()
     }
 
     hide() {
-        this.modalParent.css('display', 'none');
-        this.modal.css('display', 'none');
+        this.jqModalParent.css('display', 'none');
+        this.jqModal.css('display', 'none');
         super.hide(); // FIX (conversion): this._super() -> super.hide()
     }
 
     confirm(message, callback) {
         this.confirmCallback = callback;
 
-        this.modalConfirmMessage.text(message);
+        this.jqModalConfirmMessage.text(message);
         this.show();
     }
 }

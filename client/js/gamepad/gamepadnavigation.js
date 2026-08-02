@@ -1,36 +1,32 @@
 // Extracted from gamepad.js: the per-UI-context navigation dispatch (funcNavigation's
 // if/else-if chain). Each branch checks which dialog/window is currently visible and moves
 // the on-screen selection accordingly. Called from gamepad.js's funcNavigation() wrapper.
-import {
-    Navigate,
-    jqBankWindow,
-    jqInventoryWindow,
-    jqLeaderWindow,
-    jqLooksPreview,
-    jqMenuWindow,
-    jqSettingsWindow,
-    jqSkillWindow,
-    jqStatWindow
-} from './gamepad.js';
+import { Navigate } from './gamepad.js';
 /* global Utils, ShortcutData, ShortcutStyle, game */
 
+// jqBankWindow/jqInventoryWindow/jqLeaderWindow/jqLooksPreview/jqMenuWindow/
+// jqSettingsWindow/jqSkillWindow/jqStatWindow/jqStorePageNavPrev/jqStorePageNavNext/
+// jqChangeLookPrev/jqChangeLookNext are all cached once on `self` (the Gamepad instance) by
+// Gamepad's constructor (gamepad.js) - runGamepadNavigation runs on every navigation tick, so
+// unlike the install*(self) mixins, it can't do its own one-time caching itself.
 export function runGamepadNavigation(self, navigate) {
     if (
         game.storeDialog.visible ||
         game.auctionDialog.visible ||
-        (game.appearanceDialog.visible && !jqLooksPreview.is(':visible')) ||
+        (game.appearanceDialog.visible && !self.jqLooksPreview.is(':visible')) ||
         game.craftDialog.visible
     ) {
         if (navigate === Navigate.UP) {
             self.joystickY = Utils.clamp(0, 5, self.joystickY - 1);
             if (self.joystickY === 0) {
                 const index = self.storeDialogSide[self.joystickX];
-                self.setSelectedItem($(index));
+                const jqIndex = $(index);
+                self.setSelectedItem(jqIndex);
                 if (self.joystickX === 3) {
                     self.joystickX = 0;
                     self.joystickY = 0;
                 }
-                $(index).trigger('click');
+                jqIndex.trigger('click');
             } else {
                 const index = self.storeDialogBuyButton.format(
                     self.joystickY - 1
@@ -51,10 +47,11 @@ export function runGamepadNavigation(self, navigate) {
             if (self.joystickY === 0) {
                 self.joystickX = Utils.clamp(0, 3, self.joystickX - 1);
                 const index = self.storeDialogSide[self.joystickX];
-                self.setSelectedItem($(index));
-                $(index).trigger('click');
+                const jqIndex = $(index);
+                self.setSelectedItem(jqIndex);
+                jqIndex.trigger('click');
             } else {
-                $('#storePageNavPrev').trigger('click');
+                self.jqStorePageNavPrev.trigger('click');
             }
         }
         if (navigate === Navigate.RIGHT) {
@@ -65,23 +62,24 @@ export function runGamepadNavigation(self, navigate) {
                     self.joystickX = 0;
                     self.joystickY = 0;
                 }
-                self.setSelectedItem($(index));
-                $(index).trigger('click');
+                const jqIndex = $(index);
+                self.setSelectedItem(jqIndex);
+                jqIndex.trigger('click');
             } else {
-                $('#storePageNavNext').trigger('click');
+                self.jqStorePageNavNext.trigger('click');
             }
         }
-    } else if (jqLooksPreview.is(':visible')) {
+    } else if (self.jqLooksPreview.is(':visible')) {
         if (!game.appearanceDialog.unlockLookMode) {
             if (navigate === Navigate.LEFT) {
-                $('#changeLookPrev').trigger('click');
+                self.jqChangeLookPrev.trigger('click');
             }
             if (navigate === Navigate.RIGHT) {
-                $('#changeLookNext').trigger('click');
+                self.jqChangeLookNext.trigger('click');
             }
         }
         return;
-    } else if (jqBankWindow.is(':visible')) {
+    } else if (self.jqBankWindow.is(':visible')) {
         let modx = 0,
             mody = 0;
         if (navigate === Navigate.UP) {
@@ -102,10 +100,11 @@ export function runGamepadNavigation(self, navigate) {
             self.joystickY = (self.joystickY + 16 + mody) % 16;
             const index = self.joystickY * 6 + self.joystickX;
             const jqi = self.playerBank.format(index);
-            $(jqi).get(0).scrollIntoView();
-            self.setSelectedItem($(jqi));
+            const jqElement = $(jqi);
+            jqElement.get(0).scrollIntoView();
+            self.setSelectedItem(jqElement);
         }
-    } else if (jqMenuWindow.is(':visible')) {
+    } else if (self.jqMenuWindow.is(':visible')) {
         const len = self.menuButtons.length;
         //{
         let mody = 0;
@@ -187,7 +186,7 @@ export function runGamepadNavigation(self, navigate) {
             );
         }
         return;
-    } else if (jqInventoryWindow.is(':visible')) {
+    } else if (self.jqInventoryWindow.is(':visible')) {
         let equipment = false;
         let modx = 0,
             mody = 0;
@@ -217,11 +216,12 @@ export function runGamepadNavigation(self, navigate) {
             if (equipment) {
                 index = self.playerEquipment[self.joystickX];
             }
-            $(index).get(0).scrollIntoView();
-            self.setSelectedItem($(index));
+            const jqIndex = $(index);
+            jqIndex.get(0).scrollIntoView();
+            self.setSelectedItem(jqIndex);
         }
         return;
-    } else if (jqSkillWindow.is(':visible')) {
+    } else if (self.jqSkillWindow.is(':visible')) {
         let modx = 0;
         let mody = 0;
         if (navigate === Navigate.UP) {
@@ -242,10 +242,11 @@ export function runGamepadNavigation(self, navigate) {
             const index = self.playerDialogSkill.format(
                 self.joystickY * 4 + self.joystickX
             );
-            self.setSelectedItem($(index));
-            $(index).trigger('click');
+            const jqIndex = $(index);
+            self.setSelectedItem(jqIndex);
+            jqIndex.trigger('click');
         }
-    } else if (jqStatWindow.is(':visible')) {
+    } else if (self.jqStatWindow.is(':visible')) {
         if (navigate === Navigate.UP) {
             self.joystickY = Utils.clamp(0, 4, self.joystickY - 1);
             const index = self.playerDialogStat[self.joystickY];
@@ -256,7 +257,7 @@ export function runGamepadNavigation(self, navigate) {
             const index = self.playerDialogStat[self.joystickY];
             self.setSelectedItem($(index));
         }
-    } else if (jqSettingsWindow.is(':visible')) {
+    } else if (self.jqSettingsWindow.is(':visible')) {
         if (navigate === Navigate.UP) {
             self.joystickY = Utils.clamp(0, 5, self.joystickY - 1);
             const index = self.playerSettings[self.joystickY];
@@ -267,7 +268,7 @@ export function runGamepadNavigation(self, navigate) {
             const index = self.playerSettings[self.joystickY];
             self.setSelectedItem($(index));
         }
-    } else if (jqLeaderWindow.is(':visible')) {
+    } else if (self.jqLeaderWindow.is(':visible')) {
         if (navigate === Navigate.LEFT) {
             const index = self.leaderboardselect[0];
             self.setSelectedItem($(index));

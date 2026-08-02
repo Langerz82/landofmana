@@ -96,10 +96,11 @@ export default class SkillHandler {
     constructor(game) {
         this.game = game;
         this.skills = [];
-        this.container = $('#skillcontainer');
+        this.jqContainer = $('#skillcontainer');
         this.activeSkills = [];
 
-        $('#skillsCloseButton').click(function () {
+        const jqSkillsCloseButton = $('#skillsCloseButton');
+        jqSkillsCloseButton.click(function () {
             ShortcutData = null;
         });
     }

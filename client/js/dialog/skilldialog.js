@@ -7,8 +7,8 @@ import SkillData from '../data/skilldata.js';
 class Skill {
     constructor(parent, i, level, position) {
         const id = (this.id = '#skill' + i);
-        this.background = $(id);
-        this.body = $(id + ' .skillbody');
+        this.jqBackground = $(id);
+        this.jqBody = $(id + ' .skillbody');
         this.jqCooltime = $(id + ' .skillcd');
         this.levels = [];
         this.level = level;
@@ -31,8 +31,12 @@ class Skill {
         const fnSelectSkill = function (index) {
             self.parent.clearHighlight();
             self.parent.selectedSkill = self;
-            self.body.css('border', self.scale + 'px solid #f00');
-            $('#skillDetail').html(self.detail);
+            self.jqBody.css('border', self.scale + 'px solid #f00');
+            // NOTE: reuses SkillPage's cached jqSkillDetail (this Skill instance is
+            // recreated on every setSkills()/assign() pass, so caching '#skillDetail'
+            // here on the Skill itself would just re-query the DOM just as often;
+            // the parent SkillPage lives for the dialog's lifetime instead).
+            self.parent.jqSkillDetail.html(self.detail);
             ShortcutData = self;
         };
 
@@ -47,7 +51,7 @@ class Skill {
             }
         };
 
-        this.body.data('skillIndex', this.index);
+        this.jqBody.data('skillIndex', this.index);
 
         // FIX: setSkills()/assign() constructs a brand-new Skill for the same
         // `#skill<i>` DOM node every time it runs (every "player info" response, e.g.
@@ -56,12 +60,12 @@ class Skill {
         // dragstart/click handlers on the shared node, so a single click executed the
         // skill once per past dialog-open. Unbind this element's handlers before
         // rebinding (mirrors the same fix already applied in dialog.js/socialhandler.js).
-        this.body.off('dragstart').bind('dragstart', function (event) {
+        this.jqBody.off('dragstart').bind('dragstart', function (event) {
             fnSelectSkill($(this).data('skillIndex'));
             log.info('Began DragStart.');
         });
 
-        this.body.off('click').on('click', function (event) {
+        this.jqBody.off('click').on('click', function (event) {
             clickSkill($(this).data('skillIndex'));
             event.stopPropagation();
         });
@@ -93,7 +97,7 @@ class Skill {
         const scale = (this.scale = game.renderer.getUiScaleFactor());
         const position = this.position;
 
-        this.body.css({
+        this.jqBody.css({
             position: 'absolute',
             left: '0',
             top: '0',
@@ -102,7 +106,7 @@ class Skill {
             display: 'none'
         });
         if (position) {
-            this.body.css({
+            this.jqBody.css({
                 'background-image':
                     'url("img/' + scale + '/misc/skillicons.png")',
                 'background-position':
@@ -126,11 +130,11 @@ class Skill {
     setLevel(value) {
         this.level = value;
         if (value > 0) {
-            this.body.css('display', 'inline');
-            if (this.body[0]) this.body[0].draggable = true;
+            this.jqBody.css('display', 'inline');
+            if (this.jqBody[0]) this.jqBody[0].draggable = true;
         } else {
-            this.body.css('display', 'none');
-            if (this.body[0]) this.body[0].draggable = false;
+            this.jqBody.css('display', 'none');
+            if (this.jqBody[0]) this.jqBody[0].draggable = false;
         }
     }
 }
@@ -140,6 +144,7 @@ class SkillPage extends TabPage {
         super(parent, '#frameSkillsPage'); // FIX (conversion): this._super(parent, '#frameSkillsPage') -> super(parent, '#frameSkillsPage')
         this.skills = [];
         this.selectedSkill = null;
+        this.jqSkillDetail = $('#skillDetail');
         const self = this;
     }
 
@@ -165,15 +170,17 @@ class SkillPage extends TabPage {
         for (let i = this.skills.length - 1; i >= 0; --i) {
             const tSkill = this.skills[i];
             if (tSkill.skill) {
-                tSkill.skill.background.css({
+                tSkill.skill.jqBackground.css({
                     //'display': 'none'
                     'background-image':
                         'url("../img/' + scale + '/misc/itembackground.png")'
                 });
-                $('#skill' + i).attr('title', '');
                 // FIX: .html() with no argument is a getter and had no effect - the
                 // "Lv N" label was never actually cleared. Pass an empty string to clear it.
-                $('#skill' + i).html('');
+                // NOTE: reuses the Skill's own cached jqBackground - `#skill<i>` is the
+                // exact selector Skill's constructor already caches, so no need to re-query.
+                tSkill.skill.jqBackground.attr('title', '');
+                tSkill.skill.jqBackground.html('');
                 tSkill.level = 0;
             }
         }
@@ -197,7 +204,7 @@ class SkillPage extends TabPage {
                 const skill = new Skill(this, i, tSkill.level, data.iconOffset);
                 const ix = i % 4,
                     iy = Math.floor(i / 4);
-                skill.background.css({
+                skill.jqBackground.css({
                     position: 'absolute',
                     left: ix * 26 * scale + 'px',
                     top: iy * 26 * scale + 'px',
@@ -206,18 +213,21 @@ class SkillPage extends TabPage {
                     display: 'block'
                 });
                 this.skills[i].skill = skill;
-                $('#skill' + i).attr(
+                // NOTE: reuses skill.jqBackground/jqBody (cached in the Skill
+                // constructor for this exact `#skill<i>` / `#skill<i> .skillbody`
+                // selector) instead of re-querying the DOM here.
+                skill.jqBackground.attr(
                     'title',
                     data.name + ' Lv: ' + tSkill.level
                 );
-                $('#skill' + i + ' .skillbody').css({
+                skill.jqBody.css({
                     'text-align': 'center',
                     color: '#fff',
                     'line-height': 24 * scale + 'px',
                     'font-size': 6 * scale + 'px',
                     'font-weight': 'bold'
                 });
-                $('#skill' + i + ' .skillbody').html('Lv ' + tSkill.level);
+                skill.jqBody.html('Lv ' + tSkill.level);
                 skill.setLevel(tSkill.level);
             }
         }
@@ -227,7 +237,7 @@ class SkillPage extends TabPage {
         this.selectedSkill = null;
         for (let i = 0; i < this.skills.length; ++i) {
             if (this.skills[i].skill)
-                this.skills[i].skill.body.css('border', '3px solid black');
+                this.skills[i].skill.jqBody.css('border', '3px solid black');
         }
     }
 }
@@ -240,13 +250,13 @@ export default class SkillDialog extends Dialog {
 
         ShortcutData = null;
 
-        $('#skillsCloseButton')
+        const jqSkillsCloseTargets = $('#skillsCloseButton')
             .add('#skillsDialog')
-            .add('#game')
-            .on('click', function (event) {
-                if (ShortcutData) ShortcutData.parent.clearHighlight();
-                ShortcutData = null;
-            });
+            .add('#game');
+        jqSkillsCloseTargets.on('click', function (event) {
+            if (ShortcutData) ShortcutData.parent.clearHighlight();
+            ShortcutData = null;
+        });
     }
 
     show() {

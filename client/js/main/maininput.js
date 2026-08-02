@@ -76,6 +76,15 @@ export function installMainInput() {
     const jqAuctionSellDialog = $('#auctionSellDialog');
     const jqDialogModalNotify = $('#dialogModalNotify');
     const jqDialogModalConfirm = $('#dialogModalConfirm');
+    const jqDialogModalNotifyButton1 = $('#dialogModalNotifyButton1');
+    const jqDialogModalConfirmButton1 = $('#dialogModalConfirmButton1');
+    const jqDialogModalConfirmButton2 = $('#dialogModalConfirmButton2');
+    const jqErrorWindow = $('#errorwindow');
+    const jqAuctionSellAccept = $('#auctionSellAccept');
+    const jqAuctionSellCancel = $('#auctionSellCancel');
+    const jqDropCount = $('#dropCount');
+    const jqDiedWindow = $('#diedwindow');
+    const jqRespawn = $('#respawn');
 
     const jqShortcut = [];
     for (let i = 0; i < 8; ++i) jqShortcut[i] = $('#shortcut' + i);
@@ -214,10 +223,10 @@ export function installMainInput() {
         if (key === Types.Keys.ENTER) {
             // Enter
             if (jqDialogModalNotify.is(':visible')) {
-                $('#dialogModalNotifyButton1').trigger('click');
+                jqDialogModalNotifyButton1.trigger('click');
                 return false;
             } else if (jqDialogModalConfirm.is(':visible')) {
-                $('#dialogModalConfirmButton1').trigger('click');
+                jqDialogModalConfirmButton1.trigger('click');
                 return false;
             } else if (game.started) {
                 app.showChat(!jqChatbox.hasClass('active'));
@@ -230,10 +239,10 @@ export function installMainInput() {
             // notify dialog was visible and wrongly clicked the notify button while the confirm dialog was visible.
             // First branch now checks jqDialogModalNotify, matching the parallel ENTER-key handler above.
             if (jqDialogModalNotify.is(':visible')) {
-                $('#dialogModalNotifyButton1').trigger('click');
+                jqDialogModalNotifyButton1.trigger('click');
                 return false;
             } else if (jqDialogModalConfirm.is(':visible')) {
-                $('#dialogModalConfirmButton2').trigger('click');
+                jqDialogModalConfirmButton2.trigger('click');
                 return false;
             }
         }
@@ -303,25 +312,25 @@ export function installMainInput() {
         }
     });
 
-    $('#errorwindow').keydown(function (e) {
+    jqErrorWindow.keydown(function (e) {
         if (e.which === 13) {
             location.reload();
             return false;
         }
     });
 
-    $('#auctionSellDialog').keydown(function (e) {
+    jqAuctionSellDialog.keydown(function (e) {
         const key = e.which;
         if (key === Types.Keys.ENTER) {
-            $('#auctionSellAccept').trigger('click');
+            jqAuctionSellAccept.trigger('click');
             return false;
         } else if (key === Types.Keys.ESCAPE) {
-            $('#auctionSellCancel').trigger('click');
+            jqAuctionSellCancel.trigger('click');
             return false;
         }
     });
 
-    $('#dropCount').keydown(function (e) {
+    jqDropCount.keydown(function (e) {
         const key = e.which;
         if (key === Types.Keys.ENTER) {
             jqDropAccept.trigger('click');
@@ -332,9 +341,9 @@ export function installMainInput() {
         }
     });
 
-    $('#diedwindow').keydown(function (e) {
+    jqDiedWindow.keydown(function (e) {
         if (e.which === Types.Keys.ENTER) {
-            $('#respawn').trigger('click');
+            jqRespawn.trigger('click');
             return false;
         }
     });
@@ -366,7 +375,7 @@ export function installMainInput() {
         }
     });
 
-    $('#chatinput').focus(function (e) {
+    jqChatInput.focus(function (e) {
         const placeholder = $(this).attr('placeholder');
 
         if (!Detect.isFirefoxAndroid()) {

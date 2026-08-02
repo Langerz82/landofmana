@@ -14,14 +14,14 @@ export function installAppUI(proto) {
     proto.showPlayerLoad = function () {
         this.jqPlayerLoad.show();
         this.jqPlayerSelect.show();
-        $('#lbl_player_select').show();
+        this.jqLblPlayerSelect.show();
         this.jqPlayerCreateForm.hide();
     };
 
     proto.showPlayerCreate = function () {
         this.jqPlayerLoad.hide();
         this.jqPlayerSelect.hide();
-        $('#lbl_player_select').hide();
+        this.jqLblPlayerSelect.hide();
         this.jqPlayerCreateForm.show();
     };
 
@@ -64,7 +64,6 @@ export function installAppUI(proto) {
     };
 
     proto.npcDialoguePic = function (entity) {
-        const jqPic = $('#npcDialoguePic');
         const scale = 2;
 
         const sprite = entity.getSprite();
@@ -79,18 +78,29 @@ export function installAppUI(proto) {
         const width2 = sprite.width * scale;
         const height2 = sprite.height * scale;
 
-        jqPic.css('width', '' + ~~width2 + 'px');
-        jqPic.css('height', '' + ~~(height2 * 0.75) + 'px');
-        jqPic.css('background-position', '-' + ~~oc + 'px -' + ~~or + 'px');
-        jqPic.css('transform', 'scale(1.5)');
+        app.jqNpcDialoguePic.css('width', '' + ~~width2 + 'px');
+        app.jqNpcDialoguePic.css('height', '' + ~~(height2 * 0.75) + 'px');
+        app.jqNpcDialoguePic.css(
+            'background-position',
+            '-' + ~~oc + 'px -' + ~~or + 'px'
+        );
+        app.jqNpcDialoguePic.css('transform', 'scale(1.5)');
 
-        jqPic.css('background-image', 'url("' + sprite.filepath + '")');
+        app.jqNpcDialoguePic.css(
+            'background-image',
+            'url("' + sprite.filepath + '")'
+        );
     };
 
     //Init the hud that makes it show what creature you are mousing over and attacking
     proto.initTargetHud = function () {
         const guiScale = game.renderer.getUiScaleFactor();
 
+        // app.jqTarget/jqTargetName/jqTargetHealth/jqTargetHealthText/jqTargetHealthChild/
+        // jqCombatContainer are cached once in App's constructor (app.js) and reused here by
+        // the onSetTarget/onUpdateTarget/onRemoveTarget callbacks registered below, which fire
+        // repeatedly for the lifetime of these listeners - `app.` (not `this.`) is used
+        // because these are plain (non-arrow) callbacks with no bound `this`.
         if (game.player) {
             game.player.onSetTarget(function (target, mouseover) {
                 let targetName = target.name;
@@ -109,13 +119,11 @@ export function installAppUI(proto) {
                     else targetName = mobData.key;
                 }
 
-                const el = '#target';
-
                 targetName = targetName.capitalizeFirstLetter();
-                $(el + ' .name').text(targetName + ' Lv' + target.level);
+                app.jqTargetName.text(targetName + ' Lv' + target.level);
 
                 if (target.stats.hp) {
-                    $('#target-health').css(
+                    app.jqTargetHealth.css(
                         'width',
                         Math.round(
                             (target.stats.hp / target.stats.hpMax) *
@@ -123,14 +131,14 @@ export function installAppUI(proto) {
                                 guiScale
                         ) + 'px'
                     );
-                    $('#target-healthtext').html(
+                    app.jqTargetHealthText.html(
                         'HP: ' + target.stats.hp + '/' + target.stats.hpMax
                     );
                 } else {
-                    $('#target-health').css('width', 60 * guiScale + 'px');
+                    app.jqTargetHealth.css('width', 60 * guiScale + 'px');
                 }
 
-                $(el).fadeIn('fast');
+                app.jqTarget.fadeIn('fast');
             });
         }
 
@@ -138,33 +146,30 @@ export function installAppUI(proto) {
             log.info(
                 'targetHealth: ' + target.stats.hp + ' ' + target.stats.hpMax
             );
-            $('#target-health').css(
+            app.jqTargetHealth.css(
                 'width',
                 Math.round(
                     (target.stats.hp / target.stats.hpMax) * 60 * guiScale
                 ) + 'px'
             );
-            $('#target-healthtext').html(
+            app.jqTargetHealthText.html(
                 'HP: ' + target.stats.hp + '/' + target.stats.hpMax
             );
         });
 
         if (game.player) {
             game.player.onRemoveTarget(function (targetId) {
-                $('#target').fadeOut('fast');
-                $('#target .health').css('width', 60 * guiScale + 'px');
+                app.jqTarget.fadeOut('fast');
+                app.jqTargetHealthChild.css('width', 60 * guiScale + 'px');
 
-                $('#combatContainer').fadeOut('fast');
+                app.jqCombatContainer.fadeOut('fast');
             });
         }
     };
 
     proto.initExpBar = function () {
-        let maxWidth = parseInt($('#expbar').width());
-
-        const jqExp = $('#exp');
-        const jqExpBar = $('#expbar');
-        const jqExpLevel = $('#explevel');
+        // app.jqExp/jqExpBar/jqExpLevel cached once in App's constructor (app.js).
+        let maxWidth = parseInt(app.jqExpBar.width());
 
         game.onPlayerExpChange(function (level, exp) {
             const prevLvlExp = Types.expForLevel[level - 1];
@@ -172,63 +177,61 @@ export function installAppUI(proto) {
             const expForLevelUp = Types.expForLevel[level] - prevLvlExp;
 
             if (!expInThisLevel && !expForLevelUp) {
-                jqExp.css('width', '0px');
-                jqExpBar.attr('title', 'Exp: 0%');
-                jqExpBar.html('Exp: 0%');
+                app.jqExp.css('width', '0px');
+                app.jqExpBar.attr('title', 'Exp: 0%');
+                app.jqExpBar.html('Exp: 0%');
                 return;
             }
 
-            maxWidth = parseInt($('#expbar').width());
+            maxWidth = parseInt(app.jqExpBar.width());
             const rate = Utils.clamp(0, 1, expInThisLevel / expForLevelUp);
 
             const rateFmt = Utils.Percent(rate, 0);
-            jqExp.css('width', rateFmt);
-            jqExpBar.attr('title', 'Exp: ' + rateFmt);
-            jqExpBar.html('Exp: ' + rateFmt);
-            jqExpLevel.html(level);
+            app.jqExp.css('width', rateFmt);
+            app.jqExpBar.attr('title', 'Exp: ' + rateFmt);
+            app.jqExpBar.html('Exp: ' + rateFmt);
+            app.jqExpLevel.html(level);
         });
     };
 
     proto.initHealthBar = function () {
-        let healthMaxWidth = $('#statbars').width();
+        // app.jqStatBars/jqHealth/jqHealthText cached once in App's constructor (app.js).
+        let healthMaxWidth = app.jqStatBars.width();
         log.info('healthMaxWidth=' + healthMaxWidth);
 
-        const jqHealth = $('#health');
-        const jqHealthText = $('#healthtext');
-
         game.onPlayerHealthChange(function (hp, maxHp) {
-            healthMaxWidth = $('#statbars').width();
+            healthMaxWidth = app.jqStatBars.width();
             const barWidth = Math.round(
                 (healthMaxWidth / maxHp) * (hp > 0 ? hp : 0)
             );
-            jqHealth.css('width', barWidth + 'px');
-            jqHealthText.html('HP: ' + hp + '/' + maxHp);
+            app.jqHealth.css('width', barWidth + 'px');
+            app.jqHealthText.html('HP: ' + hp + '/' + maxHp);
         });
 
         game.onPlayerHurt(this.blinkHealthBar.bind(this));
     };
 
     proto.blinkHealthBar = function () {
-        const $hitpoints = $('#health');
-
-        $hitpoints.addClass('white');
+        // app.jqHealth cached once in App's constructor (app.js); shared with initHealthBar.
+        app.jqHealth.addClass('white');
         setTimeout(function () {
-            $hitpoints.removeClass('white');
+            app.jqHealth.removeClass('white');
         }, 500);
     };
 
     proto.initMenuButton = function () {
         log.info('initMenuButton');
 
+        // app.jqMenuContainer/jqCharacterMenu cached once in App's constructor (app.js).
         $(document).ready(function () {
-            $('#menucontainer').css('display', 'none');
+            app.jqMenuContainer.css('display', 'none');
         });
 
-        $('#charactermenu').click(function (e) {
-            if ($('#menucontainer').is(':visible')) {
-                $('#menucontainer').fadeOut();
+        app.jqCharacterMenu.click(function (e) {
+            if (app.jqMenuContainer.is(':visible')) {
+                app.jqMenuContainer.fadeOut();
             } else {
-                $('#menucontainer').show();
+                app.jqMenuContainer.show();
             }
         });
 
@@ -237,68 +240,69 @@ export function installAppUI(proto) {
         });
 
         $(document).ready(function () {
-            $('#menucontainer').on('click', 'div', function (e) {
-                $('#menucontainer').fadeOut();
+            app.jqMenuContainer.on('click', 'div', function (e) {
+                app.jqMenuContainer.fadeOut();
             });
         });
 
-        $('#menucontainer').click(function (e) {
-            $('#menucontainer').fadeOut();
+        app.jqMenuContainer.click(function (e) {
+            app.jqMenuContainer.fadeOut();
         });
     };
 
     proto.initCombatBar = function () {
-        const container = '#combatContainer';
-        $(container)
-            .children()
-            .click(function (e) {
-                $(container).children().removeClass('lightup');
-                $(this).addClass('lightup');
-            });
-        $(container).children().eq(1).addClass('lightup');
+        // app.jqCombatContainer cached once in App's constructor (app.js); shared with
+        // initTargetHud.
+        app.jqCombatContainer.children().click(function (e) {
+            app.jqCombatContainer.children().removeClass('lightup');
+            $(this).addClass('lightup');
+        });
+        app.jqCombatContainer.children().eq(1).addClass('lightup');
     };
 
     proto.hideIntro = function () {
         clearInterval(this.watchNameInputInterval);
-        $('body').removeClass('intro');
+        // app.jqBody cached once in App's constructor (app.js).
+        app.jqBody.removeClass('intro');
         setTimeout(function () {
-            $('body').addClass('game');
+            app.jqBody.addClass('game');
         }, 500);
     };
 
     proto.showChat = function (flag) {
         if (game.started) {
             if (flag) {
-                $('#chatbox').addClass('active');
-                $('#chatinput').focus();
-                $('#chatbutton').addClass('active');
+                this.jqChatbox.addClass('active');
+                this.jqChatInput.focus();
+                this.jqChatButton.addClass('active');
             } else {
-                $('#chatbox').removeClass('active');
-                $('#chatinput').blur();
-                $('#chatbutton').removeClass('active');
+                this.jqChatbox.removeClass('active');
+                this.jqChatInput.blur();
+                this.jqChatButton.removeClass('active');
             }
         }
     };
 
     proto.showChatLog = function () {
         if (game.started) {
-            $('#chatbutton').addClass('active');
-            $('#chatLog').hide();
+            this.jqChatButton.addClass('active');
+            this.jqChatLog.hide();
         }
     };
 
     proto.hideChatLog = function () {
         if (game.started) {
-            $('#chatbutton').removeClass('active');
-            $('#chatLog').css('display', 'flex');
+            this.jqChatButton.removeClass('active');
+            this.jqChatLog.css('display', 'flex');
         }
     };
 
     proto.showDropDialog = function (dropAction) {
         if (game.started) {
-            $('#dropDialog').show();
-            $('#dropCount').focus();
-            $('#dropCount').select();
+            // this.jqDropCount cached once in App's constructor (app.js).
+            this.jqDropDialog.show();
+            this.jqDropCount.focus();
+            this.jqDropCount.select();
 
             this.dropAction = dropAction;
             this.dropDialogPopuped = true;
@@ -307,7 +311,7 @@ export function installAppUI(proto) {
 
     proto.hideDropDialog = function () {
         if (game.started) {
-            $('#dropDialog').hide();
+            this.jqDropDialog.hide();
 
             this.dropDialogPopuped = false;
         }
@@ -315,9 +319,10 @@ export function installAppUI(proto) {
 
     proto.showAuctionSellDialog = function (inventoryNumber) {
         if (game.started) {
-            $('#auctionSellDialog').show();
-            $('#auctionSellCount').focus();
-            $('#auctionSellCount').select();
+            // this.jqAuctionSellCount cached once in App's constructor (app.js).
+            this.jqAuctionSellDialog.show();
+            this.jqAuctionSellCount.focus();
+            this.jqAuctionSellCount.select();
 
             this.inventoryNumber = inventoryNumber;
             this.auctionsellDialogPopuped = true;
@@ -326,7 +331,7 @@ export function installAppUI(proto) {
 
     proto.hideAuctionSellDialog = function () {
         if (game.started) {
-            $('#auctionSellDialog').hide();
+            this.jqAuctionSellDialog.hide();
 
             this.auctionsellDialogPopuped = false;
         }
@@ -335,13 +340,21 @@ export function installAppUI(proto) {
     proto.hideWindows = function () {};
 
     proto.loadWindow = function (origin, destination) {
+        // TODO: origin/destination are computed selectors, and this function is called with
+        // many different id pairs across the codebase (not just 'user_window'/'player_window' -
+        // see also 'playerwindow'/'errorwindow' in gameclient.js, 'loginWindow'/'passwordWindow'
+        // in main.js, 'loginwindow'/'errorwindow' in userclient.js), so there's no single fixed
+        // pair of elements to cache here the way the other selectors in this file were. It's
+        // also called once synchronously from App's constructor before this.jqUserWindow/
+        // this.jqPlayerWindow (set later in that same constructor) are populated, so even the
+        // two most common id values couldn't be pre-cached as a special case without reordering
+        // the constructor.
         $('#' + origin).hide();
         $('#' + destination).show();
         if (destination !== 'user_window') {
-            $('#aboutbutton').hide();
+            this.jqAboutButton.hide();
         }
-        if (destination === 'player_window') $('#user_remove').show();
-        this.initFormFields();
+        if (destination === 'player_window') this.jqUserRemove.show();
     };
 
     proto.resizeUi = function () {
@@ -357,8 +370,8 @@ export function installAppUI(proto) {
 
     proto.onUserReady = function () {
         app.userReady = true;
-        $('#user_create').removeClass('loading');
-        $('#user_load').removeClass('loading');
-        app.$loginInfo.text('Connected.');
+        app.jqUserCreate.removeClass('loading');
+        app.jqUserLoad.removeClass('loading');
+        app.jqLoginInfo.text('Connected.');
     };
 }

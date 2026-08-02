@@ -1,25 +1,27 @@
 // Extracted from gamepad.js/gamepadbuttons.js: the 'a' (accept/confirm) button binding.
 // Installed once from gamepad.js's constructor via install*(self).
-import {
-    getGamePadShortcut,
-    setGamePadShortcut,
-    jqAuctionSellWindow,
-    jqBankWindow,
-    jqConfirmWindow,
-    jqDiedWindow,
-    jqDropWindow,
-    jqInventoryWindow,
-    jqLooksPreview,
-    jqMenuWindow,
-    jqNotifyWindow,
-    jqPlayerPopupWindow,
-    jqSettingsWindow,
-    jqSkillWindow,
-    jqStatWindow
-} from './gamepad.js';
+import { getGamePadShortcut, setGamePadShortcut } from './gamepad.js';
 /* global DragItem, ShortcutData, game, log */
 
 export function installGamepadButtonsAction(self) {
+    // Selector lookups used repeatedly inside the 'a' button handler below - cached once here
+    // (installGamepadButtonsAction runs once, from Gamepad's constructor) as properties on
+    // `self` (the Gamepad instance) instead of re-querying the DOM on every button press.
+    // jqAuctionSellWindow/jqBankWindow/jqConfirmWindow/jqDiedWindow/jqDropWindow/
+    // jqInventoryWindow/jqLooksPreview/jqMenuWindow/jqNotifyWindow/jqPlayerPopupWindow/
+    // jqSettingsWindow/jqSkillWindow/jqStatWindow are already set on `self` by Gamepad's
+    // constructor (gamepad.js) before this function runs.
+    self.jqDialogModalConfirmButton1 = $('#dialogModalConfirmButton1');
+    self.jqDialogModalNotifyButton1 = $('#dialogModalNotifyButton1');
+    self.jqAuctionSellAccept = $('#auctionSellAccept');
+    self.jqRespawn = $('#respawn');
+    self.jqSocialConfirm = $('#socialconfirm');
+    self.jqSocialConfirmYes = $('#socialconfirmyes');
+    self.jqDropAccept = $('#dropAccept');
+    self.jqChangeLookUnlock = $('#changeLookUnlock');
+    // self.jqChangeLookNext/self.jqCharacterMenu already set on `self` by Gamepad's
+    // constructor (gamepad.js).
+
     self.pxgamepad.buttonOn('a', function () {
         log.info('buttonOn = a');
         if (self.leftTopPressed) {
@@ -32,47 +34,49 @@ export function installGamepadButtonsAction(self) {
         }
 
         if (self.isDialogOpen()) {
-            if (jqConfirmWindow.is(':visible')) {
-                $('#dialogModalConfirmButton1').trigger('click');
+            if (self.jqConfirmWindow.is(':visible')) {
+                self.jqDialogModalConfirmButton1.trigger('click');
                 return;
             }
-            if (jqNotifyWindow.is(':visible')) {
-                $('#dialogModalNotifyButton1').trigger('click');
+            if (self.jqNotifyWindow.is(':visible')) {
+                self.jqDialogModalNotifyButton1.trigger('click');
                 return;
             }
             if (
                 game.storeDialog.visible ||
                 game.auctionDialog.visible ||
                 (game.appearanceDialog.visible &&
-                    !jqLooksPreview.is(':visible')) ||
+                    !self.jqLooksPreview.is(':visible')) ||
                 game.craftDialog.visible
             ) {
                 if (self.selectedItem) {
                     self.selectedItem.trigger('click');
                 }
             }
-            if (jqAuctionSellWindow.is(':visible')) {
-                $('#auctionSellAccept').trigger('click');
+            if (self.jqAuctionSellWindow.is(':visible')) {
+                self.jqAuctionSellAccept.trigger('click');
                 return;
             }
-            if (jqDiedWindow.is(':visible')) {
-                $('#respawn').trigger('click');
+            if (self.jqDiedWindow.is(':visible')) {
+                self.jqRespawn.trigger('click');
                 return;
             }
-            if ($('#socialconfirm').is(':visible')) {
-                $('#socialconfirmyes').trigger('click');
-            } else if (jqPlayerPopupWindow.is(':visible')) {
+            if (self.jqSocialConfirm.is(':visible')) {
+                self.jqSocialConfirmYes.trigger('click');
+            } else if (self.jqPlayerPopupWindow.is(':visible')) {
+                // NOTE: self.playerMode is a runtime-computed selector (not cached - varies
+                // by state, no single fixed value to cache).
                 $(self.playerMode).trigger('click');
-            } else if (jqDropWindow.is(':visible')) {
-                $('#dropAccept').trigger('click');
+            } else if (self.jqDropWindow.is(':visible')) {
+                self.jqDropAccept.trigger('click');
                 return;
             }
-            if (jqLooksPreview.is(':visible')) {
+            if (self.jqLooksPreview.is(':visible')) {
                 if (game.appearanceDialog.unlockLookMode)
-                    $('#changeLookUnlock').trigger('click');
-                else $('#changeLookNext').trigger('click');
+                    self.jqChangeLookUnlock.trigger('click');
+                else self.jqChangeLookNext.trigger('click');
                 return;
-            } else if (jqSkillWindow.is(':visible')) {
+            } else if (self.jqSkillWindow.is(':visible')) {
                 if (game.selectedSkill) {
                     $(self.playerShortcut.format(self.shortcutAssign)).trigger(
                         'click'
@@ -96,14 +100,14 @@ export function installGamepadButtonsAction(self) {
                     }
                 }
                 return;
-            } else if (jqStatWindow.is(':visible')) {
+            } else if (self.jqStatWindow.is(':visible')) {
                 if (self.selectedItem) {
                     self.selectedItem.trigger('click');
                 }
-            } else if (jqBankWindow.is(':visible')) {
+            } else if (self.jqBankWindow.is(':visible')) {
                 if (self.selectedItem) self.selectedItem.trigger('click');
                 return;
-            } else if (jqInventoryWindow.is(':visible')) {
+            } else if (self.jqInventoryWindow.is(':visible')) {
                 if (self.selectedItem) {
                     self.selectedItem.trigger('click');
                 }
@@ -120,9 +124,9 @@ export function installGamepadButtonsAction(self) {
                     }
                 }
                 return;
-            } else if (jqMenuWindow.is(':visible')) {
+            } else if (self.jqMenuWindow.is(':visible')) {
                 if (self.selectedItem) self.selectedItem.trigger('click');
-            } else if (jqSettingsWindow.is(':visible')) {
+            } else if (self.jqSettingsWindow.is(':visible')) {
                 if (self.selectedItem) {
                     self.selectedItem.trigger('click');
                 }
@@ -139,7 +143,7 @@ export function installGamepadButtonsAction(self) {
               {
                 self.shortcutActive = true;
               }*/
-                    self.dialogOpen($('#charactermenu'));
+                    self.dialogOpen(self.jqCharacterMenu);
                 }
                 self.mainButtonsActive = false;
             }

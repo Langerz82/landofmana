@@ -16,8 +16,10 @@ export default class QuestHandler {
         this.showlog = false;
 
         const self = this;
-        this.closeButton = $('#questCloseButton');
-        this.closeButton.click(function (event) {
+        this.jqCloseButton = $('#questCloseButton');
+        this.jqQuestLog = $('#questlog');
+        this.jqQuestLogInfoBody = $('#questLogInfo tbody');
+        this.jqCloseButton.click(function (event) {
             self.toggleShowLog();
         });
     }
@@ -42,7 +44,7 @@ export default class QuestHandler {
 
     questReloadLog() {
         this.quests = game.player.quests;
-        $('#questLogInfo tbody').find('tr:gt(0)').remove();
+        this.jqQuestLogInfoBody.find('tr:gt(0)').remove();
 
         const questIds = Object.keys(this.quests);
         for (let i = 0; i < questIds.length; ++i) {
@@ -99,7 +101,7 @@ export default class QuestHandler {
             sprite_content = sprite_content.replace(/%idName%/g, idName);
             sprite_content = sprite_content.replace(/%sprite%/g, spriteName);
 
-            $('#questLogInfo tbody').append(
+            this.jqQuestLogInfoBody.append(
                 "<tr id='qd" +
                     quest.id +
                     "'>" +
@@ -166,13 +168,13 @@ export default class QuestHandler {
     }
 
     questShowLog() {
-        $('#questlog').css('display', 'block');
-        $('#questCloseButton').css('display', 'block');
+        this.jqQuestLog.css('display', 'block');
+        this.jqCloseButton.css('display', 'block');
     }
 
     questHideLog() {
-        $('#questlog').css('display', 'none');
-        $('#questCloseButton').css('display', 'none');
+        this.jqQuestLog.css('display', 'none');
+        this.jqCloseButton.css('display', 'none');
     }
 
     handleQuest(quest) {

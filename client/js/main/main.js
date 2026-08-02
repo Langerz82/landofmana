@@ -86,55 +86,71 @@ const initApp = function (server) {
         DragItem = null;
         DragBank = null;
 
+        const jqBody = $('body');
+
         if (Detect.isWindows()) {
             // Workaround for graphical glitches on text
-            $('body').addClass('windows');
+            jqBody.addClass('windows');
         }
 
         if (Detect.isOpera()) {
             // Fix for no pointer events
-            $('body').addClass('opera');
+            jqBody.addClass('opera');
         }
 
+        const jqChatInput = $('#chatinput');
         if (Detect.isFirefoxAndroid()) {
             // Remove chat placeholder
-            $('#chatinput').removeAttr('placeholder');
+            jqChatInput.removeAttr('placeholder');
         }
 
-        $('.barbutton').click(function () {
+        const jqBarButton = $('.barbutton');
+        const jqAboutButton = $('#aboutbutton');
+        const jqAboutClose = $('#aboutclose');
+        // Hoisted above both click handlers below (was previously re-queried fresh inside
+        // each one, on every click) since #about_window is a single static element shared by
+        // both the open (aboutbutton) and close (aboutclose) handlers.
+        const jqAboutWindow = $('#about_window');
+        const jqChatButton = $('#chatbutton');
+        const jqChatbox = $('#chatbox');
+        const jqPopulation = $('#population');
+        const jqClickable = $('.clickable');
+        const jqChangePassword = $('#change-password');
+        const jqAttackShortcut = $('#attack-shortcut');
+        const jqClose = $('.close');
+
+        jqBarButton.click(function () {
             $(this).toggleClass('active');
         });
-        $('#aboutbutton').click(function () {
-            const about = $('#about_window');
-            about.toggle();
+        jqAboutButton.click(function () {
+            jqAboutWindow.toggle();
         });
-        $('#aboutclose').click(function () {
-            const about = $('#about_window');
-            about.hide();
+        jqAboutClose.click(function () {
+            jqAboutWindow.hide();
         });
 
-        $('#chatbutton').click(function () {
-            app.showChat(!$('#chatbox').hasClass('active'));
+        jqChatButton.click(function () {
+            app.showChat(!jqChatbox.hasClass('active'));
         });
 
-        $('#population').click(function () {
+        jqPopulation.click(function () {
             app.togglePopulationInfo();
         });
 
-        $('.clickable').click(function (event) {
+        jqClickable.click(function (event) {
             // FIX: handler's parameter is named `event`; `e` was undeclared and would throw a ReferenceError on click
             fnClickFunc(event);
         });
 
-        $('#change-password').click(function () {
+        jqChangePassword.click(function () {
             app.loadWindow('loginWindow', 'passwordWindow');
         });
 
-        $('#attack-shortcut').click(function () {
+        jqAttackShortcut.click(function () {
             game.makePlayerInteractNextTo();
         });
 
-        $('.close').click(function () {
+        jqClose.click(function () {
             app.hideWindows();
         });
 
@@ -166,24 +182,30 @@ const initGame = function () {
 
     game.onGameStart(function () {});
 
+    // Cached once here and reused by the onDisconnect/onClientError/onPlayerDeath callbacks
+    // below, which fire repeatedly over the game session (each disconnect/error/death),
+    // instead of re-querying the DOM on every call.
+    const jqErrorWindow = $('#errorwindow');
+    const jqDiedWindow = $('#diedwindow');
+
     game.onDisconnect(function (message) {
-        $('#errorwindow')
+        jqErrorWindow
             .find('p')
             .html(message + '<em>Disconnected. Please reload the page.</em>');
-        $('#errorwindow').show();
-        $('#errorwindow').focus();
+        jqErrorWindow.show();
+        jqErrorWindow.focus();
     });
 
     game.onClientError(function (message) {
-        $('#errorwindow').find('p').html(message);
-        $('#errorwindow').show();
-        $('#errorwindow').focus();
+        jqErrorWindow.find('p').html(message);
+        jqErrorWindow.show();
+        jqErrorWindow.focus();
     });
 
     game.onPlayerDeath(function () {
         game.player.dead();
-        $('#diedwindow').show();
-        $('#diedwindow').focus();
+        jqDiedWindow.show();
+        jqDiedWindow.focus();
     });
 
     game.onNotification(function (message) {
@@ -194,11 +216,17 @@ const initGame = function () {
     app.initExpBar();
     app.initPlayerBar();
 
-    $('#nameinput').attr('value', '');
-    $('#pwinput').attr('value', '');
-    $('#pwinput2').attr('value', '');
-    $('#emailinput').attr('value', '');
-    $('#chatbox').attr('value', '');
+    const jqNameInput = $('#nameinput');
+    const jqPwInput = $('#pwinput');
+    const jqPwInput2 = $('#pwinput2');
+    const jqEmailInput = $('#emailinput');
+    const jqChatbox = $('#chatbox');
+
+    jqNameInput.attr('value', '');
+    jqPwInput.attr('value', '');
+    jqPwInput2.attr('value', '');
+    jqEmailInput.attr('value', '');
+    jqChatbox.attr('value', '');
 
     const fnClickFunc = function (e) {
         app.center();
@@ -221,15 +249,17 @@ const initGame = function () {
     };
 
     $(document).ready(function () {
-        $('#gui').on('click', function (event) {
+        const jqGui = $('#gui');
+        jqGui.on('click', function (event) {
             //event.preventDefault();
         });
         game.inventoryDialog.loadInventoryEvents();
     });
-    $('#respawn').click(function (event) {
+    const jqRespawn = $('#respawn');
+    jqRespawn.click(function (event) {
         game.audioManager.playSound('revive');
         game.respawnPlayer();
-        $('#diedwindow').hide();
+        jqDiedWindow.hide();
     });
 
     installMainUI();
@@ -239,7 +269,8 @@ const initGame = function () {
     installMainDialogs();
 
     if (game.tablet) {
-        $('body').addClass('tablet');
+        const jqBody = $('body');
+        jqBody.addClass('tablet');
     }
 
     document.addEventListener('DOMContentLoaded', function () {

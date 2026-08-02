@@ -13,7 +13,7 @@ export function installInventoryDialogSelection(proto) {
 
         const item = this.getItem(type, slot);
 
-        $('.inventorySellGold').html('0');
+        this.jqInventorySellGold.html('0');
         if (item) {
             const kind = item.itemKind;
             if (
@@ -30,7 +30,7 @@ export function installInventoryDialogSelection(proto) {
             }
         }
         if (item && this.selectedItem !== slot) {
-            $('.inventorySellGoldFrame').show();
+            this.jqInventorySellGoldFrame.show();
             this.selectItem(type, this.selectedItem, false);
             this.selectItem(type, slot, true);
             this.jqActionButton.data('itemType', type);
@@ -40,23 +40,23 @@ export function installInventoryDialogSelection(proto) {
             const kind = item.itemKind;
             if (game.inventoryMode === InventoryMode.MODE_AUCTION) {
                 const value = ~~(ItemTypes.getEnchantSellPrice(item) / 2);
-                $('.inventorySellGold').html(parseInt(value));
+                this.jqInventorySellGold.html(parseInt(value));
             } else if (game.inventoryMode === InventoryMode.MODE_SELL) {
-                $('.inventorySellGold').html(
+                this.jqInventorySellGold.html(
                     parseInt(ItemTypes.getEnchantSellPrice(item))
                 );
             } else if (game.inventoryMode === InventoryMode.MODE_REPAIR) {
-                $('.inventorySellGold').html(
+                this.jqInventorySellGold.html(
                     parseInt(ItemTypes.getRepairPrice(item))
                 );
             } else if (game.inventoryMode === InventoryMode.MODE_ENCHANT) {
-                $('.inventorySellGold').html(
+                this.jqInventorySellGold.html(
                     parseInt(ItemTypes.getEnchantPrice(item))
                 );
             } else if (game.inventoryMode === InventoryMode.MODE_BANK) {
-                $('.inventorySellGoldFrame').hide();
+                this.jqInventorySellGoldFrame.hide();
             } else if (game.inventoryMode === InventoryMode.MODE_NORMAL) {
-                $('.inventorySellGoldFrame').hide();
+                this.jqInventorySellGoldFrame.hide();
             }
             return;
         }
@@ -92,7 +92,7 @@ export function installInventoryDialogSelection(proto) {
                     return;
 
                 const value = ~~(ItemTypes.getEnchantSellPrice(item) / 2);
-                $('#auctionSellCount').val(value);
+                this.jqAuctionSellCount.val(value);
                 game.app.showAuctionSellDialog(slot);
             } else if (game.inventoryMode === InventoryMode.MODE_SELL) {
                 if (ItemTypes.isLootItem(kind)) return;
@@ -143,10 +143,17 @@ export function installInventoryDialogSelection(proto) {
     };
 
     proto.selectItem = function (type, slot, select) {
-        let htmlItem = $('#inventoryitembackground' + slot); // FIX: missing var, was leaking an implicit global
-        if (type === 2) {
-            htmlItem = $('#equipBackground' + slot);
-        }
+        // NOTE: slot can be -1 (e.g. deselectItem() called with no prior selection).
+        // The old `$('#...' + slot)` lookup harmlessly matched nothing for a
+        // negative slot; array-indexing with a negative slot would instead return
+        // `undefined`, so fall back to an empty jQuery set to keep that behavior.
+        let htmlItem =
+            slot >= 0
+                ? type === 2
+                    ? this.jqEquipmentBackgrounds && this.jqEquipmentBackgrounds[slot]
+                    : this.jqInventoryItemBackgrounds[slot]
+                : null;
+        htmlItem = htmlItem || $(); // FIX: missing var, was leaking an implicit global
         this.selectedType = type;
         if (select) {
             this.selectedItem = slot;

@@ -103,10 +103,16 @@ export default class Renderer {
         // Assuming 'renderer' is your PIXI renderer object
         this.renderer.plugins.interaction.autoPreventDefault = false;
 
-        this.canvas = $('#canvas');
-        this.canvas.css({
+        this.jqCanvas = $('#canvas');
+        this.jqCanvas.css({
             cursor: 'none'
         });
+
+        // NOTE: cached here (rather than lazily in renderer/rendererdrawhud.js's
+        // showCutScene(), where it's used) since that's a mixin applied onto
+        // Renderer.prototype - see installRendererDrawHud(Renderer.prototype) below -
+        // and showCutScene() can run once per rendered frame while a cutscene is active.
+        this.jqContainer = $('#container');
 
         console.warn(this.renderer.type);
         if (this.renderer.type === PIXI.WEBGL_RENDERER) {

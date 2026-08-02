@@ -228,8 +228,17 @@ export default class Game {
 
         this.spriteJSON = new Sprites();
 
-        this.dialogueWindow = $('#npcDialog');
-        this.npcText = $('#npcText');
+        this.jqDialogueWindow = $('#npcDialog');
+        this.jqNpcText = $('#npcText');
+
+        // NOTE: cached here (rather than lazily in game/gamecallbacks.js, where they're
+        // used) since gamecallbacks.js's proto.onVersionGame/onPlayerLoad are mixed onto
+        // Game.prototype and run with `this` bound to this Game instance - see
+        // installGameCallbacks(Game.prototype) below.
+        this.jqContainer = $('#container');
+        this.jqValidationSummary = $('.validation-summary');
+        this.jqPlayerWindow = $('#player_window');
+        this.jqIntro = $('#intro');
 
         this.isFirefox = Detect.isFirefox();
         this.isCanary = Detect.isCanaryOnWindows();

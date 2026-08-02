@@ -1,37 +1,44 @@
 // Converted from AMD (define) + Class.extend to a native ES6 module/class.
 export default class PlayerPopupMenu {
     constructor(game) {
-        this.width = parseInt($('#playerPopupMenuContainer').css('width'));
-        this.height = parseInt($('#playerPopupMenuContainer').css('height'));
+        this.jqContainer = $('#playerPopupMenuContainer');
+        this.jqPartyInvite = $('#playerPopupMenuPartyInvite');
+        this.jqPartyLeader = $('#playerPopupMenuPartyLeader');
+        this.jqPartyKick = $('#playerPopupMenuPartyKick');
+        this.jqAttack = $('#playerPopupMenuAttack');
+        this.jqName = $('#playerPopupMenuName');
+
+        this.width = parseInt(this.jqContainer.css('width'));
+        this.height = parseInt(this.jqContainer.css('height'));
         this.game = game;
         this.selectedPlayer = null;
 
         const self = this;
-        $('#playerPopupMenuPartyInvite').click(function (event) {
+        this.jqPartyInvite.click(function (event) {
             if (self.selectedPlayer) {
                 self.game.client.sendPartyInvite(self.selectedPlayer.name, 0);
                 self.close();
             }
         });
-        $('#playerPopupMenuPartyLeader').click(function (event) {
+        this.jqPartyLeader.click(function (event) {
             if (self.selectedPlayer) {
                 self.game.client.sendPartyLeader(self.selectedPlayer.name);
                 self.close();
             }
         });
-        $('#playerPopupMenuPartyKick').click(function (event) {
+        this.jqPartyKick.click(function (event) {
             if (self.selectedPlayer) {
                 self.game.client.sendPartyKick(self.selectedPlayer.name);
                 self.close();
             }
         });
-        $('#playerPopupMenuAttack').click(function (event) {
+        this.jqAttack.click(function (event) {
             if (self.selectedPlayer) {
                 if (
                     self.game.player.pvpTarget &&
                     self.game.player.pvpTarget === self.selectedPlayer
                 ) {
-                    $('#playerPopupMenuAttack').html('Attack');
+                    self.jqAttack.html('Attack');
                 } else {
                     self.game.player.pvpTarget = self.selectedPlayer;
                     // Player has 60 seconds of battle time.
@@ -61,10 +68,10 @@ export default class PlayerPopupMenu {
         const s = this.game.renderer.scale;
         const x =
             (player.x - this.game.camera.x) * s -
-            $('#playerPopupMenuContainer').width() / 2;
+            this.jqContainer.width() / 2;
         const y =
             (player.y - this.game.camera.y) * s -
-            $('#playerPopupMenuContainer').height() / 2;
+            this.jqContainer.height() / 2;
         const ph = this.game.socialHandler;
 
         this.selectedPlayer = player;
@@ -73,11 +80,11 @@ export default class PlayerPopupMenu {
             ph.isPartyLeader(this.game.player.name) &&
             ph.isPartyMember(this.selectedPlayer.name)
         ) {
-            $('#playerPopupMenuPartyKick').css('display', 'block');
-            $('#playerPopupMenuPartyLeader').css('display', 'block');
+            this.jqPartyKick.css('display', 'block');
+            this.jqPartyLeader.css('display', 'block');
         } else {
-            $('#playerPopupMenuPartyKick').css('display', 'none');
-            $('#playerPopupMenuPartyLeader').css('display', 'none');
+            this.jqPartyKick.css('display', 'none');
+            this.jqPartyLeader.css('display', 'none');
         }
 
         if (
@@ -85,12 +92,13 @@ export default class PlayerPopupMenu {
                 !ph.isPartyMember(this.selectedPlayer.name)) ||
             ph.partymembers.length === 0
         ) {
-            $('#playerPopupMenuPartyInvite').show();
+            this.jqPartyInvite.show();
+            const jqPartyInvite = this.jqPartyInvite;
             setTimeout(function () {
-                $('#playerPopupMenuPartyInvite').hide();
+                jqPartyInvite.hide();
             }, 10000);
         } else {
-            $('#playerPopupMenuPartyInvite').hide();
+            this.jqPartyInvite.hide();
         }
 
         if (
@@ -98,19 +106,19 @@ export default class PlayerPopupMenu {
             this.game.player.level >= 20 &&
             this.game.mapIndex !== 0
         ) {
-            $('#playerPopupMenuAttack').css('display', 'block');
+            this.jqAttack.css('display', 'block');
         } else {
-            $('#playerPopupMenuAttack').css('display', 'none');
+            this.jqAttack.css('display', 'none');
         }
 
-        $('#playerPopupMenuContainer').css('display', 'block');
-        $('#playerPopupMenuContainer').css('top', '' + y + 'px');
-        $('#playerPopupMenuContainer').css('left', '' + x + 'px');
+        this.jqContainer.css('display', 'block');
+        this.jqContainer.css('top', '' + y + 'px');
+        this.jqContainer.css('left', '' + x + 'px');
         // FIX: use .text() instead of .html() - player.name is plain text content, no HTML needed, avoids XSS
-        $('#playerPopupMenuName').text(player.name);
+        this.jqName.text(player.name);
     }
     close() {
         this.selectedPlayer = null;
-        $('#playerPopupMenuContainer').css('display', 'none');
+        this.jqContainer.css('display', 'none');
     }
 }
