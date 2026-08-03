@@ -138,15 +138,21 @@ window.requestAnimFrame = (function () {
     // returned undefined, so window.requestAnimFrame was never actually assigned a working
     // function (every caller, e.g. game.js's gametick(), threw "requestAnimFrame is not a
     // function"). Keeping the return and its expression on the same line avoids the ASI trap.
+    //
+    // NOTE: no `function(callback){ setTimeout(callback, 16); }` fallback at the end of this
+    // chain (intentionally removed) - if none of window.*requestAnimationFrame exist,
+    // window.requestAnimFrame stays undefined rather than silently degrading to a timer-based
+    // polyfill. Every modern browser exposes unprefixed requestAnimationFrame, so this is a
+    // non-issue in practice; callers that might run somewhere it's missing (see gametick() in
+    // game.js) are expected to feature-check with `typeof requestAnimFrame !== 'undefined'`
+    // before calling it, rather than relying on this function always returning something
+    // callable.
     return (
         window.requestAnimationFrame ||
         window.webkitRequestAnimationFrame ||
         window.mozRequestAnimationFrame ||
         window.oRequestAnimationFrame ||
-        window.msRequestAnimationFrame ||
-        function (/* function */ callback, /* DOMElement */ element) {
-            window.setTimeout(callback, 16);
-        }
+        window.msRequestAnimationFrame
     );
 })();
 

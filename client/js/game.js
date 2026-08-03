@@ -468,18 +468,19 @@ export default class Game {
             this.updateCursorLogic();
         }
 
-        // FIX: was `requestAnimFrame(this.renderer.renderFrame());` - renderFrame() was called
-        // immediately (its return value, not the function, was what got passed to
-        // requestAnimFrame), and requestAnimFrame itself was undefined until the ASI bug in
-        // utils.js was fixed, so this threw "requestAnimFrame is not a function" every tick.
-        // Now that requestAnimFrame actually works, pass it a real callback (bound so `this`
-        // inside renderFrame() still refers to the renderer) instead of invoking renderFrame()
-        // eagerly. NOTE: this decouples the paint from this fixed-interval tick - the render
-        // now happens on the browser's next vsync rather than synchronously inside gametick(),
-        // and requestAnimFrame callbacks pause while the tab is backgrounded (setInterval does
-        // not), so a backgrounded tab will keep ticking game logic without rendering until it's
-        // foregrounded again.
-        requestAnimFrame(this.renderer.renderFrame.bind(this.renderer));
+        // NOTE: requestAnimFrame's polyfill (utils.js) no longer falls back to a setTimeout
+        // shim, so it can be undefined in environments with no native/prefixed
+        // requestAnimationFrame - feature-check before using it rather than assuming it's
+        // always callable (that assumption was the root cause of the original bug here).
+        // When available, render on the browser's next vsync via requestAnimFrame (async,
+        // decoupled from this fixed-interval tick - pauses while the tab is backgrounded).
+        // Otherwise, fall back to rendering synchronously within the tick, same as before
+        // requestAnimFrame was ever wired in here.
+        if (typeof requestAnimFrame !== 'undefined')
+            requestAnimFrame(this.renderer.renderFrame.bind(this.renderer));
+        else {
+            this.renderer.renderFrame();
+        }
 
         this.processLogic = false;
     }
