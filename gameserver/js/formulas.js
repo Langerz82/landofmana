@@ -117,12 +117,12 @@ Formulas.energy = function (entityLevel) {
     //This requires more work, look around "kind".
 };
 
-// NOTE: unimplemented stub -- always returns undefined. No call site in the
-// server codebase currently reaches this (grepped for getExpArray()); left
-// in place rather than removed in case it's part of a planned/external API
-// surface, but treat any current caller of this as a latent bug.
-Formulas.getExpArray = function () {
-    //just return the EXP Array here.
-};
-
+// FIX: removed Formulas.getExpArray() -- an unimplemented stub that always
+// returned undefined, with no call site anywhere in the server codebase
+// (confirmed via a repo-wide grep for getExpArray()) or the client. Left in
+// place previously in case it was part of a planned/external API surface,
+// but a silently-undefined stub is a worse trap for a future caller than
+// a missing method (which fails loudly as "not a function" instead of
+// quietly propagating `undefined`) -- if this is needed later, it should
+// be added back actually implemented.
 export default Formulas;

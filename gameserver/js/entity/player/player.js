@@ -44,6 +44,12 @@ class Player extends Character {
 
         this.mapStatus = 0;
         this.mapIndex = 0;
+        // FIX: guards movementhandler.js's handleTeleportMap against
+        // processing a second CW_TELEPORT_MAP(status=0) request while a
+        // transition is already committed and in flight for this player --
+        // see the comment at that check for why. Cleared once the
+        // transition's final ack (status=1 from the client) completes.
+        this.teleportPending = false;
 
         this.stats = {
             attack: 0,

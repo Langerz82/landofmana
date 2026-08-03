@@ -171,22 +171,30 @@ class MovementHandler {
         }
 
         if (status === 0) {
-            p.forceStop();
-            p.mapStatus = 0;
-            p.clearTarget();
-
-            p.handleTeleport();
-
-            p.map.entities.removePlayer(p);
-
-            // FIX (cleanup): `map.enterCallback(p)` was called here but its
-            // result was immediately discarded by the `pos = {x: p.x, y: p.y}`
-            // reassignment right below, and its actual purpose (a random
-            // starting position for non-door teleports) is already handled
-            // later in this function at `pos = p.map.getRandomStartingPosition()`
-            // once `p.map` has been updated to the destination map. Removed the
-            // dead call rather than leaving a no-op that looks load-bearing.
-
+            // FIX: this whole door/level validation block (and the
+            // destination `pos`/`isDoor` it produces) used to run *after*
+            // forceStop()/mapStatus=0/clearTarget()/handleTeleport()/
+            // removePlayer() below had already mutated the player's state --
+            // in particular p.map.entities.removePlayer(p), which despawns
+            // the player for every nearby player, unregisters them from the
+            // map's broadcaster, and drops them from the entity/spatial
+            // index (see mapentities.js's removePlayer()). If door.tmap or
+            // the level gate then rejected the request and `return`ed early
+            // -- which a client with a stale door list, or a player simply
+            // below the door's level requirement, hits in completely normal
+            // play, not just a malicious client -- the player was left in
+            // that half-removed state permanently: still nominally on their
+            // current map, but invisible/unregistered on it, with mapStatus
+            // stuck at 0 forever (checkStartMove requires mapStatus>=2, so
+            // they couldn't move again either), and no WC_TELEPORT_MAP
+            // response ever sent to tell the client the transition didn't
+            // happen. That's very likely what the old "Going through portal
+            // when returning its looping" TODO here was actually describing
+            // -- a rejected teleport leaving the player stuck mid-transition
+            // looks exactly like an unresponsive loop from the client's
+            // side. Validation now runs first and returns before touching
+            // the player's map/entity state at all, same as the
+            // mapId/map-ready/portalId-bounds checks above it already do.
             let pos = { x: p.x, y: p.y };
             let isDoor = false;
             if (portalId >= 0) {
@@ -227,9 +235,46 @@ class MovementHandler {
                 }
             }
 
-            p.setMap(map);
+            // FIX: guards against a second CW_TELEPORT_MAP(status=0)
+            // arriving while this player's previous transition is still in
+            // flight -- committed past this point (mapStatus about to drop
+            // to 0, player about to be removed/re-added), but before the
+            // status=1 ack below sets mapStatus back to 2. Processing a
+            // second one here would run removePlayer()/setMap()/addPlayer()
+            // again on top of an already-in-progress transition -- duplicate
+            // despawn/spawn broadcasts, and a second WC_TELEPORT_MAP
+            // response racing the first -- which reads exactly like the
+            // repeated map-load the old "portal looping" TODO described. A
+            // well-behaved client only ever sends one status=0 request per
+            // transition and waits for the full 0->1->2 round trip before
+            // sending another, so this is defense against an out-of-sync or
+            // buggy client re-sending, not something normal play should hit.
+            if (p.teleportPending) {
+                console.warn(
+                    'handleTeleportMap - ignoring duplicate status=0 request, transition already in progress for player ' +
+                        p.id
+                );
+                return;
+            }
+            p.teleportPending = true;
 
-            // TODO - Going through portal when returning its looping.
+            p.forceStop();
+            p.mapStatus = 0;
+            p.clearTarget();
+
+            p.handleTeleport();
+
+            p.map.entities.removePlayer(p);
+
+            // FIX (cleanup): `map.enterCallback(p)` was called here but its
+            // result was immediately discarded by the `pos = {x: p.x, y: p.y}`
+            // reassignment right below, and its actual purpose (a random
+            // starting position for non-door teleports) is already handled
+            // later in this function at `pos = p.map.getRandomStartingPosition()`
+            // once `p.map` has been updated to the destination map. Removed the
+            // dead call rather than leaving a no-op that looks load-bearing.
+
+            p.setMap(map);
 
             if (!isDoor) {
                 pos = p.map.getRandomStartingPosition();
@@ -251,6 +296,11 @@ class MovementHandler {
             ]);
         } else if (status === 1) {
             p.mapStatus = 2;
+            // FIX: clears the in-flight guard set above once the client has
+            // acked the transition (status=1) and the server has finished
+            // the corresponding status=2 response below -- see the
+            // teleportPending comment above for what this protects against.
+            p.teleportPending = false;
 
             p.knownIds = [];
 

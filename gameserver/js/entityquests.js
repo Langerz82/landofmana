@@ -306,7 +306,21 @@ class EntityQuests {
 
         const pLvl = player.level;
 
-        // TODO - FIX UP QUESTS FOR NEW STRUCTURE.
+        // NOTE: was flagged "TODO - FIX UP QUESTS FOR NEW STRUCTURE." Traced
+        // the dispatch below against Quest's constructor (quest.js) and the
+        // per-instance npcQuestId scheme (npcQuestId assigned in
+        // npcmove.js/npcstatic.js's constructors, consumed throughout this
+        // file's acceptQuest/ownsQuest/hasQuest/giveReward) -- qTypes = [1,
+        // 2] lines up with Types.QuestType.KILLMOBKIND/GETITEMKIND exactly,
+        // and both createQuestItemKind()/createQuestKillMobKind() below
+        // build a Quest with the field order Quest's constructor expects.
+        // Nothing here is structurally broken against the current
+        // (per-instance-npcQuestId) quest data shape. Left as a comment
+        // rather than deleted, since "new structure" may refer to a design
+        // change beyond what's visible in this file alone (e.g. authored
+        // vs. procedural quest unification) that a stale trace like this
+        // one can't rule out -- flagging for whoever has that fuller
+        // context rather than asserting it's resolved.
         if (questType === Types.QuestType.GETITEMKIND) {
             this.createQuestItemKind(player);
         }

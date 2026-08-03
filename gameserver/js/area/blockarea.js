@@ -67,18 +67,27 @@ class BlockArea extends EntityArea {
 
     // FIX: the `this.numX` read below was always `undefined` before
     // initArea() started setting it (see the FIX comment there) -- that's
-    // fixed now, so the row-wrap branch (`x === 0`) actually runs. Left as
-    // "TODO" was: whether the `||` in both branches below is intentional.
-    // As written, a row-start pair passes if EITHER it dropped exactly one
-    // tile in y OR has the same x, and a same-row pair passes if EITHER
-    // it's exactly one tile apart in x OR has the same y -- i.e. either
-    // half of "properly adjacent" is independently sufficient, not both
-    // required together. That may be deliberately lenient (e.g. to tolerate
-    // sub-tile rounding on one axis), but it also means a block that's
-    // right on x/y-axis with its neighbor but wildly off on the other axis
-    // would still pass. Not changing this without being able to verify
-    // against real puzzle-solve gameplay -- flagging it for whoever touches
-    // this next.
+    // fixed now, so the row-wrap branch (`x === 0`) actually runs.
+    //
+    // FIX: both branches below used `||` between the x-check and y-check,
+    // so either half alone was accepted as "adjacent" instead of requiring
+    // both. Two separate bugs came out of that:
+    //  - Row-start branch: a block starting a new row only needs to satisfy
+    //    "one tile below the previous row's start" OR "same x as it", not
+    //    both -- so a block that lined up in x but was several rows off
+    //    (or was one row down but in the wrong column) still passed.
+    //  - Same-row branch: the x half of the check, `b2.x - b1.x ===
+    //    G_TILESIZE`, has the comparison backwards. b1 is the later block
+    //    in row order (index i) and b2 is the earlier one (index i-1), so a
+    //    correctly solved row needs b1 to sit one tile to the *right* of
+    //    b2 (`b1.x - b2.x === G_TILESIZE`), not the reverse. As written the
+    //    x half could never be true for a correctly solved row, so the
+    //    `||` silently fell back to "b2.y - b1.y === 0" alone -- meaning
+    //    any x arrangement within a row passed as long as the y's matched,
+    //    not just the correctly-ordered one.
+    // Fixed the x-direction and switched both branches to `&&` so a block
+    // must be truly adjacent (right axis-step and aligned on the other
+    // axis) to count as placed correctly.
     isCompleted() {
         let b1 = this.blocks[0],
             b2 = null;
@@ -90,11 +99,11 @@ class BlockArea extends EntityArea {
             x = i % this.numX;
             if (b2) {
                 if (x === 0) {
-                    if (!(b1.y - b3.y === G_TILESIZE || b1.x - b3.x === 0))
+                    if (!(b1.y - b3.y === G_TILESIZE && b1.x - b3.x === 0))
                         return false;
                     b3 = b1;
                 } else {
-                    if (!(b2.x - b1.x === G_TILESIZE || b2.y - b1.y === 0))
+                    if (!(b1.x - b2.x === G_TILESIZE && b1.y - b2.y === 0))
                         return false;
                 }
             }
