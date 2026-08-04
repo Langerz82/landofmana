@@ -557,7 +557,16 @@ class MapEntities {
         }
     }
 
-    // TODO - Minimize function calls so you can pass type to loop through, and the additional condition.
+    // NOTE: was flagged "TODO - Minimize function calls..." -- the same
+    // build-an-array-just-for-.length pattern fixed for getEntityCount()/
+    // getAroundCount() below via countEntityAround() (see that comment).
+    // Left this one as-is rather than giving it the same treatment: a
+    // repo-wide grep for getEntitySpatialCount() turns up no callers
+    // anywhere in the codebase, so unlike getAroundCount() (genuinely
+    // called in a hot retry loop) there's no actual cost to remove here,
+    // only a theoretical one. Not worth the risk of a counting-variant
+    // rewrite of getEntityAroundSpatial() for a method nothing currently
+    // calls.
     getEntitySpatialCount(entity, range, conditional) {
         return this.getEntityAroundSpatial(entity, range, conditional).length;
     }
@@ -589,7 +598,51 @@ class MapEntities {
     }
 
     getEntityCount(group, e1, range, conditional) {
-        return this.getEntityAround(group, e1, range, conditional).length;
+        return this.countEntityAround(group, e1, range, conditional);
+    }
+
+    // PERF: getEntityCount()/getAroundCount() below used to just call
+    // getEntityAround() and read `.length` off the result -- building and
+    // pushing into a whole match array purely to throw it away and keep the
+    // count. getAroundCount() is the real cost here: spaceEntityRandomApart()
+    // (below) calls it on every iteration of its spacing retry loop (up to
+    // `threshold` times per call, default 100), and that function itself
+    // runs for every NPC/node/chest/block placement and once per second per
+    // player for every roaming-eligible mob (MobAI.Roaming). Counting
+    // matches directly, without ever allocating the array, does the same
+    // work with none of that churn. Mirrors the same
+    // build-an-array-just-for-.length pattern already fixed for
+    // getCharactersAround/getMobsAround's redundant double-distance-check
+    // above, just for the two callers that only ever wanted a count.
+    countEntityAround(group, e1, range, conditional) {
+        range *= G_TILESIZE;
+        conditional =
+            conditional ||
+            function (e1, e2) {
+                return e1 !== e2;
+            };
+        const compare = function (e1, e2) {
+            return (
+                Math.abs(e2.x - e1.x) <= range &&
+                Math.abs(e2.y - e1.y) <= range &&
+                conditional(e1, e2)
+            );
+        };
+        let count = 0;
+        if (Array.isArray(group)) {
+            for (const e2 of group) {
+                if (compare(e1, e2)) count++;
+            }
+        } else if (group instanceof Map) {
+            for (const e2 of group.values()) {
+                if (compare(e1, e2)) count++;
+            }
+        } else {
+            Utils.forEach(group, function (e2) {
+                if (compare(e1, e2)) count++;
+            });
+        }
+        return count;
     }
 
     getEntityAround(group, e1, range, conditional) {
@@ -679,7 +732,9 @@ class MapEntities {
     }
 
     getAroundCount(entities, entity, range) {
-        return this.getEntityAround(entities, entity, range).length;
+        // PERF: see the countEntityAround() comment above -- this is the hot
+        // caller that motivated it (spaceEntityRandomApart()'s retry loop).
+        return this.countEntityAround(entities, entity, range);
     }
 
     // FIX: same redundant-double-distance-check issue as getCharactersAround
