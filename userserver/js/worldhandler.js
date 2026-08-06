@@ -85,9 +85,29 @@ class WorldHandler {
             const action = parseInt(message[0]);
             if (!action) return;
 
+            // FIX: was `self.connection.close(...)` -- this listener handles
+            // every WU_* message a connected gameserver sends on its link to
+            // this userserver (see main.js's `new WorldHandler(main, conn)`,
+            // one instance per connected gameserver). Closing the connection
+            // over one malformed packet doesn't just drop that packet -- it
+            // tears down this world's entire gameserver<->userserver link,
+            // taking every in-flight login, save, and auction/looks/ban sync
+            // for every player currently connected to that gameserver down
+            // with it, over what formatChecker.check() has already logged
+            // the specific reason for (describeZodError() output, just above
+            // this call -- see format.js). That's a disproportionate
+            // response to a single bad packet, and this is the
+            // operator-controlled gameserver link, not an untrusted client
+            // socket (contrast this with a real untrusted-input boundary,
+            // where closing on a format failure is the right call). Log and
+            // drop just this one packet instead, and keep the connection --
+            // and every other player currently relying on it -- alive.
             if (!formatChecker.check(message)) {
-                self.connection.close(
-                    'Invalid value ' + action + ' packet format: ' + message
+                console.error(
+                    'worldHandler: rejected malformed ' +
+                        action +
+                        ' packet from gameserver, discarding: ' +
+                        message
                 );
                 return;
             }

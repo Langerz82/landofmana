@@ -184,7 +184,47 @@ export class Connection {
         // PERF: called for every outgoing packet flush -- gated behind
         // G_DEBUG for the same reason as _decodeAndDispatch above.
         if (G_DEBUG) console.info('send=' + message);
-        const data = useBison ? BISON.encode(message) : JSON.stringify(message);
+
+        // FIX: encoding (JSON.stringify()/BISON.encode()) used to run
+        // unguarded here. This is the single choke point every outgoing
+        // packet on either connection type passes through -- game-client
+        // traffic on socketioConnection, and gameserver<->userserver
+        // traffic on userConnection (see the header comment on
+        // _decodeAndDispatch above for the same "one class, two callers"
+        // shape). A message containing something that can't be encoded (a
+        // circular reference, a BigInt, an entity object accidentally
+        // passed instead of its plain serialized data, etc.) threw
+        // synchronously here, uncaught by anything between this method and
+        // whatever called send() -- most of those callers (e.g.
+        // user/userhandler.js's/user/worldhandler.js's sendToUserServer())
+        // have no try/catch of their own, so this was only ever stopped
+        // from crashing the whole process by the blanket
+        // process.on('uncaughtException', ...) in main.js, which just logs
+        // and swallows it -- abandoning the caller's still-unfinished
+        // work partway through (a save, a login handshake, a disconnect
+        // cleanup) rather than failing cleanly at just this one packet.
+        // Mirrors safeJsonParse's containment on the receive side
+        // (_decodeAndDispatch above): catch the encode failure here, log
+        // which connection and message type it was, and discard just this
+        // one packet instead of throwing. Deliberately not re-serializing
+        // `message` itself in the log below -- that's the exact operation
+        // that just failed, so logging only its message-type tag (the
+        // first element of every CW_*/WC_*/UW_*/WU_* tuple in this
+        // codebase) avoids risking a second failure while still saying
+        // which kind of packet was lost.
+        let data;
+        try {
+            data = useBison ? BISON.encode(message) : JSON.stringify(message);
+        } catch (err) {
+            console.error(
+                this.constructor.name +
+                    '.send - failed to encode outgoing message (type=' +
+                    (Array.isArray(message) ? message[0] : typeof message) +
+                    '), discarding packet: ' +
+                    err.message
+            );
+            return;
+        }
 
         if (data.length >= 2048) {
             zlib.gzip(data, { level: 1 }, (err, buffer) => {
