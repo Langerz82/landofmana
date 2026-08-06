@@ -102,7 +102,12 @@ const questNpcIdMax = mapsCountMax * G_NPC_QUEST_ID_MAP_OFFSET - 1;
 const questStatusMax = 5;
 const questStrDataLen = 32;
 
-const questObjectTypeMax = 9;
+// Quest object "type" is an enum of reward/objective categories authored in
+// shared/data/quests.json (e.g. quest 200600's object.type is 10). 9 was too
+// low and rejected legitimate quest records -- bumped to 10 to match the
+// actual max value present in that data. Kept in sync with
+// userserver/js/format.js's same-named constant (see NOTE above).
+const questObjectTypeMax = 10;
 const questObjectKindMax = 999;
 const questObjectCountMax = 999;
 const questObjectChanceMax = 2000;

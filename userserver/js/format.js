@@ -104,7 +104,11 @@ const questNpcIdMax = mapsCountMax * 1000000 - 1;
 const questStatusMax = 5;
 const questStrDataLen = 32;
 
-const questObjectTypeMax = 9;
+// Quest object "type" is an enum of reward/objective categories authored in
+// shared/data/quests.json (e.g. quest 200600's object.type is 10). 9 was too
+// low and rejected legitimate quest records -- bumped to 10 to match the
+// actual max value present in that data.
+const questObjectTypeMax = 10;
 const questObjectKindMax = 999;
 const questObjectCountMax = 999;
 const questObjectChanceMax = 2000;
