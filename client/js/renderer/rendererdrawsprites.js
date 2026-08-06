@@ -118,11 +118,28 @@ export function installRendererDrawSprites(proto) {
         sprite.alpha = data[15] || 1; // FIX: PIXI.Sprite has no "opacity" property (that's a no-op DOM-style name); the transparency setter is "alpha"
     };
 
-    proto.drawTile = function (arr) {
+    // PERF: took a single `[isHigh, id, gx, gy]` array instead of four plain
+    // arguments. Its only two callers (rendererdrawhud.js's drawTerrain())
+    // built a fresh array literal for every single tile drawn -- and
+    // drawTerrain() calls this once per visible tile, every frame (a
+    // ~20x15 screen is a few hundred tiles/frame at 60fps), so this was a
+    // few-hundred-to-low-thousands short-lived array allocations per
+    // second purely for argument passing, same class of GC churn as the
+    // gameserver's map.js isColliding()/pathfinder.js fixes. Plain
+    // positional args carry the same four values with no allocation.
+    // Deliberately NOT touching the `new PIXI.Rectangle(...)` a few lines
+    // below despite it being a bigger per-call allocation than the array
+    // was: PIXI's Texture.frame setter may rely on object-identity dirty-
+    // checking internally (skipping its own update work when the assigned
+    // Rectangle reference doesn't change), which isn't something to guess
+    // at without being able to actually run this PIXI version and watch
+    // tiles render -- reusing one Rectangle instance across calls could
+    // silently break tile updates instead of speeding them up. Left as-is.
+    proto.drawTile = function (isHigh, id, gx, gy) {
         const ts = G_TILESIZE;
 
-        arr[2] *= ts;
-        arr[3] *= ts;
+        const px = gx * ts;
+        const py = gy * ts;
 
         const tw = this.tilesetwidth;
         const tileset = this.tilesets[0];
@@ -130,12 +147,12 @@ export function installRendererDrawSprites(proto) {
         tileset.frame = new PIXI.Rectangle(0, 0, ts, ts);
         tileset.frame.interactive = false;
         tileset.frame.interactiveChildren = false;
-        tileset.frame.x = getX(arr[1], tw) * ts;
-        tileset.frame.y = ~~((arr[1] - 1) / tw) * ts;
+        tileset.frame.x = getX(id, tw) * ts;
+        tileset.frame.y = ~~((id - 1) / tw) * ts;
 
         let container = this.tiles['BACKGROUND'];
-        if (arr[0]) container = this.tiles['FOREGROUND'];
-        container.addFrame(tileset, arr[2], arr[3], ts, ts);
+        if (isHigh) container = this.tiles['FOREGROUND'];
+        container.addFrame(tileset, px, py, ts, ts);
 
         // UNcomment to enable tile numbering.
         /*var id = "tct_"+ix+"_"+iy;

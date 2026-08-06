@@ -89,8 +89,10 @@ export function installClientCallbacksMap(proto) {
 
             game.renderer.clearEntities();
 
+            // PERF: game.entities is a Map now (see its declaration in
+            // game.js) -- reset to a fresh empty Map instead of an object.
             delete game.entities;
-            game.entities = {};
+            game.entities = new Map();
             delete game.camera.entities;
             game.camera.entities = {};
             delete game.camera.outEntities;

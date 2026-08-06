@@ -108,7 +108,40 @@ export default class Game {
         this.audioManager = null;
 
         // Game state
-        this.entities = {};
+        // PERF: was a plain object keyed by entity id, iterated everywhere
+        // (updater.js's updateCharacters()/updateTransitions() -- both run
+        // every single frame, over every known entity, via forEachEntity()
+        // below -- plus getEntityById/entityIdExists/getEntityByName) via
+        // `for...in`, which yields string keys and pays a hasOwnProperty
+        // check per entry. A Map avoids that per-entry check and iterates
+        // faster than for...in over an object -- same rationale, and same
+        // fix, already applied gameserver-side to the equivalent registries
+        // (see gameserver/js/map/mapentities.js's `entities`/`players`/etc.
+        // and map/mapbroadcaster.js's `packets`). Every touch point --
+        // addEntity/removeEntity/removeObsoleteEntities below,
+        // entityIdExists/getEntityById/getEntityByName/forEachEntity in
+        // gameentityqueries.js, the map-transition reset in
+        // clientcallbacksmap.js, and the one direct read in
+        // rendererdrawentities.js -- is updated to Map's get/set/has/delete
+        // and value/entry iteration; nothing outside those reaches
+        // `game.entities` directly (confirmed via a repo-wide grep).
+        // Deliberately NOT touching the separate `camera.entities`/
+        // `camera.outEntities` (camera.js) here -- those are a different,
+        // already-bounded-small (on-screen-only) structure with their own
+        // existing "left as a plain object, evaluated and not worth the
+        // added complexity" comment (see gameentityqueries.js's
+        // getEntityAt()), not the same cost profile as this one.
+        //
+        // FIX: this file itself does `import Map from './map.js'` (the
+        // game-world map class, `this.map` below) -- that import binds the
+        // name `Map` to that class for this whole module, shadowing the
+        // built-in. A plain `new Map()` here would silently construct the
+        // *map class* instead (its constructor is `(game, mapContainer)`,
+        // so calling it with no arguments would throw immediately on
+        // startup trying to read `mapContainer.mapName`). `globalThis.Map`
+        // reaches the real built-in explicitly, bypassing the local import
+        // binding.
+        this.entities = new globalThis.Map();
         this.npc = {};
         this.pathingGrid = [];
         this.tileGrid = [];
@@ -340,15 +373,20 @@ export default class Game {
     addEntity(entity) {
         const self = this;
 
-        this.entities[entity.id] = entity;
-        this.updateCameraEntity(entity.id, this.entities[entity.id]);
+        // PERF: was `this.entities[entity.id] = entity;` followed by
+        // re-reading `this.entities[entity.id]` right back out one line
+        // later just to hand it to updateCameraEntity() -- `entity` is
+        // already that exact value, so the re-read was always redundant
+        // (Map or object, before or after this PERF fix). Pass it directly.
+        this.entities.set(entity.id, entity);
+        this.updateCameraEntity(entity.id, entity);
     }
 
     removeEntity(entity) {
         // FIX: was `delete this.npc[id]` using an undefined/wrong `id`; use entity.id so npc entries actually get removed
         if (this.npc[entity.id]) delete this.npc[entity.id];
 
-        if (entity.id in this.entities) {
+        if (this.entities.has(entity.id)) {
             const id = entity.id;
             if (this.player.target === entity) {
                 this.player.clearTarget();
@@ -356,7 +394,7 @@ export default class Game {
             }
             this.renderer.removeEntity(entity);
             this.updateCameraEntity(id, null);
-            delete this.entities[id];
+            this.entities.delete(id);
         } else {
             log.info('Cannot remove entity. Unknown ID : ' + entity.id);
         }
@@ -512,9 +550,10 @@ export default class Game {
     removeObsoleteEntities() {
         const entities = game.entities;
         const p = game.player;
-        let entity = null;
-        for (let id in entities) {
-            entity = entities[id];
+        // PERF: iterate the Map directly with for...of instead of the old
+        // `for...in` over a plain object -- see the PERF comment on
+        // `this.entities`'s declaration above.
+        for (const entity of entities.values()) {
             // FIX: inverted condition skipped every truthy (real) entity and fell through to `entity.x` on the
             // rare null one, so obsolete entities were never actually collected for cleanup; should skip nulls.
             if (!entity) continue;
@@ -531,6 +570,12 @@ export default class Game {
             delist = [];
 
         if (nb > 0) {
+            // NOTE: this `entity` is a separate binding from the one in the
+            // for...of loop above (which is block-scoped to that loop) --
+            // was previously the same `var`/`let entity` declared once at
+            // the top of the function and reused for both. Needs its own
+            // declaration now that the first usage is block-scoped.
+            let entity;
             for (let i = 0; i < self.removeObsoleteEntitiesChunk; ++i) {
                 if (i === nb) break;
                 entity = this.obsoleteEntities.shift();

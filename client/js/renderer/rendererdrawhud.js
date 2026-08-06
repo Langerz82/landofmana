@@ -111,16 +111,21 @@ export function installRendererDrawHud(proto) {
         self.tilesetwidth = tilesetwidth;
 
         if (game.started) {
+            // PERF: drawTile() used to take a single `[isHigh, id, x, y]`
+            // array -- see the PERF comment on drawTile() itself
+            // (rendererdrawsprites.js) for why passing the same four values
+            // as plain arguments instead removes a per-tile, per-frame
+            // array allocation on this loop.
             game.camera.forEachVisibleValidPosition(
                 function (x, y) {
                     if (mc.tileGrid[y][x] instanceof Array) {
                         for (let id of mc.tileGrid[y][x]) {
-                            self.drawTile([mc.isHighTile(id), id, x, y]);
+                            self.drawTile(mc.isHighTile(id), id, x, y);
                         }
                     } else {
                         const id = mc.tileGrid[y][x];
                         if (id) {
-                            self.drawTile([mc.isHighTile(id), id, x, y]);
+                            self.drawTile(mc.isHighTile(id), id, x, y);
                         }
                     }
                 },

@@ -8,13 +8,38 @@ import Node from '../entity/node.js';
 /* global Types, ItemTypes, _ */
 
 export function installGameEntityQueries(proto) {
+    // PERF: `this.entities` is a Map now, not a plain object -- see the
+    // PERF comment on its declaration in game.js. `in`/bracket access
+    // below became `.has()`/`.get()`.
+    //
+    // FIX: a plain object silently coerces every property key to a string,
+    // so `this.entities[42]` and `this.entities["42"]` were always the
+    // exact same lookup -- callers across the codebase are inconsistent
+    // about whether they pass a real Number (most do, e.g. `Number(data[0])`)
+    // or a raw, un-coerced value straight off a packet array (e.g.
+    // clientcallbackssocial.js's `const id = data[0];` for party members --
+    // confirmed via a repo-wide grep of every getEntityById/entityIdExists
+    // call site). Every entity is stored under a real Number key (entity.id
+    // is always constructed via Number(data[0])/parseInt(data[0]) -- see
+    // entityfactory.js's callers), but Map.get()/has() use strict
+    // (SameValueZero) key equality with no such coercion, so a caller
+    // passing e.g. the string "42" would silently never match a real
+    // Map key of 42 -- a correctness regression the old object version
+    // never had. Coercing here, once, at the lookup boundary, keeps every
+    // existing caller working exactly as before regardless of what type it
+    // passes in. `id == null` is checked first and returned as "not found"
+    // before coercing, rather than let `Number(null)` become 0 and
+    // potentially collide with a real entity id of 0.
     proto.entityIdExists = function (id) {
-        return id in this.entities;
+        if (id == null) return false;
+        return this.entities.has(Number(id));
     };
 
     proto.getEntityById = function (id) {
-        if (this.entities && id in this.entities) {
-            return this.entities[id];
+        if (id == null) return undefined;
+        id = Number(id);
+        if (this.entities && this.entities.has(id)) {
+            return this.entities.get(id);
         } else if (this.items && id in this.items) {
             return this.items[id];
         }
@@ -33,8 +58,7 @@ export function installGameEntityQueries(proto) {
     };
 
     proto.getEntityByName = function (name) {
-        for (let id in this.entities) {
-            const entity = this.entities[id];
+        for (const entity of this.entities.values()) {
             if (entity.name.toLowerCase() === name.toLowerCase()) {
                 return entity;
             }
@@ -46,14 +70,18 @@ export function installGameEntityQueries(proto) {
      * Loops through all the entities currently present in the game.
      * @param {Function} callback The function to call back (must accept one entity argument).
      */
+    // PERF: forEachEntity() is the busiest reader of `this.entities` --
+    // updater.js's updateCharacters()/updateTransitions() each call it once
+    // per frame, over every known entity. Iterating .values() directly
+    // avoids both the `for...in` hasOwnProperty check and the extra
+    // id -> entity lookup the old object version needed.
     proto.forEachEntity = function (callback, cond) {
         cond =
             cond ||
             function (e) {
                 return true;
             };
-        for (let id in this.entities) {
-            const entity = this.entities[id];
+        for (const entity of this.entities.values()) {
             if (cond(entity)) callback(entity);
         }
     };

@@ -170,7 +170,17 @@ export function installRendererDrawEntities(proto) {
         if (this.lastVisibleEntities) {
             for (let id in this.lastVisibleEntities) {
                 if (!newlyVisible[id]) {
-                    const entity = game.entities[id];
+                    // PERF: game.entities is a Map now (see game.js) --
+                    // bracket lookup became .get(). FIX: `id` here comes
+                    // from a `for...in` over `this.lastVisibleEntities`
+                    // (itself built from camera.entities's own `for...in`,
+                    // a few lines up) -- a plain object's `for...in` always
+                    // yields string keys, even though entities are stored
+                    // in the Map under real Number ids. Map.get() doesn't
+                    // coerce like the old object's bracket access did, so
+                    // this needs the same Number() coercion as
+                    // getEntityById() (see the FIX comment there).
+                    const entity = game.entities.get(Number(id));
                     if (entity) {
                         this.entityVisible(entity, false);
                     }
