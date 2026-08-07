@@ -234,8 +234,17 @@ export default class GameClient {
     // stale disconnectReason from one of those generic fallback messages
     // sitting around to incorrectly suppress a future, unrelated disconnect.
     onServerError(data) {
-        this.disconnectReason = data[0];
-        this.onError(data);
+        // FIX: the gameserver now sends the shared/data/lang.json key
+        // directly (e.g. 'USER_ALREADY_LOGGEDIN', 'USER_BANNED') rather than
+        // a hardcoded English sentence -- resolve it here. Falls back to the
+        // raw value if there's no matching lang entry (e.g. an older/
+        // mismatched gameserver build still sending plain text) rather than
+        // showing a blank message.
+        const code = data[0];
+        const message = lang.data[code] || code;
+
+        this.disconnectReason = message;
+        this.onError([message]);
     }
 
     onError(data) {

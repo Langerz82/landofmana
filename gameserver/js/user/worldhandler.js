@@ -117,9 +117,13 @@ class WorldHandler {
         const username = player.user.name;
         if (players.has(username)) {
             console.info('player user is already logged in.');
-            this.sendPlayerMessage(
-                new Messages.Error('user already logged in.')
-            );
+            // FIX: was the raw English sentence 'user already logged in.',
+            // sent straight to the client and displayed verbatim. Send the
+            // shared/data/lang.json key instead (gameclient.js's
+            // onServerError does `lang.data[data[0]]`), so the message stays
+            // in one place if it's ever reworded/translated instead of
+            // having a second, hardcoded copy living on this server.
+            this.sendPlayerMessage(new Messages.Error('USER_ALREADY_LOGGEDIN'));
             this.connection.disconnect();
             return;
         }
@@ -140,7 +144,10 @@ class WorldHandler {
         if (player.world && player.world.ban) {
             if (player.world.ban.isUserBanned(username)) {
                 console.info('player user is banned from server.');
-                this.sendPlayerMessage(new Messages.Error('user is banned.'));
+                // FIX: same as the USER_ALREADY_LOGGEDIN case above -- send
+                // the lang.json key directly instead of a hardcoded
+                // 'user is banned.' string.
+                this.sendPlayerMessage(new Messages.Error('USER_BANNED'));
                 this.connection.disconnect();
                 return;
             }
