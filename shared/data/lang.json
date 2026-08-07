@@ -16,7 +16,7 @@
     "NOSERVER": "No gameserver is currently online. Please try again later.",
     "CONNECT_ERROR": "There has been an error connecting to the User server try again soon.",
     "DISCONNECT_TIMEOUT": "You have been disconnected for being inactive for too long",
-    "DISCONNECT_LOST": "The connection to RRO2 has been lost.",
+    "DISCONNECT_LOST": "The connection to the Servers has been lost.",
     "DISCONNECT_SERVER_REASON": "The server has disconnected. Reason: {0}",
     "TIMEOUT_CONNECT": "Timeout whilst attempting to establish connection to the Servers.",
     "LOGIN_INVALID": "The username or password you entered is incorrect.",
