@@ -45,6 +45,12 @@ export default class UserClient {
         this.useBison = false;
         this.versionChecked = false;
 
+        // Set by app.js's info_callback right before the server is known to
+        // close this connection for a specific reason (ban, no gameserver
+        // online, already logged in, etc.) -- see the 'disconnect' handler
+        // below for how it's consumed.
+        this.disconnectReason = null;
+
         this.useServer = useServer;
         this.enable();
 
@@ -206,7 +212,20 @@ export default class UserClient {
             // isTimeout still takes priority since it reflects this client's
             // own inactivity tracking, not the transport-level reason.
             let message;
-            if (self.isTimeout) {
+            if (self.disconnectReason) {
+                // FIX: app.js's info_callback stashes the actual, specific
+                // reason here (e.g. "You have been banned.") whenever the
+                // server sends a UC_ERROR it's known to close the connection
+                // right after (see the FIX comments at each
+                // `self.userclient.disconnectReason = ...` call site there).
+                // That real reason is far more useful than anything derived
+                // below from socket.io's own transport-level reason string,
+                // so prefer it when present. Cleared immediately after use so
+                // a stale reason from an earlier, unrelated error can never
+                // leak into a later disconnect.
+                message = self.disconnectReason;
+                self.disconnectReason = null;
+            } else if (self.isTimeout) {
                 message = lang.data['DISCONNECT_TIMEOUT'];
             } else if (reason) {
                 message = lang.data['DISCONNECT_SERVER_REASON'].format([

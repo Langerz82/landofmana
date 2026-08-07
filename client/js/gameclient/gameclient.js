@@ -34,6 +34,14 @@ export default class GameClient {
         this.jqErrorWindowDetails = $('#errorwindow .errordetails');
         this.jqErrorWindow = $('#errorwindow');
 
+        // Set by onError() below right before the server is known to close
+        // this connection for a specific reason (every WC_ERROR the
+        // gameserver currently sends -- "already logged in"/"user is
+        // banned." -- is immediately followed by a disconnect; see
+        // gameserver/js/user/worldhandler.js's handleLoginPlayer) -- see the
+        // 'disconnect' handler below for how it's consumed.
+        this.disconnectReason = null;
+
         this.handlers = {};
 
         this.onMessage = function (data) {
@@ -151,7 +159,7 @@ export default class GameClient {
             this.set_animation_callback;
         this.handlers[Types.Messages.WC_VERSION] = this.onVersion;
         this.handlers[Types.Messages.WC_PLAYER] = this.player_callback;
-        this.handlers[Types.Messages.WC_ERROR] = this.onError;
+        this.handlers[Types.Messages.WC_ERROR] = this.onServerError;
     }
 
     connect(url, data) {
@@ -177,6 +185,21 @@ export default class GameClient {
         this.connection.on('disconnect', function (reason) {
             log.debug('Connection closed: ' + reason);
             if (self.disconnected_callback) {
+                // FIX: onError() (below) already stashes the specific WC_ERROR
+                // text on disconnectReason right before the server closes the
+                // connection for a known reason (see its own FIX comment, and
+                // the constructor's) -- and, unlike userclient.js's onError,
+                // already appended that exact text into this same
+                // jqErrorWindowDetails a moment ago. Calling _onError() again
+                // here would append a second, redundant paragraph on top of
+                // it (generic and less useful, or even an outright duplicate
+                // of the same message), so just clear the flag and skip
+                // showing anything further instead.
+                if (self.disconnectReason) {
+                    self.disconnectReason = null;
+                    return;
+                }
+
                 // socket.io hands the 'disconnect' handler its own reason
                 // string ('transport close', 'ping timeout', 'io server
                 // disconnect', etc.) as the first argument -- see the
@@ -195,6 +218,24 @@ export default class GameClient {
                 }
             }
         });
+    }
+
+    // WC_ERROR's dedicated handler (see the handlers[] registration above) --
+    // every WC_ERROR the gameserver currently sends is immediately followed
+    // by it closing the connection (see gameserver/js/user/worldhandler.js's
+    // handleLoginPlayer -- "already logged in"/"user is banned."), so this
+    // stashes the message on disconnectReason (see the constructor's own FIX
+    // comment) before displaying it, letting the 'disconnect' handler below
+    // know this disconnect has already been explained and skip appending a
+    // second, generic paragraph once the socket actually closes a moment
+    // later. Kept separate from onError()/_onError() below (rather than
+    // stashing there) since those are also reached from the 'disconnect'
+    // handler's own fallback branches -- stashing there too would leave a
+    // stale disconnectReason from one of those generic fallback messages
+    // sitting around to incorrectly suppress a future, unrelated disconnect.
+    onServerError(data) {
+        this.disconnectReason = data[0];
+        this.onError(data);
     }
 
     onError(data) {

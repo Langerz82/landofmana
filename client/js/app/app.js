@@ -277,6 +277,15 @@ export default class App {
                             // getting the password wrong again. Say so explicitly.
                             self.jqLoginInfo.text('Disconnected.');
                             self.addValidationError(null, lang.data['LOGIN_LOCKED_OUT']);
+                            // FIX: the server sends this UC_ERROR and closes the socket right
+                            // after (see userserver/js/user.js's checkUser) - the actual socket
+                            // 'disconnect' event fires moments later with only a generic
+                            // transport-level reason ('transport close' etc, see userclient.js's
+                            // disconnect handler), which would otherwise overwrite this specific
+                            // message with something far less useful. Stash it on the UserClient
+                            // instance so that handler can show the real reason instead.
+                            self.userclient.disconnectReason =
+                                lang.data['LOGIN_LOCKED_OUT'];
                         }
                         // FIX: clear this error (whether retryable or the disconnected message
                         // above) as soon as the player edits either field, instead of leaving a
@@ -312,6 +321,11 @@ export default class App {
                             // than just needing to pick another name. Say so explicitly.
                             self.jqLoginInfo.text('Disconnected.');
                             self.addValidationError(null, lang.data['USERNAME_LOCKED_OUT']);
+                            // FIX: same reasoning as the invalidlogin lockout branch above -
+                            // stash so the real reason survives into the disconnect window
+                            // instead of being overwritten by a generic transport-level message.
+                            self.userclient.disconnectReason =
+                                lang.data['USERNAME_LOCKED_OUT'];
                         }
                         // FIX: clear this error (whether retryable or the disconnected message
                         // above) as soon as the player edits either field, instead of leaving a
@@ -369,21 +383,34 @@ export default class App {
                     break;
 
                 case 'loggedin':
-                    // Attempted to log in with the same user multiple times simultaneously
+                    // Attempted to log in with the same user multiple times simultaneously.
+                    // Server closes the connection right after sending this (see
+                    // userserver/js/user.js's handleLoginPlayer) - stash the reason (see the
+                    // invalidlogin/userexists lockout branches above for the full rationale)
+                    // so the disconnect window shows it instead of a generic message.
                     self.addValidationError(null, lang.data['USER_ALREADY_LOGGEDIN']);
+                    self.userclient.disconnectReason =
+                        lang.data['USER_ALREADY_LOGGEDIN'];
                     break;
 
                 case 'ban':
+                    // Server closes the connection right after sending this (see
+                    // userserver/js/user.js's checkUser) - stash the reason.
                     self.addValidationError(null, lang.data['USER_BANNED']);
+                    self.userclient.disconnectReason = lang.data['USER_BANNED'];
                     break;
 
                 case 'full':
                     self.addValidationError(null, lang.data['SERVERS_FULL']);
+                    self.userclient.disconnectReason = lang.data['SERVERS_FULL'];
                     break;
 
                 case 'noserver':
+                    // Server closes the connection right after sending this (see
+                    // userserver/js/main.js's handleConnectUser) - stash the reason.
                     self.jqLoginInfo.text('Disconnected.');
                     self.addValidationError(null, lang.data['NOSERVER']);
+                    self.userclient.disconnectReason = lang.data['NOSERVER'];
                     break;
 
                 default:
