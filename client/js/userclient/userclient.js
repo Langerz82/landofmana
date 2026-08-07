@@ -12,7 +12,7 @@ import Achievement from '../achievement.js';
 import { installUserClientCallbacks } from './userclientcallbacks.js';
 import { installUserClientSend } from './userclientsend.js';
 
-/* global Types, Utils, log */
+/* global Types, Utils, log, lang */
 // FIX: 'log' was used throughout this file (log.info/log.error/log.debug) but missing from
 // this eslint no-undef hint; added for consistency with gameclient.js's equivalent comment
 
@@ -100,8 +100,7 @@ export default class UserClient {
         });
 
         self.connection.on('connect_error', function (e) {
-            const reason =
-                'There has been an error connecting to RSO server try again soon.';
+            const reason = lang.data['CONNECT_ERROR'];
             self._onError([reason]);
             // FIX: fail_callback is set by app.js's userClient() right after
             // constructing this UserClient, but nothing here ever called it -
@@ -169,16 +168,15 @@ export default class UserClient {
         self.connection.on('message', this.onMessage);
 
         self.connection.on('error', function (e) {
-            const reason =
-                'There has been an error connecting to RSO server try again soon.';
+            const reason = lang.data['CONNECT_ERROR'];
             self._onError([reason]);
             // FIX: same fail_callback wiring as connect_error above.
             if (self.fail_callback) self.fail_callback(reason);
             log.error(e, true);
         });
 
-        self.connection.on('disconnect', function () {
-            log.debug('Connection closed');
+        self.connection.on('disconnect', function (reason) {
+            log.debug('Connection closed: ' + reason);
             // FIX: this whole block used to be gated behind
             // `if (self.disconnected_callback)`, but nothing anywhere ever set
             // that property - UserClient has no onDisconnected-style setter
@@ -198,11 +196,27 @@ export default class UserClient {
             // showing an error for it.
             if (self.intentionalDisconnect) return;
 
-            const reason = self.isTimeout
-                ? 'You have been disconnected for being inactive for too long'
-                : 'The connection to RRO2 has been lost.';
-            self._onError([reason]);
-            if (self.fail_callback) self.fail_callback(reason);
+            // socket.io hands the 'disconnect' handler its own reason string
+            // ('transport close', 'ping timeout', 'io server disconnect',
+            // etc.) as the first argument -- previously ignored, so the
+            // player only ever saw the generic isTimeout-vs-not message
+            // below with no indication of what actually happened. When
+            // socket.io does supply one, show it alongside a message that
+            // the server has disconnected instead of the generic fallback;
+            // isTimeout still takes priority since it reflects this client's
+            // own inactivity tracking, not the transport-level reason.
+            let message;
+            if (self.isTimeout) {
+                message = lang.data['DISCONNECT_TIMEOUT'];
+            } else if (reason) {
+                message = lang.data['DISCONNECT_SERVER_REASON'].format([
+                    reason
+                ]);
+            } else {
+                message = lang.data['DISCONNECT_LOST'];
+            }
+            self._onError([message]);
+            if (self.fail_callback) self.fail_callback(message);
         });
     }
 

@@ -118,6 +118,7 @@ export function installUserClientCallbacks(proto) {
 
         switch (error) {
             case 'full':
+            case 'noserver':
             case 'invalidlogin':
             case 'userexists':
             case 'playerexists':

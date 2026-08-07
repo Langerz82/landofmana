@@ -1,7 +1,7 @@
 // Mixin extracted from app.js: Login/character-create form validation: tryUserAction/tryPlayerAction, field-level validators, error display/clearing.
 // Applied onto App.prototype via install*(...) call in app.js; not a standalone class.
 import User, { PlayerSummary } from '../user.js';
-/* global log */
+/* global log, lang */
 
 export function installAppValidation(proto) {
     proto.tryUserAction = function (action) {
@@ -89,7 +89,7 @@ export function installAppValidation(proto) {
         if (!username) {
             this.addValidationError(
                 this.jqUsernameInput,
-                'Please enter a username.'
+                lang.data['USERNAME_REQUIRED']
             );
             return false;
         }
@@ -97,14 +97,14 @@ export function installAppValidation(proto) {
         if (username.length < 2 || username.length > 16) {
             this.addValidationError(
                 this.jqUsernameInput,
-                'Please enter a username between 2 and 16 characters.'
+                lang.data['USERNAME_LENGTH']
             );
             return false;
         }
         if (username === username.replace(/^[A-Za-z0-9]+$/, '')) {
             this.addValidationError(
                 this.jqUsernameInput,
-                'Please enter username alpha numeric characters only.'
+                lang.data['USERNAME_ALPHANUMERIC']
             );
             return false;
         }
@@ -114,7 +114,7 @@ export function installAppValidation(proto) {
             if (userpw.length < 6 || userpw.length > 32) {
                 this.addValidationError(
                     this.jqUserPasswordInput,
-                    'Please enter a user password between 6 and 32 characters.'
+                    lang.data['PASSWORD_LENGTH']
                 );
                 return false;
             }
@@ -127,7 +127,7 @@ export function installAppValidation(proto) {
             ) {
                 this.addValidationError(
                     this.jqUserPasswordInput,
-                    'Please enter password alpha numeric, and special characters only.'
+                    lang.data['PASSWORD_CHARS']
                 );
                 return false;
             }
@@ -141,7 +141,7 @@ export function installAppValidation(proto) {
         if (!playername) {
             this.addValidationError(
                 this.jqPlayerNameInput,
-                'Please enter a player name.'
+                lang.data['PLAYERNAME_REQUIRED']
             );
             return false;
         }
@@ -149,14 +149,14 @@ export function installAppValidation(proto) {
         if (playername.length < 2 || playername.length > 16) {
             this.addValidationError(
                 this.jqPlayerNameInput,
-                'Please enter a player name between 2 and 16 characters.'
+                lang.data['PLAYERNAME_LENGTH']
             );
             return false;
         }
         if (playername === playername.replace(/^[A-Za-z0-9]+$/, '')) {
             this.addValidationError(
                 this.jqPlayerNameInput,
-                'Please enter player name alpha numeric characters only.'
+                lang.data['PLAYERNAME_ALPHANUMERIC']
             );
             return false;
         }

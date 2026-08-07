@@ -1,7 +1,7 @@
 // Converted from AMD (define) + Class.extend to a native ES6 module/class.
 // NOTE: 'lib/pako' and 'lib/bison' remain classic (non-module) <script> globals (`pako`,
 // `BISON`), same as jQuery/underscore/PIXI elsewhere, so they are not imported here.
-/* global Types, Utils, log, Class, pako, BISON */
+/* global Types, Utils, log, Class, pako, BISON, lang */
 import Detect from '../detect.js';
 import Player from '../entity/player/player.js';
 import EntityFactory from '../entityfactory.js';
@@ -174,15 +174,24 @@ export default class GameClient {
             return false;
         });
 
-        this.connection.on('disconnect', function () {
-            log.debug('Connection closed');
+        this.connection.on('disconnect', function (reason) {
+            log.debug('Connection closed: ' + reason);
             if (self.disconnected_callback) {
+                // socket.io hands the 'disconnect' handler its own reason
+                // string ('transport close', 'ping timeout', 'io server
+                // disconnect', etc.) as the first argument -- see the
+                // identical FIX comment in userclient.js's disconnect
+                // handler for the full rationale. isTimeout still takes
+                // priority since it reflects this client's own inactivity
+                // tracking, not the transport-level reason.
                 if (self.isTimeout) {
+                    self._onError([lang.data['DISCONNECT_TIMEOUT']]);
+                } else if (reason) {
                     self._onError([
-                        'You have been disconnected for being inactive for too long'
+                        lang.data['DISCONNECT_SERVER_REASON'].format([reason])
                     ]);
                 } else {
-                    self._onError(['The connection to RRO2 has been lost.']);
+                    self._onError([lang.data['DISCONNECT_LOST']]);
                 }
             }
         });

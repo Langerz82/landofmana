@@ -6,7 +6,7 @@
 // its side effect still correctly falls through to the `window.localforage` branch, exactly as
 // it did as a classic <script> tag. This is the earliest point in the import graph
 // (main.js imports App before Game), so it's imported here once rather than in every consumer.
-/* global Mob, Item, Types, Utils, log, _, TRANSITIONEND, Class, localforage */
+/* global Mob, Item, Types, Utils, log, _, TRANSITIONEND, Class, localforage, lang */
 import Detect from '../detect.js';
 import Mob from '../entity/mob.js';
 import Item from '../entity/item.js';
@@ -244,10 +244,7 @@ export default class App {
         this.info_callback = function (data) {
             switch (data[0]) {
                 case 'timeout':
-                    self.addValidationError(
-                        null,
-                        'Timeout whilst attempting to establish connection to RSO servers.'
-                    );
+                    self.addValidationError(null, lang.data['TIMEOUT_CONNECT']);
                     break;
 
                 case 'invalidlogin':
@@ -263,18 +260,14 @@ export default class App {
                         // username exists.
                         const triesRemaining = data[1];
                         if (typeof triesRemaining !== 'number') {
-                            self.addValidationError(
-                                null,
-                                'The username or password you entered is incorrect.'
-                            );
+                            self.addValidationError(null, lang.data['LOGIN_INVALID']);
                         } else if (triesRemaining > 0) {
                             self.addValidationError(
                                 null,
-                                'The username or password you entered is incorrect. ' +
-                                    triesRemaining +
-                                    ' attempt' +
-                                    (triesRemaining === 1 ? '' : 's') +
-                                    ' remaining.'
+                                lang.data['LOGIN_INVALID_TRIES'].format([
+                                    triesRemaining,
+                                    triesRemaining === 1 ? '' : 's'
+                                ])
                             );
                         } else {
                             // FIX: the connection is actually closed at this point (server-side
@@ -283,10 +276,7 @@ export default class App {
                             // nothing told the player they'd been disconnected rather than just
                             // getting the password wrong again. Say so explicitly.
                             self.jqLoginInfo.text('Disconnected.');
-                            self.addValidationError(
-                                null,
-                                'You have been disconnected: too many incorrect login attempts.'
-                            );
+                            self.addValidationError(null, lang.data['LOGIN_LOCKED_OUT']);
                         }
                         // FIX: clear this error (whether retryable or the disconnected message
                         // above) as soon as the player edits either field, instead of leaving a
@@ -309,11 +299,10 @@ export default class App {
                         if (triesRemaining > 0) {
                             self.addValidationError(
                                 self.jqUsernameInput,
-                                'The username you entered is not available. ' +
-                                    triesRemaining +
-                                    ' attempt' +
-                                    (triesRemaining === 1 ? '' : 's') +
-                                    ' remaining.'
+                                lang.data['USERNAME_TAKEN_TRIES'].format([
+                                    triesRemaining,
+                                    triesRemaining === 1 ? '' : 's'
+                                ])
                             );
                         } else {
                             // FIX: the connection is actually closed at this point (server-side
@@ -322,10 +311,7 @@ export default class App {
                             // above - nothing told the player they'd been disconnected rather
                             // than just needing to pick another name. Say so explicitly.
                             self.jqLoginInfo.text('Disconnected.');
-                            self.addValidationError(
-                                null,
-                                'You have been disconnected: too many attempts with an unavailable username.'
-                            );
+                            self.addValidationError(null, lang.data['USERNAME_LOCKED_OUT']);
                         }
                         // FIX: clear this error (whether retryable or the disconnected message
                         // above) as soon as the player edits either field, instead of leaving a
@@ -359,8 +345,8 @@ export default class App {
                     self.addValidationError(
                         self.jqPlayerNameInput,
                         data[0] === 'playerexists'
-                            ? 'The playername you entered is not available.'
-                            : 'Please enter player name alpha numeric characters only.'
+                            ? lang.data['PLAYERNAME_TAKEN']
+                            : lang.data['PLAYERNAME_ALPHANUMERIC']
                     );
 
                     // FIX: also re-enables the Create/Load buttons (see the "loading" class
@@ -379,37 +365,34 @@ export default class App {
 
                 case 'invalidusername':
                     // The username contains characters that are not allowed (rejected by the sanitizer)
-                    self.addValidationError(
-                        null,
-                        'The username you entered contains invalid characters.'
-                    );
+                    self.addValidationError(null, lang.data['USERNAME_INVALID_CHARS']);
                     break;
 
                 case 'loggedin':
                     // Attempted to log in with the same user multiple times simultaneously
-                    self.addValidationError(
-                        null,
-                        'A player with the specified username is already logged in.'
-                    );
+                    self.addValidationError(null, lang.data['USER_ALREADY_LOGGEDIN']);
                     break;
 
                 case 'ban':
-                    self.addValidationError(null, 'You have been banned.');
+                    self.addValidationError(null, lang.data['USER_BANNED']);
                     break;
 
                 case 'full':
-                    self.addValidationError(
-                        null,
-                        'All RRO2 gameservers are currently full.'
-                    );
+                    self.addValidationError(null, lang.data['SERVERS_FULL']);
+                    break;
+
+                case 'noserver':
+                    self.jqLoginInfo.text('Disconnected.');
+                    self.addValidationError(null, lang.data['NOSERVER']);
                     break;
 
                 default:
                     // FIX: `result` was not in scope here (would throw ReferenceError); use `data[0]`, the switch's own subject
                     self.addValidationError(
                         null,
-                        'Failed to launch the game: ' +
-                            (data[0] ? data[0] : '(reason unknown)')
+                        lang.data['LAUNCH_FAILED'].format([
+                            data[0] ? data[0] : lang.data['REASON_UNKNOWN']
+                        ])
                     );
                     break;
             }

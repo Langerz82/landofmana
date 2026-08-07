@@ -198,6 +198,28 @@ async function main(config) {
     };
 
     const handleConnectUser = (msg, conn) => {
+        // FIX: a connecting user used to always get a (possibly empty)
+        // UC_WORLDS list and a fully wired-up User object, even when no
+        // gameserver has ever registered (or the last one dropped) -- the
+        // player would land on a login screen with nothing in the world
+        // dropdown and no clear indication why. If no worldHandler has a
+        // `.world` set (the same truthy check the UC_WORLDS loop below
+        // already uses -- see handleGameServerInfo() in worldhandler.js,
+        // which only assigns `.world` after a gameserver authenticates),
+        // there's nothing this connection could ever do, so reject it
+        // immediately with a dedicated UC_ERROR code instead of the normal
+        // handshake, matching the existing send-error-then-close pattern
+        // used for e.g. bans (see User.checkUser in user.js).
+        const hasActiveWorld = worldHandlers.some((wh) => wh.world);
+        if (!hasActiveWorld) {
+            console.warn(
+                'handleConnectUser: rejecting connection -- no gameserver is currently online.'
+            );
+            conn.send([GameTypes.UserMessages.UC_ERROR, 'noserver']);
+            conn.close('No gameserver is currently online.');
+            return;
+        }
+
         const current_date = Date.now().toString();
         const random = Math.random().toString();
         const hash = crypto
