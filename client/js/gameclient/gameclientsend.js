@@ -232,7 +232,17 @@ export function installGameClientSend(proto) {
     };
 
     proto.sendPartyLeave = function () {
-        this.sendMessage([Types.Messages.CW_PARTY, 4, '', 0]);
+        // FIX: was `''` for the unused name field -- gameserver/js/format.js's
+        // CW_PARTY schema accepts either `null` or a real 2-16 char player
+        // name for this field (partyhandler.js's handleLeave doesn't read it
+        // at all; leave doesn't target anyone), but an empty string satisfies
+        // neither: it's not `null`, and it's shorter than the 2-char minimum.
+        // That failed format validation on every single "leave party" attempt,
+        // and packethandler.js closes the connection outright on a format
+        // failure -- so clicking "leave party" disconnected the player
+        // instead of leaving the party. `null` is what the schema (and every
+        // other "no target" case) actually expects.
+        this.sendMessage([Types.Messages.CW_PARTY, 4, null, 0]);
     };
 
     proto.sendHarvest = function (x, y) {
