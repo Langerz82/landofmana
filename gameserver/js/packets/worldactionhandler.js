@@ -3,7 +3,7 @@ import { Types } from '../common.js';
 import Block from '../entity/block.js';
 import Node from '../entity/node.js';
 import Utils from '../utils.js';
-import { G_TILESIZE } from '../constants.js';
+import { G_TILESIZE, G_DEBUG } from '../constants.js';
 
 // Split out of packethandler.js -- the remaining world-interaction packets
 // that don't fit combat/movement/skills/items: chat, quest accept/reject,
@@ -67,7 +67,13 @@ class WorldActionHandler {
     }
 
     handleQuest(msg) {
-        console.info('handleQuest');
+        // PERF: handleQuest/handleTalkToNPC/handleHarvest below are all
+        // client-triggerable at whatever rate the connection allows (a
+        // client can send CW_QUEST/CW_TALK/CW_HARVEST repeatedly without
+        // moving) -- these console.info calls used to fire unconditionally,
+        // the same log-spam vector already gated behind G_DEBUG in
+        // combathandler.js's reject path. Gated the same way.
+        if (G_DEBUG) console.info('handleQuest');
         const npcId = parseInt(msg[0]);
         const questId = parseInt(msg[1]);
         const status = parseInt(msg[2]);
@@ -83,7 +89,7 @@ class WorldActionHandler {
         // anywhere on the map. Also added a null-check: if npcId doesn't
         // resolve to a real entity, `npc` is undefined and npc.x would throw.
         if (!npc || !p.isInScreen([npc.x, npc.y])) {
-            console.info('player not close enough to NPC!');
+            if (G_DEBUG) console.info('player not close enough to NPC!');
             return;
         }
 
@@ -95,7 +101,7 @@ class WorldActionHandler {
 
     handleTalkToNPC(message) {
         // 30
-        console.info('handleTalkToNPC');
+        if (G_DEBUG) console.info('handleTalkToNPC');
         const type = parseInt(message[0]);
         const npcId = parseInt(message[1]);
 
@@ -105,7 +111,7 @@ class WorldActionHandler {
         // handleQuest above, plus a null-check on npc before using its
         // coordinates.
         if (!npc || !p.isNextTooEntity(npc)) {
-            console.info('player not close enough to NPC!');
+            if (G_DEBUG) console.info('player not close enough to NPC!');
             return;
         }
 
@@ -162,7 +168,7 @@ class WorldActionHandler {
 
 
         if (!this.player.isNextTooTile(x,y)) {
-            console.info("player is not nextTooTile.");
+            if (G_DEBUG) console.info("player is not nextTooTile.");
             return;
         }
 

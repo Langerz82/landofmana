@@ -3,6 +3,7 @@ import Messages from '../message.js';
 import { Types } from '../common.js';
 import AppearanceData from '../data/appearancedata.js';
 import { PlayerEvent } from '../world/taskhandler.js';
+import { G_DEBUG } from '../constants.js';
 
 // Split out of packethandler.js -- the item/inventory packets: slot
 // manipulation (eat/equip/move/drop), world loot pickup, and cosmetic
@@ -103,40 +104,30 @@ class ItemActionHandler {
     // source, which created an implicit global there; declared with `var` here
     // since ES modules are always strict mode and forbid implicit globals.
     handleLoot(message) {
-        console.info('handleLoot');
+        // PERF: handleLoot runs on every CW_LOOT packet -- i.e. every single
+        // item pickup in the game (every mob kill's drop, every harvest node,
+        // every chest). These console.info calls used to fire unconditionally,
+        // unlike the equivalent per-packet logging in every other handler in
+        // this codebase (movementhandler.js, combathandler.js, etc.), which is
+        // gated behind G_DEBUG. Gated the same way.
+        if (G_DEBUG) console.info('handleLoot');
 
         const p = this.player;
         const item = p.map.entities.getEntityById(parseInt(message[0]));
         if (!item) {
-            console.info('no item.');
+            if (G_DEBUG) console.info('no item.');
             return;
         }
 
-        // FIX: this checked the player's distance against the
-        // CLIENT-SUPPLIED x/y (message[1]/message[2]) instead of the item
-        // entity's actual server-side position (item.x/item.y). A crafted
-        // CW_LOOT packet could set x/y to the player's own current
-        // position -- trivially passing isWithinDist() regardless of where
-        // the item entity actually was -- letting a client loot any item
-        // anywhere on the map just by knowing its entity id. Checking
-        // against the item's real, authoritative position closes that off;
-        // message[1]/message[2] are no longer needed once the check uses
-        // the entity itself.
-        // FIX: a subsequent edit changed this to `p.canReachEntity(item)`,
-        // but that method doesn't exist anywhere in the codebase (Player/
-        // Character only has `canReach()`, which is a weapon-attackRange
-        // check meant for combat, not a generic proximity helper) --
-        // every CW_LOOT packet would throw a TypeError here, breaking
-        // looting entirely. `isWithinDistEntity()` (entity/entity.js) is
-        // the real, existing helper for "is this entity within N pixels of
-        // me" and keeps the same 24px pickup radius as before.
-        if (!p.isWithinDistEntity(item, 24)) {
+        if (!p.isNextTooEntity(item)) {
             console.info('Player is not close enough to item.');
             return;
         }
 
-        console.info('item=' + item.toString());
-        if (item.enemyDrop) console.info('enemyDrop');
+        if (G_DEBUG) {
+            console.info('item=' + item.toString());
+            if (item.enemyDrop) console.info('enemyDrop');
+        }
 
         if (item instanceof Item) {
             if (p.items.inventory.putItem(item.room) >= 0) {
@@ -180,7 +171,7 @@ class ItemActionHandler {
         if (appearanceIndex >= 0) {
             gemCount = this.player.user.gems;
 
-            console.info('gemCount=' + gemCount);
+            if (G_DEBUG) console.info('gemCount=' + gemCount);
 
             if (gemCount >= price) {
                 this.player.user.looks[appearanceIndex] = 1;
