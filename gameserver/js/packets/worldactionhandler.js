@@ -41,14 +41,21 @@ class WorldActionHandler {
             // message was logged in full before being capped. Moved after
             // both so it reflects what actually gets processed.
             console.info('Chat: ' + this.player.name + ': ' + msg);
-            const command = msg.split(' ', 3);
-            switch (command[0]) {
+
+            // FIX: was `msg.split(' ', 3)` -- split()'s limit argument only
+            // caps how many pieces come back, it does not rejoin whatever's
+            // left, so "/w Bob hello there" produced ['/w','Bob','hello'],
+            // silently truncating the message at the 3rd word. Only the
+            // command name was ever read from this (command[0]) -- pull just
+            // that to route the switch below; handleWhisper() gets the whole
+            // raw `msg` and does its own parsing of the rest so multi-word
+            // whispers survive intact.
+            const spaceIdx = msg.indexOf(' ');
+            const cmdName = spaceIdx === -1 ? msg : msg.substring(0, spaceIdx);
+            switch (cmdName) {
                 case '/w':
-                    this.ph.send([
-                        Types.Messages.WC_NOTIFY,
-                        'CHAT',
-                        'CHATMUTED'
-                    ]);
+                case '/whisper':
+                    this.handleWhisper(msg);
                     break;
                 default:
                     // FIX: Messages.Chat's constructor is (player, group,
@@ -64,6 +71,73 @@ class WorldActionHandler {
                     break;
             }
         }
+    }
+
+    // "/w <name> <message>" -- private message to a single online player.
+    // Previously this branch just sent back a CHATMUTED notify no matter
+    // what, i.e. /w was wired up to look like a command but never actually
+    // did anything. `msg` is the whole raw chat string as handleChat()
+    // received it (e.g. "/w Bob hello there") -- all parsing (stripping the
+    // "/w", pulling the target name, and whatever's left as the message
+    // body) happens here rather than in handleChat(). Resolves the target
+    // the same way partyhandler.js's getPlayer() does (World.getPlayerByName(),
+    // which lowercases internally), then sends the chat message only to the
+    // two participants via sendToPlayer/sendPlayer -- NOT world.sendWorld(),
+    // so nobody else on the map receives the packet. The sender gets their
+    // own copy echoed back the same way a world-chat broadcast already
+    // includes the sender (sendBroadcast() with no ignoredPlayer).
+    handleWhisper(msg) {
+        // Strip the "/w" command word itself.
+        const cmdEnd = msg.indexOf(' ');
+        const rest = cmdEnd === -1 ? '' : msg.substring(cmdEnd + 1).trim();
+
+        // Split what's left into the target name (first word) and the
+        // message body (everything after it).
+        const spaceIdx = rest.indexOf(' ');
+        const targetName = spaceIdx === -1 ? rest : rest.substring(0, spaceIdx);
+        const body = spaceIdx === -1 ? '' : rest.substring(spaceIdx + 1).trim();
+
+        if (!targetName || !body) {
+            this.ph.send([Types.Messages.WC_NOTIFY, 'CHAT', 'WHISPER_USAGE']);
+            return;
+        }
+
+        const target = this.world.getPlayerByName(targetName);
+        if (!target) {
+            this.ph.send([
+                Types.Messages.WC_NOTIFY,
+                'CHAT',
+                'NO_PLAYER_EXIST',
+                targetName
+            ]);
+            return;
+        }
+
+        // Also guards against sending the echoed copy twice below (target
+        // === this.player would hit both sendToPlayer and sendPlayer).
+        if (target === this.player) {
+            this.ph.send([Types.Messages.WC_NOTIFY, 'CHAT', 'WHISPER_SELF']);
+            return;
+        }
+
+        // NOTE: the client's chat display (client/js/clientcallback/
+        // clientcallbackssocial.js's onChatMessage) doesn't currently look at
+        // the `group` field at all -- it just renders "<sender>: <text>" the
+        // same for every group. Tagging the body text itself is what makes a
+        // whisper actually read as private instead of looking identical to
+        // world chat; the two copies get different tags since one reads from
+        // the sender's side and one from the target's.
+        this.player.sendToPlayer(
+            target,
+            new Messages.Chat(this.player, 'whisper', '(whisper) ' + body)
+        );
+        this.player.sendPlayer(
+            new Messages.Chat(
+                this.player,
+                'whisper',
+                '(whisper to ' + target.name + ') ' + body
+            )
+        );
     }
 
     handleQuest(msg) {

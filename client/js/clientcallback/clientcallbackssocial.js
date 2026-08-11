@@ -8,8 +8,15 @@ export function installClientCallbacksSocial(proto) {
     };
 
     proto.onChatMessage = function (data) {
+        // FIX: gameserver/js/message.js's Messages.Chat sends [WC_CHAT,
+        // playerId, group, message] -- after gameclient.js's receiveAction()
+        // strips the type byte, `data` here is [playerId, group, message], so
+        // the real chat text is data[2], not data[1] (that's the group,
+        // e.g. "world"/"whisper"). Every chat message -- not just the new
+        // whisper command -- was rendering as the literal group name instead
+        // of what the player actually typed.
         const entityId = Number(data[0]);
-        const message = data[1];
+        const message = data[2];
 
         if (!game.chathandler.processReceiveMessage(entityId, message)) {
             const entity = game.getEntityById(entityId);
