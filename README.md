@@ -4,9 +4,9 @@ formerly Retro RPG Online 2/Rogue Quest
 ## URGENT NOTICE:
 This game is free-to-play but the server costs and domain expenses cost real money. If you can spare few dollars I would much appreciate your donation to cover the costs. Support the project by donating here:
 
-https://www.paypal.com/paypalme/Langerz82
+**https://www.paypal.com/paypalme/Langerz82**
 
-Each $1 USD = 1,000 Gems in-game which can be used for cosmetics only. Be sure to e-mail me at mmoprogaming [at] gmail.com your username along with the transaction id of your donation.
+Each $1 USD = 1,000 Gems in-game which can be used for cosmetics only. Be sure to e-mail me at **landofmana82 [at] gmail.com** your username along with the transaction id of your donation.
 All money made will directly go back into the project costs.
 
 ## NEWS:
