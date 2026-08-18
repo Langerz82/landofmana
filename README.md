@@ -1,7 +1,16 @@
 # Land of Mana - Beta.
 formerly Retro RPG Online 2/Rogue Quest
 
-**NEWS:** I have used AI to fix allot of code, and converted the code into Javascript ES6 Modules. Allot of work has been done, soon I will add more features.
+## URGENT NOTICE:
+This game is free-to-play but the server costs and domain expenses cost real money. If you can spare few dollars I would much appreciate your donatation to cover the costs. Support the project by donating here:
+
+https://www.paypal.com/paypalme/Langerz82
+
+Each $1 USD = 1,000 Gems in-game which can be used for cosmetics only. Be sure to e-mail me at mmoprogaming [at] gmail.com your username along with the transaction id of your donation.
+All money made will directly go back into the project costs.
+
+## NEWS:
+I have used AI to fix allot of code, and converted the code into Javascript ES6 Modules. Allot of work has been done, soon I will add more features.
 
 Land Of Mana is a free browser MMORPG inspired by Secret of Mana and classic Zelda, playable instantly with friends and powered by an open-source JavaScript engine.
 
@@ -34,14 +43,14 @@ https://play.google.com/store/apps/details?id=com.retrorpgonline2
 ## FEATURES:
 * The game uses Pixi-JS 3D, and is optimized to work on lower spec GPU's and consume less power.
 * Game is online and many people can play on the Server at once.
-* A real-time like battle system, power up to deal maximum damage, and avoid enemy attacks by moving away.
+* A real-time like battle system.
 * An Inventory system, Equip armor and weapons at level 10 onwards.
 * Quest NPC's to take on various quests (will make some more diverse and scripted ones in future).
 * NPC Shops to buy various consumables and basic Weapons and Armor.
 * Auction House to sell or buy items listed by players.
 * Enchant your weapons and armor to make them more powerful.
 * Bank system to store items should your inventory get full.
-* Change your avatars appearance with paid gems (not yet enabled).
+* Change your avatars appearance with gems (2,000 gems free per account, donate for more).
 * PvP combat is enabled at level 20 onwards, when you reach that level expect chaos.
 * Player stat system that occurs at level 10, distribute the points how you want to make your character more unique.
 * Skill system that is still a work in progress.
@@ -51,8 +60,7 @@ https://play.google.com/store/apps/details?id=com.retrorpgonline2
 * To Move you can can click on the Map, or use the arrow keys.
 * To Attack mouse click on the Monster or get within attack range and press Space bar.
 * To cycle through targets use keys T to target the closest Character or Y to reverse target.
-* Keys 1-4 for Skill Shortcuts.
-* Keys 5-8 for Consumables.
+* Keys 1-6 for Skill/Item Shortcuts.
 
 ## JOYPAD SUPPORT:
 * It should have limited support for Game Controllers.
