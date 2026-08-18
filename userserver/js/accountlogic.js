@@ -237,6 +237,27 @@ class AccountLogic {
             data.gems = parseInt(data.gems);
         }
 
+        // FIX: fold in any gems staged by an admin's addUserGemsOffline()
+        // call (redis.js) -- mirrors this class's own loadPlayerInfo()
+        // offlineGold handling below for gold_0, and closes the same gap:
+        // previously nothing ever read "gemsoffline" back out, so gems
+        // credited while a player wasn't online just sat in that field
+        // forever and never reached the account. redis.js's loadUserInfo()
+        // now atomically reads and clears "gemsoffline" as part of its own
+        // HGETALL/HDEL multi (see that function's FIX comment), so this
+        // can't double-count or drop a concurrent addUserGemsOffline()
+        // credit landing mid-read. The credit is persisted immediately via
+        // modifyGems()'s atomic HINCRBY, fired without waiting on its
+        // callback -- same fire-and-forget pattern loadPlayerInfo() uses for
+        // offlineGold -- so it's durable in Redis right away rather than
+        // only living in this in-memory `data.gems` until something else
+        // happens to write "gems" back out.
+        const offlineGems = parseInt(data.gemsoffline, 10) || 0;
+        if (offlineGems !== 0) {
+            data.gems += offlineGems;
+            this.dbh.modifyGems(user.name, offlineGems);
+        }
+
         const len = AppearanceData.Data.length;
         data.looks = new Uint8Array(len);
         if (data.looks2) {

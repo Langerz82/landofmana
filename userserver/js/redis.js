@@ -579,20 +579,44 @@ class DatabaseHandler {
         });
     }
 
+    // FIX: also atomically clears "gemsoffline" (addUserGemsOffline(),
+    // below) here, in the same multi/exec as the HGETALL -- same race
+    // loadPlayerInfo()'s "goldoffline" handling above closes (see that
+    // function's FIX comment): reading (HGETALL) and clearing (HDEL)
+    // separately would let a concurrent addUserGemsOffline() HINCRBY landing
+    // in the gap between the two get silently wiped out by the unconditional
+    // clear, never folded in. The HGETALL still runs first inside the multi,
+    // so "gemsoffline" (if any) is already present in `data` exactly as
+    // HGETALL would have returned it on its own -- this only changes when
+    // the field gets cleared, not what's handed back. What to *do* with
+    // that raw amount -- adding it to "gems" and persisting the credit -- is
+    // a data-manipulation decision, so it's left to
+    // AccountLogic.loadUserData() (accountlogic.js) to make, matching this
+    // file's "primitives only" convention (see the REFACTOR comment at the
+    // top of this file).
     loadUserInfo(username, callback) {
         const uKey = 'u:' + username;
 
-        client.hgetall(uKey, (err, data) => {
-            console.info('replies: ' + data);
-            console.info(JSON.stringify(data));
-            if (data === null || !(typeof data === 'object')) {
-                return;
-            }
+        client
+            .multi()
+            .hgetall(uKey)
+            .hdel(uKey, 'gemsoffline')
+            .exec((err, raw) => {
+                if (raw === null || !(typeof raw === 'object')) {
+                    return;
+                }
 
-            if (callback) {
-                callback(username, data);
-            }
-        });
+                const [data] = raw;
+                console.info('replies: ' + data);
+                console.info(JSON.stringify(data));
+                if (data === null || !(typeof data === 'object')) {
+                    return;
+                }
+
+                if (callback) {
+                    callback(username, data);
+                }
+            });
     }
 
     getUserPlayerNames(username, callback) {
@@ -1347,6 +1371,32 @@ class DatabaseHandler {
                         );
                     }
                 });
+            }
+        });
+    }
+
+    // Lets admins credit gems to an account that isn't necessarily online
+    // right now (WU_ADD_PLAYER_GOLD's gems equivalent) -- same staging
+    // pattern as addPlayerGoldOffline() above: atomically add `amount` to
+    // "gemsoffline" here, and loadUserInfo() above reads it back out and
+    // atomically clears it as part of its own per-login HGETALL/HDEL multi.
+    // AccountLogic.loadUserData() (accountlogic.js) is what actually folds
+    // that raw amount into "gems" and persists the credit via modifyGems() --
+    // see loadUserInfo()'s FIX comment above for the full race-safety
+    // rationale (same one addPlayerGoldOffline()/loadPlayerInfo() already
+    // rely on for gold).
+    addUserGemsOffline(userName, amount) {
+        console.info('redis.addUserGemsOffline: userName:' + userName);
+        console.info('amount:' + amount);
+
+        const uKey = 'u:' + userName;
+        client.hincrby(uKey, 'gemsoffline', amount, (err) => {
+            if (err) {
+                console.warn(
+                    'redis.addUserGemsOffline: save error, ' +
+                        JSON.stringify(err)
+                );
+                return;
             }
         });
     }
