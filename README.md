@@ -2,7 +2,7 @@
 formerly Retro RPG Online 2/Rogue Quest
 
 ## URGENT NOTICE:
-This game is free-to-play but the server costs and domain expenses cost real money. If you can spare few dollars I would much appreciate your donatation to cover the costs. Support the project by donating here:
+This game is free-to-play but the server costs and domain expenses cost real money. If you can spare few dollars I would much appreciate your donation to cover the costs. Support the project by donating here:
 
 https://www.paypal.com/paypalme/Langerz82
 
