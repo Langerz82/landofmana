@@ -43,12 +43,34 @@ export function installGameInteractionInput(proto) {
         }
 
         if (entity) {
+            if (this.renderer.isDesktop) {
+                // Desktop: the mouse is already hovering (and, per
+                // movecursor()/gamecursor.js, has already previewed and -- if
+                // no target was set yet -- selected) whatever's under the
+                // cursor. A click on it always sets it as the target and acts
+                // on it immediately, in one step; there's no separate
+                // "select, then click again to act" step to wait for like on
+                // mobile below. lookAtEntity() is kept before processInput()
+                // so the player is actually facing the target when the
+                // interaction (attack/harvest/etc, gated on facing for melee
+                // range - see canReach()/charactertargeting.js) fires.
+                p.setTarget(entity);
+                p.lookAtEntity(entity);
+                this.processInput(pos.x, pos.y);
+                return;
+            }
+
+            // Mobile: no hover, so tapping an entity already in reach acts on
+            // it immediately, same as the desktop path above.
             if (p.isNextTooEntity(entity)) {
                 p.setTarget(entity);
                 p.lookAtEntity(entity);
                 this.processInput(pos.x, pos.y);
                 return;
             }
+            // Otherwise the first tap just selects the entity as the target
+            // (no processInput) -- a second tap landing back on it, handled
+            // further below, is what actually acts on it.
             if (!p.hasTarget()) {
                 p.setTarget(entity);
                 return;

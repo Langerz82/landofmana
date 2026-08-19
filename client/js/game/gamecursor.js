@@ -127,22 +127,49 @@ export function installGameCursor(proto) {
             this.hoveringChest = this.isChestAt(x, y);
             this.hoveringEntity = this.getEntityAt(x, y);
 
-            if (
+            // FIX (perf): was a duplicate `this.getEntityAt(x, y)` call --
+            // same x/y already computed into this.hoveringEntity above.
+            const entity = this.hoveringEntity;
+            const hoveringValidEntity =
+                entity &&
                 (this.hoveringMob ||
                     this.hoveringPlayer ||
                     this.hoveringNpc ||
                     this.hoveringChest ||
                     this.hoveringOtherPlayer ||
-                    this.hoveringItem) &&
-                !this.player.hasTarget()
-            ) {
-                // FIX (perf): was a duplicate `this.getEntityAt(x, y)` call --
-                // same x/y already computed into this.hoveringEntity above.
-                const entity = this.hoveringEntity;
-                if (!entity) return;
+                    this.hoveringItem);
 
-                this.player.showTarget(entity);
-                this.lastHovered = entity;
+            if (hoveringValidEntity) {
+                // Not on mobile (this whole block is already gated on
+                // `!this.renderer.mobile && !this.renderer.tablet` above),
+                // hovering a valid entity, and no target set yet: preview it
+                // in the hover-info GUI window (name/level/HP, via
+                // settarget_callback -- see initTargetHud()/appui.js), but
+                // do NOT select it as the player's target. showTarget()
+                // (charactertargeting.js) only tracks this.inspecting and
+                // fires settarget_callback -- unlike setTarget(), it never
+                // assigns this.target.
+                //
+                // If a target is already set, hovering leaves it alone
+                // entirely -- it neither previews a different entity nor
+                // touches the hover-info window, so it never steals/changes
+                // an explicit combat target the player set by clicking or
+                // attacking.
+                if (!this.player.hasTarget()) {
+                    this.player.showTarget(entity);
+                    this.lastHovered = entity;
+                }
+            } else if (this.lastHovered && !this.player.hasTarget()) {
+                // The mouse hovered off the entity hovering itself was
+                // previewing (this.lastHovered) -- hide the hover-info GUI
+                // window again (hideTarget() fires removetarget_callback,
+                // which fades out app.jqTarget -- see
+                // initTargetHud()/appui.js) without touching this.target,
+                // which hovering never set in the first place. Gated on
+                // `!hasTarget()` so this never fades out the window while it
+                // is actually showing a real (click/attack-set) target.
+                this.player.hideTarget();
+                this.lastHovered = null;
             }
         }
     };

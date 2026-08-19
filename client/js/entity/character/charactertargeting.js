@@ -48,8 +48,35 @@ export function installCharacterTargeting(proto) {
     proto.showTarget = function (character) {
         if (this.inspecting !== character && character !== this) {
             this.inspecting = character;
-            if (this.settarget_callback && this.target) {
+            // FIX: was `if (this.settarget_callback && this.target)` -- requiring
+            // this.target to already be set meant this callback (which
+            // initTargetHud()/appui.js registers to populate and fade in the
+            // hover-info GUI window) could only ever fire while a target already
+            // existed. showTarget() is specifically the hover-preview path used
+            // when the player hovers an entity (see gamecursor.js's movecursor())
+            // while an existing target is NOT touched/overwritten -- it should
+            // preview any hovered entity in the GUI regardless of whether a
+            // target happens to be set, without assigning this.target itself.
+            if (this.settarget_callback) {
                 this.settarget_callback(character, true);
+            }
+        }
+    };
+
+    /**
+     * Hides the hover-preview info shown by showTarget(), without touching
+     * this.target -- the counterpart to removeTarget() below, but for
+     * this.inspecting instead of this.target. Callers (gamecursor.js's
+     * movecursor(), when the mouse hovers off an entity) are responsible for
+     * only calling this while there's no real target set, so it never hides
+     * the GUI panel out from under an actual (click/attack-set) target.
+     */
+    proto.hideTarget = function () {
+        if (this.inspecting) {
+            const id = this.inspecting.id;
+            this.inspecting = null;
+            if (this.removetarget_callback) {
+                this.removetarget_callback(id);
             }
         }
     };
