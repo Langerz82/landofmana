@@ -1127,6 +1127,11 @@ class DatabaseHandler {
                                     firstError = firstError || err;
                                 } else {
                                     migratedCount++;
+                                    console.debug(
+                                        'migrateGold1ToUser: [debug] migrated ' +
+                                            uKey +
+                                            ' -- no characters yet, seeded zero shared gold_1.'
+                                    );
                                 }
                                 checkDone();
                             });
@@ -1191,6 +1196,19 @@ class DatabaseHandler {
                                                 }
 
                                                 migratedCount++;
+                                                console.debug(
+                                                    'migrateGold1ToUser: [debug] migrated ' +
+                                                        uKey +
+                                                        ' -- combined ' +
+                                                        total +
+                                                        ' gold across ' +
+                                                        playerNames.length +
+                                                        ' character(s): [' +
+                                                        playerNames.join(
+                                                            ', '
+                                                        ) +
+                                                        '].'
+                                                );
 
                                                 // The shared account-level gold_1 is now the source of
                                                 // truth for this account -- each character's own
@@ -1773,6 +1791,11 @@ class DatabaseHandler {
                                     firstError = firstError || err;
                                 } else {
                                     migratedCount++;
+                                    console.debug(
+                                        'migrateBankToUser: [debug] migrated ' +
+                                            uKey +
+                                            ' -- no characters yet, seeded empty shared bank.'
+                                    );
                                 }
                                 checkDone();
                             });
@@ -1850,6 +1873,17 @@ class DatabaseHandler {
                                     }
 
                                     migratedCount++;
+                                    console.debug(
+                                        'migrateBankToUser: [debug] migrated ' +
+                                            uKey +
+                                            ' -- merged ' +
+                                            merged.length +
+                                            ' item(s) across ' +
+                                            playerNames.length +
+                                            ' character(s): [' +
+                                            playerNames.join(', ') +
+                                            '].'
+                                    );
 
                                     // The shared account-level bank is now the source of truth
                                     // for this account -- each character's own p:<playerName>
