@@ -610,7 +610,25 @@ class Player extends Character {
         this.map.entities.sendNeighbours(this, msg);
     }
 
+    // FIX: added an on-death durability penalty -- respawn() (reached from
+    // packethandler.js's handleRevive(), the CW_PLAYER_REVIVE response to a
+    // dead player choosing to respawn) previously only cleared isDead/
+    // freeze and refilled hp/ep, with no cost at all for dying. Every
+    // equipped item (weapon included -- forEachArmor() deliberately skips
+    // it, so this uses equipment.js's forEachItem() instead) loses 100
+    // durability here. degradeItem() (equipment.js) already does the actual
+    // clamping/breaking/client-notify work identically to the existing
+    // per-hit combat degrade (playercombat.js) -- durability floors at 0,
+    // and an item whose durabilityMax is low enough (<= 30) breaks outright
+    // (removed from the slot) rather than sitting at 0 forever, same as a
+    // combat-degraded item would.
     respawn() {
+        if (this.isDead) {
+            const equipment = this.items.equipment;
+            equipment.forEachItem(function (id) {
+                equipment.degradeItem(id, 100);
+            });
+        }
         this.isDead = false;
         this.freeze = false;
         this.resetBars();

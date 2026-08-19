@@ -453,6 +453,14 @@ class ItemStore {
         return itemNums.length > 0 ? itemNums[rand] : -1;
     }
 
+    forEachItem(callback) {
+        for (let id = 0; id < this.rooms.length; ++id) {
+            const item = this.rooms[id];
+            if (!item) continue;
+            callback(id, item);
+        }
+    }
+
     toString() {
         let itemString = '' + this.maxNumber + ',';
 

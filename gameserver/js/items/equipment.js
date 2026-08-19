@@ -338,6 +338,20 @@ class Equipment {
             callback(id, this.rooms[id]);
         }
     }
+
+    // Same iteration as forEachArmor() above, but over every occupied slot
+    // including the weapon -- forEachArmor() deliberately excludes it (it
+    // backs the defense/armor-degrade paths, where the weapon doesn't
+    // belong), but a death penalty should hit the whole loadout. Kept as
+    // its own method rather than adding a "include weapon?" flag to
+    // forEachArmor(), so neither caller has to know the other's concern.
+    forEachItem(callback) {
+        for (let id = 0; id < this.rooms.length; ++id) {
+            const item = this.rooms[id];
+            if (!item) continue;
+            callback(id, item);
+        }
+    }
 }
 
 export default Equipment;
