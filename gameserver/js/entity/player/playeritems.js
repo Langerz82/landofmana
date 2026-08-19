@@ -106,6 +106,26 @@ class PlayerItems {
         // dropped-item entity instead of the store-slot item that was
         // passed in.
         item = entity.map.entities.createItem(newItemRoom, entity.x, entity.y);
+        // FIX: `count` (slot[2], the client-supplied drop count) was never
+        // checked for NaN before being clamped -- a CW_ITEMSLOT drop packet
+        // with the count field omitted/garbled (itemactionhandler.js's
+        // handleItemSlot builds `slot[2]` via `Number(msg[3])`, which is NaN
+        // for `undefined`) fed straight into
+        // Utils.clamp(1, itemRoom.itemNumber, NaN). Utils.clamp is
+        // Math.max(min, Math.min(max, value)), and every Math.min/Math.max
+        // comparison against NaN propagates NaN, so `count` came out NaN
+        // too. Every `>`/`===` check downstream (takeOutItems()'s own
+        // `number > item.itemNumber` bail-out, and its
+        // `item.itemNumber === 0` empty-stack check, in itemroomstore.js)
+        // is silently false for NaN, so instead of being rejected the
+        // store's stack was left corrupted at `itemNumber = NaN` while a
+        // second, also-NaN-quantity item was still created and dropped on
+        // the ground -- a state-corruption/duplication bug. Default an
+        // invalid count to dropping a single item (matching how other
+        // item-count fields elsewhere in this codebase fall back on a
+        // missing/non-numeric value, e.g. entityquests.js's reward
+        // handling) instead of trusting it into the clamp.
+        if (!Number.isFinite(count)) count = 1;
         count = Utils.clamp(1, itemRoom.itemNumber, count);
 
         if (!ItemTypes.isEquippable(kind)) {
@@ -287,7 +307,21 @@ class PlayerItems {
         const entity = this.entity;
 
         diff = parseInt(diff);
-        if (entity.user.gems - diff < 0) {
+        // FIX: was `entity.user.gems - diff < 0` -- the sibling
+        // modifyGold() a few lines up correctly guards with
+        // `this.gold[type] + gold < 0` (the balance after applying the
+        // delta), but this used `-` instead of `+`, inverting the check in
+        // both directions. Spending gems (diff negative, e.g. the
+        // appearance-unlock shop path in packets/itemactionhandler.js, or
+        // the `modgems` admin console command in main.js): `gems=5,
+        // diff=-100` -> `5 - (-100) = 105 < 0` is false, so the
+        // "insufficient gems" rejection never fired and the balance was
+        // driven to -95 instead of being refused. Granting gems (diff
+        // positive, e.g. `modgems` adding to a balance): `gems=0, diff=500`
+        // -> `0 - 500 = -500 < 0` is true, so a legitimate credit was
+        // wrongly rejected as "no gems". `entity.user.gems + diff` (the
+        // actual resulting balance) is the correct thing to check against 0.
+        if (entity.user.gems + diff < 0) {
             entity.connection.send(
                 new Messages.Notify('SHOP', 'SHOP_NOGEMS').serialize()
             );

@@ -164,8 +164,25 @@ export function installEntityMovingSpatial(proto) {
     };
 
     proto.nextDist = function (x, y, o, dist) {
-        x = x || this.x;
-        y = y || this.y;
+        // FIX: `x || this.x` treats an explicit, legitimate `x=0` (a real
+        // grid position at the map's left/top edge) the same as "x wasn't
+        // passed at all" and silently substitutes this entity's own
+        // position instead. Reached via Mob.followAttack()'s
+        // this.nextTile(entity.x, entity.y, entity.orientation) call
+        // (entity/mob/mob.js) when predicting a moving target's next tile --
+        // a target sitting exactly on column/row 0 would have its predicted
+        // position corrupted to the mob's own position instead, sending the
+        // mob pathing toward the wrong spot. Using a nullish check instead
+        // of `||` only substitutes the default when the argument is
+        // genuinely missing (undefined/null), not when it's a legitimate
+        // falsy coordinate. `o`/`dist` are left as `||` below deliberately:
+        // orientation is never 0 in this codebase (Types.Orientations
+        // starts at 1, shared/js/gametypes.js) and `dist=0` has no
+        // meaningful "explicit zero" caller today, so there's no live bug
+        // there to fix, and changing that arithmetic unprompted risks an
+        // unrelated behavior change.
+        x = x ?? this.x;
+        y = y ?? this.y;
         o = o || this.orientation;
         dist = dist || 1;
 

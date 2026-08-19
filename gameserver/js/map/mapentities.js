@@ -386,6 +386,17 @@ class MapEntities {
         // path, it would stay referenced here forever.
         if (this.npcs.has(entity.id)) this.npcs.delete(entity.id);
 
+        // FIX: same gap as the `npcs` FIX just above, for its sibling
+        // registry -- `npcplayers` (roaming NpcMove instances, see
+        // addNpcMove() above) was never cleaned up by the generic
+        // removeEntity() path either, only by the dedicated (currently
+        // uncalled) removeNpcPlayer(). Latent today for the same reason
+        // (nothing currently routes a roaming NPC's removal through this
+        // generic path), but the moment something does, this would leak the
+        // reference forever and leave a stale "removed but still iterated"
+        // entry for forEachNpcPlayer() callers.
+        if (this.npcplayers.has(entity.id)) this.npcplayers.delete(entity.id);
+
         if (this.entities.has(entity.id)) this.entities.delete(entity.id);
 
         entity.destroy();

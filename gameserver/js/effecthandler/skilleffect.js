@@ -20,6 +20,24 @@ export class SkillEffect {
         if (G_DEBUG) console.info('SkillEffect - skillId:' + skillId);
         this.targetType = this.data.targetType;
         this.activeTimer = 0;
+        // FIX: `this.level` is assigned a few lines below (from the
+        // `skillLevel` constructor parameter) -- but the durationPL branch
+        // here read `this.level` *before* that assignment ran, so it was
+        // always `undefined` at this point. `this.data.durationPL *
+        // undefined` is `NaN`, and `NaN || 0` silently falls back to `0`.
+        // For any skill defined with `durationPL` (per-level duration
+        // scaling, see data/skilldata.js) instead of a flat `duration`,
+        // this meant `this.duration` came out `0` -- apply()'s
+        // `if (this.duration > 0) this.startIntervalTicking();` never ran,
+        // so the effect's 'end' phase never fired and any 'interval'
+        // (DOT/HOT) ticks never happened. The cast's 'start'-phase
+        // buff/debuff became permanent instead of expiring after
+        // `durationPL * level` seconds. Move the `this.level` assignment
+        // above this calculation (using the `skillLevel` parameter directly
+        // would also work, but keeping `this.level` as the single source of
+        // truth matches how every other use of level in this class reads
+        // it).
+        this.level = Number(skillLevel);
         this.duration =
             (this.data.durationPL
                 ? this.data.durationPL * this.level
@@ -28,7 +46,6 @@ export class SkillEffect {
         this.countTotal = Number(this.data.countTotal) || 0;
         this.count = 0;
         this.effectTypes = this.data.effectTypes;
-        this.level = Number(skillLevel);
         //this.isActive = false;
         // NOTE: used to hold a per-instance setInterval() handle; replaced by
         // a self-rescheduling Scheduler token (see startIntervalTicking()/

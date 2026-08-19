@@ -98,6 +98,55 @@ class Area {
         return this._getRandomPosition(this, this, threshold);
     }
 
+    // PERF: map/mapentities.js's spaceEntityRandomApart() defaults its
+    // `entities` argument to the WHOLE map's entity list whenever a caller
+    // omits it -- and its retry loop dist-checks that list up to 100 times
+    // per call (see the PERF comment there). BlockArea.randomizeBlocks()
+    // and MobArea._createMob() (used for both initial spawn and respawn,
+    // the latter via entity/mob/mobrespawn.js) both used to omit it, so
+    // every block placement and every mob spawn/respawn paid up to 100 x
+    // O(every entity on the map) just to find a spot -- on a server sized
+    // for ~875 mobs across 51 areas (see G_SPATIAL_SIZE in constants.js),
+    // that's real, continuous cost during active combat/farming, unlike
+    // mobai.js's Roaming(), which was already deliberately narrowed to a
+    // spatially-filtered nearby-mob list for exactly this reason.
+    //
+    // Returns a spatially-prefiltered entity list, wide enough to safely
+    // replace the full map-entities default for any candidate position this
+    // area could ever generate: every candidate spaceEntityRandomApart() is
+    // asked to dist-check is already filtered through contains() first (see
+    // _getRandomPosition() above), so it's always within this area's own
+    // true bounds -- only the `distTiles` search radius itself can reach
+    // entities just outside them, which the radius computed below accounts
+    // for.
+    getNearbyEntities(distTiles) {
+        let centerX, centerY, halfDiagonalTiles;
+        if (this.elipse) {
+            // Area.x/y ARE the center for an ellipse (see the class comment
+            // at the top of this file); valid positions stay within
+            // width/2 and height/2 of it (see contains() above).
+            centerX = this.x;
+            centerY = this.y;
+            halfDiagonalTiles =
+                Math.max(this.width, this.height) / 2 / G_TILESIZE;
+        } else {
+            // Area.x/y is the top-left corner for a rectangle; valid
+            // positions stay within [x, x+width) x [y, y+height).
+            centerX = this.x + this.width / 2;
+            centerY = this.y + this.height / 2;
+            halfDiagonalTiles =
+                Math.sqrt(
+                    Math.pow(this.width / 2, 2) + Math.pow(this.height / 2, 2)
+                ) / G_TILESIZE;
+        }
+        // +1 tile of slack on top of the exact geometric bound, for rounding.
+        const radiusTiles = Math.ceil(halfDiagonalTiles + distTiles) + 1;
+        return this.map.entities.getEntitiesAround(
+            { x: centerX, y: centerY },
+            radiusTiles
+        );
+    }
+
     contains(x, y, iteration) {
         //iteration = iteration;
         if (!this.elipse) {
@@ -116,7 +165,18 @@ class Area {
             //console.log("this.x:"+this.x+",this.y:"+this.y);
             //console.log("d:"+d);
 
-            const inElipse = d < this.width / 2;
+            // FIX: only checked `d < this.width / 2`, ignoring `this.height`
+            // entirely -- the sibling MapArea.contains() (map/maparea.js)
+            // correctly checks both `d < this.width / 2 && d < this.height /
+            // 2`. For any elliptical area configured with `width !==
+            // height`, this disagreed with _getRandomPosition() above (whose
+            // ellipse-branch candidate generation already samples using both
+            // dw and dh independently) and with the real non-circular shape
+            // the area was meant to describe -- biasing/rejecting valid
+            // positions along whichever axis was left unchecked. Matching
+            // MapArea's check here so both ellipse implementations in this
+            // codebase agree.
+            const inElipse = d < this.width / 2 && d < this.height / 2;
             return inElipse;
             // FIX: removed an unreachable `return false;` that followed the
             // real return statement above -- dead code, no behavior change.

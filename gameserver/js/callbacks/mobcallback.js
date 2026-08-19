@@ -2,8 +2,16 @@ import Messages from '../message.js';
 import { mobState, G_DEBUG } from '../constants.js';
 import Player from '../entity/player/player.js';
 import { PlayerEvent } from '../world/taskhandler.js';
-
-/* global EventType */
+// FIX: `Types.EventType.DAMAGE`/`Types.EventType.KILLMOB` are referenced in
+// onKilled/onDeath below, but `Types` was never imported anywhere in this
+// file -- the stale `/* global EventType */` comment (a leftover from the
+// CommonJS/leaked-global era, and not even the right name -- the real
+// reference is `Types.EventType`, not a bare `EventType`) papered over the
+// gap. This threw `ReferenceError: Types is not defined` every single time
+// a player damaged or killed a mob, i.e. on essentially every combat
+// interaction in the game -- breaking damage/kill-tracking achievements and
+// quests (taskHandler.processEvent never completed) for the whole server.
+import { Types } from '../common.js';
 
 class MobCallback {
     constructor() {}

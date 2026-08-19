@@ -55,9 +55,21 @@ class MobRespawn {
     respawn() {
         const entity = this.entity;
         if (entity.area && entity.area instanceof MobArea) {
+            // PERF: see the PERF comment on Area#getNearbyEntities()
+            // (area.js) -- narrows spaceEntityRandomApart()'s overlap-check
+            // scope down to entities actually near this mob's own spawn
+            // area instead of the full map-entities default. Respawn fires
+            // for every dead mob across every mob area, continuously during
+            // active combat/farming (~875 mobs across 51 areas on this
+            // server -- see G_SPATIAL_SIZE in constants.js), so this is a
+            // hot enough path for the O(all map entities) default to matter.
             const pos = entity.map.entities.spaceEntityRandomApart(
                 3,
-                entity.area._getRandomPositionInsideArea.bind(entity.area, 100)
+                entity.area._getRandomPositionInsideArea.bind(
+                    entity.area,
+                    100
+                ),
+                entity.area.getNearbyEntities(3)
             );
             // PERF: fires on every mob respawn across every mob area on the
             // map -- respawn volume during active farming/combat isn't

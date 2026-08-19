@@ -75,6 +75,20 @@ class CombatHandler {
             return;
         }
 
+        // FIX: nothing here rejected `targetId === sEntity.id` -- a client
+        // could send CW_ATTACK naming its own entity id. Every gate below
+        // (the PvP level-diff check, canReach()/distance, attackedTime)
+        // trivially passes at distance 0, so `dealDamage` ran with attacker
+        // === target: real self-damage applied, and if it killed the
+        // player, `sEntity.pStats.pk++`/`tEntity.pStats.pd++` both
+        // incremented on the very same player (corrupting their kill/death
+        // stats) alongside a COMBAT_PLAYERKILLED broadcast naming the same
+        // player as both killer and victim.
+        if (tEntity === sEntity) {
+            if (G_DEBUG) console.warn('cannot attack self');
+            return;
+        }
+
         const attackTime = Date.now() - sEntity.attackTimer + 100;
         if (attackTime < ATTACK_INTERVAL) {
             if (G_DEBUG) console.warn('attack interval');

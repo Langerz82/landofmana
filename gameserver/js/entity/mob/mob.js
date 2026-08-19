@@ -362,6 +362,31 @@ class Mob extends Character {
             );
         }
 
+        // FIX: `super.die(attacker)` (Character.die(), character.js) calls
+        // `this.removeAttackers()`, clearing this mob's own `attackers` Map,
+        // before this method's `this.destroy()` call below reaches
+        // `forgetEveryone()` -> `clearAttackerRefs()`. clearAttackerRefs()'s
+        // whole job is to walk `this.attackers` and tell each attacking
+        // player to drop *this mob* from *their own* `attackers` Map
+        // (`c.removeAttacker(self)`) -- but by the time it used to run,
+        // `this.attackers` was already empty (cleared above), so it silently
+        // iterated zero entries and never reached a single player. Every
+        // player who ever landed a hit on a mob that fought back (i.e.
+        // essentially any mob, via handleMobHate()'s createAttackLink())
+        // kept that dead mob stuck in their own `attackers` Map forever --
+        // and worldserver.js's passive regen tick gates on
+        // `!player.isAttacked()` (`attackers.size !== 0`), so this
+        // permanently disabled passive HP regeneration for that player for
+        // the rest of their session. Calling clearAttackerRefs() here, while
+        // `this.attackers` is still populated (same map the notify loop
+        // above already read from), lets it actually reach the attackers
+        // it's meant to clean up. destroy()'s own
+        // forgetEveryone() -> clearAttackerRefs()/removeAttackers() calls are
+        // left in place below as harmless no-ops on the by-then-already-empty
+        // map, rather than reordering destroy()'s internals for every other
+        // caller of it.
+        this.clearAttackerRefs();
+
         super.die(attacker);
 
         this.destroy();

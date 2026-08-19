@@ -209,6 +209,20 @@ class WorldActionHandler {
             p.holdingBlock = block;
         } else if (type === 1) //place
         {
+            // FIX: this branch repositioned `block` as soon as the player
+            // was merely standing next to it (the isNextTooEntity() check
+            // above), with no check that the player was the one who
+            // actually picked it up first. Only the pickup branch (type===0)
+            // set `p.holdingBlock`; place never verified `p.holdingBlock
+            // === block` before acting. Any player standing next to any
+            // Block -- unclaimed, or currently held by a different player
+            // -- could reposition it without ever sending a pickup packet,
+            // breaking block-puzzle content and letting a player yank a
+            // block another player is mid-solving out from under them
+            // (whose own `p.holdingBlock` reference is left stale, pointing
+            // at a block someone else just moved).
+            if (p.holdingBlock !== block) return;
+
             x = Utils.roundTo(x, G_TILESIZE);
             y = Utils.roundTo(y, G_TILESIZE);
 

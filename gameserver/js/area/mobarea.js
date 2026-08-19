@@ -137,7 +137,20 @@ class MobArea extends EntityArea {
             let i = this.mobs.length;
             while (--i >= 0) {
                 for (const j of this.exclude) {
-                    if (this.mobs[i].kind === j) {
+                    // FIX: `this.mobs[i].kind` is numeric (see MobData's
+                    // Kinds table -- `kind: value.kind`), but `this.exclude`
+                    // entries are always strings whenever `exclude` arrives
+                    // as the documented CSV format (the constructor above
+                    // does `exclude.split(',')`, same as `include`/`weight`
+                    // -- see the comment on `weight`'s constructor handling
+                    // for "map JSON stores it the same way"). The `===`
+                    // comparison here never coerces, so a configured exclude
+                    // list (single value or CSV) silently never removed
+                    // anything -- excluded mob kinds stayed eligible to
+                    // spawn regardless. Coerce `j` to a number for the
+                    // comparison so both the CSV-string and real-array/
+                    // number forms of `exclude` work.
+                    if (this.mobs[i].kind === Number(j)) {
                         this.mobs.splice(i, 1);
                         break;
                     }
@@ -157,9 +170,16 @@ class MobArea extends EntityArea {
         const self = this;
 
         //console.info("_createMob:"+kind);
+        // PERF: see the PERF comment on Area#getNearbyEntities() (area.js)
+        // -- narrows spaceEntityRandomApart()'s overlap-check scope down to
+        // entities actually near this mob area (used for both initial
+        // spawn, via spawnMobs() above, and every later respawn, via
+        // entity/mob/mobrespawn.js) instead of the full map-entities
+        // default.
         const pos = self.map.entities.spaceEntityRandomApart(
             2,
-            self._getRandomPositionInsideArea.bind(self, 100)
+            self._getRandomPositionInsideArea.bind(self, 100),
+            self.getNearbyEntities(2)
         );
         if (!pos) {
             console.warn('mobarea, _createMob: no position');

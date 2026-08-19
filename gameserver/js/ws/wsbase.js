@@ -226,20 +226,50 @@ export class Connection {
             return;
         }
 
-        if (data.length >= 2048) {
-            zlib.gzip(data, { level: 1 }, (err, buffer) => {
-                if (err) {
-                    console.error(
-                        this.constructor.name + '.send - gzip failed: ' + err
-                    );
-                    return;
-                }
-                const encoded = Buffer.from(buffer).toString('base64');
-                this.sendUTF8('2' + encoded);
-            });
-        } else {
-            this.sendUTF8('1' + data);
-        }
+        // FIX: messages under 2048 bytes used to call sendUTF8() directly,
+        // synchronously, right here -- while messages at/over that size
+        // instead went through an async zlib.gzip() callback before ever
+        // reaching sendUTF8(). Two send() calls issued back-to-back (a big
+        // one immediately followed by a small one -- e.g. a full
+        // inventory/world-state dump followed by a movement/chat update)
+        // could therefore have their sendUTF8() calls -- and so the bytes
+        // that actually go out on the wire -- fire in the OPPOSITE order
+        // from how send() was called: the small message's synchronous path
+        // wins the race while the big one is still awaiting its gzip
+        // callback. Any code on either end that assumes send-order is
+        // preserved (e.g. "send full state, then send a delta") could
+        // desync as a result. Routing every send through a per-connection
+        // promise chain -- each call's actual sendUTF8() only runs once the
+        // previous call's has completed -- restores strict FIFO ordering of
+        // outgoing bytes on this connection, while still doing the gzip
+        // work off the main synchronous path (only sends on the SAME
+        // connection wait on each other; unrelated connections are
+        // unaffected, since each Connection instance gets its own chain).
+        this._sendQueue = (this._sendQueue || Promise.resolve()).then(
+            () =>
+                new Promise((resolve) => {
+                    if (data.length >= 2048) {
+                        zlib.gzip(data, { level: 1 }, (err, buffer) => {
+                            if (err) {
+                                console.error(
+                                    this.constructor.name +
+                                        '.send - gzip failed: ' +
+                                        err
+                                );
+                                resolve();
+                                return;
+                            }
+                            const encoded =
+                                Buffer.from(buffer).toString('base64');
+                            this.sendUTF8('2' + encoded);
+                            resolve();
+                        });
+                    } else {
+                        this.sendUTF8('1' + data);
+                        resolve();
+                    }
+                })
+        );
     }
 
     sendUTF8(data) {

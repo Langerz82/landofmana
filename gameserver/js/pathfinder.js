@@ -56,12 +56,40 @@ class Pathfinder {
     }
 
     initBlankGrid_() {
-        /*for(var i=0; i < this.height; i += 1) {
-          this.blankGrid[i] = [];
-          for(var j=0; j < this.width; j += 1) {
-              this.blankGrid[i][j] = 0;
-          }
-      }*/
+        // FIX: this method's body was entirely commented out, so
+        // `this.blankGrid` (pre-allocated as `[]` in the constructor) was
+        // never actually populated -- it stayed an empty array for the
+        // Pathfinder instance's entire lifetime. findIncompletePath_()
+        // below passes it straight to astar.AStar(), which immediately does
+        // `grid[0].length` -- `grid[0]` is `undefined` on an empty array,
+        // so that throws instantly the moment anything calls
+        // findIncompletePath_(). Confirmed via a repo-wide search that
+        // nothing in this codebase currently calls findIncompletePath_()
+        // (it's dead code today), so this was latent rather than a live
+        // crash -- restoring the originally-intended body (just
+        // uncommented, unchanged) so blankGrid is actually an all-walkable
+        // grid the moment anything does wire this back up.
+        //
+        // NOTE: findIncompletePath_() has a second, independent problem
+        // this doesn't fix: it also reads `this.grid[y][x]` directly, but
+        // `this.grid` (distinct from `this.blankGrid` here) is initialized
+        // to `null` in the constructor and -- confirmed via search -- never
+        // assigned anywhere in this codebase (map/pathfindingservice.js,
+        // the only caller of most of this class's other methods, always
+        // passes its own `grid`/`map.grid` explicitly as a parameter
+        // instead of ever setting `pathfinder.grid`). So findIncompletePath_()
+        // would still throw (`Cannot read properties of null`) even with
+        // blankGrid fixed, unless something starts assigning `this.grid`
+        // first. Not guessing at that wiring here -- it's a real design
+        // question (should findPath() set it? should callers?) outside what
+        // a comment can safely infer -- flagging it for whoever actually
+        // wires findIncompletePath_() up.
+        for (let i = 0; i < this.height; i += 1) {
+            this.blankGrid[i] = [];
+            for (let j = 0; j < this.width; j += 1) {
+                this.blankGrid[i][j] = 0;
+            }
+        }
     }
 
     isDistanceTooFast(ticks, dist, startTime, tolerance) {

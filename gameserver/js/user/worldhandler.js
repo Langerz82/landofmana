@@ -152,7 +152,30 @@ class WorldHandler {
                 return;
             }
         } else {
+            // FIX: this branch only logged a warning and returned -- unlike
+            // every other early-return above (banned user; already-logged-in
+            // user), it never disconnected the socket or told the client
+            // anything went wrong. If `world`/`world.ban` is ever unset
+            // (misconfigured world init, or a future refactor/race where
+            // this handler processes a login before `world.ban` is
+            // assigned), the connecting client's CW_LOGIN_PLAYER request was
+            // silently dropped: no WU_PLAYER_LOGGED_IN reply, no error
+            // message, and the socket left open indefinitely with the
+            // client stuck on the login screen -- and since the one-time
+            // login hash was already consumed (hashes.delete() above), not
+            // even a client retry on that same connection could ever
+            // complete login. Send an error and close the connection, same
+            // as the sibling checks above, instead of leaving the client
+            // hanging. Reusing 'CONNECT_ERROR' (shared/data/lang.json)
+            // rather than inventing a new, untranslated key -- its existing
+            // "error connecting to the ... server, try again soon" wording
+            // fits this internal-misconfiguration case well enough, and
+            // every other Messages.Error(...) call in this file already
+            // sends an existing lang.json key rather than a raw string (see
+            // the FIX comments on the sibling branches above).
             console.warn('handleLoginPlayer: world or world ban not set');
+            this.sendPlayerMessage(new Messages.Error('CONNECT_ERROR'));
+            this.connection.disconnect();
             return;
         }
 

@@ -21,8 +21,11 @@ class MovementHandler {
         const time = parseInt(message[0]),
             entityId = parseInt(message[1]),
             state = parseInt(message[2]),
-            orientation = parseInt(message[3]),
-            x = parseInt(message[4]) || -1,
+            orientation = parseInt(message[3]);
+        // FIX: `x`/`y` need to be reassignable now (see the state === 0
+        // guard added below), so these two moved out of the `const` group
+        // above into their own `let` declaration.
+        let x = parseInt(message[4]) || -1,
             y = parseInt(message[5]) || -1;
 
         const p = this.player;
@@ -67,6 +70,31 @@ class MovementHandler {
         if (state === 1 && !p.checkStartMove(x, y)) {
             p.resetMove(p.x, p.y);
             return;
+        }
+
+        // FIX: state === 0 ("I stopped moving, here's my resting position"
+        // -- see client/js/game/gamecallbacks.js's onKeyMove, which sends
+        // this on every key-release) was the only one of the three
+        // schema-legal move types (format.js bounds `state` to 0-2) with no
+        // validation at all: state 1 ("start moving") is gated by
+        // checkStartMove() just above, and state 2 ("explicit stop with
+        // position confirm") gates the same way a bit further up. state 0
+        // instead fell straight through to the shared tail below, which
+        // calls `p.move(arr)` with the raw client-supplied x/y (bounded
+        // only by format.js's generic 0..mapCoordsMax range) with no
+        // collision or distance/speed check at all -- a teleport vector,
+        // since `state` is entirely client-chosen and 0 is the
+        // least-suspicious-looking value ("I just stopped"). Unlike the
+        // state 1/2 checks above, an invalid state-0 position is corrected
+        // (snapped back to the player's last known-good spot) rather than
+        // the whole packet being dropped, and this still falls through to
+        // the normal broadcast below -- a stop notification should never be
+        // silently swallowed, since neighbouring players rely on it to see
+        // where the player actually came to rest.
+        if (state === 0 && !p.checkStartMove(x, y)) {
+            p.resetMove(p.x, p.y);
+            x = p.x;
+            y = p.y;
         }
 
         const arr = [time, state, orientation, x, y];

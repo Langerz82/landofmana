@@ -207,6 +207,24 @@ class ItemActionHandler {
             return;
 
         const appearance = this.player.user.looks[id];
+        // NOTE: `type` is validated as 0 or 1 above, but only `type === 0`
+        // has ever had a matching action here -- `type === 1` falls through
+        // to broadcastSprites() with no sprite actually changed. This isn't
+        // "fixed" to also call p.setSprite(1, id): player.js's setSprite()
+        // documents its own `type` param as 0=Armor/1=Weapon, but this
+        // whole handler is already gated (a few lines above) to only ever
+        // process armor-type appearance data (itemData.type ===
+        // 'armorarcher'/'armor') -- there's no weapon-appearance case this
+        // packet is meant to reach, so blindly wiring type===1 to
+        // setSprite(1, id) would apply an *armor* unlock's id as a *weapon*
+        // sprite, which is almost certainly wrong. Also worth knowing: no
+        // client code anywhere calls sendLookUpdate()/sends CW_LOOKUPDATE
+        // today (grepped client/js -- only the constant/handler definitions
+        // exist, no live sender), so this branch is currently unreachable
+        // in practice either way. Flagging rather than guessing at intended
+        // behavior with nothing to verify it against; if/when a client
+        // sender for `type === 1` is added, resolve what it's actually
+        // meant to represent at that point instead of here.
         if (appearance === 1) {
             if (type === 0) {
                 p.setSprite(0, id);

@@ -48,11 +48,21 @@ class BlockArea extends EntityArea {
 
     randomizeBlocks(distApart) {
         const self = this;
+        // PERF: see the PERF comment on Area#getNearbyEntities() (area.js)
+        // -- narrows spaceEntityRandomApart()'s overlap-check scope down to
+        // entities actually near this block area instead of the full
+        // map-entities default. Computed once for the whole area rather
+        // than per block: the objects inside it are live references (not
+        // copies), so a block repositioned earlier in this same loop is
+        // still seen at its new position by later iterations' overlap
+        // checks, same as re-querying the live map would have been.
+        const nearby = self.getNearbyEntities(distApart);
         for (const i in this.blocks) {
             const block = this.blocks[i];
             const pos = this.map.entities.spaceEntityRandomApart(
                 distApart,
-                self._getRandomPositionInsideArea.bind(self, 30)
+                self._getRandomPositionInsideArea.bind(self, 30),
+                nearby
             );
             if (pos) {
                 block.setPosition(

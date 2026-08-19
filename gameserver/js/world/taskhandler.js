@@ -267,12 +267,57 @@ class TaskHandler {
                 return;
             }
 
+            // FIX: this loop used to recompute `diff` from `achievement.count`
+            // (which, past the first iteration, could still be holding the
+            // *previous* rank's already-spent, clamped-to-threshold value --
+            // it was only ever reset to a fresh value in the `if (count <
+            // objectCount)` branch at the bottom, which is skipped whenever a
+            // single event completes more than one rank in one call, e.g. a
+            // big killing blow's raw damage feeding isDamageAchievement).
+            // That stale `prevCount` inflated `diff` on the next iteration,
+            // double-counting progress already spent completing the prior
+            // rank -- over-awarding a rank/XP the player hadn't actually
+            // earned via net progress, and in the degenerate case of
+            // closely-spaced thresholds could keep `achievement.rank`
+            // incrementing without `count` ever converging to <= 0. Once
+            // `achievement.rank` walked past the last valid index,
+            // `achievement.data.objectCount[achievement.rank]` was
+            // `undefined`, so `Math.min(diff, undefined)` set
+            // `achievement.count` to `NaN` -- silently, permanently
+            // bricking further progress on that achievement (the bounds
+            // check at the top of this function would reject all future
+            // calls) and sending the client a `NaN` achievement count.
+            //
+            // Rewritten so each iteration explicitly decides, from a
+            // correctly-reset `achievement.count`, whether *this* rank
+            // actually completes (`diff >= objectCount`) before awarding
+            // anything or advancing `achievement.rank` -- and resets
+            // `achievement.count` to 0 the moment a rank completes, so the
+            // next iteration's `prevCount` (via `achievement.count`) is
+            // never stale. The genuinely-last-rank case also now returns
+            // immediately on completion, before ever incrementing `rank`
+            // past `rankCount - 1`, so the array-index/NaN corruption above
+            // can no longer happen at all -- any leftover `count` past the
+            // final rank's threshold is simply discarded (the achievement is
+            // maxed out) instead of being carried into an out-of-bounds
+            // index.
             while (count > 0) {
                 objectCount = achievement.data.objectCount[achievement.rank];
                 const prevCount = achievement.count;
-                const diff = achievement.count + count;
-                achievement.count = Math.min(diff, objectCount);
-                count -= objectCount - prevCount;
+                const diff = prevCount + count;
+
+                if (diff < objectCount) {
+                    // Not enough left to complete this rank -- record the
+                    // partial progress and stop; nothing below here (rank
+                    // advance, XP, completion notify) has been earned yet.
+                    achievement.count = diff;
+                    count = 0;
+                    break;
+                }
+
+                achievement.count = objectCount;
+                count = diff - objectCount;
+
                 player.sendPlayer(new Messages.Achievement(achievement));
 
                 const xp = ~~(objectCount * expMultiplier);
@@ -286,18 +331,13 @@ class TaskHandler {
                         xp
                     ])
                 );
-                if (
-                    achievement.rank === rankCount - 1 &&
-                    achievement.count === objectCount
-                ) {
+
+                if (achievement.rank === rankCount - 1) {
                     return;
                 }
 
                 achievement.rank++;
-                if (count < objectCount) {
-                    achievement.count = count;
-                    count = 0;
-                }
+                achievement.count = 0;
             }
         }
         player.sendPlayer(new Messages.Achievement(achievement));

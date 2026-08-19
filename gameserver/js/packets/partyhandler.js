@@ -79,8 +79,36 @@ class PartyHandler {
                         player2.name
                     ])
                 );
+                // FIX: nothing anywhere recorded that this invite was ever
+                // sent -- see the FIX comment on the `status === 1` branch
+                // below for what that let happen. Stamp the single
+                // outstanding invite on the invitee (mirrors the existing
+                // single-slot "pending action" pattern already used by
+                // charactercombat.js's waitToAttack()/unconfirmedTarget); a
+                // second invite from anyone simply overwrites it, same as a
+                // real invite would supersede an earlier one.
+                player2.pendingPartyInvite = this.player.name;
             }
         } else if (status === 1) {
+            // FIX: this whole branch used to run unconditionally off the raw
+            // client packet -- there was no check anywhere that `player2`
+            // (the name the accepting client claims invited them) had
+            // actually sent `this.player` an invite at all. `Messages.PartyInvite`
+            // (sent above, in the `status === 0` branch) is a one-way,
+            // fire-and-forget client notification with no corresponding
+            // server-side state, so any player could send a raw CW_PARTY
+            // packet with status=1 naming any other online player and force
+            // themselves into that player's party (or pull that player into
+            // their own, per the addName() call below) with zero consent --
+            // a griefing vector letting any player forcibly rearrange other
+            // players' parties. Require (and consume) a matching pending
+            // invite recorded by the status === 0 branch above before
+            // honoring an accept.
+            if (this.player.pendingPartyInvite !== player2.name) {
+                return;
+            }
+            this.player.pendingPartyInvite = null;
+
             // FIX: PlayerGroup.players stores name strings (see
             // playergroup.js containsName/addName/removeName -- all keyed by
             // `playerName`), but this passed whole Player objects. Since a
@@ -125,6 +153,15 @@ class PartyHandler {
                 );
             }
         } else if (status === 2) {
+            // FIX: consume the pending invite here too (see the FIX comment
+            // on the status === 1 branch above) -- not for a security
+            // reason (rejecting someone else's non-existent invite is
+            // harmless), just so a rejected invite can't be "resurrected"
+            // by a later, unrelated status=1 packet naming the same
+            // original inviter after this player meant to turn it down.
+            if (this.player.pendingPartyInvite === player2.name) {
+                this.player.pendingPartyInvite = null;
+            }
             this.player.sendPlayer(
                 new Messages.Notify('CHAT', 'PARTY_YOU_REJECTED_INVITE', [
                     player2.name

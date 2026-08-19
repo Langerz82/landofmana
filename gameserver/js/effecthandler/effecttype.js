@@ -19,7 +19,24 @@ export class EffectType {
     }
 
     apply(skillEffect, target, phase, damage) {
-        if (target.isDead) return;
+        // FIX: was an unconditional `if (target.isDead) return;`, with no
+        // exception for `phase === 'end'`. Character.die() (character.js)
+        // sets `isDead = true` *before* calling `endEffects()`, which walks
+        // every active SkillEffect and calls this method with phase='end' to
+        // undo whatever a matching phase='start' application did
+        // (applyStacking()/applyMoveSpeedStacking() below reverse
+        // target.stats.mod/moveSpeedMod). Since `target.isDead` is already
+        // true by the time that 'end' call arrives for the entity that just
+        // died, this guard used to return before ever reaching the
+        // reversal -- silently skipping it. Neither Player.respawn() nor
+        // MobRespawn.respawn() reset stats.mod/moveSpeedMod themselves (both
+        // assume die()'s endEffects() already did), so an entity killed
+        // while buffed/debuffed/slowed came back from respawn permanently
+        // carrying that modifier. Still block *new* start/interval
+        // applications from landing on a dead target (a fresh heal/buff/DoT
+        // tick on a corpse makes no sense), just not the 'end' phase that
+        // exists specifically to clean one up.
+        if (target.isDead && phase !== 'end') return;
 
         if (this.phase != phase) return;
 
@@ -151,11 +168,31 @@ export class EffectType {
             // `moveSpeed += undefined`, permanently corrupting that entity's
             // moveSpeed to NaN (serialized straight to the client in
             // message.js's Move/MovePath messages).
+            //
+            // FIX: on top of the this.modVal bug above, "freeze" was also a
+            // flat `target.freeze = true/false` write with no per-cast
+            // tracking at all -- unlike "attack"/"defense"/"damage"/"slow"
+            // just above, which all went through a stacking helper for
+            // exactly this reason. Two overlapping freeze/stun effects on
+            // the same target (e.g. two different mobs each landing a stun,
+            // or the "Daze" skill -- shared/data/skills2.json -- recast
+            // before its first application wears off) meant whichever
+            // effect's 'end' phase fired FIRST unconditionally set
+            // `target.freeze = false`, prematurely un-freezing the target
+            // even though a second stun's duration hadn't elapsed yet.
+            // Routed through applyFreezeStacking() (below) instead, which
+            // counts how many currently-active casts are holding this
+            // target frozen (mirroring applyStacking()'s per-cast
+            // bookkeeping) so freeze only actually clears once the last one
+            // lets go. Note this only resolves stacking between concurrent
+            // *skill-effect* freezes -- `target.freeze` is also written
+            // directly by unrelated systems (entitymoving.js's own
+            // per-step freeze/unfreeze, character.js's die(), mob
+            // respawn/aggro resets); untangling those from the skill-effect
+            // freeze counter is a larger change outside what this fix
+            // covers.
             case 'freeze':
-                if (this.modValue === 1) target.freeze = true;
-                else {
-                    target.freeze = false;
-                }
+                this.applyFreezeStacking(skillEffect, target);
                 break;
             // FIX: no skill in shared/data/skills2.json uses a "slow" effect yet
             // (grepped for it), so this branch was dead code, but it was broken
@@ -229,6 +266,35 @@ export class EffectType {
         skillEffect.appliedMods[key] = newApplied;
 
         target.setMoveRate(target.baseMoveSpeed + target.moveSpeedMod);
+    }
+
+    // Same per-cast tracking idea as applyStacking()/applyMoveSpeedStacking()
+    // above, but for `freeze`: unlike those, freeze is a boolean rather than
+    // an additive numeric total, so what needs tracking per-cast isn't "how
+    // much did I contribute" but "am I currently one of the effects holding
+    // this target frozen". `target.freezeCount` is the number of
+    // currently-active skill-effect casts holding this target frozen;
+    // `target.freeze` (the flag every other system in the codebase actually
+    // reads/writes) is only cleared once that count reaches 0, so one
+    // effect's 'end' phase firing early can't cut a still-active second
+    // stun short. Keyed per (skillEffect instance, target) like the sibling
+    // helpers, so a given cast's own 'start' and 'end' calls -- which share
+    // one SkillEffect instance -- always pair up exactly once regardless of
+    // how many other casts are also tracked here.
+    applyFreezeStacking(skillEffect, target) {
+        skillEffect.appliedMods = skillEffect.appliedMods || {};
+        const key = target.id + ':freeze';
+        const wasHolding = !!skillEffect.appliedMods[key];
+        const isHolding = this.phase !== 'end';
+
+        if (isHolding && !wasHolding) {
+            target.freezeCount = (target.freezeCount || 0) + 1;
+        } else if (!isHolding && wasHolding) {
+            target.freezeCount = Math.max(0, (target.freezeCount || 0) - 1);
+        }
+        skillEffect.appliedMods[key] = isHolding;
+
+        target.freeze = target.freezeCount > 0;
     }
 
     getModDiff(skillEffect, stat, statmod, statmax) {
