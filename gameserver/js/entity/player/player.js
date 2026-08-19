@@ -146,16 +146,21 @@ class Player extends Character {
     // early-returning while hasTarget() is true, making that mob
     // permanently unavailable to aggro any real nearby player. This is not
     // a rare edge case -- "player disconnects mid-fight" (tab close,
-    // connection drop) happens constantly on a live server.
-    // clean() (Character, inherited) disengages/idles every attacker
-    // currently targeting this player; removeTarget() releases whatever
-    // this player was themselves attacking (mirroring Mob.destroy()'s own
-    // clearTarget()); endEffects() stops any buffs/DOTs still active on
-    // this player from continuing to tick against a now-gone entity.
+    // connection drop) happens constantly on a live server. Routing through
+    // die() rather than reimplementing cleanup here puts a disconnecting
+    // player through the same death path a normal kill uses -- isDead=true,
+    // freeze=true, own target/attackers/effects cleared, death_callback
+    // fired (safe with `attacker` left undefined: Player's onDeath in
+    // playercallback.js only drops loot for a Player attacker, and there
+    // isn't one on a disconnect) -- and, per the FIX on this class's own
+    // die() override below, immediately returns every attacking Mob to
+    // spawn instead of leaving them stuck in place. That override has to
+    // live here rather than in the inherited Character.die() (character.js)
+    // so it can run its forEachAttacker() walk before super.die() reaches
+    // Character's removeAttackers() -- doing the walk after would iterate
+    // an already-emptied attackers map and silently return no one to spawn.
     destroy() {
-        this.clean();
-        this.removeTarget();
-        this.endEffects();
+        this.die();
     }
 
     getState() {
@@ -815,6 +820,33 @@ class Player extends Character {
 
     dropGold() {
         return this.combat.dropGold();
+    }
+
+    // FIX: see the comment on destroy() above for the full "mob doesn't
+    // return to spawn" bug this closes -- covers both that disconnect path
+    // (destroy() -> this.die()) and an ordinary in-combat kill
+    // (onDamage() -> this.die(attacker)) the same way. Has to walk
+    // forEachAttacker() *before* calling super.die() (Character.die(),
+    // character.js): that method's removeAttackers() clears this player's
+    // own `attackers` map, so doing the walk after -- e.g. from the
+    // death_callback fired at the end of Character.die() -- would iterate
+    // an already-emptied map and return nobody to spawn. Tagged via
+    // `entity.type === Types.EntityTypes.MOB` rather than `instanceof Mob`
+    // -- `Types` (common.js) is already imported here for other reasons, so
+    // this reuses it instead of adding a new `import Mob from
+    // '../mob/mob.js'` (playercallback.js already does that import safely
+    // for the same check, so it'd work here too -- Mob extends Character,
+    // not Player, so there's no `class X extends Y`-time cycle danger the
+    // way a Character -> Mob import would have; it's just one fewer import
+    // to reach for the same answer).
+    die(attacker) {
+        this.forEachAttacker(function (entity) {
+            if (entity.type === Types.EntityTypes.MOB) {
+                entity.returnToSpawn();
+            }
+        });
+
+        super.die(attacker);
     }
 }
 
