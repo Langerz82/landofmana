@@ -43,7 +43,13 @@ export default class App {
         this.jqUserRemove = $('#user_remove');
         this.jqAboutButton = $('#aboutbutton');
         this.jqRemovePassword = $('#remove_password');
-        this.jqUserSave = $('#user_save');
+        // FIX: selector referenced '#user_save', which doesn't exist in any of the HTML
+        // shells (index.html/debug.html use id="user_remember" for the "Remember Login"
+        // checkbox - see index.html line ~133). jqUserSave resolved to an empty jQuery
+        // collection, so `this.jqUserSave.is(':checked')` in appvalidation.js's
+        // tryUserAction was always false and the save-login branch (localforage.setItem for
+        // user_name/user_hash) never ran, no matter what the user checked.
+        this.jqUserSave = $('#user_remember');
 
         // Login form fields
         this.jqUsernameInput = $('#user_name');
@@ -73,16 +79,26 @@ export default class App {
 
         localforage.getItem('user_hash', function (e, val) {
             log.info('val=' + val);
-            // FIX: .value is a no-op on a jQuery object; use .val() to actually set the field
-            self.jqUserHashInput.val(val);
+            if (val) {
+                // FIX: .value is a no-op on a jQuery object; use .val() to actually set the field
+                self.jqUserHashInput.val(val);
+            }
         });
+        // FIX: user_name/password field prefill was unconditional - .val(val) with val
+        // undefined (no saved login) still sets the field to '', and the password field
+        // was force-cleared on every load regardless of whether a login was saved. That
+        // clobbered whatever the browser's own autofill had already placed in these fields
+        // for users with no saved username/password. Now both only get touched when a saved
+        // login actually exists (val is truthy) - the password itself is never persisted
+        // (only its hash is, above), so clearing it here is only meaningful/safe once we know
+        // a saved username was restored to pair with it.
         localforage.getItem('user_name', function (e, val) {
             log.info('val=' + val);
-            // FIX: .value is a no-op on a jQuery object; use .val() to actually set the field
-            self.jqUsernameInput.val(val);
+            if (val) {
+                self.jqUsernameInput.val(val);
+                self.jqUserPasswordInput.val('');
+            }
         });
-        // FIX: .value is a no-op on a jQuery object; use .val() to actually set the field
-        this.jqUserPasswordInput.val('');
 
         // FIX: menucolor/buttoncolor were only ever read from localforage and applied
         // inside SettingsHandler's constructor (settingshandler.js), which isn't created
