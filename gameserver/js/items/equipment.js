@@ -1,105 +1,25 @@
 /* global databaseHandler, log */
+import BaseItemRoomStore from './baseitemroomstore.js';
 import Messages from '../message.js';
 import ItemData from '../data/itemdata.js';
 import { ItemTypes } from '../common.js';
-import { G_DEBUG } from '../constants.js';
 
-class Equipment {
+// Equipment extends BaseItemRoomStore for the owner-agnostic slot
+// bookkeeping (rooms/_occupiedCount, hasItem*/hasRoom*, getEmptyIndex,
+// takeOutItems, removeItemKind, toString/toStringJSON, ...), and layers its
+// own owner-aware code on top in its own extended functions (_setItem
+// below) rather than going through ItemRoomStore's owner+combineItem
+// wiring (itemroomstore.js) -- equipment's fixed 5-slot layout doesn't
+// stack/combine, and has its own equip-validation and notification needs.
+class Equipment extends BaseItemRoomStore {
     constructor(owner, number, items) {
+        // Equipment always has exactly 5 slots regardless of what's passed
+        // in -- matches the pre-refactor behavior, which hardcoded
+        // `this.maxNumber = 5` here and ignored `number` entirely.
+        super(5, items);
         this.owner = owner;
-        this.number = number;
-        this.maxNumber = 5;
         this.weaponSlot = 4;
-        // PERF: was a plain object keyed by slot index (iterated via
-        // `for...in`, which yields string keys -- the cause of the
-        // string-vs-number `===` bugs already fixed individually in
-        // player.js and playercombat.js), then briefly a Map keyed by the
-        // real numeric slot index. Slot indices here are a small, fixed,
-        // dense range (0..4, always exactly 5 slots) known up front -- a
-        // plain array is faster for that than a Map: no hashing/bucket
-        // lookup per get/set, and V8 keeps a fully-populated numeric array
-        // in its fast "packed elements" representation, which iterates as a
-        // plain contiguous-memory scan. Pre-filling every slot with `null`
-        // up front (rather than leaving indices unset) is what keeps it in
-        // that packed mode. Real `for`/`for...of` loops over an array
-        // (used throughout this file) yield real numeric indices, same as
-        // the Map did, so the original string-key bug class doesn't come
-        // back either.
-        this.rooms = new Array(this.maxNumber).fill(null);
-        // PERF: fires on every Equipment load (every login/reconnect) --
-        // gated behind G_DEBUG like equivalent load-time logging elsewhere.
-        if (G_DEBUG) {
-            console.info('number=' + number);
-            console.info('itemSlots=' + JSON.stringify(items));
-        }
-
-        if (items) {
-            for (let i = 0; i < items.length; i++) {
-                const index = items[i].slot;
-                // FIX: a Map accepted any key with no bounds implications;
-                // a fixed-length array does not -- writing past its end via
-                // bracket assignment would silently grow it and leave it
-                // "holey" in between, undoing the point of a fixed array.
-                // Guard against a corrupted/out-of-range slot in saved data
-                // instead of letting it quietly widen the array.
-                if (index < 0 || index >= this.maxNumber) {
-                    console.warn(
-                        'Equipment: dropping saved item with out-of-range slot ' +
-                            index +
-                            ' (maxNumber=' +
-                            this.maxNumber +
-                            ')'
-                    );
-                    continue;
-                }
-                this.rooms[index] = items[i];
-                /*if (items[i] && index === this.weaponSlot) {
-                  this.owner.setRange();
-                }*/
-            }
-        }
     }
-
-    /*hasItem: function(itemKind){
-        return this.hasItems(itemKind, 1);
-    },
-
-    hasItems: function(itemKind, itemCount){
-        var a = 0;
-        for(var i in this.rooms){
-            //console.info("hasItems - compare: " + this.rooms[i].itemKind + "=" + itemKind);
-            if(this.rooms[i].itemKind === itemKind){
-            	 a += this.rooms[i].itemNumber;
-            	 if (a >= itemCount)
-                	return true;
-            }
-        }
-        return false;
-    },*/
-
-    makeEmptyItem(index) {
-        this.setItem(index, null);
-    }
-
-    getItemIndex(itemKind) {
-        for (let i = 0; i < this.rooms.length; i++) {
-            const item = this.rooms[i];
-            if (item && item.itemKind === itemKind) {
-                return i;
-            }
-        }
-        return -1;
-    }
-
-    /*getEmptyIndex: function() {
-        for(var index = 0; index < this.maxNumber; index++) {
-            if(!this.rooms[index]) {
-
-                return index;
-            }
-        }
-        return -1;
-    },*/
 
     putItem(item) {
         return -1;
@@ -191,27 +111,21 @@ class Equipment {
     // item" -- see the FIX comment on setItem() above, which was the actual
     // cause (a missing `return` there made every caller-side success check
     // on this method's result always false).
+    //
+    // Extends BaseItemRoomStore.setItem(): reuses its bounds-check/
+    // checkItem()-gate/rooms-mutation/_occupiedCount bookkeeping via
+    // `super.setItem(...)`, then layers on the equipment-specific "don't
+    // re-set the same item that's already there" guard and the owner
+    // notification (typeIndex hardcoded to 2, matching every other
+    // equipment notification in this file) that BaseItemRoomStore itself
+    // knows nothing about.
     _setItem(index, item) {
-        // FIX: rooms is now a fixed-length array (see the constructor
-        // comment above) -- an out-of-range index would silently grow it
-        // and leave it "holey", undoing the point of a fixed array. Guard
-        // it here, at the single place rooms is ever mutated.
-        if (index < 0 || index >= this.maxNumber) return false;
-
         if (item && this.rooms[index] === item) return false;
 
-        const player = this.owner;
+        const result = super.setItem(index, item);
+        if (result === false) return false;
 
-        if (!item) {
-            this.rooms[index] = null;
-            item = { slot: index, itemKind: -1 };
-        } else {
-            if (!this.checkItem(index, item)) return false;
-
-            this.rooms[index] = item;
-            item.slot = index;
-        }
-        player.sendPlayer(new Messages.ItemSlot(2, [item]));
+        this.owner.sendPlayer(new Messages.ItemSlot(2, [result]));
         return true;
     }
 
@@ -230,9 +144,9 @@ class Equipment {
         return true;
     }
 
-    save() {
-        //databaseHandler.saveItems(this.owner, 2, this.rooms);
-    }
+    // NOTE: save() (originally `//databaseHandler.saveItems(this.owner, 2,
+    // this.rooms);`, already dead) is inherited from BaseItemRoomStore's
+    // no-op version instead of being redefined here.
 
     /*takeOutItems: function(index, number){
         var item = this.rooms[index];
@@ -244,8 +158,9 @@ class Equipment {
     },*/
 
     // FIX: was calling the nonexistent this.makeEmptyEquipment(slot); the only
-    // defined method on this class is makeEmptyItem(index). This threw
-    // whenever equipped-item durability hit 0, breaking equipment degradation.
+    // defined method on this class is makeEmptyItem(index) (inherited from
+    // BaseItemRoomStore). This threw whenever equipped-item durability hit 0,
+    // breaking equipment degradation.
     degradeItem(slot, adjustment) {
         const item = this.rooms[slot];
         if (!item) return;
@@ -277,41 +192,13 @@ class Equipment {
         this.owner.sendPlayer(new Messages.ItemSlot(2, [item]));
     }
 
-    toString() {
-        // NOTE: there used to be a `var i=0;` here too -- dead (nothing
-        // read it before the `for...in` loop below rebound `i` to each
-        // room key anyway). Removed; the loop variable is now `const`,
-        // scoped to the loop.
-        let itemString = '' + this.maxNumber + ',';
-
-        for (const item of this.rooms) {
-            if (!item) continue;
-            itemString += item.toArray().join(',');
-        }
-        return itemString;
-    }
-
-    // NOTE: a stale comment here used to claim `item.toArray()` returns only
-    // [kind,count,durability,durabilityMax,experience] (BaseItem.toArray(),
-    // 5 fields, no slot) and needed the room index `i` prepended to match
-    // userhandler.js's handleLoadPlayerItems (which reads itemData[0] as the
-    // slot). That's wrong: every item actually held in `rooms` is an
-    // ItemRoom (items/itemroom.js), whose own toArray() override already
-    // does `[this.slot].concat(super.toArray())` -- 6 fields, slot first --
-    // and _setItem() above always keeps item.slot in sync with the room
-    // index it's stored under (see the FIX comment on setItem() above this
-    // for why that matters). Prepending `i` on top of that (as a
-    // since-reverted change here briefly did) double-counted the slot,
-    // corrupting the save format instead of fixing it. `item.toArray()`
-    // alone is correct as-is.
-    toStringJSON() {
-        const items = [];
-        for (const item of this.rooms) {
-            if (!item) continue;
-            items.push(item.toArray());
-        }
-        return JSON.stringify(items);
-    }
+    // NOTE: toString()/toStringJSON() used to be redefined here, but were
+    // byte-for-byte the same walk-`rooms`-and-serialize logic as
+    // BaseItemRoomStore's versions (every item held in `rooms` is an
+    // ItemRoom -- items/itemroom.js -- whose own toArray() already includes
+    // its slot, and _setItem() above always keeps item.slot in sync with
+    // the room index it's stored under, same invariant the base class
+    // relies on), so they're inherited from there instead of duplicated.
 
     getWeapon() {
         return this.rooms[this.weaponSlot];
@@ -327,9 +214,9 @@ class Equipment {
     // armor-degrade loop) starts with an `if (item)`/`if (!item) return`
     // guard anyway, so filtering here just avoids a wasted callback call
     // per empty slot instead of changing what runs. `id` is the real array
-    // index (rooms is a fixed-length array -- see the constructor comment
-    // above), not a lookup, so it's always correct even when multiple
-    // slots are empty.
+    // index (rooms is a fixed-length array -- see BaseItemRoomStore's
+    // constructor comment), not a lookup, so it's always correct even when
+    // multiple slots are empty.
     forEachArmor(callback) {
         for (let id = 0; id < this.rooms.length; ++id) {
             const item = this.rooms[id];
@@ -339,19 +226,11 @@ class Equipment {
         }
     }
 
-    // Same iteration as forEachArmor() above, but over every occupied slot
-    // including the weapon -- forEachArmor() deliberately excludes it (it
-    // backs the defense/armor-degrade paths, where the weapon doesn't
-    // belong), but a death penalty should hit the whole loadout. Kept as
-    // its own method rather than adding a "include weapon?" flag to
-    // forEachArmor(), so neither caller has to know the other's concern.
-    forEachItem(callback) {
-        for (let id = 0; id < this.rooms.length; ++id) {
-            const item = this.rooms[id];
-            if (!item) continue;
-            callback(id, item);
-        }
-    }
+    // NOTE: a death penalty should hit the whole loadout (unlike
+    // forEachArmor() above, which deliberately excludes the weapon slot for
+    // the defense/armor-degrade paths it backs). BaseItemRoomStore already
+    // provides exactly that as forEachItem() (same iteration, no
+    // weaponSlot exclusion), so it's inherited rather than redefined here.
 }
 
 export default Equipment;
