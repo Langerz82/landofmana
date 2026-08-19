@@ -29,6 +29,12 @@ class CombatHandler {
 
         if (p.isDead) return;
 
+        const attackTime = Date.now() - p.attackTimer + 50;
+        if (attackTime < ATTACK_INTERVAL) {
+            if (G_DEBUG) console.warn('attack interval');
+            return;
+        }
+
         if (p.isMoving() || p.isMovingPath()) {
             p.attackQueue = message;
         } else {
@@ -86,12 +92,6 @@ class CombatHandler {
         // player as both killer and victim.
         if (tEntity === sEntity) {
             if (G_DEBUG) console.warn('cannot attack self');
-            return;
-        }
-
-        const attackTime = Date.now() - sEntity.attackTimer + 100;
-        if (attackTime < ATTACK_INTERVAL) {
-            if (G_DEBUG) console.warn('attack interval');
             return;
         }
 
