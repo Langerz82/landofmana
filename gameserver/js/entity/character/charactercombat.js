@@ -329,7 +329,15 @@ export function installCharacterCombat(proto) {
         // return "attack_moving";`) - so makeAttack() always reported "attack_toofar" even when
         // a valid spot was found and movement started. Return true/false like the analogous
         // EntityMoving.follow().
-        if (spot && spot.x && spot.y) {
+        //
+        // FIX: also switched `spot.x && spot.y` to a null check -- a
+        // truthiness check treats a legitimate spot at world-pixel x===0 or
+        // y===0 (the map's left/top edge) as "no spot found", the same bug
+        // class already fixed for entity registration in
+        // map/spatialindex.js's add() (see its FIX comment). Left as-is here
+        // it would make a mob/player next to the map's edge unable to move
+        // into attack range of an otherwise reachable target.
+        if (spot && spot.x != null && spot.y != null) {
             this.moveTo_(spot.x, spot.y);
             return true;
         }

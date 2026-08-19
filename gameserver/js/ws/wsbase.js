@@ -132,49 +132,85 @@ export class Connection {
                 : undefined;
         const addrSuffix = addr ? ' from ' + addr : '';
 
-        if (flag === '2') {
-            const payload = msg.substr(1);
-            const buffer = Buffer.from(payload, 'base64');
-            zlib.gunzip(buffer, (err, buffer) => {
-                if (err) {
-                    console.log(err.toString());
-                    return;
-                }
-                if (!this.listenCallback) return;
-                if (useBison) {
-                    this.listenCallback(BISON.decode(buffer));
-                } else {
-                    // FIX: see safeJsonParse above -- don't let a corrupt
-                    // decompressed payload throw inside this callback.
-                    const parsed = safeJsonParse(buffer, (e) =>
-                        console.warn(
-                            'Dropping malformed compressed message' +
-                                addrSuffix +
-                                ': ' +
-                                e.message
-                        )
-                    );
-                    if (parsed !== undefined) this.listenCallback(parsed);
-                }
-            });
-        } else {
-            if (!this.listenCallback) return;
-            if (useBison) {
-                this.listenCallback(BISON.decode(msg.substr(1)));
-            } else {
-                // FIX: see safeJsonParse above -- don't let one malformed
-                // message crash this handler; just drop it and keep going.
-                const parsed = safeJsonParse(msg.substr(1), (e) =>
-                    console.warn(
-                        'Dropping malformed message' +
-                            addrSuffix +
-                            ': ' +
-                            e.message
-                    )
-                );
-                if (parsed !== undefined) this.listenCallback(parsed);
-            }
-        }
+        // FIX: a '2'-flagged (compressed) message used to be decoded via a
+        // bare zlib.gunzip() callback with nothing serializing it against
+        // any other decode on this same connection, while a plain
+        // ('1'-flagged) message dispatched straight to listenCallback()
+        // synchronously, immediately. zlib.gunzip() runs on Node's libuv
+        // threadpool, so two compressed messages arriving back-to-back on
+        // one connection weren't guaranteed to finish decoding in the order
+        // they arrived -- and a plain message arriving between them would
+        // always cut in line ahead of a still-decoding compressed one
+        // regardless. Either way, listenCallback() (the game logic that
+        // actually processes the message) could run out of order relative
+        // to the bytes' real arrival order. This is the exact mirror image
+        // of the ordering bug already fixed for send() below (see its own
+        // FIX comment) -- routing every dispatch, compressed or not,
+        // through the same kind of per-connection promise chain send()
+        // already uses restores strict FIFO processing of incoming
+        // messages on this connection, while still doing the decompression
+        // work off the synchronous call path.
+        this._recvQueue = (this._recvQueue || Promise.resolve()).then(
+            () =>
+                new Promise((resolve) => {
+                    if (flag === '2') {
+                        const payload = msg.substr(1);
+                        const buffer = Buffer.from(payload, 'base64');
+                        zlib.gunzip(buffer, (err, buffer) => {
+                            if (err) {
+                                console.log(err.toString());
+                                resolve();
+                                return;
+                            }
+                            if (!this.listenCallback) {
+                                resolve();
+                                return;
+                            }
+                            if (useBison) {
+                                this.listenCallback(BISON.decode(buffer));
+                            } else {
+                                // FIX: see safeJsonParse above -- don't let a
+                                // corrupt decompressed payload throw inside
+                                // this callback.
+                                const parsed = safeJsonParse(buffer, (e) =>
+                                    console.warn(
+                                        'Dropping malformed compressed message' +
+                                            addrSuffix +
+                                            ': ' +
+                                            e.message
+                                    )
+                                );
+                                if (parsed !== undefined)
+                                    this.listenCallback(parsed);
+                            }
+                            resolve();
+                        });
+                    } else {
+                        if (this.listenCallback) {
+                            if (useBison) {
+                                this.listenCallback(BISON.decode(msg.substr(1)));
+                            } else {
+                                // FIX: see safeJsonParse above -- don't let
+                                // one malformed message crash this handler;
+                                // just drop it and keep going.
+                                const parsed = safeJsonParse(
+                                    msg.substr(1),
+                                    (e) =>
+                                        console.warn(
+                                            'Dropping malformed message' +
+                                                addrSuffix +
+                                                ': ' +
+                                                e.message
+                                        )
+                                );
+                                if (parsed !== undefined)
+                                    this.listenCallback(parsed);
+                            }
+                        }
+                        resolve();
+                    }
+                })
+        );
     }
 
     // SIMPLIFY: both subclasses duplicated this JSON.stringify / gzip-if-large

@@ -125,7 +125,16 @@ export function installEntityMovingPath(proto) {
 
         const spot = this.getClosestSpot(entity, min, max);
 
-        if (spot && spot.x && spot.y) {
+        // FIX: was `spot && spot.x && spot.y` -- a truthiness check treats a
+        // legitimate spot at world-pixel x===0 or y===0 (the map's left/top
+        // edge, a real value returned by getClosestSpot/getSpotsAroundFrom)
+        // as "no spot found", same bug class already fixed for entity
+        // registration in map/spatialindex.js's add() (see its FIX comment).
+        // Here it made follow() spuriously return false for a legitimate
+        // destination, so a mob/player next to the map's edge would fail to
+        // start moving toward a target it should have been able to reach.
+        // Checking for a real object plus non-null coordinates lets 0 through.
+        if (spot && spot.x != null && spot.y != null) {
             this.moveTo_(spot.x, spot.y);
             return true;
         }
