@@ -51,7 +51,7 @@ export function installAppUI(proto) {
     proto.initPlayerBar = function () {
         const player = game.player;
 
-        if (player && !Detect.isMobile()) {
+        if (player && !game.isMobile) {
             const anim = new PlayerAnim();
             anim.sprites = [];
             anim.addSprite(player.getSprite(0));

@@ -200,7 +200,7 @@ export default class SettingsHandler {
             localforage.getItem('shortcutstyle', function (e, val) {
                 if (val) fnSetShortcut(val);
             });
-            if (game.renderer.mobile || game.renderer.tablet) {
+            if (!game.isDesktop) {
                 if (window.innerWidth > window.innerHeight)
                     fnSetShortcut('horizontal-desc');
                 else {

@@ -1,5 +1,9 @@
 TODO:
 
+CLIENT - Not on mobiles, If the player has a target do not show the hovering info on a different entity.
+
+CLIENT - When the user has no username or password saved at the user window, do not clear the username, and password fields.
+
 CLIENT - If the player is not facing the target attacks and is in range, the
   attack is considered valid.
 

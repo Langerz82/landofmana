@@ -77,7 +77,7 @@ export function installUserClientCallbacks(proto) {
             let errmsg =
                 'Please download the new version of Land Of Mana.<br/>';
 
-            if (game.tablet || game.mobile) {
+            if (!game.isDesktop) {
                 errmsg +=
                     '<br/>For mobile see: <a href="' +
                     config.build.updatepage +
@@ -87,7 +87,7 @@ export function installUserClientCallbacks(proto) {
                     '<br/>For most browsers press Ctrl+F5 to reload the game cache files.';
             }
             game.clienterror_callback(errmsg);
-            if (game.tablet || game.mobile)
+            if (!game.isDesktop)
                 window.location.replace(config.build.updatepage);
             return;
         }

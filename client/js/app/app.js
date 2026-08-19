@@ -459,9 +459,6 @@ export default class App {
         // (App doesn't currently have/use a `.client` property, so left out rather than
         // guessing that was the intent).
 
-        this.isMobile = game.renderer.mobile;
-        this.isTablet = game.renderer.tablet;
-        this.isDesktop = !(this.isMobile || this.isTablet);
         this.supportsWorkers = !!window.Worker;
         this.ready = true;
 

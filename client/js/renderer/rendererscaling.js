@@ -29,7 +29,7 @@ export function installRendererScaling(proto) {
 
         let zoom = 1;
 
-        if (this.mobile) {
+        if (game.isMobile) {
             zoom *= 0.75;
         } else if (this.tablet) {
             zoom *= 1;
@@ -48,7 +48,7 @@ export function installRendererScaling(proto) {
 
         let zoom = 1;
 
-        if (this.mobile) {
+        if (game.isMobile) {
             zoom *= 1.2;
         } else if (this.tablet) {
             zoom *= 0.9;

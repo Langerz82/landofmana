@@ -165,7 +165,7 @@ export function installRendererDrawHud(proto) {
     };
 
     proto.drawCursor = function () {
-        if (this.mobile) return;
+        if (game.isMobile) return;
         if (!this.game.currentCursor) return;
 
         const mx = game.mouse.x,

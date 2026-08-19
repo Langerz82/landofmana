@@ -113,8 +113,7 @@ export function installGameCursor(proto) {
         if (
             this.mapContainer.gridReady &&
             this.player &&
-            !this.renderer.mobile &&
-            !this.renderer.tablet
+            this.isDesktop
         ) {
             this.hoveringMob = this.isMobAt(x, y);
             this.hoveringPlayer = this.isPlayerAt(x, y);

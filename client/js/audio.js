@@ -6,7 +6,7 @@ import Area from './area.js';
 
 export default class AudioManager {
     constructor(game) {
-        if (game.renderer.mobile || typeof Native !== 'undefined')
+        if (game.isMobile || typeof Native !== 'undefined')
             this.enabled = false;
         else this.enabled = true;
         this.extension = 'ogg';

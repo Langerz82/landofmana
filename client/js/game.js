@@ -279,8 +279,9 @@ export default class Game {
         this.isCanary = Detect.isCanaryOnWindows();
         this.isEdge = Detect.isEdgeOnWindows();
         this.isSafari = Detect.isSafari();
-        this.tablet = Detect.isTablet(window.innerWidth);
-        this.mobile = Detect.isMobile();
+        this.isTablet = Detect.isTablet(window.innerWidth);
+        this.isMobile = Detect.isMobile();
+        this.isDesktop = !(this.isMobile || this.isTablet);
 
         setInterval(function () {
             self.removeObsoleteEntities();

@@ -183,15 +183,6 @@ export default class Renderer {
         this.upscaledRendering = true;
         this.rescaling = true;
         this.supportsSilhouettes = this.upscaledRendering;
-        this.isFirefox = Detect.isFirefox();
-        this.isCanary = Detect.isCanaryOnWindows();
-        this.isEdge = Detect.isEdgeOnWindows();
-        this.isSafari = Detect.isSafari();
-        this.tablet = Detect.isTablet(window.innerWidth);
-        this.mobile = Detect.isMobile();
-        this.isTablet = this.tablet;
-        this.isMobile = this.mobile;
-        this.isDesktop = !(this.isTablet || this.isMobile);
 
         this.lastTime = 0;
         this.frameCount = 0;

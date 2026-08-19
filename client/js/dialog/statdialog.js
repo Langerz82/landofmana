@@ -105,7 +105,7 @@ class StatPage extends TabPage {
         const self = this;
 
         if (game.renderer) {
-            if (game.renderer.mobile) {
+            if (game.isMobile) {
                 this.scale = 1;
             } else {
                 this.scale = game.renderer.getUiScaleFactor();
@@ -132,7 +132,7 @@ class StatPage extends TabPage {
         this.refreshStats();
 
         if (game.renderer) {
-            if (game.renderer.mobile) {
+            if (game.isMobile) {
                 this.scale = 1;
             } else {
                 this.scale = game.renderer.getUiScaleFactor();

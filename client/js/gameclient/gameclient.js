@@ -27,9 +27,6 @@ export default class GameClient {
 
         this.enable();
 
-        this.tablet = Detect.isTablet(window.innerWidth);
-        this.mobile = Detect.isMobile();
-
         this.jqContainer = $('#container');
         this.jqErrorWindowDetails = $('#errorwindow .errordetails');
         this.jqErrorWindow = $('#errorwindow');

@@ -275,7 +275,29 @@ export function installClientCallbacksCombat(proto) {
                 this.applyPlayerHealthChange(entity, hpMod);
             }
             game.updateBars();
-        } else {
+        } else if (
+            entity === game.player.target ||
+            entity === game.player.inspecting
+        ) {
+            // FIX: was calling game.updatetarget_callback(entity)
+            // unconditionally for ANY entity whose hp/ep changed, not just
+            // whichever entity is actually shown in the target/hover-info GUI
+            // window right now (game.player.target when a real target is
+            // set, game.player.inspecting while hovering-previewing one --
+            // see charactertargeting.js/gamecursor.js's movecursor()).
+            // updatetarget_callback (onUpdateTarget()/appui.js) unconditionally
+            // overwrites app.jqTargetHealth's width/text with `entity`'s
+            // stats -- so any other mob taking damage/healing anywhere on
+            // screen would clobber the health bar with ITS hp, out from
+            // under whatever was actually being displayed. Concretely: kill
+            // your target, then hover a different entity -- showTarget()
+            // correctly sets the name AND health bar for the new entity once,
+            // but a later change-points packet for the now-dead former
+            // target (e.g. its death packet, hp: 0) would still reach here
+            // and overwrite the health bar back to the dead entity's stats,
+            // while the name stayed showing the newly hovered entity -- the
+            // two visibly went out of sync. Only forward the update when the
+            // changed entity is the one currently on display.
             game.updatetarget_callback(entity);
         }
     };

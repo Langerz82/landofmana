@@ -33,7 +33,7 @@ export function installGameInteractionInput(proto) {
         }
 
         let entity = this.getEntityAt(pos.x, pos.y);
-        if (!entity && this.renderer.mobile) {
+        if (!entity && this.isMobile) {
             const entities = game.camera.getEntitiesAround(pos.x, pos.y, 16, [
                 p
             ]);
@@ -43,7 +43,7 @@ export function installGameInteractionInput(proto) {
         }
 
         if (entity) {
-            if (this.renderer.isDesktop) {
+            if (this.isDesktop) {
                 // Desktop: the mouse is already hovering (and, per
                 // movecursor()/gamecursor.js, has already previewed and -- if
                 // no target was set yet -- selected) whatever's under the
