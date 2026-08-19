@@ -292,7 +292,19 @@ class MovementHandler {
 
             p.handleTeleport();
 
-            p.map.entities.removePlayer(p);
+            // FIX: was `removePlayer(p)` (destroy defaulting to true) --
+            // removePlayer()/removeEntity() (mapentities.js) route a
+            // destroying removal through Player.destroy() -> Character.die(),
+            // which sets isDead=true and freeze=true. This call fires on
+            // every same-session map transition, including the very first
+            // teleport off the login map into the real world on entry -- so
+            // a perfectly alive player got permanently marked isDead/frozen
+            // the moment they entered the world, with no death screen and no
+            // Respawn click available to clear it (canAttack()/modHp() both
+            // gate on `!this.isDead`). The player is being moved to another
+            // map, not removed from the game -- pass `false` so this leaves
+            // the old map's registries without killing them.
+            p.map.entities.removePlayer(p, false);
 
             // FIX (cleanup): `map.enterCallback(p)` was called here but its
             // result was immediately discarded by the `pos = {x: p.x, y: p.y}`

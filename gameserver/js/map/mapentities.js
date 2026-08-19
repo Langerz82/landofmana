@@ -357,7 +357,21 @@ class MapEntities {
         this.spatialIndex.update(entity);
     }
 
-    removeEntity(entity) {
+    // FIX: `destroy` defaults to true (unchanged behavior for every existing
+    // caller -- mob death, item pickup/despawn, block pickup, and a real
+    // player disconnect all still route through entity.destroy() exactly as
+    // before). movementhandler.js's handleTeleportMap() now passes `false`
+    // here (via removePlayer() below) for a same-session map transition --
+    // that call was going through entity.destroy() -> Player.destroy() ->
+    // Character.die(), which unconditionally sets isDead=true and
+    // freeze=true. Since nothing on the map-transition path ever calls
+    // revive()/respawn() (those only run from the client's explicit
+    // "Respawn" button after a real death), a perfectly alive player got
+    // permanently stuck with isDead=true/freeze=true the moment they were
+    // moved onto their first real map -- unable to attack (canAttack()/
+    // modHp() both gate on `!this.isDead`) or move, forever, with no death
+    // screen and no way to trigger a revive to clear it.
+    removeEntity(entity, destroy = true) {
         // PERF: removeEntity runs on every mob death, item pickup/despawn,
         // and block pickup -- not the absolute hottest path in the game,
         // but frequent enough during active combat/looting that it doesn't
@@ -399,10 +413,18 @@ class MapEntities {
 
         if (this.entities.has(entity.id)) this.entities.delete(entity.id);
 
-        entity.destroy();
+        if (destroy) entity.destroy();
     }
 
-    removePlayer(player) {
+    // FIX: `destroy` defaults to true, matching removeEntity()'s default --
+    // every pre-existing caller (the real disconnect path, via
+    // worldserver.js's packetHandler.onExit -> this.removePlayer(player))
+    // still kills the player exactly as before. movementhandler.js's
+    // handleTeleportMap() passes `false` for an in-session map transition
+    // (including the very first teleport off the login map into the real
+    // world), so leaving a map no longer runs the player through
+    // Player.destroy() -> Character.die() and leaves isDead/freeze alone.
+    removePlayer(player, destroy = true) {
         //try { throw new Error(); } catch (e) { console.error(e.stack); }
 
         console.info('removePlayer-called');
@@ -412,7 +434,7 @@ class MapEntities {
 
         console.info('deleting player traces..');
 
-        self.removeEntity(player);
+        self.removeEntity(player, destroy);
 
         self.broadcaster.unregisterPlayer(player.id);
         //delete player;
