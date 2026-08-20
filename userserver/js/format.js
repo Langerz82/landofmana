@@ -53,7 +53,7 @@ import { z } from 'zod';
 // throws `ReferenceError: Types is not defined` before the module finishes
 // loading. Importing it directly here removes that hidden load-order
 // dependency, matching the gameserver file's pattern.
-import { Types } from './common.js';
+import { Types, AppearanceData } from './common.js';
 
 const itemKindMax = 2000;
 const itemNumberMax = 100;
@@ -65,7 +65,21 @@ const auctionEntriesMax = 9999;
 
 const achievementIndexMax = 99;
 const achievementRankMax = 10;
-const achievementCountMax = 999999;
+// FIX: was 999999 (six nines) -- the odd one out among this file's other
+// cumulative-progress caps (skillsXPMax/playerXpMax/playerSkillXpMax/
+// playerGoldMax below are all 999999999, nine nines), which this value sits
+// right next to and looks like a typo'd-short copy of. An achievement's
+// "count" is the same kind of ever-growing cumulative counter (e.g. total
+// kills/gathers toward that achievement) as XP or gold, not a small bounded
+// stat like playerPVPStatsMax -- so a veteran/long-lived player's count can
+// legitimately exceed six nines. Since checkFormat() failing here makes
+// worldhandler.js's listener discard the WHOLE WU_SAVE_PLAYER_DATA packet
+// (not just the achievements field -- see the "rejected malformed packet"
+// path), a single achievement crossing 999999 was silently blocking that
+// player's entire save (player info, quests, achievements, items, bank,
+// equipment) on every autosave and logout, with no way to recover since the
+// count only grows. Bumped to match the other cumulative counters.
+const achievementCountMax = 999999999;
 
 const skillsXPMax = 999999999;
 const mapsCountMax = 10;
@@ -133,6 +147,32 @@ const playerSkillXpMax = 999999999;
 const playerStatPointsMax = 1000;
 const playerStatFreePointsMax = 6000;
 const playerGoldMax = 999999999;
+
+// Gems cap -- matches database/databaselogic.js's gemsMax (see that file's
+// own comment for why gems has no other format.js-level source to derive
+// this from). Duplicated here rather than imported, same as this file's
+// other small cross-cutting constants (e.g. playerGoldMax above). Used by
+// message[1][0]'s gems field below -- was previously bounded at a flat
+// 99999, which silently rejected (and so discarded the ENTIRE
+// WU_SAVE_PLAYER_DATA save, not just this field) any player whose gems ever
+// grew past that, well under the actual gemsMax this codebase enforces
+// everywhere else.
+const gemsMax = 999999999;
+
+// FIX: message[1][0]'s "looks" field was bounded at a flat 45 characters --
+// too small for some legitimate values. Despite its name,
+// Utils.BinArrayToBase64() (shared/js/utils.js) doesn't actually base64-encode
+// `user.looks` -- it packs the flag array 32 bits at a time into a plain
+// integer, then comma-joins those integers into a CSV string. The number of
+// groups is ceil(AppearanceData.Data.length / 32); each group can be as large
+// as 4294967295 (10 digits), so the worst-case joined length is
+// groups*10 + (groups-1) separator commas. Computed from
+// AppearanceData.Data.length (imported from common.js above) rather than
+// hardcoded, so this stays correct if the appearance data set ever grows or
+// shrinks, the same way questNpcIdMax above is derived from mapsCountMax
+// instead of being a bare number.
+const playerLooksGroups = Math.ceil(AppearanceData.Data.length / 32);
+const playerLooksMax = playerLooksGroups * 10 + (playerLooksGroups - 1);
 
 const worldNameLenMin = 2;
 const worldNameLenMax = 16;
@@ -479,8 +519,9 @@ class FormatChecker {
                 return false;
             }
 
-            // message[1][0]: optional [username, sessionHash, n, s, bankGold]
-            // record.
+            // message[1][0]: optional [username, sessionHash, gems, looks,
+            // bankGold] record -- gameserver's loadPlayerDataUserInfo()
+            // (gameserver/js/user/worldhandler.js).
             // FIX: same `this.usernameMin`/`this.usernameMax` undefined-constant
             // issue as above -- use the real usernameLenMin/usernameLenMax.
             //
@@ -496,13 +537,25 @@ class FormatChecker {
             // gameserver started sending the extra element. Same
             // `numberField(0, playerGoldMax)` bound already used for msg[4]/
             // msg[5] below, since it's the same value.
+            //
+            // FIX: the "gems"/"looks" fields here (formerly unlabeled "n"/"s")
+            // were bounded at numberField(0, 99999) and stringField(0, 45) --
+            // both too small for real values, and since this whole tuple check
+            // fails the ENTIRE WU_SAVE_PLAYER_DATA save (not just this one
+            // record) the moment either bound is crossed, this was silently
+            // dropping saves for any player whose gems exceeded 99999, or
+            // whose packed "looks" CSV string (see playerLooksMax's comment
+            // above for why it's a packed-int CSV, not real base64 despite
+            // Utils.BinArrayToBase64()'s name) ran past 45 characters. Bounded
+            // against gemsMax/playerLooksMax instead, matching the real caps
+            // this codebase enforces elsewhere for the same values.
             msg = message[1][0];
             if (msg) {
                 const fmt = tupleField([
                     stringField(usernameLenMin, usernameLenMax),
                     optionalStringField(120, 120),
-                    numberField(0, 99999),
-                    stringField(0, 45),
+                    numberField(0, gemsMax),
+                    stringField(0, playerLooksMax),
                     numberField(0, playerGoldMax)
                 ]);
                 res = fmt.safeParse(msg);
