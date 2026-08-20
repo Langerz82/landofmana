@@ -28,6 +28,14 @@ const bankSlots = 96;
 // fits under the cap a future save could ever pass validation with.
 const playerGoldMax = 999999999;
 
+// Gems cap -- unlike gold, there's no format.js wire-level validation for
+// gems (no client message ever submits a raw "gems" value directly; it only
+// ever moves via modifyGems()'s atomic HINCRBY below, driven server-side by
+// staged "gemsoffline" credits/debits). Chosen to match playerGoldMax's
+// value/style for consistency. Used by modifyGems() below to clamp the
+// persisted "gems" balance into range after every increment.
+const gemsMax = 999999999;
+
 const hgetarray = function (hash, key, callback) {
     if (Array.isArray(key)) {
         const m = client.multi();
@@ -1365,30 +1373,32 @@ class DatabaseHandler {
     // credit" race. This function's own job hasn't changed -- still just
     // atomically add goldAmount to "goldoffline" -- there's simply no
     // separate addGoldOffline()/transferOfflineGold() left to call afterward.
+    //
+    // NOTE: "goldoffline" is deliberately left unclamped here -- same
+    // reasoning as "gemsoffline" on addUserGemsOffline() below: it's just a
+    // signed staging delta (goldAmount can be negative, a deduction)
+    // accumulating until the next login folds it into the real gold_0
+    // balance, not a balance in its own right, so there's nothing wrong
+    // with it sitting negative in between. This used to re-clamp the field
+    // to a floor of 0 here, which accountlogic.js's loadPlayerInfo() FIX
+    // comment specifically relied on to guarantee gold_0 could never go
+    // negative -- that guarantee now comes from modifyGold()'s own
+    // [0, playerGoldMax] clamp instead (see that function's FIX comment),
+    // which covers the actual gold_0 balance regardless of whether the
+    // delta folded into it was negative, so clamping this intermediate
+    // delta too would be redundant.
     addPlayerGoldOffline(playerName, goldAmount) {
         console.info('redis.addPlayerGoldOffline: playerName:' + playerName);
         console.info('goldAmount:' + goldAmount);
 
         const pKey = 'p:' + playerName;
-        client.hincrby(pKey, 'goldoffline', goldAmount, (err, total) => {
+        client.hincrby(pKey, 'goldoffline', goldAmount, (err) => {
             if (err) {
                 console.warn(
                     'redis.addPlayerGoldOffline: save error, ' +
                         JSON.stringify(err)
                 );
                 return;
-            }
-            // Preserve the previous Math.max(0, ...) clamp -- goldAmount can be
-            // negative (a deduction), and this field should never go below 0.
-            if (total < 0) {
-                client.hset(pKey, 'goldoffline', 0, (err) => {
-                    if (err) {
-                        console.warn(
-                            'redis.addPlayerGoldOffline: clamp error, ' +
-                                JSON.stringify(err)
-                        );
-                    }
-                });
             }
         });
     }
@@ -1403,6 +1413,17 @@ class DatabaseHandler {
     // see loadUserInfo()'s FIX comment above for the full race-safety
     // rationale (same one addPlayerGoldOffline()/loadPlayerInfo() already
     // rely on for gold).
+    //
+    // NOTE: unlike addPlayerGoldOffline()'s "goldoffline" above,
+    // "gemsoffline" is deliberately left unclamped here -- it's just a
+    // signed staging delta (an admin credit or, via a negative `amount`, a
+    // debit) accumulating until the next login folds it into the real
+    // "gems" balance, not a balance in its own right, so there's nothing
+    // wrong with it sitting negative in between (it simply means net
+    // debits are currently staged). Clamping the actual account balance
+    // into [0, gemsMax] happens once, at the point that balance is really
+    // written -- modifyGems() below -- rather than being (redundantly, and
+    // incorrectly) enforced on this intermediate delta too.
     addUserGemsOffline(userName, amount) {
         console.info('redis.addUserGemsOffline: userName:' + userName);
         console.info('amount:' + amount);
@@ -1437,6 +1458,25 @@ class DatabaseHandler {
     // trip, no scripting, and no CSV parsing left to get wrong (the Lua
     // gmatch `*`-vs-`+` bug this used to have a FIX comment about is no
     // longer possible -- there's no string to split/join here at all).
+    //
+    // FIX: this used to leave gold_0/gold_1 completely unbounded here --
+    // same gap modifyGems() above used to have, and fixed the same way. A
+    // large enough negative golddiff could push the field below 0 (this is
+    // now the *only* thing keeping that guarantee: addPlayerGoldOffline()'s
+    // own floor clamp on "goldoffline" was removed -- see that function's
+    // NOTE comment -- specifically because this clamp now covers it,
+    // including the case AccountLogic.loadPlayerInfo() (accountlogic.js)
+    // relies on, where a possibly-negative "goldoffline" value is folded in
+    // straight through this function), and nothing capped the high end
+    // either -- a large enough offline credit could push gold_0 above
+    // playerGoldMax with nothing catching it until this player's next full
+    // save, which would then fail format.js's WU_SAVE_PLAYER_DATA
+    // validation and close the whole connection. Same read-back-then-correct
+    // pattern as modifyGems(): HINCRBY's returned `total` is checked against
+    // [0, playerGoldMax] and, if it falls outside that range, immediately
+    // corrected with a follow-up hset. Same narrow concurrent-reader window
+    // as modifyGems()/addPlayerGoldOffline() accept, for the same reason
+    // (no clamped-increment primitive in Redis).
     modifyGold(playerName, golddiff, type, callback) {
         console.info('redis.modifyGold: playerName:' + playerName);
         console.info('golddiff:' + golddiff);
@@ -1467,6 +1507,19 @@ class DatabaseHandler {
             // silently no-op'ing the update) rather than a loss of a check that
             // was actually relied on.
             console.info('modifyGold.gold: ' + JSON.stringify(total));
+
+            if (total < 0 || total > playerGoldMax) {
+                const clamped = Math.max(0, Math.min(total, playerGoldMax));
+                client.hset(pKey, field, clamped, (err) => {
+                    if (err) {
+                        console.warn(
+                            'redis.modifyGold: clamp error ' +
+                                JSON.stringify(err)
+                        );
+                    }
+                });
+            }
+
             if (callback) {
                 callback(playerName, golddiff, type);
             }
@@ -1483,15 +1536,41 @@ class DatabaseHandler {
     // manual get-then-set round trip; also self-heals a missing "gems"
     // field by creating it at `diff` rather than producing NaN from
     // parseInt(null).
+    //
+    // FIX: this used to leave "gems" completely unbounded -- a large enough
+    // negative `diff` (an over-eager admin debit, or some future purchase
+    // path) could push it below 0, and nothing capped it on the high end
+    // either. Same read-back-then-correct pattern addPlayerGoldOffline()
+    // above already uses for its own floor clamp, extended to both ends:
+    // HINCRBY's returned `total` is checked against [0, gemsMax] and, if it
+    // falls outside that range, immediately corrected with a follow-up
+    // hset. This can't be done atomically in the same HINCRBY call (Redis
+    // has no clamped-increment primitive), so there's a narrow window where
+    // an out-of-range value is briefly visible to a concurrent reader --
+    // same tradeoff/window addPlayerGoldOffline()'s floor clamp already
+    // accepts.
     modifyGems(username, diff) {
         const uKey = 'u:' + username;
         diff = parseInt(diff, 10) || 0;
 
-        client.hincrby(uKey, 'gems', diff, (err) => {
+        client.hincrby(uKey, 'gems', diff, (err, total) => {
             if (err) {
                 console.warn(
                     'redis.modifyGems: save error ' + JSON.stringify(err)
                 );
+                return;
+            }
+
+            if (total < 0 || total > gemsMax) {
+                const clamped = Math.max(0, Math.min(total, gemsMax));
+                client.hset(uKey, 'gems', clamped, (err) => {
+                    if (err) {
+                        console.warn(
+                            'redis.modifyGems: clamp error ' +
+                                JSON.stringify(err)
+                        );
+                    }
+                });
             }
         });
     }

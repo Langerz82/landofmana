@@ -29,6 +29,19 @@
 // exports from common.js (Types, Utils) or runtime-populated globals owned
 // by main.js (users), not a circular import back to this file.
 
+// Gems cap -- matches redis.js's gemsMax (see that constant's comment for
+// why gems has no format.js wire-level equivalent to source this from, the
+// way playerGoldMax there does). Duplicated here rather than reached into
+// redis.js for the same reason redis.js's own small cross-cutting constants
+// stay local to each file. Used by loadUserData() below to keep the
+// in-memory gems value this method hands back within range.
+const gemsMax = 999999999;
+
+// Gold cap -- matches redis.js's/format.js's playerGoldMax. Duplicated here
+// for the same reason gemsMax above is. Used by loadPlayerInfo() below to
+// keep the in-memory gold_0 value this method hands back within range.
+const playerGoldMax = 999999999;
+
 class AccountLogic {
     constructor(dbh) {
         this.dbh = dbh;
@@ -258,6 +271,21 @@ class AccountLogic {
             this.dbh.modifyGems(user.name, offlineGems);
         }
 
+        // FIX: clamp the in-memory gems value into [0, gemsMax] here.
+        // redis.js's modifyGems() (just called above) already self-corrects
+        // the persisted "gems" field the same way once its HINCRBY comes
+        // back out of range, but that correction is a separate
+        // fire-and-forget write landing asynchronously -- without also
+        // clamping `data.gems`, this method could still hand back (and this
+        // session could act on immediately, or later re-persist via
+        // saveUserInfo()/savePlayerUserInfo() in redis.js, which write
+        // whatever "gems" value they're given with no clamp of their own)
+        // an out-of-range value for the window before that correction
+        // lands, or whenever `data.gems` starts out-of-range for a reason
+        // other than this `offlineGems` fold (e.g. a value written directly
+        // to Redis some other way).
+        data.gems = Math.max(0, Math.min(data.gems, gemsMax));
+
         const len = AppearanceData.Data.length;
         data.looks = new Uint8Array(len);
         if (data.looks2) {
@@ -446,10 +474,13 @@ class AccountLogic {
     //   - The other direct mutation path, redis.js's modifyGold() HINCRBY, is
     //     now called from this class's own loadPlayerInfo() below (persisting
     //     whatever was staged in "goldoffline" -- addPlayerGoldOffline() --
-    //     straight to gold_0 once it's read back out at load time), and the
-    //     amount passed is always whatever addPlayerGoldOffline() had clamped
-    //     to >= 0 -- it can only add, never subtract, so it can't be the
-    //     source of a negative value either.
+    //     straight to gold_0 once it's read back out at load time). The
+    //     amount passed there can be negative ("goldoffline" is an
+    //     unclamped signed staging delta -- see that function's NOTE
+    //     comment), but that no longer matters: modifyGold() now clamps
+    //     gold_0/gold_1 into [0, playerGoldMax] itself after every HINCRBY
+    //     (see its own FIX comment), so the persisted field can't go
+    //     negative (or over the cap) regardless of what delta fed it.
     // (The gameserver-side race this used to guard against -- two
     // near-simultaneous shop purchases both passing playeritems.js's
     // in-memory affordability check before either lands -- can still produce
@@ -503,6 +534,19 @@ class AccountLogic {
                 data[4] += offlineGold;
                 this.dbh.modifyGold(playername, offlineGold, 0, () => {});
             }
+
+            // FIX: clamp the in-memory gold_0 value into [0, playerGoldMax]
+            // here, mirroring loadUserData()'s equivalent data.gems clamp
+            // above. redis.js's modifyGold() (just called above) already
+            // self-corrects the persisted gold_0 field the same way once
+            // its HINCRBY comes back out of range, but that correction is a
+            // separate fire-and-forget write landing asynchronously --
+            // without also clamping `data[4]`, this method could still hand
+            // back an out-of-range value for the window before that
+            // correction lands, and that value is what worldhandler.js
+            // forwards straight onto the WU_SAVE_PLAYER_DATA wire as this
+            // session's starting gold_0 (see the REFACTOR comment above).
+            data[4] = Math.max(0, Math.min(data[4], playerGoldMax));
 
             if (callback) {
                 callback(playername, data);
