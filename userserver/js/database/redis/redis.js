@@ -319,6 +319,23 @@ class DatabaseHandler {
         });
     }
 
+    // FIX: data[2] = bank_gold, written to the shared u:<username>
+    // "bank_gold" field -- this is now the ONLY place in this file that
+    // writes "bank_gold" on a normal player save; savePlayerInfo() (below)
+    // used to also write it (from its own data[5]) but that's been removed
+    // (see savePlayerInfo()'s REFACTOR comment) now that worldhandler.js's
+    // (gameserver) loadPlayerDataUserInfo() sends the value here instead.
+    //
+    // REFACTOR: used to guard this write on `data[2] !== undefined`, back
+    // when this method's only caller (userserver's worldhandler.js) could
+    // still pass a 2-element [gems, looks2] array. That's no longer
+    // possible: message[1][0] on the wire (this method's `data`, minus the
+    // username/hash worldhandler.js shifts off first) is validated by
+    // format.js as a strict 5-field tuple -- [username, hash, gems, looks,
+    // bankGold] -- so any message that reaches this call already has
+    // data[2]. Written unconditionally now; a future caller that somehow
+    // omits it would hset "bank_gold" to the *string* "undefined" with no
+    // guard to catch it, but nothing in this codebase does that today.
     savePlayerUserInfo(username, playerName, data, callback) {
         const uKey = 'u:' + username;
         client
@@ -326,6 +343,7 @@ class DatabaseHandler {
             .sadd('usr', username)
             .hset(uKey, 'gems', data[0])
             .hset(uKey, 'looks2', data[1])
+            .hset(uKey, 'bank_gold', data[2])
             .exec((err, replies) => {
                 if (callback) {
                     callback(username, playerName, data);
@@ -334,8 +352,9 @@ class DatabaseHandler {
     }
 
     // FIX: seeds "bank_gold" at 0 here now, on every brand-new account --
-    // see loadPlayerInfo()'s/savePlayerInfo()'s REFACTOR comments below for
-    // the full rationale. This is the one call site that makes "the
+    // see loadPlayerInfo()'s REFACTOR comments below for the full rationale
+    // (savePlayerInfo() below no longer touches "bank_gold" at all -- see
+    // its own REFACTOR comment). This is the one call site that makes "the
     // account's shared gold always lives on u:<username>" actually true
     // from a character's very first save, rather than merely true for
     // accounts that have survived one server restart's
@@ -656,7 +675,7 @@ class DatabaseHandler {
                     stats,
                     exps,
                     gold0,
-                    gold1,
+                    bank_gold,
                     goldOffline,
                     ,
                     /* hdel("goldoffline") reply, unused */ skills,
@@ -678,7 +697,7 @@ class DatabaseHandler {
                     stats,
                     exps,
                     gold0,
-                    gold1,
+                    bank_gold,
                     skills,
                     pStats,
                     sprites,
@@ -694,36 +713,31 @@ class DatabaseHandler {
             });
     }
 
-    // REFACTOR: expects gold already split into two elements -- data[4] =
-    // gold_0, data[5] = gold_1 -- matching the WU_SAVE_PLAYER_DATA wire
-    // format, which now sends gold_0/gold_1 as two flat elements (not a
-    // combined "100,50" string, and not a nested array either -- see
-    // gameserver's worldhandler.js and userserver/js/format.js's gold check).
-    // Since the wire shape and this function's expected shape are identical,
-    // AccountLogic.savePlayerInfo() (accountlogic.js) -- the only caller (see
-    // worldhandler.js, which calls Accounts.savePlayerInfo() rather than this
-    // method directly) -- is now a pure passthrough with no parsing or
-    // reshaping of its own. The legacy "gold" field is intentionally left
-    // untouched (not written) going forward now that gold_0/gold_1 are the
-    // source of truth.
+    // REFACTOR: expects gold_0 as a flat element -- data[4] -- matching the
+    // WU_SAVE_PLAYER_DATA wire format (not a combined "100,50" string, and
+    // not a nested array either -- see gameserver's worldhandler.js and
+    // userserver/js/format.js's gold check). Since the wire shape and this
+    // function's expected shape are identical, AccountLogic.savePlayerInfo()
+    // (accountlogic.js) -- the only caller (see worldhandler.js, which calls
+    // Accounts.savePlayerInfo() rather than this method directly) -- is a
+    // pure passthrough with no parsing or reshaping of its own. The legacy
+    // "gold" field is intentionally left untouched (not written) going
+    // forward now that gold_0 is the source of truth for this record.
     //
-    // REFACTOR: gold_1 (data[5]) is account-level now -- see the REFACTOR/FIX
-    // comments on loadPlayerInfo() above for the full rationale. `username`
-    // is needed here (in addition to `playerName`) to know which account's
-    // shared u:<username> "bank_gold" field data[5] belongs in. Every
-    // character on the account writes to the same shared field, so
-    // whichever character saves last "wins" -- the same last-write-wins
-    // tradeoff saveUserBank() already accepts for the shared bank.
-    //
-    // REFACTOR: writes "bank_gold" here now, not "gold_1" -- see
-    // renameGold1ToBankGold()'s comment (migration.js) for the full rename
-    // rationale. Safe unconditionally: by the time any player can reach
-    // this call, main.js has already awaited migrationReady (which now
-    // includes renameGold1ToBankGold()), so "bank_gold" is guaranteed to be
-    // the account's current field.
-    savePlayerInfo(username, playerName, data, callback) {
+    // REFACTOR: no longer takes `username` or writes "bank_gold" -- gold_1/
+    // bank_gold (the account-level shared gold) used to be data[5] here,
+    // written to u:<username>, but that made this per-character save also
+    // reach into account-level state, and needed `username` (in addition to
+    // `playerName`) purely to build that one key. It's since moved entirely
+    // to savePlayerUserInfo() (above), which now optionally writes
+    // "bank_gold" from its own 3rd data element -- see that method's FIX
+    // comment, and worldhandler.js's (gameserver) loadPlayerDataUserInfo(),
+    // which is what actually supplies it. Every field from skills onward
+    // shifts one index earlier (data[6]->data[5] etc.) to fill the gap left
+    // by gold_1's removal -- see the matching REFACTOR comment on
+    // userserver/js/format.js's message[1][1] length check.
+    savePlayerInfo(playerName, data, callback) {
         const pKey = 'p:' + playerName;
-        const uKey = 'u:' + username;
 
         client
             .multi()
@@ -733,13 +747,12 @@ class DatabaseHandler {
             .hset(pKey, 'stats', data[2])
             .hset(pKey, 'exps', data[3])
             .hset(pKey, 'gold_0', data[4])
-            .hset(uKey, 'bank_gold', data[5])
-            .hset(pKey, 'skills', data[6])
-            .hset(pKey, 'pStats', data[7])
-            .hset(pKey, 'sprites', data[8])
-            .hset(pKey, 'colors', data[9])
-            .hset(pKey, 'shortcuts', data[10])
-            .hset(pKey, 'completeQuests', data[11])
+            .hset(pKey, 'skills', data[5])
+            .hset(pKey, 'pStats', data[6])
+            .hset(pKey, 'sprites', data[7])
+            .hset(pKey, 'colors', data[8])
+            .hset(pKey, 'shortcuts', data[9])
+            .hset(pKey, 'completeQuests', data[10])
             .exec((err2, replies) => {
                 if (err2) {
                     console.warn(err2);

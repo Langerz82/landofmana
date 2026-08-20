@@ -411,18 +411,17 @@ class WorldHandler {
                 }
             );
 
-            // NOTE: `username` is required now (in addition to playerName) --
-            // AccountLogic.savePlayerInfo() needs it to route gold_1 (data[1][5])
-            // to the shared account-level field or this character's own legacy
-            // field -- see redis.js's savePlayerInfo() REFACTOR comment.
-            Accounts.savePlayerInfo(
-                username,
-                playerName,
-                data[1],
-                function (playerName) {
-                    checkPlayerSaved(playerName);
-                }
-            );
+            // NOTE: `username` used to be required here too (in addition to
+            // playerName) -- AccountLogic.savePlayerInfo() needed it to route
+            // gold_1 (data[1][5]) to the shared account-level field. That
+            // field's gone from this record now (see redis.js's
+            // savePlayerInfo() REFACTOR comment) -- the account's shared gold
+            // travels via DBH.savePlayerUserInfo() above instead (data[0]'s
+            // own 3rd element) -- so this is back to just playerName, like
+            // every other per-character save below.
+            Accounts.savePlayerInfo(playerName, data[1], function (playerName) {
+                checkPlayerSaved(playerName);
+            });
 
             DBH.saveQuests(
                 playerName,

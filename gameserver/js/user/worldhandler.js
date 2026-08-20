@@ -194,7 +194,18 @@ class WorldHandler {
             user.name,
             user.hash,
             Number(user.gems),
-            Utils.BinArrayToBase64(user.looks)
+            Utils.BinArrayToBase64(user.looks),
+            // Account-level shared gold ("bank_gold" on userserver, see
+            // redis.js's savePlayerInfo()/loadPlayerInfo()) -- already sent
+            // separately below in loadPlayerDataInfo()'s
+            // player.items.gold[1] (data[1][5] on the wire), so this is a
+            // redundant second copy of the same value, not a new source of
+            // truth. Added so userserver's DBH.savePlayerUserInfo() (which
+            // now optionally writes "bank_gold" from its own 3rd data
+            // element -- see that method's FIX comment) has a value to
+            // write on every save, the same as savePlayerInfo() already
+            // does from loadPlayerDataInfo()'s copy.
+            player.items.gold[1]
         ];
 
         if (callback) callback(user.name, data);
@@ -238,16 +249,24 @@ class WorldHandler {
             map.join(','),
             stats.join(','),
             exps.join(','),
-            // REFACTOR: gold_0/gold_1 as two separate flat elements now,
-            // instead of one joined CSV string or one nested [gold0, gold1]
-            // array -- matches every other field in this record (flat
-            // values, no nesting) and matches redis.js's gold_0/gold_1
-            // storage fields 1:1, so userserver's AccountLogic no longer
-            // needs to reshape this record at all (see
+            // REFACTOR: gold_0 as a flat element now, instead of one joined
+            // CSV string or a nested array -- matches every other field in
+            // this record (flat values, no nesting) and matches redis.js's
+            // gold_0 storage field 1:1, so userserver's AccountLogic no
+            // longer needs to reshape this record at all (see
             // AccountLogic.savePlayerInfo() in userserver/js/accountlogic.js
-            // for the full trail). Shifts every field below by one index.
+            // for the full trail).
+            //
+            // REFACTOR: gold[1] (the account's shared gold, "bank_gold" in
+            // Redis) used to also be sent here, right after gold[0] --
+            // removed: it's account-level, not per-character, and this
+            // record only ever fed userserver's per-character
+            // DBH.savePlayerInfo(). It's sent once from
+            // loadPlayerDataUserInfo() (above) instead, alongside gems/looks,
+            // which is what userserver's DBH.savePlayerUserInfo() now writes
+            // "bank_gold" from -- see that method's FIX comment (redis.js).
+            // Every field below shifts one index earlier to fill the gap.
             player.items.gold[0],
-            player.items.gold[1],
             skillexps.join(','),
             player.pStats.join(','),
             player.sprites.join(','),

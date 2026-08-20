@@ -565,22 +565,25 @@ class AccountLogic {
     // this class never touches a raw client/global directly).
     //
     // REFACTOR: `data` arrives here in the WU_SAVE_PLAYER_DATA wire shape the
-    // gameserver builds (gameserver/js/user/worldhandler.js) -- gold_0/gold_1
-    // are two flat elements (data[4], data[5]) now, matching every other field
-    // in this record and matching redis.js's raw storage shape 1:1, so there's
-    // no reshaping left to do here either -- this is now a plain passthrough
-    // to this.dbh.savePlayerInfo(). worldhandler.js still calls this method
+    // gameserver builds (gameserver/js/user/worldhandler.js) -- gold_0 is a
+    // flat element (data[4]) now, matching every other field in this record
+    // and matching redis.js's raw storage shape 1:1, so there's no reshaping
+    // left to do here either -- this is now a plain passthrough to
+    // this.dbh.savePlayerInfo(). worldhandler.js still calls this method
     // (not DBH.savePlayerInfo() directly), keeping the same call path in case
     // this ever needs real business logic again, the way loadPlayerInfo()
     // above still does.
     //
-    // REFACTOR: `username` is now required (in addition to `playerName`) --
-    // redis.js's savePlayerInfo() needs it to know which account's shared
-    // u:<username> "bank_gold" field data[5] belongs in (renamed from
-    // "gold_1" -- see redis.js's renameGold1ToBankGold()), matching
-    // loadPlayerInfo() above.
-    savePlayerInfo(username, playerName, data, callback) {
-        this.dbh.savePlayerInfo(username, playerName, data, callback);
+    // REFACTOR: `username` used to be required here too (in addition to
+    // `playerName`) -- redis.js's savePlayerInfo() needed it to know which
+    // account's shared u:<username> "bank_gold" field data[5] belonged in.
+    // That's gone now: bank_gold moved entirely to
+    // DBH.savePlayerUserInfo()/AccountLogic doesn't touch it at all here
+    // anymore -- see redis.js's savePlayerInfo() REFACTOR comment -- so this
+    // is back to just `playerName`, matching every other per-character save
+    // in this class.
+    savePlayerInfo(playerName, data, callback) {
+        this.dbh.savePlayerInfo(playerName, data, callback);
     }
 }
 

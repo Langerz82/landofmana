@@ -479,16 +479,31 @@ class FormatChecker {
                 return false;
             }
 
-            // message[1][0]: optional [username, sessionHash, n, s] record.
+            // message[1][0]: optional [username, sessionHash, n, s, bankGold]
+            // record.
             // FIX: same `this.usernameMin`/`this.usernameMax` undefined-constant
             // issue as above -- use the real usernameLenMin/usernameLenMax.
+            //
+            // REFACTOR: added the 5th element, bankGold -- gameserver's
+            // worldhandler.js now sends player.items.gold[1] (the account's
+            // shared gold) here too, alongside gems/looks, so userserver's
+            // DBH.savePlayerUserInfo() has a value to write straight through
+            // to "bank_gold" on every save (see that method's FIX comment,
+            // redis.js) the same as savePlayerInfo() already does from
+            // message[1][1]'s own copy of this value (msg[5] below) -- z.tuple()
+            // is strict about length, so this schema has to grow to 5 fields or
+            // every save would now fail validation outright the moment
+            // gameserver started sending the extra element. Same
+            // `numberField(0, playerGoldMax)` bound already used for msg[4]/
+            // msg[5] below, since it's the same value.
             msg = message[1][0];
             if (msg) {
                 const fmt = tupleField([
                     stringField(usernameLenMin, usernameLenMax),
                     optionalStringField(120, 120),
                     numberField(0, 99999),
-                    stringField(0, 45)
+                    stringField(0, 45),
+                    numberField(0, playerGoldMax)
                 ]);
                 res = fmt.safeParse(msg);
                 if (!res.success) {
@@ -500,14 +515,24 @@ class FormatChecker {
                 }
             }
 
-            // message[1][1]: the main player-data record, exactly 12 fields.
+            // message[1][1]: the main player-data record, exactly 11 fields.
+            //
+            // REFACTOR: was 12 fields, with msg[5] = gold_1 (the account's
+            // shared gold, "bank_gold" in Redis). That's gone now -- gold_1/
+            // bank_gold moved entirely to message[1][0] (see the 5th tuple
+            // field above, and redis.js's savePlayerUserInfo()) since it's
+            // account-level, not per-character, and this record was the
+            // only place still routing it through DBH.savePlayerInfo()'s
+            // per-character `data`/`uKey` plumbing. Every field from skills
+            // xp onward shifts one index earlier (msg[6]->msg[5] etc.) to
+            // fill the gap; gold_0 (still per-character) stays at msg[4].
             msg = message[1][1];
             if (!Array.isArray(msg)) {
                 console.info('message 1-1 not an array.');
                 return false;
             }
-            if (msg.length !== 12) {
-                console.info('message 1-1 not length 12.');
+            if (msg.length !== 11) {
+                console.info('message 1-1 not length 11.');
                 return false;
             }
 
@@ -553,25 +578,22 @@ class FormatChecker {
                 return false;
             }
 
-            // gold data: two real number fields now (msg[4]=gold_0, msg[5]=gold_1)
-            // -- not a CSV string, and not a nested [gold0, gold1] array either.
-            // worldhandler.js (gameserver) sends player.items.gold[0]/[1] as two
-            // separate top-level elements, matching the flat shape every other
-            // field in this record already uses, and matching redis.js's raw
-            // gold_0/gold_1 storage fields 1:1 -- see the REFACTOR comment on
-            // AccountLogic.loadPlayerInfo()/savePlayerInfo() (accountlogic.js) for
-            // the full trail.
+            // gold data: one real number field now (msg[4]=gold_0) -- not a CSV
+            // string, and not a nested array. worldhandler.js (gameserver)
+            // sends player.items.gold[0] as a flat top-level element, matching
+            // every other field in this record and matching redis.js's raw
+            // gold_0 storage field 1:1 -- see the REFACTOR comment on
+            // AccountLogic.loadPlayerInfo()/savePlayerInfo() (accountlogic.js)
+            // for the full trail.
+            //
+            // REFACTOR: gold_1/bank_gold used to also be validated here as
+            // msg[5] -- removed along with that field (see the REFACTOR
+            // comment on the length check above); it now travels in
+            // message[1][0] instead.
             res = numberField(0, playerGoldMax).safeParse(msg[4]);
             if (!res.success) {
                 console.info(
                     'gold_0 data failed: ' + describeZodError(res.error)
-                );
-                return false;
-            }
-            res = numberField(0, playerGoldMax).safeParse(msg[5]);
-            if (!res.success) {
-                console.info(
-                    'gold_1 data failed: ' + describeZodError(res.error)
                 );
                 return false;
             }
@@ -590,13 +612,13 @@ class FormatChecker {
             // (Array.from({length:7}...)) would reject every real save the moment
             // the roster size differs from 7, so this validates every CSV field
             // against the XP bound without asserting a fixed count.
-            if (typeof msg[6] !== 'string') {
+            if (typeof msg[5] !== 'string') {
                 console.info('skills xp data not a string.');
                 return false;
             }
             {
                 const skillXpField = csvNumberField(0, playerSkillXpMax);
-                const skillParts = msg[6].split(',');
+                const skillParts = msg[5].split(',');
                 const bad = skillParts.find(
                     (part) => !skillXpField.safeParse(part).success
                 );
@@ -607,7 +629,7 @@ class FormatChecker {
             }
 
             // pvp stats data
-            res = parseCsvFields(msg[7], [
+            res = parseCsvFields(msg[6], [
                 csvNumberField(0, playerPVPStatsMax),
                 csvNumberField(0, playerPVPStatsMax)
             ]);
@@ -618,7 +640,7 @@ class FormatChecker {
 
             // sprites data
             res = parseCsvFields(
-                msg[8],
+                msg[7],
                 Array.from({ length: 4 }, () =>
                     csvNumberField(0, playerSpritesMax)
                 )
@@ -629,7 +651,7 @@ class FormatChecker {
             }
 
             // colors data (mixed string + CSV number)
-            res = parseCsvFields(msg[9], [
+            res = parseCsvFields(msg[8], [
                 stringField(0, playerColorsMaxLen),
                 csvNumberField(0, playerColorsMaxLen)
             ]);
@@ -639,7 +661,7 @@ class FormatChecker {
             }
 
             // shortcuts data: JSON object keyed by shortcut index.
-            data = msg[10];
+            data = msg[9];
             if (typeof data !== 'string') {
                 console.info('shortcuts data not a string.');
                 return false;
@@ -691,7 +713,7 @@ class FormatChecker {
             // NPC), and JSON.stringify() drops undefined object properties
             // entirely, so a value can legitimately be `{}` with no npcid key at
             // all -- npcid must be optional, not just nullable.
-            data = msg[11];
+            data = msg[10];
             if (typeof data !== 'string') {
                 console.info('complete quests data not a string.');
                 return false;
