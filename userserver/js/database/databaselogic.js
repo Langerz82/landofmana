@@ -130,7 +130,9 @@ class DatabaseLogic {
             '',
             user.gems,
             Utils.BinArrayToBase64(user.looks),
-            user.connection._connection.remoteAddress
+            user.connection._connection.remoteAddress,
+            0,
+            '[]'
         ];
 
         return data;

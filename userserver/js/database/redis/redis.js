@@ -384,7 +384,8 @@ class DatabaseHandler {
             .hset(uKey, 'gems', data[7])
             .hset(uKey, 'looks2', data[8])
             .hset(uKey, 'ipAddresses', data[9])
-            .hset(uKey, 'bank_gold', 0)
+            .hset(uKey, 'bank_gold', data[10])
+            .hset(uKey, 'bank', data[11])
             .exec((err, replies) => {
                 if (callback) {
                     callback(username, data);
