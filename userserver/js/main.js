@@ -16,7 +16,7 @@ import AccountLogic from './accountlogic.js';
 // `ws.WebsocketServer`/`ws.socketioConnection` below are unaffected, same
 // external shape as before.
 import ws from './ws/ws.js';
-import DatabaseSelector from './databaseselector.js';
+import DatabaseSelector from './database/databaseselector.js';
 
 //import _ from 'underscore';
 import { createInterface } from 'readline';
