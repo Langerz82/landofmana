@@ -542,6 +542,7 @@ function migrateGold1ToUser(callback) {
                 .multi()
                 .hget(uKey, 'gold_1')
                 .hget(uKey, 'players')
+                .hget(uKey, 'bank_gold')
                 .exec((err, raw) => {
                     if (err) {
                         console.error(
@@ -555,10 +556,30 @@ function migrateGold1ToUser(callback) {
                         return;
                     }
 
-                    const [existingGold1, playersCsv] = raw;
+                    const [existingGold1, playersCsv, existingBankGold] = raw;
 
-                    if (existingGold1 != null) {
-                        // Already on the new field -- nothing to combine.
+                    // FIX: this used to only check "gold_1" for the
+                    // already-migrated signal. But renameGold1ToBankGold()
+                    // (below) deletes "gold_1" the moment it successfully
+                    // renames it to "bank_gold" -- so on every subsequent
+                    // restart, an already-fully-migrated account has no
+                    // "gold_1" left, this skip check missed it, and the
+                    // combine below re-ran from scratch. Every character's
+                    // own p:<playerName> "gold_1" was *also* already deleted
+                    // by that same earlier successful migration (see the
+                    // Cleanup block below), so the "re-combine" always summed
+                    // to 0, wrote a fresh "gold_1" of 0 back onto the
+                    // account, and renameGold1ToBankGold() then immediately
+                    // overwrote the account's real "bank_gold" balance with
+                    // that 0 -- silently zeroing every account's shared gold
+                    // on every single server restart. Checking "bank_gold"
+                    // too (the migration's actual terminal state, produced by
+                    // renameGold1ToBankGold()) fixes that: an account that's
+                    // already fully migrated is skipped here regardless of
+                    // whether "gold_1" happens to still exist.
+                    if (existingGold1 != null || existingBankGold != null) {
+                        // Already on the new field, or already renamed to
+                        // "bank_gold" -- nothing to combine.
                         checkDone();
                         return;
                     }
