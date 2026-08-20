@@ -500,11 +500,13 @@ class AccountLogic {
     // this.dbh.loadPlayerInfo().
     //
     // REFACTOR: `username` is now required (in addition to `playerName`) --
-    // redis.js's loadPlayerInfo() needs it to read gold_1 from the shared
-    // account-level field (u:<username>) instead of (or as a fallback from)
-    // this character's own field, now that gold_1 has moved to the account
-    // level the same way bank did -- see the REFACTOR comment on redis.js's
-    // loadPlayerInfo() for the full rationale.
+    // redis.js's loadPlayerInfo() needs it to read gold_1 (data[5]) from the
+    // shared account-level field (u:<username> "bank_gold" -- renamed from
+    // "gold_1" by redis.js's renameGold1ToBankGold(); see its comment for
+    // the full rationale), now that it's account-level the same way bank
+    // did -- see the REFACTOR/FIX comments on redis.js's loadPlayerInfo()
+    // for the full rationale, including why that's unconditionally the
+    // only place it's read from now.
     //
     // FIX: redis.js's loadPlayerInfo() now hands back a 13th raw element --
     // whatever was staged in "goldoffline" (addPlayerGoldOffline(), redis.js),
@@ -573,9 +575,10 @@ class AccountLogic {
     // above still does.
     //
     // REFACTOR: `username` is now required (in addition to `playerName`) --
-    // redis.js's savePlayerInfo() needs it to know whether gold_1 (data[5])
-    // belongs in the shared account-level field or this character's own
-    // legacy field, matching loadPlayerInfo() above.
+    // redis.js's savePlayerInfo() needs it to know which account's shared
+    // u:<username> "bank_gold" field data[5] belongs in (renamed from
+    // "gold_1" -- see redis.js's renameGold1ToBankGold()), matching
+    // loadPlayerInfo() above.
     savePlayerInfo(username, playerName, data, callback) {
         this.dbh.savePlayerInfo(username, playerName, data, callback);
     }
