@@ -391,7 +391,7 @@ function migrateGoldFields(callback) {
                     // of the two fields this function's own write below always
                     // sets together (in the same multi/exec), and it's also always
                     // set directly by a normal player save
-                    // (AccountLogic.savePlayerInfo() -> this.savePlayerInfo()
+                    // (DatabaseLogic.savePlayerInfo() -> this.savePlayerInfo()
                     // above) once a player exists at all -- so if it's present,
                     // there's nothing left to derive from a legacy "gold" field.
                     // gold_1 is deliberately NOT part of this check: unlike
@@ -901,7 +901,7 @@ function renameGold1ToBankGold(callback) {
 // gold_1. Removed along with addGoldOffline()/transferOfflineGold() --
 // offline gold's destination is a player's own gold_0, not gold_1, and
 // "goldoffline" now gets read, atomically cleared, and folded into gold_0
-// (AccountLogic.loadPlayerInfo(), accountlogic.js, using the raw value
+// (DatabaseLogic.loadPlayerInfo(), database/databaselogic.js, using the raw value
 // loadPlayerInfo() above hands back) for any player the moment they next
 // load, migrated account or not, so there's no leftover balance a
 // separate startup sweep still needs to catch, and no gold_1-shaped

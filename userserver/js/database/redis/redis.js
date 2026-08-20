@@ -3,7 +3,7 @@
 // FIX: dropped unused `crypto`/`fs`/`bcrypt` imports (verified: none of the
 // three are referenced anywhere in this file). Leftover from before this
 // file's account/player business logic -- including password hashing --
-// moved out to accountlogic.js's AccountLogic class (see the REFACTOR
+// moved out to database/databaselogic.js's DatabaseLogic class (see the REFACTOR
 // comment below); this file's own job is now just plain Redis reads/writes.
 import redis from 'redis';
 
@@ -112,7 +112,7 @@ const scanKeys = function (pattern, callback) {
 // (createUser, removeUser, loadUser, createPlayer, createPlayerNameInUser,
 // sendPlayers, transferOfflineGold, and the "gold" field sanitization
 // decision) mixed in with plain Redis reads/writes. That logic now lives in
-// accountlogic.js's AccountLogic class (exposed as the global `Accounts`,
+// database/databaselogic.js's DatabaseLogic class (exposed as the global `DBLogic`,
 // set up in main.js next to `DBH`), which calls back into the primitives
 // below rather than touching `client` directly. DatabaseHandler here is
 // meant to be just the data store/retrieval layer: given fixed parameters,
@@ -126,7 +126,7 @@ const scanKeys = function (pattern, callback) {
 // Their correctness depends on running as a single Redis-side operation;
 // pulling the surrounding computation out into a separate JS-side "logic"
 // layer that does a plain get-then-set would silently reintroduce those
-// races. The *decision to call* them still lives in AccountLogic -- only
+// races. The *decision to call* them still lives in DatabaseLogic -- only
 // the atomic primitive itself stays here.
 //
 // REFACTOR: this file used to also keep the bulk key-housekeeping/migration
@@ -296,7 +296,7 @@ class DatabaseHandler {
     }
 
     // FIX: extracted straight out of createUser() (formerly in this file, now
-    // AccountLogic.createUser() in accountlogic.js) so the atomic SADD -- the
+    // DatabaseLogic.createUser() in database/databaselogic.js) so the atomic SADD -- the
     // actual fix for the username-registration race, see the FIX comment that
     // used to sit here -- stays a single Redis-side primitive. SADD is atomic
     // in Redis (returns 0 if the member was already present), which is what
@@ -360,7 +360,7 @@ class DatabaseHandler {
     // accounts that have survived one server restart's
     // migrateGold1ToUser()/renameGold1ToBankGold() pass. This is the only
     // call site for saveUserInfo() (new-account registration,
-    // accountlogic.js's createUser()), so an unconditional hset here can't
+    // database/databaselogic.js's createUser()), so an unconditional hset here can't
     // ever clobber a real, already-existing account's balance.
     //
     // REFACTOR: seeds directly under "bank_gold" -- not "gold_1" -- since a
@@ -435,7 +435,7 @@ class DatabaseHandler {
     // the field gets cleared, not what's handed back. What to *do* with
     // that raw amount -- adding it to "gems" and persisting the credit -- is
     // a data-manipulation decision, so it's left to
-    // AccountLogic.loadUserData() (accountlogic.js) to make, matching this
+    // DatabaseLogic.loadUserData() (database/databaselogic.js) to make, matching this
     // file's "primitives only" convention (see the REFACTOR comment at the
     // top of this file).
     loadUserInfo(username, callback) {
@@ -510,7 +510,7 @@ class DatabaseHandler {
     }
 
     // FIX: extracted straight out of createPlayer() (formerly in this file,
-    // now AccountLogic.createPlayer() in accountlogic.js) so the atomic SET
+    // now DatabaseLogic.createPlayer() in database/databaselogic.js) so the atomic SET
     // NX EX -- the actual fix for the player-name-registration race, see the
     // FIX comment that used to sit here -- stays a single Redis-side
     // primitive. A short-lived, self-expiring reservation lock (NX = only if
@@ -536,8 +536,8 @@ class DatabaseHandler {
 
     // FIX: used to take the full `user` object (reading user.name/user.looks
     // directly) and apply a default-fill for a missing "looks2" value inline.
-    // That default-fill is a business-logic decision (accountlogic.js's
-    // AccountLogic.loadPlayerUserInfo() now makes it, using the same
+    // That default-fill is a business-logic decision (database/databaselogic.js's
+    // DatabaseLogic.loadPlayerUserInfo() now makes it, using the same
     // user.looks fallback), not a data-retrieval concern -- this just takes a
     // plain username and hands back the raw [gems, looks2] pair.
     loadPlayerUserInfo(username, callback) {
@@ -559,10 +559,10 @@ class DatabaseHandler {
     }
 
     // FIX: used to also repair a malformed "gold" field inline -- that repair
-    // decision moved out to AccountLogic.loadPlayerInfo() (accountlogic.js)
+    // decision moved out to DatabaseLogic.loadPlayerInfo() (database/databaselogic.js)
     // and has since been removed there entirely (there's no remaining path
     // that can put a negative/malformed value into gold_0/gold_1 in the
-    // first place -- see the FIX comment on AccountLogic.loadPlayerInfo() for
+    // first place -- see the FIX comment on DatabaseLogic.loadPlayerInfo() for
     // the full reasoning). This just hands back the raw hget results.
     //
     // REFACTOR: "gold" used to be a single Redis hash field packing both
@@ -606,14 +606,14 @@ class DatabaseHandler {
     // gold_0/gold_1 are handed back completely unparsed here -- whatever's
     // actually stored, string or null. Parsing them into real ints is a
     // data-manipulation decision, so it happens in
-    // AccountLogic.loadPlayerInfo() (accountlogic.js), not here -- matching
+    // DatabaseLogic.loadPlayerInfo() (database/databaselogic.js), not here -- matching
     // this file's "primitives only" convention (see the REFACTOR comment at
     // the top of this file). The WU_SAVE_PLAYER_DATA wire format and
     // gameserver's userhandler.js/player.js read gold_0/gold_1 as two flat
     // elements now (not a combined string, and not a nested array either), so
     // the shape handed back here -- gold_0/gold_1 as two separate positions in
     // the same 12-element record as before -- already matches the wire format
-    // 1:1; AccountLogic.loadPlayerInfo() only needs to convert the two raw
+    // 1:1; DatabaseLogic.loadPlayerInfo() only needs to convert the two raw
     // strings to numbers, no reshaping, even though gold_1's underlying Redis
     // key/field is now sometimes different from the rest of this record.
     //
@@ -639,7 +639,7 @@ class DatabaseHandler {
     // separate "read" and a separate "clear" would get silently wiped out by
     // that clear, never folded in). What to *do* with that raw amount --
     // adding it to gold_0 and persisting the credit -- is a data-manipulation
-    // decision, so it's left to AccountLogic.loadPlayerInfo() (accountlogic.js)
+    // decision, so it's left to DatabaseLogic.loadPlayerInfo() (database/databaselogic.js)
     // to make, matching this file's "primitives only" convention (see the
     // REFACTOR comment at the top of this file, and the one further up this
     // function for gold_0/gold_1 themselves).
@@ -689,7 +689,7 @@ class DatabaseHandler {
                 // Same 12-element shape as before (matches the WU_SAVE_PLAYER_DATA
                 // wire format 1:1 -- see the REFACTOR comment above), plus the raw
                 // "goldoffline" value appended as a 13th element purely for
-                // AccountLogic.loadPlayerInfo() to consume; that caller trims it
+                // DatabaseLogic.loadPlayerInfo() to consume; that caller trims it
                 // back off before this ever reaches the wire (see its own comment).
                 const result = [
                     name,
@@ -717,9 +717,9 @@ class DatabaseHandler {
     // WU_SAVE_PLAYER_DATA wire format (not a combined "100,50" string, and
     // not a nested array either -- see gameserver's worldhandler.js and
     // userserver/js/format.js's gold check). Since the wire shape and this
-    // function's expected shape are identical, AccountLogic.savePlayerInfo()
-    // (accountlogic.js) -- the only caller (see worldhandler.js, which calls
-    // Accounts.savePlayerInfo() rather than this method directly) -- is a
+    // function's expected shape are identical, DatabaseLogic.savePlayerInfo()
+    // (database/databaselogic.js) -- the only caller (see worldhandler.js, which calls
+    // DBLogic.savePlayerInfo() rather than this method directly) -- is a
     // pure passthrough with no parsing or reshaping of its own. The legacy
     // "gold" field is intentionally left untouched (not written) going
     // forward now that gold_0 is the source of truth for this record.
@@ -794,7 +794,7 @@ class DatabaseHandler {
     // gold_0 once the player's next save completed. That whole second half is
     // gone: "goldoffline" is now read back out and atomically cleared by
     // loadPlayerInfo() below (part of its normal per-login read), and folded
-    // into gold_0 by AccountLogic.loadPlayerInfo() (accountlogic.js) --
+    // into gold_0 by DatabaseLogic.loadPlayerInfo() (database/databaselogic.js) --
     // see loadPlayerInfo()'s FIX comment (below) for why load time, not save
     // time, is what actually closes the "live session's autosave clobbers the
     // credit" race. This function's own job hasn't changed -- still just
@@ -807,7 +807,7 @@ class DatabaseHandler {
     // accumulating until the next login folds it into the real gold_0
     // balance, not a balance in its own right, so there's nothing wrong
     // with it sitting negative in between. This used to re-clamp the field
-    // to a floor of 0 here, which accountlogic.js's loadPlayerInfo() FIX
+    // to a floor of 0 here, which database/databaselogic.js's loadPlayerInfo() FIX
     // comment specifically relied on to guarantee gold_0 could never go
     // negative -- that guarantee now comes from modifyGold()'s own
     // [0, playerGoldMax] clamp instead (see that function's FIX comment),
@@ -835,7 +835,7 @@ class DatabaseHandler {
     // pattern as addPlayerGoldOffline() above: atomically add `amount` to
     // "gemsoffline" here, and loadUserInfo() above reads it back out and
     // atomically clears it as part of its own per-login HGETALL/HDEL multi.
-    // AccountLogic.loadUserData() (accountlogic.js) is what actually folds
+    // DatabaseLogic.loadUserData() (database/databaselogic.js) is what actually folds
     // that raw amount into "gems" and persists the credit via modifyGems() --
     // see loadUserInfo()'s FIX comment above for the full race-safety
     // rationale (same one addPlayerGoldOffline()/loadPlayerInfo() already
@@ -892,7 +892,7 @@ class DatabaseHandler {
     // now the *only* thing keeping that guarantee: addPlayerGoldOffline()'s
     // own floor clamp on "goldoffline" was removed -- see that function's
     // NOTE comment -- specifically because this clamp now covers it,
-    // including the case AccountLogic.loadPlayerInfo() (accountlogic.js)
+    // including the case DatabaseLogic.loadPlayerInfo() (database/databaselogic.js)
     // relies on, where a possibly-negative "goldoffline" value is folded in
     // straight through this function), and nothing capped the high end
     // either -- a large enough offline credit could push gold_0 above

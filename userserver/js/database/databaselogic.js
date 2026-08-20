@@ -20,7 +20,7 @@
 // of save time (see that function's FIX comment, and the REFACTOR comment
 // further down this file where transferOfflineGold() used to live).
 //
-// Instantiated once in main.js as `global.Accounts` (right after `DBH` is
+// Instantiated once in main.js as `global.DBLogic` (right after `DBH` is
 // created), taking the `DBH` instance via constructor injection so it only
 // ever talks to Redis through DatabaseHandler's public methods -- never a
 // raw client. `Types`/`Utils`/`users` are referenced as bare globals here
@@ -42,7 +42,7 @@ const gemsMax = 999999999;
 // keep the in-memory gold_0 value this method hands back within range.
 const playerGoldMax = 999999999;
 
-class AccountLogic {
+class DatabaseLogic {
     constructor(dbh) {
         this.dbh = dbh;
     }
@@ -80,7 +80,7 @@ class AccountLogic {
             this.dbh.reserveUsername(user.name, (name, added, err) => {
                 if (err) {
                     console.error(
-                        'AccountLogic.createUser - usr SADD failed: ' +
+                        'DatabaseLogic.createUser - usr SADD failed: ' +
                             JSON.stringify(err)
                     );
                     user.handleUsernameTaken();
@@ -345,7 +345,7 @@ class AccountLogic {
                     (playerName, err, reply) => {
                         if (err || !reply[0]) {
                             console.info(
-                                'AccountLogic.sendPlayers, err:' +
+                                'DatabaseLogic.sendPlayers, err:' +
                                     JSON.stringify(err)
                             );
                             ++count;
@@ -399,7 +399,7 @@ class AccountLogic {
                 (name, acquired, err) => {
                     if (err) {
                         console.error(
-                            'AccountLogic.createPlayer - reservation lock failed: ' +
+                            'DatabaseLogic.createPlayer - reservation lock failed: ' +
                                 JSON.stringify(err)
                         );
                         if (callback) {
@@ -515,7 +515,7 @@ class AccountLogic {
     // Deciding what that amount *means* -- add it to gold_0 -- is a data
     // manipulation decision, so it happens here rather than in redis.js
     // (matching this codebase's "primitives in redis.js, decisions in
-    // AccountLogic" convention). `data` is trimmed back to the original
+    // DatabaseLogic" convention). `data` is trimmed back to the original
     // 12-element shape before going any further: this record still needs to
     // match the WU_SAVE_PLAYER_DATA wire format 1:1 once worldhandler.js
     // forwards it to the gameserver, and "goldoffline" has no place on that
@@ -578,7 +578,7 @@ class AccountLogic {
     // `playerName`) -- redis.js's savePlayerInfo() needed it to know which
     // account's shared u:<username> "bank_gold" field data[5] belonged in.
     // That's gone now: bank_gold moved entirely to
-    // DBH.savePlayerUserInfo()/AccountLogic doesn't touch it at all here
+    // DBH.savePlayerUserInfo()/DatabaseLogic doesn't touch it at all here
     // anymore -- see redis.js's savePlayerInfo() REFACTOR comment -- so this
     // is back to just `playerName`, matching every other per-character save
     // in this class.
@@ -663,4 +663,4 @@ class AccountLogic {
     }
 }
 
-export default AccountLogic;
+export default DatabaseLogic;

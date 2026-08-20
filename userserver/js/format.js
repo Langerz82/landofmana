@@ -583,7 +583,7 @@ class FormatChecker {
             // sends player.items.gold[0] as a flat top-level element, matching
             // every other field in this record and matching redis.js's raw
             // gold_0 storage field 1:1 -- see the REFACTOR comment on
-            // AccountLogic.loadPlayerInfo()/savePlayerInfo() (accountlogic.js)
+            // DatabaseLogic.loadPlayerInfo()/savePlayerInfo() (database/databaselogic.js)
             // for the full trail.
             //
             // REFACTOR: gold_1/bank_gold used to also be validated here as

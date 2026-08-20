@@ -1,4 +1,4 @@
-/* global require, module, log, Accounts, MainConfig */
+/* global require, module, log, DBLogic, MainConfig */
 
 import crypto from 'crypto';
 import bcrypt from 'bcrypt';
@@ -29,18 +29,18 @@ function safeCompare(a, b) {
     return crypto.timingSafeEqual(bufA, bufB);
 }
 
-// NOTE: Accounts, users, and worldHandlers are still referenced as bare
-// globals below (e.g. Accounts.createUser, users.has, worldHandlers.length)
+// NOTE: DBLogic, users, and worldHandlers are still referenced as bare
+// globals below (e.g. DBLogic.createUser, users.has, worldHandlers.length)
 // -- same reasoning as the equivalent note in worldhandler.js: these are
-// mutable runtime state owned by main.js (global.Accounts = null /
+// mutable runtime state owned by main.js (global.DBLogic = null /
 // global.users = new Map() / global.worldHandlers = [], populated as the
 // app starts up and connections come in), and main.js is this file's own
 // importer, so pulling them in via import would be a real circular
-// dependency rather than a missing static import. Left as-is. (Accounts is
-// the account/player business-logic layer -- see accountlogic.js -- every
+// dependency rather than a missing static import. Left as-is. (DBLogic is
+// the account/player business-logic layer -- see database/databaselogic.js -- every
 // call that used to go to DBH directly, for account creation/removal/login,
 // player creation, and simple data operations like savePassword, now goes
-// through Accounts instead, which is the only thing that still talks to the
+// through DBLogic instead, which is the only thing that still talks to the
 // DBH global.)
 
 // FIX: bcrypt was already imported into this file but never actually
@@ -240,7 +240,7 @@ class User {
                 self.salt = '';
                 self.loggedInDate = Date.now();
 
-                Accounts.createUser(self);
+                DBLogic.createUser(self);
             });
         } catch (e) {
             console.info('message=' + e.message);
@@ -323,7 +323,7 @@ class User {
             this.hash = hash;
             this.loggedInDate = Date.now();
 
-            Accounts.loadUser(this);
+            DBLogic.loadUser(this);
         } catch (e) {
             console.info('message=' + e.message);
             console.info('stack=' + e.stack);
@@ -339,7 +339,7 @@ class User {
         try {
             self.hash = hash;
 
-            Accounts.removeUser(self);
+            DBLogic.removeUser(self);
         } catch (e) {
             console.info('message=' + e.message);
             console.info('stack=' + e.stack);
@@ -521,7 +521,7 @@ class User {
                         );
                         return;
                     }
-                    Accounts.savePassword(this.name, newHash, '');
+                    DBLogic.savePassword(this.name, newHash, '');
                 });
             }
             finishCheck(matched);
@@ -577,7 +577,7 @@ class User {
         console.info('self.player.name=' + db_player.name);
 
         try {
-            Accounts.createPlayer(db_player.name, (playername, res) => {
+            DBLogic.createPlayer(db_player.name, (playername, res) => {
                 // FIX: getWorldHandler() can return null (worldIndex out of the
                 // *currently connected* worldHandlers range -- format.js only
                 // validates against the static maxWorldCount, not the live

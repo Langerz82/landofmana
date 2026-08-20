@@ -8,7 +8,7 @@ import ProductionConfig from './productionconfig.js';
 import User from './user.js';
 import WorldHandler from './worldhandler.js';
 //import Utils from './utils.js';
-import AccountLogic from './accountlogic.js';
+import DatabaseLogic from './database/databaselogic.js';
 
 // Add these:
 // REFACTOR: ws.js was split into ws/ (wsbase.js/socketioconnection.js/
@@ -51,12 +51,12 @@ global.MainConfig = null;
 global.DBH = null;
 global.databaseHandler = null;
 // REFACTOR: business logic (account/player creation, login, removal,
-// offline-gold-transfer orchestration -- see accountlogic.js) that used to
-// live inside DatabaseHandler (redis.js) now lives here instead, exposed
+// offline-gold-transfer orchestration -- see database/databaselogic.js)
+// that used to live inside DatabaseHandler (redis.js) now lives here instead, exposed
 // the same way DBH is: a global set up once at startup, referenced as a
 // bare identifier elsewhere (user.js, worldhandler.js) per this codebase's
 // existing convention for runtime-populated globals owned by main.js.
-global.Accounts = null;
+global.DBLogic = null;
 global.worldHandlers = [];
 global.users = new Map();
 
@@ -154,7 +154,7 @@ async function main(config) {
         const DatabaseHandlerClass = selectorModule.default || selectorModule;
 
         global.DBH = global.databaseHandler = new DatabaseHandlerClass(config);
-        global.Accounts = new AccountLogic(global.DBH);
+        global.DBLogic = new DatabaseLogic(global.DBH);
         console.log('REDIS SERVER CREATED!!!!!!!!!!!!!');
 
         // migrateGoldFields() (redis.js) starts running the instant DBH is
@@ -381,7 +381,7 @@ function changePassword(args) {
             );
             return;
         }
-        Accounts.savePassword(username, hash, '');
+        DBLogic.savePassword(username, hash, '');
     });
 }
 

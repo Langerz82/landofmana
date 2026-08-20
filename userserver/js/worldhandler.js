@@ -1,4 +1,4 @@
-/* global require, module, log, Accounts */
+/* global require, module, log, DBLogic */
 
 import crypto from 'crypto';
 import formatChecker from './format.js';
@@ -7,12 +7,12 @@ import UserMessages from './usermessage.js';
 // `Utils.ArrayParseInt` (in sendLooksToWorld) with no import for either --
 // same missing-import pattern just fixed in format.js, and for the same
 // reason it didn't already blow up: every reference here lives inside a
-// runtime callback (the connection listener, or an Accounts.* callback), not
+// runtime callback (the connection listener, or a DBLogic.* callback), not
 // at module-load time, so by the time any of them actually run, main.js has
 // long since imported common.js and set global.Types/global.Utils. Safe in
 // practice, but still a hidden load-order dependency for no reason -- Types
 // and Utils are both static, already-resolved exports from common.js with
-// no import cycle back to this file (unlike MainConfig/Accounts/users/
+// no import cycle back to this file (unlike MainConfig/DBLogic/users/
 // worldHandlers below, which really are runtime-populated globals owned by
 // main.js -- see the note above the class for why those are left as-is).
 import { Types, Utils } from './common.js';
@@ -31,13 +31,13 @@ function safeCompare(a, b) {
     return crypto.timingSafeEqual(bufA, bufB);
 }
 
-// NOTE: MainConfig (used in handleGameServerInfo), Accounts (used
+// NOTE: MainConfig (used in handleGameServerInfo), DBLogic (used
 // throughout -- every call that used to go straight to DBH now goes through
-// AccountLogic instead, see accountlogic.js), users (used in
+// DatabaseLogic instead, see database/databaselogic.js), users (used in
 // handlePlayerLoggedIn), and worldHandlers are still referenced as bare
 // globals, not imports. Unlike Types/Utils above, these are genuinely
 // mutable runtime state owned by userserver/js/main.js (see
-// `global.MainConfig = null` / `global.Accounts = null` / `global.users =
+// `global.MainConfig = null` / `global.DBLogic = null` / `global.users =
 // new Map()` there, populated later as config loads and connections come
 // in), and main.js is this file's own importer -- importing back from it
 // would be a real circular dependency, not just a missing static import.
@@ -200,7 +200,7 @@ class WorldHandler {
             return;
         }
 
-        Accounts.saveAuctions(this.world.key, msg, function (key, data) {
+        DBLogic.saveAuctions(this.world.key, msg, function (key, data) {
             self.SAVED_AUCTIONS = true;
         });
     }
@@ -228,7 +228,7 @@ class WorldHandler {
         // string) on the theory that unwrapping it was clearer -- that's
         // wrong: `msg[0].join is not a function` throws on every save,
         // confirmed with a quick check. Reverted; `msg` is the correct call.
-        Accounts.saveLooks(this.world.key, msg, function (key, data) {
+        DBLogic.saveLooks(this.world.key, msg, function (key, data) {
             self.SAVED_LOOKS = true;
         });
     }
@@ -247,7 +247,7 @@ class WorldHandler {
             return;
         }
 
-        Accounts.saveBans(this.world.key, msg[0], function (key, data) {
+        DBLogic.saveBans(this.world.key, msg[0], function (key, data) {
             self.SAVED_BANS = true;
         });
     }
@@ -370,14 +370,14 @@ class WorldHandler {
                 try {
                     self.playerSaveData[playerName]++;
                     if (self.playerSaveData[playerName] === 7) {
-                        Accounts.createPlayerNameInUser(username, playerName);
-                        // REFACTOR: this used to also fire Accounts.transferOfflineGold()
+                        DBLogic.createPlayerNameInUser(username, playerName);
+                        // REFACTOR: this used to also fire DBLogic.transferOfflineGold()
                         // here, per player, as soon as their own save had completed --
                         // folding anything staged in "goldoffline" into gold_0 at
                         // logout/autosave time. That's gone now: offline gold credits
                         // (addPlayerGoldOffline(), redis.js) are instead folded into
-                        // gold_0 at *load* time, in AccountLogic.loadPlayerInfo()
-                        // (accountlogic.js), before the gameserver ever takes gold_0
+                        // gold_0 at *load* time, in DatabaseLogic.loadPlayerInfo()
+                        // (database/databaselogic.js), before the gameserver ever takes gold_0
                         // as this session's in-memory starting value -- see that
                         // function's FIX comment for why folding at load time (rather
                         // than at save time) is what actually closes the "live
@@ -404,7 +404,7 @@ class WorldHandler {
                 }
             };
 
-            Accounts.savePlayerUserInfo(
+            DBLogic.savePlayerUserInfo(
                 username,
                 playerName,
                 data[0],
@@ -414,18 +414,18 @@ class WorldHandler {
             );
 
             // NOTE: `username` used to be required here too (in addition to
-            // playerName) -- AccountLogic.savePlayerInfo() needed it to route
+            // playerName) -- DatabaseLogic.savePlayerInfo() needed it to route
             // gold_1 (data[1][5]) to the shared account-level field. That
             // field's gone from this record now (see redis.js's
             // savePlayerInfo() REFACTOR comment) -- the account's shared gold
-            // travels via Accounts.savePlayerUserInfo() above instead (data[0]'s
+            // travels via DBLogic.savePlayerUserInfo() above instead (data[0]'s
             // own 3rd element) -- so this is back to just playerName, like
             // every other per-character save below.
-            Accounts.savePlayerInfo(playerName, data[1], function (playerName) {
+            DBLogic.savePlayerInfo(playerName, data[1], function (playerName) {
                 checkPlayerSaved(playerName);
             });
 
-            Accounts.saveQuests(
+            DBLogic.saveQuests(
                 playerName,
                 JSON.stringify(data[2]),
                 function (playerName) {
@@ -433,11 +433,11 @@ class WorldHandler {
                 }
             );
 
-            Accounts.saveAchievements(playerName, data[3], function (playerName) {
+            DBLogic.saveAchievements(playerName, data[3], function (playerName) {
                 checkPlayerSaved(playerName);
             });
 
-            Accounts.saveItems(
+            DBLogic.saveItems(
                 playerName,
                 0,
                 'inventory',
@@ -457,11 +457,11 @@ class WorldHandler {
             // (too many combined bank items to fit one shared bank). Note
             // checkPlayerSaved() below needs the closure's `playerName`
             // regardless, not whatever this callback gets handed back.
-            Accounts.saveUserBank(username, playerName, data[5], function () {
+            DBLogic.saveUserBank(username, playerName, data[5], function () {
                 checkPlayerSaved(playerName);
             });
 
-            Accounts.saveItems(
+            DBLogic.saveItems(
                 playerName,
                 2,
                 'equipment',
@@ -638,7 +638,7 @@ class WorldHandler {
             }
         };
 
-        Accounts.loadPlayerUserInfo(user, function (username, data) {
+        DBLogic.loadPlayerUserInfo(user, function (username, data) {
             const objData = {};
             objData.data = new Array(7);
             objData.count = 0;
@@ -678,7 +678,7 @@ class WorldHandler {
             // way handleCreatePlayerItems()'s synchronous "[]" never could
             // anyway, but the way loadItems()'s "silently skip if missing"
             // convention would have.
-            Accounts.loadUserBank(
+            DBLogic.loadUserBank(
                 username,
                 playerName,
                 function (username, db_data) {
@@ -697,7 +697,7 @@ class WorldHandler {
             console.warn('sendAuctionsToWorld - no world set.');
             return;
         }
-        Accounts.loadAuctions(this.world.key, function (key, db_data) {
+        DBLogic.loadAuctions(this.world.key, function (key, db_data) {
             console.info('sendAuctionsToWorld: ' + JSON.stringify(db_data));
             self.sendMessage(new UserMessages.LoadPlayerAuctions(db_data));
         });
@@ -709,7 +709,7 @@ class WorldHandler {
             console.warn('sendLooksToWorld - no world set.');
             return;
         }
-        Accounts.loadLooks(this.world.key, function (key, db_data) {
+        DBLogic.loadLooks(this.world.key, function (key, db_data) {
             let data = db_data.split(',');
             data = Utils.ArrayParseInt(data);
             self.sendMessage(new UserMessages.LoadPlayerLooks(data));
@@ -722,7 +722,7 @@ class WorldHandler {
             console.warn('sendLooksToWorld - no world set.');
             return;
         }
-        Accounts.loadBans(this.world.key, function (key, db_data) {
+        DBLogic.loadBans(this.world.key, function (key, db_data) {
             self.sendMessage(new UserMessages.LoadUserBans(db_data));
         });
     }
@@ -743,7 +743,7 @@ class WorldHandler {
     // just HINCRBYs the amount into this player's "goldoffline" field, no
     // online check needed at all. That field gets read, atomically cleared,
     // and folded into gold_0 the next time this player's data is loaded
-    // (AccountLogic.loadPlayerInfo(), accountlogic.js), which happens
+    // (DatabaseLogic.loadPlayerInfo(), database/databaselogic.js), which happens
     // before the gameserver ever takes gold_0 as this session's in-memory
     // starting value, so there's no live session left to clobber it. If the
     // player happens to be online on some *other* world right now, the
@@ -754,7 +754,7 @@ class WorldHandler {
         const playerName = msg[0];
         const goldAmount = parseInt(msg[1]);
 
-        Accounts.addPlayerGoldOffline(playerName, goldAmount);
+        DBLogic.addPlayerGoldOffline(playerName, goldAmount);
     }
 
     sendWorldSave() {
@@ -819,7 +819,7 @@ class WorldHandler {
             }
         };
 
-        Accounts.loadPlayerUserInfo(user, function (username, db_data) {
+        DBLogic.loadPlayerUserInfo(user, function (username, db_data) {
             const objData = {};
             objData.data = new Array(7);
             objData.count = 0;
@@ -835,25 +835,25 @@ class WorldHandler {
             checkLoadDataFull(0, db_data);
 
             // NOTE: `username` is required now (in addition to playername) --
-            // AccountLogic.loadPlayerInfo() needs it to read gold_1 from the
+            // DatabaseLogic.loadPlayerInfo() needs it to read gold_1 from the
             // shared account-level field (falling back to this character's own
             // legacy field if the account hasn't been combined) -- see
             // redis.js's loadPlayerInfo() REFACTOR comment.
-            Accounts.loadPlayerInfo(
+            DBLogic.loadPlayerInfo(
                 username,
                 playername,
                 function (playername, db_data) {
                     checkLoadDataFull(1, db_data);
                 }
             );
-            Accounts.loadQuests(playername, function (playername, db_data) {
+            DBLogic.loadQuests(playername, function (playername, db_data) {
                 checkLoadDataFull(2, db_data);
             });
-            Accounts.loadAchievements(playername, function (playername, db_data) {
+            DBLogic.loadAchievements(playername, function (playername, db_data) {
                 checkLoadDataFull(3, db_data);
             });
             // INVENTORY
-            Accounts.loadItems(
+            DBLogic.loadItems(
                 playername,
                 0,
                 'inventory',
@@ -866,7 +866,7 @@ class WorldHandler {
             // `playername` (the legacy per-character fallback key, used if
             // migrateBankToUser() left this account on its old per-character
             // bank storage).
-            Accounts.loadUserBank(
+            DBLogic.loadUserBank(
                 username,
                 playername,
                 function (username, db_data) {
@@ -874,7 +874,7 @@ class WorldHandler {
                 }
             );
             // EQUIPMENT
-            Accounts.loadItems(
+            DBLogic.loadItems(
                 playername,
                 2,
                 'equipment',
