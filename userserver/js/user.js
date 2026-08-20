@@ -1,4 +1,4 @@
-/* global require, module, log, DBH, MainConfig */
+/* global require, module, log, Accounts, MainConfig */
 
 import crypto from 'crypto';
 import bcrypt from 'bcrypt';
@@ -29,18 +29,19 @@ function safeCompare(a, b) {
     return crypto.timingSafeEqual(bufA, bufB);
 }
 
-// NOTE: DBH, Accounts, users, and worldHandlers are still referenced as bare
+// NOTE: Accounts, users, and worldHandlers are still referenced as bare
 // globals below (e.g. Accounts.createUser, users.has, worldHandlers.length)
 // -- same reasoning as the equivalent note in worldhandler.js: these are
-// mutable runtime state owned by main.js (global.DBH = null / global.Accounts
-// = null / global.users = new Map() / global.worldHandlers = [], populated
-// as the app starts up and connections come in), and main.js is this file's
-// own importer, so pulling them in via import would be a real circular
+// mutable runtime state owned by main.js (global.Accounts = null /
+// global.users = new Map() / global.worldHandlers = [], populated as the
+// app starts up and connections come in), and main.js is this file's own
+// importer, so pulling them in via import would be a real circular
 // dependency rather than a missing static import. Left as-is. (Accounts is
-// the account/player business-logic layer -- see accountlogic.js -- calls
-// that used to go to DBH directly for account creation/removal/login and
-// player creation now go to Accounts instead; DBH itself is still used
-// directly here for simple data operations like savePassword.)
+// the account/player business-logic layer -- see accountlogic.js -- every
+// call that used to go to DBH directly, for account creation/removal/login,
+// player creation, and simple data operations like savePassword, now goes
+// through Accounts instead, which is the only thing that still talks to the
+// DBH global.)
 
 // FIX: bcrypt was already imported into this file but never actually
 // called anywhere -- passwords were hashed with a single round of salted
@@ -520,7 +521,7 @@ class User {
                         );
                         return;
                     }
-                    DBH.savePassword(this.name, newHash, '');
+                    Accounts.savePassword(this.name, newHash, '');
                 });
             }
             finishCheck(matched);

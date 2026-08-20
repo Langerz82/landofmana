@@ -381,7 +381,7 @@ function changePassword(args) {
             );
             return;
         }
-        DBH.savePassword(username, hash, '');
+        Accounts.savePassword(username, hash, '');
     });
 }
 

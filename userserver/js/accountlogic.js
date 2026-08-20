@@ -585,6 +585,82 @@ class AccountLogic {
     savePlayerInfo(playerName, data, callback) {
         this.dbh.savePlayerInfo(playerName, data, callback);
     }
+
+    // REFACTOR: thin passthroughs added so every DBH.* call site elsewhere in
+    // this codebase (worldhandler.js, user.js, main.js) routes through this
+    // class instead of reaching around it to the `DBH` global directly --
+    // matching the constructor-injection convention documented on the class
+    // above (this class only ever talks to Redis through DatabaseHandler's
+    // public methods), and keeping a single seam here if any of these ever
+    // need real business logic later, the way savePlayerInfo()/
+    // loadPlayerInfo() above already do.
+    savePassword(username, hash, salt) {
+        this.dbh.savePassword(username, hash, salt);
+    }
+
+    saveAuctions(worldKey, data, callback) {
+        this.dbh.saveAuctions(worldKey, data, callback);
+    }
+
+    saveLooks(worldKey, looks, callback) {
+        this.dbh.saveLooks(worldKey, looks, callback);
+    }
+
+    saveBans(worldKey, data, callback) {
+        this.dbh.saveBans(worldKey, data, callback);
+    }
+
+    savePlayerUserInfo(username, playerName, data, callback) {
+        this.dbh.savePlayerUserInfo(username, playerName, data, callback);
+    }
+
+    saveQuests(playerName, data, callback) {
+        this.dbh.saveQuests(playerName, data, callback);
+    }
+
+    saveAchievements(playerName, data, callback) {
+        this.dbh.saveAchievements(playerName, data, callback);
+    }
+
+    saveItems(playerName, type, storeType, data, callback) {
+        this.dbh.saveItems(playerName, type, storeType, data, callback);
+    }
+
+    saveUserBank(username, playerName, data, callback) {
+        this.dbh.saveUserBank(username, playerName, data, callback);
+    }
+
+    loadUserBank(username, playerName, callback) {
+        this.dbh.loadUserBank(username, playerName, callback);
+    }
+
+    loadAuctions(worldKey, callback) {
+        this.dbh.loadAuctions(worldKey, callback);
+    }
+
+    loadLooks(worldKey, callback) {
+        this.dbh.loadLooks(worldKey, callback);
+    }
+
+    loadBans(worldKey, callback) {
+        this.dbh.loadBans(worldKey, callback);
+    }
+
+    addPlayerGoldOffline(playerName, goldAmount) {
+        this.dbh.addPlayerGoldOffline(playerName, goldAmount);
+    }
+
+    loadQuests(playerName, callback) {
+        this.dbh.loadQuests(playerName, callback);
+    }
+
+    loadAchievements(playerName, callback) {
+        this.dbh.loadAchievements(playerName, callback);
+    }
+
+    loadItems(playerName, type, storeType, callback) {
+        this.dbh.loadItems(playerName, type, storeType, callback);
+    }
 }
 
 export default AccountLogic;

@@ -1,4 +1,4 @@
-/* global require, module, log, DBH, Accounts */
+/* global require, module, log, Accounts */
 
 import crypto from 'crypto';
 import formatChecker from './format.js';
@@ -7,12 +7,12 @@ import UserMessages from './usermessage.js';
 // `Utils.ArrayParseInt` (in sendLooksToWorld) with no import for either --
 // same missing-import pattern just fixed in format.js, and for the same
 // reason it didn't already blow up: every reference here lives inside a
-// runtime callback (the connection listener, or a DBH.* callback), not at
-// module-load time, so by the time any of them actually run, main.js has
+// runtime callback (the connection listener, or an Accounts.* callback), not
+// at module-load time, so by the time any of them actually run, main.js has
 // long since imported common.js and set global.Types/global.Utils. Safe in
 // practice, but still a hidden load-order dependency for no reason -- Types
 // and Utils are both static, already-resolved exports from common.js with
-// no import cycle back to this file (unlike MainConfig/DBH/users/
+// no import cycle back to this file (unlike MainConfig/Accounts/users/
 // worldHandlers below, which really are runtime-populated globals owned by
 // main.js -- see the note above the class for why those are left as-is).
 import { Types, Utils } from './common.js';
@@ -31,16 +31,18 @@ function safeCompare(a, b) {
     return crypto.timingSafeEqual(bufA, bufB);
 }
 
-// NOTE: MainConfig (used in handleGameServerInfo), DBH (used throughout),
-// users (used in handlePlayerLoggedIn), and worldHandlers are still
-// referenced as bare globals, not imports. Unlike Types/Utils above, these
-// are genuinely mutable runtime state owned by userserver/js/main.js (see
-// `global.MainConfig = null` / `global.DBH = null` / `global.users = new
-// Map()` there, populated later as config loads and connections come in),
-// and main.js is this file's own importer -- importing back from it would
-// be a real circular dependency, not just a missing static import. Left as
-// the same global-object pattern the rest of this codebase already uses
-// for this kind of shared mutable state, rather than restructuring the
+// NOTE: MainConfig (used in handleGameServerInfo), Accounts (used
+// throughout -- every call that used to go straight to DBH now goes through
+// AccountLogic instead, see accountlogic.js), users (used in
+// handlePlayerLoggedIn), and worldHandlers are still referenced as bare
+// globals, not imports. Unlike Types/Utils above, these are genuinely
+// mutable runtime state owned by userserver/js/main.js (see
+// `global.MainConfig = null` / `global.Accounts = null` / `global.users =
+// new Map()` there, populated later as config loads and connections come
+// in), and main.js is this file's own importer -- importing back from it
+// would be a real circular dependency, not just a missing static import.
+// Left as the same global-object pattern the rest of this codebase already
+// uses for this kind of shared mutable state, rather than restructuring the
 // startup sequence as part of a packet-validation pass.
 class WorldHandler {
     constructor(main, connection) {
@@ -198,7 +200,7 @@ class WorldHandler {
             return;
         }
 
-        DBH.saveAuctions(this.world.key, msg, function (key, data) {
+        Accounts.saveAuctions(this.world.key, msg, function (key, data) {
             self.SAVED_AUCTIONS = true;
         });
     }
@@ -226,7 +228,7 @@ class WorldHandler {
         // string) on the theory that unwrapping it was clearer -- that's
         // wrong: `msg[0].join is not a function` throws on every save,
         // confirmed with a quick check. Reverted; `msg` is the correct call.
-        DBH.saveLooks(this.world.key, msg, function (key, data) {
+        Accounts.saveLooks(this.world.key, msg, function (key, data) {
             self.SAVED_LOOKS = true;
         });
     }
@@ -245,7 +247,7 @@ class WorldHandler {
             return;
         }
 
-        DBH.saveBans(this.world.key, msg[0], function (key, data) {
+        Accounts.saveBans(this.world.key, msg[0], function (key, data) {
             self.SAVED_BANS = true;
         });
     }
@@ -402,7 +404,7 @@ class WorldHandler {
                 }
             };
 
-            DBH.savePlayerUserInfo(
+            Accounts.savePlayerUserInfo(
                 username,
                 playerName,
                 data[0],
@@ -416,14 +418,14 @@ class WorldHandler {
             // gold_1 (data[1][5]) to the shared account-level field. That
             // field's gone from this record now (see redis.js's
             // savePlayerInfo() REFACTOR comment) -- the account's shared gold
-            // travels via DBH.savePlayerUserInfo() above instead (data[0]'s
+            // travels via Accounts.savePlayerUserInfo() above instead (data[0]'s
             // own 3rd element) -- so this is back to just playerName, like
             // every other per-character save below.
             Accounts.savePlayerInfo(playerName, data[1], function (playerName) {
                 checkPlayerSaved(playerName);
             });
 
-            DBH.saveQuests(
+            Accounts.saveQuests(
                 playerName,
                 JSON.stringify(data[2]),
                 function (playerName) {
@@ -431,11 +433,11 @@ class WorldHandler {
                 }
             );
 
-            DBH.saveAchievements(playerName, data[3], function (playerName) {
+            Accounts.saveAchievements(playerName, data[3], function (playerName) {
                 checkPlayerSaved(playerName);
             });
 
-            DBH.saveItems(
+            Accounts.saveItems(
                 playerName,
                 0,
                 'inventory',
@@ -455,11 +457,11 @@ class WorldHandler {
             // (too many combined bank items to fit one shared bank). Note
             // checkPlayerSaved() below needs the closure's `playerName`
             // regardless, not whatever this callback gets handed back.
-            DBH.saveUserBank(username, playerName, data[5], function () {
+            Accounts.saveUserBank(username, playerName, data[5], function () {
                 checkPlayerSaved(playerName);
             });
 
-            DBH.saveItems(
+            Accounts.saveItems(
                 playerName,
                 2,
                 'equipment',
@@ -676,7 +678,7 @@ class WorldHandler {
             // way handleCreatePlayerItems()'s synchronous "[]" never could
             // anyway, but the way loadItems()'s "silently skip if missing"
             // convention would have.
-            DBH.loadUserBank(
+            Accounts.loadUserBank(
                 username,
                 playerName,
                 function (username, db_data) {
@@ -695,7 +697,7 @@ class WorldHandler {
             console.warn('sendAuctionsToWorld - no world set.');
             return;
         }
-        DBH.loadAuctions(this.world.key, function (key, db_data) {
+        Accounts.loadAuctions(this.world.key, function (key, db_data) {
             console.info('sendAuctionsToWorld: ' + JSON.stringify(db_data));
             self.sendMessage(new UserMessages.LoadPlayerAuctions(db_data));
         });
@@ -707,7 +709,7 @@ class WorldHandler {
             console.warn('sendLooksToWorld - no world set.');
             return;
         }
-        DBH.loadLooks(this.world.key, function (key, db_data) {
+        Accounts.loadLooks(this.world.key, function (key, db_data) {
             let data = db_data.split(',');
             data = Utils.ArrayParseInt(data);
             self.sendMessage(new UserMessages.LoadPlayerLooks(data));
@@ -720,7 +722,7 @@ class WorldHandler {
             console.warn('sendLooksToWorld - no world set.');
             return;
         }
-        DBH.loadBans(this.world.key, function (key, db_data) {
+        Accounts.loadBans(this.world.key, function (key, db_data) {
             self.sendMessage(new UserMessages.LoadUserBans(db_data));
         });
     }
@@ -752,7 +754,7 @@ class WorldHandler {
         const playerName = msg[0];
         const goldAmount = parseInt(msg[1]);
 
-        DBH.addPlayerGoldOffline(playerName, goldAmount);
+        Accounts.addPlayerGoldOffline(playerName, goldAmount);
     }
 
     sendWorldSave() {
@@ -844,14 +846,14 @@ class WorldHandler {
                     checkLoadDataFull(1, db_data);
                 }
             );
-            DBH.loadQuests(playername, function (playername, db_data) {
+            Accounts.loadQuests(playername, function (playername, db_data) {
                 checkLoadDataFull(2, db_data);
             });
-            DBH.loadAchievements(playername, function (playername, db_data) {
+            Accounts.loadAchievements(playername, function (playername, db_data) {
                 checkLoadDataFull(3, db_data);
             });
             // INVENTORY
-            DBH.loadItems(
+            Accounts.loadItems(
                 playername,
                 0,
                 'inventory',
@@ -864,7 +866,7 @@ class WorldHandler {
             // `playername` (the legacy per-character fallback key, used if
             // migrateBankToUser() left this account on its old per-character
             // bank storage).
-            DBH.loadUserBank(
+            Accounts.loadUserBank(
                 username,
                 playername,
                 function (username, db_data) {
@@ -872,7 +874,7 @@ class WorldHandler {
                 }
             );
             // EQUIPMENT
-            DBH.loadItems(
+            Accounts.loadItems(
                 playername,
                 2,
                 'equipment',
