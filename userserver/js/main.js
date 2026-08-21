@@ -46,9 +46,8 @@ import util from 'util';
 const log_file = fs.createWriteStream(__dirname + '/../console.log', {
     flags: 'w'
 });
-const log_stdout = process.stdout;
 
-// FIX: log_file/log_stdout above were declared but never actually used --
+// FIX: log_file above was declared but never actually used --
 // this server has only ever relied on shell redirection (see
 // userserver-linux.sh: `node ./js/main > console.log`) to populate
 // console.log, and that redirects stdout only. console.warn/console.error
@@ -57,22 +56,44 @@ const log_stdout = process.stdout;
 // worldhandler.js/user.js/format.js) was silently NOT making it into
 // console.log at all under that launch script, only appearing in the
 // terminal/tmux pane. That's a problem for anything that wants to inspect
-// console.log after the fact (e.g. replay.js's replayLog(), which greps
-// this file for rejected packets) -- the exact lines it needs are the ones
-// that were going missing. Wiring log_file up directly here, instead of
-// depending on shell redirection, makes console.log capture everything
-// (console.log/info/warn/error alike) regardless of how the process is
-// launched, while still printing to the real stdout/stderr as before.
-console.log = console.info = (...args) => {
-    const txt = util.format(...args);
-    log_file.write(txt + '\n');
-    log_stdout.write(txt + '\n');
+// console.log after the fact (e.g. replay.js's replayPacket(), which reads
+// a pasted [REJECTED_PACKET] line out of it) -- the exact lines it needs
+// are the ones that were going missing. Wiring log_file up directly here,
+// instead of depending on shell redirection, makes console.log capture
+// everything (console.log/info/warn/error alike) regardless of how the
+// process is launched.
+//
+// FIX: the first version of this wired log_file up by REPLACING
+// console.log/info/warn/error with plain functions that wrote straight to
+// log_file and to process.stdout/stderr via .write() -- bypassing the real
+// console.log/etc entirely. That broke `userserver-inspect-win.bat`/
+// userserver-inspect-linux.sh (`node --inspect`/`--inspect-brk`): a
+// debugger attached over the V8 Inspector protocol only sees console
+// output via Runtime.consoleAPICalled events, which V8 emits from inside
+// the real console.log/info/warn/error implementations -- calling
+// stream.write() directly, even with identical text, never fires that
+// event, so the debugger's console panel showed nothing. Capturing the
+// real methods below and calling THROUGH to them (instead of past them)
+// fixes that: the real console.log/etc still run -- inspector events and
+// all -- and log_file.write() just tees a copy alongside.
+const originalConsole = {
+    log: console.log.bind(console),
+    info: console.info.bind(console),
+    warn: console.warn.bind(console),
+    error: console.error.bind(console)
 };
-console.warn = console.error = (...args) => {
-    const txt = util.format(...args);
-    log_file.write(txt + '\n');
-    process.stderr.write(txt + '\n');
-};
+
+function teeToLogFile(originalFn) {
+    return (...args) => {
+        log_file.write(util.format(...args) + '\n');
+        originalFn(...args);
+    };
+}
+
+console.log = teeToLogFile(originalConsole.log);
+console.info = teeToLogFile(originalConsole.info);
+console.warn = teeToLogFile(originalConsole.warn);
+console.error = teeToLogFile(originalConsole.error);
 
 global.MainConfig = null;
 global.DBH = null;
