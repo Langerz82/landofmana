@@ -4,6 +4,21 @@ var fs = require("fs"),
     //Types = require("../../shared/js/gametypes"),
     //ItemTypes = require("../../shared/js/itemtypes");
 
+
+const EntityTypes = {
+	NONE: 0,
+	PLAYER: 1,
+	MOB: 2,
+	ITEM: 3,
+	ITEMLOOT: 4,
+	NPCSTATIC: 5,
+	NPCMOVE: 6,
+	CHEST: 7,
+	BLOCK: 8,
+	TRAP: 9,
+	NODE: 10
+};
+
 var map, mode;
 var collidingTiles = {};
 //var entitiesFirstGid = -1;
@@ -295,20 +310,6 @@ module.exports = function processMap(json, jsontsx, options) {
     }
 
     return map;
-};
-
-const EntityTypes = {
-	NONE: 0,
-	PLAYER: 1,
-	MOB: 2,
-	ITEM: 3,
-	ITEMLOOT: 4,
-	NPCSTATIC: 5,
-	NPCMOVE: 6,
-	CHEST: 7,
-	BLOCK: 8,
-	TRAP: 9,
-	NODE: 10
 };
 
 var getEntityType = function (type) {
