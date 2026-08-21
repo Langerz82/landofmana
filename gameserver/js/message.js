@@ -401,6 +401,19 @@ Messages.UpdateLook = class extends Message {
 };
 
 Messages.AppearanceList = class extends Message {
+    // This is the WC_APPEARANCE packet -- the only gameserver->client
+    // message carrying the 0/1 "which appearance items does this player
+    // own" flag array (as opposed to WC_LOOKUPDATE above, which sends
+    // sprites/colors -- the currently-worn combo -- as flat fields, not this
+    // array). Utils.BinArrayToBase64() (shared/js/utils.js, imported via
+    // ./utils.js) is the same bit-packed-then-base64 codec used everywhere
+    // else `looks`/`looks_b64` data travels (userserver's redis.js,
+    // gameserver's worldhandler.js/userhandler.js) -- no separate wire
+    // format for this packet, and nothing else in this file or
+    // client/js/dialog/appearance/appearancedialog.js's matching
+    // assign()/Utils.Base64ToBinArray() call length-bounds this string, so
+    // there's nothing else on this path that needed updating alongside the
+    // codec rework.
     constructor(user, looks) {
         super();
         this.looks = Utils.BinArrayToBase64(user.looks);

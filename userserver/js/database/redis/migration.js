@@ -1,4 +1,4 @@
-/* global client */
+/* global client, Utils, AppearanceData */
 
 // Bulk key-housekeeping / one-off maintenance scripts and the startup data
 // migrations that used to live inline in redis.js's DatabaseHandler class.
@@ -9,10 +9,13 @@
 // attaches to it) -- but unlike the plain CRUD primitives that make up the
 // rest of that file, every function below either mutates the keyspace in
 // bulk (replaceSkills, removeOldValues, insertMissingPlayerKeys,
-// createPlayerKeys) or exists purely to move already-saved data from an old
-// storage scheme to a new one, once, at startup (purgeStaleNewQuests,
-// migrateGoldFields, migrateGold1ToUser, renameGold1ToBankGold,
-// migrateBankToUser).
+// createPlayerKeys, resetLegacyLooksToDefault) or exists purely to move
+// already-saved data from an old storage scheme to a new one, once, at
+// startup (purgeStaleNewQuests, migrateGoldFields, migrateGold1ToUser,
+// renameGold1ToBankGold, migrateBankToUser, migrateLooksToBase64). Most of
+// the bulk-mutation group runs automatically too (see migrationReady,
+// redis.js), but two -- replaceSkills and resetLegacyLooksToDefault -- are
+// deliberately manual/on-demand instead; see each one's own comment for why.
 //
 // These are exported as `migrationMethods` and mixed onto
 // DatabaseHandler.prototype (see the bottom of redis.js) rather than kept
@@ -35,6 +38,16 @@
 // right after it creates `client` -- mirroring the module-scoped `let
 // client` pattern redis.js itself uses, rather than threading `client`
 // through every call site here.
+//
+// `Utils` and `AppearanceData` (used only by migrateLooksToBase64() below)
+// are not threaded through initMigrations() the way `client`/
+// `playerGoldMax` are -- they're referenced as bare globals instead, the
+// same way userserver's database/databaselogic.js already does (see the
+// NOTE comment at the top of that file): both are set on the Node global
+// object once, at startup, by common.js (`global.Utils`/
+// `global.AppearanceData`), which main.js imports before it ever
+// constructs a DatabaseHandler -- so they're guaranteed to already be
+// populated by the time any migration below can run.
 
 let client;
 
@@ -1218,6 +1231,303 @@ function migrateBankToUser(callback) {
     });
 }
 
+// One-time (idempotent, re-run-safe) migration: converts every user's
+// account-level appearance data from the old u:<username> "looks2" field to
+// the new "looks_b64" field. Pure re-encode, no value changes: the old
+// field held Utils.LegacyBinArrayToBase64()'s comma-joined-32-bit-decimal-
+// chunk format (shared/js/utils.js), and every stored string is decoded
+// with Utils.LegacyBase64ToBinArray() -- the exact function (bugs and all)
+// that has actually been reading this field in production, kept verbatim
+// specifically so this migration reproduces it faithfully rather than
+// "fixing" it and changing what a player sees (see the comment on
+// Utils.LegacyBase64ToBinArray() itself, shared/js/utils.js, for why it's
+// deliberately not corrected) -- then immediately re-encoded with
+// Utils.BinArrayToBase64(), the new bit-packed-then-base64 codec, and
+// written to "looks_b64". Whatever appearance a player currently sees is
+// exactly what they'll still see after this runs; only the storage format
+// underneath changes (roughly half the string length for the same data).
+//
+// Runs automatically at every startup (see migrationReady in the
+// constructor, alongside migrateGoldFields()/migrateBankToUser()/
+// purgeStaleNewQuests()), and is safe to run repeatedly: any user that
+// already has a "looks_b64" field -- migrated on a previous startup, or
+// created fresh straight into it (database/databaselogic.js's
+// createUserValues() seeds new accounts directly with
+// Utils.BinArrayToBase64()) -- is left untouched. An account with neither
+// field (no character/appearance saved yet) is left alone too: there's
+// nothing to convert, and DatabaseLogic.loadPlayerUserInfo()
+// (database/databaselogic.js) already fills that gap from the in-memory
+// user.looks default the moment such an account's player next saves.
+//
+// Same scanKeys('u:*', ...) shape as renameGold1ToBankGold()/
+// migrateGold1ToUser()/migrateBankToUser() above, and independent of all
+// three (a different field entirely) -- see the looksMigration Promise in
+// the constructor (redis.js) for how it's chained alongside them rather
+// than after any of them.
+//
+// `callback(err)` fires once every user has been checked (err is null on
+// success).
+function migrateLooksToBase64(callback) {
+    client.scanKeys('u:*', (err, userKeys) => {
+        if (err) {
+            if (callback) callback(err);
+            return;
+        }
+
+        if (userKeys.length === 0) {
+            console.info(
+                'migrateLooksToBase64: no users found, nothing to migrate.'
+            );
+            if (callback) callback(null);
+            return;
+        }
+
+        let remaining = userKeys.length;
+        let migratedCount = 0;
+        let firstError = null;
+
+        const checkDone = () => {
+            remaining--;
+            if (remaining === 0) {
+                console.info(
+                    'migrateLooksToBase64: complete -- migrated ' +
+                        migratedCount +
+                        ' of ' +
+                        userKeys.length +
+                        ' user(s).'
+                );
+                if (callback) callback(firstError);
+            }
+        };
+
+        for (const uKey of userKeys) {
+            client
+                .multi()
+                .hget(uKey, 'looks2')
+                .hget(uKey, 'looks_b64')
+                .exec((err, raw) => {
+                    if (err) {
+                        console.error(
+                            'migrateLooksToBase64: read failed for ' +
+                                uKey +
+                                ': ' +
+                                JSON.stringify(err)
+                        );
+                        firstError = firstError || err;
+                        checkDone();
+                        return;
+                    }
+
+                    const [looks2, existingLooksB64] = raw;
+
+                    if (looks2 == null) {
+                        // Nothing to convert -- already migrated (no
+                        // "looks2" left), or a brand-new/never-saved account
+                        // with no appearance data at all yet.
+                        checkDone();
+                        return;
+                    }
+
+                    // Defensive: shouldn't normally happen (an account is
+                    // either still on "looks2" or already migrated to
+                    // "looks_b64", never both), but if it does, don't
+                    // silently discard whichever value loses -- log it so it
+                    // can be investigated, then proceed with "looks2" (the
+                    // field this migration exists to consume) as the source
+                    // of truth, same as renameGold1ToBankGold() above does
+                    // for its own equivalent case.
+                    if (existingLooksB64 != null) {
+                        console.warn(
+                            'migrateLooksToBase64: ' +
+                                uKey +
+                                ' has both a "looks2" and an existing ' +
+                                '"looks_b64" -- overwriting "looks_b64" with ' +
+                                'the re-encoded "looks2" value and deleting ' +
+                                '"looks2".'
+                        );
+                    }
+
+                    let looksB64;
+                    try {
+                        const bits = Utils.LegacyBase64ToBinArray(
+                            looks2,
+                            AppearanceData.Data.length
+                        );
+                        looksB64 = Utils.BinArrayToBase64(bits);
+                    } catch (decodeErr) {
+                        console.error(
+                            'migrateLooksToBase64: failed to decode "looks2" for ' +
+                                uKey +
+                                ', leaving it unmigrated: ' +
+                                decodeErr.message
+                        );
+                        firstError = firstError || decodeErr;
+                        checkDone();
+                        return;
+                    }
+
+                    client
+                        .multi()
+                        .hset(uKey, 'looks_b64', looksB64)
+                        .hdel(uKey, 'looks2')
+                        .exec((err2) => {
+                            if (err2) {
+                                console.error(
+                                    'migrateLooksToBase64: write failed for ' +
+                                        uKey +
+                                        ': ' +
+                                        JSON.stringify(err2)
+                                );
+                                firstError = firstError || err2;
+                                checkDone();
+                                return;
+                            }
+
+                            migratedCount++;
+                            checkDone();
+                        });
+                });
+        }
+    });
+}
+
+// ONE-TIME, MANUAL, ADMIN-TRIGGERED -- unlike every migration above, this is
+// NOT wired into migrationReady (redis.js's constructor) and does not run on
+// its own at startup. It's invoked explicitly, once, via the userserver
+// admin console's "fixlegacylooks" command (see main.js) whenever an
+// operator confirms it's actually needed -- same "defined here, deliberately
+// not auto-run" shape as replaceSkills() above (which is also mixed into
+// migrationMethods but only ever called manually).
+//
+// Handles accounts stuck on an even older appearance-data scheme than
+// "looks2"/"looks_b64": a plain u:<username> "looks" field, predating both
+// of the newer fields and of unknown/undocumented format -- nothing in this
+// codebase today reads or writes it. migrateLooksToBase64() above already
+// handles the *known* "looks2" -> "looks_b64" format upgrade by decoding and
+// re-encoding (preserving the player's actual saved appearance); that's not
+// possible here since "looks" isn't in a format any current code
+// understands, so rather than guess at decoding it, an account that has
+// "looks" and neither "looks2" nor "looks_b64" is instead just seeded with
+// the same beginner-default appearance database/databaselogic.js's
+// createUserValues() gives a brand-new account (item indices 0/50/77/151
+// "on", everything else "off"), encoded through the current
+// Utils.BinArrayToBase64() codec -- then the stale "looks" field is deleted,
+// so the account ends up in exactly the same shape (one "looks_b64" field,
+// nothing else) a fresh registration would have.
+//
+// Deliberately narrow: only touches accounts with "looks" present AND both
+// "looks2" and "looks_b64" absent. An account with "looks2" (even alongside
+// a stray "looks") is left for migrateLooksToBase64() to handle instead --
+// that function can actually recover its real saved appearance, which this
+// one can't and shouldn't try to. An account that already has "looks_b64"
+// is left alone regardless of what else it has, since it's already on the
+// current scheme.
+//
+// Safe to run repeatedly (any account already handled -- no "looks" left,
+// or a "looks_b64"/"looks2" already present -- is skipped), though it's
+// expected to only ever need running once.
+//
+// `callback(err)` fires once every user has been checked (err is null on
+// success).
+function resetLegacyLooksToDefault(callback) {
+    client.scanKeys('u:*', (err, userKeys) => {
+        if (err) {
+            if (callback) callback(err);
+            return;
+        }
+
+        if (userKeys.length === 0) {
+            console.info(
+                'resetLegacyLooksToDefault: no users found, nothing to reset.'
+            );
+            if (callback) callback(null);
+            return;
+        }
+
+        let remaining = userKeys.length;
+        let resetCount = 0;
+        let firstError = null;
+
+        const checkDone = () => {
+            remaining--;
+            if (remaining === 0) {
+                console.info(
+                    'resetLegacyLooksToDefault: complete -- reset ' +
+                        resetCount +
+                        ' of ' +
+                        userKeys.length +
+                        ' user(s) to the default appearance.'
+                );
+                if (callback) callback(firstError);
+            }
+        };
+
+        for (const uKey of userKeys) {
+            client
+                .multi()
+                .hget(uKey, 'looks')
+                .hget(uKey, 'looks2')
+                .hget(uKey, 'looks_b64')
+                .exec((err, raw) => {
+                    if (err) {
+                        console.error(
+                            'resetLegacyLooksToDefault: read failed for ' +
+                                uKey +
+                                ': ' +
+                                JSON.stringify(err)
+                        );
+                        firstError = firstError || err;
+                        checkDone();
+                        return;
+                    }
+
+                    const [legacyLooks, looks2, looksB64] = raw;
+
+                    // Nothing to do: no stray "looks" field, or this account
+                    // is already on "looks2" (migrateLooksToBase64() above
+                    // will handle it) or "looks_b64" (already current).
+                    if (
+                        legacyLooks == null ||
+                        looks2 != null ||
+                        looksB64 != null
+                    ) {
+                        checkDone();
+                        return;
+                    }
+
+                    const len = AppearanceData.Data.length;
+                    const bits = new Uint8Array(len);
+                    bits[0] = 1;
+                    bits[50] = 1;
+                    bits[77] = 1;
+                    bits[151] = 1;
+                    const defaultLooksB64 = Utils.BinArrayToBase64(bits);
+
+                    client
+                        .multi()
+                        .hset(uKey, 'looks_b64', defaultLooksB64)
+                        .hdel(uKey, 'looks')
+                        .exec((err2) => {
+                            if (err2) {
+                                console.error(
+                                    'resetLegacyLooksToDefault: write failed for ' +
+                                        uKey +
+                                        ': ' +
+                                        JSON.stringify(err2)
+                                );
+                                firstError = firstError || err2;
+                                checkDone();
+                                return;
+                            }
+
+                            resetCount++;
+                            checkDone();
+                        });
+                });
+        }
+    });
+}
+
 // Mixed onto DatabaseHandler.prototype in redis.js (Object.assign, right
 // after the class declaration) rather than exported/used individually, so
 // every function above keeps running as an instance method -- called as
@@ -1232,5 +1542,7 @@ export const migrationMethods = {
     migrateGoldFields,
     migrateGold1ToUser,
     renameGold1ToBankGold,
-    migrateBankToUser
+    migrateBankToUser,
+    migrateLooksToBase64,
+    resetLegacyLooksToDefault
 };

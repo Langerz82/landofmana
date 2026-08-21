@@ -44,10 +44,67 @@ Utils.array_values = function (input) {
     return tmp_arr;
 };
 
+// REWORK: was a comma-joined string of 32-bit decimal chunk values (see the
+// removed NOTE on BinArrayToBase64() below for how mislabeled that format
+// was). Every element of the `looks`/`looks2` appearance array is only ever
+// 0 or 1 (see userhandler.js, worldhandler.js, appearancedialog.js,
+// databaselogic.js's beginner-look defaults), so the old scheme spent up to
+// 10 decimal digits + a comma (11 chars) encoding just 32 bits of real
+// information. This now reverses BinArrayToBase64() below via the
+// base64ToPackedBytes() module-local helper (see below) to unpack real
+// base64 back into one bit per array element, roughly halving the
+// stored/wire length for the same data.
+// Trailing `=` padding is tolerated but not required (see BinArrayToBase64).
+// NOTE: this does NOT understand data written by the old format -- use
+// Utils.LegacyBase64ToBinArray() below for that (migration only).
 Utils.Base64ToBinArray = function (base64, limit) {
+    const packed = base64ToPackedBytes(base64);
+    const bitLength = limit == null ? packed.length * 8 : limit;
+    const uint8array = new Uint8Array(bitLength);
+    for (let i = 0; i < bitLength; i++) {
+        uint8array[i] = (packed[i >> 3] >> (i & 7)) & 1;
+    }
+    return uint8array;
+};
+
+// REWORK: despite the name, this used to produce something that was NOT real
+// base64 -- `tarr.toString('base64')` was actually Array.prototype.toString,
+// which ignores its argument and just comma-joins `tarr` into 32-bit decimal
+// chunks. Every element of `uint8array` here is only ever 0 or 1 (a boolean
+// flag, one per appearance item -- see the FIX note on Base64ToBinArray
+// above), so packing 8 flags per byte and base64-encoding the resulting
+// bytes (via the module-local packedBytesToBase64() helper below) is both
+// real base64 and shorter than the old comma-joined format for the same
+// data (roughly 6 bits of payload per output character instead of ~2.9).
+// Padding is omitted since Base64ToBinArray() always knows the exact bit
+// length to decode back out (the `limit` callers already pass, e.g.
+// AppearanceData.Data.length), so trailing `=` characters would only add
+// length without adding information.
+Utils.BinArrayToBase64 = function (uint8array) {
+    const byteLen = Math.ceil(uint8array.length / 8);
+    const packed = new Uint8Array(byteLen);
+    for (let i = 0; i < uint8array.length; i++) {
+        if (uint8array[i]) packed[i >> 3] |= 1 << (i & 7);
+    }
+    return packedBytesToBase64(packed);
+};
+
+// MIGRATION-ONLY: these two are the original (pre-rework) implementations
+// of Base64ToBinArray()/BinArrayToBase64() above, kept under new names
+// purely so existing values already sitting in Redis under the old u:<username>
+// "looks2" field -- written with the old comma-joined-32-bit-decimal-chunk
+// format -- can be read back correctly and re-saved through the new packed
+// codec, under the new "looks_b64" field. See
+// userserver/js/database/redis/migration.js's migrateLooksToBase64(), the
+// one caller of these two. Nothing else in live game code should call
+// them. Deliberately placed here (next to the codec they're a legacy
+// counterpart to) rather than in alphabetical order, and safe to delete
+// once migrateLooksToBase64() has run against every environment's Redis
+// (it's idempotent and safe to leave in indefinitely -- see its own
+// comment -- so there's no rush).
+Utils.LegacyBase64ToBinArray = function (base64, limit) {
     const data = base64.toString('binary');
     const arr = data.split(',');
-    //console.info(JSON.stringify(arr));
     const uint8array = new Uint8Array(arr.length * 32);
     for (let i = 0; i < arr.length; ++i) {
         const dec = parseInt(arr[i]);
@@ -59,24 +116,14 @@ Utils.Base64ToBinArray = function (base64, limit) {
     return uint8array.slice(0, limit);
 };
 
-// NOTE: despite the name, this is NOT real base64. `tarr.toString('base64')` below is
-// Array.prototype.toString, which ignores its argument and just comma-joins `tarr` - so the
-// "base64" here is really a comma-separated string of 32-bit chunk values. It's internally
-// consistent (Base64ToBinArray() above decodes this exact comma-joined format, and
-// client/js/appearancedialog.js relies on that pairing to round-trip player appearance data),
-// so it isn't broken - but don't "fix" it into real base64 without updating both ends and
-// re-checking the wire format.
-Utils.BinArrayToBase64 = function (uint8array) {
+Utils.LegacyBinArrayToBase64 = function (uint8array) {
     const len = Math.ceil(uint8array.length / 32);
     const tarr = [];
     for (let i = 0; i < len; i++) {
         const num = uint8array.slice(i * 32, i * 32 + 32).join('');
-        //console.info("num:"+num);
-        //console.info("num2:"+parseInt(num, 2));
         tarr.push(parseInt(num, 2));
     }
-    const base64 = tarr.toString('base64');
-    return base64;
+    return tarr.toString();
 };
 
 Utils.btoa = function (val) {
@@ -529,6 +576,67 @@ const groupBy = function (xs, key) {
         (rv[x[key]] = rv[x[key]] || []).push(x);
         return rv;
     }, {});
+};
+
+// Plain-ASCII, dependency-free base64 alphabet/codec used by
+// Utils.BinArrayToBase64()/Utils.Base64ToBinArray() above. Written by hand
+// instead of relying on Buffer (Node-only) or the newer
+// Uint8Array.prototype.toBase64()/fromBase64() methods, since this file is
+// shared verbatim across gameserver/userserver (Node) and client (an older
+// bundled NW.js/Chromium runtime) -- this keeps identical behavior
+// everywhere without depending on a specific engine's base64 support.
+const BASE64_CHARS =
+    'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
+const BASE64_LOOKUP = (function () {
+    const lookup = {};
+    for (let i = 0; i < BASE64_CHARS.length; i++) lookup[BASE64_CHARS[i]] = i;
+    return lookup;
+})();
+
+// Encodes a byte array as an unpadded base64 string (standard alphabet, no
+// trailing `=`), 3 bytes -> 4 chars at a time.
+const packedBytesToBase64 = function (bytes) {
+    let base64 = '';
+    for (let i = 0; i < bytes.length; i += 3) {
+        const b0 = bytes[i];
+        const b1 = i + 1 < bytes.length ? bytes[i + 1] : undefined;
+        const b2 = i + 2 < bytes.length ? bytes[i + 2] : undefined;
+
+        base64 += BASE64_CHARS[b0 >> 2];
+        base64 +=
+            BASE64_CHARS[((b0 & 0x03) << 4) | (b1 === undefined ? 0 : b1 >> 4)];
+        base64 +=
+            b1 === undefined
+                ? ''
+                : BASE64_CHARS[((b1 & 0x0f) << 2) | (b2 === undefined ? 0 : b2 >> 6)];
+        base64 += b2 === undefined ? '' : BASE64_CHARS[b2 & 0x3f];
+    }
+    return base64;
+};
+
+// Reverses packedBytesToBase64() above -- decodes a base64 string (padded or
+// not; any trailing `=` is stripped and ignored) back into a byte array.
+// Any leftover < 8 bits at the end (padding bits from the final base64
+// character) are discarded, same as they were never written.
+const base64ToPackedBytes = function (base64) {
+    const chars = base64.replace(/=+$/, '');
+    const byteLen = Math.floor((chars.length * 6) / 8);
+    const bytes = new Uint8Array(byteLen);
+
+    let bitBuffer = 0,
+        bitCount = 0,
+        byteIndex = 0;
+    for (let i = 0; i < chars.length; i++) {
+        const val = BASE64_LOOKUP[chars[i]];
+        if (val === undefined) continue; // ignore stray/invalid characters
+        bitBuffer = (bitBuffer << 6) | val;
+        bitCount += 6;
+        if (bitCount >= 8) {
+            bitCount -= 8;
+            bytes[byteIndex++] = (bitBuffer >> bitCount) & 0xff;
+        }
+    }
+    return bytes;
 };
 
 export default Utils;

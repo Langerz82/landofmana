@@ -108,6 +108,12 @@ export default class AppearanceDialog extends Dialog {
         super.hide(); // FIX (conversion): this._super() -> super.hide()
     }
 
+    // Receiving end of the WC_APPEARANCE packet (gameserver's
+    // world/looks.js's sendLooks() / message.js's Messages.AppearanceList) --
+    // Utils.Base64ToBinArray() (shared/js/utils.js) is the same
+    // bit-packed-then-base64 codec used on the encode side, so this decodes
+    // correctly with no changes needed here beyond the shared function
+    // itself already being updated.
     assign(datas) {
         const p = game.player;
         if (datas) {

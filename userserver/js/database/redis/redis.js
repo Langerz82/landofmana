@@ -10,8 +10,9 @@ import redis from 'redis';
 // REFACTOR: the bulk key-housekeeping scripts (replaceSkills,
 // removeOldValues, insertMissingPlayerKeys, createPlayerKeys) and the
 // startup data migrations (purgeStaleNewQuests, migrateGoldFields,
-// migrateGold1ToUser, renameGold1ToBankGold, migrateBankToUser) that used to
-// live as methods on DatabaseHandler below have moved out to migration.js --
+// migrateGold1ToUser, renameGold1ToBankGold, migrateBankToUser,
+// migrateLooksToBase64) that used to live as methods on DatabaseHandler
+// below have moved out to migration.js --
 // see that file's header comment for the full rationale. `migrationMethods`
 // is mixed onto DatabaseHandler.prototype (Object.assign, right after the
 // class below) so every call site here that already does
@@ -132,8 +133,9 @@ const scanKeys = function (pattern, callback) {
 // REFACTOR: this file used to also keep the bulk key-housekeeping/migration
 // scripts (replaceSkills, removeOldValues, insertMissingPlayerKeys,
 // createPlayerKeys, purgeStaleNewQuests, migrateGoldFields,
-// migrateGold1ToUser, renameGold1ToBankGold, migrateBankToUser) as methods
-// here too, on the reasoning that -- like the atomic operations above --
+// migrateGold1ToUser, renameGold1ToBankGold, migrateBankToUser,
+// migrateLooksToBase64) as methods here too, on the reasoning that -- like
+// the atomic operations above --
 // they only ever touch raw Redis keys, never `user`/`users`/`worldHandlers`
 // or any other app-level object. They've since moved out to migration.js
 // (mixed onto DatabaseHandler.prototype at the bottom of this file) since,
@@ -233,10 +235,26 @@ class DatabaseHandler {
                 }
             });
         });
+        // Converts every account's appearance data from the old "looks2"
+        // field to the new "looks_b64" field (see migrateLooksToBase64()'s
+        // comment, migration.js, for the full rationale) -- independent of
+        // the gold/bank/newquests migrations above (different fields
+        // entirely), so it just runs alongside them rather than chained
+        // after any of them.
+        const looksMigration = new Promise((resolve, reject) => {
+            this.migrateLooksToBase64((err) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve();
+                }
+            });
+        });
         this.migrationReady = Promise.all([
             goldMigration,
             bankMigration,
-            newQuestsPurge
+            newQuestsPurge,
+            looksMigration
         ]);
     }
 
@@ -328,7 +346,7 @@ class DatabaseHandler {
     //
     // REFACTOR: used to guard this write on `data[2] !== undefined`, back
     // when this method's only caller (userserver's worldhandler.js) could
-    // still pass a 2-element [gems, looks2] array. That's no longer
+    // still pass a 2-element [gems, looks_b64] array. That's no longer
     // possible: message[1][0] on the wire (this method's `data`, minus the
     // username/hash worldhandler.js shifts off first) is validated by
     // format.js as a strict 5-field tuple -- [username, hash, gems, looks,
@@ -336,13 +354,23 @@ class DatabaseHandler {
     // data[2]. Written unconditionally now; a future caller that somehow
     // omits it would hset "bank_gold" to the *string* "undefined" with no
     // guard to catch it, but nothing in this codebase does that today.
+    //
+    // REFACTOR: writes "looks_b64" now, not "looks2" -- shared/js/utils.js's
+    // Utils.BinArrayToBase64() (whatever encoded `data[1]`, upstream) packs
+    // 8 boolean flags per byte and base64-encodes the result now, instead of
+    // the old comma-joined-32-bit-decimal-chunk format "looks2" held. Renamed
+    // the field alongside the format change so an old-format value already
+    // in Redis is never misread as new-format data (or vice versa) --
+    // migration.js's migrateLooksToBase64() converts every pre-existing
+    // "looks2" value to "looks_b64" once, at startup, before any player can
+    // reach this method.
     savePlayerUserInfo(username, playerName, data, callback) {
         const uKey = 'u:' + username;
         client
             .multi()
             .sadd('usr', username)
             .hset(uKey, 'gems', data[0])
-            .hset(uKey, 'looks2', data[1])
+            .hset(uKey, 'looks_b64', data[1])
             .hset(uKey, 'bank_gold', data[2])
             .exec((err, replies) => {
                 if (callback) {
@@ -382,7 +410,7 @@ class DatabaseHandler {
             .hset(uKey, 'membership', data[5])
             .hset(uKey, 'players', data[6])
             .hset(uKey, 'gems', data[7])
-            .hset(uKey, 'looks2', data[8])
+            .hset(uKey, 'looks_b64', data[8])
             .hset(uKey, 'ipAddresses', data[9])
             .hset(uKey, 'bank_gold', data[10])
             .hset(uKey, 'bank', data[11])
@@ -536,18 +564,26 @@ class DatabaseHandler {
     }
 
     // FIX: used to take the full `user` object (reading user.name/user.looks
-    // directly) and apply a default-fill for a missing "looks2" value inline.
-    // That default-fill is a business-logic decision (database/databaselogic.js's
-    // DatabaseLogic.loadPlayerUserInfo() now makes it, using the same
-    // user.looks fallback), not a data-retrieval concern -- this just takes a
-    // plain username and hands back the raw [gems, looks2] pair.
+    // directly) and apply a default-fill for a missing "looks_b64" value
+    // inline. That default-fill is a business-logic decision
+    // (database/databaselogic.js's DatabaseLogic.loadPlayerUserInfo() now
+    // makes it, using the same user.looks fallback), not a data-retrieval
+    // concern -- this just takes a plain username and hands back the raw
+    // [gems, looks_b64] pair.
+    //
+    // REFACTOR: reads "looks_b64" here now, not "looks2" -- see
+    // savePlayerUserInfo()'s REFACTOR comment above for the full rationale.
+    // By the time any player can reach this call, main.js has already
+    // awaited migrationReady (which now includes migrateLooksToBase64()),
+    // so "looks_b64" is guaranteed to already hold whatever appearance data
+    // this account has.
     loadPlayerUserInfo(username, callback) {
         const uKey = 'u:' + username;
 
         client
             .multi()
             .hget(uKey, 'gems')
-            .hget(uKey, 'looks2')
+            .hget(uKey, 'looks_b64')
             .exec((err, data) => {
                 if (data === null || !(typeof data === 'object')) {
                     return;
@@ -1379,8 +1415,9 @@ class DatabaseHandler {
 
 // Mixes replaceSkills/removeOldValues/purgeStaleNewQuests/
 // insertMissingPlayerKeys/createPlayerKeys/migrateGoldFields/
-// migrateGold1ToUser/renameGold1ToBankGold/migrateBankToUser (migration.js)
-// onto DatabaseHandler.prototype, so every `this.<name>(...)` call above --
+// migrateGold1ToUser/renameGold1ToBankGold/migrateBankToUser/
+// migrateLooksToBase64 (migration.js) onto DatabaseHandler.prototype, so
+// every `this.<name>(...)` call above --
 // in the constructor, and between these functions themselves -- keeps
 // resolving exactly as it did back when they were defined as methods
 // directly on this class.

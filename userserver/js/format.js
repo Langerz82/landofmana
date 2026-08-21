@@ -160,19 +160,25 @@ const playerGoldMax = 999999999;
 const gemsMax = 999999999;
 
 // FIX: message[1][0]'s "looks" field was bounded at a flat 45 characters --
-// too small for some legitimate values. Despite its name,
-// Utils.BinArrayToBase64() (shared/js/utils.js) doesn't actually base64-encode
-// `user.looks` -- it packs the flag array 32 bits at a time into a plain
-// integer, then comma-joins those integers into a CSV string. The number of
-// groups is ceil(AppearanceData.Data.length / 32); each group can be as large
-// as 4294967295 (10 digits), so the worst-case joined length is
-// groups*10 + (groups-1) separator commas. Computed from
+// too small for some legitimate values.
+//
+// REFACTOR: recomputed for the new Utils.BinArrayToBase64()/Base64ToBinArray()
+// codec (shared/js/utils.js). Each element of `user.looks` is a 0/1 flag, one
+// per appearance item, so it's now packed 8 flags per byte
+// (ceil(AppearanceData.Data.length / 8) bytes) and that byte string is real,
+// unpadded base64-encoded (4 output characters per 3 input bytes, rounded
+// up) -- unlike the old scheme this bound used to describe, which
+// comma-joined 32-bit decimal chunks into a CSV string (up to 10 digits +
+// a separator per 32 flags) despite Utils.BinArrayToBase64()'s name not
+// actually being real base64 at the time. It genuinely is now, so this is
+// both a tighter bound (roughly a third of the old worst case for the same
+// AppearanceData.Data.length) and an accurate one. Still computed from
 // AppearanceData.Data.length (imported from common.js above) rather than
 // hardcoded, so this stays correct if the appearance data set ever grows or
 // shrinks, the same way questNpcIdMax above is derived from mapsCountMax
 // instead of being a bare number.
-const playerLooksGroups = Math.ceil(AppearanceData.Data.length / 32);
-const playerLooksMax = playerLooksGroups * 10 + (playerLooksGroups - 1);
+const playerLooksBytes = Math.ceil(AppearanceData.Data.length / 8);
+const playerLooksMax = Math.ceil((playerLooksBytes * 4) / 3);
 
 const worldNameLenMin = 2;
 const worldNameLenMax = 16;
@@ -544,11 +550,12 @@ class FormatChecker {
             // fails the ENTIRE WU_SAVE_PLAYER_DATA save (not just this one
             // record) the moment either bound is crossed, this was silently
             // dropping saves for any player whose gems exceeded 99999, or
-            // whose packed "looks" CSV string (see playerLooksMax's comment
-            // above for why it's a packed-int CSV, not real base64 despite
-            // Utils.BinArrayToBase64()'s name) ran past 45 characters. Bounded
-            // against gemsMax/playerLooksMax instead, matching the real caps
-            // this codebase enforces elsewhere for the same values.
+            // whose base64-encoded "looks" string (see playerLooksMax's
+            // comment above for the exact bit-packed-then-base64 format
+            // Utils.BinArrayToBase64() now produces) ran past 45 characters.
+            // Bounded against gemsMax/playerLooksMax instead, matching the
+            // real caps this codebase enforces elsewhere for the same
+            // values.
             msg = message[1][0];
             if (msg) {
                 const fmt = tupleField([

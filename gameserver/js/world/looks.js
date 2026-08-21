@@ -63,6 +63,11 @@ class Looks {
         return this.prices.join(',');
     }
 
+    // Sends the WC_APPEARANCE packet in response to the client's
+    // CW_APPEARANCELIST request (packethandler.js's handleAppearanceList) --
+    // see Messages.AppearanceList's own comment (message.js) for the wire
+    // format this carries (player.user.looks, bit-packed-then-base64 via
+    // Utils.BinArrayToBase64()).
     sendLooks(player) {
         player.sendPlayer(new Messages.AppearanceList(player.user, this));
     }

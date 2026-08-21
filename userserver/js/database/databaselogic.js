@@ -288,10 +288,18 @@ class DatabaseLogic {
         // to Redis some other way).
         data.gems = Math.max(0, Math.min(data.gems, gemsMax));
 
+        // REFACTOR: reads "looks_b64" now, not "looks2" -- redis.js's
+        // loadUserInfo() (this method's caller, via loadUser() above) HGETALLs
+        // u:<username>, whose appearance field migration.js's
+        // migrateLooksToBase64() has already converted to "looks_b64" (the new
+        // bit-packed-then-base64 Utils.BinArrayToBase64()/Base64ToBinArray()
+        // format, shared/js/utils.js) for every account by the time this can
+        // run -- main.js awaits DBH.migrationReady before accepting
+        // connections.
         const len = AppearanceData.Data.length;
         data.looks = new Uint8Array(len);
-        if (data.looks2) {
-            data.looks = Utils.Base64ToBinArray(data.looks2, len);
+        if (data.looks_b64) {
+            data.looks = Utils.Base64ToBinArray(data.looks_b64, len);
         }
 
         // [77,0,151,50] - Beginner Looks values.
@@ -443,12 +451,16 @@ class DatabaseLogic {
     // to do, so it -- and its only call site (worldhandler.js's
     // checkPlayerSaved) -- have been removed.
 
-    // FIX: the "looks2 missing -> default-fill from user.looks" decision used
-    // to live inline in redis.js's loadPlayerUserInfo(), which took the whole
-    // `user` object just to read user.name/user.looks. That default-fill is a
-    // business-logic decision, not a data-retrieval concern -- redis.js's
-    // loadPlayerUserInfo() now just takes a plain username and hands back the
-    // raw [gems, looks2] pair; this applies the same fallback on top of it.
+    // FIX: the "looks_b64 missing -> default-fill from user.looks" decision
+    // used to live inline in redis.js's loadPlayerUserInfo(), which took the
+    // whole `user` object just to read user.name/user.looks. That
+    // default-fill is a business-logic decision, not a data-retrieval
+    // concern -- redis.js's loadPlayerUserInfo() now just takes a plain
+    // username and hands back the raw [gems, looks_b64] pair; this applies
+    // the same fallback on top of it. The fallback encode below already uses
+    // the new Utils.BinArrayToBase64() codec, so a first-ever save for an
+    // account with no stored appearance yet goes straight to "looks_b64"
+    // (via savePlayerUserInfo(), redis.js) without ever touching "looks2".
     loadPlayerUserInfo(user, callback) {
         this.dbh.loadPlayerUserInfo(user.name, (username, data) => {
             if (data[1] === null) {
