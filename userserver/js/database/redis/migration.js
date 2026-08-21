@@ -1399,33 +1399,42 @@ function migrateLooksToBase64(callback) {
 // not auto-run" shape as replaceSkills() above (which is also mixed into
 // migrationMethods but only ever called manually).
 //
-// Handles accounts stuck on an even older appearance-data scheme than
-// "looks2"/"looks_b64": a plain u:<username> "looks" field, predating both
-// of the newer fields and of unknown/undocumented format -- nothing in this
-// codebase today reads or writes it. migrateLooksToBase64() above already
-// handles the *known* "looks2" -> "looks_b64" format upgrade by decoding and
-// re-encoding (preserving the player's actual saved appearance); that's not
-// possible here since "looks" isn't in a format any current code
-// understands, so rather than guess at decoding it, an account that has
-// "looks" and neither "looks2" nor "looks_b64" is instead just seeded with
-// the same beginner-default appearance database/databaselogic.js's
-// createUserValues() gives a brand-new account (item indices 0/50/77/151
-// "on", everything else "off"), encoded through the current
-// Utils.BinArrayToBase64() codec -- then the stale "looks" field is deleted,
-// so the account ends up in exactly the same shape (one "looks_b64" field,
-// nothing else) a fresh registration would have.
+// Handles accounts stuck on an appearance-data scheme older than
+// "looks_b64": a plain u:<username> "looks" field (predating "looks2" too,
+// and of unknown/undocumented format -- nothing in this codebase today
+// reads or writes it) and/or a "looks2" field (the known
+// comma-joined-32-bit-decimal-chunk format migrateLooksToBase64() above
+// normally converts). In practice, by the time an operator can reach this
+// through the admin console (main.js's "fixlegacylooks" command),
+// migrateLooksToBase64() has already run at startup and converted every
+// "looks2" it found -- so this exists for the accounts that fall through
+// that anyway: ones a prior, narrower version of this function skipped
+// because they had "looks2" as well as "looks" (see git history), or any
+// other straggler that still has "looks" and/or "looks2" sitting around by
+// the time this runs.
 //
-// Deliberately narrow: only touches accounts with "looks" present AND both
-// "looks2" and "looks_b64" absent. An account with "looks2" (even alongside
-// a stray "looks") is left for migrateLooksToBase64() to handle instead --
-// that function can actually recover its real saved appearance, which this
-// one can't and shouldn't try to. An account that already has "looks_b64"
-// is left alone regardless of what else it has, since it's already on the
-// current scheme.
+// Unlike migrateLooksToBase64(), this does NOT try to decode and preserve
+// whatever's in "looks"/"looks2" -- "looks" isn't in a format any current
+// code understands, and by design this function's job is to unconditionally
+// clear out both legacy fields wherever they're found, not cherry-pick which
+// one to trust. An account that has either field and no "looks_b64" yet is
+// seeded with the same beginner-default appearance
+// database/databaselogic.js's createUserValues() gives a brand-new account
+// (item indices 0/50/77/151 "on", everything else "off"), encoded through
+// the current Utils.BinArrayToBase64() codec, so it ends up in exactly the
+// shape a fresh registration would have. An account that already has
+// "looks_b64" (so it's already on the current scheme) keeps that value
+// untouched -- only the stray "looks"/"looks2" leftovers are deleted from
+// it.
 //
-// Safe to run repeatedly (any account already handled -- no "looks" left,
-// or a "looks_b64"/"looks2" already present -- is skipped), though it's
-// expected to only ever need running once.
+// Every account with either legacy field, regardless of what else it has,
+// gets both "looks" and "looks2" deleted (hdel on a field that isn't
+// present is a harmless no-op, so this doesn't need to branch on which of
+// the two actually exists).
+//
+// Safe to run repeatedly: an account with neither legacy field is skipped
+// entirely (nothing to clean up), though it's expected to only ever need
+// running once.
 //
 // `callback(err)` fires once every user has been checked (err is null on
 // success).
@@ -1446,6 +1455,7 @@ function resetLegacyLooksToDefault(callback) {
 
         let remaining = userKeys.length;
         let resetCount = 0;
+        let cleanedCount = 0;
         let firstError = null;
 
         const checkDone = () => {
@@ -1456,7 +1466,9 @@ function resetLegacyLooksToDefault(callback) {
                         resetCount +
                         ' of ' +
                         userKeys.length +
-                        ' user(s) to the default appearance.'
+                        ' user(s) to the default appearance, and cleaned up ' +
+                        cleanedCount +
+                        ' already-migrated account(s) with a stray legacy field.'
                 );
                 if (callback) callback(firstError);
             }
@@ -1483,46 +1495,56 @@ function resetLegacyLooksToDefault(callback) {
 
                     const [legacyLooks, looks2, looksB64] = raw;
 
-                    // Nothing to do: no stray "looks" field, or this account
-                    // is already on "looks2" (migrateLooksToBase64() above
-                    // will handle it) or "looks_b64" (already current).
-                    if (
-                        legacyLooks == null ||
-                        looks2 != null ||
-                        looksB64 != null
-                    ) {
+                    // Nothing to do: neither legacy field present.
+                    if (legacyLooks == null && looks2 == null) {
                         checkDone();
                         return;
                     }
 
-                    const len = AppearanceData.Data.length;
-                    const bits = new Uint8Array(len);
-                    bits[0] = 1;
-                    bits[50] = 1;
-                    bits[77] = 1;
-                    bits[151] = 1;
-                    const defaultLooksB64 = Utils.BinArrayToBase64(bits);
-
-                    client
+                    // Always clear out both legacy fields wherever found
+                    // (hdel on an absent field is a no-op) -- see the
+                    // function comment above for why this doesn't try to
+                    // decode/preserve either one.
+                    const multi = client
                         .multi()
-                        .hset(uKey, 'looks_b64', defaultLooksB64)
                         .hdel(uKey, 'looks')
-                        .exec((err2) => {
-                            if (err2) {
-                                console.error(
-                                    'resetLegacyLooksToDefault: write failed for ' +
-                                        uKey +
-                                        ': ' +
-                                        JSON.stringify(err2)
-                                );
-                                firstError = firstError || err2;
-                                checkDone();
-                                return;
-                            }
+                        .hdel(uKey, 'looks2');
 
-                            resetCount++;
+                    // Only seed a default if this account doesn't already
+                    // have a current "looks_b64" value -- an already-current
+                    // account just gets its stray legacy field(s) cleaned up,
+                    // not its real appearance overwritten.
+                    const needsDefault = looksB64 == null;
+                    if (needsDefault) {
+                        const len = AppearanceData.Data.length;
+                        const bits = new Uint8Array(len);
+                        bits[0] = 1;
+                        bits[50] = 1;
+                        bits[77] = 1;
+                        bits[151] = 1;
+                        multi.hset(uKey, 'looks_b64', Utils.BinArrayToBase64(bits));
+                    }
+
+                    multi.exec((err2) => {
+                        if (err2) {
+                            console.error(
+                                'resetLegacyLooksToDefault: write failed for ' +
+                                    uKey +
+                                    ': ' +
+                                    JSON.stringify(err2)
+                            );
+                            firstError = firstError || err2;
                             checkDone();
-                        });
+                            return;
+                        }
+
+                        if (needsDefault) {
+                            resetCount++;
+                        } else {
+                            cleanedCount++;
+                        }
+                        checkDone();
+                    });
                 });
         }
     });

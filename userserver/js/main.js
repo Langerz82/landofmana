@@ -386,18 +386,19 @@ function changePassword(args) {
 }
 
 // One-time, admin-triggered console command -- run this manually if/when
-// there turn out to be accounts left over from before "looks2"/"looks_b64"
-// existed, still holding a plain u:<username> "looks" field in Redis in a
-// format nothing in this codebase understands any more. See
-// migration.js's resetLegacyLooksToDefault() for the full rationale: it
-// can't recover those accounts' real saved appearance (the format is
-// unknown), so it instead seeds them with the same beginner-default
-// appearance a brand-new account gets and deletes the stale "looks" field,
-// landing them on "looks_b64" like everyone else. Safe to run more than
-// once (already-handled accounts are skipped), but there's no reason to --
-// it's expected to only ever need running once, hence no automatic
-// wiring into migrationReady (redis.js) the way the real "looks2" ->
-// "looks_b64" migration has.
+// there turn out to be accounts left over from before "looks_b64" existed,
+// still holding a plain u:<username> "looks" field (a format nothing in
+// this codebase understands any more) and/or a "looks2" field that somehow
+// didn't get picked up by the automatic migrateLooksToBase64() startup
+// migration. See migration.js's resetLegacyLooksToDefault() for the full
+// rationale: rather than try to decode either legacy field, it just seeds
+// affected accounts with the same beginner-default appearance a brand-new
+// account gets and deletes both stale fields wherever it finds them,
+// landing every account it touches on "looks_b64" like everyone else. Safe
+// to run more than once (an account with neither legacy field left is
+// skipped), but there's no reason to -- it's expected to only ever need
+// running once, hence no automatic wiring into migrationReady (redis.js)
+// the way the real "looks2" -> "looks_b64" migration has.
 function fixLegacyLooks() {
     if (!global.DBH) {
         console.error('fixlegacylooks: database not ready yet.');
