@@ -3072,8 +3072,8 @@
                         }, 
                         {
                          "name":"type",
-                         "type":"int",
-                         "value":5
+                         "type":"string",
+                         "value":"npc"
                         }],
                  "rotation":0,
                  "type":"",
@@ -3099,8 +3099,8 @@
                         }, 
                         {
                          "name":"type",
-                         "type":"int",
-                         "value":5
+                         "type":"string",
+                         "value":"npc"
                         }],
                  "rotation":0,
                  "type":"",
@@ -3126,8 +3126,8 @@
                         }, 
                         {
                          "name":"type",
-                         "type":"int",
-                         "value":5
+                         "type":"string",
+                         "value":"npc"
                         }],
                  "rotation":0,
                  "type":"",
@@ -3153,8 +3153,8 @@
                         }, 
                         {
                          "name":"type",
-                         "type":"int",
-                         "value":5
+                         "type":"string",
+                         "value":"npc"
                         }],
                  "rotation":0,
                  "type":"",
@@ -3180,8 +3180,8 @@
                         }, 
                         {
                          "name":"type",
-                         "type":"int",
-                         "value":5
+                         "type":"string",
+                         "value":"npc"
                         }],
                  "rotation":0,
                  "type":"",
@@ -3207,8 +3207,8 @@
                         }, 
                         {
                          "name":"type",
-                         "type":"int",
-                         "value":5
+                         "type":"string",
+                         "value":"npc"
                         }],
                  "rotation":0,
                  "type":"",
@@ -3234,8 +3234,8 @@
                         }, 
                         {
                          "name":"type",
-                         "type":"int",
-                         "value":5
+                         "type":"string",
+                         "value":"npc"
                         }],
                  "rotation":0,
                  "type":"",

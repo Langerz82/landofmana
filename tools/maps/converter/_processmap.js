@@ -235,7 +235,7 @@ module.exports = function processMap(json, jsontsx, options) {
                              var entityArea = {
                                  x: ~~(areas[i].x),
                                  y: ~~(areas[i].y),
-                                 type: prop.type,
+                                 type: getEntityType(prop.type),
                                  id: prop.id,
                                  name: prop.name || "",
                              };
@@ -295,6 +295,44 @@ module.exports = function processMap(json, jsontsx, options) {
     }
 
     return map;
+};
+
+const EntityTypes = {
+	NONE: 0,
+	PLAYER: 1,
+	MOB: 2,
+	ITEM: 3,
+	ITEMLOOT: 4,
+	NPCSTATIC: 5,
+	NPCMOVE: 6,
+	CHEST: 7,
+	BLOCK: 8,
+	TRAP: 9,
+	NODE: 10
+};
+
+var getEntityType = function (type) {
+	if (type === "player")
+		return EntityTypes.PLAYER;
+	else if (type === "mob" || type === "monster")
+		return EntityTypes.MOB;
+	else if (type === "item")
+		return EntityTypes.ITEM;
+	else if (type === "itemloot")
+		return EntityTypes.ITEMLOOT;
+	else if (type === "npc" || type === "npcstatic")
+		return EntityTypes.NPCSTATIC;
+	else if (type === "npcmove")
+		return EntityTypes.NPCMOVE;
+	else if (type === "chest")
+		return EntityTypes.CHEST;
+	else if (type === "block")
+		return EntityTypes.BLOCK;
+	else if (type === "trap")
+		return EntityTypes.TRAP;
+	else if (type === "node")
+		return EntityTypes.NODE;
+	return EntityTypes.NONE;
 };
 
 var getPropertyXmlList = function (properties) {
