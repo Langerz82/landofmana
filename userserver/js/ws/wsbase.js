@@ -172,11 +172,17 @@ export class Connection {
                     this.listenCallback(BISON.decode(decompressed));
                 } else {
                     const parsed = safeJsonParse(decompressed, (e) =>
-                        console.warn(
-                            'Dropping malformed compressed message' +
+                        // [REJECTED_PACKET]-tagged so this can be copy/
+                        // pasted into the admin console -- see replay.js.
+                        // `raw=` carries the exact bytes JSON.parse choked
+                        // on (JSON.stringify'd, so it round-trips losslessly
+                        // even though the payload itself isn't valid JSON).
+                        console.info(
+                            '[REJECTED_PACKET] error=' +
+                                e.message +
                                 addrSuffix +
-                                ': ' +
-                                e.message
+                                ' raw=' +
+                                JSON.stringify(String(decompressed))
                         )
                     );
                     if (parsed !== undefined) this.listenCallback(parsed);
@@ -188,8 +194,14 @@ export class Connection {
                 this.listenCallback(BISON.decode(msg.substr(1)));
             } else {
                 const parsed = safeJsonParse(msg.substr(1), (e) =>
-                    console.warn(
-                        'Dropping malformed message' + addrSuffix + ': ' + e.message
+                    // [REJECTED_PACKET]-tagged -- see the compressed
+                    // branch's identical comment above.
+                    console.info(
+                        '[REJECTED_PACKET] error=' +
+                            e.message +
+                            addrSuffix +
+                            ' raw=' +
+                            JSON.stringify(msg.substr(1))
                     )
                 );
                 if (parsed !== undefined) this.listenCallback(parsed);

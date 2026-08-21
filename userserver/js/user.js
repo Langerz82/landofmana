@@ -129,6 +129,17 @@ class User {
             if (!action) return;
 
             if (!formatChecker.check(message)) {
+                // [REJECTED_PACKET]-tagged so this packet can be copy/
+                // pasted into the admin console and re-run -- see
+                // replay.js. `message` is still the full array, type/
+                // action at [0] -- exactly what formatChecker.check()
+                // takes, so JSON.stringify(message) round-trips losslessly
+                // (unlike the close() reason below, which coerces the
+                // array to a string via '+' and mangles any object-valued
+                // field to "[object Object]").
+                console.info(
+                    '[REJECTED_PACKET] action=' + action + ' packet=' + JSON.stringify(message)
+                );
                 self.connection.close(
                     'Invalid value ' + action + ' packet format: ' + message
                 );

@@ -9,6 +9,7 @@ import User from './user.js';
 import WorldHandler from './worldhandler.js';
 //import Utils from './utils.js';
 import DatabaseLogic from './database/databaselogic.js';
+import { replayPacket } from './replay.js';
 
 // Add these:
 // REFACTOR: ws.js was split into ws/ (wsbase.js/socketioconnection.js/
@@ -46,6 +47,32 @@ const log_file = fs.createWriteStream(__dirname + '/../console.log', {
     flags: 'w'
 });
 const log_stdout = process.stdout;
+
+// FIX: log_file/log_stdout above were declared but never actually used --
+// this server has only ever relied on shell redirection (see
+// userserver-linux.sh: `node ./js/main > console.log`) to populate
+// console.log, and that redirects stdout only. console.warn/console.error
+// write to stderr by default in Node, so every console.warn/error call in
+// this codebase (including every packet-rejection log line -- see
+// worldhandler.js/user.js/format.js) was silently NOT making it into
+// console.log at all under that launch script, only appearing in the
+// terminal/tmux pane. That's a problem for anything that wants to inspect
+// console.log after the fact (e.g. replay.js's replayLog(), which greps
+// this file for rejected packets) -- the exact lines it needs are the ones
+// that were going missing. Wiring log_file up directly here, instead of
+// depending on shell redirection, makes console.log capture everything
+// (console.log/info/warn/error alike) regardless of how the process is
+// launched, while still printing to the real stdout/stderr as before.
+console.log = console.info = (...args) => {
+    const txt = util.format(...args);
+    log_file.write(txt + '\n');
+    log_stdout.write(txt + '\n');
+};
+console.warn = console.error = (...args) => {
+    const txt = util.format(...args);
+    log_file.write(txt + '\n');
+    process.stderr.write(txt + '\n');
+};
 
 global.MainConfig = null;
 global.DBH = null;
@@ -430,6 +457,24 @@ function getInput(cmd) {
         case 'fixlegacylooks':
             fixLegacyLooks();
             break;
+        case 'replay': {
+            // Paste a rejected packet's [REJECTED_PACKET] log line (or just
+            // its raw packet data -- see replay.js's decodePacketText() for
+            // every format accepted) right after "replay " and it runs
+            // exactly as if a connected gameserver had sent it, even though
+            // it's coming from this command line. formatChecker.check()
+            // still applies -- this doesn't skip validation, only the "is a
+            // gameserver actually connected" gate. See replay.js.
+            const m = cmd.match(/^replay\s+([\s\S]+)$/);
+            if (!m) {
+                console.info(
+                    'usage: replay <packet text pasted from a [REJECTED_PACKET] log line>'
+                );
+            } else {
+                replayPacket(m[1]);
+            }
+            break;
+        }
         case 'exit':
         case 'quit':
         case 'q':

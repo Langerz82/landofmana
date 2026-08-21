@@ -105,11 +105,21 @@ class WorldHandler {
             // drop just this one packet instead, and keep the connection --
             // and every other player currently relying on it -- alive.
             if (!formatChecker.check(message)) {
-                console.error(
+                // [REJECTED_PACKET]-tagged so this packet can be copy/
+                // pasted into the admin console and re-run -- see
+                // replay.js. Logged via JSON.stringify (not the old
+                // "discarding: " + message string concatenation, which
+                // coerces the array to a string via '+' and mangles any
+                // object-valued field to "[object Object]" -- e.g.
+                // WU_SAVE_PLAYER_DATA's user-info record) so the packet
+                // round-trips losslessly.
+                console.info(
                     'worldHandler: rejected malformed ' +
                         action +
-                        ' packet from gameserver, discarding: ' +
-                        message
+                        ' packet from gameserver, discarding. [REJECTED_PACKET] action=' +
+                        action +
+                        ' packet=' +
+                        JSON.stringify(message)
                 );
                 return;
             }
