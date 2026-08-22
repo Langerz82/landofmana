@@ -1,14 +1,14 @@
-// Lets a rejected packet be copy/pasted from console.log back into the
-// admin console (`replay <packet>` -- see main.js's getInput()) and run
-// exactly as if a connected gameserver had sent it, even though it's
-// coming from the command line. Two halves:
+// Lets a rejected packet be copy/pasted back into the admin console
+// (`replay <packet>` -- see main.js's getInput()) and run exactly as if a
+// connected gameserver had sent it, even though it's coming from the
+// command line. Two halves:
 //
 //   1. Every packet-rejection site (user.js, worldhandler.js, ws/wsbase.js)
-//      logs a `[REJECTED_PACKET]` tagged line via console.info, with the
-//      packet captured losslessly via JSON.stringify (see the comments at
-//      each of those call sites for why plain string concatenation isn't
-//      good enough here -- it mangles any object-valued field, e.g.
-//      WU_SAVE_PLAYER_DATA's user-info record, to "[object Object]").
+//      writes a full entry to reject.log via rejectlog.js's
+//      logRejectedPacket() -- the reason it was rejected, plus the packet
+//      itself as a ready `replay <packet>` line: copy that whole line,
+//      edit/fix the packet's JSON if that's what was wrong with it, and
+//      paste it straight into the `Command:` prompt. See rejectlog.js.
 //   2. replayPacket() here decodes whatever was pasted back into a message
 //      array and dispatches it through a real WorldHandler's real
 //      listener -- formatChecker.check() still runs (nothing here bypasses
@@ -31,51 +31,24 @@
 import zlib from 'zlib';
 import WorldHandler from './worldhandler.js';
 
-const TAG = '[REJECTED_PACKET]';
-
 // Turns whatever text got pasted at the `replay <packet>` prompt into a
 // decoded message array (type/action still at index 0 -- what
 // formatChecker.check() and listener() both expect). Tries, in order:
 //
-//   1. A `[REJECTED_PACKET] ... packet=<json>` line -- the tag this file's
-//      own reject sites write. Losslessly round-trips any packet shape.
-//   2. A `[REJECTED_PACKET] ... raw=<json string>` line -- a transport-
-//      level JSON-parse failure (ws/wsbase.js). There's no packet array to
-//      dispatch here (that's why it was rejected before one ever existed);
-//      returned separately so replayPacket() can report the parse error
-//      instead of trying to run it.
-//   3. A `m=`/`recv[0]=`/`send=` labelled line with the label still
-//      attached -- stripped, then handled by cases 4/5 below.
-//   4. A bare JSON array, typed or pasted directly, e.g. [507,{"a":1}].
-//   5. Raw wire text exactly as ws/wsbase.js's _decodeAndDispatch decodes
+//   1. A `m=`/`recv[0]=`/`send=` labelled line, straight out of
+//      console.log's general per-message traffic log, with the label still
+//      attached -- stripped, then handled by cases 2/3 below.
+//   2. A bare JSON array, typed or pasted directly, e.g. [507,{"a":1}] --
+//      what's left after "replay " is stripped from a reject.log line for
+//      a format-check failure (see rejectlog.js's logRejectedPacket()).
+//   3. Raw wire text exactly as ws/wsbase.js's _decodeAndDispatch decodes
 //      it off a real socket: first character is a flag ('2' = gzip+base64,
-//      anything else = plain), the rest is the JSON payload.
+//      anything else = plain), the rest is the JSON payload -- what's left
+//      after "replay " is stripped from a reject.log line for a
+//      transport-level parse failure.
 function decodePacketText(rawInput) {
-    const trimmed = String(rawInput).trim();
+    let text = String(rawInput).trim();
 
-    const tagIndex = trimmed.indexOf(TAG);
-    if (tagIndex !== -1) {
-        const rest = trimmed.slice(tagIndex + TAG.length);
-        const packetIdx = rest.indexOf('packet=');
-        const rawIdx = rest.indexOf('raw=');
-        const jsonText =
-            packetIdx !== -1
-                ? rest.slice(packetIdx + 'packet='.length)
-                : rawIdx !== -1
-                  ? rest.slice(rawIdx + 'raw='.length)
-                  : null;
-        if (jsonText === null) return null;
-        try {
-            const parsed = JSON.parse(jsonText);
-            if (Array.isArray(parsed)) return { message: parsed, how: 'a ' + TAG + ' tagged line' };
-            if (typeof parsed === 'string') return { rawText: parsed };
-        } catch (e) {
-            return null;
-        }
-        return null;
-    }
-
-    let text = trimmed;
     for (const prefix of ['m=', 'recv[0]=', 'send=']) {
         if (text.startsWith(prefix)) {
             text = text.slice(prefix.length);
@@ -142,24 +115,16 @@ function makeDetachedConnection() {
 export function replayPacket(rawPacketText) {
     const decoded = decodePacketText(rawPacketText);
     if (!decoded) {
+        // Either genuinely undecodable, or (if this came from a
+        // reject.log entry for a transport-level parse failure) still
+        // malformed the same way it originally was -- either way, nothing
+        // to dispatch, and re-attempting JSON.parse here would just repeat
+        // whatever error already got logged when it was first rejected.
         console.error(
-            'replay: could not decode that as a packet. Paste one of: a full "' +
-                TAG +
-                ' ... packet=..." line, a full "m=..." line, a bare JSON array like [507,{...}], ' +
-                'or raw wire text (flag character + JSON, e.g. "1[507,...]").'
+            'replay: could not decode that as a packet. Paste one of: a full "m=..." line, a bare ' +
+                'JSON array like [507,{...}], or raw wire text (flag character + JSON, e.g. ' +
+                '"1[507,...]").'
         );
-        return;
-    }
-
-    if (decoded.rawText !== undefined) {
-        // A transport-level parse failure -- there's no packet array to
-        // dispatch, only the original error to confirm/reproduce.
-        try {
-            JSON.parse(decoded.rawText);
-            console.info('replay: this raw payload now parses as valid JSON -- was the wire format changed?');
-        } catch (e) {
-            console.info('replay: raw payload still fails JSON.parse the same way: ' + e.message);
-        }
         return;
     }
 

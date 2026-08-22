@@ -24,6 +24,7 @@
 import _ from 'underscore';
 import BISON from 'bison';
 import zlib from 'zlib';
+import { logRejectedPacket } from '../rejectlog.js';
 
 const useBison = false;
 
@@ -171,20 +172,27 @@ export class Connection {
                 if (useBison) {
                     this.listenCallback(BISON.decode(decompressed));
                 } else {
-                    const parsed = safeJsonParse(decompressed, (e) =>
-                        // [REJECTED_PACKET]-tagged so this can be copy/
-                        // pasted into the admin console -- see replay.js.
-                        // `raw=` carries the exact bytes JSON.parse choked
-                        // on (JSON.stringify'd, so it round-trips losslessly
-                        // even though the payload itself isn't valid JSON).
-                        console.info(
-                            '[REJECTED_PACKET] error=' +
-                                e.message +
+                    const parsed = safeJsonParse(decompressed, (e) => {
+                        // Full detail (the parse error and the exact raw
+                        // bytes it choked on, as a ready `replay <raw>`
+                        // command) goes to reject.log -- see rejectlog.js.
+                        // The raw text is logged as-is here (not
+                        // JSON.stringify'd): replay.js's decodePacketText()
+                        // re-decodes a pasted packet the same way this
+                        // function does -- flag character + JSON payload --
+                        // so pasting it back reproduces this exact parse
+                        // failure (or succeeds, once the JSON is fixed).
+                        logRejectedPacket(
+                            'source=ws-compressed reason: json-parse-failed' +
                                 addrSuffix +
-                                ' raw=' +
-                                JSON.stringify(String(decompressed))
-                        )
-                    );
+                                ' error=' +
+                                e.message,
+                            String(decompressed)
+                        );
+                        console.info(
+                            'Dropping malformed compressed message' + addrSuffix + ' -- see reject.log'
+                        );
+                    });
                     if (parsed !== undefined) this.listenCallback(parsed);
                 }
             });
@@ -193,17 +201,14 @@ export class Connection {
             if (useBison) {
                 this.listenCallback(BISON.decode(msg.substr(1)));
             } else {
-                const parsed = safeJsonParse(msg.substr(1), (e) =>
-                    // [REJECTED_PACKET]-tagged -- see the compressed
-                    // branch's identical comment above.
-                    console.info(
-                        '[REJECTED_PACKET] error=' +
-                            e.message +
-                            addrSuffix +
-                            ' raw=' +
-                            JSON.stringify(msg.substr(1))
-                    )
-                );
+                const parsed = safeJsonParse(msg.substr(1), (e) => {
+                    // See the compressed branch's identical comment above.
+                    logRejectedPacket(
+                        'source=ws-raw reason: json-parse-failed' + addrSuffix + ' error=' + e.message,
+                        msg.substr(1)
+                    );
+                    console.info('Dropping malformed message' + addrSuffix + ' -- see reject.log');
+                });
                 if (parsed !== undefined) this.listenCallback(parsed);
             }
         }

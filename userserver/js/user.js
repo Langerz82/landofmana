@@ -5,7 +5,7 @@ import bcrypt from 'bcrypt';
 import CryptoJS from 'crypto-js';
 
 import UserMessages from './usermessage.js';
-import formatChecker from './format.js';
+import { checkWithReason, logRejectedPacket } from './rejectlog.js';
 // FIX: same missing-import pattern fixed in format.js and worldhandler.js
 // -- Types (used throughout this file's listener/handlers, e.g.
 // Types.UserMessages.CU_CREATE_USER) and Utils (Utils.sanitize/btoa/
@@ -128,18 +128,21 @@ class User {
             const action = parseInt(message[0]);
             if (!action) return;
 
-            if (!formatChecker.check(message)) {
-                // [REJECTED_PACKET]-tagged so this packet can be copy/
-                // pasted into the admin console and re-run -- see
-                // replay.js. `message` is still the full array, type/
-                // action at [0] -- exactly what formatChecker.check()
-                // takes, so JSON.stringify(message) round-trips losslessly
-                // (unlike the close() reason below, which coerces the
-                // array to a string via '+' and mangles any object-valued
-                // field to "[object Object]").
-                console.info(
-                    '[REJECTED_PACKET] action=' + action + ' packet=' + JSON.stringify(message)
+            const formatResult = checkWithReason(message);
+            if (!formatResult.ok) {
+                // Full detail (the format error and the packet itself, as a
+                // ready `replay <packet>` command) goes to reject.log, not
+                // here -- see rejectlog.js. `message` is still the full
+                // array, type/action at [0] -- exactly what
+                // formatChecker.check() takes, so JSON.stringify(message)
+                // round-trips losslessly (unlike the close() reason below,
+                // which coerces the array to a string via '+' and mangles
+                // any object-valued field to "[object Object]").
+                logRejectedPacket(
+                    'source=user action=' + action + ' reason: ' + formatResult.reason,
+                    JSON.stringify(message)
                 );
+                console.info('user: rejected ' + action + ' packet -- see reject.log');
                 self.connection.close(
                     'Invalid value ' + action + ' packet format: ' + message
                 );

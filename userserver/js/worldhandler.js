@@ -1,7 +1,7 @@
 /* global require, module, log, DBLogic */
 
 import crypto from 'crypto';
-import formatChecker from './format.js';
+import { checkWithReason, logRejectedPacket } from './rejectlog.js';
 import UserMessages from './usermessage.js';
 // FIX: this file used `Types.UserMessages.*` (in the `listener` below) and
 // `Utils.ArrayParseInt` (in sendLooksToWorld) with no import for either --
@@ -104,22 +104,24 @@ class WorldHandler {
             // where closing on a format failure is the right call). Log and
             // drop just this one packet instead, and keep the connection --
             // and every other player currently relying on it -- alive.
-            if (!formatChecker.check(message)) {
-                // [REJECTED_PACKET]-tagged so this packet can be copy/
-                // pasted into the admin console and re-run -- see
-                // replay.js. Logged via JSON.stringify (not the old
-                // "discarding: " + message string concatenation, which
-                // coerces the array to a string via '+' and mangles any
-                // object-valued field to "[object Object]" -- e.g.
+            const formatResult = checkWithReason(message);
+            if (!formatResult.ok) {
+                // Full detail (the format error and the packet itself, as a
+                // ready `replay <packet>` command) goes to reject.log, not
+                // here -- see rejectlog.js. Logged via JSON.stringify (not
+                // the old "discarding: " + message string concatenation,
+                // which coerces the array to a string via '+' and mangles
+                // any object-valued field to "[object Object]" -- e.g.
                 // WU_SAVE_PLAYER_DATA's user-info record) so the packet
                 // round-trips losslessly.
+                logRejectedPacket(
+                    'source=worldhandler action=' + action + ' reason: ' + formatResult.reason,
+                    JSON.stringify(message)
+                );
                 console.info(
                     'worldHandler: rejected malformed ' +
                         action +
-                        ' packet from gameserver, discarding. [REJECTED_PACKET] action=' +
-                        action +
-                        ' packet=' +
-                        JSON.stringify(message)
+                        ' packet from gameserver, discarding -- see reject.log'
                 );
                 return;
             }

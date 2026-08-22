@@ -56,12 +56,12 @@ const log_file = fs.createWriteStream(__dirname + '/../console.log', {
 // worldhandler.js/user.js/format.js) was silently NOT making it into
 // console.log at all under that launch script, only appearing in the
 // terminal/tmux pane. That's a problem for anything that wants to inspect
-// console.log after the fact (e.g. replay.js's replayPacket(), which reads
-// a pasted [REJECTED_PACKET] line out of it) -- the exact lines it needs
-// are the ones that were going missing. Wiring log_file up directly here,
-// instead of depending on shell redirection, makes console.log capture
-// everything (console.log/info/warn/error alike) regardless of how the
-// process is launched.
+// console.log after the fact -- including the short "-- see reject.log"
+// breadcrumb every rejection site now logs (see rejectlog.js) -- the exact
+// lines it needs are the ones that were going missing. Wiring log_file up
+// directly here, instead of depending on shell redirection, makes
+// console.log capture everything (console.log/info/warn/error alike)
+// regardless of how the process is launched.
 //
 // FIX: the first version of this wired log_file up by REPLACING
 // console.log/info/warn/error with plain functions that wrote straight to
@@ -479,18 +479,17 @@ function getInput(cmd) {
             fixLegacyLooks();
             break;
         case 'replay': {
-            // Paste a rejected packet's [REJECTED_PACKET] log line (or just
-            // its raw packet data -- see replay.js's decodePacketText() for
-            // every format accepted) right after "replay " and it runs
-            // exactly as if a connected gameserver had sent it, even though
-            // it's coming from this command line. formatChecker.check()
-            // still applies -- this doesn't skip validation, only the "is a
-            // gameserver actually connected" gate. See replay.js.
+            // reject.log has a ready `replay <packet>` line for every
+            // rejected packet (see rejectlog.js) -- copy that whole line,
+            // edit/fix the packet's JSON if that's what was wrong with it,
+            // and paste it right here. It runs exactly as if a connected
+            // gameserver had sent it, even though it's coming from this
+            // command line. formatChecker.check() still applies -- this
+            // doesn't skip validation, only the "is a gameserver actually
+            // connected" gate. See replay.js.
             const m = cmd.match(/^replay\s+([\s\S]+)$/);
             if (!m) {
-                console.info(
-                    'usage: replay <packet text pasted from a [REJECTED_PACKET] log line>'
-                );
+                console.info('usage: replay <packet text -- see reject.log for ready-to-paste lines>');
             } else {
                 replayPacket(m[1]);
             }
