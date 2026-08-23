@@ -127,7 +127,49 @@ export let gConnection;
 const log_file = fs.createWriteStream(__dirname + '/../console.log', {
     flags: 'w'
 });
-const log_stdout = process.stdout;
+
+// FIX: mirrors the identical fix in userserver/js/main.js (see that file's
+// own FIX comments for the full rationale). log_file above was declared
+// but never wired up -- the only place that would have used it,
+// `//console.log = console.info;` in main() below, is commented out -- so
+// nothing here has ever written non-stdout output to console.log.
+// console.warn/console.error go to stderr by default, so under
+// gameserver-linux.sh's `node ./js/main > console.log` (stdout only, no
+// `2>&1`) or gameserver-win.bat's `node js/main` (no redirection at all),
+// warn/error output never reached the file. Wiring log_file up directly
+// here -- and calling THROUGH to the real console.log/info/warn/error
+// (not replacing them outright) so a debugger attached via
+// `--inspect`/`--inspect-brk` still sees output over the V8 Inspector
+// protocol, which only fires from inside the real console methods --
+// fixes both.
+//
+// Also removed `> console.log` from gameserver-linux.sh/
+// gameserver-inspect-linux.sh: this file writing console.log itself, PLUS
+// the shell also redirecting stdout to that exact same path, is two
+// independent writers racing on one file -- confirmed by reproducing it
+// (missing lines, a byte dropped mid-word) when tracking down the
+// identical setup on the userserver side. Only one of the two can safely
+// own the file; this is now it, and dropping the shell redirect also means
+// `tmux attach -t rro2-game` shows live output again instead of nothing
+// (stdout no longer gets diverted away from the pane into the file).
+const originalConsole = {
+    log: console.log.bind(console),
+    info: console.info.bind(console),
+    warn: console.warn.bind(console),
+    error: console.error.bind(console)
+};
+
+function teeToLogFile(originalFn) {
+    return (...args) => {
+        log_file.write(util.format(...args) + '\n');
+        originalFn(...args);
+    };
+}
+
+console.log = teeToLogFile(originalConsole.log);
+console.info = teeToLogFile(originalConsole.info);
+console.warn = teeToLogFile(originalConsole.warn);
+console.error = teeToLogFile(originalConsole.error);
 
 /*var get_connect_string = function () {
     if (MainConfig)
@@ -140,7 +182,6 @@ function main(config) {
     global.log = log;
     console.isEnabled = true;
 
-    //console.log = console.info;
     Object.defineProperty(log, 'log', {
         value: undefined,
         writable: true,
