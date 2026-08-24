@@ -9,6 +9,7 @@ import Character from '../entity/character/character.js';
 import Mob from '../entity/mob/mob.js';
 import Item from '../entity/item.js';
 import Player from '../entity/player/player.js';
+import Node from '../entity/node.js';
 import { Types } from '../common.js';
 import NpcData from '../data/npcdata.js';
 import { G_TILESIZE, G_SPATIAL_SIZE, G_DEBUG } from '../constants.js';
