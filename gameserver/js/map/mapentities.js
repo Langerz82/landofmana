@@ -233,63 +233,63 @@ class MapEntities {
         );
     }
 
+    createEntity(data) {
+        let entity = null;
+        if (data.type === Types.EntityTypes.MOB) {
+            entity = this.addMob(data.kind, data.x, data.y, null);
+            if (data.level)
+                entity.level = data.level;
+        }
+        else if (data.type === Types.EntityTypes.ITEM) {
+            let itemRoom = new ItemRoom([data.kind, 1, null, null, 0]);
+            if (data.durability)
+                itemRoom.itemDurability = data.durabilty;
+            if (data.durabilityMax)
+                itemRoom.itemDurabilityMax = data.durabiltyMax;
+            if (data.count)
+                itemRoom.itemNumber = data.count;
+
+            entity = this.createItem(
+                itemRoom,
+                data.x,
+                data.y
+            );
+            this.addItem(entity);
+        }
+        else if (data.type === Types.EntityTypes.NPCMOVE ||
+            data.type === Types.EntityTypes.NPCSTATIC)
+        {
+            if (data.type === Types.EntityTypes.NPCMOVE) {
+                entity = this.addNpcMove(data.kind, data.x, data.y);
+            }
+            if (data.type === Types.EntityTypes.NPCSTATIC) {
+                entity = this.addNpcStatic(data.kind, data.x, data.y);
+            }
+            if (entity) {
+                if (data.name) entity.name = data.name;
+                if (data.quests) entity.setQuests(data.quests.split(','));
+            }
+        }
+        else if (data.type === Types.EntityTypes.BLOCK) {
+            entity = this.addBlock(data.kind, data.x, data.y, null, null);
+            if (data.name) entity.name = data.name;
+        }
+        else if (data.type === Types.EntityTypes.TRAP) {
+
+        }
+        else if (data.type === Types.EntityTypes.NODE) {
+            entity = this.addNode(data.kind, data.x, data.y);
+            if (data.level) entity.level = data.level;
+            if (data.animName) entity.animName = data.animName;
+        }
+        return entity;
+    }
+
     spawnEntities(map) {
         const self = this;
 
         _.each(self.map.spawnEntities, function (data) {
-            if (data.type === Types.EntityTypes.MOB) {
-                let mob = self.addMob(data.id, data.x, data.y, null);
-                if (data.level)
-                    mob.level = data.level;
-            }
-            else if (data.type === Types.EntityTypes.ITEM) {
-                let itemRoom = new ItemRoom([data.id, 1, null, null, 0]);
-                if (data.durability)
-                    itemRoom.itemDurability = data.durabilty;
-                if (data.durabilityMax)
-                    itemRoom.itemDurabilityMax = data.durabiltyMax;
-                if (data.count)
-                    itemRoom.itemNumber = data.count;
-
-                const item = self.createItem(
-                    itemRoom,
-                    data.x,
-                    data.y
-                );
-                self.addItem(item);
-            }
-            else if (data.type === Types.EntityTypes.NPCMOVE ||
-                data.type === Types.EntityTypes.NPCSTATIC)
-            {
-                let npc = null;
-                if (data.type === Types.EntityTypes.NPCMOVE) {
-                    npc = self.addNpcMove(data.id, data.x, data.y);
-                }
-                if (data.type === Types.EntityTypes.NPCSTATIC) {
-                    npc = self.addNpcStatic(data.id, data.x, data.y);
-                }
-                // FIX: if npcData.type matched neither NPCMOVE nor NPCSTATIC,
-                // `npc` stayed null and `npc.name = ...` below threw, aborting
-                // map load entirely for one bad/unexpected spawn entry. Guard
-                // on `npc` being set before touching it. Also switched `==` to
-                // `===` above for consistency.
-                if (npc) {
-                    if (data.name) npc.name = data.name;
-                    if (data.quests) npc.setQuests(data.quests.split(','));
-                }
-            }
-            else if (data.type === Types.EntityTypes.BLOCK) {
-                let block = self.addBlock(data.id, data.x, data.y, null, null);
-                if (data.name) block.name = data.name;
-            }
-            else if (data.type === Types.EntityTypes.TRAP) {
-
-            }
-            else if (data.type === Types.EntityTypes.NODE) {
-                const node = self.addNode(data.id, data.x, data.y, level, type);
-                if (data.level) node.level = data.level;
-                if (data.type) node.type = data.type;
-            }
+            self.createEntity(data);
         });
     }
 

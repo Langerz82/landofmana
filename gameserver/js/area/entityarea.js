@@ -9,6 +9,30 @@ class EntityArea extends Area {
         this.hasCompletelyRespawned = true;
     }
 
+    addEntities(data, distApart) {
+        for (let i=0; i < count; ++i) {
+            let pos = null;
+            if (distApart > 0) {
+                const nearby = self.getNearbyEntities(distApart);
+                pos = this.map.entities.spaceEntityRandomApart(
+                    distApart,
+                    this._getRandomPositionInsideArea.bind(this, 100),
+                    nearby
+                );
+            }
+            else {
+                pos = this._getRandomPositionInsideArea(100);
+            }
+            if (!pos) continue;
+
+            data.x = pos.x;
+            data.y = pos.y;
+            const entity = this.map.entities.createEntity(data);
+            entity.area = this;
+            this.addToArea(entity);
+        }
+    }
+
     // FIX/PERF: this used to build a whole throwaway array of ids via
     // _.pluck(this.entities, 'id') just to _.indexOf() into it -- an O(n)
     // allocation plus an O(n) scan to do what a single O(n) scan already

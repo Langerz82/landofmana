@@ -298,8 +298,9 @@ class MapManager {
                                         100
                                     )
                                 );
-                                const node = map.entities.addNode(3, pos.x, pos.y, level);
-                                node.name = 'node1';
+                                const node = map.entities.addNode(3, pos.x, pos.y);
+                                node.level = level;
+                                node.animName = 'node' + level;
                                 node.weaponType = 'any';
                                 area.addToArea(node);
                             }
@@ -313,8 +314,9 @@ class MapManager {
                                         100
                                     )
                                 );
-                                const node = map.entities.addNode(3, pos.x, pos.y, level);
-                                node.name = 'node2';
+                                const node = map.entities.addNode(3, pos.x, pos.y);
+                                node.level = level;
+                                node.animName = 'node' + level;
                                 node.weaponType = 'any';
 
                                 area.addToArea(node);
@@ -329,8 +331,9 @@ class MapManager {
                                         100
                                     )
                                 );
-                                const node = map.entities.addNode(2, pos.x, pos.y, level);
-                                node.name = 'node' + level;
+                                const node = map.entities.addNode(2, pos.x, pos.y);
+                                node.level = level;
+                                node.animName = 'node' + level;
                                 node.weaponType = 'hammer';
                                 area.addToArea(node);
                                 map.entities.addEntity(node);
@@ -349,7 +352,8 @@ class MapManager {
                                         100
                                     )
                                 );
-                            const chestNode = map.entities.addNode(Node.CHEST_KIND, chestPos.x, chestPos.y, level);
+                            const chestNode = map.entities.addNode(Node.CHEST_KIND, chestPos.x, chestPos.y);
+                            chestNode.level = level;
                             area.addToArea(chestNode);
                         }
                     }

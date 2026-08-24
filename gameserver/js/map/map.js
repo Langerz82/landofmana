@@ -139,7 +139,10 @@ class Map {
             // exists.
             this.mobAreasData = thismap.mobAreas;
         //},10000);
+        this.initEntityAreas(thismap.entityAreas);
+
         this.initCheckpoints(thismap.checkpoints);
+
         this.doors = this._getDoors(thismap);
 
         this.isLoaded = true;
@@ -326,6 +329,32 @@ class Map {
 
         return this.waitingArea[minigame].value;
     },*/
+    initEntityAreas(areas) {
+        const self = this;
+        _.each(areas, function (area) {
+            const entityarea = new EntityArea(
+                self,
+                area.id,
+                area.x,
+                area.y,
+                area.w,
+                area.h,
+            );
+            let data = {};
+            if (area.type) data.type = area.type;
+            if (area.kind) data.kind = area.kind;
+            if (area.count) data.count = area.count;
+            if (area.name) data.name = area.name;
+            if (area.level) data.level = area.level;
+            if (area.durability) data.durability = area.durability;
+            if (area.durabiltyMax) data.durabiltyMax = area.durabiltyMax;
+            if (area.animName) data.animName = area.animName;
+
+            const distApart = data.distanceApart ?? 0;
+            entityarea.addEntities(data, distApart);
+            self.entityAreas.push(entityarea);
+        });
+    }
 
     initMobAreas(mobAreas) {
         //const maList = this.mapMobAreas;

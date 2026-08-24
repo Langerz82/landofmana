@@ -7,13 +7,10 @@ import ItemData from '../data/itemdata.js';
 import Scheduler from '../scheduler.js';
 
 class Node extends Entity {
-    constructor(id, kind, x, y, map, level, type) {
+    constructor(id, kind, x, y, map) {
         super(id, Types.EntityTypes.NODE, kind, x, y, map);
 
-        type = type || 1;
-
         this.stats = {};
-        this.level = level;
 
         this.setDrops();
 
@@ -34,14 +31,13 @@ class Node extends Entity {
             // shown to the player (renderer.drawEntityName() has no NODE
             // branch), so the odd-looking value is harmless.
             this.name = 'idle_down';
-            this.animName = 'idle';
             this.spawnDelay = 300000;
             this.harvestDuration = 1000;
         } else {
             this.spawnDelay = 60000;
             this.spriteName = 'nodeset' + kind;
-            this.animName = 'node' + type;
         }
+        this.animName = 'idle';
     }
 
     getState() {

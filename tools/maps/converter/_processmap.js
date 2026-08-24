@@ -59,6 +59,7 @@ module.exports = function processMap(json, jsontsx, options) {
         //map.high = [];
         map.entities = [];
         map.mobAreas = [];
+        map.entityAreas = [];
     }
 
     console.info("Processing map info...");
@@ -249,7 +250,7 @@ module.exports = function processMap(json, jsontsx, options) {
                                  x: ~~(areas[i].x),
                                  y: ~~(areas[i].y),
                                  type: getEntityType(prop.type),
-                                 id: prop.id
+                                 kind: prop.kind
                              };
                              if (prop.name) {
                                  entity.name = prop.name;
@@ -267,7 +268,7 @@ module.exports = function processMap(json, jsontsx, options) {
                                  entity.durabiltyMax = prop.durabiltyMax;
                              }
 
-                             map.entities.push(entityArea);
+                             map.entities.push(entity);
                          }
                      }
             }
@@ -275,33 +276,60 @@ module.exports = function processMap(json, jsontsx, options) {
                 return;
         }
 
-        else if(layer.name === "mobareas"){
-            if (mode == "server") {
-                     console.info("Processing mobareas...");
-                     var areas = layer.objects;
-                     console.info(JSON.stringify(areas));
-                     //return;
-                     for(var i = 0; i < areas.length; i++){
-                         console.info(areas[i]);
-                         var prop = getPropertyList(areas[i].properties);
-                         var area = {
-                            id: i,
-                            count: prop.count,
-                            minLevel: prop.minLevel,
-                            maxLevel: prop.maxLevel,
-                            x: ~~(areas[i].x),
-                            y: ~~(areas[i].y),
-                            w: ~~(areas[i].width),
-                            h: ~~(areas[i].height),
-                            include: prop.include || '',
-                            exclude: prop.exclude || '',
-                            definite: prop.definite || '',
-                            level: prop.level || '',
-							weight: prop.weight || '',
-                         };
-                         map.mobAreas.push(area);
-                     }
-            }
+        else if(layer.name === "mobareas" && mode == "server"){
+             console.info("Processing mobareas...");
+             var areas = layer.objects;
+             console.info(JSON.stringify(areas));
+             //return;
+             for(var i = 0; i < areas.length; i++){
+                 console.info(areas[i]);
+                 var prop = getPropertyList(areas[i].properties);
+                 var area = {
+                    id: i,
+                    count: prop.count,
+                    minLevel: prop.minLevel,
+                    maxLevel: prop.maxLevel,
+                    x: ~~(areas[i].x),
+                    y: ~~(areas[i].y),
+                    w: ~~(areas[i].width),
+                    h: ~~(areas[i].height),
+                    include: prop.include || '',
+                    exclude: prop.exclude || '',
+                    definite: prop.definite || '',
+                    level: prop.level || '',
+					weight: prop.weight || '',
+                 };
+                 map.mobAreas.push(area);
+             }
+        }
+
+        else if(layer.name === "entityareas" && mode == "server"){
+             console.info("Processing entityareas...");
+             var areas = layer.objects;
+             console.info(JSON.stringify(areas));
+             //return;
+             for(var area of areas) {
+                 console.info(area);
+                 var prop = getPropertyList(area.properties);
+                 var entityarea = {
+                    id: i,
+                    x: ~~(area.x),
+                    y: ~~(area.y),
+                    w: ~~(area.width),
+                    h: ~~(area.height),
+                 };
+                 if (prop.type) entityarea.type = getEntityType(prop.type);
+                 if (prop.kind) entityarea.kind = prop.kind;
+                 if (prop.count) entityarea.count = prop.count;
+                 if (prop.name) entityarea.name = prop.name;
+                 if (prop.level) entityarea.level = prop.level;
+                 if (prop.durability) entityarea.durability = prop.durability;
+                 if (prop.durabiltyMax) entityarea.durabiltyMax = prop.durabiltyMax;
+                 if (prop.animName) entityarea.animName = prop.animName;
+                 entityarea.distanceApart = prop.distanceApart ?? 0;
+
+                 map.entityAreas.push(entityarea);
+             }
         }
 
     });
