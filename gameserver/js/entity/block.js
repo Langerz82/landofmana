@@ -9,13 +9,11 @@ class Block extends EntityMoving {
     // local first, passed to `super()`, and the rest are assigned right after —
     // none of these fields are read inside the parent constructor chain, so this
     // reordering has no observable effect on behavior.
-    constructor(id, kind, x, y, map, parent, name, ix, iy) {
+    constructor(id, kind, x, y, map, area, name) {
         const type = Types.EntityTypes.BLOCK;
         super(id, type, kind, x, y, map);
         this.type = type;
-        this.parent = parent;
-        this.ix = ix;
-        this.iy = iy;
+        this.area = area;
         this.name = name;
         this.playerName = null;
     }
@@ -25,10 +23,7 @@ class Block extends EntityMoving {
     }
 
     getState() {
-        return this._getBaseState().concat([
-            parseInt(this.ix),
-            parseInt(this.iy)
-        ]);
+        return this._getBaseState();
     }
 
     update(player) {

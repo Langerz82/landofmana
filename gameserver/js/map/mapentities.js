@@ -235,38 +235,61 @@ class MapEntities {
     spawnEntities(map) {
         const self = this;
 
-        //setTimeout(function () {
-        _.each(self.map.spawnEntities, function (npcData) {
-            let npc = null;
-            if (npcData.type === Types.EntityTypes.NPCMOVE) {
-                npc = self.addNpcMove(npcData.id, npcData.x, npcData.y);
+        _.each(self.map.spawnEntities, function (data) {
+            if (data.type === Types.EntityTypes.MOB) {
+                let mob = self.addMob(data.id, data.x, data.y, null);
+                if (data.level)
+                    mob.level = data.level;
             }
-            if (npcData.type === Types.EntityTypes.NPCSTATIC) {
-                npc = self.addNpcStatic(npcData.id, npcData.x, npcData.y);
+            else if (data.type === Types.EntityTypes.ITEM) {
+                let itemRoom = new ItemRoom([data.id, 1, null, null, 0]);
+                if (data.durability)
+                    itemRoom.itemDurability = data.durabilty;
+                if (data.durabilityMax)
+                    itemRoom.itemDurabilityMax = data.durabiltyMax;
+                if (data.count)
+                    itemRoom.itemNumber = data.count;
+
+                const item = self.createItem(
+                    itemRoom,
+                    data.x,
+                    data.y
+                );
+                self.addItem(item);
             }
-            // FIX: if npcData.type matched neither NPCMOVE nor NPCSTATIC,
-            // `npc` stayed null and `npc.name = ...` below threw, aborting
-            // map load entirely for one bad/unexpected spawn entry. Guard
-            // on `npc` being set before touching it. Also switched `==` to
-            // `===` above for consistency.
-            if (npc) {
-                if (npcData.name) npc.name = npcData.name;
-                if (npcData.quests) npc.setQuests(npcData.quests.split(','));
+            else if (data.type === Types.EntityTypes.NPCMOVE ||
+                data.type === Types.EntityTypes.NPCSTATIC)
+            {
+                let npc = null;
+                if (data.type === Types.EntityTypes.NPCMOVE) {
+                    npc = self.addNpcMove(data.id, data.x, data.y);
+                }
+                if (data.type === Types.EntityTypes.NPCSTATIC) {
+                    npc = self.addNpcStatic(data.id, data.x, data.y);
+                }
+                // FIX: if npcData.type matched neither NPCMOVE nor NPCSTATIC,
+                // `npc` stayed null and `npc.name = ...` below threw, aborting
+                // map load entirely for one bad/unexpected spawn entry. Guard
+                // on `npc` being set before touching it. Also switched `==` to
+                // `===` above for consistency.
+                if (npc) {
+                    if (data.name) npc.name = data.name;
+                    if (data.quests) npc.setQuests(data.quests.split(','));
+                }
+            }
+            else if (data.type === Types.EntityTypes.BLOCK) {
+                let block = self.addBlock(data.id, data.x, data.y, null, null);
+                if (data.name) block.name = data.name;
+            }
+            else if (data.type === Types.EntityTypes.TRAP) {
+
+            }
+            else if (data.type === Types.EntityTypes.NODE) {
+                const node = self.addNode(data.id, data.x, data.y, level, type);
+                if (data.level) node.level = data.level;
+                if (data.type) node.type = data.type;
             }
         });
-
-        //},10000);
-
-        /*console.info(JSON.stringify(self.map.staticEntities));
-        _.each(self.map.staticEntities, function (kind, tid) {
-            const pos = map.tileIndexToGridPosition(tid);
-
-            console.info('kind:' + kind);
-            if (NpcData.isNpc(kind)) {
-                console.info('npc:' + kind + ',x:' + pos.x + ',y:' + pos.y);
-                self.addNpcStatic(kind, pos.x, pos.y);
-            }
-        });*/
     }
 
     /*spawnEntity: function(kind, x, y, map) {
@@ -293,7 +316,17 @@ class MapEntities {
         this.broadcaster.registerPlayer(player.id);
     }
 
-    addBlock(block) {
+    addBlock(kind, x, y, area, blockName) {
+        const block = new Block(
+            ++this.entityCount,
+            kind,
+            x,
+            y,
+            this.map,
+            area,
+            blockName,
+        );
+
         this.addEntity(block);
         this.blocks.set(block.id, block);
         return block;
@@ -343,6 +376,21 @@ class MapEntities {
         this.items.set(item.id, item);
 
         return item;
+    }
+
+    addNode(kind, x, y, level, type) {
+        const node = new Node(
+            ++this.entityCount,
+            kind,
+            x,
+            y,
+            this.map,
+            level,
+            type
+        );
+
+        this.addEntity(node);
+        return node;
     }
 
     addSpatial(entity) {
