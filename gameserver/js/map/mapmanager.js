@@ -52,6 +52,7 @@ class MapManager {
             // FIX comment in map.js's initMap(). Deferred to here, now that
             // `map.entities` is assigned above.
             map.initMobAreas(map.mobAreasData);
+            map.initEntityAreas(map.entityAreasData);
 
             map.enterCallback = function (player) {
                 const pos = map.getRandomStartingPosition();
@@ -82,6 +83,7 @@ class MapManager {
             // mobAreas still spawn in addition to the procedural ring mobs
             // built below (matching the original intent of this file).
             map.initMobAreas(map.mobAreasData);
+            map.initEntityAreas(map.entityAreasData);
 
             //map.mobArea = [];
             const mobArea = new MobArea(
@@ -386,6 +388,7 @@ class MapManager {
             // callback above -- this used to fire too early, inside
             // Map.initMap(), before `map.entities` existed.
             map.initMobAreas(map.mobAreasData);
+            map.initEntityAreas(map.entityAreasData);
             map.entities.spawnEntities(map);
 
             map.enterCallback = function (player) {

@@ -10,10 +10,11 @@ class EntityArea extends Area {
     }
 
     addEntities(data, distApart) {
-        for (let i=0; i < count; ++i) {
+        for (let i=0; i < data.count; ++i) {
             let pos = null;
+            console.info("distApart="+distApart);
             if (distApart > 0) {
-                const nearby = self.getNearbyEntities(distApart);
+                const nearby = this.getNearbyEntities(distApart);
                 pos = this.map.entities.spaceEntityRandomApart(
                     distApart,
                     this._getRandomPositionInsideArea.bind(this, 100),
@@ -27,6 +28,7 @@ class EntityArea extends Area {
 
             data.x = pos.x;
             data.y = pos.y;
+            console.info("addEntities data:"+JSON.stringify(data));
             const entity = this.map.entities.createEntity(data);
             entity.area = this;
             this.addToArea(entity);

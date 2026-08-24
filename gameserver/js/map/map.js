@@ -5,6 +5,7 @@ import Checkpoint from '../area/checkpoint.js';
 import Area from '../area/area.js';
 import MapArea from '../area/maparea.js';
 import MobArea from '../area/mobarea.js';
+import EntityArea from '../area/entityarea.js';
 // FIX: this import was commented out, but getRandomStartingPosition(),
 // getRandomPositionCollide(), getRandomPositionArea(), and getRandomPosition()
 // below all still call Utils.randomInt/randomRangeInt/clamp. It only worked
@@ -106,6 +107,7 @@ class Map {
         this.staticEntities = thismap.staticEntities;
         this.spawnEntities = thismap.entities;
         this.mobAreas = [];
+        this.entityAreas = [];
 
         this.generateCollisions = true;
 
@@ -138,8 +140,9 @@ class Map {
             // `map.initMobAreas(map.mobAreasData)` itself once `entities`
             // exists.
             this.mobAreasData = thismap.mobAreas;
+            this.entityAreasData = thismap.entityAreas;
         //},10000);
-        this.initEntityAreas(thismap.entityAreas);
+        //this.initEntityAreas(thismap.entityAreas);
 
         this.initCheckpoints(thismap.checkpoints);
 
@@ -350,8 +353,8 @@ class Map {
             if (area.durabiltyMax) data.durabiltyMax = area.durabiltyMax;
             if (area.animName) data.animName = area.animName;
             if (area.weaponType) data.weaponType = area.weaponType;
-
-            const distApart = data.distanceApart ?? 0;
+            console.info("initEntityAreas data: "+JSON.stringify(data));
+            const distApart = area.distanceApart ?? 0;
             entityarea.addEntities(data, distApart);
             self.entityAreas.push(entityarea);
         });

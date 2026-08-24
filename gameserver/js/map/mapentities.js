@@ -280,7 +280,7 @@ class MapEntities {
         else if (data.type === Types.EntityTypes.NODE) {
             entity = this.addNode(data.kind, data.x, data.y);
             if (data.level) entity.level = data.level;
-            if (data.animName) entity.animName = data.animName;
+            if (data.name) entity.name = data.name;
             if (data.weaponType) entity.weaponType = data.weaponType;
         }
         return entity;
@@ -293,18 +293,6 @@ class MapEntities {
             self.createEntity(data);
         });
     }
-
-    /*spawnEntity: function(kind, x, y, map) {
-        var self = this;
-        var entity;
-        if (NpcData.isNpc(kind)) {
-            entity = self.addNpc(kind, x, y, map);
-        }
-        else if (MobData.isMob(kind)) {
-            entity = self.addMob(kind, x, y);
-        }
-        return entity;
-    },*/
 
     addEntity(entity) {
         this.entities.set(entity.id, entity);
