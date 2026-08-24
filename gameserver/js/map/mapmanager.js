@@ -298,18 +298,10 @@ class MapManager {
                                         100
                                     )
                                 );
-                                const node = new Node(
-                                    ++map.entities.entityCount,
-                                    3,
-                                    pos.x,
-                                    pos.y,
-                                    map,
-                                    level
-                                );
+                                const node = map.entities.addNode(3, pos.x, pos.y, level);
                                 node.name = 'node1';
                                 node.weaponType = 'any';
                                 area.addToArea(node);
-                                map.entities.addEntity(node);
                             }
                         } else if (id === 6) {
                             level = 2;
@@ -321,18 +313,11 @@ class MapManager {
                                         100
                                     )
                                 );
-                                const node = new Node(
-                                    ++map.entities.entityCount,
-                                    3,
-                                    pos.x,
-                                    pos.y,
-                                    map,
-                                    level
-                                );
+                                const node = map.entities.addNode(3, pos.x, pos.y, level);
                                 node.name = 'node2';
                                 node.weaponType = 'any';
+
                                 area.addToArea(node);
-                                map.entities.addEntity(node);
                             }
                         } else if (id > 10) {
                             level = Utils.clamp(1, 4, ~~(id / 10) + 1);
@@ -344,14 +329,7 @@ class MapManager {
                                         100
                                     )
                                 );
-                                const node = new Node(
-                                    ++map.entities.entityCount,
-                                    2,
-                                    pos.x,
-                                    pos.y,
-                                    map,
-                                    level
-                                );
+                                const node = map.entities.addNode(2, pos.x, pos.y, level);
                                 node.name = 'node' + level;
                                 node.weaponType = 'hammer';
                                 area.addToArea(node);
@@ -361,7 +339,7 @@ class MapManager {
 
                         // A couple of chests per ring, scaled to the same
                         // level as whatever nodes that ring got above.
-                        if (i >= 10) {
+                        if (id >= 10) {
                             level = Utils.clamp(1, 4, ~~(id / 10) + 1);
                             const chestPos =
                                 map.entities.spaceEntityRandomApart(
@@ -371,16 +349,8 @@ class MapManager {
                                         100
                                     )
                                 );
-                            const chestNode = new Node(
-                                ++map.entities.entityCount,
-                                Node.CHEST_KIND,
-                                chestPos.x,
-                                chestPos.y,
-                                map,
-                                level
-                            );
+                            const chestNode = map.entities.addNode(Node.CHEST_KIND, chestPos.x, chestPos.y, level);
                             area.addToArea(chestNode);
-                            map.entities.addEntity(chestNode);
                         }
                     }
                 }

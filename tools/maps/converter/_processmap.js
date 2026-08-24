@@ -10,13 +10,11 @@ const EntityTypes = {
 	PLAYER: 1,
 	MOB: 2,
 	ITEM: 3,
-	ITEMLOOT: 4,
-	NPCSTATIC: 5,
-	NPCMOVE: 6,
-	CHEST: 7,
-	BLOCK: 8,
-	TRAP: 9,
-	NODE: 10
+	NPCSTATIC: 4,
+	NPCMOVE: 5,
+	BLOCK: 6,
+	TRAP: 7,
+	NODE: 8
 };
 
 var map, mode;
@@ -35,7 +33,7 @@ module.exports = function processMap(json, jsontsx, options) {
     var self = this, TiledJSON = json, TsxJSON = jsontsx;
     var layerIndex = 0, tileIndex = 0;
 
-    
+
     map = {
         width: 0,
         height: 0,
@@ -48,7 +46,7 @@ module.exports = function processMap(json, jsontsx, options) {
     };
 
     mode = options.mode;
-    
+
     if(mode === "client") {
         map.data = [];
         map.high = [];
@@ -66,12 +64,12 @@ module.exports = function processMap(json, jsontsx, options) {
     console.info("Processing map info...");
     map.width = TiledJSON.width;
     map.height = TiledJSON.height;
-    
+
     var length = map.width * map.height;
     for(var i = 0; i < length; i += 1)
         if (!map.data[i])
             map.data[i] = 0;
-    
+
     if (TiledJSON.editorsettings && TiledJSON.editorsettings.chunksize)
     {
         map.chunkWidth = TiledJSON.editorsettings.chunksize.width;
@@ -79,7 +77,7 @@ module.exports = function processMap(json, jsontsx, options) {
     }
     map.tilesize = TiledJSON.tilewidth;
     console.debug("Map is [" + map.width + "x" + map.height + "] Tile Size: " + map.tilesize);
-    
+
     var length = map.width * map.height;
     for(var i = 0; i < length; i += 1)
         map.collision[i] = 0;
@@ -109,7 +107,7 @@ module.exports = function processMap(json, jsontsx, options) {
             console.info(value);
 
         if (value.hasOwnProperty("properties")) {
-            
+
             //console.info("properties:"+JSON.stringify(value.properties));
             var prop = getPropertyXmlList(value.properties);
             //console.log("prop:"+JSON.stringify(prop));
@@ -146,7 +144,7 @@ module.exports = function processMap(json, jsontsx, options) {
             console.info("** Processing map checkpoints...");
             var areas = layer.objects;
             var count = 0;
-            
+
             // iterate through the checkpoints
             _.each(areas, function(area) {
                 console.info(JSON.stringify(area));
@@ -169,7 +167,7 @@ module.exports = function processMap(json, jsontsx, options) {
             console.info("** Processing map camera...");
             var areas = layer.objects;
             var count = 0;
-            
+
             // iterate through the checkpoints
             _.each(areas, function(area) {
                 console.info(JSON.stringify(area));
@@ -247,16 +245,28 @@ module.exports = function processMap(json, jsontsx, options) {
                          for(var i = 0; i < areas.length; i++){
                              var prop = getPropertyList(areas[i].properties);
                              //console.info(JSON.stringify(prop));
-                             var entityArea = {
+                             var entity = {
                                  x: ~~(areas[i].x),
                                  y: ~~(areas[i].y),
                                  type: getEntityType(prop.type),
-                                 id: prop.id,
-                                 name: prop.name || "",
+                                 id: prop.id
                              };
-                             if (prop.quests) {
-                                 entityArea.quests = prop.quests;
+                             if (prop.name) {
+                                 entity.name = prop.name;
                              }
+                             if (prop.quests) {
+                                 entity.quests = prop.quests;
+                             }
+                             if (prop.level) {
+                                 entity.level = prop.level;
+                             }
+                             if (prop.durability) {
+                                 entity.durability = prop.durability;
+                             }
+                             if (prop.durabiltyMax) {
+                                 entity.durabiltyMax = prop.durabiltyMax;
+                             }
+
                              map.entities.push(entityArea);
                          }
                      }
@@ -319,14 +329,10 @@ var getEntityType = function (type) {
 		return EntityTypes.MOB;
 	else if (type === "item")
 		return EntityTypes.ITEM;
-	else if (type === "itemloot")
-		return EntityTypes.ITEMLOOT;
 	else if (type === "npc" || type === "npcstatic")
 		return EntityTypes.NPCSTATIC;
 	else if (type === "npcmove")
 		return EntityTypes.NPCMOVE;
-	else if (type === "chest")
-		return EntityTypes.CHEST;
 	else if (type === "block")
 		return EntityTypes.BLOCK;
 	else if (type === "trap")
@@ -389,7 +395,7 @@ var processLayer = function(layer) {
     //console.info("** Processing layer: " + layerName);
 
     var tiles = layer.data;
-    
+
     if(layerName === "plateau") {
         // FIX: this branch used to be gated on `mode === "client"`, so it
         // only ever ran (and skipped the layer) for client builds. For
@@ -425,8 +431,8 @@ var processLayer = function(layer) {
             }
         }
     }
-    else if(layerType === "tilelayer" && /*layer.visible !== 0 &&*/ 
-        layerName !== "_entities" && layerName !== "collision") 
+    else if(layerType === "tilelayer" && /*layer.visible !== 0 &&*/
+        layerName !== "_entities" && layerName !== "collision")
     {
         //console.info("*** Process raw layer data...");
         for(var j = 0; j < tiles.length; j += 1) {
@@ -452,4 +458,3 @@ var processLayer = function(layer) {
         }
     }
 }
-

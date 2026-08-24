@@ -22,21 +22,17 @@ import { Types } from '../common.js';
 class Trap extends EntityMoving {
     // See block.js note: `type` is computed into a local before super() since
     // `this` cannot be touched beforehand under native ES6 class rules.
-    constructor(id, kind, x, y, map, parent, name, ix, iy) {
+    constructor(id, kind, x, y, map, parent, name) {
         const type = Types.EntityTypes.TRAP;
         super(id, type, kind, x, y, map);
         this.type = type;
         this.parent = parent;
-        this.ix = ix;
-        this.iy = iy;
         this.name = name;
         this.active = true;
     }
 
     getState() {
         return this._getBaseState().concat([
-            parseInt(this.ix),
-            parseInt(this.iy),
             parseInt(this.active ? 1 : 0)
         ]);
     }

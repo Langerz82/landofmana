@@ -181,13 +181,11 @@ const Types = {
         PLAYER: 1,
         MOB: 2,
         ITEM: 3,
-        ITEMLOOT: 4,
-        NPCSTATIC: 5,
-        NPCMOVE: 6,
-        CHEST: 7,
-        BLOCK: 8,
-        TRAP: 9,
-        NODE: 10
+        NPCSTATIC: 4,
+        NPCMOVE: 5,
+        BLOCK: 6,
+        TRAP: 7,
+        NODE: 8
     },
 
     Keys: {

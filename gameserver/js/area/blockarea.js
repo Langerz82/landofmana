@@ -28,18 +28,8 @@ class BlockArea extends EntityArea {
             for (let i = 0; i < width; ++i) {
                 id = startID + (width * j + i);
                 blockName = 'block' + kind + '-' + j + '_' + i;
-                const block = new Block(
-                    id,
-                    kind,
-                    this.x + i * G_TILESIZE,
-                    this.y + j * G_TILESIZE,
-                    this.map,
-                    this,
-                    blockName,
-                    i,
-                    j
-                );
-                this.map.entities.addBlock(block);
+
+                let block = this.map.entities.addBlock(kind, x, y, this, blockName);
                 this.blocks.push(block);
             }
         }
