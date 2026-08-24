@@ -339,7 +339,7 @@ class MapManager {
 
                         // A couple of chests per ring, scaled to the same
                         // level as whatever nodes that ring got above.
-                        if (i >= 10) {
+                        if (id >= 10) {
                             level = Utils.clamp(1, 4, ~~(id / 10) + 1);
                             const chestPos =
                                 map.entities.spaceEntityRandomApart(
