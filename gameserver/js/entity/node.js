@@ -21,7 +21,6 @@ class Node extends Entity {
         // table and open duration differ.
         if (kind === Node.CHEST_KIND) {
             this.isChest = true;
-            this.weaponType = 'any';
             this.spriteName = 'chest';
             // NOTE: the client's Node.getAnimationByName() override looks up
             // the animation by `this.name`, not by the orientation-suffixed
@@ -38,6 +37,7 @@ class Node extends Entity {
             this.spriteName = 'nodeset' + kind;
         }
         this.animName = 'idle';
+        this.weaponType = 'any';
     }
 
     getState() {

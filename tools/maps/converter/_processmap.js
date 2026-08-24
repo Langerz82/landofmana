@@ -326,6 +326,8 @@ module.exports = function processMap(json, jsontsx, options) {
                  if (prop.durability) entityarea.durability = prop.durability;
                  if (prop.durabiltyMax) entityarea.durabiltyMax = prop.durabiltyMax;
                  if (prop.animName) entityarea.animName = prop.animName;
+                 if (prop.weaponType) entityarea.weaponType = prop.weaponType;
+
                  entityarea.distanceApart = prop.distanceApart ?? 0;
 
                  map.entityAreas.push(entityarea);

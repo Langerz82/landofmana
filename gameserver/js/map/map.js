@@ -349,6 +349,7 @@ class Map {
             if (area.durability) data.durability = area.durability;
             if (area.durabiltyMax) data.durabiltyMax = area.durabiltyMax;
             if (area.animName) data.animName = area.animName;
+            if (area.weaponType) data.weaponType = area.weaponType;
 
             const distApart = data.distanceApart ?? 0;
             entityarea.addEntities(data, distApart);
