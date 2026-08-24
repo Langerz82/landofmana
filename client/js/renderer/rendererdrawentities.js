@@ -146,6 +146,21 @@ export function installRendererDrawEntities(proto) {
                 const entityCameraArea = game.mapContainer.getCurrentCameraArea(entity);
                 res = currentCameraArea === entityCameraArea;
                 self.entityVisible(entity, res);
+
+                // FIX: entityVisible() only toggles entity.pjsSprites (the entity's own
+                // sprite/weapon), not the nameplate (or health bar) text sprites drawn by
+                // drawEntityName()/showHealthBar(). Those live in this.pxSprite keyed by
+                // 'en_'/'healthbar_*' + id and are only ever updated when drawEntityName()/
+                // showHealthBar() run below - which is skipped whenever res is false. Without
+                // this, an entity that becomes hidden by a camera-bounds/area switch (while
+                // still on screen and thus still in newlyVisible) keeps its last-drawn
+                // nameplate floating at its last position indefinitely, since nothing else
+                // clears it. Explicitly tear both down here, same as removeEntityStuff() does
+                // on death/removal.
+                if (!res) {
+                    self.removeEntityName(entity.id);
+                    self.removeHealthBar(entity.id);
+                }
             }
 
             if (res) {
