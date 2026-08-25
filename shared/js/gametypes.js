@@ -184,8 +184,8 @@ const Types = {
         ITEMLOOT: 4,
         NPCSTATIC: 5,
         NPCMOVE: 6,
-        BLOCK: 7,
-        TRAP: 8,
+        BLOCK: 8,
+        TRAP: 9,
         NODE: 10
     },
 
