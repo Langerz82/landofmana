@@ -302,7 +302,7 @@ class MapManager {
                                 );
                                 const node = map.entities.addNode(3, pos.x, pos.y);
                                 node.level = level;
-                                node.name = 'node' + level;
+                                node.animName = 'node' + level;
                                 node.weaponType = 'any';
                                 area.addToArea(node);
                             }
@@ -318,7 +318,7 @@ class MapManager {
                                 );
                                 const node = map.entities.addNode(3, pos.x, pos.y);
                                 node.level = level;
-                                node.name = 'node' + level;
+                                node.animName = 'node' + level;
                                 node.weaponType = 'any';
 
                                 area.addToArea(node);
@@ -335,7 +335,7 @@ class MapManager {
                                 );
                                 const node = map.entities.addNode(2, pos.x, pos.y);
                                 node.level = level;
-                                node.name = 'node' + level;
+                                node.animName = 'node' + level;
                                 node.weaponType = 'hammer';
                                 area.addToArea(node);
                                 map.entities.addEntity(node);

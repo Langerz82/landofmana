@@ -322,6 +322,7 @@ module.exports = function processMap(json, jsontsx, options) {
                  if (prop.kind) entityarea.kind = prop.kind;
                  if (prop.count) entityarea.count = prop.count;
                  if (prop.name) entityarea.name = prop.name;
+                 if (prop.spriteName) entityarea.spriteName = prop.spriteName;
                  if (prop.level) entityarea.level = prop.level;
                  if (prop.durability) entityarea.durability = prop.durability;
                  if (prop.durabiltyMax) entityarea.durabiltyMax = prop.durabiltyMax;

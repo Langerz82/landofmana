@@ -281,7 +281,9 @@ class MapEntities {
             entity = this.addNode(data.kind, data.x, data.y);
             if (data.level) entity.level = data.level;
             if (data.name) entity.name = data.name;
+            if (data.spriteName) entity.spriteName = data.spriteName;
             if (data.weaponType) entity.weaponType = data.weaponType;
+            if (data.animName) entity.animName = data.animName;
         }
         return entity;
     }

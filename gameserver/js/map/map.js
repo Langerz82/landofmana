@@ -353,6 +353,7 @@ class Map {
             if (area.durabiltyMax) data.durabiltyMax = area.durabiltyMax;
             if (area.animName) data.animName = area.animName;
             if (area.weaponType) data.weaponType = area.weaponType;
+            if (area.spriteName) data.spriteName = area.spriteName;
             console.info("initEntityAreas data: "+JSON.stringify(data));
             const distApart = area.distanceApart ?? 0;
             entityarea.addEntities(data, distApart);
