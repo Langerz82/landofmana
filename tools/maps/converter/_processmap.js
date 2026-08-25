@@ -6,15 +6,16 @@ var fs = require("fs"),
 
 
 const EntityTypes = {
-	NONE: 0,
-	PLAYER: 1,
-	MOB: 2,
-	ITEM: 3,
-	NPCSTATIC: 4,
-	NPCMOVE: 5,
-	BLOCK: 6,
-	TRAP: 7,
-	NODE: 8
+    NONE: 0,
+    PLAYER: 1,
+    MOB: 2,
+    ITEM: 3,
+    ITEMLOOT: 4,
+    NPCSTATIC: 5,
+    NPCMOVE: 6,
+    BLOCK: 7,
+    TRAP: 8,
+    NODE: 10
 };
 
 var map, mode;
@@ -360,6 +361,8 @@ var getEntityType = function (type) {
 		return EntityTypes.MOB;
 	else if (type === "item")
 		return EntityTypes.ITEM;
+    else if (type === "itemloot")
+		return EntityTypes.ITEMLOOT;
 	else if (type === "npc" || type === "npcstatic")
 		return EntityTypes.NPCSTATIC;
 	else if (type === "npcmove")

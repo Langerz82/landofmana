@@ -1416,8 +1416,9 @@ class DatabaseHandler {
 // Mixes replaceSkills/removeOldValues/purgeStaleNewQuests/
 // insertMissingPlayerKeys/createPlayerKeys/migrateGoldFields/
 // migrateGold1ToUser/renameGold1ToBankGold/migrateBankToUser/
-// migrateLooksToBase64 (migration.js) onto DatabaseHandler.prototype, so
-// every `this.<name>(...)` call above --
+// migrateLooksToBase64/resetLegacyLooksToDefault/wipeAllNewQuests
+// (migration.js) onto DatabaseHandler.prototype, so every `this.<name>(...)`
+// call above --
 // in the constructor, and between these functions themselves -- keeps
 // resolving exactly as it did back when they were defined as methods
 // directly on this class.

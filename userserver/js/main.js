@@ -464,6 +464,36 @@ function fixLegacyLooks() {
     });
 }
 
+// One-off, admin-triggered console command -- unconditionally clears every
+// player's in-progress quest list ('newquests'/'newquests2'), every single
+// time it's run. Unlike fixLegacyLooks() above (which repairs stragglers
+// left over from one specific historical migration and is safe to leave
+// running repeatedly since it's a no-op once an account is clean), this has
+// no "already handled" flag and no notion of stale-vs-current data -- it
+// wipes whatever's currently saved, full stop. Run it deliberately, e.g.
+// right after a quest-content change that would otherwise leave players
+// stuck holding quest progress that no longer lines up with the new
+// quest/NPC data. See migration.js's wipeAllNewQuests() for the full
+// rationale.
+function wipeNewQuests() {
+    if (!global.DBH) {
+        console.error('wipenewquests: database not ready yet.');
+        return;
+    }
+    console.info('wipenewquests: starting...');
+    global.DBH.wipeAllNewQuests((err) => {
+        if (err) {
+            console.error(
+                'wipenewquests: finished with errors -- see log above.'
+            );
+            return;
+        }
+        console.info(
+            'wipenewquests: done -- see log above for how many players were wiped.'
+        );
+    });
+}
+
 function getInput(cmd) {
     const args = cmd.split(' ');
     const cmdarg = args[0];
@@ -477,6 +507,9 @@ function getInput(cmd) {
             break;
         case 'fixlegacylooks':
             fixLegacyLooks();
+            break;
+        case 'wipenewquests':
+            wipeNewQuests();
             break;
         case 'replay': {
             // reject.log has a ready `replay <packet>` line for every

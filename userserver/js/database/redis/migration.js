@@ -9,13 +9,14 @@
 // attaches to it) -- but unlike the plain CRUD primitives that make up the
 // rest of that file, every function below either mutates the keyspace in
 // bulk (replaceSkills, removeOldValues, insertMissingPlayerKeys,
-// createPlayerKeys, resetLegacyLooksToDefault) or exists purely to move
-// already-saved data from an old storage scheme to a new one, once, at
-// startup (purgeStaleNewQuests, migrateGoldFields, migrateGold1ToUser,
-// renameGold1ToBankGold, migrateBankToUser, migrateLooksToBase64). Most of
-// the bulk-mutation group runs automatically too (see migrationReady,
-// redis.js), but two -- replaceSkills and resetLegacyLooksToDefault -- are
-// deliberately manual/on-demand instead; see each one's own comment for why.
+// createPlayerKeys, resetLegacyLooksToDefault, wipeAllNewQuests) or exists
+// purely to move already-saved data from an old storage scheme to a new
+// one, once, at startup (purgeStaleNewQuests, migrateGoldFields,
+// migrateGold1ToUser, renameGold1ToBankGold, migrateBankToUser,
+// migrateLooksToBase64). Most of the bulk-mutation group runs automatically
+// too (see migrationReady, redis.js), but three -- replaceSkills,
+// resetLegacyLooksToDefault, and wipeAllNewQuests -- are deliberately
+// manual/on-demand instead; see each one's own comment for why.
 //
 // These are exported as `migrationMethods` and mixed onto
 // DatabaseHandler.prototype (see the bottom of redis.js) rather than kept
@@ -1550,6 +1551,86 @@ function resetLegacyLooksToDefault(callback) {
     });
 }
 
+// ONE-OFF, MANUAL, ADMIN-TRIGGERED, REPEATABLE -- unlike purgeStaleNewQuests()
+// above, this is NOT wired into migrationReady (redis.js's constructor),
+// doesn't run on its own at startup, and isn't gated behind a "run once
+// ever" flag. It's invoked explicitly (see main.js's "wipenewquests" admin
+// console command) whenever an operator wants to unconditionally clear
+// every player's in-progress quest list right now -- e.g. after a
+// quest-content change that leaves currently-saved 'newquests'/'newquests2'
+// entries pointing at quest/NPC data that no longer exists or no longer
+// matches, the same class of problem purgeStaleNewQuests() was built to
+// clean up once for the npcQuestId format change, but here triggered on
+// demand and re-runnable, rather than tied to that one historical migration
+// and its self-disabling 'migrations:newquests_purged' flag.
+//
+// Deliberately has no flag and no staleness check -- every call wipes
+// whatever's currently saved, not just leftovers from before some cutoff.
+// That's the whole point (an operator decides when it's needed), so don't
+// add a "already run" guard here the way purgeStaleNewQuests() has one --
+// doing so would silently turn the second and every later intentional call
+// into a no-op.
+//
+// Deletes both 'newquests' (the live saveQuests()/loadQuests() field) and
+// 'newquests2' for every player key found via scanKeys('p:*', ...) -- same
+// scan/multi-hdel shape as purgeStaleNewQuests() above. hdel on a field
+// that isn't present is a harmless no-op, so players with no in-progress
+// quests are simply skipped over (still counted, not treated as an error).
+//
+// `callback(err)` fires once every player has been checked -- err is the
+// first error encountered, if any (every player is still attempted even if
+// an earlier one fails).
+function wipeAllNewQuests(callback) {
+    client.scanKeys('p:*', (err, keys) => {
+        if (err) {
+            if (callback) callback(err);
+            return;
+        }
+
+        if (keys.length === 0) {
+            console.info(
+                'wipeAllNewQuests: no players found, nothing to wipe.'
+            );
+            if (callback) callback(null);
+            return;
+        }
+
+        let remaining = keys.length;
+        let firstError = null;
+
+        const checkDone = () => {
+            remaining--;
+            if (remaining === 0) {
+                console.info(
+                    'wipeAllNewQuests: complete -- wiped newquests for ' +
+                        keys.length +
+                        ' player(s).'
+                );
+                if (callback) callback(firstError);
+            }
+        };
+
+        for (const pKey of keys) {
+            client
+                .multi()
+                .hdel(pKey, 'newquests')
+                .hdel(pKey, 'newquests2')
+                .exec((err2) => {
+                    if (err2) {
+                        console.error(
+                            'wipeAllNewQuests: hdel failed for ' +
+                                pKey +
+                                ': ' +
+                                JSON.stringify(err2)
+                        );
+                        firstError = firstError || err2;
+                    }
+                    checkDone();
+                });
+        }
+    });
+}
+
 // Mixed onto DatabaseHandler.prototype in redis.js (Object.assign, right
 // after the class declaration) rather than exported/used individually, so
 // every function above keeps running as an instance method -- called as
@@ -1566,5 +1647,6 @@ export const migrationMethods = {
     renameGold1ToBankGold,
     migrateBankToUser,
     migrateLooksToBase64,
-    resetLegacyLooksToDefault
+    resetLegacyLooksToDefault,
+    wipeAllNewQuests
 };

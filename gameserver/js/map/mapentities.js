@@ -240,7 +240,9 @@ class MapEntities {
             if (data.level)
                 entity.level = data.level;
         }
-        else if (data.type === Types.EntityTypes.ITEM) {
+        else if (data.type === Types.EntityTypes.ITEM ||
+            data.type === Types.EntityTypes.ITEMLOOT)
+        {
             let itemRoom = new ItemRoom([data.kind, 1, null, null, 0]);
             if (data.durability)
                 itemRoom.itemDurability = data.durabilty;
@@ -502,7 +504,7 @@ class MapEntities {
         let item = null;
 
         let type = Types.EntityTypes.ITEM;
-        if (!ItemTypes.isEquippable(itemRoom.itemKind))
+        if (ItemTypes.isLootItem(itemRoom.itemKind))
             type = Types.EntityTypes.ITEMLOOT;
         item = new Item(type, id, itemRoom, x, y, this.map);
         this.addItem(item);
