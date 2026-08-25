@@ -61,6 +61,13 @@ class PlayerCallback {
                     'onStopPathing - p.id' + p.id + 'p.x:' + p.x + ',p.y=' + p.y
                 );
             attackFunc(p);
+            // FIX: drains any CW_HARVEST/CW_USE_NODE queued by
+            // worldActionHandler.handleHarvest()/handleUseNode() while this player was
+            // still mid-click-to-move - same "queue while moving, replay once the
+            // server's own path simulation actually stops" pattern attackFunc() above
+            // already uses for CW_ATTACK. See worldactionhandler.js's FIX comment on
+            // handleHarvest() for the click-to-move race this closes.
+            p.packetHandler.worldActionHandler.processHarvest();
         };
 
         const abortPathing = function (p, path, x, y) {

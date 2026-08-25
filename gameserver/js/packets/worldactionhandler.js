@@ -250,22 +250,66 @@ class WorldActionHandler {
         p.map.entities.sendNeighbours(p, sendMsg, p);
     }
 
+    // FIX: handleHarvest/handleUseNode used to validate and act immediately, every time -
+    // including while the player was still mid-click-to-move toward the tile/node they were
+    // aiming for. The client only ever sends CW_HARVEST/CW_USE_NODE once, right when its own
+    // *local* path simulation believes it has arrived (see game.js's onStopPathing ->
+    // makePlayerInteractNextTo chain, client-side) - but the server runs its own
+    // independently-timed path simulation for the same movement (movePath()/nextStep(),
+    // driven by updater.js's per-tick updatePlayerPathMovement(), not applied instantly), and
+    // that simulation typically hasn't reached the final tile yet by the time the packet
+    // arrives, since it can only start once the earlier CW_MOVEPATH packet has made its own
+    // network trip. So p.isNextTooTile()/_checkHarvest()'s isNextTooPosition() checked the
+    // player's *not-yet-arrived* server position and rejected a perfectly valid interaction
+    // with HARVEST_INVALID ("You cannot use this at this time"), even though the player was
+    // genuinely standing next to the tile/node a moment later.
+    //
+    // Mirrors the identical fix already in place for attacks (combathandler.js's
+    // attackQueue/processAttack()): while the player is still moving, queue the raw packet
+    // instead of validating it against a position that's about to change anyway; playercallback.js's
+    // stopPathing() (fired once the player's *server-side* path simulation actually
+    // completes/stops - clean arrival or interrupted redirect alike) calls processHarvest()
+    // right alongside the existing attack queue drain, which re-runs the exact same
+    // validation these handlers always ran, just against the player's by-then-settled
+    // position. A genuinely invalid attempt (too far, node gone, wrong tool) still gets
+    // rejected correctly at that point - this only removes the race, not the check.
     handleHarvest(msg) {
-        const x = parseInt(msg[0], 10),
-            y = parseInt(msg[1], 10);
+        const p = this.player;
 
-
-        if (!this.player.isNextTooTile(x,y)) {
-            if (G_DEBUG) console.info("player is not nextTooTile.");
+        // FIX: queue-and-replay instead of validating against a position that's about to
+        // change. By the time processHarvest() below re-invokes this same method with the
+        // same `msg`, _stopPath() (entitymovingpath.js) has already cleared `p.path` and
+        // stopped `p.movement` *before* firing the stop_pathing_callback that leads here (see
+        // its body), so isMoving()/isMovingPath() are guaranteed false on that second call -
+        // it falls straight through to the real check/action below, just against the
+        // player's by-then-settled position. No separate "process" method needed: this
+        // handler already *is* that method, just called a second time.
+        if (p.isMoving() || p.isMovingPath()) {
+            p.harvestQueue = { kind: 'tile', msg };
             return;
         }
 
-        this.player.harvest.onHarvest(x, y);
+        const x = parseInt(msg[0], 10),
+            y = parseInt(msg[1], 10);
+
+        if (!p.isNextTooTile(x, y)) {
+            if (G_DEBUG) console.info('player is not nextTooTile.');
+            return;
+        }
+
+        p.harvest.onHarvest(x, y);
     }
 
     handleUseNode(msg) {
-        const id = parseInt(msg[0]);
         const p = this.player;
+
+        // FIX: see handleHarvest()'s FIX comment just above - same queue-and-replay pattern.
+        if (p.isMoving() || p.isMovingPath()) {
+            p.harvestQueue = { kind: 'entity', msg };
+            return;
+        }
+
+        const id = parseInt(msg[0]);
         const entity = p.map.entities.getEntityById(id);
         // FIX: any entity id the client has seen was accepted here, not
         // just Node ids -- onHarvestEntity() (playerharvest.js) happened to
@@ -279,7 +323,24 @@ class WorldActionHandler {
         // did. Checking the type here is cheap and makes the real invariant
         // explicit.
         if (entity && entity instanceof Node)
-            this.player.harvest.onHarvestEntity(entity);
+            p.harvest.onHarvestEntity(entity);
+    }
+
+    // Companion to processAttack() (combathandler.js) - drains whichever harvest packet
+    // (tile or node) got queued by handleHarvest()/handleUseNode() while the player was
+    // still moving, by just calling that same handler again with the msg it was given the
+    // first time. See the FIX comment on handleHarvest() above for why that second call is
+    // guaranteed to fall through to the real check/action instead of re-queuing itself.
+    processHarvest() {
+        const p = this.player;
+
+        if (!p.harvestQueue) return;
+
+        const { kind, msg } = p.harvestQueue;
+        p.harvestQueue = null;
+
+        if (kind === 'tile') this.handleHarvest(msg);
+        else this.handleUseNode(msg);
     }
 }
 
