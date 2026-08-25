@@ -107,10 +107,71 @@ export function installMapContainerDoors(proto) {
         return areas;
     };
 
+    // FIX (camera bounds switch on overlap): `_.detect` (first-match-wins,
+    // in map data array order) meant that whenever two cameraArea's
+    // overlapped - or simply shared a boundary tile after
+    // getCameraAreaGridBounds()'s floor/ceil tile-grid conversion - a player
+    // standing on that shared tile could never actually switch bounds: as
+    // long as the OLD (already-active) area still contained the entity too,
+    // it kept winning purely because it happened to sit earlier in
+    // `this.camera`, even though the player had just walked onto a tile
+    // that's also within a different camera bounds. That's the exact
+    // "within a camera bounds and encounters another camera bounds on the
+    // same tile" case - the new bounds should take over.
+    //
+    // FIX (flicker): a first attempt at the above fix compared each area
+    // only against `this.currentCameraArea` (the still-previous value at
+    // call time). That switches correctly the FIRST time the player steps
+    // onto an overlap tile (A -> B), but is symmetric: the very next
+    // re-check (another tile step deeper into the still-overlapping band,
+    // or just a spurious re-run of moveGrid() from some unrelated
+    // forceRedraw while standing still - _updateGrid() is only tile-change
+    // gated, not frame-gated) now has `current === B`, and since A still
+    // also contains the entity, the same logic "prefers the other match"
+    // and switches straight back to A - then back to B next time, and so on,
+    // flickering for as long as the player remains on any tile both areas
+    // cover. Fixed by remembering the *set* of areas that contained the
+    // entity on the previous check (`this._prevCameraAreas`) and only ever
+    // switching to an area that is contains-now-but-didn't-before (a truly
+    // FRESH entry) - an area the player was already standing in alongside
+    // the current one no longer counts as "encountered", so the switch away
+    // from it fires exactly once and subsequent checks that still see both
+    // areas simply keep the current one. Reduces to the old first-match
+    // behavior whenever at most one area contains the entity, or there's no
+    // previously active area yet (e.g. right after spawn).
     proto.getCurrentCameraArea = function (entity) {
-        return _.detect(this.camera, function (area) {
-            return area.contains(entity);
-        });
+        if (!entity) {
+            this._prevCameraAreas = [];
+            return undefined;
+        }
+
+        const current = this.currentCameraArea;
+        const prevContaining = this._prevCameraAreas || [];
+
+        const containing = [];
+        let currentStillContains = false;
+        let freshlyEntered;
+
+        for (let i = 0; i < this.camera.length; ++i) {
+            const area = this.camera[i];
+            if (!area.contains(entity)) continue;
+
+            containing.push(area);
+
+            if (area === current) {
+                currentStillContains = true;
+            } else if (!freshlyEntered && prevContaining.indexOf(area) === -1) {
+                freshlyEntered = area;
+            }
+        }
+
+        this._prevCameraAreas = containing;
+
+        if (freshlyEntered) return freshlyEntered;
+        if (currentStillContains) return current;
+        if (containing.length) return containing[0];
+
+        return undefined;
     };
 
     // Converts a cameraArea's pixel-space Area (x/y/width/height, straight

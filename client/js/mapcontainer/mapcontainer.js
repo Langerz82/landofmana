@@ -201,6 +201,12 @@ export default class MapContainer {
         // stale reference here would make the _updateScrollBounds() call
         // just below compute bounds against the WRONG map's area.
         this.currentCameraArea = null;
+        // Paired with currentCameraArea above - getCurrentCameraArea()
+        // (mapcontainerdoors.js) uses this to tell a freshly-entered
+        // cameraArea apart from one the player was already standing in, so
+        // it must not carry Area references from the previous map's
+        // (rebuilt) `this.camera` array into this one.
+        this._prevCameraAreas = [];
 
         // gcsx/gcsy are computed by _updateScrollBounds() itself now (see its
         // own comment) - they come out as 0 here since this.currentCameraArea

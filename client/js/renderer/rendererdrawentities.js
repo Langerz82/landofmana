@@ -143,8 +143,29 @@ export function installRendererDrawEntities(proto) {
 
             if (currentCameraArea)
             {
-                const entityCameraArea = game.mapContainer.getCurrentCameraArea(entity);
-                res = currentCameraArea === entityCameraArea;
+                // FIX (player disappears re-entering an overlapping camera
+                // bounds): this used to call getCurrentCameraArea(entity)
+                // again here and compare the two picks for equality. That
+                // method (mapcontainerdoors.js) is stateful now - it tracks
+                // history (`this._prevCameraAreas`) so the FOCUS entity's
+                // active bounds switch once and don't flicker back and
+                // forth on an overlap tile (see its own comment) - and that
+                // history is a single, shared, per-MapContainer slot. Every
+                // on-screen entity gets run through it here, once per frame,
+                // in `camera.forEachInScreen` iteration order, which
+                // clobbers the very history _updateGrid() just built up for
+                // the player right before this - so by the time this loop
+                // reached the player entity again, getCurrentCameraArea(player)
+                // could resolve to a DIFFERENT area than the
+                // `currentCameraArea` _updateGrid() had just locked in,
+                // making `res` false and hiding the player entirely. What
+                // this check actually needs isn't "does this entity
+                // independently resolve to the same area" at all - it's
+                // simply "is this entity physically inside the bounds
+                // currently framing the camera", which a stateless
+                // Area.contains() answers directly without touching (or
+                // being confused by) that per-focus-entity history.
+                res = currentCameraArea.contains(entity);
                 self.entityVisible(entity, res);
 
                 // FIX: entityVisible() only toggles entity.pjsSprites (the entity's own

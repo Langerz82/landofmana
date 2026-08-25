@@ -390,6 +390,25 @@ export default class Game {
         if (this.entities.has(entity.id)) {
             const id = entity.id;
             if (this.player.target === entity) {
+                // FIX: a harvest node that gets fully depleted is despawned by the
+                // server and torn down here via onDespawnEntity -> game.removeEntity()
+                // (clientcallbacksspawn.js), which reaches this branch since the node
+                // was the player's target. This used to only clearTarget() (a bare
+                // `this.target = null`), but Player.harvestOn()'s (player.js) own
+                // self-stop check is `if (self.target && !(self.target.type ===
+                // NODE)) forceStop()` - it only stops harvesting when the target
+                // switches to a *different, non-node* entity, never when the target
+                // just goes away to null. So clearing the target here silently left
+                // the harvest fsm/interval running forever: the player kept playing
+                // the harvest animation (and the harvest bar kept showing, see
+                // rendererdrawentities.js's showHarvestBar gate on
+                // startHarvestTime > 0) even though the node they were harvesting no
+                // longer existed. forceStop() (playerlocalmovement.js) calls
+                // harvestOff() first thing and is already called unconditionally from
+                // many unrelated places, so it's safe/idempotent here too - use it
+                // instead of a bare clearTarget() so losing the target this way
+                // actually stops harvesting (and any other target-driven action).
+                this.player.forceStop();
                 this.player.clearTarget();
                 this.player.targetIndex = 0;
             }
