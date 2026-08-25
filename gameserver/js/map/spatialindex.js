@@ -34,16 +34,14 @@ class SpatialIndex {
         const x2 = ~~(Math.min(arr[2], this.map.width - 1) / this.spatialSize);
         const y2 = ~~(Math.min(arr[3], this.map.height - 1) / this.spatialSize);
 
+        // CLEANUP: dropped the unused `l1`/`l2` locals and the commented-out
+        // bounds check they backed -- x1/y1/x2/y2 are already clamped above
+        // (Math.max(...,0) / Math.min(...,map dimension-1) before dividing by
+        // spatialSize) so every (j,i) pair visited here is always a valid
+        // index into `this.spatial`; the check was dead even as a comment.
         const res = [];
-        const l1 = this.spatial.length;
-        let l2 = 0;
-        for (let j = y1, i = 0; j <= y2; ++j) {
-            l2 = this.spatial[j].length;
-            for (i = x1; i <= x2; ++i) {
-                /*if (j < 0 || j >= l1)
-                  continue;
-                if (i < 0 || i >= l2)
-                  continue;*/
+        for (let j = y1; j <= y2; ++j) {
+            for (let i = x1; i <= x2; ++i) {
                 for (const entity of this.spatial[j][i]) {
                     if (!entity) continue;
                     res.push(entity);

@@ -198,6 +198,24 @@ class PartyHandler {
         // real party leader could never kick anyone (always fell through to
         // "PARTY_CANNOT_KICK" below). Compare by name instead.
         if (this.player.name === party.leader) {
+            // FIX: this never checked that player2 was actually IN the
+            // party before "kicking" them -- party.removeName() already
+            // safely no-ops for a non-member (see playergroup.js), so
+            // nothing broke structurally, but the PARTY_PLAYER_KICKED
+            // notify just below fired unconditionally regardless. A leader
+            // naming any online player (not just an actual party member)
+            // sent that player a bogus "you were kicked" chat notification
+            // despite never having been in the party at all. Bail out
+            // (with the same PARTY_CANNOT_KICK the caller sees for other
+            // invalid-kick cases) before touching the party or notifying
+            // anyone.
+            if (!party.containsName(player2.name)) {
+                this.player.sendPlayer(
+                    new Messages.Notify('CHAT', 'PARTY_CANNOT_KICK')
+                );
+                return;
+            }
+
             // FIX: removeName() expects a name string, not a Player object
             // (see playergroup.js) -- passing player2 meant a kicked player
             // was never actually removed from party.players.
