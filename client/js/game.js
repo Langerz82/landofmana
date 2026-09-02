@@ -7,8 +7,7 @@ import Detect from './detect.js';
 import InfoManager from './infomanager.js';
 import BubbleManager from './bubble.js';
 import Renderer from './renderer/renderer.js';
-import Map from './map.js';
-import MapContainer from './mapcontainer/mapcontainer.js';
+import Map from './map/map.js';
 import Animation from './animation.js';
 import Sprite from './sprite.js';
 import Sprites from './sprites.js';
@@ -132,13 +131,14 @@ export default class Game {
         // added complexity" comment (see gameentityqueries.js's
         // getEntityAt()), not the same cost profile as this one.
         //
-        // FIX: this file itself does `import Map from './map.js'` (the
-        // game-world map class, `this.map` below) -- that import binds the
-        // name `Map` to that class for this whole module, shadowing the
-        // built-in. A plain `new Map()` here would silently construct the
-        // *map class* instead (its constructor is `(game, mapContainer)`,
-        // so calling it with no arguments would throw immediately on
-        // startup trying to read `mapContainer.mapName`). `globalThis.Map`
+        // FIX: this file itself does `import Map from './map/map.js'` (the
+        // game-world map class, `this.currentMap` in gamemovement.js) --
+        // that import binds the name `Map` to that class for this whole
+        // module, shadowing the built-in. A plain `new Map()` here would
+        // silently construct the *map class* instead (its constructor is
+        // `(game, mapIndex, mapName)`, so calling it with no arguments would
+        // throw once its own mapcamera.js-mixin logic tries to use them, e.g.
+        // building the zip URL from an undefined mapName). `globalThis.Map`
         // reaches the real built-in explicitly, bypassing the local import
         // binding.
         this.entities = new globalThis.Map();
@@ -448,7 +448,7 @@ export default class Game {
 
     initGrid() {
         this.camera.focusEntity = this.player;
-        this.mapContainer.reloadMaps(true);
+        this.currentMap.reloadMaps(true);
     }
 
     // NOTE: no live callers anywhere in gameserver/shared/client - dead code.

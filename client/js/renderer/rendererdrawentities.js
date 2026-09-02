@@ -133,7 +133,13 @@ export function installRendererDrawEntities(proto) {
         // flip visibility for ids that left the screen this frame.
         const newlyVisible = {};
 
-        const currentCameraArea = game.mapContainer.currentCameraArea;
+        // currentCameraArea lives directly on `currentMap` (map/mapobjects.js) -
+        // it's a plain Map instance now (map/mapcamera.js's own render-grid/camera
+        // logic is merged onto Map.prototype, see its own header comment). No
+        // getMap(0)/null-map guard needed: currentCameraArea defaults to `null`
+        // until the map's own data has loaded (see map.js's constructor), matching
+        // the old default exactly.
+        const currentCameraArea = game.currentMap.currentCameraArea;
         self.camera.forEachInScreen(function (entity, id) {
             if (!entity) return;
 
@@ -146,11 +152,14 @@ export function installRendererDrawEntities(proto) {
                 // FIX (player disappears re-entering an overlapping camera
                 // bounds): this used to call getCurrentCameraArea(entity)
                 // again here and compare the two picks for equality. That
-                // method (mapcontainerdoors.js) is stateful now - it tracks
+                // method (map/mapobjects.js, installed on Map.prototype - formerly
+                // mapcontainer/mapcontainerdoors.js, whose parent mapcontainer.js has
+                // itself since been renamed map/mapcamera.js) is stateful now - it tracks
                 // history (`this._prevCameraAreas`) so the FOCUS entity's
                 // active bounds switch once and don't flicker back and
                 // forth on an overlap tile (see its own comment) - and that
-                // history is a single, shared, per-MapContainer slot. Every
+                // history is a single, shared, per-Map (per-MapCamera, since
+                // there's only ever one) slot. Every
                 // on-screen entity gets run through it here, once per frame,
                 // in `camera.forEachInScreen` iteration order, which
                 // clobbers the very history _updateGrid() just built up for

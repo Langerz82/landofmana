@@ -20,7 +20,9 @@ export default class Sprites {
                         // FIX: no .catch on this promise chain meant a corrupt/missing sprites.json
                         // entry silently hung sprite loading forever - the surrounding try/catch only
                         // catches synchronous setup errors, not this async rejection. Same class of
-                        // bug already fixed in map.js/mapcontainer.js's zip-load paths.
+                        // bug map.js's own map<N>.json load used to guard against too, back when it
+                        // also read from a zip (see map/mapcamera.js's own header comment - that's
+                        // since been removed there, map.js fetches its data directly now).
                         zip.file('sprites.json')
                             .async('string')
                             .then(function (data) {
@@ -40,9 +42,9 @@ export default class Sprites {
                     }
                 })
                 .catch(function (err) {
-                    // FIX: mirrors the outer JSZip.loadAsync(...).catch fallback already used in
-                    // mapcontainer.js - if sprites.zip is present but fails to parse (corrupt file,
-                    // stale/partial cached response, etc.) fall back to loading sprites.json directly.
+                    // FIX: if sprites.zip is present but fails to parse (corrupt file,
+                    // stale/partial cached response, etc.) fall back to loading sprites.json
+                    // directly instead of leaving this promise rejection unhandled.
                     console.error('Failed to load sprites.zip contents:', err);
                     self.loadSpritesJSON();
                 });

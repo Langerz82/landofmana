@@ -277,7 +277,7 @@ export default class Renderer {
 
     /*drawCollision: function () {
       var self = this,
-          mc = this.game.mapContainer,
+          mc = this.game.currentMap,
           g = this.game;
 
       var color = 0xFF0000;
@@ -334,7 +334,7 @@ export default class Renderer {
             this.forceRedraw ||
             (fe && (this.fegx !== gx || this.fegy !== gy))
         ) {
-            const mc = game.mapContainer;
+            const mc = game.currentMap;
             if (mc) mc.moveGrid();
             this.forceRedraw = true;
         }
@@ -350,7 +350,7 @@ export default class Renderer {
     }
 
     refreshGrid() {
-        const mc = game.mapContainer;
+        const mc = game.currentMap;
 
         // Optimization only redraw tilegrid if it has changed.
         if (typeof this.fnTileGridEqual === 'undefined') {
@@ -455,7 +455,7 @@ export default class Renderer {
             !game.ready ||
             !game.player ||
             game.mapStatus < 2 ||
-            !game.mapContainer.gridReady ||
+            !game.currentMap.gridReady ||
             this.tilesets.length === 0 ||
             !this.loadData.loaded
         ) {

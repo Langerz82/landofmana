@@ -1,7 +1,7 @@
 // Mixin extracted from game.js: Pathfinding and movement: findPath, moveCharacter/isOverlapping, teleportMaps, makePlayerGoTo/GoToItem, clickMoveTo.
 // Applied onto Game.prototype via install*(...) call in game.js; not a standalone class.
 import Player from '../entity/player/player.js';
-import MapContainer from '../mapcontainer/mapcontainer.js';
+import Map from '../map/map.js';
 /* global Utils, G_TILESIZE, log */
 
 export function installGameMovement(proto) {
@@ -12,26 +12,29 @@ export function installGameMovement(proto) {
         y = y || -1;
         if (typeof portalId === 'undefined') portalId = -1;
 
-        if (this.mapContainer) {
-            this.prevMapContainer = this.mapContainer;
-            if (mapIndex === this.mapContainer.mapIndex) {
+        if (this.currentMap) {
+            this.prevMap = this.currentMap;
+            if (mapIndex === this.currentMap.mapIndex) {
                 this.mapStatus = 0;
                 self.client.sendTeleportMap([mapIndex, 0, x, y, portalId]);
                 return;
             }
 
-            this.mapContainer = null;
+            this.currentMap = null;
         }
 
         log.info('teleportMaps');
         this.mapStatus = 0;
-        this.mapContainer = new MapContainer(
+        // `this.currentMap` is a plain Map instance (map/mapcamera.js's own
+        // render-grid/camera logic is merged onto Map.prototype - see its own
+        // header comment), not a separate wrapping class.
+        this.currentMap = new Map(
             this,
             mapIndex,
             this.mapNames[mapIndex]
         );
 
-        this.mapContainer.ready(function () {
+        this.currentMap.ready(function () {
             self.client.sendTeleportMap([mapIndex, 0, x, y, portalId]);
         });
     };
@@ -66,7 +69,7 @@ export function installGameMovement(proto) {
         const ts = G_TILESIZE;
         const self = this;
 
-        const mc = this.mapContainer;
+        const mc = this.currentMap;
         if (!mc || !mc.gridReady || this.mapStatus < 2) return null;
 
         log.info('PATHFINDER CODE - simplified AStar');
@@ -85,7 +88,7 @@ export function installGameMovement(proto) {
             return null;
         }
 
-        const grid = this.mapContainer.maps[0].collision;
+        const grid = this.currentMap.collision;
         if (!grid) {
             console.error('game.js findPath: grid not ready for pathing.');
             return null;
@@ -243,14 +246,14 @@ export function installGameMovement(proto) {
         const o = char.orientation;
         if (o === Types.Orientations.NONE) return false;
 
-        if (this.mapContainer.isColliding(x, y)) {
+        if (this.currentMap.isColliding(x, y)) {
             return false;
         }
 
         if (char instanceof Player) {
             const block = char.holdingBlock;
             const tile = char.nextTile(x, y);
-            if (block && this.mapContainer.isColliding(tile[0], tile[1]))
+            if (block && this.currentMap.isColliding(tile[0], tile[1]))
                 return false;
         }
 
@@ -300,11 +303,11 @@ export function installGameMovement(proto) {
         px = (Math.floor(px / G_TILESIZE) + 0.5) * G_TILESIZE;
         py = (Math.floor(py / G_TILESIZE) + 0.5) * G_TILESIZE;
 
-        const colliding = this.mapContainer.isCollidingPoint(px, py);
+        const colliding = this.currentMap.isCollidingPoint(px, py);
         if (colliding) {
             const spots = p.getSortedTilesAround(px, py);
             for (const node of spots) {
-                if (!this.mapContainer.isCollidingPoint(node.x, node.y)) {
+                if (!this.currentMap.isCollidingPoint(node.x, node.y)) {
                     this.makePlayerGoTo(node.x, node.y);
                     return;
                 }

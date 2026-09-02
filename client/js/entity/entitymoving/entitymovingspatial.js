@@ -133,7 +133,7 @@ export function installEntityMovingSpatial(proto) {
     proto.isColliding = function (x, y) {
         if (typeof game === 'undefined') return this.map.isColliding(x, y);
         else {
-            return game.mapContainer.isColliding(x, y);
+            return game.currentMap.isColliding(x, y);
         }
     };
 

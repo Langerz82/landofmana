@@ -63,13 +63,13 @@ export function installUpdaterMovement(self) {
         if (c.hasChangedItsPath()) {
             return true;
         }
-        // FIX: `c.map` is never set anywhere on Entity/Character (only game.mapContainer
+        // FIX: `c.map` is never set anywhere on Entity/Character (only game.currentMap
         // exists), so this mid-path collision guard was permanently dead code - NPC/mob
         // movement never actually re-checked collision here. Also dropped the leftover
         // debug try/throw/console.error trace scaffold that sat in the dead branch.
         if (
-            self.game.mapContainer &&
-            self.game.mapContainer.isColliding(x, y)
+            self.game.currentMap &&
+            self.game.currentMap.isColliding(x, y)
         ) {
             return true;
         }

@@ -326,13 +326,13 @@ export default class GameClient {
             x = parseInt(data[5]),
             y = parseInt(data[6]);
 
-        // FIX: `mapContainer.ready` is a method (registers a ready callback), not a
-        // boolean, so `!game.mapContainer.ready` was always false and this "don't spawn
+        // FIX: `currentMap.ready` is a method (registers a ready callback), not a
+        // boolean, so `!game.currentMap.ready` was always false and this "don't spawn
         // before the map is ready" guard never fired; use the actual boolean flag, as
         // every other readiness check in the codebase does (see game.js/renderer.js)
         if (
-            !game.mapContainer.mapLoaded ||
-            game.mapContainer.mapIndex !== parseInt(mapIndex) ||
+            !game.currentMap.mapLoaded ||
+            game.currentMap.mapIndex !== parseInt(mapIndex) ||
             id === game.player.id
         )
             return;

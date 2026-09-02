@@ -1,5 +1,19 @@
-// Mixin extracted from mapcontainer.js: Grid/collision/bounds queries: isCollidingPoint/isColliding/isCollidingGrid, isOutOfBounds/isOutOfCameraBounds, isHarvestTile, getTiles/getCollision, GridPositionToTileIndex.
-// Applied onto MapContainer.prototype via install*(...) call in mapcontainer.js; not a standalone class.
+// Mixin extracted from mapcontainer.js (formerly mapcontainer/mapcontainerqueries.js;
+// mapcontainer.js has itself since been renamed map/mapcamera.js, and later merged onto
+// this same Map.prototype too - see its own header comment), then moved to be Map's own
+// behavior: grid/collision/bounds queries -
+// isCollidingPoint/isColliding/isCollidingGrid, isOutOfBounds/isOutOfCameraBounds,
+// isHarvestTile, getTiles/getCollision.
+// Applied onto Map.prototype via install*(...) call in map.js; not a standalone class.
+// Operates directly on `this` (already the Map instance, with its own width/height/
+// tile/collision grids) instead of reaching up into a parent container for them -
+// this used to be installed on MapContainer.prototype (MapCamera's former name), back
+// when it fetched the child Map via `this.getMap(0)` on nearly every call. Now that
+// MapCamera is itself merged onto this same prototype (see map/mapcamera.js), its own
+// methods reach these directly too, with no wrapper/indirection needed - and neither do
+// this API's many external callers (game.currentMap.isColliding(x,y) and the like),
+// since `currentMap` already IS a Map instance. GridPositionToTileIndex isn't included
+// here - Map already has an identical native method of its own (see map.js).
 /* global Utils, G_TILESIZE */
 
 // FIX (perf): was rebuilt (new object + new array literal) on every single
@@ -9,11 +23,7 @@ const HARVEST_TILE_TYPES = {
     axe: [678, 679, 698, 699, 855, 875, 274, 275, 294, 295]
 };
 
-export function installMapContainerQueries(proto) {
-    proto.GridPositionToTileIndex = function (x, y) {
-        return y * this.width + x;
-    };
-
+export function installMapQueries(proto) {
     proto.isCollidingPoint = function (x, y) {
         const gx = Math.floor(x / G_TILESIZE),
             gy = Math.floor(y / G_TILESIZE);
@@ -44,9 +54,6 @@ export function installMapContainerQueries(proto) {
     // (median ~22ms -> ~16ms), with 0 behavioral differences across 200k
     // random/edge-case sample positions.
     proto.isColliding = function (x, y) {
-        const map = this.getMap(0);
-        if (!map) return;
-
         const gx = x / G_TILESIZE,
             gy = y / G_TILESIZE,
             d = 0.49, // A little less than 0.5.
@@ -57,7 +64,7 @@ export function installMapContainerQueries(proto) {
             // `~~(gx-d)=~~(-0.99)=0` (still non-negative!), so the `x1 < 0` bounds
             // check below never caught it - the player could walk one full tile
             // past the left/top edge into space _updateGrid()'s tile-sampling
-            // window (mapcontainer.js) never renders (it's clamped to a minimum of
+            // window (mapcamera.js) never renders (it's clamped to a minimum of
             // world tile 0), matching the "off by one at (0,0), can walk off the
             // rendered map" report. Math.floor rounds down for negative values too
             // (Math.floor(-0.99) = -1), so that illegal step is correctly caught,
@@ -73,7 +80,7 @@ export function installMapContainerQueries(proto) {
         if (x1 < 0 || y1 < 0 || x2 >= this.width || y2 >= this.height)
             return true;
 
-        const grid = map.collision,
+        const grid = this.collision,
             row1 = grid[y1],
             row2 = grid[y2];
 
@@ -83,10 +90,7 @@ export function installMapContainerQueries(proto) {
     };
 
     proto.isCollidingGrid = function (gx, gy) {
-        const map = this.getMap(0);
-        if (!map) return true;
-
-        return map.isColliding(gx, gy);
+        return this.isCollidingCell(gx, gy);
     };
 
     /**
@@ -145,22 +149,16 @@ export function installMapContainerQueries(proto) {
     };
 
     proto.getTiles = function (gx, gy) {
-        const map = this.getMap(0);
-        if (!map) return;
+        if (this.isOutOfBounds(gx,gy))
+            return 0;
 
-        if (gy < 0 || gy >= map.tile.length) return 0;
-        if (gx < 0 || gx >= map.tile[0].length) return 0;
-
-        return map.tile[gy][gx];
+        return this.tile[gy][gx];
     };
 
     proto.getCollision = function (gx, gy) {
-        const map = this.getMap(0);
-        if (!map) return;
+        if (this.isOutOfBounds(gx,gy))
+            return 0;
 
-        if (gy < 0 || gy >= map.tile.length) return 0;
-        if (gx < 0 || gx >= map.tile[0].length) return 0;
-
-        return map.collision[gy][gx];
+        return this.collision[gy][gx];
     };
 }

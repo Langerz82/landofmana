@@ -120,7 +120,7 @@ export function installGameInteractionCombat(proto) {
         }
 
         const gpos = Utils.getGridPosition(px, py);
-        if (!this.mapContainer.isHarvestTile(gpos, type)) {
+        if (!this.currentMap.isHarvestTile(gpos, type)) {
             game.showNotification(['CHAT', 'HARVEST_WRONG_TYPE', type]);
             return;
         }

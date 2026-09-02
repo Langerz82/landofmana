@@ -41,7 +41,7 @@ export default class Updater {
 
     updateCharacters() {
         const self = this;
-        const mc = game.mapContainer;
+        const mc = game.currentMap;
 
         // TODO - Optimization not working.
         // This code is intensive.

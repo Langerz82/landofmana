@@ -77,7 +77,7 @@ function processClient(json, tsx, dest){
 		delete map.chunkWidth;
 		delete map.chunkHeight;
 		map.indexes = 1;
-	}	
+	}
 	else {
 	  for (var i=0; i < map.height; ++i)
 	  {
@@ -90,7 +90,7 @@ function processClient(json, tsx, dest){
 	  chunkBlockHeight = Math.ceil(map.height / chunkHeight);
 	  chunkTotal = chunkWidth * chunkHeight;
 	  var mapDataLength = map.height * map.width;
-	  
+
 	  var subMap;
 	//  console.info(JSON.stringify(collision));
 	  for (var a=0; a < chunkBlockHeight; ++a)
@@ -111,7 +111,7 @@ function processClient(json, tsx, dest){
 			  var x = b*subMap.width;
 			  var y = a*subMap.height;
 
-			  
+
 			  for (var i=0; i < subMap.oh; ++i)
 			  {
 				var section = offset + (i*map.width);
@@ -135,7 +135,7 @@ function processClient(json, tsx, dest){
 					subMap.collision.push(1);
 				}
 			  }
-			  
+
 			  delete subMap.ow;
 			  delete subMap.oh;
 
@@ -150,7 +150,7 @@ function processClient(json, tsx, dest){
 				  if (subMap.data[i] == 0 && subMap.collision[i] == 0)
 					  subMap.collision[i] = 1;
 			  }
-			  
+
 			  if (subTotal != subMap.data.length)
 			  {
 				  console.error("totals not correct for index: "+subMap.index+" "+
@@ -164,7 +164,8 @@ function processClient(json, tsx, dest){
 		map.chunkWidth = chunkWidth;
 		map.chunkHeight = chunkHeight;
 	}
-
+/*
+    // No longer using gameobject files.
    delete map.data;
    delete map.collision;
    delete map.plateau;
@@ -177,6 +178,7 @@ function processClient(json, tsx, dest){
 
    var dest = dest+"_GO";
    createMapFile(map, dest);
+*/
 }
 
 function createMapFile(mapData, dest)
@@ -207,7 +209,7 @@ function createMapFile(mapData, dest)
 }
 
 function processServer(json, tsx, dest){
-	var jsonMap = JSON.stringify(processMap(json, tsx, {mode:"server"})); // Save the processed map object as JSON 
+	var jsonMap = JSON.stringify(processMap(json, tsx, {mode:"server"})); // Save the processed map object as JSON
 
 	var subTotal = jsonMap.width * jsonMap.height;
 	for (var i=0; i < subTotal; ++i)
@@ -236,7 +238,7 @@ function getTiledJSONmap(filename, callback) {
     var self = this;
 
 	console.info(filename);
-	
+
 	var tsx = "../data/tilesheet.tsx";
 	console.info(tsx);
 	var exists = fs.readFileSync(filename);
@@ -250,7 +252,7 @@ function getTiledJSONmap(filename, callback) {
 		console.error(tsx + " doesn't exist.");
 		return;
 	}
-	
+
 	//console.info("blah");
 	fs.readFile(filename, function(err, file1) {
 		if (err) {

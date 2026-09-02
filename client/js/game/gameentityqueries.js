@@ -103,7 +103,7 @@ export function installGameEntityQueries(proto) {
     proto.forEachVisibleTileIndex = function (callback) {
         const self = this;
         this.camera.forEachVisibleValidPosition(function (x, y) {
-            const index = self.mapContainer.GridPositionToTileIndex(x, y);
+            const index = self.currentMap.GridPositionToTileIndex(x, y);
             callback(index, x, y);
         });
     };
@@ -113,7 +113,7 @@ export function installGameEntityQueries(proto) {
      */
     proto.forEachVisibleTile = function (callback) {
         const self = this,
-            mc = this.mapContainer,
+            mc = this.currentMap,
             tg = mc.tileGrid;
 
         if (mc.gridReady) {
@@ -169,7 +169,7 @@ export function installGameEntityQueries(proto) {
      * @returns {Entity} the entity located at (x, y) or null if there is none.
      */
     proto.getEntityAt = function (x, y) {
-        if (!this.mapContainer.mapLoaded) return null;
+        if (!this.currentMap.mapLoaded) return null;
 
         // PERF: was computing `Object.keys(entities).length` on every call just
         // to guard against an empty object - that allocates a full array of keys
@@ -242,7 +242,7 @@ export function installGameEntityQueries(proto) {
 
     proto.getItemAt = function (x, y) {
         if (
-            this.mapContainer.isOutOfBounds(x, y) ||
+            this.currentMap.isOutOfBounds(x, y) ||
             !this.itemGrid ||
             !this.itemGrid[y]
         ) {
@@ -268,9 +268,9 @@ export function installGameEntityQueries(proto) {
     };
 
     proto.getItemsAt = function (x, y) {
-        // FIX: this.map doesn't exist on game; use this.mapContainer like the rest of the codebase
+        // FIX: this.map doesn't exist on game; use this.currentMap like the rest of the codebase
         if (
-            this.mapContainer.isOutOfBounds(x, y) ||
+            this.currentMap.isOutOfBounds(x, y) ||
             !this.itemGrid ||
             !this.itemGrid[y]
         ) {

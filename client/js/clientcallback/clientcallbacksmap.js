@@ -48,7 +48,7 @@ export function installClientCallbacksMap(proto) {
             // map the player is *leaving* and the camera's pre-teleport viewport.
             const isSameScreen =
                 game.mapIndex === mapId &&
-                !!game.mapContainer &&
+                !!game.currentMap &&
                 game.camera.isVisiblePosition(x, y);
 
             p.forceStop();
@@ -68,8 +68,9 @@ export function installClientCallbacksMap(proto) {
             // sitting on the origin door tile (setPositionSpawn to the real
             // destination doesn't happen until status 2). For a cross-map
             // portal that stale position rarely lines up with a door on the
-            // unrelated destination map, but a same-map portal's new
-            // MapContainer has the identical door at the identical coordinates,
+            // unrelated destination map, but a same-map portal reuses the same
+            // already-loaded map, which has the identical door at the identical
+            // coordinates,
             // so getDoor(p) matched the same door again and re-triggered
             // teleportMaps() -> another full status 0->2 handshake, repeating
             // indefinitely. Setting freeze=true after initPlayer() (instead of
@@ -77,11 +78,20 @@ export function installClientCallbacksMap(proto) {
             // stays true until the legitimate final forceStop() at status 2
             // (below) actually completes the transition.
             p.freeze = true;
+            // `game.prevMap` is a plain Map instance (map/mapcamera.js's
+            // own render-grid/camera logic is merged onto Map.prototype - see its own
+            // header comment), so `.doors` is read straight off it now, no getMap(0)
+            // indirection needed. Still guarded against `game.prevMap` itself
+            // being unset (e.g. the very first spawn, which never sets
+            // prevMap - see gamemovement.js's teleportMaps()) rather than
+            // assuming it's always populated by this point.
+            const prevMap = game.prevMap;
             if (
+                prevMap &&
                 portalId >= 0 &&
-                portalId < game.prevMapContainer.doors.length
+                portalId < prevMap.doors.length
             ) {
-                const portal = game.prevMapContainer.doors[portalId];
+                const portal = prevMap.doors[portalId];
                 const orientation = portal.orientation;
                 p.orientation = orientation;
                 p.suppressTeleportCheck = true;
@@ -167,8 +177,8 @@ export function installClientCallbacksMap(proto) {
                 game.app.releaseKeys();
             };
 
-            game.mapContainer.allReady(function () {
-                // NOTE: `this.allready` (bound to mapContainer via allReady()'s
+            game.currentMap.allReady(function () {
+                // NOTE: `this.allready` (bound to currentMap via allReady()'s
                 // all_ready_func.call(this) - not a bug) is write-only; nothing in the
                 // codebase currently reads it. Left in place as a harmless state flag rather
                 // than removed, in case external/debug code relies on inspecting it.

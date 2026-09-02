@@ -1,9 +1,19 @@
-// Mixin extracted from mapcontainer.js: Doors/checkpoints/tile-animation lookups: _getDoors/isDoor/getDoor, _getCheckpoints/getCurrentCheckpoint, isHighTile/isAnimatedTile/getTileAnimation*.
-// Applied onto MapContainer.prototype via install*(...) call in mapcontainer.js; not a standalone class.
+// Mixin extracted from mapcontainer.js (formerly mapcontainerdoors.js; mapcontainer.js
+// has itself since been renamed map/mapcamera.js, and later merged onto this same
+// Map.prototype too - see its own header comment), then moved to be
+// Map's own behavior: Doors/checkpoints/tile-animation lookups: _getDoors/isDoor/getDoor,
+// _getCheckpoints/getCurrentCheckpoint, isHighTile/isAnimatedTile/getTileAnimation*,
+// _getCameraArea/getCurrentCameraArea/getCameraAreaGridBounds.
+// Applied onto Map.prototype via install*(...) call in map.js; not a standalone class. The
+// underlying data (doors/checkpoints/camera/high/animated) is loaded by Map itself, out of
+// the same map<N>.json payload its tile/collision data already comes from (see
+// loadMapData()/_initMapObjects()) rather than by MapContainer (this file's original,
+// pre-mapcamera.js-merge home), which used to own this file via a separate, now-removed
+// map<N>_GO.json load.
 import Area from '../area.js';
 /* global _, G_TILESIZE */
 
-export function installMapContainerDoors(proto) {
+export function installMapObjects(proto) {
     proto._getDoors = function (map) {
         const self = this;
 
@@ -15,6 +25,11 @@ export function installMapContainerDoors(proto) {
             const area = new Area(door.x, door.y, door.width, door.height);
             area.minLevel = door.tminLevel || 0;
             area.maxLevel = door.tmaxLevel || 200;
+            // `self` here is the Map instance (installed on Map.prototype); the world-map ID
+            // used as the default teleport target when a door doesn't specify one is
+            // this same Map's own mapIndex (see its constructor - formerly read off a
+            // separate parent MapCamera before that class was merged onto this same
+            // prototype, see map/mapcamera.js's own header comment).
             area.tmap = door.tmap >= 0 ? door.tmap : self.mapIndex;
             area.tx = door.tx || -1;
             area.ty = door.ty || -1;
@@ -177,8 +192,8 @@ export function installMapContainerDoors(proto) {
     // Converts a cameraArea's pixel-space Area (x/y/width/height, straight
     // from the Tiled map data - see _getCameraArea() above) into inclusive
     // tile-grid column/row bounds, in the same (l, k)/(gx, gy) coordinate
-    // space MapContainer's tileGrid/collisionGrid and getTiles()/
-    // getCollision() use. Used by _updateGrid() (mapcontainer.js) to
+    // space MapCamera's tileGrid/collisionGrid and getTiles()/
+    // getCollision() use. Used by _updateGrid() (mapcamera.js) to
     // restrict tile loading and camera scrolling to the area's own footprint
     // while the player is standing inside it.
     proto.getCameraAreaGridBounds = function (area) {

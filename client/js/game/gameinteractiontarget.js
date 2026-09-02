@@ -116,7 +116,7 @@ export function installGameInteractionTarget(proto) {
         // below (fnProcessTile(...), not this.fnProcessTile(...)) -- in a
         // class method under strict mode (always true for ES modules/class
         // bodies), a bare function call has `this === undefined`, so
-        // `this.mapContainer` threw a TypeError on every single
+        // `this.currentMap` threw a TypeError on every single
         // invocation. That broke both call sites below equally (the
         // direct facing-tile check via p.nextTile() and the surrounding-
         // tiles fallback loop), and since nothing here catches the
@@ -152,7 +152,7 @@ export function installGameInteractionTarget(proto) {
         // whatever orientation this would have set.)
         const fnProcessTile = (x, y) => {
             const gpos = Utils.getGridPosition(x, y);
-            if (game.mapContainer.isHarvestTile(gpos, type)) {
+            if (game.currentMap.isHarvestTile(gpos, type)) {
                 game.makePlayerHarvest(x, y);
                 return true;
             }
@@ -348,7 +348,7 @@ export function installGameInteractionTarget(proto) {
         if (!p.hasOwnProperty('targetIndex')) p.targetIndex = 0;
 
         let excludeTypes = [Types.EntityTypes.NODE, Types.EntityTypes.PLAYER];
-        if (game.mapContainer.mapIndex !== 0) {
+        if (game.currentMap.mapIndex !== 0) {
             excludeTypes = excludeTypes.concat([
                 Types.EntityTypes.NPCMOVE,
                 Types.EntityTypes.NPCSTATIC

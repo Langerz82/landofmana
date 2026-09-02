@@ -112,7 +112,7 @@ export default class Player extends Character {
         }
         const ov = game.isOverlapping(this, x, y);
         if (ov) log.info('isOverlapping.');
-        const ic = game.mapContainer.isColliding(x, y);
+        const ic = game.currentMap.isColliding(x, y);
         if (ic) log.info('isColliding.');
         return !(ov || ic);
     }

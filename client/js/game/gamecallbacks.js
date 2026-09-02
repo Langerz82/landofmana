@@ -214,7 +214,14 @@ export function installGameCallbacks(proto) {
                 return;
             }
 
-            const dest = self.mapContainer.getDoor(p);
+            // getDoor()/doors live directly on `currentMap` (map/mapobjects.js) -
+            // it's a plain Map instance now (map/mapcamera.js's own render-grid/
+            // camera logic is merged onto Map.prototype, see its own header
+            // comment). No getMap(0)/null-map guard needed: `doors` defaults to an
+            // empty array until the map's own data has loaded (see map.js's
+            // constructor), so getDoor() naturally returns undefined - same
+            // "no map loaded yet means no door" behavior the old guard existed for.
+            const dest = self.currentMap.getDoor(p);
             // FIX: was gated on !p.hasTarget(), so stopping on a door/portal tile while
             // targeting something (e.g. a mob) silently skipped the teleport. Door tile
             // position is what should matter here, not target state.

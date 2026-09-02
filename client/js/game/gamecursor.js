@@ -108,10 +108,10 @@ export function installGameCursor(proto) {
 
         this.cursorVisible = true;
 
-        if (!this.mapContainer) return;
+        if (!this.currentMap) return;
 
         if (
-            this.mapContainer.gridReady &&
+            this.currentMap.gridReady &&
             this.player &&
             this.isDesktop
         ) {

@@ -13,7 +13,7 @@
 // module file.
 //
 // If config.build.version is available, it's appended as a `?version=` query param (matching the
-// `?v=` cache-busting pattern already used for map/zip requests in map.js/mapcontainer.js) so a
+// `?v=` cache-busting pattern already used for map/zip requests in map.js/mapcamera.js) so a
 // new build doesn't keep serving a stale cached copy of these data files. config.build loads
 // asynchronously (see config.js) and several data/*.js modules call fetchJsonSync at import time,
 // before that fetch can possibly resolve, so this degrades gracefully: if config.build isn't

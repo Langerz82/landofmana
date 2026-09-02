@@ -209,11 +209,11 @@ export function installRendererScaling(proto) {
         // `rx > sx`/`ry > sy` branches that ramped offX/offY further, from the
         // baseline -wOffX/-wOffY down to -2*wOffX/-2*wOffY, as the player approached
         // the FAR (right/bottom) edge - mirroring the near-edge branches above. That
-        // made sense against the OLD gcex/gcey (mapcontainer.js), which didn't yet
+        // made sense against the OLD gcex/gcey (map/mapcamera.js), which didn't yet
         // include the wOffX/wOffY buffer compensation, so this.x/this.y froze later
         // than the tile-window sampler and needed that extra ramp to bridge the gap.
         // Now that gcex/gcey are computed to already include that compensation (see
-        // mapcontainer.js's _updateScrollBounds()), this.x/this.y and the tile-window
+        // mapcamera.js's _updateScrollBounds()), this.x/this.y and the tile-window
         // sampler freeze at the exact same instant at the far edge, with sox/soy
         // zeroing at that same instant too (camera.js's scrollX/scrollY now use
         // gcex/gcey directly for that side) - there's no gap left to bridge. Keeping

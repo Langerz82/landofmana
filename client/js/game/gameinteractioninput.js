@@ -108,8 +108,8 @@ export function installGameInteractionInput(proto) {
 
         if (!this.started || !this.player || this.player.isDead) return;
 
-        px = Utils.clamp(0, this.mapContainer.widthX, px);
-        py = Utils.clamp(0, this.mapContainer.heightY, py);
+        px = Utils.clamp(0, this.currentMap.widthX, px);
+        py = Utils.clamp(0, this.currentMap.heightY, py);
 
         let entity = p.hasTarget() ? p.target : this.getEntityAt(px, py);
 
@@ -118,11 +118,11 @@ export function installGameInteractionInput(proto) {
         } else {
             const type = p.items.getWeaponType();
             const gpos = Utils.getGridPosition(px, py);
-            const colliding = this.mapContainer.isColliding(px, py);
+            const colliding = this.currentMap.isColliding(px, py);
 
             if (
                 colliding &&
-                this.mapContainer.isHarvestTile(gpos, type) &&
+                this.currentMap.isHarvestTile(gpos, type) &&
                 p.isNextTooTile(px, py)
             ) {
                 this.makePlayerHarvest(px, py);

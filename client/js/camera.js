@@ -61,15 +61,15 @@ export default class Camera {
         log.debug('---------');
         log.debug('W:' + this.gridW + ' H:' + this.gridH);
 
-        const mc = game.mapContainer;
+        const mc = game.currentMap;
         if (mc) {
-            // FIX: gcex/gcey (mapcontainer.js) are derived from gridWE/gridHE/wOffX/wOffY
+            // FIX: gcex/gcey (map/mapcamera.js) are derived from gridWE/gridHE/wOffX/wOffY
             // just recomputed above, and everything that keeps entities aligned with the
             // tile buffer - and edge-scrolling smooth instead of jumping - depends on
             // gcex/gcey staying in sync with those values. rescale() runs again after the
             // map's already loaded (window resize, and game.js's unconditional resize call
             // shortly after start), so gcex/gcey must be refreshed here too, not just once
-            // at map-load time in mapcontainer.js's _initMap().
+            // at map-load time in mapcamera.js's _initMap().
             mc._updateScrollBounds();
             mc._initGrids();
             mc.moveGrid(true);
@@ -85,7 +85,7 @@ export default class Camera {
     }
 
     setRealCoords() {
-        const mc = game.mapContainer;
+        const mc = game.currentMap;
         const fe = this.focusEntity;
 
         const hgw = ~~(this.screenX / 2);
@@ -106,7 +106,7 @@ export default class Camera {
         this.canScrollX = mc.gcex >= mc.gcsx;
         this.canScrollY = mc.gcey >= mc.gcsy;
 
-        // FIX: same inverted-clamp issue as mapcontainer.js's _updateGrid() -
+        // FIX: same inverted-clamp issue as mapcamera.js's _updateGrid() -
         // mc.gcex/gcey are (map size in px) - (screen size in px), so they go
         // negative when the map is smaller than the screen. Utils.clamp(min, max, ...)
         // with max < min always collapses to that (negative) max, pinning the
@@ -116,18 +116,18 @@ export default class Camera {
         // map doesn't fill the screen grid.
         //
         // FIX (half-tile offset): centering this.x as the midpoint of [gcsx, gcex]
-        // (`~~((gcsx+gcex)/2)`) does NOT land on the same pixel as mapcontainer.js's
+        // (`~~((gcsx+gcex)/2)`) does NOT land on the same pixel as mapcamera.js's
         // _updateGrid() centers its tile-sample window ox (`~~((width-cgw)/2)`, tile
         // units) - dividing by 2 before vs. after multiplying by tilesize, with wOffX
         // inside vs. outside that division, drifts the two apart by roughly wOffX/2
         // (about half a tile), which is exactly the offset reported. Recompute the
-        // SAME ox/oy mapcontainer.js will use, then derive this.x/this.y from it via
+        // SAME ox/oy mapcamera.js will use, then derive this.x/this.y from it via
         // the exact entity/tile alignment invariant established below for the normal
         // (non-centered) case - this.x == ox*ts + wOffX - so both stay pixel-exact.
         // FIX (cameraArea room-lock sync): the too-narrow branches here used to
         // always center against the full map (`mc.width`/`mc.height`, with an
         // implicit origin of tile column/row 0 - true only because mc.gcsx/mc.gcsy
-        // were always exactly 0). mc.gcsx/gcex/gcsy/gcey (mapcontainer.js's
+        // were always exactly 0). mc.gcsx/gcex/gcsy/gcey (mapcamera.js's
         // _updateScrollBounds()) now describe either the full map or an active
         // cameraArea's own footprint, so centering has to use that same range's
         // own column/row count and origin (mc.scrollGx0/scrollGy0) instead of
@@ -176,7 +176,7 @@ export default class Camera {
         // exactly when this.x/this.y do. That's only half right, and simulating the
         // whole pipeline frame-by-frame (walking a player from mid-map to each edge
         // and comparing where entities land vs. where the tile layer renders) showed
-        // why: gcex/gcey (mapcontainer.js) were deliberately adjusted to already
+        // why: gcex/gcey (map/mapcamera.js) were deliberately adjusted to already
         // include the wOffX/wOffY buffer compensation, so this.x/this.y freezing at
         // gcex/gcey needs sox/soy to freeze at that SAME point too (no gcex/gcey-side
         // shift) - but gcsx/gcsy is still plain 0, unadjusted, and the near-gcsx/gcsy
@@ -230,11 +230,11 @@ export default class Camera {
         const minX = Math.max(0, this.x - extra);
         const minY = Math.max(0, this.y - extra);
         const maxX = Math.min(
-            game.mapContainer.widthX,
+            game.currentMap.widthX,
             this.x + this.screenX + extra
         );
         const maxY = Math.min(
-            game.mapContainer.heightY,
+            game.currentMap.heightY,
             this.y + this.screenY + extra
         );
 

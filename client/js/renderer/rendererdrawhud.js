@@ -105,7 +105,7 @@ export function installRendererDrawHud(proto) {
     proto.drawTerrain = function (ctx) {
         const self = this,
             p = game.player,
-            mc = game.mapContainer,
+            mc = game.currentMap,
             tilesetwidth = this.tilesets[0].baseTexture.width / mc.tilesize;
 
         self.tilesetwidth = tilesetwidth;
@@ -116,16 +116,34 @@ export function installRendererDrawHud(proto) {
             // (rendererdrawsprites.js) for why passing the same four values
             // as plain arguments instead removes a per-tile, per-frame
             // array allocation on this loop.
+            //
+            // isHighTile()/high live directly on `mc` (map/mapobjects.js) - it's a
+            // plain Map instance now (map/mapcamera.js's own render-grid/camera
+            // logic is merged onto Map.prototype, see its own header comment). No
+            // getMap(0)/null-map guard needed: `high` defaults to an empty object
+            // until the map's own data has loaded (see map.js's constructor), so
+            // isHighTile() naturally returns undefined (falsy, same as the old
+            // `false` fallback) rather than throwing.
             game.camera.forEachVisibleValidPosition(
                 function (x, y) {
                     if (mc.tileGrid[y][x] instanceof Array) {
                         for (let id of mc.tileGrid[y][x]) {
-                            self.drawTile(mc.isHighTile(id), id, x, y);
+                            self.drawTile(
+                                mc.isHighTile(id),
+                                id,
+                                x,
+                                y
+                            );
                         }
                     } else {
                         const id = mc.tileGrid[y][x];
                         if (id) {
-                            self.drawTile(mc.isHighTile(id), id, x, y);
+                            self.drawTile(
+                                mc.isHighTile(id),
+                                id,
+                                x,
+                                y
+                            );
                         }
                     }
                 },
