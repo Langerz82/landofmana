@@ -282,19 +282,23 @@ const arrayField = (element, min, max) => z.array(element).min(min).max(max);
 // checkFormatData had to do (see the FIX comment that used to live there).
 const tupleField = (schemas) => z.tuple(schemas);
 
-// Turns a failed safeParse()'s ZodError into a readable "which field, and
-// why" string, e.g. "arr[0][1]: Expected string, received number" for a
+// Turns a list of Zod issue objects into a readable "which field, and why"
+// string, e.g. "arr[0][1]: Expected string, received number" for a
 // CW_CONFIG entry whose value was in the wrong position. `issue.path` is the
 // exact location within the message (array indices / object keys) that
 // failed -- without this, every format failure just logs a bare `false` and
 // you're left guessing which of a message's fields was actually bad.
-const describeZodError = (error) =>
-    error.issues
+const describeIssues = (issues) =>
+    issues
         .map(
             (issue) =>
                 `${issue.path.length ? issue.path.join('.') : '(root)'}: ${issue.message}`
         )
         .join('; ');
+
+// Convenience wrapper for a full ZodError (safeParse()'s res.error) rather
+// than a bare issues array.
+const describeZodError = (error) => describeIssues(error.issues);
 
 // The four helpers below aren't used by any message format in this file
 // today -- gameserver's messages are all plain positional arrays. They're
@@ -688,12 +692,32 @@ class FormatChecker {
         if (type === Types.Messages.CW_ITEMSLOT) {
             const res = this.itemSlotFormat.safeParse(message);
             if (!res.success) {
-                // z.union() only reports each branch's failure inside
-                // res.error.issues[i].unionErrors, so surface both branches' reasons
-                // rather than just the outer "no union branch matched".
+                // BUG FIX: this used to read res.error.issues[i].unionErrors
+                // (an array of ZodError objects), which was the Zod v3 shape
+                // for a failed z.union(). This project is on Zod v4
+                // (package.json), where a failed union instead produces a
+                // single issue with code 'invalid_union' and an `errors`
+                // property holding one raw issue-array PER union branch (not
+                // ZodError instances -- see Zod v4's ZodInvalidUnionIssue).
+                // `issue.unionErrors` is always undefined under v4, so
+                // `issue.unionErrors || []` silently evaluated to `[]` on
+                // every single CW_ITEMSLOT format failure, `branchErrors` was
+                // always the empty string, and the per-branch detail this
+                // comment (and the log line below) claims to add was never
+                // actually printed -- only the generic outer "(root):
+                // Invalid input" from describeZodError(res.error) ever
+                // showed up, regardless of which branch the message actually
+                // failed and why. CW_ITEMSLOT is the one message format in
+                // this file shaped as a union (two valid lengths -- see
+                // itemSlotFormat above), so this was the only format-
+                // validation failure in the whole file that could never be
+                // diagnosed from the logs. Reading `issue.errors` (the real
+                // v4 field) and formatting each branch's raw issue array
+                // with describeIssues() (see its declaration above) restores
+                // the intended per-branch detail.
                 const branchErrors = res.error.issues
-                    .flatMap((issue) => issue.unionErrors || [])
-                    .map((err) => describeZodError(err))
+                    .flatMap((issue) => issue.errors || [])
+                    .map((issues) => describeIssues(issues))
                     .join(' | ');
                 console.error(
                     `CW_ITEMSLOT format failed (${describeZodError(res.error)}${branchErrors ? `; branches: ${branchErrors}` : ''})`
