@@ -26,3 +26,5 @@ gameserver/shared
 userserver/shared
 ./*.sh
 ./*.bat
+
+godot-client/.godot

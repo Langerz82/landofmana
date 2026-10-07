@@ -504,13 +504,13 @@ class Pathfinder {
         return result;
     }
 
+    // start/end are decimal grid coordinates. lib/astar.js now returns the
+    // finished path itself -- starting/ending exactly at start/end, axis-
+    // aligned, turn nodes only -- so the old floor -> convertPathToRealPath()
+    // -> dropUneededNodes() post-processing is no longer needed here.
     AStar(grid, start, end) {
-        const pStart = [~~start[0], ~~start[1]];
-        const pEnd = [~~end[0], ~~end[1]];
-        let path = astar.AStar(grid, pStart, pEnd);
+        const path = astar.AStar(grid, start, end);
         if (path) {
-            path = this.convertPathToRealPath(path, start, end);
-            path = this.dropUneededNodes(path);
             // PERF: runs on every A* solve -- gated behind G_DEBUG.
             if (G_DEBUG) log.info(JSON.stringify(path));
             return path;
