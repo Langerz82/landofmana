@@ -276,12 +276,11 @@ export default class Pathfinder {
         return result;
     }
 
+    // start/end are decimal grid coordinates. lib/astar.js returns the
+    // finished decimal path (exact start/end, axis-aligned, turn nodes only).
     AStar(grid, start, end) {
-        const pStart = [~~start[0], ~~start[1]];
-        const pEnd = [~~end[0], ~~end[1]];
-        let path = AStar.AStar(grid, pStart, pEnd);
+        const path = AStar.AStar(grid, start, end);
         if (path) {
-            path = this.dropUneededNodes(path);
             // PERF: was an unconditional log.info(JSON.stringify(path)) - AStar() is the
             // fallback pathfinder called on every path request that didn't resolve via the
             // cheap findDirectPath()/findShortPath() checks, so this stringified every fallback

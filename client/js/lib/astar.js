@@ -1,145 +1,68 @@
-//import Utils from '../utils.js';
-
-// NOTE: the original file ended with a bare top-level `return AStar;`
-// after `module.exports` had already been set. That only "worked" because
-// CommonJS modules are implicitly wrapped in a function by Node (so a
-// top-level `return` just ends the file early); ES modules have no such
-// wrapper and a top-level `return` is a SyntaxError. It has been dropped
-// here since it was dead code anyway (module.exports/the export below had
-// already been assigned).
+// A* path finder for an axis-aligned tile grid, working in *decimal* grid
+// coordinates.
 //
-// Also NOTE: the original declared this as `AStar = (function(){...}())`
-// with no `var`, which (in the old sloppy-mode CommonJS world) leaked a
-// second, true global also named `AStar` -- separate from whatever a
-// `require('./lib/astar')` call captured. Other files (e.g. pathfinder.js)
-// called `AStar.AStar(...)` relying on that leaked global rather than on
-// their own `require()` result. Now that this is a real ES module with no
-// global leakage, callers should import this module's default export and
-// call `.AStar(...)` on it directly (pathfinder.js has been updated to do
-// this).
+//   AStar.AStar(grid, start, end, options?)
+//
+//   grid    - grid[y][x], truthy = blocked tile.
+//   start   - [x, y] in grid units, may be decimal (e.g. [3.7, 5.25]).
+//             The tile a point is in is [Math.floor(x), Math.floor(y)].
+//   end     - [x, y] in grid units, may be decimal.
+//   options - optional { turnCost }:
+//               turnCost - extra cost (in tiles of distance) charged every
+//                          time the path changes direction. The default
+//                          (1000) means "fewest direction changes first,
+//                          then shortest"; a small value such as 2-5 trades
+//                          a few extra turns for noticeably shorter paths.
+//
+// Returns an array of [x, y] nodes (start -> end), or null if no path exists.
+//   - The first node is exactly `start` and the last is exactly `end`.
+//   - Every segment is horizontal or vertical (no diagonals).
+//   - Only nodes where the direction changes are included, so a straight
+//     run is a single segment no matter how many tiles it covers.
+//   - Intermediate nodes may be decimal: the first segment stays on the
+//     start's own row/column line (e.g. y = 5.25), the last segment on the
+//     end's, and any segments in between run along tile centres (n + 0.5).
+//
+// How it works: A* runs over (tile, direction-of-travel) states rather than
+// just tiles, so it can genuinely minimise direction changes (a tile-only
+// search marks a tile visited from whichever direction reaches it first and
+// can't tell that arriving from another direction would save a turn later).
+// The heuristic is Manhattan distance plus turnCost x a lower bound on the
+// turns still needed, so the search stays tight even with a large turnCost.
+// The tile path is then converted into decimal "lanes": a horizontal segment
+// can run at any y inside its tile row without touching another tile, so it
+// is placed on the start's/end's own line where possible, which removes the
+// little sidesteps you get from snapping the start/end to tile centres.
+//
+// Originally based on the A* path finder by Andrea Giammarchi (MIT Style
+// License); rewritten for decimal coordinates and turn-minimising search.
 const AStar = (function () {
-    /**
-     * A* (A-Star) algorithm for a path finder
-     * @author  Andrea Giammarchi
-     * @license Mit Style License
-     */
-    function diagonalSuccessors($N, $S, $E, $W, N, S, E, W, grid, rows, cols, result, i) {
-        if($N) {
-            $E && !grid[N][E] && (result[i++] = {x:E, y:N});
-            $W && !grid[N][W] && (result[i++] = {x:W, y:N});
+    // Directions: 0 = +x (east), 1 = -x (west), 2 = +y (south), 3 = -y (north).
+    // d ^ 1 is the reverse direction; d < 2 means horizontal.
+    const DX = [1, -1, 0, 0];
+    const DY = [0, 0, 1, -1];
+
+    const DEFAULT_TURN_COST = 1000;
+
+    // Lower bound on the number of direction changes still needed to reach a
+    // tile (dx, dy) away when currently travelling in direction d (-1 = not
+    // moving yet).
+    function minTurns(d, dx, dy) {
+        if (d < 0) return dx !== 0 && dy !== 0 ? 1 : 0;
+        let along, across;
+        if (d < 2) {
+            along = d === 0 ? dx : -dx;
+            across = dy;
+        } else {
+            along = d === 2 ? dy : -dy;
+            across = dx;
         }
-        if($S){
-            $E && !grid[S][E] && (result[i++] = {x:E, y:S});
-            $W && !grid[S][W] && (result[i++] = {x:W, y:S});
-        }
-        return result;
+        if (across === 0) return along >= 0 ? 0 : 2;
+        return along >= 0 ? 1 : 2;
     }
 
-    function diagonalSuccessorsFree($N, $S, $E, $W, N, S, E, W, grid, rows, cols, result, i) {
-        $N = N > -1;
-        $S = S < rows;
-        $E = E < cols;
-        $W = W > -1;
-        if($E) {
-            $N && !grid[N][E] && (result[i++] = {x:E, y:N});
-            $S && !grid[S][E] && (result[i++] = {x:E, y:S});
-        }
-        if($W) {
-            $N && !grid[N][W] && (result[i++] = {x:W, y:N});
-            $S && !grid[S][W] && (result[i++] = {x:W, y:S});
-        }
-        return result;
-    }
-
-    function nothingToDo($N, $S, $E, $W, N, S, E, W, grid, rows, cols, result, i) {
-        return result;
-    }
-
-    // FIX (dead code): removed the now-unused `grids(a, b)` helper and its
-    // backing `gGrid` module variable. A prior perf pass rewrote successors()
-    // to take the grid directly as a parameter instead of calling grids(...),
-    // but left both the old helper and the write-only `gGrid = grid` assignment
-    // in AStar() below behind - gGrid was written every search but never read
-    // by anything once grids() itself had no remaining callers.
-
-    // FIX: $N/$W required N/W to be > 0, excluding valid index 0 -- compare
-    // with diagonalSuccessorsFree above, which correctly uses > -1 for the
-    // same north/west boundary check. As written, pathfinding could never
-    // move into row 0 or column 0 even when that cell was open, so entities
-    // near the map's top or left edge could get stuck or take unnecessary
-    // detours.
-    function successors(find, x, y, grid, rows, cols){
-        let
-            N = (y - 1),
-            S = (y + 1),
-            E = (x + 1),
-            W = (x - 1),
-            $N = N >= 0 && !grid[N][x],
-            $S = S < (rows) && !grid[S][x],
-            $E = E < (cols) && !grid[y][E],
-            $W = W >= 0 && !grid[y][W],
-            result = [],
-            i = 0;
-
-        $N && (result[i++] = {x:x, y:N});
-        $E && (result[i++] = {x:E, y:y});
-        $S && (result[i++] = {x:x, y:S});
-        $W && (result[i++] = {x:W, y:y});
-        return find($N, $S, $E, $W, N, S, E, W, grid, rows, cols, result, i);
-    }
-
-    function diagonal(start, end, f1, f2) {
-        return f2(f1(start.x - end.x), f1(start.y - end.y));
-    }
-
-    function euclidean(start, end, f1, f2) {
-        const
-            x = start.x - end.x,
-            y = start.y - end.y
-        ;
-        return f2(x * x + y * y);
-    }
-
-    // PERF: this used to take f1 as a parameter and call it (f1(...)) twice.
-    // f1 is set once in AStar() below (`f1 = Math.abs`) and never
-    // reassigned by any branch of the mode switch, so f1 is always
-    // Math.abs regardless of which distance mode runs. And every live
-    // caller in this codebase (pathfinder.js, all 5 call sites) never
-    // passes AStar's 4th `f` argument, so the switch always falls to
-    // `default` -- meaning manhattan() is the *only* distance function ever
-    // actually exercised here, and it's called twice per successor node
-    // examined (once for the step cost, once for the heuristic): the
-    // single hottest calculation in the whole search. Calling Math.abs
-    // directly removes a layer of indirect-call overhead from that path
-    // with no change in behavior (diagonal()/euclidean() below are left
-    // alone since they're dead code paths given current callers, but nothing
-    // about this change forecloses them being used in the future).
-    function manhattan(start, end) {
-        return Math.abs(start.x - end.x) + Math.abs(start.y - end.y);
-    }
-
-    function getDir(n1, n2) {
-      if (n1.x < n2.x)
-        return 1;
-      if (n1.x > n2.x)
-        return 2;
-      if (n1.y < n2.y)
-        return 3;
-      if (n1.y > n2.y)
-        return 4;
-      return 0;
-    }
-
-    // PERF: A*'s open list used to be a plain array where, on every single
-    // iteration of the search, we did a full linear scan to find the
-    // lowest-f node (an O(n) scan) and then removed it with array.splice()
-    // (another O(n), since splice has to shift every following element
-    // down). That makes each step O(n) and the whole search O(n^2) in the
-    // size of the open set. A binary min-heap keyed on node.f -- the
-    // standard data structure for A*'s open list -- gets/removes the
-    // lowest-f node in O(log n) instead. This matters a lot here since
-    // pathfinding runs for every mob chase/roam tick and every player
-    // click-to-move.
+    // Binary min-heap on f; ties prefer the larger g (deeper node), which
+    // makes A* head straight for the goal instead of fanning out sideways.
     class MinHeap {
         constructor() {
             this.items = [];
@@ -149,14 +72,17 @@ const AStar = (function () {
             return this.items.length;
         }
 
+        static less(a, b) {
+            return a.f < b.f || (a.f === b.f && a.g > b.g);
+        }
+
         push(node) {
             const items = this.items;
             items.push(node);
-            // Sift the new node up until its parent is no larger.
             let i = items.length - 1;
             while (i > 0) {
                 const parent = (i - 1) >> 1;
-                if (items[parent].f <= items[i].f) break;
+                if (!MinHeap.less(items[i], items[parent])) break;
                 const tmp = items[parent];
                 items[parent] = items[i];
                 items[i] = tmp;
@@ -170,14 +96,16 @@ const AStar = (function () {
             const last = items.pop();
             if (items.length > 0) {
                 items[0] = last;
-                // Sift the root down to restore the heap property.
                 let i = 0;
                 const n = items.length;
                 for (;;) {
-                    const l = i * 2 + 1, r = i * 2 + 2;
+                    const l = i * 2 + 1,
+                        r = l + 1;
                     let smallest = i;
-                    if (l < n && items[l].f < items[smallest].f) smallest = l;
-                    if (r < n && items[r].f < items[smallest].f) smallest = r;
+                    if (l < n && MinHeap.less(items[l], items[smallest]))
+                        smallest = l;
+                    if (r < n && MinHeap.less(items[r], items[smallest]))
+                        smallest = r;
                     if (smallest === i) break;
                     const tmp = items[smallest];
                     items[smallest] = items[i];
@@ -189,111 +117,223 @@ const AStar = (function () {
         }
     }
 
-    function AStar(grid, start, end, f) {
-          let cols = grid[0].length,
-              rows = grid.length,
-              f1 = Math.abs,
-              f2 = Math.max,
-              // PERF: was a plain object (`list = {}`) keyed by adj.v,
-              // checked/set twice per successor node considered during the
-              // search (existence check + mark). adj.v = x + y*cols is
-              // already a dense integer provably within [0, rows*cols) --
-              // successors() only ever generates in-grid neighbors -- so
-              // there's no need for a general-purpose hash map here. A plain
-              // object either pays numeric-string property hashing on every
-              // access, or (once enough distinct keys accumulate during a
-              // large search, e.g. the full-map fallback searches in
-              // pathfinder.js's findIncompletePath_) can tip into V8's
-              // slower "dictionary mode" for the rest of the search. A
-              // preallocated Uint8Array indexed directly by v gives a flat,
-              // cache-friendly, guaranteed-O(1) lookup with no hashing at
-              // all, and costs at most rows*cols bytes (e.g. a 1000x1000
-              // full-map grid is a 1MB buffer -- trivial).
-              visited = new Uint8Array(rows * cols),
-              result = [],
-              open = new MinHeap(),
-              adj, distance, find, i, j, current, next,
-              endnode = {x:end[0], y:end[1], v:end[0]+end[1]*cols};
+    // Best-known g per (tile, direction) state. Small searches (every cropped
+    // short-grid search) use flat typed arrays that are reused between calls,
+    // invalidated by bumping a generation stamp instead of being cleared.
+    // Very large grids (e.g. a full 1024x1024 map fallback) would need tens of
+    // MB of buffers, and A* only touches a fraction of the states anyway, so
+    // those fall back to a Map.
+    const DENSE_STATE_LIMIT = 1 << 20;
+    let denseG = new Float64Array(0);
+    let denseStamp = new Uint32Array(0);
+    let generation = 0;
 
-          open.push({x:start[0], y:start[1], f:0, g:0, turns: 0, v:start[0]+start[1]*cols});
+    function makeBestStore(stateCount) {
+        if (stateCount > DENSE_STATE_LIMIT) {
+            const map = new Map();
+            return {
+                get: (s) => {
+                    const v = map.get(s);
+                    return v === undefined ? Infinity : v;
+                },
+                set: (s, g) => {
+                    map.set(s, g);
+                }
+            };
+        }
+        if (denseG.length < stateCount) {
+            denseG = new Float64Array(stateCount);
+            denseStamp = new Uint32Array(stateCount);
+            generation = 0;
+        }
+        generation = (generation + 1) >>> 0;
+        if (generation === 0) {
+            denseStamp.fill(0);
+            generation = 1;
+        }
+        const gen = generation,
+            g = denseG,
+            stamp = denseStamp;
+        return {
+            get: (s) => (stamp[s] === gen ? g[s] : Infinity),
+            set: (s, v) => {
+                stamp[s] = gen;
+                g[s] = v;
+            }
+        };
+    }
 
-          switch (f) {
-              case "Diagonal":
-                  find = diagonalSuccessors;
-              case "DiagonalFree":
-                  distance = diagonal;
-                  break;
-              case "Euclidean":
-                  find = diagonalSuccessors;
-              case "EuclideanFree":
-                  f2 = Math.sqrt;
-                  distance = euclidean;
-                  break;
-              default:
-                  distance = manhattan;
-                  find = nothingToDo;
-                  break;
-          }
-          find || (find = diagonalSuccessorsFree);
+    function isBlocked(grid, x, y) {
+        return !!grid[y][x];
+    }
 
-          while (open.length > 0) {
-              current = open.pop();
+    // Tile-level search. Returns the goal node (follow .p back to the start)
+    // or null.
+    function searchTiles(grid, sx, sy, ex, ey, turnCost) {
+        const rows = grid.length,
+            cols = grid[0].length,
+            best = makeBestStore(rows * cols * 4),
+            open = new MinHeap();
 
-              if (current.v !== endnode.v) {
-                  next = successors(find, current.x, current.y, grid, rows, cols);
+        open.push({
+            x: sx,
+            y: sy,
+            d: -1,
+            g: 0,
+            f:
+                Math.abs(ex - sx) +
+                Math.abs(ey - sy) +
+                turnCost * minTurns(-1, ex - sx, ey - sy),
+            p: null
+        });
 
-                  for(i = 0, j = next.length; i < j; ++i){
-                      adj = next[i];
-                      adj.p = current;
-                      adj.f = adj.g = 0;
-                      adj.v = adj.x + adj.y * cols;
-                      adj.turns = current.turns || 0;  // carry over turn count
+        while (open.length > 0) {
+            const n = open.pop();
 
-                      if(!visited[adj.v]){
-                        let turnPenalty = 0;
+            // Stale heap entry: a cheaper way into this state was found after
+            // this one was queued.
+            if (n.d >= 0 && n.g > best.get((n.y * cols + n.x) * 4 + n.d))
+                continue;
 
-                        // PERF: typeof was doing extra work to answer a
-                        // question a plain comparison already answers --
-                        // current.dir reads back exactly `undefined` when
-                        // unset, so there's nothing the typeof operator's
-                        // string-based dispatch adds here.
-                        if (current && current.dir !== undefined) {
-                            adj.dir = getDir(adj, current);
+            if (n.x === ex && n.y === ey) return n;
 
-                            // Strong turn penalty
-                            if (current.dir !== adj.dir && adj.dir !== 0) {
-                                turnPenalty = 1000;           // Very high to prioritize fewer turns
-                                adj.turns = current.turns + 1;
-                            }
-                        } else {
-                            // First move - no turn yet
-                            adj.dir = getDir(adj, current);
-                        }
+            for (let d = 0; d < 4; d++) {
+                // Never reverse straight back onto the previous tile.
+                if (n.d >= 0 && d === (n.d ^ 1)) continue;
 
-                        const stepCost = distance(adj, current, f1, f2);
+                const nx = n.x + DX[d],
+                    ny = n.y + DY[d];
+                if (nx < 0 || ny < 0 || nx >= cols || ny >= rows) continue;
+                if (isBlocked(grid, nx, ny)) continue;
 
-                        adj.g = current.g + stepCost + turnPenalty;
-                        adj.f = adj.g + distance(adj, endnode, f1, f2) + (adj.turns * 50); // secondary tie-breaker
+                const g = n.g + 1 + (n.d >= 0 && d !== n.d ? turnCost : 0);
+                const s = (ny * cols + nx) * 4 + d;
+                if (g >= best.get(s)) continue;
+                best.set(s, g);
 
-                        open.push(adj);
-                        visited[adj.v] = 1;
-                      }
-                  }
-              } else {
-                  // Reconstruct path
-                  i = 0;
-                  do {
-                      result[i++] = [current.x, current.y];
-                  } while (current = current.p);
-                  break;
-              }
-          }
+                const hx = ex - nx,
+                    hy = ey - ny;
+                open.push({
+                    x: nx,
+                    y: ny,
+                    d,
+                    g,
+                    f:
+                        g +
+                        Math.abs(hx) +
+                        Math.abs(hy) +
+                        turnCost * minTurns(d, hx, hy),
+                    p: n
+                });
+            }
+        }
+        return null;
+    }
 
-          return (result && result.length > 0) ? result.reverse() : null; // reverse so start -> end
-      }
+    // Collapse the tile path into straight segments: [{ d, x, y }] where x, y
+    // is the segment's first tile after the turn (enough to know which row or
+    // column a segment runs along).
+    function toSegments(goal) {
+        const nodes = [];
+        for (let n = goal; n; n = n.p) nodes.push(n);
+        nodes.reverse();
 
-  return {AStar};
+        const segs = [];
+        for (let i = 1; i < nodes.length; i++) {
+            const n = nodes[i];
+            if (segs.length === 0 || segs[segs.length - 1].d !== n.d)
+                segs.push({ d: n.d, x: n.x, y: n.y });
+        }
+        return segs;
+    }
 
-}());
+    // Turn tile segments into decimal nodes. Each segment is a line at a fixed
+    // coordinate (its "lane"): y for horizontal segments, x for vertical ones.
+    function toDecimalPath(segs, start, end) {
+        const sx = start[0],
+            sy = start[1],
+            ex = end[0],
+            ey = end[1];
+        const K = segs.length;
+
+        // Same tile: at most one turn needed, anywhere inside the tile is fine.
+        if (K === 0) {
+            if (sx === ex && sy === ey) return [[sx, sy]];
+            if (sx === ex || sy === ey)
+                return [
+                    [sx, sy],
+                    [ex, ey]
+                ];
+            return [
+                [sx, sy],
+                [ex, sy],
+                [ex, ey]
+            ];
+        }
+
+        // One straight run of tiles. If start and end aren't on exactly the
+        // same line, finish with a small sidestep inside the end tile.
+        if (K === 1) {
+            const horizontal = segs[0].d < 2;
+            if (horizontal ? sy === ey : sx === ex)
+                return [
+                    [sx, sy],
+                    [ex, ey]
+                ];
+            return [
+                [sx, sy],
+                horizontal ? [ex, sy] : [sx, ey],
+                [ex, ey]
+            ];
+        }
+
+        const lane = (k) => {
+            const seg = segs[k];
+            const horizontal = seg.d < 2;
+            if (k === 0) return horizontal ? sy : sx;
+            if (k === K - 1) return horizontal ? ey : ex;
+            return horizontal ? seg.y + 0.5 : seg.x + 0.5;
+        };
+
+        const path = [[sx, sy]];
+        for (let k = 0; k < K - 1; k++) {
+            // A corner sits where a horizontal lane meets a vertical one.
+            const a = lane(k),
+                b = lane(k + 1);
+            path.push(segs[k].d < 2 ? [b, a] : [a, b]);
+        }
+        path.push([ex, ey]);
+        return path;
+    }
+
+    function AStar(grid, start, end, options) {
+        if (!grid || !grid.length || !grid[0] || !grid[0].length) return null;
+
+        const rows = grid.length,
+            cols = grid[0].length;
+        const turnCost =
+            options && typeof options === 'object' && options.turnCost >= 0
+                ? options.turnCost
+                : DEFAULT_TURN_COST;
+
+        const tsx = Math.floor(start[0]),
+            tsy = Math.floor(start[1]),
+            tex = Math.floor(end[0]),
+            tey = Math.floor(end[1]);
+
+        if (tsx < 0 || tsy < 0 || tsx >= cols || tsy >= rows) return null;
+        if (tex < 0 || tey < 0 || tex >= cols || tey >= rows) return null;
+        // The start tile may be marked blocked (e.g. by the entity standing
+        // on it); the destination may not.
+        if (isBlocked(grid, tex, tey)) return null;
+
+        const goal = searchTiles(grid, tsx, tsy, tex, tey, turnCost);
+        if (!goal) return null;
+
+        return toDecimalPath(toSegments(goal), start, end);
+    }
+
+    return { AStar };
+})();
 
 export default AStar;
