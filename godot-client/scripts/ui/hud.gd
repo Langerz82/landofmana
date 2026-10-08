@@ -196,6 +196,12 @@ func _build_chat(root: Control) -> void:
 	_chat_log.add_theme_constant_override("outline_size", 3)
 	_chat_log.add_theme_color_override("font_outline_color", Color.BLACK)
 	_chat_log.add_theme_font_size_override("normal_font_size", 13)
+	# Black background at 50% opacity behind the chat log.
+	var chat_bg := StyleBoxFlat.new()
+	chat_bg.bg_color = Color(0, 0, 0, 0.25)
+	chat_bg.set_corner_radius_all(4)
+	chat_bg.set_content_margin_all(6)
+	_chat_log.add_theme_stylebox_override("normal", chat_bg)
 	box.add_child(_chat_log)
 	_chat_input = LineEdit.new()
 	_chat_input.placeholder_text = "Type a message and press Enter..."
@@ -206,7 +212,7 @@ func _build_chat(root: Control) -> void:
 
 
 func _build_center_texts(root: Control) -> void:
-	_announce = _label("", 22, KOMIKA, Color(1, 1, 0))
+	_announce = _label("", 18, KOMIKA, Color(1, 1, 0))
 	_announce.set_anchors_preset(Control.PRESET_TOP_WIDE)
 	_announce.position.y = 120
 	_announce.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -746,25 +752,27 @@ func apply_shortcut_style() -> void:
 		shortcut_bar.set_anchors_preset(Control.PRESET_CENTER_RIGHT)
 		shortcut_bar.grow_horizontal = Control.GROW_DIRECTION_BEGIN
 		shortcut_bar.grow_vertical = Control.GROW_DIRECTION_BOTH
-		shortcut_bar.offset_left = -80
+		# Vertical: middle of the right edge (centred on its real height).
+		shortcut_bar.offset_left = -8
 		shortcut_bar.offset_right = -8
-		shortcut_bar.offset_top = -220
-		shortcut_bar.offset_bottom = 220
+		shortcut_bar.offset_top = 0
+		shortcut_bar.offset_bottom = 0
 	else:
-		shortcut_bar.set_anchors_preset(Control.PRESET_CENTER_BOTTOM)
-		shortcut_bar.grow_horizontal = Control.GROW_DIRECTION_BOTH
+		# Horizontal: bottom-right corner (the menu is a column at the right middle).
+		shortcut_bar.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT)
+		shortcut_bar.grow_horizontal = Control.GROW_DIRECTION_BEGIN
 		shortcut_bar.grow_vertical = Control.GROW_DIRECTION_BEGIN
-		shortcut_bar.offset_left = -220
-		shortcut_bar.offset_right = 220
-		shortcut_bar.offset_top = -72
+		shortcut_bar.offset_left = -8
+		shortcut_bar.offset_right = -8
+		shortcut_bar.offset_top = -8
 		shortcut_bar.offset_bottom = -8
 	shortcut_bar.reset_size()
 	_layout_menu()
 
 
-## The menu icons go where the shortcut bar is not: shortcut bar along the
-## bottom -> vertical menu in the middle of the right edge; shortcut bar
-## vertical on the right -> horizontal menu in the middle of the bottom.
+## Shortcut bar horizontal (bottom-right corner): menu icons are a column in
+## the middle of the right edge. Shortcut bar vertical (middle of the right
+## edge): menu icons are a row in the bottom-right corner.
 func _layout_menu() -> void:
 	if _menu_panel == null or shortcut_bar == null:
 		return
@@ -772,11 +780,11 @@ func _layout_menu() -> void:
 	var mp := _menu_panel
 	_menu.vertical = not vertical_bar
 	if vertical_bar:
-		mp.set_anchors_preset(Control.PRESET_CENTER_BOTTOM)
-		mp.grow_horizontal = Control.GROW_DIRECTION_BOTH
+		mp.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT)
+		mp.grow_horizontal = Control.GROW_DIRECTION_BEGIN
 		mp.grow_vertical = Control.GROW_DIRECTION_BEGIN
-		mp.offset_left = 0
-		mp.offset_right = 0
+		mp.offset_left = -8
+		mp.offset_right = -8
 		mp.offset_top = -8
 		mp.offset_bottom = -8
 	else:
@@ -788,6 +796,16 @@ func _layout_menu() -> void:
 		mp.offset_top = 0
 		mp.offset_bottom = 0
 	mp.reset_size()
+	_layout_chat.call_deferred()
+
+
+## Chat log in the bottom-left corner.
+func _layout_chat() -> void:
+	if _chat_box == null:
+		return
+	# Offsets from the bottom-left anchor (setting `position` here would be absolute).
+	_chat_box.offset_top = -250
+	_chat_box.offset_bottom = -10
 
 
 ## Re-applies menu/button colours after a settings change.

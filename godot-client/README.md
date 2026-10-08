@@ -73,10 +73,10 @@ Health bars (your HP, the target frame and the bars over heads) slide to
 new values over 500 ms; Settings -> Health bars changes it (instant, 250,
 500 or 1000 ms).
 
-The menu icons sit on the edge the shortcut bar leaves free: with the
-horizontal shortcut bar at the bottom they are a vertical column in the
-middle of the right edge; with the vertical shortcut bar on the right they
-are a row in the middle of the bottom (Settings -> Shortcuts).
+With the horizontal shortcut bar (bottom-right corner) the menu icons are a
+column in the middle of the right edge; with the vertical shortcut bar
+(middle of the right edge) they are a row in the bottom-right corner
+(Settings -> Shortcuts). The chat log stays in the bottom-left corner.
 
 Windows: click an item once to select it, again to use it (or double click);
 drag it onto another slot to move it, onto the shortcut bar to install it, or
