@@ -97,6 +97,11 @@ class MapPathfindingService {
             const sgrid = shortGrid.crop;
             const spS = shortGrid.substart;
             const spE = shortGrid.subend;
+            // Exact (decimal) grid positions for A*, which handles sub-tile
+            // start/end points itself. findDirectPath() below still works on
+            // the tile-snapped spS/spE.
+            const gpS = [pS[0] / ts, pS[1] / ts];
+            const gpE = [pE[0] / ts, pE[1] / ts];
             let subpath = null;
 
             // PERF: findPath runs for every mob chase/roam/player click-path
@@ -143,8 +148,8 @@ class MapPathfindingService {
                     sgrid,
                     shortGrid.minX,
                     shortGrid.minY,
-                    spS,
-                    spE
+                    [gpS[0] - shortGrid.minX, gpS[1] - shortGrid.minY],
+                    [gpE[0] - shortGrid.minX, gpE[1] - shortGrid.minY]
                 );
                 if (subpath)
                     path = pathfinder.getFullFromShortPath(
@@ -177,8 +182,8 @@ class MapPathfindingService {
                 // "DANGER" path for meaningfully fewer total pathfinding
                 // failures in dense terrain.
                 const longGrid = pathfinder.getShortGrid(grid, fgpS, fgpE, 16);
-                const lpS = longGrid.substart;
-                const lpE = longGrid.subend;
+                const lpS = [gpS[0] - longGrid.minX, gpS[1] - longGrid.minY];
+                const lpE = [gpE[0] - longGrid.minX, gpE[1] - longGrid.minY];
                 path = pathfinder.findShortPath(
                     longGrid.crop,
                     longGrid.minX,
