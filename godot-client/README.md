@@ -4,7 +4,7 @@ A Godot 4 (GDScript) port of the browser client in `../client`. It talks to the
 **unchanged** user server and game server using the same Socket.IO protocol as
 the JavaScript client, so both clients can play together on one server.
 
-Open this folder in **Godot 4.4 or newer** (`project.godot`) and press **F5**.
+Open this folder in **Godot 4.7** (`project.godot`) and press **F5**.
 
 ## What is ported
 
@@ -26,28 +26,56 @@ Open this folder in **Godot 4.4 or newer** (`project.godot`) and press **F5**.
 | NPC dialogue & accepting quests | done | `gamedialogue.js`, `clientcallbacksquest.js` |
 | HUD: HP / EP / XP bars, gold, target frame, FPS/coords | done | `renderer/rendererdrawhud.js`, HTML HUD |
 | Sound effects, per-map music (M toggles) | done | `audio.js` |
+| Inventory (50) + equipment (5): use, equip, drag & drop, split stacks, drop on the ground | done | `dialog/inventorydialog/*`, `inventoryhandler.js` |
+| Shortcut bar (6 + ATK): drag items/skills on, keys 1–6, cooldowns, 4 layouts | done | `shortcut/*` |
+| Skills: list, levels, details, self/target/attack skills, cooldowns | done | `dialog/skilldialog.js`, `skillhandler.js` |
+| Player stats: levels, stat points (+), crit/damage formulas | done | `dialog/statdialog.js`, `playercombat.js` |
+| Store (buy, sell mode), bank (items + gold), auction (list, buy, delete, sell) | done | `dialog/store*`, `bankdialog/*`, `auction*` |
+| Craft, enchant and repair (NPC modes), looks (switch + unlock with gems) | done | `craft*`, `appearance/*` |
+| Quest log, achievements (+ completion notice) | done | `questdialog.js`, `achievement*` |
+| Party: invite / accept / kick / leader / leave, player right-click menu | done | `socialdialog.js`, `playerpopupmenu.js` |
+| Settings (chat, sound, music, joystick, fullscreen, colours, zoom, shortcut layout, log out) | done | `settingsdialog.js` |
+| Gem shop (opens the payment page), leaderboard | done | `gemshop*`, `leaderboard*` |
+| Chat commands (`/w`, `//`, `///`, `/party`, `/invite`, `/kick`, `/leader`, `/leave`, `/warp`, `/autopotion`, `/id`) | done | `chathandler.js` |
+| Harvesting (axe/pickaxe on trees, rocks and nodes), pushing/placing blocks | done | `gameinteraction*.js` |
+| Gamepad, touch joystick, cursor shapes | done | `gamepad.js`, `joystick.js`, `cursor*.js` |
 
-### Not ported yet (stubbed)
+### Notes on features that were dead in the JS client
 
-These are separate HTML dialogs in the JS client and are the next passes:
-inventory & equipment UI, shortcuts bar (1–6), skills, stats, shop, bank,
-auction, craft, enchant/repair, appearance (Looks), party/social, leaderboard,
-achievements UI, gamepad and touch controls. Talking to a shop-type NPC shows a
-"not available yet" notice. The server data for these (inventory, bank,
-quests, skills…) is already received; the Send* helpers for most of them are in
-`scripts/net/game_client.gd`.
+* **Leaderboard** – the JS dialog had no data source. Here it downloads JSON
+  from `"leaderboardurl"` in `config_build.json` and is hidden when that key is
+  not set.
+* **Guilds** – the server has no guild support, so guild commands only show a
+  notice.
+* **Player popup menu** – never opened in the JS client; here it is on right
+  click on another player.
+* **Auto potion** (`/autopotion`) is implemented on the client.
+* The gem shop opens `"shopurl"` from `config_build.json` (default
+  `https://www.landofmana.com/play/paypal.html`) in the system browser.
 
 ## Controls
 
 | Input | Action |
 | --- | --- |
-| Left click | move / target / attack / talk / pick up |
+| Left click | move / target / attack / talk / pick up / harvest |
+| Right click on a player | party / whisper menu |
 | Arrows, WASD, numpad 8/4/6/2 | walk |
-| Space | attack or talk to what you face, advance dialogue |
+| Space | attack or talk to what you face, advance dialogue, harvest |
 | T / Y | next / previous target |
+| 1–6 | shortcut bar |
+| I / C / K / Q / J / O | inventory, player stats, skills, quests, achievements, social |
+| Esc | close windows (or open settings when none is open) |
 | Enter | open chat, Enter again to send, Esc to cancel |
 | M | music on/off |
 | F3 | FPS / coordinate overlay |
+
+Windows: click an item once to select it, again to use it (or double click);
+drag it onto another slot to move it, onto the shortcut bar to install it, or
+outside the windows to drop it. Right click uses an item.
+
+Gamepad: d-pad / left stick walk, A interact, X next target, Y inventory,
+Start settings, Back stats, L1 + A/B/X for shortcuts 1–3, R1 + A/B/X for 4–6,
+and the d-pad moves between buttons while a window is open.
 
 ## Server address
 
@@ -70,7 +98,10 @@ scripts/core/            config, shared data tables (shared/data/*.json), Types,
 scripts/net/             Socket.IO client, packet codec, CryptoJS-compatible login hash, user & game clients
 scripts/world/           World (game.js + callbacks + updater), map data/renderer, path finder, audio
 scripts/world/entities/  Entity → EntityMoving → Character → Player / Mob / Npc, ItemEntity, StaticEntity
-scripts/ui/              login screen, HUD, overlay (names, health bars, bubbles, combat text)
+scripts/world/           also PlayerData (inventory/bank/quest/skill state) and ItemActions
+scripts/ui/              login screen, HUD, overlay (names, health bars, bubbles, combat text), cursors
+scripts/ui/widgets/      GameWindow, ItemSlot (drag & drop), modals, shortcut bar, touch joystick
+scripts/ui/windows/      inventory, bank, store, craft, auction, looks, stats, skills, quests, ...
 assets/                  copies of client/img, audio, fonts, maps/*.json, data and shared/data
 tests/                   headless integration tests (need running servers)
 ```
@@ -111,7 +142,17 @@ godot --headless --path godot-client res://tests/net_smoke_test.tscn
 godot --headless --path godot-client res://tests/play_test.tscn     -- --user=tester1 --pass=secret1
 godot --headless --path godot-client res://tests/scenario_test.tscn -- --user=tester2 --pass=secret1
 godot --headless --path godot-client res://tests/death_test.tscn    -- --user=tester1 --pass=secret1
+godot --headless --path godot-client res://tests/ui_flow_test.tscn
+godot --headless --path godot-client res://tests/systems_test.tscn  -- --user=systest1 --pass=pw12345
 ```
 
 They create the account/character when it does not exist, then log in, walk,
 attack, chat, talk to the Old Man, use the map doors and so on.
+
+`systems_test` drives the town NPCs end to end: buy, equip/unequip, split,
+sell, drop & loot, bank items and gold, enchant, repair, auction list/delete,
+craft, looks, stat points, skills and shortcuts, and every other window. Its
+character needs gold (each run spends some, and enchanting gets more
+expensive), for example `redis-cli hset p:Systest1 gold_0 500000`. Add
+`--shots=/some/dir` (run with a display, e.g. under `xvfb-run` with
+`--rendering-driver opengl3`) to save a screenshot of each window.

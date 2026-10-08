@@ -13,6 +13,9 @@ var appearances: Array = []          # index = appearance id
 var item_kinds: Dictionary = {}      # kind(int) -> Dictionary
 var item_loot: Array = []            # index = kind - 1000
 var sprite_defs: Dictionary = {}     # id -> SpriteDef
+var static_sheets: Array = []        # client/data/staticsheet.json (item icon sheets)
+var crafts: Array = []               # shared/data/craft.json, "id" = index
+var skills: Array = []               # shared/data/skills2.json (SkillData.Data)
 
 var _textures: Dictionary = {}
 
@@ -40,7 +43,12 @@ func _ready() -> void:
 			npc["title"] = npc.get("name", npc.get("uid", ""))
 	appearances = _json(SHARED + "appearance.json", [])
 	item_loot = _json(SHARED + "itemloot.json", [])
+	static_sheets = _json("res://assets/data/staticsheet.json", [])
+	crafts = _json(SHARED + "craft.json", [])
+	for i in range(crafts.size()):
+		crafts[i]["id"] = i
 	_load_items()
+	_load_skills()
 	_load_sprites()
 
 
@@ -81,20 +89,48 @@ func _load_mobs() -> void:
 		mob_kinds[mob.kind] = mob
 
 
+## Port of client/js/data/items.js (kindData).
 func _load_items() -> void:
 	var parsed = _json(SHARED + "items2.json", [])
 	for v in parsed:
 		var kind := int(v.get("id", 0))
-		item_kinds[kind] = {
+		var craft_list: Array = []
+		for c in crafts:
+			if int(c.get("o", -1)) == kind:
+				craft_list.append(c)
+		var d := {
 			"name": str(v.get("name", "")),
 			"type": str(v.get("type", "object")),
-			"modifier": int(v.get("modifier", 0)),
-			"sprite": str(v.get("sprite", "")),
-			"spriteName": str(v.get("spriteName", "")),
-			"offset": v.get("offset", [0, 0]),
-			"level": int(v.get("level", v.get("modifier", 0))),
-			"legacy": int(v.get("legacy", 0)),
+			"typemod": str(v.get("typemod", "none")),
+			"modifier": int(v.get("modifier", 0)) if v.get("modifier") else 0,
+			"sprite": str(v.get("sprite", "")) if v.get("sprite") else "",
+			"spriteName": str(v.get("spriteName", "")) if v.get("spriteName") else "",
+			"offset": v.get("offset", [0, 0]) if v.get("offset") else [0, 0],
+			"buy": int(v.get("buy", 0)) if v.get("buy") else 0,
+			"buyCount": int(v.get("buyCount", 1)) if v.get("buyCount") else 1,
+			"staticsheet": int(v.get("staticsheet", 0)) if v.get("staticsheet") else 0,
+			"legacy": int(v.get("legacy", 0)) if v.get("legacy") else 0,
+			"craft": craft_list,
 		}
+		d["level"] = int(v["level"]) if v.get("level") else d.modifier
+		if d.type == "object":
+			d["cooldown"] = int(v.get("cooldown", 10)) if v.get("cooldown") else 10
+		item_kinds[kind] = d
+
+
+## Port of client/js/data/skilldata.js.
+func _load_skills() -> void:
+	for v in _json(SHARED + "skills2.json", []):
+		skills.append({
+			"name": str(v.get("name", "")),
+			"iconOffset": v.get("iconOffset", [0, 0]),
+			"detail": str(v.get("detail", "")),
+			"skillType": str(v.get("skillType", "")),
+			"targetType": v.get("targetType", 0),
+			"duration": int(v.get("duration", 0)) if v.get("duration") else 0,
+			"recharge": int(float(v.get("recharge", 0)) * 1000) if v.get("recharge") else 0,
+			"aoe": int(v.get("aoe", 0)) if v.get("aoe") else 0,
+		})
 
 
 func _load_sprites() -> void:
@@ -184,20 +220,23 @@ func item_name(kind: int) -> String:
 
 
 func is_equipment(kind: int) -> bool:
-	var t := str(get_item(kind).get("type", ""))
-	return t in ["sword", "hammer", "axe", "bow", "helm", "chest", "gloves", "boots"]
+	return ItemTypes.is_equipment(kind)
 
 
 func is_archer_weapon(kind: int) -> bool:
-	return str(get_item(kind).get("type", "")) == "bow"
+	return ItemTypes.is_archer_weapon(kind)
 
 
 func is_consumable(kind: int) -> bool:
-	return str(get_item(kind).get("type", "")) == "object"
+	return ItemTypes.is_consumable(kind)
 
 
 func is_craft_item(kind: int) -> bool:
-	return str(get_item(kind).get("type", "")) == "craft"
+	return ItemTypes.is_craft_item(kind)
+
+
+func get_skill(index: int) -> Dictionary:
+	return skills[index] if index >= 0 and index < skills.size() else {}
 
 
 func tr_lang(key: String, args = null) -> String:

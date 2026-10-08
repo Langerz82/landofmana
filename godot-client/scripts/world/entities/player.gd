@@ -23,6 +23,10 @@ var spawn_gy := 0
 var ex := -1
 var ey := -1
 var weapon_kind := 0
+var attack_skill := -1        # skill index used by the next attack (SkillActive "attack")
+var pvp_target = null
+var holding_block = null      # Block entity being carried
+var harvest_duration := 0
 
 var key_move_cb: Callable = Callable()
 var attack_delay = null        # Game.Delay (JS attackInterval)
@@ -47,6 +51,9 @@ func _init() -> void:
 func set_pos(nx: int, ny: int) -> void:
 	super.set_pos(nx, ny)
 	key_move = false
+	if holding_block != null and is_instance_valid(holding_block):
+		var p := get_tile_position_next_to(orientation, 1)
+		holding_block.set_pos(p.x, p.y)
 
 
 func set_pos_spawn(nx: int, ny: int) -> void:

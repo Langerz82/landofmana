@@ -23,7 +23,7 @@ func _to_screen(p: Vector2) -> Vector2:
 func _draw() -> void:
 	if world == null or world.player == null or world.map_status < 2:
 		return
-	var scale_f: float = world.GAME_SCALE
+	var scale_f: float = world.game_scale
 	var view := get_viewport_rect().grow(64)
 	var p = world.player
 	# target marker (rendererdrawentities.js drawEntityTile)
@@ -41,7 +41,7 @@ func _draw() -> void:
 		if e != p and e is Character and not e.is_dying:
 			_draw_health(e, sp, scale_f)
 	if p.start_harvest_time > 0:
-		var r := clampf((Time.get_ticks_msec() - p.start_harvest_time) / 1000.0, 0, 1)
+		var r := clampf((Time.get_ticks_msec() - p.start_harvest_time) / float(maxi(p.harvest_duration, 1000)), 0, 1)
 		_draw_bar(_to_screen(Vector2(p.x, p.y - TS - (TS >> 1))), r, Color(0, 1, 0), scale_f)
 	for info in world.infos:
 		var ip := _to_screen(Vector2(info.x, info.y - TS))

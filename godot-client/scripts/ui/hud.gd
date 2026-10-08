@@ -36,6 +36,20 @@ var _announcements: Array = []
 var _announce_until := 0
 var _target = null
 var _chat_lines: Array = []
+var _root: Control
+var windows: Dictionary = {}     # name -> GameWindow
+var modals: Modals
+var shortcut_bar: ShortcutBar
+var joystick: TouchJoystick
+var _menu: HBoxContainer
+var _alarm: Label
+var _alarm_queue: Array = []
+var _alarm_until := 0
+var _player_menu: PopupMenu
+var _menu_player = null
+var _chat_box: VBoxContainer
+var _hover = null
+var _panels: Array = []
 
 
 func _ready() -> void:
@@ -51,6 +65,10 @@ func _ready() -> void:
 	_build_dialogue(root)
 	_build_died(root)
 	_build_error(root)
+	_root = root
+	UiStyle.load_settings()
+	if world != null and world.get("data") != null:
+		_build_game_ui(root)
 	announce("Welcome to Land Of Mana!", 5000)
 
 
@@ -100,6 +118,7 @@ func _label(text: String, size := 14, font: Font = null, color := Color.WHITE) -
 func _build_player_panel(root: Control) -> void:
 	var p := PanelContainer.new()
 	p.add_theme_stylebox_override("panel", panel_style())
+	_panels.append(p)
 	p.position = Vector2(10, 10)
 	p.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	root.add_child(p)
@@ -157,6 +176,7 @@ func _build_target_panel(root: Control) -> void:
 
 func _build_chat(root: Control) -> void:
 	var box := VBoxContainer.new()
+	_chat_box = box
 	box.set_anchors_preset(Control.PRESET_BOTTOM_LEFT)
 	box.position = Vector2(10, -250)
 	box.custom_minimum_size = Vector2(460, 240)
@@ -195,16 +215,16 @@ func _build_center_texts(root: Control) -> void:
 	_debug.set_anchors_preset(Control.PRESET_TOP_RIGHT)
 	_debug.offset_left = -300
 	_debug.offset_right = -10
-	_debug.offset_top = 40
+	_debug.offset_top = 30
 	_debug.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	root.add_child(_debug)
-	var help := _label("Click / arrows: move    Space: attack/talk    T/Y: target    Enter: chat    M: music    F3: debug", 11, null, Color(1, 1, 1, 0.6))
-	help.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT)
+	var help := _label("Space: attack/talk   T/Y: target   1-6: shortcuts   I: items   C: player   K: skills   Q: quests   Enter: chat   Esc: settings", 11, null, Color(1, 1, 1, 0.6))
+	help.set_anchors_preset(Control.PRESET_TOP_RIGHT)
 	help.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	help.offset_left = -900
 	help.offset_right = -10
-	help.offset_top = -24
-	help.offset_bottom = -6
+	help.offset_top = 8
+	help.offset_bottom = 26
 	root.add_child(help)
 
 
@@ -413,3 +433,332 @@ func _input(event: InputEvent) -> void:
 				return
 			open_chat(true)
 			get_viewport().set_input_as_handled()
+
+
+# ======================================================================
+# Game windows, menu, shortcut bar, modals (the rest of the JS client UI)
+# ======================================================================
+
+const MENU := [
+	# [window, icon x, icon y, tooltip, hotkey]
+	["inventory", 0, 32, "Equipment & items (I)", KEY_I],
+	["stats", 128, 0, "Player (C)", KEY_C],
+	["skills", 96, 0, "Skills (K)", KEY_K],
+	["quests", 352, 0, "Quests (Q)", KEY_Q],
+	["achievements", 448, 0, "Achievements (J)", KEY_J],
+	["social", 416, 0, "Social / party (O)", KEY_O],
+	["town", 480, 0, "Warp to town", 0],
+	["settings", 32, 0, "Settings (Esc)", 0],
+	["gemshop", 160, 0, "Store (gems)", 0],
+]
+
+
+func _build_game_ui(root: Control) -> void:
+	var data: PlayerData = world.data
+	var actions: ItemActions = world.actions
+	var wlayer := Control.new()
+	wlayer.name = "Windows"
+	wlayer.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	wlayer.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	root.add_child(wlayer)
+	var inv := InventoryWindow.new()
+	_add_window(wlayer, "inventory", inv)
+	inv.bind(data, actions)
+	var bank := BankWindow.new()
+	_add_window(wlayer, "bank", bank)
+	bank.bind(data, actions, inv)
+	for pair in [["store", StoreWindow.new()], ["craft", CraftWindow.new()], ["auction", AuctionWindow.new()], ["looks", AppearanceWindow.new()]]:
+		_add_window(wlayer, pair[0], pair[1])
+		pair[1].bind(data, actions, inv)
+	var stats := StatsWindow.new()
+	_add_window(wlayer, "stats", stats)
+	stats.bind(data, actions)
+	var skills := SkillsWindow.new()
+	_add_window(wlayer, "skills", skills)
+	skills.bind(data, actions)
+	var quests := QuestWindow.new()
+	_add_window(wlayer, "quests", quests)
+	quests.bind(data)
+	var ach := AchievementWindow.new()
+	_add_window(wlayer, "achievements", ach)
+	ach.bind(data)
+	var social := SocialWindow.new()
+	_add_window(wlayer, "social", social)
+	social.bind(data, actions)
+	_add_window(wlayer, "settings", SettingsWindow.new())
+	_add_window(wlayer, "gemshop", GemShopWindow.new())
+	_add_window(wlayer, "rankings", LeaderboardWindow.new())
+	# shortcut bar
+	shortcut_bar = ShortcutBar.new()
+	root.add_child(shortcut_bar)
+	shortcut_bar.bind(world, data, actions)
+	apply_shortcut_style()
+	# menu bar (#charactermenu)
+	var mp := PanelContainer.new()
+	mp.add_theme_stylebox_override("panel", UiStyle.panel(0.6))
+	_panels.append(mp)
+	mp.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT)
+	mp.grow_horizontal = Control.GROW_DIRECTION_BEGIN
+	mp.grow_vertical = Control.GROW_DIRECTION_BEGIN
+	mp.offset_right = -8
+	mp.offset_bottom = -8
+	root.add_child(mp)
+	_menu = HBoxContainer.new()
+	_menu.add_theme_constant_override("separation", 2)
+	mp.add_child(_menu)
+	var entries: Array = MENU.duplicate()
+	if LeaderboardWindow.available():
+		entries.insert(6, ["rankings", 448, 32, "Rankings", 0])
+	for m in entries:
+		var b := TextureButton.new()
+		b.texture_normal = UiStyle.menu_icon(m[1], m[2])
+		b.ignore_texture_size = true
+		b.stretch_mode = TextureButton.STRETCH_KEEP_ASPECT_CENTERED
+		b.custom_minimum_size = Vector2(36, 36)
+		b.tooltip_text = m[3]
+		b.focus_mode = Control.FOCUS_NONE
+		var wname: String = m[0]
+		b.pressed.connect(func(): menu_action(wname))
+		_menu.add_child(b)
+	# modals, alarm, popup menu, joystick
+	modals = Modals.new()
+	root.add_child(modals)
+	_alarm = _label("", 18, KOMIKA, Color(0.6, 1, 0.6))
+	_alarm.set_anchors_preset(Control.PRESET_TOP_WIDE)
+	_alarm.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_alarm.offset_top = 80
+	_alarm.offset_bottom = 110
+	root.add_child(_alarm)
+	_player_menu = PopupMenu.new()
+	_player_menu.id_pressed.connect(_on_player_menu)
+	root.add_child(_player_menu)
+	joystick = TouchJoystick.new()
+	joystick.set_anchors_preset(Control.PRESET_BOTTOM_LEFT)
+	joystick.offset_left = 20
+	joystick.offset_top = -170
+	joystick.offset_right = 160
+	joystick.offset_bottom = -30
+	joystick.direction_changed.connect(func(o): world.joystick_direction(o))
+	root.add_child(joystick)
+	set_joystick_visible(bool(Config.get_setting("ui", "joystick", OS.has_feature("mobile"))))
+	set_chat_visible(bool(Config.get_setting("ui", "chat", true)))
+	data.achievement_completed.connect(func(a): alarm("Achievement completed: " + str(a.summary)))
+	data.party_invite.connect(_on_party_invite)
+	data.gold_changed.connect(func(): update_bars(world.player))
+
+
+func _add_window(layer: Control, wname: String, w: GameWindow) -> void:
+	w.hud = self
+	w.world = world
+	w.name = wname.capitalize().replace(" ", "") + "Window"
+	layer.add_child(w)
+	windows[wname] = w
+
+
+func window(wname: String) -> GameWindow:
+	return windows.get(wname)
+
+
+func open_window(wname: String) -> GameWindow:
+	var w := window(wname)
+	if w:
+		w.open()
+	return w
+
+
+func toggle_window(wname: String) -> void:
+	var w := window(wname)
+	if w:
+		w.toggle()
+
+
+func menu_action(wname: String) -> void:
+	if wname == "town":
+		world.warp_to_town()
+		return
+	toggle_window(wname)
+
+
+func any_window_open() -> bool:
+	for w in windows.values():
+		if w.visible:
+			return true
+	return false
+
+
+func close_all_windows() -> void:
+	for w in windows.values():
+		w.close()
+
+
+func is_pointer_over_ui() -> bool:
+	var c := get_viewport().gui_get_hovered_control()
+	return c != null and not (c is Overlay)
+
+
+# -------------------------------------------------------------- modals
+
+func confirm(message: String, cb: Callable) -> void:
+	modals.confirm(message, cb)
+
+
+func notify(message: String, cb: Callable = Callable()) -> void:
+	modals.notify(message, cb)
+
+
+func ask_count(message: String, default_value: int, max_value: int, cb: Callable) -> void:
+	modals.ask_count(message, default_value, max_value, cb)
+
+
+## Shop-type notifications pop up while a shop window is open (game.showNotification).
+func shop_window_open() -> bool:
+	for n in ["store", "craft", "auction", "looks", "bank"]:
+		if windows.has(n) and windows[n].visible:
+			return true
+	return windows.has("inventory") and windows["inventory"].visible and world.actions.mode != ItemActions.Mode.NORMAL
+
+
+# ---------------------------------------------------------------- alarm
+
+## UserAlarm (useralarm.js): queued messages fading in the top centre.
+func alarm(text: String, ms := 5000) -> void:
+	_alarm_queue.append([text, ms])
+
+
+func _process(_d: float) -> void:
+	if _alarm == null:
+		return
+	var now := Time.get_ticks_msec()
+	if _alarm_until > 0:
+		var left := _alarm_until - now
+		_alarm.modulate.a = clampf(left / 1500.0, 0, 1)
+		if left <= 0:
+			_alarm_until = 0
+			_alarm.text = ""
+	elif not _alarm_queue.is_empty():
+		var a: Array = _alarm_queue.pop_front()
+		_alarm.text = a[0]
+		_alarm.modulate.a = 1
+		_alarm_until = now + int(a[1]) + 1500
+
+
+# ------------------------------------------------------------- settings
+
+func set_chat_visible(v: bool) -> void:
+	if _chat_log:
+		_chat_log.visible = v
+
+
+func set_joystick_visible(v: bool) -> void:
+	if joystick:
+		joystick.visible = v
+
+
+func apply_shortcut_style() -> void:
+	if shortcut_bar == null:
+		return
+	var st := str(Config.get_setting("ui", "shortcutstyle", "horizontal-asc"))
+	shortcut_bar.set_style(st)
+	if st.begins_with("vertical"):
+		shortcut_bar.set_anchors_preset(Control.PRESET_CENTER_RIGHT)
+		shortcut_bar.grow_horizontal = Control.GROW_DIRECTION_BEGIN
+		shortcut_bar.grow_vertical = Control.GROW_DIRECTION_BOTH
+		shortcut_bar.offset_left = -80
+		shortcut_bar.offset_right = -8
+		shortcut_bar.offset_top = -220
+		shortcut_bar.offset_bottom = 220
+	else:
+		shortcut_bar.set_anchors_preset(Control.PRESET_CENTER_BOTTOM)
+		shortcut_bar.grow_horizontal = Control.GROW_DIRECTION_BOTH
+		shortcut_bar.grow_vertical = Control.GROW_DIRECTION_BEGIN
+		shortcut_bar.offset_left = -220
+		shortcut_bar.offset_right = 220
+		shortcut_bar.offset_top = -72
+		shortcut_bar.offset_bottom = -8
+	shortcut_bar.reset_size()
+
+
+## Re-applies menu/button colours after a settings change.
+func restyle() -> void:
+	for p in _panels:
+		p.add_theme_stylebox_override("panel", UiStyle.panel(0.6))
+	for w in windows.values():
+		w.add_theme_stylebox_override("panel", UiStyle.panel())
+		_restyle_buttons(w)
+	if shortcut_bar:
+		shortcut_bar.add_theme_stylebox_override("panel", UiStyle.panel(0.6))
+		_restyle_buttons(shortcut_bar)
+
+
+func _restyle_buttons(n: Node) -> void:
+	for c in n.get_children():
+		if c is Button and not (c is CheckButton or c is OptionButton or c is ColorPickerButton):
+			UiStyle.style_button(c)
+		_restyle_buttons(c)
+
+
+# --------------------------------------------------------- social / popup
+
+func _on_party_invite(inviter: String) -> void:
+	modals.ask_yes_no("%s invited you to a party. Join?" % inviter, func(ok: bool):
+		world.client.send([Types.Messages.CW_PARTY, 1, inviter, 1 if ok else 2]))
+
+
+## PlayerPopupMenu (playerpopupmenu.js) - right click on another player.
+func show_player_menu(p) -> void:
+	_menu_player = p
+	var data: PlayerData = world.data
+	var me: String = world.player.ename
+	_player_menu.clear()
+	_player_menu.add_separator(p.ename)
+	if (data.is_party_leader(me) and not data.is_party_member(p.ename)) or data.party.is_empty():
+		_player_menu.add_item("Invite to party", 1)
+	if data.is_party_leader(me) and data.is_party_member(p.ename):
+		_player_menu.add_item("Make party leader", 2)
+		_player_menu.add_item("Kick from party", 3)
+	if p.level >= 20 and world.player.level >= 20 and world.map_index != 0:
+		_player_menu.add_item("Stop attacking" if world.player.pvp_target == p else "Attack (PvP)", 4)
+	_player_menu.reset_size()
+	_player_menu.position = Vector2i(get_viewport().get_mouse_position())
+	_player_menu.popup()
+
+
+func _on_player_menu(id: int) -> void:
+	var p = _menu_player
+	if p == null or not is_instance_valid(p):
+		return
+	var social: SocialWindow = windows.get("social")
+	match id:
+		1: social.invite(p.ename)
+		2: social.make_leader(p.ename)
+		3: social.kick(p.ename)
+		4:
+			if world.player.pvp_target == p:
+				world.player.pvp_target = null
+			else:
+				world.player.pvp_target = p
+				world.make_player_attack(p)
+
+
+# ------------------------------------------------------------- hotkeys
+
+func _unhandled_key_input(e: InputEvent) -> void:
+	if windows.is_empty() or not (e is InputEventKey) or not e.pressed or e.echo:
+		return
+	if modals and modals.is_open():
+		return
+	if e.keycode == KEY_ESCAPE:
+		if any_window_open():
+			close_all_windows()
+		else:
+			toggle_window("settings")
+		get_viewport().set_input_as_handled()
+		return
+	for m in MENU:
+		if int(m[4]) != 0 and e.keycode == int(m[4]):
+			toggle_window(m[0])
+			get_viewport().set_input_as_handled()
+			return
+	if e.keycode >= KEY_1 and e.keycode <= KEY_6:
+		world.actions.exec_shortcut(e.keycode - KEY_1)
+		get_viewport().set_input_as_handled()
