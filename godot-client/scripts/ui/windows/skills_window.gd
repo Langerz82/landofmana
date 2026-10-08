@@ -8,6 +8,7 @@ var actions: ItemActions
 var slots: Array = []
 var _detail: Label
 var _selected := -1
+var select_time := 0      # ms tick of the last selection
 
 
 func _init() -> void:
@@ -29,7 +30,7 @@ func build() -> void:
 		s.secondary.connect(func(sl: ItemSlot): _use(sl.index))
 		grid.add_child(s)
 		slots.append(s)
-	_detail = UiStyle.label("Select a skill. Click it again to use it, or drag it to the shortcut bar.", 13)
+	_detail = UiStyle.label("Select a skill. Click it again to use it, or click a shortcut slot to put it there.", 13)
 	_detail.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_detail.custom_minimum_size = Vector2(340, 60)
 	content.add_child(_detail)
@@ -68,9 +69,23 @@ func _on_pressed(s: ItemSlot) -> void:
 		_use(s.index)
 		return
 	_selected = s.index
+	select_time = Time.get_ticks_msec()
 	var sk := GameData.get_skill(s.index)
 	var lvl := data.skill_level_of(s.index)
 	_detail.text = str(sk.get("detail", "")).replace("[l]", str(lvl)).replace("[u]", str(lvl))
+	refresh()
+
+
+## The selected skill, for "click a skill, then a shortcut slot".
+func shortcut_pick() -> Dictionary:
+	if not visible or _selected < 0 or data == null or data.skill_level_of(_selected) <= 0:
+		return {}
+	return {"type": 2, "id": _selected}
+
+
+func clear_shortcut_pick() -> void:
+	_selected = -1
+	_detail.text = "Select a skill. Click it again to use it, or click a shortcut slot to put it there."
 	refresh()
 
 

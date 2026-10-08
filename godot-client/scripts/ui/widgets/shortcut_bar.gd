@@ -35,10 +35,10 @@ func _rebuild_box() -> void:
 			s.key_label = str(i + 1)
 			s.accepts = ["item", "skill", "shortcut"]
 			s.focus_mode = Control.FOCUS_NONE
-			s.pressed.connect(func(sl: ItemSlot): actions.exec_shortcut(sl.index))
+			s.pressed.connect(_on_slot_pressed)
 			s.secondary.connect(func(sl: ItemSlot): actions.install_shortcut(sl.index, 0, -1))
 			s.dropped.connect(_on_dropped)
-			s.tooltip_text = "Shortcut %d (key %d). Drop a potion or skill here, right click to clear." % [i + 1, i + 1]
+			s.tooltip_text = "Shortcut %d (key %d). Select a skill or potion and click here (or drag it here); right click to clear." % [i + 1, i + 1]
 			slots.append(s)
 		_attack = UiStyle.button("ATK", func(): world.make_player_interact_next_to())
 		_attack.custom_minimum_size = Vector2(52, 52)
@@ -96,6 +96,22 @@ func _process(_d: float) -> void:
 	for i in range(slots.size()):
 		var sc: Dictionary = data.shortcuts[i]
 		slots[i].set_cooldown(int(ceil(actions.cooldown_left(int(sc.type), int(sc.id)) / 1000.0)))
+
+
+## Click a skill in the skills window or an item in the inventory, then a
+## shortcut slot: the slot gets that skill / item type. Otherwise the click
+## runs the shortcut.
+func _on_slot_pressed(s: ItemSlot) -> void:
+	var hud = world.hud if world else null
+	if hud and hud.has_method("take_shortcut_pick"):
+		var pick: Dictionary = hud.take_shortcut_pick()
+		if not pick.is_empty():
+			if pick.get("consumable", true):
+				actions.install_shortcut(s.index, int(pick.type), int(pick.id))
+			else:
+				hud.add_notification("Only potions and food can go on the shortcut bar.")
+			return
+	actions.exec_shortcut(s.index)
 
 
 func _on_dropped(s: ItemSlot, d: Dictionary) -> void:

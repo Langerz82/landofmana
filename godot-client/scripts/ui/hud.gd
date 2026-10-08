@@ -815,6 +815,26 @@ func _on_party_invite(inviter: String) -> void:
 
 
 ## PlayerPopupMenu (playerpopupmenu.js) - right click on another player.
+## Pending "select, then click a shortcut slot" assignment: the most recent
+## selection in the skills or inventory window. Clears it when taken.
+func take_shortcut_pick() -> Dictionary:
+	var best: Dictionary = {}
+	var best_win = null
+	var best_t := -1
+	for n in ["skills", "inventory"]:
+		var w = window(n)
+		if w == null or not w.has_method("shortcut_pick"):
+			continue
+		var p: Dictionary = w.shortcut_pick()
+		if not p.is_empty() and int(w.select_time) > best_t:
+			best = p
+			best_win = w
+			best_t = int(w.select_time)
+	if best_win:
+		best_win.clear_shortcut_pick()
+	return best
+
+
 func show_player_menu(p) -> void:
 	_menu_player = p
 	var data: PlayerData = world.data

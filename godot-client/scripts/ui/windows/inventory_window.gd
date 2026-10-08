@@ -14,6 +14,7 @@ var equip_slots: Array = []
 var inv_slots: Array = []
 var sel_type := -1
 var sel_slot := -1
+var select_time := 0      # ms tick of the last selection (shortcut assignment picks the newest)
 var back_window: GameWindow = null   # reopened when this closes (inventoryDialog.backPage)
 var _gold: Label
 var _gems: Label
@@ -182,6 +183,7 @@ func _select(t: int, i: int) -> void:
 	_deselect()
 	sel_type = t
 	sel_slot = i
+	select_time = Time.get_ticks_msec()
 	var s := _slot_ctrl(t, i)
 	s.set_selected(true)
 	var r = data.get_room(t, i)
@@ -190,6 +192,21 @@ func _select(t: int, i: int) -> void:
 	_price.text = ("Price: %d" % price) if price >= 0 else ""
 	_action.text = str(MODE_TEXT.get(actions.mode, "DROP"))
 	_action.visible = not (actions.mode == ItemActions.Mode.NORMAL and t == PlayerData.Store.EQUIPMENT)
+
+
+## The selected inventory item, for "click an item, then a shortcut slot".
+## Returns {type: 1, id: kind} for a consumable, {} otherwise.
+func shortcut_pick() -> Dictionary:
+	if not visible or actions.mode != ItemActions.Mode.NORMAL or sel_type != PlayerData.Store.INVENTORY or sel_slot < 0:
+		return {}
+	var r = data.get_room(sel_type, sel_slot)
+	if r == null:
+		return {}
+	return {"type": 1, "id": int(r.kind), "consumable": ItemTypes.is_consumable(int(r.kind))}
+
+
+func clear_shortcut_pick() -> void:
+	_deselect()
 
 
 ## InventoryDialog click logic: first click selects, clicking the selected
