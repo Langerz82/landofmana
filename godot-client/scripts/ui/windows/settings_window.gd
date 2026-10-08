@@ -5,6 +5,7 @@ extends GameWindow
 ## user://settings.cfg.
 
 const ZOOMS := [["Closest", 0.6], ["Closer", 0.8], ["Normal", 1.0], ["Further", 1.2], ["Furthest", 1.4]]
+const BAR_SPEEDS := [["Instant", 0], ["Fast (250 ms)", 250], ["Normal (500 ms)", 500], ["Slow (1000 ms)", 1000]]
 const SHORTCUT_STYLES := [["Horizontal ascending", "horizontal-asc"], ["Horizontal descending", "horizontal-desc"],
 	["Vertical ascending", "vertical-asc"], ["Vertical descending", "vertical-desc"]]
 
@@ -45,6 +46,14 @@ func build() -> void:
 		Config.set_setting("ui", "shortcutstyle", SHORTCUT_STYLES[i][1])
 		hud.apply_shortcut_style())
 	_row("Shortcuts", sc)
+	var hb := OptionButton.new()
+	var cur_ms := SmoothBar.duration_ms()
+	for i in range(BAR_SPEEDS.size()):
+		hb.add_item(BAR_SPEEDS[i][0])
+		if int(BAR_SPEEDS[i][1]) == cur_ms:
+			hb.select(i)
+	hb.item_selected.connect(func(i): Config.set_setting("ui", "healthbarms", BAR_SPEEDS[i][1]))
+	_row("Health bars", hb)
 	content.add_child(HSeparator.new())
 	content.add_child(UiStyle.button("Log out", func(): hud.back_to_login.emit()))
 

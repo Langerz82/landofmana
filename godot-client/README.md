@@ -34,7 +34,7 @@ Open this folder in **Godot 4.7** (`project.godot`) and press **F5**.
 | Craft, enchant and repair (NPC modes), looks (switch + unlock with gems) | done | `craft*`, `appearance/*` |
 | Quest log, achievements (+ completion notice) | done | `questdialog.js`, `achievement*` |
 | Party: invite / accept / kick / leader / leave, player right-click menu | done | `socialdialog.js`, `playerpopupmenu.js` |
-| Settings (chat, sound, music, joystick, fullscreen, colours, zoom, shortcut layout, log out) | done | `settingsdialog.js` |
+| Settings (chat, sound, music, joystick, fullscreen, colours, zoom, shortcut layout, health bar speed, log out) | done | `settingsdialog.js` |
 | Gem shop (opens the payment page), leaderboard | done | `gemshop*`, `leaderboard*` |
 | Chat commands (`/w`, `//`, `///`, `/party`, `/invite`, `/kick`, `/leader`, `/leave`, `/warp`, `/autopotion`, `/id`) | done | `chathandler.js` |
 | Harvesting (axe/pickaxe on trees, rocks and nodes), pushing/placing blocks | done | `gameinteraction*.js` |
@@ -68,6 +68,10 @@ Open this folder in **Godot 4.7** (`project.godot`) and press **F5**.
 | Enter | open chat, Enter again to send, Esc to cancel |
 | M | music on/off |
 | F3 | FPS / coordinate overlay |
+
+Health bars (your HP, the target frame and the bars over heads) slide to
+new values over 500 ms; Settings -> Health bars changes it (instant, 250,
+500 or 1000 ms).
 
 The menu icons sit on the edge the shortcut bar leaves free: with the
 horizontal shortcut bar at the bottom they are a vertical column in the
@@ -153,6 +157,7 @@ godot --path godot-client res://tests/npc_dialogue_test.tscn
 godot --path godot-client res://tests/npc_noquest_test.tscn  -- --user=npcdlg2 --pass=secret1
 godot --path godot-client res://tests/menu_layout_test.tscn
 godot --path godot-client res://tests/flash_capture_test.tscn -- --shots=/some/dir
+godot --headless --path godot-client res://tests/health_bar_test.tscn
 ```
 
 They create the account/character when it does not exist, then log in, walk,

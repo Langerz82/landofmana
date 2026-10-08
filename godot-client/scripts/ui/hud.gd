@@ -12,7 +12,7 @@ const MAX_CHAT_LINES := 60
 
 var world = null
 var _name_label: Label
-var _hp_bar: ProgressBar
+var _hp_bar: SmoothBar
 var _ep_bar: ProgressBar
 var _xp_bar: ProgressBar
 var _hp_text: Label
@@ -20,7 +20,7 @@ var _ep_text: Label
 var _gold_label: Label
 var _target_panel: PanelContainer
 var _target_name: Label
-var _target_bar: ProgressBar
+var _target_bar: SmoothBar
 var _chat_log: RichTextLabel
 var _chat_input: LineEdit
 var _announce: Label
@@ -90,8 +90,8 @@ static func panel_style(alpha := 0.6) -> StyleBoxFlat:
 	return sb
 
 
-func _bar(color: Color, height := 14) -> ProgressBar:
-	var b := ProgressBar.new()
+func _bar(color: Color, height := 14, smooth := false) -> ProgressBar:
+	var b: ProgressBar = SmoothBar.new() if smooth else ProgressBar.new()
 	b.custom_minimum_size = Vector2(200, height)
 	b.show_percentage = false
 	var bg := StyleBoxFlat.new()
@@ -132,7 +132,7 @@ func _build_player_panel(root: Control) -> void:
 	v.add_child(_name_label)
 	var hp_row := Control.new()
 	hp_row.custom_minimum_size = Vector2(220, 16)
-	_hp_bar = _bar(Color(0.8, 0.1, 0.1), 16)
+	_hp_bar = _bar(Color(0.8, 0.1, 0.1), 16, true)
 	_hp_bar.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	hp_row.add_child(_hp_bar)
 	_hp_text = _label("", 11)
@@ -173,7 +173,7 @@ func _build_target_panel(root: Control) -> void:
 	_target_name = _label("", 14, KOMIKA)
 	_target_name.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	v.add_child(_target_name)
-	_target_bar = _bar(Color(0.85, 0.15, 0.15), 10)
+	_target_bar = _bar(Color(0.85, 0.15, 0.15), 10, true)
 	v.add_child(_target_bar)
 
 
@@ -341,8 +341,7 @@ func update_bars(p) -> void:
 	_name_label.text = "%s  Lv %d" % [p.ename, p.level]
 	var hp_max: int = maxi(1, int(p.stats.get("hpMax", 1)))
 	var ep_max: int = maxi(1, int(p.stats.get("epMax", 1)))
-	_hp_bar.max_value = hp_max
-	_hp_bar.value = int(p.stats.get("hp", 0))
+	_hp_bar.set_smooth(int(p.stats.get("hp", 0)), hp_max)
 	_hp_text.text = "%d / %d" % [int(p.stats.get("hp", 0)), hp_max]
 	_ep_bar.max_value = ep_max
 	_ep_bar.value = int(p.stats.get("ep", 0))
@@ -357,6 +356,7 @@ func update_bars(p) -> void:
 
 
 func set_target(e) -> void:
+	var changed: bool = e != _target
 	_target = e
 	if e == null or not is_instance_valid(e):
 		_target_panel.visible = false
@@ -371,15 +371,15 @@ func set_target(e) -> void:
 	var has_hp: bool = e.stats.has("hpMax") and int(e.stats.hpMax) > 0
 	_target_bar.visible = has_hp
 	if has_hp:
-		_target_bar.max_value = int(e.stats.hpMax)
-		_target_bar.value = int(e.stats.hp)
+		# A different entity snaps; the same one slides.
+		_target_bar.set_smooth(int(e.stats.hp), int(e.stats.hpMax), changed)
 
 
 func update_debug(w) -> void:
 	if _target != null and not is_instance_valid(_target):
 		set_target(null)
 	elif _target != null and _target_bar.visible:
-		_target_bar.value = int(_target.stats.get("hp", 0))
+		_target_bar.set_smooth(int(_target.stats.get("hp", 0)), maxi(1, int(_target.stats.get("hpMax", 1))))
 	var now := Time.get_ticks_msec()
 	if _announce_until > 0 and now > _announce_until:
 		_announce_until = 0

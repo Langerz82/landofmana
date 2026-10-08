@@ -31,6 +31,10 @@ func _draw() -> void:
 		var c := _to_screen(Vector2(p.target.x, p.target.y))
 		var half := TS * 0.5 * scale_f
 		draw_rect(Rect2(c - Vector2(half, half), Vector2(half, half) * 2), Color(0, 1, 0, 0.6), false, 2.0)
+	if _bars.size() > 0 and Engine.get_process_frames() % 120 == 0:
+		for id in _bars.keys():
+			if not world.entities.has(id):
+				_bars.erase(id)
 	for e in world.entities.values():
 		if e.hidden_by_area or e.is_dead:
 			continue
@@ -79,11 +83,41 @@ func _draw_name(e, sp: Vector2, s: float) -> void:
 func _draw_health(e, sp: Vector2, s: float) -> void:
 	var hp_max := int(e.stats.get("hpMax", 0))
 	if hp_max <= 0:
+		_bars.erase(e.id)
 		return
 	var hp := int(e.stats.get("hp", 0))
-	if hp >= hp_max:
+	var ratio := _smooth_ratio(e.id, clampf(float(hp) / hp_max, 0, 1))
+	# Hidden at full health, but only once the slide back up has finished.
+	if hp >= hp_max and ratio >= 0.999:
 		return
-	_draw_bar(sp + Vector2(0, -(TS + (TS >> 1)) * s), float(hp) / hp_max, Color(1, 0, 0), s)
+	_draw_bar(sp + Vector2(0, -(TS + (TS >> 1)) * s), ratio, Color(1, 0, 0), s)
+
+
+## Overhead bars slide to a new value over SmoothBar.duration_ms() (ease out),
+## like the HUD bars. Per entity: {from, to, start}.
+var _bars: Dictionary = {}
+
+
+func _smooth_ratio(id: int, to: float) -> float:
+	var now := Time.get_ticks_msec()
+	var ms := SmoothBar.duration_ms()
+	var b = _bars.get(id)
+	if b == null or ms <= 0:
+		_bars[id] = {"from": to, "to": to, "start": now}
+		return to
+	var cur := _eval(b, now, ms)
+	if not is_equal_approx(to, b.to):
+		b.from = cur
+		b.to = to
+		b.start = now
+		cur = b.from
+	return cur
+
+
+static func _eval(b: Dictionary, now: int, ms: int) -> float:
+	var t := clampf(float(now - int(b.start)) / ms, 0, 1)
+	t = sin(t * PI / 2)   # ease out, same curve as the HUD tween
+	return lerpf(float(b.from), float(b.to), t)
 
 
 func _draw_bar(center: Vector2, ratio: float, color: Color, s: float) -> void:
