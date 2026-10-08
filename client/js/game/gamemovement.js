@@ -157,6 +157,9 @@ export function installGameMovement(proto) {
         const fspE = [Math.floor(spE[0]), Math.floor(spE[1])];
         let path = null;
         let longPath = false;
+        // findDirectPath() returns tile coords (converted via tile centres
+        // below); the A* paths are already exact decimal grid coords.
+        let gridPathExact = false;
 
         // FIX: missing var - was an implicit global
         let gridPath = this.pathfinder.findDirectPath(sgrid, fspS, fspE);
@@ -167,9 +170,10 @@ export function installGameMovement(proto) {
                 sgrid,
                 shortGrid.minX,
                 shortGrid.minY,
-                fspS,
-                fspE
+                spS,
+                spE
             );
+            gridPathExact = !!gridPath;
             if (gridPath)
                 // FIX: logged `path`, which is still null at this point (`path` isn't assigned
                 // until the long-path fallback branch further below) - should log `gridPath`,
@@ -181,12 +185,13 @@ export function installGameMovement(proto) {
 
         if (!gridPath) {
             log.info('game.findPath - using long path finder.');
-            path = this.pathfinder.findPath(grid, fpS, fpE, false);
+            path = this.pathfinder.findPath(grid, pS, pE, false);
             // FIX: checked the still-falsy `gridPath` instead of the just-computed `path`, and never wrote the
             // result back to `gridPath` - the long-path fallback branch never ran and its result was discarded,
             // so any destination that needed the long path finder was reported as unreachable.
             if (path) {
                 gridPath = path;
+                gridPathExact = true;
                 longPath = true;
                 shortGrid.minX = 0;
                 shortGrid.minY = 0;
@@ -210,9 +215,10 @@ export function installGameMovement(proto) {
         }
 
         // Convert grid path to world coordinates (tile centers initially)
+        const centre = gridPathExact ? 0 : 0.5;
         let realpath = gridPath.map((node) => [
-            (shortGrid.minX + node[0] + 0.5) * ts,
-            (shortGrid.minY + node[1] + 0.5) * ts
+            (shortGrid.minX + node[0] + centre) * ts,
+            (shortGrid.minY + node[1] + centre) * ts
         ]);
 
         // Force exact start and end positions
