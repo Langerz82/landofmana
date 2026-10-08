@@ -4,6 +4,8 @@ extends GameWindow
 ## menu / button colours, zoom and shortcut bar layout. Saved in
 ## user://settings.cfg.
 
+var _pickers: Dictionary = {}   # setting key -> [ColorPickerButton, default]
+
 const ZOOMS := [["Closest", 0.6], ["Closer", 0.8], ["Normal", 1.0], ["Further", 1.2], ["Furthest", 1.4]]
 const BAR_SPEEDS := [["Instant", 0], ["Fast (250 ms)", 250], ["Normal (500 ms)", 500], ["Slow (1000 ms)", 1000]]
 const SHORTCUT_STYLES := [["Horizontal ascending", "horizontal-asc"], ["Horizontal descending", "horizontal-desc"],
@@ -25,6 +27,9 @@ func build() -> void:
 		DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN if v else DisplayServer.WINDOW_MODE_WINDOWED))
 	_color("Menu color", "menucolor", "#38A7DF")
 	_color("Button color", "buttoncolor", "#F7B132")
+	_color("Panel border", "panelborder", UiStyle.DEFAULT_PANEL_BORDER)
+	_color("Panel background", "panelbg", UiStyle.DEFAULT_PANEL_BG, true)
+	content.add_child(UiStyle.button("Reset colours", _reset_colors))
 	var zoom := OptionButton.new()
 	for z in ZOOMS:
 		zoom.add_item(z[0])
@@ -79,13 +84,24 @@ func _toggle(text: String, section: String, key: String, default_value: bool, ap
 	_row(text, b)
 
 
-func _color(text: String, key: String, default_value: String) -> void:
+## A colour setting; `with_alpha` also lets the player pick the opacity.
+func _color(text: String, key: String, default_value: String, with_alpha := false) -> void:
 	var cp := ColorPickerButton.new()
 	cp.color = Color(str(Config.get_setting("ui", key, default_value)))
-	cp.edit_alpha = false
+	cp.edit_alpha = with_alpha
 	cp.custom_minimum_size = Vector2(80, 28)
 	cp.color_changed.connect(func(c: Color):
-		Config.set_setting("ui", key, "#" + c.to_html(false))
+		Config.set_setting("ui", key, "#" + c.to_html(with_alpha))
 		UiStyle.load_settings()
 		hud.restyle())
+	_pickers[key] = [cp, default_value]
 	_row(text, cp)
+
+
+func _reset_colors() -> void:
+	for key in _pickers:
+		var cp: ColorPickerButton = _pickers[key][0]
+		Config.set_setting("ui", key, _pickers[key][1])
+		cp.color = Color(str(_pickers[key][1]))
+	UiStyle.load_settings()
+	hud.restyle()

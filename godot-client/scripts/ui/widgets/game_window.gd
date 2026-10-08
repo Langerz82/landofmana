@@ -9,6 +9,7 @@ signal closed
 var title := ""
 var content: VBoxContainer
 var _title_label: Label
+var _title_bar: PanelContainer
 var _dragging := false
 var _drag_offset := Vector2.ZERO
 var _placed := false
@@ -30,6 +31,7 @@ func _ready() -> void:
 	add_child(v)
 	var bar := PanelContainer.new()
 	bar.add_theme_stylebox_override("panel", UiStyle.title_bar())
+	_title_bar = bar
 	bar.mouse_filter = Control.MOUSE_FILTER_STOP
 	bar.gui_input.connect(_on_bar_input)
 	v.add_child(bar)
@@ -50,6 +52,12 @@ func _ready() -> void:
 	content.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	v.add_child(content)
 	build()
+
+
+## Re-apply the title bar colour (Settings -> Menu color).
+func restyle_title() -> void:
+	if _title_bar:
+		_title_bar.add_theme_stylebox_override("panel", UiStyle.title_bar())
 
 
 ## Override to add controls to `content`.

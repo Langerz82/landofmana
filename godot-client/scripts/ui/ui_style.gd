@@ -6,19 +6,54 @@ const KOMIKA := preload("res://assets/fonts/KOMIKAH.ttf")
 const ITEM_BG := preload("res://assets/img/3/misc/itembackground.png")
 const MENU_ICONS := preload("res://assets/img/common/menuicons.png")
 
+const DEFAULT_PANEL_BORDER := "#38A7DF"
+const DEFAULT_PANEL_BG := "#0F0D1AEB"   # RGBA; the alpha is the windows' opacity
+
 static var menu_color := Color("#38A7DF")
 static var button_color := Color("#F7B132")
+static var panel_border := Color(DEFAULT_PANEL_BORDER)   # Settings -> Panel border
+static var panel_bg := Color(DEFAULT_PANEL_BG)           # Settings -> Panel background
 
 
 static func load_settings() -> void:
 	menu_color = Color(str(Config.get_setting("ui", "menucolor", "#38A7DF")))
 	button_color = Color(str(Config.get_setting("ui", "buttoncolor", "#F7B132")))
+	panel_border = Color(str(Config.get_setting("ui", "panelborder", DEFAULT_PANEL_BORDER)))
+	panel_bg = Color(str(Config.get_setting("ui", "panelbg", DEFAULT_PANEL_BG)))
+
+
+## Background colour for a panel drawn at `alpha` opacity by default: the
+## setting's colour, with its opacity scaled the same way (a HUD panel that
+## used to be 0.6 stays proportionally more see-through than a window).
+static func panel_bg_for(alpha: float) -> Color:
+	var c := panel_bg
+	c.a = clampf(panel_bg.a * alpha / 0.92, 0.0, 1.0)
+	return c
+
+
+## Re-colour a panel stylebox made by panel() / Hud.panel_style() after the
+## colour settings change.
+static func recolor_panel(sb: StyleBox) -> void:
+	if sb is StyleBoxFlat and sb.has_meta("panel_alpha"):
+		sb.bg_color = panel_bg_for(float(sb.get_meta("panel_alpha")))
+		sb.border_color = panel_border
+
+
+## Walks a node tree and re-colours every panel made by panel() / panel_style().
+static func recolor_tree(n: Node) -> void:
+	if n is Control:
+		for key in ["panel", "normal"]:
+			if n.has_theme_stylebox_override(key):
+				recolor_panel(n.get_theme_stylebox(key))
+	for c in n.get_children():
+		recolor_tree(c)
 
 
 static func panel(alpha := 0.92) -> StyleBoxFlat:
 	var sb := StyleBoxFlat.new()
-	sb.bg_color = Color(0.06, 0.05, 0.1, alpha)
-	sb.border_color = menu_color
+	sb.set_meta("panel_alpha", alpha)
+	sb.bg_color = panel_bg_for(alpha)
+	sb.border_color = panel_border
 	sb.set_border_width_all(3)
 	sb.set_corner_radius_all(8)
 	sb.content_margin_left = 10
