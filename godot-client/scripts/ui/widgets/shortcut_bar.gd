@@ -32,6 +32,7 @@ func _rebuild_box() -> void:
 			var s := ItemSlot.new()
 			s.index = i
 			s.drag_kind = "shortcut"
+			s.key_label = str(i + 1)
 			s.accepts = ["item", "skill", "shortcut"]
 			s.focus_mode = Control.FOCUS_NONE
 			s.pressed.connect(func(sl: ItemSlot): actions.exec_shortcut(sl.index))

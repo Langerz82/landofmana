@@ -21,6 +21,7 @@ var icon: Texture2D = null
 var background: Texture2D = null
 var count_text := ""
 var corner_text := ""     # top-left (durability %, level...)
+var key_label := ""       # hotkey shown top-left, kept when the item changes (shortcut bar)
 var selected := false
 var dimmed := false
 var cooldown_text := ""
@@ -97,6 +98,10 @@ func _draw() -> void:
 		var at2 := Vector2((size.x - w2) / 2, size.y / 2 + 7)
 		draw_string_outline(font, at2, cooldown_text, HORIZONTAL_ALIGNMENT_LEFT, -1, 18, 4, Color.BLACK)
 		draw_string(font, at2, cooldown_text, HORIZONTAL_ALIGNMENT_LEFT, -1, 18, Color.WHITE)
+	if key_label != "":
+		var kp := Vector2(4, 14)
+		draw_string_outline(font, kp, key_label, HORIZONTAL_ALIGNMENT_LEFT, -1, 13, 4, Color.BLACK)
+		draw_string(font, kp, key_label, HORIZONTAL_ALIGNMENT_LEFT, -1, 13, Color(1, 0.9, 0.4))
 	if selected:
 		draw_rect(r.grow(-1), Color.WHITE, false, 3.0)
 	elif has_focus():
