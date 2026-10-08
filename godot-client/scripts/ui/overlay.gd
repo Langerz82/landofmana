@@ -47,7 +47,7 @@ func _draw() -> void:
 		var ip := _to_screen(Vector2(info.x, info.y - TS))
 		var col: Color = info.color
 		col.a = clampf(info.opacity, 0, 1)
-		var fs := int(info.size * 3)
+		var fs := UiStyle.fs(info.size * 3)
 		_text_centered(str(info.text), ip, fs, col, Color(0, 0, 0, col.a))
 	for b in world.bubbles.values():
 		if is_instance_valid(b.entity):
@@ -73,7 +73,7 @@ func _draw_name(e, sp: Vector2, s: float) -> void:
 	var y_off := -TS * s
 	if e is Npc and e.type == Types.EntityType.NPCMOVE:
 		y_off -= (TS >> 1) * s
-	_text_centered(text, sp + Vector2(0, y_off), 15, color, Color.BLACK)
+	_text_centered(text, sp + Vector2(0, y_off), UiStyle.fs(12), color, Color.BLACK)
 
 
 func _draw_health(e, sp: Vector2, s: float) -> void:
@@ -135,7 +135,7 @@ func _text_centered(text: String, pos: Vector2, size: int, color: Color, outline
 func _draw_bubble(b: Dictionary, s: float) -> void:
 	var e = b.entity
 	var text := str(b.text)
-	var font_size := 14
+	var font_size := UiStyle.fs(12)
 	var max_w := 260.0
 	var lines := _wrap(text, max_w, font_size)
 	var line_h := font_size + 4

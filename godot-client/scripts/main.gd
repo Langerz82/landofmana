@@ -14,6 +14,8 @@ var login_layer: CanvasLayer
 func _ready() -> void:
 	Game.main = self
 	get_window().title = "Land of Mana"
+	UiStyle.load_settings()
+	UiStyle.install_font_scaling(get_tree())   # Settings -> Font size
 	_show_login()
 
 
