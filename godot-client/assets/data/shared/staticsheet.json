@@ -1,0 +1,78 @@
+[
+  {
+    "id": 0
+  },
+  {
+    "id": 1,
+    "sheet":"misc/armoricons.png",
+    "width": 320,
+    "height": 320,
+    "spritewidth": 32,
+    "spriteheight": 32,
+    "scale": 1.5
+  },
+  {
+    "id": 2,
+    "sheet":"misc/mainweaponarmor.png",
+    "width": 768,
+    "height": 624,
+    "spritewidth": 48,
+    "spriteheight": 48,
+    "scale": 1
+  },
+  {
+    "id": 3,
+    "sheet":"misc/itemloot.png",
+    "width": 352,
+    "height": 320,
+    "spritewidth": 32,
+    "spriteheight": 32,
+    "scale": 1
+  },
+  {
+    "id": 4,
+    "sheet":"misc/weaponicons.png",
+    "width": 320,
+    "height": 320,
+    "spritewidth": 32,
+    "spriteheight": 32,
+    "scale": 1.5
+  },
+  {
+    "id": 5,
+    "sheet":"misc/nodeset1.png",
+    "width": 96,
+    "height": 736,
+    "spritewidth": 32,
+    "spriteheight": 32,
+    "scale": 1
+  },
+  {
+    "id": 6,
+    "sheet":"misc/craft1.png",
+    "width": 128,
+    "height": 32,
+    "spritewidth": 32,
+    "spriteheight": 32,
+    "scale": 1.5
+  },
+  {
+    "id": 7,
+    "sheet":"misc/craft2.png",
+    "width": 528,
+    "height": 528,
+    "spritewidth": 48,
+    "spriteheight": 48,
+    "scale": 1
+  },
+  {
+    "id": 8,
+    "sheet":"misc/nodeset2.png",
+    "width": 96,
+    "height": 128,
+    "spritewidth": 32,
+    "spriteheight": 32,
+    "scale": 1
+  }
+
+]
