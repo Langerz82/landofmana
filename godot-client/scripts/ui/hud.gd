@@ -26,6 +26,8 @@ var _chat_input: LineEdit
 var _announce: Label
 var _dialogue_panel: PanelContainer
 var _dialogue_text: Label
+var _dialogue_name: Label
+var _dialogue_pic: TextureRect
 var _died_panel: PanelContainer
 var _error_panel: PanelContainer
 var _error_text: Label
@@ -229,17 +231,61 @@ func _build_center_texts(root: Control) -> void:
 
 
 func _build_dialogue(root: Control) -> void:
+	# #npcDialog: speaker portrait + text, centred above the shortcut bar.
+	# It ignores the mouse like the HTML one, so clicks reach the world
+	# (a click next to the NPC shows the next line).
 	_dialogue_panel = PanelContainer.new()
 	_dialogue_panel.add_theme_stylebox_override("panel", panel_style(0.85))
-	_dialogue_panel.set_anchors_preset(Control.PRESET_CENTER_BOTTOM)
-	_dialogue_panel.custom_minimum_size = Vector2(520, 70)
-	_dialogue_panel.position = Vector2(-260, -110)
+	_dialogue_panel.anchor_left = 0.5
+	_dialogue_panel.anchor_right = 0.5
+	_dialogue_panel.anchor_top = 1.0
+	_dialogue_panel.anchor_bottom = 1.0
+	_dialogue_panel.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	_dialogue_panel.grow_vertical = Control.GROW_DIRECTION_BEGIN
+	_dialogue_panel.offset_left = -270
+	_dialogue_panel.offset_right = 270
+	_dialogue_panel.offset_bottom = -92
+	_dialogue_panel.offset_top = -92
+	_dialogue_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_dialogue_panel.visible = false
 	root.add_child(_dialogue_panel)
-	_dialogue_text = _label("", 15)
+	var h := HBoxContainer.new()
+	h.add_theme_constant_override("separation", 12)
+	h.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_dialogue_panel.add_child(h)
+	var frame := PanelContainer.new()
+	var fsb := StyleBoxFlat.new()
+	fsb.bg_color = Color(1, 1, 1, 0.9)
+	fsb.border_color = Color.BLACK
+	fsb.set_border_width_all(2)
+	frame.add_theme_stylebox_override("panel", fsb)
+	frame.custom_minimum_size = Vector2(72, 72)
+	frame.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
+	frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	h.add_child(frame)
+	_dialogue_pic = TextureRect.new()
+	_dialogue_pic.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	_dialogue_pic.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	_dialogue_pic.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	_dialogue_pic.custom_minimum_size = Vector2(68, 68)
+	_dialogue_pic.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	frame.add_child(_dialogue_pic)
+	var v := VBoxContainer.new()
+	v.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	v.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	h.add_child(v)
+	_dialogue_name = _label("", 16)
+	_dialogue_name.add_theme_font_override("font", KOMIKA)
+	_dialogue_name.add_theme_color_override("font_color", Color(1, 1, 0.55))
+	v.add_child(_dialogue_name)
+	_dialogue_text = _label("", 16)
 	_dialogue_text.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_dialogue_text.custom_minimum_size = Vector2(500, 0)
-	_dialogue_panel.add_child(_dialogue_text)
+	_dialogue_text.custom_minimum_size = Vector2(420, 0)
+	v.add_child(_dialogue_text)
+	var hint := _label("Space / click to continue", 11)
+	hint.modulate = Color(1, 1, 1, 0.55)
+	hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	v.add_child(hint)
 
 
 func _modal(root: Control, title: String, button_text: String, cb: Callable) -> Array:
@@ -383,9 +429,42 @@ func add_game_notification(kind: String, text: String) -> void:
 	_push_line("[color=#ffff00]%s: %s[/color]" % [_esc(kind), _esc(text)])
 
 
-func show_dialogue(speaker: String, text: String) -> void:
-	_dialogue_text.text = "%s: %s" % [speaker, text]
+## game.createMessage(): show one dialogue line with the speaker's portrait
+## (app.npcDialoguePic). `entity` may be null.
+func show_dialogue(speaker: String, text: String, entity = null) -> void:
+	_dialogue_name.text = speaker
+	_dialogue_text.text = text
+	_dialogue_pic.texture = portrait(entity)
+	_dialogue_pic.get_parent().visible = _dialogue_pic.texture != null
+	# Keep the box above the shortcut bar whatever its layout.
+	var bottom := 92.0
+	if shortcut_bar and shortcut_bar.visible:
+		var r := shortcut_bar.get_global_rect()
+		var vp := get_viewport().get_visible_rect().size
+		if r.position.x < vp.x / 2 + 270 and r.end.x > vp.x / 2 - 270:
+			bottom = maxf(16.0, vp.y - r.position.y + 10)
+	_dialogue_panel.offset_bottom = -bottom
+	_dialogue_panel.offset_top = -bottom
 	_dialogue_panel.visible = true
+
+
+## First idle frame of an entity's body sprite, facing down.
+static func portrait(entity) -> Texture2D:
+	if entity == null or not is_instance_valid(entity) or entity.sprites.is_empty():
+		return null
+	var def = entity.sprites[0]
+	if def == null or def.texture == null:
+		return null
+	var a: Dictionary = def.animations.get("idle_down", {})
+	if a.is_empty():
+		for k in def.animations:
+			a = def.animations[k]
+			break
+	var s := GameData.SPRITE_SCALE
+	var at := AtlasTexture.new()
+	at.atlas = def.texture
+	at.region = Rect2(int(a.get("col", 0)) * def.width * s, int(a.get("row", 0)) * def.height * s, def.width * s, def.height * s)
+	return at
 
 
 func hide_dialogue() -> void:

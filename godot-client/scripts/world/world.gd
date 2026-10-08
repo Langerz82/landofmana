@@ -546,7 +546,16 @@ func get_entity_at(px: int, py: int):
 				own = e
 				continue
 			return e
-	return own
+	if own != null:
+		return own
+	# Characters are drawn about a tile taller than their tile: let a click on
+	# the head / upper body pick them too (the JS client only took the tile).
+	for e in entities.values():
+		if e == null or e == player or e.hidden_by_area or not (e is Character):
+			continue
+		if absi(px - e.x) <= (TS >> 1) and py < e.y - (TS >> 1) and py >= e.y - TS - (TS >> 1):
+			return e
+	return null
 
 
 func get_entities_near(px: int, py: int, dist: int) -> Array:
@@ -970,9 +979,15 @@ func show_dialogue() -> void:
 			var line = e.dialogue[prev_i]
 			if line is Array and line.size() == 3 and str(line[2]) == "QUEST":
 				client.send_quest(e.id, int(e.quest_id), 1)
+		if prev_i >= 0 and audio:
+			audio.play_sound("npc-end")
 		bubbles.erase(e.id)
 		bubbles.erase(p.id)
 		if e.dialogue_index >= e.dialogue.size():
+			# questhandler.handleQuest(entity.quest): "Quest Found/Completed".
+			if e.get("quest") != null and hud:
+				_quest_alarm(e.quest)
+				e.quest = null
 			e.dialogue_index = 0
 			p.dialogue_entity = null
 			return
@@ -989,7 +1004,7 @@ func show_dialogue() -> void:
 	if hud:
 		var who: String = ("[NPC] " + speaker.ename) if speaker == e else p.ename
 		hud.add_chat(who, text, Color(1, 1, 0))
-		hud.show_dialogue(speaker.ename, text)
+		hud.show_dialogue(speaker.ename, text, speaker)
 	e.dialogue_index += 1
 	_dialogue_delay = Game.after(5000, show_dialogue)
 
@@ -1566,8 +1581,10 @@ func _on_dialogue(pkt: Array) -> void:
 	if npc == null or not (npc is Npc):
 		return
 	var message = null
-	if code.begins_with("QUESTS_"):
-		var qid := code.split("_")[1]
+	# Only QUESTS_<number> is a quest offer; QUESTS_NONE, QUESTS_NONE_2 and
+	# QUESTS_REWARD are ordinary lang entries (JS: /^QUESTS_[0-9]+$/).
+	if code.begins_with("QUESTS_") and code.substr(7).is_valid_int():
+		var qid := code.substr(7)
 		npc.quest_id = int(qid)
 		var q = GameData.lang.get("QUESTS", {}).get(qid)
 		if q is Array and not q.is_empty():
@@ -1590,6 +1607,15 @@ func _on_dialogue(pkt: Array) -> void:
 	show_dialogue()
 
 
+func _quest_alarm(q) -> void:
+	if q == null or hud == null:
+		return
+	if q.status == 0:
+		hud.alarm("Quest Found\n%s" % q.summary)
+	elif q.status == 2:
+		hud.alarm("Quest Completed\n%s" % q.summary)
+
+
 ## clientcallbacksquest.js onQuest + questSpeech
 func _on_quest(d: Array) -> void:
 	var q: Quest = data.set_quest(d)
@@ -1608,6 +1634,7 @@ func _on_quest(d: Array) -> void:
 	elif hud:
 		var states := ["Quest started", "Quest updated", "Quest complete"]
 		hud.add_notification("%s: %s (%s)" % [states[clampi(q.status, 0, 2)], q.summary, q.progress_text()])
+		_quest_alarm(q)
 
 
 func _on_gold(d: Array) -> void:

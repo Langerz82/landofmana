@@ -144,10 +144,19 @@ godot --headless --path godot-client res://tests/scenario_test.tscn -- --user=te
 godot --headless --path godot-client res://tests/death_test.tscn    -- --user=tester1 --pass=secret1
 godot --headless --path godot-client res://tests/ui_flow_test.tscn
 godot --headless --path godot-client res://tests/systems_test.tscn  -- --user=systest1 --pass=pw12345
+godot --path godot-client res://tests/npc_dialogue_test.tscn
+godot --path godot-client res://tests/npc_noquest_test.tscn  -- --user=npcdlg2 --pass=secret1
 ```
 
 They create the account/character when it does not exist, then log in, walk,
 attack, chat, talk to the Old Man, use the map doors and so on.
+
+`npc_dialogue_test` talks to the Old Man with real mouse clicks and the Space
+key: speech bubble, dialogue box, advancing lines, quest acceptance. It needs
+a fresh character for the quest part (change `user` in the script).
+`npc_noquest_test` checks the reward and "no more quests, head EAST and
+look for …" lines once the Old Man's quests are done (see the script header
+for the redis command that prepares the character).
 
 `systems_test` drives the town NPCs end to end: buy, equip/unequip, split,
 sell, drop & loot, bank items and gold, enchant, repair, auction list/delete,
