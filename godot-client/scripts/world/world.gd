@@ -335,13 +335,26 @@ func _player_key_y(c, m: int) -> bool:
 
 
 func _player_path_x(c, m: int) -> bool:
+	if _path_blocked(c, c.x + m, c.y):
+		return true
 	c.set_pos(c.x + m, c.y)
 	return c.next_step()
 
 
 func _player_path_y(c, m: int) -> bool:
+	if _path_blocked(c, c.x, c.y + m):
+		return true
 	c.set_pos(c.x, c.y + m)
 	return c.next_step()
+
+
+## Something stepped into the local player's path: stop just before it (the
+## server is told with the usual "path aborted" move).
+func _path_blocked(c, nx: int, ny: int) -> bool:
+	if c == player and is_overlapping(c, nx, ny):
+		c.force_stop()
+		return true
+	return false
 
 
 # ======================================================================
@@ -371,21 +384,48 @@ func move_character(c, nx: int, ny: int, skip_overlap := false, skip_grid_check 
 
 func is_overlapping(e, nx: int, ny: int) -> bool:
 	for e2 in entities.values():
-		if e2 is Player or e2 == e or not (e2 is Entity):
-			continue
-		if e2 is ItemEntity:
-			continue
-		if e2.is_dead or e2.is_dying:
+		if e2 == e or not (e2 is Entity) or not blocks_movement(e2, e):
 			continue
 		if not e2.is_within_dist(e.x, e.y, TS - 1) and e2.is_within_dist(nx, ny, TS - 1):
 			return true
 	return false
 
 
+## Whether `other` is solid for `mover`. The local player cannot walk into
+## anything on screen: mobs, NPCs, other players, items on the ground, harvest
+## nodes, chests, blocks and traps (standing on one already, you can still
+## walk off it - see is_overlapping). Everyone else keeps the JS client's rule
+## (players and items never block), so the client never fights the server
+## over where other people are.
+func blocks_movement(other, mover) -> bool:
+	if other.is_dead or other.is_dying or other.hidden_by_area:
+		return false
+	if mover == player:
+		return true
+	return not (other is Player or other is ItemEntity)
+
+
+## Tiles taken by entities that block `mover` (for the path finder).
+func blocked_tiles(mover) -> Dictionary:
+	var out := {}
+	if current_map == null:
+		return out
+	var w: int = current_map.width
+	for e2 in entities.values():
+		if e2 == mover or not (e2 is Entity) or not blocks_movement(e2, mover):
+			continue
+		out[floori(e2.y / float(TS)) * w + floori(e2.x / float(TS))] = true
+	return out
+
+
 func find_path(c, px: int, py: int) -> Array:
 	if current_map == null or pathfinder == null or map_status < 2:
 		return []
-	return pathfinder.find_path(c.x, c.y, px, py)
+	# The local player's paths go around everything on screen.
+	pathfinder.blocked = blocked_tiles(c) if c == player else {}
+	var path := pathfinder.find_path(c.x, c.y, px, py)
+	pathfinder.blocked = {}
+	return path
 
 
 func click_move_to(px: int, py: int) -> void:
