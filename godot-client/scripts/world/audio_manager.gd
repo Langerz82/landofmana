@@ -7,6 +7,36 @@ const SOUND_DIR := "res://assets/audio/sounds/"
 const MUSIC_DIR := "res://assets/audio/music/"
 const MAX_VOICES := 8
 
+# ----------------------------------------------------------------------
+# Sound effect volumes (dB, 0 = the file as recorded, -6 = about half as
+# loud, +6 = about twice as loud). Edit these to balance the effects.
+# Anything not listed uses DEFAULT_SFX_DB.
+# ----------------------------------------------------------------------
+const DEFAULT_SFX_DB := -6.0
+const SFX_VOLUME_DB := {
+	"gold": -6.0,         # gold added (loot, selling, quest rewards)
+	"loot": -6.0,          # item picked up
+	"chat": -6.0,
+	"npc": -6.0,
+	"npc-end": -6.0,
+	"hit1": -6.0,
+	"hit2": -6.0,
+	"kill1": -6.0,
+	"kill2": -6.0,
+	"hurt": -6.0,
+	"heal": -6.0,
+	"death": -6.0,
+	"revive": -6.0,
+	"teleport": -6.0,
+	"chest": -6.0,
+	"achievement": -6.0,
+}
+# Effects that have no file of their own play another one.
+const SFX_FILE := {
+	"gold": "loot",
+}
+const MUSIC_DB := -10.0
+
 var sfx_on := true
 var music_on := true
 var _voices: Array = []
@@ -20,11 +50,11 @@ func _ready() -> void:
 	music_on = bool(Config.get_setting("audio", "music", true))
 	for i in range(MAX_VOICES):
 		var p := AudioStreamPlayer.new()
-		p.volume_db = -6.0
+		p.volume_db = DEFAULT_SFX_DB
 		add_child(p)
 		_voices.append(p)
 	_music = AudioStreamPlayer.new()
-	_music.volume_db = -10.0
+	_music.volume_db = MUSIC_DB
 	add_child(_music)
 	_music.finished.connect(_on_music_finished)
 
@@ -32,14 +62,21 @@ func _ready() -> void:
 func play_sound(sound_name: String) -> void:
 	if not sfx_on:
 		return
-	var stream: AudioStream = GameData.get_resource(SOUND_DIR + sound_name + ".ogg")
+	var file: String = SFX_FILE.get(sound_name, sound_name)
+	var stream: AudioStream = GameData.get_resource(SOUND_DIR + file + ".ogg")
 	if stream == null:
 		return
 	for v in _voices:
 		if not v.playing:
 			v.stream = stream
+			v.volume_db = sound_volume_db(sound_name)
 			v.play()
 			return
+
+
+## Volume of one effect (see SFX_VOLUME_DB above).
+static func sound_volume_db(sound_name: String) -> float:
+	return float(SFX_VOLUME_DB.get(sound_name, DEFAULT_SFX_DB))
 
 
 func play_map_music(index: int) -> void:
@@ -57,7 +94,7 @@ func play_map_music(index: int) -> void:
 	if _tween:
 		_tween.kill()
 	_music.stream = stream
-	_music.volume_db = -10.0
+	_music.volume_db = MUSIC_DB
 	_music.play()
 
 

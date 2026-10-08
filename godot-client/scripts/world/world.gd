@@ -1643,7 +1643,11 @@ func _on_quest(d: Array) -> void:
 
 
 func _on_gold(d: Array) -> void:
+	var before := int(player.gold[0]) + int(player.gold[1])
 	player.gold = [Types.to_int(d[0]), Types.to_int(d[1])]
+	# Gold gained (not just moved between inventory and bank).
+	if int(player.gold[0]) + int(player.gold[1]) > before and audio:
+		audio.play_sound("gold")
 	player.gems = Types.to_int(d[2]) if d.size() > 2 else player.gems
 	data.set_gold(player.gold[0], player.gold[1], player.gems)
 	if hud:
