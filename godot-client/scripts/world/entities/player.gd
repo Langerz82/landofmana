@@ -380,6 +380,10 @@ func sync_view() -> void:
 	else:
 		idx = 0
 	var s := GameData.SPRITE_SCALE
-	view.region_rect = Rect2(wdef.width * idx * s, wdef.height * current_anim.row * s, wdef.width * s, wdef.height * s)
+	var r := Rect2(wdef.width * idx * s, wdef.height * current_anim.row * s, wdef.width * s, wdef.height * s)
+	if not Entity.frame_fits(wdef.texture, r):
+		view.visible = false
+		return
+	view.region_rect = r
 	view.flip_h = flip_x
 	view.visible = true

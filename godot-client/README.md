@@ -69,6 +69,11 @@ Open this folder in **Godot 4.7** (`project.godot`) and press **F5**.
 | M | music on/off |
 | F3 | FPS / coordinate overlay |
 
+The menu icons sit on the edge the shortcut bar leaves free: with the
+horizontal shortcut bar at the bottom they are a vertical column in the
+middle of the right edge; with the vertical shortcut bar on the right they
+are a row in the middle of the bottom (Settings -> Shortcuts).
+
 Windows: click an item once to select it, again to use it (or double click);
 drag it onto another slot to move it, onto the shortcut bar to install it, or
 outside the windows to drop it. Right click uses an item.
@@ -146,6 +151,8 @@ godot --headless --path godot-client res://tests/ui_flow_test.tscn
 godot --headless --path godot-client res://tests/systems_test.tscn  -- --user=systest1 --pass=pw12345
 godot --path godot-client res://tests/npc_dialogue_test.tscn
 godot --path godot-client res://tests/npc_noquest_test.tscn  -- --user=npcdlg2 --pass=secret1
+godot --path godot-client res://tests/menu_layout_test.tscn
+godot --path godot-client res://tests/flash_capture_test.tscn -- --shots=/some/dir
 ```
 
 They create the account/character when it does not exist, then log in, walk,

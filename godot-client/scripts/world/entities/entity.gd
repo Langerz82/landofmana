@@ -66,6 +66,10 @@ func set_sprite(def, index: int = 0) -> void:
 	var view: Sprite2D = _views[index]
 	view.texture = def.texture
 	view.scale = Vector2.ONE / GameData.SPRITE_SCALE
+	# The frame rectangle still belongs to the previous sheet until the next
+	# sync; drawing the new texture with it shows a stretched, mostly white
+	# smear for a frame (e.g. a mob switching to the death smoke). Re-sync now.
+	_refresh_view()
 
 
 func restore_sprite(index: int = 0) -> void:
@@ -130,6 +134,15 @@ func set_animation(anim_name: String, speed: int, count: int = 0, on_end: Callab
 	if not cb.is_valid():
 		cb = func(): idle(orientation)
 	current_anim.set_count(count, cb)
+	if not already:
+		_refresh_view()
+
+
+## Re-apply the current frame to the sprite layers right away (instead of
+## waiting for the next rendered frame's sync_view()).
+func _refresh_view() -> void:
+	if is_inside_tree():
+		sync_view()
 
 
 func idle(_o: int = 0) -> void:
@@ -228,7 +241,16 @@ func _sync_layer(index: int, show_it: bool) -> void:
 		view.visible = false
 		return
 	var s := GameData.SPRITE_SCALE
-	view.region_rect = Rect2(def.width * current_anim.frame_col() * s,
+	var r := Rect2(def.width * current_anim.frame_col() * s,
 		def.height * current_anim.row * s, def.width * s, def.height * s)
+	if not frame_fits(def.texture, r):
+		view.visible = false   # animation of another sheet; never draw garbage
+		return
+	view.region_rect = r
 	view.flip_h = flip_x
 	view.visible = true
+
+
+static func frame_fits(tex: Texture2D, r: Rect2) -> bool:
+	var sz := tex.get_size()
+	return r.position.x >= 0 and r.position.y >= 0 and r.end.x <= sz.x + 0.5 and r.end.y <= sz.y + 0.5
