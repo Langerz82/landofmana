@@ -1,6 +1,7 @@
 extends "res://tests/npc_dialogue_test.gd"
 ## HUD layout with the horizontal and vertical shortcut styles: the menu
-## icons move to the free edge (right middle / bottom middle) and the NPC
+## icons are a column at the right middle (bar bottom-right) or a row at the bottom
+## right (bar vertical at the right middle), and the NPC
 ## dialogue box stays clear of both bars.
 ## Run: godot res://tests/menu_layout_test.tscn [-- --shots=DIR]
 
@@ -17,11 +18,16 @@ func run() -> void:
 		var m: Rect2 = hud._menu_panel.get_global_rect()
 		var b: Rect2 = hud.shortcut_bar.get_global_rect()
 		if st.begins_with("vertical"):
-			check("vertical bar: menu at bottom middle, horizontal",
-				absf(m.get_center().x - vp.x / 2) < 2 and m.end.y > vp.y - 20 and m.size.x > m.size.y, str(m))
+			check("vertical bar: shortcut bar at the right middle", absf(b.get_center().y - vp.y / 2) < 2 and b.end.x > vp.x - 20, str(b))
+			check("vertical bar: menu row at the bottom right",
+				m.end.x > vp.x - 20 and m.end.y > vp.y - 20 and m.size.x > m.size.y, str(m))
 		else:
-			check("horizontal bar: menu at right middle, vertical",
+			check("horizontal bar: shortcut bar at the bottom right", b.end.x > vp.x - 20 and b.end.y > vp.y - 20 and b.size.x > b.size.y, str(b))
+			check("horizontal bar: menu column at the right middle",
 				absf(m.get_center().y - vp.y / 2) < 2 and m.end.x > vp.x - 20 and m.size.y > m.size.x, str(m))
+		await wait(100)
+		var c: Rect2 = hud._chat_box.get_global_rect()
+		check("%s: chat log in the bottom-left corner" % st, c.position.x < 20 and c.end.y >= vp.y - 12 and c.position.y > 0, str(c))
 		check("%s: menu and shortcut bar apart" % st, not m.intersects(b), "%s %s" % [m, b])
 		var npc = old_man()
 		if npc:
