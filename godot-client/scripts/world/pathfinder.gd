@@ -25,6 +25,9 @@ const INF := 0x3fffffff
 
 var map: MapData
 var turn_cost: int = DEFAULT_TURN_COST
+## Extra solid tiles for one search (tile index y * map.width + x -> true),
+## e.g. tiles taken by mobs, NPCs and other players. The goal tile is exempt.
+var blocked: Dictionary = {}
 
 # Search state (node pool + open-list heap), reset at the start of each search.
 var _nx := PackedInt32Array()
@@ -119,6 +122,8 @@ func _search(s: Vector2i, e: Vector2i, margin: int) -> Variant:
 			if tx < x0 or tx > x1 or ty < y0 or ty > y1:
 				continue
 			if collision[ty * w + tx] == 1:
+				continue
+			if not blocked.is_empty() and blocked.has(ty * w + tx) and not (tx == e.x and ty == e.y):
 				continue
 			var ng := g + 1
 			if d >= 0 and nd != d:
