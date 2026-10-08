@@ -79,8 +79,9 @@ func _ready() -> void:
 
 static func panel_style(alpha := 0.6) -> StyleBoxFlat:
 	var sb := StyleBoxFlat.new()
-	sb.bg_color = Color(0.05, 0.04, 0.08, alpha)
-	sb.border_color = Color(0.85, 0.7, 0.35, 0.9)
+	sb.set_meta("panel_alpha", alpha)
+	sb.bg_color = UiStyle.panel_bg_for(alpha)
+	sb.border_color = UiStyle.panel_border
 	sb.set_border_width_all(2)
 	sb.set_corner_radius_all(6)
 	sb.content_margin_left = 8
@@ -163,7 +164,7 @@ func _build_target_panel(root: Control) -> void:
 	_target_panel = PanelContainer.new()
 	_target_panel.add_theme_stylebox_override("panel", panel_style())
 	_target_panel.set_anchors_preset(Control.PRESET_CENTER_TOP)
-	_target_panel.position = Vector2(-120, 10)
+	_target_panel.position = Vector2(-120, 30)
 	_target_panel.custom_minimum_size = Vector2(240, 0)
 	_target_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_target_panel.visible = false
@@ -790,10 +791,13 @@ func _layout_menu() -> void:
 
 ## Re-applies menu/button colours after a settings change.
 func restyle() -> void:
+	# Panel border / background colours, in place (keeps each panel's shape).
+	UiStyle.recolor_tree(self)
 	for p in _panels:
-		p.add_theme_stylebox_override("panel", UiStyle.panel(0.6))
+		UiStyle.recolor_panel(p.get_theme_stylebox("panel"))
 	for w in windows.values():
 		w.add_theme_stylebox_override("panel", UiStyle.panel())
+		w.restyle_title()
 		_restyle_buttons(w)
 	if shortcut_bar:
 		shortcut_bar.add_theme_stylebox_override("panel", UiStyle.panel(0.6))
