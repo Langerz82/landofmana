@@ -12,29 +12,29 @@ const MAX_VOICES := 8
 # loud, +6 = about twice as loud). Edit these to balance the effects.
 # Anything not listed uses DEFAULT_SFX_DB.
 # ----------------------------------------------------------------------
-const DEFAULT_SFX_DB := -6.0
+const DEFAULT_SFX_DB := -12.0
 const SFX_VOLUME_DB := {
-	"gold": -6.0,         # gold added (loot, selling, quest rewards)
-	"loot": -6.0,          # item picked up
-	"chat": -6.0,
-	"npc": -6.0,
-	"npc-end": -6.0,
-	"hit1": -6.0,
-	"hit2": -6.0,
-	"kill1": -6.0,
-	"kill2": -6.0,
-	"hurt": -6.0,
-	"heal": -6.0,
-	"death": -6.0,
-	"revive": -6.0,
-	"teleport": -6.0,
-	"chest": -6.0,
-	"achievement": -6.0,
+	"gold": DEFAULT_SFX_DB,         # gold added (loot, selling, quest rewards)
+	"loot": DEFAULT_SFX_DB,          # item picked up
+	"chat": DEFAULT_SFX_DB,
+	"npc": DEFAULT_SFX_DB,
+	"npc-end": DEFAULT_SFX_DB,
+	"hit1": DEFAULT_SFX_DB,
+	"hit2": DEFAULT_SFX_DB,
+	"kill1": DEFAULT_SFX_DB,
+	"kill2": DEFAULT_SFX_DB,
+	"hurt": DEFAULT_SFX_DB,
+	"heal": DEFAULT_SFX_DB,
+	"death": DEFAULT_SFX_DB,
+	"revive": DEFAULT_SFX_DB,
+	"teleport": DEFAULT_SFX_DB,
+	"chest": DEFAULT_SFX_DB,
+	"achievement": DEFAULT_SFX_DB,
 }
-# Effects that have no file of their own play another one.
-const SFX_FILE := {
-	"gold": "loot",
-}
+# Optional: make an effect play another effect's file, e.g. {"gold": "loot"}.
+# Empty by default, so every effect plays SOUND_DIR + <name>.ogg; an effect
+# whose file does not exist (e.g. gold.ogg) is simply silent.
+const SFX_FILE := {}
 const MUSIC_DB := -10.0
 
 var sfx_on := true
@@ -70,6 +70,8 @@ func play_sound(sound_name: String) -> void:
 		if not v.playing:
 			v.stream = stream
 			v.volume_db = sound_volume_db(sound_name)
+			print("sound_name: ", sound_name)
+			print("volume_db: ", v.volume_db)
 			v.play()
 			return
 
