@@ -54,6 +54,7 @@ var _dialogue_delay = null
 var _info_id := 0
 var _login_info: Dictionary = {}
 var _keys_down: Dictionary = {}
+var _reveal_token := 0   # cancels a pending reveal when a new teleport starts
 
 
 func _ready() -> void:
@@ -447,6 +448,11 @@ func click_move_to(px: int, py: int) -> void:
 # ======================================================================
 
 func teleport_maps(index: int, tx: int = -1, ty: int = -1, portal_id: int = -1) -> void:
+	# Matte black from here until the new map is loaded and the server has
+	# placed us on it (_on_teleport_map status 2 -> _reveal_map).
+	_reveal_token += 1
+	if hud:
+		hud.set_blackout(true)
 	if current_map != null:
 		prev_map = current_map
 		if index == current_map.map_index:
@@ -504,8 +510,14 @@ func _on_teleport_map(d: Array) -> void:
 		map_status = 2
 		p.force_stop()
 		p.clear_target()
+		if hud:
+			hud.set_blackout(false)
 		return
 	if status == 1:
+		# Also covers map changes the server starts (e.g. revive at a spawn).
+		_reveal_token += 1
+		if hud:
+			hud.set_blackout(true)
 		p.force_stop()
 		map_index = map_id
 		p.map_index = map_id
@@ -530,6 +542,18 @@ func _on_teleport_map(d: Array) -> void:
 			audio.play_map_music(map_index)
 		if hud:
 			hud.set_loading(false)
+		_reveal_map()
+
+
+## Lift the black screen once the camera is on the player and the map
+## around it has been drawn (two frames after the teleport finished).
+func _reveal_map() -> void:
+	_reveal_token += 1
+	var token := _reveal_token
+	await get_tree().process_frame
+	await get_tree().process_frame
+	if token == _reveal_token and map_status >= 2 and hud:
+		hud.set_blackout(false)
 
 
 func _init_player(died: bool) -> void:

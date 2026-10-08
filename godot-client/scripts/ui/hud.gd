@@ -32,6 +32,7 @@ var _died_panel: PanelContainer
 var _error_panel: PanelContainer
 var _error_text: Label
 var _loading: Label
+var _blackout: ColorRect
 var _debug: Label
 var _debug_on := true
 var _announcements: Array = []
@@ -61,6 +62,14 @@ func _ready() -> void:
 	root.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	root.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(root)
+	# Map transitions: solid black over the world (under the HUD panels and the
+	# "Loading..." text) until the new map is loaded and the teleport is done.
+	_blackout = ColorRect.new()
+	_blackout.color = Color.BLACK
+	_blackout.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_blackout.mouse_filter = Control.MOUSE_FILTER_STOP   # no clicks into the old map
+	_blackout.visible = false
+	root.add_child(_blackout)
 	_build_player_panel(root)
 	_build_target_panel(root)
 	_build_chat(root)
@@ -412,6 +421,16 @@ func announce(text: String, duration_ms: int) -> void:
 
 func set_loading(on: bool, text := "Loading...") -> void:
 	_loading.text = text if on else ""
+
+
+## Solid black screen for map transitions (see World.teleport_maps).
+func set_blackout(on: bool) -> void:
+	if _blackout:
+		_blackout.visible = on
+
+
+func is_blacked_out() -> bool:
+	return _blackout != null and _blackout.visible
 
 
 func _push_line(bb: String) -> void:
