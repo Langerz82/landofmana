@@ -1,7 +1,7 @@
 class_name Overlay
 extends Control
 ## Screen-space overlay drawn on top of the world: entity names, health bars,
-## target marker, floating combat text and speech bubbles. Equivalent of the
+## floating combat text and speech bubbles. Equivalent of the
 ## renderer's HUD container (renderer/rendererdraw{names,bars,hud}.js), drawn
 ## at screen resolution so text stays crisp at the 3x game zoom.
 
@@ -26,11 +26,7 @@ func _draw() -> void:
 	var scale_f: float = world.game_scale
 	var view := get_viewport_rect().grow(64)
 	var p = world.player
-	# target marker (rendererdrawentities.js drawEntityTile)
-	if p.has_target() and is_instance_valid(p.target) and not p.target.hidden_by_area:
-		var c := _to_screen(Vector2(p.target.x, p.target.y))
-		var half := TS * 0.5 * scale_f
-		draw_rect(Rect2(c - Vector2(half, half), Vector2(half, half) * 2), Color(0, 1, 0, 0.6), false, 2.0)
+	# (The target marker is drawn under the sprites by World's TargetMarker.)
 	if _bars.size() > 0 and Engine.get_process_frames() % 120 == 0:
 		for id in _bars.keys():
 			if not world.entities.has(id):

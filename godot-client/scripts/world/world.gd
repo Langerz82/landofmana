@@ -17,6 +17,7 @@ var overlay = null              # Overlay
 var camera: Camera2D
 var map_renderer: MapRenderer
 var entity_layer: Node2D
+var target_marker: TargetMarker
 var audio = null                # AudioManager
 
 var entities: Dictionary = {}   # id -> Entity
@@ -60,6 +61,9 @@ func _ready() -> void:
 	map_renderer = MapRenderer.new()
 	map_renderer.name = "MapRenderer"
 	add_child(map_renderer)
+	target_marker = TargetMarker.new()
+	target_marker.world = self
+	add_child(target_marker)
 	entity_layer = Node2D.new()
 	entity_layer.name = "Entities"
 	entity_layer.y_sort_enabled = true
@@ -140,6 +144,7 @@ func _render() -> void:
 	for e in entities.values():
 		e.sync_view()
 	_update_camera()
+	target_marker.queue_redraw()
 	if overlay:
 		overlay.queue_redraw()
 	if hud:
