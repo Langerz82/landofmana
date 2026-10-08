@@ -13,6 +13,14 @@ static var menu_color := Color("#38A7DF")
 static var button_color := Color("#F7B132")
 static var panel_border := Color(DEFAULT_PANEL_BORDER)   # Settings -> Panel border
 static var panel_bg := Color(DEFAULT_PANEL_BG)           # Settings -> Panel background
+const DEFAULT_FONT_SCALE := 1.2   # font size scale used until the player picks one
+static var font_scale := DEFAULT_FONT_SCALE   # Settings -> Font size: 1 = normal, >1 bigger, <1 smaller
+const FONT_SCALE_MIN := 0.5
+const FONT_SCALE_MAX := 2.0
+const BASE_FONT_SIZE := 16        # Godot's default size for controls without an override
+const FONT_SIZE_KEYS := ["font_size", "normal_font_size", "bold_font_size",
+	"italics_font_size", "bold_italics_font_size", "mono_font_size"]
+static var _font_hooked := false
 
 
 static func load_settings() -> void:
@@ -20,6 +28,74 @@ static func load_settings() -> void:
 	button_color = Color(str(Config.get_setting("ui", "buttoncolor", "#F7B132")))
 	panel_border = Color(str(Config.get_setting("ui", "panelborder", DEFAULT_PANEL_BORDER)))
 	panel_bg = Color(str(Config.get_setting("ui", "panelbg", DEFAULT_PANEL_BG)))
+	font_scale = clampf(float(Config.get_setting("ui", "fontscale", DEFAULT_FONT_SCALE)), FONT_SCALE_MIN, FONT_SCALE_MAX)
+
+
+# ----------------------------------------------------------- font size
+
+## A font size scaled by the Font size setting (for text drawn in code).
+static func fs(size: float) -> int:
+	return maxi(6, roundi(size * font_scale))
+
+
+## Scale every text in the game by the Font size setting, now and for every
+## control created later. Call once with the SceneTree (main / HUD do).
+static func install_font_scaling(tree: SceneTree) -> void:
+	if not _font_hooked:
+		_font_hooked = true
+		tree.node_added.connect(func(n: Node):
+			if n is Control:
+				_scale_control_fonts.call_deferred(n))
+	apply_font_scale(tree)
+
+
+## Re-apply the current font scale to the whole game (after the setting changes).
+static func apply_font_scale(tree: SceneTree) -> void:
+	var root := tree.root
+	# Controls without their own size (buttons, option lists, popups...) use
+	# the project / default theme's default size; HUD controls sit under
+	# CanvasLayers, which a theme on the root window does not reach.
+	var size := fs(BASE_FONT_SIZE)
+	for th in [ThemeDB.get_project_theme(), ThemeDB.get_default_theme()]:
+		if th != null:
+			th.default_font_size = size
+	ThemeDB.fallback_font_size = size
+	_scale_tree(root)
+	_notify_theme(root)
+
+
+## Make controls drop their cached theme sizes after the shared theme changed.
+static func _notify_theme(n: Node) -> void:
+	if n is Control or n is Window:
+		n.notification(Control.NOTIFICATION_THEME_CHANGED if n is Control else Window.NOTIFICATION_THEME_CHANGED)
+		if n is Control:
+			n.update_minimum_size()
+	for c in n.get_children():
+		_notify_theme(c)
+
+
+static func _scale_tree(n: Node) -> void:
+	if n is Control:
+		_scale_control_fonts(n)
+	for c in n.get_children():
+		_scale_tree(c)
+	if n is CanvasItem:
+		n.queue_redraw()
+
+
+## Controls with a size set in code keep that size as their "base" (meta) and
+## get base * scale, so scaling never compounds.
+static func _scale_control_fonts(c: Control) -> void:
+	if not is_instance_valid(c):
+		return
+	for key in FONT_SIZE_KEYS:
+		if c.has_theme_font_size_override(key):
+			var meta: String = "base_" + key
+			if not c.has_meta(meta):
+				c.set_meta(meta, c.get_theme_font_size(key))
+			var want := fs(int(c.get_meta(meta)))
+			if c.get_theme_font_size(key) != want:
+				c.add_theme_font_size_override(key, want)
 
 
 ## Background colour for a panel drawn at `alpha` opacity by default: the

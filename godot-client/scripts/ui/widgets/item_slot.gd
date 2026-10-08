@@ -82,26 +82,32 @@ func _draw() -> void:
 		var isz := Vector2(44, 44)
 		draw_texture_rect(icon, Rect2((size - isz) / 2.0, isz), false)
 	var font := get_theme_default_font()
+	# Slot text follows the Font size setting, capped so it still fits the slot.
+	var k := clampf(UiStyle.font_scale, UiStyle.FONT_SCALE_MIN, 1.5)
+	var s11 := roundi(11 * k)
+	var s12 := roundi(12 * k)
+	var s13 := roundi(13 * k)
+	var s18 := roundi(18 * k)
 	if corner_text != "":
-		draw_string_outline(font, Vector2(3, 12), corner_text, HORIZONTAL_ALIGNMENT_LEFT, -1, 11, 3, Color.BLACK)
-		draw_string(font, Vector2(3, 12), corner_text, HORIZONTAL_ALIGNMENT_LEFT, -1, 11, Color(1, 1, 0))
+		draw_string_outline(font, Vector2(3, 1 + s11), corner_text, HORIZONTAL_ALIGNMENT_LEFT, -1, s11, 3, Color.BLACK)
+		draw_string(font, Vector2(3, 1 + s11), corner_text, HORIZONTAL_ALIGNMENT_LEFT, -1, s11, Color(1, 1, 0))
 	if count_text != "":
-		var w := font.get_string_size(count_text, HORIZONTAL_ALIGNMENT_LEFT, -1, 12).x
+		var w := font.get_string_size(count_text, HORIZONTAL_ALIGNMENT_LEFT, -1, s12).x
 		var at := Vector2(size.x - w - 3, size.y - 4)
-		draw_string_outline(font, at, count_text, HORIZONTAL_ALIGNMENT_LEFT, -1, 12, 3, Color.BLACK)
-		draw_string(font, at, count_text, HORIZONTAL_ALIGNMENT_LEFT, -1, 12, Color.WHITE)
+		draw_string_outline(font, at, count_text, HORIZONTAL_ALIGNMENT_LEFT, -1, s12, 3, Color.BLACK)
+		draw_string(font, at, count_text, HORIZONTAL_ALIGNMENT_LEFT, -1, s12, Color.WHITE)
 	if dimmed:
 		draw_rect(r, Color(0, 0, 0, 0.47))
 	if cooldown_text != "":
 		draw_rect(r, Color(1, 0, 0, 0.47))
-		var w2 := font.get_string_size(cooldown_text, HORIZONTAL_ALIGNMENT_LEFT, -1, 18).x
-		var at2 := Vector2((size.x - w2) / 2, size.y / 2 + 7)
-		draw_string_outline(font, at2, cooldown_text, HORIZONTAL_ALIGNMENT_LEFT, -1, 18, 4, Color.BLACK)
-		draw_string(font, at2, cooldown_text, HORIZONTAL_ALIGNMENT_LEFT, -1, 18, Color.WHITE)
+		var w2 := font.get_string_size(cooldown_text, HORIZONTAL_ALIGNMENT_LEFT, -1, s18).x
+		var at2 := Vector2((size.x - w2) / 2, size.y / 2 + s18 * 0.4)
+		draw_string_outline(font, at2, cooldown_text, HORIZONTAL_ALIGNMENT_LEFT, -1, s18, 4, Color.BLACK)
+		draw_string(font, at2, cooldown_text, HORIZONTAL_ALIGNMENT_LEFT, -1, s18, Color.WHITE)
 	if key_label != "":
-		var kp := Vector2(4, 14)
-		draw_string_outline(font, kp, key_label, HORIZONTAL_ALIGNMENT_LEFT, -1, 13, 4, Color.BLACK)
-		draw_string(font, kp, key_label, HORIZONTAL_ALIGNMENT_LEFT, -1, 13, Color(1, 0.9, 0.4))
+		var kp := Vector2(4, 1 + s13)
+		draw_string_outline(font, kp, key_label, HORIZONTAL_ALIGNMENT_LEFT, -1, s13, 4, Color.BLACK)
+		draw_string(font, kp, key_label, HORIZONTAL_ALIGNMENT_LEFT, -1, s13, Color(1, 0.9, 0.4))
 	if selected:
 		draw_rect(r.grow(-1), Color.WHITE, false, 3.0)
 	elif has_focus():

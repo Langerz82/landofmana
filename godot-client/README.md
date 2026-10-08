@@ -34,7 +34,7 @@ Open this folder in **Godot 4.7** (`project.godot`) and press **F5**.
 | Craft, enchant and repair (NPC modes), looks (switch + unlock with gems) | done | `craft*`, `appearance/*` |
 | Quest log, achievements (+ completion notice) | done | `questdialog.js`, `achievement*` |
 | Party: invite / accept / kick / leader / leave, player right-click menu | done | `socialdialog.js`, `playerpopupmenu.js` |
-| Settings (chat, sound, music, joystick, fullscreen, menu/button/panel border/panel background colours, zoom, shortcut layout, health bar speed, log out) | done | `settingsdialog.js` |
+| Settings (chat, sound, music, joystick, fullscreen, menu/button/panel border/panel background colours, font size, zoom, shortcut layout, health bar speed, log out) | done | `settingsdialog.js` |
 | Gem shop (opens the payment page), leaderboard | done | `gemshop*`, `leaderboard*` |
 | Chat commands (`/w`, `//`, `///`, `/party`, `/invite`, `/kick`, `/leader`, `/leave`, `/warp`, `/autopotion`, `/id`) | done | `chathandler.js` |
 | Harvesting (axe/pickaxe on trees, rocks and nodes), pushing/placing blocks | done | `gameinteraction*.js` |

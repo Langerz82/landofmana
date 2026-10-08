@@ -4,6 +4,7 @@ extends GameWindow
 ## menu / button colours, zoom and shortcut bar layout. Saved in
 ## user://settings.cfg.
 
+var _scroll: ScrollContainer
 var _pickers: Dictionary = {}   # setting key -> [ColorPickerButton, default]
 
 const ZOOMS := [["Closest", 0.6], ["Closer", 0.8], ["Normal", 1.0], ["Further", 1.2], ["Furthest", 1.4]]
@@ -17,6 +18,15 @@ func _init() -> void:
 
 
 func build() -> void:
+	# The rows scroll when large fonts make them taller than the screen.
+	_scroll = ScrollContainer.new()
+	_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	content.add_child(_scroll)
+	var rows := VBoxContainer.new()
+	rows.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	rows.add_theme_constant_override("separation", 6)
+	_scroll.add_child(rows)
+	content = rows
 	_toggle("Chat log", "ui", "chat", true, func(v): hud.set_chat_visible(v))
 	_toggle("Sound", "audio", "sfx", true, func(v): world.audio.sfx_on = v)
 	_toggle("Music", "audio", "music", true, func(v):
@@ -59,8 +69,30 @@ func build() -> void:
 			hb.select(i)
 	hb.item_selected.connect(func(i): Config.set_setting("ui", "healthbarms", BAR_SPEEDS[i][1]))
 	_row("Health bars", hb)
+	# Font size: a scale for all text; 1 = normal, above 1 bigger, below 1 smaller.
+	var fsb := SpinBox.new()
+	fsb.min_value = UiStyle.FONT_SCALE_MIN
+	fsb.max_value = UiStyle.FONT_SCALE_MAX
+	fsb.step = 0.05
+	fsb.value = UiStyle.font_scale
+	fsb.tooltip_text = "1 = normal size, above 1 = bigger, below 1 = smaller (default %.1f)" % UiStyle.DEFAULT_FONT_SCALE
+	fsb.value_changed.connect(func(v: float):
+		Config.set_setting("ui", "fontscale", snappedf(v, 0.01))
+		UiStyle.font_scale = v
+		UiStyle.apply_font_scale(get_tree())
+		hud.relayout_windows.call_deferred())
+	_row("Font size", fsb)
 	content.add_child(HSeparator.new())
 	content.add_child(UiStyle.button("Log out", func(): hud.back_to_login.emit()))
+
+
+## Show all rows when they fit, otherwise as many as fit and scroll.
+func _place() -> void:
+	if _scroll:
+		var rows: Control = _scroll.get_child(0)
+		var avail := get_viewport_rect().size.y - 70.0 - 90.0   # shortcut bar, title, margins
+		_scroll.custom_minimum_size = Vector2(rows.get_combined_minimum_size().x, minf(rows.get_combined_minimum_size().y, maxf(160.0, avail)))
+	super._place()
 
 
 func _row(text: String, c: Control) -> void:

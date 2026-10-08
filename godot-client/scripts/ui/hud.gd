@@ -70,6 +70,7 @@ func _ready() -> void:
 	_build_error(root)
 	_root = root
 	UiStyle.load_settings()
+	UiStyle.install_font_scaling(get_tree())
 	if world != null and world.get("data") != null:
 		_build_game_ui(root)
 	announce("Welcome to Land Of Mana!", 5000)
@@ -129,7 +130,7 @@ func _build_player_panel(root: Control) -> void:
 	var v := VBoxContainer.new()
 	v.add_theme_constant_override("separation", 3)
 	p.add_child(v)
-	_name_label = _label("", 16, KOMIKA, Color(1, 1, 0))
+	_name_label = _label("", 12, KOMIKA, Color(1, 1, 0))
 	v.add_child(_name_label)
 	var hp_row := Control.new()
 	hp_row.custom_minimum_size = Vector2(220, 16)
@@ -171,7 +172,7 @@ func _build_target_panel(root: Control) -> void:
 	root.add_child(_target_panel)
 	var v := VBoxContainer.new()
 	_target_panel.add_child(v)
-	_target_name = _label("", 14, KOMIKA)
+	_target_name = _label("", 12, KOMIKA)
 	_target_name.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	v.add_child(_target_name)
 	_target_bar = _bar(Color(0.85, 0.15, 0.15), 10, true)
@@ -222,7 +223,7 @@ func _build_center_texts(root: Control) -> void:
 	_debug.offset_top = 30
 	_debug.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	root.add_child(_debug)
-	var help := _label("Space: attack/talk   T/Y: target   1-6: shortcuts   I: items   C: player   K: skills   Q: quests   Enter: chat   Esc: settings", 11, null, Color(1, 1, 1, 0.6))
+	var help := _label("Space: attack/talk   T/Y: target   1-6: shortcuts   I: items   C: player   K: skills   Q: quests   Enter: chat   Esc: settings", 12, null, Color(1, 1, 1, 0.6))
 	help.set_anchors_preset(Control.PRESET_TOP_RIGHT)
 	help.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	help.offset_left = -900
@@ -802,6 +803,20 @@ func restyle() -> void:
 	if shortcut_bar:
 		shortcut_bar.add_theme_stylebox_override("panel", UiStyle.panel(0.6))
 		_restyle_buttons(shortcut_bar)
+
+
+## Re-fit open windows and bars after the font size changed (they grow or
+## shrink with their text) and keep them on screen.
+func relayout_windows() -> void:
+	for w in windows.values():
+		if w.visible:
+			w._place()
+		else:
+			w.reset_size()
+	for c in [shortcut_bar, _menu_panel, _dialogue_panel]:
+		if c:
+			c.reset_size()
+	apply_shortcut_style()
 
 
 func _restyle_buttons(n: Node) -> void:
