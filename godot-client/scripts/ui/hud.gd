@@ -43,7 +43,8 @@ var windows: Dictionary = {}     # name -> GameWindow
 var modals: Modals
 var shortcut_bar: ShortcutBar
 var joystick: TouchJoystick
-var _menu: HBoxContainer
+var _menu: BoxContainer
+var _menu_panel: PanelContainer
 var _alarm: Label
 var _alarm_queue: Array = []
 var _alarm_until := 0
@@ -437,12 +438,16 @@ func show_dialogue(speaker: String, text: String, entity = null) -> void:
 	_dialogue_pic.texture = portrait(entity)
 	_dialogue_pic.get_parent().visible = _dialogue_pic.texture != null
 	# Keep the box above the shortcut bar whatever its layout.
-	var bottom := 92.0
-	if shortcut_bar and shortcut_bar.visible:
-		var r := shortcut_bar.get_global_rect()
-		var vp := get_viewport().get_visible_rect().size
-		if r.position.x < vp.x / 2 + 270 and r.end.x > vp.x / 2 - 270:
-			bottom = maxf(16.0, vp.y - r.position.y + 10)
+	# Keep the box above whatever sits at the bottom centre (shortcut bar or
+	# menu icons, depending on the shortcut layout).
+	var bottom := 16.0
+	var vp := get_viewport().get_visible_rect().size
+	for c in [shortcut_bar, _menu_panel]:
+		if c == null or not c.visible:
+			continue
+		var r: Rect2 = c.get_global_rect()
+		if r.position.x < vp.x / 2 + 270 and r.end.x > vp.x / 2 - 270 and r.end.y > vp.y * 0.6:
+			bottom = maxf(bottom, vp.y - r.position.y + 10)
 	_dialogue_panel.offset_bottom = -bottom
 	_dialogue_panel.offset_top = -bottom
 	_dialogue_panel.visible = true
@@ -576,13 +581,9 @@ func _build_game_ui(root: Control) -> void:
 	var mp := PanelContainer.new()
 	mp.add_theme_stylebox_override("panel", UiStyle.panel(0.6))
 	_panels.append(mp)
-	mp.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT)
-	mp.grow_horizontal = Control.GROW_DIRECTION_BEGIN
-	mp.grow_vertical = Control.GROW_DIRECTION_BEGIN
-	mp.offset_right = -8
-	mp.offset_bottom = -8
 	root.add_child(mp)
-	_menu = HBoxContainer.new()
+	_menu_panel = mp
+	_menu = BoxContainer.new()
 	_menu.add_theme_constant_override("separation", 2)
 	mp.add_child(_menu)
 	var entries: Array = MENU.duplicate()
@@ -599,6 +600,7 @@ func _build_game_ui(root: Control) -> void:
 		var wname: String = m[0]
 		b.pressed.connect(func(): menu_action(wname))
 		_menu.add_child(b)
+	_layout_menu()
 	# modals, alarm, popup menu, joystick
 	modals = Modals.new()
 	root.add_child(modals)
@@ -755,6 +757,35 @@ func apply_shortcut_style() -> void:
 		shortcut_bar.offset_top = -72
 		shortcut_bar.offset_bottom = -8
 	shortcut_bar.reset_size()
+	_layout_menu()
+
+
+## The menu icons go where the shortcut bar is not: shortcut bar along the
+## bottom -> vertical menu in the middle of the right edge; shortcut bar
+## vertical on the right -> horizontal menu in the middle of the bottom.
+func _layout_menu() -> void:
+	if _menu_panel == null or shortcut_bar == null:
+		return
+	var vertical_bar := str(Config.get_setting("ui", "shortcutstyle", "horizontal-asc")).begins_with("vertical")
+	var mp := _menu_panel
+	_menu.vertical = not vertical_bar
+	if vertical_bar:
+		mp.set_anchors_preset(Control.PRESET_CENTER_BOTTOM)
+		mp.grow_horizontal = Control.GROW_DIRECTION_BOTH
+		mp.grow_vertical = Control.GROW_DIRECTION_BEGIN
+		mp.offset_left = 0
+		mp.offset_right = 0
+		mp.offset_top = -8
+		mp.offset_bottom = -8
+	else:
+		mp.set_anchors_preset(Control.PRESET_CENTER_RIGHT)
+		mp.grow_horizontal = Control.GROW_DIRECTION_BEGIN
+		mp.grow_vertical = Control.GROW_DIRECTION_BOTH
+		mp.offset_left = -8
+		mp.offset_right = -8
+		mp.offset_top = 0
+		mp.offset_bottom = 0
+	mp.reset_size()
 
 
 ## Re-applies menu/button colours after a settings change.
