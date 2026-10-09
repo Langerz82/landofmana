@@ -62,6 +62,12 @@ var _alarm_ready_at := 0       # earliest time the next alert may show
 var _player_menu: PopupMenu
 var _menu_player = null
 var _chat_box: VBoxContainer
+const CHAT_HEIGHT := 240      # default chat log height (px)
+const CHAT_MIN_HEIGHT := 60
+const CHAT_GRIP := 8          # height of the draggable top border
+var _chat_grip: ColorRect
+var _chat_drag_from := -1.0   # mouse y when the drag started (-1 = not dragging)
+var _chat_drag_h := 0.0
 var _hover = null
 var _panels: Array = []
 
@@ -203,8 +209,8 @@ func _build_chat(root: Control) -> void:
 	_chat_box = box
 	box.set_anchors_preset(Control.PRESET_BOTTOM_LEFT)
 	box.position = Vector2(10, -250)
-	box.custom_minimum_size = Vector2(460, 240)
-	box.size = Vector2(460, 240)
+	box.custom_minimum_size = Vector2(460, 0)
+	box.size = Vector2(460, chat_height())
 	box.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	root.add_child(box)
 	_chat_log = RichTextLabel.new()
@@ -222,6 +228,19 @@ func _build_chat(root: Control) -> void:
 	chat_bg.set_content_margin_all(6)
 	_chat_log.add_theme_stylebox_override("normal", chat_bg)
 	box.add_child(_chat_log)
+	# Drag the top border to make the chat log taller / shorter.
+	_chat_grip = ColorRect.new()
+	_chat_grip.color = Color(1, 1, 1, 0)
+	_chat_grip.mouse_filter = Control.MOUSE_FILTER_STOP
+	_chat_grip.mouse_default_cursor_shape = Control.CURSOR_VSIZE
+	_chat_grip.tooltip_text = ""
+	_chat_grip.set_anchors_preset(Control.PRESET_TOP_WIDE)
+	_chat_grip.offset_top = -CHAT_GRIP / 2.0
+	_chat_grip.offset_bottom = CHAT_GRIP / 2.0
+	_chat_grip.mouse_entered.connect(func(): _chat_grip_hover(true))
+	_chat_grip.mouse_exited.connect(func(): _chat_grip_hover(false))
+	_chat_grip.gui_input.connect(_on_chat_grip_input)
+	_chat_log.add_child(_chat_grip)
 	_chat_input = LineEdit.new()
 	_chat_input.placeholder_text = "Type a message and press Enter..."
 	_chat_input.max_length = 256
@@ -932,8 +951,48 @@ func _layout_chat() -> void:
 	if _chat_box == null:
 		return
 	# Offsets from the bottom-left anchor (setting `position` here would be absolute).
-	_chat_box.offset_top = -250
 	_chat_box.offset_bottom = -10
+	_chat_box.offset_top = -10 - _clamp_chat_height(chat_height())
+
+
+## Saved chat log height (Settings file: [ui] chatheight).
+func chat_height() -> float:
+	return float(Config.get_setting("ui", "chatheight", CHAT_HEIGHT))
+
+
+func _clamp_chat_height(h: float) -> float:
+	var vp := get_viewport().get_visible_rect().size
+	return clampf(h, CHAT_MIN_HEIGHT, maxf(CHAT_MIN_HEIGHT, vp.y - 140))
+
+
+func set_chat_height(h: float, save := true) -> void:
+	h = _clamp_chat_height(h)
+	_chat_box.offset_top = _chat_box.offset_bottom - h
+	if save:
+		Config.set_setting("ui", "chatheight", int(round(h)))
+
+
+func _chat_grip_hover(on: bool) -> void:
+	if _chat_drag_from < 0:
+		_chat_grip.color = Color(1, 1, 1, 0.35 if on else 0.0)
+
+
+func _on_chat_grip_input(event: InputEvent) -> void:
+	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
+		if event.pressed:
+			_chat_drag_from = event.global_position.y
+			_chat_drag_h = _chat_box.offset_bottom - _chat_box.offset_top
+			_chat_grip.color = Color(1, 1, 1, 0.5)
+		elif _chat_drag_from >= 0:
+			_chat_drag_from = -1.0
+			set_chat_height(_chat_box.offset_bottom - _chat_box.offset_top)
+			var inside := _chat_grip.get_global_rect().has_point(event.global_position)
+			_chat_grip.color = Color(1, 1, 1, 0.35 if inside else 0.0)
+		_chat_grip.accept_event()
+	elif event is InputEventMouseMotion and _chat_drag_from >= 0:
+		# Dragging up (smaller y) makes the log taller.
+		set_chat_height(_chat_drag_h + (_chat_drag_from - event.global_position.y), false)
+		_chat_grip.accept_event()
 
 
 ## Re-applies menu/button colours after a settings change.
