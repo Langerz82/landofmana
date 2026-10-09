@@ -1680,9 +1680,9 @@ func _quest_alarm(q) -> void:
 	if q == null or hud == null:
 		return
 	if q.status == 0:
-		hud.alarm("Quest Found\n%s" % q.summary)
+		hud.alarm("Quest Found\n%s" % q.summary, 0, "quest")
 	elif q.status == 2:
-		hud.alarm("Quest Completed\n%s" % q.summary)
+		hud.alarm("Quest Completed\n%s" % q.summary, 0, "quest")
 
 
 ## clientcallbacksquest.js onQuest + questSpeech

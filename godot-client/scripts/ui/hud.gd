@@ -46,9 +46,19 @@ var shortcut_bar: ShortcutBar
 var joystick: TouchJoystick
 var _menu: BoxContainer
 var _menu_panel: PanelContainer
-var _alarm: Label
-var _alarm_queue: Array = []
-var _alarm_until := 0
+# Alarm box (quest / achievement alerts): same size and place as the NPC
+# dialogue box, one at a time, never together with a dialogue.
+const ALARM_DELAY_MS := 2000   # wait before each alert (and after a dialogue closes)
+const ALARM_SHOW_MS := 4000    # how long an alert stays up
+const ALARM_FADE_MS := 400     # fade-out at the end
+var _alarm: PanelContainer
+var _alarm_icon: TextureRect
+var _alarm_title: Label
+var _alarm_text: Label
+var _alarm_queue: Array = []   # [title, text, kind, ms]
+var _alarm_current: Array = []
+var _alarm_until := 0          # >0 while an alert is showing
+var _alarm_ready_at := 0       # earliest time the next alert may show
 var _player_menu: PopupMenu
 var _menu_player = null
 var _chat_box: VBoxContainer
@@ -464,9 +474,16 @@ func show_dialogue(speaker: String, text: String, entity = null) -> void:
 	_dialogue_text.text = text
 	_dialogue_pic.texture = portrait(entity)
 	_dialogue_pic.get_parent().visible = _dialogue_pic.texture != null
-	# Keep the box above the shortcut bar whatever its layout.
-	# Keep the box above whatever sits at the bottom centre (shortcut bar or
-	# menu icons, depending on the shortcut layout).
+	var bottom := _bottom_clearance()
+	_dialogue_panel.offset_bottom = -bottom
+	_dialogue_panel.offset_top = -bottom
+	_dialogue_panel.visible = true
+
+
+## Distance from the bottom of the screen for the dialogue / alarm box, so it
+## stays above whatever sits at the bottom centre (shortcut bar or menu icons,
+## depending on the shortcut layout).
+func _bottom_clearance() -> float:
 	var bottom := 16.0
 	var vp := get_viewport().get_visible_rect().size
 	for c in [shortcut_bar, _menu_panel]:
@@ -475,9 +492,7 @@ func show_dialogue(speaker: String, text: String, entity = null) -> void:
 		var r: Rect2 = c.get_global_rect()
 		if r.position.x < vp.x / 2 + 270 and r.end.x > vp.x / 2 - 270 and r.end.y > vp.y * 0.6:
 			bottom = maxf(bottom, vp.y - r.position.y + 10)
-	_dialogue_panel.offset_bottom = -bottom
-	_dialogue_panel.offset_top = -bottom
-	_dialogue_panel.visible = true
+	return bottom
 
 
 ## First idle frame of an entity's body sprite, facing down.
@@ -631,12 +646,7 @@ func _build_game_ui(root: Control) -> void:
 	# modals, alarm, popup menu, joystick
 	modals = Modals.new()
 	root.add_child(modals)
-	_alarm = _label("", 18, KOMIKA, Color(0.6, 1, 0.6))
-	_alarm.set_anchors_preset(Control.PRESET_TOP_WIDE)
-	_alarm.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_alarm.offset_top = 80
-	_alarm.offset_bottom = 110
-	root.add_child(_alarm)
+	_build_alarm(root)
 	_player_menu = PopupMenu.new()
 	_player_menu.id_pressed.connect(_on_player_menu)
 	root.add_child(_player_menu)
@@ -650,7 +660,7 @@ func _build_game_ui(root: Control) -> void:
 	root.add_child(joystick)
 	set_joystick_visible(bool(Config.get_setting("ui", "joystick", OS.has_feature("mobile"))))
 	set_chat_visible(bool(Config.get_setting("ui", "chat", true)))
-	data.achievement_completed.connect(func(a): alarm("Achievement completed: " + str(a.summary)))
+	data.achievement_completed.connect(func(a): alarm("Achievement Completed\n" + str(a.summary), 0, "achievement"))
 	data.party_invite.connect(_on_party_invite)
 	data.gold_changed.connect(func(): update_bars(world.player))
 
@@ -728,9 +738,95 @@ func shop_window_open() -> bool:
 
 # ---------------------------------------------------------------- alarm
 
-## UserAlarm (useralarm.js): queued messages fading in the top centre.
-func alarm(text: String, ms := 5000) -> void:
-	_alarm_queue.append([text, ms])
+func _build_alarm(root: Control) -> void:
+	# Same look, width and spot as the NPC dialogue box (_build_dialogue).
+	_alarm = PanelContainer.new()
+	_alarm.add_theme_stylebox_override("panel", panel_style(0.85))
+	_alarm.anchor_left = 0.5
+	_alarm.anchor_right = 0.5
+	_alarm.anchor_top = 1.0
+	_alarm.anchor_bottom = 1.0
+	_alarm.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	_alarm.grow_vertical = Control.GROW_DIRECTION_BEGIN
+	_alarm.offset_left = -270
+	_alarm.offset_right = 270
+	_alarm.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_alarm.visible = false
+	root.add_child(_alarm)
+	var h := HBoxContainer.new()
+	h.add_theme_constant_override("separation", 12)
+	h.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_alarm.add_child(h)
+	var frame := PanelContainer.new()
+	var fsb := StyleBoxFlat.new()
+	fsb.bg_color = Color(0, 0, 0, 0.35)
+	fsb.border_color = Color(1, 0.85, 0.3)
+	fsb.set_border_width_all(2)
+	frame.add_theme_stylebox_override("panel", fsb)
+	frame.custom_minimum_size = Vector2(72, 72)
+	frame.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
+	frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	h.add_child(frame)
+	_alarm_icon = TextureRect.new()
+	_alarm_icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	_alarm_icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	_alarm_icon.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	_alarm_icon.custom_minimum_size = Vector2(68, 68)
+	_alarm_icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	frame.add_child(_alarm_icon)
+	var v := VBoxContainer.new()
+	v.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	v.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	h.add_child(v)
+	_alarm_title = _label("", 16, KOMIKA, Color(1, 0.85, 0.3))
+	v.add_child(_alarm_title)
+	_alarm_text = _label("", 16)
+	_alarm_text.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_alarm_text.custom_minimum_size = Vector2(420, 0)
+	v.add_child(_alarm_text)
+
+
+## Queue an alert for the alarm box. The first line of `text` is the title
+## ("Quest Found", "Achievement Completed"...), the rest the message.
+## `kind` picks the icon ("quest", "achievement"); `ms` 0 = ALARM_SHOW_MS.
+## Alerts show one at a time, ALARM_DELAY_MS apart, never while an NPC
+## dialogue (or a map change) is on screen.
+func alarm(text: String, ms := 0, kind := "") -> void:
+	var lines := text.split("\n", false, 1)
+	var title: String = lines[0] if lines.size() > 1 else ""
+	var body: String = lines[1] if lines.size() > 1 else text
+	_alarm_queue.append([title, body, kind, ms if ms > 0 else ALARM_SHOW_MS])
+
+
+func is_alarm_showing() -> bool:
+	return _alarm != null and _alarm.visible
+
+
+func _alarm_blocked() -> bool:
+	return (_dialogue_panel != null and _dialogue_panel.visible) or is_blacked_out()
+
+
+func _show_alarm(a: Array) -> void:
+	_alarm_current = a
+	_alarm_title.text = str(a[0])
+	_alarm_title.visible = str(a[0]) != ""
+	_alarm_text.text = str(a[1])
+	var icon_xy := Vector2i(448, 0) if str(a[2]) == "achievement" else Vector2i(352, 0)
+	_alarm_icon.texture = UiStyle.menu_icon(icon_xy.x, icon_xy.y)
+	# Same height as the dialogue box, at the same place.
+	_alarm.custom_minimum_size.y = _dialogue_panel.get_combined_minimum_size().y if _dialogue_panel else 0.0
+	var bottom := _bottom_clearance()
+	_alarm.offset_bottom = -bottom
+	_alarm.offset_top = -bottom
+	_alarm.modulate.a = 1.0
+	_alarm.visible = true
+	_alarm_until = Time.get_ticks_msec() + int(a[3])
+
+
+func _hide_alarm() -> void:
+	_alarm.visible = false
+	_alarm_until = 0
+	_alarm_current = []
 
 
 func _process(_d: float) -> void:
@@ -738,16 +834,29 @@ func _process(_d: float) -> void:
 		return
 	var now := Time.get_ticks_msec()
 	if _alarm_until > 0:
+		if _alarm_blocked():
+			# A dialogue started: put this alert back and show it afterwards.
+			_alarm_queue.push_front(_alarm_current)
+			_hide_alarm()
+			_alarm_ready_at = 0
+			return
 		var left := _alarm_until - now
-		_alarm.modulate.a = clampf(left / 1500.0, 0, 1)
+		_alarm.modulate.a = clampf(float(left) / ALARM_FADE_MS, 0.0, 1.0)
 		if left <= 0:
-			_alarm_until = 0
-			_alarm.text = ""
-	elif not _alarm_queue.is_empty():
-		var a: Array = _alarm_queue.pop_front()
-		_alarm.text = a[0]
-		_alarm.modulate.a = 1
-		_alarm_until = now + int(a[1]) + 1500
+			_hide_alarm()
+			_alarm_ready_at = now + ALARM_DELAY_MS
+		return
+	if _alarm_queue.is_empty():
+		if now >= _alarm_ready_at:
+			_alarm_ready_at = 0
+		return
+	if _alarm_blocked():
+		_alarm_ready_at = now + ALARM_DELAY_MS   # count the delay from when it closes
+		return
+	if _alarm_ready_at == 0:
+		_alarm_ready_at = now + ALARM_DELAY_MS
+	if now >= _alarm_ready_at:
+		_show_alarm(_alarm_queue.pop_front())
 
 
 # ------------------------------------------------------------- settings
