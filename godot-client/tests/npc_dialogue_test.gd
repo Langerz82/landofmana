@@ -64,7 +64,7 @@ func run() -> void:
 		return
 	await wait(800)
 	# Use the GUI first (menu button + close) so a button may hold keyboard focus.
-	var inv_btn: Control = hud._menu.get_child(0)
+	var inv_btn: Control = hud._menu.get_child(1)   # 0 is the chat button
 	await mouse_click(inv_btn.get_global_rect().get_center())
 	check("menu button opens inventory", await until(func(): return hud.window("inventory").visible, 2000))
 	hud.window("inventory").close()
