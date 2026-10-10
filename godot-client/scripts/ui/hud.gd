@@ -585,7 +585,8 @@ func _input(event: InputEvent) -> void:
 # ======================================================================
 
 const MENU := [
-	# [window, icon x, icon y, tooltip, hotkey]
+	# [window, icon x, icon y, tooltip, hotkey]; icon x can be an image path instead
+	["chat", "res://assets/img/common/messenger.png", 0, "Chat (Enter)", 0],
 	["inventory", 0, 32, "Equipment & items (I)", KEY_I],
 	["stats", 128, 0, "Player (C)", KEY_C],
 	["skills", 96, 0, "Skills (K)", KEY_K],
@@ -649,10 +650,10 @@ func _build_game_ui(root: Control) -> void:
 	mp.add_child(_menu)
 	var entries: Array = MENU.duplicate()
 	if LeaderboardWindow.available():
-		entries.insert(6, ["rankings", 448, 32, "Rankings", 0])
+		entries.insert(entries.find(MENU[7]), ["rankings", 448, 32, "Rankings", 0])
 	for m in entries:
 		var b := TextureButton.new()
-		b.texture_normal = UiStyle.menu_icon(m[1], m[2])
+		b.texture_normal = load(m[1]) if m[1] is String else UiStyle.menu_icon(m[1], m[2])
 		b.ignore_texture_size = true
 		b.stretch_mode = TextureButton.STRETCH_KEEP_ASPECT_CENTERED
 		b.custom_minimum_size = Vector2(36, 36)
@@ -712,6 +713,9 @@ func toggle_window(wname: String) -> void:
 func menu_action(wname: String) -> void:
 	if wname == "town":
 		world.warp_to_town()
+		return
+	if wname == "chat":
+		open_chat(not is_chat_open())
 		return
 	toggle_window(wname)
 
