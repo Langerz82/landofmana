@@ -12,7 +12,8 @@ var _title_label: Label
 var _title_bar: PanelContainer
 var _dragging := false
 var _drag_offset := Vector2.ZERO
-var _placed := false
+var _user_moved := false   # dragged by the player: keep its spot instead of centring
+var _placing := false
 var hud = null
 var world = null
 
@@ -52,6 +53,10 @@ func _ready() -> void:
 	content.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	v.add_child(content)
 	build()
+	# Content / font / UI scale changes resize the window: re-centre it.
+	resized.connect(func():
+		if visible and not _placing and not _user_moved:
+			_place.call_deferred())
 
 
 ## Re-apply the title bar colour (Settings -> Menu color).
@@ -85,17 +90,26 @@ func open() -> void:
 	opened.emit()
 
 
-## Centre the window the first time it opens (once its contents exist), and
-## keep it on screen above the shortcut bar afterwards.
+## Centre the window on screen (again whenever its size, the font size or the
+## UI scale changes), unless the player dragged it somewhere: then just keep
+## it on screen. Either way it stays above the bottom bar when there is room.
 func _place() -> void:
+	_placing = true
 	reset_size()
 	var vp := get_parent_area_size()   # HUD units (the HUD may be scaled)
 	var bottom_margin := 70.0
-	if not _placed:
-		_placed = true
-		position = ((vp - Vector2(0, bottom_margin) - size) / 2.0).round()
+	if not _user_moved:
+		position = ((vp - size) / 2.0).round()
 	position.x = clampf(position.x, 0, maxf(0, vp.x - size.x))
 	position.y = clampf(position.y, 0, maxf(0, vp.y - bottom_margin - size.y))
+	_placing = false
+
+
+## Forget a dragged position so the window is centred again.
+func recenter() -> void:
+	_user_moved = false
+	if visible:
+		_place()
 
 
 func close() -> void:
@@ -139,6 +153,7 @@ func _on_bar_input(e: InputEvent) -> void:
 	elif e is InputEventMouseMotion and _dragging:
 		var vp := get_parent_area_size()
 		var p := _to_parent(e.global_position) - _drag_offset
+		_user_moved = true
 		position = Vector2(clampf(p.x, -size.x + 60, vp.x - 60), clampf(p.y, 0, vp.y - 30))
 
 
