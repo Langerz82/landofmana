@@ -353,6 +353,12 @@ static func menu_icon(x: int, y: int) -> AtlasTexture:
 
 
 ## Slot background cell (56px) from img/3/misc/itembackground.png.
+## Empty slot background (inventory, bank, shortcut bar...). Cell (0, 0) is
+## the weapon slot (it shows a sword), so plain slots use an empty cell.
+static func plain_slot_background() -> AtlasTexture:
+	return slot_background(0, 0)
+
+
 static func slot_background(cx: int, cy: int) -> AtlasTexture:
 	var at := AtlasTexture.new()
 	at.atlas = ITEM_BG

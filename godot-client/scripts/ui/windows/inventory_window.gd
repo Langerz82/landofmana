@@ -4,7 +4,7 @@ extends GameWindow
 ## same window is reused by the shops in their "modes" (sell, enchant,
 ## repair, bank, auction) exactly like the JS client.
 
-const EQUIP_BG := [Vector2i(1, 0), Vector2i(1, 1), Vector2i(0, 1), Vector2i(1, 2), Vector2i(0, 0)]
+const EQUIP_BG := [Vector2i(1, 0), Vector2i(1, 1), Vector2i(0, 1), Vector2i(1, 2), Vector2i(2, 2)]
 const EQUIP_NAMES := ["Helm", "Chest", "Gloves", "Boots", "Weapon"]
 const MODE_TEXT := {0: "DROP", 1: "SELL", 2: "REPAIR", 3: "ENCHANT", 4: "BANK", 5: "LIST"}
 

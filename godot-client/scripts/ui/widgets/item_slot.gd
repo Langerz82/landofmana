@@ -26,6 +26,7 @@ var selected := false
 var dimmed := false
 var cooldown_text := ""
 var payload = null        # whatever the owner wants to keep here
+var icon_native := false  # draw the icon at its own size (centred) instead of 44x44
 
 var _drag_started := false
 
@@ -35,7 +36,7 @@ func _init() -> void:
 	focus_mode = Control.FOCUS_ALL
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	if background == null:
-		background = UiStyle.slot_background(0, 0)
+		background = UiStyle.plain_slot_background()
 
 
 func set_item(tex: Texture2D, count := "", corner := "") -> void:
@@ -79,7 +80,7 @@ func _draw() -> void:
 	else:
 		draw_rect(r, Color(0, 0, 0, 0.5))
 	if icon:
-		var isz := Vector2(44, 44)
+		var isz := icon.get_size() if icon_native else Vector2(44, 44)
 		draw_texture_rect(icon, Rect2((size - isz) / 2.0, isz), false)
 	var font := get_theme_default_font()
 	# Slot text follows the Font size setting, capped so it still fits the slot.

@@ -9,8 +9,9 @@ var actions: ItemActions
 var world = null
 var slots: Array = []
 var _box: BoxContainer
-var _attack: Button
+var _attack: ItemSlot
 var style := "horizontal-asc"
+const ATTACK_ICON := preload("res://assets/img/3/misc/sword.png")
 
 
 func _ready() -> void:
@@ -40,9 +41,14 @@ func _rebuild_box() -> void:
 			s.dropped.connect(_on_dropped)
 			s.tooltip_text = "Shortcut %d (key %d). Select a skill or potion and click here (or drag it here); right click to clear." % [i + 1, i + 1]
 			slots.append(s)
-		_attack = UiStyle.button("ATK", func(): world.make_player_interact_next_to())
-		_attack.custom_minimum_size = Vector2(52, 52)
+		# Attack button: a shortcut slot (same background) with the sword in the centre.
+		_attack = ItemSlot.new()
+		_attack.icon = ATTACK_ICON
+		_attack.icon_native = true
+		_attack.draggable = false
 		_attack.focus_mode = Control.FOCUS_NONE
+		_attack.pressed.connect(func(_s): world.make_player_interact_next_to())
+		_attack.activated.connect(func(_s): world.make_player_interact_next_to())
 		_attack.tooltip_text = "Attack / interact (Space)"
 	var order: Array = []
 	order.append(_attack)
