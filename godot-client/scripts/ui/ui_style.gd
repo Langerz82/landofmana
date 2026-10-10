@@ -73,10 +73,42 @@ static func hud_font(f: Font) -> Font:
 	if not (f is FontFile) or _hud_fonts.values().has(f):
 		return f
 	if not _hud_fonts.has(f):
-		var d: FontFile = f.duplicate()
+		var d := fresh_copy(f)
 		d.oversampling = _oversampling()
 		_hud_fonts[f] = d
 	return _hud_fonts[f]
+
+
+## A new FontFile with the same font data and render settings as `f` but its
+## own glyph cache. (Resource.duplicate() shares the cache textures of the
+## sizes already drawn, so two copies drawing new glyphs into the same
+## textures corrupt each other's letters.)
+static func fresh_copy(f: FontFile) -> FontFile:
+	var d := FontFile.new()
+	d.data = f.data
+	for p in ["antialiasing", "generate_mipmaps", "disable_embedded_bitmaps", "hinting",
+			"subpixel_positioning", "keep_rounding_remainders", "force_autohinter",
+			"modulate_color_glyphs", "allow_system_fallback", "fixed_size", "fixed_size_scale_mode",
+			"multichannel_signed_distance_field", "msdf_pixel_range", "msdf_size", "oversampling",
+			"font_name", "font_style", "font_weight", "font_stretch", "opentype_feature_overrides", "fallbacks"]:
+		if p in f:
+			d.set(p, f.get(p))
+	return d
+
+
+static var _world_text_font: FontFile = null
+
+## Font for text drawn over the world (entity names, damage numbers, speech
+## bubbles). Multichannel signed distance field: one set of glyphs serves
+## every size, so changing the zoom never rasterizes new glyph sizes, and the
+## text stays sharp at all of them. Draw it with a linear texture filter.
+static func world_text_font() -> FontFile:
+	if _world_text_font == null:
+		_world_text_font = fresh_copy(KOMIKA)
+		_world_text_font.multichannel_signed_distance_field = true
+		_world_text_font.msdf_pixel_range = 32   # room for the outlines
+		_world_text_font.msdf_size = 48
+	return _world_text_font
 
 
 static func _oversampling() -> float:

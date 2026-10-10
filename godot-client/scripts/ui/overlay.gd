@@ -5,8 +5,10 @@ extends Control
 ## renderer's HUD container (renderer/rendererdraw{names,bars,hud}.js), drawn
 ## at screen resolution so text stays crisp at the 3x game zoom.
 
-const KOMIKA := preload("res://assets/fonts/KOMIKAH.ttf")
+var KOMIKA: FontFile = UiStyle.world_text_font()   # MSDF copy, see UiStyle
 const TS := Types.G_TILESIZE
+const NAME_SIZE := 16       # entity name size at the Normal zoom (x Font size setting)
+const NAME_MIN_SIZE := 8    # never smaller than this when zoomed far out
 
 var world = null
 
@@ -14,6 +16,7 @@ var world = null
 func _ready() -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
+	texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR   # for the MSDF text (the overlay draws no images)
 
 
 func _to_screen(p: Vector2) -> Vector2:
@@ -73,7 +76,13 @@ func _draw_name(e, sp: Vector2, s: float) -> void:
 	var y_off := -TS * s
 	if e is Npc and e.type == Types.EntityType.NPCMOVE:
 		y_off -= (TS >> 1) * s
-	_text_centered(text, sp + Vector2(0, y_off), UiStyle.fs(12), color, Color.BLACK)
+	_text_centered(text, sp + Vector2(0, y_off), name_size(), color, Color.BLACK, clampi(roundi(4 * world.zoom_factor()), 2, 8))
+
+
+## Entity name font size: grows / shrinks with the Zoom setting, in
+## proportion to the sprites it labels (NAME_SIZE at the Normal zoom).
+func name_size() -> int:
+	return maxi(NAME_MIN_SIZE, roundi(UiStyle.fs(NAME_SIZE) * world.zoom_factor()))
 
 
 func _draw_health(e, sp: Vector2, s: float) -> void:
@@ -125,10 +134,15 @@ func _draw_bar(center: Vector2, ratio: float, color: Color, s: float) -> void:
 	draw_rect(r, Color.BLACK, false, 2.0)
 
 
-func _text_centered(text: String, pos: Vector2, size: int, color: Color, outline: Color) -> void:
+func _text_centered(text: String, pos: Vector2, size: int, color: Color, outline: Color, outline_px := 4) -> void:
 	var width := KOMIKA.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, size).x
 	var at := pos - Vector2(width / 2.0, -size / 3.0)
-	draw_string_outline(KOMIKA, at, text, HORIZONTAL_ALIGNMENT_LEFT, -1, size, 4, outline)
+	# MSDF fonts get no outline from draw_string_outline() here, so draw the
+	# outline as copies of the text around it.
+	var r := maxf(1.0, outline_px / 2.0)
+	for i in range(16):
+		var a := TAU * i / 16.0
+		draw_string(KOMIKA, at + Vector2(cos(a), sin(a)) * r, text, HORIZONTAL_ALIGNMENT_LEFT, -1, size, outline)
 	draw_string(KOMIKA, at, text, HORIZONTAL_ALIGNMENT_LEFT, -1, size, color)
 
 

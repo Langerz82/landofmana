@@ -43,7 +43,7 @@ func build() -> void:
 	var zoom := OptionButton.new()
 	for z in ZOOMS:
 		zoom.add_item(z[0])
-	var cur := float(Config.get_setting("ui", "gamezoom", 0.8))
+	var cur := float(Config.get_setting("ui", "gamezoom", World.DEFAULT_ZOOM))
 	for i in range(ZOOMS.size()):
 		if is_equal_approx(ZOOMS[i][1], cur):
 			zoom.select(i)
