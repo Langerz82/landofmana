@@ -7,7 +7,7 @@ extends GameWindow
 var _scroll: ScrollContainer
 var _pickers: Dictionary = {}   # setting key -> [ColorPickerButton, default]
 
-const ZOOMS := [["Closest", 0.6], ["Closer", 0.8], ["Normal", 1.0], ["Further", 1.2], ["Furthest", 1.4]]
+const ZOOMS := [["Closest", 0.4], ["Closer", 0.6], ["Normal", 0.8], ["Further", 1.0], ["Furthest", 1.2]]
 const BAR_SPEEDS := [["Instant", 0], ["Fast (250 ms)", 250], ["Normal (500 ms)", 500], ["Slow (1000 ms)", 1000]]
 const SHORTCUT_STYLES := [["Horizontal ascending", "horizontal-asc"], ["Horizontal descending", "horizontal-desc"],
 	["Vertical ascending", "vertical-asc"], ["Vertical descending", "vertical-desc"]]
@@ -43,7 +43,7 @@ func build() -> void:
 	var zoom := OptionButton.new()
 	for z in ZOOMS:
 		zoom.add_item(z[0])
-	var cur := float(Config.get_setting("ui", "gamezoom", 1.0))
+	var cur := float(Config.get_setting("ui", "gamezoom", 0.8))
 	for i in range(ZOOMS.size()):
 		if is_equal_approx(ZOOMS[i][1], cur):
 			zoom.select(i)
