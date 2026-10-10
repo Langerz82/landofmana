@@ -49,6 +49,10 @@ var _acc := 0.0
 var _zone_timer := 0
 var _obsolete_timer := 0
 var _loading_thread: Thread = null
+## Load maps on the main thread. Forced on builds without thread support
+## (the default Web export), where Thread.start() never runs the loader.
+var sync_map_loading := not can_use_threads()
+var _map_load_token := 0
 var _pending_map_request = null
 var _dialogue_delay = null
 var _info_id := 0
@@ -463,11 +467,37 @@ func teleport_maps(index: int, tx: int = -1, ty: int = -1, portal_id: int = -1) 
 	if hud:
 		hud.set_loading(true, "Loading %s..." % MAP_NAMES[index])
 	_pending_map_request = [index, tx, ty, portal_id]
+	_map_load_token += 1
 	if map_cache.has(index):
 		_on_map_loaded(map_cache[index])
 		return
-	_loading_thread = Thread.new()
-	_loading_thread.start(_thread_load_map.bind(index))
+	if not sync_map_loading:
+		_loading_thread = Thread.new()
+		if _loading_thread.start(_thread_load_map.bind(index)) == OK:
+			return
+		_loading_thread = null
+	_sync_load_map(index, _map_load_token)
+
+
+## True when this build can run a Thread (desktop, or a Web export with
+## "Thread Support" turned on and served cross-origin isolated).
+static func can_use_threads() -> bool:
+	if OS.has_feature("nothreads"):
+		return false
+	return OS.has_feature("threads") or not OS.has_feature("web")
+
+
+func _sync_load_map(index: int, token: int) -> void:
+	# Let the black screen / "Loading..." text draw before the parse blocks.
+	await get_tree().process_frame
+	await get_tree().process_frame
+	if token != _map_load_token:
+		return   # a newer teleport replaced this one
+	var m := MapData.load_map(index, MAP_NAMES[index])
+	if token != _map_load_token:
+		return
+	map_cache[m.map_index] = m
+	_on_map_loaded(m)
 
 
 func _thread_load_map(index: int) -> void:
