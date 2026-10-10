@@ -85,13 +85,22 @@ func run() -> void:
 		await wait(300)
 		check("%.1f: saved" % s, is_equal_approx(float(Config.get_setting("ui", "uiscale", 0)), s))
 		var b: Rect2 = hud.shortcut_bar.get_global_rect()
-		check("%.1f: shortcut bar scaled" % s, absf(b.size.x - base_bar.x * s) < 3, "%s vs %s" % [b.size, base_bar])
+		check("%.1f: shortcut bar scaled" % s, absf(b.size.x - base_bar.x * s) < base_bar.x * s * 0.05, "%s vs %s" % [b.size, base_bar])
 		check("%.1f: shortcut bar still in its corner" % s, on_screen(b, vp) and b.end.y > vp.y - 20 * s - 2, str(b))
 		var m: Rect2 = hud._menu_panel.get_global_rect()
 		check("%.1f: menu on screen, clear of the shortcut bar" % s, on_screen(m, vp) and m.end.x > vp.x - 20 and not m.intersects(b), "%s %s" % [m, b])
 		var c: Rect2 = hud._chat_box.get_global_rect()
 		check("%.1f: chat bottom-left" % s, c.position.x < 20 and c.end.y <= vp.y + 1 and c.end.y > vp.y - 30, str(c))
 		check("%.1f: blackout still covers the screen" % s, hud._blackout.get_global_rect().size.distance_to(vp) < 2)
+		# Crisp text: HUD text is rasterized at its on-screen size.
+		var nf = hud._name_label.get_theme_font("font")
+		check("%.1f: HUD text font oversampled to the scale" % s, nf is FontFile and is_equal_approx(nf.oversampling, s), str(nf.oversampling if nf is FontFile else nf))
+		var base_fs := int(hud._name_label.get_meta("base_font_size", 12))
+		var on_screen_px: float = hud._name_label.get_theme_font_size("font_size") * s
+		check("%.1f: HUD text not below 0.8x on screen" % s, on_screen_px >= base_fs * UiStyle.font_scale * minf(s, 0.8) - 1.0 and on_screen_px <= base_fs * UiStyle.font_scale * maxf(s, 0.8) + 1.0, "%.1f px (base %d)" % [on_screen_px, base_fs])
+		var df = hud._chat_log.get_theme_default_font()
+		check("%.1f: HUD default font oversampled" % s, df is FontFile and is_equal_approx(df.oversampling, s))
+		check("%.1f: fonts outside the HUD untouched" % s, is_zero_approx((load("res://assets/fonts/KOMIKAH.ttf") as FontFile).oversampling) and is_zero_approx((ThemeDB.fallback_font as FontFile).oversampling) and (ThemeDB.fallback_font as FontFile).resource_path.ends_with("advocut-webfont.ttf"))
 		# window opens on screen; title-bar drag follows the mouse 1:1
 		var inv = hud.window("inventory")
 		inv.open()

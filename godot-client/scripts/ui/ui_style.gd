@@ -21,10 +21,16 @@ const DEFAULT_UI_SCALE := 1.0
 static var ui_scale := DEFAULT_UI_SCALE   # Settings -> UI scale: size of the whole HUD (panels, windows, icons)
 const UI_SCALE_MIN := 0.5
 const UI_SCALE_MAX := 1.5
+## Below this on-screen size (x normal) HUD text stops shrinking with the UI
+## scale: at UI scale 0.5 the panels are half size but the text is 0.8x.
+const MIN_UI_TEXT_SCALE := 0.8
 const BASE_FONT_SIZE := 16        # Godot's default size for controls without an override
 const FONT_SIZE_KEYS := ["font_size", "normal_font_size", "bold_font_size",
 	"italics_font_size", "bold_italics_font_size", "mono_font_size"]
 static var _font_hooked := false
+const FONT_KEYS := ["font", "normal_font", "bold_font", "italics_font", "bold_italics_font", "mono_font"]
+static var _hud_root: Control = null        # the scaled HUD root (Settings -> UI scale)
+static var _hud_fonts := {}                  # original FontFile -> HUD copy
 
 
 static func load_settings() -> void:
@@ -34,6 +40,84 @@ static func load_settings() -> void:
 	panel_bg = Color(str(Config.get_setting("ui", "panelbg", DEFAULT_PANEL_BG)))
 	font_scale = clampf(float(Config.get_setting("ui", "fontscale", DEFAULT_FONT_SCALE)), FONT_SCALE_MIN, FONT_SCALE_MAX)
 	ui_scale = clampf(float(Config.get_setting("ui", "uiscale", DEFAULT_UI_SCALE)), UI_SCALE_MIN, UI_SCALE_MAX)
+
+
+# ----------------------------------------------------------- crisp text in the scaled HUD
+# The HUD is drawn scaled (Settings -> UI scale). Glyphs rasterized at their
+# nominal size and then stretched get uneven, blocky strokes, so the HUD uses
+# its own copies of the fonts with `oversampling` = UI scale: glyphs are
+# rasterized at the size they finally appear on screen and stay sharp. Text
+# outside the HUD (login screen, names over the world, tooltips) keeps the
+# original fonts at 1:1.
+
+## Register the scaled HUD root: its theme gets the HUD copy of the default font.
+static func set_hud_root(root: Control) -> void:
+	_hud_root = root
+	var th := Theme.new()
+	var pt := ThemeDB.get_project_theme()
+	var dt := ThemeDB.get_default_theme()
+	var base: Font = ThemeDB.fallback_font   # gui/theme/custom_font ends up here or in a theme
+	if pt != null and pt.has_default_font():
+		base = pt.default_font
+	elif dt != null and dt.has_default_font():
+		base = dt.default_font
+	th.default_font = hud_font(base)
+	root.theme = th
+	_set_hud_theme_size()
+	_swap_tree(root)
+	_scale_tree(root)
+
+
+## The HUD copy of `f` (created once), rasterized at the current UI scale.
+static func hud_font(f: Font) -> Font:
+	if not (f is FontFile) or _hud_fonts.values().has(f):
+		return f
+	if not _hud_fonts.has(f):
+		var d: FontFile = f.duplicate()
+		d.oversampling = _oversampling()
+		_hud_fonts[f] = d
+	return _hud_fonts[f]
+
+
+static func _oversampling() -> float:
+	return 0.0 if is_equal_approx(ui_scale, 1.0) else ui_scale
+
+
+## After the UI scale changes: re-rasterize the HUD fonts for the new size.
+static func update_hud_fonts(tree: SceneTree) -> void:
+	for d in _hud_fonts.values():
+		d.oversampling = _oversampling()
+	if _hud_root and is_instance_valid(_hud_root):
+		_set_hud_theme_size()
+		_scale_tree(_hud_root)   # readability floor depends on the UI scale
+		_notify_theme(_hud_root)
+		_redraw_tree(_hud_root)
+
+
+static func _redraw_tree(n: Node) -> void:
+	if n is CanvasItem:
+		n.queue_redraw()
+	for c in n.get_children():
+		_redraw_tree(c)
+
+
+static func _swap_tree(n: Node) -> void:
+	if n is Control:
+		_use_hud_fonts(n)
+	for c in n.get_children():
+		_swap_tree(c)
+
+
+## Controls inside the HUD use the HUD copies of fonts set in code.
+static func _use_hud_fonts(c: Control) -> void:
+	if not _in_hud(c):
+		return
+	for key in FONT_KEYS:
+		if c.has_theme_font_override(key):
+			var f := c.get_theme_font(key)
+			var h := hud_font(f)
+			if h != f:
+				c.add_theme_font_override(key, h)
 
 
 # ----------------------------------------------------------- font size
@@ -65,8 +149,29 @@ static func apply_font_scale(tree: SceneTree) -> void:
 		if th != null:
 			th.default_font_size = size
 	ThemeDB.fallback_font_size = size
+	_set_hud_theme_size()
 	_scale_tree(root)
 	_notify_theme(root)
+
+
+## Extra factor for HUD text so it never gets smaller than MIN_UI_TEXT_SCALE
+## on screen when the UI scale goes below that.
+static func hud_text_boost() -> float:
+	return maxf(1.0, MIN_UI_TEXT_SCALE / ui_scale)
+
+
+## Font size for text drawn in code inside the HUD (Font size + readability floor).
+static func hud_fs(size: float) -> int:
+	return maxi(6, roundi(size * font_scale * hud_text_boost()))
+
+
+static func _in_hud(c: Node) -> bool:
+	return _hud_root != null and is_instance_valid(_hud_root) and (c == _hud_root or _hud_root.is_ancestor_of(c))
+
+
+static func _set_hud_theme_size() -> void:
+	if _hud_root and is_instance_valid(_hud_root) and _hud_root.theme:
+		_hud_root.theme.default_font_size = hud_fs(BASE_FONT_SIZE)
 
 
 ## Make controls drop their cached theme sizes after the shared theme changed.
@@ -93,12 +198,14 @@ static func _scale_tree(n: Node) -> void:
 static func _scale_control_fonts(c: Control) -> void:
 	if not is_instance_valid(c):
 		return
+	_use_hud_fonts(c)
 	for key in FONT_SIZE_KEYS:
 		if c.has_theme_font_size_override(key):
 			var meta: String = "base_" + key
 			if not c.has_meta(meta):
 				c.set_meta(meta, c.get_theme_font_size(key))
-			var want := fs(int(c.get_meta(meta)))
+			var base := int(c.get_meta(meta))
+			var want := hud_fs(base) if _in_hud(c) else fs(base)
 			if c.get_theme_font_size(key) != want:
 				c.add_theme_font_size_override(key, want)
 

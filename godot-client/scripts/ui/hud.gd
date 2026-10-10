@@ -98,6 +98,7 @@ func _ready() -> void:
 	UiStyle.install_font_scaling(get_tree())
 	if world != null and world.get("data") != null:
 		_build_game_ui(root)
+	UiStyle.set_hud_root(root)
 	apply_ui_scale()
 	get_viewport().size_changed.connect(apply_ui_scale)
 	announce("Welcome to Land Of Mana!", 5000)
@@ -1051,6 +1052,7 @@ func apply_ui_scale() -> void:
 	_root.position = Vector2.ZERO
 	_root.scale = Vector2(s, s)
 	_root.size = vp / s
+	UiStyle.update_hud_fonts(get_tree())
 	if _chat_box:
 		_layout_chat.call_deferred()
 	if not windows.is_empty():
