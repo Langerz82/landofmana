@@ -98,6 +98,8 @@ func _ready() -> void:
 	UiStyle.install_font_scaling(get_tree())
 	if world != null and world.get("data") != null:
 		_build_game_ui(root)
+	apply_ui_scale()
+	get_viewport().size_changed.connect(apply_ui_scale)
 	announce("Welcome to Land Of Mana!", 5000)
 
 
@@ -504,11 +506,11 @@ func show_dialogue(speaker: String, text: String, entity = null) -> void:
 ## depending on the shortcut layout).
 func _bottom_clearance() -> float:
 	var bottom := 16.0
-	var vp := get_viewport().get_visible_rect().size
+	var vp := ui_size()
 	for c in [shortcut_bar, _menu_panel]:
 		if c == null or not c.visible:
 			continue
-		var r: Rect2 = c.get_global_rect()
+		var r: Rect2 = c.get_rect()   # in HUD units (children of the scaled root)
 		if r.position.x < vp.x / 2 + 270 and r.end.x > vp.x / 2 - 270 and r.end.y > vp.y * 0.6:
 			bottom = maxf(bottom, vp.y - r.position.y + 10)
 	return bottom
@@ -948,6 +950,27 @@ func _layout_menu() -> void:
 		mp.offset_bottom = 0
 	mp.reset_size()
 	_layout_chat.call_deferred()
+	_fit_menu.call_deferred()
+
+
+## On small screens / big UI scales the menu can reach the shortcut bar:
+## slide the menu column up above the bar (horizontal bar), or the menu row
+## left of the bar (vertical bar), never past the screen edge.
+func _fit_menu() -> void:
+	if _menu_panel == null or shortcut_bar == null or not shortcut_bar.visible:
+		return
+	var m := _menu_panel.get_rect()
+	var b := shortcut_bar.get_rect()
+	if not m.intersects(b):
+		return
+	if _menu.vertical:
+		var dy := maxf(b.position.y - 8.0 - m.end.y, 8.0 - m.position.y)
+		_menu_panel.offset_top += dy
+		_menu_panel.offset_bottom += dy
+	else:
+		var dx := maxf(b.position.x - 8.0 - m.end.x, 8.0 - m.position.x)
+		_menu_panel.offset_left += dx
+		_menu_panel.offset_right += dx
 
 
 ## Chat log in the bottom-left corner.
@@ -965,7 +988,7 @@ func chat_height() -> float:
 
 
 func _clamp_chat_height(h: float) -> float:
-	var vp := get_viewport().get_visible_rect().size
+	var vp := ui_size()
 	return clampf(h, CHAT_MIN_HEIGHT, maxf(CHAT_MIN_HEIGHT, vp.y - 140))
 
 
@@ -995,7 +1018,7 @@ func _on_chat_grip_input(event: InputEvent) -> void:
 		_chat_grip.accept_event()
 	elif event is InputEventMouseMotion and _chat_drag_from >= 0:
 		# Dragging up (smaller y) makes the log taller.
-		set_chat_height(_chat_drag_h + (_chat_drag_from - event.global_position.y), false)
+		set_chat_height(_chat_drag_h + (_chat_drag_from - event.global_position.y) / _root.scale.y, false)
 		_chat_grip.accept_event()
 
 
@@ -1016,6 +1039,29 @@ func restyle() -> void:
 
 ## Re-fit open windows and bars after the font size changed (they grow or
 ## shrink with their text) and keep them on screen.
+## Settings -> UI scale: the HUD root is laid out at screen size / scale and
+## drawn scaled, so every anchored panel keeps its screen corner while
+## panels, windows, icons and text grow or shrink together.
+func apply_ui_scale() -> void:
+	if _root == null:
+		return
+	var s := UiStyle.ui_scale
+	var vp := get_viewport().get_visible_rect().size
+	_root.set_anchors_and_offsets_preset(Control.PRESET_TOP_LEFT)
+	_root.position = Vector2.ZERO
+	_root.scale = Vector2(s, s)
+	_root.size = vp / s
+	if _chat_box:
+		_layout_chat.call_deferred()
+	if not windows.is_empty():
+		relayout_windows.call_deferred()
+
+
+## Size of the HUD area in HUD units (the screen size divided by the UI scale).
+func ui_size() -> Vector2:
+	return _root.size if _root else get_viewport().get_visible_rect().size
+
+
 func relayout_windows() -> void:
 	for w in windows.values():
 		if w.visible:

@@ -18,7 +18,8 @@ func run() -> void:
 	await wait(200)
 	var spin: SpinBox = null
 	for c in sw.find_children("*", "SpinBox", true, false):
-		spin = c
+		if c.tooltip_text.begins_with("1 = normal size"):   # font size, not UI scale
+			spin = c
 	check("font size control in settings", spin != null)
 	var name_label: Label = hud._name_label
 	var base := int(name_label.get_meta("base_font_size", name_label.get_theme_font_size("font_size")))

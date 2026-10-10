@@ -82,6 +82,18 @@ func build() -> void:
 		UiStyle.apply_font_scale(get_tree())
 		hud.relayout_windows.call_deferred())
 	_row("Font size", fsb)
+	# UI scale: size of the whole interface (panels, windows, icons and text).
+	var usb := SpinBox.new()
+	usb.min_value = UiStyle.UI_SCALE_MIN
+	usb.max_value = UiStyle.UI_SCALE_MAX
+	usb.step = 0.05
+	usb.value = UiStyle.ui_scale
+	usb.tooltip_text = "Size of the whole interface: 1 = normal, %.1f to %.1f" % [UiStyle.UI_SCALE_MIN, UiStyle.UI_SCALE_MAX]
+	usb.value_changed.connect(func(v: float):
+		Config.set_setting("ui", "uiscale", snappedf(v, 0.01))
+		UiStyle.ui_scale = clampf(v, UiStyle.UI_SCALE_MIN, UiStyle.UI_SCALE_MAX)
+		hud.apply_ui_scale())
+	_row("UI scale", usb)
 	content.add_child(HSeparator.new())
 	content.add_child(UiStyle.button("Log out", func(): hud.back_to_login.emit()))
 
@@ -90,7 +102,7 @@ func build() -> void:
 func _place() -> void:
 	if _scroll:
 		var rows: Control = _scroll.get_child(0)
-		var avail := get_viewport_rect().size.y - 70.0 - 90.0   # shortcut bar, title, margins
+		var avail := get_parent_area_size().y - 70.0 - 90.0   # shortcut bar, title, margins
 		_scroll.custom_minimum_size = Vector2(rows.get_combined_minimum_size().x, minf(rows.get_combined_minimum_size().y, maxf(160.0, avail)))
 	super._place()
 

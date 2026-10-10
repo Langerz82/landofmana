@@ -89,7 +89,7 @@ func open() -> void:
 ## keep it on screen above the shortcut bar afterwards.
 func _place() -> void:
 	reset_size()
-	var vp := get_viewport_rect().size
+	var vp := get_parent_area_size()   # HUD units (the HUD may be scaled)
 	var bottom_margin := 70.0
 	if not _placed:
 		_placed = true
@@ -133,13 +133,20 @@ func _find_focusable(n: Node) -> Control:
 func _on_bar_input(e: InputEvent) -> void:
 	if e is InputEventMouseButton and e.button_index == MOUSE_BUTTON_LEFT:
 		_dragging = e.pressed
-		_drag_offset = get_global_mouse_position() - global_position
+		_drag_offset = _to_parent(e.global_position) - position
 		if e.pressed:
 			move_to_front()
 	elif e is InputEventMouseMotion and _dragging:
-		var vp := get_viewport_rect().size
-		var p := get_global_mouse_position() - _drag_offset
-		global_position = Vector2(clampf(p.x, -size.x + 60, vp.x - 60), clampf(p.y, 0, vp.y - 30))
+		var vp := get_parent_area_size()
+		var p := _to_parent(e.global_position) - _drag_offset
+		position = Vector2(clampf(p.x, -size.x + 60, vp.x - 60), clampf(p.y, 0, vp.y - 30))
+
+
+## A screen (viewport) position in the parent's coordinates, so dragging
+## follows the pointer 1:1 with a scaled HUD.
+func _to_parent(screen_pos: Vector2) -> Vector2:
+	var pc := get_parent_control()
+	return pc.get_global_transform_with_canvas().affine_inverse() * screen_pos if pc else screen_pos
 
 
 func _gui_input(e: InputEvent) -> void:

@@ -17,6 +17,10 @@ const DEFAULT_FONT_SCALE := 1.2   # font size scale used until the player picks 
 static var font_scale := DEFAULT_FONT_SCALE   # Settings -> Font size: 1 = normal, >1 bigger, <1 smaller
 const FONT_SCALE_MIN := 0.5
 const FONT_SCALE_MAX := 2.0
+const DEFAULT_UI_SCALE := 1.0
+static var ui_scale := DEFAULT_UI_SCALE   # Settings -> UI scale: size of the whole HUD (panels, windows, icons)
+const UI_SCALE_MIN := 0.5
+const UI_SCALE_MAX := 1.5
 const BASE_FONT_SIZE := 16        # Godot's default size for controls without an override
 const FONT_SIZE_KEYS := ["font_size", "normal_font_size", "bold_font_size",
 	"italics_font_size", "bold_italics_font_size", "mono_font_size"]
@@ -29,6 +33,7 @@ static func load_settings() -> void:
 	panel_border = Color(str(Config.get_setting("ui", "panelborder", DEFAULT_PANEL_BORDER)))
 	panel_bg = Color(str(Config.get_setting("ui", "panelbg", DEFAULT_PANEL_BG)))
 	font_scale = clampf(float(Config.get_setting("ui", "fontscale", DEFAULT_FONT_SCALE)), FONT_SCALE_MIN, FONT_SCALE_MAX)
+	ui_scale = clampf(float(Config.get_setting("ui", "uiscale", DEFAULT_UI_SCALE)), UI_SCALE_MIN, UI_SCALE_MAX)
 
 
 # ----------------------------------------------------------- font size
