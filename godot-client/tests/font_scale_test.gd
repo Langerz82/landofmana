@@ -13,14 +13,14 @@ func run() -> void:
 		Config.settings.erase_section_key("ui", "fontscale")
 	UiStyle.load_settings()
 	check("default font scale is 1.2", is_equal_approx(UiStyle.font_scale, 1.2), str(UiStyle.font_scale))
-	var sw: GameWindow = hud.window("settings")
+	var sw: GameWindow = hud.window("uisettings")
 	sw.open()
 	await wait(200)
 	var spin: SpinBox = null
 	for c in sw.find_children("*", "SpinBox", true, false):
 		if c.tooltip_text.begins_with("1 = normal size"):   # font size, not UI scale
 			spin = c
-	check("font size control in settings", spin != null)
+	check("font size control in UI settings", spin != null)
 	var name_label: Label = hud._name_label
 	var base := int(name_label.get_meta("base_font_size", name_label.get_theme_font_size("font_size")))
 	for scale in [1.5, 2.0, 0.75]:
@@ -28,7 +28,7 @@ func run() -> void:
 		await wait(200)
 		check("x%.2f: label with own size" % scale, name_label.get_theme_font_size("font_size") == roundi(base * scale),
 			"%d -> %d" % [base, name_label.get_theme_font_size("font_size")])
-		var btn: Button = sw.find_children("*", "Button", true, false).filter(func(b): return b.text == "Log out")[0]
+		var btn: Button = sw.find_children("*", "Button", true, false).filter(func(b): return b.text == "Back to Settings")[0]
 		check("x%.2f: plain button" % scale, btn.get_theme_font_size("font_size") == roundi(16 * scale), str(btn.get_theme_font_size("font_size")))
 		check("x%.2f: text drawn in code" % scale, UiStyle.fs(15) == roundi(15 * scale))
 		var sk: GameWindow = hud.window("skills")

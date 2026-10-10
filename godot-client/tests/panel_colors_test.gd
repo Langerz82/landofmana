@@ -18,7 +18,7 @@ func run() -> void:
 	await wait(500)
 	var old_b = Config.get_setting("ui", "panelborder", UiStyle.DEFAULT_PANEL_BORDER)
 	var old_g = Config.get_setting("ui", "panelbg", UiStyle.DEFAULT_PANEL_BG)
-	var sw: GameWindow = hud.window("settings")
+	var sw: GameWindow = hud.window("uisettings")
 	sw.open()
 	var inv: GameWindow = hud.window("inventory")
 	inv.open()

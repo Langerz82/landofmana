@@ -1,7 +1,8 @@
 class_name SettingsWindow
 extends GameWindow
 ## Settings (settingshandler.js): chat log, sound, music, on-screen joystick,
-## menu / button colours, zoom and shortcut bar layout. Saved in
+## fullscreen, zoom and shortcut bar layout. Health bar speed, font size, UI
+## scale and colours are in the UI Settings window (button below). Saved in
 ## user://settings.cfg.
 
 var _scroll: ScrollContainer
@@ -17,8 +18,9 @@ func _init() -> void:
 	super._init("SETTINGS", Vector2(380, 0))
 
 
-func build() -> void:
-	# The rows scroll when large fonts make them taller than the screen.
+## Rows go in a scroll box: it scrolls when large fonts make them taller than
+## the screen. (Shared with UiSettingsWindow.)
+func _begin_rows() -> void:
 	_scroll = ScrollContainer.new()
 	_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	content.add_child(_scroll)
@@ -27,6 +29,10 @@ func build() -> void:
 	rows.add_theme_constant_override("separation", 6)
 	_scroll.add_child(rows)
 	content = rows
+
+
+func build() -> void:
+	_begin_rows()
 	_toggle("Chat log", "ui", "chat", true, func(v): hud.set_chat_visible(v))
 	_toggle("Sound", "audio", "sfx", true, func(v): world.audio.sfx_on = v)
 	_toggle("Music", "audio", "music", true, func(v):
@@ -35,11 +41,6 @@ func build() -> void:
 	_toggle("Joystick", "ui", "joystick", OS.has_feature("mobile"), func(v): hud.set_joystick_visible(v))
 	_toggle("Fullscreen", "ui", "fullscreen", false, func(v):
 		DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN if v else DisplayServer.WINDOW_MODE_WINDOWED))
-	_color("Menu color", "menucolor", "#38A7DF")
-	_color("Button color", "buttoncolor", "#F7B132")
-	_color("Panel border", "panelborder", UiStyle.DEFAULT_PANEL_BORDER)
-	_color("Panel background", "panelbg", UiStyle.DEFAULT_PANEL_BG, true)
-	content.add_child(UiStyle.button("Reset colours", _reset_colors))
 	var zoom := OptionButton.new()
 	for z in ZOOMS:
 		zoom.add_item(z[0])
@@ -61,41 +62,15 @@ func build() -> void:
 		Config.set_setting("ui", "shortcutstyle", SHORTCUT_STYLES[i][1])
 		hud.apply_shortcut_style())
 	_row("Shortcuts", sc)
-	var hb := OptionButton.new()
-	var cur_ms := SmoothBar.duration_ms()
-	for i in range(BAR_SPEEDS.size()):
-		hb.add_item(BAR_SPEEDS[i][0])
-		if int(BAR_SPEEDS[i][1]) == cur_ms:
-			hb.select(i)
-	hb.item_selected.connect(func(i): Config.set_setting("ui", "healthbarms", BAR_SPEEDS[i][1]))
-	_row("Health bars", hb)
-	# Font size: a scale for all text; 1 = normal, above 1 bigger, below 1 smaller.
-	var fsb := SpinBox.new()
-	fsb.min_value = UiStyle.FONT_SCALE_MIN
-	fsb.max_value = UiStyle.FONT_SCALE_MAX
-	fsb.step = 0.05
-	fsb.value = UiStyle.font_scale
-	fsb.tooltip_text = "1 = normal size, above 1 = bigger, below 1 = smaller (default %.1f)" % UiStyle.DEFAULT_FONT_SCALE
-	fsb.value_changed.connect(func(v: float):
-		Config.set_setting("ui", "fontscale", snappedf(v, 0.01))
-		UiStyle.font_scale = v
-		UiStyle.apply_font_scale(get_tree())
-		hud.relayout_windows.call_deferred())
-	_row("Font size", fsb)
-	# UI scale: size of the whole interface (panels, windows, icons and text).
-	var usb := SpinBox.new()
-	usb.min_value = UiStyle.UI_SCALE_MIN
-	usb.max_value = UiStyle.UI_SCALE_MAX
-	usb.step = 0.05
-	usb.value = UiStyle.ui_scale
-	usb.tooltip_text = "Size of the whole interface: 1 = normal, %.1f to %.1f" % [UiStyle.UI_SCALE_MIN, UiStyle.UI_SCALE_MAX]
-	usb.value_changed.connect(func(v: float):
-		Config.set_setting("ui", "uiscale", snappedf(v, 0.01))
-		UiStyle.ui_scale = clampf(v, UiStyle.UI_SCALE_MIN, UiStyle.UI_SCALE_MAX)
-		hud.apply_ui_scale())
-	_row("UI scale", usb)
+	content.add_child(UiStyle.button("UI Settings", open_ui_settings))
 	content.add_child(HSeparator.new())
 	content.add_child(UiStyle.button("Log out", func(): hud.back_to_login.emit()))
+
+
+## Swap this window for the UI Settings window (colours, font size, UI scale).
+func open_ui_settings() -> void:
+	close()
+	hud.open_window("uisettings")
 
 
 ## Show all rows when they fit, otherwise as many as fit and scroll.

@@ -50,7 +50,7 @@ func run() -> void:
 	await wait(500)
 	var saved_ui = Config.get_setting("ui", "uiscale", 1.0)
 	var saved_fs = Config.get_setting("ui", "fontscale", UiStyle.DEFAULT_FONT_SCALE)
-	var sw: GameWindow = hud.window("settings")
+	var sw: GameWindow = hud.window("uisettings")
 	sw.open()
 	await wait(300)
 	check("settings opens centred", centred(sw), str(centre_off(sw)))

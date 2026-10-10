@@ -54,7 +54,7 @@ func run() -> void:
 	var saved = Config.get_setting("ui", "uiscale", 1.0)
 	check("default scale is 1", is_equal_approx(UiStyle.DEFAULT_UI_SCALE, 1.0))
 	# Change it through the settings window like a player.
-	var sw = hud.window("settings")
+	var sw = hud.window("uisettings")
 	sw.open()
 	await wait(200)
 	var spin := find_spin(sw)
