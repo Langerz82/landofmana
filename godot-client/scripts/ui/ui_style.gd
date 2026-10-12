@@ -18,9 +18,10 @@ static var font_scale := DEFAULT_FONT_SCALE   # Settings -> Font size: 1 = norma
 const FONT_SCALE_MIN := 0.5
 const FONT_SCALE_MAX := 2.0
 const DEFAULT_UI_SCALE := 1.0
+const MOBILE_UI_SCALE := 2.0      # UI scale on phones / tablets until the player picks one
 static var ui_scale := DEFAULT_UI_SCALE   # Settings -> UI scale: size of the whole HUD (panels, windows, icons)
 const UI_SCALE_MIN := 0.5
-const UI_SCALE_MAX := 1.5
+const UI_SCALE_MAX := 3.0
 ## Below this on-screen size (x normal) HUD text stops shrinking with the UI
 ## scale: at UI scale 0.5 the panels are half size but the text is 0.8x.
 const MIN_UI_TEXT_SCALE := 0.8
@@ -39,7 +40,16 @@ static func load_settings() -> void:
 	panel_border = Color(str(Config.get_setting("ui", "panelborder", DEFAULT_PANEL_BORDER)))
 	panel_bg = Color(str(Config.get_setting("ui", "panelbg", DEFAULT_PANEL_BG)))
 	font_scale = clampf(float(Config.get_setting("ui", "fontscale", DEFAULT_FONT_SCALE)), FONT_SCALE_MIN, FONT_SCALE_MAX)
-	ui_scale = clampf(float(Config.get_setting("ui", "uiscale", DEFAULT_UI_SCALE)), UI_SCALE_MIN, UI_SCALE_MAX)
+	ui_scale = clampf(float(Config.get_setting("ui", "uiscale", default_ui_scale())), UI_SCALE_MIN, UI_SCALE_MAX)
+
+
+## UI scale used until the player picks one: bigger on mobile (native or browser).
+static func default_ui_scale() -> float:
+	return MOBILE_UI_SCALE if is_mobile() else DEFAULT_UI_SCALE
+
+
+static func is_mobile() -> bool:
+	return OS.has_feature("mobile") or OS.has_feature("web_android") or OS.has_feature("web_ios")
 
 
 # ----------------------------------------------------------- crisp text in the scaled HUD

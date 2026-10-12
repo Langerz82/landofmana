@@ -1,5 +1,5 @@
 extends "res://tests/npc_dialogue_test.gd"
-## Settings -> UI scale (0.5 .. 1.5, default 1): the whole HUD grows or shrinks,
+## Settings -> UI scale (0.5 .. 2, default 1; 2 on mobile): the whole HUD grows or shrinks,
 ## panels keep their screen corners, windows stay on screen, and mouse
 ## clicks / window dragging still hit the right places.
 ## Run: godot res://tests/ui_scale_test.tscn [-- --shots=DIR]
@@ -53,13 +53,14 @@ func run() -> void:
 	await wait(800)
 	var saved = Config.get_setting("ui", "uiscale", 1.0)
 	check("default scale is 1", is_equal_approx(UiStyle.DEFAULT_UI_SCALE, 1.0))
+	check("mobile default scale is 2", is_equal_approx(UiStyle.MOBILE_UI_SCALE, 2.0))
 	# Change it through the settings window like a player.
 	var sw = hud.window("uisettings")
 	sw.open()
 	await wait(200)
 	var spin := find_spin(sw)
 	check("settings has a UI scale option", spin != null)
-	check("range 0.5 to 1.5", spin != null and is_equal_approx(spin.min_value, 0.5) and is_equal_approx(spin.max_value, 1.5))
+	check("range 0.5 to 2", spin != null and is_equal_approx(spin.min_value, 0.5) and is_equal_approx(spin.max_value, 2.0))
 	if spin:
 		spin.value = 1.0
 		await wait(100)
