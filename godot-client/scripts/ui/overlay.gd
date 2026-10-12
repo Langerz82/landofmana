@@ -50,8 +50,8 @@ func _draw() -> void:
 		var ip := _to_screen(Vector2(info.x, info.y - TS))
 		var col: Color = info.color
 		col.a = clampf(info.opacity, 0, 1)
-		var fs := UiStyle.fs(info.size * 3)
-		_text_centered(str(info.text), ip, fs, col, Color(0, 0, 0, col.a))
+		var fs := UiStyle.fs(info.size * 3 * UiStyle.ui_scale)
+		_text_centered(str(info.text), ip, fs, col, Color(0, 0, 0, col.a), roundi(4 * UiStyle.ui_scale))
 	for b in world.bubbles.values():
 		if is_instance_valid(b.entity):
 			_draw_bubble(b, scale_f)
@@ -76,13 +76,14 @@ func _draw_name(e, sp: Vector2, s: float) -> void:
 	var y_off := -TS * s
 	if e is Npc and e.type == Types.EntityType.NPCMOVE:
 		y_off -= (TS >> 1) * s
-	_text_centered(text, sp + Vector2(0, y_off), name_size(), color, Color.BLACK, clampi(roundi(4 * world.zoom_factor()), 2, 8))
+	_text_centered(text, sp + Vector2(0, y_off), name_size(), color, Color.BLACK, clampi(roundi(4 * world.zoom_factor() * UiStyle.ui_scale), 2, roundi(8 * maxf(1.0, UiStyle.ui_scale))))
 
 
 ## Entity name font size: grows / shrinks with the Zoom setting, in
-## proportion to the sprites it labels (NAME_SIZE at the Normal zoom).
+## proportion to the sprites it labels (NAME_SIZE at the Normal zoom), and
+## with Settings -> UI scale like all other game text.
 func name_size() -> int:
-	return maxi(NAME_MIN_SIZE, roundi(UiStyle.fs(NAME_SIZE) * world.zoom_factor()))
+	return maxi(NAME_MIN_SIZE, roundi(UiStyle.fs(NAME_SIZE) * world.zoom_factor() * UiStyle.ui_scale))
 
 
 func _draw_health(e, sp: Vector2, s: float) -> void:
@@ -149,27 +150,28 @@ func _text_centered(text: String, pos: Vector2, size: int, color: Color, outline
 func _draw_bubble(b: Dictionary, s: float) -> void:
 	var e = b.entity
 	var text := str(b.text)
-	var font_size := UiStyle.fs(12)
-	var max_w := 260.0
+	var u := UiStyle.ui_scale   # Settings -> UI scale: the whole bubble grows with it
+	var font_size := UiStyle.fs(12 * u)
+	var max_w := 260.0 * u
 	var lines := _wrap(text, max_w, font_size)
-	var line_h := font_size + 4
+	var line_h := font_size + 4 * u
 	var w := 0.0
 	for l in lines:
 		w = maxf(w, KOMIKA.get_string_size(l, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x)
-	w += 20
-	var h := lines.size() * line_h + 12
+	w += 20 * u
+	var h := lines.size() * line_h + 12 * u
 	var y_extra := (TS >> 1) * s if (e is Npc and e.type == Types.EntityType.NPCMOVE) else 0.0
 	var anchor := _to_screen(Vector2(e.x, e.y)) - Vector2(0, TS * 1.6 * s + y_extra)
 	var rect := Rect2(anchor - Vector2(w / 2, h), Vector2(w, h))
 	var sb := StyleBoxFlat.new()
 	sb.bg_color = Color(1, 1, 1, 0.9)
 	sb.border_color = Color.BLACK
-	sb.set_border_width_all(2)
-	sb.set_corner_radius_all(10)
+	sb.set_border_width_all(maxi(1, roundi(2 * u)))
+	sb.set_corner_radius_all(roundi(10 * u))
 	draw_style_box(sb, rect)
-	var tail := PackedVector2Array([anchor + Vector2(-6, -1), anchor + Vector2(6, -1), anchor + Vector2(0, 8)])
+	var tail := PackedVector2Array([anchor + Vector2(-6, -1) * u, anchor + Vector2(6, -1) * u, anchor + Vector2(0, 8) * u])
 	draw_colored_polygon(tail, Color(1, 1, 1, 0.9))
-	var y := rect.position.y + 6 + font_size
+	var y := rect.position.y + 6 * u + font_size
 	for l in lines:
 		var lw := KOMIKA.get_string_size(l, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x
 		draw_string(KOMIKA, Vector2(anchor.x - lw / 2, y), l, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size, Color.BLACK)

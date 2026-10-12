@@ -35,7 +35,7 @@ func run() -> void:
 		zoom_opt.item_selected.emit(i)
 		await wait(400)
 		var z: float = SettingsWindow.ZOOMS[i][1]
-		var expect := maxi(ov.NAME_MIN_SIZE, roundi(UiStyle.fs(ov.NAME_SIZE) * World.DEFAULT_ZOOM / z))
+		var expect := maxi(ov.NAME_MIN_SIZE, roundi(UiStyle.fs(ov.NAME_SIZE) * World.DEFAULT_ZOOM / z * UiStyle.ui_scale))
 		check("zoom %s (%.1f): name size %d" % [SettingsWindow.ZOOMS[i][0], z, ov.name_size()], ov.name_size() == expect, "expected %d" % expect)
 		if is_equal_approx(z, World.DEFAULT_ZOOM):
 			normal = ov.name_size()
