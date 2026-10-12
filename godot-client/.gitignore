@@ -1,3 +1,7 @@
 .godot/
 build/
 *.tmp
+
+# Android release signing key - keep a private backup, never commit
+android/keystores/release.keystore
+android/keystores/release-credentials.txt
