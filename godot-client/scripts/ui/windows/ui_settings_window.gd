@@ -18,7 +18,7 @@ func build() -> void:
 	fsb.max_value = UiStyle.FONT_SCALE_MAX
 	fsb.step = 0.05
 	fsb.value = UiStyle.font_scale
-	fsb.tooltip_text = "1 = normal size, above 1 = bigger, below 1 = smaller (default %.1f)" % UiStyle.DEFAULT_FONT_SCALE
+	fsb.tooltip_text = "1 = normal size, above 1 = bigger, below 1 = smaller (default %.1f)" % UiStyle.default_font_scale()
 	fsb.value_changed.connect(func(v: float):
 		Config.set_setting("ui", "fontscale", snappedf(v, 0.01))
 		UiStyle.font_scale = v

@@ -13,12 +13,14 @@ static var menu_color := Color("#38A7DF")
 static var button_color := Color("#F7B132")
 static var panel_border := Color(DEFAULT_PANEL_BORDER)   # Settings -> Panel border
 static var panel_bg := Color(DEFAULT_PANEL_BG)           # Settings -> Panel background
-const DEFAULT_FONT_SCALE := 1.2   # font size scale used until the player picks one
+const DEFAULT_FONT_SCALE := 1.0   # font size scale used until the player picks one
+const MOBILE_FONT_SCALE := 1.0    # font size scale on phones / tablets until the player picks one
 static var font_scale := DEFAULT_FONT_SCALE   # Settings -> Font size: 1 = normal, >1 bigger, <1 smaller
 const FONT_SCALE_MIN := 0.5
 const FONT_SCALE_MAX := 2.0
-const DEFAULT_UI_SCALE := 1.0
-const MOBILE_UI_SCALE := 1.8      # UI scale on phones / tablets until the player picks one
+const DEFAULT_UI_SCALE := 1.15   # UI scale on desktop (Windows / Linux) until the player picks one
+const WEB_UI_SCALE := 1.5         # UI scale in a desktop browser until the player picks one
+const MOBILE_UI_SCALE := 1.5      # UI scale on phones / tablets (native or browser) until the player picks one
 static var ui_scale := DEFAULT_UI_SCALE   # Settings -> UI scale: size of the whole HUD (panels, windows, icons)
 const UI_SCALE_MIN := 0.5
 const UI_SCALE_MAX := 3.0
@@ -39,13 +41,23 @@ static func load_settings() -> void:
 	button_color = Color(str(Config.get_setting("ui", "buttoncolor", "#F7B132")))
 	panel_border = Color(str(Config.get_setting("ui", "panelborder", DEFAULT_PANEL_BORDER)))
 	panel_bg = Color(str(Config.get_setting("ui", "panelbg", DEFAULT_PANEL_BG)))
-	font_scale = clampf(float(Config.get_setting("ui", "fontscale", DEFAULT_FONT_SCALE)), FONT_SCALE_MIN, FONT_SCALE_MAX)
+	font_scale = clampf(float(Config.get_setting("ui", "fontscale", default_font_scale())), FONT_SCALE_MIN, FONT_SCALE_MAX)
 	ui_scale = clampf(float(Config.get_setting("ui", "uiscale", default_ui_scale())), UI_SCALE_MIN, UI_SCALE_MAX)
 
 
-## UI scale used until the player picks one: bigger on mobile (native or browser).
+## Font size scale used until the player picks one.
+static func default_font_scale() -> float:
+	return MOBILE_FONT_SCALE if is_mobile() else DEFAULT_FONT_SCALE
+
+
+## UI scale used until the player picks one: mobile (native or browser),
+## desktop browser, or desktop app.
 static func default_ui_scale() -> float:
-	return MOBILE_UI_SCALE if is_mobile() else DEFAULT_UI_SCALE
+	if is_mobile():
+		return MOBILE_UI_SCALE
+	if OS.has_feature("web"):
+		return WEB_UI_SCALE
+	return DEFAULT_UI_SCALE
 
 
 ## Shortcut bar style used until the player picks one (Settings -> Shortcuts).

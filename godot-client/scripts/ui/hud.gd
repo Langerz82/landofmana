@@ -62,7 +62,9 @@ var _alarm_ready_at := 0       # earliest time the next alert may show
 var _player_menu: PopupMenu
 var _menu_player = null
 var _chat_box: VBoxContainer
-const CHAT_HEIGHT := 240      # default chat log height (px)
+const CHAT_HEIGHT_FRAC := 0.3  # default chat log height: 30% of the screen height
+const CHAT_WIDTH := 460
+const CHAT_MARGIN := 10       # gap from the bottom-left screen corner
 const CHAT_MIN_HEIGHT := 60
 const CHAT_GRIP := 8          # height of the draggable top border
 var _chat_grip: ColorRect
@@ -211,9 +213,8 @@ func _build_chat(root: Control) -> void:
 	var box := VBoxContainer.new()
 	_chat_box = box
 	box.set_anchors_preset(Control.PRESET_BOTTOM_LEFT)
-	box.position = Vector2(10, -250)
-	box.custom_minimum_size = Vector2(460, 0)
-	box.size = Vector2(460, chat_height())
+	box.grow_vertical = Control.GROW_DIRECTION_BEGIN
+	box.custom_minimum_size = Vector2(CHAT_WIDTH, 0)
 	box.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	root.add_child(box)
 	_chat_log = RichTextLabel.new()
@@ -444,7 +445,7 @@ func update_debug(w) -> void:
 	if not _debug_on or w == null or w.player == null:
 		_debug.text = ""
 		return
-	_debug.text = "FPS: %d\ngx:%d,gy:%d\nx:%d,y:%d" % [Engine.get_frames_per_second(), w.player.gx, w.player.gy, w.player.x, w.player.y]
+	_debug.text = "FPS: %d\ngx:%d,gy:%d" % [Engine.get_frames_per_second(), w.player.gx, w.player.gy]
 
 
 func toggle_debug() -> void:
@@ -956,7 +957,39 @@ func _layout_menu() -> void:
 		mp.offset_bottom = 0
 	mp.reset_size()
 	_layout_chat.call_deferred()
-	_fit_menu.call_deferred()
+	if UiStyle.is_mobile():
+		_dock_bars_mobile.call_deferred()
+	else:
+		_fit_menu.call_deferred()
+
+
+## Mobile: the vertical bar (shortcuts or menu, whichever is vertical) sits in
+## the bottom-right corner, and the horizontal bar sits along the bottom edge
+## directly to its left, both bottom-aligned.
+func _dock_bars_mobile() -> void:
+	if _menu_panel == null or shortcut_bar == null:
+		return
+	var vertical_bar := str(Config.get_setting("ui", "shortcutstyle", UiStyle.default_shortcut_style())).begins_with("vertical")
+	var right: Control = shortcut_bar if vertical_bar else _menu_panel
+	var bottom: Control = _menu_panel if vertical_bar else shortcut_bar
+	const MARGIN := 10.0   # gap from the screen border
+	const GAP := 6.0
+	var right_w := 0.0
+	if right.visible:
+		_dock_bottom_right(right, MARGIN, MARGIN)
+		right_w = right.get_combined_minimum_size().x + GAP
+	_dock_bottom_right(bottom, MARGIN + right_w, MARGIN)
+
+
+func _dock_bottom_right(c: Control, right_margin: float, bottom_margin := 10.0) -> void:
+	c.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT)
+	c.grow_horizontal = Control.GROW_DIRECTION_BEGIN
+	c.grow_vertical = Control.GROW_DIRECTION_BEGIN
+	c.offset_left = -right_margin
+	c.offset_right = -right_margin
+	c.offset_top = -bottom_margin
+	c.offset_bottom = -bottom_margin
+	c.reset_size()
 
 
 ## On small screens / big UI scales the menu can reach the shortcut bar:
@@ -979,18 +1012,25 @@ func _fit_menu() -> void:
 		_menu_panel.offset_right += dx
 
 
-## Chat log in the bottom-left corner.
+## Chat log in the bottom-left corner, CHAT_HEIGHT_FRAC of the screen tall.
+## The HUD root is laid out at screen size / UI scale and drawn scaled, so a
+## fraction of ui_size() is the same fraction of the real screen at any scale.
 func _layout_chat() -> void:
 	if _chat_box == null:
 		return
 	# Offsets from the bottom-left anchor (setting `position` here would be absolute).
-	_chat_box.offset_bottom = -10
-	_chat_box.offset_top = -10 - _clamp_chat_height(chat_height())
+	_chat_box.offset_left = CHAT_MARGIN
+	_chat_box.offset_right = CHAT_MARGIN + CHAT_WIDTH
+	_chat_box.offset_bottom = -CHAT_MARGIN
+	_chat_box.offset_top = -CHAT_MARGIN - _clamp_chat_height(chat_height())
 
 
-## Saved chat log height (Settings file: [ui] chatheight).
+## Chat log height in HUD units. Stored as a fraction of the screen height
+## (Settings file: [ui] chatheightfrac) so it stays proportional when the
+## window size or UI scale changes.
 func chat_height() -> float:
-	return float(Config.get_setting("ui", "chatheight", CHAT_HEIGHT))
+	var frac := float(Config.get_setting("ui", "chatheightfrac", CHAT_HEIGHT_FRAC))
+	return frac * ui_size().y
 
 
 func _clamp_chat_height(h: float) -> float:
@@ -1002,7 +1042,7 @@ func set_chat_height(h: float, save := true) -> void:
 	h = _clamp_chat_height(h)
 	_chat_box.offset_top = _chat_box.offset_bottom - h
 	if save:
-		Config.set_setting("ui", "chatheight", int(round(h)))
+		Config.set_setting("ui", "chatheightfrac", snappedf(h / maxf(1.0, ui_size().y), 0.001))
 
 
 func _chat_grip_hover(on: bool) -> void:
