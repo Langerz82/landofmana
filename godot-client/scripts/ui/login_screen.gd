@@ -40,6 +40,7 @@ var _new_name: LineEdit
 var _play_btn: Button
 var _create_btn: Button
 var _ready_for_login := false
+var _panel: PanelContainer
 
 
 func _ready() -> void:
@@ -55,6 +56,7 @@ func _ready() -> void:
 	panel.add_theme_stylebox_override("panel", Hud.panel_style(0.9))
 	panel.custom_minimum_size = Vector2(420, 0)
 	center.add_child(panel)
+	_panel = panel
 	var v := VBoxContainer.new()
 	v.add_theme_constant_override("separation", 8)
 	panel.add_child(v)
@@ -85,7 +87,27 @@ func _ready() -> void:
 	version.add_theme_color_override("font_color", Color(1, 1, 1, 0.4))
 	version.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	v.add_child(version)
+	# Settings -> UI scale applies here too (same crisp-font setup as the HUD).
+	UiStyle.set_hud_root(self)
+	apply_ui_scale()
+	get_viewport().size_changed.connect(apply_ui_scale)
+	panel.minimum_size_changed.connect(apply_ui_scale, CONNECT_DEFERRED)
 	connect_user_server()
+
+
+## Settings -> UI scale: like the HUD, the screen is laid out at screen size /
+## scale and drawn scaled. Above 1 the scale is capped so the panel still fits
+## on screen (never below 1).
+func apply_ui_scale() -> void:
+	var vp := get_viewport().get_visible_rect().size
+	var s := UiStyle.ui_scale
+	if s > 1.0 and _panel:
+		var need := _panel.get_combined_minimum_size() + Vector2(16, 16)
+		s = clampf(minf(vp.x / need.x, vp.y / need.y), 1.0, s)
+	set_anchors_and_offsets_preset(Control.PRESET_TOP_LEFT)
+	position = Vector2.ZERO
+	scale = Vector2(s, s)
+	size = vp / s
 
 
 func _field(parent: Control, label: String, secret := false) -> LineEdit:

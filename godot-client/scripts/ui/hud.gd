@@ -901,7 +901,7 @@ func set_joystick_visible(v: bool) -> void:
 func apply_shortcut_style() -> void:
 	if shortcut_bar == null:
 		return
-	var st := str(Config.get_setting("ui", "shortcutstyle", "horizontal-asc"))
+	var st := str(Config.get_setting("ui", "shortcutstyle", UiStyle.default_shortcut_style()))
 	shortcut_bar.set_style(st)
 	if st.begins_with("vertical"):
 		shortcut_bar.set_anchors_preset(Control.PRESET_CENTER_RIGHT)
@@ -931,7 +931,7 @@ func apply_shortcut_style() -> void:
 func _layout_menu() -> void:
 	if _menu_panel == null or shortcut_bar == null:
 		return
-	var vertical_bar := str(Config.get_setting("ui", "shortcutstyle", "horizontal-asc")).begins_with("vertical")
+	var vertical_bar := str(Config.get_setting("ui", "shortcutstyle", UiStyle.default_shortcut_style())).begins_with("vertical")
 	var mp := _menu_panel
 	_menu.vertical = not vertical_bar
 	if vertical_bar:

@@ -53,7 +53,7 @@ func build() -> void:
 		world.set_zoom(ZOOMS[i][1]))
 	_row("Zoom", zoom)
 	var sc := OptionButton.new()
-	var cur_sc := str(Config.get_setting("ui", "shortcutstyle", "horizontal-asc"))
+	var cur_sc := str(Config.get_setting("ui", "shortcutstyle", UiStyle.default_shortcut_style()))
 	for i in range(SHORTCUT_STYLES.size()):
 		sc.add_item(SHORTCUT_STYLES[i][0])
 		if SHORTCUT_STYLES[i][1] == cur_sc:

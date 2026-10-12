@@ -48,6 +48,11 @@ static func default_ui_scale() -> float:
 	return MOBILE_UI_SCALE if is_mobile() else DEFAULT_UI_SCALE
 
 
+## Shortcut bar style used until the player picks one (Settings -> Shortcuts).
+static func default_shortcut_style() -> String:
+	return "vertical-desc" if is_mobile() else "horizontal-asc"
+
+
 static func is_mobile() -> bool:
 	return OS.has_feature("mobile") or OS.has_feature("web_android") or OS.has_feature("web_ios")
 
