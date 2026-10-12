@@ -270,6 +270,10 @@ func _build_center_texts(root: Control) -> void:
 	_debug.offset_top = 30
 	_debug.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	root.add_child(_debug)
+	# Mobile: no keyboard, so no key hints; FPS / coordinates take the top-right corner.
+	if UiStyle.is_mobile():
+		_debug.offset_top = 8
+		return
 	var help := _label("Space: attack/talk   T/Y: target   1-6: shortcuts   I: items   C: player   K: skills   Q: quests   Enter: chat   Esc: settings", 12, null, Color(1, 1, 1, 0.6))
 	help.set_anchors_preset(Control.PRESET_TOP_RIGHT)
 	help.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT

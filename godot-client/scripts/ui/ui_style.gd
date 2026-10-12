@@ -18,7 +18,7 @@ static var font_scale := DEFAULT_FONT_SCALE   # Settings -> Font size: 1 = norma
 const FONT_SCALE_MIN := 0.5
 const FONT_SCALE_MAX := 2.0
 const DEFAULT_UI_SCALE := 1.0
-const MOBILE_UI_SCALE := 2.0      # UI scale on phones / tablets until the player picks one
+const MOBILE_UI_SCALE := 1.8      # UI scale on phones / tablets until the player picks one
 static var ui_scale := DEFAULT_UI_SCALE   # Settings -> UI scale: size of the whole HUD (panels, windows, icons)
 const UI_SCALE_MIN := 0.5
 const UI_SCALE_MAX := 3.0

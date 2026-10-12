@@ -10,7 +10,8 @@ const TS := Types.G_TILESIZE
 const BASE_SCALE := 3.0
 ## Settings -> Zoom value called "Normal" (the default). Entity names are
 ## drawn at their normal size at this zoom and in proportion at the others.
-const DEFAULT_ZOOM := 0.8
+const DEFAULT_ZOOM := 0.8          # "Normal" (also the reference size for names over the world)
+const MOBILE_ZOOM := 0.6           # "Closer": zoom on phones / tablets until the player picks one
 const MAP_NAMES := ["map0", "map1", "map2"]
 const PLAYER_KIND := 1
 
@@ -79,7 +80,7 @@ func _ready() -> void:
 	camera = Camera2D.new()
 	camera.name = "Camera"
 	actions = ItemActions.new(self, data)
-	game_scale = BASE_SCALE / float(Config.get_setting("ui", "gamezoom", DEFAULT_ZOOM))
+	game_scale = BASE_SCALE / float(Config.get_setting("ui", "gamezoom", default_zoom()))
 	camera.zoom = Vector2(game_scale, game_scale)
 	add_child(camera)
 	camera.make_current()
@@ -2014,6 +2015,11 @@ func _on_player_info(d: Array) -> void:
 func warp_to_town() -> void:
 	if started and map_status >= 2:
 		teleport_maps(0)
+
+
+## Zoom used until the player picks one (Settings -> Zoom): closer on mobile.
+static func default_zoom() -> float:
+	return MOBILE_ZOOM if UiStyle.is_mobile() else DEFAULT_ZOOM
 
 
 ## How big the world is drawn compared with the Normal zoom (1 = Normal,
