@@ -17,6 +17,7 @@ import util from 'util';
 import { dirname } from 'path';
 import { fileURLToPath } from 'url';
 import formatChecker from './format.js';
+import { redact } from './redact.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -78,5 +79,8 @@ export function checkWithReason(message) {
 // different shapes.
 export function logRejectedPacket(reason, replayArg) {
     const entry = '[' + new Date().toISOString() + '] ' + reason + '\nreplay ' + replayArg + '\n\n';
-    rejectLogFile.write(entry);
+    // SECURITY: reject.log holds full packets (including login packets with
+    // the encrypted password), so it goes through the same redaction as
+    // console.log -- see redact.js.
+    rejectLogFile.write(redact(entry));
 }

@@ -2,6 +2,7 @@ import * as common from './common.js';
 
 import fs from 'fs';
 import crypto from 'crypto';
+import { redact } from './redact.js';
 import bcrypt from 'bcrypt';
 import Metrics from './metrics.js';
 import ProductionConfig from './productionconfig.js';
@@ -83,10 +84,19 @@ const originalConsole = {
     error: console.error.bind(console)
 };
 
+// SECURITY: every console line is passed through redact() (see redact.js)
+// before it reaches console.log or the terminal, so the client's encrypted
+// password and stored player password hashes/salts never get logged, no matter which call site produced the line. When nothing
+// was redacted the original args are passed through untouched, so the
+// inspector still gets real objects; when something was, it gets the
+// redacted string instead.
 function teeToLogFile(originalFn) {
     return (...args) => {
-        log_file.write(util.format(...args) + '\n');
-        originalFn(...args);
+        const line = util.format(...args);
+        const safeLine = redact(line);
+        log_file.write(safeLine + '\n');
+        if (safeLine === line) originalFn(...args);
+        else originalFn(safeLine);
     };
 }
 

@@ -148,9 +148,13 @@ export class Connection {
         // behind (no constants.js here), so this preserves the old file's
         // existing always-on behavior rather than introducing a new global
         // just for this.
-        console.info('m=' + msg);
-
+        // SECURITY: a '2'-flagged (gzip+base64) message is logged AFTER it is
+        // decompressed (see the gunzip callback below) rather than as raw wire
+        // text here. The log redaction in main.js/redact.js works on readable
+        // text, so a compressed packet carrying the encrypted password (e.g.
+        // a WU_SAVE_PLAYER_DATA save) would otherwise slip through unredacted.
         const flag = msg.charAt(0);
+        if (flag !== '2') console.info('m=' + msg);
         // Only a socket.io Socket (this server's real, only connection type)
         // exposes `.conn.remoteAddress`; falls back to undefined harmlessly
         // for anything that doesn't.
@@ -168,6 +172,7 @@ export class Connection {
                     console.log(err.toString());
                     return;
                 }
+                if (!useBison) console.info('m=' + String(decompressed));
                 if (!this.listenCallback) return;
                 if (useBison) {
                     this.listenCallback(BISON.decode(decompressed));

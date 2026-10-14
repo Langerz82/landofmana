@@ -120,9 +120,13 @@ export class Connection {
         // connection type (per-game-client traffic on socketioConnection,
         // gameserver<->userserver traffic on userConnection) -- unconditionally
         // logging the raw payload here is hot, so it's gated behind G_DEBUG.
-        if (G_DEBUG) console.info('m=' + msg);
-
+        // SECURITY: a '2'-flagged (gzip+base64) message is logged AFTER it is
+        // decompressed (see the gunzip callback below) rather than as raw wire
+        // text here. The log redaction in main.js/redact.js works on readable
+        // text, so a compressed packet carrying the encrypted password (e.g.
+        // a WU_SAVE_PLAYER_DATA save) would otherwise slip through unredacted.
         const flag = msg.charAt(0);
+        if (G_DEBUG && flag !== '2') console.info('m=' + msg);
         // Only socketioConnection's underlying socket.io socket exposes
         // `.conn.remoteAddress`; userConnection's io_client socket doesn't,
         // so this naturally comes out blank there (matching prior behavior).
@@ -162,6 +166,8 @@ export class Connection {
                                 resolve();
                                 return;
                             }
+                            if (G_DEBUG && !useBison)
+                                console.info('m=' + String(buffer));
                             if (!this.listenCallback) {
                                 resolve();
                                 return;

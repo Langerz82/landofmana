@@ -515,7 +515,9 @@ class User {
                 .createHash('sha1')
                 .update(decrypt + db_user.salt)
                 .digest('hex');
-            console.info('checkUser: ' + hash + ' !== ' + db_user.hash);
+            // SECURITY: used to log both the computed and the stored password
+            // hash here. Never log password hashes -- only which path ran.
+            console.info('checkUser: legacy sha1 password check for ' + this.name);
             // FIX: plain `!==` on a stored password hash short-circuits on the
             // first mismatched character -- a timing side channel against a value
             // that gates authentication. Compare in constant time instead.
