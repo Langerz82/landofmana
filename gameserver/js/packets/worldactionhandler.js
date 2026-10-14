@@ -4,6 +4,7 @@ import Block from '../entity/block.js';
 import Node from '../entity/node.js';
 import Utils from '../utils.js';
 import { G_TILESIZE, G_DEBUG } from '../constants.js';
+import { logChat } from '../chatlog.js';
 
 // Split out of packethandler.js -- the remaining world-interaction packets
 // that don't fit combat/movement/skills/items: chat, quest accept/reject,
@@ -68,6 +69,9 @@ class WorldActionHandler {
                     this.world.sendWorld(
                         new Messages.Chat(this.player, 'world', msg)
                     );
+                    // Separate chat.log (date/time, username, player, IP) --
+                    // see chatlog.js.
+                    logChat(this.player, 'world', msg);
                     break;
             }
         }
@@ -138,6 +142,7 @@ class WorldActionHandler {
                 '(whisper to ' + target.name + ') ' + body
             )
         );
+        logChat(this.player, 'whisper to=' + target.name, body);
     }
 
     handleQuest(msg) {
