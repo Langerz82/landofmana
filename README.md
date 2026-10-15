@@ -37,7 +37,7 @@ Land Of Mana is a free browser MMORPG inspired by Secret of Mana and classic Zel
 **Land of Mana** is a free-to-play 2D Overhead Multiplayer Online Role Playing Game (MORPG) along the style of early SNES Zelda and Secret of Mana series. The client and server code is Open Source and the media content has mixed licensing. It runs in your browser with no download required and in the Google Play Store. It was originally based off the BrowserQuest Game Engine and Asky BrowserQuest extended engine and now uses it own Game Engine that also uses PixiJS for WebGL Graphics, and HTML/JS/CSS for the various game dialogue Screens.
 
 ## PLAY FREE IN YOUR BROWSER NO DOWNLOAD REQUIRED:
-* JavaScript client: https://www.landofmana.com/play/index.html
+* Web client: https://www.landofmana.com/play/index.html
 * Godot client: https://landofmana.com/play-godot/index.html
 
 ## ANDROID RELEASE ON MOBILES, TABLETS AND SMART TV/BOXES (WITH A GAME CONTROLLER):
