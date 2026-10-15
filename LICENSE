@@ -4,7 +4,16 @@ Land of Mana (RetroRPGOnline2) - LICENSE
 Copyright (C) 2023-2026 Joshua Langley <https://github.com/Langerz82>
 and contributors.
 
-This project contains two kinds of material that are licensed differently:
+This file covers the whole repository:
+
+  client/        - JavaScript / HTML5 browser client
+  godot-client/  - Godot 4 (GDScript) client, a port of client/
+  userserver/    - Node.js user / account server
+  gameserver/    - Node.js game world server
+  shared/        - code and data shared by the clients and servers
+  tools/, root build and launch scripts
+
+The repository contains two kinds of material that are licensed differently:
 
   1. SOURCE CODE  - GNU General Public License, version 3 (GPLv3)
   2. GAME ASSETS  - Creative Commons Attribution-ShareAlike 3.0 (CC-BY-SA 3.0),
@@ -18,10 +27,11 @@ Read every section below before redistributing any part of this project.
 1. SOURCE CODE - GNU GPL v3
 ------------------------------------------------------------------------------
 
-All source code (JavaScript, GDScript, HTML, CSS, shaders, scripts, build and
-configuration files) is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by the Free
-Software Foundation, version 3 of the License.
+All source code in client/, godot-client/, userserver/, gameserver/, shared/
+and tools/ (JavaScript, GDScript, HTML, CSS, shaders, shell and batch scripts,
+build and configuration files) is free software: you can redistribute it
+and/or modify it under the terms of the GNU General Public License as
+published by the Free Software Foundation, version 3 of the License.
 
 This program is distributed in the hope that it will be useful, but WITHOUT
 ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
@@ -30,15 +40,23 @@ FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
 The full text of the GNU General Public License v3 is included at the end of
 this file, and is also available at <https://www.gnu.org/licenses/gpl-3.0.txt>.
 
-Third-party code included in or derived from other projects:
+Note for server operators: the GPLv3 applies when you distribute the code
+(source or compiled/minified, e.g. index.js / run.js). If you distribute a
+modified client or server, you must make the corresponding source available
+under the GPLv3.
+
+1.1 Third-party code
+--------------------
 
   * BrowserQuest - Little Workshop (Franck Lecollinet, Guillaume Lecollinet)
     https://github.com/mozilla/BrowserQuest
     Code licensed under the Mozilla Public License 2.0 (MPL-2.0).
+    Used in: client/, userserver/, gameserver/, shared/
 
   * BrowserQuest-Asky - RedPain, Heyyo
     https://github.com/browserquest/BrowserQuest-Asky
     Code licensed under the Mozilla Public License 2.0 (MPL-2.0).
+    Used in: client/, userserver/, gameserver/, shared/
 
     Portions of the code are derived from the above MPL-2.0 projects. As
     permitted by section 3.3 of the MPL-2.0 ("Distribution of a Larger Work"),
@@ -49,14 +67,17 @@ Third-party code included in or derived from other projects:
   * PixiJS - Copyright (c) 2013-2023 Mathew Groves, Chad Engler
     https://github.com/pixijs/pixijs
     Licensed under the MIT License <https://opensource.org/licenses/MIT>.
+    Used in: client/
 
-  * Other bundled libraries (for example under node_modules/ or
-    bower_components/) remain under their own licenses, as stated in their
-    respective files.
+  * Godot Engine - Juan Linietsky, Ariel Manzur and contributors
+    https://godotengine.org/license
+    Licensed under the MIT License. The engine is not included in this
+    repository; godot-client/ is a project that runs on it.
 
-The Godot client (godot-client/) is a port of the JavaScript client and is
-covered by this same GPLv3 license. The Godot Engine itself is licensed
-separately under the MIT License <https://godotengine.org/license>.
+  * Node.js packages (for example socket.io, redis, bcrypt, crypto-js,
+    underscore, zod) installed under node_modules/ or bower_components/
+    remain under their own licenses, as stated in their respective package
+    files. They are not covered by this license.
 
 
 ------------------------------------------------------------------------------
@@ -64,9 +85,10 @@ separately under the MIT License <https://godotengine.org/license>.
 ------------------------------------------------------------------------------
 
 Unless listed as proprietary in section 3 (or marked otherwise in a file or
-folder), the images, sprites, tilesets, maps and other game content are
-licensed under the Creative Commons Attribution-ShareAlike 3.0 Unported
-License (CC-BY-SA 3.0).
+folder), the images, sprites, tilesets, maps and other game content in
+client/, godot-client/, userserver/, gameserver/ and shared/ are licensed
+under the Creative Commons Attribution-ShareAlike 3.0 Unported License
+(CC-BY-SA 3.0).
 
   Full license text: <https://creativecommons.org/licenses/by-sa/3.0/legalcode>
   Summary:           <https://creativecommons.org/licenses/by-sa/3.0/>
@@ -86,10 +108,11 @@ Attribution:
 3. PROPRIETARY ASSETS - ALL RIGHTS RESERVED
 ------------------------------------------------------------------------------
 
-Some of the images, sprites and icons in this project are NOT covered by
-CC-BY-SA 3.0 or the GPLv3. They are Copyright (C) their respective authors,
-All Rights Reserved, and are used in this game under licenses purchased or
-granted by those authors. Those licenses do NOT pass on to you.
+Some of the images, sprites and icons in this project (mainly in client/ and
+godot-client/) are NOT covered by CC-BY-SA 3.0 or the GPLv3. They are
+Copyright (C) their respective authors, All Rights Reserved, and are used in
+this game under licenses purchased or granted by those authors. Those
+licenses do NOT pass on to you.
 
 You may NOT reuse, extract, modify or redistribute these assets separately
 from this game, or use them in any other project, without obtaining your own

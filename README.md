@@ -167,13 +167,12 @@ cd userserver
 npm run build
 ```
 
-## Terms and Conditions:
-This software is provided as is, is a compiled and covered under MPL V2.0 and is copyright code and content to there respective owners.
-You may not profit off the software without permission of the original authors, and content creators.
-You may re-distribute the software unmodified, and the assets contained are copyright the original authors.
+## License:
+* **Code** (client, godot-client, userserver, gameserver, shared, tools) is licensed under the GNU General Public License v3 (GPLv3). Parts derived from BrowserQuest and BrowserQuest-Asky also remain available under MPL 2.0.
+* **Game content** (images, sprites, tilesets, maps) is licensed under CC-BY-SA 3.0, except for the proprietary assets listed under Game Resources below, which are copyright their respective authors and may not be reused without your own license.
+* This software is provided as is, without warranty of any kind.
 
-For more details see:
-https://www.mozilla.org/en-US/MPL/2.0/
+See the [LICENSE](LICENSE) file for full details.
 
 ## FUNDING
 * If you have a spare few dollars I would appreciate the help to cover server costs, and to able to afford more game content assets.
