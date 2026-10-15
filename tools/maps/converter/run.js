@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// This file is part of Land of Mana (https://github.com/Langerz82/retrorpgonline2-client).
+// This file is part of Land of Mana (https://github.com/Langerz82/landofmana).
 // SPDX-License-Identifier: GPL-3.0-only
 // Copyright (C) 2023-2026 Joshua Langley and contributors
 // Portions derived from BrowserQuest (Little Workshop) and BrowserQuest-Asky, MPL-2.0.
