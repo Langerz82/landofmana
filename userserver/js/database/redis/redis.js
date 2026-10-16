@@ -162,6 +162,37 @@ const scanKeys = function (pattern, callback) {
 // work (bulk/one-off maintenance and migration, not per-request reads and
 // writes) that was making this file harder to navigate mixed in with the
 // rest.
+// Userserver-wide bans (see loadBans()/saveBans() on DatabaseHandler).
+const BANS_KEY = 'b:userbans';
+
+// Merge "username -> banTime" pairs into the bans hash, keeping the later
+// end time for each user. ARGV is username1, time1, username2, time2, ...
+const MERGE_BANS_LUA =
+    'for i = 1, #ARGV, 2 do ' +
+    "local cur = tonumber(redis.call('HGET', KEYS[1], ARGV[i]) or '0') or 0 " +
+    'local nv = tonumber(ARGV[i + 1]) ' +
+    "if nv and nv > cur then redis.call('HSET', KEYS[1], ARGV[i], ARGV[i + 1]) end " +
+    'end ' +
+    'return 1';
+
+// ["username,banTime", ...] -> [username, banTime, ...] for MERGE_BANS_LUA,
+// dropping malformed or already-expired records.
+const parseBanRecords = function (records) {
+    const now = Date.now();
+    const args = [];
+    for (const rec of Array.isArray(records) ? records : []) {
+        if (typeof rec !== 'string') continue;
+        const idx = rec.lastIndexOf(',');
+        if (idx <= 0) continue;
+        const username = rec.substring(0, idx);
+        const banTime = parseInt(rec.substring(idx + 1), 10);
+        if (!(banTime > now)) continue;
+        args.push(username, String(banTime));
+    }
+    return args;
+};
+
+
 class DatabaseHandler {
     constructor(config) {
         // You may now connect a client to the Redis server bound to port 6379.
@@ -184,7 +215,11 @@ class DatabaseHandler {
         // insertMissingPlayerKeys()/createPlayerKeys()/migrateGoldFields()/
         // migrateGold1ToUser()/renameGold1ToBankGold()/migrateBankToUser()
         // below have what they need before any of them can run.
-        initMigrations({ client, playerGoldMax });
+        initMigrations({
+            client,
+            playerGoldMax,
+            bans: { BANS_KEY, MERGE_BANS_LUA, parseBanRecords }
+        });
 
         if (config.remove_old_values === 1) {
             this.removeOldValues();
@@ -1390,42 +1425,58 @@ class DatabaseHandler {
     // END LOOKS DB CALLS.
 
     // BANNED USERS
-    loadBans(worldKey, callback) {
-        const key = 'b:bans-' + worldKey;
-        client.smembers(key, (err, reply) => {
-            if (err || reply === null || !(typeof reply === 'object')) {
-                console.warn('loadBans - err: ' + JSON.stringify(err));
-                console.warn('loadBans - data: ' + JSON.stringify(reply));
-                return;
-            }
-            if (callback) {
-                callback(worldKey, reply);
-            }
-            return;
+    // CHANGE: bans are now userserver-wide instead of per gameserver. They
+    // used to live in one set per world (b:bans-<worldKey>) that each
+    // gameserver del'd and rewrote wholesale on save, so a ban issued on one
+    // gameserver never applied on any other. All bans now live in ONE hash,
+    // b:userbans (username -> ban end time in ms), shared by every
+    // gameserver attached to this userserver. (Not the old 'b:bans' name:
+    // migration.js's removeOldValues() still deletes that key on startup.)
+    //
+    // saveBans() MERGES into the hash rather than replacing it, keeping the
+    // later end time per user -- otherwise a gameserver saving its (possibly
+    // stale) list at shutdown would wipe or shorten bans issued on another
+    // gameserver since it last loaded. The merge runs as a single Lua script
+    // so concurrent saves from several gameservers can't interleave.
+    // Expired bans are pruned on load.
+    loadBans(callback) {
+        const key = BANS_KEY;
+        this.migrateLegacyBans(() => {
+            client.hgetall(key, (err, reply) => {
+                if (err) {
+                    console.warn('loadBans - err: ' + JSON.stringify(err));
+                    return;
+                }
+                const now = Date.now();
+                const data = [];
+                const expired = [];
+                for (const username in reply || {}) {
+                    const banTime = parseInt(reply[username], 10);
+                    if (!(banTime > now)) {
+                        expired.push(username);
+                        continue;
+                    }
+                    data.push(username + ',' + banTime);
+                }
+                if (expired.length > 0) client.hdel(key, expired);
+                if (callback) callback(data);
+            });
         });
     }
 
-    saveBans(worldKey, data, callback) {
+    saveBans(data, callback) {
         console.info('redis - saveBans: ' /*+JSON.stringify(data)*/);
-
-        const key = 'b:bans-' + worldKey;
-        client.del(key);
-        if (data.length === 0) {
+        const args = parseBanRecords(data);
+        if (args.length === 0) {
+            if (callback) callback(0);
             return;
         }
-        console.warn('data:' + JSON.stringify(data));
-        const multi = client.multi();
-        for (let i = 0; i < data.length; ++i) {
-            multi.sadd(key, data[i]);
-        }
-        multi.exec((err, reply) => {
+        client.eval(MERGE_BANS_LUA, 1, BANS_KEY, ...args, (err, reply) => {
             if (err) {
                 console.error('redis - saveBans: ' + JSON.stringify(err));
                 return;
             }
-            if (callback) {
-                callback(worldKey, reply);
-            }
+            if (callback) callback(reply);
         });
     }
     // END BANNED USERS

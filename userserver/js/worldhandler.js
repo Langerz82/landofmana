@@ -277,8 +277,19 @@ class WorldHandler {
             return;
         }
 
-        DBLogic.saveBans(this.world.key, msg[0], function (key, data) {
+        // CHANGE: bans are userserver-wide (see loadBans()/saveBans() in
+        // redis.js). Merge these into the shared ban list, then push the
+        // updated list to EVERY attached gameserver, so a ban issued on one
+        // gameserver takes effect on all of them straight away.
+        DBLogic.saveBans(msg[0], function () {
             self.SAVED_BANS = true;
+            DBLogic.loadBans(function (data) {
+                for (const wh of worldHandlers) {
+                    if (wh.world && wh.game_server) {
+                        wh.sendMessage(new UserMessages.LoadUserBans(data));
+                    }
+                }
+            });
         });
     }
 
@@ -752,7 +763,7 @@ class WorldHandler {
             console.warn('sendLooksToWorld - no world set.');
             return;
         }
-        DBLogic.loadBans(this.world.key, function (key, db_data) {
+        DBLogic.loadBans(function (db_data) {
             self.sendMessage(new UserMessages.LoadUserBans(db_data));
         });
     }

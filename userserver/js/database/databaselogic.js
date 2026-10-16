@@ -638,8 +638,8 @@ class DatabaseLogic {
         this.dbh.saveLooks(worldKey, looks, callback);
     }
 
-    saveBans(worldKey, data, callback) {
-        this.dbh.saveBans(worldKey, data, callback);
+    saveBans(data, callback) {
+        this.dbh.saveBans(data, callback);
     }
 
     savePlayerUserInfo(username, playerName, data, callback) {
@@ -674,8 +674,8 @@ class DatabaseLogic {
         this.dbh.loadLooks(worldKey, callback);
     }
 
-    loadBans(worldKey, callback) {
-        this.dbh.loadBans(worldKey, callback);
+    loadBans(callback) {
+        this.dbh.loadBans(callback);
     }
 
     addPlayerGoldOffline(playerName, goldAmount) {

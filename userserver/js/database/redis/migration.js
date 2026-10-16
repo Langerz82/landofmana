@@ -93,6 +93,12 @@ const bankSlots = 96;
 // initMigrations() below instead of being redeclared here.
 let playerGoldMax;
 
+// Shared userserver-wide ban helpers (BANS_KEY, MERGE_BANS_LUA,
+// parseBanRecords) from redis.js, used by migrateLegacyBans() below. Handed
+// in via initMigrations() rather than duplicated, since redis.js's live
+// loadBans()/saveBans() must use exactly the same key and merge rule.
+let bans;
+
 // Called once from the DatabaseHandler constructor (redis.js), right after
 // it creates `client` (and attaches the hgetarray/scanKeys shims to it) --
 // same "module-scoped state set up once, read by every function below"
@@ -100,6 +106,7 @@ let playerGoldMax;
 export function initMigrations(deps) {
     client = deps.client;
     playerGoldMax = deps.playerGoldMax;
+    bans = deps.bans;
 }
 
 // FIX: `let j` was redeclared to 0 at the top of every outer-loop
@@ -1649,6 +1656,47 @@ function wipeAllNewQuests(callback) {
     });
 }
 
+// One-time fold of the old per-gameserver ban sets (b:bans-<worldKey>)
+// into the shared b:userbans hash, then deletes them. Merging is
+// idempotent (later end time wins), so a second gameserver racing this on
+// startup is harmless. Moved here from redis.js; BANS_KEY/MERGE_BANS_LUA/
+// parseBanRecords are handed in via initMigrations() (they're shared with
+// redis.js's live loadBans()/saveBans()), same as playerGoldMax.
+let legacyBansMigrated = false;
+function migrateLegacyBans(callback) {
+    if (legacyBansMigrated) return callback();
+    client.scanKeys('b:bans-*', (err, keys) => {
+        if (err || !keys || keys.length === 0) {
+            legacyBansMigrated = !err;
+            return callback();
+        }
+        let pending = keys.length;
+        const done = function () {
+            if (--pending === 0) {
+                legacyBansMigrated = true;
+                callback();
+            }
+        };
+        for (const oldKey of keys) {
+            client.smembers(oldKey, (err2, members) => {
+                const args = err2 ? [] : bans.parseBanRecords(members);
+                const finish = function (err3) {
+                    if (err3) {
+                        console.warn('migrateLegacyBans ' + oldKey + ': ' + err3);
+                    } else {
+                        console.info('migrateLegacyBans: merged ' + oldKey);
+                        client.del(oldKey);
+                    }
+                    done();
+                };
+                if (err2) return finish(err2);
+                if (args.length === 0) return finish(null);
+                client.eval(bans.MERGE_BANS_LUA, 1, bans.BANS_KEY, ...args, finish);
+            });
+        }
+    });
+}
+
 // Mixed onto DatabaseHandler.prototype in redis.js (Object.assign, right
 // after the class declaration) rather than exported/used individually, so
 // every function above keeps running as an instance method -- called as
@@ -1666,5 +1714,6 @@ export const migrationMethods = {
     migrateBankToUser,
     migrateLooksToBase64,
     resetLegacyLooksToDefault,
-    wipeAllNewQuests
+    wipeAllNewQuests,
+    migrateLegacyBans
 };
