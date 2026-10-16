@@ -93,10 +93,9 @@ const bankSlots = 96;
 // initMigrations() below instead of being redeclared here.
 let playerGoldMax;
 
-// Shared userserver-wide ban helpers (BANS_KEY, MERGE_BANS_LUA,
-// parseBanRecords) from redis.js, used by migrateLegacyBans() below. Handed
+// Shared userserver-wide ban helpers (BANS_KEY, parseBanRecords) from redis.js, used by migrateLegacyBans() below. Handed
 // in via initMigrations() rather than duplicated, since redis.js's live
-// loadBans()/saveBans() must use exactly the same key and merge rule.
+// loadBans()/saveBans() must use exactly the same key and record format.
 let bans;
 
 // Called once from the DatabaseHandler constructor (redis.js), right after
@@ -1657,9 +1656,10 @@ function wipeAllNewQuests(callback) {
 }
 
 // One-time fold of the old per-gameserver ban sets (b:bans-<worldKey>)
-// into the shared b:userbans hash, then deletes them. Merging is
-// idempotent (later end time wins), so a second gameserver racing this on
-// startup is harmless. Moved here from redis.js; BANS_KEY/MERGE_BANS_LUA/
+// into the shared b:userbans hash, then deletes them. If the same user is in
+// more than one old set, whichever set is merged last wins. Re-running is
+// harmless (HSET just rewrites the same values), so a second gameserver
+// racing this on startup is fine. Moved here from redis.js; BANS_KEY/
 // parseBanRecords are handed in via initMigrations() (they're shared with
 // redis.js's live loadBans()/saveBans()), same as playerGoldMax.
 let legacyBansMigrated = false;
@@ -1691,7 +1691,7 @@ function migrateLegacyBans(callback) {
                 };
                 if (err2) return finish(err2);
                 if (args.length === 0) return finish(null);
-                client.eval(bans.MERGE_BANS_LUA, 1, bans.BANS_KEY, ...args, finish);
+                client.hset(bans.BANS_KEY, ...args, finish);
             });
         }
     });
