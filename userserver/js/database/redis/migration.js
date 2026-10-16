@@ -1656,7 +1656,7 @@ function wipeAllNewQuests(callback) {
 }
 
 // One-time fold of the old per-gameserver ban sets (b:bans-<worldKey>)
-// into the shared b:userbans hash, then deletes them. If the same user is in
+// into the shared us:userbans hash, then deletes them. If the same user is in
 // more than one old set, whichever set is merged last wins. Re-running is
 // harmless (HSET just rewrites the same values), so a second gameserver
 // racing this on startup is fine. Moved here from redis.js; BANS_KEY/
@@ -1697,6 +1697,87 @@ function migrateLegacyBans(callback) {
     });
 }
 
+// One-time rename of the per-world auction/looks keys to the gameserver
+// ("gs:") prefix:
+//   s:auction-<world_key> -> gs:auction-<world_key>
+//   l:looks-<world_key>   -> gs:looks-<world_key>
+// and of the shared ban hash to the userserver ("us:") prefix, if one was
+// ever written under its earlier name:
+//   b:userbans            -> us:userbans
+// Uses RENAMENX, so a key is only moved if its new name doesn't exist yet --
+// existing gs: data is never overwritten (a clash is logged and the old key
+// left in place to sort out by hand). Once everything has been moved there
+// are no old keys left to find, so every later startup is a no-op.
+//
+// Must finish before removeOldValues() runs (it deletes every s:auction-*
+// and l:looks-* key) -- see the DatabaseHandler constructor in redis.js.
+function migrateKeyPrefixes(callback) {
+    const renames = [
+        ['s:auction-', 'gs:auction-'],
+        ['l:looks-', 'gs:looks-']
+    ];
+    let pending = renames.length + 1;
+    let firstError = null;
+    const done = function (err) {
+        if (err && !firstError) firstError = err;
+        if (--pending === 0 && callback) callback(firstError);
+    };
+
+    // Single key, no scan needed. "ERR no such key" just means there's no
+    // b:userbans to move -- the normal case.
+    const oldBansKey = 'b:userbans';
+    client.renamenx(oldBansKey, bans.BANS_KEY, (err, reply) => {
+        if (err) {
+            if (/no such key/i.test(String(err))) return done(null);
+            console.error(
+                'migrateKeyPrefixes: ' + oldBansKey + ' -> ' + bans.BANS_KEY + ' failed: ' + err
+            );
+            return done(err);
+        }
+        if (reply === 1) {
+            console.info('migrateKeyPrefixes: renamed ' + oldBansKey + ' -> ' + bans.BANS_KEY);
+        } else {
+            console.warn(
+                'migrateKeyPrefixes: ' + bans.BANS_KEY + ' already exists -- left ' +
+                    oldBansKey + ' in place.'
+            );
+        }
+        done(null);
+    });
+
+    for (const [oldPrefix, newPrefix] of renames) {
+        client.scanKeys(oldPrefix + '*', (err, keys) => {
+            if (err) {
+                console.error('migrateKeyPrefixes: scan ' + oldPrefix + '* failed: ' + err);
+                return done(err);
+            }
+            if (!keys || keys.length === 0) return done(null);
+
+            let left = keys.length;
+            let scanError = null;
+            for (const oldKey of keys) {
+                const newKey = newPrefix + oldKey.substring(oldPrefix.length);
+                client.renamenx(oldKey, newKey, (err2, reply) => {
+                    if (err2) {
+                        console.error(
+                            'migrateKeyPrefixes: ' + oldKey + ' -> ' + newKey + ' failed: ' + err2
+                        );
+                        scanError = scanError || err2;
+                    } else if (reply === 1) {
+                        console.info('migrateKeyPrefixes: renamed ' + oldKey + ' -> ' + newKey);
+                    } else {
+                        console.warn(
+                            'migrateKeyPrefixes: ' + newKey + ' already exists -- left ' +
+                                oldKey + ' in place.'
+                        );
+                    }
+                    if (--left === 0) done(scanError);
+                });
+            }
+        });
+    }
+}
+
 // Mixed onto DatabaseHandler.prototype in redis.js (Object.assign, right
 // after the class declaration) rather than exported/used individually, so
 // every function above keeps running as an instance method -- called as
@@ -1715,5 +1796,6 @@ export const migrationMethods = {
     migrateLooksToBase64,
     resetLegacyLooksToDefault,
     wipeAllNewQuests,
-    migrateLegacyBans
+    migrateLegacyBans,
+    migrateKeyPrefixes
 };

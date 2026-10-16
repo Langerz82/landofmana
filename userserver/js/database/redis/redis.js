@@ -163,7 +163,7 @@ const scanKeys = function (pattern, callback) {
 // writes) that was making this file harder to navigate mixed in with the
 // rest.
 // Userserver-wide bans (see loadBans()/saveBans() on DatabaseHandler).
-const BANS_KEY = 'b:userbans';
+const BANS_KEY = 'us:userbans';
 
 
 // ["username,banTime", ...] -> [username, banTime, ...] for HSET,
@@ -212,14 +212,38 @@ class DatabaseHandler {
             bans: { BANS_KEY, parseBanRecords }
         });
 
+        // Renames s:auction-*/l:looks-* to gs:auction-*/gs:looks-* (see
+        // migrateKeyPrefixes(), migration.js). removeOldValues() deletes
+        // every s:auction-*/l:looks-* key, so it's chained to run only once
+        // the rename has finished -- otherwise it could wipe auction/looks
+        // data before it was moved.
+        const keyPrefixMigration = new Promise((resolve, reject) => {
+            this.migrateKeyPrefixes((err) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve();
+                }
+            });
+        });
+
         if (config.remove_old_values === 1) {
-            this.removeOldValues();
-            // FIX: this ran unconditionally on every server start (unlike
-            // removeOldValues() above, which is opt-in via config). Gated
-            // behind the same remove_old_values flag as its sibling
-            // maintenance/migration task above, since that's the existing
-            // "opt-in startup migration" pattern in this file.
-            this.insertMissingPlayerKeys();
+            keyPrefixMigration.then(
+                () => {
+                    this.removeOldValues();
+                    // FIX: this ran unconditionally on every server start (unlike
+                    // removeOldValues() above, which is opt-in via config). Gated
+                    // behind the same remove_old_values flag as its sibling
+                    // maintenance/migration task above, since that's the existing
+                    // "opt-in startup migration" pattern in this file.
+                    this.insertMissingPlayerKeys();
+                },
+                () => {
+                    console.error(
+                        'remove_old_values skipped: key prefix migration failed.'
+                    );
+                }
+            );
         }
 
         //this.replaceSkills();
@@ -298,7 +322,8 @@ class DatabaseHandler {
             goldMigration,
             bankMigration,
             newQuestsPurge,
-            looksMigration
+            looksMigration,
+            keyPrefixMigration
         ]);
     }
 
@@ -1342,7 +1367,7 @@ class DatabaseHandler {
 
     // AUCTION DATABASE CALLS.
     loadAuctions(worldKey, callback) {
-        const key = 's:auction-' + worldKey;
+        const key = 'gs:auction-' + worldKey;
         client.smembers(key, (err, reply) => {
             if (err || reply === null || !(typeof reply === 'object')) {
                 console.warn('loadAuctions - err: ' + JSON.stringify(err));
@@ -1358,7 +1383,7 @@ class DatabaseHandler {
 
     saveAuctions(worldKey, data, callback) {
         console.info('redis - saveAuctions: ' + JSON.stringify(data));
-        const key = 's:auction-' + worldKey;
+        const key = 'gs:auction-' + worldKey;
         client.del(key);
         const multi = client.multi();
         const exec = data.length > 0;
@@ -1383,7 +1408,7 @@ class DatabaseHandler {
 
     // START LOOKS DB CALLS.
     loadLooks(worldKey, callback) {
-        const key = 'l:looks-' + worldKey;
+        const key = 'gs:looks-' + worldKey;
         client.hget(key, 'prices', (err, reply) => {
             if (err || !reply || reply === '') {
                 console.warn(err);
@@ -1401,7 +1426,7 @@ class DatabaseHandler {
 
     saveLooks(worldKey, looks, callback) {
         console.info('redis - saveLooks: ' /*+JSON.stringify(looks)*/);
-        const key = 'l:looks-' + worldKey;
+        const key = 'gs:looks-' + worldKey;
         client.del(key);
         client.hset(key, 'prices', looks.join(','), (err, reply) => {
             if (err) {
@@ -1420,7 +1445,7 @@ class DatabaseHandler {
     // used to live in one set per world (b:bans-<worldKey>) that each
     // gameserver del'd and rewrote wholesale on save, so a ban issued on one
     // gameserver never applied on any other. All bans now live in ONE HASH,
-    // b:userbans -- field = username, value = ban end time (ms) -- shared by
+    // us:userbans -- field = username, value = ban end time (ms) -- shared by
     // every gameserver attached to this userserver. (Not the old 'b:bans'
     // name: migration.js's removeOldValues() still deletes that key on
     // startup.)
