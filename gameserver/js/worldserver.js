@@ -56,7 +56,7 @@ import LootManager from './world/lootmanager.js';
 import Utils from './utils.js';
 // `players` is live server state owned by main.js; G_UPDATE_INTERVAL/G_DEBUG
 // are static constants that moved to constants.js (see that file's header).
-import { players } from './main.js';
+import { players, MainConfig } from './main.js';
 import { G_UPDATE_INTERVAL, G_DEBUG } from './constants.js';
 import NotifyData from './data/notificationdata.js';
 import Scheduler from './scheduler.js';
@@ -379,13 +379,39 @@ class World {
             });
         }, 256);
 
-        Scheduler.every(function () {
-            for (const p of self.players) {
-                if (p.user && Date.now() - p.user.lastPacketTime >= 300000) {
-                    p.connection.close('idle timeout');
+        // Idle timeout: disconnect players who haven't done anything
+        // themselves for `idle_timeout_minutes` (config.json; default 30,
+        // 0 or negative disables). Uses player.lastActivityTime, which
+        // ignores the client's automatic background packets -- the old
+        // check here used user.lastPacketTime, which those packets refresh
+        // every few seconds, so it never fired. Checked every 30s, so a
+        // kick lands at most ~30s after the limit.
+        const idleMinutes =
+            MainConfig && MainConfig.idle_timeout_minutes !== undefined
+                ? Number(MainConfig.idle_timeout_minutes)
+                : 30;
+        if (idleMinutes > 0) {
+            const idleMs = idleMinutes * 60000;
+            console.info('Idle timeout: ' + idleMinutes + ' minutes.');
+            Scheduler.every(function () {
+                const now = Date.now();
+                // Copy: players leave self.players as their disconnects complete.
+                for (const p of self.players.slice()) {
+                    if (!p.packetHandler || p.idleKicked) continue;
+                    if (now - p.lastActivityTime < idleMs) continue;
+                    console.info(
+                        'Idle timeout: disconnecting player ' +
+                            p.name +
+                            ' after ' +
+                            idleMinutes +
+                            ' minutes of inactivity.'
+                    );
+                    p.packetHandler.timeout();
                 }
-            }
-        }, 60000);
+            }, 30000);
+        } else {
+            console.info('Idle timeout: disabled.');
+        }
 
         Scheduler.every(function () {
             if (self.regen_callback) {

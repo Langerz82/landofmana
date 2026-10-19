@@ -171,6 +171,25 @@ const PACKET_HANDLERS = new Map([
     [Types.Messages.CW_CONFIG, (h, message) => h.handleConfig(message)]
 ]);
 
+// Packets the client sends on its own, with no player input, so they must
+// not count as "activity" for the idle timeout: the client sends a
+// CW_REQUEST 3 (who request) every few seconds while standing still (see
+// client/js/game/gamecallbacks.js's zoneCheckInterval), plus CW_WHO entity
+// cleanup, BI_SYNCTIME clock sync and CW_CONFIG on camera/window resize.
+// Anything not listed here is treated as the player actively playing.
+function isPassivePacket(action, message) {
+    switch (action) {
+        case Types.Messages.BI_SYNCTIME:
+        case Types.Messages.CW_WHO:
+        case Types.Messages.CW_CONFIG:
+            return true;
+        case Types.Messages.CW_REQUEST:
+            return parseInt(message[0]) === 3; // who request
+        default:
+            return false;
+    }
+}
+
 class PacketHandler {
     constructor(player, connection, worldServer) {
         this.player = player;
@@ -216,7 +235,9 @@ class PacketHandler {
             }
             message.shift();
 
-            self.user.lastPacketTime = Date.now();
+            if (!isPassivePacket(action, message)) {
+                self.player.lastActivityTime = Date.now();
+            }
 
             // FIX: wrapped in try/catch -- this listen() callback runs directly
             // on socket.io's event emitter, which has no catch of its own around
@@ -271,9 +292,23 @@ class PacketHandler {
         });
     }
 
+    // Idle-timeout kick (see WorldServer.run()'s idle check). Sends the
+    // shared lang key DISCONNECT_TIMEOUT as a WC_ERROR -- the client shows
+    // it as the disconnect reason (gameclient.js onServerError) -- then
+    // disconnects the socket, which goes through the normal onClose path
+    // above, so the player is saved and removed exactly as if they'd quit.
+    // Same pattern as BanManager.kickBannedPlayers().
     timeout() {
-        this.connection.sendUTF8('timeout');
-        this.connection.close('Player was idle for too long');
+        if (this.player.idleKicked) return;
+        this.player.idleKicked = true;
+        try {
+            this.connection.send(
+                new Messages.Error('DISCONNECT_TIMEOUT').serialize()
+            );
+        } catch (err) {
+            console.warn('PacketHandler: idle notice send failed: ' + err);
+        }
+        this.connection.disconnect();
     }
 
     broadcast(message, ignoreSelf) {

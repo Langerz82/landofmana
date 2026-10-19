@@ -101,7 +101,15 @@ class Player extends Character {
         this.attackSkill = [];
         this.attackTimer = 0;
 
-        this.idleTimer = new Timer(300000);
+        // Last time this player did something themselves (moved, attacked,
+        // chatted, used an item, ...). Updated by PacketHandler for every
+        // player-initiated packet -- NOT for the client's automatic background
+        // traffic (who-requests, time sync, camera config), which keeps
+        // flowing while the player is AFK. WorldServer's idle check
+        // disconnects the player once this is older than
+        // config.idle_timeout_minutes. Replaces the old `idleTimer`, which
+        // was restarted on movement but never actually checked anywhere.
+        this.lastActivityTime = Date.now();
 
         // FIX: movement (hasMoveThrottled) and attacks (attackedTime) are
         // both rate-limited, but chat had no cooldown at all -- a client
@@ -473,8 +481,6 @@ class Player extends Character {
             time = data[0],
             interrupted = data[1];
 
-        this.idleTimer.restart();
-
         // PERF: movePath() runs on every click-to-move path packet from every
         // player -- one of the two or three hottest packet types in the game
         // (see the "hottest path" PERF comments in map/mapentities.js's
@@ -512,8 +518,6 @@ class Player extends Character {
         // behind G_DEBUG like the identical per-packet logging in
         // packethandler.js/playercallback.js.
         if (G_DEBUG) console.info('nm:' + JSON.stringify(nm));
-
-        this.idleTimer.restart();
 
         if (this.moving_callback) {
             clearTimeout(this.moving_callback);
