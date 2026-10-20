@@ -72,7 +72,7 @@ var _alarm: PanelContainer
 var _alarm_icon: TextureRect
 var _alarm_title: Label
 var _alarm_text: Label
-var _alarm_queue: Array = []   # [title, text, kind, ms]
+var _alarm_queue: Array = []   # [title, text, kind, ms, icon]
 var _alarm_current: Array = []
 var _alarm_until := 0          # >0 while an alert is showing
 var _alarm_ready_at := 0       # earliest time the next alert may show
@@ -837,14 +837,16 @@ func _build_alarm(root: Control) -> void:
 
 ## Queue an alert for the alarm box. The first line of `text` is the title
 ## ("Quest Found", "Achievement Completed"...), the rest the message.
-## `kind` picks the icon ("quest", "achievement"); `ms` 0 = ALARM_SHOW_MS.
+## `kind` picks the icon ("quest", "achievement", "levelup" = the menu
+## bar's player icon); `ms` 0 = ALARM_SHOW_MS. `icon`, when given, replaces the
+## icon picked by `kind` (e.g. a skill's icon).
 ## Alerts show one at a time, ALARM_DELAY_MS apart, never while an NPC
 ## dialogue (or a map change) is on screen.
-func alarm(text: String, ms := 0, kind := "") -> void:
+func alarm(text: String, ms := 0, kind := "", icon: Texture2D = null) -> void:
 	var lines := text.split("\n", false, 1)
 	var title: String = lines[0] if lines.size() > 1 else ""
 	var body: String = lines[1] if lines.size() > 1 else text
-	_alarm_queue.append([title, body, kind, ms if ms > 0 else ALARM_SHOW_MS])
+	_alarm_queue.append([title, body, kind, ms if ms > 0 else ALARM_SHOW_MS, icon])
 
 
 func is_alarm_showing() -> bool:
@@ -860,8 +862,15 @@ func _show_alarm(a: Array) -> void:
 	_alarm_title.text = str(a[0])
 	_alarm_title.visible = str(a[0]) != ""
 	_alarm_text.text = str(a[1])
-	var icon_xy := Vector2i(448, 0) if str(a[2]) == "achievement" else Vector2i(352, 0)
-	_alarm_icon.texture = UiStyle.menu_icon(icon_xy.x, icon_xy.y)
+	var icon: Texture2D = a[4] if a.size() > 4 else null
+	if icon == null:
+		# Same icons as the menu bar buttons (quests, achievements, player).
+		var icon_xy := Vector2i(352, 0)
+		match str(a[2]):
+			"achievement": icon_xy = Vector2i(448, 0)
+			"levelup": icon_xy = Vector2i(128, 0)
+		icon = UiStyle.menu_icon(icon_xy.x, icon_xy.y)
+	_alarm_icon.texture = icon
 	# Same height as the dialogue box, at the same place.
 	_alarm.custom_minimum_size.y = _dialogue_panel.get_combined_minimum_size().y if _dialogue_panel else 0.0
 	var bottom := _bottom_clearance()

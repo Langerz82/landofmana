@@ -143,15 +143,14 @@ static func fresh_copy(f: FontFile) -> FontFile:
 static var _world_text_font: FontFile = null
 
 ## Font for text drawn over the world (entity names, damage numbers, speech
-## bubbles). Multichannel signed distance field: one set of glyphs serves
-## every size, so changing the zoom never rasterizes new glyph sizes, and the
-## text stays sharp at all of them. Draw it with a linear texture filter.
+## bubbles): its own copy of Komika, so HUD font scaling never touches it.
+## Plain rasterized glyphs (rendered at each exact size, cached per size).
+## Not MSDF: on real GPUs the MSDF glyphs drew stray lines (e.g. above "+"
+## while the camera moved), even with the overlaps removed from the font.
 static func world_text_font() -> FontFile:
 	if _world_text_font == null:
 		_world_text_font = fresh_copy(KOMIKA)
-		_world_text_font.multichannel_signed_distance_field = true
-		_world_text_font.msdf_pixel_range = 32   # room for the outlines
-		_world_text_font.msdf_size = 48
+		_world_text_font.multichannel_signed_distance_field = false
 	return _world_text_font
 
 

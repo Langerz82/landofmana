@@ -22,7 +22,7 @@ extends Control
 ## renderer's HUD container (renderer/rendererdraw{names,bars,hud}.js), drawn
 ## at screen resolution so text stays crisp at the 3x game zoom.
 
-var KOMIKA: FontFile = UiStyle.world_text_font()   # MSDF copy, see UiStyle
+var KOMIKA: FontFile = UiStyle.world_text_font()   # own copy, see UiStyle
 const TS := Types.G_TILESIZE
 const NAME_SIZE := 12       # entity name size at the Normal zoom (x Font size setting)
 const NAME_MIN_SIZE := 8    # never smaller than this when zoomed far out
@@ -33,7 +33,7 @@ var world = null
 func _ready() -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
-	texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR   # for the MSDF text (the overlay draws no images)
+	texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR   # smooth text at sub-pixel positions (the overlay draws no images)
 
 
 func _to_screen(p: Vector2) -> Vector2:
@@ -57,8 +57,10 @@ func _draw() -> void:
 		var sp := _to_screen(Vector2(e.x, e.y))
 		if not view.has_point(sp):
 			continue
+		if e.is_dying:
+			continue   # no name or health bar during the death animation
 		_draw_name(e, sp, scale_f)
-		if e != p and e is Character and not e.is_dying:
+		if e != p and e is Character:
 			_draw_health(e, sp, scale_f)
 	if p.start_harvest_time > 0:
 		var r := clampf((Time.get_ticks_msec() - p.start_harvest_time) / float(maxi(p.harvest_duration, 1000)), 0, 1)
@@ -155,12 +157,10 @@ func _draw_bar(center: Vector2, ratio: float, color: Color, s: float) -> void:
 func _text_centered(text: String, pos: Vector2, size: int, color: Color, outline: Color, outline_px := 4) -> void:
 	var width := KOMIKA.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, size).x
 	var at := pos - Vector2(width / 2.0, -size / 3.0)
-	# MSDF fonts get no outline from draw_string_outline() here, so draw the
-	# outline as copies of the text around it.
-	var r := maxf(1.0, outline_px / 2.0)
-	for i in range(16):
-		var a := TAU * i / 16.0
-		draw_string(KOMIKA, at + Vector2(cos(a), sin(a)) * r, text, HORIZONTAL_ALIGNMENT_LEFT, -1, size, outline)
+	# Real font outline. Drawing the text 16 times in a ring instead gave a
+	# lumpy outline, worse while the text fades. The outline size is its full
+	# width, so x2 keeps the old thickness (old ring radius = outline_px / 2).
+	draw_string_outline(KOMIKA, at, text, HORIZONTAL_ALIGNMENT_LEFT, -1, size, outline_px * 2, outline)
 	draw_string(KOMIKA, at, text, HORIZONTAL_ALIGNMENT_LEFT, -1, size, color)
 
 

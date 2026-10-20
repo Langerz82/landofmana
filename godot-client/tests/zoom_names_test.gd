@@ -68,7 +68,7 @@ func run() -> void:
 	check("default zoom matches Settings' Normal", is_equal_approx(World.DEFAULT_ZOOM, 0.8))
 	# Zooming out and back must not corrupt the name text (glyph caches):
 	# the player's name looks exactly the same before and after.
-	check("world text uses its own MSDF font", ov.KOMIKA is FontFile and ov.KOMIKA.multichannel_signed_distance_field and ov.KOMIKA != load("res://assets/fonts/KOMIKAH.ttf"))
+	check("world text uses its own font copy", ov.KOMIKA is FontFile and not ov.KOMIKA.multichannel_signed_distance_field and ov.KOMIKA != load("res://assets/fonts/KOMIKAH.ttf"))
 	var hk = UiStyle.hud_font(load("res://assets/fonts/KOMIKAH.ttf"))
 	check("HUD font copy has its own glyph cache", hk != ov.KOMIKA and hk is FontFile and hk.get_cache_count() != -1)
 	UiStyle.ui_scale = 1.25

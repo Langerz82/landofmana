@@ -1141,14 +1141,15 @@ func bubble(e, text: String) -> void:
 
 func add_info(text: String, px: int, py: int, kind: String, duration: int = 1000) -> void:
 	var style := {
-		"levelUp": [Color(0, 1, 1), 10, 100, 0],
-		"minorLevelUp": [Color(0, 1, 1), 8, 100, 0],
-		"inflicted": [Color(1, 0.25, 0.25), 6, 25, 1],
-		"received": [Color(1, 0.25, 0.25), 6, 25, 1],
-		"healed": [Color(0.38, 1, 0.38), 6, 25, 1],
-		"health": [Color(1, 1, 1), 6, 25, 1],
-		"crit": [Color(1, 1, 0), 6, 25, 1],
-		"experience": [Color(0, 1, 1), 6, 50, 0],
+		# Level ups rise and fade like exp, in green.
+		"levelUp": [Color(0.38, 1, 0.38), 8, 50, 0],
+		"minorLevelUp": [Color(0.3, 1, 0.3), 6, 50, 0],
+		"inflicted": [Color(1, 0.25, 0.25), 4, 25, 1],
+		"received": [Color(1, 0.25, 0.25), 4, 25, 1],
+		"healed": [Color(0.38, 1, 0.38), 4, 25, 1],
+		"health": [Color(1, 1, 1), 4, 25, 1],
+		"crit": [Color(1, 1, 0), 4, 25, 1],
+		"experience": [Color(0, 1, 1), 5, 50, 0],
 	}
 	var st: Array = style.get(kind, style["health"])
 	_info_id += 1
@@ -1614,13 +1615,16 @@ func _on_level_up(d: Array) -> void:
 	var t := str(d[0])
 	var lvl := Types.to_int(d[1])
 	if t == "base":
+		_level_alarm("You reached level %d!" % lvl)
+		# Always shown: WC_STAT exp.base usually sets player.level first.
+		_level_info("Level %d" % lvl, "levelUp", 5000)
 		if player.level != lvl:
-			add_info("Level %d" % lvl, player.x, player.y, "levelUp", 5000)
 			player.level = lvl
 			if hud:
 				hud.update_bars(player)
 	else:
-		add_info("%s Level %d" % [t.capitalize(), lvl], player.x, player.y, "minorLevelUp", 3500)
+		_level_info("%s Level %d" % [t.capitalize(), lvl], "minorLevelUp", 3500)
+		_level_alarm("%s level %d" % [t.capitalize(), lvl])
 		if player.stats.exp is Dictionary and d.size() > 2:
 			player.stats.exp[t] = Types.to_int(d[2])
 
@@ -1628,7 +1632,26 @@ func _on_level_up(d: Array) -> void:
 func _on_item_level_up(d: Array) -> void:
 	var t := Types.to_int(d[0])
 	var lvl := Types.to_int(d[1])
-	add_info(("Armor Level %d" if t == 0 else "Weapon Level %d") % lvl, player.x, player.y, "minorLevelUp", 3500)
+	# d[0] is the equipment slot the item sits in.
+	var r = data.equipment[t] if t >= 0 and t < data.equipment.size() else null
+	var item_name := ItemTypes.name_of(int(r.kind)) if r != null else ("Weapon" if t == PlayerData.WEAPON_SLOT else "Armor")
+	_level_info("%s +%d" % [item_name, lvl], "minorLevelUp", 3500)
+	_level_alarm("%s is now +%d" % [item_name, lvl])
+
+
+## Level-up alert in the alarm box (like quests/achievements) with the
+## menu bar's player icon. `icon` overrides it (skill level ups show the
+## skill's icon).
+## Green level-up text that rises above the player and fades out (like exp).
+## Starts half a tile higher so it doesn't sit on top of the "+N exp" text.
+func _level_info(text: String, kind := "minorLevelUp", ms := 3500) -> void:
+	if player:
+		add_info(text, player.x, player.y - (TS >> 1), kind, ms)
+
+
+func _level_alarm(body: String, icon: Texture2D = null) -> void:
+	if hud:
+		hud.alarm("Level Up!\n" + body, 0, "levelup", icon)
 
 
 # ----------------------------------------------------------- social etc
@@ -2015,7 +2038,13 @@ func _on_skill_xp(d: Array) -> void:
 	var n := Types.to_int(d[0])
 	for i in range(n):
 		if d.size() > 2 + i * 2:
-			data.set_skill_exp(Types.to_int(d[1 + i * 2]), Types.to_int(d[2 + i * 2]))
+			var idx := Types.to_int(d[1 + i * 2])
+			var before := data.skill_level_of(idx)
+			data.set_skill_exp(idx, Types.to_int(d[2 + i * 2]))
+			var after := data.skill_level_of(idx)
+			if after > before:
+				_level_info("%s Level %d" % [str(GameData.get_skill(idx).get("name", "Skill")), after])
+				_level_alarm("%s skill level %d" % [str(GameData.get_skill(idx).get("name", "Skill")), after], ItemTypes.skill_icon(idx))
 
 
 ## WC_PLAYERINFO (stat dialog): exp values.
