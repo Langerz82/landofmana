@@ -135,6 +135,8 @@ func _field(parent: Control, label: String, secret := false) -> LineEdit:
 	h.add_child(l)
 	var e := LineEdit.new()
 	e.secret = secret
+	if secret:
+		e.secret_character = "*"
 	e.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	h.add_child(e)
 	parent.add_child(h)
@@ -241,11 +243,9 @@ func connect_user_server() -> void:
 	uc.ready_for_login.connect(func():
 		_ready_for_login = true
 		_set_login_enabled(true)
-		_status.text = "Connected to %s:%d" % [Config.get_host(), Config.get_port()]
-		if _user.text == "":
-			_user.grab_focus()
-		else:
-			_pass.grab_focus())
+		# Nothing is focused automatically (no on-screen keyboard popping up);
+		# the player clicks the username / password box.
+		_status.text = "Connected to %s:%d" % [Config.get_host(), Config.get_port()])
 	uc.worlds_received.connect(_on_worlds)
 	uc.players_received.connect(_on_players)
 	uc.world_ready.connect(func(info):
