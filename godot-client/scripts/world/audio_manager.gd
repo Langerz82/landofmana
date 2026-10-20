@@ -53,13 +53,23 @@ const SFX_VOLUME_DB := {
 # whose file does not exist (e.g. gold.ogg) is simply silent.
 const SFX_FILE := {}
 const MUSIC_DB := -10.0
+# The map tracks end with a 10-18 s fade-out to silence. Looping by
+# replaying the track when it finished made the music fade away and then
+# jump back to full volume every few minutes. Instead the next loop starts
+# MUSIC_LOOP_OVERLAP seconds before the end and fades in over MUSIC_FADE_IN
+# seconds while the old loop fades out.
+const MUSIC_LOOP_OVERLAP := 10.0
+const MUSIC_FADE_IN := 4.0
 
 var sfx_on := true
 var music_on := true
 var _voices: Array = []
-var _music: AudioStreamPlayer
+var _music: AudioStreamPlayer       # the loop playing now
+var _music_old: AudioStreamPlayer   # the previous loop, fading out
 var _current_music := ""
-var _tween: Tween
+var _tween: Tween                   # death fade-out
+var _loop_tween: Tween              # loop crossfade
+var _fading_out := false
 
 
 func _ready() -> void:
@@ -71,9 +81,11 @@ func _ready() -> void:
 		add_child(p)
 		_voices.append(p)
 	_music = AudioStreamPlayer.new()
-	_music.volume_db = MUSIC_DB
-	add_child(_music)
-	_music.finished.connect(_on_music_finished)
+	_music_old = AudioStreamPlayer.new()
+	for m in [_music, _music_old]:
+		m.volume_db = MUSIC_DB
+		add_child(m)
+		m.finished.connect(_on_music_finished.bind(m))
 
 
 func play_sound(sound_name: String) -> void:
@@ -103,28 +115,28 @@ func play_map_music(index: int) -> void:
 	if not music_on:
 		_current_music = track
 		return
-	if track == _current_music and _music.playing:
+	if track == _current_music and _music.playing and not _fading_out:
 		return
 	_current_music = track
+	_stop_music()
 	var stream: AudioStream = GameData.get_resource(MUSIC_DIR + track + ".ogg")
 	if stream == null:
-		_music.stop()
 		return
-	if _tween:
-		_tween.kill()
 	_music.stream = stream
 	_music.volume_db = MUSIC_DB
 	_music.play()
 
 
 func fade_out_music() -> void:
-	if not _music.playing:
+	if not _music.playing and not _music_old.playing:
 		return
-	if _tween:
-		_tween.kill()
-	_tween = create_tween()
-	_tween.tween_property(_music, "volume_db", -60.0, 1.5)
-	_tween.tween_callback(_music.stop)
+	_fading_out = true
+	_kill_tweens()
+	_tween = create_tween().set_parallel(true)
+	for m in [_music, _music_old]:
+		if m.playing:
+			_tween.tween_property(m, "volume_db", -60.0, 1.5)
+	_tween.chain().tween_callback(_stop_music)
 
 
 func toggle_music(index: int) -> void:
@@ -134,9 +146,53 @@ func toggle_music(index: int) -> void:
 		_current_music = ""
 		play_map_music(index)
 	else:
-		_music.stop()
+		_stop_music()
 
 
-func _on_music_finished() -> void:
-	if music_on and _music.stream != null:
+func _process(_d: float) -> void:
+	if not music_on or _fading_out or not _music.playing or _music.stream == null:
+		return
+	var length := _music.stream.get_length()
+	if length > MUSIC_LOOP_OVERLAP * 2 and _music.get_playback_position() >= length - MUSIC_LOOP_OVERLAP:
+		_start_next_loop()
+
+
+## Crossfade into the next loop of the same track (see MUSIC_LOOP_OVERLAP).
+func _start_next_loop() -> void:
+	var old := _music
+	_music = _music_old
+	_music_old = old
+	_music.stream = old.stream
+	_music.volume_db = -40.0
+	_music.play()
+	if _loop_tween:
+		_loop_tween.kill()
+	_loop_tween = create_tween().set_parallel(true)
+	_loop_tween.tween_property(_music, "volume_db", MUSIC_DB, MUSIC_FADE_IN)
+	# The old loop's own fade-out carries on; this just makes sure it is
+	# silent and stopped by its end.
+	_loop_tween.tween_property(old, "volume_db", -60.0, MUSIC_LOOP_OVERLAP)
+	_loop_tween.chain().tween_callback(old.stop)
+
+
+func _stop_music() -> void:
+	_kill_tweens()
+	_fading_out = false
+	for m in [_music, _music_old]:
+		m.stop()
+		m.volume_db = MUSIC_DB
+
+
+func _kill_tweens() -> void:
+	if _tween:
+		_tween.kill()
+		_tween = null
+	if _loop_tween:
+		_loop_tween.kill()
+		_loop_tween = null
+
+
+## Fallback for tracks too short to crossfade: replay when finished.
+func _on_music_finished(m: AudioStreamPlayer) -> void:
+	if m == _music and music_on and not _fading_out and _music.stream != null:
 		_music.play()
