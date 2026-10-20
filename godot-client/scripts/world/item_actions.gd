@@ -169,11 +169,14 @@ func activate_item(store_type: int, slot: int, from_button := false) -> void:
 			if hud():
 				hud().ask_count("Auction price for %s (gold)" % ItemTypes.name_of(kind), value, 99999999, func(price: int):
 					if price > 0:
-						client().send([Types.Messages.CW_AUCTIONSELL, slot, price]))
+						# Yes/No before listing; No cancels the listing.
+						hud().confirm("List %s on the auction for %s gold?" % [ItemTypes.name_of(kind), ItemTypes.short_number(price)], func(ok: bool):
+							if ok:
+								client().send([Types.Messages.CW_AUCTIONSELL, slot, price])))
 		Mode.SELL:
 			if ItemTypes.is_loot_item(kind) or ItemTypes.is_consumable(kind):
 				return
-			client().send([Types.Messages.CW_STORESELL, store_type, slot])
+			sell_item(store_type, slot)
 		Mode.REPAIR:
 			if ItemTypes.is_equipment(kind):
 				repair_item(store_type, slot)
@@ -265,11 +268,28 @@ func transfer_gold(from_bank: bool) -> void:
 			client().send([Types.Messages.CW_GOLD, 1 if from_bank else 0, count, 0 if from_bank else 1]))
 
 
+## Asks Yes/No before buying; No cancels the purchase.
 func buy(store_type: int, kind: int) -> void:
-	if ItemTypes.get_buy_price(kind) > int(data.gold[0]):
+	var price := ItemTypes.get_buy_price(kind)
+	if price > int(data.gold[0]):
 		notify_lang("SHOP_NOGOLD")
 		return
-	client().send([Types.Messages.CW_STOREBUY, store_type, kind, 1])
+	if hud() == null:
+		return
+	hud().confirm("Buy %s for %s gold?" % [ItemTypes.name_of(kind), ItemTypes.short_number(price)], func(ok: bool):
+		if ok:
+			client().send([Types.Messages.CW_STOREBUY, store_type, kind, 1]))
+
+
+## Asks Yes/No before selling; No cancels the sale.
+func sell_item(store_type: int, slot: int) -> void:
+	var r = data.get_room(store_type, slot)
+	if r == null or hud() == null:
+		return
+	var price := ItemTypes.get_enchant_sell_price(r)
+	hud().confirm("Sell %s for %s gold?" % [ItemTypes.name_of(int(r.kind)), ItemTypes.short_number(price)], func(ok: bool):
+		if ok:
+			client().send([Types.Messages.CW_STORESELL, store_type, slot]))
 
 
 func craft(craft_entry: Dictionary) -> void:

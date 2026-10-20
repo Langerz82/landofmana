@@ -59,6 +59,10 @@ func rows() -> void:
 				if int(e.price) > int(data.gold[0]):
 					actions.notify_lang("SHOP_NOGOLD")
 					return
-				actions.client().send([Types.Messages.CW_AUCTIONBUY, int(e.index), tab])
+				# Yes/No before buying; No cancels the purchase.
+				var t := tab
+				actions.hud().confirm("Buy %s from %s for %s gold?" % [ItemTypes.name_of(kind), str(e.player), ItemTypes.short_number(int(e.price))], func(ok: bool):
+					if ok:
+						actions.client().send([Types.Messages.CW_AUCTIONBUY, int(e.index), t]))
 		add_row(ItemTypes.icon(kind), ItemTypes.info_text(r), "Seller: " + str(e.player),
 			"%dg" % int(e.price), "DELETE" if mine else "BUY", cb)

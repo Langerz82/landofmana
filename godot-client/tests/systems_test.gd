@@ -152,7 +152,9 @@ func run() -> void:
 		potion = int(it.kind)
 		break
 	var gold0 := int(data.gold[0])
+	await drain_notices()
 	actions.buy(1, potion)
+	await confirm_modal()
 	check("buy consumable", await until(func(): return inv_kind(potion) != null, 4000), ItemTypes.name_of(potion))
 	check("gold spent", await until(func(): return int(data.gold[0]) < gold0, 3000), "%d -> %d" % [gold0, data.gold[0]])
 	hud.window("store")._on_tab(1)
@@ -160,7 +162,9 @@ func run() -> void:
 	for it in ItemTypes.get_item_list(2, 1, 100):
 		armor = int(it.kind)
 		break
+	await drain_notices()
 	actions.buy(2, armor)
+	await confirm_modal()
 	check("buy armor", await until(func(): return inv_kind(armor) != null, 4000), ItemTypes.name_of(armor))
 	hud.window("store")._on_tab(2)
 	var weapon := 0
@@ -168,7 +172,9 @@ func run() -> void:
 		if ItemTypes.is_melee_weapon(int(it.kind)):
 			weapon = int(it.kind)
 			break
+	await drain_notices()
 	actions.buy(3, weapon)
+	await confirm_modal()
 	check("buy weapon", await until(func(): return inv_kind(weapon) != null, 4000), ItemTypes.name_of(weapon))
 	hud.window("store").close()
 	# ------------------------------------------------------------ equipment
@@ -196,7 +202,9 @@ func run() -> void:
 	hud.window("inventory").open_mode(ItemActions.Mode.SELL)
 	var gold1 := int(data.gold[0])
 	ar = inv_kind(armor)
+	await drain_notices()
 	actions.activate_item(0, int(ar.slot))
+	await confirm_modal()
 	check("sell armor", await until(func(): return inv_kind(armor) == null and int(data.gold[0]) > gold1, 4000), "gold %d -> %d" % [gold1, data.gold[0]])
 	hud.window("inventory").close()
 	check("mode reset on close", actions.mode == ItemActions.Mode.NORMAL)
@@ -274,6 +282,7 @@ func run() -> void:
 	await until(func(): return hud.modals.is_open(), 2000)
 	hud.modals._spin.value = 123
 	hud.modals._finish(true)
+	await confirm_modal()
 	check("list on auction", await until(func(): return data.auctions.get(0, []).any(func(e): return int(e.room.kind) == weapon), 4000))
 	hud.window("inventory").close()
 	check("auction reopened", hud.window("auction").visible)

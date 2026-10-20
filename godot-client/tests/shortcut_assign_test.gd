@@ -62,6 +62,8 @@ func run() -> void:
 	# --------------------------------------------- item -> shortcut 4
 	if consumable_slot() < 0 and int(data.gold[0]) >= 100:
 		world.actions.buy(1, 34)   # Flask +500 HP from the beginner shop list
+		await until(func(): return hud.modals.is_open(), 2000)
+		hud.modals._finish(true)
 		await until(func(): return consumable_slot() >= 0, 4000)
 	var cs := consumable_slot()
 	check("has a consumable", cs >= 0, "gold %d" % data.gold[0])
