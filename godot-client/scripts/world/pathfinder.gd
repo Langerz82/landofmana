@@ -28,6 +28,8 @@ extends RefCounted
 ## axis-aligned segments, first = start, last = end, turn nodes only,
 ## <= 16 nodes. The first segment stays on the start's own row/column line,
 ## the last on the end's, and any segments in between run along tile centres.
+## If the entity's box would hit a wall beside such an off-centre lane, the
+## same route is used along tile centres instead (see _centred_path).
 
 const TS := Types.G_TILESIZE
 const MAX_NODES := 16
@@ -82,6 +84,8 @@ func find_path(sx: int, sy: int, ex: int, ey: int) -> Array:
 	var real := _to_pixel_path(segs, sx, sy, ex, ey)
 	if real.size() == 1:
 		real.append([ex, ey])
+	if not _box_clear(real):
+		real = _centred_path(segs, sx, sy, ex, ey)
 	if real.size() > MAX_NODES:
 		real = real.slice(0, MAX_NODES)
 	if not is_valid_path(real):
@@ -218,6 +222,43 @@ func _to_pixel_path(segs: Array, sx: int, sy: int, ex: int, ey: int) -> Array:
 		path.append([b, a] if segs[k].d < 2 else [a, b])
 	path.append([ex, ey])
 	return path
+
+
+## Off-centre start/end: the entity's box (just under a tile, see
+## MapData.is_colliding) also overlaps the row/column beside its lane, which
+## the tile search doesn't check. This takes the same tile route along tile
+## centres instead, with short steps onto/off the centre lines inside the
+## start and end tiles (moving towards a tile's centre can't hit anything).
+func _centred_path(segs: Array, sx: int, sy: int, ex: int, ey: int) -> Array:
+	var h := TS >> 1
+	var cx := floori(sx / float(TS)) * TS + h
+	var cy := floori(sy / float(TS)) * TS + h
+	var ecx := floori(ex / float(TS)) * TS + h
+	var ecy := floori(ey / float(TS)) * TS + h
+	var first_horizontal: bool = segs.is_empty() or segs[0].d < 2
+	var last_horizontal: bool = segs.is_empty() or segs[segs.size() - 1].d < 2
+	# Step onto the centre line across the first leg's direction first, so
+	# the steps merge into the first leg (fewer turns).
+	var p: Array = [[sx, sy], [sx, cy] if first_horizontal else [cx, sy]]
+	p.append_array(_to_pixel_path(segs, cx, cy, ecx, ecy))
+	p.append([ex, ecy] if last_horizontal else [ecx, ey])
+	p.append([ex, ey])
+	return drop_unneeded_nodes(p)
+
+
+## Whether an entity box can slide along the whole path (1 px steps).
+func _box_clear(path: Array) -> bool:
+	for i in range(1, path.size()):
+		var x: int = path[i - 1][0]
+		var y: int = path[i - 1][1]
+		var tx: int = path[i][0]
+		var ty: int = path[i][1]
+		while x != tx or y != ty:
+			x += signi(tx - x)
+			y += signi(ty - y)
+			if map.is_colliding(x, y):
+				return false
+	return true
 
 
 func _lane(segs: Array, k: int, sx: int, sy: int, ex: int, ey: int) -> int:

@@ -294,6 +294,62 @@ export default class Pathfinder {
         return result;
     }
 
+    /**
+     * Whether an entity box (map.isColliding(), just under one tile) can
+     * slide along the whole pixel path, 1 px at a time like the movement code.
+     */
+    boxClear(map, path) {
+        for (let i = 1; i < path.length; i++) {
+            let x = path[i - 1][0],
+                y = path[i - 1][1];
+            const tx = path[i][0],
+                ty = path[i][1];
+            while (x !== tx || y !== ty) {
+                x += Math.sign(tx - x);
+                y += Math.sign(ty - y);
+                if (map.isColliding(x, y)) return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Off-centre start/end: the path's first leg runs along the start's own
+     * row/column (and the last along the end's), but the entity's box then
+     * also overlaps the row/column beside it, which the tile search doesn't
+     * check - so the walk could run into a wall halfway. This moves those
+     * lanes onto the start/end tiles' centre lines (same tile route) and adds
+     * short steps onto/off them inside the start and end tiles (moving
+     * towards a tile's centre can't hit anything). Pixel coordinates.
+     */
+    centredPath(path) {
+        const ts = G_TILESIZE,
+            h = ts >> 1,
+            c = (v) => Math.floor(v / ts) * ts + h;
+        const [sx, sy] = path[0],
+            [ex, ey] = path[path.length - 1];
+        const cx = c(sx),
+            cy = c(sy),
+            ecx = c(ex),
+            ecy = c(ey);
+        // Same mapping for every node keeps the path axis-aligned.
+        const mx = (v) => (v === sx ? cx : v === ex ? ecx : v),
+            my = (v) => (v === sy ? cy : v === ey ? ecy : v);
+        const mid = this.dropUneededNodes(path.map((n) => [mx(n[0]), my(n[1])]));
+        const n = mid.length;
+        // Step onto/off the centre line across the first/last leg's direction,
+        // so the steps merge into those legs (fewer turns).
+        const firstH = n < 2 || mid[1][1] === mid[0][1],
+            lastH = n < 2 || mid[n - 2][1] === mid[n - 1][1];
+        return this.dropUneededNodes([
+            [sx, sy],
+            firstH ? [sx, cy] : [cx, sy],
+            ...mid,
+            lastH ? [ex, ecy] : [ecx, ey],
+            [ex, ey]
+        ]);
+    }
+
     // start/end are decimal grid coordinates. lib/astar.js returns the
     // finished decimal path (exact start/end, axis-aligned, turn nodes only).
     AStar(grid, start, end) {

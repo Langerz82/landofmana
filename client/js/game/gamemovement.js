@@ -249,6 +249,13 @@ export function installGameMovement(proto) {
         // Clean up unnecessary nodes
         realpath = this.pathfinder.dropUneededNodes(realpath);
 
+        // Off-centre start/end: if the entity's box would hit a wall beside
+        // the first/last leg, take the same route along tile centres instead.
+        if (!this.pathfinder.boxClear(mc, realpath)) {
+            const centred = this.pathfinder.centredPath(realpath);
+            if (this.pathfinder.boxClear(mc, centred)) realpath = centred;
+        }
+
         // Final validation
         if (!this.pathfinder.isValidPath(realpath)) {
             console.error('Generated path failed validation');
