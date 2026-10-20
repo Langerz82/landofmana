@@ -80,7 +80,7 @@ var _player_menu: PopupMenu
 var _menu_player = null
 var _chat_box: VBoxContainer
 const CHAT_HEIGHT_FRAC := 0.3  # default chat log height: 30% of the screen height
-const CHAT_WIDTH := 460
+const CHAT_WIDTH := 440
 const CHAT_MARGIN := 10       # gap from the bottom-left screen corner
 const CHAT_MIN_HEIGHT := 60
 const CHAT_GRIP := 8          # height of the draggable top border
@@ -292,7 +292,7 @@ func _build_center_texts(root: Control) -> void:
 	if UiStyle.is_mobile():
 		_debug.offset_top = 8
 		return
-	var help := _label("Space: attack/talk   T/Y: target   1-6: shortcuts   I: items   C: player   K: skills   Q: quests   Enter: chat   Esc: settings", 12, null, Color(1, 1, 1, 0.6))
+	var help := _label("Space: attack/talk   T/Y: target   1-6: shortcuts   I: items   C: player   K: skills   Q: quests   Enter: chat   Esc: settings", 11, null, Color(1, 1, 1, 0.6))
 	help.set_anchors_preset(Control.PRESET_TOP_RIGHT)
 	help.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	help.offset_left = -900
