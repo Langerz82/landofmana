@@ -24,7 +24,7 @@ extends Control
 
 var KOMIKA: FontFile = UiStyle.world_text_font()   # MSDF copy, see UiStyle
 const TS := Types.G_TILESIZE
-const NAME_SIZE := 14       # entity name size at the Normal zoom (x Font size setting)
+const NAME_SIZE := 12       # entity name size at the Normal zoom (x Font size setting)
 const NAME_MIN_SIZE := 8    # never smaller than this when zoomed far out
 
 var world = null
