@@ -35,10 +35,13 @@ const MOBILE_FONT_SCALE := 1.0    # font size scale on phones / tablets until th
 static var font_scale := DEFAULT_FONT_SCALE   # Settings -> Font size: 1 = normal, >1 bigger, <1 smaller
 const FONT_SCALE_MIN := 0.5
 const FONT_SCALE_MAX := 2.0
-const DEFAULT_UI_SCALE := 1.15   # UI scale on desktop (Windows / Linux) until the player picks one
-const WEB_UI_SCALE := 1.5         # UI scale in a desktop browser until the player picks one
-const MOBILE_UI_SCALE := 1.5      # UI scale on phones (native or browser) until the player picks one
-const TABLET_UI_SCALE := 2.0      # UI scale on tablets (native or browser) until the player picks one
+# Default UI scales are given for a device pixel ratio (DPR) of 1 and get
+# multiplied by the device's DPR (see default_ui_scale()), so the HUD has
+# about the same physical size on standard and high-density screens.
+const DEFAULT_UI_SCALE := 1.15   # UI scale on desktop (Windows / Linux) at DPR 1 until the player picks one
+const WEB_UI_SCALE := 1.15         # UI scale in a desktop browser at DPR 1 until the player picks one
+const MOBILE_UI_SCALE := 1.15      # UI scale on phones (native or browser) at DPR 1 until the player picks one (~1.5-1.8 on a DPR 2.5-3 phone)
+const TABLET_UI_SCALE := 1.25      # UI scale on tablets (native or browser) at DPR 1 until the player picks one (2 on a DPR 2 tablet)
 const TABLET_MIN_DP := 600.0      # shortest screen side (in dp / CSS px) from which a mobile device counts as a tablet
 static var ui_scale := DEFAULT_UI_SCALE   # Settings -> UI scale: size of the whole HUD (panels, windows, icons)
 const UI_SCALE_MIN := 0.5
@@ -69,16 +72,38 @@ static func default_font_scale() -> float:
 	return MOBILE_FONT_SCALE if is_mobile() else DEFAULT_FONT_SCALE
 
 
-## UI scale used until the player picks one: mobile (native or browser),
-## desktop browser, or desktop app.
+## UI scale used until the player picks one: the base scale for a tablet,
+## phone, desktop browser or desktop app, times the device pixel ratio.
 static func default_ui_scale() -> float:
+	var base := DEFAULT_UI_SCALE
 	if is_tablet():
-		return TABLET_UI_SCALE
-	if is_mobile():
-		return MOBILE_UI_SCALE
+		base = TABLET_UI_SCALE
+	elif is_mobile():
+		base = MOBILE_UI_SCALE
+	elif OS.has_feature("web"):
+		base = WEB_UI_SCALE
+	var s := snappedf(base * device_pixel_ratio(), 0.05)
+	return clampf(s, UI_SCALE_MIN, UI_SCALE_MAX)
+
+
+## Device pixel ratio: physical pixels per logical (CSS / dp / pt) pixel.
+## Browser: window.devicePixelRatio. macOS / iOS / Wayland: the screen scale.
+## Android: dpi / 160. Windows: dpi / 96. Otherwise 1.
+static func device_pixel_ratio() -> float:
+	var r := 1.0
 	if OS.has_feature("web"):
-		return WEB_UI_SCALE
-	return DEFAULT_UI_SCALE
+		r = float(JavaScriptBridge.eval("window.devicePixelRatio || 1", true))
+	else:
+		r = DisplayServer.screen_get_scale()
+		if r <= 1.0:
+			var dpi := DisplayServer.screen_get_dpi()
+			if dpi > 0 and OS.has_feature("android"):
+				r = dpi / 160.0
+			elif dpi > 0 and OS.has_feature("windows"):
+				r = dpi / 96.0
+	if is_nan(r) or r <= 0.0:
+		return 1.0
+	return r
 
 
 ## Shortcut bar style used until the player picks one (Settings -> Shortcuts).

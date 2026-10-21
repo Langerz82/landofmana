@@ -31,6 +31,7 @@ Game="*res://scripts/core/game_state.gd"
 
 window/size/viewport_width=1024
 window/size/viewport_height=768
+window/handheld/orientation=4
 
 [gui]
 

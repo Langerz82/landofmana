@@ -80,7 +80,7 @@ var _player_menu: PopupMenu
 var _menu_player = null
 var _chat_box: VBoxContainer
 const CHAT_HEIGHT_FRAC := 0.3  # default chat log height: 30% of the screen height
-const CHAT_WIDTH := 440
+const CHAT_WIDTH := 420
 const CHAT_MARGIN := 10       # gap from the bottom-left screen corner
 const CHAT_MIN_HEIGHT := 60
 const CHAT_GRIP := 8          # height of the draggable top border
