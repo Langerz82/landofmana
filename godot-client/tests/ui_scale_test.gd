@@ -70,7 +70,7 @@ func run() -> void:
 	await wait(800)
 	var saved = Config.get_setting("ui", "uiscale", 1.0)
 	check("default scale is 1", is_equal_approx(UiStyle.DEFAULT_UI_SCALE, 1.0))
-	check("mobile default scale is 2", is_equal_approx(UiStyle.MOBILE_UI_SCALE, 2.0))
+	check("tablet default scale is 2", is_equal_approx(UiStyle.TABLET_UI_SCALE, 2.0))
 	# Change it through the settings window like a player.
 	var sw = hud.window("uisettings")
 	sw.open()

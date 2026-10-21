@@ -37,7 +37,9 @@ const FONT_SCALE_MIN := 0.5
 const FONT_SCALE_MAX := 2.0
 const DEFAULT_UI_SCALE := 1.15   # UI scale on desktop (Windows / Linux) until the player picks one
 const WEB_UI_SCALE := 1.5         # UI scale in a desktop browser until the player picks one
-const MOBILE_UI_SCALE := 1.5      # UI scale on phones / tablets (native or browser) until the player picks one
+const MOBILE_UI_SCALE := 1.5      # UI scale on phones (native or browser) until the player picks one
+const TABLET_UI_SCALE := 2.0      # UI scale on tablets (native or browser) until the player picks one
+const TABLET_MIN_DP := 600.0      # shortest screen side (in dp / CSS px) from which a mobile device counts as a tablet
 static var ui_scale := DEFAULT_UI_SCALE   # Settings -> UI scale: size of the whole HUD (panels, windows, icons)
 const UI_SCALE_MIN := 0.5
 const UI_SCALE_MAX := 3.0
@@ -70,6 +72,8 @@ static func default_font_scale() -> float:
 ## UI scale used until the player picks one: mobile (native or browser),
 ## desktop browser, or desktop app.
 static func default_ui_scale() -> float:
+	if is_tablet():
+		return TABLET_UI_SCALE
 	if is_mobile():
 		return MOBILE_UI_SCALE
 	if OS.has_feature("web"):
@@ -84,6 +88,29 @@ static func default_shortcut_style() -> String:
 
 static func is_mobile() -> bool:
 	return OS.has_feature("mobile") or OS.has_feature("web_android") or OS.has_feature("web_ios")
+
+
+## Tablet: a mobile device whose shortest screen side is at least
+## TABLET_MIN_DP (Android's "sw600dp" rule). In a browser the screen size in
+## CSS px is used; an iPad's Safari reports itself as a Mac, so a "Mac" with
+## a multi-touch screen counts too.
+static func is_tablet() -> bool:
+	if OS.has_feature("web"):
+		if not (is_mobile() or OS.has_feature("web_macos")):
+			return false
+		var touches = JavaScriptBridge.eval("navigator.maxTouchPoints || 0", true)
+		if OS.has_feature("web_macos") and int(touches) < 2:
+			return false
+		var css_min = JavaScriptBridge.eval("Math.min(screen.width, screen.height)", true)
+		return float(css_min) >= TABLET_MIN_DP
+	if not is_mobile():
+		return false
+	var px := DisplayServer.screen_get_size()
+	var dpi := DisplayServer.screen_get_dpi()
+	if dpi <= 0:
+		return false
+	var min_dp := minf(px.x, px.y) * 160.0 / float(dpi)
+	return min_dp >= TABLET_MIN_DP
 
 
 # ----------------------------------------------------------- crisp text in the scaled HUD
