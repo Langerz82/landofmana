@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bkyq1hl2nwhh6"
-path="res://.godot/imported/android-icon.png-aa21ac222bf1286571dc66fa428f0596.ctex"
+uid="uid://dyw6qcg4728xb"
+path="res://.godot/imported/lom-icon-192.png-f82f8d0caac87d2b1cba37cfe2688474.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/img/common/android-icon.png"
-dest_files=["res://.godot/imported/android-icon.png-aa21ac222bf1286571dc66fa428f0596.ctex"]
+source_file="res://assets/img/common/lom-icon-192.png"
+dest_files=["res://.godot/imported/lom-icon-192.png-f82f8d0caac87d2b1cba37cfe2688474.ctex"]
 
 [params]
 
