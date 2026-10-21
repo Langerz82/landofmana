@@ -82,6 +82,7 @@ var _chat_box: VBoxContainer
 const CHAT_HEIGHT_FRAC := 0.3  # default chat log height: 30% of the screen height
 const CHAT_WIDTH := 420
 const CHAT_MARGIN := 10       # gap from the bottom-left screen corner
+const BAR_MARGIN := 12.0      # gap between the menu / shortcut bars and the screen edge, and between the two bars
 const CHAT_MIN_HEIGHT := 60
 const CHAT_GRIP := 8          # height of the draggable top border
 var _chat_grip: ColorRect
@@ -938,9 +939,9 @@ func apply_shortcut_style() -> void:
 		shortcut_bar.set_anchors_preset(Control.PRESET_CENTER_RIGHT)
 		shortcut_bar.grow_horizontal = Control.GROW_DIRECTION_BEGIN
 		shortcut_bar.grow_vertical = Control.GROW_DIRECTION_BOTH
-		# Vertical: middle of the right edge (centred on its real height).
-		shortcut_bar.offset_left = -8
-		shortcut_bar.offset_right = -8
+		# Vertical: BAR_MARGIN from the right edge, centred on its real height.
+		shortcut_bar.offset_left = -BAR_MARGIN
+		shortcut_bar.offset_right = -BAR_MARGIN
 		shortcut_bar.offset_top = 0
 		shortcut_bar.offset_bottom = 0
 	else:
@@ -948,10 +949,10 @@ func apply_shortcut_style() -> void:
 		shortcut_bar.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT)
 		shortcut_bar.grow_horizontal = Control.GROW_DIRECTION_BEGIN
 		shortcut_bar.grow_vertical = Control.GROW_DIRECTION_BEGIN
-		shortcut_bar.offset_left = -8
-		shortcut_bar.offset_right = -8
-		shortcut_bar.offset_top = -8
-		shortcut_bar.offset_bottom = -8
+		shortcut_bar.offset_left = -BAR_MARGIN
+		shortcut_bar.offset_right = -BAR_MARGIN
+		shortcut_bar.offset_top = -BAR_MARGIN
+		shortcut_bar.offset_bottom = -BAR_MARGIN
 	shortcut_bar.reset_size()
 	_layout_menu()
 
@@ -969,16 +970,16 @@ func _layout_menu() -> void:
 		mp.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT)
 		mp.grow_horizontal = Control.GROW_DIRECTION_BEGIN
 		mp.grow_vertical = Control.GROW_DIRECTION_BEGIN
-		mp.offset_left = -8
-		mp.offset_right = -8
-		mp.offset_top = -8
-		mp.offset_bottom = -8
+		mp.offset_left = -BAR_MARGIN
+		mp.offset_right = -BAR_MARGIN
+		mp.offset_top = -BAR_MARGIN
+		mp.offset_bottom = -BAR_MARGIN
 	else:
 		mp.set_anchors_preset(Control.PRESET_CENTER_RIGHT)
 		mp.grow_horizontal = Control.GROW_DIRECTION_BEGIN
 		mp.grow_vertical = Control.GROW_DIRECTION_BOTH
-		mp.offset_left = -8
-		mp.offset_right = -8
+		mp.offset_left = -BAR_MARGIN
+		mp.offset_right = -BAR_MARGIN
 		mp.offset_top = 0
 		mp.offset_bottom = 0
 	mp.reset_size()
@@ -989,22 +990,32 @@ func _layout_menu() -> void:
 		_fit_menu.call_deferred()
 
 
-## Mobile: the vertical bar (shortcuts or menu, whichever is vertical) sits in
-## the bottom-right corner, and the horizontal bar sits along the bottom edge
-## directly to its left, both bottom-aligned.
+## Mobile: the vertical bar (shortcuts or menu, whichever is vertical) sits
+## BAR_MARGIN from the right edge, vertically centred; the horizontal bar sits in
+## the bottom-right corner, moved left of the vertical bar if they would overlap.
 func _dock_bars_mobile() -> void:
 	if _menu_panel == null or shortcut_bar == null:
 		return
 	var vertical_bar := str(Config.get_setting("ui", "shortcutstyle", UiStyle.default_shortcut_style())).begins_with("vertical")
 	var right: Control = shortcut_bar if vertical_bar else _menu_panel
 	var bottom: Control = _menu_panel if vertical_bar else shortcut_bar
-	const MARGIN := 10.0   # gap from the screen border
-	const GAP := 6.0
-	var right_w := 0.0
+	_dock_bottom_right(bottom, BAR_MARGIN, BAR_MARGIN)
 	if right.visible:
-		_dock_bottom_right(right, MARGIN, MARGIN)
-		right_w = right.get_combined_minimum_size().x + GAP
-	_dock_bottom_right(bottom, MARGIN + right_w, MARGIN)
+		_dock_center_right(right)
+		if bottom.get_rect().intersects(right.get_rect()):
+			_dock_bottom_right(bottom, BAR_MARGIN + right.get_combined_minimum_size().x + BAR_MARGIN, BAR_MARGIN)
+
+
+## BAR_MARGIN from the right edge, centred vertically on its real height.
+func _dock_center_right(c: Control) -> void:
+	c.set_anchors_preset(Control.PRESET_CENTER_RIGHT)
+	c.grow_horizontal = Control.GROW_DIRECTION_BEGIN
+	c.grow_vertical = Control.GROW_DIRECTION_BOTH
+	c.offset_left = -BAR_MARGIN
+	c.offset_right = -BAR_MARGIN
+	c.offset_top = 0
+	c.offset_bottom = 0
+	c.reset_size()
 
 
 func _dock_bottom_right(c: Control, right_margin: float, bottom_margin := 10.0) -> void:
@@ -1029,11 +1040,11 @@ func _fit_menu() -> void:
 	if not m.intersects(b):
 		return
 	if _menu.vertical:
-		var dy := maxf(b.position.y - 8.0 - m.end.y, 8.0 - m.position.y)
+		var dy := maxf(b.position.y - BAR_MARGIN - m.end.y, BAR_MARGIN - m.position.y)
 		_menu_panel.offset_top += dy
 		_menu_panel.offset_bottom += dy
 	else:
-		var dx := maxf(b.position.x - 8.0 - m.end.x, 8.0 - m.position.x)
+		var dx := maxf(b.position.x - BAR_MARGIN - m.end.x, BAR_MARGIN - m.position.x)
 		_menu_panel.offset_left += dx
 		_menu_panel.offset_right += dx
 
