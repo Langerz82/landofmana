@@ -106,7 +106,7 @@ static func device_pixel_ratio() -> float:
 	return r
 
 
-## Shortcut bar style used until the player picks one (Settings -> Shortcuts).
+## Shortcut bar style used until the player picks one (UI Settings -> Shortcuts).
 static func default_shortcut_style() -> String:
 	return "vertical-desc" if is_mobile() else "horizontal-asc"
 

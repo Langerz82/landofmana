@@ -16,7 +16,7 @@ compatibility/default_parent_skeleton_in_mesh_instance_3d=true
 
 config/name="Land of Mana"
 config/description="Godot 4 port of the Land of Mana / Retro RPG Online 2 browser client."
-config/version="0.3.5"
+config/version="0.3.6"
 run/main_scene="res://scenes/main.tscn"
 config/features=PackedStringArray("4.7")
 config/icon="res://assets/img/common/favicon.png"

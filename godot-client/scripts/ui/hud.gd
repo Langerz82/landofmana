@@ -659,6 +659,7 @@ func _build_game_ui(root: Control) -> void:
 	social.bind(data, actions)
 	_add_window(wlayer, "settings", SettingsWindow.new())
 	_add_window(wlayer, "uisettings", UiSettingsWindow.new())
+	_add_window(wlayer, "soundsettings", SoundSettingsWindow.new())
 	_add_window(wlayer, "gemshop", GemShopWindow.new())
 	_add_window(wlayer, "rankings", LeaderboardWindow.new())
 	# shortcut bar

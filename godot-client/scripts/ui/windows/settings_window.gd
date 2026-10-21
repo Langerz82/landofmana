@@ -17,9 +17,10 @@
 
 class_name SettingsWindow
 extends GameWindow
-## Settings (settingshandler.js): chat log, sound, music, on-screen joystick,
-## fullscreen, zoom and shortcut bar layout. Health bar speed, font size, UI
-## scale and colours are in the UI Settings window (button below). Saved in
+## Settings (settingshandler.js): chat log, on-screen joystick, fullscreen and
+## zoom. Sound, music and their volumes are in the Sound Settings window, and
+## health bar speed, font size, UI scale, shortcut bar
+## layout and colours in the UI Settings window (buttons below). Saved in
 ## user://settings.cfg.
 
 var _scroll: ScrollContainer
@@ -51,10 +52,6 @@ func _begin_rows() -> void:
 func build() -> void:
 	_begin_rows()
 	_toggle("Chat log", "ui", "chat", true, func(v): hud.set_chat_visible(v))
-	_toggle("Sound", "audio", "sfx", true, func(v): world.audio.sfx_on = v)
-	_toggle("Music", "audio", "music", true, func(v):
-		if world.audio.music_on != v:
-			world.audio.toggle_music(world.map_index))
 	_toggle("Joystick", "ui", "joystick", OS.has_feature("mobile"), func(v): hud.set_joystick_visible(v))
 	_toggle("Fullscreen", "ui", "fullscreen", false, func(v):
 		DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN if v else DisplayServer.WINDOW_MODE_WINDOWED))
@@ -69,17 +66,8 @@ func build() -> void:
 		Config.set_setting("ui", "gamezoom", ZOOMS[i][1])
 		world.set_zoom(ZOOMS[i][1]))
 	_row("Zoom", zoom)
-	var sc := OptionButton.new()
-	var cur_sc := str(Config.get_setting("ui", "shortcutstyle", UiStyle.default_shortcut_style()))
-	for i in range(SHORTCUT_STYLES.size()):
-		sc.add_item(SHORTCUT_STYLES[i][0])
-		if SHORTCUT_STYLES[i][1] == cur_sc:
-			sc.select(i)
-	sc.item_selected.connect(func(i):
-		Config.set_setting("ui", "shortcutstyle", SHORTCUT_STYLES[i][1])
-		hud.apply_shortcut_style())
-	_row("Shortcuts", sc)
 	content.add_child(UiStyle.button("UI Settings", open_ui_settings))
+	content.add_child(UiStyle.button("Sound Settings", open_sound_settings))
 	content.add_child(HSeparator.new())
 	content.add_child(UiStyle.button("Log out", func(): hud.back_to_login.emit()))
 
@@ -88,6 +76,12 @@ func build() -> void:
 func open_ui_settings() -> void:
 	close()
 	hud.open_window("uisettings")
+
+
+## Swap this window for the Sound Settings window (sound, music, volumes).
+func open_sound_settings() -> void:
+	close()
+	hud.open_window("soundsettings")
 
 
 ## Show all rows when they fit, otherwise as many as fit and scroll.

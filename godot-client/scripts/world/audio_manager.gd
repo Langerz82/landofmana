@@ -63,6 +63,8 @@ const MUSIC_FADE_IN := 4.0
 
 var sfx_on := true
 var music_on := true
+var sfx_volume := 1.0     # Sound Settings -> Sound volume: 0..1 (1 = 100%)
+var music_volume := 1.0   # Sound Settings -> Music volume: 0..1 (1 = 100%)
 var _voices: Array = []
 var _music: AudioStreamPlayer       # the loop playing now
 var _music_old: AudioStreamPlayer   # the previous loop, fading out
@@ -75,6 +77,8 @@ var _fading_out := false
 func _ready() -> void:
 	sfx_on = bool(Config.get_setting("audio", "sfx", true))
 	music_on = bool(Config.get_setting("audio", "music", true))
+	sfx_volume = clampf(float(Config.get_setting("audio", "sfxvolume", 1.0)), 0.0, 1.0)
+	music_volume = clampf(float(Config.get_setting("audio", "musicvolume", 1.0)), 0.0, 1.0)
 	for i in range(MAX_VOICES):
 		var p := AudioStreamPlayer.new()
 		p.volume_db = DEFAULT_SFX_DB
@@ -83,13 +87,13 @@ func _ready() -> void:
 	_music = AudioStreamPlayer.new()
 	_music_old = AudioStreamPlayer.new()
 	for m in [_music, _music_old]:
-		m.volume_db = MUSIC_DB
+		m.volume_db = music_db()
 		add_child(m)
 		m.finished.connect(_on_music_finished.bind(m))
 
 
 func play_sound(sound_name: String) -> void:
-	if not sfx_on:
+	if not sfx_on or sfx_volume <= 0.0:
 		return
 	var file: String = SFX_FILE.get(sound_name, sound_name)
 	var stream: AudioStream = GameData.get_resource(SOUND_DIR + file + ".ogg")
@@ -98,16 +102,39 @@ func play_sound(sound_name: String) -> void:
 	for v in _voices:
 		if not v.playing:
 			v.stream = stream
-			v.volume_db = sound_volume_db(sound_name)
+			v.volume_db = sound_volume_db(sound_name) + linear_to_db(sfx_volume)
 			print("sound_name: ", sound_name)
 			print("volume_db: ", v.volume_db)
 			v.play()
 			return
 
 
-## Volume of one effect (see SFX_VOLUME_DB above).
+## Volume of one effect (see SFX_VOLUME_DB above), before the Sound volume setting.
 static func sound_volume_db(sound_name: String) -> float:
 	return float(SFX_VOLUME_DB.get(sound_name, DEFAULT_SFX_DB))
+
+
+## Music level: MUSIC_DB with the Music volume setting applied.
+func music_db() -> float:
+	return MUSIC_DB + linear_to_db(maxf(music_volume, 0.0001))
+
+
+## Sound Settings -> Sound volume (0..1). Saved; applies to the next effects.
+func set_sfx_volume(v: float) -> void:
+	sfx_volume = clampf(v, 0.0, 1.0)
+	Config.set_setting("audio", "sfxvolume", snappedf(sfx_volume, 0.01))
+
+
+## Sound Settings -> Music volume (0..1). Saved; the playing track changes at once.
+func set_music_volume(v: float) -> void:
+	music_volume = clampf(v, 0.0, 1.0)
+	Config.set_setting("audio", "musicvolume", snappedf(music_volume, 0.01))
+	if _fading_out:
+		return
+	if _loop_tween and _loop_tween.is_running():
+		return   # mid-crossfade: the next loop picks the new level up
+	if _music.playing:
+		_music.volume_db = music_db()
 
 
 func play_map_music(index: int) -> void:
@@ -123,7 +150,7 @@ func play_map_music(index: int) -> void:
 	if stream == null:
 		return
 	_music.stream = stream
-	_music.volume_db = MUSIC_DB
+	_music.volume_db = music_db()
 	_music.play()
 
 
@@ -168,7 +195,7 @@ func _start_next_loop() -> void:
 	if _loop_tween:
 		_loop_tween.kill()
 	_loop_tween = create_tween().set_parallel(true)
-	_loop_tween.tween_property(_music, "volume_db", MUSIC_DB, MUSIC_FADE_IN)
+	_loop_tween.tween_property(_music, "volume_db", music_db(), MUSIC_FADE_IN)
 	# The old loop's own fade-out carries on; this just makes sure it is
 	# silent and stopped by its end.
 	_loop_tween.tween_property(old, "volume_db", -60.0, MUSIC_LOOP_OVERLAP)
@@ -180,7 +207,7 @@ func _stop_music() -> void:
 	_fading_out = false
 	for m in [_music, _music_old]:
 		m.stop()
-		m.volume_db = MUSIC_DB
+		m.volume_db = music_db()
 
 
 func _kill_tweens() -> void:

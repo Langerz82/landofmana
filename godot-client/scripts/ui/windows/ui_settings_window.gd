@@ -18,7 +18,7 @@
 class_name UiSettingsWindow
 extends SettingsWindow
 ## UI Settings (opened from Settings -> "UI Settings"): font size, UI scale,
-## health bar speed and (at the bottom) menu / button / panel colours. Uses the row helpers of SettingsWindow;
+## health bar speed, shortcut bar layout and (at the bottom) menu / button / panel colours. Uses the row helpers of SettingsWindow;
 ## saved in user://settings.cfg like the other settings.
 
 
@@ -62,6 +62,16 @@ func build() -> void:
 			hb.select(i)
 	hb.item_selected.connect(func(i): Config.set_setting("ui", "healthbarms", BAR_SPEEDS[i][1]))
 	_row("Health bars", hb)
+	var sc := OptionButton.new()
+	var cur_sc := str(Config.get_setting("ui", "shortcutstyle", UiStyle.default_shortcut_style()))
+	for i in range(SHORTCUT_STYLES.size()):
+		sc.add_item(SHORTCUT_STYLES[i][0])
+		if SHORTCUT_STYLES[i][1] == cur_sc:
+			sc.select(i)
+	sc.item_selected.connect(func(i):
+		Config.set_setting("ui", "shortcutstyle", SHORTCUT_STYLES[i][1])
+		hud.apply_shortcut_style())
+	_row("Shortcuts", sc)
 	content.add_child(HSeparator.new())
 	_color("Menu color", "menucolor", "#38A7DF")
 	_color("Button color", "buttoncolor", "#F7B132")
