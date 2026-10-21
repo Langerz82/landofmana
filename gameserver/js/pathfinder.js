@@ -18,7 +18,7 @@
 
 import astar from './lib/astar.js';
 import Utils from './utils.js';
-import { G_FRAME_INTERVAL, G_TILESIZE, G_DEBUG } from './constants.js';
+import { G_TILESIZE, G_DEBUG } from './constants.js';
 
 /* global log */
 // NOTE: the original source called a bare, capitalized `AStar`/`AStar.AStar`
@@ -110,45 +110,6 @@ class Pathfinder {
         }
     }
 
-    isDistanceTooFast(ticks, dist, startTime, tolerance) {
-        tolerance = tolerance || G_FRAME_INTERVAL;
-
-        // PERF: called on every player move to check for speed-hacking --
-        // gated behind G_DEBUG like the other per-packet logging.
-        if (G_DEBUG) console.info('pathFinder - isDistanceTooFast: called.');
-        const elapsed = Date.now() - startTime;
-        if (elapsed === 0) return false;
-
-        let elapsedTicks = ~~(elapsed / G_FRAME_INTERVAL);
-        elapsedTicks = Math.max(elapsedTicks, 0);
-
-        const actualTicks = ~~(dist / ticks);
-        if (G_DEBUG)
-            console.info(
-                'pathFinder - isDistanceTooFast: playerTicks - actualTicks: ' +
-                    actualTicks +
-                    ', elapsedTicks:' +
-                    elapsedTicks
-            );
-        if (actualTicks > elapsedTicks + tolerance) {
-            // PERF/FIX: was a `try { throw new Error(); } catch (err) {
-            // console.warn(err.stack); }` -- consolidated into
-            // Utils.captureStack() (utils.js), which does the same thing
-            // (`new Error().stack`) without the pointless throw/catch.
-            console.warn(Utils.captureStack());
-            console.warn(
-                'pathFinder - isDistanceTooFast: SPEED HACK DETECTED. playerTicks - actualTicks: ' +
-                    actualTicks +
-                    ', elapsedTicks:' +
-                    elapsedTicks +
-                    ', tolerance:' +
-                    tolerance
-            );
-            return true;
-        }
-        return false;
-    }
-
     // NOTE: was flagged "Incorrect when moving left." Manually traced this
     // function against several leftward/upward multi-segment paths (including
     // interrupts landing exactly on a turn corner) and it computed the correct
@@ -208,7 +169,7 @@ class Pathfinder {
             n2 = n1;
         }
         // PERF: getPathSubDistance runs on every move/path packet from every
-        // player (via checkPathInterrupt/checkStartMove -- see the PERF
+        // player (via packets/movevalidator.js -- see the PERF
         // comments in callbacks/playercallback.js for why that's the hottest
         // packet-handling path in the game). This console.info ran
         // unconditionally on every call; gated behind G_DEBUG like the rest
@@ -284,10 +245,16 @@ class Pathfinder {
         let n2 = null;
         for (const n1 of path) {
             if (n2) {
+                // FIX: only checked the coordinate along the segment, not
+                // that the node actually lies on the segment's line, so
+                // e.g. (60,60) counted as "in" a path running along y=48.
                 if (
                     (n1[0] === n2[0] &&
+                        node[0] === n1[0] &&
                         Utils.isBetween(node[1], n1[1], n2[1])) ||
-                    (n1[1] === n2[1] && Utils.isBetween(node[0], n1[0], n2[0]))
+                    (n1[1] === n2[1] &&
+                        node[1] === n1[1] &&
+                        Utils.isBetween(node[0], n1[0], n2[0]))
                 )
                     return true;
             }

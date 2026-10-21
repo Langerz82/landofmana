@@ -73,7 +73,12 @@ const IO_STATES = {
 // G_DEBUG is re-exported here (via `export { G_DEBUG }` below) purely so
 // main() can read the post-startup value in its own console.info call;
 // setG_DEBUG() is what actually flips it once config.json is read.
-import { setG_DEBUG, G_DEBUG } from './constants.js';
+import {
+    setG_DEBUG,
+    G_DEBUG,
+    setG_MAX_LATENCY,
+    G_MAX_LATENCY
+} from './constants.js';
 export { G_DEBUG };
 
 let SAVING_SERVER = false;
@@ -280,6 +285,11 @@ function main(config) {
     console.info(
         'G_DEBUG = ' + G_DEBUG + ' (config.debug = ' + config.debug + ')'
     );
+
+    // Movement latency slack (ms) for packets/movevalidator.js; defaults
+    // to 100 when "max_latency" is missing or invalid.
+    setG_MAX_LATENCY(config.max_latency);
+    console.info('Max movement latency = ' + G_MAX_LATENCY + 'ms');
 
     const worldId = config.world_id;
     // FIX: also assign the exported `MainConfig` binding (see declaration

@@ -221,7 +221,7 @@ export class EffectType {
             // target slowed) and wrote moveSpeed directly instead of through
             // setMoveRate() (entitymoving.js) -- which is what keeps
             // `walkSpeed`/`tick` in sync with it, and `tick` in particular feeds
-            // pathfinder.js's isDistanceTooFast() speed-hack check. Now routed
+            // packets/movevalidator.js's speed check. Now routed
             // through applyMoveSpeedStacking() (below), which mirrors
             // applyStacking()'s per-cast tracking (so concurrent slows stack and
             // each "end" only undoes its own share) but goes through

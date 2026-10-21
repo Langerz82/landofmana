@@ -97,10 +97,6 @@ class Updater {
             }
             c.startMoving = false;
             c.setPosition(x, y);
-
-            if (c.checkStopDanger(c, c.orientation)) {
-                return stop();
-            }
             return false;
         };
         this.playerKeyXF = function (c, m) {

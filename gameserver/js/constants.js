@@ -121,6 +121,21 @@ export function setG_DEBUG(value) {
     G_DEBUG = value;
 }
 
+// Maximum network latency/jitter (ms) a player movement packet may absorb
+// before packets/movevalidator.js rejects it as too fast. Set from
+// config.json's `"max_latency"` by main.js (same live-binding pattern as
+// G_DEBUG above); 100 is the fallback when the key is absent or invalid.
+export const G_MAX_LATENCY_DEFAULT = 100;
+export let G_MAX_LATENCY = G_MAX_LATENCY_DEFAULT;
+
+export function setG_MAX_LATENCY(value) {
+    const ms = Number(value);
+    G_MAX_LATENCY =
+        value !== undefined && value !== null && Number.isFinite(ms) && ms >= 0
+            ? ms
+            : G_MAX_LATENCY_DEFAULT;
+}
+
 // Multiplier used to build a globally-unique, ascending npcQuestId for every
 // NpcStatic/NpcMove instance (see entity/npcstatic.js and entity/npcmove.js):
 // `npcQuestId = mapIndex * G_NPC_QUEST_ID_MAP_OFFSET + entity.id`.

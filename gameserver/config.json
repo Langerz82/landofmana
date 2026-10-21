@@ -12,6 +12,7 @@
   "debug": 0,
   "nb_players_per_world": 100,
   "idle_timeout_minutes": 30,
+  "max_latency": 100,
   "nb_worlds": 1,
   "metrics_enabled": false,
   "use_one_port": true,
