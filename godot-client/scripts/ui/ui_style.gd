@@ -51,7 +51,9 @@ const UI_SCALE_MAX := 3.0
 ## Width of every scroll bar in the game (height for horizontal ones), wide
 ## enough to grab with a finger on a phone. Applied to every ScrollBar as it
 ## enters the tree (install_font_scaling()).
-const SCROLLBAR_WIDTH := 18
+const SCROLLBAR_WIDTH := 16
+const _SCROLLBAR_STYLES := ["scroll", "scroll_focus", "grabber", "grabber_highlight", "grabber_pressed"]
+static var _scrollbar_style_cache := {}
 ## Below this on-screen size (x normal) HUD text stops shrinking with the UI
 ## scale: at UI scale 0.5 the panels are half size but the text is 0.8x.
 const MIN_UI_TEXT_SCALE := 0.8
@@ -278,12 +280,30 @@ static func install_font_scaling(tree: SceneTree) -> void:
 
 
 ## Give a scroll bar the standard SCROLLBAR_WIDTH (across for a vertical
-## bar, down for a horizontal one).
+## bar, down for a horizontal one). Done through its styleboxes' content
+## margins rather than custom_minimum_size: ScrollContainer, ItemList and
+## RichTextLabel reserve room for the bar from its own (theme) minimum size,
+## so a bar widened with custom_minimum_size would be drawn over the edge of
+## the content. Sized this way, the content stops at the bar.
 static func size_scroll_bar(b: ScrollBar) -> void:
-	if b is VScrollBar:
-		b.custom_minimum_size.x = SCROLLBAR_WIDTH
-	else:
-		b.custom_minimum_size.y = SCROLLBAR_WIDTH
+	var vertical := b is VScrollBar
+	var half := SCROLLBAR_WIDTH / 2.0
+	for name in _SCROLLBAR_STYLES:
+		var src: StyleBox = b.get_theme_stylebox(name)
+		if src == null:
+			continue
+		var key := "%d:%s" % [src.get_instance_id(), "v" if vertical else "h"]
+		var sb: StyleBox = _scrollbar_style_cache.get(key)
+		if sb == null:
+			sb = src.duplicate()
+			if vertical:
+				sb.content_margin_left = half
+				sb.content_margin_right = half
+			else:
+				sb.content_margin_top = half
+				sb.content_margin_bottom = half
+			_scrollbar_style_cache[key] = sb
+		b.add_theme_stylebox_override(name, sb)
 
 
 ## size_scroll_bar() on every scroll bar already in the tree under `n`

@@ -52,6 +52,7 @@ var flex_scroll: ScrollContainer = null
 var flex_height := 0.0
 var _body: ScrollContainer        # scrolls `content` when it is bigger than MAX_SIZE
 var _content_root: VBoxContainer  # the real content box (subclasses may repoint `content`)
+var _fit_queued := false
 
 
 ## min_size is kept for the subclasses' calls but no longer used: every window
@@ -97,6 +98,10 @@ func _ready() -> void:
 	_content_root = content
 	build()
 	fit_content(false)
+	# Content that changes size while open (an item's info text and the
+	# SELL / REPAIR / ENCHANT button appearing on selection, a mode line...)
+	# re-fits flex_scroll so the rest stays inside the fixed-size window.
+	_content_root.minimum_size_changed.connect(_queue_fit)
 	# Content / font / UI scale changes resize the window: re-centre it.
 	resized.connect(func():
 		if visible and not _placing and not _user_moved:
@@ -187,6 +192,19 @@ func fit_content(on_screen := true) -> void:
 		var full := (flex_scroll.get_child(0) as Control).get_combined_minimum_size().y
 		flex_scroll.custom_minimum_size.y = maxf(lim.y - others, minf(full, FLEX_MIN_HEIGHT))
 	_body.custom_minimum_size = lim
+
+
+func _queue_fit() -> void:
+	if _fit_queued:
+		return
+	_fit_queued = true
+	_deferred_fit.call_deferred()
+
+
+func _deferred_fit() -> void:
+	_fit_queued = false
+	if visible and not _placing:
+		fit_content()
 
 
 ## Forget a dragged position so the window is centred again.

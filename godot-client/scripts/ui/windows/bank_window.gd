@@ -53,7 +53,6 @@ func build() -> void:
 	_scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_SHOW_ALWAYS
 	_scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_scroll.follow_focus = true   # gamepad / keyboard focus scrolls the slot into view
-	_scroll.get_v_scroll_bar().custom_minimum_size.x = SCROLLBAR_WIDTH
 	content.add_child(_scroll)
 	_grid = GridContainer.new()
 	_grid.columns = COLUMNS
