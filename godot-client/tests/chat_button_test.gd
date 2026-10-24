@@ -24,6 +24,8 @@ extends "res://tests/npc_dialogue_test.gd"
 func run() -> void:
 	check("enter world", await until(func(): return world.started and world.map_status >= 2, 15000))
 	await wait(800)
+	hud.set_menu_visible(true, false)   # the menu starts hidden; show it to click its icons
+	await wait(100)
 	var b: TextureButton = hud._menu.get_child(0)
 	check("first menu button is chat", b.tooltip_text.begins_with("Chat"), b.tooltip_text)
 	check("messenger icon", b.texture_normal != null and b.texture_normal.resource_path.ends_with("messenger.png"), str(b.texture_normal))

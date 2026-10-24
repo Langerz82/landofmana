@@ -21,7 +21,7 @@ extends ShopWindowBase
 ## split into misc / armor / weapon tabs, with the required items shown.
 
 func _init() -> void:
-	super._init("CRAFT", Vector2(620, 0))
+	super._init("CRAFT", Vector2(420, 0))
 
 
 func build() -> void:
@@ -40,8 +40,10 @@ func rows() -> void:
 		if cat != tab:
 			continue
 		count += 1
-		var reqs := HBoxContainer.new()
-		reqs.add_theme_constant_override("separation", 4)
+		# Wraps onto more lines rather than widening the (420 max) window.
+		var reqs := HFlowContainer.new()
+		reqs.add_theme_constant_override("h_separation", 4)
+		reqs.add_theme_constant_override("v_separation", 2)
 		reqs.add_child(UiStyle.label("Needs:", 12))
 		var ok := true
 		for it in c.get("i", []):

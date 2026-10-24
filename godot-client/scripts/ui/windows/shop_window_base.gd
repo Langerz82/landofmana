@@ -38,8 +38,9 @@ func build() -> void:
 	_tabs.add_theme_constant_override("separation", 6)
 	content.add_child(_tabs)
 	var scroll := ScrollContainer.new()
-	scroll.custom_minimum_size = Vector2(560, 300)
 	list_scroll = scroll
+	flex_scroll = scroll   # list takes the height left (GameWindow.fit_content())
+	flex_height = 260
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	content.add_child(scroll)
 	_list = VBoxContainer.new()
@@ -69,7 +70,7 @@ func set_tabs(names: Array) -> void:
 		c.queue_free()
 	_tab_buttons.clear()
 	for i in range(names.size()):
-		var b := UiStyle.button(str(names[i]), _on_tab.bind(i), 90)
+		var b := UiStyle.button(str(names[i]), _on_tab.bind(i), 80)
 		b.toggle_mode = true
 		_tabs.add_child(b)
 		_tab_buttons.append(b)
@@ -127,7 +128,9 @@ func add_row(icon: Texture2D, title: String, detail: String, price: String, butt
 	row.add_child(s)
 	var v := VBoxContainer.new()
 	v.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	v.add_child(UiStyle.label(title, 14))
+	var tl := UiStyle.label(title, 14)
+	tl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	v.add_child(tl)
 	if detail != "":
 		var dl := UiStyle.label(detail, 11, Color(0.85, 0.85, 1))
 		dl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
@@ -136,11 +139,11 @@ func add_row(icon: Texture2D, title: String, detail: String, price: String, butt
 		v.add_child(extra)
 	row.add_child(v)
 	var pl := UiStyle.label(price, 14, Color(1, 0.85, 0.3))
-	pl.custom_minimum_size = Vector2(80, 0)
+	pl.custom_minimum_size = Vector2(56, 0)
 	pl.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	row.add_child(pl)
 	if button_text != "":
-		var b := UiStyle.button(button_text, cb, 80)
+		var b := UiStyle.button(button_text, cb, 64)
 		row.add_child(b)
 	_list.add_child(row)
 	return row

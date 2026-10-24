@@ -63,7 +63,8 @@ var shortcut_bar: ShortcutBar
 var joystick: TouchJoystick
 var _menu: BoxContainer
 var _menu_panel: PanelContainer
-var _menu_toggle: Button   # left of the menu icons: hides / shows them
+var _menu_toggle: Button   # before the menu icons (left of a row / above a column): hides / shows them
+var _menu_row: BoxContainer   # toggle + icons, laid out the same way as the icons
 # Alarm box (quest / achievement alerts): same size and place as the NPC
 # dialogue box, one at a time, never together with a dialogue.
 const ALARM_DELAY_MS := 2000   # wait before each alert (and after a dialogue closes)
@@ -676,13 +677,12 @@ func _build_game_ui(root: Control) -> void:
 	_panels.append(mp)
 	root.add_child(mp)
 	_menu_panel = mp
-	var mrow := HBoxContainer.new()
+	var mrow := BoxContainer.new()
 	mrow.add_theme_constant_override("separation", 4)
 	mp.add_child(mrow)
+	_menu_row = mrow
 	_menu_toggle = Button.new()
 	_menu_toggle.focus_mode = Control.FOCUS_NONE
-	_menu_toggle.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	_menu_toggle.custom_minimum_size = Vector2(24, 36)
 	UiStyle.style_button(_menu_toggle)
 	_menu_toggle.pressed.connect(func(): set_menu_visible(not _menu.visible))
 	mrow.add_child(_menu_toggle)
@@ -703,7 +703,8 @@ func _build_game_ui(root: Control) -> void:
 		var wname: String = m[0]
 		b.pressed.connect(func(): menu_action(wname))
 		_menu.add_child(b)
-	set_menu_visible(not bool(Config.get_setting("ui", "menuhidden", false)), false)
+	# Hidden by default: only the show / hide button shows until the player opens it.
+	set_menu_visible(not bool(Config.get_setting("ui", "menuhidden", true)), false)
 	# modals, alarm, popup menu, joystick
 	modals = Modals.new()
 	root.add_child(modals)
@@ -977,9 +978,6 @@ func set_menu_visible(on: bool, save := true) -> void:
 	if _menu == null:
 		return
 	_menu.visible = on
-	if _menu_toggle:
-		_menu_toggle.text = ">" if on else "<"
-		_menu_toggle.tooltip_text = "Hide menu" if on else "Show menu"
 	if save:
 		Config.set_setting("ui", "menuhidden", not on)
 	_layout_menu()
@@ -994,6 +992,7 @@ func _layout_menu() -> void:
 	var vertical_bar := str(Config.get_setting("ui", "shortcutstyle", UiStyle.default_shortcut_style())).begins_with("vertical")
 	var mp := _menu_panel
 	_menu.vertical = not vertical_bar
+	_layout_menu_toggle()
 	if vertical_bar:
 		mp.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT)
 		mp.grow_horizontal = Control.GROW_DIRECTION_BEGIN
@@ -1016,6 +1015,28 @@ func _layout_menu() -> void:
 		_dock_bars_mobile.call_deferred()
 	else:
 		_fit_menu.call_deferred()
+
+
+## The show / hide button sits inline with the icons: left of the row when the
+## menu is horizontal, on top of the column when it is vertical. The arrow
+## points the way the icons will go.
+func _layout_menu_toggle() -> void:
+	if _menu_toggle == null:
+		return
+	var vertical := _menu.vertical
+	var on := _menu.visible
+	_menu_row.vertical = vertical
+	if vertical:
+		_menu_toggle.custom_minimum_size = Vector2(36, 24)
+		_menu_toggle.size_flags_vertical = Control.SIZE_FILL
+		_menu_toggle.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+		_menu_toggle.text = "^" if on else "v"
+	else:
+		_menu_toggle.custom_minimum_size = Vector2(24, 36)
+		_menu_toggle.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+		_menu_toggle.size_flags_horizontal = Control.SIZE_FILL
+		_menu_toggle.text = ">" if on else "<"
+	_menu_toggle.tooltip_text = "Hide menu" if on else "Show menu"
 
 
 ## Mobile: the vertical bar (shortcuts or menu, whichever is vertical) sits
@@ -1191,6 +1212,7 @@ func _on_viewport_size_changed() -> void:
 func _largest_window_size() -> Vector2:
 	var need := Vector2.ZERO
 	for w in windows.values():
+		w.fit_content(false)   # the default (MAX_SIZE-capped) size, not squeezed to this screen
 		var m: Vector2 = w.get_combined_minimum_size()
 		need = need.max(m)
 	return need
@@ -1235,6 +1257,7 @@ func relayout_windows() -> void:
 		if w.visible:
 			w._place()
 		else:
+			w.fit_content(false)
 			w.reset_size()
 	for c in [shortcut_bar, _menu_panel, _dialogue_panel]:
 		if c:

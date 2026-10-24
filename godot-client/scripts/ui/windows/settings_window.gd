@@ -42,6 +42,7 @@ func _begin_rows() -> void:
 	_scroll = ScrollContainer.new()
 	_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	content.add_child(_scroll)
+	flex_scroll = _scroll   # takes the height left (GameWindow.fit_content())
 	var rows := VBoxContainer.new()
 	rows.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	rows.add_theme_constant_override("separation", 6)
@@ -84,12 +85,12 @@ func open_sound_settings() -> void:
 	hud.open_window("soundsettings")
 
 
-## Show all rows when they fit, otherwise as many as fit and scroll.
+## Show all rows when they fit, otherwise as many as fit (GameWindow
+## fit_content() sizes the height via flex_scroll) and scroll.
 func _place() -> void:
 	if _scroll:
 		var rows: Control = _scroll.get_child(0)
-		var avail := get_parent_area_size().y - 70.0 - 90.0   # shortcut bar, title, margins
-		_scroll.custom_minimum_size = Vector2(rows.get_combined_minimum_size().x, minf(rows.get_combined_minimum_size().y, maxf(160.0, avail)))
+		_scroll.custom_minimum_size.x = rows.get_combined_minimum_size().x
 	super._place()
 
 

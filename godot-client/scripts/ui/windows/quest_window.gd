@@ -24,12 +24,13 @@ var _list: VBoxContainer
 
 
 func _init() -> void:
-	super._init("QUESTS", Vector2(480, 0))
+	super._init("QUESTS", Vector2(420, 0))
 
 
 func build() -> void:
 	var scroll := ScrollContainer.new()
-	scroll.custom_minimum_size = Vector2(470, 280)
+	flex_scroll = scroll
+	flex_height = 280
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	content.add_child(scroll)
 	_list = VBoxContainer.new()

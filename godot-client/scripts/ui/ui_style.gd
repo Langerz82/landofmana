@@ -42,6 +42,8 @@ const DEFAULT_UI_SCALE := 1.15   # UI scale on desktop (Windows / Linux) at DPR 
 const WEB_UI_SCALE := 1.15         # UI scale in a desktop browser at DPR 1 until the player picks one
 const MOBILE_UI_SCALE := 1.15      # UI scale on phones (native or browser) at DPR 1 until the player picks one (~1.5-1.8 on a DPR 2.5-3 phone)
 const TABLET_UI_SCALE := 1.25      # UI scale on tablets (native or browser) at DPR 1 until the player picks one (2 on a DPR 2 tablet)
+## Native Android app (phone or tablet): used as-is, not multiplied by the DPR.
+const ANDROID_UI_SCALE := 1.25
 const TABLET_MIN_DP := 600.0      # shortest screen side (in dp / CSS px) from which a mobile device counts as a tablet
 static var ui_scale := DEFAULT_UI_SCALE   # Settings -> UI scale: size of the whole HUD (panels, windows, icons)
 const UI_SCALE_MIN := 0.5
@@ -72,9 +74,12 @@ static func default_font_scale() -> float:
 	return MOBILE_FONT_SCALE if is_mobile() else DEFAULT_FONT_SCALE
 
 
-## UI scale used until the player picks one: the base scale for a tablet,
-## phone, desktop browser or desktop app, times the device pixel ratio.
+## UI scale used until the player picks one: ANDROID_UI_SCALE in the native
+## Android app, otherwise the base scale for a tablet, phone, desktop browser
+## or desktop app, times the device pixel ratio.
 static func default_ui_scale() -> float:
+	if OS.has_feature("android") and not OS.has_feature("web"):
+		return ANDROID_UI_SCALE
 	var base := DEFAULT_UI_SCALE
 	if is_tablet():
 		base = TABLET_UI_SCALE

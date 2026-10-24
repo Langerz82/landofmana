@@ -21,7 +21,7 @@ extends ShopWindowBase
 ## weapons from other players (buy). SELL lists an item from the inventory.
 
 func _init() -> void:
-	super._init("AUCTION", Vector2(620, 0))
+	super._init("AUCTION", Vector2(420, 0))
 
 
 func build() -> void:

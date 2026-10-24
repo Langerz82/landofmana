@@ -133,6 +133,8 @@ func run() -> void:
 		check("%.1f: window drag follows the mouse" % s, w2.position.distance_to(w.position + Vector2(-40, 30)) < 2, "%s -> %s" % [w.position, w2.position])
 		inv.close()
 		# real click on the chat menu button
+		hud.set_menu_visible(true, false)   # the menu starts hidden; show it to click its icons
+		await wait(100)
 		var cb: Control = hud._menu.get_child(0)
 		await mouse_click(cb.get_global_rect().get_center())
 		await wait(100)

@@ -25,7 +25,7 @@ var max_level := 100
 
 
 func _init() -> void:
-	super._init("SHOPS", Vector2(600, 0))
+	super._init("SHOPS", Vector2(420, 0))
 
 
 func build() -> void:

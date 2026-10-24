@@ -29,7 +29,7 @@ var _unlock_btn: Button
 
 
 func _init() -> void:
-	super._init("LOOKS", Vector2(620, 0))
+	super._init("LOOKS", Vector2(420, 0))
 
 
 func build() -> void:
@@ -50,7 +50,7 @@ func build() -> void:
 	_unlock_btn.visible = false
 	v.add_child(_unlock_btn)
 	super.build()
-	list_scroll.custom_minimum_size.y = 230
+	flex_height = 230
 	set_tabs(["LOCKED LOOKS"])
 
 

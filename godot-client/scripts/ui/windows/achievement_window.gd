@@ -29,7 +29,9 @@ func _init() -> void:
 
 func build() -> void:
 	var scroll := ScrollContainer.new()
-	scroll.custom_minimum_size = Vector2(410, 260)
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	flex_scroll = scroll
+	flex_height = 260
 	content.add_child(scroll)
 	_list = VBoxContainer.new()
 	_list.size_flags_horizontal = Control.SIZE_EXPAND_FILL

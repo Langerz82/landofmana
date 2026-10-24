@@ -22,6 +22,13 @@ extends PanelContainer
 
 ## Space kept free under a window for the bottom bar (HUD units).
 const BOTTOM_MARGIN := 70.0
+## Largest a window opens at (HUD units, i.e. before the UI scale), across and
+## down. Content past this scrolls; on a screen too small for it the window is
+## smaller still (see max_size()).
+const MAX_SIZE := Vector2(420, 420)
+## Smallest height a flex_scroll list is squeezed to.
+const FLEX_MIN_HEIGHT := 80.0
+const BODY_SEPARATION := 6
 
 signal opened
 signal closed
@@ -36,11 +43,19 @@ var _user_moved := false   # dragged by the player: keep its spot instead of cen
 var _placing := false
 var hud = null
 var world = null
+## Optional main list (a ScrollContainer inside `content`) that takes the
+## height left over by the rest of the window, so the window fits MAX_SIZE
+## without the whole body scrolling. flex_height: its preferred height when
+## the list itself is shorter.
+var flex_scroll: ScrollContainer = null
+var flex_height := 0.0
+var _body: ScrollContainer        # scrolls `content` when it is bigger than MAX_SIZE
+var _content_root: VBoxContainer  # the real content box (subclasses may repoint `content`)
 
 
 func _init(t := "", min_size := Vector2(300, 200)) -> void:
 	title = t
-	custom_minimum_size = min_size
+	custom_minimum_size = min_size.min(MAX_SIZE)
 	visible = false
 	mouse_filter = Control.MOUSE_FILTER_STOP
 
@@ -48,7 +63,7 @@ func _init(t := "", min_size := Vector2(300, 200)) -> void:
 func _ready() -> void:
 	add_theme_stylebox_override("panel", UiStyle.panel())
 	var v := VBoxContainer.new()
-	v.add_theme_constant_override("separation", 6)
+	v.add_theme_constant_override("separation", BODY_SEPARATION)
 	add_child(v)
 	var bar := PanelContainer.new()
 	bar.add_theme_stylebox_override("panel", UiStyle.title_bar())
@@ -68,11 +83,18 @@ func _ready() -> void:
 	UiStyle.style_button(x)
 	x.pressed.connect(close)
 	h.add_child(x)
+	_body = ScrollContainer.new()
+	_body.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	_body.follow_focus = true
+	v.add_child(_body)
 	content = VBoxContainer.new()
 	content.add_theme_constant_override("separation", 6)
+	content.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	content.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	v.add_child(content)
+	_body.add_child(content)
+	_content_root = content
 	build()
+	fit_content(false)
 	# Content / font / UI scale changes resize the window: re-centre it.
 	resized.connect(func():
 		if visible and not _placing and not _user_moved:
@@ -115,6 +137,7 @@ func open() -> void:
 ## it on screen. Either way it stays above the bottom bar when there is room.
 func _place() -> void:
 	_placing = true
+	fit_content()
 	reset_size()
 	var vp := get_parent_area_size()   # HUD units (the HUD may be scaled)
 	if not _user_moved:
@@ -122,6 +145,53 @@ func _place() -> void:
 	position.x = clampf(position.x, 0, maxf(0, vp.x - size.x))
 	position.y = clampf(position.y, 0, maxf(0, vp.y - BOTTOM_MARGIN - size.y))
 	_placing = false
+
+
+## Largest this window may be right now: MAX_SIZE, or less when the screen
+## (HUD units, so after the UI scale) is smaller -- keeping the bottom bar
+## clear when there is reasonable room. on_screen = false: just MAX_SIZE.
+func max_size(on_screen := true) -> Vector2:
+	if not on_screen or not is_inside_tree():
+		return MAX_SIZE
+	var vp := get_parent_area_size()
+	var h := vp.y - BOTTOM_MARGIN
+	if h < MAX_SIZE.y * 0.6:
+		h = vp.y
+	return Vector2(minf(MAX_SIZE.x, vp.x), minf(MAX_SIZE.y, h))
+
+
+## Space the frame takes around the content: panel margins, title bar, gap.
+func chrome_size() -> Vector2:
+	var sb := get_theme_stylebox("panel")
+	var m: Vector2 = sb.get_minimum_size() if sb else Vector2.ZERO
+	var t := _title_bar.get_combined_minimum_size().y if _title_bar else 0.0
+	return m + Vector2(0, t + BODY_SEPARATION)
+
+
+## Largest the content can be shown without the whole body scrolling.
+func content_limit(on_screen := true) -> Vector2:
+	return (max_size(on_screen) - chrome_size()).max(Vector2(60, 60))
+
+
+## Size the body (and flex_scroll, if any) so the window is at most
+## max_size(on_screen); anything bigger scrolls.
+func fit_content(on_screen := true) -> void:
+	if _body == null:
+		return
+	var lim := content_limit(on_screen)
+	if flex_scroll and flex_scroll.get_child_count() > 0:
+		var others := _content_root.get_combined_minimum_size().y - flex_scroll.get_combined_minimum_size().y
+		var full := (flex_scroll.get_child(0) as Control).get_combined_minimum_size().y
+		var want := maxf(full, flex_height)
+		flex_scroll.custom_minimum_size.y = maxf(minf(want, lim.y - others), minf(want, FLEX_MIN_HEIGHT))
+	var c := _content_root.get_combined_minimum_size()
+	var w := minf(c.x, lim.x)
+	var h := minf(c.y, lim.y)
+	if c.x > lim.x:
+		h = minf(c.y + _body.get_h_scroll_bar().get_combined_minimum_size().y, lim.y)
+	if c.y > lim.y:
+		w = minf(c.x + _body.get_v_scroll_bar().get_combined_minimum_size().x, lim.x)
+	_body.custom_minimum_size = Vector2(w, h)
 
 
 ## Forget a dragged position so the window is centred again.

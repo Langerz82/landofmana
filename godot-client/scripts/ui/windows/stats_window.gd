@@ -28,26 +28,28 @@ var _combat: GridContainer
 
 
 func _init() -> void:
-	super._init("PLAYER", Vector2(560, 0))
+	super._init("PLAYER", Vector2(400, 0))
 
 
 func build() -> void:
+	# Two columns that fit the 420 max width: levels + combat on the left,
+	# stat points on the right.
 	var cols := HBoxContainer.new()
-	cols.add_theme_constant_override("separation", 24)
+	cols.add_theme_constant_override("separation", 12)
 	content.add_child(cols)
+	var left := VBoxContainer.new()
+	cols.add_child(left)
 	_levels = GridContainer.new()
 	_levels.columns = 3
-	_levels.add_theme_constant_override("h_separation", 14)
-	cols.add_child(_levels)
-	var right := VBoxContainer.new()
-	cols.add_child(right)
-	_stats_box = VBoxContainer.new()
-	right.add_child(_stats_box)
-	right.add_child(HSeparator.new())
+	_levels.add_theme_constant_override("h_separation", 10)
+	left.add_child(_levels)
+	left.add_child(HSeparator.new())
 	_combat = GridContainer.new()
 	_combat.columns = 2
-	_combat.add_theme_constant_override("h_separation", 14)
-	right.add_child(_combat)
+	_combat.add_theme_constant_override("h_separation", 10)
+	left.add_child(_combat)
+	_stats_box = VBoxContainer.new()
+	cols.add_child(_stats_box)
 
 
 func bind(d: PlayerData, a: ItemActions) -> void:
@@ -108,7 +110,7 @@ func _refresh_contents() -> void:
 	for r in rows:
 		var h := HBoxContainer.new()
 		var l := UiStyle.label("%s: %d" % [r[0], int(p.stats.get(r[1], 0))], 14)
-		l.custom_minimum_size = Vector2(150, 0)
+		l.custom_minimum_size = Vector2(110, 0)
 		h.add_child(l)
 		if free > 0 and int(r[2]) > 0:
 			var stat_type: int = r[2]

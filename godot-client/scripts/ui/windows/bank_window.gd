@@ -17,8 +17,17 @@
 
 class_name BankWindow
 extends GameWindow
-## Bank (dialog/bank/*.js, bankhandler.js): 96 slots, gold transfer and the
+## Bank (dialog/bank/*.js, bankhandler.js): 96 slots (5 across, scrolling), gold transfer and the
 ## "STORE" button that opens the inventory in bank mode.
+
+## Bank is 5 across and as many rows down as BANK_SIZE needs (96 -> 20).
+const COLUMNS := 5
+const SLOT_SEP := 2
+## Rows always shown; more are shown when the screen has room, the rest are
+## reached with the scroll bar on the right.
+const MIN_ROWS := 2
+## Wide enough to grab with a finger on a phone.
+const SCROLLBAR_WIDTH := 18
 
 var data: PlayerData
 var actions: ItemActions
@@ -26,22 +35,27 @@ var inventory_window: InventoryWindow
 var slots: Array = []
 var selected := -1
 var _gold: Label
+var _scroll: ScrollContainer
+var _grid: GridContainer
 
 
 func _init() -> void:
-	super._init("BANK", Vector2(660, 0))
+	super._init("BANK", Vector2(300, 0))
 
 
 func build() -> void:
-	var scroll := ScrollContainer.new()
-	scroll.custom_minimum_size = Vector2(650, 330)
-	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-	content.add_child(scroll)
-	var grid := GridContainer.new()
-	grid.columns = 12
-	grid.add_theme_constant_override("h_separation", 2)
-	grid.add_theme_constant_override("v_separation", 2)
-	scroll.add_child(grid)
+	_scroll = ScrollContainer.new()
+	_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	_scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_SHOW_ALWAYS
+	_scroll.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	_scroll.follow_focus = true   # gamepad / keyboard focus scrolls the slot into view
+	_scroll.get_v_scroll_bar().custom_minimum_size.x = SCROLLBAR_WIDTH
+	content.add_child(_scroll)
+	_grid = GridContainer.new()
+	_grid.columns = COLUMNS
+	_grid.add_theme_constant_override("h_separation", SLOT_SEP)
+	_grid.add_theme_constant_override("v_separation", SLOT_SEP)
+	_scroll.add_child(_grid)
 	for i in range(PlayerData.BANK_SIZE):
 		var s := ItemSlot.new()
 		s.store_type = PlayerData.Store.BANK
@@ -51,20 +65,54 @@ func build() -> void:
 		s.activated.connect(func(sl: ItemSlot): _retrieve(sl.index))
 		s.secondary.connect(func(sl: ItemSlot): _retrieve(sl.index))
 		s.dropped.connect(_on_dropped)
-		grid.add_child(s)
+		_grid.add_child(s)
 		slots.append(s)
-	var h := HBoxContainer.new()
-	h.add_theme_constant_override("separation", 10)
+	_set_visible_rows(MIN_ROWS)
+	_gold = UiStyle.label("Bank: 0   Carried: 0", 15, Color(1, 0.85, 0.3))
+	content.add_child(_gold)
+	# Buttons wrap onto a second line rather than widening the narrow window.
+	var h := HFlowContainer.new()
+	h.add_theme_constant_override("h_separation", 6)
+	h.add_theme_constant_override("v_separation", 6)
 	content.add_child(h)
-	_gold = UiStyle.label("Bank gold: 0", 15, Color(1, 0.85, 0.3))
-	_gold.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	h.add_child(_gold)
 	h.add_child(UiStyle.button("Withdraw gold", func(): actions.transfer_gold(true)))
 	h.add_child(UiStyle.button("Deposit gold", func(): actions.transfer_gold(false)))
 	h.add_child(UiStyle.button("STORE ITEMS", func():
 		inventory_window.open_mode(ItemActions.Mode.BANK, self)
 		close()))
-	content.add_child(UiStyle.label("Click an item twice (or double click / drag it to the inventory) to take it out.", 11, Color(1, 1, 1, 0.7)))
+	var hint := UiStyle.label("Click an item twice (or double click / drag it to the inventory) to take it out.", 11, Color(1, 1, 1, 0.7))
+	hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	content.add_child(hint)
+	# While closed, report the compact size: the HUD picks the mobile UI scale
+	# from every window's minimum size (hud.gd fit_ui_scale_to_screen()), and
+	# the bank shrinks to fit anyway.
+	closed.connect(func(): _set_visible_rows(MIN_ROWS))
+
+
+func _total_rows() -> int:
+	return ceili(float(PlayerData.BANK_SIZE) / COLUMNS)
+
+
+## Height of one slot row plus its gap, in HUD units.
+func _row_height() -> float:
+	return (_grid.get_combined_minimum_size().y + SLOT_SEP) / _total_rows()
+
+
+func _set_visible_rows(n: int) -> void:
+	var g := _grid.get_combined_minimum_size()
+	_scroll.custom_minimum_size = Vector2(g.x + SCROLLBAR_WIDTH, n * _row_height() - SLOT_SEP)
+
+
+## Show as many whole rows as fit in the window's height limit (MAX_SIZE, or
+## less on a small screen -- landscape phones and any UI scale included, see
+## GameWindow.max_size()), the rest scroll.
+func _place() -> void:
+	if _scroll:
+		var others := _content_root.get_combined_minimum_size().y - _scroll.get_combined_minimum_size().y
+		var row_h := _row_height()
+		var avail := content_limit().y - others
+		_set_visible_rows(clampi(floori((avail + SLOT_SEP) / row_h), 1, _total_rows()))
+	super._place()
 
 
 func bind(d: PlayerData, a: ItemActions, inv: InventoryWindow) -> void:
@@ -88,7 +136,7 @@ func refresh() -> void:
 			s.set_item(ItemTypes.icon(int(r.kind)), ItemTypes.slot_label(r), ItemTypes.durability_percent(r))
 			s.tooltip_text = ItemTypes.info_text(r)
 			s.payload = r
-	_gold.text = "Bank gold: %s   (carried: %s)" % [ItemTypes.short_number(int(data.gold[1])), ItemTypes.short_number(int(data.gold[0]))]
+	_gold.text = "Bank: %s   Carried: %s" % [ItemTypes.short_number(int(data.gold[1])), ItemTypes.short_number(int(data.gold[0]))]
 
 
 func _select(i: int) -> void:

@@ -35,7 +35,7 @@ func _init() -> void:
 func build() -> void:
 	var t := UiStyle.label("Please select your username or gift to another username and enter it below.", 13)
 	t.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	t.custom_minimum_size = Vector2(400, 0)
+	t.custom_minimum_size = Vector2(380, 0)
 	content.add_child(t)
 	_user = LineEdit.new()
 	_user.max_length = 16
@@ -47,7 +47,7 @@ func build() -> void:
 	content.add_child(UiStyle.button("Checkout", _checkout))
 	var n := UiStyle.label("It may take up to 24-hours for your gems to show up in your account.", 12, Color(1, 1, 1, 0.7))
 	n.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	n.custom_minimum_size = Vector2(400, 0)
+	n.custom_minimum_size = Vector2(380, 0)
 	content.add_child(n)
 	_gems = UiStyle.label("", 14, Color(0.6, 1, 1))
 	content.add_child(_gems)
