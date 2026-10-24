@@ -47,20 +47,24 @@ func _init() -> void:
 
 
 func build() -> void:
+	# Shop mode ("Mode: SELL" etc.): own line, only shown outside normal mode,
+	# so it doesn't push the equipment slots off centre.
+	_mode_label = UiStyle.label("", 13, Color(1, 0.85, 0.3))
+	_mode_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_mode_label.visible = false
+	content.add_child(_mode_label)
+	# Equipment row, centred and spaced like the inventory grid below so the
+	# two line up column for column.
 	var eh := HBoxContainer.new()
-	eh.add_theme_constant_override("separation", 6)
+	eh.add_theme_constant_override("separation", 2)
+	eh.alignment = BoxContainer.ALIGNMENT_CENTER
 	content.add_child(eh)
-	eh.add_child(UiStyle.label("Equipped:", 13))
 	for i in range(PlayerData.EQUIPMENT_SIZE):
 		var s := _make_slot(PlayerData.Store.EQUIPMENT, i)
 		s.background = UiStyle.slot_background(EQUIP_BG[i].x, EQUIP_BG[i].y)
 		s.tooltip_text = EQUIP_NAMES[i]
 		eh.add_child(s)
 		equip_slots.append(s)
-	_mode_label = UiStyle.label("", 13, Color(1, 0.85, 0.3))
-	_mode_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_mode_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-	eh.add_child(_mode_label)
 	var grid := GridContainer.new()
 	# 5 across x 6 down (PlayerData.INVENTORY_SIZE = 30).
 	grid.columns = INV_COLUMNS
@@ -131,6 +135,7 @@ func refresh() -> void:
 	if data == null:
 		return
 	_mode_label.text = "" if actions.mode == ItemActions.Mode.NORMAL else "Mode: " + str(MODE_TEXT.get(actions.mode, ""))
+	_mode_label.visible = _mode_label.text != ""
 	_deselect()
 	_refresh_inventory()
 	_refresh_equipment()
