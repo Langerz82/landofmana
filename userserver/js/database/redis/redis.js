@@ -289,7 +289,7 @@ class DatabaseHandler {
                 }
             });
         });
-        // Inventory shrank from 50 to 30 slots -- re-slots any item past the
+        // Inventory shrank from 50 to 25 slots -- re-slots any item past the
         // new end into a free inventory slot, else into the bank (see
         // migrateInventorySize(), migration.js). Chained after the bank
         // migration since it writes into whichever bank (shared account-level

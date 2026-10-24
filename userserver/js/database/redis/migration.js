@@ -85,10 +85,10 @@ let client;
 const bankSlots = 96;
 
 // Inventory capacity -- matches userserver/js/format.js's getItemSlots(0)
-// (type 0 = inventory -> 30 slots, 5 across x 6 down; was 50). Used by
+// (type 0 = inventory -> 25 slots, 5 across x 5 down; was 50). Used by
 // migrateInventorySize() below to re-slot any character's items that sit
 // past the new end of the inventory.
-const inventorySlots = 30;
+const inventorySlots = 25;
 
 // Gold cap migrateGold1ToUser() below clamps combined per-account gold_1
 // totals to -- see that function's FIX comment. Unlike bankSlots above,
@@ -1785,7 +1785,7 @@ function migrateKeyPrefixes(callback) {
 }
 
 // One-time (idempotent, re-run-safe) migration for the inventory shrinking
-// from 50 slots to 30 (5 across x 6 down -- see inventorySlots above, and
+// from 50 slots to 25 (5 across x 5 down -- see inventorySlots above, and
 // the matching userserver format.js getItemSlots(0) / gameserver
 // Inventory/format.js itemInventoryMax / client + godot-client sizes).
 //
@@ -1796,7 +1796,7 @@ function migrateKeyPrefixes(callback) {
 // dropped by the gameserver's BaseItemRoomStore constructor on the next
 // login ("dropping saved item with out-of-range slot"). For each such item,
 // in original-slot order, this:
-//   1. moves it to the lowest free slot inside the new 0..29 inventory, or
+//   1. moves it to the lowest free slot inside the new 0..24 inventory, or
 //      if the inventory is full,
 //   2. moves it to the lowest free slot of that character's bank -- the
 //      shared account-level u:<username> "bank" field when the account has
@@ -1814,13 +1814,13 @@ function migrateKeyPrefixes(callback) {
 // handled together (characters on an account share one bank), and each
 // account's writes go out in a single MULTI.
 //
-// The 'migrations:inventory_size_30' flag is set once a full pass finishes
+// The 'migrations:inventory_size_25' flag is set once a full pass finishes
 // with no errors and nothing left parked in inventory_overflow anywhere, so
 // later startups skip the whole scan.
 //
 // `callback(err)` fires once every user has been checked.
 function migrateInventorySize(callback) {
-    const flagKey = 'migrations:inventory_size_30';
+    const flagKey = 'migrations:inventory_size_25';
     const overflowField = 'inventory_overflow';
 
     const parseItems = (json, label) => {

@@ -41,7 +41,7 @@ import { installInventoryDialogCooldown } from './inventorydialogcooldown.js';
 
 export default class InventoryDialog {
     constructor() {
-        this.maxInventoryNumber = 30;
+        this.maxInventoryNumber = 25;
         this.inventory = [];
 
         this.scale = game.renderer.getUiScaleFactor();

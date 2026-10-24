@@ -66,7 +66,7 @@ func build() -> void:
 		eh.add_child(s)
 		equip_slots.append(s)
 	var grid := GridContainer.new()
-	# 5 across x 6 down (PlayerData.INVENTORY_SIZE = 30).
+	# 5 across x 5 down (PlayerData.INVENTORY_SIZE = 25).
 	grid.columns = INV_COLUMNS
 	grid.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	grid.add_theme_constant_override("h_separation", 2)
