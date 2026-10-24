@@ -20,13 +20,14 @@ extends GameWindow
 ## Skills (dialog/skilldialog.js, skillhandler.js): learned skills with
 ## level, details, cooldown; click twice to use, drag onto the shortcut bar.
 
+const SLOT_SIZE := 58
+
 var data: PlayerData
 var actions: ItemActions
 var slots: Array = []
 var _detail: Label
 var _selected := -1
 var select_time := 0      # ms tick of the last selection
-
 
 func _init() -> void:
 	super._init("SKILLS", Vector2(380, 0))
@@ -42,6 +43,8 @@ func build() -> void:
 		var s := ItemSlot.new()
 		s.index = i
 		s.drag_kind = "skill"
+		# Same size as the inventory / bank item slots.
+		s.custom_minimum_size = Vector2(SLOT_SIZE, SLOT_SIZE)
 		s.pressed.connect(_on_pressed)
 		s.activated.connect(func(sl: ItemSlot): _use(sl.index))
 		s.secondary.connect(func(sl: ItemSlot): _use(sl.index))
