@@ -170,19 +170,19 @@ div.inventoryhighlight {
 }
 #equipBackground1 {
     left: 60px;
-    background-position: -56px -57px;
+    background-position: -56px -56px;
 }
 #equipBackground2 {
     left: 120px;
-    background-position: 0 -57px;
+    background-position: 0 -56px;
 }
 #equipBackground3 {
     left: 180px;
-    background-position: -56px -114px;
+    background-position: -56px -113px;
 }
 #equipBackground4 {
     left: 240px;
-    background-position: 0 0;
+    background-position: -112px -113px;
 }
 
 #equipment0,
