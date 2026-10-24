@@ -669,9 +669,6 @@ func _build_game_ui(root: Control) -> void:
 	for pair in [["store", StoreWindow.new()], ["craft", CraftWindow.new()], ["auction", AuctionWindow.new()], ["looks", AppearanceWindow.new()]]:
 		_add_window(wlayer, pair[0], pair[1])
 		pair[1].bind(data, actions, inv)
-	var look_preview := LookPreviewWindow.new()
-	_add_window(wlayer, "lookpreview", look_preview)
-	look_preview.bind(data, actions)
 	var stats := StatsWindow.new()
 	_add_window(wlayer, "stats", stats)
 	stats.bind(data, actions)
