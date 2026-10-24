@@ -24,6 +24,15 @@ signal enter_world(info: Dictionary)
 
 const KOMIKA := preload("res://assets/fonts/KOMIKAH.ttf")
 const LOGO := preload("res://assets/img/common/landofmana.png")
+## Narrowest the login / character panel is laid out at (before scaling).
+const PANEL_WIDTH := 450.0
+## Desktop: widest the panel appears on screen, in screen pixels -- the UI
+## scale does not change it; on narrower screens it spans the full width.
+## Mobile: the panel is laid out PANEL_MAX_WIDTH wide and scaled so it fills
+## the full screen width.
+const PANEL_MAX_WIDTH := 450.0
+## Space kept free above + below the panel (screen pixels).
+const PANEL_V_MARGIN := 16.0
 
 const INFO_KEYS := {
 	"timeout": "TIMEOUT_CONNECT",
@@ -71,7 +80,7 @@ func _ready() -> void:
 	add_child(center)
 	var panel := PanelContainer.new()
 	panel.add_theme_stylebox_override("panel", Hud.panel_style(0.9))
-	panel.custom_minimum_size = Vector2(420, 0)
+	panel.custom_minimum_size = Vector2(PANEL_WIDTH, 0)
 	center.add_child(panel)
 	_panel = panel
 	var v := VBoxContainer.new()
@@ -112,19 +121,44 @@ func _ready() -> void:
 	connect_user_server()
 
 
-## Settings -> UI scale: like the HUD, the screen is laid out at screen size /
-## scale and drawn scaled. Above 1 the scale is capped so the panel still fits
-## on screen (never below 1).
+## Desktop: the login / character panel spans the full screen width, up to
+## PANEL_MAX_WIDTH screen pixels whatever the UI scale (centred). The screen
+## is laid out at screen size / scale and drawn scaled (like the HUD); the scale is the biggest at
+## which the panel's natural size (PANEL_WIDTH wide, or its content if wider)
+## fits that width and, with PANEL_V_MARGIN, the screen height. When the
+## height is what limits it (landscape phones) the panel is laid out wider so
+## it still reaches that width.
+##
+## Mobile: as wide as the screen's width or height, whichever is smaller
+## (the full width in portrait) -- the panel is laid out PANEL_MAX_WIDTH wide
+## and scaled by that size / PANEL_MAX_WIDTH (or, if that would make it taller
+## than the screen, scaled to fit the height and laid out wider so it still
+## reaches that width).
 func apply_ui_scale() -> void:
 	var vp := get_viewport().get_visible_rect().size
 	var s := UiStyle.ui_scale
-	if s > 1.0 and _panel:
-		var need := _panel.get_combined_minimum_size() + Vector2(16, 16)
-		s = clampf(minf(vp.x / need.x, vp.y / need.y), 1.0, s)
+	var mobile := UiStyle.is_mobile()
+	var target_w := minf(vp.x, vp.y) if mobile else minf(vp.x, PANEL_MAX_WIDTH)
+	if _panel:
+		var need := _natural_panel_size(PANEL_MAX_WIDTH if mobile else PANEL_WIDTH)
+		s = minf(target_w / need.x, maxf(vp.y - PANEL_V_MARGIN, 1.0) / need.y)
+		s = clampf(s, UiStyle.UI_SCALE_MIN, UiStyle.UI_SCALE_MAX)
 	set_anchors_and_offsets_preset(Control.PRESET_TOP_LEFT)
 	position = Vector2.ZERO
 	scale = Vector2(s, s)
 	size = vp / s
+	if _panel:
+		_panel.custom_minimum_size.x = target_w / s
+
+
+## The panel's size without the full-width stretch: its content plus the
+## panel margins, at least min_width across.
+func _natural_panel_size(min_width: float) -> Vector2:
+	var inner := (_panel.get_child(0) as Control).get_combined_minimum_size()
+	var sb := _panel.get_theme_stylebox("panel")
+	var n := inner + (sb.get_minimum_size() if sb else Vector2.ZERO)
+	n.x = maxf(n.x, min_width)
+	return n
 
 
 func _field(parent: Control, label: String, secret := false) -> LineEdit:
