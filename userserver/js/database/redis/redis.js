@@ -289,6 +289,23 @@ class DatabaseHandler {
                 }
             });
         });
+        // Inventory shrank from 50 to 30 slots -- re-slots any item past the
+        // new end into a free inventory slot, else into the bank (see
+        // migrateInventorySize(), migration.js). Chained after the bank
+        // migration since it writes into whichever bank (shared account-level
+        // or legacy per-character) migrateBankToUser() left each account on.
+        const inventoryMigration = bankMigration.then(
+            () =>
+                new Promise((resolve, reject) => {
+                    this.migrateInventorySize((err) => {
+                        if (err) {
+                            reject(err);
+                        } else {
+                            resolve();
+                        }
+                    });
+                })
+        );
         // See purgeStaleNewQuests() (migration.js): unlike the two migrations
         // above (which are always safe to re-run and re-check their own
         // per-player "already done" signal), this one is a run-once-ever
@@ -321,6 +338,7 @@ class DatabaseHandler {
         this.migrationReady = Promise.all([
             goldMigration,
             bankMigration,
+            inventoryMigration,
             newQuestsPurge,
             looksMigration,
             keyPrefixMigration

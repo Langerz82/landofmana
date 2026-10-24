@@ -31,7 +31,7 @@
 // purely to move already-saved data from an old storage scheme to a new
 // one, once, at startup (purgeStaleNewQuests, migrateGoldFields,
 // migrateGold1ToUser, renameGold1ToBankGold, migrateBankToUser,
-// migrateLooksToBase64). Most of the bulk-mutation group runs automatically
+// migrateLooksToBase64, migrateInventorySize). Most of the bulk-mutation group runs automatically
 // too (see migrationReady, redis.js), but three -- replaceSkills,
 // resetLegacyLooksToDefault, and wipeAllNewQuests -- are deliberately
 // manual/on-demand instead; see each one's own comment for why.
@@ -83,6 +83,12 @@ let client;
 // like playerGoldMax, since nothing in redis.js needs it once
 // migrateBankToUser() is gone from that file.
 const bankSlots = 96;
+
+// Inventory capacity -- matches userserver/js/format.js's getItemSlots(0)
+// (type 0 = inventory -> 30 slots, 5 across x 6 down; was 50). Used by
+// migrateInventorySize() below to re-slot any character's items that sit
+// past the new end of the inventory.
+const inventorySlots = 30;
 
 // Gold cap migrateGold1ToUser() below clamps combined per-account gold_1
 // totals to -- see that function's FIX comment. Unlike bankSlots above,
@@ -1778,6 +1784,318 @@ function migrateKeyPrefixes(callback) {
     }
 }
 
+// One-time (idempotent, re-run-safe) migration for the inventory shrinking
+// from 50 slots to 30 (5 across x 6 down -- see inventorySlots above, and
+// the matching userserver format.js getItemSlots(0) / gameserver
+// Inventory/format.js itemInventoryMax / client + godot-client sizes).
+//
+// Every character's p:<playerName> "inventory" field is a JSON array of
+// [slot, kind, number, durability, durabilityMax, experience] tuples. Any
+// item whose slot is now out of range (>= inventorySlots), or is invalid /
+// a duplicate of an already-occupied slot, would otherwise be silently
+// dropped by the gameserver's BaseItemRoomStore constructor on the next
+// login ("dropping saved item with out-of-range slot"). For each such item,
+// in original-slot order, this:
+//   1. moves it to the lowest free slot inside the new 0..29 inventory, or
+//      if the inventory is full,
+//   2. moves it to the lowest free slot of that character's bank -- the
+//      shared account-level u:<username> "bank" field when the account has
+//      one, otherwise that character's own legacy p:<playerName> "bank"
+//      (same read/write rule as redis.js loadUserBank()/saveUserBank()), or
+//      if the bank is full too,
+//   3. parks it in p:<playerName> "inventory_overflow" rather than
+//      discarding it, so nothing is ever lost. Parked items are retried on
+//      every startup (they're folded back in as displaced items each run)
+//      until there's room for them.
+//
+// Must run after migrateBankToUser() (see the inventoryMigration Promise in
+// the redis.js constructor) since it writes into whichever bank that
+// migration settled each account on. All of one account's reads/writes are
+// handled together (characters on an account share one bank), and each
+// account's writes go out in a single MULTI.
+//
+// The 'migrations:inventory_size_30' flag is set once a full pass finishes
+// with no errors and nothing left parked in inventory_overflow anywhere, so
+// later startups skip the whole scan.
+//
+// `callback(err)` fires once every user has been checked.
+function migrateInventorySize(callback) {
+    const flagKey = 'migrations:inventory_size_30';
+    const overflowField = 'inventory_overflow';
+
+    const parseItems = (json, label) => {
+        if (typeof json !== 'string' || json === '') return [];
+        try {
+            const parsed = JSON.parse(json);
+            if (Array.isArray(parsed)) {
+                return parsed.filter((it) => Array.isArray(it) && it.length > 0);
+            }
+        } catch (parseErr) {
+            console.warn(
+                'migrateInventorySize: ' + label + ' JSON was invalid, treating as empty: ' +
+                    parseErr.message
+            );
+        }
+        return [];
+    };
+
+    const bySlot = (a, b) => a[0] - b[0];
+
+    // Lowest free slot index in [0, max), or -1.
+    const takeFreeSlot = (used, max) => {
+        for (let i = 0; i < max; i++) {
+            if (!used.has(i)) {
+                used.add(i);
+                return i;
+            }
+        }
+        return -1;
+    };
+
+    const isValidSlot = (slot, max) =>
+        Number.isInteger(slot) && slot >= 0 && slot < max;
+
+    client.get(flagKey, (err, already) => {
+        if (err) {
+            console.error('migrateInventorySize: flag read failed: ' + JSON.stringify(err));
+            if (callback) callback(err);
+            return;
+        }
+        if (already) {
+            console.info('migrateInventorySize: already run, skipping.');
+            if (callback) callback(null);
+            return;
+        }
+
+        client.scanKeys('u:*', (err2, userKeys) => {
+            if (err2) {
+                if (callback) callback(err2);
+                return;
+            }
+
+            let remaining = userKeys.length;
+            let firstError = null;
+            let playersFixed = 0;
+            let toInventory = 0;
+            let toBank = 0;
+            let parked = 0;
+
+            const finish = () => {
+                console.info(
+                    'migrateInventorySize: complete -- fixed ' + playersFixed +
+                        ' character(s): ' + toInventory + ' item(s) re-slotted within the ' +
+                        inventorySlots + '-slot inventory, ' + toBank + ' moved to the bank, ' +
+                        parked + ' parked in ' + overflowField + ' (no free space).'
+                );
+                if (firstError || parked > 0) {
+                    if (callback) callback(firstError);
+                    return;
+                }
+                client.set(flagKey, '1', (err3) => {
+                    if (callback) callback(err3 || null);
+                });
+            };
+
+            if (remaining === 0) {
+                finish();
+                return;
+            }
+
+            const checkDone = () => {
+                remaining--;
+                if (remaining === 0) finish();
+            };
+
+            for (const uKey of userKeys) {
+                client
+                    .multi()
+                    .hget(uKey, 'bank')
+                    .hget(uKey, 'players')
+                    .exec((err4, raw) => {
+                        if (err4) {
+                            console.error(
+                                'migrateInventorySize: read failed for ' + uKey + ': ' +
+                                    JSON.stringify(err4)
+                            );
+                            firstError = firstError || err4;
+                            checkDone();
+                            return;
+                        }
+
+                        const [accountBankJson, playersCsv] = raw;
+                        const playerNames =
+                            typeof playersCsv === 'string' && playersCsv !== ''
+                                ? playersCsv.split(',').filter((n) => n !== '')
+                                : [];
+                        if (playerNames.length === 0) {
+                            checkDone();
+                            return;
+                        }
+
+                        const reads = client.multi();
+                        for (const name of playerNames) {
+                            reads
+                                .hget('p:' + name, 'inventory')
+                                .hget('p:' + name, overflowField)
+                                .hget('p:' + name, 'bank');
+                        }
+
+                        reads.exec((err5, replies) => {
+                            if (err5) {
+                                console.error(
+                                    'migrateInventorySize: player read failed for ' + uKey +
+                                        ': ' + JSON.stringify(err5)
+                                );
+                                firstError = firstError || err5;
+                                checkDone();
+                                return;
+                            }
+
+                            // Shared account bank if this account has one (see
+                            // loadUserBank()), else each character's own legacy bank.
+                            const sharedBank =
+                                accountBankJson != null
+                                    ? parseItems(accountBankJson, uKey + ' bank')
+                                    : null;
+                            let sharedBankChanged = false;
+                            const sharedBankUsed = sharedBank
+                                ? new Set(sharedBank.map((it) => Number(it[0])))
+                                : null;
+
+                            const writes = client.multi();
+                            let writeCount = 0;
+
+                            playerNames.forEach((name, idx) => {
+                                const pKey = 'p:' + name;
+                                const invJson = replies[idx * 3];
+                                const overflowJson = replies[idx * 3 + 1];
+                                const ownBankJson = replies[idx * 3 + 2];
+
+                                const inv = parseItems(invJson, pKey + ' inventory');
+                                const overflow = parseItems(overflowJson, pKey + ' ' + overflowField);
+
+                                const kept = [];
+                                const invUsed = new Set();
+                                const displaced = [];
+                                for (const it of inv) {
+                                    const slot = Number(it[0]);
+                                    if (isValidSlot(slot, inventorySlots) && !invUsed.has(slot)) {
+                                        invUsed.add(slot);
+                                        kept.push(it);
+                                    } else {
+                                        displaced.push(it);
+                                    }
+                                }
+                                displaced.sort(bySlot);
+                                displaced.push(...overflow);
+
+                                if (displaced.length === 0) {
+                                    if (overflowJson != null) {
+                                        writes.hdel(pKey, overflowField);
+                                        writeCount++;
+                                    }
+                                    return;
+                                }
+
+                                let bank, bankUsed;
+                                if (sharedBank) {
+                                    bank = sharedBank;
+                                    bankUsed = sharedBankUsed;
+                                } else {
+                                    bank = parseItems(ownBankJson, pKey + ' bank');
+                                    bankUsed = new Set(bank.map((it) => Number(it[0])));
+                                }
+                                let bankChanged = false;
+                                const stillParked = [];
+                                let movedInv = 0;
+                                let movedBank = 0;
+
+                                for (const it of displaced) {
+                                    const rest = it.slice(1);
+                                    const invSlot = takeFreeSlot(invUsed, inventorySlots);
+                                    if (invSlot !== -1) {
+                                        kept.push([invSlot, ...rest]);
+                                        movedInv++;
+                                        continue;
+                                    }
+                                    const bankSlot = takeFreeSlot(bankUsed, bankSlots);
+                                    if (bankSlot !== -1) {
+                                        bank.push([bankSlot, ...rest]);
+                                        bankChanged = true;
+                                        movedBank++;
+                                        continue;
+                                    }
+                                    stillParked.push(it);
+                                }
+
+                                kept.sort(bySlot);
+                                writes.hset(pKey, 'inventory', JSON.stringify(kept));
+                                writeCount++;
+
+                                if (stillParked.length > 0) {
+                                    writes.hset(pKey, overflowField, JSON.stringify(stillParked));
+                                    writeCount++;
+                                    console.warn(
+                                        'migrateInventorySize: ' + pKey + ' -- ' + stillParked.length +
+                                            ' item(s) did not fit in the inventory or bank; parked in ' +
+                                            overflowField + ' and will be retried next startup: ' +
+                                            JSON.stringify(stillParked)
+                                    );
+                                } else if (overflowJson != null) {
+                                    writes.hdel(pKey, overflowField);
+                                    writeCount++;
+                                }
+
+                                if (bankChanged) {
+                                    if (sharedBank) {
+                                        sharedBankChanged = true;
+                                    } else {
+                                        bank.sort(bySlot);
+                                        writes.hset(pKey, 'bank', JSON.stringify(bank));
+                                        writeCount++;
+                                    }
+                                }
+
+                                playersFixed++;
+                                toInventory += movedInv;
+                                toBank += movedBank;
+                                parked += stillParked.length;
+                                console.debug(
+                                    'migrateInventorySize: [debug] ' + pKey + ' -- ' + movedInv +
+                                        ' item(s) re-slotted in inventory, ' + movedBank +
+                                        ' moved to ' + (sharedBank ? uKey : pKey) + ' bank, ' +
+                                        stillParked.length + ' parked.'
+                                );
+                            });
+
+                            if (sharedBankChanged) {
+                                sharedBank.sort(bySlot);
+                                writes.hset(uKey, 'bank', JSON.stringify(sharedBank));
+                                writeCount++;
+                            }
+
+                            if (writeCount === 0) {
+                                checkDone();
+                                return;
+                            }
+
+                            writes.exec((err6) => {
+                                if (err6) {
+                                    console.error(
+                                        'migrateInventorySize: write failed for ' + uKey + ': ' +
+                                            JSON.stringify(err6)
+                                    );
+                                    firstError = firstError || err6;
+                                }
+                                checkDone();
+                            });
+                        });
+                    });
+            }
+        });
+    });
+}
+
 // Mixed onto DatabaseHandler.prototype in redis.js (Object.assign, right
 // after the class declaration) rather than exported/used individually, so
 // every function above keeps running as an instance method -- called as
@@ -1793,6 +2111,7 @@ export const migrationMethods = {
     migrateGold1ToUser,
     renameGold1ToBankGold,
     migrateBankToUser,
+    migrateInventorySize,
     migrateLooksToBase64,
     resetLegacyLooksToDefault,
     wipeAllNewQuests,

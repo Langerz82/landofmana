@@ -97,7 +97,7 @@ class ItemRoomStore extends BaseItemRoomStore {
         sourceStore = sourceStore || this;
 
         // PERF: putItem() (above) calls combineItem() once per occupied
-        // room slot (up to maxNumber, 50) on every single item pickup/stack
+        // room slot (up to maxNumber, 30) on every single item pickup/stack
         // attempt -- these two JSON.stringify calls ran unconditionally on
         // every one of those checks, so a single item pickup could pay up to
         // ~100 stringify calls of full item objects whose result was never

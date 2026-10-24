@@ -25,7 +25,7 @@ import ItemLoot from './data/itemlootdata.js';
 export default class InventoryHandler {
     constructor(dialog) {
         this.rooms = [];
-        this.maxNumber = 50;
+        this.maxNumber = 30;
         this.scale = 3;
         this.dialog = dialog;
         dialog.handler = this;

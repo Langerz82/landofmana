@@ -71,7 +71,7 @@ class ItemActionHandler {
         // equipment's maxNumber (5) instead of that slot type's real store
         // size -- rejecting valid slots for whichever store type 2 actually
         // is. Worse, the other two slot types got no bounds check at all
-        // here. itemStore[0..2] map to inventory(max 50)/bank(max 96,
+        // here. itemStore[0..2] map to inventory(max 30)/bank(max 96,
         // items/bank.js)/equipment(max 5, items/equipment.js) respectively
         // -- confirmed against user/userhandler.js's handleLoadPlayerItems,
         // which is the code that actually constructs and assigns

@@ -44,10 +44,10 @@ class BaseItemRoomStore {
         // fixed-length array allocated in THIS constructor, before any
         // subclass override runs -- so it has to be sized off the real
         // capacity from the start. `number` is exactly that value (every
-        // caller already passes the correct capacity: 50 for Inventory, 96
+        // caller already passes the correct capacity: 30 for Inventory, 96
         // for Bank, 5 for Equipment -- see user/userhandler.js), so use it
         // directly; `|| 50` only covers a caller omitting it entirely.
-        this.maxNumber = number || 50;
+        this.maxNumber = number || 30;
         this.maxStack = 100;
         this.fullMessage = new Messages.Notify('ITEMSTORE', 'ITEMSTORE_FULL');
 

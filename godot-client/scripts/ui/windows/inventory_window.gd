@@ -23,6 +23,7 @@ extends GameWindow
 
 const EQUIP_BG := [Vector2i(1, 0), Vector2i(1, 1), Vector2i(0, 1), Vector2i(1, 2), Vector2i(2, 2)]
 const EQUIP_NAMES := ["Helm", "Chest", "Gloves", "Boots", "Weapon"]
+const INV_COLUMNS := 5
 const MODE_TEXT := {0: "DROP", 1: "SELL", 2: "REPAIR", 3: "ENCHANT", 4: "BANK", 5: "LIST"}
 
 var data: PlayerData
@@ -42,7 +43,7 @@ var _info: Label
 
 
 func _init() -> void:
-	super._init("EQUIPMENT", Vector2(560, 0))
+	super._init("EQUIPMENT", Vector2(420, 0))
 
 
 func build() -> void:
@@ -61,7 +62,9 @@ func build() -> void:
 	_mode_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	eh.add_child(_mode_label)
 	var grid := GridContainer.new()
-	grid.columns = 10
+	# 5 across x 6 down (PlayerData.INVENTORY_SIZE = 30).
+	grid.columns = INV_COLUMNS
+	grid.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	grid.add_theme_constant_override("h_separation", 2)
 	grid.add_theme_constant_override("v_separation", 2)
 	content.add_child(grid)
@@ -71,7 +74,7 @@ func build() -> void:
 		inv_slots.append(s)
 	_info = UiStyle.label("", 12, Color(0.85, 0.85, 1))
 	_info.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_info.custom_minimum_size = Vector2(500, 0)
+	_info.custom_minimum_size = Vector2(380, 0)
 	content.add_child(_info)
 	var bottom := HBoxContainer.new()
 	bottom.add_theme_constant_override("separation", 12)

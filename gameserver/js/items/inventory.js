@@ -25,7 +25,7 @@ class Inventory extends ItemRoomStore {
         super(owner, number, items);
 
         this.typeIndex = 0;
-        this.maxNumber = 50;
+        this.maxNumber = 30;
         this.fullMessage = new Messages.Notify('INVENTORY', 'INVENTORY_FULL');
     }
 }
