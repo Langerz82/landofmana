@@ -224,7 +224,7 @@ const banDateMin = 1730000000000;
 const banDateMax = 3000000000000;
 
 const getItemSlots = function (type) {
-    if (type == 0) return 25;
+    if (type == 0) return 30;
     if (type == 1) return 96;
     if (type == 2) return 5;
     return 0;

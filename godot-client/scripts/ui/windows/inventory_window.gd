@@ -105,7 +105,7 @@ func build() -> void:
 		equip_slots.append(s)
 	slots.add_child(_section_label("Inventory"))
 	var grid := GridContainer.new()
-	# 5 across x 5 down (PlayerData.INVENTORY_SIZE = 25).
+	# 5 across x 6 down (PlayerData.INVENTORY_SIZE = 30).
 	grid.columns = INV_COLUMNS
 	grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	grid.add_theme_constant_override("h_separation", 2)

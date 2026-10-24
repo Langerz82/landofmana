@@ -223,8 +223,8 @@ export function runGamepadNavigation(self, navigate) {
 
         if (navigate !== 0) {
             self.joystickX = (self.joystickX + 5 + modx) % 5;
-            // 1 equipment row + 5 inventory rows (5 across x 5 down = 25).
-            self.joystickY = (self.joystickY + 6 + mody) % 6;
+            // 1 equipment row + 6 inventory rows (5 across x 6 down = 30).
+            self.joystickY = (self.joystickY + 7 + mody) % 7;
             if (self.joystickY === 0) {
                 equipment = true;
             }

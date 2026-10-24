@@ -42,7 +42,7 @@ signal player_info_changed
 signal stats_changed
 
 enum Store { INVENTORY = 0, BANK = 1, EQUIPMENT = 2 }
-const INVENTORY_SIZE := 25
+const INVENTORY_SIZE := 30
 const BANK_SIZE := 96
 const EQUIPMENT_SIZE := 5
 const WEAPON_SLOT := 4

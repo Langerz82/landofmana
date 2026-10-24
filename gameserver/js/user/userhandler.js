@@ -498,7 +498,7 @@ class UserHandler {
         }
         let storeType = null;
         if (type === 0) {
-            player.items.inventory = new Inventory(player, 25, items);
+            player.items.inventory = new Inventory(player, 30, items);
             storeType = player.items.inventory;
         } else if (type === 1) {
             player.items.bank = new Bank(player, 96, items);
