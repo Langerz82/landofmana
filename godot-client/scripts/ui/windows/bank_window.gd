@@ -40,19 +40,22 @@ var _grid: GridContainer
 
 
 func _init() -> void:
-	super._init("BANK", Vector2(300, 0))
+	super._init("BANK", Vector2(420, 0))
 
 
 func build() -> void:
 	_scroll = ScrollContainer.new()
 	_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	_scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_SHOW_ALWAYS
-	_scroll.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	_scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_scroll.follow_focus = true   # gamepad / keyboard focus scrolls the slot into view
 	_scroll.get_v_scroll_bar().custom_minimum_size.x = SCROLLBAR_WIDTH
 	content.add_child(_scroll)
 	_grid = GridContainer.new()
 	_grid.columns = COLUMNS
+	# Slots expand their columns (keeping their own size, centred), so the
+	# 5 columns spread evenly across the full window width.
+	_grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_grid.add_theme_constant_override("h_separation", SLOT_SEP)
 	_grid.add_theme_constant_override("v_separation", SLOT_SEP)
 	_scroll.add_child(_grid)
@@ -65,6 +68,7 @@ func build() -> void:
 		s.activated.connect(func(sl: ItemSlot): _retrieve(sl.index))
 		s.secondary.connect(func(sl: ItemSlot): _retrieve(sl.index))
 		s.dropped.connect(_on_dropped)
+		s.size_flags_horizontal = Control.SIZE_EXPAND | Control.SIZE_SHRINK_CENTER
 		_grid.add_child(s)
 		slots.append(s)
 	_set_visible_rows(MIN_ROWS)

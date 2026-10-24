@@ -53,27 +53,67 @@ func build() -> void:
 	_mode_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_mode_label.visible = false
 	content.add_child(_mode_label)
-	# Equipment row, centred and spaced like the inventory grid below so the
-	# two line up column for column.
+	# Gold + gems along the top, above the slots.
+	var top := HBoxContainer.new()
+	top.add_theme_constant_override("separation", 12)
+	content.add_child(top)
+	var gold_btn := Button.new()
+	gold_btn.flat = true
+	gold_btn.focus_mode = Control.FOCUS_NONE
+	gold_btn.tooltip_text = "In bank mode: click to move gold to the bank"
+	gold_btn.pressed.connect(func():
+		if actions.mode == ItemActions.Mode.BANK:
+			actions.transfer_gold(false))
+	_gold = UiStyle.label("Gold: 0", 14, Color(1, 0.85, 0.3))
+	gold_btn.add_child(_gold)
+	gold_btn.custom_minimum_size = Vector2(130, 24)
+	gold_btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	top.add_child(gold_btn)
+	_gems = UiStyle.label("Gems: 0", 14, Color(0.6, 1, 1))
+	_gems.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_gems.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	top.add_child(_gems)
+	# Equipment + inventory slots in a scroll box that takes the height left
+	# over by the rest of the window (GameWindow.flex_scroll); slots past the
+	# bottom scroll into view.
+	var scroll := ScrollContainer.new()
+	flex_scroll = scroll
+	flex_height = 280
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	scroll.follow_focus = true
+	# Same finger-friendly scroll bar width as the bank window.
+	scroll.get_v_scroll_bar().custom_minimum_size.x = BankWindow.SCROLLBAR_WIDTH
+	content.add_child(scroll)
+	var slots := VBoxContainer.new()
+	slots.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	slots.add_theme_constant_override("separation", 8)
+	scroll.add_child(slots)
+	# Every slot expands its column (but keeps its own size, centred in it),
+	# so both rows spread evenly across the full window width and the
+	# equipment row lines up column for column with the inventory grid.
+	slots.add_child(_section_label("Equipment"))
 	var eh := HBoxContainer.new()
 	eh.add_theme_constant_override("separation", 2)
-	eh.alignment = BoxContainer.ALIGNMENT_CENTER
-	content.add_child(eh)
+	eh.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	slots.add_child(eh)
 	for i in range(PlayerData.EQUIPMENT_SIZE):
 		var s := _make_slot(PlayerData.Store.EQUIPMENT, i)
 		s.background = UiStyle.slot_background(EQUIP_BG[i].x, EQUIP_BG[i].y)
 		s.tooltip_text = EQUIP_NAMES[i]
+		s.size_flags_horizontal = Control.SIZE_EXPAND | Control.SIZE_SHRINK_CENTER
 		eh.add_child(s)
 		equip_slots.append(s)
+	slots.add_child(_section_label("Inventory"))
 	var grid := GridContainer.new()
 	# 5 across x 5 down (PlayerData.INVENTORY_SIZE = 25).
 	grid.columns = INV_COLUMNS
-	grid.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	grid.add_theme_constant_override("h_separation", 2)
-	grid.add_theme_constant_override("v_separation", 2)
-	content.add_child(grid)
+	grid.add_theme_constant_override("v_separation", 6)
+	slots.add_child(grid)
 	for i in range(PlayerData.INVENTORY_SIZE):
 		var s := _make_slot(PlayerData.Store.INVENTORY, i)
+		s.size_flags_horizontal = Control.SIZE_EXPAND | Control.SIZE_SHRINK_CENTER
 		grid.add_child(s)
 		inv_slots.append(s)
 	_info = UiStyle.label("", 12, Color(0.85, 0.85, 1))
@@ -83,18 +123,6 @@ func build() -> void:
 	var bottom := HBoxContainer.new()
 	bottom.add_theme_constant_override("separation", 12)
 	content.add_child(bottom)
-	var gold_btn := Button.new()
-	gold_btn.flat = true
-	gold_btn.tooltip_text = "In bank mode: click to move gold to the bank"
-	gold_btn.pressed.connect(func():
-		if actions.mode == ItemActions.Mode.BANK:
-			actions.transfer_gold(false))
-	_gold = UiStyle.label("Gold: 0", 14, Color(1, 0.85, 0.3))
-	gold_btn.add_child(_gold)
-	gold_btn.custom_minimum_size = Vector2(130, 24)
-	bottom.add_child(gold_btn)
-	_gems = UiStyle.label("Gems: 0", 14, Color(0.6, 1, 1))
-	bottom.add_child(_gems)
 	_price = UiStyle.label("", 14, Color(1, 1, 0.5))
 	_price.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_price.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
@@ -102,6 +130,13 @@ func build() -> void:
 	_action = UiStyle.button("DROP", _on_action_pressed, 100)
 	_action.visible = false
 	bottom.add_child(_action)
+
+
+## Heading shown above the equipment row / inventory grid.
+func _section_label(text: String) -> Label:
+	var l := UiStyle.label(text, 14, Color(0.85, 0.85, 1))
+	l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	return l
 
 
 func bind(d: PlayerData, a: ItemActions) -> void:
