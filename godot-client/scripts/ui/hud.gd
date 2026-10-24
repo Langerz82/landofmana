@@ -26,6 +26,8 @@ signal back_to_login
 const KOMIKA := preload("res://assets/fonts/KOMIKAH.ttf")
 const PIXEL := preload("res://assets/fonts/graphicpixel-webfont.ttf")
 const MAX_CHAT_LINES := 60
+## Chat log lines are removed this long after they were added (ms).
+const CHAT_LINE_LIFETIME_MS := 30000
 
 var world = null
 var _name_label: Label
@@ -56,6 +58,7 @@ var _announcements: Array = []
 var _announce_until := 0
 var _target = null
 var _chat_lines: Array = []
+var _chat_times: Array = []   # ms tick each _chat_lines entry was added
 var _root: Control
 var windows: Dictionary = {}     # name -> GameWindow
 var modals: Modals
@@ -85,6 +88,10 @@ const CHAT_HEIGHT_FRAC := 0.3  # default chat log height: 30% of the screen heig
 const CHAT_WIDTH := 420
 const CHAT_MARGIN := 10       # gap from the bottom-left screen corner
 const BAR_MARGIN := 12.0      # gap between the menu / shortcut bars and the screen edge, and between the two bars
+## Menu bar buttons: base size (HUD units) and an extra scale on top of the UI
+## scale for the icon buttons and the show / hide button. Code-only setting.
+const MENU_BUTTON_SIZE := 42.0
+const MENU_BUTTON_SCALE := 1.0
 const CHAT_MIN_HEIGHT := 60
 const CHAT_GRIP := 8          # height of the draggable top border
 var _chat_grip: ColorRect
@@ -494,8 +501,24 @@ func is_blacked_out() -> bool:
 
 func _push_line(bb: String) -> void:
 	_chat_lines.append(bb)
+	_chat_times.append(Time.get_ticks_msec())
 	if _chat_lines.size() > MAX_CHAT_LINES:
 		_chat_lines.pop_front()
+		_chat_times.pop_front()
+	_chat_log.text = "\n".join(_chat_lines)
+
+
+## Drops chat log lines older than CHAT_LINE_LIFETIME_MS.
+func _expire_chat_lines(now: int) -> void:
+	if _chat_log == null or _chat_times.is_empty():
+		return
+	var n := 0
+	while n < _chat_times.size() and now - int(_chat_times[n]) >= CHAT_LINE_LIFETIME_MS:
+		n += 1
+	if n == 0:
+		return
+	_chat_lines = _chat_lines.slice(n)
+	_chat_times = _chat_times.slice(n)
 	_chat_log.text = "\n".join(_chat_lines)
 
 
@@ -697,14 +720,19 @@ func _build_game_ui(root: Control) -> void:
 		b.texture_normal = load(m[1]) if m[1] is String else UiStyle.menu_icon(m[1], m[2])
 		b.ignore_texture_size = true
 		b.stretch_mode = TextureButton.STRETCH_KEEP_ASPECT_CENTERED
-		b.custom_minimum_size = Vector2(36, 36)
+		b.custom_minimum_size = Vector2.ONE * MENU_BUTTON_SIZE * MENU_BUTTON_SCALE
 		b.tooltip_text = m[3]
 		b.focus_mode = Control.FOCUS_NONE
 		var wname: String = m[0]
 		b.pressed.connect(func(): menu_action(wname))
 		_menu.add_child(b)
-	# Hidden by default: only the show / hide button shows until the player opens it.
-	set_menu_visible(not bool(Config.get_setting("ui", "menuhidden", true)), false)
+	# Always hidden at start: only the show / hide button shows until the
+	# player opens it.
+	set_menu_visible(false, false)
+	# Windows draw (and take clicks) over the shortcut bar and menu bar where
+	# they overlap them; modals, the alarm and the popup menu added below
+	# still go on top of the windows.
+	root.move_child(wlayer, -1)
 	# modals, alarm, popup menu, joystick
 	modals = Modals.new()
 	root.add_child(modals)
@@ -714,12 +742,9 @@ func _build_game_ui(root: Control) -> void:
 	root.add_child(_player_menu)
 	joystick = TouchJoystick.new()
 	joystick.set_anchors_preset(Control.PRESET_BOTTOM_LEFT)
-	joystick.offset_left = 20
-	joystick.offset_top = -170
-	joystick.offset_right = 160
-	joystick.offset_bottom = -30
 	joystick.direction_changed.connect(func(o): world.joystick_direction(o))
 	root.add_child(joystick)
+	_layout_joystick()
 	set_joystick_visible(bool(Config.get_setting("ui", "joystick", OS.has_feature("mobile"))))
 	set_chat_visible(bool(Config.get_setting("ui", "chat", true)))
 	data.achievement_completed.connect(func(a): alarm("Achievement Completed\n" + str(a.summary), 0, "achievement"))
@@ -904,6 +929,7 @@ func _hide_alarm() -> void:
 
 
 func _process(_d: float) -> void:
+	_expire_chat_lines(Time.get_ticks_msec())
 	if _alarm == null:
 		return
 	var now := Time.get_ticks_msec()
@@ -1015,6 +1041,31 @@ func _layout_menu() -> void:
 		_dock_bars_mobile.call_deferred()
 	else:
 		_fit_menu.call_deferred()
+	_layout_joystick.call_deferred()   # after the bars have been docked
+
+
+## Joystick in the bottom-left corner, BAR_MARGIN above the top of whichever
+## bar sits along the bottom of the screen (shortcut bar or menu row, by the
+## shortcut layout). Measured in HUD units, so the UI scale and
+## MENU_BUTTON_SCALE are taken into account.
+func _layout_joystick() -> void:
+	if joystick == null:
+		return
+	var vp := ui_size()
+	var bottom := BAR_MARGIN
+	for c in [shortcut_bar, _menu_panel]:
+		if c == null or not c.visible:
+			continue
+		var r: Rect2 = c.get_rect()   # HUD units (children of the scaled root)
+		if r.end.y >= vp.y - BAR_MARGIN - 1.0:   # docked along the bottom edge
+			bottom = maxf(bottom, vp.y - r.position.y + BAR_MARGIN)
+	var sz := joystick.get_combined_minimum_size()
+	if sz == Vector2.ZERO:
+		sz = Vector2(140, 140)
+	joystick.offset_left = 20
+	joystick.offset_right = 20 + sz.x
+	joystick.offset_bottom = -bottom
+	joystick.offset_top = -bottom - sz.y
 
 
 ## The show / hide button sits inline with the icons: left of the row when the
@@ -1026,13 +1077,16 @@ func _layout_menu_toggle() -> void:
 	var vertical := _menu.vertical
 	var on := _menu.visible
 	_menu_row.vertical = vertical
+	# Full button size across, 2/3 of it along the row / column.
+	var big := MENU_BUTTON_SIZE * MENU_BUTTON_SCALE
+	var small := roundf(big * 2.0 / 3.0)
 	if vertical:
-		_menu_toggle.custom_minimum_size = Vector2(36, 24)
+		_menu_toggle.custom_minimum_size = Vector2(big, small)
 		_menu_toggle.size_flags_vertical = Control.SIZE_FILL
 		_menu_toggle.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 		_menu_toggle.text = "^" if on else "v"
 	else:
-		_menu_toggle.custom_minimum_size = Vector2(24, 36)
+		_menu_toggle.custom_minimum_size = Vector2(small, big)
 		_menu_toggle.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 		_menu_toggle.size_flags_horizontal = Control.SIZE_FILL
 		_menu_toggle.text = ">" if on else "<"
@@ -1186,6 +1240,8 @@ func apply_ui_scale() -> void:
 	UiStyle.update_hud_fonts(get_tree())
 	if _chat_box:
 		_layout_chat.call_deferred()
+	if joystick:
+		_layout_joystick.call_deferred()
 	if not windows.is_empty():
 		relayout_windows.call_deferred()
 
