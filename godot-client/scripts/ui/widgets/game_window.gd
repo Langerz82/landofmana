@@ -22,9 +22,10 @@ extends PanelContainer
 
 ## Space kept free under a window for the bottom bar (HUD units).
 const BOTTOM_MARGIN := 70.0
-## Largest a window opens at (HUD units, i.e. before the UI scale), across and
-## down. Content past this scrolls; on a screen too small for it the window is
-## smaller still (see max_size()).
+## Size every window opens at (HUD units, i.e. before the UI scale, so windows
+## get bigger on screen at higher UI scales), across and down. Content past
+## this scrolls; on a screen too small for it the window is smaller still (see
+## max_size()).
 const MAX_SIZE := Vector2(420, 420)
 ## Smallest height a flex_scroll list is squeezed to.
 const FLEX_MIN_HEIGHT := 80.0
@@ -45,17 +46,18 @@ var hud = null
 var world = null
 ## Optional main list (a ScrollContainer inside `content`) that takes the
 ## height left over by the rest of the window, so the window fits MAX_SIZE
-## without the whole body scrolling. flex_height: its preferred height when
-## the list itself is shorter.
+## without the whole body scrolling. flex_height: no longer used (windows
+## are always MAX_SIZE tall now); kept so subclasses that set it still work.
 var flex_scroll: ScrollContainer = null
 var flex_height := 0.0
 var _body: ScrollContainer        # scrolls `content` when it is bigger than MAX_SIZE
 var _content_root: VBoxContainer  # the real content box (subclasses may repoint `content`)
 
 
-func _init(t := "", min_size := Vector2(300, 200)) -> void:
+## min_size is kept for the subclasses' calls but no longer used: every window
+## is MAX_SIZE (fit_content()), shrunk only to fit a small screen.
+func _init(t := "", _min_size := Vector2(300, 200)) -> void:
 	title = t
-	custom_minimum_size = min_size.min(MAX_SIZE)
 	visible = false
 	mouse_filter = Control.MOUSE_FILTER_STOP
 
@@ -173,8 +175,9 @@ func content_limit(on_screen := true) -> Vector2:
 	return (max_size(on_screen) - chrome_size()).max(Vector2(60, 60))
 
 
-## Size the body (and flex_scroll, if any) so the window is at most
-## max_size(on_screen); anything bigger scrolls.
+## Size the body (and flex_scroll, if any) so the window is exactly
+## max_size(on_screen) -- MAX_SIZE, or less on a small screen; anything bigger
+## scrolls. flex_scroll takes all the height the rest of the window leaves.
 func fit_content(on_screen := true) -> void:
 	if _body == null:
 		return
@@ -182,16 +185,8 @@ func fit_content(on_screen := true) -> void:
 	if flex_scroll and flex_scroll.get_child_count() > 0:
 		var others := _content_root.get_combined_minimum_size().y - flex_scroll.get_combined_minimum_size().y
 		var full := (flex_scroll.get_child(0) as Control).get_combined_minimum_size().y
-		var want := maxf(full, flex_height)
-		flex_scroll.custom_minimum_size.y = maxf(minf(want, lim.y - others), minf(want, FLEX_MIN_HEIGHT))
-	var c := _content_root.get_combined_minimum_size()
-	var w := minf(c.x, lim.x)
-	var h := minf(c.y, lim.y)
-	if c.x > lim.x:
-		h = minf(c.y + _body.get_h_scroll_bar().get_combined_minimum_size().y, lim.y)
-	if c.y > lim.y:
-		w = minf(c.x + _body.get_v_scroll_bar().get_combined_minimum_size().x, lim.x)
-	_body.custom_minimum_size = Vector2(w, h)
+		flex_scroll.custom_minimum_size.y = maxf(lim.y - others, minf(full, FLEX_MIN_HEIGHT))
+	_body.custom_minimum_size = lim
 
 
 ## Forget a dragged position so the window is centred again.

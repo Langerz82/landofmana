@@ -48,6 +48,10 @@ const TABLET_MIN_DP := 600.0      # shortest screen side (in dp / CSS px) from w
 static var ui_scale := DEFAULT_UI_SCALE   # Settings -> UI scale: size of the whole HUD (panels, windows, icons)
 const UI_SCALE_MIN := 0.5
 const UI_SCALE_MAX := 3.0
+## Width of every scroll bar in the game (height for horizontal ones), wide
+## enough to grab with a finger on a phone. Applied to every ScrollBar as it
+## enters the tree (install_font_scaling()).
+const SCROLLBAR_WIDTH := 18
 ## Below this on-screen size (x normal) HUD text stops shrinking with the UI
 ## scale: at UI scale 0.5 the panels are half size but the text is 0.8x.
 const MIN_UI_TEXT_SCALE := 0.8
@@ -265,9 +269,30 @@ static func install_font_scaling(tree: SceneTree) -> void:
 	if not _font_hooked:
 		_font_hooked = true
 		tree.node_added.connect(func(n: Node):
+			if n is ScrollBar:
+				size_scroll_bar(n)
 			if n is Control:
 				_scale_control_fonts.call_deferred(n))
+		_size_scroll_bars(tree.root)
 	apply_font_scale(tree)
+
+
+## Give a scroll bar the standard SCROLLBAR_WIDTH (across for a vertical
+## bar, down for a horizontal one).
+static func size_scroll_bar(b: ScrollBar) -> void:
+	if b is VScrollBar:
+		b.custom_minimum_size.x = SCROLLBAR_WIDTH
+	else:
+		b.custom_minimum_size.y = SCROLLBAR_WIDTH
+
+
+## size_scroll_bar() on every scroll bar already in the tree under `n`
+## (including the internal ones of ScrollContainer / ItemList / RichTextLabel).
+static func _size_scroll_bars(n: Node) -> void:
+	for c in n.get_children(true):
+		if c is ScrollBar:
+			size_scroll_bar(c)
+		_size_scroll_bars(c)
 
 
 ## Re-apply the current font scale to the whole game (after the setting changes).

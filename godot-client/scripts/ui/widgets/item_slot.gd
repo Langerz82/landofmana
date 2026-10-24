@@ -97,7 +97,9 @@ func _draw() -> void:
 	else:
 		draw_rect(r, Color(0, 0, 0, 0.5))
 	if icon:
-		var isz := icon.get_size() if icon_native else Vector2(44, 44)
+		# 44x44 in a standard 52px slot; scaled up with the slot when it is
+		# made bigger (bank / inventory windows).
+		var isz := icon.get_size() if icon_native else Vector2(44, 44) * (minf(size.x, size.y) / SIZE)
 		draw_texture_rect(icon, Rect2((size - isz) / 2.0, isz), false)
 	var font := get_theme_default_font()
 	# Slot text follows the Font size setting, capped so it still fits the slot.

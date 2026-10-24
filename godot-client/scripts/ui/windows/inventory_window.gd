@@ -23,7 +23,8 @@ extends GameWindow
 
 const EQUIP_BG := [Vector2i(1, 0), Vector2i(1, 1), Vector2i(0, 1), Vector2i(1, 2), Vector2i(2, 2)]
 const EQUIP_NAMES := ["Helm", "Chest", "Gloves", "Boots", "Weapon"]
-const INV_COLUMNS := 5
+## Inventory grid is as wide as the bank grid; rows = INVENTORY_SIZE / 6.
+const INV_COLUMNS := BankWindow.COLUMNS
 const MODE_TEXT := {0: "DROP", 1: "SELL", 2: "REPAIR", 3: "ENCHANT", 4: "BANK", 5: "LIST"}
 
 var data: PlayerData
@@ -81,39 +82,36 @@ func build() -> void:
 	flex_height = 280
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	scroll.follow_focus = true
-	# Same finger-friendly scroll bar width as the bank window.
-	scroll.get_v_scroll_bar().custom_minimum_size.x = BankWindow.SCROLLBAR_WIDTH
 	content.add_child(scroll)
 	var slots := VBoxContainer.new()
 	slots.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	slots.add_theme_constant_override("separation", 8)
 	scroll.add_child(slots)
-	# Every slot expands its column (but keeps its own size, centred in it),
-	# so both rows spread evenly across the full window width and the
-	# equipment row lines up column for column with the inventory grid.
+	# Slots with a small gap (same size/gap as the bank), centred. The
+	# equipment row (5 slots) sits centred above the 6-wide inventory grid.
 	slots.add_child(_section_label("Equipment"))
 	var eh := HBoxContainer.new()
-	eh.add_theme_constant_override("separation", 2)
-	eh.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	eh.add_theme_constant_override("separation", BankWindow.SLOT_SEP)
+	eh.alignment = BoxContainer.ALIGNMENT_CENTER
 	slots.add_child(eh)
 	for i in range(PlayerData.EQUIPMENT_SIZE):
 		var s := _make_slot(PlayerData.Store.EQUIPMENT, i)
 		s.background = UiStyle.slot_background(EQUIP_BG[i].x, EQUIP_BG[i].y)
 		s.tooltip_text = EQUIP_NAMES[i]
-		s.size_flags_horizontal = Control.SIZE_EXPAND | Control.SIZE_SHRINK_CENTER
+		s.custom_minimum_size = Vector2(BankWindow.SLOT_SIZE, BankWindow.SLOT_SIZE)
 		eh.add_child(s)
 		equip_slots.append(s)
 	slots.add_child(_section_label("Inventory"))
 	var grid := GridContainer.new()
-	# 5 across x 6 down (PlayerData.INVENTORY_SIZE = 30).
+	# 6 across x 5 down (PlayerData.INVENTORY_SIZE = 30).
 	grid.columns = INV_COLUMNS
-	grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	grid.add_theme_constant_override("h_separation", 2)
-	grid.add_theme_constant_override("v_separation", 6)
+	grid.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	grid.add_theme_constant_override("h_separation", BankWindow.SLOT_SEP)
+	grid.add_theme_constant_override("v_separation", BankWindow.SLOT_SEP)
 	slots.add_child(grid)
 	for i in range(PlayerData.INVENTORY_SIZE):
 		var s := _make_slot(PlayerData.Store.INVENTORY, i)
-		s.size_flags_horizontal = Control.SIZE_EXPAND | Control.SIZE_SHRINK_CENTER
+		s.custom_minimum_size = Vector2(BankWindow.SLOT_SIZE, BankWindow.SLOT_SIZE)
 		grid.add_child(s)
 		inv_slots.append(s)
 	_info = UiStyle.label("", 12, Color(0.85, 0.85, 1))

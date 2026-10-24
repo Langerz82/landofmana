@@ -17,17 +17,21 @@
 
 class_name BankWindow
 extends GameWindow
-## Bank (dialog/bank/*.js, bankhandler.js): 96 slots (5 across, scrolling), gold transfer and the
+## Bank (dialog/bank/*.js, bankhandler.js): 96 slots (6 across, scrolling), gold transfer and the
 ## "STORE" button that opens the inventory in bank mode.
 
-## Bank is 5 across and as many rows down as BANK_SIZE needs (96 -> 20).
-const COLUMNS := 5
-const SLOT_SEP := 2
+## Bank is 6 across and as many rows down as BANK_SIZE needs (96 -> 16).
+const COLUMNS := 6
+## Bank + inventory slot size and the gap between slots: 6 x 58 + 5 x 4 =
+## 368, comfortably inside a 420-wide window once the panel margins (20) and
+## the scroll bar (18) are taken off. InventoryWindow uses the same values.
+const SLOT_SIZE := 58
+const SLOT_SEP := 4
 ## Rows always shown; more are shown when the screen has room, the rest are
 ## reached with the scroll bar on the right.
 const MIN_ROWS := 2
-## Wide enough to grab with a finger on a phone.
-const SCROLLBAR_WIDTH := 18
+## Every scroll bar's width (UiStyle sets it on all of them).
+const SCROLLBAR_WIDTH := UiStyle.SCROLLBAR_WIDTH
 
 var data: PlayerData
 var actions: ItemActions
@@ -53,12 +57,13 @@ func build() -> void:
 	content.add_child(_scroll)
 	_grid = GridContainer.new()
 	_grid.columns = COLUMNS
-	# Slots expand their columns (keeping their own size, centred), so the
-	# 5 columns spread evenly across the full window width.
-	_grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_grid.add_theme_constant_override("h_separation", SLOT_SEP)
 	_grid.add_theme_constant_override("v_separation", SLOT_SEP)
-	_scroll.add_child(_grid)
+	# Centred across the window, left of the scroll bar.
+	var centre := CenterContainer.new()
+	centre.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_scroll.add_child(centre)
+	centre.add_child(_grid)
 	for i in range(PlayerData.BANK_SIZE):
 		var s := ItemSlot.new()
 		s.store_type = PlayerData.Store.BANK
@@ -68,7 +73,7 @@ func build() -> void:
 		s.activated.connect(func(sl: ItemSlot): _retrieve(sl.index))
 		s.secondary.connect(func(sl: ItemSlot): _retrieve(sl.index))
 		s.dropped.connect(_on_dropped)
-		s.size_flags_horizontal = Control.SIZE_EXPAND | Control.SIZE_SHRINK_CENTER
+		s.custom_minimum_size = Vector2(SLOT_SIZE, SLOT_SIZE)
 		_grid.add_child(s)
 		slots.append(s)
 	_set_visible_rows(MIN_ROWS)
