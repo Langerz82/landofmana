@@ -20,6 +20,9 @@ extends PanelContainer
 ## Base for the in-game windows (dialog/dialog.js + the HTML ".frame"
 ## markup): a title bar you can drag, a close button and a content box.
 
+## Space kept free under a window for the bottom bar (HUD units).
+const BOTTOM_MARGIN := 70.0
+
 signal opened
 signal closed
 
@@ -114,11 +117,10 @@ func _place() -> void:
 	_placing = true
 	reset_size()
 	var vp := get_parent_area_size()   # HUD units (the HUD may be scaled)
-	var bottom_margin := 70.0
 	if not _user_moved:
 		position = ((vp - size) / 2.0).round()
 	position.x = clampf(position.x, 0, maxf(0, vp.x - size.x))
-	position.y = clampf(position.y, 0, maxf(0, vp.y - bottom_margin - size.y))
+	position.y = clampf(position.y, 0, maxf(0, vp.y - BOTTOM_MARGIN - size.y))
 	_placing = false
 
 

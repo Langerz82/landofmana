@@ -63,6 +63,7 @@ var shortcut_bar: ShortcutBar
 var joystick: TouchJoystick
 var _menu: BoxContainer
 var _menu_panel: PanelContainer
+var _menu_toggle: Button   # left of the menu icons: hides / shows them
 # Alarm box (quest / achievement alerts): same size and place as the NPC
 # dialogue box, one at a time, never together with a dialogue.
 const ALARM_DELAY_MS := 2000   # wait before each alert (and after a dialogue closes)
@@ -90,6 +91,7 @@ var _chat_drag_from := -1.0   # mouse y when the drag started (-1 = not dragging
 var _chat_drag_h := 0.0
 var _hover = null
 var _panels: Array = []
+var _landscape = null   # last screen orientation seen on mobile (null = not known yet)
 
 
 func _ready() -> void:
@@ -120,7 +122,8 @@ func _ready() -> void:
 		_build_game_ui(root)
 	UiStyle.set_hud_root(root)
 	apply_ui_scale()
-	get_viewport().size_changed.connect(apply_ui_scale)
+	_landscape = _is_landscape()
+	get_viewport().size_changed.connect(_on_viewport_size_changed)
 	announce("Welcome to Land Of Mana!", 5000)
 
 
@@ -673,9 +676,19 @@ func _build_game_ui(root: Control) -> void:
 	_panels.append(mp)
 	root.add_child(mp)
 	_menu_panel = mp
+	var mrow := HBoxContainer.new()
+	mrow.add_theme_constant_override("separation", 4)
+	mp.add_child(mrow)
+	_menu_toggle = Button.new()
+	_menu_toggle.focus_mode = Control.FOCUS_NONE
+	_menu_toggle.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	_menu_toggle.custom_minimum_size = Vector2(24, 36)
+	UiStyle.style_button(_menu_toggle)
+	_menu_toggle.pressed.connect(func(): set_menu_visible(not _menu.visible))
+	mrow.add_child(_menu_toggle)
 	_menu = BoxContainer.new()
 	_menu.add_theme_constant_override("separation", 2)
-	mp.add_child(_menu)
+	mrow.add_child(_menu)
 	var entries: Array = MENU.duplicate()
 	if LeaderboardWindow.available():
 		entries.insert(entries.find(MENU[7]), ["rankings", 448, 32, "Rankings", 0])
@@ -690,7 +703,7 @@ func _build_game_ui(root: Control) -> void:
 		var wname: String = m[0]
 		b.pressed.connect(func(): menu_action(wname))
 		_menu.add_child(b)
-	_layout_menu()
+	set_menu_visible(not bool(Config.get_setting("ui", "menuhidden", false)), false)
 	# modals, alarm, popup menu, joystick
 	modals = Modals.new()
 	root.add_child(modals)
@@ -958,6 +971,20 @@ func apply_shortcut_style() -> void:
 	_layout_menu()
 
 
+## Show / hide the menu icons (the toggle button left of them stays). Saved
+## in the settings unless `save` is false.
+func set_menu_visible(on: bool, save := true) -> void:
+	if _menu == null:
+		return
+	_menu.visible = on
+	if _menu_toggle:
+		_menu_toggle.text = ">" if on else "<"
+		_menu_toggle.tooltip_text = "Hide menu" if on else "Show menu"
+	if save:
+		Config.set_setting("ui", "menuhidden", not on)
+	_layout_menu()
+
+
 ## Shortcut bar horizontal (bottom-right corner): menu icons are a column in
 ## the middle of the right edge. Shortcut bar vertical (middle of the right
 ## edge): menu icons are a row in the bottom-right corner.
@@ -1140,6 +1167,62 @@ func apply_ui_scale() -> void:
 		_layout_chat.call_deferred()
 	if not windows.is_empty():
 		relayout_windows.call_deferred()
+
+
+func _is_landscape() -> bool:
+	var vp := get_viewport().get_visible_rect().size
+	return vp.x >= vp.y
+
+
+## Screen resized. On phones / tablets a switch between portrait and landscape
+## also sets the UI scale so that every window fits on the new screen.
+func _on_viewport_size_changed() -> void:
+	apply_ui_scale()
+	if not UiStyle.is_mobile():
+		return
+	var land := _is_landscape()
+	if _landscape != null and land != _landscape:
+		fit_ui_scale_to_screen.call_deferred()
+	_landscape = land
+
+
+## Largest window (HUD units): the biggest width and the biggest height of
+## all game windows, each at its minimum size.
+func _largest_window_size() -> Vector2:
+	var need := Vector2.ZERO
+	for w in windows.values():
+		var m: Vector2 = w.get_combined_minimum_size()
+		need = need.max(m)
+	return need
+
+
+## Set the UI scale (and save it as the setting) to the biggest value at which
+## every window fits on screen above the bottom bar, but no bigger than the
+## device's default UI scale. Called when the screen orientation changes.
+func fit_ui_scale_to_screen() -> void:
+	if _root == null or windows.is_empty():
+		return
+	var vp := get_viewport().get_visible_rect().size
+	var cap := minf(UiStyle.default_ui_scale(), UiStyle.UI_SCALE_MAX)
+	var s := UiStyle.ui_scale
+	# Text has a readability floor below MIN_UI_TEXT_SCALE, so window sizes in
+	# HUD units change a bit with the scale: re-measure until it settles.
+	for i in range(4):
+		var need := _largest_window_size()
+		if need.x <= 0.0 or need.y <= 0.0:
+			return
+		var fit := minf(vp.x / need.x, vp.y / (need.y + GameWindow.BOTTOM_MARGIN))
+		var ns := clampf(floorf(fit / 0.05 + 0.0001) * 0.05, UiStyle.UI_SCALE_MIN, cap)
+		if i > 0 and ns >= s:
+			break
+		s = ns
+		UiStyle.ui_scale = s
+		apply_ui_scale()   # updates the HUD fonts, so minimum sizes are re-measured
+	UiStyle.ui_scale = s
+	Config.set_setting("ui", "uiscale", snappedf(s, 0.01))
+	var us = window("uisettings")
+	if us and us.has_method("sync_ui_scale"):
+		us.sync_ui_scale()
 
 
 ## Size of the HUD area in HUD units (the screen size divided by the UI scale).

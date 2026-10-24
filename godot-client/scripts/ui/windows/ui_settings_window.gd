@@ -22,6 +22,9 @@ extends SettingsWindow
 ## saved in user://settings.cfg like the other settings.
 
 
+var _ui_scale_box: SpinBox
+
+
 func _init() -> void:
 	super._init()
 	title = "UI SETTINGS"
@@ -54,6 +57,7 @@ func build() -> void:
 		UiStyle.ui_scale = clampf(v, UiStyle.UI_SCALE_MIN, UiStyle.UI_SCALE_MAX)
 		hud.apply_ui_scale())
 	_row("UI scale", usb)
+	_ui_scale_box = usb
 	var hb := OptionButton.new()
 	var cur_ms := SmoothBar.duration_ms()
 	for i in range(BAR_SPEEDS.size()):
@@ -80,6 +84,12 @@ func build() -> void:
 	content.add_child(UiStyle.button("Reset colours", _reset_colors))
 	content.add_child(HSeparator.new())
 	content.add_child(UiStyle.button("Back to Settings", back_to_settings))
+
+
+## Show the current UI scale after it was changed elsewhere (screen rotation).
+func sync_ui_scale() -> void:
+	if _ui_scale_box:
+		_ui_scale_box.set_value_no_signal(UiStyle.ui_scale)
 
 
 func back_to_settings() -> void:
