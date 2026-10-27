@@ -38,6 +38,8 @@ var _hp_text: Label
 var _ep_text: Label
 var _gold_label: Label
 var _target_panel: PanelContainer
+var _player_panel: PanelContainer
+var _help: Label   # key hints, top right (desktop only)
 var _target_name: Label
 var _target_bar: SmoothBar
 var _chat_log: RichTextLabel
@@ -183,6 +185,7 @@ func _build_player_panel(root: Control) -> void:
 	var p := PanelContainer.new()
 	p.add_theme_stylebox_override("panel", panel_style())
 	_panels.append(p)
+	_player_panel = p
 	p.position = Vector2(10, 10)
 	p.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	root.add_child(p)
@@ -229,13 +232,72 @@ func _build_target_panel(root: Control) -> void:
 	_target_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_target_panel.visible = false
 	root.add_child(_target_panel)
+	_target_panel.resized.connect(_layout_target_panel)
+	_target_panel.minimum_size_changed.connect(_layout_target_panel)
 	var v := VBoxContainer.new()
 	_target_panel.add_child(v)
 	_target_name = _label("", 12, KOMIKA)
-	_target_name.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_target_name.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
 	v.add_child(_target_name)
-	_target_bar = _bar(Color(0.85, 0.15, 0.15), 10, true)
+	_target_bar = _bar(Color(0.85, 0.15, 0.15), 16, true)   # same height as the player HP bar
 	v.add_child(_target_bar)
+	_player_panel.resized.connect(_layout_player_panel)   # also places the target frame
+	_player_panel.minimum_size_changed.connect(_layout_player_panel)
+
+
+const PLAYER_PANEL_POS := Vector2(10, 10)
+const PANEL_GAP := 6.0
+
+## Top edge of the status panels: the same as the player panel's usual spot,
+## or just below the key hints (help text) when they are showing. In HUD units.
+func _status_panels_top() -> float:
+	var text := _help_text_rect()
+	if text.has_area():
+		return maxf(PLAYER_PANEL_POS.y, text.end.y + PANEL_GAP)
+	return PLAYER_PANEL_POS.y
+
+
+## Player status panel in the top-left corner, below the key hints when they
+## are showing. Then the target frame is placed again, as it depends on the
+## player panel. In HUD units.
+func _layout_player_panel() -> void:
+	if _player_panel == null:
+		return
+	_player_panel.reset_size()   # shrink to its content
+	_player_panel.position = Vector2(PLAYER_PANEL_POS.x, _status_panels_top())
+	_layout_target_panel()
+
+
+## Area the key hints' text really covers (the label itself is much wider than
+## its right-aligned text). Empty when there are no key hints. In HUD units.
+func _help_text_rect() -> Rect2:
+	if _help == null or not is_instance_valid(_help) or not _help.visible:
+		return Rect2()
+	var r := _help.get_rect()
+	var font := _help.get_theme_font("font")
+	var text_w := font.get_string_size(_help.text, HORIZONTAL_ALIGNMENT_LEFT, -1, _help.get_theme_font_size("font_size")).x
+	var bottom := maxf(r.end.y, r.position.y + _help.get_combined_minimum_size().y)
+	return Rect2(r.end.x - text_w, r.position.y, text_w, bottom - r.position.y)
+
+
+## Target frame at the top middle, level with the player status panel (so
+## also below the key hints when they are showing). If it would cover the
+## player panel (narrow screen, big UI scale or font), it goes just below the
+## player panel instead. Always sized to its content, so there is no empty
+## space under the health bar. In HUD units.
+func _layout_target_panel() -> void:
+	if _target_panel == null or _player_panel == null:
+		return
+	var sz := _target_panel.get_combined_minimum_size()
+	var parent_w := _target_panel.get_parent_area_size().x
+	var want := Rect2(Vector2((parent_w - sz.x) / 2.0, _status_panels_top()), sz)
+	var player := _player_panel.get_rect()
+	if want.intersects(player):
+		want.position = Vector2(player.position.x, player.end.y + PANEL_GAP)
+	_target_panel.offset_left = want.position.x - _target_panel.anchor_left * parent_w
+	_target_panel.offset_right = _target_panel.offset_left + sz.x
+	_target_panel.offset_top = want.position.y
+	_target_panel.offset_bottom = want.position.y + sz.y
 
 
 func _build_chat(root: Control) -> void:
@@ -312,6 +374,10 @@ func _build_center_texts(root: Control) -> void:
 	help.offset_top = 8
 	help.offset_bottom = 26
 	root.add_child(help)
+	_help = help
+	help.resized.connect(_layout_player_panel)
+	help.minimum_size_changed.connect(_layout_player_panel)
+	_layout_player_panel.call_deferred()
 
 
 func _build_dialogue(root: Control) -> void:
@@ -451,6 +517,7 @@ func set_target(e) -> void:
 	elif e is ItemEntity:
 		title = e.display_name()
 	_target_name.text = title
+	_layout_target_panel.call_deferred()
 	var has_hp: bool = e.stats.has("hpMax") and int(e.stats.hpMax) > 0
 	_target_bar.visible = has_hp
 	if has_hp:
@@ -1238,6 +1305,7 @@ func apply_ui_scale() -> void:
 	_root.scale = Vector2(s, s)
 	_root.size = vp / s
 	UiStyle.update_hud_fonts(get_tree())
+	_layout_player_panel.call_deferred()   # also places the target frame
 	if _chat_box:
 		_layout_chat.call_deferred()
 	if joystick:
