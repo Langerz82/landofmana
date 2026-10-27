@@ -30,8 +30,8 @@ static var menu_color := Color("#38A7DF")
 static var button_color := Color("#F7B132")
 static var panel_border := Color(DEFAULT_PANEL_BORDER)   # Settings -> Panel border
 static var panel_bg := Color(DEFAULT_PANEL_BG)           # Settings -> Panel background
-const DEFAULT_FONT_SCALE := 1.0   # font size scale used until the player picks one
-const MOBILE_FONT_SCALE := 1.0    # font size scale on phones / tablets until the player picks one
+const DEFAULT_FONT_SCALE := 1.25   # font size scale used until the player picks one
+const MOBILE_FONT_SCALE := 1.25    # font size scale on phones / tablets until the player picks one
 static var font_scale := DEFAULT_FONT_SCALE   # Settings -> Font size: 1 = normal, >1 bigger, <1 smaller
 const FONT_SCALE_MIN := 0.5
 const FONT_SCALE_MAX := 2.0
