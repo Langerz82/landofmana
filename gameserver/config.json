@@ -4,6 +4,7 @@
   "port": 1342,
   "user_address": "127.0.0.1",
   "user_port": 1341,
+  "user_protocol": "http",
   "user_password": "thisisatest",
   "https_cert": "",
   "https_key": "",

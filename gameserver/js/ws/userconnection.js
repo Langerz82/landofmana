@@ -58,14 +58,40 @@ export default class UserConnection extends Connection {
         });
 
         this._connection.on('connect_error', function (err) {
-            console.info(
-                'Failed to establish a connection to the servers, or lost     connection'
+            // FIX: was `console.info(String((err && err.message) || err))`, which prints `{}`
+            // for an Error (its fields aren't enumerable), hiding the reason.
+            // socket.io-client puts the transport's own error (e.g.
+            // ECONNREFUSED, a TLS certificate error, or the HTTP status when
+            // the userserver refuses the handshake) in err.description.
+            // With the default polling transport, err.context is the
+            // request: status 0 means no HTTP response at all (port closed,
+            // host unreachable, firewall, TLS failure), and the socket-level
+            // error is in context.statusText. A non-zero status is the HTTP
+            // status the userserver answered with (403 = refused by
+            // world_allowed_ips).
+            const ctx = err && err.context;
+            let detail = '';
+            if (ctx && ctx.status) {
+                detail = 'HTTP ' + ctx.status +
+                    (ctx.status === 403 ? ' -- refused by the userserver (check world_allowed_ips)' : '');
+            } else if (ctx && ctx.statusText) {
+                const e = ctx.statusText;
+                detail = (e && (e.code || e.message)) || String(e);
+                if (e && e.code && e.message && !String(e.message).includes(e.code))
+                    detail = e.code + ': ' + e.message;
+            } else if (err && err.description && typeof err.description === 'object') {
+                const d = err.description;
+                detail = d.code || d.message || String(d);
+            }
+            console.warn(
+                'Failed to connect to the userserver at ' + connectString + ': ' +
+                    ((err && err.message) || err) +
+                    (detail ? ' (' + detail + ')' : '')
             );
-            console.info(JSON.stringify(err));
         });
 
         this._connection.on('error', function (err) {
-            console.error(JSON.stringify(err));
+            console.error('userserver connection error: ' + ((err && err.message) || err));
         });
 
         this._connection.on('message', this.fnOnMessage);

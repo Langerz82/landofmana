@@ -98,6 +98,24 @@ export default class WebsocketServer extends sServer {
         };
 
         this._protoServer = protocol.createServer(app);
+        // FIX: a failed listen -- most often EADDRINUSE, because an earlier
+        // instance of this server is still running -- used to surface only as
+        // an 'uncaughtException' that main.js logs and ignores, leaving a
+        // half-started server that can't accept any connections. Stop with a
+        // clear message instead.
+        this._protoServer.on('error', (err) => {
+            if (this._protoServer.listening) {
+                console.error('WebsocketServer :' + config.port + ' error: ' + err.message);
+                return;
+            }
+            console.error(
+                'FATAL: cannot listen on ' + config.ip + ':' + config.port + ' -- ' +
+                    (err.code === 'EADDRINUSE'
+                        ? 'the port is already in use. Is another instance of this server still running? Stop it (or wait for it to finish shutting down) and start again.'
+                        : err.message)
+            );
+            process.exit(1);
+        });
         this._protoServer.listen(config.port, config.ip, () => {
             console.info('Server (only) is listening on port ' + config.port);
         });

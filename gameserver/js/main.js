@@ -442,7 +442,6 @@ function main(config) {
 
     process.on('uncaughtException', function (e) {
         // Display the full error stack, to aid debugging
-        console.info(JSON.stringify(e));
 
         console.error('uncaughtException: ' + e.stack);
     });

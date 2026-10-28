@@ -507,7 +507,6 @@ async function main(config) {
     });
 
     process.on('uncaughtException', (e) => {
-        console.info(JSON.stringify(e));
         console.error('uncaughtException: ' + e.stack);
     });
 
