@@ -34,17 +34,28 @@ const config = {};
 // re-check config.waitForConfig() at every gated call site.
 export let G_DEBUG = false;
 
+// "debug": 1 -> every log.debug()/log.info() message shows in the console
+// (lib/log.js, a classic script, so it's reached via the global). Messages
+// logged before this point were held by the logger and are flushed now.
+const setLogLevel = function (debug) {
+    const logger = globalThis.log;
+    if (logger && typeof logger.setLevel === 'function')
+        logger.setLevel(debug ? 'debug' : 'error');
+};
+
 fetch('./config/config_build.json')
     .then((response) => response.json())
     .then((json) => {
         config.build = json;
         G_DEBUG = !!json.debug;
+        setLogLevel(G_DEBUG);
     })
     // FIX: no .catch meant a failed fetch (network blip, 404, offline) left config.build
     // unset forever with no visible error; waitForConfig() below would then poll silently
     // every 100ms with no way to ever succeed. Surface the failure so it's at least visible.
     .catch((err) => {
         console.error('Failed to load config/config_build.json:', err);
+        setLogLevel(false);
     });
 
 config.waitForConfig = function (callback) {

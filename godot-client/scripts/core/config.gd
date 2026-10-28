@@ -31,7 +31,7 @@ var build: Dictionary = {
 }
 
 var settings := ConfigFile.new()
-var log_packets := false   # print every packet (--log-packets)
+var log_packets := false   # print every packet (--log-packets, or "debug": 1 in config_build.json)
 
 
 func _ready() -> void:
@@ -43,6 +43,9 @@ func _ready() -> void:
 	else:
 		push_warning("Config: could not read %s, using defaults" % BUILD_PATH)
 	settings.load(SETTINGS_PATH)
+	# "debug": 1 in config_build.json turns on all debug logging.
+	if is_debug():
+		log_packets = true
 	# Command line override: --server=host:port
 	for arg in OS.get_cmdline_user_args():
 		if arg == "--log-packets":
