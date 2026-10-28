@@ -23,6 +23,7 @@ import SkillHandler from '../../skillhandler.js';
 import SkillEffectHandler from '../../effecthandler/effecthandler.js';
 import PacketHandler from '../../packets/packethandler.js';
 import PlayerQuests from './playerquests.js';
+import QuestText from '../../questtext.js';
 import PlayerHarvest from './playerharvest.js';
 import PlayerItems from './playeritems.js';
 import PlayerCombat from './playercombat.js';
@@ -182,6 +183,10 @@ class Player extends Character {
     // Character's removeAttackers() -- doing the walk after would iterate
     // an already-emptied attackers map and silently return no one to spawn.
     destroy() {
+        // Drop any quest offer still waiting to activate (see
+        // PlayerQuests.setPendingOffer()) so its timer can't fire for a
+        // player who has left.
+        this.quests.clearPendingOffer();
         this.die();
     }
 
@@ -361,16 +366,25 @@ class Player extends Character {
             sendMessage = sendMessage.concat(item.toArray());
         }
 
-        // TODO - Make Quests work with new Class.
-        // Send All Quests
+        // Send All Quests -- 14 fields each: the 13 quest.toClient() fields,
+        // then the quest text references (QuestText.getQuestText(): lang
+        // paths incl. the summary -- a fresh client has none yet) as
+        // URI-encoded JSON. This packet is comma-joined, so the
+        // text has to be encoded to keep its commas from splitting fields;
+        // encodeURIComponent escapes ',' (and everything else unsafe).
         const quests = self.quests.quests.filter(function (q) {
             return q.status !== Types.QuestStatus.COMPLETE;
         });
         sendMessage.push(quests.length);
         for (let questIndex = 0; questIndex < quests.length; ++questIndex) {
             const q = quests[questIndex];
-            console.info(JSON.stringify(q));
+            if (G_DEBUG) console.info(JSON.stringify(q));
             sendMessage = sendMessage.concat(q.toClient());
+            sendMessage.push(
+                encodeURIComponent(
+                    JSON.stringify(QuestText.getQuestText(q, true))
+                )
+            );
         }
 
         // SEND ACHIEVEMENTS

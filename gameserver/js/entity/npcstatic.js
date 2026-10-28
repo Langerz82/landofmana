@@ -17,7 +17,6 @@
 // or <https://www.gnu.org/licenses/>.
 
 import Entity from './entity.js';
-import Messages from '../message.js';
 import EntityQuests from '../entityquests.js';
 import Utils from '../utils.js';
 import { Types } from '../common.js';
@@ -119,9 +118,7 @@ class NpcStatic extends Entity {
                 return;
             }
 
-            const langcode = 'QUESTS_' + newQid;
-            const msg = new Messages.Dialogue(this, langcode);
-            player.sendPlayer(msg);
+            this.entityQuests.offerQuest(player, newQid);
         }
     }
 

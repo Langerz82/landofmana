@@ -97,7 +97,6 @@ export default class ClientCallbacks {
         client.onQuest(this.onQuest.bind(this));
         client.onAchievement(this.onAchievement.bind(this));
         client.onItemSlot(this.onItemSlot.bind(this));
-        client.onDialogue(this.onDialogue.bind(this));
         client.onNotify(this.onNotify.bind(this));
         client.onStatInfo(this.onStatInfo.bind(this));
         client.onAuction(this.onAuction.bind(this));

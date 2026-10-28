@@ -181,11 +181,14 @@ export function installClientCallbacksPlayerState(proto) {
             // Utils.ArrayParseInt() on the raw slice. Removed rather than
             // converted, since keeping a discarded-result call around is
             // just dead code.
-            const questArray = data.splice(0, questCount * 13);
+            // 14 fields per quest: 13 quest fields + the server-resolved
+            // quest text (URI-encoded JSON, decoded in Quest.setText()).
+            const QUEST_FIELDS = 14;
+            const questArray = data.splice(0, questCount * QUEST_FIELDS);
             for (let i = 0; i < questCount; ++i) {
-                const index = i * 13;
+                const index = i * QUEST_FIELDS;
                 p.quests[questArray[index]] = new Quest(
-                    questArray.slice(index, index + 13)
+                    questArray.slice(index, index + QUEST_FIELDS)
                 );
             }
         }

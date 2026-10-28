@@ -171,8 +171,10 @@ class WorldActionHandler {
         // the same log-spam vector already gated behind G_DEBUG in
         // combathandler.js's reject path. Gated the same way.
         if (G_DEBUG) console.info('handleQuest');
+        // msg[1] (quest id) is unused: WC_SPEECH no longer tells the client
+        // which quest is on offer, so clients send 0 and the server uses the
+        // offer it has pending for this NPC.
         const npcId = parseInt(msg[0]);
-        const questId = parseInt(msg[1]);
         const status = parseInt(msg[2]);
 
         const p = this.player;
@@ -190,10 +192,18 @@ class WorldActionHandler {
             return;
         }
 
-        if (status === 1) npc.entityQuests.acceptQuest(p, questId);
-        else {
-            npc.entityQuests.rejectQuest(p, questId);
-        }
+        // The server activates an offered quest itself at the end of the
+        // offer dialogue (EntityQuests.offerQuest()). The client sends this
+        // when it finishes an NPC's dialogue -- which can be early, if the
+        // player skipped through -- and it activates the offer pending for
+        // this NPC right away. Ignored if nothing is pending (e.g. the end of
+        // a reward / no-more-quests dialogue), so it can never accept an
+        // arbitrary quest.
+        if (status !== 1) return;
+        const questId = p.quests.getPendingOfferQuestId(npcId);
+        if (questId === null) return;
+        p.quests.clearPendingOffer();
+        npc.entityQuests.acceptQuest(p, questId);
     }
 
     handleTalkToNPC(message) {

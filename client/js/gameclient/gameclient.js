@@ -159,7 +159,6 @@ export default class GameClient {
         this.handlers[Types.Messages.WC_SKILL_XP] = this.skillxp_callback;
         this.handlers[Types.Messages.WC_SPAWN] = this.receiveSpawn;
         this.handlers[Types.Messages.WC_SPEECH] = this.speech_callback;
-        this.handlers[Types.Messages.WC_DIALOGUE] = this.dialogue_callback;
         this.handlers[Types.Messages.WC_STATINFO] = this.statInfo_callback;
         this.handlers[Types.Messages.WC_TELEPORT_MAP] =
             this.teleportmap_callback;

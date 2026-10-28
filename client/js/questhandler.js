@@ -18,8 +18,6 @@
 
 // Converted from AMD (define) + Class.extend to a native ES6 module/class.
 /* global Types, Class, _, questSerial */
-import NpcData from './data/npcdata.js';
-import QuestData from './data/questdata.js';
 import MobData from './data/mobdata.js';
 import ItemLoot from './data/itemlootdata.js';
 

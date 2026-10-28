@@ -18,7 +18,7 @@
 
 // Mixin extracted from game.js: NPC dialogue/speech bubble message flow: showDialogue, createMessage, destroyMessage.
 // Applied onto Game.prototype via install*(...) call in game.js; not a standalone class.
-/* global Utils, game */
+/* global Utils, game, Types */
 
 export function installGameDialogue(proto) {
     proto.showDialogue = function () {
@@ -35,25 +35,24 @@ export function installGameDialogue(proto) {
 
             if (!entity) return;
 
-            const data = entity.dialogue[entity.dialogueIndex - 1];
-            if (data && data.length === 3) {
-                const action = data[2];
-                if (action === 'QUEST') {
-                    game.client.sendQuest(
-                        entity.id,
-                        parseInt(entity.questId),
-                        1
-                    );
-                }
-            }
+            // The gameserver activates an offered quest itself when the offer
+            // dialogue ends; the client reports reaching the end of any
+            // server speech (which matters when the player skipped ahead of
+            // the server's timer). No quest id -- the server accepts the
+            // offer pending for this NPC, or ignores it if there is none.
 
             if (entity.dialogueIndex >= entity.dialogue.length) {
+                if (entity.reportSpeechEnd) {
+                    game.client.sendQuest(entity.id, 0, 1);
+                    entity.reportSpeechEnd = false;
+                }
                 if (entity.quest) {
                     self.questhandler.handleQuest(entity.quest);
                     p.dialogueQuest = null;
                     entity.quest = null;
                 }
                 entity.dialogueIndex = 0;
+                entity.dialogueDelay = undefined;
                 p.dialogueEntity = null;
                 entity = null;
                 game.userAlarm.show();
@@ -67,9 +66,10 @@ export function installGameDialogue(proto) {
 
         entity.dialogueIndex++;
 
+        // Per-line delay: the server's, when it sent one, else the default.
         game.destroyMessageTimeout = setTimeout(function () {
             game.showDialogue();
-        }, 5000);
+        }, entity.dialogueDelay || Types.DIALOGUE_DELAY_DEFAULT);
     };
 
     proto.createMessage = function () {

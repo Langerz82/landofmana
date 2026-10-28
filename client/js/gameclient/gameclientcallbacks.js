@@ -103,10 +103,6 @@ export function installGameClientCallbacks(proto) {
         this.notify_callback = callback;
     };
 
-    proto.onDialogue = function (callback) {
-        this.dialogue_callback = callback;
-    };
-
     proto.onQuest = function (callback) {
         this.quest_callback = callback;
     };

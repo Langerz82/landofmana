@@ -26,6 +26,35 @@ class PlayerQuests {
         this.player = player;
         this.quests = [];
         this.completeQuests = {};
+        // Quest offer dialogue currently playing for this player, waiting to
+        // activate the quest when the dialogue ends: {npcId, questId, timer}.
+        this.pendingOffer = null;
+    }
+
+    // Schedules `activate` to run once the offer dialogue (delayMs long) has
+    // finished on the client. Only one offer can be pending at a time -- a
+    // new offer (e.g. re-talking to the NPC) replaces the previous one.
+    setPendingOffer(npc, questId, delayMs, activate) {
+        this.clearPendingOffer();
+        const offer = { npcId: npc.id, questId: String(questId), timer: null };
+        offer.timer = setTimeout(() => {
+            if (this.pendingOffer !== offer) return;
+            this.pendingOffer = null;
+            activate();
+        }, Math.max(0, delayMs));
+        this.pendingOffer = offer;
+    }
+
+    // The quest id of the offer pending for this NPC, or null.
+    getPendingOfferQuestId(npcId) {
+        const offer = this.pendingOffer;
+        return offer && offer.npcId === npcId ? offer.questId : null;
+    }
+
+    clearPendingOffer() {
+        if (!this.pendingOffer) return;
+        clearTimeout(this.pendingOffer.timer);
+        this.pendingOffer = null;
     }
 
     questAboutKill(mob, quest) {

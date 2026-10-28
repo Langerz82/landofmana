@@ -17,7 +17,6 @@
 // or <https://www.gnu.org/licenses/>.
 
 import Character from './character/character.js';
-import Messages from '../message.js';
 import EntityQuests from '../entityquests.js';
 import Utils from '../utils.js';
 import { Types } from '../common.js';
@@ -114,9 +113,7 @@ class NpcMove extends Character {
                 return;
             }
 
-            const langcode = 'QUESTS_' + newQid;
-            const msg = new Messages.Dialogue(this, langcode);
-            player.sendPlayer(msg);
+            this.entityQuests.offerQuest(player, newQid);
         }
     }
 

@@ -22,7 +22,8 @@ extends Character
 var npc_quest_id := 0
 var dialogue: Array = []
 var dialogue_index := 0
-var quest_id := 0
+var dialogue_delay := 0  # ms per line, from the server (0 = default)
+var report_speech_end := false  # tell the server when this WC_SPEECH dialogue ends
 var quest = null
 
 

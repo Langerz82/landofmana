@@ -158,3 +158,11 @@ export function setG_MAX_LATENCY(value) {
 // thousand entityCount values, nowhere near enough to spill into the next
 // map's id range.
 export const G_NPC_QUEST_ID_MAP_OFFSET = 1000000;
+
+// Time (ms) each line of NPC dialogue / quest speech stays on screen before
+// the client advances to the next one; also used by the server to time quest
+// activation at the end of an offer dialogue (EntityQuests.offerQuest()).
+// Only sent to the client when it differs from the protocol default
+// (Types.DIALOGUE_DELAY_DEFAULT = 5000, shared/js/gametypes.js), so at 5000
+// no delay goes over the wire at all.
+export const G_DIALOGUE_DELAY = 5000;

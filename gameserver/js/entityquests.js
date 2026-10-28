@@ -25,7 +25,8 @@ import ItemData from './data/itemdata.js';
 import ItemLootData from './data/itemlootdata.js';
 import ItemRoom from './items/itemroom.js';
 import QuestData from './data/questdata.js';
-import { G_DEBUG } from './constants.js';
+import { G_DEBUG, G_DIALOGUE_DELAY } from './constants.js';
+import QuestText from './questtext.js';
 
 // FIX: MobData, ItemData, ItemLootData, and ItemRoom were all used throughout
 // this file (getMobObject, createQuestItemKind, giveReward) but never
@@ -94,7 +95,44 @@ class EntityQuests {
         player.quests.foundQuest(pQuest);
     }
 
-    rejectQuest(player, questId) {}
+    // Plays an authored quest's offer dialogue (lang QUESTS[id][0] -- sent as
+    // a lang path, the client looks the text up) and activates the quest on
+    // the server once that dialogue has finished -- the server owns the
+    // timing. The packet carries no quest id; a client that finishes the
+    // dialogue early reports it with CW_QUEST (see
+    // WorldActionHandler.handleQuest()) and the pending offer is accepted
+    // then instead.
+    offerQuest(player, questId) {
+        if (!this.quests.hasOwnProperty(questId)) return;
+
+        const path = QuestText.getQuestOfferPath(questId);
+        const lineCount = path ? QuestText.getLineCount(path) : 0;
+        const delay = G_DIALOGUE_DELAY;
+
+        if (path) {
+            player.sendPlayer(
+                new Messages.Speech(this.entity, path, [], delay)
+            );
+        }
+
+        player.quests.setPendingOffer(
+            this.entity,
+            questId,
+            delay * lineCount,
+            () => this.activateOfferedQuest(player, questId)
+        );
+    }
+
+    // End of the offer dialogue: activate the quest if the player is still
+    // around (same proximity rule CW_QUEST accepts always used). acceptQuest()
+    // -> PlayerQuests.foundQuest() pushes the new quest to the client.
+    activateOfferedQuest(player, questId) {
+        const npc = this.entity;
+        if (player.isDead || !player.map || !npc.map) return;
+        if (player.map !== npc.map) return;
+        if (!player.isInScreen([npc.x, npc.y])) return;
+        this.acceptQuest(player, questId);
+    }
 
     // FIX: matching used to be "this.entity.npcQuestId === quest.npcQuestId",
     // i.e. purely by NPC *kind*. Since npcQuestId is just entity.kind, any
@@ -144,7 +182,7 @@ class EntityQuests {
             // the same binding), so it stays `let`; the loop's own
             // `var msg = ...` is now a plain reassignment instead of a second
             // declaration.
-            let msg = new Messages.Dialogue(this.entity, 'QUESTS_REWARD', [
+            let msg = new Messages.Speech(this.entity, 'QUESTS_REWARD', [
                 this.entity.name
             ]);
             player.sendPlayer(msg);
@@ -255,7 +293,7 @@ class EntityQuests {
     sendNoQuest(player) {
         const entity = this.entity;
         if (entity.nextNpcDir) {
-            const msg = new Messages.Dialogue(entity, 'QUESTS_NONE', [
+            const msg = new Messages.Speech(entity, 'QUESTS_NONE', [
                 entity.nextNpcDir,
                 entity.nextNpcName,
                 entity.name
@@ -263,7 +301,7 @@ class EntityQuests {
             player.sendPlayer(msg);
         }
         else {
-            const msg = new Messages.Dialogue(entity, 'QUESTS_NONE_2', [entity.name]);
+            const msg = new Messages.Speech(entity, 'QUESTS_NONE_2', [entity.name]);
             player.sendPlayer(msg);
         }
     }

@@ -23,6 +23,9 @@ const G_ROUNDTRIP := G_LATENCY * 2
 const G_UPDATE_INTERVAL := 16
 const G_TILESIZE := 16
 const ATTACK_MAX := 1000
+## Default ms per line of NPC dialogue / quest speech (shared/js/gametypes.js
+## DIALOGUE_DELAY_DEFAULT). The gameserver only sends a delay when it differs.
+const DIALOGUE_DELAY_DEFAULT := 5000
 
 const UserMessages := {
 	CU_CONNECT_USER = 1,
@@ -106,7 +109,6 @@ const Messages := {
 	WC_STATINFO = 330,
 	WC_TELEPORT_MAP = 331,
 	WC_SKILL_XP = 332,
-	WC_DIALOGUE = 333,
 	WC_SET_SPRITE = 334,
 	WC_SET_ANIMATION = 335,
 	WC_BLOCK_MODIFY = 336,

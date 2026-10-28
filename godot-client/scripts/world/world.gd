@@ -1095,15 +1095,18 @@ func show_dialogue() -> void:
 		hud.hide_dialogue()
 	if e != null and is_instance_valid(e):
 		var prev_i: int = e.dialogue_index - 1
-		if prev_i >= 0 and prev_i < e.dialogue.size():
-			var line = e.dialogue[prev_i]
-			if line is Array and line.size() == 3 and str(line[2]) == "QUEST":
-				client.send_quest(e.id, int(e.quest_id), 1)
 		if prev_i >= 0 and audio:
 			audio.play_sound("npc-end")
 		bubbles.erase(e.id)
 		bubbles.erase(p.id)
 		if e.dialogue_index >= e.dialogue.size():
+			# Quest offers are activated by the gameserver when the dialogue
+			# ends; reporting the end of server speech only matters if the
+			# player skipped ahead of the server's timer. No quest id -- the
+			# server accepts the offer pending for this NPC, or ignores it.
+			if e.get("report_speech_end"):
+				client.send_quest(e.id, 0, 1)
+				e.report_speech_end = false
 			# questhandler.handleQuest(entity.quest): "Quest Found/Completed".
 			if e.get("quest") != null and hud:
 				_quest_alarm(e.quest)
@@ -1126,7 +1129,9 @@ func show_dialogue() -> void:
 		hud.add_chat(who, text, Color(1, 1, 0))
 		hud.show_dialogue(speaker.ename, text, speaker)
 	e.dialogue_index += 1
-	_dialogue_delay = Game.after(5000, show_dialogue)
+	# Per-line delay: the server's, when it sent one, else the default.
+	var delay_ms: int = e.dialogue_delay if e.get("dialogue_delay") else Types.DIALOGUE_DELAY_DEFAULT
+	_dialogue_delay = Game.after(delay_ms, show_dialogue)
 
 
 # ======================================================================
@@ -1206,7 +1211,6 @@ func _register_handlers() -> void:
 	client.on(M.WC_CHAT, _on_chat)
 	client.on(M.WC_NOTIFY, _on_notify)
 	client.on(M.WC_SPEECH, _on_speech)
-	client.on(M.WC_DIALOGUE, _on_dialogue)
 	client.on(M.WC_QUEST, _on_quest)
 	client.on(M.WC_GOLD, _on_gold)
 	client.on(M.WC_ITEMSLOT, _on_item_slot)
@@ -1283,12 +1287,13 @@ func _on_player(pkt: Array) -> void:
 	p.set_range()
 	count = Types.to_int(d.pop_front())
 	data.read_rooms(PlayerData.Store.BANK, d, count, true)
-	# quests (13 fields each)
+	# quests (14 fields each: 13 quest fields + the server-resolved quest
+	# text as URI-encoded JSON, decoded in Quest.set_text())
 	count = Types.to_int(d.pop_front())
 	data.quests.clear()
 	for i in range(count):
 		var q: Array = []
-		for j in range(13):
+		for j in range(14):
 			q.append(d.pop_front())
 		data.set_quest(q)
 	# achievements (7 fields each)
@@ -1706,46 +1711,27 @@ func _on_notify(pkt: Array) -> void:
 		hud.add_notification(msg)
 
 
-func _on_speech(d: Array) -> void:
-	var e = entities.get(Types.to_int(d[0]))
-	if e == null:
-		return
-	var key := str(d[1])
-	var msg := ""
-	if GameData.lang.has(key):
-		msg = Types.format(str(GameData.lang[key]), d[2] if d.size() > 2 else [])
-	bubble(e, msg)
-
-
-func _on_dialogue(pkt: Array) -> void:
-	var d := pkt.duplicate()
-	var npc = entities.get(Types.to_int(d.pop_front()))
-	var code := str(d.pop_front())
+## WC_SPEECH (NPC speech / quest dialogue).
+## [npcId, langPath, vars(, delay)] -- the gameserver picks the lang
+## entry (gameserver/js/questtext.js) and sends its path; the client retrieves
+## the lang value and fills in the variables. `vars` are the server's
+## positional {0},{1}... values (NPC names etc.). A quest offer is activated
+## server-side when it ends; show_dialogue() reports the end (CW_QUEST) so a
+## player who skipped through doesn't wait -- ignored if nothing is pending.
+## delay is only sent when it differs from Types.DIALOGUE_DELAY_DEFAULT.
+func _on_speech(pkt: Array) -> void:
+	var npc = entities.get(Types.to_int(pkt[0]) if pkt.size() > 0 else -1)
 	if npc == null or not (npc is Npc):
 		return
-	var message = null
-	# Only QUESTS_<number> is a quest offer; QUESTS_NONE, QUESTS_NONE_2 and
-	# QUESTS_REWARD are ordinary lang entries (JS: /^QUESTS_[0-9]+$/).
-	if code.begins_with("QUESTS_") and code.substr(7).is_valid_int():
-		var qid := code.substr(7)
-		npc.quest_id = int(qid)
-		var q = GameData.lang.get("QUESTS", {}).get(qid)
-		if q is Array and not q.is_empty():
-			message = q[0].duplicate(true)
-	else:
-		var v = GameData.lang.get(code)
-		message = v.duplicate(true) if v is Array else v
-	if message == null:
+	var path = pkt[1] if pkt.size() > 1 else []
+	var vars = pkt[2] if pkt.size() > 2 else []
+	var message := Quest.lang_lines(path, vars)
+	if message.is_empty():
 		return
-	if message is String:
-		message = [[0, message]]
-	elif message is Array and not message.is_empty() and not (message[0] is Array):
-		message = [message]
-	if not d.is_empty():
-		for line in message:
-			line[1] = Types.format(str(line[1]), d)
 	npc.dialogue = message
 	npc.dialogue_index = 0
+	npc.dialogue_delay = Types.to_int(pkt[3]) if pkt.size() > 3 else 0
+	npc.report_speech_end = true
 	player.dialogue_entity = npc
 	show_dialogue()
 
@@ -1771,6 +1757,8 @@ func _on_quest(d: Array) -> void:
 	if npc != null and player.can_interact(npc) and not q.desc.is_empty():
 		npc.dialogue = q.desc.duplicate(true)
 		npc.dialogue_index = 0
+		npc.dialogue_delay = q.delay
+		npc.report_speech_end = false
 		npc.quest = q
 		player.dialogue_entity = npc
 		show_dialogue()

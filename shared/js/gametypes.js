@@ -179,7 +179,6 @@ const Types = {
         WC_STATINFO: 330,
         WC_TELEPORT_MAP: 331,
         WC_SKILL_XP: 332,
-        WC_DIALOGUE: 333,
         WC_SET_SPRITE: 334,
         WC_SET_ANIMATION: 335,
         WC_BLOCK_MODIFY: 336,
@@ -406,6 +405,12 @@ Types.getMessageTypeAsString = (type) => {
     }
     return typeName;
 };
+
+// Default time (ms) each line of NPC dialogue / quest speech stays on screen.
+// The gameserver only sends a delay when it differs from this, so the server
+// and every client must agree on it (godot-client/scripts/core/types.gd
+// mirrors it as DIALOGUE_DELAY_DEFAULT).
+Types.DIALOGUE_DELAY_DEFAULT = 5000;
 
 Types.EventType = EventType;
 Types.QuestType = QuestType;

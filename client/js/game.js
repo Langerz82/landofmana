@@ -54,7 +54,6 @@ import config from './config.js';
 import ChatHandler from './chathandler/chathandler.js';
 import PlayerPopupMenu from './playerpopupmenu.js';
 import Quest from './quest.js';
-import QuestData from './data/questdata.js';
 import QuestHandler from './questhandler.js';
 import AchievementHandler from './achievementhandler.js';
 import UserAlarm from './useralarm.js';

@@ -17,7 +17,7 @@
 
 class_name Quest
 extends RefCounted
-## Port of client/js/quest.js and achievement.js (data + text templates).
+## Port of client/js/quest.js and achievement.js. Quest text comes from the server.
 
 enum QuestType { KILLMOBKIND = 1, GETITEMKIND = 2, KILLMOBS = 3, HIDEANDSEEK = 4, USENODE = 5 }
 enum Status { STARTED = 0, INPROGRESS = 1, COMPLETE = 2 }
@@ -33,7 +33,15 @@ var object = null    # {type, kind, count} or null
 var object2 = null
 var desc: Array = []  # [[speaker(0 npc / 1 player), text], ...]
 var summary := ""
+var summary_path = null  # lang path; sent only when the quest starts / at login
+var delay := Types.DIALOGUE_DELAY_DEFAULT  # ms per desc line (server sends it only if not default)
 
+## The gameserver decides which quest text applies (gameserver/js/
+## questtext.js): every WC_QUEST (and each quest in the login packet) carries
+## lang *paths* for the description and summary (e.g. ["QUESTS", "200100", 1])
+## and the display delay. The client retrieves the lang value for each path
+## and generates the fill-in variables (%name%, %count%, %name2%, %count2%)
+## itself from the quest's mob/item/npc kinds (get_quest_vars()).
 
 static func from_array(arr: Array) -> Quest:
 	var q := Quest.new()
@@ -41,10 +49,15 @@ static func from_array(arr: Array) -> Quest:
 	return q
 
 
+## arr: the 13 quest fields, optionally followed by the server's text
+## ({desc[, summary][, delay]} -- a Dictionary from WC_QUEST, or
+## URI-encoded JSON from the comma-joined login packet). The summary is only
+## sent when the quest starts / at login -- later updates keep it.
 func update(arr: Array) -> void:
+	var text = arr[13] if arr.size() > 13 else null
 	var a: Array = []
-	for v in arr:
-		a.append(Types.to_int(v))
+	for i in range(mini(arr.size(), 13)):
+		a.append(Types.to_int(arr[i]))
 	while a.size() < 13:
 		a.append(0)
 	id = a[0]
@@ -56,78 +69,132 @@ func update(arr: Array) -> void:
 	data2 = a[6]
 	object = {"type": a[7], "kind": a[8], "count": a[9]}
 	object2 = {"type": a[10], "kind": a[11], "count": a[12]} if (a[10] != 0 or a[11] != 0 or a[12] != 0) else null
-	_set_desc()
+	if text != null:
+		set_text(text)
 
 
-func _set_desc() -> void:
-	var quests_lang: Dictionary = GameData.lang.get("QUESTS", {})
-	var d = null
-	var summary_index := ""
-	var ql = quests_lang.get(str(id))
-	if ql is Array:
-		if ql.size() > status + 1:
-			d = ql[status + 1]
-	var quest_type := ""
-	match type:
-		QuestType.HIDEANDSEEK:
-			quest_type = "QUESTS_FIND"
-			summary_index = "HIDEANDSEEK"
-		QuestType.KILLMOBKIND:
-			quest_type = "QUESTS_MOB"
-			summary_index = "KILLMOBKIND"
+func set_text(text) -> void:
+	if text is String:
+		text = JSON.parse_string(String(text).uri_decode())
+	if not (text is Dictionary):
+		return
+	var vars := get_quest_vars(type, object, object2, count)
+	desc = lang_lines(text.get("desc"), vars)
+	if text.has("summary"):
+		summary_path = text.get("summary")
+	# Re-filled on every update since %count2% (progress) can change.
+	summary = lang_text(summary_path, vars)
+	var dl := Types.to_int(text.get("delay", 0))
+	delay = dl if dl > 0 else Types.DIALOGUE_DELAY_DEFAULT
+
+
+## The quest fill-in variables, generated client-side from the quest's
+## objects (port of the old text_template()):
+##   KILLMOBKIND: %name% mob, %count% kill count
+##   GETITEMKIND: %name% item, %count% item count, %name2% mob dropping it
+##   HIDEANDSEEK: %name% npc
+##   USENODE:     %count% node count
+##   all:         %count2% current progress
+static func get_quest_vars(q_type: int, obj, obj2, q_count: int) -> Dictionary:
+	var vars := {"count2": q_count}
+	match q_type:
 		QuestType.GETITEMKIND:
-			quest_type = "QUESTS_ITEM"
-			summary_index = "GETITEMKIND"
-		QuestType.USENODE:
-			quest_type = "QUESTS_NODE"
-			summary_index = "USENODE"
-	if d == null and quest_type != "":
-		var ld = GameData.lang.get(quest_type)
-		if ld is Array and not ld.is_empty() and ld[0] is Array and ld[0].size() > status:
-			d = ld[0][status]
-	desc = []
-	if d != null:
-		if not (d is Array):
-			d = [[0, d]]
-		for line in d:
-			if line is Array:
-				desc.append([int(line[0]), text_template(str(line[1]))] + (line.slice(2) if line.size() > 2 else []))
-			else:
-				desc.append([0, text_template(str(line))])
-	var sums: Dictionary = GameData.lang.get("QUEST_SUMMARY", {})
-	var s = sums.get(str(id), sums.get(summary_index, ""))
-	summary = text_template(str(s))
-
-
-func text_template(txt: String) -> String:
-	match type:
-		QuestType.GETITEMKIND:
-			if object2 != null:
-				var loot := GameData.get_loot(1000 + int(object2.kind))
+			if obj2 != null:
+				var loot := GameData.get_loot(1000 + int(obj2.kind))
 				if loot.is_empty():
-					loot = GameData.get_loot(int(object2.kind))
-				txt = txt.replace("%name%", _cap(str(loot.get("name", ""))))
-				txt = txt.replace("%count%", str(object2.count))
-			if object != null:
-				var mob := GameData.get_mob(int(object.kind))
+					loot = GameData.get_loot(int(obj2.kind))
+				if not loot.is_empty():
+					vars["name"] = _cap(str(loot.get("name", "")))
+				vars["count"] = int(obj2.count)
+			if obj != null:
+				var mob := GameData.get_mob(int(obj.kind))
 				if not mob.is_empty():
-					txt = txt.replace("%name2%", _cap(str(mob.key)))
-		QuestType.KILLMOBKIND:
-			if object != null:
-				var mob := GameData.get_mob(int(object.kind))
-				txt = txt.replace("%name%", _cap(str(mob.get("key", ""))))
-				txt = txt.replace("%count%", str(object.count))
+					vars["name2"] = _cap(str(mob.key))
+		QuestType.KILLMOBKIND, QuestType.KILLMOBS:
+			if obj != null:
+				var mob := GameData.get_mob(int(obj.kind))
+				if not mob.is_empty():
+					vars["name"] = _cap(str(mob.key))
+				vars["count"] = int(obj.count)
 		QuestType.HIDEANDSEEK:
-			if object != null:
-				txt = txt.replace("%name%", str(GameData.get_npc(int(object.kind)).get("name", "")))
+			if obj != null:
+				vars["name"] = str(GameData.get_npc(int(obj.kind)).get("name", ""))
 		QuestType.USENODE:
-			if object != null:
-				txt = txt.replace("%count%", str(object.count))
-	return txt.replace("%count2%", str(count))
+			if obj != null:
+				vars["count"] = int(obj.count)
+	return vars
 
 
 static func _cap(t: String) -> String:
 	return t if t == "" else t[0].to_upper() + t.substr(1)
+
+
+## Replaces `%key%` and `{key}` for every key in `vars` (an Array gives
+## {0}, {1}, ...; a Dictionary gives its own key names).
+static func fill_text(txt: String, vars) -> String:
+	if vars is Array:
+		for i in range(vars.size()):
+			var v := Types.to_str(vars[i])
+			txt = txt.replace("{%d}" % i, v).replace("%%%d%%" % i, v)
+	elif vars is Dictionary:
+		for k in vars.keys():
+			var v := Types.to_str(vars[k])
+			txt = txt.replace("{%s}" % str(k), v).replace("%" + str(k) + "%", v)
+	return txt
+
+
+## Lang value at `path` (Array of keys/indices into GameData.lang), or null.
+static func get_lang_path(path):
+	if not (path is Array) or path.is_empty():
+		return null
+	var value = GameData.lang
+	for key in path:
+		if value is Dictionary:
+			value = value.get(str(key))
+		elif value is Array:
+			var i := Types.to_int(key)
+			if i < 0 or i >= value.size():
+				return null
+			value = value[i]
+		else:
+			return null
+	return value
+
+
+## Any lang dialogue shape -> [[speaker, text], ...] (same rules as the
+## server's questtext.js normalizeLines): "text", [0, "text"], ["a", "b"],
+## [[0, "a"], [1, "b"]].
+static func normalize_lines(raw) -> Array:
+	var out: Array = []
+	if raw == null:
+		return out
+	if not (raw is Array):
+		return [[0, str(raw)]]
+	if raw.size() >= 2 and (raw[0] is int or raw[0] is float) and not (raw[1] is Array):
+		return [[1 if Types.to_int(raw[0]) != 0 else 0, str(raw[1])]]
+	for entry in raw:
+		if entry is Array:
+			if entry.size() >= 2:
+				out.append([1 if Types.to_int(entry[0]) != 0 else 0, str(entry[1])])
+		elif entry != null:
+			out.append([0, str(entry)])
+	return out
+
+
+## Dialogue lines for a server-sent lang path, with the vars filled in.
+static func lang_lines(path, vars) -> Array:
+	var out: Array = []
+	for line in normalize_lines(get_lang_path(path)):
+		out.append([line[0], fill_text(line[1], vars)])
+	return out
+
+
+## Single lang string for a server-sent lang path, with the vars filled in.
+static func lang_text(path, vars) -> String:
+	var v = get_lang_path(path)
+	if v == null or v is Array or v is Dictionary:
+		return ""
+	return fill_text(str(v), vars)
 
 
 func progress_text() -> String:

@@ -146,7 +146,7 @@
           [0, "You see, young one, my house, well, it's not quite the welcoming place it used to be."],
           [0, "It's overrun by rats, scurrying through every nook and cranny, making themselves right at home."],
           [0, "It's a bit of a mess, I'm afraid. Can you kill 10 rats for me, Sonny?"],
-          [0, "That way I can get into my home again.", "QUEST"]
+          [0, "That way I can get into my home again."]
         ],
         [
           [0, "Thank you when you have completed this return to me."]
@@ -156,7 +156,7 @@
       "200001": [
         [
           [0, "Now kill 10 more rats kill them all!"],
-          [1, "Ok Granps chill man.", "QUEST"]
+          [1, "Ok Granps chill man."]
         ],
         [
           [0, "Come back when they are dead muhahaha."]
@@ -165,7 +165,7 @@
       ],
       "200100": [
         [
-          [0, "Rats have stolen my 3 dice I need you to kill some Rats to get them.", "QUEST"]
+          [0, "Rats have stolen my 3 dice I need you to kill some Rats to get them."]
         ],
         [
           [0, "Please get the dice and return to me when complete."]
@@ -179,7 +179,7 @@
       ],
       "200200": [
         [
-          [0, "Rats have stolen my tasty cheese.", "QUEST"]
+          [0, "Rats have stolen my tasty cheese."]
         ],
         [
           [0, "Can you please kill rats and return my cheese?"],
@@ -193,7 +193,7 @@
           [0, "Hello I was writing my memiors earlier.."],
           [0, "When a pesky Crab stole my Feather Quilt."],
           [0, "The problem is I don't know which one stole it"],
-          [0, "So I need you to kill and search all of them until it's found.", "QUEST"]
+          [0, "So I need you to kill and search all of them until it's found."]
         ],
         [
           [0, "Can you please kill Crabs and return my Feather Quill?"]
@@ -206,7 +206,7 @@
       ],
       "200400": [
         [
-          [0, "Crabs have overrun the place..", "QUEST"]
+          [0, "Crabs have overrun the place.."]
         ],
         [
           [0, "Kill %count% Crabs for me?"]
@@ -217,7 +217,7 @@
         [
           [0, "I went squid fishing and left all my catches in a bucket"],
           [0, "The pesky Crabs stole my catches and now I've got nothing!"],
-          [0, "Please help me get my squid back.", "QUEST"]
+          [0, "Please help me get my squid back."]
         ],
         [
           [0, "Kill Crabs and get my squid back."]
@@ -232,7 +232,7 @@
         [
           [0, "The graveyard is overrun with Skeletons."],
           [0, "I need you to remove the tombstones."],
-          [0, "This will prevent the evil wizards resurrecting people in graves.", "QUEST"]
+          [0, "This will prevent the evil wizards resurrecting people in graves."]
         ],
         [
           [0, "Can you destroy %count% tombstones for me?"]
@@ -242,7 +242,7 @@
       "200700": [
         [
           [0, "I need a favor. I need to you to kill some skeletons."],
-          [0, "Make the area safe to us again please!", "QUEST"]
+          [0, "Make the area safe to us again please!"]
         ],
         [
           [0, "Kill %count% Skeletons."]
@@ -252,7 +252,7 @@
       "200800": [
         [
           [0, "I need skulls from skeleton to cast a special ritual."],
-          [0, "Retrieve 5 for me and I will be able to cast my spell.", "QUEST"]
+          [0, "Retrieve 5 for me and I will be able to cast my spell."]
         ],
         [
           [0, "Kill Skeletons and collect there humanoid skulls."]
@@ -266,7 +266,7 @@
       "200900": [
         [
           [0, "Fires were started by Goblins after they left the area"],
-          [0, "I need you to put out some fires so they don't get out of control.", "QUEST"]
+          [0, "I need you to put out some fires so they don't get out of control."]
         ],
         [
           [0, "Can you destroy %count% fires?"]
@@ -276,7 +276,7 @@
       "201000": [
         [
           [0, "Goblins are troublesome little buggers. I need to get rid of some."],
-          [0, "Kill 20 of them and they should stop damaging the area.", "QUEST"]
+          [0, "Kill 20 of them and they should stop damaging the area."]
         ],
         [
           [0, "Kill %count% Goblins come back to me for a reward."]
@@ -285,7 +285,7 @@
         ],
         "300000": [
             [
-              [0, "Kill 10 rats", "QUEST"]
+              [0, "Kill 10 rats"]
             ],
             [
               [0, "Come back when they are dead muhahaha."]
@@ -294,7 +294,7 @@
         ],
         "300001": [
             [
-              [0, "Kill 20 rats", "QUEST"]
+              [0, "Kill 20 rats"]
             ],
             [
               [0, "Come back when they are dead muhahaha."]

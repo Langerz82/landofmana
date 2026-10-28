@@ -18,9 +18,8 @@
 
 // Mixin extracted from clientcallbacks.js: Quests/achievements/dialogue/NPC speech.
 // Applied onto ClientCallbacks.prototype via install*(...) call in clientcallbacks.js; not a standalone class.
-import Mob from '../entity/mob.js';
 import Achievement from '../achievement.js';
-import Quest from '../quest.js';
+import Quest, { langLines } from '../quest.js';
 
 /* global Types, game */
 const QuestType = Types.QuestType;
@@ -33,14 +32,14 @@ export function installClientCallbacksQuest(proto) {
     proto.questSpeech = function (quest) {
         const npc = game.getNpcByQuestKind(quest.npcQuestId);
         if (!npc) return;
+        if (!Array.isArray(quest.desc) || quest.desc.length === 0) return;
 
         const p = game.player;
-        let desc = quest.desc;
 
-        if (!Array.isArray(quest.desc)) desc = [[0, quest.desc]];
-
-        npc.dialogue = desc;
+        npc.dialogue = quest.desc.map((l) => l.slice());
         npc.dialogueIndex = 0;
+        npc.dialogueDelay = quest.delay;
+        npc.reportSpeechEnd = false;
         npc.quest = quest;
 
         p.dialogueEntity = npc;
@@ -48,6 +47,10 @@ export function installClientCallbacksQuest(proto) {
         game.showDialogue();
     };
 
+    // data: 13 quest fields + the server's quest text object (see
+    // gameserver/js/message.js Messages.Quest). Text, variables and delay all
+    // come from the server; quests are activated server-side at the end of
+    // the offer dialogue and arrive here already STARTED.
     proto.onQuest = function (data) {
         const questId = Number(data[0]);
         let quest = game.player.quests[questId];
@@ -92,69 +95,39 @@ export function installClientCallbacksQuest(proto) {
         game.achievementHandler.handleAchievement(achievement);
     };
 
-    proto.onDialogue = function (data) {
-        const npcId = Number(data.shift());
-        const langCode = data.shift();
+    // WC_SPEECH (NPC speech / quest dialogue).
+    // data: [npcId, langPath, vars(, delay)] -- the gameserver picks
+    // the lang entry (gameserver/js/questtext.js) and sends its path; the
+    // client retrieves the lang value and fills in the variables. `vars` are
+    // the server's positional {0},{1}... values (NPC names etc.). If this is a
+    // quest offer the server activates the quest itself when the dialogue
+    // ends and pushes it as a WC_QUEST; showDialogue() reports the end of the
+    // dialogue (CW_QUEST) so a player who skipped through doesn't have to
+    // wait -- the server ignores it if no offer is pending. `delay` is only
+    // sent when it differs from Types.DIALOGUE_DELAY_DEFAULT.
+    proto.onSpeech = function (data) {
+        const npcId = Number(data[0]);
+        const path = data[1];
+        const vars = data[2];
+        const delay = Number(data[3]);
 
         const npc = game.getEntityById(npcId);
         const p = game.player;
 
         // Server-driven npcId with no matching client-side entity (e.g. despawned/unknown) -
-        // avoid crashing on the npc.dialogue/npc.questId writes below.
+        // avoid crashing on the npc.dialogue writes below.
         if (!npc) return;
 
-        let message;
-        const questPattern = /^QUESTS_[0-9]+$/g;
-        if (questPattern.test(langCode)) {
-            const questId = langCode.split('_')[1];
-            npc.questId = questId;
-            message = JSON.parse(
-                JSON.stringify(lang.data['QUESTS'][questId][0])
-            );
-        } else {
-            message = JSON.parse(JSON.stringify(lang.data[langCode]));
-        }
-
-        // Needs to do a deep copy so lang data does not get overwritten.
-        if (data.length > 0) {
-            if (Array.isArray(message)) {
-                for (let msg of message) {
-                    msg[1] = msg[1].format(data);
-                }
-            } else {
-                message[1] = message[1].format(data);
-            }
-        }
+        const message = langLines(path, vars);
+        if (message.length === 0) return;
 
         npc.dialogue = message;
         npc.dialogueIndex = 0;
+        npc.dialogueDelay = delay > 0 ? delay : undefined;
+        npc.reportSpeechEnd = true;
 
         p.dialogueEntity = npc;
 
         game.showDialogue();
-    };
-
-    // FIX: handler was declared with 3 separate params (id, key, value), but receiveAction() always invokes
-    // registered handlers with a single `data` array (`this.handlers[action].call(this, data)`), same as every
-    // other handler in this file - `id` received the whole array and `key`/`value` were always undefined, so
-    // Number(id) was NaN, getEntityById() returned null, and speech bubbles never showed.
-    //
-    // FIX (round 2): two more bugs on top of the above -- `game.createBubble` doesn't exist
-    // anywhere in this codebase (the real API is `game.bubbleManager.create(entity, content)`,
-    // used correctly by clientcallbackssocial.js's onChatMessage), and `msg` was hardcoded to
-    // `''` instead of being built from `key`/`value` -- so even after fixing the method name,
-    // BubbleManager.create() would have early-returned on the empty content (bubble.js's own
-    // `if (content === undefined || content === '') return;` guard). Mirrors onDialogue()'s
-    // lang.data[...] lookup above: `key` is a lang table key (matches Messages.Speech's `kind`
-    // field, gameserver/js/message.js), `value` is the format argument.
-    proto.onSpeech = function (data) {
-        const id = data[0],
-            key = data[1],
-            value = data[2];
-        const entity = game.getEntityById(Number(id));
-        if (!entity) return;
-
-        const msg = lang.data[key] ? lang.data[key].format(value) : '';
-        game.bubbleManager.create(entity, msg);
     };
 }
