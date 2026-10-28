@@ -221,6 +221,47 @@ async function main(config) {
     global.MainConfig = config;
 
     const server = new ws.WebsocketServer(config);
+
+    // SECURITY: gameservers connect on their own listener instead of the
+    // public one players use. It binds to the same address as the public
+    // listener (config.ip), so access is meant to be restricted at the
+    // firewall: allow "world_port" only from the gameserver's IP. The public
+    // listener (config.ip:config.port) refuses gameserver traffic.
+    //   world_port         (default config.port + 1)
+    //   world_allowed_ips  array of gameserver IPs allowed to connect, e.g.
+    //                      ["127.0.0.1"]; missing/empty = any address
+    //                      (a warning is logged). A second layer behind the
+    //                      firewall, not a replacement for it.
+    //   world_protocol (default config.protocol; "https" reuses https_cert/key)
+    const worldListenConfig = Object.assign({}, config, {
+        protocol: config.world_protocol || config.protocol,
+        port: config.world_port || Number(config.port) + 1,
+        max_http_buffer_size: 16 * 1024 * 1024,
+        allowed_ips: config.world_allowed_ips
+    });
+    const worldServer = new ws.WebsocketServer(worldListenConfig);
+    if (
+        Array.isArray(config.world_allowed_ips) &&
+        config.world_allowed_ips.length > 0
+    ) {
+        console.info(
+            'Gameserver listener allows: ' + config.world_allowed_ips.join(', ')
+        );
+    } else {
+        console.warn(
+            'WARNING: "world_allowed_ips" is not set -- any address can reach the ' +
+                'gameserver listener on port ' + worldListenConfig.port +
+                '. Restrict it in config.json and/or the firewall.'
+        );
+    }
+    console.info(
+        'Gameserver listener on ' + worldListenConfig.ip + ':' + worldListenConfig.port +
+            ' (' + worldListenConfig.protocol + ')'
+    );
+
+    // A gameserver must send WU_GAMESERVER_INFO with the right password this
+    // soon after connecting, or it is disconnected.
+    const WORLD_AUTH_TIMEOUT_MS = 10 * 1000;
     const metrics = config.metrics_enabled ? new Metrics(config) : null;
 
     console.info('Initializing RRO2 GameServer - World');
@@ -279,6 +320,10 @@ async function main(config) {
         // The gameserver link carries full player saves and the auction
         // list, so it gets a much larger decompression cap than a client.
         conn.maxInflateBytes = 64 * 1024 * 1024;
+
+        setTimeout(() => {
+            if (!wh.game_server) wh.rejectAuth('timeout');
+        }, WORLD_AUTH_TIMEOUT_MS).unref();
         // Cleanup on disconnect is handled centrally by server.onDisconnect
         // below (it needs the full worldHandlers list to filter against).
     };
@@ -382,18 +427,52 @@ async function main(config) {
             message.shift();
 
             switch (action) {
-                case GameTypes.UserMessages.WU_CONNECT_WORLD:
-                    handleConnectWorld(message, conn);
-                    break;
                 case GameTypes.UserMessages.CU_CONNECT_USER:
                     handleConnectUser(message, conn);
+                    break;
+                case GameTypes.UserMessages.WU_CONNECT_WORLD:
+                    // Gameservers use the internal listener (worldServer).
+                    console.warn(
+                        'Public listener: refused gameserver connection attempt -- gameservers must use world_port.'
+                    );
+                    conn.close('Gameservers must connect on world_port.');
                     break;
             }
         };
         conn.listen(listener);
     });
 
-    server.onDisconnect((socket) => {
+    worldServer.onConnect((conn) => {
+        if (!migrationComplete) {
+            console.warn(
+                'worldServer onConnect: rejecting connection -- gold field migration still in progress.'
+            );
+            conn.close('Server is still starting up, please try again shortly.');
+            return;
+        }
+
+        // The only thing a connection on this listener may do first is
+        // announce itself as a gameserver; WorldHandler then takes over
+        // the connection and requires the password (handleGameServerInfo).
+        conn.maxInflateBytes = 64 * 1024 * 1024;
+        conn.listen((message) => {
+            if (config.debug) console.info(`world recv[0]=${message}`);
+            const action = Array.isArray(message)
+                ? parseInt(message[0], 10)
+                : NaN;
+            if (action !== GameTypes.UserMessages.WU_CONNECT_WORLD) {
+                console.warn(
+                    'worldServer: unexpected first message ' + action + ', closing.'
+                );
+                conn.close('Expected WU_CONNECT_WORLD.');
+                return;
+            }
+            message.shift();
+            handleConnectWorld(message, conn);
+        });
+    });
+
+    const handleDisconnect = (socket) => {
         console.log('disconnected - client');
 
         const wh = socket._connection?.worldHandler;
@@ -401,10 +480,15 @@ async function main(config) {
             wh.release();
             worldHandlers = worldHandlers.filter((w) => w !== wh);
         }
-    });
+    };
+    server.onDisconnect(handleDisconnect);
+    worldServer.onDisconnect(handleDisconnect);
 
     server.onError((...args) => {
         console.error(args.join(', '));
+    });
+    worldServer.onError((...args) => {
+        console.error('worldServer: ' + args.join(', '));
     });
 
     server.onRequestStatus(() => {

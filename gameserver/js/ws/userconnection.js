@@ -43,12 +43,18 @@ export default class UserConnection extends Connection {
         };
     }
 
-    connect(connectString) {
+    connect(connectString, tlsOptions) {
         const self = this;
+        const tls = tlsOptions || {};
 
         this._connection = io_client.connect(connectString, {
             reconnect: true,
-            rejectUnauthorized: false
+            // FIX: was hard-coded `false` -- over https the gameserver
+            // accepted ANY certificate, so anyone able to intercept the link
+            // could impersonate the userserver. Verified by default now; see
+            // main.js for the user_tls_ca / user_tls_insecure config keys.
+            rejectUnauthorized: tls.rejectUnauthorized !== false,
+            ...(tls.ca ? { ca: tls.ca } : {})
         });
 
         this._connection.on('connect_error', function (err) {

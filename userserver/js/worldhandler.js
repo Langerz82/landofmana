@@ -294,6 +294,21 @@ class WorldHandler {
         });
     }
 
+    // Tells the gameserver why (UW_AUTH_FAILED) and disconnects it. This is a
+    // server-initiated socket.io disconnect, so the gameserver's
+    // socket.io-client does not auto-reconnect and retry the same password.
+    rejectAuth(reason) {
+        console.warn(
+            'WorldHandler: gameserver authentication failed (' + reason + '), disconnecting.'
+        );
+        try {
+            this.connection.send([Types.UserMessages.UW_AUTH_FAILED, reason]);
+        } catch (err) {
+            console.warn('rejectAuth: send failed: ' + err.message);
+        }
+        this.connection.disconnect();
+    }
+
     release() {
         console.info('worldHandler released.');
         for (const tmp of this.loggedInUsers) {
@@ -344,8 +359,7 @@ class WorldHandler {
         } else {
             // FIX: a wrong password used to be silently ignored, leaving the
             // connection open (unlimited guesses) and listed as a world.
-            console.warn('handleGameServerInfo: wrong password, closing.');
-            this.connection.close('Invalid gameserver password.');
+            this.rejectAuth('badpassword');
             return;
         }
 

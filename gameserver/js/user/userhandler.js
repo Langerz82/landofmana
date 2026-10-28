@@ -145,6 +145,9 @@ class UserHandler {
                     case Types.UserMessages.UW_WORLD_CLOSE:
                         self.handleWorldClose(message);
                         return;
+                    case Types.UserMessages.UW_AUTH_FAILED:
+                        self.handleAuthFailed(message);
+                        return;
                 }
             } catch (err) {
                 console.error(
@@ -176,6 +179,21 @@ class UserHandler {
         console.info('handleWorldSave.');
         //this.world.save();
         this.main.saveServer();
+    }
+
+    // The userserver rejected this gameserver (wrong user_password in
+    // config.json, or it took too long to authenticate) and is disconnecting.
+    // Stop the link rather than retrying the same credentials; players can't
+    // log in until the config is fixed and this server restarted.
+    handleAuthFailed(msg) {
+        const reason = msg && msg[0];
+        this.authFailed = true;
+        console.error(
+            '*** USERSERVER REJECTED THIS GAMESERVER (' + reason + '). ' +
+                'Check that "user_password" in gameserver/config.json matches ' +
+                'the userserver\'s, then restart. Disconnecting from the userserver. ***'
+        );
+        this.connection.disconnect();
     }
 
     handleWorldClose(msg) {

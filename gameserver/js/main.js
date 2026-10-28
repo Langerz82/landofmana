@@ -328,13 +328,25 @@ function main(config) {
                 server.userConn,
                 server
             );
+            // "user_protocol" lets the internal link to the userserver use a
+            // different protocol from the one this server offers players
+            // (defaults to config.protocol, as before).
             const connect =
-                config.protocol +
+                (config.user_protocol || config.protocol) +
                 '://' +
                 config.user_address +
                 ':' +
                 config.user_port;
-            server.userConn.connect(connect);
+            server.userConn.connect(connect, {
+                // Verify the userserver's certificate when the link uses
+                // https. "user_tls_ca": path to a CA/self-signed cert to trust;
+                // "user_tls_insecure": true to skip verification (not
+                // recommended).
+                rejectUnauthorized: config.user_tls_insecure !== true,
+                ca: config.user_tls_ca
+                    ? fs.readFileSync(config.user_tls_ca)
+                    : undefined
+            });
         }
 
         server.userConn.onConnectUser(function (conn) {

@@ -105,7 +105,10 @@ const Types = {
         UW_WORLD_SAVE: 603,
         UW_WORLD_CLOSE: 604,
         UW_LOAD_PLAYER_DATA: 605,
-        UW_LOAD_USER_BANS: 606
+        UW_LOAD_USER_BANS: 606,
+        // userserver -> gameserver: WU_GAMESERVER_INFO password rejected;
+        // the userserver disconnects right after sending this.
+        UW_AUTH_FAILED: 607
     },
 
     Messages: {

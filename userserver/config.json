@@ -2,6 +2,8 @@
   "protocol": "http",
   "address": "127.0.0.1",
   "port": 1340,
+  "world_port": 1341,
+  "world_allowed_ips": ["127.0.0.1"],
   "user_password": "thisisatest",
   "https_cert": "",
   "https_key": "",

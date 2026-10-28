@@ -102,8 +102,42 @@ export default class WebsocketServer extends sServer {
             console.info('Server (only) is listening on port ' + config.port);
         });
 
+        // Optional IP allowlist (config.allowed_ips, an array). Checked in
+        // socket.io's allowRequest hook, i.e. during the HTTP handshake,
+        // before a connection is accepted or any message is processed.
+        // Missing/empty = allow every address. Only the socket's own remote
+        // address is trusted -- never X-Forwarded-For, which a client can set
+        // to anything (so don't use this behind a reverse proxy as-is).
+        const normalizeIp = (addr) => {
+            let ip = String(addr || '').trim();
+            if (ip.startsWith('::ffff:')) ip = ip.slice(7); // IPv4-mapped IPv6
+            if (ip === '::1') ip = '127.0.0.1'; // IPv6 loopback = localhost
+            return ip;
+        };
+        const allowedIps = Array.isArray(config.allowed_ips)
+            ? new Set(config.allowed_ips.map(normalizeIp).filter(Boolean))
+            : null;
+        const allowRequest =
+            allowedIps && allowedIps.size > 0
+                ? (req, callback) => {
+                      const ip = normalizeIp(req.socket && req.socket.remoteAddress);
+                      if (allowedIps.has(ip)) return callback(null, true);
+                      console.warn(
+                          'WebsocketServer :' + config.port +
+                              ' refused connection from ' + ip + ' (not in allowed IP list)'
+                      );
+                      callback('forbidden', false);
+                  }
+                : undefined;
+
         this._ioServer = new Server(this._protoServer, {
-            cors: { origin: '*' }
+            cors: { origin: '*' },
+            ...(allowRequest ? { allowRequest } : {}),
+            // socket.io's own per-message size limit (default 1 MB). The
+            // internal gameserver listener raises it (see main.js) since it
+            // carries full player saves; the public client listener keeps the
+            // default.
+            maxHttpBufferSize: config.max_http_buffer_size || 1e6
         });
 
         this._ioServer.on('connection', client_connect);

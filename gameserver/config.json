@@ -3,7 +3,7 @@
   "address": "127.0.0.1",
   "port": 1342,
   "user_address": "127.0.0.1",
-  "user_port": 1340,
+  "user_port": 1341,
   "user_password": "thisisatest",
   "https_cert": "",
   "https_key": "",
