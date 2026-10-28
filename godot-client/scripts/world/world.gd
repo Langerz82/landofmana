@@ -1715,7 +1715,10 @@ func _on_notify(pkt: Array) -> void:
 ## [npcId, langPath, vars(, delay)] -- the gameserver picks the lang
 ## entry (gameserver/js/questtext.js) and sends its path; the client retrieves
 ## the lang value and fills in the variables. `vars` are the server's
-## positional {0},{1}... values (NPC names etc.). A quest offer is activated
+## positional {0},{1}... values (NPC names etc.). Quest variables (%name%,
+## %count%...) come from the player's active quest belonging to this NPC, if
+## any -- e.g. the server sends just the in-progress text when the player
+## re-talks to the quest's NPC. A quest offer is activated
 ## server-side when it ends; show_dialogue() reports the end (CW_QUEST) so a
 ## player who skipped through doesn't wait -- ignored if nothing is pending.
 ## delay is only sent when it differs from Types.DIALOGUE_DELAY_DEFAULT.
@@ -1725,6 +1728,19 @@ func _on_speech(pkt: Array) -> void:
 		return
 	var path = pkt[1] if pkt.size() > 1 else []
 	var vars = pkt[2] if pkt.size() > 2 else []
+	var quest = null
+	for q in data.quests.values():
+		if q.npc_quest_id == npc.npc_quest_id and q.status != Quest.Status.COMPLETE:
+			quest = q
+			break
+	if quest != null:
+		var qv := Quest.get_quest_vars(quest.type, quest.object, quest.object2, quest.count)
+		if vars is Array:
+			for i in range(vars.size()):
+				qv[str(i)] = vars[i]
+		elif vars is Dictionary:
+			qv.merge(vars, true)
+		vars = qv
 	var message := Quest.lang_lines(path, vars)
 	if message.is_empty():
 		return

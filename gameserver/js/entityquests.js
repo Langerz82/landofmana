@@ -253,10 +253,26 @@ class EntityQuests {
                 // regardless of what's currently stored on it, so stamp it
                 // here too -- every re-sync self-heals a stale value instead
                 // of only fixing it going forward from a fresh accept.
+                const stale = quest.npcQuestId !== this.entity.npcQuestId;
                 quest.npcQuestId = this.entity.npcQuestId;
-                /*if (player.quests.hasNpcCompleteQuest(quest.npcQuestId)) {
-            continue;
-          }*/
+                // Already in progress and nothing to correct: the quest
+                // itself hasn't changed, so just have the NPC say its
+                // in-progress text (WC_SPEECH). The client fills the
+                // variables from its own copy of the quest, found by this
+                // NPC's npcQuestId. A STARTED quest becomes INPROGRESS here
+                // (a real state change) and a stale npcQuestId has to reach
+                // the client, so those still get the full WC_QUEST update.
+                const path = QuestText.getQuestDescPath(quest);
+                if (
+                    quest.status === Types.QuestStatus.INPROGRESS &&
+                    !stale &&
+                    path
+                ) {
+                    player.sendPlayer(
+                        new Messages.Speech(this.entity, path, [])
+                    );
+                    return true;
+                }
                 player.quests.progressQuest(quest);
                 return true;
             }

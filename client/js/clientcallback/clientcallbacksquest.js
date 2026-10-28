@@ -99,7 +99,10 @@ export function installClientCallbacksQuest(proto) {
     // data: [npcId, langPath, vars(, delay)] -- the gameserver picks
     // the lang entry (gameserver/js/questtext.js) and sends its path; the
     // client retrieves the lang value and fills in the variables. `vars` are
-    // the server's positional {0},{1}... values (NPC names etc.). If this is a
+    // the server's positional {0},{1}... values (NPC names etc.). Quest
+    // variables (%name%, %count%...) come from the player's active quest
+    // belonging to this NPC, if any -- e.g. the server sends just the
+    // in-progress text when the player re-talks to the quest's NPC. If this is a
     // quest offer the server activates the quest itself when the dialogue
     // ends and pushes it as a WC_QUEST; showDialogue() reports the end of the
     // dialogue (CW_QUEST) so a player who skipped through doesn't have to
@@ -118,7 +121,15 @@ export function installClientCallbacksQuest(proto) {
         // avoid crashing on the npc.dialogue writes below.
         if (!npc) return;
 
-        const message = langLines(path, vars);
+        const quest = Object.values(p.quests || {}).find(
+            (q) =>
+                q.npcQuestId === npc.npcQuestId &&
+                q.status !== QuestStatus.COMPLETE
+        );
+        const message = langLines(
+            path,
+            quest ? Object.assign(quest.getVars(), vars) : vars
+        );
         if (message.length === 0) return;
 
         npc.dialogue = message;

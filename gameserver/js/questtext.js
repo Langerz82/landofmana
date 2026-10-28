@@ -115,7 +115,7 @@ export function getQuestOfferPath(questId) {
 // Lang path of a quest's status-dependent description: QUESTS[id][status+1]
 // for authored quests, or the generic per-type text (e.g. QUESTS_MOB[0][status])
 // for procedurally generated ones. null if there is no such entry.
-function getQuestDescPath(quest) {
+export function getQuestDescPath(quest) {
     const status = parseInt(quest.status, 10) || 0;
     const id = String(quest.id);
     const quests = getLang('QUESTS') || {};
@@ -158,5 +158,6 @@ export function getQuestText(quest, withSummary) {
 export default {
     getLineCount,
     getQuestOfferPath,
+    getQuestDescPath,
     getQuestText
 };

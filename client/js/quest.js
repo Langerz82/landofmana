@@ -182,6 +182,11 @@ export default class Quest {
         if (text) this.setText(text);
     }
 
+    // This quest's fill-in variables (%name%, %count%, ...).
+    getVars() {
+        return getQuestVars(this.type, this.object, this.object2, this.count);
+    }
+
     setText(text) {
         if (typeof text === 'string') {
             try {
@@ -192,12 +197,7 @@ export default class Quest {
         }
         if (!text || typeof text !== 'object') return;
 
-        const vars = getQuestVars(
-            this.type,
-            this.object,
-            this.object2,
-            this.count
-        );
+        const vars = this.getVars();
         this.desc = langLines(text.desc, vars);
         if ('summary' in text) this.summaryPath = text.summary;
         // Re-filled on every update since %count2% (progress) can change.
