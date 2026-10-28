@@ -203,6 +203,10 @@ https://discord.gg/NYV9aJtyK8
 ## CREDITS:
 Copyright Joshua Langley 2023 - Head Developer and Game Designer https://github.com/Langerz82 .
 
+* Godot Engine
+Godot Engine is free and open source software released under the permissive MIT license (also named Expat license).
+https://godotengine.org/license/
+
 * Initial Game Engine - Browser Quest by Little Workshop
 Code is licensed under MPL 2.0. Content is licensed under CC-BY-SA 3.0.
 Franck Lecollinet - @whatthefranck
