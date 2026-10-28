@@ -18,6 +18,7 @@
 
 import Messages from '../message.js';
 import { GOLD_MAX } from '../entity/player/playeritems.js';
+import { isNearServiceNpc } from './servicenpc.js';
 
 // Split out of itemactionhandler.js -- handleGold and handleStatAdd don't
 // actually manipulate an item entity or an inventory slot the way
@@ -36,6 +37,8 @@ class PlayerHandler {
     }
 
     handleGold(message) {
+        // Bank gold transfers only at a Bank NPC (see servicenpc.js).
+        if (!isNearServiceNpc(this.player, 'Bank')) return;
         const type = parseInt(message[0]),
             gold = parseInt(message[1]),
             type2 = parseInt(message[2]);

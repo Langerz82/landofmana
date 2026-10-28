@@ -209,6 +209,13 @@ class CombatHandler {
     // Target rules shared by plain attacks (handleHitEntity) and skills
     // (skillactionhandler.js) -- skills used to skip all of these.
     canAttackTarget(sEntity, tEntity) {
+        // EXPLOIT FIX: dead targets were never rejected. A dead mob stays on
+        // the server (invisible, at full HP, at its spawn point) until it
+        // respawns, so a modified client could keep "killing" it for XP,
+        // gold and quest progress with no respawn wait and no risk. A dead
+        // player could also keep being hit, re-running the death penalty
+        // (gold + item drop) on every hit.
+        if (tEntity.isDead) return false;
         // If PvP then both players must be level 20 or higher, and within
         // 10 levels of each other.
         if (

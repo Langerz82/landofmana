@@ -147,6 +147,9 @@ export function installGameCallbacks(proto) {
         self.player = player;
 
         self.player.onStartPathing(function (path) {
+            // Moving away closes any shop/bank window (see
+            // closeServiceWindows() in gameinteractiontarget.js).
+            self.closeServiceWindows();
             const i = path.length - 1,
                 x = path[i][0],
                 y = path[i][1];
@@ -154,6 +157,7 @@ export function installGameCallbacks(proto) {
 
         self.player.onKeyMove(function (sentMove) {
             const p = self.player;
+            if (sentMove) self.closeServiceWindows();
             if (!sentMove && !p.freeze) {
                 checkTeleport(p, p.x, p.y);
             }

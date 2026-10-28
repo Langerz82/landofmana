@@ -253,7 +253,13 @@ class LootManager {
     getGoldDrop(source, target, stolen) {
         // No item drop gold.
         let count = target.dropGold();
-        if (source instanceof Player) {
+        // EXPLOIT FIX: the level-difference bonus (up to x1.9) used to apply
+        // to PvP kills too. A player's dropGold() takes the gold out of the
+        // victim, so the killer received up to 90% more than the victim lost
+        // -- killing an alt over and over minted gold from nothing. The
+        // bonus now only applies to mob kills; PvP moves exactly what the
+        // victim lost.
+        if (source instanceof Player && !(target instanceof Player)) {
             let targetLevel = 0;
             targetLevel = target.level;
             const diff = targetLevel - source.level;

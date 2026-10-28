@@ -65,6 +65,9 @@ class SkillActionHandler {
             // normally deregisters it was never reached. Reject before any
             // of that happens.
             if (!(target instanceof Character)) return;
+            // EXPLOIT FIX: see combathandler.js canAttackTarget() -- dead
+            // mobs/players must not be targetable.
+            if (target.isDead) return;
 
             // FIX: unlike handleHitEntity() (the plain-attack path, in
             // combathandler.js, which gates on sEntity.canReach(tEntity)
@@ -91,6 +94,13 @@ class SkillActionHandler {
             )
                 return;
         }
+
+        // FIX: an enemy/AoE skill cast with no target (targetId 0) used to
+        // grant skill XP, then throw inside the effect code, leaving a
+        // half-applied SkillEffect registered forever. Only "self" skills
+        // may be cast without a target.
+        if (!target && skill.skillData && skill.skillData.targetType !== 'self')
+            return;
 
         // Make sure the skill is ready.
         if (!skill.isReady()) return;

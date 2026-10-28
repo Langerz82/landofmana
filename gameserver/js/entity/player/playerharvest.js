@@ -65,6 +65,7 @@ class PlayerHarvest {
 
         const px = p.x,
             py = p.y;
+        const startMap = p.map;
         // NOTE: this `type` is the player's own currently-equipped weapon
         // type (used below only to decide logging vs. mining exp) -- a
         // separate concern from `weaponType` (the entity's *required* type,
@@ -106,6 +107,9 @@ class PlayerHarvest {
             if (!p.isHarvesting) complete = false;
 
             if (!(p.x === px && p.y === py)) complete = false;
+
+            // FIX: also abort if the player died or changed map mid-harvest.
+            if (p.isDead || p.map !== startMap) complete = false;
 
             if (!p.items.hasWeaponType(weaponType)) complete = false;
 
@@ -180,6 +184,14 @@ class PlayerHarvest {
             x,
             y,
             function (p) {
+                // EXPLOIT FIX: the node's isDead was only checked when the
+                // harvest STARTED. Two players (or two accounts) harvesting
+                // the same node both completed, each getting the full drop
+                // and killing the node twice.
+                if (entity.isDead) {
+                    p.harvest._abortHarvest(x, y);
+                    return;
+                }
                 p.world.taskHandler.processEvent(
                     p,
                     PlayerEvent(GameTypes.EventType.USE_NODE, entity, 1)
@@ -257,6 +269,14 @@ class PlayerHarvest {
             x,
             y,
             function (p) {
+                // EXPLOIT FIX: the tile's 60s cooldown was only checked when
+                // the harvest STARTED (and only set on completion), so several
+                // players chopping the same tile at once all got the item.
+                const last = p.map.entities.harvest[gp.gx + '_' + gp.gy];
+                if (last && Date.now() - last < 60000) {
+                    p.harvest._abortHarvest(x, y);
+                    return;
+                }
                 p.world.taskHandler.processEvent(
                     p,
                     PlayerEvent(GameTypes.EventType.HARVEST, p, 1)

@@ -740,6 +740,9 @@ func _send_screen_config() -> void:
 func _add_local_player_callbacks() -> void:
 	var p := player
 	p.key_move_cb = func(sent_move: int):
+		# Moving away closes any shop/bank window (hud.close_shop_windows).
+		if sent_move != 0 and hud:
+			hud.close_shop_windows()
 		if sent_move == 0 and not p.freeze:
 			_check_teleport()
 		p.send_move(sent_move)
@@ -764,6 +767,8 @@ func _add_local_player_callbacks() -> void:
 	p.request_path_cb = func(px: int, py: int):
 		var path := find_path(p, px, py)
 		if path.size() > 1:
+			if hud:
+				hud.close_shop_windows()
 			p.set_orientation(Types.orientation_between(p.x, p.y, int(path[1][0]), int(path[1][1])))
 			client.send_move_path(p, path)
 			return path

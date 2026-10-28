@@ -20,6 +20,7 @@ import Messages from '../message.js';
 import ItemData from '../data/itemdata.js';
 import { ItemTypes } from '../common.js';
 import ItemRoom from '../items/itemroom.js';
+import { isNearServiceNpc } from './servicenpc.js';
 
 class ShopHandler {
     constructor(packetHandler) {
@@ -63,6 +64,7 @@ class ShopHandler {
     }
 
     handleStoreSell(message) {
+        if (!isNearServiceNpc(this.player, 'Beginner shop')) return;
         const p = this.player;
 
         const type = parseInt(message[0]);
@@ -108,6 +110,7 @@ class ShopHandler {
     // review; left as a plain NOTE rather than deleting outright in case
     // there's a concern this pass didn't catch.
     handleAuctionSell(message) {
+        if (!isNearServiceNpc(this.player, 'Auction')) return;
         const p = this.player;
 
         const itemIndex = parseInt(message[0]),
@@ -148,6 +151,7 @@ class ShopHandler {
     }
 
     handleAuctionOpen(message) {
+        if (!isNearServiceNpc(this.player, 'Auction')) return;
         const p = this.player;
 
         const type = parseInt(message[0]);
@@ -155,6 +159,7 @@ class ShopHandler {
     }
 
     handleAuctionBuy(message) {
+        if (!isNearServiceNpc(this.player, 'Auction')) return;
         const p = this.player;
 
         const auctionIndex = parseInt(message[0]),
@@ -214,6 +219,7 @@ class ShopHandler {
     }
 
     handleAuctionDelete(message) {
+        if (!isNearServiceNpc(this.player, 'Auction')) return;
         const p = this.player;
 
         const auctionIndex = parseInt(message[0]),
@@ -259,6 +265,10 @@ class ShopHandler {
         const modType = parseInt(msg[0]),
             type = parseInt(msg[1]),
             itemIndex = parseInt(msg[2]);
+
+        // modType 0 = repair, 1 = enchant (see servicenpc.js).
+        if (!isNearServiceNpc(this.player, modType === 0 ? 'Repair' : 'Enchant'))
+            return;
 
         //console.info("type=" + type + ",invNumber=" + inventoryNumber1);
         if (type === 0 || type === 2) {
@@ -346,6 +356,7 @@ class ShopHandler {
     }
 
     handleStoreBuy(message) {
+        if (!isNearServiceNpc(this.player, 'Beginner shop')) return;
         const p = this.player;
 
         // NOTE: this used to be one `var` chain declaring all seven of
@@ -432,6 +443,7 @@ class ShopHandler {
     }
 
     handleCraft(message) {
+        if (!isNearServiceNpc(this.player, 'Craft')) return;
         const p = this.player;
 
         // NOTE: same story as handleStoreBuy above -- split a single `var`

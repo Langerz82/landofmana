@@ -177,6 +177,39 @@ const PACKET_HANDLERS = new Map([
 // client/js/game/gamecallbacks.js's zoneCheckInterval), plus CW_WHO entity
 // cleanup, BI_SYNCTIME clock sync and CW_CONFIG on camera/window resize.
 // Anything not listed here is treated as the player actively playing.
+// EXPLOIT FIX: nothing limited how fast a client could send packets, so a
+// script could flood expensive requests (who/spatial queries, the appearance
+// list, store and item actions) to burn server CPU and bandwidth. Per
+// connection, packets beyond RATE_SOFT_LIMIT in one RATE_WINDOW_MS window are
+// dropped; reaching RATE_HARD_LIMIT disconnects the client. A normal client
+// stays far below both.
+const RATE_WINDOW_MS = 1000;
+const RATE_SOFT_LIMIT = 60;
+const RATE_HARD_LIMIT = 200;
+
+// EXPLOIT FIX: only attacks, skills and item-slot actions checked isDead, so
+// a dead player could still loot, trade, craft, bank, harvest, talk to NPCs,
+// etc. while waiting to revive. These packet types are ignored while dead.
+const DEAD_BLOCKED = new Set([
+    Types.Messages.CW_LOOT,
+    Types.Messages.CW_STORESELL,
+    Types.Messages.CW_STOREBUY,
+    Types.Messages.CW_CRAFT,
+    Types.Messages.CW_STORE_MODITEM,
+    Types.Messages.CW_APPEARANCEUNLOCK,
+    Types.Messages.CW_LOOKUPDATE,
+    Types.Messages.CW_AUCTIONSELL,
+    Types.Messages.CW_AUCTIONBUY,
+    Types.Messages.CW_AUCTIONDELETE,
+    Types.Messages.CW_TALKTONPC,
+    Types.Messages.CW_QUEST,
+    Types.Messages.CW_GOLD,
+    Types.Messages.CW_STATADD,
+    Types.Messages.CW_BLOCK_MODIFY,
+    Types.Messages.CW_HARVEST,
+    Types.Messages.CW_USE_NODE
+]);
+
 function isPassivePacket(action, message) {
     switch (action) {
         case Types.Messages.BI_SYNCTIME:
@@ -205,6 +238,9 @@ class PacketHandler {
         this.worldActionHandler = new WorldActionHandler(this);
         this.playerHandler = new PlayerHandler(this);
 
+        this._rateWindowStart = 0;
+        this._rateCount = 0;
+
         const self = this;
 
         this.connection.listen(function (message) {
@@ -224,6 +260,8 @@ class PacketHandler {
                 return;
             }
 
+            if (!self._checkRate()) return;
+
             if (!formatCheck(message)) {
                 self.connection.close(
                     'Invalid ' +
@@ -234,6 +272,8 @@ class PacketHandler {
                 return;
             }
             message.shift();
+
+            if (self.player.isDead && DEAD_BLOCKED.has(action)) return;
 
             if (!isPassivePacket(action, message)) {
                 self.player.lastActivityTime = Date.now();
@@ -311,6 +351,26 @@ class PacketHandler {
     // disconnects the socket, which goes through the normal onClose path
     // above, so the player is saved and removed exactly as if they'd quit.
     // Same pattern as BanManager.kickBannedPlayers().
+    // See RATE_SOFT_LIMIT / RATE_HARD_LIMIT above. Returns false if this
+    // packet should be dropped.
+    _checkRate() {
+        const now = Date.now();
+        if (now - this._rateWindowStart >= RATE_WINDOW_MS) {
+            this._rateWindowStart = now;
+            this._rateCount = 0;
+        }
+        this._rateCount++;
+        if (this._rateCount === RATE_HARD_LIMIT) {
+            console.warn(
+                'PacketHandler: ' + this.player.name + ' sent ' + RATE_HARD_LIMIT +
+                    ' packets within ' + RATE_WINDOW_MS + 'ms -- disconnecting.'
+            );
+            this.connection.disconnect();
+            return false;
+        }
+        return this._rateCount <= RATE_SOFT_LIMIT;
+    }
+
     timeout() {
         if (this.player.idleKicked) return;
         this.player.idleKicked = true;

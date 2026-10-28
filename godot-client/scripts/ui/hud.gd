@@ -885,6 +885,20 @@ func ask_count(message: String, default_value: int, max_value: int, cb: Callable
 	modals.ask_count(message, default_value, max_value, cb)
 
 
+## Shop / bank / craft / auction / looks windows (and the inventory open in a
+## shop mode) belong to the NPC the player is standing next to -- the server
+## only accepts their actions next to that NPC -- so world.gd closes them as
+## soon as the player starts moving.
+func close_shop_windows() -> void:
+	var inv = windows.get("inventory")
+	if inv and inv.visible and world.actions.mode != ItemActions.Mode.NORMAL:
+		inv.back_window = null  # don't reopen the shop window behind it
+		inv.close()
+	for n in ["store", "craft", "auction", "looks", "bank"]:
+		if windows.has(n) and windows[n].visible:
+			windows[n].close()
+
+
 ## Shop-type notifications pop up while a shop window is open (game.showNotification).
 func shop_window_open() -> bool:
 	for n in ["store", "craft", "auction", "looks", "bank"]:

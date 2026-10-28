@@ -194,6 +194,9 @@ class Mob extends Character {
     },*/
 
     onDamage(attacker, hpMod, epMod, crit, effects) {
+        // EXPLOIT FIX: a dead mob waits for respawn at full HP; damaging it
+        // used to kill it again and pay out XP/gold/quest credit again.
+        if (this.isDead) return;
         const hp = this.stats.hp;
         //var dmgRatio = (hpMod / this.stats.hpMax);
         //log.info("dmgRatio: "+dmgRatio)

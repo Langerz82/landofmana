@@ -204,6 +204,10 @@ class Player extends Character {
     }
 
     onDamage(attacker, hpMod, epMod, crit, effects) {
+        // EXPLOIT FIX: damage to an already-dead player re-ran die() (and its
+        // gold/item death drops) on every hit. See combathandler.js's
+        // canAttackTarget() for the full story.
+        if (this.isDead) return;
         let hpDiff = this.stats.hp;
         super.onDamage(attacker, hpMod, epMod, crit, effects);
         hpDiff = hpDiff - this.stats.hp;

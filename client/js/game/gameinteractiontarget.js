@@ -286,6 +286,50 @@ export function installGameInteractionTarget(proto) {
         }
     };
 
+    // Shop / bank / craft / auction / looks windows (and the inventory when
+    // it's open in a shop mode: sell, repair, enchant, bank, auction) belong
+    // to the NPC the player is standing next to -- the server only accepts
+    // their actions next to that NPC (gameserver packets/servicenpc.js). So
+    // they close as soon as the player starts moving; see
+    // addPlayerCallbacks() in gamecallbacks.js.
+    const SHOP_INVENTORY_MODES = [
+        InventoryMode.MODE_SELL,
+        InventoryMode.MODE_REPAIR,
+        InventoryMode.MODE_ENCHANT,
+        InventoryMode.MODE_BANK,
+        InventoryMode.MODE_AUCTION
+    ];
+
+    proto.closeServiceWindows = function () {
+        const dialogs = [
+            this.storeDialog,
+            this.craftDialog,
+            this.bankDialog,
+            this.auctionDialog,
+            this.appearanceDialog
+        ];
+        for (const dialog of dialogs) {
+            if (dialog && dialog.visible) dialog.hide();
+        }
+
+        if (SHOP_INVENTORY_MODES.includes(this.inventoryMode) && this.inventoryDialog) {
+            // Clear backPage first so closing doesn't reopen the shop window.
+            this.inventoryDialog.backPage = null;
+            this.inventoryDialog.deselectItem();
+            this.inventoryDialog.hideInventory(); // also resets inventoryMode
+        }
+
+        // Bank gold amount / auction price prompts opened from those windows.
+        if (this.app) {
+            if (
+                this.app.dropAction === 'bankgold' ||
+                this.app.dropAction === 'inventorygold'
+            )
+                this.app.hideDropDialog();
+            if (this.app.hideAuctionSellDialog) this.app.hideAuctionSellDialog();
+        }
+    };
+
     proto.makeNpcTalk = function (npc) {
         let msg;
 

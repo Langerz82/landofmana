@@ -22,6 +22,7 @@ import { Types, ItemTypes } from '../common.js';
 import AppearanceData from '../data/appearancedata.js';
 import { PlayerEvent } from '../world/taskhandler.js';
 import { G_DEBUG } from '../constants.js';
+import { isNearServiceNpc } from './servicenpc.js';
 
 // Split out of packethandler.js -- the item/inventory packets: slot
 // manipulation (eat/equip/move/drop), world loot pickup, and cosmetic
@@ -108,6 +109,14 @@ class ItemActionHandler {
                 return;
             if (slot[0] === slot2[0] && slot[1] === slot2[1]) return;
         }
+        // EXPLOIT FIX: anything touching the bank (slot type 1) needs a Bank
+        // NPC nearby -- see servicenpc.js.
+        if (
+            (slot[0] === 1 || (slot2 && slot2[0] === 1)) &&
+            !isNearServiceNpc(this.player, 'Bank')
+        )
+            return;
+
         if (action === 0) {
             // FIX: handleInventoryEat() always consumes from the INVENTORY at
             // index slot[1], but this accepted any slot type -- eating a
@@ -171,6 +180,7 @@ class ItemActionHandler {
     }
 
     handleAppearanceUnlock(message) {
+        if (!isNearServiceNpc(this.player, 'Looks')) return;
         const appearanceIndex = parseInt(message[0]);
         const priceClient = parseInt(message[1]);
 
