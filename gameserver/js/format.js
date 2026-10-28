@@ -273,6 +273,16 @@ const serverDateField = () =>
 const optionalNumberField = (min, max) =>
     z.union([z.null(), numberField(min, max)]);
 
+// FIX: z.number() accepts fractions, and several handlers read fields with
+// Number() rather than parseInt() -- e.g. a CW_ITEMSLOT swap to slot 2.5
+// stored the item under rooms["2.5"], which iteration and saving never see,
+// so the item vanished and the store's occupied count stayed inflated. Every
+// id/index/count/type field in the message schemas below is a whole number;
+// only pixel coordinates (mapCoordsMax) and timestamps keep numberField.
+const intField = (min, max) => numberField(min, max).int();
+const optionalIntField = (min, max) =>
+    z.union([z.null(), intField(min, max)]);
+
 // 's': a string with length in [min,max].
 const stringField = (min, max) => z.string().min(min).max(max);
 
@@ -446,29 +456,29 @@ class FormatChecker {
         // END USER LOGIN PACKETS
 
         this.formats[Types.Messages.CW_APPEARANCEUNLOCK] = tupleField([
-            numberField(0, playerLooksTotal),
-            numberField(0, playerGemMax)
+            intField(0, playerLooksTotal),
+            intField(0, playerGemMax)
         ]);
         this.formats[Types.Messages.CW_ATTACK] = tupleField([
             serverDateField(),
-            numberField(0, entityIdMax),
-            numberField(0, orientationsMax),
-            numberField(-1, playerSkillMax)
+            intField(0, entityIdMax),
+            intField(0, orientationsMax),
+            intField(-1, playerSkillMax)
         ]);
         this.formats[Types.Messages.CW_AUCTIONBUY] = tupleField([
-            numberField(0, auctionEntriesMax),
-            numberField(0, auctionActionMax)
+            intField(0, auctionEntriesMax),
+            intField(0, auctionActionMax)
         ]);
         this.formats[Types.Messages.CW_AUCTIONDELETE] = tupleField([
-            numberField(0, auctionEntriesMax),
-            numberField(0, auctionActionMax)
+            intField(0, auctionEntriesMax),
+            intField(0, auctionActionMax)
         ]);
         this.formats[Types.Messages.CW_AUCTIONOPEN] = tupleField([
-            numberField(0, auctionActionMax)
+            intField(0, auctionActionMax)
         ]);
         this.formats[Types.Messages.CW_AUCTIONSELL] = tupleField([
-            numberField(0, itemInventoryMax),
-            numberField(0, itemPriceMax)
+            intField(0, itemInventoryMax),
+            intField(0, itemPriceMax)
         ]);
         // REMOVED: CW_BANKRETRIEVE, CW_BANKSTORE, CW_COLOR_TINT. Audited against
         // the real client and gameserver source (see the packet-validation
@@ -487,58 +497,58 @@ class FormatChecker {
             stringField(1, maxChatLength)
         ]);
         this.formats[Types.Messages.CW_BLOCK_MODIFY] = tupleField([
-            numberField(0, 1), // type pickup/place
-            numberField(0, entityIdMax),
+            intField(0, 1), // type pickup/place
+            intField(0, entityIdMax),
             numberField(0, mapCoordsMax),
             numberField(0, mapCoordsMax)
         ]);
         this.formats[Types.Messages.CW_LOOKUPDATE] = tupleField([
-            numberField(0, 1), // type
-            numberField(0, playerSpritesMax)
+            intField(0, 1), // type
+            intField(0, playerSpritesMax)
         ]);
         this.formats[Types.Messages.CW_LOOT] = tupleField([
-            numberField(0, entityIdMax),
+            intField(0, entityIdMax),
             numberField(0, mapCoordsMax),
             numberField(0, mapCoordsMax)
         ]);
         this.formats[Types.Messages.CW_MOVE] = tupleField([
             serverDateField(),
-            numberField(0, entityIdMax),
-            numberField(0, 2), // move type
-            numberField(0, orientationsMax),
+            intField(0, entityIdMax),
+            intField(0, 2), // move type
+            intField(0, orientationsMax),
             numberField(0, mapCoordsMax),
             numberField(0, mapCoordsMax)
         ]);
         this.formats[Types.Messages.CW_GOLD] = tupleField([
-            numberField(0, 1), // type (inventory,bank)
-            numberField(0, playerGoldMax),
-            numberField(0, 1) // type2 (inventory,bank)
+            intField(0, 1), // type (inventory,bank)
+            intField(0, playerGoldMax),
+            intField(0, 1) // type2 (inventory,bank)
         ]);
         this.formats[Types.Messages.CW_STATADD] = tupleField([
-            numberField(1, playerStatMax),
-            numberField(1, 1) // stat point add
+            intField(1, playerStatMax),
+            intField(1, 1) // stat point add
         ]);
         this.formats[Types.Messages.CW_STOREBUY] = tupleField([
-            numberField(1, 3), // item type
-            numberField(0, itemKindMax),
-            numberField(0, itemNumberMax)
+            intField(1, 3), // item type
+            intField(0, itemKindMax),
+            intField(0, itemNumberMax)
         ]);
         this.formats[Types.Messages.CW_CRAFT] = tupleField([
-            numberField(0, craftIdMax),
-            numberField(0, craftItemCount)
+            intField(0, craftIdMax),
+            intField(0, craftItemCount)
         ]);
         this.formats[Types.Messages.CW_STORE_MODITEM] = tupleField([
-            numberField(0, 2), // modType
-            numberField(0, 2), // type
-            numberField(0, itemInventoryMax)
+            intField(0, 2), // modType
+            intField(0, 2), // type
+            intField(0, itemInventoryMax)
         ]);
         this.formats[Types.Messages.CW_STORESELL] = tupleField([
-            numberField(0, itemStoreTypeMax),
-            numberField(0, itemInventoryMax)
+            intField(0, itemStoreTypeMax),
+            intField(0, itemInventoryMax)
         ]);
         this.formats[Types.Messages.CW_TALKTONPC] = tupleField([
-            numberField(entityTypeNPCMin, entityTypeNPCMax), // npc type but not used?
-            numberField(0, entityIdMax)
+            intField(entityTypeNPCMin, entityTypeNPCMax), // npc type but not used?
+            intField(0, entityIdMax)
         ]);
         // FIX: field 0 here is the destination map id (see
         // packethandler.js's handleTeleportMap: `parseInt(msg[0])`, checked
@@ -555,23 +565,23 @@ class FormatChecker {
         // already reused mapIndexMax as a generous static ceiling since there's
         // no dedicated "max doors per map" constant.
         this.formats[Types.Messages.CW_TELEPORT_MAP] = tupleField([
-            numberField(0, mapIndexMax),
-            numberField(0, 1),
+            intField(0, mapIndexMax),
+            intField(0, 1),
             numberField(-1, mapCoordsMax),
             numberField(-1, mapCoordsMax),
-            numberField(-1, mapPortalMax)
+            intField(-1, mapPortalMax)
         ]);
         this.formats[Types.Messages.CW_SKILL] = tupleField([
-            numberField(0, playerSkillMax),
-            numberField(0, entityIdMax)
+            intField(0, playerSkillMax),
+            intField(0, entityIdMax)
         ]);
         this.formats[Types.Messages.CW_SHORTCUT] = tupleField([
-            numberField(0, playerShortcutsMax),
-            numberField(playerShortcutsTypeMin, playerShortcutsTypeMax),
-            numberField(0, itemKindMax)
+            intField(0, playerShortcutsMax),
+            intField(playerShortcutsTypeMin, playerShortcutsTypeMax),
+            intField(0, itemKindMax)
         ]);
         this.formats[Types.Messages.CW_PARTY] = tupleField([
-            numberField(0, 4),
+            intField(0, 4),
             // FIX: this field is the target PLAYER'S NAME (see partyhandler.js's
             // handleInvite/handleKick/handleLeader, all of which read it as
             // `msg[0]` and pass it to getPlayer(name)) -- but it was bounded with
@@ -587,25 +597,25 @@ class FormatChecker {
             // who tried it. Confirmed with a quick check: "Bob" (3 chars) passed,
             // "Langerz82" (9 chars) did not.
             optionalStringField(playerNameLenMin, playerNameLenMax),
-            optionalNumberField(0, 3)
+            optionalIntField(0, 3)
         ]);
         this.formats[Types.Messages.CW_HARVEST] = tupleField([
             numberField(0, mapCoordsMax),
             numberField(0, mapCoordsMax)
         ]);
         this.formats[Types.Messages.CW_USE_NODE] = tupleField([
-            numberField(0, entityIdMax)
+            intField(0, entityIdMax)
         ]);
         this.formats[Types.Messages.CW_QUEST] = tupleField([
-            numberField(0, entityIdMax),
-            numberField(0, questIdMax),
-            numberField(0, questTypeMax)
+            intField(0, entityIdMax),
+            intField(0, questIdMax),
+            intField(0, questTypeMax)
         ]);
         this.formats[Types.Messages.CW_MOVEPATH] = tupleField([
             serverDateField(),
-            numberField(0, entityIdMax),
-            numberField(0, orientationsMax),
-            numberField(0, 1),
+            intField(0, entityIdMax),
+            intField(0, orientationsMax),
+            intField(0, 1),
             // Each waypoint is an [x,y] tuple; the path itself has 2-16 waypoints.
             arrayField(
                 tupleField([
@@ -617,7 +627,7 @@ class FormatChecker {
             )
         ]);
         this.formats[Types.Messages.CW_WHO] = tupleField([
-            arrayField(numberField(0, entityIdMax), 0, 999)
+            arrayField(intField(0, entityIdMax), 0, 999)
         ]);
         this.formats[Types.Messages.CW_CONFIG] = tupleField([
             // Each entry is a ["key", value] pair, where value can be a number or
@@ -675,17 +685,17 @@ class FormatChecker {
         // once here, like everything else in this file, removes that
         // per-packet schema-construction cost.
         const itemSlotBaseSlot = [
-            numberField(0, 2), // action: 0 eat, 1 swap, 2 drop
-            numberField(0, 2), // slot type: 0 inventory, 1 equipment, 2 bank
-            numberField(0, itemBankMax), // slot index
-            numberField(0, itemNumberMax) // slot count
+            intField(0, 2), // action: 0 eat, 1 swap, 2 drop
+            intField(0, 2), // slot type: 0 inventory, 1 equipment, 2 bank
+            intField(0, itemBankMax), // slot index
+            intField(0, itemNumberMax) // slot count
         ];
         this.itemSlotFormat = z.union([
             tupleField(itemSlotBaseSlot),
             tupleField([
                 ...itemSlotBaseSlot,
-                numberField(0, 2), // destination slot type
-                numberField(-1, itemBankMax) // destination slot index (-1 = unspecified)
+                intField(0, 2), // destination slot type
+                intField(-1, itemBankMax) // destination slot index (-1 = unspecified)
             ])
         ]);
 
@@ -695,7 +705,7 @@ class FormatChecker {
         // CW_PLAYERINFO
         // CW_WHO REQUEST
         this.formats[Types.Messages.CW_REQUEST] = tupleField([
-            numberField(0, 3)
+            intField(0, 3)
         ]);
     }
 

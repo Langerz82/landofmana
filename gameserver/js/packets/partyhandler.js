@@ -137,24 +137,30 @@ class PartyHandler {
             // (corrupting sendMembersName()'s player-list packets) while
             // still failing its own containsName() check, so player2.party
             // was never actually set. Pass .name instead.
-            if (player2.party) {
-                player2.party.removeName(player2.name);
-                //this.handlePartyAbandoned(player2.party);
+            // FIX: this used to pull the INVITER (player2) out of their own
+            // party and then add them to the accepter's party or start a new
+            // one -- so a leader inviting someone broke up their own party
+            // (and never disbanded what was left of it). Accepting means
+            // joining the inviter's party, or starting a new one led by the
+            // inviter if they don't have one yet.
+            const inviterParty = player2.party;
+            if (inviterParty && inviterParty === party) return; // already together
+            if (inviterParty && inviterParty.players.length >= 5) {
+                this.player.sendPlayer(
+                    new Messages.Notify('CHAT', 'PARTY_MAX_PLAYERS')
+                );
+                return;
             }
             if (party) {
-                if (party.players.length >= 5) {
-                    this.player.sendPlayer(
-                        new Messages.Notify('CHAT', 'PARTY_MAX_PLAYERS')
-                    );
-                    return;
-                }
-                party.addName(player2.name);
+                party.removeName(this.player.name);
+                this.handleAbandoned(party);
+            }
+            if (inviterParty) {
+                inviterParty.addName(this.player.name);
+            } else if (this.world && this.world.party) {
+                this.world.party.addParty(player2, this.player);
             } else {
-                if (this.world && this.world.party)
-                    this.world.party.addParty(player2, this.player);
-                else {
-                    console.warn('no world or no world party.');
-                }
+                console.warn('no world or no world party.');
             }
 
             if (player2) {
@@ -188,7 +194,7 @@ class PartyHandler {
             this.player.sendToPlayer(
                 player2,
                 new Messages.Notify('CHAT', 'PARTY_THEY_REJECTED_INVITE', [
-                    player2.name
+                    this.player.name
                 ])
             );
         }
@@ -278,6 +284,9 @@ class PartyHandler {
         // is already the name string itself (playergroup.js), not a Player
         // object, so `.name` below was always undefined; use it directly.
         if (this.player.name === party.leader) {
+            // FIX: no membership check -- the leader could hand leadership to
+            // any online player outside the party.
+            if (!party.containsName(player2.name)) return;
             party.setLeader(player2.name);
 
             this.player.sendToPlayer(

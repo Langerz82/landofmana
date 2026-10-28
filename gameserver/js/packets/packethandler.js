@@ -279,7 +279,20 @@ class PacketHandler {
                 'Player: ' + self.player.name + ' has exited the world.'
             );
 
-            self.player.save();
+            // FIX: if save() threw, exit_callback never ran -- the player
+            // stayed in the global `players` map and every later login for
+            // that account was refused with USER_ALREADY_LOGGEDIN until a
+            // restart. Always remove the player, even if the save fails.
+            try {
+                self.player.save();
+            } catch (err) {
+                console.error(
+                    'PacketHandler onClose: save failed for ' +
+                        self.player.name +
+                        ': ' +
+                        ((err && err.stack) || err)
+                );
+            }
 
             console.info('REMOVING PLAYER FROM WORLD.');
 
@@ -508,11 +521,16 @@ class PacketHandler {
 
             if (!p.config.hasOwnProperty(key)) continue;
 
-            if (key === 'screenWidth' || key === 'screenHeight')
+            if (key === 'screenWidth' || key === 'screenHeight') {
+                // FIX: a string value went through Math.min/max as NaN and
+                // left processWho() scanning a NaN-sized area.
+                if (typeof value !== 'number' || !Number.isFinite(value))
+                    continue;
                 value = Math.max(
                     1,
                     Math.min(value, PacketHandler.MAX_SCREEN_DIM)
                 );
+            }
 
             p.config[key] = value;
         }

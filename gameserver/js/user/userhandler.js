@@ -53,6 +53,10 @@ import { G_DEBUG } from '../constants.js';
 // operator-controlled link -- but it catches the common failure mode
 // (wrong length, wrong type, missing nested array) for the handler that
 // actually dereferences nested structure before any of its own handlers run.
+// How long a login token stays valid if the client never connects to this
+// server to use it.
+const LOGIN_HASH_TTL_MS = 5 * 60 * 1000;
+
 function isValidUserMessage(action, message) {
     switch (action) {
         case Types.UserMessages.UW_LOAD_PLAYER_DATA:
@@ -218,7 +222,10 @@ class UserHandler {
 
         const playerName = msg[0];
         const data = msg[1];
-        const username = data[0][1];
+        // FIX: data[0] is [username, hash, gems, looks, ...] (see
+        // handleLoadUserInfo) -- [1] is the login hash, so this ban check
+        // never matched anyone.
+        const username = data[0][0];
 
         if (this.world.ban.isUserBanned(username)) {
             console.info('USER IS BANNED.');
@@ -250,6 +257,14 @@ class UserHandler {
         // lets the one-time login hash actually get cleaned up once it's
         // been consumed.
         hashes.set(player.hash, player);
+        // FIX (16): the token was only removed when the client connected
+        // here; a client that loaded but never connected leaked the whole
+        // Player for the life of the process. Expire unused tokens.
+        const loginHash = player.hash;
+        const loadedPlayer = player;
+        setTimeout(function () {
+            if (hashes.get(loginHash) === loadedPlayer) hashes.delete(loginHash);
+        }, LOGIN_HASH_TTL_MS).unref();
         this.player = null;
         // FIX: this used to omit playerName, so the userserver's
         // WorldHandler.handlePlayerLoaded (userserver/js/worldhandler.js)

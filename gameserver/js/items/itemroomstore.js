@@ -60,7 +60,20 @@ class ItemRoomStore extends BaseItemRoomStore {
         return i;
     }
 
+    // FIX: an item arriving here is not in this store yet, but it can
+    // still carry a stale `slot` from wherever it came from: a dropped
+    // stack (copied with Object.assign) keeps the dropper's inventory
+    // index, an auction listing keeps the seller's, and swapItem() hands
+    // over a room from another store. combineItem() writes the merged-away
+    // source back via `this.setItem(item.slot, ...)`, so a full merge
+    // CLEARED -- and an overflowing merge OVERWROTE -- whatever unrelated
+    // item the receiver had at that index. Reset the slot to -1 ("not
+    // stored anywhere yet") for the duration of the placement, and restore
+    // it if nothing was placed so a failed swap leaves the source intact.
     putItem(item) {
+        const prevSlot = item.slot;
+        item.slot = -1;
+
         const kind = item.itemKind;
         const consume = ItemTypes.isConsumableItem(kind);
         const loot = ItemTypes.isLootItem(kind);
@@ -71,7 +84,9 @@ class ItemRoomStore extends BaseItemRoomStore {
                 if (this.combineItem(item, this.rooms[i])) return i;
             }
         }
-        return this._putItem(item);
+        const i = this._putItem(item);
+        if (i < 0) item.slot = prevSlot;
+        return i;
     }
 
     // FIX: `item` (the source, being merged away) and `item2` (the

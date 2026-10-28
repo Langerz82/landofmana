@@ -22,6 +22,10 @@ import { Types, ItemTypes } from '../../common.js';
 import ItemRoom from '../../items/itemroom.js';
 import Utils from '../../utils.js';
 
+// Highest balance the userserver accepts on save (userserver/js/format.js
+// playerGoldMax). Anything above it makes the whole player save fail.
+export const GOLD_MAX = 999999999;
+
 class PlayerItems {
     constructor(entity) {
         this.entity = entity;
@@ -295,9 +299,23 @@ class PlayerItems {
         const entity = this.entity;
 
         type = type || 0;
+        gold = parseInt(gold);
+        if (!Number.isFinite(gold)) return false;
         if (this.gold[type] + gold < 0) return false;
 
-        this.gold[type] += parseInt(gold);
+        // FIX: there was no upper bound. The userserver rejects saves with
+        // gold above GOLD_MAX, so a balance pushed over it (an auction sale
+        // can add up to 99,999,999 at once) made every later save of this
+        // player fail. Clamp instead.
+        if (this.gold[type] + gold > GOLD_MAX) {
+            console.warn(
+                'modifyGold: ' + entity.name + ' gold[' + type + '] clamped at ' + GOLD_MAX +
+                    ' (' + (this.gold[type] + gold - GOLD_MAX) + ' over).'
+            );
+            gold = GOLD_MAX - this.gold[type];
+        }
+
+        this.gold[type] += gold;
 
         entity.sendPlayer(new Messages.Gold(entity));
         if (gold === 0) {

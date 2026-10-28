@@ -119,6 +119,7 @@ class Player extends Character {
         // message is broadcast to the whole world (sendWorld), so this was
         // an easy flood vector. 500ms mirrors the existing attack cooldown.
         this.chatCooldown = new Timer(500);
+        this.chatBanEndTime = 0; // ms timestamp; 0 = not muted
 
         this.quests = new PlayerQuests(this);
         this.harvest = new PlayerHarvest(this);

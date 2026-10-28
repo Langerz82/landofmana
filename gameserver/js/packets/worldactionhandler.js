@@ -47,7 +47,14 @@ class WorldActionHandler {
 
         let msg = Utils.sanitize(message[0]);
 
-        if (new Date().getTime() > this.player.chatBanEndTime) {
+        // FIX: this was inverted (`now > chatBanEndTime`), which would have
+        // muted a player only AFTER their mute ended, forever. Muted means
+        // "now is before the end time". Note: nothing sets chatBanEndTime
+        // yet, so muting still needs a way to set it (e.g. a console command).
+        if (
+            this.player.chatBanEndTime &&
+            Date.now() < this.player.chatBanEndTime
+        ) {
             this.ph.send([Types.Messages.WC_NOTIFY, 'CHAT', 'CHATMUTED']);
             return;
         }

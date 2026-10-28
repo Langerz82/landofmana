@@ -113,27 +113,7 @@ class CombatHandler {
             return;
         }
 
-        // If PvP then both players must be level 20 or higher.
-        if (
-            tEntity instanceof Player &&
-            sEntity instanceof Player &&
-            (sEntity.level < 20 ||
-                tEntity.level < 20 ||
-                Math.abs(sEntity.level - tEntity.level) > 10)
-        ) {
-            if (G_DEBUG) console.warn('pvp invalid diff');
-            return;
-        }
-
-        if (tEntity.aiState === mobState.RETURNING) return;
-
-        if (tEntity.invincible) {
-            this.ph.sendPlayer(
-                new Messages.Notify('CHAT', 'COMBAT_TARGETINVINCIBLE')
-            );
-            if (G_DEBUG) console.warn('target invincible');
-            return;
-        }
+        if (!this.canAttackTarget(sEntity, tEntity)) return;
 
         // TODO fill sEntity, tEntity.
 
@@ -224,6 +204,34 @@ class CombatHandler {
         if (sEntity.effectHandler) {
             sEntity.effectHandler.interval('afterhit', 0);
         }
+    }
+
+    // Target rules shared by plain attacks (handleHitEntity) and skills
+    // (skillactionhandler.js) -- skills used to skip all of these.
+    canAttackTarget(sEntity, tEntity) {
+        // If PvP then both players must be level 20 or higher, and within
+        // 10 levels of each other.
+        if (
+            tEntity instanceof Player &&
+            sEntity instanceof Player &&
+            (sEntity.level < 20 ||
+                tEntity.level < 20 ||
+                Math.abs(sEntity.level - tEntity.level) > 10)
+        ) {
+            if (G_DEBUG) console.warn('pvp invalid diff');
+            return false;
+        }
+
+        if (tEntity.aiState === mobState.RETURNING) return false;
+
+        if (tEntity.invincible) {
+            this.ph.sendPlayer(
+                new Messages.Notify('CHAT', 'COMBAT_TARGETINVINCIBLE')
+            );
+            if (G_DEBUG) console.warn('target invincible');
+            return false;
+        }
+        return true;
     }
 
     calcDamageAOE(sEntity, skill, attackType) {

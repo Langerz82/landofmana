@@ -186,6 +186,9 @@ class Auction {
     list(player, type) {
         let msg = [GameTypes.Messages.WC_AUCTIONOPEN, type, 0];
         let recCount = 0;
+        // Remember exactly which listing each index pointed at when this
+        // player was shown the list -- see ShopHandler._isListingCurrent().
+        const view = new Map();
         // FIX: this used to be a `for...of` loop that called
         // `this.auctions.indexOf(auction)` per matching entry -- indexOf is
         // itself an O(n) linear scan, so building a full listing was O(n^2)
@@ -206,10 +209,12 @@ class Auction {
             ) {
                 msg.push(index);
                 msg = msg.concat(auction.toArray());
+                view.set(index, auction);
                 ++recCount;
             }
         }
         msg[2] = recCount;
+        player.auctionView = view;
         player.sendPlayer(new Messages.AuctionOpen(msg));
     }
 }

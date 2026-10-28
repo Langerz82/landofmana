@@ -101,6 +101,12 @@ export class Connection {
         this._connection = connection;
         this._server = server;
         this.id = id;
+        // FIX: cap on how large a '2'-flagged (gzip) message may decompress
+        // to. Without it, a ~1 MB client packet could inflate to around 1 GB
+        // and take the whole server down. Client packets are tiny; the
+        // userserver link (UserConnection) raises this for bulk data such as
+        // the auction list.
+        this.maxInflateBytes = 256 * 1024;
     }
 
     onClose(callback) {
@@ -143,6 +149,10 @@ export class Connection {
         // text here. The log redaction in main.js/redact.js works on readable
         // text, so a compressed packet carrying the encrypted password (e.g.
         // a WU_SAVE_PLAYER_DATA save) would otherwise slip through unredacted.
+        // FIX: socket.io delivers whatever type the peer emitted (object,
+        // number, binary), not only strings; msg.charAt() threw on those from
+        // inside socket.io's event emitter.
+        if (typeof msg !== 'string' || msg.length === 0) return;
         const flag = msg.charAt(0);
         if (G_DEBUG && flag !== '2') console.info('m=' + msg);
         // Only socketioConnection's underlying socket.io socket exposes
@@ -178,7 +188,10 @@ export class Connection {
                     if (flag === '2') {
                         const payload = msg.substr(1);
                         const buffer = Buffer.from(payload, 'base64');
-                        zlib.gunzip(buffer, (err, buffer) => {
+                        zlib.gunzip(
+                            buffer,
+                            { maxOutputLength: this.maxInflateBytes },
+                            (err, buffer) => {
                             if (err) {
                                 console.log(err.toString());
                                 resolve();

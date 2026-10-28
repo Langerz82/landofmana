@@ -656,8 +656,9 @@ class Map {
             area.minLevel = door.tminLevel || 0;
             area.maxLevel = door.tmaxLevel || 200;
             area.orientation = door.to || 2;
-            area.tx = door.tx || -1;
-            area.ty = door.ty || -1;
+            // FIX: `door.tx || -1` treated a target coordinate of 0 as unset.
+            area.tx = door.tx >= 0 ? door.tx : -1;
+            area.ty = door.ty >= 0 ? door.ty : -1;
             doors.push(area);
         });
         console.info('return doors');

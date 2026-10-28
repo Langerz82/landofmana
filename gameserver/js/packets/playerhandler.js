@@ -17,6 +17,7 @@
 // or <https://www.gnu.org/licenses/>.
 
 import Messages from '../message.js';
+import { GOLD_MAX } from '../entity/player/playeritems.js';
 
 // Split out of itemactionhandler.js -- handleGold and handleStatAdd don't
 // actually manipulate an item entity or an inventory slot the way
@@ -60,6 +61,17 @@ class PlayerHandler {
             this.ph.sendPlayer(
                 new Messages.Notify('GOLD', 'INSUFFICIENT_GOLD')
             );
+            return;
+        }
+
+        // Don't move more than the destination can hold -- modifyGold()
+        // clamps at GOLD_MAX, which would silently destroy the excess.
+        if (
+            (type2 === 0 || type2 === 1) &&
+            type2 !== type &&
+            this.player.items.gold[type2] + gold > GOLD_MAX
+        ) {
+            this.ph.sendPlayer(new Messages.Notify('GOLD', 'MAX_TRANSFER'));
             return;
         }
 

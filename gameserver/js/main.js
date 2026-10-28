@@ -500,7 +500,9 @@ function main(config) {
 
 function modgems(args) {
     const playerName = args[0];
-    const gems = args[1];
+    // FIX: unparsed, so `modgems bob abc` set that player's gems to NaN.
+    const gems = parseInt(args[1], 10);
+    if (isNaN(gems)) return;
 
     const player = world.getPlayerByName(playerName);
     // FIX: modifyGems() is defined on PlayerItems (player.items), not on
@@ -731,19 +733,24 @@ main.safe_exit = function () {
 
 main.saveServer = function () {
     console.info('Main - saveServer!');
+    // FIX: used to process.exit(1) when the userserver wasn't connected,
+    // so typing `save` too early killed the server. Report instead, and let
+    // closeServer() decide whether to exit.
     if (world && userHandler) {
         world.userHandler = userHandler;
         world.save();
-    } else {
-        process.exit(1);
+        return true;
     }
+    console.warn('Main - saveServer: user server not connected, nothing saved.');
+    return false;
 };
 
 main.closeServer = function () {
     console.info('Main - closeServer!');
     IS_EXITING = true;
-    main.saveServer();
+    const saving = main.saveServer();
     readline.close();
+    if (!saving) process.exit(1);
     main.checkSaved();
 };
 

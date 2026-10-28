@@ -80,6 +80,16 @@ class SkillActionHandler {
             // by whatever range rules already apply to their normal
             // attacks.
             if (!p.canReach(target)) return;
+
+            // FIX: plain attacks enforce the PvP level rules and the
+            // invincible flag; skills skipped both, so a damage skill could
+            // hit any player. Every skill in skills2.json targets "self" or
+            // "enemy", so any other target goes through the same gate.
+            if (
+                target !== p &&
+                !this.ph.combatHandler.canAttackTarget(p, target)
+            )
+                return;
         }
 
         // Make sure the skill is ready.

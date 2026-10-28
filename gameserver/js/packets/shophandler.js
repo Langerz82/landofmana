@@ -43,6 +43,25 @@ class ShopHandler {
         return true;
     }
 
+    // FIX: auction indices get reused -- remove() trims trailing empty slots
+    // and add() then appends into them -- so a client holding a stale list
+    // could buy (or delete) a different listing, at a different price, than
+    // the one it was shown. Only honour an index that still points at the
+    // exact listing this player was last sent (Auction.list() records it).
+    _isListingCurrent(index, auction) {
+        const view = this.player.auctionView;
+        return !!view && view.get(index) === auction;
+    }
+
+    _sendListingChanged(auction, type) {
+        const p = this.player;
+        const data = auction.item ? ItemTypes.KindData[auction.item.itemKind] : null;
+        p.sendPlayer(
+            new Messages.Notify('SHOP', 'SHOP_MISMATCH', [data ? data.name : ''])
+        );
+        this.world.auction.list(p, type);
+    }
+
     handleStoreSell(message) {
         const p = this.player;
 
@@ -150,6 +169,10 @@ class ShopHandler {
         const auctions = this.world.auction;
         const auction = this.world.auction.auctions[auctionIndex];
         if (!auction) return;
+        if (!this._isListingCurrent(auctionIndex, auction)) {
+            this._sendListingChanged(auction, type);
+            return;
+        }
         if (auction.playerName === p.name) return;
 
         const price = auction.price;
@@ -205,6 +228,10 @@ class ShopHandler {
         const auctions = this.world.auction;
         const auction = auctions.auctions[auctionIndex];
         if (!auction) return;
+        if (!this._isListingCurrent(auctionIndex, auction)) {
+            this._sendListingChanged(auction, type);
+            return;
+        }
 
         if (auction.playerName !== p.name) {
             return;

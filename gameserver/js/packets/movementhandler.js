@@ -28,6 +28,18 @@ import { tryMoveTo, tryStartPath, setMoveAnchor } from './movevalidator.js';
 // skillactionhandler.js, ...): cache `player`/`world` up front, reach back
 // through `this.ph` for the couple of things that still live on the core
 // PacketHandler (send(), and the move_callback registered via onMove()).
+// How far (in pixels) outside a door's own rectangle the player may still be
+// when using it. The server's path simulation can trail the client's by a
+// network round trip when the client walks onto a door, so a strict
+// "standing inside the door" check would reject legitimate teleports.
+const DOOR_SLACK = G_TILESIZE * 4;
+
+function isNearDoor(p, door) {
+    const dx = Math.max(door.x - p.x, 0, p.x - (door.x + door.width));
+    const dy = Math.max(door.y - p.y, 0, p.y - (door.y + door.height));
+    return dx <= DOOR_SLACK && dy <= DOOR_SLACK;
+}
+
 class MovementHandler {
     constructor(packetHandler) {
         this.ph = packetHandler;
@@ -165,6 +177,18 @@ class MovementHandler {
             // mapId/map-ready/portalId-bounds checks above it already do.
             let pos = { x: p.x, y: p.y };
             let isDoor = false;
+            // FIX: a teleport with no door (portalId -1) used to send the
+            // player to a random start point on ANY ready map, from anywhere.
+            // The clients only do that for (a) the initial entry, which
+            // targets the map the player was already placed on at login
+            // (WorldServer's onPlayerEnter), and (b) the town warp button /
+            // warp chat command, which target map 0. Allow exactly those.
+            if (portalId < 0 && map !== p.map && mapId !== 0) {
+                console.info(
+                    'Teleport without a door to map ' + mapId + ' rejected.'
+                );
+                return;
+            }
             if (portalId >= 0) {
                 const door = p.map.doors[portalId];
                 // FIX: `portalId` was only checked as a valid index into the
@@ -192,6 +216,14 @@ class MovementHandler {
                             door.minLevel,
                             door.maxLevel
                         ])
+                    );
+                    return;
+                }
+                // FIX: nothing checked the player was actually at this door,
+                // so any door on the current map worked from anywhere on it.
+                if (!isNearDoor(p, door)) {
+                    console.info(
+                        'Player is not at teleport door ' + portalId + '.'
                     );
                     return;
                 }
@@ -274,6 +306,10 @@ class MovementHandler {
                 portalId
             ]);
         } else if (status === 1) {
+            // FIX: the ack was honoured with no transition in flight, letting
+            // a client re-run the spawn / processWho / move-anchor reset on
+            // demand. Only accept it for the status=0 request it answers.
+            if (!p.teleportPending) return;
             p.mapStatus = 2;
             // FIX: clears the in-flight guard set above once the client has
             // acked the transition (status=1) and the server has finished

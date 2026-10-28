@@ -415,6 +415,28 @@ class WorldHandler {
             }
         };
 
+        // FIX: savesInProgress was only cleared once all 7 parts arrived, so
+        // any exception while collecting them left this player marked "save
+        // in progress" for the rest of the session and every later save was
+        // silently skipped. Collection is synchronous, so a try/catch here
+        // is enough to clear the flag on failure.
+        try {
+            this._collectSaveData(player, checkLoadDataFull);
+        } catch (err) {
+            delete self.playerSaveData[playerName];
+            self.savesInProgress.delete(playerName);
+            console.error(
+                'worldHandler - savePlayer failed for ' +
+                    playerName +
+                    ': ' +
+                    ((err && err.stack) || err)
+            );
+        }
+    }
+
+    _collectSaveData(player, checkLoadDataFull) {
+        const self = this;
+        const playerName = player.name;
         this.loadPlayerDataUserInfo(player, function (userName, data) {
             const objData = {};
             objData.data = new Array(7);

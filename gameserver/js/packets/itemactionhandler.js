@@ -18,7 +18,7 @@
 
 import Item from '../entity/item.js';
 import Messages from '../message.js';
-import { Types } from '../common.js';
+import { Types, ItemTypes } from '../common.js';
 import AppearanceData from '../data/appearancedata.js';
 import { PlayerEvent } from '../world/taskhandler.js';
 import { G_DEBUG } from '../constants.js';
@@ -109,8 +109,19 @@ class ItemActionHandler {
             if (slot[0] === slot2[0] && slot[1] === slot2[1]) return;
         }
         if (action === 0) {
+            // FIX: handleInventoryEat() always consumes from the INVENTORY at
+            // index slot[1], but this accepted any slot type -- eating a
+            // potion from bank slot N healed the player, then removed one
+            // item from inventory slot N instead (usually empty, so nothing
+            // was consumed: unlimited potions from the bank). Nothing checked
+            // that the item was a consumable either.
+            if (slot[0] !== 0) return;
+            if (!item || !ItemTypes.isConsumableItem(item.itemKind)) return;
             this.player.items.handleInventoryEat(item, slot[1]);
         } else if (action === 1) {
+            // FIX: a 4-field CW_ITEMSLOT (no destination) left slot2 null,
+            // and swapItem() dereferences slot2[0] straight away.
+            if (!slot2) return;
             this.player.items.swapItem(slot, slot2);
         } else if (action === 2) {
             // drop item.

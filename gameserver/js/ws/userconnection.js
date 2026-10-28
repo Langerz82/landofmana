@@ -27,6 +27,10 @@ export default class UserConnection extends Connection {
     constructor(id, connection, server) {
         super(id, connection, server);
         const self = this;
+        // The userserver link carries bulk data (full player saves, the whole
+        // auction list), so it gets a much larger decompression cap than a
+        // game client connection (see Connection's constructor in wsbase.js).
+        this.maxInflateBytes = 64 * 1024 * 1024;
 
         // NOTE: the userserver's socketioConnection.send() (userserver/js/ws.js)
         // used to prefix large/compressed messages with 'z|'; it now always
