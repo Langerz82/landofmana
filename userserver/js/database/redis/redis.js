@@ -532,7 +532,9 @@ class DatabaseHandler {
 
     deletePlayerRecord(playerName, callback) {
         const pKey = 'p:' + playerName;
-        client.del(pKey, (err) => {
+        // FIX: only the p: record was deleted -- the name stayed in the
+        // `player` set, so it stayed "taken" forever.
+        client.multi().del(pKey).srem('player', playerName).exec((err) => {
             if (callback) {
                 callback(playerName, !err, err);
             }

@@ -134,11 +134,18 @@ export class sServer {
     }
 }
 
+const isDebug = () => !!(global.MainConfig && global.MainConfig.debug);
+
 export class Connection {
     constructor(id, connection, server) {
         this._connection = connection;
         this._server = server;
         this.id = id;
+        // FIX: cap on how large a '2'-flagged (gzip) message may decompress
+        // to -- without it a ~1 MB packet could inflate to around 1 GB and
+        // take the server down. Client packets are tiny; main.js's
+        // handleConnectWorld raises this for the gameserver link.
+        this.maxInflateBytes = 256 * 1024;
     }
 
     onClose(callback) {
@@ -171,8 +178,12 @@ export class Connection {
         // text here. The log redaction in main.js/redact.js works on readable
         // text, so a compressed packet carrying the encrypted password (e.g.
         // a WU_SAVE_PLAYER_DATA save) would otherwise slip through unredacted.
+        // FIX: socket.io delivers whatever type the peer emitted (object,
+        // number, binary), not only strings; msg.charAt() threw on those.
+        if (typeof msg !== 'string' || msg.length === 0) return;
         const flag = msg.charAt(0);
-        if (flag !== '2') console.info('m=' + msg);
+        // Per-packet logging is now opt-in: set "debug": 1 in config.json.
+        if (flag !== '2' && isDebug()) console.info('m=' + msg);
         // Only a socket.io Socket (this server's real, only connection type)
         // exposes `.conn.remoteAddress`; falls back to undefined harmlessly
         // for anything that doesn't.
@@ -185,12 +196,16 @@ export class Connection {
         if (flag === '2') {
             const payload = msg.substr(1);
             const buffer = Buffer.from(payload, 'base64');
-            zlib.gunzip(buffer, (err, decompressed) => {
+            zlib.gunzip(
+                buffer,
+                { maxOutputLength: this.maxInflateBytes },
+                (err, decompressed) => {
                 if (err) {
                     console.log(err.toString());
                     return;
                 }
-                if (!useBison) console.info('m=' + String(decompressed));
+                if (!useBison && isDebug())
+                    console.info('m=' + String(decompressed));
                 if (!this.listenCallback) return;
                 if (useBison) {
                     this.listenCallback(BISON.decode(decompressed));
@@ -256,7 +271,7 @@ export class Connection {
     // in, matching the `else` branch's already-synchronous behavior instead
     // of racing it.
     send(message) {
-        console.info('send=' + message);
+        if (isDebug()) console.info('send=' + message);
         const data = useBison ? BISON.encode(message) : JSON.stringify(message);
 
         if (data.length >= 2048) {

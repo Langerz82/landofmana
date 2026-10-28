@@ -47,6 +47,71 @@ function safeCompare(a, b) {
     return crypto.timingSafeEqual(bufA, bufB);
 }
 
+// FIX: handleCreateUser() and checkUser() used to run AES-decrypt +
+// JSON.parse on the client-supplied password blob outside any try -- a
+// garbage blob threw ("Malformed UTF-8 data" / "Unexpected end of JSON
+// input") and the client was left hanging with no reply. Returns the
+// password string, or null if it can't be decoded.
+function decryptPassword(hash, challenge) {
+    try {
+        const bytes = CryptoJS.AES.decrypt(hash, challenge);
+        const value = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
+        return typeof value === 'string' && value.length > 0 ? value : null;
+    } catch (e) {
+        return null;
+    }
+}
+
+// FIX: password attempts were only limited per connection
+// (this.passwordTries), so a script could simply reconnect to reset the
+// counter and guess forever. Failed logins are now also counted per
+// (IP address, username) pair across connections; after LOGIN_FAIL_LIMIT
+// failures within LOGIN_FAIL_WINDOW_MS that pair is refused until the window
+// expires. Keyed on the pair (not the username alone) so a third party
+// can't lock a real player out of their own account.
+const LOGIN_FAIL_LIMIT = 10;
+const LOGIN_FAIL_WINDOW_MS = 15 * 60 * 1000;
+const loginFailures = new Map(); // "ip|username" -> { count, first }
+
+function loginKey(user) {
+    const sock = user.connection && user.connection._connection;
+    return (sock && sock.remoteAddress ? sock.remoteAddress : '') + '|' + user.name;
+}
+
+function isLoginBlocked(key) {
+    const rec = loginFailures.get(key);
+    if (!rec) return false;
+    if (Date.now() - rec.first > LOGIN_FAIL_WINDOW_MS) {
+        loginFailures.delete(key);
+        return false;
+    }
+    return rec.count >= LOGIN_FAIL_LIMIT;
+}
+
+function recordLoginFailure(key) {
+    const now = Date.now();
+    const rec = loginFailures.get(key);
+    if (!rec || now - rec.first > LOGIN_FAIL_WINDOW_MS) {
+        loginFailures.set(key, { count: 1, first: now });
+    } else {
+        rec.count++;
+    }
+}
+
+// Drop expired entries so the map can't grow without bound.
+setInterval(() => {
+    const now = Date.now();
+    for (const [key, rec] of loginFailures) {
+        if (now - rec.first > LOGIN_FAIL_WINDOW_MS) loginFailures.delete(key);
+    }
+}, 5 * 60 * 1000).unref();
+
+// FIX: nothing limited how many characters one account could create.
+// Matches format.js's maxPlayersPerUser (CU_LOGIN_PLAYER's index bound).
+const MAX_PLAYERS_PER_USER = 20;
+
+const isDebug = () => !!(global.MainConfig && global.MainConfig.debug);
+
 // NOTE: DBLogic, users, and worldHandlers are still referenced as bare
 // globals below (e.g. DBLogic.createUser, users.has, worldHandlers.length)
 // -- same reasoning as the equivalent note in worldhandler.js: these are
@@ -142,7 +207,7 @@ class User {
         this.lastPacketTime = Date.now();
 
         this.listener = function (message) {
-            console.info('recv[0]=' + message);
+            if (isDebug()) console.info('recv[0]=' + message);
             const action = parseInt(message[0]);
             if (!action) return;
 
@@ -236,10 +301,16 @@ class User {
         self.name = name.substr(0, 16).trim().toLowerCase();
         console.info('self.user.name=' + self.name);
 
-        const bytes = CryptoJS.AES.decrypt(hash, this.hashChallenge);
-        const decrypt = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
+        const decrypt = decryptPassword(hash, this.hashChallenge);
 
         try {
+            if (decrypt === null) {
+                self.connection.send([
+                    Types.UserMessages.UC_ERROR,
+                    'servererror'
+                ]);
+                return;
+            }
             if (!Utils.checkInputName(self.name)) {
                 self.connection.send([
                     Types.UserMessages.UC_ERROR,
@@ -351,6 +422,15 @@ class User {
                 this.connection.close('user logged in.');
                 return;
             }
+            if (isLoginBlocked(loginKey(this))) {
+                this.connection.send([
+                    Types.UserMessages.UC_ERROR,
+                    'invalidlogin',
+                    0
+                ]);
+                this.connection.close('Too many failed logins: ' + this.name);
+                return;
+            }
 
             this.hash = hash;
             this.loggedInDate = Date.now();
@@ -369,6 +449,20 @@ class User {
 
         console.info('self.name=' + self.name);
         try {
+            // FIX: deleting an account that is in game right now let the
+            // gameserver's next save recreate part of it (savePlayerUserInfo
+            // re-adds the username and user record).
+            const inGame = worldHandlers.some(
+                (wh) => wh.loggedInUsers && wh.loggedInUsers.has(self.name)
+            );
+            if (inGame) {
+                self.connection.send([
+                    Types.UserMessages.UC_ERROR,
+                    'removed_user_fail'
+                ]);
+                return;
+            }
+
             self.hash = hash;
 
             DBLogic.removeUser(self);
@@ -419,11 +513,11 @@ class User {
         }
 
         // Check Password
-        const bytes = CryptoJS.AES.decrypt(this.hash, this.hashChallenge);
-        const decrypt = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
+        const decrypt = decryptPassword(this.hash, this.hashChallenge);
 
         const finishCheck = (passwordMatches) => {
             if (!passwordMatches) {
+                recordLoginFailure(loginKey(this));
                 // FIX: was hardcoded `> 3`, which (since it fires strictly *after* the increment)
                 // actually allowed 4 wrong attempts before closing, not 3 as the old comment above
                 // this.passwordTries claimed. Made configurable via MainConfig.max_password_attempts
@@ -465,6 +559,7 @@ class User {
                 return;
             }
 
+            loginFailures.delete(loginKey(this));
             console.info('LOGIN: ' + this.name);
             // FIX: `skip_logged_in` was accepted as a parameter but never actually
             // read anywhere in this method -- dead. removeUser() (redis.js) calls
@@ -514,6 +609,11 @@ class User {
         // below) -- bcrypt hashes always start with "$2a$"/"$2b$"/"$2y$", which
         // a hex sha1 digest never does, so that prefix reliably tells the two
         // formats apart without needing a separate schema-version field.
+        if (decrypt === null) {
+            finishCheck(false);
+            return;
+        }
+
         const isBcryptHash =
             typeof db_user.hash === 'string' &&
             /^\$2[aby]\$/.test(db_user.hash);
@@ -597,6 +697,11 @@ class User {
             return;
         }
 
+        if (this.players.length >= MAX_PLAYERS_PER_USER) {
+            this.connection.send([Types.UserMessages.UC_ERROR, 'maxplayers']);
+            return;
+        }
+
         const db_player = {
             name: tmpPlayer.name,
             map: 0,
@@ -605,8 +710,14 @@ class User {
             sprites: [0, 0]
         };
 
-        const playerSummary = new PlayerSummary(this.players.length, db_player);
-        this.players.push(playerSummary);
+        // FIX (character theft): the summary used to be pushed onto
+        // this.players right here, BEFORE the database confirmed the name
+        // was free -- and never removed when it wasn't. Creating a character
+        // with an existing player's name failed with "playerexists" but left
+        // that name in this account's list, and CU_LOGIN_PLAYER with its
+        // index then loaded the other player's character (and the next save
+        // added it to this account for good). Only add it once creation has
+        // actually succeeded (see the callback below).
 
         console.info('self.player.name=' + db_player.name);
 
@@ -628,6 +739,9 @@ class User {
                     return;
                 }
                 if (res) {
+                    self.players.push(
+                        new PlayerSummary(self.players.length, db_player)
+                    );
                     worldHandler.createPlayerToWorld(
                         self,
                         self.name,
@@ -696,11 +810,26 @@ class User {
         const playerName = playerSummary.name;
         this.playerName = playerName;
 
-        if (worldHandler) {
-            worldHandler.sendPlayerToWorld(this, this.name, playerName);
-        } else {
+        if (!worldHandler) {
             console.info('No world Handler!');
+            return true;
         }
+
+        // FIX (defense in depth for the character-theft bug): nothing checked
+        // that the character being loaded belongs to this account --
+        // redis.loadPlayerInfo() loads p:<name> for whoever asks. Only send a
+        // character to the world if it's in this account's saved player list.
+        DBLogic.userOwnsPlayer(this.name, playerName, (owned) => {
+            if (!owned) {
+                console.warn(
+                    'loginPlayer: ' + this.name + ' tried to load player ' +
+                        playerName + ' which is not on their account.'
+                );
+                this.connection.send([Types.UserMessages.UC_ERROR, 'servererror']);
+                return;
+            }
+            worldHandler.sendPlayerToWorld(this, this.name, playerName);
+        });
         return true;
     }
 }

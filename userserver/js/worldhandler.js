@@ -101,7 +101,8 @@ class WorldHandler {
 
         this.block = false;
         this.listener = function (message) {
-            console.info('recv[0]=' + message);
+            if (MainConfig && MainConfig.debug)
+                console.info('recv[0]=' + message);
             const action = parseInt(message[0]);
             if (!action) return;
 
@@ -298,8 +299,12 @@ class WorldHandler {
         for (const tmp of this.loggedInUsers) {
             console.info('releasing user: ' + tmp);
         }
-        delete this.loggedInUsers;
-        delete this.pendingLogins;
+        // FIX: these used to be `delete`d, but User objects can still hold
+        // this handler (user.worldHandler) -- their onClose then called
+        // abandonPendingLogin(), and `.has` on the deleted map threw.
+        // Clearing keeps every later call safe.
+        this.loggedInUsers.clear();
+        this.pendingLogins.clear();
         // FIX: `delete this;` is a no-op -- delete only removes properties
         // from an object via a property reference; `this` itself isn't a
         // deletable binding, so this line never did anything. Removed.
@@ -319,7 +324,9 @@ class WorldHandler {
     }
 
     handleGameServerInfo(msg) {
-        console.info('handleGameServerInfo: ' + JSON.stringify(msg));
+        // FIX: this used to log the whole message, including the
+        // gameserver's password (msg[5]).
+        console.info('handleGameServerInfo: world ' + msg[0]);
         const self = this;
 
         const world = {
@@ -335,10 +342,17 @@ class WorldHandler {
         if (safeCompare(world.password, MainConfig.user_password)) {
             this.game_server = true;
         } else {
+            // FIX: a wrong password used to be silently ignored, leaving the
+            // connection open (unlimited guesses) and listed as a world.
+            console.warn('handleGameServerInfo: wrong password, closing.');
+            this.connection.close('Invalid gameserver password.');
             return;
         }
 
         this.world = world;
+        // Only now, authenticated, does this handler become a selectable
+        // world (see handleConnectWorld in main.js).
+        if (!worldHandlers.includes(this)) worldHandlers.push(this);
 
         self.sendAuctionsToWorld(self.worldIndex);
         self.sendLooksToWorld(self.worldIndex);
@@ -353,7 +367,9 @@ class WorldHandler {
     // TODO FIX - Add playername in packet.
 
     handleSavePlayerData(msg) {
-        console.info('handleSavePlayerData: ' + JSON.stringify(msg));
+        if (MainConfig && MainConfig.debug)
+            console.info('handleSavePlayerData: ' + JSON.stringify(msg));
+        else console.info('handleSavePlayerData: ' + msg[0]);
 
         const self = this;
 

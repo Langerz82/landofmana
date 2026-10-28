@@ -268,7 +268,17 @@ async function main(config) {
     const handleConnectWorld = (msg, conn) => {
         const wh = new WorldHandler(global, conn);
         conn._connection.worldHandler = wh;
-        worldHandlers.push(wh);
+        // FIX: the handler used to be pushed onto worldHandlers here, BEFORE
+        // the gameserver had proved it knows user_password. Clients pick a
+        // world by index into worldHandlers, so an unauthenticated (or
+        // still-connecting) handler sitting ahead of the real one received
+        // full player loads -- account data, bank, character, login token.
+        // WorldHandler.handleGameServerInfo() now adds itself to the list
+        // only after the password check passes.
+        //
+        // The gameserver link carries full player saves and the auction
+        // list, so it gets a much larger decompression cap than a client.
+        conn.maxInflateBytes = 64 * 1024 * 1024;
         // Cleanup on disconnect is handled centrally by server.onDisconnect
         // below (it needs the full worldHandlers list to filter against).
     };
@@ -296,17 +306,16 @@ async function main(config) {
             return;
         }
 
-        const current_date = Date.now().toString();
-        const random = Math.random().toString();
-        const hash = crypto
-            .createHash('sha1')
-            .update(current_date + random)
-            .digest('hex');
+        // FIX: was sha1(Date.now() + Math.random()) -- predictable, and this
+        // value is the key the client's password blob is encrypted with.
+        // Same 40-hex-char format as before.
+        const hash = crypto.randomBytes(20).toString('hex');
 
         conn.hash = hash;
-        console.warn(`onConnect: hash=${hash}`);
-
-        console.info(JSON.stringify(config));
+        // FIX: no longer logged -- it's the key that decrypts this
+        // connection's password -- and neither is `config` itself, which
+        // was written to console.log on every connection including
+        // user_password, redis_password, world_key and verify_key.
         console.info('version sent');
         console.info(`UC_VERSION: ${GameTypes.UserMessages.UC_VERSION}`);
 
@@ -367,7 +376,8 @@ async function main(config) {
         }
 
         const listener = (message) => {
-            console.info(`recv[0]=${message}`);
+            if (config.debug) console.info(`recv[0]=${message}`);
+            if (!Array.isArray(message)) return;
             const action = parseInt(message[0], 10);
             message.shift();
 
@@ -560,9 +570,13 @@ function getInput(cmd) {
         case 'quit':
         case 'q':
         case 'x':
+            closeServer();
+            break;
+        // FIX: 's'/'save' used to fall through to closeServer() above, so
+        // typing "save" shut the whole server down.
         case 's':
         case 'save':
-            closeServer();
+            saveServer();
             break;
         case 'forcequit':
             closeServer();
@@ -573,13 +587,27 @@ function getInput(cmd) {
     }
 }
 
+// FIX: checkSaved() waited forever for every world to report fully saved --
+// a single failed Redis write (whose callback never fires) or a player load
+// that never completed kept the counters from ever finishing, and shutdown
+// hung. Give up and exit after this long.
+const SAVE_TIMEOUT_MS = 60 * 1000;
+
 function checkSaved() {
+    const deadline = Date.now() + SAVE_TIMEOUT_MS;
     const allSavedInterval = setInterval(() => {
         console.info('allSavedInterval');
 
         const allSaved = worldHandlers.every((wh) => wh.savedWorldState());
+        const timedOut = Date.now() > deadline;
+        if (timedOut && !allSaved) {
+            console.error(
+                'checkSaved: timed out after ' + SAVE_TIMEOUT_MS / 1000 +
+                    's waiting for saves to finish -- exiting anyway.'
+            );
+        }
 
-        if (allSaved) {
+        if (allSaved || timedOut) {
             for (const wh of worldHandlers) {
                 wh.sendWorldClose();
             }

@@ -171,7 +171,11 @@ class DatabaseLogic {
             user.checkUser(db_user, true, (matched) => {
                 if (matched) {
                     console.error('USER CHECK USER SUCCESS');
-                    const playerNames = data.players.split(',');
+                    // FIX: threw for an account with no characters
+                    // (`players` unset).
+                    const playerNames = String(data.players || '')
+                        .split(',')
+                        .filter(Boolean);
                     for (let i = 0; i < playerNames.length; ++i) {
                         this.dbh.deletePlayerRecord(playerNames[i]);
                     }
@@ -337,6 +341,14 @@ class DatabaseLogic {
         user.gems = data.gems;
 
         return data;
+    }
+
+    // True if playerName is in this account's saved player list.
+    userOwnsPlayer(username, playerName, callback) {
+        this.dbh.getUserPlayerNames(username, (username, reply) => {
+            const owned = reply ? String(reply).split(',') : [];
+            callback(owned.includes(playerName));
+        });
     }
 
     createPlayerNameInUser(username, playerName, callback) {
