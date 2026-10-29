@@ -24,7 +24,6 @@ import MobData from '../data/mobdata.js';
 import NpcData from '../data/npcdata.js';
 import Mob from '../entity/mob/mob.js';
 import Node from '../entity/node.js';
-import Utils from '../utils.js';
 import { G_TILESIZE } from '../constants.js';
 
 // ADMIN: entities placed in-game by an admin with the /spawn chat command
@@ -34,17 +33,14 @@ import { G_TILESIZE } from '../constants.js';
 //
 // as a plain JSON array of records:
 //
-//     { "type": "mob", "kind": 5, "x": 16328, "y": 16392,
+//     { "type": "mob", "kind": 5, "x": 16333, "y": 16390,
 //       "name": "Rat King", "level": 12, "orientation": "left" }
 //
-// x/y are world (pixel) coordinates of the CENTRE of the tile the admin was
-// standing on ((tile + 0.5) * G_TILESIZE) -- the same convention every
-// other entity uses (Utils.fixGridPosition; see mapentities.js _addNpc and
-// the door teleports in movementhandler.js). Values that aren't centred,
-// e.g. hand-edited corner coordinates, are snapped to the centre of their
-// tile on load. `name`, `level` and `orientation` (up/down/left/right, or
-// u/d/l/r) are optional. The file is safe to hand-edit while the server is
-// stopped; it is re-read and every record respawned each time the map
+// x/y are the exact world (pixel) position of the admin's centre when they
+// ran /spawn -- not snapped to the tile grid. `name`, `level` and
+// `orientation` (up/down/left/right, or u/d/l/r; default down) are
+// optional. The file is safe to hand-edit while the server is stopped; it
+// is re-read and every record respawned each time the map
 // loads (MapManager calls load() last in each map's ready callback, after
 // the procedural spawns, so it never shifts the ids those get).
 //
@@ -314,12 +310,6 @@ class MapEntityStore {
             x: Number(item.x),
             y: Number(item.y)
         };
-        // Exactly on a tile: the centre of whichever tile x/y fall in.
-        if (Number.isFinite(rec.x) && Number.isFinite(rec.y)) {
-            const pos = Utils.fixGridPosition(G_TILESIZE, rec.x, rec.y);
-            rec.x = pos.x;
-            rec.y = pos.y;
-        }
         if (item.name !== undefined && item.name !== null && item.name !== '')
             rec.name = String(item.name);
         if (item.level !== undefined && item.level !== null && item.level !== '')
@@ -349,9 +339,13 @@ class MapEntityStore {
                     break;
                 case 'npcmove':
                     entity = entities.addNpcMove(rec.kind, rec.x, rec.y);
+                    // addNpc*() snaps to the tile centre; put it back on
+                    // the exact saved spot.
+                    entity.setPosition(rec.x, rec.y);
                     break;
                 case 'npcstatic':
                     entity = entities.addNpcStatic(rec.kind, rec.x, rec.y);
+                    entity.setPosition(rec.x, rec.y);
                     break;
                 case 'node':
                     entity = entities.addNode(rec.kind, rec.x, rec.y);
@@ -373,8 +367,9 @@ class MapEntityStore {
             return null;
         }
         if (entity && rec.name) entity.name = rec.name;
-        if (entity && rec.orientation) {
-            entity.orientation = ORIENTATION_IDS[rec.orientation];
+        if (entity) {
+            // Face down unless the record says otherwise.
+            entity.orientation = ORIENTATION_IDS[rec.orientation || 'down'];
             // Mobs turn back to this way when they respawn
             // (entity/mob/mobrespawn.js).
             if (entity.fixedSpawn)

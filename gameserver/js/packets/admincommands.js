@@ -223,10 +223,8 @@ class AdminCommands {
             return;
         }
 
-        // The tile the admin is standing on. The store snaps x/y to that
-        // tile's centre (see MapEntityStore._normalizeRecord).
-        const gx = Math.floor(p.x / G_TILESIZE);
-        const gy = Math.floor(p.y / G_TILESIZE);
+        // Exactly where the admin's centre is (an entity's x/y is its
+        // centre point) -- no snapping to the tile grid.
         rec.x = p.x;
         rec.y = p.y;
 
@@ -247,10 +245,10 @@ class AdminCommands {
                 (rec.orientation ? ' facing ' + rec.orientation : '') +
                 ' (entity id ' +
                 e.id +
-                ') at tile ' +
-                gx +
+                ') at ' +
+                rec.x +
                 ',' +
-                gy +
+                rec.y +
                 ' on ' +
                 p.map.name +
                 '. Saved.'
@@ -345,9 +343,9 @@ class AdminCommands {
                     (rec.level ? ' lv ' + rec.level : '') +
                     (rec.orientation ? ' ' + rec.orientation : '') +
                     ' @ ' +
-                    Math.floor(rec.x / G_TILESIZE) +
+                    rec.x +
                     ',' +
-                    Math.floor(rec.y / G_TILESIZE)
+                    rec.y
             );
         }
     }
