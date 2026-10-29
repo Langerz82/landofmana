@@ -497,6 +497,9 @@ class DatabaseLogic {
                 const b64 = Utils.BinArrayToBase64(user.looks);
                 data[1] = b64;
             }
+            // ADMIN: normalize the raw Redis "admin" field (null / "0" /
+            // "1") to a plain 0/1 so the gameserver never has to guess.
+            data[2] = data[2] === '1' || data[2] === 1 ? 1 : 0;
 
             if (callback) {
                 callback(username, data);
@@ -640,6 +643,10 @@ class DatabaseLogic {
     // loadPlayerInfo() above already do.
     savePassword(username, hash, salt) {
         this.dbh.savePassword(username, hash, salt);
+    }
+
+    setUserAdmin(username, flag, callback) {
+        this.dbh.setUserAdmin(username, flag, callback);
     }
 
     saveAuctions(worldKey, data, callback) {

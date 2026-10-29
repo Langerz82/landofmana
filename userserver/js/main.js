@@ -615,6 +615,40 @@ function wipeNewQuests() {
     });
 }
 
+// ADMIN: `setadmin <username> [1|0]` -- grants (default) or revokes the
+// account-level admin flag stored on u:<username> in Redis (see redis.js's
+// setUserAdmin()/loadPlayerUserInfo()). The gameserver reads it when a
+// character loads, so the change takes effect on that account's next
+// login (log out and back in if they're currently online).
+function setAdmin(args) {
+    const username = (args[0] || '').trim().toLowerCase();
+    if (!username) {
+        console.info('usage: setadmin <username> [1|0]');
+        return;
+    }
+    if (!global.DBLogic) {
+        console.error('setadmin: database not ready yet.');
+        return;
+    }
+    const flag = args[1] === undefined ? true : args[1] !== '0';
+    DBLogic.setUserAdmin(username, flag, (name, ok, err) => {
+        if (ok) {
+            console.info(
+                'setadmin: ' +
+                    name +
+                    (flag ? ' is now an admin' : ' is no longer an admin') +
+                    ' (takes effect on next login).'
+            );
+        } else {
+            console.error(
+                'setadmin: failed for ' +
+                    name +
+                    (err ? ': ' + err.message : ' -- no such account.')
+            );
+        }
+    });
+}
+
 function getInput(cmd) {
     const args = cmd.split(' ');
     const cmdarg = args[0];
@@ -625,6 +659,9 @@ function getInput(cmd) {
     switch (cmdarg) {
         case 'setpass':
             changePassword(args);
+            break;
+        case 'setadmin':
+            setAdmin(args);
             break;
         case 'fixlegacylooks':
             fixLegacyLooks();

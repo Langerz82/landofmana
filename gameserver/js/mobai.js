@@ -79,6 +79,9 @@ class MobAI {
                 continue;
             }
 
+            // ADMIN: admins never draw aggro.
+            if (player.isAdmin) continue;
+
             if (level >= player.level) {
                 //console.info("aggroPlayer.")
                 mob.aggroPlayer(player);

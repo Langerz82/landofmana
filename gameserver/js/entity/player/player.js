@@ -121,6 +121,10 @@ class Player extends Character {
         this.chatCooldown = new Timer(500);
         this.chatBanEndTime = 0; // ms timestamp; 0 = not muted
 
+        // ADMIN: set from the account's Redis admin flag when the player is
+        // loaded (user/userhandler.js handleLoadUserInfo).
+        this.isAdmin = false;
+
         this.quests = new PlayerQuests(this);
         this.harvest = new PlayerHarvest(this);
         this.items = new PlayerItems(this);
@@ -208,6 +212,14 @@ class Player extends Character {
         // gold/item death drops) on every hit. See combathandler.js's
         // canAttackTarget() for the full story.
         if (this.isDead) return;
+        // ADMIN: mobs can't hurt an admin (this also covers mob skills and
+        // AoE, which don't go through MobAI.handleHurt()).
+        if (
+            this.isAdmin &&
+            attacker &&
+            attacker.type === Types.EntityTypes.MOB
+        )
+            return;
         let hpDiff = this.stats.hp;
         super.onDamage(attacker, hpMod, epMod, crit, effects);
         hpDiff = hpDiff - this.stats.hp;

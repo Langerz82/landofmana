@@ -156,6 +156,25 @@ class Mob extends Character {
         this.resetEp();
     }
 
+    // ADMIN: lets an admin-placed mob (see map/mapentitystore.js) use a
+    // fixed level instead of a random roll. Recomputes every level-scaled
+    // stat exactly the way the constructor does, then refills HP/EP.
+    setLevel(level) {
+        level = parseInt(level, 10);
+        if (!(level > 0)) return;
+        this.level = level;
+        this.stats.attack = this.data.attack * level;
+        this.stats.defense = this.data.defense * level;
+        this.stats.hpMax = Math.max(this.data.hp * level - 40, 1);
+        this.stats.epMax = this.data.ep * level;
+        this.stats.xp = this.data.xp * level;
+        if (this.creatureMulti && this.creatureMulti !== 1) {
+            this.stats.hpMax *= this.creatureMulti;
+        }
+        this.resetHp();
+        this.resetEp();
+    }
+
     // --- Aggro / hate-list delegates (entity/components/mobaggro.js) ---
     createBoss(multi) {
         return this.respawner.createBoss(multi);

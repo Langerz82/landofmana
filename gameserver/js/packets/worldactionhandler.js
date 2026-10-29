@@ -23,6 +23,7 @@ import Node from '../entity/node.js';
 import Utils from '../utils.js';
 import { G_TILESIZE, G_DEBUG } from '../constants.js';
 import { logChat } from '../chatlog.js';
+import AdminCommands from './admincommands.js';
 
 // Split out of packethandler.js -- the remaining world-interaction packets
 // that don't fit combat/movement/skills/items: chat, quest accept/reject,
@@ -33,6 +34,7 @@ class WorldActionHandler {
         this.ph = packetHandler;
         this.player = this.ph.player;
         this.world = this.ph.world;
+        this.adminCommands = new AdminCommands(packetHandler);
     }
 
     handleChat(message) {
@@ -44,6 +46,13 @@ class WorldActionHandler {
             this.ph.send([Types.Messages.WC_NOTIFY, 'CHAT', 'CHATFLOOD']);
             return;
         }
+
+        // ADMIN: admin commands (/spawn, /despawn, ...) are parsed from the
+        // raw text -- the HTML-escaping sanitize() below would mangle names
+        // like "O'Brien" -- and never reach world chat. Non-admins get a
+        // "no permission" reply instead of having them broadcast.
+        // AdminCommands validates every argument itself.
+        if (this.adminCommands.handle(message[0])) return;
 
         let msg = Utils.sanitize(message[0]);
 

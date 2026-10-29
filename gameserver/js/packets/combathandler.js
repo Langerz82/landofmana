@@ -209,6 +209,9 @@ class CombatHandler {
     // Target rules shared by plain attacks (handleHitEntity) and skills
     // (skillactionhandler.js) -- skills used to skip all of these.
     canAttackTarget(sEntity, tEntity) {
+        // ADMIN: admins can't attack anything (mobs or players). Also
+        // covers targeted skills, which call this same check.
+        if (sEntity.isAdmin) return false;
         // EXPLOIT FIX: dead targets were never rejected. A dead mob stays on
         // the server (invisible, at full HP, at its spawn point) until it
         // respawns, so a modified client could keep "killing" it for XP,

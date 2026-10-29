@@ -521,6 +521,25 @@ class DatabaseHandler {
         client.hset(uKey, 'salt', salt);
     }
 
+    // ADMIN: sets (flag truthy) or clears (flag falsy) the account-level
+    // "admin" field read by loadPlayerUserInfo() above. Only touches an
+    // account that already exists, so a typo'd username can't create a
+    // stray u:<name> hash holding nothing but an admin flag.
+    setUserAdmin(username, flag, callback) {
+        const uKey = 'u:' + username;
+        client.exists(uKey, (err, exists) => {
+            if (err || !exists) {
+                if (callback) callback(username, false, err);
+                return;
+            }
+            const done = (err2) => {
+                if (callback) callback(username, !err2, err2);
+            };
+            if (flag) client.hset(uKey, 'admin', '1', done);
+            else client.hdel(uKey, 'admin', done);
+        });
+    }
+
     deleteUserRecord(username, callback) {
         const uKey = 'u:' + username;
         client.del(uKey, (err) => {
@@ -673,6 +692,12 @@ class DatabaseHandler {
             .multi()
             .hget(uKey, 'gems')
             .hget(uKey, 'looks_b64')
+            // ADMIN: account-level admin flag ("1" = admin, missing/"0" =
+            // regular player). Set with the userserver console command
+            // `setadmin <username> [1|0]`, or straight from redis-cli with
+            // `HSET u:<username> admin 1`. Read on every player load and
+            // forwarded to the gameserver as the 5th userInfo element.
+            .hget(uKey, 'admin')
             .exec((err, data) => {
                 if (data === null || !(typeof data === 'object')) {
                     return;

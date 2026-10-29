@@ -47,6 +47,14 @@ class SkillActionHandler {
 
         const skill = p.skills[skillId];
 
+        // ADMIN: admins can't attack, so only self-targeted skills (buffs,
+        // heals) are allowed -- this also blocks untargeted AoE attacks.
+        if (
+            p.isAdmin &&
+            !(skill && skill.skillData && skill.skillData.targetType === 'self')
+        )
+            return;
+
         // Perform the skill.
         let target;
         if (targetId) {

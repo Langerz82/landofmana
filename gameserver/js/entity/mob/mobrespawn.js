@@ -106,6 +106,13 @@ class MobRespawn {
             if (pos) {
                 entity.setPosition(pos.x, pos.y);
             }
+        } else if (entity.fixedSpawn) {
+            // ADMIN: mobs placed with /spawn (map/mapentitystore.js) have no
+            // MobArea; put them back on the exact spot they were placed
+            // rather than wherever they happened to die.
+            entity.setPosition(entity.fixedSpawn.x, entity.fixedSpawn.y);
+            if (entity.fixedSpawn.orientation)
+                entity.orientation = entity.fixedSpawn.orientation;
         }
         entity.spawnX = entity.x;
         entity.spawnY = entity.y;

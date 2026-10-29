@@ -310,7 +310,11 @@ class UserHandler {
         const username = msg[0],
             hash = msg[1],
             gems = parseInt(msg[2]),
-            looks = msg[3];
+            looks = msg[3],
+            // ADMIN: 5th userInfo element, the account-level "admin" flag
+            // from Redis (u:<username> admin=1), normalized to 0/1 by the
+            // userserver. Missing (older userserver) = not an admin.
+            admin = parseInt(msg[4], 10) === 1;
 
         const conn = this.connection;
         const user = {};
@@ -322,6 +326,7 @@ class UserHandler {
         this.server.enterWorld(conn);
 
         user.gems = gems;
+        user.admin = admin;
         const len = AppearanceData.Data.length;
         user.looks = Utils.Base64ToBinArray(looks, len);
         user.name = username;
@@ -331,6 +336,12 @@ class UserHandler {
 
         player.name = playerName;
         player.hash = hash;
+        // ADMIN: unlocks the admin chat commands (packets/admincommands.js),
+        // and makes this player untouchable by mobs and unable to attack
+        // (see mobaggro.js, mobai.js, player.js onDamage, combathandler.js
+        // canAttackTarget, skillactionhandler.js).
+        player.isAdmin = admin;
+        if (admin) console.info('ADMIN logged in: ' + username + ' / ' + playerName);
         player.loaded = 0;
         // NOTE: was `player.worldHandler = user.worldHandler;` -- `user`
         // (built just above) never has a `.worldHandler` property set on

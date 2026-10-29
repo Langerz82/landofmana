@@ -135,6 +135,8 @@ class MobAggro {
         // per-hit log site in this codebase is gated behind G_DEBUG for
         // exactly this reason; this one was missed.
         if (G_DEBUG) console.info('handleMobHate');
+        // ADMIN: mobs never build hate toward (and so never target) an admin.
+        if (tEntity && tEntity.isAdmin) return;
         if (tEntity && tEntity instanceof Player) {
             entity.increaseHateFor(tEntity, hatePoints);
 
@@ -147,6 +149,8 @@ class MobAggro {
 
     aggroPlayer(player, dmg) {
         const entity = this.entity;
+        // ADMIN: admins can't be aggroed.
+        if (!player || player.isAdmin) return;
         dmg = dmg || 1;
 
         entity.resetAggro(0);

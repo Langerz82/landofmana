@@ -18,6 +18,7 @@
 
 import Map from './map.js';
 import MapEntities from './mapentities.js';
+import MapEntityStore from './mapentitystore.js';
 
 //var BlockArea = require("../area/blockarea");
 // NOTE: TrapArea/TrapGroup (area/traparea.js, entity/trapgroup.js,
@@ -71,6 +72,11 @@ class MapManager {
             // `map.entities` is assigned above.
             map.initMobAreas(map.mobAreasData);
             map.initEntityAreas(map.entityAreasData);
+
+            // ADMIN: respawn entities admins placed with /spawn (saved in
+            // data/maps/<map name>/entity.json). Kept last so it never
+            // shifts the ids of the spawns above.
+            self.loadSavedEntities(map);
 
             map.enterCallback = function (player) {
                 const pos = map.getRandomStartingPosition();
@@ -382,6 +388,11 @@ class MapManager {
 
             //}, 10000);
 
+            // ADMIN: respawn entities admins placed with /spawn (saved in
+            // data/maps/<map name>/entity.json). Kept last so it never
+            // shifts the ids of the spawns above.
+            self.loadSavedEntities(map);
+
             map.enterCallback = function (player) {
                 const pos = map.getRandomStartingPosition();
                 return pos;
@@ -409,12 +420,22 @@ class MapManager {
             map.initEntityAreas(map.entityAreasData);
             map.entities.spawnEntities(map);
 
+            // ADMIN: respawn entities admins placed with /spawn (saved in
+            // data/maps/<map name>/entity.json). Kept last so it never
+            // shifts the ids of the spawns above.
+            self.loadSavedEntities(map);
+
             map.enterCallback = function (player) {
                 const pos = map.getRandomStartingPosition();
                 return pos;
             };
             self.MapsReady();
         });
+    }
+
+    loadSavedEntities(map) {
+        map.entityStore = new MapEntityStore(map);
+        map.entityStore.load();
     }
 
     MapsReady() {
