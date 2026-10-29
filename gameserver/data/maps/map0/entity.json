@@ -1,0 +1,51 @@
+[
+  {
+    "type": "npcstatic",
+    "kind": 36,
+    "x": 40,
+    "y": 216,
+    "name": "Beginner Shop"
+  },
+  {
+    "type": "npcstatic",
+    "kind": 1,
+    "x": 40,
+    "y": 104,
+    "name": "Auction"
+  },
+  {
+    "type": "npcstatic",
+    "kind": 43,
+    "x": 104,
+    "y": 40,
+    "name": "Enchant"
+  },
+  {
+    "type": "npcstatic",
+    "kind": 9,
+    "x": 184,
+    "y": 40,
+    "name": "Repair"
+  },
+  {
+    "type": "npcstatic",
+    "kind": 7,
+    "x": 264,
+    "y": 40,
+    "name": "Bank"
+  },
+  {
+    "type": "npcstatic",
+    "kind": 10,
+    "x": 328,
+    "y": 104,
+    "name": "Looks"
+  },
+  {
+    "type": "npcstatic",
+    "kind": 45,
+    "x": 328,
+    "y": 216,
+    "name": "Craft"
+  }
+]

@@ -26,7 +26,7 @@
   "max_password_attempts": 3,
   "production": "heroku",
   "database": "redis",
-  "version":106,
+  "version":107,
   "verify_email": "",
   "verify_key": ""
 }
