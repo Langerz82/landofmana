@@ -162,6 +162,7 @@ def merge_adjacent(doors):
 
 WIDE_DOORS = {1765: (1764, 1766)}     # map2's 3-wide cave opening: trigger spans all of it
 GENERATED_SHARE = 1.0      # share of caves built by cavekit (the rest are copies of map2's single-room caves)
+HOUSE_GENERATED_SHARE = 0.75   # share of houses that get a generated room (housekit.py); the rest copy map2's
 
 
 def build(FULL, links, systems, region, next_id, rng):
@@ -173,7 +174,7 @@ def build(FULL, links, systems, region, next_id, rng):
     lava_caves = [s for s in by_kind['cave'] if s['lava']]
     uses = {id(s): 0 for s in systems}
     chosen = []
-    import cavekit
+    import cavekit, housekit
     def new_cave():
         while True:
             c = cavekit.make_system(rng)
@@ -181,11 +182,15 @@ def build(FULL, links, systems, region, next_id, rng):
     for kind, triggers, prefer_lava, label, where in links:
         if kind == 'cave' and rng.random() < GENERATED_SHARE:
             chosen.append((new_cave(), triggers, label, where)); continue
+        if kind == 'house' and rng.random() < HOUSE_GENERATED_SHARE:
+            chosen.append((housekit.make_house(rng), triggers, label, where)); continue
         pool = lava_caves if (prefer_lava and lava_caves) else by_kind[kind]
         m = min(uses[id(s)] for s in pool)            # spread copies evenly over the templates
         cand = [s for s in pool if uses[id(s)] == m]
         s = cand[int(rng.integers(len(cand)))]
         uses[id(s)] += 1
+        if kind == 'house' and not housekit.FURNISHED:            # no furniture: drop map2's (carpets stay)
+            s = dict(s, tiles={k: v for k, v in s['tiles'].items() if k != 'indoor objects'})
         chosen.append((s, triggers, label, where))
     # Every room is packed on its own (rooms of one cave only connect through teleports, so they
     # need not sit together). Each room keeps its own camera rect; door coordinates are mapped to

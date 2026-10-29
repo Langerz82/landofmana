@@ -12,16 +12,17 @@ Biome sizes in the delivered map (768 x 1024 overworld), in 100x100 blocks:
 DENSITY = {
     'volcano': {
         'large cliffs': 2.4,        # big mesas with varied outlines and ladders
-        'lava rivers': 0.9,           # meandering lava channels across the volcano, with plank bridges
+        'lava rivers': 1,             # 1 = one main lava river across the volcano (0 = none); its vertical
+                                      # feeder rivers: LAVA_TRIBUTARIES in gen.py
         'lava lakes': 3.5,            # cliff-walled basins with black canyon floor and a molten pool
-        'dead trees': 15,
+        'dead trees': 45,
         'cliff features': 2.8,        # crater rings and bowls copied from map2
         'cave entrances': 0.8,        # mouths in the volcano/desert cliff wall (each gets a cave)
     },
     'desert': {
         'large cliffs': 2.8,        # big mesas with varied outlines and ladders
         'cactus': 22,
-        'dead trees': 21,
+        'dead trees': 32,
         'bones': 3,
         'totems': 3,
         'camps': 1.4,                 # tents, campfires, log piles
@@ -45,14 +46,17 @@ DENSITY = {
         'cave entrances': 1,
     },
     'forest': {
-        'large cliffs': 1.2,        # big mesas with varied outlines and ladders (grass on top)
-        'trees': 96,                  # map2's forest is about 111 per 100x100 tiles of forest grass
+        'large cliffs': 2.6,        # big mesas with varied outlines and ladders (grass on top)
+        'cliff ledges': 2.4,          # bowl-shaped ledges built from cliff pieces
+        'trees': 72,                  # map2's forest is about 111 per 100x100 tiles of forest grass
         'totem posts': 2.1,
         'rocks': 3.2,
         'camps': 1.3,
         'grass decorations': 24,      # flowers, small rocks in grass
     },
     'village': {
+        'large cliffs': 1.8,          # mesas on the outskirts only, away from houses and roads
+        'cliff ledges': 2.4,          # bowl-shaped ledges on the outskirts
         'trees': 86,
         'rocks': 4.8,
         'camps': 2.1,
@@ -84,3 +88,7 @@ SPACING = {
 # Houses are placed per village rather than per area.
 HOUSES_PER_VILLAGE = 14
 HOUSES_IN_START_VILLAGE = 18
+# houses with an open door you can walk into, per village; every other house has a closed door
+ENTERABLE_HOUSES_PER_VILLAGE = 8
+# share of red-roof houses (the only kind that can have an open door); the rest are blue-roof houses
+RED_HOUSE_SHARE = 0.6

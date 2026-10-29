@@ -51,6 +51,10 @@ _COLL = np.load(cache('colliding.npy'))
 for _g in ('groundvar', 'grassvar'):          # ground and grass variations must never block:
     S[_g] = [s for s in S[_g] if not _has(s, _COLL)]   # no tileset-colliding tiles,
     for s in S[_g]: s['blk'] = np.zeros_like(s['blk'])  # and no blocking copied from map2
+# ladder holes (map2's hole-with-a-ladder, 1833-1835 / 1853-1855) lead nowhere on this map: never scatter them
+LADDER_HOLE = [1833, 1834, 1835, 1853, 1854, 1855]
+for _g in list(S):
+    S[_g] = [s for s in S[_g] if not any(np.isin(a_, LADDER_HOLE).any() for a_ in s['tiles'].values())]
 S['house'] = [s for s in S['house'] if s['h'] >= 4 and s['w'] >= 3]
 
 
@@ -112,6 +116,8 @@ for s in S['house']:
         s = _rebuild(dict(s, blk_full=b), t)
     _padded.append(s)
 S['house'] = _padded
+S['house_red'] = [s for s in S['house'] if (_house_door(s) or ('', 0, 0))[0] == 'red']
+S['house_blue'] = [s for s in S['house'] if (_house_door(s) or ('', 0, 0))[0] == 'blue']
 TOMB = [61, 62, 81, 82, 101, 102, 121, 122]
 S['tombs'] = [s for s in S['camp'] + S['grave'] if _has(s, TOMB) and s['h'] <= 3 and s['w'] <= 3]
 S['fence'] = [s for s in S['grave'] + S['camp'] if _has(s, [736, 737, 738, 739, 740]) and s['h'] <= 2]
@@ -214,21 +220,35 @@ def commit_ledge(cells, margin=1, check=True, region=None, tag=None):
     if tag: FLATS.extend((fx, fy, tag) for fx, fy in _last_flats)
     return True
 
-def boundary_ledge(ybase, seed, gapw=(8, 14), tag=None):
-    """Full-width ledge with gaps. Returns rim row per column (float, interpolated in gaps)."""
+def boundary_ledge(ybase, seed, gapw=(8, 14), tag=None, openings=(), open_w=12, span=14):
+    """Full-width ledge with gaps. Returns rim row per column (float, interpolated in gaps).
+    `openings`: columns that must fall in a gap (open_w wide), e.g. where paths cross."""
     top = np.full(W, np.nan); x = 0; y = ybase; gaps = []
+    opens = sorted(int(c) for c in openings)
     while x < W - 12:
         n = int(rng.integers(8, 22))
         n = min(n, (W - x - 10) // 4)
+        nxt = [c for c in opens if c + open_w // 2 > x]
+        if nxt and nxt[0] - open_w // 2 - x < 4 * n + 3:          # stop short of the next opening
+            room = (nxt[0] - open_w // 2 - x - 3) // 4
+            if room < 3:                                          # too little room: jump past the opening
+                g0 = x; x = nxt[0] + open_w - open_w // 2; gaps.append((g0, min(x, W))); continue
+            n = room
         if n < 3: break
-        seq = rand_seq(n, ybase - 14, ybase + 14, y)
+        seq = rand_seq(n, ybase - span, ybase + span, y)
         cells, x2, y2 = ledge_cells(x + 1, y, seq)
         commit_ledge(cells, check=False, tag=tag)
         cells = {k: v for k, v in cells.items() if 0 <= k[1] < W}
         for (cy, cx), g in cells.items():
             if np.isnan(top[cx]) or cy < top[cx]: top[cx] = cy
         x, y = x2, y2
-        g0 = x; x += int(rng.integers(*gapw)); gaps.append((g0, min(x, W)))
+        g0 = x; x += int(rng.integers(*gapw))
+        nxt = [c for c in opens if c + open_w // 2 > g0]
+        if nxt and nxt[0] - open_w // 2 < x + 15:                 # an opening is close:
+            x = g0 + gapw[0]                                      # shortest gap, if a short ledge still fits,
+            if nxt[0] - open_w // 2 < x + 15:                     # otherwise widen this gap over the opening
+                x = max(x, nxt[0] + open_w - open_w // 2)
+        gaps.append((g0, min(x, W)))
     if gaps: gaps[-1] = (gaps[-1][0], W)     # trailing columns behave as a gap
     # rim -> interpolate gaps
     idx = np.flatnonzero(~np.isnan(top))
@@ -239,7 +259,18 @@ log('boundary ledges')
 topV, gapsV = boundary_ledge(int(196 * SY), 1, tag='volc')     # volcano / desert
 topB, gapsB = boundary_ledge(int(922 * SY), 2, tag='vbeach')   # village / beach
 yD = (410 * SY + 22 * SY * n1(160, 11)).astype(int)
-yS = (565 * SY + 22 * SY * n1(160, 12)).astype(int)
+# swamp / forest: a full-width cliff wall like the village / beach one, swamp on the high side.
+# The forest trails come down through openings in it.
+FOREST_TOP_CLIFF = True
+FOREST_TRAILS_PER_100 = 1.6        # north-south trails per 100 columns of forest
+NTR = max(2, int(round(FOREST_TRAILS_PER_100 * W / 100)))
+TRAIL_X0 = np.clip(((np.arange(NTR) + 0.5) * W / NTR).astype(int) + rng.integers(-W // (4 * NTR), W // (4 * NTR) + 1, NTR), 8, W - 9)
+if FOREST_TOP_CLIFF:
+    yS, gapsS = boundary_ledge(int(565 * SY), 3, gapw=(8, 16), openings=TRAIL_X0, open_w=12, span=int(12 * SY * 2))
+else:
+    yS = (565 * SY + 22 * SY * n1(160, 12)).astype(int); gapsS = [(0, W)]
+in_gapS = np.zeros(W, bool)
+for a, b in gapsS: in_gapS[max(0, a - 2):min(W, b + 2)] = True
 yR = (748 * SY + 14 * SY * n1(220, 13) + 6 * SY * n1(60, 14))
 yC = H - max(12, int(round(24 * SY)))        # shoreline row
 
@@ -288,7 +319,6 @@ def walk_trail(x, y0, y1, wig=0.25):
 # branches; each path's width wanders between FOREST_PATH_WIDTH_RANGE, averaging FOREST_PATH_WIDTH
 FOREST_PATH_WIDTH = 4
 FOREST_PATH_WIDTH_RANGE = (3, 6)
-FOREST_TRAILS_PER_100 = 1.6        # north-south trails per 100 columns of forest
 FOREST_CONNECTORS_PER_100 = 1.0    # east-west connectors per 100 columns
 FOREST_BRANCHES_PER_100 = 1.5      # short side branches per 100 columns
 paths_c = np.zeros((H, W), bool)
@@ -309,23 +339,26 @@ def stamp(y, x, w):
     a = w // 2
     paths_c[max(0, y - a):max(0, y - a + w), max(0, x - a):max(0, x - a + w)] = True
 
-def walk_trail(x, y0, y1, wig=0.25, lo=6, hi=None):
+def walk_trail(x, y0, y1, wig=0.25, lo=6, hi=None, target=None):
     hi = W - 7 if hi is None else hi
     pts = []; dx = 0; wd = Width()
     for y in range(y0, y1):
         if rng.random() < wig: dx = int(rng.integers(-1, 2))
         if (x <= lo and dx < 0) or (x >= hi and dx > 0): dx = -dx      # stay in its own column band
-        if abs(y - yR[x]) < 14: dx = 0
+        if target is not None and y > yR[x] - 40:                   # steer to its evenly spaced bridge
+            dx = int(np.sign(target - x)) if (abs(target - x) > 0 and rng.random() < 0.6) else (0 if x == target else dx)
+        if abs(y - yR[x]) < 14 or y < yS[x] + 10: dx = 0              # straight at bridges and through the cliff opening
         x = int(np.clip(x + dx, 6, W - 7)); pts.append((y, x))
         stamp(y, x, wd.step() if abs(y - yR[x]) >= 14 else FOREST_PATH_WIDTH)   # steady width at bridges
     return pts
 
 trail_x = []
-NTR = max(2, int(round(FOREST_TRAILS_PER_100 * W / 100)))
-for k, x in enumerate(((np.arange(NTR) + 0.5) * W / NTR).astype(int) + rng.integers(-W // (4 * NTR), W // (4 * NTR) + 1, NTR)):
+for k, x in enumerate(TRAIL_X0):
     x = int(np.clip(x, 8, W - 9)); colw = W / NTR
+    tgt = int((k + 0.5) * colw)                                     # bridges evenly spaced along the river
     y0 = int(yS[x]) - 25; pts = walk_trail(x, y0, int(yR[x]) + 18,
-                                           lo=max(6, int(k * colw + colw * 0.2)), hi=min(W - 7, int((k + 1) * colw - colw * 0.2)))
+                                           lo=max(6, int(k * colw + colw * 0.2)), hi=min(W - 7, int((k + 1) * colw - colw * 0.2)),
+                                           target=tgt)
     trail_x.append([px for y, px in pts if abs(y - yR[px]) < 1][0])   # where it meets the river
 f_top = int(np.median(yS)) + 8; f_bot = int(np.median(yR)) - 14
 NCON = max(2, int(round(FOREST_CONNECTORS_PER_100 * W / 100)))
@@ -357,7 +390,7 @@ LY['forest paths'][paths] = otile(paths, 'mud')[paths]
 occ |= paths
 
 def bridge(xc):
-    x0 = xc - 1
+    x0 = xc - FOREST_PATH_WIDTH // 2          # bridge spans exactly the trail (stamp covers xc-2..xc+1)
     if x0 < 2 or x0 + 4 >= W: return
     cols = slice(x0, x0 + 4)
     rr = np.flatnonzero(river[:, cols].any(1))
@@ -372,8 +405,7 @@ def bridge(xc):
     paths_ok = np.zeros((H, W), bool); paths_ok[r0 - 2:r1 + 3, x0:x0 + 4] = True
     return paths_ok
 for x in trail_x: bridge(int(x))
-for x in range(130, W - 60, 240):        # extra crossings between trails
-    if min(abs(x - t) for t in trail_x) > 40: bridge(x)
+
 
 # ---------------------------------------------------------------- base terrain
 log('terrain')
@@ -396,63 +428,92 @@ dark = above & ~touch
 put_pattern('dryground', dark, [[419, 420], [439, 440]])
 volc_floor = dark | d2
 
-# lava rivers: meandering channels across the volcano. Molten lava in the middle, black canyon banks
-# whose glowing edge faces the lava, and the volcano's reddish rock fading into the banks (drawn on a
-# 'lava banks' layer above 'canyon' so the canyon's outer edge is covered). Plank bridges cross them.
+# lava rivers: one meandering river east-west across the volcano, fed by vertical rivers that flow
+# down from the top of the map into it. Molten lava in the middle, black canyon banks whose glowing
+# edge faces the lava, and the volcano's reddish rock fading into the banks (on a 'lava banks' layer
+# above 'canyon' so the canyon's outer edge is covered). All rivers are drawn as one network so the
+# junctions blend. Plank bridges cross every river.
 LAVA_RIVER_WIDTH = (1, 3)          # half-width of the molten channel (tiles), varies along the river
 LAVA_RIVER_BANK = 3                # black canyon on each side
-LAVA_RIVER_BRIDGES = 2             # plank bridges per river
+LAVA_RIVER_BRIDGES = 2             # plank bridges over the main river
+LAVA_TRIBUTARIES = 2               # vertical rivers flowing into the main one (each gets 1 bridge)
+LAVA_RIVER_Y = 0.55                # main river height, as a share of the volcano's height
 lava_rivers = np.zeros((H, W), bool); river_lava = np.zeros((H, W), bool); river_bridges = []
-want_rivers = amount('volcano', 'lava rivers')
 _vtop, _vbot = 10, int(np.min(topV)) - 16
-LAVA_RIVER_SPREAD = 0.9            # 0..1: how much of the volcano's height the rivers are spread over
-_mid, _half = (_vtop + _vbot) / 2, (_vbot - _vtop) / 2 * LAVA_RIVER_SPREAD
-_ys = (np.linspace(_mid - _half, _mid + _half, want_rivers) if want_rivers > 1 else [_mid] * want_rivers)
-for _ri, _y0 in enumerate(_ys):
-    _ph = rng.uniform(0, 2 * np.pi)
-    _yc = _y0 + 4 * np.sin(COLS / rng.uniform(25, 45) + _ph) + 3 * n1(40, 300 + _ri)
-    _yc = np.clip(_yc, _vtop, _vbot)
-    _wl = np.clip(np.round(2 + 1.0 * n1(30, 400 + _ri)), *LAVA_RIVER_WIDTH)
-    core = np.zeros((H, W), bool); bank = np.zeros((H, W), bool); cover = np.zeros((H, W), bool)
-    _cn = n1(12, 500 + _ri)
+n_main = 1 if DEN.DENSITY['volcano'].get('lava rivers', 0) >= 1 else 0     # main river on/off
+core = np.zeros((H, W), bool); bank = np.zeros((H, W), bool); cover = np.zeros((H, W), bool)
+def _stamp(y_, x_, r_, cv_):
+    for (m_, rr_) in ((core, r_), (bank, r_ + LAVA_RIVER_BANK + 1), (cover, cv_)):
+        m_[max(0, y_ - rr_):y_ + rr_ + 1, max(0, x_ - rr_):x_ + rr_ + 1] = True
+main_y = None
+if n_main:
+    _y0 = _vtop + (_vbot - _vtop) * LAVA_RIVER_Y
+    main_y = np.clip(_y0 + 4 * np.sin(COLS / rng.uniform(25, 45) + rng.uniform(0, 6.3)) + 3 * n1(40, 300), _vtop, _vbot)
+    _wl = np.clip(np.round(2 + 1.0 * n1(30, 400)), *LAVA_RIVER_WIDTH); _cn = n1(12, 500)
     for x_ in range(W):
-        yc_ = int(round(_yc[x_])); r_ = int(_wl[x_])
-        cv_ = r_ + LAVA_RIVER_BANK + 3 + int(round(1.5 * (1 + _cn[x_])))   # reddish rock width wanders
-        for (m_, rr_) in ((core, r_), (bank, r_ + LAVA_RIVER_BANK + 1), (cover, cv_)):
-            m_[max(0, yc_ - rr_):yc_ + rr_ + 1, max(0, x_ - rr_ // 2):x_ + rr_ // 2 + 1] = True
-    core = clean(octshape(core, 1)); bank = clean(octshape(bank | ndimage.binary_dilation(core, iterations=3), 1))
-    cover = clean(octshape(cover | ndimage.binary_dilation(bank, iterations=2), 2))
+        r_ = int(_wl[x_]); _stamp(int(round(main_y[x_])), x_, r_, r_ + LAVA_RIVER_BANK + 3 + int(round(1.5 * (1 + _cn[x_]))))
+    trib_x = []
+    for k in range(LAVA_TRIBUTARIES):
+        # from the top of the map down to the main river, meandering sideways
+        xs0 = int((k + 1) * W / (LAVA_TRIBUTARIES + 1) + rng.integers(-W // 12, W // 12 + 1))
+        ph_, per_ = rng.uniform(0, 6.3), rng.uniform(18, 30)
+        wn_ = fbm((8, H), np.random.default_rng(600 + k), 30, 3)[3]
+        cn_ = fbm((8, H), np.random.default_rng(700 + k), 12, 3)[3]
+        xc_ = xs0
+        for y_ in range(0, H):
+            xc_ = int(np.clip(round(xs0 + 4 * np.sin(y_ / per_ + ph_) + 3 * wn_[y_]), 8, W - 9))
+            if y_ >= main_y[xc_]: break
+            r_ = int(np.clip(round(1.5 + 0.8 * wn_[(y_ * 7) % H]), *LAVA_RIVER_WIDTH))
+            _stamp(y_, xc_, r_, r_ + LAVA_RIVER_BANK + 3 + int(round(1.5 * (1 + cn_[y_]))))
+        trib_x.append(xs0)
+    core = clean(octshape(core, 1))
     core = ndimage.binary_closing(core, np.ones((3, 3), bool)) | core   # no stray black tiles inside the lava
-    # banks always at least LAVA_RIVER_BANK + 1 tiles wide around the (final) lava, so they never thin out
+    # banks always at least LAVA_RIVER_BANK + 1 tiles wide around the lava, so they never thin out
     bank = clean(octshape(bank | ndimage.binary_dilation(core, np.ones((3, 3), bool), iterations=LAVA_RIVER_BANK + 1), 1))
-    cover = cover | ndimage.binary_dilation(bank, iterations=2)
+    cover = clean(octshape(cover | ndimage.binary_dilation(bank, iterations=2), 2)) | ndimage.binary_dilation(bank, iterations=2)
     canyon_m = clean(bank & ~core)                              # glow edge faces the lava
     LY['canyon'][canyon_m] = otile(canyon_m, 'canyon')[canyon_m]
     lv = ndimage.binary_dilation(core, np.ones((3, 3), bool)) & bank
     LY['lava'][lv] = 1181
-    # reddish rock from 2 tiles off the lava outward: its solid part covers the bank's outer (glow) edge
     ring = cover & ~ndimage.binary_dilation(core, iterations=LAVA_RIVER_BANK - 1)
     ring = clean(octshape(ring, 1)) & ~ndimage.binary_dilation(core, iterations=2)
     LY['lava banks'][ring] = otile(ring, 'dry2')[ring]
     for _ln in ('dryground', 'dryground2'): LY[_ln][bank] = 0
     lava_rivers |= cover; river_lava |= lv
-    # plank bridges (map2's bridge pieces) at evenly spread columns
-    for _bx in ((np.arange(LAVA_RIVER_BRIDGES) + 0.5) * W / LAVA_RIVER_BRIDGES + rng.integers(-W // 10, W // 10 + 1, LAVA_RIVER_BRIDGES)).astype(int):
-        _bx = int(np.clip(_bx, 4, W - 6)); x0_ = _bx - 1
-        rows_ = np.flatnonzero(lv[:, x0_:x0_ + 4].any(1))
+    # main river: map2's vertical plank bridges, at columns away from the tributary junctions
+    cols_ = [int(c) for c in ((np.arange(LAVA_RIVER_BRIDGES) + 0.5) * W / LAVA_RIVER_BRIDGES)]
+    cols_ = [c if min(abs(c - t) for t in trib_x) > 14 else c + (16 if c < W - 30 else -16) for c in cols_]
+    for _bx in cols_:
+        x0_ = int(np.clip(_bx, 4, W - 6)) - 1
+        mid_ = int(round(main_y[x0_ + 1]))
+        rows_ = np.flatnonzero(lv[max(0, mid_ - 12):mid_ + 13, x0_:x0_ + 4].any(1)) + max(0, mid_ - 12)
         if not len(rows_): continue
         r0_, r1_ = rows_.min() - 2, rows_.max() + 2
         LY['Bridge'][r0_:r1_ + 1, x0_:x0_ + 4] = np.array([7, 8, 9, 10])[None]
-        LY['lava'][r0_:r1_ + 1, x0_ + 1:x0_ + 3] = 0           # deck walkable; banks stay drawn under the bridge
+        LY['lava'][r0_:r1_ + 1, x0_ + 1:x0_ + 3] = 0           # deck walkable; banks stay drawn under it
         LY['bridges shadows'][r0_ + 1, x0_ + 3] = 63; LY['bridges shadows'][r0_ + 2:r1_, x0_ + 3] = 83
         LY['bridges shadows'][r1_, x0_ + 3] = 103
-        river_bridges.append((r0_, r1_, x0_))
-report('volcano', 'lava rivers', len(_ys))
+        river_bridges.append(('main', r0_, r1_, x0_))
+    # tributaries: map2's sideways plank bridge (rows 1420 rail, 1440/1460 deck, 1480 rail)
+    for k, xs0 in enumerate(trib_x):
+        by_ = int(_vtop + (min(main_y[max(0, xs0 - 6):xs0 + 7]) - _vtop) * rng.uniform(0.35, 0.65))
+        cols__ = np.flatnonzero(lv[by_:by_ + 4, :].any(0) & (np.abs(COLS - xs0) < 14))
+        if not len(cols__): continue
+        c0_, c1_ = cols__.min() - 2, cols__.max() + 2
+        LY['Bridge'][by_, c0_:c1_ + 1] = 1420
+        LY['Bridge'][by_ + 1, c0_:c1_ + 1] = 1440
+        LY['Bridge'][by_ + 2, c0_:c1_ + 1] = 1460
+        LY['Bridge'][by_ + 3, c0_:c1_ + 1] = 1480
+        LY['lava'][by_ + 1:by_ + 3, c0_:c1_ + 1] = 0           # deck rows walkable
+        river_bridges.append(('trib', by_, c0_, c1_))
+log('lava rivers:', n_main, 'main +', len(trib_x) if n_main else 0, 'vertical, bridges:', len(river_bridges))
 _cl, _cn2 = ndimage.label(LY['canyon'] != 0)              # drop stray canyon specks
 if _cn2:
     _cs = ndimage.sum(np.ones_like(_cl), _cl, range(1, _cn2 + 1))
     LY['canyon'][np.isin(_cl, 1 + np.flatnonzero(_cs < 6))] = 0
 deco_r = river_lava & ndimage.binary_erosion(river_lava, iterations=2) & (rng.random((H, W)) < 0.05)
+_br = LY['Bridge'] != 0
+deco_r &= ~_br
 LY['lava'][deco_r] = rng.choice([1401, 1411, 1421, 1428], size=int(deco_r.sum()))
 occ |= ndimage.binary_dilation(lava_rivers, iterations=2)
 
@@ -531,7 +592,7 @@ vd = np.full((H, W), 1e9)
 for cy, cx in vil_centres: vd = np.minimum(vd, np.hypot(YY - cy, (XX - cx) * 0.8))
 gthr = np.where(R_forest, -1.25, -0.3) + np.where(vd < 45, 0.9 * (1 - vd / 45), 0)
 gr = (noise(22, 51) > gthr) & (R_forest | R_village)
-gr &= ~(R_forest & (YY < yS[None] + 12) & (noise(16, 52) < (yS[None] + 12 - YY) / 12.0))
+gr &= ~(R_forest & in_gapS[None] & (YY < yS[None] + 12) & (noise(16, 52) < (yS[None] + 12 - YY) / 12.0))
 gr |= ndimage.binary_dilation(river, iterations=3)
 gap_rows = (YY >= topB[None] - 6) & (YY <= topB[None] + 3) & in_gapB[None]
 gr |= gap_rows
@@ -623,10 +684,10 @@ def scatter(group, n, allow, margin=1, tries=8, weights=True, region_box=None):
     return placed
 
 # desert / swamp / beach bowls built from the ledge grammar
-def bowls(region, n, plen=(3, 9), tag=None):
+def bowls(region, n, plen=(3, 9), tag=None, tries=10):
     ys, xs = np.nonzero(region); c = 0
-    for i in range(n * 10):
-        if c >= n: break
+    for i in range(n * tries):
+        if c >= n or not len(ys): break
         k = rng.integers(len(ys)); y, x = int(ys[k]), int(xs[k])
         seq = rand_seq(int(rng.integers(*plen)), y - 6, y + 8, y)
         cells, _, _ = ledge_cells(x, y, seq)
@@ -649,6 +710,7 @@ MESA_TOP_GROUND = {
     'desert':  ('dryground', [[871, 872], [891, 892]]),
     'swamp':   ('dead grass', [[546, 547], [566, 567]]),
     'forest':  ('grass', [[155, 156], [175, 176]]),
+    'village': ('grass', [[155, 156], [175, 176]]),
 }
 TERRAIN_LAYERS = ['sand', 'grass', 'dryground', 'dryground2', 'dead grass', 'graveyard mud', 'canyon', 'lava',
                   'forest paths', 'mud', 'groundvariations', 'grassvariations']
@@ -718,6 +780,8 @@ big_cliffs('forest', R_forest & (YY > yS[None] + 4) & (YY < yR[None] - 6) & ~ndi
 
 report('desert', 'cliff ledges', bowls(desert_ok, amount('desert', 'cliff ledges'), tag='desert'))
 report('swamp', 'cliff ledges', bowls(R_swamp & (YY > yD[None] + 6) & (YY < yS[None] - 10), amount('swamp', 'cliff ledges'), (3, 7), tag='swamp'))
+report('forest', 'cliff ledges', bowls(R_forest & (YY > yS[None] + 10) & (YY < yR[None] - 10) & ~ndimage.binary_dilation(paths | river, iterations=2),
+                                      amount('forest', 'cliff ledges'), (3, 6), tries=80))
 report('beach', 'cliff ledges', bowls(R_beach & (YY > topB[None] + 10) & (YY < yC - 12), amount('beach', 'cliff ledges'), (3, 6), tag='beach'))
 
 volc_ok = R_volc & volc_floor & (YY > 4) & (YY < topV[None] - 6) & ~lava_region
@@ -818,8 +882,11 @@ def tomb_clumps(region, n_clumps, size=(3, 8)):
 # villages: houses clustered around centres
 for vi, (cy, cx) in enumerate(vil_centres):
     near = (np.hypot(YY - cy, (XX - cx) * 0.8) < 42) & R_village & (YY < topB[None] - 8)
-    sc(f'houses{vi}', 'house', DEN.HOUSES_IN_START_VILLAGE if vi == START else DEN.HOUSES_PER_VILLAGE,
-       near, margin=2, scale=False)
+    n_ = DEN.HOUSES_IN_START_VILLAGE if vi == START else DEN.HOUSES_PER_VILLAGE
+    n_red = max(DEN.ENTERABLE_HOUSES_PER_VILLAGE + 1, int(round(n_ * DEN.RED_HOUSE_SHARE)))   # red roofs (only red houses can open)
+    sc(f'houses{vi}', 'house_red', n_red, near, margin=2, tries=40, scale=False)
+    sc(f'houses{vi}b', 'house_blue', n_ - counts[f'houses{vi}'], near, margin=2, tries=40, scale=False)
+    counts[f'houses{vi}'] += counts.pop(f'houses{vi}b')
 # ---- village paths: dirt paths from every house door to its village centre, plus roads joining
 # the villages to each other and to the forest trails that cross the river
 import heapq
@@ -970,6 +1037,15 @@ def put(biome, item, group, allow, **kw):
     sc(f'{biome}:{item}', group, amount(biome, item), allow, **kw)
     report(biome, item, counts[f'{biome}:{item}'])
 # village
+# outer town: cliffs on the open land the villages leave free, placed after the houses and paths so they
+# never sit on a house, its door front, a path or a road (VILLAGE_CLIFF_GAP tiles clear of them)
+VILLAGE_CLIFF_GAP = 4
+_town = vcl | road | stubs | paths | (LY['stone'] != 0) | FRONTS | (LY['Houses'] != 0)
+village_out = (R_village & (YY > rbot[None] + 6) & (YY < topB[None] - 8) & ~river
+               & ~ndimage.binary_dilation(_town, np.ones((3, 3), bool), iterations=GROUND_PATH_WIDTH // 2 + VILLAGE_CLIFF_GAP))
+big_cliffs('village', village_out, tries=400, pieces=(3, 6), side_rows=(2, 5))
+report('village', 'cliff ledges', bowls(village_out, amount('village', 'cliff ledges'), (3, 5), tries=120))
+g_in = ndimage.binary_erosion(gr, iterations=1) & (LY['Cliffs'] == 0)
 put('village', 'trees', 'vtree', g_in & R_village, tries=20)
 put('village', 'rocks', 'rock', R_village & land)
 put('village', 'camps', 'camp', R_village & land)
@@ -1023,11 +1099,23 @@ for biome, item, dens, asked, placed in sorted(PLACED):
 # ---------------------------------------------------------------- house doors
 houses_doors = []                    # list of trigger lists, one per house
 Hs = LY['Houses']
-for y, x in zip(*np.nonzero(Hs == 347)):          # red houses: use map2's open-door variant
-    if Hs[y, x - 1] == 346 and Hs[y, x + 1] == 348 and Hs[y + 1, x] == 367:
-        Hs[y, x - 1:x + 2] = [1661, 1662, 1663]; Hs[y + 1, x - 1:x + 2] = [1681, 1682, 1683]
-for y, x in zip(*np.nonzero(Hs == 1662)):
-    houses_doors.append([(int(x), int(y + 1))])
+# red houses: ENTERABLE_HOUSES_PER_VILLAGE of them in each village get map2's open door (1661-1683),
+# every other house keeps a closed door (red houses 346-348 / 366-368, blue houses 187/188)
+OPEN_DOOR = np.array([[1661, 1662, 1663], [1681, 1682, 1683]]); CLOSED_DOOR = np.array([[346, 347, 348], [366, 367, 368]])
+red_doors = [(int(y), int(x)) for y, x in zip(*np.nonzero(Hs == 347))
+             if Hs[y, x - 1] == 346 and Hs[y, x + 1] == 348 and Hs[y + 1, x] == 367]
+red_doors += [(int(y), int(x)) for y, x in zip(*np.nonzero(Hs == 1662))]
+by_vil = {}
+for y, x in red_doors:
+    v = int(np.argmin([np.hypot(y - vy, x - vx) for vy, vx in vil_centres]))
+    by_vil.setdefault(v, []).append((y, x))
+for v, ds in sorted(by_vil.items()):
+    ds.sort(); pick = set(int(i) for i in rng.permutation(len(ds))[:DEN.ENTERABLE_HOUSES_PER_VILLAGE])
+    for i, (y, x) in enumerate(ds):
+        Hs[y:y + 2, x - 1:x + 2] = OPEN_DOOR if i in pick else CLOSED_DOOR
+        if i in pick: houses_doors.append([(x, y + 1)])
+log('enterable houses per village', {v + 1: min(len(ds), DEN.ENTERABLE_HOUSES_PER_VILLAGE) for v, ds in by_vil.items()},
+    'houses per village', {v + 1: n for v, n in enumerate(counts[f'houses{v}'] for v in range(len(vil_centres)))})
 # blue-roof houses only have a closed door (187/188) in the tilesheet, so they are not enterable
 log('enterable houses', len(houses_doors))
 
