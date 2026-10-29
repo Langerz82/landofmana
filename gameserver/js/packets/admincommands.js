@@ -26,7 +26,7 @@ import { logChat } from '../chatlog.js';
 // swallows them, so they are never broadcast as chat.
 //
 //   /admin                          list these commands
-//   /spawn <type> <kindId> [options] place an entity on your tile
+//   /spawn <type> <kindId> [options] place an entity where you stand
 //   /despawn [entityId]             remove an admin-placed entity
 //   /spawnlist                      admin-placed entities near you
 //   /pos                            your map + coordinates
@@ -35,10 +35,12 @@ import { logChat } from '../chatlog.js';
 // Options are key=value, in any order, all optional:
 //   name=Bob  name="Old Bob"   (blank / omitted = the default name)
 //   level=10                   (mob and node only; omitted = random/1)
-//   o=u|d|l|r                  facing up/down/left/right
+//   o=u|d|l|r                  facing up/down/left/right (default down)
+//   quests=300000,300001       (npc and npcstatic only; alias q=) quest ids
+//                              from shared/data/quests.json
 // e.g.
 //   /spawn mob 5 level=10 o=l
-//   /spawn npcstatic 5 name="Bob"
+//   /spawn npcstatic 5 name="Bob" quests=300000,300001
 //
 // Spawned entities are saved to gameserver/data/maps/<map>/entity.json and
 // respawned on every server start -- see map/mapentitystore.js.
@@ -54,7 +56,8 @@ const COMMANDS = {
 
 const LEVEL_TYPES = new Set(['mob', 'node']);
 const SPAWN_USAGE =
-    'Usage: /spawn <type> <kindId> [name="..."] [level=N] [o=u|d|l|r]';
+    'Usage: /spawn <type> <kindId> [name="..."] [level=N] [o=u|d|l|r] [quests=id,id]';
+const QUEST_TYPES = new Set(['npcmove', 'npcstatic']);
 // key= spellings accepted on the command line -> canonical option.
 const OPTION_ALIASES = {
     name: 'name',
@@ -64,7 +67,10 @@ const OPTION_ALIASES = {
     lv: 'level',
     o: 'orientation',
     orientation: 'orientation',
-    dir: 'orientation'
+    dir: 'orientation',
+    quests: 'quests',
+    quest: 'quests',
+    q: 'quests'
 };
 // Letters (any language), digits, spaces and a little punctuation.
 const NAME_PATTERN = /^[\p{L}\p{N} _'.-]+$/u;
@@ -127,7 +133,7 @@ class AdminCommands {
         this.reply(
             'types: ' +
                 MapEntityStore.typeNames.join(', ') +
-                ' -- e.g. /spawn mob 5 level=10 o=l, /spawn npcstatic 5 name="Bob"'
+                ' -- e.g. /spawn mob 5 level=10 o=l, /spawn npcstatic 5 name="Bob" quests=300000,300001'
         );
         this.reply('/despawn [entityId] -- removes the nearest (or given) placed entity');
         this.reply('/spawnlist -- placed entities near you');
@@ -180,7 +186,7 @@ class AdminCommands {
                 this.reply(
                     'Unknown option "' +
                         rawKey +
-                        '". Options: name=, level=, o= (u/d/l/r)'
+                        '". Options: name=, level=, o= (u/d/l/r), quests= (npc only)'
                 );
                 return;
             }
@@ -213,6 +219,18 @@ class AdminCommands {
                     return;
                 }
                 rec.orientation = o;
+            } else if (key === 'quests') {
+                if (value === '') continue;
+                if (!QUEST_TYPES.has(type)) {
+                    this.reply('quests= only applies to npc and npcstatic.');
+                    return;
+                }
+                const res = MapEntityStore.normalizeQuests(value);
+                if (res.error) {
+                    this.reply(res.error);
+                    return;
+                }
+                rec.quests = res.quests;
             }
         }
 
@@ -243,6 +261,7 @@ class AdminCommands {
                 (e.name ? ' "' + e.name + '"' : '') +
                 (LEVEL_TYPES.has(type) ? ' level ' + e.level : '') +
                 (rec.orientation ? ' facing ' + rec.orientation : '') +
+                (rec.quests ? ' with quests ' + rec.quests : '') +
                 ' (entity id ' +
                 e.id +
                 ') at ' +
@@ -342,6 +361,7 @@ class AdminCommands {
                     (rec.name ? ' "' + rec.name + '"' : '') +
                     (rec.level ? ' lv ' + rec.level : '') +
                     (rec.orientation ? ' ' + rec.orientation : '') +
+                    (rec.quests ? ' quests ' + rec.quests : '') +
                     ' @ ' +
                     rec.x +
                     ',' +
