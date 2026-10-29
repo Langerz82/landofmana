@@ -43,6 +43,7 @@ Then convert as usual: `cd ../../converter && node run.js ../data/map3.json serv
 | `interiors.py` | Loads map2's interior rooms (camera rects at x >= 114) and groups rooms linked by doors into systems. It then packs one copy per house/cave into the right half and writes the door objects (both directions) and camera rects. |
 | `cavekit.py` | Builds cave rooms from map2's cave-wall pieces: a rectangle of floor with each corner optionally cut at 45 degrees. The top wall is 3 rows with a 4-tile face, the sides are 2 columns, and the bottom is 2 rows. Diagonals are one tile strip per row (NW `1328..1388`, NE `1383..1323`, SW `1268 1269 1270`, SE `1261 1262 1263`). `make_system` joins rooms and long hallways with ladder/arch doors and adds torches, minerals and pools. |
 | `stonepath.py` | Tiles cobblestone paths from map2's stone-pad tiles: solid fill, ragged edge fringe, and corner pieces on diagonals. |
+| `mesa.py` | Builds large mesas from map2's brown cliff ring set, with random dips in the front face. |
 | `render.py` | PNG previews. |
 
 **Item amounts live in `density.py`**: every scattered item group is given as *items per 100x100 tiles
@@ -92,6 +93,25 @@ Cliff ledges use the same FL/FM/FR pieces as `generator/run.js`.
   east-west connectors spread down the forest, and short winding side branches. Each path's width wanders between 3 and 6 tiles,
   averaging about 4 (`FOREST_PATH_WIDTH`, `FOREST_PATH_WIDTH_RANGE`). How many of each per 100 columns:
   `FOREST_TRAILS_PER_100`, `FOREST_CONNECTORS_PER_100`, `FOREST_BRANCHES_PER_100` in `gen.py`.
+- **Lava rivers:** meandering channels across the volcano. Molten lava runs in the middle (its width varies), with black
+  canyon banks whose glowing edge faces the lava. The volcano's reddish rock fades into the banks; it is drawn on a new
+  `lava banks` layer above `canyon`. Each river has plank bridges, which are the only way across.
+  Count: `lava rivers` in `density.py`; widths and bridges: `LAVA_RIVER_WIDTH`, `LAVA_RIVER_BANK`, `LAVA_RIVER_BRIDGES` in `gen.py`.
+  How far apart they are: `LAVA_RIVER_SPREAD` (share of the volcano's height the rivers are spread over, 0.9 by default).
+- **Lava lakes:** built like map2's lava: a basin walled by map2's dark cliff pieces (corners cut at 45 degrees in
+  random amounts), black canyon floor inside, and an irregular molten pool whose glowing edge tiles face the lava.
+  Count: `lava lakes` in `density.py`; size: `LAVA_LAKE_W` / `LAVA_LAKE_H` in `gen.py`.
+- **Blocking only on real tiles:** a tile with nothing in it except blocking has its blocking removed. Rooms in the
+  interior strip are sealed instead by map2's black cave tile (gid 4, colliding in the tileset) on the empty cells next to
+  walkable floor (`VOID_TILE`).
+- **Large cliffs** (`mesa.py`): raised mesas in the volcano, desert, swamp and forest, edged with map2's brown cliff set.
+  Each top has its zone's own ground (volcano reddish rock, desert pink sand, swamp dead grass, forest grass;
+  `MESA_TOP_GROUND` in `gen.py`).
+  Their front faces dip in 1-2 places by random amounts, so every mesa has its own outline. One ladder
+  (ladder tiles 1829/1849/1869) climbs the front face onto each top, and the walls are solid, so the ladder is the
+  only way up. All cliff tiles block except ladders and cave doorways; on the inside, see-through rim tiles
+  that show the ground are walkable (`CLIFF_WALKABLE`, `RIM_OPACITY`). Amounts: `large cliffs` in `density.py`; sizes and ladder counts: `MESA_PIECES`, `MESA_SIDE_ROWS`,
+  `MESA_LADDERS` in `gen.py`.
 - **Houses** all stand on a cobblestone pad (`stone` layer); houses that had none in map2 get the pad of a same-colour house.
   The ground in front of every door is kept clear.
 - **Village paths:** paths run from every house door to its village centre, and roads join the villages to each other

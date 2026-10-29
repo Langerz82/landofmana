@@ -11,11 +11,15 @@ Biome sizes in the delivered map (768 x 1024 overworld), in 100x100 blocks:
 
 DENSITY = {
     'volcano': {
+        'large cliffs': 2.4,        # big mesas with varied outlines and ladders
+        'lava rivers': 0.9,           # meandering lava channels across the volcano, with plank bridges
+        'lava lakes': 3.5,            # cliff-walled basins with black canyon floor and a molten pool
         'dead trees': 15,
         'cliff features': 2.8,        # crater rings and bowls copied from map2
         'cave entrances': 0.8,        # mouths in the volcano/desert cliff wall (each gets a cave)
     },
     'desert': {
+        'large cliffs': 2.8,        # big mesas with varied outlines and ladders
         'cactus': 22,
         'dead trees': 21,
         'bones': 3,
@@ -24,11 +28,12 @@ DENSITY = {
         'rocks': 3.6,
         'ground decorations': 7,      # small sand tufts and stones
         'tombstone clumps': 0.6,      # groups of 3-7 tombstones
-        'cliff ledges': 3.1,          # bowl-shaped ledges built from cliff pieces
+        'cliff ledges': 4.6,          # bowl-shaped ledges built from cliff pieces
         'cliff features': 1.3,        # crater rings and bowls copied from map2
         'cave entrances': 1.6,
     },
     'swamp': {
+        'large cliffs': 1.6,        # big mesas with varied outlines and ladders
         'dead trees': 44,
         'crypts and fences': 16,      # placed around the graveyard mud
         'tombstone clumps': 2.5,
@@ -36,10 +41,11 @@ DENSITY = {
         'bones': 1.9,
         'camps': 1,
         'ground decorations': 7,
-        'cliff ledges': 0.9,
+        'cliff ledges': 1.4,
         'cave entrances': 1,
     },
     'forest': {
+        'large cliffs': 1.2,        # big mesas with varied outlines and ladders (grass on top)
         'trees': 96,                  # map2's forest is about 111 per 100x100 tiles of forest grass
         'totem posts': 2.1,
         'rocks': 3.2,

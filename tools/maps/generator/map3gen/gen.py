@@ -46,6 +46,11 @@ for g in S:
     S[g] = [s for s in S[g] if s['src'][1] > 0 and s['src'][1] + s['w'] < 92]
 def _has(s, ids): return any(np.isin(a, ids).any() for a in s['tiles'].values())
 S['ftree'] = [s for s in S['ftree'] if _has(s, [234])]
+# ground variations must never block: drop any whose tiles the tileset marks as colliding
+_COLL = np.load(cache('colliding.npy'))
+for _g in ('groundvar', 'grassvar'):          # ground and grass variations must never block:
+    S[_g] = [s for s in S[_g] if not _has(s, _COLL)]   # no tileset-colliding tiles,
+    for s in S[_g]: s['blk'] = np.zeros_like(s['blk'])  # and no blocking copied from map2
 S['house'] = [s for s in S['house'] if s['h'] >= 4 and s['w'] >= 3]
 
 
@@ -391,18 +396,118 @@ dark = above & ~touch
 put_pattern('dryground', dark, [[419, 420], [439, 440]])
 volc_floor = dark | d2
 
-# lava fields: black canyon floor with lava pools, set into the dark ground
-lava_region = blobmask(R_volc & (YY > 10) & (YY < topV[None] - 16), 0.9, 40, 23, coarse=4)
-lava_region = finish(lava_region, 3) & ndimage.binary_erosion(volc_floor & (YY < topV[None] - 10), iterations=4)
-lava_region = clean(lava_region)
-pools = finish(blobmask(lava_region, 0.2, 14, 24) & ndimage.binary_erosion(lava_region, iterations=3), 2)
-canyon = clean(lava_region & ~pools)
-lavam = ndimage.binary_dilation(pools, iterations=1) & lava_region
-LY['lava'][lavam] = 1181
-deco = lavam & ndimage.binary_erosion(lavam, iterations=1) & (noise(3, 25) > 1.6)
+# lava rivers: meandering channels across the volcano. Molten lava in the middle, black canyon banks
+# whose glowing edge faces the lava, and the volcano's reddish rock fading into the banks (drawn on a
+# 'lava banks' layer above 'canyon' so the canyon's outer edge is covered). Plank bridges cross them.
+LAVA_RIVER_WIDTH = (1, 3)          # half-width of the molten channel (tiles), varies along the river
+LAVA_RIVER_BANK = 3                # black canyon on each side
+LAVA_RIVER_BRIDGES = 2             # plank bridges per river
+lava_rivers = np.zeros((H, W), bool); river_lava = np.zeros((H, W), bool); river_bridges = []
+want_rivers = amount('volcano', 'lava rivers')
+_vtop, _vbot = 10, int(np.min(topV)) - 16
+LAVA_RIVER_SPREAD = 0.9            # 0..1: how much of the volcano's height the rivers are spread over
+_mid, _half = (_vtop + _vbot) / 2, (_vbot - _vtop) / 2 * LAVA_RIVER_SPREAD
+_ys = (np.linspace(_mid - _half, _mid + _half, want_rivers) if want_rivers > 1 else [_mid] * want_rivers)
+for _ri, _y0 in enumerate(_ys):
+    _ph = rng.uniform(0, 2 * np.pi)
+    _yc = _y0 + 4 * np.sin(COLS / rng.uniform(25, 45) + _ph) + 3 * n1(40, 300 + _ri)
+    _yc = np.clip(_yc, _vtop, _vbot)
+    _wl = np.clip(np.round(2 + 1.0 * n1(30, 400 + _ri)), *LAVA_RIVER_WIDTH)
+    core = np.zeros((H, W), bool); bank = np.zeros((H, W), bool); cover = np.zeros((H, W), bool)
+    _cn = n1(12, 500 + _ri)
+    for x_ in range(W):
+        yc_ = int(round(_yc[x_])); r_ = int(_wl[x_])
+        cv_ = r_ + LAVA_RIVER_BANK + 3 + int(round(1.5 * (1 + _cn[x_])))   # reddish rock width wanders
+        for (m_, rr_) in ((core, r_), (bank, r_ + LAVA_RIVER_BANK + 1), (cover, cv_)):
+            m_[max(0, yc_ - rr_):yc_ + rr_ + 1, max(0, x_ - rr_ // 2):x_ + rr_ // 2 + 1] = True
+    core = clean(octshape(core, 1)); bank = clean(octshape(bank | ndimage.binary_dilation(core, iterations=3), 1))
+    cover = clean(octshape(cover | ndimage.binary_dilation(bank, iterations=2), 2))
+    core = ndimage.binary_closing(core, np.ones((3, 3), bool)) | core   # no stray black tiles inside the lava
+    # banks always at least LAVA_RIVER_BANK + 1 tiles wide around the (final) lava, so they never thin out
+    bank = clean(octshape(bank | ndimage.binary_dilation(core, np.ones((3, 3), bool), iterations=LAVA_RIVER_BANK + 1), 1))
+    cover = cover | ndimage.binary_dilation(bank, iterations=2)
+    canyon_m = clean(bank & ~core)                              # glow edge faces the lava
+    LY['canyon'][canyon_m] = otile(canyon_m, 'canyon')[canyon_m]
+    lv = ndimage.binary_dilation(core, np.ones((3, 3), bool)) & bank
+    LY['lava'][lv] = 1181
+    # reddish rock from 2 tiles off the lava outward: its solid part covers the bank's outer (glow) edge
+    ring = cover & ~ndimage.binary_dilation(core, iterations=LAVA_RIVER_BANK - 1)
+    ring = clean(octshape(ring, 1)) & ~ndimage.binary_dilation(core, iterations=2)
+    LY['lava banks'][ring] = otile(ring, 'dry2')[ring]
+    for _ln in ('dryground', 'dryground2'): LY[_ln][bank] = 0
+    lava_rivers |= cover; river_lava |= lv
+    # plank bridges (map2's bridge pieces) at evenly spread columns
+    for _bx in ((np.arange(LAVA_RIVER_BRIDGES) + 0.5) * W / LAVA_RIVER_BRIDGES + rng.integers(-W // 10, W // 10 + 1, LAVA_RIVER_BRIDGES)).astype(int):
+        _bx = int(np.clip(_bx, 4, W - 6)); x0_ = _bx - 1
+        rows_ = np.flatnonzero(lv[:, x0_:x0_ + 4].any(1))
+        if not len(rows_): continue
+        r0_, r1_ = rows_.min() - 2, rows_.max() + 2
+        LY['Bridge'][r0_:r1_ + 1, x0_:x0_ + 4] = np.array([7, 8, 9, 10])[None]
+        LY['lava'][r0_:r1_ + 1, x0_ + 1:x0_ + 3] = 0           # deck walkable; banks stay drawn under the bridge
+        LY['bridges shadows'][r0_ + 1, x0_ + 3] = 63; LY['bridges shadows'][r0_ + 2:r1_, x0_ + 3] = 83
+        LY['bridges shadows'][r1_, x0_ + 3] = 103
+        river_bridges.append((r0_, r1_, x0_))
+report('volcano', 'lava rivers', len(_ys))
+_cl, _cn2 = ndimage.label(LY['canyon'] != 0)              # drop stray canyon specks
+if _cn2:
+    _cs = ndimage.sum(np.ones_like(_cl), _cl, range(1, _cn2 + 1))
+    LY['canyon'][np.isin(_cl, 1 + np.flatnonzero(_cs < 6))] = 0
+deco_r = river_lava & ndimage.binary_erosion(river_lava, iterations=2) & (rng.random((H, W)) < 0.05)
+LY['lava'][deco_r] = rng.choice([1401, 1411, 1421, 1428], size=int(deco_r.sum()))
+occ |= ndimage.binary_dilation(lava_rivers, iterations=2)
+
+# lava lakes, built the way map2 builds its lava: a basin walled by map2's dark cliff pieces
+# (corners cut at 45 degrees in random amounts), black canyon floor inside, and an irregular molten
+# pool whose glowing edge tiles face the lava. Count from density.py.
+import cavekit as _CK
+LAVA_LAKE_W, LAVA_LAKE_H = (10, 26), (6, 15)      # basin floor size range (tiles)
+lava_ok = volc_floor & (YY > 4) & (YY < topV[None] - 8) & ~ndimage.binary_dilation(lava_rivers, iterations=4)
+lava_region = np.zeros((H, W), bool); n_lakes = 0
+lavam = np.zeros((H, W), bool)
+want_lakes = amount('volcano', 'lava lakes')
+for _ in range(want_lakes * 60):
+    if n_lakes >= want_lakes: break
+    w_ = int(rng.integers(*LAVA_LAKE_W)); h_ = int(rng.integers(*LAVA_LAKE_H))
+    m_ = max(0, min(w_, h_) // 2 - 1)
+    ch_ = [int(rng.integers(0, m_ + 1)) if rng.random() < 0.8 else 0 for _c in range(4)]
+    Ft_, Wt_, I_ = _CK.room(w_, h_, *ch_)
+    foot_ = (Wt_ != 0) | I_
+    hh_, ww_ = foot_.shape
+    ys_, xs_ = np.nonzero(lava_ok)
+    k = int(rng.integers(len(ys_))); y_, x_ = int(ys_[k]) - hh_ // 2, int(xs_[k]) - ww_ // 2
+    if y_ < 4 or x_ < 4 or y_ + hh_ + 4 >= H or x_ + ww_ + 4 >= W: continue
+    sl_ = (slice(y_, y_ + hh_), slice(x_, x_ + ww_))
+    win_ = (slice(y_ - 3, y_ + hh_ + 3), slice(x_ - 3, x_ + ww_ + 3))
+    if (lava_region[win_] | occ[win_]).any() or not lava_ok[sl_][foot_].all():
+        continue
+    # molten pool: an irregular blob inside the floor, away from the walls
+    inner_ = ndimage.binary_erosion(I_, iterations=2)
+    if inner_.sum() < 12: continue
+    rr_, cc_ = np.mgrid[0:hh_, 0:ww_]
+    pool_ = np.zeros_like(I_)
+    cy_, cx_ = np.argwhere(inner_).mean(0)
+    for _o in range(int(rng.integers(2, 5))):
+        oy_ = cy_ + rng.uniform(-h_ / 4, h_ / 4); ox_ = cx_ + rng.uniform(-w_ / 4, w_ / 4)
+        ry_ = rng.uniform(1.5, max(2.0, h_ / 2.5)); rx_ = rng.uniform(2.0, max(2.5, w_ / 2.5))
+        pool_ |= ((rr_ - oy_) / ry_) ** 2 + ((cc_ - ox_) / rx_) ** 2 <= 1
+    pool_ = clean(octshape(pool_ & inner_, 1)) & inner_
+    pool_ = clean(pool_)
+    if pool_.sum() < 8: continue
+    # canyon floor: the basin floor minus the pool, running under the walls' see-through inner rim
+    can_ = (I_ | (ndimage.binary_dilation(I_, np.ones((3, 3), bool)) & (Wt_ != 0))) & ~pool_
+    can_t = otile(np.pad(can_, 2), 'canyon')[2:-2, 2:-2]
+    LY['Cliffs'][sl_][Wt_ != 0] = Wt_[Wt_ != 0]
+    LY['canyon'][sl_][can_] = can_t[can_]
+    lv_ = ndimage.binary_dilation(pool_, np.ones((3, 3), bool)) & (I_ | pool_)   # lava runs under the glow edge
+    LY['lava'][sl_][lv_] = 1181
+    for _ln in ('dryground', 'dryground2'):
+        LY[_ln][sl_][I_] = 0
+    lava_region[sl_] |= foot_; lavam[sl_] |= lv_
+    n_lakes += 1
+report('volcano', 'lava lakes', n_lakes)
+deco = lavam & ndimage.binary_erosion(lavam, iterations=2) & (rng.random((H, W)) < 0.06)
 LY['lava'][deco] = rng.choice([1401, 1411, 1421, 1428], size=int(deco.sum()))
-LY['canyon'][canyon] = otile(canyon, 'canyon')[canyon]
-occ |= ndimage.binary_dilation(lavam, iterations=1)
+occ |= ndimage.binary_dilation(lava_region, iterations=1)
 
 # desert: pink dsand patches
 ds = finish(blobmask(R_desert & (YY > (topV + 4)[None]), 0.35, 18, 31) |
@@ -529,6 +634,88 @@ def bowls(region, n, plen=(3, 9), tag=None):
     return c
 
 desert_ok = R_desert & (YY > (topV + 8)[None]) & (YY < yD[None] - 4)
+# ---- large cliffs: raised mesas edged with map2's brown cliff set; the front face has random
+# dips so each mesa has its own outline, and ladders climb the face onto the top
+import mesa as MESA
+MESA_PIECES = (4, 10)          # front pieces (4 tiles each): mesa width = 6 + 4 * pieces
+MESA_SIDE_ROWS = (2, 8)        # rows of side wall: plateau depth
+MESA_LADDERS = (1, 1)          # ladders per mesa (min, max)
+LADDER = [1829, 1849, 1869]                            # single ladder: top, middle, bottom
+MESAS = []
+
+# ground on top of each mesa, by zone: (layer, 2x2 fill)
+MESA_TOP_GROUND = {
+    'volcano': ('dryground2', [[1715, 1716], [1735, 1736]]),
+    'desert':  ('dryground', [[871, 872], [891, 892]]),
+    'swamp':   ('dead grass', [[546, 547], [566, 567]]),
+    'forest':  ('grass', [[155, 156], [175, 176]]),
+}
+TERRAIN_LAYERS = ['sand', 'grass', 'dryground', 'dryground2', 'dead grass', 'graveyard mud', 'canyon', 'lava',
+                  'forest paths', 'mud', 'groundvariations', 'grassvariations']
+
+def big_cliff(region, zone=None, tries=80, pieces=None, side_rows=None):
+    for _ in range(tries):
+        t, top = MESA.mesa(rng, int(rng.integers(*(pieces or MESA_PIECES))), int(rng.integers(*(side_rows or MESA_SIDE_ROWS))))
+        hh, ww = t.shape
+        ys, xs = np.nonzero(region)
+        if not len(ys): return False
+        k = int(rng.integers(len(ys))); y, x = int(ys[k]) - hh // 2, int(xs[k]) - ww // 2
+        if y < 2 or x < 2 or y + hh + 4 >= H or x + ww + 3 >= W: continue
+        foot = (t != 0) | top
+        win = (slice(y - 2, y + hh + 2), slice(x - 2, x + ww + 2))
+        fpd = ndimage.binary_dilation(np.pad(foot, 2), np.ones((3, 3), bool), iterations=2)
+        if (occ[win] & fpd).any() or not region[win][fpd].all(): continue
+        # ladders on flat front pieces: the ladder covers the 3-row face, from the plateau down to the ground
+        cand = []
+        for cx in range(4, ww - 5):
+            for cy in range(hh - 3, 2, -1):
+                if t[cy, cx] in (1096, 1097) and t[cy, cx + 1] in (1096, 1097) and t[cy - 2, cx] in (1054, 1055, 1056, 1057):
+                    if top[cy - 3, cx:cx + 2].all() and (cy + 1 >= hh or not foot[cy + 1, cx:cx + 2].any()):
+                        cand.append((cy - 2, cx))
+                    break
+        rng.shuffle(cand); lad = []
+        want = int(rng.integers(MESA_LADDERS[0], MESA_LADDERS[1] + 1))
+        for cy, cx in cand:
+            if len(lad) >= want: break
+            if any(abs(cx - o) < 6 for _, o in lad): continue
+            gy = y + cy + 3
+            if gy + 2 >= H or occ[gy:gy + 2, x + cx - 1:x + cx + 3].any(): continue
+            lad.append((cy, cx))
+        if not lad: continue
+        sl = (slice(y, y + hh), slice(x, x + ww))
+        m_ = t != 0
+        if zone in MESA_TOP_GROUND:
+            # the zone's own ground on the plateau (and under the wall tiles' inner rim)
+            cells = top | (ndimage.binary_dilation(top, np.ones((3, 3), bool)) & m_)
+            for ln in TERRAIN_LAYERS:
+                LY[ln][sl][cells] = 0
+            ln, pat = MESA_TOP_GROUND[zone]; pat = np.array(pat)
+            yy_, xx_ = np.nonzero(cells)
+            LY[ln][sl][yy_, xx_] = pat[(y + yy_) % 2, (x + xx_) % 2]
+        LY['Cliffs'][sl][m_] = t[m_]
+        blk[sl] |= m_
+        for cy, cx in lad:
+            for r, t_ in enumerate(LADDER):
+                LY['Cliffs'][y + cy + r, x + cx] = t_
+                blk[y + cy + r, x + cx] = False
+        occ[win] |= fpd
+        for cy, cx in lad:                                   # keep the ladder foot clear
+            occ[y + cy + 3:y + cy + 6, x + cx - 1:x + cx + 3] = True
+        MESAS.append((y, x, hh, ww, lad))
+        return True
+    return False
+
+def big_cliffs(biome, region, **kw):
+    n = amount(biome, 'large cliffs'); made = sum(big_cliff(region, biome, **kw) for _ in range(n))
+    report(biome, 'large cliffs', made)
+
+big_cliffs('volcano', R_volc & volc_floor & (YY > 4) & (YY < topV[None] - 8) & ~ndimage.binary_dilation(lava_region, iterations=2),
+           tries=300, pieces=(3, 7), side_rows=(2, 5))   # smaller: they fit between the lava rivers
+big_cliffs('desert', R_desert & (YY > (topV + 8)[None]) & (YY < yD[None] - 4))
+big_cliffs('swamp', R_swamp & (YY > yD[None] + 4) & (YY < yS[None] - 8))
+big_cliffs('forest', R_forest & (YY > yS[None] + 4) & (YY < yR[None] - 6) & ~ndimage.binary_dilation(paths | river, iterations=1),
+           tries=300, pieces=(3, 6), side_rows=(2, 5))   # smaller: they fit between the trails
+
 report('desert', 'cliff ledges', bowls(desert_ok, amount('desert', 'cliff ledges'), tag='desert'))
 report('swamp', 'cliff ledges', bowls(R_swamp & (YY > yD[None] + 6) & (YY < yS[None] - 10), amount('swamp', 'cliff ledges'), (3, 7), tag='swamp'))
 report('beach', 'cliff ledges', bowls(R_beach & (YY > topB[None] + 10) & (YY < yC - 12), amount('beach', 'cliff ledges'), (3, 6), tag='beach'))
@@ -857,6 +1044,17 @@ for nm in ['Cliffs', 'Cliffs 2']:
     blk |= np.isin(LY[nm], HIB)
 # ledge bodies: block the face rows so ledges can't be walked through
 blk |= np.isin(LY['Cliffs'], [1074, 1075, 1076, 1077, 1032, 1052, 1072, 1053, 1073, 1039, 1058, 1059, 1078, 1079])
+# every cliff tile blocks, except ladders and doorways (cave mouth trigger tile)
+CLIFF_WALKABLE = LADDER + [1392]
+for nm in ('Cliffs', 'Cliffs 2'):
+    blk |= (LY[nm] != 0) & ~np.isin(LY[nm], CLIFF_WALKABLE)
+# ...but inside cliffs, wall tiles on the inner rim that mostly show ground (see-through tiles) are walkable
+RIM_OPACITY = 0.4
+_walls = LY['Cliffs'] != 0
+_inside = ndimage.binary_fill_holes(_walls) & ~_walls
+_rim = _walls & ndimage.binary_dilation(_inside, np.ones((3, 3), bool))
+_see_through = _Q[np.clip(LY['Cliffs'] - 1, 0, len(_Q) - 1)].mean(-1) < RIM_OPACITY
+blk[_rim & _see_through] = False
 blk[:, 0] = blk[:, -1] = True; blk[0, :] = True
 for tx, ty, _ in mouths: blk[ty, tx] = False
 for trig in houses_doors:
@@ -980,6 +1178,28 @@ log(f'interiors linked {linked}/{len(links)} ({len(houses_doors)} houses, {len(m
     f'{len(room_cams)} rooms, {len(doors)} door objects')
 
 # ---------------------------------------------------------------- write Tiled JSON
+# seal rooms with darkness: every empty cell of the interior strip that touches a walkable tile
+# gets map2's black cave tile (gid 4, colliding in the tileset), so no room can be walked out of
+VOID_TILE = 4
+_coll = set(np.load(cache('colliding.npy')).tolist())
+_anyt = np.zeros((H, MAPW), bool); _solid = FULL.get('blocking', np.zeros((H, MAPW), np.int32)) != 0
+for _nm, _a in FULL.items():
+    if _nm == 'blocking': continue
+    _anyt |= _a != 0
+    _solid |= np.isin(_a, list(_coll))
+_walk = _anyt & ~_solid
+_touch = ndimage.binary_dilation(_walk, np.ones((3, 3), bool))
+_seal = _touch & ~_anyt
+_seal[:, :W] = False
+FULL.setdefault('cave', np.zeros((H, MAPW), np.int32))[_seal] = VOID_TILE
+log('void cells sealed with darkness:', int(_seal.sum()))
+# tiles with nothing in them except blocking: no blocking
+_anyt = np.zeros((H, MAPW), bool)
+for _nm, _a in FULL.items():
+    if _nm != 'blocking': _anyt |= _a != 0
+if 'blocking' in FULL:
+    log('blocking removed from empty tiles:', int(((FULL['blocking'] != 0) & ~_anyt).sum()))
+    FULL['blocking'][~_anyt] = 0
 log('writing', OUT)
 src = json.load(open(data('map2.json')))
 order = [l['name'] for l in src['layers']]
@@ -992,6 +1212,8 @@ for l in src['layers']:
     if l['name'] == 'stone':
         LAYERS_OUT.append({'name': 'stone paths', 'type': 'tilelayer', 'opacity': 1, 'visible': True})
     LAYERS_OUT.append(l)
+    if l['name'] == 'canyon':
+        LAYERS_OUT.append({'name': 'lava banks', 'type': 'tilelayer', 'opacity': 1, 'visible': True})
 order = [l['name'] for l in LAYERS_OUT]
 for l in LAYERS_OUT:
     nm = l['name']
