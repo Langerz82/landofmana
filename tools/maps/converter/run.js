@@ -55,24 +55,32 @@ function main() {
 }
 
 function callback_function(json, jsontsx) {
-	var filename=source.substr(source.lastIndexOf('/')+1,
-		source.lastIndexOf('.') - source.lastIndexOf('/')-1);
-	var client_dir = "../../../client/maps/"+filename;
+	var filename = path.basename(source, path.extname(source));
+	// A map in a subfolder of tools/maps/data (a sectional map's parts, e.g. data/map4/map4_0_0.json)
+	// goes into that folder on both sides: client/maps/map4/map4_0_0.json and
+	// gameserver/maps/map4/map4_0_0.json. Any other map: client/maps/<name>/<name>.json and
+	// gameserver/maps/<name>.json, as before.
+	var parent = path.basename(path.dirname(path.resolve(source)));
+	var group = parent !== "data" ? parent : "";
+	var client_dir = "../../../client/maps/" + (group || filename);
+	var server_dir = "../../../gameserver/maps" + (group ? "/" + group : "");
+	// the map's name in maps/maplist.json: "map4/map4_0_0" for a part in a folder, else "map2"
+	mapListName = group ? group + "/" + filename : filename;
 
 	switch(mode){
 		case "client":
-			if (!fs.existsSync(client_dir))
-				fs.mkdirSync(client_dir);
+			fs.mkdirSync(client_dir, { recursive: true });
 			processClient(json, jsontsx, client_dir+"/"+filename);
 			break;
 		case "server":
-			processServer(json, jsontsx, "../../../gameserver/maps/"+filename+".json");
+			fs.mkdirSync(server_dir, { recursive: true });
+			processServer(json, jsontsx, server_dir+"/"+filename+".json");
 			break;
 		case "direct":
-			if (!fs.existsSync(client_dir))
-				fs.mkdirSync(client_dir);
+			fs.mkdirSync(client_dir, { recursive: true });
+			fs.mkdirSync(server_dir, { recursive: true });
 			processClient(json, jsontsx, client_dir+"/"+filename);
-			processServer(json, jsontsx, "../../../gameserver/maps/"+filename+".json");
+			processServer(json, jsontsx, server_dir+"/"+filename+".json");
 			break;
 		default:
 			console.info("Unrecognized mode, how on earth did you manage that ?");
@@ -81,9 +89,29 @@ function callback_function(json, jsontsx) {
 
 
 var map = {};
+var mapListName = "";
+
+// A part of a split map (tools/maps/generator/split.py) carries worldX/worldY: where its top-left tile sits
+// in the full map. Its area in the full map, [worldX, worldY, width, height], goes into that side's
+// maps/maplist.json ("areas", by map name), so "/warp map4 300 300" can find the part holding a full-map
+// tile. Worked out here from the converted map, so it always matches the files.
+function updateMapListArea(mapsDir, map) {
+	if (map.worldX === undefined && map.worldY === undefined) return;
+	var listPath = mapsDir + "/maplist.json";
+	if (!fs.existsSync(listPath)) {
+		console.info("No " + listPath + ": area of " + mapListName + " not recorded.");
+		return;
+	}
+	var list = JSON.parse(fs.readFileSync(listPath, "utf8"));
+	list.areas = list.areas || {};
+	list.areas[mapListName] = [map.worldX || 0, map.worldY || 0, map.width, map.height];
+	fs.writeFileSync(listPath, JSON.stringify(list, null, 1));
+	console.info("Area of " + mapListName + " in " + listPath + ": " + JSON.stringify(list.areas[mapListName]));
+}
 
 function processClient(json, tsx, dest){
   var map = processMap(json, tsx, {mode:"client"});
+  updateMapListArea("../../../client/maps", map);
 
   var tile = [];
   var collision = [];
@@ -226,7 +254,9 @@ function createMapFile(mapData, dest)
 }
 
 function processServer(json, tsx, dest){
-	var jsonMap = JSON.stringify(processMap(json, tsx, {mode:"server"})); // Save the processed map object as JSON
+	var serverMap = processMap(json, tsx, {mode:"server"});
+	updateMapListArea("../../../gameserver/maps", serverMap);
+	var jsonMap = JSON.stringify(serverMap); // Save the processed map object as JSON
 
 	var subTotal = jsonMap.width * jsonMap.height;
 	for (var i=0; i < subTotal; ++i)

@@ -23,6 +23,8 @@
 
 export function installGameInteractionInput(proto) {
     proto.click = function () {
+        // no clicking around while a teleport is under way (see gamemovement.js's freezeForTeleport())
+        if (this.isTeleporting()) return;
         const pos = this.getMousePosition();
         const p = game.player;
 

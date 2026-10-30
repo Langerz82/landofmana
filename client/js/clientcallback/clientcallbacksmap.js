@@ -27,7 +27,11 @@ export function installClientCallbacksMap(proto) {
             x = Number(data[2]),
             y = Number(data[3]),
             portalId = Number(data[4]);
-        const status = (game.mapStatus = Number(data[1]));
+        const status = Number(data[1]);
+        // status 2 (placed on the new map) only counts once the map has loaded and the player stands on it
+        // (fnReady below sets mapStatus to 2 then): until then the player stays frozen (gamemovement.js's
+        // freezeForTeleport(), playerlocalmovement.js's stop())
+        if (status !== 2) game.mapStatus = status;
         const p = game.player;
 
         log.info(
@@ -42,14 +46,28 @@ export function installClientCallbacksMap(proto) {
         );
 
         if (status === -1) {
-            game.mapIndex = 0;
+            // The server refused the transition and is still keeping the player on map `mapId`
+            // (the map they were on): go back to that map if another one was already loaded.
+            if (
+                game.prevMap &&
+                game.prevMap.mapIndex === mapId &&
+                game.currentMap !== game.prevMap
+            ) {
+                game.currentMap = game.prevMap;
+            }
+            game.mapIndex = mapId;
             game.mapStatus = 2;
             p.forceStop();
             p.clearTarget();
+            p.freeze = false;
+            p.suppressTeleportCheck = false;
+            p.refusedDoorAt = { x: p.x, y: p.y };
             return;
         }
 
         if (status === 1) {
+            // also covers map changes the server starts itself (e.g. a respawn): frozen until placed
+            game.freezeForTeleport();
             log.info('spawnMap');
 
             // FIX (same-screen teleport flicker): blankFrame below exists to hide the
@@ -113,6 +131,10 @@ export function installClientCallbacksMap(proto) {
                 const orientation = portal.orientation;
                 p.orientation = orientation;
                 p.suppressTeleportCheck = true;
+                // remembered until the player is placed (status 2), for the arrival-door guard below
+                p.teleportOrientation = orientation;
+            } else {
+                p.teleportOrientation = null;
             }
 
             game.renderer.clearEntities();
@@ -154,6 +176,13 @@ export function installClientCallbacksMap(proto) {
                 const p = game.player;
 
                 game.addEntity(p);
+                // The camera's draw lists were emptied when the transition started (status 1), and addEntity()
+                // only puts an entity back on them if the camera already counts its tile as on screen. At this
+                // point the camera can still be where it was on the previous map (e.g. at the top of a section
+                // while the player arrives at the bottom of the next one), so the player stayed undrawn until
+                // they moved. The player is the camera's focus and is always drawn: put them back directly.
+                game.camera.entities[p.id] = p;
+                game.camera.outEntities[p.id] = p;
 
                 game.audioManager.updateMusic();
 
@@ -191,6 +220,22 @@ export function installClientCallbacksMap(proto) {
                 // point freeze itself gets cleared, so a real subsequent door trigger
                 // (from the player's own later movement) isn't permanently suppressed.
                 p.suppressTeleportCheck = false;
+
+                // Arrival-door guard (see checkTeleport in gamecallbacks.js): when a door drops the
+                // player on a tile that is itself a door, that door stays inactive while the player
+                // keeps the orientation the teleport gave them, so it can't send them straight back.
+                // Turning (or stepping off the door) makes it a normal door again.
+                // The same after a warp or a respawn that happens to land on a door (with the orientation the
+                // player arrived with).
+                const arrivalDoor = game.currentMap.getDoor(p);
+                p.arrivalDoorGuard = arrivalDoor
+                    ? {
+                          door: arrivalDoor,
+                          orientation:
+                              p.teleportOrientation != null ? p.teleportOrientation : p.orientation
+                      }
+                    : null;
+                p.teleportOrientation = null;
 
                 game.app.releaseKeys();
             };

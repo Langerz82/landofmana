@@ -160,6 +160,12 @@ def merge_adjacent(doors):
     return out
 
 
+# Where a house / cave / room door puts the player. True: right on the entrance it leads to (the other side's
+# trigger tile: the house door or cave mouth outside, the exit inside, the arch or ladder top in a cave), as map2
+# does; the clients don't fire a door you were teleported onto until you turn towards it. False: on the tile next
+# to the entrance instead (inside the room, or in front of the house door / cave mouth).
+LAND_ON_DOOR = True
+LADDER_TOP = 1829                    # cave ladder trigger tile (cavekit.LADDER[0], map2's ladders)
 WIDE_DOORS = {1765: (1764, 1766)}     # map2's 3-wide cave opening: trigger spans all of it
 GENERATED_SHARE = 1.0      # share of caves built by cavekit (the rest are copies of map2's single-room caves)
 HOUSE_GENERATED_SHARE = 0.75   # share of houses that get a generated room (housekit.py); the rest copy map2's
@@ -237,6 +243,19 @@ def build(FULL, links, systems, region, next_id, rng):
         multi = len(rooms) > 1
         def rname(x, y):
             return f'{label} room {room_ix(x, y) + 1}' if multi else label
+        trig_ = {(t[0], t[1]) for t in s['internal']} | {(t[0], t[1]) for t in s['exits']}
+        def land_at(x, y, o):
+            """System coordinates of a destination: moved off the trigger if it names one (see land())."""
+            return land(*G(x, y), o) if (x, y) in trig_ and not LAND_ON_DOOR else G(x, y)
+        def land(x, y, o):
+            """Where a teleport to the door trigger at (x, y) puts the player: next to the trigger, inside
+            the room, in the direction they face on arrival (above an arch, under a ladder), never on
+            the trigger itself, so arriving can't set off the door you arrive at."""
+            cw_ = FULL.get('cavewalls')
+            if cw_ is not None and cw_[y, x] == LADDER_TOP:
+                return x, y + 3                       # ladder top -> the floor under the ladder
+            dx_, dy_ = {'u': (0, -1), 'd': (0, 1), 'l': (-1, 0), 'r': (1, 0)}.get(o, (0, 0))
+            return x + dx_, y + dy_
         for ri, (rx, ry, rw, rh) in enumerate(rooms):
             X, Y = where_room[(ci, ri)]
             for nm, a_ in s['tiles'].items():
@@ -276,19 +295,21 @@ def build(FULL, links, systems, region, next_id, rng):
                 return l, r - l + 1
             return tx, 1
         for (tx, ty, dx, dy, p) in s['internal']:
-            T_, D_ = G(tx, ty), G(dx, dy)
+            T_, D_ = G(tx, ty), land_at(dx, dy, p.get('o', 'd'))
             l, w = span(*T_)
             doors.append(door(next_id, l, T_[1], D_[0], D_[1], p.get('o', 'd'), cam='cx' in p,
                               name=f'to {rname(dx, dy)} ({D_[0]},{D_[1]})', w=w))
             next_id += 1
-        ow = triggers[0]; E0 = G(*s['exits'][0][:2])
+        ow = triggers[0]; E0 = land_at(*s['exits'][0][:2], 'u')
         inside = rname(*s['exits'][0][:2])
+        # back outside: on the house door / cave mouth, or the tile in front of it (LAND_ON_DOOR)
+        OW = ow if LAND_ON_DOOR else (ow[0], ow[1] + 1)
         # overworld trigger(s) -> first interior exit; every interior exit -> overworld trigger
         for (ox, oy) in triggers:
             doors.append(door(next_id, ox, oy, E0[0], E0[1], 'u', cam=True,
                               name=f'to {inside} ({E0[0]},{E0[1]})')); next_id += 1
         for (tx, ty, o) in s['exits']:
             T_ = G(tx, ty); l, w = span(*T_)
-            doors.append(door(next_id, l, T_[1], ow[0], ow[1], 'd',
-                              name=f'to {where} {label} ({ow[0]},{ow[1]})', w=w)); next_id += 1
+            doors.append(door(next_id, l, T_[1], OW[0], OW[1], 'd',
+                              name=f'to {where} {label} ({OW[0]},{OW[1]})', w=w)); next_id += 1
     return merge_adjacent(doors), cams, next_id, len(chosen)

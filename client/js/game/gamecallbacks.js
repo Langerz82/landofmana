@@ -24,7 +24,7 @@ import ClientCallbacks from '../clientcallback/clientcallbacks.js';
 import NpcMove from '../entity/npcmove.js';
 import NpcStatic from '../entity/npcstatic.js';
 import Node from '../entity/node.js';
-/* global lang, log */
+/* global lang, log, G_TILESIZE */
 
 export function installGameCallbacks(proto) {
     proto.onVersionGame = function (data) {
@@ -232,8 +232,13 @@ export function installGameCallbacks(proto) {
             // transition truly finishes (clientcallbacks.js's fnReady, alongside
             // p.freeze = false). A genuine subsequent player movement, which only
             // happens after that point, is unaffected.
-            if (p.suppressTeleportCheck) {
+            if (p.suppressTeleportCheck || self.isTeleporting()) {
                 return;
+            }
+            // a door the server just refused (status -1) isn't retried until the player steps off it
+            if (p.refusedDoorAt) {
+                if (p.refusedDoorAt.x === p.x && p.refusedDoorAt.y === p.y) return;
+                p.refusedDoorAt = null;
             }
 
             // getDoor()/doors live directly on `currentMap` (map/mapobjects.js) -
@@ -244,6 +249,18 @@ export function installGameCallbacks(proto) {
             // constructor), so getDoor() naturally returns undefined - same
             // "no map loaded yet means no door" behavior the old guard existed for.
             const dest = self.currentMap.getDoor(p);
+            // Arrival-door guard (set when a teleport finishes, clientcallbacksmap.js): the door the
+            // player was teleported onto doesn't fire while they still face the way the teleport
+            // turned them. It fires again once they turn; leaving it clears the guard for good.
+            const guard = p.arrivalDoorGuard;
+            if (guard) {
+                if (dest === guard.door && p.orientation === guard.orientation) return;
+                if (dest !== guard.door) p.arrivalDoorGuard = null;
+            }
+            // An edge door between split map sections only takes the player across when they face the way it
+            // leads (its orientation: up on a north edge, down on a south edge). Walking along the edge row, or
+            // standing on it facing elsewhere, doesn't cross.
+            if (dest && dest.rel && p.orientation !== dest.orientation) return;
             // FIX: was gated on !p.hasTarget(), so stopping on a door/portal tile while
             // targeting something (e.g. a mob) silently skipped the teleport. Door tile
             // position is what should matter here, not target state.
@@ -322,6 +339,35 @@ export function installGameCallbacks(proto) {
                     self.audioManager.playSound('teleport');
                 }
             }
+        };
+
+        // Would the door the player stands on fire now? (the same rules checkTeleport applies)
+        const doorWouldFire = function (p, door) {
+            if (p.refusedDoorAt && p.refusedDoorAt.x === p.x && p.refusedDoorAt.y === p.y) return false;
+            const guard = p.arrivalDoorGuard;
+            if (guard && guard.door === door && p.orientation === guard.orientation) return false;
+            if (door.minLevel && p.level < door.minLevel) return false;
+            if (door.rel && p.orientation !== door.orientation) return false;
+            return true;
+        };
+
+        // Doors used to be checked only when the player stopped (key released, or the end of a
+        // click-to-move path), so a long walk could cross a door without using it: a path running over a
+        // door tile, or walking with the key held over one. This runs every time the local player reaches
+        // the centre of a tile while moving (updater/updatermovement.js). On a click-to-move path, a door
+        // that would fire ends the path on its tile first: that tells the server where the player stopped
+        // (so its "player is at the door" check holds) and the path doesn't carry on after the teleport.
+        self.checkTeleportOnStep = function () {
+            const p = self.player;
+            if (!p || p.freeze || p.suppressTeleportCheck || p.isDead || !self.currentMap) return;
+            const half = G_TILESIZE >> 1;
+            if (p.x % G_TILESIZE !== half || p.y % G_TILESIZE !== half) return;
+            const door = self.currentMap.getDoor(p);
+            if (door && p.isMovingPath() && doorWouldFire(p, door)) {
+                // ends the path here; at the path's last tile its stop callback runs checkTeleport itself
+                p.stopPath();
+            }
+            checkTeleport(p, p.x, p.y);
         };
 
         self.player.onStopPathing(function (x, y) {

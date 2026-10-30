@@ -141,6 +141,10 @@ export function installUpdaterMovement(self) {
             c.keyMove = true;
             c.forceStop();
         }
+        // a door on the way fires as the player reaches its tile, not only when they stop. Also when the
+        // move was refused: moveCharacter() snaps the player onto the tile centre when a key release or a
+        // turn ends the step there, and that tile can be a door.
+        if (self.game.checkTeleportOnStep) self.game.checkTeleportOnStep();
         return !res;
     };
 
@@ -158,7 +162,10 @@ export function installUpdaterMovement(self) {
 
     self.playerPath = (c, x, y) => {
         c.setPosition(x, y);
-        return c.nextStep();
+        const res = c.nextStep();
+        // a door on the path fires as the player reaches its tile, not only at the end of the path
+        if (self.game.checkTeleportOnStep) self.game.checkTeleportOnStep();
+        return res;
     };
 
     self.playerPathXF = (c, m) => {

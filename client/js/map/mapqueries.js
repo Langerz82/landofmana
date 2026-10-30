@@ -95,6 +95,9 @@ export function installMapQueries(proto) {
             x2 = Math.floor(gx + d),
             y2 = Math.floor(gy + d);
 
+        // A map whose data hasn't loaded yet (the next map during a teleport, e.g. crossing a map
+        // section's edge with mobs moving next to you) has no grid yet: everything is blocked.
+        if (!this.tileDataLoaded) return true;
         if (x1 < 0 || y1 < 0 || x2 >= this.width || y2 >= this.height)
             return true;
 

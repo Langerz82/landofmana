@@ -1,6 +1,6 @@
 """Render a Tiled map JSON (or the generator's cache/gen_layers.npz) to PNG.
 
-usage: python render.py ../../data/map3.json out.png [px_per_tile=2] [y0 y1 x0 x1]
+usage: python render.py ../../data/map4.json out.png [px_per_tile=2] [y0 y1 x0 x1]
 """
 import json, sys
 import numpy as np

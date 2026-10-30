@@ -101,8 +101,10 @@ export function installRendererDrawHud(proto) {
     };
 
     proto.getCoordinates = function () {
-        const realX = game.player.gx;
-        const realY = game.player.gy;
+        // on a section of a split map, show the position in the full map (the section's worldX/worldY offset)
+        const m = game.currentMap;
+        const realX = game.player.gx + ((m && m.worldX) || 0);
+        const realY = game.player.gy + ((m && m.worldY) || 0);
 
         if (this.game.player) {
             return 'gx:' + realX + ',gy:' + realY;

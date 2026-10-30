@@ -37,6 +37,29 @@ import Node from '../entity/node.js';
 //var TrapGroup = require("../entity/trapgroup");
 import Utils from '../utils.js';
 import { G_TILESIZE } from '../constants.js';
+import fs from 'fs';
+
+// Map list: ./maps/maplist.json names every map by index ({"maps": ["map0", "map1", "map2", ...]}).
+// Maps 0-2 are set up by hand below; every further map in the list (e.g. map4's sections and its
+// interiors, written by tools/maps/generator/map4gen/split4.py) is loaded from ./maps/<name>.json
+// and set up the same way as map2. Without the file only maps 0-2 are loaded, as before.
+const MAP_LIST_FILE = './maps/maplist.json';
+const FIXED_MAPS = 3;
+
+// "warps" (optional): the map that "/warp <name>" (admins only) goes to for a split map, e.g. "/warp map4".
+function readMapList() {
+    try {
+        const json = JSON.parse(fs.readFileSync(MAP_LIST_FILE, 'utf8'));
+        return {
+            maps: Array.isArray(json.maps) ? json.maps : [],
+            warps: Array.isArray(json.warps) ? json.warps : []
+        };
+    } catch (err) {
+        if (err.code !== 'ENOENT')
+            console.error('MapManager: could not read ' + MAP_LIST_FILE + ': ' + err.message);
+        return { maps: [], warps: [] };
+    }
+}
 
 class MapManager {
     constructor(server) {
@@ -428,6 +451,40 @@ class MapManager {
             map.enterCallback = function (player) {
                 const pos = map.getRandomStartingPosition();
                 return pos;
+            };
+            self.MapsReady();
+        });
+
+        // every further map in maps/maplist.json (all registered before any map finishes
+        // loading, so isMapsReady() waits for them too)
+        const list = readMapList();
+        list.maps.forEach(function (name, id) {
+            if (id < FIXED_MAPS || !name) return;
+            self.addListedMap(id, name);
+        });
+
+    }
+
+    // A map from maps/maplist.json, set up like map2: its own entities, the mob/entity areas
+    // from its JSON, its spawns, admin-placed entities and random start positions.
+    addListedMap(id, name) {
+        const self = this;
+        this.maps[id] = new Map(this.server, id, name, './maps/' + name + '.json', '');
+        this.maps[id].ready(function () {
+            const map = self.maps[id];
+            map.entities = new MapEntities(
+                self.id,
+                self.server,
+                map,
+                self.server.database
+            );
+            map.entities.mapready();
+            map.initMobAreas(map.mobAreasData);
+            map.initEntityAreas(map.entityAreasData);
+            map.entities.spawnEntities(map);
+            self.loadSavedEntities(map);
+            map.enterCallback = function (player) {
+                return map.getRandomStartingPosition();
             };
             self.MapsReady();
         });

@@ -267,6 +267,14 @@ func move_to(px: int, py: int) -> void:
 func key_input(o: int, state: bool, skip_throttle: bool = false) -> void:
 	if is_dying or is_dead:
 		return
+	# Frozen during a teleport (World._freeze_for_teleport()): presses are ignored, and a release only clears
+	# the local key state, so nothing is walking when the player arrives.
+	if world != null and world.is_teleporting():
+		if not state:
+			key_move = false
+			stop_key_move = false
+			move_orientation = 0
+		return
 	if state and o != Types.Orientation.NONE:
 		if not skip_throttle and movement.in_progress and not is_moving_path() and orientation != o:
 			if fsm == "ATTACK" or move_throttle(Types.G_ROUNDTRIP):
@@ -404,3 +412,13 @@ func sync_view() -> void:
 	view.region_rect = r
 	view.flip_h = flip_x
 	view.visible = true
+
+
+## A stop always clears freeze (EntityMoving.stop()). During a teleport (map_status below 2: from the
+## request until the player stands on the loaded destination map) the player must stay frozen, so keep it
+## set then; World._on_teleport_map clears it when the teleport completes or is refused.
+func stop() -> void:
+	var keep: bool = freeze and world != null and world.map_status < 2
+	super.stop()
+	if keep:
+		freeze = true

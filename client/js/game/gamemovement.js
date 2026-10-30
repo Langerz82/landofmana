@@ -26,9 +26,20 @@ export function installGameMovement(proto) {
     proto.teleportMaps = function (mapIndex, x, y, portalId) {
         const self = this;
 
-        x = x || -1;
-        y = y || -1;
+        // a destination of 0 is a real coordinate (a warp to tile 0): only a missing one means "none"
+        x = x === undefined || x === null ? -1 : x;
+        y = y === undefined || y === null ? -1 : y;
         if (typeof portalId === 'undefined') portalId = -1;
+
+        // The player is frozen (p.freeze) from here until the teleport is complete: the destination map
+        // has loaded and the player stands on it. mapStatus stays below 2 until then (clientcallbacksmap.js
+        // sets it to 2 only once the player is placed, or when the server refuses the teleport), and while
+        // it is below 2 the player's freeze can't be cleared by a stop (playerlocalmovement.js's stop()).
+        // Movement input and click-to-move are ignored meanwhile (playerlocalmovement.js's move(),
+        // gameinteractioninput.js's click(), makePlayerGoTo() below), and the updater doesn't move a
+        // frozen player.
+        this.mapStatus = 0;
+        this.freezeForTeleport();
 
         if (this.currentMap) {
             this.prevMap = this.currentMap;
@@ -49,12 +60,32 @@ export function installGameMovement(proto) {
         this.currentMap = new Map(
             this,
             mapIndex,
-            this.mapNames[mapIndex]
+            this.mapList.maps[mapIndex]
         );
 
         this.currentMap.ready(function () {
             self.client.sendTeleportMap([mapIndex, 0, x, y, portalId]);
         });
+    };
+
+    // Freeze the player for a teleport (mapStatus is already below 2): stop them where they are, which also
+    // sends the server their final position before the teleport request, and drop any queued key movement.
+    // Also used when the server starts a map change itself (status 1).
+    proto.freezeForTeleport = function () {
+        const p = this.player;
+        if (!p) return;
+        p.freeze = true;
+        clearTimeout(p.moveRetryTimeout);
+        p.moveOrientation = 0;
+        if (p.isMovingPath() || p.movement.inProgress || p.keyMove) p.forceStop();
+        p.keyMove = false;
+        p.stopKeyMove = false;
+        p.freeze = true;
+    };
+
+    // True while a teleport is under way: the player is frozen and the destination isn't loaded yet.
+    proto.isTeleporting = function () {
+        return !!(this.player && this.player.freeze && this.mapStatus < 2);
     };
 
     proto.teleportFromTown = function (player) {};
@@ -63,6 +94,7 @@ export function installGameMovement(proto) {
      * Moves the current player to a given target location.
      */
     proto.makePlayerGoTo = function (x, y) {
+        if (this.isTeleporting()) return;
         this.player.go(x, y);
     };
 

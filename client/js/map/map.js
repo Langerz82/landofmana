@@ -127,7 +127,12 @@ export default class Map {
     // constructor (see its own comment on why that's deferred one microtask).
     _loadMapJson() {
         const self = this;
-        const name = this.mapName + '/' + this.mapName + '.json';
+        // a sectional map's part is listed with its folder ("map4/map4_0_0" -> maps/map4/map4_0_0.json);
+        // any other map lives in its own folder (maps/map2/map2.json)
+        const name =
+            this.mapName.indexOf('/') >= 0
+                ? this.mapName + '.json'
+                : this.mapName + '/' + this.mapName + '.json';
         const filename = './maps/' + name;
         try {
             self.loadMapData(fetchJsonSync(filename));
@@ -186,6 +191,10 @@ export default class Map {
         // this same object instead, so it's captured here alongside width/height
         // even though nothing in this class itself uses the raw tile pixel size.
         this.tilesize = map.tilesize;
+        // split map sections: where this file's top-left tile sits in the full map (0 for whole maps);
+        // the HUD adds it to the player's tile position
+        this.worldX = map.worldX || 0;
+        this.worldY = map.worldY || 0;
     }
 
     // doors/checkpoints/camera-areas/high/animated-tile flags - formerly
@@ -280,7 +289,9 @@ export default class Map {
     // side already expect), and it's installed onto this same prototype. Used
     // internally by mapqueries.js's isCollidingGrid(gx, gy).
     isCollidingCell(gx, gy) {
-        return this.collision[gy][gx] === 1;
+        // no grid yet (map still loading, e.g. mid-teleport): blocked
+        const row = this.tileDataLoaded && this.collision ? this.collision[gy] : null;
+        return !row || row[gx] === 1;
     }
 }
 

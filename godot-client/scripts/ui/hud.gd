@@ -541,7 +541,13 @@ func update_debug(w) -> void:
 	if not _debug_on or w == null or w.player == null:
 		_debug.text = ""
 		return
-	_debug.text = "FPS: %d\ngx:%d,gy:%d" % [Engine.get_frames_per_second(), w.player.gx, w.player.gy]
+	# on a section of a split map, show the position in the full map (the section's world_x/world_y offset)
+	var ox := 0
+	var oy := 0
+	if w.current_map != null:
+		ox = w.current_map.world_x
+		oy = w.current_map.world_y
+	_debug.text = "FPS: %d\ngx:%d,gy:%d" % [Engine.get_frames_per_second(), w.player.gx + ox, w.player.gy + oy]
 
 
 func toggle_debug() -> void:

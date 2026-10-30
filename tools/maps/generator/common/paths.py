@@ -1,4 +1,4 @@
-"""Shared paths. Inputs come from tools/maps/data; derived caches go to ./cache."""
+"""Shared paths for the generators. Inputs come from tools/maps/data; derived caches go to common/cache."""
 import os
 HERE = os.path.dirname(os.path.abspath(__file__))
 DATA = os.path.normpath(os.path.join(HERE, '..', '..', 'data'))

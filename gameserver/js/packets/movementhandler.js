@@ -34,6 +34,18 @@ import { tryMoveTo, tryStartPath, setMoveAnchor } from './movevalidator.js';
 // "standing inside the door" check would reject legitimate teleports.
 const DOOR_SLACK = G_TILESIZE * 4;
 
+// Portal id the clients send for the admin-only "/warp [map]" chat command (doors are 0 and up, -1 is
+// the town warp button and the login entry).
+const WARP_PORTAL = -2;
+
+// Tile offset (in pixels, a whole number of tiles) of position `v` from the start of a door
+// spanning [start, start + size), clamped to the door -- used by edge doors (door.rel).
+function relDoorOffset(v, start, size) {
+    const tiles = Math.max(1, Math.floor(size / G_TILESIZE));
+    const t = Math.floor((v - start) / G_TILESIZE);
+    return Math.min(tiles - 1, Math.max(0, t)) * G_TILESIZE;
+}
+
 function isNearDoor(p, door) {
     const dx = Math.max(door.x - p.x, 0, p.x - (door.x + door.width));
     const dy = Math.max(door.y - p.y, 0, p.y - (door.y + door.height));
@@ -121,13 +133,32 @@ class MovementHandler {
         const portalId = parseInt(msg[4]);
 
         const p = this.player;
+        // "/warp <map> <gx> <gy>" (admins): the tile to land on, in the target map's own tiles
+        const warpTile = portalId === WARP_PORTAL && status === 0 && x >= 0 && y >= 0
+            ? { gx: Math.floor(x), gy: Math.floor(y) } : null;
         if (status <= 0) {
             x = -1;
             y = -1;
         }
 
-        if (mapId < 0 || mapId >= self.world.maps.length) {
-            console.info('Map non-index');
+        // A refused transition request (status 0) is answered with status -1 and the player's
+        // current map, so the client goes back to the map it is still on instead of waiting
+        // forever on the one it already started loading.
+        const reject = function (why) {
+            console.info(why);
+            if (status !== 0 || !p.map) return;
+            self.ph.send([
+                Types.Messages.WC_TELEPORT_MAP,
+                p.map.index,
+                -1,
+                p.x,
+                p.y,
+                -1
+            ]);
+        };
+
+        if (mapId < 0 || !self.world.maps[mapId]) {
+            reject('Map non-index');
             return;
         }
 
@@ -141,12 +172,12 @@ class MovementHandler {
         // letting a player teleport onto a map whose `entities`/`doors`
         // might not be initialized yet. `isReady` is the real boolean.
         if (!(map && map.isReady)) {
-            console.info('Map non-existant or not ready');
+            reject('Map non-existant or not ready');
             return;
         }
 
         if (portalId >= 0 && portalId >= p.map.doors.length) {
-            console.info('Teleport does not exist.');
+            reject('Teleport does not exist.');
             return;
         }
 
@@ -183,11 +214,32 @@ class MovementHandler {
             // targets the map the player was already placed on at login
             // (WorldServer's onPlayerEnter), and (b) the town warp button /
             // warp chat command, which target map 0. Allow exactly those.
-            if (portalId < 0 && map !== p.map && mapId !== 0) {
-                console.info(
-                    'Teleport without a door to map ' + mapId + ' rejected.'
-                );
+            // The "/warp [map]" chat command sends WARP_PORTAL (-2) instead, and is for admins only:
+            // they may warp to any map. The town warp button (-1, map 0) stays open to everyone.
+            if (portalId === WARP_PORTAL && !p.isAdmin) {
+                self.ph.send(new Messages.Notify('CHAT', 'ADMIN_DENIED').serialize());
+                reject('Warp command from a player who is not an admin rejected.');
                 return;
+            }
+            if (portalId === -1 && map !== p.map && mapId !== 0 && !p.isAdmin) {
+                reject('Teleport without a door to map ' + mapId + ' rejected.');
+                return;
+            }
+            let warpPos = null;
+            if (warpTile) {
+                // an admin warp to a given tile: it must be on the map and not solid
+                const why = warpTile.gx >= map.width || warpTile.gy >= map.height
+                    ? 'is outside ' + (map.name || 'map ' + mapId) + ' (' + map.width + 'x' + map.height + ')'
+                    : map.isCollidingPoint(warpTile.gx * G_TILESIZE + (G_TILESIZE >> 1), warpTile.gy * G_TILESIZE + (G_TILESIZE >> 1))
+                      ? 'on ' + (map.name || 'map ' + mapId) + ' is a collision tile'
+                      : null;
+                if (why) {
+                    self.ph.send(new Messages.Notify('CHAT', 'ADMIN_MESSAGE',
+                        ['Cannot warp: tile ' + warpTile.gx + ',' + warpTile.gy + ' ' + why + '.']).serialize());
+                    reject('Warp to tile ' + warpTile.gx + ',' + warpTile.gy + ' of map ' + mapId + ' refused: ' + why);
+                    return;
+                }
+                warpPos = { x: warpTile.gx * G_TILESIZE + (G_TILESIZE >> 1), y: warpTile.gy * G_TILESIZE + (G_TILESIZE >> 1) };
             }
             if (portalId >= 0) {
                 const door = p.map.doors[portalId];
@@ -205,9 +257,7 @@ class MovementHandler {
                 // configured with. Both are cheap, well-defined checks
                 // against data the door object already carries.
                 if (door.tmap !== mapId) {
-                    console.info(
-                        'Teleport door does not lead to requested map.'
-                    );
+                    reject('Teleport door does not lead to requested map.');
                     return;
                 }
                 if (p.level < door.minLevel || p.level > door.maxLevel) {
@@ -217,22 +267,44 @@ class MovementHandler {
                             door.maxLevel
                         ])
                     );
+                    reject('Teleport door level requirement not met.');
                     return;
                 }
                 // FIX: nothing checked the player was actually at this door,
                 // so any door on the current map worked from anywhere on it.
                 if (!isNearDoor(p, door)) {
-                    console.info(
-                        'Player is not at teleport door ' + portalId + '.'
-                    );
+                    reject('Player is not at teleport door ' + portalId + '.');
                     return;
                 }
                 if (door.tx >= 0 && door.ty >= 0) {
                     pos = { x: door.tx, y: door.ty };
+                    if (door.rel) {
+                        // edge door between map sections: keep the player's tile offset along
+                        // the door, so crossing an edge at row 120 arrives at row 120 of the
+                        // neighbouring section (clamped to the door's own extent)
+                        pos.x += relDoorOffset(p.x, door.x, door.width);
+                        pos.y += relDoorOffset(p.y, door.y, door.height);
+                    }
                     pos.x += G_TILESIZE >> 1;
                     pos.y += G_TILESIZE >> 1;
                     isDoor = true;
                 }
+            }
+
+            // A door must not put the player inside something solid on the destination map (e.g. crossing
+            // a split map's edge where the tile across it is a tree or a wall): refuse the teleport, and
+            // the client stays where it is (status -1) and won't retry until the player steps off the door.
+            if (isDoor && map.isCollidingPoint(pos.x, pos.y)) {
+                reject(
+                    'Teleport destination ' +
+                        Math.floor(pos.x / G_TILESIZE) +
+                        ',' +
+                        Math.floor(pos.y / G_TILESIZE) +
+                        ' on map ' +
+                        mapId +
+                        ' is a collision tile.'
+                );
+                return;
             }
 
             // FIX: guards against a second CW_TELEPORT_MAP(status=0)
@@ -288,7 +360,9 @@ class MovementHandler {
 
             p.setMap(map);
 
-            if (!isDoor) {
+            if (warpPos) {
+                pos = warpPos;
+            } else if (!isDoor) {
                 pos = p.map.getRandomStartingPosition();
             }
 

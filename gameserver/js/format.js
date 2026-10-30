@@ -81,9 +81,11 @@ const achievementRankMax = 10;
 const achievementCountMax = 999999;
 
 const skillsXPMax = 999999999;
-const mapsCountMax = 10;
+// maps come from maps/maplist.json (map4's sections alone add 13); kept in step with userserver/js/format.js
+const mapsCountMax = 256;
 const mapCoordsMax = 16384;
-const mapIndexMax = 9;
+// map indexes come from maps/maplist.json (map4's sections alone add 13 maps)
+const mapIndexMax = 255;
 const orientationsMax = 4;
 const entityIdMax = 99999;
 const mapStatusMax = 3;
@@ -569,7 +571,7 @@ class FormatChecker {
             intField(0, 1),
             numberField(-1, mapCoordsMax),
             numberField(-1, mapCoordsMax),
-            intField(-1, mapPortalMax)
+            intField(-2, mapPortalMax) // -2: the admin-only "/warp" command (movementhandler.js)
         ]);
         this.formats[Types.Messages.CW_SKILL] = tupleField([
             intField(0, playerSkillMax),

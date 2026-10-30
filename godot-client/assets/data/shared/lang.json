@@ -12,6 +12,8 @@
     "EQUIPMENT_WRONGCLASS": "Your class cannot use this Item.",
 
     "CHAT_MUTED": "You are currently muted.",
+    "ADMIN_MESSAGE": "[Admin] {0}",
+    "ADMIN_DENIED": "You do not have permission to use that command.",
 
     "NOSERVER": "No gameserver is currently online. Please try again later.",
     "CONNECT_ERROR": "There has been an error connecting to the User server try again soon.",

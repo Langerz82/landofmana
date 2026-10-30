@@ -33,13 +33,16 @@ var high: Dictionary = {}              # tile id -> true (drawn above entities)
 var doors: Array = []                  # Array[Dictionary]
 var camera_areas: Array = []           # Array[Rect2i] with "id" in meta dict
 var loaded := false
+var world_x := 0                       # split map sections: this file's top-left tile in the full map
+var world_y := 0
 
 
 static func load_map(index: int, n: String) -> MapData:
 	var m := MapData.new()
 	m.map_index = index
 	m.map_name = n
-	var path := "res://assets/maps/%s/%s.json" % [n, n]
+	# a sectional map's part is listed with its folder ("map4/map4_0_0" -> maps/map4/map4_0_0.json)
+	var path := ("res://assets/maps/%s.json" % n) if "/" in n else ("res://assets/maps/%s/%s.json" % [n, n])
 	var text := FileAccess.get_file_as_string(path)
 	if text == "":
 		push_error("MapData: cannot read %s" % path)
@@ -57,6 +60,8 @@ func _init_from(d: Dictionary) -> void:
 	width = int(d.get("width", 0))
 	height = int(d.get("height", 0))
 	tilesize = int(d.get("tilesize", 16))
+	world_x = int(d.get("worldX", 0))
+	world_y = int(d.get("worldY", 0))
 	tiles = d.get("data", [])
 	var col: Array = d.get("collision", [])
 	collision.resize(width * height)
@@ -73,11 +78,13 @@ func _init_from(d: Dictionary) -> void:
 			"id": count,
 			"rect": Rect2i(int(door.x), int(door.y), w, hh),
 			"tmap": int(tmap_v) if tmap_v != null and float(tmap_v) >= 0 else map_index,
-			"tx": int(door.tx) if door.get("tx") else -1,
-			"ty": int(door.ty) if door.get("ty") else -1,
+			"tx": int(door.tx) if door.get("tx") != null and float(door.tx) >= 0 else -1,
+			"ty": int(door.ty) if door.get("ty") != null and float(door.ty) >= 0 else -1,
 			"orientation": int(door.to) if door.get("to") else 2,
 			"minLevel": int(door.get("tminLevel", 0)) if door.get("tminLevel") else 0,
 			"maxLevel": int(door.get("tmaxLevel", 200)) if door.get("tmaxLevel") else 200,
+			# edge door between map sections: the server keeps the player's position along it
+			"rel": float(door.get("rel", 0)) != 0.0,
 		})
 		count += 1
 	for ca in d.get("camera", []):

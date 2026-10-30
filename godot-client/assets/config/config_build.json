@@ -1,11 +1,11 @@
 {
-	"host": "landofmana.com",
-	"port": 1340,
-	"protocol": "https",
-	"useLocalAPI": false,
-	"dispatcher": false,
-	"debug": 1,
-	"version":106,
-	"updatepage":"https://play.google.com/store/apps/details?id=com.retrorpgonline2",
-	"productpage":"../products/"
+    "host": "127.0.0.1",
+    "port": 1340,
+    "protocol": "http",
+    "useLocalAPI": false,
+    "dispatcher": false,
+    "debug": 1,
+    "version":107,
+    "updatepage":"https://play.google.com/store/apps/details?id=com.retrorpgonline2",
+    "productpage":"../products/"
 }

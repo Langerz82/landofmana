@@ -98,6 +98,16 @@ module.exports = function processMap(json, jsontsx, options) {
     map.tilesize = TiledJSON.tilewidth;
     console.debug("Map is [" + map.width + "x" + map.height + "] Tile Size: " + map.tilesize);
 
+    // a part of a split map (tools/maps/generator/split.py): where its top-left tile sits in the full map,
+    // from the Tiled map properties worldX/worldY (the clients' HUD shows full-map coordinates with it)
+    if (Array.isArray(TiledJSON.properties)) {
+        var mapProps = getPropertyList(TiledJSON.properties);
+        if (mapProps.worldX !== undefined || mapProps.worldY !== undefined) {
+            map.worldX = mapProps.worldX || 0;
+            map.worldY = mapProps.worldY || 0;
+        }
+    }
+
     var length = map.width * map.height;
     for(var i = 0; i < length; i += 1)
         map.collision[i] = 0;
@@ -225,6 +235,7 @@ module.exports = function processMap(json, jsontsx, options) {
                      if (prop.tx) doorArea.tx = prop.tx;
                      if (prop.ty) doorArea.ty = prop.ty;
                      if (prop.o) doorArea.to = getOrientation(prop.o);
+                     if (prop.rel) doorArea.rel = 1;
                      map.doors.push(doorArea);
                  }
              }
@@ -248,9 +259,13 @@ module.exports = function processMap(json, jsontsx, options) {
                      if (prop.tmap >= 0) doorArea.tmap = prop.tmap;
                      if (prop.tMinLevel) doorArea.tMinLevel = prop.tMinLevel;
                      if (prop.tMaxLevel) doorArea.tMaxLevel = prop.tMaxLevel;
-                     if (prop.x) doorArea.tx = prop.x * G_TILESIZE;
-                     if (prop.y) doorArea.ty = prop.y * G_TILESIZE;
+                     // a destination of tile 0 is a real coordinate (map sections start at 0)
+                     if (prop.x !== undefined && prop.x !== null) doorArea.tx = prop.x * G_TILESIZE;
+                     if (prop.y !== undefined && prop.y !== null) doorArea.ty = prop.y * G_TILESIZE;
                      if (prop.o) doorArea.to = getOrientation(prop.o);
+                     // edge doors (map sections): keep the player's position along the door, so
+                     // the destination is tx/ty plus the player's offset from the door's corner
+                     if (prop.rel) doorArea.rel = 1;
                      map.doors.push(doorArea);
                  }
              }

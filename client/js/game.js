@@ -26,6 +26,7 @@ import InfoManager from './infomanager.js';
 import BubbleManager from './bubble.js';
 import Renderer from './renderer/renderer.js';
 import Map from './map/map.js';
+import fetchJsonSync from './lib/fetchjsonsync.js';
 import Animation from './animation.js';
 import Sprite from './sprite.js';
 import Sprites from './sprites.js';
@@ -249,7 +250,19 @@ export default class Game {
 
         this.mapStatus = 0;
 
-        this.mapNames = ['map0', 'map1', 'map2'];
+        // The maps, from maps/maplist.json (written by tools/maps/generator/split.py, read by the
+        // gameserver too): mapList.maps[index] is each map's name ("map2", or "map4/map4_0_0" for a
+        // part of a split map, loaded from maps/map4/), mapList.warps the map "/warp map4" goes to.
+        // mapList.areas: each split map part's area in the full map, name -> [worldX, worldY, width, height].
+        this.mapList = { maps: [], warps: [], areas: {} };
+        try {
+            const list = fetchJsonSync('./maps/maplist.json');
+            if (list && Array.isArray(list.maps)) this.mapList.maps = list.maps;
+            if (list && Array.isArray(list.warps)) this.mapList.warps = list.warps;
+            if (list && list.areas && typeof list.areas === 'object') this.mapList.areas = list.areas;
+        } catch (err) {
+            console.error('Could not load maps/maplist.json: ' + err);
+        }
 
         this.gameTime = 0;
         this.updateTime = 0;

@@ -124,9 +124,11 @@ def _bottom_spot(r, rng):
           and not any(abs(x - u) < 4 for u in r['used'])]
     if not xs: return None
     x = xs[int(rng.integers(len(xs)))]; r['used'].add(x)
-    r['W'][y1 + 1:y1 + 4, x - 1:x + 2] = EXIT
-    r['F'][y1 + 1:y1 + 3, x - 1:x + 2] = FLOOR[0, 0]
-    return (x, y1 + 2)                       # trigger on 1184
+    # as in map2: the arch's top row (1163-1165) sits on the room's last floor row and its lower two rows
+    # replace the two bottom-wall rows (1227 / 1247), so the arch lines up with the wall around it
+    r['W'][y1:y1 + 3, x - 1:x + 2] = EXIT
+    r['F'][y1:y1 + 2, x - 1:x + 2] = FLOOR[0, 0]
+    return (x, y1 + 1)                       # trigger on 1184
 
 
 def _top_spot(r, rng):
@@ -256,7 +258,9 @@ def make_system(rng, n_rooms=None, max_w=110, compact=False):
     for (ia, ta, ib, tb) in links:
         A, B = off(ia, ta), off(ib, tb)
         oa = 'd' if rooms[ia]['W'][ta[1], ta[0]] == LADDER[0] else 'u'
-        internal.append((A[0], A[1], B[0], B[1], {'o': 'u', 'cx': '1'}))      # deeper: arrive on B's arch
-        internal.append((B[0], B[1], A[0], A[1], {'o': oa}))                 # back: arrive on A's door
+        # destinations name the other door's trigger; interiors.build lands the player next to it, inside
+        # the room (above an arch, below a ladder), facing away from it
+        internal.append((A[0], A[1], B[0], B[1], {'o': 'u', 'cx': '1'}))      # deeper: arrive at B's arch
+        internal.append((B[0], B[1], A[0], A[1], {'o': oa}))                 # back: arrive at A's door
     return dict(kind='cave', lava=False, rooms=rects, w=W_, h=H_, tiles=tiles,
                 exits=[(ex[0], ex[1], 'd')], internal=internal, src=('generated',))

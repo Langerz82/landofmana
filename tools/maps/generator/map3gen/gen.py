@@ -7,7 +7,8 @@ Overworld biomes north->south: volcano | desert | swamp/graveyard | forest | riv
 Terrain uses the tilesheet's octagon blob sets; objects and cliff features are stamps lifted
 from map2.json; long ledges use the cliff piece grammar from generator/run.js.
 """
-import json, pickle, sys, time
+import json, pickle, sys, time, os
+sys.path.insert(0, os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'common')))
 import numpy as np
 from collections import defaultdict
 from scipy import ndimage

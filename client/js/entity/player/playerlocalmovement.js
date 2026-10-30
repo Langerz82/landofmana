@@ -29,6 +29,16 @@ import Timer from '../../timer.js';
 /* global Types, game, log, G_LATENCY, G_ROUNDTRIP, G_UPDATE_INTERVAL */
 
 export function installLocalPlayerOverrides(player) {
+    // A stop (entitymoving's stop(), reached through forceStop() and the like) always clears freeze. During a
+    // teleport (mapStatus below 2: from the request until the player stands on the loaded destination map)
+    // the player must stay frozen, so keep it set then; clientcallbacksmap.js clears it when the teleport
+    // completes or is refused.
+    player.stop = function () {
+        const keep = this.freeze && game.mapStatus < 2;
+        Object.getPrototypeOf(player).stop.call(this);
+        if (keep) this.freeze = true;
+    };
+
     player.forceStop = function () {
         this.harvestOff();
         // FIX: this used to gate the stop packet on `this.isMoving()` (the local
@@ -254,6 +264,17 @@ export function installLocalPlayerOverrides(player) {
     // key press always leaves this false and gets the normal checks.
     player.move = function (orientation, state, skipThrottleCheck) {
         if (this.isDying || this.isDead) return;
+        // Frozen during a teleport (gamemovement.js's freezeForTeleport()): presses are ignored, and a
+        // release only clears the local key state, so nothing is walking when the player arrives.
+        if (game.isTeleporting()) {
+            if (!state) {
+                this.keyMove = false;
+                this.stopKeyMove = false;
+                this.moveOrientation = 0;
+                clearTimeout(this.moveRetryTimeout);
+            }
+            return;
+        }
 
         if (state && orientation !== Types.Orientations.NONE) {
             // FIX: pressing a new direction while already key-moving used to fall

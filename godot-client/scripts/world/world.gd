@@ -29,7 +29,17 @@ const BASE_SCALE := 3.0
 ## drawn at their normal size at this zoom and in proportion at the others.
 const DEFAULT_ZOOM := 0.8          # "Normal" (also the reference size for names over the world)
 const MOBILE_ZOOM := 0.6           # "Closer": zoom on phones / tablets until the player picks one
-const MAP_NAMES := ["map0", "map1", "map2"]
+## The maps, from res://assets/maps/maplist.json (client/maps/maplist.json, copied by the sync-assets
+## scripts; written by tools/maps/generator/split.py): map_list.maps[index] is each map's name ("map2", or
+## "map4/map4_0_0" for a part of a split map), map_list.warps the map "/warp map4" goes to.
+var map_list := {"maps": [], "warps": [], "areas": {}}   # areas: split map part -> [worldX, worldY, w, h]
+const WARP_PORTAL := -2         # portal id of the admin-only "/warp" command (the server checks)
+var _refused_door_pos = null    # a door the server refused is not retried until the player steps off it
+# Arrival-door guard: a door the player was teleported onto stays inactive while they keep the orientation
+# the teleport gave them (turning re-arms it, stepping off it clears the guard). See _check_teleport().
+var _teleport_orientation = -1  # set at status 1 of a door teleport, used at status 2
+var _arrival_door = null
+var _arrival_orientation = -1
 const PLAYER_KIND := 1
 
 var client: GameClient
@@ -84,6 +94,7 @@ var _reveal_token := 0   # cancels a pending reveal when a new teleport starts
 
 func _ready() -> void:
 	Game.world = self
+	_load_map_list()
 	map_renderer = MapRenderer.new()
 	map_renderer.name = "MapRenderer"
 	add_child(map_renderer)
@@ -349,6 +360,9 @@ func _player_key(c, nx: int, ny: int) -> bool:
 	else:
 		c.key_move = true
 		c.force_stop()
+	# a door on the way fires as the player reaches its tile; also when the move was refused, since
+	# move_character() snaps the player onto the tile centre when a key release or a turn ends the step there
+	_check_teleport_on_step()
 	return not res
 
 
@@ -364,14 +378,18 @@ func _player_path_x(c, m: int) -> bool:
 	if _path_blocked(c, c.x + m, c.y):
 		return true
 	c.set_pos(c.x + m, c.y)
-	return c.next_step()
+	var res: bool = c.next_step()
+	_check_teleport_on_step()          # a door on the path fires as the player reaches its tile
+	return res
 
 
 func _player_path_y(c, m: int) -> bool:
 	if _path_blocked(c, c.x, c.y + m):
 		return true
 	c.set_pos(c.x, c.y + m)
-	return c.next_step()
+	var res: bool = c.next_step()
+	_check_teleport_on_step()
+	return res
 
 
 ## Something stepped into the local player's path: stop just before it (the
@@ -454,7 +472,30 @@ func find_path(c, px: int, py: int) -> Array:
 	return path
 
 
+## Freeze the player for a teleport (map_status is already below 2): stop them where they are, which also
+## sends the server their final position, and drop any queued key movement. Also used when the server
+## starts a map change itself (status 1).
+func _freeze_for_teleport() -> void:
+	var p := player
+	if p == null:
+		return
+	p.freeze = true
+	p.move_orientation = 0
+	if p.is_moving_path() or p.movement.in_progress or p.key_move:
+		p.force_stop()
+	p.key_move = false
+	p.stop_key_move = false
+	p.freeze = true
+
+
+## True while a teleport is under way: the player is frozen and the destination isn't loaded yet.
+func is_teleporting() -> bool:
+	return player != null and player.freeze and map_status < 2
+
+
 func click_move_to(px: int, py: int) -> void:
+	if is_teleporting():
+		return
 	px = (floori(px / float(TS)) + 0.5) * TS
 	py = (floori(py / float(TS)) + 0.5) * TS
 	if current_map.is_colliding_point(px, py):
@@ -478,6 +519,12 @@ func teleport_maps(index: int, tx: int = -1, ty: int = -1, portal_id: int = -1) 
 	_reveal_token += 1
 	if hud:
 		hud.set_blackout(true)
+	# The player is frozen (player.freeze) from here until the teleport is complete: the destination map has
+	# loaded and the player stands on it. map_status stays below 2 until then (_on_teleport_map sets it to 2
+	# only once the player is placed, or when the server refuses the teleport), and while it is below 2 a stop
+	# can't clear the freeze (Player.stop()). Key input and click-to-move are ignored meanwhile.
+	map_status = 0
+	_freeze_for_teleport()
 	if current_map != null:
 		prev_map = current_map
 		if index == current_map.map_index:
@@ -486,7 +533,7 @@ func teleport_maps(index: int, tx: int = -1, ty: int = -1, portal_id: int = -1) 
 			return
 	map_status = 0
 	if hud:
-		hud.set_loading(true, "Loading %s..." % MAP_NAMES[index])
+		hud.set_loading(true, "Loading %s..." % map_list.maps[index])
 	_pending_map_request = [index, tx, ty, portal_id]
 	_map_load_token += 1
 	if map_cache.has(index):
@@ -514,7 +561,7 @@ func _sync_load_map(index: int, token: int) -> void:
 	await get_tree().process_frame
 	if token != _map_load_token:
 		return   # a newer teleport replaced this one
-	var m := MapData.load_map(index, MAP_NAMES[index])
+	var m := MapData.load_map(index, map_list.maps[index])
 	if token != _map_load_token:
 		return
 	map_cache[m.map_index] = m
@@ -522,7 +569,7 @@ func _sync_load_map(index: int, token: int) -> void:
 
 
 func _thread_load_map(index: int) -> void:
-	var m := MapData.load_map(index, MAP_NAMES[index])
+	var m := MapData.load_map(index, map_list.maps[index])
 	call_deferred("_on_map_thread_done", m)
 
 
@@ -554,14 +601,30 @@ func _on_teleport_map(d: Array) -> void:
 	var tx := Types.to_int(d[2])
 	var ty := Types.to_int(d[3])
 	var portal_id := Types.to_int(d[4]) if d.size() > 4 else -1
-	map_status = status
+	# status 2 (placed on the new map) only counts once the player stands on it (below): until then the
+	# player stays frozen (_freeze_for_teleport(), Player.stop())
+	if status != 2:
+		map_status = status
 	var p := player
 	if status == -1:
-		map_index = 0
+		# The server refused the transition and keeps us on map `map_id` (the map we were on):
+		# go back to it if another map was already loaded.
+		if prev_map != null and prev_map.map_index == map_id and current_map != prev_map:
+			current_map = prev_map
+			camera_area = null
+			map_renderer.set_map(prev_map)
+			map_renderer.set_area(null)
+			pathfinder = Pathfinder.new(prev_map)
+		_pending_map_request = null
+		map_index = map_id
 		map_status = 2
 		p.force_stop()
 		p.clear_target()
+		p.freeze = false
+		p.suppress_teleport_check = false
+		_refused_door_pos = Vector2(p.x, p.y)
 		if hud:
+			hud.set_loading(false)
 			hud.set_blackout(false)
 		return
 	if status == 1:
@@ -569,15 +632,18 @@ func _on_teleport_map(d: Array) -> void:
 		_reveal_token += 1
 		if hud:
 			hud.set_blackout(true)
+		_freeze_for_teleport()     # also covers map changes the server starts itself (e.g. a respawn)
 		p.force_stop()
 		map_index = map_id
 		p.map_index = map_id
 		p.clear_target()
 		_init_player(false)
 		p.freeze = true
+		_teleport_orientation = -1
 		if prev_map != null and portal_id >= 0 and portal_id < prev_map.doors.size():
 			p.orientation = prev_map.doors[portal_id].orientation
 			p.suppress_teleport_check = true
+			_teleport_orientation = p.orientation
 		_clear_entities()
 		client.send_teleport_map(map_id, 1, tx, ty, -1)
 	elif status == 2:
@@ -587,6 +653,10 @@ func _on_teleport_map(d: Array) -> void:
 		p.force_stop()
 		p.freeze = false
 		p.suppress_teleport_check = false
+		# also after a warp or respawn that lands on a door, with the orientation the player arrived with
+		_arrival_door = current_map.get_door(p.x, p.y) if current_map != null else null
+		_arrival_orientation = _teleport_orientation if _teleport_orientation >= 0 else p.orientation
+		_teleport_orientation = -1
 		_keys_down.clear()
 		started = true
 		if audio:
@@ -796,12 +866,56 @@ func _add_local_player_callbacks() -> void:
 			hud.set_target(null)
 
 
+## Would the door the player stands on fire now? (the same rules _check_teleport() applies)
+func _door_would_fire(p, door) -> bool:
+	if _refused_door_pos != null and _refused_door_pos == Vector2(p.x, p.y):
+		return false
+	if _arrival_door != null and is_same(door, _arrival_door) and p.orientation == _arrival_orientation:
+		return false
+	if door.minLevel > 0 and p.level < door.minLevel:
+		return false
+	if door.get("rel", false) and p.orientation != door.orientation:
+		return false
+	return true
+
+
+## Doors used to be checked only when the player stopped (key released, or the end of a click-to-move
+## path), so a long walk could cross a door without using it. This runs every time the local player
+## reaches the centre of a tile while moving. On a click-to-move path, a door that would fire ends the
+## path on its tile first (which tells the server where the player stopped, so its "at the door" check
+## holds, and the path doesn't carry on after the teleport).
+func _check_teleport_on_step() -> void:
+	var p := player
+	if p == null or p.freeze or p.suppress_teleport_check or p.is_dead or current_map == null:
+		return
+	var half := TS >> 1
+	if p.x % TS != half or p.y % TS != half:
+		return
+	var door = current_map.get_door(p.x, p.y)
+	if door != null and p.is_moving_path() and _door_would_fire(p, door):
+		p.stop_path()       # at the path's last tile, its stop callback runs _check_teleport() itself
+	_check_teleport()
+
+
 func _check_teleport() -> void:
 	var p := player
 	if p.suppress_teleport_check or current_map == null:
 		return
+	if _refused_door_pos != null:
+		if _refused_door_pos == Vector2(p.x, p.y):
+			return
+		_refused_door_pos = null
 	var dest = current_map.get_door(p.x, p.y)
+	if _arrival_door != null:
+		if is_same(dest, _arrival_door) and p.orientation == _arrival_orientation:
+			return
+		if not is_same(dest, _arrival_door):
+			_arrival_door = null
 	if dest == null:
+		return
+	# An edge door between split map sections only takes the player across when they face the way it leads
+	# (up on a north edge, down on a south edge); walking along the edge row doesn't cross.
+	if dest.get("rel", false) and p.orientation != dest.orientation:
 		return
 	if dest.minLevel > 0 and p.level < dest.minLevel:
 		bubble(p, "I must be Level %d or more to proceed." % dest.minLevel)
@@ -1839,7 +1953,7 @@ func _chat_command(message: String) -> bool:
 	var arg := parts[1] if parts.size() > 1 else ""
 	match parts[0]:
 		"/warp":
-			warp_to_town()
+			warp_to(arg, parts[2] if parts.size() > 2 else "", parts[3] if parts.size() > 3 else "")
 			return true
 		"/party", "/invite":
 			client.send([Types.Messages.CW_PARTY, 1, arg, 0])
@@ -2066,10 +2180,81 @@ func _on_player_info(d: Array) -> void:
 	data.player_info_changed.emit()
 
 
-## TOWN button / "/warp" (app.toggleWarp).
+## TOWN button (app.toggleWarp): open to everyone.
 func warp_to_town() -> void:
 	if started and map_status >= 2:
 		teleport_maps(0)
+
+
+## "/warp [map] [gx gy]" -- admins only (the server checks; others get "You do not have permission to use
+## that command."). The map is a name from maplist.json with or without its folder ("map4_0_0" or
+## "map4/map4_0_0"), a map index, or a split map such as "map4" (its warp point); no map means map 0.
+## With gx gy it lands on that tile: a map named exactly (or by index) takes its own tiles ("/warp map4_0_0
+## 100 100"); a split map named as a whole takes full-map tiles ("/warp map4 300 300"), and the part holding
+## the tile is picked from maplist.json's areas. The server refuses a tile outside the map or a solid one.
+func warp_to(want: String, sx: String = "", sy: String = "") -> void:
+	want = want.strip_edges()
+	if not (started and map_status >= 2):
+		return
+	var gx := -1
+	var gy := -1
+	if sx != "" or sy != "":
+		if not (sx.is_valid_int() and sy.is_valid_int() and sx.to_int() >= 0 and sy.to_int() >= 0):
+			if hud:
+				hud.add_game_notification("Notification", "Usage: /warp map [gx gy], e.g. /warp map4 300 300 or /warp map4_0_0 100 100")
+			return
+		gx = sx.to_int()
+		gy = sy.to_int()
+	var names: Array = map_list.maps
+	var areas: Dictionary = map_list.get("areas", {})
+	var index: int = 0 if want == "" else (want.to_int() if want.is_valid_int() else -1)
+	if index < 0:
+		for i in names.size():
+			if names[i] == want or str(names[i]).get_file() == want:
+				index = i
+				break
+	if index < 0:
+		var parts: Array = []
+		for n in names:
+			if str(n).begins_with(want + "/") or str(n).get_file().begins_with(want + "_"):
+				parts.append(n)
+		if gx >= 0 and not parts.is_empty():
+			var found = null
+			for n in parts:
+				var a = areas.get(n)
+				if a is Array and a.size() >= 4 and gx >= int(a[0]) and gy >= int(a[1]) \
+						and gx < int(a[0]) + int(a[2]) and gy < int(a[1]) + int(a[3]):
+					found = n
+					break
+			if found == null:
+				if hud:
+					hud.add_game_notification("Notification", "No part of %s holds tile %d,%d" % [want, gx, gy])
+				return
+			index = names.find(found)
+			gx -= int(areas[found][0])
+			gy -= int(areas[found][1])
+		else:
+			for n in map_list.warps:
+				if str(n).begins_with(want + "/") or str(n).get_file().begins_with(want + "_"):
+					index = names.find(n)
+					break
+	if index < 0 or index >= names.size():
+		if hud:
+			hud.add_game_notification("Notification", "Unknown map: %s" % want)
+		return
+	# gx, gy (tiles of the target map) ride in the teleport request's x/y; -1 means its start area
+	teleport_maps(index, gx, gy, WARP_PORTAL)
+
+
+func _load_map_list() -> void:
+	var path := "res://assets/maps/maplist.json"
+	var d = JSON.parse_string(FileAccess.get_file_as_string(path)) if FileAccess.file_exists(path) else null
+	if not (d is Dictionary):
+		push_error("World: cannot read %s" % path)
+		return
+	if d.get("maps") is Array: map_list.maps = d.maps
+	if d.get("warps") is Array: map_list.warps = d.warps
+	if d.get("areas") is Dictionary: map_list.areas = d.areas
 
 
 ## Zoom used until the player picks one (Settings -> Zoom): closer on mobile.

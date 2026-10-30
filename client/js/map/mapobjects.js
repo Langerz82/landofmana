@@ -49,9 +49,12 @@ export function installMapObjects(proto) {
             // separate parent MapCamera before that class was merged onto this same
             // prototype, see map/mapcamera.js's own header comment).
             area.tmap = door.tmap >= 0 ? door.tmap : self.mapIndex;
-            area.tx = door.tx || -1;
-            area.ty = door.ty || -1;
+            // a destination of 0 is a real coordinate (map sections start at 0)
+            area.tx = door.tx >= 0 ? door.tx : -1;
+            area.ty = door.ty >= 0 ? door.ty : -1;
             area.orientation = door.to || 2;
+            // edge door between map sections: the server keeps the player's position along it
+            area.rel = !!door.rel;
 
             area.id = count++;
             doors.push(area);
