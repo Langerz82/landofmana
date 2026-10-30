@@ -606,7 +606,8 @@ export default class Game {
         for (const entity of entities.values()) {
             // FIX: inverted condition skipped every truthy (real) entity and fell through to `entity.x` on the
             // rare null one, so obsolete entities were never actually collected for cleanup; should skip nulls.
-            if (!entity) continue;
+            // the player's own character is never obsolete (whatever the camera thinks during a map change)
+            if (!entity || entity === p) continue;
             // FIX: was culling anything >64px (4 tiles) from the player, but the camera's visible area is far
             // larger than that (screenX/screenY, i.e. the whole viewport in world pixels), so entities still
             // on screen were being removed. Use camera visibility (with the same 10-tile buffer margin used

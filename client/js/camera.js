@@ -19,7 +19,7 @@
 // Converted from AMD (define) + Class.extend to a native ES6 module/class.
 import Entity from './entity/entity.js';
 
-/* global Utils */
+/* global Utils, G_TILESIZE */
 
 export default class Camera {
     constructor(game, renderer) {
@@ -245,16 +245,16 @@ export default class Camera {
 
     isVisiblePosition(x, y, extra) {
         extra = extra * this.tilesize || 0;
+        const mc = game.currentMap;
+        // The map's full extent in pixels. (Its widthX/heightY are where the last column/row *starts*, so
+        // using them here counted anything on a map's last row or column - e.g. a player arriving on a split
+        // map's bottom edge row - as off screen: it wasn't drawn, and removeObsoleteEntities() dropped it.)
+        const mapW = mc && mc.tileDataLoaded ? mc.width * G_TILESIZE : 0;
+        const mapH = mc && mc.tileDataLoaded ? mc.height * G_TILESIZE : 0;
         const minX = Math.max(0, this.x - extra);
         const minY = Math.max(0, this.y - extra);
-        const maxX = Math.min(
-            game.currentMap.widthX,
-            this.x + this.screenX + extra
-        );
-        const maxY = Math.min(
-            game.currentMap.heightY,
-            this.y + this.screenY + extra
-        );
+        const maxX = Math.min(mapW, this.x + this.screenX + extra);
+        const maxY = Math.min(mapH, this.y + this.screenY + extra);
 
         return y.between(minY, maxY) && x.between(minX, maxX);
     }
