@@ -18,10 +18,35 @@
 
 // Converted from AMD (define) + Class.extend to a native ES6 module/class.
 import fetchJsonSync from '../lib/fetchjsonsync.js';
+import config from '../config.js';
 import { installMapObjects } from './mapobjects.js';
 import { installMapQueries } from './mapqueries.js';
 import { installMapCamera } from './mapcamera.js';
-/* global log, game */
+/* global log, game, JSZip, JSZipUtils */
+
+// Map zips: maps/<folder>.zip holds that folder's map files under the same paths (maps/map2.zip ->
+// map2/map2.json, maps/map4.zip -> map4/map4_0_0.json ... map4/map4_int.json). Each zip is downloaded and
+// opened once and kept here (url -> Promise of the opened JSZip, or of its failure), so the parts of a split
+// map share one download.
+const mapZips = {};
+function openMapZip(url) {
+    if (!mapZips[url]) {
+        mapZips[url] = new Promise(function (resolve, reject) {
+            if (typeof JSZipUtils === 'undefined' || typeof JSZip === 'undefined') {
+                reject(new Error('JSZip is not loaded'));
+                return;
+            }
+            JSZipUtils.getBinaryContent(url, function (err, bytes) {
+                if (err) {
+                    reject(err);
+                    return;
+                }
+                JSZip.loadAsync(bytes).then(resolve, reject);
+            });
+        });
+    }
+    return mapZips[url];
+}
 
 // Map's own behavior is split across mixin modules for readability - none of these
 // are subclasses/separate instances, just Map's own methods living in separate
@@ -118,13 +143,10 @@ export default class Map {
         this._initMapObjects(data);
     }
 
-    // The real map<N>.json fetch. No zip optimization step to try first anymore
-    // (mapcamera.js used to pre-download one so this could read its entry out of
-    // an already-decompressed zip - see mapcamera.js's own header comment for why
-    // that's gone) - just a direct fetch via the same shared fetchJsonSync helper
-    // the data/*.js modules and sprites.js's own zip fallback use, which gets the
-    // ?version= cache-busting param for free. Kicked off once, from the
-    // constructor (see its own comment on why that's deferred one microtask).
+    // Loads the map's data, kicked off once from the constructor (see its own comment on why that's
+    // deferred one microtask). First from the map's zip (maps/<folder>.zip, see openMapZip() above): its
+    // entry <folder>/<name>.json is extracted and parsed. If that fails in any way (no zip, a broken zip, no
+    // such entry, bad JSON), the map's json file is downloaded directly instead (_loadMapJsonDirect()).
     _loadMapJson() {
         const self = this;
         // a sectional map's part is listed with its folder ("map4/map4_0_0" -> maps/map4/map4_0_0.json);
@@ -133,6 +155,37 @@ export default class Map {
             this.mapName.indexOf('/') >= 0
                 ? this.mapName + '.json'
                 : this.mapName + '/' + this.mapName + '.json';
+        const version = config.build ? config.build.version : undefined;
+        const zipUrl = './maps/' + name.split('/')[0] + '.zip' + (version ? '?v=' + version : '');
+        openMapZip(zipUrl)
+            .then(function (zip) {
+                const entry = zip.file(name);
+                if (!entry) throw new Error('no ' + name + ' in it');
+                return entry.async('string');
+            })
+            .then(JSON.parse)
+            .then(
+                function (data) {
+                    // errors from here on are the map's own, not the zip's: no second load
+                    try {
+                        self.loadMapData(data);
+                    } catch (err) {
+                        console.error('Failed to set up map ' + self.mapName + ': ' + err);
+                    }
+                },
+                function (err) {
+                    console.warn(
+                        'Map zip ' + zipUrl + ' not used for ' + name + ' (' + err + '): loading the json directly.'
+                    );
+                    self._loadMapJsonDirect(name);
+                }
+            );
+    }
+
+    // The map's json file, downloaded directly (maps/<folder>/<name>.json) via the shared fetchJsonSync
+    // helper, which adds the ?v= cache-busting param. The fallback when the map's zip can't be used.
+    _loadMapJsonDirect(name) {
+        const self = this;
         const filename = './maps/' + name;
         try {
             self.loadMapData(fetchJsonSync(filename));
