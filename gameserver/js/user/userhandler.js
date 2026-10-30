@@ -341,6 +341,9 @@ class UserHandler {
         // (see mobaggro.js, mobai.js, player.js onDamage, combathandler.js
         // canAttackTarget, skillactionhandler.js).
         player.isAdmin = admin;
+        // the account's admin rights; isAdmin above is whether admin mode is active, which an admin can
+        // switch off and on for the session with "/setadmin off|on" (packets/admincommands.js)
+        player.isAdminAccount = admin;
         if (admin) console.info('ADMIN logged in: ' + username + ' / ' + playerName);
         player.loaded = 0;
         // NOTE: was `player.worldHandler = user.worldHandler;` -- `user`

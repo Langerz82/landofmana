@@ -26,6 +26,10 @@ import { logChat } from '../chatlog.js';
 // swallows them, so they are never broadcast as chat.
 //
 //   /admin                          list these commands
+//   /setadmin on|off [player]       switch admin mode on or off for this session only (not saved) --
+//                                   your own, or an online player's. Your own works while it's off, for
+//                                   any account with admin rights; a player given it this way loses it
+//                                   when they log out.
 //   /spawn <type> <kindId> [options] place an entity where you stand
 //   /despawn [entityId]             remove an admin-placed entity
 //   /spawnlist                      admin-placed entities near you
@@ -51,7 +55,8 @@ const COMMANDS = {
     '/spawn': 'handleSpawn',
     '/despawn': 'handleDespawn',
     '/spawnlist': 'handleSpawnList',
-    '/pos': 'handlePos'
+    '/pos': 'handlePos',
+    '/setadmin': 'handleSetAdmin'
 };
 
 const LEVEL_TYPES = new Set(['mob', 'node']);
@@ -97,7 +102,9 @@ class AdminCommands {
         if (!method) return false;
 
         const p = this.player;
-        if (!p.isAdmin) {
+        // "/setadmin" stays open to an admin account whose admin mode is switched off, so it can switch it
+        // back on
+        if (!p.isAdmin && !(cmd === '/setadmin' && p.isAdminAccount)) {
             this.ph.send(new Messages.Notify('CHAT', 'ADMIN_DENIED').serialize());
             return true;
         }
@@ -128,6 +135,53 @@ class AdminCommands {
         return map.entityStore;
     }
 
+    // "/setadmin on|off [player]": switches admin mode (isAdmin: admin commands, mobs ignoring you, no
+    // attacking) for this session only -- the caller's own, or an online player's. Nothing is saved: the
+    // account's admin flag isn't touched, so an admin account is an admin again at its next login, and a
+    // player given admin mode this way loses it when they log out. An admin account whose own mode is off
+    // can still run this (to switch it back on); switching someone else needs admin mode on.
+    handleSetAdmin(args) {
+        const p = this.player;
+        const words = String(args || '').split(/\s+/).filter(Boolean);
+        const usage = 'Usage: /setadmin on|off [player], e.g. /setadmin off or /setadmin on Bob';
+        const mode = (words[0] || '').toLowerCase();
+        let flag;
+        if (['on', '1', 'yes', 'true'].includes(mode)) flag = true;
+        else if (['off', '0', 'no', 'false'].includes(mode)) flag = false;
+        if (flag === undefined || words.length > 2) {
+            this.reply(usage);
+            return;
+        }
+        let target = p;
+        if (words[1]) {
+            target = p.world ? p.world.getPlayerByName(words[1]) : null;
+            if (!target) {
+                this.reply(words[1] + ' is not online.');
+                return;
+            }
+        }
+        const self = target === p;
+        if (!self && !p.isAdmin) {
+            this.reply('Switch your own admin mode on first ("/setadmin on").');
+            return;
+        }
+        if (target.isAdmin === flag) {
+            this.reply((self ? 'Your admin mode is' : target.name + '\'s admin mode is') + ' already ' + (flag ? 'on.' : 'off.'));
+            return;
+        }
+        target.isAdmin = flag;
+        if (self) {
+            this.reply(flag
+                ? 'Admin mode on.'
+                : 'Admin mode off for this session (not saved). "/setadmin on" switches it back on.');
+            return;
+        }
+        target.sendPlayer(new Messages.Notify('CHAT', 'ADMIN_MESSAGE', [flag
+            ? p.name + ' switched your admin mode on for this session.'
+            : p.name + ' switched your admin mode off for this session.']));
+        this.reply(target.name + '\'s admin mode is ' + (flag ? 'on' : 'off') + ' for this session (not saved).');
+    }
+
     handleHelp() {
         this.reply(SPAWN_USAGE);
         this.reply(
@@ -138,6 +192,7 @@ class AdminCommands {
         this.reply('/despawn [entityId] -- removes the nearest (or given) placed entity');
         this.reply('/spawnlist -- placed entities near you');
         this.reply('/pos -- your map and coordinates');
+        this.reply('/setadmin on|off [player] -- switch your own, or an online player\'s, admin mode for this session (not saved)');
     }
 
     handleSpawn(args) {
