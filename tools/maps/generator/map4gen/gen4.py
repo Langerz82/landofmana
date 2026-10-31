@@ -18,7 +18,8 @@ import json, pickle, time, argparse, heapq
 import numpy as np
 from collections import defaultdict, Counter
 from scipy import ndimage
-from octo import tile as otile, clean, octshape, FAM, block
+from octo import tile as otile, clean, octshape, FAM, block, rectify, shore, match_joints
+from PIL import Image
 from noise import fbm
 from paths import data, cache
 import density4 as DEN
@@ -42,6 +43,7 @@ def log(*a): print(f'[{time.time()-t0:6.1f}s]', *a, flush=True)
 FAM['dsand'] = block(808, fill=[[871, 872], [891, 892]])
 FAM['dead'] = block(483, fill=[[546, 547], [566, 567]])
 FAM['canyon'] = block(1295, fill=[[1358, 1359], [1378, 1379]])
+FAM['canyon']['inner'] = dict(se=[1356], sw=[1357], ne=[1376], nw=[1377])   # glow rim's inner corners, as in map2
 FAM['forestlake'] = dict(FAM['lake'])
 
 S = pickle.load(open(cache('stamps.pkl'), 'rb'))
@@ -339,6 +341,13 @@ vd = np.full((H, W), 1e9)
 for cy, cx in vil_centres: vd = np.minimum(vd, np.hypot(YY - cy, (XX - cx) * 0.8))
 log('towns', len(towns), towns)
 
+# Lakes, ponds and rivers use map2's lake shore tiles (octo.shore), which have no diagonal pieces, so their
+# outlines are snapped to a LAKE_BLOCK-tile grid: straight horizontal and vertical shores only.
+LAKE_BLOCK = 3
+def lake_tiles(wmask, edge_layer, fill_layer):
+    sh = shore(wmask); ring = (sh > 0) & ~wmask
+    LY[edge_layer][ring] = sh[ring]
+    LY[fill_layer][wmask] = 406
 # lagoons: inland lakes ringed with beach sand, in the forest away from towns and the coast
 lagoon = np.zeros((H, W), bool); lagoon_sand = np.zeros((H, W), bool)
 lc = (alab == 3) & ~ndimage.binary_dilation(R_village, iterations=40) & (dist_coast > 80) & (YY > 60) & (XX > 50) & (XX < W - 50)
@@ -358,8 +367,9 @@ for _ in range(400):
     if not lc[sl][sd].all(): continue
     lagoon[sl] |= lk; lagoon_sand[sl] |= sd
     nlag += 1
-lagoon = clean(octshape(lagoon, 2))
-lagoon_sand = clean(octshape(lagoon_sand | lagoon, 2)) & ~lagoon
+lagoon = rectify(clean(octshape(lagoon, 2)), LAKE_BLOCK)     # straight shores only (see LAKE_BLOCK)
+lagoon_sand = (clean(octshape(lagoon_sand | lagoon, 2))
+               | ndimage.binary_dilation(lagoon, np.ones((3, 3), bool), iterations=3)) & ~lagoon
 log('lagoons', nlag)
 
 # rivers: from the north edge down to the beach, avoiding towns, lagoons and volcanoes
@@ -385,12 +395,11 @@ for k in range(DEN.RIVERS):
         if BANDS and not (alab[y, xr[y]] == 3 and not R_village[y, xr[y]]): continue   # band layout: forest only
         r_ = int(rw_[y]); river[y, max(0, xr[y] - r_):xr[y] + r_ + 1] = True; rows_.append(y)
     if rows_: river_x.append((x0, xr, min(rows_), max(rows_)))
-river = finish(river, 2)
+river = rectify(finish(river, 2), LAKE_BLOCK)
 water = river | lagoon
-lk = otile(water, 'lake'); LY['lakes'][water] = lk[water]
-LY['water'][water & (lk == 0)] = 406
+lake_tiles(water, 'lakes', 'water')
 R_village &= ~ndimage.binary_dilation(river, iterations=4)
-occ |= ndimage.binary_dilation(water, iterations=1)
+occ |= ndimage.binary_dilation(water, np.ones((3, 3), bool), iterations=1)   # water and its shore ring
 log('rivers', len(river_x))
 
 # area masks (towns and beaches override the noise areas)
@@ -459,6 +468,12 @@ put_pattern('dryground', dark, [[419, 420], [439, 440]])
 volc_floor = dark | d2
 import cavekit as _CK
 LAVA_LAKE_W, LAVA_LAKE_H = (10, 26), (6, 15)      # basin floor size range (tiles)
+_TS = Image.open(data('tilesheet.png')).convert('RGBA'); _TSC = _TS.width // 16
+def _tile_im(g):
+    r, c = divmod(g - 1, _TSC); return _TS.crop((c * 16, r * 16, c * 16 + 16, r * 16 + 16))
+def lava_px(g):                                   # a canyon tile's pixels over lava, for match_joints
+    im = _tile_im(1181).copy(); im.alpha_composite(_tile_im(g)); return np.asarray(im.convert('RGB'))
+LAVA_BLOCK = 2                                    # lava pool outlines snap to this grid (straight edges)
 lava_ok = volc_floor & ndimage.binary_erosion(R_volc, iterations=6) & ~ndimage.binary_dilation(occ, iterations=3)
 lava_region = np.zeros((H, W), bool); n_lakes = 0
 lavam = np.zeros((H, W), bool)
@@ -488,15 +503,16 @@ for _ in range(want_lakes * 60):
         oy_ = cy_ + rng.uniform(-h_ / 4, h_ / 4); ox_ = cx_ + rng.uniform(-w_ / 4, w_ / 4)
         ry_ = rng.uniform(1.5, max(2.0, h_ / 2.5)); rx_ = rng.uniform(2.0, max(2.5, w_ / 2.5))
         pool_ |= ((rr_ - oy_) / ry_) ** 2 + ((cc_ - ox_) / rx_) ** 2 <= 1
-    pool_ = clean(octshape(pool_ & inner_, 1)) & inner_
-    pool_ = clean(pool_)
+    # straight edges only: the glowing rim has inner and outer corner tiles but no proper diagonals
+    pool_ = rectify(pool_, LAVA_BLOCK, pinch='cut', allowed=inner_)
     if pool_.sum() < 8: continue
     # canyon floor: the basin floor minus the pool, running under the walls' see-through inner rim
     can_ = (I_ | (ndimage.binary_dilation(I_, np.ones((3, 3), bool)) & (Wt_ != 0))) & ~pool_
     can_t = otile(np.pad(can_, 2), 'canyon')[2:-2, 2:-2]
+    lv_ = ndimage.binary_dilation(pool_, np.ones((3, 3), bool)) & (I_ | pool_)   # lava runs under the glow edge
+    can_t = match_joints(can_t, FAM['canyon'], lava_px, where=lv_ & can_)       # glow rim joins up round the pool
     LY['Cliffs'][sl_][Wt_ != 0] = Wt_[Wt_ != 0]
     LY['canyon'][sl_][can_] = can_t[can_]
-    lv_ = ndimage.binary_dilation(pool_, np.ones((3, 3), bool)) & (I_ | pool_)   # lava runs under the glow edge
     LY['lava'][sl_][lv_] = 1181
     for _ln in ('dryground', 'dryground2'):
         LY[_ln][sl_][I_] = 0
@@ -664,11 +680,9 @@ LY['grass'][gr] = otile(gr, 'grass')[gr]
 # ponds
 def ponds(region, thr, seed, layer, fillayer):
     p = finish(blobmask(region & ~occ, thr, 12, seed), 2)
-    p = clean(p & ndimage.binary_erosion(region & ~occ, iterations=2))
-    t = otile(p, 'lake')
-    LY[layer][p] = t[p]
-    LY[fillayer][p & (t == 0)] = 406
-    occ[ndimage.binary_dilation(p, iterations=1)] = True
+    p = rectify(p, LAKE_BLOCK, pinch='cut', allowed=ndimage.binary_erosion(region & ~occ, iterations=2))
+    lake_tiles(p, layer, fillayer)
+    occ[ndimage.binary_dilation(p, np.ones((3, 3), bool), iterations=1)] = True
 ginner = ndimage.binary_erosion(gr, iterations=3)
 ponds(ginner & R_forest & ~ndimage.binary_dilation(paths, iterations=3), 1.55, 61, 'forest lakes', 'forest lakes')
 ponds(ginner & R_village & (vd > 30), 1.6, 62, 'lakes', 'water')
@@ -1270,6 +1284,7 @@ for y0 in range(0, H, CELL):
 # mob levels by area (towns easiest, volcanoes hardest)
 MOBS = {4: (1, 3, '1', '2,1'), 5: (4, 6, '2', '4,2,1'), 3: (6, 9, '1', '2,1'), 2: (9, 12, '2', '4,2,1'),
         1: (12, 16, '1', '2,1'), 0: (16, 20, '2', '4,2,1')}
+MOB_COUNT = 50                                    # mobs per mob area (every area, start town included)
 mobareas = []
 for y0 in range(0, yC - 8, CELL):
     for x0 in range(0, W, CELL):
@@ -1278,8 +1293,7 @@ for y0 in range(0, yC - 8, CELL):
         if len(a_) < 2000: continue
         k = int(np.bincount(a_, minlength=6).argmax())
         lo, hi, inc, wt = MOBS[k]
-        n_ = int(max(10, (y1 - y0) * (x1 - x0) / 1100))
-        if k == 4 and np.hypot((y0 + y1) / 2 - cy, (x0 + x1) / 2 - cx) < CELL: n_ = int(n_ * 0.4)   # quieter start town
+        n_ = MOB_COUNT
         props = [{'name': 'count', 'type': 'int', 'value': n_},
                  {'name': 'include', 'type': 'string', 'value': inc},
                  {'name': 'maxLevel', 'type': 'int', 'value': hi},

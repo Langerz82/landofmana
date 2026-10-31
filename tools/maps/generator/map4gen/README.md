@@ -129,6 +129,14 @@ amount placed.
 - With `SEA = True`: the tilesheet only has sea tiles for a coast facing south, so the sea is always along the south edge.
   Beach sand has no edge tiles of its own; grass runs a few tiles onto the sand so its edge tiles blend onto it, and
   the land next to every beach is kept grassy (`COAST_KEEP`).
+- **Lakes have straight shores.** The tilesheet's lake shore tiles (map2's set: thin rims on the west, east and
+  south shores, a cliff bank on the north shore, rounded land corners) have no diagonal pieces, so ponds, lagoons
+  and the river are snapped to a `LAKE_BLOCK`-tile grid (`gen4.py`, default 3): only horizontal and vertical shores,
+  each run at least 3 tiles long. The shore tiles sit on the land ring around the water (`octo.shore`), the water
+  itself is plain 406.
+- **Lava pools have straight edges too**, snapped to a `LAVA_BLOCK`-tile grid (2). Their glowing rim (the canyon
+  floor's edge tiles) uses map2's inner-corner tiles (1356/1357/1376/1377), and `octo.match_joints` picks the
+  rim's side variants along each run so the glow joins up with the corners.
 - River bridges are map2's sideways plank bridge (1420 rail, 1440/1460 deck, 1480 rail); the trails route over them.
 - Large cliffs (mesas with one ladder), bowl-shaped cliff ledges, crater rings, cliff-walled lava lakes, graveyards and
   all objects work as in the earlier map3 generator. Cave mouths sit in the flat parts of the cliff ledges.
@@ -139,5 +147,5 @@ amount placed.
   basins keep their own canyon floor.
 - The start town (checkpoint `s`, beginner quest NPC) is the first town (with bands: the left village). Mob areas
   are laid out on a 128x128 grid with levels by area: towns 1-3, beaches 4-6, forests 6-9, swamps 9-12,
-  deserts 12-16, volcanoes 16-20.
+  deserts 12-16, volcanoes 16-20, each with `MOB_COUNT` (50) mobs.
 - Everything outside the walled lava lakes is reachable on foot from the start town.
