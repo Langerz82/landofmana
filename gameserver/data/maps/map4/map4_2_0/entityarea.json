@@ -1,0 +1,66 @@
+{
+ "mobAreas": [
+  {
+   "id": 0,
+   "count": 100,
+   "minLevel": 30,
+   "maxLevel": 35,
+   "x": 64,
+   "y": 64,
+   "w": 1920,
+   "h": 1920,
+   "include": "5,4,6",
+   "exclude": "",
+   "definite": "",
+   "level": "",
+   "weight": "6,5,4,3,2,1",
+   "bonusDrop": 2
+  },
+  {
+   "id": 1,
+   "count": 100,
+   "minLevel": 35,
+   "maxLevel": 40,
+   "x": 2112,
+   "y": 64,
+   "w": 1920,
+   "h": 1920,
+   "include": "5,4,6",
+   "exclude": "",
+   "definite": "",
+   "level": "",
+   "weight": "6,5,4,3,2,1",
+   "bonusDrop": 2
+  }
+ ],
+ "entityAreas": [
+  {
+   "id": 0,
+   "x": 1408,
+   "y": 1872,
+   "w": 96,
+   "h": 80,
+   "type": 10,
+   "kind": 2,
+   "count": 5,
+   "level": 2,
+   "animName": "node2",
+   "weaponType": "any",
+   "distanceApart": "2"
+  },
+  {
+   "id": 1,
+   "x": 2496,
+   "y": 1856,
+   "w": 96,
+   "h": 80,
+   "type": 10,
+   "kind": 2,
+   "count": 5,
+   "level": 2,
+   "animName": "node2",
+   "weaponType": "any",
+   "distanceApart": "2"
+  }
+ ]
+}

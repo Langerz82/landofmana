@@ -318,13 +318,16 @@ module.exports = function processMap(json, jsontsx, options) {
              for(var i = 0; i < areas.length; i++){
                  console.info(areas[i]);
                  var prop = getPropertyList(areas[i].properties);
+                 // An ellipse drawn in Tiled (or an "elipse" property) becomes an elliptical
+                 // area on the server, whose x/y are its centre (gameserver area/area.js).
+                 var elipse = !!(areas[i].ellipse || prop.elipse);
                  var area = {
                     id: i,
                     count: prop.count,
                     minLevel: prop.minLevel,
                     maxLevel: prop.maxLevel,
-                    x: ~~(areas[i].x),
-                    y: ~~(areas[i].y),
+                    x: ~~(areas[i].x + (elipse ? areas[i].width / 2 : 0)),
+                    y: ~~(areas[i].y + (elipse ? areas[i].height / 2 : 0)),
                     w: ~~(areas[i].width),
                     h: ~~(areas[i].height),
                     include: prop.include || '',
@@ -332,7 +335,13 @@ module.exports = function processMap(json, jsontsx, options) {
                     definite: prop.definite || '',
                     level: prop.level || '',
 					weight: prop.weight || '',
+                    // Multiplies the drop chances of every mob spawned in this
+                    // area (gameserver: MobArea.bonusDrop -> Mob.setDrops).
+                    bonusDrop: prop.bonusDrop || 1,
                  };
+                 if (elipse) area.elipse = 1;
+                 // Boss multiplier for every mob the area spawns (gameserver map.js initMobAreas).
+                 if (prop.boss > 1) area.boss = prop.boss;
                  map.mobAreas.push(area);
              }
         }
@@ -342,16 +351,21 @@ module.exports = function processMap(json, jsontsx, options) {
              var areas = layer.objects;
              console.info(JSON.stringify(areas));
              //return;
-             for(var area of areas) {
+             for(var ai = 0; ai < areas.length; ai++) {
+                 var area = areas[ai];
                  console.info(area);
                  var prop = getPropertyList(area.properties);
+                 // ellipse -> centre x/y, as for mob areas above
+                 var elipse = !!(area.ellipse || prop.elipse);
                  var entityarea = {
-                    id: i,
-                    x: ~~(area.x),
-                    y: ~~(area.y),
+                    // was `id: i`, the enclosing layer loop's index (the same for every area)
+                    id: ai,
+                    x: ~~(area.x + (elipse ? area.width / 2 : 0)),
+                    y: ~~(area.y + (elipse ? area.height / 2 : 0)),
                     w: ~~(area.width),
                     h: ~~(area.height),
                  };
+                 if (elipse) entityarea.elipse = 1;
                  if (prop.type) entityarea.type = getEntityType(prop.type);
                  if (prop.kind) entityarea.kind = prop.kind;
                  if (prop.count) entityarea.count = prop.count;

@@ -127,6 +127,9 @@ class Mob extends Character {
 
         this.drops = {};
         this.questDrops = {};
+        // Mob areas can multiply drop rates (mobarea.js bonusDrop).
+        this.bonusDrop =
+            mobArea && mobArea.bonusDrop > 0 ? mobArea.bonusDrop : 1;
         this.setDrops();
 
         this.spawnDelay = this.data.respawn;

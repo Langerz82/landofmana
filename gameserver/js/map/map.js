@@ -18,6 +18,7 @@
 
 import fs from 'fs';
 import path from 'path';
+import { fileURLToPath } from 'url';
 
 import Checkpoint from '../area/checkpoint.js';
 import Area from '../area/area.js';
@@ -42,6 +43,15 @@ import { G_TILESIZE, G_DEBUG } from '../constants.js';
 // PERF: used to be built fresh inside isHarvestTile() on every single call
 // (once per CW_HARVEST packet) -- see the PERF comment on isHarvestTile()
 // below. The tile id list is static, so it's hoisted here and built once.
+// Per-map data files: data/maps/<map name>/entityarea.json holds the map's
+// mob areas and entity areas, written by the map converter
+// (tools/maps/converter, server mode) from the map's Tiled file. Next to
+// entity.json (single admin-/data-placed entities, map/mapentitystore.js).
+const MAPS_DATA_DIR = path.join(
+    path.dirname(fileURLToPath(import.meta.url)),
+    '../../data/maps'
+);
+
 const HARVEST_TILE_TYPES = {
     axe: [678, 679, 698, 699, 855, 875, 274, 275, 294, 295]
 };
@@ -157,8 +167,16 @@ class Map {
             // the raw data here instead and letting MapManager call
             // `map.initMobAreas(map.mobAreasData)` itself once `entities`
             // exists.
-            this.mobAreasData = thismap.mobAreas;
-            this.entityAreasData = thismap.entityAreas;
+            // Areas come from data/maps/<map>/entityarea.json; a map
+            // converted before that file existed still carries them in its
+            // own JSON, which is used instead.
+            const areaData = this._readAreaFile();
+            this.mobAreasData = areaData
+                ? areaData.mobAreas || []
+                : thismap.mobAreas;
+            this.entityAreasData = areaData
+                ? areaData.entityAreas || []
+                : thismap.entityAreas;
         //},10000);
         //this.initEntityAreas(thismap.entityAreas);
 
@@ -187,6 +205,32 @@ class Map {
 
     ready(f) {
         this.readyFunc = f;
+    }
+
+    // Reads data/maps/<map name>/entityarea.json -> { mobAreas, entityAreas },
+    // or null if the map has none (or it can't be read).
+    _readAreaFile() {
+        const file = path.join(MAPS_DATA_DIR, this.name, 'entityarea.json');
+        let raw;
+        try {
+            raw = fs.readFileSync(file, 'utf8');
+        } catch (err) {
+            if (err.code !== 'ENOENT')
+                console.error('Map: failed to read ' + file + ': ' + err.message);
+            return null;
+        }
+        try {
+            const data = JSON.parse(raw);
+            console.info(
+                'Map ' + this.name + ': ' +
+                    (data.mobAreas || []).length + ' mob areas, ' +
+                    (data.entityAreas || []).length + ' entity areas from ' + file
+            );
+            return data;
+        } catch (err) {
+            console.error('Map: failed to parse ' + file + ': ' + err.message);
+            return null;
+        }
     }
 
     tileIndexToGridPosition(tileNum) {
@@ -353,30 +397,43 @@ class Map {
     initEntityAreas(areas) {
         const self = this;
         _.each(areas, function (area) {
-            const entityarea = new EntityArea(
-                self,
-                area.id,
-                area.x,
-                area.y,
-                area.w,
-                area.h,
-            );
-            let data = {};
-            if (area.type) data.type = area.type;
-            if (area.kind) data.kind = area.kind;
-            if (area.count) data.count = area.count;
-            if (area.name) data.name = area.name;
-            if (area.level) data.level = area.level;
-            if (area.durability) data.durability = area.durability;
-            if (area.durabiltyMax) data.durabiltyMax = area.durabiltyMax;
-            if (area.animName) data.animName = area.animName;
-            if (area.weaponType) data.weaponType = area.weaponType;
-            if (area.spriteName) data.spriteName = area.spriteName;
-            console.info("initEntityAreas data: "+JSON.stringify(data));
-            const distApart = area.distanceApart ?? 0;
-            entityarea.addEntities(data, distApart);
-            self.entityAreas.push(entityarea);
+            self.addEntityArea(area);
         });
+    }
+
+    // Creates one entity area and spawns its entities. `area` is in the
+    // converted map format (maps/<map>.json "entityAreas"): id, x, y, w, h,
+    // elipse (x/y are then the centre), type (Types.EntityTypes id), kind,
+    // count, name, level, durability, durabiltyMax, animName, weaponType,
+    // spriteName, distanceApart. Also used for the entity areas saved in
+    // data/maps/<map>/entity.json (map/mapentitystore.js).
+    addEntityArea(area) {
+        const self = this;
+        const entityarea = new EntityArea(
+            self,
+            area.id,
+            area.x,
+            area.y,
+            area.w,
+            area.h,
+            !!area.elipse,
+        );
+        let data = {};
+        if (area.type) data.type = area.type;
+        if (area.kind) data.kind = area.kind;
+        if (area.count) data.count = area.count;
+        if (area.name) data.name = area.name;
+        if (area.level) data.level = area.level;
+        if (area.durability) data.durability = area.durability;
+        if (area.durabiltyMax) data.durabiltyMax = area.durabiltyMax;
+        if (area.animName) data.animName = area.animName;
+        if (area.weaponType) data.weaponType = area.weaponType;
+        if (area.spriteName) data.spriteName = area.spriteName;
+        console.info("initEntityAreas data: "+JSON.stringify(data));
+        const distApart = Number(area.distanceApart ?? 0) || 0;
+        entityarea.addEntities(data, distApart);
+        self.entityAreas.push(entityarea);
+        return entityarea;
     }
 
     initMobAreas(mobAreas) {
@@ -400,15 +457,25 @@ class Map {
                     ma.include,
                     ma.exclude,
                     ma.definite,
-                    false,
+                    // An ellipse in the map editor: x/y are its centre and
+                    // w/h its diameters (see area/area.js).
+                    !!ma.elipse,
                     -1,
                     ma.level,
-                    ma.weight
+                    ma.weight,
+                    ma.bonusDrop
                 );
                 //self.mobAreas[ma.id] = mobarea;
                 self.mobAreas.push(mobarea);
                 mobarea.addMobs();
                 mobarea.spawnMobs();
+                // "boss" multiplier: every mob in the area becomes a boss
+                // (more HP, longer respawn, better drops; see
+                // MobRespawn.createBoss). A mob respawns as the same entity,
+                // so this lasts for the life of the server.
+                if (ma.boss > 1) {
+                    for (const mob of mobarea.entities) mob.createBoss(ma.boss);
+                }
             });
         //}, 10000);
     }
@@ -439,10 +506,26 @@ class Map {
         return this.checkpoints[id];
     }
 
+    // Where a player lands on this map when nothing more specific is given:
+    // a door without a destination tile (no x/y in the map editor), the
+    // town warp, or an admin "/warp map". Uses the map's starting
+    // checkpoints (checkpoints with s=1); a map without any falls back to
+    // any of its checkpoints, so such a door still has somewhere to land.
+    _getStartAreas() {
+        if (this.startingAreas && this.startingAreas.length > 0)
+            return this.startingAreas;
+        return _.values(this.checkpoints || {});
+    }
+
+    hasStartingPosition() {
+        return this._getStartAreas().length > 0;
+    }
+
     getRandomStartingPosition(area) {
-        const nbAreas = _.size(this.startingAreas);
+        const areas = this._getStartAreas();
+        const nbAreas = _.size(areas);
         const i = Utils.randomInt(nbAreas - 1);
-        if (!area) area = this.startingAreas[i];
+        if (!area) area = areas[i];
 
         //return {x: 50*G_TILESIZE, y: 50*G_TILESIZE};
 

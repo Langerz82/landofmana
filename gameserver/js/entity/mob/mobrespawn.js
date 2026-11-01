@@ -319,6 +319,18 @@ class MobRespawn {
         // Potions.
         if (entity.level < 20) entity.drops[34] = 250;
         else entity.drops[36] = 250;
+
+        // Area drop bonus (map mobarea "bonusDrop" property, default 1).
+        // Each weight is a chance out of 1000 (LootManager.getDrop rolls
+        // 0-999 against the running total), so x2 doubles every item's
+        // chance; once the total passes 1000 the mob always drops
+        // something, and items past the 1000 mark can no longer be rolled.
+        const bonus = entity.bonusDrop || 1;
+        if (bonus !== 1) {
+            for (const kind in entity.drops) {
+                entity.drops[kind] = Math.round(entity.drops[kind] * bonus);
+            }
+        }
     }
 }
 

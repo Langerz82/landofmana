@@ -31,12 +31,7 @@ import MapEntityStore from './mapentitystore.js';
 // to flip back on without deciding the trap system is actually meant to
 // ship.
 //var TrapArea = require("../area/traparea");
-import MobArea from '../area/mobarea.js';
-import EntityArea from '../area/entityarea.js';
-import Node from '../entity/node.js';
 //var TrapGroup = require("../entity/trapgroup");
-import Utils from '../utils.js';
-import { G_TILESIZE } from '../constants.js';
 import fs from 'fs';
 
 // Map list: ./maps/maplist.json names every map by index ({"maps": ["map0", "map1", "map2", ...]}).
@@ -120,300 +115,26 @@ class MapManager {
             );
             map.entities.mapready();
 
-            //map.entities.spawnEntities(map);
-            // FIX: this was a stale no-op comment -- the actual automatic
-            // call to initMobAreas() lived inside Map.initMap() and fired
-            // unconditionally (and too early, before `map.entities` existed;
-            // see map.js's initMap() FIX comment) regardless of this line
-            // being commented out. Restored for real here, now that
-            // `map.entities` is assigned above, so map1's JSON-defined
-            // mobAreas still spawn in addition to the procedural ring mobs
-            // built below (matching the original intent of this file).
+            // map1's spiral of rings around the Old Man used to be built
+            // here in code. All of it now lives in data files, like every
+            // other map:
+            // - mob areas (the centre area plus, per ring, a 40-tile
+            //   area, a tougher 20-tile area and a 10-tile boss area, each
+            //   spawning the mob kind for its level) and entity areas (ore
+            //   nodes and chests): the mobareas/entityareas layers of
+            //   tools/maps/data/map1.json -> maps/map1.json;
+            // - the walking NPCs (the Old Man and one per ring, with their
+            //   quests and "next NPC is <dir>" hints):
+            //   data/maps/map1/entity.json, loaded by loadSavedEntities().
+            // map.entities.spawnEntities() stays off for map1, as before:
+            // maps/map1.json's own entities list only has an old,
+            // superseded copy of the Old Man.
             map.initMobAreas(map.mobAreasData);
             map.initEntityAreas(map.entityAreasData);
 
-            //map.mobArea = [];
-            const mobArea = new MobArea(
-                map,
-                0,
-                25,
-                0,
-                1,
-                512 * G_TILESIZE,
-                512 * G_TILESIZE,
-                40 * G_TILESIZE,
-                40 * G_TILESIZE,
-                [1],
-                null,
-                null,
-                true,
-                -1,
-                null,
-                null
-            );
-            map.mobAreas.push(mobArea);
-            mobArea.addMobs();
-            mobArea.spawnMobs();
-
-            // NOTE: `npc` is reassigned inside the spawn loop below (each
-            // ring's npc becomes the new `prevNpc`), so it stays `let`
-            // rather than `const`; the loop's own `var npc = ...` is now a
-            // plain reassignment of this same binding instead of a second
-            // declaration (see below).
-            let npc = map.entities.addNpcMove(
-                0,
-                510 * G_TILESIZE,
-                510 * G_TILESIZE
-            );
-            npc.name = 'Old Man';
-            npc.setQuests(["200000","200001"]);
-
-            let prevNpc = npc;
-
-            // Only uncomment for debugging spawns.
-            //setTimeout(function () {
-
-            let x = 0;
-            let y = 0;
-            let a = 512;
-            let b = 512;
-            // NOTE: there used to be a `var j = 0;` here too -- dead
-            // (nothing read it before the labeled loop's own
-            // `for (var j=1; ...)` below reinitialized it to 1 every outer
-            // iteration anyway, since `var` is function-scoped). Removed;
-            // the for-loop's `j` is now `let`, scoped to that loop.
-            let j_max = 0;
-            let id = 0;
-            const offset = 40;
-            let strDir = 'EAST';
-            loop: for (let i = 0; i < 40; i++) {
-                if (id >= 50) break loop;
-
-                j_max += i % 2 == 0 ? 1 : 0;
-                const dir = i % 4;
-                for (let j = 1; j <= j_max; j++) {
-                    x = 0;
-                    y = 0;
-                    switch (dir) {
-                        case 0: // East
-                            strDir = 'EAST';
-                            x = offset;
-                            break;
-                        case 1: // South
-                            strDir = 'SOUTH';
-                            y = offset;
-                            break;
-                        case 2: // West
-                            strDir = 'WEST';
-                            x = -offset;
-                            break;
-                        case 3: // North
-                            strDir = 'NORTH';
-                            y = -offset;
-                            break;
-                    }
-                    a += x;
-                    b += y;
-
-                    id++;
-
-                    const ga = a * G_TILESIZE;
-                    const gb = b * G_TILESIZE;
-
-                    //var mobtype = (id % (Object.keys(MobData.Kinds).length-1))+1;
-                    let w = 40 * G_TILESIZE;
-                    let h = 40 * G_TILESIZE;
-                    const mobArea1 = new MobArea(
-                        map,
-                        id,
-                        12,
-                        1 + id,
-                        1 + id,
-                        ga,
-                        gb,
-                        w,
-                        h,
-                        null,
-                        null,
-                        null,
-                        true,
-                        -1,
-                        null
-                    );
-                    map.mobAreas.push(mobArea1);
-                    mobArea1.addMobs();
-                    mobArea1.spawnMobs();
-
-                    // Slighter tougher mobs in inner circle.
-                    w = 20 * G_TILESIZE;
-                    h = 20 * G_TILESIZE;
-                    const mobArea2 = new MobArea(
-                        map,
-                        id,
-                        4,
-                        2 + id,
-                        2 + id,
-                        ga,
-                        gb,
-                        w,
-                        h,
-                        null,
-                        null,
-                        null,
-                        true,
-                        -1,
-                        null
-                    );
-                    map.mobAreas.push(mobArea2);
-                    mobArea2.addMobs();
-                    mobArea2.spawnMobs();
-
-                    // Boss is in innermost circle.
-                    w = 10 * G_TILESIZE;
-                    h = 10 * G_TILESIZE;
-                    const mobArea3 = new MobArea(
-                        map,
-                        id,
-                        1,
-                        3 + id,
-                        3 + id,
-                        ga,
-                        gb,
-                        w,
-                        h,
-                        null,
-                        null,
-                        null,
-                        true,
-                        -1,
-                        null
-                    );
-                    map.mobAreas.push(mobArea3);
-                    mobArea3.addMobs();
-                    mobArea3.spawnMobs();
-                    for (const mob of mobArea3.entities) {
-                        mob.createBoss(5);
-                    }
-
-                    w = 20 * G_TILESIZE;
-                    h = 20 * G_TILESIZE;
-                    const area = new EntityArea(map, 0, ga, gb, w, h, true, -1);
-                    // NOTE: `pos` is reused/reassigned further down (the
-                    // per-node-type branches below each recompute it before
-                    // spawning a node), so it's `let` rather than `const`;
-                    // those later `var pos = ...` occurrences are now plain
-                    // reassignments of this same binding. Same story for
-                    // `npc` here -- reassigns the outer `let npc` declared
-                    // above instead of redeclaring it.
-                    let pos = area._getRandomPositionInsideArea(
-                        30 * G_TILESIZE
-                    );
-                    npc = map.entities.addNpcMove(id, pos.x, pos.y);
-                    // FIX (condensed): every case here was just
-                    // "200000 + id*100" for id 1-10, and no other id gets a
-                    // quest (id 0 is 'Old Man', set explicitly above; id > 10
-                    // gets none). Same result, one line instead of a
-                    // 10-case switch.
-                    const quests =
-                        id >= 1 && id <= 10
-                            ? [String(200000 + id * 100)]
-                            : null;
-                    if (quests)
-                        npc.setQuests(quests);
-
-                    const area2 = new EntityArea(
-                        map,
-                        0,
-                        ga,
-                        gb,
-                        w,
-                        h,
-                        true,
-                        -1
-                    );
-
-                    prevNpc.nextNpcName = npc.name;
-                    prevNpc.nextNpcDir = strDir;
-                    prevNpc = npc;
-
-                    if (id > 0) {
-                        let level = 1;
-                        if (id === 9) {
-                            for (let k = 0; k < 6; ++k) {
-                                pos = map.entities.spaceEntityRandomApart(
-                                    2,
-                                    area2._getRandomPositionInsideArea.bind(
-                                        area2,
-                                        100
-                                    )
-                                );
-                                const node = map.entities.addNode(3, pos.x, pos.y);
-                                node.level = level;
-                                node.animName = 'node' + level;
-                                node.weaponType = 'any';
-                                area.addToArea(node);
-                            }
-                        } else if (id === 6) {
-                            level = 2;
-                            for (let k = 0; k < 6; ++k) {
-                                pos = map.entities.spaceEntityRandomApart(
-                                    2,
-                                    area2._getRandomPositionInsideArea.bind(
-                                        area2,
-                                        100
-                                    )
-                                );
-                                const node = map.entities.addNode(3, pos.x, pos.y);
-                                node.level = level;
-                                node.animName = 'node' + level;
-                                node.weaponType = 'any';
-
-                                area.addToArea(node);
-                            }
-                        } else if (id > 10) {
-                            level = Utils.clamp(1, 4, ~~(id / 10) + 1);
-                            for (let k = 0; k < 10; ++k) {
-                                pos = map.entities.spaceEntityRandomApart(
-                                    2,
-                                    area2._getRandomPositionInsideArea.bind(
-                                        area2,
-                                        100
-                                    )
-                                );
-                                const node = map.entities.addNode(2, pos.x, pos.y);
-                                node.level = level;
-                                node.animName = 'node' + level;
-                                node.weaponType = 'hammer';
-                                area.addToArea(node);
-                                map.entities.addEntity(node);
-                            }
-                        }
-
-                        // A couple of chests per ring, scaled to the same
-                        // level as whatever nodes that ring got above.
-                        if (id >= 10) {
-                            level = Utils.clamp(1, 4, ~~(id / 10) + 1);
-                            const chestPos =
-                                map.entities.spaceEntityRandomApart(
-                                    2,
-                                    area2._getRandomPositionInsideArea.bind(
-                                        area2,
-                                        100
-                                    )
-                                );
-                            const chestNode = map.entities.addNode(Node.CHEST_KIND, chestPos.x, chestPos.y);
-                            chestNode.level = level;
-                            area.addToArea(chestNode);
-                        }
-                    }
-                }
-            }
-
-            //}, 10000);
-
             // ADMIN: respawn entities admins placed with /spawn (saved in
-            // data/maps/<map name>/entity.json). Kept last so it never
-            // shifts the ids of the spawns above.
+            // data/maps/<map name>/entity.json) -- for map1 that file also
+            // holds its NPCs, above.
             self.loadSavedEntities(map);
 
             map.enterCallback = function (player) {

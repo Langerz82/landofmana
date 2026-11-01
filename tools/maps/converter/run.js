@@ -63,6 +63,11 @@ function callback_function(json, jsontsx) {
 	var parent = path.basename(path.dirname(path.resolve(source)));
 	var group = parent !== "data" ? parent : "";
 	var client_dir = "../../../client/maps/" + (group || filename);
+	// The Godot client keeps a copy of every client map in the same layout
+	// (godot-client/assets/maps/map4/map4_0_0.json, .../map2/map2.json), the
+	// same copy godot-client/sync-assets-*.sh makes. Client maps are written
+	// there too, so the Godot client doesn't need a separate sync for maps.
+	godotMapDir = GODOT_MAPS + "/" + (group || filename);
 	var server_dir = "../../../gameserver/maps" + (group ? "/" + group : "");
 	// the map's name in maps/maplist.json: "map4/map4_0_0" for a part in a folder, else "map2"
 	mapListName = group ? group + "/" + filename : filename;
@@ -90,6 +95,20 @@ function callback_function(json, jsontsx) {
 
 var map = {};
 var mapListName = "";
+var GODOT_MAPS = "../../../godot-client/assets/maps";
+var godotMapDir = "";
+
+// Writes a copy of a client map file (or the client map list) into the Godot
+// client's assets. Skipped if this checkout has no godot-client/assets.
+function writeGodotCopy(destDir, name, data) {
+	if (!fs.existsSync(path.dirname(GODOT_MAPS))) return;
+	fs.mkdirSync(destDir, { recursive: true });
+	var dest = destDir + "/" + name;
+	fs.writeFile(dest, data, function(err) {
+		if (err) console.error("Godot copy failed: " + dest + " " + JSON.stringify(err));
+		else console.info("Godot copy: " + dest);
+	});
+}
 
 // A part of a split map (tools/maps/generator/split.py) carries worldX/worldY: where its top-left tile sits
 // in the full map. Its area in the full map, [worldX, worldY, width, height], goes into that side's
@@ -107,6 +126,9 @@ function updateMapListArea(mapsDir, map) {
 	list.areas[mapListName] = [map.worldX || 0, map.worldY || 0, map.width, map.height];
 	fs.writeFileSync(listPath, JSON.stringify(list, null, 1));
 	console.info("Area of " + mapListName + " in " + listPath + ": " + JSON.stringify(list.areas[mapListName]));
+	// the client's list is the Godot client's list too
+	if (mapsDir === "../../../client/maps")
+		writeGodotCopy(GODOT_MAPS, "maplist.json", fs.readFileSync(listPath));
 }
 
 function processClient(json, tsx, dest){
@@ -239,6 +261,7 @@ function createMapFile(mapData, dest)
       //console.info("Finished processing map file: "+ dest + ".json was saved.");
     }
   });
+  if (godotMapDir) writeGodotCopy(godotMapDir, path.basename(dest) + ".json", jsonMap);
 
   // map in a .js file for web worker loading
   jsonMap = "var mapData = "+jsonMap;
@@ -253,9 +276,29 @@ function createMapFile(mapData, dest)
   });*/
 }
 
+// A map's mob areas and entity areas go into their own file,
+// gameserver/data/maps/<map>/entityarea.json ({"mobAreas": [...], "entityAreas": [...]}, next
+// to the map's entity.json), instead of the server map file; the game server reads them from
+// there (gameserver/js/map/map.js). A map without any areas gets no file, and one left over
+// from an earlier conversion is emptied.
+function writeAreaFile(serverMap) {
+	var mobAreas = serverMap.mobAreas || [];
+	var entityAreas = serverMap.entityAreas || [];
+	delete serverMap.mobAreas;
+	delete serverMap.entityAreas;
+	var dir = "../../../gameserver/data/maps/" + mapListName;
+	var file = dir + "/entityarea.json";
+	if (!mobAreas.length && !entityAreas.length && !fs.existsSync(file)) return;
+	fs.mkdirSync(dir, { recursive: true });
+	fs.writeFileSync(file, JSON.stringify({ mobAreas: mobAreas, entityAreas: entityAreas }, null, 1) + "\n");
+	console.info("Areas of " + mapListName + ": " + mobAreas.length + " mob areas, " +
+		entityAreas.length + " entity areas -> " + file);
+}
+
 function processServer(json, tsx, dest){
 	var serverMap = processMap(json, tsx, {mode:"server"});
 	updateMapListArea("../../../gameserver/maps", serverMap);
+	writeAreaFile(serverMap);
 	var jsonMap = JSON.stringify(serverMap); // Save the processed map object as JSON
 
 	var subTotal = jsonMap.width * jsonMap.height;

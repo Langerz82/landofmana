@@ -1,0 +1,468 @@
+[
+  {
+    "type": "npcmove",
+    "kind": 0,
+    "x": 8168,
+    "y": 8168,
+    "name": "Old Man",
+    "quests": "200000,200001",
+    "nextNpcName": "Baelan",
+    "nextNpcDir": "EAST"
+  },
+  {
+    "type": "npcmove",
+    "kind": 1,
+    "x": 8840,
+    "y": 8200,
+    "quests": "200100",
+    "nextNpcName": "Caelum",
+    "nextNpcDir": "SOUTH"
+  },
+  {
+    "type": "npcmove",
+    "kind": 2,
+    "x": 8840,
+    "y": 8840,
+    "quests": "200200",
+    "nextNpcName": "Darian",
+    "nextNpcDir": "WEST"
+  },
+  {
+    "type": "npcmove",
+    "kind": 3,
+    "x": 8200,
+    "y": 8840,
+    "quests": "200300",
+    "nextNpcName": "Eldryn",
+    "nextNpcDir": "WEST"
+  },
+  {
+    "type": "npcmove",
+    "kind": 4,
+    "x": 7560,
+    "y": 8840,
+    "quests": "200400",
+    "nextNpcName": "Faelan",
+    "nextNpcDir": "NORTH"
+  },
+  {
+    "type": "npcmove",
+    "kind": 5,
+    "x": 7560,
+    "y": 8200,
+    "quests": "200500",
+    "nextNpcName": "Gavriel",
+    "nextNpcDir": "NORTH"
+  },
+  {
+    "type": "npcmove",
+    "kind": 6,
+    "x": 7560,
+    "y": 7560,
+    "quests": "200600",
+    "nextNpcName": "Haven",
+    "nextNpcDir": "EAST"
+  },
+  {
+    "type": "npcmove",
+    "kind": 7,
+    "x": 8200,
+    "y": 7560,
+    "quests": "200700",
+    "nextNpcName": "Ilys",
+    "nextNpcDir": "EAST"
+  },
+  {
+    "type": "npcmove",
+    "kind": 8,
+    "x": 8840,
+    "y": 7560,
+    "quests": "200800",
+    "nextNpcName": "Jaelin",
+    "nextNpcDir": "EAST"
+  },
+  {
+    "type": "npcmove",
+    "kind": 9,
+    "x": 9480,
+    "y": 7560,
+    "quests": "200900",
+    "nextNpcName": "Kaelan",
+    "nextNpcDir": "SOUTH"
+  },
+  {
+    "type": "npcmove",
+    "kind": 10,
+    "x": 9480,
+    "y": 8200,
+    "quests": "201000",
+    "nextNpcName": "Lirael",
+    "nextNpcDir": "SOUTH"
+  },
+  {
+    "type": "npcmove",
+    "kind": 11,
+    "x": 9480,
+    "y": 8840,
+    "nextNpcName": "Maelis",
+    "nextNpcDir": "SOUTH"
+  },
+  {
+    "type": "npcmove",
+    "kind": 12,
+    "x": 9480,
+    "y": 9480,
+    "nextNpcName": "Naelen",
+    "nextNpcDir": "WEST"
+  },
+  {
+    "type": "npcmove",
+    "kind": 13,
+    "x": 8840,
+    "y": 9480,
+    "nextNpcName": "Ovryn",
+    "nextNpcDir": "WEST"
+  },
+  {
+    "type": "npcmove",
+    "kind": 14,
+    "x": 8200,
+    "y": 9480,
+    "nextNpcName": "Peregrine",
+    "nextNpcDir": "WEST"
+  },
+  {
+    "type": "npcmove",
+    "kind": 15,
+    "x": 7560,
+    "y": 9480,
+    "nextNpcName": "Quillen",
+    "nextNpcDir": "WEST"
+  },
+  {
+    "type": "npcmove",
+    "kind": 16,
+    "x": 6920,
+    "y": 9480,
+    "nextNpcName": "Raelin",
+    "nextNpcDir": "NORTH"
+  },
+  {
+    "type": "npcmove",
+    "kind": 17,
+    "x": 6920,
+    "y": 8840,
+    "nextNpcName": "Sylas",
+    "nextNpcDir": "NORTH"
+  },
+  {
+    "type": "npcmove",
+    "kind": 18,
+    "x": 6920,
+    "y": 8200,
+    "nextNpcName": "Tyrian",
+    "nextNpcDir": "NORTH"
+  },
+  {
+    "type": "npcmove",
+    "kind": 19,
+    "x": 6920,
+    "y": 7560,
+    "nextNpcName": "Uvaine",
+    "nextNpcDir": "NORTH"
+  },
+  {
+    "type": "npcmove",
+    "kind": 20,
+    "x": 6920,
+    "y": 6920,
+    "nextNpcName": "Vaelis",
+    "nextNpcDir": "EAST"
+  },
+  {
+    "type": "npcmove",
+    "kind": 21,
+    "x": 7560,
+    "y": 6920,
+    "nextNpcName": "Wylan",
+    "nextNpcDir": "EAST"
+  },
+  {
+    "type": "npcmove",
+    "kind": 22,
+    "x": 8200,
+    "y": 6920,
+    "nextNpcName": "Xaelor",
+    "nextNpcDir": "EAST"
+  },
+  {
+    "type": "npcmove",
+    "kind": 23,
+    "x": 8840,
+    "y": 6920,
+    "nextNpcName": "Yaelith",
+    "nextNpcDir": "EAST"
+  },
+  {
+    "type": "npcmove",
+    "kind": 24,
+    "x": 9480,
+    "y": 6920,
+    "nextNpcName": "Zephyr",
+    "nextNpcDir": "EAST"
+  },
+  {
+    "type": "npcmove",
+    "kind": 25,
+    "x": 10120,
+    "y": 6920,
+    "nextNpcName": "Aldryn",
+    "nextNpcDir": "SOUTH"
+  },
+  {
+    "type": "npcmove",
+    "kind": 26,
+    "x": 10136,
+    "y": 7560,
+    "nextNpcName": "Briar",
+    "nextNpcDir": "SOUTH"
+  },
+  {
+    "type": "npcmove",
+    "kind": 27,
+    "x": 10120,
+    "y": 8200,
+    "nextNpcName": "Cyran",
+    "nextNpcDir": "SOUTH"
+  },
+  {
+    "type": "npcmove",
+    "kind": 28,
+    "x": 10120,
+    "y": 8840,
+    "nextNpcName": "Daelin",
+    "nextNpcDir": "SOUTH"
+  },
+  {
+    "type": "npcmove",
+    "kind": 29,
+    "x": 10120,
+    "y": 9480,
+    "nextNpcName": "Elowen",
+    "nextNpcDir": "SOUTH"
+  },
+  {
+    "type": "npcmove",
+    "kind": 30,
+    "x": 10120,
+    "y": 10120,
+    "nextNpcName": "Fenris",
+    "nextNpcDir": "WEST"
+  },
+  {
+    "type": "npcmove",
+    "kind": 31,
+    "x": 9480,
+    "y": 10104,
+    "nextNpcName": "Gaelan",
+    "nextNpcDir": "WEST"
+  },
+  {
+    "type": "npcmove",
+    "kind": 32,
+    "x": 8840,
+    "y": 10120,
+    "nextNpcName": "Harlow",
+    "nextNpcDir": "WEST"
+  },
+  {
+    "type": "npcmove",
+    "kind": 33,
+    "x": 8200,
+    "y": 10120,
+    "nextNpcName": "Ivory",
+    "nextNpcDir": "WEST"
+  },
+  {
+    "type": "npcmove",
+    "kind": 34,
+    "x": 7560,
+    "y": 10120,
+    "nextNpcName": "Jadis",
+    "nextNpcDir": "WEST"
+  },
+  {
+    "type": "npcmove",
+    "kind": 35,
+    "x": 6920,
+    "y": 10120,
+    "nextNpcName": "Kieran",
+    "nextNpcDir": "WEST"
+  },
+  {
+    "type": "npcmove",
+    "kind": 36,
+    "x": 6280,
+    "y": 10120,
+    "nextNpcName": "Loren",
+    "nextNpcDir": "NORTH"
+  },
+  {
+    "type": "npcmove",
+    "kind": 37,
+    "x": 6280,
+    "y": 9480,
+    "nextNpcName": "Myst",
+    "nextNpcDir": "NORTH"
+  },
+  {
+    "type": "npcmove",
+    "kind": 38,
+    "x": 6280,
+    "y": 8840,
+    "nextNpcName": "Nyssa",
+    "nextNpcDir": "NORTH"
+  },
+  {
+    "type": "npcmove",
+    "kind": 39,
+    "x": 6280,
+    "y": 8200,
+    "nextNpcName": "Aeris",
+    "nextNpcDir": "NORTH"
+  },
+  {
+    "type": "npcmove",
+    "kind": 40,
+    "x": 6280,
+    "y": 7560,
+    "nextNpcName": "Baelan",
+    "nextNpcDir": "NORTH"
+  },
+  {
+    "type": "npcmove",
+    "kind": 41,
+    "x": 6280,
+    "y": 6920,
+    "nextNpcName": "Caelum",
+    "nextNpcDir": "NORTH"
+  },
+  {
+    "type": "npcmove",
+    "kind": 42,
+    "x": 6280,
+    "y": 6280,
+    "nextNpcName": "Darian",
+    "nextNpcDir": "EAST"
+  },
+  {
+    "type": "npcmove",
+    "kind": 43,
+    "x": 6920,
+    "y": 6280,
+    "nextNpcName": "Eldryn",
+    "nextNpcDir": "EAST"
+  },
+  {
+    "type": "npcmove",
+    "kind": 44,
+    "x": 7560,
+    "y": 6280,
+    "nextNpcName": "Faelan",
+    "nextNpcDir": "EAST"
+  },
+  {
+    "type": "npcmove",
+    "kind": 45,
+    "x": 8200,
+    "y": 6280,
+    "nextNpcName": "Gavriel",
+    "nextNpcDir": "EAST"
+  },
+  {
+    "type": "npcmove",
+    "kind": 46,
+    "x": 8840,
+    "y": 6280,
+    "nextNpcName": "Haven",
+    "nextNpcDir": "EAST"
+  },
+  {
+    "type": "npcmove",
+    "kind": 47,
+    "x": 9480,
+    "y": 6280,
+    "nextNpcName": "Ilys",
+    "nextNpcDir": "EAST"
+  },
+  {
+    "type": "npcmove",
+    "kind": 48,
+    "x": 10120,
+    "y": 6280,
+    "nextNpcName": "Jaelin",
+    "nextNpcDir": "EAST"
+  },
+  {
+    "type": "npcmove",
+    "kind": 49,
+    "x": 10760,
+    "y": 6280,
+    "nextNpcName": "Kaelan",
+    "nextNpcDir": "SOUTH"
+  },
+  {
+    "type": "npcmove",
+    "kind": 50,
+    "x": 10760,
+    "y": 6920,
+    "nextNpcName": "Lirael",
+    "nextNpcDir": "SOUTH"
+  },
+  {
+    "type": "npcmove",
+    "kind": 51,
+    "x": 10760,
+    "y": 7560,
+    "nextNpcName": "Maelis",
+    "nextNpcDir": "SOUTH"
+  },
+  {
+    "type": "npcmove",
+    "kind": 52,
+    "x": 10760,
+    "y": 8200,
+    "nextNpcName": "Naelen",
+    "nextNpcDir": "SOUTH"
+  },
+  {
+    "type": "npcmove",
+    "kind": 53,
+    "x": 10760,
+    "y": 8840,
+    "nextNpcName": "Ovryn",
+    "nextNpcDir": "SOUTH"
+  },
+  {
+    "type": "npcmove",
+    "kind": 54,
+    "x": 10760,
+    "y": 9480,
+    "nextNpcName": "Peregrine",
+    "nextNpcDir": "SOUTH"
+  },
+  {
+    "type": "npcmove",
+    "kind": 55,
+    "x": 10760,
+    "y": 10120,
+    "nextNpcName": "Quillen",
+    "nextNpcDir": "SOUTH"
+  },
+  {
+    "type": "npcmove",
+    "kind": 56,
+    "x": 10760,
+    "y": 10760
+  }
+]

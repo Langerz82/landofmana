@@ -321,6 +321,19 @@ class MovementHandler {
             // transition and waits for the full 0->1->2 round trip before
             // sending another, so this is defense against an out-of-sync or
             // buggy client re-sending, not something normal play should hit.
+            // A door without a destination tile (no x/y on the door in the
+            // map editor), and any other teleport without a set position,
+            // lands on the destination map's starting checkpoint (see
+            // Map.getRandomStartingPosition). Refuse it here, before the
+            // player's state is touched below, if that map has nowhere to
+            // land -- otherwise the player would be left half-removed.
+            if (!isDoor && !warpPos && !map.hasStartingPosition()) {
+                reject(
+                    'Map ' + mapId + ' has no starting checkpoint to land on.'
+                );
+                return;
+            }
+
             if (p.teleportPending) {
                 console.warn(
                     'handleTeleportMap - ignoring duplicate status=0 request, transition already in progress for player ' +

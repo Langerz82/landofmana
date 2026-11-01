@@ -40,10 +40,14 @@ class MobArea extends EntityArea {
         elipse,
         excludeId,
         level,
-        weight
+        weight,
+        bonusDrop
     ) {
         super(map, id, x, y, width, height, elipse, excludeId);
         this.nb = nb;
+        // Drop-rate multiplier for every mob spawned here (map "bonusDrop"
+        // property; see MobRespawn.setDrops). Missing/invalid -> 1 (normal).
+        this.bonusDrop = Number(bonusDrop) > 0 ? Number(bonusDrop) : 1;
         this.minLevel = minLevel;
         this.maxLevel = maxLevel;
         // FIX: addMobs(level) below used to do `this.minLevel = level +
@@ -62,7 +66,8 @@ class MobArea extends EntityArea {
 
         this.include = [];
         if (include) {
-            if (typeof include === 'string' && include.indexOf(',') >= 0)
+            if (Array.isArray(include)) this.include = include.slice();
+            else if (typeof include === 'string' && include.indexOf(',') >= 0)
                 this.include = include.split(',');
             else {
                 this.include = [include];
@@ -112,12 +117,23 @@ class MobArea extends EntityArea {
 
         //console.info(JSON.stringify(this.mobs));
 
-        // Definite Mobs get pushed in.
+        // Definite mobs: when set, the area spawns ONLY these mob kinds
+        // (addMobs() skips the level-range lookup and include/exclude).
+        // Accepts an array of kinds ([1, 2]) from code, or the same
+        // comma-separated string as include/exclude ("1" or "1,2") from a
+        // map file's mobarea "definite" property. Empty -> normal selection.
         this.definite = null;
-        if (definite)
-            //this.definite = JSON.parse(definite);
-            this.definite = definite;
-        //console.info(JSON.stringify(this.definite));
+        if (Array.isArray(definite)) {
+            this.definite = definite.map(Number);
+        } else if (typeof definite === 'string' && definite.trim() !== '') {
+            this.definite = definite.split(',').map(Number);
+        } else if (typeof definite === 'number') {
+            this.definite = [definite];
+        }
+        if (this.definite) {
+            this.definite = this.definite.filter((k) => MobData.Kinds[k]);
+            if (this.definite.length === 0) this.definite = null;
+        }
     }
 
     addMobs(level) {
@@ -142,13 +158,26 @@ class MobArea extends EntityArea {
         // CommonJS source, which created an implicit global there; declared with
         // `var` here since ES modules are always strict mode and forbid implicit
         // globals.
-        const levelMobs = MobData.getByLevelRange(this.minLevel, this.maxLevel);
-        this.mobs = this.mobs.concat(levelMobs);
-
-        if (Array.isArray(this.include)) {
-            for (const i of this.include) {
-                this.mobs.push(MobData.Kinds[i]);
-            }
+        // `include` (a map file's comma-separated mobarea property, e.g.
+        // "1,2") lists the mob kinds this area spawns: when it names any
+        // valid kind, ONLY those kinds spawn, at the area's levels. Was
+        // "add these kinds on top of every mob whose level range overlaps
+        // the area's", which stopped meaning anything once every mob in
+        // shared/data/mobs.json covered levels 1-99. An empty include keeps
+        // the level-range lookup. `exclude` below still applies either way.
+        const included = Array.isArray(this.include)
+            ? this.include
+                  .map((i) => MobData.Kinds[String(i).trim()])
+                  .filter((m) => m)
+            : [];
+        if (included.length > 0) {
+            this.mobs = this.mobs.concat(included);
+        } else {
+            const levelMobs = MobData.getByLevelRange(
+                this.minLevel,
+                this.maxLevel
+            );
+            this.mobs = this.mobs.concat(levelMobs);
         }
 
         if (Array.isArray(this.exclude)) {

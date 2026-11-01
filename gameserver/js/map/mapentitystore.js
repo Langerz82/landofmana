@@ -94,6 +94,9 @@ const ORIENTATION_IDS = {
 };
 
 const MAX_NAME_LENGTH = 32;
+// An NPC's "the next NPC is <dir> of here" hint (entityquests.js
+// sendNoQuest), used by map1's chain of ring NPCs.
+const NEXT_NPC_DIRS = ['NORTH', 'SOUTH', 'EAST', 'WEST'];
 const MAX_LEVEL = 999;
 
 class MapEntityStore {
@@ -148,10 +151,10 @@ class MapEntityStore {
             return 'bad position';
         if (rec.type === 'mob' && !MobData.Kinds[rec.kind])
             return 'no mob with kind id ' + rec.kind;
-        if (
-            (rec.type === 'npcmove' || rec.type === 'npcstatic') &&
-            !NpcData.Kinds[rec.kind]
-        )
+        // Walking NPCs (npcmove) don't use shared/data/npcs.json: their kind
+        // only picks a name and look (entity/npcmove.js), so any whole
+        // number works -- map1's ring NPCs use kinds 1-56.
+        if (rec.type === 'npcstatic' && !NpcData.Kinds[rec.kind])
             return 'no npc with kind id ' + rec.kind;
         if (
             rec.level !== undefined &&
@@ -167,6 +170,15 @@ class MapEntityStore {
                 return 'quests only apply to npcs';
             const q = MapEntityStore.normalizeQuests(rec.quests);
             if (q.error) return q.error;
+        }
+        if (rec.nextNpcName !== undefined || rec.nextNpcDir !== undefined) {
+            if (rec.type !== 'npcmove' && rec.type !== 'npcstatic')
+                return 'nextNpcName/nextNpcDir only apply to npcs';
+            if (
+                rec.nextNpcDir !== undefined &&
+                !NEXT_NPC_DIRS.includes(rec.nextNpcDir)
+            )
+                return 'nextNpcDir must be ' + NEXT_NPC_DIRS.join(', ');
         }
         if (rec.name !== undefined) {
             if (typeof rec.name !== 'string' || !rec.name.length)
@@ -350,6 +362,10 @@ class MapEntityStore {
             rec.orientation =
                 MapEntityStore.normalizeOrientation(item.orientation) ||
                 String(item.orientation); // invalid -> caught by validate()
+        if (item.nextNpcName !== undefined && item.nextNpcName !== null && item.nextNpcName !== '')
+            rec.nextNpcName = String(item.nextNpcName);
+        if (item.nextNpcDir !== undefined && item.nextNpcDir !== null && item.nextNpcDir !== '')
+            rec.nextNpcDir = String(item.nextNpcDir).toUpperCase();
         if (item.quests !== undefined && item.quests !== null && item.quests !== '') {
             const q = MapEntityStore.normalizeQuests(item.quests);
             // Invalid lists are kept raw so validate() reports them.
@@ -401,6 +417,8 @@ class MapEntityStore {
         }
         if (entity && rec.name) entity.name = rec.name;
         if (entity && rec.quests) entity.setQuests(rec.quests.split(','));
+        if (entity && rec.nextNpcName) entity.nextNpcName = rec.nextNpcName;
+        if (entity && rec.nextNpcDir) entity.nextNpcDir = rec.nextNpcDir;
         if (entity) {
             // Face down unless the record says otherwise.
             entity.orientation = ORIENTATION_IDS[rec.orientation || 'down'];
