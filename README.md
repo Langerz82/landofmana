@@ -28,8 +28,6 @@ Land Of Mana is a free browser MMORPG inspired by Secret of Mana and classic Zel
 
 **GoDot Client Play Now: https://landofmana.com/play-godot/index.html**
 
-**Android: https://play.google.com/store/apps/details?id=com.landofmana**
-
 **GoDot Android: https://play.google.com/store/apps/details?id=com.landofmana.godot**
 
 **Discord: https://discord.gg/NYV9aJtyK8**
@@ -41,9 +39,6 @@ Land Of Mana is a free browser MMORPG inspired by Secret of Mana and classic Zel
 * Godot client: https://landofmana.com/play-godot/index.html
 
 ## ANDROID RELEASE ON MOBILES, TABLETS AND SMART TV/BOXES (WITH A GAME CONTROLLER):
-Web client:
-https://play.google.com/store/apps/details?id=com.retrorpgonline2
-
 Godot client:
 https://play.google.com/store/apps/details?id=com.landofmana.godot
 
