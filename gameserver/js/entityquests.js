@@ -306,20 +306,22 @@ class EntityQuests {
         return null;
     }
 
+    // "No more quests" dialogue. Each NPC can have its own, fully written
+    // in lang.json -- NO_MORE_QUESTS[<map index>][<entity id>] (e.g. map1's
+    // "head EAST and look for Baelan" chain) -- so a translation only has to
+    // change lang.json; no direction or name words come from the server.
+    // An NPC without one gets NO_MORE_QUESTS_DEFAULT. Entity ids are stable
+    // because NPCs spawn before a map's mob/entity areas (mapmanager.js).
     sendNoQuest(player) {
         const entity = this.entity;
-        if (entity.nextNpcDir) {
-            const msg = new Messages.Speech(entity, 'QUESTS_NONE', [
-                entity.nextNpcDir,
-                entity.nextNpcName,
-                entity.name
-            ]);
-            player.sendPlayer(msg);
-        }
-        else {
-            const msg = new Messages.Speech(entity, 'QUESTS_NONE_2', [entity.name]);
-            player.sendPlayer(msg);
-        }
+        const own = [
+            'NO_MORE_QUESTS',
+            String(entity.map.index),
+            String(entity.id)
+        ];
+        const path =
+            QuestText.getLineCount(own) > 0 ? own : ['NO_MORE_QUESTS_DEFAULT'];
+        player.sendPlayer(new Messages.Speech(entity, path, []));
     }
 
     dynamicQuests(player) {

@@ -129,15 +129,238 @@
       [1, "Thanks {0}."]
     ],
 
-    "QUESTS_NONE": [
-      [0, "I have no more quests for you, head {0} and look for {1}."],
-      [1, "Thanks {2}."]
+    "NO_MORE_QUESTS_DEFAULT": [
+      [0, "I have no more quests for you."]
     ],
 
-    "QUESTS_NONE_2": [
-      [0, "I have no more quests for you."],
-      [1, "Thanks {0}."]
-    ],
+    "NO_MORE_QUESTS": {
+      "1": {
+        "1": [
+          [0, "I have no more quests for you, head EAST and look for Baelan."],
+          [1, "Thanks Old Man."]
+        ],
+        "2": [
+          [0, "I have no more quests for you, head SOUTH and look for Caelum."],
+          [1, "Thanks Baelan."]
+        ],
+        "3": [
+          [0, "I have no more quests for you, head WEST and look for Darian."],
+          [1, "Thanks Caelum."]
+        ],
+        "4": [
+          [0, "I have no more quests for you, head WEST and look for Eldryn."],
+          [1, "Thanks Darian."]
+        ],
+        "5": [
+          [0, "I have no more quests for you, head NORTH and look for Faelan."],
+          [1, "Thanks Eldryn."]
+        ],
+        "6": [
+          [0, "I have no more quests for you, head NORTH and look for Gavriel."],
+          [1, "Thanks Faelan."]
+        ],
+        "7": [
+          [0, "I have no more quests for you, head EAST and look for Haven."],
+          [1, "Thanks Gavriel."]
+        ],
+        "8": [
+          [0, "I have no more quests for you, head EAST and look for Ilys."],
+          [1, "Thanks Haven."]
+        ],
+        "9": [
+          [0, "I have no more quests for you, head EAST and look for Jaelin."],
+          [1, "Thanks Ilys."]
+        ],
+        "10": [
+          [0, "I have no more quests for you, head SOUTH and look for Kaelan."],
+          [1, "Thanks Jaelin."]
+        ],
+        "11": [
+          [0, "I have no more quests for you, head SOUTH and look for Lirael."],
+          [1, "Thanks Kaelan."]
+        ],
+        "12": [
+          [0, "I have no more quests for you, head SOUTH and look for Maelis."],
+          [1, "Thanks Lirael."]
+        ],
+        "13": [
+          [0, "I have no more quests for you, head WEST and look for Naelen."],
+          [1, "Thanks Maelis."]
+        ],
+        "14": [
+          [0, "I have no more quests for you, head WEST and look for Ovryn."],
+          [1, "Thanks Naelen."]
+        ],
+        "15": [
+          [0, "I have no more quests for you, head WEST and look for Peregrine."],
+          [1, "Thanks Ovryn."]
+        ],
+        "16": [
+          [0, "I have no more quests for you, head WEST and look for Quillen."],
+          [1, "Thanks Peregrine."]
+        ],
+        "17": [
+          [0, "I have no more quests for you, head NORTH and look for Raelin."],
+          [1, "Thanks Quillen."]
+        ],
+        "18": [
+          [0, "I have no more quests for you, head NORTH and look for Sylas."],
+          [1, "Thanks Raelin."]
+        ],
+        "19": [
+          [0, "I have no more quests for you, head NORTH and look for Tyrian."],
+          [1, "Thanks Sylas."]
+        ],
+        "20": [
+          [0, "I have no more quests for you, head NORTH and look for Uvaine."],
+          [1, "Thanks Tyrian."]
+        ],
+        "21": [
+          [0, "I have no more quests for you, head EAST and look for Vaelis."],
+          [1, "Thanks Uvaine."]
+        ],
+        "22": [
+          [0, "I have no more quests for you, head EAST and look for Wylan."],
+          [1, "Thanks Vaelis."]
+        ],
+        "23": [
+          [0, "I have no more quests for you, head EAST and look for Xaelor."],
+          [1, "Thanks Wylan."]
+        ],
+        "24": [
+          [0, "I have no more quests for you, head EAST and look for Yaelith."],
+          [1, "Thanks Xaelor."]
+        ],
+        "25": [
+          [0, "I have no more quests for you, head EAST and look for Zephyr."],
+          [1, "Thanks Yaelith."]
+        ],
+        "26": [
+          [0, "I have no more quests for you, head SOUTH and look for Aldryn."],
+          [1, "Thanks Zephyr."]
+        ],
+        "27": [
+          [0, "I have no more quests for you, head SOUTH and look for Briar."],
+          [1, "Thanks Aldryn."]
+        ],
+        "28": [
+          [0, "I have no more quests for you, head SOUTH and look for Cyran."],
+          [1, "Thanks Briar."]
+        ],
+        "29": [
+          [0, "I have no more quests for you, head SOUTH and look for Daelin."],
+          [1, "Thanks Cyran."]
+        ],
+        "30": [
+          [0, "I have no more quests for you, head SOUTH and look for Elowen."],
+          [1, "Thanks Daelin."]
+        ],
+        "31": [
+          [0, "I have no more quests for you, head WEST and look for Fenris."],
+          [1, "Thanks Elowen."]
+        ],
+        "32": [
+          [0, "I have no more quests for you, head WEST and look for Gaelan."],
+          [1, "Thanks Fenris."]
+        ],
+        "33": [
+          [0, "I have no more quests for you, head WEST and look for Harlow."],
+          [1, "Thanks Gaelan."]
+        ],
+        "34": [
+          [0, "I have no more quests for you, head WEST and look for Ivory."],
+          [1, "Thanks Harlow."]
+        ],
+        "35": [
+          [0, "I have no more quests for you, head WEST and look for Jadis."],
+          [1, "Thanks Ivory."]
+        ],
+        "36": [
+          [0, "I have no more quests for you, head WEST and look for Kieran."],
+          [1, "Thanks Jadis."]
+        ],
+        "37": [
+          [0, "I have no more quests for you, head NORTH and look for Loren."],
+          [1, "Thanks Kieran."]
+        ],
+        "38": [
+          [0, "I have no more quests for you, head NORTH and look for Myst."],
+          [1, "Thanks Loren."]
+        ],
+        "39": [
+          [0, "I have no more quests for you, head NORTH and look for Nyssa."],
+          [1, "Thanks Myst."]
+        ],
+        "40": [
+          [0, "I have no more quests for you, head NORTH and look for Aeris."],
+          [1, "Thanks Nyssa."]
+        ],
+        "41": [
+          [0, "I have no more quests for you, head NORTH and look for Baelan."],
+          [1, "Thanks Aeris."]
+        ],
+        "42": [
+          [0, "I have no more quests for you, head NORTH and look for Caelum."],
+          [1, "Thanks Baelan."]
+        ],
+        "43": [
+          [0, "I have no more quests for you, head EAST and look for Darian."],
+          [1, "Thanks Caelum."]
+        ],
+        "44": [
+          [0, "I have no more quests for you, head EAST and look for Eldryn."],
+          [1, "Thanks Darian."]
+        ],
+        "45": [
+          [0, "I have no more quests for you, head EAST and look for Faelan."],
+          [1, "Thanks Eldryn."]
+        ],
+        "46": [
+          [0, "I have no more quests for you, head EAST and look for Gavriel."],
+          [1, "Thanks Faelan."]
+        ],
+        "47": [
+          [0, "I have no more quests for you, head EAST and look for Haven."],
+          [1, "Thanks Gavriel."]
+        ],
+        "48": [
+          [0, "I have no more quests for you, head EAST and look for Ilys."],
+          [1, "Thanks Haven."]
+        ],
+        "49": [
+          [0, "I have no more quests for you, head EAST and look for Jaelin."],
+          [1, "Thanks Ilys."]
+        ],
+        "50": [
+          [0, "I have no more quests for you, head SOUTH and look for Kaelan."],
+          [1, "Thanks Jaelin."]
+        ],
+        "51": [
+          [0, "I have no more quests for you, head SOUTH and look for Lirael."],
+          [1, "Thanks Kaelan."]
+        ],
+        "52": [
+          [0, "I have no more quests for you, head SOUTH and look for Maelis."],
+          [1, "Thanks Lirael."]
+        ],
+        "53": [
+          [0, "I have no more quests for you, head SOUTH and look for Naelen."],
+          [1, "Thanks Maelis."]
+        ],
+        "54": [
+          [0, "I have no more quests for you, head SOUTH and look for Ovryn."],
+          [1, "Thanks Naelen."]
+        ],
+        "55": [
+          [0, "I have no more quests for you, head SOUTH and look for Peregrine."],
+          [1, "Thanks Ovryn."]
+        ],
+        "56": [
+          [0, "I have no more quests for you, head SOUTH and look for Quillen."],
+          [1, "Thanks Peregrine."]
+        ]
+      }
+    },
 
     "QUESTS": {
       "200000": [

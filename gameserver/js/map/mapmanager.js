@@ -83,18 +83,25 @@ class MapManager {
             );
             map.entities.mapready();
 
+            // NPCs and other placed entities spawn BEFORE the mob/entity
+            // areas: entity ids come from a per-map counter in spawn order,
+            // and the areas spawn a varying number of entities each start
+            // (a spot can't always be found), so anything spawned after them
+            // got a different id on every restart. Spawned first, an NPC's
+            // id only depends on the map file / entity.json order -- the
+            // id (with the map index) that its npcQuestId and its lang.json
+            // NO_MORE_QUESTS line are keyed on.
             map.entities.spawnEntities(map);
+            // Entities from data/maps/<map name>/entity.json (including
+            // ones admins placed with /spawn).
+            self.loadSavedEntities(map);
+
             // FIX: was `map.initMobAreas(thismap.mobAreas)` called eagerly
             // inside Map.initMap(), before `map.entities` existed -- see the
             // FIX comment in map.js's initMap(). Deferred to here, now that
             // `map.entities` is assigned above.
             map.initMobAreas(map.mobAreasData);
             map.initEntityAreas(map.entityAreasData);
-
-            // ADMIN: respawn entities admins placed with /spawn (saved in
-            // data/maps/<map name>/entity.json). Kept last so it never
-            // shifts the ids of the spawns above.
-            self.loadSavedEntities(map);
 
             map.enterCallback = function (player) {
                 const pos = map.getRandomStartingPosition();
@@ -124,18 +131,26 @@ class MapManager {
             //   nodes and chests): the mobareas/entityareas layers of
             //   tools/maps/data/map1.json -> maps/map1.json;
             // - the walking NPCs (the Old Man and one per ring, with their
-            //   quests and "next NPC is <dir>" hints):
-            //   data/maps/map1/entity.json, loaded by loadSavedEntities().
+            //   quests): data/maps/map1/entity.json, loaded by
+            //   loadSavedEntities(); their "no more quests, head <dir> and
+            //   look for <next NPC>" lines are in lang.json's
+            //   NO_MORE_QUESTS, under map index 1 and their entity ids
+            //   (1 = the Old Man, 2-57 = rings 1-56).
             // map.entities.spawnEntities() stays off for map1, as before:
             // maps/map1.json's own entities list only has an old,
             // superseded copy of the Old Man.
+            // NPCs and other placed entities spawn BEFORE the mob/entity
+            // areas: entity ids come from a per-map counter in spawn order,
+            // and the areas spawn a varying number of entities each start
+            // (a spot can't always be found), so anything spawned after them
+            // got a different id on every restart. Spawned first, an NPC's
+            // id only depends on the map file / entity.json order -- the
+            // id (with the map index) that its npcQuestId and its lang.json
+            // NO_MORE_QUESTS line are keyed on.
+            self.loadSavedEntities(map);
+
             map.initMobAreas(map.mobAreasData);
             map.initEntityAreas(map.entityAreasData);
-
-            // ADMIN: respawn entities admins placed with /spawn (saved in
-            // data/maps/<map name>/entity.json) -- for map1 that file also
-            // holds its NPCs, above.
-            self.loadSavedEntities(map);
 
             map.enterCallback = function (player) {
                 const pos = map.getRandomStartingPosition();
@@ -160,14 +175,20 @@ class MapManager {
             // FIX: see the matching FIX comment on map.maps[0]'s ready()
             // callback above -- this used to fire too early, inside
             // Map.initMap(), before `map.entities` existed.
+            // NPCs and other placed entities spawn BEFORE the mob/entity
+            // areas: entity ids come from a per-map counter in spawn order,
+            // and the areas spawn a varying number of entities each start
+            // (a spot can't always be found), so anything spawned after them
+            // got a different id on every restart. Spawned first, an NPC's
+            // id only depends on the map file / entity.json order -- the
+            // id (with the map index) that its npcQuestId and its lang.json
+            // NO_MORE_QUESTS line are keyed on.
+            map.entities.spawnEntities(map);
+            // Entities from data/maps/<map name>/entity.json (including
+            // ones admins placed with /spawn).
+            self.loadSavedEntities(map);
             map.initMobAreas(map.mobAreasData);
             map.initEntityAreas(map.entityAreasData);
-            map.entities.spawnEntities(map);
-
-            // ADMIN: respawn entities admins placed with /spawn (saved in
-            // data/maps/<map name>/entity.json). Kept last so it never
-            // shifts the ids of the spawns above.
-            self.loadSavedEntities(map);
 
             map.enterCallback = function (player) {
                 const pos = map.getRandomStartingPosition();
@@ -200,10 +221,11 @@ class MapManager {
                 self.server.database
             );
             map.entities.mapready();
-            map.initMobAreas(map.mobAreasData);
-            map.initEntityAreas(map.entityAreasData);
+            // NPCs/entities first, for stable entity ids (see map0 above).
             map.entities.spawnEntities(map);
             self.loadSavedEntities(map);
+            map.initMobAreas(map.mobAreasData);
+            map.initEntityAreas(map.entityAreasData);
             map.enterCallback = function (player) {
                 return map.getRandomStartingPosition();
             };
