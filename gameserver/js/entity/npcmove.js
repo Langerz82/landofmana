@@ -86,9 +86,27 @@ class NpcMove extends Character {
                 // still carry an npcQuestId the client's
                 // getNpcByQuestKind() can't match to any on-screen NPC,
                 // silently dropping the completion's quest speech.
+                // FIX: correcting it here used to happen silently: when the
+                // quest wasn't complete yet, nothing told the client, and
+                // EntityQuests.hasQuest() right after saw the server's copy
+                // as up to date and sent only the in-progress WC_SPEECH. The
+                // client still held the old npcQuestId, couldn't match the
+                // quest to this NPC, and showed its text with %count%/%name%
+                // unfilled. NPC entity ids (and so npcQuestIds) change
+                // whenever a map's spawn order does, so saved quests go
+                // stale. When it changed and the turn-in didn't complete,
+                // do what hasQuest() does for a stale quest: mark it in
+                // progress and send the full quest update, whose text the
+                // client shows as this NPC's dialogue -- and stop there, so
+                // the dialogue isn't sent a second time.
+                const stale = q.npcQuestId !== self.npcQuestId;
                 q.npcQuestId = self.npcQuestId;
-                if (self_player.quests.questAboutItemComplete(q, null))
+                if (self_player.quests.questAboutItemComplete(q, null)) {
                     res = true;
+                } else if (stale) {
+                    self_player.quests.progressQuest(q);
+                    res = true;
+                }
             }
         });
         if (res) return;

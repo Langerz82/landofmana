@@ -1847,11 +1847,22 @@ func _on_speech(pkt: Array) -> void:
 		return
 	var path = pkt[1] if pkt.size() > 1 else []
 	var vars = pkt[2] if pkt.size() > 2 else []
+	# The quest this speech is about: an authored quest's text path names it
+	# (["QUESTS", "<quest id>", stage]), so use that one -- it stays right even
+	# if this NPC's npc_quest_id no longer matches the player's copy of the
+	# quest (NPC ids change with a map's spawn order), or the NPC has more than
+	# one quest in progress. Generated quests use shared text paths, so they're
+	# still found by NPC.
 	var quest = null
-	for q in data.quests.values():
-		if q.npc_quest_id == npc.npc_quest_id and q.status != Quest.Status.COMPLETE:
-			quest = q
-			break
+	if path is Array and path.size() > 1 and str(path[0]) == "QUESTS":
+		var qid := Types.to_int(path[1])
+		if data.quests.has(qid) and data.quests[qid].status != Quest.Status.COMPLETE:
+			quest = data.quests[qid]
+	if quest == null:
+		for q in data.quests.values():
+			if q.npc_quest_id == npc.npc_quest_id and q.status != Quest.Status.COMPLETE:
+				quest = q
+				break
 	if quest != null:
 		var qv := Quest.get_quest_vars(quest.type, quest.object, quest.object2, quest.count)
 		if vars is Array:

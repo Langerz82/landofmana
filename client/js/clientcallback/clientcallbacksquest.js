@@ -121,11 +121,25 @@ export function installClientCallbacksQuest(proto) {
         // avoid crashing on the npc.dialogue writes below.
         if (!npc) return;
 
-        const quest = Object.values(p.quests || {}).find(
-            (q) =>
-                q.npcQuestId === npc.npcQuestId &&
-                q.status !== QuestStatus.COMPLETE
-        );
+        // The quest this speech is about: an authored quest's text path
+        // names it (['QUESTS', '<quest id>', <stage>]), so use that one --
+        // it stays right even if this NPC's npcQuestId no longer matches
+        // the player's copy of the quest (NPC ids change with a map's spawn
+        // order), or the NPC has more than one quest in progress. Generated
+        // quests use shared text paths, so they're still found by NPC.
+        const quests = p.quests || {};
+        const byPath =
+            Array.isArray(path) && path[0] === 'QUESTS'
+                ? quests[Number(path[1])]
+                : null;
+        const quest =
+            byPath && byPath.status !== QuestStatus.COMPLETE
+                ? byPath
+                : Object.values(quests).find(
+                      (q) =>
+                          q.npcQuestId === npc.npcQuestId &&
+                          q.status !== QuestStatus.COMPLETE
+                  );
         const message = langLines(
             path,
             quest ? Object.assign(quest.getVars(), vars) : vars
