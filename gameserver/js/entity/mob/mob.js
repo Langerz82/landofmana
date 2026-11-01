@@ -84,11 +84,11 @@ class Mob extends Character {
         //this.stats = {};
         this.stats.attack = this.data.attack * this.level;
         this.stats.defense = this.data.defense * this.level;
-        this.stats.hpMax = Math.max(this.data.hp * this.level - 40, 1);
+        this.stats.hpMax = this.getHpMax();
         //console.info("this.data.hp="+this.data.hp);
         //this.stats.hpMax = this.stats.hp;
         //console.info("this.stats.hpMax="+this.stats.hpMax);
-        this.stats.epMax = this.data.ep * this.level;
+        this.stats.epMax = this.getEpMax();
         //this.stats.epMax = this.stats.ep;
 
         this.stats.xp = this.data.xp * this.level;
@@ -165,14 +165,30 @@ class Mob extends Character {
         this.level = level;
         this.stats.attack = this.data.attack * level;
         this.stats.defense = this.data.defense * level;
-        this.stats.hpMax = Math.max(this.data.hp * level - 40, 1);
-        this.stats.epMax = this.data.ep * level;
         this.stats.xp = this.data.xp * level;
-        if (this.creatureMulti && this.creatureMulti !== 1) {
-            this.stats.hpMax *= this.creatureMulti;
-        }
+        // getHpMax() already applies creatureMulti (boss scaling).
+        this.stats.hpMax = this.getHpMax();
+        this.stats.epMax = this.getEpMax();
         this.resetHp();
         this.resetEp();
+    }
+
+    // BALANCE: overrides Character's (charactercombat.js), which just
+    // returns stats.hpMax. Computed from data + level so resetHp() and
+    // setLevel() always agree. Was hp(=150*hpMod)*level - 40 (~7500 for a
+    // standard lv50 mob vs ~6000 player HP); now hpMod*(40 + 65*level),
+    // which with MobCombat/PlayerCombat damage gives ~4-8 hits to kill a
+    // same-level mob. creatureMulti is the boss multiplier (createBoss).
+    getHpMax() {
+        const multi = this.creatureMulti || 1;
+        const hp = this.data.hpMod * (40 + 65 * this.level) * multi;
+        return Math.max(1, ~~hp);
+    }
+
+    // No mob in shared/data/mobs.json sets epMod (data.ep = 0), so this is
+    // 0 today; kept level-scaled for any mob that does.
+    getEpMax() {
+        return ~~(this.data.ep * this.level);
     }
 
     // --- Aggro / hate-list delegates (entity/components/mobaggro.js) ---

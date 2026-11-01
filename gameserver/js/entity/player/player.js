@@ -460,14 +460,19 @@ class Player extends Character {
         );
     }
 
+    // BALANCE: Health/Energy points are the main source, with level
+    // worth less per point (40 vs 20) so HP still keeps pace with
+    // mob damage (MobCombat.baseDamage) for players who skip Health.
+    // Was 300 + health*100, which made Health points ~3x more valuable
+    // than any other stat (a health/defense build was near-unkillable).
+    // Even spread: ~300 HP at lv1, ~2050 at lv25, ~3550 at lv50.
     getHpMax() {
-        const hp = 300 + this.stats.health * 100;
-        return hp;
+        return 200 + this.level * 20 + this.stats.health * 40;
     }
 
+    // Same curve as HP so Energy and Health points are worth the same.
     getEpMax() {
-        const ep = 300 + this.stats.energy * 100;
-        return ep;
+        return 200 + this.level * 20 + this.stats.energy * 40;
     }
 
     sendToUserServer(msg) {

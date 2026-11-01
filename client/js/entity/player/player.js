@@ -105,6 +105,20 @@ export default class Player extends Character {
         }
     }
 
+    // BALANCE: mirrors gameserver/js/entity/player/player.js. The server
+    // is authoritative and sends hpMax/epMax (setHpMax/setEpMax), so these
+    // only matter for local resets/previews. Falls back to the last
+    // server-sent value until stats have been received.
+    getHpMax() {
+        if (this.stats.health == null) return this.stats.hpMax;
+        return 200 + this.level * 20 + this.stats.health * 40;
+    }
+
+    getEpMax() {
+        if (this.stats.energy == null) return this.stats.epMax;
+        return 200 + this.level * 20 + this.stats.energy * 40;
+    }
+
     canKeyMove() {
         let x = this.x,
             y = this.y;

@@ -132,63 +132,60 @@ func _fill_grid(g: GridContainer, rows_in: Array, col := Color.WHITE) -> void:
 
 
 # ------------------------------------------------- playercombat.js formulas
+# BALANCE: mirrors gameserver/js/entity/player/playercombat.js (display
+# only; the server is authoritative). Crit values are ratings, not
+# percentages -- the real chance per hit is (25 + crit - targetCritDef)/200.
 
 func _weapon_room():
 	return data.weapon()
 
 
+func _dur_factor(r) -> float:
+	return (float(r.dur) / maxf(1, float(r.durMax))) * 0.5 + 0.5
+
+
 func base_crit(p) -> String:
-	var item_diff: int = p.level * 2
+	var chance := float(p.level) + int(p.stats.get("luck", 0)) / 4.0 + int(p.stats.get("attack", 0)) / 6.0
 	var w = _weapon_room()
 	if w != null:
-		item_diff = 3 * int(ItemTypes.data(int(w.kind)).get("modifier", 0)) + int(w.number) * 2
-	var stat_diff := int(p.stats.get("attack", 0)) + int(p.stats.get("luck", 0)) * 2
-	return "%d%%" % int(round(clampi(stat_diff + item_diff, 0, 500) / 5.0))
+		chance += int(ItemTypes.data(int(w.kind)).get("modifier", 0)) / 10.0 + int(w.number) / 2.0
+	return "%d" % int(clampf(chance, 0, 500))
 
 
 func base_crit_def(p) -> String:
-	var item_diff: int = p.level * 2
+	var gear := 0.0
 	for i in range(4):
 		var r = data.equipment[i]
 		if r != null:
-			item_diff += 3 * int(ItemTypes.data(int(r.kind)).get("modifier", 0)) + int(r.number) * 2
-	var stat_diff := int(p.stats.get("defense", 0)) + int(p.stats.get("luck", 0)) * 2
-	return "%d%%" % int(round(clampi(stat_diff + item_diff, 0, 500) / 5.0))
+			gear += int(ItemTypes.data(int(r.kind)).get("modifier", 0)) / 10.0 + int(r.number) / 2.0
+	var chance := float(p.level) + int(p.stats.get("luck", 0)) / 4.0 + int(p.stats.get("defense", 0)) / 6.0 + gear / 2.0
+	return "%d" % int(clampf(chance, 0, 500))
 
 
 func base_damage(p) -> Array:
 	var w = _weapon_room()
 	var level: int = maxi(1, p.level)
-	var dealt := level
-	if w != null:
-		dealt = int(ItemTypes.data(int(w.kind)).get("modifier", 0)) * 3 + int(w.number) * 2
-	var xp: Dictionary = p.stats.get("exp", {})
-	var power := Types.get_attack_level(int(xp.get("attack", 0))) / 50.0 + 1
+	var weapon_dmg := 0.0
 	var wlevel := 0
+	var xp: Dictionary = p.stats.get("exp", {})
 	if w != null:
+		weapon_dmg = (int(ItemTypes.data(int(w.kind)).get("modifier", 0)) * 2 + int(w.number) * 3) * _dur_factor(w)
 		wlevel = Types.get_weapon_level(int(xp.get(ItemTypes.type_of(int(w.kind)), 0)))
-	power *= wlevel / 50.0 + 1
-	if w != null:
-		dealt = int(dealt * ((float(w.dur) / maxf(1, float(w.durMax))) * 0.5 + 0.5))
-	dealt += int(p.stats.get("attack", 0)) * 3 + int(p.stats.get("luck", 0))
-	var noob := 1 + maxf(0, (12 - level) * (1.0 / level))
-	var mn := int(level * power * noob * 4)
-	var mx := int(mn * 1.15)
-	return [mn + dealt, int((mx + dealt) * 3)]
+	var stat_dmg := int(p.stats.get("attack", 0)) * 3 + int(p.stats.get("luck", 0))
+	var power := 1 + (Types.get_attack_level(int(xp.get("attack", 0))) + wlevel) / 200.0
+	var base := (10 + level * 6 + weapon_dmg + stat_dmg) * power
+	return [int(base * 0.9), int(base * 1.1)]
 
 
 func base_damage_def(p) -> Array:
-	var level: int = p.level + 3
-	var dealt := level
+	var armor_def := 0.0
 	for i in range(4):
 		var r = data.equipment[i]
 		if r != null:
-			var multi := 4 if i == 1 else 2
-			var d := int(ItemTypes.data(int(r.kind)).get("modifier", 0)) * multi + int(r.number) * multi
-			dealt += int(d * ((float(r.dur) / maxf(1, float(r.durMax))) * 0.5 + 0.5))
+			var multi := 2 if i == 1 else 1
+			armor_def += (int(ItemTypes.data(int(r.kind)).get("modifier", 0)) + int(r.number)) * multi * _dur_factor(r)
+	var stat_def := int(p.stats.get("defense", 0)) * 2 + int(p.stats.get("luck", 0)) / 2.0
 	var xp: Dictionary = p.stats.get("exp", {})
-	var power := Types.get_defense_level(int(xp.get("defense", 0))) / 50.0 + 1
-	var mn := int(level * power)
-	var mx := mn * 2
-	dealt += int(p.stats.get("defense", 0)) * 4 + int(p.stats.get("luck", 0))
-	return [mn + dealt, int((mx + dealt) * 1.75)]
+	var power := 1 + Types.get_defense_level(int(xp.get("defense", 0))) / 200.0
+	var base := (maxi(1, p.level) * 2 + armor_def + stat_def) * power
+	return [int(base * 0.9), int(base * 1.1)]

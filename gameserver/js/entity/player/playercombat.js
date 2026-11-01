@@ -35,92 +35,81 @@ class PlayerCombat {
         return 0;
     }
 
+    // BALANCE: these four are tuned against MobCombat's
+    // (entity/mob/mobcombat.js) so that, with level-appropriate gear and
+    // an even stat spread, a same-level mob dies in ~4-8 hits and takes
+    // ~9-12 hits to kill the player, at every level 1-50. Attack-heavy
+    // builds kill faster but die faster; defense/health builds the reverse.
+    //
+    // Crit: Formulas.crit() uses (25 + crit - critDef)/200, so ratings are
+    // kept close to level and stats/gear only nudge them (~11-20% normal,
+    // ~30% for an all-luck build) instead of the old ~75-98%.
     baseCrit() {
         const entity = this.entity;
 
-        let itemDiff = entity.level * 2;
+        let chance =
+            entity.level + entity.stats.luck / 4 + entity.stats.attack / 6;
         const item = entity.items.getWeapon();
         if (item) {
-            itemDiff =
-                3 * ItemTypes.getData(item.itemKind).modifier +
-                item.itemNumber * 2;
+            chance +=
+                ItemTypes.getData(item.itemKind).modifier / 10 +
+                item.itemNumber / 2;
         }
-        const statDiff = entity.stats.attack + entity.stats.luck * 2;
-        const chance = Utils.clamp(0, 500, ~~(statDiff + itemDiff));
-        //console.info("player - baseCrit: "+chance);
-        //var chance_out = (chance / 5).toFixed(0)+"%";
-        //return chance_out;
-        return chance;
+        return ~~Utils.clamp(0, 500, chance);
     }
 
     baseCritDef() {
         const entity = this.entity;
 
-        let itemDiff = entity.level * 2;
-        // FIX: `id` used to come from a for...in loop, always a string
-        // ("4"), so `id === 4` never matched and the weapon slot was never
-        // excluded from this crit-defense calculation (it should be, since
-        // a weapon isn't armor). equipment.rooms is now a fixed-length
-        // array (items/equipment.js) rather than an object/Map, so this uses
-        // the same forEachArmor() helper baseDamageDef() below already uses
-        // -- it iterates real numeric slot indices and already excludes the
-        // weapon slot, instead of hand-rolling the same loop/exclusion here
-        // too.
+        let gear = 0;
+        // forEachArmor() supplies real numeric slot ids and skips the
+        // weapon slot (items/equipment.js).
         entity.items.equipment.forEachArmor((id, item) => {
             if (item) {
-                itemDiff +=
-                    3 * ItemTypes.getData(item.itemKind).modifier +
-                    item.itemNumber * 2;
+                gear +=
+                    ItemTypes.getData(item.itemKind).modifier / 10 +
+                    item.itemNumber / 2;
             }
         });
-        const statDiff = entity.stats.defense + entity.stats.luck * 2;
-        const chance = Utils.clamp(0, 500, ~~(statDiff + itemDiff));
-        //console.info("player - baseCritDef: "+chance);
-        //var chance_out = (chance / 5).toFixed(0)+"%";
-        //return chance_out;
-        return chance;
+        const chance =
+            entity.level +
+            entity.stats.luck / 4 +
+            entity.stats.defense / 6 +
+            gear / 2;
+        return ~~Utils.clamp(0, 500, chance);
     }
 
     baseDamage(defender) {
         const entity = this.entity;
-
-        let dealt, dmg;
-        const weapon = entity.items.getWeapon();
         const level = entity.level;
 
-        dealt = ~~(weapon
-            ? ItemTypes.getData(weapon.itemKind).modifier * 3 +
-              weapon.itemNumber * 2
-            : level);
-
-        const lvl = Types.getAttackLevel(entity.stats.exp.attack);
-        let power = lvl / 50 + 1;
-
-        power *= entity.items.getWeaponLevel() / 50 + 1;
-
-        // Weapon Durability affects Damage.
+        // Weapon: modifier + upgrades, scaled by durability (50%-100%).
+        let weaponDmg = 0;
+        const weapon = entity.items.getWeapon();
         if (weapon) {
-            dealt = ~~(
-                dealt *
-                ((weapon.itemDurability / weapon.itemDurabilityMax) * 0.5 + 0.5)
-            );
+            weaponDmg =
+                ItemTypes.getData(weapon.itemKind).modifier * 2 +
+                weapon.itemNumber * 3;
+            weaponDmg *=
+                (weapon.itemDurability / weapon.itemDurabilityMax) * 0.5 + 0.5;
         }
 
-        // Players Stat affects Damage.
+        // Player stats.
         const mods =
             entity.stats.mod && entity.stats.mod.attack
                 ? entity.stats.mod.attack
                 : 0;
-        dealt += ~~(entity.stats.attack * 3 + mods) + entity.stats.luck;
+        const statDmg = entity.stats.attack * 3 + mods + entity.stats.luck;
 
-        const noobLvl = 12;
-        const noobMulti =
-            1 + Math.max(0, (noobLvl - entity.level) * (1 / entity.level));
+        // Attack + weapon skill levels (1-50 each) add up to +50%. Was a
+        // multiplicative (1+lvl/50)^2 (up to 4x) on top of a newbie
+        // multiplier of up to 12x at level 1, which one-shot early mobs.
+        const attackLvl = Types.getAttackLevel(entity.stats.exp.attack);
+        const weaponLvl = entity.items.getWeaponLevel();
+        const power = 1 + (attackLvl + weaponLvl) / 200;
 
-        let min = ~~(level * power * noobMulti * 4);
-        let max = ~~(min * 1.15);
-
-        dmg = Utils.randomRangeInt(min, max) + dealt;
+        const base = (10 + level * 6 + weaponDmg + statDmg) * power;
+        let dmg = Utils.randomRangeInt(~~(base * 0.9), ~~(base * 1.1));
 
         if (entity.stats.mod && entity.stats.mod.damage)
             dmg += entity.stats.mod.damage;
@@ -133,66 +122,41 @@ class PlayerCombat {
             }
         }
 
-        min = ~~(min + dealt);
-        max = ~~((max + dealt) * 3);
-
-        //return [min,max];
-        return dmg;
+        return ~~dmg;
     }
 
     baseDamageDef(defender) {
         const entity = this.entity;
 
-        let dealt = 0,
-            dmg = 0;
-
-        const level = entity.level + 3;
-        //console.info("baseDamageDef:");
-
-        dealt = level;
-        // FIX: same string/number mismatch as baseCritDef above -- `id` used
-        // to come from a for...in loop, always a string, so `id === 1` never
-        // matched and the chest slot never got its intended 4x defense
-        // multiplier (every equipped item was treated as the 2x case
-        // instead). Fixed the same way: equipment.rooms is now a fixed-
-        // length array (items/equipment.js) indexed by the real numeric
-        // slot. This callback references `id`, which forEachArmor()
-        // supplies as the first callback argument -- `callback(id, item)`
-        // -- so the parameter order here has to match that.
+        // Armor: chest counts double. Scaled by durability (50%-100%).
+        let armorDef = 0;
         entity.items.equipment.forEachArmor((id, item) => {
             if (item) {
-                const eq_multi = id === 1 ? 4 : 2;
+                const multi = id === 1 ? 2 : 1;
                 const def =
-                    ItemTypes.getData(item.itemKind).modifier * eq_multi +
-                    item.itemNumber * eq_multi;
-                dealt += ~~(
+                    (ItemTypes.getData(item.itemKind).modifier +
+                        item.itemNumber) *
+                    multi;
+                armorDef +=
                     def *
-                    ((item.itemDurability / item.itemDurabilityMax) * 0.5 + 0.5)
-                );
+                    ((item.itemDurability / item.itemDurabilityMax) * 0.5 +
+                        0.5);
             }
         });
 
-        //console.info("dealt="+dealt);
-        const lvl = Types.getDefenseLevel(entity.stats.exp.defense);
-        const power = lvl / 50 + 1;
-        //console.info("power="+power);
-        let min = ~~(level * power);
-        let max = ~~(min * 2);
+        const mods =
+            entity.stats.mod && entity.stats.mod.defense
+                ? entity.stats.mod.defense
+                : 0;
+        const statDef =
+            entity.stats.defense * 2 + mods + entity.stats.luck / 2;
 
-        //console.info("dealtrange="+dealt);
-        // Players Stat affects Damage.
-        const mods = entity.stats.mod ? entity.stats.mod.defense : 0;
-        dealt += ~~(entity.stats.defense * 4 + mods) + entity.stats.luck;
+        // Defense skill level (1-50) adds up to +25%.
+        const defLvl = Types.getDefenseLevel(entity.stats.exp.defense);
+        const power = 1 + defLvl / 200;
 
-        //console.info("dealtstats="+dealt);
-
-        dmg = Utils.randomRangeInt(min, max) + dealt;
-
-        min = ~~(min + dealt);
-        max = ~~((max + dealt) * 1.75);
-
-        //return [min,max];
-        return dmg;
+        const base = (entity.level * 2 + armorDef + statDef) * power;
+        return Utils.randomRangeInt(~~(base * 0.9), ~~(base * 1.1));
     }
 
     // Split out of entity/player.js -- onKillEntity/dropGold are

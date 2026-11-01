@@ -23,57 +23,42 @@ class MobCombat {
         this.entity = entity;
     }
 
+    // BALANCE: all four combat ratings below are on the same scale as
+    // PlayerCombat's (entity/player/playercombat.js) so a same-level fight
+    // stays even at every level. Mob stats.attack/defense are
+    // 3 * attackMod/defenseMod * level (entity/mob/mob.js).
+    //
+    // Crit ratings feed Formulas.crit(): chance = (25 + crit - critDef)/200,
+    // so each point is 0.5%. A standard mob vs a same-level player lands
+    // around 12-18%; high-attackMod mobs (e.g. DeathKnight) reach ~25%.
+    // The old version used raw attack/defense (up to ~225 at lv50), which
+    // left players either un-crittable (~2%) or always critting (~75-98%).
     baseCrit() {
         const entity = this.entity;
-
-        const modDiff = 0;
-        const statDiff = entity.stats.attack + entity.stats.mod.attack;
-        const chance = ~~Utils.clamp(5, 500, ~~(statDiff + modDiff));
-        //console.info("player - baseCrit: "+chance);
-        return chance;
+        const attack = entity.stats.attack + entity.stats.mod.attack;
+        return ~~Utils.clamp(0, 500, entity.level * 0.75 + attack / 3);
     }
 
     baseCritDef() {
         const entity = this.entity;
-
-        const modDiff = 0;
-        const statDiff = entity.stats.defense + entity.stats.mod.defense;
-        const chance = ~~Utils.clamp(5, 500, ~~(statDiff + modDiff));
-        //console.info("player - baseCritDef: "+chance);
-        return chance;
+        const defense = entity.stats.defense + entity.stats.mod.defense;
+        return ~~Utils.clamp(0, 500, entity.level + defense / 6);
     }
 
+    // Linear in level (old: level*12 + attack*(6 - min(3, level/10)),
+    // which spiked early then flattened). +/-10% spread like the player.
     baseDamage() {
         const entity = this.entity;
-
-        // NOTE: was `let dealt, absorbed, dmg;` -- `absorbed` unused, dead
-        // (same pattern already cleaned up elsewhere in this codebase, e.g.
-        // area/mobarea.js, world/taskhandler.js, transition.js).
-        let dealt, dmg;
-
-        dealt = ~~(entity.level * 12);
-        dealt +=
-            (entity.stats.attack + entity.stats.mod.attack) *
-            (6 - Math.min(3, entity.level * 0.1));
-
-        dmg = ~~dealt;
-
-        //console.info("player - baseDamage: "+dmg);
-        return dmg;
+        const attack = entity.stats.attack + entity.stats.mod.attack;
+        const base = 10 + entity.level * 8 + attack * 3.5;
+        return Utils.randomRangeInt(~~(base * 0.9), ~~(base * 1.1));
     }
 
+    // Absorbs roughly 35-45% of a same-level player's hit.
     baseDamageDef() {
         const entity = this.entity;
-
-        // NOTE: same unused `absorbed` removed here as in baseDamage() above.
-        let dealt, dmg;
-
-        dealt = ~~(entity.level * 2);
-        dealt += (entity.stats.defense + entity.stats.mod.defense) * 2;
-
-        dmg = ~~dealt;
-        //console.info("player - baseDamageDef: "+dmg);
-        return dmg;
+        const defense = entity.stats.defense + entity.stats.mod.defense;
+        return ~~(entity.level + (defense * 5) / 3);
     }
 
     // Split out of entity/mob.js -- dropGold/getXP are combat-outcome

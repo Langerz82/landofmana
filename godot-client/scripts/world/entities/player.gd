@@ -85,6 +85,22 @@ func set_sprite_by_index(index: int, appearance: int) -> void:
 		set_sprite(def, index)
 
 
+## BALANCE: mirrors gameserver/js/entity/player/player.js getHpMax/getEpMax.
+## The server sends hpMax/epMax (set_hp_max/set_ep_max), so these are only
+## for local previews; they fall back to the last server value until the
+## player's stats have arrived.
+func get_hp_max() -> int:
+	if not stats.has("health"):
+		return int(stats.get("hpMax", 0))
+	return 200 + level * 20 + int(stats.health) * 40
+
+
+func get_ep_max() -> int:
+	if not stats.has("energy"):
+		return int(stats.get("epMax", 0))
+	return 200 + level * 20 + int(stats.energy) * 40
+
+
 func is_archer() -> bool:
 	return GameData.is_archer_weapon(weapon_kind)
 
