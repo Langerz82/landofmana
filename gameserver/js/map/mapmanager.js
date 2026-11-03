@@ -97,14 +97,13 @@ class MapManager {
                 map
             );
             map.entities.mapready();
-            // NPCs and other placed entities spawn BEFORE the mob/entity areas: entity ids come
-            // from a per-map counter in spawn order, and the areas spawn a varying number of
-            // entities each start (a spot can't always be found), so anything spawned after them
-            // got a different id on every restart. Spawned first, an NPC's id only depends on the
-            // map file / entity.json order -- the id (with the map index) that its npcQuestId and
-            // its lang.json NO_MORE_QUESTS line are keyed on.
-            map.entities.spawnEntities(map);
+            // data/maps/<name>/entity.json first: each of its records has a fixed "id" and is
+            // spawned with exactly that entity id (MapEntityStore.load()), the id (with the map
+            // index) that an NPC's npcQuestId and its lang.json NO_MORE_QUESTS line are keyed on.
+            // Then the map file's own entities and the mob/entity areas, numbered on from the
+            // highest fixed id.
             self.loadSavedEntities(map);
+            map.entities.spawnEntities(map);
             map.initMobAreas(map.mobAreasData);
             map.initEntityAreas(map.entityAreasData);
             map.enterCallback = function (player) {

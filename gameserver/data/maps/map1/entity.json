@@ -1,5 +1,6 @@
 [
   {
+    "id": 1,
     "type": "npcmove",
     "kind": 0,
     "x": 8168,
@@ -8,6 +9,7 @@
     "quests": "200000,200001"
   },
   {
+    "id": 2,
     "type": "npcmove",
     "kind": 1,
     "x": 8840,
@@ -15,6 +17,7 @@
     "quests": "200100"
   },
   {
+    "id": 3,
     "type": "npcmove",
     "kind": 2,
     "x": 8840,
@@ -22,6 +25,7 @@
     "quests": "200200"
   },
   {
+    "id": 4,
     "type": "npcmove",
     "kind": 3,
     "x": 8200,
@@ -29,6 +33,7 @@
     "quests": "200300"
   },
   {
+    "id": 5,
     "type": "npcmove",
     "kind": 4,
     "x": 7560,
@@ -36,6 +41,7 @@
     "quests": "200400"
   },
   {
+    "id": 6,
     "type": "npcmove",
     "kind": 5,
     "x": 7560,
@@ -43,6 +49,7 @@
     "quests": "200500"
   },
   {
+    "id": 7,
     "type": "npcmove",
     "kind": 6,
     "x": 7560,
@@ -50,6 +57,7 @@
     "quests": "200600"
   },
   {
+    "id": 8,
     "type": "npcmove",
     "kind": 7,
     "x": 8200,
@@ -57,6 +65,7 @@
     "quests": "200700"
   },
   {
+    "id": 9,
     "type": "npcmove",
     "kind": 8,
     "x": 8840,
@@ -64,6 +73,7 @@
     "quests": "200800"
   },
   {
+    "id": 10,
     "type": "npcmove",
     "kind": 9,
     "x": 9480,
@@ -71,6 +81,7 @@
     "quests": "200900"
   },
   {
+    "id": 11,
     "type": "npcmove",
     "kind": 10,
     "x": 9480,
@@ -78,276 +89,322 @@
     "quests": "201000"
   },
   {
+    "id": 12,
     "type": "npcmove",
     "kind": 11,
     "x": 9480,
     "y": 8840
   },
   {
+    "id": 13,
     "type": "npcmove",
     "kind": 12,
     "x": 9480,
     "y": 9480
   },
   {
+    "id": 14,
     "type": "npcmove",
     "kind": 13,
     "x": 8840,
     "y": 9480
   },
   {
+    "id": 15,
     "type": "npcmove",
     "kind": 14,
     "x": 8200,
     "y": 9480
   },
   {
+    "id": 16,
     "type": "npcmove",
     "kind": 15,
     "x": 7560,
     "y": 9480
   },
   {
+    "id": 17,
     "type": "npcmove",
     "kind": 16,
     "x": 6920,
     "y": 9480
   },
   {
+    "id": 18,
     "type": "npcmove",
     "kind": 17,
     "x": 6920,
     "y": 8840
   },
   {
+    "id": 19,
     "type": "npcmove",
     "kind": 18,
     "x": 6920,
     "y": 8200
   },
   {
+    "id": 20,
     "type": "npcmove",
     "kind": 19,
     "x": 6920,
     "y": 7560
   },
   {
+    "id": 21,
     "type": "npcmove",
     "kind": 20,
     "x": 6920,
     "y": 6920
   },
   {
+    "id": 22,
     "type": "npcmove",
     "kind": 21,
     "x": 7560,
     "y": 6920
   },
   {
+    "id": 23,
     "type": "npcmove",
     "kind": 22,
     "x": 8200,
     "y": 6920
   },
   {
+    "id": 24,
     "type": "npcmove",
     "kind": 23,
     "x": 8840,
     "y": 6920
   },
   {
+    "id": 25,
     "type": "npcmove",
     "kind": 24,
     "x": 9480,
     "y": 6920
   },
   {
+    "id": 26,
     "type": "npcmove",
     "kind": 25,
     "x": 10120,
     "y": 6920
   },
   {
+    "id": 27,
     "type": "npcmove",
     "kind": 26,
     "x": 10136,
     "y": 7560
   },
   {
+    "id": 28,
     "type": "npcmove",
     "kind": 27,
     "x": 10120,
     "y": 8200
   },
   {
+    "id": 29,
     "type": "npcmove",
     "kind": 28,
     "x": 10120,
     "y": 8840
   },
   {
+    "id": 30,
     "type": "npcmove",
     "kind": 29,
     "x": 10120,
     "y": 9480
   },
   {
+    "id": 31,
     "type": "npcmove",
     "kind": 30,
     "x": 10120,
     "y": 10120
   },
   {
+    "id": 32,
     "type": "npcmove",
     "kind": 31,
     "x": 9480,
     "y": 10104
   },
   {
+    "id": 33,
     "type": "npcmove",
     "kind": 32,
     "x": 8840,
     "y": 10120
   },
   {
+    "id": 34,
     "type": "npcmove",
     "kind": 33,
     "x": 8200,
     "y": 10120
   },
   {
+    "id": 35,
     "type": "npcmove",
     "kind": 34,
     "x": 7560,
     "y": 10120
   },
   {
+    "id": 36,
     "type": "npcmove",
     "kind": 35,
     "x": 6920,
     "y": 10120
   },
   {
+    "id": 37,
     "type": "npcmove",
     "kind": 36,
     "x": 6280,
     "y": 10120
   },
   {
+    "id": 38,
     "type": "npcmove",
     "kind": 37,
     "x": 6280,
     "y": 9480
   },
   {
+    "id": 39,
     "type": "npcmove",
     "kind": 38,
     "x": 6280,
     "y": 8840
   },
   {
+    "id": 40,
     "type": "npcmove",
     "kind": 39,
     "x": 6280,
     "y": 8200
   },
   {
+    "id": 41,
     "type": "npcmove",
     "kind": 40,
     "x": 6280,
     "y": 7560
   },
   {
+    "id": 42,
     "type": "npcmove",
     "kind": 41,
     "x": 6280,
     "y": 6920
   },
   {
+    "id": 43,
     "type": "npcmove",
     "kind": 42,
     "x": 6280,
     "y": 6280
   },
   {
+    "id": 44,
     "type": "npcmove",
     "kind": 43,
     "x": 6920,
     "y": 6280
   },
   {
+    "id": 45,
     "type": "npcmove",
     "kind": 44,
     "x": 7560,
     "y": 6280
   },
   {
+    "id": 46,
     "type": "npcmove",
     "kind": 45,
     "x": 8200,
     "y": 6280
   },
   {
+    "id": 47,
     "type": "npcmove",
     "kind": 46,
     "x": 8840,
     "y": 6280
   },
   {
+    "id": 48,
     "type": "npcmove",
     "kind": 47,
     "x": 9480,
     "y": 6280
   },
   {
+    "id": 49,
     "type": "npcmove",
     "kind": 48,
     "x": 10120,
     "y": 6280
   },
   {
+    "id": 50,
     "type": "npcmove",
     "kind": 49,
     "x": 10760,
     "y": 6280
   },
   {
+    "id": 51,
     "type": "npcmove",
     "kind": 50,
     "x": 10760,
     "y": 6920
   },
   {
+    "id": 52,
     "type": "npcmove",
     "kind": 51,
     "x": 10760,
     "y": 7560
   },
   {
+    "id": 53,
     "type": "npcmove",
     "kind": 52,
     "x": 10760,
     "y": 8200
   },
   {
+    "id": 54,
     "type": "npcmove",
     "kind": 53,
     "x": 10760,
     "y": 8840
   },
   {
+    "id": 55,
     "type": "npcmove",
     "kind": 54,
     "x": 10760,
     "y": 9480
   },
   {
+    "id": 56,
     "type": "npcmove",
     "kind": 55,
     "x": 10760,
     "y": 10120
   },
   {
+    "id": 57,
     "type": "npcmove",
     "kind": 56,
     "x": 10760,

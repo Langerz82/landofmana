@@ -310,8 +310,9 @@ class EntityQuests {
     // in lang.json -- NO_MORE_QUESTS[<map index>][<entity id>] (e.g. map1's
     // "head EAST and look for Baelan" chain) -- so a translation only has to
     // change lang.json; no direction or name words come from the server.
-    // An NPC without one gets NO_MORE_QUESTS_DEFAULT. Entity ids are stable
-    // because NPCs spawn before a map's mob/entity areas (mapmanager.js).
+    // An NPC without one gets NO_MORE_QUESTS_DEFAULT. The entity id is the
+    // fixed "id" of the NPC's record in data/maps/<map>/entity.json
+    // (map/mapentitystore.js), so it never changes.
     sendNoQuest(player) {
         const entity = this.entity;
         const own = [

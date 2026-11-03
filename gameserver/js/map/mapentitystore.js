@@ -94,6 +94,9 @@ const ORIENTATION_IDS = {
 };
 
 const MAX_NAME_LENGTH = 32;
+// Fixed entity ids (each record's "id") stay below this, the per-map span of
+// npcQuestId (map index * G_NPC_QUEST_ID_MAP_OFFSET + entity id).
+const MAX_FIXED_ID = 999999;
 const MAX_LEVEL = 999;
 
 class MapEntityStore {
@@ -213,6 +216,41 @@ class MapEntityStore {
             return;
         }
 
+        // Fixed ids: every record has its own "id", and the entity is spawned
+        // with exactly that entity id -- so removing one record (/despawn)
+        // never renumbers the others, and an NPC's npcQuestId and its
+        // lang.json NO_MORE_QUESTS[<map index>][<id>] line stay put. This
+        // runs before anything else spawns on the map (mapmanager.js), so the
+        // ids are free; afterwards the map's id counter carries on above the
+        // highest one. A record without a usable id (missing, a duplicate or
+        // out of range) gets the next free id, and the file is saved with it.
+        const entities = this.map.entities;
+        const used = new Set();
+        for (const item of list) {
+            const id = item && Number(item.id);
+            if (Number.isInteger(id) && id >= 1 && id <= MAX_FIXED_ID && !used.has(id))
+                used.add(id);
+        }
+        let maxId = Math.max(0, entities.entityCount, ...used);
+        const firstFreeAfterLoad = entities.entityCount;
+        const seen = new Set();
+        let assigned = 0;
+        for (const item of list) {
+            if (!item || typeof item !== 'object') continue;
+            const id = Number(item.id);
+            if (
+                !Number.isInteger(id) ||
+                id < 1 ||
+                id > MAX_FIXED_ID ||
+                seen.has(id) ||
+                id <= firstFreeAfterLoad
+            ) {
+                item.id = ++maxId;
+                assigned++;
+            }
+            seen.add(item.id);
+        }
+
         let spawned = 0;
         for (const item of list) {
             const rec = this._normalizeRecord(item);
@@ -232,11 +270,24 @@ class MapEntityStore {
                 continue;
             }
             this.records.push(rec);
+            // the next entity created gets ++entityCount, i.e. exactly rec.id
+            entities.entityCount = rec.id - 1;
             const entity = this._spawn(rec);
             if (entity) {
                 this.byEntityId.set(entity.id, rec);
                 spawned++;
             }
+        }
+        entities.entityCount = maxId;
+        if (assigned > 0) {
+            console.info(
+                'MapEntityStore: gave ' +
+                    assigned +
+                    ' record(s) in ' +
+                    this.filePath +
+                    ' a new fixed id; saving.'
+            );
+            this.save();
         }
         console.info(
             'MapEntityStore: ' +
@@ -260,6 +311,9 @@ class MapEntityStore {
         const entity = this._spawn(rec);
         if (!entity) return { error: 'could not create the entity' };
 
+        // Its fixed id is the entity id it was just given, so it's spawned
+        // with the same id after a restart (see load()).
+        rec.id = entity.id;
         this.records.push(rec);
         this.byEntityId.set(entity.id, rec);
         this._announce(entity);
@@ -333,6 +387,7 @@ class MapEntityStore {
     _normalizeRecord(item) {
         if (!item || typeof item !== 'object') return null;
         const rec = {
+            id: Number(item.id),
             type: MapEntityStore.normalizeType(item.type),
             kind: Number(item.kind),
             x: Number(item.x),
