@@ -38,20 +38,50 @@ class CombatHandler {
         this.world = this.ph.world;
     }
 
-    handleAttack(message) {
+    // `heldUntil`: set when this is an attack that arrived early and was held
+    // until it was due (the due time it was held for).
+    handleAttack(message, heldUntil) {
         const self = this;
         // FIX: removed `const time = parseInt(message[0]);` -- never used
         // anywhere in this method; computed on every single attack packet
         // for no purpose.
         const p = this.player;
 
-        if (p.isDead) return;
+        if (p.isDead || !p.map) return;
 
-        const attackTime = Date.now() - p.attackTimer + 50;
-        if (attackTime < ATTACK_INTERVAL) {
-            if (G_DEBUG) console.warn('attack interval');
+        // Attack rate: one attack every ATTACK_INTERVAL (1000ms), timed
+        // against when the next attack is due rather than the gap since the
+        // last packet. This used to drop any attack arriving less than
+        // ATTACK_INTERVAL - 50ms after the previous *hit was processed* --
+        // so ordinary network jitter (or a hit processed late because the
+        // player was still moving) silently threw away attacks the client
+        // had already shown. Now:
+        // - an attack that arrives early is held and runs when it's due;
+        //   while one is held, any further attack is dropped (the client
+        //   only sends one per 1000ms, so a second one this early is a
+        //   duplicate or a client attacking too fast);
+        // - a held attack's next one is due ATTACK_INTERVAL after the time
+        //   it was due, so a steady stream of attacks lands exactly every
+        //   1000ms however the packets bunch up; one that arrives late
+        //   starts the next interval from now.
+        // Held with its own setTimeout (at most one per player) rather than
+        // the shared Scheduler, whose 50ms tick would make it land late.
+        if (p.pendingAttack && heldUntil === undefined) {
+            if (G_DEBUG) console.warn('attack dropped: one is already held');
             return;
         }
+        const now = Date.now();
+        const due = p.nextAttackTime || 0;
+        if (now < due) {
+            if (G_DEBUG) console.warn('attack early: held ' + (due - now) + 'ms');
+            p.pendingAttack = setTimeout(function () {
+                p.pendingAttack = null;
+                self.handleAttack(message, due);
+            }, due - now);
+            return;
+        }
+        p.nextAttackTime =
+            (heldUntil === due ? due : now) + ATTACK_INTERVAL;
 
         if (p.isMoving() || p.isMovingPath()) {
             p.attackQueue = message;
@@ -199,7 +229,6 @@ class CombatHandler {
         }
         fnDamage(sEntity, tEntity, damageObj);
 
-        if (sEntity.attackTimer) sEntity.attackTimer = Date.now();
 
         if (sEntity.effectHandler) {
             sEntity.effectHandler.interval('afterhit', 0);

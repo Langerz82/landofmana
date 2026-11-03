@@ -66,8 +66,10 @@ export const G_SPATIAL_SIZE = 24;
 export const G_SCREEN_WIDTH = 34;
 export const G_SCREEN_HEIGHT = 18;
 
-export const ATTACK_INTERVAL = 1000 - G_UPDATE_INTERVAL;
-export const ATTACK_MAX = 1000;
+// A player's attack rate: one attack per ATTACK_INTERVAL ms, the same 1000ms
+// cooldown the clients use. An attack that arrives early is held until it's
+// due (packets/combathandler.js handleAttack).
+export const ATTACK_INTERVAL = 1000;
 
 export const PLAYER_SAVE_INTERVAL = 1800000;
 

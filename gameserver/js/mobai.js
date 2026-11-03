@@ -271,7 +271,7 @@ class MobAI {
             mob.lookAtEntity(mob.target);
 
             if (G_DEBUG) console.info('handleHurt - mob');
-            let dmg = Formulas.dmg(mob, mob.target, mob.attackTimer);
+            let dmg = Formulas.dmg(mob, mob.target);
             const canCrit = Formulas.crit(mob, mob.target);
             mob.criticalHit = false;
             if (canCrit) {
@@ -281,7 +281,6 @@ class MobAI {
 
             if (G_DEBUG) console.info('handleHurt');
             this.server.handleDamage(mob.target, mob, -dmg, mob.criticalHit);
-            mob.attackTimer = Date.now();
             if (!mob.target) {
                 mob.returnToSpawn();
             }

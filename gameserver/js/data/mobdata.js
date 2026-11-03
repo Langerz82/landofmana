@@ -18,6 +18,7 @@
 
 import _ from 'underscore';
 import Mobs from '../../shared/data/mobs.json' with { type: 'json' };
+import { ATTACK_INTERVAL } from '../constants.js';
 
 const Properties = {};
 const Kinds = {};
@@ -47,7 +48,11 @@ _.each(Mobs, function (value, key) {
         attackRange: value.attackRange ? value.attackRange : 1,
         isAggressive: value.isAggressive === 1 ? true : false,
 
-        attackRate: value.attackRateMod ? value.attackRateMod * 1500 : 1500,
+        // Attack cooldown (ms): 1000 x attackRateMod, the same as the clients'
+        // mob data and players' 1000ms. The mob AI checks every 256ms
+        // (worldserver.js), so a 1000ms cooldown attacks every 1024ms
+        // (1500 -> 1536, 2000 -> 2048). Was 1500 x attackRateMod.
+        attackRate: value.attackRateMod ? value.attackRateMod * ATTACK_INTERVAL  : ATTACK_INTERVAL,
 
         reactionDelay: value.reactionMod ? value.reactionMod * 256 : 256,
         moveSpeed: value.moveSpeedMod

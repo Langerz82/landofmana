@@ -247,7 +247,7 @@ class PlayerPersistence {
         this._loadSkills(db_player);
         this._loadShortcuts(db_player);
 
-        entity.attackTimer = Date.now();
+        entity.nextAttackTime = 0;
     }
 }
 

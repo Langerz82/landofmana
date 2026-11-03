@@ -157,7 +157,6 @@ class MobAggro {
         entity.attackingMode = true;
         entity.handleMobHate(player, 1);
         entity.setAiState(mobState.AGGRO);
-        entity.attackTimer = Date.now();
         entity.freeze = false;
     }
 }

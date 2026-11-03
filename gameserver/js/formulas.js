@@ -17,7 +17,7 @@
 // or <https://www.gnu.org/licenses/>.
 
 import Utils from './utils.js';
-import { ATTACK_INTERVAL, ATTACK_MAX, G_DEBUG } from './constants.js';
+import { G_DEBUG } from './constants.js';
 import Mob from './entity/mob/mob.js';
 import Player from './entity/player/player.js';
 
@@ -50,16 +50,14 @@ Formulas.crit = function (attacker, defender) {
 	return chance;
 }*/
 
+// Damage multiplier from how long the attacker waited since its last attack.
+// It used to be ~~(clamp(ATTACK_INTERVAL, ATTACK_MAX, delay + 100) /
+// ATTACK_INTERVAL), and with ATTACK_INTERVAL 968 and ATTACK_MAX 1000 that
+// rounds down to 1 every time -- a charge-up that could never charge. Kept as
+// a constant 1 so dmg()/dmgAOE() keep their shape if a real multiplier is
+// added later; attack rate itself is limited in combathandler.js handleAttack.
 Formulas.getAttackPower = function (attacker) {
-    let attackPower = 1;
-    if (attacker.attackTimer) {
-        const delay = Date.now() - attacker.attackTimer;
-        attackPower = ~~(
-            Utils.clamp(ATTACK_INTERVAL, ATTACK_MAX, delay + 100) /
-            ATTACK_INTERVAL
-        );
-    }
-    return attackPower;
+    return 1;
 };
 
 Formulas.dmgAOE = function (attacker) {

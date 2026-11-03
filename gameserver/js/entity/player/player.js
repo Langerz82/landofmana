@@ -101,7 +101,10 @@ class Player extends Character {
         this.attackQueue = null;
 
         this.attackSkill = [];
-        this.attackTimer = 0;
+        // When this player's next attack is due, and an attack held until
+        // then (packets/combathandler.js handleAttack).
+        this.nextAttackTime = 0;
+        this.pendingAttack = null;
 
         // Last time this player did something themselves (moved, attacked,
         // chatted, used an item, ...). Updated by PacketHandler for every
@@ -192,6 +195,10 @@ class Player extends Character {
         // PlayerQuests.setPendingOffer()) so its timer can't fire for a
         // player who has left.
         this.quests.clearPendingOffer();
+        // Same for an attack held until it was due
+        // (packets/combathandler.js handleAttack).
+        clearTimeout(this.pendingAttack);
+        this.pendingAttack = null;
         this.die();
     }
 
