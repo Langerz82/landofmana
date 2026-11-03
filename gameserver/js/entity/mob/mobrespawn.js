@@ -321,10 +321,10 @@ class MobRespawn {
         else entity.drops[36] = 250;
 
         // Area drop bonus (map mobarea "bonusDrop" property, default 1).
-        // Each weight is a chance out of 1000 (LootManager.getDrop rolls
-        // 0-999 against the running total), so x2 doubles every item's
-        // chance; once the total passes 1000 the mob always drops
-        // something, and items past the 1000 mark can no longer be rolled.
+        // Each weight is a chance out of 1000, so x2 doubles every item's
+        // chance. Once the total passes 1000 the mob always drops
+        // something, and the most common items lose out first --
+        // LootManager._pickWeighted checks the rarest drops first.
         const bonus = entity.bonusDrop || 1;
         if (bonus !== 1) {
             for (const kind in entity.drops) {

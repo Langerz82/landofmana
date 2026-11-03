@@ -67,20 +67,25 @@ class LootManager {
         }
     }
 
-    // SIMPLIFY: getLootItem() and getDrop() below both pick a weighted
-    // random entry from a `{id: chance}`-style drops object via the same
-    // "roll a number, walk entries subtracting each chance until the roll
-    // lands inside one" scan. Shared here; returns the matching id (a
-    // string, since these are for...in keys) or null if the roll doesn't
-    // land in any entry (e.g. drops don't sum to the full roll range).
-    _pickWeighted(drops, roll) {
-        let v = roll;
-        for (const id in drops) {
-            const count = drops[id];
-            if (v >= 0 && v < count) {
-                return id;
-            }
-            v -= count;
+    // Picks one entry from a `{id: chance}` drops object, where each chance
+    // is out of 1000 (getDrop() and getLootItem() below). Rolls 1-1000, then
+    // walks the drops from rarest (smallest chance) to most common,
+    // subtracting each one's chance from the roll; the first that takes it
+    // to 0 or below is the drop. So every item keeps its full chance out of
+    // 1000 -- the rarest first -- and when the chances add up to more than
+    // 1000 (e.g. a mob area's bonusDrop multiplier), only the most common
+    // items lose out, never the rare ones. (It used to walk the entries in
+    // key order, so whatever happened to come last -- e.g. the crystal --
+    // got cut.) Ties go by item id, so the order is always the same.
+    // Returns the id (a string, as object keys are) or null for no drop.
+    _pickWeighted(drops) {
+        const entries = Object.keys(drops)
+            .filter((id) => drops[id] > 0)
+            .sort((a, b) => drops[a] - drops[b] || Number(a) - Number(b));
+        let roll = Utils.randomRangeInt(1, 1000);
+        for (const id of entries) {
+            roll -= drops[id];
+            if (roll <= 0) return id;
         }
         return null;
     }
@@ -103,10 +108,7 @@ class LootManager {
         // `let`. Consolidated to the one declaration -- now just the return
         // value of the shared _pickWeighted() scan above.
         const drops = target.questDrops;
-        const itemId2 = this._pickWeighted(
-            drops,
-            Utils.randomRangeInt(0, 1000)
-        );
+        const itemId2 = this._pickWeighted(drops);
 
         if (itemId2) {
             //console.info("itemName: "+itemName);
@@ -186,7 +188,7 @@ class LootManager {
         target.droppedItem = true;
 
         const drops = target.drops;
-        let itemId2 = this._pickWeighted(drops, Utils.random(1000));
+        let itemId2 = this._pickWeighted(drops);
 
         // FIX: `itemId` from a `for...in` loop is always a string (object
         // keys are strings even when numeric-looking, the same class of
