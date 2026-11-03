@@ -125,6 +125,7 @@
     "TELEPORT_LEVEL_REQUIRED": "You must be between level {0} and level {1} to use this teleport.",
     "TELEPORT_LEVEL_MIN": "You must be level {0} or higher to use this teleport.",
     "TELEPORT_LEVEL_MAX": "You must be level {0} or lower to use this teleport.",
+    "TELEPORT_LEVEL_MIN_BUBBLE": "I must be level {0} or higher to proceed.",
 
     "QUESTS_REWARD": [
       [0, "Here is your reward."],

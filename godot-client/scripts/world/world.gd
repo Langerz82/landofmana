@@ -917,10 +917,12 @@ func _check_teleport() -> void:
 	# (up on a north edge, down on a south edge); walking along the edge row doesn't cross.
 	if dest.get("rel", false) and p.orientation != dest.orientation:
 		return
+	# Texts from lang.json: TELEPORT_LEVEL_MIN_BUBBLE over the player, and in the chat log
+	# TELEPORT_LEVEL_MIN, the same message the server sends when it refuses a door.
 	if dest.minLevel > 0 and p.level < dest.minLevel:
-		bubble(p, "I must be Level %d or more to proceed." % dest.minLevel)
+		bubble(p, GameData.tr_lang("TELEPORT_LEVEL_MIN_BUBBLE", [dest.minLevel]))
 		if hud:
-			hud.add_game_notification("Notification", "You must be Level %d or more to proceed." % dest.minLevel)
+			hud.add_game_notification("Notification", GameData.tr_lang("TELEPORT_LEVEL_MIN", [dest.minLevel]))
 		return
 	p.set_orientation(dest.orientation)
 	p.freeze = true

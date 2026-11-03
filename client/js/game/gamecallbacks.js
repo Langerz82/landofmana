@@ -268,15 +268,14 @@ export function installGameCallbacks(proto) {
                 // Door Level Requirements.
                 let msg;
                 let notification;
+                // Texts from lang.json: TELEPORT_LEVEL_MIN_BUBBLE over the
+                // player, and in the chat log TELEPORT_LEVEL_MIN, the same
+                // message the server sends when it refuses a door.
                 if (dest.minLevel && self.player.level < dest.minLevel) {
-                    msg =
-                        'I must be Level ' +
-                        dest.minLevel +
-                        ' or more to proceed.';
-                    notification =
-                        'You must be Level ' +
-                        dest.minLevel +
-                        ' or more to proceed.';
+                    const langFormat = (key, args) =>
+                        lang.data[key] ? lang.data[key].format(args) : key;
+                    msg = langFormat('TELEPORT_LEVEL_MIN_BUBBLE', [dest.minLevel]);
+                    notification = langFormat('TELEPORT_LEVEL_MIN', [dest.minLevel]);
                 }
 
                 if (msg) {
