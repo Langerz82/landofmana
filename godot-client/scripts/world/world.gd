@@ -934,6 +934,10 @@ func _check_teleport() -> void:
 		elif too_low:
 			key = "TELEPORT_LEVEL_MIN"
 			args = [dest.minLevel]
+		# Treat it like a door the server refused: not checked again until the player steps off
+		# it. The door check runs several times while standing on a door, and each run used to
+		# show the bubble and add the chat line again.
+		_refused_door_pos = Vector2(p.x, p.y)
 		bubble(p, GameData.tr_lang(key + "_BUBBLE", args))
 		if hud:
 			hud.add_game_notification("Notification", GameData.tr_lang(key, args))

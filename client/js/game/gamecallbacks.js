@@ -296,6 +296,12 @@ export function installGameCallbacks(proto) {
                 }
 
                 if (msg) {
+                    // Treat it like a door the server refused: not checked
+                    // again until the player steps off it. checkTeleport()
+                    // runs several times while standing on a door (stop,
+                    // path end, key release...), and each run used to show
+                    // the bubble and add the chat line again.
+                    p.refusedDoorAt = { x: p.x, y: p.y };
                     self.bubbleManager.create(self.player, msg);
                     self.chathandler.addGameNotification(
                         'Notification',
