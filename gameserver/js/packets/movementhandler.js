@@ -260,20 +260,45 @@ class MovementHandler {
                     reject('Teleport door does not lead to requested map.');
                     return;
                 }
-                if (p.level < door.minLevel || p.level > door.maxLevel) {
-                    p.sendPlayer(
-                        new Messages.Notify('CHAT', 'TELEPORT_LEVEL_REQUIRED', [
-                            door.minLevel,
-                            door.maxLevel
-                        ])
-                    );
-                    reject('Teleport door level requirement not met.');
-                    return;
-                }
                 // FIX: nothing checked the player was actually at this door,
                 // so any door on the current map worked from anywhere on it.
                 if (!isNearDoor(p, door)) {
                     reject('Player is not at teleport door ' + portalId + '.');
+                    return;
+                }
+                // The door's level range, checked here on the server
+                // whatever the client did (the clients check the minimum
+                // themselves before asking, but not the maximum). The
+                // player gets a chat message naming the limits the door
+                // actually has; both ends of the range are allowed.
+                if (p.level < door.minLevel || p.level > door.maxLevel) {
+                    let notice;
+                    if (door.hasMinLevel && door.hasMaxLevel)
+                        notice = new Messages.Notify('CHAT', 'TELEPORT_LEVEL_REQUIRED', [
+                            door.minLevel,
+                            door.maxLevel
+                        ]);
+                    else if (p.level < door.minLevel)
+                        notice = new Messages.Notify('CHAT', 'TELEPORT_LEVEL_MIN', [door.minLevel]);
+                    else
+                        notice = new Messages.Notify('CHAT', 'TELEPORT_LEVEL_MAX', [door.maxLevel]);
+                    p.sendPlayer(notice);
+                    reject(
+                        'Teleport door level requirement not met: player ' +
+                            p.name +
+                            ' (level ' +
+                            p.level +
+                            ') at door ' +
+                            portalId +
+                            ' of ' +
+                            (p.map.name || 'map ' + p.map.index) +
+                            ' to map ' +
+                            mapId +
+                            ', needs level ' +
+                            (door.hasMinLevel ? door.minLevel : 1) +
+                            (door.hasMaxLevel ? '-' + door.maxLevel : '+') +
+                            '.'
+                    );
                     return;
                 }
                 if (door.tx >= 0 && door.ty >= 0) {

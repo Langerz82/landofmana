@@ -230,8 +230,11 @@ module.exports = function processMap(json, jsontsx, options) {
                          o: "d",
                      };
                      if (prop.tmap >= 0) doorArea.tmap = prop.tmap;
-                     if (prop.tMinLevel) doorArea.tMinLevel = prop.tMinLevel;
-                     if (prop.tMaxLevel) doorArea.tMaxLevel = prop.tMaxLevel;
+                     // Level range a player needs to use the door. Written as tminLevel/tmaxLevel,
+                     // the names the gameserver (map.js _getDoors) and both clients read -- this used
+                     // to write tMinLevel/tMaxLevel, so no door's level limit ever took effect.
+                     if (prop.tMinLevel) doorArea.tminLevel = prop.tMinLevel;
+                     if (prop.tMaxLevel) doorArea.tmaxLevel = prop.tMaxLevel;
                      if (prop.tx) doorArea.tx = prop.tx;
                      if (prop.ty) doorArea.ty = prop.ty;
                      if (prop.o) doorArea.to = getOrientation(prop.o);
@@ -257,8 +260,11 @@ module.exports = function processMap(json, jsontsx, options) {
                          to: 2
                      };
                      if (prop.tmap >= 0) doorArea.tmap = prop.tmap;
-                     if (prop.tMinLevel) doorArea.tMinLevel = prop.tMinLevel;
-                     if (prop.tMaxLevel) doorArea.tMaxLevel = prop.tMaxLevel;
+                     // Level range a player needs to use the door. Written as tminLevel/tmaxLevel,
+                     // the names the gameserver (map.js _getDoors) and both clients read -- this used
+                     // to write tMinLevel/tMaxLevel, so no door's level limit ever took effect.
+                     if (prop.tMinLevel) doorArea.tminLevel = prop.tMinLevel;
+                     if (prop.tMaxLevel) doorArea.tmaxLevel = prop.tMaxLevel;
                      // a destination of tile 0 is a real coordinate (map sections start at 0)
                      if (prop.x !== undefined && prop.x !== null) doorArea.tx = prop.x * G_TILESIZE;
                      if (prop.y !== undefined && prop.y !== null) doorArea.ty = prop.y * G_TILESIZE;

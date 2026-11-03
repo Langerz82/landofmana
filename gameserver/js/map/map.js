@@ -738,6 +738,10 @@ class Map {
             area.tmap = door.tmap >= 0 ? door.tmap : self.id;
             area.minLevel = door.tminLevel || 0;
             area.maxLevel = door.tmaxLevel || 200;
+            // Whether the map set a limit (vs the defaults above), so the
+            // "wrong level" message only mentions the limits a door has.
+            area.hasMinLevel = door.tminLevel > 0;
+            area.hasMaxLevel = door.tmaxLevel > 0;
             area.orientation = door.to || 2;
             // FIX: `door.tx || -1` treated a target coordinate of 0 as unset.
             area.tx = door.tx >= 0 ? door.tx : -1;

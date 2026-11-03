@@ -15561,6 +15561,11 @@
                  "name":"",
                  "properties":[
                         {
+                         "name":"tMinLevel",
+                         "type":"int",
+                         "value":20
+                        }, 
+                        {
                          "name":"o",
                          "type":"string",
                          "value":"d"
