@@ -26,8 +26,11 @@ import Player from './entity/player/player.js';
 const Formulas = {};
 
 Formulas.crit = function (attacker, defender) {
+    // FIX: rolled 0-200 (201 values) with `<=`, so a chance of c out of 200
+    // actually hit (c+1)/201 of the time. A 0-199 roll below c is exactly
+    // c/200 (2.5%-97.5% after the clamp).
     const chance =
-        Utils.randomRangeInt(0, 200) <=
+        Utils.randomRangeInt(0, 199) <
         Utils.clamp(
             5,
             195,

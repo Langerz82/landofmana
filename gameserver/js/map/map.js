@@ -404,7 +404,7 @@ class Map {
     // Creates one entity area and spawns its entities. `area` is in the
     // converted map format (maps/<map>.json "entityAreas"): id, x, y, w, h,
     // elipse (x/y are then the centre), type (Types.EntityTypes id), kind,
-    // count, name, level, durability, durabiltyMax, animName, weaponType,
+    // count, name, level, durability, durabilityMax, animName, weaponType,
     // spriteName, distanceApart. Also used for the entity areas saved in
     // data/maps/<map>/entity.json (map/mapentitystore.js).
     addEntityArea(area) {
@@ -420,16 +420,17 @@ class Map {
         );
         let data = {};
         if (area.type) data.type = area.type;
-        if (area.kind) data.kind = area.kind;
+        // kind 0 is a real kind: only skip a missing one
+        if (area.kind !== undefined && area.kind !== null) data.kind = area.kind;
         if (area.count) data.count = area.count;
         if (area.name) data.name = area.name;
         if (area.level) data.level = area.level;
         if (area.durability) data.durability = area.durability;
-        if (area.durabiltyMax) data.durabiltyMax = area.durabiltyMax;
+        if (area.durabilityMax) data.durabilityMax = area.durabilityMax;
         if (area.animName) data.animName = area.animName;
         if (area.weaponType) data.weaponType = area.weaponType;
         if (area.spriteName) data.spriteName = area.spriteName;
-        console.info("initEntityAreas data: "+JSON.stringify(data));
+        if (G_DEBUG) console.info("initEntityAreas data: "+JSON.stringify(data));
         const distApart = Number(area.distanceApart ?? 0) || 0;
         entityarea.addEntities(data, distApart);
         self.entityAreas.push(entityarea);
@@ -710,7 +711,7 @@ class Map {
 
     _getDoors(map) {
         const self = this;
-        console.info(JSON.stringify(map.doors));
+        if (G_DEBUG) console.info(JSON.stringify(map.doors));
         const doors = [];
         _.each(map.doors, function (door) {
             door.width = door.width ? door.width : 1;
@@ -752,7 +753,7 @@ class Map {
             area.rel = !!door.rel;
             doors.push(area);
         });
-        console.info('return doors');
+        if (G_DEBUG) console.info('return doors');
         return doors;
     }
 

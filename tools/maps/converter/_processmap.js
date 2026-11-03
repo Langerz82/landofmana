@@ -304,8 +304,8 @@ module.exports = function processMap(json, jsontsx, options) {
                              if (prop.durability) {
                                  entity.durability = prop.durability;
                              }
-                             if (prop.durabiltyMax) {
-                                 entity.durabiltyMax = prop.durabiltyMax;
+                             if (prop.durabilityMax) {
+                                 entity.durabilityMax = prop.durabilityMax;
                              }
 
                              map.entities.push(entity);
@@ -379,7 +379,7 @@ module.exports = function processMap(json, jsontsx, options) {
                  if (prop.spriteName) entityarea.spriteName = prop.spriteName;
                  if (prop.level) entityarea.level = prop.level;
                  if (prop.durability) entityarea.durability = prop.durability;
-                 if (prop.durabiltyMax) entityarea.durabiltyMax = prop.durabiltyMax;
+                 if (prop.durabilityMax) entityarea.durabilityMax = prop.durabilityMax;
                  if (prop.animName) entityarea.animName = prop.animName;
                  if (prop.weaponType) entityarea.weaponType = prop.weaponType;
 

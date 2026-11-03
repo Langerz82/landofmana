@@ -19,6 +19,7 @@
 import _ from 'underscore';
 import Area from './area.js';
 import Scheduler from '../scheduler.js';
+import { G_DEBUG } from '../constants.js';
 
 class EntityArea extends Area {
     constructor(map, id, x, y, width, height, elipse, excludeId) {
@@ -30,7 +31,7 @@ class EntityArea extends Area {
     addEntities(data, distApart) {
         for (let i=0; i < data.count; ++i) {
             let pos = null;
-            console.info("distApart="+distApart);
+            if (G_DEBUG) console.info("distApart="+distApart);
             if (distApart > 0) {
                 const nearby = this.getNearbyEntities(distApart);
                 pos = this.map.entities.spaceEntityRandomApart(
@@ -46,7 +47,7 @@ class EntityArea extends Area {
 
             data.x = pos.x;
             data.y = pos.y;
-            console.info("addEntities data:"+JSON.stringify(data));
+            if (G_DEBUG) console.info("addEntities data:"+JSON.stringify(data));
             const entity = this.map.entities.createEntity(data);
             entity.area = this;
             this.addToArea(entity);

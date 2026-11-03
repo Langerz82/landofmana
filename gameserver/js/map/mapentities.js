@@ -264,10 +264,13 @@ class MapEntities {
             data.type === Types.EntityTypes.ITEMLOOT)
         {
             let itemRoom = new ItemRoom([data.kind, 1, null, null, 0]);
+            // FIX: read `data.durabilty` and checked `durabilityMax` but read
+            // `durabiltyMax` (both misspelt), so an item placed by a map/entity
+            // area never got its durability.
             if (data.durability)
-                itemRoom.itemDurability = data.durabilty;
+                itemRoom.itemDurability = data.durability;
             if (data.durabilityMax)
-                itemRoom.itemDurabilityMax = data.durabiltyMax;
+                itemRoom.itemDurabilityMax = data.durabilityMax;
             if (data.count)
                 itemRoom.itemNumber = data.count;
 
@@ -301,11 +304,18 @@ class MapEntities {
         }
         else if (data.type === Types.EntityTypes.NODE) {
             entity = this.addNode(data.kind, data.x, data.y);
-            if (data.level) entity.level = data.level;
+            entity.level = data.level || 1;
             if (data.name) entity.name = data.name;
             if (data.spriteName) entity.spriteName = data.spriteName;
             if (data.weaponType) entity.weaponType = data.weaponType;
             if (data.animName) entity.animName = data.animName;
+            // FIX: Node's constructor builds its drop table before the level
+            // above is known, and nothing rebuilt it (not even a respawn), so
+            // every ore node dropped Hard Iron whatever its level and every
+            // chest (drop level NaN) dropped nothing. Rebuild it now the
+            // level is set -- as MapEntityStore already did for entity.json
+            // nodes.
+            entity.setDrops();
         }
         return entity;
     }
