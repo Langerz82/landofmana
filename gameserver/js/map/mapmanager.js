@@ -34,12 +34,12 @@ import MapEntityStore from './mapentitystore.js';
 //var TrapGroup = require("../entity/trapgroup");
 import fs from 'fs';
 
-// Map list: ./maps/maplist.json names every map by index ({"maps": ["map0", "map1", "map2", ...]}).
-// Maps 0-2 are set up by hand below; every further map in the list (e.g. map4's sections and its
-// interiors, written by tools/maps/generator/map4gen/split4.py) is loaded from ./maps/<name>.json
-// and set up the same way as map2. Without the file only maps 0-2 are loaded, as before.
+// Map list: ./maps/maplist.json names every map by index ({"maps": ["map0", "map1", "map2", ...]}),
+// including split maps' sections and interiors (written by tools/maps/generator/split.py). Every
+// map is loaded from ./maps/<name>.json and set up the same way (addListedMap()). Without the
+// file, maps 0-2 are loaded, as before.
 const MAP_LIST_FILE = './maps/maplist.json';
-const FIXED_MAPS = 3;
+const DEFAULT_MAPS = ['map0', 'map1', 'map2'];
 
 // "warps" (optional): the map that "/warp <name>" (admins only) goes to for a split map, e.g. "/warp map4".
 function readMapList() {
@@ -68,147 +68,24 @@ class MapManager {
         this.loaded = false;
 
         /**
-         * Map Loading
+         * Map Loading: every map in maps/maplist.json, by index (all
+         * registered before any map finishes loading, so isMapsReady()
+         * waits for them all).
          */
-
-        this.maps[0] = new Map(server, 0, 'map0', './maps/map0.json', '');
-        this.maps[0].ready(function () {
-            const map = self.maps[0];
-
-            map.entities = new MapEntities(
-                self.id,
-                self.server,
-                map,
-                self.server.database
-            );
-            map.entities.mapready();
-
-            // NPCs and other placed entities spawn BEFORE the mob/entity
-            // areas: entity ids come from a per-map counter in spawn order,
-            // and the areas spawn a varying number of entities each start
-            // (a spot can't always be found), so anything spawned after them
-            // got a different id on every restart. Spawned first, an NPC's
-            // id only depends on the map file / entity.json order -- the
-            // id (with the map index) that its npcQuestId and its lang.json
-            // NO_MORE_QUESTS line are keyed on.
-            map.entities.spawnEntities(map);
-            // Entities from data/maps/<map name>/entity.json (including
-            // ones admins placed with /spawn).
-            self.loadSavedEntities(map);
-
-            // FIX: was `map.initMobAreas(thismap.mobAreas)` called eagerly
-            // inside Map.initMap(), before `map.entities` existed -- see the
-            // FIX comment in map.js's initMap(). Deferred to here, now that
-            // `map.entities` is assigned above.
-            map.initMobAreas(map.mobAreasData);
-            map.initEntityAreas(map.entityAreasData);
-
-            map.enterCallback = function (player) {
-                const pos = map.getRandomStartingPosition();
-                return pos;
-            };
-            self.MapsReady();
-        });
-
-        self.maps[1] = new Map(server, 1, 'map1', './maps/map1.json', '');
-        self.maps[1].ready(function () {
-            const map = self.maps[1];
-
-            map.entities = new MapEntities(
-                self.id,
-                self.server,
-                map,
-                self.server.database
-            );
-            map.entities.mapready();
-
-            // map1's spiral of rings around the Old Man used to be built
-            // here in code. All of it now lives in data files, like every
-            // other map:
-            // - mob areas (the centre area plus, per ring, a 40-tile
-            //   area, a tougher 20-tile area and a 10-tile boss area, each
-            //   spawning the mob kind for its level) and entity areas (ore
-            //   nodes and chests): the mobareas/entityareas layers of
-            //   tools/maps/data/map1.json -> maps/map1.json;
-            // - the walking NPCs (the Old Man and one per ring, with their
-            //   quests): data/maps/map1/entity.json, loaded by
-            //   loadSavedEntities(); their "no more quests, head <dir> and
-            //   look for <next NPC>" lines are in lang.json's
-            //   NO_MORE_QUESTS, under map index 1 and their entity ids
-            //   (1 = the Old Man, 2-57 = rings 1-56).
-            // map.entities.spawnEntities() stays off for map1, as before:
-            // maps/map1.json's own entities list only has an old,
-            // superseded copy of the Old Man.
-            // NPCs and other placed entities spawn BEFORE the mob/entity
-            // areas: entity ids come from a per-map counter in spawn order,
-            // and the areas spawn a varying number of entities each start
-            // (a spot can't always be found), so anything spawned after them
-            // got a different id on every restart. Spawned first, an NPC's
-            // id only depends on the map file / entity.json order -- the
-            // id (with the map index) that its npcQuestId and its lang.json
-            // NO_MORE_QUESTS line are keyed on.
-            self.loadSavedEntities(map);
-
-            map.initMobAreas(map.mobAreasData);
-            map.initEntityAreas(map.entityAreasData);
-
-            map.enterCallback = function (player) {
-                const pos = map.getRandomStartingPosition();
-                return pos;
-            };
-            self.MapsReady();
-        });
-
-        this.maps[2] = new Map(server, 2, 'map2', './maps/map2.json', '');
-        this.maps[2].ready(function () {
-            const map = self.maps[2];
-
-            map.entities = new MapEntities(
-                self.id,
-                self.server,
-                map,
-                self.server.database
-            );
-            map.entities.mapready();
-
-            //map.entities.spawnEntities(map);
-            // FIX: see the matching FIX comment on map.maps[0]'s ready()
-            // callback above -- this used to fire too early, inside
-            // Map.initMap(), before `map.entities` existed.
-            // NPCs and other placed entities spawn BEFORE the mob/entity
-            // areas: entity ids come from a per-map counter in spawn order,
-            // and the areas spawn a varying number of entities each start
-            // (a spot can't always be found), so anything spawned after them
-            // got a different id on every restart. Spawned first, an NPC's
-            // id only depends on the map file / entity.json order -- the
-            // id (with the map index) that its npcQuestId and its lang.json
-            // NO_MORE_QUESTS line are keyed on.
-            map.entities.spawnEntities(map);
-            // Entities from data/maps/<map name>/entity.json (including
-            // ones admins placed with /spawn).
-            self.loadSavedEntities(map);
-            map.initMobAreas(map.mobAreasData);
-            map.initEntityAreas(map.entityAreasData);
-
-            map.enterCallback = function (player) {
-                const pos = map.getRandomStartingPosition();
-                return pos;
-            };
-            self.MapsReady();
-        });
-
-        // every further map in maps/maplist.json (all registered before any map finishes
-        // loading, so isMapsReady() waits for them too)
         const list = readMapList();
-        list.maps.forEach(function (name, id) {
-            if (id < FIXED_MAPS || !name) return;
+        const names = list.maps.length > 0 ? list.maps : DEFAULT_MAPS;
+        names.forEach(function (name, id) {
+            if (!name) return;
             self.addListedMap(id, name);
         });
 
     }
 
-    // A map from maps/maplist.json, set up like map2: its own entities, the mob/entity areas
-    // from its JSON, its spawns, admin-placed entities and random start positions.
+    // A map from maps/maplist.json: its own entities, the entities from its JSON and from
+    // data/maps/<name>/entity.json (NPCs, admin-placed entities), then its mob and entity areas
+    // (data/maps/<name>/entityarea.json, written by the map converter), and random start
+    // positions. (map1's Old Man and ring NPCs are in data/maps/map1/entity.json; its JSON's own
+    // entities list only holds an old type-0 Old Man, which createEntity() ignores.)
     addListedMap(id, name) {
         const self = this;
         this.maps[id] = new Map(this.server, id, name, './maps/' + name + '.json', '');
@@ -217,11 +94,15 @@ class MapManager {
             map.entities = new MapEntities(
                 self.id,
                 self.server,
-                map,
-                self.server.database
+                map
             );
             map.entities.mapready();
-            // NPCs/entities first, for stable entity ids (see map0 above).
+            // NPCs and other placed entities spawn BEFORE the mob/entity areas: entity ids come
+            // from a per-map counter in spawn order, and the areas spawn a varying number of
+            // entities each start (a spot can't always be found), so anything spawned after them
+            // got a different id on every restart. Spawned first, an NPC's id only depends on the
+            // map file / entity.json order -- the id (with the map index) that its npcQuestId and
+            // its lang.json NO_MORE_QUESTS line are keyed on.
             map.entities.spawnEntities(map);
             self.loadSavedEntities(map);
             map.initMobAreas(map.mobAreasData);
