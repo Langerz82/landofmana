@@ -43,6 +43,10 @@ export function installMapObjects(proto) {
             const area = new Area(door.x, door.y, door.width, door.height);
             area.minLevel = door.tminLevel || 0;
             area.maxLevel = door.tmaxLevel || 200;
+            // Whether the map set a maximum (200 is only the default), like
+            // the gameserver's map.js -- the level check and its message
+            // only use the limits a door actually has.
+            area.hasMaxLevel = door.tmaxLevel > 0;
             // `self` here is the Map instance (installed on Map.prototype); the world-map ID
             // used as the default teleport target when a door doesn't specify one is
             // this same Map's own mapIndex (see its constructor - formerly read off a

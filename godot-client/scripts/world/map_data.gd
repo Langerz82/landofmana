@@ -83,6 +83,8 @@ func _init_from(d: Dictionary) -> void:
 			"orientation": int(door.to) if door.get("to") else 2,
 			"minLevel": int(door.get("tminLevel", 0)) if door.get("tminLevel") else 0,
 			"maxLevel": int(door.get("tmaxLevel", 200)) if door.get("tmaxLevel") else 200,
+			# whether the map set a maximum (200 is only the default)
+			"hasMaxLevel": door.get("tmaxLevel") != null and float(door.get("tmaxLevel")) > 0,
 			# edge door between map sections: the server keeps the player's position along it
 			"rel": float(door.get("rel", 0)) != 0.0,
 		})

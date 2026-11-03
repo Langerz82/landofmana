@@ -268,14 +268,31 @@ export function installGameCallbacks(proto) {
                 // Door Level Requirements.
                 let msg;
                 let notification;
-                // Texts from lang.json: TELEPORT_LEVEL_MIN_BUBBLE over the
-                // player, and in the chat log TELEPORT_LEVEL_MIN, the same
-                // message the server sends when it refuses a door.
-                if (dest.minLevel && self.player.level < dest.minLevel) {
+                // The door's minimum and/or maximum level (both ends
+                // allowed), checked the same way as the server. Texts from
+                // lang.json: TELEPORT_LEVEL_{MIN,MAX,REQUIRED}_BUBBLE over the
+                // player, and in the chat log TELEPORT_LEVEL_{MIN,MAX,REQUIRED}
+                // -- the same message the server sends when it refuses a door.
+                // REQUIRED (the full range) when the door has both limits.
+                const level = self.player.level;
+                const tooLow = dest.minLevel && level < dest.minLevel;
+                const tooHigh = dest.hasMaxLevel && level > dest.maxLevel;
+                if (tooLow || tooHigh) {
                     const langFormat = (key, args) =>
                         lang.data[key] ? lang.data[key].format(args) : key;
-                    msg = langFormat('TELEPORT_LEVEL_MIN_BUBBLE', [dest.minLevel]);
-                    notification = langFormat('TELEPORT_LEVEL_MIN', [dest.minLevel]);
+                    let key, args;
+                    if (dest.minLevel && dest.hasMaxLevel) {
+                        key = 'TELEPORT_LEVEL_REQUIRED';
+                        args = [dest.minLevel, dest.maxLevel];
+                    } else if (tooLow) {
+                        key = 'TELEPORT_LEVEL_MIN';
+                        args = [dest.minLevel];
+                    } else {
+                        key = 'TELEPORT_LEVEL_MAX';
+                        args = [dest.maxLevel];
+                    }
+                    msg = langFormat(key + '_BUBBLE', args);
+                    notification = langFormat(key, args);
                 }
 
                 if (msg) {
@@ -346,6 +363,7 @@ export function installGameCallbacks(proto) {
             const guard = p.arrivalDoorGuard;
             if (guard && guard.door === door && p.orientation === guard.orientation) return false;
             if (door.minLevel && p.level < door.minLevel) return false;
+            if (door.hasMaxLevel && p.level > door.maxLevel) return false;
             if (door.rel && p.orientation !== door.orientation) return false;
             return true;
         };

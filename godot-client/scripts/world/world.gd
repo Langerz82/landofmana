@@ -874,6 +874,8 @@ func _door_would_fire(p, door) -> bool:
 		return false
 	if door.minLevel > 0 and p.level < door.minLevel:
 		return false
+	if door.get("hasMaxLevel", false) and p.level > door.maxLevel:
+		return false
 	if door.get("rel", false) and p.orientation != door.orientation:
 		return false
 	return true
@@ -917,12 +919,24 @@ func _check_teleport() -> void:
 	# (up on a north edge, down on a south edge); walking along the edge row doesn't cross.
 	if dest.get("rel", false) and p.orientation != dest.orientation:
 		return
-	# Texts from lang.json: TELEPORT_LEVEL_MIN_BUBBLE over the player, and in the chat log
-	# TELEPORT_LEVEL_MIN, the same message the server sends when it refuses a door.
-	if dest.minLevel > 0 and p.level < dest.minLevel:
-		bubble(p, GameData.tr_lang("TELEPORT_LEVEL_MIN_BUBBLE", [dest.minLevel]))
+	# The door's minimum and/or maximum level (both ends allowed), checked the same way as the
+	# server. Texts from lang.json: TELEPORT_LEVEL_{MIN,MAX,REQUIRED}_BUBBLE over the player, and in
+	# the chat log TELEPORT_LEVEL_{MIN,MAX,REQUIRED} -- the same message the server sends when it
+	# refuses a door. REQUIRED (the full range) when the door has both limits.
+	var too_low: bool = dest.minLevel > 0 and p.level < dest.minLevel
+	var too_high: bool = dest.get("hasMaxLevel", false) and p.level > dest.maxLevel
+	if too_low or too_high:
+		var key := "TELEPORT_LEVEL_MAX"
+		var args: Array = [dest.maxLevel]
+		if dest.minLevel > 0 and dest.get("hasMaxLevel", false):
+			key = "TELEPORT_LEVEL_REQUIRED"
+			args = [dest.minLevel, dest.maxLevel]
+		elif too_low:
+			key = "TELEPORT_LEVEL_MIN"
+			args = [dest.minLevel]
+		bubble(p, GameData.tr_lang(key + "_BUBBLE", args))
 		if hud:
-			hud.add_game_notification("Notification", GameData.tr_lang("TELEPORT_LEVEL_MIN", [dest.minLevel]))
+			hud.add_game_notification("Notification", GameData.tr_lang(key, args))
 		return
 	p.set_orientation(dest.orientation)
 	p.freeze = true
