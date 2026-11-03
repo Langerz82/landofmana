@@ -47,10 +47,15 @@ class MobCombat {
 
     // Linear in level (old: level*12 + attack*(6 - min(3, level/10)),
     // which spiked early then flattened). +/-10% spread like the player.
+    // Tuned for mobs attacking every 1000ms x attackRateMod (data/mobdata.js;
+    // was 1500ms): with an even stat spread and level-appropriate gear a
+    // same-level mob needs about 13-20 hits to kill a player at every level
+    // (~1.5x the old 8-17, so roughly the same seconds as before), and high
+    // levels are no longer the most punishing. Was 10 + level*8 + attack*3.5.
     baseDamage() {
         const entity = this.entity;
         const attack = entity.stats.attack + entity.stats.mod.attack;
-        const base = 10 + entity.level * 8 + attack * 3.5;
+        const base = 10 + entity.level * 6.5 + attack * 2.75;
         return Utils.randomRangeInt(~~(base * 0.9), ~~(base * 1.1));
     }
 
