@@ -172,8 +172,18 @@ class EntityQuests {
         if (!pquest) return false;
 
         if (!pquest.hasOwnProperty('reward')) {
+            const rewards = quest.reward || [];
+            // Nothing to hand over (no gold, no items -- e.g. an XP-only
+            // quest, whose XP was already given when it completed): mark it
+            // collected without the "Here is your reward" dialogue, and
+            // return false so this same talk carries on to the NPC's next
+            // quest or its no-more-quests line instead of saying nothing.
+            if (!(quest.gold > 0) && rewards.length === 0) {
+                pquest.reward = 1;
+                return false;
+            }
             const count = player.items.inventory.hasRoomCount();
-            if (quest.reward.length > 0 && count < quest.reward.length) {
+            if (rewards.length > 0 && count < rewards.length) {
                 player.sendPlayer(
                     new Messages.Notify('INVENTORY', 'INVENTORY_FULL')
                 );
@@ -193,7 +203,7 @@ class EntityQuests {
             if (quest.gold > 0)
                 player.items.modifyGold(parseInt(quest.gold, 10));
 
-            for (const reward of quest.reward) {
+            for (const reward of rewards) {
                 // FIX: `parseInt(reward.itemDurability, 10) || 0` sends `0`
                 // whenever the field is simply absent (parseInt(undefined) is
                 // NaN, and `NaN || 0` is `0`) -- and every reward entry actually
