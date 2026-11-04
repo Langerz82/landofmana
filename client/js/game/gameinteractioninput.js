@@ -20,8 +20,25 @@
 // entry points.
 // Applied onto Game.prototype via install*(...) call in game.js; not a standalone class.
 /* global Utils, game */
+import NpcStatic from '../entity/npcstatic.js';
+import NpcMove from '../entity/npcmove.js';
 
 export function installGameInteractionInput(proto) {
+    // Admin mode (the server tells us -- see clientcallbackssocial.js
+    // onNotify): clicking an NPC selects it for /addquest by sending
+    // "/select <entity id>" (gameserver packets/admincommands.js). Only when
+    // the clicked NPC isn't the one already selected, so clicking it again
+    // to talk doesn't repeat it. The server still checks the player is an
+    // admin and that it's a selectable NPC.
+    proto.adminSelectEntity = function (entity) {
+        const p = this.player;
+        if (!p || !p.admin) return;
+        if (!(entity instanceof NpcMove || entity instanceof NpcStatic)) return;
+        if (this.adminSelected === entity) return;
+        this.adminSelected = entity;
+        this.client.sendChat('/select ' + entity.id);
+    };
+
     proto.click = function () {
         // no clicking around while a teleport is under way (see gamemovement.js's freezeForTeleport())
         if (this.isTeleporting()) return;
@@ -63,6 +80,7 @@ export function installGameInteractionInput(proto) {
         }
 
         if (entity) {
+            this.adminSelectEntity(entity);
             if (this.isDesktop) {
                 // Desktop: the mouse is already hovering (and, per
                 // movecursor()/gamecursor.js, has already previewed and -- if

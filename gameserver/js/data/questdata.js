@@ -17,15 +17,23 @@
 // or <https://www.gnu.org/licenses/>.
 
 //import Utils from "../utils.js";
+import fs from 'fs';
+import { fileURLToPath } from 'url';
 import Quest, { getQuestObject } from '../quest.js';
 import QuestsJson from '../../shared/data/quests.json' with { type: 'json' };
 import { G_DEBUG } from '../constants.js';
 
+// The same file as the import above, for addQuest() to write to.
+const QUESTS_FILE = fileURLToPath(
+    new URL('../../shared/data/quests.json', import.meta.url)
+);
+
 const QuestData = {};
 const QuestNpcData = {};
 
-for (const id in QuestsJson) {
-    const data = QuestsJson[id];
+// Builds the server's quest object for one quests.json entry and registers it
+// in QuestData.
+function buildQuest(id, data) {
     // PERF: module-load-time only (once per quest) -- gated behind G_DEBUG
     // for consistency with the same fix applied elsewhere.
     if (G_DEBUG) console.info('data:' + JSON.stringify(data));
@@ -78,9 +86,33 @@ for (const id in QuestsJson) {
     questObject.data = quest;
 
     QuestData[quest.id] = questObject;
+    return questObject;
+}
+
+for (const id in QuestsJson) buildQuest(id, QuestsJson[id]);
+
+// Adds a new authored quest (the admin /addquest command): registers it now,
+// so it works without a restart, and appends it to shared/data/quests.json,
+// leaving the rest of the file exactly as it is. Returns the quest object.
+export function addQuest(id, data) {
+    id = String(id);
+    if (QuestData[id]) throw new Error('quest ' + id + ' already exists');
+    const raw = fs.readFileSync(QUESTS_FILE, 'utf8');
+    const eol = raw.includes('\r\n') ? '\r\n' : '\n';
+    const end = raw.lastIndexOf('}');
+    if (end < 0) throw new Error('unexpected format in ' + QUESTS_FILE);
+    const body = raw.slice(0, end).replace(/\s+$/, '');
+    const entry = JSON.stringify(data, null, '\t').split('\n').join(eol + '\t');
+    const sep = body.endsWith('{') ? '' : ',';
+    const text =
+        body + sep + eol + '\t"' + id + '": ' + entry + eol + raw.slice(end);
+    JSON.parse(text); // never write a file the server couldn't read back
+    fs.writeFileSync(QUESTS_FILE, text);
+    QuestsJson[id] = data;
+    return buildQuest(id, data);
 }
 
 //console.info(QuestData);
 export const Data = QuestData;
 
-export default { Data };
+export default { Data, addQuest };

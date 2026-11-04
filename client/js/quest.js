@@ -20,7 +20,7 @@
 //
 // The gameserver decides which quest/dialogue text applies (gameserver/js/
 // questtext.js) and sends its lang *index* -- a path into lang data such as
-// ['QUESTS', '200100', 1] -- plus the display delay. The client retrieves the
+// ['QUESTS', '1000100000201', 1] -- plus the display delay. The client retrieves the
 // lang value for that path and generates the quest fill-in variables
 // (%name%, %count%, %name2%, %count2%) itself from the quest's mob/item/npc
 // kinds (getQuestVars() below).

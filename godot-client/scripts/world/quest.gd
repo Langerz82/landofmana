@@ -38,7 +38,7 @@ var delay := Types.DIALOGUE_DELAY_DEFAULT  # ms per desc line (server sends it o
 
 ## The gameserver decides which quest text applies (gameserver/js/
 ## questtext.js): every WC_QUEST (and each quest in the login packet) carries
-## lang *paths* for the description and summary (e.g. ["QUESTS", "200100", 1])
+## lang *paths* for the description and summary (e.g. ["QUESTS", "1000100000201", 1])
 ## and the display delay. The client retrieves the lang value for each path
 ## and generates the fill-in variables (%name%, %count%, %name2%, %count2%)
 ## itself from the quest's mob/item/npc kinds (get_quest_vars()).

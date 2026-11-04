@@ -123,7 +123,7 @@ const questStatusMax = 5;
 const questStrDataLen = 32;
 
 // Quest object "type" is an enum of reward/objective categories authored in
-// shared/data/quests.json (e.g. quest 200600's object.type is 10). 9 was too
+// shared/data/quests.json (e.g. quest 1000100000701's (was 200600) object.type is 10). 9 was too
 // low and rejected legitimate quest records -- bumped to 10 to match the
 // actual max value present in that data. Kept in sync with
 // userserver/js/format.js's same-named constant (see NOTE above).

@@ -1661,6 +1661,104 @@ function wipeAllNewQuests(callback) {
     });
 }
 
+// ONE-OFF, MANUAL, ADMIN-TRIGGERED, REPEATABLE -- the "wipequests" console
+// command (main.js). Like wipeAllNewQuests() above, but clears every
+// player's completed quests ('completeQuests') as well as their in-progress
+// ones ('newquests'/'newquests2'), so everyone starts every quest again --
+// e.g. after the quest ids changed (questid.js on the gameserver). A player
+// with no 'completeQuests' field loads with none (playerpersistence.js), so
+// deleting it is the same as an empty list. Same scan/multi-hdel shape and
+// `callback(err)` contract as wipeAllNewQuests().
+function wipeAllQuests(callback) {
+    client.scanKeys('p:*', (err, keys) => {
+        if (err) {
+            if (callback) callback(err);
+            return;
+        }
+
+        if (keys.length === 0) {
+            console.info('wipeAllQuests: no players found, nothing to wipe.');
+            if (callback) callback(null);
+            return;
+        }
+
+        let remaining = keys.length;
+        let firstError = null;
+
+        const checkDone = () => {
+            remaining--;
+            if (remaining === 0) {
+                console.info(
+                    'wipeAllQuests: complete -- wiped in-progress and completed quests for ' +
+                        keys.length +
+                        ' player(s).'
+                );
+                if (callback) callback(firstError);
+            }
+        };
+
+        for (const pKey of keys) {
+            client
+                .multi()
+                .hdel(pKey, 'newquests')
+                .hdel(pKey, 'newquests2')
+                .hdel(pKey, 'completeQuests')
+                .exec((err2) => {
+                    if (err2) {
+                        console.error(
+                            'wipeAllQuests: hdel failed for ' +
+                                pKey +
+                                ': ' +
+                                JSON.stringify(err2)
+                        );
+                        firstError = firstError || err2;
+                    }
+                    checkDone();
+                });
+        }
+    });
+}
+
+// RUN ONCE, AT STARTUP -- the automatic, one-off version of wipeAllQuests()
+// for the change to 13-digit quest ids (gameserver questid.js): quests saved
+// under the old ids no longer match any quest, so every player's in-progress
+// and completed quests are wiped the first time a userserver with this code
+// starts, then never again -- the 'migrations:quests_wiped_questid' flag key
+// records that it ran. It runs from migrationReady (redis.js), before any
+// gameserver can connect, so no one is online to save old quests back. After
+// that a wipe only happens when an operator types "wipequests" (main.js).
+function wipeQuestsOnce(callback) {
+    const flagKey = 'migrations:quests_wiped_questid';
+    client.get(flagKey, (err, already) => {
+        if (err) {
+            console.error(
+                'wipeQuestsOnce: flag read failed: ' + JSON.stringify(err)
+            );
+            if (callback) callback(err);
+            return;
+        }
+        if (already) {
+            console.info('wipeQuestsOnce: already run, skipping.');
+            if (callback) callback(null);
+            return;
+        }
+        console.info(
+            'wipeQuestsOnce: quest ids changed -- wiping every player\'s quests (once).'
+        );
+        wipeAllQuests((err2) => {
+            // Only mark it done if every player was wiped, so a failure is
+            // retried at the next start.
+            if (err2) {
+                if (callback) callback(err2);
+                return;
+            }
+            client.set(flagKey, '1', (err3) => {
+                if (callback) callback(err3 || null);
+            });
+        });
+    });
+}
+
 // One-time fold of the old per-gameserver ban sets (b:bans-<worldKey>)
 // into the shared us:userbans hash, then deletes them. If the same user is in
 // more than one old set, whichever set is merged last wins. Re-running is
@@ -2115,6 +2213,8 @@ export const migrationMethods = {
     migrateLooksToBase64,
     resetLegacyLooksToDefault,
     wipeAllNewQuests,
+    wipeAllQuests,
+    wipeQuestsOnce,
     migrateLegacyBans,
     migrateKeyPrefixes
 };

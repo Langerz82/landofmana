@@ -18,6 +18,16 @@
 import Messages from '../message.js';
 import MapEntityStore from '../map/mapentitystore.js';
 import { G_TILESIZE } from '../constants.js';
+import { Types } from '../common.js';
+import MobData from '../data/mobdata.js';
+import ItemLootData from '../data/itemlootdata.js';
+import QuestData, { addQuest } from '../data/questdata.js';
+import {
+    QUEST_STATIC,
+    MAX_QUESTS_PER_NPC,
+    questIdPrefix,
+    makeQuestId
+} from '../questid.js';
 import { logChat } from '../chatlog.js';
 
 // ADMIN: chat commands for players whose account has the Redis admin flag
@@ -34,17 +44,31 @@ import { logChat } from '../chatlog.js';
 //   /despawn [entityId]             remove an admin-placed entity
 //   /spawnlist                      admin-placed entities near you
 //   /pos                            your map + coordinates
+//   /select [entityId]              select an NPC placed in entity.json (the nearest one
+//                                   if no id is given) and list its quests
+//   /addquest kill <mobKind> <count> [options]
+//   /addquest get <mobKind> <lootKind> <count> [chance=N] [options]
+//   /addquest use <nodeKind> <count> [options]
+//                                   add a quest to the selected NPC (or the nearest one):
+//                                   kill <count> mobs, get <count> loot items dropped by
+//                                   mobs (chance = drop chance, default 20), or use
+//                                   <count> nodes. Options: name="...", gold=N, exp=N
+//                                   (XP multiplier). Its id is generated
+//                                   (1 + map + entity id + the NPC's next quest number,
+//                                   questid.js), it's saved to shared/data/quests.json
+//                                   and the NPC's entity.json record, and works at once.
+//                                   Its text is the game's standard text for the type.
 //
 // <type> is one of: mob, npc (alias npcmove), npcstatic, node.
 // Options are key=value, in any order, all optional:
 //   name=Bob  name="Old Bob"   (blank / omitted = the default name)
 //   level=10                   (mob and node only; omitted = random/1)
 //   o=u|d|l|r                  facing up/down/left/right (default down)
-//   quests=300000,300001       (npc and npcstatic only; alias q=) quest ids
+//   quests=1000200000101,1000200000102       (npc and npcstatic only; alias q=) quest ids
 //                              from shared/data/quests.json
 // e.g.
 //   /spawn mob 5 level=10 o=l
-//   /spawn npcstatic 5 name="Bob" quests=300000,300001
+//   /spawn npcstatic 5 name="Bob" quests=1000200000101,1000200000102
 //
 // Spawned entities are saved to gameserver/data/maps/<map>/entity.json and
 // respawned on every server start -- see map/mapentitystore.js.
@@ -56,6 +80,8 @@ const COMMANDS = {
     '/despawn': 'handleDespawn',
     '/spawnlist': 'handleSpawnList',
     '/pos': 'handlePos',
+    '/select': 'handleSelect',
+    '/addquest': 'handleAddQuest',
     '/setadmin': 'handleSetAdmin'
 };
 
@@ -80,6 +106,9 @@ const OPTION_ALIASES = {
 // Letters (any language), digits, spaces and a little punctuation.
 const NAME_PATTERN = /^[\p{L}\p{N} _'.-]+$/u;
 const DESPAWN_RANGE_TILES = 3;
+const SELECT_RANGE_TILES = 5;
+const ADDQUEST_USAGE =
+    'Usage: /addquest kill <mobKind> <count> | get <mobKind> <lootKind> <count> [chance=N] | use <nodeKind> <count> -- options name="...", gold=N, exp=N';
 const SPAWNLIST_RANGE_TILES = 32;
 const SPAWNLIST_MAX = 10;
 
@@ -170,6 +199,7 @@ class AdminCommands {
             return;
         }
         target.isAdmin = flag;
+        target.sendAdminMode();
         if (self) {
             this.reply(flag
                 ? 'Admin mode on.'
@@ -187,11 +217,13 @@ class AdminCommands {
         this.reply(
             'types: ' +
                 MapEntityStore.typeNames.join(', ') +
-                ' -- e.g. /spawn mob 5 level=10 o=l, /spawn npcstatic 5 name="Bob" quests=300000,300001'
+                ' -- e.g. /spawn mob 5 level=10 o=l, /spawn npcstatic 5 name="Bob" quests=1000200000101,1000200000102'
         );
         this.reply('/despawn [entityId] -- removes the nearest (or given) placed entity');
         this.reply('/spawnlist -- placed entities near you');
         this.reply('/pos -- your map and coordinates');
+        this.reply('/select [entityId] -- select the nearest (or given) entity.json NPC and list its quests');
+        this.reply(ADDQUEST_USAGE + ' -- adds a quest to the selected NPC');
         this.reply('/setadmin on|off [player] -- switch your own, or an online player\'s, admin mode for this session (not saved)');
     }
 
@@ -374,6 +406,190 @@ class AdminCommands {
                 ' (entity id ' +
                 id +
                 '). Saved.'
+        );
+    }
+
+    // The NPC /addquest works on: the one picked with /select (if it's still
+    // there), else the nearest NPC from entity.json. Only entity.json NPCs:
+    // their entity id is fixed, and quest ids are built from it.
+    selectedNpc() {
+        const p = this.player;
+        const store = this.store();
+        if (!store) return null;
+        if (p.adminSelection && p.adminSelection.map === p.map) {
+            const e = p.map.entities.getEntityById(p.adminSelection.id);
+            if (e && this.isQuestNpc(store, e)) return e;
+        }
+        return this.nearestQuestNpc(store);
+    }
+
+    isQuestNpc(store, entity) {
+        const rec = store.byEntityId.get(entity.id);
+        return !!rec && QUEST_TYPES.has(rec.type);
+    }
+
+    nearestQuestNpc(store) {
+        const p = this.player;
+        const max = SELECT_RANGE_TILES * G_TILESIZE;
+        let best = null;
+        let bestDist = Infinity;
+        for (const [id, rec] of store.byEntityId) {
+            if (!QUEST_TYPES.has(rec.type)) continue;
+            const e = p.map.entities.getEntityById(id);
+            if (!e) continue;
+            const d = Math.max(Math.abs(e.x - p.x), Math.abs(e.y - p.y));
+            if (d <= max && d < bestDist) {
+                best = e;
+                bestDist = d;
+            }
+        }
+        return best;
+    }
+
+    describeNpc(store, entity) {
+        const rec = store.byEntityId.get(entity.id);
+        const quests = rec && rec.quests ? rec.quests.split(',') : [];
+        return (
+            rec.type +
+            ' "' +
+            entity.name +
+            '" (entity id ' +
+            entity.id +
+            ') -- ' +
+            (quests.length
+                ? quests.length + ' quest(s): ' + quests.join(', ')
+                : 'no quests')
+        );
+    }
+
+    handleSelect(args) {
+        const p = this.player;
+        const store = this.store();
+        if (!store) {
+            this.reply('You are not on a map with placed entities.');
+            return;
+        }
+        let entity;
+        const idArg = args.split(/\s+/)[0];
+        if (idArg) {
+            if (!/^\d+$/.test(idArg)) {
+                this.reply('Usage: /select [entityId]');
+                return;
+            }
+            entity = p.map.entities.getEntityById(parseInt(idArg, 10));
+            if (!entity || !this.isQuestNpc(store, entity)) {
+                this.reply(
+                    'Entity ' + idArg + ' is not an NPC from this map\'s entity.json.'
+                );
+                return;
+            }
+        } else {
+            entity = this.nearestQuestNpc(store);
+            if (!entity) {
+                this.reply(
+                    'No entity.json NPC within ' +
+                        SELECT_RANGE_TILES +
+                        ' tiles. Use /spawnlist to find ids.'
+                );
+                return;
+            }
+        }
+        p.adminSelection = { map: p.map, id: entity.id };
+        this.reply('Selected ' + this.describeNpc(store, entity) + '.');
+    }
+
+    handleAddQuest(args) {
+        const p = this.player;
+        const store = this.store();
+        const npc = store && this.selectedNpc();
+        if (!npc) {
+            this.reply(
+                'Select an NPC first with /select (or stand within ' +
+                    SELECT_RANGE_TILES +
+                    ' tiles of one from entity.json).'
+            );
+            return;
+        }
+
+        const parsed = parseArgs(args);
+        if (parsed.error) {
+            this.reply(parsed.error);
+            return;
+        }
+        const pos = parsed.positional;
+        const opts = {};
+        for (const [k, v] of parsed.options) opts[k.toLowerCase()] = v;
+        const int = (v) => (/^\d+$/.test(String(v)) ? parseInt(v, 10) : NaN);
+        const kind = String(pos[0] || '').toLowerCase();
+
+        const data = { npcKind: npc.kind, type: 0, level: 0 };
+        let what;
+        if (kind === 'kill') {
+            const mobKind = int(pos[1]);
+            const count = int(pos[2]);
+            if (!MobData.Kinds[mobKind]) return this.reply('No mob with kind id ' + pos[1] + '. ' + ADDQUEST_USAGE);
+            if (!(count >= 1 && count <= 999)) return this.reply('count must be 1-999. ' + ADDQUEST_USAGE);
+            data.type = Types.QuestType.KILLMOBKIND;
+            data.object = { type: Types.EntityTypes.MOB, kind: mobKind, count };
+            what = 'kill ' + count + ' ' + MobData.Kinds[mobKind].key;
+        } else if (kind === 'get') {
+            const mobKind = int(pos[1]);
+            const lootKind = int(pos[2]);
+            const count = int(pos[3]);
+            const chance = opts.chance !== undefined ? int(opts.chance) : 20;
+            if (!MobData.Kinds[mobKind]) return this.reply('No mob with kind id ' + pos[1] + '. ' + ADDQUEST_USAGE);
+            if (!ItemLootData.ItemLoot[lootKind]) return this.reply('No loot item with kind id ' + pos[2] + '. ' + ADDQUEST_USAGE);
+            if (!(count >= 1 && count <= 99)) return this.reply('count must be 1-99. ' + ADDQUEST_USAGE);
+            if (!(chance >= 1 && chance <= 100)) return this.reply('chance must be 1-100.');
+            data.type = Types.QuestType.GETITEMKIND;
+            data.object = { type: Types.EntityTypes.MOB, kind: mobKind };
+            data.object2 = { type: Types.EntityTypes.ITEMLOOT, kind: lootKind, count, chance };
+            what = 'get ' + count + ' ' + ItemLootData.ItemLoot[lootKind].name + ' from ' + MobData.Kinds[mobKind].key;
+        } else if (kind === 'use') {
+            const nodeKind = int(pos[1]);
+            const count = int(pos[2]);
+            if (!(nodeKind >= 0)) return this.reply('nodeKind must be a whole number. ' + ADDQUEST_USAGE);
+            if (!(count >= 1 && count <= 999)) return this.reply('count must be 1-999. ' + ADDQUEST_USAGE);
+            data.type = Types.QuestType.USENODE;
+            data.object = { type: Types.EntityTypes.NODE, kind: nodeKind, count };
+            what = 'use ' + count + ' of node kind ' + nodeKind;
+        } else {
+            this.reply(ADDQUEST_USAGE);
+            return;
+        }
+        if (opts.gold !== undefined) {
+            const gold = int(opts.gold);
+            if (!(gold >= 0)) return this.reply('gold must be a whole number.');
+            data.gold = gold;
+        }
+        if (opts.exp !== undefined) {
+            const exp = Number(opts.exp);
+            if (!(exp > 0 && exp <= 100)) return this.reply('exp (XP multiplier) must be above 0 and at most 100.');
+            data.expMultiplier = exp;
+        }
+        data.name = opts.name ? String(opts.name).slice(0, 40) : what;
+
+        // Quest id: 1 + map index + entity id + the NPC's next quest number.
+        const prefix = questIdPrefix(QUEST_STATIC, p.map.index, npc.id);
+        let number = 0;
+        for (const id in QuestData.Data) {
+            if (id.length === prefix.length + 2 && id.startsWith(prefix))
+                number = Math.max(number, parseInt(id.slice(prefix.length), 10));
+        }
+        number++;
+        if (number > MAX_QUESTS_PER_NPC) {
+            this.reply('This NPC already has ' + MAX_QUESTS_PER_NPC + ' quests.');
+            return;
+        }
+        const questId = String(makeQuestId(QUEST_STATIC, p.map.index, npc.id, number));
+
+        addQuest(questId, data);
+        const rec = store.byEntityId.get(npc.id);
+        rec.quests = rec.quests ? rec.quests + ',' + questId : questId;
+        npc.setQuests(rec.quests.split(','));
+        store.save();
+        this.reply(
+            'Added quest ' + questId + ' (' + data.name + ') to "' + npc.name + '". Saved to quests.json and entity.json.'
         );
     }
 

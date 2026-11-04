@@ -453,7 +453,19 @@ class Player extends Character {
         if (self.world.enter_callback) {
             self.world.enter_callback(self);
             self.connection.sendUTF8(sendMessage.join(','));
+            if (self.isAdmin) self.sendAdminMode();
         }
+    }
+
+    // Tells this player's client whether admin mode is on (WC_NOTIFY group
+    // "ADMIN_MODE", 1 or 0), so it can offer admin-only conveniences -- e.g.
+    // clicking an NPC selects it for /addquest. Sent at login (when on) and
+    // whenever /setadmin switches it (packets/admincommands.js). The server
+    // still checks isAdmin on every admin command.
+    sendAdminMode() {
+        this.sendPlayer(
+            new Messages.Notify('ADMIN_MODE', '', [this.isAdmin ? 1 : 0])
+        );
     }
 
     fillPlayerInfo(db_player) {

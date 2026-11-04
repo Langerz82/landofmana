@@ -27,6 +27,10 @@ import ItemRoom from './items/itemroom.js';
 import QuestData from './data/questdata.js';
 import { G_DEBUG, G_DIALOGUE_DELAY } from './constants.js';
 import QuestText from './questtext.js';
+import QuestId, {
+    QUEST_DYNAMIC,
+    MAX_DYNAMIC_QUESTS_PER_NPC
+} from './questid.js';
 
 // FIX: MobData, ItemData, ItemLootData, and ItemRoom were all used throughout
 // this file (getMobObject, createQuestItemKind, giveReward) but never
@@ -41,7 +45,6 @@ class EntityQuests {
     constructor(entity) {
         this.entity = entity;
 
-        this.questsCount = 0;
         this.quests = {};
     }
 
@@ -328,8 +331,45 @@ class EntityQuests {
     dynamicQuests(player) {
         if (this.hasQuest(player)) return;
 
-        this.createQuest(player);
-        return;
+        // Each player gets at most MAX_DYNAMIC_QUESTS_PER_NPC made-up quests
+        // from one NPC; after that it says its NO_MORE_QUESTS line.
+        const number = this.nextDynamicQuestNumber(player);
+        if (number > MAX_DYNAMIC_QUESTS_PER_NPC) {
+            this.sendNoQuest(player);
+            return;
+        }
+        this.createQuest(player, number);
+    }
+
+    // Dynamic quest ids from this NPC are 2<map><entity id><01-99>
+    // (questid.js). The next number is one more than the dynamic quests this
+    // player has already had from it, done or in progress.
+    nextDynamicQuestNumber(player) {
+        const prefix = QuestId.questIdPrefix(
+            QUEST_DYNAMIC,
+            this.entity.map.index,
+            this.entity.id
+        );
+        const fromThisNpc = (id) =>
+            String(id).length === prefix.length + 2 &&
+            String(id).startsWith(prefix);
+        let count = 0;
+        for (const id in player.quests.completeQuests) {
+            if (fromThisNpc(id)) count++;
+        }
+        for (const q of player.quests.quests) {
+            if (fromThisNpc(q.id)) count++;
+        }
+        return count + 1;
+    }
+
+    dynamicQuestId(number) {
+        return QuestId.makeQuestId(
+            QUEST_DYNAMIC,
+            this.entity.map.index,
+            this.entity.id,
+            number
+        );
     }
 
     // FIX: `self` was referenced here without ever being declared/assigned
@@ -374,7 +414,7 @@ class EntityQuests {
         ]);
     }
 
-    createQuest(player) {
+    createQuest(player, number) {
         const qTypes = [1, 2];
         //var qTypes = [2];
         const questType = qTypes[Utils.randomInt(qTypes.length - 1)];
@@ -397,21 +437,18 @@ class EntityQuests {
         // one can't rule out -- flagging for whoever has that fuller
         // context rather than asserting it's resolved.
         if (questType === Types.QuestType.GETITEMKIND) {
-            this.createQuestItemKind(player);
+            this.createQuestItemKind(player, number);
         }
         if (questType === Types.QuestType.KILLMOBKIND) {
-            this.createQuestKillMobKind(player);
+            this.createQuestKillMobKind(player, number);
         }
     }
 
-    createQuestItemKind(player) {
-        console.info('GETITEMKIND');
+    createQuestItemKind(player, number) {
+        if (G_DEBUG) console.info('GETITEMKIND');
 
         const itemKind = Utils.randomInt(ItemLootData.ItemLoot.length - 1);
-        const id =
-            '02' +
-            Utils.pad(this.entity.kind, 6) +
-            Utils.pad(this.questsCount++, 4);
+        const id = this.dynamicQuestId(number);
         let quest = player.quests.getQuestById(id);
         if (!quest) {
             const mobObject = this.getMobObject();
@@ -446,13 +483,10 @@ class EntityQuests {
         }
     }
 
-    createQuestKillMobKind(player) {
-        console.info('KILLMOBKIND');
+    createQuestKillMobKind(player, number) {
+        if (G_DEBUG) console.info('KILLMOBKIND');
 
-        const id =
-            '01' +
-            Utils.pad(this.entity.kind, 6) +
-            Utils.pad(this.questsCount++, 4);
+        const id = this.dynamicQuestId(number);
         let quest = player.quests.getQuestById(id);
         if (!quest) {
             const mobObject = this.getMobObject();

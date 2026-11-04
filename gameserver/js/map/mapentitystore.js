@@ -25,7 +25,7 @@ import NpcData from '../data/npcdata.js';
 import Mob from '../entity/mob/mob.js';
 import Node from '../entity/node.js';
 import QuestData from '../data/questdata.js';
-import { G_TILESIZE } from '../constants.js';
+import { G_TILESIZE, MAX_FIXED_ID } from '../constants.js';
 
 // ADMIN: entities placed in-game by an admin with the /spawn chat command
 // (see packets/admincommands.js). Each map gets its own store, persisted to
@@ -37,7 +37,7 @@ import { G_TILESIZE } from '../constants.js';
 //     { "type": "mob", "kind": 5, "x": 16333, "y": 16390,
 //       "name": "Rat King", "level": 12, "orientation": "left" }
 //     { "type": "npcstatic", "kind": 5, "x": 16333, "y": 16390,
-//       "name": "Bob", "quests": "300000,300001" }
+//       "name": "Bob", "quests": "1000200000101,1000200000102" }
 //
 // x/y are the exact world (pixel) position of the admin's centre when they
 // ran /spawn -- not snapped to the tile grid. Everything after x/y is
@@ -94,9 +94,6 @@ const ORIENTATION_IDS = {
 };
 
 const MAX_NAME_LENGTH = 32;
-// Fixed entity ids (each record's "id") stay below this, the per-map span of
-// npcQuestId (map index * G_NPC_QUEST_ID_MAP_OFFSET + entity id).
-const MAX_FIXED_ID = 999999;
 const MAX_LEVEL = 999;
 
 class MapEntityStore {
@@ -121,7 +118,7 @@ class MapEntityStore {
         return TYPE_ALIASES[String(name || '').toLowerCase()] || null;
     }
 
-    // "300000, 300001" / ["300000", 300001] -> { quests: "300000,300001" },
+    // "1000200000101, 1000200000102" / ["1000200000101", 1000200000102] -> { quests: "1000200000101,1000200000102" },
     // or { error } if empty, malformed or naming a quest that doesn't exist.
     static normalizeQuests(value) {
         const ids = (Array.isArray(value) ? value : String(value).split(','))

@@ -368,7 +368,7 @@
     },
 
     "QUESTS": {
-      "200000": [
+      "1000100000101": [
         [
           [0, "You look lost young boy..."],
           [1, "Where am I?"],
@@ -383,7 +383,7 @@
         ],
         ["Kill %count% %name%'s"]
       ],
-      "200001": [
+      "1000100000102": [
         [
           [0, "Now kill 10 more rats kill them all!"],
           [1, "Ok Granps chill man."]
@@ -393,7 +393,7 @@
         ],
         ["Kill %count% %name%'s"]
       ],
-      "200100": [
+      "1000100000201": [
         [
           [0, "Rats have stolen my 3 dice I need you to kill some Rats to get them."]
         ],
@@ -407,7 +407,7 @@
           [1, "Err, your welcome I guess..."]
         ]
       ],
-      "200200": [
+      "1000100000301": [
         [
           [0, "Rats have stolen my tasty cheese."]
         ],
@@ -418,7 +418,7 @@
         ["Get %count% pieces of cheese."],
         ["Thank-you for returning my cheese."]
       ],
-      "200300": [
+      "1000100000401": [
         [
           [0, "Hello I was writing my memiors earlier.."],
           [0, "When a pesky Crab stole my Feather Quilt."],
@@ -434,7 +434,7 @@
           [0,"I can now resume writing my memiors."]
         ]
       ],
-      "200400": [
+      "1000100000501": [
         [
           [0, "Crabs have overrun the place.."]
         ],
@@ -443,7 +443,7 @@
         ],
         ["Kill %count% Crabs."]
       ],
-      "200500": [
+      "1000100000601": [
         [
           [0, "I went squid fishing and left all my catches in a bucket"],
           [0, "The pesky Crabs stole my catches and now I've got nothing!"],
@@ -458,7 +458,7 @@
           [0,"I might even get lucky with the Mrs."]
         ]
       ],
-      "200600": [
+      "1000100000701": [
         [
           [0, "The graveyard is overrun with Skeletons."],
           [0, "I need you to remove the tombstones."],
@@ -469,7 +469,7 @@
         ],
         ["Destroy %count% tombstones."]
       ],
-      "200700": [
+      "1000100000801": [
         [
           [0, "I need a favor. I need to you to kill some skeletons."],
           [0, "Make the area safe to us again please!"]
@@ -479,7 +479,7 @@
         ],
         ["Kill %count% Skeletons."]
       ],
-      "200800": [
+      "1000100000901": [
         [
           [0, "I need skulls from skeleton to cast a special ritual."],
           [0, "Retrieve 5 for me and I will be able to cast my spell."]
@@ -493,7 +493,7 @@
           [0,"I will get rid of these Skeletons for good."]
         ]
       ],
-      "200900": [
+      "1000100001001": [
         [
           [0, "Fires were started by Goblins after they left the area"],
           [0, "I need you to put out some fires so they don't get out of control."]
@@ -503,7 +503,7 @@
         ],
         ["Destroy %count% fires."]
       ],
-      "201000": [
+      "1000100001101": [
         [
           [0, "Goblins are troublesome little buggers. I need to get rid of some."],
           [0, "Kill 20 of them and they should stop damaging the area."]
@@ -513,7 +513,7 @@
         ],
         ["Kill %count% Goblins come back for reward."]
         ],
-        "300000": [
+        "1000200000101": [
             [
               [0, "Kill 10 rats"]
             ],
@@ -522,7 +522,7 @@
             ],
             ["Kill %count% %name%'s"]
         ],
-        "300001": [
+        "1000200000102": [
             [
               [0, "Kill 20 rats"]
             ],
@@ -550,19 +550,19 @@
       "KILLMOBKIND": "Kill %count% %name%s",
       "GETITEMKIND": "Get %count% pieces of %name% from %name2%s",
       "USENODE": "Use %count% %name%.",
-      "200000": "Kill %count% %name%s",
-      "200001": "Kill %count% %name%s",
-      "200100": "Retrieve %count% %name%'s from %name2%s",
-      "200200": "Get %count% pieces of %name% from %name2%s",
-      "200300": "Get the Feather Quill from %name%s",
-      "200400": "Kill %count% %name%s",
-      "200500": "Get %count% squid from %name2%s",
-      "200600": "Destroy %count% Tombstones.",
-      "200700": "Kill %count% Skeletons.",
-      "200800": "Get %count% Skulls from Skeletons.",
-      "200900": "Destroy %count% Fires.",
-      "300000": "Kill %count% Rats.",
-      "300001": "Kill %count% Rats."
+      "1000100000101": "Kill %count% %name%s",
+      "1000100000102": "Kill %count% %name%s",
+      "1000100000201": "Retrieve %count% %name%'s from %name2%s",
+      "1000100000301": "Get %count% pieces of %name% from %name2%s",
+      "1000100000401": "Get the Feather Quill from %name%s",
+      "1000100000501": "Kill %count% %name%s",
+      "1000100000601": "Get %count% squid from %name2%s",
+      "1000100000701": "Destroy %count% Tombstones.",
+      "1000100000801": "Kill %count% Skeletons.",
+      "1000100000901": "Get %count% Skulls from Skeletons.",
+      "1000100001001": "Destroy %count% Fires.",
+      "1000200000101": "Kill %count% Rats.",
+      "1000200000102": "Kill %count% Rats."
     }
   }
 }

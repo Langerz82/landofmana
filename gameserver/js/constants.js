@@ -161,6 +161,12 @@ export function setG_MAX_LATENCY(value) {
 // map's id range.
 export const G_NPC_QUEST_ID_MAP_OFFSET = 1000000;
 
+// Highest fixed entity id an entity.json record can have (map/
+// mapentitystore.js); also sets the entity id's width in quest ids
+// (questid.js). Below G_NPC_QUEST_ID_MAP_OFFSET, the per-map span of
+// npcQuestId (map index * offset + entity id).
+export const MAX_FIXED_ID = 999999;
+
 // Time (ms) each line of NPC dialogue / quest speech stays on screen before
 // the client advances to the next one; also used by the server to time quest
 // activation at the end of an offer dialogue (EntityQuests.offerQuest()).

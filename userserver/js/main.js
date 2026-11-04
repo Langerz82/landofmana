@@ -615,6 +615,42 @@ function wipeNewQuests() {
     });
 }
 
+// ADMIN: `wipequests [force]` -- clears every player's in-progress AND
+// completed quests (migration.js's wipeAllQuests()), so everyone starts every
+// quest again, e.g. after the quest ids changed. Refuses while anyone is
+// logged in: an online player's quests live in the gameserver's memory, and
+// its next save would write them straight back. `wipequests force` runs it
+// anyway (those players keep their quests).
+function wipeQuests(args) {
+    if (!global.DBH) {
+        console.error('wipequests: database not ready yet.');
+        return;
+    }
+    const online = worldHandlers.reduce(
+        (n, wh) => n + (wh.loggedInUsers ? wh.loggedInUsers.size : 0),
+        0
+    );
+    if (online > 0 && args[0] !== 'force') {
+        console.info(
+            'wipequests: ' +
+                online +
+                ' player(s) are logged in -- their quests would be saved back when they log out. ' +
+                'Run it with no one online, or use "wipequests force" to wipe everyone else anyway.'
+        );
+        return;
+    }
+    console.info('wipequests: starting...');
+    global.DBH.wipeAllQuests((err) => {
+        if (err) {
+            console.error('wipequests: finished with errors -- see log above.');
+            return;
+        }
+        console.info(
+            'wipequests: done -- see log above for how many players were wiped.'
+        );
+    });
+}
+
 // ADMIN: `setadmin <username> [1|0]` -- grants (default) or revokes the
 // account-level admin flag stored on u:<username> in Redis (see redis.js's
 // setUserAdmin()/loadPlayerUserInfo()). The gameserver reads it when a
@@ -668,6 +704,9 @@ function getInput(cmd) {
             break;
         case 'wipenewquests':
             wipeNewQuests();
+            break;
+        case 'wipequests':
+            wipeQuests(args);
             break;
         case 'replay': {
             // reject.log has a ready `replay <packet>` line for every

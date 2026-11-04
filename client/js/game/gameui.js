@@ -22,6 +22,19 @@
 
 export function installGameUI(proto) {
     proto.say = function (message) {
+        // Admin "/select" with no entity id: select the entity the player has
+        // targeted, by sending its id (the server checks the player is an
+        // admin and that it's a selectable NPC -- gameserver
+        // packets/admincommands.js).
+        if (/^\/select(\s|$)/i.test(String(message).trim())) {
+            if (/^\/select\s*$/i.test(String(message).trim())) {
+                const target = this.player && this.player.target;
+                if (target) message = '/select ' + target.id;
+            }
+            // a typed /select replaces whatever a click selected
+            // (gameinteractioninput.js adminSelectEntity())
+            this.adminSelected = null;
+        }
         //All commands must be handled server sided.
         if (!this.chathandler.processSendMessage(message)) {
             this.client.sendChat(message);

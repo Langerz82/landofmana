@@ -1097,6 +1097,22 @@ func player_target_closest_entity(inc: int) -> bool:
 
 
 ## game.click(): mouse click on world position (pixels).
+## Admin mode (the server tells us -- see _on_notify "ADMIN_MODE"): clicking an NPC selects it for
+## /addquest by sending "/select <entity id>" (gameserver packets/admincommands.js). Only when the
+## clicked NPC isn't the one already selected, so clicking it again to talk doesn't repeat it. The
+## server still checks the player is an admin and that it's a selectable NPC.
+var _admin_selected = null
+
+
+func _admin_select_entity(e) -> void:
+	if player == null or not player.admin or not (e is Npc):
+		return
+	if is_same(e, _admin_selected):
+		return
+	_admin_selected = e
+	client.send_chat("/select %d" % e.id)
+
+
 func click(px: int, py: int) -> void:
 	var p := player
 	if p == null or map_status < 2 or not started:
@@ -1109,6 +1125,7 @@ func click(px: int, py: int) -> void:
 	if e == p:
 		e = null
 	if e != null:
+		_admin_select_entity(e)
 		p.set_target(e)
 		if p is EntityMoving:
 			p.look_at_entity(e)
@@ -1830,6 +1847,12 @@ func _on_chat(d: Array) -> void:
 
 
 func _on_notify(pkt: Array) -> void:
+	# The server telling us whether admin mode is on (gameserver player.js sendAdminMode()): not a
+	# chat message.
+	if pkt.size() > 0 and str(pkt[0]) == "ADMIN_MODE":
+		if player != null:
+			player.admin = Types.to_int(pkt[2]) == 1 if pkt.size() > 2 else false
+		return
 	var d := pkt.duplicate()
 	var group := str(d.pop_front())
 	var text := str(d.pop_front())
@@ -1973,6 +1996,14 @@ func say(text: String) -> void:
 	text = text.strip_edges()
 	if text == "":
 		return
+	# Admin "/select" with no entity id: select the entity the player has targeted, by sending its id
+	# (the server checks the player is an admin and that it's a selectable NPC -- gameserver
+	# packets/admincommands.js).
+	if text.to_lower() == "/select" and player != null and player.target != null:
+		text = "/select %d" % player.target.id
+	# a typed /select replaces whatever a click selected (_admin_select_entity())
+	if text.to_lower() == "/select" or text.to_lower().begins_with("/select "):
+		_admin_selected = null
 	if _chat_command(text):
 		return
 	client.send_chat(text.left(256))

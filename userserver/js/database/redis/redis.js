@@ -335,11 +335,27 @@ class DatabaseHandler {
                 }
             });
         });
+        // Run-once wipe of every player's quests for the 13-digit quest id
+        // change (wipeQuestsOnce(), migration.js) -- after the newquests
+        // purge above, since both clear quest fields.
+        const questIdWipe = newQuestsPurge.then(
+            () =>
+                new Promise((resolve, reject) => {
+                    this.wipeQuestsOnce((err) => {
+                        if (err) {
+                            reject(err);
+                        } else {
+                            resolve();
+                        }
+                    });
+                })
+        );
         this.migrationReady = Promise.all([
             goldMigration,
             bankMigration,
             inventoryMigration,
             newQuestsPurge,
+            questIdWipe,
             looksMigration,
             keyPrefixMigration
         ]);

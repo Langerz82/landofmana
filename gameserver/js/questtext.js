@@ -28,7 +28,7 @@
 // an offer dialogue).
 //
 // Wire shapes produced here:
-//   lang path: ['QUESTS', '200100', 0] / ['QUESTS_MOB', 0, 1] /
+//   lang path: ['QUESTS', '1000100000201', 0] / ['QUESTS_MOB', 0, 1] /
 //              ['QUEST_SUMMARY', 'KILLMOBKIND'] / ['QUESTS_REWARD']
 //              -- each element indexes one level deeper into lang data.
 //   delay: ms each line stays on screen before the next one -- only sent

@@ -60,6 +60,12 @@ export function installClientCallbacksSocial(proto) {
     };
 
     proto.onNotify = function (data) {
+        // The server telling us whether admin mode is on (gameserver
+        // player.js sendAdminMode()): not a chat message.
+        if (data[0] === 'ADMIN_MODE') {
+            if (game.player) game.player.admin = Number(data[2]) === 1;
+            return;
+        }
         game.showNotification(data);
     };
 
