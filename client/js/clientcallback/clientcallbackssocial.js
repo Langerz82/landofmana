@@ -63,7 +63,9 @@ export function installClientCallbacksSocial(proto) {
         // The server telling us whether admin mode is on (gameserver
         // player.js sendAdminMode()): not a chat message.
         if (data[0] === 'ADMIN_MODE') {
-            if (game.player) game.player.admin = Number(data[2]) === 1;
+            // kept on the game, not the player object, so it holds whenever
+            // the player object is created
+            game.adminMode = Number(data[2]) === 1;
             return;
         }
         game.showNotification(data);

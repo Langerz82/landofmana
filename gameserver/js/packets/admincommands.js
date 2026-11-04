@@ -44,8 +44,10 @@ import { logChat } from '../chatlog.js';
 //   /despawn [entityId]             remove an admin-placed entity
 //   /spawnlist                      admin-placed entities near you
 //   /pos                            your map + coordinates
-//   /select [entityId]              select an NPC placed in entity.json (the nearest one
-//                                   if no id is given) and list its quests
+//   /select [entityId]              select any entity on this map by id (the clients send
+//                                   it when an admin clicks one), or the nearest
+//                                   entity.json NPC if no id is given; shows what it is,
+//                                   and an NPC's quests
 //   /addquest kill <mobKind> <count> [options]
 //   /addquest get <mobKind> <lootKind> <count> [chance=N] [options]
 //   /addquest use <nodeKind> <count> [options]
@@ -394,15 +396,48 @@ class AdminCommands {
     // The NPC /addquest works on: the one picked with /select (if it's still
     // there), else the nearest NPC from entity.json. Only entity.json NPCs:
     // their entity id is fixed, and quest ids are built from it.
+    // Returns { npc } or { error } -- if something else is selected (a mob, a
+    // map-file NPC...), says so rather than quietly using another NPC.
     selectedNpc() {
         const p = this.player;
         const store = this.store();
-        if (!store) return null;
+        if (!store) return { error: 'You are not on a map with placed entities.' };
         if (p.adminSelection && p.adminSelection.map === p.map) {
             const e = p.map.entities.getEntityById(p.adminSelection.id);
-            if (e && this.isQuestNpc(store, e)) return e;
+            if (e) {
+                if (this.isQuestNpc(store, e)) return { npc: e };
+                return {
+                    error:
+                        'The selected entity (' + this.describeEntity(store, e) +
+                        ') is not an NPC from this map\'s entity.json, so it can\'t have quests.'
+                };
+            }
         }
-        return this.nearestQuestNpc(store);
+        const npc = this.nearestQuestNpc(store);
+        if (npc) return { npc };
+        return {
+            error:
+                'Select an NPC first with /select (or click one), or stand within ' +
+                SELECT_RANGE_TILES +
+                ' tiles of one from entity.json.'
+        };
+    }
+
+    // "mob kind 5 "Rat" (entity id 812, level 20)" -- for any entity.
+    describeEntity(store, entity) {
+        const rec = store && store.byEntityId.get(entity.id);
+        const typeName = rec ? rec.type : entityTypeName(entity.type);
+        return (
+            typeName +
+            ' kind ' +
+            entity.kind +
+            (entity.name ? ' "' + entity.name + '"' : '') +
+            ' (entity id ' +
+            entity.id +
+            (entity.level ? ', level ' + entity.level : '') +
+            (rec ? ', in entity.json' : '') +
+            ')'
+        );
     }
 
     isQuestNpc(store, entity) {
@@ -459,10 +494,8 @@ class AdminCommands {
                 return;
             }
             entity = p.map.entities.getEntityById(parseInt(idArg, 10));
-            if (!entity || !this.isQuestNpc(store, entity)) {
-                this.reply(
-                    'Entity ' + idArg + ' is not an NPC from this map\'s entity.json.'
-                );
+            if (!entity) {
+                this.reply('No entity ' + idArg + ' on this map.');
                 return;
             }
         } else {
@@ -477,21 +510,23 @@ class AdminCommands {
             }
         }
         p.adminSelection = { map: p.map, id: entity.id };
-        this.reply('Selected ' + this.describeNpc(store, entity) + '.');
+        this.reply(
+            'Selected ' +
+                (this.isQuestNpc(store, entity)
+                    ? this.describeNpc(store, entity)
+                    : this.describeEntity(store, entity)) +
+                '.'
+        );
     }
 
     handleAddQuest(args) {
         const p = this.player;
-        const store = this.store();
-        const npc = store && this.selectedNpc();
-        if (!npc) {
-            this.reply(
-                'Select an NPC first with /select (or stand within ' +
-                    SELECT_RANGE_TILES +
-                    ' tiles of one from entity.json).'
-            );
+        const sel = this.selectedNpc();
+        if (sel.error) {
+            this.reply(sel.error);
             return;
         }
+        const npc = sel.npc;
 
         const parsed = parseArgs(args);
         if (parsed.error) {
@@ -642,6 +677,14 @@ class AdminCommands {
 // (["mob", "5"]) and key=value options ([["name","Old Bob"], ...]).
 // Values may be wrapped in "double" or 'single' quotes to include spaces;
 // key="" (or key=) gives an empty value.
+// Types.EntityTypes id -> its name in lower case ("mob", "npcstatic", ...).
+function entityTypeName(type) {
+    for (const name in Types.EntityTypes) {
+        if (Types.EntityTypes[name] === type) return name.toLowerCase();
+    }
+    return 'entity';
+}
+
 function parseArgs(text) {
     const positional = [];
     const options = [];

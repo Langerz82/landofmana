@@ -20,23 +20,26 @@
 // entry points.
 // Applied onto Game.prototype via install*(...) call in game.js; not a standalone class.
 /* global Utils, game */
-import NpcStatic from '../entity/npcstatic.js';
-import NpcMove from '../entity/npcmove.js';
+import Item from '../entity/item.js';
 
 export function installGameInteractionInput(proto) {
     // Admin mode (the server tells us -- see clientcallbackssocial.js
-    // onNotify): clicking an NPC selects it for /addquest by sending
-    // "/select <entity id>" (gameserver packets/admincommands.js). Only when
-    // the clicked NPC isn't the one already selected, so clicking it again
-    // to talk doesn't repeat it. The server still checks the player is an
-    // admin and that it's a selectable NPC.
+    // onNotify): clicking an entity just targets it -- no walking to it,
+    // talking, attacking or harvesting -- and selects it on the server by
+    // sending "/select <entity id>" (gameserver packets/admincommands.js;
+    // e.g. for /addquest). Item drops are left alone, so admins can still
+    // pick things up. "/select" is only sent when the clicked entity isn't
+    // the one already selected. Returns true when the click was handled.
+    // The server still checks the player is an admin.
     proto.adminSelectEntity = function (entity) {
         const p = this.player;
-        if (!p || !p.admin) return;
-        if (!(entity instanceof NpcMove || entity instanceof NpcStatic)) return;
-        if (this.adminSelected === entity) return;
+        if (!p || !this.adminMode || !entity || entity === p) return false;
+        if (entity instanceof Item) return false;
+        p.setTarget(entity);
+        if (this.adminSelected === entity) return true;
         this.adminSelected = entity;
         this.client.sendChat('/select ' + entity.id);
+        return true;
     };
 
     proto.click = function () {
@@ -80,7 +83,7 @@ export function installGameInteractionInput(proto) {
         }
 
         if (entity) {
-            this.adminSelectEntity(entity);
+            if (this.adminSelectEntity(entity)) return;
             if (this.isDesktop) {
                 // Desktop: the mouse is already hovering (and, per
                 // movecursor()/gamecursor.js, has already previewed and -- if

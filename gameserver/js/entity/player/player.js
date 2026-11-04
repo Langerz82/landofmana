@@ -462,9 +462,14 @@ class Player extends Character {
     // clicking an NPC selects it for /addquest. Sent at login (when on) and
     // whenever /setadmin switches it (packets/admincommands.js). The server
     // still checks isAdmin on every admin command.
+    // Sent straight down this player's connection, not through
+    // sendPlayer(): that queues on the player's map (mapbroadcaster.js), and
+    // at login the player isn't on a map yet, so the message was dropped and
+    // the client never knew it was in admin mode.
     sendAdminMode() {
-        this.sendPlayer(
-            new Messages.Notify('ADMIN_MODE', '', [this.isAdmin ? 1 : 0])
+        if (!this.packetHandler) return;
+        this.packetHandler.send(
+            new Messages.Notify('ADMIN_MODE', '', [this.isAdmin ? 1 : 0]).serialize()
         );
     }
 

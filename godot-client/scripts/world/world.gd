@@ -1097,20 +1097,25 @@ func player_target_closest_entity(inc: int) -> bool:
 
 
 ## game.click(): mouse click on world position (pixels).
-## Admin mode (the server tells us -- see _on_notify "ADMIN_MODE"): clicking an NPC selects it for
-## /addquest by sending "/select <entity id>" (gameserver packets/admincommands.js). Only when the
-## clicked NPC isn't the one already selected, so clicking it again to talk doesn't repeat it. The
-## server still checks the player is an admin and that it's a selectable NPC.
+## Admin mode (the server tells us -- see _on_notify "ADMIN_MODE"): clicking an entity just targets
+## it -- no walking to it, talking, attacking or harvesting -- and selects it on the server by sending
+## "/select <entity id>" (gameserver packets/admincommands.js; e.g. for /addquest). Item drops are left
+## alone, so admins can still pick things up. "/select" is only sent when the clicked entity isn't the
+## one already selected. Returns true when the click was handled. The server still checks the player
+## is an admin.
 var _admin_selected = null
+var admin_mode := false   # set by the server's ADMIN_MODE notify (_on_notify)
 
 
-func _admin_select_entity(e) -> void:
-	if player == null or not player.admin or not (e is Npc):
-		return
+func _admin_select_entity(e) -> bool:
+	if player == null or not admin_mode or e == null or e == player or e is ItemEntity:
+		return false
+	player.set_target(e)
 	if is_same(e, _admin_selected):
-		return
+		return true
 	_admin_selected = e
 	client.send_chat("/select %d" % e.id)
+	return true
 
 
 func click(px: int, py: int) -> void:
@@ -1125,7 +1130,8 @@ func click(px: int, py: int) -> void:
 	if e == p:
 		e = null
 	if e != null:
-		_admin_select_entity(e)
+		if _admin_select_entity(e):
+			return
 		p.set_target(e)
 		if p is EntityMoving:
 			p.look_at_entity(e)
@@ -1850,8 +1856,8 @@ func _on_notify(pkt: Array) -> void:
 	# The server telling us whether admin mode is on (gameserver player.js sendAdminMode()): not a
 	# chat message.
 	if pkt.size() > 0 and str(pkt[0]) == "ADMIN_MODE":
-		if player != null:
-			player.admin = Types.to_int(pkt[2]) == 1 if pkt.size() > 2 else false
+		# kept on the world, not the player, so it holds whenever the player is created
+		admin_mode = pkt.size() > 2 and Types.to_int(pkt[2]) == 1
 		return
 	var d := pkt.duplicate()
 	var group := str(d.pop_front())
