@@ -368,6 +368,30 @@
 	},
 
 	"QUESTS": {
+	  "1000600021101": [
+		[
+		  [0, "Thank goodness, a fresh face! Please, you have to help us."],
+		  [1, "What's going on here?"],
+		  [0, "Rats! Hundreds of them. They came up out of the old drains under the market a week ago."],
+		  [0, "They've chewed through the grain stores, and the baker has had to shut his doors."],
+		  [0, "People are falling sick, and the guards won't go anywhere near the sewers."],
+		  [1, "Surely a few rats can't be that much trouble?"],
+		  [0, "These aren't your cellar rats, friend. They're as big as dogs and twice as mean."],
+		  [0, "If you can cull ten of them, the rest might think twice about our streets."]
+		],
+		[
+		  [0, "Bless you! Start by the market wells, that's where they're thickest."],
+		  [0, "Come back to me once you've dealt with %count% of them."]
+		],
+		[
+		  [0, "Have you culled %count% %name%s yet? I can still hear them scratching in the walls."]
+		],
+		[
+		  [0, "You did it! The streets are quiet for the first time in days."],
+		  [1, "They won't be back in a hurry."],
+		  [0, "The baker says he'll have bread out by morning. Here, take this for your trouble."]
+		]
+	  ],
 	  "1000100000101": [
 		[
 		  [0, "You look lost young boy..."],
@@ -546,6 +570,7 @@
 	  ["Use %count% %name%."]
 	],
 	"QUEST_SUMMARY": {
+	  "1000600021101": "Cull %count% %name%s plaguing the town",
 	  "HIDEANDSEEK": "Find %name%",
 	  "KILLMOBKIND": "Kill %count% %name%s",
 	  "GETITEMKIND": "Get %count% pieces of %name% from %name2%s",
