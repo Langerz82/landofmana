@@ -288,6 +288,23 @@ function writeAreaFile(serverMap) {
 	delete serverMap.entityAreas;
 	var dir = "../../../gameserver/data/maps/" + mapListName;
 	var file = dir + "/entityarea.json";
+	// Areas admins placed in game with /addarea (gameserver packets/admincommands.js) are
+	// marked "admin": true -- keep them, after the Tiled map's own areas, renumbered after them.
+	if (fs.existsSync(file)) {
+		try {
+			var old = JSON.parse(fs.readFileSync(file, "utf8"));
+			var keep = function (list, into) {
+				(list || []).forEach(function (a) {
+					if (!a.admin) return;
+					into.push(Object.assign({}, a, { id: into.length }));
+				});
+			};
+			keep(old.mobAreas, mobAreas);
+			keep(old.entityAreas, entityAreas);
+		} catch (e) {
+			console.error("Could not read " + file + " to keep its admin areas: " + e.message);
+		}
+	}
 	if (!mobAreas.length && !entityAreas.length && !fs.existsSync(file)) return;
 	fs.mkdirSync(dir, { recursive: true });
 	fs.writeFileSync(file, JSON.stringify({ mobAreas: mobAreas, entityAreas: entityAreas }, null, 1) + "\n");

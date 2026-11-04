@@ -207,6 +207,77 @@ class Map {
         this.readyFunc = f;
     }
 
+    // Adds an area an admin placed with /addarea (packets/admincommands.js):
+    // spawns it now and appends it to data/maps/<map name>/entityarea.json,
+    // marked "admin": true -- the map converter keeps those when it rewrites
+    // the file from the Tiled map (tools/maps/converter/run.js). `kind` is
+    // 'mob' or 'entity'; `area` is in the file's format (x/y/w/h in pixels;
+    // x/y the centre when `elipse`, else the top-left). Returns the area as
+    // saved.
+    addAdminArea(kind, area) {
+        const key = kind === 'mob' ? 'mobAreas' : 'entityAreas';
+        const file = path.join(MAPS_DATA_DIR, this.name, 'entityarea.json');
+        let data = { mobAreas: [], entityAreas: [] };
+        try {
+            data = JSON.parse(fs.readFileSync(file, 'utf8'));
+        } catch (err) {
+            if (err.code !== 'ENOENT') throw err;
+        }
+        data.mobAreas = data.mobAreas || [];
+        data.entityAreas = data.entityAreas || [];
+        const list = data[key];
+        const saved = Object.assign(
+            { id: list.reduce((m, a) => Math.max(m, Number(a.id) || 0), -1) + 1 },
+            area,
+            { admin: true }
+        );
+        list.push(saved);
+        fs.mkdirSync(path.dirname(file), { recursive: true });
+        fs.writeFileSync(file, JSON.stringify(data, null, 1) + '\n');
+        if (kind === 'mob') this.initMobAreas([saved]);
+        else this.addEntityArea(saved);
+        return saved;
+    }
+
+    // Removes a mob ('mob') or entity ('entity') area by its id, for /delarea
+    // (packets/admincommands.js): drops it from data/maps/<map name>/
+    // entityarea.json and from this map's live area list. The caller despawns
+    // the area's entities (returned in `entities`, dead ones waiting to
+    // respawn included). Returns null when neither the file nor the live map
+    // has an area with that id, else { saved, live, entities }: `saved` is
+    // the file entry (null if the file had none), `live` the running area.
+    removeArea(kind, id) {
+        const key = kind === 'mob' ? 'mobAreas' : 'entityAreas';
+        const file = path.join(MAPS_DATA_DIR, this.name, 'entityarea.json');
+        let saved = null;
+        let data = null;
+        try {
+            data = JSON.parse(fs.readFileSync(file, 'utf8'));
+        } catch (err) {
+            if (err.code !== 'ENOENT') throw err;
+        }
+        const list = (data && data[key]) || [];
+        const i = list.findIndex((a) => Number(a.id) === id);
+        if (i >= 0) {
+            saved = list.splice(i, 1)[0];
+            fs.writeFileSync(file, JSON.stringify(data, null, 1) + '\n');
+        }
+
+        const liveList = kind === 'mob' ? this.mobAreas : this.entityAreas;
+        const li = liveList.findIndex((a) => a.id === id);
+        const live = li >= 0 ? liveList.splice(li, 1)[0] : null;
+        if (!saved && !live) return null;
+
+        const entities = [];
+        if (live) {
+            live.emptyCallback = null;
+            for (const e of this.entities.entities.values())
+                if (e.area === live) entities.push(e);
+            live.entities = [];
+        }
+        return { saved, live, entities };
+    }
+
     // Reads data/maps/<map name>/entityarea.json -> { mobAreas, entityAreas },
     // or null if the map has none (or it can't be read).
     _readAreaFile() {

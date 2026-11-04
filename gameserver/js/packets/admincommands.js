@@ -44,6 +44,29 @@ import { logChat } from '../chatlog.js';
 //   /despawn [entityId]             remove an admin-placed entity
 //   /spawnlist                      admin-placed entities near you
 //   /pos                            your map + coordinates
+//   /addarea mob <w> <h> count=N include=1,5 [options]  add a mob area / entity area at your tile (gx, gy), w x h
+//   /delarea mob|entity [id]        remove a mob / entity area by id: its entities despawn and it
+//                                   is taken out of entityarea.json. Without an id, lists the
+//                                   areas you are standing in. Areas from the Tiled map (not
+//                                   "admin") come back the next time the map is converted.
+//   /addarea entity <w> <h> kind=N count=N [options]
+//                                   tiles. It spawns at once and is saved to the map's
+//                                   data/maps/<map>/entityarea.json marked "admin" (the map
+//                                   converter keeps those). Options, all key=value:
+//                                     both:   anchor=center|topleft (default center: the
+//                                             area is centred on you; topleft: your tile
+//                                             is its top-left corner), elipse=1 (an ellipse
+//                                             instead of a rectangle)
+//                                     mob:    count=N and include=1,5 (the mob kinds it
+//                                             spawns) are required; min=N max=N (levels,
+//                                             default 1), exclude=, definite=, weight=3,2,1,
+//                                             bonus=N (drop multiplier), boss=N
+//                                     entity: type=node|mob|npcmove|npcstatic|block (default
+//                                             node), kind=N, count=N, level=N, name=,
+//                                             anim= (animName), weapon= (weaponType),
+//                                             sprite= (spriteName), apart=N (tiles kept
+//                                             between entities), durability=N,
+//                                             durabilityMax=N
 //   /select [entityId]              select any entity on this map by id (the clients send
 //                                   it when an admin clicks one), or the nearest
 //                                   entity.json NPC if no id is given; shows what it is,
@@ -82,6 +105,8 @@ const COMMANDS = {
     '/pos': 'handlePos',
     '/select': 'handleSelect',
     '/addquest': 'handleAddQuest',
+    '/addarea': 'handleAddArea',
+    '/delarea': 'handleDelArea',
     '/setadmin': 'handleSetAdmin'
 };
 
@@ -104,6 +129,20 @@ const OPTION_ALIASES = {
 const NAME_PATTERN = /^[\p{L}\p{N} _'.-]+$/u;
 const DESPAWN_RANGE_TILES = 3;
 const SELECT_RANGE_TILES = 5;
+const ADDAREA_USAGE =
+    'Usage: /addarea mob <w> <h> count=N include=1,5 [min=N max=N exclude= definite= weight= bonus=N boss=N] | ' +
+    '/addarea entity <w> <h> kind=N count=N [type=node level=N name= anim= weapon= sprite= apart=N] -- both: anchor=center|topleft elipse=1';
+const DELAREA_USAGE = 'Usage: /delarea mob|entity [id] -- no id lists the areas you are standing in';
+const MAX_AREA_TILES = 512;
+const MAX_AREA_COUNT = 500;
+const AREA_ENTITY_TYPES = {
+    node: 'NODE',
+    mob: 'MOB',
+    npcmove: 'NPCMOVE',
+    npc: 'NPCMOVE',
+    npcstatic: 'NPCSTATIC',
+    block: 'BLOCK'
+};
 const ADDQUEST_USAGE =
     'Usage: /addquest kill <mobKind> <count> | get <mobKind> <lootKind> <count> [chance=N] | use <nodeKind> <count> -- options name="...", gold=N, exp=N';
 const SPAWNLIST_RANGE_TILES = 32;
@@ -221,6 +260,8 @@ class AdminCommands {
         this.reply('/pos -- your map and coordinates');
         this.reply('/select [entityId] -- select the nearest (or given) entity.json NPC and list its quests');
         this.reply(ADDQUEST_USAGE + ' -- adds a quest to the selected NPC');
+        this.reply(ADDAREA_USAGE + ' -- adds a mob/entity area at your tile');
+        this.reply(DELAREA_USAGE);
         this.reply('/setadmin on|off [player] -- switch your own, or an online player\'s, admin mode for this session (not saved)');
     }
 
@@ -609,6 +650,175 @@ class AdminCommands {
         );
     }
 
+    handleAddArea(args) {
+        const p = this.player;
+        const map = p.map;
+        if (!map || !map.entities) {
+            this.reply('You are not on a map.');
+            return;
+        }
+        const parsed = parseArgs(args);
+        if (parsed.error) return this.reply(parsed.error);
+        const pos = parsed.positional;
+        const opts = {};
+        for (const [k, v] of parsed.options) opts[k.toLowerCase()] = v;
+        const int = (v) => (/^\d+$/.test(String(v)) ? parseInt(v, 10) : NaN);
+        const csv = (v) => /^\d+(,\d+)*$/.test(String(v));
+
+        const kind = String(pos[0] || '').toLowerCase();
+        if (kind !== 'mob' && kind !== 'entity') return this.reply(ADDAREA_USAGE);
+        const w = int(pos[1]);
+        const h = int(pos[2]);
+        if (!(w >= 1 && w <= MAX_AREA_TILES && h >= 1 && h <= MAX_AREA_TILES))
+            return this.reply('Width and height are in tiles, 1-' + MAX_AREA_TILES + '. ' + ADDAREA_USAGE);
+        const anchor = String(opts.anchor || 'center').toLowerCase().replace(/[-_ ]/g, '');
+        if (anchor !== 'center' && anchor !== 'topleft')
+            return this.reply('anchor must be center or topleft.');
+        const elipse = ['1', 'true', 'yes', 'on'].includes(String(opts.elipse || opts.ellipse || '').toLowerCase());
+
+        // The player's tile, then the area's top-left tile.
+        const gx = Math.floor(p.x / G_TILESIZE);
+        const gy = Math.floor(p.y / G_TILESIZE);
+        const left = anchor === 'center' ? gx - Math.floor(w / 2) : gx;
+        const top = anchor === 'center' ? gy - Math.floor(h / 2) : gy;
+        if (left < 0 || top < 0 || left + w > map.width || top + h > map.height)
+            return this.reply(
+                'That area (tiles ' + left + ',' + top + ' to ' + (left + w - 1) + ',' + (top + h - 1) +
+                    ') goes off the map (' + map.width + 'x' + map.height + ').'
+            );
+        // Saved in pixels, like the converter writes them: an ellipse's x/y is
+        // its centre (area/area.js), a rectangle's its top-left.
+        const pw = w * G_TILESIZE;
+        const ph = h * G_TILESIZE;
+        const area = {
+            x: elipse ? left * G_TILESIZE + pw / 2 : left * G_TILESIZE,
+            y: elipse ? top * G_TILESIZE + ph / 2 : top * G_TILESIZE,
+            w: pw,
+            h: ph
+        };
+        if (elipse) area.elipse = 1;
+
+        let what;
+        if (kind === 'mob') {
+            if (opts.count === undefined || opts.include === undefined || opts.include === '')
+                return this.reply('count=N and include= (mob kind ids, e.g. include=1,5) are required. ' + ADDAREA_USAGE);
+            const count = int(opts.count);
+            const min = opts.min !== undefined ? int(opts.min) : 1;
+            const max = opts.max !== undefined ? int(opts.max) : min;
+            if (!(count >= 1 && count <= MAX_AREA_COUNT)) return this.reply('count must be 1-' + MAX_AREA_COUNT + '.');
+            if (!(min >= 1 && max >= min && max <= 999)) return this.reply('min/max must be levels 1-999, min <= max.');
+            for (const k of ['include', 'exclude', 'definite']) {
+                if (opts[k] !== undefined && opts[k] !== '' && !csv(opts[k]))
+                    return this.reply(k + '= must be mob kind ids, e.g. ' + k + '=1,5');
+                if (opts[k]) {
+                    const bad = opts[k].split(',').filter((id) => !MobData.Kinds[id]);
+                    if (bad.length) return this.reply('No mob with kind id ' + bad.join(', ') + ' (' + k + '=).');
+                }
+            }
+            if (opts.weight !== undefined && opts.weight !== '') {
+                if (!csv(opts.weight)) return this.reply('weight= must be numbers, e.g. weight=3,2,1');
+                if (opts.weight.split(',').length !== max - min + 1)
+                    return this.reply('weight= needs one number per level ' + min + '-' + max + ' (' + (max - min + 1) + ').');
+            }
+            const bonus = opts.bonus !== undefined ? Number(opts.bonus) : 1;
+            if (!(bonus > 0 && bonus <= 100)) return this.reply('bonus (drop multiplier) must be above 0 and at most 100.');
+            const boss = opts.boss !== undefined ? int(opts.boss) : 0;
+            if (opts.boss !== undefined && !(boss >= 2 && boss <= 100)) return this.reply('boss must be 2-100.');
+            Object.assign(area, {
+                count,
+                minLevel: min,
+                maxLevel: max,
+                include: opts.include || '',
+                exclude: opts.exclude || '',
+                definite: opts.definite || '',
+                level: '',
+                weight: opts.weight || '',
+                bonusDrop: bonus
+            });
+            if (boss) area.boss = boss;
+            what = count + ' mobs, level ' + (min === max ? min : min + '-' + max) +
+                (area.include ? ', kinds ' + area.include : area.definite ? ', kinds ' + area.definite : '');
+        } else {
+            const typeName = AREA_ENTITY_TYPES[String(opts.type || 'node').toLowerCase()];
+            if (!typeName) return this.reply('type must be one of ' + Object.keys(AREA_ENTITY_TYPES).join(', ') + '.');
+            const ekind = int(opts.kind);
+            const count = int(opts.count);
+            if (!(ekind >= 0)) return this.reply('kind=N (the entity kind id) is required. ' + ADDAREA_USAGE);
+            if (!(count >= 1 && count <= MAX_AREA_COUNT)) return this.reply('count=N (1-' + MAX_AREA_COUNT + ') is required.');
+            if (typeName === 'MOB' && !MobData.Kinds[ekind]) return this.reply('No mob with kind id ' + ekind + '.');
+            area.type = Types.EntityTypes[typeName];
+            area.kind = ekind;
+            area.count = count;
+            if (opts.level !== undefined) {
+                const level = int(opts.level);
+                if (!(level >= 1 && level <= 999)) return this.reply('level must be 1-999.');
+                area.level = level;
+            }
+            if (opts.name) area.name = String(opts.name).slice(0, 32);
+            if (opts.anim) area.animName = String(opts.anim);
+            if (opts.weapon) area.weaponType = String(opts.weapon);
+            if (opts.sprite) area.spriteName = String(opts.sprite);
+            for (const [o, f] of [['durability', 'durability'], ['durabilitymax', 'durabilityMax']]) {
+                if (opts[o] === undefined) continue;
+                const v = int(opts[o]);
+                if (!(v >= 1)) return this.reply(o + ' must be a whole number above 0.');
+                area[f] = v;
+            }
+            const apart = opts.apart !== undefined ? int(opts.apart) : 0;
+            if (!(apart >= 0 && apart <= 50)) return this.reply('apart must be 0-50 tiles.');
+            area.distanceApart = apart;
+            what = count + ' ' + typeName.toLowerCase() + ' kind ' + ekind + (area.level ? ' level ' + area.level : '');
+        }
+
+        const saved = map.addAdminArea(kind, area);
+        this.reply(
+            'Added ' + kind + ' area id ' + saved.id + ' (' + what + ') -- ' + w + 'x' + h + ' tiles' +
+                (elipse ? ' ellipse' : '') + ' from ' + left + ',' + top + ' to ' + (left + w - 1) + ',' + (top + h - 1) +
+                ' (you are at ' + gx + ',' + gy + ', ' + anchor + '). Saved to entityarea.json.'
+        );
+        this.reply(describeArea(kind, saved));
+    }
+
+    // "/delarea mob|entity <id>": despawns the area's entities and removes it
+    // from the map and from entityarea.json (map.removeArea). With no id,
+    // lists the areas of that kind you are standing in.
+    handleDelArea(args) {
+        const p = this.player;
+        const map = p.map;
+        if (!map || !map.entities) return this.reply('You are not on a map.');
+        const store = this.store();
+        const parts = String(args || '').trim().split(/\s+/).filter(Boolean);
+        const kind = String(parts[0] || '').toLowerCase();
+        if ((kind !== 'mob' && kind !== 'entity') || parts.length > 2) return this.reply(DELAREA_USAGE);
+        const live = kind === 'mob' ? map.mobAreas : map.entityAreas;
+
+        if (parts.length === 1) {
+            const here = live.filter((a) => a.contains(p.x, p.y));
+            if (!here.length) return this.reply('You are not standing in any ' + kind + ' area. ' + DELAREA_USAGE);
+            for (const a of here)
+                this.reply(
+                    kind + ' area id ' + a.id + ': tiles ' +
+                        Math.floor((a.elipse ? a.x - a.width / 2 : a.x) / G_TILESIZE) + ',' +
+                        Math.floor((a.elipse ? a.y - a.height / 2 : a.y) / G_TILESIZE) +
+                        ' ' + Math.round(a.width / G_TILESIZE) + 'x' + Math.round(a.height / G_TILESIZE) +
+                        (a.elipse ? ' ellipse' : '') + ', ' + a.entities.length + ' entities'
+                );
+            return;
+        }
+
+        if (!/^\d+$/.test(parts[1])) return this.reply(DELAREA_USAGE);
+        const id = parseInt(parts[1], 10);
+        const res = map.removeArea(kind, id);
+        if (!res) return this.reply('No ' + kind + ' area with id ' + id + ' on this map.');
+        for (const e of res.entities) store._despawn(e);
+        this.reply(
+            'Removed ' + kind + ' area id ' + id + ': ' + res.entities.length + ' entities despawned' +
+                (res.saved ? ', removed from entityarea.json.' : ' (it was not in entityarea.json).') +
+                (res.saved && !res.saved.admin ? ' It came from the Tiled map, so it comes back the next time the map is converted.' : '')
+        );
+        if (res.saved) this.reply(describeArea(kind, res.saved));
+    }
+
     handleSpawnList() {
         const p = this.player;
         const store = this.store();
@@ -705,6 +915,31 @@ function parseArgs(text) {
         }
     }
     return { positional, options };
+}
+
+// One chat line with an area's id and every field it was saved with, the
+// position also in tiles: "mob area id 3: tiles 45,37 10x6 | count=10 ...".
+function describeArea(kind, a) {
+    const t = (v) => Math.floor(v / G_TILESIZE);
+    const tw = Math.round(a.w / G_TILESIZE);
+    const th = Math.round(a.h / G_TILESIZE);
+    const left = a.elipse ? t(a.x - a.w / 2) : t(a.x);
+    const top = a.elipse ? t(a.y - a.h / 2) : t(a.y);
+    const typeName =
+        kind === 'entity'
+            ? Object.keys(Types.EntityTypes).find((k) => Types.EntityTypes[k] === a.type)
+            : null;
+    const fields = [];
+    for (const [k, v] of Object.entries(a)) {
+        if (['id', 'admin', 'x', 'y', 'w', 'h', 'elipse'].includes(k)) continue;
+        if (v === '' || v === null || v === undefined) continue;
+        fields.push(k + '=' + (k === 'type' && typeName ? typeName.toLowerCase() : v));
+    }
+    return (
+        kind + ' area id ' + a.id + ': tiles ' + left + ',' + top + ' to ' + (left + tw - 1) + ',' + (top + th - 1) +
+        ' (' + tw + 'x' + th + (a.elipse ? ' ellipse' : '') + '), px x=' + a.x + ' y=' + a.y + ' w=' + a.w + ' h=' + a.h +
+        (fields.length ? ' | ' + fields.join(' ') : '') + (a.admin ? ' [admin]' : ' [Tiled map]')
+    );
 }
 
 function commandName(text) {
