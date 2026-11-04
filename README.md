@@ -45,7 +45,6 @@ https://play.google.com/store/apps/details?id=com.landofmana.godot
 ## UPDATES:
 
 ## FEATURES:
-* The game uses Pixi-JS 3D, and is optimized to work on lower spec GPU's and consume less power.
 * Game is online and many people can play on the Server at once.
 * A real-time like battle system.
 * An Inventory system, Equip armor and weapons at level 10 onwards.
@@ -58,7 +57,6 @@ https://play.google.com/store/apps/details?id=com.landofmana.godot
 * PvP combat is enabled at level 20 onwards, when you reach that level expect chaos.
 * Player stat system that occurs at level 10, distribute the points how you want to make your character more unique.
 * Skill system that is still a work in progress.
-* A sectional map system that enables larger maps and they will be auto-generated in future.
 
 ## INSTRUCTIONS:
 * To Move you can can click on the Map, or use the arrow keys.
@@ -66,7 +64,7 @@ https://play.google.com/store/apps/details?id=com.landofmana.godot
 * To cycle through targets use keys T to target the closest Character or Y to reverse target.
 * Keys 1-6 for Skill/Item Shortcuts.
 
-## JOYPAD SUPPORT:
+## JOYPAD SUPPORT (Web Client Only):
 * It should have limited support for Game Controllers.
 * DPAD - Move Character.
 * Down Button to Attack.
@@ -79,7 +77,7 @@ https://play.google.com/store/apps/details?id=com.landofmana.godot
 ## HOST YOUR OWN SERVER
 Simply git clone this repository.
 
-### For Client:
+### For Web Client:
 Copy client directory to a http Server in the root directory, then to access in your browser enter http://localhost/client, for example.
 If you need to change the Servers address, in client/config/config_build.js, then enter the IP address or hostname of your server and modify as needed.
 If you change the IP address you might have to edit the CORS header in the client/index.html file to allow it to communicate with the server.
