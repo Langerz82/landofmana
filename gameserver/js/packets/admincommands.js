@@ -55,8 +55,8 @@ import { logChat } from '../chatlog.js';
 //                                   <count> nodes. Options: name="...", gold=N, exp=N
 //                                   (XP multiplier). Its id is generated
 //                                   (1 + map + entity id + the NPC's next quest number,
-//                                   questid.js), it's saved to shared/data/quests.json
-//                                   and the NPC's entity.json record, and works at once.
+//                                   questid.js) -- which is also how it's tied to the NPC --
+//                                   it's saved to shared/data/quests.json and works at once.
 //                                   Its text is the game's standard text for the type.
 //
 // <type> is one of: mob, npc (alias npcmove), npcstatic, node.
@@ -64,11 +64,9 @@ import { logChat } from '../chatlog.js';
 //   name=Bob  name="Old Bob"   (blank / omitted = the default name)
 //   level=10                   (mob and node only; omitted = random/1)
 //   o=u|d|l|r                  facing up/down/left/right (default down)
-//   quests=1000200000101,1000200000102       (npc and npcstatic only; alias q=) quest ids
-//                              from shared/data/quests.json
 // e.g.
 //   /spawn mob 5 level=10 o=l
-//   /spawn npcstatic 5 name="Bob" quests=1000200000101,1000200000102
+//   /spawn npcstatic 5 name="Bob"   (then /select it and /addquest to give it quests)
 //
 // Spawned entities are saved to gameserver/data/maps/<map>/entity.json and
 // respawned on every server start -- see map/mapentitystore.js.
@@ -87,7 +85,7 @@ const COMMANDS = {
 
 const LEVEL_TYPES = new Set(['mob', 'node']);
 const SPAWN_USAGE =
-    'Usage: /spawn <type> <kindId> [name="..."] [level=N] [o=u|d|l|r] [quests=id,id]';
+    'Usage: /spawn <type> <kindId> [name="..."] [level=N] [o=u|d|l|r]';
 const QUEST_TYPES = new Set(['npcmove', 'npcstatic']);
 // key= spellings accepted on the command line -> canonical option.
 const OPTION_ALIASES = {
@@ -98,10 +96,7 @@ const OPTION_ALIASES = {
     lv: 'level',
     o: 'orientation',
     orientation: 'orientation',
-    dir: 'orientation',
-    quests: 'quests',
-    quest: 'quests',
-    q: 'quests'
+    dir: 'orientation'
 };
 // Letters (any language), digits, spaces and a little punctuation.
 const NAME_PATTERN = /^[\p{L}\p{N} _'.-]+$/u;
@@ -217,7 +212,7 @@ class AdminCommands {
         this.reply(
             'types: ' +
                 MapEntityStore.typeNames.join(', ') +
-                ' -- e.g. /spawn mob 5 level=10 o=l, /spawn npcstatic 5 name="Bob" quests=1000200000101,1000200000102'
+                ' -- e.g. /spawn mob 5 level=10 o=l, /spawn npcstatic 5 name="Bob"'
         );
         this.reply('/despawn [entityId] -- removes the nearest (or given) placed entity');
         this.reply('/spawnlist -- placed entities near you');
@@ -273,7 +268,7 @@ class AdminCommands {
                 this.reply(
                     'Unknown option "' +
                         rawKey +
-                        '". Options: name=, level=, o= (u/d/l/r), quests= (npc only)'
+                        '". Options: name=, level=, o= (u/d/l/r)'
                 );
                 return;
             }
@@ -306,18 +301,6 @@ class AdminCommands {
                     return;
                 }
                 rec.orientation = o;
-            } else if (key === 'quests') {
-                if (value === '') continue;
-                if (!QUEST_TYPES.has(type)) {
-                    this.reply('quests= only applies to npc and npcstatic.');
-                    return;
-                }
-                const res = MapEntityStore.normalizeQuests(value);
-                if (res.error) {
-                    this.reply(res.error);
-                    return;
-                }
-                rec.quests = res.quests;
             }
         }
 
@@ -348,7 +331,6 @@ class AdminCommands {
                 (e.name ? ' "' + e.name + '"' : '') +
                 (LEVEL_TYPES.has(type) ? ' level ' + e.level : '') +
                 (rec.orientation ? ' facing ' + rec.orientation : '') +
-                (rec.quests ? ' with quests ' + rec.quests : '') +
                 ' (entity id ' +
                 e.id +
                 ') at ' +
@@ -448,7 +430,7 @@ class AdminCommands {
 
     describeNpc(store, entity) {
         const rec = store.byEntityId.get(entity.id);
-        const quests = rec && rec.quests ? rec.quests.split(',') : [];
+        const quests = QuestData.questsForNpc(entity.mapIndex, entity.id);
         return (
             rec.type +
             ' "' +
@@ -522,7 +504,7 @@ class AdminCommands {
         const int = (v) => (/^\d+$/.test(String(v)) ? parseInt(v, 10) : NaN);
         const kind = String(pos[0] || '').toLowerCase();
 
-        const data = { npcKind: npc.kind, type: 0, level: 0 };
+        const data = { type: 0, level: 0 };
         let what;
         if (kind === 'kill') {
             const mobKind = int(pos[1]);
@@ -583,13 +565,12 @@ class AdminCommands {
         }
         const questId = String(makeQuestId(QUEST_STATIC, p.map.index, npc.id, number));
 
+        // The quest belongs to the NPC through its id (map index + entity
+        // id), so nothing on the NPC's entity.json record changes.
         addQuest(questId, data);
-        const rec = store.byEntityId.get(npc.id);
-        rec.quests = rec.quests ? rec.quests + ',' + questId : questId;
-        npc.setQuests(rec.quests.split(','));
-        store.save();
+        npc.setQuests(QuestData.questsForNpc(p.map.index, npc.id));
         this.reply(
-            'Added quest ' + questId + ' (' + data.name + ') to "' + npc.name + '". Saved to quests.json and entity.json.'
+            'Added quest ' + questId + ' (' + data.name + ') to "' + npc.name + '". Saved to quests.json.'
         );
     }
 
@@ -632,7 +613,6 @@ class AdminCommands {
                     (rec.name ? ' "' + rec.name + '"' : '') +
                     (rec.level ? ' lv ' + rec.level : '') +
                     (rec.orientation ? ' ' + rec.orientation : '') +
-                    (rec.quests ? ' quests ' + rec.quests : '') +
                     ' @ ' +
                     rec.x +
                     ',' +

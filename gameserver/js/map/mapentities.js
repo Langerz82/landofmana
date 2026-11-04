@@ -292,7 +292,9 @@ class MapEntities {
             }
             if (entity) {
                 if (data.name) entity.name = data.name;
-                if (data.quests) entity.setQuests(data.quests.split(','));
+                // An NPC's quests come from their ids (map index + entity
+                // id, questid.js), set when it's created -- not from a
+                // "quests" list here.
             }
         }
         else if (data.type === Types.EntityTypes.BLOCK) {

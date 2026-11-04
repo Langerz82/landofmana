@@ -25743,11 +25743,6 @@
                          "value":"Beginner Quests"
                         }, 
                         {
-                         "name":"quests",
-                         "type":"string",
-                         "value":"1000200000101,1000200000102"
-                        }, 
-                        {
                          "name":"type",
                          "type":"string",
                          "value":"npc"

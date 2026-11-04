@@ -24,7 +24,6 @@ import MobData from '../data/mobdata.js';
 import NpcData from '../data/npcdata.js';
 import Mob from '../entity/mob/mob.js';
 import Node from '../entity/node.js';
-import QuestData from '../data/questdata.js';
 import { G_TILESIZE, MAX_FIXED_ID } from '../constants.js';
 
 // ADMIN: entities placed in-game by an admin with the /spawn chat command
@@ -37,14 +36,14 @@ import { G_TILESIZE, MAX_FIXED_ID } from '../constants.js';
 //     { "type": "mob", "kind": 5, "x": 16333, "y": 16390,
 //       "name": "Rat King", "level": 12, "orientation": "left" }
 //     { "type": "npcstatic", "kind": 5, "x": 16333, "y": 16390,
-//       "name": "Bob", "quests": "1000200000101,1000200000102" }
+//       "name": "Bob" }
 //
 // x/y are the exact world (pixel) position of the admin's centre when they
 // ran /spawn -- not snapped to the tile grid. Everything after x/y is
 // optional: `name`, `level`, `orientation` (up/down/left/right or u/d/l/r;
-// default down) and, for npcs, `quests` -- a comma-separated list of quest
-// ids from shared/data/quests.json, the same format the map files' own NPC
-// entries use (see MapEntities.createEntity()). The file is safe to
+// default down). An NPC's quests aren't listed here: they're the quests
+// whose ids name its map index and entity id (questid.js), added with the
+// admin /addquest command. The file is safe to
 // hand-edit while the server is stopped; it is re-read and every record
 // respawned each time the map
 // loads (MapManager calls load() last in each map's ready callback, after
@@ -118,22 +117,6 @@ class MapEntityStore {
         return TYPE_ALIASES[String(name || '').toLowerCase()] || null;
     }
 
-    // "1000200000101, 1000200000102" / ["1000200000101", 1000200000102] -> { quests: "1000200000101,1000200000102" },
-    // or { error } if empty, malformed or naming a quest that doesn't exist.
-    static normalizeQuests(value) {
-        const ids = (Array.isArray(value) ? value : String(value).split(','))
-            .map((id) => String(id).trim())
-            .filter((id) => id !== '');
-        if (!ids.length) return { error: 'quests= needs at least one quest id' };
-        const bad = ids.filter((id) => !/^\d+$/.test(id));
-        if (bad.length)
-            return { error: 'quest ids must be numbers, got: ' + bad.join(', ') };
-        const missing = ids.filter((id) => !QuestData.Data[id]);
-        if (missing.length)
-            return { error: 'no quest with id ' + missing.join(', ') };
-        return { quests: [...new Set(ids)].join(',') };
-    }
-
     static normalizeOrientation(value) {
         return ORIENTATION_ALIASES[String(value || '').toLowerCase()] || null;
     }
@@ -162,12 +145,6 @@ class MapEntityStore {
             return 'level must be 1-' + MAX_LEVEL;
         if (rec.orientation !== undefined && !ORIENTATION_IDS[rec.orientation])
             return 'orientation must be up, down, left or right';
-        if (rec.quests !== undefined) {
-            if (rec.type !== 'npcmove' && rec.type !== 'npcstatic')
-                return 'quests only apply to npcs';
-            const q = MapEntityStore.normalizeQuests(rec.quests);
-            if (q.error) return q.error;
-        }
         if (rec.name !== undefined) {
             if (typeof rec.name !== 'string' || !rec.name.length)
                 return 'bad name';
@@ -402,11 +379,8 @@ class MapEntityStore {
             rec.orientation =
                 MapEntityStore.normalizeOrientation(item.orientation) ||
                 String(item.orientation); // invalid -> caught by validate()
-        if (item.quests !== undefined && item.quests !== null && item.quests !== '') {
-            const q = MapEntityStore.normalizeQuests(item.quests);
-            // Invalid lists are kept raw so validate() reports them.
-            rec.quests = q.error ? item.quests : q.quests;
-        }
+        // (an old "quests" list is dropped: an NPC's quests come from their
+        // ids now -- questid.js)
         return rec;
     }
 
@@ -452,7 +426,6 @@ class MapEntityStore {
             return null;
         }
         if (entity && rec.name) entity.name = rec.name;
-        if (entity && rec.quests) entity.setQuests(rec.quests.split(','));
         if (entity) {
             // Face down unless the record says otherwise.
             entity.orientation = ORIENTATION_IDS[rec.orientation || 'down'];

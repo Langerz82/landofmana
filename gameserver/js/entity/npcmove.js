@@ -49,6 +49,9 @@ class NpcMove extends Character {
         // ascending, and reproducible on every server start regardless of
         // which map finishes its async load first.
         this.npcQuestId = this.mapIndex * G_NPC_QUEST_ID_MAP_OFFSET + this.id;
+        // The quests this NPC offers: every quest whose id names it -- its
+        // map index and entity id (questid.js, data/questdata.js).
+        this.setQuests(QuestData.questsForNpc(this.mapIndex, this.id));
     }
 
     setQuests(quests) {

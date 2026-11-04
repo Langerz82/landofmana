@@ -21,7 +21,8 @@ import fs from 'fs';
 import { fileURLToPath } from 'url';
 import Quest, { getQuestObject } from '../quest.js';
 import QuestsJson from '../../shared/data/quests.json' with { type: 'json' };
-import { G_DEBUG } from '../constants.js';
+import { G_DEBUG, G_NPC_QUEST_ID_MAP_OFFSET } from '../constants.js';
+import { parseQuestId } from '../questid.js';
 
 // The same file as the import above, for addQuest() to write to.
 const QUESTS_FILE = fileURLToPath(
@@ -29,7 +30,8 @@ const QUESTS_FILE = fileURLToPath(
 );
 
 const QuestData = {};
-const QuestNpcData = {};
+// "<map index>:<entity id>" -> that NPC's quest ids, in quest-number order.
+const QuestsByNpc = {};
 
 // Builds the server's quest object for one quests.json entry and registers it
 // in QuestData.
@@ -39,9 +41,18 @@ function buildQuest(id, data) {
     if (G_DEBUG) console.info('data:' + JSON.stringify(data));
     const quest = {};
     quest.id = id;
-    quest.npcQuestId = data.npcKind;
+    // The NPC a quest belongs to is in its id (questid.js): its map index and
+    // entity id -- not an NPC kind, which every NPC of the same look shares.
+    // npcQuestId is that NPC's own (npcmove.js / npcstatic.js).
+    const owner = parseQuestId(id);
+    if (!owner)
+        console.warn('QuestData: quest id ' + id + ' is not a static quest id (questid.js) -- no NPC will offer it.');
+    quest.mapIndex = owner ? owner.mapIndex : -1;
+    quest.entityId = owner ? owner.entityId : -1;
+    quest.npcQuestId = owner
+        ? owner.mapIndex * G_NPC_QUEST_ID_MAP_OFFSET + owner.entityId
+        : -1;
     quest.raw = data;
-    quest.npcKind = data.npcKind;
     quest.type = data.type;
     quest.level = data.level;
     quest.data1 = data.data1 || 0;
@@ -86,7 +97,18 @@ function buildQuest(id, data) {
     questObject.data = quest;
 
     QuestData[quest.id] = questObject;
+    if (owner) {
+        const key = owner.mapIndex + ':' + owner.entityId;
+        const list = (QuestsByNpc[key] = QuestsByNpc[key] || []);
+        if (!list.includes(String(id))) list.push(String(id));
+        list.sort((a, b) => parseQuestId(a).number - parseQuestId(b).number);
+    }
     return questObject;
+}
+
+// The quest ids an NPC offers (its map index and entity id), in order.
+export function questsForNpc(mapIndex, entityId) {
+    return (QuestsByNpc[mapIndex + ':' + entityId] || []).slice();
 }
 
 for (const id in QuestsJson) buildQuest(id, QuestsJson[id]);
@@ -115,4 +137,4 @@ export function addQuest(id, data) {
 //console.info(QuestData);
 export const Data = QuestData;
 
-export default { Data, addQuest };
+export default { Data, addQuest, questsForNpc };

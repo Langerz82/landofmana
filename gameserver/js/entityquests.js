@@ -75,8 +75,10 @@ class EntityQuests {
         pQuest.data = quest.data;
         // FIX: `quest` here is QuestData.Data[questId] -- one shared object
         // reused by every NPC instance and every player that's ever offered
-        // this authored quest -- and its npcQuestId is `data.npcKind`
-        // (questdata.js), an NPC *kind*, not an NPC instance. That's fine
+        // this authored quest. (Its npcQuestId used to be `data.npcKind`, an
+        // NPC *kind*; it's now the owning NPC's own npcQuestId, from the
+        // quest id's map index + entity id -- questid.js, questdata.js -- so
+        // it already matches; stamping it below keeps that true.) That's fine
         // server-side (EntityQuests.ownsQuest() never consults npcQuestId
         // for authored quests -- it checks `this.quests` membership
         // instead), but this same npcQuestId also rides along to the client

@@ -1,6 +1,5 @@
 {
 	"1000100000101": {
-		"npcKind": 0,
 		"name": "Intro 1-1",
 		"type": 1,
 		"level": 0,
@@ -9,7 +8,6 @@
 		"expMultiplier": 2
 	},
 	"1000100000102": {
-		"npcKind": 0,
 		"name": "Intro 1-2",
 		"type": 1,
 		"level": 0,
@@ -17,7 +15,6 @@
 		"gold": 30
 		},
 	"1000100000201": {
-		"npcKind": 1,
 		"name": "Intro 2",
 		"type": 2,
 		"level": 0,
@@ -25,7 +22,6 @@
 		"object2": {"type": 4, "kind": 1, "count": 3, "chance": 20}
 	},
 	"1000100000301": {
-		"npcKind": 2,
 		"name": "Intro 3",
 		"type": 2,
 		"level": 0,
@@ -33,7 +29,6 @@
 		"object2": {"type": 4, "kind": 41, "count": 5, "chance": 20}
 	},
 	"1000100000401": {
-		"npcKind": 3,
 		"name": "Intro 4",
 		"type": 2,
 		"level": 0,
@@ -41,14 +36,12 @@
 		"object2": {"type": 4, "kind": 43, "count": 1, "chance": 5}
 	},
 	"1000100000501": {
-		"npcKind": 4,
 		"name": "Intro 5",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 2, "count": 10}
 	},
 	"1000100000601": {
-		"npcKind": 5,
 		"name": "Intro 6",
 		"type": 2,
 		"level": 0,
@@ -56,7 +49,6 @@
 		"object2": {"type": 4, "kind": 31, "count": 5, "chance": 15}
 	},
 	"1000100000701": {
-		"npcKind": 6,
 		"name": "Intro 7",
 		"type": 5,
 		"level": 0,
@@ -64,14 +56,12 @@
 		"object": {"type": 10, "kind": 3, "count": 5}
 	},
 	"1000100000801": {
-		"npcKind": 7,
 		"name": "Intro 8",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 3, "count": 10}
 	},
 	"1000100000901": {
-		"npcKind": 8,
 		"name": "Intro 9",
 		"type": 2,
 		"level": 0,
@@ -79,7 +69,6 @@
 		"object2": {"type": 4, "kind": 93, "count": 5, "chance": 15}
 	},
 	"1000100001001": {
-		"npcKind": 9,
 		"name": "Intro 10",
 		"type": 5,
 		"level": 0,
@@ -87,7 +76,6 @@
 		"object": {"type": 10, "kind": 3, "count": 5}
 	},
 	"1000100001101": {
-		"npcKind": 10,
 		"name": "Intro 11",
 		"type": 1,
 		"level": 0,
@@ -95,7 +83,6 @@
 		"reward": [{"itemKind": 100}]
 	},
     "1000200000101": {
-		"npcKind": 0,
 		"name": "Intro 1-1",
 		"type": 1,
 		"level": 0,
@@ -104,12 +91,20 @@
 		"expMultiplier": 2
 	},
 	"1000200000102": {
-		"npcKind": 0,
 		"name": "Intro 1-2",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 1, "count": 20},
 		"gold": 100
+	},
+	"1000600021101": {
+		"type": 1,
+		"level": 0,
+		"object": {
+			"type": 2,
+			"kind": 1,
+			"count": 10
+		},
+		"name": "kill 10 rat"
 	}
-
 }

@@ -54,11 +54,25 @@ export function makeQuestId(kind, mapIndex, entityId, number) {
     );
 }
 
+// A static quest id -> { mapIndex, entityId, number }, or null if it isn't
+// one (wrong length, or not starting with QUEST_STATIC).
+export function parseQuestId(id) {
+    const s = String(id);
+    if (s.length !== 1 + 4 + ENTITY_DIGITS + 2 || !/^\d+$/.test(s)) return null;
+    if (Number(s[0]) !== QUEST_STATIC) return null;
+    return {
+        mapIndex: Number(s.slice(1, 5)),
+        entityId: Number(s.slice(5, 5 + ENTITY_DIGITS)),
+        number: Number(s.slice(5 + ENTITY_DIGITS))
+    };
+}
+
 export default {
     QUEST_STATIC,
     QUEST_DYNAMIC,
     MAX_QUESTS_PER_NPC,
     MAX_DYNAMIC_QUESTS_PER_NPC,
     questIdPrefix,
-    makeQuestId
+    makeQuestId,
+    parseQuestId
 };
