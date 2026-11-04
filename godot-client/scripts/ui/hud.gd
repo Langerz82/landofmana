@@ -61,6 +61,9 @@ var _announce_until := 0
 var _target = null
 var _chat_lines: Array = []
 var _chat_times: Array = []   # ms tick each _chat_lines entry was added
+## Admin mode: the chat log keeps every line (no MAX_CHAT_LINES cap, no
+## CHAT_LINE_LIFETIME_MS expiry) and scrolls with the mouse wheel.
+var _keep_chat := false
 var _root: Control
 var windows: Dictionary = {}     # name -> GameWindow
 var modals: Modals
@@ -575,7 +578,7 @@ func is_blacked_out() -> bool:
 func _push_line(bb: String) -> void:
 	_chat_lines.append(bb)
 	_chat_times.append(Time.get_ticks_msec())
-	if _chat_lines.size() > MAX_CHAT_LINES:
+	if not _keep_chat and _chat_lines.size() > MAX_CHAT_LINES:
 		_chat_lines.pop_front()
 		_chat_times.pop_front()
 	_chat_log.text = "\n".join(_chat_lines)
@@ -583,7 +586,7 @@ func _push_line(bb: String) -> void:
 
 ## Drops chat log lines older than CHAT_LINE_LIFETIME_MS.
 func _expire_chat_lines(now: int) -> void:
-	if _chat_log == null or _chat_times.is_empty():
+	if _keep_chat or _chat_log == null or _chat_times.is_empty():
 		return
 	var n := 0
 	while n < _chat_times.size() and now - int(_chat_times[n]) >= CHAT_LINE_LIFETIME_MS:
@@ -593,6 +596,15 @@ func _expire_chat_lines(now: int) -> void:
 	_chat_lines = _chat_lines.slice(n)
 	_chat_times = _chat_times.slice(n)
 	_chat_log.text = "\n".join(_chat_lines)
+
+
+## Admin mode on/off (World._on_notify ADMIN_MODE): see _keep_chat.
+func set_keep_chat(on: bool) -> void:
+	_keep_chat = on
+	if _chat_log:
+		# PASS: takes the mouse wheel to scroll, other clicks go on to the game
+		_chat_log.mouse_filter = Control.MOUSE_FILTER_PASS if on else Control.MOUSE_FILTER_IGNORE
+		_chat_log.scroll_to_line(maxi(0, _chat_log.get_line_count() - 1))
 
 
 func _esc(t: String) -> String:

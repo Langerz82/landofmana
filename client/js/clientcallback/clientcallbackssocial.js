@@ -66,6 +66,7 @@ export function installClientCallbacksSocial(proto) {
             // kept on the game, not the player object, so it holds whenever
             // the player object is created
             game.adminMode = Number(data[2]) === 1;
+            if (game.chathandler) game.chathandler.setAdminLog(game.adminMode);
             return;
         }
         game.showNotification(data);

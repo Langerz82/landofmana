@@ -31,6 +31,8 @@ export default class ChatHandler {
     constructor(game) {
         const self = this;
         //this.game = game;
+        // kept for game.adminMode: an admin's chat log keeps every line
+        this.game = game;
         //this.client = game.client;
         //this.kkhandler = kkhandler;
         this.jqChatLog = $('#chatLog');
@@ -57,8 +59,19 @@ export default class ChatHandler {
         setTimeout(function () {
             // FIX: `this` inside a plain setTimeout callback is undefined (strict-mode ES module), so `this.chatLog` threw;
             // use the captured `self` instead, which was declared for this purpose but never used
+            // ADMIN: an admin's chat log keeps its old lines (it scrolls
+            // instead, see setAdminLog)
+            if (self.game && self.game.adminMode) return;
             self.jqChatLog.find('p:first').remove();
         }, delay);
+    }
+
+    // ADMIN: admin mode on -> the chat log keeps every line and can be
+    // scrolled with the mouse wheel (css #chatLog.adminlog); off -> back to
+    // lines dropping off after bumpOffDelay.
+    setAdminLog(on) {
+        this.jqChatLog.toggleClass('adminlog', !!on);
+        this.jqChatLog.scrollTop(999999);
     }
 
     addToChatLog(message) {

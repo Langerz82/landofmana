@@ -444,6 +444,9 @@ func is_overlapping(e, nx: int, ny: int) -> bool:
 func blocks_movement(other, mover) -> bool:
 	if other.is_dead or other.is_dying or other.hidden_by_area:
 		return false
+	# ADMIN: an admin walks (and paths) through every entity; map collisions still apply
+	if mover == player and admin_mode:
+		return false
 	if mover == player:
 		return true
 	return not (other is Player or other is ItemEntity)
@@ -1858,6 +1861,8 @@ func _on_notify(pkt: Array) -> void:
 	if pkt.size() > 0 and str(pkt[0]) == "ADMIN_MODE":
 		# kept on the world, not the player, so it holds whenever the player is created
 		admin_mode = pkt.size() > 2 and Types.to_int(pkt[2]) == 1
+		if hud:
+			hud.set_keep_chat(admin_mode)
 		return
 	var d := pkt.duplicate()
 	var group := str(d.pop_front())

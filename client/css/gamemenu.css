@@ -166,6 +166,17 @@ section {
     margin: 3px;
 }
 
+#chatLog.adminlog {
+    overflow-y: auto;
+    pointer-events: auto;
+    justify-content: flex-start;
+}
+
+/* keeps the lines at the bottom while still letting the log scroll */
+#chatLog.adminlog p:first-child {
+    margin-top: auto;
+}
+
 #chatLog p {
     float: left;
     padding: 0;

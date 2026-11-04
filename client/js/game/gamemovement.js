@@ -340,6 +340,9 @@ export function installGameMovement(proto) {
     };
 
     proto.isOverlapping = function (entity, x, y) {
+        // ADMIN: an admin walks through mobs, NPCs, nodes and everything
+        // else (map collisions still apply)
+        if (this.adminMode && entity === this.player) return false;
         const entities = this.camera.entities;
 
         for (let k in entities) {
