@@ -20,7 +20,7 @@ import Messages from './message.js';
 import _ from 'underscore';
 import Utils from './utils.js';
 import { Types } from './common.js';
-import { G_TILESIZE, G_FRAME_INTERVALS, G_DEBUG } from './constants.js';
+import { G_TILESIZE, G_DEBUG } from './constants.js';
 import Player from './entity/player/player.js';
 
 /* global Player */
@@ -31,7 +31,6 @@ class Updater {
         this.ws = ws;
         this.server = ws;
         this.map = map;
-        //this.tick = 5;
         this.time = Date.now();
         this.whoDist = 8 * G_TILESIZE;
 
@@ -134,7 +133,7 @@ class Updater {
             }
             m = entity.movement;
             if (m && m.inProgress) {
-                m.step(this.time);
+                m.step();
             }
         }
     }
@@ -160,7 +159,7 @@ class Updater {
     updateCharacterPathMovement(c) {
         const self = this;
 
-        const tick = c.tick * G_FRAME_INTERVALS;
+        const delay = c.moveDelay;
         const o = c.orientation;
 
         if (c.isDead || c.freeze || c.isStunned) {
@@ -170,13 +169,13 @@ class Updater {
         const canMove = c.movement.inProgress === false && c.isMovingPath();
         if (canMove) {
             if (o === Types.Orientations.LEFT) {
-                c.movement.start(self.charPathXF, null, -tick);
+                c.movement.start(self.charPathXF, null, -1, delay);
             } else if (o === Types.Orientations.RIGHT) {
-                c.movement.start(self.charPathXF, null, tick);
+                c.movement.start(self.charPathXF, null, 1, delay);
             } else if (o === Types.Orientations.UP) {
-                c.movement.start(self.charPathYF, null, -tick);
+                c.movement.start(self.charPathYF, null, -1, delay);
             } else if (o === Types.Orientations.DOWN) {
-                c.movement.start(self.charPathYF, null, tick);
+                c.movement.start(self.charPathYF, null, 1, delay);
             }
         }
     }
@@ -184,7 +183,7 @@ class Updater {
     updatePlayerPathMovement(c) {
         const self = this;
 
-        const tick = c.tick * G_FRAME_INTERVALS;
+        const delay = c.moveDelay;
         const o = c.orientation;
 
         if (c.isDead || c.freeze || c.isStunned) {
@@ -195,13 +194,13 @@ class Updater {
         const canMove = c.movement.inProgress === false && c.isMovingPath();
         if (canMove) {
             if (o === 3) {
-                c.movement.start(self.playerPathXF, null, -tick);
+                c.movement.start(self.playerPathXF, null, -1, delay);
             } else if (o === 4) {
-                c.movement.start(self.playerPathXF, null, tick);
+                c.movement.start(self.playerPathXF, null, 1, delay);
             } else if (o === 1) {
-                c.movement.start(self.playerPathYF, null, -tick);
+                c.movement.start(self.playerPathYF, null, -1, delay);
             } else if (o === 2) {
-                c.movement.start(self.playerPathYF, null, tick);
+                c.movement.start(self.playerPathYF, null, 1, delay);
             }
         }
     }
@@ -212,7 +211,7 @@ class Updater {
         }
 
         const self = this;
-        const tick = c.tick * G_FRAME_INTERVALS;
+        const delay = c.moveDelay;
         const o = c.orientation;
 
         if (c.freeze || c.isMovingPath()) {
@@ -223,13 +222,13 @@ class Updater {
         const canMove = c.movement.inProgress === false && o > 0 && c.keyMove;
         if (canMove) {
             if (o === 3) {
-                c.movement.start(self.playerKeyXF, null, -tick);
+                c.movement.start(self.playerKeyXF, null, -1, delay);
             } else if (o === 4) {
-                c.movement.start(self.playerKeyXF, null, tick);
+                c.movement.start(self.playerKeyXF, null, 1, delay);
             } else if (o === 1) {
-                c.movement.start(self.playerKeyYF, null, -tick);
+                c.movement.start(self.playerKeyYF, null, -1, delay);
             } else if (o === 2) {
-                c.movement.start(self.playerKeyYF, null, tick);
+                c.movement.start(self.playerKeyYF, null, 1, delay);
             }
         }
     }

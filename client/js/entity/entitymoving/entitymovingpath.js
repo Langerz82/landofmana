@@ -26,6 +26,7 @@
 // keeps working unchanged -- Character (and everything that extends it) inherits this
 // exactly as if it were still written directly in the class body.
 import Timer from '../../timer.js';
+import { MOVE_FRAME_MS, MOVE_SPEED_SCALE } from '../../constants.js';
 /* global Types, log */
 
 export function installEntityMovingPath(proto) {
@@ -228,7 +229,15 @@ export function installEntityMovingPath(proto) {
         this.moveSpeed = rate;
         this.walkSpeed = ~~(rate / 4);
         this.moveCooldown = new Timer(rate);
-        this.tick = Math.round(1000 / this.moveSpeed);
+        // moveDelay = ms it takes to move 1 pixel, on a fixed 60 fps frame
+        // (MOVE_FRAME_MS = 1000/60). moveSpeed / 1000 is frames per pixel, so
+        // moveSpeed 500 -> 0.5 frames/px -> 8.33 ms/px, then divided by
+        // MOVE_SPEED_SCALE (0.75 -> 11.11 ms/px). No rounding, no ticks.
+        this.moveDelay =
+            this.moveSpeed > 0
+                ? ((this.moveSpeed / 1000) * MOVE_FRAME_MS) / MOVE_SPEED_SCALE
+                : 0;
+        if (this.movement) this.movement.setDelay(this.moveDelay);
     };
 
     // New function to make coding easier.

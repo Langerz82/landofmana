@@ -22,7 +22,7 @@ extends Node2D
 ## background layers (z -20..-15) and below every entity (z 0), so the
 ## target's sprite covers it instead of the square being painted on top.
 
-const TS := Types.G_TILESIZE
+const TS := Constants.G_TILESIZE
 const COLOR := Color(0, 1, 0, 0.6)
 
 var world = null

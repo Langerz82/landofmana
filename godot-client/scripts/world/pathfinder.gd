@@ -31,7 +31,7 @@ extends RefCounted
 ## If the entity's box would hit a wall beside such an off-centre lane, the
 ## same route is used along tile centres instead (see _centred_path).
 
-const TS := Types.G_TILESIZE
+const TS := Constants.G_TILESIZE
 const MAX_NODES := 16
 ## Extra cost (in tiles) per direction change. 1000 = fewest turns first, then
 ## shortest (same default as gameserver lib/astar.js). Something like 3-5

@@ -23,7 +23,7 @@ extends Node2D
 
 signal disconnected(message: String)
 
-const TS := Types.G_TILESIZE
+const TS := Constants.G_TILESIZE
 const BASE_SCALE := 3.0
 ## Settings -> Zoom value called "Normal" (the default). Entity names are
 ## drawn at their normal size at this zoom and in proportion at the others.
@@ -154,8 +154,8 @@ func _exit_tree() -> void:
 func _process(delta: float) -> void:
 	_acc += delta * 1000.0
 	var steps := 0
-	while _acc >= Types.G_UPDATE_INTERVAL and steps < 8:
-		_acc -= Types.G_UPDATE_INTERVAL
+	while _acc >= Constants.G_UPDATE_INTERVAL and steps < 8:
+		_acc -= Constants.G_UPDATE_INTERVAL
 		_game_tick()
 		steps += 1
 	if steps >= 8:
@@ -233,7 +233,6 @@ func _update_characters() -> void:
 	for e in entities.values():
 		if not (e is EntityMoving):
 			continue
-		e.tick_frames = e.tick_px if e.tick_px > 0 else 0
 		if e is Player:
 			if e == player:
 				_update_player_path_movement(e)
@@ -262,12 +261,12 @@ func _update_animations() -> void:
 
 
 func _start_transition(c: EntityMoving, fx: Callable, fy: Callable, stop_fn: Callable) -> void:
-	var t: int = c.tick_frames
+	var d: float = c.move_delay
 	match c.orientation:
-		Types.Orientation.LEFT: c.movement.start(fx, stop_fn, -t)
-		Types.Orientation.RIGHT: c.movement.start(fx, stop_fn, t)
-		Types.Orientation.UP: c.movement.start(fy, stop_fn, -t)
-		Types.Orientation.DOWN: c.movement.start(fy, stop_fn, t)
+		Types.Orientation.LEFT: c.movement.start(fx, stop_fn, -1, d)
+		Types.Orientation.RIGHT: c.movement.start(fx, stop_fn, 1, d)
+		Types.Orientation.UP: c.movement.start(fy, stop_fn, -1, d)
+		Types.Orientation.DOWN: c.movement.start(fy, stop_fn, 1, d)
 
 
 func _update_character_path_movement(c) -> void:
@@ -976,14 +975,14 @@ func make_player_attack(e) -> bool:
 				audio.play_sound("hit%d" % randi_range(1, 2))
 			p.attack_cooldown.duration = 1000
 			p.attack_cooldown.last_time = current_time
-			_schedule_attack_retry(Types.ATTACK_MAX)
+			_schedule_attack_retry(Constants.ATTACK_MAX)
 			return true
 		"attack_outoftime":
 			_schedule_attack_retry(p.attack_cooldown.duration - (current_time - p.attack_cooldown.last_time))
 			return false
 		"attack_toofar", "attack_aborted":
 			if p.has_target():
-				_schedule_attack_retry(Types.ATTACK_MAX)
+				_schedule_attack_retry(Constants.ATTACK_MAX)
 			return false
 	return false
 
@@ -1212,7 +1211,7 @@ func make_npc_talk(npc) -> void:
 		if is_instance_valid(npc):
 			client.send_talk_to_npc(npc.type, npc.id)
 	if npc.type == Types.EntityType.NPCMOVE:
-		Game.after(Types.G_ROUNDTRIP, talk)
+		Game.after(Constants.G_ROUNDTRIP, talk)
 		p.remove_target()
 		return
 	var t: String = npc.title()
@@ -1227,7 +1226,7 @@ func make_npc_talk(npc) -> void:
 			"Looks": hud.open_window("looks")
 	else:
 		bubbles.erase(npc.id)
-		Game.after(Types.G_ROUNDTRIP, talk)
+		Game.after(Constants.G_ROUNDTRIP, talk)
 	p.remove_target()
 
 
@@ -1662,7 +1661,7 @@ func _on_entity_move(d: Array) -> void:
 	if e == player:
 		if not (player.x == px and player.y == py):
 			player.reset_position(px, py)
-			player.set_freeze(Types.G_ROUNDTRIP)
+			player.set_freeze(Constants.G_ROUNDTRIP)
 			client.send_sync_time(Game.unix_ms())
 		return
 	e.set_move_rate(speed)
@@ -1686,8 +1685,8 @@ func _on_entity_move_path(pkt: Array) -> void:
 	var e = entities.get(id)
 	if e == null or e == player or e.is_dying or e.is_dead or not (e is EntityMoving):
 		return
-	var lock := Types.G_LATENCY - (Game.world_time() - time) + Types.G_UPDATE_INTERVAL
-	lock = clampi(lock, 0, Types.G_LATENCY)
+	var lock := Constants.G_LATENCY - (Game.world_time() - time) + Constants.G_UPDATE_INTERVAL
+	lock = clampi(lock, 0, Constants.G_LATENCY)
 	e.force_stop()
 	e.set_pos(path[0][0], path[0][1])
 	var fn := func():

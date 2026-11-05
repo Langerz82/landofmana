@@ -67,10 +67,6 @@ export default class Updater {
             self.game.updateCameraEntity(entity.id, entity);
             if (!(entity instanceof EntityMoving)) return;
 
-            entity.tickFrames = 0;
-            if (entity.tick > 0) {
-                entity.tickFrames = entity.tick;
-            }
             if (entity instanceof Player) {
                 if (entity === game.player) {
                     self.updatePlayerPathMovement(entity);

@@ -17,42 +17,113 @@
 
 class_name Transition
 extends RefCounted
-## Port of client/js/transition.js. Steps an entity one pixel at a time,
-## |mod_value| times per game tick, until the update function returns true.
+## Port of client/js/transition.js -- fixed-timestep movement transition.
+##
+## Movement is simulated on a fixed Constants.MOVE_FPS timeline that is
+## independent of the real frame rate. Every fixed frame that has elapsed adds
+## MOVE_FRAME_MS / delay pixels of progress (delay = ms per pixel, the
+## entity's move_delay), and update_fn(obj, dir) is called once per whole
+## pixel. Frame drops / stalls are caught up on the next step(), so an entity
+## always covers the same distance for the same elapsed time as on the
+## gameserver; a faster frame rate just means some step()s do nothing.
+##
+## update_fn returns true to end the transition (path node reached, path
+## finished, blocked, ...). If it ends that way without an external stop()
+## (just turning at a path node), the fixed-frame clock and fractional pixel
+## progress carry into the next start() so nothing is lost at corners. Any
+## external stop() discards the carry.
 
 var in_progress := false
-var mod_value := 0
+var dir := 0                 # -1 or 1
+var delay := 0.0             # ms per pixel
+var frame_time := 0.0        # time of the last simulated fixed frame
+var progress := 0.0          # fractional pixels accumulated, not yet moved
 var update_fn: Callable = Callable()
 var stop_fn: Callable = Callable()
 var obj = null
+
+var _stepping := false
+var _external_stop := false
+var _has_carry := false
+var _carry_frame_time := 0.0
+var _carry_progress := 0.0
 
 
 func _init(o = null) -> void:
 	obj = o
 
 
-func start(update_function: Callable, stop_function: Callable, value: int) -> void:
+static func now() -> float:
+	return Time.get_ticks_usec() / 1000.0
+
+
+## direction: sign gives direction. move_delay: ms per pixel, <= 0 = don't move.
+func start(update_function: Callable, stop_function: Callable, direction: int, move_delay: float) -> void:
+	var t := now()
 	update_fn = update_function
 	stop_fn = stop_function
-	mod_value = value
+	dir = signi(direction)
+	delay = move_delay if move_delay > 0.0 else 0.0
+
+	var carry := _has_carry
+	_has_carry = false
+	if carry and t - _carry_frame_time >= 0.0 and t - _carry_frame_time <= Constants.MAX_CATCHUP_MS:
+		frame_time = _carry_frame_time
+		progress = _carry_progress
+	else:
+		frame_time = t
+		progress = 0.0
+
 	in_progress = true
 
 
+## Change speed mid-transition; takes effect from the next fixed frame.
+func set_delay(move_delay: float) -> void:
+	delay = move_delay if move_delay > 0.0 else 0.0
+
+
 func step() -> void:
-	if not in_progress or mod_value == 0 or not update_fn.is_valid():
+	if not in_progress or not update_fn.is_valid():
 		return
-	var count := absi(mod_value)
-	var m := 1 if mod_value > 0 else -1
-	for _i in range(count):
-		if not in_progress:
-			stop()
-			break
-		if update_fn.call(obj, m):
-			stop()
-			break
+	if dir == 0 or delay <= 0.0:
+		return
+
+	var t := now()
+	if t - frame_time > Constants.MAX_CATCHUP_MS:
+		frame_time = t - Constants.MAX_CATCHUP_MS
+
+	var px_per_frame := Constants.MOVE_FRAME_MS / delay
+
+	_stepping = true
+	_external_stop = false
+	while t - frame_time >= Constants.MOVE_FRAME_MS - Constants.EPSILON:
+		frame_time += Constants.MOVE_FRAME_MS
+		progress += px_per_frame
+
+		while progress >= 1.0 - Constants.EPSILON:
+			if not in_progress:
+				_stepping = false
+				return
+
+			progress -= 1.0
+			if update_fn.call(obj, dir):
+				var external := _external_stop or not in_progress
+				var cft := frame_time
+				var cp := maxf(progress, 0.0)
+				_stepping = false
+				stop()
+				if not external:
+					_has_carry = true
+					_carry_frame_time = cft
+					_carry_progress = cp
+				return
+	_stepping = false
 
 
 func stop() -> void:
+	if _stepping:
+		_external_stop = true
+	_has_carry = false
 	if stop_fn.is_valid():
 		stop_fn.call(obj)
 	in_progress = false

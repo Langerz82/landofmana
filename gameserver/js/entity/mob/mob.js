@@ -116,7 +116,6 @@ class Mob extends Character {
 
         this.moveSpeed = this.data.moveSpeed;
         this.setMoveRate(this.moveSpeed);
-        //this.tick = this.data.tick;
 
         this.setAttackRate(this.data.attackRate);
         this.setAggroRate(this.data.reactionDelay >> 2);

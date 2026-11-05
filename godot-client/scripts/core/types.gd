@@ -18,11 +18,6 @@
 class_name Types
 ## Port of shared/js/gametypes.js (protocol ids, enums and level tables).
 
-const G_LATENCY := 75
-const G_ROUNDTRIP := G_LATENCY * 2
-const G_UPDATE_INTERVAL := 16
-const G_TILESIZE := 16
-const ATTACK_MAX := 1000
 ## Default ms per line of NPC dialogue / quest speech (shared/js/gametypes.js
 ## DIALOGUE_DELAY_DEFAULT). The gameserver only sends a delay when it differs.
 const DIALOGUE_DELAY_DEFAULT := 5000

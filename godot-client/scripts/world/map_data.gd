@@ -20,7 +20,7 @@ extends RefCounted
 ## Port of client/js/map/*.js (data side): tiles, collision grid, doors,
 ## camera areas and the collision queries used by movement/pathfinding.
 
-const TS := Types.G_TILESIZE
+const TS := Constants.G_TILESIZE
 
 var map_index := 0
 var map_name := ""

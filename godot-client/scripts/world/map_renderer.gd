@@ -21,7 +21,7 @@ extends Node2D
 ## tiles) are streamed in CHUNK x CHUNK blocks around the camera. Tiles listed
 ## in map.high go to foreground layers drawn above entities (z_index > 0).
 
-const TS := Types.G_TILESIZE
+const TS := Constants.G_TILESIZE
 const CHUNK := 32
 const MAX_LAYERS := 6
 const TILESET_PATH := "res://assets/img/common/ts-1-1.png"

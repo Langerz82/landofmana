@@ -185,7 +185,7 @@ export function installUpdaterMovement(self) {
     self.updateCharacterPathMovement = function (c) {
         const self = this;
 
-        const tick = c.tickFrames;
+        const delay = c.moveDelay;
         const o = c.orientation;
 
         if (c.freeze || c.isStunned || c.isDying || c.isDead) {
@@ -197,13 +197,13 @@ export function installUpdaterMovement(self) {
         const canMove = c.movement.inProgress === false && c.isMovingPath();
         if (canMove) {
             if (o === Types.Orientations.LEFT) {
-                c.movement.start(self.charPathXF, self.stopTransition, -tick);
+                c.movement.start(self.charPathXF, self.stopTransition, -1, delay);
             } else if (o === Types.Orientations.RIGHT) {
-                c.movement.start(self.charPathXF, self.stopTransition, tick);
+                c.movement.start(self.charPathXF, self.stopTransition, 1, delay);
             } else if (o === Types.Orientations.UP) {
-                c.movement.start(self.charPathYF, self.stopTransition, -tick);
+                c.movement.start(self.charPathYF, self.stopTransition, -1, delay);
             } else if (o === Types.Orientations.DOWN) {
-                c.movement.start(self.charPathYF, self.stopTransition, tick);
+                c.movement.start(self.charPathYF, self.stopTransition, 1, delay);
             }
         }
     };
@@ -214,19 +214,19 @@ export function installUpdaterMovement(self) {
         }
 
         const self = this;
-        const tick = c.tickFrames;
+        const delay = c.moveDelay;
         const o = c.orientation;
 
         const canMove = c.movement.inProgress === false && c.keyMove && o > 0;
         if (canMove) {
             if (o === Types.Orientations.LEFT) {
-                c.movement.start(self.charKeyXF, null, -tick);
+                c.movement.start(self.charKeyXF, null, -1, delay);
             } else if (o === Types.Orientations.RIGHT) {
-                c.movement.start(self.charKeyXF, null, tick);
+                c.movement.start(self.charKeyXF, null, 1, delay);
             } else if (o === Types.Orientations.UP) {
-                c.movement.start(self.charKeyYF, null, -tick);
+                c.movement.start(self.charKeyYF, null, -1, delay);
             } else if (o === Types.Orientations.DOWN) {
-                c.movement.start(self.charKeyYF, null, tick);
+                c.movement.start(self.charKeyYF, null, 1, delay);
             }
         }
     };
@@ -244,7 +244,7 @@ export function installUpdaterMovement(self) {
         }
 
         const self = this;
-        const tick = c.tickFrames;
+        const delay = c.moveDelay;
         const o = c.orientation;
 
         // TODO - Fix character stuttering thats corrupting the map display and collision.
@@ -253,13 +253,13 @@ export function installUpdaterMovement(self) {
         if (canMove) {
             c.updateMovement();
             if (o === Types.Orientations.LEFT) {
-                c.movement.start(self.playerPathXF, null, -tick);
+                c.movement.start(self.playerPathXF, null, -1, delay);
             } else if (o === Types.Orientations.RIGHT) {
-                c.movement.start(self.playerPathXF, null, tick);
+                c.movement.start(self.playerPathXF, null, 1, delay);
             } else if (o === Types.Orientations.UP) {
-                c.movement.start(self.playerPathYF, null, -tick);
+                c.movement.start(self.playerPathYF, null, -1, delay);
             } else if (o === Types.Orientations.DOWN) {
-                c.movement.start(self.playerPathYF, null, tick);
+                c.movement.start(self.playerPathYF, null, 1, delay);
             }
         }
     };
@@ -278,7 +278,7 @@ export function installUpdaterMovement(self) {
         }
 
         const self = this;
-        const tick = c.tickFrames;
+        const delay = c.moveDelay;
         const o = c.orientation;
 
         // STRICT alignment requirement for key movement
@@ -286,13 +286,13 @@ export function installUpdaterMovement(self) {
 
         if (canMove) {
             if (o === Types.Orientations.LEFT) {
-                c.movement.start(self.playerKeyXF, null, -tick);
+                c.movement.start(self.playerKeyXF, null, -1, delay);
             } else if (o === Types.Orientations.RIGHT) {
-                c.movement.start(self.playerKeyXF, null, tick);
+                c.movement.start(self.playerKeyXF, null, 1, delay);
             } else if (o === Types.Orientations.UP) {
-                c.movement.start(self.playerKeyYF, null, -tick);
+                c.movement.start(self.playerKeyYF, null, -1, delay);
             } else if (o === Types.Orientations.DOWN) {
-                c.movement.start(self.playerKeyYF, null, tick);
+                c.movement.start(self.playerKeyYF, null, 1, delay);
             }
         }
     };

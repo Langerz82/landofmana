@@ -22,8 +22,7 @@ extends Entity
 
 var move_speed := 100
 var walk_speed := 150
-var tick_px := 10           # pixels per game tick (JS: this.tick)
-var tick_frames := 0
+var move_delay := 0.0       # ms to move 1 pixel on the fixed 60fps timeline
 var move_cooldown: GTimer
 var movement: Transition
 var move_path = null        # Array of [x, y] waypoints (JS: this.path)
@@ -72,7 +71,14 @@ func set_move_rate(rate: int) -> void:
 	move_speed = rate
 	walk_speed = int(rate / 4)
 	move_cooldown = GTimer.new(rate)
-	tick_px = roundi(1000.0 / maxf(move_speed, 1))
+	# move_delay = ms it takes to move 1 pixel, on a fixed 60 fps frame
+	# (Constants.MOVE_FRAME_MS). move_speed / 1000 is frames per pixel, so
+	# move_speed 500 -> 0.5 frames/px -> 8.33 ms/px, then divided by
+	# MOVE_SPEED_SCALE (0.75 -> 11.11 ms/px). Same formula as the JS client
+	# and gameserver (entitymovingpath.js setMoveRate()).
+	move_delay = (move_speed / 1000.0) * Constants.MOVE_FRAME_MS / Constants.MOVE_SPEED_SCALE if move_speed > 0 else 0.0
+	if movement:
+		movement.set_delay(move_delay)
 
 
 # ------------------------------------------------------------- orientation

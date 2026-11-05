@@ -22,7 +22,7 @@ extends "res://tests/npc_dialogue_test.gd"
 ## Run: godot --headless res://tests/entity_block_test.tscn
 
 
-const TS := Types.G_TILESIZE
+const TS := Constants.G_TILESIZE
 
 
 func free_line(p: Player, o: int, tiles: int) -> bool:

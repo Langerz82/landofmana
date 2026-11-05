@@ -30,6 +30,14 @@ import Game from '../game.js';
 import { installMainUI } from './mainui.js';
 import { installMainInput } from './maininput.js';
 import { installMainDialogs } from './maindialogs.js';
+import {
+    G_LATENCY,
+    G_ROUNDTRIP,
+    G_UPDATE_INTERVAL,
+    G_TILESIZE,
+    ATTACK_INTERVAL,
+    ATTACK_MAX
+} from '../constants.js';
 
 /* global Types, Utils, PIXI, StatusBar, screen */
 
@@ -55,13 +63,16 @@ window.app = null;
 // present, instead of always overwriting it.
 window.log = window.log || console;
 
-window.G_LATENCY = 75;
-window.G_ROUNDTRIP = window.G_LATENCY * 2;
-window.G_UPDATE_INTERVAL = 16;
-window.G_TILESIZE = 16;
-
-window.ATTACK_INTERVAL = 1000;
-window.ATTACK_MAX = 1000;
+// Defined in constants.js; still exposed as window globals because many
+// modules read them as globals (/* global G_TILESIZE */ etc.).
+Object.assign(window, {
+    G_LATENCY,
+    G_ROUNDTRIP,
+    G_UPDATE_INTERVAL,
+    G_TILESIZE,
+    ATTACK_INTERVAL,
+    ATTACK_MAX
+});
 
 window.Container = {
     STAGE: new PIXI.Container(),

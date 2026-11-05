@@ -115,8 +115,8 @@ func set_range() -> void:
 func server_move(time: int, o: int, state: int, px: int, py: int) -> void:
 	set_orientation(o)
 	if state == 1 and o != Types.Orientation.NONE:
-		var lock := Types.G_LATENCY - (Game.world_time() - time)
-		lock = clampi(lock, Types.G_UPDATE_INTERVAL, Types.G_LATENCY) + Types.G_LATENCY
+		var lock := Constants.G_LATENCY - (Game.world_time() - time)
+		lock = clampi(lock, Constants.G_UPDATE_INTERVAL, Constants.G_LATENCY) + Constants.G_LATENCY
 		if _moving_delay:
 			_moving_delay.cancel()
 		_moving_delay = Game.after(lock, func():
@@ -197,7 +197,7 @@ func force_stop() -> void:
 	key_move = false
 	stop_key_move = false
 	if queued != null:
-		schedule_move_retry(queued, Types.G_UPDATE_INTERVAL, Callable(), false)
+		schedule_move_retry(queued, Constants.G_UPDATE_INTERVAL, Callable(), false)
 
 
 func hit(o: int = 0) -> bool:
@@ -251,7 +251,7 @@ func schedule_move_retry(o: int, delay: int, still_wanted: Callable, recheck_thr
 func reject_move() -> bool:
 	if fsm == "ATTACK":
 		return true
-	if move_throttle(Types.G_ROUNDTRIP):
+	if move_throttle(Constants.G_ROUNDTRIP):
 		force_stop()
 		return true
 	if key_move:
@@ -293,7 +293,7 @@ func key_input(o: int, state: bool, skip_throttle: bool = false) -> void:
 		return
 	if state and o != Types.Orientation.NONE:
 		if not skip_throttle and movement.in_progress and not is_moving_path() and orientation != o:
-			if fsm == "ATTACK" or move_throttle(Types.G_ROUNDTRIP):
+			if fsm == "ATTACK" or move_throttle(Constants.G_ROUNDTRIP):
 				return
 			stop_key_move = o
 			return
@@ -303,7 +303,7 @@ func key_input(o: int, state: bool, skip_throttle: bool = false) -> void:
 			idle(o)
 			cancel_attack_delay()
 			if not skip_throttle and reject_move():
-				schedule_move_retry(o, Types.G_ROUNDTRIP, func(): return move_orientation == o, true)
+				schedule_move_retry(o, Constants.G_ROUNDTRIP, func(): return move_orientation == o, true)
 				return
 			start_key_movement(o)
 	elif not state:

@@ -21,7 +21,7 @@ extends Node2D
 ## pixels (x, y) exactly like the JS client; the Node2D position is synced
 ## from it every frame by sync_view().
 
-const TS := Types.G_TILESIZE
+const TS := Constants.G_TILESIZE
 
 var id := 0
 var type := 0

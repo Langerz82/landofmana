@@ -26,7 +26,7 @@ func name_pixels() -> Image:
 	await RenderingServer.frame_post_draw
 	var p = world.player
 	var sp: Vector2 = world.get_canvas_transform() * Vector2(p.x, p.y)
-	var y: float = sp.y - Types.G_TILESIZE * world.game_scale
+	var y: float = sp.y - Constants.G_TILESIZE * world.game_scale
 	var h: int = world.overlay.name_size()
 	var img := get_viewport().get_texture().get_image()
 	return img.get_region(Rect2i(int(sp.x) - 60, int(y) - h, 120, int(h * 1.6)))

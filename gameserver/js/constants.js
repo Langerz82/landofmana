@@ -41,6 +41,23 @@ export const G_FRAME_INTERVAL = ~~G_FRAME_INTERVAL_EXACT;
 export const G_UPDATE_INTERVAL = ~~(G_FRAME_INTERVAL * G_FRAME_INTERVALS);
 export const G_INTERVAL = G_UPDATE_INTERVAL * G_FRAME_INTERVALS;
 
+// Fixed simulation frame rate for entity movement (transition.js), and the
+// length of one frame in ms. Must match client/js/constants.js.
+export const MOVE_FPS = 60;
+export const MOVE_FRAME_MS = 1000 / MOVE_FPS;
+
+// Global movement speed multiplier for every moving entity (players, mobs,
+// NPCs). 1 = original speed; 0.75 = 25% slower.
+export const MOVE_SPEED_SCALE = 0.75;
+
+// Never simulate more than this much missed movement time in one
+// Transition.step() (e.g. after a tab was backgrounded for minutes) -- avoids
+// teleport-length bursts.
+export const MAX_CATCHUP_MS = 1000;
+
+// Float tolerance for Transition's fixed-frame / pixel-progress comparisons.
+export const EPSILON = 1e-9;
+
 // PERF: spatial-hash cell size (in tiles) used by map/mapentities.js's
 // spatial grid (getSpatialEntities/addSpatial/removeSpatial), which backs
 // every proximity query in the game -- sendNeighbours()/processWho()

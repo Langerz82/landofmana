@@ -95,9 +95,10 @@ export function tryMoveTo(p, x, y, now = Date.now()) {
     const dist = routeDistance(p, anchor, x, y);
     if (dist < 0) return false;
 
-    // The server moves a player `tick` pixels per G_FRAME_INTERVAL ms
-    // (updater.js steps tick * G_FRAME_INTERVALS px every G_UPDATE_INTERVAL).
-    const msPerPixel = G_FRAME_INTERVAL / Math.max(p.tick, 1);
+    // Same speed the server's Transition moves this player at (ms per pixel,
+    // set by setMoveRate() in entitymovingpath.js, includes MOVE_SPEED_SCALE).
+    const msPerPixel =
+        p.moveDelay > 0 ? p.moveDelay : G_FRAME_INTERVAL;
     const clock =
         Math.max(p.moveClock, anchor.at - G_MAX_LATENCY) +
         dist * msPerPixel;
