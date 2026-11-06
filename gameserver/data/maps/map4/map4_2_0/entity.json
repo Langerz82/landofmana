@@ -3,32 +3,32 @@
     "id": 101,
     "type": "npcmove",
     "kind": 17,
-    "x": 824,
-    "y": 1128,
+    "x": 968,
+    "y": 1032,
     "name": "Brevequin"
   },
   {
     "id": 102,
     "type": "npcmove",
     "kind": 27,
-    "x": 2856,
-    "y": 1320,
+    "x": 3224,
+    "y": 1064,
     "name": "Quorimund"
   },
   {
     "id": 103,
     "type": "npcmove",
     "kind": 18,
-    "x": 1544,
-    "y": 1544,
+    "x": 888,
+    "y": 1048,
     "name": "Moraethos"
   },
   {
     "id": 104,
     "type": "npcmove",
     "kind": 31,
-    "x": 3576,
-    "y": 1592,
+    "x": 3160,
+    "y": 1080,
     "name": "Breviolix"
   }
 ]

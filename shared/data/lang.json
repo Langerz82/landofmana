@@ -677,8 +677,10 @@
       ],
       "1000100003201": [
         [
-          [0, "The snakes here stole the bells off my goats' collars."],
-          [0, "Now I can't find the goats in the fog. Get five bells back for me."]
+          [0, "The Spectres here are the ghosts of the old chapel bell-ringers."],
+          [0, "They stole the chapel bells, and now they ring them all night long."],
+          [1, "So nobody in town can sleep?"],
+          [0, "Not a wink. Bring me five bells, and the chapel can have them back."]
         ],
         [
           [0, "Bring me all %count% of them."]
@@ -687,7 +689,7 @@
           [0, "Do you have the %count% %name%s yet?"]
         ],
         [
-          [0, "I can hear them! Ring, ring, ring."]
+          [0, "Silence at last! The chapel will ring them properly on Sunday."]
         ]
       ],
       "1000100003301": [
@@ -1898,7 +1900,7 @@
       "1000100002901": "Recover %count% charm necklaces from %name2%s",
       "1000100003001": "End the duel of %count% %name%s",
       "1000100003101": "Recover %count% scrolls from the %name2%s",
-      "1000100003201": "Retrieve %count% goat bells from the %name2%s",
+      "1000100003201": "Recover %count% chapel bells from the %name2%s",
       "1000100003301": "Recover %count% forge fireballs from %name2%s",
       "1000100003401": "Cull %count% giant %name%s from the sewers",
       "1000100003501": "Recover %count% royal brooches from %name2%s",

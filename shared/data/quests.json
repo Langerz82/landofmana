@@ -448,7 +448,7 @@
 		"name": "Fenris: get Bell",
 		"type": 2,
 		"level": 0,
-		"object": {"type": 2, "kind": 5, "level": [13, 13]},
+		"object": {"type": 2, "kind": 11, "level": [32, 33]},
 		"object2": {"type": 4, "kind": 4, "count": 5, "chance": 15}
 	},
 	"1000100003301": {

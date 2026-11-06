@@ -3,32 +3,32 @@
     "id": 101,
     "type": "npcmove",
     "kind": 28,
-    "x": 1080,
-    "y": 952,
+    "x": 1128,
+    "y": 1048,
     "name": "Wimaric"
   },
   {
     "id": 102,
     "type": "npcmove",
     "kind": 22,
-    "x": 3640,
-    "y": 1080,
+    "x": 3208,
+    "y": 1032,
     "name": "Oskowyn"
   },
   {
     "id": 103,
     "type": "npcmove",
     "kind": 11,
-    "x": 472,
-    "y": 728,
+    "x": 984,
+    "y": 888,
     "name": "Wimybel"
   },
   {
     "id": 104,
     "type": "npcmove",
     "kind": 17,
-    "x": 3016,
-    "y": 1352,
+    "x": 3032,
+    "y": 1128,
     "name": "Kesumar"
   }
 ]
