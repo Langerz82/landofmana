@@ -314,5 +314,304 @@
 		"level": 0,
 		"object": {"type": 2, "kind": 5, "level": [25, 30]},
 		"object2": {"type": 4, "kind": 66, "count": 5, "chance": 15}
+	},
+	"1000100001201": {
+		"name": "Lirael: kill Goblin",
+		"type": 1,
+		"level": 0,
+		"object": {"type": 2, "kind": 4, "count": 10, "level": [12, 12]}
+	},
+	"1000100001301": {
+		"name": "Maelis: get HandBag",
+		"type": 2,
+		"level": 0,
+		"object": {"type": 2, "kind": 5, "level": [13, 15]},
+		"object2": {"type": 4, "kind": 82, "count": 5, "chance": 15}
+	},
+	"1000100001401": {
+		"name": "Naelen: get ThrowingDagger",
+		"type": 2,
+		"level": 0,
+		"object": {"type": 2, "kind": 5, "level": [14, 15]},
+		"object2": {"type": 4, "kind": 28, "count": 5, "chance": 15}
+	},
+	"1000100001501": {
+		"name": "Ovryn: kill Snake",
+		"type": 1,
+		"level": 0,
+		"object": {"type": 2, "kind": 5, "count": 10, "level": [15, 15]}
+	},
+	"1000100001601": {
+		"name": "Peregrine: kill Bat",
+		"type": 1,
+		"level": 0,
+		"object": {"type": 2, "kind": 6, "count": 10, "level": [16, 18]}
+	},
+	"1000100001701": {
+		"name": "Quillen: kill Bat",
+		"type": 1,
+		"level": 0,
+		"object": {"type": 2, "kind": 6, "count": 10, "level": [17, 18]}
+	},
+	"1000100001801": {
+		"name": "Raelin: get PinkFireball",
+		"type": 2,
+		"level": 0,
+		"object": {"type": 2, "kind": 6, "level": [18, 18]},
+		"object2": {"type": 4, "kind": 22, "count": 5, "chance": 15}
+	},
+	"1000100001901": {
+		"name": "Sylas: get Pendant",
+		"type": 2,
+		"level": 0,
+		"object": {"type": 2, "kind": 7, "level": [19, 21]},
+		"object2": {"type": 4, "kind": 62, "count": 5, "chance": 15}
+	},
+	"1000100002001": {
+		"name": "Tyrian: kill HardSkeleton",
+		"type": 1,
+		"level": 0,
+		"object": {"type": 2, "kind": 7, "count": 10, "level": [20, 21]}
+	},
+	"1000100002101": {
+		"name": "Uvaine: kill HardSkeleton",
+		"type": 1,
+		"level": 0,
+		"object": {"type": 2, "kind": 7, "count": 10, "level": [21, 21]}
+	},
+	"1000100002201": {
+		"name": "Vaelis: kill Ogre",
+		"type": 1,
+		"level": 0,
+		"object": {"type": 2, "kind": 8, "count": 10, "level": [22, 24]}
+	},
+	"1000100002301": {
+		"name": "Wylan: get CoinPouch",
+		"type": 2,
+		"level": 0,
+		"object": {"type": 2, "kind": 8, "level": [23, 24]},
+		"object2": {"type": 4, "kind": 35, "count": 5, "chance": 15}
+	},
+	"1000100002401": {
+		"name": "Xaelor: get FaceMask",
+		"type": 2,
+		"level": 0,
+		"object": {"type": 2, "kind": 8, "level": [24, 24]},
+		"object2": {"type": 4, "kind": 80, "count": 5, "chance": 15}
+	},
+	"1000100002501": {
+		"name": "Yaelith: get NecklaceThree",
+		"type": 2,
+		"level": 0,
+		"object": {"type": 2, "kind": 9, "level": [25, 27]},
+		"object2": {"type": 4, "kind": 84, "count": 5, "chance": 15}
+	},
+	"1000100002601": {
+		"name": "Zephyr: kill Eye",
+		"type": 1,
+		"level": 0,
+		"object": {"type": 2, "kind": 9, "count": 10, "level": [26, 27]}
+	},
+	"1000100002701": {
+		"name": "Aldryn: kill Eye",
+		"type": 1,
+		"level": 0,
+		"object": {"type": 2, "kind": 9, "count": 10, "level": [27, 27]}
+	},
+	"1000100002801": {
+		"name": "Briar: kill Wizard",
+		"type": 1,
+		"level": 0,
+		"object": {"type": 2, "kind": 10, "count": 10, "level": [28, 30]}
+	},
+	"1000100002901": {
+		"name": "Cyran: get NecklaceOne",
+		"type": 2,
+		"level": 0,
+		"object": {"type": 2, "kind": 10, "level": [29, 30]},
+		"object2": {"type": 4, "kind": 30, "count": 5, "chance": 15}
+	},
+	"1000100003001": {
+		"name": "Daelin: kill Wizard",
+		"type": 1,
+		"level": 0,
+		"object": {"type": 2, "kind": 10, "count": 10, "level": [30, 30]}
+	},
+	"1000100003101": {
+		"name": "Elowen: get Scrolls",
+		"type": 2,
+		"level": 0,
+		"object": {"type": 2, "kind": 11, "level": [31, 33]},
+		"object2": {"type": 4, "kind": 0, "count": 5, "chance": 15}
+	},
+	"1000100003201": {
+		"name": "Fenris: get Bell",
+		"type": 2,
+		"level": 0,
+		"object": {"type": 2, "kind": 5, "level": [13, 13]},
+		"object2": {"type": 4, "kind": 4, "count": 5, "chance": 15}
+	},
+	"1000100003301": {
+		"name": "Gaelan: get Fireball",
+		"type": 2,
+		"level": 0,
+		"object": {"type": 2, "kind": 11, "level": [33, 33]},
+		"object2": {"type": 4, "kind": 10, "count": 5, "chance": 15}
+	},
+	"1000100003401": {
+		"name": "Harlow: kill Rat",
+		"type": 1,
+		"level": 0,
+		"object": {"type": 2, "kind": 1, "count": 10, "level": [34, 36]}
+	},
+	"1000100003501": {
+		"name": "Ivory: get Broach",
+		"type": 2,
+		"level": 0,
+		"object": {"type": 2, "kind": 1, "level": [35, 36]},
+		"object2": {"type": 4, "kind": 67, "count": 5, "chance": 15}
+	},
+	"1000100003601": {
+		"name": "Jadis: get Bug",
+		"type": 2,
+		"level": 0,
+		"object": {"type": 2, "kind": 1, "level": [36, 36]},
+		"object2": {"type": 4, "kind": 49, "count": 5, "chance": 15}
+	},
+	"1000100003701": {
+		"name": "Kieran: get MortAndPestle",
+		"type": 2,
+		"level": 0,
+		"object": {"type": 2, "kind": 2, "level": [37, 39]},
+		"object2": {"type": 4, "kind": 90, "count": 5, "chance": 15}
+	},
+	"1000100003801": {
+		"name": "Loren: kill Crab",
+		"type": 1,
+		"level": 0,
+		"object": {"type": 2, "kind": 2, "count": 10, "level": [38, 39]}
+	},
+	"1000100003901": {
+		"name": "Myst: get BoneEaring",
+		"type": 2,
+		"level": 0,
+		"object": {"type": 2, "kind": 2, "level": [39, 39]},
+		"object2": {"type": 4, "kind": 44, "count": 5, "chance": 15}
+	},
+	"1000100004001": {
+		"name": "Nyssa: get SmokePipe",
+		"type": 2,
+		"level": 0,
+		"object": {"type": 2, "kind": 3, "level": [40, 42]},
+		"object2": {"type": 4, "kind": 69, "count": 5, "chance": 15}
+	},
+	"1000100004101": {
+		"name": "Aeris: kill Skeleton",
+		"type": 1,
+		"level": 0,
+		"object": {"type": 2, "kind": 3, "count": 10, "level": [41, 42]}
+	},
+	"1000100004201": {
+		"name": "Baelan: get WoodHorn",
+		"type": 2,
+		"level": 0,
+		"object": {"type": 2, "kind": 3, "level": [42, 42]},
+		"object2": {"type": 4, "kind": 91, "count": 5, "chance": 15}
+	},
+	"1000100004301": {
+		"name": "Caelum: kill Goblin",
+		"type": 1,
+		"level": 0,
+		"object": {"type": 2, "kind": 4, "count": 10, "level": [43, 45]}
+	},
+	"1000100004401": {
+		"name": "Darian: kill Goblin",
+		"type": 1,
+		"level": 0,
+		"object": {"type": 2, "kind": 4, "count": 10, "level": [44, 45]}
+	},
+	"1000100004501": {
+		"name": "Eldryn: kill Goblin",
+		"type": 1,
+		"level": 0,
+		"object": {"type": 2, "kind": 4, "count": 10, "level": [45, 45]}
+	},
+	"1000100004601": {
+		"name": "Faelan: get Gadget",
+		"type": 2,
+		"level": 0,
+		"object": {"type": 2, "kind": 5, "level": [46, 48]},
+		"object2": {"type": 4, "kind": 26, "count": 5, "chance": 15}
+	},
+	"1000100004701": {
+		"name": "Gavriel: kill Snake",
+		"type": 1,
+		"level": 0,
+		"object": {"type": 2, "kind": 5, "count": 10, "level": [47, 48]}
+	},
+	"1000100004801": {
+		"name": "Haven: get Bat",
+		"type": 2,
+		"level": 0,
+		"object": {"type": 2, "kind": 5, "level": [48, 48]},
+		"object2": {"type": 4, "kind": 46, "count": 5, "chance": 15}
+	},
+	"1000100004901": {
+		"name": "Ilys: kill Bat",
+		"type": 1,
+		"level": 0,
+		"object": {"type": 2, "kind": 6, "count": 10, "level": [49, 51]}
+	},
+	"1000100005001": {
+		"name": "Jaelin: kill Bat",
+		"type": 1,
+		"level": 0,
+		"object": {"type": 2, "kind": 6, "count": 10, "level": [50, 51]}
+	},
+	"1000100005101": {
+		"name": "Kaelan: get ScrollsThree",
+		"type": 2,
+		"level": 0,
+		"object": {"type": 2, "kind": 6, "level": [51, 51]},
+		"object2": {"type": 4, "kind": 48, "count": 5, "chance": 15}
+	},
+	"1000100005201": {
+		"name": "Lirael: get Bones",
+		"type": 2,
+		"level": 0,
+		"object": {"type": 2, "kind": 7, "level": [52, 54]},
+		"object2": {"type": 4, "kind": 37, "count": 5, "chance": 15}
+	},
+	"1000100005301": {
+		"name": "Maelis: kill HardSkeleton",
+		"type": 1,
+		"level": 0,
+		"object": {"type": 2, "kind": 7, "count": 10, "level": [53, 54]}
+	},
+	"1000100005401": {
+		"name": "Naelen: kill HardSkeleton",
+		"type": 1,
+		"level": 0,
+		"object": {"type": 2, "kind": 7, "count": 10, "level": [54, 54]}
+	},
+	"1000100005501": {
+		"name": "Ovryn: kill Ogre",
+		"type": 1,
+		"level": 0,
+		"object": {"type": 2, "kind": 8, "count": 10, "level": [55, 57]}
+	},
+	"1000100005601": {
+		"name": "Peregrine: get Clever",
+		"type": 2,
+		"level": 0,
+		"object": {"type": 2, "kind": 8, "level": [56, 57]},
+		"object2": {"type": 4, "kind": 89, "count": 5, "chance": 15}
+	},
+	"1000100005701": {
+		"name": "Quillen: get AutumnLeaf",
+		"type": 2,
+		"level": 0,
+		"object": {"type": 2, "kind": 8, "level": [57, 57]},
+		"object2": {"type": 4, "kind": 59, "count": 5, "chance": 15}
 	}
 }

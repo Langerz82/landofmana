@@ -368,6 +368,707 @@
     },
 
     "QUESTS": {
+      "1000100001201": [
+        [
+          [0, "Goblins keep stealing laundry off my line. Every single sock!"],
+          [1, "Why would goblins want socks?"],
+          [0, "They wear them as hats. Kill ten and teach them some manners."]
+        ],
+        [
+          [0, "Come back when you've dealt with %count% of them."]
+        ],
+        [
+          [0, "Have you defeated %count% %name%s yet?"]
+        ],
+        [
+          [0, "My washing line is safe! I'll knit you something."]
+        ]
+      ],
+      "1000100001301": [
+        [
+          [0, "A snake slithered through the market and swallowed my handbag whole."],
+          [0, "Then four more did the same to my friends! Get our five bags back, please."]
+        ],
+        [
+          [0, "Bring me all %count% of them."]
+        ],
+        [
+          [0, "Do you have the %count% %name%s yet?"]
+        ],
+        [
+          [0, "Our handbags! A bit slimy, but everything's still inside."]
+        ]
+      ],
+      "1000100001401": [
+        [
+          [0, "I'm a juggler, and I juggle daggers."],
+          [0, "I dropped five of them in the long grass, and the snakes coiled around them and won't let go."],
+          [0, "Get my daggers back, I've got a show tonight."]
+        ],
+        [
+          [0, "Bring me all %count% of them."]
+        ],
+        [
+          [0, "Do you have the %count% %name%s yet?"]
+        ],
+        [
+          [0, "All five! Now watch this... ouch. Maybe I'll practise first."]
+        ]
+      ],
+      "1000100001501": [
+        [
+          [0, "Snakes keep sunbathing on the warm path stones."],
+          [0, "Nobody gets past without a bite. Clear ten of them off the road?"]
+        ],
+        [
+          [0, "Come back when you've dealt with %count% of them."]
+        ],
+        [
+          [0, "Have you defeated %count% %name%s yet?"]
+        ],
+        [
+          [0, "The path is clear! Travellers can walk it again."]
+        ]
+      ],
+      "1000100001601": [
+        [
+          [0, "Bats fly into my lantern shop every night and smash the glass."],
+          [1, "Why the lanterns?"],
+          [0, "They chase the moths that come to the light. Kill ten bats so I can get some sleep."]
+        ],
+        [
+          [0, "Come back when you've dealt with %count% of them."]
+        ],
+        [
+          [0, "Have you defeated %count% %name%s yet?"]
+        ],
+        [
+          [0, "Not a single broken lantern last night!"]
+        ]
+      ],
+      "1000100001701": [
+        [
+          [0, "The bell tower is full of bats."],
+          [0, "Every time the bell rings, they swarm the whole town. Thin them out, ten should do it."]
+        ],
+        [
+          [0, "Come back when you've dealt with %count% of them."]
+        ],
+        [
+          [0, "Have you defeated %count% %name%s yet?"]
+        ],
+        [
+          [0, "The bell rang at noon and nobody screamed. Thank you!"]
+        ]
+      ],
+      "1000100001801": [
+        [
+          [0, "I'm a fire mage in training, and pink fireballs are my best work."],
+          [0, "The bats think they're glowing fruit and snatch them out of the air."],
+          [0, "Bring back five before they set the trees alight."]
+        ],
+        [
+          [0, "Bring me all %count% of them."]
+        ],
+        [
+          [0, "Do you have the %count% %name%s yet?"]
+        ],
+        [
+          [0, "Five pink fireballs, still burning. Mind your eyebrows."]
+        ]
+      ],
+      "1000100001901": [
+        [
+          [0, "These skeletons were a king's knights. Each still wears his family's pendant."],
+          [0, "My grandmother's is among them. Bring me five, and I'll find hers."]
+        ],
+        [
+          [0, "Bring me all %count% of them."]
+        ],
+        [
+          [0, "Do you have the %count% %name%s yet?"]
+        ],
+        [
+          [0, "This one has her initials on the back. Thank you."]
+        ]
+      ],
+      "1000100002001": [
+        [
+          [0, "The old battlefield is waking up. Skeletons in rusted armour are marching again."],
+          [0, "Break ten of them before they reach the farms."]
+        ],
+        [
+          [0, "Come back when you've dealt with %count% of them."]
+        ],
+        [
+          [0, "Have you defeated %count% %name%s yet?"]
+        ],
+        [
+          [0, "The farms are safe, and the battlefield is quiet again."]
+        ]
+      ],
+      "1000100002101": [
+        [
+          [0, "A necromancer passed through last week and left a mess behind."],
+          [1, "What kind of mess?"],
+          [0, "The skeletons he raised! He forgot them. Put ten to rest for me."]
+        ],
+        [
+          [0, "Come back when you've dealt with %count% of them."]
+        ],
+        [
+          [0, "Have you defeated %count% %name%s yet?"]
+        ],
+        [
+          [0, "Ten fewer skeletons wandering about. If he comes back, I'll give him a piece of my mind."]
+        ]
+      ],
+      "1000100002201": [
+        [
+          [0, "An ogre sat on my cart. Then his friends sat on my house."],
+          [0, "Drive off ten of them before they sit on anything else."]
+        ],
+        [
+          [0, "Come back when you've dealt with %count% of them."]
+        ],
+        [
+          [0, "Have you defeated %count% %name%s yet?"]
+        ],
+        [
+          [0, "My roof is still a bit flat, but no more ogres!"]
+        ]
+      ],
+      "1000100002301": [
+        [
+          [0, "Ogres robbed the tax collector on the road and took five coin pouches."],
+          [1, "Isn't that good news for everyone?"],
+          [0, "Not when he takes it out of my pay. Get them back!"]
+        ],
+        [
+          [0, "Bring me all %count% of them."]
+        ],
+        [
+          [0, "Do you have the %count% %name%s yet?"]
+        ],
+        [
+          [0, "Five pouches, not a coin missing. My wages are safe."]
+        ]
+      ],
+      "1000100002401": [
+        [
+          [0, "The theatre's masks have gone missing, and the ogres are wearing them!"],
+          [0, "They think it makes them look scary. Bring me five, the play opens tomorrow."]
+        ],
+        [
+          [0, "Bring me all %count% of them."]
+        ],
+        [
+          [0, "Do you have the %count% %name%s yet?"]
+        ],
+        [
+          [0, "The masks are back! They do smell a little of ogre, though."]
+        ]
+      ],
+      "1000100002501": [
+        [
+          [0, "The floating Eyes collect shiny things."],
+          [0, "They took five necklaces from my jewellery stall. Bring them back and I'll give you a discount."]
+        ],
+        [
+          [0, "Bring me all %count% of them."]
+        ],
+        [
+          [0, "Do you have the %count% %name%s yet?"]
+        ],
+        [
+          [0, "All five, and not a scratch on them!"]
+        ]
+      ],
+      "1000100002601": [
+        [
+          [0, "Floating Eyes have been watching my house all night, every night."],
+          [1, "Just watching?"],
+          [0, "Just watching! It's very creepy. Get rid of ten of them."]
+        ],
+        [
+          [0, "Come back when you've dealt with %count% of them."]
+        ],
+        [
+          [0, "Have you defeated %count% %name%s yet?"]
+        ],
+        [
+          [0, "Finally, some privacy."]
+        ]
+      ],
+      "1000100002701": [
+        [
+          [0, "The Eyes keep frightening my sheep, and they won't come out of the barn."],
+          [0, "Clear ten away so they can graze again."]
+        ],
+        [
+          [0, "Come back when you've dealt with %count% of them."]
+        ],
+        [
+          [0, "Have you defeated %count% %name%s yet?"]
+        ],
+        [
+          [0, "The sheep are out in the meadow again. Baa-rilliant!"]
+        ]
+      ],
+      "1000100002801": [
+        [
+          [0, "Rogue wizards are testing spells on the road. Yesterday they turned a merchant into a turnip."],
+          [0, "Stop ten of them before they get to me."]
+        ],
+        [
+          [0, "Come back when you've dealt with %count% of them."]
+        ],
+        [
+          [0, "Have you defeated %count% %name%s yet?"]
+        ],
+        [
+          [0, "The merchant's back to normal. Well, mostly."]
+        ]
+      ],
+      "1000100002901": [
+        [
+          [0, "Those wizards stole the charm necklaces my village wears to ward off curses."],
+          [0, "Without them we're easy targets. Please bring back five."]
+        ],
+        [
+          [0, "Bring me all %count% of them."]
+        ],
+        [
+          [0, "Do you have the %count% %name%s yet?"]
+        ],
+        [
+          [0, "With the charms back, we can sleep without nightmares."]
+        ]
+      ],
+      "1000100003001": [
+        [
+          [0, "A wizard duel started in the field last month and never stopped."],
+          [0, "They've been blasting each other ever since. End it, defeat ten of them."]
+        ],
+        [
+          [0, "Come back when you've dealt with %count% of them."]
+        ],
+        [
+          [0, "Have you defeated %count% %name%s yet?"]
+        ],
+        [
+          [0, "Silence at last. The field might even grow grass again."]
+        ]
+      ],
+      "1000100003101": [
+        [
+          [0, "The Spectres are ghosts of the old scribes, and they've taken my scrolls."],
+          [0, "They think they still have work to finish. Bring me back five."]
+        ],
+        [
+          [0, "Bring me all %count% of them."]
+        ],
+        [
+          [0, "Do you have the %count% %name%s yet?"]
+        ],
+        [
+          [0, "Oh... they've corrected my spelling."]
+        ]
+      ],
+      "1000100003201": [
+        [
+          [0, "The snakes here stole the bells off my goats' collars."],
+          [0, "Now I can't find the goats in the fog. Get five bells back for me."]
+        ],
+        [
+          [0, "Bring me all %count% of them."]
+        ],
+        [
+          [0, "Do you have the %count% %name%s yet?"]
+        ],
+        [
+          [0, "I can hear them! Ring, ring, ring."]
+        ]
+      ],
+      "1000100003301": [
+        [
+          [0, "Spectres float through my forge and steal the fireballs I light it with."],
+          [0, "Cold ghosts love warm things. Bring me five, or my forge goes cold."]
+        ],
+        [
+          [0, "Bring me all %count% of them."]
+        ],
+        [
+          [0, "Do you have the %count% %name%s yet?"]
+        ],
+        [
+          [0, "The forge is roaring again. I'll make you something sharp."]
+        ]
+      ],
+      "1000100003401": [
+        [
+          [0, "These aren't ordinary rats. They've grown huge eating the slime in the old sewers."],
+          [0, "Ten of them chased the town guard up a tree yesterday. Cull ten for me?"]
+        ],
+        [
+          [0, "Come back when you've dealt with %count% of them."]
+        ],
+        [
+          [0, "Have you defeated %count% %name%s yet?"]
+        ],
+        [
+          [0, "The guard's finally down from the tree. Thank you!"]
+        ]
+      ],
+      "1000100003501": [
+        [
+          [0, "The royal family's brooches were stolen from the palace."],
+          [1, "By a master thief?"],
+          [0, "By rats. They dragged them down the drains. Bring me five."]
+        ],
+        [
+          [0, "Bring me all %count% of them."]
+        ],
+        [
+          [0, "Do you have the %count% %name%s yet?"]
+        ],
+        [
+          [0, "The queen will wear them at the feast tonight."]
+        ]
+      ],
+      "1000100003601": [
+        [
+          [0, "I study beetles. The rats here keep rare ones in their nests as snacks."],
+          [0, "Bring me five before they get eaten, and I'll name one after you."]
+        ],
+        [
+          [0, "Bring me all %count% of them."]
+        ],
+        [
+          [0, "Do you have the %count% %name%s yet?"]
+        ],
+        [
+          [0, "Beautiful! I'll call this one the Adventurer Beetle."]
+        ]
+      ],
+      "1000100003701": [
+        [
+          [0, "Crabs crawled up from the shore and raided my herb shop."],
+          [1, "Crabs? Why?"],
+          [0, "They use my mortars and pestles to crack open shells! Get five back, please."]
+        ],
+        [
+          [0, "Bring me all %count% of them."]
+        ],
+        [
+          [0, "Do you have the %count% %name%s yet?"]
+        ],
+        [
+          [0, "I can grind my herbs again. The town's potions are saved."]
+        ]
+      ],
+      "1000100003801": [
+        [
+          [0, "Giant crabs have taken over the beach, and the fishermen can't launch their boats."],
+          [0, "Send ten of them back into the sea."]
+        ],
+        [
+          [0, "Come back when you've dealt with %count% of them."]
+        ],
+        [
+          [0, "Have you defeated %count% %name%s yet?"]
+        ],
+        [
+          [0, "The boats are out on the water again!"]
+        ]
+      ],
+      "1000100003901": [
+        [
+          [0, "My grandmother's bone earrings fell into the rock pools."],
+          [0, "The crabs snapped them up and hide them in their shells. Bring me five."]
+        ],
+        [
+          [0, "Bring me all %count% of them."]
+        ],
+        [
+          [0, "Do you have the %count% %name%s yet?"]
+        ],
+        [
+          [0, "Thank you. Grandmother would be so pleased."]
+        ]
+      ],
+      "1000100004001": [
+        [
+          [0, "The old sailors buried in the dunes have climbed out of their graves."],
+          [1, "What do they want?"],
+          [0, "Their pipes! They raided the tobacco shop and took five. Get them back."]
+        ],
+        [
+          [0, "Bring me all %count% of them."]
+        ],
+        [
+          [0, "Do you have the %count% %name%s yet?"]
+        ],
+        [
+          [0, "My pipes! A bit dusty, but they'll do."]
+        ]
+      ],
+      "1000100004101": [
+        [
+          [0, "A skeleton challenged my son to a duel. He lost, and now they challenge everyone."],
+          [0, "Defeat ten of them so they'll stop."]
+        ],
+        [
+          [0, "Come back when you've dealt with %count% of them."]
+        ],
+        [
+          [0, "Have you defeated %count% %name%s yet?"]
+        ],
+        [
+          [0, "Ten duels won! They'll think twice now."]
+        ]
+      ],
+      "1000100004201": [
+        [
+          [0, "The skeletons blow wooden horns at night to wake up more of the dead."],
+          [0, "Bring me five horns, and they'll have nothing to wake them with."]
+        ],
+        [
+          [0, "Bring me all %count% of them."]
+        ],
+        [
+          [0, "Do you have the %count% %name%s yet?"]
+        ],
+        [
+          [0, "Five horns. The graveyard will stay quiet tonight."]
+        ]
+      ],
+      "1000100004301": [
+        [
+          [0, "Goblins have taken over the old fort on the hill."],
+          [0, "Take it back. Ten goblins down should break their hold."]
+        ],
+        [
+          [0, "Come back when you've dealt with %count% of them."]
+        ],
+        [
+          [0, "Have you defeated %count% %name%s yet?"]
+        ],
+        [
+          [0, "Our banner is flying over the fort again!"]
+        ]
+      ],
+      "1000100004401": [
+        [
+          [0, "Goblins trample my crops every night on their way to the river."],
+          [0, "Stop ten of them before I lose the whole harvest."]
+        ],
+        [
+          [0, "Come back when you've dealt with %count% of them."]
+        ],
+        [
+          [0, "Have you defeated %count% %name%s yet?"]
+        ],
+        [
+          [0, "My fields are safe. Have a basket of turnips!"]
+        ]
+      ],
+      "1000100004501": [
+        [
+          [0, "Goblins guard the bridge and charge everyone a toll."],
+          [0, "Bring down ten, and the bridge is free again."]
+        ],
+        [
+          [0, "Come back when you've dealt with %count% of them."]
+        ],
+        [
+          [0, "Have you defeated %count% %name%s yet?"]
+        ],
+        [
+          [0, "The bridge is free! Traders are already crossing."]
+        ]
+      ],
+      "1000100004601": [
+        [
+          [0, "I'm an inventor. Snakes got into my workshop and swallowed my gadgets!"],
+          [0, "Five of them. Get them back before one starts ticking."]
+        ],
+        [
+          [0, "Bring me all %count% of them."]
+        ],
+        [
+          [0, "Do you have the %count% %name%s yet?"]
+        ],
+        [
+          [0, "All five, still working! Mostly."]
+        ]
+      ],
+      "1000100004701": [
+        [
+          [0, "The snakes scared every customer away from my inn."],
+          [0, "Defeat ten of them, and drinks are on the house."]
+        ],
+        [
+          [0, "Come back when you've dealt with %count% of them."]
+        ],
+        [
+          [0, "Have you defeated %count% %name%s yet?"]
+        ],
+        [
+          [0, "Customers are back! Your first drink is on me."]
+        ]
+      ],
+      "1000100004801": [
+        [
+          [0, "The snakes here hunt bats and keep them for later."],
+          [0, "My museum wants five for a cave display. Strange, I know."]
+        ],
+        [
+          [0, "Bring me all %count% of them."]
+        ],
+        [
+          [0, "Do you have the %count% %name%s yet?"]
+        ],
+        [
+          [0, "Five bats! They'll look lovely in a glass case."]
+        ]
+      ],
+      "1000100004901": [
+        [
+          [0, "My lighthouse went dark when a swarm of bats smashed the lamp."],
+          [0, "Defeat ten of them so I can light it again."]
+        ],
+        [
+          [0, "Come back when you've dealt with %count% of them."]
+        ],
+        [
+          [0, "Have you defeated %count% %name%s yet?"]
+        ],
+        [
+          [0, "The lighthouse is shining again. Ships can find the harbour."]
+        ]
+      ],
+      "1000100005001": [
+        [
+          [0, "Bats swarm the town walls every night, and the guards can't see a thing."],
+          [0, "Drive back ten of them."]
+        ],
+        [
+          [0, "Come back when you've dealt with %count% of them."]
+        ],
+        [
+          [0, "Have you defeated %count% %name%s yet?"]
+        ],
+        [
+          [0, "The guards can see the road again."]
+        ]
+      ],
+      "1000100005101": [
+        [
+          [0, "Bats flew into the library and carried off the oldest scrolls to line their roosts."],
+          [0, "Bring me five scrolls before they're chewed to bits."]
+        ],
+        [
+          [0, "Bring me all %count% of them."]
+        ],
+        [
+          [0, "Do you have the %count% %name%s yet?"]
+        ],
+        [
+          [0, "The scrolls are back, only a little nibbled."]
+        ]
+      ],
+      "1000100005201": [
+        [
+          [0, "The iron-boned skeletons gather the bones of the fallen to raise more of their kind."],
+          [0, "Bring me five bundles, and I'll bury them where they can't be found."]
+        ],
+        [
+          [0, "Bring me all %count% of them."]
+        ],
+        [
+          [0, "Do you have the %count% %name%s yet?"]
+        ],
+        [
+          [0, "These bones will rest where no skeleton can find them."]
+        ]
+      ],
+      "1000100005301": [
+        [
+          [0, "Iron-boned skeletons have cut off the mountain pass. No supplies have reached us in weeks."],
+          [0, "Clear ten of them out of the pass."]
+        ],
+        [
+          [0, "Come back when you've dealt with %count% of them."]
+        ],
+        [
+          [0, "Have you defeated %count% %name%s yet?"]
+        ],
+        [
+          [0, "The first supply wagon just came through!"]
+        ]
+      ],
+      "1000100005401": [
+        [
+          [0, "My brother went to fight the skeletons in the valley and never came back."],
+          [0, "Defeat ten of them, for him."]
+        ],
+        [
+          [0, "Come back when you've dealt with %count% of them."]
+        ],
+        [
+          [0, "Have you defeated %count% %name%s yet?"]
+        ],
+        [
+          [0, "Thank you. He'd be proud of you."]
+        ]
+      ],
+      "1000100005501": [
+        [
+          [0, "The ogre chieftain hides somewhere in this valley, and his ogres guard every path."],
+          [0, "Bring down ten, and maybe he'll show himself."]
+        ],
+        [
+          [0, "Come back when you've dealt with %count% of them."]
+        ],
+        [
+          [0, "Have you defeated %count% %name%s yet?"]
+        ],
+        [
+          [0, "His guards are falling. He can't hide much longer."]
+        ]
+      ],
+      "1000100005601": [
+        [
+          [0, "The ogres stole the town butcher's cleavers."],
+          [1, "What for?"],
+          [0, "Ogre-sized toothpicks! Get me five back."]
+        ],
+        [
+          [0, "Bring me all %count% of them."]
+        ],
+        [
+          [0, "Do you have the %count% %name%s yet?"]
+        ],
+        [
+          [0, "My cleavers! The sausage shop opens tomorrow."]
+        ]
+      ],
+      "1000100005701": [
+        [
+          [0, "The ogres tore branches from the old elder tree to make their beds."],
+          [0, "With five of its golden leaves, I can heal its roots."]
+        ],
+        [
+          [0, "Bring me all %count% of them."]
+        ],
+        [
+          [0, "Do you have the %count% %name%s yet?"]
+        ],
+        [
+          [0, "Five golden leaves. The old tree will bloom again in spring."]
+        ]
+      ],
       "1000300010301": [
         [
           [0, "You came over the obsidian bridge? Then you were lucky."],
@@ -1177,6 +1878,52 @@
       ["Use %count% %name%."]
     ],
     "QUEST_SUMMARY": {
+      "1000100001201": "Stop %count% sock-stealing %name%s",
+      "1000100001301": "Recover %count% handbags swallowed by %name2%s",
+      "1000100001401": "Retrieve %count% juggling daggers from %name2%s",
+      "1000100001501": "Clear %count% sunbathing %name%s off the path",
+      "1000100001601": "Stop %count% lantern-smashing %name%s",
+      "1000100001701": "Thin out %count% %name%s in the bell tower",
+      "1000100001801": "Retrieve %count% pink fireballs grabbed by %name2%s",
+      "1000100001901": "Recover %count% family pendants from %name2%s",
+      "1000100002001": "Break %count% %name%s marching from the battlefield",
+      "1000100002101": "Put %count% forgotten %name%s to rest",
+      "1000100002201": "Drive off %count% %name%s",
+      "1000100002301": "Recover %count% stolen coin pouches from %name2%s",
+      "1000100002401": "Recover %count% theatre masks from %name2%s",
+      "1000100002501": "Recover %count% necklaces hoarded by %name2%s",
+      "1000100002601": "Close %count% staring %name%s",
+      "1000100002701": "Clear %count% %name%s scaring the sheep",
+      "1000100002801": "Stop %count% rogue %name%s",
+      "1000100002901": "Recover %count% charm necklaces from %name2%s",
+      "1000100003001": "End the duel of %count% %name%s",
+      "1000100003101": "Recover %count% scrolls from the %name2%s",
+      "1000100003201": "Retrieve %count% goat bells from the %name2%s",
+      "1000100003301": "Recover %count% forge fireballs from %name2%s",
+      "1000100003401": "Cull %count% giant %name%s from the sewers",
+      "1000100003501": "Recover %count% royal brooches from %name2%s",
+      "1000100003601": "Save %count% rare beetles from the %name2%s",
+      "1000100003701": "Recover %count% mortars and pestles from %name2%s",
+      "1000100003801": "Clear %count% %name%s off the beach",
+      "1000100003901": "Recover %count% bone earrings from %name2%s",
+      "1000100004001": "Recover %count% smoking pipes from %name2%s",
+      "1000100004101": "Win %count% duels against %name%s",
+      "1000100004201": "Take %count% horns from %name2%s",
+      "1000100004301": "Take back the fort from %count% %name%s",
+      "1000100004401": "Stop %count% %name%s trampling the crops",
+      "1000100004501": "Free the bridge from %count% %name% toll-takers",
+      "1000100004601": "Recover %count% gadgets swallowed by %name2%s",
+      "1000100004701": "Defeat %count% %name%s scaring off the inn's guests",
+      "1000100004801": "Collect %count% bats from the %name2%s' nests",
+      "1000100004901": "Defeat %count% %name%s around the lighthouse",
+      "1000100005001": "Drive back %count% %name%s from the town walls",
+      "1000100005101": "Recover %count% library scrolls from %name2%s",
+      "1000100005201": "Recover %count% bundles of bones from %name2%s",
+      "1000100005301": "Clear %count% %name%s from the mountain pass",
+      "1000100005401": "Defeat %count% %name%s for a fallen brother",
+      "1000100005501": "Bring down %count% %name%s guarding the valley",
+      "1000100005601": "Recover %count% cleavers from %name2%s",
+      "1000100005701": "Collect %count% golden leaves from %name2%s",
       "1000300010301": "Break the patrol of %count% %name%s on the obsidian bridge",
       "1000300010302": "Recover %count% fire %name%s from the %name2%s",
       "1000300010401": "Put out %count% %name%s staring down from the summit",
