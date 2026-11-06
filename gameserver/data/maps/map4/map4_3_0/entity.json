@@ -22,5 +22,21 @@
     "x": 2616,
     "y": 1320,
     "name": "Pelanor"
+  },
+  {
+    "id": 103,
+    "type": "npcmove",
+    "kind": 4,
+    "x": 632,
+    "y": 1384,
+    "name": "Ebbaeorn"
+  },
+  {
+    "id": 104,
+    "type": "npcmove",
+    "kind": 26,
+    "x": 3656,
+    "y": 600,
+    "name": "Ulmanor"
   }
 ]

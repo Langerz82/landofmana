@@ -210,5 +210,109 @@
 		"level": 0,
 		"object": {"type": 2, "kind": 1, "level": [25, 30]},
 		"object2": {"type": 4, "kind": 81, "count": 5, "chance": 15}
+	},
+	"1000300010301": {
+		"name": "Wimybel: kill DeathKnight",
+		"type": 1,
+		"level": 0,
+		"object": {"type": 2, "kind": 12, "count": 10, "level": [50, 55]}
+	},
+	"1000300010302": {
+		"name": "Wimybel: get Pumpkin",
+		"type": 2,
+		"level": 0,
+		"object": {"type": 2, "kind": 9, "level": [50, 55]},
+		"object2": {"type": 4, "kind": 92, "count": 5, "chance": 15}
+	},
+	"1000300010401": {
+		"name": "Kesumar: kill Eye",
+		"type": 1,
+		"level": 0,
+		"object": {"type": 2, "kind": 9, "count": 10, "level": [55, 60]}
+	},
+	"1000300010402": {
+		"name": "Kesumar: get Mushrooms",
+		"type": 2,
+		"level": 0,
+		"object": {"type": 2, "kind": 12, "level": [55, 60]},
+		"object2": {"type": 4, "kind": 42, "count": 5, "chance": 15}
+	},
+	"1000400010301": {
+		"name": "Fenuvane: kill HardSkeleton",
+		"type": 1,
+		"level": 0,
+		"object": {"type": 2, "kind": 7, "count": 10, "level": [40, 45]}
+	},
+	"1000400010302": {
+		"name": "Fenuvane: get BronzeHelmet",
+		"type": 2,
+		"level": 0,
+		"object": {"type": 2, "kind": 3, "level": [40, 45]},
+		"object2": {"type": 4, "kind": 56, "count": 5, "chance": 15}
+	},
+	"1000400010401": {
+		"name": "Morovash: kill Skeleton",
+		"type": 1,
+		"level": 0,
+		"object": {"type": 2, "kind": 3, "count": 10, "level": [45, 50]}
+	},
+	"1000400010402": {
+		"name": "Morovash: get UrnOne",
+		"type": 2,
+		"level": 0,
+		"object": {"type": 2, "kind": 8, "level": [45, 50]},
+		"object2": {"type": 4, "kind": 29, "count": 5, "chance": 15}
+	},
+	"1000500010301": {
+		"name": "Moraethos: kill Snake",
+		"type": 1,
+		"level": 0,
+		"object": {"type": 2, "kind": 5, "count": 10, "level": [30, 35]}
+	},
+	"1000500010302": {
+		"name": "Moraethos: get PoisonVial",
+		"type": 2,
+		"level": 0,
+		"object": {"type": 2, "kind": 6, "level": [30, 35]},
+		"object2": {"type": 4, "kind": 47, "count": 5, "chance": 15}
+	},
+	"1000500010401": {
+		"name": "Breviolix: kill Goblin",
+		"type": 1,
+		"level": 0,
+		"object": {"type": 2, "kind": 4, "count": 10, "level": [35, 40]}
+	},
+	"1000500010402": {
+		"name": "Breviolix: get Key",
+		"type": 2,
+		"level": 0,
+		"object": {"type": 2, "kind": 5, "level": [35, 40]},
+		"object2": {"type": 4, "kind": 3, "count": 5, "chance": 15}
+	},
+	"1000600010301": {
+		"name": "Ebbaeorn: kill Snake",
+		"type": 1,
+		"level": 0,
+		"object": {"type": 2, "kind": 5, "count": 10, "level": [20, 25]}
+	},
+	"1000600010302": {
+		"name": "Ebbaeorn: get MonsterClaw",
+		"type": 2,
+		"level": 0,
+		"object": {"type": 2, "kind": 1, "level": [20, 25]},
+		"object2": {"type": 4, "kind": 54, "count": 5, "chance": 15}
+	},
+	"1000600010401": {
+		"name": "Ulmanor: kill Rat",
+		"type": 1,
+		"level": 0,
+		"object": {"type": 2, "kind": 1, "count": 10, "level": [25, 30]}
+	},
+	"1000600010402": {
+		"name": "Ulmanor: get AncientShield",
+		"type": 2,
+		"level": 0,
+		"object": {"type": 2, "kind": 5, "level": [25, 30]},
+		"object2": {"type": 4, "kind": 66, "count": 5, "chance": 15}
 	}
 }

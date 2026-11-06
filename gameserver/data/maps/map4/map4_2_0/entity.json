@@ -14,5 +14,21 @@
     "x": 2856,
     "y": 1320,
     "name": "Quorimund"
+  },
+  {
+    "id": 103,
+    "type": "npcmove",
+    "kind": 18,
+    "x": 1544,
+    "y": 1544,
+    "name": "Moraethos"
+  },
+  {
+    "id": 104,
+    "type": "npcmove",
+    "kind": 31,
+    "x": 3576,
+    "y": 1592,
+    "name": "Breviolix"
   }
 ]

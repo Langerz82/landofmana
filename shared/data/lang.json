@@ -368,6 +368,310 @@
     },
 
     "QUESTS": {
+      "1000300010301": [
+        [
+          [0, "You came over the obsidian bridge? Then you were lucky."],
+          [1, "Lucky how?"],
+          [0, "Death Knights patrol that bridge now. They charge a toll in blood from anyone crossing."],
+          [0, "No trader has made it across in weeks, and the camp is running out of everything."],
+          [0, "Break their patrol. Ten fallen knights should reopen the road."]
+        ],
+        [
+          [0, "They ride in pairs along the bridge. Come back when %count% have fallen."]
+        ],
+        [
+          [0, "Have %count% %name%s fallen yet? Still no traders on the bridge."]
+        ],
+        [
+          [0, "A wagon crossed the bridge this morning! The road is open again."],
+          [1, "Tell them the toll's been paid."]
+        ]
+      ],
+      "1000300010302": [
+        [
+          [0, "Nothing grows on this mountain except my fire pumpkins. They love the hot ash."],
+          [0, "But the Eyes have found them. They float down at night and swallow them whole."],
+          [1, "The Eyes eat pumpkins?"],
+          [0, "They glow brighter after every one. I think the fire inside the pumpkins feeds them."],
+          [0, "Get me back five pumpkins, before I've got nothing left to plant next season."]
+        ],
+        [
+          [0, "The Eyes that glow brightest have eaten the most. I need %count% pumpkins."]
+        ],
+        [
+          [0, "Do you have the %count% %name%s yet? My patch is nearly bare."]
+        ],
+        [
+          [0, "Five pumpkins, still warm inside! I'll save the seeds this time."],
+          [1, "Maybe build a roof over the patch."]
+        ]
+      ],
+      "1000300010401": [
+        [
+          [0, "Don't climb any higher without covering your eyes."],
+          [1, "Why not?"],
+          [0, "The Eyes near the summit stare so hot it burns. Three climbers came back blind with fever this month."],
+          [0, "The healers can't keep up, and the summit shrine is cut off."],
+          [0, "Bring down ten of them, and maybe the pilgrims can climb again."]
+        ],
+        [
+          [0, "Strike fast and don't meet their gaze. Come back after %count%."]
+        ],
+        [
+          [0, "Have %count% %name%s been put out yet? Another climber came down burning."]
+        ],
+        [
+          [0, "The pilgrims are climbing again. You did what our healers couldn't."],
+          [1, "I'm still seeing spots."]
+        ]
+      ],
+      "1000300010402": [
+        [
+          [0, "I'm brewing a cooling draught that lets you walk through flame unharmed."],
+          [0, "The only thing that makes it work is ash mushrooms. They grow inside old armour, in the heat and dark."],
+          [0, "And the only old armour on this mountain is being worn by Death Knights."],
+          [1, "So you want me to pick mushrooms off a Death Knight?"],
+          [0, "Off five of them, yes. Bring me the mushrooms and I'll name the draught after you."]
+        ],
+        [
+          [0, "Look in the gaps of their armour. I need %count% clumps."]
+        ],
+        [
+          [0, "Do you have the %count% clumps of %name% yet? My cauldron is waiting."]
+        ],
+        [
+          [0, "Perfect, grey and smoking! The draught will be ready by morning."],
+          [1, "Please don't name it after me."]
+        ]
+      ],
+      "1000400010301": [
+        [
+          [0, "There's a tomb under these dunes, and something is guarding it."],
+          [1, "What kind of something?"],
+          [0, "Skeletons with bones like iron. They were the king's own guard, buried standing up around his tomb."],
+          [0, "Now they've marched out, and they cut down anyone who comes near the dunes."],
+          [0, "Break ten of them. Their bones are tough, but they're not unbreakable."]
+        ],
+        [
+          [0, "Bring a heavy weapon. Come back when %count% of them are in pieces."]
+        ],
+        [
+          [0, "Have %count% %name%s been broken yet? I can hear them standing guard."]
+        ],
+        [
+          [0, "Ten of the king's guard in pieces! The dunes might finally be safe to cross."],
+          [1, "My arms will be sore for a week."]
+        ]
+      ],
+      "1000400010302": [
+        [
+          [0, "The lost caravan's guards each wore a bronze helmet with their family crest on it."],
+          [0, "The families still live in the town. They've never had anything to bury."],
+          [0, "The skeletons walking the old road are still wearing those helmets."],
+          [1, "So the helmets could finally go home."],
+          [0, "That's right. Bring me five, and five families can finally lay their dead to rest."]
+        ],
+        [
+          [0, "Look for the crests on the brow. I need %count% helmets."]
+        ],
+        [
+          [0, "Do you have the %count% %name%s yet? The families keep asking me."]
+        ],
+        [
+          [0, "Five helmets, crests still clear. Five families will light candles tonight."],
+          [1, "I'm glad I could help them."]
+        ]
+      ],
+      "1000400010401": [
+        [
+          [0, "Ever since the Ogres broke into the old tomb, the dead have been getting up."],
+          [1, "How many dead?"],
+          [0, "Hundreds. Every night more skeletons rise around the tomb and wander toward the wells."],
+          [0, "We can't drink, we can't sleep, and the children are too scared to go outside."],
+          [0, "Put ten of them back down. That should buy us a few quiet nights."]
+        ],
+        [
+          [0, "They wander between the tomb and the wells. Come back after %count%."]
+        ],
+        [
+          [0, "Have %count% %name%s been put down yet? They were at the wells again last night."]
+        ],
+        [
+          [0, "The wells are clear, and the children slept through the night."],
+          [1, "Let's hope they stay down."]
+        ]
+      ],
+      "1000400010402": [
+        [
+          [0, "The tomb held burial urns with the ashes of the old desert kings."],
+          [0, "The Ogres smashed their way in and carried the urns off to use as cooking pots."],
+          [1, "Is that why the dead are restless?"],
+          [0, "Yes. The kings can't rest until their ashes are home, and their soldiers won't either."],
+          [0, "Bring back five urns, and I'll return them to the tomb myself."]
+        ],
+        [
+          [0, "Please handle them with care. All %count% urns need to go home."]
+        ],
+        [
+          [0, "Do you have the %count% %name%s yet? The dead are getting angrier."]
+        ],
+        [
+          [0, "Five urns, and I don't think the ashes even spilled. The kings can rest."],
+          [1, "Ogre stew will taste different now."]
+        ]
+      ],
+      "1000500010301": [
+        [
+          [0, "Stay out of the berry thickets unless you want a nasty bite."],
+          [1, "Something lives in there?"],
+          [0, "Snakes. A warm spring brought them out early, and the bushes are full of them."],
+          [0, "Four of our foragers have been bitten this week, and the berries are rotting on the vine."],
+          [0, "Clear out ten snakes, and the foragers can get back to work."]
+        ],
+        [
+          [0, "Watch your ankles in the thickets. Come back when %count% are dead."]
+        ],
+        [
+          [0, "Have %count% %name%s been dealt with yet? Another forager got bitten."]
+        ],
+        [
+          [0, "The foragers are filling their baskets again. Thank you, truly."],
+          [1, "Save me some berries."]
+        ]
+      ],
+      "1000500010302": [
+        [
+          [0, "I keep antivenom for snakebites, in little vials drying on a rack by the cave."],
+          [0, "Last night the bats swooped down and carried off every shiny vial on the rack."],
+          [1, "The bats stole your antivenom?"],
+          [0, "Yes, and with this many snakes about, someone will need it before long."],
+          [0, "Knock down the bats and bring me back five vials. Lives depend on it."]
+        ],
+        [
+          [0, "The bats roost by the cave mouth. Bring back %count% vials, unbroken."]
+        ],
+        [
+          [0, "Do you have the %count% %name%s yet? Another forager is limping."]
+        ],
+        [
+          [0, "Five vials, not a crack in them! The foragers are safe now."],
+          [1, "Maybe keep the rack indoors."]
+        ]
+      ],
+      "1000500010401": [
+        [
+          [0, "The woodcutters won't use the north road any more."],
+          [1, "Why not?"],
+          [0, "Goblin raiders hide in the ferns along the road and jump out at every cart."],
+          [0, "They've taken axes, saws and two oxen. The lumber camp is close to starving."],
+          [0, "Hit them back. Ten raiders down, and the rest will think twice."]
+        ],
+        [
+          [0, "They hide in the ferns beside the road. Come back when %count% are down."]
+        ],
+        [
+          [0, "Have %count% %name%s been dealt with yet? Another cart was robbed."]
+        ],
+        [
+          [0, "The carts are rolling again, and nobody's been ambushed in days. Well done."],
+          [1, "Tell them to oil their wheels."]
+        ]
+      ],
+      "1000500010402": [
+        [
+          [0, "When the goblins first attacked, the ranger at the watchtower ran for his life."],
+          [0, "He dropped the tower keys in the ferns, right on top of a snake nest."],
+          [1, "And the snakes kept them?"],
+          [0, "They coil round anything cold and shiny. Every snake in that nest is hoarding a key."],
+          [0, "Bring me five keys and we can man the watchtower again."]
+        ],
+        [
+          [0, "The snakes near the tower have the keys. I need %count% of them."]
+        ],
+        [
+          [0, "Do you have the %count% %name%s yet? The tower is still dark."]
+        ],
+        [
+          [0, "Five keys! The watchtower's lantern will be lit tonight."],
+          [1, "Tell the ranger not to run so fast next time."]
+        ]
+      ],
+      "1000600010301": [
+        [
+          [0, "Do you see the apple orchard behind the inn? It's crawling with snakes."],
+          [1, "Snakes in an orchard?"],
+          [0, "They come for the fallen apples, then for the mice that eat the apples."],
+          [0, "Now nobody can pick fruit, and the cider press has gone quiet."],
+          [0, "Clear out ten of them, and the harvest can go ahead."]
+        ],
+        [
+          [0, "Check under the trees with the most windfall. Come back after %count%."]
+        ],
+        [
+          [0, "Have %count% %name%s been cleared yet? The apples are going to waste."]
+        ],
+        [
+          [0, "The pickers are back in the trees! There'll be cider this year after all."],
+          [1, "Save me a mug."]
+        ]
+      ],
+      "1000600010302": [
+        [
+          [0, "I'm the town tanner. Adventurers sell me monster claws, and I turn them into charms and buckles."],
+          [0, "Rats broke into my storeroom and dragged every claw down into the drains."],
+          [1, "What would rats want with claws?"],
+          [0, "They sharpen their teeth on them! The ones down there are getting bigger, too."],
+          [0, "Bring me back five claws before those rats turn into monsters themselves."]
+        ],
+        [
+          [0, "The rats carry them in their teeth. I need %count% claws back."]
+        ],
+        [
+          [0, "Do you have the %count% %name%s yet? The rats are getting bolder."]
+        ],
+        [
+          [0, "Five claws, barely chewed! I can open the shop again."],
+          [1, "Maybe get a cat."]
+        ]
+      ],
+      "1000600010401": [
+        [
+          [0, "The town archives are being eaten, one page at a time."],
+          [1, "Eaten by what?"],
+          [0, "Rats. They've nested in the records room and chewed through a hundred years of town history."],
+          [0, "Land deeds, birth records, the founding charter, all turned into rat nests."],
+          [0, "Stop them, please. Ten rats should save what pages are left."]
+        ],
+        [
+          [0, "They nest behind the shelves. Come back when %count% are gone."]
+        ],
+        [
+          [0, "Have %count% %name%s been dealt with yet? I can hear paper tearing."]
+        ],
+        [
+          [0, "The archives are quiet. What's left of our history is safe."],
+          [1, "Nice to have history that isn't eaten."]
+        ]
+      ],
+      "1000600010402": [
+        [
+          [0, "Under the town hall is a vault holding the shields of the town's founders."],
+          [0, "When the spring floods came, snakes slithered in and curled up inside the shields."],
+          [1, "So the snakes took them?"],
+          [0, "They drag them off to their dens, where the shields keep them warm and dry."],
+          [0, "Bring back five shields before the founders' day parade, or we'll have nothing to carry."]
+        ],
+        [
+          [0, "They're heavy, but the snakes hoard them in the reeds. I need %count%."]
+        ],
+        [
+          [0, "Do you have the %count% %name%s yet? The parade is coming soon."]
+        ],
+        [
+          [0, "Five founders' shields, and only a little muddy. The parade is saved!"],
+          [1, "I expect a seat at the front."]
+        ]
+      ],
       "1000300010101": [
         [
           [0, "Careful where you step, traveller. The ground here is still warm from the last eruption."],
@@ -873,6 +1177,22 @@
       ["Use %count% %name%."]
     ],
     "QUEST_SUMMARY": {
+      "1000300010301": "Break the patrol of %count% %name%s on the obsidian bridge",
+      "1000300010302": "Recover %count% fire %name%s from the %name2%s",
+      "1000300010401": "Put out %count% %name%s staring down from the summit",
+      "1000300010402": "Pick %count% ash %name% from the armour of %name2%s",
+      "1000400010301": "Break %count% iron-boned %name%s guarding the tomb",
+      "1000400010302": "Bring home %count% %name%s from the %name2%s",
+      "1000400010401": "Put down %count% %name%s rising around the tomb",
+      "1000400010402": "Return %count% royal %name%s stolen by %name2%s",
+      "1000500010301": "Clear %count% %name%s from the berry thickets",
+      "1000500010302": "Recover %count% antivenom %name%s from the %name2%s",
+      "1000500010401": "Defeat %count% %name% raiders on the north road",
+      "1000500010402": "Retrieve %count% watchtower %name%s from the %name2%s",
+      "1000600010301": "Clear %count% %name%s out of the inn's orchard",
+      "1000600010302": "Take back %count% %name%s from the %name2%s",
+      "1000600010401": "Save the archives from %count% %name%s",
+      "1000600010402": "Return %count% founders' %name%s taken by %name2%s",
       "1000300010101": "Destroy %count% %name%s watching the lava vents",
       "1000300010102": "Recover %count% loaves of %name% from %name2%s",
       "1000300010201": "Strike down %count% %name%s marching from the caldera",

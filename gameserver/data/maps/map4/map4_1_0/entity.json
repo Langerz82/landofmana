@@ -14,5 +14,21 @@
     "x": 2648,
     "y": 1032,
     "name": "Ulmudell"
+  },
+  {
+    "id": 103,
+    "type": "npcmove",
+    "kind": 7,
+    "x": 1304,
+    "y": 984,
+    "name": "Fenuvane"
+  },
+  {
+    "id": 104,
+    "type": "npcmove",
+    "kind": 21,
+    "x": 2600,
+    "y": 1608,
+    "name": "Morovash"
   }
 ]

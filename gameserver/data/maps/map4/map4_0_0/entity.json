@@ -14,5 +14,21 @@
     "x": 3640,
     "y": 1080,
     "name": "Oskowyn"
+  },
+  {
+    "id": 103,
+    "type": "npcmove",
+    "kind": 11,
+    "x": 472,
+    "y": 728,
+    "name": "Wimybel"
+  },
+  {
+    "id": 104,
+    "type": "npcmove",
+    "kind": 17,
+    "x": 3016,
+    "y": 1352,
+    "name": "Kesumar"
   }
 ]
