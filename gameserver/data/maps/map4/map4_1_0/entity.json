@@ -1,0 +1,18 @@
+[
+  {
+    "id": 101,
+    "type": "npcmove",
+    "kind": 0,
+    "x": 888,
+    "y": 1272,
+    "name": "Yaresk"
+  },
+  {
+    "id": 102,
+    "type": "npcmove",
+    "kind": 31,
+    "x": 2648,
+    "y": 1032,
+    "name": "Ulmudell"
+  }
+]

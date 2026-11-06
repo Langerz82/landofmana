@@ -6,5 +6,21 @@
     "x": 1352,
     "y": 1096,
     "name": "Bhudda"
+  },
+  {
+    "id": 101,
+    "type": "npcmove",
+    "kind": 31,
+    "x": 920,
+    "y": 936,
+    "name": "Orlamund"
+  },
+  {
+    "id": 102,
+    "type": "npcmove",
+    "kind": 18,
+    "x": 2616,
+    "y": 1320,
+    "name": "Pelanor"
   }
 ]

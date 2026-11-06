@@ -106,5 +106,109 @@
 			"count": 10
 		},
 		"name": "kill 10 rat"
+	},
+	"1000300010101": {
+		"name": "Wimaric: kill Eye",
+		"type": 1,
+		"level": 0,
+		"object": {"type": 2, "kind": 9, "count": 10, "level": [50, 55]}
+	},
+	"1000300010102": {
+		"name": "Wimaric: get Bread",
+		"type": 2,
+		"level": 0,
+		"object": {"type": 2, "kind": 12, "level": [50, 55]},
+		"object2": {"type": 4, "kind": 76, "count": 5, "chance": 15}
+	},
+	"1000300010201": {
+		"name": "Oskowyn: kill DeathKnight",
+		"type": 1,
+		"level": 0,
+		"object": {"type": 2, "kind": 12, "count": 10, "level": [55, 60]}
+	},
+	"1000300010202": {
+		"name": "Oskowyn: get SapJewel",
+		"type": 2,
+		"level": 0,
+		"object": {"type": 2, "kind": 9, "level": [55, 60]},
+		"object2": {"type": 4, "kind": 88, "count": 5, "chance": 15}
+	},
+	"1000400010101": {
+		"name": "Yaresk: kill Skeleton",
+		"type": 1,
+		"level": 0,
+		"object": {"type": 2, "kind": 3, "count": 10, "level": [40, 45]}
+	},
+	"1000400010102": {
+		"name": "Yaresk: get Goblet",
+		"type": 2,
+		"level": 0,
+		"object": {"type": 2, "kind": 8, "level": [40, 45]},
+		"object2": {"type": 4, "kind": 52, "count": 5, "chance": 15}
+	},
+	"1000400010201": {
+		"name": "Ulmudell: kill Ogre",
+		"type": 1,
+		"level": 0,
+		"object": {"type": 2, "kind": 8, "count": 10, "level": [45, 50]}
+	},
+	"1000400010202": {
+		"name": "Ulmudell: get Drum",
+		"type": 2,
+		"level": 0,
+		"object": {"type": 2, "kind": 7, "level": [45, 50]},
+		"object2": {"type": 4, "kind": 60, "count": 5, "chance": 15}
+	},
+	"1000500010101": {
+		"name": "Brevequin: kill Goblin",
+		"type": 1,
+		"level": 0,
+		"object": {"type": 2, "kind": 4, "count": 10, "level": [30, 35]}
+	},
+	"1000500010102": {
+		"name": "Brevequin: get Padlock",
+		"type": 2,
+		"level": 0,
+		"object": {"type": 2, "kind": 5, "level": [30, 35]},
+		"object2": {"type": 4, "kind": 5, "count": 5, "chance": 15}
+	},
+	"1000500010201": {
+		"name": "Quorimund: kill Bat",
+		"type": 1,
+		"level": 0,
+		"object": {"type": 2, "kind": 6, "count": 10, "level": [35, 40]}
+	},
+	"1000500010202": {
+		"name": "Quorimund: get Feather",
+		"type": 2,
+		"level": 0,
+		"object": {"type": 2, "kind": 4, "level": [35, 40]},
+		"object2": {"type": 4, "kind": 20, "count": 5, "chance": 15}
+	},
+	"1000600010101": {
+		"name": "Orlamund: kill Rat",
+		"type": 1,
+		"level": 0,
+		"object": {"type": 2, "kind": 1, "count": 10, "level": [20, 25]}
+	},
+	"1000600010102": {
+		"name": "Orlamund: get Mushroom",
+		"type": 2,
+		"level": 0,
+		"object": {"type": 2, "kind": 5, "level": [20, 25]},
+		"object2": {"type": 4, "kind": 98, "count": 5, "chance": 15}
+	},
+	"1000600010201": {
+		"name": "Pelanor: kill Snake",
+		"type": 1,
+		"level": 0,
+		"object": {"type": 2, "kind": 5, "count": 10, "level": [25, 30]}
+	},
+	"1000600010202": {
+		"name": "Pelanor: get Bomb",
+		"type": 2,
+		"level": 0,
+		"object": {"type": 2, "kind": 1, "level": [25, 30]},
+		"object2": {"type": 4, "kind": 81, "count": 5, "chance": 15}
 	}
 }

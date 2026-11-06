@@ -1,0 +1,18 @@
+[
+  {
+    "id": 101,
+    "type": "npcmove",
+    "kind": 17,
+    "x": 824,
+    "y": 1128,
+    "name": "Brevequin"
+  },
+  {
+    "id": 102,
+    "type": "npcmove",
+    "kind": 27,
+    "x": 2856,
+    "y": 1320,
+    "name": "Quorimund"
+  }
+]

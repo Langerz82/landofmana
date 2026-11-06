@@ -368,6 +368,310 @@
     },
 
     "QUESTS": {
+      "1000300010101": [
+        [
+          [0, "Careful where you step, traveller. The ground here is still warm from the last eruption."],
+          [1, "What are those floating things over the vents?"],
+          [0, "Eyes. They drift up out of the lava with the smoke and never blink."],
+          [0, "Whatever one of them sees, the Death Knights on the ridge know a moment later."],
+          [0, "Our miners can't lift a pick without being hunted down. Put out ten of those Eyes for me."]
+        ],
+        [
+          [0, "Look for them where the smoke is thickest. Come back once %count% have fallen."]
+        ],
+        [
+          [0, "Have you blinded %count% %name%s yet? I can still feel them watching."]
+        ],
+        [
+          [0, "The vents are quiet. For once nothing is staring back at me."],
+          [1, "The Death Knights just lost their scouts."]
+        ]
+      ],
+      "1000300010102": [
+        [
+          [0, "Something else, now that the Eyes are thinner on the ground."],
+          [0, "Last night Death Knights rode down on our supply wagon. They took every loaf of bread we had."],
+          [1, "The dead don't need to eat."],
+          [0, "No, they don't. They burn it at the crater's edge to starve the living off this mountain."],
+          [0, "Take back five loaves before they reach the fire, and my miners can keep working."]
+        ],
+        [
+          [0, "The knights carry the loaves on their saddles. Bring me %count% before they burn."]
+        ],
+        [
+          [0, "Do you have the %count% loaves of %name% yet? The miners are getting hungry."]
+        ],
+        [
+          [0, "Still warm from the lava, and not one of them burnt. You've fed the whole camp tonight."],
+          [1, "Save me a slice."]
+        ]
+      ],
+      "1000300010201": [
+        [
+          [0, "Turn back now, unless you've come to fight."],
+          [1, "Who are the knights marching down from the peak?"],
+          [0, "They were the Order of the Caldera. They swore to hold back the fire and died in it a hundred years ago."],
+          [0, "The fire wouldn't let them rest. Now they march down every night to burn what's left of the valley."],
+          [0, "Strike down ten of them. Every one that falls is one fewer at our gates."]
+        ],
+        [
+          [0, "They hit hard and never tire. Come back when %count% of them are ash."]
+        ],
+        [
+          [0, "Have %count% %name%s fallen yet? I can hear their armour on the ridge again."]
+        ],
+        [
+          [0, "Ten fewer blades at our gates. Maybe the fallen order can rest now."],
+          [1, "They fought like they still had a vow to keep."]
+        ]
+      ],
+      "1000300010202": [
+        [
+          [0, "The old order built wardstones around the caldera to keep the lava down."],
+          [0, "They cooled them with sap jewels, amber from the ironwood trees that hardens in the heat."],
+          [0, "But the Eyes are drawn to anything that glitters. They've swallowed the jewels out of every stone."],
+          [1, "So the wards are failing."],
+          [0, "Yes, they are. Cut five jewels out of the Eyes, and I can reseal the ward before the mountain wakes."]
+        ],
+        [
+          [0, "The jewels glow orange inside them. I need %count% to seal the wards."]
+        ],
+        [
+          [0, "Do you have %count% %name%s yet? The ground keeps shaking."]
+        ],
+        [
+          [0, "Still warm, and not a crack in any of them. The wardstones will hold for another age."],
+          [1, "Let's hope nobody tests that."]
+        ]
+      ],
+      "1000400010101": [
+        [
+          [0, "Do you hear that rattling under the sand? That isn't the wind."],
+          [1, "What's buried out here?"],
+          [0, "A whole caravan. A sandstorm swallowed it, merchants, camels and guards, three generations ago."],
+          [0, "Now the storms are uncovering them again, and the bones are getting up."],
+          [0, "They keep marching the old trade route, killing anyone on it. Put ten of them back in the ground."]
+        ],
+        [
+          [0, "Follow the old road markers. Come back when %count% of them are scattered."]
+        ],
+        [
+          [0, "Have %count% %name%s been laid to rest yet? I still hear rattling at night."]
+        ],
+        [
+          [0, "The road is quiet again. Perhaps the old caravan has finally finished its journey."],
+          [1, "Ten of them have, anyway."]
+        ]
+      ],
+      "1000400010102": [
+        [
+          [0, "There's a shrine at the oasis. Every dawn we pour water from five golden goblets to bless the spring."],
+          [0, "A band of Ogres smashed their way in and carried the goblets off as drinking cups."],
+          [1, "Can't you just use other cups?"],
+          [0, "Since the blessing stopped, the spring has dropped by a hand's width every day."],
+          [0, "Take the goblets back from the Ogres before the oasis runs dry."]
+        ],
+        [
+          [0, "The Ogres won't hand them over. Bring me all %count% goblets, they're our lifeblood."]
+        ],
+        [
+          [0, "Do you have the %count% %name%s yet? The water gets lower every morning."]
+        ],
+        [
+          [0, "All five! I'll pour the blessing at first light, and the spring will rise again."],
+          [1, "Could you rinse the Ogre spit off first?"]
+        ]
+      ],
+      "1000400010201": [
+        [
+          [0, "Stay off the dune tops. The Ogres can see you for miles up there."],
+          [1, "Ogres? This far into the desert?"],
+          [0, "A great storm drove them out of the red canyons. Now they've made their camp out here."],
+          [0, "They smash our wells looking for water and toss our riders around like dolls."],
+          [0, "Bring down ten of the brutes, and the rest may go back where they came from."]
+        ],
+        [
+          [0, "Aim for the knees, they're slow to turn. Come back when %count% have fallen."]
+        ],
+        [
+          [0, "Have %count% %name%s fallen yet? Another well was smashed last night."]
+        ],
+        [
+          [0, "Ten Ogres down? You hit harder than a sandstorm."],
+          [1, "And I hold a grudge for longer."]
+        ]
+      ],
+      "1000400010202": [
+        [
+          [0, "Every night after the moon rises, we hear drums out in the dunes."],
+          [0, "The old Iron Legion died out here, and their hardest dead still carry the war drums."],
+          [0, "Every beat calls more bones up out of the sand."],
+          [1, "So no drums, no new skeletons."],
+          [0, "That's right. Break the Hard Skeletons, take five of their drums, and the desert can sleep again."]
+        ],
+        [
+          [0, "Follow the beat in the dark. I need %count% drums to bury in salt."]
+        ],
+        [
+          [0, "Do you have the %count% %name%s yet? The drumming was louder last night."]
+        ],
+        [
+          [0, "Five drums, and the dunes are silent. I'll bury them deep in the salt flats."],
+          [1, "Don't let anyone play them."]
+        ]
+      ],
+      "1000500010101": [
+        [
+          [0, "Listen. That chopping sound, hear it? Those are goblin axes."],
+          [1, "What are they cutting?"],
+          [0, "The elder oaks. Each one is older than any kingdom, and the goblins are turning them into a fort."],
+          [0, "Once that wall is up, they'll raid every village along the river."],
+          [0, "Drive them off. Ten goblins should be enough to scatter the work gangs."]
+        ],
+        [
+          [0, "Follow the stumps. Come back when %count% goblins have fallen."]
+        ],
+        [
+          [0, "Have %count% %name%s fallen yet? I can still hear the axes."]
+        ],
+        [
+          [0, "The chopping has stopped. The elder oaks will stand a while longer, thanks to you."],
+          [1, "The trees owe me one."]
+        ]
+      ],
+      "1000500010102": [
+        [
+          [0, "The forest wardens keep the seeds of every rare tree locked away in iron chests."],
+          [0, "The forest snakes here love cold metal, and they're as greedy as magpies."],
+          [0, "Last night they slithered into my hut and swallowed the padlocks right off the chests."],
+          [1, "They swallowed padlocks?"],
+          [0, "Five of them, keys and all. Until I get them back, any squirrel could empty my seed vault."]
+        ],
+        [
+          [0, "The fat, slow ones are your best bet. Bring back %count% padlocks."]
+        ],
+        [
+          [0, "Do you have the %count% %name%s yet? The squirrels are watching my chests."]
+        ],
+        [
+          [0, "Five padlocks, a bit slimy but working. The seed vault is safe again."],
+          [1, "I'll take gloves next time."]
+        ]
+      ],
+      "1000500010201": [
+        [
+          [0, "Mind your neck after dusk. The Hollow caves wake up then."],
+          [1, "What lives in the caves?"],
+          [0, "Bats, thousands of them. They used to feed on moths, but now they drink sap from the elder trees."],
+          [0, "The trees are going grey and brittle, and the forest is dying from the inside."],
+          [0, "Thin out the swarm. Ten bats would give the trees a chance to heal."]
+        ],
+        [
+          [0, "They swarm thickest around the cave mouths. Come back when %count% are gone."]
+        ],
+        [
+          [0, "Have %count% %name%s been dealt with yet? More bark goes grey every night."]
+        ],
+        [
+          [0, "I can see green sap rising in the bark again. You've given the old trees a chance."],
+          [1, "No more bats at the buffet."]
+        ]
+      ],
+      "1000500010202": [
+        [
+          [0, "White owls watch over this forest. They keep the dark things away at night."],
+          [0, "Goblins have been snaring them and plucking their feathers for war headdresses."],
+          [0, "Each stolen feather weakens the owls' watch over the wood."],
+          [1, "Can feathers really be given back?"],
+          [0, "If you lay them at the owl shrine, the owls will take them back. Bring me five."]
+        ],
+        [
+          [0, "The goblin chieftains wear the most. Collect %count% feathers for the shrine."]
+        ],
+        [
+          [0, "Do you have the %count% %name%s yet? The owls have gone quiet."]
+        ],
+        [
+          [0, "Five white feathers. Listen, the owls are calling again."],
+          [1, "I think they're saying thank you."]
+        ]
+      ],
+      "1000600010101": [
+        [
+          [0, "Oi, you! Got a moment? The old mill's been taken over."],
+          [1, "Taken over by what?"],
+          [0, "Rats. They nested in the flour sacks after the miller left, and now there's a whole army of them."],
+          [0, "They raid the bakery every night and leave nothing but crumbs and droppings."],
+          [0, "Clear out ten of the fattest, and I can start grinding flour again."]
+        ],
+        [
+          [0, "They're thickest under the millstones. Come back when %count% are done."]
+        ],
+        [
+          [0, "Have you cleared out %count% %name%s yet? I can hear them chewing on the sacks."]
+        ],
+        [
+          [0, "The mill wheel is turning again! Bread for everyone this week."],
+          [1, "Just check the flour first."]
+        ]
+      ],
+      "1000600010102": [
+        [
+          [0, "The town healer grows glowcap mushrooms in the damp cellars by the canal."],
+          [0, "They're the only cure for marsh fever, and half the town is coughing."],
+          [0, "The snakes found out the glowcaps stay warm, so they drag them back to their nests to warm their eggs."],
+          [1, "Clever snakes."],
+          [0, "Too clever. Bring back five glowcaps, and the healer can brew a batch of the cure."]
+        ],
+        [
+          [0, "The mushrooms glow faintly green, you can't miss them. I need %count% of them."]
+        ],
+        [
+          [0, "Do you have the %count% %name%s yet? The coughing is getting worse."]
+        ],
+        [
+          [0, "Five glowcaps, and still glowing! The healer will have the cure brewed by nightfall."],
+          [1, "Tell the snakes to find another heater."]
+        ]
+      ],
+      "1000600010201": [
+        [
+          [0, "Don't lean over the canal wall, friend. Something might grab you."],
+          [1, "What's in the water?"],
+          [0, "Snakes. The spring floods washed them down out of the hills, and they've taken over the canals."],
+          [0, "The washerwomen won't go near the water, and two barges have sunk with their crews scrambling ashore."],
+          [0, "Kill ten of them, and the canals might be safe enough to use again."]
+        ],
+        [
+          [0, "Check under the bridges, they like the shade. Come back after %count%."]
+        ],
+        [
+          [0, "Have %count% %name%s been dealt with yet? Nobody dares touch the canal."]
+        ],
+        [
+          [0, "I saw a barge go through this morning without anyone screaming. Thank you!"],
+          [1, "That's a low bar, but I'll take it."]
+        ]
+      ],
+      "1000600010202": [
+        [
+          [0, "I make the fireworks for the harvest festival, and I'm in real trouble."],
+          [0, "Rats got into my workshop and dragged off my festival bombs. They think the fuses are food!"],
+          [1, "Rats carrying bombs around? Under the town?"],
+          [0, "Under the town, right next to the lamp-oil store. If one of them goes off down there..."],
+          [0, "Please, get five of them back before the whole street goes up with the fireworks."]
+        ],
+        [
+          [0, "Be gentle with them. I need all %count% back in one piece."]
+        ],
+        [
+          [0, "Do you have the %count% %name%s yet? Every time I hear a bang I panic."]
+        ],
+        [
+          [0, "All five, and nobody blown up! The harvest festival can go ahead after all."],
+          [1, "Maybe keep them away from the rats this time."]
+        ]
+      ],
       "1000600021101": [
         [
           [0, "Thank goodness, a fresh face! Please, you have to help us."],
@@ -569,6 +873,22 @@
       ["Use %count% %name%."]
     ],
     "QUEST_SUMMARY": {
+      "1000300010101": "Destroy %count% %name%s watching the lava vents",
+      "1000300010102": "Recover %count% loaves of %name% from %name2%s",
+      "1000300010201": "Strike down %count% %name%s marching from the caldera",
+      "1000300010202": "Cut %count% %name%s from the %name2%s to reseal the wards",
+      "1000400010101": "Lay %count% %name%s of the lost caravan to rest",
+      "1000400010102": "Take back %count% %name%s from the %name2%s",
+      "1000400010201": "Bring down %count% %name%s raiding the desert wells",
+      "1000400010202": "Silence the legion by taking %count% %name%s from %name2%s",
+      "1000500010101": "Drive off %count% %name%s felling the elder oaks",
+      "1000500010102": "Retrieve %count% %name%s swallowed by %name2%s",
+      "1000500010201": "Thin the swarm of %count% %name%s draining the elder trees",
+      "1000500010202": "Return %count% owl %name%s stolen by %name2%s",
+      "1000600010101": "Clear %count% %name%s from the old mill",
+      "1000600010102": "Recover %count% glowcap %name%s from the %name2%s' nests",
+      "1000600010201": "Clear %count% %name%s out of the town canals",
+      "1000600010202": "Recover %count% festival %name%s carried off by %name2%s",
       "1000600021101": "Cull %count% %name%s plaguing the town",
       "HIDEANDSEEK": "Find %name%",
       "KILLMOBKIND": "Kill %count% %name%s",
