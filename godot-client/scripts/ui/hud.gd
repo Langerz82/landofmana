@@ -811,9 +811,9 @@ func _build_game_ui(root: Control) -> void:
 		var wname: String = m[0]
 		b.pressed.connect(func(): menu_action(wname))
 		_menu.add_child(b)
-	# Always hidden at start: only the show / hide button shows until the
-	# player opens it.
-	set_menu_visible(false, false)
+	# Desktop: the menu starts open (maximised). Phones / tablets: hidden at
+	# start, only the show / hide button shows until the player opens it.
+	set_menu_visible(not UiStyle.is_mobile(), false)
 	# Windows draw (and take clicks) over the shortcut bar and menu bar where
 	# they overlap them; modals, the alarm and the popup menu added below
 	# still go on top of the windows.

@@ -81,7 +81,7 @@ func run() -> void:
 		return
 	await wait(800)
 	# Use the GUI first (menu button + close) so a button may hold keyboard focus.
-	hud.set_menu_visible(true, false)   # the menu starts hidden; show it to click its icons
+	hud.set_menu_visible(true, false)   # the menu starts hidden on mobile; make sure it shows to click its icons
 	await wait(100)
 	var inv_btn: Control = hud._menu.get_child(1)   # 0 is the chat button
 	await mouse_click(inv_btn.get_global_rect().get_center())
