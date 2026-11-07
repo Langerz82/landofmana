@@ -20,12 +20,15 @@ extends Node
 ## clientdata.js has the protocol). Port of client/js/clientdata.js.
 ##
 ## The files are the shared folder's data/ and maps/ json files ("data/lang.json",
-## "maps/maplist.json", "maps/map4/map4_0_0.json"), all under one version: this
-## build's is config_build.json's "shared_version" (falling back to its "version");
-## its own copies are res://assets/data/shared/ and res://assets/maps/.
+## "maps/maplist.json", "maps/map4/map4_0_0.json"), identified as a set by their
+## shared hash (gameserver/js/lib/shareddata.js). This build's own copies are
+## res://assets/data/shared/ and res://assets/maps/, and their hash is in
+## res://assets/data/shared_manifest.json (shared/manifest.json, copied by the
+## sync-assets scripts).
 ##
-## GameClient sends that version in a hello just before its login. When the game
-## server's version differs it pushes every file in one zip, written to
+## GameClient sends the hash of the files in use in a hello just before its login.
+## When the game server's files hash differently it pushes every one of them in one
+## zip, written to
 ## user://clientdata/<path>; GameData, MapData and World read through
 ## shared_path() / map_path() / maplist_path(). If the zip can't be used, the
 ## data files and the map list that need it are asked for one by one straight
@@ -40,9 +43,10 @@ const ROOT := "user://clientdata/"
 const META := ROOT + "meta.json"
 const RES_DATA := "res://assets/data/shared/"
 const RES_MAPS := "res://assets/maps/"
+const RES_MANIFEST := "res://assets/data/shared_manifest.json"
 const REQUEST_TIMEOUT := 60.0
 
-## {version, files: {path: sha1} (the server's list), have: {path: sha1} (written to user://)}, or null
+## {hash, files: {path: sha1} (the server's list), have: {path: sha1} (written to user://)}, or null
 var _meta = null
 var _client = null                  # the GameClient, once connected
 var _requests: Dictionary = {}      # path -> {done, ok, text}
@@ -53,18 +57,25 @@ func _ready() -> void:
 	_meta = _read_meta()
 
 
-# ------------------------------------------------------------------ versions
+# -------------------------------------------------------------------- hashes
 
-func builtin_version() -> int:
-	for key in ["shared_version", "version"]:
-		var v = Config.build.get(key)
-		if v is int or v is float or (v is String and v.is_valid_float()):
-			return int(v)
-	return 0
+var _builtin_hash = null
+
+## The shared hash of this build's own files ("" if the manifest is missing: the
+## game server then pushes its files).
+func builtin_hash() -> String:
+	if _builtin_hash == null:
+		_builtin_hash = ""
+		if FileAccess.file_exists(RES_MANIFEST):
+			var m = JSON.parse_string(FileAccess.get_file_as_string(RES_MANIFEST))
+			if m is Dictionary and m.get("hash") is String:
+				_builtin_hash = m["hash"]
+	return _builtin_hash
 
 
-func active_version() -> int:
-	return int(_meta.version) if _meta != null else builtin_version()
+## The shared hash of the files in use: the downloaded ones', else this build's.
+func active_hash() -> String:
+	return str(_meta["hash"]) if _meta != null else builtin_hash()
 
 
 # --------------------------------------------------------------------- paths
@@ -121,7 +132,7 @@ func _startup_fingerprint() -> String:
 ## The hello, sent by GameClient just before its login.
 func send_hello(client) -> void:
 	_client = client
-	client.send([Types.Messages.CW_CLIENTDATA, 0, active_version()])
+	client.send([Types.Messages.CW_CLIENTDATA, 0, active_hash()])
 
 
 ## WC_CLIENTDATA from the game server (GameClient handler).
@@ -129,7 +140,7 @@ func on_message(data: Array) -> void:
 	var type := Types.to_int(data[0]) if data.size() > 0 else -1
 	match type:
 		0:
-			_apply_push(Types.to_int(data[1]), data[2] if data[2] is Dictionary else {}, str(data[3]))
+			_apply_push(str(data[1]), data[2] if data[2] is Dictionary else {}, str(data[3]))
 		1:
 			_settle(str(data[2]), true, str(data[3]))
 		2:
@@ -165,17 +176,15 @@ func _settle(path: String, ok: bool, text: String) -> void:
 
 # ------------------------------------------------------------------- updates
 
-func _apply_push(version: int, files: Dictionary, zip_b64: String) -> void:
+func _apply_push(server_hash: String, files: Dictionary, zip_b64: String) -> void:
 	_pushing = true
 	var before := _startup_fingerprint()
-	if version == builtin_version():
+	if server_hash == builtin_hash():
 		# the server is on this build's own files: drop any downloaded copy
 		_clear()
 	else:
 		var old = _meta
-		var meta := {"version": version, "files": files, "have": {}}
-		if old != null and int(old.version) == version:
-			meta.have = old.have
+		var meta := {"hash": server_hash, "files": files, "have": {}}
 		_remove(META)   # never leave a list pointing at half-written files
 		_meta = null
 		if not _from_zip(zip_b64, files, meta):
@@ -197,7 +206,7 @@ func _apply_push(version: int, files: Dictionary, zip_b64: String) -> void:
 					push_warning("ClientData: %s not downloaded: using the built-in one." % path)
 		_meta = meta
 		_save_meta()
-		print("ClientData: updated to version %d." % version)
+		print("ClientData: updated to the game server's files (%s)." % server_hash)
 	_pushing = false
 	if _startup_fingerprint() != before:
 		shared_data_changed.emit()
@@ -260,7 +269,7 @@ func _read_meta():
 	if not FileAccess.file_exists(META):
 		return null
 	var m = JSON.parse_string(FileAccess.get_file_as_string(META))
-	if m is Dictionary and m.get("files") is Dictionary and m.get("have") is Dictionary and m.has("version"):
+	if m is Dictionary and m.get("files") is Dictionary and m.get("have") is Dictionary and m.get("hash") is String:
 		return m
 	return null
 

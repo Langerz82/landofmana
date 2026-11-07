@@ -21,5 +21,7 @@ done
 cp "$SRC/data/sprites/sprites.json" assets/data/sprites.json
 cp "$SRC/data/staticsheet.json" assets/data/
 cp "$SH"/data/*.json assets/data/shared/
+# the shared hash of those files and the maps (ClientData compares it with the game server's)
+[ -f "$SH/manifest.json" ] && cp "$SH/manifest.json" assets/data/shared_manifest.json
 cp "$SRC/config/config_build.json" assets/config/
 echo "Assets copied into $(pwd)/assets"

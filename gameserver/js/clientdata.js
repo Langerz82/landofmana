@@ -20,192 +20,85 @@
 // shared/js/gametypes.js), so a client gets this server's files without a new
 // client build.
 //
-// The files are every .json under the shared folder's data/ and maps/ folders
-// (shared/data/lang.json, shared/maps/maplist.json, shared/maps/map4/map4_0_0.json,
-// ...), named by their path inside the shared folder ("data/lang.json",
-// "maps/map4/map4_0_0.json"). They have one version: config.json's
-// "client_data"."shared_version" (falling back to config.json's "version") --
-// bump it whenever any of them changes.
+// The files are every .json under the shared folder's data/ and maps/ folders,
+// named by their path inside it ("data/lang.json", "maps/map4/map4_0_0.json"),
+// and identified as a set by their shared hash (lib/shareddata.js). No version
+// numbers: a client whose files hash differently gets this server's.
 //
 // Client -> server, CW_CLIENTDATA:
-//   [0, version]       hello, sent before the login: the version of the files the
-//                      client has
+//   [0, hash]          hello, sent before the login: the shared hash of the files
+//                      the client has ("" if it doesn't know)
 //   [1, path]          one file, when the zip couldn't be used ("data/lang.json",
 //                      "maps/map4/map4_0_0.json")
 //
 // Server -> client, WC_CLIENTDATA:
-//   [0, version, { path: sha1 }, base64 zip]   every file, pushed in reply to the hello
-//                      when the client's version differs from this server's. The zip
-//                      is shared/shared.zip; "" when there is none.
-//   [1, version, path, text]                   one file
-//   [2, version, path]                         that file can't be served
+//   [0, hash, { path: sha1 }, base64 zip]   every file, pushed in reply to the hello
+//                      when the client's hash differs from this server's
+//   [1, hash, path, text]                   one file
+//   [2, hash, path]                         that file can't be served
 //
-// shared/shared.zip carries the shared_version it was made for in its archive
-// comment ("shared_version=114"). At start-up this server rebuilds it from the
-// files when it's missing or was made for another version, so bumping
-// shared_version is all a data or map change needs; `node tools/sharedzip/make.mjs`
-// builds the same zip by hand. While the version stays the same the zip is left
-// alone, even if the files change.
-//
-// The sha1 of every file (read from the files themselves, not the zip) comes with
-// the zip so the client can check what it got -- a zip that wasn't remade after a
-// change fails that check -- and, if the zip can't be used, tell which files it
-// needs to ask for one by one.
-//
-// Files are read from disk on demand and kept in memory (the zip too); a
-// changed file (size or modification time) is picked up on the next request, at
-// most every RESCAN_INTERVAL ms, without a restart.
+// The files are read and hashed once, at start-up: this server then brings
+// shared/shared.zip and shared/manifest.json up to date with them if they aren't,
+// and serves what it read from memory until it's restarted -- so restart it after
+// changing any of the files. `node tools/sharedzip/make.mjs` brings the zip and
+// manifest up to date by hand. The sha1 of every file comes with the zip so the client can
+// check what it got and, if the zip can't be used, tell which files it needs to
+// ask for one by one.
 
-import fs from 'fs';
 import path from 'path';
-import crypto from 'crypto';
 import { fileURLToPath } from 'url';
 import { Types } from './common.js';
-import { makeZip, readZipComment } from './lib/zipwriter.js';
+import {
+    FOLDERS,
+    ZIP_FILE,
+    MANIFEST_FILE,
+    listSharedPaths,
+    readSharedFiles,
+    writeSharedOutputs
+} from './lib/shareddata.js';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const FOLDERS = ['data', 'maps'];
-const ZIP_FILE = 'shared.zip';
-// shared.zip's archive comment: the shared_version it was made for
-const zipComment = (version) => 'shared_version=' + version;
-const RESCAN_INTERVAL = 2000;
 // CW_CLIENTDATA packets one connection may send (a hello, then the files it
 // needs one by one); anything past this is ignored.
 const MAX_REQUESTS = 200;
-
-// ---------------------------------------------------------------- the files
-
-// Every .json file under dir, as paths relative to base ("maps/map4/map4_0_0.json").
-function listJsonFiles(base, dir, out) {
-    let entries;
-    try {
-        entries = fs.readdirSync(path.join(base, dir), { withFileTypes: true });
-    } catch (err) {
-        return out;
-    }
-    for (const d of entries) {
-        const rel = dir + '/' + d.name;
-        if (d.isDirectory()) listJsonFiles(base, rel, out);
-        else if (d.isFile() && d.name.toLowerCase().endsWith('.json')) out.push(rel);
-    }
-    return out;
-}
-
-function toNumber(v, fallback) {
-    const n = Number(v);
-    return v !== undefined && v !== null && v !== '' && Number.isFinite(n) ? n : fallback;
-}
 
 class ClientData {
     constructor(config) {
         const cd = (config && config.client_data) || {};
         this.sharedDir = path.resolve(ROOT, cd.shared_dir || 'shared');
-        this.version = toNumber(cd.shared_version, toNumber(config && config.version, 0));
 
         this.files = new Map(); // "data/lang.json" -> { path, data, mtime, sha1 }
         this.hashes = {}; // path -> sha1
-        this.zip = null; // base64 of shared/shared.zip, read on first use ('' if there is none)
-        this.signature = '';
-        this.checkedAt = 0;
+        this.hash = ''; // the shared hash of the files
+        this.zip = ''; // base64 of the zip of the files ('' if there are none)
 
-        this._refresh(true);
-        this._ensureZip();
-        console.info(
-            'ClientData: ' + this.files.size + ' files (version ' + this.version + ') from ' + this.sharedDir
-        );
+        this._load();
     }
 
-    // Lists the files and re-reads them if any was added, removed or changed
-    // (size / mtime) since the last look. Cheap: only stat() calls unless
-    // something changed.
-    _refresh(force) {
-        const now = Date.now();
-        if (!force && now - this.checkedAt < RESCAN_INTERVAL) return;
-        this.checkedAt = now;
-
-        const found = [];
-        for (const folder of FOLDERS) listJsonFiles(this.sharedDir, folder, found);
-        found.sort();
-        if (force && found.length === 0) console.warn('ClientData: no files found in ' + this.sharedDir);
-
-        const stats = found.map((rel) => {
-            try {
-                const st = fs.statSync(path.join(this.sharedDir, rel));
-                return [rel, st.size + ':' + st.mtimeMs, st.mtime];
-            } catch (err) {
-                return [rel, 'missing', null];
-            }
-        });
-        let zipStat = 'none';
-        try {
-            const st = fs.statSync(path.join(this.sharedDir, ZIP_FILE));
-            zipStat = st.size + ':' + st.mtimeMs;
-        } catch (err) {
-            /* no zip: clients get the files one by one */
-        }
-        const signature = zipStat + '|' + stats.map((s) => s[0] + ':' + s[1]).join('|');
-        if (!force && signature === this.signature) return;
-        this.signature = signature;
-
-        const files = new Map();
-        for (const [rel, , mtime] of stats) {
-            if (!mtime) continue;
-            let data;
-            try {
-                data = fs.readFileSync(path.join(this.sharedDir, rel));
-            } catch (err) {
-                continue;
-            }
-            const sha1 = crypto.createHash('sha1').update(data).digest('hex');
-            files.set(rel, { path: rel, data, mtime, sha1 });
-        }
-        this.files = files;
+    // Reads and hashes the files (start-up only) and brings shared.zip and
+    // manifest.json up to date with them.
+    _load() {
+        const files = readSharedFiles(this.sharedDir, listSharedPaths(this.sharedDir));
+        this.files = new Map(files.map((f) => [f.path, f]));
         this.hashes = {};
-        for (const f of files.values()) this.hashes[f.path] = f.sha1;
-        this.zip = null;
-    }
+        for (const f of files) this.hashes[f.path] = f.sha1;
+        if (files.length === 0) {
+            console.warn('ClientData: no files in ' + path.join(this.sharedDir, '{' + FOLDERS.join(',') + '}'));
+            this.hash = '';
+            this.zip = '';
+            return;
+        }
 
-    // Rebuilds shared/shared.zip from the files when it's missing or its archive
-    // comment names another shared_version (start-up only).
-    _ensureZip() {
-        const file = path.join(this.sharedDir, ZIP_FILE);
-        const want = zipComment(this.version);
-        let current = null;
-        try {
-            current = readZipComment(fs.readFileSync(file));
-        } catch (err) {
-            /* no zip yet */
-        }
-        if (current === want || this.files.size === 0) return;
-        const entries = [];
-        for (const f of this.files.values()) entries.push({ name: f.path, data: f.data, mtime: f.mtime });
-        try {
-            const zip = makeZip(entries, want);
-            const tmp = file + '.tmp';
-            fs.writeFileSync(tmp, zip);
-            fs.renameSync(tmp, file);
-            this.zip = null;
-            console.info(
-                'ClientData: ' + ZIP_FILE + ' ' +
-                    (current === null ? 'was missing' : 'was made for ' + (current || 'no version')) +
-                    ': rebuilt it for shared_version ' + this.version + ' (' + entries.length + ' files, ' +
-                    Math.round(zip.length / 1024) + ' KB).'
-            );
-        } catch (err) {
-            console.error('ClientData: could not rebuild ' + file + ' -- ' + err.message);
-        }
-    }
-
-    _zipBase64() {
-        if (this.zip === null) {
-            try {
-                this.zip = fs.readFileSync(path.join(this.sharedDir, ZIP_FILE)).toString('base64');
-            } catch (err) {
-                console.warn('ClientData: no ' + ZIP_FILE + ' in ' + this.sharedDir + ': clients will get the files one by one.');
-                this.zip = '';
-            }
-        }
-        return this.zip;
+        const out = writeSharedOutputs(this.sharedDir, files);
+        this.hash = out.hash;
+        this.zip = out.zip.toString('base64');
+        const made = [out.zipBuilt && ZIP_FILE, out.manifestBuilt && MANIFEST_FILE].filter(Boolean);
+        console.info(
+            'ClientData: ' + files.length + ' files, shared hash ' + this.hash +
+                (made.length ? ' (rebuilt ' + made.join(' and ') + ')' : '')
+        );
+        for (const e of out.errors)
+            console.error('ClientData: could not write ' + e + ' -- clients still get the files from memory.');
     }
 
     // The file a single-file request may get: a .json file inside the shared
@@ -233,19 +126,17 @@ class ClientData {
                 console.warn('ClientData: too many requests on connection ' + conn.id + ', ignoring the rest.');
             return;
         }
-        this._refresh(false);
-
         if (type === 0) {
-            // hello: push everything when the client's files aren't this version
-            if (Number(message[1]) !== this.version && this.files.size > 0)
-                conn.send([Types.Messages.WC_CLIENTDATA, 0, this.version, this.hashes, this._zipBase64()]);
+            // hello: push everything when the client's files aren't this server's
+            if (String(message[1]) !== this.hash && this.files.size > 0)
+                conn.send([Types.Messages.WC_CLIENTDATA, 0, this.hash, this.hashes, this.zip]);
             return;
         }
 
         const rel = String(message[1]);
         const f = this._servableFile(rel);
-        if (f) conn.send([Types.Messages.WC_CLIENTDATA, 1, this.version, rel, f.data.toString('utf8')]);
-        else conn.send([Types.Messages.WC_CLIENTDATA, 2, this.version, rel]);
+        if (f) conn.send([Types.Messages.WC_CLIENTDATA, 1, this.hash, rel, f.data.toString('utf8')]);
+        else conn.send([Types.Messages.WC_CLIENTDATA, 2, this.hash, rel]);
     }
 }
 
@@ -268,5 +159,5 @@ export function handleClientDataPacket(conn, message) {
         instance.handlePacket(conn, message);
         return;
     }
-    if (Number(message[0]) !== 0) conn.send([Types.Messages.WC_CLIENTDATA, 2, 0, String(message[1])]);
+    if (Number(message[0]) !== 0) conn.send([Types.Messages.WC_CLIENTDATA, 2, '', String(message[1])]);
 }

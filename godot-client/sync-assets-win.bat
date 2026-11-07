@@ -19,5 +19,7 @@ if exist ..\shared\maps\maplist.json copy /Y ..\shared\maps\maplist.json assets\
 copy /Y ..\client\data\staticsheet.json assets\data\ >nul
 copy /Y ..\client\data\sprites\sprites.json assets\data\sprites.json >nul
 copy /Y ..\shared\data\*.json assets\data\shared\ >nul
+rem the shared hash of those files and the maps (ClientData compares it with the game server's)
+if exist ..\shared\manifest.json copy /Y ..\shared\manifest.json assets\data\shared_manifest.json >nul
 copy /Y ..\client\config\config_build.json assets\config\ >nul
 echo Assets copied.

@@ -631,12 +631,13 @@ class FormatChecker {
         this.formats[Types.Messages.CW_WHO] = tupleField([
             arrayField(intField(0, entityIdMax), 0, 999)
         ]);
-        // Client data updates (clientdata.js): [0, version] the hello sent before
-        // the login, or [1, path] one file ("data/lang.json",
+        // Client data updates (clientdata.js): [0, hash] the hello sent before the
+        // login (the shared hash of the client's files: a sha1, or "" if it doesn't
+        // know), or [1, path] one file ("data/lang.json",
         // "maps/map4/map4_0_0.json") -- only a plain relative path to a .json
         // file: letters, digits, "_", "-", "." and "/" separators, no "..".
         this.formats[Types.Messages.CW_CLIENTDATA] = z.union([
-            tupleField([z.literal(0), intField(0, 999999999)]),
+            tupleField([z.literal(0), z.string().regex(/^(?:[0-9a-f]{40})?$/)]),
             tupleField([
                 z.literal(1),
                 stringField(6, 128)

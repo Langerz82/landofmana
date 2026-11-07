@@ -18,12 +18,13 @@
 // Shared data and map updates pushed by the game server (gameserver/js/
 // clientdata.js has the protocol). The files are the shared folder's data/ and
 // maps/ json files ("data/lang.json", "maps/maplist.json",
-// "maps/map4/map4_0_0.json"), all under one version: this build's is
-// config_build.json's "shared_version" (falling back to its "version").
+// "maps/map4/map4_0_0.json"), identified as a set by their shared hash
+// (gameserver/js/lib/shareddata.js); this build's own copies' is in
+// shared/manifest.json, which ships with it.
 //
-// The game client sends that version in a hello just before its login
-// (gameclient.js onConnected()). When the game server's version differs it pushes
-// every file in one zip; they're kept here -- data/*.json and maps/maplist.json in
+// The game client sends the hash of the files it uses in a hello just before its
+// login (gameclient.js onConnected()). When the game server's files hash
+// differently it pushes every one of them in one zip; they're kept here -- data/*.json and maps/maplist.json in
 // localStorage (read synchronously at start-up through fetchJsonSync(), see
 // cachedSharedJson()), the map files in IndexedDB (read as each map loads, see
 // loadMapText()). If the zip can't be used, the start-up files that need it are
@@ -36,7 +37,7 @@ import config from './config.js';
 
 /* global Types, JSZip */
 
-const LS_META = 'clientdata.meta'; // { version, files: { path: sha1 } } -- the server's list
+const LS_META = 'clientdata.meta'; // { hash, files: { path: sha1 } } -- the server's list
 const LS_FILE = 'clientdata.file.'; // + path -> text of a start-up file
 const REQUEST_TIMEOUT = 60000;
 
@@ -68,19 +69,35 @@ function isStartupFile(path) {
     return path.indexOf('data/') === 0 || path === 'maps/maplist.json';
 }
 
-function builtinVersion() {
-    const b = config.build || {};
-    for (const key of ['shared_version', 'version']) {
-        const n = Number(b[key]);
-        if (b[key] !== undefined && b[key] !== null && Number.isFinite(n)) return n;
+// The shared hash of this build's own files, from shared/manifest.json (read once,
+// synchronously -- it's small); "" if it can't be read, which just means the game
+// server pushes its files.
+let builtin = null;
+function builtinHash() {
+    if (builtin === null) {
+        builtin = '';
+        try {
+            const version = config.build ? config.build.version : undefined;
+            const xhr = new XMLHttpRequest();
+            xhr.open('GET', 'shared/manifest.json' + (version ? '?v=' + version : ''), false);
+            xhr.send(null);
+            if (xhr.status === 200) {
+                const m = JSON.parse(xhr.responseText);
+                if (m && typeof m.hash === 'string') builtin = m.hash;
+            }
+        } catch (err) {
+            console.warn('ClientData: could not read shared/manifest.json (' + err + ')');
+        }
     }
-    return 0;
+    return builtin;
 }
 
 function readMeta() {
     try {
         const m = JSON.parse(lsGet(LS_META) || 'null');
-        return m && typeof m === 'object' && m.files && typeof m.files === 'object' ? m : null;
+        return m && typeof m === 'object' && typeof m.hash === 'string' && m.files && typeof m.files === 'object'
+            ? m
+            : null;
     } catch (err) {
         return null;
     }
@@ -179,7 +196,7 @@ let pushDone = Promise.resolve(); // a pushed update still being stored
 export function sendHello(gameClient) {
     client = gameClient;
     const meta = readMeta();
-    client.sendMessage([Types.Messages.CW_CLIENTDATA, 0, meta ? Number(meta.version) : builtinVersion()]);
+    client.sendMessage([Types.Messages.CW_CLIENTDATA, 0, meta ? meta.hash : builtinHash()]);
 }
 
 // One file from the game server (WC_CLIENTDATA 1), or a rejection.
@@ -212,11 +229,11 @@ function settle(path, text, err) {
 export function onMessage(data) {
     const type = Number(data[0]);
     if (type === 0) {
-        const version = Number(data[1]);
+        const hash = String(data[1]);
         const files = data[2] || {};
         const zip = data[3];
-        pushDone = applyPush(version, files, zip).catch(function (err) {
-            console.error('ClientData: update to version ' + version + ' failed (' + err + ')');
+        pushDone = applyPush(hash, files, zip).catch(function (err) {
+            console.error('ClientData: update to ' + hash + ' failed (' + err + ')');
         });
     } else if (type === 1) {
         settle(String(data[2]), String(data[3]), null);
@@ -270,8 +287,8 @@ function clearCache() {
     lsRemove(LS_META);
 }
 
-async function applyPush(version, files, zipBase64) {
-    if (version === builtinVersion()) {
+async function applyPush(hash, files, zipBase64) {
+    if (hash === builtinHash()) {
         // the server is on this build's own files: drop any downloaded copy
         clearCache();
     } else {
@@ -292,12 +309,12 @@ async function applyPush(version, files, zipBase64) {
             if (oldMeta)
                 for (const path in oldMeta.files)
                     if (isStartupFile(path) && !(path in files)) lsRemove(LS_FILE + path);
-            lsSet(LS_META, JSON.stringify({ version: version, files: files }));
+            lsSet(LS_META, JSON.stringify({ hash: hash, files: files }));
         } catch (err) {
             clearCache();
             throw err;
         }
-        console.info('ClientData: updated to version ' + version + '.');
+        console.info('ClientData: updated to the game server\'s files (' + hash + ').');
     }
     if (startupFingerprint() !== loadedFingerprint) {
         console.info('ClientData: shared data changed: reloading.');
