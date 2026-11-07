@@ -5,8 +5,8 @@
 	"useLocalAPI": false,
 	"dispatcher": false,
 	"debug": 1,
-	"version":113,
-	"shared_version": 113,
+	"version":114,
+	"shared_version": 114,
 	"updatepage":"https://play.google.com/store/apps/details?id=com.retrorpgonline2",
 	"productpage":"../products/"
 }
