@@ -29,6 +29,7 @@ import PlayerHandler from './playerhandler.js';
 import { Types } from '../common.js';
 import SkillData from '../data/skilldata.js';
 import { G_DEBUG } from '../constants.js';
+import { handleClientDataPacket } from '../clientdata.js';
 
 /* global EventType */
 
@@ -63,6 +64,10 @@ const PACKET_HANDLERS = new Map([
     [Types.Messages.BI_SYNCTIME, (h, message) => h.handleSyncTime(message)],
     [Types.Messages.CW_REQUEST, (h, message) => h.handleRequest(message)],
     [Types.Messages.CW_WHO, (h, message) => h.handleWho(message)],
+    [
+        Types.Messages.CW_CLIENTDATA,
+        (h, message) => handleClientDataPacket(h.connection, message)
+    ],
     [
         Types.Messages.CW_CHAT,
         (h, message) => h.worldActionHandler.handleChat(message)
@@ -215,6 +220,7 @@ function isPassivePacket(action, message) {
         case Types.Messages.BI_SYNCTIME:
         case Types.Messages.CW_WHO:
         case Types.Messages.CW_CONFIG:
+        case Types.Messages.CW_CLIENTDATA:
             return true;
         case Types.Messages.CW_REQUEST:
             return parseInt(message[0]) === 3; // who request

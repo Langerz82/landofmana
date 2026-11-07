@@ -631,6 +631,21 @@ class FormatChecker {
         this.formats[Types.Messages.CW_WHO] = tupleField([
             arrayField(intField(0, entityIdMax), 0, 999)
         ]);
+        // Client data updates (clientdata.js): [0, version] the hello sent before
+        // the login, or [1, path] one file ("data/lang.json",
+        // "maps/map4/map4_0_0.json") -- only a plain relative path to a .json
+        // file: letters, digits, "_", "-", "." and "/" separators, no "..".
+        this.formats[Types.Messages.CW_CLIENTDATA] = z.union([
+            tupleField([z.literal(0), intField(0, 999999999)]),
+            tupleField([
+                z.literal(1),
+                stringField(6, 128)
+                    .regex(/^[A-Za-z0-9_-]+(?:\/[A-Za-z0-9_.-]+)*\.json$/)
+                    .refine((p) => !p.split('/').some((part) => part === '.' || part === '..'), {
+                        message: 'no "." or ".." path parts'
+                    })
+            ])
+        ]);
         this.formats[Types.Messages.CW_CONFIG] = tupleField([
             // Each entry is a ["key", value] pair, where value can be a number or
             // a string; 0-10 entries per message.

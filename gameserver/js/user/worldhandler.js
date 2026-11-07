@@ -24,6 +24,7 @@ import { Types } from '../common.js';
 import Utils from '../utils.js';
 import { hashes, players } from '../main.js';
 import { G_DEBUG } from '../constants.js';
+import { handleClientDataPacket } from '../clientdata.js';
 
 class WorldHandler {
     constructor(main, connection) {
@@ -82,6 +83,12 @@ class WorldHandler {
             try {
                 if (action === Types.Messages.CW_LOGIN_PLAYER) {
                     self.handleLoginPlayer(message);
+                    return;
+                }
+                // the client's hello (sent just before its login): the game
+                // server pushes its shared data and maps if the client's differ
+                if (action === Types.Messages.CW_CLIENTDATA) {
+                    handleClientDataPacket(self.connection, message);
                     return;
                 }
             } catch (err) {

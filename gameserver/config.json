@@ -25,6 +25,10 @@
   "production": "heroku",
 
   "version":113,
+  "client_data": {
+    "shared_dir": "shared",
+    "shared_version": 113
+  },
   "verify_email": "",
   "verify_key": "",
   "world_name": "North America",

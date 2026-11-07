@@ -57,12 +57,12 @@ function main() {
 function callback_function(json, jsontsx) {
 	var filename = path.basename(source, path.extname(source));
 	// A map in a subfolder of tools/maps/data (a sectional map's parts, e.g. data/map4/map4_0_0.json)
-	// goes into that folder on both sides: client/maps/map4/map4_0_0.json and
-	// gameserver/maps/map4/map4_0_0.json. Any other map: client/maps/<name>/<name>.json and
+	// goes into that folder on both sides: shared/maps/map4/map4_0_0.json and
+	// gameserver/maps/map4/map4_0_0.json. Any other map: shared/maps/<name>/<name>.json and
 	// gameserver/maps/<name>.json, as before.
 	var parent = path.basename(path.dirname(path.resolve(source)));
 	var group = parent !== "data" ? parent : "";
-	var client_dir = "../../../client/maps/" + (group || filename);
+	var client_dir = "../../../shared/maps/" + (group || filename);
 	// The Godot client keeps a copy of every client map in the same layout
 	// (godot-client/assets/maps/map4/map4_0_0.json, .../map2/map2.json), the
 	// same copy godot-client/sync-assets-*.sh makes. Client maps are written
@@ -127,13 +127,13 @@ function updateMapListArea(mapsDir, map) {
 	fs.writeFileSync(listPath, JSON.stringify(list, null, 1));
 	console.info("Area of " + mapListName + " in " + listPath + ": " + JSON.stringify(list.areas[mapListName]));
 	// the client's list is the Godot client's list too
-	if (mapsDir === "../../../client/maps")
+	if (mapsDir === "../../../shared/maps")
 		writeGodotCopy(GODOT_MAPS, "maplist.json", fs.readFileSync(listPath));
 }
 
 function processClient(json, tsx, dest){
   var map = processMap(json, tsx, {mode:"client"});
-  updateMapListArea("../../../client/maps", map);
+  updateMapListArea("../../../shared/maps", map);
 
   var tile = [];
   var collision = [];

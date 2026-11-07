@@ -43,6 +43,7 @@ import readlineModule from 'readline';
 import { fileURLToPath } from 'url';
 import path from 'path';
 import Scheduler from './scheduler.js';
+import { initClientData } from './clientdata.js';
 
 // NOTE: ES modules have no `__dirname`/`__filename` (those are CommonJS-only
 // module wrapper variables). This is the standard replacement, needed so
@@ -301,6 +302,8 @@ function main(config) {
     // FIX: also assign `global.server`, kept in sync with the local
     // `server` variable (see declaration above).
     server = new WS.WebsocketServer(config);
+    // shared data + client maps pushed to the game clients (clientdata.js)
+    initClientData(config);
     global.server = server;
 
     // FIX: removed `const lastTotalPlayers = 0;` -- never read or updated

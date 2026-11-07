@@ -8,7 +8,7 @@ Works on any map made by the generators (map4gen), or any Tiled map in the same 
 - **Interiors.** If the map has an interior strip right of the overworld (house and cave interiors), it becomes
   one more map, <prefix>_int.
 - **Folders.** A map's parts live in a folder named after it: tools/maps/data/map4/map4_0_0.json, and after
-  converting client/maps/map4/map4_0_0.json and gameserver/maps/map4/map4_0_0.json. The map list names them
+  converting shared/maps/map4/map4_0_0.json and gameserver/maps/map4/map4_0_0.json. The map list names them
   with the folder ("map4/map4_0_0").
 - **Camera.** Every section gets a camera rect around the whole file (named after the section), so the map's
   edge is the edge of the screen.
@@ -27,13 +27,13 @@ Works on any map made by the generators (map4gen), or any Tiled map in the same 
   full map); the converter passes them on, and the clients' HUD shows the player's full-map gx/gy with them.
 - **Start areas.** Every section gets a start area (its first checkpoint) for warps without a door.
 - **Warp point.** The section holding the map's start checkpoint becomes its warp point ("/warp <prefix>", admins only).
-- **Map list.** client/maps/maplist.json and gameserver/maps/maplist.json (map index -> name, read by the
+- **Map list.** shared/maps/maplist.json and gameserver/maps/maplist.json (map index -> name, read by the
   gameserver and both clients) get this map's parts appended after the other maps (map0, map1, map2, ...).
   Each part's area in the full map ("areas": name -> [worldX, worldY, width, height], which
   "/warp map4 300 300" uses to find the part holding a full-map tile) is added by the converter from the
   part's worldX/worldY and size when it converts the part (--convert, or node run.js by hand).
   Parts of an earlier split of the same map that no longer exist are removed from the list and the folders
-  (also parts in the older flat layout, client/maps/map4_0_0/map4_0_0.json).
+  (also parts in the older flat layout, shared/maps/map4_0_0/map4_0_0.json).
 
     python split.py map4                    # tools/maps/data/map4.json -> data/map4/map4_0_0.json, map4_1_0.json, map4_int.json
     python split.py map4 --convert          # ... and run the converter (server + client) on each of them
@@ -77,7 +77,7 @@ print(f'{SRC}: {MW}x{H}, overworld {W}x{H} -> {NR} rows x {NC} cols of {SW}x{SH}
       + (f' + interiors ({MW - W}x{H})' if HAS_INT else ''))
 
 # ---- map list: existing maps first, then this map's sections and its interiors
-lists = [os.path.join(ROOT, 'client', 'maps', 'maplist.json'), os.path.join(ROOT, 'gameserver', 'maps', 'maplist.json')]
+lists = [os.path.join(ROOT, 'shared', 'maps', 'maplist.json'), os.path.join(ROOT, 'gameserver', 'maps', 'maplist.json')]
 names = None; warps = []; areas = {}
 for p in lists:
     if os.path.exists(p):
@@ -90,7 +90,7 @@ old_parts = [n for n in names if mine(n)]
 names = [n for n in names if not mine(n)]
 warps = [n for n in warps if not mine(n)]
 areas = {n: a for n, a in areas.items() if not mine(n)}
-# the parts are listed with their folder: client/maps/map4/map4_0_0.json, gameserver/maps/map4/map4_0_0.json
+# the parts are listed with their folder: shared/maps/map4/map4_0_0.json, gameserver/maps/map4/map4_0_0.json
 # (and tools/maps/data/map4/map4_0_0.json for the Tiled files)
 SEC = {(r, c): f'{PFX}/{PFX}_{r}_{c}' for r in range(NR) for c in range(NC)}
 INT = f'{PFX}/{PFX}_int' if HAS_INT else None
@@ -361,11 +361,11 @@ for n in old_parts:
     if n in ID: continue
     if '/' in n:      # folder layout: <folder>/<name>.json on every side
         cands = [data(n + '.json'), os.path.join(ROOT, 'gameserver', 'maps', n + '.json'),
-                 os.path.join(ROOT, 'client', 'maps', n + '.json'),
+                 os.path.join(ROOT, 'shared', 'maps', n + '.json'),
                  os.path.join(ROOT, 'godot-client', 'assets', 'maps', n + '.json')]
-    else:             # older flat layout: client/maps/<name>/<name>.json, gameserver/maps/<name>.json
+    else:             # older flat layout: shared/maps/<name>/<name>.json, gameserver/maps/<name>.json
         cands = [data(n + '.json'), os.path.join(ROOT, 'gameserver', 'maps', n + '.json'),
-                 os.path.join(ROOT, 'client', 'maps', n), os.path.join(ROOT, 'godot-client', 'assets', 'maps', n)]
+                 os.path.join(ROOT, 'shared', 'maps', n), os.path.join(ROOT, 'godot-client', 'assets', 'maps', n)]
     gone = [p for p in cands if os.path.exists(p)]
     for p in gone:
         shutil.rmtree(p) if os.path.isdir(p) else os.remove(p)

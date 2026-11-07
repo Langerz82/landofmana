@@ -52,21 +52,37 @@ class SpriteDef:
 
 
 func _ready() -> void:
+	load_shared()
+	static_sheets = _json("res://assets/data/staticsheet.json", [])
+	_load_sprites()
+	# the game server pushed other shared data (ClientData): read it again
+	ClientData.shared_data_changed.connect(load_shared)
+
+
+## The data from the shared data files (ClientData.shared_path(): the game
+## server's pushed copy, or this build's own).
+func load_shared() -> void:
+	lang = {}
+	mob_kinds = {}
+	npc_kinds = []
+	appearances = []
+	item_kinds = {}
+	item_loot = []
+	crafts = []
+	skills = []
 	_load_lang()
 	_load_mobs()
-	npc_kinds = _json(SHARED + "npcs.json", [])
+	npc_kinds = _json(ClientData.shared_path("npcs.json"), [])
 	for npc in npc_kinds:
 		if npc is Dictionary:
 			npc["title"] = npc.get("name", npc.get("uid", ""))
-	appearances = _json(SHARED + "appearance.json", [])
-	item_loot = _json(SHARED + "itemloot.json", [])
-	static_sheets = _json("res://assets/data/staticsheet.json", [])
-	crafts = _json(SHARED + "craft.json", [])
+	appearances = _json(ClientData.shared_path("appearance.json"), [])
+	item_loot = _json(ClientData.shared_path("itemloot.json"), [])
+	crafts = _json(ClientData.shared_path("craft.json"), [])
 	for i in range(crafts.size()):
 		crafts[i]["id"] = i
 	_load_items()
 	_load_skills()
-	_load_sprites()
 
 
 func _json(path: String, fallback):
@@ -82,12 +98,12 @@ func _json(path: String, fallback):
 
 
 func _load_lang() -> void:
-	var all = _json(SHARED + "lang.json", {})
+	var all = _json(ClientData.shared_path("lang.json"), {})
 	lang = all.get("EN", {}) if all is Dictionary else {}
 
 
 func _load_mobs() -> void:
-	var parsed = _json(SHARED + "mobs.json", {})
+	var parsed = _json(ClientData.shared_path("mobs.json"), {})
 	for key in parsed:
 		var v: Dictionary = parsed[key]
 		var mob := {
@@ -108,7 +124,7 @@ func _load_mobs() -> void:
 
 ## Port of client/js/data/items.js (kindData).
 func _load_items() -> void:
-	var parsed = _json(SHARED + "items2.json", [])
+	var parsed = _json(ClientData.shared_path("items2.json"), [])
 	for v in parsed:
 		var kind := int(v.get("id", 0))
 		var craft_list: Array = []
@@ -137,7 +153,7 @@ func _load_items() -> void:
 
 ## Port of client/js/data/skilldata.js.
 func _load_skills() -> void:
-	for v in _json(SHARED + "skills2.json", []):
+	for v in _json(ClientData.shared_path("skills2.json"), []):
 		skills.append({
 			"name": str(v.get("name", "")),
 			"iconOffset": v.get("iconOffset", [0, 0]),

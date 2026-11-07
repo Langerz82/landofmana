@@ -29,6 +29,7 @@ import MobData from '../data/mobdata.js';
 import config from '../config.js';
 import ChatHandler from '../chathandler/chathandler.js';
 import Timer from '../timer.js';
+import { sendHello as sendClientDataHello, onMessage as onClientData } from '../clientdata.js';
 
 // GameClient's own behavior is split across these mixin modules for readability
 // (gameclient.js had grown to ~662 lines). Each install* call below merges plain-
@@ -172,6 +173,10 @@ export default class GameClient {
         this.handlers[Types.Messages.WC_SET_ANIMATION] =
             this.set_animation_callback;
         this.handlers[Types.Messages.WC_VERSION] = this.onVersion;
+        // shared data / map updates pushed by the game server (clientdata.js)
+        this.handlers[Types.Messages.WC_CLIENTDATA] = function (data) {
+            onClientData(data);
+        };
         this.handlers[Types.Messages.WC_PLAYER] = this.player_callback;
         this.handlers[Types.Messages.WC_ERROR] = this.onServerError;
     }
@@ -277,6 +282,9 @@ export default class GameClient {
     }
 
     onConnected(data) {
+        // our shared data version, before the login: the game server pushes its
+        // files if they're another version (clientdata.js)
+        sendClientDataHello(this);
         this.sendLoginPlayer(data[0], data[1]);
         this.sendSyncTime(Date.now());
     }

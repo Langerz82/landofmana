@@ -24,6 +24,7 @@ config/icon="res://assets/img/common/favicon.png"
 [autoload]
 
 Config="*res://scripts/core/config.gd"
+ClientData="*res://scripts/core/client_data.gd"
 GameData="*res://scripts/core/game_data.gd"
 Game="*res://scripts/core/game_state.gd"
 

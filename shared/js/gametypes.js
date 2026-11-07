@@ -148,6 +148,8 @@ const Types = {
         CW_SHORTCUT: 232,
         CW_REQUEST: 233,
         CW_CONFIG: 234,
+        // client data updates (gameserver/js/clientdata.js): hello / one-file request
+        CW_CLIENTDATA: 235,
 
         WC_ERROR: 300,
         WC_PLAYER: 301,
@@ -185,7 +187,9 @@ const Types = {
         WC_SET_SPRITE: 334,
         WC_SET_ANIMATION: 335,
         WC_BLOCK_MODIFY: 336,
-        WC_VERSION: 338
+        WC_VERSION: 338,
+        // client data updates pushed by the game server (gameserver/js/clientdata.js)
+        WC_CLIENTDATA: 339
     },
 
     Orientations: {

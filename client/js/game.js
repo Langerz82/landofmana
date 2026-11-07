@@ -256,7 +256,7 @@ export default class Game {
         // mapList.areas: each split map part's area in the full map, name -> [worldX, worldY, width, height].
         this.mapList = { maps: [], warps: [], areas: {} };
         try {
-            const list = fetchJsonSync('./maps/maplist.json');
+            const list = fetchJsonSync('./shared/maps/maplist.json');
             if (list && Array.isArray(list.maps)) this.mapList.maps = list.maps;
             if (list && Array.isArray(list.warps)) this.mapList.warps = list.warps;
             if (list && list.areas && typeof list.areas === 'object') this.mapList.areas = list.areas;

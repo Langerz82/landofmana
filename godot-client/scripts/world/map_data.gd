@@ -42,7 +42,8 @@ static func load_map(index: int, n: String) -> MapData:
 	m.map_index = index
 	m.map_name = n
 	# a sectional map's part is listed with its folder ("map4/map4_0_0" -> maps/map4/map4_0_0.json)
-	var path := ("res://assets/maps/%s.json" % n) if "/" in n else ("res://assets/maps/%s/%s.json" % [n, n])
+	# the game server's pushed copy (ClientData), else this build's own res://assets/maps/...
+	var path := ClientData.map_path(ClientData.map_file(n))
 	var text := FileAccess.get_file_as_string(path)
 	if text == "":
 		push_error("MapData: cannot read %s" % path)

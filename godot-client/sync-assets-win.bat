@@ -9,13 +9,13 @@ xcopy /E /I /Y /Q ..\client\img\common assets\img\common
 xcopy /E /I /Y /Q ..\client\audio assets\audio
 copy /Y ..\client\fonts\*.ttf assets\fonts\ >nul
 copy /Y ..\client\fonts\*.otf assets\fonts\ >nul
-rem every map folder in client\maps (map0\map0.json, ..., and sectional maps' folders such as
+rem every map folder in shared\maps (map0\map0.json, ..., and sectional maps' folders such as
 rem map4\map4_0_0.json ...) plus the map list
-for /D %%m in (..\client\maps\*) do if exist "%%m\*.json" (
+for /D %%m in (..\shared\maps\*) do if exist "%%m\*.json" (
     if not exist assets\maps\%%~nxm mkdir assets\maps\%%~nxm
     copy /Y "%%m\*.json" assets\maps\%%~nxm\ >nul
 )
-if exist ..\client\maps\maplist.json copy /Y ..\client\maps\maplist.json assets\maps\ >nul
+if exist ..\shared\maps\maplist.json copy /Y ..\shared\maps\maplist.json assets\maps\ >nul
 copy /Y ..\client\data\staticsheet.json assets\data\ >nul
 copy /Y ..\client\data\sprites\sprites.json assets\data\sprites.json >nul
 copy /Y ..\shared\data\*.json assets\data\shared\ >nul

@@ -20,8 +20,14 @@
 // loaded yet, the request is made without the param (same as before this existed).
 /* global $ */
 import config from '../config.js';
+import { cachedSharedJson } from '../clientdata.js';
 
 export default function fetchJsonSync(path) {
+    // shared/data/... downloaded from the game server (clientdata.js) wins over
+    // this build's own copy
+    const cached = cachedSharedJson(path);
+    if (cached !== undefined) return cached;
+
     let result = null;
     let failure = null;
 

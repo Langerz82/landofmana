@@ -29,7 +29,7 @@ const BASE_SCALE := 3.0
 ## drawn at their normal size at this zoom and in proportion at the others.
 const DEFAULT_ZOOM := 0.8          # "Normal" (also the reference size for names over the world)
 const MOBILE_ZOOM := 0.6           # "Closer": zoom on phones / tablets until the player picks one
-## The maps, from res://assets/maps/maplist.json (client/maps/maplist.json, copied by the sync-assets
+## The maps, from res://assets/maps/maplist.json (shared/maps/maplist.json, copied by the sync-assets
 ## scripts; written by tools/maps/generator/split.py): map_list.maps[index] is each map's name ("map2", or
 ## "map4/map4_0_0" for a part of a split map), map_list.warps the map "/warp map4" goes to.
 var map_list := {"maps": [], "warps": [], "areas": {}}   # areas: split map part -> [worldX, worldY, w, h]
@@ -95,6 +95,7 @@ var _reveal_token := 0   # cancels a pending reveal when a new teleport starts
 func _ready() -> void:
 	Game.world = self
 	_load_map_list()
+	ClientData.shared_data_changed.connect(_on_shared_data_changed)
 	map_renderer = MapRenderer.new()
 	map_renderer.name = "MapRenderer"
 	add_child(map_renderer)
@@ -547,6 +548,12 @@ func teleport_maps(index: int, tx: int = -1, ty: int = -1, portal_id: int = -1) 
 	if map_cache.has(index):
 		_on_map_loaded(map_cache[index])
 		return
+	# the game server's version of this map, asked for now if its pushed zip
+	# couldn't be used (ClientData); otherwise this build's own file
+	var token := _map_load_token
+	await ClientData.ensure_map(map_list.maps[index])
+	if token != _map_load_token:
+		return   # a newer teleport replaced this one
 	if not sync_map_loading:
 		_loading_thread = Thread.new()
 		if _loading_thread.start(_thread_load_map.bind(index)) == OK:
@@ -2327,8 +2334,15 @@ func warp_to(want: String, sx: String = "", sy: String = "") -> void:
 	teleport_maps(index, gx, gy, WARP_PORTAL)
 
 
+## The game server pushed other shared data (ClientData): the map list may have
+## changed, and maps loaded so far may be stale.
+func _on_shared_data_changed() -> void:
+	_load_map_list()
+	map_cache.clear()
+
+
 func _load_map_list() -> void:
-	var path := "res://assets/maps/maplist.json"
+	var path := ClientData.maplist_path()   # the game server's pushed copy, else res://assets/maps/maplist.json
 	var d = JSON.parse_string(FileAccess.get_file_as_string(path)) if FileAccess.file_exists(path) else null
 	if not (d is Dictionary):
 		push_error("World: cannot read %s" % path)

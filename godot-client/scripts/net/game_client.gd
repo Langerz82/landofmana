@@ -41,6 +41,7 @@ func _ready() -> void:
 	sio.message_received.connect(_on_message)
 	on(Types.Messages.BI_SYNCTIME, func(d): Game.set_world_time(Types.to_int(d[0]), Types.to_int(d[1])))
 	on(Types.Messages.WC_ERROR, _on_server_error)
+	on(Types.Messages.WC_CLIENTDATA, ClientData.on_message)
 
 
 func on(action: int, callable: Callable) -> void:
@@ -66,6 +67,9 @@ func send(packet: Array) -> void:
 
 
 func _on_connected() -> void:
+	# our shared data version, before the login: the game server pushes its files
+	# if they're another version (ClientData)
+	ClientData.send_hello(self)
 	send_login_player(_login[0], _login[1])
 	send_sync_time(Game.unix_ms())
 	connected.emit()

@@ -6,6 +6,7 @@
     "dispatcher": false,
     "debug": 1,
     "version":113,
+    "shared_version": 113,
     "updatepage":"https://play.google.com/store/apps/details?id=com.retrorpgonline2",
     "productpage":"../products/"
 }

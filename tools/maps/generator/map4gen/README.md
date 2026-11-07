@@ -42,7 +42,7 @@ python split.py map4 --section 256 --section-height 128 --convert
 ```
 
 That makes five maps in a `map4` folder: `map4_0_0` (volcano), `map4_1_0` (desert), `map4_2_0` (forest), `map4_3_0`
-(town, the warp point for "/warp map4") and `map4_int` (interiors). They end up in `client/maps/map4/map4_0_0.json`,
+(town, the warp point for "/warp map4") and `map4_int` (interiors). They end up in `shared/maps/map4/map4_0_0.json`,
 `gameserver/maps/map4/map4_0_0.json` and so on (the Tiled files in `tools/maps/data/map4/`). Edge doors between them keep your position as you cross. Then run
 `godot-client/sync-assets-win.bat` (or `-linux.sh`) for the Godot client.
 
@@ -53,7 +53,7 @@ each other at their edges, so only one section is loaded at a time:
 
 - **Sections.** The overworld (the `overworld` camera rect) becomes a grid of sections, `--section` tiles wide and
   `--section-height` tall (default 256x256), named `<map>_<row>_<col>`, in a folder named after the map
-  (`client/maps/map4/map4_0_0.json`, `gameserver/maps/map4/map4_0_0.json`; the map list names them `map4/map4_0_0`). No
+  (`shared/maps/map4/map4_0_0.json`, `gameserver/maps/map4/map4_0_0.json`; the map list names them `map4/map4_0_0`). No
   terrain is copied between sections, and every section has a camera rect around the whole file (named after it), so
   the edge of the section is the edge of the screen.
 - **Edge doors.** Along every edge shared with a neighbour, the section's own outermost row or column is an *edge door*
@@ -73,7 +73,7 @@ each other at their edges, so only one section is loaded at a time:
   Set `LAND_ON_DOOR = False` in `common/interiors.py` to land on the tile next to the entrance instead.
 - **Start areas.** Every section gets a start checkpoint, used by warps without a door. The section with the map's
   start checkpoint becomes the map's warp point (`/warp map4`, admins only).
-- **Map list.** `client/maps/maplist.json` and `gameserver/maps/maplist.json` list every map by index (map0-2 first,
+- **Map list.** `shared/maps/maplist.json` and `gameserver/maps/maplist.json` list every map by index (map0-2 first,
   then each split map's sections) and the warp points. The game server and both clients read this list. Splitting a
   map again (say with another section size) replaces its old sections and removes their files.
 - `--convert` runs the converter (server and client) on every new map; without it, convert each part yourself with
@@ -82,7 +82,7 @@ each other at their edges, so only one section is loaded at a time:
 
 ### How the game handles edge doors
 - **Converter:** `_processmap.js` keeps the `rel` property on doors, and a destination tile of 0 is no longer
-  dropped. `run.js` writes a map from a subfolder of `tools/maps/data` into that subfolder in `client/maps` and
+  dropped. `run.js` writes a map from a subfolder of `tools/maps/data` into that subfolder in `shared/maps` and
   `gameserver/maps`.
 - **Game server:** `map/map.js` carries `rel` on doors. In `packets/movementhandler.js` an edge door's destination is
   its `tx`/`ty` plus the player's tile offset along the door. `map/mapmanager.js` loads every map in

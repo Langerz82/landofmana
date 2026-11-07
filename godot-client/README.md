@@ -127,7 +127,7 @@ are ported line by line so the server's validation accepts them.
 client/img/{2,3,common}   -> assets/img/
 client/audio              -> assets/audio
 client/fonts/*.ttf|*.otf  -> assets/fonts
-client/maps/mapN/mapN.json -> assets/maps/mapN/
+shared/maps/mapN/mapN.json -> assets/maps/mapN/
 client/data/sprites/sprites.json -> assets/data/sprites.json
 client/data/staticsheet.json     -> assets/data/
 shared/data/*.json               -> assets/data/shared/

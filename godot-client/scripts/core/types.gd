@@ -72,6 +72,7 @@ const Messages := {
 	CW_SHORTCUT = 232,
 	CW_REQUEST = 233,
 	CW_CONFIG = 234,
+	CW_CLIENTDATA = 235,     # shared data / map updates (ClientData): hello, one-file request
 
 	WC_ERROR = 300,
 	WC_PLAYER = 301,
@@ -108,6 +109,7 @@ const Messages := {
 	WC_SET_ANIMATION = 335,
 	WC_BLOCK_MODIFY = 336,
 	WC_VERSION = 338,
+	WC_CLIENTDATA = 339,     # shared data / map updates pushed by the game server (ClientData)
 }
 
 enum Orientation { NONE = 0, UP = 1, DOWN = 2, LEFT = 3, RIGHT = 4 }
