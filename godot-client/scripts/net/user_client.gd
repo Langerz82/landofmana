@@ -23,6 +23,7 @@ extends Node
 
 signal status(text: String)
 signal error(text: String)
+signal update_required                       # the server runs a newer client version
 signal ready_for_login
 signal worlds_received(worlds: Array)        # [{index, name, count, max}]
 signal players_received(players: Array)      # [{index, name, exp, level, colors, sprites}]
@@ -134,6 +135,7 @@ func _on_version(data: Array) -> void:
 	Game.hash_challenge = str(data[1])
 	if server_version != Config.get_version():
 		error.emit("Client version %d does not match server version %d.\nPlease update the client." % [Config.get_version(), server_version])
+		update_required.emit()
 		return
 	status.emit("Ready.")
 	ready_for_login.emit()

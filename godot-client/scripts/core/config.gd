@@ -74,6 +74,32 @@ func get_version() -> int:
 	return int(build.get("version", 0))
 
 
+## Where players get a new client build: config_build.json's "updatepage-android"
+## on Android, else its "updatepage" ("" if there's none for this platform).
+func get_update_page() -> String:
+	var keys := ["updatepage-android", "updatepage"] if OS.get_name() == "Android" else ["updatepage"]
+	for key in keys:
+		var url := str(build.get(key, "")).strip_edges()
+		if url != "":
+			return url
+	return ""
+
+
+## Opens the update page. On Android a Google Play link
+## (https://play.google.com/store/apps/details?id=...) opens straight in the Play
+## Store app (market://details?id=...), falling back to the link itself.
+func open_update_page() -> bool:
+	var url := get_update_page()
+	if url == "":
+		return false
+	if OS.get_name() == "Android":
+		var marker := "play.google.com/store/apps/details?"
+		var at := url.find(marker)
+		if at >= 0 and OS.shell_open("market://details?" + url.substr(at + marker.length())) == OK:
+			return true
+	return OS.shell_open(url) == OK
+
+
 func is_debug() -> bool:
 	return int(build.get("debug", 0)) != 0
 

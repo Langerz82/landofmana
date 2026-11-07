@@ -58,6 +58,7 @@ var _login_btn: Button
 var _register_btn: Button
 var _connect_btn: Button
 var _status: Label
+var _update_btn: Button     # shown when the server runs a newer client version
 var _login_box: VBoxContainer
 var _player_box: VBoxContainer
 var _world_select: OptionButton
@@ -105,6 +106,13 @@ func _ready() -> void:
 	_status.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_status.add_theme_color_override("font_color", Color(1, 0.85, 0.4))
 	v.add_child(_status)
+	_update_btn = Button.new()
+	_update_btn.text = "Update"
+	_update_btn.visible = false
+	_update_btn.pressed.connect(func():
+		if not Config.open_update_page():
+			_status.text = "Could not open the update page.")
+	v.add_child(_update_btn)
 	_build_login()
 	_build_players()
 	var version := Label.new()
@@ -273,6 +281,8 @@ func connect_user_server() -> void:
 	Game.user_client = uc
 	uc.status.connect(func(t): _status.text = t)
 	uc.error.connect(_on_error)
+	_update_btn.visible = false
+	uc.update_required.connect(func(): _update_btn.visible = Config.get_update_page() != "")
 	uc.info.connect(_on_info)
 	uc.ready_for_login.connect(func():
 		_ready_for_login = true
