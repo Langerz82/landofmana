@@ -18,7 +18,7 @@
 
 import Messages from '../message.js';
 import { Types } from '../common.js';
-import { G_TILESIZE, G_DEBUG } from '../constants.js';
+import { G_TILESIZE, G_DEBUG, G_MOVE_DELAY } from '../constants.js';
 import { tryMoveTo, tryStartPath, setMoveAnchor } from './movevalidator.js';
 
 // Split out of packethandler.js -- CW_MOVE/CW_MOVEPATH/CW_TELEPORT_MAP, the
@@ -57,6 +57,53 @@ class MovementHandler {
         this.ph = packetHandler;
         this.player = this.ph.player;
         this.world = this.ph.world;
+
+        // Packets held back by defer(), in the order they must run.
+        this.pendingTimers = new Set();
+        this.lastDue = 0;
+        this.closed = false;
+    }
+
+    // Runs `run` once the packet stamped `clientTime` (the client's world
+    // time when it sent it, synced to the server clock by BI_SYNCTIME) is
+    // G_MOVE_DELAY old -- the moment the client itself starts that move --
+    // waiting at most G_MOVE_DELAY. A packet with no stamp (clientTime null)
+    // gets no wait of its own; it is only queued behind any packets still
+    // being held, so the player's packets always run in the order they
+    // arrived (e.g. an attack or a door teleport never runs before the move
+    // that got the player there).
+    defer(clientTime, run) {
+        const now = Date.now();
+        let due = now;
+        const sent = Number(clientTime);
+        if (clientTime !== null && clientTime !== undefined && Number.isFinite(sent))
+            due = now + Math.min(G_MOVE_DELAY, Math.max(0, sent + G_MOVE_DELAY - now));
+        if (due < this.lastDue) due = this.lastDue;
+        this.lastDue = due;
+
+        if (due <= now && this.pendingTimers.size === 0) {
+            run();
+            return;
+        }
+
+        const self = this;
+        const timer = setTimeout(function () {
+            self.pendingTimers.delete(timer);
+            if (self.closed) return;
+            run();
+        }, due - now);
+        this.pendingTimers.add(timer);
+    }
+
+    hasPending() {
+        return this.pendingTimers.size > 0;
+    }
+
+    // Connection closed: drop anything still held.
+    close() {
+        this.closed = true;
+        for (const timer of this.pendingTimers) clearTimeout(timer);
+        this.pendingTimers.clear();
     }
 
     // CW_MOVE: [time, entityId, state, orientation, x, y]

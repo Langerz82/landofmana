@@ -26,6 +26,7 @@ var stop_key_move = false      # false/true or a queued orientation (int)
 var move_orientation := 0
 var sent_move = null
 var last_move_throttle := 0
+var move_start_at := 0          # Time.get_ticks_msec() before which the local player may not start moving
 var hide_weapon := false
 var admin := false
 var colors: Array = [0, 0]
@@ -345,6 +346,10 @@ func start_key_movement(o: int) -> void:
 	walk(o)
 	if key_move_cb.is_valid():
 		key_move_cb.call(1)
+	# The start packet has just gone out; hold the actual movement back by
+	# G_MOVE_DELAY so it begins about when the server receives that packet
+	# (World._update_player_key_movement() waits for this).
+	move_start_at = Time.get_ticks_msec() + Constants.G_MOVE_DELAY
 	movement.stop()
 	cancel_attack_delay()
 

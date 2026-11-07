@@ -24,6 +24,14 @@ const G_LATENCY := 75
 const G_ROUNDTRIP := G_LATENCY * 2
 const G_UPDATE_INTERVAL := 16
 
+# Constant wait (ms) between the local player asking to move and actually
+# starting to move on screen. The move packet (CW_MOVE / CW_MOVEPATH) is sent
+# straight away; this wait gives it time to reach the server, so both sides
+# start walking at about the same moment. The server holds a packet that
+# arrives early until the same point (gameserver/js/constants.js's
+# G_MOVE_DELAY) -- keep the two equal.
+const G_MOVE_DELAY := 100
+
 # Map.
 const G_TILESIZE := 16
 

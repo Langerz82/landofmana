@@ -25,6 +25,7 @@
 // prototype.
 import EntityMoving from '../entitymoving/entitymoving.js';
 import Timer from '../../timer.js';
+import { G_MOVE_DELAY } from '../../constants.js';
 
 /* global Types, game, log, G_LATENCY, G_ROUNDTRIP, G_UPDATE_INTERVAL */
 
@@ -467,6 +468,10 @@ export function installLocalPlayerOverrides(player) {
 
         this.walk(orientation);
         if (this.key_move_callback) this.key_move_callback(1);
+        // The start packet has just gone out; hold the actual movement back by
+        // G_MOVE_DELAY so it begins about when the server receives that packet
+        // (updatermovement.js's updatePlayerKeyMovement() waits for this).
+        this.moveStartAt = Date.now() + G_MOVE_DELAY;
 
         this.movement.stop(); // ensure clean
         clearTimeout(this.attackInterval);

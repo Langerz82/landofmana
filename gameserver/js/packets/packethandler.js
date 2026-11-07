@@ -289,32 +289,53 @@ class PacketHandler {
             // connection with it -- over one bad packet from one client.
             // Containing it here means a single player can, at worst, break
             // their own connection.
-            try {
-                const handler = PACKET_HANDLERS.get(action);
-                if (handler) {
-                    handler(self, message);
-                } else if (self.message_callback) {
-                    // NOTE: kept exactly as in the original default case --
-                    // this checks `self.message_callback` but invokes
-                    // `self.player.message_callback`, two different properties.
-                    // Pre-existing quirk, not introduced by this refactor; left
-                    // as-is since fixing it would be a behavior change outside
-                    // the scope of converting the switch to a dispatch table.
-                    self.player.message_callback(message);
+            const run = function () {
+                try {
+                    const handler = PACKET_HANDLERS.get(action);
+                    if (handler) {
+                        handler(self, message);
+                    } else if (self.message_callback) {
+                        // NOTE: kept exactly as in the original default case --
+                        // this checks `self.message_callback` but invokes
+                        // `self.player.message_callback`, two different properties.
+                        // Pre-existing quirk, not introduced by this refactor; left
+                        // as-is since fixing it would be a behavior change outside
+                        // the scope of converting the switch to a dispatch table.
+                        self.player.message_callback(message);
+                    }
+                } catch (err) {
+                    console.error(
+                        'PacketHandler: error handling action=' +
+                            action +
+                            ' for player ' +
+                            (self.player && self.player.name) +
+                            ': ' +
+                            ((err && err.stack) || err)
+                    );
                 }
-            } catch (err) {
-                console.error(
-                    'PacketHandler: error handling action=' +
-                        action +
-                        ' for player ' +
-                        (self.player && self.player.name) +
-                        ': ' +
-                        ((err && err.stack) || err)
-                );
+            };
+
+            // Move packets are held until G_MOVE_DELAY after the client sent
+            // them (message[0] is the client's world-time stamp), so the
+            // server starts the move when the client does. Anything else that
+            // arrives while a move is still held queues behind it, keeping the
+            // player's packets in order. BI_SYNCTIME is never held: it
+            // measures the round trip that keeps those stamps comparable.
+            const mh = self.movementHandler;
+            if (
+                action === Types.Messages.CW_MOVE ||
+                action === Types.Messages.CW_MOVEPATH
+            ) {
+                mh.defer(message[0], run);
+            } else if (action !== Types.Messages.BI_SYNCTIME && mh.hasPending()) {
+                mh.defer(null, run);
+            } else {
+                run();
             }
         });
 
         this.connection.onClose(function () {
+            if (self.movementHandler) self.movementHandler.close();
             console.info(
                 'Player: ' + self.player.name + ' has exited the world.'
             );

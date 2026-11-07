@@ -286,6 +286,9 @@ func _update_character_key_movement(c) -> void:
 func _update_player_path_movement(c) -> void:
 	if c.is_dying or c.is_dead or c.freeze or c.is_stunned or c.key_move or not c.is_moving_path():
 		return
+	# Constant G_MOVE_DELAY wait after the path packet was sent (request_path_cb).
+	if Time.get_ticks_msec() < c.move_start_at:
+		return
 	if not c.movement.in_progress:
 		var o: int = c.orientation
 		c.update_movement()
@@ -297,6 +300,9 @@ func _update_player_path_movement(c) -> void:
 
 func _update_player_key_movement(c) -> void:
 	if c.is_dying or c.is_dead or c.freeze or c.is_stunned or c.is_moving_path():
+		return
+	# Constant G_MOVE_DELAY wait after the start packet was sent (Player.start_key_movement()).
+	if Time.get_ticks_msec() < c.move_start_at:
 		return
 	if not c.movement.in_progress and c.key_move and c.orientation > 0:
 		_start_transition(c, _player_key_x, _player_key_y, Callable())
@@ -843,6 +849,9 @@ func _add_local_player_callbacks() -> void:
 				hud.close_shop_windows()
 			p.set_orientation(Types.orientation_between(p.x, p.y, int(path[1][0]), int(path[1][1])))
 			client.send_move_path(p, path)
+			# Path packet sent; start walking it G_MOVE_DELAY later, about when
+			# the server receives it (see _update_player_path_movement()).
+			p.move_start_at = Time.get_ticks_msec() + Constants.G_MOVE_DELAY
 			return path
 		return null
 	p.death_cb = func():

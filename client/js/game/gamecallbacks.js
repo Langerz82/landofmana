@@ -24,6 +24,7 @@ import ClientCallbacks from '../clientcallback/clientcallbacks.js';
 import NpcMove from '../entity/npcmove.js';
 import NpcStatic from '../entity/npcstatic.js';
 import Node from '../entity/node.js';
+import { G_MOVE_DELAY } from '../constants.js';
 /* global lang, log, G_TILESIZE */
 
 export function installGameCallbacks(proto) {
@@ -445,6 +446,9 @@ export function installGameCallbacks(proto) {
                 ]);
                 p.setOrientation(orientation);
                 self.client.sendMovePath(p, path.length, path);
+                // Path packet sent; start walking it G_MOVE_DELAY later, about
+                // when the server receives it (see updatePlayerPathMovement()).
+                p.moveStartAt = Date.now() + G_MOVE_DELAY;
             }
             return path;
         });

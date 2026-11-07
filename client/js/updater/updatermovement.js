@@ -243,6 +243,11 @@ export function installUpdaterMovement(self) {
             return;
         }
 
+        // Constant G_MOVE_DELAY wait after the path packet was sent (set in
+        // gamecallbacks.js's onRequestPath handler), so the walk starts about
+        // when the server starts it.
+        if (Date.now() < (c.moveStartAt || 0)) return;
+
         const self = this;
         const delay = c.moveDelay;
         const o = c.orientation;
@@ -276,6 +281,11 @@ export function installUpdaterMovement(self) {
         ) {
             return;
         }
+
+        // Constant G_MOVE_DELAY wait after the start packet was sent (set in
+        // playerlocalmovement.js's startKeyMovement()), so the walk starts
+        // about when the server starts it.
+        if (Date.now() < (c.moveStartAt || 0)) return;
 
         const self = this;
         const delay = c.moveDelay;

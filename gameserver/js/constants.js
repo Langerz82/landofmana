@@ -145,6 +145,14 @@ export function setG_DEBUG(value) {
 // config.json's `"max_latency"` by main.js (same live-binding pattern as
 // G_DEBUG above); 100 is the fallback when the key is absent or invalid.
 export const G_MAX_LATENCY_DEFAULT = 100;
+
+// Constant movement delay (ms), matching the client's G_MOVE_DELAY
+// (client/js/constants.js): the client sends a move packet straight away and
+// starts walking G_MOVE_DELAY later. A move packet that reaches the server
+// sooner than that (by its client world-time stamp) is held until the same
+// point, at most G_MOVE_DELAY, so both sides start the move together
+// (packets/movementhandler.js's defer()).
+export const G_MOVE_DELAY = 100;
 export let G_MAX_LATENCY = G_MAX_LATENCY_DEFAULT;
 
 export function setG_MAX_LATENCY(value) {
