@@ -225,6 +225,14 @@ func _slot_ctrl(t: int, i: int) -> ItemSlot:
 	return inv_slots[i] if i < inv_slots.size() else null
 
 
+## Gamepad B (gamepadbuttonscancel.js): deselect the item before closing.
+func pad_cancel() -> bool:
+	if sel_slot >= 0:
+		_deselect()
+		return true
+	return false
+
+
 func _deselect() -> void:
 	var s := _slot_ctrl(sel_type, sel_slot)
 	if s:

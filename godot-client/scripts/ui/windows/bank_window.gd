@@ -147,6 +147,14 @@ func refresh() -> void:
 	_gold.text = "Bank: %s   Carried: %s" % [ItemTypes.short_number(int(data.gold[1])), ItemTypes.short_number(int(data.gold[0]))]
 
 
+## Gamepad B (gamepadbuttonscancel.js): deselect the item before closing.
+func pad_cancel() -> bool:
+	if selected >= 0:
+		_select(-1)
+		return true
+	return false
+
+
 func _select(i: int) -> void:
 	if selected >= 0:
 		slots[selected].set_selected(false)

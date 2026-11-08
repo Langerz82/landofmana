@@ -1,0 +1,684 @@
+# This file is part of Land of Mana (https://github.com/Langerz82/landofmana).
+# SPDX-License-Identifier: GPL-3.0-only
+# Copyright (C) 2023-2026 Joshua Langley and contributors
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, version 3 of the License.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. See the LICENSE file in the project root,
+# or <https://www.gnu.org/licenses/>.
+
+class_name Gamepad
+extends CanvasLayer
+## Gamepad support (client/js/gamepad/*.js), created by the HUD once the game
+## UI is built.
+##
+##   Left stick / D-pad   walk; in a window, menu or modal: move the selection
+##                        (held: repeats every NAV_REPEAT_MS, like the JS
+##                        client's 200 ms navigation interval)
+##   Right stick          move the cursor
+##   A                    interact / attack next to the player; in a window
+##                        or modal: press the selected button / slot
+##   B                    target the closest enemy; with something open:
+##                        close the top window (inventory / bank: deselect the
+##                        item first), cancel a modal, close chat, leave the
+##                        menu bar; died / error panel: its button
+##   X                    cursor mode on / off: the left stick moves the cursor
+##                        instead of the player (gamepad.js navMouse); on a
+##                        selected item slot: its secondary action (item_slot.gd)
+##   Y                    mouse click at the cursor (GUI first, then the world)
+##   Select (Back)        select the menu bar / shortcut bar (gamepad.js
+##                        mainButtonsActive); Select or B again to leave
+##   Start                settings
+##   L1 + A / B / X / Y   shortcuts 1-4,  R1 + A / B  shortcuts 5-6
+##   L1 / R1              in the store / craft / auction / looks windows:
+##                        previous / next tab
+##
+## Dropdowns (OptionButton): A opens it; while its list is open the stick /
+## D-pad moves through the items, A picks the highlighted item and B closes
+## the list without changing anything.
+## Number text fields (SpinBox): A starts editing (green frame), then up /
+## down increase / decrease the value by its step; B stops editing. Not
+## editing, the stick / D-pad just moves between fields.
+## Sliders: left / right decrease / increase the value (ui_left / ui_right).
+##
+## Joypad events are taken here in _input (before the GUI) while in game, and
+## the sticks and D-pad are polled in _process, so the GUI never navigates on
+## its own from stick noise. A blue frame (gamepad.js setSelectedItem) marks
+## the focused control while the gamepad is in use.
+
+const DEADZONE := 0.25         # gamepad.js ignorezone
+const NAV_REPEAT_MS := 200     # gamepad.js resetNavInterval(200)
+const CURSOR_SPEED := 600.0    # screen px / s at full stick deflection
+const HIGHLIGHT := Color(0, 0, 1)
+const HIGHLIGHT_EDIT := Color(0, 0.8, 0)   # a SpinBox being changed with up / down
+const HIGHLIGHT_WIDTH := 3.0
+## Face button -> shortcut slot with L1 held; R1 adds 4 (only A / B fit).
+const FACE := {JOY_BUTTON_A: 0, JOY_BUTTON_B: 1, JOY_BUTTON_X: 2, JOY_BUTTON_Y: 3}
+const DPAD := [JOY_BUTTON_DPAD_UP, JOY_BUTTON_DPAD_DOWN, JOY_BUTTON_DPAD_LEFT, JOY_BUTTON_DPAD_RIGHT]
+const UI_ACTIONS := {
+	Types.Orientation.UP: "ui_up", Types.Orientation.DOWN: "ui_down",
+	Types.Orientation.LEFT: "ui_left", Types.Orientation.RIGHT: "ui_right",
+}
+const SHOP_WINDOWS := ["store", "craft", "auction", "looks"]
+
+var hud = null
+var world = null
+## Cursor mode (gamepad.js navMouse): the left stick moves the cursor (Y clicks).
+var nav_mouse := false
+## Menu bar / shortcut bar selected (gamepad.js mainButtonsActive).
+var bar_mode := false
+
+var _move_dir := 0     # direction the gamepad is walking the player (0 = none)
+var _nav_dir := 0      # held UI navigation direction
+var _nav_next := 0     # ms tick of the next repeat
+var _used := false     # gamepad is the last input used: show the focus frame
+var _eaten := {}       # button_index -> its press was handled here, so eat the release too
+var _held := {}        # button_index -> ui_* action it pressed (released with the button)
+var _synth := false    # pushing our own mouse events
+var _cursor := Vector2(-1, -1)
+var _cursor_shown := false
+## Desktop: move the real mouse. Web / mobile can't warp it, so a cursor is
+## drawn here and mouse-motion events are sent instead.
+var _warp := OS.has_feature("pc") and not OS.has_feature("web")
+var _overlay: Control
+var _spin_edit: SpinBox = null   # SpinBox in edit mode (A on it; B ends it)
+var _prev_a := false   # A / B held last frame (dropdown lists are polled)
+var _prev_b := false
+## Joypad events taken out of the ui_* actions while in game (restored on exit).
+var _stripped: Dictionary = {}
+
+
+func _ready() -> void:
+	layer = 100
+	_overlay = Control.new()
+	_overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_overlay.draw.connect(_draw_overlay)
+	add_child(_overlay)
+	Input.joy_connection_changed.connect(func(_d, _c): _stop_move())
+	_strip_ui_joypad()
+
+
+func _exit_tree() -> void:
+	for action in _stripped:
+		for ev in _stripped[action]:
+			InputMap.action_add_event(action, ev)
+	_stripped.clear()
+
+
+## In game every gamepad UI move goes through here (_navigate pushes ui_*
+## actions; A / B push ui_accept / ui_cancel). Godot's own joypad entries in
+## the ui_* actions would act a second time -- an open dropdown list gets the
+## raw D-pad / stick before any script can stop it (double steps, stick noise
+## scrolling it) -- so they are taken out while this node exists.
+func _strip_ui_joypad() -> void:
+	for action in InputMap.get_actions():
+		if not str(action).begins_with("ui_"):
+			continue
+		var removed: Array = []
+		for ev in InputMap.action_get_events(action):
+			if ev is InputEventJoypadButton or ev is InputEventJoypadMotion:
+				removed.append(ev)
+				InputMap.action_erase_event(action, ev)
+		if not removed.is_empty():
+			_stripped[action] = removed
+
+
+func is_active() -> bool:
+	return not Input.get_connected_joypads().is_empty()
+
+
+func _game_ready() -> bool:
+	return world != null and world.player != null and world.started and world.map_status >= 2 \
+		and hud != null and hud.modals != null
+
+
+# ---------------------------------------------------------------- input
+
+func _input(e: InputEvent) -> void:
+	if not (e is InputEventJoypadButton or e is InputEventJoypadMotion):
+		# Mouse / keyboard / touch again: hide the focus frame.
+		if _used and not _synth and (e is InputEventMouseButton or e is InputEventKey or e is InputEventScreenTouch):
+			_used = false
+			_cursor_shown = false
+			_overlay.queue_redraw()
+		return
+	if not _game_ready():
+		return   # login screen etc.: Godot's own ui_* joypad navigation
+	_used = true
+	var vp := get_viewport()
+	if e is InputEventJoypadMotion:
+		vp.set_input_as_handled()   # sticks are polled in _process
+		return
+	var b: int = e.button_index
+	if b == JOY_BUTTON_A:
+		_prev_a = e.pressed   # seen here: not a new press for _poll_dropdown
+	elif b == JOY_BUTTON_B:
+		_prev_b = e.pressed
+	if b in DPAD:
+		vp.set_input_as_handled()   # polled in _process too
+		return
+	if not e.pressed:
+		if _eaten.get(b, false):
+			_eaten[b] = false
+			vp.set_input_as_handled()
+			if _held.has(b):
+				_action(_held[b], false)
+				_held.erase(b)
+		return
+	if _press(b, e.device):
+		_eaten[b] = true
+		vp.set_input_as_handled()
+
+
+## Godot's default ui_accept / ui_cancel have no gamepad buttons, so A / B
+## send the actions themselves: pressed now, released with the button.
+func _hold(b: int, action: String) -> void:
+	_held[b] = action
+	_action(action, true)
+
+
+func _action(action: String, pressed: bool) -> void:
+	var a := InputEventAction.new()
+	a.action = action
+	a.pressed = pressed
+	get_viewport().push_input(a)
+
+
+## A button went down. True = handled here (the GUI doesn't see it).
+func _press(b: int, device: int) -> bool:
+	_check_spin_edit()
+	var shoulder := Input.is_joy_button_pressed(device, JOY_BUTTON_LEFT_SHOULDER) \
+		or Input.is_joy_button_pressed(device, JOY_BUTTON_RIGHT_SHOULDER)
+	if shoulder:
+		pass   # L1 / R1 + face button: shortcuts (below)
+	elif _spin_edit:
+		if b == JOY_BUTTON_B:
+			_spin_edit = null   # stop editing
+			_overlay.queue_redraw()
+			return true
+		if b == JOY_BUTTON_A:
+			return true
+	elif b == JOY_BUTTON_A and _focus() != null and _spin_box(_focus()) != null:
+		_spin_edit = _spin_box(_focus())   # start editing: up / down change it
+		_overlay.queue_redraw()
+		return true
+	if b == JOY_BUTTON_LEFT_SHOULDER or b == JOY_BUTTON_RIGHT_SHOULDER:
+		var w = _shop_window()
+		if w:
+			w.pad_page(-1 if b == JOY_BUTTON_LEFT_SHOULDER else 1)
+		return true
+	var l1 := Input.is_joy_button_pressed(device, JOY_BUTTON_LEFT_SHOULDER)
+	var r1 := Input.is_joy_button_pressed(device, JOY_BUTTON_RIGHT_SHOULDER)
+	if (l1 or r1) and FACE.has(b):
+		if _shop_window() == null:
+			var slot: int = FACE[b] + (0 if l1 else 4)
+			if slot < PlayerData.SHORTCUT_COUNT and hud.shortcut_bar:
+				hud.shortcut_bar.press(slot)   # assigns a selected skill / item, else runs it
+		return true
+	match b:
+		JOY_BUTTON_A:
+			if not _accept():
+				_hold(b, "ui_accept")   # press the focused button / slot
+			return true
+		JOY_BUTTON_B:
+			if not _cancel():
+				_hold(b, "ui_cancel")   # Modals closes on ui_cancel
+			return true
+		JOY_BUTTON_X:
+			return _secondary()
+		JOY_BUTTON_Y:
+			_click()
+			return true
+		JOY_BUTTON_BACK:
+			if bar_mode:
+				exit_bar()
+			else:
+				enter_bar()
+			return true
+		JOY_BUTTON_START:
+			hud.toggle_window("settings")
+			return true
+	return false
+
+
+func _accept() -> bool:
+	var pb: Button = hud.pad_panel_button()
+	if pb:
+		pb.pressed.emit()
+		return true
+	var f := _focus()
+	if f is OptionButton:
+		f.show_popup()   # its list then takes A = pick, B = close (_poll_dropdown)
+		return true
+	if hud.modals.is_open() or f != null:
+		return false   # -> ui_accept: its focused button / slot
+	if _ui_context():
+		_focus_default()
+		return true
+	world.make_player_interact_next_to()
+	return true
+
+
+func _cancel() -> bool:
+	var pb: Button = hud.pad_panel_button()
+	if pb:
+		pb.pressed.emit()
+		return true
+	if hud.modals.is_open():
+		return false   # -> ui_cancel
+	if hud.is_chat_open():
+		hud.open_chat(false)
+		return true
+	if bar_mode:
+		exit_bar()
+		return true
+	var w = _top_window()
+	if w:
+		if not w.pad_cancel():
+			w.close()
+			_focus_default.call_deferred()   # the next window down, if any
+		return true
+	var f := _focus()
+	if f:
+		f.release_focus()   # something outside a window had the focus: drop it
+		return true
+	world.player_target_closest_entity(1)
+	return true
+
+
+func _secondary() -> bool:
+	if _focus() is ItemSlot and not nav_mouse:
+		return false   # item_slot.gd: X = secondary action
+	set_nav_mouse(not nav_mouse)
+	return true
+
+
+# -------------------------------------------------------------- polling
+
+func _process(delta: float) -> void:
+	var pads := Input.get_connected_joypads()
+	if pads.is_empty() or not _game_ready():
+		_stop_move()
+		_nav_dir = 0
+		return
+	_poll_dropdown(pads)
+	var dpad := _dpad(pads)
+	var left := dpad if dpad != Vector2.ZERO else _stick(pads, JOY_AXIS_LEFT_X, JOY_AXIS_LEFT_Y)
+	var right := _stick(pads, JOY_AXIS_RIGHT_X, JOY_AXIS_RIGHT_Y)
+	var cur := right + (left if nav_mouse else Vector2.ZERO)
+	if cur != Vector2.ZERO:
+		_used = true
+		_move_cursor(cur.limit_length(1.0) * CURSOR_SPEED * delta)
+	var dir := 0 if nav_mouse else _to_dir(left)
+	if bar_mode:
+		_check_bar()
+	if _ui_context():
+		_stop_move()
+		_navigate(dir)
+	else:
+		_nav_dir = 0
+		_set_move(dir)
+	if _used or _cursor_shown:
+		_overlay.queue_redraw()
+
+
+func _stick(pads: Array, ax: int, ay: int) -> Vector2:
+	var v := Vector2.ZERO
+	for d in pads:
+		var s := Vector2(Input.get_joy_axis(d, ax), Input.get_joy_axis(d, ay))
+		if s.length() > v.length():
+			v = s
+	return v if v.length() > DEADZONE else Vector2.ZERO
+
+
+func _dpad(pads: Array) -> Vector2:
+	var v := Vector2.ZERO
+	for d in pads:
+		if Input.is_joy_button_pressed(d, JOY_BUTTON_DPAD_LEFT):
+			v.x = -1
+		elif Input.is_joy_button_pressed(d, JOY_BUTTON_DPAD_RIGHT):
+			v.x = 1
+		if Input.is_joy_button_pressed(d, JOY_BUTTON_DPAD_UP):
+			v.y = -1
+		elif Input.is_joy_button_pressed(d, JOY_BUTTON_DPAD_DOWN):
+			v.y = 1
+	return v
+
+
+static func _to_dir(v: Vector2) -> int:
+	if v == Vector2.ZERO:
+		return 0
+	if absf(v.x) > absf(v.y):
+		return Types.Orientation.RIGHT if v.x > 0 else Types.Orientation.LEFT
+	return Types.Orientation.DOWN if v.y > 0 else Types.Orientation.UP
+
+
+## A window, modal, panel or the menu bar wants the stick (gamepad.js isDialogOpen).
+func _ui_context() -> bool:
+	if _open_dropdown() != null:
+		return true
+	if bar_mode or hud.modals.is_open() or hud.any_window_open() or hud.is_chat_open():
+		return true
+	if hud.pad_panel_button() != null:
+		return true
+	return _focus() != null
+
+
+func _focus() -> Control:
+	var f := get_viewport().gui_get_focus_owner()
+	return f if f != null and f.is_visible_in_tree() else null
+
+
+# ------------------------------------------------------------- movement
+
+func _set_move(dir: int) -> void:
+	if dir == _move_dir:
+		return
+	var p = world.player if world else null
+	if p and _move_dir != 0:
+		p.key_input(_move_dir, false)
+	_move_dir = dir
+	if p and dir != 0:
+		p.key_input(dir, true)
+
+
+func _stop_move() -> void:
+	if _move_dir == 0:
+		return
+	if world and world.player:
+		world.player.key_input(_move_dir, false)
+	_move_dir = 0
+
+
+# ----------------------------------------------------------- navigation
+
+func _navigate(dir: int) -> void:
+	if dir == 0:
+		_nav_dir = 0
+		return
+	var now := Time.get_ticks_msec()
+	if dir != _nav_dir:
+		_nav_dir = dir
+	elif now < _nav_next:
+		return
+	_nav_next = now + NAV_REPEAT_MS
+	if _open_dropdown() != null:
+		_action(UI_ACTIONS[dir], true)   # forwarded to the open list
+		_action(UI_ACTIONS[dir], false)
+		return
+	var f := _focus()
+	if f == null:
+		_focus_default()
+		return
+	var spin := _spin_box(f)
+	if spin:
+		_check_spin_edit()
+		if _spin_edit == spin:
+			if dir == Types.Orientation.UP or dir == Types.Orientation.DOWN:
+				_step_spin(spin, 1 if dir == Types.Orientation.UP else -1)
+			return
+		# Not editing: move to the next field (the SpinBox would change its
+		# value on ui_up / ui_down and its LineEdit move the caret on
+		# ui_left / ui_right).
+		var sides := {Types.Orientation.UP: SIDE_TOP, Types.Orientation.DOWN: SIDE_BOTTOM,
+			Types.Orientation.LEFT: SIDE_LEFT, Types.Orientation.RIGHT: SIDE_RIGHT}
+		var n := f.find_valid_focus_neighbor(sides[dir])
+		if n:
+			n.grab_focus()
+		return
+	# ui_* actions: focus neighbours, sliders (left / right change the value),
+	# scroll follow...
+	_action(UI_ACTIONS[dir], true)
+	_action(UI_ACTIONS[dir], false)
+
+
+# ------------------------------------------------------- value fields
+
+## Edit mode ends when the SpinBox loses the focus.
+func _check_spin_edit() -> void:
+	if _spin_edit == null:
+		return
+	var f := _focus()
+	if not is_instance_valid(_spin_edit) or f == null or _spin_box(f) != _spin_edit:
+		_spin_edit = null
+		_overlay.queue_redraw()
+
+
+func _spin_box(f: Control) -> SpinBox:
+	if f is SpinBox:
+		return f
+	if f is LineEdit and f.get_parent() is SpinBox:
+		return f.get_parent()
+	return null
+
+
+func _step_spin(spin: SpinBox, dir_sign: int) -> void:
+	var step := spin.step if spin.step > 0 else 1.0
+	spin.value = spin.value + step * dir_sign   # clamped to min / max by the Range
+	# Make sure the text being edited shows the new value (an older SpinBox
+	# didn't refresh a focused LineEdit -- modals.gd -- and apply() would
+	# parse the old text back). While editing it shows just the number, no
+	# prefix / suffix.
+	var t := String.num(spin.value, _decimals(step))
+	spin.get_line_edit().text = t
+	spin.get_line_edit().caret_column = t.length()
+
+
+static func _decimals(step: float) -> int:
+	var d := 0
+	var s := step
+	while d < 6 and absf(s - roundf(s)) > 0.000001:
+		s *= 10.0
+		d += 1
+	return d
+
+
+# ------------------------------------------------------------ dropdowns
+
+## The open list of a dropdown (OptionButton), if any.
+func _open_dropdown() -> PopupMenu:
+	for w in get_viewport().get_embedded_subwindows():
+		if w is PopupMenu and w.visible and w.get_parent() is OptionButton:
+			return w
+	return null
+
+
+## An open list gets the gamepad events itself (not _input), so A / B are
+## polled: A picks the highlighted item, B closes the list unchanged.
+func _poll_dropdown(pads: Array) -> void:
+	var a := false
+	var b := false
+	for d in pads:
+		a = a or Input.is_joy_button_pressed(d, JOY_BUTTON_A)
+		b = b or Input.is_joy_button_pressed(d, JOY_BUTTON_B)
+	var pop := _open_dropdown()
+	if pop:
+		_used = true
+		if a and not _prev_a:
+			_dropdown_pick(pop)
+		elif b and not _prev_b:
+			_dropdown_close(pop)
+	_prev_a = a
+	_prev_b = b
+
+
+func _dropdown_pick(pop: PopupMenu) -> void:
+	var ob: OptionButton = pop.get_parent()
+	var i := pop.get_focused_item()
+	if i >= 0 and i < ob.item_count and not ob.is_item_disabled(i) and not ob.is_item_separator(i) \
+			and i != ob.selected:
+		ob.select(i)
+		ob.item_selected.emit(i)
+	_dropdown_close(pop)
+
+
+func _dropdown_close(pop: PopupMenu) -> void:
+	var ob: OptionButton = pop.get_parent()
+	pop.hide()
+	ob.grab_focus.call_deferred()
+
+
+## Focus something sensible: the menu bar in bar mode, else the top window's
+## first button / slot (gamepad.js dialogOpen / selectFirstItem).
+func _focus_default() -> void:
+	if not _game_ready() or hud.modals.is_open():
+		return
+	if bar_mode:
+		var bc: Array = _bar_controls()
+		for c in bc:
+			if c.is_visible_in_tree():
+				c.grab_focus()
+				return
+		return
+	var pb: Button = hud.pad_panel_button()
+	if pb:
+		pb.grab_focus()
+		return
+	var w = _top_window()
+	if w:
+		w.focus_first()
+
+
+## Topmost open window: the one holding focus, else the frontmost.
+func _top_window() -> GameWindow:
+	var f := _focus()
+	for w in hud.windows.values():
+		if w.visible and f != null and w.is_ancestor_of(f):
+			return w
+	if hud.windows.is_empty():
+		return null
+	var layer: Node = hud.windows.values()[0].get_parent()
+	for i in range(layer.get_child_count() - 1, -1, -1):
+		var c := layer.get_child(i)
+		if c is GameWindow and c.visible:
+			return c
+	return null
+
+
+func _shop_window() -> ShopWindowBase:
+	for n in SHOP_WINDOWS:
+		var w = hud.window(n)
+		if w is ShopWindowBase and w.visible:
+			return w
+	return null
+
+
+# -------------------------------------------------------------- bar mode
+
+func _bar_controls() -> Array:
+	return hud.pad_bar_controls()
+
+
+func enter_bar() -> void:
+	bar_mode = true
+	set_nav_mouse(false)
+	for c in _bar_controls():
+		c.focus_mode = Control.FOCUS_ALL
+	_focus_default()
+
+
+func exit_bar() -> void:
+	bar_mode = false
+	for c in _bar_controls():
+		c.focus_mode = Control.FOCUS_NONE   # also drops the focus if it's there
+
+
+## Leave bar mode once something else takes the focus (a window opened from
+## the menu, the chat line...).
+func _check_bar() -> void:
+	var f := _focus()
+	if f != null and not (f in _bar_controls()):
+		exit_bar()
+
+
+# ---------------------------------------------------------------- cursor
+
+func set_nav_mouse(on: bool) -> void:
+	if on == nav_mouse:
+		return
+	nav_mouse = on
+	if on:
+		_stop_move()
+		if bar_mode:
+			exit_bar()
+		_init_cursor()
+		_cursor_shown = not _warp
+	hud.add_notification("Gamepad cursor %s (X)" % ("on" if on else "off"))
+	_overlay.queue_redraw()
+
+
+func _init_cursor() -> void:
+	var vs := get_viewport().get_visible_rect().size
+	if _warp:
+		_cursor = get_viewport().get_mouse_position()
+	elif _cursor.x < 0:
+		_cursor = vs / 2.0
+	_cursor = _cursor.clamp(Vector2.ZERO, vs - Vector2.ONE)
+
+
+func _move_cursor(d: Vector2) -> void:
+	var vs := get_viewport().get_visible_rect().size
+	if _warp:
+		_cursor = get_viewport().get_mouse_position()
+	elif _cursor.x < 0:
+		_init_cursor()
+	_cursor = (_cursor + d).clamp(Vector2.ZERO, vs - Vector2.ONE)
+	if _warp:
+		get_viewport().warp_mouse(_cursor)
+		return
+	_cursor_shown = true
+	var m := InputEventMouseMotion.new()
+	m.position = _cursor
+	m.global_position = _cursor
+	m.relative = d
+	_push(m)
+
+
+## Left click at the cursor (gamepad.js game.click()): GUI first, then the world.
+func _click() -> void:
+	if _warp:
+		_cursor = get_viewport().get_mouse_position()
+	elif _cursor.x < 0:
+		_init_cursor()
+	for pressed in [true, false]:
+		var m := InputEventMouseButton.new()
+		m.button_index = MOUSE_BUTTON_LEFT
+		m.pressed = pressed
+		m.button_mask = MOUSE_BUTTON_MASK_LEFT if pressed else 0
+		m.position = _cursor
+		m.global_position = _cursor
+		_push(m)
+
+
+func _push(e: InputEvent) -> void:
+	_synth = true
+	get_viewport().push_input(e)
+	_synth = false
+
+
+# --------------------------------------------------------------- drawing
+
+func _draw_overlay() -> void:
+	if _used:
+		var f := _focus()
+		if f:
+			var xf := f.get_global_transform_with_canvas()
+			var r := Rect2(xf.origin, f.size * xf.get_scale()).grow(2)
+			var editing := _spin_edit != null and _spin_box(f) == _spin_edit
+			_overlay.draw_rect(r, HIGHLIGHT_EDIT if editing else HIGHLIGHT, false, HIGHLIGHT_WIDTH)
+	if _cursor_shown and not _warp and _cursor.x >= 0:
+		var p := _cursor
+		var arrow := PackedVector2Array([p, p + Vector2(0, 18), p + Vector2(5, 13), p + Vector2(9, 21),
+			p + Vector2(12, 20), p + Vector2(8, 12), p + Vector2(14, 12)])
+		_overlay.draw_colored_polygon(arrow, Color.WHITE)
+		arrow.append(p)
+		_overlay.draw_polyline(arrow, Color.BLACK, 1.5)

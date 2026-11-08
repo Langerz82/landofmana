@@ -82,9 +82,19 @@ Windows: click an item once to select it, again to use it (or double click);
 drag it onto another slot to move it, onto the shortcut bar to install it, or
 outside the windows to drop it. Right click uses an item.
 
-Gamepad: d-pad / left stick walk, A interact, X next target, Y inventory,
-Start settings, Back stats, L1 + A/B/X for shortcuts 1–3, R1 + A/B/X for 4–6,
-and the d-pad moves between buttons while a window is open.
+Gamepad (`scripts/ui/gamepad.gd`, based on the JS client's): d-pad / left
+stick walk, right stick moves the cursor, A interact / attack next to the
+player (or press the selected button), B target the closest enemy (or, with
+something open: close the top window, deselect the selected item, cancel a
+popup, close chat), X cursor mode on / off (left stick moves the cursor), Y
+mouse click at the cursor, Back selects the menu bar and shortcut bar, Start
+settings, L1 + A/B/X/Y for shortcuts 1–4, R1 + A/B for 5–6, and L1 / R1 switch
+tabs in the store, craft, auction and looks windows. While a window, modal or
+the menu bar is open the stick / d-pad moves the selection (held: repeats every
+200 ms), shown with a blue frame. Dropdowns: A opens the list, A picks the
+highlighted item, B closes it unchanged. Number text fields: A starts editing
+(green frame), up / down then increase / decrease the value, B stops editing.
+Sliders: left / right decrease / increase.
 
 ## Server address
 

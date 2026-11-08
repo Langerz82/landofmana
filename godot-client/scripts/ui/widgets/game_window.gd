@@ -228,6 +228,16 @@ func toggle() -> void:
 		open()
 
 
+## Gamepad: focus the first button / slot.
+func focus_first() -> void:
+	_focus_first()
+
+
+## Gamepad B: undo a selection instead of closing. True = handled.
+func pad_cancel() -> bool:
+	return false
+
+
 func _focus_first() -> void:
 	# Gamepad navigation (gamepad.js selectFirstItem): focus the first button.
 	var f := _find_focusable(content)

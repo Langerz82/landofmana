@@ -73,7 +73,6 @@ var data := PlayerData.new()     # inventory, bank, quests, skills... (PlayerDat
 var actions: ItemActions         # item / shortcut / skill actions
 var game_scale := BASE_SCALE     # 3x zoom, divided by the "zoom" setting
 var _hover = null
-var _pad_dir := 0
 var _joy_dir := 0
 var auto_potion := 0             # /autopotion <percent>
 var _acc := 0.0
@@ -1021,13 +1020,16 @@ func make_player_interact_next_to() -> void:
 		return
 	if _try_show_dialogue():
 		return
+	# An entity the player already targeted (clicked, target key, gamepad B)
+	# wins: interact with it -- walking to it when it's out of reach --
+	# instead of retargeting the faced / adjacent / closest entity below.
+	if _try_interact_existing_target():
+		return
 	if _try_interact_faced_entity():
 		return
 	if _try_interact_adjacent_entity():
 		return
 	if _try_interact_harvest_tiles():
-		return
-	if _try_interact_existing_target():
 		return
 	_try_interact_closest_entity()
 
@@ -1074,6 +1076,11 @@ func _try_interact_adjacent_entity() -> bool:
 	return _process_target()
 
 
+## Interact with the current target, near or far (out of reach,
+## process_input -> player_interact walks to it / attacks from range). A
+## target that left the screen or died is dropped and false returned, so
+## make_player_interact_next_to falls back to the faced / adjacent / closest
+## entity.
 func _try_interact_existing_target() -> bool:
 	var p := player
 	if not p.has_target():
@@ -1081,11 +1088,9 @@ func _try_interact_existing_target() -> bool:
 	if not is_visible_entity(p.target):
 		p.clear_target()
 		return false
-	if p.can_reach_target():
-		if not p.is_moving():
-			p.look_at_entity(p.target)
-		return _process_target()
-	return false
+	if p.can_reach_target() and not p.is_moving():
+		p.look_at_entity(p.target)
+	return _process_target()
 
 
 func _try_interact_closest_entity() -> bool:
@@ -2092,10 +2097,6 @@ func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventMouseMotion:
 		_update_hover(event.position)
 		return
-	if event is InputEventJoypadButton or event is InputEventJoypadMotion:
-		if _gamepad_input(event):
-			get_viewport().set_input_as_handled()
-		return
 	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_RIGHT:
 		var rp := screen_to_world(event.position)
 		var e = get_entity_at(int(rp.x), int(rp.y))
@@ -2413,59 +2414,3 @@ func _update_hover(screen_pos: Vector2) -> void:
 	Cursors.set_shape(shape)
 	if hud and not player.has_target():
 		hud.set_target(e)
-
-
-## Gamepad (gamepad/*.js): D-pad / left stick move, A interact,
-## X target, B cancel, Y menu, L1/R1 + face buttons = shortcuts 1-6.
-func _gamepad_input(event: InputEvent) -> bool:
-	if event is InputEventJoypadMotion:
-		if event.axis != JOY_AXIS_LEFT_X and event.axis != JOY_AXIS_LEFT_Y:
-			return false
-		var v := Vector2(Input.get_joy_axis(event.device, JOY_AXIS_LEFT_X), Input.get_joy_axis(event.device, JOY_AXIS_LEFT_Y))
-		var o := 0
-		if v.length() > 0.5:
-			if absf(v.x) > absf(v.y):
-				o = Types.Orientation.RIGHT if v.x > 0 else Types.Orientation.LEFT
-			else:
-				o = Types.Orientation.DOWN if v.y > 0 else Types.Orientation.UP
-		if o != _pad_dir:
-			if _pad_dir != 0:
-				player.key_input(_pad_dir, false)
-			_pad_dir = o
-			if o != 0:
-				player.key_input(o, true)
-		return true
-	if not (event is InputEventJoypadButton):
-		return false
-	var dpad := {JOY_BUTTON_DPAD_UP: Types.Orientation.UP, JOY_BUTTON_DPAD_DOWN: Types.Orientation.DOWN,
-		JOY_BUTTON_DPAD_LEFT: Types.Orientation.LEFT, JOY_BUTTON_DPAD_RIGHT: Types.Orientation.RIGHT}
-	if dpad.has(event.button_index):
-		player.key_input(dpad[event.button_index], event.pressed)
-		return true
-	if not event.pressed:
-		return false
-	var l1 := Input.is_joy_button_pressed(event.device, JOY_BUTTON_LEFT_SHOULDER)
-	var r1 := Input.is_joy_button_pressed(event.device, JOY_BUTTON_RIGHT_SHOULDER)
-	var face := {JOY_BUTTON_A: 0, JOY_BUTTON_B: 1, JOY_BUTTON_X: 2, JOY_BUTTON_Y: 3}
-	if (l1 or r1) and face.has(event.button_index):
-		var slot: int = face[event.button_index] + (0 if l1 else 3)
-		if slot < PlayerData.SHORTCUT_COUNT:
-			actions.exec_shortcut(slot)
-		return true
-	match event.button_index:
-		JOY_BUTTON_A:
-			make_player_interact_next_to()
-		JOY_BUTTON_X:
-			player_target_closest_entity(1)
-		JOY_BUTTON_Y:
-			if hud:
-				hud.toggle_window("inventory")
-		JOY_BUTTON_START:
-			if hud:
-				hud.toggle_window("settings")
-		JOY_BUTTON_BACK:
-			if hud:
-				hud.toggle_window("stats")
-		_:
-			return false
-	return true

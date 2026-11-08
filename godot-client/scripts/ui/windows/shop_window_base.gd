@@ -90,6 +90,14 @@ func _on_tab(i: int) -> void:
 	_rebuild()
 
 
+## Gamepad L1 / R1 (gamepadbuttonsdpad.js switchShopDialogPage): previous /
+## next tab.
+func pad_page(step: int) -> void:
+	if _tab_buttons.is_empty():
+		return
+	_on_tab(posmod(tab + step, _tab_buttons.size()))
+
+
 ## Override: called when the tab changes (e.g. to request data).
 func tab_changed(_i: int) -> void:
 	pass

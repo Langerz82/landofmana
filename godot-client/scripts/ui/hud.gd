@@ -69,6 +69,7 @@ var windows: Dictionary = {}     # name -> GameWindow
 var modals: Modals
 var shortcut_bar: ShortcutBar
 var joystick: TouchJoystick
+var gamepad: Gamepad
 var _menu: BoxContainer
 var _menu_panel: PanelContainer
 var _menu_toggle: Button   # before the menu icons (left of a row / above a column): hides / shows them
@@ -835,6 +836,33 @@ func _build_game_ui(root: Control) -> void:
 	data.achievement_completed.connect(func(a): alarm("Achievement Completed\n" + str(a.summary), 0, "achievement"))
 	data.party_invite.connect(_on_party_invite)
 	data.gold_changed.connect(func(): update_bars(world.player))
+	gamepad = Gamepad.new()
+	gamepad.hud = self
+	gamepad.world = world
+	add_child(gamepad)
+
+
+## Gamepad: the button of the died / error panel when one is up (A / B press it).
+func pad_panel_button() -> Button:
+	for p in [_died_panel, _error_panel]:
+		if p and p.visible:
+			var bs: Array = p.find_children("*", "Button", true, false)
+			if not bs.is_empty():
+				return bs[0]
+	return null
+
+
+## Gamepad Select (gamepad.js mainButtons + menuButtons + playerShortcut):
+## the menu toggle, the menu icons and the shortcut bar slots.
+func pad_bar_controls() -> Array:
+	var out: Array = []
+	if _menu_toggle:
+		out.append(_menu_toggle)
+	if _menu:
+		out.append_array(_menu.get_children())
+	if shortcut_bar and shortcut_bar.visible:
+		out.append_array(shortcut_bar.pad_controls())
+	return out
 
 
 func _add_window(layer: Control, wname: String, w: GameWindow) -> void:
@@ -1511,5 +1539,5 @@ func _unhandled_key_input(e: InputEvent) -> void:
 			get_viewport().set_input_as_handled()
 			return
 	if e.keycode >= KEY_1 and e.keycode <= KEY_6:
-		world.actions.exec_shortcut(e.keycode - KEY_1)
+		shortcut_bar.press(e.keycode - KEY_1)   # assigns a selected skill / item, else runs it
 		get_viewport().set_input_as_handled()

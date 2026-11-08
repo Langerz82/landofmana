@@ -76,6 +76,14 @@ func _rebuild_box() -> void:
 		_box.add_child(c)
 
 
+## Gamepad Select: the attack button and the slots, in bar order.
+func pad_controls() -> Array:
+	var out: Array = []
+	if _box:
+		out.append_array(_box.get_children())
+	return out
+
+
 func bind(w, d: PlayerData, a: ItemActions) -> void:
 	world = w
 	data = d
@@ -121,20 +129,27 @@ func _process(_d: float) -> void:
 		slots[i].set_cooldown(int(ceil(actions.cooldown_left(int(sc.type), int(sc.id)) / 1000.0)))
 
 
-## Click a skill in the skills window or an item in the inventory, then a
-## shortcut slot: the slot gets that skill / item type. Otherwise the click
-## runs the shortcut.
 func _on_slot_pressed(s: ItemSlot) -> void:
+	press(s.index)
+
+
+## A shortcut slot was pressed -- clicked, its key (1-6) or the gamepad
+## L1 / R1 combo. With a skill selected in the skills window or an item in
+## the inventory, the slot gets that skill / item type; otherwise it runs the
+## shortcut.
+func press(index: int) -> void:
+	if index < 0 or index >= slots.size():
+		return
 	var hud = world.hud if world else null
 	if hud and hud.has_method("take_shortcut_pick"):
 		var pick: Dictionary = hud.take_shortcut_pick()
 		if not pick.is_empty():
 			if pick.get("consumable", true):
-				actions.install_shortcut(s.index, int(pick.type), int(pick.id))
+				actions.install_shortcut(index, int(pick.type), int(pick.id))
 			else:
 				hud.add_notification("Only potions and food can go on the shortcut bar.")
 			return
-	actions.exec_shortcut(s.index)
+	actions.exec_shortcut(index)
 
 
 func _on_dropped(s: ItemSlot, d: Dictionary) -> void:
