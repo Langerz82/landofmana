@@ -52,8 +52,8 @@ export function installGamepadButtonsFace(self) {
     };
 
     // Button layout matches godot-client/scripts/ui/gamepad.gd:
-    // X = cursor mode on / off (the left stick moves the cursor instead of the
-    // player); L1 + X = shortcut 3.
+    // X = click at the cursor (the game world under the gamepad cursor);
+    // L1 + X = shortcut 3.
     // (The old X-in-inventory / skills "pick a shortcut slot" flow is gone:
     // highlight the item / skill and press the shortcut - L1 / R1 + a face
     // button - and shortcut.js assigns it.)
@@ -67,15 +67,15 @@ export function installGamepadButtonsFace(self) {
         }
 
         log.info('buttonOn = x');
-        self.navMouse = !self.navMouse;
+        game.click();
     });
 
     self.pxgamepad.buttonOff('x', function () {
         log.info('buttonOff = x');
     });
 
-    // Y = click at the cursor (the game world under the gamepad cursor);
-    // L1 + Y = shortcut 4.
+    // Y (hold) = cursor mode while held (the left stick moves the cursor
+    // instead of the player); L1 + Y = shortcut 4.
     self.pxgamepad.buttonOn('y', function () {
         if (self.leftTopPressed) {
             self.pressShortcut(4);
@@ -86,11 +86,12 @@ export function installGamepadButtonsFace(self) {
         }
 
         log.info('buttonOn = y');
-        game.click();
+        self.navMouse = true;   // until Y is released
     });
 
     self.pxgamepad.buttonOff('y', function () {
         log.info('buttonOff = y');
+        self.navMouse = false;
     });
 
     // Start = settings (open / close).

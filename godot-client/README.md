@@ -86,15 +86,20 @@ Gamepad (`scripts/ui/gamepad.gd`, based on the JS client's): d-pad / left
 stick walk, right stick moves the cursor, A interact / attack next to the
 player (or press the selected button), B target the closest enemy (or, with
 something open: close the top window, deselect the selected item, cancel a
-popup, close chat), X cursor mode on / off (left stick moves the cursor), Y
-mouse click at the cursor, Back selects the menu bar and shortcut bar, Start
+popup, close chat), X mouse click at the cursor, Y held: cursor mode (left
+stick moves the cursor), Back selects the menu bar and shortcut bar, Start
 settings, L1 + A/B/X/Y for shortcuts 1–4, R1 + A/B for 5–6, and L1 / R1 switch
 tabs in the store, craft, auction and looks windows. While a window, modal or
 the menu bar is open the stick / d-pad moves the selection (held: repeats every
 200 ms), shown with a blue frame. Dropdowns: A opens the list, A picks the
 highlighted item, B closes it unchanged. Number text fields: A starts editing
 (green frame), up / down then increase / decrease the value, B stops editing.
-Sliders: left / right decrease / increase.
+Sliders: left / right decrease / increase. Window scroll bars: move right
+onto the bar, then up / down scrolls (faster while held); left goes back. Colour picker: the stick moves
+between its controls; A edits a slider, number box, the colour square or the
+hue strip (stick changes it, A keeps, B cancels back to the old colour), A
+presses its buttons and opens its menus (in a menu A picks, B closes); B
+closes the picker.
 
 ## Server address
 

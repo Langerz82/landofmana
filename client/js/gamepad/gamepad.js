@@ -45,6 +45,10 @@ export function setGamePadShortcut(v) {
 // whenever a gamepad is connected - that allocated a new function object every ~1 tick for no
 // reason, since it doesn't capture any per-instance state (`stick`/`deadzone` are just
 // parameters). Hoisted to a module-level function so it's created once.
+// Gamepad cursor speed, as a fraction of the old (ts >> 3) * scale pixels per
+// tick at full stick deflection (that felt a little too fast).
+const CURSOR_SPEED = 0.6;
+
 function applyDeadZone(stick, deadzone) {
     const dzx = Math.abs(stick.x);
     if (dzx < deadzone) stick.x = 0;
@@ -341,7 +345,7 @@ export default class Gamepad {
             width = game.renderer.renderer.screen.width,
             height = game.renderer.renderer.screen.height,
             ts = G_TILESIZE,
-            speed = (ts >> 3) * game.renderer.scale;
+            speed = (ts >> 3) * game.renderer.scale * CURSOR_SPEED;
 
         const modx2 = self.navMouse
                 ? self.dpadX || self.pxgamepad.leftStick.x
@@ -363,37 +367,29 @@ export default class Gamepad {
 
         const navigate = self.navigate;
 
+        // Walk like a held movement key (main/maininput.js's keyboard()
+        // press / release): press once when the pad direction changes, release
+        // when it changes again or goes neutral, and never re-press while it's
+        // held. FIX: this used to call p.move(dir, true) on every gamepad tick
+        // whenever !p.keyMove - and keyMove is briefly false at each tile step
+        // and while move() waits out its throttle, so the held direction was
+        // "pressed" again and again, each time resetting the walk animation
+        // (idle()) and the movement state: the player stuttered. The release
+        // check `(p.keyMove & this.movePad) > 0` treated the boolean keyMove as
+        // a bit mask (true & 2 and true & 4 are 0), so letting go of down /
+        // right was never seen. A window opening or cursor mode now also
+        // releases the walk instead of leaving it running.
+        let padDir = 0;
         if (!self.isDialogOpen() && !self.navMouse) {
-            if (!game.player.keyMove) {
-                if (navigate === Navigate.LEFT) {
-                    p.move(3, true);
-                    this.movePad = 3;
-                }
-                if (navigate === Navigate.RIGHT) {
-                    p.move(4, true);
-                    this.movePad = 4;
-                }
-                if (navigate === Navigate.UP) {
-                    p.move(1, true);
-                    this.movePad = 1;
-                }
-                if (navigate === Navigate.DOWN) {
-                    p.move(2, true);
-                    this.movePad = 2;
-                }
-            }
-            // FIX: `>` binds tighter than `&`, so this was parsing as
-            // `p.keyMove & (this.movePad > 0)` (bitwise-AND against a 0/1 boolean) instead of
-            // the intended "movePad bit is set" check `(p.keyMove & this.movePad) > 0`. Broke
-            // detection of a released gamepad-driven walk direction.
-            if (
-                navigate === Navigate.NONE &&
-                navigate === Navigate.NONE &&
-                (p.keyMove & this.movePad) > 0
-            ) {
-                p.move(this.movePad, false);
-                this.movePad = 0;
-            }
+            if (navigate === Navigate.LEFT) padDir = 3;
+            else if (navigate === Navigate.RIGHT) padDir = 4;
+            else if (navigate === Navigate.UP) padDir = 1;
+            else if (navigate === Navigate.DOWN) padDir = 2;
+        }
+        if (padDir !== (this.movePad || 0)) {
+            if (this.movePad) p.move(this.movePad, false);
+            this.movePad = padDir;
+            if (padDir) p.move(padDir, true);
         }
 
         game.movecursor();

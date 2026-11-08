@@ -30,10 +30,11 @@ extends CanvasLayer
 ##                        close the top window (inventory / bank: deselect the
 ##                        item first), cancel a modal, close chat, leave the
 ##                        menu bar; died / error panel: its button
-##   X                    cursor mode on / off: the left stick moves the cursor
-##                        instead of the player (gamepad.js navMouse); on a
-##                        selected item slot: its secondary action (item_slot.gd)
-##   Y                    mouse click at the cursor (GUI first, then the world)
+##   X                    mouse click at the cursor (GUI first, then the
+##                        world); on a selected item slot: its secondary
+##                        action (item_slot.gd)
+##   Y (hold)             cursor mode while held: the left stick moves the
+##                        cursor instead of the player (gamepad.js navMouse)
 ##   Select (Back)        select the menu bar / shortcut bar (gamepad.js
 ##                        mainButtonsActive); Select or B again to leave
 ##   Start                settings
@@ -48,6 +49,17 @@ extends CanvasLayer
 ## down increase / decrease the value by its step; B stops editing. Not
 ## editing, the stick / D-pad just moves between fields.
 ## Sliders: left / right decrease / increase the value (ui_left / ui_right).
+## Window scroll bars: the stick can select them (right from the content);
+## a selected vertical bar scrolls with up / down (horizontal: left / right),
+## faster while held; the other direction moves back into the content.
+## Colour picker (ColorPickerButton): while its popup is open the stick /
+## D-pad moves between its controls. A on a slider, number box, the colour
+## square or the hue strip starts editing it (green frame): the stick changes
+## it (faster while held; square: left / right saturation, up / down
+## brightness; hue strip: up / down), A again keeps the change, B cancels it
+## (back to the colour from before editing). A presses its buttons (RGB / HSV
+## modes, eyedropper, swatches) and opens its menus, where A picks and B
+## closes. B while not editing closes the picker.
 ##
 ## Joypad events are taken here in _input (before the GUI) while in game, and
 ## the sticks and D-pad are polled in _process, so the GUI never navigates on
@@ -71,7 +83,8 @@ const SHOP_WINDOWS := ["store", "craft", "auction", "looks"]
 
 var hud = null
 var world = null
-## Cursor mode (gamepad.js navMouse): the left stick moves the cursor (Y clicks).
+## Cursor mode (gamepad.js navMouse), on while Y is held: the left stick moves
+## the cursor (X clicks).
 var nav_mouse := false
 ## Menu bar / shortcut bar selected (gamepad.js mainButtonsActive).
 var bar_mode := false
@@ -167,6 +180,8 @@ func _input(e: InputEvent) -> void:
 		vp.set_input_as_handled()   # polled in _process too
 		return
 	if not e.pressed:
+		if b == JOY_BUTTON_Y:
+			set_nav_mouse(false)   # cursor mode only while Y is held
 		if _eaten.get(b, false):
 			_eaten[b] = false
 			vp.set_input_as_handled()
@@ -236,7 +251,7 @@ func _press(b: int, device: int) -> bool:
 		JOY_BUTTON_X:
 			return _secondary()
 		JOY_BUTTON_Y:
-			_click()
+			set_nav_mouse(true)   # until Y is released (_input / _process)
 			return true
 		JOY_BUTTON_BACK:
 			if bar_mode:
@@ -298,7 +313,7 @@ func _cancel() -> bool:
 func _secondary() -> bool:
 	if _focus() is ItemSlot and not nav_mouse:
 		return false   # item_slot.gd: X = secondary action
-	set_nav_mouse(not nav_mouse)
+	_click()
 	return true
 
 
@@ -310,7 +325,9 @@ func _process(delta: float) -> void:
 		_stop_move()
 		_nav_dir = 0
 		return
-	_poll_dropdown(pads)
+	var ed := _edges(pads)
+	if nav_mouse and not pads.any(func(d): return Input.is_joy_button_pressed(d, JOY_BUTTON_Y)):
+		set_nav_mouse(false)   # Y let go without us seeing the release
 	var dpad := _dpad(pads)
 	var left := dpad if dpad != Vector2.ZERO else _stick(pads, JOY_AXIS_LEFT_X, JOY_AXIS_LEFT_Y)
 	var right := _stick(pads, JOY_AXIS_RIGHT_X, JOY_AXIS_RIGHT_Y)
@@ -319,6 +336,10 @@ func _process(delta: float) -> void:
 		_used = true
 		_move_cursor(cur.limit_length(1.0) * CURSOR_SPEED * delta)
 	var dir := 0 if nav_mouse else _to_dir(left)
+	if _poll_color_picker(ed, dir):
+		_stop_move()
+		return
+	_handle_dropdown(ed)
 	if bar_mode:
 		_check_bar()
 	if _ui_context():
@@ -404,7 +425,14 @@ func _stop_move() -> void:
 func _navigate(dir: int) -> void:
 	if dir == 0:
 		_nav_dir = 0
+		_sb_dir = 0
 		return
+	var sb := _focus() as ScrollBar
+	if sb and _scrolls_along(sb, dir):
+		_scroll_bar(sb, dir)
+		return
+	_sb_dir = 0
+	_prepare_scroll_bars(dir)
 	var now := Time.get_ticks_msec()
 	if dir != _nav_dir:
 		_nav_dir = dir
@@ -441,6 +469,54 @@ func _navigate(dir: int) -> void:
 	_action(UI_ACTIONS[dir], false)
 
 
+# ------------------------------------------------------------ scroll bars
+
+const SB_REPEAT_MS := 60
+var _sb_dir := 0
+var _sb_next := 0
+var _sb_since := 0
+
+
+## The scroll bars of the window the gamepad is in become selectable (Godot
+## leaves them out of focus navigation) -- only once the gamepad is used, so
+## mouse clicks on a scroll bar don't take the focus otherwise. Only across
+## them: a vertical bar is reached moving left / right, a horizontal one
+## moving up / down (else going down a list could jump onto the bar beside it).
+func _prepare_scroll_bars(dir: int) -> void:
+	var w = _top_window()
+	if w == null:
+		return
+	var sideways := dir == Types.Orientation.LEFT or dir == Types.Orientation.RIGHT
+	for sc in w.find_children("*", "ScrollContainer", true, false):
+		var vb: ScrollBar = sc.get_v_scroll_bar()
+		var hb: ScrollBar = sc.get_h_scroll_bar()
+		vb.focus_mode = Control.FOCUS_ALL if sideways else Control.FOCUS_NONE
+		hb.focus_mode = Control.FOCUS_NONE if sideways else Control.FOCUS_ALL
+
+
+func _scrolls_along(sb: ScrollBar, dir: int) -> bool:
+	if sb is VScrollBar:
+		return dir == Types.Orientation.UP or dir == Types.Orientation.DOWN
+	return dir == Types.Orientation.LEFT or dir == Types.Orientation.RIGHT
+
+
+func _scroll_bar(sb: ScrollBar, dir: int) -> void:
+	var now := Time.get_ticks_msec()
+	if dir != _sb_dir:
+		_sb_dir = dir
+		_sb_since = now
+		_sb_next = now + NAV_REPEAT_MS   # one step, then repeat after a pause
+	elif now < _sb_next:
+		return
+	else:
+		_sb_next = now + SB_REPEAT_MS
+	var held := now - _sb_since
+	var mult := 1.0 if held < 800 else 3.0
+	var step := sb.custom_step if sb.custom_step > 0 else maxf(sb.page * 0.15, 16.0)
+	var sgn := 1.0 if dir == Types.Orientation.DOWN or dir == Types.Orientation.RIGHT else -1.0
+	sb.value = clampf(sb.value + step * mult * sgn, sb.min_value, sb.max_value - sb.page)
+
+
 # ------------------------------------------------------- value fields
 
 ## Edit mode ends when the SpinBox loses the focus.
@@ -468,6 +544,11 @@ func _step_spin(spin: SpinBox, dir_sign: int) -> void:
 	# didn't refresh a focused LineEdit -- modals.gd -- and apply() would
 	# parse the old text back). While editing it shows just the number, no
 	# prefix / suffix.
+	_spin_text(spin)
+
+
+func _spin_text(spin: SpinBox) -> void:
+	var step := spin.step if spin.step > 0 else 1.0
 	var t := String.num(spin.value, _decimals(step))
 	spin.get_line_edit().text = t
 	spin.get_line_edit().caret_column = t.length()
@@ -492,23 +573,33 @@ func _open_dropdown() -> PopupMenu:
 	return null
 
 
-## An open list gets the gamepad events itself (not _input), so A / B are
-## polled: A picks the highlighted item, B closes the list unchanged.
-func _poll_dropdown(pads: Array) -> void:
+## New A / B presses this frame, [a, b] (polled: an open list / popup gets
+## the gamepad events itself, not _input).
+func _edges(pads: Array) -> Array:
 	var a := false
 	var b := false
 	for d in pads:
 		a = a or Input.is_joy_button_pressed(d, JOY_BUTTON_A)
 		b = b or Input.is_joy_button_pressed(d, JOY_BUTTON_B)
+	var out := [a and not _prev_a, b and not _prev_b]
+	_prev_a = a
+	_prev_b = b
+	return out
+
+
+func _poll_dropdown(pads: Array) -> void:
+	_handle_dropdown(_edges(pads))
+
+
+## Open dropdown list: A picks the highlighted item, B closes it unchanged.
+func _handle_dropdown(ed: Array) -> void:
 	var pop := _open_dropdown()
 	if pop:
 		_used = true
-		if a and not _prev_a:
+		if ed[0]:
 			_dropdown_pick(pop)
-		elif b and not _prev_b:
+		elif ed[1]:
 			_dropdown_close(pop)
-	_prev_a = a
-	_prev_b = b
 
 
 func _dropdown_pick(pop: PopupMenu) -> void:
@@ -525,6 +616,231 @@ func _dropdown_close(pop: PopupMenu) -> void:
 	var ob: OptionButton = pop.get_parent()
 	pop.hide()
 	ob.grab_focus.call_deferred()
+
+
+# --------------------------------------------------------- colour picker
+
+const CP_REPEAT_MS := 80        # value steps while a picker control is held
+const CP_SHAPE_STEP := 0.01     # saturation / brightness / hue per step
+const CP_EDIT_FRAME := Color(0, 0.8, 0)
+var _cp_edit: Control = null    # picker control being edited (A); B cancels
+var _cp_orig := Color()         # colour when editing started
+var _cp_hsv := Vector3()        # h, s, v while editing the square / hue strip
+var _cp_dir := 0
+var _cp_next := 0
+var _cp_since := 0              # ms the current direction has been held
+
+
+## The open popup of a ColorPickerButton, if any.
+func _open_color_popup() -> PopupPanel:
+	for w in get_viewport().get_embedded_subwindows():
+		if w is PopupPanel and w.visible and w.get_parent() is ColorPickerButton:
+			return w
+	return null
+
+
+## An open menu list (shape / mode) inside the picker popup.
+func _picker_list(pop: PopupPanel) -> PopupMenu:
+	for w in get_viewport().get_embedded_subwindows():
+		if w is PopupMenu and w.visible and pop.is_ancestor_of(w):
+			return w
+	return null
+
+
+## While a colour picker is open the gamepad drives it (true = handled).
+func _poll_color_picker(ed: Array, dir: int) -> bool:
+	var pop := _open_color_popup()
+	if pop == null:
+		_cp_edit = null
+		return false
+	_used = true
+	var button: ColorPickerButton = pop.get_parent()
+	var picker := button.get_picker()
+	_cp_prepare(pop, picker)
+	var frame: Control = pop.get_meta("gamepad_frame")
+	frame.queue_redraw()
+	var pick: bool = ed[0]   # A: edit / press / pick / keep
+	var back: bool = ed[1]   # B: cancel / close
+	var list := _picker_list(pop)
+	if list:
+		_cp_edit = null
+		if pick:
+			_action("ui_accept", true)   # forwarded to the list: picks the item
+			_action("ui_accept", false)
+		elif back:
+			list.hide()
+		elif _nav_step(dir):
+			_action(UI_ACTIONS[dir], true)
+			_action(UI_ACTIONS[dir], false)
+		return true
+	var f := pop.gui_get_focus_owner()
+	if f != null and not f.is_visible_in_tree():
+		f = null
+	if _cp_edit and (not is_instance_valid(_cp_edit) or f != _cp_edit):
+		_cp_edit = null
+	if f == null:
+		var first := _first_focusable(picker)
+		if first:
+			first.grab_focus()
+		return true
+	if _cp_edit:
+		if pick:
+			_cp_edit = null   # done: keep the change
+		elif back:
+			picker.color = _cp_orig   # cancel: back to the colour from before
+			picker.color_changed.emit(_cp_orig)
+			_cp_edit = null
+		else:
+			_cp_adjust(picker, dir)
+		return true
+	if pick:
+		_cp_activate(f, picker)
+	elif back:
+		pop.hide()   # close the picker
+		button.grab_focus.call_deferred()
+	elif _nav_step(dir):
+		var n := _cp_neighbor(f, dir, picker)
+		if n:
+			n.grab_focus()
+	return true
+
+
+## The closest focusable picker control in `dir` (Godot's own neighbour search
+## gets stuck in the picker's grid / button rows).
+func _cp_neighbor(f: Control, dir: int, picker: ColorPicker) -> Control:
+	var from := f.get_global_rect().get_center()
+	var axis := Vector2(1, 0)
+	match dir:
+		Types.Orientation.LEFT: axis = Vector2(-1, 0)
+		Types.Orientation.UP: axis = Vector2(0, -1)
+		Types.Orientation.DOWN: axis = Vector2(0, 1)
+	var best: Control = null
+	var best_score := INF
+	for c in picker.find_children("*", "Control", true, false):
+		if c == f or not c.is_visible_in_tree() or c.focus_mode != Control.FOCUS_ALL:
+			continue
+		var d: Vector2 = c.get_global_rect().get_center() - from
+		var along := d.dot(axis)
+		if along <= 1.0:
+			continue
+		var across := absf(d.dot(Vector2(axis.y, axis.x)))
+		var score := along + across * 2.0
+		if score < best_score:
+			best_score = score
+			best = c
+	return best
+
+
+## Once per popup: let the stick reach the sliders (Godot leaves them out of
+## focus navigation) and draw the focus frame inside the popup (it is drawn
+## above the game's canvas layers, so the frame from _overlay would be hidden).
+func _cp_prepare(pop: PopupPanel, picker: ColorPicker) -> void:
+	if pop.has_meta("gamepad_ready"):
+		return
+	pop.set_meta("gamepad_ready", true)
+	for sl in picker.find_children("*", "HSlider", true, false):
+		sl.focus_mode = Control.FOCUS_ALL
+	var layer := CanvasLayer.new()
+	layer.layer = 100
+	var frame := Control.new()
+	frame.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	frame.draw.connect(func(): _draw_cp_frame(pop, frame))
+	layer.add_child(frame)
+	pop.add_child(layer, false, Node.INTERNAL_MODE_BACK)
+	pop.set_meta("gamepad_frame", frame)
+
+
+func _draw_cp_frame(pop: PopupPanel, frame: Control) -> void:
+	var f := pop.gui_get_focus_owner()
+	if f == null or not f.is_visible_in_tree():
+		return
+	var xf := f.get_global_transform_with_canvas()
+	var r := Rect2(xf.origin, f.size * xf.get_scale()).grow(2)
+	frame.draw_rect(r, CP_EDIT_FRAME if f == _cp_edit else HIGHLIGHT, false, HIGHLIGHT_WIDTH)
+
+
+func _first_focusable(root: Node) -> Control:
+	for c in root.find_children("*", "Control", true, false):
+		if c.is_visible_in_tree() and c.focus_mode == Control.FOCUS_ALL:
+			return c
+	return null
+
+
+## The colour square / wheel and the hue strip: plain Controls the picker
+## draws itself (they don't react to ui_* actions).
+func _cp_is_shape(f: Control, picker: ColorPicker) -> bool:
+	return f.get_class() == "Control" and picker.is_ancestor_of(f)
+
+
+func _cp_activate(f: Control, picker: ColorPicker) -> void:
+	if f is Range or _spin_box(f) != null or _cp_is_shape(f, picker):
+		_cp_edit = f
+		_cp_orig = picker.color
+		_cp_hsv = Vector3(picker.color.h, picker.color.s, picker.color.v)
+		_cp_dir = 0
+	elif f is MenuButton:
+		f.show_popup()
+	elif f is BaseButton:
+		# Straight into the popup: through the main viewport the press would
+		# also reach the ColorPickerButton behind it and close the picker.
+		var pop := _open_color_popup()
+		for pressed in [true, false]:
+			var a := InputEventAction.new()
+			a.action = "ui_accept"
+			a.pressed = pressed
+			pop.push_input(a)
+	# The hex LineEdit needs a keyboard to type in: nothing to do with B.
+
+
+func _cp_adjust(picker: ColorPicker, dir: int) -> void:
+	if dir == 0:
+		_cp_dir = 0
+		return
+	var now := Time.get_ticks_msec()
+	if dir != _cp_dir:
+		_cp_dir = dir
+		_cp_since = now
+		_cp_next = now + NAV_REPEAT_MS   # one step, then repeat after a pause
+	elif now < _cp_next:
+		return
+	else:
+		_cp_next = now + CP_REPEAT_MS
+	var held := now - _cp_since
+	var mult := 1.0 if held < 600 else (4.0 if held < 1500 else 12.0)
+	var sgn := 1.0 if dir == Types.Orientation.RIGHT or dir == Types.Orientation.UP else -1.0
+	var f := _cp_edit
+	var r: Range = f if f is Range else _spin_box(f)
+	if r:
+		var base := maxf(r.step, (r.max_value - r.min_value) / 255.0)
+		r.value = r.value + base * mult * sgn   # the picker follows (value_changed)
+		if r is SpinBox:
+			_spin_text(r)
+		return
+	var d := CP_SHAPE_STEP * mult * sgn
+	if f.size.x < f.size.y * 0.5:   # narrow: the hue strip
+		_cp_hsv.x = fposmod(_cp_hsv.x + d, 1.0)
+	elif dir == Types.Orientation.LEFT or dir == Types.Orientation.RIGHT:
+		_cp_hsv.y = clampf(_cp_hsv.y + d, 0.0, 1.0)
+	else:
+		_cp_hsv.z = clampf(_cp_hsv.z + d, 0.0, 1.0)
+	var c := Color.from_hsv(_cp_hsv.x, _cp_hsv.y, _cp_hsv.z, picker.color.a)
+	picker.color = c
+	picker.color_changed.emit(c)   # the button (and the setting) follow
+
+
+## Shared navigation repeat (first step at once, then every NAV_REPEAT_MS).
+func _nav_step(dir: int) -> bool:
+	if dir == 0:
+		_nav_dir = 0
+		return false
+	var now := Time.get_ticks_msec()
+	if dir != _nav_dir:
+		_nav_dir = dir
+	elif now < _nav_next:
+		return false
+	_nav_next = now + NAV_REPEAT_MS
+	return true
 
 
 ## Focus something sensible: the menu bar in bar mode, else the top window's
@@ -612,7 +928,6 @@ func set_nav_mouse(on: bool) -> void:
 			exit_bar()
 		_init_cursor()
 		_cursor_shown = not _warp
-	hud.add_notification("Gamepad cursor %s (X)" % ("on" if on else "off"))
 	_overlay.queue_redraw()
 
 
