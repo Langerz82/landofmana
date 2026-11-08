@@ -699,6 +699,20 @@ func open_chat(open: bool) -> void:
 		_chat_input.release_focus()
 
 
+## Gamepad on-screen keyboard: the chat line it types into, sending it, and
+## adding the keyboard to the (UI-scaled) HUD.
+func chat_input() -> LineEdit:
+	return _chat_input
+
+
+func submit_chat() -> void:
+	_on_chat_submitted(_chat_input.text)
+
+
+func add_ui(c: Control) -> void:
+	_root.add_child(c)
+
+
 func _on_chat_submitted(text: String) -> void:
 	if world and text.strip_edges() != "":
 		world.say(text)

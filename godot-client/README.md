@@ -98,6 +98,10 @@ editing. Counts, gold and prices (whole numbers up to 100 or more) are edited
 digit by digit: left / right pick the digit, up / down change it.
 While a popup (confirm, "how many?") is open, the gamepad only works inside
 it until it's confirmed or cancelled: nothing in the windows behind reacts.
+Chat with a gamepad: while chat is open and the gamepad is in use, an on-screen
+keyboard with quick phrases shows (never for keyboard / mouse players): A types,
+B deletes (empty line: closes), X space, Y shift, L1 / R1 symbols, Start sends,
+Select closes.
 Sliders: left / right decrease / increase. Window scroll bars: move right
 onto the bar, then up / down scrolls (faster while held); left goes back. Colour picker: the stick moves
 between its controls; A edits a slider, number box, the colour square or the

@@ -53,6 +53,11 @@ extends CanvasLayer
 ## down change it (carrying over, kept within the field's min / max). Not
 ## editing, the stick / D-pad just moves between fields.
 ## Sliders: left / right decrease / increase the value (ui_left / ui_right).
+## Chat: while chat is open and the gamepad is the input in use, an on-screen
+## keyboard shows (OnScreenKeyboard) -- never for keyboard / mouse players,
+## and real keyboard / mouse input hides it again. A types the selected key or
+## quick phrase, B deletes (on an empty line: closes chat), X space, Y shift,
+## L1 / R1 letters / symbols, Start sends, Select closes; the stick stays on it.
 ## Popups (confirm / notify / "how many?"): while one is open the gamepad
 ## stays inside it -- the stick only moves between its controls, L1 / R1,
 ## Select and Start do nothing -- until it's confirmed or cancelled.
@@ -109,6 +114,7 @@ var _cursor_shown := false
 ## drawn here and mouse-motion events are sent instead.
 var _warp := OS.has_feature("pc") and not OS.has_feature("web")
 var _overlay: Control
+var _kb: OnScreenKeyboard = null   # chat on-screen keyboard (made on first use)
 var _spin_edit: SpinBox = null   # SpinBox in edit mode (A on it; B / A end it)
 var _digit := 0                  # digit-by-digit editing: selected digit, 0 = ones
 var _prev_a := false   # A / B held last frame (dropdown lists are polled)
@@ -218,6 +224,9 @@ func _action(action: String, pressed: bool) -> void:
 
 ## A button went down. True = handled here (the GUI doesn't see it).
 func _press(b: int, device: int) -> bool:
+	if _kb_open():
+		_kb_press(b)
+		return true
 	_check_spin_edit()
 	var shoulder := Input.is_joy_button_pressed(device, JOY_BUTTON_LEFT_SHOULDER) \
 		or Input.is_joy_button_pressed(device, JOY_BUTTON_RIGHT_SHOULDER)
@@ -333,6 +342,7 @@ func _secondary() -> bool:
 
 func _process(delta: float) -> void:
 	var pads := Input.get_connected_joypads()
+	_update_keyboard(not pads.is_empty() and _game_ready())
 	if pads.is_empty() or not _game_ready():
 		_stop_move()
 		_nav_dir = 0
@@ -454,6 +464,15 @@ func _navigate(dir: int) -> void:
 	if _open_dropdown() != null:
 		_action(UI_ACTIONS[dir], true)   # forwarded to the open list
 		_action(UI_ACTIONS[dir], false)
+		return
+	if _kb_open():
+		var kf := _focus()
+		if kf == null or not _kb.is_ancestor_of(kf):
+			_kb.first_key().grab_focus()
+			return
+		var kn := _neighbor_in(_kb, kf, dir)
+		if kn:
+			kn.grab_focus()
 		return
 	var f := _focus()
 	if f == null:
@@ -783,6 +802,63 @@ func _poll_color_picker(ed: Array, dir: int) -> bool:
 		if n:
 			n.grab_focus()
 	return true
+
+
+# ------------------------------------------------------- chat keyboard
+
+func _kb_open() -> bool:
+	return _kb != null and _kb.visible
+
+
+## Shown while chat is open and the gamepad is the input in use; hidden as
+## soon as a real keyboard / mouse is used (then the chat line gets the focus
+## back for normal typing) or chat closes.
+func _update_keyboard(active: bool) -> void:
+	var want: bool = active and _used and hud != null and hud.has_method("is_chat_open") and hud.is_chat_open()
+	if want:
+		if _kb == null:
+			_kb = OnScreenKeyboard.new()
+			_kb.target = hud.chat_input()
+			_kb.anchor_left = 0.5
+			_kb.anchor_right = 0.5
+			_kb.anchor_top = 1.0
+			_kb.anchor_bottom = 1.0
+			_kb.grow_horizontal = Control.GROW_DIRECTION_BOTH
+			_kb.grow_vertical = Control.GROW_DIRECTION_BEGIN
+			_kb.offset_bottom = -90   # above the shortcut bar
+			_kb.send_requested.connect(func(): hud.submit_chat())
+			_kb.close_requested.connect(func(): hud.open_chat(false))
+			hud.add_ui(_kb)
+		if not _kb.visible:
+			_kb.visible = true
+			_kb.first_key().grab_focus.call_deferred()
+	elif _kb_open():
+		_kb.visible = false
+		if hud.is_chat_open():
+			hud.chat_input().grab_focus()
+
+
+func _kb_press(b: int) -> void:
+	match b:
+		JOY_BUTTON_A:
+			var f := _focus()
+			if f is BaseButton and _kb.is_ancestor_of(f):
+				f.pressed.emit()
+			else:
+				_kb.first_key().grab_focus()
+		JOY_BUTTON_B:
+			if not _kb.backspace():
+				hud.open_chat(false)   # nothing left to delete: close chat
+		JOY_BUTTON_X:
+			_kb.type_text(" ")
+		JOY_BUTTON_Y:
+			_kb.toggle_caps()
+		JOY_BUTTON_LEFT_SHOULDER, JOY_BUTTON_RIGHT_SHOULDER:
+			_kb.toggle_layer()
+		JOY_BUTTON_START:
+			hud.submit_chat()
+		JOY_BUTTON_BACK:
+			hud.open_chat(false)
 
 
 func _modal_open() -> bool:
