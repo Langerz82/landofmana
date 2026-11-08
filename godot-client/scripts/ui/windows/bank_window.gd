@@ -56,11 +56,22 @@ func build() -> void:
 	h.add_theme_constant_override("h_separation", 6)
 	h.add_theme_constant_override("v_separation", 6)
 	content.add_child(h)
-	h.add_child(UiStyle.button("Withdraw gold", func(): actions.transfer_gold(true)))
-	h.add_child(UiStyle.button("Deposit gold", func(): actions.transfer_gold(false)))
-	h.add_child(UiStyle.button("STORE ITEMS", func():
-		inventory_window.open_mode(ItemActions.Mode.BANK, self)
-		close()))
+	var btns := [
+		UiStyle.button("Withdraw gold", func(): actions.transfer_gold(true)),
+		UiStyle.button("Deposit gold", func(): actions.transfer_gold(false)),
+		UiStyle.button("STORE ITEMS", func():
+			inventory_window.open_mode(ItemActions.Mode.BANK, self)
+			close()),
+	]
+	for b in btns:
+		h.add_child(b)
+	# Gamepad / keyboard: left / right go along the buttons in this order and
+	# stop at the ends. Once the row wraps (UI scale, font size) Godot's own
+	# neighbour search found no button beside them and moved onto a bank slot.
+	for i in range(btns.size()):
+		var b: Button = btns[i]
+		b.focus_neighbor_left = b.get_path_to(btns[maxi(i - 1, 0)])
+		b.focus_neighbor_right = b.get_path_to(btns[mini(i + 1, btns.size() - 1)])
 	_scroll = ScrollContainer.new()
 	_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	_scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_SHOW_ALWAYS
