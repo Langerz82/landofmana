@@ -73,6 +73,12 @@ var data := PlayerData.new()     # inventory, bank, quests, skills... (PlayerDat
 var actions: ItemActions         # item / shortcut / skill actions
 var game_scale := BASE_SCALE     # 3x zoom, divided by the "zoom" setting
 var _hover = null
+## Last pointer position (screen), from every mouse-motion event -- also the
+## ones the GUI takes -- so the hover can be re-checked while the mouse
+## stands still (_refresh_hover). x < 0: no mouse seen yet.
+var _pointer_pos := Vector2(-1, -1)
+var _hover_next := 0
+const HOVER_REFRESH_MS := 50
 var _joy_dir := 0
 var auto_potion := 0             # /autopotion <percent>
 var _acc := 0.0
@@ -181,6 +187,7 @@ func _render() -> void:
 	for e in entities.values():
 		e.sync_view()
 	_update_camera()
+	_refresh_hover()
 	target_marker.queue_redraw()
 	if overlay:
 		overlay.queue_redraw()
@@ -2395,22 +2402,55 @@ func _check_auto_potion() -> void:
 			return
 
 
+func _input(event: InputEvent) -> void:
+	if event is InputEventMouseMotion:
+		_pointer_pos = event.position   # not consumed: the GUI / world still get it
+
+
+## The hover also changes without the mouse moving: the map scrolls, an
+## entity walks under / away from the pointer, dies or leaves. Re-checked
+## every HOVER_REFRESH_MS at the last pointer position, so the cursor and
+## the target preview follow; over the UI the cursor goes back to the
+## default. Not on phones / tablets (no mouse cursor; the last touch point
+## would keep picking entities as the map scrolls).
+func _refresh_hover() -> void:
+	if not started or map_status < 2 or player == null or _pointer_pos.x < 0:
+		return
+	if UiStyle.is_mobile():
+		return
+	var now := Time.get_ticks_msec()
+	if now < _hover_next:
+		return
+	_hover_next = now + HOVER_REFRESH_MS
+	_update_hover(_pointer_pos, hud != null and hud.is_pointer_over_ui())
+
+
 ## Mouse hover: cursor shape and target preview (game/gamecursor.js).
-func _update_hover(screen_pos: Vector2) -> void:
-	var wp := screen_to_world(screen_pos)
-	var e = get_entity_at(int(wp.x), int(wp.y))
-	if e == player:
-		e = null
+## `over_ui`: the pointer is on a HUD panel / window, so nothing in the world
+## is under it.
+func _update_hover(screen_pos: Vector2, over_ui := false) -> void:
+	var e = null
+	if not over_ui:
+		var wp := screen_to_world(screen_pos)
+		e = get_entity_at(int(wp.x), int(wp.y))
+		if e == player:
+			e = null
+	if _hover != null and not is_instance_valid(_hover):
+		_hover = null   # removed from the world
+	# The shape can change on the same entity too (PvP target set / cleared).
+	Cursors.set_shape(_hover_shape(e))
 	if e == _hover:
 		return
 	_hover = e
-	var shape := "hand"
-	if e is Mob or (e is Player and player.pvp_target == e):
-		shape = "sword"
-	elif e is Npc:
-		shape = "talk"
-	elif e is ItemEntity or (e is StaticEntity and e.type == Types.EntityType.NODE):
-		shape = "loot"
-	Cursors.set_shape(shape)
 	if hud and not player.has_target():
 		hud.set_target(e)
+
+
+func _hover_shape(e) -> String:
+	if e is Mob or (e is Player and player.pvp_target == e):
+		return "sword"
+	if e is Npc:
+		return "talk"
+	if e is ItemEntity or (e is StaticEntity and e.type == Types.EntityType.NODE):
+		return "loot"
+	return "hand"
