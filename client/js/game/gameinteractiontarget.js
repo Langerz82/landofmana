@@ -43,19 +43,22 @@ export function installGameInteractionTarget(proto) {
 
         log.info('makePlayerInteractNextTo');
 
-        // Before any other target logic: if the player is facing an entity
-        // (the tile directly ahead of them in their current orientation)
-        // and it's isNextTooEntity(), target it and process it
-        // (processTarget -> processInput -> move/attack) immediately, in
-        // this one call - regardless of whether a different entity was
-        // already targeted.
+        // An entity the player already targeted (clicked, or picked with the
+        // target key / gamepad) wins: interact with it - processTarget ->
+        // processInput -> playerInteract walks to it when it's out of reach -
+        // instead of retargeting the faced / adjacent / closest entity below.
+        if (this.tryInteractExistingTarget()) return;
+
+        // No target: if the player is facing an entity (the tile directly
+        // ahead of them in their current orientation) and it's
+        // isNextTooEntity(), target it and process it (processTarget ->
+        // processInput -> move/attack) immediately, in this one call.
         if (this.tryInteractFacedEntity()) return;
 
         this.ignorePlayer = true;
 
         this.tryInteractAdjacentEntity() ||
             this.tryInteractHarvestTiles() ||
-            this.tryInteractExistingTarget() ||
             this.tryInteractClosestEntity();
 
         this.ignorePlayer = false;
@@ -189,6 +192,11 @@ export function installGameInteractionTarget(proto) {
         return false;
     };
 
+    // Interact with the player's current target, near or far (out of reach,
+    // processInput() -> playerInteract() walks to it / attacks from range).
+    // A target that left the screen or died is dropped and false returned,
+    // so makePlayerInteractNextTo() falls back to the faced / adjacent /
+    // closest entity.
     proto.tryInteractExistingTarget = function () {
         const p = this.player;
         const target = p.target;
@@ -213,11 +221,8 @@ export function installGameInteractionTarget(proto) {
         // canReach()/attackRange and is true for melee-adjacent targets as well
         // as ranged targets within attackRange, so a valid target of any range
         // is re-engaged here before the closest-entity fallback ever runs.
-        if (p.canReachTarget()) {
-            if (!p.isMoving()) p.lookAtEntity(target);
-            return this.processTarget();
-        }
-        return false;
+        if (p.canReachTarget() && !p.isMoving()) p.lookAtEntity(target);
+        return this.processTarget();
     };
 
     proto.tryInteractClosestEntity = function () {

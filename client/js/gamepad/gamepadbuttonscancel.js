@@ -51,14 +51,17 @@ export function installGamepadButtonsCancel(self) {
     self.jqBankDialogCloseButton = $('#bankDialogCloseButton');
     self.jqAppearanceCloseButton = $('#appearanceCloseButton');
 
+    // Button layout matches godot-client/scripts/ui/gamepad.gd:
+    // B = target the closest enemy; with a window / dialog open: cancel, close,
+    // deselect. L1 + B = shortcut 2, R1 + B = shortcut 6.
     self.pxgamepad.buttonOn('b', function () {
         log.info('buttonOn = b');
         if (self.leftTopPressed) {
-            self.pressShortcut(1);
+            self.pressShortcut(2);
             return;
         }
         if (self.rightTopPressed) {
-            self.pressShortcut(5);
+            self.pressShortcut(6);
             return;
         }
 
@@ -149,6 +152,7 @@ export function installGamepadButtonsCancel(self) {
                 self.joystickY = -1;
             }
         } else {
+            game.playerTargetClosestEntity(1);
         }
     });
 

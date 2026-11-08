@@ -19,7 +19,6 @@
 // Extracted from gamepad.js/gamepadbuttons.js: select/x/y face-button bindings
 // plus the shared pressShortcut() helper they (and 'a'/'b') call.
 // Installed once from gamepad.js's constructor via install*(self).
-import { setGamePadShortcut } from './gamepad.js';
 /* global DragItem, ShortcutData, game, log */
 
 export function installGamepadButtonsFace(self) {
@@ -52,61 +51,13 @@ export function installGamepadButtonsFace(self) {
         self.selectedItem.trigger('click');
     };
 
+    // Button layout matches godot-client/scripts/ui/gamepad.gd:
+    // X = cursor mode on / off (the left stick moves the cursor instead of the
+    // player); L1 + X = shortcut 3.
+    // (The old X-in-inventory / skills "pick a shortcut slot" flow is gone:
+    // highlight the item / skill and press the shortcut - L1 / R1 + a face
+    // button - and shortcut.js assigns it.)
     self.pxgamepad.buttonOn('x', function () {
-        if (self.leftTopPressed) {
-            self.pressShortcut(2);
-            return;
-        }
-        if (self.rightTopPressed) {
-            return;
-        }
-
-        if (self.jqInventoryWindow.is(':visible')) {
-            if (!DragItem) self.selectedItem.trigger('click');
-            if (DragItem) {
-                setGamePadShortcut({
-                    x: self.joystickX,
-                    y: self.joystickY,
-                    item: self.selectedItem
-                });
-                self.mainButtonsActive = true;
-                self.joystickX = 1;
-                self.joystickY = 1;
-                return;
-            }
-
-            self.jqInventoryGoldFrame.trigger('click');
-            return;
-        }
-
-        if (self.jqSkillWindow.is(':visible')) {
-            if (ShortcutData) {
-                setGamePadShortcut({
-                    x: self.joystickX,
-                    y: self.joystickY,
-                    item: self.selectedItem
-                });
-                self.mainButtonsActive = true;
-                self.joystickX = 1;
-                self.joystickY = 1;
-                return;
-            }
-        }
-
-        if (self.jqBankWindow.is(':visible')) {
-            self.jqBankGoldFrame.trigger('click');
-            return;
-        }
-
-        log.info('buttonOn = x');
-        game.playerTargetClosestEntity(1);
-    });
-
-    self.pxgamepad.buttonOff('x', function () {
-        log.info('buttonOff = x');
-    });
-
-    self.pxgamepad.buttonOn('y', function () {
         if (self.leftTopPressed) {
             self.pressShortcut(3);
             return;
@@ -115,18 +66,37 @@ export function installGamepadButtonsFace(self) {
             return;
         }
 
-        if (self.jqInventoryWindow.is(':visible')) {
-            self.jqInvActionButton.trigger('click');
+        log.info('buttonOn = x');
+        self.navMouse = !self.navMouse;
+    });
+
+    self.pxgamepad.buttonOff('x', function () {
+        log.info('buttonOff = x');
+    });
+
+    // Y = click at the cursor (the game world under the gamepad cursor);
+    // L1 + Y = shortcut 4.
+    self.pxgamepad.buttonOn('y', function () {
+        if (self.leftTopPressed) {
+            self.pressShortcut(4);
+            return;
         }
-        if (self.jqBankWindow.is(':visible')) {
-            self.jqBankDialogStoreButton.trigger('click');
+        if (self.rightTopPressed) {
+            return;
         }
 
         log.info('buttonOn = y');
-        self.navMouse = !self.navMouse;
+        game.click();
     });
 
     self.pxgamepad.buttonOff('y', function () {
         log.info('buttonOff = y');
+    });
+
+    // Start = settings (open / close).
+    self.pxgamepad.buttonOn('start', function () {
+        if (self.jqSettingsWindow.is(':visible'))
+            $('#settingsclose').trigger('click');
+        else $('#settingsbutton').trigger('click');
     });
 }

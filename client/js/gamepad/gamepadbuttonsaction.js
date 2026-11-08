@@ -40,14 +40,17 @@ export function installGamepadButtonsAction(self) {
     // self.jqChangeLookNext/self.jqCharacterMenu already set on `self` by Gamepad's
     // constructor (gamepad.js).
 
+    // Button layout matches godot-client/scripts/ui/gamepad.gd:
+    // A = interact next to the player / press the selected item in a window,
+    // L1 + A = shortcut 1, R1 + A = shortcut 5.
     self.pxgamepad.buttonOn('a', function () {
         log.info('buttonOn = a');
         if (self.leftTopPressed) {
-            self.pressShortcut(0);
+            self.pressShortcut(1);
             return;
         }
         if (self.rightTopPressed) {
-            self.pressShortcut(4);
+            self.pressShortcut(5);
             return;
         }
 
@@ -176,8 +179,8 @@ export function installGamepadButtonsAction(self) {
             self.joystickX = 0;
             self.joystickY = 0;
         } else {
-            if (self.navMouse) game.click();
-            else game.makePlayerInteractNextTo();
+            // (the cursor-mode click is on Y now)
+            game.makePlayerInteractNextTo();
         }
     });
 }

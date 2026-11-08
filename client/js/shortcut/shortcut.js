@@ -26,6 +26,38 @@ import Cooldown from './cooldown.js';
 
 let DragShortcut = null; // FIX: was a bare global assignment (no var), which throws ReferenceError under ES module strict mode
 
+// What a shortcut slot press (click, its 1-8 key, gamepad L1/R1 combo - all
+// trigger the slot's click) should put on the bar instead of running the
+// shortcut: a skill highlighted in the open skills window
+// ({type: 2, id: skillIndex}) or an item highlighted in the open inventory
+// ({type: 1, id: itemKind}, id -1 when it isn't a potion / food). null when
+// nothing is waiting, so the press runs the shortcut.
+// FIX: setup() used to take any DragItem as an inventory item
+// (game.inventory.rooms[DragItem.slot]) - a highlighted bank or equipment
+// item (DragItem.type 1 / 2) put whatever inventory item shared that slot
+// number on the bar. And a skill left highlighted after the skills window was
+// closed (Escape, the menu button) turned the next shortcut press into an
+// assign instead of running it.
+function shortcutPick() {
+    if (ShortcutData && $('#skillsDialog').is(':visible'))
+        return { type: 2, id: ShortcutData.index };
+    if (
+        DragItem &&
+        DragItem.type === 0 &&
+        $('#allinventorywindow').is(':visible')
+    ) {
+        const item = game.inventory.rooms[DragItem.slot];
+        if (item)
+            return {
+                type: 1,
+                id: ItemTypes.isConsumableItem(item.itemKind)
+                    ? item.itemKind
+                    : -1
+            };
+    }
+    return null;
+}
+
 export default class Shortcut {
     constructor(parent, slot, type) {
         const self = this;
@@ -48,8 +80,9 @@ export default class Shortcut {
 
         const fnClick = function (e) {
             const slot = self.jqBody.data('slot');
-            if (ShortcutData || DragItem) {
-                self.setup(slot);
+            const pick = shortcutPick();
+            if (pick) {
+                self.setup(slot, pick);
                 return false;
             }
             if (self.type > 0) {
@@ -97,20 +130,19 @@ export default class Shortcut {
         });
     }
 
-    setup(slot) {
-        // TODO fill.
+    // Put the highlighted skill / inventory item (shortcutPick()) on this slot.
+    setup(slot, pick) {
         if (this.isCoolingDown) return;
 
-        if (DragItem) {
-            const item = game.inventory.rooms[DragItem.slot];
-            if (item && ItemTypes.isConsumableItem(item.itemKind)) {
-                this.parent.install(slot, 1, item.itemKind);
-            }
+        pick = pick || shortcutPick();
+        if (!pick) return;
+
+        if (pick.type === 1) {
+            if (pick.id > -1) this.parent.install(slot, 1, pick.id);
             game.inventoryDialog.deselectItem();
             DragItem = null;
-        }
-        if (ShortcutData) {
-            this.parent.install(slot, 2, ShortcutData.index);
+        } else if (pick.type === 2) {
+            this.parent.install(slot, 2, pick.id);
             game.skillDialog.page.clearHighlight();
             ShortcutData = null;
         }
