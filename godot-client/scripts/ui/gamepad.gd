@@ -46,9 +46,16 @@ extends CanvasLayer
 ## D-pad moves through the items, A picks the highlighted item and B closes
 ## the list without changing anything.
 ## Number text fields (SpinBox): A starts editing (green frame), then up /
-## down increase / decrease the value by its step; B stops editing. Not
+## down increase / decrease the value by its step; B (or A) stops editing.
+## Whole-number fields that go to 100 or more (drop / move counts, gold,
+## auction prices) are edited digit by digit instead: the number shows with
+## leading zeros and one digit selected, left / right pick the digit, up /
+## down change it (carrying over, kept within the field's min / max). Not
 ## editing, the stick / D-pad just moves between fields.
 ## Sliders: left / right decrease / increase the value (ui_left / ui_right).
+## Popups (confirm / notify / "how many?"): while one is open the gamepad
+## stays inside it -- the stick only moves between its controls, L1 / R1,
+## Select and Start do nothing -- until it's confirmed or cancelled.
 ## Window scroll bars: the stick can select them (right from the content);
 ## a selected vertical bar scrolls with up / down (horizontal: left / right),
 ## faster while held; the other direction moves back into the content.
@@ -102,7 +109,8 @@ var _cursor_shown := false
 ## drawn here and mouse-motion events are sent instead.
 var _warp := OS.has_feature("pc") and not OS.has_feature("web")
 var _overlay: Control
-var _spin_edit: SpinBox = null   # SpinBox in edit mode (A on it; B ends it)
+var _spin_edit: SpinBox = null   # SpinBox in edit mode (A on it; B / A end it)
+var _digit := 0                  # digit-by-digit editing: selected digit, 0 = ones
 var _prev_a := false   # A / B held last frame (dropdown lists are polled)
 var _prev_b := false
 ## Joypad events taken out of the ui_* actions while in game (restored on exit).
@@ -213,18 +221,22 @@ func _press(b: int, device: int) -> bool:
 	_check_spin_edit()
 	var shoulder := Input.is_joy_button_pressed(device, JOY_BUTTON_LEFT_SHOULDER) \
 		or Input.is_joy_button_pressed(device, JOY_BUTTON_RIGHT_SHOULDER)
+	if _modal_open() and not _spin_edit:
+		# Nothing behind the popup reacts: no shortcuts, shop tabs, menu bar,
+		# settings; A / B act inside it (focus put back there if it got out).
+		if shoulder or b in [JOY_BUTTON_LEFT_SHOULDER, JOY_BUTTON_RIGHT_SHOULDER, JOY_BUTTON_BACK, JOY_BUTTON_START]:
+			return true
+		if (b == JOY_BUTTON_A or b == JOY_BUTTON_B) and not _in_modal(_focus()):
+			hud.modals.focus_default()
+			return true
 	if shoulder:
 		pass   # L1 / R1 + face button: shortcuts (below)
 	elif _spin_edit:
-		if b == JOY_BUTTON_B:
-			_spin_edit = null   # stop editing
-			_overlay.queue_redraw()
-			return true
-		if b == JOY_BUTTON_A:
+		if b == JOY_BUTTON_B or b == JOY_BUTTON_A:
+			_end_spin_edit()   # stop editing, keep the number
 			return true
 	elif b == JOY_BUTTON_A and _focus() != null and _spin_box(_focus()) != null:
-		_spin_edit = _spin_box(_focus())   # start editing: up / down change it
-		_overlay.queue_redraw()
+		_start_spin_edit(_spin_box(_focus()))   # up / down change it
 		return true
 	if b == JOY_BUTTON_LEFT_SHOULDER or b == JOY_BUTTON_RIGHT_SHOULDER:
 		var w = _shop_window()
@@ -451,9 +463,22 @@ func _navigate(dir: int) -> void:
 	if spin:
 		_check_spin_edit()
 		if _spin_edit == spin:
-			if dir == Types.Orientation.UP or dir == Types.Orientation.DOWN:
+			if _digit_mode(spin):
+				_edit_digit(spin, dir)
+			elif dir == Types.Orientation.UP or dir == Types.Orientation.DOWN:
 				_step_spin(spin, 1 if dir == Types.Orientation.UP else -1)
 			return
+	if _modal_open():
+		# Only between the popup's own controls (Godot's neighbour search
+		# would happily move onto a window behind it).
+		if not _in_modal(f):
+			hud.modals.focus_default()
+			return
+		var n := _neighbor_in(hud.modals.panel(), f, dir)
+		if n:
+			n.grab_focus()
+		return
+	if spin:
 		# Not editing: move to the next field (the SpinBox would change its
 		# value on ui_up / ui_down and its LineEdit move the caret on
 		# ui_left / ui_right).
@@ -525,8 +550,63 @@ func _check_spin_edit() -> void:
 		return
 	var f := _focus()
 	if not is_instance_valid(_spin_edit) or f == null or _spin_box(f) != _spin_edit:
-		_spin_edit = null
-		_overlay.queue_redraw()
+		_end_spin_edit()
+
+
+func _start_spin_edit(spin: SpinBox) -> void:
+	_spin_edit = spin
+	if _digit_mode(spin):
+		_digit = 0
+		_show_digits(spin)
+	_overlay.queue_redraw()
+
+
+func _end_spin_edit() -> void:
+	var spin := _spin_edit
+	_spin_edit = null
+	if spin and is_instance_valid(spin) and _digit_mode(spin):
+		var le := spin.get_line_edit()
+		le.text = str(int(spin.value))   # back to the plain number
+		le.deselect()
+		le.caret_column = le.text.length()
+	_overlay.queue_redraw()
+
+
+## Whole numbers going to 100 or more: edited digit by digit.
+func _digit_mode(spin: SpinBox) -> bool:
+	return spin.step >= 1.0 and spin.max_value >= 100.0
+
+
+func _digit_count(spin: SpinBox) -> int:
+	return str(int(spin.max_value)).length()
+
+
+func _edit_digit(spin: SpinBox, dir: int) -> void:
+	var n := _digit_count(spin)
+	match dir:
+		Types.Orientation.LEFT:
+			_digit = mini(_digit + 1, n - 1)
+		Types.Orientation.RIGHT:
+			_digit = maxi(_digit - 1, 0)
+		Types.Orientation.UP, Types.Orientation.DOWN:
+			var delta := int(pow(10, _digit)) * (1 if dir == Types.Orientation.UP else -1)
+			spin.value = clampf(int(spin.value) + delta, spin.min_value, spin.max_value)
+			# The SpinBox rewrites its text after a value change (deferred):
+			# put the digits / selection back after that.
+			_show_digits.call_deferred(spin)
+	_show_digits(spin)
+
+
+## The number with leading zeros, the edited digit selected (highlighted).
+func _show_digits(spin: SpinBox) -> void:
+	if spin != _spin_edit or not is_instance_valid(spin):
+		return   # editing ended before this (deferred) call
+	var n := _digit_count(spin)
+	var le := spin.get_line_edit()
+	le.text = str(int(spin.value)).pad_zeros(n)
+	var i := n - 1 - _digit
+	le.select(i, i + 1)
+	le.caret_column = i + 1
 
 
 func _spin_box(f: Control) -> SpinBox:
@@ -705,9 +785,22 @@ func _poll_color_picker(ed: Array, dir: int) -> bool:
 	return true
 
 
+func _modal_open() -> bool:
+	return hud != null and hud.modals != null and hud.modals.is_open()
+
+
+func _in_modal(c: Control) -> bool:
+	return c != null and hud.modals.panel().is_ancestor_of(c)
+
+
 ## The closest focusable picker control in `dir` (Godot's own neighbour search
 ## gets stuck in the picker's grid / button rows).
 func _cp_neighbor(f: Control, dir: int, picker: ColorPicker) -> Control:
+	return _neighbor_in(picker, f, dir)
+
+
+## The closest focusable control under `root` in `dir` from `f`.
+func _neighbor_in(root: Node, f: Control, dir: int) -> Control:
 	var from := f.get_global_rect().get_center()
 	var axis := Vector2(1, 0)
 	match dir:
@@ -716,7 +809,7 @@ func _cp_neighbor(f: Control, dir: int, picker: ColorPicker) -> Control:
 		Types.Orientation.DOWN: axis = Vector2(0, 1)
 	var best: Control = null
 	var best_score := INF
-	for c in picker.find_children("*", "Control", true, false):
+	for c in root.find_children("*", "Control", true, false):
 		if c == f or not c.is_visible_in_tree() or c.focus_mode != Control.FOCUS_ALL:
 			continue
 		var d: Vector2 = c.get_global_rect().get_center() - from

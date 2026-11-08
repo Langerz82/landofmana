@@ -93,7 +93,11 @@ tabs in the store, craft, auction and looks windows. While a window, modal or
 the menu bar is open the stick / d-pad moves the selection (held: repeats every
 200 ms), shown with a blue frame. Dropdowns: A opens the list, A picks the
 highlighted item, B closes it unchanged. Number text fields: A starts editing
-(green frame), up / down then increase / decrease the value, B stops editing.
+(green frame), up / down then increase / decrease the value, B (or A) stops
+editing. Counts, gold and prices (whole numbers up to 100 or more) are edited
+digit by digit: left / right pick the digit, up / down change it.
+While a popup (confirm, "how many?") is open, the gamepad only works inside
+it until it's confirmed or cancelled: nothing in the windows behind reacts.
 Sliders: left / right decrease / increase. Window scroll bars: move right
 onto the bar, then up / down scrolls (faster while held); left goes back. Colour picker: the stick moves
 between its controls; A edits a slider, number box, the colour square or the

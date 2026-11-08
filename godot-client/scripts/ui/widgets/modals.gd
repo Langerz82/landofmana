@@ -85,6 +85,19 @@ func is_open() -> bool:
 	return _panel.visible
 
 
+## Gamepad: the popup's panel -- the focus stays inside it while it's open.
+func panel() -> Control:
+	return _panel
+
+
+## Gamepad: where the focus goes in the popup (the number box, else OK).
+func focus_default() -> void:
+	if _spin.visible:
+		_spin.get_line_edit().grab_focus()
+	else:
+		_ok.grab_focus()
+
+
 func confirm(message: String, cb: Callable) -> void:
 	_show("confirm", message, cb, "Yes", "No")
 

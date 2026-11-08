@@ -48,6 +48,19 @@ func _init() -> void:
 
 
 func build() -> void:
+	# Gold and the buttons at the top, above the slots.
+	_gold = UiStyle.label("Bank: 0   Carried: 0", 15, Color(1, 0.85, 0.3))
+	content.add_child(_gold)
+	# Buttons wrap onto a second line rather than widening the narrow window.
+	var h := HFlowContainer.new()
+	h.add_theme_constant_override("h_separation", 6)
+	h.add_theme_constant_override("v_separation", 6)
+	content.add_child(h)
+	h.add_child(UiStyle.button("Withdraw gold", func(): actions.transfer_gold(true)))
+	h.add_child(UiStyle.button("Deposit gold", func(): actions.transfer_gold(false)))
+	h.add_child(UiStyle.button("STORE ITEMS", func():
+		inventory_window.open_mode(ItemActions.Mode.BANK, self)
+		close()))
 	_scroll = ScrollContainer.new()
 	_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	_scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_SHOW_ALWAYS
@@ -76,19 +89,7 @@ func build() -> void:
 		_grid.add_child(s)
 		slots.append(s)
 	_set_visible_rows(MIN_ROWS)
-	_gold = UiStyle.label("Bank: 0   Carried: 0", 15, Color(1, 0.85, 0.3))
-	content.add_child(_gold)
-	# Buttons wrap onto a second line rather than widening the narrow window.
-	var h := HFlowContainer.new()
-	h.add_theme_constant_override("h_separation", 6)
-	h.add_theme_constant_override("v_separation", 6)
-	content.add_child(h)
-	h.add_child(UiStyle.button("Withdraw gold", func(): actions.transfer_gold(true)))
-	h.add_child(UiStyle.button("Deposit gold", func(): actions.transfer_gold(false)))
-	h.add_child(UiStyle.button("STORE ITEMS", func():
-		inventory_window.open_mode(ItemActions.Mode.BANK, self)
-		close()))
-	var hint := UiStyle.label("Click an item twice (or double click / drag it to the inventory) to take it out.", 11, Color(1, 1, 1, 0.7))
+	var hint := UiStyle.label("Click an item twice (or double click / drag it to the inventory) to take it out; click it, then an empty slot, to move it.", 11, Color(1, 1, 1, 0.7))
 	hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	content.add_child(hint)
 	# While closed, report the compact size: the HUD picks the mobile UI scale
@@ -163,9 +164,14 @@ func _select(i: int) -> void:
 		slots[i].set_selected(true)
 
 
+## Click an item to select it, click it again to take it out; with an item
+## selected, clicking an empty bank slot moves it there (like dragging it).
 func _on_pressed(s: ItemSlot) -> void:
 	if data.bank[s.index] == null:
+		var from := selected
 		_select(-1)
+		if from >= 0 and data.bank[from] != null:
+			actions.move_item(PlayerData.Store.BANK, from, PlayerData.Store.BANK, s.index)
 		return
 	if selected == s.index:
 		_select(-1)
