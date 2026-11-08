@@ -469,6 +469,11 @@ export function installGameInteractionTarget(proto) {
         });
 
         index = (index + entities.length) % entities.length;
+        // Next / previous target (inc !== 0): never the entity already
+        // targeted. The list is re-sorted by distance on every press, so the
+        // stored index could land on the current target again - step past it.
+        if (inc !== 0 && entities[index] === entity.target)
+            index = (index + entities.length + inc) % entities.length;
         entity.targetIndex = (index + entities.length + inc) % entities.length;
         return entities[index];
     };

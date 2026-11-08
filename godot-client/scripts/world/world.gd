@@ -1121,6 +1121,11 @@ func player_target_closest_entity(inc: int) -> bool:
 		return false
 	list.sort_custom(func(a, b): return Types.real_distance(p.x, p.y, a.x, a.y) < Types.real_distance(p.x, p.y, b.x, b.y))
 	var index := posmod(p.target_index, list.size())
+	# Next / previous target (inc != 0): never the entity already targeted.
+	# The list is re-sorted by distance on every press, so the stored index
+	# could land on the current target again -- step past it.
+	if inc != 0 and list.size() > 1 and list[index] == p.target:
+		index = posmod(index + inc, list.size())
 	p.target_index = posmod(index + inc, list.size())
 	p.set_target(list[index])
 	return true
