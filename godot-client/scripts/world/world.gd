@@ -28,7 +28,11 @@ const BASE_SCALE := 3.0
 ## Settings -> Zoom value called "Normal" (the default). Entity names are
 ## drawn at their normal size at this zoom and in proportion at the others.
 const DEFAULT_ZOOM := 0.8          # "Normal" (also the reference size for names over the world)
-const MOBILE_ZOOM := 0.6           # "Closer": zoom on phones / tablets until the player picks one
+const MOBILE_ZOOM := 0.5           # zoom on phones until the player picks one
+const TABLET_ZOOM := 0.5           # zoom on tablets (incl. iPad Safari) until the player picks one
+const ZOOM_MIN := 0.3              # Settings -> Zoom field range (closest)
+const ZOOM_MAX := 1.2              # (furthest)
+const ZOOM_STEP := 0.1             # Settings -> Zoom field increment
 ## The maps, from res://assets/maps/maplist.json (shared/maps/maplist.json, copied by the sync-assets
 ## scripts; written by tools/maps/generator/split.py): map_list.maps[index] is each map's name ("map2", or
 ## "map4/map4_0_0" for a part of a split map), map_list.warps the map "/warp map4" goes to.
@@ -2365,9 +2369,14 @@ func _load_map_list() -> void:
 	if d.get("areas") is Dictionary: map_list.areas = d.areas
 
 
-## Zoom used until the player picks one (Settings -> Zoom): closer on mobile.
+## Zoom used until the player picks one (Settings -> Zoom): TABLET_ZOOM on
+## tablets, MOBILE_ZOOM on phones, otherwise DEFAULT_ZOOM.
 static func default_zoom() -> float:
-	return MOBILE_ZOOM if UiStyle.is_mobile() else DEFAULT_ZOOM
+	if UiStyle.is_tablet():
+		return TABLET_ZOOM
+	if UiStyle.is_mobile():
+		return MOBILE_ZOOM
+	return DEFAULT_ZOOM
 
 
 ## How big the world is drawn compared with the Normal zoom (1 = Normal,

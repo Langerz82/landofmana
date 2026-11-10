@@ -40,23 +40,23 @@ func run() -> void:
 	var sw = hud.window("settings")
 	sw.open()
 	await wait(200)
-	var zoom_opt: OptionButton = null
-	for c in sw.find_children("*", "OptionButton", true, false):
-		if c.get_item_text(0) == "Closest":
-			zoom_opt = c
-	check("zoom option in settings", zoom_opt != null)
+	var zoom_box: SpinBox = null
+	for c in sw.find_children("*", "SpinBox", true, false):
+		if c.tooltip_text.begins_with("Lower = closer"):
+			zoom_box = c
+	check("zoom field in settings", zoom_box != null)
+	check("zoom field steps by 0.1", zoom_box != null and is_equal_approx(zoom_box.step, 0.1))
 	sw.close()
 	var normal := -1
-	for i in range(SettingsWindow.ZOOMS.size()):
-		zoom_opt.select(i)
-		zoom_opt.item_selected.emit(i)
+	for z in [0.4, 0.6, 0.8, 1.0, 1.2]:
+		zoom_box.value = z
 		await wait(400)
-		var z: float = SettingsWindow.ZOOMS[i][1]
+		check("zoom saved as %.1f" % z, is_equal_approx(float(Config.get_setting("ui", "gamezoom", -1)), z))
 		var expect := maxi(ov.NAME_MIN_SIZE, roundi(UiStyle.fs(ov.NAME_SIZE) * World.DEFAULT_ZOOM / z * UiStyle.ui_scale))
-		check("zoom %s (%.1f): name size %d" % [SettingsWindow.ZOOMS[i][0], z, ov.name_size()], ov.name_size() == expect, "expected %d" % expect)
+		check("zoom %.1f: name size %d" % [z, ov.name_size()], ov.name_size() == expect, "expected %d" % expect)
 		if is_equal_approx(z, World.DEFAULT_ZOOM):
 			normal = ov.name_size()
-		await shot("zoom_names_%s" % SettingsWindow.ZOOMS[i][0])
+		await shot("zoom_names_%.1f" % z)
 	check("Normal zoom keeps the normal size", normal == UiStyle.fs(ov.NAME_SIZE), str(normal))
 	# Proportion: name size / world scale is the same at every zoom (until the minimum).
 	var ratios := []

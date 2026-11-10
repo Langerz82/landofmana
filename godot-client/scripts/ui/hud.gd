@@ -25,6 +25,11 @@ signal back_to_login
 
 const KOMIKA := preload("res://assets/fonts/KOMIKAH.ttf")
 const PIXEL := preload("res://assets/fonts/graphicpixel-webfont.ttf")
+## Base font size of the entity names in the HUD: the player's name in the
+## player panel and the target's name in the target frame (scaled by the Font
+## size and UI scale settings like all HUD text). Names above the entities in
+## the world: overlay.gd NAME_SIZE.
+const HUD_NAME_SIZE := 12
 const MAX_CHAT_LINES := 60
 ## Chat log lines are removed this long after they were added (ms).
 const CHAT_LINE_LIFETIME_MS := 30000
@@ -196,7 +201,7 @@ func _build_player_panel(root: Control) -> void:
 	var v := VBoxContainer.new()
 	v.add_theme_constant_override("separation", 3)
 	p.add_child(v)
-	_name_label = _label("", 12, KOMIKA, Color(1, 1, 0))
+	_name_label = _label("", HUD_NAME_SIZE, KOMIKA, Color(1, 1, 0))
 	v.add_child(_name_label)
 	var hp_row := Control.new()
 	hp_row.custom_minimum_size = Vector2(220, 16)
@@ -240,7 +245,7 @@ func _build_target_panel(root: Control) -> void:
 	_target_panel.minimum_size_changed.connect(_layout_target_panel)
 	var v := VBoxContainer.new()
 	_target_panel.add_child(v)
-	_target_name = _label("", 12, KOMIKA)
+	_target_name = _label("", HUD_NAME_SIZE, KOMIKA)
 	_target_name.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
 	v.add_child(_target_name)
 	_target_bar = _bar(Color(0.85, 0.15, 0.15), 16, true)   # same height as the player HP bar
@@ -1394,51 +1399,28 @@ func _is_landscape() -> bool:
 
 
 ## Screen resized. On phones / tablets a switch between portrait and landscape
-## also sets the UI scale so that every window fits on the new screen.
+## also sets the UI scale again from the screen size (UiStyle.default_ui_scale():
+## shorter side / UI_SCALE_REF_SIDE, rounded down to 0.05).
 func _on_viewport_size_changed() -> void:
 	apply_ui_scale()
 	if not UiStyle.is_mobile():
 		return
 	var land := _is_landscape()
 	if _landscape != null and land != _landscape:
-		fit_ui_scale_to_screen.call_deferred()
+		apply_screen_ui_scale.call_deferred()
 	_landscape = land
 
 
-## Largest window (HUD units): the biggest width and the biggest height of
-## all game windows, each at its minimum size.
-func _largest_window_size() -> Vector2:
-	var need := Vector2.ZERO
-	for w in windows.values():
-		w.fit_content(false)   # the default (MAX_SIZE-capped) size, not squeezed to this screen
-		var m: Vector2 = w.get_combined_minimum_size()
-		need = need.max(m)
-	return need
-
-
-## Set the UI scale (and save it as the setting) to the biggest value at which
-## every window fits on screen above the bottom bar, but no bigger than the
-## device's default UI scale. Called when the screen orientation changes.
-func fit_ui_scale_to_screen() -> void:
-	if _root == null or windows.is_empty():
+## Set the UI scale (and save it as the setting) from the screen size: the
+## smaller of its width and height / UI_SCALE_REF_SIDE, rounded down to 0.05
+## (UiStyle.default_ui_scale()). Called
+## when the screen orientation changes.
+func apply_screen_ui_scale() -> void:
+	if _root == null:
 		return
-	var vp := get_viewport().get_visible_rect().size
-	var cap := minf(UiStyle.default_ui_scale(), UiStyle.UI_SCALE_MAX)
-	var s := UiStyle.ui_scale
-	# Text has a readability floor below MIN_UI_TEXT_SCALE, so window sizes in
-	# HUD units change a bit with the scale: re-measure until it settles.
-	for i in range(4):
-		var need := _largest_window_size()
-		if need.x <= 0.0 or need.y <= 0.0:
-			return
-		var fit := minf(vp.x / need.x, vp.y / (need.y + GameWindow.BOTTOM_MARGIN))
-		var ns := clampf(floorf(fit / 0.05 + 0.0001) * 0.05, UiStyle.UI_SCALE_MIN, cap)
-		if i > 0 and ns >= s:
-			break
-		s = ns
-		UiStyle.ui_scale = s
-		apply_ui_scale()   # updates the HUD fonts, so minimum sizes are re-measured
+	var s := UiStyle.default_ui_scale()
 	UiStyle.ui_scale = s
+	apply_ui_scale()
 	Config.set_setting("ui", "uiscale", snappedf(s, 0.01))
 	var us = window("uisettings")
 	if us and us.has_method("sync_ui_scale"):

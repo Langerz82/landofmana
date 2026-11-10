@@ -35,15 +35,11 @@ const MOBILE_FONT_SCALE := 1.25    # font size scale on phones / tablets until t
 static var font_scale := DEFAULT_FONT_SCALE   # Settings -> Font size: 1 = normal, >1 bigger, <1 smaller
 const FONT_SCALE_MIN := 0.5
 const FONT_SCALE_MAX := 2.0
-# Default UI scales are given for a device pixel ratio (DPR) of 1 and get
-# multiplied by the device's DPR (see default_ui_scale()), so the HUD has
-# about the same physical size on standard and high-density screens.
-const DEFAULT_UI_SCALE := 1.15   # UI scale on desktop (Windows / Linux) at DPR 1 until the player picks one
-const WEB_UI_SCALE := 1.15         # UI scale in a desktop browser at DPR 1 until the player picks one
-const MOBILE_UI_SCALE := 1.15      # UI scale on phones (native or browser) at DPR 1 until the player picks one (~1.5-1.8 on a DPR 2.5-3 phone)
-const TABLET_UI_SCALE := 1.25      # UI scale on tablets (native or browser) at DPR 1 until the player picks one (2 on a DPR 2 tablet)
-## Native Android app (phone or tablet): used as-is, not multiplied by the DPR.
-const ANDROID_UI_SCALE := 1.25
+## UI scale used until the player picks one (and after a screen orientation
+## change): the screen's shorter side divided by this many pixels, so the HUD
+## takes about the same share of any screen (default_ui_scale()).
+const UI_SCALE_REF_SIDE := 600.0
+const DEFAULT_UI_SCALE := 1.0   # only until the screen size is known
 const TABLET_MIN_DP := 600.0      # shortest screen side (in dp / CSS px) from which a mobile device counts as a tablet
 static var ui_scale := DEFAULT_UI_SCALE   # Settings -> UI scale: size of the whole HUD (panels, windows, icons)
 const UI_SCALE_MIN := 0.5
@@ -80,21 +76,28 @@ static func default_font_scale() -> float:
 	return MOBILE_FONT_SCALE if is_mobile() else DEFAULT_FONT_SCALE
 
 
-## UI scale used until the player picks one: ANDROID_UI_SCALE in the native
-## Android app, otherwise the base scale for a tablet, phone, desktop browser
-## or desktop app, times the device pixel ratio.
+## UI scale used until the player picks one, and set again when the screen
+## orientation changes (hud.gd): the smaller of the screen width and height
+## divided by UI_SCALE_REF_SIDE, rounded down to a multiple of 0.05, within
+## UI_SCALE_MIN..MAX. At 650: 1024 x 768 -> 1.15, 1920 x 1080 or a
+## 1080 x 2400 phone -> 1.65.
 static func default_ui_scale() -> float:
-	if OS.has_feature("android") and not OS.has_feature("web"):
-		return ANDROID_UI_SCALE
-	var base := DEFAULT_UI_SCALE
-	if is_tablet():
-		base = TABLET_UI_SCALE
-	elif is_mobile():
-		base = MOBILE_UI_SCALE
-	elif OS.has_feature("web"):
-		base = WEB_UI_SCALE
-	var s := snappedf(base * device_pixel_ratio(), 0.05)
-	return clampf(s, UI_SCALE_MIN, UI_SCALE_MAX)
+	var vp := screen_size()
+	var side := minf(vp.x, vp.y)
+	if side <= 0.0:
+		return DEFAULT_UI_SCALE
+	# The small epsilon keeps exact steps (e.g. 1300 / 650 = 2.0) from flooring
+	# to the step below through float error.
+	var s := floorf(side / UI_SCALE_REF_SIDE / 0.05 + 0.0001) * 0.05
+	return clampf(snappedf(s, 0.01), UI_SCALE_MIN, UI_SCALE_MAX)
+
+
+## Size of the game's screen (the main window / browser canvas) in pixels.
+static func screen_size() -> Vector2:
+	var ml := Engine.get_main_loop()
+	if ml is SceneTree and (ml as SceneTree).root:
+		return (ml as SceneTree).root.get_visible_rect().size
+	return Vector2(DisplayServer.window_get_size())
 
 
 ## Device pixel ratio: physical pixels per logical (CSS / dp / pt) pixel.

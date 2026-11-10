@@ -69,8 +69,9 @@ func run() -> void:
 	check("enter world", await until(func(): return world.started and world.map_status >= 2, 15000))
 	await wait(800)
 	var saved = Config.get_setting("ui", "uiscale", 1.0)
-	check("default scale is 1", is_equal_approx(UiStyle.DEFAULT_UI_SCALE, 1.0))
-	check("tablet default scale is 1 at DPR 1", is_equal_approx(UiStyle.TABLET_UI_SCALE, 1.0))
+	var vp := get_viewport().get_visible_rect().size
+	check("default scale is the shorter screen side / UI_SCALE_REF_SIDE, rounded down to 0.05",
+		is_equal_approx(UiStyle.default_ui_scale(), clampf(floorf(minf(vp.x, vp.y) / UiStyle.UI_SCALE_REF_SIDE / 0.05 + 0.0001) * 0.05, UiStyle.UI_SCALE_MIN, UiStyle.UI_SCALE_MAX)))
 	# Change it through the settings window like a player.
 	var sw = hud.window("uisettings")
 	sw.open()
@@ -83,7 +84,6 @@ func run() -> void:
 		await wait(100)
 	sw.close()
 	await wait(200)
-	var vp := get_viewport().get_visible_rect().size
 	var base_bar: Vector2 = hud.shortcut_bar.get_global_rect().size
 	var base_player: Vector2 = hud._root.get_child(1).get_global_rect().size
 	for st in ["horizontal-asc", "vertical-asc"]:

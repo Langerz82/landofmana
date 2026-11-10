@@ -103,9 +103,8 @@ func build() -> void:
 	var hint := UiStyle.label("Click an item twice (or double click / drag it to the inventory) to take it out; click it, then an empty slot, to move it.", 11, Color(1, 1, 1, 0.7))
 	hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	content.add_child(hint)
-	# While closed, report the compact size: the HUD picks the mobile UI scale
-	# from every window's minimum size (hud.gd fit_ui_scale_to_screen()), and
-	# the bank shrinks to fit anyway.
+	# While closed, report the compact size: the bank shrinks to fit the
+	# screen when it opens anyway.
 	closed.connect(func(): _set_visible_rows(MIN_ROWS))
 
 

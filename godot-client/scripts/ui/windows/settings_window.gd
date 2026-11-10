@@ -26,7 +26,6 @@ extends GameWindow
 var _scroll: ScrollContainer
 var _pickers: Dictionary = {}   # setting key -> [ColorPickerButton, default]
 
-const ZOOMS := [["Closest", 0.4], ["Closer", 0.6], ["Normal", 0.8], ["Further", 1.0], ["Furthest", 1.2]]
 const BAR_SPEEDS := [["Instant", 0], ["Fast (250 ms)", 250], ["Normal (500 ms)", 500], ["Slow (1000 ms)", 1000]]
 const SHORTCUT_STYLES := [["Horizontal ascending", "horizontal-asc"], ["Horizontal descending", "horizontal-desc"],
 	["Vertical ascending", "vertical-asc"], ["Vertical descending", "vertical-desc"]]
@@ -56,16 +55,17 @@ func build() -> void:
 	_toggle("Joystick", "ui", "joystick", OS.has_feature("mobile"), func(v): hud.set_joystick_visible(v))
 	_toggle("Fullscreen", "ui", "fullscreen", false, func(v):
 		DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN if v else DisplayServer.WINDOW_MODE_WINDOWED))
-	var zoom := OptionButton.new()
-	for z in ZOOMS:
-		zoom.add_item(z[0])
-	var cur := float(Config.get_setting("ui", "gamezoom", World.default_zoom()))
-	for i in range(ZOOMS.size()):
-		if is_equal_approx(ZOOMS[i][1], cur):
-			zoom.select(i)
-	zoom.item_selected.connect(func(i):
-		Config.set_setting("ui", "gamezoom", ZOOMS[i][1])
-		world.set_zoom(ZOOMS[i][1]))
+	# Zoom: a number field in steps of 0.1; lower = closer, higher = further.
+	var zoom := SpinBox.new()
+	zoom.min_value = World.ZOOM_MIN
+	zoom.max_value = World.ZOOM_MAX
+	zoom.step = World.ZOOM_STEP
+	zoom.value = snappedf(float(Config.get_setting("ui", "gamezoom", World.default_zoom())), World.ZOOM_STEP)
+	zoom.tooltip_text = "Lower = closer, higher = further, %.1f to %.1f (default %.1f)" % [World.ZOOM_MIN, World.ZOOM_MAX, World.DEFAULT_ZOOM]
+	zoom.value_changed.connect(func(v: float):
+		var z := snappedf(clampf(v, World.ZOOM_MIN, World.ZOOM_MAX), World.ZOOM_STEP)
+		Config.set_setting("ui", "gamezoom", z)
+		world.set_zoom(z))
 	_row("Zoom", zoom)
 	content.add_child(UiStyle.button("UI Settings", open_ui_settings))
 	content.add_child(UiStyle.button("Sound Settings", open_sound_settings))
