@@ -158,9 +158,12 @@ func revive() -> void:
 
 
 func respawn(died: bool = false) -> void:
+	# Death only swaps the body (layer 0) for the death sprite; the weapon
+	# layer (1) is just hidden while dead. Restoring layer 1 too would bring
+	# back the weapon sprite worn *before* the current one (e.g. the sword
+	# after equipping a bow).
 	if died:
 		restore_sprite(0)
-		restore_sprite(1)
 	force_stop()
 	set_orientation(Types.Orientation.DOWN)
 	idle(orientation)

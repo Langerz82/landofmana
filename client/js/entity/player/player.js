@@ -222,10 +222,11 @@ export default class Player extends Character {
     }
 
     respawn(died = false) {
-        if (died) {
-            this.restoreSprite(0);
-            this.restoreSprite(1);
-        }
+        // Death only swaps the body (layer 0) for the death sprite; the
+        // weapon layer (1) is just hidden while dead. Restoring layer 1 too
+        // would bring back the weapon sprite worn *before* the current one
+        // (e.g. the sword after equipping a bow).
+        if (died) this.restoreSprite(0);
         this.forceStop();
         this.setOrientation(Types.Orientations.DOWN);
         this.idle(this.orientation);
