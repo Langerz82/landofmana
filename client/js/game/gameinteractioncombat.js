@@ -88,7 +88,27 @@ export function installGameInteractionCombat(proto) {
             () => {
                 if (p.isDead || p.isDying) return;
 
-                if (this.tryInteractFacedEntity()) return;
+                // Turned from the target to another entity next to the
+                // player: attack it when it's an enemy; an NPC / node ends
+                // the attack loop (no talking to it or harvesting it until
+                // the player interacts).
+                const faced = this.facedSwitchTarget();
+                if (faced) {
+                    if (this.isAttackableEntity(faced)) {
+                        p.setTarget(faced);
+                        this.makePlayerAttack(faced);
+                    }
+                    return;
+                }
+
+                const pos = p.nextTile();
+                const ahead = this.getEntityAt(pos[0], pos[1]);
+                if (
+                    ahead &&
+                    this.isAttackableEntity(ahead) &&
+                    this.tryInteractFacedEntity()
+                )
+                    return;
 
                 if (p.hasTarget()) this.makePlayerAttack(p.target);
             },

@@ -513,10 +513,15 @@ func update_bars(p) -> void:
 	_gold_label.text = "Gold: %d    Gems: %d" % [int(p.gold[0]), int(p.gems)]
 
 
+## Entity types that never show the target frame (name + health bar) when
+## targeted: resource nodes and NPCs.
+const NO_TARGET_FRAME_TYPES := [Types.EntityType.NODE, Types.EntityType.NPCSTATIC, Types.EntityType.NPCMOVE]
+
+
 func set_target(e) -> void:
 	var changed: bool = e != _target
 	_target = e
-	if e == null or not is_instance_valid(e):
+	if e == null or not is_instance_valid(e) or e.type in NO_TARGET_FRAME_TYPES:
 		_target_panel.visible = false
 		return
 	_target_panel.visible = true

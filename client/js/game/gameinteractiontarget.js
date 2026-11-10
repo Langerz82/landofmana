@@ -43,6 +43,14 @@ export function installGameInteractionTarget(proto) {
 
         log.info('makePlayerInteractNextTo');
 
+        // Fighting an entity next to the player but turned to face another
+        // one next to it (an enemy, an NPC, ...): interact with the faced one.
+        if (this.facedSwitchTarget()) {
+            clearTimeout(p.attackInterval);
+            this.tryInteractFacedEntity();
+            return;
+        }
+
         // An entity the player already targeted (clicked, or picked with the
         // target key / gamepad) wins: interact with it - processTarget ->
         // processInput -> playerInteract walks to it when it's out of reach -
@@ -76,6 +84,30 @@ export function installGameInteractionTarget(proto) {
         p.setTarget(entity);
         p.lookAtEntity(entity);
         return this.processTarget();
+    };
+
+    // The entity (enemy, NPC, node, ...) next to the player that it is
+    // facing, when the current target is also next to the player but is a
+    // different entity - i.e. the player turned from the adjacent entity it
+    // was fighting to another one. null otherwise (no target, a far target,
+    // or still facing it).
+    proto.facedSwitchTarget = function () {
+        const p = this.player;
+        if (!p || !p.target || !p.isNextTooEntity(p.target)) return null;
+        const pos = p.nextTile();
+        const entity = this.getEntityAt(pos[0], pos[1]);
+        if (!entity || entity === p || entity === p.target) return null;
+        if (entity.isDying || entity.isDead) return null;
+        if (!(p.isAdjacentEntity(entity) && p.isFacingEntity(entity)))
+            return null;
+        return entity;
+    };
+
+    proto.isAttackableEntity = function (entity) {
+        return (
+            entity instanceof Mob ||
+            (entity instanceof Player && entity !== this.player)
+        );
     };
 
     proto.isEntityDead = function (entity) {
@@ -459,22 +491,32 @@ export function installGameInteractionTarget(proto) {
             entity.targetIndex = 0;
             return null;
         }
-        if (entities.length === 1) {
-            entity.targetIndex = 0;
-            return entities[0];
-        }
+        // Order: the entity next to `entity` that it is facing first, then
+        // any other entity next to it, then the rest; nearest first in each.
+        const rank = function (e) {
+            if (!entity.isNextTooEntity(e)) return 2;
+            return typeof entity.isFacingEntity === 'function' &&
+                entity.isFacingEntity(e)
+                ? 0
+                : 1;
+        };
+        for (let entity2 of entities) entity2.targetRank = rank(entity2);
 
         entities.sort(function (a, b) {
-            return a.playerDistance > b.playerDistance ? 1 : -1;
+            if (a.targetRank !== b.targetRank)
+                return a.targetRank - b.targetRank;
+            return a.playerDistance - b.playerDistance;
         });
 
-        index = (index + entities.length) % entities.length;
-        // Next / previous target (inc !== 0): never the entity already
-        // targeted. The list is re-sorted by distance on every press, so the
-        // stored index could land on the current target again - step past it.
-        if (inc !== 0 && entities[index] === entity.target)
-            index = (index + entities.length + inc) % entities.length;
-        entity.targetIndex = (index + entities.length + inc) % entities.length;
+        // No target (or it left the list): take the first in that order.
+        // Next / previous (inc !== 0) steps from the current target's place
+        // in the list, which is re-sorted on every press, so it never lands
+        // on the same entity.
+        const cur = entity.target ? entities.indexOf(entity.target) : -1;
+        index = 0;
+        if (inc !== 0 && cur !== -1)
+            index = (cur + inc + entities.length) % entities.length;
+        entity.targetIndex = index;
         return entities[index];
     };
 

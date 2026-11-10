@@ -844,6 +844,18 @@ func _add_local_player_callbacks() -> void:
 	p.movestop_cb = func():
 		if p.key_move:
 			return
+		# Turned to face another enemy next to the player while fighting one
+		# next to it: switch to that one instead of turning back.
+		# Facing an NPC / node instead: keep facing it and stop attacking, so
+		# the interact key talks to it / harvests it.
+		var faced = _faced_switch_target()
+		if faced != null:
+			if _is_attackable(faced):
+				p.set_target(faced)
+				_schedule_attack_retry(0)
+			else:
+				p.cancel_attack_delay()
+			return
 		if p.has_target() and p.can_reach_target():
 			p.look_at_entity(p.target)
 	p.abort_pathing_cb = func(_path, _x, _y):
@@ -1019,7 +1031,18 @@ func _schedule_attack_retry(delay: int) -> void:
 	p.attack_delay = Game.after(maxi(0, delay) + 16, func():
 		if p.is_dead or p.is_dying:
 			return
-		if _try_interact_faced_entity():
+		# Turned from the target to another entity next to the player: attack
+		# it when it's an enemy; an NPC / node ends the attack loop (no
+		# talking to it or harvesting it until the player interacts).
+		var faced = _faced_switch_target()
+		if faced != null:
+			if _is_attackable(faced):
+				p.set_target(faced)
+				make_player_attack(faced)
+			return
+		var pos := p.next_tile()
+		var ahead = get_entity_at(pos.x, pos.y)
+		if ahead != null and _is_attackable(ahead) and _try_interact_faced_entity():
 			return
 		if p.has_target():
 			make_player_attack(p.target))
@@ -1030,6 +1053,12 @@ func make_player_interact_next_to() -> void:
 	if p.is_dying or p.is_dead:
 		return
 	if _try_show_dialogue():
+		return
+	# Fighting an entity next to the player but turned to face another one
+	# next to it (an enemy, an NPC, ...): interact with the faced one.
+	if _faced_switch_target() != null:
+		p.cancel_attack_delay()
+		_try_interact_faced_entity()
 		return
 	# An entity the player already targeted (clicked, target key, gamepad B)
 	# wins: interact with it -- walking to it when it's out of reach --
@@ -1056,6 +1085,27 @@ func _try_interact_faced_entity() -> bool:
 	p.set_target(e)
 	p.look_at_entity(e)
 	return _process_target()
+
+
+## The entity (enemy, NPC, node, ...) next to the player that it is facing,
+## when the current target is also next to the player but is a different
+## entity -- i.e. the player turned from the adjacent entity it was fighting
+## to another one. null otherwise (no target, a far target, or still facing it).
+func _faced_switch_target():
+	var p := player
+	if p == null or not p.has_target() or not is_instance_valid(p.target) or not p.is_next_too_entity(p.target):
+		return null
+	var pos := p.next_tile()
+	var e = get_entity_at(pos.x, pos.y)
+	if e == null or e == p or e == p.target or e.is_dying or e.is_dead:
+		return null
+	if not (p.is_adjacent_entity(e) and p.is_facing_entity(e)):
+		return null
+	return e
+
+
+func _is_attackable(e) -> bool:
+	return e is Mob or (e is Player and e != player)
 
 
 func _process_target() -> bool:
@@ -1123,16 +1173,33 @@ func player_target_closest_entity(inc: int) -> bool:
 	if list.is_empty():
 		p.target_index = 0
 		return false
-	list.sort_custom(func(a, b): return Types.real_distance(p.x, p.y, a.x, a.y) < Types.real_distance(p.x, p.y, b.x, b.y))
-	var index := posmod(p.target_index, list.size())
-	# Next / previous target (inc != 0): never the entity already targeted.
-	# The list is re-sorted by distance on every press, so the stored index
-	# could land on the current target again -- step past it.
-	if inc != 0 and list.size() > 1 and list[index] == p.target:
-		index = posmod(index + inc, list.size())
-	p.target_index = posmod(index + inc, list.size())
+	# Order: the entity next to the player that it is facing first, then any
+	# other entity next to the player, then the rest; nearest first in each.
+	list.sort_custom(func(a, b):
+		var ra := _target_rank(a)
+		var rb := _target_rank(b)
+		if ra != rb:
+			return ra < rb
+		return Types.real_distance(p.x, p.y, a.x, a.y) < Types.real_distance(p.x, p.y, b.x, b.y))
+	# No target (or it left the list): take the first in that order. Next /
+	# previous (inc != 0) steps from the current target's place in the list,
+	# which is re-sorted on every press, so it never lands on the same entity.
+	var cur := list.find(p.target) if p.has_target() else -1
+	var index := 0
+	if inc != 0 and cur != -1:
+		index = posmod(cur + inc, list.size())
+	p.target_index = index
 	p.set_target(list[index])
 	return true
+
+
+## Targeting priority (player_target_closest_entity): 0 = next to the player
+## and faced, 1 = next to the player, 2 = anything else on screen.
+func _target_rank(e) -> int:
+	var p := player
+	if not p.is_next_too_entity(e):
+		return 2
+	return 0 if p.is_facing_entity(e) else 1
 
 
 ## game.click(): mouse click on world position (pixels).

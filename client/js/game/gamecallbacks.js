@@ -192,6 +192,21 @@ export function installGameCallbacks(proto) {
                 return;
             }
 
+            // Turned to face another enemy next to the player while fighting
+            // one next to it: switch to that one instead of turning back.
+            // Facing an NPC / node instead: keep facing it and stop attacking,
+            // so the interact key talks to it / harvests it.
+            const faced = self.facedSwitchTarget();
+            if (faced) {
+                if (self.isAttackableEntity(faced)) {
+                    p.setTarget(faced);
+                    self.scheduleAttackRetry(0);
+                } else {
+                    clearTimeout(p.attackInterval);
+                }
+                return;
+            }
+
             if (p.hasTarget() && p.canReachTarget()) p.lookAtEntity(p.target);
             else {
                 log.info('onMoveStop - NO TARGET!');

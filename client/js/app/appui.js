@@ -121,6 +121,16 @@ export function installAppUI(proto) {
         // because these are plain (non-arrow) callbacks with no bound `this`.
         if (game.player) {
             game.player.onSetTarget(function (target, mouseover) {
+                // Resource nodes and NPCs never show the target frame.
+                const noFrameTypes = [
+                    Types.EntityTypes.NODE,
+                    Types.EntityTypes.NPCSTATIC,
+                    Types.EntityTypes.NPCMOVE
+                ];
+                if (noFrameTypes.includes(target.type)) {
+                    app.jqTarget.fadeOut('fast');
+                    return;
+                }
                 let targetName = target.name;
                 if (!(
                     targetName &&
