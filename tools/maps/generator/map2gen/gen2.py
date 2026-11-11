@@ -18,7 +18,7 @@ import json, pickle, time, argparse, heapq
 import numpy as np
 from collections import defaultdict, Counter
 from scipy import ndimage
-from octo import tile as otile, clean, octshape, FAM, block, rectify, shore, match_joints
+from octo import tile as otile, clean, octshape, FAM, block, rectify, shore, match_joints, smooth_joints, tile_alpha
 from PIL import Image
 from noise import fbm
 from paths import data, cache
@@ -1369,6 +1369,10 @@ for _nm, _a in FULL.items():
 if 'blocking' in FULL:
     log('blocking removed from empty tiles:', int(((FULL['blocking'] != 0) & ~_anyt).sum()))
     FULL['blocking'][~_anyt] = 0
+# grass edges: re-pick each straight run's variants so the edge lines up where tiles meet -- otherwise a run
+# next to a 45-degree step often gets a variant a few pixels off, leaving a notch (octo.smooth_joints)
+if 'grass' in FULL:
+    log('grass edge tiles re-picked so edges join smoothly:', smooth_joints(FULL['grass'], FAM['grass'], tile_alpha(data('tilesheet.png'))))
 log('writing', OUT)
 src = json.load(open(data('old_map2.json')))
 order = [l['name'] for l in src['layers']]

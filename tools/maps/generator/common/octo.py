@@ -157,3 +157,60 @@ def match_joints(out, F, img, where=None, groups=('T', 'B', 'L', 'R')):
                 for bk in reversed(back): k = int(bk[k]); seq.append(k)
                 for i, k in enumerate(reversed(seq)): o[y0 + i, x] = var[k]
     return out
+
+
+def tile_alpha(sheet_path):
+    """gid -> 16x16 bool mask of the tile's opaque pixels (0 -> all clear), read from the tilesheet once."""
+    from PIL import Image
+    ts = np.asarray(Image.open(sheet_path).convert('RGBA')); cols = ts.shape[1] // 16; cache = {}
+    def alpha(g):
+        g = int(g) & 0x1FFFFFFF
+        if g not in cache:
+            if g == 0: cache[g] = np.zeros((16, 16), bool)
+            else:
+                r, c = divmod(g - 1, cols); cache[g] = ts[r * 16:r * 16 + 16, c * 16:c * 16 + 16, 3] > 0
+        return cache[g]
+    return alpha
+
+def smooth_joints(out, F, alpha, groups=('T', 'B', 'L', 'R'), only_bad=False, bad=3):
+    """Re-pick the variant of every straight edge tile (F's T/B/L/R pieces) so the terrain's edge lines up where
+    tiles meet: dynamic programming along each run, scoring at each joint the pixels where the two tiles' shapes
+    differ (alpha XOR), the tiles before and after the run included (corners, diagonals, other edges). Only the
+    variant changes, never the kind of piece, so the outline stays the same. With only_bad, only runs with a joint
+    worse than `bad` pixels are changed. Works in place on `out`; returns the number of tiles changed.
+    Without it, an edge running next to a 45-degree step (a diagonal piece) often gets a variant whose edge sits a
+    few pixels off, leaving a visible notch."""
+    def seam(a, b, vertical):
+        if not a or not b: return 0
+        return int((alpha(a)[-1] ^ alpha(b)[0]).sum()) if vertical else int((alpha(a)[:, -1] ^ alpha(b)[:, 0]).sum())
+    changed = 0
+    for g in groups:
+        var = [int(v) for v in F[g]]
+        if len(var) < 2: continue
+        vertical = g in ('L', 'R')
+        o = out if vertical else out.T                         # a view: runs along axis 0
+        S = lambda a, b, _v=vertical: seam(a, b, _v)
+        member = np.isin(o, var); K = len(var)
+        for x in range(o.shape[1]):
+            col = member[:, x]; y = 0
+            while y < o.shape[0]:
+                if not col[y]: y += 1; continue
+                y0 = y
+                while y < o.shape[0] and col[y]: y += 1
+                y1 = y - 1
+                up = int(o[y0 - 1, x]) if y0 > 0 else 0
+                dn = int(o[y1 + 1, x]) if y1 + 1 < o.shape[0] else 0
+                old = [int(o[i, x]) for i in range(y0, y1 + 1)]
+                seams = [S(up, old[0])] + [S(old[i], old[i + 1]) for i in range(len(old) - 1)] + [S(old[-1], dn)]
+                if only_bad and max(seams) <= bad: continue
+                D = np.array([S(up, v) for v in var], float); back = []
+                for i in range(y1 - y0):
+                    M = np.array([[D[a] + S(var[a], var[b]) for a in range(K)] for b in range(K)])
+                    back.append(M.argmin(1)); D = M.min(1)
+                D = D + np.array([S(v, dn) for v in var])
+                if sum(seams) <= D.min(): continue                  # already as good: leave the run alone
+                k = int(D.argmin()); seq = [k]
+                for bk in reversed(back): k = int(bk[k]); seq.append(k)
+                for i, k in enumerate(reversed(seq)):
+                    if o[y0 + i, x] != var[k]: o[y0 + i, x] = var[k]; changed += 1
+    return changed
