@@ -132,7 +132,7 @@ function updateMapListArea(mapsDir, map) {
 }
 
 function processClient(json, tsx, dest){
-  var map = processMap(json, tsx, {mode:"client"});
+  var map = processMap(json, tsx, {mode:"client", cull: process.env.MAP_CULL !== "0"});
   updateMapListArea("../../../shared/maps", map);
 
   var tile = [];

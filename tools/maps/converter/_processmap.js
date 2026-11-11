@@ -17,8 +17,77 @@
 // or <https://www.gnu.org/licenses/>.
 
 var fs = require("fs"),
+    path = require("path"),
+    zlib = require("zlib"),
     Log = require('log'),
     _ = require('underscore');
+
+// ---- Hidden-tile culling (client maps only) ----------------------------------------------------------------
+// A tile completely covered by a fully opaque tile drawn after it can never be seen, so the client map leaves
+// it out: smaller map files, fewer sprites to draw. "Drawn after" follows the clients' two passes: normal tiles
+// (bottom layer to top), then the characters, then the high tiles (tileset property "v"). So a normal tile hides
+// under any opaque tile on a layer above it, but a high tile only under an opaque high tile above it (a normal
+// tile, even on a higher layer, is drawn before it). Collision is still worked out from every tile, and the
+// server map keeps them all. Turn it off with MAP_CULL=0 (environment variable) when converting.
+//
+// Kept even when covered: tiles the clients look up by id in a cell -- the harvestable trees
+// (HARVEST_TILE_TYPES in gameserver/js/map/map.js and godot-client/scripts/world/map_data.gd).
+var KEEP_TILES = { 678: 1, 679: 1, 698: 1, 699: 1, 855: 1, 875: 1, 274: 1, 275: 1, 294: 1, 295: 1 };
+var GID_MASK = 0x1FFFFFFF;          // without Tiled's flip flags (flipping doesn't change how opaque a tile is)
+var cull = null;                    // per conversion: { cover: Uint8Array, opaque: {gid: true}, high: {gid: true}, count }
+
+// An 8-bit RGBA (colour type 6), non-interlaced PNG -> { width, height, data: RGBA Buffer }; null otherwise.
+function readPngRGBA(file) {
+    var b = fs.readFileSync(file), pos = 8, width = 0, height = 0, idat = [];
+    if (b.readUInt32BE(0) !== 0x89504e47) return null;
+    while (pos < b.length) {
+        var len = b.readUInt32BE(pos), type = b.toString('ascii', pos + 4, pos + 8), body = b.slice(pos + 8, pos + 8 + len);
+        if (type === 'IHDR') {
+            width = body.readUInt32BE(0); height = body.readUInt32BE(4);
+            if (body[8] !== 8 || body[9] !== 6 || body[12] !== 0) return null;
+        } else if (type === 'IDAT') idat.push(body);
+        else if (type === 'IEND') break;
+        pos += 12 + len;
+    }
+    var raw = zlib.inflateSync(Buffer.concat(idat)), stride = width * 4, out = Buffer.alloc(stride * height);
+    for (var y = 0; y < height; y++) {
+        var f = raw[y * (stride + 1)], src = y * (stride + 1) + 1, dst = y * stride;
+        for (var x = 0; x < stride; x++) {
+            var a = x >= 4 ? out[dst + x - 4] : 0, up = y > 0 ? out[dst - stride + x] : 0,
+                ul = (x >= 4 && y > 0) ? out[dst - stride + x - 4] : 0, v = raw[src + x];
+            if (f === 1) v += a;
+            else if (f === 2) v += up;
+            else if (f === 3) v += (a + up) >> 1;
+            else if (f === 4) { var p = a + up - ul, pa = Math.abs(p - a), pb = Math.abs(p - up), pc = Math.abs(p - ul);
+                v += (pa <= pb && pa <= pc) ? a : (pb <= pc ? up : ul); }
+            out[dst + x] = v & 255;
+        }
+    }
+    return { width: width, height: height, data: out };
+}
+
+// gid -> true for every tile of the tilesheet whose pixels are all fully opaque.
+var opaqueCache = {};
+function opaqueTiles(TsxJSON, tilesize) {
+    var img = TsxJSON && TsxJSON.tileset && TsxJSON.tileset.image;
+    var file = path.join(__dirname, '..', 'data', (img && img['@_source']) || 'tilesheet.png');
+    if (opaqueCache[file]) return opaqueCache[file];
+    var png = null;
+    try { png = readPngRGBA(file); } catch (e) { console.warn('Hidden-tile culling off: cannot read ' + file + ': ' + e.message); }
+    var res = {};
+    if (png) {
+        var cols = Math.floor(png.width / tilesize), rows = Math.floor(png.height / tilesize);
+        for (var r = 0; r < rows; r++) for (var c = 0; c < cols; c++) {
+            var full = true;
+            for (var py = 0; py < tilesize && full; py++)
+                for (var px = 0; px < tilesize; px++)
+                    if (png.data[((r * tilesize + py) * png.width + c * tilesize + px) * 4 + 3] !== 255) { full = false; break; }
+            if (full) res[r * cols + c + 1] = true;
+        }
+    }
+    opaqueCache[file] = res;
+    return res;
+}
     //Types = require("../../shared/js/gametypes"),
     //ItemTypes = require("../../shared/js/itemtypes");
 
@@ -162,6 +231,13 @@ module.exports = function processMap(json, jsontsx, options) {
             });
         }
     });
+
+    cull = null;
+    if (mode === "client" && options.cull !== false) {
+        var high = {};
+        _.each(map.high, function (id) { high[id] = true; });
+        cull = { cover: new Uint8Array(length), opaque: opaqueTiles(TsxJSON, map.tilesize || 16), high: high, count: 0 };
+    }
 
     // iterate through layers and process
     console.info("* Phase 2 Layer Processing");
@@ -397,6 +473,8 @@ module.exports = function processMap(json, jsontsx, options) {
         processLayer(TiledJSON.layers[i]);
     }
 
+    if (cull) console.info("Hidden tiles left out of the client map: " + cull.count + " (MAP_CULL=0 keeps them)");
+
     // If combined empty layer then make it a collision.
     for (var i = 0, max = length; i < max; i += 1) {
         if(map.data[i] === undefined) {
@@ -522,11 +600,23 @@ var processLayer = function(layer) {
         layerName !== "_entities" && layerName !== "collision")
     {
         //console.info("*** Process raw layer data...");
+        // a layer drawn see-through (opacity below 1) doesn't hide what's under it
+        var layerCovers = !(layer.opacity !== undefined && layer.opacity < 1);
         for(var j = 0; j < tiles.length; j += 1) {
             var gid = tiles[j];
 
+            // hidden-tile culling: layers come top to bottom, so cull.cover says what is already above this
+            // cell -- bit 1: an opaque normal tile, bit 2: an opaque high tile
+            var hidden = false;
+            if (cull && gid > 0) {
+                var id = gid & GID_MASK, isHigh = !!cull.high[id], cov = cull.cover[j];
+                hidden = !KEEP_TILES[id] && (isHigh ? (cov & 2) !== 0 : cov !== 0);
+                if (hidden) cull.count++;
+                if (layerCovers && cull.opaque[id]) cull.cover[j] |= isHigh ? 2 : 1;
+            }
+
             // set tile gid in the tilesheet
-            if(gid > 0) {
+            if(gid > 0 && !hidden) {
                 if(!map.data[j]) {
                     map.data[j] = gid;
                 }
