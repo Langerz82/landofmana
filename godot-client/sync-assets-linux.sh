@@ -10,7 +10,7 @@ cp -r "$SRC/img/2" "$SRC/img/3" "$SRC/img/common" assets/img/
 cp -r "$SRC/audio" assets/
 cp "$SRC"/fonts/*.ttf "$SRC"/fonts/*.otf assets/fonts/
 # every map folder in shared/maps (map0/map0.json, ..., and sectional maps' folders such as
-# map4/map4_0_0.json ...) plus the map list
+# map2/map2_0_0.json ...) plus the map list
 for d in "$SH"/maps/*/; do
     m=$(basename "$d")
     ls "$d"*.json >/dev/null 2>&1 || continue

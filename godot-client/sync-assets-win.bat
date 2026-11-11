@@ -10,7 +10,7 @@ xcopy /E /I /Y /Q ..\client\audio assets\audio
 copy /Y ..\client\fonts\*.ttf assets\fonts\ >nul
 copy /Y ..\client\fonts\*.otf assets\fonts\ >nul
 rem every map folder in shared\maps (map0\map0.json, ..., and sectional maps' folders such as
-rem map4\map4_0_0.json ...) plus the map list
+rem map2\map2_0_0.json ...) plus the map list
 for /D %%m in (..\shared\maps\*) do if exist "%%m\*.json" (
     if not exist assets\maps\%%~nxm mkdir assets\maps\%%~nxm
     copy /Y "%%m\*.json" assets\maps\%%~nxm\ >nul

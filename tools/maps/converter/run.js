@@ -56,20 +56,20 @@ function main() {
 
 function callback_function(json, jsontsx) {
 	var filename = path.basename(source, path.extname(source));
-	// A map in a subfolder of tools/maps/data (a sectional map's parts, e.g. data/map4/map4_0_0.json)
-	// goes into that folder on both sides: shared/maps/map4/map4_0_0.json and
-	// gameserver/maps/map4/map4_0_0.json. Any other map: shared/maps/<name>/<name>.json and
+	// A map in a subfolder of tools/maps/data (a sectional map's parts, e.g. data/map2/map2_0_0.json)
+	// goes into that folder on both sides: shared/maps/map2/map2_0_0.json and
+	// gameserver/maps/map2/map2_0_0.json. Any other map: shared/maps/<name>/<name>.json and
 	// gameserver/maps/<name>.json, as before.
 	var parent = path.basename(path.dirname(path.resolve(source)));
 	var group = parent !== "data" ? parent : "";
 	var client_dir = "../../../shared/maps/" + (group || filename);
 	// The Godot client keeps a copy of every client map in the same layout
-	// (godot-client/assets/maps/map4/map4_0_0.json, .../map2/map2.json), the
+	// (godot-client/assets/maps/map2/map2_0_0.json, .../map2/map2.json), the
 	// same copy godot-client/sync-assets-*.sh makes. Client maps are written
 	// there too, so the Godot client doesn't need a separate sync for maps.
 	godotMapDir = GODOT_MAPS + "/" + (group || filename);
 	var server_dir = "../../../gameserver/maps" + (group ? "/" + group : "");
-	// the map's name in maps/maplist.json: "map4/map4_0_0" for a part in a folder, else "map2"
+	// the map's name in maps/maplist.json: "map2/map2_0_0" for a part in a folder, else "map2"
 	mapListName = group ? group + "/" + filename : filename;
 
 	switch(mode){
@@ -112,7 +112,7 @@ function writeGodotCopy(destDir, name, data) {
 
 // A part of a split map (tools/maps/generator/split.py) carries worldX/worldY: where its top-left tile sits
 // in the full map. Its area in the full map, [worldX, worldY, width, height], goes into that side's
-// maps/maplist.json ("areas", by map name), so "/warp map4 300 300" can find the part holding a full-map
+// maps/maplist.json ("areas", by map name), so "/warp map2 300 300" can find the part holding a full-map
 // tile. Worked out here from the converted map, so it always matches the files.
 function updateMapListArea(mapsDir, map) {
 	if (map.worldX === undefined && map.worldY === undefined) return;

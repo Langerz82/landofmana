@@ -34,9 +34,8 @@ export default class AudioManager {
         this.areas = [];
         this.loadedMusic = {
             map0: false,
-            map1: false,
-            map2: false,
-            map3: false
+            map3: false,
+            map2: false
         };
 
         this.loadedSound = {

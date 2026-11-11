@@ -21,7 +21,7 @@
 // client build.
 //
 // The files are every .json under the shared folder's data/ and maps/ folders,
-// named by their path inside it ("data/lang.json", "maps/map4/map4_0_0.json"),
+// named by their path inside it ("data/lang.json", "maps/map2/map2_0_0.json"),
 // and identified as a set by their shared hash (lib/shareddata.js). No version
 // numbers: a client whose files hash differently gets this server's.
 //
@@ -29,7 +29,7 @@
 //   [0, hash]          hello, sent before the login: the shared hash of the files
 //                      the client has ("" if it doesn't know)
 //   [1, path]          one file, when the zip couldn't be used ("data/lang.json",
-//                      "maps/map4/map4_0_0.json")
+//                      "maps/map2/map2_0_0.json")
 //
 // Server -> client, WC_CLIENTDATA:
 //   [0, hash, { path: sha1 }, base64 zip]   every file, pushed in reply to the hello

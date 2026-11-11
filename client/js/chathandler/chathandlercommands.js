@@ -71,11 +71,11 @@ export function installChatHandlerCommands(proto) {
         if (!(game && game.ready)) return;
         // "/warp [map]" -- admins only (the server checks; others get "You do not have permission to
         // use that command."). The map is a name from maps/maplist.json with or without its folder
-        // ("map4_0_0" or "map4/map4_0_0"), a map index, or a split map such as "map4" (its warp point);
+        // ("map2_0_0" or "map2/map2_0_0"), a map index, or a split map such as "map2" (its warp point);
         // no map means map 0. WARP_PORTAL (-2) marks the request as the warp command.
         //
         // "/warp <map> <gx> <gy>" lands on that tile: for a map named exactly (or by index), gx/gy are
-        // that map's own tiles ("/warp map4_0_0 100 100"); for a split map named as a whole ("/warp map4
+        // that map's own tiles ("/warp map2_0_0 100 100"); for a split map named as a whole ("/warp map2
         // 300 300") they are full-map tiles, and the part holding that tile is picked from maplist.json's
         // areas. The server refuses a tile outside the map or one that is solid.
         const WARP_PORTAL = -2;
@@ -88,28 +88,46 @@ export function installChatHandlerCommands(proto) {
             gy = -1;
         if (data[1] !== undefined || data[2] !== undefined) {
             if (!/^[0-9]+$/.test(data[1] || '') || !/^[0-9]+$/.test(data[2] || '')) {
-                this.addNotification('Usage: /warp map [gx gy], e.g. /warp map4 300 300 or /warp map4_0_0 100 100');
+                this.addNotification('Usage: /warp map [gx gy], e.g. /warp map2 300 300 or /warp map2_0_0 100 100');
                 return;
             }
             gx = parseInt(data[1], 10);
             gy = parseInt(data[2], 10);
         }
-        const names = game.mapList.maps;
+        const names = game.mapList.maps; // { map index: file name } (game.js flattenMapList)
+        const ids = Object.keys(names)
+            .map(Number)
+            .sort(function (a, b) {
+                return a - b;
+            });
+        const indexOf = function (name) {
+            const id = ids.find(function (i) {
+                return names[i] === name;
+            });
+            return id === undefined ? -1 : id;
+        };
         const areas = game.mapList.areas || {};
         const base = function (n) {
             return n.substring(n.lastIndexOf('/') + 1);
         };
         // a map named exactly (or by index): coordinates are its own
-        let index = /^[0-9]+$/.test(want)
-            ? parseInt(want, 10)
-            : names.findIndex(function (n) {
-                  return n === want || base(n) === want;
-              });
+        let index = -1;
+        if (/^[0-9]+$/.test(want)) index = parseInt(want, 10);
+        else {
+            const id = ids.find(function (i) {
+                return names[i] === want || base(names[i]) === want;
+            });
+            if (id !== undefined) index = id;
+        }
         if (index < 0) {
             // a split map named as a whole: its warp point, or the part holding the full-map tile gx, gy
-            const parts = names.filter(function (n) {
-                return n.indexOf(want + '/') === 0 || base(n).indexOf(want + '_') === 0;
-            });
+            const parts = ids
+                .map(function (i) {
+                    return names[i];
+                })
+                .filter(function (n) {
+                    return n.indexOf(want + '/') === 0 || base(n).indexOf(want + '_') === 0;
+                });
             if (gx >= 0 && parts.length) {
                 const part = parts.find(function (n) {
                     const a = areas[n];
@@ -119,17 +137,17 @@ export function installChatHandlerCommands(proto) {
                     this.addNotification('No part of ' + want + ' holds tile ' + gx + ',' + gy);
                     return;
                 }
-                index = names.indexOf(part);
+                index = indexOf(part);
                 gx -= areas[part][0];
                 gy -= areas[part][1];
             } else {
                 const warp = game.mapList.warps.find(function (n) {
                     return n.indexOf(want + '/') === 0 || base(n).indexOf(want + '_') === 0;
                 });
-                if (warp) index = names.indexOf(warp);
+                if (warp) index = indexOf(warp);
             }
         }
-        if (index < 0 || index >= names.length) {
+        if (index < 0 || !names[index]) {
             this.addNotification('Unknown map: ' + want);
             return;
         }

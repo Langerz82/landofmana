@@ -22,7 +22,7 @@
 //   6 digits - the NPC's entity id (its fixed id in
 //              data/maps/<map>/entity.json; MAX_FIXED_ID wide)
 //   2 digits - the quest's number at that NPC, 01-99 (01 = its first quest)
-// e.g. 1 0001 000001 01 = 1000100000101, the Old Man's (map1, entity 1)
+// e.g. 1 0300 000001 01 = 1030000000101, the Old Man's (map3, map index 300, entity 1)
 // first quest. Still a plain integer (well below 2^53), so every place that
 // already parses quest ids as numbers -- the network packets, both clients,
 // saved player data -- keeps working.

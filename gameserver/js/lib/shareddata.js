@@ -17,7 +17,7 @@
 
 // The shared files the game server pushes to its clients (clientdata.js): every
 // .json file under the shared folder's data/ and maps/, named by its path inside
-// the shared folder ("data/lang.json", "maps/map4/map4_0_0.json").
+// the shared folder ("data/lang.json", "maps/map2/map2_0_0.json").
 //
 // The set is identified by one hash, its "shared hash": the sha1 of every file's
 // "<path>:<sha1>\n" line, in path order. Clients compare it with the hash of the

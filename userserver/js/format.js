@@ -100,9 +100,10 @@ const achievementRankMax = 10;
 const achievementCountMax = 999999999;
 
 const skillsXPMax = 999999999;
-// maps come from gameserver/maps/maplist.json (map4's sections alone add 13); kept in step with
+// maps come from gameserver/maps/maplist.json (map2's sections alone add 13); kept in step with
 // gameserver/js/format.js. Also bounds the map index of saved players and quest NPC ids.
-const mapsCountMax = 256;
+// map index = map number x 100 + sub-index (gameserver map/mapmanager.js); quest ids hold it in 4 digits
+const mapsCountMax = 10000;
 const mapCoordsMax = 16384;
 const orientationsMax = 4;
 

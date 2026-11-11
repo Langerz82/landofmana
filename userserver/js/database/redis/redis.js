@@ -350,12 +350,38 @@ class DatabaseHandler {
                     });
                 })
         );
+        // Wipe of every player's quests -- in progress and completed -- at startup, for when quest
+        // ids change (they hold the map index, so renumbering the maps changes them). Armed by the
+        // Redis key below: missing or "true" -> wipe, then set it to "false" so it runs only once.
+        // To wipe again at the next start: redis-cli SET migrations:wipe_quests_on_startup true
+        // Runs after the run-once wipe above, and before any gameserver can connect
+        // (migrationReady), so no one is online to save old quests back. A failed wipe leaves the
+        // key as it was, so it is retried at the next start.
+        const WIPE_QUESTS_KEY = 'migrations:wipe_quests_on_startup';
+        const startupQuestWipe = questIdWipe.then(
+            () =>
+                new Promise((resolve, reject) => {
+                    client.get(WIPE_QUESTS_KEY, (err, value) => {
+                        if (err) return reject(err);
+                        if (value === 'false') {
+                            console.info(WIPE_QUESTS_KEY + ' is false: quests kept.');
+                            return resolve();
+                        }
+                        console.info(WIPE_QUESTS_KEY + ' is ' + (value === null ? 'not set' : value) + ': wiping every player\'s quests (once).');
+                        this.wipeAllQuests((err2) => {
+                            if (err2) return reject(err2);
+                            client.set(WIPE_QUESTS_KEY, 'false', (err3) => (err3 ? reject(err3) : resolve()));
+                        });
+                    });
+                })
+        );
         this.migrationReady = Promise.all([
             goldMigration,
             bankMigration,
             inventoryMigration,
             newQuestsPurge,
             questIdWipe,
+            startupQuestWipe,
             looksMigration,
             keyPrefixMigration
         ]);

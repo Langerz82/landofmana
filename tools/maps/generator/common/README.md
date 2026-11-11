@@ -1,7 +1,7 @@
 # common: modules shared by the map generators
 
-`map4gen` (and `map3gen`, if you keep it) load these modules from here: the tilesheet cache, the object stamps lifted
-from map2, the terrain autotiler, the house, cave and mesa kits, the interior packer and the PNG renderer.
+`map1gen` and `map2gen` load these modules from here: the tilesheet cache, the object stamps lifted
+from old_map2, the terrain autotiler, the house, cave and mesa kits, the interior packer and the PNG renderer.
 
 ## Setup
 
@@ -10,11 +10,11 @@ Requires Python 3 with numpy, scipy and pillow.
 ```
 cd tools/maps/generator/common
 pip install -r requirements.txt
-python prepare.py            # once: builds common/cache from ../../data/map2.json + tilesheet
-python render.py ../../data/map4.json map4.png 2      # preview any map, 2 px per tile
+python prepare.py            # once: builds common/cache from ../../data/old_map2.json + tilesheet
+python render.py ../../data/map2.json map2.png 2      # preview any map, 2 px per tile
 ```
 
-Run `prepare.py` again if `map2.json` or the tilesheet changes. The generators read everything from `common/cache`.
+Run `prepare.py` again if `old_map2.json` or the tilesheet changes. The generators read everything from `common/cache`.
 
 ## Files
 

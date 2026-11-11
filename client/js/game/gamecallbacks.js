@@ -112,7 +112,9 @@ export function installGameCallbacks(proto) {
             this.jqContainer.fadeIn(1000);
         }
 
-        game.teleportMaps(1);
+        // Enter the world on the map WC_PLAYER named (onPlayer set player.mapIndex): the server's
+        // start map (gameserver config.json "start_map"), where the server places every player on login.
+        game.teleportMaps(player.mapIndex);
 
         //Welcome message
         game.chathandler.show();

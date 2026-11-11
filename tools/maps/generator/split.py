@@ -1,15 +1,15 @@
 """Split a map into several map files (sections) that teleport into each other at their edges.
 
-Works on any map made by the generators (map4gen), or any Tiled map in the same format.
+Works on any map made by the generators (map2gen), or any Tiled map in the same format.
 
 - **Sections.** The overworld (the map's 'overworld' camera rect, or the whole map if it has none) is cut into
   a grid of sections, SECTION x SECTION tiles each (or --section-height for rectangular ones; the last row and
   column take whatever is left). Each is written as its own map, <prefix>_<row>_<col>.
 - **Interiors.** If the map has an interior strip right of the overworld (house and cave interiors), it becomes
   one more map, <prefix>_int.
-- **Folders.** A map's parts live in a folder named after it: tools/maps/data/map4/map4_0_0.json, and after
-  converting shared/maps/map4/map4_0_0.json and gameserver/maps/map4/map4_0_0.json. The map list names them
-  with the folder ("map4/map4_0_0").
+- **Folders.** A map's parts live in a folder named after it: tools/maps/data/map2/map2_0_0.json, and after
+  converting shared/maps/map2/map2_0_0.json and gameserver/maps/map2/map2_0_0.json. The map list names them
+  with the folder ("map2/map2_0_0").
 - **Camera.** Every section gets a camera rect around the whole file (named after the section), so the map's
   edge is the edge of the screen.
 - **Edge doors.** Along every edge shared with a neighbour, the section's own outermost row or column is an
@@ -27,21 +27,23 @@ Works on any map made by the generators (map4gen), or any Tiled map in the same 
   full map); the converter passes them on, and the clients' HUD shows the player's full-map gx/gy with them.
 - **Start areas.** Every section gets a start area (its first checkpoint) for warps without a door.
 - **Warp point.** The section holding the map's start checkpoint becomes its warp point ("/warp <prefix>", admins only).
-- **Map list.** shared/maps/maplist.json and gameserver/maps/maplist.json (map index -> name, read by the
-  gameserver and both clients) get this map's parts appended after the other maps (map0, map1, map2, ...).
+- **Map list.** shared/maps/maplist.json and gameserver/maps/maplist.json (read by the gameserver and both
+  clients) group each map's files under its name: {"maps": {"map0": ["map0"], "map2": ["map2/map2_0_0", ...]}}.
+  This map's parts replace its old ones in its own group; a part's map index is the map's number x 100 + its
+  place in the group (map2/map2_0_0 = 400), so splitting a map never renumbers any other map.
   Each part's area in the full map ("areas": name -> [worldX, worldY, width, height], which
-  "/warp map4 300 300" uses to find the part holding a full-map tile) is added by the converter from the
+  "/warp map2 300 300" uses to find the part holding a full-map tile) is added by the converter from the
   part's worldX/worldY and size when it converts the part (--convert, or node run.js by hand).
   Parts of an earlier split of the same map that no longer exist are removed from the list and the folders
-  (also parts in the older flat layout, shared/maps/map4_0_0/map4_0_0.json).
+  (also parts in the older flat layout, shared/maps/map2_0_0/map2_0_0.json).
 
-    python split.py map4                    # tools/maps/data/map4.json -> data/map4/map4_0_0.json, map4_1_0.json, map4_int.json
-    python split.py map4 --convert          # ... and run the converter (server + client) on each of them
-    python split.py map3 --section 128      # any map, any section size: map3 -> 8 sections of 128x128 + interiors
+    python split.py map2                    # tools/maps/data/map2.json -> data/map2/map2_0_0.json, map2_1_0.json, map2_int.json
+    python split.py map2 --convert          # ... and run the converter (server + client) on each of them
+    python split.py map2 --section 128      # any map, any section size: map2 -> 8 sections of 128x128 + interiors
 
 Options: --section, --section-height, --margin, --prefix, --overworld-width, --convert.
 """
-import os, sys, json, argparse, subprocess
+import os, re, sys, json, argparse, subprocess
 import numpy as np
 
 HERE = os.path.dirname(os.path.abspath(__file__))                      # tools/maps/generator
@@ -50,7 +52,7 @@ ROOT = os.path.normpath(os.path.join(HERE, '..', '..', '..'))           # the pr
 def data(name): return os.path.join(DATA, name)
 
 ap = argparse.ArgumentParser(description='Split a map into sections that teleport into each other at their edges')
-ap.add_argument('map', help='map name in tools/maps/data (e.g. map4) or a path to a Tiled .json map')
+ap.add_argument('map', help='map name in tools/maps/data (e.g. map2) or a path to a Tiled .json map')
 ap.add_argument('--section', type=int, default=256, help='section width (and height) in tiles (default 256)')
 ap.add_argument('--section-height', type=int, default=None, help='section height, if different from its width')
 ap.add_argument('--margin', type=int, default=0, help="tiles of neighbouring terrain shown past each edge (default 0: none)")
@@ -76,26 +78,40 @@ HAS_INT = W < MW
 print(f'{SRC}: {MW}x{H}, overworld {W}x{H} -> {NR} rows x {NC} cols of {SW}x{SH} sections'
       + (f' + interiors ({MW - W}x{H})' if HAS_INT else ''))
 
-# ---- map list: existing maps first, then this map's sections and its interiors
+# ---- map list: each map's files grouped under its name, {"map1": ["map1/map1_0_0", ...], ...}. A file's
+# map index is the map's number x STRIDE + its sub-index (map1/map1_3_1 -> 107), as the gameserver and both
+# clients read it -- so re-splitting a map only renumbers that map's own files.
+STRIDE = 100
+_num = re.fullmatch(r'map(\d+)', PFX)
+if not _num: sys.exit(f'{PFX}: split maps must be named map<number> (the number is part of every map index)')
+NUM = int(_num.group(1))
 lists = [os.path.join(ROOT, 'shared', 'maps', 'maplist.json'), os.path.join(ROOT, 'gameserver', 'maps', 'maplist.json')]
-names = None; warps = []; areas = {}
+groups = None; warps = []; areas = {}
 for p in lists:
     if os.path.exists(p):
-        _l = json.load(open(p)); names = _l['maps']; warps = _l.get('warps', []); areas = _l.get('areas', {}); break
-if names is None: names = ['map0', 'map1', 'map2']
-SRC_ID = names.index(PFX) if PFX in names else -1          # the unsplit map, if the game lists it itself
-# this map's parts from an earlier split: "map4/map4_0_0" (in a folder), or "map4_0_0" (the older flat layout)
+        _l = json.load(open(p)); groups = _l['maps']; warps = _l.get('warps', []); areas = _l.get('areas', {}); break
+if groups is None: groups = {'map0': ['map0'], 'map3': ['map3']}
+if isinstance(groups, list):   # the older flat list (index = position): group the files by their map's name
+    _g = {}
+    for n in groups:
+        if n: _g.setdefault(n.split('/')[0], []).append(n)
+    groups = _g
+# this map's parts from an earlier split: "map2/map2_0_0" (in a folder), or "map2_0_0" (the older flat layout)
 mine = lambda n: n.startswith(PFX + '/') or n.startswith(PFX + '_')
-old_parts = [n for n in names if mine(n)]
-names = [n for n in names if not mine(n)]
+old_parts = [n for g in groups.values() for n in g if mine(n)]
+groups = {g: [n for n in files if not mine(n)] for g, files in groups.items()}
 warps = [n for n in warps if not mine(n)]
 areas = {n: a for n, a in areas.items() if not mine(n)}
-# the parts are listed with their folder: shared/maps/map4/map4_0_0.json, gameserver/maps/map4/map4_0_0.json
-# (and tools/maps/data/map4/map4_0_0.json for the Tiled files)
+# the parts are listed with their folder: shared/maps/map2/map2_0_0.json, gameserver/maps/map2/map2_0_0.json
+# (and tools/maps/data/map2/map2_0_0.json for the Tiled files)
 SEC = {(r, c): f'{PFX}/{PFX}_{r}_{c}' for r in range(NR) for c in range(NC)}
 INT = f'{PFX}/{PFX}_int' if HAS_INT else None
-names += [SEC[(r, c)] for r in range(NR) for c in range(NC)] + ([INT] if INT else [])
-ID = {n: i for i, n in enumerate(names)}
+mine_list = groups.get(PFX, []) + [SEC[(r, c)] for r in range(NR) for c in range(NC)] + ([INT] if INT else [])
+if len(mine_list) > STRIDE: sys.exit(f'{PFX} would have {len(mine_list)} files; a map can have at most {STRIDE}')
+groups[PFX] = mine_list
+groups = {g: groups[g] for g in sorted(groups, key=lambda g: (int(g[3:]) if re.fullmatch(r'map\d+', g) else 10 ** 9, g)) if groups[g]}
+ID = {n: NUM * STRIDE + i for i, n in enumerate(mine_list)}
+SRC_ID = ID.get(PFX, -1)          # the unsplit map, if the game lists it itself
 
 
 def bounds(r, c):
@@ -334,7 +350,7 @@ def write(nm, sec):
                                  {'name': 'worldY', 'type': 'int', 'value': int(sec['off'][1])}]
     out = data(nm + '.json')
     os.makedirs(os.path.dirname(out), exist_ok=True)
-    # Tiled finds a tileset relative to the map file: the parts sit in a subfolder (data/map4/), so point
+    # Tiled finds a tileset relative to the map file: the parts sit in a subfolder (data/map2/), so point
     # each external tileset back at the same file the source map uses (tilesheet.tsx -> ../tilesheet.tsx)
     head['tilesets'] = []
     for ts in src.get('tilesets', []):
@@ -348,13 +364,13 @@ def write(nm, sec):
     return out
 
 files = [write(nm, sec) for nm, sec in OUT.items()]
-# Each part's area in the full map ("areas" in the map list, which "/warp map4 300 300" uses to find the part
+# Each part's area in the full map ("areas" in the map list, which "/warp map2 300 300" uses to find the part
 # holding a full-map tile) is not written here: the converter works it out from each converted part's
 # worldX/worldY and size and adds it to that side's map list, so it always matches the converted files.
 # This map's old areas were dropped above.
 for p in lists:
     os.makedirs(os.path.dirname(p), exist_ok=True)
-    json.dump({'maps': names, 'warps': warps, 'areas': areas}, open(p, 'w'), indent=1)
+    json.dump({'maps': groups, 'warps': warps, 'areas': areas}, open(p, 'w'), indent=1)
 print(f'wrote {len(files)} maps ({len(SEC)} sections' + (' + interiors' if INT else '') + f'), {n_edge} edge doors, '
       f'{n_cross} house/cave doors re-pointed across maps'
       + (f', {n_edge_blocked} edge cells blocked (solid on the other side)' if M == 0 else ''))
@@ -373,7 +389,8 @@ for n in old_parts:
     for p in gone:
         shutil.rmtree(p) if os.path.isdir(p) else os.remove(p)
     if gone: print('  removed old part', n)
-print('map list:', ', '.join(f'{i}={n}' for i, n in enumerate(names)), '| warp points:', ', '.join(warps))
+print('map list:', ', '.join(f'{int(g[3:]) * STRIDE + i if re.fullmatch(r"map[0-9]+", g) else "?"}={n}' for g, files in groups.items()
+                             for i, n in enumerate(files)), '| warp points:', ', '.join(warps))
 for p in lists: print('  ', p)
 
 if args.convert:

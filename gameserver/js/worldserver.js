@@ -99,6 +99,7 @@ class World {
             Utils.forEach(self.maps, function (map, k) {
                 map.updater = new Updater(self, map);
             });
+            self.initStartMap();
         });
 
         //self.products = JSON.parse(JSON.stringify(Products));
@@ -150,7 +151,8 @@ class World {
         });
 
         self.onPlayerEnter(function (player) {
-            player.map = self.maps[1];
+            player.map = self.getStartMap();
+            player.mapIndex = player.map.index;
             player.map.entities.addPlayer(player);
 
             console.info(
@@ -481,6 +483,31 @@ class World {
 
     onPlayerConnect(callback) {
         this.connect_callback = callback;
+    }
+
+    // The map every player enters the world on: config.json's "start_map" (a map index, a map name
+    // from maps/maplist.json, or a split map such as "map1" for its start town -- see
+    // MapManager.resolveMapIndex()). Players land on its starting checkpoint. Falls back to map0 (index 0)
+    // if the setting is missing or names no map that can be landed on.
+    initStartMap() {
+        const DEFAULT_START_MAP = 0;
+        const spec = MainConfig ? MainConfig.start_map : undefined;
+        let index = this.mapManager.resolveMapIndex(spec);
+        if (index < 0 || !this.maps[index]) {
+            if (spec !== undefined)
+                console.error('start_map "' + spec + '" is not a map in maps/maplist.json; using map ' + DEFAULT_START_MAP + '.');
+            index = DEFAULT_START_MAP;
+        } else if (!this.maps[index].hasStartingPosition()) {
+            console.error('start_map "' + spec + '" (' + this.maps[index].name + ') has no checkpoints to start on; using map ' + DEFAULT_START_MAP + '.');
+            index = DEFAULT_START_MAP;
+        }
+        this.startMapIndex = index;
+        console.info('Start map: ' + index + ' (' + this.maps[index].name + ')');
+    }
+
+    getStartMap() {
+        const index = this.startMapIndex !== undefined ? this.startMapIndex : 0;
+        return this.maps[index];
     }
 
     onPlayerEnter(callback) {

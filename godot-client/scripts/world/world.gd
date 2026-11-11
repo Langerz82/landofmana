@@ -34,9 +34,10 @@ const ZOOM_MIN := 0.3              # Settings -> Zoom field range (closest)
 const ZOOM_MAX := 1.2              # (furthest)
 const ZOOM_STEP := 0.1             # Settings -> Zoom field increment
 ## The maps, from res://assets/maps/maplist.json (shared/maps/maplist.json, copied by the sync-assets
-## scripts; written by tools/maps/generator/split.py): map_list.maps[index] is each map's name ("map2", or
-## "map4/map4_0_0" for a part of a split map), map_list.warps the map "/warp map4" goes to.
-var map_list := {"maps": [], "warps": [], "areas": {}}   # areas: split map part -> [worldX, worldY, w, h]
+## scripts; written by tools/maps/generator/split.py): map_list.maps[index] is each map file's name ("map3", or
+## "map2/map2_0_0" for a part of a split map), map_list.warps the map "/warp map2" goes to.
+const MAP_INDEX_STRIDE := 100   # map index = map number x 100 + sub-index (see flatten_map_list)
+var map_list := {"maps": {}, "warps": [], "areas": {}}   # areas: split map part -> [worldX, worldY, w, h]
 const WARP_PORTAL := -2         # portal id of the admin-only "/warp" command (the server checks)
 var _refused_door_pos = null    # a door the server refused is not retried until the player steps off it
 # Arrival-door guard: a door the player was teleported onto stays inactive while they keep the orientation
@@ -541,6 +542,9 @@ func click_move_to(px: int, py: int) -> void:
 # ======================================================================
 
 func teleport_maps(index: int, tx: int = -1, ty: int = -1, portal_id: int = -1) -> void:
+	# A map index the map list doesn't have (flatten_map_list) has no map to load.
+	if not map_list.maps.is_empty() and str(map_list.maps.get(index, "")) == "":
+		return
 	# Matte black from here until the new map is loaded and the server has
 	# placed us on it (_on_teleport_map status 2 -> _reveal_map).
 	_reveal_token += 1
@@ -1656,7 +1660,9 @@ func _on_player_load() -> void:
 	if hud:
 		hud.on_player_loaded(player)
 		hud.update_bars(player)
-	teleport_maps(1)
+	# Enter the world on the map WC_PLAYER named: the server's start map (gameserver config.json
+	# "start_map"), where the server places every player on login.
+	teleport_maps(player.map_index)
 	player.idle(player.orientation)
 	if player.level <= 1 and hud:
 		for i in range(1, 6):
@@ -2415,10 +2421,10 @@ func warp_to_town() -> void:
 
 
 ## "/warp [map] [gx gy]" -- admins only (the server checks; others get "You do not have permission to use
-## that command."). The map is a name from maplist.json with or without its folder ("map4_0_0" or
-## "map4/map4_0_0"), a map index, or a split map such as "map4" (its warp point); no map means map 0.
-## With gx gy it lands on that tile: a map named exactly (or by index) takes its own tiles ("/warp map4_0_0
-## 100 100"); a split map named as a whole takes full-map tiles ("/warp map4 300 300"), and the part holding
+## that command."). The map is a name from maplist.json with or without its folder ("map2_0_0" or
+## "map2/map2_0_0"), a map index, or a split map such as "map2" (its warp point); no map means map 0.
+## With gx gy it lands on that tile: a map named exactly (or by index) takes its own tiles ("/warp map2_0_0
+## 100 100"); a split map named as a whole takes full-map tiles ("/warp map2 300 300"), and the part holding
 ## the tile is picked from maplist.json's areas. The server refuses a tile outside the map or a solid one.
 func warp_to(want: String, sx: String = "", sy: String = "") -> void:
 	want = want.strip_edges()
@@ -2429,21 +2435,24 @@ func warp_to(want: String, sx: String = "", sy: String = "") -> void:
 	if sx != "" or sy != "":
 		if not (sx.is_valid_int() and sy.is_valid_int() and sx.to_int() >= 0 and sy.to_int() >= 0):
 			if hud:
-				hud.add_game_notification("Notification", "Usage: /warp map [gx gy], e.g. /warp map4 300 300 or /warp map4_0_0 100 100")
+				hud.add_game_notification("Notification", "Usage: /warp map [gx gy], e.g. /warp map2 300 300 or /warp map2_0_0 100 100")
 			return
 		gx = sx.to_int()
 		gy = sy.to_int()
-	var names: Array = map_list.maps
+	var names: Dictionary = map_list.maps   # map index -> file name
+	var ids: Array = names.keys()
+	ids.sort()
 	var areas: Dictionary = map_list.get("areas", {})
 	var index: int = 0 if want == "" else (want.to_int() if want.is_valid_int() else -1)
 	if index < 0:
-		for i in names.size():
+		for i in ids:
 			if names[i] == want or str(names[i]).get_file() == want:
 				index = i
 				break
 	if index < 0:
 		var parts: Array = []
-		for n in names:
+		for i in ids:
+			var n = names[i]
 			if str(n).begins_with(want + "/") or str(n).get_file().begins_with(want + "_"):
 				parts.append(n)
 		if gx >= 0 and not parts.is_empty():
@@ -2458,15 +2467,15 @@ func warp_to(want: String, sx: String = "", sy: String = "") -> void:
 				if hud:
 					hud.add_game_notification("Notification", "No part of %s holds tile %d,%d" % [want, gx, gy])
 				return
-			index = names.find(found)
+			index = _map_index_of(found)
 			gx -= int(areas[found][0])
 			gy -= int(areas[found][1])
 		else:
 			for n in map_list.warps:
 				if str(n).begins_with(want + "/") or str(n).get_file().begins_with(want + "_"):
-					index = names.find(n)
+					index = _map_index_of(n)
 					break
-	if index < 0 or index >= names.size():
+	if index < 0 or not names.has(index):
 		if hud:
 			hud.add_game_notification("Notification", "Unknown map: %s" % want)
 		return
@@ -2481,13 +2490,44 @@ func _on_shared_data_changed() -> void:
 	map_cache.clear()
 
 
+## The map index of a map-list file name ("map1/map1_3_1" -> 107), or -1.
+func _map_index_of(file_name) -> int:
+	for i in map_list.maps:
+		if map_list.maps[i] == file_name:
+			return i
+	return -1
+
+
+## maplist.json's "maps" -> {map index: file name}. The list groups each map's files under its name
+## ({"map1": ["map1/map1_0_0", ...]}); a file's index is the map's number x 100 + its sub-index
+## (map1/map1_3_1 -> 107, map3 -> 300), as on the game server (gameserver map/mapmanager.js). The
+## older flat list (["map0", "map1", ...], index = position) still reads.
+static func flatten_map_list(maps) -> Dictionary:
+	var out := {}
+	if maps is Array:
+		for i in maps.size():
+			if str(maps[i]) != "":
+				out[i] = str(maps[i])
+	elif maps is Dictionary:
+		for group in maps:
+			var num := str(group).trim_prefix("map")
+			if not (str(group).begins_with("map") and num.is_valid_int()) or not (maps[group] is Array):
+				push_error("World: map list group %s is not \"map<number>\": [files]" % group)
+				continue
+			var files: Array = maps[group]
+			for sub in mini(files.size(), MAP_INDEX_STRIDE):
+				if str(files[sub]) != "":
+					out[num.to_int() * MAP_INDEX_STRIDE + sub] = str(files[sub])
+	return out
+
+
 func _load_map_list() -> void:
 	var path := ClientData.maplist_path()   # the game server's pushed copy, else res://assets/maps/maplist.json
 	var d = JSON.parse_string(FileAccess.get_file_as_string(path)) if FileAccess.file_exists(path) else null
 	if not (d is Dictionary):
 		push_error("World: cannot read %s" % path)
 		return
-	if d.get("maps") is Array: map_list.maps = d.maps
+	if d.get("maps") is Array or d.get("maps") is Dictionary: map_list.maps = flatten_map_list(d.maps)
 	if d.get("warps") is Array: map_list.warps = d.warps
 	if d.get("areas") is Dictionary: map_list.areas = d.areas
 

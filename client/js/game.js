@@ -104,6 +104,26 @@ let sprites;
 // to that module only, so this is aliased from Types.InventoryMode instead.
 const InventoryMode = Types.InventoryMode;
 
+// maplist.json's "maps" -> { map index: file name }: map<N>'s files get N x 100 + their sub-index.
+// The older flat list (["map0", "map1", ...], index = position) still reads.
+export function flattenMapList(maps) {
+    const out = {};
+    if (Array.isArray(maps)) {
+        maps.forEach(function (name, i) {
+            if (name) out[i] = name;
+        });
+        return out;
+    }
+    for (const group in maps) {
+        const m = /^map(\d+)$/.exec(group);
+        if (!m || !Array.isArray(maps[group])) continue;
+        maps[group].slice(0, 100).forEach(function (name, sub) {
+            if (name) out[Number(m[1]) * 100 + sub] = name;
+        });
+    }
+    return out;
+}
+
 export default class Game {
     constructor(app) {
         const self = this;
@@ -251,13 +271,15 @@ export default class Game {
         this.mapStatus = 0;
 
         // The maps, from maps/maplist.json (written by tools/maps/generator/split.py, read by the
-        // gameserver too): mapList.maps[index] is each map's name ("map2", or "map4/map4_0_0" for a
-        // part of a split map, loaded from maps/map4/), mapList.warps the map "/warp map4" goes to.
+        // gameserver too). The file groups each map's files under the map's name ({"map1":
+        // ["map1/map1_0_0", ...]}); mapList.maps is { map index: file name }, where a file's index is
+        // its map's number x 100 + its sub-index (map1/map1_3_1 -> 107, map3 -> 300), as on the
+        // gameserver (map/mapmanager.js). mapList.warps: the file "/warp map2" goes to.
         // mapList.areas: each split map part's area in the full map, name -> [worldX, worldY, width, height].
-        this.mapList = { maps: [], warps: [], areas: {} };
+        this.mapList = { maps: {}, warps: [], areas: {} };
         try {
             const list = fetchJsonSync('./shared/maps/maplist.json');
-            if (list && Array.isArray(list.maps)) this.mapList.maps = list.maps;
+            if (list && list.maps && typeof list.maps === 'object') this.mapList.maps = flattenMapList(list.maps);
             if (list && Array.isArray(list.warps)) this.mapList.warps = list.warps;
             if (list && list.areas && typeof list.areas === 'object') this.mapList.areas = list.areas;
         } catch (err) {

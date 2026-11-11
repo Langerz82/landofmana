@@ -31,6 +31,9 @@ export function installGameMovement(proto) {
         y = y === undefined || y === null ? -1 : y;
         if (typeof portalId === 'undefined') portalId = -1;
 
+        // A map index the map list doesn't have (game.js flattenMapList) has no map to load.
+        if (Object.keys(this.mapList.maps).length > 0 && !this.mapList.maps[mapIndex]) return;
+
         // The player is frozen (p.freeze) from here until the teleport is complete: the destination map
         // has loaded and the player stands on it. mapStatus stays below 2 until then (clientcallbacksmap.js
         // sets it to 2 only once the player is placed, or when the server refuses the teleport), and while

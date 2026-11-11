@@ -18,7 +18,7 @@
 // Shared data and map updates pushed by the game server (gameserver/js/
 // clientdata.js has the protocol). The files are the shared folder's data/ and
 // maps/ json files ("data/lang.json", "maps/maplist.json",
-// "maps/map4/map4_0_0.json"), identified as a set by their shared hash
+// "maps/map2/map2_0_0.json"), identified as a set by their shared hash
 // (gameserver/js/lib/shareddata.js); this build's own copies' is in
 // shared/manifest.json, which ships with it.
 //
@@ -341,7 +341,7 @@ export function cachedSharedJson(url) {
     }
 }
 
-// A map file's text ("map4/map4_0_0.json") from the game server's version of the
+// A map file's text ("map2/map2_0_0.json") from the game server's version of the
 // files, or null to use this build's own (map/map.js). Asks the game server for
 // it now if the pushed zip couldn't be used.
 export async function loadMapText(name) {

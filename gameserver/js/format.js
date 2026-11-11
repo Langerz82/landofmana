@@ -81,11 +81,12 @@ const achievementRankMax = 10;
 const achievementCountMax = 999999;
 
 const skillsXPMax = 999999999;
-// maps come from maps/maplist.json (map4's sections alone add 13); kept in step with userserver/js/format.js
-const mapsCountMax = 256;
+// maps come from maps/maplist.json (map2's sections alone add 13); kept in step with userserver/js/format.js
+// map index = map number x 100 + sub-index (map/mapmanager.js); quest ids hold it in 4 digits
+const mapsCountMax = 10000;
 const mapCoordsMax = 16384;
-// map indexes come from maps/maplist.json (map4's sections alone add 13 maps)
-const mapIndexMax = 255;
+// map indexes come from maps/maplist.json (map2's sections alone add 13 maps)
+const mapIndexMax = 9999;
 const orientationsMax = 4;
 const entityIdMax = 99999;
 const mapStatusMax = 3;
@@ -634,7 +635,7 @@ class FormatChecker {
         // Client data updates (clientdata.js): [0, hash] the hello sent before the
         // login (the shared hash of the client's files: a sha1, or "" if it doesn't
         // know), or [1, path] one file ("data/lang.json",
-        // "maps/map4/map4_0_0.json") -- only a plain relative path to a .json
+        // "maps/map2/map2_0_0.json") -- only a plain relative path to a .json
         // file: letters, digits, "_", "-", "." and "/" separators, no "..".
         this.formats[Types.Messages.CW_CLIENTDATA] = z.union([
             tupleField([z.literal(0), z.string().regex(/^(?:[0-9a-f]{40})?$/)]),

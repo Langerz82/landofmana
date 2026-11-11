@@ -160,7 +160,7 @@ export default class Map {
 
     // This build's own copy of the map: its json file (shared/maps/<folder>/<name>.json), downloaded
     // via the shared fetchJsonSync helper, which adds the ?v= cache-busting param. A sectional map's part
-    // is listed with its folder ("map4/map4_0_0" -> maps/map4/map4_0_0.json); any other map lives in its
+    // is listed with its folder ("map2/map2_0_0" -> maps/map2/map2_0_0.json); any other map lives in its
     // own folder (maps/map2/map2.json).
     _loadMapJsonLocal() {
         const self = this;

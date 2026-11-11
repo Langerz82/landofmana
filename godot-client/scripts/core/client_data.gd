@@ -20,7 +20,7 @@ extends Node
 ## clientdata.js has the protocol). Port of client/js/clientdata.js.
 ##
 ## The files are the shared folder's data/ and maps/ json files ("data/lang.json",
-## "maps/maplist.json", "maps/map4/map4_0_0.json"), identified as a set by their
+## "maps/maplist.json", "maps/map2/map2_0_0.json"), identified as a set by their
 ## shared hash (gameserver/js/lib/shareddata.js). This build's own copies are
 ## res://assets/data/shared/ and res://assets/maps/, and their hash is in
 ## res://assets/data/shared_manifest.json (shared/manifest.json, copied by the
@@ -96,7 +96,7 @@ func shared_path(file_name: String) -> String:
 	return p if p != "" else RES_DATA + file_name
 
 
-## Where MapData reads a map file ("map4/map4_0_0.json") from.
+## Where MapData reads a map file ("map2/map2_0_0.json") from.
 func map_path(file: String) -> String:
 	var p := _local("maps/" + file)
 	return p if p != "" else RES_MAPS + file
@@ -106,7 +106,7 @@ func maplist_path() -> String:
 	return map_path("maplist.json")
 
 
-## The map file of a maplist name: "map4/map4_0_0" -> "map4/map4_0_0.json", "map1" -> "map1/map1.json".
+## The map file of a maplist name: "map2/map2_0_0" -> "map2/map2_0_0.json", "map1" -> "map1/map1.json".
 static func map_file(map_name: String) -> String:
 	return (map_name + ".json") if "/" in map_name else (map_name + "/" + map_name + ".json")
 

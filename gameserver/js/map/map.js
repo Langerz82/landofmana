@@ -818,7 +818,7 @@ class Map {
             // FIX: `door.tx || -1` treated a target coordinate of 0 as unset.
             area.tx = door.tx >= 0 ? door.tx : -1;
             area.ty = door.ty >= 0 ? door.ty : -1;
-            // edge door between map sections (see tools/maps/generator/map4gen/split4.py): the
+            // edge door between map sections (see tools/maps/generator/map2gen/split4.py): the
             // destination keeps the player's position along the door -- tx/ty is where the door's
             // first tile leads, and every other tile of the door leads the same offset further on.
             area.rel = !!door.rel;

@@ -34,25 +34,55 @@ import MapEntityStore from './mapentitystore.js';
 //var TrapGroup = require("../entity/trapgroup");
 import fs from 'fs';
 
-// Map list: ./maps/maplist.json names every map by index ({"maps": ["map0", "map1", "map2", ...]}),
-// including split maps' sections and interiors (written by tools/maps/generator/split.py). Every
-// map is loaded from ./maps/<name>.json and set up the same way (addListedMap()). Without the
-// file, maps 0-2 are loaded, as before.
+// Map list: ./maps/maplist.json groups every map's files under the map's name, in sub-index order:
+//   {"maps": {"map0": ["map0"], "map1": ["map1/map1_0_0", ..., "map1/map1_int"], "map3": ["map3"], ...}}
+// (split maps' sections and interiors are written by tools/maps/generator/split.py). A file's map
+// index is its map's number x 100 + its sub-index: map1/map1_3_1 (map1's 8th file) is 107, map3 is
+// 300, map0 is 0. Doors (tmap), teleports and quest ids (questid.js) all use that index. Every file
+// is loaded from ./maps/<name>.json and set up the same way (addListedMap()). Without the list file,
+// map0 and map3 are loaded.
 const MAP_LIST_FILE = './maps/maplist.json';
-const DEFAULT_MAPS = ['map0', 'map1', 'map2'];
+export const MAP_INDEX_STRIDE = 100;   // most files one map can have (sub-indexes 0-99)
+const DEFAULT_MAPS = { map0: ['map0'], map3: ['map3'] };
 
-// "warps" (optional): the map that "/warp <name>" (admins only) goes to for a split map, e.g. "/warp map4".
+// A map list's "maps" -> { index: file name }. Also takes the older flat list (["map0", "map1", ...],
+// index = position).
+export function flattenMapList(maps) {
+    const out = {};
+    if (Array.isArray(maps)) {
+        maps.forEach(function (name, i) {
+            if (name) out[i] = name;
+        });
+        return out;
+    }
+    for (const group in maps || {}) {
+        const m = /^map(\d+)$/.exec(group);
+        const files = maps[group];
+        if (!m || !Array.isArray(files)) {
+            console.error('MapManager: map list group "' + group + '" is not "map<number>": [files]; skipped.');
+            continue;
+        }
+        if (files.length > MAP_INDEX_STRIDE)
+            console.error('MapManager: ' + group + ' has ' + files.length + ' files; only the first ' + MAP_INDEX_STRIDE + ' get an index.');
+        files.slice(0, MAP_INDEX_STRIDE).forEach(function (name, sub) {
+            if (name) out[Number(m[1]) * MAP_INDEX_STRIDE + sub] = name;
+        });
+    }
+    return out;
+}
+
+// "warps" (optional): the map that "/warp <name>" (admins only) goes to for a split map, e.g. "/warp map2".
 function readMapList() {
     try {
         const json = JSON.parse(fs.readFileSync(MAP_LIST_FILE, 'utf8'));
         return {
-            maps: Array.isArray(json.maps) ? json.maps : [],
+            maps: flattenMapList(json.maps),
             warps: Array.isArray(json.warps) ? json.warps : []
         };
     } catch (err) {
         if (err.code !== 'ENOENT')
             console.error('MapManager: could not read ' + MAP_LIST_FILE + ': ' + err.message);
-        return { maps: [], warps: [] };
+        return { maps: {}, warps: [] };
     }
 }
 
@@ -73,18 +103,17 @@ class MapManager {
          * waits for them all).
          */
         const list = readMapList();
-        const names = list.maps.length > 0 ? list.maps : DEFAULT_MAPS;
-        names.forEach(function (name, id) {
-            if (!name) return;
-            self.addListedMap(id, name);
-        });
+        const names = Object.keys(list.maps).length > 0 ? list.maps : flattenMapList(DEFAULT_MAPS);
+        this.mapNames = names;   // { index: file name }
+        this.warps = list.warps;
+        for (const id in names) self.addListedMap(Number(id), names[id]);
 
     }
 
     // A map from maps/maplist.json: its own entities, the entities from its JSON and from
     // data/maps/<name>/entity.json (NPCs, admin-placed entities), then its mob and entity areas
     // (data/maps/<name>/entityarea.json, written by the map converter), and random start
-    // positions. (map1's Old Man and ring NPCs are in data/maps/map1/entity.json; its JSON's own
+    // positions. (map3's Old Man and ring NPCs -- the map at index 1, formerly map1 -- are in data/maps/map3/entity.json; its JSON's own
     // entities list only holds an old type-0 Old Man, which createEntity() ignores.)
     addListedMap(id, name) {
         const self = this;
@@ -110,6 +139,50 @@ class MapManager {
                 return map.getRandomStartingPosition();
             };
             self.MapsReady();
+        });
+    }
+
+    // The index of the map named by a config setting such as "start_map": a map index (107 or "107"),
+    // a map's name from maplist.json with or without its folder ("map1/map1_3_1" or "map1_3_1"), or a
+    // split map as a whole ("map1"), which means its warp point -- the section holding the map's start
+    // checkpoint, i.e. its start town (see tools/maps/generator/split.py). -1 if nothing matches.
+    resolveMapIndex(spec) {
+        const names = this.mapNames || {};
+        if (spec === undefined || spec === null || spec === '') return -1;
+        const want = String(spec).trim();
+        if (/^[0-9]+$/.test(want)) {
+            const i = parseInt(want, 10);
+            return names[i] ? i : -1;
+        }
+        const ids = Object.keys(names).map(Number).sort(function (a, b) {
+            return a - b;
+        });
+        const find = function (test) {
+            const id = ids.find(function (i) {
+                return test(names[i]);
+            });
+            return id === undefined ? -1 : id;
+        };
+        let i = find(function (n) {
+            return n === want;
+        });
+        if (i >= 0) return i;
+        i = find(function (n) {
+            return n.split('/').pop() === want;
+        });
+        if (i >= 0) return i;
+        const prefix = want + '/';
+        const warp = (this.warps || []).find(function (n) {
+            return n.startsWith(prefix);
+        });
+        if (warp) {
+            i = find(function (n) {
+                return n === warp;
+            });
+            if (i >= 0) return i;
+        }
+        return find(function (n) {
+            return n.startsWith(prefix);
         });
     }
 

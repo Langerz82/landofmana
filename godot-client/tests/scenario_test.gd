@@ -98,8 +98,8 @@ func _process(_d: float) -> void:
 				t0 = now
 				phase = 5
 		5:
-			if world.map_index == 1 and now - t0 > 200:
-				print("back on map1 at ", p.x, ",", p.y, " entities=", world.entities.size())
+			if world.map_index == 300 and now - t0 > 200:   # map0's door leads to map3 (map index 300)
+				print("back on map3 at ", p.x, ",", p.y, " entities=", world.entities.size())
 				_shot("06_back")
 				print("SCENARIO DONE maps=", maps_visited)
 				get_tree().quit(0)

@@ -15,6 +15,7 @@
   "idle_timeout_minutes": 30,
   "max_latency": 100,
   "nb_worlds": 1,
+  "start_map": "map1",
   "metrics_enabled": false,
   "use_one_port": true,
 

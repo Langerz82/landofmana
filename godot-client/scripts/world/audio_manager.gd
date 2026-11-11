@@ -137,8 +137,10 @@ func set_music_volume(v: float) -> void:
 		_music.volume_db = music_db()
 
 
+## One track per map, not per map file: map index 107 (map1/map1_3_1) plays map1.ogg -- the map index
+## is the map number x 100 + the file's sub-index (World.flatten_map_list).
 func play_map_music(index: int) -> void:
-	var track := "map%d" % index
+	var track := "map%d" % int(index / 100.0)
 	if not music_on:
 		_current_music = track
 		return

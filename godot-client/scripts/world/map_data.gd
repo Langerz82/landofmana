@@ -41,7 +41,7 @@ static func load_map(index: int, n: String) -> MapData:
 	var m := MapData.new()
 	m.map_index = index
 	m.map_name = n
-	# a sectional map's part is listed with its folder ("map4/map4_0_0" -> maps/map4/map4_0_0.json)
+	# a sectional map's part is listed with its folder ("map2/map2_0_0" -> maps/map2/map2_0_0.json)
 	# the game server's pushed copy (ClientData), else this build's own res://assets/maps/...
 	var path := ClientData.map_path(ClientData.map_file(n))
 	var text := FileAccess.get_file_as_string(path)

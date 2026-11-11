@@ -1,4 +1,4 @@
-"""Step 1: build the caches the generator learns from (run again if map2.json or the tilesheet change).
+"""Step 1: build the caches the generator learns from (run again if old_map2.json or the tilesheet change).
 
 Creates cache/map2.npz (map2 layers), cache/quad.npy (tile opacity per quadrant),
 cache/colliding.npy (gids the tileset marks as colliding) and cache/stamps.pkl (objects lifted from map2).
@@ -8,7 +8,7 @@ import numpy as np
 from PIL import Image
 from paths import data, cache
 
-src = sys.argv[1] if len(sys.argv) > 1 else 'map2.json'
+src = sys.argv[1] if len(sys.argv) > 1 else 'old_map2.json'
 d = json.load(open(data(src)))
 np.savez_compressed(cache('map2.npz'), **{l['name']: np.array(l['data'], dtype=np.int64).reshape(d['height'], d['width'])
                                           for l in d['layers'] if l['type'] == 'tilelayer'})

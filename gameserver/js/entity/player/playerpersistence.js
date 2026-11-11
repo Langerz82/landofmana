@@ -37,8 +37,15 @@ class PlayerPersistence {
 
     _loadMapState(db_player) {
         const entity = this.entity;
-        entity.mapIndex = parseInt(db_player.map[0]);
-        entity.map = entity.world.maps[entity.mapIndex];
+        // Every player enters the world on the start map (WorldServer.getStartMap(), see
+        // onPlayerEnter), so that's the map they're on from here -- not the saved map index, which
+        // can name a map that no longer exists (e.g. an index from before the maps were renumbered,
+        // gameserver map/mapmanager.js). Stats loaded below can already send HP/EP changes to the
+        // player's map (sendChangePoints), so it must be a real one.
+        const world = entity.world;
+        const saved = world.maps[parseInt(db_player.map[0])];
+        entity.map = (world.getStartMap && world.getStartMap()) || saved || world.maps[0];
+        entity.mapIndex = entity.map.index;
         entity.x = parseInt(db_player.map[1]);
         entity.y = parseInt(db_player.map[2]);
         entity.orientation = parseInt(db_player.map[3]);

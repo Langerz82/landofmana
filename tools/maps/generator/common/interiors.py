@@ -1,4 +1,4 @@
-"""House and cave interiors, lifted from map2.json and packed into the right half of the map.
+"""House and cave interiors, lifted from old_map2.json and packed into the right half of the map.
 
 map2 keeps its interiors east of the overworld strip (x >= 114). Each interior room has its own
 'camera' rect; rooms linked to each other by doors (ladders inside caves) form a 'system'.
@@ -22,7 +22,7 @@ def _props(o):
     return {q['name']: q['value'] for q in o.get('properties', [])}
 
 
-def load_systems(src='map2.json', x_min=114):
+def load_systems(src='old_map2.json', x_min=114):
     d = json.load(open(data(src)))
     Ld = {l['name']: l for l in d['layers']}
     W = d['width']

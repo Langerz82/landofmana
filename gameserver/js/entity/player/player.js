@@ -307,6 +307,12 @@ class Player extends Character {
     sendPlayerToClient() {
         const self = this;
 
+        // Every player enters the world on the start map (WorldServer.getStartMap(), set by
+        // onPlayerEnter below), and the clients load the map WC_PLAYER names and ask to enter it --
+        // so name that map here, not the one loaded from the save.
+        const startMap = self.world.getStartMap ? self.world.getStartMap() : null;
+        if (startMap) self.mapIndex = startMap.index;
+
         console.info('sendMessage');
         let sendMessage = [
             Types.Messages.WC_PLAYER,
