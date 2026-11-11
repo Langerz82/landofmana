@@ -1,5 +1,5 @@
 {
- "hash": "d5c8bad8543c68346263dca14537df5a7291e946",
+ "hash": "8501e1103419b0b794aa4f998062928f9d437fa9",
  "files": {
   "data/appearance.json": "a9237ad1d4cbfa682cc74ba3da64149ed383bc46",
   "data/craft.json": "ec0566c1983ad8a993343ea0d51fb906a7b635e2",
@@ -27,12 +27,12 @@
   "maps/map4/map4_int.json": "bb9d2005fdc36e481f3e3648e7e6f4404bd5b3eb",
   "maps/map5/map5_0_0.json": "e72adaf3cc8d1477334cce71f6bf69d2744a14b9",
   "maps/map5/map5_0_1.json": "a7083e7760ff1c444f3911740a354c7dadc45893",
-  "maps/map5/map5_1_0.json": "a5235ec81321db084c8f6f0493cecdf2886ad557",
+  "maps/map5/map5_1_0.json": "0dd4387cb7beb959d9eb98a1713c34e22c6e3590",
   "maps/map5/map5_1_1.json": "6864e699e4ba6d3b33130828208455fc758d2f17",
-  "maps/map5/map5_2_0.json": "6a07051e9fa8d90becb1b325f845a2cd70e7fc34",
-  "maps/map5/map5_2_1.json": "b97a81541ec7ea491c4b7e16b6d9cdccd716477c",
-  "maps/map5/map5_3_0.json": "d08c5e3f852cadb21b1643791fd212d9443b3d80",
-  "maps/map5/map5_3_1.json": "3dc06c0c50cb7c80e8647cf00376b7cd1a036405",
+  "maps/map5/map5_2_0.json": "461855b18f37eb0e7421710594f0953572b136d2",
+  "maps/map5/map5_2_1.json": "3d32deff3d5d1f8d27a55dcf4551f94907182ef0",
+  "maps/map5/map5_3_0.json": "c047edf0b4097e31c48eb61eaf8aa344949594ab",
+  "maps/map5/map5_3_1.json": "2add27e76d5f93cf25e17fc6d9c087ee21372047",
   "maps/map5/map5_int.json": "e15edc0fe4491f7383c327b4580936522eca052a",
   "maps/maplist.json": "61dffb2ac4bf85fa7371c793f3c9b2abd29c766c"
  }

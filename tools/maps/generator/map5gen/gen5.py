@@ -1404,6 +1404,21 @@ for ty_, tx_ in vil_centres:
             {'name': 'weaponType', 'type': 'string', 'value': 'any'}]))
 camera = [obj(x=0, y=0, width=W * 16, height=H * 16, name='overworld', type='camera')]
 
+# Sand runs on under the grass that borders it: the grass edge tiles are partly see-through, and where the sand
+# stopped exactly at the grass the ground layer (dirt) showed through them instead of sand, so the sand looked cut
+# off. Every grass cell within two tiles of sand gets sand underneath (the nearest sand's texture, the plain-sand
+# 2x2 pattern kept in phase) and no ground; under solid grass that changes nothing.
+_s0 = LY['sand'][:, :W] != 0
+_near = ndimage.binary_dilation(_s0, np.ones((3, 3), bool), iterations=2) & ~_s0 & (LY['grass'][:, :W] != 0)
+_, (_iy, _ix) = ndimage.distance_transform_edt(~_s0, return_indices=True)
+_src = LY['sand'][:, :W][_iy, _ix]
+_PAT = {(0, 0): 299, (0, 1): 300, (1, 0): 319, (1, 1): 320}
+for _y, _x in zip(*np.nonzero(_near)):
+    _t = int(_src[_y, _x])
+    LY['sand'][_y, _x] = _PAT[(_y % 2, _x % 2)] if _t in (299, 300, 319, 320) else _t
+    LY['ground'][_y, _x] = 0
+    LY['groundvariations'][_y, _x] = 0
+log('sand extended under bordering grass', int(_near.sum()))
 # Cliff stamps lifted from the older maps can carry a cave mouth of their own (MOUTH, trigger on its 1392 tile)
 # that the "cave mouths" step above never placed: give each of those a cave too, tagged by its section's area,
 # so no cave entrance on the map leads nowhere.
