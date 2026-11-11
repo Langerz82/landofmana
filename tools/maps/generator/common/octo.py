@@ -159,8 +159,9 @@ def match_joints(out, F, img, where=None, groups=('T', 'B', 'L', 'R')):
     return out
 
 
-def tile_alpha(sheet_path):
-    """gid -> 16x16 bool mask of the tile's opaque pixels (0 -> all clear), read from the tilesheet once."""
+def tile_alpha(sheet_path, threshold=0):
+    """gid -> 16x16 bool mask of the tile's pixels with alpha > threshold (0 -> all clear), read from the tilesheet
+    once. threshold=0: any visible pixel (for shapes); threshold=254: only fully opaque ones (what hides the layer below)."""
     from PIL import Image
     ts = np.asarray(Image.open(sheet_path).convert('RGBA')); cols = ts.shape[1] // 16; cache = {}
     def alpha(g):
@@ -168,7 +169,7 @@ def tile_alpha(sheet_path):
         if g not in cache:
             if g == 0: cache[g] = np.zeros((16, 16), bool)
             else:
-                r, c = divmod(g - 1, cols); cache[g] = ts[r * 16:r * 16 + 16, c * 16:c * 16 + 16, 3] > 0
+                r, c = divmod(g - 1, cols); cache[g] = ts[r * 16:r * 16 + 16, c * 16:c * 16 + 16, 3] > threshold
         return cache[g]
     return alpha
 
@@ -214,3 +215,26 @@ def smooth_joints(out, F, alpha, groups=('T', 'B', 'L', 'R'), only_bad=False, ba
                 for i, k in enumerate(reversed(seq)):
                     if o[y0 + i, x] != var[k]: o[y0 + i, x] = var[k]; changed += 1
     return changed
+
+
+GROUND_FILL = [[15, 16], [35, 36]]          # the ground layer's 2x2 tiling (row y % 2, column x % 2)
+
+def fill_under_edges(top, under, below, opaque, covers=(), pattern=GROUND_FILL):
+    """Fill `under` (e.g. the ground layer) beneath see-through edge tiles of `top` (grass) where nothing is there
+    but `below` (sand) would show through, next to cells where `under` is visible. Otherwise the gap between a
+    staircase-shaped path and grass's smooth diagonal edge shows the sand under the path as pale squares.
+    Cells hidden by any layer in `covers` (water, lakes) are left alone so shorelines don't change. Works in
+    place on `under`; returns the number of cells filled. opaque(gid): the tile's fully opaque pixels
+    (tile_alpha(sheet, threshold=254)) -- a tile with any partly clear pixel lets the layer below show through."""
+    from scipy import ndimage
+    gids = np.unique(top[top > 0])
+    seethrough = [int(g) for g in gids if not opaque(g).all()]
+    visible = (under > 0) & (top == 0)
+    near = ndimage.binary_dilation(visible, np.ones((3, 3), bool)) & ~visible
+    hidden = np.zeros(top.shape, bool)
+    for c in covers: hidden |= c > 0
+    fill = np.isin(top, seethrough) & (under == 0) & (below > 0) & near & ~hidden
+    yy, xx = np.nonzero(fill)
+    p = np.array(pattern)
+    under[yy, xx] = p[yy % p.shape[0], xx % p.shape[1]]
+    return int(len(yy))

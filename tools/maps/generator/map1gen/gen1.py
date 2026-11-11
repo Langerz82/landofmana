@@ -18,7 +18,7 @@ import json, pickle, time, argparse, heapq
 import numpy as np
 from collections import defaultdict, Counter
 from scipy import ndimage
-from octo import tile as otile, clean, octshape, FAM, block, rectify, shore, match_joints, smooth_joints, tile_alpha
+from octo import tile as otile, clean, octshape, FAM, block, rectify, shore, match_joints, smooth_joints, tile_alpha, fill_under_edges
 from PIL import Image
 from noise import fbm
 from paths import data, cache
@@ -1512,7 +1512,13 @@ if 'blocking' in FULL:
 # grass edges: re-pick each straight run's variants so the edge lines up where tiles meet -- otherwise a run
 # next to a 45-degree step often gets a variant a few pixels off, leaving a notch (octo.smooth_joints)
 if 'grass' in FULL:
-    log('grass edge tiles re-picked so edges join smoothly:', smooth_joints(FULL['grass'], FAM['grass'], tile_alpha(data('tilesheet.png'))))
+    _alpha = tile_alpha(data('tilesheet.png'))
+    log('grass edge tiles re-picked so edges join smoothly:', smooth_joints(FULL['grass'], FAM['grass'], _alpha))
+    # ground under grass edges, where the sand below would otherwise show between the path and the grass
+    if 'ground' in FULL and 'sand' in FULL:
+        log('ground filled under see-through grass edges:', fill_under_edges(
+            FULL['grass'], FULL['ground'], FULL['sand'], tile_alpha(data('tilesheet.png'), threshold=254),
+            covers=[FULL[n] for n in ('water', 'lakes') if n in FULL]))
 log('writing', OUT)
 src = json.load(open(data('old_map2.json')))
 order = [l['name'] for l in src['layers']]
