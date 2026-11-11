@@ -82,7 +82,7 @@
 		"object": {"type": 2, "kind": 4, "count": 20},
 		"reward": [{"itemKind": 100}]
 	},
-    "1000200000101": {
+	"1000200000101": {
 		"name": "Intro 1-1",
 		"type": 1,
 		"level": 0,

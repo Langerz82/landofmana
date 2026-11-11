@@ -24,7 +24,7 @@
   "world_id": 1,
   "production": "heroku",
 
-  "version":115,
+  "version":116,
   "client_data": {
     "shared_dir": "shared"
   },
