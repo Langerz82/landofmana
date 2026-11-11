@@ -460,6 +460,31 @@ export function installMapCamera(proto) {
                 ? this.scrollGy0 + ~~((rows - cgh) / 2)
                 : Utils.clamp(this.scrollGy0, this.oyMax, gy - cghh);
 
+        // FIX (terrain drawn a tile off from the entities): the gx/gy above re-derive the tile
+        // window from the focus entity on their own, but entities are drawn against camera.js's
+        // camera.x/y (setRealCoords()), and the two used different tests for "the range is smaller
+        // than the screen" (cols < gridWE above vs gcex < gcsx in camera.js) and different edge
+        // clamps. For rooms close to the screen size -- most cave rooms at common window sizes and
+        // zooms -- one centred while the other clamped, so the whole map was drawn one tile away
+        // from where the player, mobs and doors really are (arriving on a cave arch looked like
+        // standing a tile above it). The renderer draws tile-window row i at screen
+        // i*TS - soy + offY (rendererscaling.js's setGridOffset()/setTilesOffset()), and a world
+        // row y at y - camera.y, so the window has to start at camera.y - soy + offY. Take it from
+        // the camera itself (refreshed first: the scroll bounds it clamps against may just have
+        // changed above, e.g. on entering another room), so the terrain and the entities always
+        // agree. Rounded to the nearest tile: odd window sizes leave the renderer a pixel or so off.
+        c.setRealCoords();
+        const tileOrigin = function (camPos, scrolling, canScroll, feSub, wOff, r, s) {
+            const sub = scrolling ? feSub : 0;
+            let off = -wOff;
+            if (canScroll && r < s) off = Math.min(off + Math.abs(r - s), 0);
+            return Math.round((camPos - sub + off) / G_TILESIZE);
+        };
+        // (When camera.js centres a range smaller than the screen this gives back exactly the centred
+        // window above; the gx/gy above are kept only as the fallback reasoning for that case.)
+        gx = tileOrigin(c.x, c.scrollX, c.canScrollX, fe.x % G_TILESIZE, c.wOffX, c.rx, c.sx);
+        gy = tileOrigin(c.y, c.scrollY, c.canScrollY, fe.y % G_TILESIZE, c.wOffY, c.ry, c.sy);
+
         const ox = gx;
         const oy = gy;
 

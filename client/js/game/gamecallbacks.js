@@ -257,6 +257,15 @@ export function installGameCallbacks(proto) {
                 p.refusedDoorAt = null;
             }
 
+            // A door fires only when the player stands exactly on its tile (the tile centre), not while
+            // they are part-way onto it or off it. getDoor() alone matched as soon as the player's centre
+            // point was inside the door's 16x16 box, so a move cut short half-way between two tiles (walking
+            // into a mob, an attack starting, a click path being interrupted) could fire the door up to 7px
+            // before the player reached it. Key and path movement always end a step on a tile centre, so a
+            // door the player really walks onto still fires there (checkTeleportOnStep() too).
+            const half = G_TILESIZE >> 1;
+            if (p.x % G_TILESIZE !== half || p.y % G_TILESIZE !== half) return;
+
             // getDoor()/doors live directly on `currentMap` (map/mapobjects.js) -
             // it's a plain Map instance now (map/mapcamera.js's own render-grid/
             // camera logic is merged onto Map.prototype, see its own header

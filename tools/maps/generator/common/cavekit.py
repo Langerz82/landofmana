@@ -242,7 +242,9 @@ def make_system(rng, n_rooms=None, max_w=110, compact=False):
         ys, xs = np.nonzero((r['W'] != 0) | (r['F'] != 0))
         rects.append((px + int(xs.min()), py + int(ys.min()), int(xs.max() - xs.min() + 1), int(ys.max() - ys.min() + 1)))
     # walls are solid except the doorway tiles (ladder, arch centre column)
-    walk = np.isin(tiles['cavewalls'], LADDER + [1164, 1184])
+    # (1163/1165, the arch top's side pieces, are fully transparent: they sit on the room's last floor
+    # row and look like plain floor, so they are walkable too; only the arch's lower rows are wall)
+    walk = np.isin(tiles['cavewalls'], LADDER + [1163, 1164, 1165, 1184])
     tiles['blocking'] = np.where((tiles['cavewalls'] != 0) & ~walk, 24, 0).astype(np.int32)
     # seal the far side of every doorway: nothing to walk onto past an arch or a ladder top
     ys, xs = np.nonzero(tiles['cavewalls'] == LADDER[0])

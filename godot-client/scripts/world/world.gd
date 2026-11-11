@@ -947,6 +947,15 @@ func _check_teleport() -> void:
 		if _refused_door_pos == Vector2(p.x, p.y):
 			return
 		_refused_door_pos = null
+	# A door fires only when the player stands exactly on its tile (the tile centre), not while they are
+	# part-way onto it or off it. get_door() alone matched as soon as the player's centre point was inside
+	# the door's 16x16 box, so a move cut short half-way between two tiles (walking into a mob, an attack
+	# starting, a click path being interrupted) could fire the door up to 7px before the player reached it.
+	# Key and path movement always end a step on a tile centre, so a door the player really walks onto
+	# still fires there (_check_teleport_on_step() too).
+	var half := TS >> 1
+	if posmod(p.x, TS) != half or posmod(p.y, TS) != half:
+		return
 	var dest = current_map.get_door(p.x, p.y)
 	if _arrival_door != null:
 		if is_same(dest, _arrival_door) and p.orientation == _arrival_orientation:
