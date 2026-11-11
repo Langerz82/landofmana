@@ -1055,7 +1055,8 @@ func make_player_interact_next_to() -> void:
 	if _try_show_dialogue():
 		return
 	# Fighting an entity next to the player but turned to face another one
-	# next to it (an enemy, an NPC, ...): interact with the faced one.
+	# next to it (an enemy, an NPC, ...), or the target is far away and the
+	# player is facing an entity next to it: interact with the faced one.
 	if _faced_switch_target() != null:
 		p.cancel_attack_delay()
 		_try_interact_faced_entity()
@@ -1088,12 +1089,19 @@ func _try_interact_faced_entity() -> bool:
 
 
 ## The entity (enemy, NPC, node, ...) next to the player that it is facing,
-## when the current target is also next to the player but is a different
-## entity -- i.e. the player turned from the adjacent entity it was fighting
-## to another one. null otherwise (no target, a far target, or still facing it).
+## when it is a different entity from the current target and that target is
+## either:
+##  - also next to the player -- i.e. the player turned from the adjacent
+##    entity it was fighting to another one, or
+##  - far away (not next to the player and out of reach) -- the faced entity
+##    right in front of the player wins over a distant target.
+## A ranged target still within attack range is kept. null otherwise (no
+## target, a reachable ranged target, or still facing the target).
 func _faced_switch_target():
 	var p := player
-	if p == null or not p.has_target() or not is_instance_valid(p.target) or not p.is_next_too_entity(p.target):
+	if p == null or not p.has_target() or not is_instance_valid(p.target):
+		return null
+	if not p.is_next_too_entity(p.target) and p.can_reach_target():
 		return null
 	var pos := p.next_tile()
 	var e = get_entity_at(pos.x, pos.y)

@@ -44,7 +44,9 @@ export function installGameInteractionTarget(proto) {
         log.info('makePlayerInteractNextTo');
 
         // Fighting an entity next to the player but turned to face another
-        // one next to it (an enemy, an NPC, ...): interact with the faced one.
+        // one next to it (an enemy, an NPC, ...), or the target is far away
+        // and the player is facing an entity next to it: interact with the
+        // faced one.
         if (this.facedSwitchTarget()) {
             clearTimeout(p.attackInterval);
             this.tryInteractFacedEntity();
@@ -87,13 +89,19 @@ export function installGameInteractionTarget(proto) {
     };
 
     // The entity (enemy, NPC, node, ...) next to the player that it is
-    // facing, when the current target is also next to the player but is a
-    // different entity - i.e. the player turned from the adjacent entity it
-    // was fighting to another one. null otherwise (no target, a far target,
-    // or still facing it).
+    // facing, when it is a different entity from the current target and
+    // that target is either:
+    //  - also next to the player - i.e. the player turned from the adjacent
+    //    entity it was fighting to another one, or
+    //  - far away (not next to the player and out of reach) - the faced
+    //    entity right in front of the player wins over a distant target.
+    // A ranged target still within attackRange is kept. null otherwise (no
+    // target, a reachable ranged target, or still facing the target).
     proto.facedSwitchTarget = function () {
         const p = this.player;
-        if (!p || !p.target || !p.isNextTooEntity(p.target)) return null;
+        if (!p || !p.target) return null;
+        const targetNext = p.isNextTooEntity(p.target);
+        if (!targetNext && p.canReachTarget()) return null;
         const pos = p.nextTile();
         const entity = this.getEntityAt(pos[0], pos[1]);
         if (!entity || entity === p || entity === p.target) return null;
