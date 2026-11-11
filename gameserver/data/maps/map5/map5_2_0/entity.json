@@ -1,0 +1,50 @@
+[
+  {
+    "id": 101,
+    "type": "npcmove",
+    "kind": 42,
+    "x": 2448,
+    "y": 128,
+    "name": "Quinisa"
+  },
+  {
+    "id": 102,
+    "type": "npcmove",
+    "kind": 9,
+    "x": 928,
+    "y": 1264,
+    "name": "Ulton"
+  },
+  {
+    "id": 103,
+    "type": "npcmove",
+    "kind": 56,
+    "x": 2608,
+    "y": 1584,
+    "name": "Delric"
+  },
+  {
+    "id": 104,
+    "type": "npcmove",
+    "kind": 35,
+    "x": 4016,
+    "y": 1472,
+    "name": "Rhian"
+  },
+  {
+    "id": 105,
+    "type": "npcmove",
+    "kind": 12,
+    "x": 912,
+    "y": 2640,
+    "name": "Perwin"
+  },
+  {
+    "id": 106,
+    "type": "npcmove",
+    "kind": 49,
+    "x": 2384,
+    "y": 2912,
+    "name": "Hobette"
+  }
+]

@@ -1864,7 +1864,1702 @@
               [0, "Come back when they are dead muhahaha."]
             ],
             ["Kill %count% %name%'s"]
+        ],
+      "1000800010101": [
+        [
+          [0, "Every time I sneak towards the lava, a floating eye spots me and the whole volcano wakes up."],
+          [0, "Blind ten of them, please."]
+        ],
+        [
+          [0, "Come back when you've dealt with %count% of them."]
+        ],
+        [
+          [0, "How many %name%s so far? I need %count%."]
+        ],
+        [
+          [0, "The volcano has stopped watching us."]
         ]
+      ],
+      "1000800010102": [
+        [
+          [0, "I came to the north-western volcano to trade wormses with the fire priests."],
+          [0, "The death knights took them before I reached the temple. Get five back."]
+        ],
+        [
+          [0, "%count% of them, from the %name2%s."]
+        ],
+        [
+          [0, "Have the %name2%s given up my %name%s yet?"]
+        ],
+        [
+          [0, "All %count%! You have my thanks."]
+        ]
+      ],
+      "1000800010201": [
+        [
+          [0, "A death knight challenged me to a duel in the north-western lava fields."],
+          [0, "I ran. Now they all want a duel. Fight ten of them for me."],
+          [0, "The heat from the desert makes them restless."]
+        ],
+        [
+          [0, "Come back when you've dealt with %count% of them."]
+        ],
+        [
+          [0, "Still %name%s everywhere. Have you beaten %count%?"]
+        ],
+        [
+          [0, "The knights fall back into the smoke. Brave work!"]
+        ]
+      ],
+      "1000800010202": [
+        [
+          [0, "The spectres of the north-western lava fields guard a hoard of stolen goods."],
+          [1, "Anything of yours?"],
+          [0, "My fine combs. They're no use in the heat, but they're mine. Bring back three."]
+        ],
+        [
+          [0, "Bring me all %count% of them."]
+        ],
+        [
+          [0, "Do you have the %count% %name%s yet?"]
+        ],
+        [
+          [0, "Wonderful, these are exactly the ones they took."]
+        ]
+      ],
+      "1000800010301": [
+        [
+          [0, "I dig for relics in the northern desert."],
+          [1, "Found anything good?"],
+          [0, "Skeletons. Walking ones. Smash ten of them so I can get back to work."]
+        ],
+        [
+          [0, "Come back when you've dealt with %count% of them."]
+        ],
+        [
+          [0, "Have you defeated %count% %name%s yet?"]
+        ],
+        [
+          [0, "The bones are quiet again. Thank you."]
+        ]
+      ],
+      "1000800010302": [
+        [
+          [0, "The ogres of the northern desert bury what they steal in the sand."],
+          [0, "My cheeses are down there somewhere. Dig up four for me."]
+        ],
+        [
+          [0, "Bring me all %count% of them."]
+        ],
+        [
+          [0, "Do you have the %count% %name%s yet?"]
+        ],
+        [
+          [0, "Wonderful, these are exactly the ones they took."]
+        ]
+      ],
+      "1000900010101": [
+        [
+          [0, "An ogre tribe has wandered into the north-eastern desert looking for water."],
+          [0, "They've smashed every well between here and Saltmere. Drive off ten of them."],
+          [0, "It's only a short walk from Saltmere, too."]
+        ],
+        [
+          [0, "Come back when you've dealt with %count% of them."]
+        ],
+        [
+          [0, "How many %name%s so far? I need %count%."]
+        ],
+        [
+          [0, "You beat ogres? Remind me never to annoy you."]
+        ]
+      ],
+      "1000900010102": [
+        [
+          [0, "The armored skeletons of the north-eastern desert bury what they steal in the sand."],
+          [0, "My books are down there somewhere. Dig up three for me."]
+        ],
+        [
+          [0, "Just %count%, that is all I ask."]
+        ],
+        [
+          [0, "Do you have the %count% %name%s yet?"]
+        ],
+        [
+          [0, "Wonderful, these are exactly the ones they took."]
+        ]
+      ],
+      "1000900010201": [
+        [
+          [0, "A goblin stole my axe while I was resting under a tree."],
+          [1, "Just one goblin?"],
+          [0, "One stole it, the rest laughed. Teach ten of them a lesson."],
+          [0, "The heat from the desert makes them restless."]
+        ],
+        [
+          [0, "Only %count% of them. You can do it."]
+        ],
+        [
+          [0, "Have you defeated %count% %name%s yet?"]
+        ],
+        [
+          [0, "That will teach them. The trail is safe again!"]
+        ]
+      ],
+      "1000900010202": [
+        [
+          [0, "I'm taking poison vials to Saltmere, but the bats in the north-eastern woodland ambushed me."],
+          [0, "Get four back and the trip is saved."]
+        ],
+        [
+          [0, "Bring me all %count% of them."]
+        ],
+        [
+          [0, "Have the %name2%s given up my %name%s yet?"]
+        ],
+        [
+          [0, "All %count%! You have my thanks."]
+        ]
+      ],
+      "1000800010401": [
+        [
+          [0, "Armored skeletons patrol the north-western desert as if the old war never ended."],
+          [0, "They stop anyone who passes and demand a password nobody knows. Defeat ten of them."]
+        ],
+        [
+          [0, "Off you go, %count% should be enough."]
+        ],
+        [
+          [0, "Still %name%s everywhere. Have you beaten %count%?"]
+        ],
+        [
+          [0, "Their march is over. Thank you."]
+        ]
+      ],
+      "1000800010402": [
+        [
+          [0, "The skeletons of the north-western desert bury what they steal in the sand."],
+          [0, "My crystalses are down there somewhere. Dig up three for me."]
+        ],
+        [
+          [0, "Just %count%, that is all I ask."]
+        ],
+        [
+          [0, "Have the %name2%s given up my %name%s yet?"]
+        ],
+        [
+          [0, "Wonderful, these are exactly the ones they took."]
+        ]
+      ],
+      "1000800010501": [
+        [
+          [0, "A whole graveyard of skeletons rose out of the north-western sands last full moon."],
+          [0, "They rattle all night and nobody can sleep. Break ten of them."]
+        ],
+        [
+          [0, "Only %count% of them. You can do it."]
+        ],
+        [
+          [0, "How many %name%s so far? I need %count%."]
+        ],
+        [
+          [0, "Back in the ground where they belong."]
+        ]
+      ],
+      "1000800010502": [
+        [
+          [0, "I'm lost in the north-western sands, my water's gone, and the ogres took my necklaces too."],
+          [1, "I'll help."],
+          [0, "Bless you. Four of them, and I can trade my way home to Saltmere."]
+        ],
+        [
+          [0, "Bring me all %count% of them."]
+        ],
+        [
+          [0, "Have the %name2%s given up my %name%s yet?"]
+        ],
+        [
+          [0, "My %name%s! I never thought I would see them again."]
+        ]
+      ],
+      "1000800010601": [
+        [
+          [0, "The ogres of the northern desert have taken to throwing boulders at caravans."],
+          [1, "For fun?"],
+          [0, "For fun. Knock ten of them flat and see how they like it."]
+        ],
+        [
+          [0, "Only %count% of them. You can do it."]
+        ],
+        [
+          [0, "How many %name%s so far? I need %count%."]
+        ],
+        [
+          [0, "You beat ogres? Remind me never to annoy you."]
+        ]
+      ],
+      "1000800010602": [
+        [
+          [0, "The armored skeletons of the northern desert bury what they steal in the sand."],
+          [0, "My bone earings are down there somewhere. Dig up four for me."]
+        ],
+        [
+          [0, "Just %count%, that is all I ask."]
+        ],
+        [
+          [0, "Any luck finding my %count% %name%s?"]
+        ],
+        [
+          [0, "Wonderful, these are exactly the ones they took."]
+        ]
+      ],
+      "1000900010301": [
+        [
+          [0, "Rats have got into the grain store here in Saltmere."],
+          [0, "If they keep eating like this we'll go hungry by winter. Kill ten of them."]
+        ],
+        [
+          [0, "Off you go, %count% should be enough."]
+        ],
+        [
+          [0, "How many %name%s so far? I need %count%."]
+        ],
+        [
+          [0, "Quiet floorboards at last."]
+        ]
+      ],
+      "1000900010302": [
+        [
+          [0, "The snakes have been dragging my autumn leaves into the walls of Saltmere."],
+          [0, "I need four of them back before market day."]
+        ],
+        [
+          [0, "Just %count%, that is all I ask."]
+        ],
+        [
+          [0, "Do you have the %count% %name%s yet?"]
+        ],
+        [
+          [0, "My %name%s! I never thought I would see them again."]
+        ]
+      ],
+      "1000900010401": [
+        [
+          [0, "Long ago an army marched into the north-eastern sands and never marched out."],
+          [0, "Their armour still walks. Bring down ten of those armored skeletons."]
+        ],
+        [
+          [0, "Off you go, %count% should be enough."]
+        ],
+        [
+          [0, "How many %name%s so far? I need %count%."]
+        ],
+        [
+          [0, "The old army can rest at last."]
+        ]
+      ],
+      "1000900010402": [
+        [
+          [0, "I'm lost in the north-eastern sands, my water's gone, and the skeletons took my fire eyes too."],
+          [1, "I'll help."],
+          [0, "Bless you. Five of them, and I can trade my way home to Saltmere."]
+        ],
+        [
+          [0, "Just %count%, that is all I ask."]
+        ],
+        [
+          [0, "Have the %name2%s given up my %name%s yet?"]
+        ],
+        [
+          [0, "All %count%! You have my thanks."]
+        ]
+      ],
+      "1000800010701": [
+        [
+          [0, "I dig for relics in the north-western sands."],
+          [1, "Found anything good?"],
+          [0, "Skeletons. Walking ones. Smash ten of them so I can get back to work."]
+        ],
+        [
+          [0, "Off you go, %count% should be enough."]
+        ],
+        [
+          [0, "Have you defeated %count% %name%s yet?"]
+        ],
+        [
+          [0, "The bones are quiet again. Thank you."]
+        ]
+      ],
+      "1000800010702": [
+        [
+          [0, "I'm lost in the north-western sands, my water's gone, and the ogres took my iron helmets too."],
+          [1, "I'll help."],
+          [0, "Bless you. Three of them, and I can trade my way home to Ashby."]
+        ],
+        [
+          [0, "%count% of them, from the %name2%s."]
+        ],
+        [
+          [0, "Have the %name2%s given up my %name%s yet?"]
+        ],
+        [
+          [0, "Wonderful, these are exactly the ones they took."]
+        ]
+      ],
+      "1000800010801": [
+        [
+          [0, "An ogre tribe has wandered into the north-western sands looking for water."],
+          [0, "They've smashed every well between here and Saltmere. Drive off ten of them."]
+        ],
+        [
+          [0, "Off you go, %count% should be enough."]
+        ],
+        [
+          [0, "Still %name%s everywhere. Have you beaten %count%?"]
+        ],
+        [
+          [0, "The ogres have fled. The wells can be rebuilt."]
+        ]
+      ],
+      "1000800010802": [
+        [
+          [0, "My caravan crossed the north-western sands with a crate of clevers."],
+          [0, "The armored skeletons took the lot. Bring back four."]
+        ],
+        [
+          [0, "Bring me all %count% of them."]
+        ],
+        [
+          [0, "Do you have the %count% %name%s yet?"]
+        ],
+        [
+          [0, "My %name%s! I never thought I would see them again."]
+        ]
+      ],
+      "1000900010501": [
+        [
+          [0, "Long ago an army marched into the northern desert and never marched out."],
+          [0, "Their armour still walks. Bring down ten of those armored skeletons."]
+        ],
+        [
+          [0, "Off you go, %count% should be enough."]
+        ],
+        [
+          [0, "Have you defeated %count% %name%s yet?"]
+        ],
+        [
+          [0, "Their march is over. Thank you."]
+        ]
+      ],
+      "1000900010502": [
+        [
+          [0, "The skeletons of the northern desert bury what they steal in the sand."],
+          [0, "My rings are down there somewhere. Dig up four for me."]
+        ],
+        [
+          [0, "%count% of them, from the %name2%s."]
+        ],
+        [
+          [0, "Have the %name2%s given up my %name%s yet?"]
+        ],
+        [
+          [0, "Wonderful, these are exactly the ones they took."]
+        ]
+      ],
+      "1000900010601": [
+        [
+          [0, "A whole graveyard of skeletons rose out of the north-eastern dunes last full moon."],
+          [0, "They rattle all night and nobody can sleep. Break ten of them."]
+        ],
+        [
+          [0, "Come back when you've dealt with %count% of them."]
+        ],
+        [
+          [0, "How many %name%s so far? I need %count%."]
+        ],
+        [
+          [0, "Back in the ground where they belong."]
+        ]
+      ],
+      "1000900010602": [
+        [
+          [0, "The ogres of the north-eastern dunes bury what they steal in the sand."],
+          [0, "My drums are down there somewhere. Dig up four for me."]
+        ],
+        [
+          [0, "Bring me all %count% of them."]
+        ],
+        [
+          [0, "Have the %name2%s given up my %name%s yet?"]
+        ],
+        [
+          [0, "Wonderful, these are exactly the ones they took."]
+        ]
+      ],
+      "1000900010701": [
+        [
+          [0, "The ogres of the north-eastern sands have taken to throwing boulders at caravans."],
+          [1, "For fun?"],
+          [0, "For fun. Knock ten of them flat and see how they like it."],
+          [0, "Ash keeps blowing in from the volcano, and it only makes them angrier."]
+        ],
+        [
+          [0, "Only %count% of them. You can do it."]
+        ],
+        [
+          [0, "Have you defeated %count% %name%s yet?"]
+        ],
+        [
+          [0, "You beat ogres? Remind me never to annoy you."]
+        ]
+      ],
+      "1000900010702": [
+        [
+          [0, "I'm lost in the north-eastern sands, my water's gone, and the armored skeletons took my animal skulls too."],
+          [1, "I'll help."],
+          [0, "Bless you. Four of them, and I can trade my way home to Saltmere."]
+        ],
+        [
+          [0, "Just %count%, that is all I ask."]
+        ],
+        [
+          [0, "Have the %name2%s given up my %name%s yet?"]
+        ],
+        [
+          [0, "All %count%! You have my thanks."]
+        ]
+      ],
+      "1001000010101": [
+        [
+          [0, "I'm trying to map the stars over the north-western woodland, but the bats keep blotting them out."],
+          [0, "Clear the sky a little. Ten should do it."]
+        ],
+        [
+          [0, "Come back when you've dealt with %count% of them."]
+        ],
+        [
+          [0, "Have you defeated %count% %name%s yet?"]
+        ],
+        [
+          [0, "The sky is clear and the birds are singing again."]
+        ]
+      ],
+      "1001000010102": [
+        [
+          [0, "I'm taking drumsticks to Ashby, but the snakes in the north-western woodland ambushed me."],
+          [0, "Get four back and the trip is saved."]
+        ],
+        [
+          [0, "Bring me all %count% of them."]
+        ],
+        [
+          [0, "Any luck finding my %count% %name%s?"]
+        ],
+        [
+          [0, "My %name%s! I never thought I would see them again."]
+        ]
+      ],
+      "1001000010201": [
+        [
+          [0, "Snakes are nesting under the doorsteps of Ashby."],
+          [0, "My neighbour got bitten fetching water. Clear out ten of them."],
+          [0, "The heat from the desert makes them restless."]
+        ],
+        [
+          [0, "Only %count% of them. You can do it."]
+        ],
+        [
+          [0, "Have you defeated %count% %name%s yet?"]
+        ],
+        [
+          [0, "Not a hiss to be heard."]
+        ]
+      ],
+      "1001000010202": [
+        [
+          [0, "The goblins of the north-western woodland raided my camp and carried off my maces."],
+          [1, "All of them?"],
+          [0, "Every last one. I only need four back to get by."]
+        ],
+        [
+          [0, "Just %count%, that is all I ask."]
+        ],
+        [
+          [0, "Any luck finding my %count% %name%s?"]
+        ],
+        [
+          [0, "All %count%! You have my thanks."]
+        ]
+      ],
+      "1001100010101": [
+        [
+          [0, "The armored skeletons in the northern desert wear my great-grandfather's regiment colours."],
+          [0, "Let them rest at last. Bring down ten."]
+        ],
+        [
+          [0, "Only %count% of them. You can do it."]
+        ],
+        [
+          [0, "How many %name%s so far? I need %count%."]
+        ],
+        [
+          [0, "Their march is over. Thank you."]
+        ]
+      ],
+      "1001100010102": [
+        [
+          [0, "The skeletons of the northern desert bury what they steal in the sand."],
+          [0, "My hooks are down there somewhere. Dig up three for me."]
+        ],
+        [
+          [0, "%count% of them, from the %name2%s."]
+        ],
+        [
+          [0, "Any luck finding my %count% %name%s?"]
+        ],
+        [
+          [0, "All %count%! You have my thanks."]
+        ]
+      ],
+      "1001100010201": [
+        [
+          [0, "My brother vanished in the north-eastern lava fields last year."],
+          [1, "I'm sorry."],
+          [0, "I hear his voice among the spectres. Lay ten of them to rest, maybe he'll be one."]
+        ],
+        [
+          [0, "Only %count% of them. You can do it."]
+        ],
+        [
+          [0, "Have you defeated %count% %name%s yet?"]
+        ],
+        [
+          [0, "The cold has lifted. Thank you, friend."]
+        ]
+      ],
+      "1001100010202": [
+        [
+          [0, "I came to the north-eastern lava fields to trade padlocks with the fire priests."],
+          [0, "The floating eyes took them before I reached the temple. Get three back."]
+        ],
+        [
+          [0, "%count% of them, from the %name2%s."]
+        ],
+        [
+          [0, "Do you have the %count% %name%s yet?"]
+        ],
+        [
+          [0, "All %count%! You have my thanks."]
+        ]
+      ],
+      "1001100010301": [
+        [
+          [0, "The eyes over the north-eastern lava fields see in the dark and through smoke."],
+          [1, "What are they looking for?"],
+          [0, "Us, I think. Close ten of them for good."]
+        ],
+        [
+          [0, "Come back when you've dealt with %count% of them."]
+        ],
+        [
+          [0, "How many %name%s so far? I need %count%."]
+        ],
+        [
+          [0, "The volcano has stopped watching us."]
+        ]
+      ],
+      "1001100010302": [
+        [
+          [0, "The death knights of the north-eastern lava fields guard a hoard of stolen goods."],
+          [1, "Anything of yours?"],
+          [0, "My clubs. They're no use in the heat, but they're mine. Bring back three."]
+        ],
+        [
+          [0, "%count% of them, from the %name2%s."]
+        ],
+        [
+          [0, "Any luck finding my %count% %name%s?"]
+        ],
+        [
+          [0, "Wonderful, these are exactly the ones they took."]
+        ]
+      ],
+      "1001000010301": [
+        [
+          [0, "The goblins of the western woodland have been painting rude pictures on the trees."],
+          [0, "The woodcutters of Ashby refuse to work. Chase off ten of them."]
+        ],
+        [
+          [0, "Come back when you've dealt with %count% of them."]
+        ],
+        [
+          [0, "Have you defeated %count% %name%s yet?"]
+        ],
+        [
+          [0, "The goblins have packed up and run. Well done."]
+        ]
+      ],
+      "1001000010302": [
+        [
+          [0, "I'm taking magic balls to Ashby, but the bats in the western woodland ambushed me."],
+          [0, "Get four back and the trip is saved."]
+        ],
+        [
+          [0, "Just %count%, that is all I ask."]
+        ],
+        [
+          [0, "Any luck finding my %count% %name%s?"]
+        ],
+        [
+          [0, "Wonderful, these are exactly the ones they took."]
+        ]
+      ],
+      "1001000010401": [
+        [
+          [0, "I'm trying to map the stars over the western woods, but the bats keep blotting them out."],
+          [0, "Clear the sky a little. Ten should do it."],
+          [0, "The heat from the desert makes them restless."]
+        ],
+        [
+          [0, "Come back when you've dealt with %count% of them."]
+        ],
+        [
+          [0, "How many %name%s so far? I need %count%."]
+        ],
+        [
+          [0, "Not a single bat last night!"]
+        ]
+      ],
+      "1001000010402": [
+        [
+          [0, "I dropped my throwing daggers on the trail through the western woods, and the snakes took them back to their nests."],
+          [0, "Bring me five, please."]
+        ],
+        [
+          [0, "Just %count%, that is all I ask."]
+        ],
+        [
+          [0, "Have the %name2%s given up my %name%s yet?"]
+        ],
+        [
+          [0, "My %name%s! I never thought I would see them again."]
+        ]
+      ],
+      "1001100010401": [
+        [
+          [0, "A whole graveyard of skeletons rose out of the central desert last full moon."],
+          [0, "They rattle all night and nobody can sleep. Break ten of them."]
+        ],
+        [
+          [0, "Off you go, %count% should be enough."]
+        ],
+        [
+          [0, "Still %name%s everywhere. Have you beaten %count%?"]
+        ],
+        [
+          [0, "Back in the ground where they belong."]
+        ]
+      ],
+      "1001100010402": [
+        [
+          [0, "The ogres of the central desert bury what they steal in the sand."],
+          [0, "My spiders are down there somewhere. Dig up four for me."]
+        ],
+        [
+          [0, "%count% of them, from the %name2%s."]
+        ],
+        [
+          [0, "Have the %name2%s given up my %name%s yet?"]
+        ],
+        [
+          [0, "Wonderful, these are exactly the ones they took."]
+        ]
+      ],
+      "1001100010501": [
+        [
+          [0, "The ogres of the eastern dunes have taken to throwing boulders at caravans."],
+          [1, "For fun?"],
+          [0, "For fun. Knock ten of them flat and see how they like it."]
+        ],
+        [
+          [0, "Off you go, %count% should be enough."]
+        ],
+        [
+          [0, "How many %name%s so far? I need %count%."]
+        ],
+        [
+          [0, "You beat ogres? Remind me never to annoy you."]
+        ]
+      ],
+      "1001100010502": [
+        [
+          [0, "The armored skeletons of the eastern dunes bury what they steal in the sand."],
+          [0, "My urns are down there somewhere. Dig up five for me."]
+        ],
+        [
+          [0, "%count% of them, from the %name2%s."]
+        ],
+        [
+          [0, "Do you have the %count% %name%s yet?"]
+        ],
+        [
+          [0, "My %name%s! I never thought I would see them again."]
+        ]
+      ],
+      "1001100010601": [
+        [
+          [0, "Armored skeletons patrol the eastern desert as if the old war never ended."],
+          [0, "They stop anyone who passes and demand a password nobody knows. Defeat ten of them."]
+        ],
+        [
+          [0, "Only %count% of them. You can do it."]
+        ],
+        [
+          [0, "Still %name%s everywhere. Have you beaten %count%?"]
+        ],
+        [
+          [0, "The old army can rest at last."]
+        ]
+      ],
+      "1001100010602": [
+        [
+          [0, "I'm lost in the eastern desert, my water's gone, and the skeletons took my leaf wreaths too."],
+          [1, "I'll help."],
+          [0, "Bless you. Three of them, and I can trade my way home to Saltmere."]
+        ],
+        [
+          [0, "Bring me all %count% of them."]
+        ],
+        [
+          [0, "Any luck finding my %count% %name%s?"]
+        ],
+        [
+          [0, "My %name%s! I never thought I would see them again."]
+        ]
+      ],
+      "1001000010501": [
+        [
+          [0, "The undergrowth of Ashby is thick with snakes this year."],
+          [0, "I can't gather herbs without stepping on one. Kill ten for me."]
+        ],
+        [
+          [0, "Off you go, %count% should be enough."]
+        ],
+        [
+          [0, "How many %name%s so far? I need %count%."]
+        ],
+        [
+          [0, "I can walk without watching my feet again. Thank you."]
+        ]
+      ],
+      "1001000010502": [
+        [
+          [0, "I keep my wood horns in the cellar."],
+          [0, "Kept. The rats got in. Get me four back, please."]
+        ],
+        [
+          [0, "Bring me all %count% of them."]
+        ],
+        [
+          [0, "Do you have the %count% %name%s yet?"]
+        ],
+        [
+          [0, "My %name%s! I never thought I would see them again."]
+        ]
+      ],
+      "1001200010101": [
+        [
+          [0, "A snake swallowed my pet frog whole, right here in the western woods!"],
+          [1, "That's awful."],
+          [0, "It's worse than awful, there are dozens of them. Deal with ten."]
+        ],
+        [
+          [0, "Only %count% of them. You can do it."]
+        ],
+        [
+          [0, "Still %name%s everywhere. Have you beaten %count%?"]
+        ],
+        [
+          [0, "Not a hiss to be heard."]
+        ]
+      ],
+      "1001200010102": [
+        [
+          [0, "I dropped my battle axes on the trail through the western woods, and the goblins took them back to their nests."],
+          [0, "Bring me three, please."]
+        ],
+        [
+          [0, "Just %count%, that is all I ask."]
+        ],
+        [
+          [0, "Do you have the %count% %name%s yet?"]
+        ],
+        [
+          [0, "All %count%! You have my thanks."]
+        ]
+      ],
+      "1001100010701": [
+        [
+          [0, "Goblins have built a camp somewhere in the central woods."],
+          [0, "They raid the trail every night. Thin them out, ten should send a message."]
+        ],
+        [
+          [0, "Off you go, %count% should be enough."]
+        ],
+        [
+          [0, "How many %name%s so far? I need %count%."]
+        ],
+        [
+          [0, "That will teach them. The trail is safe again!"]
+        ]
+      ],
+      "1001100010702": [
+        [
+          [0, "I dropped my face masks on the trail through the central woods, and the bats took them back to their nests."],
+          [0, "Bring me four, please."]
+        ],
+        [
+          [0, "Just %count%, that is all I ask."]
+        ],
+        [
+          [0, "Have the %name2%s given up my %name%s yet?"]
+        ],
+        [
+          [0, "My %name%s! I never thought I would see them again."]
+        ]
+      ],
+      "1001100010801": [
+        [
+          [0, "I'm trying to map the stars over the eastern woods, but the bats keep blotting them out."],
+          [0, "Clear the sky a little. Ten should do it."],
+          [0, "The heat from the desert makes them restless."]
+        ],
+        [
+          [0, "Only %count% of them. You can do it."]
+        ],
+        [
+          [0, "Still %name%s everywhere. Have you beaten %count%?"]
+        ],
+        [
+          [0, "Not a single bat last night!"]
+        ]
+      ],
+      "1001100010802": [
+        [
+          [0, "I dropped my rings on the trail through the eastern woods, and the snakes took them back to their nests."],
+          [0, "Bring me three, please."]
+        ],
+        [
+          [0, "Just %count%, that is all I ask."]
+        ],
+        [
+          [0, "Any luck finding my %count% %name%s?"]
+        ],
+        [
+          [0, "My %name%s! I never thought I would see them again."]
+        ]
+      ],
+      "1001300010101": [
+        [
+          [0, "The undergrowth of the eastern woodland is thick with snakes this year."],
+          [0, "I can't gather herbs without stepping on one. Kill ten for me."]
+        ],
+        [
+          [0, "Off you go, %count% should be enough."]
+        ],
+        [
+          [0, "Still %name%s everywhere. Have you beaten %count%?"]
+        ],
+        [
+          [0, "I can walk without watching my feet again. Thank you."]
+        ]
+      ],
+      "1001300010102": [
+        [
+          [0, "I dropped my chests on the trail through the eastern woodland, and the goblins took them back to their nests."],
+          [0, "Bring me four, please."]
+        ],
+        [
+          [0, "Just %count%, that is all I ask."]
+        ],
+        [
+          [0, "Do you have the %count% %name%s yet?"]
+        ],
+        [
+          [0, "All %count%! You have my thanks."]
+        ]
+      ],
+      "1001200010201": [
+        [
+          [0, "A goblin stole my axe while I was resting under a tree."],
+          [1, "Just one goblin?"],
+          [0, "One stole it, the rest laughed. Teach ten of them a lesson."],
+          [0, "It's only a short walk from Ashby, too."]
+        ],
+        [
+          [0, "Come back when you've dealt with %count% of them."]
+        ],
+        [
+          [0, "Still %name%s everywhere. Have you beaten %count%?"]
+        ],
+        [
+          [0, "That will teach them. The trail is safe again!"]
+        ]
+      ],
+      "1001200010202": [
+        [
+          [0, "The bats of the western woods raided my camp and carried off my old bottles."],
+          [1, "All of them?"],
+          [0, "Every last one. I only need five back to get by."]
+        ],
+        [
+          [0, "Bring me all %count% of them."]
+        ],
+        [
+          [0, "Have the %name2%s given up my %name%s yet?"]
+        ],
+        [
+          [0, "Wonderful, these are exactly the ones they took."]
+        ]
+      ],
+      "1001200010301": [
+        [
+          [0, "The bats in the western woods have a taste for travellers from Ashby."],
+          [0, "Three people bitten this week. Get rid of ten."]
+        ],
+        [
+          [0, "Off you go, %count% should be enough."]
+        ],
+        [
+          [0, "How many %name%s so far? I need %count%."]
+        ],
+        [
+          [0, "The sky is clear and the birds are singing again."]
+        ]
+      ],
+      "1001200010302": [
+        [
+          [0, "The snakes of the western woods raided my camp and carried off my mushroomses."],
+          [1, "All of them?"],
+          [0, "Every last one. I only need four back to get by."]
+        ],
+        [
+          [0, "%count% of them, from the %name2%s."]
+        ],
+        [
+          [0, "Any luck finding my %count% %name%s?"]
+        ],
+        [
+          [0, "My %name%s! I never thought I would see them again."]
+        ]
+      ],
+      "1001200010401": [
+        [
+          [0, "The undergrowth of the central woodland is thick with snakes this year."],
+          [0, "I can't gather herbs without stepping on one. Kill ten for me."]
+        ],
+        [
+          [0, "Come back when you've dealt with %count% of them."]
+        ],
+        [
+          [0, "Have you defeated %count% %name%s yet?"]
+        ],
+        [
+          [0, "Not a hiss to be heard."]
+        ]
+      ],
+      "1001200010402": [
+        [
+          [0, "I dropped my pendants on the trail through the central woodland, and the goblins took them back to their nests."],
+          [0, "Bring me five, please."]
+        ],
+        [
+          [0, "Just %count%, that is all I ask."]
+        ],
+        [
+          [0, "Do you have the %count% %name%s yet?"]
+        ],
+        [
+          [0, "My %name%s! I never thought I would see them again."]
+        ]
+      ],
+      "1001300010201": [
+        [
+          [0, "The goblins of the eastern woodland have been painting rude pictures on the trees."],
+          [0, "The woodcutters of Duskwater refuse to work. Chase off ten of them."]
+        ],
+        [
+          [0, "Only %count% of them. You can do it."]
+        ],
+        [
+          [0, "How many %name%s so far? I need %count%."]
+        ],
+        [
+          [0, "That will teach them. The trail is safe again!"]
+        ]
+      ],
+      "1001300010202": [
+        [
+          [0, "The bats of the eastern woodland raided my camp and carried off my pot of golds."],
+          [1, "All of them?"],
+          [0, "Every last one. I only need four back to get by."]
+        ],
+        [
+          [0, "Just %count%, that is all I ask."]
+        ],
+        [
+          [0, "Have the %name2%s given up my %name%s yet?"]
+        ],
+        [
+          [0, "All %count%! You have my thanks."]
+        ]
+      ],
+      "1001300010301": [
+        [
+          [0, "I'm trying to map the stars over the eastern woodland, but the bats keep blotting them out."],
+          [0, "Clear the sky a little. Ten should do it."]
+        ],
+        [
+          [0, "Off you go, %count% should be enough."]
+        ],
+        [
+          [0, "How many %name%s so far? I need %count%."]
+        ],
+        [
+          [0, "Not a single bat last night!"]
+        ]
+      ],
+      "1001300010302": [
+        [
+          [0, "I'm taking keys to Duskwater, but the snakes in the eastern woodland ambushed me."],
+          [0, "Get four back and the trip is saved."]
+        ],
+        [
+          [0, "Bring me all %count% of them."]
+        ],
+        [
+          [0, "Have the %name2%s given up my %name%s yet?"]
+        ],
+        [
+          [0, "Wonderful, these are exactly the ones they took."]
+        ]
+      ],
+      "1001200010501": [
+        [
+          [0, "The crabs on the western lagoon have started pinching anyone who walks the tideline."],
+          [0, "Knock ten of them back into the surf, would you?"]
+        ],
+        [
+          [0, "Come back when you've dealt with %count% of them."]
+        ],
+        [
+          [0, "Have you defeated %count% %name%s yet?"]
+        ],
+        [
+          [0, "The tideline is mine again. Thank you!"]
+        ]
+      ],
+      "1001200010502": [
+        [
+          [0, "A wave knocked my satchel over and the crabs scuttled off with my human skulls."],
+          [0, "They hide them in their burrows along the western lagoon. Bring me three back."]
+        ],
+        [
+          [0, "Bring me all %count% of them."]
+        ],
+        [
+          [0, "Do you have the %count% %name%s yet?"]
+        ],
+        [
+          [0, "All %count%! You have my thanks."]
+        ]
+      ],
+      "1001200010601": [
+        [
+          [0, "Snakes are nesting under the doorsteps of Ashby."],
+          [0, "My neighbour got bitten fetching water. Clear out ten of them."],
+          [0, "They come up from the lagoon when the water is low."]
+        ],
+        [
+          [0, "Only %count% of them. You can do it."]
+        ],
+        [
+          [0, "How many %name%s so far? I need %count%."]
+        ],
+        [
+          [0, "Not a hiss to be heard."]
+        ]
+      ],
+      "1001200010602": [
+        [
+          [0, "I dropped my broken glasses on the trail through the western forest, and the goblins took them back to their nests."],
+          [0, "Bring me three, please."]
+        ],
+        [
+          [0, "Bring me all %count% of them."]
+        ],
+        [
+          [0, "Have the %name2%s given up my %name%s yet?"]
+        ],
+        [
+          [0, "My %name%s! I never thought I would see them again."]
+        ]
+      ],
+      "1001300010401": [
+        [
+          [0, "A goblin stole my axe while I was resting under a tree."],
+          [1, "Just one goblin?"],
+          [0, "One stole it, the rest laughed. Teach ten of them a lesson."]
+        ],
+        [
+          [0, "Come back when you've dealt with %count% of them."]
+        ],
+        [
+          [0, "Still %name%s everywhere. Have you beaten %count%?"]
+        ],
+        [
+          [0, "The goblins have packed up and run. Well done."]
+        ]
+      ],
+      "1001300010402": [
+        [
+          [0, "The bats of the central forest raided my camp and carried off my smoke pipes."],
+          [1, "All of them?"],
+          [0, "Every last one. I only need three back to get by."]
+        ],
+        [
+          [0, "Bring me all %count% of them."]
+        ],
+        [
+          [0, "Any luck finding my %count% %name%s?"]
+        ],
+        [
+          [0, "Wonderful, these are exactly the ones they took."]
+        ]
+      ],
+      "1001300010501": [
+        [
+          [0, "I'm trying to map the stars over the eastern woods, but the bats keep blotting them out."],
+          [0, "Clear the sky a little. Ten should do it."]
+        ],
+        [
+          [0, "Only %count% of them. You can do it."]
+        ],
+        [
+          [0, "How many %name%s so far? I need %count%."]
+        ],
+        [
+          [0, "The sky is clear and the birds are singing again."]
+        ]
+      ],
+      "1001300010502": [
+        [
+          [0, "I dropped my witch hats on the trail through the eastern woods, and the snakes took them back to their nests."],
+          [0, "Bring me five, please."]
+        ],
+        [
+          [0, "Just %count%, that is all I ask."]
+        ],
+        [
+          [0, "Any luck finding my %count% %name%s?"]
+        ],
+        [
+          [0, "All %count%! You have my thanks."]
+        ]
+      ],
+      "1001300010601": [
+        [
+          [0, "The undergrowth of the eastern woodland is thick with snakes this year."],
+          [0, "I can't gather herbs without stepping on one. Kill ten for me."]
+        ],
+        [
+          [0, "Only %count% of them. You can do it."]
+        ],
+        [
+          [0, "How many %name%s so far? I need %count%."]
+        ],
+        [
+          [0, "I can walk without watching my feet again. Thank you."]
+        ]
+      ],
+      "1001300010602": [
+        [
+          [0, "I dropped my hand bags on the trail through the eastern woodland, and the goblins took them back to their nests."],
+          [0, "Bring me five, please."]
+        ],
+        [
+          [0, "Bring me all %count% of them."]
+        ],
+        [
+          [0, "Do you have the %count% %name%s yet?"]
+        ],
+        [
+          [0, "Wonderful, these are exactly the ones they took."]
+        ]
+      ],
+      "1001400010101": [
+        [
+          [0, "Goblins have built a camp somewhere in the south-western woodland."],
+          [0, "They raid the trail every night. Thin them out, ten should send a message."]
+        ],
+        [
+          [0, "Off you go, %count% should be enough."]
+        ],
+        [
+          [0, "How many %name%s so far? I need %count%."]
+        ],
+        [
+          [0, "The goblins have packed up and run. Well done."]
+        ]
+      ],
+      "1001400010102": [
+        [
+          [0, "The bats of the south-western woodland raided my camp and carried off my necklaces."],
+          [1, "All of them?"],
+          [0, "Every last one. I only need three back to get by."]
+        ],
+        [
+          [0, "%count% of them, from the %name2%s."]
+        ],
+        [
+          [0, "Any luck finding my %count% %name%s?"]
+        ],
+        [
+          [0, "My %name%s! I never thought I would see them again."]
+        ]
+      ],
+      "1001400010201": [
+        [
+          [0, "Bats pour out of the caves around the south-western woods every dusk."],
+          [0, "They've driven the songbirds from the trees. Kill ten of them."]
+        ],
+        [
+          [0, "Come back when you've dealt with %count% of them."]
+        ],
+        [
+          [0, "Still %name%s everywhere. Have you beaten %count%?"]
+        ],
+        [
+          [0, "Not a single bat last night!"]
+        ]
+      ],
+      "1001400010202": [
+        [
+          [0, "The snakes of the south-western woods raided my camp and carried off my cauldrons."],
+          [1, "All of them?"],
+          [0, "Every last one. I only need five back to get by."]
+        ],
+        [
+          [0, "Bring me all %count% of them."]
+        ],
+        [
+          [0, "Any luck finding my %count% %name%s?"]
+        ],
+        [
+          [0, "My %name%s! I never thought I would see them again."]
+        ]
+      ],
+      "1001500010101": [
+        [
+          [0, "Snakes are nesting under the doorsteps of Duskwater."],
+          [0, "My neighbour got bitten fetching water. Clear out ten of them."],
+          [0, "It's only a short walk from Duskwater, too."]
+        ],
+        [
+          [0, "Off you go, %count% should be enough."]
+        ],
+        [
+          [0, "Have you defeated %count% %name%s yet?"]
+        ],
+        [
+          [0, "I can walk without watching my feet again. Thank you."]
+        ]
+      ],
+      "1001500010102": [
+        [
+          [0, "I dropped my pink fireballs on the trail through the southern woods, and the goblins took them back to their nests."],
+          [0, "Bring me four, please."]
+        ],
+        [
+          [0, "%count% of them, from the %name2%s."]
+        ],
+        [
+          [0, "Do you have the %count% %name%s yet?"]
+        ],
+        [
+          [0, "Wonderful, these are exactly the ones they took."]
+        ]
+      ],
+      "1001500010201": [
+        [
+          [0, "A goblin stole my axe while I was resting under a tree."],
+          [1, "Just one goblin?"],
+          [0, "One stole it, the rest laughed. Teach ten of them a lesson."]
+        ],
+        [
+          [0, "Come back when you've dealt with %count% of them."]
+        ],
+        [
+          [0, "Have you defeated %count% %name%s yet?"]
+        ],
+        [
+          [0, "The goblins have packed up and run. Well done."]
+        ]
+      ],
+      "1001500010202": [
+        [
+          [0, "The bats of the south-eastern forest raided my camp and carried off my monster claws."],
+          [1, "All of them?"],
+          [0, "Every last one. I only need four back to get by."]
+        ],
+        [
+          [0, "%count% of them, from the %name2%s."]
+        ],
+        [
+          [0, "Have the %name2%s given up my %name%s yet?"]
+        ],
+        [
+          [0, "My %name%s! I never thought I would see them again."]
+        ]
+      ],
+      "1001500010301": [
+        [
+          [0, "The bats in the south-eastern woodland have a taste for travellers from Duskwater."],
+          [0, "Three people bitten this week. Get rid of ten."]
+        ],
+        [
+          [0, "Off you go, %count% should be enough."]
+        ],
+        [
+          [0, "How many %name%s so far? I need %count%."]
+        ],
+        [
+          [0, "The sky is clear and the birds are singing again."]
+        ]
+      ],
+      "1001500010302": [
+        [
+          [0, "I dropped my bronze helmets on the trail through the south-eastern woodland, and the snakes took them back to their nests."],
+          [0, "Bring me five, please."]
+        ],
+        [
+          [0, "Bring me all %count% of them."]
+        ],
+        [
+          [0, "Any luck finding my %count% %name%s?"]
+        ],
+        [
+          [0, "My %name%s! I never thought I would see them again."]
+        ]
+      ],
+      "1001400010301": [
+        [
+          [0, "Snakes are nesting under the doorsteps of Duskwater."],
+          [0, "My neighbour got bitten fetching water. Clear out ten of them."]
+        ],
+        [
+          [0, "Come back when you've dealt with %count% of them."]
+        ],
+        [
+          [0, "Still %name%s everywhere. Have you beaten %count%?"]
+        ],
+        [
+          [0, "I can walk without watching my feet again. Thank you."]
+        ]
+      ],
+      "1001400010302": [
+        [
+          [0, "I'm taking poison vials to Duskwater, but the goblins in the south-western woodland ambushed me."],
+          [0, "Get four back and the trip is saved."]
+        ],
+        [
+          [0, "%count% of them, from the %name2%s."]
+        ],
+        [
+          [0, "Any luck finding my %count% %name%s?"]
+        ],
+        [
+          [0, "All %count%! You have my thanks."]
+        ]
+      ],
+      "1001400010401": [
+        [
+          [0, "The crabs on the lagoon have started pinching anyone who walks the tideline."],
+          [0, "Knock ten of them back into the surf, would you?"]
+        ],
+        [
+          [0, "Only %count% of them. You can do it."]
+        ],
+        [
+          [0, "Still %name%s everywhere. Have you beaten %count%?"]
+        ],
+        [
+          [0, "Not a pinch all morning. Wonderful."]
+        ]
+      ],
+      "1001400010402": [
+        [
+          [0, "A wave knocked my satchel over and the crabs scuttled off with my crates."],
+          [0, "They hide them in their burrows along the lagoon. Bring me three back."]
+        ],
+        [
+          [0, "Bring me all %count% of them."]
+        ],
+        [
+          [0, "Any luck finding my %count% %name%s?"]
+        ],
+        [
+          [0, "All %count%! You have my thanks."]
+        ]
+      ],
+      "1001500010401": [
+        [
+          [0, "Something's chewing through the floorboards of every house in Duskwater."],
+          [1, "Rats?"],
+          [0, "Rats. Big ones. Get rid of ten for me."]
+        ],
+        [
+          [0, "Only %count% of them. You can do it."]
+        ],
+        [
+          [0, "Have you defeated %count% %name%s yet?"]
+        ],
+        [
+          [0, "The grain is safe, and so are my toes. Thanks!"]
+        ]
+      ],
+      "1001500010402": [
+        [
+          [0, "The snakes have been dragging my feather quills into the walls of Duskwater."],
+          [0, "I need five of them back before market day."]
+        ],
+        [
+          [0, "%count% of them, from the %name2%s."]
+        ],
+        [
+          [0, "Do you have the %count% %name%s yet?"]
+        ],
+        [
+          [0, "Wonderful, these are exactly the ones they took."]
+        ]
+      ],
+      "1001500010501": [
+        [
+          [0, "Goblins have built a camp somewhere in the south-eastern woodland."],
+          [0, "They raid the trail every night. Thin them out, ten should send a message."],
+          [0, "It's only a short walk from Duskwater, too."]
+        ],
+        [
+          [0, "Come back when you've dealt with %count% of them."]
+        ],
+        [
+          [0, "Still %name%s everywhere. Have you beaten %count%?"]
+        ],
+        [
+          [0, "That will teach them. The trail is safe again!"]
+        ]
+      ],
+      "1001500010502": [
+        [
+          [0, "The bats of the south-eastern woodland raided my camp and carried off my goblets."],
+          [1, "All of them?"],
+          [0, "Every last one. I only need four back to get by."]
+        ],
+        [
+          [0, "Bring me all %count% of them."]
+        ],
+        [
+          [0, "Do you have the %count% %name%s yet?"]
+        ],
+        [
+          [0, "All %count%! You have my thanks."]
+        ]
+      ],
+      "1001500010601": [
+        [
+          [0, "Bats pour out of the caves around the south-eastern woodland every dusk."],
+          [0, "They've driven the songbirds from the trees. Kill ten of them."]
+        ],
+        [
+          [0, "Only %count% of them. You can do it."]
+        ],
+        [
+          [0, "Still %name%s everywhere. Have you beaten %count%?"]
+        ],
+        [
+          [0, "The sky is clear and the birds are singing again."]
+        ]
+      ],
+      "1001500010602": [
+        [
+          [0, "I dropped my books on the trail through the south-eastern woodland, and the snakes took them back to their nests."],
+          [0, "Bring me five, please."]
+        ],
+        [
+          [0, "%count% of them, from the %name2%s."]
+        ],
+        [
+          [0, "Do you have the %count% %name%s yet?"]
+        ],
+        [
+          [0, "Wonderful, these are exactly the ones they took."]
+        ]
+      ],
+      "1001400010501": [
+        [
+          [0, "The children of Duskwater used to play on the south-western coast."],
+          [0, "Now the crabs chase them off. Drive away ten so they can come back."]
+        ],
+        [
+          [0, "Only %count% of them. You can do it."]
+        ],
+        [
+          [0, "Have you defeated %count% %name%s yet?"]
+        ],
+        [
+          [0, "Not a pinch all morning. Wonderful."]
+        ]
+      ],
+      "1001400010502": [
+        [
+          [0, "A wave knocked my satchel over and the crabs scuttled off with my pumpkins."],
+          [0, "They hide them in their burrows along the south-western coast. Bring me five back."]
+        ],
+        [
+          [0, "%count% of them, from the %name2%s."]
+        ],
+        [
+          [0, "Do you have the %count% %name%s yet?"]
+        ],
+        [
+          [0, "All %count%! You have my thanks."]
+        ]
+      ],
+      "1001400010601": [
+        [
+          [0, "A snake swallowed my pet frog whole, right here in the south-western forest!"],
+          [1, "That's awful."],
+          [0, "It's worse than awful, there are dozens of them. Deal with ten."],
+          [0, "They come up from the shore when the tide is out."]
+        ],
+        [
+          [0, "Off you go, %count% should be enough."]
+        ],
+        [
+          [0, "Still %name%s everywhere. Have you beaten %count%?"]
+        ],
+        [
+          [0, "I can walk without watching my feet again. Thank you."]
+        ]
+      ],
+      "1001400010602": [
+        [
+          [0, "I dropped my rings on the trail through the south-western forest, and the goblins took them back to their nests."],
+          [0, "Bring me three, please."]
+        ],
+        [
+          [0, "Bring me all %count% of them."]
+        ],
+        [
+          [0, "Do you have the %count% %name%s yet?"]
+        ],
+        [
+          [0, "All %count%! You have my thanks."]
+        ]
+      ],
+      "1001500010701": [
+        [
+          [0, "I came down to the southern shore to dig for clams."],
+          [1, "Any luck?"],
+          [0, "The crabs dig faster and bite harder. Clear ten of them off my patch."]
+        ],
+        [
+          [0, "Come back when you've dealt with %count% of them."]
+        ],
+        [
+          [0, "How many %name%s so far? I need %count%."]
+        ],
+        [
+          [0, "The tideline is mine again. Thank you!"]
+        ]
+      ],
+      "1001500010702": [
+        [
+          [0, "The crabs of the southern shore collect shiny things."],
+          [1, "Like what?"],
+          [0, "Like my eyeballs. Get four of them back for me."]
+        ],
+        [
+          [0, "Bring me all %count% of them."]
+        ],
+        [
+          [0, "Do you have the %count% %name%s yet?"]
+        ],
+        [
+          [0, "Wonderful, these are exactly the ones they took."]
+        ]
+      ],
+      "1001500010801": [
+        [
+          [0, "Every crab on the south-eastern shore has decided my fishing boat is their new home."],
+          [0, "I can't push off with them clacking at my ankles. Get rid of ten."]
+        ],
+        [
+          [0, "Off you go, %count% should be enough."]
+        ],
+        [
+          [0, "Still %name%s everywhere. Have you beaten %count%?"]
+        ],
+        [
+          [0, "The tideline is mine again. Thank you!"]
+        ]
+      ],
+      "1001500010802": [
+        [
+          [0, "A wave knocked my satchel over and the crabs scuttled off with my lutes."],
+          [0, "They hide them in their burrows along the south-eastern shore. Bring me five back."]
+        ],
+        [
+          [0, "%count% of them, from the %name2%s."]
+        ],
+        [
+          [0, "Any luck finding my %count% %name%s?"]
+        ],
+        [
+          [0, "All %count%! You have my thanks."]
+        ]
+      ],
+      "1001500010901": [
+        [
+          [0, "The goblins of the south-eastern forest have been painting rude pictures on the trees."],
+          [0, "The woodcutters of Duskwater refuse to work. Chase off ten of them."],
+          [0, "They come up from the shore when the tide is out."]
+        ],
+        [
+          [0, "Off you go, %count% should be enough."]
+        ],
+        [
+          [0, "Have you defeated %count% %name%s yet?"]
+        ],
+        [
+          [0, "The goblins have packed up and run. Well done."]
+        ]
+      ],
+      "1001500010902": [
+        [
+          [0, "I'm taking dragon eggs to Duskwater, but the bats in the south-eastern forest ambushed me."],
+          [0, "Get four back and the trip is saved."]
+        ],
+        [
+          [0, "Bring me all %count% of them."]
+        ],
+        [
+          [0, "Do you have the %count% %name%s yet?"]
+        ],
+        [
+          [0, "My %name%s! I never thought I would see them again."]
+        ]
+      ]
     },
 
     "QUESTS_MOB": [
@@ -1975,7 +3670,117 @@
       "1000100000901": "Get %count% Skulls from Skeletons.",
       "1000100001001": "Destroy %count% Fires.",
       "1000200000101": "Kill %count% Rats.",
-      "1000200000102": "Kill %count% Rats."
+      "1000200000102": "Kill %count% Rats.",
+      "1000800010101": "Close %count% %name%s over the north-western volcano",
+      "1000800010102": "Recover %count% wormses from the %name2%s of the north-western volcano",
+      "1000800010201": "Defeat %count% %name%s of the north-western lava fields",
+      "1000800010202": "Recover %count% fine combs from the %name2%s of the north-western lava fields",
+      "1000800010301": "Put %count% %name%s of the northern desert to rest",
+      "1000800010302": "Recover %count% cheeses from the %name2%s of the northern desert",
+      "1000900010101": "Drive off %count% %name%s in the north-eastern desert",
+      "1000900010102": "Recover %count% books from the %name2%s of the north-eastern desert",
+      "1000900010201": "Teach %count% %name%s of the north-eastern woodland a lesson",
+      "1000900010202": "Recover %count% poison vials from the %name2%s of the north-eastern woodland",
+      "1000800010401": "Bring down %count% %name%s of the old army",
+      "1000800010402": "Recover %count% crystalses from the %name2%s of the north-western desert",
+      "1000800010501": "Put %count% %name%s of the north-western sands to rest",
+      "1000800010502": "Recover %count% necklaces from the %name2%s of the north-western sands",
+      "1000800010601": "Drive off %count% %name%s in the northern desert",
+      "1000800010602": "Recover %count% bone earings from the %name2%s of the northern desert",
+      "1000900010301": "Clear %count% %name%s out of Saltmere",
+      "1000900010302": "Recover %count% autumn leaves from the %name2%s of Saltmere",
+      "1000900010401": "Bring down %count% %name%s of the old army",
+      "1000900010402": "Recover %count% fire eyes from the %name2%s of the north-eastern sands",
+      "1000800010701": "Put %count% %name%s of the north-western sands to rest",
+      "1000800010702": "Recover %count% iron helmets from the %name2%s of the north-western sands",
+      "1000800010801": "Drive off %count% %name%s in the north-western sands",
+      "1000800010802": "Recover %count% clevers from the %name2%s of the north-western sands",
+      "1000900010501": "Bring down %count% %name%s of the old army",
+      "1000900010502": "Recover %count% rings from the %name2%s of the northern desert",
+      "1000900010601": "Put %count% %name%s of the north-eastern dunes to rest",
+      "1000900010602": "Recover %count% drums from the %name2%s of the north-eastern dunes",
+      "1000900010701": "Drive off %count% %name%s in the north-eastern sands",
+      "1000900010702": "Recover %count% animal skulls from the %name2%s of the north-eastern sands",
+      "1001000010101": "Thin out %count% %name%s over the north-western woodland",
+      "1001000010102": "Recover %count% drumsticks from the %name2%s of the north-western woodland",
+      "1001000010201": "Clear %count% %name%s out of the north-western woodland",
+      "1001000010202": "Recover %count% maces from the %name2%s of the north-western woodland",
+      "1001100010101": "Bring down %count% %name%s of the old army",
+      "1001100010102": "Recover %count% hooks from the %name2%s of the northern desert",
+      "1001100010201": "Banish %count% %name%s from the north-eastern lava fields",
+      "1001100010202": "Recover %count% padlocks from the %name2%s of the north-eastern lava fields",
+      "1001100010301": "Close %count% %name%s over the north-eastern lava fields",
+      "1001100010302": "Recover %count% clubs from the %name2%s of the north-eastern lava fields",
+      "1001000010301": "Teach %count% %name%s of the western woodland a lesson",
+      "1001000010302": "Recover %count% magic balls from the %name2%s of the western woodland",
+      "1001000010401": "Thin out %count% %name%s over the western woods",
+      "1001000010402": "Recover %count% throwing daggers from the %name2%s of the western woods",
+      "1001100010401": "Put %count% %name%s of the central desert to rest",
+      "1001100010402": "Recover %count% spiders from the %name2%s of the central desert",
+      "1001100010501": "Drive off %count% %name%s in the eastern dunes",
+      "1001100010502": "Recover %count% urns from the %name2%s of the eastern dunes",
+      "1001100010601": "Bring down %count% %name%s of the old army",
+      "1001100010602": "Recover %count% leaf wreaths from the %name2%s of the eastern desert",
+      "1001000010501": "Clear %count% %name%s out of Ashby",
+      "1001000010502": "Recover %count% wood horns from the %name2%s of Ashby",
+      "1001200010101": "Clear %count% %name%s out of the western woods",
+      "1001200010102": "Recover %count% battle axes from the %name2%s of the western woods",
+      "1001100010701": "Teach %count% %name%s of the central woods a lesson",
+      "1001100010702": "Recover %count% face masks from the %name2%s of the central woods",
+      "1001100010801": "Thin out %count% %name%s over the eastern woods",
+      "1001100010802": "Recover %count% rings from the %name2%s of the eastern woods",
+      "1001300010101": "Clear %count% %name%s out of the eastern woodland",
+      "1001300010102": "Recover %count% chests from the %name2%s of the eastern woodland",
+      "1001200010201": "Teach %count% %name%s of the western woods a lesson",
+      "1001200010202": "Recover %count% old bottles from the %name2%s of the western woods",
+      "1001200010301": "Thin out %count% %name%s over the western woods",
+      "1001200010302": "Recover %count% mushroomses from the %name2%s of the western woods",
+      "1001200010401": "Clear %count% %name%s out of the central woodland",
+      "1001200010402": "Recover %count% pendants from the %name2%s of the central woodland",
+      "1001300010201": "Teach %count% %name%s of the eastern woodland a lesson",
+      "1001300010202": "Recover %count% pot of golds from the %name2%s of the eastern woodland",
+      "1001300010301": "Thin out %count% %name%s over the eastern woodland",
+      "1001300010302": "Recover %count% keys from the %name2%s of the eastern woodland",
+      "1001200010501": "Drive %count% %name%s off the western lagoon",
+      "1001200010502": "Recover %count% human skulls from the %name2%s of the western lagoon",
+      "1001200010601": "Clear %count% %name%s out of the western forest",
+      "1001200010602": "Recover %count% broken glasses from the %name2%s of the western forest",
+      "1001300010401": "Teach %count% %name%s of the central forest a lesson",
+      "1001300010402": "Recover %count% smoke pipes from the %name2%s of the central forest",
+      "1001300010501": "Thin out %count% %name%s over the eastern woods",
+      "1001300010502": "Recover %count% witch hats from the %name2%s of the eastern woods",
+      "1001300010601": "Clear %count% %name%s out of the eastern woodland",
+      "1001300010602": "Recover %count% hand bags from the %name2%s of the eastern woodland",
+      "1001400010101": "Teach %count% %name%s of the south-western woodland a lesson",
+      "1001400010102": "Recover %count% necklaces from the %name2%s of the south-western woodland",
+      "1001400010201": "Thin out %count% %name%s over the south-western woods",
+      "1001400010202": "Recover %count% cauldrons from the %name2%s of the south-western woods",
+      "1001500010101": "Clear %count% %name%s out of the southern woods",
+      "1001500010102": "Recover %count% pink fireballs from the %name2%s of the southern woods",
+      "1001500010201": "Teach %count% %name%s of the south-eastern forest a lesson",
+      "1001500010202": "Recover %count% monster claws from the %name2%s of the south-eastern forest",
+      "1001500010301": "Thin out %count% %name%s over the south-eastern woodland",
+      "1001500010302": "Recover %count% bronze helmets from the %name2%s of the south-eastern woodland",
+      "1001400010301": "Clear %count% %name%s out of the south-western woodland",
+      "1001400010302": "Recover %count% poison vials from the %name2%s of the south-western woodland",
+      "1001400010401": "Drive %count% %name%s off the lagoon",
+      "1001400010402": "Recover %count% crates from the %name2%s of the lagoon",
+      "1001500010401": "Clear %count% %name%s out of Duskwater",
+      "1001500010402": "Recover %count% feather quills from the %name2%s of Duskwater",
+      "1001500010501": "Teach %count% %name%s of the south-eastern woodland a lesson",
+      "1001500010502": "Recover %count% goblets from the %name2%s of the south-eastern woodland",
+      "1001500010601": "Thin out %count% %name%s over the south-eastern woodland",
+      "1001500010602": "Recover %count% books from the %name2%s of the south-eastern woodland",
+      "1001400010501": "Drive %count% %name%s off the south-western coast",
+      "1001400010502": "Recover %count% pumpkins from the %name2%s of the south-western coast",
+      "1001400010601": "Clear %count% %name%s out of the south-western forest",
+      "1001400010602": "Recover %count% rings from the %name2%s of the south-western forest",
+      "1001500010701": "Drive %count% %name%s off the southern shore",
+      "1001500010702": "Recover %count% eyeballs from the %name2%s of the southern shore",
+      "1001500010801": "Drive %count% %name%s off the south-eastern shore",
+      "1001500010802": "Recover %count% lutes from the %name2%s of the south-eastern shore",
+      "1001500010901": "Teach %count% %name%s of the south-eastern forest a lesson",
+      "1001500010902": "Recover %count% dragon eggs from the %name2%s of the south-eastern forest"
     }
   }
 }

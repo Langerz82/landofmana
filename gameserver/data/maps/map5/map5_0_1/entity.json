@@ -1,0 +1,58 @@
+[
+  {
+    "id": 101,
+    "type": "npcmove",
+    "kind": 41,
+    "x": 1824,
+    "y": 656,
+    "name": "Bramdor"
+  },
+  {
+    "id": 102,
+    "type": "npcmove",
+    "kind": 45,
+    "x": 3392,
+    "y": 624,
+    "name": "Gwenira"
+  },
+  {
+    "id": 103,
+    "type": "npcmove",
+    "kind": 54,
+    "x": 1760,
+    "y": 2144,
+    "name": "Dorin"
+  },
+  {
+    "id": 104,
+    "type": "npcmove",
+    "kind": 19,
+    "x": 3344,
+    "y": 2416,
+    "name": "Ashira"
+  },
+  {
+    "id": 105,
+    "type": "npcmove",
+    "kind": 12,
+    "x": 80,
+    "y": 3824,
+    "name": "Jorard"
+  },
+  {
+    "id": 106,
+    "type": "npcmove",
+    "kind": 14,
+    "x": 1520,
+    "y": 3776,
+    "name": "Garmund"
+  },
+  {
+    "id": 107,
+    "type": "npcmove",
+    "kind": 36,
+    "x": 3216,
+    "y": 3648,
+    "name": "Ashen"
+  }
+]

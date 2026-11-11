@@ -1,0 +1,66 @@
+[
+  {
+    "id": 101,
+    "type": "npcmove",
+    "kind": 39,
+    "x": 80,
+    "y": 928,
+    "name": "Marisa"
+  },
+  {
+    "id": 102,
+    "type": "npcmove",
+    "kind": 2,
+    "x": 1584,
+    "y": 1136,
+    "name": "Lorira"
+  },
+  {
+    "id": 103,
+    "type": "npcmove",
+    "kind": 18,
+    "x": 3568,
+    "y": 1264,
+    "name": "Sabley"
+  },
+  {
+    "id": 104,
+    "type": "npcmove",
+    "kind": 50,
+    "x": 208,
+    "y": 2528,
+    "name": "Braek"
+  },
+  {
+    "id": 105,
+    "type": "npcmove",
+    "kind": 30,
+    "x": 1632,
+    "y": 2464,
+    "name": "Orreth"
+  },
+  {
+    "id": 106,
+    "type": "npcmove",
+    "kind": 36,
+    "x": 3248,
+    "y": 2592,
+    "name": "Hobber"
+  },
+  {
+    "id": 107,
+    "type": "npcmove",
+    "kind": 40,
+    "x": 176,
+    "y": 4000,
+    "name": "Marric"
+  },
+  {
+    "id": 108,
+    "type": "npcmove",
+    "kind": 9,
+    "x": 1840,
+    "y": 3968,
+    "name": "Calisa"
+  }
+]

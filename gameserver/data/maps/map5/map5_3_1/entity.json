@@ -1,0 +1,74 @@
+[
+  {
+    "id": 101,
+    "type": "npcmove",
+    "kind": 27,
+    "x": 80,
+    "y": 512,
+    "name": "Falette"
+  },
+  {
+    "id": 102,
+    "type": "npcmove",
+    "kind": 4,
+    "x": 1824,
+    "y": 192,
+    "name": "Roso"
+  },
+  {
+    "id": 103,
+    "type": "npcmove",
+    "kind": 12,
+    "x": 3152,
+    "y": 304,
+    "name": "Delella"
+  },
+  {
+    "id": 104,
+    "type": "npcmove",
+    "kind": 53,
+    "x": 112,
+    "y": 1968,
+    "name": "Halius"
+  },
+  {
+    "id": 105,
+    "type": "npcmove",
+    "kind": 37,
+    "x": 1760,
+    "y": 1888,
+    "name": "Halek"
+  },
+  {
+    "id": 106,
+    "type": "npcmove",
+    "kind": 49,
+    "x": 3328,
+    "y": 1664,
+    "name": "Wenara"
+  },
+  {
+    "id": 107,
+    "type": "npcmove",
+    "kind": 40,
+    "x": 128,
+    "y": 3024,
+    "name": "Eldius"
+  },
+  {
+    "id": 108,
+    "type": "npcmove",
+    "kind": 47,
+    "x": 1728,
+    "y": 3248,
+    "name": "Wilia"
+  },
+  {
+    "id": 109,
+    "type": "npcmove",
+    "kind": 15,
+    "x": 3280,
+    "y": 3376,
+    "name": "Wenold"
+  }
+]

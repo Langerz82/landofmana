@@ -1,0 +1,1187 @@
+{
+ "grid": [
+  [
+   "V",
+   "V",
+   "D",
+   "D",
+   "f"
+  ],
+  [
+   "D",
+   "D",
+   "D",
+   "T",
+   "D"
+  ],
+  [
+   "D",
+   "D",
+   "D",
+   "D",
+   "D"
+  ],
+  [
+   "f",
+   "f",
+   "D",
+   "V",
+   "V"
+  ],
+  [
+   "f",
+   "f",
+   "D",
+   "D",
+   "D"
+  ],
+  [
+   "T",
+   "f",
+   "f",
+   "f",
+   "f"
+  ],
+  [
+   "f",
+   "f",
+   "f",
+   "f",
+   "f"
+  ],
+  [
+   "L",
+   "f",
+   "f",
+   "f",
+   "f"
+  ],
+  [
+   "f",
+   "f",
+   "f",
+   "f",
+   "f"
+  ],
+  [
+   "f",
+   "L",
+   "T",
+   "f",
+   "f"
+  ],
+  [
+   "B",
+   "f",
+   "B",
+   "B",
+   "f"
+  ]
+ ],
+ "rows": 11,
+ "cols": 5,
+ "towns": [
+  {
+   "x": 247,
+   "y": 887,
+   "row": 9,
+   "col": 2
+  },
+  {
+   "x": 358,
+   "y": 130,
+   "row": 1,
+   "col": 3
+  },
+  {
+   "x": 51,
+   "y": 512,
+   "row": 5,
+   "col": 0
+  }
+ ],
+ "npcs": [
+  {
+   "x": 60,
+   "y": 53,
+   "row": 0,
+   "col": 0,
+   "area": "volcano",
+   "minLevel": 25,
+   "maxLevel": 26,
+   "mobs": [
+    9,
+    12,
+    11
+   ],
+   "near": [
+    "desert",
+    "volcano"
+   ],
+   "lagoon": false,
+   "coast": false
+  },
+  {
+   "x": 158,
+   "y": 41,
+   "row": 0,
+   "col": 1,
+   "area": "volcano",
+   "minLevel": 25,
+   "maxLevel": 26,
+   "mobs": [
+    9,
+    12,
+    11
+   ],
+   "near": [
+    "desert",
+    "volcano"
+   ],
+   "lagoon": false,
+   "coast": false
+  },
+  {
+   "x": 244,
+   "y": 51,
+   "row": 0,
+   "col": 2,
+   "area": "desert",
+   "minLevel": 19,
+   "maxLevel": 20,
+   "mobs": [
+    3,
+    8,
+    7
+   ],
+   "near": [
+    "desert",
+    "volcano"
+   ],
+   "lagoon": false,
+   "coast": false
+  },
+  {
+   "x": 370,
+   "y": 41,
+   "row": 0,
+   "col": 3,
+   "area": "desert",
+   "minLevel": 21,
+   "maxLevel": 22,
+   "mobs": [
+    3,
+    8,
+    7
+   ],
+   "near": [
+    "desert",
+    "forest",
+    "village"
+   ],
+   "lagoon": false,
+   "coast": false
+  },
+  {
+   "x": 468,
+   "y": 39,
+   "row": 0,
+   "col": 4,
+   "area": "forest",
+   "minLevel": 23,
+   "maxLevel": 24,
+   "mobs": [
+    4,
+    6,
+    5
+   ],
+   "near": [
+    "desert"
+   ],
+   "lagoon": false,
+   "coast": false
+  },
+  {
+   "x": 51,
+   "y": 137,
+   "row": 1,
+   "col": 0,
+   "area": "desert",
+   "minLevel": 21,
+   "maxLevel": 22,
+   "mobs": [
+    3,
+    8,
+    7
+   ],
+   "near": [
+    "desert",
+    "volcano"
+   ],
+   "lagoon": false,
+   "coast": false
+  },
+  {
+   "x": 142,
+   "y": 143,
+   "row": 1,
+   "col": 1,
+   "area": "desert",
+   "minLevel": 19,
+   "maxLevel": 20,
+   "mobs": [
+    3,
+    8,
+    7
+   ],
+   "near": [
+    "desert",
+    "volcano"
+   ],
+   "lagoon": false,
+   "coast": false
+  },
+  {
+   "x": 251,
+   "y": 135,
+   "row": 1,
+   "col": 2,
+   "area": "desert",
+   "minLevel": 17,
+   "maxLevel": 18,
+   "mobs": [
+    3,
+    8,
+    7
+   ],
+   "near": [
+    "desert",
+    "village"
+   ],
+   "lagoon": false,
+   "coast": false
+  },
+  {
+   "x": 366,
+   "y": 134,
+   "row": 1,
+   "col": 3,
+   "area": "village",
+   "minLevel": 19,
+   "maxLevel": 20,
+   "mobs": [
+    1,
+    5
+   ],
+   "near": [
+    "desert"
+   ],
+   "lagoon": false,
+   "coast": false
+  },
+  {
+   "x": 465,
+   "y": 151,
+   "row": 1,
+   "col": 4,
+   "area": "desert",
+   "minLevel": 21,
+   "maxLevel": 22,
+   "mobs": [
+    3,
+    8,
+    7
+   ],
+   "near": [
+    "desert",
+    "forest",
+    "village"
+   ],
+   "lagoon": false,
+   "coast": false
+  },
+  {
+   "x": 59,
+   "y": 224,
+   "row": 2,
+   "col": 0,
+   "area": "desert",
+   "minLevel": 19,
+   "maxLevel": 20,
+   "mobs": [
+    3,
+    8,
+    7
+   ],
+   "near": [
+    "desert",
+    "forest"
+   ],
+   "lagoon": false,
+   "coast": false
+  },
+  {
+   "x": 165,
+   "y": 225,
+   "row": 2,
+   "col": 1,
+   "area": "desert",
+   "minLevel": 17,
+   "maxLevel": 18,
+   "mobs": [
+    3,
+    8,
+    7
+   ],
+   "near": [
+    "desert",
+    "forest"
+   ],
+   "lagoon": false,
+   "coast": false
+  },
+  {
+   "x": 261,
+   "y": 239,
+   "row": 2,
+   "col": 2,
+   "area": "desert",
+   "minLevel": 15,
+   "maxLevel": 16,
+   "mobs": [
+    3,
+    8,
+    7
+   ],
+   "near": [
+    "desert"
+   ],
+   "lagoon": false,
+   "coast": false
+  },
+  {
+   "x": 351,
+   "y": 236,
+   "row": 2,
+   "col": 3,
+   "area": "desert",
+   "minLevel": 17,
+   "maxLevel": 18,
+   "mobs": [
+    3,
+    8,
+    7
+   ],
+   "near": [
+    "desert",
+    "village",
+    "volcano"
+   ],
+   "lagoon": false,
+   "coast": false
+  },
+  {
+   "x": 457,
+   "y": 228,
+   "row": 2,
+   "col": 4,
+   "area": "desert",
+   "minLevel": 19,
+   "maxLevel": 20,
+   "mobs": [
+    3,
+    8,
+    7
+   ],
+   "near": [
+    "desert",
+    "volcano"
+   ],
+   "lagoon": false,
+   "coast": false
+  },
+  {
+   "x": 60,
+   "y": 335,
+   "row": 3,
+   "col": 0,
+   "area": "forest",
+   "minLevel": 17,
+   "maxLevel": 18,
+   "mobs": [
+    4,
+    6,
+    5
+   ],
+   "near": [
+    "desert",
+    "forest"
+   ],
+   "lagoon": false,
+   "coast": false
+  },
+  {
+   "x": 150,
+   "y": 329,
+   "row": 3,
+   "col": 1,
+   "area": "forest",
+   "minLevel": 15,
+   "maxLevel": 16,
+   "mobs": [
+    4,
+    6,
+    5
+   ],
+   "near": [
+    "desert",
+    "forest"
+   ],
+   "lagoon": false,
+   "coast": false
+  },
+  {
+   "x": 261,
+   "y": 314,
+   "row": 3,
+   "col": 2,
+   "area": "desert",
+   "minLevel": 13,
+   "maxLevel": 14,
+   "mobs": [
+    3,
+    8,
+    7
+   ],
+   "near": [
+    "desert",
+    "forest",
+    "volcano"
+   ],
+   "lagoon": false,
+   "coast": false
+  },
+  {
+   "x": 355,
+   "y": 327,
+   "row": 3,
+   "col": 3,
+   "area": "volcano",
+   "minLevel": 25,
+   "maxLevel": 26,
+   "mobs": [
+    9,
+    12,
+    11
+   ],
+   "near": [
+    "desert",
+    "volcano"
+   ],
+   "lagoon": false,
+   "coast": false
+  },
+  {
+   "x": 479,
+   "y": 335,
+   "row": 3,
+   "col": 4,
+   "area": "volcano",
+   "minLevel": 25,
+   "maxLevel": 26,
+   "mobs": [
+    9,
+    12,
+    11
+   ],
+   "near": [
+    "desert",
+    "volcano"
+   ],
+   "lagoon": false,
+   "coast": false
+  },
+  {
+   "x": 50,
+   "y": 424,
+   "row": 4,
+   "col": 0,
+   "area": "forest",
+   "minLevel": 15,
+   "maxLevel": 16,
+   "mobs": [
+    4,
+    6,
+    5
+   ],
+   "near": [
+    "forest",
+    "village"
+   ],
+   "lagoon": false,
+   "coast": false
+  },
+  {
+   "x": 151,
+   "y": 415,
+   "row": 4,
+   "col": 1,
+   "area": "forest",
+   "minLevel": 13,
+   "maxLevel": 14,
+   "mobs": [
+    4,
+    6,
+    5
+   ],
+   "near": [
+    "desert",
+    "forest"
+   ],
+   "lagoon": false,
+   "coast": false
+  },
+  {
+   "x": 269,
+   "y": 414,
+   "row": 4,
+   "col": 2,
+   "area": "desert",
+   "minLevel": 11,
+   "maxLevel": 12,
+   "mobs": [
+    3,
+    8,
+    7
+   ],
+   "near": [
+    "desert",
+    "forest"
+   ],
+   "lagoon": false,
+   "coast": false
+  },
+  {
+   "x": 358,
+   "y": 410,
+   "row": 4,
+   "col": 3,
+   "area": "desert",
+   "minLevel": 13,
+   "maxLevel": 14,
+   "mobs": [
+    3,
+    8,
+    7
+   ],
+   "near": [
+    "desert",
+    "forest",
+    "volcano"
+   ],
+   "lagoon": false,
+   "coast": false
+  },
+  {
+   "x": 459,
+   "y": 418,
+   "row": 4,
+   "col": 4,
+   "area": "desert",
+   "minLevel": 15,
+   "maxLevel": 16,
+   "mobs": [
+    3,
+    8,
+    7
+   ],
+   "near": [
+    "desert",
+    "forest",
+    "volcano"
+   ],
+   "lagoon": false,
+   "coast": false
+  },
+  {
+   "x": 59,
+   "y": 507,
+   "row": 5,
+   "col": 0,
+   "area": "village",
+   "minLevel": 13,
+   "maxLevel": 14,
+   "mobs": [
+    1,
+    5
+   ],
+   "near": [
+    "forest"
+   ],
+   "lagoon": false,
+   "coast": false
+  },
+  {
+   "x": 153,
+   "y": 520,
+   "row": 5,
+   "col": 1,
+   "area": "forest",
+   "minLevel": 11,
+   "maxLevel": 12,
+   "mobs": [
+    4,
+    6,
+    5
+   ],
+   "near": [
+    "forest",
+    "village"
+   ],
+   "lagoon": false,
+   "coast": false
+  },
+  {
+   "x": 267,
+   "y": 506,
+   "row": 5,
+   "col": 2,
+   "area": "forest",
+   "minLevel": 9,
+   "maxLevel": 10,
+   "mobs": [
+    4,
+    6,
+    5
+   ],
+   "near": [
+    "desert",
+    "forest"
+   ],
+   "lagoon": false,
+   "coast": false
+  },
+  {
+   "x": 371,
+   "y": 504,
+   "row": 5,
+   "col": 3,
+   "area": "forest",
+   "minLevel": 11,
+   "maxLevel": 12,
+   "mobs": [
+    4,
+    6,
+    5
+   ],
+   "near": [
+    "desert",
+    "forest"
+   ],
+   "lagoon": false,
+   "coast": false
+  },
+  {
+   "x": 455,
+   "y": 517,
+   "row": 5,
+   "col": 4,
+   "area": "forest",
+   "minLevel": 13,
+   "maxLevel": 14,
+   "mobs": [
+    4,
+    6,
+    5
+   ],
+   "near": [
+    "desert",
+    "forest"
+   ],
+   "lagoon": false,
+   "coast": false
+  },
+  {
+   "x": 58,
+   "y": 591,
+   "row": 6,
+   "col": 0,
+   "area": "forest",
+   "minLevel": 11,
+   "maxLevel": 12,
+   "mobs": [
+    4,
+    6,
+    5
+   ],
+   "near": [
+    "forest",
+    "lagoon",
+    "village"
+   ],
+   "lagoon": false,
+   "coast": false
+  },
+  {
+   "x": 163,
+   "y": 611,
+   "row": 6,
+   "col": 1,
+   "area": "forest",
+   "minLevel": 9,
+   "maxLevel": 10,
+   "mobs": [
+    4,
+    6,
+    5
+   ],
+   "near": [
+    "forest"
+   ],
+   "lagoon": false,
+   "coast": false
+  },
+  {
+   "x": 251,
+   "y": 604,
+   "row": 6,
+   "col": 2,
+   "area": "forest",
+   "minLevel": 7,
+   "maxLevel": 8,
+   "mobs": [
+    4,
+    6,
+    5
+   ],
+   "near": [
+    "forest"
+   ],
+   "lagoon": false,
+   "coast": false
+  },
+  {
+   "x": 363,
+   "y": 598,
+   "row": 6,
+   "col": 3,
+   "area": "forest",
+   "minLevel": 9,
+   "maxLevel": 10,
+   "mobs": [
+    4,
+    6,
+    5
+   ],
+   "near": [
+    "forest"
+   ],
+   "lagoon": false,
+   "coast": false
+  },
+  {
+   "x": 465,
+   "y": 613,
+   "row": 6,
+   "col": 4,
+   "area": "forest",
+   "minLevel": 11,
+   "maxLevel": 12,
+   "mobs": [
+    4,
+    6,
+    5
+   ],
+   "near": [
+    "forest"
+   ],
+   "lagoon": false,
+   "coast": false
+  },
+  {
+   "x": 57,
+   "y": 677,
+   "row": 7,
+   "col": 0,
+   "area": "beach",
+   "minLevel": 9,
+   "maxLevel": 10,
+   "mobs": [
+    2
+   ],
+   "near": [
+    "forest"
+   ],
+   "lagoon": true,
+   "coast": false
+  },
+  {
+   "x": 149,
+   "y": 694,
+   "row": 7,
+   "col": 1,
+   "area": "forest",
+   "minLevel": 7,
+   "maxLevel": 8,
+   "mobs": [
+    4,
+    6,
+    5
+   ],
+   "near": [
+    "forest",
+    "lagoon"
+   ],
+   "lagoon": false,
+   "coast": false
+  },
+  {
+   "x": 261,
+   "y": 691,
+   "row": 7,
+   "col": 2,
+   "area": "forest",
+   "minLevel": 5,
+   "maxLevel": 6,
+   "mobs": [
+    4,
+    6,
+    5
+   ],
+   "near": [
+    "forest"
+   ],
+   "lagoon": false,
+   "coast": false
+  },
+  {
+   "x": 363,
+   "y": 707,
+   "row": 7,
+   "col": 3,
+   "area": "forest",
+   "minLevel": 7,
+   "maxLevel": 8,
+   "mobs": [
+    4,
+    6,
+    5
+   ],
+   "near": [
+    "forest"
+   ],
+   "lagoon": false,
+   "coast": false
+  },
+  {
+   "x": 459,
+   "y": 700,
+   "row": 7,
+   "col": 4,
+   "area": "forest",
+   "minLevel": 9,
+   "maxLevel": 10,
+   "mobs": [
+    4,
+    6,
+    5
+   ],
+   "near": [
+    "forest"
+   ],
+   "lagoon": false,
+   "coast": false
+  },
+  {
+   "x": 43,
+   "y": 793,
+   "row": 8,
+   "col": 0,
+   "area": "forest",
+   "minLevel": 7,
+   "maxLevel": 8,
+   "mobs": [
+    4,
+    6,
+    5
+   ],
+   "near": [
+    "forest",
+    "lagoon"
+   ],
+   "lagoon": false,
+   "coast": false
+  },
+  {
+   "x": 143,
+   "y": 792,
+   "row": 8,
+   "col": 1,
+   "area": "forest",
+   "minLevel": 5,
+   "maxLevel": 6,
+   "mobs": [
+    4,
+    6,
+    5
+   ],
+   "near": [
+    "forest",
+    "lagoon"
+   ],
+   "lagoon": false,
+   "coast": false
+  },
+  {
+   "x": 261,
+   "y": 800,
+   "row": 8,
+   "col": 2,
+   "area": "forest",
+   "minLevel": 3,
+   "maxLevel": 4,
+   "mobs": [
+    4,
+    6,
+    5
+   ],
+   "near": [
+    "forest",
+    "village"
+   ],
+   "lagoon": false,
+   "coast": false
+  },
+  {
+   "x": 370,
+   "y": 780,
+   "row": 8,
+   "col": 3,
+   "area": "forest",
+   "minLevel": 5,
+   "maxLevel": 6,
+   "mobs": [
+    4,
+    6,
+    5
+   ],
+   "near": [
+    "forest"
+   ],
+   "lagoon": false,
+   "coast": false
+  },
+  {
+   "x": 453,
+   "y": 787,
+   "row": 8,
+   "col": 4,
+   "area": "forest",
+   "minLevel": 7,
+   "maxLevel": 8,
+   "mobs": [
+    4,
+    6,
+    5
+   ],
+   "near": [
+    "forest"
+   ],
+   "lagoon": false,
+   "coast": false
+  },
+  {
+   "x": 60,
+   "y": 878,
+   "row": 9,
+   "col": 0,
+   "area": "forest",
+   "minLevel": 5,
+   "maxLevel": 6,
+   "mobs": [
+    4,
+    6,
+    5
+   ],
+   "near": [
+    "beach",
+    "forest",
+    "lagoon"
+   ],
+   "lagoon": false,
+   "coast": false
+  },
+  {
+   "x": 147,
+   "y": 866,
+   "row": 9,
+   "col": 1,
+   "area": "beach",
+   "minLevel": 3,
+   "maxLevel": 4,
+   "mobs": [
+    2
+   ],
+   "near": [
+    "forest",
+    "village"
+   ],
+   "lagoon": true,
+   "coast": false
+  },
+  {
+   "x": 263,
+   "y": 891,
+   "row": 9,
+   "col": 2,
+   "area": "village",
+   "minLevel": 1,
+   "maxLevel": 2,
+   "mobs": [
+    1,
+    5
+   ],
+   "near": [
+    "beach",
+    "forest",
+    "lagoon"
+   ],
+   "lagoon": false,
+   "coast": false
+  },
+  {
+   "x": 366,
+   "y": 886,
+   "row": 9,
+   "col": 3,
+   "area": "forest",
+   "minLevel": 3,
+   "maxLevel": 4,
+   "mobs": [
+    4,
+    6,
+    5
+   ],
+   "near": [
+    "beach",
+    "forest",
+    "village"
+   ],
+   "lagoon": false,
+   "coast": false
+  },
+  {
+   "x": 464,
+   "y": 872,
+   "row": 9,
+   "col": 4,
+   "area": "forest",
+   "minLevel": 5,
+   "maxLevel": 6,
+   "mobs": [
+    4,
+    6,
+    5
+   ],
+   "near": [
+    "forest"
+   ],
+   "lagoon": false,
+   "coast": false
+  },
+  {
+   "x": 48,
+   "y": 974,
+   "row": 10,
+   "col": 0,
+   "area": "beach",
+   "minLevel": 7,
+   "maxLevel": 8,
+   "mobs": [
+    2
+   ],
+   "near": [
+    "forest"
+   ],
+   "lagoon": false,
+   "coast": true
+  },
+  {
+   "x": 162,
+   "y": 977,
+   "row": 10,
+   "col": 1,
+   "area": "forest",
+   "minLevel": 5,
+   "maxLevel": 6,
+   "mobs": [
+    4,
+    6,
+    5
+   ],
+   "near": [
+    "beach",
+    "lagoon"
+   ],
+   "lagoon": false,
+   "coast": true
+  },
+  {
+   "x": 264,
+   "y": 957,
+   "row": 10,
+   "col": 2,
+   "area": "beach",
+   "minLevel": 3,
+   "maxLevel": 4,
+   "mobs": [
+    2
+   ],
+   "near": [
+    "beach",
+    "forest",
+    "village"
+   ],
+   "lagoon": false,
+   "coast": true
+  },
+  {
+   "x": 364,
+   "y": 971,
+   "row": 10,
+   "col": 3,
+   "area": "beach",
+   "minLevel": 5,
+   "maxLevel": 6,
+   "mobs": [
+    2
+   ],
+   "near": [
+    "beach",
+    "forest"
+   ],
+   "lagoon": false,
+   "coast": true
+  },
+  {
+   "x": 461,
+   "y": 979,
+   "row": 10,
+   "col": 4,
+   "area": "forest",
+   "minLevel": 7,
+   "maxLevel": 8,
+   "mobs": [
+    4,
+    6,
+    5
+   ],
+   "near": [
+    "beach",
+    "forest"
+   ],
+   "lagoon": false,
+   "coast": true
+  }
+ ]
+}

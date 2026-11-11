@@ -1,0 +1,50 @@
+[
+  {
+    "id": 101,
+    "type": "npcmove",
+    "kind": 15,
+    "x": 688,
+    "y": 400,
+    "name": "Cormund"
+  },
+  {
+    "id": 102,
+    "type": "npcmove",
+    "kind": 50,
+    "x": 2288,
+    "y": 384,
+    "name": "Gwenia"
+  },
+  {
+    "id": 103,
+    "type": "npcmove",
+    "kind": 11,
+    "x": 960,
+    "y": 1760,
+    "name": "Halley"
+  },
+  {
+    "id": 104,
+    "type": "npcmove",
+    "kind": 34,
+    "x": 2352,
+    "y": 1568,
+    "name": "Bramara"
+  },
+  {
+    "id": 105,
+    "type": "npcmove",
+    "kind": 4,
+    "x": 768,
+    "y": 3296,
+    "name": "Corwin"
+  },
+  {
+    "id": 106,
+    "type": "npcmove",
+    "kind": 17,
+    "x": 2592,
+    "y": 3344,
+    "name": "Mardor"
+  }
+]

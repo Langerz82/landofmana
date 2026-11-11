@@ -1,0 +1,66 @@
+[
+  {
+    "id": 101,
+    "type": "npcmove",
+    "kind": 14,
+    "x": 960,
+    "y": 848,
+    "name": "Eldric"
+  },
+  {
+    "id": 102,
+    "type": "npcmove",
+    "kind": 52,
+    "x": 2528,
+    "y": 656,
+    "name": "Voria"
+  },
+  {
+    "id": 103,
+    "type": "npcmove",
+    "kind": 53,
+    "x": 3904,
+    "y": 816,
+    "name": "Pipin"
+  },
+  {
+    "id": 104,
+    "type": "npcmove",
+    "kind": 6,
+    "x": 816,
+    "y": 2192,
+    "name": "Yaria"
+  },
+  {
+    "id": 105,
+    "type": "npcmove",
+    "kind": 24,
+    "x": 2272,
+    "y": 2288,
+    "name": "Deleth"
+  },
+  {
+    "id": 106,
+    "type": "npcmove",
+    "kind": 50,
+    "x": 4016,
+    "y": 2160,
+    "name": "Hobley"
+  },
+  {
+    "id": 107,
+    "type": "npcmove",
+    "kind": 36,
+    "x": 944,
+    "y": 3584,
+    "name": "Vorisa"
+  },
+  {
+    "id": 108,
+    "type": "npcmove",
+    "kind": 49,
+    "x": 2640,
+    "y": 3600,
+    "name": "Noros"
+  }
+]

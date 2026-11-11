@@ -1,0 +1,42 @@
+[
+  {
+    "id": 101,
+    "type": "npcmove",
+    "kind": 11,
+    "x": 960,
+    "y": 1264,
+    "name": "Gwendor"
+  },
+  {
+    "id": 102,
+    "type": "npcmove",
+    "kind": 40,
+    "x": 2400,
+    "y": 1168,
+    "name": "Wenmund"
+  },
+  {
+    "id": 103,
+    "type": "npcmove",
+    "kind": 42,
+    "x": 800,
+    "y": 2688,
+    "name": "Hobton"
+  },
+  {
+    "id": 104,
+    "type": "npcmove",
+    "kind": 34,
+    "x": 2416,
+    "y": 2544,
+    "name": "Ulwin"
+  },
+  {
+    "id": 105,
+    "type": "npcmove",
+    "kind": 2,
+    "x": 944,
+    "y": 4016,
+    "name": "Garette"
+  }
+]

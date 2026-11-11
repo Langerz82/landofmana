@@ -15546,7 +15546,7 @@
                         {
                          "name":"tmap",
                          "type":"int",
-                         "value":0
+                         "value":15
                         }],
                  "rotation":0,
                  "type":"",

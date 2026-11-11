@@ -285,6 +285,9 @@ def clip_area(o, sec):
     return o2
 
 for o in objs.get('mobareas', {'objects': []})['objects']:
+    if INT and (o['x'] + o['width'] / 2) // 16 >= W:                # in the interior strip (a cave room): as it is
+        o2 = shifted(o, *OUT[INT]['off']); o2['id'] = new_id()
+        OUT[INT]['objs'].setdefault('mobareas', []).append(o2); continue
     for sec in OUT.values():                                         # a mob area may span several sections
         if sec['core'] is None: continue
         o2 = clip_area(o, sec)
