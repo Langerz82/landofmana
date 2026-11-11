@@ -77,7 +77,7 @@
   },
   {
    "id": 5,
-   "count": 50,
+   "count": 100,
    "minLevel": 1,
    "maxLevel": 2,
    "x": 3280,
@@ -88,7 +88,8 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 1,
-   "levelWeight": "2,1"
+   "levelWeight": "4,1",
+   "kindWeight": "4,1"
   },
   {
    "id": 6,

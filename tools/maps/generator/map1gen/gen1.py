@@ -1362,12 +1362,15 @@ for _a in range(GR):
         if y1 - y0 < 8: continue
         kind = MOB_KIND[int(grid[_a, _b])]
         lo, hi = _lo0 + int(_d[_a, _b]) * DEN.MOB_LEVEL_STEP, _hi0 + int(_d[_a, _b]) * DEN.MOB_LEVEL_STEP
-        props = [{'name': 'count', 'type': 'int', 'value': DEN.MOB_COUNT},
+        props = [{'name': 'count', 'type': 'int', 'value': DEN.MOB_COUNT * (2 if (_a, _b) == VIL_CELLS[0] else 1)},   # start village: double
                  {'name': 'include', 'type': 'string', 'value': ','.join(str(k) for k in DEN.MOBS[kind])},
                  {'name': 'level', 'type': 'string', 'value': level_prop(lo, hi)}]
-        if hi > lo: props.append({'name': 'levelWeight', 'type': 'string', 'value': level_weights(lo, hi)})   # a single level: the default (1), not written
+        if (_a, _b) == VIL_CELLS[0] and hi == lo + 1:   # the start village: mostly its lowest level
+            props.append({'name': 'levelWeight', 'type': 'string', 'value': '4,1'})
+            if len(DEN.MOBS[kind]) == 2: props.append({'name': 'kindWeight', 'type': 'string', 'value': '4,1'})
+        elif hi > lo: props.append({'name': 'levelWeight', 'type': 'string', 'value': level_weights(lo, hi)})   # a single level: the default (1), not written
         mobareas.append(obj(x=x0 * 16, y=y0 * 16, width=(x1 - x0) * 16, height=(y1 - y0) * 16,
-                            name=f'{kind} {lo}-{hi}', properties=props))
+                            name=f'{kind} {level_prop(lo, hi)}', properties=props))
         MOB_CELL[(_a, _b)] = (lo, hi, DEN.MOBS[kind], kind)
 for _r in range(GR):
     log('  mob levels', ' '.join(f'{KIND_CH[int(grid[_r, _c])]}{_lo0 + int(_d[_r, _c]) * DEN.MOB_LEVEL_STEP:>2}' for _c in range(GC)))
