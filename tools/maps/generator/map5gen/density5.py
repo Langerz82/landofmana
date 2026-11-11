@@ -121,9 +121,9 @@ MOBS = {
 }
 MOB_START_LEVELS = (1, 2)   # the start town's section; each section further away is MOB_LEVEL_STEP higher
 MOB_LEVEL_STEP = 2          # (volcanoes always start one step above the farthest other section)
-MOB_COUNT = 50              # mobs per mob area (every section)
+MOB_COUNT = 100             # mobs per mob area (every section)
 
 # ---- dungeon mob areas: every cave room and hallway ------------------------------------------------
-DUNGEON_MOBS = (2, 3)       # mobs per cave room (min, max)
+DUNGEON_TILES_PER_MOB = 30  # one mob per this many walkable floor tiles in a cave room (at least one)
 DUNGEON_LEVEL_BONUS = 2     # levels above the mob area of the section the cave's entrance is in
 DUNGEON_DROP_BONUS = 2      # bonusDrop: drop-rate multiplier for every mob in a cave

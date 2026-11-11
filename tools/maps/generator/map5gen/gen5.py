@@ -1404,6 +1404,20 @@ for ty_, tx_ in vil_centres:
             {'name': 'weaponType', 'type': 'string', 'value': 'any'}]))
 camera = [obj(x=0, y=0, width=W * 16, height=H * 16, name='overworld', type='camera')]
 
+# Cliff stamps lifted from the older maps can carry a cave mouth of their own (MOUTH, trigger on its 1392 tile)
+# that the "cave mouths" step above never placed: give each of those a cave too, tagged by its section's area,
+# so no cave entrance on the map leads nowhere.
+_known = {(x, y) for x, y, _ in mouths}
+_TAG_OF = {'volcano': 'volc', 'desert': 'desert', 'forest': 'forest', 'village': 'forest', 'beach': 'beach',
+           'lagoon': 'beach'}
+_extra = 0
+for _y, _x in zip(*np.nonzero(LY['Cliffs'][:, :W] == 1392)):
+    _x, _y = int(_x), int(_y)
+    if (_x, _y) in _known: continue
+    _c = (min(GR - 1, int(_y // CELL_H)), min(GC - 1, int(_x // CELL_W)))
+    if _c not in MOB_CELL: _c = min(MOB_CELL, key=lambda k: abs(k[0] - _c[0]) + abs(k[1] - _c[1]))
+    mouths.append((_x, _y, _TAG_OF.get(MOB_CELL[_c][3], 'forest'))); _extra += 1
+log('cave mouths from stamps given a cave', _extra)
 # door triggers must be reachable from the overworld
 bad = [t for trig in houses_doors for t in trig if lab[t[1], t[0]] != main] + \
       [(x, y) for x, y, _ in mouths if lab[y, x] != main]
@@ -1424,7 +1438,8 @@ links = [('house', trig, False, f'H{i:02d}', f'town {_village(trig[0])} door') f
         [('cave', [(x, y)], tag == 'volc', f'C{i:02d}', f'{WHERE[tag]} mouth') for i, (x, y, tag) in enumerate(mouths, 1)]
 doors, room_cams, oid[0], linked = interiors.build(FULL, links, systems, (W + 3, 3, MAPW - 3, H - 3), oid[0], rng)
 camera += room_cams
-# dungeon mob areas: every cave room (each room and hallway of a cave) gets DUNGEON_MOBS mobs, of the mobs of the
+# dungeon mob areas: every cave room (each room and hallway of a cave) gets one mob per DUNGEON_TILES_PER_MOB walkable
+# floor tiles in it (at least one), of the mobs of the
 # section its cave mouth is in, DUNGEON_LEVEL_BONUS levels higher than that section's mob area, with a drop
 # bonus (bonusDrop) of DUNGEON_DROP_BONUS
 _drng = np.random.default_rng(SEED + 600)          # own generator: the rest of the map stays the same
@@ -1439,7 +1454,9 @@ for c_ in room_cams:
     ax, ay, aw, ah = rx_ + 2, ry_ + 3, rw_ - 4, rh_ - 5           # the floor inside the walls
     if aw < 1 or ah < 1: continue
     props = [{'name': 'bonusDrop', 'type': 'int', 'value': DEN.DUNGEON_DROP_BONUS},
-             {'name': 'count', 'type': 'int', 'value': int(_drng.integers(DEN.DUNGEON_MOBS[0], DEN.DUNGEON_MOBS[1] + 1))},
+             {'name': 'count', 'type': 'int', 'value': max(1, int(((FULL['cave'][ay:ay + ah, ax:ax + aw] != 0) &
+                                                                   (FULL['blocking'][ay:ay + ah, ax:ax + aw] == 0)).sum())
+                                                              // DEN.DUNGEON_TILES_PER_MOB)},
              {'name': 'include', 'type': 'string', 'value': ','.join(str(k) for k in kinds)},
              {'name': 'maxLevel', 'type': 'int', 'value': hi},
              {'name': 'minLevel', 'type': 'int', 'value': lo}]

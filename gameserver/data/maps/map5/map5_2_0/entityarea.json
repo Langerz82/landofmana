@@ -2,7 +2,7 @@
  "mobAreas": [
   {
    "id": 0,
-   "count": 25,
+   "count": 50,
    "minLevel": 13,
    "maxLevel": 14,
    "x": 0,
@@ -18,7 +18,7 @@
   },
   {
    "id": 1,
-   "count": 25,
+   "count": 50,
    "minLevel": 11,
    "maxLevel": 12,
    "x": 1632,
@@ -34,7 +34,7 @@
   },
   {
    "id": 2,
-   "count": 12,
+   "count": 25,
    "minLevel": 9,
    "maxLevel": 10,
    "x": 3280,
@@ -50,7 +50,7 @@
   },
   {
    "id": 3,
-   "count": 50,
+   "count": 100,
    "minLevel": 11,
    "maxLevel": 12,
    "x": 0,
@@ -66,7 +66,7 @@
   },
   {
    "id": 4,
-   "count": 50,
+   "count": 100,
    "minLevel": 9,
    "maxLevel": 10,
    "x": 1632,
@@ -82,7 +82,7 @@
   },
   {
    "id": 5,
-   "count": 25,
+   "count": 50,
    "minLevel": 7,
    "maxLevel": 8,
    "x": 3280,
@@ -98,7 +98,7 @@
   },
   {
    "id": 6,
-   "count": 50,
+   "count": 100,
    "minLevel": 9,
    "maxLevel": 10,
    "x": 0,
@@ -114,7 +114,7 @@
   },
   {
    "id": 7,
-   "count": 50,
+   "count": 100,
    "minLevel": 7,
    "maxLevel": 8,
    "x": 1632,
@@ -130,7 +130,7 @@
   },
   {
    "id": 8,
-   "count": 25,
+   "count": 50,
    "minLevel": 5,
    "maxLevel": 6,
    "x": 3280,
@@ -146,7 +146,7 @@
   },
   {
    "id": 9,
-   "count": 12,
+   "count": 25,
    "minLevel": 7,
    "maxLevel": 8,
    "x": 0,
@@ -162,7 +162,7 @@
   },
   {
    "id": 10,
-   "count": 12,
+   "count": 25,
    "minLevel": 5,
    "maxLevel": 6,
    "x": 1632,
@@ -178,7 +178,7 @@
   },
   {
    "id": 11,
-   "count": 6,
+   "count": 12,
    "minLevel": 3,
    "maxLevel": 4,
    "x": 3280,

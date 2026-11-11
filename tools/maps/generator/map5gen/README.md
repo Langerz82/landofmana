@@ -17,12 +17,12 @@ stamps, cliffs, caves, houses and interiors. Only the world layout is new.
 - **Beaches:** `COAST_BEACH_CELLS` cells along the south coast run down to the sea; the other coastal cells
   have a thin sand strip. `LAGOON_CELLS` inland cells are sand round a big lake.
 - **Rivers** (`RIVERS`) flow south through the forests to the coast, with plank bridges.
-- **Mob areas:** one per section, the size of the section, 50 mobs each (`MOB_COUNT`), with that area's mobs (`MOBS` in `density5.py`):
+- **Mob areas:** one per section, the size of the section, 100 mobs each (`MOB_COUNT`), with that area's mobs (`MOBS` in `density5.py`):
   beach crabs; village rats and snakes; forest goblins, bats and snakes; desert skeletons, ogres and armored
   skeletons; volcano eyes, death knights and spectres. The start town's section is level 1-2 and every section
   further away (walking distance in sections) is two levels higher (`MOB_LEVEL_STEP`: 1-2, 3-4, 5-6, ...); volcanoes
   always start one step above the farthest other section. The log prints each section's minimum level.
-- **Dungeon mob areas:** every cave room and hallway gets 2-3 mobs (`DUNGEON_MOBS`) of the mobs of the section
+- **Dungeon mob areas:** every cave room and hallway gets one mob per 30 walkable floor tiles in it, at least one (`DUNGEON_TILES_PER_MOB`), of the mobs of the section
   the cave's entrance is in, 2 levels higher than that section's mob area (`DUNGEON_LEVEL_BONUS`), with a drop
   bonus of 2 (`bonusDrop`, `DUNGEON_DROP_BONUS`). `split.py` puts them in the interiors map (`map5_int`).
 - **Quest NPCs:** one walking NPC per mob area, near the middle of its section, with two quests: kill ten of
