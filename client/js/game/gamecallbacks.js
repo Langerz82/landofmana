@@ -279,7 +279,7 @@ export function installGameCallbacks(proto) {
             // turned them. It fires again once they turn; leaving it clears the guard for good.
             const guard = p.arrivalDoorGuard;
             if (guard) {
-                if (dest === guard.door && p.orientation === guard.orientation) return;
+                if (dest === guard.door && (guard.untilRelease || p.orientation === guard.orientation)) return;
                 if (dest !== guard.door) p.arrivalDoorGuard = null;
             }
             // An edge door between split map sections only takes the player across when they face the way it
@@ -392,7 +392,8 @@ export function installGameCallbacks(proto) {
         const doorWouldFire = function (p, door) {
             if (p.refusedDoorAt && p.refusedDoorAt.x === p.x && p.refusedDoorAt.y === p.y) return false;
             const guard = p.arrivalDoorGuard;
-            if (guard && guard.door === door && p.orientation === guard.orientation) return false;
+            if (guard && guard.door === door && (guard.untilRelease || p.orientation === guard.orientation))
+                return false;
             if (door.minLevel && p.level < door.minLevel) return false;
             if (door.hasMaxLevel && p.level > door.maxLevel) return false;
             if (door.rel && p.orientation !== door.orientation) return false;

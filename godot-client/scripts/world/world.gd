@@ -44,6 +44,8 @@ var _refused_door_pos = null    # a door the server refused is not retried until
 var _teleport_orientation = -1  # set at status 1 of a door teleport, used at status 2
 var _arrival_door = null
 var _arrival_orientation = -1
+const MOVE_ACTIONS := {"move_up": Types.Orientation.UP, "move_down": Types.Orientation.DOWN,
+	"move_left": Types.Orientation.LEFT, "move_right": Types.Orientation.RIGHT}
 const PLAYER_KIND := 1
 
 var client: GameClient
@@ -98,6 +100,12 @@ var _dialogue_delay = null
 var _info_id := 0
 var _login_info: Dictionary = {}
 var _keys_down: Dictionary = {}
+# when each direction action last went down (also while a teleport is loading), so the most recent held one
+# resumes moving the player once the teleport has finished
+var _key_down_at: Dictionary = {}
+# The arrival door (_arrival_door) stays inactive, whichever way the player faces, while the movement keys held
+# through the teleport stay down; letting go of all of them (or stepping off the door) re-arms it.
+var _arrival_until_release := false
 var _reveal_token := 0   # cancels a pending reveal when a new teleport starts
 
 
@@ -683,6 +691,30 @@ func _on_teleport_map(d: Array) -> void:
 		_arrival_orientation = _teleport_orientation if _teleport_orientation >= 0 else p.orientation
 		_teleport_orientation = -1
 		_keys_down.clear()
+		# Movement keys held through the teleport (or pressed while it was loading, when key input is ignored)
+		# keep moving the player straight away -- the most recently pressed one. While they stay held the arrival
+		# door stays inactive (see _arrival_until_release), so the key that walked the player in can't send them
+		# straight back.
+		var _held := ""
+		for a in MOVE_ACTIONS:
+			if InputMap.has_action(a) and Input.is_action_pressed(a):
+				_keys_down[a] = true
+				if _held == "" or int(_key_down_at.get(a, 0)) > int(_key_down_at.get(_held, 0)):
+					_held = a
+		_arrival_until_release = _arrival_door != null and _held != ""
+		if _held != "":
+			p.key_input(MOVE_ACTIONS[_held], true)
+		else:
+			# No movement key held now that the teleport has finished (e.g. it was let go while the next section
+			# was loading): make sure the player stands still -- no walk left over from before the teleport and
+			# no queued move retry starting one.
+			if p._move_retry:
+				p._move_retry.cancel()
+				p._move_retry = null
+			p.key_move = false
+			p.stop_key_move = false
+			p.move_orientation = 0
+			p.force_stop()
 		started = true
 		if audio:
 			audio.play_map_music(map_index)
@@ -910,7 +942,8 @@ func _add_local_player_callbacks() -> void:
 func _door_would_fire(p, door) -> bool:
 	if _refused_door_pos != null and _refused_door_pos == Vector2(p.x, p.y):
 		return false
-	if _arrival_door != null and is_same(door, _arrival_door) and p.orientation == _arrival_orientation:
+	if _arrival_door != null and is_same(door, _arrival_door) \
+			and (_arrival_until_release or p.orientation == _arrival_orientation):
 		return false
 	if door.minLevel > 0 and p.level < door.minLevel:
 		return false
@@ -958,7 +991,7 @@ func _check_teleport() -> void:
 		return
 	var dest = current_map.get_door(p.x, p.y)
 	if _arrival_door != null:
-		if is_same(dest, _arrival_door) and p.orientation == _arrival_orientation:
+		if is_same(dest, _arrival_door) and (_arrival_until_release or p.orientation == _arrival_orientation):
 			return
 		if not is_same(dest, _arrival_door):
 			_arrival_door = null
@@ -2192,6 +2225,10 @@ func screen_to_world(screen: Vector2) -> Vector2:
 
 
 func _unhandled_input(event: InputEvent) -> void:
+	if event is InputEventKey and not event.is_echo():
+		for a in MOVE_ACTIONS:
+			if event.is_action(a) and event.is_pressed():
+				_key_down_at[a] = Time.get_ticks_msec()
 	if player == null or not started or map_status < 2:
 		return
 	if event is InputEventMouseMotion:
@@ -2226,6 +2263,8 @@ func _unhandled_input(event: InputEvent) -> void:
 			elif not down and _keys_down.get(action, false):
 				_keys_down[action] = false
 				player.key_input(dirs[action], false)
+				if not _keys_down.values().has(true):
+					_arrival_until_release = false
 			get_viewport().set_input_as_handled()
 			return
 	if not event.is_pressed():

@@ -237,7 +237,22 @@ export function installClientCallbacksMap(proto) {
                     : null;
                 p.teleportOrientation = null;
 
-                game.app.releaseKeys();
+                // Movement keys held through the teleport keep moving the player straight away. While they
+                // stay held, the door the player arrived on stays inactive whichever way they face, so holding
+                // the key that walked them in can't send them straight back. Letting go of every movement key
+                // (or stepping off the door) makes it a normal door again.
+                const held = game.app.resumeHeldKeys();
+                if (p.arrivalDoorGuard && held) p.arrivalDoorGuard.untilRelease = true;
+                // No movement key held now that the teleport has finished (e.g. it was let go while the next
+                // section was loading): make sure the player stands still -- no walk left over from before the
+                // teleport and no queued move retry starting one.
+                if (!held) {
+                    clearTimeout(p.moveRetryTimeout);
+                    p.keyMove = false;
+                    p.stopKeyMove = false;
+                    p.moveOrientation = 0;
+                    p.forceStop();
+                }
             };
 
             game.currentMap.allReady(function () {

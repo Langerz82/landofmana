@@ -124,21 +124,42 @@ export function installMainInput() {
         );
     };
 
+    // A teleport is loading (the game would have the keyboard otherwise).
+    const fnLoading = function () {
+        return !!(game.player && game.started && game.mapStatus < 2 && !jqChatbox.hasClass('active'));
+    };
+
     const keyboard = function (value) {
         const key = {
             value: value,
             isDown: false,
             isUp: true,
+            // when the key last went down (app.resumeHeldKeys() picks the most recent held one)
+            downAt: 0,
             press: undefined,
             release: undefined
         };
 
         //The `downHandler`
         key.downHandler = function (event) {
-            if (!fnCondition()) return;
+            if (!fnCondition()) {
+                // Pressed while a teleport is loading: the player can't move yet, but remember the key is
+                // down so app.resumeHeldKeys() moves the player with it once the teleport has finished.
+                if (fnLoading()) {
+                    for (let k of key.value) {
+                        if (event.which === k) {
+                            if (key.isUp) key.downAt = Date.now();
+                            key.isDown = true;
+                            key.isUp = false;
+                        }
+                    }
+                }
+                return;
+            }
 
             for (let k of key.value) {
                 if (event.which === k) {
+                    if (key.isUp) key.downAt = Date.now();
                     if (key.isUp && key.press) {
                         key.press();
                     }
@@ -151,8 +172,13 @@ export function installMainInput() {
         };
 
         //The `upHandler`
+        // FIX: a release used to be dropped whenever fnCondition() was false -- in particular while a
+        // teleport was loading (mapStatus < 2) -- so the key stayed "down" here although it had been let go:
+        // once the teleport finished, app.resumeHeldKeys() started walking with it and no release ever came
+        // to stop the player. A release always counts now (player.move(o, false) is safe at any time, and
+        // only clears the key state while teleporting); it's only consumed when the game has the keyboard.
         key.upHandler = function (event) {
-            if (!fnCondition()) return;
+            const mine = fnCondition();
 
             for (let k of key.value) {
                 if (event.which === k) {
@@ -161,8 +187,11 @@ export function installMainInput() {
                     }
                     key.isDown = false;
                     key.isUp = true;
-                    event.preventDefault();
-                    event.stopPropagation();
+                    if (key.onUp) key.onUp();
+                    if (mine) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                    }
                 }
             }
         };
@@ -231,13 +260,38 @@ export function installMainInput() {
         game.player.move(Types.Orientations.DOWN, false);
     };
 
+    const moveKeys = [fnKeyRight, fnKeyLeft, fnKeyUp, fnKeyDown];
+
     app.releaseKeys = function () {
-        const key = [fnKeyRight, fnKeyLeft, fnKeyUp, fnKeyDown];
-        for (let k of key) {
+        for (let k of moveKeys) {
             k.isDown = false;
             k.isUp = true;
         }
     };
+
+    // Once a teleport has finished: a movement key held through it (or pressed while it was loading -- the
+    // player can't move then, see player.move()) moves the player now, without having to be pressed again.
+    // The most recently pressed one wins. Returns whether any movement key is held.
+    app.resumeHeldKeys = function () {
+        let last = null;
+        for (let k of moveKeys) {
+            if (k.isDown && (!last || k.downAt > last.downAt)) last = k;
+        }
+        if (last && last.press) last.press();
+        return !!last;
+    };
+
+    app.anyMoveKeyDown = function () {
+        return moveKeys.some((k) => k.isDown);
+    };
+
+    // Letting go of every movement key re-arms the door the player was teleported onto (see the arrival-door
+    // guard in clientcallbacksmap.js / checkTeleport in gamecallbacks.js).
+    const onMoveKeyUp = function () {
+        const p = game.player;
+        if (p && p.arrivalDoorGuard && !app.anyMoveKeyDown()) p.arrivalDoorGuard.untilRelease = false;
+    };
+    for (let k of moveKeys) k.onUp = onMoveKeyUp;
 
     const fnKeyAction = function (e) {
         const key = e.which;
