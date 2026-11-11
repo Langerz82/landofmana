@@ -304,7 +304,13 @@ class MovementHandler {
                 // configured with. Both are cheap, well-defined checks
                 // against data the door object already carries.
                 if (door.tmap !== mapId) {
-                    reject('Teleport door does not lead to requested map.');
+                    // The client's copy of this map (from shared/, sent in shared.zip) and the server's
+                    // own (maps/) disagree about where this door leads -- see check-maps.mjs.
+                    reject(
+                        'Teleport door does not lead to requested map: door ' + portalId + ' of ' +
+                            (p.map.name || 'map ' + p.map.index) + ' (' + p.map.index + ') leads to map ' +
+                            door.tmap + ' on the server, but the client asked for map ' + mapId + '.'
+                    );
                     return;
                 }
                 // FIX: nothing checked the player was actually at this door,

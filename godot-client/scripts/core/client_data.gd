@@ -61,16 +61,46 @@ func _ready() -> void:
 
 var _builtin_hash = null
 
-## The shared hash of this build's own files ("" if the manifest is missing: the
-## game server then pushes its files).
+## The shared hash of this build's own files ("" if the manifest is missing, or the packed
+## files don't match it: the game server then pushes its files).
 func builtin_hash() -> String:
 	if _builtin_hash == null:
 		_builtin_hash = ""
 		if FileAccess.file_exists(RES_MANIFEST):
 			var m = JSON.parse_string(FileAccess.get_file_as_string(RES_MANIFEST))
 			if m is Dictionary and m.get("hash") is String:
-				_builtin_hash = m["hash"]
+				# Only claim the manifest's hash if the packed files really are the ones it lists. The
+				# game server only pushes its files when the hash we send differs from its own, so a
+				# build whose manifest is newer than its packed maps/data (a partial asset sync, an
+				# export made before the maps were copied in, line endings changed by git) would
+				# otherwise play on stale files -- e.g. an old map whose door leads somewhere the
+				# server refuses ("Teleport door does not lead to requested map"). With no hash
+				# claimed, the server pushes its files and those are used instead.
+				var stale := _stale_builtin_files(m.get("files") if m.get("files") is Dictionary else {})
+				if stale.is_empty():
+					_builtin_hash = m["hash"]
+				else:
+					push_warning("ClientData: built-in files differ from the built-in manifest (%s): using the game server's files." % ", ".join(stale.slice(0, 5)))
 	return _builtin_hash
+
+
+## The manifest's files ({"maps/map0/map0.json": sha1, ...}) whose packed copy (res://assets/...) is
+## missing or has a different sha1.
+func _stale_builtin_files(files: Dictionary) -> PackedStringArray:
+	var stale := PackedStringArray()
+	if files.is_empty():
+		stale.append("no file list")
+		return stale
+	for p in files:
+		var path := str(p)
+		var res := ""
+		if path.begins_with("data/"):
+			res = RES_DATA + path.trim_prefix("data/")
+		elif path.begins_with("maps/"):
+			res = RES_MAPS + path.trim_prefix("maps/")
+		if res == "" or not FileAccess.file_exists(res) or _sha1(FileAccess.get_file_as_bytes(res)) != str(files[p]):
+			stale.append(path)
+	return stale
 
 
 ## The shared hash of the files in use: the downloaded ones', else this build's.

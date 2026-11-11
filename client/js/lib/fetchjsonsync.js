@@ -20,7 +20,7 @@
 // loaded yet, the request is made without the param (same as before this existed).
 /* global $ */
 import config from '../config.js';
-import { cachedSharedJson } from '../clientdata.js';
+import { cachedSharedJson, builtinFileHash } from '../clientdata.js';
 
 export default function fetchJsonSync(path) {
     // shared/data/... downloaded from the game server (clientdata.js) wins over
@@ -38,6 +38,12 @@ export default function fetchJsonSync(path) {
         ? path + (path.indexOf('?') === -1 ? '?' : '&') + 'v=' + version
         : path;
     }
+    // shared/data|maps/... files: also their sha1 from this build's manifest, so a changed file gets a
+    // new URL -- otherwise the browser can keep serving an old copy under the same ?v= (e.g. an old
+    // map whose door leads somewhere else, which the game server then refuses).
+    const shared = /^(?:\.\/)?shared\/((?:data|maps)\/[^?#]+)/.exec(path);
+    const sha = shared ? builtinFileHash(shared[1]) : null;
+    if (sha) url += (url.indexOf('?') === -1 ? '?' : '&') + 'h=' + sha;
 
     $.ajax({
         url: url,

@@ -73,17 +73,27 @@ function isStartupFile(path) {
 // synchronously -- it's small); "" if it can't be read, which just means the game
 // server pushes its files.
 let builtin = null;
+// The built-in manifest's per-file sha1s: fetchJsonSync puts a file's sha1 on its URL, so a changed
+// file always has a new URL and the browser can't hand back a stale cached copy (the build
+// version on the URL only changes when someone bumps it, which a data change alone doesn't do).
+let builtinFiles = {};
+export function builtinFileHash(path) {
+    builtinHash();
+    return builtinFiles[path] || null;
+}
 function builtinHash() {
     if (builtin === null) {
         builtin = '';
         try {
             const version = config.build ? config.build.version : undefined;
             const xhr = new XMLHttpRequest();
-            xhr.open('GET', 'shared/manifest.json' + (version ? '?v=' + version : ''), false);
+            // never from the browser cache: it says which data this build has (and each file's sha1)
+            xhr.open('GET', 'shared/manifest.json?t=' + Date.now() + (version ? '&v=' + version : ''), false);
             xhr.send(null);
             if (xhr.status === 200) {
                 const m = JSON.parse(xhr.responseText);
                 if (m && typeof m.hash === 'string') builtin = m.hash;
+                if (m && m.files && typeof m.files === 'object') builtinFiles = m.files;
             }
         } catch (err) {
             console.warn('ClientData: could not read shared/manifest.json (' + err + ')');
