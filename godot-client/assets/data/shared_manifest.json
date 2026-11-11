@@ -1,5 +1,5 @@
 {
- "hash": "e41766de02c1b216bae13808f0d5dc0e84a58894",
+ "hash": "e8685c5b8c4cb99cdea2037305787a38ab07fd77",
  "files": {
   "data/appearance.json": "a9237ad1d4cbfa682cc74ba3da64149ed383bc46",
   "data/craft.json": "ec0566c1983ad8a993343ea0d51fb906a7b635e2",
@@ -17,7 +17,7 @@
   "data/skills2.json": "49e0fc9b7467327366248d3add17a31d38ac1741",
   "data/sprites.json": "9c6dca032fc3ab5854ecc1ea66262f9e5cb4292a",
   "data/staticsheet.json": "cf6287890318501a89ccb1c1f4adfb9933e87503",
-  "maps/map0/map0.json": "8ef98763c2f99cd5dba3b559a1e6563d6f694e9f",
+  "maps/map0/map0.json": "68add88200d5ea53547720beff1daffc2f2859c2",
   "maps/map1/map1_0_0.json": "067c8ecc1f81f9e6bff4e1018aa8a4242ac932ec",
   "maps/map1/map1_0_1.json": "b1de9878f2f39e3096f4f9b085d6a59809647710",
   "maps/map1/map1_1_0.json": "66bf588015e2ae764b527b0b33367ca052ff4412",
