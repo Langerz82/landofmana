@@ -175,6 +175,14 @@ class MapEntities {
         const entities = this.getSpatialEntities(arr);
 
         for (const entity of entities) {
+            // FIX: skip dead mobs and harvested nodes. A killed mob stays on the map (entities, spatial
+            // index) at its spawn point until it respawns (Mob.destroy() -> resetPosition() ->
+            // handleRespawn()), and nodes the same way (node.js). Players normally never see them again
+            // because knownIds already holds them, but a teleport resets knownIds -- so every dead mob in
+            // range was spawned to the arriving player: monsters that don't exist on the server, with no
+            // updates, until they respawn (Spawn, sent to neighbours) or the client culls them.
+            // Dead players are still sent (they are real, just dead).
+            if (entity && entity.isDead && !(entity instanceof Player)) continue;
             if (entity && !(entity === player) && self.isOffset(player, entity))
                 screens.push(entity.id);
         }
