@@ -403,11 +403,13 @@ module.exports = function processMap(json, jsontsx, options) {
                  // An ellipse drawn in Tiled (or an "elipse" property) becomes an elliptical
                  // area on the server, whose x/y are its centre (gameserver area/area.js).
                  var elipse = !!(areas[i].ellipse || prop.elipse);
+                 var lv = mobAreaLevels(prop, areas[i].name || ('mob area ' + i));
                  var area = {
                     id: i,
                     count: prop.count,
-                    minLevel: prop.minLevel,
-                    maxLevel: prop.maxLevel,
+                    // the area's levels, from its "level" property ("10" or "10-12"; mobAreaLevels)
+                    minLevel: lv.min,
+                    maxLevel: lv.max,
                     x: ~~(areas[i].x + (elipse ? areas[i].width / 2 : 0)),
                     y: ~~(areas[i].y + (elipse ? areas[i].height / 2 : 0)),
                     w: ~~(areas[i].width),
@@ -415,12 +417,18 @@ module.exports = function processMap(json, jsontsx, options) {
                     include: prop.include || '',
                     exclude: prop.exclude || '',
                     definite: prop.definite || '',
-                    level: prop.level || '',
-					weight: prop.weight || '',
+                    // levelWeight (how often each level of minLevel..maxLevel is picked) and kindWeight (how
+                    // often each include kind spawns, in include order) are only written when the mob area
+                    // sets them in Tiled: the game server gives every level and every include kind 1 by
+                    // default (gameserver area/mobarea.js).
                     // Multiplies the drop chances of every mob spawned in this
                     // area (gameserver: MobArea.bonusDrop -> Mob.setDrops).
                     bonusDrop: prop.bonusDrop || 1,
                  };
+                 if (prop.levelWeight !== undefined && String(prop.levelWeight).trim() !== '')
+                     area.levelWeight = String(prop.levelWeight).replace(/\s+/g, '');
+                 if (prop.kindWeight !== undefined && String(prop.kindWeight).trim() !== '')
+                     area.kindWeight = String(prop.kindWeight).replace(/\s+/g, '');
                  if (elipse) area.elipse = 1;
                  // Boss multiplier for every mob the area spawns (gameserver map.js initMobAreas).
                  if (prop.boss > 1) area.boss = prop.boss;
@@ -483,6 +491,24 @@ module.exports = function processMap(json, jsontsx, options) {
     }
 
     return map;
+};
+
+
+// A mob area's levels: its "level" property -- one level ("10") or a range ("10-12") -- or, on maps made before
+// that, its minLevel/maxLevel properties. With both, "level" wins (a warning if they disagree).
+var mobAreaLevels = function (prop, name) {
+    var old = { min: prop.minLevel, max: prop.maxLevel !== undefined ? prop.maxLevel : prop.minLevel };
+    if (prop.level === undefined || prop.level === null || String(prop.level).trim() === '') return old;
+    var m = /^\s*(\d+)\s*(?:-\s*(\d+)\s*)?$/.exec(String(prop.level));
+    if (!m) {
+        console.warn(name + ': level "' + prop.level + '" is not a level ("10") or a range ("10-12"); using minLevel/maxLevel.');
+        return old;
+    }
+    var lo = parseInt(m[1], 10), hi = m[2] !== undefined ? parseInt(m[2], 10) : lo;
+    if (hi < lo) { var t = lo; lo = hi; hi = t; }
+    if ((prop.minLevel !== undefined && prop.minLevel !== lo) || (prop.maxLevel !== undefined && prop.maxLevel !== hi))
+        console.warn(name + ': level "' + prop.level + '" and minLevel/maxLevel ' + prop.minLevel + '/' + prop.maxLevel + ' disagree; using level.');
+    return { min: lo, max: hi };
 };
 
 var getEntityType = function (type) {

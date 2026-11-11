@@ -12,9 +12,8 @@
    "include": "4,6,5",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 1
+   "bonusDrop": 1,
+   "levelWeight": "2,1"
   },
   {
    "id": 1,
@@ -28,9 +27,8 @@
    "include": "4,6,5",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 1
+   "bonusDrop": 1,
+   "levelWeight": "2,1"
   },
   {
    "id": 2,
@@ -44,9 +42,8 @@
    "include": "4,6,5",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 1
+   "bonusDrop": 1,
+   "levelWeight": "2,1"
   },
   {
    "id": 3,
@@ -60,9 +57,8 @@
    "include": "4,6,5",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 1
+   "bonusDrop": 1,
+   "levelWeight": "2,1"
   },
   {
    "id": 4,
@@ -76,9 +72,8 @@
    "include": "2",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 1
+   "bonusDrop": 1,
+   "levelWeight": "2,1"
   },
   {
    "id": 5,
@@ -92,9 +87,8 @@
    "include": "1,5",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 1
+   "bonusDrop": 1,
+   "levelWeight": "2,1"
   },
   {
    "id": 6,
@@ -108,9 +102,8 @@
    "include": "2",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 1
+   "bonusDrop": 1,
+   "levelWeight": "2,1"
   },
   {
    "id": 7,
@@ -124,9 +117,8 @@
    "include": "4,6,5",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 1
+   "bonusDrop": 1,
+   "levelWeight": "2,1"
   },
   {
    "id": 8,
@@ -140,9 +132,8 @@
    "include": "2",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 1
+   "bonusDrop": 1,
+   "levelWeight": "2,1"
   }
  ],
  "entityAreas": [

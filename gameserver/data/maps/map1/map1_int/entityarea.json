@@ -12,9 +12,8 @@
    "include": "3,8,7",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 1,
@@ -28,9 +27,8 @@
    "include": "3,8,7",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 2,
@@ -44,9 +42,8 @@
    "include": "3,8,7",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 3,
@@ -60,9 +57,8 @@
    "include": "3,8,7",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 4,
@@ -76,9 +72,8 @@
    "include": "3,8,7",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 5,
@@ -92,9 +87,8 @@
    "include": "3,8,7",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 6,
@@ -108,9 +102,8 @@
    "include": "3,8,7",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 7,
@@ -124,9 +117,8 @@
    "include": "3,8,7",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 8,
@@ -140,9 +132,8 @@
    "include": "3,8,7",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 9,
@@ -156,9 +147,8 @@
    "include": "3,8,7",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 10,
@@ -172,9 +162,8 @@
    "include": "3,8,7",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 11,
@@ -188,9 +177,8 @@
    "include": "3,8,7",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 12,
@@ -204,9 +192,8 @@
    "include": "3,8,7",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 13,
@@ -220,9 +207,8 @@
    "include": "3,8,7",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 14,
@@ -236,9 +222,8 @@
    "include": "3,8,7",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 15,
@@ -252,9 +237,8 @@
    "include": "3,8,7",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 16,
@@ -268,9 +252,8 @@
    "include": "3,8,7",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 17,
@@ -284,9 +267,8 @@
    "include": "3,8,7",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 18,
@@ -300,9 +282,8 @@
    "include": "3,8,7",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 19,
@@ -316,9 +297,8 @@
    "include": "3,8,7",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 20,
@@ -332,9 +312,8 @@
    "include": "3,8,7",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 21,
@@ -348,9 +327,8 @@
    "include": "3,8,7",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 22,
@@ -364,9 +342,8 @@
    "include": "3,8,7",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 23,
@@ -380,9 +357,8 @@
    "include": "3,8,7",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 24,
@@ -396,9 +372,8 @@
    "include": "3,8,7",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 25,
@@ -412,9 +387,8 @@
    "include": "3,8,7",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 26,
@@ -428,9 +402,8 @@
    "include": "3,8,7",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 27,
@@ -444,9 +417,8 @@
    "include": "3,8,7",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 28,
@@ -460,9 +432,8 @@
    "include": "3,8,7",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 29,
@@ -476,9 +447,8 @@
    "include": "3,8,7",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 30,
@@ -492,9 +462,8 @@
    "include": "3,8,7",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 31,
@@ -508,9 +477,8 @@
    "include": "3,8,7",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 32,
@@ -524,9 +492,8 @@
    "include": "3,8,7",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 33,
@@ -540,9 +507,8 @@
    "include": "3,8,7",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 34,
@@ -556,9 +522,8 @@
    "include": "3,8,7",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 35,
@@ -572,9 +537,8 @@
    "include": "3,8,7",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 36,
@@ -588,9 +552,8 @@
    "include": "3,8,7",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 37,
@@ -604,9 +567,8 @@
    "include": "3,8,7",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 38,
@@ -620,9 +582,8 @@
    "include": "3,8,7",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 39,
@@ -636,9 +597,8 @@
    "include": "3,8,7",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 40,
@@ -652,9 +612,8 @@
    "include": "3,8,7",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 41,
@@ -668,9 +627,8 @@
    "include": "3,8,7",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 42,
@@ -684,9 +642,8 @@
    "include": "3,8,7",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 43,
@@ -700,9 +657,8 @@
    "include": "3,8,7",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 44,
@@ -716,9 +672,8 @@
    "include": "3,8,7",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 45,
@@ -732,9 +687,8 @@
    "include": "3,8,7",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 46,
@@ -748,9 +702,8 @@
    "include": "3,8,7",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 47,
@@ -764,9 +717,8 @@
    "include": "3,8,7",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 48,
@@ -780,9 +732,8 @@
    "include": "3,8,7",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 49,
@@ -796,9 +747,8 @@
    "include": "3,8,7",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 50,
@@ -812,9 +762,8 @@
    "include": "3,8,7",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 51,
@@ -828,9 +777,8 @@
    "include": "9,12,11",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 52,
@@ -844,9 +792,8 @@
    "include": "9,12,11",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 53,
@@ -860,9 +807,8 @@
    "include": "9,12,11",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 54,
@@ -876,9 +822,8 @@
    "include": "9,12,11",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 55,
@@ -892,9 +837,8 @@
    "include": "9,12,11",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 56,
@@ -908,9 +852,8 @@
    "include": "9,12,11",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 57,
@@ -924,9 +867,8 @@
    "include": "9,12,11",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 58,
@@ -940,9 +882,8 @@
    "include": "9,12,11",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 59,
@@ -956,9 +897,8 @@
    "include": "9,12,11",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 60,
@@ -972,9 +912,8 @@
    "include": "9,12,11",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 61,
@@ -988,9 +927,8 @@
    "include": "9,12,11",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 62,
@@ -1004,9 +942,8 @@
    "include": "9,12,11",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 63,
@@ -1020,9 +957,8 @@
    "include": "9,12,11",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 64,
@@ -1036,9 +972,8 @@
    "include": "3,8,7",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 65,
@@ -1052,9 +987,8 @@
    "include": "3,8,7",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 66,
@@ -1068,9 +1002,8 @@
    "include": "3,8,7",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 67,
@@ -1084,9 +1017,8 @@
    "include": "3,8,7",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 68,
@@ -1100,9 +1032,8 @@
    "include": "3,8,7",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 69,
@@ -1116,9 +1047,8 @@
    "include": "3,8,7",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 70,
@@ -1132,9 +1062,8 @@
    "include": "4,6,5",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 71,
@@ -1148,9 +1077,8 @@
    "include": "4,6,5",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 72,
@@ -1164,9 +1092,8 @@
    "include": "4,6,5",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 73,
@@ -1180,9 +1107,8 @@
    "include": "4,6,5",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 74,
@@ -1196,9 +1122,8 @@
    "include": "4,6,5",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 75,
@@ -1212,9 +1137,8 @@
    "include": "4,6,5",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 76,
@@ -1228,9 +1152,8 @@
    "include": "4,6,5",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 77,
@@ -1244,9 +1167,8 @@
    "include": "4,6,5",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 78,
@@ -1260,9 +1182,8 @@
    "include": "4,6,5",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 79,
@@ -1276,9 +1197,8 @@
    "include": "4,6,5",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 80,
@@ -1292,9 +1212,8 @@
    "include": "4,6,5",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 81,
@@ -1308,9 +1227,8 @@
    "include": "4,6,5",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 82,
@@ -1324,9 +1242,8 @@
    "include": "4,6,5",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 83,
@@ -1340,9 +1257,8 @@
    "include": "4,6,5",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 84,
@@ -1356,9 +1272,8 @@
    "include": "4,6,5",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 85,
@@ -1372,9 +1287,8 @@
    "include": "4,6,5",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 86,
@@ -1388,9 +1302,8 @@
    "include": "4,6,5",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 87,
@@ -1404,9 +1317,8 @@
    "include": "4,6,5",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 88,
@@ -1420,9 +1332,8 @@
    "include": "4,6,5",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 89,
@@ -1436,9 +1347,8 @@
    "include": "4,6,5",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 90,
@@ -1452,9 +1362,8 @@
    "include": "4,6,5",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 91,
@@ -1468,9 +1377,8 @@
    "include": "4,6,5",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 92,
@@ -1484,9 +1392,8 @@
    "include": "4,6,5",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 93,
@@ -1500,9 +1407,8 @@
    "include": "4,6,5",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 94,
@@ -1516,9 +1422,8 @@
    "include": "4,6,5",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 95,
@@ -1532,9 +1437,8 @@
    "include": "4,6,5",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 96,
@@ -1548,9 +1452,8 @@
    "include": "4,6,5",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 97,
@@ -1564,9 +1467,8 @@
    "include": "4,6,5",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 98,
@@ -1580,9 +1482,8 @@
    "include": "4,6,5",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 99,
@@ -1596,9 +1497,8 @@
    "include": "4,6,5",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 100,
@@ -1612,9 +1512,8 @@
    "include": "4,6,5",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 101,
@@ -1628,9 +1527,8 @@
    "include": "4,6,5",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 102,
@@ -1644,9 +1542,8 @@
    "include": "4,6,5",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 103,
@@ -1660,9 +1557,8 @@
    "include": "4,6,5",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 104,
@@ -1676,9 +1572,8 @@
    "include": "2",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 105,
@@ -1692,9 +1587,8 @@
    "include": "2",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 106,
@@ -1708,9 +1602,8 @@
    "include": "2",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 107,
@@ -1724,9 +1617,8 @@
    "include": "2",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 108,
@@ -1740,9 +1632,8 @@
    "include": "2",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 109,
@@ -1756,9 +1647,8 @@
    "include": "2",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 110,
@@ -1772,9 +1662,8 @@
    "include": "2",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 111,
@@ -1788,9 +1677,8 @@
    "include": "2",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 112,
@@ -1804,9 +1692,8 @@
    "include": "2",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 113,
@@ -1820,9 +1707,8 @@
    "include": "2",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 114,
@@ -1836,9 +1722,8 @@
    "include": "2",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 115,
@@ -1852,9 +1737,8 @@
    "include": "2",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 116,
@@ -1868,9 +1752,8 @@
    "include": "2",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 117,
@@ -1884,9 +1767,8 @@
    "include": "2",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 118,
@@ -1900,9 +1782,8 @@
    "include": "2",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 119,
@@ -1916,9 +1797,8 @@
    "include": "2",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 120,
@@ -1932,9 +1812,8 @@
    "include": "2",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 121,
@@ -1948,9 +1827,8 @@
    "include": "4,6,5",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 122,
@@ -1964,9 +1842,8 @@
    "include": "4,6,5",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 123,
@@ -1980,9 +1857,8 @@
    "include": "4,6,5",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 124,
@@ -1996,9 +1872,8 @@
    "include": "4,6,5",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 125,
@@ -2012,9 +1887,8 @@
    "include": "4,6,5",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 126,
@@ -2028,9 +1902,8 @@
    "include": "4,6,5",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 127,
@@ -2044,9 +1917,8 @@
    "include": "4,6,5",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 128,
@@ -2060,9 +1932,8 @@
    "include": "3,8,7",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 129,
@@ -2076,9 +1947,8 @@
    "include": "3,8,7",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 130,
@@ -2092,9 +1962,8 @@
    "include": "3,8,7",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 131,
@@ -2108,9 +1977,8 @@
    "include": "3,8,7",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 132,
@@ -2124,9 +1992,8 @@
    "include": "3,8,7",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 133,
@@ -2140,9 +2007,8 @@
    "include": "3,8,7",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 134,
@@ -2156,9 +2022,8 @@
    "include": "3,8,7",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 135,
@@ -2172,9 +2037,8 @@
    "include": "3,8,7",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 136,
@@ -2188,9 +2052,8 @@
    "include": "3,8,7",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 137,
@@ -2204,9 +2067,8 @@
    "include": "3,8,7",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 138,
@@ -2220,9 +2082,8 @@
    "include": "3,8,7",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 139,
@@ -2236,9 +2097,8 @@
    "include": "9,12,11",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 140,
@@ -2252,9 +2112,8 @@
    "include": "9,12,11",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 141,
@@ -2268,9 +2127,8 @@
    "include": "9,12,11",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 142,
@@ -2284,9 +2142,8 @@
    "include": "9,12,11",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 143,
@@ -2300,9 +2157,8 @@
    "include": "9,12,11",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 144,
@@ -2316,9 +2172,8 @@
    "include": "2",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 145,
@@ -2332,9 +2187,8 @@
    "include": "2",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 146,
@@ -2348,9 +2202,8 @@
    "include": "2",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 147,
@@ -2364,9 +2217,8 @@
    "include": "2",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 148,
@@ -2380,9 +2232,8 @@
    "include": "2",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 149,
@@ -2396,9 +2247,8 @@
    "include": "2",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 150,
@@ -2412,9 +2262,8 @@
    "include": "2",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 151,
@@ -2428,9 +2277,8 @@
    "include": "2",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 152,
@@ -2444,9 +2292,8 @@
    "include": "2",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 153,
@@ -2460,9 +2307,8 @@
    "include": "2",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 154,
@@ -2476,9 +2322,8 @@
    "include": "2",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 155,
@@ -2492,9 +2337,8 @@
    "include": "2",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 156,
@@ -2508,9 +2352,8 @@
    "include": "2",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 157,
@@ -2524,9 +2367,8 @@
    "include": "2",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 158,
@@ -2540,9 +2382,8 @@
    "include": "2",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 159,
@@ -2556,9 +2397,8 @@
    "include": "2",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 160,
@@ -2572,9 +2412,8 @@
    "include": "2",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 161,
@@ -2588,9 +2427,8 @@
    "include": "2",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 162,
@@ -2604,9 +2442,8 @@
    "include": "2",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 163,
@@ -2620,9 +2457,8 @@
    "include": "2",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 164,
@@ -2636,9 +2472,8 @@
    "include": "2",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 165,
@@ -2652,9 +2487,8 @@
    "include": "2",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 166,
@@ -2668,9 +2502,8 @@
    "include": "2",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 167,
@@ -2684,9 +2517,8 @@
    "include": "2",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   },
   {
    "id": 168,
@@ -2700,9 +2532,8 @@
    "include": "2",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "2,1"
   }
  ],
  "entityAreas": []

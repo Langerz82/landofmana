@@ -22,6 +22,24 @@ from octo import tile as otile, clean, octshape, FAM, block, rectify, shore, mat
 from PIL import Image
 from noise import fbm
 from paths import data, cache
+
+
+def level_prop(lo, hi):
+    """A mob area's "level" property: one level ("10") or a range ("10-12") (tools/maps/converter)."""
+    return str(lo) if hi == lo else f'{lo}-{hi}'
+
+
+def parse_level(v):
+    """A "level" property back to (minLevel, maxLevel): "10" -> (10, 10), "10-12" -> (10, 12)."""
+    a, _, b = str(v).partition('-')
+    return int(a), int(b or a)
+
+
+def level_weights(lo, hi):
+    """A mob area's levelWeight: each level twice as common as the next one up, minLevel first -- 10-12 -> "4,2,1",
+    a single level -> "1" (gameserver area/mobarea.js)."""
+    n = hi - lo + 1
+    return ','.join(str(2 ** (n - 1 - i)) for i in range(n))
 import density2 as DEN
 
 ap = argparse.ArgumentParser(description='Generate map2: a huge map in the style of old_map2')
@@ -1296,9 +1314,8 @@ for y0 in range(0, yC - 8, CELL):
         n_ = MOB_COUNT
         props = [{'name': 'count', 'type': 'int', 'value': n_},
                  {'name': 'include', 'type': 'string', 'value': inc},
-                 {'name': 'maxLevel', 'type': 'int', 'value': hi},
-                 {'name': 'minLevel', 'type': 'int', 'value': lo}]
-        if wt: props.append({'name': 'weight', 'type': 'string', 'value': wt})
+                 {'name': 'level', 'type': 'string', 'value': level_prop(lo, hi)}]
+        if hi > lo: props.append({'name': 'levelWeight', 'type': 'string', 'value': level_weights(lo, hi)})   # a single level: the default (1), not written
         mobareas.append(obj(x=(x0 + 4) * 16, y=(y0 + 4) * 16, width=(x1 - x0 - 8) * 16, height=(y1 - y0 - 8) * 16,
                             name=['volcano', 'desert', 'swamp', 'forest', 'town', 'beach'][k], properties=props))
 

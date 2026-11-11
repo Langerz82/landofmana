@@ -39,9 +39,9 @@ class MobArea extends EntityArea {
         definite,
         elipse,
         excludeId,
-        level,
-        weight,
-        bonusDrop
+        bonusDrop,
+        kindWeight,
+        levelWeight
     ) {
         super(map, id, x, y, width, height, elipse, excludeId);
         this.nb = nb;
@@ -50,19 +50,7 @@ class MobArea extends EntityArea {
         this.bonusDrop = Number(bonusDrop) > 0 ? Number(bonusDrop) : 1;
         this.minLevel = minLevel;
         this.maxLevel = maxLevel;
-        // FIX: addMobs(level) below used to do `this.minLevel = level +
-        // this.minLevel` in place -- fine for the current codebase (every
-        // call site invokes addMobs() with no arguments, exactly once per
-        // instance), but if addMobs(level) is ever re-invoked on the same
-        // MobArea, the offset would compound on top of the
-        // already-adjusted value each time instead of being computed from a
-        // stable base. Keeping the original, never-mutated values around
-        // lets addMobs() compute from a fixed base regardless of how many
-        // times it's called.
-        this.baseMinLevel = minLevel;
-        this.baseMaxLevel = maxLevel;
         this.respawns = [];
-        this.level = level;
 
         this.include = [];
         if (include) {
@@ -82,35 +70,27 @@ class MobArea extends EntityArea {
             }
         }
 
-        // `weight` is a fixed-size array of relative spawn chances, one
-        // entry per level from minLevel to maxLevel (index 0 = minLevel,
-        // last index = maxLevel). e.g. minLevel=1, maxLevel=3,
-        // weight=[4,2,1] -> level 1 is 4-in-7, level 2 is 2-in-7, level 3
-        // is 1-in-7. May arrive as a real array or as a CSV string (map
-        // JSON stores it the same way as `include`/`exclude`).
-        // NOTE: this used to read from `include` instead of the `weight`
-        // param -- a copy/paste bug that meant this.weight never reflected
-        // the actual weight data, and level selection (see mob.js) fell
-        // back to a uniform random pick within range regardless of any
-        // weight configured on the area.
-        this.weight = [];
-        if (weight) {
-            if (Array.isArray(weight)) {
-                this.weight = weight.map(Number);
-            } else if (typeof weight === 'string' && weight.indexOf(',') >= 0) {
-                this.weight = weight.split(',').map(Number);
-            } else {
-                const w = Number(weight);
-                if (!Number.isNaN(w)) this.weight = [w];
-            }
-        }
-        if (
-            this.weight.length > 0 &&
-            this.weight.length !== this.maxLevel - this.minLevel + 1
-        ) {
-            console.warn(
-                `mobarea ${id}: weight array length (${this.weight.length}) does not match level range ${this.minLevel}-${this.maxLevel} (expected ${this.maxLevel - this.minLevel + 1}); mismatched levels will fall back to uniform selection.`
-            );
+        // kindWeight: how often each include kind spawns, in include order ("4,2,1" with include
+        // "9,12,11": kind 9 four times and kind 12 twice as often as kind 11). levelWeight: how often each
+        // level of minLevel..maxLevel is picked. Without kindWeight (or with the wrong number of values)
+        // every include kind gets 1 -- include "1,2" -> kindWeight "1,1", an equal chance each; areas without
+        // an include (kinds picked by level) use the kinds' own spawnChance (shared/data/mobs.json).
+        // Without levelWeight (or with the wrong number of values) every level of the range gets 1 --
+        // minLevel 10, maxLevel 12 -> levelWeight "1,1,1", each level equally often.
+        const numbers = (v) => {
+            if (v === undefined || v === null || v === '') return [];
+            if (Array.isArray(v)) return v.map(Number);
+            return String(v).split(',').map(Number).filter((n) => !Number.isNaN(n));
+        };
+        this.kindWeight = numbers(kindWeight);
+        this.levelWeight = numbers(levelWeight);
+        const levels = Math.max(1, this.maxLevel - this.minLevel + 1);
+        if (this.levelWeight.length !== levels) {
+            if (this.levelWeight.length > 0)
+                console.warn(
+                    `mobarea ${id}: levelWeight has ${this.levelWeight.length} values for levels ${this.minLevel}-${this.maxLevel} (expected ${levels}); using 1 for each.`
+                );
+            this.levelWeight = new Array(levels).fill(1);
         }
 
         this.setNumberOfEntities(this.nb);
@@ -136,22 +116,13 @@ class MobArea extends EntityArea {
         }
     }
 
-    addMobs(level) {
+    addMobs() {
         this.mobs = [];
         if (Array.isArray(this.definite)) {
             for (const i of this.definite) {
                 this.mobs.push(MobData.Kinds[i]);
             }
             return;
-        }
-
-        // FIX: computed from baseMinLevel/baseMaxLevel (fixed at
-        // construction) instead of mutating this.minLevel/this.maxLevel in
-        // place -- see the constructor comment. Idempotent no matter how
-        // many times addMobs(level) is called.
-        if (level && this.level) {
-            this.minLevel = level + this.baseMinLevel;
-            this.maxLevel = level + this.baseMaxLevel;
         }
 
         // NOTE: `levelMobs` was a bare (undeclared) assignment in the original
@@ -165,6 +136,23 @@ class MobArea extends EntityArea {
         // the area's", which stopped meaning anything once every mob in
         // shared/data/mobs.json covered levels 1-99. An empty include keeps
         // the level-range lookup. `exclude` below still applies either way.
+        // the kindWeight of each include kind (kind -> weight), in include order; 1 each by default
+        this.kindWeights = new Map();
+        if (Array.isArray(this.include) && this.include.length > 0) {
+            let w = this.kindWeight;
+            if (w.length !== this.include.length) {
+                if (w.length > 0)
+                    console.warn(
+                        `mobarea ${this.id}: kindWeight has ${w.length} values for ${this.include.length} include kinds (${this.include.join(',')}); using 1 for each.`
+                    );
+                w = this.include.map(() => 1);
+            }
+            this.include.forEach((k, i) => {
+                const m = MobData.Kinds[String(k).trim()];
+                if (m) this.kindWeights.set(m.kind, w[i]);
+            });
+        }
+
         const included = Array.isArray(this.include)
             ? this.include
                   .map((i) => MobData.Kinds[String(i).trim()])
@@ -188,9 +176,7 @@ class MobArea extends EntityArea {
                     // Kinds table -- `kind: value.kind`), but `this.exclude`
                     // entries are always strings whenever `exclude` arrives
                     // as the documented CSV format (the constructor above
-                    // does `exclude.split(',')`, same as `include`/`weight`
-                    // -- see the comment on `weight`'s constructor handling
-                    // for "map JSON stores it the same way"). The `===`
+                    // does `exclude.split(',')`, same as `include`). The `===`
                     // comparison here never coerces, so a configured exclude
                     // list (single value or CSV) silently never removed
                     // anything -- excluded mob kinds stayed eligible to
@@ -272,9 +258,13 @@ class MobArea extends EntityArea {
             return null;
         }
 
+        // an include kind's kindWeight (1 each by default); kinds picked by level: their own spawnChance (mobs.json)
+        const chance = (m) =>
+            this.kindWeights && this.kindWeights.has(m.kind) ? this.kindWeights.get(m.kind) : m.spawnChance;
         for (let i = 0; i < l; ++i) {
-            mobRatioTotal += this.mobs[i].spawnChance;
+            mobRatioTotal += chance(this.mobs[i]);
         }
+        if (!(mobRatioTotal > 0)) return null;     // every kind weighted 0
 
         // NOTE: this used to be a second `var kind = 0;` -- harmless under
         // `var` (function-scoped, redeclaration is a no-op) but a
@@ -296,7 +286,7 @@ class MobArea extends EntityArea {
         // matched both r=0 and r=1, mob1 only matched r=2, mob2 never
         // matched anything).
         for (let i = 0; i < this.mobs.length; ++i) {
-            sc = this.mobs[i].spawnChance;
+            sc = chance(this.mobs[i]);
             if (r < sc) {
                 kind = this.mobs[i].kind;
                 break;
@@ -313,17 +303,19 @@ class MobArea extends EntityArea {
 
     // Picks a level in [min, max] (the intersection of a mob kind's own
     // level range and this area's level range -- see mob.js). If this area
-    // has a valid `weight` array, the pick is weighted per-level using it
-    // (this.weight[level - this.minLevel]); levels outside the array's
+    // has a valid `levelWeight` array, the pick is weighted per-level using it
+    // (this.levelWeight[level - this.minLevel]); levels outside the array's
     // range, or with a non-positive weight, are excluded. Falls back to a
     // uniform pick across [min, max] when there's no usable weight data.
     getRandomLevel(min, max) {
-        if (Array.isArray(this.weight) && this.weight.length > 0) {
+        // levelWeight: 1 per level unless the area sets it (see the constructor)
+        const lw = this.levelWeight;
+        if (Array.isArray(lw) && lw.length > 0) {
             let total = 0;
             const levels = [];
             const weights = [];
             for (let lvl = min; lvl <= max; ++lvl) {
-                const w = Number(this.weight[lvl - this.minLevel]);
+                const w = Number(lw[lvl - this.minLevel]);
                 if (!(w > 0)) continue;
                 levels.push(lvl);
                 weights.push(w);

@@ -12,9 +12,8 @@
    "include": "1",
    "exclude": "",
    "definite": "1",
-   "level": "",
-   "weight": "",
-   "bonusDrop": 1
+   "bonusDrop": 1,
+   "levelWeight": "2,1"
   },
   {
    "id": 1,
@@ -28,8 +27,6 @@
    "include": "1",
    "exclude": "",
    "definite": "1",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1
   },
@@ -45,8 +42,6 @@
    "include": "",
    "exclude": "",
    "definite": "1",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1
   },
@@ -62,8 +57,6 @@
    "include": "",
    "exclude": "",
    "definite": "1",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1
   },
@@ -79,8 +72,6 @@
    "include": "",
    "exclude": "",
    "definite": "2",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1,
    "boss": 5
@@ -97,8 +88,6 @@
    "include": "",
    "exclude": "",
    "definite": "1",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1
   },
@@ -114,8 +103,6 @@
    "include": "",
    "exclude": "",
    "definite": "2",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1
   },
@@ -131,8 +118,6 @@
    "include": "",
    "exclude": "",
    "definite": "2",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1,
    "boss": 5
@@ -149,8 +134,6 @@
    "include": "",
    "exclude": "",
    "definite": "2",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1
   },
@@ -166,8 +149,6 @@
    "include": "",
    "exclude": "",
    "definite": "2",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1
   },
@@ -183,8 +164,6 @@
    "include": "",
    "exclude": "",
    "definite": "2",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1,
    "boss": 5
@@ -201,8 +180,6 @@
    "include": "",
    "exclude": "",
    "definite": "2",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1
   },
@@ -218,8 +195,6 @@
    "include": "",
    "exclude": "",
    "definite": "2",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1
   },
@@ -235,8 +210,6 @@
    "include": "",
    "exclude": "",
    "definite": "3",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1,
    "boss": 5
@@ -253,8 +226,6 @@
    "include": "",
    "exclude": "",
    "definite": "2",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1
   },
@@ -270,8 +241,6 @@
    "include": "",
    "exclude": "",
    "definite": "3",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1
   },
@@ -287,8 +256,6 @@
    "include": "",
    "exclude": "",
    "definite": "3",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1,
    "boss": 5
@@ -305,8 +272,6 @@
    "include": "",
    "exclude": "",
    "definite": "3",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1
   },
@@ -322,8 +287,6 @@
    "include": "",
    "exclude": "",
    "definite": "3",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1
   },
@@ -339,8 +302,6 @@
    "include": "",
    "exclude": "",
    "definite": "3",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1,
    "boss": 5
@@ -357,8 +318,6 @@
    "include": "",
    "exclude": "",
    "definite": "3",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1
   },
@@ -374,8 +333,6 @@
    "include": "",
    "exclude": "",
    "definite": "3",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1
   },
@@ -391,8 +348,6 @@
    "include": "",
    "exclude": "",
    "definite": "4",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1,
    "boss": 5
@@ -409,8 +364,6 @@
    "include": "",
    "exclude": "",
    "definite": "3",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1
   },
@@ -426,8 +379,6 @@
    "include": "",
    "exclude": "",
    "definite": "4",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1
   },
@@ -443,8 +394,6 @@
    "include": "",
    "exclude": "",
    "definite": "4",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1,
    "boss": 5
@@ -461,8 +410,6 @@
    "include": "",
    "exclude": "",
    "definite": "4",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1
   },
@@ -478,8 +425,6 @@
    "include": "",
    "exclude": "",
    "definite": "4",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1
   },
@@ -495,8 +440,6 @@
    "include": "",
    "exclude": "",
    "definite": "4",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1,
    "boss": 5
@@ -513,8 +456,6 @@
    "include": "",
    "exclude": "",
    "definite": "4",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1
   },
@@ -530,8 +471,6 @@
    "include": "",
    "exclude": "",
    "definite": "4",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1
   },
@@ -547,8 +486,6 @@
    "include": "",
    "exclude": "",
    "definite": "5",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1,
    "boss": 5
@@ -565,8 +502,6 @@
    "include": "",
    "exclude": "",
    "definite": "4",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1
   },
@@ -582,8 +517,6 @@
    "include": "",
    "exclude": "",
    "definite": "5",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1
   },
@@ -599,8 +532,6 @@
    "include": "",
    "exclude": "",
    "definite": "5",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1,
    "boss": 5
@@ -617,8 +548,6 @@
    "include": "",
    "exclude": "",
    "definite": "5",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1
   },
@@ -634,8 +563,6 @@
    "include": "",
    "exclude": "",
    "definite": "5",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1
   },
@@ -651,8 +578,6 @@
    "include": "",
    "exclude": "",
    "definite": "5",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1,
    "boss": 5
@@ -669,8 +594,6 @@
    "include": "",
    "exclude": "",
    "definite": "5",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1
   },
@@ -686,8 +609,6 @@
    "include": "",
    "exclude": "",
    "definite": "5",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1
   },
@@ -703,8 +624,6 @@
    "include": "",
    "exclude": "",
    "definite": "6",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1,
    "boss": 5
@@ -721,8 +640,6 @@
    "include": "",
    "exclude": "",
    "definite": "5",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1
   },
@@ -738,8 +655,6 @@
    "include": "",
    "exclude": "",
    "definite": "6",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1
   },
@@ -755,8 +670,6 @@
    "include": "",
    "exclude": "",
    "definite": "6",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1,
    "boss": 5
@@ -773,8 +686,6 @@
    "include": "",
    "exclude": "",
    "definite": "6",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1
   },
@@ -790,8 +701,6 @@
    "include": "",
    "exclude": "",
    "definite": "6",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1
   },
@@ -807,8 +716,6 @@
    "include": "",
    "exclude": "",
    "definite": "6",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1,
    "boss": 5
@@ -825,8 +732,6 @@
    "include": "",
    "exclude": "",
    "definite": "6",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1
   },
@@ -842,8 +747,6 @@
    "include": "",
    "exclude": "",
    "definite": "6",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1
   },
@@ -859,8 +762,6 @@
    "include": "",
    "exclude": "",
    "definite": "7",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1,
    "boss": 5
@@ -877,8 +778,6 @@
    "include": "",
    "exclude": "",
    "definite": "6",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1
   },
@@ -894,8 +793,6 @@
    "include": "",
    "exclude": "",
    "definite": "7",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1
   },
@@ -911,8 +808,6 @@
    "include": "",
    "exclude": "",
    "definite": "7",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1,
    "boss": 5
@@ -929,8 +824,6 @@
    "include": "",
    "exclude": "",
    "definite": "7",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1
   },
@@ -946,8 +839,6 @@
    "include": "",
    "exclude": "",
    "definite": "7",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1
   },
@@ -963,8 +854,6 @@
    "include": "",
    "exclude": "",
    "definite": "7",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1,
    "boss": 5
@@ -981,8 +870,6 @@
    "include": "",
    "exclude": "",
    "definite": "7",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1
   },
@@ -998,8 +885,6 @@
    "include": "",
    "exclude": "",
    "definite": "7",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1
   },
@@ -1015,8 +900,6 @@
    "include": "",
    "exclude": "",
    "definite": "8",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1,
    "boss": 5
@@ -1033,8 +916,6 @@
    "include": "",
    "exclude": "",
    "definite": "7",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1
   },
@@ -1050,8 +931,6 @@
    "include": "",
    "exclude": "",
    "definite": "8",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1
   },
@@ -1067,8 +946,6 @@
    "include": "",
    "exclude": "",
    "definite": "8",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1,
    "boss": 5
@@ -1085,8 +962,6 @@
    "include": "",
    "exclude": "",
    "definite": "8",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1
   },
@@ -1102,8 +977,6 @@
    "include": "",
    "exclude": "",
    "definite": "8",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1
   },
@@ -1119,8 +992,6 @@
    "include": "",
    "exclude": "",
    "definite": "8",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1,
    "boss": 5
@@ -1137,8 +1008,6 @@
    "include": "",
    "exclude": "",
    "definite": "8",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1
   },
@@ -1154,8 +1023,6 @@
    "include": "",
    "exclude": "",
    "definite": "8",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1
   },
@@ -1171,8 +1038,6 @@
    "include": "",
    "exclude": "",
    "definite": "9",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1,
    "boss": 5
@@ -1189,8 +1054,6 @@
    "include": "",
    "exclude": "",
    "definite": "8",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1
   },
@@ -1206,8 +1069,6 @@
    "include": "",
    "exclude": "",
    "definite": "9",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1
   },
@@ -1223,8 +1084,6 @@
    "include": "",
    "exclude": "",
    "definite": "9",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1,
    "boss": 5
@@ -1241,8 +1100,6 @@
    "include": "",
    "exclude": "",
    "definite": "9",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1
   },
@@ -1258,8 +1115,6 @@
    "include": "",
    "exclude": "",
    "definite": "9",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1
   },
@@ -1275,8 +1130,6 @@
    "include": "",
    "exclude": "",
    "definite": "9",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1,
    "boss": 5
@@ -1293,8 +1146,6 @@
    "include": "",
    "exclude": "",
    "definite": "9",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1
   },
@@ -1310,8 +1161,6 @@
    "include": "",
    "exclude": "",
    "definite": "9",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1
   },
@@ -1327,8 +1176,6 @@
    "include": "",
    "exclude": "",
    "definite": "10",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1,
    "boss": 5
@@ -1345,8 +1192,6 @@
    "include": "",
    "exclude": "",
    "definite": "9",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1
   },
@@ -1362,8 +1207,6 @@
    "include": "",
    "exclude": "",
    "definite": "10",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1
   },
@@ -1379,8 +1222,6 @@
    "include": "",
    "exclude": "",
    "definite": "10",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1,
    "boss": 5
@@ -1397,8 +1238,6 @@
    "include": "",
    "exclude": "",
    "definite": "10",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1
   },
@@ -1414,8 +1253,6 @@
    "include": "",
    "exclude": "",
    "definite": "10",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1
   },
@@ -1431,8 +1268,6 @@
    "include": "",
    "exclude": "",
    "definite": "10",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1,
    "boss": 5
@@ -1449,8 +1284,6 @@
    "include": "",
    "exclude": "",
    "definite": "10",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1
   },
@@ -1466,8 +1299,6 @@
    "include": "",
    "exclude": "",
    "definite": "10",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1
   },
@@ -1483,8 +1314,6 @@
    "include": "",
    "exclude": "",
    "definite": "11",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1,
    "boss": 5
@@ -1501,8 +1330,6 @@
    "include": "",
    "exclude": "",
    "definite": "10",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1
   },
@@ -1518,8 +1345,6 @@
    "include": "",
    "exclude": "",
    "definite": "11",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1
   },
@@ -1535,8 +1360,6 @@
    "include": "",
    "exclude": "",
    "definite": "11",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1,
    "boss": 5
@@ -1553,8 +1376,6 @@
    "include": "",
    "exclude": "",
    "definite": "11",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1
   },
@@ -1570,8 +1391,6 @@
    "include": "",
    "exclude": "",
    "definite": "11",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1
   },
@@ -1587,8 +1406,6 @@
    "include": "",
    "exclude": "",
    "definite": "11",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1,
    "boss": 5
@@ -1605,8 +1422,6 @@
    "include": "",
    "exclude": "",
    "definite": "11",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1
   },
@@ -1622,8 +1437,6 @@
    "include": "",
    "exclude": "",
    "definite": "11",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1
   },
@@ -1639,8 +1452,6 @@
    "include": "",
    "exclude": "",
    "definite": "12",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1,
    "boss": 5
@@ -1657,8 +1468,6 @@
    "include": "",
    "exclude": "",
    "definite": "11",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1
   },
@@ -1674,8 +1483,6 @@
    "include": "",
    "exclude": "",
    "definite": "12",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1
   },
@@ -1691,8 +1498,6 @@
    "include": "",
    "exclude": "",
    "definite": "12",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1,
    "boss": 5
@@ -1709,8 +1514,6 @@
    "include": "",
    "exclude": "",
    "definite": "1",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1
   },
@@ -1726,8 +1529,6 @@
    "include": "",
    "exclude": "",
    "definite": "1",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1
   },
@@ -1743,8 +1544,6 @@
    "include": "",
    "exclude": "",
    "definite": "1",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1,
    "boss": 5
@@ -1761,8 +1560,6 @@
    "include": "",
    "exclude": "",
    "definite": "1",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1
   },
@@ -1778,8 +1575,6 @@
    "include": "",
    "exclude": "",
    "definite": "1",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1
   },
@@ -1795,8 +1590,6 @@
    "include": "",
    "exclude": "",
    "definite": "2",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1,
    "boss": 5
@@ -1813,8 +1606,6 @@
    "include": "",
    "exclude": "",
    "definite": "1",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1
   },
@@ -1830,8 +1621,6 @@
    "include": "",
    "exclude": "",
    "definite": "2",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1
   },
@@ -1847,8 +1636,6 @@
    "include": "",
    "exclude": "",
    "definite": "2",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1,
    "boss": 5
@@ -1865,8 +1652,6 @@
    "include": "",
    "exclude": "",
    "definite": "2",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1
   },
@@ -1882,8 +1667,6 @@
    "include": "",
    "exclude": "",
    "definite": "2",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1
   },
@@ -1899,8 +1682,6 @@
    "include": "",
    "exclude": "",
    "definite": "2",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1,
    "boss": 5
@@ -1917,8 +1698,6 @@
    "include": "",
    "exclude": "",
    "definite": "2",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1
   },
@@ -1934,8 +1713,6 @@
    "include": "",
    "exclude": "",
    "definite": "2",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1
   },
@@ -1951,8 +1728,6 @@
    "include": "",
    "exclude": "",
    "definite": "3",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1,
    "boss": 5
@@ -1969,8 +1744,6 @@
    "include": "",
    "exclude": "",
    "definite": "2",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1
   },
@@ -1986,8 +1759,6 @@
    "include": "",
    "exclude": "",
    "definite": "3",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1
   },
@@ -2003,8 +1774,6 @@
    "include": "",
    "exclude": "",
    "definite": "3",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1,
    "boss": 5
@@ -2021,8 +1790,6 @@
    "include": "",
    "exclude": "",
    "definite": "3",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1
   },
@@ -2038,8 +1805,6 @@
    "include": "",
    "exclude": "",
    "definite": "3",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1
   },
@@ -2055,8 +1820,6 @@
    "include": "",
    "exclude": "",
    "definite": "3",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1,
    "boss": 5
@@ -2073,8 +1836,6 @@
    "include": "",
    "exclude": "",
    "definite": "3",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1
   },
@@ -2090,8 +1851,6 @@
    "include": "",
    "exclude": "",
    "definite": "3",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1
   },
@@ -2107,8 +1866,6 @@
    "include": "",
    "exclude": "",
    "definite": "4",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1,
    "boss": 5
@@ -2125,8 +1882,6 @@
    "include": "",
    "exclude": "",
    "definite": "3",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1
   },
@@ -2142,8 +1897,6 @@
    "include": "",
    "exclude": "",
    "definite": "4",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1
   },
@@ -2159,8 +1912,6 @@
    "include": "",
    "exclude": "",
    "definite": "4",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1,
    "boss": 5
@@ -2177,8 +1928,6 @@
    "include": "",
    "exclude": "",
    "definite": "4",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1
   },
@@ -2194,8 +1943,6 @@
    "include": "",
    "exclude": "",
    "definite": "4",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1
   },
@@ -2211,8 +1958,6 @@
    "include": "",
    "exclude": "",
    "definite": "4",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1,
    "boss": 5
@@ -2229,8 +1974,6 @@
    "include": "",
    "exclude": "",
    "definite": "4",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1
   },
@@ -2246,8 +1989,6 @@
    "include": "",
    "exclude": "",
    "definite": "4",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1
   },
@@ -2263,8 +2004,6 @@
    "include": "",
    "exclude": "",
    "definite": "5",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1,
    "boss": 5
@@ -2281,8 +2020,6 @@
    "include": "",
    "exclude": "",
    "definite": "4",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1
   },
@@ -2298,8 +2035,6 @@
    "include": "",
    "exclude": "",
    "definite": "5",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1
   },
@@ -2315,8 +2050,6 @@
    "include": "",
    "exclude": "",
    "definite": "5",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1,
    "boss": 5
@@ -2333,8 +2066,6 @@
    "include": "",
    "exclude": "",
    "definite": "5",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1
   },
@@ -2350,8 +2081,6 @@
    "include": "",
    "exclude": "",
    "definite": "5",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1
   },
@@ -2367,8 +2096,6 @@
    "include": "",
    "exclude": "",
    "definite": "5",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1,
    "boss": 5
@@ -2385,8 +2112,6 @@
    "include": "",
    "exclude": "",
    "definite": "5",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1
   },
@@ -2402,8 +2127,6 @@
    "include": "",
    "exclude": "",
    "definite": "5",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1
   },
@@ -2419,8 +2142,6 @@
    "include": "",
    "exclude": "",
    "definite": "6",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1,
    "boss": 5
@@ -2437,8 +2158,6 @@
    "include": "",
    "exclude": "",
    "definite": "5",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1
   },
@@ -2454,8 +2173,6 @@
    "include": "",
    "exclude": "",
    "definite": "6",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1
   },
@@ -2471,8 +2188,6 @@
    "include": "",
    "exclude": "",
    "definite": "6",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1,
    "boss": 5
@@ -2489,8 +2204,6 @@
    "include": "",
    "exclude": "",
    "definite": "6",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1
   },
@@ -2506,8 +2219,6 @@
    "include": "",
    "exclude": "",
    "definite": "6",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1
   },
@@ -2523,8 +2234,6 @@
    "include": "",
    "exclude": "",
    "definite": "6",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1,
    "boss": 5
@@ -2541,8 +2250,6 @@
    "include": "",
    "exclude": "",
    "definite": "6",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1
   },
@@ -2558,8 +2265,6 @@
    "include": "",
    "exclude": "",
    "definite": "6",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1
   },
@@ -2575,8 +2280,6 @@
    "include": "",
    "exclude": "",
    "definite": "7",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1,
    "boss": 5
@@ -2593,8 +2296,6 @@
    "include": "",
    "exclude": "",
    "definite": "6",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1
   },
@@ -2610,8 +2311,6 @@
    "include": "",
    "exclude": "",
    "definite": "7",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1
   },
@@ -2627,8 +2326,6 @@
    "include": "",
    "exclude": "",
    "definite": "7",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1,
    "boss": 5
@@ -2645,8 +2342,6 @@
    "include": "",
    "exclude": "",
    "definite": "7",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1
   },
@@ -2662,8 +2357,6 @@
    "include": "",
    "exclude": "",
    "definite": "7",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1
   },
@@ -2679,8 +2372,6 @@
    "include": "",
    "exclude": "",
    "definite": "7",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1,
    "boss": 5
@@ -2697,8 +2388,6 @@
    "include": "",
    "exclude": "",
    "definite": "7",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1
   },
@@ -2714,8 +2403,6 @@
    "include": "",
    "exclude": "",
    "definite": "7",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1
   },
@@ -2731,8 +2418,6 @@
    "include": "",
    "exclude": "",
    "definite": "8",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1,
    "boss": 5
@@ -2749,8 +2434,6 @@
    "include": "",
    "exclude": "",
    "definite": "7",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1
   },
@@ -2766,8 +2449,6 @@
    "include": "",
    "exclude": "",
    "definite": "8",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1
   },
@@ -2783,8 +2464,6 @@
    "include": "",
    "exclude": "",
    "definite": "8",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1,
    "boss": 5
@@ -2801,8 +2480,6 @@
    "include": "",
    "exclude": "",
    "definite": "8",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1
   },
@@ -2818,8 +2495,6 @@
    "include": "",
    "exclude": "",
    "definite": "8",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1
   },
@@ -2835,8 +2510,6 @@
    "include": "",
    "exclude": "",
    "definite": "8",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1,
    "boss": 5
@@ -2853,8 +2526,6 @@
    "include": "",
    "exclude": "",
    "definite": "8",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1
   },
@@ -2870,8 +2541,6 @@
    "include": "",
    "exclude": "",
    "definite": "8",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1
   },
@@ -2887,8 +2556,6 @@
    "include": "",
    "exclude": "",
    "definite": "9",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1,
    "boss": 5
@@ -2905,8 +2572,6 @@
    "include": "",
    "exclude": "",
    "definite": "8",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1
   },
@@ -2922,8 +2587,6 @@
    "include": "",
    "exclude": "",
    "definite": "9",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1
   },
@@ -2939,8 +2602,6 @@
    "include": "",
    "exclude": "",
    "definite": "9",
-   "level": "",
-   "weight": "",
    "bonusDrop": 1,
    "elipse": 1,
    "boss": 5

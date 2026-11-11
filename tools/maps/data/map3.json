@@ -15670,14 +15670,14 @@
                          "value":"1"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":36
+                         "name":"level",
+                         "type":"string",
+                         "value":"35-36"
                         }, 
                         {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":35
+                         "name":"levelWeight",
+                         "type":"string",
+                         "value":"2,1"
                         }],
                  "rotation":0,
                  "type":"",
@@ -15708,14 +15708,9 @@
                          "value":"1"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":35
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":35
+                         "name":"level",
+                         "type":"string",
+                         "value":"35"
                         }],
                  "rotation":0,
                  "type":"",
@@ -15741,14 +15736,9 @@
                          "value":"1"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":36
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":36
+                         "name":"level",
+                         "type":"string",
+                         "value":"36"
                         }],
                  "rotation":0,
                  "type":"",
@@ -15774,14 +15764,9 @@
                          "value":"1"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":36
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":36
+                         "name":"level",
+                         "type":"string",
+                         "value":"36"
                         }],
                  "rotation":0,
                  "type":"",
@@ -15812,14 +15797,9 @@
                          "value":"2"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":37
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":37
+                         "name":"level",
+                         "type":"string",
+                         "value":"37"
                         }],
                  "rotation":0,
                  "type":"",
@@ -15845,14 +15825,9 @@
                          "value":"1"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":36
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":36
+                         "name":"level",
+                         "type":"string",
+                         "value":"36"
                         }],
                  "rotation":0,
                  "type":"",
@@ -15878,14 +15853,9 @@
                          "value":"2"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":37
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":37
+                         "name":"level",
+                         "type":"string",
+                         "value":"37"
                         }],
                  "rotation":0,
                  "type":"",
@@ -15916,14 +15886,9 @@
                          "value":"2"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":37
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":37
+                         "name":"level",
+                         "type":"string",
+                         "value":"37"
                         }],
                  "rotation":0,
                  "type":"",
@@ -15949,14 +15914,9 @@
                          "value":"2"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":37
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":37
+                         "name":"level",
+                         "type":"string",
+                         "value":"37"
                         }],
                  "rotation":0,
                  "type":"",
@@ -15982,14 +15942,9 @@
                          "value":"2"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":37
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":37
+                         "name":"level",
+                         "type":"string",
+                         "value":"37"
                         }],
                  "rotation":0,
                  "type":"",
@@ -16020,14 +15975,9 @@
                          "value":"2"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":37
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":37
+                         "name":"level",
+                         "type":"string",
+                         "value":"37"
                         }],
                  "rotation":0,
                  "type":"",
@@ -16053,14 +16003,9 @@
                          "value":"2"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":37
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":37
+                         "name":"level",
+                         "type":"string",
+                         "value":"37"
                         }],
                  "rotation":0,
                  "type":"",
@@ -16086,14 +16031,9 @@
                          "value":"2"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":37
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":37
+                         "name":"level",
+                         "type":"string",
+                         "value":"37"
                         }],
                  "rotation":0,
                  "type":"",
@@ -16124,14 +16064,9 @@
                          "value":"3"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":38
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":38
+                         "name":"level",
+                         "type":"string",
+                         "value":"38"
                         }],
                  "rotation":0,
                  "type":"",
@@ -16157,14 +16092,9 @@
                          "value":"2"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":37
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":37
+                         "name":"level",
+                         "type":"string",
+                         "value":"37"
                         }],
                  "rotation":0,
                  "type":"",
@@ -16190,14 +16120,9 @@
                          "value":"3"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":38
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":38
+                         "name":"level",
+                         "type":"string",
+                         "value":"38"
                         }],
                  "rotation":0,
                  "type":"",
@@ -16228,14 +16153,9 @@
                          "value":"3"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":38
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":38
+                         "name":"level",
+                         "type":"string",
+                         "value":"38"
                         }],
                  "rotation":0,
                  "type":"",
@@ -16261,14 +16181,9 @@
                          "value":"3"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":38
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":38
+                         "name":"level",
+                         "type":"string",
+                         "value":"38"
                         }],
                  "rotation":0,
                  "type":"",
@@ -16294,14 +16209,9 @@
                          "value":"3"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":38
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":38
+                         "name":"level",
+                         "type":"string",
+                         "value":"38"
                         }],
                  "rotation":0,
                  "type":"",
@@ -16332,14 +16242,9 @@
                          "value":"3"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":39
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":39
+                         "name":"level",
+                         "type":"string",
+                         "value":"39"
                         }],
                  "rotation":0,
                  "type":"",
@@ -16365,14 +16270,9 @@
                          "value":"3"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":38
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":38
+                         "name":"level",
+                         "type":"string",
+                         "value":"38"
                         }],
                  "rotation":0,
                  "type":"",
@@ -16398,14 +16298,9 @@
                          "value":"3"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":39
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":39
+                         "name":"level",
+                         "type":"string",
+                         "value":"39"
                         }],
                  "rotation":0,
                  "type":"",
@@ -16436,14 +16331,9 @@
                          "value":"4"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":39
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":39
+                         "name":"level",
+                         "type":"string",
+                         "value":"39"
                         }],
                  "rotation":0,
                  "type":"",
@@ -16469,14 +16359,9 @@
                          "value":"3"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":39
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":39
+                         "name":"level",
+                         "type":"string",
+                         "value":"39"
                         }],
                  "rotation":0,
                  "type":"",
@@ -16502,14 +16387,9 @@
                          "value":"4"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":39
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":39
+                         "name":"level",
+                         "type":"string",
+                         "value":"39"
                         }],
                  "rotation":0,
                  "type":"",
@@ -16540,14 +16420,9 @@
                          "value":"4"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":39
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":39
+                         "name":"level",
+                         "type":"string",
+                         "value":"39"
                         }],
                  "rotation":0,
                  "type":"",
@@ -16573,14 +16448,9 @@
                          "value":"4"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":39
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":39
+                         "name":"level",
+                         "type":"string",
+                         "value":"39"
                         }],
                  "rotation":0,
                  "type":"",
@@ -16606,14 +16476,9 @@
                          "value":"4"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":39
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":39
+                         "name":"level",
+                         "type":"string",
+                         "value":"39"
                         }],
                  "rotation":0,
                  "type":"",
@@ -16644,14 +16509,9 @@
                          "value":"4"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":40
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":40
+                         "name":"level",
+                         "type":"string",
+                         "value":"40"
                         }],
                  "rotation":0,
                  "type":"",
@@ -16677,14 +16537,9 @@
                          "value":"4"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":39
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":39
+                         "name":"level",
+                         "type":"string",
+                         "value":"39"
                         }],
                  "rotation":0,
                  "type":"",
@@ -16710,14 +16565,9 @@
                          "value":"4"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":40
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":40
+                         "name":"level",
+                         "type":"string",
+                         "value":"40"
                         }],
                  "rotation":0,
                  "type":"",
@@ -16748,14 +16598,9 @@
                          "value":"5"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":40
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":40
+                         "name":"level",
+                         "type":"string",
+                         "value":"40"
                         }],
                  "rotation":0,
                  "type":"",
@@ -16781,14 +16626,9 @@
                          "value":"4"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":40
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":40
+                         "name":"level",
+                         "type":"string",
+                         "value":"40"
                         }],
                  "rotation":0,
                  "type":"",
@@ -16814,14 +16654,9 @@
                          "value":"5"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":40
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":40
+                         "name":"level",
+                         "type":"string",
+                         "value":"40"
                         }],
                  "rotation":0,
                  "type":"",
@@ -16852,14 +16687,9 @@
                          "value":"5"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":41
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":41
+                         "name":"level",
+                         "type":"string",
+                         "value":"41"
                         }],
                  "rotation":0,
                  "type":"",
@@ -16885,14 +16715,9 @@
                          "value":"5"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":40
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":40
+                         "name":"level",
+                         "type":"string",
+                         "value":"40"
                         }],
                  "rotation":0,
                  "type":"",
@@ -16918,14 +16743,9 @@
                          "value":"5"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":41
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":41
+                         "name":"level",
+                         "type":"string",
+                         "value":"41"
                         }],
                  "rotation":0,
                  "type":"",
@@ -16956,14 +16776,9 @@
                          "value":"5"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":41
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":41
+                         "name":"level",
+                         "type":"string",
+                         "value":"41"
                         }],
                  "rotation":0,
                  "type":"",
@@ -16989,14 +16804,9 @@
                          "value":"5"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":41
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":41
+                         "name":"level",
+                         "type":"string",
+                         "value":"41"
                         }],
                  "rotation":0,
                  "type":"",
@@ -17022,14 +16832,9 @@
                          "value":"5"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":41
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":41
+                         "name":"level",
+                         "type":"string",
+                         "value":"41"
                         }],
                  "rotation":0,
                  "type":"",
@@ -17060,14 +16865,9 @@
                          "value":"6"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":42
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":42
+                         "name":"level",
+                         "type":"string",
+                         "value":"42"
                         }],
                  "rotation":0,
                  "type":"",
@@ -17093,14 +16893,9 @@
                          "value":"5"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":41
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":41
+                         "name":"level",
+                         "type":"string",
+                         "value":"41"
                         }],
                  "rotation":0,
                  "type":"",
@@ -17126,14 +16921,9 @@
                          "value":"6"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":42
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":42
+                         "name":"level",
+                         "type":"string",
+                         "value":"42"
                         }],
                  "rotation":0,
                  "type":"",
@@ -17164,14 +16954,9 @@
                          "value":"6"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":42
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":42
+                         "name":"level",
+                         "type":"string",
+                         "value":"42"
                         }],
                  "rotation":0,
                  "type":"",
@@ -17197,14 +16982,9 @@
                          "value":"6"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":42
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":42
+                         "name":"level",
+                         "type":"string",
+                         "value":"42"
                         }],
                  "rotation":0,
                  "type":"",
@@ -17230,14 +17010,9 @@
                          "value":"6"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":42
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":42
+                         "name":"level",
+                         "type":"string",
+                         "value":"42"
                         }],
                  "rotation":0,
                  "type":"",
@@ -17268,14 +17043,9 @@
                          "value":"6"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":42
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":42
+                         "name":"level",
+                         "type":"string",
+                         "value":"42"
                         }],
                  "rotation":0,
                  "type":"",
@@ -17301,14 +17071,9 @@
                          "value":"6"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":42
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":42
+                         "name":"level",
+                         "type":"string",
+                         "value":"42"
                         }],
                  "rotation":0,
                  "type":"",
@@ -17334,14 +17099,9 @@
                          "value":"6"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":42
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":42
+                         "name":"level",
+                         "type":"string",
+                         "value":"42"
                         }],
                  "rotation":0,
                  "type":"",
@@ -17372,14 +17132,9 @@
                          "value":"7"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":43
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":43
+                         "name":"level",
+                         "type":"string",
+                         "value":"43"
                         }],
                  "rotation":0,
                  "type":"",
@@ -17405,14 +17160,9 @@
                          "value":"6"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":42
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":42
+                         "name":"level",
+                         "type":"string",
+                         "value":"42"
                         }],
                  "rotation":0,
                  "type":"",
@@ -17438,14 +17188,9 @@
                          "value":"7"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":43
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":43
+                         "name":"level",
+                         "type":"string",
+                         "value":"43"
                         }],
                  "rotation":0,
                  "type":"",
@@ -17476,14 +17221,9 @@
                          "value":"7"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":43
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":43
+                         "name":"level",
+                         "type":"string",
+                         "value":"43"
                         }],
                  "rotation":0,
                  "type":"",
@@ -17509,14 +17249,9 @@
                          "value":"7"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":43
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":43
+                         "name":"level",
+                         "type":"string",
+                         "value":"43"
                         }],
                  "rotation":0,
                  "type":"",
@@ -17542,14 +17277,9 @@
                          "value":"7"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":43
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":43
+                         "name":"level",
+                         "type":"string",
+                         "value":"43"
                         }],
                  "rotation":0,
                  "type":"",
@@ -17580,14 +17310,9 @@
                          "value":"7"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":44
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":44
+                         "name":"level",
+                         "type":"string",
+                         "value":"44"
                         }],
                  "rotation":0,
                  "type":"",
@@ -17613,14 +17338,9 @@
                          "value":"7"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":43
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":43
+                         "name":"level",
+                         "type":"string",
+                         "value":"43"
                         }],
                  "rotation":0,
                  "type":"",
@@ -17646,14 +17366,9 @@
                          "value":"7"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":44
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":44
+                         "name":"level",
+                         "type":"string",
+                         "value":"44"
                         }],
                  "rotation":0,
                  "type":"",
@@ -17684,14 +17399,9 @@
                          "value":"8"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":44
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":44
+                         "name":"level",
+                         "type":"string",
+                         "value":"44"
                         }],
                  "rotation":0,
                  "type":"",
@@ -17717,14 +17427,9 @@
                          "value":"7"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":44
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":44
+                         "name":"level",
+                         "type":"string",
+                         "value":"44"
                         }],
                  "rotation":0,
                  "type":"",
@@ -17750,14 +17455,9 @@
                          "value":"8"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":44
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":44
+                         "name":"level",
+                         "type":"string",
+                         "value":"44"
                         }],
                  "rotation":0,
                  "type":"",
@@ -17788,14 +17488,9 @@
                          "value":"8"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":44
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":44
+                         "name":"level",
+                         "type":"string",
+                         "value":"44"
                         }],
                  "rotation":0,
                  "type":"",
@@ -17821,14 +17516,9 @@
                          "value":"8"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":44
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":44
+                         "name":"level",
+                         "type":"string",
+                         "value":"44"
                         }],
                  "rotation":0,
                  "type":"",
@@ -17854,14 +17544,9 @@
                          "value":"8"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":44
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":44
+                         "name":"level",
+                         "type":"string",
+                         "value":"44"
                         }],
                  "rotation":0,
                  "type":"",
@@ -17892,14 +17577,9 @@
                          "value":"8"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":45
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":45
+                         "name":"level",
+                         "type":"string",
+                         "value":"45"
                         }],
                  "rotation":0,
                  "type":"",
@@ -17925,14 +17605,9 @@
                          "value":"8"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":44
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":44
+                         "name":"level",
+                         "type":"string",
+                         "value":"44"
                         }],
                  "rotation":0,
                  "type":"",
@@ -17958,14 +17633,9 @@
                          "value":"8"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":45
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":45
+                         "name":"level",
+                         "type":"string",
+                         "value":"45"
                         }],
                  "rotation":0,
                  "type":"",
@@ -17996,14 +17666,9 @@
                          "value":"9"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":45
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":45
+                         "name":"level",
+                         "type":"string",
+                         "value":"45"
                         }],
                  "rotation":0,
                  "type":"",
@@ -18029,14 +17694,9 @@
                          "value":"8"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":45
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":45
+                         "name":"level",
+                         "type":"string",
+                         "value":"45"
                         }],
                  "rotation":0,
                  "type":"",
@@ -18062,14 +17722,9 @@
                          "value":"9"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":45
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":45
+                         "name":"level",
+                         "type":"string",
+                         "value":"45"
                         }],
                  "rotation":0,
                  "type":"",
@@ -18100,14 +17755,9 @@
                          "value":"9"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":46
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":46
+                         "name":"level",
+                         "type":"string",
+                         "value":"46"
                         }],
                  "rotation":0,
                  "type":"",
@@ -18133,14 +17783,9 @@
                          "value":"9"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":45
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":45
+                         "name":"level",
+                         "type":"string",
+                         "value":"45"
                         }],
                  "rotation":0,
                  "type":"",
@@ -18166,14 +17811,9 @@
                          "value":"9"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":46
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":46
+                         "name":"level",
+                         "type":"string",
+                         "value":"46"
                         }],
                  "rotation":0,
                  "type":"",
@@ -18204,14 +17844,9 @@
                          "value":"9"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":46
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":46
+                         "name":"level",
+                         "type":"string",
+                         "value":"46"
                         }],
                  "rotation":0,
                  "type":"",
@@ -18237,14 +17872,9 @@
                          "value":"9"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":46
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":46
+                         "name":"level",
+                         "type":"string",
+                         "value":"46"
                         }],
                  "rotation":0,
                  "type":"",
@@ -18270,14 +17900,9 @@
                          "value":"9"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":46
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":46
+                         "name":"level",
+                         "type":"string",
+                         "value":"46"
                         }],
                  "rotation":0,
                  "type":"",
@@ -18308,14 +17933,9 @@
                          "value":"10"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":46
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":46
+                         "name":"level",
+                         "type":"string",
+                         "value":"46"
                         }],
                  "rotation":0,
                  "type":"",
@@ -18341,14 +17961,9 @@
                          "value":"9"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":46
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":46
+                         "name":"level",
+                         "type":"string",
+                         "value":"46"
                         }],
                  "rotation":0,
                  "type":"",
@@ -18374,14 +17989,9 @@
                          "value":"10"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":46
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":46
+                         "name":"level",
+                         "type":"string",
+                         "value":"46"
                         }],
                  "rotation":0,
                  "type":"",
@@ -18412,14 +18022,9 @@
                          "value":"10"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":47
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":47
+                         "name":"level",
+                         "type":"string",
+                         "value":"47"
                         }],
                  "rotation":0,
                  "type":"",
@@ -18445,14 +18050,9 @@
                          "value":"10"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":46
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":46
+                         "name":"level",
+                         "type":"string",
+                         "value":"46"
                         }],
                  "rotation":0,
                  "type":"",
@@ -18478,14 +18078,9 @@
                          "value":"10"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":47
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":47
+                         "name":"level",
+                         "type":"string",
+                         "value":"47"
                         }],
                  "rotation":0,
                  "type":"",
@@ -18516,14 +18111,9 @@
                          "value":"10"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":47
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":47
+                         "name":"level",
+                         "type":"string",
+                         "value":"47"
                         }],
                  "rotation":0,
                  "type":"",
@@ -18549,14 +18139,9 @@
                          "value":"10"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":47
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":47
+                         "name":"level",
+                         "type":"string",
+                         "value":"47"
                         }],
                  "rotation":0,
                  "type":"",
@@ -18582,14 +18167,9 @@
                          "value":"10"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":47
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":47
+                         "name":"level",
+                         "type":"string",
+                         "value":"47"
                         }],
                  "rotation":0,
                  "type":"",
@@ -18620,14 +18200,9 @@
                          "value":"11"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":48
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":48
+                         "name":"level",
+                         "type":"string",
+                         "value":"48"
                         }],
                  "rotation":0,
                  "type":"",
@@ -18653,14 +18228,9 @@
                          "value":"10"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":47
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":47
+                         "name":"level",
+                         "type":"string",
+                         "value":"47"
                         }],
                  "rotation":0,
                  "type":"",
@@ -18686,14 +18256,9 @@
                          "value":"11"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":48
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":48
+                         "name":"level",
+                         "type":"string",
+                         "value":"48"
                         }],
                  "rotation":0,
                  "type":"",
@@ -18724,14 +18289,9 @@
                          "value":"11"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":48
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":48
+                         "name":"level",
+                         "type":"string",
+                         "value":"48"
                         }],
                  "rotation":0,
                  "type":"",
@@ -18757,14 +18317,9 @@
                          "value":"11"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":48
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":48
+                         "name":"level",
+                         "type":"string",
+                         "value":"48"
                         }],
                  "rotation":0,
                  "type":"",
@@ -18790,14 +18345,9 @@
                          "value":"11"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":48
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":48
+                         "name":"level",
+                         "type":"string",
+                         "value":"48"
                         }],
                  "rotation":0,
                  "type":"",
@@ -18828,14 +18378,9 @@
                          "value":"11"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":48
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":48
+                         "name":"level",
+                         "type":"string",
+                         "value":"48"
                         }],
                  "rotation":0,
                  "type":"",
@@ -18861,14 +18406,9 @@
                          "value":"11"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":48
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":48
+                         "name":"level",
+                         "type":"string",
+                         "value":"48"
                         }],
                  "rotation":0,
                  "type":"",
@@ -18894,14 +18434,9 @@
                          "value":"11"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":48
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":48
+                         "name":"level",
+                         "type":"string",
+                         "value":"48"
                         }],
                  "rotation":0,
                  "type":"",
@@ -18932,14 +18467,9 @@
                          "value":"12"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":49
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":49
+                         "name":"level",
+                         "type":"string",
+                         "value":"49"
                         }],
                  "rotation":0,
                  "type":"",
@@ -18965,14 +18495,9 @@
                          "value":"11"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":48
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":48
+                         "name":"level",
+                         "type":"string",
+                         "value":"48"
                         }],
                  "rotation":0,
                  "type":"",
@@ -18998,14 +18523,9 @@
                          "value":"12"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":49
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":49
+                         "name":"level",
+                         "type":"string",
+                         "value":"49"
                         }],
                  "rotation":0,
                  "type":"",
@@ -19036,14 +18556,9 @@
                          "value":"12"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":49
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":49
+                         "name":"level",
+                         "type":"string",
+                         "value":"49"
                         }],
                  "rotation":0,
                  "type":"",
@@ -19069,14 +18584,9 @@
                          "value":"1"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":49
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":49
+                         "name":"level",
+                         "type":"string",
+                         "value":"49"
                         }],
                  "rotation":0,
                  "type":"",
@@ -19102,14 +18612,9 @@
                          "value":"1"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":49
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":49
+                         "name":"level",
+                         "type":"string",
+                         "value":"49"
                         }],
                  "rotation":0,
                  "type":"",
@@ -19140,14 +18645,9 @@
                          "value":"1"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":50
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":50
+                         "name":"level",
+                         "type":"string",
+                         "value":"50"
                         }],
                  "rotation":0,
                  "type":"",
@@ -19173,14 +18673,9 @@
                          "value":"1"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":49
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":49
+                         "name":"level",
+                         "type":"string",
+                         "value":"49"
                         }],
                  "rotation":0,
                  "type":"",
@@ -19206,14 +18701,9 @@
                          "value":"1"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":50
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":50
+                         "name":"level",
+                         "type":"string",
+                         "value":"50"
                         }],
                  "rotation":0,
                  "type":"",
@@ -19244,14 +18734,9 @@
                          "value":"2"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":50
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":50
+                         "name":"level",
+                         "type":"string",
+                         "value":"50"
                         }],
                  "rotation":0,
                  "type":"",
@@ -19277,14 +18762,9 @@
                          "value":"1"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":50
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":50
+                         "name":"level",
+                         "type":"string",
+                         "value":"50"
                         }],
                  "rotation":0,
                  "type":"",
@@ -19310,14 +18790,9 @@
                          "value":"2"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":50
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":50
+                         "name":"level",
+                         "type":"string",
+                         "value":"50"
                         }],
                  "rotation":0,
                  "type":"",
@@ -19348,14 +18823,9 @@
                          "value":"2"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":50
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":50
+                         "name":"level",
+                         "type":"string",
+                         "value":"50"
                         }],
                  "rotation":0,
                  "type":"",
@@ -19381,14 +18851,9 @@
                          "value":"2"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":50
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":50
+                         "name":"level",
+                         "type":"string",
+                         "value":"50"
                         }],
                  "rotation":0,
                  "type":"",
@@ -19414,14 +18879,9 @@
                          "value":"2"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":50
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":50
+                         "name":"level",
+                         "type":"string",
+                         "value":"50"
                         }],
                  "rotation":0,
                  "type":"",
@@ -19452,14 +18912,9 @@
                          "value":"2"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":51
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":51
+                         "name":"level",
+                         "type":"string",
+                         "value":"51"
                         }],
                  "rotation":0,
                  "type":"",
@@ -19485,14 +18940,9 @@
                          "value":"2"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":50
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":50
+                         "name":"level",
+                         "type":"string",
+                         "value":"50"
                         }],
                  "rotation":0,
                  "type":"",
@@ -19518,14 +18968,9 @@
                          "value":"2"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":51
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":51
+                         "name":"level",
+                         "type":"string",
+                         "value":"51"
                         }],
                  "rotation":0,
                  "type":"",
@@ -19556,14 +19001,9 @@
                          "value":"3"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":51
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":51
+                         "name":"level",
+                         "type":"string",
+                         "value":"51"
                         }],
                  "rotation":0,
                  "type":"",
@@ -19589,14 +19029,9 @@
                          "value":"2"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":51
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":51
+                         "name":"level",
+                         "type":"string",
+                         "value":"51"
                         }],
                  "rotation":0,
                  "type":"",
@@ -19622,14 +19057,9 @@
                          "value":"3"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":51
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":51
+                         "name":"level",
+                         "type":"string",
+                         "value":"51"
                         }],
                  "rotation":0,
                  "type":"",
@@ -19660,14 +19090,9 @@
                          "value":"3"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":52
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":52
+                         "name":"level",
+                         "type":"string",
+                         "value":"52"
                         }],
                  "rotation":0,
                  "type":"",
@@ -19693,14 +19118,9 @@
                          "value":"3"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":51
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":51
+                         "name":"level",
+                         "type":"string",
+                         "value":"51"
                         }],
                  "rotation":0,
                  "type":"",
@@ -19726,14 +19146,9 @@
                          "value":"3"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":52
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":52
+                         "name":"level",
+                         "type":"string",
+                         "value":"52"
                         }],
                  "rotation":0,
                  "type":"",
@@ -19764,14 +19179,9 @@
                          "value":"3"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":52
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":52
+                         "name":"level",
+                         "type":"string",
+                         "value":"52"
                         }],
                  "rotation":0,
                  "type":"",
@@ -19797,14 +19207,9 @@
                          "value":"3"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":52
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":52
+                         "name":"level",
+                         "type":"string",
+                         "value":"52"
                         }],
                  "rotation":0,
                  "type":"",
@@ -19830,14 +19235,9 @@
                          "value":"3"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":52
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":52
+                         "name":"level",
+                         "type":"string",
+                         "value":"52"
                         }],
                  "rotation":0,
                  "type":"",
@@ -19868,14 +19268,9 @@
                          "value":"4"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":52
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":52
+                         "name":"level",
+                         "type":"string",
+                         "value":"52"
                         }],
                  "rotation":0,
                  "type":"",
@@ -19901,14 +19296,9 @@
                          "value":"3"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":52
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":52
+                         "name":"level",
+                         "type":"string",
+                         "value":"52"
                         }],
                  "rotation":0,
                  "type":"",
@@ -19934,14 +19324,9 @@
                          "value":"4"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":52
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":52
+                         "name":"level",
+                         "type":"string",
+                         "value":"52"
                         }],
                  "rotation":0,
                  "type":"",
@@ -19972,14 +19357,9 @@
                          "value":"4"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":53
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":53
+                         "name":"level",
+                         "type":"string",
+                         "value":"53"
                         }],
                  "rotation":0,
                  "type":"",
@@ -20005,14 +19385,9 @@
                          "value":"4"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":52
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":52
+                         "name":"level",
+                         "type":"string",
+                         "value":"52"
                         }],
                  "rotation":0,
                  "type":"",
@@ -20038,14 +19413,9 @@
                          "value":"4"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":53
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":53
+                         "name":"level",
+                         "type":"string",
+                         "value":"53"
                         }],
                  "rotation":0,
                  "type":"",
@@ -20076,14 +19446,9 @@
                          "value":"4"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":53
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":53
+                         "name":"level",
+                         "type":"string",
+                         "value":"53"
                         }],
                  "rotation":0,
                  "type":"",
@@ -20109,14 +19474,9 @@
                          "value":"4"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":53
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":53
+                         "name":"level",
+                         "type":"string",
+                         "value":"53"
                         }],
                  "rotation":0,
                  "type":"",
@@ -20142,14 +19502,9 @@
                          "value":"4"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":53
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":53
+                         "name":"level",
+                         "type":"string",
+                         "value":"53"
                         }],
                  "rotation":0,
                  "type":"",
@@ -20180,14 +19535,9 @@
                          "value":"5"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":54
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":54
+                         "name":"level",
+                         "type":"string",
+                         "value":"54"
                         }],
                  "rotation":0,
                  "type":"",
@@ -20213,14 +19563,9 @@
                          "value":"4"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":53
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":53
+                         "name":"level",
+                         "type":"string",
+                         "value":"53"
                         }],
                  "rotation":0,
                  "type":"",
@@ -20246,14 +19591,9 @@
                          "value":"5"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":54
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":54
+                         "name":"level",
+                         "type":"string",
+                         "value":"54"
                         }],
                  "rotation":0,
                  "type":"",
@@ -20284,14 +19624,9 @@
                          "value":"5"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":54
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":54
+                         "name":"level",
+                         "type":"string",
+                         "value":"54"
                         }],
                  "rotation":0,
                  "type":"",
@@ -20317,14 +19652,9 @@
                          "value":"5"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":54
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":54
+                         "name":"level",
+                         "type":"string",
+                         "value":"54"
                         }],
                  "rotation":0,
                  "type":"",
@@ -20350,14 +19680,9 @@
                          "value":"5"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":54
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":54
+                         "name":"level",
+                         "type":"string",
+                         "value":"54"
                         }],
                  "rotation":0,
                  "type":"",
@@ -20388,14 +19713,9 @@
                          "value":"5"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":55
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":55
+                         "name":"level",
+                         "type":"string",
+                         "value":"55"
                         }],
                  "rotation":0,
                  "type":"",
@@ -20421,14 +19741,9 @@
                          "value":"5"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":54
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":54
+                         "name":"level",
+                         "type":"string",
+                         "value":"54"
                         }],
                  "rotation":0,
                  "type":"",
@@ -20454,14 +19769,9 @@
                          "value":"5"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":55
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":55
+                         "name":"level",
+                         "type":"string",
+                         "value":"55"
                         }],
                  "rotation":0,
                  "type":"",
@@ -20492,14 +19802,9 @@
                          "value":"6"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":55
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":55
+                         "name":"level",
+                         "type":"string",
+                         "value":"55"
                         }],
                  "rotation":0,
                  "type":"",
@@ -20525,14 +19830,9 @@
                          "value":"5"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":55
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":55
+                         "name":"level",
+                         "type":"string",
+                         "value":"55"
                         }],
                  "rotation":0,
                  "type":"",
@@ -20558,14 +19858,9 @@
                          "value":"6"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":55
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":55
+                         "name":"level",
+                         "type":"string",
+                         "value":"55"
                         }],
                  "rotation":0,
                  "type":"",
@@ -20596,14 +19891,9 @@
                          "value":"6"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":55
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":55
+                         "name":"level",
+                         "type":"string",
+                         "value":"55"
                         }],
                  "rotation":0,
                  "type":"",
@@ -20629,14 +19919,9 @@
                          "value":"6"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":55
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":55
+                         "name":"level",
+                         "type":"string",
+                         "value":"55"
                         }],
                  "rotation":0,
                  "type":"",
@@ -20662,14 +19947,9 @@
                          "value":"6"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":55
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":55
+                         "name":"level",
+                         "type":"string",
+                         "value":"55"
                         }],
                  "rotation":0,
                  "type":"",
@@ -20700,14 +19980,9 @@
                          "value":"6"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":56
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":56
+                         "name":"level",
+                         "type":"string",
+                         "value":"56"
                         }],
                  "rotation":0,
                  "type":"",
@@ -20733,14 +20008,9 @@
                          "value":"6"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":55
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":55
+                         "name":"level",
+                         "type":"string",
+                         "value":"55"
                         }],
                  "rotation":0,
                  "type":"",
@@ -20766,14 +20036,9 @@
                          "value":"6"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":56
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":56
+                         "name":"level",
+                         "type":"string",
+                         "value":"56"
                         }],
                  "rotation":0,
                  "type":"",
@@ -20804,14 +20069,9 @@
                          "value":"7"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":56
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":56
+                         "name":"level",
+                         "type":"string",
+                         "value":"56"
                         }],
                  "rotation":0,
                  "type":"",
@@ -20837,14 +20097,9 @@
                          "value":"6"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":56
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":56
+                         "name":"level",
+                         "type":"string",
+                         "value":"56"
                         }],
                  "rotation":0,
                  "type":"",
@@ -20870,14 +20125,9 @@
                          "value":"7"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":56
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":56
+                         "name":"level",
+                         "type":"string",
+                         "value":"56"
                         }],
                  "rotation":0,
                  "type":"",
@@ -20908,14 +20158,9 @@
                          "value":"7"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":57
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":57
+                         "name":"level",
+                         "type":"string",
+                         "value":"57"
                         }],
                  "rotation":0,
                  "type":"",
@@ -20941,14 +20186,9 @@
                          "value":"7"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":56
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":56
+                         "name":"level",
+                         "type":"string",
+                         "value":"56"
                         }],
                  "rotation":0,
                  "type":"",
@@ -20974,14 +20214,9 @@
                          "value":"7"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":57
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":57
+                         "name":"level",
+                         "type":"string",
+                         "value":"57"
                         }],
                  "rotation":0,
                  "type":"",
@@ -21012,14 +20247,9 @@
                          "value":"7"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":57
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":57
+                         "name":"level",
+                         "type":"string",
+                         "value":"57"
                         }],
                  "rotation":0,
                  "type":"",
@@ -21045,14 +20275,9 @@
                          "value":"7"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":57
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":57
+                         "name":"level",
+                         "type":"string",
+                         "value":"57"
                         }],
                  "rotation":0,
                  "type":"",
@@ -21078,14 +20303,9 @@
                          "value":"7"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":57
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":57
+                         "name":"level",
+                         "type":"string",
+                         "value":"57"
                         }],
                  "rotation":0,
                  "type":"",
@@ -21116,14 +20336,9 @@
                          "value":"8"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":57
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":57
+                         "name":"level",
+                         "type":"string",
+                         "value":"57"
                         }],
                  "rotation":0,
                  "type":"",
@@ -21149,14 +20364,9 @@
                          "value":"7"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":57
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":57
+                         "name":"level",
+                         "type":"string",
+                         "value":"57"
                         }],
                  "rotation":0,
                  "type":"",
@@ -21182,14 +20392,9 @@
                          "value":"8"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":57
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":57
+                         "name":"level",
+                         "type":"string",
+                         "value":"57"
                         }],
                  "rotation":0,
                  "type":"",
@@ -21220,14 +20425,9 @@
                          "value":"8"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":58
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":58
+                         "name":"level",
+                         "type":"string",
+                         "value":"58"
                         }],
                  "rotation":0,
                  "type":"",
@@ -21253,14 +20453,9 @@
                          "value":"8"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":57
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":57
+                         "name":"level",
+                         "type":"string",
+                         "value":"57"
                         }],
                  "rotation":0,
                  "type":"",
@@ -21286,14 +20481,9 @@
                          "value":"8"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":58
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":58
+                         "name":"level",
+                         "type":"string",
+                         "value":"58"
                         }],
                  "rotation":0,
                  "type":"",
@@ -21324,14 +20514,9 @@
                          "value":"8"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":58
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":58
+                         "name":"level",
+                         "type":"string",
+                         "value":"58"
                         }],
                  "rotation":0,
                  "type":"",
@@ -21357,14 +20542,9 @@
                          "value":"8"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":58
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":58
+                         "name":"level",
+                         "type":"string",
+                         "value":"58"
                         }],
                  "rotation":0,
                  "type":"",
@@ -21390,14 +20570,9 @@
                          "value":"8"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":58
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":58
+                         "name":"level",
+                         "type":"string",
+                         "value":"58"
                         }],
                  "rotation":0,
                  "type":"",
@@ -21428,14 +20603,9 @@
                          "value":"9"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":59
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":59
+                         "name":"level",
+                         "type":"string",
+                         "value":"59"
                         }],
                  "rotation":0,
                  "type":"",
@@ -21461,14 +20631,9 @@
                          "value":"8"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":58
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":58
+                         "name":"level",
+                         "type":"string",
+                         "value":"58"
                         }],
                  "rotation":0,
                  "type":"",
@@ -21494,14 +20659,9 @@
                          "value":"9"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":59
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":59
+                         "name":"level",
+                         "type":"string",
+                         "value":"59"
                         }],
                  "rotation":0,
                  "type":"",
@@ -21532,14 +20692,9 @@
                          "value":"9"
                         }, 
                         {
-                         "name":"maxLevel",
-                         "type":"int",
-                         "value":59
-                        }, 
-                        {
-                         "name":"minLevel",
-                         "type":"int",
-                         "value":59
+                         "name":"level",
+                         "type":"string",
+                         "value":"59"
                         }],
                  "rotation":0,
                  "type":"",

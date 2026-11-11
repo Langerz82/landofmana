@@ -12,9 +12,8 @@
    "include": "3,7,8",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "6,5,4,3,2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "32,16,8,4,2,1"
   },
   {
    "id": 1,
@@ -28,9 +27,8 @@
    "include": "3,7,8",
    "exclude": "",
    "definite": "",
-   "level": "",
-   "weight": "6,5,4,3,2,1",
-   "bonusDrop": 2
+   "bonusDrop": 2,
+   "levelWeight": "32,16,8,4,2,1"
   }
  ],
  "entityAreas": []

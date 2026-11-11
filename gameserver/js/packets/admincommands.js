@@ -58,8 +58,11 @@ import { logChat } from '../chatlog.js';
 //                                             is its top-left corner), elipse=1 (an ellipse
 //                                             instead of a rectangle)
 //                                     mob:    count=N and include=1,5 (the mob kinds it
-//                                             spawns) are required; min=N max=N (levels,
-//                                             default 1), exclude=, definite=, weight=3,2,1,
+//                                             spawns) are required; level=N or level=N-N
+//                                             (or min=N max=N; default 1), exclude=, definite=,
+//                                             kindweight=4,2,1 (one per include kind: how
+//                                             often each spawns; default 1 each, not stored),
+//                                             levelweight=3,2,1 (one per level; default 1 each, not stored),
 //                                             bonus=N (drop multiplier), boss=N
 //                                     entity: type=node|mob|npcmove|npcstatic|block (default
 //                                             node), kind=N, count=N, level=N, name=,
@@ -130,7 +133,7 @@ const NAME_PATTERN = /^[\p{L}\p{N} _'.-]+$/u;
 const DESPAWN_RANGE_TILES = 3;
 const SELECT_RANGE_TILES = 5;
 const ADDAREA_USAGE =
-    'Usage: /addarea mob <w> <h> count=N include=1,5 [min=N max=N exclude= definite= weight= bonus=N boss=N] | ' +
+    'Usage: /addarea mob <w> <h> count=N include=1,5 [level=N or N-N exclude= definite= kindweight= levelweight= bonus=N boss=N] | ' +
     '/addarea entity <w> <h> kind=N count=N [type=node level=N name= anim= weapon= sprite= apart=N] -- both: anchor=center|topleft elipse=1';
 const DELAREA_USAGE = 'Usage: /delarea mob|entity [id] -- no id lists the areas you are standing in';
 const MAX_AREA_TILES = 512;
@@ -703,8 +706,15 @@ class AdminCommands {
             if (opts.count === undefined || opts.include === undefined || opts.include === '')
                 return this.reply('count=N and include= (mob kind ids, e.g. include=1,5) are required. ' + ADDAREA_USAGE);
             const count = int(opts.count);
-            const min = opts.min !== undefined ? int(opts.min) : 1;
-            const max = opts.max !== undefined ? int(opts.max) : min;
+            // level=10 or level=10-12 (like a map's mob area "level"), or the older min= / max=
+            let min = opts.min !== undefined ? int(opts.min) : 1;
+            let max = opts.max !== undefined ? int(opts.max) : min;
+            if (opts.level !== undefined && opts.level !== '') {
+                const m = /^(\d+)(?:-(\d+))?$/.exec(String(opts.level).trim());
+                if (!m) return this.reply('level= must be a level or a range, e.g. level=10 or level=10-12.');
+                min = int(m[1]); max = m[2] !== undefined ? int(m[2]) : min;
+                if (max < min) [min, max] = [max, min];
+            }
             if (!(count >= 1 && count <= MAX_AREA_COUNT)) return this.reply('count must be 1-' + MAX_AREA_COUNT + '.');
             if (!(min >= 1 && max >= min && max <= 999)) return this.reply('min/max must be levels 1-999, min <= max.');
             for (const k of ['include', 'exclude', 'definite']) {
@@ -715,10 +725,15 @@ class AdminCommands {
                     if (bad.length) return this.reply('No mob with kind id ' + bad.join(', ') + ' (' + k + '=).');
                 }
             }
-            if (opts.weight !== undefined && opts.weight !== '') {
-                if (!csv(opts.weight)) return this.reply('weight= must be numbers, e.g. weight=3,2,1');
-                if (opts.weight.split(',').length !== max - min + 1)
-                    return this.reply('weight= needs one number per level ' + min + '-' + max + ' (' + (max - min + 1) + ').');
+            if (opts.weight !== undefined)
+                return this.reply('weight= is now levelweight= (one per level), e.g. levelweight=4,2,1. ' + ADDAREA_USAGE);
+            // kindweight: one per include kind; levelweight: one per level -- 1 each by default, like the
+            // map converter (tools/maps/converter/_processmap.js)
+            const kinds = opts.include.split(',').length, levels = max - min + 1;
+            for (const [k, n, what] of [['kindweight', kinds, 'include kind (' + opts.include + ')'], ['levelweight', levels, 'level ' + min + '-' + max]]) {
+                if (opts[k] === undefined || opts[k] === '') continue;
+                if (!csv(opts[k])) return this.reply(k + '= must be numbers, e.g. ' + k + '=2,1');
+                if (opts[k].split(',').length !== n) return this.reply(k + '= needs one number per ' + what + ': ' + n + '.');
             }
             const bonus = opts.bonus !== undefined ? Number(opts.bonus) : 1;
             if (!(bonus > 0 && bonus <= 100)) return this.reply('bonus (drop multiplier) must be above 0 and at most 100.');
@@ -731,10 +746,11 @@ class AdminCommands {
                 include: opts.include || '',
                 exclude: opts.exclude || '',
                 definite: opts.definite || '',
-                level: '',
-                weight: opts.weight || '',
                 bonusDrop: bonus
             });
+            // only when given: the server gives every level and include kind 1 by default (area/mobarea.js)
+            if (opts.levelweight) area.levelWeight = opts.levelweight;
+            if (opts.kindweight) area.kindWeight = opts.kindweight;
             if (boss) area.boss = boss;
             what = count + ' mobs, level ' + (min === max ? min : min + '-' + max) +
                 (area.include ? ', kinds ' + area.include : area.definite ? ', kinds ' + area.definite : '');

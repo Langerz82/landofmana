@@ -22,6 +22,24 @@ from octo import tile as otile, clean, octshape, FAM, block, rectify, shore, mat
 from PIL import Image
 from noise import fbm
 from paths import data, cache
+
+
+def level_prop(lo, hi):
+    """A mob area's "level" property: one level ("10") or a range ("10-12") (tools/maps/converter)."""
+    return str(lo) if hi == lo else f'{lo}-{hi}'
+
+
+def parse_level(v):
+    """A "level" property back to (minLevel, maxLevel): "10" -> (10, 10), "10-12" -> (10, 12)."""
+    a, _, b = str(v).partition('-')
+    return int(a), int(b or a)
+
+
+def level_weights(lo, hi):
+    """A mob area's levelWeight: each level twice as common as the next one up, minLevel first -- 10-12 -> "4,2,1",
+    a single level -> "1" (gameserver area/mobarea.js)."""
+    n = hi - lo + 1
+    return ','.join(str(2 ** (n - 1 - i)) for i in range(n))
 import density1 as DEN
 
 ap = argparse.ArgumentParser(description='Generate map1: a 1024x1024 map of 96x96 sub-areas in the style of old_map2/map2')
@@ -1346,9 +1364,8 @@ for _a in range(GR):
         lo, hi = _lo0 + int(_d[_a, _b]) * DEN.MOB_LEVEL_STEP, _hi0 + int(_d[_a, _b]) * DEN.MOB_LEVEL_STEP
         props = [{'name': 'count', 'type': 'int', 'value': DEN.MOB_COUNT},
                  {'name': 'include', 'type': 'string', 'value': ','.join(str(k) for k in DEN.MOBS[kind])},
-                 {'name': 'maxLevel', 'type': 'int', 'value': hi},
-                 {'name': 'minLevel', 'type': 'int', 'value': lo}]
-        if hi > lo: props.append({'name': 'weight', 'type': 'string', 'value': ','.join(['2'] + ['1'] * (hi - lo))})
+                 {'name': 'level', 'type': 'string', 'value': level_prop(lo, hi)}]
+        if hi > lo: props.append({'name': 'levelWeight', 'type': 'string', 'value': level_weights(lo, hi)})   # a single level: the default (1), not written
         mobareas.append(obj(x=x0 * 16, y=y0 * 16, width=(x1 - x0) * 16, height=(y1 - y0) * 16,
                             name=f'{kind} {lo}-{hi}', properties=props))
         MOB_CELL[(_a, _b)] = (lo, hi, DEN.MOBS[kind], kind)
@@ -1374,7 +1391,7 @@ for o in mobareas:
     ty, tx = _nearest(cand, cy_, cx_)
     pr = {q['name']: q['value'] for q in o['properties']}
     npc_spots.append({'x': int(tx), 'y': int(ty), 'row': _a, 'col': _b, 'area': o['name'].split()[0],
-                      'minLevel': pr['minLevel'], 'maxLevel': pr['maxLevel'],
+                      'minLevel': parse_level(pr['level'])[0], 'maxLevel': parse_level(pr['level'])[1],
                       'mobs': [int(k) for k in pr['include'].split(',')],
                       'near': sorted({MOB_KIND[int(grid[x_, y_])] if grid[x_, y_] != LAG else 'lagoon'
                                       for x_, y_ in _nbrs(_a, _b, N4)}),
@@ -1473,9 +1490,8 @@ for c_ in room_cams:
                                                                    (FULL['blocking'][ay:ay + ah, ax:ax + aw] == 0)).sum())
                                                               // DEN.DUNGEON_TILES_PER_MOB)},
              {'name': 'include', 'type': 'string', 'value': ','.join(str(k) for k in kinds)},
-             {'name': 'maxLevel', 'type': 'int', 'value': hi},
-             {'name': 'minLevel', 'type': 'int', 'value': lo}]
-    if hi > lo: props.append({'name': 'weight', 'type': 'string', 'value': ','.join(['2'] + ['1'] * (hi - lo))})
+             {'name': 'level', 'type': 'string', 'value': level_prop(lo, hi)}]
+    if hi > lo: props.append({'name': 'levelWeight', 'type': 'string', 'value': level_weights(lo, hi)})   # a single level: the default (1), not written
     mobareas.append(obj(x=ax * 16, y=ay * 16, width=aw * 16, height=ah * 16,
                         name=f'{nm_} ({akind} cave) {lo}-{hi}', properties=props))
     n_dmob += 1

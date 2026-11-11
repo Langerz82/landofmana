@@ -533,9 +533,9 @@ class Map {
                     // w/h its diameters (see area/area.js).
                     !!ma.elipse,
                     -1,
-                    ma.level,
-                    ma.weight,
-                    ma.bonusDrop
+                    ma.bonusDrop,
+                    ma.kindWeight,
+                    ma.levelWeight
                 );
                 //self.mobAreas[ma.id] = mobarea;
                 self.mobAreas.push(mobarea);
