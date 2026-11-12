@@ -252,15 +252,24 @@ class MobRespawn {
                     entity.y
             );
         }
-        if (!(entity.x == entity.spawnX && entity.y === entity.spawnY)) {
-            //console.error("mob, returnedToSpawn: incorrect spawn coords.");
-            //console.error("mob, returnedToSpawn: sx:"+this.spawnX+", sy:"+this.spawnY);
-            //console.error("mob, returnedToSpawn: x:"+this.x+", y:"+this.y);
-        }
+        // FIX (frozen, unattackable mobs): when the walk home is aborted or can't be pathed
+        // (returnToSpawn()'s no-path fallback, onAbortPathing), the mob is still somewhere
+        // short of its spawn here, and resetPosition() just snapped it there on the server
+        // without telling anyone. Clients kept drawing it where it stopped: it stood still,
+        // and every attack on it was dropped server-side as "not close enough" because the
+        // real mob was back at its spawn. Tell the neighbours where it actually is now
+        // (state 2 = stop at x,y; both clients snap the mob to that spot).
+        const moved = !(entity.x === entity.spawnX && entity.y === entity.spawnY);
         entity.resetHp();
         entity.resetPosition();
         entity.resetBehaviour();
         entity.invincible = false;
+        if (moved && entity.map) {
+            entity.map.entities.sendNeighbours(
+                entity,
+                new Messages.Move(entity, entity.orientation, 2, entity.x, entity.y)
+            );
+        }
     }
 
     setItemLoot() {

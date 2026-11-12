@@ -114,7 +114,11 @@ export function installEntityMovingSpatial(proto) {
         // instead removes both the correctness bug and the O(n^2) cost.
         poss = poss.filter((p) => !this.isColliding(p.x, p.y));
 
-        const entities = this.getEntitiesAround(adjEnd);
+        // FIX (mobs stacking on one spot): this looked for other characters around
+        // *this* entity, but the spots are around `dest` - a chasing mob a few tiles
+        // away never saw the mobs already standing next to its target, and walked onto
+        // their spot. Every spot is within adjEnd tiles of dest, so look there.
+        const entities = this.getEntitiesAroundPos(dest.x, dest.y, adjEnd + 1);
 
         const ts = G_TILESIZE;
         const tsh = ts >> 1;
@@ -137,6 +141,20 @@ export function installEntityMovingSpatial(proto) {
                         tx = tp[0];
                         ty = tp[1];
                     }
+                } else if (
+                    typeof e2.isMoving === 'function' &&
+                    e2.isMoving() &&
+                    typeof e2.predictTile === 'function'
+                ) {
+                    // FIX (mobs not taking the closest spot): a character walking
+                    // without a path (a player on the keys) is about to leave its
+                    // tile, but it blocked that tile here - so a mob chasing a player
+                    // from behind couldn't take the spot right behind them (the tile
+                    // being left) and went round to the side or the front instead.
+                    // Like a path-walker above, count it where it's heading.
+                    const tp = e2.predictTile();
+                    tx = tp[0];
+                    ty = tp[1];
                 }
                 if (Math.abs(x - tx) <= tsh && Math.abs(y - ty) <= tsh) {
                     return false;
@@ -166,6 +184,16 @@ export function installEntityMovingSpatial(proto) {
             return this.map.entities.getCharactersAround(this, dist);
         else {
             return game.getEntitiesAround(this.x, this.y, dist * G_TILESIZE);
+        }
+    };
+
+    // Characters within `dist` tiles of the point (x, y) (getEntitiesAround(), but
+    // around a position rather than around this entity).
+    proto.getEntitiesAroundPos = function (x, y, dist) {
+        if (typeof game === 'undefined')
+            return this.map.entities.getCharactersAround({ x: x, y: y }, dist);
+        else {
+            return game.getEntitiesAround(x, y, dist * G_TILESIZE);
         }
     };
 
@@ -229,6 +257,22 @@ export function installEntityMovingSpatial(proto) {
         // a hardcoded G_TILESIZE.
         dist = dist || G_TILESIZE;
         return this.nextDist(x, y, o, dist);
+    };
+
+    // Predicts the tile this entity is about to be on, as [x, y] at the tile's centre
+    // (positions are tile centres, see area.js): while it is moving, the next tile in its
+    // orientation (nextTile, snapped to the grid); when it is standing still, or the next
+    // tile is blocked (it's walking into a wall), the tile it is on now.
+    proto.predictTile = function () {
+        const ts = G_TILESIZE,
+            half = ts >> 1;
+        const snap = (v) => Math.floor(v / ts) * ts + half;
+        const here = [snap(this.x), snap(this.y)];
+        if (!(typeof this.isMoving === 'function' && this.isMoving())) return here;
+        const n = this.nextTile(this.x, this.y, this.orientation);
+        const next = [snap(n[0]), snap(n[1])];
+        if (this.isColliding(next[0], next[1])) return here;
+        return next;
     };
 
     // NOTE: no caller anywhere in the client or server codebase currently (grepped

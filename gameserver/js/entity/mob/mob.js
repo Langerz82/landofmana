@@ -484,16 +484,11 @@ class Mob extends Character {
         return this.aiHandler.canRoam();
     }
 
+    // `entity` is anything with x/y: mobai.js passes the target's predicted tile
+    // (EntityMoving.predictTile(): its next tile while moving, else its own tile),
+    // so the prediction no longer happens here.
     followAttack(entity) {
-        if (entity.isMoving()) {
-            const pos = this.nextTile(entity.x, entity.y, entity.orientation);
-            pos[0] = Math.floor(pos[0] / G_TILESIZE) * G_TILESIZE;
-            pos[1] = Math.floor(pos[1] / G_TILESIZE) * G_TILESIZE;
-            const obj = { x: pos[0], y: pos[1] };
-            super.followAttack(obj);
-        } else {
-            super.followAttack(entity);
-        }
+        return super.followAttack(entity);
     }
 }
 

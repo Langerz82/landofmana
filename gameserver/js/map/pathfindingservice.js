@@ -65,6 +65,25 @@ class MapPathfindingService {
         );
     }
 
+    // Makes `path` (pixel waypoints) start exactly at (x, y): (x, y), then the corner
+    // that keeps every leg on one axis, then the old first waypoint, then the rest;
+    // repeated and collinear waypoints are merged (dropUneededNodes).
+    startAtPosition(path, x, y) {
+        if (!path || path.length === 0) return path;
+        const first = path[0];
+        if (first[0] === x && first[1] === y) return path;
+        const out = [[x, y]];
+        if (first[0] !== x && first[1] !== y) {
+            // one leg on each axis: go along the axis the next leg doesn't use first,
+            // so the turn onto the path's own line happens on the tile centre
+            const next = path[1];
+            const nextAlongX = next && next[1] === first[1];
+            out.push(nextAlongX ? [x, first[1]] : [first[0], y]);
+        }
+        for (const node of path) out.push([node[0], node[1]]);
+        return this.me.pathfinder.dropUneededNodes(out);
+    }
+
     findPath(character, x, y, ignoreList) {
         const pathfinder = this.me.pathfinder;
         const map = this.me.map;
@@ -145,11 +164,22 @@ class MapPathfindingService {
                     console.error(Utils.captureStack());
                     return null;
                 }
-                const res = pathfinder.getFullFromShortPath(
+                let res = pathfinder.getFullFromShortPath(
                     subpath,
                     shortGrid.minX,
                     shortGrid.minY
                 );
+                // FIX (mobs stopped mid-step): the direct path is built from the start
+                // *tile* (fgpS, then makeNodesMidPoints), so it always begins at the
+                // tile's centre, not where the character actually is. A character that
+                // was stopped mid-step (e.g. a mob giving up a chase) is a few pixels off
+                // that centre, and waypoints only count as reached on an exact x and y
+                // match (entitymovingpath.js nextStepPath), so it walked alongside the
+                // path, never hit the next waypoint and kept walking past it - e.g. a
+                // mob walking home overshot its spawn. Start the path at the real
+                // position instead, stepping onto the tile centre first if needed
+                // (inside the start tile, so no new collision), one axis at a time.
+                res = this.startAtPosition(res, character.x, character.y);
                 if (G_DEBUG)
                     console.info('findDirectPath - res:' + JSON.stringify(res));
                 if (!pathfinder.isValidGridPath(map.grid, res, true)) {
@@ -219,6 +249,30 @@ class MapPathfindingService {
                 }
                 if (G_DEBUG)
                     console.info('findPath - longPath:' + JSON.stringify(path));
+            }
+
+            // FIX (mobs giving up a chase they could finish): the e=16 search above
+            // still fails when the way round is a long detour (a river with the bridge
+            // further along, a cliff edge) - on map1 about 1 in 1500 chases needed more
+            // room. One wider try (e=32) before giving up; it only runs once both
+            // smaller searches have failed.
+            if (!path) {
+                const wideGrid = pathfinder.getShortGrid(grid, fgpS, fgpE, 32);
+                path = pathfinder.findShortPath(
+                    wideGrid.crop,
+                    wideGrid.minX,
+                    wideGrid.minY,
+                    [gpS[0] - wideGrid.minX, gpS[1] - wideGrid.minY],
+                    [gpE[0] - wideGrid.minX, gpE[1] - wideGrid.minY]
+                );
+                if (path) {
+                    path = pathfinder.dropUneededNodes(path);
+                    path = pathfinder.getFullFromShortPath(
+                        path,
+                        wideGrid.minX,
+                        wideGrid.minY
+                    );
+                }
             }
 
             if (!path) {

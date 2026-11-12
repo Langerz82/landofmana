@@ -101,6 +101,26 @@ class MobAI {
             return;
         }
 
+        // Standing on top of its target, or of another character (two mobs on one
+        // tile attacking the same player): step out to a free spot next to the
+        // target, then carry on attacking (CHASING -> checkChase() puts it back to
+        // ATTACKING once it's in range). follow() -> getClosestSpot() skips spots
+        // taken by other characters; with none free it stays put and attacks.
+        // Throttled by the same move cooldown as chasing, so it isn't checked
+        // every tick.
+        if (!mob.isMovingPath() && mob.canMoveAI()) {
+            const around = mob.map.entities.getCharactersAround(mob, 1);
+            if (mob.isOverlapping(around)) {
+                mob.setMoveAI(Utils.randomRangeInt(25, 50));
+                mob.forceStop();
+                mob.follow(this.predictedTile(mob.target));
+                if (mob.path) {
+                    mob.setAiState(mobState.CHASING);
+                    return;
+                }
+            }
+        }
+
         //console.info("mob.target: "+mob.target.id);
         //console.info("mob.canAttack: "+ mob.canAttack(time));
         //console.info("mob.canReach: "+mob.isAdjacentNonDiagonal(mob.target));
@@ -214,10 +234,13 @@ class MobAI {
                 // against an unchanged target" optimization while guaranteeing
                 // checkReturn()'s distance-based give-up check keeps running on
                 // that same cadence instead of being permanently bypassed.
+                // Follow where the target is about to be, not where it is: its
+                // predicted tile (next tile while moving, else its own tile).
+                const dest = this.predictedTile(target);
                 if (
                     !target.isMoving() &&
-                    mob.ptx === mob.target.x &&
-                    mob.pty === mob.target.y
+                    mob.ptx === dest.x &&
+                    mob.pty === dest.y
                 ) {
                     //console.info(mob.id+" path same as before and expensive.");
                     mob.setMoveAI(Utils.randomRangeInt(25, 50));
@@ -225,24 +248,35 @@ class MobAI {
                 }
 
                 mob.setMoveAI(Utils.randomRangeInt(25, 50));
-                mob.ptx = target.x;
-                mob.pty = target.y;
+                mob.ptx = dest.x;
+                mob.pty = dest.y;
 
-                mob.followAttack(target);
+                const spot = mob.followAttack(dest);
                 if (mob.path) {
                     mob.setAiState(mobState.CHASING);
                     return;
-                } else {
-                    mob.returnToSpawn();
+                }
+                // FIX (mobs giving up for no reason): no path doesn't always mean the
+                // target is out of reach. Either every spot next to it is taken (other
+                // mobs, blocked tiles) or the best spot is where this mob already
+                // stands (a moving target's next tile - findPath() returns nothing for
+                // a zero-length trip). Both used to send the mob home, invincible.
+                // Wait and try again on the next move tick instead; checkReturn()
+                // still sends it home if the target gets too far away.
+                if (!spot || (spot.x === mob.x && spot.y === mob.y)) {
+                    mob.ptx = mob.pty = null;   // retry even if the target doesn't move
+                    mob.setAiState(mobState.CHASING);
                     return;
                 }
+                mob.returnToSpawn();
+                return;
             }
         } else {
             if (!mob.isMovingPath()) {
                 const entities = mob.map.entities.getCharactersAround(mob, 1);
                 if (mob.isOverlapping(entities)) {
                     mob.forceStop();
-                    mob.follow(mob.target);
+                    mob.follow(this.predictedTile(mob.target));
                     if (mob.path) return;
                 }
 
@@ -251,6 +285,18 @@ class MobAI {
                 mob.setAiState(mobState.ATTACKING);
             }
         }
+    }
+
+    // Where to aim for the target: while it is moving, its predicted tile as {x, y}
+    // (EntityMoving.predictTile()); otherwise (standing still, or no predictTile())
+    // its actual position.
+    predictedTile(target) {
+        const moving =
+            typeof target.isMoving === 'function' && target.isMoving();
+        if (!moving || typeof target.predictTile !== 'function')
+            return { x: target.x, y: target.y };
+        const p = target.predictTile();
+        return { x: p[0], y: p[1] };
     }
 
     handleHurt(mob) {

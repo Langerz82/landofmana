@@ -355,11 +355,13 @@ export function installCharacterCombat(proto) {
         // map/spatialindex.js's add() (see its FIX comment). Left as-is here
         // it would make a mob/player next to the map's edge unable to move
         // into attack range of an otherwise reachable target.
+        // Returns the spot it is heading for (truthy, like the old `true`), or null
+        // when every spot next to the target is blocked or taken.
         if (spot && spot.x != null && spot.y != null) {
             this.moveTo_(spot.x, spot.y);
-            return true;
+            return spot;
         }
-        return false;
+        return null;
     };
 
     /*******************************************************************************
