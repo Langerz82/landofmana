@@ -760,8 +760,14 @@ class Map {
 
         let tries = 0;
         do {
-            pos.x = Utils.randomRangeInt(0, self.width * G_TILESIZE);
-            pos.y = Utils.randomRangeInt(0, self.height * G_TILESIZE);
+            // Tile centre of a random tile (x/y is an entity's centre
+            // point), so NPCs that roam here end up centred on a tile.
+            pos.x =
+                Utils.randomRangeInt(0, self.width - 1) * G_TILESIZE +
+                (G_TILESIZE >> 1);
+            pos.y =
+                Utils.randomRangeInt(0, self.height - 1) * G_TILESIZE +
+                (G_TILESIZE >> 1);
             // FIX: inverted -- this broke out of the retry loop when the
             // candidate position WAS colliding, i.e. it accepted/returned
             // positions inside walls instead of retrying for an open one.

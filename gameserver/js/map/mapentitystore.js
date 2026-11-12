@@ -38,8 +38,10 @@ import { G_TILESIZE, MAX_FIXED_ID } from '../constants.js';
 //     { "type": "npcstatic", "kind": 5, "x": 16333, "y": 16390,
 //       "name": "Bob" }
 //
-// x/y are the exact world (pixel) position of the admin's centre when they
-// ran /spawn -- not snapped to the tile grid. Everything after x/y is
+// x/y are the world (pixel) centre of the tile the admin stood on when they
+// ran /spawn; entities are always snapped to tile centres when spawned
+// (mapentities.js), so hand-edited values off-centre get centred too.
+// Everything after x/y is
 // optional: `name`, `level`, `orientation` (up/down/left/right or u/d/l/r;
 // default down). An NPC's quests aren't listed here: they're the quests
 // whose ids name its map index and entity id (questid.js), added with the
@@ -393,7 +395,7 @@ class MapEntityStore {
                     // No MobArea: the mob stands guard at this exact spot
                     // and respawns back here (see Mob.fixedSpawn).
                     entity = entities.addMob(rec.kind, rec.x, rec.y, null);
-                    entity.fixedSpawn = { x: rec.x, y: rec.y };
+                    entity.fixedSpawn = { x: entity.x, y: entity.y };
                     if (rec.level) entity.setLevel(rec.level);
                     break;
                 case 'npcmove':

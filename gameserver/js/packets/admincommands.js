@@ -17,6 +17,7 @@
 
 import Messages from '../message.js';
 import MapEntityStore from '../map/mapentitystore.js';
+import Utils from '../utils.js';
 import { G_TILESIZE } from '../constants.js';
 import { Types } from '../common.js';
 import MobData from '../data/mobdata.js';
@@ -357,10 +358,11 @@ class AdminCommands {
             return;
         }
 
-        // Exactly where the admin's centre is (an entity's x/y is its
-        // centre point) -- no snapping to the tile grid.
-        rec.x = p.x;
-        rec.y = p.y;
+        // The centre of the tile the admin is standing on (an entity's x/y
+        // is its centre point), so placed entities line up with the grid.
+        const tc = Utils.fixGridPosition(G_TILESIZE, p.x, p.y);
+        rec.x = tc.x;
+        rec.y = tc.y;
 
         const res = store.add(rec);
         if (res.error) {

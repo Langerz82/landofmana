@@ -73,10 +73,10 @@ class BlockArea extends EntityArea {
                 nearby
             );
             if (pos) {
-                block.setPosition(
-                    ~~Utils.floorTo(pos.x, G_TILESIZE),
-                    ~~Utils.floorTo(pos.y, G_TILESIZE)
-                );
+                // Tile centre, not its top-left corner (x/y is an
+                // entity's centre point).
+                const c = Utils.fixGridPosition(G_TILESIZE, pos.x, pos.y);
+                block.setPosition(c.x, c.y);
             } else {
                 console.error('BlockArea - randomizeBlocks: failed.');
             }

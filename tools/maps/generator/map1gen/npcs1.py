@@ -319,7 +319,7 @@ for s in spots['npcs']:
     eid = FIRST_ID + len(ent)
     name = new_name()
     ent.append({'id': eid, 'type': 'npcmove', 'kind': rnd.randint(1, 56),
-                'x': (s['x'] - wx) * 16, 'y': (s['y'] - wy) * 16, 'name': name})
+                'x': (s['x'] - wx) * 16 + 8, 'y': (s['y'] - wy) * 16 + 8, 'name': name})
     town = nearest_town(s)['name']
     plc = town if s['area'] == 'village' else place(s, area)
     lv = [s['minLevel'], s['maxLevel']]

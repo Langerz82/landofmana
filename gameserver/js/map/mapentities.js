@@ -129,16 +129,11 @@ class MapEntities {
             return self.map.getRandomPosition();
         });
 
-        const npc = new NpcMove(
-            ++this.entityCount,
-            0,
-            pos.x * G_TILESIZE,
-            pos.y * G_TILESIZE,
-            self.map
-        );
-
-        self.addNpcMove(npc);
-        return npc;
+        // FIX: Map#getRandomPosition() already returns world (pixel)
+        // coordinates, so multiplying by G_TILESIZE again threw the NPC far
+        // off the map; and addNpcMove() takes (kind, x, y) and builds the
+        // NPC itself -- it was being handed an already-built NpcMove.
+        return self.addNpcMove(0, pos.x, pos.y);
     }
 
     initPathingGrid() {
@@ -351,11 +346,14 @@ class MapEntities {
     }
 
     addBlock(kind, x, y, area, blockName) {
+        // Every placed entity sits on the centre of its tile (x/y is an
+        // entity's centre point), same as _addNpc() below.
+        const pos = Utils.fixGridPosition(G_TILESIZE, x, y);
         const block = new Block(
             ++this.entityCount,
             kind,
-            x,
-            y,
+            pos.x,
+            pos.y,
             this.map,
             area,
             blockName,
@@ -367,7 +365,16 @@ class MapEntities {
     }
 
     addMob(kind, x, y, area) {
-        const mob = new Mob(++this.entityCount, kind, x, y, this.map, area);
+        // Snap to the tile centre (see addBlock()).
+        const pos = Utils.fixGridPosition(G_TILESIZE, x, y);
+        const mob = new Mob(
+            ++this.entityCount,
+            kind,
+            pos.x,
+            pos.y,
+            this.map,
+            area
+        );
         mob.mobAI = this.mobAI;
 
         this.addEntity(mob);
@@ -413,11 +420,13 @@ class MapEntities {
     }
 
     addNode(kind, x, y, level, type) {
+        // Snap to the tile centre (see addBlock()).
+        const pos = Utils.fixGridPosition(G_TILESIZE, x, y);
         const node = new Node(
             ++this.entityCount,
             kind,
-            x,
-            y,
+            pos.x,
+            pos.y,
             this.map,
             level,
             type

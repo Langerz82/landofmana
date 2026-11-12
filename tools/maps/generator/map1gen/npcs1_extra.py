@@ -467,7 +467,7 @@ for p in parts:
         item_mob = mobs[(r + 1 + rnd.randrange(max(1, len(mobs) - 1))) % len(mobs)] if len(mobs) > 1 else mobs[0]
         eid = FIRST_ID + len(ent)
         name = new_name()
-        ent.append({'id': eid, 'type': 'npcmove', 'kind': rnd.randint(1, 56), 'x': spot[0] * 16, 'y': spot[1] * 16,
+        ent.append({'id': eid, 'type': 'npcmove', 'kind': rnd.randint(1, 56), 'x': spot[0] * 16 + 8, 'y': spot[1] * 16 + 8,
                     'name': name})
         lv = [area['minLevel'], area['maxLevel']]
         base = f'1{p["index"]:04d}{eid:06d}'
