@@ -3,8 +3,8 @@
   {
    "id": 0,
    "count": 100,
-   "minLevel": 25,
-   "maxLevel": 26,
+   "minLevel": 38,
+   "maxLevel": 40,
    "x": 0,
    "y": 0,
    "w": 1632,
@@ -13,13 +13,13 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 1,
-   "levelWeight": "2,1"
+   "levelWeight": "2,1,1"
   },
   {
    "id": 1,
    "count": 100,
-   "minLevel": 25,
-   "maxLevel": 26,
+   "minLevel": 35,
+   "maxLevel": 37,
    "x": 1632,
    "y": 0,
    "w": 1648,
@@ -28,13 +28,13 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 1,
-   "levelWeight": "2,1"
+   "levelWeight": "2,1,1"
   },
   {
    "id": 2,
    "count": 50,
-   "minLevel": 19,
-   "maxLevel": 20,
+   "minLevel": 31,
+   "maxLevel": 33,
    "x": 3280,
    "y": 0,
    "w": 816,
@@ -43,13 +43,13 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 1,
-   "levelWeight": "2,1"
+   "levelWeight": "2,1,1"
   },
   {
    "id": 3,
    "count": 100,
-   "minLevel": 21,
-   "maxLevel": 22,
+   "minLevel": 34,
+   "maxLevel": 36,
    "x": 0,
    "y": 1488,
    "w": 1632,
@@ -58,13 +58,13 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 1,
-   "levelWeight": "2,1"
+   "levelWeight": "2,1,1"
   },
   {
    "id": 4,
    "count": 100,
-   "minLevel": 19,
-   "maxLevel": 20,
+   "minLevel": 31,
+   "maxLevel": 33,
    "x": 1632,
    "y": 1488,
    "w": 1648,
@@ -73,13 +73,13 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 1,
-   "levelWeight": "2,1"
+   "levelWeight": "2,1,1"
   },
   {
    "id": 5,
    "count": 50,
-   "minLevel": 17,
-   "maxLevel": 18,
+   "minLevel": 28,
+   "maxLevel": 30,
    "x": 3280,
    "y": 1488,
    "w": 816,
@@ -88,13 +88,13 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 1,
-   "levelWeight": "2,1"
+   "levelWeight": "2,1,1"
   },
   {
    "id": 6,
    "count": 75,
-   "minLevel": 19,
-   "maxLevel": 20,
+   "minLevel": 31,
+   "maxLevel": 33,
    "x": 0,
    "y": 2976,
    "w": 1632,
@@ -103,13 +103,13 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 1,
-   "levelWeight": "2,1"
+   "levelWeight": "2,1,1"
   },
   {
    "id": 7,
    "count": 75,
-   "minLevel": 17,
-   "maxLevel": 18,
+   "minLevel": 28,
+   "maxLevel": 30,
    "x": 1632,
    "y": 2976,
    "w": 1648,
@@ -118,13 +118,13 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 1,
-   "levelWeight": "2,1"
+   "levelWeight": "2,1,1"
   },
   {
    "id": 8,
    "count": 38,
-   "minLevel": 15,
-   "maxLevel": 16,
+   "minLevel": 25,
+   "maxLevel": 27,
    "x": 3280,
    "y": 2976,
    "w": 816,
@@ -133,7 +133,7 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 1,
-   "levelWeight": "2,1"
+   "levelWeight": "2,1,1"
   }
  ],
  "entityAreas": []

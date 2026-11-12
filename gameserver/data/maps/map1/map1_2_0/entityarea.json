@@ -3,8 +3,8 @@
   {
    "id": 0,
    "count": 50,
-   "minLevel": 13,
-   "maxLevel": 14,
+   "minLevel": 16,
+   "maxLevel": 18,
    "x": 0,
    "y": 0,
    "w": 1632,
@@ -13,13 +13,13 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 1,
-   "levelWeight": "2,1"
+   "levelWeight": "2,1,1"
   },
   {
    "id": 1,
    "count": 50,
-   "minLevel": 11,
-   "maxLevel": 12,
+   "minLevel": 13,
+   "maxLevel": 15,
    "x": 1632,
    "y": 0,
    "w": 1648,
@@ -28,13 +28,13 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 1,
-   "levelWeight": "2,1"
+   "levelWeight": "2,1,1"
   },
   {
    "id": 2,
    "count": 25,
-   "minLevel": 9,
-   "maxLevel": 10,
+   "minLevel": 10,
+   "maxLevel": 12,
    "x": 3280,
    "y": 0,
    "w": 816,
@@ -43,13 +43,13 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 1,
-   "levelWeight": "2,1"
+   "levelWeight": "2,1,1"
   },
   {
    "id": 3,
    "count": 100,
-   "minLevel": 11,
-   "maxLevel": 12,
+   "minLevel": 13,
+   "maxLevel": 15,
    "x": 0,
    "y": 752,
    "w": 1632,
@@ -58,13 +58,13 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 1,
-   "levelWeight": "2,1"
+   "levelWeight": "2,1,1"
   },
   {
    "id": 4,
    "count": 100,
-   "minLevel": 9,
-   "maxLevel": 10,
+   "minLevel": 10,
+   "maxLevel": 12,
    "x": 1632,
    "y": 752,
    "w": 1648,
@@ -73,13 +73,13 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 1,
-   "levelWeight": "2,1"
+   "levelWeight": "2,1,1"
   },
   {
    "id": 5,
    "count": 50,
-   "minLevel": 7,
-   "maxLevel": 8,
+   "minLevel": 8,
+   "maxLevel": 9,
    "x": 3280,
    "y": 752,
    "w": 816,
@@ -93,8 +93,8 @@
   {
    "id": 6,
    "count": 100,
-   "minLevel": 9,
-   "maxLevel": 10,
+   "minLevel": 10,
+   "maxLevel": 12,
    "x": 0,
    "y": 2240,
    "w": 1632,
@@ -103,13 +103,13 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 1,
-   "levelWeight": "2,1"
+   "levelWeight": "2,1,1"
   },
   {
    "id": 7,
    "count": 100,
-   "minLevel": 7,
-   "maxLevel": 8,
+   "minLevel": 8,
+   "maxLevel": 9,
    "x": 1632,
    "y": 2240,
    "w": 1648,
@@ -123,8 +123,8 @@
   {
    "id": 8,
    "count": 50,
-   "minLevel": 5,
-   "maxLevel": 6,
+   "minLevel": 6,
+   "maxLevel": 7,
    "x": 3280,
    "y": 2240,
    "w": 816,
@@ -138,8 +138,8 @@
   {
    "id": 9,
    "count": 25,
-   "minLevel": 7,
-   "maxLevel": 8,
+   "minLevel": 8,
+   "maxLevel": 9,
    "x": 0,
    "y": 3728,
    "w": 1632,
@@ -153,8 +153,8 @@
   {
    "id": 10,
    "count": 25,
-   "minLevel": 5,
-   "maxLevel": 6,
+   "minLevel": 6,
+   "maxLevel": 7,
    "x": 1632,
    "y": 3728,
    "w": 1648,
@@ -168,8 +168,8 @@
   {
    "id": 11,
    "count": 12,
-   "minLevel": 3,
-   "maxLevel": 4,
+   "minLevel": 4,
+   "maxLevel": 5,
    "x": 3280,
    "y": 3728,
    "w": 816,

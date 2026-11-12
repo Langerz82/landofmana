@@ -66,4 +66,13 @@ It writes the NPCs to `gameserver/data/maps/map1/<part>/entity.json` (ids from 1
 leaving the rest of those files as they are. Running it again first removes what it wrote last time (listed in
 `tools/maps/data/map1_npcs_written.json`). Then run `godot-client/sync-assets-win.bat` (or `-linux.sh`).
 
+Then set the mob levels (after the NPCs, since it also updates their quests' levels):
+
+```
+python npcs1_extra.py   # a second quest NPC in every outdoor mob area
+python levels1.py       # start town level 1; then 2-3, 4-5, 6-7, 8-9 by area away from the town, 10-12, 13-15, ... from level 10; volcanoes up to 40
+```
+
+`levels1.py` overrides the levels `gen1.py`/`split.py` wrote, so run it again after every split. Cave levels are the easiest entrance's level + 2.
+
 Settings are in `density1.py` (layout at the top, item amounts per 100x100 tiles below, as in `density2.py`).
