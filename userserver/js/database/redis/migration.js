@@ -68,6 +68,11 @@
 // constructs a DatabaseHandler -- so they're guaranteed to already be
 // populated by the time any migration below can run.
 
+// migrateXpLevels() for xpLevelsOnStartup() below. It lives in its own file
+// (it's also the "xplevels" console command) and gets the shared client
+// from redis.js via initXpLevelMigration().
+import { xpLevelMigrationMethods } from './xplevelmigration.js';
+
 let client;
 
 // Bank capacity -- matches userserver/js/format.js's getItemSlots(1) (type
@@ -2194,6 +2199,49 @@ function migrateInventorySize(callback) {
     });
 }
 
+// RUNS ONCE AT STARTUP, RE-ARMABLE -- the "xplevels run" migration
+// (xplevelmigration.js) for after the XP-per-level table in
+// shared/js/gametypes.js changes: resets every character's stat points for
+// their new level and unequips gear they no longer have the level for.
+// Armed by the Redis key below: missing or "true" -> run, then it's set to
+// "false" so it runs only once. To run it again at the next start:
+//     redis-cli SET migrations:xplevels_on_startup true
+// (or "xplevels startup on" in the userserver console). Called from
+// migrationReady (redis.js), after migrateInventorySize() since both write
+// inventory/bank, and before any gameserver can connect -- so no one is
+// online to save old stats back. A failed run leaves the key as it was, so
+// it is retried at the next start. `callback(err)`.
+function xpLevelsOnStartup(callback) {
+    const key = 'migrations:xplevels_on_startup';
+    client.get(key, (err, value) => {
+        if (err) {
+            console.error('xpLevelsOnStartup: flag read failed: ' + JSON.stringify(err));
+            if (callback) callback(err);
+            return;
+        }
+        if (value === 'false') {
+            console.info(key + ' is false: xplevels migration skipped.');
+            if (callback) callback(null);
+            return;
+        }
+        console.info(
+            key + ' is ' + (value === null ? 'not set' : value) +
+                ': running "xplevels run" (once).'
+        );
+        xpLevelMigrationMethods.migrateXpLevels('run', () => false, (err2) => {
+            // Only disarm it if every account was migrated, so a failure
+            // is retried at the next start.
+            if (err2) {
+                if (callback) callback(err2);
+                return;
+            }
+            client.set(key, 'false', (err3) => {
+                if (callback) callback(err3 || null);
+            });
+        });
+    });
+}
+
 // Mixed onto DatabaseHandler.prototype in redis.js (Object.assign, right
 // after the class declaration) rather than exported/used individually, so
 // every function above keeps running as an instance method -- called as
@@ -2216,5 +2264,6 @@ export const migrationMethods = {
     wipeAllQuests,
     wipeQuestsOnce,
     migrateLegacyBans,
-    migrateKeyPrefixes
+    migrateKeyPrefixes,
+    xpLevelsOnStartup
 };

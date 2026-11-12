@@ -696,6 +696,8 @@ function setAdmin(args) {
 //   xplevels clearbackup      -- delete the backup once you're happy
 // run/undo refuse while anyone is online; "force" runs anyway and skips
 // the accounts that are online.
+//   xplevels startup [on|off] -- show, arm or disarm the once-at-startup run
+//                                (Redis key migrations:xplevels_on_startup)
 let xpLevelsBusy = false;
 function xpLevels(args) {
     if (!global.DBH) {
@@ -759,8 +761,23 @@ function xpLevels(args) {
         case 'clearbackup':
             global.DBH.clearXpLevelsBackup();
             break;
+        case 'startup': {
+            const key = 'migrations:xplevels_on_startup';
+            if (opt === 'on' || opt === 'off') {
+                global.DBH.setXpLevelsStartup(opt === 'on', (err) => {
+                    if (err) console.error('xplevels: could not set ' + key + ': ' + err.message);
+                    else console.info('xplevels: ' + key + ' = ' + (opt === 'on' ? 'true -- runs once at the next start.' : 'false -- will not run at startup.'));
+                });
+            } else {
+                global.DBH.getXpLevelsStartup((err, v) => {
+                    if (err) console.error('xplevels: could not read ' + key + ': ' + err.message);
+                    else console.info('xplevels: ' + key + ' = ' + (v === null ? 'not set (runs at the next start)' : v === 'false' ? 'false (will not run at startup)' : v + ' (runs at the next start)'));
+                });
+            }
+            break;
+        }
         default:
-            console.info('usage: xplevels [dry|run [force]|undo confirm|clearbackup]');
+            console.info('usage: xplevels [dry|run [force]|undo confirm|clearbackup|startup [on|off]]');
     }
 }
 

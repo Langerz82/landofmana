@@ -244,7 +244,7 @@ static func skill_exp_table() -> Array:
 	Types._ensure_tables()
 	var out: Array = [0]
 	for i in range(1, 50):
-		out.append(int(int(floor(i * 300 * pow(1.5, i / 5.0))) / 1.5))
+		out.append(int(int(floor(i * 280 * pow(1.8, i / 4.0))) / 1.5))
 	return out
 
 

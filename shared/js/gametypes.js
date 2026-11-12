@@ -302,7 +302,7 @@ Types.weaponExp[0] = 0;
 // computed value is only ever used via the Types.*Exp[] arrays built
 // right below it). Removed as debug residue.
 for (let i = 1; i < 50; i++) {
-    const points = Math.floor(i * 300 * Math.pow(1.5, i / 5));
+    const points = Math.floor(i * 280 * Math.pow(1.8, i / 4));
     Types.expForLevel[i] = points;
     Types.defenseExp[i] = points * 10 + 50;
     Types.attackExp[i] = points * 10 + 50;

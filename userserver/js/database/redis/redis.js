@@ -382,10 +382,27 @@ class DatabaseHandler {
                     });
                 })
         );
+        // Once-at-startup "xplevels run" (xpLevelsOnStartup(), migration.js)
+        // -- chained after the inventory migration since both write
+        // inventory/bank, and part of migrationReady so it finishes before
+        // any gameserver can connect.
+        const startupXpLevels = inventoryMigration.then(
+            () =>
+                new Promise((resolve, reject) => {
+                    this.xpLevelsOnStartup((err) => {
+                        if (err) {
+                            reject(err);
+                        } else {
+                            resolve();
+                        }
+                    });
+                })
+        );
         this.migrationReady = Promise.all([
             goldMigration,
             bankMigration,
             inventoryMigration,
+            startupXpLevels,
             newQuestsPurge,
             questIdWipe,
             startupQuestWipe,

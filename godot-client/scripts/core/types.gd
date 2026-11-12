@@ -139,7 +139,7 @@ static func _ensure_tables() -> void:
 	defense_exp[0] = 0
 	weapon_exp[0] = 0
 	for i in range(1, 50):
-		var points := int(floor(i * 300 * pow(1.5, i / 5.0)))
+		var points := int(floor(i * 280 * pow(1.8, i / 4.0)))
 		exp_for_level[i] = points
 		defense_exp[i] = points * 10 + 50
 		attack_exp[i] = points * 10 + 50

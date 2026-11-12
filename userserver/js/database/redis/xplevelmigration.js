@@ -16,6 +16,10 @@
 // or <https://www.gnu.org/licenses/>.
 
 // XP-CURVE MIGRATION -- the "xplevels" console command (main.js).
+// Also runs once automatically at startup (migration.js, xpLevelsOnStartup),
+// controlled by the Redis key migrations:xplevels_on_startup: missing or
+// "true" -> run, then it's set to "false". Re-arm with
+//     redis-cli SET migrations:xplevels_on_startup true
 //
 // Run this after changing the XP-per-level table in shared/js/gametypes.js
 // (Types.expForLevel and friends). Only raw XP is saved (p:<name> "exps"),
@@ -475,7 +479,21 @@ function clearXpLevelsBackup(callback) {
     });
 }
 
+// The once-at-startup switch (see migration.js xpLevelsOnStartup()).
+const STARTUP_KEY = 'migrations:xplevels_on_startup';
+
+// callback(err, value) -- value is the raw key: null, 'true' or 'false'.
+function getXpLevelsStartup(callback) {
+    client.get(STARTUP_KEY, callback);
+}
+
+function setXpLevelsStartup(enabled, callback) {
+    client.set(STARTUP_KEY, enabled ? 'true' : 'false', (err) => callback && callback(err || null));
+}
+
 export const xpLevelMigrationMethods = {
+    getXpLevelsStartup,
+    setXpLevelsStartup,
     migrateXpLevels,
     undoXpLevels,
     clearXpLevelsBackup
