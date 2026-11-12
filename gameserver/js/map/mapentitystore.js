@@ -43,7 +43,10 @@ import { G_TILESIZE, MAX_FIXED_ID } from '../constants.js';
 // (mapentities.js), so hand-edited values off-centre get centred too.
 // Everything after x/y is
 // optional: `name`, `level`, `orientation` (up/down/left/right or u/d/l/r;
-// default down). An NPC's quests aren't listed here: they're the quests
+// default down), `spawnDelay` (seconds until it comes back after being
+// killed / harvested / opened; default: the entity's own, e.g. a chest's 300).
+//     { "type": "node", "kind": 99, "x": 96, "y": 848, "level": 8,
+//       "spawnDelay": 960 } An NPC's quests aren't listed here: they're the quests
 // whose ids name its map index and entity id (questid.js), added with the
 // admin /addquest command. The file is safe to
 // hand-edit while the server is stopped; it is re-read and every record
@@ -147,6 +150,11 @@ class MapEntityStore {
             return 'level must be 1-' + MAX_LEVEL;
         if (rec.orientation !== undefined && !ORIENTATION_IDS[rec.orientation])
             return 'orientation must be up, down, left or right';
+        if (
+            rec.spawnDelay !== undefined &&
+            (!Number.isFinite(rec.spawnDelay) || rec.spawnDelay <= 0)
+        )
+            return 'spawnDelay must be a number of seconds above 0';
         if (rec.name !== undefined) {
             if (typeof rec.name !== 'string' || !rec.name.length)
                 return 'bad name';
@@ -381,6 +389,12 @@ class MapEntityStore {
             rec.orientation =
                 MapEntityStore.normalizeOrientation(item.orientation) ||
                 String(item.orientation); // invalid -> caught by validate()
+        if (
+            item.spawnDelay !== undefined &&
+            item.spawnDelay !== null &&
+            item.spawnDelay !== ''
+        )
+            rec.spawnDelay = Number(item.spawnDelay);
         // (an old "quests" list is dropped: an NPC's quests come from their
         // ids now -- questid.js)
         return rec;
@@ -428,6 +442,9 @@ class MapEntityStore {
             return null;
         }
         if (entity && rec.name) entity.name = rec.name;
+        // spawnDelay is in seconds in entity.json; entities keep milliseconds
+        // (mobai.js for mobs, Node.handleRespawn for nodes and chests).
+        if (entity && rec.spawnDelay) entity.spawnDelay = rec.spawnDelay * 1000;
         if (entity) {
             // Face down unless the record says otherwise.
             entity.orientation = ORIENTATION_IDS[rec.orientation || 'down'];

@@ -73,6 +73,6 @@ python npcs1_extra.py   # a second quest NPC in every outdoor mob area
 python levels1.py       # start town level 1; then 2-3, 4-5, 6-7, 8-9 by area away from the town, 10-12, 13-15, ... from level 10; volcanoes up to 40
 ```
 
-`levels1.py` overrides the levels `gen1.py`/`split.py` wrote, so run it again after every split. Cave levels are the easiest entrance's level + 2.
+`levels1.py` overrides the levels `gen1.py`/`split.py` wrote, so run it again after every split. Caves: the first room is the entrance area's lowest level + 2 (a 2-level range), +1 per room further in; every cave mob is aggressive (`"aggro": 1`), and every dead-end room gets a chest at its far end at the level of its hardest mob, respawning after 2 minutes x its level (`spawnDelay` in `map1_int/entity.json`).
 
 Settings are in `density1.py` (layout at the top, item amounts per 100x100 tiles below, as in `density2.py`).

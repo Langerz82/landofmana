@@ -4,7 +4,7 @@
    "id": 0,
    "count": 19,
    "minLevel": 36,
-   "maxLevel": 38,
+   "maxLevel": 37,
    "x": 4240,
    "y": 3200,
    "w": 624,
@@ -13,12 +13,13 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 1,
    "count": 4,
-   "minLevel": 36,
+   "minLevel": 37,
    "maxLevel": 38,
    "x": 256,
    "y": 864,
@@ -28,12 +29,13 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 2,
    "count": 2,
-   "minLevel": 36,
+   "minLevel": 37,
    "maxLevel": 38,
    "x": 7600,
    "y": 8752,
@@ -43,12 +45,13 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 3,
    "count": 2,
-   "minLevel": 36,
+   "minLevel": 37,
    "maxLevel": 38,
    "x": 3072,
    "y": 992,
@@ -58,12 +61,13 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 4,
    "count": 14,
-   "minLevel": 36,
+   "minLevel": 37,
    "maxLevel": 38,
    "x": 5072,
    "y": 5104,
@@ -73,12 +77,13 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 5,
    "count": 3,
-   "minLevel": 36,
+   "minLevel": 37,
    "maxLevel": 38,
    "x": 4208,
    "y": 10512,
@@ -88,13 +93,14 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 6,
    "count": 4,
-   "minLevel": 36,
-   "maxLevel": 38,
+   "minLevel": 38,
+   "maxLevel": 39,
    "x": 3008,
    "y": 6928,
    "w": 192,
@@ -103,13 +109,14 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 7,
    "count": 3,
    "minLevel": 36,
-   "maxLevel": 38,
+   "maxLevel": 37,
    "x": 7904,
    "y": 6944,
    "w": 176,
@@ -118,12 +125,13 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 8,
    "count": 3,
-   "minLevel": 36,
+   "minLevel": 37,
    "maxLevel": 38,
    "x": 96,
    "y": 13856,
@@ -133,13 +141,14 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 9,
    "count": 9,
-   "minLevel": 36,
-   "maxLevel": 38,
+   "minLevel": 38,
+   "maxLevel": 39,
    "x": 5776,
    "y": 5104,
    "w": 368,
@@ -148,13 +157,14 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 10,
    "count": 2,
-   "minLevel": 36,
-   "maxLevel": 38,
+   "minLevel": 39,
+   "maxLevel": 40,
    "x": 4016,
    "y": 1024,
    "w": 48,
@@ -163,13 +173,14 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 11,
    "count": 4,
-   "minLevel": 36,
-   "maxLevel": 38,
+   "minLevel": 39,
+   "maxLevel": 40,
    "x": 6256,
    "y": 5104,
    "w": 176,
@@ -178,13 +189,14 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 12,
    "count": 12,
    "minLevel": 30,
-   "maxLevel": 32,
+   "maxLevel": 31,
    "x": 6432,
    "y": 1072,
    "w": 416,
@@ -193,12 +205,13 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 13,
    "count": 3,
-   "minLevel": 30,
+   "minLevel": 31,
    "maxLevel": 32,
    "x": 1152,
    "y": 13856,
@@ -208,13 +221,14 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 14,
    "count": 6,
-   "minLevel": 30,
-   "maxLevel": 32,
+   "minLevel": 32,
+   "maxLevel": 33,
    "x": 1968,
    "y": 5088,
    "w": 256,
@@ -223,13 +237,14 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 15,
    "count": 3,
-   "minLevel": 30,
-   "maxLevel": 32,
+   "minLevel": 33,
+   "maxLevel": 34,
    "x": 1824,
    "y": 928,
    "w": 48,
@@ -238,13 +253,14 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 16,
    "count": 13,
-   "minLevel": 30,
-   "maxLevel": 32,
+   "minLevel": 32,
+   "maxLevel": 33,
    "x": 1904,
    "y": 3200,
    "w": 400,
@@ -253,13 +269,14 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 17,
    "count": 5,
-   "minLevel": 30,
-   "maxLevel": 32,
+   "minLevel": 33,
+   "maxLevel": 34,
    "x": 4816,
    "y": 10512,
    "w": 912,
@@ -268,13 +285,14 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 18,
    "count": 2,
-   "minLevel": 30,
-   "maxLevel": 32,
+   "minLevel": 34,
+   "maxLevel": 35,
    "x": 7904,
    "y": 8752,
    "w": 192,
@@ -283,13 +301,14 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 19,
    "count": 12,
    "minLevel": 30,
-   "maxLevel": 32,
+   "maxLevel": 31,
    "x": 6544,
    "y": 5104,
    "w": 512,
@@ -298,12 +317,13 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 20,
    "count": 4,
-   "minLevel": 30,
+   "minLevel": 31,
    "maxLevel": 32,
    "x": 720,
    "y": 880,
@@ -313,12 +333,13 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 21,
    "count": 9,
-   "minLevel": 30,
+   "minLevel": 31,
    "maxLevel": 32,
    "x": 2336,
    "y": 5088,
@@ -328,13 +349,14 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 22,
    "count": 3,
-   "minLevel": 30,
-   "maxLevel": 32,
+   "minLevel": 32,
+   "maxLevel": 33,
    "x": 2272,
    "y": 944,
    "w": 48,
@@ -343,12 +365,13 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 23,
    "count": 4,
-   "minLevel": 30,
+   "minLevel": 31,
    "maxLevel": 32,
    "x": 6064,
    "y": 8752,
@@ -358,13 +381,14 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 24,
    "count": 4,
-   "minLevel": 30,
-   "maxLevel": 32,
+   "minLevel": 32,
+   "maxLevel": 33,
    "x": 2160,
    "y": 13856,
    "w": 976,
@@ -373,13 +397,14 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 25,
    "count": 6,
    "minLevel": 27,
-   "maxLevel": 29,
+   "maxLevel": 28,
    "x": 3312,
    "y": 6928,
    "w": 288,
@@ -388,12 +413,13 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 26,
    "count": 5,
-   "minLevel": 27,
+   "minLevel": 28,
    "maxLevel": 29,
    "x": 5856,
    "y": 10512,
@@ -403,13 +429,14 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 27,
    "count": 2,
-   "minLevel": 27,
-   "maxLevel": 29,
+   "minLevel": 29,
+   "maxLevel": 30,
    "x": 2176,
    "y": 8736,
    "w": 176,
@@ -418,13 +445,14 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 28,
    "count": 4,
-   "minLevel": 27,
-   "maxLevel": 29,
+   "minLevel": 30,
+   "maxLevel": 31,
    "x": 864,
    "y": 880,
    "w": 48,
@@ -433,13 +461,14 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 29,
    "count": 9,
-   "minLevel": 27,
-   "maxLevel": 29,
+   "minLevel": 29,
+   "maxLevel": 30,
    "x": 2832,
    "y": 5088,
    "w": 352,
@@ -448,13 +477,14 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 30,
    "count": 3,
-   "minLevel": 27,
-   "maxLevel": 29,
+   "minLevel": 30,
+   "maxLevel": 31,
    "x": 6896,
    "y": 10512,
    "w": 512,
@@ -463,13 +493,14 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 31,
    "count": 6,
    "minLevel": 30,
-   "maxLevel": 32,
+   "maxLevel": 31,
    "x": 5632,
    "y": 6944,
    "w": 336,
@@ -478,12 +509,13 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 32,
    "count": 3,
-   "minLevel": 30,
+   "minLevel": 31,
    "maxLevel": 32,
    "x": 1968,
    "y": 928,
@@ -493,12 +525,13 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 33,
    "count": 20,
-   "minLevel": 30,
+   "minLevel": 31,
    "maxLevel": 32,
    "x": 4960,
    "y": 3200,
@@ -508,13 +541,14 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 34,
    "count": 3,
-   "minLevel": 30,
-   "maxLevel": 32,
+   "minLevel": 32,
+   "maxLevel": 33,
    "x": 2736,
    "y": 992,
    "w": 64,
@@ -523,12 +557,13 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 35,
    "count": 2,
-   "minLevel": 30,
+   "minLevel": 31,
    "maxLevel": 32,
    "x": 96,
    "y": 10480,
@@ -538,13 +573,14 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 36,
    "count": 3,
-   "minLevel": 30,
-   "maxLevel": 32,
+   "minLevel": 32,
+   "maxLevel": 33,
    "x": 3248,
    "y": 13856,
    "w": 800,
@@ -553,13 +589,14 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 37,
    "count": 9,
-   "minLevel": 30,
-   "maxLevel": 32,
+   "minLevel": 33,
+   "maxLevel": 34,
    "x": 7168,
    "y": 5104,
    "w": 400,
@@ -568,13 +605,14 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 38,
    "count": 16,
    "minLevel": 33,
-   "maxLevel": 35,
+   "maxLevel": 34,
    "x": 6960,
    "y": 1072,
    "w": 464,
@@ -583,12 +621,13 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 39,
    "count": 2,
-   "minLevel": 33,
+   "minLevel": 34,
    "maxLevel": 35,
    "x": 4320,
    "y": 1024,
@@ -598,12 +637,13 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 40,
    "count": 21,
-   "minLevel": 33,
+   "minLevel": 34,
    "maxLevel": 35,
    "x": 2400,
    "y": 3200,
@@ -613,12 +653,13 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 41,
    "count": 2,
-   "minLevel": 33,
+   "minLevel": 34,
    "maxLevel": 35,
    "x": 4160,
    "y": 13856,
@@ -628,12 +669,13 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 42,
    "count": 13,
-   "minLevel": 33,
+   "minLevel": 34,
    "maxLevel": 35,
    "x": 4800,
    "y": 1056,
@@ -643,13 +685,14 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 43,
    "count": 2,
-   "minLevel": 33,
-   "maxLevel": 35,
+   "minLevel": 35,
+   "maxLevel": 36,
    "x": 4784,
    "y": 13856,
    "w": 656,
@@ -658,13 +701,14 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 44,
    "count": 20,
    "minLevel": 33,
-   "maxLevel": 35,
+   "maxLevel": 34,
    "x": 7520,
    "y": 1072,
    "w": 560,
@@ -673,12 +717,13 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 45,
    "count": 3,
-   "minLevel": 33,
+   "minLevel": 34,
    "maxLevel": 35,
    "x": 2912,
    "y": 992,
@@ -688,12 +733,13 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 46,
    "count": 6,
-   "minLevel": 33,
+   "minLevel": 34,
    "maxLevel": 35,
    "x": 6064,
    "y": 6944,
@@ -703,12 +749,13 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 47,
    "count": 2,
-   "minLevel": 33,
+   "minLevel": 34,
    "maxLevel": 35,
    "x": 5552,
    "y": 13856,
@@ -718,13 +765,14 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 48,
    "count": 14,
-   "minLevel": 33,
-   "maxLevel": 35,
+   "minLevel": 35,
+   "maxLevel": 36,
    "x": 96,
    "y": 5088,
    "w": 496,
@@ -733,13 +781,14 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 49,
    "count": 2,
-   "minLevel": 33,
-   "maxLevel": 35,
+   "minLevel": 36,
+   "maxLevel": 37,
    "x": 3392,
    "y": 1008,
    "w": 48,
@@ -748,13 +797,14 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 50,
    "count": 2,
-   "minLevel": 33,
-   "maxLevel": 35,
+   "minLevel": 36,
+   "maxLevel": 37,
    "x": 432,
    "y": 10480,
    "w": 240,
@@ -763,13 +813,14 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 51,
    "count": 16,
    "minLevel": 36,
-   "maxLevel": 38,
+   "maxLevel": 37,
    "x": 6224,
    "y": 3216,
    "w": 576,
@@ -778,12 +829,13 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 52,
    "count": 3,
-   "minLevel": 36,
+   "minLevel": 37,
    "maxLevel": 38,
    "x": 7536,
    "y": 10512,
@@ -793,13 +845,14 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 53,
    "count": 3,
-   "minLevel": 36,
-   "maxLevel": 38,
+   "minLevel": 38,
+   "maxLevel": 39,
    "x": 800,
    "y": 10480,
    "w": 320,
@@ -808,13 +861,14 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 54,
    "count": 3,
-   "minLevel": 36,
-   "maxLevel": 38,
+   "minLevel": 39,
+   "maxLevel": 40,
    "x": 1520,
    "y": 896,
    "w": 48,
@@ -823,13 +877,14 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 55,
    "count": 4,
-   "minLevel": 36,
-   "maxLevel": 38,
+   "minLevel": 38,
+   "maxLevel": 39,
    "x": 80,
    "y": 8736,
    "w": 288,
@@ -838,13 +893,14 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 56,
    "count": 5,
-   "minLevel": 36,
-   "maxLevel": 38,
+   "minLevel": 39,
+   "maxLevel": 40,
    "x": 128,
    "y": 12192,
    "w": 848,
@@ -853,13 +909,14 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 57,
    "count": 4,
-   "minLevel": 36,
-   "maxLevel": 38,
+   "minLevel": 40,
+   "maxLevel": 41,
    "x": 2448,
    "y": 8736,
    "w": 304,
@@ -868,13 +925,14 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 58,
    "count": 3,
    "minLevel": 21,
-   "maxLevel": 23,
+   "maxLevel": 22,
    "x": 1248,
    "y": 10480,
    "w": 240,
@@ -883,12 +941,13 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 59,
    "count": 3,
-   "minLevel": 21,
+   "minLevel": 22,
    "maxLevel": 23,
    "x": 6272,
    "y": 13856,
@@ -898,13 +957,14 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 60,
    "count": 4,
-   "minLevel": 21,
-   "maxLevel": 23,
+   "minLevel": 23,
+   "maxLevel": 24,
    "x": 2848,
    "y": 8736,
    "w": 288,
@@ -913,13 +973,14 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 61,
    "count": 2,
-   "minLevel": 21,
-   "maxLevel": 23,
+   "minLevel": 24,
+   "maxLevel": 25,
    "x": 3552,
    "y": 1008,
    "w": 48,
@@ -928,13 +989,14 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 62,
    "count": 19,
-   "minLevel": 21,
-   "maxLevel": 23,
+   "minLevel": 23,
+   "maxLevel": 24,
    "x": 6896,
    "y": 3216,
    "w": 624,
@@ -943,13 +1005,14 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 63,
    "count": 2,
-   "minLevel": 21,
-   "maxLevel": 23,
+   "minLevel": 24,
+   "maxLevel": 25,
    "x": 4160,
    "y": 1024,
    "w": 48,
@@ -958,13 +1021,14 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 64,
    "count": 4,
    "minLevel": 21,
-   "maxLevel": 23,
+   "maxLevel": 22,
    "x": 6496,
    "y": 8752,
    "w": 304,
@@ -973,12 +1037,13 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 65,
    "count": 3,
-   "minLevel": 21,
+   "minLevel": 22,
    "maxLevel": 23,
    "x": 2128,
    "y": 928,
@@ -988,12 +1053,13 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 66,
    "count": 5,
-   "minLevel": 21,
+   "minLevel": 22,
    "maxLevel": 23,
    "x": 464,
    "y": 8736,
@@ -1003,13 +1069,14 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 67,
    "count": 3,
-   "minLevel": 21,
-   "maxLevel": 23,
+   "minLevel": 23,
+   "maxLevel": 24,
    "x": 2592,
    "y": 960,
    "w": 48,
@@ -1018,13 +1085,14 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 68,
    "count": 4,
-   "minLevel": 21,
-   "maxLevel": 23,
+   "minLevel": 23,
+   "maxLevel": 24,
    "x": 3232,
    "y": 8736,
    "w": 304,
@@ -1033,13 +1101,14 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 69,
    "count": 3,
-   "minLevel": 21,
-   "maxLevel": 23,
+   "minLevel": 24,
+   "maxLevel": 25,
    "x": 7184,
    "y": 13856,
    "w": 896,
@@ -1048,13 +1117,14 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 70,
    "count": 15,
    "minLevel": 21,
-   "maxLevel": 23,
+   "maxLevel": 22,
    "x": 3296,
    "y": 5088,
    "w": 624,
@@ -1063,12 +1133,13 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 71,
    "count": 4,
-   "minLevel": 21,
+   "minLevel": 22,
    "maxLevel": 23,
    "x": 1152,
    "y": 12192,
@@ -1078,13 +1149,14 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 72,
    "count": 14,
-   "minLevel": 21,
-   "maxLevel": 23,
+   "minLevel": 23,
+   "maxLevel": 24,
    "x": 5680,
    "y": 3200,
    "w": 448,
@@ -1093,13 +1165,14 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 73,
    "count": 5,
-   "minLevel": 21,
-   "maxLevel": 23,
+   "minLevel": 24,
+   "maxLevel": 25,
    "x": 1344,
    "y": 896,
    "w": 64,
@@ -1108,13 +1181,14 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 74,
    "count": 9,
-   "minLevel": 21,
-   "maxLevel": 23,
+   "minLevel": 24,
+   "maxLevel": 25,
    "x": 7680,
    "y": 5104,
    "w": 400,
@@ -1123,13 +1197,14 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 75,
    "count": 5,
-   "minLevel": 21,
-   "maxLevel": 23,
+   "minLevel": 25,
+   "maxLevel": 26,
    "x": 1008,
    "y": 880,
    "w": 64,
@@ -1138,13 +1213,14 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 76,
    "count": 2,
    "minLevel": 18,
-   "maxLevel": 20,
+   "maxLevel": 19,
    "x": 3632,
    "y": 8736,
    "w": 192,
@@ -1153,12 +1229,13 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 77,
    "count": 2,
-   "minLevel": 18,
+   "minLevel": 19,
    "maxLevel": 20,
    "x": 480,
    "y": 15504,
@@ -1168,13 +1245,14 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 78,
    "count": 14,
-   "minLevel": 18,
-   "maxLevel": 20,
+   "minLevel": 20,
+   "maxLevel": 21,
    "x": 5296,
    "y": 1056,
    "w": 432,
@@ -1183,13 +1261,14 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 79,
    "count": 3,
-   "minLevel": 18,
-   "maxLevel": 20,
+   "minLevel": 21,
+   "maxLevel": 22,
    "x": 4464,
    "y": 1024,
    "w": 64,
@@ -1198,13 +1277,14 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 80,
    "count": 4,
-   "minLevel": 18,
-   "maxLevel": 20,
+   "minLevel": 21,
+   "maxLevel": 22,
    "x": 880,
    "y": 8736,
    "w": 256,
@@ -1213,12 +1293,13 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 81,
    "count": 4,
-   "minLevel": 18,
+   "minLevel": 19,
    "maxLevel": 20,
    "x": 416,
    "y": 864,
@@ -1228,13 +1309,14 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 82,
    "count": 19,
    "minLevel": 12,
-   "maxLevel": 14,
+   "maxLevel": 13,
    "x": 5824,
    "y": 1056,
    "w": 512,
@@ -1243,12 +1325,13 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 83,
    "count": 3,
-   "minLevel": 12,
+   "minLevel": 13,
    "maxLevel": 14,
    "x": 4640,
    "y": 1024,
@@ -1258,12 +1341,13 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 84,
    "count": 14,
-   "minLevel": 12,
+   "minLevel": 13,
    "maxLevel": 14,
    "x": 7616,
    "y": 3216,
@@ -1273,13 +1357,14 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 85,
    "count": 6,
-   "minLevel": 12,
-   "maxLevel": 14,
+   "minLevel": 14,
+   "maxLevel": 15,
    "x": 1952,
    "y": 12192,
    "w": 960,
@@ -1288,13 +1373,14 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 86,
    "count": 13,
-   "minLevel": 12,
-   "maxLevel": 14,
+   "minLevel": 15,
+   "maxLevel": 16,
    "x": 3120,
    "y": 3200,
    "w": 416,
@@ -1303,13 +1389,14 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 87,
    "count": 3,
    "minLevel": 10,
-   "maxLevel": 12,
+   "maxLevel": 11,
    "x": 1616,
    "y": 10480,
    "w": 272,
@@ -1318,12 +1405,13 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 88,
    "count": 3,
-   "minLevel": 10,
+   "minLevel": 11,
    "maxLevel": 12,
    "x": 3696,
    "y": 1008,
@@ -1333,12 +1421,13 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 89,
    "count": 5,
-   "minLevel": 10,
+   "minLevel": 11,
    "maxLevel": 12,
    "x": 96,
    "y": 6928,
@@ -1348,12 +1437,13 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 90,
    "count": 3,
-   "minLevel": 10,
+   "minLevel": 11,
    "maxLevel": 12,
    "x": 1872,
    "y": 15504,
@@ -1363,13 +1453,14 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 91,
    "count": 2,
-   "minLevel": 10,
-   "maxLevel": 12,
+   "minLevel": 12,
+   "maxLevel": 13,
    "x": 1232,
    "y": 8736,
    "w": 160,
@@ -1378,7 +1469,8 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 92,
@@ -1393,13 +1485,14 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 93,
    "count": 4,
-   "minLevel": 6,
-   "maxLevel": 7,
+   "minLevel": 7,
+   "maxLevel": 8,
    "x": 560,
    "y": 880,
    "w": 48,
@@ -1408,13 +1501,14 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 94,
    "count": 6,
-   "minLevel": 6,
-   "maxLevel": 7,
+   "minLevel": 7,
+   "maxLevel": 8,
    "x": 3696,
    "y": 6928,
    "w": 320,
@@ -1423,13 +1517,14 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 95,
    "count": 6,
-   "minLevel": 6,
-   "maxLevel": 7,
+   "minLevel": 8,
+   "maxLevel": 9,
    "x": 3088,
    "y": 12192,
    "w": 976,
@@ -1438,13 +1533,14 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 96,
    "count": 12,
-   "minLevel": 6,
-   "maxLevel": 7,
+   "minLevel": 7,
+   "maxLevel": 8,
    "x": 4032,
    "y": 5088,
    "w": 496,
@@ -1453,13 +1549,14 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 97,
    "count": 6,
-   "minLevel": 6,
-   "maxLevel": 7,
+   "minLevel": 8,
+   "maxLevel": 9,
    "x": 4240,
    "y": 12192,
    "w": 1008,
@@ -1468,13 +1565,14 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 98,
    "count": 7,
-   "minLevel": 6,
-   "maxLevel": 7,
+   "minLevel": 9,
+   "maxLevel": 10,
    "x": 4112,
    "y": 6928,
    "w": 320,
@@ -1483,7 +1581,8 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 99,
@@ -1498,13 +1597,14 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 100,
    "count": 3,
-   "minLevel": 6,
-   "maxLevel": 7,
+   "minLevel": 7,
+   "maxLevel": 8,
    "x": 1664,
    "y": 912,
    "w": 48,
@@ -1513,13 +1613,14 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 101,
    "count": 20,
-   "minLevel": 6,
-   "maxLevel": 7,
+   "minLevel": 7,
+   "maxLevel": 8,
    "x": 576,
    "y": 3184,
    "w": 592,
@@ -1528,13 +1629,14 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 102,
    "count": 4,
-   "minLevel": 6,
-   "maxLevel": 7,
+   "minLevel": 8,
+   "maxLevel": 9,
    "x": 5424,
    "y": 12192,
    "w": 640,
@@ -1543,13 +1645,14 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 103,
    "count": 6,
-   "minLevel": 6,
-   "maxLevel": 7,
+   "minLevel": 9,
+   "maxLevel": 10,
    "x": 4544,
    "y": 6928,
    "w": 304,
@@ -1558,7 +1661,8 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 104,
@@ -1573,13 +1677,14 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 105,
    "count": 2,
-   "minLevel": 6,
-   "maxLevel": 7,
+   "minLevel": 7,
+   "maxLevel": 8,
    "x": 3856,
    "y": 1008,
    "w": 48,
@@ -1588,13 +1693,14 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 106,
    "count": 4,
-   "minLevel": 6,
-   "maxLevel": 7,
+   "minLevel": 7,
+   "maxLevel": 8,
    "x": 1136,
    "y": 6928,
    "w": 192,
@@ -1603,13 +1709,14 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 107,
    "count": 4,
-   "minLevel": 6,
-   "maxLevel": 7,
+   "minLevel": 8,
+   "maxLevel": 9,
    "x": 3600,
    "y": 15504,
    "w": 992,
@@ -1618,13 +1725,14 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 108,
    "count": 19,
-   "minLevel": 6,
-   "maxLevel": 7,
+   "minLevel": 9,
+   "maxLevel": 10,
    "x": 1264,
    "y": 3184,
    "w": 544,
@@ -1633,13 +1741,14 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 109,
    "count": 3,
-   "minLevel": 6,
-   "maxLevel": 7,
+   "minLevel": 10,
+   "maxLevel": 11,
    "x": 5456,
    "y": 15504,
    "w": 864,
@@ -1648,13 +1757,14 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 110,
    "count": 3,
-   "minLevel": 6,
-   "maxLevel": 7,
+   "minLevel": 10,
+   "maxLevel": 11,
    "x": 2016,
    "y": 10480,
    "w": 304,
@@ -1663,7 +1773,8 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 111,
@@ -1678,13 +1789,14 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 112,
    "count": 2,
-   "minLevel": 6,
-   "maxLevel": 7,
+   "minLevel": 7,
+   "maxLevel": 8,
    "x": 7184,
    "y": 15504,
    "w": 512,
@@ -1693,13 +1805,14 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 113,
    "count": 3,
-   "minLevel": 6,
-   "maxLevel": 7,
+   "minLevel": 8,
+   "maxLevel": 9,
    "x": 1488,
    "y": 8736,
    "w": 192,
@@ -1708,13 +1821,14 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 114,
    "count": 5,
-   "minLevel": 6,
-   "maxLevel": 7,
+   "minLevel": 9,
+   "maxLevel": 10,
    "x": 1184,
    "y": 880,
    "w": 64,
@@ -1723,13 +1837,14 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 115,
    "count": 5,
-   "minLevel": 6,
-   "maxLevel": 7,
+   "minLevel": 7,
+   "maxLevel": 8,
    "x": 6512,
    "y": 6944,
    "w": 256,
@@ -1738,7 +1853,8 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 116,
@@ -1753,13 +1869,14 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 117,
    "count": 4,
-   "minLevel": 4,
-   "maxLevel": 5,
+   "minLevel": 5,
+   "maxLevel": 6,
    "x": 6240,
    "y": 12192,
    "w": 720,
@@ -1768,13 +1885,14 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 118,
    "count": 8,
-   "minLevel": 4,
-   "maxLevel": 5,
+   "minLevel": 5,
+   "maxLevel": 6,
    "x": 4640,
    "y": 5088,
    "w": 320,
@@ -1783,13 +1901,14 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 119,
    "count": 3,
-   "minLevel": 4,
-   "maxLevel": 5,
+   "minLevel": 6,
+   "maxLevel": 7,
    "x": 3232,
    "y": 992,
    "w": 64,
@@ -1798,13 +1917,14 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 120,
    "count": 10,
-   "minLevel": 4,
-   "maxLevel": 5,
+   "minLevel": 6,
+   "maxLevel": 7,
    "x": 1440,
    "y": 6928,
    "w": 464,
@@ -1813,7 +1933,8 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 121,
@@ -1828,13 +1949,14 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 122,
    "count": 4,
-   "minLevel": 6,
-   "maxLevel": 7,
+   "minLevel": 7,
+   "maxLevel": 8,
    "x": 2416,
    "y": 944,
    "w": 64,
@@ -1843,13 +1965,14 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 123,
    "count": 4,
-   "minLevel": 6,
-   "maxLevel": 7,
+   "minLevel": 7,
+   "maxLevel": 8,
    "x": 5328,
    "y": 6928,
    "w": 208,
@@ -1858,13 +1981,14 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 124,
    "count": 6,
-   "minLevel": 6,
-   "maxLevel": 7,
+   "minLevel": 7,
+   "maxLevel": 8,
    "x": 96,
    "y": 848,
    "w": 64,
@@ -1873,13 +1997,14 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 125,
    "count": 5,
-   "minLevel": 6,
-   "maxLevel": 7,
+   "minLevel": 7,
+   "maxLevel": 8,
    "x": 1776,
    "y": 8736,
    "w": 304,
@@ -1888,13 +2013,14 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 126,
    "count": 4,
-   "minLevel": 6,
-   "maxLevel": 7,
+   "minLevel": 8,
+   "maxLevel": 9,
    "x": 7120,
    "y": 12192,
    "w": 704,
@@ -1903,13 +2029,14 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 127,
    "count": 16,
-   "minLevel": 6,
-   "maxLevel": 7,
+   "minLevel": 9,
+   "maxLevel": 10,
    "x": 1264,
    "y": 5088,
    "w": 592,
@@ -1918,13 +2045,14 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 128,
    "count": 4,
    "minLevel": 30,
-   "maxLevel": 32,
+   "maxLevel": 31,
    "x": 6080,
    "y": 1984,
    "w": 224,
@@ -1933,12 +2061,13 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 129,
    "count": 2,
-   "minLevel": 30,
+   "minLevel": 31,
    "maxLevel": 32,
    "x": 4656,
    "y": 2656,
@@ -1948,13 +2077,14 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 130,
    "count": 6,
-   "minLevel": 30,
-   "maxLevel": 32,
+   "minLevel": 32,
+   "maxLevel": 33,
    "x": 6400,
    "y": 1984,
    "w": 320,
@@ -1963,13 +2093,14 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 131,
    "count": 2,
-   "minLevel": 30,
-   "maxLevel": 32,
+   "minLevel": 33,
+   "maxLevel": 34,
    "x": 560,
    "y": 1840,
    "w": 48,
@@ -1978,13 +2109,14 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 132,
    "count": 3,
-   "minLevel": 30,
-   "maxLevel": 32,
+   "minLevel": 33,
+   "maxLevel": 34,
    "x": 1616,
    "y": 2624,
    "w": 240,
@@ -1993,13 +2125,14 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 133,
    "count": 2,
-   "minLevel": 30,
-   "maxLevel": 32,
+   "minLevel": 34,
+   "maxLevel": 35,
    "x": 1168,
    "y": 1888,
    "w": 48,
@@ -2008,13 +2141,14 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 134,
    "count": 7,
    "minLevel": 30,
-   "maxLevel": 32,
+   "maxLevel": 31,
    "x": 6832,
    "y": 1984,
    "w": 368,
@@ -2023,12 +2157,13 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 135,
    "count": 2,
-   "minLevel": 30,
+   "minLevel": 31,
    "maxLevel": 32,
    "x": 1328,
    "y": 1888,
@@ -2038,12 +2173,13 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 136,
    "count": 16,
-   "minLevel": 30,
+   "minLevel": 31,
    "maxLevel": 32,
    "x": 3344,
    "y": 1952,
@@ -2053,13 +2189,14 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 137,
    "count": 2,
-   "minLevel": 30,
-   "maxLevel": 32,
+   "minLevel": 32,
+   "maxLevel": 33,
    "x": 5392,
    "y": 2656,
    "w": 704,
@@ -2068,13 +2205,14 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 138,
    "count": 6,
-   "minLevel": 30,
-   "maxLevel": 32,
+   "minLevel": 33,
+   "maxLevel": 34,
    "x": 7728,
    "y": 2000,
    "w": 352,
@@ -2083,13 +2221,14 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 139,
    "count": 19,
    "minLevel": 36,
-   "maxLevel": 38,
+   "maxLevel": 37,
    "x": 1488,
    "y": 1936,
    "w": 592,
@@ -2098,12 +2237,13 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 140,
    "count": 3,
-   "minLevel": 36,
+   "minLevel": 37,
    "maxLevel": 38,
    "x": 400,
    "y": 1808,
@@ -2113,12 +2253,13 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 141,
    "count": 3,
-   "minLevel": 36,
+   "minLevel": 37,
    "maxLevel": 38,
    "x": 976,
    "y": 2608,
@@ -2128,13 +2269,14 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 142,
    "count": 2,
-   "minLevel": 36,
-   "maxLevel": 38,
+   "minLevel": 38,
+   "maxLevel": 39,
    "x": 6192,
    "y": 2656,
    "w": 496,
@@ -2143,13 +2285,14 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 143,
    "count": 6,
-   "minLevel": 36,
-   "maxLevel": 38,
+   "minLevel": 39,
+   "maxLevel": 40,
    "x": 4880,
    "y": 1968,
    "w": 272,
@@ -2158,7 +2301,8 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 144,
@@ -2173,13 +2317,14 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 145,
    "count": 2,
-   "minLevel": 4,
-   "maxLevel": 5,
+   "minLevel": 5,
+   "maxLevel": 6,
    "x": 6784,
    "y": 2656,
    "w": 544,
@@ -2188,13 +2333,14 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 146,
    "count": 3,
-   "minLevel": 4,
-   "maxLevel": 5,
+   "minLevel": 5,
+   "maxLevel": 6,
    "x": 96,
    "y": 2592,
    "w": 176,
@@ -2203,13 +2349,14 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 147,
    "count": 2,
-   "minLevel": 4,
-   "maxLevel": 5,
+   "minLevel": 6,
+   "maxLevel": 7,
    "x": 7424,
    "y": 2656,
    "w": 656,
@@ -2218,13 +2365,14 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 148,
    "count": 12,
-   "minLevel": 4,
-   "maxLevel": 5,
+   "minLevel": 7,
+   "maxLevel": 8,
    "x": 2832,
    "y": 1952,
    "w": 416,
@@ -2233,13 +2381,14 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 149,
    "count": 4,
-   "minLevel": 4,
-   "maxLevel": 5,
+   "minLevel": 7,
+   "maxLevel": 8,
    "x": 96,
    "y": 1744,
    "w": 48,
@@ -2248,13 +2397,14 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 150,
    "count": 4,
-   "minLevel": 4,
-   "maxLevel": 5,
+   "minLevel": 7,
+   "maxLevel": 8,
    "x": 1952,
    "y": 2624,
    "w": 352,
@@ -2263,7 +2413,8 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 151,
@@ -2278,13 +2429,14 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 152,
    "count": 3,
-   "minLevel": 6,
-   "maxLevel": 7,
+   "minLevel": 7,
+   "maxLevel": 8,
    "x": 1696,
    "y": 2944,
    "w": 736,
@@ -2293,13 +2445,14 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 153,
    "count": 3,
-   "minLevel": 6,
-   "maxLevel": 7,
+   "minLevel": 7,
+   "maxLevel": 8,
    "x": 688,
    "y": 2592,
    "w": 192,
@@ -2308,13 +2461,14 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 154,
    "count": 2,
-   "minLevel": 6,
-   "maxLevel": 7,
+   "minLevel": 8,
+   "maxLevel": 9,
    "x": 704,
    "y": 1856,
    "w": 48,
@@ -2323,13 +2477,14 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 155,
    "count": 6,
-   "minLevel": 6,
-   "maxLevel": 7,
+   "minLevel": 8,
+   "maxLevel": 9,
    "x": 5664,
    "y": 1984,
    "w": 304,
@@ -2338,13 +2493,14 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 156,
    "count": 3,
-   "minLevel": 6,
-   "maxLevel": 7,
+   "minLevel": 9,
+   "maxLevel": 10,
    "x": 3184,
    "y": 2640,
    "w": 512,
@@ -2353,13 +2509,14 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 157,
    "count": 9,
-   "minLevel": 6,
-   "maxLevel": 7,
+   "minLevel": 10,
+   "maxLevel": 11,
    "x": 4064,
    "y": 1968,
    "w": 384,
@@ -2368,7 +2525,8 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 158,
@@ -2383,13 +2541,14 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 159,
    "count": 3,
-   "minLevel": 4,
-   "maxLevel": 5,
+   "minLevel": 5,
+   "maxLevel": 6,
    "x": 864,
    "y": 1872,
    "w": 64,
@@ -2398,13 +2557,14 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 160,
    "count": 5,
-   "minLevel": 4,
-   "maxLevel": 5,
+   "minLevel": 5,
+   "maxLevel": 6,
    "x": 4544,
    "y": 1968,
    "w": 224,
@@ -2413,13 +2573,14 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 161,
    "count": 4,
-   "minLevel": 4,
-   "maxLevel": 5,
+   "minLevel": 6,
+   "maxLevel": 7,
    "x": 3792,
    "y": 2640,
    "w": 768,
@@ -2428,13 +2589,14 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 162,
    "count": 4,
-   "minLevel": 4,
-   "maxLevel": 5,
+   "minLevel": 7,
+   "maxLevel": 8,
    "x": 2736,
    "y": 2624,
    "w": 352,
@@ -2443,13 +2605,14 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 163,
    "count": 4,
-   "minLevel": 4,
-   "maxLevel": 5,
+   "minLevel": 8,
+   "maxLevel": 9,
    "x": 240,
    "y": 1808,
    "w": 64,
@@ -2458,7 +2621,8 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 164,
@@ -2473,13 +2637,14 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 165,
    "count": 3,
-   "minLevel": 6,
-   "maxLevel": 7,
+   "minLevel": 7,
+   "maxLevel": 8,
    "x": 5744,
    "y": 2944,
    "w": 736,
@@ -2488,13 +2653,14 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 166,
    "count": 6,
-   "minLevel": 6,
-   "maxLevel": 7,
+   "minLevel": 8,
+   "maxLevel": 9,
    "x": 7296,
    "y": 1984,
    "w": 336,
@@ -2503,13 +2669,14 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 167,
    "count": 2,
-   "minLevel": 6,
-   "maxLevel": 7,
+   "minLevel": 9,
+   "maxLevel": 10,
    "x": 1024,
    "y": 1872,
    "w": 48,
@@ -2518,13 +2685,14 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   },
   {
    "id": 168,
    "count": 18,
-   "minLevel": 6,
-   "maxLevel": 7,
+   "minLevel": 8,
+   "maxLevel": 9,
    "x": 2192,
    "y": 1936,
    "w": 544,
@@ -2533,7 +2701,8 @@
    "exclude": "",
    "definite": "",
    "bonusDrop": 2,
-   "levelWeight": "2,1"
+   "levelWeight": "2,1",
+   "aggro": 1
   }
  ],
  "entityAreas": []

@@ -548,6 +548,14 @@ class Map {
                 if (ma.boss > 1) {
                     for (const mob of mobarea.entities) mob.createBoss(ma.boss);
                 }
+                // "aggro": every mob in the area attacks players on sight,
+                // whatever its kind's isAggressive (mobs.json) says -- e.g.
+                // map1's dungeons. Respawns reuse the same entity, so this
+                // lasts too (mobai.js checkAggro reads mob.isAggressive).
+                if (ma.aggro) {
+                    mobarea.aggro = true;
+                    for (const mob of mobarea.entities) mob.isAggressive = true;
+                }
             });
         //}, 10000);
     }

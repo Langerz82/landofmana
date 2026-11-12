@@ -10,8 +10,11 @@ gameserver/data/maps/map1/<part>/entityarea.json and the quest levels in shared/
   then three-level ranges rising by 3 (10-12, 13-15, ...). So every area borders one exactly one step lower.
 - Volcano areas are high level: each volcano cluster is ranked by distance, the farthest cluster tops out at
   MAX_VOLCANO, nearer ones VOLCANO_CLUSTER_STEP lower; inside a cluster levels step by one (38-39 next to 39-40).
-- Dungeon (map1_int) areas are DUNGEON_BONUS levels above the outdoor area their cave entrance is in, capped at
-  MAX_VOLCANO.
+- Dungeon (map1_int) areas: a cave's first room is DUNGEON_BONUS levels above the lowest level of the outdoor area
+  its entrance is in (a 2-level range: entrance 4-5 -> 6-7), and every room further in is ROOM_STEP higher.
+  All their mobs are aggressive ("aggro": 1). Every dead end (a room with one way in and no way out) gets a
+  chest (gameserver/data/maps/map1/map1_int/entity.json) on the walkable tile farthest from its door, at the
+  level of the hardest mob in that room, respawning after CHEST_RESPAWN_PER_LEVEL seconds x its level.
 - Each map1 quest gets the level range of the mob area its NPC stands in.
 
     python levels1.py
@@ -25,7 +28,11 @@ DATA = os.path.normpath(os.path.join(HERE, '..', '..', 'data'))
 PFX = 'map1'
 MAX_VOLCANO = 40
 VOLCANO_CLUSTER_STEP = 4
-DUNGEON_BONUS = 2
+DUNGEON_BONUS = 2       # a cave's first room: the entrance area's lowest level + this ...
+ROOM_STEP = 1           # ... and this much more for every room further in
+DUNGEON_WIDTH = 2       # cave mob areas are 2-level ranges (e.g. entrance 4-5 -> first room 6-7, next 7-8)
+FIRST_CHEST_ID = 101
+CHEST_RESPAWN_PER_LEVEL = 120   # seconds: a chest's spawnDelay in entity.json is this x its level
 LEVEL_STEP = 2          # levels gained per area away from the start town (and each range's width) ...
 WIDE_FROM = 10          # ... up to this level; from here on ranges are WIDE_STEP levels wide and rise by WIDE_STEP
 WIDE_STEP = 3
@@ -130,7 +137,7 @@ def area_at(nm, x, y):
 
 
 # ---------------------------------------------------------------- dungeons: by the cave entrance
-dungeon_done = 0
+dungeon_done, chests, dungeon_report = 0, {}, []
 for nm_in in inner:
     m = mapjson[nm_in]; w, h, col = m['width'], m['height'], m['collision']
     comp = [0] * (w * h); ncomp = 0                     # every walkable room / hallway
@@ -144,50 +151,96 @@ for nm_in in inner:
                     k = ny * w + nx
                     if not col[k] and not comp[k]: comp[k] = ncomp; q.append(k)
 
-    def comp_at(px, py, near=True):
+    def tile_near(px, py):
         x0, y0 = px // 16, py // 16
-        for r_ in range(0, 3 if near else 1):           # a door tile itself may be solid: look next to it
+        for r_ in range(3):                             # a door tile itself may be solid: look next to it
             for yy in range(y0 - r_, y0 + r_ + 1):
                 for xx in range(x0 - r_, x0 + r_ + 1):
-                    if 0 <= xx < w and 0 <= yy < h and comp[yy * w + xx]: return comp[yy * w + xx]
-        return 0
+                    if 0 <= xx < w and 0 <= yy < h and comp[yy * w + xx]: return yy * w + xx
+        return None
 
-    links = {}                                          # rooms joined by the interior's own doors
+    def comp_at(px, py):
+        t = tile_near(px, py)
+        return comp[t] if t is not None else 0
+
+    links, arrive, door_tiles = {}, {}, set()          # rooms joined by the interior's own doors
     for door in m.get('doors', []):
         if door.get('tmap') not in (None, index[nm_in]): continue
+        door_tiles.add((door['y'] // 16) * w + door['x'] // 16)
         a_, b_ = comp_at(door['x'], door['y']), comp_at(door['tx'], door['ty'])
-        if a_ and b_: links.setdefault(a_, set()).add(b_); links.setdefault(b_, set()).add(a_)
-    entry = {}                                          # room -> easiest outdoor level that leads into it
+        if a_ and b_ and a_ != b_:
+            links.setdefault(a_, set()).add(b_); links.setdefault(b_, set()).add(a_)
+            arrive.setdefault((a_, b_), tile_near(door['tx'], door['ty']))
+    entry = {}                                          # room -> lowest level of the outdoor area leading into it
     for nm in outdoor:
         for door in mapjson[nm].get('doors', []):
             if door.get('tmap') != index[nm_in]: continue
             src = area_at(nm, door['x'], door['y'])
             c_ = comp_at(door['tx'], door['ty'])
-            if src and c_: entry[c_] = min(entry.get(c_, 10 ** 9), src['minLevel'])
-    best = {}                                           # whole cave system: its easiest entrance decides
-    for c0 in range(1, ncomp + 1):
-        if c0 in best: continue
-        system, q = {c0}, [c0]
-        while q:
-            k = q.pop()
-            for j in links.get(k, ()):
-                if j not in system: system.add(j); q.append(j)
-        lv = min((entry[k] for k in system if k in entry), default=None)
-        for k in system: best[k] = lv
+            if src and c_:
+                entry[c_] = min(entry.get(c_, 10 ** 9), src['minLevel'])
+                arrive.setdefault((0, c_), tile_near(door['tx'], door['ty']))
+    # room level: the entrance's level + DUNGEON_BONUS, +ROOM_STEP for every room further in
+    base, parent, q = {}, {}, deque()
+    for c_, lv in sorted(entry.items(), key=lambda kv: kv[1]):
+        base[c_] = lv + DUNGEON_BONUS; parent[c_] = 0; q.append(c_)
+    while q:
+        k = q.popleft()
+        for j in sorted(links.get(k, ())):
+            if j not in base: base[j] = base[k] + ROOM_STEP; parent[j] = k; q.append(j)
+    room_hi = {}
     for a in ea[nm_in]['mobAreas']:
         ids = {comp[yy * w + xx] for yy in range(a['y'] // 16, (a['y'] + a['h']) // 16)
-               for xx in range(a['x'] // 16, (a['x'] + a['w']) // 16) if comp[yy * w + xx]}
-        lv = [best[c] for c in ids if best.get(c) is not None]
-        if not lv: print(f'  {nm_in} mob area {a["id"]}: no cave entrance reaches it, left at {a["minLevel"]}-{a["maxLevel"]}'); continue
-        lo = min(lv) + DUNGEON_BONUS
-        lo = min(lo, MAX_VOLCANO - width_at(lo) + 1)
-        hi = lo + width_at(lo) - 1
-        a['minLevel'], a['maxLevel'], a['levelWeight'] = lo, hi, '2' + ',1' * (hi - lo)
+               for xx in range(a['x'] // 16, (a['x'] + a['w']) // 16) if comp[yy * w + xx] in base}
+        if not ids: print(f'  {nm_in} mob area {a["id"]}: no cave entrance reaches it, left at {a["minLevel"]}-{a["maxLevel"]}'); continue
+        room = min(ids, key=lambda c_: base[c_])
+        lo = base[room]
+        a['minLevel'], a['maxLevel'], a['levelWeight'], a['aggro'] = lo, lo + DUNGEON_WIDTH - 1, '2' + ',1' * (DUNGEON_WIDTH - 1), 1
+        room_hi[room] = max(room_hi.get(room, 0), a['maxLevel'])
         dungeon_done += 1
+    # a chest at the far end of every dead end: a cave room with one way in and no way out
+    for room in sorted(room_hi):
+        if parent.get(room) in (None, 0) or len(links.get(room, ())) != 1 or room in entry: continue
+        start_t = arrive.get((parent[room], room))
+        if start_t is None: continue
+        dist_t = {start_t: 0}; q = deque([start_t])
+        while q:
+            c = q.popleft(); x, y = c % w, c // w
+            for nx, ny in ((x + 1, y), (x - 1, y), (x, y + 1), (x, y - 1)):
+                k = ny * w + nx
+                if 0 <= nx < w and 0 <= ny < h and comp[k] == room and k not in dist_t: dist_t[k] = dist_t[c] + 1; q.append(k)
+        spots_ = [t for t in dist_t if t not in door_tiles]
+        far = max(spots_, key=lambda t: (dist_t[t], -t))
+        chests.setdefault(nm_in, []).append({'type': 'node', 'kind': 99, 'x': far % w * 16, 'y': far // w * 16,
+                                             'level': room_hi[room], 'spawnDelay': CHEST_RESPAWN_PER_LEVEL * room_hi[room]})
+    def root(r):
+        while parent.get(r): r = parent[r]
+        return r
+    for c_ in sorted(entry, key=lambda k: entry[k]):
+        rooms_ = [r for r in room_hi if root(r) == c_]
+        if not rooms_: continue
+        ends = sum(1 for r in rooms_ if len(links.get(r, ())) == 1 and r not in entry)
+        dungeon_report.append(f'entrance level {entry[c_]:>2}: {len(rooms_)} rooms, mobs {min(base[r] for r in rooms_)}-{max(room_hi[r] for r in rooms_)}, {ends} chests')
 
 for nm in maplist:
     old_t = open(p_ea(nm), newline='').read(); eol = '\r\n' if '\r\n' in old_t else '\n'
     open(p_ea(nm), 'w', newline='').write((json.dumps(ea[nm], indent=1) + '\n').replace('\n', eol))
+
+# chests: entity.json of the interiors part (other records kept; the chests written last time replaced)
+p_cw = os.path.join(DATA, PFX + '_chests_written.json')
+prev_c = json.load(open(p_cw)) if os.path.exists(p_cw) else {}
+for nm_in in inner:
+    p_ent = os.path.join(ROOT, 'gameserver', 'data', 'maps', nm_in, 'entity.json')
+    old = json.load(open(p_ent)) if os.path.exists(p_ent) else []
+    keep = [e for e in old if e.get('id') not in set(prev_c.get(nm_in, []))]
+    used_ids = {e.get('id') for e in keep}
+    nid = FIRST_CHEST_ID
+    for c_ in chests.get(nm_in, []):
+        while nid in used_ids: nid += 1
+        c_['id'] = nid; used_ids.add(nid)
+    out = keep + [dict(id=c_['id'], **{k: v for k, v in c_.items() if k != 'id'}) for c_ in chests.get(nm_in, [])]
+    json.dump(out, open(p_ent, 'w'), indent=2)
+json.dump({k: [c_['id'] for c_ in v] for k, v in chests.items()}, open(p_cw, 'w'), indent=1)
 
 # ---------------------------------------------------------------- quests: the level range of the NPC's area
 p_quests = os.path.join(ROOT, 'shared', 'data', 'quests.json')
@@ -220,11 +273,13 @@ open(p_quests, 'w', encoding='utf-8', newline='').write(qt)
 rows = sorted({a['y'] for a in areas}); cols = sorted({a['x'] for a in areas})
 grid = {(rows.index(a['y']), cols.index(a['x'])): (i, a) for i, a in enumerate(areas)}
 letter = lambda a: 'V' if a['mobs'] & VOLCANO_MOBS else 'T' if a['mobs'] == {1, 5} else 'B' if a['mobs'] == {2} else 'D' if a['mobs'] & {3, 7, 8} else 'f'
-print(f'{len(areas)} outdoor areas (start town: {len(start)}), {dungeon_done} dungeon areas, {changed} quests updated')
+print(f'{len(areas)} outdoor areas (start town: {len(start)}), {dungeon_done} dungeon areas (aggressive), '
+      f'{sum(len(v) for v in chests.values())} dead-end chests, {changed} quests updated')
 for r in range(len(rows)):
     print('  ' + ' '.join(f"{letter(grid[(r, c)][1])}{grid[(r, c)][1]['rec']['minLevel']:>2}-{grid[(r, c)][1]['rec']['maxLevel']:<2}"
                           if (r, c) in grid else '   .    ' for c in range(len(cols))))
 bad = [areas[i]['part'] + '#' + str(areas[i]['rec']['id']) for i in level if level[i][0] > 1 and not volcano[i]
        and not any(dist[j] is not None and level.get(j) == range_for(dist[i] - 1) for j in nb[i])]
 print('  areas without a neighbour one step lower:', bad or 'none')
+for d_ in dungeon_report: print('  cave, ' + d_)
 for w_ in warn: print('  warning:', w_)
