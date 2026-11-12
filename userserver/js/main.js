@@ -685,6 +685,85 @@ function setAdmin(args) {
     });
 }
 
+// ADMIN: `xplevels [dry|run|undo|clearbackup] [force|confirm]` -- run after
+// changing the XP-per-level table in shared/js/gametypes.js. Resets every
+// character's stat points to the default layout for their new level (free
+// points to re-spend from level 10) and unequips gear they no longer have the level for
+// (into inventory, else bank). See database/redis/xplevelmigration.js.
+//   xplevels / xplevels dry   -- show what would change, write nothing
+//   xplevels run [force]      -- apply (backs up originals first)
+//   xplevels undo confirm     -- restore the backup (only right after a run)
+//   xplevels clearbackup      -- delete the backup once you're happy
+// run/undo refuse while anyone is online; "force" runs anyway and skips
+// the accounts that are online.
+let xpLevelsBusy = false;
+function xpLevels(args) {
+    if (!global.DBH) {
+        console.error('xplevels: database not ready yet.');
+        return;
+    }
+    const sub = (args[0] || 'dry').toLowerCase();
+    const opt = (args[1] || '').toLowerCase();
+    const isOnline = (username) =>
+        worldHandlers.some(
+            (wh) => wh.loggedInUsers && wh.loggedInUsers.has(username)
+        );
+    const onlineCount = worldHandlers.reduce(
+        (n, wh) => n + (wh.loggedInUsers ? wh.loggedInUsers.size : 0),
+        0
+    );
+    const done = () => {
+        xpLevelsBusy = false;
+    };
+
+    if (xpLevelsBusy) {
+        console.info('xplevels: already running, wait for it to finish.');
+        return;
+    }
+
+    switch (sub) {
+        case 'dry':
+            xpLevelsBusy = true;
+            global.DBH.migrateXpLevels('dry', isOnline, done);
+            break;
+        case 'run':
+            if (onlineCount > 0 && opt !== 'force') {
+                console.info(
+                    'xplevels: ' + onlineCount +
+                        ' player(s) are logged in -- their stats would be saved back over the fix. ' +
+                        'Run it with no one online, or "xplevels run force" to skip those accounts.'
+                );
+                return;
+            }
+            xpLevelsBusy = true;
+            global.DBH.migrateXpLevels('run', isOnline, done);
+            break;
+        case 'undo':
+            if (opt !== 'confirm' && opt !== 'force') {
+                console.info(
+                    'xplevels: undo puts back the stats, equipment, inventory and bank saved before the last run. ' +
+                        'Anything a player gained in those since then is lost. Type "xplevels undo confirm" to go ahead.'
+                );
+                return;
+            }
+            if (onlineCount > 0 && opt !== 'force') {
+                console.info(
+                    'xplevels: ' + onlineCount +
+                        ' player(s) are logged in. Run undo with no one online, or "xplevels undo force" to skip them.'
+                );
+                return;
+            }
+            xpLevelsBusy = true;
+            global.DBH.undoXpLevels(isOnline, done);
+            break;
+        case 'clearbackup':
+            global.DBH.clearXpLevelsBackup();
+            break;
+        default:
+            console.info('usage: xplevels [dry|run [force]|undo confirm|clearbackup]');
+    }
+}
+
 function getInput(cmd) {
     const args = cmd.split(' ');
     const cmdarg = args[0];
@@ -707,6 +786,9 @@ function getInput(cmd) {
             break;
         case 'wipequests':
             wipeQuests(args);
+            break;
+        case 'xplevels':
+            xpLevels(args);
             break;
         case 'replay': {
             // reject.log has a ready `replay <packet>` line for every

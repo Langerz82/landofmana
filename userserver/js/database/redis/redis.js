@@ -36,6 +36,10 @@ import redis from 'redis';
 // class below) so every call site here that already does
 // `this.migrateGoldFields(...)` etc. keeps working unchanged.
 import { initMigrations, migrationMethods } from './migration.js';
+import {
+    initXpLevelMigration,
+    xpLevelMigrationMethods
+} from './xplevelmigration.js';
 
 let client;
 
@@ -211,6 +215,9 @@ class DatabaseHandler {
             playerGoldMax,
             bans: { BANS_KEY, parseBanRecords }
         });
+        // The manual "xplevels" console command (main.js) -- see
+        // xplevelmigration.js.
+        initXpLevelMigration({ client });
 
         // Renames s:auction-*/l:looks-* to gs:auction-*/gs:looks-* (see
         // migrateKeyPrefixes(), migration.js). removeOldValues() deletes
@@ -1597,5 +1604,6 @@ class DatabaseHandler {
 // resolving exactly as it did back when they were defined as methods
 // directly on this class.
 Object.assign(DatabaseHandler.prototype, migrationMethods);
+Object.assign(DatabaseHandler.prototype, xpLevelMigrationMethods);
 
 export default DatabaseHandler;
