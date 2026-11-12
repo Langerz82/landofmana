@@ -93,8 +93,11 @@ import { logChat } from '../chatlog.js';
 //   name=Bob  name="Old Bob"   (blank / omitted = the default name)
 //   level=10                   (mob and node only; omitted = random/1)
 //   o=u|d|l|r                  facing up/down/left/right (default down)
+//   boss=3                     (mob only) boss multiplier above 1: HP, respawn time
+//                              and equipment drop rates x3 (MobRespawn.createBoss)
 // e.g.
 //   /spawn mob 5 level=10 o=l
+//   /spawn mob 8 level=20 boss=3 name="Ogre Chief"
 //   /spawn npcstatic 5 name="Bob"   (then /select it and /addquest to give it quests)
 //
 // Spawned entities are saved to gameserver/data/maps/<map>/entity.json and
@@ -116,7 +119,7 @@ const COMMANDS = {
 
 const LEVEL_TYPES = new Set(['mob', 'node']);
 const SPAWN_USAGE =
-    'Usage: /spawn <type> <kindId> [name="..."] [level=N] [o=u|d|l|r]';
+    'Usage: /spawn <type> <kindId> [name="..."] [level=N] [o=u|d|l|r] [boss=N (mob only)]';
 const QUEST_TYPES = new Set(['npcmove', 'npcstatic']);
 // key= spellings accepted on the command line -> canonical option.
 const OPTION_ALIASES = {
@@ -127,7 +130,8 @@ const OPTION_ALIASES = {
     lv: 'level',
     o: 'orientation',
     orientation: 'orientation',
-    dir: 'orientation'
+    dir: 'orientation',
+    boss: 'boss'
 };
 // Letters (any language), digits, spaces and a little punctuation.
 const NAME_PATTERN = /^[\p{L}\p{N} _'.-]+$/u;
@@ -315,7 +319,7 @@ class AdminCommands {
                 this.reply(
                     'Unknown option "' +
                         rawKey +
-                        '". Options: name=, level=, o= (u/d/l/r)'
+                        '". Options: name=, level=, o= (u/d/l/r), boss= (mob only)'
                 );
                 return;
             }
@@ -348,6 +352,18 @@ class AdminCommands {
                     return;
                 }
                 rec.orientation = o;
+            } else if (key === 'boss') {
+                if (value === '') continue;
+                if (type !== 'mob') {
+                    this.reply('boss= only applies to mob.');
+                    return;
+                }
+                const multi = Number(value);
+                if (!/^\d+(\.\d+)?$/.test(value) || !(multi > 1)) {
+                    this.reply('boss must be a multiplier above 1, e.g. boss=3, got "' + value + '".');
+                    return;
+                }
+                rec.boss = multi;
             }
         }
 
@@ -379,6 +395,7 @@ class AdminCommands {
                 (e.name ? ' "' + e.name + '"' : '') +
                 (LEVEL_TYPES.has(type) ? ' level ' + e.level : '') +
                 (rec.orientation ? ' facing ' + rec.orientation : '') +
+                (rec.boss ? ' boss x' + rec.boss : '') +
                 ' (entity id ' +
                 e.id +
                 ') at ' +
@@ -875,6 +892,7 @@ class AdminCommands {
                     rec.kind +
                     (rec.name ? ' "' + rec.name + '"' : '') +
                     (rec.level ? ' lv ' + rec.level : '') +
+                    (rec.boss ? ' boss x' + rec.boss : '') +
                     (rec.orientation ? ' ' + rec.orientation : '') +
                     ' @ ' +
                     rec.x +

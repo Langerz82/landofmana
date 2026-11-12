@@ -44,7 +44,14 @@ import { G_TILESIZE, MAX_FIXED_ID } from '../constants.js';
 // Everything after x/y is
 // optional: `name`, `level`, `orientation` (up/down/left/right or u/d/l/r;
 // default down), `spawnDelay` (seconds until it comes back after being
-// killed / harvested / opened; default: the entity's own, e.g. a chest's 300).
+// killed / harvested / opened; default: the entity's own, e.g. a chest's 300),
+// and for a mob `boss` (a boss multiplier above 1: its HP, respawn time and
+// equipment drop rates are multiplied by it -- MobRespawn.createBoss; an
+// explicit spawnDelay still wins over the boosted respawn time), and
+// `aggro` (1: the mob attacks players on sight, whatever its kind's
+// isAggressive in mobs.json says).
+//     { "type": "mob", "kind": 8, "x": 1000, "y": 2000, "level": 20,
+//       "boss": 3, "aggro": 1, "name": "Ogre Chief" }
 //     { "type": "node", "kind": 99, "x": 96, "y": 848, "level": 8,
 //       "spawnDelay": 960 } An NPC's quests aren't listed here: they're the quests
 // whose ids name its map index and entity id (questid.js), added with the
@@ -98,6 +105,8 @@ const ORIENTATION_IDS = {
 };
 
 const MAX_NAME_LENGTH = 32;
+// Largest boss multiplier a record may give a mob.
+const MAX_BOSS = 100;
 const MAX_LEVEL = 999;
 
 class MapEntityStore {
@@ -155,6 +164,13 @@ class MapEntityStore {
             (!Number.isFinite(rec.spawnDelay) || rec.spawnDelay <= 0)
         )
             return 'spawnDelay must be a number of seconds above 0';
+        if (rec.boss !== undefined) {
+            if (rec.type !== 'mob') return 'boss only applies to mobs';
+            if (!Number.isFinite(rec.boss) || rec.boss <= 1 || rec.boss > MAX_BOSS)
+                return 'boss must be a multiplier above 1 (up to ' + MAX_BOSS + ')';
+        }
+        if (rec.aggro !== undefined && rec.type !== 'mob')
+            return 'aggro only applies to mobs';
         if (rec.name !== undefined) {
             if (typeof rec.name !== 'string' || !rec.name.length)
                 return 'bad name';
@@ -395,6 +411,9 @@ class MapEntityStore {
             item.spawnDelay !== ''
         )
             rec.spawnDelay = Number(item.spawnDelay);
+        if (item.boss !== undefined && item.boss !== null && item.boss !== '')
+            rec.boss = Number(item.boss);
+        if (item.aggro) rec.aggro = 1;
         // (an old "quests" list is dropped: an NPC's quests come from their
         // ids now -- questid.js)
         return rec;
@@ -411,6 +430,10 @@ class MapEntityStore {
                     entity = entities.addMob(rec.kind, rec.x, rec.y, null);
                     entity.fixedSpawn = { x: entity.x, y: entity.y };
                     if (rec.level) entity.setLevel(rec.level);
+                    // After the level, so the boss HP is built on the
+                    // final level (getHpMax() keeps creatureMulti).
+                    if (rec.boss > 1) entity.createBoss(rec.boss);
+                    if (rec.aggro) entity.isAggressive = true;
                     break;
                 case 'npcmove':
                     entity = entities.addNpcMove(rec.kind, rec.x, rec.y);

@@ -13,13 +13,14 @@ gameserver/data/maps/map1/<part>/entityarea.json and the quest levels in shared/
 - Dungeon (map1_int) areas: a cave's first room is DUNGEON_BONUS levels above the lowest level of the outdoor area
   its entrance is in (a 2-level range: entrance 4-5 -> 6-7), and every room further in is ROOM_STEP higher.
   All their mobs are aggressive ("aggro": 1). Every dead end (a room with one way in and no way out) gets a
-  chest (gameserver/data/maps/map1/map1_int/entity.json) on the walkable tile farthest from its door, at the
-  level of the hardest mob in that room, respawning after CHEST_RESPAWN_PER_LEVEL seconds x its level.
+  boss (gameserver/data/maps/map1/map1_int/entity.json): one of its mob area's kinds, at a random spot in the
+  room, BOSS_LEVEL_BONUS levels above the area's top level, boss multiplier BOSS_MULTI, aggressive, respawning
+  after BOSS_RESPAWN_PER_LEVEL seconds x its level.
 - Each map1 quest gets the level range of the mob area its NPC stands in.
 
     python levels1.py
 """
-import os, json, re
+import os, json, re, random
 from collections import deque
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -31,8 +32,11 @@ VOLCANO_CLUSTER_STEP = 4
 DUNGEON_BONUS = 2       # a cave's first room: the entrance area's lowest level + this ...
 ROOM_STEP = 1           # ... and this much more for every room further in
 DUNGEON_WIDTH = 2       # cave mob areas are 2-level ranges (e.g. entrance 4-5 -> first room 6-7, next 7-8)
-FIRST_CHEST_ID = 101
-CHEST_RESPAWN_PER_LEVEL = 120   # seconds: a chest's spawnDelay in entity.json is this x its level
+FIRST_BOSS_ID = 101
+BOSS_MULTI = 10                 # dead-end bosses: createBoss multiplier ...
+BOSS_LEVEL_BONUS = 2            # ... levels above their room's mob area ...
+BOSS_RESPAWN_PER_LEVEL = 300    # ... and seconds of respawn per level (5 minutes x level)
+rnd = random.Random(7)
 LEVEL_STEP = 2          # levels gained per area away from the start town (and each range's width) ...
 WIDE_FROM = 10          # ... up to this level; from here on ranges are WIDE_STEP levels wide and rise by WIDE_STEP
 WIDE_STEP = 3
@@ -137,7 +141,7 @@ def area_at(nm, x, y):
 
 
 # ---------------------------------------------------------------- dungeons: by the cave entrance
-dungeon_done, chests, dungeon_report = 0, {}, []
+dungeon_done, bosses, dungeon_report = 0, {}, []
 for nm_in in inner:
     m = mapjson[nm_in]; w, h, col = m['width'], m['height'], m['collision']
     comp = [0] * (w * h); ncomp = 0                     # every walkable room / hallway
@@ -188,7 +192,7 @@ for nm_in in inner:
         k = q.popleft()
         for j in sorted(links.get(k, ())):
             if j not in base: base[j] = base[k] + ROOM_STEP; parent[j] = k; q.append(j)
-    room_hi = {}
+    room_hi, room_area = {}, {}
     for a in ea[nm_in]['mobAreas']:
         ids = {comp[yy * w + xx] for yy in range(a['y'] // 16, (a['y'] + a['h']) // 16)
                for xx in range(a['x'] // 16, (a['x'] + a['w']) // 16) if comp[yy * w + xx] in base}
@@ -197,22 +201,23 @@ for nm_in in inner:
         lo = base[room]
         a['minLevel'], a['maxLevel'], a['levelWeight'], a['aggro'] = lo, lo + DUNGEON_WIDTH - 1, '2' + ',1' * (DUNGEON_WIDTH - 1), 1
         room_hi[room] = max(room_hi.get(room, 0), a['maxLevel'])
+        if room not in room_area or a['maxLevel'] > room_area[room]['maxLevel']: room_area[room] = a
         dungeon_done += 1
-    # a chest at the far end of every dead end: a cave room with one way in and no way out
+    # a boss in every dead end: a cave room with one way in and no way out
     for room in sorted(room_hi):
         if parent.get(room) in (None, 0) or len(links.get(room, ())) != 1 or room in entry: continue
-        start_t = arrive.get((parent[room], room))
-        if start_t is None: continue
-        dist_t = {start_t: 0}; q = deque([start_t])
-        while q:
-            c = q.popleft(); x, y = c % w, c // w
-            for nx, ny in ((x + 1, y), (x - 1, y), (x, y + 1), (x, y - 1)):
-                k = ny * w + nx
-                if 0 <= nx < w and 0 <= ny < h and comp[k] == room and k not in dist_t: dist_t[k] = dist_t[c] + 1; q.append(k)
-        spots_ = [t for t in dist_t if t not in door_tiles]
-        far = max(spots_, key=lambda t: (dist_t[t], -t))
-        chests.setdefault(nm_in, []).append({'type': 'node', 'kind': 99, 'x': far % w * 16, 'y': far // w * 16,
-                                             'level': room_hi[room], 'spawnDelay': CHEST_RESPAWN_PER_LEVEL * room_hi[room]})
+        ar = room_area[room]
+        tiles = [yy * w + xx for yy in range(ar['y'] // 16, (ar['y'] + ar['h']) // 16)
+                 for xx in range(ar['x'] // 16, (ar['x'] + ar['w']) // 16)
+                 if comp[yy * w + xx] == room and yy * w + xx not in door_tiles]
+        roomy = [t for t in tiles if all(0 <= t % w + dx < w and 0 <= t // w + dy < h and comp[t + dy * w + dx] == room
+                                         for dx in (-1, 0, 1) for dy in (-1, 0, 1))]
+        t = rnd.choice(roomy or tiles)
+        kinds = [int(k) for k in str(ar['include']).split(',') if k.strip()]
+        lv = ar['maxLevel'] + BOSS_LEVEL_BONUS
+        bosses.setdefault(nm_in, []).append({'type': 'mob', 'kind': rnd.choice(kinds), 'x': t % w * 16,
+                                             'y': t // w * 16, 'level': lv, 'boss': BOSS_MULTI, 'aggro': 1,
+                                             'spawnDelay': BOSS_RESPAWN_PER_LEVEL * lv})
     def root(r):
         while parent.get(r): r = parent[r]
         return r
@@ -220,27 +225,33 @@ for nm_in in inner:
         rooms_ = [r for r in room_hi if root(r) == c_]
         if not rooms_: continue
         ends = sum(1 for r in rooms_ if len(links.get(r, ())) == 1 and r not in entry)
-        dungeon_report.append(f'entrance level {entry[c_]:>2}: {len(rooms_)} rooms, mobs {min(base[r] for r in rooms_)}-{max(room_hi[r] for r in rooms_)}, {ends} chests')
+        dungeon_report.append(f'entrance level {entry[c_]:>2}: {len(rooms_)} rooms, mobs {min(base[r] for r in rooms_)}-{max(room_hi[r] for r in rooms_)}, {ends} bosses')
 
 for nm in maplist:
     old_t = open(p_ea(nm), newline='').read(); eol = '\r\n' if '\r\n' in old_t else '\n'
     open(p_ea(nm), 'w', newline='').write((json.dumps(ea[nm], indent=1) + '\n').replace('\n', eol))
 
-# chests: entity.json of the interiors part (other records kept; the chests written last time replaced)
+# bosses: entity.json of the interiors part (other records kept; what this script wrote last time replaced --
+# the dead-end chests of earlier runs, listed in map1_chests_written.json, included)
+p_bw = os.path.join(DATA, PFX + '_dungeon_written.json')
 p_cw = os.path.join(DATA, PFX + '_chests_written.json')
-prev_c = json.load(open(p_cw)) if os.path.exists(p_cw) else {}
+prev = {}
+for f_ in (p_bw, p_cw):
+    if os.path.exists(f_):
+        for k, v in json.load(open(f_)).items(): prev.setdefault(k, set()).update(v)
 for nm_in in inner:
     p_ent = os.path.join(ROOT, 'gameserver', 'data', 'maps', nm_in, 'entity.json')
     old = json.load(open(p_ent)) if os.path.exists(p_ent) else []
-    keep = [e for e in old if e.get('id') not in set(prev_c.get(nm_in, []))]
+    keep = [e for e in old if e.get('id') not in prev.get(nm_in, set())]
     used_ids = {e.get('id') for e in keep}
-    nid = FIRST_CHEST_ID
-    for c_ in chests.get(nm_in, []):
+    nid = FIRST_BOSS_ID
+    for b_ in bosses.get(nm_in, []):
         while nid in used_ids: nid += 1
-        c_['id'] = nid; used_ids.add(nid)
-    out = keep + [dict(id=c_['id'], **{k: v for k, v in c_.items() if k != 'id'}) for c_ in chests.get(nm_in, [])]
+        b_['id'] = nid; used_ids.add(nid)
+    out = keep + [dict(id=b_['id'], **{k: v for k, v in b_.items() if k != 'id'}) for b_ in bosses.get(nm_in, [])]
     json.dump(out, open(p_ent, 'w'), indent=2)
-json.dump({k: [c_['id'] for c_ in v] for k, v in chests.items()}, open(p_cw, 'w'), indent=1)
+json.dump({k: [b_['id'] for b_ in v] for k, v in bosses.items()}, open(p_bw, 'w'), indent=1)
+if os.path.exists(p_cw): json.dump({}, open(p_cw, 'w'))      # its chests are gone now
 
 # ---------------------------------------------------------------- quests: the level range of the NPC's area
 p_quests = os.path.join(ROOT, 'shared', 'data', 'quests.json')
@@ -274,7 +285,7 @@ rows = sorted({a['y'] for a in areas}); cols = sorted({a['x'] for a in areas})
 grid = {(rows.index(a['y']), cols.index(a['x'])): (i, a) for i, a in enumerate(areas)}
 letter = lambda a: 'V' if a['mobs'] & VOLCANO_MOBS else 'T' if a['mobs'] == {1, 5} else 'B' if a['mobs'] == {2} else 'D' if a['mobs'] & {3, 7, 8} else 'f'
 print(f'{len(areas)} outdoor areas (start town: {len(start)}), {dungeon_done} dungeon areas (aggressive), '
-      f'{sum(len(v) for v in chests.values())} dead-end chests, {changed} quests updated')
+      f'{sum(len(v) for v in bosses.values())} dead-end bosses, {changed} quests updated')
 for r in range(len(rows)):
     print('  ' + ' '.join(f"{letter(grid[(r, c)][1])}{grid[(r, c)][1]['rec']['minLevel']:>2}-{grid[(r, c)][1]['rec']['maxLevel']:<2}"
                           if (r, c) in grid else '   .    ' for c in range(len(cols))))
