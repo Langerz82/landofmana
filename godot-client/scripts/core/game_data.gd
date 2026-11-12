@@ -109,7 +109,7 @@ func _load_mobs() -> void:
 		var mob := {
 			"key": str(key).to_lower(),
 			"kind": int(v.get("kind", 0)),
-			"name": str(key),
+			"name": str(v.get("name", key)),   # display name, e.g. "Death Knight"
 			"level": int(v.get("level", 0)),
 			"attackRange": int(v.get("attackRange", 1)),
 			"isAggressive": int(v.get("isAggressive", 0)) == 1,

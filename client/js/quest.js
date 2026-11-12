@@ -64,14 +64,14 @@ function getQuestVars(type, object, object2, count) {
             }
             if (object) {
                 const mob = MobData.Kinds[object.kind];
-                if (mob) vars.name2 = capitalize(mob.key);
+                if (mob) vars.name2 = capitalize(mob.name || mob.key);
             }
             break;
         case QuestType.KILLMOBKIND:
         case QuestType.KILLMOBS:
             if (object) {
                 const mob = MobData.Kinds[object.kind];
-                if (mob) vars.name = capitalize(mob.key);
+                if (mob) vars.name = capitalize(mob.name || mob.key);
                 vars.count = object.count;
             }
             break;

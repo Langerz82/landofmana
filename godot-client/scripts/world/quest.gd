@@ -90,7 +90,7 @@ func set_text(text) -> void:
 
 ## The quest fill-in variables, generated client-side from the quest's
 ## objects (port of the old text_template()):
-##   KILLMOBKIND: %name% mob, %count% kill count
+##   KILLMOBKIND: %name% mob (its mobs.json name), %count% kill count
 ##   GETITEMKIND: %name% item, %count% item count, %name2% mob dropping it
 ##   HIDEANDSEEK: %name% npc
 ##   USENODE:     %count% node count
@@ -109,12 +109,12 @@ static func get_quest_vars(q_type: int, obj, obj2, q_count: int) -> Dictionary:
 			if obj != null:
 				var mob := GameData.get_mob(int(obj.kind))
 				if not mob.is_empty():
-					vars["name2"] = _cap(str(mob.key))
+					vars["name2"] = _cap(str(mob.get("name", mob.key)))
 		QuestType.KILLMOBKIND, QuestType.KILLMOBS:
 			if obj != null:
 				var mob := GameData.get_mob(int(obj.kind))
 				if not mob.is_empty():
-					vars["name"] = _cap(str(mob.key))
+					vars["name"] = _cap(str(mob.get("name", mob.key)))
 				vars["count"] = int(obj.count)
 		QuestType.HIDEANDSEEK:
 			if obj != null:

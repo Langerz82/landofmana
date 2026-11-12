@@ -29,6 +29,7 @@ const mobParse = fetchJsonSync('shared/data/mobs.json');
 for (const [key, value] of Object.entries(mobParse)) {
     const mob = {
         key: key.toLowerCase(),
+        name: value.name || key,   // display name, e.g. "Death Knight"
         kind: value.kind,
 
         attack: value.attackMod ? value.attackMod * 4 : 4,
