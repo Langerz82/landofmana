@@ -62,5 +62,77 @@
     "x": 2640,
     "y": 3600,
     "name": "Noros"
+  },
+  {
+    "id": 201,
+    "type": "npcmove",
+    "kind": 27,
+    "x": 224,
+    "y": 1440,
+    "name": "Jorara"
+  },
+  {
+    "id": 202,
+    "type": "npcmove",
+    "kind": 11,
+    "x": 2336,
+    "y": 704,
+    "name": "Ostella"
+  },
+  {
+    "id": 203,
+    "type": "npcmove",
+    "kind": 17,
+    "x": 3536,
+    "y": 1152,
+    "name": "Delton"
+  },
+  {
+    "id": 204,
+    "type": "npcmove",
+    "kind": 48,
+    "x": 128,
+    "y": 1680,
+    "name": "Stenen"
+  },
+  {
+    "id": 205,
+    "type": "npcmove",
+    "kind": 32,
+    "x": 2592,
+    "y": 2688,
+    "name": "Coruna"
+  },
+  {
+    "id": 206,
+    "type": "npcmove",
+    "kind": 48,
+    "x": 3552,
+    "y": 1728,
+    "name": "Belald"
+  },
+  {
+    "id": 207,
+    "type": "npcmove",
+    "kind": 29,
+    "x": 1536,
+    "y": 3680,
+    "name": "Yarette"
+  },
+  {
+    "id": 208,
+    "type": "npcmove",
+    "kind": 15,
+    "x": 2496,
+    "y": 3360,
+    "name": "Perara"
+  },
+  {
+    "id": 209,
+    "type": "npcmove",
+    "kind": 11,
+    "x": 3632,
+    "y": 3984,
+    "name": "Tororic"
   }
 ]

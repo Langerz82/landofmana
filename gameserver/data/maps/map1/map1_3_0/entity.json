@@ -46,5 +46,77 @@
     "x": 2592,
     "y": 3344,
     "name": "Mardor"
+  },
+  {
+    "id": 201,
+    "type": "npcmove",
+    "kind": 19,
+    "x": 1472,
+    "y": 688,
+    "name": "Perella"
+  },
+  {
+    "id": 202,
+    "type": "npcmove",
+    "kind": 7,
+    "x": 2304,
+    "y": 976,
+    "name": "Feno"
+  },
+  {
+    "id": 203,
+    "type": "npcmove",
+    "kind": 50,
+    "x": 3600,
+    "y": 1024,
+    "name": "Yarber"
+  },
+  {
+    "id": 204,
+    "type": "npcmove",
+    "kind": 43,
+    "x": 528,
+    "y": 2160,
+    "name": "Ashelle"
+  },
+  {
+    "id": 205,
+    "type": "npcmove",
+    "kind": 41,
+    "x": 1856,
+    "y": 1616,
+    "name": "Tordor"
+  },
+  {
+    "id": 206,
+    "type": "npcmove",
+    "kind": 10,
+    "x": 3584,
+    "y": 1440,
+    "name": "Norelle"
+  },
+  {
+    "id": 207,
+    "type": "npcmove",
+    "kind": 5,
+    "x": 320,
+    "y": 3216,
+    "name": "Fenia"
+  },
+  {
+    "id": 208,
+    "type": "npcmove",
+    "kind": 50,
+    "x": 2576,
+    "y": 3696,
+    "name": "Falley"
+  },
+  {
+    "id": 209,
+    "type": "npcmove",
+    "kind": 55,
+    "x": 3920,
+    "y": 2976,
+    "name": "Sabos"
   }
 ]

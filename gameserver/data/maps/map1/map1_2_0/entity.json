@@ -46,5 +46,101 @@
     "x": 2384,
     "y": 2912,
     "name": "Hobette"
+  },
+  {
+    "id": 201,
+    "type": "npcmove",
+    "kind": 4,
+    "x": 304,
+    "y": 640,
+    "name": "Ulius"
+  },
+  {
+    "id": 202,
+    "type": "npcmove",
+    "kind": 52,
+    "x": 1824,
+    "y": 256,
+    "name": "Odoira"
+  },
+  {
+    "id": 203,
+    "type": "npcmove",
+    "kind": 31,
+    "x": 3728,
+    "y": 208,
+    "name": "Pipber"
+  },
+  {
+    "id": 204,
+    "type": "npcmove",
+    "kind": 26,
+    "x": 352,
+    "y": 1072,
+    "name": "Selira"
+  },
+  {
+    "id": 205,
+    "type": "npcmove",
+    "kind": 12,
+    "x": 2496,
+    "y": 1808,
+    "name": "Bramach"
+  },
+  {
+    "id": 206,
+    "type": "npcmove",
+    "kind": 48,
+    "x": 3552,
+    "y": 912,
+    "name": "Gwenric"
+  },
+  {
+    "id": 207,
+    "type": "npcmove",
+    "kind": 44,
+    "x": 1360,
+    "y": 2288,
+    "name": "Orrald"
+  },
+  {
+    "id": 208,
+    "type": "npcmove",
+    "kind": 54,
+    "x": 2176,
+    "y": 2480,
+    "name": "Stenelle"
+  },
+  {
+    "id": 209,
+    "type": "npcmove",
+    "kind": 37,
+    "x": 3616,
+    "y": 3008,
+    "name": "Roseth"
+  },
+  {
+    "id": 210,
+    "type": "npcmove",
+    "kind": 25,
+    "x": 224,
+    "y": 3888,
+    "name": "Faloric"
+  },
+  {
+    "id": 211,
+    "type": "npcmove",
+    "kind": 26,
+    "x": 1952,
+    "y": 4048,
+    "name": "Norella"
+  },
+  {
+    "id": 212,
+    "type": "npcmove",
+    "kind": 50,
+    "x": 3904,
+    "y": 3776,
+    "name": "Briella"
   }
 ]

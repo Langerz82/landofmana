@@ -54,5 +54,77 @@
     "x": 3216,
     "y": 3648,
     "name": "Ashen"
+  },
+  {
+    "id": 201,
+    "type": "npcmove",
+    "kind": 3,
+    "x": 480,
+    "y": 1312,
+    "name": "Garoric"
+  },
+  {
+    "id": 202,
+    "type": "npcmove",
+    "kind": 26,
+    "x": 2208,
+    "y": 1120,
+    "name": "Bridor"
+  },
+  {
+    "id": 203,
+    "type": "npcmove",
+    "kind": 51,
+    "x": 3504,
+    "y": 976,
+    "name": "Caluna"
+  },
+  {
+    "id": 204,
+    "type": "npcmove",
+    "kind": 35,
+    "x": 32,
+    "y": 2336,
+    "name": "Garald"
+  },
+  {
+    "id": 205,
+    "type": "npcmove",
+    "kind": 27,
+    "x": 2352,
+    "y": 2352,
+    "name": "Isaella"
+  },
+  {
+    "id": 206,
+    "type": "npcmove",
+    "kind": 45,
+    "x": 3424,
+    "y": 2848,
+    "name": "Nelella"
+  },
+  {
+    "id": 207,
+    "type": "npcmove",
+    "kind": 56,
+    "x": 704,
+    "y": 3616,
+    "name": "Sabella"
+  },
+  {
+    "id": 208,
+    "type": "npcmove",
+    "kind": 41,
+    "x": 1120,
+    "y": 3152,
+    "name": "Orrara"
+  },
+  {
+    "id": 209,
+    "type": "npcmove",
+    "kind": 49,
+    "x": 3152,
+    "y": 4000,
+    "name": "Coren"
   }
 ]

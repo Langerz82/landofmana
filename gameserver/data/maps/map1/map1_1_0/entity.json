@@ -38,5 +38,101 @@
     "x": 944,
     "y": 4016,
     "name": "Garette"
+  },
+  {
+    "id": 201,
+    "type": "npcmove",
+    "kind": 12,
+    "x": 1520,
+    "y": 208,
+    "name": "Jorella"
+  },
+  {
+    "id": 202,
+    "type": "npcmove",
+    "kind": 28,
+    "x": 2944,
+    "y": 64,
+    "name": "Calold"
+  },
+  {
+    "id": 203,
+    "type": "npcmove",
+    "kind": 48,
+    "x": 3968,
+    "y": 32,
+    "name": "Gwenin"
+  },
+  {
+    "id": 204,
+    "type": "npcmove",
+    "kind": 52,
+    "x": 1536,
+    "y": 1744,
+    "name": "Norric"
+  },
+  {
+    "id": 205,
+    "type": "npcmove",
+    "kind": 20,
+    "x": 2144,
+    "y": 1696,
+    "name": "Torette"
+  },
+  {
+    "id": 206,
+    "type": "npcmove",
+    "kind": 32,
+    "x": 3616,
+    "y": 1280,
+    "name": "Belton"
+  },
+  {
+    "id": 207,
+    "type": "npcmove",
+    "kind": 26,
+    "x": 736,
+    "y": 3088,
+    "name": "Selold"
+  },
+  {
+    "id": 208,
+    "type": "npcmove",
+    "kind": 55,
+    "x": 1952,
+    "y": 2496,
+    "name": "Rhimund"
+  },
+  {
+    "id": 209,
+    "type": "npcmove",
+    "kind": 18,
+    "x": 3824,
+    "y": 2800,
+    "name": "Hobo"
+  },
+  {
+    "id": 210,
+    "type": "npcmove",
+    "kind": 44,
+    "x": 1136,
+    "y": 3376,
+    "name": "Dorach"
+  },
+  {
+    "id": 211,
+    "type": "npcmove",
+    "kind": 47,
+    "x": 2576,
+    "y": 3968,
+    "name": "Quinek"
+  },
+  {
+    "id": 212,
+    "type": "npcmove",
+    "kind": 34,
+    "x": 3680,
+    "y": 3408,
+    "name": "Fenin"
   }
 ]

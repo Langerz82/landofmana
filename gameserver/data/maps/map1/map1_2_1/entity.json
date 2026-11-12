@@ -46,5 +46,101 @@
     "x": 3248,
     "y": 3008,
     "name": "Lorwyn"
+  },
+  {
+    "id": 201,
+    "type": "npcmove",
+    "kind": 39,
+    "x": 768,
+    "y": 688,
+    "name": "Rosette"
+  },
+  {
+    "id": 202,
+    "type": "npcmove",
+    "kind": 22,
+    "x": 2400,
+    "y": 256,
+    "name": "Perton"
+  },
+  {
+    "id": 203,
+    "type": "npcmove",
+    "kind": 8,
+    "x": 3568,
+    "y": 368,
+    "name": "Torold"
+  },
+  {
+    "id": 204,
+    "type": "npcmove",
+    "kind": 8,
+    "x": 496,
+    "y": 1328,
+    "name": "Pipdor"
+  },
+  {
+    "id": 205,
+    "type": "npcmove",
+    "kind": 12,
+    "x": 1584,
+    "y": 2000,
+    "name": "Delara"
+  },
+  {
+    "id": 206,
+    "type": "npcmove",
+    "kind": 41,
+    "x": 3360,
+    "y": 1296,
+    "name": "Wilmund"
+  },
+  {
+    "id": 207,
+    "type": "npcmove",
+    "kind": 25,
+    "x": 592,
+    "y": 2592,
+    "name": "Lorton"
+  },
+  {
+    "id": 208,
+    "type": "npcmove",
+    "kind": 8,
+    "x": 2032,
+    "y": 3168,
+    "name": "Jormund"
+  },
+  {
+    "id": 209,
+    "type": "npcmove",
+    "kind": 38,
+    "x": 3472,
+    "y": 3632,
+    "name": "Vorvin"
+  },
+  {
+    "id": 210,
+    "type": "npcmove",
+    "kind": 45,
+    "x": 288,
+    "y": 3936,
+    "name": "Fenira"
+  },
+  {
+    "id": 211,
+    "type": "npcmove",
+    "kind": 37,
+    "x": 1648,
+    "y": 3888,
+    "name": "Sabek"
+  },
+  {
+    "id": 212,
+    "type": "npcmove",
+    "kind": 30,
+    "x": 3904,
+    "y": 3808,
+    "name": "Sabmund"
   }
 ]

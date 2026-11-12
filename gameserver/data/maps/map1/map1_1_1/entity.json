@@ -62,5 +62,101 @@
     "x": 1840,
     "y": 3968,
     "name": "Calisa"
+  },
+  {
+    "id": 201,
+    "type": "npcmove",
+    "kind": 41,
+    "x": 128,
+    "y": 80,
+    "name": "Pipius"
+  },
+  {
+    "id": 202,
+    "type": "npcmove",
+    "kind": 2,
+    "x": 2304,
+    "y": 240,
+    "name": "Selek"
+  },
+  {
+    "id": 203,
+    "type": "npcmove",
+    "kind": 23,
+    "x": 3200,
+    "y": 224,
+    "name": "Hobira"
+  },
+  {
+    "id": 204,
+    "type": "npcmove",
+    "kind": 48,
+    "x": 448,
+    "y": 608,
+    "name": "Falek"
+  },
+  {
+    "id": 205,
+    "type": "npcmove",
+    "kind": 24,
+    "x": 2240,
+    "y": 880,
+    "name": "Eldo"
+  },
+  {
+    "id": 206,
+    "type": "npcmove",
+    "kind": 32,
+    "x": 3008,
+    "y": 576,
+    "name": "Brammund"
+  },
+  {
+    "id": 207,
+    "type": "npcmove",
+    "kind": 52,
+    "x": 576,
+    "y": 2896,
+    "name": "Falton"
+  },
+  {
+    "id": 208,
+    "type": "npcmove",
+    "kind": 10,
+    "x": 2016,
+    "y": 2192,
+    "name": "Belley"
+  },
+  {
+    "id": 209,
+    "type": "npcmove",
+    "kind": 4,
+    "x": 3536,
+    "y": 3232,
+    "name": "Quinton"
+  },
+  {
+    "id": 210,
+    "type": "npcmove",
+    "kind": 20,
+    "x": 48,
+    "y": 3392,
+    "name": "Odoley"
+  },
+  {
+    "id": 211,
+    "type": "npcmove",
+    "kind": 53,
+    "x": 1312,
+    "y": 3392,
+    "name": "Isawin"
+  },
+  {
+    "id": 212,
+    "type": "npcmove",
+    "kind": 52,
+    "x": 3984,
+    "y": 3456,
+    "name": "Nelan"
   }
 ]
