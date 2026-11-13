@@ -52,6 +52,18 @@ BIOMES = {frozenset({1, 5}): 'village', frozenset({4, 5, 6}): 'forest', frozense
 NODE_KINDS = {2: 'node_ore', 99: 'chest'}      # gameserver entity/node.js: kind 2 drops coal and iron
 
 
+def parse_level(v):
+    """a mob area's "level" ("35" or "35-36") -> (35, 36), or None"""
+    m = re.fullmatch(r'\s*(\d+)\s*(?:-\s*(\d+)\s*)?', str(v)) if v is not None else None
+    if not m: return None
+    a, b = int(m.group(1)), int(m.group(2) or m.group(1))
+    return (min(a, b), max(a, b)) if min(a, b) >= 1 else None
+
+
+def level_string(lo, hi):
+    return str(lo) if lo == hi else f'{lo}-{hi}'
+
+
 def slug(t):
     return re.sub(r'[^a-z0-9]+', '_', str(t).lower()).strip('_')
 
@@ -87,6 +99,22 @@ class MapData:
         self.entities = json.load(open(self.p_ent)) if os.path.exists(self.p_ent) else []
         self.areas = json.load(open(self.p_ea)) if os.path.exists(self.p_ea) else {'mobAreas': [], 'entityAreas': []}
         self.areas.setdefault('mobAreas', []); self.areas.setdefault('entityAreas', [])
+        # a mob area's levels are "level" in the file ("35" or "35-36"); the tools work with minLevel/maxLevel, and
+        # save() writes them back as "level"
+        def expand(a):                         # "level" -> minLevel/maxLevel, in the same place
+            if 'minLevel' in a or 'maxLevel' in a:
+                raise SystemExit(f'{self.p_ea}: mob area {a.get("id")} has minLevel/maxLevel -- not used any more, '
+                                 f'give it "level" ("35" or "35-36") instead')
+            lv = parse_level(a.get('level'))
+            if not lv:
+                raise SystemExit(f'{self.p_ea}: mob area {a.get("id")} has no usable "level" ("35" or "35-36"): '
+                                 f'{a.get("level")!r}')
+            out = {}
+            for k, v in a.items():
+                if k == 'level': out['minLevel'], out['maxLevel'] = lv
+                else: out[k] = v
+            return out
+        self.areas['mobAreas'] = [expand(a) for a in self.areas['mobAreas']]
 
     @staticmethod
     def _header(path):
@@ -224,12 +252,48 @@ class MapData:
         """writes both files, sorted by id, with a caption on every record and area that has none"""
         self.entities = sorted((with_caption(e, self.caption_entity(e)) for e in self.entities),
                                key=lambda e: (e.get('id') is None, e.get('id') or 0))
+        for a in self.areas['mobAreas']:
+            # left out when empty, or 1 for bonusDrop: the game server's defaults (gameserver area/mobarea.js)
+            for f in ('include', 'exclude', 'definite'):
+                if f in a and str(a[f]).strip() == '': del a[f]
+            if 'bonusDrop' in a and a['bonusDrop'] == 1: del a['bonusDrop']
+            # levelWeight: one weight per level of minLevel..maxLevel, comma-separated ("2,1,1" for 10-12). A wrong
+            # number of values is fixed -- the extra ones dropped, missing ones 1 -- as the game server would
+            # otherwise ignore it and weight every level 1 (gameserver area/mobarea.js)
+            if 'levelWeight' in a and 'minLevel' in a and 'maxLevel' in a:
+                need = max(1, a['maxLevel'] - a['minLevel'] + 1)
+                vals = [v.strip() for v in str(a['levelWeight']).split(',') if v.strip()]
+                vals = [v for v in vals if re.fullmatch(r'\d+(\.\d+)?', v) and float(v) > 0]
+                fixed = ','.join((vals + ['1'] * need)[:need])
+                if fixed != str(a['levelWeight']):
+                    print(f'  {self.name} mob area {a.get("id")}: levelWeight "{a["levelWeight"]}" for levels '
+                          f'{a["minLevel"]}-{a["maxLevel"]} -> "{fixed}"')
+                    a['levelWeight'] = fixed
+            # definite (only these kinds spawn, ignoring include and exclude) adds nothing when include is one kind
+            # and definite is that same kind: include alone spawns only it. (A definite naming other kinds decides
+            # what spawns, so it stays.)
+            inc = [k.strip() for k in str(a.get('include', '')).split(',') if k.strip()]
+            dfn = [k.strip() for k in str(a.get('definite', '')).split(',') if k.strip()]
+            if len(inc) == 1 and re.fullmatch(r'\d+', inc[0]) and dfn and set(map(int, dfn)) == {int(inc[0])}:
+                del a['definite']
+            # kindWeight shares spawns between the include kinds: nothing to share with one kind (or none)
+            if 'kindWeight' in a and len([k for k in str(a.get('include', '')).split(',') if k.strip()]) < 2:
+                del a['kindWeight']
         for k in ('mobAreas', 'entityAreas'):
             self.areas[k] = sorted((with_caption(a, self.caption_area(k, a)) for a in self.areas[k]),
                                    key=lambda a: a.get('id', 0))
+        # minLevel/maxLevel -> "level" ("35" or "35-36"), right after the count (id, caption, count, level, ...)
+        def collapse(a):
+            if 'minLevel' not in a: return a
+            lo, hi = a['minLevel'], a.get('maxLevel', a['minLevel'])
+            rest = [(k, v) for k, v in a.items() if k not in ('minLevel', 'maxLevel', 'level')]
+            at = next((i + 1 for i, (k, _) in enumerate(rest) if k == 'count'),
+                      next((i + 1 for i, (k, _) in enumerate(rest) if k == 'caption'), 0))
+            return dict(rest[:at] + [('level', level_string(lo, hi))] + rest[at:])
+        file_areas = dict(self.areas, mobAreas=[collapse(a) for a in self.areas['mobAreas']])
         _write_json(self.p_ent, self.entities, 2)
         if os.path.exists(self.p_ea) or self.areas['mobAreas'] or self.areas['entityAreas']:
-            _write_json(self.p_ea, self.areas, 1)
+            _write_json(self.p_ea, file_areas, 1)
 
 
 def renumber(root, md):

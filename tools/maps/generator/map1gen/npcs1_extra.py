@@ -454,7 +454,8 @@ for p in parts:
     size = components(p)
     ent = entities.setdefault(nm, [])
     for area in ea['mobAreas']:
-        mobs = sorted(int(k) for k in str(area['include']).split(',') if k.strip())
+        if str(area.get('caption', '')).startswith('wizard_boss'): continue   # wizards1.py's, on top of a mob area
+        mobs = sorted(int(k) for k in str(area.get('include', '')).split(',') if k.strip())
         biome = BIOME_BY_MOBS.get(','.join(map(str, mobs)))
         cx = p['wx'] + (area['x'] + area['w'] / 2) / 16; cy = p['wy'] + (area['y'] + area['h'] / 2) / 16
         row, col = min(rows - 1, int(cy * rows / main_h)), min(cols - 1, int(cx * cols / main_w))

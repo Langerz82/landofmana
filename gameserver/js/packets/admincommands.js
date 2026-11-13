@@ -15,6 +15,7 @@
 // along with this program. See the LICENSE file in the project root,
 // or <https://www.gnu.org/licenses/>.
 
+import { levelString } from '../map/mapgroup.js';
 import Messages from '../message.js';
 import MapEntityStore from '../map/mapentitystore.js';
 import Utils from '../utils.js';
@@ -758,15 +759,13 @@ class AdminCommands {
             if (!(bonus > 0 && bonus <= 100)) return this.reply('bonus (drop multiplier) must be above 0 and at most 100.');
             const boss = opts.boss !== undefined ? int(opts.boss) : 0;
             if (opts.boss !== undefined && !(boss >= 2 && boss <= 100)) return this.reply('boss must be 2-100.');
-            Object.assign(area, {
-                count,
-                minLevel: min,
-                maxLevel: max,
-                include: opts.include || '',
-                exclude: opts.exclude || '',
-                definite: opts.definite || '',
-                bonusDrop: bonus
-            });
+            // as entityarea.json keeps them: the levels as "level" ("35" or "35-36"), and nothing that
+            // is empty or the server's default (no exclude/definite, bonusDrop 1)
+            Object.assign(area, { count, level: levelString(min, max) });
+            if (opts.include) area.include = opts.include;
+            if (opts.exclude) area.exclude = opts.exclude;
+            if (opts.definite) area.definite = opts.definite;
+            if (bonus !== 1) area.bonusDrop = bonus;
             // only when given: the server gives every level and include kind 1 by default (area/mobarea.js)
             if (opts.levelweight) area.levelWeight = opts.levelweight;
             if (opts.kindweight) area.kindWeight = opts.kindweight;

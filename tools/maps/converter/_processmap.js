@@ -421,8 +421,8 @@ module.exports = function processMap(json, jsontsx, options) {
 };
 
 
-// A mob area's levels: its "level" property -- one level ("10") or a range ("10-12") -- or, on maps made before
-// that, its minLevel/maxLevel properties. With both, "level" wins (a warning if they disagree).
+// A mob area's levels: its "level" property -- one level ("10") or a range ("10-12"); minLevel/maxLevel
+// properties are not read any more (mobAreaLevels() below).
 // The mobAreas of a Tiled "mobareas" object layer, in the format of the game
 // server's entityarea.json (gameserver map/map.js). Also used on its own by areasOf() below.
 // A door's destination map ("tmap"): a map index (107), or -- so the door survives the target
@@ -495,31 +495,50 @@ var mobAreasOf = function (layer) {
                  // area on the server, whose x/y are its centre (gameserver area/area.js).
                  var elipse = !!(areas[i].ellipse || prop.elipse);
                  var lv = mobAreaLevels(prop, areas[i].name || ('mob area ' + i));
+                 if (!lv) continue;
                  var area = {
                     id: i + 1,      // area ids start at 1, as entity ids do
                     count: prop.count,
                     // the area's levels, from its "level" property ("10" or "10-12"; mobAreaLevels)
-                    minLevel: lv.min,
-                    maxLevel: lv.max,
+                    // "35", or "35-36" for a range (the game server reads it, gameserver map/mapgroup.js areaLevels())
+                    level: lv.min === lv.max ? String(lv.min) : lv.min + '-' + lv.max,
                     x: ~~(areas[i].x + (elipse ? areas[i].width / 2 : 0)),
                     y: ~~(areas[i].y + (elipse ? areas[i].height / 2 : 0)),
                     w: ~~(areas[i].width),
                     h: ~~(areas[i].height),
                     include: prop.include || '',
-                    exclude: prop.exclude || '',
-                    definite: prop.definite || '',
-                    // levelWeight (how often each level of minLevel..maxLevel is picked) and kindWeight (how
+                    // levelWeight (how often each level of the area's level range is picked) and kindWeight (how
                     // often each include kind spawns, in include order) are only written when the mob area
                     // sets them in Tiled: the game server gives every level and every include kind 1 by
                     // default (gameserver area/mobarea.js).
                     // Multiplies the drop chances of every mob spawned in this
                     // area (gameserver: MobArea.bonusDrop -> Mob.setDrops).
-                    bonusDrop: prop.bonusDrop || 1,
                  };
+                 // left out when empty, or 1 for bonusDrop: the game server's defaults (gameserver area/mobarea.js)
+                 if (String(area.include).trim() === '') delete area.include;
+                 if (String(prop.exclude || '').trim() !== '') area.exclude = String(prop.exclude);
+                 if (String(prop.definite || '').trim() !== '') area.definite = String(prop.definite);
+                 // definite (only these kinds, ignoring include/exclude) adds nothing when include is one kind
+                 // and definite is that same kind -- include alone spawns only it
+                 if (area.definite !== undefined && /^\s*\d+\s*$/.test(String(area.include || '')) &&
+                     area.definite.split(',').every(function (k) { return Number(k) === Number(area.include); }))
+                     delete area.definite;
+                 if (Number(prop.bonusDrop) > 0 && Number(prop.bonusDrop) !== 1) area.bonusDrop = Number(prop.bonusDrop);
                  if (prop.levelWeight !== undefined && String(prop.levelWeight).trim() !== '')
                      area.levelWeight = String(prop.levelWeight).replace(/\s+/g, '');
+                 // one weight per level of the level range ("2,1,1" for 10-12), or the game server ignores it
+                 if (area.levelWeight !== undefined) {
+                     var nLv = Math.max(1, lv.max - lv.min + 1);
+                     var nW = area.levelWeight.split(',').filter(function (v) { return v !== ''; }).length;
+                     if (nW !== nLv) console.error('Mob area "' + (areas[i].name || ('mob area ' + i)) + '": levelWeight "' +
+                         area.levelWeight + '" has ' + nW + ' values for levels ' + area.level +
+                         ' (needs ' + nLv + ', one per level) -- the game server will weight every level 1.');
+                 }
                  if (prop.kindWeight !== undefined && String(prop.kindWeight).trim() !== '')
                      area.kindWeight = String(prop.kindWeight).replace(/\s+/g, '');
+                 // kindWeight shares spawns between the include kinds: nothing to share with one kind (or none)
+                 if (String(area.include || '').split(',').filter(function (k) { return k.trim() !== ''; }).length < 2)
+                     delete area.kindWeight;
                  if (elipse) area.elipse = 1;
                  // Boss multiplier for every mob the area spawns (gameserver map.js initMobAreas).
                  if (prop.boss > 1) area.boss = prop.boss;
@@ -584,17 +603,16 @@ module.exports.areas = function (TiledJSON) {
 };
 
 var mobAreaLevels = function (prop, name) {
-    var old = { min: prop.minLevel, max: prop.maxLevel !== undefined ? prop.maxLevel : prop.minLevel };
-    if (prop.level === undefined || prop.level === null || String(prop.level).trim() === '') return old;
-    var m = /^\s*(\d+)\s*(?:-\s*(\d+)\s*)?$/.exec(String(prop.level));
-    if (!m) {
-        console.warn(name + ': level "' + prop.level + '" is not a level ("10") or a range ("10-12"); using minLevel/maxLevel.');
-        return old;
-    }
-    var lo = parseInt(m[1], 10), hi = m[2] !== undefined ? parseInt(m[2], 10) : lo;
+    // its "level" property: one level ("10") or a range ("10-12"); null if missing or not a level of 1 or more
+    var m = /^\s*(\d+)\s*(?:-\s*(\d+)\s*)?$/.exec(String(prop.level === undefined || prop.level === null ? '' : prop.level));
+    var lo = m ? parseInt(m[1], 10) : 0, hi = m && m[2] !== undefined ? parseInt(m[2], 10) : lo;
     if (hi < lo) { var t = lo; lo = hi; hi = t; }
-    if ((prop.minLevel !== undefined && prop.minLevel !== lo) || (prop.maxLevel !== undefined && prop.maxLevel !== hi))
-        console.warn(name + ': level "' + prop.level + '" and minLevel/maxLevel ' + prop.minLevel + '/' + prop.maxLevel + ' disagree; using level.');
+    if (!m || lo < 1) {
+        console.error(name + ': no usable "level" property ("10" or "10-12")' +
+            (prop.minLevel !== undefined || prop.maxLevel !== undefined ? ' -- minLevel/maxLevel are no longer read, use level' : '') +
+            '; the mob area is left out.');
+        return null;
+    }
     return { min: lo, max: hi };
 };
 

@@ -65,14 +65,18 @@ inner = [nm for nm in maplist if nm.endswith('_int')]
 mapjson = {nm: json.load(open(os.path.join(ROOT, 'gameserver', 'maps', nm + '.json'))) for nm in maplist}
 md = MapData(ROOT, PFX)
 ea = {nm: md.areas_of(nm) for nm in maplist}      # each part's areas, in its own pixels (copies)
+# the wizard boss areas (wizards1.py) sit on top of the main-area mob areas: they are left out of the grid below,
+# and given the levels of the area they sit on at the end
+wizard = lambda a: str(a.get('caption', '')).startswith('wizard_boss')
 
 # ---------------------------------------------------------------- outdoor grid
 areas = []
 for nm in outdoor:
     m = mapjson[nm]; wx, wy = m['worldX'] * 16, m['worldY'] * 16
     for a in ea[nm]['mobAreas']:
+        if wizard(a): continue
         areas.append(dict(part=nm, rec=a, x=wx + a['x'], y=wy + a['y'], w=a['w'], h=a['h'],
-                          mobs={int(k) for k in str(a['include']).split(',') if k.strip()}))
+                          mobs={int(k) for k in str(a.get('include', '')).split(',') if k.strip()}))
 
 
 def touching(a, b):
@@ -140,6 +144,7 @@ for i, (lo, hi) in level.items():
 
 def area_at(nm, x, y):
     for a in ea[nm]['mobAreas']:
+        if wizard(a): continue
         if a['x'] <= x < a['x'] + a['w'] and a['y'] <= y < a['y'] + a['h']: return a
     return None
 
@@ -217,7 +222,7 @@ for nm_in in inner:
         roomy = [t for t in tiles if all(0 <= t % w + dx < w and 0 <= t // w + dy < h and comp[t + dy * w + dx] == room
                                          for dx in (-1, 0, 1) for dy in (-1, 0, 1))]
         t = rnd.choice(roomy or tiles)
-        kinds = [int(k) for k in str(ar['include']).split(',') if k.strip()]
+        kinds = [int(k) for k in str(ar.get('include', '')).split(',') if k.strip()]
         lv = ar['maxLevel'] + BOSS_LEVEL_BONUS
         bosses.setdefault(nm_in, []).append({'caption': 'dungeon_boss', 'type': 'mob', 'kind': rnd.choice(kinds), 'x': t % w * 16,
                                              'y': t // w * 16, 'level': lv, 'boss': BOSS_MULTI, 'aggro': 1,
@@ -231,6 +236,13 @@ for nm_in in inner:
         ends = sum(1 for r in rooms_ if len(links.get(r, ())) == 1 and r not in entry)
         dungeon_report.append(f'entrance level {entry[c_]:>2}: {len(rooms_)} rooms, mobs {min(base[r] for r in rooms_)}-{max(room_hi[r] for r in rooms_)}, {ends} bosses')
 
+# wizard boss areas: the levels of the main-area mob area they sit on (same spot)
+for nm in maplist:
+    base = {(a['x'], a['y'], a['w'], a['h']): a for a in ea[nm]['mobAreas'] if not wizard(a)}
+    for a in ea[nm]['mobAreas']:
+        b = base.get((a['x'], a['y'], a['w'], a['h'])) if wizard(a) else None
+        if not b: continue
+        a['minLevel'], a['maxLevel'] = b['minLevel'], b['maxLevel']      # (no levelWeight: wizards1.py)
 for nm in maplist:
     md.update_areas(nm, ea[nm])
 
@@ -265,7 +277,7 @@ npc_level = {}
 for nm in outdoor:
     for e in md.entities_of(nm):
         a = area_at(nm, e['x'], e['y'])
-        if a: npc_level[md.quest_base(e['id'])] = (a['minLevel'], a['maxLevel'], a['include'])
+        if a: npc_level[md.quest_base(e['id'])] = (a['minLevel'], a['maxLevel'], a.get('include', ''))
 changed, warn = 0, []
 dec = json.JSONDecoder()
 for qid in quests:

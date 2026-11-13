@@ -71,10 +71,26 @@ After a NEW map (`gen1.py`), write its areas from the Tiled map, then add the qu
 cd ../converter
 node run.js ../data/map1.json areas     # gameserver/data/maps/map1/entityarea.json (admin areas kept)
 cd ../generator/map1gen
-python npcs1.py         # quest NPCs, ids 1001+: entity.json, shared/data/quests.json, lang.json
-python npcs1_extra.py   # a second quest NPC in every outdoor mob area, ids 2001+
-python levels1.py       # mob levels, quest levels, dead-end cave bosses (ids 3001+)
+python npcs1.py         # quest NPCs: entity.json, shared/data/quests.json, lang.json
+python npcs1_extra.py   # a second quest NPC in every outdoor mob area
+python levels1.py       # mob levels, quest levels, dead-end cave bosses
+python wizards1.py      # a Wizard boss (count 1, boss x3) on every main-area mob area, at its levels
 ```
+
+Entity ids in `entity.json`, and area ids in `entityarea.json`, run 1, 2, 3, ...: each tool takes the first free
+ids, and remembers which records are its own (`tools/maps/data/map1_*_written.json`), so it replaces just those
+when run again. Every record and area has a `caption` saying what it is (`quest_npc_mainarea`,
+`quest_npc_mobarea`, `dungeon_boss`, `mob_mainarea_forest`, `dungeon_mob`, `wizard_boss_mainarea`, ...), unused by
+the game. `python ../common/mapdata.py` sorts both files by id and captions anything without one; `--renumber map1`
+closes up gaps in the ids (after records were removed), renumbering their quest ids in `quests.json` and
+`lang.json` too.
+
+`wizards1.py` adds a second mob area on exactly the spot of every main-area mob area (`mob_mainarea_<biome>`),
+captioned `wizard_boss_mainarea`: one Wizard (kind 10) with boss multiplier 3, at that area's levels. Running it
+again updates them; `levels1.py` keeps their levels the same as their area's and leaves them out of its level
+grid, and `npcs1_extra.py` gives them no quest NPC of their own. A mob area crossing a section edge shares its
+count out between the sections (rounded down by share, the leftover to the bigger piece), so its single Wizard
+spawns on the side with more of the area.
 
 `npcs1.py` writes the NPCs to `gameserver/data/maps/map1/entity.json`, their quests to
 `shared/data/quests.json` and their dialogue to `shared/data/lang.json` (`QUESTS` and `QUEST_SUMMARY`),

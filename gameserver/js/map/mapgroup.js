@@ -70,6 +70,22 @@ export function partHasPoint(map, wx, wy) {
     );
 }
 
+// A mob area's levels: its "level" in entityarea.json, one level ("35") or a range ("35-36", spaces
+// allowed, either way round) -> { min, max }. null if it is missing or not a level of 1 or more.
+export function areaLevels(area) {
+    const m = /^\s*(\d+)\s*(?:-\s*(\d+)\s*)?$/.exec(String(area.level ?? ''));
+    if (!m) return null;
+    const a = Number(m[1]);
+    const b = m[2] !== undefined ? Number(m[2]) : a;
+    if (Math.min(a, b) < 1) return null;
+    return { min: Math.min(a, b), max: Math.max(a, b) };
+}
+
+// min/max -> the "level" string entityarea.json keeps: "35", or "35-36".
+export function levelString(min, max) {
+    return min === max ? String(min) : min + '-' + max;
+}
+
 // Every split map's parts, in pixels, in map-list order: { "map1": [{ name, x, y, w, h }, ...] }.
 // From maps/maplist.json "areas" ([worldX, worldY, width, height] in tiles, written by the
 // converter), set by MapManager before any map loads, so a part knows its neighbours when it

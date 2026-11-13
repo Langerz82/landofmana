@@ -51,6 +51,7 @@ import {
     mapBaseIndex,
     mapDataFile,
     localizeArea,
+    areaLevels,
     readGroupAreas,
     writeGroupAreas
 } from './mapgroup.js';
@@ -520,12 +521,19 @@ class Map {
 
         //setTimeout(() => {
             _.each(mobAreas, function (ma) {
+                // "level": "35" or "35-36"; an area without a usable one is skipped
+                const lv = areaLevels(ma);
+                if (!lv) {
+                    console.error('Map ' + self.name + ': mob area ' + ma.id + ' has no usable "level" ("35" or "35-36"): ' +
+                        JSON.stringify(ma.level) + ' -- not spawned.');
+                    return;
+                }
                 const mobarea = new MobArea(
                     self,
                     ma.id,
                     ma.count,
-                    ma.minLevel,
-                    ma.maxLevel,
+                    lv.min,
+                    lv.max,
                     ma.x,
                     ma.y,
                     ma.w,
