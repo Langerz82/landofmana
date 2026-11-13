@@ -1,5 +1,173 @@
 [
   {
+    "id": 177,
+    "type": "npcstatic",
+    "kind": 36,
+    "x": 2120,
+    "y": 7016,
+    "name": "Beginner Shop"
+  },
+  {
+    "id": 178,
+    "type": "npcstatic",
+    "kind": 1,
+    "x": 2632,
+    "y": 7016,
+    "name": "Auction"
+  },
+  {
+    "id": 179,
+    "type": "npcstatic",
+    "kind": 43,
+    "x": 4024,
+    "y": 8808,
+    "name": "Enchant"
+  },
+  {
+    "id": 180,
+    "type": "npcstatic",
+    "kind": 9,
+    "x": 2392,
+    "y": 7016,
+    "name": "Repair"
+  },
+  {
+    "id": 181,
+    "type": "npcstatic",
+    "kind": 7,
+    "x": 4296,
+    "y": 8808,
+    "name": "Bank"
+  },
+  {
+    "id": 182,
+    "type": "npcstatic",
+    "kind": 10,
+    "x": 6920,
+    "y": 7016,
+    "name": "Looks"
+  },
+  {
+    "id": 183,
+    "type": "npcstatic",
+    "kind": 45,
+    "x": 7128,
+    "y": 7016,
+    "name": "Craft"
+  },
+  {
+    "id": 184,
+    "type": "npcstatic",
+    "kind": 36,
+    "x": 5064,
+    "y": 8808,
+    "name": "Beginner Shop"
+  },
+  {
+    "id": 185,
+    "type": "npcstatic",
+    "kind": 1,
+    "x": 7384,
+    "y": 7016,
+    "name": "Auction"
+  },
+  {
+    "id": 186,
+    "type": "npcstatic",
+    "kind": 43,
+    "x": 2856,
+    "y": 7016,
+    "name": "Enchant"
+  },
+  {
+    "id": 187,
+    "type": "npcstatic",
+    "kind": 9,
+    "x": 4536,
+    "y": 8808,
+    "name": "Repair"
+  },
+  {
+    "id": 188,
+    "type": "npcstatic",
+    "kind": 7,
+    "x": 4776,
+    "y": 8808,
+    "name": "Bank"
+  },
+  {
+    "id": 189,
+    "type": "npcstatic",
+    "kind": 10,
+    "x": 2776,
+    "y": 10536,
+    "name": "Looks"
+  },
+  {
+    "id": 190,
+    "type": "npcstatic",
+    "kind": 45,
+    "x": 3064,
+    "y": 10536,
+    "name": "Craft"
+  },
+  {
+    "id": 191,
+    "type": "npcstatic",
+    "kind": 36,
+    "x": 7688,
+    "y": 7016,
+    "name": "Beginner Shop"
+  },
+  {
+    "id": 192,
+    "type": "npcstatic",
+    "kind": 1,
+    "x": 3704,
+    "y": 10536,
+    "name": "Auction"
+  },
+  {
+    "id": 193,
+    "type": "npcstatic",
+    "kind": 43,
+    "x": 5368,
+    "y": 8808,
+    "name": "Enchant"
+  },
+  {
+    "id": 194,
+    "type": "npcstatic",
+    "kind": 9,
+    "x": 5880,
+    "y": 8808,
+    "name": "Repair"
+  },
+  {
+    "id": 195,
+    "type": "npcstatic",
+    "kind": 7,
+    "x": 5624,
+    "y": 8808,
+    "name": "Bank"
+  },
+  {
+    "id": 196,
+    "type": "npcstatic",
+    "kind": 10,
+    "x": 3352,
+    "y": 10536,
+    "name": "Looks"
+  },
+  {
+    "id": 197,
+    "type": "npcstatic",
+    "kind": 45,
+    "x": 4024,
+    "y": 10536,
+    "name": "Craft"
+  },
+  {
     "id": 101,
     "type": "mob",
     "kind": 4,

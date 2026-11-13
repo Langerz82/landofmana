@@ -1,11 +1,11 @@
 {
- "hash": "3efdd4d43b5ec84f4bf49df9721a849537e09228",
+ "hash": "b407d6a3677b7d74ede6c44219ea2f01d77623c8",
  "files": {
   "data/appearance.json": "a9237ad1d4cbfa682cc74ba3da64149ed383bc46",
   "data/craft.json": "ec0566c1983ad8a993343ea0d51fb906a7b635e2",
   "data/itemloot.json": "ec4e9d6a3e339296a1bfaf5cbcf840428d03e6a3",
   "data/items2.json": "c1a66783f638b40f43b3ee28ddcb995750565637",
-  "data/lang.json": "1ad0c02043a2c62e1e5a88a598b183f608e7d83e",
+  "data/lang.json": "824a363fd5786ee84f28a7de4d1177a155b518d8",
   "data/missing_sprites.json": "045d1663d9be1b997ee339d32fcbfa4b7093dd65",
   "data/mobs.json": "4d34a9eb1aa7057bd989655ec0cfd51c93ddb996",
   "data/mobs_speech.json": "822a482bb921d9013c18f2b3681cfa237708a968",
