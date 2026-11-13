@@ -1,10 +1,13 @@
 """map1 quest NPCs: one walking NPC per mob area, each with two quests and their own dialogue.
 
-Run after splitting map1 (python ../split.py map1 ...), since a quest belongs to the NPC's map part (its map index)
-and fixed entity id. For every NPC spot that gen1.py saved in tools/maps/data/map1_npcs.json, this script:
+Run after splitting map1 the first time (python ../split.py map1 ...). It does NOT need running again after a
+re-split: the NPCs live in one file for the whole map, in full-map coordinates, and a quest belongs to its NPC
+through the map's base index (100 for map1) and the NPC's fixed entity id, neither of which a split changes
+(gameserver/js/map/mapgroup.js, questid.js). For every NPC spot that gen1.py saved in
+tools/maps/data/map1_npcs.json, this script:
 
-- adds an `npcmove` NPC to the map part it stands in: gameserver/data/maps/map1/<part>/entity.json
-  (ids from FIRST_ID up; any other records in those files are kept);
+- adds an `npcmove` NPC at that spot to gameserver/data/maps/map1/entity.json (full-map pixels; ids from
+  FIRST_ID up, unique in the file; any other records in it are kept);
 - writes its two quests to shared/data/quests.json:
     01  kill ten of one of the section's mobs, at the section's mob levels
     02  get 3-5 of a random itemloot item from another of the section's mobs, at the section's mob levels
@@ -12,7 +15,7 @@ and fixed entity id. For every NPC spot that gen1.py saved in tools/maps/data/ma
   about the mobs of that section and the section itself (its area, where it lies, what it borders,
   the nearest town).
 
-Running it again (after a re-split, say) first removes every quest, dialogue and NPC it wrote last time (listed
+Running it again first removes every quest, dialogue and NPC it wrote last time (listed
 in tools/maps/data/map1_npcs_written.json), so nothing is left over. The rest of quests.json and lang.json is
 left exactly as it is. Afterwards run godot-client/sync-assets-win.bat (or -linux.sh) for the Godot client.
 
@@ -25,6 +28,7 @@ import random
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(HERE, '..', 'common'))
 from playername import add_player_name
+from mapdata import MapData
 ROOT = os.path.normpath(os.path.join(HERE, '..', '..', '..', '..'))
 DATA = os.path.normpath(os.path.join(HERE, '..', '..', 'data'))
 ap = argparse.ArgumentParser(description='Quest NPCs for map1 (run after splitting it)')
@@ -33,7 +37,8 @@ ap.add_argument('--seed', type=int, default=5)
 args = ap.parse_args()
 PFX = args.map
 rnd = random.Random(args.seed)
-FIRST_ID = 101                     # entity ids used in each part's entity.json
+FIRST_ID = 1001                    # entity ids from here (unique in the map's entity.json; npcs1_extra.py uses 2001+,
+                                   # levels1.py's bosses 3001+)
 KILL_COUNT = 10
 ITEM_COUNT = (3, 5)
 ITEM_CHANCE = 15
@@ -45,6 +50,7 @@ p_spots = os.path.join(DATA, PFX + '_npcs.json')
 p_written = os.path.join(DATA, PFX + '_npcs_written.json')
 
 spots = json.load(open(p_spots))
+md = MapData(ROOT, PFX)
 maplist = json.load(open(p_list))['maps']
 # {"map1": ["map1/map1_0_0", ...]}: a file's map index is its map's number x 100 + its sub-index
 # (gameserver map/mapmanager.js); the older flat list (index = position) still reads
@@ -301,7 +307,10 @@ def item_dialogue(s, area, mob, item, cnt, plc, town):
 
 
 # ---------------------------------------------------------------- build
-written = json.load(open(p_written)) if os.path.exists(p_written) else {'quests': [], 'entities': {}}
+written = json.load(open(p_written)) if os.path.exists(p_written) else {'quests': [], 'entities': []}
+# the ids this script gave its NPCs last time (a list; the older per-part {part: [ids]} is from before the
+# map's files were merged, and its ids no longer mean anything)
+prev_ids = set(written['entities']) if isinstance(written.get('entities'), list) else set()
 new_quests, new_dialogue, new_summary, entities = {}, {}, {}, {}
 _mobnames = {k.lower() for k in MOBS} | set(MOB.values())
 loot_pool = [i for i, it in enumerate(LOOT) if it['name'].lower() not in _mobnames]
@@ -317,15 +326,19 @@ for s in spots['npcs']:
     mobs = s['mobs']
     kill_mob = mobs[i_ % len(mobs)]
     item_mob = mobs[(i_ + 1) % len(mobs)]
-    ent = entities.setdefault(nm_part, [])
-    eid = FIRST_ID + len(ent)
+    ent = entities.setdefault(PFX, [])
+    # the first free id from FIRST_ID: not used by another record of the map (this script's own from last time
+    # are replaced, so their ids are free again)
+    _used = (md.ids() - prev_ids) | {e['id'] for e in ent}
+    eid = FIRST_ID
+    while eid in _used: eid += 1
     name = new_name()
     ent.append({'id': eid, 'type': 'npcmove', 'kind': rnd.randint(1, 56),
-                'x': (s['x'] - wx) * 16 + 8, 'y': (s['y'] - wy) * 16 + 8, 'name': name})
+                'x': s['x'] * 16 + 8, 'y': s['y'] * 16 + 8, 'name': name})   # full-map pixels
     town = nearest_town(s)['name']
     plc = town if s['area'] == 'village' else place(s, area)
     lv = [s['minLevel'], s['maxLevel']]
-    base = f'1{mi:04d}{eid:06d}'
+    base = md.quest_base(eid)
     q1, q2 = base + '01', base + '02'
     new_quests[q1] = {'name': f'{name}: kill {MOB_KEY[kill_mob]}', 'type': 1, 'level': 0,
                       'object': {'type': 2, 'kind': kill_mob, 'count': KILL_COUNT, 'level': lv}}
@@ -408,22 +421,14 @@ for key, add in (('QUESTS', {k: fmt_dialogue(add_player_name(v)).replace('\n', e
     obj = lt.index('{', a_ + len(key) + 2)
     lt, _ = rewrite(lt, obj, drop, add, '      ', eol_l)
 json.loads(lt)
-# entity.json per map part (other records kept; this script's records from last time removed)
-for nm_part in sorted(set(list(entities) + list(written.get('entities', {})))):
-    p_ent = os.path.join(ROOT, 'gameserver', 'data', 'maps', nm_part, 'entity.json')
-    old = json.load(open(p_ent)) if os.path.exists(p_ent) else []
-    mine = set(written.get('entities', {}).get(nm_part, []))
-    ours = entities.get(nm_part, [])
-    ids = {e['id'] for e in ours}
-    keep = [e for e in old if e.get('id') not in mine and e.get('id') not in ids]
-    if not keep and not ours:
-        if os.path.exists(p_ent): json.dump([], open(p_ent, 'w'))
-        continue
-    os.makedirs(os.path.dirname(p_ent), exist_ok=True)
-    json.dump(keep + ours, open(p_ent, 'w'), indent=2)
+# the map's entity.json (other records kept; this script's records from last time removed)
+ours = entities.get(PFX, [])
+ids = {e['id'] for e in ours}
+md.entities = [e for e in md.entities if e.get('id') not in prev_ids and e.get('id') not in ids] + ours
+md.save()
 open(p_quests, 'w', encoding='utf-8', newline='').write(qt)
 open(p_lang, 'w', encoding='utf-8', newline='').write(lt)
-json.dump({'quests': sorted(new_quests), 'entities': {k: [e['id'] for e in v] for k, v in entities.items()}},
+json.dump({'quests': sorted(new_quests), 'entities': [e['id'] for e in entities.get(PFX, [])]},
           open(p_written, 'w'), indent=1)
 
 print(f'{len(report)} quest NPCs, {len(new_quests)} quests (removed {len(drop)} from the last run)')

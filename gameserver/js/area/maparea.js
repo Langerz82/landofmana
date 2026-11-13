@@ -15,6 +15,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program. See the LICENSE file in the project root,
 // or <https://www.gnu.org/licenses/>.
+import { insideEllipse } from './area.js';
 
 class MapArea {
     constructor(map, elipse, x, y, width, height) {
@@ -45,22 +46,17 @@ class MapArea {
         }
         if (this.elipse) {
             if (entity) {
-                const cx = this.x;
-                const cy = this.y;
-                const d = Math.sqrt(
-                    Math.pow(entity.x - cx, 2) + Math.pow(entity.y - cy, 2)
+                // a true ellipse (area/area.js insideEllipse(): it used to be
+                // a circle of half the smaller diameter)
+                const inElipse = insideEllipse(
+                    entity.x,
+                    entity.y,
+                    this.x,
+                    this.y,
+                    this.width,
+                    this.height
                 );
-                const inElipse = d < this.width / 2 && d < this.height / 2;
 
-                // FIX/PERF: was `console.log("this.elipseId="+this.elipseId);`
-                // here, unconditionally, on every call -- this.elipseId is never
-                // assigned anywhere on MapArea (same dead-property issue already
-                // fixed in area.js's own elipseId reference), so this always
-                // logged "undefined" and did nothing useful. contains() is the
-                // hot path map.js's isDoor()/getDoor() call on every relevant
-                // player move, so this was unconditional log spam on a per-move
-                // check. Removed rather than gated behind G_DEBUG, since there's
-                // no real elipseId value here to ever report.
                 return inElipse;
             } else {
                 return false;

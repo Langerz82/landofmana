@@ -1,0 +1,138 @@
+[
+  {
+    "id": 101,
+    "type": "npcmove",
+    "kind": 28,
+    "x": 1128,
+    "y": 1048,
+    "name": "Wimaric"
+  },
+  {
+    "id": 102,
+    "type": "npcmove",
+    "kind": 22,
+    "x": 3208,
+    "y": 1032,
+    "name": "Oskowyn"
+  },
+  {
+    "id": 103,
+    "type": "npcmove",
+    "kind": 11,
+    "x": 984,
+    "y": 888,
+    "name": "Wimybel"
+  },
+  {
+    "id": 104,
+    "type": "npcmove",
+    "kind": 17,
+    "x": 3032,
+    "y": 1128,
+    "name": "Kesumar"
+  },
+  {
+    "id": 211,
+    "type": "npcstatic",
+    "kind": 2,
+    "x": 1352,
+    "y": 7240,
+    "name": "Bhudda"
+  },
+  {
+    "id": 1101,
+    "type": "npcmove",
+    "kind": 0,
+    "x": 1048,
+    "y": 3224,
+    "name": "Yaresk"
+  },
+  {
+    "id": 1102,
+    "type": "npcmove",
+    "kind": 31,
+    "x": 3080,
+    "y": 3144,
+    "name": "Ulmudell"
+  },
+  {
+    "id": 1103,
+    "type": "npcmove",
+    "kind": 7,
+    "x": 1096,
+    "y": 2968,
+    "name": "Fenuvane"
+  },
+  {
+    "id": 1104,
+    "type": "npcmove",
+    "kind": 21,
+    "x": 3112,
+    "y": 2968,
+    "name": "Morovash"
+  },
+  {
+    "id": 2101,
+    "type": "npcmove",
+    "kind": 17,
+    "x": 968,
+    "y": 5128,
+    "name": "Brevequin"
+  },
+  {
+    "id": 2102,
+    "type": "npcmove",
+    "kind": 27,
+    "x": 3224,
+    "y": 5160,
+    "name": "Quorimund"
+  },
+  {
+    "id": 2103,
+    "type": "npcmove",
+    "kind": 18,
+    "x": 888,
+    "y": 5144,
+    "name": "Moraethos"
+  },
+  {
+    "id": 2104,
+    "type": "npcmove",
+    "kind": 31,
+    "x": 3160,
+    "y": 5176,
+    "name": "Breviolix"
+  },
+  {
+    "id": 3101,
+    "type": "npcmove",
+    "kind": 31,
+    "x": 936,
+    "y": 7160,
+    "name": "Orlamund"
+  },
+  {
+    "id": 3102,
+    "type": "npcmove",
+    "kind": 18,
+    "x": 3080,
+    "y": 7224,
+    "name": "Pelanor"
+  },
+  {
+    "id": 3103,
+    "type": "npcmove",
+    "kind": 4,
+    "x": 1064,
+    "y": 7096,
+    "name": "Ebbaeorn"
+  },
+  {
+    "id": 3104,
+    "type": "npcmove",
+    "kind": 26,
+    "x": 3016,
+    "y": 7240,
+    "name": "Ulmanor"
+  }
+]

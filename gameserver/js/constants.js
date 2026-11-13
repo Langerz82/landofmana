@@ -165,7 +165,10 @@ export function setG_MAX_LATENCY(value) {
 
 // Multiplier used to build a globally-unique, ascending npcQuestId for every
 // NpcStatic/NpcMove instance (see entity/npcstatic.js and entity/npcmove.js):
-// `npcQuestId = mapIndex * G_NPC_QUEST_ID_MAP_OFFSET + entity.id`.
+// `npcQuestId = questMapIndex * G_NPC_QUEST_ID_MAP_OFFSET + entity.id`, where
+// questMapIndex is the map's base index (100 for every part of split map1;
+// entity/entity.js) and entity.id is unique in the map's whole entity.json
+// (map/mapentitystore.js), so it is the same however the map is split.
 //
 // mapmanager.js's maps[N] = new Map(server, N, ...) assigns each map's index
 // synchronously, at MapManager construction time -- before any map's async

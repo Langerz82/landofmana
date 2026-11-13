@@ -1147,7 +1147,7 @@
           [1, "Please don't name it after me."]
         ]
       ],
-      "1020100010301": [
+      "1020000110301": [
         [
           [0, "There's a tomb under these dunes, and something is guarding it."],
           [1, "What kind of something?"],
@@ -1166,7 +1166,7 @@
           [1, "My arms will be sore for a week."]
         ]
       ],
-      "1020100010302": [
+      "1020000110302": [
         [
           [0, "The lost caravan's guards each wore a bronze helmet with their family crest on it."],
           [0, "The families still live in the town. They've never had anything to bury."],
@@ -1185,7 +1185,7 @@
           [1, "I'm glad I could help them."]
         ]
       ],
-      "1020100010401": [
+      "1020000110401": [
         [
           [0, "Ever since the Ogres broke into the old tomb, the dead have been getting up."],
           [1, "How many dead?"],
@@ -1204,7 +1204,7 @@
           [1, "Let's hope they stay down."]
         ]
       ],
-      "1020100010402": [
+      "1020000110402": [
         [
           [0, "The tomb held burial urns with the ashes of the old desert kings."],
           [0, "The Ogres smashed their way in and carried the urns off to use as cooking pots."],
@@ -1223,7 +1223,7 @@
           [1, "Ogre stew will taste different now."]
         ]
       ],
-      "1020200010301": [
+      "1020000210301": [
         [
           [0, "Stay out of the berry thickets unless you want a nasty bite."],
           [1, "Something lives in there?"],
@@ -1242,7 +1242,7 @@
           [1, "Save me some berries."]
         ]
       ],
-      "1020200010302": [
+      "1020000210302": [
         [
           [0, "I keep antivenom for snakebites, in little vials drying on a rack by the cave."],
           [0, "Last night the bats swooped down and carried off every shiny vial on the rack."],
@@ -1261,7 +1261,7 @@
           [1, "Maybe keep the rack indoors."]
         ]
       ],
-      "1020200010401": [
+      "1020000210401": [
         [
           [0, "The woodcutters won't use the north road any more."],
           [1, "Why not?"],
@@ -1280,7 +1280,7 @@
           [1, "Tell them to oil their wheels."]
         ]
       ],
-      "1020200010402": [
+      "1020000210402": [
         [
           [0, "When the goblins first attacked, the ranger at the watchtower ran for his life."],
           [0, "He dropped the tower keys in the ferns, right on top of a snake nest."],
@@ -1299,7 +1299,7 @@
           [1, "Tell the ranger not to run so fast next time."]
         ]
       ],
-      "1020300010301": [
+      "1020000310301": [
         [
           [0, "Do you see the apple orchard behind the inn? It's crawling with snakes."],
           [1, "Snakes in an orchard?"],
@@ -1318,7 +1318,7 @@
           [1, "Save me a mug."]
         ]
       ],
-      "1020300010302": [
+      "1020000310302": [
         [
           [0, "I'm the town tanner. Adventurers sell me monster claws, and I turn them into charms and buckles."],
           [0, "Rats broke into my storeroom and dragged every claw down into the drains."],
@@ -1337,7 +1337,7 @@
           [1, "Maybe get a cat."]
         ]
       ],
-      "1020300010401": [
+      "1020000310401": [
         [
           [0, "The town archives are being eaten, one page at a time."],
           [1, "Eaten by what?"],
@@ -1356,7 +1356,7 @@
           [1, "Nice to have history that isn't eaten."]
         ]
       ],
-      "1020300010402": [
+      "1020000310402": [
         [
           [0, "Under the town hall is a vault holding the shields of the town's founders."],
           [0, "When the spring floods came, snakes slithered in and curled up inside the shields."],
@@ -1451,7 +1451,7 @@
           [1, "Let's hope nobody tests that."]
         ]
       ],
-      "1020100010101": [
+      "1020000110101": [
         [
           [0, "Do you hear that rattling under the sand? That isn't the wind."],
           [1, "What's buried out here?"],
@@ -1470,7 +1470,7 @@
           [1, "Ten of them have, anyway."]
         ]
       ],
-      "1020100010102": [
+      "1020000110102": [
         [
           [0, "There's a shrine at the oasis. Every dawn we pour water from five golden goblets to bless the spring."],
           [0, "A band of Ogres smashed their way in and carried the goblets off as drinking cups."],
@@ -1489,7 +1489,7 @@
           [1, "Could you rinse the Ogre spit off first?"]
         ]
       ],
-      "1020100010201": [
+      "1020000110201": [
         [
           [0, "Stay off the dune tops. The Ogres can see you for miles up there."],
           [1, "Ogres? This far into the desert?"],
@@ -1508,7 +1508,7 @@
           [1, "And I hold a grudge for longer."]
         ]
       ],
-      "1020100010202": [
+      "1020000110202": [
         [
           [0, "Every night after the moon rises, we hear drums out in the dunes."],
           [0, "The old Iron Legion died out here, and their hardest dead still carry the war drums."],
@@ -1527,7 +1527,7 @@
           [1, "Don't let anyone play them."]
         ]
       ],
-      "1020200010101": [
+      "1020000210101": [
         [
           [0, "Listen. That chopping sound, hear it? Those are goblin axes."],
           [1, "What are they cutting?"],
@@ -1546,7 +1546,7 @@
           [1, "The trees owe me one."]
         ]
       ],
-      "1020200010102": [
+      "1020000210102": [
         [
           [0, "The forest wardens keep the seeds of every rare tree locked away in iron chests."],
           [0, "The forest snakes here love cold metal, and they're as greedy as magpies."],
@@ -1565,7 +1565,7 @@
           [1, "I'll take gloves next time."]
         ]
       ],
-      "1020200010201": [
+      "1020000210201": [
         [
           [0, "Mind your neck after dusk. The Hollow caves wake up then."],
           [1, "What lives in the caves?"],
@@ -1584,7 +1584,7 @@
           [1, "No more bats at the buffet."]
         ]
       ],
-      "1020200010202": [
+      "1020000210202": [
         [
           [0, "White owls watch over this forest. They keep the dark things away at night."],
           [0, "Goblins have been snaring them and plucking their feathers for war headdresses."],
@@ -1603,7 +1603,7 @@
           [1, "I think they're saying thank you."]
         ]
       ],
-      "1020300010101": [
+      "1020000310101": [
         [
           [0, "Oi, you! Got a moment? The old mill's been taken over."],
           [1, "Taken over by what?"],
@@ -1622,7 +1622,7 @@
           [1, "Just check the flour first."]
         ]
       ],
-      "1020300010102": [
+      "1020000310102": [
         [
           [0, "The town healer grows glowcap mushrooms in the damp cellars by the canal."],
           [0, "They're the only cure for marsh fever, and half the town is coughing."],
@@ -1641,7 +1641,7 @@
           [1, "Tell the snakes to find another heater."]
         ]
       ],
-      "1020300010201": [
+      "1020000310201": [
         [
           [0, "Don't lean over the canal wall, %player_name%. Something might grab you."],
           [1, "What's in the water?"],
@@ -1660,7 +1660,7 @@
           [1, "That's a low bar, but I'll take it."]
         ]
       ],
-      "1020300010202": [
+      "1020000310202": [
         [
           [0, "I make the fireworks for the harvest festival, and I'm in real trouble."],
           [0, "Rats got into my workshop and dragged off my festival bombs. They think the fuses are food!"],
@@ -1679,7 +1679,7 @@
           [1, "Maybe keep them away from the rats this time."]
         ]
       ],
-      "1020300021101": [
+      "1020000021101": [
         [
           [0, "Thank goodness, a fresh face! Please, you have to help us."],
           [1, "What's going on here?"],
@@ -1847,7 +1847,7 @@
         ],
         ["Kill %count% Goblins come back for reward."]
         ],
-      "1010000010101": [
+      "1010000100101": [
         [
           [0, "Every time I sneak towards the lava, an eye spots me and the whole volcano wakes up."],
           [0, "Blind ten of them, please."]
@@ -1862,7 +1862,7 @@
           [0, "The volcano has stopped watching us, %player_name%."]
         ]
       ],
-      "1010000010102": [
+      "1010000100102": [
         [
           [0, "I came to the north-western volcano to trade wormses with the fire priests."],
           [0, "The death knights took them before I reached the temple. Get five back."]
@@ -1877,7 +1877,7 @@
           [0, "All %count%, %player_name%! You have my thanks."]
         ]
       ],
-      "1010000010201": [
+      "1010000100201": [
         [
           [0, "A death knight challenged me to a duel in the north-western lava fields."],
           [0, "I ran. Now they all want a duel. Fight ten of them for me."],
@@ -1893,7 +1893,7 @@
           [0, "The knights fall back into the smoke, %player_name%. Brave work!"]
         ]
       ],
-      "1010000010202": [
+      "1010000100202": [
         [
           [0, "The spectres of the north-western lava fields guard a hoard of stolen goods."],
           [1, "Anything of yours?"],
@@ -1909,7 +1909,7 @@
           [0, "Wonderful, %player_name%, these are exactly the ones they took."]
         ]
       ],
-      "1010000010301": [
+      "1010000100301": [
         [
           [0, "I dig for relics in the northern desert."],
           [1, "Found anything good?"],
@@ -1925,7 +1925,7 @@
           [0, "The bones are quiet again. Thank you, %player_name%."]
         ]
       ],
-      "1010000010302": [
+      "1010000100302": [
         [
           [0, "The ogres of the northern desert bury what they steal in the sand."],
           [0, "My cheeses are down there somewhere. Dig up four for me."]
@@ -1940,7 +1940,7 @@
           [0, "Wonderful, %player_name%, these are exactly the ones they took."]
         ]
       ],
-      "1010100010101": [
+      "1010000100901": [
         [
           [0, "An ogre tribe has wandered into the north-eastern desert looking for water."],
           [0, "They've smashed every well between here and Saltmere. Drive off ten of them."],
@@ -1956,7 +1956,7 @@
           [0, "You beat ogres, %player_name%? Remind me never to annoy you."]
         ]
       ],
-      "1010100010102": [
+      "1010000100902": [
         [
           [0, "The armored skeletons of the north-eastern desert bury what they steal in the sand."],
           [0, "My books are down there somewhere. Dig up three for me."]
@@ -1971,7 +1971,7 @@
           [0, "Wonderful, %player_name%, these are exactly the ones they took."]
         ]
       ],
-      "1010100010201": [
+      "1010000101001": [
         [
           [0, "A goblin stole my axe while I was resting under a tree."],
           [1, "Just one goblin?"],
@@ -1988,7 +1988,7 @@
           [0, "That will teach them, %player_name%. The trail is safe again!"]
         ]
       ],
-      "1010100010202": [
+      "1010000101002": [
         [
           [0, "I'm taking poison vials to Saltmere, but the bats in the north-eastern woodland ambushed me."],
           [0, "Get four back and the trip is saved."]
@@ -2003,7 +2003,7 @@
           [0, "All %count%, %player_name%! You have my thanks."]
         ]
       ],
-      "1010000010401": [
+      "1010000100401": [
         [
           [0, "Armored skeletons patrol the north-western desert as if the old war never ended."],
           [0, "They stop anyone who passes and demand a password nobody knows. Defeat ten of them."]
@@ -2018,7 +2018,7 @@
           [0, "Their march is over. Thank you, %player_name%."]
         ]
       ],
-      "1010000010402": [
+      "1010000100402": [
         [
           [0, "The skeletons of the north-western desert bury what they steal in the sand."],
           [0, "My crystalses are down there somewhere. Dig up three for me."]
@@ -2033,7 +2033,7 @@
           [0, "Wonderful, %player_name%, these are exactly the ones they took."]
         ]
       ],
-      "1010000010501": [
+      "1010000100501": [
         [
           [0, "A whole graveyard of skeletons rose out of the north-western sands last full moon."],
           [0, "They rattle all night and nobody can sleep. Break ten of them."]
@@ -2048,7 +2048,7 @@
           [0, "Back in the ground where they belong, %player_name%."]
         ]
       ],
-      "1010000010502": [
+      "1010000100502": [
         [
           [0, "I'm lost in the north-western sands, my water's gone, and the ogres took my necklaces too."],
           [1, "I'll help."],
@@ -2064,7 +2064,7 @@
           [0, "My %name%s, %player_name%! I never thought I would see them again."]
         ]
       ],
-      "1010000010601": [
+      "1010000100601": [
         [
           [0, "The ogres of the northern desert have taken to throwing boulders at caravans."],
           [1, "For fun?"],
@@ -2080,7 +2080,7 @@
           [0, "You beat ogres, %player_name%? Remind me never to annoy you."]
         ]
       ],
-      "1010000010602": [
+      "1010000100602": [
         [
           [0, "The armored skeletons of the northern desert bury what they steal in the sand."],
           [0, "My bone earings are down there somewhere. Dig up four for me."]
@@ -2095,7 +2095,7 @@
           [0, "Wonderful, %player_name%, these are exactly the ones they took."]
         ]
       ],
-      "1010100010301": [
+      "1010000101101": [
         [
           [0, "Rats have got into the grain store here in Saltmere."],
           [0, "If they keep eating like this we'll go hungry by winter. Kill ten of them."]
@@ -2110,7 +2110,7 @@
           [0, "Quiet floorboards at last, %player_name%."]
         ]
       ],
-      "1010100010302": [
+      "1010000101102": [
         [
           [0, "The snakes have been dragging my autumn leaves into the walls of Saltmere."],
           [0, "I need four of them back before market day."]
@@ -2125,7 +2125,7 @@
           [0, "My %name%s, %player_name%! I never thought I would see them again."]
         ]
       ],
-      "1010100010401": [
+      "1010000101201": [
         [
           [0, "Long ago an army marched into the north-eastern sands and never marched out."],
           [0, "Their armour still walks. Bring down ten of those armored skeletons."]
@@ -2140,7 +2140,7 @@
           [0, "The old army can rest at last, %player_name%."]
         ]
       ],
-      "1010100010402": [
+      "1010000101202": [
         [
           [0, "I'm lost in the north-eastern sands, my water's gone, and the skeletons took my fire eyes too."],
           [1, "I'll help."],
@@ -2156,7 +2156,7 @@
           [0, "All %count%, %player_name%! You have my thanks."]
         ]
       ],
-      "1010000010701": [
+      "1010000100701": [
         [
           [0, "I dig for relics in the north-western sands."],
           [1, "Found anything good?"],
@@ -2172,7 +2172,7 @@
           [0, "The bones are quiet again. Thank you, %player_name%."]
         ]
       ],
-      "1010000010702": [
+      "1010000100702": [
         [
           [0, "I'm lost in the north-western sands, my water's gone, and the ogres took my iron helmets too."],
           [1, "I'll help."],
@@ -2188,7 +2188,7 @@
           [0, "Wonderful, %player_name%, these are exactly the ones they took."]
         ]
       ],
-      "1010000010801": [
+      "1010000100801": [
         [
           [0, "An ogre tribe has wandered into the north-western sands looking for water."],
           [0, "They've smashed every well between here and Saltmere. Drive off ten of them."]
@@ -2203,7 +2203,7 @@
           [0, "The ogres have fled, %player_name%. The wells can be rebuilt."]
         ]
       ],
-      "1010000010802": [
+      "1010000100802": [
         [
           [0, "My caravan crossed the north-western sands with a crate of clevers."],
           [0, "The armored skeletons took the lot. Bring back four."]
@@ -2218,7 +2218,7 @@
           [0, "My %name%s, %player_name%! I never thought I would see them again."]
         ]
       ],
-      "1010100010501": [
+      "1010000101301": [
         [
           [0, "Long ago an army marched into the northern desert and never marched out."],
           [0, "Their armour still walks. Bring down ten of those armored skeletons."]
@@ -2233,7 +2233,7 @@
           [0, "Their march is over. Thank you, %player_name%."]
         ]
       ],
-      "1010100010502": [
+      "1010000101302": [
         [
           [0, "The skeletons of the northern desert bury what they steal in the sand."],
           [0, "My rings are down there somewhere. Dig up four for me."]
@@ -2248,7 +2248,7 @@
           [0, "Wonderful, %player_name%, these are exactly the ones they took."]
         ]
       ],
-      "1010100010601": [
+      "1010000101401": [
         [
           [0, "A whole graveyard of skeletons rose out of the north-eastern dunes last full moon."],
           [0, "They rattle all night and nobody can sleep. Break ten of them."]
@@ -2263,7 +2263,7 @@
           [0, "Back in the ground where they belong, %player_name%."]
         ]
       ],
-      "1010100010602": [
+      "1010000101402": [
         [
           [0, "The ogres of the north-eastern dunes bury what they steal in the sand."],
           [0, "My drums are down there somewhere. Dig up four for me."]
@@ -2278,7 +2278,7 @@
           [0, "Wonderful, %player_name%, these are exactly the ones they took."]
         ]
       ],
-      "1010100010701": [
+      "1010000101501": [
         [
           [0, "The ogres of the north-eastern sands have taken to throwing boulders at caravans."],
           [1, "For fun?"],
@@ -2295,7 +2295,7 @@
           [0, "You beat ogres, %player_name%? Remind me never to annoy you."]
         ]
       ],
-      "1010100010702": [
+      "1010000101502": [
         [
           [0, "I'm lost in the north-eastern sands, my water's gone, and the armored skeletons took my animal skulls too."],
           [1, "I'll help."],
@@ -2311,7 +2311,7 @@
           [0, "All %count%, %player_name%! You have my thanks."]
         ]
       ],
-      "1010200010101": [
+      "1010000101601": [
         [
           [0, "I'm trying to map the stars over the north-western woodland, but the bats keep blotting them out."],
           [0, "Clear the sky a little. Ten should do it."]
@@ -2326,7 +2326,7 @@
           [0, "The sky is clear and the birds are singing again, %player_name%."]
         ]
       ],
-      "1010200010102": [
+      "1010000101602": [
         [
           [0, "I'm taking drumsticks to Ashby, but the snakes in the north-western woodland ambushed me."],
           [0, "Get four back and the trip is saved."]
@@ -2341,7 +2341,7 @@
           [0, "My %name%s, %player_name%! I never thought I would see them again."]
         ]
       ],
-      "1010200010201": [
+      "1010000101701": [
         [
           [0, "Snakes are nesting under the doorsteps of Ashby."],
           [0, "My neighbour got bitten fetching water. Clear out ten of them."],
@@ -2357,7 +2357,7 @@
           [0, "Not a hiss to be heard, %player_name%."]
         ]
       ],
-      "1010200010202": [
+      "1010000101702": [
         [
           [0, "The goblins of the north-western woodland raided my camp and carried off my maces."],
           [1, "All of them?"],
@@ -2373,7 +2373,7 @@
           [0, "All %count%, %player_name%! You have my thanks."]
         ]
       ],
-      "1010300010101": [
+      "1010000102101": [
         [
           [0, "The armored skeletons in the northern desert wear my great-grandfather's regiment colours."],
           [0, "Let them rest at last. Bring down ten."]
@@ -2388,7 +2388,7 @@
           [0, "Their march is over. Thank you, %player_name%."]
         ]
       ],
-      "1010300010102": [
+      "1010000102102": [
         [
           [0, "The skeletons of the northern desert bury what they steal in the sand."],
           [0, "My hooks are down there somewhere. Dig up three for me."]
@@ -2403,7 +2403,7 @@
           [0, "All %count%, %player_name%! You have my thanks."]
         ]
       ],
-      "1010300010201": [
+      "1010000102201": [
         [
           [0, "My brother vanished in the north-eastern lava fields last year."],
           [1, "I'm sorry."],
@@ -2419,7 +2419,7 @@
           [0, "The cold has lifted. Thank you, %player_name%."]
         ]
       ],
-      "1010300010202": [
+      "1010000102202": [
         [
           [0, "I came to the north-eastern lava fields to trade padlocks with the fire priests."],
           [0, "The eyes took them before I reached the temple. Get three back."]
@@ -2434,7 +2434,7 @@
           [0, "All %count%, %player_name%! You have my thanks."]
         ]
       ],
-      "1010300010301": [
+      "1010000102301": [
         [
           [0, "The eyes over the north-eastern lava fields see in the dark and through smoke."],
           [1, "What are they looking for?"],
@@ -2450,7 +2450,7 @@
           [0, "The volcano has stopped watching us, %player_name%."]
         ]
       ],
-      "1010300010302": [
+      "1010000102302": [
         [
           [0, "The death knights of the north-eastern lava fields guard a hoard of stolen goods."],
           [1, "Anything of yours?"],
@@ -2466,7 +2466,7 @@
           [0, "Wonderful, %player_name%, these are exactly the ones they took."]
         ]
       ],
-      "1010200010301": [
+      "1010000101801": [
         [
           [0, "The goblins of the western woodland have been painting rude pictures on the trees."],
           [0, "The woodcutters of Ashby refuse to work. Chase off ten of them."]
@@ -2481,7 +2481,7 @@
           [0, "The goblins have packed up and run, %player_name%. Well done."]
         ]
       ],
-      "1010200010302": [
+      "1010000101802": [
         [
           [0, "I'm taking magic balls to Ashby, but the bats in the western woodland ambushed me."],
           [0, "Get four back and the trip is saved."]
@@ -2496,7 +2496,7 @@
           [0, "Wonderful, %player_name%, these are exactly the ones they took."]
         ]
       ],
-      "1010200010401": [
+      "1010000101901": [
         [
           [0, "I'm trying to map the stars over the western woods, but the bats keep blotting them out."],
           [0, "Clear the sky a little. Ten should do it."],
@@ -2512,7 +2512,7 @@
           [0, "Not a single bat last night, %player_name%!"]
         ]
       ],
-      "1010200010402": [
+      "1010000101902": [
         [
           [0, "I dropped my throwing daggers on the trail through the western woods, and the snakes took them back to their nests."],
           [0, "Bring me five, please."]
@@ -2527,7 +2527,7 @@
           [0, "My %name%s, %player_name%! I never thought I would see them again."]
         ]
       ],
-      "1010300010401": [
+      "1010000102401": [
         [
           [0, "A whole graveyard of skeletons rose out of the central desert last full moon."],
           [0, "They rattle all night and nobody can sleep. Break ten of them."]
@@ -2542,7 +2542,7 @@
           [0, "Back in the ground where they belong, %player_name%."]
         ]
       ],
-      "1010300010402": [
+      "1010000102402": [
         [
           [0, "The ogres of the central desert bury what they steal in the sand."],
           [0, "My spiders are down there somewhere. Dig up four for me."]
@@ -2557,7 +2557,7 @@
           [0, "Wonderful, %player_name%, these are exactly the ones they took."]
         ]
       ],
-      "1010300010501": [
+      "1010000102501": [
         [
           [0, "The ogres of the eastern dunes have taken to throwing boulders at caravans."],
           [1, "For fun?"],
@@ -2573,7 +2573,7 @@
           [0, "You beat ogres, %player_name%? Remind me never to annoy you."]
         ]
       ],
-      "1010300010502": [
+      "1010000102502": [
         [
           [0, "The armored skeletons of the eastern dunes bury what they steal in the sand."],
           [0, "My urns are down there somewhere. Dig up five for me."]
@@ -2588,7 +2588,7 @@
           [0, "My %name%s, %player_name%! I never thought I would see them again."]
         ]
       ],
-      "1010300010601": [
+      "1010000102601": [
         [
           [0, "Armored skeletons patrol the eastern desert as if the old war never ended."],
           [0, "They stop anyone who passes and demand a password nobody knows. Defeat ten of them."]
@@ -2603,7 +2603,7 @@
           [0, "The old army can rest at last, %player_name%."]
         ]
       ],
-      "1010300010602": [
+      "1010000102602": [
         [
           [0, "I'm lost in the eastern desert, my water's gone, and the skeletons took my leaf wreaths too."],
           [1, "I'll help."],
@@ -2619,7 +2619,7 @@
           [0, "My %name%s, %player_name%! I never thought I would see them again."]
         ]
       ],
-      "1010200010501": [
+      "1010000102001": [
         [
           [0, "The undergrowth of Ashby is thick with snakes this year."],
           [0, "I can't gather herbs without stepping on one. Kill ten for me."]
@@ -2634,7 +2634,7 @@
           [0, "I can walk without watching my feet again. Thank you, %player_name%."]
         ]
       ],
-      "1010200010502": [
+      "1010000102002": [
         [
           [0, "I keep my wood horns in the cellar."],
           [0, "Kept. The rats got in. Get me four back, please."]
@@ -2649,7 +2649,7 @@
           [0, "My %name%s, %player_name%! I never thought I would see them again."]
         ]
       ],
-      "1010400010101": [
+      "1010000102901": [
         [
           [0, "A snake swallowed my pet frog whole, right here in the western woods!"],
           [1, "That's awful."],
@@ -2665,7 +2665,7 @@
           [0, "Not a hiss to be heard, %player_name%."]
         ]
       ],
-      "1010400010102": [
+      "1010000102902": [
         [
           [0, "I dropped my battle axes on the trail through the western woods, and the goblins took them back to their nests."],
           [0, "Bring me three, please."]
@@ -2680,7 +2680,7 @@
           [0, "All %count%, %player_name%! You have my thanks."]
         ]
       ],
-      "1010300010701": [
+      "1010000102701": [
         [
           [0, "Goblins have built a camp somewhere in the central woods."],
           [0, "They raid the trail every night. Thin them out, ten should send a message."]
@@ -2695,7 +2695,7 @@
           [0, "That will teach them, %player_name%. The trail is safe again!"]
         ]
       ],
-      "1010300010702": [
+      "1010000102702": [
         [
           [0, "I dropped my face masks on the trail through the central woods, and the bats took them back to their nests."],
           [0, "Bring me four, please."]
@@ -2710,7 +2710,7 @@
           [0, "My %name%s, %player_name%! I never thought I would see them again."]
         ]
       ],
-      "1010300010801": [
+      "1010000102801": [
         [
           [0, "I'm trying to map the stars over the eastern woods, but the bats keep blotting them out."],
           [0, "Clear the sky a little. Ten should do it."],
@@ -2726,7 +2726,7 @@
           [0, "Not a single bat last night, %player_name%!"]
         ]
       ],
-      "1010300010802": [
+      "1010000102802": [
         [
           [0, "I dropped my rings on the trail through the eastern woods, and the snakes took them back to their nests."],
           [0, "Bring me three, please."]
@@ -2741,7 +2741,7 @@
           [0, "My %name%s, %player_name%! I never thought I would see them again."]
         ]
       ],
-      "1010500010101": [
+      "1010000103501": [
         [
           [0, "The undergrowth of the eastern woodland is thick with snakes this year."],
           [0, "I can't gather herbs without stepping on one. Kill ten for me."]
@@ -2756,7 +2756,7 @@
           [0, "I can walk without watching my feet again. Thank you, %player_name%."]
         ]
       ],
-      "1010500010102": [
+      "1010000103502": [
         [
           [0, "I dropped my chests on the trail through the eastern woodland, and the goblins took them back to their nests."],
           [0, "Bring me four, please."]
@@ -2771,7 +2771,7 @@
           [0, "All %count%, %player_name%! You have my thanks."]
         ]
       ],
-      "1010400010201": [
+      "1010000103001": [
         [
           [0, "A goblin stole my axe while I was resting under a tree."],
           [1, "Just one goblin?"],
@@ -2788,7 +2788,7 @@
           [0, "That will teach them, %player_name%. The trail is safe again!"]
         ]
       ],
-      "1010400010202": [
+      "1010000103002": [
         [
           [0, "The bats of the western woods raided my camp and carried off my old bottles."],
           [1, "All of them?"],
@@ -2804,7 +2804,7 @@
           [0, "Wonderful, %player_name%, these are exactly the ones they took."]
         ]
       ],
-      "1010400010301": [
+      "1010000103101": [
         [
           [0, "The bats in the western woods have a taste for travellers from Ashby."],
           [0, "Three people bitten this week. Get rid of ten."]
@@ -2819,7 +2819,7 @@
           [0, "The sky is clear and the birds are singing again, %player_name%."]
         ]
       ],
-      "1010400010302": [
+      "1010000103102": [
         [
           [0, "The snakes of the western woods raided my camp and carried off my mushroomses."],
           [1, "All of them?"],
@@ -2835,7 +2835,7 @@
           [0, "My %name%s, %player_name%! I never thought I would see them again."]
         ]
       ],
-      "1010400010401": [
+      "1010000103201": [
         [
           [0, "The undergrowth of the central woodland is thick with snakes this year."],
           [0, "I can't gather herbs without stepping on one. Kill ten for me."]
@@ -2850,7 +2850,7 @@
           [0, "Not a hiss to be heard, %player_name%."]
         ]
       ],
-      "1010400010402": [
+      "1010000103202": [
         [
           [0, "I dropped my pendants on the trail through the central woodland, and the goblins took them back to their nests."],
           [0, "Bring me five, please."]
@@ -2865,7 +2865,7 @@
           [0, "My %name%s, %player_name%! I never thought I would see them again."]
         ]
       ],
-      "1010500010201": [
+      "1010000103601": [
         [
           [0, "The goblins of the eastern woodland have been painting rude pictures on the trees."],
           [0, "The woodcutters of Duskwater refuse to work. Chase off ten of them."]
@@ -2880,7 +2880,7 @@
           [0, "That will teach them, %player_name%. The trail is safe again!"]
         ]
       ],
-      "1010500010202": [
+      "1010000103602": [
         [
           [0, "The bats of the eastern woodland raided my camp and carried off my pot of golds."],
           [1, "All of them?"],
@@ -2896,7 +2896,7 @@
           [0, "All %count%, %player_name%! You have my thanks."]
         ]
       ],
-      "1010500010301": [
+      "1010000103701": [
         [
           [0, "I'm trying to map the stars over the eastern woodland, but the bats keep blotting them out."],
           [0, "Clear the sky a little. Ten should do it."]
@@ -2911,7 +2911,7 @@
           [0, "Not a single bat last night, %player_name%!"]
         ]
       ],
-      "1010500010302": [
+      "1010000103702": [
         [
           [0, "I'm taking keys to Duskwater, but the snakes in the eastern woodland ambushed me."],
           [0, "Get four back and the trip is saved."]
@@ -2926,7 +2926,7 @@
           [0, "Wonderful, %player_name%, these are exactly the ones they took."]
         ]
       ],
-      "1010400010501": [
+      "1010000103301": [
         [
           [0, "The crabs on the western lagoon have started pinching anyone who walks the tideline."],
           [0, "Knock ten of them back into the surf, would you?"]
@@ -2941,7 +2941,7 @@
           [0, "The tideline is mine again. Thank you, %player_name%!"]
         ]
       ],
-      "1010400010502": [
+      "1010000103302": [
         [
           [0, "A wave knocked my satchel over and the crabs scuttled off with my human skulls."],
           [0, "They hide them in their burrows along the western lagoon. Bring me three back."]
@@ -2956,7 +2956,7 @@
           [0, "All %count%, %player_name%! You have my thanks."]
         ]
       ],
-      "1010400010601": [
+      "1010000103401": [
         [
           [0, "Snakes are nesting under the doorsteps of Ashby."],
           [0, "My neighbour got bitten fetching water. Clear out ten of them."],
@@ -2972,7 +2972,7 @@
           [0, "Not a hiss to be heard, %player_name%."]
         ]
       ],
-      "1010400010602": [
+      "1010000103402": [
         [
           [0, "I dropped my broken glasses on the trail through the western forest, and the goblins took them back to their nests."],
           [0, "Bring me three, please."]
@@ -2987,7 +2987,7 @@
           [0, "My %name%s, %player_name%! I never thought I would see them again."]
         ]
       ],
-      "1010500010401": [
+      "1010000103801": [
         [
           [0, "A goblin stole my axe while I was resting under a tree."],
           [1, "Just one goblin?"],
@@ -3003,7 +3003,7 @@
           [0, "The goblins have packed up and run, %player_name%. Well done."]
         ]
       ],
-      "1010500010402": [
+      "1010000103802": [
         [
           [0, "The bats of the central forest raided my camp and carried off my smoke pipes."],
           [1, "All of them?"],
@@ -3019,7 +3019,7 @@
           [0, "Wonderful, %player_name%, these are exactly the ones they took."]
         ]
       ],
-      "1010500010501": [
+      "1010000103901": [
         [
           [0, "I'm trying to map the stars over the eastern woods, but the bats keep blotting them out."],
           [0, "Clear the sky a little. Ten should do it."]
@@ -3034,7 +3034,7 @@
           [0, "The sky is clear and the birds are singing again, %player_name%."]
         ]
       ],
-      "1010500010502": [
+      "1010000103902": [
         [
           [0, "I dropped my witch hats on the trail through the eastern woods, and the snakes took them back to their nests."],
           [0, "Bring me five, please."]
@@ -3049,7 +3049,7 @@
           [0, "All %count%, %player_name%! You have my thanks."]
         ]
       ],
-      "1010500010601": [
+      "1010000104001": [
         [
           [0, "The undergrowth of the eastern woodland is thick with snakes this year."],
           [0, "I can't gather herbs without stepping on one. Kill ten for me."]
@@ -3064,7 +3064,7 @@
           [0, "I can walk without watching my feet again. Thank you, %player_name%."]
         ]
       ],
-      "1010500010602": [
+      "1010000104002": [
         [
           [0, "I dropped my hand bags on the trail through the eastern woodland, and the goblins took them back to their nests."],
           [0, "Bring me five, please."]
@@ -3079,7 +3079,7 @@
           [0, "Wonderful, %player_name%, these are exactly the ones they took."]
         ]
       ],
-      "1010600010101": [
+      "1010000104101": [
         [
           [0, "Goblins have built a camp somewhere in the south-western woodland."],
           [0, "They raid the trail every night. Thin them out, ten should send a message."]
@@ -3094,7 +3094,7 @@
           [0, "The goblins have packed up and run, %player_name%. Well done."]
         ]
       ],
-      "1010600010102": [
+      "1010000104102": [
         [
           [0, "The bats of the south-western woodland raided my camp and carried off my necklaces."],
           [1, "All of them?"],
@@ -3110,7 +3110,7 @@
           [0, "My %name%s, %player_name%! I never thought I would see them again."]
         ]
       ],
-      "1010600010201": [
+      "1010000104201": [
         [
           [0, "Bats pour out of the caves around the south-western woods every dusk."],
           [0, "They've driven the songbirds from the trees. Kill ten of them."]
@@ -3125,7 +3125,7 @@
           [0, "Not a single bat last night, %player_name%!"]
         ]
       ],
-      "1010600010202": [
+      "1010000104202": [
         [
           [0, "The snakes of the south-western woods raided my camp and carried off my cauldrons."],
           [1, "All of them?"],
@@ -3141,7 +3141,7 @@
           [0, "My %name%s, %player_name%! I never thought I would see them again."]
         ]
       ],
-      "1010700010101": [
+      "1010000104701": [
         [
           [0, "Snakes are nesting under the doorsteps of Duskwater."],
           [0, "My neighbour got bitten fetching water. Clear out ten of them."],
@@ -3157,7 +3157,7 @@
           [0, "I can walk without watching my feet again. Thank you, %player_name%."]
         ]
       ],
-      "1010700010102": [
+      "1010000104702": [
         [
           [0, "I dropped my pink fireballs on the trail through the southern woods, and the goblins took them back to their nests."],
           [0, "Bring me four, please."]
@@ -3172,7 +3172,7 @@
           [0, "Wonderful, %player_name%, these are exactly the ones they took."]
         ]
       ],
-      "1010700010201": [
+      "1010000104801": [
         [
           [0, "A goblin stole my axe while I was resting under a tree."],
           [1, "Just one goblin?"],
@@ -3188,7 +3188,7 @@
           [0, "The goblins have packed up and run, %player_name%. Well done."]
         ]
       ],
-      "1010700010202": [
+      "1010000104802": [
         [
           [0, "The bats of the south-eastern forest raided my camp and carried off my monster claws."],
           [1, "All of them?"],
@@ -3204,7 +3204,7 @@
           [0, "My %name%s, %player_name%! I never thought I would see them again."]
         ]
       ],
-      "1010700010301": [
+      "1010000104901": [
         [
           [0, "The bats in the south-eastern woodland have a taste for travellers from Duskwater."],
           [0, "Three people bitten this week. Get rid of ten."]
@@ -3219,7 +3219,7 @@
           [0, "The sky is clear and the birds are singing again, %player_name%."]
         ]
       ],
-      "1010700010302": [
+      "1010000104902": [
         [
           [0, "I dropped my bronze helmets on the trail through the south-eastern woodland, and the snakes took them back to their nests."],
           [0, "Bring me five, please."]
@@ -3234,7 +3234,7 @@
           [0, "My %name%s, %player_name%! I never thought I would see them again."]
         ]
       ],
-      "1010600010301": [
+      "1010000104301": [
         [
           [0, "Snakes are nesting under the doorsteps of Duskwater."],
           [0, "My neighbour got bitten fetching water. Clear out ten of them."]
@@ -3249,7 +3249,7 @@
           [0, "I can walk without watching my feet again. Thank you, %player_name%."]
         ]
       ],
-      "1010600010302": [
+      "1010000104302": [
         [
           [0, "I'm taking poison vials to Duskwater, but the goblins in the south-western woodland ambushed me."],
           [0, "Get four back and the trip is saved."]
@@ -3264,7 +3264,7 @@
           [0, "All %count%, %player_name%! You have my thanks."]
         ]
       ],
-      "1010600010401": [
+      "1010000104401": [
         [
           [0, "The crabs on the lagoon have started pinching anyone who walks the tideline."],
           [0, "Knock ten of them back into the surf, would you?"]
@@ -3279,7 +3279,7 @@
           [0, "Not a pinch all morning, %player_name%. Wonderful."]
         ]
       ],
-      "1010600010402": [
+      "1010000104402": [
         [
           [0, "A wave knocked my satchel over and the crabs scuttled off with my crates."],
           [0, "They hide them in their burrows along the lagoon. Bring me three back."]
@@ -3294,7 +3294,7 @@
           [0, "All %count%, %player_name%! You have my thanks."]
         ]
       ],
-      "1010700010401": [
+      "1010000105001": [
         [
           [0, "Something's chewing through the floorboards of every house in Duskwater."],
           [1, "Rats?"],
@@ -3310,7 +3310,7 @@
           [0, "The grain is safe, and so are my toes. Thanks, %player_name%!"]
         ]
       ],
-      "1010700010402": [
+      "1010000105002": [
         [
           [0, "The snakes have been dragging my feather quills into the walls of Duskwater."],
           [0, "I need five of them back before market day."]
@@ -3325,7 +3325,7 @@
           [0, "Wonderful, %player_name%, these are exactly the ones they took."]
         ]
       ],
-      "1010700010501": [
+      "1010000105101": [
         [
           [0, "Goblins have built a camp somewhere in the south-eastern woodland."],
           [0, "They raid the trail every night. Thin them out, ten should send a message."],
@@ -3341,7 +3341,7 @@
           [0, "That will teach them, %player_name%. The trail is safe again!"]
         ]
       ],
-      "1010700010502": [
+      "1010000105102": [
         [
           [0, "The bats of the south-eastern woodland raided my camp and carried off my goblets."],
           [1, "All of them?"],
@@ -3357,7 +3357,7 @@
           [0, "All %count%, %player_name%! You have my thanks."]
         ]
       ],
-      "1010700010601": [
+      "1010000105201": [
         [
           [0, "Bats pour out of the caves around the south-eastern woodland every dusk."],
           [0, "They've driven the songbirds from the trees. Kill ten of them."]
@@ -3372,7 +3372,7 @@
           [0, "The sky is clear and the birds are singing again, %player_name%."]
         ]
       ],
-      "1010700010602": [
+      "1010000105202": [
         [
           [0, "I dropped my books on the trail through the south-eastern woodland, and the snakes took them back to their nests."],
           [0, "Bring me five, please."]
@@ -3387,7 +3387,7 @@
           [0, "Wonderful, %player_name%, these are exactly the ones they took."]
         ]
       ],
-      "1010600010501": [
+      "1010000104501": [
         [
           [0, "The children of Duskwater used to play on the south-western coast."],
           [0, "Now the crabs chase them off. Drive away ten so they can come back."]
@@ -3402,7 +3402,7 @@
           [0, "Not a pinch all morning, %player_name%. Wonderful."]
         ]
       ],
-      "1010600010502": [
+      "1010000104502": [
         [
           [0, "A wave knocked my satchel over and the crabs scuttled off with my pumpkins."],
           [0, "They hide them in their burrows along the south-western coast. Bring me five back."]
@@ -3417,7 +3417,7 @@
           [0, "All %count%, %player_name%! You have my thanks."]
         ]
       ],
-      "1010600010601": [
+      "1010000104601": [
         [
           [0, "A snake swallowed my pet frog whole, right here in the south-western forest!"],
           [1, "That's awful."],
@@ -3434,7 +3434,7 @@
           [0, "I can walk without watching my feet again. Thank you, %player_name%."]
         ]
       ],
-      "1010600010602": [
+      "1010000104602": [
         [
           [0, "I dropped my rings on the trail through the south-western forest, and the goblins took them back to their nests."],
           [0, "Bring me three, please."]
@@ -3449,7 +3449,7 @@
           [0, "All %count%, %player_name%! You have my thanks."]
         ]
       ],
-      "1010700010701": [
+      "1010000105301": [
         [
           [0, "I came down to the southern shore to dig for clams."],
           [1, "Any luck?"],
@@ -3465,7 +3465,7 @@
           [0, "The tideline is mine again. Thank you, %player_name%!"]
         ]
       ],
-      "1010700010702": [
+      "1010000105302": [
         [
           [0, "The crabs of the southern shore collect shiny things."],
           [1, "Like what?"],
@@ -3481,7 +3481,7 @@
           [0, "Wonderful, %player_name%, these are exactly the ones they took."]
         ]
       ],
-      "1010700010801": [
+      "1010000105401": [
         [
           [0, "Every crab on the south-eastern shore has decided my fishing boat is their new home."],
           [0, "I can't push off with them clacking at my ankles. Get rid of ten."]
@@ -3496,7 +3496,7 @@
           [0, "The tideline is mine again. Thank you, %player_name%!"]
         ]
       ],
-      "1010700010802": [
+      "1010000105402": [
         [
           [0, "A wave knocked my satchel over and the crabs scuttled off with my lutes."],
           [0, "They hide them in their burrows along the south-eastern shore. Bring me five back."]
@@ -3511,7 +3511,7 @@
           [0, "All %count%, %player_name%! You have my thanks."]
         ]
       ],
-      "1010700010901": [
+      "1010000105501": [
         [
           [0, "The goblins of the south-eastern forest have been painting rude pictures on the trees."],
           [0, "The woodcutters of Duskwater refuse to work. Chase off ten of them."],
@@ -3527,7 +3527,7 @@
           [0, "The goblins have packed up and run, %player_name%. Well done."]
         ]
       ],
-      "1010700010902": [
+      "1010000105502": [
         [
           [0, "I'm taking dragon eggs to Duskwater, but the bats in the south-eastern forest ambushed me."],
           [0, "Get four back and the trip is saved."]
@@ -3542,7 +3542,7 @@
           [0, "My %name%s, %player_name%! I never thought I would see them again."]
         ]
       ],
-      "1010000020101": [
+      "1010000200101": [
         [
           [0, "The unblinking eyes of the north-western volcano guard a hoard of stolen tooth necklaces."],
           [0, "Some of them are mine. Bring back three."]
@@ -3557,7 +3557,7 @@
           [0, "My own, back from the fire, %player_name%."]
         ]
       ],
-      "1010000020102": [
+      "1010000200102": [
         [
           [0, "The fire priests of the north-western volcano have been driven from their temple."],
           [0, "The pale, ashen spectres hold it now. Defeat eight."]
@@ -3572,7 +3572,7 @@
           [0, "The priests return, %player_name%. The flame is pure again."]
         ]
       ],
-      "1010000020201": [
+      "1010000200201": [
         [
           [0, "My expedition to the north-western volcano lost everything but me."],
           [0, "The smoke-trailing eyes took our old bottles. Bring back four so it was worth it."]
@@ -3587,7 +3587,7 @@
           [0, "The expedition was a success after all, %player_name%."]
         ]
       ],
-      "1010000020202": [
+      "1010000200202": [
         [
           [0, "I mine obsidian on the north-western volcano."],
           [0, "The black-plated death knights keep chasing me down the slopes. Stop twelve of them."]
@@ -3602,7 +3602,7 @@
           [0, "Obsidian for everyone, %player_name%!"]
         ]
       ],
-      "1010000020301": [
+      "1010000200301": [
         [
           [0, "I'm guiding pilgrims to the sun temple across the northern desert."],
           [0, "The tireless marching armored skeletons wait along the route. Clear twelve."]
@@ -3617,7 +3617,7 @@
           [0, "The pilgrims sing your praises, %player_name%."]
         ]
       ],
-      "1010000020302": [
+      "1010000200302": [
         [
           [0, "I swapped water for goblets with a nomad in the northern desert."],
           [0, "Then the tusked ogres swapped them for nothing. Get five back."]
@@ -3632,7 +3632,7 @@
           [0, "Fair trade restored, %player_name%."]
         ]
       ],
-      "1010000020401": [
+      "1010000200401": [
         [
           [0, "I carry autumn leaves between Saltmere and the far oasis."],
           [0, "The notch-bladed armored skeletons of the north-western wasteland made off with this load. Return four."]
@@ -3647,7 +3647,7 @@
           [0, "Back on the road tomorrow, %player_name%."]
         ]
       ],
-      "1010000020402": [
+      "1010000200402": [
         [
           [0, "The stargazers of Saltmere climb the dunes of the north-western wasteland at night."],
           [0, "The lumbering ogres climb them too. Clear eight."]
@@ -3662,7 +3662,7 @@
           [0, "Clear skies and clear dunes, %player_name%."]
         ]
       ],
-      "1010000020501": [
+      "1010000200501": [
         [
           [0, "Every caravan pays the club-swinging ogres of the north-western wasteland a toll in poison vials."],
           [0, "I want ours back. Bring me five."]
@@ -3677,7 +3677,7 @@
           [0, "No more tolls, %player_name%."]
         ]
       ],
-      "1010000020502": [
+      "1010000200502": [
         [
           [0, "My father fell to the sand-choked skeletons of the north-western wasteland."],
           [0, "I'm not strong enough to avenge him. Will you defeat twelve, %player_name%?"]
@@ -3692,7 +3692,7 @@
           [0, "Father can rest. Thank you, %player_name%."]
         ]
       ],
-      "1010000020601": [
+      "1010000200601": [
         [
           [0, "The sun-bleached skeletons of the northern wasteland wear scrolls as lucky charms."],
           [0, "Bring me four and we'll see how lucky they are."]
@@ -3707,7 +3707,7 @@
           [0, "They seem less lucky already, %player_name%."]
         ]
       ],
-      "1010000020602": [
+      "1010000200602": [
         [
           [0, "My shade tent in the northern wasteland is the only shelter for miles."],
           [0, "The rust-mailed armored skeletons keep tearing it down. Deal with ten."]
@@ -3722,7 +3722,7 @@
           [0, "Shade for everyone. Thank you, %player_name%."]
         ]
       ],
-      "1010000020701": [
+      "1010000200701": [
         [
           [0, "Nomads used to camp in the north-western wasteland every winter."],
           [0, "The towering ogres drove them away. Clear eight so they come back."]
@@ -3737,7 +3737,7 @@
           [0, "The nomads' fires burn again, %player_name%."]
         ]
       ],
-      "1010000020702": [
+      "1010000200702": [
         [
           [0, "The scorpion-catchers of Ashby use anvils as bait."],
           [0, "The rattling skeletons of the north-western wasteland took ours. Bring four."]
@@ -3752,7 +3752,7 @@
           [0, "The scorpions won't know what hit them, %player_name%."]
         ]
       ],
-      "1010000020801": [
+      "1010000200801": [
         [
           [0, "My guide abandoned me in the north-western sand sea, and the rust-mailed armored skeletons took my sap jewels."],
           [0, "I'll pay you instead. Recover three."]
@@ -3767,7 +3767,7 @@
           [0, "You're a better guide than he was, %player_name%."]
         ]
       ],
-      "1010000020802": [
+      "1010000200802": [
         [
           [0, "The glassblowers of Saltmere need the fine sand of the north-western sand sea."],
           [0, "The grinning skeletons guard the best dunes. Clear ten."]
@@ -3782,7 +3782,7 @@
           [0, "Beautiful glass, thanks to you, %player_name%."]
         ]
       ],
-      "1010000020901": [
+      "1010000200901": [
         [
           [0, "I map the dunes of the northern wasteland, but they move every night."],
           [0, "The notch-bladed armored skeletons don't help. Get rid of ten."]
@@ -3797,7 +3797,7 @@
           [0, "At least the dunes don't bite, %player_name%."]
         ]
       ],
-      "1010000020902": [
+      "1010000200902": [
         [
           [0, "The desert monks of the northern wasteland need lizards for their ritual."],
           [0, "The club-swinging ogres stole their supply. Return four."]
@@ -3812,7 +3812,7 @@
           [0, "The ritual can begin, %player_name%."]
         ]
       ],
-      "1010100020101": [
+      "1010000201001": [
         [
           [0, "The sun in the northern sand sea is cruel enough."],
           [0, "With the towering ogres on top of it, nobody crosses. Defeat twelve."]
@@ -3827,7 +3827,7 @@
           [0, "The road across the sands is open, %player_name%."]
         ]
       ],
-      "1010100020102": [
+      "1010000201002": [
         [
           [0, "My monster claws were the last thing my mother gave me."],
           [0, "The tireless marching armored skeletons of the northern sand sea have them. Please, bring back three."]
@@ -3842,7 +3842,7 @@
           [0, "Thank you, %player_name%. Truly."]
         ]
       ],
-      "1010100020201": [
+      "1010000201101": [
         [
           [0, "The old fort in the north-eastern wasteland was my family's."],
           [0, "Now the grinning skeletons hold it. Take down eight."]
@@ -3857,7 +3857,7 @@
           [0, "Home again, after all these years, %player_name%."]
         ]
       ],
-      "1010100020202": [
+      "1010000201102": [
         [
           [0, "I traded my last coin for wood horns at the edge of the north-eastern wasteland."],
           [0, "An hour later the tireless marching armored skeletons had them. Recover three."]
@@ -3872,7 +3872,7 @@
           [0, "Worth every coin now, %player_name%."]
         ]
       ],
-      "1010100020301": [
+      "1010000201201": [
         [
           [0, "A storm scattered my bones across the north-eastern wildwood."],
           [0, "The cackling, knife-waving goblins have claimed them. Collect three."]
@@ -3887,7 +3887,7 @@
           [0, "Storm's over, and so is my bad luck, %player_name%."]
         ]
       ],
-      "1010100020302": [
+      "1010000201202": [
         [
           [0, "The shrine in the north-eastern wildwood has gone unvisited since the leather-winged bats moved in."],
           [0, "Clear eight of them so the pilgrims can return."]
@@ -3902,7 +3902,7 @@
           [0, "The first pilgrims arrived this morning, %player_name%. Bless you."]
         ]
       ],
-      "1010100020401": [
+      "1010000201301": [
         [
           [0, "A sandstorm uncovered an ancient tomb in the northern desert."],
           [0, "The notch-bladed armored skeletons came pouring out. Put ten down."]
@@ -3917,7 +3917,7 @@
           [0, "The tomb is quiet now, %player_name%."]
         ]
       ],
-      "1010100020402": [
+      "1010000201302": [
         [
           [0, "I was crossing the northern desert to sell skull rings when the tusked ogres struck."],
           [0, "Get four back so the journey isn't wasted."]
@@ -3932,7 +3932,7 @@
           [0, "The journey's saved, %player_name%."]
         ]
       ],
-      "1010100020501": [
+      "1010000201401": [
         [
           [0, "I keep my frogs in the cellar."],
           [0, "Kept. The bold, sharp-toothed rats got in. Get me four back."]
@@ -3947,7 +3947,7 @@
           [0, "I'll get a cat, %player_name%."]
         ]
       ],
-      "1010100020502": [
+      "1010000201402": [
         [
           [0, "The baker of Saltmere found fat brown snakes in the dough this morning."],
           [1, "Disgusting."],
@@ -3963,7 +3963,7 @@
           [0, "Fresh bread tomorrow, on me, %player_name%."]
         ]
       ],
-      "1010100020601": [
+      "1010000201501": [
         [
           [0, "The rust-mailed armored skeletons of the north-eastern sand sea bury what they steal in the sand."],
           [0, "My throwing daggers are down there. Dig up three."]
@@ -3978,7 +3978,7 @@
           [0, "Sandy, but safe, %player_name%."]
         ]
       ],
-      "1010100020602": [
+      "1010000201502": [
         [
           [0, "The midday heat makes the lumbering ogres of the north-eastern sand sea restless."],
           [0, "Restless means dangerous. Bring down ten."]
@@ -3993,7 +3993,7 @@
           [0, "The heat's still here, but they aren't, %player_name%."]
         ]
       ],
-      "1010100020701": [
+      "1010000201601": [
         [
           [0, "My caravan crossed the northern sand sea with a crate of maces."],
           [0, "The tireless marching armored skeletons took the lot. Bring back five."]
@@ -4008,7 +4008,7 @@
           [0, "My caravan is whole again, %player_name%."]
         ]
       ],
-      "1010100020702": [
+      "1010000201602": [
         [
           [0, "The guard of Saltmere sent me to scout the northern sand sea."],
           [0, "I counted far too many rattling skeletons. Bring that down by twelve."]
@@ -4023,7 +4023,7 @@
           [0, "My report will mention you, %player_name%."]
         ]
       ],
-      "1010100020801": [
+      "1010000201701": [
         [
           [0, "The lumbering ogres of the north-eastern wasteland took my melted candles as I slept by the fire."],
           [0, "Bring back four, and I'll sleep with one eye open from now on."]
@@ -4038,7 +4038,7 @@
           [0, "Thank you, %player_name%. One eye open."]
         ]
       ],
-      "1010100020802": [
+      "1010000201702": [
         [
           [0, "I'm a scholar studying the ruins of the north-eastern wasteland."],
           [0, "The rust-mailed armored skeletons object to my studies. Overrule eight of them."]
@@ -4053,7 +4053,7 @@
           [0, "My research can continue, %player_name%."]
         ]
       ],
-      "1010100020901": [
+      "1010000201801": [
         [
           [0, "The dancers of Saltmere perform with gumnuts."],
           [0, "The sand-choked skeletons of the north-eastern sand sea stole them on the way to the show. Fetch five."]
@@ -4068,7 +4068,7 @@
           [0, "The show goes on, %player_name%!"]
         ]
       ],
-      "1010100020902": [
+      "1010000201802": [
         [
           [0, "My brother went to sell spices beyond the north-eastern sand sea."],
           [1, "Has he returned?"],
@@ -4084,7 +4084,7 @@
           [0, "He'll make it this time, %player_name%."]
         ]
       ],
-      "1010200020101": [
+      "1010000201901": [
         [
           [0, "The merchants of Ashby won't buy lutes with sand in them."],
           [0, "But the notch-bladed armored skeletons of the north-western desert have the only ones left. Fetch five."]
@@ -4099,7 +4099,7 @@
           [0, "I'll dust them off, %player_name%."]
         ]
       ],
-      "1010200020102": [
+      "1010000201902": [
         [
           [0, "The sun-bleached skeletons of the north-western desert have learned to lie hidden under the sand."],
           [0, "I stepped on one yesterday. Dig out ten of them."]
@@ -4114,7 +4114,7 @@
           [0, "I'll watch my step either way, %player_name%."]
         ]
       ],
-      "1010200020201": [
+      "1010000202001": [
         [
           [0, "The water-seller in Saltmere takes fireballs instead of coin."],
           [0, "The tusked ogres of the north-western sand sea stole mine, and I'm thirsty. Get three."]
@@ -4129,7 +4129,7 @@
           [0, "Water, at last, %player_name%!"]
         ]
       ],
-      "1010200020202": [
+      "1010000202002": [
         [
           [0, "I've tended a cactus garden in the north-western sand sea for years."],
           [0, "The rust-mailed armored skeletons keep trampling it. Stop ten."]
@@ -4144,7 +4144,7 @@
           [0, "My cactuses will flower again, %player_name%."]
         ]
       ],
-      "1010200020301": [
+      "1010000202101": [
         [
           [0, "Our caravan has crossed the northern desert for twenty years."],
           [0, "This year the club-swinging ogres blocked the oasis. Clear eight of them."]
@@ -4159,7 +4159,7 @@
           [0, "The camels can drink again, %player_name%."]
         ]
       ],
-      "1010200020302": [
+      "1010000202102": [
         [
           [0, "The governor of Saltmere wants short swords for his collection."],
           [0, "The tireless marching armored skeletons of the northern desert have plenty. Fetch four and he'll pay you."]
@@ -4174,7 +4174,7 @@
           [0, "The governor will be pleased, %player_name%."]
         ]
       ],
-      "1010200020401": [
+      "1010000202201": [
         [
           [0, "I set rabbit traps in the north-western woodland, but the mud-smeared goblins find them first."],
           [0, "Get rid of ten so I catch something besides trouble."]
@@ -4189,7 +4189,7 @@
           [0, "A rabbit in every trap, %player_name%. Many thanks."]
         ]
       ],
-      "1010200020402": [
+      "1010000202202": [
         [
           [0, "The crow-sized bats of the north-western woodland must be the best thieves in the land."],
           [1, "Why?"],
@@ -4205,7 +4205,7 @@
           [0, "Better thieves than me, at least, %player_name%."]
         ]
       ],
-      "1010200020501": [
+      "1010000202301": [
         [
           [0, "The old bridge in the north-western wildwood creaks under all the hissing green snakes that gather there."],
           [0, "Drive off twelve before it collapses."]
@@ -4220,7 +4220,7 @@
           [0, "The bridge holds, %player_name%. And so do my nerves."]
         ]
       ],
-      "1010200020502": [
+      "1010000202302": [
         [
           [0, "My little brother traded our animal skulls to the red-eyed bats of the north-western wildwood for a pebble."],
           [0, "Don't ask. Just get four back before mother notices."]
@@ -4235,7 +4235,7 @@
           [0, "Mother will never know, %player_name%."]
         ]
       ],
-      "1010200020601": [
+      "1010000202401": [
         [
           [0, "I dropped my bugs into a ravine in the northern desert."],
           [0, "The notch-bladed armored skeletons lurk at the bottom. Fetch three."]
@@ -4250,7 +4250,7 @@
           [0, "You're braver than me, %player_name%."]
         ]
       ],
-      "1010200020602": [
+      "1010000202402": [
         [
           [0, "I dig wells in the northern desert."],
           [0, "And every well I dig, the rattling skeletons fill with sand. Stop twelve of them."]
@@ -4265,7 +4265,7 @@
           [0, "Water at last. Thank you, %player_name%."]
         ]
       ],
-      "1010200020701": [
+      "1010000202501": [
         [
           [0, "I left my leaf wreaths by the campfire in the western forest."],
           [0, "When I came back, the tin-helmeted goblins were dancing around them. Get four back."]
@@ -4280,7 +4280,7 @@
           [0, "No more dancing for them, %player_name%."]
         ]
       ],
-      "1010200020702": [
+      "1010000202502": [
         [
           [0, "I race my cart through the western forest every week with letters for Ashby."],
           [0, "The shrieking cave bats keep leaping at the wheels. Get rid of eight."]
@@ -4295,7 +4295,7 @@
           [0, "Letters are moving again. Thank you, %player_name%!"]
         ]
       ],
-      "1010200020801": [
+      "1010000202601": [
         [
           [0, "Our camp in the western wildwood was raided overnight."],
           [0, "The squeaking fruit bats made off with our books. Recover three of them."]
@@ -4310,7 +4310,7 @@
           [0, "Camp's back in order, %player_name%."]
         ]
       ],
-      "1010200020802": [
+      "1010000202602": [
         [
           [0, "A storm blew down half of the western wildwood, and the sneaky, boot-stealing goblins poured out of the fallen trees."],
           [0, "Help us clean up. Start with twelve of them."]
@@ -4325,7 +4325,7 @@
           [0, "One storm at a time. Thank you, %player_name%."]
         ]
       ],
-      "1010200020901": [
+      "1010000202701": [
         [
           [0, "The sun-bleached skeletons of the central wasteland raided the oasis market."],
           [0, "My stall of poison vials is empty. Bring back three."]
@@ -4340,7 +4340,7 @@
           [0, "Open for business, %player_name%!"]
         ]
       ],
-      "1010200020902": [
+      "1010000202702": [
         [
           [0, "I was robbed by bandits, then chased by the notch-bladed armored skeletons of the central wasteland."],
           [0, "I can't fix the bandits. Fix ten of those."]
@@ -4355,7 +4355,7 @@
           [0, "One problem solved, %player_name%."]
         ]
       ],
-      "1010200021001": [
+      "1010000202801": [
         [
           [0, "The schoolhouse of Ashby is closed because of bald-tailed rats."],
           [0, "The children are delighted. The parents are not. Clear ten."]
@@ -4370,7 +4370,7 @@
           [0, "Back to lessons, %player_name%. The children forgive you, eventually."]
         ]
       ],
-      "1010200021002": [
+      "1010000202802": [
         [
           [0, "The innkeeper of Ashby hid pumpkins in the stable."],
           [0, "The yellow-eyed striped snakes found them. Fetch five."]
@@ -4385,7 +4385,7 @@
           [0, "Drinks are on the house, %player_name%."]
         ]
       ],
-      "1010200021101": [
+      "1010000202901": [
         [
           [0, "I'm the forester of the western wildwood, and the wrist-thick snakes have chased my apprentices home."],
           [0, "Clear out eight of them so we can get back to work."]
@@ -4400,7 +4400,7 @@
           [0, "My apprentices will be back by morning. Thank you, %player_name%."]
         ]
       ],
-      "1010200021102": [
+      "1010000202902": [
         [
           [0, "Rumour in Ashby says the crow-sized bats of the western wildwood carry pink fireballs."],
           [1, "Is it true?"],
@@ -4416,7 +4416,7 @@
           [0, "Rumours are sometimes true, %player_name%!"]
         ]
       ],
-      "1010200021201": [
+      "1010000203001": [
         [
           [0, "The elves who once lived in the central wildwood warned us about the shrieking cave bats."],
           [0, "Nobody listened. Now it's up to you. Defeat ten."]
@@ -4431,7 +4431,7 @@
           [0, "The elves would be proud of you, %player_name%."]
         ]
       ],
-      "1010200021202": [
+      "1010000203002": [
         [
           [0, "I promised the inn at Ashby a delivery of crude daggers."],
           [0, "The quick little adders of the central wildwood ruined that plan. Collect four."]
@@ -4446,7 +4446,7 @@
           [0, "The innkeeper will pour you a free one, %player_name%."]
         ]
       ],
-      "1010300020101": [
+      "1010000203101": [
         [
           [0, "I found a map of buried rings in the northern sand sea."],
           [1, "And?"],
@@ -4462,7 +4462,7 @@
           [0, "The map was right after all, %player_name%."]
         ]
       ],
-      "1010300020102": [
+      "1010000203102": [
         [
           [0, "The salt traders of Saltmere pay well for a safe road through the northern sand sea."],
           [0, "The towering ogres make sure there is none. Defeat ten."]
@@ -4477,7 +4477,7 @@
           [0, "The salt flows again, %player_name%."]
         ]
       ],
-      "1010300020201": [
+      "1010000203201": [
         [
           [0, "A mirage led me straight into the club-swinging ogres of the north-eastern desert."],
           [1, "A mirage?"],
@@ -4493,7 +4493,7 @@
           [0, "Real ones, %player_name%. Even better."]
         ]
       ],
-      "1010300020202": [
+      "1010000203202": [
         [
           [0, "I sell water to travellers crossing the north-eastern desert."],
           [0, "No travellers come while the sand-choked skeletons roam. Defeat eight."]
@@ -4508,7 +4508,7 @@
           [0, "Water for sale, %player_name%! Thanks to you."]
         ]
       ],
-      "1010300020301": [
+      "1010000203301": [
         [
           [0, "My camel refuses to walk past the rust-mailed armored skeletons of the north-eastern wasteland."],
           [1, "Smart camel."],
@@ -4524,7 +4524,7 @@
           [0, "Onwards, camel!"]
         ]
       ],
-      "1010300020302": [
+      "1010000203302": [
         [
           [0, "I'm an archaeologist. The crystals of the north-eastern wasteland belong in a museum."],
           [0, "The lumbering ogres disagree. Recover three."]
@@ -4539,7 +4539,7 @@
           [0, "The museum in Saltmere thanks you, %player_name%."]
         ]
       ],
-      "1010300020401": [
+      "1010000203401": [
         [
           [0, "The prospectors of Saltmere found gold in the northern wasteland."],
           [0, "Then the tusked ogres found the prospectors. Defeat eight."]
@@ -4554,7 +4554,7 @@
           [0, "Back to digging! Thank you, %player_name%."]
         ]
       ],
-      "1010300020402": [
+      "1010000203402": [
         [
           [0, "My rival bet I'd never cross the northern wasteland with my shields."],
           [0, "The grinning skeletons made him right. Fetch four so I win anyway."]
@@ -4569,7 +4569,7 @@
           [0, "I win the bet, %player_name%!"]
         ]
       ],
-      "1010300020501": [
+      "1010000203501": [
         [
           [0, "I came to the north-eastern ash slope to trade books with the fire priests."],
           [0, "The cold, drifting spectres took them before I reached the temple. Get four back."]
@@ -4584,7 +4584,7 @@
           [0, "Now I can finish my trade, %player_name%."]
         ]
       ],
-      "1010300020502": [
+      "1010000203502": [
         [
           [0, "The ash of the north-eastern ash slope buries my hut a little more each day."],
           [0, "Digging out is hard with the bloodshot eyes watching. Get rid of ten."]
@@ -4599,7 +4599,7 @@
           [0, "I can dig in peace now, %player_name%."]
         ]
       ],
-      "1010300020601": [
+      "1010000203601": [
         [
           [0, "The smith of Saltmere forges with bone earings from the volcano."],
           [0, "The smoke-trailing eyes of the north-eastern ash slope took her supply. Fetch four."]
@@ -4614,7 +4614,7 @@
           [0, "The forge burns again, %player_name%."]
         ]
       ],
-      "1010300020602": [
+      "1010000203602": [
         [
           [0, "I came to the north-eastern ash slope to prove my courage."],
           [1, "How's it going?"],
@@ -4630,7 +4630,7 @@
           [0, "I'll tell everyone I helped, %player_name%."]
         ]
       ],
-      "1010300020701": [
+      "1010000203701": [
         [
           [0, "I'm lost in the central sand sea, and the lumbering ogres took my feather quills."],
           [1, "I'll help."],
@@ -4646,7 +4646,7 @@
           [0, "Home I go. Thank you, %player_name%."]
         ]
       ],
-      "1010300020702": [
+      "1010000203702": [
         [
           [0, "A bard wrote a song about the grinning skeletons of the central sand sea."],
           [0, "It's a terrifying song. Let's change the ending. Defeat ten."]
@@ -4661,7 +4661,7 @@
           [0, "I'll write the new verse myself, %player_name%."]
         ]
       ],
-      "1010300020801": [
+      "1010000203801": [
         [
           [0, "A sandstorm buried my tent and my dragon eggs in the eastern sand sea."],
           [0, "The rattling skeletons dug them up first. Recover three."]
@@ -4676,7 +4676,7 @@
           [0, "Better than a sandstorm, %player_name%."]
         ]
       ],
-      "1010300020802": [
+      "1010000203802": [
         [
           [0, "Last night I saw the rust-mailed armored skeletons of the eastern sand sea marching by moonlight."],
           [1, "Where to?"],
@@ -4692,7 +4692,7 @@
           [0, "The road is safe tonight, %player_name%."]
         ]
       ],
-      "1010300020901": [
+      "1010000203901": [
         [
           [0, "My cleavers fell off my camel in the eastern wasteland."],
           [0, "By the time I turned around, the sun-bleached skeletons had them. Recover four."]
@@ -4707,7 +4707,7 @@
           [0, "Tied down properly this time, %player_name%."]
         ]
       ],
-      "1010300020902": [
+      "1010000203902": [
         [
           [0, "Our tribe buries its chiefs in the eastern wasteland."],
           [0, "The tusked ogres desecrate the cairns. Defeat twelve."]
@@ -4722,7 +4722,7 @@
           [0, "Our ancestors sleep in peace again, %player_name%."]
         ]
       ],
-      "1010300021001": [
+      "1010000204001": [
         [
           [0, "I'm teaching my daughter to forage in the central wildwood."],
           [0, "The hissing green snakes keep stealing our bronze helmets. Bring back four."]
@@ -4737,7 +4737,7 @@
           [0, "Lesson learned: bring a hero, %player_name%."]
         ]
       ],
-      "1010300021002": [
+      "1010000204002": [
         [
           [0, "I'm searching the central wildwood for a rare blue flower."],
           [0, "I'd have found it by now if the knee-high green goblins left me alone. Get rid of eight."]
@@ -4752,7 +4752,7 @@
           [0, "Found it, %player_name%! It was by my feet all along."]
         ]
       ],
-      "1010300021101": [
+      "1010000204101": [
         [
           [0, "The children of Ashby lost their battle axes playing in the eastern wildwood."],
           [0, "The leather-winged bats grabbed them. Bring four back, please."]
@@ -4767,7 +4767,7 @@
           [0, "Their smiles are your reward, %player_name%."]
         ]
       ],
-      "1010300021102": [
+      "1010000204102": [
         [
           [0, "My goats wandered into the eastern wildwood and won't come out."],
           [0, "They're too scared of the wrist-thick snakes. Clear eight and they'll find their way home."]
@@ -4782,7 +4782,7 @@
           [0, "All goats accounted for. Thank you, %player_name%!"]
         ]
       ],
-      "1010300021201": [
+      "1010000204201": [
         [
           [0, "Someone in Saltmere said the red-eyed bats of the eastern woodland are harmless."],
           [1, "Are they?"],
@@ -4798,7 +4798,7 @@
           [0, "My ankle and I thank you, %player_name%."]
         ]
       ],
-      "1010300021202": [
+      "1010000204202": [
         [
           [0, "The healer in Saltmere needs candles for a cure."],
           [0, "The knee-high green goblins of the eastern woodland carry plenty. Bring back three."]
@@ -4813,7 +4813,7 @@
           [0, "The healer will save lives with these, %player_name%."]
         ]
       ],
-      "1010400020101": [
+      "1010000204301": [
         [
           [0, "The yellow-eyed striped snakes have got into the grain store here in Ashby."],
           [0, "We'll go hungry by winter. Kill twelve."]
@@ -4828,7 +4828,7 @@
           [0, "The grain is safe. Thanks, %player_name%!"]
         ]
       ],
-      "1010400020102": [
+      "1010000204302": [
         [
           [0, "The fat grey rats of Ashby nest in the old chapel with my necklaces."],
           [0, "Bring back three, and mind the pews."]
@@ -4843,7 +4843,7 @@
           [0, "Bless you, %player_name%!"]
         ]
       ],
-      "1010400020201": [
+      "1010000204401": [
         [
           [0, "Our hunting party went into the western forest and came back with nothing but bites."],
           [0, "The tin-helmeted goblins have scared off all the deer. Clear out eight."]
@@ -4858,7 +4858,7 @@
           [0, "The deer are back, %player_name%. We eat tonight!"]
         ]
       ],
-      "1010400020202": [
+      "1010000204402": [
         [
           [0, "I sleepwalked into the western forest last night."],
           [1, "And?"],
@@ -4874,7 +4874,7 @@
           [0, "No more sleepwalking for me, %player_name%."]
         ]
       ],
-      "1010400020301": [
+      "1010000204501": [
         [
           [0, "My dog chased the squeaking fruit bats of the central woodland and came back without the fine combs I tied to his collar."],
           [0, "Get four back. The dog's in disgrace."]
@@ -4889,7 +4889,7 @@
           [0, "The dog is forgiven, %player_name%."]
         ]
       ],
-      "1010400020302": [
+      "1010000204502": [
         [
           [0, "The druid of the central woodland asked me to find someone brave."],
           [1, "Here I am."],
@@ -4905,7 +4905,7 @@
           [0, "The forest breathes easier, %player_name%. The druid thanks you."]
         ]
       ],
-      "1010400020401": [
+      "1010000204601": [
         [
           [0, "I'm getting married, and my dowry was pendants."],
           [0, "The yellow-eyed striped snakes of the western woodland stole it on the road. Recover three."]
@@ -4920,7 +4920,7 @@
           [0, "The wedding is back on, %player_name%!"]
         ]
       ],
-      "1010400020402": [
+      "1010000204602": [
         [
           [0, "The tax collector from Ashby refuses to come through the western woodland."],
           [1, "Isn't that good news?"],
@@ -4936,7 +4936,7 @@
           [0, "Ah, %player_name%, he's back. Lucky me. Thank you anyway."]
         ]
       ],
-      "1010400020501": [
+      "1010000204701": [
         [
           [0, "My grandmother says the sneaky, boot-stealing goblins of the western wildwood only grow bolder when nobody fights back."],
           [0, "Prove her right. Kill eight."]
@@ -4951,7 +4951,7 @@
           [0, "Grandmother says you'll do, %player_name%. High praise."]
         ]
       ],
-      "1010400020502": [
+      "1010000204702": [
         [
           [0, "I'm a collector of curiosities, and clubs are my weakness."],
           [0, "The wrist-thick snakes of the western wildwood have a fine supply. Bring me three."]
@@ -4966,7 +4966,7 @@
           [0, "Splendid additions to my collection, %player_name%."]
         ]
       ],
-      "1010400020601": [
+      "1010000204801": [
         [
           [0, "The woodcutters of the central woodland dropped their logs fleeing the leather-winged bats."],
           [0, "Gather four and I'll return them."]
@@ -4981,7 +4981,7 @@
           [0, "The woodcutters will buy you a drink, %player_name%."]
         ]
       ],
-      "1010400020602": [
+      "1010000204802": [
         [
           [0, "A minstrel from Ashby lost his voice screaming at the fat brown snakes in the central woodland."],
           [0, "Silence twelve of them before he loses his lute too."]
@@ -4996,7 +4996,7 @@
           [0, "He's singing again, %player_name%. Badly, but singing."]
         ]
       ],
-      "1010400020701": [
+      "1010000204901": [
         [
           [0, "I'm the lifeguard on the lagoon."],
           [1, "Busy?"],
@@ -5012,7 +5012,7 @@
           [0, "A quiet shift at last, %player_name%."]
         ]
       ],
-      "1010400020702": [
+      "1010000204902": [
         [
           [0, "A shipwreck washed face masks onto the lagoon."],
           [0, "The snapping red crabs got to them first. Collect five."]
@@ -5027,7 +5027,7 @@
           [0, "Salvage rights are mine now, %player_name%."]
         ]
       ],
-      "1010400020801": [
+      "1010000205001": [
         [
           [0, "My sister went foraging in the western wildwood at dawn."],
           [0, "She came back running from the shrieking cave bats. Make ten of them pay."]
@@ -5042,7 +5042,7 @@
           [0, "My sister says thank you, and so do I, %player_name%."]
         ]
       ],
-      "1010400020802": [
+      "1010000205002": [
         [
           [0, "My grandfather buried dream catchers in the western wildwood long ago."],
           [0, "The hissing green snakes dug them up. Bring me three."]
@@ -5057,7 +5057,7 @@
           [0, "Grandfather's treasure, home at last, %player_name%."]
         ]
       ],
-      "1010400020901": [
+      "1010000205101": [
         [
           [0, "A wandering knight promised to deal with the mud-smeared goblins of the central wildwood."],
           [1, "What happened?"],
@@ -5073,7 +5073,7 @@
           [0, "A true hero, %player_name%. Unlike some knights I could name."]
         ]
       ],
-      "1010400020902": [
+      "1010000205102": [
         [
           [0, "The merchants' caravan was attacked in the central wildwood."],
           [0, "The crow-sized bats took the crates. Recover five and the guild will be grateful."]
@@ -5088,7 +5088,7 @@
           [0, "The guild thanks you, %player_name%."]
         ]
       ],
-      "1010400021001": [
+      "1010000205201": [
         [
           [0, "Every year we hold a harvest dance in the south-western wildwood."],
           [0, "This year the quick little adders got there first. Clear eight of them."]
@@ -5103,7 +5103,7 @@
           [0, "The music's starting. Thank you, %player_name%!"]
         ]
       ],
-      "1010400021002": [
+      "1010000205202": [
         [
           [0, "A crow showed me where the cackling, knife-waving goblins of the south-western wildwood stash their loot."],
           [0, "It's full of my cards. Get five back."]
@@ -5118,7 +5118,7 @@
           [0, "Remind me to thank that crow, %player_name%."]
         ]
       ],
-      "1010400021101": [
+      "1010000205301": [
         [
           [0, "I sell firewood in Duskwater, but the south-western wildwood is crawling with red-eyed bats."],
           [0, "No firewood means cold houses. Thin them out by ten."]
@@ -5133,7 +5133,7 @@
           [0, "Hearths will be warm this winter, %player_name%."]
         ]
       ],
-      "1010400021102": [
+      "1010000205302": [
         [
           [0, "I'm leaving Duskwater for good, but not without my coin pouches."],
           [0, "The knee-high green goblins of the south-western wildwood took them. Bring three and I'll go."]
@@ -5148,7 +5148,7 @@
           [0, "Farewell, and thank you, %player_name%."]
         ]
       ],
-      "1010400021201": [
+      "1010000205401": [
         [
           [0, "The well-diggers of Duskwater want to sink a new well in the southern woodland."],
           [0, "The cackling, knife-waving goblins keep chasing them out. Drive off twelve."]
@@ -5163,7 +5163,7 @@
           [0, "Fresh water at last, %player_name%."]
         ]
       ],
-      "1010400021202": [
+      "1010000205402": [
         [
           [0, "The yellow-eyed striped snakes of the southern woodland pass stolen goods around among themselves."],
           [1, "Really?"],
@@ -5179,7 +5179,7 @@
           [0, "Trade is over. Thank you, %player_name%."]
         ]
       ],
-      "1010500020101": [
+      "1010000205501": [
         [
           [0, "The ranger of the central woodland keeps spare sealed scrolls in a tree stash."],
           [0, "The tin-helmeted goblins found the stash. Return four before he does his rounds."]
@@ -5194,7 +5194,7 @@
           [0, "The ranger will never know, %player_name%."]
         ]
       ],
-      "1010500020102": [
+      "1010000205502": [
         [
           [0, "I keep a lantern lit in the central woodland for lost travellers."],
           [0, "The wrist-thick snakes keep knocking it over. Deal with ten of them."]
@@ -5209,7 +5209,7 @@
           [0, "My lantern burns bright again, %player_name%."]
         ]
       ],
-      "1010500020201": [
+      "1010000205601": [
         [
           [0, "I need broaches to pay off a debt in Ashby."],
           [0, "The sneaky, boot-stealing goblins of the eastern wildwood took mine. Bring five before the debt collector comes."]
@@ -5224,7 +5224,7 @@
           [0, "Debt paid, %player_name%. I can breathe again."]
         ]
       ],
-      "1010500020202": [
+      "1010000205602": [
         [
           [0, "The woodcarvers of Ashby need the white birch from the eastern wildwood."],
           [0, "But the squeaking fruit bats have settled in the birch grove. Clear eight."]
@@ -5239,7 +5239,7 @@
           [0, "The carvers will make you something special, %player_name%."]
         ]
       ],
-      "1010500020301": [
+      "1010000205701": [
         [
           [0, "My mule bolted the moment it saw the mud-smeared goblins on the trail through the eastern woodland."],
           [0, "I'll never get him back while they're about. Drive off twelve."]
@@ -5254,7 +5254,7 @@
           [0, "There he is, %player_name%! Come here, you silly mule."]
         ]
       ],
-      "1010500020302": [
+      "1010000205702": [
         [
           [0, "The shrieking cave bats of the eastern woodland snatched my rings right out of my hands."],
           [0, "I didn't even see them coming. Bring me five."]
@@ -5269,7 +5269,7 @@
           [0, "I'll hold on tighter this time, %player_name%."]
         ]
       ],
-      "1010500020401": [
+      "1010000205801": [
         [
           [0, "I hid my mortars and pestles in a hollow log in the central forest."],
           [1, "Smart."],
@@ -5285,7 +5285,7 @@
           [0, "Next time I'll pick a better log, %player_name%."]
         ]
       ],
-      "1010500020402": [
+      "1010000205802": [
         [
           [0, "I've been charting the paths of the central forest for the map-makers of Ashby."],
           [0, "Every path I draw, the fat brown snakes block it. Clear eight of them."]
@@ -5300,7 +5300,7 @@
           [0, "My map is finished, %player_name%. I'll put your name in the corner."]
         ]
       ],
-      "1010500020501": [
+      "1010000205901": [
         [
           [0, "I'm a cook in Duskwater, and my secret recipe needs mushrooms."],
           [1, "Really?"],
@@ -5316,7 +5316,7 @@
           [0, "Dinner's going to be wonderful, %player_name%."]
         ]
       ],
-      "1010500020502": [
+      "1010000205902": [
         [
           [0, "I promised my son I'd show him the great oak of the eastern wildwood."],
           [0, "Not while the crow-sized bats lurk around it. Deal with twelve."]
@@ -5331,7 +5331,7 @@
           [0, "We'll go at dawn, %player_name%. He'll be so excited."]
         ]
       ],
-      "1010500020601": [
+      "1010000206001": [
         [
           [0, "My late husband collected scrolls."],
           [0, "The red-eyed bats of the eastern wildwood stole them from his old cabin. Recover three, please."]
@@ -5346,7 +5346,7 @@
           [0, "He can rest now. Thank you, %player_name%."]
         ]
       ],
-      "1010500020602": [
+      "1010000206002": [
         [
           [0, "My wedding is in the glade at the eastern wildwood next week."],
           [1, "Congratulations!"],
@@ -5362,7 +5362,7 @@
           [0, "The glade is ready, %player_name%. You're invited, of course!"]
         ]
       ],
-      "1010500020701": [
+      "1010000206101": [
         [
           [0, "Mushroom season in the central woodland only lasts a fortnight."],
           [0, "And the quick little adders have claimed the best patches. Get rid of ten."]
@@ -5377,7 +5377,7 @@
           [0, "Baskets full, %player_name%! You'll have mushroom soup tonight."]
         ]
       ],
-      "1010500020702": [
+      "1010000206102": [
         [
           [0, "My squid were a gift from the king himself."],
           [0, "The leather-winged bats of the central woodland have no respect for royalty. Get five back."]
@@ -5392,7 +5392,7 @@
           [0, "The king need never know, %player_name%."]
         ]
       ],
-      "1010500020801": [
+      "1010000206201": [
         [
           [0, "The hissing green snakes of the eastern wildwood build their nests from whatever they can steal."],
           [0, "My necklaces are in there somewhere. Pull out four."]
@@ -5407,7 +5407,7 @@
           [0, "A bit sticky, but they're mine, %player_name%."]
         ]
       ],
-      "1010500020802": [
+      "1010000206202": [
         [
           [0, "My father's old axe is stuck in a stump in the eastern wildwood."],
           [0, "The red-eyed bats nest right around it. Clear twelve so I can pull it free."]
@@ -5422,7 +5422,7 @@
           [0, "It came free on the first tug. Thank you, %player_name%."]
         ]
       ],
-      "1010500020901": [
+      "1010000206301": [
         [
           [0, "The crow-sized bats of the eastern woodland took my leaves as a toll for passing."],
           [0, "I'd like them back. Three will do."]
@@ -5437,7 +5437,7 @@
           [0, "Nobody tolls me, %player_name%."]
         ]
       ],
-      "1010500020902": [
+      "1010000206302": [
         [
           [0, "I'm writing a book about the tin-helmeted goblins of the eastern woodland."],
           [1, "Sounds interesting."],
@@ -5453,7 +5453,7 @@
           [0, "I'll call the last chapter 'The Hero Arrives', %player_name%."]
         ]
       ],
-      "1010500021001": [
+      "1010000206401": [
         [
           [0, "I teach the children of Duskwater the names of every tree in the southern forest."],
           [0, "Lessons stopped when the wrist-thick snakes came. Get rid of eight."]
@@ -5468,7 +5468,7 @@
           [0, "Class is back in session. Thank you, %player_name%."]
         ]
       ],
-      "1010500021002": [
+      "1010000206402": [
         [
           [0, "My shop's sign says 'finest urns in Duskwater'."],
           [0, "Thanks to the mud-smeared goblins of the southern forest, I have none. Restock me with five."]
@@ -5483,7 +5483,7 @@
           [0, "The sign tells the truth again, %player_name%."]
         ]
       ],
-      "1010500021101": [
+      "1010000206501": [
         [
           [0, "I trade totem faces with the folk of Duskwater."],
           [0, "The yellow-eyed striped snakes in the south-eastern forest keep raiding my stock. Get three back."]
@@ -5498,7 +5498,7 @@
           [0, "Business is open again, %player_name%!"]
         ]
       ],
-      "1010500021102": [
+      "1010000206502": [
         [
           [0, "Last night the shrieking cave bats of the south-eastern forest kept the whole camp awake."],
           [0, "I'm too tired to fight. Please, deal with eight of them."]
@@ -5513,7 +5513,7 @@
           [0, "Finally, I can sleep. Thank you, %player_name%."]
         ]
       ],
-      "1010500021201": [
+      "1010000206601": [
         [
           [0, "The old hermit of the south-eastern wildwood hasn't been seen since the cackling, knife-waving goblins surrounded his hut."],
           [0, "Break through them. Eight should do it."]
@@ -5528,7 +5528,7 @@
           [0, "The hermit's fine, %player_name%. Grumpy, but fine."]
         ]
       ],
-      "1010500021202": [
+      "1010000206602": [
         [
           [0, "I lend basic knives to travellers passing through the south-eastern wildwood."],
           [0, "The fat brown snakes took everything. Return three so I can help again."]
@@ -5543,7 +5543,7 @@
           [0, "Travellers will thank you too, %player_name%."]
         ]
       ],
-      "1010600020101": [
+      "1010000206701": [
         [
           [0, "My master sent me to the south-western woodland for cheeses."],
           [0, "The knee-high green goblins found them first. Bring three, or I'm in trouble."]
@@ -5558,7 +5558,7 @@
           [0, "My master will be pleased, %player_name%."]
         ]
       ],
-      "1010600020102": [
+      "1010000206702": [
         [
           [0, "The quick little adders of the south-western woodland have stripped the berry bushes we meant for market."],
           [0, "Cut down twelve of them before there's nothing left."]
@@ -5573,7 +5573,7 @@
           [0, "Berries for everyone. Thank you, %player_name%!"]
         ]
       ],
-      "1010600020201": [
+      "1010000206801": [
         [
           [0, "The leather-winged bats of the south-western forest wrecked the hives I keep there."],
           [1, "All of them?"],
@@ -5589,7 +5589,7 @@
           [0, "My bees can rest easy now, %player_name%."]
         ]
       ],
-      "1010600020202": [
+      "1010000206802": [
         [
           [0, "The sneaky, boot-stealing goblins of the south-western forest drag shiny things into their dens."],
           [1, "Like what?"],
@@ -5605,7 +5605,7 @@
           [0, "Exactly the ones they took, %player_name%!"]
         ]
       ],
-      "1010600020301": [
+      "1010000206901": [
         [
           [0, "I'm a lumberjack, and I've had enough."],
           [0, "The tin-helmeted goblins of the southern woodland swarm every log I fell. Put an end to eight."]
@@ -5620,7 +5620,7 @@
           [0, "Timber, %player_name%! And no pests underfoot."]
         ]
       ],
-      "1010600020302": [
+      "1010000206902": [
         [
           [0, "The leader of the fat brown snakes in the southern woodland wears my keys like a crown."],
           [0, "Bring me three of them and humble it."]
@@ -5635,7 +5635,7 @@
           [0, "It must look silly now, %player_name%."]
         ]
       ],
-      "1010600020401": [
+      "1010000207001": [
         [
           [0, "I was carrying necklaces to Duskwater when the mud-smeared goblins of the south-western wildwood ambushed me."],
           [0, "Win back five of them for me."]
@@ -5650,7 +5650,7 @@
           [0, "Now I can finish my trip, %player_name%."]
         ]
       ],
-      "1010600020402": [
+      "1010000207002": [
         [
           [0, "I planted a hundred saplings in the south-western wildwood this spring."],
           [0, "The wrist-thick snakes trampled every one. Deal with eight for me."]
@@ -5665,7 +5665,7 @@
           [0, "Next spring the saplings will have a chance, %player_name%."]
         ]
       ],
-      "1010600020501": [
+      "1010000207101": [
         [
           [0, "I left my thorns in a tide pool on the lagoon."],
           [0, "The sideways-scuttling crabs took them for their own. Fetch five."]
@@ -5680,7 +5680,7 @@
           [0, "I'll keep them dry next time, %player_name%."]
         ]
       ],
-      "1010600020502": [
+      "1010000207102": [
         [
           [0, "The children of Duskwater love building sandcastles on the lagoon."],
           [0, "The barnacled old crabs knock them all down. Chase off ten."]
@@ -5695,7 +5695,7 @@
           [0, "The castles stand tall, %player_name%."]
         ]
       ],
-      "1010600020601": [
+      "1010000207201": [
         [
           [0, "The hissing green snakes have been dragging my bells into the walls of Duskwater."],
           [0, "I need five back before market day."]
@@ -5710,7 +5710,7 @@
           [0, "Just in time for market day, %player_name%."]
         ]
       ],
-      "1010600020602": [
+      "1010000207202": [
         [
           [0, "The bold, sharp-toothed rats of Duskwater have taken over the old well."],
           [0, "Clear eight of them so we can draw water."]
@@ -5725,7 +5725,7 @@
           [0, "Clean water, thank you, %player_name%."]
         ]
       ],
-      "1010600020701": [
+      "1010000207301": [
         [
           [0, "A wave knocked my satchel over and the shield-sized crabs scuttled off with my drumsticks."],
           [0, "They hide them in burrows along the south-western shore. Bring five back."]
@@ -5740,7 +5740,7 @@
           [0, "Wet, but mine, %player_name%."]
         ]
       ],
-      "1010600020702": [
+      "1010000207302": [
         [
           [0, "I dig for clams on the south-western shore."],
           [1, "Any luck?"],
@@ -5756,7 +5756,7 @@
           [0, "Clams for dinner, %player_name%!"]
         ]
       ],
-      "1010600020801": [
+      "1010000207401": [
         [
           [0, "The charcoal burners of the south-western forest have let their kilns go cold."],
           [0, "The squeaking fruit bats come out of the smoke at them. Clear twelve."]
@@ -5771,7 +5771,7 @@
           [0, "The kilns are glowing again, %player_name%."]
         ]
       ],
-      "1010600020802": [
+      "1010000207402": [
         [
           [0, "The scholars of Duskwater want to study iron helmets found in the wild."],
           [0, "The yellow-eyed striped snakes of the south-western forest seem to collect them. Gather five."]
@@ -5786,7 +5786,7 @@
           [0, "The scholars will be thrilled, %player_name%."]
         ]
       ],
-      "1010600020901": [
+      "1010000207501": [
         [
           [0, "The snapping red crabs of the southern beach collect shiny things."],
           [1, "Like what?"],
@@ -5802,7 +5802,7 @@
           [0, "Shiny and home, %player_name%."]
         ]
       ],
-      "1010600020902": [
+      "1010000207502": [
         [
           [0, "Turtles lay their eggs on the southern beach every summer."],
           [0, "The barnacled old crabs dig them up. Protect the nests and defeat ten."]
@@ -5817,7 +5817,7 @@
           [0, "The hatchlings will make it, %player_name%."]
         ]
       ],
-      "1010700020101": [
+      "1010000207601": [
         [
           [0, "Old Mother Bryn in Duskwater reads fortunes with dice."],
           [0, "The quick little adders of the southern forest stole hers. Bring three."]
@@ -5832,7 +5832,7 @@
           [0, "She says your future looks bright, %player_name%."]
         ]
       ],
-      "1010700020102": [
+      "1010000207602": [
         [
           [0, "The scouts of Duskwater train in the southern forest."],
           [0, "The cackling, knife-waving goblins keep ambushing the recruits. Show them how it is done: defeat ten."]
@@ -5847,7 +5847,7 @@
           [0, "The recruits all want to be you now, %player_name%."]
         ]
       ],
-      "1010700020201": [
+      "1010000207701": [
         [
           [0, "My pack burst on the muddy trail through the south-eastern wildwood."],
           [0, "The mud-smeared goblins carried off my feathers. Fetch four."]
@@ -5862,7 +5862,7 @@
           [0, "Mended pack, full pack, %player_name%."]
         ]
       ],
-      "1010700020202": [
+      "1010000207702": [
         [
           [0, "I'm a painter, and nowhere is lovelier than the south-eastern wildwood."],
           [1, "So what's wrong?"],
@@ -5878,7 +5878,7 @@
           [0, "My canvas is peaceful at last, %player_name%."]
         ]
       ],
-      "1010700020301": [
+      "1010000207801": [
         [
           [0, "A tinker in Duskwater pays well for eyeballs."],
           [0, "The sneaky, boot-stealing goblins of the south-eastern forest hoard them. Bring me three and we'll split the gold."]
@@ -5893,7 +5893,7 @@
           [0, "Pleasure doing business, %player_name%."]
         ]
       ],
-      "1010700020302": [
+      "1010000207802": [
         [
           [0, "I gather moss from the old oaks of the south-eastern forest for the healers of Duskwater."],
           [0, "The leather-winged bats make every trip a gamble. Thin out eight."]
@@ -5908,7 +5908,7 @@
           [0, "The healers will have their moss, %player_name%. Well done."]
         ]
       ],
-      "1010700020401": [
+      "1010000207901": [
         [
           [0, "My stall in the Duskwater market sells shards of broken glass."],
           [0, "Sold, until the bald-tailed rats got under the counter. Get five back."]
@@ -5923,7 +5923,7 @@
           [0, "Open for business again, %player_name%."]
         ]
       ],
-      "1010700020402": [
+      "1010000207902": [
         [
           [0, "My cat ran away from the fat brown snakes under my house in Duskwater."],
           [0, "Now I have snakes and no cat. Get rid of twelve."]
@@ -5938,7 +5938,7 @@
           [0, "The cat came back, %player_name%!"]
         ]
       ],
-      "1010700020501": [
+      "1010000208001": [
         [
           [0, "I'm an inventor, and my next gadget needs mirrors."],
           [0, "The hissing green snakes of the south-eastern woodland took my supply. Fetch four."]
@@ -5953,7 +5953,7 @@
           [0, "Now to see if it explodes, %player_name%."]
         ]
       ],
-      "1010700020502": [
+      "1010000208002": [
         [
           [0, "I've lived in the south-eastern woodland for forty years and never seen so many tin-helmeted goblins."],
           [0, "Something has stirred them up. Cut their numbers by ten."]
@@ -5968,7 +5968,7 @@
           [0, "Back to how it was when I was young, %player_name%."]
         ]
       ],
-      "1010700020601": [
+      "1010000208101": [
         [
           [0, "I carve toys for the children of Duskwater, and I paint them with padlocks."],
           [0, "The shrieking cave bats of the south-eastern wildwood took my supply. Bring three."]
@@ -5983,7 +5983,7 @@
           [0, "Toys for everyone this year, %player_name%."]
         ]
       ],
-      "1010700020602": [
+      "1010000208102": [
         [
           [0, "I lost a bet in Duskwater, and now I have to camp a night in the south-eastern wildwood."],
           [1, "Scared?"],
@@ -5999,7 +5999,7 @@
           [0, "I'll win the bet after all, %player_name%."]
         ]
       ],
-      "1010700020701": [
+      "1010000208201": [
         [
           [0, "My fishing boat is beached on the southern beach, and the shield-sized crabs have moved in."],
           [0, "Get rid of ten so I can push off."]
@@ -6014,7 +6014,7 @@
           [0, "Back to the sea, %player_name%!"]
         ]
       ],
-      "1010700020702": [
+      "1010000208202": [
         [
           [0, "The sailors of Duskwater trade in smoke pipes."],
           [0, "The sideways-scuttling crabs of the southern beach raided the jetty. Return four."]
@@ -6029,7 +6029,7 @@
           [0, "The sailors salute you, %player_name%."]
         ]
       ],
-      "1010700020801": [
+      "1010000208301": [
         [
           [0, "The barnacled old crabs of the south-eastern beach pinch anyone who walks the tideline."],
           [0, "Knock ten of them back into the surf."]
@@ -6044,7 +6044,7 @@
           [0, "The tideline is mine again, %player_name%."]
         ]
       ],
-      "1010700020802": [
+      "1010000208302": [
         [
           [0, "My picnic on the south-eastern beach ended with the snapping red crabs running off with my witch hats."],
           [0, "Get five back and you can join the next one."]
@@ -6059,7 +6059,7 @@
           [0, "Next picnic's on me, %player_name%."]
         ]
       ],
-      "1010700020901": [
+      "1010000208401": [
         [
           [0, "My cart tipped over in the south-eastern wildwood and my spiders went everywhere."],
           [0, "The cackling, knife-waving goblins grabbed them before I could. Fetch four."]
@@ -6074,7 +6074,7 @@
           [0, "Back in the cart where they belong, %player_name%."]
         ]
       ],
-      "1010700020902": [
+      "1010000208402": [
         [
           [0, "The stream through the south-eastern wildwood is the only clean water nearby."],
           [0, "The crow-sized bats gather at its banks every evening. Drive off eight."]
@@ -6154,35 +6154,35 @@
       "1020000010302": "Recover %count% fire %name%s from the %name2%s",
       "1020000010401": "Put out %count% %name%s staring down from the summit",
       "1020000010402": "Pick %count% ash %name% from the armour of %name2%s",
-      "1020100010301": "Break %count% iron-boned %name%s guarding the tomb",
-      "1020100010302": "Bring home %count% %name%s from the %name2%s",
-      "1020100010401": "Put down %count% %name%s rising around the tomb",
-      "1020100010402": "Return %count% royal %name%s stolen by %name2%s",
-      "1020200010301": "Clear %count% %name%s from the berry thickets",
-      "1020200010302": "Recover %count% antivenom %name%s from the %name2%s",
-      "1020200010401": "Defeat %count% %name% raiders on the north road",
-      "1020200010402": "Retrieve %count% watchtower %name%s from the %name2%s",
-      "1020300010301": "Clear %count% %name%s out of the inn's orchard",
-      "1020300010302": "Take back %count% %name%s from the %name2%s",
-      "1020300010401": "Save the archives from %count% %name%s",
-      "1020300010402": "Return %count% founders' %name%s taken by %name2%s",
+      "1020000110301": "Break %count% iron-boned %name%s guarding the tomb",
+      "1020000110302": "Bring home %count% %name%s from the %name2%s",
+      "1020000110401": "Put down %count% %name%s rising around the tomb",
+      "1020000110402": "Return %count% royal %name%s stolen by %name2%s",
+      "1020000210301": "Clear %count% %name%s from the berry thickets",
+      "1020000210302": "Recover %count% antivenom %name%s from the %name2%s",
+      "1020000210401": "Defeat %count% %name% raiders on the north road",
+      "1020000210402": "Retrieve %count% watchtower %name%s from the %name2%s",
+      "1020000310301": "Clear %count% %name%s out of the inn's orchard",
+      "1020000310302": "Take back %count% %name%s from the %name2%s",
+      "1020000310401": "Save the archives from %count% %name%s",
+      "1020000310402": "Return %count% founders' %name%s taken by %name2%s",
       "1020000010101": "Destroy %count% %name%s watching the lava vents",
       "1020000010102": "Recover %count% loaves of %name% from %name2%s",
       "1020000010201": "Strike down %count% %name%s marching from the caldera",
       "1020000010202": "Cut %count% %name%s from the %name2%s to reseal the wards",
-      "1020100010101": "Lay %count% %name%s of the lost caravan to rest",
-      "1020100010102": "Take back %count% %name%s from the %name2%s",
-      "1020100010201": "Bring down %count% %name%s raiding the desert wells",
-      "1020100010202": "Silence the legion by taking %count% %name%s from %name2%s",
-      "1020200010101": "Drive off %count% %name%s felling the elder oaks",
-      "1020200010102": "Retrieve %count% %name%s swallowed by %name2%s",
-      "1020200010201": "Thin the swarm of %count% %name%s draining the elder trees",
-      "1020200010202": "Return %count% owl %name%s stolen by %name2%s",
-      "1020300010101": "Clear %count% %name%s from the old mill",
-      "1020300010102": "Recover %count% glowcap %name%s from the %name2%s' nests",
-      "1020300010201": "Clear %count% %name%s out of the town canals",
-      "1020300010202": "Recover %count% festival %name%s carried off by %name2%s",
-      "1020300021101": "Cull %count% %name%s plaguing the town",
+      "1020000110101": "Lay %count% %name%s of the lost caravan to rest",
+      "1020000110102": "Take back %count% %name%s from the %name2%s",
+      "1020000110201": "Bring down %count% %name%s raiding the desert wells",
+      "1020000110202": "Silence the legion by taking %count% %name%s from %name2%s",
+      "1020000210101": "Drive off %count% %name%s felling the elder oaks",
+      "1020000210102": "Retrieve %count% %name%s swallowed by %name2%s",
+      "1020000210201": "Thin the swarm of %count% %name%s draining the elder trees",
+      "1020000210202": "Return %count% owl %name%s stolen by %name2%s",
+      "1020000310101": "Clear %count% %name%s from the old mill",
+      "1020000310102": "Recover %count% glowcap %name%s from the %name2%s' nests",
+      "1020000310201": "Clear %count% %name%s out of the town canals",
+      "1020000310202": "Recover %count% festival %name%s carried off by %name2%s",
+      "1020000021101": "Cull %count% %name%s plaguing the town",
       "HIDEANDSEEK": "Find %name%",
       "KILLMOBKIND": "Kill %count% %name%s",
       "GETITEMKIND": "Get %count% pieces of %name% from %name2%s",
@@ -6198,284 +6198,284 @@
       "1030000000801": "Kill %count% Skeletons.",
       "1030000000901": "Get %count% Skulls from Skeletons.",
       "1030000001001": "Destroy %count% Fires.",
-      "1010000010101": "Close %count% %name%s over the north-western volcano",
-      "1010000010102": "Recover %count% wormses from the %name2%s of the north-western volcano",
-      "1010000010201": "Defeat %count% %name%s of the north-western lava fields",
-      "1010000010202": "Recover %count% fine combs from the %name2%s of the north-western lava fields",
-      "1010000010301": "Put %count% %name%s of the northern desert to rest",
-      "1010000010302": "Recover %count% cheeses from the %name2%s of the northern desert",
-      "1010100010101": "Drive off %count% %name%s in the north-eastern desert",
-      "1010100010102": "Recover %count% books from the %name2%s of the north-eastern desert",
-      "1010100010201": "Teach %count% %name%s of the north-eastern woodland a lesson",
-      "1010100010202": "Recover %count% poison vials from the %name2%s of the north-eastern woodland",
-      "1010000010401": "Bring down %count% %name%s of the old army",
-      "1010000010402": "Recover %count% crystalses from the %name2%s of the north-western desert",
-      "1010000010501": "Put %count% %name%s of the north-western sands to rest",
-      "1010000010502": "Recover %count% necklaces from the %name2%s of the north-western sands",
-      "1010000010601": "Drive off %count% %name%s in the northern desert",
-      "1010000010602": "Recover %count% bone earings from the %name2%s of the northern desert",
-      "1010100010301": "Clear %count% %name%s out of Saltmere",
-      "1010100010302": "Recover %count% autumn leaves from the %name2%s of Saltmere",
-      "1010100010401": "Bring down %count% %name%s of the old army",
-      "1010100010402": "Recover %count% fire eyes from the %name2%s of the north-eastern sands",
-      "1010000010701": "Put %count% %name%s of the north-western sands to rest",
-      "1010000010702": "Recover %count% iron helmets from the %name2%s of the north-western sands",
-      "1010000010801": "Drive off %count% %name%s in the north-western sands",
-      "1010000010802": "Recover %count% clevers from the %name2%s of the north-western sands",
-      "1010100010501": "Bring down %count% %name%s of the old army",
-      "1010100010502": "Recover %count% rings from the %name2%s of the northern desert",
-      "1010100010601": "Put %count% %name%s of the north-eastern dunes to rest",
-      "1010100010602": "Recover %count% drums from the %name2%s of the north-eastern dunes",
-      "1010100010701": "Drive off %count% %name%s in the north-eastern sands",
-      "1010100010702": "Recover %count% animal skulls from the %name2%s of the north-eastern sands",
-      "1010200010101": "Thin out %count% %name%s over the north-western woodland",
-      "1010200010102": "Recover %count% drumsticks from the %name2%s of the north-western woodland",
-      "1010200010201": "Clear %count% %name%s out of the north-western woodland",
-      "1010200010202": "Recover %count% maces from the %name2%s of the north-western woodland",
-      "1010300010101": "Bring down %count% %name%s of the old army",
-      "1010300010102": "Recover %count% hooks from the %name2%s of the northern desert",
-      "1010300010201": "Banish %count% %name%s from the north-eastern lava fields",
-      "1010300010202": "Recover %count% padlocks from the %name2%s of the north-eastern lava fields",
-      "1010300010301": "Close %count% %name%s over the north-eastern lava fields",
-      "1010300010302": "Recover %count% clubs from the %name2%s of the north-eastern lava fields",
-      "1010200010301": "Teach %count% %name%s of the western woodland a lesson",
-      "1010200010302": "Recover %count% magic balls from the %name2%s of the western woodland",
-      "1010200010401": "Thin out %count% %name%s over the western woods",
-      "1010200010402": "Recover %count% throwing daggers from the %name2%s of the western woods",
-      "1010300010401": "Put %count% %name%s of the central desert to rest",
-      "1010300010402": "Recover %count% spiders from the %name2%s of the central desert",
-      "1010300010501": "Drive off %count% %name%s in the eastern dunes",
-      "1010300010502": "Recover %count% urns from the %name2%s of the eastern dunes",
-      "1010300010601": "Bring down %count% %name%s of the old army",
-      "1010300010602": "Recover %count% leaf wreaths from the %name2%s of the eastern desert",
-      "1010200010501": "Clear %count% %name%s out of Ashby",
-      "1010200010502": "Recover %count% wood horns from the %name2%s of Ashby",
-      "1010400010101": "Clear %count% %name%s out of the western woods",
-      "1010400010102": "Recover %count% battle axes from the %name2%s of the western woods",
-      "1010300010701": "Teach %count% %name%s of the central woods a lesson",
-      "1010300010702": "Recover %count% face masks from the %name2%s of the central woods",
-      "1010300010801": "Thin out %count% %name%s over the eastern woods",
-      "1010300010802": "Recover %count% rings from the %name2%s of the eastern woods",
-      "1010500010101": "Clear %count% %name%s out of the eastern woodland",
-      "1010500010102": "Recover %count% chests from the %name2%s of the eastern woodland",
-      "1010400010201": "Teach %count% %name%s of the western woods a lesson",
-      "1010400010202": "Recover %count% old bottles from the %name2%s of the western woods",
-      "1010400010301": "Thin out %count% %name%s over the western woods",
-      "1010400010302": "Recover %count% mushroomses from the %name2%s of the western woods",
-      "1010400010401": "Clear %count% %name%s out of the central woodland",
-      "1010400010402": "Recover %count% pendants from the %name2%s of the central woodland",
-      "1010500010201": "Teach %count% %name%s of the eastern woodland a lesson",
-      "1010500010202": "Recover %count% pot of golds from the %name2%s of the eastern woodland",
-      "1010500010301": "Thin out %count% %name%s over the eastern woodland",
-      "1010500010302": "Recover %count% keys from the %name2%s of the eastern woodland",
-      "1010400010501": "Drive %count% %name%s off the western lagoon",
-      "1010400010502": "Recover %count% human skulls from the %name2%s of the western lagoon",
-      "1010400010601": "Clear %count% %name%s out of the western forest",
-      "1010400010602": "Recover %count% broken glasses from the %name2%s of the western forest",
-      "1010500010401": "Teach %count% %name%s of the central forest a lesson",
-      "1010500010402": "Recover %count% smoke pipes from the %name2%s of the central forest",
-      "1010500010501": "Thin out %count% %name%s over the eastern woods",
-      "1010500010502": "Recover %count% witch hats from the %name2%s of the eastern woods",
-      "1010500010601": "Clear %count% %name%s out of the eastern woodland",
-      "1010500010602": "Recover %count% hand bags from the %name2%s of the eastern woodland",
-      "1010600010101": "Teach %count% %name%s of the south-western woodland a lesson",
-      "1010600010102": "Recover %count% necklaces from the %name2%s of the south-western woodland",
-      "1010600010201": "Thin out %count% %name%s over the south-western woods",
-      "1010600010202": "Recover %count% cauldrons from the %name2%s of the south-western woods",
-      "1010700010101": "Clear %count% %name%s out of the southern woods",
-      "1010700010102": "Recover %count% pink fireballs from the %name2%s of the southern woods",
-      "1010700010201": "Teach %count% %name%s of the south-eastern forest a lesson",
-      "1010700010202": "Recover %count% monster claws from the %name2%s of the south-eastern forest",
-      "1010700010301": "Thin out %count% %name%s over the south-eastern woodland",
-      "1010700010302": "Recover %count% bronze helmets from the %name2%s of the south-eastern woodland",
-      "1010600010301": "Clear %count% %name%s out of the south-western woodland",
-      "1010600010302": "Recover %count% poison vials from the %name2%s of the south-western woodland",
-      "1010600010401": "Drive %count% %name%s off the lagoon",
-      "1010600010402": "Recover %count% crates from the %name2%s of the lagoon",
-      "1010700010401": "Clear %count% %name%s out of Duskwater",
-      "1010700010402": "Recover %count% feather quills from the %name2%s of Duskwater",
-      "1010700010501": "Teach %count% %name%s of the south-eastern woodland a lesson",
-      "1010700010502": "Recover %count% goblets from the %name2%s of the south-eastern woodland",
-      "1010700010601": "Thin out %count% %name%s over the south-eastern woodland",
-      "1010700010602": "Recover %count% books from the %name2%s of the south-eastern woodland",
-      "1010600010501": "Drive %count% %name%s off the south-western coast",
-      "1010600010502": "Recover %count% pumpkins from the %name2%s of the south-western coast",
-      "1010600010601": "Clear %count% %name%s out of the south-western forest",
-      "1010600010602": "Recover %count% rings from the %name2%s of the south-western forest",
-      "1010700010701": "Drive %count% %name%s off the southern shore",
-      "1010700010702": "Recover %count% eyeballs from the %name2%s of the southern shore",
-      "1010700010801": "Drive %count% %name%s off the south-eastern shore",
-      "1010700010802": "Recover %count% lutes from the %name2%s of the south-eastern shore",
-      "1010700010901": "Teach %count% %name%s of the south-eastern forest a lesson",
-      "1010700010902": "Recover %count% dragon eggs from the %name2%s of the south-eastern forest",
-      "1010000020101": "Fetch %count% tooth necklaces from the %name2%s around the north-western volcano",
-      "1010000020102": "Thin out %count% %name%s around the north-western volcano",
-      "1010000020201": "Recover %count% old bottles from the %name2%s of the north-western volcano",
-      "1010000020202": "Drive %count% %name%s out of the north-western volcano",
-      "1010000020301": "Clear %count% %name%s from the northern desert",
-      "1010000020302": "Win back %count% goblets from the %name2%s of the northern desert",
-      "1010000020401": "Win back %count% autumn leaves from the %name2%s of the north-western wasteland",
-      "1010000020402": "Defeat %count% %name%s in the north-western wasteland",
-      "1010000020501": "Recover %count% poison vials from the %name2%s of the north-western wasteland",
-      "1010000020502": "Defeat %count% %name%s in the north-western wasteland",
-      "1010000020601": "Fetch %count% scrolls from the %name2%s around the northern wasteland",
-      "1010000020602": "Clear %count% %name%s from the northern wasteland",
-      "1010000020701": "Thin out %count% %name%s around the north-western wasteland",
-      "1010000020702": "Win back %count% anvils from the %name2%s of the north-western wasteland",
-      "1010000020801": "Fetch %count% sap jewels from the %name2%s around the north-western sand sea",
-      "1010000020802": "Drive %count% %name%s out of the north-western sand sea",
-      "1010000020901": "Thin out %count% %name%s around the northern wasteland",
-      "1010000020902": "Recover %count% lizards from the %name2%s of the northern wasteland",
-      "1010100020101": "Defeat %count% %name%s in the northern sand sea",
-      "1010100020102": "Fetch %count% monster claws from the %name2%s around the northern sand sea",
-      "1010100020201": "Drive %count% %name%s out of the north-eastern wasteland",
-      "1010100020202": "Win back %count% wood horns from the %name2%s of the north-eastern wasteland",
-      "1010100020301": "Recover %count% bones from the %name2%s of the north-eastern wildwood",
-      "1010100020302": "Clear %count% %name%s from the north-eastern wildwood",
-      "1010100020401": "Thin out %count% %name%s around the northern desert",
-      "1010100020402": "Recover %count% skull rings from the %name2%s of the northern desert",
-      "1010100020501": "Win back %count% frogs from the %name2%s of Saltmere",
-      "1010100020502": "Defeat %count% %name%s in Saltmere",
-      "1010100020601": "Fetch %count% throwing daggers from the %name2%s around the north-eastern sand sea",
-      "1010100020602": "Drive %count% %name%s out of the north-eastern sand sea",
-      "1010100020701": "Win back %count% maces from the %name2%s of the northern sand sea",
-      "1010100020702": "Clear %count% %name%s from the northern sand sea",
-      "1010100020801": "Fetch %count% melted candles from the %name2%s around the north-eastern wasteland",
-      "1010100020802": "Defeat %count% %name%s in the north-eastern wasteland",
-      "1010100020901": "Recover %count% gumnuts from the %name2%s of the north-eastern sand sea",
-      "1010100020902": "Clear %count% %name%s from the north-eastern sand sea",
-      "1010200020101": "Recover %count% lutes from the %name2%s of the north-western desert",
-      "1010200020102": "Drive %count% %name%s out of the north-western desert",
-      "1010200020201": "Fetch %count% fireballs from the %name2%s around the north-western sand sea",
-      "1010200020202": "Thin out %count% %name%s around the north-western sand sea",
-      "1010200020301": "Drive %count% %name%s out of the northern desert",
-      "1010200020302": "Win back %count% short swords from the %name2%s of the northern desert",
-      "1010200020401": "Thin out %count% %name%s around the north-western woodland",
-      "1010200020402": "Recover %count% compasses from the %name2%s of the north-western woodland",
-      "1010200020501": "Clear %count% %name%s from the north-western wildwood",
-      "1010200020502": "Win back %count% animal skulls from the %name2%s of the north-western wildwood",
-      "1010200020601": "Fetch %count% bugs from the %name2%s around the northern desert",
-      "1010200020602": "Defeat %count% %name%s in the northern desert",
-      "1010200020701": "Win back %count% leaf wreaths from the %name2%s of the western forest",
-      "1010200020702": "Clear %count% %name%s from the western forest",
-      "1010200020801": "Fetch %count% books from the %name2%s around the western wildwood",
-      "1010200020802": "Defeat %count% %name%s in the western wildwood",
-      "1010200020901": "Recover %count% poison vials from the %name2%s of the central wasteland",
-      "1010200020902": "Thin out %count% %name%s around the central wasteland",
-      "1010200021001": "Drive %count% %name%s out of Ashby",
-      "1010200021002": "Win back %count% pumpkins from the %name2%s of Ashby",
-      "1010200021101": "Defeat %count% %name%s in the western wildwood",
-      "1010200021102": "Recover %count% pink fireballs from the %name2%s of the western wildwood",
-      "1010200021201": "Thin out %count% %name%s around the central wildwood",
-      "1010200021202": "Fetch %count% crude daggers from the %name2%s around the central wildwood",
-      "1010300020101": "Fetch %count% rings from the %name2%s around the northern sand sea",
-      "1010300020102": "Clear %count% %name%s from the northern sand sea",
-      "1010300020201": "Recover %count% hand bags from the %name2%s of the north-eastern desert",
-      "1010300020202": "Drive %count% %name%s out of the north-eastern desert",
-      "1010300020301": "Clear %count% %name%s from the north-eastern wasteland",
-      "1010300020302": "Win back %count% crystals from the %name2%s of the north-eastern wasteland",
-      "1010300020401": "Thin out %count% %name%s around the northern wasteland",
-      "1010300020402": "Recover %count% shields from the %name2%s of the northern wasteland",
-      "1010300020501": "Win back %count% books from the %name2%s of the north-eastern ash slope",
-      "1010300020502": "Defeat %count% %name%s in the north-eastern ash slope",
-      "1010300020601": "Fetch %count% bone earings from the %name2%s around the north-eastern ash slope",
-      "1010300020602": "Drive %count% %name%s out of the north-eastern ash slope",
-      "1010300020701": "Fetch %count% feather quills from the %name2%s around the central sand sea",
-      "1010300020702": "Drive %count% %name%s out of the central sand sea",
-      "1010300020801": "Win back %count% dragon eggs from the %name2%s of the eastern sand sea",
-      "1010300020802": "Defeat %count% %name%s in the eastern sand sea",
-      "1010300020901": "Recover %count% cleavers from the %name2%s of the eastern wasteland",
-      "1010300020902": "Clear %count% %name%s from the eastern wasteland",
-      "1010300021001": "Win back %count% bronze helmets from the %name2%s of the central wildwood",
-      "1010300021002": "Thin out %count% %name%s around the central wildwood",
-      "1010300021101": "Recover %count% battle axes from the %name2%s of the eastern wildwood",
-      "1010300021102": "Thin out %count% %name%s around the eastern wildwood",
-      "1010300021201": "Clear %count% %name%s from the eastern woodland",
-      "1010300021202": "Fetch %count% candles from the %name2%s around the eastern woodland",
-      "1010400020101": "Defeat %count% %name%s in Ashby",
-      "1010400020102": "Win back %count% necklaces from the %name2%s of Ashby",
-      "1010400020201": "Drive %count% %name%s out of the western forest",
-      "1010400020202": "Recover %count% hooks from the %name2%s of the western forest",
-      "1010400020301": "Fetch %count% fine combs from the %name2%s around the central woodland",
-      "1010400020302": "Clear %count% %name%s from the central woodland",
-      "1010400020401": "Fetch %count% pendants from the %name2%s around the western woodland",
-      "1010400020402": "Defeat %count% %name%s in the western woodland",
-      "1010400020501": "Drive %count% %name%s out of the western wildwood",
-      "1010400020502": "Win back %count% clubs from the %name2%s of the western wildwood",
-      "1010400020601": "Recover %count% logs from the %name2%s of the central woodland",
-      "1010400020602": "Thin out %count% %name%s around the central woodland",
-      "1010400020701": "Thin out %count% %name%s around the lagoon",
-      "1010400020702": "Fetch %count% face masks from the %name2%s around the lagoon",
-      "1010400020801": "Drive %count% %name%s out of the western wildwood",
-      "1010400020802": "Recover %count% dream catchers from the %name2%s of the western wildwood",
-      "1010400020901": "Defeat %count% %name%s in the central wildwood",
-      "1010400020902": "Win back %count% crates from the %name2%s of the central wildwood",
-      "1010400021001": "Clear %count% %name%s from the south-western wildwood",
-      "1010400021002": "Recover %count% cards from the %name2%s of the south-western wildwood",
-      "1010400021101": "Defeat %count% %name%s in the south-western wildwood",
-      "1010400021102": "Fetch %count% coin pouches from the %name2%s around the south-western wildwood",
-      "1010400021201": "Clear %count% %name%s from the southern woodland",
-      "1010400021202": "Win back %count% gadgets from the %name2%s of the southern woodland",
-      "1010500020101": "Recover %count% sealed scrolls from the %name2%s of the central woodland",
-      "1010500020102": "Thin out %count% %name%s around the central woodland",
-      "1010500020201": "Win back %count% broaches from the %name2%s of the eastern wildwood",
-      "1010500020202": "Drive %count% %name%s out of the eastern wildwood",
-      "1010500020301": "Drive %count% %name%s out of the eastern woodland",
-      "1010500020302": "Fetch %count% rings from the %name2%s around the eastern woodland",
-      "1010500020401": "Recover %count% mortars and pestles from the %name2%s of the central forest",
-      "1010500020402": "Defeat %count% %name%s in the central forest",
-      "1010500020501": "Fetch %count% mushrooms from the %name2%s around the eastern wildwood",
-      "1010500020502": "Thin out %count% %name%s around the eastern wildwood",
-      "1010500020601": "Win back %count% scrolls from the %name2%s of the eastern wildwood",
-      "1010500020602": "Clear %count% %name%s from the eastern wildwood",
-      "1010500020701": "Defeat %count% %name%s in the central woodland",
-      "1010500020702": "Win back %count% squid from the %name2%s of the central woodland",
-      "1010500020801": "Fetch %count% necklaces from the %name2%s around the eastern wildwood",
-      "1010500020802": "Thin out %count% %name%s around the eastern wildwood",
-      "1010500020901": "Recover %count% leaves from the %name2%s of the eastern woodland",
-      "1010500020902": "Clear %count% %name%s from the eastern woodland",
-      "1010500021001": "Drive %count% %name%s out of the southern forest",
-      "1010500021002": "Win back %count% urns from the %name2%s of the southern forest",
-      "1010500021101": "Fetch %count% totem faces from the %name2%s around the south-eastern forest",
-      "1010500021102": "Clear %count% %name%s from the south-eastern forest",
-      "1010500021201": "Thin out %count% %name%s around the south-eastern wildwood",
-      "1010500021202": "Recover %count% basic knives from the %name2%s of the south-eastern wildwood",
-      "1010600020101": "Recover %count% cheeses from the %name2%s of the south-western woodland",
-      "1010600020102": "Defeat %count% %name%s in the south-western woodland",
-      "1010600020201": "Drive %count% %name%s out of the south-western forest",
-      "1010600020202": "Fetch %count% mushrooms from the %name2%s around the south-western forest",
-      "1010600020301": "Drive %count% %name%s out of the southern woodland",
-      "1010600020302": "Win back %count% keys from the %name2%s of the southern woodland",
-      "1010600020401": "Fetch %count% necklaces from the %name2%s around the south-western wildwood",
-      "1010600020402": "Defeat %count% %name%s in the south-western wildwood",
-      "1010600020501": "Recover %count% thorns from the %name2%s of the lagoon",
-      "1010600020502": "Clear %count% %name%s from the lagoon",
-      "1010600020601": "Win back %count% bells from the %name2%s of Duskwater",
-      "1010600020602": "Thin out %count% %name%s around Duskwater",
-      "1010600020701": "Fetch %count% drumsticks from the %name2%s around the south-western shore",
-      "1010600020702": "Defeat %count% %name%s in the south-western shore",
-      "1010600020801": "Thin out %count% %name%s around the south-western forest",
-      "1010600020802": "Recover %count% iron helmets from the %name2%s of the south-western forest",
-      "1010600020901": "Win back %count% mauls from the %name2%s of the southern beach",
-      "1010600020902": "Drive %count% %name%s out of the southern beach",
-      "1010700020101": "Win back %count% dice from the %name2%s of the southern forest",
-      "1010700020102": "Clear %count% %name%s from the southern forest",
-      "1010700020201": "Recover %count% feathers from the %name2%s of the south-eastern wildwood",
-      "1010700020202": "Clear %count% %name%s from the south-eastern wildwood",
-      "1010700020301": "Fetch %count% eyeballs from the %name2%s around the south-eastern forest",
-      "1010700020302": "Defeat %count% %name%s in the south-eastern forest",
-      "1010700020401": "Fetch %count% shards of broken glass from the %name2%s around Duskwater",
-      "1010700020402": "Drive %count% %name%s out of Duskwater",
-      "1010700020501": "Recover %count% mirrors from the %name2%s of the south-eastern woodland",
-      "1010700020502": "Thin out %count% %name%s around the south-eastern woodland",
-      "1010700020601": "Win back %count% padlocks from the %name2%s of the south-eastern wildwood",
-      "1010700020602": "Drive %count% %name%s out of the south-eastern wildwood",
-      "1010700020701": "Clear %count% %name%s from the southern beach",
-      "1010700020702": "Recover %count% smoke pipes from the %name2%s of the southern beach",
-      "1010700020801": "Thin out %count% %name%s around the south-eastern beach",
-      "1010700020802": "Fetch %count% witch hats from the %name2%s around the south-eastern beach",
-      "1010700020901": "Win back %count% spiders from the %name2%s of the south-eastern wildwood",
-      "1010700020902": "Defeat %count% %name%s in the south-eastern wildwood"
+      "1010000100101": "Close %count% %name%s over the north-western volcano",
+      "1010000100102": "Recover %count% wormses from the %name2%s of the north-western volcano",
+      "1010000100201": "Defeat %count% %name%s of the north-western lava fields",
+      "1010000100202": "Recover %count% fine combs from the %name2%s of the north-western lava fields",
+      "1010000100301": "Put %count% %name%s of the northern desert to rest",
+      "1010000100302": "Recover %count% cheeses from the %name2%s of the northern desert",
+      "1010000100901": "Drive off %count% %name%s in the north-eastern desert",
+      "1010000100902": "Recover %count% books from the %name2%s of the north-eastern desert",
+      "1010000101001": "Teach %count% %name%s of the north-eastern woodland a lesson",
+      "1010000101002": "Recover %count% poison vials from the %name2%s of the north-eastern woodland",
+      "1010000100401": "Bring down %count% %name%s of the old army",
+      "1010000100402": "Recover %count% crystalses from the %name2%s of the north-western desert",
+      "1010000100501": "Put %count% %name%s of the north-western sands to rest",
+      "1010000100502": "Recover %count% necklaces from the %name2%s of the north-western sands",
+      "1010000100601": "Drive off %count% %name%s in the northern desert",
+      "1010000100602": "Recover %count% bone earings from the %name2%s of the northern desert",
+      "1010000101101": "Clear %count% %name%s out of Saltmere",
+      "1010000101102": "Recover %count% autumn leaves from the %name2%s of Saltmere",
+      "1010000101201": "Bring down %count% %name%s of the old army",
+      "1010000101202": "Recover %count% fire eyes from the %name2%s of the north-eastern sands",
+      "1010000100701": "Put %count% %name%s of the north-western sands to rest",
+      "1010000100702": "Recover %count% iron helmets from the %name2%s of the north-western sands",
+      "1010000100801": "Drive off %count% %name%s in the north-western sands",
+      "1010000100802": "Recover %count% clevers from the %name2%s of the north-western sands",
+      "1010000101301": "Bring down %count% %name%s of the old army",
+      "1010000101302": "Recover %count% rings from the %name2%s of the northern desert",
+      "1010000101401": "Put %count% %name%s of the north-eastern dunes to rest",
+      "1010000101402": "Recover %count% drums from the %name2%s of the north-eastern dunes",
+      "1010000101501": "Drive off %count% %name%s in the north-eastern sands",
+      "1010000101502": "Recover %count% animal skulls from the %name2%s of the north-eastern sands",
+      "1010000101601": "Thin out %count% %name%s over the north-western woodland",
+      "1010000101602": "Recover %count% drumsticks from the %name2%s of the north-western woodland",
+      "1010000101701": "Clear %count% %name%s out of the north-western woodland",
+      "1010000101702": "Recover %count% maces from the %name2%s of the north-western woodland",
+      "1010000102101": "Bring down %count% %name%s of the old army",
+      "1010000102102": "Recover %count% hooks from the %name2%s of the northern desert",
+      "1010000102201": "Banish %count% %name%s from the north-eastern lava fields",
+      "1010000102202": "Recover %count% padlocks from the %name2%s of the north-eastern lava fields",
+      "1010000102301": "Close %count% %name%s over the north-eastern lava fields",
+      "1010000102302": "Recover %count% clubs from the %name2%s of the north-eastern lava fields",
+      "1010000101801": "Teach %count% %name%s of the western woodland a lesson",
+      "1010000101802": "Recover %count% magic balls from the %name2%s of the western woodland",
+      "1010000101901": "Thin out %count% %name%s over the western woods",
+      "1010000101902": "Recover %count% throwing daggers from the %name2%s of the western woods",
+      "1010000102401": "Put %count% %name%s of the central desert to rest",
+      "1010000102402": "Recover %count% spiders from the %name2%s of the central desert",
+      "1010000102501": "Drive off %count% %name%s in the eastern dunes",
+      "1010000102502": "Recover %count% urns from the %name2%s of the eastern dunes",
+      "1010000102601": "Bring down %count% %name%s of the old army",
+      "1010000102602": "Recover %count% leaf wreaths from the %name2%s of the eastern desert",
+      "1010000102001": "Clear %count% %name%s out of Ashby",
+      "1010000102002": "Recover %count% wood horns from the %name2%s of Ashby",
+      "1010000102901": "Clear %count% %name%s out of the western woods",
+      "1010000102902": "Recover %count% battle axes from the %name2%s of the western woods",
+      "1010000102701": "Teach %count% %name%s of the central woods a lesson",
+      "1010000102702": "Recover %count% face masks from the %name2%s of the central woods",
+      "1010000102801": "Thin out %count% %name%s over the eastern woods",
+      "1010000102802": "Recover %count% rings from the %name2%s of the eastern woods",
+      "1010000103501": "Clear %count% %name%s out of the eastern woodland",
+      "1010000103502": "Recover %count% chests from the %name2%s of the eastern woodland",
+      "1010000103001": "Teach %count% %name%s of the western woods a lesson",
+      "1010000103002": "Recover %count% old bottles from the %name2%s of the western woods",
+      "1010000103101": "Thin out %count% %name%s over the western woods",
+      "1010000103102": "Recover %count% mushroomses from the %name2%s of the western woods",
+      "1010000103201": "Clear %count% %name%s out of the central woodland",
+      "1010000103202": "Recover %count% pendants from the %name2%s of the central woodland",
+      "1010000103601": "Teach %count% %name%s of the eastern woodland a lesson",
+      "1010000103602": "Recover %count% pot of golds from the %name2%s of the eastern woodland",
+      "1010000103701": "Thin out %count% %name%s over the eastern woodland",
+      "1010000103702": "Recover %count% keys from the %name2%s of the eastern woodland",
+      "1010000103301": "Drive %count% %name%s off the western lagoon",
+      "1010000103302": "Recover %count% human skulls from the %name2%s of the western lagoon",
+      "1010000103401": "Clear %count% %name%s out of the western forest",
+      "1010000103402": "Recover %count% broken glasses from the %name2%s of the western forest",
+      "1010000103801": "Teach %count% %name%s of the central forest a lesson",
+      "1010000103802": "Recover %count% smoke pipes from the %name2%s of the central forest",
+      "1010000103901": "Thin out %count% %name%s over the eastern woods",
+      "1010000103902": "Recover %count% witch hats from the %name2%s of the eastern woods",
+      "1010000104001": "Clear %count% %name%s out of the eastern woodland",
+      "1010000104002": "Recover %count% hand bags from the %name2%s of the eastern woodland",
+      "1010000104101": "Teach %count% %name%s of the south-western woodland a lesson",
+      "1010000104102": "Recover %count% necklaces from the %name2%s of the south-western woodland",
+      "1010000104201": "Thin out %count% %name%s over the south-western woods",
+      "1010000104202": "Recover %count% cauldrons from the %name2%s of the south-western woods",
+      "1010000104701": "Clear %count% %name%s out of the southern woods",
+      "1010000104702": "Recover %count% pink fireballs from the %name2%s of the southern woods",
+      "1010000104801": "Teach %count% %name%s of the south-eastern forest a lesson",
+      "1010000104802": "Recover %count% monster claws from the %name2%s of the south-eastern forest",
+      "1010000104901": "Thin out %count% %name%s over the south-eastern woodland",
+      "1010000104902": "Recover %count% bronze helmets from the %name2%s of the south-eastern woodland",
+      "1010000104301": "Clear %count% %name%s out of the south-western woodland",
+      "1010000104302": "Recover %count% poison vials from the %name2%s of the south-western woodland",
+      "1010000104401": "Drive %count% %name%s off the lagoon",
+      "1010000104402": "Recover %count% crates from the %name2%s of the lagoon",
+      "1010000105001": "Clear %count% %name%s out of Duskwater",
+      "1010000105002": "Recover %count% feather quills from the %name2%s of Duskwater",
+      "1010000105101": "Teach %count% %name%s of the south-eastern woodland a lesson",
+      "1010000105102": "Recover %count% goblets from the %name2%s of the south-eastern woodland",
+      "1010000105201": "Thin out %count% %name%s over the south-eastern woodland",
+      "1010000105202": "Recover %count% books from the %name2%s of the south-eastern woodland",
+      "1010000104501": "Drive %count% %name%s off the south-western coast",
+      "1010000104502": "Recover %count% pumpkins from the %name2%s of the south-western coast",
+      "1010000104601": "Clear %count% %name%s out of the south-western forest",
+      "1010000104602": "Recover %count% rings from the %name2%s of the south-western forest",
+      "1010000105301": "Drive %count% %name%s off the southern shore",
+      "1010000105302": "Recover %count% eyeballs from the %name2%s of the southern shore",
+      "1010000105401": "Drive %count% %name%s off the south-eastern shore",
+      "1010000105402": "Recover %count% lutes from the %name2%s of the south-eastern shore",
+      "1010000105501": "Teach %count% %name%s of the south-eastern forest a lesson",
+      "1010000105502": "Recover %count% dragon eggs from the %name2%s of the south-eastern forest",
+      "1010000200101": "Fetch %count% tooth necklaces from the %name2%s around the north-western volcano",
+      "1010000200102": "Thin out %count% %name%s around the north-western volcano",
+      "1010000200201": "Recover %count% old bottles from the %name2%s of the north-western volcano",
+      "1010000200202": "Drive %count% %name%s out of the north-western volcano",
+      "1010000200301": "Clear %count% %name%s from the northern desert",
+      "1010000200302": "Win back %count% goblets from the %name2%s of the northern desert",
+      "1010000200401": "Win back %count% autumn leaves from the %name2%s of the north-western wasteland",
+      "1010000200402": "Defeat %count% %name%s in the north-western wasteland",
+      "1010000200501": "Recover %count% poison vials from the %name2%s of the north-western wasteland",
+      "1010000200502": "Defeat %count% %name%s in the north-western wasteland",
+      "1010000200601": "Fetch %count% scrolls from the %name2%s around the northern wasteland",
+      "1010000200602": "Clear %count% %name%s from the northern wasteland",
+      "1010000200701": "Thin out %count% %name%s around the north-western wasteland",
+      "1010000200702": "Win back %count% anvils from the %name2%s of the north-western wasteland",
+      "1010000200801": "Fetch %count% sap jewels from the %name2%s around the north-western sand sea",
+      "1010000200802": "Drive %count% %name%s out of the north-western sand sea",
+      "1010000200901": "Thin out %count% %name%s around the northern wasteland",
+      "1010000200902": "Recover %count% lizards from the %name2%s of the northern wasteland",
+      "1010000201001": "Defeat %count% %name%s in the northern sand sea",
+      "1010000201002": "Fetch %count% monster claws from the %name2%s around the northern sand sea",
+      "1010000201101": "Drive %count% %name%s out of the north-eastern wasteland",
+      "1010000201102": "Win back %count% wood horns from the %name2%s of the north-eastern wasteland",
+      "1010000201201": "Recover %count% bones from the %name2%s of the north-eastern wildwood",
+      "1010000201202": "Clear %count% %name%s from the north-eastern wildwood",
+      "1010000201301": "Thin out %count% %name%s around the northern desert",
+      "1010000201302": "Recover %count% skull rings from the %name2%s of the northern desert",
+      "1010000201401": "Win back %count% frogs from the %name2%s of Saltmere",
+      "1010000201402": "Defeat %count% %name%s in Saltmere",
+      "1010000201501": "Fetch %count% throwing daggers from the %name2%s around the north-eastern sand sea",
+      "1010000201502": "Drive %count% %name%s out of the north-eastern sand sea",
+      "1010000201601": "Win back %count% maces from the %name2%s of the northern sand sea",
+      "1010000201602": "Clear %count% %name%s from the northern sand sea",
+      "1010000201701": "Fetch %count% melted candles from the %name2%s around the north-eastern wasteland",
+      "1010000201702": "Defeat %count% %name%s in the north-eastern wasteland",
+      "1010000201801": "Recover %count% gumnuts from the %name2%s of the north-eastern sand sea",
+      "1010000201802": "Clear %count% %name%s from the north-eastern sand sea",
+      "1010000201901": "Recover %count% lutes from the %name2%s of the north-western desert",
+      "1010000201902": "Drive %count% %name%s out of the north-western desert",
+      "1010000202001": "Fetch %count% fireballs from the %name2%s around the north-western sand sea",
+      "1010000202002": "Thin out %count% %name%s around the north-western sand sea",
+      "1010000202101": "Drive %count% %name%s out of the northern desert",
+      "1010000202102": "Win back %count% short swords from the %name2%s of the northern desert",
+      "1010000202201": "Thin out %count% %name%s around the north-western woodland",
+      "1010000202202": "Recover %count% compasses from the %name2%s of the north-western woodland",
+      "1010000202301": "Clear %count% %name%s from the north-western wildwood",
+      "1010000202302": "Win back %count% animal skulls from the %name2%s of the north-western wildwood",
+      "1010000202401": "Fetch %count% bugs from the %name2%s around the northern desert",
+      "1010000202402": "Defeat %count% %name%s in the northern desert",
+      "1010000202501": "Win back %count% leaf wreaths from the %name2%s of the western forest",
+      "1010000202502": "Clear %count% %name%s from the western forest",
+      "1010000202601": "Fetch %count% books from the %name2%s around the western wildwood",
+      "1010000202602": "Defeat %count% %name%s in the western wildwood",
+      "1010000202701": "Recover %count% poison vials from the %name2%s of the central wasteland",
+      "1010000202702": "Thin out %count% %name%s around the central wasteland",
+      "1010000202801": "Drive %count% %name%s out of Ashby",
+      "1010000202802": "Win back %count% pumpkins from the %name2%s of Ashby",
+      "1010000202901": "Defeat %count% %name%s in the western wildwood",
+      "1010000202902": "Recover %count% pink fireballs from the %name2%s of the western wildwood",
+      "1010000203001": "Thin out %count% %name%s around the central wildwood",
+      "1010000203002": "Fetch %count% crude daggers from the %name2%s around the central wildwood",
+      "1010000203101": "Fetch %count% rings from the %name2%s around the northern sand sea",
+      "1010000203102": "Clear %count% %name%s from the northern sand sea",
+      "1010000203201": "Recover %count% hand bags from the %name2%s of the north-eastern desert",
+      "1010000203202": "Drive %count% %name%s out of the north-eastern desert",
+      "1010000203301": "Clear %count% %name%s from the north-eastern wasteland",
+      "1010000203302": "Win back %count% crystals from the %name2%s of the north-eastern wasteland",
+      "1010000203401": "Thin out %count% %name%s around the northern wasteland",
+      "1010000203402": "Recover %count% shields from the %name2%s of the northern wasteland",
+      "1010000203501": "Win back %count% books from the %name2%s of the north-eastern ash slope",
+      "1010000203502": "Defeat %count% %name%s in the north-eastern ash slope",
+      "1010000203601": "Fetch %count% bone earings from the %name2%s around the north-eastern ash slope",
+      "1010000203602": "Drive %count% %name%s out of the north-eastern ash slope",
+      "1010000203701": "Fetch %count% feather quills from the %name2%s around the central sand sea",
+      "1010000203702": "Drive %count% %name%s out of the central sand sea",
+      "1010000203801": "Win back %count% dragon eggs from the %name2%s of the eastern sand sea",
+      "1010000203802": "Defeat %count% %name%s in the eastern sand sea",
+      "1010000203901": "Recover %count% cleavers from the %name2%s of the eastern wasteland",
+      "1010000203902": "Clear %count% %name%s from the eastern wasteland",
+      "1010000204001": "Win back %count% bronze helmets from the %name2%s of the central wildwood",
+      "1010000204002": "Thin out %count% %name%s around the central wildwood",
+      "1010000204101": "Recover %count% battle axes from the %name2%s of the eastern wildwood",
+      "1010000204102": "Thin out %count% %name%s around the eastern wildwood",
+      "1010000204201": "Clear %count% %name%s from the eastern woodland",
+      "1010000204202": "Fetch %count% candles from the %name2%s around the eastern woodland",
+      "1010000204301": "Defeat %count% %name%s in Ashby",
+      "1010000204302": "Win back %count% necklaces from the %name2%s of Ashby",
+      "1010000204401": "Drive %count% %name%s out of the western forest",
+      "1010000204402": "Recover %count% hooks from the %name2%s of the western forest",
+      "1010000204501": "Fetch %count% fine combs from the %name2%s around the central woodland",
+      "1010000204502": "Clear %count% %name%s from the central woodland",
+      "1010000204601": "Fetch %count% pendants from the %name2%s around the western woodland",
+      "1010000204602": "Defeat %count% %name%s in the western woodland",
+      "1010000204701": "Drive %count% %name%s out of the western wildwood",
+      "1010000204702": "Win back %count% clubs from the %name2%s of the western wildwood",
+      "1010000204801": "Recover %count% logs from the %name2%s of the central woodland",
+      "1010000204802": "Thin out %count% %name%s around the central woodland",
+      "1010000204901": "Thin out %count% %name%s around the lagoon",
+      "1010000204902": "Fetch %count% face masks from the %name2%s around the lagoon",
+      "1010000205001": "Drive %count% %name%s out of the western wildwood",
+      "1010000205002": "Recover %count% dream catchers from the %name2%s of the western wildwood",
+      "1010000205101": "Defeat %count% %name%s in the central wildwood",
+      "1010000205102": "Win back %count% crates from the %name2%s of the central wildwood",
+      "1010000205201": "Clear %count% %name%s from the south-western wildwood",
+      "1010000205202": "Recover %count% cards from the %name2%s of the south-western wildwood",
+      "1010000205301": "Defeat %count% %name%s in the south-western wildwood",
+      "1010000205302": "Fetch %count% coin pouches from the %name2%s around the south-western wildwood",
+      "1010000205401": "Clear %count% %name%s from the southern woodland",
+      "1010000205402": "Win back %count% gadgets from the %name2%s of the southern woodland",
+      "1010000205501": "Recover %count% sealed scrolls from the %name2%s of the central woodland",
+      "1010000205502": "Thin out %count% %name%s around the central woodland",
+      "1010000205601": "Win back %count% broaches from the %name2%s of the eastern wildwood",
+      "1010000205602": "Drive %count% %name%s out of the eastern wildwood",
+      "1010000205701": "Drive %count% %name%s out of the eastern woodland",
+      "1010000205702": "Fetch %count% rings from the %name2%s around the eastern woodland",
+      "1010000205801": "Recover %count% mortars and pestles from the %name2%s of the central forest",
+      "1010000205802": "Defeat %count% %name%s in the central forest",
+      "1010000205901": "Fetch %count% mushrooms from the %name2%s around the eastern wildwood",
+      "1010000205902": "Thin out %count% %name%s around the eastern wildwood",
+      "1010000206001": "Win back %count% scrolls from the %name2%s of the eastern wildwood",
+      "1010000206002": "Clear %count% %name%s from the eastern wildwood",
+      "1010000206101": "Defeat %count% %name%s in the central woodland",
+      "1010000206102": "Win back %count% squid from the %name2%s of the central woodland",
+      "1010000206201": "Fetch %count% necklaces from the %name2%s around the eastern wildwood",
+      "1010000206202": "Thin out %count% %name%s around the eastern wildwood",
+      "1010000206301": "Recover %count% leaves from the %name2%s of the eastern woodland",
+      "1010000206302": "Clear %count% %name%s from the eastern woodland",
+      "1010000206401": "Drive %count% %name%s out of the southern forest",
+      "1010000206402": "Win back %count% urns from the %name2%s of the southern forest",
+      "1010000206501": "Fetch %count% totem faces from the %name2%s around the south-eastern forest",
+      "1010000206502": "Clear %count% %name%s from the south-eastern forest",
+      "1010000206601": "Thin out %count% %name%s around the south-eastern wildwood",
+      "1010000206602": "Recover %count% basic knives from the %name2%s of the south-eastern wildwood",
+      "1010000206701": "Recover %count% cheeses from the %name2%s of the south-western woodland",
+      "1010000206702": "Defeat %count% %name%s in the south-western woodland",
+      "1010000206801": "Drive %count% %name%s out of the south-western forest",
+      "1010000206802": "Fetch %count% mushrooms from the %name2%s around the south-western forest",
+      "1010000206901": "Drive %count% %name%s out of the southern woodland",
+      "1010000206902": "Win back %count% keys from the %name2%s of the southern woodland",
+      "1010000207001": "Fetch %count% necklaces from the %name2%s around the south-western wildwood",
+      "1010000207002": "Defeat %count% %name%s in the south-western wildwood",
+      "1010000207101": "Recover %count% thorns from the %name2%s of the lagoon",
+      "1010000207102": "Clear %count% %name%s from the lagoon",
+      "1010000207201": "Win back %count% bells from the %name2%s of Duskwater",
+      "1010000207202": "Thin out %count% %name%s around Duskwater",
+      "1010000207301": "Fetch %count% drumsticks from the %name2%s around the south-western shore",
+      "1010000207302": "Defeat %count% %name%s in the south-western shore",
+      "1010000207401": "Thin out %count% %name%s around the south-western forest",
+      "1010000207402": "Recover %count% iron helmets from the %name2%s of the south-western forest",
+      "1010000207501": "Win back %count% mauls from the %name2%s of the southern beach",
+      "1010000207502": "Drive %count% %name%s out of the southern beach",
+      "1010000207601": "Win back %count% dice from the %name2%s of the southern forest",
+      "1010000207602": "Clear %count% %name%s from the southern forest",
+      "1010000207701": "Recover %count% feathers from the %name2%s of the south-eastern wildwood",
+      "1010000207702": "Clear %count% %name%s from the south-eastern wildwood",
+      "1010000207801": "Fetch %count% eyeballs from the %name2%s around the south-eastern forest",
+      "1010000207802": "Defeat %count% %name%s in the south-eastern forest",
+      "1010000207901": "Fetch %count% shards of broken glass from the %name2%s around Duskwater",
+      "1010000207902": "Drive %count% %name%s out of Duskwater",
+      "1010000208001": "Recover %count% mirrors from the %name2%s of the south-eastern woodland",
+      "1010000208002": "Thin out %count% %name%s around the south-eastern woodland",
+      "1010000208101": "Win back %count% padlocks from the %name2%s of the south-eastern wildwood",
+      "1010000208102": "Drive %count% %name%s out of the south-eastern wildwood",
+      "1010000208201": "Clear %count% %name%s from the southern beach",
+      "1010000208202": "Recover %count% smoke pipes from the %name2%s of the southern beach",
+      "1010000208301": "Thin out %count% %name%s around the south-eastern beach",
+      "1010000208302": "Fetch %count% witch hats from the %name2%s around the south-eastern beach",
+      "1010000208401": "Win back %count% spiders from the %name2%s of the south-eastern wildwood",
+      "1010000208402": "Defeat %count% %name%s in the south-eastern wildwood"
     }
   }
 }

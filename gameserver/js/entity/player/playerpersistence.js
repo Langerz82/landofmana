@@ -16,6 +16,7 @@
 // along with this program. See the LICENSE file in the project root,
 // or <https://www.gnu.org/licenses/>.
 
+import { fromSavedPosition } from '../../map/mapgroup.js';
 import Utils from '../../utils.js';
 import { Types } from '../../common.js';
 import SkillData from '../../data/skilldata.js';
@@ -42,12 +43,16 @@ class PlayerPersistence {
         // can name a map that no longer exists (e.g. an index from before the maps were renumbered,
         // gameserver map/mapmanager.js). Stats loaded below can already send HP/EP changes to the
         // player's map (sendChangePoints), so it must be a real one.
+        // The saved position is the map's base index and a full-map position (worldhandler.js,
+        // map/mapgroup.js toSavedPosition()), so it still means the same spot after the map is split
+        // differently; fromSavedPosition() finds the part holding it (and still reads older saves:
+        // a part's own index and coordinates).
         const world = entity.world;
-        const saved = world.maps[parseInt(db_player.map[0])];
-        entity.map = (world.getStartMap && world.getStartMap()) || saved || world.maps[0];
+        const saved = fromSavedPosition(world.maps, db_player.map[0], db_player.map[1], db_player.map[2]);
+        entity.map = (world.getStartMap && world.getStartMap()) || (saved && saved.map) || world.maps[0];
         entity.mapIndex = entity.map.index;
-        entity.x = parseInt(db_player.map[1]);
-        entity.y = parseInt(db_player.map[2]);
+        entity.x = saved ? saved.x : parseInt(db_player.map[1]);
+        entity.y = saved ? saved.y : parseInt(db_player.map[2]);
         entity.orientation = parseInt(db_player.map[3]);
     }
 

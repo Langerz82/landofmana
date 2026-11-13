@@ -322,7 +322,7 @@ class EntityQuests {
     }
 
     // "No more quests" dialogue. Each NPC can have its own, fully written
-    // in lang.json -- NO_MORE_QUESTS[<map index>][<entity id>] (e.g. map1's
+    // in lang.json -- NO_MORE_QUESTS[<map's base index>][<entity id>] (e.g. map1's
     // "head EAST and look for Baelan" chain) -- so a translation only has to
     // change lang.json; no direction or name words come from the server.
     // An NPC without one gets NO_MORE_QUESTS_DEFAULT. The entity id is the
@@ -332,7 +332,7 @@ class EntityQuests {
         const entity = this.entity;
         const own = [
             'NO_MORE_QUESTS',
-            String(entity.map.index),
+            String(entity.questMapIndex),
             String(entity.id)
         ];
         const path =
@@ -359,7 +359,7 @@ class EntityQuests {
     nextDynamicQuestNumber(player) {
         const prefix = QuestId.questIdPrefix(
             QUEST_DYNAMIC,
-            this.entity.map.index,
+            this.entity.questMapIndex,
             this.entity.id
         );
         const fromThisNpc = (id) =>
@@ -378,7 +378,7 @@ class EntityQuests {
     dynamicQuestId(number) {
         return QuestId.makeQuestId(
             QUEST_DYNAMIC,
-            this.entity.map.index,
+            this.entity.questMapIndex,
             this.entity.id,
             number
         );

@@ -15,9 +15,6 @@
 // along with this program. See the LICENSE file in the project root,
 // or <https://www.gnu.org/licenses/>.
 
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
 import Messages from '../message.js';
 import { Types } from '../common.js';
 import MobData from '../data/mobdata.js';
@@ -25,11 +22,20 @@ import NpcData from '../data/npcdata.js';
 import Mob from '../entity/mob/mob.js';
 import Node from '../entity/node.js';
 import { G_TILESIZE, MAX_FIXED_ID } from '../constants.js';
+import { GroupEntityFile, partHasPoint } from './mapgroup.js';
 
 // ADMIN: entities placed in-game by an admin with the /spawn chat command
-// (see packets/admincommands.js). Each map gets its own store, persisted to
+// (see packets/admincommands.js), and the NPCs/bosses the map tools write.
+// Each map gets its own store, persisted to
 //
-//     gameserver/data/maps/<map name>/entity.json
+//     gameserver/data/maps/<map>/entity.json
+//
+// -- one file for ALL the parts of a split map (data/maps/map1/entity.json
+// for map1/map1_0_0 ... map1/map1_int), in full-map pixel coordinates. Each
+// part spawns the records inside its own area of the full map, moved to its
+// own coordinates, and saves through the one shared copy of the file
+// (map/mapgroup.js GroupEntityFile), so re-splitting the map changes nothing
+// here. Ids are unique in the whole file.
 //
 // as a plain JSON array of records:
 //
@@ -38,8 +44,8 @@ import { G_TILESIZE, MAX_FIXED_ID } from '../constants.js';
 //     { "type": "npcstatic", "kind": 5, "x": 16333, "y": 16390,
 //       "name": "Bob" }
 //
-// x/y are the world (pixel) centre of the tile the admin stood on when they
-// ran /spawn; entities are always snapped to tile centres when spawned
+// x/y are the full-map (pixel) centre of the tile the admin stood on when
+// they ran /spawn; entities are always snapped to tile centres when spawned
 // (mapentities.js), so hand-edited values off-centre get centred too.
 // Everything after x/y is
 // optional: `name`, `level`, `orientation` (up/down/left/right or u/d/l/r;
@@ -54,18 +60,12 @@ import { G_TILESIZE, MAX_FIXED_ID } from '../constants.js';
 //       "boss": 3, "aggro": 1, "name": "Ogre Chief" }
 //     { "type": "node", "kind": 99, "x": 96, "y": 848, "level": 8,
 //       "spawnDelay": 960 } An NPC's quests aren't listed here: they're the quests
-// whose ids name its map index and entity id (questid.js), added with the
+// whose ids name its map's base index and entity id (questid.js), added with the
 // admin /addquest command. The file is safe to
 // hand-edit while the server is stopped; it is re-read and every record
 // respawned each time the map
 // loads (MapManager calls load() last in each map's ready callback, after
 // the procedural spawns, so it never shifts the ids those get).
-//
-// Resolved off this module's own location (not process.cwd()) for the same
-// reason as data/entityspawndata.js's SPAWN_DATA_PATH.
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const MAPS_DATA_DIR = path.join(__dirname, '../../data/maps');
 
 // Chat-command type name -> Types.EntityTypes value. Aliases point at the
 // same canonical name, which is what gets written to entity.json.
@@ -112,15 +112,15 @@ const MAX_LEVEL = 999;
 class MapEntityStore {
     constructor(map) {
         this.map = map;
-        this.filePath = path.join(MAPS_DATA_DIR, map.name, 'entity.json');
-        // Persisted records, in file order.
+        // The map's shared entity.json (all the parts of a split map).
+        this.file = GroupEntityFile.get(map.name);
+        this.filePath = this.file.filePath;
+        // This part's records (objects of this.file.records, in full-map
+        // coordinates), in file order.
         this.records = [];
         // Live entity id -> its record, so /despawn can find and drop the
         // right line from entity.json.
         this.byEntityId = new Map();
-        // Serializes writes so two quick /spawn commands can't interleave
-        // their file writes.
-        this.writeChain = Promise.resolve();
     }
 
     static get typeNames() {
@@ -180,62 +180,30 @@ class MapEntityStore {
         return null;
     }
 
-    // Reads entity.json and spawns every record. Synchronous on purpose:
-    // it runs once per map during startup, before any player can connect.
+    // Reads entity.json (once for all the parts of a map) and spawns every
+    // record inside this part. Synchronous on purpose: it runs once per map
+    // during startup, before any player can connect.
     load() {
-        let raw;
-        try {
-            raw = fs.readFileSync(this.filePath, 'utf8');
-        } catch (err) {
-            if (err.code !== 'ENOENT')
-                console.error(
-                    'MapEntityStore: failed to read ' +
-                        this.filePath +
-                        ': ' +
-                        err.message
-                );
-            return;
-        }
+        const all = this.file.read();
+        const map = this.map;
+        const entities = map.entities;
 
-        let list;
-        try {
-            list = JSON.parse(raw);
-        } catch (err) {
-            console.error(
-                'MapEntityStore: failed to parse ' +
-                    this.filePath +
-                    ': ' +
-                    err.message
-            );
-            return;
-        }
-        if (!Array.isArray(list)) {
-            console.error(
-                'MapEntityStore: ' + this.filePath + ' is not a JSON array.'
-            );
-            return;
-        }
-
-        // Fixed ids: every record has its own "id", and the entity is spawned
-        // with exactly that entity id -- so removing one record (/despawn)
-        // never renumbers the others, and an NPC's npcQuestId and its
-        // lang.json NO_MORE_QUESTS[<map index>][<id>] line stay put. This
+        // Fixed ids: every record has its own "id", unique in the whole file,
+        // and the entity is spawned with exactly that entity id -- so removing
+        // one record (/despawn) never renumbers the others, and an NPC's
+        // quests (questid.js: the map's base index + this id) and its
+        // lang.json NO_MORE_QUESTS[<base index>][<id>] line stay put. This
         // runs before anything else spawns on the map (mapmanager.js), so the
         // ids are free; afterwards the map's id counter carries on above the
-        // highest one. A record without a usable id (missing, a duplicate or
-        // out of range) gets the next free id, and the file is saved with it.
-        const entities = this.map.entities;
-        const used = new Set();
-        for (const item of list) {
-            const id = item && Number(item.id);
-            if (Number.isInteger(id) && id >= 1 && id <= MAX_FIXED_ID && !used.has(id))
-                used.add(id);
-        }
-        let maxId = Math.max(0, entities.entityCount, ...used);
+        // highest id in the file, so nothing spawned later on any part shares
+        // an id with a record. A record without a usable id (missing, a
+        // duplicate in the file, or out of range) gets the next free id, and
+        // the file is saved with it.
         const firstFreeAfterLoad = entities.entityCount;
+        let maxId = Math.max(0, firstFreeAfterLoad, this.file.maxId());
         const seen = new Set();
         let assigned = 0;
-        for (const item of list) {
+        for (const item of all) {
             if (!item || typeof item !== 'object') continue;
             const id = Number(item.id);
             if (
@@ -252,7 +220,17 @@ class MapEntityStore {
         }
 
         let spawned = 0;
-        for (const item of list) {
+        for (let i = 0; i < all.length; i++) {
+            const item = all[i];
+            if (!item || typeof item !== 'object') continue;
+            const x = Number(item.x);
+            const y = Number(item.y);
+            // another part's record (a record with a bad position goes to the
+            // part at 0,0, which reports it below)
+            if (Number.isFinite(x) && Number.isFinite(y)) {
+                if (!partHasPoint(map, x, y)) continue;
+            } else if (map.offsetX !== 0 || map.offsetY !== 0) continue;
+
             const rec = this._normalizeRecord(item);
             const err = MapEntityStore.validate(rec);
             if (err) {
@@ -266,13 +244,14 @@ class MapEntityStore {
                         ' -- ' +
                         err
                 );
-                this.records.push(item);
                 continue;
             }
+            // the shared file keeps the normalized record
+            all[i] = rec;
             this.records.push(rec);
             // the next entity created gets ++entityCount, i.e. exactly rec.id
             entities.entityCount = rec.id - 1;
-            const entity = this._spawn(rec);
+            const entity = this._spawn(this._local(rec));
             if (entity) {
                 this.byEntityId.set(entity.id, rec);
                 spawned++;
@@ -291,7 +270,7 @@ class MapEntityStore {
         }
         console.info(
             'MapEntityStore: ' +
-                this.map.name +
+                map.name +
                 ' -- spawned ' +
                 spawned +
                 ' saved entit' +
@@ -301,24 +280,43 @@ class MapEntityStore {
         );
     }
 
+    // A record (full-map coordinates) -> a copy in this part's coordinates.
+    _local(rec) {
+        return Object.assign({}, rec, {
+            x: rec.x - this.map.offsetX,
+            y: rec.y - this.map.offsetY
+        });
+    }
+
     // Spawns a new record at runtime, shows it to nearby players and saves
     // entity.json. Returns { entity } on success or { error } on failure.
     add(rec) {
+        // `rec` is in this part's coordinates
         rec = this._normalizeRecord(rec);
         const err = MapEntityStore.validate(rec);
         if (err) return { error: err };
 
+        // Its fixed id must be unique in the map's whole entity.json (all
+        // its parts), and is the entity id it is spawned with, so it comes
+        // back with the same id after a restart (see load()).
+        const entities = this.map.entities;
+        const id = Math.max(entities.entityCount, this.file.maxId()) + 1;
+        if (id > MAX_FIXED_ID) return { error: 'no free entity id left' };
+        entities.entityCount = id - 1;
         const entity = this._spawn(rec);
         if (!entity) return { error: 'could not create the entity' };
 
-        // Its fixed id is the entity id it was just given, so it's spawned
-        // with the same id after a restart (see load()).
-        rec.id = entity.id;
-        this.records.push(rec);
-        this.byEntityId.set(entity.id, rec);
+        const saved = Object.assign({}, rec, {
+            id: entity.id,
+            x: rec.x + this.map.offsetX,
+            y: rec.y + this.map.offsetY
+        });
+        this.file.read().push(saved);
+        this.records.push(saved);
+        this.byEntityId.set(entity.id, saved);
         this._announce(entity);
         this.save();
-        return { entity, record: rec };
+        return { entity, record: saved };
     }
 
     // Removes an admin-placed entity from the map and from entity.json.
@@ -330,6 +328,9 @@ class MapEntityStore {
         this.byEntityId.delete(entity.id);
         const idx = this.records.indexOf(rec);
         if (idx !== -1) this.records.splice(idx, 1);
+        const all = this.file.read();
+        const fi = all.indexOf(rec);
+        if (fi !== -1) all.splice(fi, 1);
 
         this._despawn(entity);
         this.save();
@@ -362,26 +363,9 @@ class MapEntityStore {
         return this.byEntityId.size;
     }
 
+    // Saves the map's whole entity.json (every part's records).
     save() {
-        const json = JSON.stringify(this.records, null, 2) + '\n';
-        const file = this.filePath;
-        const tmp = file + '.tmp';
-        this.writeChain = this.writeChain
-            .then(async () => {
-                await fs.promises.mkdir(path.dirname(file), {
-                    recursive: true
-                });
-                // Write-then-rename so a crash mid-write can't leave a
-                // truncated entity.json behind.
-                await fs.promises.writeFile(tmp, json, 'utf8');
-                await fs.promises.rename(tmp, file);
-            })
-            .catch((err) => {
-                console.error(
-                    'MapEntityStore: failed to save ' + file + ': ' + err.message
-                );
-            });
-        return this.writeChain;
+        return this.file.save();
     }
 
     _normalizeRecord(item) {

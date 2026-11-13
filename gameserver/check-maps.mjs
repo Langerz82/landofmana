@@ -91,8 +91,11 @@ else ok('no unused map files');
 // 5. NPC data for every map file
 console.log('\n5. NPC/mob data');
 let ents = 0;
-for (const n of listed) if (exists(path.join(GS, 'data/maps', n, 'entity.json'))) ents++;
-ok(ents + ' map files have NPCs (data/maps/<map>/entity.json)');
+// a split map's parts share one data/maps/<map>/entity.json (gameserver js/map/mapgroup.js)
+const groupsWithEnts = new Set([...listed].map((n) => n.split('/')[0]).filter((g) => exists(path.join(GS, 'data/maps', g, 'entity.json'))));
+ents = groupsWithEnts.size;
+ok(ents + ' maps have NPCs (data/maps/<map>/entity.json)');
+for (const n of [...listed]) if (n.includes('/') && exists(path.join(GS, 'data/maps', n))) console.log('  data/maps/' + n + ' is left over from before the map\'s data was merged (unused; tools/maps/generator/merge_mapdata.py)');
 for (const old of ['map4', 'map5']) if (exists(path.join(GS, 'data/maps', old))) console.log('  data/maps/' + old + ' is left over from before the rename (unused)');
 
 // 6. start map

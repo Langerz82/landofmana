@@ -1,10 +1,12 @@
 """map1 extra quest NPCs: one more walking NPC in every outdoor mob area, each with two quests.
 
-Companion to npcs1.py (which places one NPC per section). For every mob area in
-gameserver/data/maps/map1/<part>/entityarea.json (the interiors part, map1_int, is skipped), this script:
+Companion to npcs1.py (which places one NPC per section). For every outdoor mob area in
+gameserver/data/maps/map1/entityarea.json (the map's one file for all its parts, in full-map coordinates; the
+interiors part, map1_int, is skipped), this script:
 
-- adds an `npcmove` NPC with a new unique name at a random walkable spot inside that mob area
-  (ids from FIRST_ID = 201 up, so they never clash with npcs1.py's 101+ ids; other records are kept);
+- adds an `npcmove` NPC with a new unique name at a random walkable spot inside that mob area, to
+  gameserver/data/maps/map1/entity.json (ids from FIRST_ID = 2001 up, unique in the file, so they never clash with
+  npcs1.py's 1001+ or levels1.py's 3001+; other records are kept);
 - gives it two quests, in random order (quest 01 / 02):
     a kill quest  - kill 8-12 of one of the area's mobs, at the area's mob levels
     an item quest - get 3-5 of a random itemloot item from another of the area's mobs
@@ -24,6 +26,7 @@ from collections import deque
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(HERE, '..', 'common'))
 from playername import add_player_name
+from mapdata import MapData
 ROOT = os.path.normpath(os.path.join(HERE, '..', '..', '..', '..'))
 DATA = os.path.normpath(os.path.join(HERE, '..', '..', 'data'))
 ap = argparse.ArgumentParser(description='Extra quest NPCs for map1, one per mob area')
@@ -32,7 +35,7 @@ ap.add_argument('--seed', type=int, default=11)
 args = ap.parse_args()
 PFX = args.map
 rnd = random.Random(args.seed)
-FIRST_ID = 201
+FIRST_ID = 2001
 KILL_COUNTS = (8, 10, 12)
 ITEM_COUNT = (3, 5)
 ITEM_CHANCE = 15
@@ -51,7 +54,11 @@ maplist = {int(g[3:]) * 100 + i: nm for g, files in maplist.items() if g[3:].isd
 MOBS = json.load(open(os.path.join(ROOT, 'shared', 'data', 'mobs.json')))
 MOB_KEY = {v['kind']: k for k, v in MOBS.items()}
 LOOT = json.load(open(os.path.join(ROOT, 'shared', 'data', 'itemloot.json')))
-written = json.load(open(p_written)) if os.path.exists(p_written) else {'quests': [], 'entities': {}}
+written = json.load(open(p_written)) if os.path.exists(p_written) else {'quests': [], 'entities': []}
+# the ids this script gave its NPCs last time (a list; the older per-part {part: [ids]} is from before the
+# map's files were merged, and its ids no longer mean anything)
+prev_ids = set(written['entities']) if isinstance(written.get('entities'), list) else set()
+md = MapData(ROOT, PFX)
 
 # ---------------------------------------------------------------- names (unique against everything else)
 used = set(json.load(open(os.path.join(ROOT, 'gameserver', 'data', 'npc_names.json'))))
@@ -430,7 +437,7 @@ sum_k, sum_i = Deck(SUMMARY_KILL), Deck(SUMMARY_ITEM)
 mob_rot = {}
 _mobnames = {k.lower() for k in MOBS} | set(MOB.values())
 _old_items = {q['object2']['kind'] for k, q in json.load(open(p_quests)).items()
-              if k.startswith('1' + str(parts[0]['index'])[:2]) and k not in _prev and 'object2' in q}
+              if k.startswith(md.quest_base(0)[:5]) and k not in _prev and 'object2' in q}
 loot_all = [i for i, it in enumerate(LOOT) if it['name'].lower() not in _mobnames]
 loot_fresh = [i for i in loot_all if i not in _old_items]; rnd.shuffle(loot_fresh)
 loot_rest = [i for i in loot_all if i in _old_items]; rnd.shuffle(loot_rest)
@@ -442,11 +449,9 @@ main_w, main_h = max(p['wx'] + p['w'] for p in parts), max(p['wy'] + p['h'] for 
 
 for p in parts:
     nm = p['name']
-    ea = json.load(open(os.path.join(ROOT, 'gameserver', 'data', 'maps', nm, 'entityarea.json')))
-    p_ent = os.path.join(ROOT, 'gameserver', 'data', 'maps', nm, 'entity.json')
-    old = json.load(open(p_ent)) if os.path.exists(p_ent) else []
-    mine_before = set(written.get('entities', {}).get(nm, []))
-    taken = [(e['x'] // 16, e['y'] // 16) for e in old if e.get('id') not in mine_before]
+    ea = md.areas_of(nm)                     # this part's areas and entities, in its own pixels
+    old = md.entities_of(nm)
+    taken = [(e['x'] // 16, e['y'] // 16) for e in old if e.get('id') not in prev_ids]
     size = components(p)
     ent = entities.setdefault(nm, [])
     for area in ea['mobAreas']:
@@ -467,12 +472,16 @@ for p in parts:
         r = mob_rot.get(biome, rnd.randrange(len(mobs))); mob_rot[biome] = r + 1
         kill_mob = mobs[r % len(mobs)]
         item_mob = mobs[(r + 1 + rnd.randrange(max(1, len(mobs) - 1))) % len(mobs)] if len(mobs) > 1 else mobs[0]
-        eid = FIRST_ID + len(ent)
+        # the first free id from FIRST_ID in the map's entity.json (this script's own from last time are
+        # replaced, so their ids are free again)
+        _used = (md.ids() - prev_ids) | {e['id'] for v in entities.values() for e in v}
+        eid = FIRST_ID
+        while eid in _used: eid += 1
         name = new_name()
         ent.append({'id': eid, 'type': 'npcmove', 'kind': rnd.randint(1, 56), 'x': spot[0] * 16 + 8, 'y': spot[1] * 16 + 8,
                     'name': name})
         lv = [area['minLevel'], area['maxLevel']]
-        base = f'1{p["index"]:04d}{eid:06d}'
+        base = md.quest_base(eid)
         qk, qi = (base + '01', base + '02') if rnd.random() < 0.5 else (base + '02', base + '01')
         # kill quest
         cnt_k = rnd.choice(KILL_COUNTS)
@@ -561,17 +570,15 @@ for key, add in (('QUESTS', {k: fmt_dialogue(add_player_name(new_dialogue[k])).r
     k_, a_, b_ = [m for m in mem if m[0] == key][0]
     lt = rewrite(lt, lt.index('{', a_ + len(key) + 2), drop, add, '      ', eol_l)
 json.loads(lt)
-for nm in sorted(set(list(entities) + list(written.get('entities', {})))):
-    p_ent = os.path.join(ROOT, 'gameserver', 'data', 'maps', nm, 'entity.json')
-    old = json.load(open(p_ent)) if os.path.exists(p_ent) else []
-    mine = set(written.get('entities', {}).get(nm, []))
-    ours = entities.get(nm, [])
-    ids = {e['id'] for e in ours}
-    keep = [e for e in old if e.get('id') not in mine and e.get('id') not in ids]
-    json.dump(keep + ours, open(p_ent, 'w'), indent=2)
+# the map's entity.json: this script's records from last time replaced, in full-map pixels
+ours = [dict(e, x=e['x'] + md.part[nm]['wx'] * 16, y=e['y'] + md.part[nm]['wy'] * 16)
+        for nm, v in entities.items() for e in v]
+ids = {e['id'] for e in ours}
+md.entities = [e for e in md.entities if e.get('id') not in prev_ids and e.get('id') not in ids] + ours
+md.save()
 open(p_quests, 'w', encoding='utf-8', newline='').write(qt)
 open(p_lang, 'w', encoding='utf-8', newline='').write(lt)
-json.dump({'quests': sorted(new_quests), 'entities': {k: [e['id'] for e in v] for k, v in entities.items()}},
+json.dump({'quests': sorted(new_quests), 'entities': sorted(e['id'] for v in entities.values() for e in v)},
           open(p_written, 'w'), indent=1)
 
 print(f'{len(report)} extra quest NPCs, {len(new_quests)} quests (removed {len(drop)} from the last run)')

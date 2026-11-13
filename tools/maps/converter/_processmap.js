@@ -305,7 +305,7 @@ module.exports = function processMap(json, jsontsx, options) {
                          height: ~~(areas[i].height),
                          o: "d",
                      };
-                     if (prop.tmap >= 0) doorArea.tmap = prop.tmap;
+                     setDoorTarget(doorArea, prop);
                      // Level range a player needs to use the door. Written as tminLevel/tmaxLevel,
                      // the names the gameserver (map.js _getDoors) and both clients read -- this used
                      // to write tMinLevel/tMaxLevel, so no door's level limit ever took effect.
@@ -335,7 +335,7 @@ module.exports = function processMap(json, jsontsx, options) {
                          height: ~~(areas[i].height),
                          to: 2
                      };
-                     if (prop.tmap >= 0) doorArea.tmap = prop.tmap;
+                     setDoorTarget(doorArea, prop);
                      // Level range a player needs to use the door. Written as tminLevel/tmaxLevel,
                      // the names the gameserver (map.js _getDoors) and both clients read -- this used
                      // to write tMinLevel/tMaxLevel, so no door's level limit ever took effect.
@@ -393,6 +393,97 @@ module.exports = function processMap(json, jsontsx, options) {
         }
 
         else if(layer.name === "mobareas" && mode == "server"){
+             map.mobAreas = map.mobAreas.concat(mobAreasOf(layer));
+        }
+
+        else if(layer.name === "entityareas" && mode == "server"){
+             map.entityAreas = map.entityAreas.concat(entityAreasOf(layer));
+        }
+
+    });
+
+    // iterate through remaining layers
+    console.info("* Phase 3 Tile Map Processing");
+    for(var i = TiledJSON.layers.length - 1; i > 0; i -= 1) {
+        processLayer(TiledJSON.layers[i]);
+    }
+
+    if (cull) console.info("Hidden tiles left out of the client map: " + cull.count + " (MAP_CULL=0 keeps them)");
+
+    // If combined empty layer then make it a collision.
+    for (var i = 0, max = length; i < max; i += 1) {
+        if(map.data[i] === undefined) {
+            map.collision[i] = 1;
+        }
+    }
+
+    return map;
+};
+
+
+// A mob area's levels: its "level" property -- one level ("10") or a range ("10-12") -- or, on maps made before
+// that, its minLevel/maxLevel properties. With both, "level" wins (a warning if they disagree).
+// The mobAreas of a Tiled "mobareas" object layer, in the format of the game
+// server's entityarea.json (gameserver map/map.js). Also used on its own by areasOf() below.
+// A door's destination map ("tmap"): a map index (107), or -- so the door survives the target
+// map being split differently -- a map's name, resolved here with gameserver/maps/maplist.json:
+//   "map1"            the map's warp point (its start town's part; split.py), landing on its start area
+//   "map1/map1_3_0"   that part
+//   "map1" with wx/wy  the part holding full-map tile (wx, wy), landing on that tile
+// So a door into a split map names the map (and a full-map tile) instead of a part's index, and only
+// needs converting again (split.py --convert does it) after that map is re-split.
+var mapListCache = null;
+function readMapList() {
+    if (mapListCache) return mapListCache;
+    var p = path.join(__dirname, '../../../gameserver/maps/maplist.json');
+    mapListCache = fs.existsSync(p) ? JSON.parse(fs.readFileSync(p, 'utf8')) : { maps: {} };
+    return mapListCache;
+}
+function mapIndexOf(name) {
+    var list = readMapList(), group = name.split('/')[0], m = /^map(\d+)$/.exec(group);
+    var files = m && list.maps && list.maps[group];
+    if (!files) return -1;
+    var i = files.indexOf(name);
+    return i < 0 ? -1 : Number(m[1]) * 100 + i;
+}
+function setDoorTarget(doorArea, prop) {
+    var t = prop.tmap;
+    if (t === undefined || t === null || t === '') return;
+    if (typeof t === 'number' || /^\d+$/.test(String(t).trim())) {
+        if (Number(t) >= 0) doorArea.tmap = Number(t);
+        return;
+    }
+    var name = String(t).trim(), list = readMapList(), index = -1;
+    if (name.indexOf('/') >= 0) index = mapIndexOf(name);
+    else if (prop.wx !== undefined && prop.wy !== undefined) {
+        // the part holding full-map tile (wx, wy) (maplist "areas": [worldX, worldY, w, h], in tiles)
+        var files = (list.maps || {})[name] || [];
+        for (var i = 0; i < files.length && index < 0; i++) {
+            var a = (list.areas || {})[files[i]];
+            if (a && prop.wx >= a[0] && prop.wy >= a[1] && prop.wx < a[0] + a[2] && prop.wy < a[1] + a[3]) {
+                index = mapIndexOf(files[i]);
+                doorArea.tx = (prop.wx - a[0]) * G_TILESIZE;
+                doorArea.ty = (prop.wy - a[1]) * G_TILESIZE;
+                delete prop.x; delete prop.y;
+            }
+        }
+        if (files.length === 1 && index < 0) {
+            index = mapIndexOf(files[0]);
+            doorArea.tx = prop.wx * G_TILESIZE;
+            doorArea.ty = prop.wy * G_TILESIZE;
+            delete prop.x; delete prop.y;
+        }
+    } else {
+        var warp = (list.warps || []).filter(function (n) { return n.split('/')[0] === name; })[0];
+        index = mapIndexOf(warp || ((list.maps || {})[name] || [])[0] || name);
+    }
+    if (index < 0) console.error('Door to "' + name + '"' + (prop.wx !== undefined ? ' tile ' + prop.wx + ',' + prop.wy : '') +
+        ': no such map in gameserver/maps/maplist.json -- the door leads nowhere.');
+    else doorArea.tmap = index;
+}
+
+var mobAreasOf = function (layer) {
+    var out = [];
              console.info("Processing mobareas...");
              var areas = layer.objects;
              console.info(JSON.stringify(areas));
@@ -432,11 +523,15 @@ module.exports = function processMap(json, jsontsx, options) {
                  if (elipse) area.elipse = 1;
                  // Boss multiplier for every mob the area spawns (gameserver map.js initMobAreas).
                  if (prop.boss > 1) area.boss = prop.boss;
-                 map.mobAreas.push(area);
+                 out.push(area);
              }
-        }
+    return out;
+};
 
-        else if(layer.name === "entityareas" && mode == "server"){
+// The entityAreas of a Tiled "entityareas" object layer, in the format of the game
+// server's entityarea.json (gameserver map/map.js). Also used on its own by areasOf() below.
+var entityAreasOf = function (layer) {
+    var out = [];
              console.info("Processing entityareas...");
              var areas = layer.objects;
              console.info(JSON.stringify(areas));
@@ -469,33 +564,24 @@ module.exports = function processMap(json, jsontsx, options) {
 
                  entityarea.distanceApart = prop.distanceApart ?? 0;
 
-                 map.entityAreas.push(entityarea);
+                 out.push(entityarea);
              }
-        }
-
-    });
-
-    // iterate through remaining layers
-    console.info("* Phase 3 Tile Map Processing");
-    for(var i = TiledJSON.layers.length - 1; i > 0; i -= 1) {
-        processLayer(TiledJSON.layers[i]);
-    }
-
-    if (cull) console.info("Hidden tiles left out of the client map: " + cull.count + " (MAP_CULL=0 keeps them)");
-
-    // If combined empty layer then make it a collision.
-    for (var i = 0, max = length; i < max; i += 1) {
-        if(map.data[i] === undefined) {
-            map.collision[i] = 1;
-        }
-    }
-
-    return map;
+    return out;
 };
 
+// The mob areas and entity areas of a whole Tiled map ({ mobAreas, entityAreas }), without
+// converting its tiles: run.js "areas" mode writes them to the map's entityarea.json.
+module.exports.areas = function (TiledJSON) {
+    var out = { mobAreas: [], entityAreas: [] };
+    (TiledJSON.layers || []).forEach(function (layer) {
+        if (layer.name === "mobareas") out.mobAreas = out.mobAreas.concat(mobAreasOf(layer));
+        else if (layer.name === "entityareas") out.entityAreas = out.entityAreas.concat(entityAreasOf(layer));
+    });
+    out.mobAreas.forEach(function (a, i) { a.id = i; });
+    out.entityAreas.forEach(function (a, i) { a.id = i; });
+    return out;
+};
 
-// A mob area's levels: its "level" property -- one level ("10") or a range ("10-12") -- or, on maps made before
-// that, its minLevel/maxLevel properties. With both, "level" wins (a warning if they disagree).
 var mobAreaLevels = function (prop, name) {
     var old = { min: prop.minLevel, max: prop.maxLevel !== undefined ? prop.maxLevel : prop.minLevel };
     if (prop.level === undefined || prop.level === null || String(prop.level).trim() === '') return old;

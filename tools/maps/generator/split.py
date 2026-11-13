@@ -5,6 +5,9 @@ Works on any map made by the generators (map2gen), or any Tiled map in the same 
 - **Sections.** The overworld (the map's 'overworld' camera rect, or the whole map if it has none) is cut into
   a grid of sections, SECTION x SECTION tiles each (or --section-height for rectangular ones; the last row and
   column take whatever is left). Each is written as its own map, <prefix>_<row>_<col>.
+  --rows / --cols give the cut lines yourself instead (full-map tiles, e.g. --rows 256,576,768), and
+  --keep x0,y0,x1,y1 (full-map tiles, end exclusive; repeatable) keeps a rectangle -- a village, say -- whole:
+  a cut line through it moves to its nearer edge, so it ends up in one section (rows/columns then differ in size).
 - **Interiors.** If the map has an interior strip right of the overworld (house and cave interiors), it becomes
   one more map, <prefix>_int.
 - **Folders.** A map's parts live in a folder named after it: tools/maps/data/map2/map2_0_0.json, and after
@@ -25,6 +28,15 @@ Works on any map made by the generators (map2gen), or any Tiled map in the same 
   are kept as they are.
 - **Full-map position.** Every part gets the map properties worldX/worldY (where its top-left tile sits in the
   full map); the converter passes them on, and the clients' HUD shows the player's full-map gx/gy with them.
+- **Game server data is left alone.** NPCs, bosses, mob areas and entity areas live in ONE pair of files for the
+  whole map, gameserver/data/maps/<map>/entity.json and entityarea.json, in full-map coordinates; the game server
+  gives each part what lies inside it when it loads (gameserver/js/map/mapgroup.js). Quest ids use the map's base
+  index (map1 -> 100) and those files' entity ids, and saved player positions are full-map positions, so none of
+  them change when the map is split differently. (To rewrite entityarea.json from the Tiled map:
+  node run.js ../data/map1.json areas in tools/maps/converter.)
+- **Doors from other maps.** A door into a split map should name the map in Tiled (tmap "map1": its warp point,
+  or tmap "map1" with wx/wy: the part holding that full-map tile) rather than a part's index; the converter
+  resolves the name. --convert converts such maps again after the split, so their doors follow the new parts.
 - **Start areas.** Every section gets a start area (its first checkpoint) for warps without a door.
 - **Warp point.** The section holding the map's start checkpoint becomes its warp point ("/warp <prefix>", admins only).
 - **Map list.** shared/maps/maplist.json and gameserver/maps/maplist.json (read by the gameserver and both
@@ -43,7 +55,7 @@ Works on any map made by the generators (map2gen), or any Tiled map in the same 
 
 Options: --section, --section-height, --margin, --prefix, --overworld-width, --convert.
 """
-import os, re, sys, json, argparse, subprocess
+import os, re, sys, json, argparse, subprocess, bisect
 import numpy as np
 
 HERE = os.path.dirname(os.path.abspath(__file__))                      # tools/maps/generator
@@ -59,6 +71,11 @@ ap.add_argument('--margin', type=int, default=0, help="tiles of neighbouring ter
 ap.add_argument('--prefix', default=None, help='name prefix of the new maps (default: the map name)')
 ap.add_argument('--overworld-width', type=int, default=None,
                 help="overworld width; default: the 'overworld' camera rect's width, or the whole map")
+ap.add_argument('--rows', default=None, help='row cut lines in full-map tiles, e.g. 256,576,768 (instead of --section-height)')
+ap.add_argument('--cols', default=None, help='column cut lines in full-map tiles (instead of --section)')
+ap.add_argument('--keep', action='append', default=[], metavar='X0,Y0,X1,Y1',
+                help='keep this rectangle (full-map tiles, end exclusive) in one section: cut lines through it move to '
+                     'its nearer edge (repeatable)')
 ap.add_argument('--convert', action='store_true', help='run the converter (server + client) on every new map')
 args = ap.parse_args()
 SRC = args.map if args.map.endswith('.json') else data(args.map + '.json')
@@ -73,9 +90,25 @@ objs = {l['name']: l for l in layers if l['type'] == 'objectgroup'}
 cams = objs['camera']['objects']
 ow = [c for c in cams if c.get('name') == 'overworld']
 W = min(MW, args.overworld_width or (int(ow[0]['width']) // 16 if ow else MW))
-NC, NR = (W + SW - 1) // SW, (H + SH - 1) // SH
+# the cut lines: every SW/SH tiles, or --cols/--rows; then moved off every --keep rectangle
+def _cuts(arg, step, size):
+    inner = sorted({int(v) for v in arg.split(',') if v.strip()}) if arg else list(range(step, size, step))
+    return [0] + [c for c in inner if 0 < c < size] + [size]
+XS, YS = _cuts(args.cols, SW, W), _cuts(args.rows, SH, H)
+for k in args.keep:
+    kx0, ky0, kx1, ky1 = (int(v) for v in k.split(','))
+    for cuts, lo, hi in ((XS, kx0, kx1), (YS, ky0, ky1)):
+        for i in range(1, len(cuts) - 1):
+            c = cuts[i]
+            if not lo < c < hi: continue
+            # to the nearer edge of the rectangle that still leaves the neighbouring sections some room
+            opts = sorted((e for e in (lo, hi) if cuts[i - 1] < e < cuts[i + 1]), key=lambda e: abs(e - c))
+            if not opts: sys.exit(f'--keep {k}: no room to move the cut at {c} off it (sections {cuts[i - 1]}-{cuts[i + 1]})')
+            print(f'  cut at {c} moved to {opts[0]} to keep {k} in one section')
+            cuts[i] = opts[0]
+NC, NR = len(XS) - 1, len(YS) - 1
 HAS_INT = W < MW
-print(f'{SRC}: {MW}x{H}, overworld {W}x{H} -> {NR} rows x {NC} cols of {SW}x{SH} sections'
+print(f'{SRC}: {MW}x{H}, overworld {W}x{H} -> {NR} rows x {NC} cols of sections, columns at {XS}, rows at {YS}'
       + (f' + interiors ({MW - W}x{H})' if HAS_INT else ''))
 
 # ---- map list: each map's files grouped under its name, {"map1": ["map1/map1_0_0", ...], ...}. A file's
@@ -116,7 +149,7 @@ SRC_ID = ID.get(PFX, -1)          # the unsplit map, if the game lists it itself
 
 def bounds(r, c):
     """core (x0, y0, x1, y1) and file (fx0, fy0, fx1, fy1) of a section, in world tiles."""
-    x0, y0 = c * SW, r * SH; x1, y1 = min(W, x0 + SW), min(H, y0 + SH)
+    x0, y0, x1, y1 = XS[c], YS[r], XS[c + 1], YS[r + 1]
     fx0 = x0 - (M if c > 0 else 0); fy0 = y0 - (M if r > 0 else 0)
     fx1 = x1 + (M if c < NC - 1 else 0); fy1 = y1 + (M if r < NR - 1 else 0)
     return (x0, y0, x1, y1), (fx0, fy0, fx1, fy1)
@@ -125,7 +158,7 @@ def bounds(r, c):
 def section_of(tx, ty):
     """section holding world tile (tx, ty) of the overworld, or None for the interior strip."""
     if tx >= W: return None
-    return (min(NR - 1, max(0, ty) // SH), min(NC - 1, max(0, tx) // SW))
+    return (min(NR - 1, bisect.bisect_right(YS, max(0, ty)) - 1), min(NC - 1, bisect.bisect_right(XS, max(0, tx)) - 1))
 
 
 def props(o):
@@ -203,7 +236,9 @@ for o in objs.get('doors_old', {'objects': []})['objects']:
     tx, ty = int(o['x'] // 16), int(o['y'] // 16)
     s_from = section_of(tx, ty)
     m_from = SEC[s_from] if s_from else INT
-    if 'x' not in pr or 'y' not in pr or ('tmap' in pr and int(pr['tmap']) != SRC_ID):
+    _tm = str(pr.get('tmap', '')).strip()
+    other_map = _tm != '' and (not _tm.lstrip('-').isdigit() or int(_tm) != SRC_ID)   # a name ("map3") or another index
+    if 'x' not in pr or 'y' not in pr or other_map:
         # leads to another map (or has no destination): only the trigger moves
         o2 = shifted(o, *OUT[m_from]['off']); o2['id'] = new_id()
         OUT[m_from]['objs']['doors_old'].append(o2); continue
@@ -395,7 +430,18 @@ for p in lists: print('  ', p)
 
 if args.convert:
     conv = os.path.normpath(os.path.join(HERE, '..', 'converter'))      # tools/maps/converter
-    for f in files:
+    # other maps with a door that names this map (tmap "map1" or "map1/..."): their doors are resolved to
+    # this map's parts when converted, so they are converted again after the parts
+    named = re.compile(r'"name":\s*"tmap",\s*"type":\s*"string",\s*"value":\s*"' + re.escape(PFX) + r'["/]')
+    deps = []
+    for f in sorted(os.listdir(DATA)) + [os.path.join(d, n) for d in sorted(os.listdir(DATA)) if os.path.isdir(data(d))
+                                          for n in sorted(os.listdir(data(d))) if d != PFX]:
+        full = data(f)
+        if not f.endswith('.json') or os.path.abspath(full) == os.path.abspath(SRC) or f.startswith(('blank', 'old_')): continue
+        if os.path.basename(f).startswith(PFX + '_'): continue                     # this map's own files
+        if os.path.isfile(full) and named.search(open(full, encoding='utf-8', errors='ignore').read()):
+            deps.append(full)
+    for f in files + deps:
         rel = os.path.relpath(f, conv)
         for mode in ('server', 'client'):
             r = subprocess.run(['node', '--max-old-space-size=4096', 'run.js', rel, mode], cwd=conv,

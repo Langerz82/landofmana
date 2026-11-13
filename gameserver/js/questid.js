@@ -18,9 +18,12 @@
 // Quest ids: a fixed-width 13-digit number, built from
 //   1 digit  - 1 = static (authored, shared/data/quests.json),
 //              2 = dynamic (made up by an NPC on the fly, entityquests.js)
-//   4 digits - map index
+//   4 digits - the NPC's map's base index: the map's number x 100 (100 for
+//              every part of map1), not the index of the part it stands in,
+//              so quest ids don't change when a map is split differently
+//              (map/mapgroup.js)
 //   6 digits - the NPC's entity id (its fixed id in
-//              data/maps/<map>/entity.json; MAX_FIXED_ID wide)
+//              data/maps/<map>/entity.json, unique in that file; MAX_FIXED_ID wide)
 //   2 digits - the quest's number at that NPC, 01-99 (01 = its first quest)
 // e.g. 1 0300 000001 01 = 1030000000101, the Old Man's (map3, map index 300, entity 1)
 // first quest. Still a plain integer (well below 2^53), so every place that

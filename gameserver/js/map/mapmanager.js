@@ -37,12 +37,15 @@ import fs from 'fs';
 // Map list: ./maps/maplist.json groups every map's files under the map's name, in sub-index order:
 //   {"maps": {"map0": ["map0"], "map1": ["map1/map1_0_0", ..., "map1/map1_int"], "map3": ["map3"], ...}}
 // (split maps' sections and interiors are written by tools/maps/generator/split.py). A file's map
-// index is its map's number x 100 + its sub-index: map1/map1_3_1 (map1's 8th file) is 107, map3 is
-// 300, map0 is 0. Doors (tmap), teleports and quest ids (questid.js) all use that index. Every file
+// index is its map's number x 100 + its sub-index: map1/map1_3_0 (map1's 4th file) is 103, map3 is
+// 300, map0 is 0. Doors (tmap) and teleports use that index. Quest ids (questid.js) and saved player
+// positions use the map's base index (its number x 100: 100 for every part of map1) and full-map
+// positions instead, so they don't change when a map is split differently (map/mapgroup.js). Every file
 // is loaded from ./maps/<name>.json and set up the same way (addListedMap()). Without the list file,
 // map0 and map3 are loaded.
 const MAP_LIST_FILE = './maps/maplist.json';
-export const MAP_INDEX_STRIDE = 100;   // most files one map can have (sub-indexes 0-99)
+import { MAP_INDEX_STRIDE } from './mapgroup.js';   // most files one map can have (sub-indexes 0-99)
+export { MAP_INDEX_STRIDE };
 const DEFAULT_MAPS = { map0: ['map0'], map3: ['map3'] };
 
 // A map list's "maps" -> { index: file name }. Also takes the older flat list (["map0", "map1", ...],
@@ -111,8 +114,9 @@ class MapManager {
     }
 
     // A map from maps/maplist.json: its own entities, the entities from its JSON and from
-    // data/maps/<name>/entity.json (NPCs, admin-placed entities), then its mob and entity areas
-    // (data/maps/<name>/entityarea.json, written by the map converter), and random start
+    // data/maps/<map>/entity.json (NPCs, admin-placed entities), then its mob and entity areas
+    // (data/maps/<map>/entityarea.json). A split map's parts share one of each, in full-map
+    // coordinates, and each part takes what lies inside it (map/mapgroup.js). Then random start
     // positions. (map3's Old Man and ring NPCs -- the map at index 1, formerly map1 -- are in data/maps/map3/entity.json; its JSON's own
     // entities list only holds an old type-0 Old Man, which createEntity() ignores.)
     addListedMap(id, name) {
@@ -126,9 +130,9 @@ class MapManager {
                 map
             );
             map.entities.mapready();
-            // data/maps/<name>/entity.json first: each of its records has a fixed "id" and is
-            // spawned with exactly that entity id (MapEntityStore.load()), the id (with the map
-            // index) that an NPC's npcQuestId and its lang.json NO_MORE_QUESTS line are keyed on.
+            // data/maps/<map>/entity.json first: each of its records has a fixed "id" and is
+            // spawned with exactly that entity id (MapEntityStore.load()), the id (with the map's
+            // base index) that an NPC's npcQuestId and its lang.json NO_MORE_QUESTS line are keyed on.
             // Then the map file's own entities and the mob/entity areas, numbered on from the
             // highest fixed id.
             self.loadSavedEntities(map);

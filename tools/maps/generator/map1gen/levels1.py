@@ -1,7 +1,9 @@
 """map1 mob levels: level by distance from the start town, volcanoes up to MAX_VOLCANO.
 
 Run after splitting map1 and adding the quest NPCs (npcs1.py, npcs1_extra.py). It rewrites the levels in
-gameserver/data/maps/map1/<part>/entityarea.json and the quest levels in shared/data/quests.json:
+gameserver/data/maps/map1/entityarea.json (the map's one file for all its parts, in full-map coordinates; the
+script sees it part by part, common/mapdata.py) and the quest levels in shared/data/quests.json. A re-split
+doesn't need it run again: the areas and their levels don't depend on how the map is split.
 
 - The outdoor mob areas form a grid. The start town's areas (the village cell of the first town in
   tools/maps/data/map1_npcs.json) are level 1 only.
@@ -13,17 +15,19 @@ gameserver/data/maps/map1/<part>/entityarea.json and the quest levels in shared/
 - Dungeon (map1_int) areas: a cave's first room is DUNGEON_BONUS levels above the lowest level of the outdoor area
   its entrance is in (a 2-level range: entrance 4-5 -> 6-7), and every room further in is ROOM_STEP higher.
   All their mobs are aggressive ("aggro": 1). Every dead end (a room with one way in and no way out) gets a
-  boss (gameserver/data/maps/map1/map1_int/entity.json): one of its mob area's kinds, at a random spot in the
+  boss (gameserver/data/maps/map1/entity.json, ids from FIRST_BOSS_ID): one of its mob area's kinds, at a random spot in the
   room, BOSS_LEVEL_BONUS levels above the area's top level, boss multiplier BOSS_MULTI, aggressive, respawning
   after BOSS_RESPAWN_PER_LEVEL seconds x its level.
 - Each map1 quest gets the level range of the mob area its NPC stands in.
 
     python levels1.py
 """
-import os, json, re, random
+import os, sys, json, re, random
 from collections import deque
 
 HERE = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, os.path.join(HERE, '..', 'common'))
+from mapdata import MapData
 ROOT = os.path.normpath(os.path.join(HERE, '..', '..', '..', '..'))
 DATA = os.path.normpath(os.path.join(HERE, '..', '..', 'data'))
 PFX = 'map1'
@@ -32,7 +36,7 @@ VOLCANO_CLUSTER_STEP = 4
 DUNGEON_BONUS = 2       # a cave's first room: the entrance area's lowest level + this ...
 ROOM_STEP = 1           # ... and this much more for every room further in
 DUNGEON_WIDTH = 2       # cave mob areas are 2-level ranges (e.g. entrance 4-5 -> first room 6-7, next 7-8)
-FIRST_BOSS_ID = 101
+FIRST_BOSS_ID = 3001     # unique in the map's entity.json (npcs1.py uses 1001+, npcs1_extra.py 2001+)
 BOSS_MULTI = 10                 # dead-end bosses: createBoss multiplier ...
 BOSS_LEVEL_BONUS = 2            # ... levels above their room's mob area ...
 BOSS_RESPAWN_PER_LEVEL = 300    # ... and seconds of respawn per level (5 minutes x level)
@@ -59,8 +63,8 @@ index = {nm: int(PFX[3:]) * 100 + i for i, nm in enumerate(maplist)}
 outdoor = [nm for nm in maplist if not nm.endswith('_int')]
 inner = [nm for nm in maplist if nm.endswith('_int')]
 mapjson = {nm: json.load(open(os.path.join(ROOT, 'gameserver', 'maps', nm + '.json'))) for nm in maplist}
-p_ea = lambda nm: os.path.join(ROOT, 'gameserver', 'data', 'maps', nm, 'entityarea.json')
-ea = {nm: json.load(open(p_ea(nm))) for nm in maplist}
+md = MapData(ROOT, PFX)
+ea = {nm: md.areas_of(nm) for nm in maplist}      # each part's areas, in its own pixels (copies)
 
 # ---------------------------------------------------------------- outdoor grid
 areas = []
@@ -228,29 +232,29 @@ for nm_in in inner:
         dungeon_report.append(f'entrance level {entry[c_]:>2}: {len(rooms_)} rooms, mobs {min(base[r] for r in rooms_)}-{max(room_hi[r] for r in rooms_)}, {ends} bosses')
 
 for nm in maplist:
-    old_t = open(p_ea(nm), newline='').read(); eol = '\r\n' if '\r\n' in old_t else '\n'
-    open(p_ea(nm), 'w', newline='').write((json.dumps(ea[nm], indent=1) + '\n').replace('\n', eol))
+    md.update_areas(nm, ea[nm])
 
-# bosses: entity.json of the interiors part (other records kept; what this script wrote last time replaced --
-# the dead-end chests of earlier runs, listed in map1_chests_written.json, included)
+# bosses: in the interiors part, in the map's entity.json (other records kept; what this script wrote last time
+# replaced -- the dead-end chests of earlier runs, listed in map1_chests_written.json, included). The written
+# lists hold ids of the map's entity.json: {"map1": [ids]}.
 p_bw = os.path.join(DATA, PFX + '_dungeon_written.json')
 p_cw = os.path.join(DATA, PFX + '_chests_written.json')
-prev = {}
+prev = set()
 for f_ in (p_bw, p_cw):
     if os.path.exists(f_):
-        for k, v in json.load(open(f_)).items(): prev.setdefault(k, set()).update(v)
+        for k, v in json.load(open(f_)).items(): prev.update(v)
+md.entities = [e for e in md.entities if e.get('id') not in prev]
+used_ids = md.ids()
+nid = FIRST_BOSS_ID
 for nm_in in inner:
-    p_ent = os.path.join(ROOT, 'gameserver', 'data', 'maps', nm_in, 'entity.json')
-    old = json.load(open(p_ent)) if os.path.exists(p_ent) else []
-    keep = [e for e in old if e.get('id') not in prev.get(nm_in, set())]
-    used_ids = {e.get('id') for e in keep}
-    nid = FIRST_BOSS_ID
     for b_ in bosses.get(nm_in, []):
         while nid in used_ids: nid += 1
         b_['id'] = nid; used_ids.add(nid)
-    out = keep + [dict(id=b_['id'], **{k: v for k, v in b_.items() if k != 'id'}) for b_ in bosses.get(nm_in, [])]
-    json.dump(out, open(p_ent, 'w'), indent=2)
-json.dump({k: [b_['id'] for b_ in v] for k, v in bosses.items()}, open(p_bw, 'w'), indent=1)
+    out = md.entities_of(nm_in) + [dict(id=b_['id'], **{k: v for k, v in b_.items() if k != 'id'})
+                                   for b_ in bosses.get(nm_in, [])]
+    md.set_entities(nm_in, out)
+md.save()
+json.dump({PFX: [b_['id'] for v in bosses.values() for b_ in v]}, open(p_bw, 'w'), indent=1)
 if os.path.exists(p_cw): json.dump({}, open(p_cw, 'w'))      # its chests are gone now
 
 # ---------------------------------------------------------------- quests: the level range of the NPC's area
@@ -259,10 +263,9 @@ qt = open(p_quests, encoding='utf-8').read()
 quests = json.loads(qt)
 npc_level = {}
 for nm in outdoor:
-    p_ent = os.path.join(ROOT, 'gameserver', 'data', 'maps', nm, 'entity.json')
-    for e in (json.load(open(p_ent)) if os.path.exists(p_ent) else []):
+    for e in md.entities_of(nm):
         a = area_at(nm, e['x'], e['y'])
-        if a: npc_level[f"1{index[nm]:04d}{e['id']:06d}"] = (a['minLevel'], a['maxLevel'], a['include'])
+        if a: npc_level[md.quest_base(e['id'])] = (a['minLevel'], a['maxLevel'], a['include'])
 changed, warn = 0, []
 dec = json.JSONDecoder()
 for qid in quests:

@@ -16,6 +16,7 @@
 // along with this program. See the LICENSE file in the project root,
 // or <https://www.gnu.org/licenses/>.
 
+import { mapBaseIndex } from '../map/mapgroup.js';
 import Messages from '../message.js';
 import Utils from '../utils.js';
 import { G_TILESIZE } from '../constants.js';
@@ -31,6 +32,10 @@ class Entity {
         this.kind = kind;
         this.map = map;
         this.mapIndex = map.index;
+        // The map index an NPC's quests are keyed on (questid.js): the map's
+        // base index (100 for every part of map1), not its part's index, so
+        // quest ids stay the same however the map is split (map/mapgroup.js).
+        this.questMapIndex = mapBaseIndex(map.index);
 
         // Position
         //this.setPosition(0, 0);

@@ -17,6 +17,7 @@
 // or <https://www.gnu.org/licenses/>.
 
 /* global log, DBH  _ */
+import { toSavedPosition } from '../map/mapgroup.js';
 import { check as formatCheck } from '../format.js';
 import UserMessages from './usermessage.js';
 import Messages from '../message.js';
@@ -259,7 +260,9 @@ class WorldHandler {
             Utils.NaN2Zero(player.stats.exp.mining)
         ];
 
-        const map = [player.map.index, player.x, player.y, player.orientation];
+        // the map's base index and the full-map position (map/mapgroup.js), so a save still names
+        // the same spot after the map is split differently
+        const map = toSavedPosition(player.map, player.x, player.y).concat(player.orientation);
 
         const skillexps = [];
         for (let i = 0; i < player.skills.length; ++i)

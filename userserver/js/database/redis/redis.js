@@ -358,13 +358,16 @@ class DatabaseHandler {
                 })
         );
         // Wipe of every player's quests -- in progress and completed -- at startup, for when quest
-        // ids change (they hold the map index, so renumbering the maps changes them). Armed by the
-        // Redis key below: missing or "true" -> wipe, then set it to "false" so it runs only once.
-        // To wipe again at the next start: redis-cli SET migrations:wipe_quests_on_startup true
+        // ids change (they hold the map's base index and the NPC's entity id, gameserver questid.js).
+        // Armed by the Redis key below: missing or "true" -> wipe, then set it to "false" so it runs
+        // only once. Give the key a new name whenever quest ids change again, so every server wipes
+        // once more on its next start (the current name is for the map-group change: a split map's
+        // NPCs in one entity.json, quest ids from the map's base index).
+        // To wipe again at the next start: redis-cli SET migrations:wipe_quests_mapgroups true
         // Runs after the run-once wipe above, and before any gameserver can connect
         // (migrationReady), so no one is online to save old quests back. A failed wipe leaves the
         // key as it was, so it is retried at the next start.
-        const WIPE_QUESTS_KEY = 'migrations:wipe_quests_on_startup';
+        const WIPE_QUESTS_KEY = 'migrations:wipe_quests_mapgroups';
         const startupQuestWipe = questIdWipe.then(
             () =>
                 new Promise((resolve, reject) => {

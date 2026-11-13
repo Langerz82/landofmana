@@ -41,7 +41,7 @@ function buildQuest(id, data) {
     if (G_DEBUG) console.info('data:' + JSON.stringify(data));
     const quest = {};
     quest.id = id;
-    // The NPC a quest belongs to is in its id (questid.js): its map index and
+    // The NPC a quest belongs to is in its id (questid.js): its map's base index and
     // entity id -- not an NPC kind, which every NPC of the same look shares.
     // npcQuestId is that NPC's own (npcmove.js / npcstatic.js).
     const owner = parseQuestId(id);

@@ -528,7 +528,7 @@ class AdminCommands {
 
     describeNpc(store, entity) {
         const rec = store.byEntityId.get(entity.id);
-        const quests = QuestData.questsForNpc(entity.mapIndex, entity.id);
+        const quests = QuestData.questsForNpc(entity.questMapIndex, entity.id);
         return (
             rec.type +
             ' "' +
@@ -649,8 +649,8 @@ class AdminCommands {
         }
         data.name = opts.name ? String(opts.name).slice(0, 40) : what;
 
-        // Quest id: 1 + map index + entity id + the NPC's next quest number.
-        const prefix = questIdPrefix(QUEST_STATIC, p.map.index, npc.id);
+        // Quest id: 1 + the map's base index + entity id + the NPC's next quest number.
+        const prefix = questIdPrefix(QUEST_STATIC, npc.questMapIndex, npc.id);
         let number = 0;
         for (const id in QuestData.Data) {
             if (id.length === prefix.length + 2 && id.startsWith(prefix))
@@ -661,12 +661,12 @@ class AdminCommands {
             this.reply('This NPC already has ' + MAX_QUESTS_PER_NPC + ' quests.');
             return;
         }
-        const questId = String(makeQuestId(QUEST_STATIC, p.map.index, npc.id, number));
+        const questId = String(makeQuestId(QUEST_STATIC, npc.questMapIndex, npc.id, number));
 
-        // The quest belongs to the NPC through its id (map index + entity
+        // The quest belongs to the NPC through its id (base index + entity
         // id), so nothing on the NPC's entity.json record changes.
         addQuest(questId, data);
-        npc.setQuests(QuestData.questsForNpc(p.map.index, npc.id));
+        npc.setQuests(QuestData.questsForNpc(npc.questMapIndex, npc.id));
         this.reply(
             'Added quest ' + questId + ' (' + data.name + ') to "' + npc.name + '". Saved to quests.json.'
         );

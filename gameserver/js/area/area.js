@@ -19,6 +19,16 @@
 import Utils from '../utils.js';
 import { G_TILESIZE } from '../constants.js';
 
+// Is (x, y) inside the ellipse centred on (cx, cy) with diameters w and h?
+export function insideEllipse(x, y, cx, cy, w, h) {
+    const rx = w / 2;
+    const ry = h / 2;
+    if (!(rx > 0 && ry > 0)) return false;
+    const dx = (x - cx) / rx;
+    const dy = (y - cy) / ry;
+    return dx * dx + dy * dy < 1;
+}
+
 // IMPORTANT - X,Y are center cordinates for elipses only. For default rectangle its top-left.
 class Area {
     constructor(map, id, x, y, width, height, elipse, excludeId) {
@@ -37,6 +47,11 @@ class Area {
         this.elipse = elipse || false;
         //this.elipseId = elipseId || -1;
         this.excludeId = excludeId || -1;
+        // Optional {x, y, w, h} (pixels): the only part of the area that may be
+        // used. Set on an ellipse that crosses the edge of a split map's part
+        // (map/mapgroup.js localizeArea()): the ellipse keeps its whole shape,
+        // and spawns and roaming stay inside both it and this rectangle.
+        this.clip = null;
         //console.info("this.elipse="+this.elipse+",this.excludeId="+this.excludeId);
     }
 
@@ -52,14 +67,25 @@ class Area {
 
         const dw = dist.width;
         const dh = dist.height;
+        // a cut ellipse picking a spot anywhere in itself: sample the part of
+        // it that is left (its bounding box cut to the clip rectangle), so a
+        // small piece of a big ellipse doesn't use up the tries on the rest
+        const box = this.clip && this.elipse && xandy === this ? this._clippedBox() : null;
         while (count < threshold) {
-            if (this.elipse) {
+            if (box) {
+                pos.x = box.x + Utils.randomInt(Math.max(1, box.w));
+                pos.y = box.y + Utils.randomInt(Math.max(1, box.h));
+            } else if (this.elipse) {
+                // An even spread over the ellipse: a random angle, and a
+                // distance of sqrt(random) of the way out. (A plain random
+                // distance bunched about half the spots into the middle
+                // quarter of the area, since there is far less room near the
+                // centre than near the edge.) dw/dh are the ellipse's
+                // diameters, or twice the roaming distance around a mob.
                 const a = Math.random() * 2 * Math.PI;
-                const rx = Utils.randomRangeInt(0, ~~(dw / 2));
-                const ry = Utils.randomRangeInt(0, ~~(dh / 2));
-
-                pos.x = Math.round(xandy.x + ~~(rx * Math.cos(a)));
-                pos.y = Math.round(xandy.y + ~~(ry * Math.sin(a)));
+                const t = Math.sqrt(Math.random());
+                pos.x = Math.round(xandy.x + (dw / 2) * t * Math.cos(a));
+                pos.y = Math.round(xandy.y + (dh / 2) * t * Math.sin(a));
             } else {
                 pos.x = xandy.x + Utils.randomInt(dw << 1) - dw;
                 pos.y = xandy.y + Utils.randomInt(dh << 1) - dh;
@@ -165,8 +191,25 @@ class Area {
         );
     }
 
+    // The ellipse's bounding box cut to the clip rectangle (pixels).
+    _clippedBox() {
+        const x0 = Math.max(this.x - this.width / 2, this.clip.x);
+        const y0 = Math.max(this.y - this.height / 2, this.clip.y);
+        const x1 = Math.min(this.x + this.width / 2, this.clip.x + this.clip.w);
+        const y1 = Math.min(this.y + this.height / 2, this.clip.y + this.clip.h);
+        return { x: x0, y: y0, w: x1 - x0, h: y1 - y0 };
+    }
+
     contains(x, y, iteration) {
         //iteration = iteration;
+        if (
+            this.clip &&
+            (x < this.clip.x ||
+                y < this.clip.y ||
+                x >= this.clip.x + this.clip.w ||
+                y >= this.clip.y + this.clip.h)
+        )
+            return false;
         if (!this.elipse) {
             return (
                 x >= this.x &&
@@ -175,29 +218,14 @@ class Area {
                 y < this.y + this.height
             );
         } else {
-            const cx = this.x;
-            const cy = this.y;
-            const d = Math.sqrt(Math.pow(x - cx, 2) + Math.pow(y - cy, 2));
-            //console.log("cx:"+cx+",cy:"+cy);
-            //console.log("this.width:"+this.width+",this.height:"+this.height);
-            //console.log("this.x:"+this.x+",this.y:"+this.y);
-            //console.log("d:"+d);
-
-            // FIX: only checked `d < this.width / 2`, ignoring `this.height`
-            // entirely -- the sibling MapArea.contains() (map/maparea.js)
-            // correctly checks both `d < this.width / 2 && d < this.height /
-            // 2`. For any elliptical area configured with `width !==
-            // height`, this disagreed with _getRandomPosition() above (whose
-            // ellipse-branch candidate generation already samples using both
-            // dw and dh independently) and with the real non-circular shape
-            // the area was meant to describe -- biasing/rejecting valid
-            // positions along whichever axis was left unchecked. Matching
-            // MapArea's check here so both ellipse implementations in this
-            // codebase agree.
-            const inElipse = d < this.width / 2 && d < this.height / 2;
-            return inElipse;
-            // FIX: removed an unreachable `return false;` that followed the
-            // real return statement above -- dead code, no behavior change.
+            // A true ellipse: (dx/rx)^2 + (dy/ry)^2 < 1, with rx/ry half the
+            // width/height. (It used to check the distance from the centre
+            // against BOTH half-diameters, which is really a circle of half
+            // the smaller one -- a 40x20-tile ellipse only ever used a
+            // 10-tile-radius circle in its middle. For a circle, w === h,
+            // both tests are the same.) Same test as MapArea.contains()
+            // (area/maparea.js).
+            return insideEllipse(x, y, this.x, this.y, this.width, this.height);
         }
     }
 }

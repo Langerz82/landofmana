@@ -15545,8 +15545,8 @@
                         }, 
                         {
                          "name":"tmap",
-                         "type":"int",
-                         "value":107
+                         "type":"string",
+                         "value":"map1"
                         }],
                  "rotation":0,
                  "type":"",

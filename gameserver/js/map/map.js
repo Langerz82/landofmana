@@ -17,8 +17,6 @@
 // or <https://www.gnu.org/licenses/>.
 
 import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
 
 import Checkpoint from '../area/checkpoint.js';
 import Area from '../area/area.js';
@@ -43,14 +41,19 @@ import { G_TILESIZE, G_DEBUG } from '../constants.js';
 // PERF: used to be built fresh inside isHarvestTile() on every single call
 // (once per CW_HARVEST packet) -- see the PERF comment on isHarvestTile()
 // below. The tile id list is static, so it's hoisted here and built once.
-// Per-map data files: data/maps/<map name>/entityarea.json holds the map's
-// mob areas and entity areas, written by the map converter
-// (tools/maps/converter, server mode) from the map's Tiled file. Next to
-// entity.json (single admin-/data-placed entities, map/mapentitystore.js).
-const MAPS_DATA_DIR = path.join(
-    path.dirname(fileURLToPath(import.meta.url)),
-    '../../data/maps'
-);
+// Per-map data files: data/maps/<map>/entityarea.json holds the map's mob
+// areas and entity areas, next to entity.json (single admin-/data-placed
+// entities, map/mapentitystore.js). A split map has ONE of each for all its
+// parts, in full-map pixels; each part takes the areas inside its own area of
+// the full map (map/mapgroup.js).
+import {
+    mapGroupName,
+    mapBaseIndex,
+    mapDataFile,
+    localizeArea,
+    readGroupAreas,
+    writeGroupAreas
+} from './mapgroup.js';
 
 const HARVEST_TILE_TYPES = {
     axe: [678, 679, 698, 699, 855, 875, 274, 275, 294, 295]
@@ -123,6 +126,14 @@ class Map {
     initMap(thismap) {
         this.width = thismap.width;
         this.height = thismap.height;
+        // Where this file sits in its full map (a split map's part; 0,0 for a
+        // map that isn't split), in pixels -- worldX/worldY are in tiles
+        // (tools/maps/generator/split.py). The map's data files are shared by
+        // all its parts and use full-map positions (map/mapgroup.js).
+        this.groupName = mapGroupName(this.name);
+        this.baseIndex = mapBaseIndex(this.index);
+        this.offsetX = (Number(thismap.worldX) || 0) * G_TILESIZE;
+        this.offsetY = (Number(thismap.worldY) || 0) * G_TILESIZE;
         //        this.chunkWidth = thismap.chunkWidth;
         //        this.chunkHeight = thismap.chunkHeight;
         //        this.chunkIndexes = thismap.chunkIndexes;
@@ -208,59 +219,49 @@ class Map {
     }
 
     // Adds an area an admin placed with /addarea (packets/admincommands.js):
-    // spawns it now and appends it to data/maps/<map name>/entityarea.json,
-    // marked "admin": true -- the map converter keeps those when it rewrites
-    // the file from the Tiled map (tools/maps/converter/run.js). `kind` is
-    // 'mob' or 'entity'; `area` is in the file's format (x/y/w/h in pixels;
-    // x/y the centre when `elipse`, else the top-left). Returns the area as
+    // spawns it now and appends it to data/maps/<map>/entityarea.json,
+    // marked "admin": true. `kind` is 'mob' or 'entity'; `area` is in the
+    // file's format (x/y/w/h in pixels; x/y the centre when `elipse`, else the
+    // top-left), in this part's own coordinates -- it is saved in full-map
+    // coordinates, the file being shared by all the parts of a split map
+    // (map/mapgroup.js), with an id unique in that file. Returns the area as
     // saved.
     addAdminArea(kind, area) {
         const key = kind === 'mob' ? 'mobAreas' : 'entityAreas';
-        const file = path.join(MAPS_DATA_DIR, this.name, 'entityarea.json');
-        let data = { mobAreas: [], entityAreas: [] };
-        try {
-            data = JSON.parse(fs.readFileSync(file, 'utf8'));
-        } catch (err) {
-            if (err.code !== 'ENOENT') throw err;
-        }
-        data.mobAreas = data.mobAreas || [];
-        data.entityAreas = data.entityAreas || [];
+        const data = readGroupAreas(this.name) || { mobAreas: [], entityAreas: [] };
         const list = data[key];
         const saved = Object.assign(
             { id: list.reduce((m, a) => Math.max(m, Number(a.id) || 0), -1) + 1 },
             area,
-            { admin: true }
+            { x: area.x + this.offsetX, y: area.y + this.offsetY, admin: true }
         );
         list.push(saved);
-        fs.mkdirSync(path.dirname(file), { recursive: true });
-        fs.writeFileSync(file, JSON.stringify(data, null, 1) + '\n');
-        if (kind === 'mob') this.initMobAreas([saved]);
-        else this.addEntityArea(saved);
+        writeGroupAreas(this.name, data);
+        const live = localizeArea(this, saved) ||
+            Object.assign({}, saved, { x: area.x, y: area.y });
+        if (kind === 'mob') this.initMobAreas([live]);
+        else this.addEntityArea(live);
         return saved;
     }
 
     // Removes a mob ('mob') or entity ('entity') area by its id, for /delarea
-    // (packets/admincommands.js): drops it from data/maps/<map name>/
+    // (packets/admincommands.js): drops it from data/maps/<map>/
     // entityarea.json and from this map's live area list. The caller despawns
     // the area's entities (returned in `entities`, dead ones waiting to
     // respawn included). Returns null when neither the file nor the live map
     // has an area with that id, else { saved, live, entities }: `saved` is
     // the file entry (null if the file had none), `live` the running area.
+    // (An area crossing a section edge also runs on the neighbouring part,
+    // with the same id: that part keeps its share until the next restart.)
     removeArea(kind, id) {
         const key = kind === 'mob' ? 'mobAreas' : 'entityAreas';
-        const file = path.join(MAPS_DATA_DIR, this.name, 'entityarea.json');
+        const data = readGroupAreas(this.name);
         let saved = null;
-        let data = null;
-        try {
-            data = JSON.parse(fs.readFileSync(file, 'utf8'));
-        } catch (err) {
-            if (err.code !== 'ENOENT') throw err;
-        }
         const list = (data && data[key]) || [];
         const i = list.findIndex((a) => Number(a.id) === id);
         if (i >= 0) {
             saved = list.splice(i, 1)[0];
-            fs.writeFileSync(file, JSON.stringify(data, null, 1) + '\n');
+            writeGroupAreas(this.name, data);
         }
 
         const liveList = kind === 'mob' ? this.mobAreas : this.entityAreas;
@@ -278,30 +279,26 @@ class Map {
         return { saved, live, entities };
     }
 
-    // Reads data/maps/<map name>/entityarea.json -> { mobAreas, entityAreas },
-    // or null if the map has none (or it can't be read).
+    // data/maps/<map>/entityarea.json -> { mobAreas, entityAreas } of this
+    // part: the areas inside its own area of the full map, in its own
+    // coordinates (map/mapgroup.js localizeArea()). null if the map has no
+    // file (or it can't be read).
     _readAreaFile() {
-        const file = path.join(MAPS_DATA_DIR, this.name, 'entityarea.json');
-        let raw;
-        try {
-            raw = fs.readFileSync(file, 'utf8');
-        } catch (err) {
-            if (err.code !== 'ENOENT')
-                console.error('Map: failed to read ' + file + ': ' + err.message);
-            return null;
-        }
-        try {
-            const data = JSON.parse(raw);
-            console.info(
-                'Map ' + this.name + ': ' +
-                    (data.mobAreas || []).length + ' mob areas, ' +
-                    (data.entityAreas || []).length + ' entity areas from ' + file
-            );
-            return data;
-        } catch (err) {
-            console.error('Map: failed to parse ' + file + ': ' + err.message);
-            return null;
-        }
+        const data = readGroupAreas(this.name);
+        if (!data) return null;
+        const mine = (list) =>
+            list.map((a) => localizeArea(this, a)).filter((a) => a);
+        const out = {
+            mobAreas: mine(data.mobAreas),
+            entityAreas: mine(data.entityAreas)
+        };
+        console.info(
+            'Map ' + this.name + ': ' +
+                out.mobAreas.length + ' of ' + data.mobAreas.length + ' mob areas, ' +
+                out.entityAreas.length + ' of ' + data.entityAreas.length + ' entity areas from ' +
+                mapDataFile(this.name, 'entityarea.json')
+        );
+        return out;
     }
 
     tileIndexToGridPosition(tileNum) {
@@ -489,6 +486,8 @@ class Map {
             area.h,
             !!area.elipse,
         );
+        // an ellipse cut by the edge of a split map's part (map/mapgroup.js)
+        if (area.clip) entityarea.clip = area.clip;
         let data = {};
         if (area.type) data.type = area.type;
         // kind 0 is a real kind: only skip a missing one
@@ -537,6 +536,9 @@ class Map {
                     ma.kindWeight,
                     ma.levelWeight
                 );
+                // an ellipse cut by the edge of a split map's part
+                // (map/mapgroup.js): set before it spawns anything
+                if (ma.clip) mobarea.clip = ma.clip;
                 //self.mobAreas[ma.id] = mobarea;
                 self.mobAreas.push(mobarea);
                 mobarea.addMobs();

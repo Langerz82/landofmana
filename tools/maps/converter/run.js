@@ -40,13 +40,15 @@ var source = process.argv[2],
     chunkHeight = parseInt(process.argv[5]) || 0;
     destination = process.argv[6];
 
-if(!source || (mode!="direct" && mode!="client" && mode!="server")) {
+if(!source || (mode!="direct" && mode!="client" && mode!="server" && mode!="areas")) {
     console.info("Usage : ./exportmap.js tiled_json_file [mode]");
     console.info("Optional parameters : mode & destination. Values:");
     console.info("    - \"direct\" (default) → updates current server and map files (WARNING: SHOULD ONLY BE CALLED FROM BrowserQuest/tools/maps !!!);");
     console.info("    - \"client destination_file\" → will generate destination_file.js and destination_file.json for client side map;");
     console.info("    - \"server destination_file.json\" → will generate destination_file.json for server side map;");
     console.info("    - \"both destination_directory\" → will generate world_client.js, world_client.json and world_server.json in directory.");
+    console.info("    - \"areas\" → only the map's mob/entity areas, into gameserver/data/maps/<map>/entityarea.json");
+    console.info("      (a WHOLE map, e.g. ../data/map1.json: a split map's parts share that file, in full-map coordinates).");
     process.exit(0);
 }
 
@@ -76,6 +78,9 @@ function callback_function(json, jsontsx) {
 		case "client":
 			fs.mkdirSync(client_dir, { recursive: true });
 			processClient(json, jsontsx, client_dir+"/"+filename);
+			break;
+		case "areas":
+			writeWholeMapAreas(json, group || filename);
 			break;
 		case "server":
 			fs.mkdirSync(server_dir, { recursive: true });
@@ -281,12 +286,34 @@ function createMapFile(mapData, dest)
 // to the map's entity.json), instead of the server map file; the game server reads them from
 // there (gameserver/js/map/map.js). A map without any areas gets no file, and one left over
 // from an earlier conversion is emptied.
+//
+// A SPLIT map's parts (tools/maps/generator/split.py) all share ONE file, data/maps/map1/
+// entityarea.json, in full-map coordinates -- each part takes what lies inside it when the game
+// server loads it (gameserver/js/map/mapgroup.js) -- so converting a part leaves it alone (the
+// map tools, e.g. map1gen/levels1.py, keep it up to date). To (re)write it from the Tiled map,
+// convert the WHOLE map in "areas" mode: node run.js ../data/map1.json areas.
 function writeAreaFile(serverMap) {
-	var mobAreas = serverMap.mobAreas || [];
-	var entityAreas = serverMap.entityAreas || [];
+	if (mapListName.indexOf("/") >= 0) {
+		delete serverMap.mobAreas;
+		delete serverMap.entityAreas;
+		console.info("Areas of " + mapListName + ": not written -- a split map's parts share gameserver/data/maps/" +
+			mapListName.split("/")[0] + "/entityarea.json (node run.js <whole map>.json areas)");
+		return;
+	}
+	saveAreaFile(mapListName, serverMap.mobAreas || [], serverMap.entityAreas || []);
 	delete serverMap.mobAreas;
 	delete serverMap.entityAreas;
-	var dir = "../../../gameserver/data/maps/" + mapListName;
+}
+
+// "areas" mode: the mob and entity areas of a whole Tiled map (positions are full-map positions),
+// into gameserver/data/maps/<name>/entityarea.json, without converting its tiles.
+function writeWholeMapAreas(json, name) {
+	var a = processMap.areas(json);
+	saveAreaFile(name, a.mobAreas, a.entityAreas);
+}
+
+function saveAreaFile(name, mobAreas, entityAreas) {
+	var dir = "../../../gameserver/data/maps/" + name;
 	var file = dir + "/entityarea.json";
 	// Areas admins placed in game with /addarea (gameserver packets/admincommands.js) are
 	// marked "admin": true -- keep them, after the Tiled map's own areas, renumbered after them.
@@ -308,7 +335,7 @@ function writeAreaFile(serverMap) {
 	if (!mobAreas.length && !entityAreas.length && !fs.existsSync(file)) return;
 	fs.mkdirSync(dir, { recursive: true });
 	fs.writeFileSync(file, JSON.stringify({ mobAreas: mobAreas, entityAreas: entityAreas }, null, 1) + "\n");
-	console.info("Areas of " + mapListName + ": " + mobAreas.length + " mob areas, " +
+	console.info("Areas of " + name + ": " + mobAreas.length + " mob areas, " +
 		entityAreas.length + " entity areas -> " + file);
 }
 
