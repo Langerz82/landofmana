@@ -130,238 +130,238 @@
     "TELEPORT_LEVEL_REQUIRED_BUBBLE": "I must be between level {0} and level {1} to proceed.",
 
     "QUESTS_REWARD": [
-      [0, "Here is your reward."],
+      [0, "Here is your reward, %player_name%."],
       [1, "Thanks {0}."]
     ],
 
     "NO_MORE_QUESTS_DEFAULT": [
-      [0, "I have no more quests for you."]
+      [0, "I have no more quests for you, %player_name%."]
     ],
 
     "NO_MORE_QUESTS": {
       "300": {
         "1": [
-          [0, "I have no more quests for you, head EAST and look for Baelan."],
+          [0, "I have no more quests for you, %player_name%. Head EAST and look for Baelan."],
           [1, "Thanks Old Man."]
         ],
         "2": [
-          [0, "I have no more quests for you, head SOUTH and look for Caelum."],
+          [0, "I have no more quests for you, %player_name%. Head SOUTH and look for Caelum."],
           [1, "Thanks Baelan."]
         ],
         "3": [
-          [0, "I have no more quests for you, head WEST and look for Darian."],
+          [0, "I have no more quests for you, %player_name%. Head WEST and look for Darian."],
           [1, "Thanks Caelum."]
         ],
         "4": [
-          [0, "I have no more quests for you, head WEST and look for Eldryn."],
+          [0, "I have no more quests for you, %player_name%. Head WEST and look for Eldryn."],
           [1, "Thanks Darian."]
         ],
         "5": [
-          [0, "I have no more quests for you, head NORTH and look for Faelan."],
+          [0, "I have no more quests for you, %player_name%. Head NORTH and look for Faelan."],
           [1, "Thanks Eldryn."]
         ],
         "6": [
-          [0, "I have no more quests for you, head NORTH and look for Gavriel."],
+          [0, "I have no more quests for you, %player_name%. Head NORTH and look for Gavriel."],
           [1, "Thanks Faelan."]
         ],
         "7": [
-          [0, "I have no more quests for you, head EAST and look for Haven."],
+          [0, "I have no more quests for you, %player_name%. Head EAST and look for Haven."],
           [1, "Thanks Gavriel."]
         ],
         "8": [
-          [0, "I have no more quests for you, head EAST and look for Ilys."],
+          [0, "I have no more quests for you, %player_name%. Head EAST and look for Ilys."],
           [1, "Thanks Haven."]
         ],
         "9": [
-          [0, "I have no more quests for you, head EAST and look for Jaelin."],
+          [0, "I have no more quests for you, %player_name%. Head EAST and look for Jaelin."],
           [1, "Thanks Ilys."]
         ],
         "10": [
-          [0, "I have no more quests for you, head SOUTH and look for Kaelan."],
+          [0, "I have no more quests for you, %player_name%. Head SOUTH and look for Kaelan."],
           [1, "Thanks Jaelin."]
         ],
         "11": [
-          [0, "I have no more quests for you, head SOUTH and look for Lirael."],
+          [0, "I have no more quests for you, %player_name%. Head SOUTH and look for Lirael."],
           [1, "Thanks Kaelan."]
         ],
         "12": [
-          [0, "I have no more quests for you, head SOUTH and look for Maelis."],
+          [0, "I have no more quests for you, %player_name%. Head SOUTH and look for Maelis."],
           [1, "Thanks Lirael."]
         ],
         "13": [
-          [0, "I have no more quests for you, head WEST and look for Naelen."],
+          [0, "I have no more quests for you, %player_name%. Head WEST and look for Naelen."],
           [1, "Thanks Maelis."]
         ],
         "14": [
-          [0, "I have no more quests for you, head WEST and look for Ovryn."],
+          [0, "I have no more quests for you, %player_name%. Head WEST and look for Ovryn."],
           [1, "Thanks Naelen."]
         ],
         "15": [
-          [0, "I have no more quests for you, head WEST and look for Peregrine."],
+          [0, "I have no more quests for you, %player_name%. Head WEST and look for Peregrine."],
           [1, "Thanks Ovryn."]
         ],
         "16": [
-          [0, "I have no more quests for you, head WEST and look for Quillen."],
+          [0, "I have no more quests for you, %player_name%. Head WEST and look for Quillen."],
           [1, "Thanks Peregrine."]
         ],
         "17": [
-          [0, "I have no more quests for you, head NORTH and look for Raelin."],
+          [0, "I have no more quests for you, %player_name%. Head NORTH and look for Raelin."],
           [1, "Thanks Quillen."]
         ],
         "18": [
-          [0, "I have no more quests for you, head NORTH and look for Sylas."],
+          [0, "I have no more quests for you, %player_name%. Head NORTH and look for Sylas."],
           [1, "Thanks Raelin."]
         ],
         "19": [
-          [0, "I have no more quests for you, head NORTH and look for Tyrian."],
+          [0, "I have no more quests for you, %player_name%. Head NORTH and look for Tyrian."],
           [1, "Thanks Sylas."]
         ],
         "20": [
-          [0, "I have no more quests for you, head NORTH and look for Uvaine."],
+          [0, "I have no more quests for you, %player_name%. Head NORTH and look for Uvaine."],
           [1, "Thanks Tyrian."]
         ],
         "21": [
-          [0, "I have no more quests for you, head EAST and look for Vaelis."],
+          [0, "I have no more quests for you, %player_name%. Head EAST and look for Vaelis."],
           [1, "Thanks Uvaine."]
         ],
         "22": [
-          [0, "I have no more quests for you, head EAST and look for Wylan."],
+          [0, "I have no more quests for you, %player_name%. Head EAST and look for Wylan."],
           [1, "Thanks Vaelis."]
         ],
         "23": [
-          [0, "I have no more quests for you, head EAST and look for Xaelor."],
+          [0, "I have no more quests for you, %player_name%. Head EAST and look for Xaelor."],
           [1, "Thanks Wylan."]
         ],
         "24": [
-          [0, "I have no more quests for you, head EAST and look for Yaelith."],
+          [0, "I have no more quests for you, %player_name%. Head EAST and look for Yaelith."],
           [1, "Thanks Xaelor."]
         ],
         "25": [
-          [0, "I have no more quests for you, head EAST and look for Zephyr."],
+          [0, "I have no more quests for you, %player_name%. Head EAST and look for Zephyr."],
           [1, "Thanks Yaelith."]
         ],
         "26": [
-          [0, "I have no more quests for you, head SOUTH and look for Aldryn."],
+          [0, "I have no more quests for you, %player_name%. Head SOUTH and look for Aldryn."],
           [1, "Thanks Zephyr."]
         ],
         "27": [
-          [0, "I have no more quests for you, head SOUTH and look for Briar."],
+          [0, "I have no more quests for you, %player_name%. Head SOUTH and look for Briar."],
           [1, "Thanks Aldryn."]
         ],
         "28": [
-          [0, "I have no more quests for you, head SOUTH and look for Cyran."],
+          [0, "I have no more quests for you, %player_name%. Head SOUTH and look for Cyran."],
           [1, "Thanks Briar."]
         ],
         "29": [
-          [0, "I have no more quests for you, head SOUTH and look for Daelin."],
+          [0, "I have no more quests for you, %player_name%. Head SOUTH and look for Daelin."],
           [1, "Thanks Cyran."]
         ],
         "30": [
-          [0, "I have no more quests for you, head SOUTH and look for Elowen."],
+          [0, "I have no more quests for you, %player_name%. Head SOUTH and look for Elowen."],
           [1, "Thanks Daelin."]
         ],
         "31": [
-          [0, "I have no more quests for you, head WEST and look for Fenris."],
+          [0, "I have no more quests for you, %player_name%. Head WEST and look for Fenris."],
           [1, "Thanks Elowen."]
         ],
         "32": [
-          [0, "I have no more quests for you, head WEST and look for Gaelan."],
+          [0, "I have no more quests for you, %player_name%. Head WEST and look for Gaelan."],
           [1, "Thanks Fenris."]
         ],
         "33": [
-          [0, "I have no more quests for you, head WEST and look for Harlow."],
+          [0, "I have no more quests for you, %player_name%. Head WEST and look for Harlow."],
           [1, "Thanks Gaelan."]
         ],
         "34": [
-          [0, "I have no more quests for you, head WEST and look for Ivory."],
+          [0, "I have no more quests for you, %player_name%. Head WEST and look for Ivory."],
           [1, "Thanks Harlow."]
         ],
         "35": [
-          [0, "I have no more quests for you, head WEST and look for Jadis."],
+          [0, "I have no more quests for you, %player_name%. Head WEST and look for Jadis."],
           [1, "Thanks Ivory."]
         ],
         "36": [
-          [0, "I have no more quests for you, head WEST and look for Kieran."],
+          [0, "I have no more quests for you, %player_name%. Head WEST and look for Kieran."],
           [1, "Thanks Jadis."]
         ],
         "37": [
-          [0, "I have no more quests for you, head NORTH and look for Loren."],
+          [0, "I have no more quests for you, %player_name%. Head NORTH and look for Loren."],
           [1, "Thanks Kieran."]
         ],
         "38": [
-          [0, "I have no more quests for you, head NORTH and look for Myst."],
+          [0, "I have no more quests for you, %player_name%. Head NORTH and look for Myst."],
           [1, "Thanks Loren."]
         ],
         "39": [
-          [0, "I have no more quests for you, head NORTH and look for Nyssa."],
+          [0, "I have no more quests for you, %player_name%. Head NORTH and look for Nyssa."],
           [1, "Thanks Myst."]
         ],
         "40": [
-          [0, "I have no more quests for you, head NORTH and look for Aeris."],
+          [0, "I have no more quests for you, %player_name%. Head NORTH and look for Aeris."],
           [1, "Thanks Nyssa."]
         ],
         "41": [
-          [0, "I have no more quests for you, head NORTH and look for Baelan."],
+          [0, "I have no more quests for you, %player_name%. Head NORTH and look for Baelan."],
           [1, "Thanks Aeris."]
         ],
         "42": [
-          [0, "I have no more quests for you, head NORTH and look for Caelum."],
+          [0, "I have no more quests for you, %player_name%. Head NORTH and look for Caelum."],
           [1, "Thanks Baelan."]
         ],
         "43": [
-          [0, "I have no more quests for you, head EAST and look for Darian."],
+          [0, "I have no more quests for you, %player_name%. Head EAST and look for Darian."],
           [1, "Thanks Caelum."]
         ],
         "44": [
-          [0, "I have no more quests for you, head EAST and look for Eldryn."],
+          [0, "I have no more quests for you, %player_name%. Head EAST and look for Eldryn."],
           [1, "Thanks Darian."]
         ],
         "45": [
-          [0, "I have no more quests for you, head EAST and look for Faelan."],
+          [0, "I have no more quests for you, %player_name%. Head EAST and look for Faelan."],
           [1, "Thanks Eldryn."]
         ],
         "46": [
-          [0, "I have no more quests for you, head EAST and look for Gavriel."],
+          [0, "I have no more quests for you, %player_name%. Head EAST and look for Gavriel."],
           [1, "Thanks Faelan."]
         ],
         "47": [
-          [0, "I have no more quests for you, head EAST and look for Haven."],
+          [0, "I have no more quests for you, %player_name%. Head EAST and look for Haven."],
           [1, "Thanks Gavriel."]
         ],
         "48": [
-          [0, "I have no more quests for you, head EAST and look for Ilys."],
+          [0, "I have no more quests for you, %player_name%. Head EAST and look for Ilys."],
           [1, "Thanks Haven."]
         ],
         "49": [
-          [0, "I have no more quests for you, head EAST and look for Jaelin."],
+          [0, "I have no more quests for you, %player_name%. Head EAST and look for Jaelin."],
           [1, "Thanks Ilys."]
         ],
         "50": [
-          [0, "I have no more quests for you, head SOUTH and look for Kaelan."],
+          [0, "I have no more quests for you, %player_name%. Head SOUTH and look for Kaelan."],
           [1, "Thanks Jaelin."]
         ],
         "51": [
-          [0, "I have no more quests for you, head SOUTH and look for Lirael."],
+          [0, "I have no more quests for you, %player_name%. Head SOUTH and look for Lirael."],
           [1, "Thanks Kaelan."]
         ],
         "52": [
-          [0, "I have no more quests for you, head SOUTH and look for Maelis."],
+          [0, "I have no more quests for you, %player_name%. Head SOUTH and look for Maelis."],
           [1, "Thanks Lirael."]
         ],
         "53": [
-          [0, "I have no more quests for you, head SOUTH and look for Naelen."],
+          [0, "I have no more quests for you, %player_name%. Head SOUTH and look for Naelen."],
           [1, "Thanks Maelis."]
         ],
         "54": [
-          [0, "I have no more quests for you, head SOUTH and look for Ovryn."],
+          [0, "I have no more quests for you, %player_name%. Head SOUTH and look for Ovryn."],
           [1, "Thanks Naelen."]
         ],
         "55": [
-          [0, "I have no more quests for you, head SOUTH and look for Peregrine."],
+          [0, "I have no more quests for you, %player_name%. Head SOUTH and look for Peregrine."],
           [1, "Thanks Ovryn."]
         ],
         "56": [
-          [0, "I have no more quests for you, head SOUTH and look for Quillen."],
+          [0, "I have no more quests for you, %player_name%. Head SOUTH and look for Quillen."],
           [1, "Thanks Peregrine."]
         ]
       }
@@ -381,7 +381,7 @@
           [0, "Have you defeated %count% %name%s yet?"]
         ],
         [
-          [0, "My washing line is safe! I'll knit you something."]
+          [0, "My washing line is safe, %player_name%! I'll knit you something."]
         ]
       ],
       "1030000001301": [
@@ -396,7 +396,7 @@
           [0, "Do you have the %count% %name%s yet?"]
         ],
         [
-          [0, "Our handbags! A bit slimy, but everything's still inside."]
+          [0, "Our handbags, %player_name%! A bit slimy, but everything's still inside."]
         ]
       ],
       "1030000001401": [
@@ -412,7 +412,7 @@
           [0, "Do you have the %count% %name%s yet?"]
         ],
         [
-          [0, "All five! Now watch this... ouch. Maybe I'll practise first."]
+          [0, "All five, %player_name%! Now watch this... ouch. Maybe I'll practise first."]
         ]
       ],
       "1030000001501": [
@@ -427,7 +427,7 @@
           [0, "Have you defeated %count% %name%s yet?"]
         ],
         [
-          [0, "The path is clear! Travellers can walk it again."]
+          [0, "The path is clear, %player_name%! Travellers can walk it again."]
         ]
       ],
       "1030000001601": [
@@ -443,7 +443,7 @@
           [0, "Have you defeated %count% %name%s yet?"]
         ],
         [
-          [0, "Not a single broken lantern last night!"]
+          [0, "Not a single broken lantern last night, %player_name%!"]
         ]
       ],
       "1030000001701": [
@@ -458,7 +458,7 @@
           [0, "Have you defeated %count% %name%s yet?"]
         ],
         [
-          [0, "The bell rang at noon and nobody screamed. Thank you!"]
+          [0, "The bell rang at noon and nobody screamed. Thank you, %player_name%!"]
         ]
       ],
       "1030000001801": [
@@ -474,7 +474,7 @@
           [0, "Do you have the %count% %name%s yet?"]
         ],
         [
-          [0, "Five pink fireballs, still burning. Mind your eyebrows."]
+          [0, "Five pink fireballs, still burning, %player_name%. Mind your eyebrows."]
         ]
       ],
       "1030000001901": [
@@ -489,7 +489,7 @@
           [0, "Do you have the %count% %name%s yet?"]
         ],
         [
-          [0, "This one has her initials on the back. Thank you."]
+          [0, "This one has her initials on the back. Thank you, %player_name%."]
         ]
       ],
       "1030000002001": [
@@ -504,7 +504,7 @@
           [0, "Have you defeated %count% %name%s yet?"]
         ],
         [
-          [0, "The farms are safe, and the battlefield is quiet again."]
+          [0, "The farms are safe, and the battlefield is quiet again, %player_name%."]
         ]
       ],
       "1030000002101": [
@@ -520,7 +520,7 @@
           [0, "Have you defeated %count% %name%s yet?"]
         ],
         [
-          [0, "Ten fewer skeletons wandering about. If he comes back, I'll give him a piece of my mind."]
+          [0, "Ten fewer skeletons wandering about, %player_name%. If he comes back, I'll give him a piece of my mind."]
         ]
       ],
       "1030000002201": [
@@ -535,7 +535,7 @@
           [0, "Have you defeated %count% %name%s yet?"]
         ],
         [
-          [0, "My roof is still a bit flat, but no more ogres!"]
+          [0, "My roof is still a bit flat, but no more ogres, %player_name%!"]
         ]
       ],
       "1030000002301": [
@@ -551,7 +551,7 @@
           [0, "Do you have the %count% %name%s yet?"]
         ],
         [
-          [0, "Five pouches, not a coin missing. My wages are safe."]
+          [0, "Five pouches, not a coin missing, %player_name%. My wages are safe."]
         ]
       ],
       "1030000002401": [
@@ -566,7 +566,7 @@
           [0, "Do you have the %count% %name%s yet?"]
         ],
         [
-          [0, "The masks are back! They do smell a little of ogre, though."]
+          [0, "The masks are back, %player_name%! They do smell a little of ogre, though."]
         ]
       ],
       "1030000002501": [
@@ -581,7 +581,7 @@
           [0, "Do you have the %count% %name%s yet?"]
         ],
         [
-          [0, "All five, and not a scratch on them!"]
+          [0, "All five, and not a scratch on them, %player_name%!"]
         ]
       ],
       "1030000002601": [
@@ -597,7 +597,7 @@
           [0, "Have you defeated %count% %name%s yet?"]
         ],
         [
-          [0, "Finally, some privacy."]
+          [0, "Finally, %player_name%, some privacy."]
         ]
       ],
       "1030000002701": [
@@ -612,7 +612,7 @@
           [0, "Have you defeated %count% %name%s yet?"]
         ],
         [
-          [0, "The sheep are out in the meadow again. Baa-rilliant!"]
+          [0, "The sheep are out in the meadow again, %player_name%. Baa-rilliant!"]
         ]
       ],
       "1030000002801": [
@@ -627,7 +627,7 @@
           [0, "Have you defeated %count% %name%s yet?"]
         ],
         [
-          [0, "The merchant's back to normal. Well, mostly."]
+          [0, "The merchant's back to normal, %player_name%. Well, mostly."]
         ]
       ],
       "1030000002901": [
@@ -642,7 +642,7 @@
           [0, "Do you have the %count% %name%s yet?"]
         ],
         [
-          [0, "With the charms back, we can sleep without nightmares."]
+          [0, "With the charms back, we can sleep without nightmares, %player_name%."]
         ]
       ],
       "1030000003001": [
@@ -657,7 +657,7 @@
           [0, "Have you defeated %count% %name%s yet?"]
         ],
         [
-          [0, "Silence at last. The field might even grow grass again."]
+          [0, "Silence at last, %player_name%. The field might even grow grass again."]
         ]
       ],
       "1030000003101": [
@@ -672,7 +672,7 @@
           [0, "Do you have the %count% %name%s yet?"]
         ],
         [
-          [0, "Oh... they've corrected my spelling."]
+          [0, "Oh, %player_name%... they've corrected my spelling."]
         ]
       ],
       "1030000003201": [
@@ -689,7 +689,7 @@
           [0, "Do you have the %count% %name%s yet?"]
         ],
         [
-          [0, "Silence at last! The chapel will ring them properly on Sunday."]
+          [0, "Silence at last, %player_name%! The chapel will ring them properly on Sunday."]
         ]
       ],
       "1030000003301": [
@@ -704,7 +704,7 @@
           [0, "Do you have the %count% %name%s yet?"]
         ],
         [
-          [0, "The forge is roaring again. I'll make you something sharp."]
+          [0, "The forge is roaring again, %player_name%. I'll make you something sharp."]
         ]
       ],
       "1030000003401": [
@@ -719,7 +719,7 @@
           [0, "Have you defeated %count% %name%s yet?"]
         ],
         [
-          [0, "The guard's finally down from the tree. Thank you!"]
+          [0, "The guard's finally down from the tree. Thank you, %player_name%!"]
         ]
       ],
       "1030000003501": [
@@ -735,7 +735,7 @@
           [0, "Do you have the %count% %name%s yet?"]
         ],
         [
-          [0, "The queen will wear them at the feast tonight."]
+          [0, "The queen will wear them at the feast tonight, %player_name%."]
         ]
       ],
       "1030000003601": [
@@ -750,7 +750,7 @@
           [0, "Do you have the %count% %name%s yet?"]
         ],
         [
-          [0, "Beautiful! I'll call this one the Adventurer Beetle."]
+          [0, "Beautiful, %player_name%! I'll call this one the Adventurer Beetle."]
         ]
       ],
       "1030000003701": [
@@ -766,7 +766,7 @@
           [0, "Do you have the %count% %name%s yet?"]
         ],
         [
-          [0, "I can grind my herbs again. The town's potions are saved."]
+          [0, "I can grind my herbs again, %player_name%. The town's potions are saved."]
         ]
       ],
       "1030000003801": [
@@ -781,7 +781,7 @@
           [0, "Have you defeated %count% %name%s yet?"]
         ],
         [
-          [0, "The boats are out on the water again!"]
+          [0, "The boats are out on the water again, %player_name%!"]
         ]
       ],
       "1030000003901": [
@@ -796,7 +796,7 @@
           [0, "Do you have the %count% %name%s yet?"]
         ],
         [
-          [0, "Thank you. Grandmother would be so pleased."]
+          [0, "Thank you, %player_name%. Grandmother would be so pleased."]
         ]
       ],
       "1030000004001": [
@@ -812,7 +812,7 @@
           [0, "Do you have the %count% %name%s yet?"]
         ],
         [
-          [0, "My pipes! A bit dusty, but they'll do."]
+          [0, "My pipes, %player_name%! A bit dusty, but they'll do."]
         ]
       ],
       "1030000004101": [
@@ -827,7 +827,7 @@
           [0, "Have you defeated %count% %name%s yet?"]
         ],
         [
-          [0, "Ten duels won! They'll think twice now."]
+          [0, "Ten duels won, %player_name%! They'll think twice now."]
         ]
       ],
       "1030000004201": [
@@ -842,7 +842,7 @@
           [0, "Do you have the %count% %name%s yet?"]
         ],
         [
-          [0, "Five horns. The graveyard will stay quiet tonight."]
+          [0, "Five horns, %player_name%. The graveyard will stay quiet tonight."]
         ]
       ],
       "1030000004301": [
@@ -857,7 +857,7 @@
           [0, "Have you defeated %count% %name%s yet?"]
         ],
         [
-          [0, "Our banner is flying over the fort again!"]
+          [0, "Our banner is flying over the fort again, %player_name%!"]
         ]
       ],
       "1030000004401": [
@@ -872,7 +872,7 @@
           [0, "Have you defeated %count% %name%s yet?"]
         ],
         [
-          [0, "My fields are safe. Have a basket of turnips!"]
+          [0, "My fields are safe, %player_name%. Have a basket of turnips!"]
         ]
       ],
       "1030000004501": [
@@ -887,7 +887,7 @@
           [0, "Have you defeated %count% %name%s yet?"]
         ],
         [
-          [0, "The bridge is free! Traders are already crossing."]
+          [0, "The bridge is free, %player_name%! Traders are already crossing."]
         ]
       ],
       "1030000004601": [
@@ -902,7 +902,7 @@
           [0, "Do you have the %count% %name%s yet?"]
         ],
         [
-          [0, "All five, still working! Mostly."]
+          [0, "All five, still working, %player_name%! Mostly."]
         ]
       ],
       "1030000004701": [
@@ -917,7 +917,7 @@
           [0, "Have you defeated %count% %name%s yet?"]
         ],
         [
-          [0, "Customers are back! Your first drink is on me."]
+          [0, "Customers are back, %player_name%! Your first drink is on me."]
         ]
       ],
       "1030000004801": [
@@ -932,7 +932,7 @@
           [0, "Do you have the %count% %name%s yet?"]
         ],
         [
-          [0, "Five bats! They'll look lovely in a glass case."]
+          [0, "Five bats, %player_name%! They'll look lovely in a glass case."]
         ]
       ],
       "1030000004901": [
@@ -947,7 +947,7 @@
           [0, "Have you defeated %count% %name%s yet?"]
         ],
         [
-          [0, "The lighthouse is shining again. Ships can find the harbour."]
+          [0, "The lighthouse is shining again, %player_name%. Ships can find the harbour."]
         ]
       ],
       "1030000005001": [
@@ -962,7 +962,7 @@
           [0, "Have you defeated %count% %name%s yet?"]
         ],
         [
-          [0, "The guards can see the road again."]
+          [0, "The guards can see the road again, %player_name%."]
         ]
       ],
       "1030000005101": [
@@ -977,7 +977,7 @@
           [0, "Do you have the %count% %name%s yet?"]
         ],
         [
-          [0, "The scrolls are back, only a little nibbled."]
+          [0, "The scrolls are back, only a little nibbled, %player_name%."]
         ]
       ],
       "1030000005201": [
@@ -992,7 +992,7 @@
           [0, "Do you have the %count% %name%s yet?"]
         ],
         [
-          [0, "These bones will rest where no skeleton can find them."]
+          [0, "These bones will rest where no skeleton can find them, %player_name%."]
         ]
       ],
       "1030000005301": [
@@ -1007,7 +1007,7 @@
           [0, "Have you defeated %count% %name%s yet?"]
         ],
         [
-          [0, "The first supply wagon just came through!"]
+          [0, "The first supply wagon just came through, %player_name%!"]
         ]
       ],
       "1030000005401": [
@@ -1022,7 +1022,7 @@
           [0, "Have you defeated %count% %name%s yet?"]
         ],
         [
-          [0, "Thank you. He'd be proud of you."]
+          [0, "Thank you, %player_name%. He'd be proud of you."]
         ]
       ],
       "1030000005501": [
@@ -1037,7 +1037,7 @@
           [0, "Have you defeated %count% %name%s yet?"]
         ],
         [
-          [0, "His guards are falling. He can't hide much longer."]
+          [0, "His guards are falling, %player_name%. He can't hide much longer."]
         ]
       ],
       "1030000005601": [
@@ -1053,7 +1053,7 @@
           [0, "Do you have the %count% %name%s yet?"]
         ],
         [
-          [0, "My cleavers! The sausage shop opens tomorrow."]
+          [0, "My cleavers, %player_name%! The sausage shop opens tomorrow."]
         ]
       ],
       "1030000005701": [
@@ -1068,7 +1068,7 @@
           [0, "Do you have the %count% %name%s yet?"]
         ],
         [
-          [0, "Five golden leaves. The old tree will bloom again in spring."]
+          [0, "Five golden leaves, %player_name%. The old tree will bloom again in spring."]
         ]
       ],
       "1020000010301": [
@@ -1086,7 +1086,7 @@
           [0, "Have %count% %name%s fallen yet? Still no traders on the bridge."]
         ],
         [
-          [0, "A wagon crossed the bridge this morning! The road is open again."],
+          [0, "A wagon crossed the bridge this morning, %player_name%! The road is open again."],
           [1, "Tell them the toll's been paid."]
         ]
       ],
@@ -1105,7 +1105,7 @@
           [0, "Do you have the %count% %name%s yet? My patch is nearly bare."]
         ],
         [
-          [0, "Five pumpkins, still warm inside! I'll save the seeds this time."],
+          [0, "Five pumpkins, still warm inside, %player_name%! I'll save the seeds this time."],
           [1, "Maybe build a roof over the patch."]
         ]
       ],
@@ -1124,7 +1124,7 @@
           [0, "Have %count% %name%s been put out yet? Another climber came down burning."]
         ],
         [
-          [0, "The pilgrims are climbing again. You did what our healers couldn't."],
+          [0, "The pilgrims are climbing again, %player_name%. You did what our healers couldn't."],
           [1, "I'm still seeing spots."]
         ]
       ],
@@ -1143,7 +1143,7 @@
           [0, "Do you have the %count% clumps of %name% yet? My cauldron is waiting."]
         ],
         [
-          [0, "Perfect, grey and smoking! The draught will be ready by morning."],
+          [0, "Perfect, %player_name%, grey and smoking! The draught will be ready by morning."],
           [1, "Please don't name it after me."]
         ]
       ],
@@ -1162,7 +1162,7 @@
           [0, "Have %count% %name%s been broken yet? I can hear them standing guard."]
         ],
         [
-          [0, "Ten of the king's guard in pieces! The dunes might finally be safe to cross."],
+          [0, "Ten of the king's guard in pieces, %player_name%! The dunes might finally be safe to cross."],
           [1, "My arms will be sore for a week."]
         ]
       ],
@@ -1181,7 +1181,7 @@
           [0, "Do you have the %count% %name%s yet? The families keep asking me."]
         ],
         [
-          [0, "Five helmets, crests still clear. Five families will light candles tonight."],
+          [0, "Five helmets, crests still clear, %player_name%. Five families will light candles tonight."],
           [1, "I'm glad I could help them."]
         ]
       ],
@@ -1200,7 +1200,7 @@
           [0, "Have %count% %name%s been put down yet? They were at the wells again last night."]
         ],
         [
-          [0, "The wells are clear, and the children slept through the night."],
+          [0, "The wells are clear, and the children slept through the night, %player_name%."],
           [1, "Let's hope they stay down."]
         ]
       ],
@@ -1219,7 +1219,7 @@
           [0, "Do you have the %count% %name%s yet? The dead are getting angrier."]
         ],
         [
-          [0, "Five urns, and I don't think the ashes even spilled. The kings can rest."],
+          [0, "Five urns, and I don't think the ashes even spilled, %player_name%. The kings can rest."],
           [1, "Ogre stew will taste different now."]
         ]
       ],
@@ -1238,7 +1238,7 @@
           [0, "Have %count% %name%s been dealt with yet? Another forager got bitten."]
         ],
         [
-          [0, "The foragers are filling their baskets again. Thank you, truly."],
+          [0, "The foragers are filling their baskets again, %player_name%. Thank you, truly."],
           [1, "Save me some berries."]
         ]
       ],
@@ -1257,7 +1257,7 @@
           [0, "Do you have the %count% %name%s yet? Another forager is limping."]
         ],
         [
-          [0, "Five vials, not a crack in them! The foragers are safe now."],
+          [0, "Five vials, not a crack in them, %player_name%! The foragers are safe now."],
           [1, "Maybe keep the rack indoors."]
         ]
       ],
@@ -1276,7 +1276,7 @@
           [0, "Have %count% %name%s been dealt with yet? Another cart was robbed."]
         ],
         [
-          [0, "The carts are rolling again, and nobody's been ambushed in days. Well done."],
+          [0, "The carts are rolling again, and nobody's been ambushed in days, %player_name%. Well done."],
           [1, "Tell them to oil their wheels."]
         ]
       ],
@@ -1295,7 +1295,7 @@
           [0, "Do you have the %count% %name%s yet? The tower is still dark."]
         ],
         [
-          [0, "Five keys! The watchtower's lantern will be lit tonight."],
+          [0, "Five keys, %player_name%! The watchtower's lantern will be lit tonight."],
           [1, "Tell the ranger not to run so fast next time."]
         ]
       ],
@@ -1314,7 +1314,7 @@
           [0, "Have %count% %name%s been cleared yet? The apples are going to waste."]
         ],
         [
-          [0, "The pickers are back in the trees! There'll be cider this year after all."],
+          [0, "The pickers are back in the trees, %player_name%! There'll be cider this year after all."],
           [1, "Save me a mug."]
         ]
       ],
@@ -1333,7 +1333,7 @@
           [0, "Do you have the %count% %name%s yet? The rats are getting bolder."]
         ],
         [
-          [0, "Five claws, barely chewed! I can open the shop again."],
+          [0, "Five claws, barely chewed, %player_name%! I can open the shop again."],
           [1, "Maybe get a cat."]
         ]
       ],
@@ -1352,7 +1352,7 @@
           [0, "Have %count% %name%s been dealt with yet? I can hear paper tearing."]
         ],
         [
-          [0, "The archives are quiet. What's left of our history is safe."],
+          [0, "The archives are quiet, %player_name%. What's left of our history is safe."],
           [1, "Nice to have history that isn't eaten."]
         ]
       ],
@@ -1371,13 +1371,13 @@
           [0, "Do you have the %count% %name%s yet? The parade is coming soon."]
         ],
         [
-          [0, "Five founders' shields, and only a little muddy. The parade is saved!"],
+          [0, "Five founders' shields, and only a little muddy, %player_name%. The parade is saved!"],
           [1, "I expect a seat at the front."]
         ]
       ],
       "1020000010101": [
         [
-          [0, "Careful where you step, traveller. The ground here is still warm from the last eruption."],
+          [0, "Careful where you step, %player_name%. The ground here is still warm from the last eruption."],
           [1, "What are those floating things over the vents?"],
           [0, "Eyes. They drift up out of the lava with the smoke and never blink."],
           [0, "Whatever one of them sees, the Death Knights on the ridge know a moment later."],
@@ -1390,7 +1390,7 @@
           [0, "Have you blinded %count% %name%s yet? I can still feel them watching."]
         ],
         [
-          [0, "The vents are quiet. For once nothing is staring back at me."],
+          [0, "The vents are quiet, %player_name%. For once nothing is staring back at me."],
           [1, "The Death Knights just lost their scouts."]
         ]
       ],
@@ -1409,7 +1409,7 @@
           [0, "Do you have the %count% loaves of %name% yet? The miners are getting hungry."]
         ],
         [
-          [0, "Still warm from the lava, and not one of them burnt. You've fed the whole camp tonight."],
+          [0, "Still warm from the lava, and not one of them burnt, %player_name%. You've fed the whole camp tonight."],
           [1, "Save me a slice."]
         ]
       ],
@@ -1428,7 +1428,7 @@
           [0, "Have %count% %name%s fallen yet? I can hear their armour on the ridge again."]
         ],
         [
-          [0, "Ten fewer blades at our gates. Maybe the fallen order can rest now."],
+          [0, "Ten fewer blades at our gates, %player_name%. Maybe the fallen order can rest now."],
           [1, "They fought like they still had a vow to keep."]
         ]
       ],
@@ -1447,7 +1447,7 @@
           [0, "Do you have %count% %name%s yet? The ground keeps shaking."]
         ],
         [
-          [0, "Still warm, and not a crack in any of them. The wardstones will hold for another age."],
+          [0, "Still warm, and not a crack in any of them, %player_name%. The wardstones will hold for another age."],
           [1, "Let's hope nobody tests that."]
         ]
       ],
@@ -1466,7 +1466,7 @@
           [0, "Have %count% %name%s been laid to rest yet? I still hear rattling at night."]
         ],
         [
-          [0, "The road is quiet again. Perhaps the old caravan has finally finished its journey."],
+          [0, "The road is quiet again, %player_name%. Perhaps the old caravan has finally finished its journey."],
           [1, "Ten of them have, anyway."]
         ]
       ],
@@ -1485,7 +1485,7 @@
           [0, "Do you have the %count% %name%s yet? The water gets lower every morning."]
         ],
         [
-          [0, "All five! I'll pour the blessing at first light, and the spring will rise again."],
+          [0, "All five, %player_name%! I'll pour the blessing at first light, and the spring will rise again."],
           [1, "Could you rinse the Ogre spit off first?"]
         ]
       ],
@@ -1504,7 +1504,7 @@
           [0, "Have %count% %name%s fallen yet? Another well was smashed last night."]
         ],
         [
-          [0, "Ten Ogres down? You hit harder than a sandstorm."],
+          [0, "Ten Ogres down, %player_name%? You hit harder than a sandstorm."],
           [1, "And I hold a grudge for longer."]
         ]
       ],
@@ -1523,7 +1523,7 @@
           [0, "Do you have the %count% %name%s yet? The drumming was louder last night."]
         ],
         [
-          [0, "Five drums, and the dunes are silent. I'll bury them deep in the salt flats."],
+          [0, "Five drums, and the dunes are silent, %player_name%. I'll bury them deep in the salt flats."],
           [1, "Don't let anyone play them."]
         ]
       ],
@@ -1542,7 +1542,7 @@
           [0, "Have %count% %name%s fallen yet? I can still hear the axes."]
         ],
         [
-          [0, "The chopping has stopped. The elder oaks will stand a while longer, thanks to you."],
+          [0, "The chopping has stopped, %player_name%. The elder oaks will stand a while longer, thanks to you."],
           [1, "The trees owe me one."]
         ]
       ],
@@ -1561,7 +1561,7 @@
           [0, "Do you have the %count% %name%s yet? The squirrels are watching my chests."]
         ],
         [
-          [0, "Five padlocks, a bit slimy but working. The seed vault is safe again."],
+          [0, "Five padlocks, a bit slimy but working, %player_name%. The seed vault is safe again."],
           [1, "I'll take gloves next time."]
         ]
       ],
@@ -1580,7 +1580,7 @@
           [0, "Have %count% %name%s been dealt with yet? More bark goes grey every night."]
         ],
         [
-          [0, "I can see green sap rising in the bark again. You've given the old trees a chance."],
+          [0, "I can see green sap rising in the bark again, %player_name%. You've given the old trees a chance."],
           [1, "No more bats at the buffet."]
         ]
       ],
@@ -1599,7 +1599,7 @@
           [0, "Do you have the %count% %name%s yet? The owls have gone quiet."]
         ],
         [
-          [0, "Five white feathers. Listen, the owls are calling again."],
+          [0, "Five white feathers, %player_name%. Listen, the owls are calling again."],
           [1, "I think they're saying thank you."]
         ]
       ],
@@ -1618,7 +1618,7 @@
           [0, "Have you cleared out %count% %name%s yet? I can hear them chewing on the sacks."]
         ],
         [
-          [0, "The mill wheel is turning again! Bread for everyone this week."],
+          [0, "The mill wheel is turning again, %player_name%! Bread for everyone this week."],
           [1, "Just check the flour first."]
         ]
       ],
@@ -1637,13 +1637,13 @@
           [0, "Do you have the %count% %name%s yet? The coughing is getting worse."]
         ],
         [
-          [0, "Five glowcaps, and still glowing! The healer will have the cure brewed by nightfall."],
+          [0, "Five glowcaps, and still glowing, %player_name%! The healer will have the cure brewed by nightfall."],
           [1, "Tell the snakes to find another heater."]
         ]
       ],
       "1020300010201": [
         [
-          [0, "Don't lean over the canal wall, friend. Something might grab you."],
+          [0, "Don't lean over the canal wall, %player_name%. Something might grab you."],
           [1, "What's in the water?"],
           [0, "Snakes. The spring floods washed them down out of the hills, and they've taken over the canals."],
           [0, "The washerwomen won't go near the water, and two barges have sunk with their crews scrambling ashore."],
@@ -1656,7 +1656,7 @@
           [0, "Have %count% %name%s been dealt with yet? Nobody dares touch the canal."]
         ],
         [
-          [0, "I saw a barge go through this morning without anyone screaming. Thank you!"],
+          [0, "I saw a barge go through this morning without anyone screaming. Thank you, %player_name%!"],
           [1, "That's a low bar, but I'll take it."]
         ]
       ],
@@ -1675,7 +1675,7 @@
           [0, "Do you have the %count% %name%s yet? Every time I hear a bang I panic."]
         ],
         [
-          [0, "All five, and nobody blown up! The harvest festival can go ahead after all."],
+          [0, "All five, and nobody blown up, %player_name%! The harvest festival can go ahead after all."],
           [1, "Maybe keep them away from the rats this time."]
         ]
       ],
@@ -1687,7 +1687,7 @@
           [0, "They've chewed through the grain stores, and the baker has had to shut his doors."],
           [0, "People are falling sick, and the guards won't go anywhere near the sewers."],
           [1, "Surely a few rats can't be that much trouble?"],
-          [0, "These aren't your cellar rats, friend. They're as big as dogs and twice as mean."],
+          [0, "These aren't your cellar rats, %player_name%. They're as big as dogs and twice as mean."],
           [0, "If you can cull ten of them, the rest might think twice about our streets."]
         ],
         [
@@ -1698,7 +1698,7 @@
           [0, "Have you culled %count% %name%s yet? I can still hear them scratching in the walls."]
         ],
         [
-          [0, "You did it! The streets are quiet for the first time in days."],
+          [0, "You did it, %player_name%! The streets are quiet for the first time in days."],
           [1, "They won't be back in a hurry."]
         ]
       ],
@@ -1707,7 +1707,7 @@
           [0, "You look lost young boy..."],
           [1, "Where am I?"],
           [0, "What do you mean where you are? Anyway I need help son."],
-          [0, "You see, young one, my house, well, it's not quite the welcoming place it used to be."],
+          [0, "You see, %player_name%, my house, well, it's not quite the welcoming place it used to be."],
           [0, "It's overrun by rats, scurrying through every nook and cranny, making themselves right at home."],
           [0, "It's a bit of a mess, I'm afraid. Can you kill 10 rats for me, Sonny?"],
           [0, "That way I can get into my home again."]
@@ -1736,7 +1736,7 @@
         ],
         ["Come back when you have my %count% %name%."],
         [
-          [0, "Thank-you for returning my dice."],
+          [0, "Thank-you for returning my dice, %player_name%."],
           [0, "I can now gamble hardcore with my lucky dice."],
           [1, "Err, your welcome I guess..."]
         ]
@@ -1750,7 +1750,7 @@
           [0, "I need %count% pieces back to me."]
         ],
         ["Get %count% pieces of cheese."],
-        ["Thank-you for returning my cheese."]
+        ["Thank-you for returning my cheese, %player_name%."]
       ],
       "1030000000401": [
         [
@@ -1764,7 +1764,7 @@
         ],
         ["Return my Feather Quill."],
         [
-          [0,"Thank-you for returning my Feather Quill."],
+          [0,"Thank-you for returning my Feather Quill, %player_name%."],
           [0,"I can now resume writing my memiors."]
         ]
       ],
@@ -1788,7 +1788,7 @@
         ],
         ["Return %count% squids I caught."],
         [
-          [0,"Thank-you now I can put food on the table."],
+          [0,"Thank-you now I can put food on the table, %player_name%."],
           [0,"I might even get lucky with the Mrs."]
         ]
       ],
@@ -1823,7 +1823,7 @@
         ],
         ["Return %count% skulls."],
         [
-          [0,"Thank-you I will now be able to cast my ritual."],
+          [0,"Thank-you I will now be able to cast my ritual, %player_name%."],
           [0,"I will get rid of these Skeletons for good."]
         ]
       ],
@@ -1859,7 +1859,7 @@
           [0, "How many %name%s so far? I need %count%."]
         ],
         [
-          [0, "The volcano has stopped watching us."]
+          [0, "The volcano has stopped watching us, %player_name%."]
         ]
       ],
       "1010000010102": [
@@ -1874,7 +1874,7 @@
           [0, "Have the %name2%s given up my %name%s yet?"]
         ],
         [
-          [0, "All %count%! You have my thanks."]
+          [0, "All %count%, %player_name%! You have my thanks."]
         ]
       ],
       "1010000010201": [
@@ -1890,7 +1890,7 @@
           [0, "Still %name%s everywhere. Have you beaten %count%?"]
         ],
         [
-          [0, "The knights fall back into the smoke. Brave work!"]
+          [0, "The knights fall back into the smoke, %player_name%. Brave work!"]
         ]
       ],
       "1010000010202": [
@@ -1906,7 +1906,7 @@
           [0, "Do you have the %count% %name%s yet?"]
         ],
         [
-          [0, "Wonderful, these are exactly the ones they took."]
+          [0, "Wonderful, %player_name%, these are exactly the ones they took."]
         ]
       ],
       "1010000010301": [
@@ -1922,7 +1922,7 @@
           [0, "Have you defeated %count% %name%s yet?"]
         ],
         [
-          [0, "The bones are quiet again. Thank you."]
+          [0, "The bones are quiet again. Thank you, %player_name%."]
         ]
       ],
       "1010000010302": [
@@ -1937,7 +1937,7 @@
           [0, "Do you have the %count% %name%s yet?"]
         ],
         [
-          [0, "Wonderful, these are exactly the ones they took."]
+          [0, "Wonderful, %player_name%, these are exactly the ones they took."]
         ]
       ],
       "1010100010101": [
@@ -1953,7 +1953,7 @@
           [0, "How many %name%s so far? I need %count%."]
         ],
         [
-          [0, "You beat ogres? Remind me never to annoy you."]
+          [0, "You beat ogres, %player_name%? Remind me never to annoy you."]
         ]
       ],
       "1010100010102": [
@@ -1968,7 +1968,7 @@
           [0, "Do you have the %count% %name%s yet?"]
         ],
         [
-          [0, "Wonderful, these are exactly the ones they took."]
+          [0, "Wonderful, %player_name%, these are exactly the ones they took."]
         ]
       ],
       "1010100010201": [
@@ -1985,7 +1985,7 @@
           [0, "Have you defeated %count% %name%s yet?"]
         ],
         [
-          [0, "That will teach them. The trail is safe again!"]
+          [0, "That will teach them, %player_name%. The trail is safe again!"]
         ]
       ],
       "1010100010202": [
@@ -2000,7 +2000,7 @@
           [0, "Have the %name2%s given up my %name%s yet?"]
         ],
         [
-          [0, "All %count%! You have my thanks."]
+          [0, "All %count%, %player_name%! You have my thanks."]
         ]
       ],
       "1010000010401": [
@@ -2015,7 +2015,7 @@
           [0, "Still %name%s everywhere. Have you beaten %count%?"]
         ],
         [
-          [0, "Their march is over. Thank you."]
+          [0, "Their march is over. Thank you, %player_name%."]
         ]
       ],
       "1010000010402": [
@@ -2030,7 +2030,7 @@
           [0, "Have the %name2%s given up my %name%s yet?"]
         ],
         [
-          [0, "Wonderful, these are exactly the ones they took."]
+          [0, "Wonderful, %player_name%, these are exactly the ones they took."]
         ]
       ],
       "1010000010501": [
@@ -2045,7 +2045,7 @@
           [0, "How many %name%s so far? I need %count%."]
         ],
         [
-          [0, "Back in the ground where they belong."]
+          [0, "Back in the ground where they belong, %player_name%."]
         ]
       ],
       "1010000010502": [
@@ -2061,7 +2061,7 @@
           [0, "Have the %name2%s given up my %name%s yet?"]
         ],
         [
-          [0, "My %name%s! I never thought I would see them again."]
+          [0, "My %name%s, %player_name%! I never thought I would see them again."]
         ]
       ],
       "1010000010601": [
@@ -2077,7 +2077,7 @@
           [0, "How many %name%s so far? I need %count%."]
         ],
         [
-          [0, "You beat ogres? Remind me never to annoy you."]
+          [0, "You beat ogres, %player_name%? Remind me never to annoy you."]
         ]
       ],
       "1010000010602": [
@@ -2092,7 +2092,7 @@
           [0, "Any luck finding my %count% %name%s?"]
         ],
         [
-          [0, "Wonderful, these are exactly the ones they took."]
+          [0, "Wonderful, %player_name%, these are exactly the ones they took."]
         ]
       ],
       "1010100010301": [
@@ -2107,7 +2107,7 @@
           [0, "How many %name%s so far? I need %count%."]
         ],
         [
-          [0, "Quiet floorboards at last."]
+          [0, "Quiet floorboards at last, %player_name%."]
         ]
       ],
       "1010100010302": [
@@ -2122,7 +2122,7 @@
           [0, "Do you have the %count% %name%s yet?"]
         ],
         [
-          [0, "My %name%s! I never thought I would see them again."]
+          [0, "My %name%s, %player_name%! I never thought I would see them again."]
         ]
       ],
       "1010100010401": [
@@ -2137,7 +2137,7 @@
           [0, "How many %name%s so far? I need %count%."]
         ],
         [
-          [0, "The old army can rest at last."]
+          [0, "The old army can rest at last, %player_name%."]
         ]
       ],
       "1010100010402": [
@@ -2153,7 +2153,7 @@
           [0, "Have the %name2%s given up my %name%s yet?"]
         ],
         [
-          [0, "All %count%! You have my thanks."]
+          [0, "All %count%, %player_name%! You have my thanks."]
         ]
       ],
       "1010000010701": [
@@ -2169,7 +2169,7 @@
           [0, "Have you defeated %count% %name%s yet?"]
         ],
         [
-          [0, "The bones are quiet again. Thank you."]
+          [0, "The bones are quiet again. Thank you, %player_name%."]
         ]
       ],
       "1010000010702": [
@@ -2185,7 +2185,7 @@
           [0, "Have the %name2%s given up my %name%s yet?"]
         ],
         [
-          [0, "Wonderful, these are exactly the ones they took."]
+          [0, "Wonderful, %player_name%, these are exactly the ones they took."]
         ]
       ],
       "1010000010801": [
@@ -2200,7 +2200,7 @@
           [0, "Still %name%s everywhere. Have you beaten %count%?"]
         ],
         [
-          [0, "The ogres have fled. The wells can be rebuilt."]
+          [0, "The ogres have fled, %player_name%. The wells can be rebuilt."]
         ]
       ],
       "1010000010802": [
@@ -2215,7 +2215,7 @@
           [0, "Do you have the %count% %name%s yet?"]
         ],
         [
-          [0, "My %name%s! I never thought I would see them again."]
+          [0, "My %name%s, %player_name%! I never thought I would see them again."]
         ]
       ],
       "1010100010501": [
@@ -2230,7 +2230,7 @@
           [0, "Have you defeated %count% %name%s yet?"]
         ],
         [
-          [0, "Their march is over. Thank you."]
+          [0, "Their march is over. Thank you, %player_name%."]
         ]
       ],
       "1010100010502": [
@@ -2245,7 +2245,7 @@
           [0, "Have the %name2%s given up my %name%s yet?"]
         ],
         [
-          [0, "Wonderful, these are exactly the ones they took."]
+          [0, "Wonderful, %player_name%, these are exactly the ones they took."]
         ]
       ],
       "1010100010601": [
@@ -2260,7 +2260,7 @@
           [0, "How many %name%s so far? I need %count%."]
         ],
         [
-          [0, "Back in the ground where they belong."]
+          [0, "Back in the ground where they belong, %player_name%."]
         ]
       ],
       "1010100010602": [
@@ -2275,7 +2275,7 @@
           [0, "Have the %name2%s given up my %name%s yet?"]
         ],
         [
-          [0, "Wonderful, these are exactly the ones they took."]
+          [0, "Wonderful, %player_name%, these are exactly the ones they took."]
         ]
       ],
       "1010100010701": [
@@ -2292,7 +2292,7 @@
           [0, "Have you defeated %count% %name%s yet?"]
         ],
         [
-          [0, "You beat ogres? Remind me never to annoy you."]
+          [0, "You beat ogres, %player_name%? Remind me never to annoy you."]
         ]
       ],
       "1010100010702": [
@@ -2308,7 +2308,7 @@
           [0, "Have the %name2%s given up my %name%s yet?"]
         ],
         [
-          [0, "All %count%! You have my thanks."]
+          [0, "All %count%, %player_name%! You have my thanks."]
         ]
       ],
       "1010200010101": [
@@ -2323,7 +2323,7 @@
           [0, "Have you defeated %count% %name%s yet?"]
         ],
         [
-          [0, "The sky is clear and the birds are singing again."]
+          [0, "The sky is clear and the birds are singing again, %player_name%."]
         ]
       ],
       "1010200010102": [
@@ -2338,7 +2338,7 @@
           [0, "Any luck finding my %count% %name%s?"]
         ],
         [
-          [0, "My %name%s! I never thought I would see them again."]
+          [0, "My %name%s, %player_name%! I never thought I would see them again."]
         ]
       ],
       "1010200010201": [
@@ -2354,7 +2354,7 @@
           [0, "Have you defeated %count% %name%s yet?"]
         ],
         [
-          [0, "Not a hiss to be heard."]
+          [0, "Not a hiss to be heard, %player_name%."]
         ]
       ],
       "1010200010202": [
@@ -2370,7 +2370,7 @@
           [0, "Any luck finding my %count% %name%s?"]
         ],
         [
-          [0, "All %count%! You have my thanks."]
+          [0, "All %count%, %player_name%! You have my thanks."]
         ]
       ],
       "1010300010101": [
@@ -2385,7 +2385,7 @@
           [0, "How many %name%s so far? I need %count%."]
         ],
         [
-          [0, "Their march is over. Thank you."]
+          [0, "Their march is over. Thank you, %player_name%."]
         ]
       ],
       "1010300010102": [
@@ -2400,7 +2400,7 @@
           [0, "Any luck finding my %count% %name%s?"]
         ],
         [
-          [0, "All %count%! You have my thanks."]
+          [0, "All %count%, %player_name%! You have my thanks."]
         ]
       ],
       "1010300010201": [
@@ -2416,7 +2416,7 @@
           [0, "Have you defeated %count% %name%s yet?"]
         ],
         [
-          [0, "The cold has lifted. Thank you, friend."]
+          [0, "The cold has lifted. Thank you, %player_name%."]
         ]
       ],
       "1010300010202": [
@@ -2431,7 +2431,7 @@
           [0, "Do you have the %count% %name%s yet?"]
         ],
         [
-          [0, "All %count%! You have my thanks."]
+          [0, "All %count%, %player_name%! You have my thanks."]
         ]
       ],
       "1010300010301": [
@@ -2447,7 +2447,7 @@
           [0, "How many %name%s so far? I need %count%."]
         ],
         [
-          [0, "The volcano has stopped watching us."]
+          [0, "The volcano has stopped watching us, %player_name%."]
         ]
       ],
       "1010300010302": [
@@ -2463,7 +2463,7 @@
           [0, "Any luck finding my %count% %name%s?"]
         ],
         [
-          [0, "Wonderful, these are exactly the ones they took."]
+          [0, "Wonderful, %player_name%, these are exactly the ones they took."]
         ]
       ],
       "1010200010301": [
@@ -2478,7 +2478,7 @@
           [0, "Have you defeated %count% %name%s yet?"]
         ],
         [
-          [0, "The goblins have packed up and run. Well done."]
+          [0, "The goblins have packed up and run, %player_name%. Well done."]
         ]
       ],
       "1010200010302": [
@@ -2493,7 +2493,7 @@
           [0, "Any luck finding my %count% %name%s?"]
         ],
         [
-          [0, "Wonderful, these are exactly the ones they took."]
+          [0, "Wonderful, %player_name%, these are exactly the ones they took."]
         ]
       ],
       "1010200010401": [
@@ -2509,7 +2509,7 @@
           [0, "How many %name%s so far? I need %count%."]
         ],
         [
-          [0, "Not a single bat last night!"]
+          [0, "Not a single bat last night, %player_name%!"]
         ]
       ],
       "1010200010402": [
@@ -2524,7 +2524,7 @@
           [0, "Have the %name2%s given up my %name%s yet?"]
         ],
         [
-          [0, "My %name%s! I never thought I would see them again."]
+          [0, "My %name%s, %player_name%! I never thought I would see them again."]
         ]
       ],
       "1010300010401": [
@@ -2539,7 +2539,7 @@
           [0, "Still %name%s everywhere. Have you beaten %count%?"]
         ],
         [
-          [0, "Back in the ground where they belong."]
+          [0, "Back in the ground where they belong, %player_name%."]
         ]
       ],
       "1010300010402": [
@@ -2554,7 +2554,7 @@
           [0, "Have the %name2%s given up my %name%s yet?"]
         ],
         [
-          [0, "Wonderful, these are exactly the ones they took."]
+          [0, "Wonderful, %player_name%, these are exactly the ones they took."]
         ]
       ],
       "1010300010501": [
@@ -2570,7 +2570,7 @@
           [0, "How many %name%s so far? I need %count%."]
         ],
         [
-          [0, "You beat ogres? Remind me never to annoy you."]
+          [0, "You beat ogres, %player_name%? Remind me never to annoy you."]
         ]
       ],
       "1010300010502": [
@@ -2585,7 +2585,7 @@
           [0, "Do you have the %count% %name%s yet?"]
         ],
         [
-          [0, "My %name%s! I never thought I would see them again."]
+          [0, "My %name%s, %player_name%! I never thought I would see them again."]
         ]
       ],
       "1010300010601": [
@@ -2600,7 +2600,7 @@
           [0, "Still %name%s everywhere. Have you beaten %count%?"]
         ],
         [
-          [0, "The old army can rest at last."]
+          [0, "The old army can rest at last, %player_name%."]
         ]
       ],
       "1010300010602": [
@@ -2616,7 +2616,7 @@
           [0, "Any luck finding my %count% %name%s?"]
         ],
         [
-          [0, "My %name%s! I never thought I would see them again."]
+          [0, "My %name%s, %player_name%! I never thought I would see them again."]
         ]
       ],
       "1010200010501": [
@@ -2631,7 +2631,7 @@
           [0, "How many %name%s so far? I need %count%."]
         ],
         [
-          [0, "I can walk without watching my feet again. Thank you."]
+          [0, "I can walk without watching my feet again. Thank you, %player_name%."]
         ]
       ],
       "1010200010502": [
@@ -2646,7 +2646,7 @@
           [0, "Do you have the %count% %name%s yet?"]
         ],
         [
-          [0, "My %name%s! I never thought I would see them again."]
+          [0, "My %name%s, %player_name%! I never thought I would see them again."]
         ]
       ],
       "1010400010101": [
@@ -2662,7 +2662,7 @@
           [0, "Still %name%s everywhere. Have you beaten %count%?"]
         ],
         [
-          [0, "Not a hiss to be heard."]
+          [0, "Not a hiss to be heard, %player_name%."]
         ]
       ],
       "1010400010102": [
@@ -2677,7 +2677,7 @@
           [0, "Do you have the %count% %name%s yet?"]
         ],
         [
-          [0, "All %count%! You have my thanks."]
+          [0, "All %count%, %player_name%! You have my thanks."]
         ]
       ],
       "1010300010701": [
@@ -2692,7 +2692,7 @@
           [0, "How many %name%s so far? I need %count%."]
         ],
         [
-          [0, "That will teach them. The trail is safe again!"]
+          [0, "That will teach them, %player_name%. The trail is safe again!"]
         ]
       ],
       "1010300010702": [
@@ -2707,7 +2707,7 @@
           [0, "Have the %name2%s given up my %name%s yet?"]
         ],
         [
-          [0, "My %name%s! I never thought I would see them again."]
+          [0, "My %name%s, %player_name%! I never thought I would see them again."]
         ]
       ],
       "1010300010801": [
@@ -2723,7 +2723,7 @@
           [0, "Still %name%s everywhere. Have you beaten %count%?"]
         ],
         [
-          [0, "Not a single bat last night!"]
+          [0, "Not a single bat last night, %player_name%!"]
         ]
       ],
       "1010300010802": [
@@ -2738,7 +2738,7 @@
           [0, "Any luck finding my %count% %name%s?"]
         ],
         [
-          [0, "My %name%s! I never thought I would see them again."]
+          [0, "My %name%s, %player_name%! I never thought I would see them again."]
         ]
       ],
       "1010500010101": [
@@ -2753,7 +2753,7 @@
           [0, "Still %name%s everywhere. Have you beaten %count%?"]
         ],
         [
-          [0, "I can walk without watching my feet again. Thank you."]
+          [0, "I can walk without watching my feet again. Thank you, %player_name%."]
         ]
       ],
       "1010500010102": [
@@ -2768,7 +2768,7 @@
           [0, "Do you have the %count% %name%s yet?"]
         ],
         [
-          [0, "All %count%! You have my thanks."]
+          [0, "All %count%, %player_name%! You have my thanks."]
         ]
       ],
       "1010400010201": [
@@ -2785,7 +2785,7 @@
           [0, "Still %name%s everywhere. Have you beaten %count%?"]
         ],
         [
-          [0, "That will teach them. The trail is safe again!"]
+          [0, "That will teach them, %player_name%. The trail is safe again!"]
         ]
       ],
       "1010400010202": [
@@ -2801,7 +2801,7 @@
           [0, "Have the %name2%s given up my %name%s yet?"]
         ],
         [
-          [0, "Wonderful, these are exactly the ones they took."]
+          [0, "Wonderful, %player_name%, these are exactly the ones they took."]
         ]
       ],
       "1010400010301": [
@@ -2816,7 +2816,7 @@
           [0, "How many %name%s so far? I need %count%."]
         ],
         [
-          [0, "The sky is clear and the birds are singing again."]
+          [0, "The sky is clear and the birds are singing again, %player_name%."]
         ]
       ],
       "1010400010302": [
@@ -2832,7 +2832,7 @@
           [0, "Any luck finding my %count% %name%s?"]
         ],
         [
-          [0, "My %name%s! I never thought I would see them again."]
+          [0, "My %name%s, %player_name%! I never thought I would see them again."]
         ]
       ],
       "1010400010401": [
@@ -2847,7 +2847,7 @@
           [0, "Have you defeated %count% %name%s yet?"]
         ],
         [
-          [0, "Not a hiss to be heard."]
+          [0, "Not a hiss to be heard, %player_name%."]
         ]
       ],
       "1010400010402": [
@@ -2862,7 +2862,7 @@
           [0, "Do you have the %count% %name%s yet?"]
         ],
         [
-          [0, "My %name%s! I never thought I would see them again."]
+          [0, "My %name%s, %player_name%! I never thought I would see them again."]
         ]
       ],
       "1010500010201": [
@@ -2877,7 +2877,7 @@
           [0, "How many %name%s so far? I need %count%."]
         ],
         [
-          [0, "That will teach them. The trail is safe again!"]
+          [0, "That will teach them, %player_name%. The trail is safe again!"]
         ]
       ],
       "1010500010202": [
@@ -2893,7 +2893,7 @@
           [0, "Have the %name2%s given up my %name%s yet?"]
         ],
         [
-          [0, "All %count%! You have my thanks."]
+          [0, "All %count%, %player_name%! You have my thanks."]
         ]
       ],
       "1010500010301": [
@@ -2908,7 +2908,7 @@
           [0, "How many %name%s so far? I need %count%."]
         ],
         [
-          [0, "Not a single bat last night!"]
+          [0, "Not a single bat last night, %player_name%!"]
         ]
       ],
       "1010500010302": [
@@ -2923,7 +2923,7 @@
           [0, "Have the %name2%s given up my %name%s yet?"]
         ],
         [
-          [0, "Wonderful, these are exactly the ones they took."]
+          [0, "Wonderful, %player_name%, these are exactly the ones they took."]
         ]
       ],
       "1010400010501": [
@@ -2938,7 +2938,7 @@
           [0, "Have you defeated %count% %name%s yet?"]
         ],
         [
-          [0, "The tideline is mine again. Thank you!"]
+          [0, "The tideline is mine again. Thank you, %player_name%!"]
         ]
       ],
       "1010400010502": [
@@ -2953,7 +2953,7 @@
           [0, "Do you have the %count% %name%s yet?"]
         ],
         [
-          [0, "All %count%! You have my thanks."]
+          [0, "All %count%, %player_name%! You have my thanks."]
         ]
       ],
       "1010400010601": [
@@ -2969,7 +2969,7 @@
           [0, "How many %name%s so far? I need %count%."]
         ],
         [
-          [0, "Not a hiss to be heard."]
+          [0, "Not a hiss to be heard, %player_name%."]
         ]
       ],
       "1010400010602": [
@@ -2984,7 +2984,7 @@
           [0, "Have the %name2%s given up my %name%s yet?"]
         ],
         [
-          [0, "My %name%s! I never thought I would see them again."]
+          [0, "My %name%s, %player_name%! I never thought I would see them again."]
         ]
       ],
       "1010500010401": [
@@ -3000,7 +3000,7 @@
           [0, "Still %name%s everywhere. Have you beaten %count%?"]
         ],
         [
-          [0, "The goblins have packed up and run. Well done."]
+          [0, "The goblins have packed up and run, %player_name%. Well done."]
         ]
       ],
       "1010500010402": [
@@ -3016,7 +3016,7 @@
           [0, "Any luck finding my %count% %name%s?"]
         ],
         [
-          [0, "Wonderful, these are exactly the ones they took."]
+          [0, "Wonderful, %player_name%, these are exactly the ones they took."]
         ]
       ],
       "1010500010501": [
@@ -3031,7 +3031,7 @@
           [0, "How many %name%s so far? I need %count%."]
         ],
         [
-          [0, "The sky is clear and the birds are singing again."]
+          [0, "The sky is clear and the birds are singing again, %player_name%."]
         ]
       ],
       "1010500010502": [
@@ -3046,7 +3046,7 @@
           [0, "Any luck finding my %count% %name%s?"]
         ],
         [
-          [0, "All %count%! You have my thanks."]
+          [0, "All %count%, %player_name%! You have my thanks."]
         ]
       ],
       "1010500010601": [
@@ -3061,7 +3061,7 @@
           [0, "How many %name%s so far? I need %count%."]
         ],
         [
-          [0, "I can walk without watching my feet again. Thank you."]
+          [0, "I can walk without watching my feet again. Thank you, %player_name%."]
         ]
       ],
       "1010500010602": [
@@ -3076,7 +3076,7 @@
           [0, "Do you have the %count% %name%s yet?"]
         ],
         [
-          [0, "Wonderful, these are exactly the ones they took."]
+          [0, "Wonderful, %player_name%, these are exactly the ones they took."]
         ]
       ],
       "1010600010101": [
@@ -3091,7 +3091,7 @@
           [0, "How many %name%s so far? I need %count%."]
         ],
         [
-          [0, "The goblins have packed up and run. Well done."]
+          [0, "The goblins have packed up and run, %player_name%. Well done."]
         ]
       ],
       "1010600010102": [
@@ -3107,7 +3107,7 @@
           [0, "Any luck finding my %count% %name%s?"]
         ],
         [
-          [0, "My %name%s! I never thought I would see them again."]
+          [0, "My %name%s, %player_name%! I never thought I would see them again."]
         ]
       ],
       "1010600010201": [
@@ -3122,7 +3122,7 @@
           [0, "Still %name%s everywhere. Have you beaten %count%?"]
         ],
         [
-          [0, "Not a single bat last night!"]
+          [0, "Not a single bat last night, %player_name%!"]
         ]
       ],
       "1010600010202": [
@@ -3138,7 +3138,7 @@
           [0, "Any luck finding my %count% %name%s?"]
         ],
         [
-          [0, "My %name%s! I never thought I would see them again."]
+          [0, "My %name%s, %player_name%! I never thought I would see them again."]
         ]
       ],
       "1010700010101": [
@@ -3154,7 +3154,7 @@
           [0, "Have you defeated %count% %name%s yet?"]
         ],
         [
-          [0, "I can walk without watching my feet again. Thank you."]
+          [0, "I can walk without watching my feet again. Thank you, %player_name%."]
         ]
       ],
       "1010700010102": [
@@ -3169,7 +3169,7 @@
           [0, "Do you have the %count% %name%s yet?"]
         ],
         [
-          [0, "Wonderful, these are exactly the ones they took."]
+          [0, "Wonderful, %player_name%, these are exactly the ones they took."]
         ]
       ],
       "1010700010201": [
@@ -3185,7 +3185,7 @@
           [0, "Have you defeated %count% %name%s yet?"]
         ],
         [
-          [0, "The goblins have packed up and run. Well done."]
+          [0, "The goblins have packed up and run, %player_name%. Well done."]
         ]
       ],
       "1010700010202": [
@@ -3201,7 +3201,7 @@
           [0, "Have the %name2%s given up my %name%s yet?"]
         ],
         [
-          [0, "My %name%s! I never thought I would see them again."]
+          [0, "My %name%s, %player_name%! I never thought I would see them again."]
         ]
       ],
       "1010700010301": [
@@ -3216,7 +3216,7 @@
           [0, "How many %name%s so far? I need %count%."]
         ],
         [
-          [0, "The sky is clear and the birds are singing again."]
+          [0, "The sky is clear and the birds are singing again, %player_name%."]
         ]
       ],
       "1010700010302": [
@@ -3231,7 +3231,7 @@
           [0, "Any luck finding my %count% %name%s?"]
         ],
         [
-          [0, "My %name%s! I never thought I would see them again."]
+          [0, "My %name%s, %player_name%! I never thought I would see them again."]
         ]
       ],
       "1010600010301": [
@@ -3246,7 +3246,7 @@
           [0, "Still %name%s everywhere. Have you beaten %count%?"]
         ],
         [
-          [0, "I can walk without watching my feet again. Thank you."]
+          [0, "I can walk without watching my feet again. Thank you, %player_name%."]
         ]
       ],
       "1010600010302": [
@@ -3261,7 +3261,7 @@
           [0, "Any luck finding my %count% %name%s?"]
         ],
         [
-          [0, "All %count%! You have my thanks."]
+          [0, "All %count%, %player_name%! You have my thanks."]
         ]
       ],
       "1010600010401": [
@@ -3276,7 +3276,7 @@
           [0, "Still %name%s everywhere. Have you beaten %count%?"]
         ],
         [
-          [0, "Not a pinch all morning. Wonderful."]
+          [0, "Not a pinch all morning, %player_name%. Wonderful."]
         ]
       ],
       "1010600010402": [
@@ -3291,7 +3291,7 @@
           [0, "Any luck finding my %count% %name%s?"]
         ],
         [
-          [0, "All %count%! You have my thanks."]
+          [0, "All %count%, %player_name%! You have my thanks."]
         ]
       ],
       "1010700010401": [
@@ -3307,7 +3307,7 @@
           [0, "Have you defeated %count% %name%s yet?"]
         ],
         [
-          [0, "The grain is safe, and so are my toes. Thanks!"]
+          [0, "The grain is safe, and so are my toes. Thanks, %player_name%!"]
         ]
       ],
       "1010700010402": [
@@ -3322,7 +3322,7 @@
           [0, "Do you have the %count% %name%s yet?"]
         ],
         [
-          [0, "Wonderful, these are exactly the ones they took."]
+          [0, "Wonderful, %player_name%, these are exactly the ones they took."]
         ]
       ],
       "1010700010501": [
@@ -3338,7 +3338,7 @@
           [0, "Still %name%s everywhere. Have you beaten %count%?"]
         ],
         [
-          [0, "That will teach them. The trail is safe again!"]
+          [0, "That will teach them, %player_name%. The trail is safe again!"]
         ]
       ],
       "1010700010502": [
@@ -3354,7 +3354,7 @@
           [0, "Do you have the %count% %name%s yet?"]
         ],
         [
-          [0, "All %count%! You have my thanks."]
+          [0, "All %count%, %player_name%! You have my thanks."]
         ]
       ],
       "1010700010601": [
@@ -3369,7 +3369,7 @@
           [0, "Still %name%s everywhere. Have you beaten %count%?"]
         ],
         [
-          [0, "The sky is clear and the birds are singing again."]
+          [0, "The sky is clear and the birds are singing again, %player_name%."]
         ]
       ],
       "1010700010602": [
@@ -3384,7 +3384,7 @@
           [0, "Do you have the %count% %name%s yet?"]
         ],
         [
-          [0, "Wonderful, these are exactly the ones they took."]
+          [0, "Wonderful, %player_name%, these are exactly the ones they took."]
         ]
       ],
       "1010600010501": [
@@ -3399,7 +3399,7 @@
           [0, "Have you defeated %count% %name%s yet?"]
         ],
         [
-          [0, "Not a pinch all morning. Wonderful."]
+          [0, "Not a pinch all morning, %player_name%. Wonderful."]
         ]
       ],
       "1010600010502": [
@@ -3414,7 +3414,7 @@
           [0, "Do you have the %count% %name%s yet?"]
         ],
         [
-          [0, "All %count%! You have my thanks."]
+          [0, "All %count%, %player_name%! You have my thanks."]
         ]
       ],
       "1010600010601": [
@@ -3431,7 +3431,7 @@
           [0, "Still %name%s everywhere. Have you beaten %count%?"]
         ],
         [
-          [0, "I can walk without watching my feet again. Thank you."]
+          [0, "I can walk without watching my feet again. Thank you, %player_name%."]
         ]
       ],
       "1010600010602": [
@@ -3446,7 +3446,7 @@
           [0, "Do you have the %count% %name%s yet?"]
         ],
         [
-          [0, "All %count%! You have my thanks."]
+          [0, "All %count%, %player_name%! You have my thanks."]
         ]
       ],
       "1010700010701": [
@@ -3462,7 +3462,7 @@
           [0, "How many %name%s so far? I need %count%."]
         ],
         [
-          [0, "The tideline is mine again. Thank you!"]
+          [0, "The tideline is mine again. Thank you, %player_name%!"]
         ]
       ],
       "1010700010702": [
@@ -3478,7 +3478,7 @@
           [0, "Do you have the %count% %name%s yet?"]
         ],
         [
-          [0, "Wonderful, these are exactly the ones they took."]
+          [0, "Wonderful, %player_name%, these are exactly the ones they took."]
         ]
       ],
       "1010700010801": [
@@ -3493,7 +3493,7 @@
           [0, "Still %name%s everywhere. Have you beaten %count%?"]
         ],
         [
-          [0, "The tideline is mine again. Thank you!"]
+          [0, "The tideline is mine again. Thank you, %player_name%!"]
         ]
       ],
       "1010700010802": [
@@ -3508,7 +3508,7 @@
           [0, "Any luck finding my %count% %name%s?"]
         ],
         [
-          [0, "All %count%! You have my thanks."]
+          [0, "All %count%, %player_name%! You have my thanks."]
         ]
       ],
       "1010700010901": [
@@ -3524,7 +3524,7 @@
           [0, "Have you defeated %count% %name%s yet?"]
         ],
         [
-          [0, "The goblins have packed up and run. Well done."]
+          [0, "The goblins have packed up and run, %player_name%. Well done."]
         ]
       ],
       "1010700010902": [
@@ -3539,7 +3539,7 @@
           [0, "Do you have the %count% %name%s yet?"]
         ],
         [
-          [0, "My %name%s! I never thought I would see them again."]
+          [0, "My %name%s, %player_name%! I never thought I would see them again."]
         ]
       ],
       "1010000020101": [
@@ -3554,7 +3554,7 @@
           [0, "How many %name%s have you found?"]
         ],
         [
-          [0, "My own, back from the fire."]
+          [0, "My own, back from the fire, %player_name%."]
         ]
       ],
       "1010000020102": [
@@ -3569,7 +3569,7 @@
           [0, "How many %name%s so far? I need %count%."]
         ],
         [
-          [0, "The priests return. The flame is pure again."]
+          [0, "The priests return, %player_name%. The flame is pure again."]
         ]
       ],
       "1010000020201": [
@@ -3584,7 +3584,7 @@
           [0, "Any luck finding my %count% %name%s?"]
         ],
         [
-          [0, "The expedition was a success after all."]
+          [0, "The expedition was a success after all, %player_name%."]
         ]
       ],
       "1010000020202": [
@@ -3599,7 +3599,7 @@
           [0, "Back already? Is it %count% %name%s yet?"]
         ],
         [
-          [0, "Obsidian for everyone!"]
+          [0, "Obsidian for everyone, %player_name%!"]
         ]
       ],
       "1010000020301": [
@@ -3614,7 +3614,7 @@
           [0, "Any luck with the %name%s?"]
         ],
         [
-          [0, "The pilgrims sing your praises."]
+          [0, "The pilgrims sing your praises, %player_name%."]
         ]
       ],
       "1010000020302": [
@@ -3629,7 +3629,7 @@
           [0, "Did you bring my %name%s?"]
         ],
         [
-          [0, "Fair trade restored."]
+          [0, "Fair trade restored, %player_name%."]
         ]
       ],
       "1010000020401": [
@@ -3644,7 +3644,7 @@
           [0, "Do you have the %count% %name%s yet?"]
         ],
         [
-          [0, "Back on the road tomorrow."]
+          [0, "Back on the road tomorrow, %player_name%."]
         ]
       ],
       "1010000020402": [
@@ -3659,7 +3659,7 @@
           [0, "Have you defeated %count% %name%s yet?"]
         ],
         [
-          [0, "Clear skies and clear dunes."]
+          [0, "Clear skies and clear dunes, %player_name%."]
         ]
       ],
       "1010000020501": [
@@ -3674,13 +3674,13 @@
           [0, "Have the %name2%s given up my %name%s yet?"]
         ],
         [
-          [0, "No more tolls."]
+          [0, "No more tolls, %player_name%."]
         ]
       ],
       "1010000020502": [
         [
           [0, "My father fell to the sand-choked skeletons of the north-western wasteland."],
-          [0, "I'm not strong enough to avenge him. Will you defeat twelve?"]
+          [0, "I'm not strong enough to avenge him. Will you defeat twelve, %player_name%?"]
         ],
         [
           [0, "Only %count% of them. You can do it."]
@@ -3689,7 +3689,7 @@
           [0, "Still %name%s everywhere. Have you beaten %count%?"]
         ],
         [
-          [0, "Father can rest. Thank you."]
+          [0, "Father can rest. Thank you, %player_name%."]
         ]
       ],
       "1010000020601": [
@@ -3704,7 +3704,7 @@
           [0, "Did you bring my %name%s?"]
         ],
         [
-          [0, "They seem less lucky already."]
+          [0, "They seem less lucky already, %player_name%."]
         ]
       ],
       "1010000020602": [
@@ -3719,7 +3719,7 @@
           [0, "Any luck with the %name%s?"]
         ],
         [
-          [0, "Shade for everyone. Thank you."]
+          [0, "Shade for everyone. Thank you, %player_name%."]
         ]
       ],
       "1010000020701": [
@@ -3734,7 +3734,7 @@
           [0, "Have you defeated %count% %name%s yet?"]
         ],
         [
-          [0, "The nomads' fires burn again."]
+          [0, "The nomads' fires burn again, %player_name%."]
         ]
       ],
       "1010000020702": [
@@ -3749,7 +3749,7 @@
           [0, "How many %name%s have you found?"]
         ],
         [
-          [0, "The scorpions won't know what hit them."]
+          [0, "The scorpions won't know what hit them, %player_name%."]
         ]
       ],
       "1010000020801": [
@@ -3764,7 +3764,7 @@
           [0, "Any luck finding my %count% %name%s?"]
         ],
         [
-          [0, "You're a better guide than he was."]
+          [0, "You're a better guide than he was, %player_name%."]
         ]
       ],
       "1010000020802": [
@@ -3779,7 +3779,7 @@
           [0, "How many %name%s so far? I need %count%."]
         ],
         [
-          [0, "Beautiful glass, thanks to you."]
+          [0, "Beautiful glass, thanks to you, %player_name%."]
         ]
       ],
       "1010000020901": [
@@ -3794,7 +3794,7 @@
           [0, "Back already? Is it %count% %name%s yet?"]
         ],
         [
-          [0, "At least the dunes don't bite."]
+          [0, "At least the dunes don't bite, %player_name%."]
         ]
       ],
       "1010000020902": [
@@ -3809,7 +3809,7 @@
           [0, "Do you have the %count% %name%s yet?"]
         ],
         [
-          [0, "The ritual can begin."]
+          [0, "The ritual can begin, %player_name%."]
         ]
       ],
       "1010100020101": [
@@ -3824,7 +3824,7 @@
           [0, "Still %name%s everywhere. Have you beaten %count%?"]
         ],
         [
-          [0, "The road across the sands is open."]
+          [0, "The road across the sands is open, %player_name%."]
         ]
       ],
       "1010100020102": [
@@ -3839,7 +3839,7 @@
           [0, "Have the %name2%s given up my %name%s yet?"]
         ],
         [
-          [0, "Thank you. Truly."]
+          [0, "Thank you, %player_name%. Truly."]
         ]
       ],
       "1010100020201": [
@@ -3854,7 +3854,7 @@
           [0, "Any luck with the %name%s?"]
         ],
         [
-          [0, "Home again, after all these years."]
+          [0, "Home again, after all these years, %player_name%."]
         ]
       ],
       "1010100020202": [
@@ -3869,7 +3869,7 @@
           [0, "Any luck finding my %count% %name%s?"]
         ],
         [
-          [0, "Worth every coin now."]
+          [0, "Worth every coin now, %player_name%."]
         ]
       ],
       "1010100020301": [
@@ -3884,7 +3884,7 @@
           [0, "How many %name%s have you found?"]
         ],
         [
-          [0, "Storm's over, and so is my bad luck."]
+          [0, "Storm's over, and so is my bad luck, %player_name%."]
         ]
       ],
       "1010100020302": [
@@ -3899,7 +3899,7 @@
           [0, "Still %name%s everywhere. Have you beaten %count%?"]
         ],
         [
-          [0, "The first pilgrims arrived this morning. Bless you."]
+          [0, "The first pilgrims arrived this morning, %player_name%. Bless you."]
         ]
       ],
       "1010100020401": [
@@ -3914,7 +3914,7 @@
           [0, "Have you defeated %count% %name%s yet?"]
         ],
         [
-          [0, "The tomb is quiet now."]
+          [0, "The tomb is quiet now, %player_name%."]
         ]
       ],
       "1010100020402": [
@@ -3929,7 +3929,7 @@
           [0, "Did you bring my %name%s?"]
         ],
         [
-          [0, "The journey's saved."]
+          [0, "The journey's saved, %player_name%."]
         ]
       ],
       "1010100020501": [
@@ -3944,7 +3944,7 @@
           [0, "Have the %name2%s given up my %name%s yet?"]
         ],
         [
-          [0, "I'll get a cat."]
+          [0, "I'll get a cat, %player_name%."]
         ]
       ],
       "1010100020502": [
@@ -3960,7 +3960,7 @@
           [0, "Back already? Is it %count% %name%s yet?"]
         ],
         [
-          [0, "Fresh bread tomorrow, on me."]
+          [0, "Fresh bread tomorrow, on me, %player_name%."]
         ]
       ],
       "1010100020601": [
@@ -3975,7 +3975,7 @@
           [0, "Do you have the %count% %name%s yet?"]
         ],
         [
-          [0, "Sandy, but safe."]
+          [0, "Sandy, but safe, %player_name%."]
         ]
       ],
       "1010100020602": [
@@ -3990,7 +3990,7 @@
           [0, "How many %name%s so far? I need %count%."]
         ],
         [
-          [0, "The heat's still here, but they aren't."]
+          [0, "The heat's still here, but they aren't, %player_name%."]
         ]
       ],
       "1010100020701": [
@@ -4005,7 +4005,7 @@
           [0, "Any luck finding my %count% %name%s?"]
         ],
         [
-          [0, "My caravan is whole again."]
+          [0, "My caravan is whole again, %player_name%."]
         ]
       ],
       "1010100020702": [
@@ -4020,7 +4020,7 @@
           [0, "How many %name%s so far? I need %count%."]
         ],
         [
-          [0, "My report will mention you."]
+          [0, "My report will mention you, %player_name%."]
         ]
       ],
       "1010100020801": [
@@ -4035,7 +4035,7 @@
           [0, "How many %name%s have you found?"]
         ],
         [
-          [0, "Thank you. One eye open."]
+          [0, "Thank you, %player_name%. One eye open."]
         ]
       ],
       "1010100020802": [
@@ -4050,7 +4050,7 @@
           [0, "Still %name%s everywhere. Have you beaten %count%?"]
         ],
         [
-          [0, "My research can continue."]
+          [0, "My research can continue, %player_name%."]
         ]
       ],
       "1010100020901": [
@@ -4065,7 +4065,7 @@
           [0, "Have the %name2%s given up my %name%s yet?"]
         ],
         [
-          [0, "The show goes on!"]
+          [0, "The show goes on, %player_name%!"]
         ]
       ],
       "1010100020902": [
@@ -4081,7 +4081,7 @@
           [0, "Have you defeated %count% %name%s yet?"]
         ],
         [
-          [0, "He'll make it this time."]
+          [0, "He'll make it this time, %player_name%."]
         ]
       ],
       "1010200020101": [
@@ -4096,7 +4096,7 @@
           [0, "Do you have the %count% %name%s yet?"]
         ],
         [
-          [0, "I'll dust them off."]
+          [0, "I'll dust them off, %player_name%."]
         ]
       ],
       "1010200020102": [
@@ -4111,7 +4111,7 @@
           [0, "Any luck with the %name%s?"]
         ],
         [
-          [0, "I'll watch my step either way."]
+          [0, "I'll watch my step either way, %player_name%."]
         ]
       ],
       "1010200020201": [
@@ -4126,7 +4126,7 @@
           [0, "Did you bring my %name%s?"]
         ],
         [
-          [0, "Water, at last!"]
+          [0, "Water, at last, %player_name%!"]
         ]
       ],
       "1010200020202": [
@@ -4141,7 +4141,7 @@
           [0, "Back already? Is it %count% %name%s yet?"]
         ],
         [
-          [0, "My cactuses will flower again."]
+          [0, "My cactuses will flower again, %player_name%."]
         ]
       ],
       "1010200020301": [
@@ -4156,7 +4156,7 @@
           [0, "Still %name%s everywhere. Have you beaten %count%?"]
         ],
         [
-          [0, "The camels can drink again."]
+          [0, "The camels can drink again, %player_name%."]
         ]
       ],
       "1010200020302": [
@@ -4171,7 +4171,7 @@
           [0, "Did you bring my %name%s?"]
         ],
         [
-          [0, "The governor will be pleased."]
+          [0, "The governor will be pleased, %player_name%."]
         ]
       ],
       "1010200020401": [
@@ -4186,7 +4186,7 @@
           [0, "Have you defeated %count% %name%s yet?"]
         ],
         [
-          [0, "A rabbit in every trap. Many thanks."]
+          [0, "A rabbit in every trap, %player_name%. Many thanks."]
         ]
       ],
       "1010200020402": [
@@ -4202,7 +4202,7 @@
           [0, "Any luck finding my %count% %name%s?"]
         ],
         [
-          [0, "Better thieves than me, at least."]
+          [0, "Better thieves than me, at least, %player_name%."]
         ]
       ],
       "1010200020501": [
@@ -4217,7 +4217,7 @@
           [0, "Any luck with the %name%s?"]
         ],
         [
-          [0, "The bridge holds. And so do my nerves."]
+          [0, "The bridge holds, %player_name%. And so do my nerves."]
         ]
       ],
       "1010200020502": [
@@ -4232,7 +4232,7 @@
           [0, "How many %name%s have you found?"]
         ],
         [
-          [0, "Mother will never know."]
+          [0, "Mother will never know, %player_name%."]
         ]
       ],
       "1010200020601": [
@@ -4247,7 +4247,7 @@
           [0, "Have the %name2%s given up my %name%s yet?"]
         ],
         [
-          [0, "You're braver than me."]
+          [0, "You're braver than me, %player_name%."]
         ]
       ],
       "1010200020602": [
@@ -4262,7 +4262,7 @@
           [0, "How many %name%s so far? I need %count%."]
         ],
         [
-          [0, "Water at last. Thank you."]
+          [0, "Water at last. Thank you, %player_name%."]
         ]
       ],
       "1010200020701": [
@@ -4277,7 +4277,7 @@
           [0, "Do you have the %count% %name%s yet?"]
         ],
         [
-          [0, "No more dancing for them."]
+          [0, "No more dancing for them, %player_name%."]
         ]
       ],
       "1010200020702": [
@@ -4292,7 +4292,7 @@
           [0, "Back already? Is it %count% %name%s yet?"]
         ],
         [
-          [0, "Letters are moving again. Thank you!"]
+          [0, "Letters are moving again. Thank you, %player_name%!"]
         ]
       ],
       "1010200020801": [
@@ -4307,7 +4307,7 @@
           [0, "Did you bring my %name%s?"]
         ],
         [
-          [0, "Camp's back in order."]
+          [0, "Camp's back in order, %player_name%."]
         ]
       ],
       "1010200020802": [
@@ -4322,7 +4322,7 @@
           [0, "Back already? Is it %count% %name%s yet?"]
         ],
         [
-          [0, "One storm at a time. Thank you."]
+          [0, "One storm at a time. Thank you, %player_name%."]
         ]
       ],
       "1010200020901": [
@@ -4337,7 +4337,7 @@
           [0, "Have the %name2%s given up my %name%s yet?"]
         ],
         [
-          [0, "Open for business!"]
+          [0, "Open for business, %player_name%!"]
         ]
       ],
       "1010200020902": [
@@ -4352,7 +4352,7 @@
           [0, "How many %name%s so far? I need %count%."]
         ],
         [
-          [0, "One problem solved."]
+          [0, "One problem solved, %player_name%."]
         ]
       ],
       "1010200021001": [
@@ -4367,7 +4367,7 @@
           [0, "Any luck with the %name%s?"]
         ],
         [
-          [0, "Back to lessons. The children forgive you, eventually."]
+          [0, "Back to lessons, %player_name%. The children forgive you, eventually."]
         ]
       ],
       "1010200021002": [
@@ -4382,7 +4382,7 @@
           [0, "How many %name%s have you found?"]
         ],
         [
-          [0, "Drinks are on the house."]
+          [0, "Drinks are on the house, %player_name%."]
         ]
       ],
       "1010200021101": [
@@ -4397,7 +4397,7 @@
           [0, "Still %name%s everywhere. Have you beaten %count%?"]
         ],
         [
-          [0, "My apprentices will be back by morning. Thank you."]
+          [0, "My apprentices will be back by morning. Thank you, %player_name%."]
         ]
       ],
       "1010200021102": [
@@ -4413,7 +4413,7 @@
           [0, "Any luck finding my %count% %name%s?"]
         ],
         [
-          [0, "Rumours are sometimes true!"]
+          [0, "Rumours are sometimes true, %player_name%!"]
         ]
       ],
       "1010200021201": [
@@ -4428,7 +4428,7 @@
           [0, "Have you defeated %count% %name%s yet?"]
         ],
         [
-          [0, "The elves would be proud of you."]
+          [0, "The elves would be proud of you, %player_name%."]
         ]
       ],
       "1010200021202": [
@@ -4443,7 +4443,7 @@
           [0, "Do you have the %count% %name%s yet?"]
         ],
         [
-          [0, "The innkeeper will pour you a free one."]
+          [0, "The innkeeper will pour you a free one, %player_name%."]
         ]
       ],
       "1010300020101": [
@@ -4459,7 +4459,7 @@
           [0, "Any luck finding my %count% %name%s?"]
         ],
         [
-          [0, "The map was right after all."]
+          [0, "The map was right after all, %player_name%."]
         ]
       ],
       "1010300020102": [
@@ -4474,7 +4474,7 @@
           [0, "Have you defeated %count% %name%s yet?"]
         ],
         [
-          [0, "The salt flows again."]
+          [0, "The salt flows again, %player_name%."]
         ]
       ],
       "1010300020201": [
@@ -4490,7 +4490,7 @@
           [0, "How many %name%s have you found?"]
         ],
         [
-          [0, "Real ones. Even better."]
+          [0, "Real ones, %player_name%. Even better."]
         ]
       ],
       "1010300020202": [
@@ -4505,7 +4505,7 @@
           [0, "Still %name%s everywhere. Have you beaten %count%?"]
         ],
         [
-          [0, "Water for sale! Thanks to you."]
+          [0, "Water for sale, %player_name%! Thanks to you."]
         ]
       ],
       "1010300020301": [
@@ -4536,7 +4536,7 @@
           [0, "Do you have the %count% %name%s yet?"]
         ],
         [
-          [0, "The museum in Saltmere thanks you."]
+          [0, "The museum in Saltmere thanks you, %player_name%."]
         ]
       ],
       "1010300020401": [
@@ -4551,7 +4551,7 @@
           [0, "How many %name%s so far? I need %count%."]
         ],
         [
-          [0, "Back to digging! Thank you."]
+          [0, "Back to digging! Thank you, %player_name%."]
         ]
       ],
       "1010300020402": [
@@ -4566,7 +4566,7 @@
           [0, "Have the %name2%s given up my %name%s yet?"]
         ],
         [
-          [0, "I win the bet!"]
+          [0, "I win the bet, %player_name%!"]
         ]
       ],
       "1010300020501": [
@@ -4581,7 +4581,7 @@
           [0, "Did you bring my %name%s?"]
         ],
         [
-          [0, "Now I can finish my trade."]
+          [0, "Now I can finish my trade, %player_name%."]
         ]
       ],
       "1010300020502": [
@@ -4596,7 +4596,7 @@
           [0, "Any luck with the %name%s?"]
         ],
         [
-          [0, "I can dig in peace now."]
+          [0, "I can dig in peace now, %player_name%."]
         ]
       ],
       "1010300020601": [
@@ -4611,7 +4611,7 @@
           [0, "Have the %name2%s given up my %name%s yet?"]
         ],
         [
-          [0, "The forge burns again."]
+          [0, "The forge burns again, %player_name%."]
         ]
       ],
       "1010300020602": [
@@ -4627,7 +4627,7 @@
           [0, "How many %name%s so far? I need %count%."]
         ],
         [
-          [0, "I'll tell everyone I helped."]
+          [0, "I'll tell everyone I helped, %player_name%."]
         ]
       ],
       "1010300020701": [
@@ -4643,7 +4643,7 @@
           [0, "How many %name%s have you found?"]
         ],
         [
-          [0, "Home I go. Thank you, friend."]
+          [0, "Home I go. Thank you, %player_name%."]
         ]
       ],
       "1010300020702": [
@@ -4658,7 +4658,7 @@
           [0, "Have you defeated %count% %name%s yet?"]
         ],
         [
-          [0, "I'll write the new verse myself."]
+          [0, "I'll write the new verse myself, %player_name%."]
         ]
       ],
       "1010300020801": [
@@ -4673,7 +4673,7 @@
           [0, "Do you have the %count% %name%s yet?"]
         ],
         [
-          [0, "Better than a sandstorm."]
+          [0, "Better than a sandstorm, %player_name%."]
         ]
       ],
       "1010300020802": [
@@ -4689,7 +4689,7 @@
           [0, "Still %name%s everywhere. Have you beaten %count%?"]
         ],
         [
-          [0, "The road is safe tonight."]
+          [0, "The road is safe tonight, %player_name%."]
         ]
       ],
       "1010300020901": [
@@ -4704,7 +4704,7 @@
           [0, "Any luck finding my %count% %name%s?"]
         ],
         [
-          [0, "Tied down properly this time."]
+          [0, "Tied down properly this time, %player_name%."]
         ]
       ],
       "1010300020902": [
@@ -4719,7 +4719,7 @@
           [0, "Any luck with the %name%s?"]
         ],
         [
-          [0, "Our ancestors sleep in peace again."]
+          [0, "Our ancestors sleep in peace again, %player_name%."]
         ]
       ],
       "1010300021001": [
@@ -4734,7 +4734,7 @@
           [0, "Did you bring my %name%s?"]
         ],
         [
-          [0, "Lesson learned: bring a hero."]
+          [0, "Lesson learned: bring a hero, %player_name%."]
         ]
       ],
       "1010300021002": [
@@ -4749,7 +4749,7 @@
           [0, "Back already? Is it %count% %name%s yet?"]
         ],
         [
-          [0, "Found it! It was by my feet all along."]
+          [0, "Found it, %player_name%! It was by my feet all along."]
         ]
       ],
       "1010300021101": [
@@ -4764,7 +4764,7 @@
           [0, "Did you bring my %name%s?"]
         ],
         [
-          [0, "Their smiles are your reward."]
+          [0, "Their smiles are your reward, %player_name%."]
         ]
       ],
       "1010300021102": [
@@ -4779,7 +4779,7 @@
           [0, "Back already? Is it %count% %name%s yet?"]
         ],
         [
-          [0, "All goats accounted for. Thank you!"]
+          [0, "All goats accounted for. Thank you, %player_name%!"]
         ]
       ],
       "1010300021201": [
@@ -4795,7 +4795,7 @@
           [0, "Any luck with the %name%s?"]
         ],
         [
-          [0, "My ankle and I thank you."]
+          [0, "My ankle and I thank you, %player_name%."]
         ]
       ],
       "1010300021202": [
@@ -4810,7 +4810,7 @@
           [0, "Have the %name2%s given up my %name%s yet?"]
         ],
         [
-          [0, "The healer will save lives with these."]
+          [0, "The healer will save lives with these, %player_name%."]
         ]
       ],
       "1010400020101": [
@@ -4825,7 +4825,7 @@
           [0, "How many %name%s so far? I need %count%."]
         ],
         [
-          [0, "The grain is safe. Thanks!"]
+          [0, "The grain is safe. Thanks, %player_name%!"]
         ]
       ],
       "1010400020102": [
@@ -4840,7 +4840,7 @@
           [0, "Do you have the %count% %name%s yet?"]
         ],
         [
-          [0, "Bless you!"]
+          [0, "Bless you, %player_name%!"]
         ]
       ],
       "1010400020201": [
@@ -4855,7 +4855,7 @@
           [0, "Still %name%s everywhere. Have you beaten %count%?"]
         ],
         [
-          [0, "The deer are back. We eat tonight!"]
+          [0, "The deer are back, %player_name%. We eat tonight!"]
         ]
       ],
       "1010400020202": [
@@ -4871,7 +4871,7 @@
           [0, "Any luck finding my %count% %name%s?"]
         ],
         [
-          [0, "No more sleepwalking for me."]
+          [0, "No more sleepwalking for me, %player_name%."]
         ]
       ],
       "1010400020301": [
@@ -4886,7 +4886,7 @@
           [0, "How many %name%s have you found?"]
         ],
         [
-          [0, "The dog is forgiven."]
+          [0, "The dog is forgiven, %player_name%."]
         ]
       ],
       "1010400020302": [
@@ -4902,7 +4902,7 @@
           [0, "Have you defeated %count% %name%s yet?"]
         ],
         [
-          [0, "The forest breathes easier. The druid thanks you."]
+          [0, "The forest breathes easier, %player_name%. The druid thanks you."]
         ]
       ],
       "1010400020401": [
@@ -4917,7 +4917,7 @@
           [0, "Have the %name2%s given up my %name%s yet?"]
         ],
         [
-          [0, "The wedding is back on!"]
+          [0, "The wedding is back on, %player_name%!"]
         ]
       ],
       "1010400020402": [
@@ -4933,7 +4933,7 @@
           [0, "Back already? Is it %count% %name%s yet?"]
         ],
         [
-          [0, "Ah, he's back. Lucky me. Thank you anyway."]
+          [0, "Ah, %player_name%, he's back. Lucky me. Thank you anyway."]
         ]
       ],
       "1010400020501": [
@@ -4948,7 +4948,7 @@
           [0, "Still %name%s everywhere. Have you beaten %count%?"]
         ],
         [
-          [0, "Grandmother says you'll do. High praise."]
+          [0, "Grandmother says you'll do, %player_name%. High praise."]
         ]
       ],
       "1010400020502": [
@@ -4963,7 +4963,7 @@
           [0, "Any luck finding my %count% %name%s?"]
         ],
         [
-          [0, "Splendid additions to my collection."]
+          [0, "Splendid additions to my collection, %player_name%."]
         ]
       ],
       "1010400020601": [
@@ -4978,7 +4978,7 @@
           [0, "Did you bring my %name%s?"]
         ],
         [
-          [0, "The woodcutters will buy you a drink."]
+          [0, "The woodcutters will buy you a drink, %player_name%."]
         ]
       ],
       "1010400020602": [
@@ -4993,7 +4993,7 @@
           [0, "Have you defeated %count% %name%s yet?"]
         ],
         [
-          [0, "He's singing again. Badly, but singing."]
+          [0, "He's singing again, %player_name%. Badly, but singing."]
         ]
       ],
       "1010400020701": [
@@ -5009,7 +5009,7 @@
           [0, "Any luck with the %name%s?"]
         ],
         [
-          [0, "A quiet shift at last."]
+          [0, "A quiet shift at last, %player_name%."]
         ]
       ],
       "1010400020702": [
@@ -5024,7 +5024,7 @@
           [0, "Do you have the %count% %name%s yet?"]
         ],
         [
-          [0, "Salvage rights are mine now."]
+          [0, "Salvage rights are mine now, %player_name%."]
         ]
       ],
       "1010400020801": [
@@ -5039,7 +5039,7 @@
           [0, "How many %name%s so far? I need %count%."]
         ],
         [
-          [0, "My sister says thank you, and so do I."]
+          [0, "My sister says thank you, and so do I, %player_name%."]
         ]
       ],
       "1010400020802": [
@@ -5054,14 +5054,14 @@
           [0, "How many %name%s have you found?"]
         ],
         [
-          [0, "Grandfather's treasure, home at last."]
+          [0, "Grandfather's treasure, home at last, %player_name%."]
         ]
       ],
       "1010400020901": [
         [
           [0, "A wandering knight promised to deal with the mud-smeared goblins of the central wildwood."],
           [1, "What happened?"],
-          [0, "He saw them and remembered urgent business. Will you defeat eight?"]
+          [0, "He saw them and remembered urgent business. Will you defeat eight, %player_name%?"]
         ],
         [
           [0, "Only %count% of them. You can do it."]
@@ -5070,7 +5070,7 @@
           [0, "Any luck with the %name%s?"]
         ],
         [
-          [0, "A true hero. Unlike some knights I could name."]
+          [0, "A true hero, %player_name%. Unlike some knights I could name."]
         ]
       ],
       "1010400020902": [
@@ -5085,7 +5085,7 @@
           [0, "Did you bring my %name%s?"]
         ],
         [
-          [0, "The guild thanks you."]
+          [0, "The guild thanks you, %player_name%."]
         ]
       ],
       "1010400021001": [
@@ -5100,7 +5100,7 @@
           [0, "Still %name%s everywhere. Have you beaten %count%?"]
         ],
         [
-          [0, "The music's starting. Thank you!"]
+          [0, "The music's starting. Thank you, %player_name%!"]
         ]
       ],
       "1010400021002": [
@@ -5115,7 +5115,7 @@
           [0, "Do you have the %count% %name%s yet?"]
         ],
         [
-          [0, "Remind me to thank that crow."]
+          [0, "Remind me to thank that crow, %player_name%."]
         ]
       ],
       "1010400021101": [
@@ -5130,7 +5130,7 @@
           [0, "How many %name%s so far? I need %count%."]
         ],
         [
-          [0, "Hearths will be warm this winter."]
+          [0, "Hearths will be warm this winter, %player_name%."]
         ]
       ],
       "1010400021102": [
@@ -5145,7 +5145,7 @@
           [0, "Any luck finding my %count% %name%s?"]
         ],
         [
-          [0, "Farewell, and thank you."]
+          [0, "Farewell, and thank you, %player_name%."]
         ]
       ],
       "1010400021201": [
@@ -5160,7 +5160,7 @@
           [0, "Back already? Is it %count% %name%s yet?"]
         ],
         [
-          [0, "Fresh water at last."]
+          [0, "Fresh water at last, %player_name%."]
         ]
       ],
       "1010400021202": [
@@ -5176,7 +5176,7 @@
           [0, "Have the %name2%s given up my %name%s yet?"]
         ],
         [
-          [0, "Trade is over. Thank you."]
+          [0, "Trade is over. Thank you, %player_name%."]
         ]
       ],
       "1010500020101": [
@@ -5191,7 +5191,7 @@
           [0, "How many %name%s have you found?"]
         ],
         [
-          [0, "The ranger will never know."]
+          [0, "The ranger will never know, %player_name%."]
         ]
       ],
       "1010500020102": [
@@ -5206,7 +5206,7 @@
           [0, "Have you defeated %count% %name%s yet?"]
         ],
         [
-          [0, "My lantern burns bright again."]
+          [0, "My lantern burns bright again, %player_name%."]
         ]
       ],
       "1010500020201": [
@@ -5221,7 +5221,7 @@
           [0, "Any luck finding my %count% %name%s?"]
         ],
         [
-          [0, "Debt paid. I can breathe again."]
+          [0, "Debt paid, %player_name%. I can breathe again."]
         ]
       ],
       "1010500020202": [
@@ -5236,7 +5236,7 @@
           [0, "Any luck with the %name%s?"]
         ],
         [
-          [0, "The carvers will make you something special."]
+          [0, "The carvers will make you something special, %player_name%."]
         ]
       ],
       "1010500020301": [
@@ -5251,7 +5251,7 @@
           [0, "How many %name%s so far? I need %count%."]
         ],
         [
-          [0, "There he is! Come here, you silly mule."]
+          [0, "There he is, %player_name%! Come here, you silly mule."]
         ]
       ],
       "1010500020302": [
@@ -5266,7 +5266,7 @@
           [0, "Did you bring my %name%s?"]
         ],
         [
-          [0, "I'll hold on tighter this time."]
+          [0, "I'll hold on tighter this time, %player_name%."]
         ]
       ],
       "1010500020401": [
@@ -5282,7 +5282,7 @@
           [0, "Have the %name2%s given up my %name%s yet?"]
         ],
         [
-          [0, "Next time I'll pick a better log."]
+          [0, "Next time I'll pick a better log, %player_name%."]
         ]
       ],
       "1010500020402": [
@@ -5297,7 +5297,7 @@
           [0, "Still %name%s everywhere. Have you beaten %count%?"]
         ],
         [
-          [0, "My map is finished. I'll put your name in the corner."]
+          [0, "My map is finished, %player_name%. I'll put your name in the corner."]
         ]
       ],
       "1010500020501": [
@@ -5313,7 +5313,7 @@
           [0, "How many %name%s have you found?"]
         ],
         [
-          [0, "Dinner's going to be wonderful."]
+          [0, "Dinner's going to be wonderful, %player_name%."]
         ]
       ],
       "1010500020502": [
@@ -5328,7 +5328,7 @@
           [0, "Have you defeated %count% %name%s yet?"]
         ],
         [
-          [0, "We'll go at dawn. He'll be so excited."]
+          [0, "We'll go at dawn, %player_name%. He'll be so excited."]
         ]
       ],
       "1010500020601": [
@@ -5343,7 +5343,7 @@
           [0, "Do you have the %count% %name%s yet?"]
         ],
         [
-          [0, "He can rest now. Thank you."]
+          [0, "He can rest now. Thank you, %player_name%."]
         ]
       ],
       "1010500020602": [
@@ -5359,7 +5359,7 @@
           [0, "Back already? Is it %count% %name%s yet?"]
         ],
         [
-          [0, "The glade is ready. You're invited, of course!"]
+          [0, "The glade is ready, %player_name%. You're invited, of course!"]
         ]
       ],
       "1010500020701": [
@@ -5374,7 +5374,7 @@
           [0, "Still %name%s everywhere. Have you beaten %count%?"]
         ],
         [
-          [0, "Baskets full! You'll have mushroom soup tonight."]
+          [0, "Baskets full, %player_name%! You'll have mushroom soup tonight."]
         ]
       ],
       "1010500020702": [
@@ -5389,7 +5389,7 @@
           [0, "Did you bring my %name%s?"]
         ],
         [
-          [0, "The king need never know."]
+          [0, "The king need never know, %player_name%."]
         ]
       ],
       "1010500020801": [
@@ -5404,7 +5404,7 @@
           [0, "Have the %name2%s given up my %name%s yet?"]
         ],
         [
-          [0, "A bit sticky, but they're mine."]
+          [0, "A bit sticky, but they're mine, %player_name%."]
         ]
       ],
       "1010500020802": [
@@ -5419,7 +5419,7 @@
           [0, "How many %name%s so far? I need %count%."]
         ],
         [
-          [0, "It came free on the first tug. Thank you."]
+          [0, "It came free on the first tug. Thank you, %player_name%."]
         ]
       ],
       "1010500020901": [
@@ -5434,7 +5434,7 @@
           [0, "Any luck finding my %count% %name%s?"]
         ],
         [
-          [0, "Nobody tolls me."]
+          [0, "Nobody tolls me, %player_name%."]
         ]
       ],
       "1010500020902": [
@@ -5450,7 +5450,7 @@
           [0, "Any luck with the %name%s?"]
         ],
         [
-          [0, "I'll call the last chapter 'The Hero Arrives'."]
+          [0, "I'll call the last chapter 'The Hero Arrives', %player_name%."]
         ]
       ],
       "1010500021001": [
@@ -5465,7 +5465,7 @@
           [0, "Back already? Is it %count% %name%s yet?"]
         ],
         [
-          [0, "Class is back in session. Thank you."]
+          [0, "Class is back in session. Thank you, %player_name%."]
         ]
       ],
       "1010500021002": [
@@ -5480,7 +5480,7 @@
           [0, "How many %name%s have you found?"]
         ],
         [
-          [0, "The sign tells the truth again."]
+          [0, "The sign tells the truth again, %player_name%."]
         ]
       ],
       "1010500021101": [
@@ -5495,7 +5495,7 @@
           [0, "Do you have the %count% %name%s yet?"]
         ],
         [
-          [0, "Business is open again!"]
+          [0, "Business is open again, %player_name%!"]
         ]
       ],
       "1010500021102": [
@@ -5510,7 +5510,7 @@
           [0, "Have you defeated %count% %name%s yet?"]
         ],
         [
-          [0, "Finally, I can sleep. Thank you."]
+          [0, "Finally, I can sleep. Thank you, %player_name%."]
         ]
       ],
       "1010500021201": [
@@ -5525,7 +5525,7 @@
           [0, "Have you defeated %count% %name%s yet?"]
         ],
         [
-          [0, "The hermit's fine. Grumpy, but fine."]
+          [0, "The hermit's fine, %player_name%. Grumpy, but fine."]
         ]
       ],
       "1010500021202": [
@@ -5540,7 +5540,7 @@
           [0, "Do you have the %count% %name%s yet?"]
         ],
         [
-          [0, "Travellers will thank you too."]
+          [0, "Travellers will thank you too, %player_name%."]
         ]
       ],
       "1010600020101": [
@@ -5555,7 +5555,7 @@
           [0, "Did you bring my %name%s?"]
         ],
         [
-          [0, "My master will be pleased."]
+          [0, "My master will be pleased, %player_name%."]
         ]
       ],
       "1010600020102": [
@@ -5570,7 +5570,7 @@
           [0, "Back already? Is it %count% %name%s yet?"]
         ],
         [
-          [0, "Berries for everyone. Thank you!"]
+          [0, "Berries for everyone. Thank you, %player_name%!"]
         ]
       ],
       "1010600020201": [
@@ -5586,7 +5586,7 @@
           [0, "How many %name%s so far? I need %count%."]
         ],
         [
-          [0, "My bees can rest easy now."]
+          [0, "My bees can rest easy now, %player_name%."]
         ]
       ],
       "1010600020202": [
@@ -5602,7 +5602,7 @@
           [0, "Any luck finding my %count% %name%s?"]
         ],
         [
-          [0, "Exactly the ones they took!"]
+          [0, "Exactly the ones they took, %player_name%!"]
         ]
       ],
       "1010600020301": [
@@ -5617,7 +5617,7 @@
           [0, "Still %name%s everywhere. Have you beaten %count%?"]
         ],
         [
-          [0, "Timber! And no pests underfoot."]
+          [0, "Timber, %player_name%! And no pests underfoot."]
         ]
       ],
       "1010600020302": [
@@ -5632,7 +5632,7 @@
           [0, "Have the %name2%s given up my %name%s yet?"]
         ],
         [
-          [0, "It must look silly now."]
+          [0, "It must look silly now, %player_name%."]
         ]
       ],
       "1010600020401": [
@@ -5647,7 +5647,7 @@
           [0, "How many %name%s have you found?"]
         ],
         [
-          [0, "Now I can finish my trip."]
+          [0, "Now I can finish my trip, %player_name%."]
         ]
       ],
       "1010600020402": [
@@ -5662,7 +5662,7 @@
           [0, "Any luck with the %name%s?"]
         ],
         [
-          [0, "Next spring the saplings will have a chance."]
+          [0, "Next spring the saplings will have a chance, %player_name%."]
         ]
       ],
       "1010600020501": [
@@ -5677,7 +5677,7 @@
           [0, "Any luck finding my %count% %name%s?"]
         ],
         [
-          [0, "I'll keep them dry next time."]
+          [0, "I'll keep them dry next time, %player_name%."]
         ]
       ],
       "1010600020502": [
@@ -5692,7 +5692,7 @@
           [0, "Any luck with the %name%s?"]
         ],
         [
-          [0, "The castles stand tall."]
+          [0, "The castles stand tall, %player_name%."]
         ]
       ],
       "1010600020601": [
@@ -5707,7 +5707,7 @@
           [0, "Have the %name2%s given up my %name%s yet?"]
         ],
         [
-          [0, "Just in time for market day."]
+          [0, "Just in time for market day, %player_name%."]
         ]
       ],
       "1010600020602": [
@@ -5722,7 +5722,7 @@
           [0, "Have you defeated %count% %name%s yet?"]
         ],
         [
-          [0, "Clean water, thank you."]
+          [0, "Clean water, thank you, %player_name%."]
         ]
       ],
       "1010600020701": [
@@ -5737,7 +5737,7 @@
           [0, "Do you have the %count% %name%s yet?"]
         ],
         [
-          [0, "Wet, but mine."]
+          [0, "Wet, but mine, %player_name%."]
         ]
       ],
       "1010600020702": [
@@ -5753,7 +5753,7 @@
           [0, "Back already? Is it %count% %name%s yet?"]
         ],
         [
-          [0, "Clams for dinner!"]
+          [0, "Clams for dinner, %player_name%!"]
         ]
       ],
       "1010600020801": [
@@ -5768,7 +5768,7 @@
           [0, "How many %name%s so far? I need %count%."]
         ],
         [
-          [0, "The kilns are glowing again."]
+          [0, "The kilns are glowing again, %player_name%."]
         ]
       ],
       "1010600020802": [
@@ -5783,7 +5783,7 @@
           [0, "Did you bring my %name%s?"]
         ],
         [
-          [0, "The scholars will be thrilled."]
+          [0, "The scholars will be thrilled, %player_name%."]
         ]
       ],
       "1010600020901": [
@@ -5799,7 +5799,7 @@
           [0, "How many %name%s have you found?"]
         ],
         [
-          [0, "Shiny and home."]
+          [0, "Shiny and home, %player_name%."]
         ]
       ],
       "1010600020902": [
@@ -5814,7 +5814,7 @@
           [0, "Still %name%s everywhere. Have you beaten %count%?"]
         ],
         [
-          [0, "The hatchlings will make it."]
+          [0, "The hatchlings will make it, %player_name%."]
         ]
       ],
       "1010700020101": [
@@ -5829,7 +5829,7 @@
           [0, "How many %name%s have you found?"]
         ],
         [
-          [0, "She says your future looks bright."]
+          [0, "She says your future looks bright, %player_name%."]
         ]
       ],
       "1010700020102": [
@@ -5844,7 +5844,7 @@
           [0, "Back already? Is it %count% %name%s yet?"]
         ],
         [
-          [0, "The recruits all want to be you now."]
+          [0, "The recruits all want to be you now, %player_name%."]
         ]
       ],
       "1010700020201": [
@@ -5859,7 +5859,7 @@
           [0, "Any luck finding my %count% %name%s?"]
         ],
         [
-          [0, "Mended pack, full pack."]
+          [0, "Mended pack, full pack, %player_name%."]
         ]
       ],
       "1010700020202": [
@@ -5875,7 +5875,7 @@
           [0, "Any luck with the %name%s?"]
         ],
         [
-          [0, "My canvas is peaceful at last."]
+          [0, "My canvas is peaceful at last, %player_name%."]
         ]
       ],
       "1010700020301": [
@@ -5890,7 +5890,7 @@
           [0, "Do you have the %count% %name%s yet?"]
         ],
         [
-          [0, "Pleasure doing business."]
+          [0, "Pleasure doing business, %player_name%."]
         ]
       ],
       "1010700020302": [
@@ -5905,7 +5905,7 @@
           [0, "Still %name%s everywhere. Have you beaten %count%?"]
         ],
         [
-          [0, "The healers will have their moss. Well done."]
+          [0, "The healers will have their moss, %player_name%. Well done."]
         ]
       ],
       "1010700020401": [
@@ -5920,7 +5920,7 @@
           [0, "Did you bring my %name%s?"]
         ],
         [
-          [0, "Open for business again."]
+          [0, "Open for business again, %player_name%."]
         ]
       ],
       "1010700020402": [
@@ -5935,7 +5935,7 @@
           [0, "How many %name%s so far? I need %count%."]
         ],
         [
-          [0, "The cat came back!"]
+          [0, "The cat came back, %player_name%!"]
         ]
       ],
       "1010700020501": [
@@ -5950,7 +5950,7 @@
           [0, "Have the %name2%s given up my %name%s yet?"]
         ],
         [
-          [0, "Now to see if it explodes."]
+          [0, "Now to see if it explodes, %player_name%."]
         ]
       ],
       "1010700020502": [
@@ -5965,7 +5965,7 @@
           [0, "Have you defeated %count% %name%s yet?"]
         ],
         [
-          [0, "Back to how it was when I was young."]
+          [0, "Back to how it was when I was young, %player_name%."]
         ]
       ],
       "1010700020601": [
@@ -5980,7 +5980,7 @@
           [0, "Did you bring my %name%s?"]
         ],
         [
-          [0, "Toys for everyone this year."]
+          [0, "Toys for everyone this year, %player_name%."]
         ]
       ],
       "1010700020602": [
@@ -5996,7 +5996,7 @@
           [0, "How many %name%s so far? I need %count%."]
         ],
         [
-          [0, "I'll win the bet after all."]
+          [0, "I'll win the bet after all, %player_name%."]
         ]
       ],
       "1010700020701": [
@@ -6011,7 +6011,7 @@
           [0, "Back already? Is it %count% %name%s yet?"]
         ],
         [
-          [0, "Back to the sea!"]
+          [0, "Back to the sea, %player_name%!"]
         ]
       ],
       "1010700020702": [
@@ -6026,7 +6026,7 @@
           [0, "Any luck finding my %count% %name%s?"]
         ],
         [
-          [0, "The sailors salute you."]
+          [0, "The sailors salute you, %player_name%."]
         ]
       ],
       "1010700020801": [
@@ -6041,7 +6041,7 @@
           [0, "Any luck with the %name%s?"]
         ],
         [
-          [0, "The tideline is mine again."]
+          [0, "The tideline is mine again, %player_name%."]
         ]
       ],
       "1010700020802": [
@@ -6056,7 +6056,7 @@
           [0, "Have the %name2%s given up my %name%s yet?"]
         ],
         [
-          [0, "Next picnic's on me."]
+          [0, "Next picnic's on me, %player_name%."]
         ]
       ],
       "1010700020901": [
@@ -6071,7 +6071,7 @@
           [0, "How many %name%s have you found?"]
         ],
         [
-          [0, "Back in the cart where they belong."]
+          [0, "Back in the cart where they belong, %player_name%."]
         ]
       ],
       "1010700020902": [
@@ -6086,7 +6086,7 @@
           [0, "Have you defeated %count% %name%s yet?"]
         ],
         [
-          [0, "We can fill our buckets without fear."]
+          [0, "We can fill our buckets without fear, %player_name%."]
         ]
       ]
     },
@@ -6098,7 +6098,7 @@
     "QUESTS_ITEM": [
       ["%name2%'s have stolen my %count% %name%s'. I need you to kill %name2%'s and get my %name%s' back.",
        "Have you got my %count% %name%'s?",
-       "Thank you for returning my %name%'s now I can use them."]
+       "Thank you for returning my %name%'s now I can use them, %player_name%."]
     ],
     "QUESTS_NODE": [
       ["Use %count% %name%."]

@@ -23,6 +23,8 @@ import os, sys, json, argparse, re
 import random
 
 HERE = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, os.path.join(HERE, '..', 'common'))
+from playername import add_player_name
 ROOT = os.path.normpath(os.path.join(HERE, '..', '..', '..', '..'))
 DATA = os.path.normpath(os.path.join(HERE, '..', '..', 'data'))
 ap = argparse.ArgumentParser(description='Quest NPCs for map1 (run after splitting it)')
@@ -395,7 +397,8 @@ qt, _ = rewrite(qt, qt.index('{'), drop, add_q, '\t', eol_q)
 json.loads(qt)
 # lang.json: EN.QUESTS and EN.QUEST_SUMMARY
 lt = open(p_lang, encoding='utf-8').read(); eol_l = '\r\n' if '\r\n' in lt else '\n'
-for key, add in (('QUESTS', {k: fmt_dialogue(v).replace('\n', eol_l) for k, v in new_dialogue.items()}),
+# %player_name% where the NPC speaks to the player (common/playername.py)
+for key, add in (('QUESTS', {k: fmt_dialogue(add_player_name(v)).replace('\n', eol_l) for k, v in new_dialogue.items()}),
                  ('QUEST_SUMMARY', {k: json.dumps(v, ensure_ascii=False) for k, v in new_summary.items()})):
     root, _ = members(lt, lt.index('{'))
     en = [m for m in root if m[0] == 'EN'][0]

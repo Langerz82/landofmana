@@ -22,6 +22,8 @@ import os, sys, json, argparse, re, random
 from collections import deque
 
 HERE = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, os.path.join(HERE, '..', 'common'))
+from playername import add_player_name
 ROOT = os.path.normpath(os.path.join(HERE, '..', '..', '..', '..'))
 DATA = os.path.normpath(os.path.join(HERE, '..', '..', 'data'))
 ap = argparse.ArgumentParser(description='Extra quest NPCs for map1, one per mob area')
@@ -550,7 +552,8 @@ qt = rewrite(qt, qt.index('{'), drop, {k: fmt_quest(v).replace('\n', eol_q) for 
              '\t', eol_q)
 json.loads(qt)
 lt = open(p_lang, encoding='utf-8').read(); eol_l = '\r\n' if '\r\n' in lt else '\n'
-for key, add in (('QUESTS', {k: fmt_dialogue(new_dialogue[k]).replace('\n', eol_l) for k in sorted(new_dialogue)}),
+# %player_name% where the NPC speaks to the player (common/playername.py)
+for key, add in (('QUESTS', {k: fmt_dialogue(add_player_name(new_dialogue[k])).replace('\n', eol_l) for k in sorted(new_dialogue)}),
                  ('QUEST_SUMMARY', {k: json.dumps(new_summary[k], ensure_ascii=False) for k in sorted(new_summary)})):
     root, _ = members(lt, lt.index('{'))
     en = [m for m in root if m[0] == 'EN'][0]

@@ -88,10 +88,20 @@ function getQuestVars(type, object, object2, count) {
     return vars;
 }
 
+// The local player's name, for %player_name% in lang dialogue (quest
+// narratives in shared/data/lang.json). Set once the game server login
+// starts (gamecallbacks.js onWorldReady), before any dialogue can arrive.
+let playerName = '';
+export function setPlayerName(name) {
+    playerName = name === undefined || name === null ? '' : String(name);
+}
+
 // Replaces `%key%` and `{key}` for every key in `vars` (an array gives
-// {0}, {1}, ... / %0%, %1%, ...; an object gives its own key names).
+// {0}, {1}, ... / %0%, %1%, ...; an object gives its own key names), and
+// %player_name% with the local player's name.
 function fillText(text, vars) {
     let txt = String(text === undefined || text === null ? '' : text);
+    txt = txt.split('%player_name%').join(playerName);
     if (!vars) return txt;
     for (const key of Object.keys(vars)) {
         const val = String(vars[key]);

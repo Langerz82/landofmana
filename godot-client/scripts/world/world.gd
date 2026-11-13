@@ -149,6 +149,7 @@ func start(info: Dictionary) -> void:
 	player = Player.new()
 	player.is_local = true
 	player.ename = str(info.get("playername", ""))
+	Quest.player_name = player.ename   # %player_name% in quest dialogue
 	player.type = Types.EntityType.PLAYER
 	player.kind = PLAYER_KIND
 	player.world = self

@@ -25,6 +25,7 @@ import NpcMove from '../entity/npcmove.js';
 import NpcStatic from '../entity/npcstatic.js';
 import Node from '../entity/node.js';
 import { G_MOVE_DELAY } from '../constants.js';
+import { setPlayerName } from '../quest.js';
 /* global lang, log, G_TILESIZE */
 
 export function installGameCallbacks(proto) {
@@ -63,6 +64,9 @@ export function installGameCallbacks(proto) {
         const port = data[5];
 
         const url = protocol + '://' + host + ':' + port + '/';
+
+        // %player_name% in quest dialogue (quest.js fillText).
+        setPlayerName(playername);
 
         // Game Client takes over the processing of Messages.
         game.client = new GameClient();

@@ -129,9 +129,17 @@ static func _cap(t: String) -> String:
 	return t if t == "" else t[0].to_upper() + t.substr(1)
 
 
+## The local player's name, for %player_name% in lang dialogue (quest
+## narratives in shared/data/lang.json). Set by World.start(), before any
+## dialogue can arrive.
+static var player_name := ""
+
+
 ## Replaces `%key%` and `{key}` for every key in `vars` (an Array gives
-## {0}, {1}, ...; a Dictionary gives its own key names).
+## {0}, {1}, ...; a Dictionary gives its own key names), and %player_name%
+## with the local player's name.
 static func fill_text(txt: String, vars) -> String:
+	txt = txt.replace("%player_name%", player_name)
 	if vars is Array:
 		for i in range(vars.size()):
 			var v := Types.to_str(vars[i])
