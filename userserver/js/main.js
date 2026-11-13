@@ -123,6 +123,25 @@ console.info = teeToLogFile(originalConsole.info);
 console.warn = teeToLogFile(originalConsole.warn);
 console.error = teeToLogFile(originalConsole.error);
 
+// FIX: "uncaughtException: Error: write EIO" (or EPIPE). The terminal this
+// process writes to can disappear while it keeps running -- the tmux
+// session/pane is killed (the *-linux.sh scripts start with
+// `tmux kill-session`), the tmux server dies, or an SSH session that started
+// node without tmux disconnects. SIGHUP is caught below to save and close
+// gracefully, so the process lives on, and from then on every console call
+// and the readline "Command:" prompt fail to reach the dead tty. With no
+// 'error' listener on the stream that error is thrown as an uncaught
+// exception, whose handler logs it with console.error -- which writes to
+// the same dead tty again. Swallow just those terminal-gone errors: the
+// log_file copy above and the inspector (--inspect) still get every line.
+const TTY_GONE_CODES = new Set(['EIO', 'EPIPE', 'ENOTCONN', 'EBADF']);
+for (const stream of [process.stdout, process.stderr, process.stdin]) {
+    stream.on('error', (err) => {
+        if (err && TTY_GONE_CODES.has(err.code)) return;
+        throw err;
+    });
+}
+
 global.MainConfig = null;
 global.DBH = null;
 global.databaseHandler = null;
