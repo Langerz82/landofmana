@@ -53,6 +53,10 @@ class MobCallback {
 
             const path = this.map.entities.findPath(this, x, y, ignored);
 
+            // a roam (mobaistate.js goRoam) may only walk inside the mob's area
+            if (path && this.roamArea && !this.roamArea.containsPath(path))
+                return null;
+
             // PERF: onRequestPath fires on every mob roam/chase/return-to-spawn
             // path request -- a routine, high-frequency event under real combat
             // load (see the PERF comments on mobai.js's checkChase/Roaming for

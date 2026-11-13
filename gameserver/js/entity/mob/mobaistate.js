@@ -60,7 +60,18 @@ class MobAIState {
 
     goRoam(pos) {
         const entity = this.entity;
-        entity.go(pos.x, pos.y);
+        // FIX (mobs roaming out of their area): the roam destination was always
+        // inside the area, but the route to it wasn't checked -- an L-shaped
+        // direct path can cut outside an ellipse, and a path round an obstacle
+        // can detour well outside the area. While roamArea is set, the mob's
+        // onRequestPath (callbacks/mobcallback.js) refuses any path that leaves
+        // it, so the mob just stays put and tries another spot later.
+        entity.roamArea = entity.area || null;
+        try {
+            entity.go(pos.x, pos.y);
+        } finally {
+            entity.roamArea = null;
+        }
 
         if (entity.path) {
             entity.setAiState(mobState.ROAMING);

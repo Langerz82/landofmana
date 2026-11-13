@@ -200,6 +200,32 @@ class Area {
         return { x: x0, y: y0, w: x1 - x0, h: y1 - y0 };
     }
 
+    // Does a path (pixel waypoints, as findPath() returns) stay inside this
+    // area the whole way? Every tile each leg passes over is checked, not just
+    // the waypoints. The tile the path starts on is skipped, so a mob that is
+    // already standing just outside can still walk back in.
+    containsPath(path) {
+        if (!path || path.length === 0) return true;
+        const ts = G_TILESIZE;
+        const half = ts >> 1;
+        const sx = Math.floor(path[0][0] / ts);
+        const sy = Math.floor(path[0][1] / ts);
+        for (let i = 1; i < path.length; ++i) {
+            const ax = path[i - 1][0];
+            const ay = path[i - 1][1];
+            const bx = path[i][0];
+            const by = path[i][1];
+            const steps = Math.max(1, Math.ceil(Math.max(Math.abs(bx - ax), Math.abs(by - ay)) / ts) * 2);
+            for (let k = 0; k <= steps; ++k) {
+                const tx = Math.floor((ax + ((bx - ax) * k) / steps) / ts);
+                const ty = Math.floor((ay + ((by - ay) * k) / steps) / ts);
+                if (tx === sx && ty === sy) continue;
+                if (!this.contains(tx * ts + half, ty * ts + half, 0)) return false;
+            }
+        }
+        return true;
+    }
+
     contains(x, y, iteration) {
         //iteration = iteration;
         if (
