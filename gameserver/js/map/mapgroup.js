@@ -70,66 +70,134 @@ export function partHasPoint(map, wx, wy) {
     );
 }
 
+// Every split map's parts, in pixels, in map-list order: { "map1": [{ name, x, y, w, h }, ...] }.
+// From maps/maplist.json "areas" ([worldX, worldY, width, height] in tiles, written by the
+// converter), set by MapManager before any map loads, so a part knows its neighbours when it
+// shares out an area's count (localizeArea()). A map without any is a part on its own.
+const partRects = {};
+
+export function setPartRects(names, areas, tilesize) {
+    for (const k of Object.keys(partRects)) delete partRects[k];
+    for (const name of Object.values(names || {})) {
+        const a = areas && areas[name];
+        if (!Array.isArray(a) || a.length < 4) continue;
+        const g = mapGroupName(name);
+        (partRects[g] = partRects[g] || []).push({
+            name,
+            x: a[0] * tilesize,
+            y: a[1] * tilesize,
+            w: a[2] * tilesize,
+            h: a[3] * tilesize
+        });
+    }
+}
+
+// This map's parts (just itself when the map list doesn't place it).
+function partsOf(map) {
+    const list = partRects[map.groupName] || [];
+    if (list.some((r) => r.name === map.name)) return list;
+    return [{ name: map.name, x: map.offsetX, y: map.offsetY, w: map.width * map.tilesize, h: map.height * map.tilesize }];
+}
+
+// How much of an area lies in part rectangle r: pixels for a rectangle (none unless at least a
+// tile each way), tiles for an ellipse (with Area.contains()'s own test, area/area.js
+// insideEllipse()).
+function shareIn(area, r, ts) {
+    if (area.elipse) {
+        const rx = area.w / 2;
+        const ry = area.h / 2;
+        let n = 0;
+        const tx0 = Math.floor(Math.max(area.x - rx, r.x) / ts);
+        const ty0 = Math.floor(Math.max(area.y - ry, r.y) / ts);
+        const tx1 = Math.min(area.x + rx, r.x + r.w);
+        const ty1 = Math.min(area.y + ry, r.y + r.h);
+        for (let ty = ty0; ty * ts < ty1; ty++) {
+            for (let tx = tx0; tx * ts < tx1; tx++) {
+                const px = tx * ts + (ts >> 1);
+                const py = ty * ts + (ts >> 1);
+                if (px < r.x || py < r.y || px >= r.x + r.w || py >= r.y + r.h) continue;
+                if (((px - area.x) / rx) ** 2 + ((py - area.y) / ry) ** 2 < 1) n++;
+            }
+        }
+        return n;
+    }
+    const w = Math.min(area.x + area.w, r.x + r.w) - Math.max(area.x, r.x);
+    const h = Math.min(area.y + area.h, r.y + r.h) - Math.max(area.y, r.y);
+    return w >= ts && h >= ts ? w * h : 0;
+}
+
+// An area's "count" shared out over the parts it lies in: each gets its share rounded down, and
+// what's left over goes to the part holding the biggest piece of the area (the first such in the
+// map list), so the parts' counts always add up to the area's count. Returns this part's count.
+function countHere(map, area) {
+    const count = Number(area.count);
+    const parts = partsOf(map);
+    const shares = parts.map((r) => shareIn(area, r, map.tilesize));
+    const total = shares.reduce((a, b) => a + b, 0);
+    const me = parts.findIndex((r) => r.name === map.name);
+    if (!(count > 0) || !total || me < 0) return area.count;
+    let given = 0;
+    let main = 0;
+    const base = shares.map((s, i) => {
+        let q = Math.floor((count * s) / total);
+        if (q * total > count * s) q--;      // exact, whatever the float division rounded to
+        given += q;
+        if (s > shares[main]) main = i;
+        return q;
+    });
+    return base[me] + (me === main ? count - given : 0);
+}
+
 // An area from entityarea.json (full-map pixels: x/y top-left, or the centre when `elipse`;
-// w/h) -> the same area in this part's coordinates, or null if no part of it is in this part.
-// Its id stays the file's id.
+// w/h) -> the same area in this part's coordinates, or null if none of it is in this part (or
+// none of its count falls to this part). Its id stays the file's id.
 //   - A rectangle is cut to the part.
 //   - An ellipse keeps its whole shape (its centre may then lie outside the part), plus a `clip`
 //     rectangle {x, y, w, h}: the part of the part it may use (area/area.js keeps spawns and
 //     roaming inside both).
-// Either way, when only some of the area is in this part, its "count" is scaled to the share in
-// it (at least 1), so an area crossing a section edge spawns on both sides about as many as it
-// would unsplit.
+// Either way, when the area lies in more than one part, its "count" is shared out between them
+// (countHere(): rounded down by share, the leftover to the part with the biggest piece), so the
+// map spawns exactly as many as it would unsplit.
 export function localizeArea(map, area) {
     const ts = map.tilesize;
     const ox = map.offsetX;
     const oy = map.offsetY;
     const px1 = ox + map.width * ts;
     const py1 = oy + map.height * ts;
+    const mine = { x: ox, y: oy, w: map.width * ts, h: map.height * ts };
+    if (!shareIn(area, mine, ts)) return null;
+    let out;
     if (area.elipse) {
         const ex0 = area.x - area.w / 2;
         const ey0 = area.y - area.h / 2;
         const ex1 = area.x + area.w / 2;
         const ey1 = area.y + area.h / 2;
-        const cx0 = Math.max(ex0, ox);
-        const cy0 = Math.max(ey0, oy);
-        const cx1 = Math.min(ex1, px1);
-        const cy1 = Math.min(ey1, py1);
-        if (cx1 - cx0 < ts || cy1 - cy0 < ts) return null;
-        const out = Object.assign({}, area, { x: area.x - ox, y: area.y - oy });
+        out = Object.assign({}, area, { x: area.x - ox, y: area.y - oy });
         delete out.clip;
-        if (cx0 === ex0 && cy0 === ey0 && cx1 === ex1 && cy1 === ey1) return out; // all of it is here
-        // the share of the ellipse's tiles in this part, with Area.contains()'s own test
-        // (area/area.js insideEllipse())
-        const rx = area.w / 2;
-        const ry = area.h / 2;
-        let all = 0;
-        let mine = 0;
-        for (let ty = Math.floor(ey0 / ts); ty * ts < ey1; ty++) {
-            for (let tx = Math.floor(ex0 / ts); tx * ts < ex1; tx++) {
-                const px = tx * ts + (ts >> 1);
-                const py = ty * ts + (ts >> 1);
-                if (((px - area.x) / rx) ** 2 + ((py - area.y) / ry) ** 2 >= 1) continue;
-                all++;
-                if (px >= ox && py >= oy && px < px1 && py < py1) mine++;
-            }
+        if (ex0 < ox || ey0 < oy || ex1 > px1 || ey1 > py1) {
+            const cx0 = Math.max(ex0, ox);
+            const cy0 = Math.max(ey0, oy);
+            out.clip = {
+                x: cx0 - ox,
+                y: cy0 - oy,
+                w: Math.min(ex1, px1) - cx0,
+                h: Math.min(ey1, py1) - cy0
+            };
         }
-        if (!mine) return null;
-        out.clip = { x: cx0 - ox, y: cy0 - oy, w: cx1 - cx0, h: cy1 - cy0 };
-        if (mine < all && Number(area.count) > 0)
-            out.count = Math.max(1, Math.round((Number(area.count) * mine) / all));
-        return out;
+    } else {
+        const x0 = Math.max(area.x, ox);
+        const y0 = Math.max(area.y, oy);
+        out = Object.assign({}, area, {
+            x: x0 - ox,
+            y: y0 - oy,
+            w: Math.min(area.x + area.w, px1) - x0,
+            h: Math.min(area.y + area.h, py1) - y0
+        });
     }
-    const x0 = Math.max(area.x, ox);
-    const y0 = Math.max(area.y, oy);
-    const x1 = Math.min(area.x + area.w, px1);
-    const y1 = Math.min(area.y + area.h, py1);
-    if (x1 - x0 < ts || y1 - y0 < ts) return null;
-    const out = Object.assign({}, area, { x: x0 - ox, y: y0 - oy, w: x1 - x0, h: y1 - y0 });
-    const whole = area.w * area.h;
-    const kept = (x1 - x0) * (y1 - y0);
-    if (kept < whole && Number(area.count) > 0)
-        out.count = Math.max(1, Math.round((Number(area.count) * kept) / whole));
+    if (Number(area.count) > 0) {
+        out.count = countHere(map, area);
+        if (!(out.count > 0)) return null;   // a sliver too small to get any of it
+    }
     return out;
 }
 

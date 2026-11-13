@@ -44,7 +44,8 @@ import fs from 'fs';
 // is loaded from ./maps/<name>.json and set up the same way (addListedMap()). Without the list file,
 // map0 and map3 are loaded.
 const MAP_LIST_FILE = './maps/maplist.json';
-import { MAP_INDEX_STRIDE } from './mapgroup.js';   // most files one map can have (sub-indexes 0-99)
+import { G_TILESIZE } from '../constants.js';
+import { MAP_INDEX_STRIDE, setPartRects } from './mapgroup.js';   // most files one map can have (sub-indexes 0-99)
 export { MAP_INDEX_STRIDE };
 const DEFAULT_MAPS = { map0: ['map0'], map3: ['map3'] };
 
@@ -80,12 +81,13 @@ function readMapList() {
         const json = JSON.parse(fs.readFileSync(MAP_LIST_FILE, 'utf8'));
         return {
             maps: flattenMapList(json.maps),
-            warps: Array.isArray(json.warps) ? json.warps : []
+            warps: Array.isArray(json.warps) ? json.warps : [],
+            areas: json.areas || {}
         };
     } catch (err) {
         if (err.code !== 'ENOENT')
             console.error('MapManager: could not read ' + MAP_LIST_FILE + ': ' + err.message);
-        return { maps: {}, warps: [] };
+        return { maps: {}, warps: [], areas: {} };
     }
 }
 
@@ -109,6 +111,9 @@ class MapManager {
         const names = Object.keys(list.maps).length > 0 ? list.maps : flattenMapList(DEFAULT_MAPS);
         this.mapNames = names;   // { index: file name }
         this.warps = list.warps;
+        // every split map's parts and where they sit, before any map loads: a part needs its
+        // neighbours to share out an area's count with them (map/mapgroup.js localizeArea())
+        setPartRects(names, list.areas, G_TILESIZE);
         for (const id in names) self.addListedMap(Number(id), names[id]);
 
     }

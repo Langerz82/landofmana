@@ -129,38 +129,54 @@ class MapData:
         return f'1{self.base:04d}{eid:06d}'
 
     # ------------------------------------------------------------ areas
-    def _local_area(self, nm, a):
-        """an area in part nm's own pixels, or None -- as the game server does it (mapgroup.js localizeArea()):
-        a rectangle is cut to the part; an ellipse keeps its whole shape plus a 'clip' rectangle; either way the
-        count is scaled to the share in the part"""
+    def _share(self, a, nm):
+        """how much of area a lies in part nm: pixels for a rectangle (none unless at least a tile each way), tiles
+        for an ellipse -- as the game server counts it (mapgroup.js shareIn())"""
         x0, y0, x1, y1 = self._box(nm)
         if a.get('elipse'):
-            ex0, ey0, ex1, ey1 = a['x'] - a['w'] / 2, a['y'] - a['h'] / 2, a['x'] + a['w'] / 2, a['y'] + a['h'] / 2
-            cx0, cy0, cx1, cy1 = max(ex0, x0), max(ey0, y0), min(ex1, x1), min(ey1, y1)
-            if cx1 - cx0 < 16 or cy1 - cy0 < 16: return None
-            out = dict(a, x=a['x'] - x0, y=a['y'] - y0); out.pop('clip', None)
-            if (cx0, cy0, cx1, cy1) == (ex0, ey0, ex1, ey1): return out
-            rx, ry, n_all, mine = a['w'] / 2, a['h'] / 2, 0, 0      # a true ellipse, as area.js insideEllipse()
-            ty = math.floor(ey0 / 16)
-            while ty * 16 < ey1:
-                tx = math.floor(ex0 / 16)
-                while tx * 16 < ex1:
+            rx, ry, n = a['w'] / 2, a['h'] / 2, 0
+            ty = math.floor(max(a['y'] - ry, y0) / 16)
+            while ty * 16 < min(a['y'] + ry, y1):
+                tx = math.floor(max(a['x'] - rx, x0) / 16)
+                while tx * 16 < min(a['x'] + rx, x1):
                     px, py = tx * 16 + 8, ty * 16 + 8
-                    if ((px - a['x']) / rx) ** 2 + ((py - a['y']) / ry) ** 2 < 1:
-                        n_all += 1
-                        if x0 <= px < x1 and y0 <= py < y1: mine += 1
+                    if x0 <= px < x1 and y0 <= py < y1 and ((px - a['x']) / rx) ** 2 + ((py - a['y']) / ry) ** 2 < 1: n += 1
                     tx += 1
                 ty += 1
-            if not mine: return None
-            out['clip'] = {'x': cx0 - x0, 'y': cy0 - y0, 'w': cx1 - cx0, 'h': cy1 - cy0}
-            if mine < n_all and a.get('count'): out['count'] = max(1, round(a['count'] * mine / n_all))
-            return out
-        ax0, ay0 = max(a['x'], x0), max(a['y'], y0)
-        ax1, ay1 = min(a['x'] + a['w'], x1), min(a['y'] + a['h'], y1)
-        if ax1 - ax0 < 16 or ay1 - ay0 < 16: return None
-        out = dict(a, x=ax0 - x0, y=ay0 - y0, w=ax1 - ax0, h=ay1 - ay0)
-        whole, kept = a['w'] * a['h'], (ax1 - ax0) * (ay1 - ay0)
-        if kept < whole and a.get('count'): out['count'] = max(1, round(a['count'] * kept / whole))
+            return n
+        w = min(a['x'] + a['w'], x1) - max(a['x'], x0)
+        h = min(a['y'] + a['h'], y1) - max(a['y'], y0)
+        return w * h if w >= 16 and h >= 16 else 0
+
+    def _count_here(self, a, nm):
+        """area a's count shared out over the parts: each its share rounded down, the leftover to the part with the
+        biggest piece (the first such in the map list) -- as the game server does it (mapgroup.js countHere())"""
+        shares = [self._share(a, p['name']) for p in self.parts]
+        total = sum(shares)
+        if not a.get('count') or not total: return a.get('count')
+        base = [a['count'] * s_ // total for s_ in shares]
+        main = max(range(len(shares)), key=lambda i: (shares[i], -i))
+        me = [p['name'] for p in self.parts].index(nm)
+        return base[me] + (a['count'] - sum(base) if me == main else 0)
+
+    def _local_area(self, nm, a):
+        """an area in part nm's own pixels, or None -- as the game server does it (mapgroup.js localizeArea()):
+        a rectangle is cut to the part; an ellipse keeps its whole shape plus a 'clip' rectangle; the count is
+        shared out over the parts (_count_here())"""
+        if not self._share(a, nm): return None
+        x0, y0, x1, y1 = self._box(nm)
+        if a.get('elipse'):
+            out = dict(a, x=a['x'] - x0, y=a['y'] - y0); out.pop('clip', None)
+            ex0, ey0, ex1, ey1 = a['x'] - a['w'] / 2, a['y'] - a['h'] / 2, a['x'] + a['w'] / 2, a['y'] + a['h'] / 2
+            if ex0 < x0 or ey0 < y0 or ex1 > x1 or ey1 > y1:
+                cx0, cy0 = max(ex0, x0), max(ey0, y0)
+                out['clip'] = {'x': cx0 - x0, 'y': cy0 - y0, 'w': min(ex1, x1) - cx0, 'h': min(ey1, y1) - cy0}
+        else:
+            ax0, ay0 = max(a['x'], x0), max(a['y'], y0)
+            out = dict(a, x=ax0 - x0, y=ay0 - y0, w=min(a['x'] + a['w'], x1) - ax0, h=min(a['y'] + a['h'], y1) - ay0)
+        if a.get('count'):
+            out['count'] = self._count_here(a, nm)
+            if not out['count']: return None
         return out
 
     def areas_of(self, nm):
