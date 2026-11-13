@@ -305,6 +305,21 @@ function writeAreaFile(serverMap) {
 	delete serverMap.entityAreas;
 }
 
+// The caption an older entityarea.json gave the same area (same id, place and size), if any.
+function oldCaption(list, a) {
+	var o = (list || []).filter(function (o) {
+		return o.id === a.id && o.x === a.x && o.y === a.y && o.w === a.w && o.h === a.h;
+	})[0];
+	return o && o.caption;
+}
+
+// The area with "caption" right after its id.
+function withCaption(a, caption) {
+	var out = { id: a.id, caption: a.caption || caption };
+	for (var k in a) if (k !== "id" && k !== "caption") out[k] = a[k];
+	return out;
+}
+
 // "areas" mode: the mob and entity areas of a whole Tiled map (positions are full-map positions),
 // into gameserver/data/maps/<name>/entityarea.json, without converting its tiles.
 function writeWholeMapAreas(json, name) {
@@ -317,13 +332,14 @@ function saveAreaFile(name, mobAreas, entityAreas) {
 	var file = dir + "/entityarea.json";
 	// Areas admins placed in game with /addarea (gameserver packets/admincommands.js) are
 	// marked "admin": true -- keep them, after the Tiled map's own areas, renumbered after them.
+	var old = null;
 	if (fs.existsSync(file)) {
 		try {
-			var old = JSON.parse(fs.readFileSync(file, "utf8"));
+			old = JSON.parse(fs.readFileSync(file, "utf8"));
 			var keep = function (list, into) {
 				(list || []).forEach(function (a) {
 					if (!a.admin) return;
-					into.push(Object.assign({}, a, { id: into.length }));
+					into.push(Object.assign({}, a, { id: into.length + 1 }));   // ids 1, 2, 3, ...
 				});
 			};
 			keep(old.mobAreas, mobAreas);
@@ -332,6 +348,19 @@ function saveAreaFile(name, mobAreas, entityAreas) {
 			console.error("Could not read " + file + " to keep its admin areas: " + e.message);
 		}
 	}
+	// Every area gets a "caption" (unused by the game server): a short note on what it is, for whoever
+	// reads the file. One the file already had for the same area (same id and place) is kept, so
+	// hand-written captions survive converting the map again; otherwise a default one is given
+	// (tools/maps/generator/common/mapdata.py gives the map tools' areas finer ones).
+	mobAreas = mobAreas.map(function (a) {
+		return withCaption(a, oldCaption(old && old.mobAreas, a) || (a.boss > 1 ? "mob_boss" : "mob_mainarea"));
+	});
+	entityAreas = entityAreas.map(function (a) {
+		return withCaption(a, oldCaption(old && old.entityAreas, a) ||
+			(a.type === 10 ? ({ 2: "node_ore", 99: "chest" }[a.kind] || "node_kind" + a.kind) : "entity_area"));
+	});
+	mobAreas.sort(function (a, b) { return a.id - b.id; });
+	entityAreas.sort(function (a, b) { return a.id - b.id; });
 	if (!mobAreas.length && !entityAreas.length && !fs.existsSync(file)) return;
 	fs.mkdirSync(dir, { recursive: true });
 	fs.writeFileSync(file, JSON.stringify({ mobAreas: mobAreas, entityAreas: entityAreas }, null, 1) + "\n");

@@ -1,6 +1,7 @@
 [
   {
-    "id": 101,
+    "id": 1,
+    "caption": "quest_npc_mainarea",
     "type": "npcmove",
     "kind": 28,
     "x": 1128,
@@ -8,7 +9,8 @@
     "name": "Wimaric"
   },
   {
-    "id": 102,
+    "id": 2,
+    "caption": "quest_npc_mainarea",
     "type": "npcmove",
     "kind": 22,
     "x": 3208,
@@ -16,7 +18,8 @@
     "name": "Oskowyn"
   },
   {
-    "id": 103,
+    "id": 3,
+    "caption": "quest_npc_mainarea",
     "type": "npcmove",
     "kind": 11,
     "x": 984,
@@ -24,7 +27,8 @@
     "name": "Wimybel"
   },
   {
-    "id": 104,
+    "id": 4,
+    "caption": "quest_npc_mainarea",
     "type": "npcmove",
     "kind": 17,
     "x": 3032,
@@ -32,7 +36,8 @@
     "name": "Kesumar"
   },
   {
-    "id": 211,
+    "id": 5,
+    "caption": "npc_bhudda",
     "type": "npcstatic",
     "kind": 2,
     "x": 1352,
@@ -40,7 +45,8 @@
     "name": "Bhudda"
   },
   {
-    "id": 1101,
+    "id": 6,
+    "caption": "quest_npc_mainarea",
     "type": "npcmove",
     "kind": 0,
     "x": 1048,
@@ -48,7 +54,8 @@
     "name": "Yaresk"
   },
   {
-    "id": 1102,
+    "id": 7,
+    "caption": "quest_npc_mainarea",
     "type": "npcmove",
     "kind": 31,
     "x": 3080,
@@ -56,7 +63,8 @@
     "name": "Ulmudell"
   },
   {
-    "id": 1103,
+    "id": 8,
+    "caption": "quest_npc_mainarea",
     "type": "npcmove",
     "kind": 7,
     "x": 1096,
@@ -64,7 +72,8 @@
     "name": "Fenuvane"
   },
   {
-    "id": 1104,
+    "id": 9,
+    "caption": "quest_npc_mainarea",
     "type": "npcmove",
     "kind": 21,
     "x": 3112,
@@ -72,7 +81,8 @@
     "name": "Morovash"
   },
   {
-    "id": 2101,
+    "id": 10,
+    "caption": "quest_npc_mainarea",
     "type": "npcmove",
     "kind": 17,
     "x": 968,
@@ -80,7 +90,8 @@
     "name": "Brevequin"
   },
   {
-    "id": 2102,
+    "id": 11,
+    "caption": "quest_npc_mainarea",
     "type": "npcmove",
     "kind": 27,
     "x": 3224,
@@ -88,7 +99,8 @@
     "name": "Quorimund"
   },
   {
-    "id": 2103,
+    "id": 12,
+    "caption": "quest_npc_mainarea",
     "type": "npcmove",
     "kind": 18,
     "x": 888,
@@ -96,7 +108,8 @@
     "name": "Moraethos"
   },
   {
-    "id": 2104,
+    "id": 13,
+    "caption": "quest_npc_mainarea",
     "type": "npcmove",
     "kind": 31,
     "x": 3160,
@@ -104,7 +117,8 @@
     "name": "Breviolix"
   },
   {
-    "id": 3101,
+    "id": 14,
+    "caption": "quest_npc_mainarea",
     "type": "npcmove",
     "kind": 31,
     "x": 936,
@@ -112,7 +126,8 @@
     "name": "Orlamund"
   },
   {
-    "id": 3102,
+    "id": 15,
+    "caption": "quest_npc_mainarea",
     "type": "npcmove",
     "kind": 18,
     "x": 3080,
@@ -120,7 +135,8 @@
     "name": "Pelanor"
   },
   {
-    "id": 3103,
+    "id": 16,
+    "caption": "quest_npc_mainarea",
     "type": "npcmove",
     "kind": 4,
     "x": 1064,
@@ -128,7 +144,8 @@
     "name": "Ebbaeorn"
   },
   {
-    "id": 3104,
+    "id": 17,
+    "caption": "quest_npc_mainarea",
     "type": "npcmove",
     "kind": 26,
     "x": 3016,

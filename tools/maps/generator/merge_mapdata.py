@@ -12,7 +12,7 @@ For every split map in gameserver/maps/maplist.json (a map whose files sit in a 
   range each (the ids listed in tools/maps/data/<map>_npcs_written.json from 1001, _npcs_extra_written.json from
   2001, _dungeon_written.json / _chests_written.json from 3001 -- the ranges those scripts now use), every other
   record keeps its id if it is free, else gets <part number> x 1000 + its id;
-- areas: moved to full-map pixels and numbered 0, 1, 2, ... in the map's file (admin areas included);
+- areas: moved to full-map pixels and numbered 1, 2, 3, ... in the map's file (admin areas included);
 - quest ids (shared/data/quests.json, shared/data/lang.json QUESTS / QUEST_SUMMARY) of those NPCs: from
   1 + <part's map index> + <old id> + nn to 1 + <map's base index> + <new id> + nn (gameserver questid.js);
 - the map tools' written lists (tools/maps/data/<map>_*_written.json) get the new ids;
@@ -109,7 +109,7 @@ for g in todo:
             remap[(p['index'], e.get('id'))] = (base, e2['id'])
         for k in ('mobAreas', 'entityAreas'):
             for a in p['ea'].get(k, []):
-                areas[k].append(dict(a, id=len(areas[k]), x=a['x'] + p['ox'], y=a['y'] + p['oy']))
+                areas[k].append(dict(a, id=len(areas[k]) + 1, x=a['x'] + p['ox'], y=a['y'] + p['oy']))
     entities.sort(key=lambda e: e['id'])
     write_json(os.path.join(gdir, 'entity.json'), entities, 2)
     write_json(os.path.join(gdir, 'entityarea.json'), areas, 1)

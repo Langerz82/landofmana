@@ -5,8 +5,7 @@ gameserver/data/maps/map1/entityarea.json (the map's one file for all its parts,
 interiors part, map1_int, is skipped), this script:
 
 - adds an `npcmove` NPC with a new unique name at a random walkable spot inside that mob area, to
-  gameserver/data/maps/map1/entity.json (ids from FIRST_ID = 2001 up, unique in the file, so they never clash with
-  npcs1.py's 1001+ or levels1.py's 3001+; other records are kept);
+  gameserver/data/maps/map1/entity.json (the first free ids from 1 up, unique in the file; other records are kept);
 - gives it two quests, in random order (quest 01 / 02):
     a kill quest  - kill 8-12 of one of the area's mobs, at the area's mob levels
     an item quest - get 3-5 of a random itemloot item from another of the area's mobs
@@ -35,7 +34,7 @@ ap.add_argument('--seed', type=int, default=11)
 args = ap.parse_args()
 PFX = args.map
 rnd = random.Random(args.seed)
-FIRST_ID = 2001
+FIRST_ID = 1                # entity ids: the first free one from here (unique in the map's entity.json)
 KILL_COUNTS = (8, 10, 12)
 ITEM_COUNT = (3, 5)
 ITEM_CHANCE = 15
@@ -478,7 +477,7 @@ for p in parts:
         eid = FIRST_ID
         while eid in _used: eid += 1
         name = new_name()
-        ent.append({'id': eid, 'type': 'npcmove', 'kind': rnd.randint(1, 56), 'x': spot[0] * 16 + 8, 'y': spot[1] * 16 + 8,
+        ent.append({'id': eid, 'caption': 'quest_npc_mobarea', 'type': 'npcmove', 'kind': rnd.randint(1, 56), 'x': spot[0] * 16 + 8, 'y': spot[1] * 16 + 8,
                     'name': name})
         lv = [area['minLevel'], area['maxLevel']]
         base = md.quest_base(eid)

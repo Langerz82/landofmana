@@ -82,7 +82,7 @@
 		"object": {"type": 2, "kind": 4, "count": 20},
 		"reward": [{"itemKind": 100}]
 	},
-	"1020000021101": {
+	"1020000000501": {
 		"type": 1,
 		"level": 0,
 		"object": {
@@ -92,208 +92,208 @@
 		},
 		"name": "kill 10 Rat"
 	},
-	"1020000010101": {
+	"1020000000101": {
 		"name": "Wimaric: kill Eye",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 9, "count": 10, "level": [50, 55]}
 	},
-	"1020000010102": {
+	"1020000000102": {
 		"name": "Wimaric: get Bread",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 12, "level": [50, 55]},
 		"object2": {"type": 4, "kind": 76, "count": 5, "chance": 15}
 	},
-	"1020000010201": {
+	"1020000000201": {
 		"name": "Oskowyn: kill Death Knight",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 12, "count": 10, "level": [55, 60]}
 	},
-	"1020000010202": {
+	"1020000000202": {
 		"name": "Oskowyn: get SapJewel",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 9, "level": [55, 60]},
 		"object2": {"type": 4, "kind": 88, "count": 5, "chance": 15}
 	},
-	"1020000110101": {
+	"1020000000601": {
 		"name": "Yaresk: kill Skeleton",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 3, "count": 10, "level": [40, 45]}
 	},
-	"1020000110102": {
+	"1020000000602": {
 		"name": "Yaresk: get Goblet",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 8, "level": [40, 45]},
 		"object2": {"type": 4, "kind": 52, "count": 5, "chance": 15}
 	},
-	"1020000110201": {
+	"1020000000701": {
 		"name": "Ulmudell: kill Ogre",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 8, "count": 10, "level": [45, 50]}
 	},
-	"1020000110202": {
+	"1020000000702": {
 		"name": "Ulmudell: get Drum",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 7, "level": [45, 50]},
 		"object2": {"type": 4, "kind": 60, "count": 5, "chance": 15}
 	},
-	"1020000210101": {
+	"1020000001001": {
 		"name": "Brevequin: kill Goblin",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 4, "count": 10, "level": [30, 35]}
 	},
-	"1020000210102": {
+	"1020000001002": {
 		"name": "Brevequin: get Padlock",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 5, "level": [30, 35]},
 		"object2": {"type": 4, "kind": 5, "count": 5, "chance": 15}
 	},
-	"1020000210201": {
+	"1020000001101": {
 		"name": "Quorimund: kill Bat",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 6, "count": 10, "level": [35, 40]}
 	},
-	"1020000210202": {
+	"1020000001102": {
 		"name": "Quorimund: get Feather",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 4, "level": [35, 40]},
 		"object2": {"type": 4, "kind": 20, "count": 5, "chance": 15}
 	},
-	"1020000310101": {
+	"1020000001401": {
 		"name": "Orlamund: kill Rat",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 1, "count": 10, "level": [20, 25]}
 	},
-	"1020000310102": {
+	"1020000001402": {
 		"name": "Orlamund: get Mushroom",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 5, "level": [20, 25]},
 		"object2": {"type": 4, "kind": 98, "count": 5, "chance": 15}
 	},
-	"1020000310201": {
+	"1020000001501": {
 		"name": "Pelanor: kill Snake",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 5, "count": 10, "level": [25, 30]}
 	},
-	"1020000310202": {
+	"1020000001502": {
 		"name": "Pelanor: get Bomb",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 1, "level": [25, 30]},
 		"object2": {"type": 4, "kind": 81, "count": 5, "chance": 15}
 	},
-	"1020000010301": {
+	"1020000000301": {
 		"name": "Wimybel: kill Death Knight",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 12, "count": 10, "level": [50, 55]}
 	},
-	"1020000010302": {
+	"1020000000302": {
 		"name": "Wimybel: get Pumpkin",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 9, "level": [50, 55]},
 		"object2": {"type": 4, "kind": 92, "count": 5, "chance": 15}
 	},
-	"1020000010401": {
+	"1020000000401": {
 		"name": "Kesumar: kill Eye",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 9, "count": 10, "level": [55, 60]}
 	},
-	"1020000010402": {
+	"1020000000402": {
 		"name": "Kesumar: get Mushrooms",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 12, "level": [55, 60]},
 		"object2": {"type": 4, "kind": 42, "count": 5, "chance": 15}
 	},
-	"1020000110301": {
+	"1020000000801": {
 		"name": "Fenuvane: kill Armored Skeleton",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 7, "count": 10, "level": [40, 45]}
 	},
-	"1020000110302": {
+	"1020000000802": {
 		"name": "Fenuvane: get BronzeHelmet",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 3, "level": [40, 45]},
 		"object2": {"type": 4, "kind": 56, "count": 5, "chance": 15}
 	},
-	"1020000110401": {
+	"1020000000901": {
 		"name": "Morovash: kill Skeleton",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 3, "count": 10, "level": [45, 50]}
 	},
-	"1020000110402": {
+	"1020000000902": {
 		"name": "Morovash: get UrnOne",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 8, "level": [45, 50]},
 		"object2": {"type": 4, "kind": 29, "count": 5, "chance": 15}
 	},
-	"1020000210301": {
+	"1020000001201": {
 		"name": "Moraethos: kill Snake",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 5, "count": 10, "level": [30, 35]}
 	},
-	"1020000210302": {
+	"1020000001202": {
 		"name": "Moraethos: get PoisonVial",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 6, "level": [30, 35]},
 		"object2": {"type": 4, "kind": 47, "count": 5, "chance": 15}
 	},
-	"1020000210401": {
+	"1020000001301": {
 		"name": "Breviolix: kill Goblin",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 4, "count": 10, "level": [35, 40]}
 	},
-	"1020000210402": {
+	"1020000001302": {
 		"name": "Breviolix: get Key",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 5, "level": [35, 40]},
 		"object2": {"type": 4, "kind": 3, "count": 5, "chance": 15}
 	},
-	"1020000310301": {
+	"1020000001601": {
 		"name": "Ebbaeorn: kill Snake",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 5, "count": 10, "level": [20, 25]}
 	},
-	"1020000310302": {
+	"1020000001602": {
 		"name": "Ebbaeorn: get MonsterClaw",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 1, "level": [20, 25]},
 		"object2": {"type": 4, "kind": 54, "count": 5, "chance": 15}
 	},
-	"1020000310401": {
+	"1020000001701": {
 		"name": "Ulmanor: kill Rat",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 1, "count": 10, "level": [25, 30]}
 	},
-	"1020000310402": {
+	"1020000001702": {
 		"name": "Ulmanor: get AncientShield",
 		"type": 2,
 		"level": 0,
@@ -599,1808 +599,1808 @@
 		"object": {"type": 2, "kind": 8, "level": [57, 57]},
 		"object2": {"type": 4, "kind": 59, "count": 5, "chance": 15}
 	},
-	"1010000100101": {
+	"1010000002201": {
 		"name": "Eldric: kill Eye",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 9, "count": 10, "level": [38, 40]}
 	},
-	"1010000100102": {
+	"1010000002202": {
 		"name": "Eldric: get Worms",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 12, "level": [38, 40]},
 		"object2": {"type": 4, "kind": 58, "count": 5, "chance": 15}
 	},
-	"1010000100201": {
+	"1010000002301": {
 		"name": "Voria: kill Death Knight",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 12, "count": 10, "level": [35, 37]}
 	},
-	"1010000100202": {
+	"1010000002302": {
 		"name": "Voria: get FineComb",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 11, "level": [35, 37]},
 		"object2": {"type": 4, "kind": 95, "count": 3, "chance": 15}
 	},
-	"1010000100301": {
+	"1010000002401": {
 		"name": "Pipin: kill Skeleton",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 3, "count": 10, "level": [31, 33]}
 	},
-	"1010000100302": {
+	"1010000002402": {
 		"name": "Pipin: get Cheese",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 8, "level": [31, 33]},
 		"object2": {"type": 4, "kind": 41, "count": 4, "chance": 15}
 	},
-	"1010000100901": {
+	"1010000003001": {
 		"name": "Bramdor: kill Ogre",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 8, "count": 10, "level": [34, 36]}
 	},
-	"1010000100902": {
+	"1010000003002": {
 		"name": "Bramdor: get Book",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 7, "level": [34, 36]},
 		"object2": {"type": 4, "kind": 2, "count": 3, "chance": 15}
 	},
-	"1010000101001": {
+	"1010000003101": {
 		"name": "Gwenira: kill Goblin",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 4, "count": 10, "level": [37, 39]}
 	},
-	"1010000101002": {
+	"1010000003102": {
 		"name": "Gwenira: get PoisonVial",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 6, "level": [37, 39]},
 		"object2": {"type": 4, "kind": 47, "count": 4, "chance": 15}
 	},
-	"1010000100401": {
+	"1010000002501": {
 		"name": "Yaria: kill Armored Skeleton",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 7, "count": 10, "level": [34, 36]}
 	},
-	"1010000100402": {
+	"1010000002502": {
 		"name": "Yaria: get Crystals",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 3, "level": [34, 36]},
 		"object2": {"type": 4, "kind": 33, "count": 3, "chance": 15}
 	},
-	"1010000100501": {
+	"1010000002601": {
 		"name": "Deleth: kill Skeleton",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 3, "count": 10, "level": [31, 33]}
 	},
-	"1010000100502": {
+	"1010000002602": {
 		"name": "Deleth: get NecklaceTwo",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 8, "level": [31, 33]},
 		"object2": {"type": 4, "kind": 36, "count": 4, "chance": 15}
 	},
-	"1010000100601": {
+	"1010000002701": {
 		"name": "Hobley: kill Ogre",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 8, "count": 10, "level": [28, 30]}
 	},
-	"1010000100602": {
+	"1010000002702": {
 		"name": "Hobley: get BoneEaring",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 7, "level": [28, 30]},
 		"object2": {"type": 4, "kind": 44, "count": 4, "chance": 15}
 	},
-	"1010000101101": {
+	"1010000003201": {
 		"name": "Dorin: kill Rat",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 1, "count": 10, "level": [31, 33]}
 	},
-	"1010000101102": {
+	"1010000003202": {
 		"name": "Dorin: get AutumnLeaf",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 5, "level": [31, 33]},
 		"object2": {"type": 4, "kind": 59, "count": 4, "chance": 15}
 	},
-	"1010000101201": {
+	"1010000003301": {
 		"name": "Ashira: kill Armored Skeleton",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 7, "count": 10, "level": [34, 36]}
 	},
-	"1010000101202": {
+	"1010000003302": {
 		"name": "Ashira: get FireEye",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 3, "level": [34, 36]},
 		"object2": {"type": 4, "kind": 24, "count": 5, "chance": 15}
 	},
-	"1010000100701": {
+	"1010000002801": {
 		"name": "Vorisa: kill Skeleton",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 3, "count": 10, "level": [31, 33]}
 	},
-	"1010000100702": {
+	"1010000002802": {
 		"name": "Vorisa: get IronHelmet",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 8, "level": [31, 33]},
 		"object2": {"type": 4, "kind": 8, "count": 3, "chance": 15}
 	},
-	"1010000100801": {
+	"1010000002901": {
 		"name": "Noros: kill Ogre",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 8, "count": 10, "level": [28, 30]}
 	},
-	"1010000100802": {
+	"1010000002902": {
 		"name": "Noros: get Clever",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 7, "level": [28, 30]},
 		"object2": {"type": 4, "kind": 89, "count": 4, "chance": 15}
 	},
-	"1010000101301": {
+	"1010000003401": {
 		"name": "Jorard: kill Armored Skeleton",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 7, "count": 10, "level": [25, 27]}
 	},
-	"1010000101302": {
+	"1010000003402": {
 		"name": "Jorard: get RingOne",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 3, "level": [25, 27]},
 		"object2": {"type": 4, "kind": 15, "count": 4, "chance": 15}
 	},
-	"1010000101401": {
+	"1010000003501": {
 		"name": "Garmund: kill Skeleton",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 3, "count": 10, "level": [28, 30]}
 	},
-	"1010000101402": {
+	"1010000003502": {
 		"name": "Garmund: get Drum",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 8, "level": [28, 30]},
 		"object2": {"type": 4, "kind": 60, "count": 4, "chance": 15}
 	},
-	"1010000101501": {
+	"1010000003601": {
 		"name": "Ashen: kill Ogre",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 8, "count": 10, "level": [31, 33]}
 	},
-	"1010000101502": {
+	"1010000003602": {
 		"name": "Ashen: get AnimalSkull",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 7, "level": [31, 33]},
 		"object2": {"type": 4, "kind": 39, "count": 4, "chance": 15}
 	},
-	"1010000101601": {
+	"1010000003701": {
 		"name": "Gwendor: kill Bat",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 6, "count": 10, "level": [25, 27]}
 	},
-	"1010000101602": {
+	"1010000003702": {
 		"name": "Gwendor: get Drumstick",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 5, "level": [25, 27]},
 		"object2": {"type": 4, "kind": 7, "count": 4, "chance": 15}
 	},
-	"1010000101701": {
+	"1010000003801": {
 		"name": "Wenmund: kill Snake",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 5, "count": 10, "level": [22, 24]}
 	},
-	"1010000101702": {
+	"1010000003802": {
 		"name": "Wenmund: get Mace",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 4, "level": [22, 24]},
 		"object2": {"type": 4, "kind": 34, "count": 4, "chance": 15}
 	},
-	"1010000102101": {
+	"1010000004201": {
 		"name": "Marisa: kill Armored Skeleton",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 7, "count": 10, "level": [19, 21]}
 	},
-	"1010000102102": {
+	"1010000004202": {
 		"name": "Marisa: get Hook",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 3, "level": [19, 21]},
 		"object2": {"type": 4, "kind": 99, "count": 3, "chance": 15}
 	},
-	"1010000102201": {
+	"1010000004301": {
 		"name": "Lorira: kill Spectre",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 11, "count": 10, "level": [31, 33]}
 	},
-	"1010000102202": {
+	"1010000004302": {
 		"name": "Lorira: get Padlock",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 9, "level": [31, 33]},
 		"object2": {"type": 4, "kind": 5, "count": 3, "chance": 15}
 	},
-	"1010000102301": {
+	"1010000004401": {
 		"name": "Sabley: kill Eye",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 9, "count": 10, "level": [34, 36]}
 	},
-	"1010000102302": {
+	"1010000004402": {
 		"name": "Sabley: get ClubOne",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 12, "level": [34, 36]},
 		"object2": {"type": 4, "kind": 32, "count": 3, "chance": 15}
 	},
-	"1010000101801": {
+	"1010000003901": {
 		"name": "Hobton: kill Goblin",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 4, "count": 10, "level": [22, 24]}
 	},
-	"1010000101802": {
+	"1010000003902": {
 		"name": "Hobton: get MagicBall",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 6, "level": [22, 24]},
 		"object2": {"type": 4, "kind": 97, "count": 4, "chance": 15}
 	},
-	"1010000101901": {
+	"1010000004001": {
 		"name": "Ulwin: kill Bat",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 6, "count": 10, "level": [19, 21]}
 	},
-	"1010000101902": {
+	"1010000004002": {
 		"name": "Ulwin: get ThrowingDagger",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 5, "level": [19, 21]},
 		"object2": {"type": 4, "kind": 28, "count": 5, "chance": 15}
 	},
-	"1010000102401": {
+	"1010000004501": {
 		"name": "Braek: kill Skeleton",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 3, "count": 10, "level": [16, 18]}
 	},
-	"1010000102402": {
+	"1010000004502": {
 		"name": "Braek: get Spider",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 8, "level": [16, 18]},
 		"object2": {"type": 4, "kind": 18, "count": 4, "chance": 15}
 	},
-	"1010000102501": {
+	"1010000004601": {
 		"name": "Orreth: kill Ogre",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 8, "count": 10, "level": [19, 21]}
 	},
-	"1010000102502": {
+	"1010000004602": {
 		"name": "Orreth: get UrnOne",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 7, "level": [19, 21]},
 		"object2": {"type": 4, "kind": 29, "count": 5, "chance": 15}
 	},
-	"1010000102601": {
+	"1010000004701": {
 		"name": "Hobber: kill Armored Skeleton",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 7, "count": 10, "level": [22, 24]}
 	},
-	"1010000102602": {
+	"1010000004702": {
 		"name": "Hobber: get LeafWreath",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 3, "level": [22, 24]},
 		"object2": {"type": 4, "kind": 85, "count": 3, "chance": 15}
 	},
-	"1010000102001": {
+	"1010000004101": {
 		"name": "Garette: kill Snake",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 5, "count": 10, "level": [19, 21]}
 	},
-	"1010000102002": {
+	"1010000004102": {
 		"name": "Garette: get WoodHorn",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 1, "level": [19, 21]},
 		"object2": {"type": 4, "kind": 91, "count": 4, "chance": 15}
 	},
-	"1010000102901": {
+	"1010000005001": {
 		"name": "Quinisa: kill Snake",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 5, "count": 10, "level": [13, 15]}
 	},
-	"1010000102902": {
+	"1010000005002": {
 		"name": "Quinisa: get BattleAxe",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 4, "level": [13, 15]},
 		"object2": {"type": 4, "kind": 65, "count": 3, "chance": 15}
 	},
-	"1010000102701": {
+	"1010000004801": {
 		"name": "Marric: kill Goblin",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 4, "count": 10, "level": [13, 15]}
 	},
-	"1010000102702": {
+	"1010000004802": {
 		"name": "Marric: get FaceMask",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 6, "level": [13, 15]},
 		"object2": {"type": 4, "kind": 80, "count": 4, "chance": 15}
 	},
-	"1010000102801": {
+	"1010000004901": {
 		"name": "Calisa: kill Bat",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 6, "count": 10, "level": [16, 18]}
 	},
-	"1010000102802": {
+	"1010000004902": {
 		"name": "Calisa: get RingThree",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 5, "level": [16, 18]},
 		"object2": {"type": 4, "kind": 64, "count": 3, "chance": 15}
 	},
-	"1010000103501": {
+	"1010000005601": {
 		"name": "Bramo: kill Snake",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 5, "count": 10, "level": [16, 18]}
 	},
-	"1010000103502": {
+	"1010000005602": {
 		"name": "Bramo: get Chest",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 4, "level": [16, 18]},
 		"object2": {"type": 4, "kind": 12, "count": 4, "chance": 15}
 	},
-	"1010000103001": {
+	"1010000005101": {
 		"name": "Ulton: kill Goblin",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 4, "count": 10, "level": [13, 15]}
 	},
-	"1010000103002": {
+	"1010000005102": {
 		"name": "Ulton: get OldBottle",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 6, "level": [13, 15]},
 		"object2": {"type": 4, "kind": 73, "count": 5, "chance": 15}
 	},
-	"1010000103101": {
+	"1010000005201": {
 		"name": "Delric: kill Bat",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 6, "count": 10, "level": [10, 12]}
 	},
-	"1010000103102": {
+	"1010000005202": {
 		"name": "Delric: get Mushrooms",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 5, "level": [10, 12]},
 		"object2": {"type": 4, "kind": 42, "count": 4, "chance": 15}
 	},
-	"1010000103201": {
+	"1010000005301": {
 		"name": "Rhian: kill Snake",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 5, "count": 10, "level": [8, 9]}
 	},
-	"1010000103202": {
+	"1010000005302": {
 		"name": "Rhian: get Pendant",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 4, "level": [8, 9]},
 		"object2": {"type": 4, "kind": 62, "count": 5, "chance": 15}
 	},
-	"1010000103601": {
+	"1010000005701": {
 		"name": "Milella: kill Goblin",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 4, "count": 10, "level": [10, 12]}
 	},
-	"1010000103602": {
+	"1010000005702": {
 		"name": "Milella: get PotOfGold",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 6, "level": [10, 12]},
 		"object2": {"type": 4, "kind": 79, "count": 4, "chance": 15}
 	},
-	"1010000103701": {
+	"1010000005801": {
 		"name": "Belara: kill Bat",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 6, "count": 10, "level": [13, 15]}
 	},
-	"1010000103702": {
+	"1010000005802": {
 		"name": "Belara: get Key",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 5, "level": [13, 15]},
 		"object2": {"type": 4, "kind": 3, "count": 4, "chance": 15}
 	},
-	"1010000103301": {
+	"1010000005401": {
 		"name": "Perwin: kill Crab",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 2, "count": 10, "level": [10, 12]}
 	},
-	"1010000103302": {
+	"1010000005402": {
 		"name": "Perwin: get HumanSkull",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 2, "level": [10, 12]},
 		"object2": {"type": 4, "kind": 93, "count": 3, "chance": 15}
 	},
-	"1010000103401": {
+	"1010000005501": {
 		"name": "Hobette: kill Snake",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 5, "count": 10, "level": [8, 9]}
 	},
-	"1010000103402": {
+	"1010000005502": {
 		"name": "Hobette: get BrokenGlass",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 4, "level": [8, 9]},
 		"object2": {"type": 4, "kind": 51, "count": 3, "chance": 15}
 	},
-	"1010000103801": {
+	"1010000005901": {
 		"name": "Garin: kill Goblin",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 4, "count": 10, "level": [6, 7]}
 	},
-	"1010000103802": {
+	"1010000005902": {
 		"name": "Garin: get SmokePipe",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 6, "level": [6, 7]},
 		"object2": {"type": 4, "kind": 69, "count": 3, "chance": 15}
 	},
-	"1010000103901": {
+	"1010000006001": {
 		"name": "Rosen: kill Bat",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 6, "count": 10, "level": [8, 9]}
 	},
-	"1010000103902": {
+	"1010000006002": {
 		"name": "Rosen: get WitchHat",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 5, "level": [8, 9]},
 		"object2": {"type": 4, "kind": 11, "count": 5, "chance": 15}
 	},
-	"1010000104001": {
+	"1010000006101": {
 		"name": "Lorwyn: kill Snake",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 5, "count": 10, "level": [10, 12]}
 	},
-	"1010000104002": {
+	"1010000006102": {
 		"name": "Lorwyn: get HandBag",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 4, "level": [10, 12]},
 		"object2": {"type": 4, "kind": 82, "count": 5, "chance": 15}
 	},
-	"1010000104101": {
+	"1010000006201": {
 		"name": "Cormund: kill Goblin",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 4, "count": 10, "level": [6, 7]}
 	},
-	"1010000104102": {
+	"1010000006202": {
 		"name": "Cormund: get NecklaceOne",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 6, "level": [6, 7]},
 		"object2": {"type": 4, "kind": 30, "count": 3, "chance": 15}
 	},
-	"1010000104201": {
+	"1010000006301": {
 		"name": "Gwenia: kill Bat",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 6, "count": 10, "level": [4, 5]}
 	},
-	"1010000104202": {
+	"1010000006302": {
 		"name": "Gwenia: get Cauldron",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 5, "level": [4, 5]},
 		"object2": {"type": 4, "kind": 96, "count": 5, "chance": 15}
 	},
-	"1010000104701": {
+	"1010000006801": {
 		"name": "Falette: kill Snake",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 5, "count": 10, "level": [2, 3]}
 	},
-	"1010000104702": {
+	"1010000006802": {
 		"name": "Falette: get PinkFireball",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 4, "level": [2, 3]},
 		"object2": {"type": 4, "kind": 22, "count": 4, "chance": 15}
 	},
-	"1010000104801": {
+	"1010000006901": {
 		"name": "Roso: kill Goblin",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 4, "count": 10, "level": [4, 5]}
 	},
-	"1010000104802": {
+	"1010000006902": {
 		"name": "Roso: get MonsterClaw",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 6, "level": [4, 5]},
 		"object2": {"type": 4, "kind": 54, "count": 4, "chance": 15}
 	},
-	"1010000104901": {
+	"1010000007001": {
 		"name": "Delella: kill Bat",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 6, "count": 10, "level": [6, 7]}
 	},
-	"1010000104902": {
+	"1010000007002": {
 		"name": "Delella: get BronzeHelmet",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 5, "level": [6, 7]},
 		"object2": {"type": 4, "kind": 56, "count": 5, "chance": 15}
 	},
-	"1010000104301": {
+	"1010000006401": {
 		"name": "Halley: kill Snake",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 5, "count": 10, "level": [4, 5]}
 	},
-	"1010000104302": {
+	"1010000006402": {
 		"name": "Halley: get PoisonVialTwo",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 4, "level": [4, 5]},
 		"object2": {"type": 4, "kind": 55, "count": 4, "chance": 15}
 	},
-	"1010000104401": {
+	"1010000006501": {
 		"name": "Bramara: kill Crab",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 2, "count": 10, "level": [2, 3]}
 	},
-	"1010000104402": {
+	"1010000006502": {
 		"name": "Bramara: get Crate",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 2, "level": [2, 3]},
 		"object2": {"type": 4, "kind": 45, "count": 3, "chance": 15}
 	},
-	"1010000105001": {
+	"1010000007101": {
 		"name": "Halius: kill Rat",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 1, "count": 10, "level": [1, 1]}
 	},
-	"1010000105002": {
+	"1010000007102": {
 		"name": "Halius: get FeatherQuill",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 5, "level": [1, 1]},
 		"object2": {"type": 4, "kind": 43, "count": 5, "chance": 15}
 	},
-	"1010000105101": {
+	"1010000007201": {
 		"name": "Halek: kill Goblin",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 4, "count": 10, "level": [2, 3]}
 	},
-	"1010000105102": {
+	"1010000007202": {
 		"name": "Halek: get Goblet",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 6, "level": [2, 3]},
 		"object2": {"type": 4, "kind": 52, "count": 4, "chance": 15}
 	},
-	"1010000105201": {
+	"1010000007301": {
 		"name": "Wenara: kill Bat",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 6, "count": 10, "level": [4, 5]}
 	},
-	"1010000105202": {
+	"1010000007302": {
 		"name": "Wenara: get BookTwo",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 5, "level": [4, 5]},
 		"object2": {"type": 4, "kind": 75, "count": 5, "chance": 15}
 	},
-	"1010000104501": {
+	"1010000006601": {
 		"name": "Corwin: kill Crab",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 2, "count": 10, "level": [6, 7]}
 	},
-	"1010000104502": {
+	"1010000006602": {
 		"name": "Corwin: get Pumpkin",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 2, "level": [6, 7]},
 		"object2": {"type": 4, "kind": 92, "count": 5, "chance": 15}
 	},
-	"1010000104601": {
+	"1010000006701": {
 		"name": "Mardor: kill Snake",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 5, "count": 10, "level": [4, 5]}
 	},
-	"1010000104602": {
+	"1010000006702": {
 		"name": "Mardor: get RingTwo",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 4, "level": [4, 5]},
 		"object2": {"type": 4, "kind": 38, "count": 3, "chance": 15}
 	},
-	"1010000105301": {
+	"1010000007401": {
 		"name": "Eldius: kill Crab",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 2, "count": 10, "level": [2, 3]}
 	},
-	"1010000105302": {
+	"1010000007402": {
 		"name": "Eldius: get Eyeball",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 2, "level": [2, 3]},
 		"object2": {"type": 4, "kind": 86, "count": 4, "chance": 15}
 	},
-	"1010000105401": {
+	"1010000007501": {
 		"name": "Wilia: kill Crab",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 2, "count": 10, "level": [4, 5]}
 	},
-	"1010000105402": {
+	"1010000007502": {
 		"name": "Wilia: get Lute",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 2, "level": [4, 5]},
 		"object2": {"type": 4, "kind": 63, "count": 5, "chance": 15}
 	},
-	"1010000105501": {
+	"1010000007601": {
 		"name": "Wenold: kill Goblin",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 4, "count": 10, "level": [6, 7]}
 	},
-	"1010000105502": {
+	"1010000007602": {
 		"name": "Wenold: get DragonEgg",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 6, "level": [6, 7]},
 		"object2": {"type": 4, "kind": 71, "count": 4, "chance": 15}
 	},
-	"1010000200101": {
+	"1010000007701": {
 		"name": "Jorara: get ToothNecklace",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 9, "level": [38, 40]},
 		"object2": {"type": 4, "kind": 83, "count": 3, "chance": 15}
 	},
-	"1010000200102": {
+	"1010000007702": {
 		"name": "Jorara: kill Spectre",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 11, "count": 8, "level": [38, 40]}
 	},
-	"1010000200201": {
+	"1010000007801": {
 		"name": "Ostella: get OldBottle",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 9, "level": [35, 37]},
 		"object2": {"type": 4, "kind": 73, "count": 4, "chance": 15}
 	},
-	"1010000200202": {
+	"1010000007802": {
 		"name": "Ostella: kill Death Knight",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 12, "count": 12, "level": [35, 37]}
 	},
-	"1010000200301": {
+	"1010000007901": {
 		"name": "Delton: kill Armored Skeleton",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 7, "count": 12, "level": [31, 33]}
 	},
-	"1010000200302": {
+	"1010000007902": {
 		"name": "Delton: get Goblet",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 8, "level": [31, 33]},
 		"object2": {"type": 4, "kind": 52, "count": 5, "chance": 15}
 	},
-	"1010000200401": {
+	"1010000008001": {
 		"name": "Stenen: get AutumnLeaf",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 7, "level": [34, 36]},
 		"object2": {"type": 4, "kind": 59, "count": 4, "chance": 15}
 	},
-	"1010000200402": {
+	"1010000008002": {
 		"name": "Stenen: kill Ogre",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 8, "count": 8, "level": [34, 36]}
 	},
-	"1010000200501": {
+	"1010000008101": {
 		"name": "Coruna: get PoisonVialTwo",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 8, "level": [31, 33]},
 		"object2": {"type": 4, "kind": 55, "count": 5, "chance": 15}
 	},
-	"1010000200502": {
+	"1010000008102": {
 		"name": "Coruna: kill Skeleton",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 3, "count": 12, "level": [31, 33]}
 	},
-	"1010000200601": {
+	"1010000008201": {
 		"name": "Belald: get ScrollsThree",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 3, "level": [28, 30]},
 		"object2": {"type": 4, "kind": 48, "count": 4, "chance": 15}
 	},
-	"1010000200602": {
+	"1010000008202": {
 		"name": "Belald: kill Armored Skeleton",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 7, "count": 10, "level": [28, 30]}
 	},
-	"1010000200701": {
+	"1010000008301": {
 		"name": "Yarette: kill Ogre",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 8, "count": 8, "level": [31, 33]}
 	},
-	"1010000200702": {
+	"1010000008302": {
 		"name": "Yarette: get Anvil",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 3, "level": [31, 33]},
 		"object2": {"type": 4, "kind": 50, "count": 4, "chance": 15}
 	},
-	"1010000200801": {
+	"1010000008401": {
 		"name": "Perara: get SapJewel",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 7, "level": [28, 30]},
 		"object2": {"type": 4, "kind": 88, "count": 3, "chance": 15}
 	},
-	"1010000200802": {
+	"1010000008402": {
 		"name": "Perara: kill Skeleton",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 3, "count": 10, "level": [28, 30]}
 	},
-	"1010000200901": {
+	"1010000008501": {
 		"name": "Tororic: kill Armored Skeleton",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 7, "count": 10, "level": [25, 27]}
 	},
-	"1010000200902": {
+	"1010000008502": {
 		"name": "Tororic: get Lizard",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 8, "level": [25, 27]},
 		"object2": {"type": 4, "kind": 70, "count": 4, "chance": 15}
 	},
-	"1010000201001": {
+	"1010000008601": {
 		"name": "Garoric: kill Ogre",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 8, "count": 12, "level": [31, 33]}
 	},
-	"1010000201002": {
+	"1010000008602": {
 		"name": "Garoric: get MonsterClaw",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 7, "level": [31, 33]},
 		"object2": {"type": 4, "kind": 54, "count": 3, "chance": 15}
 	},
-	"1010000201101": {
+	"1010000008701": {
 		"name": "Bridor: kill Skeleton",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 3, "count": 8, "level": [34, 36]}
 	},
-	"1010000201102": {
+	"1010000008702": {
 		"name": "Bridor: get WoodHorn",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 7, "level": [34, 36]},
 		"object2": {"type": 4, "kind": 91, "count": 3, "chance": 15}
 	},
-	"1010000201201": {
+	"1010000008801": {
 		"name": "Caluna: get Bones",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 4, "level": [37, 39]},
 		"object2": {"type": 4, "kind": 37, "count": 3, "chance": 15}
 	},
-	"1010000201202": {
+	"1010000008802": {
 		"name": "Caluna: kill Bat",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 6, "count": 8, "level": [37, 39]}
 	},
-	"1010000201301": {
+	"1010000008901": {
 		"name": "Garald: kill Armored Skeleton",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 7, "count": 10, "level": [28, 30]}
 	},
-	"1010000201302": {
+	"1010000008902": {
 		"name": "Garald: get SkullRingTwo",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 8, "level": [28, 30]},
 		"object2": {"type": 4, "kind": 53, "count": 4, "chance": 15}
 	},
-	"1010000201401": {
+	"1010000009001": {
 		"name": "Isaella: get Frog",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 1, "level": [31, 33]},
 		"object2": {"type": 4, "kind": 27, "count": 4, "chance": 15}
 	},
-	"1010000201402": {
+	"1010000009002": {
 		"name": "Isaella: kill Snake",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 5, "count": 10, "level": [31, 33]}
 	},
-	"1010000201501": {
+	"1010000009101": {
 		"name": "Nelella: get ThrowingDagger",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 7, "level": [34, 36]},
 		"object2": {"type": 4, "kind": 28, "count": 3, "chance": 15}
 	},
-	"1010000201502": {
+	"1010000009102": {
 		"name": "Nelella: kill Ogre",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 8, "count": 10, "level": [34, 36]}
 	},
-	"1010000201601": {
+	"1010000009201": {
 		"name": "Sabella: get Mace",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 7, "level": [25, 27]},
 		"object2": {"type": 4, "kind": 34, "count": 5, "chance": 15}
 	},
-	"1010000201602": {
+	"1010000009202": {
 		"name": "Sabella: kill Skeleton",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 3, "count": 12, "level": [25, 27]}
 	},
-	"1010000201701": {
+	"1010000009301": {
 		"name": "Orrara: get MeltedCandles",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 8, "level": [28, 30]},
 		"object2": {"type": 4, "kind": 19, "count": 4, "chance": 15}
 	},
-	"1010000201702": {
+	"1010000009302": {
 		"name": "Orrara: kill Armored Skeleton",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 7, "count": 8, "level": [28, 30]}
 	},
-	"1010000201801": {
+	"1010000009401": {
 		"name": "Coren: get Gumnut",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 3, "level": [31, 33]},
 		"object2": {"type": 4, "kind": 9, "count": 5, "chance": 15}
 	},
-	"1010000201802": {
+	"1010000009402": {
 		"name": "Coren: kill Ogre",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 8, "count": 12, "level": [31, 33]}
 	},
-	"1010000201901": {
+	"1010000009501": {
 		"name": "Jorella: get Lute",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 7, "level": [28, 30]},
 		"object2": {"type": 4, "kind": 63, "count": 5, "chance": 15}
 	},
-	"1010000201902": {
+	"1010000009502": {
 		"name": "Jorella: kill Skeleton",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 3, "count": 10, "level": [28, 30]}
 	},
-	"1010000202001": {
+	"1010000009601": {
 		"name": "Calold: get Fireball",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 8, "level": [25, 27]},
 		"object2": {"type": 4, "kind": 10, "count": 3, "chance": 15}
 	},
-	"1010000202002": {
+	"1010000009602": {
 		"name": "Calold: kill Armored Skeleton",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 7, "count": 10, "level": [25, 27]}
 	},
-	"1010000202101": {
+	"1010000009701": {
 		"name": "Gwenin: kill Ogre",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 8, "count": 8, "level": [22, 24]}
 	},
-	"1010000202102": {
+	"1010000009702": {
 		"name": "Gwenin: get ShortSword",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 7, "level": [22, 24]},
 		"object2": {"type": 4, "kind": 74, "count": 4, "chance": 15}
 	},
-	"1010000202201": {
+	"1010000009801": {
 		"name": "Norric: kill Goblin",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 4, "count": 10, "level": [25, 27]}
 	},
-	"1010000202202": {
+	"1010000009802": {
 		"name": "Norric: get Compass",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 6, "level": [25, 27]},
 		"object2": {"type": 4, "kind": 21, "count": 3, "chance": 15}
 	},
-	"1010000202301": {
+	"1010000009901": {
 		"name": "Torette: kill Snake",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 5, "count": 12, "level": [22, 24]}
 	},
-	"1010000202302": {
+	"1010000009902": {
 		"name": "Torette: get AnimalSkull",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 6, "level": [22, 24]},
 		"object2": {"type": 4, "kind": 39, "count": 4, "chance": 15}
 	},
-	"1010000202401": {
+	"1010000010001": {
 		"name": "Belton: get Bug",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 7, "level": [19, 21]},
 		"object2": {"type": 4, "kind": 49, "count": 3, "chance": 15}
 	},
-	"1010000202402": {
+	"1010000010002": {
 		"name": "Belton: kill Skeleton",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 3, "count": 12, "level": [19, 21]}
 	},
-	"1010000202501": {
+	"1010000010101": {
 		"name": "Selold: get LeafWreath",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 4, "level": [22, 24]},
 		"object2": {"type": 4, "kind": 85, "count": 4, "chance": 15}
 	},
-	"1010000202502": {
+	"1010000010102": {
 		"name": "Selold: kill Bat",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 6, "count": 8, "level": [22, 24]}
 	},
-	"1010000202601": {
+	"1010000010201": {
 		"name": "Rhimund: get Book",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 6, "level": [19, 21]},
 		"object2": {"type": 4, "kind": 2, "count": 3, "chance": 15}
 	},
-	"1010000202602": {
+	"1010000010202": {
 		"name": "Rhimund: kill Goblin",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 4, "count": 12, "level": [19, 21]}
 	},
-	"1010000202701": {
+	"1010000010301": {
 		"name": "Hobo: get PoisonVial",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 3, "level": [16, 18]},
 		"object2": {"type": 4, "kind": 47, "count": 3, "chance": 15}
 	},
-	"1010000202702": {
+	"1010000010302": {
 		"name": "Hobo: kill Armored Skeleton",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 7, "count": 10, "level": [16, 18]}
 	},
-	"1010000202801": {
+	"1010000010401": {
 		"name": "Dorach: kill Rat",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 1, "count": 10, "level": [19, 21]}
 	},
-	"1010000202802": {
+	"1010000010402": {
 		"name": "Dorach: get Pumpkin",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 5, "level": [19, 21]},
 		"object2": {"type": 4, "kind": 92, "count": 5, "chance": 15}
 	},
-	"1010000202901": {
+	"1010000010501": {
 		"name": "Quinek: kill Snake",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 5, "count": 8, "level": [16, 18]}
 	},
-	"1010000202902": {
+	"1010000010502": {
 		"name": "Quinek: get PinkFireball",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 6, "level": [16, 18]},
 		"object2": {"type": 4, "kind": 22, "count": 5, "chance": 15}
 	},
-	"1010000203001": {
+	"1010000010601": {
 		"name": "Fenin: kill Bat",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 6, "count": 10, "level": [13, 15]}
 	},
-	"1010000203002": {
+	"1010000010602": {
 		"name": "Fenin: get CrudeDagger",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 5, "level": [13, 15]},
 		"object2": {"type": 4, "kind": 87, "count": 4, "chance": 15}
 	},
-	"1010000203101": {
+	"1010000010701": {
 		"name": "Pipius: get RingOne",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 7, "level": [22, 24]},
 		"object2": {"type": 4, "kind": 15, "count": 4, "chance": 15}
 	},
-	"1010000203102": {
+	"1010000010702": {
 		"name": "Pipius: kill Ogre",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 8, "count": 10, "level": [22, 24]}
 	},
-	"1010000203201": {
+	"1010000010801": {
 		"name": "Selek: get HandBag",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 8, "level": [25, 27]},
 		"object2": {"type": 4, "kind": 82, "count": 3, "chance": 15}
 	},
-	"1010000203202": {
+	"1010000010802": {
 		"name": "Selek: kill Skeleton",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 3, "count": 8, "level": [25, 27]}
 	},
-	"1010000203301": {
+	"1010000010901": {
 		"name": "Hobira: kill Armored Skeleton",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 7, "count": 10, "level": [28, 30]}
 	},
-	"1010000203302": {
+	"1010000010902": {
 		"name": "Hobira: get Crystals",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 8, "level": [28, 30]},
 		"object2": {"type": 4, "kind": 33, "count": 3, "chance": 15}
 	},
-	"1010000203401": {
+	"1010000011001": {
 		"name": "Falek: kill Ogre",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 8, "count": 8, "level": [19, 21]}
 	},
-	"1010000203402": {
+	"1010000011002": {
 		"name": "Falek: get Shield",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 3, "level": [19, 21]},
 		"object2": {"type": 4, "kind": 13, "count": 4, "chance": 15}
 	},
-	"1010000203501": {
+	"1010000011101": {
 		"name": "Eldo: get BookTwo",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 11, "level": [31, 33]},
 		"object2": {"type": 4, "kind": 75, "count": 4, "chance": 15}
 	},
-	"1010000203502": {
+	"1010000011102": {
 		"name": "Eldo: kill Eye",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 9, "count": 10, "level": [31, 33]}
 	},
-	"1010000203601": {
+	"1010000011201": {
 		"name": "Brammund: get BoneEaring",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 9, "level": [34, 36]},
 		"object2": {"type": 4, "kind": 44, "count": 4, "chance": 15}
 	},
-	"1010000203602": {
+	"1010000011202": {
 		"name": "Brammund: kill Spectre",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 11, "count": 10, "level": [34, 36]}
 	},
-	"1010000203701": {
+	"1010000011301": {
 		"name": "Falton: get FeatherQuill",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 8, "level": [16, 18]},
 		"object2": {"type": 4, "kind": 43, "count": 4, "chance": 15}
 	},
-	"1010000203702": {
+	"1010000011302": {
 		"name": "Falton: kill Skeleton",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 3, "count": 10, "level": [16, 18]}
 	},
-	"1010000203801": {
+	"1010000011401": {
 		"name": "Belley: get DragonEgg",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 3, "level": [19, 21]},
 		"object2": {"type": 4, "kind": 71, "count": 3, "chance": 15}
 	},
-	"1010000203802": {
+	"1010000011402": {
 		"name": "Belley: kill Armored Skeleton",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 7, "count": 12, "level": [19, 21]}
 	},
-	"1010000203901": {
+	"1010000011501": {
 		"name": "Quinton: get Clever",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 3, "level": [22, 24]},
 		"object2": {"type": 4, "kind": 89, "count": 4, "chance": 15}
 	},
-	"1010000203902": {
+	"1010000011502": {
 		"name": "Quinton: kill Ogre",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 8, "count": 12, "level": [22, 24]}
 	},
-	"1010000204001": {
+	"1010000011601": {
 		"name": "Odoley: get BronzeHelmet",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 5, "level": [13, 15]},
 		"object2": {"type": 4, "kind": 56, "count": 4, "chance": 15}
 	},
-	"1010000204002": {
+	"1010000011602": {
 		"name": "Odoley: kill Goblin",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 4, "count": 8, "level": [13, 15]}
 	},
-	"1010000204101": {
+	"1010000011701": {
 		"name": "Isawin: get BattleAxe",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 6, "level": [16, 18]},
 		"object2": {"type": 4, "kind": 65, "count": 4, "chance": 15}
 	},
-	"1010000204102": {
+	"1010000011702": {
 		"name": "Isawin: kill Snake",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 5, "count": 8, "level": [16, 18]}
 	},
-	"1010000204201": {
+	"1010000011801": {
 		"name": "Nelan: kill Bat",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 6, "count": 10, "level": [19, 21]}
 	},
-	"1010000204202": {
+	"1010000011802": {
 		"name": "Nelan: get Candle",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 4, "level": [19, 21]},
 		"object2": {"type": 4, "kind": 6, "count": 3, "chance": 15}
 	},
-	"1010000204301": {
+	"1010000011901": {
 		"name": "Ulius: kill Snake",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 5, "count": 12, "level": [16, 18]}
 	},
-	"1010000204302": {
+	"1010000011902": {
 		"name": "Ulius: get NecklaceTwo",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 1, "level": [16, 18]},
 		"object2": {"type": 4, "kind": 36, "count": 3, "chance": 15}
 	},
-	"1010000204401": {
+	"1010000012001": {
 		"name": "Odoira: kill Goblin",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 4, "count": 8, "level": [13, 15]}
 	},
-	"1010000204402": {
+	"1010000012002": {
 		"name": "Odoira: get Hook",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 5, "level": [13, 15]},
 		"object2": {"type": 4, "kind": 99, "count": 3, "chance": 15}
 	},
-	"1010000204501": {
+	"1010000012101": {
 		"name": "Pipber: get FineComb",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 6, "level": [10, 12]},
 		"object2": {"type": 4, "kind": 95, "count": 4, "chance": 15}
 	},
-	"1010000204502": {
+	"1010000012102": {
 		"name": "Pipber: kill Snake",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 5, "count": 8, "level": [10, 12]}
 	},
-	"1010000204601": {
+	"1010000012201": {
 		"name": "Selira: get Pendant",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 5, "level": [13, 15]},
 		"object2": {"type": 4, "kind": 62, "count": 3, "chance": 15}
 	},
-	"1010000204602": {
+	"1010000012202": {
 		"name": "Selira: kill Bat",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 6, "count": 10, "level": [13, 15]}
 	},
-	"1010000204701": {
+	"1010000012301": {
 		"name": "Bramach: kill Goblin",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 4, "count": 8, "level": [10, 12]}
 	},
-	"1010000204702": {
+	"1010000012302": {
 		"name": "Bramach: get ClubOne",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 5, "level": [10, 12]},
 		"object2": {"type": 4, "kind": 32, "count": 3, "chance": 15}
 	},
-	"1010000204801": {
+	"1010000012401": {
 		"name": "Gwenric: get Log",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 6, "level": [8, 9]},
 		"object2": {"type": 4, "kind": 14, "count": 4, "chance": 15}
 	},
-	"1010000204802": {
+	"1010000012402": {
 		"name": "Gwenric: kill Snake",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 5, "count": 12, "level": [8, 9]}
 	},
-	"1010000204901": {
+	"1010000012501": {
 		"name": "Orrald: kill Crab",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 2, "count": 10, "level": [10, 12]}
 	},
-	"1010000204902": {
+	"1010000012502": {
 		"name": "Orrald: get FaceMask",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 2, "level": [10, 12]},
 		"object2": {"type": 4, "kind": 80, "count": 5, "chance": 15}
 	},
-	"1010000205001": {
+	"1010000012601": {
 		"name": "Stenelle: kill Bat",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 6, "count": 10, "level": [8, 9]}
 	},
-	"1010000205002": {
+	"1010000012602": {
 		"name": "Stenelle: get DreamCatcher",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 5, "level": [8, 9]},
 		"object2": {"type": 4, "kind": 16, "count": 3, "chance": 15}
 	},
-	"1010000205101": {
+	"1010000012701": {
 		"name": "Roseth: kill Goblin",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 4, "count": 8, "level": [6, 7]}
 	},
-	"1010000205102": {
+	"1010000012702": {
 		"name": "Roseth: get Crate",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 6, "level": [6, 7]},
 		"object2": {"type": 4, "kind": 45, "count": 5, "chance": 15}
 	},
-	"1010000205201": {
+	"1010000012801": {
 		"name": "Faloric: kill Snake",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 5, "count": 8, "level": [8, 9]}
 	},
-	"1010000205202": {
+	"1010000012802": {
 		"name": "Faloric: get Cards",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 4, "level": [8, 9]},
 		"object2": {"type": 4, "kind": 78, "count": 5, "chance": 15}
 	},
-	"1010000205301": {
+	"1010000012901": {
 		"name": "Norella: kill Bat",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 6, "count": 10, "level": [6, 7]}
 	},
-	"1010000205302": {
+	"1010000012902": {
 		"name": "Norella: get CoinPouch",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 4, "level": [6, 7]},
 		"object2": {"type": 4, "kind": 35, "count": 3, "chance": 15}
 	},
-	"1010000205401": {
+	"1010000013001": {
 		"name": "Briella: kill Goblin",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 4, "count": 12, "level": [4, 5]}
 	},
-	"1010000205402": {
+	"1010000013002": {
 		"name": "Briella: get Gadget",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 5, "level": [4, 5]},
 		"object2": {"type": 4, "kind": 26, "count": 4, "chance": 15}
 	},
-	"1010000205501": {
+	"1010000013101": {
 		"name": "Rosette: get SealedScroll",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 4, "level": [10, 12]},
 		"object2": {"type": 4, "kind": 17, "count": 4, "chance": 15}
 	},
-	"1010000205502": {
+	"1010000013102": {
 		"name": "Rosette: kill Snake",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 5, "count": 10, "level": [10, 12]}
 	},
-	"1010000205601": {
+	"1010000013201": {
 		"name": "Perton: get Broach",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 4, "level": [13, 15]},
 		"object2": {"type": 4, "kind": 67, "count": 5, "chance": 15}
 	},
-	"1010000205602": {
+	"1010000013202": {
 		"name": "Perton: kill Bat",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 6, "count": 8, "level": [13, 15]}
 	},
-	"1010000205701": {
+	"1010000013301": {
 		"name": "Torold: kill Goblin",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 4, "count": 12, "level": [16, 18]}
 	},
-	"1010000205702": {
+	"1010000013302": {
 		"name": "Torold: get RingThree",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 6, "level": [16, 18]},
 		"object2": {"type": 4, "kind": 64, "count": 5, "chance": 15}
 	},
-	"1010000205801": {
+	"1010000013401": {
 		"name": "Pipdor: get MortAndPestle",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 4, "level": [8, 9]},
 		"object2": {"type": 4, "kind": 90, "count": 4, "chance": 15}
 	},
-	"1010000205802": {
+	"1010000013402": {
 		"name": "Pipdor: kill Snake",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 5, "count": 8, "level": [8, 9]}
 	},
-	"1010000205901": {
+	"1010000013501": {
 		"name": "Delara: get Mushrooms",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 5, "level": [10, 12]},
 		"object2": {"type": 4, "kind": 42, "count": 3, "chance": 15}
 	},
-	"1010000205902": {
+	"1010000013502": {
 		"name": "Delara: kill Bat",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 6, "count": 12, "level": [10, 12]}
 	},
-	"1010000206001": {
+	"1010000013601": {
 		"name": "Wilmund: get Scrolls",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 6, "level": [13, 15]},
 		"object2": {"type": 4, "kind": 0, "count": 3, "chance": 15}
 	},
-	"1010000206002": {
+	"1010000013602": {
 		"name": "Wilmund: kill Goblin",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 4, "count": 8, "level": [13, 15]}
 	},
-	"1010000206101": {
+	"1010000013701": {
 		"name": "Lorton: kill Snake",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 5, "count": 10, "level": [6, 7]}
 	},
-	"1010000206102": {
+	"1010000013702": {
 		"name": "Lorton: get Squid",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 6, "level": [6, 7]},
 		"object2": {"type": 4, "kind": 31, "count": 5, "chance": 15}
 	},
-	"1010000206201": {
+	"1010000013801": {
 		"name": "Jormund: get NecklaceThree",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 5, "level": [8, 9]},
 		"object2": {"type": 4, "kind": 84, "count": 4, "chance": 15}
 	},
-	"1010000206202": {
+	"1010000013802": {
 		"name": "Jormund: kill Bat",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 6, "count": 12, "level": [8, 9]}
 	},
-	"1010000206301": {
+	"1010000013901": {
 		"name": "Vorvin: get Leaf",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 6, "level": [10, 12]},
 		"object2": {"type": 4, "kind": 40, "count": 3, "chance": 15}
 	},
-	"1010000206302": {
+	"1010000013902": {
 		"name": "Vorvin: kill Goblin",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 4, "count": 8, "level": [10, 12]}
 	},
-	"1010000206401": {
+	"1010000014001": {
 		"name": "Fenira: kill Snake",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 5, "count": 8, "level": [4, 5]}
 	},
-	"1010000206402": {
+	"1010000014002": {
 		"name": "Fenira: get UrnOne",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 4, "level": [4, 5]},
 		"object2": {"type": 4, "kind": 29, "count": 5, "chance": 15}
 	},
-	"1010000206501": {
+	"1010000014101": {
 		"name": "Sabek: get TotemFace",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 5, "level": [6, 7]},
 		"object2": {"type": 4, "kind": 25, "count": 3, "chance": 15}
 	},
-	"1010000206502": {
+	"1010000014102": {
 		"name": "Sabek: kill Bat",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 6, "count": 8, "level": [6, 7]}
 	},
-	"1010000206601": {
+	"1010000014201": {
 		"name": "Sabmund: kill Goblin",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 4, "count": 8, "level": [8, 9]}
 	},
-	"1010000206602": {
+	"1010000014202": {
 		"name": "Sabmund: get BasicKnife",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 5, "level": [8, 9]},
 		"object2": {"type": 4, "kind": 57, "count": 3, "chance": 15}
 	},
-	"1010000206701": {
+	"1010000014301": {
 		"name": "Perella: get Cheese",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 4, "level": [6, 7]},
 		"object2": {"type": 4, "kind": 41, "count": 3, "chance": 15}
 	},
-	"1010000206702": {
+	"1010000014302": {
 		"name": "Perella: kill Snake",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 5, "count": 12, "level": [6, 7]}
 	},
-	"1010000206801": {
+	"1010000014401": {
 		"name": "Feno: kill Bat",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 6, "count": 10, "level": [4, 5]}
 	},
-	"1010000206802": {
+	"1010000014402": {
 		"name": "Feno: get Mushroom",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 4, "level": [4, 5]},
 		"object2": {"type": 4, "kind": 98, "count": 4, "chance": 15}
 	},
-	"1010000206901": {
+	"1010000014501": {
 		"name": "Yarber: kill Goblin",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 4, "count": 8, "level": [2, 3]}
 	},
-	"1010000206902": {
+	"1010000014502": {
 		"name": "Yarber: get Key",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 5, "level": [2, 3]},
 		"object2": {"type": 4, "kind": 3, "count": 3, "chance": 15}
 	},
-	"1010000207001": {
+	"1010000014601": {
 		"name": "Ashelle: get NecklaceOne",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 4, "level": [4, 5]},
 		"object2": {"type": 4, "kind": 30, "count": 5, "chance": 15}
 	},
-	"1010000207002": {
+	"1010000014602": {
 		"name": "Ashelle: kill Snake",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 5, "count": 8, "level": [4, 5]}
 	},
-	"1010000207101": {
+	"1010000014701": {
 		"name": "Tordor: get Thorns",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 2, "level": [2, 3]},
 		"object2": {"type": 4, "kind": 94, "count": 5, "chance": 15}
 	},
-	"1010000207102": {
+	"1010000014702": {
 		"name": "Tordor: kill Crab",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 2, "count": 10, "level": [2, 3]}
 	},
-	"1010000207201": {
+	"1010000014801": {
 		"name": "Norelle: get Bell",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 5, "level": [1, 1]},
 		"object2": {"type": 4, "kind": 4, "count": 5, "chance": 15}
 	},
-	"1010000207202": {
+	"1010000014802": {
 		"name": "Norelle: kill Rat",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 1, "count": 8, "level": [1, 1]}
 	},
-	"1010000207301": {
+	"1010000014901": {
 		"name": "Fenia: get Drumstick",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 2, "level": [6, 7]},
 		"object2": {"type": 4, "kind": 7, "count": 5, "chance": 15}
 	},
-	"1010000207302": {
+	"1010000014902": {
 		"name": "Fenia: kill Crab",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 2, "count": 12, "level": [6, 7]}
 	},
-	"1010000207401": {
+	"1010000015001": {
 		"name": "Falley: kill Bat",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 6, "count": 12, "level": [4, 5]}
 	},
-	"1010000207402": {
+	"1010000015002": {
 		"name": "Falley: get IronHelmet",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 5, "level": [4, 5]},
 		"object2": {"type": 4, "kind": 8, "count": 5, "chance": 15}
 	},
-	"1010000207501": {
+	"1010000015101": {
 		"name": "Sabos: get Maul",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 2, "level": [2, 3]},
 		"object2": {"type": 4, "kind": 68, "count": 4, "chance": 15}
 	},
-	"1010000207502": {
+	"1010000015102": {
 		"name": "Sabos: kill Crab",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 2, "count": 10, "level": [2, 3]}
 	},
-	"1010000207601": {
+	"1010000015201": {
 		"name": "Bramold: get Dice",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 5, "level": [2, 3]},
 		"object2": {"type": 4, "kind": 1, "count": 3, "chance": 15}
 	},
-	"1010000207602": {
+	"1010000015202": {
 		"name": "Bramold: kill Goblin",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 4, "count": 10, "level": [2, 3]}
 	},
-	"1010000207701": {
+	"1010000015301": {
 		"name": "Halo: get Feather",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 4, "level": [4, 5]},
 		"object2": {"type": 4, "kind": 20, "count": 4, "chance": 15}
 	},
-	"1010000207702": {
+	"1010000015302": {
 		"name": "Halo: kill Snake",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 5, "count": 10, "level": [4, 5]}
 	},
-	"1010000207801": {
+	"1010000015401": {
 		"name": "Lorwin: get Eyeball",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 4, "level": [6, 7]},
 		"object2": {"type": 4, "kind": 86, "count": 3, "chance": 15}
 	},
-	"1010000207802": {
+	"1010000015402": {
 		"name": "Lorwin: kill Bat",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 6, "count": 8, "level": [6, 7]}
 	},
-	"1010000207901": {
+	"1010000015501": {
 		"name": "Eldald: get BrokenGlass",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 1, "level": [1, 1]},
 		"object2": {"type": 4, "kind": 51, "count": 5, "chance": 15}
 	},
-	"1010000207902": {
+	"1010000015502": {
 		"name": "Eldald: kill Snake",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 5, "count": 12, "level": [1, 1]}
 	},
-	"1010000208001": {
+	"1010000015601": {
 		"name": "Dorold: get Mirror",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 5, "level": [2, 3]},
 		"object2": {"type": 4, "kind": 77, "count": 4, "chance": 15}
 	},
-	"1010000208002": {
+	"1010000015602": {
 		"name": "Dorold: kill Goblin",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 4, "count": 10, "level": [2, 3]}
 	},
-	"1010000208101": {
+	"1010000015701": {
 		"name": "Marara: get Padlock",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 6, "level": [4, 5]},
 		"object2": {"type": 4, "kind": 5, "count": 3, "chance": 15}
 	},
-	"1010000208102": {
+	"1010000015702": {
 		"name": "Marara: kill Snake",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 5, "count": 8, "level": [4, 5]}
 	},
-	"1010000208201": {
+	"1010000015801": {
 		"name": "Milo: kill Crab",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 2, "count": 10, "level": [2, 3]}
 	},
-	"1010000208202": {
+	"1010000015802": {
 		"name": "Milo: get SmokePipe",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 2, "level": [2, 3]},
 		"object2": {"type": 4, "kind": 69, "count": 4, "chance": 15}
 	},
-	"1010000208301": {
+	"1010000015901": {
 		"name": "Wilan: kill Crab",
 		"type": 1,
 		"level": 0,
 		"object": {"type": 2, "kind": 2, "count": 10, "level": [4, 5]}
 	},
-	"1010000208302": {
+	"1010000015902": {
 		"name": "Wilan: get WitchHat",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 2, "level": [4, 5]},
 		"object2": {"type": 4, "kind": 11, "count": 5, "chance": 15}
 	},
-	"1010000208401": {
+	"1010000016001": {
 		"name": "Roswin: get Spider",
 		"type": 2,
 		"level": 0,
 		"object": {"type": 2, "kind": 4, "level": [6, 7]},
 		"object2": {"type": 4, "kind": 18, "count": 4, "chance": 15}
 	},
-	"1010000208402": {
+	"1010000016002": {
 		"name": "Roswin: kill Bat",
 		"type": 1,
 		"level": 0,

@@ -1,6 +1,7 @@
 [
   {
-    "id": 177,
+    "id": 1,
+    "caption": "npc_beginner_shop",
     "type": "npcstatic",
     "kind": 36,
     "x": 10312,
@@ -8,7 +9,8 @@
     "name": "Beginner Shop"
   },
   {
-    "id": 178,
+    "id": 2,
+    "caption": "npc_auction",
     "type": "npcstatic",
     "kind": 1,
     "x": 10824,
@@ -16,7 +18,8 @@
     "name": "Auction"
   },
   {
-    "id": 179,
+    "id": 3,
+    "caption": "npc_enchant",
     "type": "npcstatic",
     "kind": 43,
     "x": 12216,
@@ -24,7 +27,8 @@
     "name": "Enchant"
   },
   {
-    "id": 180,
+    "id": 4,
+    "caption": "npc_repair",
     "type": "npcstatic",
     "kind": 9,
     "x": 10584,
@@ -32,7 +36,8 @@
     "name": "Repair"
   },
   {
-    "id": 181,
+    "id": 5,
+    "caption": "npc_bank",
     "type": "npcstatic",
     "kind": 7,
     "x": 12488,
@@ -40,7 +45,8 @@
     "name": "Bank"
   },
   {
-    "id": 182,
+    "id": 6,
+    "caption": "npc_looks",
     "type": "npcstatic",
     "kind": 10,
     "x": 15112,
@@ -48,7 +54,8 @@
     "name": "Looks"
   },
   {
-    "id": 183,
+    "id": 7,
+    "caption": "npc_craft",
     "type": "npcstatic",
     "kind": 45,
     "x": 15320,
@@ -56,7 +63,8 @@
     "name": "Craft"
   },
   {
-    "id": 184,
+    "id": 8,
+    "caption": "npc_beginner_shop",
     "type": "npcstatic",
     "kind": 36,
     "x": 13256,
@@ -64,7 +72,8 @@
     "name": "Beginner Shop"
   },
   {
-    "id": 185,
+    "id": 9,
+    "caption": "npc_auction",
     "type": "npcstatic",
     "kind": 1,
     "x": 15576,
@@ -72,7 +81,8 @@
     "name": "Auction"
   },
   {
-    "id": 186,
+    "id": 10,
+    "caption": "npc_enchant",
     "type": "npcstatic",
     "kind": 43,
     "x": 11048,
@@ -80,7 +90,8 @@
     "name": "Enchant"
   },
   {
-    "id": 187,
+    "id": 11,
+    "caption": "npc_repair",
     "type": "npcstatic",
     "kind": 9,
     "x": 12728,
@@ -88,7 +99,8 @@
     "name": "Repair"
   },
   {
-    "id": 188,
+    "id": 12,
+    "caption": "npc_bank",
     "type": "npcstatic",
     "kind": 7,
     "x": 12968,
@@ -96,7 +108,8 @@
     "name": "Bank"
   },
   {
-    "id": 189,
+    "id": 13,
+    "caption": "npc_looks",
     "type": "npcstatic",
     "kind": 10,
     "x": 10968,
@@ -104,7 +117,8 @@
     "name": "Looks"
   },
   {
-    "id": 190,
+    "id": 14,
+    "caption": "npc_craft",
     "type": "npcstatic",
     "kind": 45,
     "x": 11256,
@@ -112,7 +126,8 @@
     "name": "Craft"
   },
   {
-    "id": 191,
+    "id": 15,
+    "caption": "npc_beginner_shop",
     "type": "npcstatic",
     "kind": 36,
     "x": 15880,
@@ -120,7 +135,8 @@
     "name": "Beginner Shop"
   },
   {
-    "id": 192,
+    "id": 16,
+    "caption": "npc_auction",
     "type": "npcstatic",
     "kind": 1,
     "x": 11896,
@@ -128,7 +144,8 @@
     "name": "Auction"
   },
   {
-    "id": 193,
+    "id": 17,
+    "caption": "npc_enchant",
     "type": "npcstatic",
     "kind": 43,
     "x": 13560,
@@ -136,7 +153,8 @@
     "name": "Enchant"
   },
   {
-    "id": 194,
+    "id": 18,
+    "caption": "npc_repair",
     "type": "npcstatic",
     "kind": 9,
     "x": 14072,
@@ -144,7 +162,8 @@
     "name": "Repair"
   },
   {
-    "id": 195,
+    "id": 19,
+    "caption": "npc_bank",
     "type": "npcstatic",
     "kind": 7,
     "x": 13816,
@@ -152,7 +171,8 @@
     "name": "Bank"
   },
   {
-    "id": 196,
+    "id": 20,
+    "caption": "npc_looks",
     "type": "npcstatic",
     "kind": 10,
     "x": 11544,
@@ -160,7 +180,8 @@
     "name": "Looks"
   },
   {
-    "id": 197,
+    "id": 21,
+    "caption": "npc_craft",
     "type": "npcstatic",
     "kind": 45,
     "x": 12216,
@@ -168,7 +189,8 @@
     "name": "Craft"
   },
   {
-    "id": 1001,
+    "id": 22,
+    "caption": "quest_npc_mainarea",
     "type": "npcmove",
     "kind": 14,
     "x": 968,
@@ -176,7 +198,8 @@
     "name": "Eldric"
   },
   {
-    "id": 1002,
+    "id": 23,
+    "caption": "quest_npc_mainarea",
     "type": "npcmove",
     "kind": 52,
     "x": 2536,
@@ -184,7 +207,8 @@
     "name": "Voria"
   },
   {
-    "id": 1003,
+    "id": 24,
+    "caption": "quest_npc_mainarea",
     "type": "npcmove",
     "kind": 53,
     "x": 3912,
@@ -192,7 +216,8 @@
     "name": "Pipin"
   },
   {
-    "id": 1004,
+    "id": 25,
+    "caption": "quest_npc_mainarea",
     "type": "npcmove",
     "kind": 6,
     "x": 824,
@@ -200,7 +225,8 @@
     "name": "Yaria"
   },
   {
-    "id": 1005,
+    "id": 26,
+    "caption": "quest_npc_mainarea",
     "type": "npcmove",
     "kind": 24,
     "x": 2280,
@@ -208,7 +234,8 @@
     "name": "Deleth"
   },
   {
-    "id": 1006,
+    "id": 27,
+    "caption": "quest_npc_mainarea",
     "type": "npcmove",
     "kind": 50,
     "x": 4024,
@@ -216,7 +243,8 @@
     "name": "Hobley"
   },
   {
-    "id": 1007,
+    "id": 28,
+    "caption": "quest_npc_mainarea",
     "type": "npcmove",
     "kind": 36,
     "x": 952,
@@ -224,7 +252,8 @@
     "name": "Vorisa"
   },
   {
-    "id": 1008,
+    "id": 29,
+    "caption": "quest_npc_mainarea",
     "type": "npcmove",
     "kind": 49,
     "x": 2648,
@@ -232,7 +261,8 @@
     "name": "Noros"
   },
   {
-    "id": 1009,
+    "id": 30,
+    "caption": "quest_npc_mainarea",
     "type": "npcmove",
     "kind": 41,
     "x": 5928,
@@ -240,7 +270,8 @@
     "name": "Bramdor"
   },
   {
-    "id": 1010,
+    "id": 31,
+    "caption": "quest_npc_mainarea",
     "type": "npcmove",
     "kind": 45,
     "x": 7496,
@@ -248,7 +279,8 @@
     "name": "Gwenira"
   },
   {
-    "id": 1011,
+    "id": 32,
+    "caption": "quest_npc_mainarea",
     "type": "npcmove",
     "kind": 54,
     "x": 5864,
@@ -256,7 +288,8 @@
     "name": "Dorin"
   },
   {
-    "id": 1012,
+    "id": 33,
+    "caption": "quest_npc_mainarea",
     "type": "npcmove",
     "kind": 19,
     "x": 7448,
@@ -264,7 +297,8 @@
     "name": "Ashira"
   },
   {
-    "id": 1013,
+    "id": 34,
+    "caption": "quest_npc_mainarea",
     "type": "npcmove",
     "kind": 12,
     "x": 4184,
@@ -272,7 +306,8 @@
     "name": "Jorard"
   },
   {
-    "id": 1014,
+    "id": 35,
+    "caption": "quest_npc_mainarea",
     "type": "npcmove",
     "kind": 14,
     "x": 5624,
@@ -280,7 +315,8 @@
     "name": "Garmund"
   },
   {
-    "id": 1015,
+    "id": 36,
+    "caption": "quest_npc_mainarea",
     "type": "npcmove",
     "kind": 36,
     "x": 7320,
@@ -288,7 +324,8 @@
     "name": "Ashen"
   },
   {
-    "id": 1016,
+    "id": 37,
+    "caption": "quest_npc_mainarea",
     "type": "npcmove",
     "kind": 11,
     "x": 968,
@@ -296,7 +333,8 @@
     "name": "Gwendor"
   },
   {
-    "id": 1017,
+    "id": 38,
+    "caption": "quest_npc_mainarea",
     "type": "npcmove",
     "kind": 40,
     "x": 2408,
@@ -304,7 +342,8 @@
     "name": "Wenmund"
   },
   {
-    "id": 1018,
+    "id": 39,
+    "caption": "quest_npc_mainarea",
     "type": "npcmove",
     "kind": 42,
     "x": 808,
@@ -312,7 +351,8 @@
     "name": "Hobton"
   },
   {
-    "id": 1019,
+    "id": 40,
+    "caption": "quest_npc_mainarea",
     "type": "npcmove",
     "kind": 34,
     "x": 2424,
@@ -320,7 +360,8 @@
     "name": "Ulwin"
   },
   {
-    "id": 1020,
+    "id": 41,
+    "caption": "quest_npc_mainarea",
     "type": "npcmove",
     "kind": 2,
     "x": 952,
@@ -328,7 +369,8 @@
     "name": "Garette"
   },
   {
-    "id": 1021,
+    "id": 42,
+    "caption": "quest_npc_mainarea",
     "type": "npcmove",
     "kind": 39,
     "x": 4184,
@@ -336,7 +378,8 @@
     "name": "Marisa"
   },
   {
-    "id": 1022,
+    "id": 43,
+    "caption": "quest_npc_mainarea",
     "type": "npcmove",
     "kind": 2,
     "x": 5688,
@@ -344,7 +387,8 @@
     "name": "Lorira"
   },
   {
-    "id": 1023,
+    "id": 44,
+    "caption": "quest_npc_mainarea",
     "type": "npcmove",
     "kind": 18,
     "x": 7672,
@@ -352,7 +396,8 @@
     "name": "Sabley"
   },
   {
-    "id": 1024,
+    "id": 45,
+    "caption": "quest_npc_mainarea",
     "type": "npcmove",
     "kind": 50,
     "x": 4312,
@@ -360,7 +405,8 @@
     "name": "Braek"
   },
   {
-    "id": 1025,
+    "id": 46,
+    "caption": "quest_npc_mainarea",
     "type": "npcmove",
     "kind": 30,
     "x": 5736,
@@ -368,7 +414,8 @@
     "name": "Orreth"
   },
   {
-    "id": 1026,
+    "id": 47,
+    "caption": "quest_npc_mainarea",
     "type": "npcmove",
     "kind": 36,
     "x": 7352,
@@ -376,7 +423,8 @@
     "name": "Hobber"
   },
   {
-    "id": 1027,
+    "id": 48,
+    "caption": "quest_npc_mainarea",
     "type": "npcmove",
     "kind": 40,
     "x": 4280,
@@ -384,7 +432,8 @@
     "name": "Marric"
   },
   {
-    "id": 1028,
+    "id": 49,
+    "caption": "quest_npc_mainarea",
     "type": "npcmove",
     "kind": 9,
     "x": 5944,
@@ -392,7 +441,8 @@
     "name": "Calisa"
   },
   {
-    "id": 1029,
+    "id": 50,
+    "caption": "quest_npc_mainarea",
     "type": "npcmove",
     "kind": 42,
     "x": 2456,
@@ -400,7 +450,8 @@
     "name": "Quinisa"
   },
   {
-    "id": 1030,
+    "id": 51,
+    "caption": "quest_npc_mainarea",
     "type": "npcmove",
     "kind": 9,
     "x": 936,
@@ -408,7 +459,8 @@
     "name": "Ulton"
   },
   {
-    "id": 1031,
+    "id": 52,
+    "caption": "quest_npc_mainarea",
     "type": "npcmove",
     "kind": 56,
     "x": 2616,
@@ -416,7 +468,8 @@
     "name": "Delric"
   },
   {
-    "id": 1032,
+    "id": 53,
+    "caption": "quest_npc_mainarea",
     "type": "npcmove",
     "kind": 35,
     "x": 4024,
@@ -424,7 +477,8 @@
     "name": "Rhian"
   },
   {
-    "id": 1033,
+    "id": 54,
+    "caption": "quest_npc_mainarea",
     "type": "npcmove",
     "kind": 12,
     "x": 920,
@@ -432,7 +486,8 @@
     "name": "Perwin"
   },
   {
-    "id": 1034,
+    "id": 55,
+    "caption": "quest_npc_mainarea",
     "type": "npcmove",
     "kind": 49,
     "x": 2392,
@@ -440,7 +495,8 @@
     "name": "Hobette"
   },
   {
-    "id": 1035,
+    "id": 56,
+    "caption": "quest_npc_mainarea",
     "type": "npcmove",
     "kind": 44,
     "x": 7288,
@@ -448,7 +504,8 @@
     "name": "Bramo"
   },
   {
-    "id": 1036,
+    "id": 57,
+    "caption": "quest_npc_mainarea",
     "type": "npcmove",
     "kind": 9,
     "x": 5816,
@@ -456,7 +513,8 @@
     "name": "Milella"
   },
   {
-    "id": 1037,
+    "id": 58,
+    "caption": "quest_npc_mainarea",
     "type": "npcmove",
     "kind": 9,
     "x": 7448,
@@ -464,7 +522,8 @@
     "name": "Belara"
   },
   {
-    "id": 1038,
+    "id": 59,
+    "caption": "quest_npc_mainarea",
     "type": "npcmove",
     "kind": 56,
     "x": 4184,
@@ -472,7 +531,8 @@
     "name": "Garin"
   },
   {
-    "id": 1039,
+    "id": 60,
+    "caption": "quest_npc_mainarea",
     "type": "npcmove",
     "kind": 31,
     "x": 5816,
@@ -480,7 +540,8 @@
     "name": "Rosen"
   },
   {
-    "id": 1040,
+    "id": 61,
+    "caption": "quest_npc_mainarea",
     "type": "npcmove",
     "kind": 51,
     "x": 7352,
@@ -488,7 +549,8 @@
     "name": "Lorwyn"
   },
   {
-    "id": 1041,
+    "id": 62,
+    "caption": "quest_npc_mainarea",
     "type": "npcmove",
     "kind": 15,
     "x": 696,
@@ -496,7 +558,8 @@
     "name": "Cormund"
   },
   {
-    "id": 1042,
+    "id": 63,
+    "caption": "quest_npc_mainarea",
     "type": "npcmove",
     "kind": 50,
     "x": 2296,
@@ -504,7 +567,8 @@
     "name": "Gwenia"
   },
   {
-    "id": 1043,
+    "id": 64,
+    "caption": "quest_npc_mainarea",
     "type": "npcmove",
     "kind": 11,
     "x": 968,
@@ -512,7 +576,8 @@
     "name": "Halley"
   },
   {
-    "id": 1044,
+    "id": 65,
+    "caption": "quest_npc_mainarea",
     "type": "npcmove",
     "kind": 34,
     "x": 2360,
@@ -520,7 +585,8 @@
     "name": "Bramara"
   },
   {
-    "id": 1045,
+    "id": 66,
+    "caption": "quest_npc_mainarea",
     "type": "npcmove",
     "kind": 4,
     "x": 776,
@@ -528,7 +594,8 @@
     "name": "Corwin"
   },
   {
-    "id": 1046,
+    "id": 67,
+    "caption": "quest_npc_mainarea",
     "type": "npcmove",
     "kind": 17,
     "x": 2600,
@@ -536,7 +603,8 @@
     "name": "Mardor"
   },
   {
-    "id": 1047,
+    "id": 68,
+    "caption": "quest_npc_mainarea",
     "type": "npcmove",
     "kind": 27,
     "x": 4184,
@@ -544,7 +612,8 @@
     "name": "Falette"
   },
   {
-    "id": 1048,
+    "id": 69,
+    "caption": "quest_npc_mainarea",
     "type": "npcmove",
     "kind": 4,
     "x": 5928,
@@ -552,7 +621,8 @@
     "name": "Roso"
   },
   {
-    "id": 1049,
+    "id": 70,
+    "caption": "quest_npc_mainarea",
     "type": "npcmove",
     "kind": 12,
     "x": 7256,
@@ -560,7 +630,8 @@
     "name": "Delella"
   },
   {
-    "id": 1050,
+    "id": 71,
+    "caption": "quest_npc_mainarea",
     "type": "npcmove",
     "kind": 53,
     "x": 4216,
@@ -568,7 +639,8 @@
     "name": "Halius"
   },
   {
-    "id": 1051,
+    "id": 72,
+    "caption": "quest_npc_mainarea",
     "type": "npcmove",
     "kind": 37,
     "x": 5864,
@@ -576,7 +648,8 @@
     "name": "Halek"
   },
   {
-    "id": 1052,
+    "id": 73,
+    "caption": "quest_npc_mainarea",
     "type": "npcmove",
     "kind": 49,
     "x": 7432,
@@ -584,7 +657,8 @@
     "name": "Wenara"
   },
   {
-    "id": 1053,
+    "id": 74,
+    "caption": "quest_npc_mainarea",
     "type": "npcmove",
     "kind": 40,
     "x": 4232,
@@ -592,7 +666,8 @@
     "name": "Eldius"
   },
   {
-    "id": 1054,
+    "id": 75,
+    "caption": "quest_npc_mainarea",
     "type": "npcmove",
     "kind": 47,
     "x": 5832,
@@ -600,7 +675,8 @@
     "name": "Wilia"
   },
   {
-    "id": 1055,
+    "id": 76,
+    "caption": "quest_npc_mainarea",
     "type": "npcmove",
     "kind": 15,
     "x": 7384,
@@ -608,7 +684,8 @@
     "name": "Wenold"
   },
   {
-    "id": 2001,
+    "id": 77,
+    "caption": "quest_npc_mobarea",
     "type": "npcmove",
     "kind": 27,
     "x": 232,
@@ -616,7 +693,8 @@
     "name": "Jorara"
   },
   {
-    "id": 2002,
+    "id": 78,
+    "caption": "quest_npc_mobarea",
     "type": "npcmove",
     "kind": 11,
     "x": 2344,
@@ -624,7 +702,8 @@
     "name": "Ostella"
   },
   {
-    "id": 2003,
+    "id": 79,
+    "caption": "quest_npc_mobarea",
     "type": "npcmove",
     "kind": 17,
     "x": 3544,
@@ -632,7 +711,8 @@
     "name": "Delton"
   },
   {
-    "id": 2004,
+    "id": 80,
+    "caption": "quest_npc_mobarea",
     "type": "npcmove",
     "kind": 48,
     "x": 136,
@@ -640,7 +720,8 @@
     "name": "Stenen"
   },
   {
-    "id": 2005,
+    "id": 81,
+    "caption": "quest_npc_mobarea",
     "type": "npcmove",
     "kind": 32,
     "x": 2600,
@@ -648,7 +729,8 @@
     "name": "Coruna"
   },
   {
-    "id": 2006,
+    "id": 82,
+    "caption": "quest_npc_mobarea",
     "type": "npcmove",
     "kind": 48,
     "x": 3560,
@@ -656,7 +738,8 @@
     "name": "Belald"
   },
   {
-    "id": 2007,
+    "id": 83,
+    "caption": "quest_npc_mobarea",
     "type": "npcmove",
     "kind": 29,
     "x": 1544,
@@ -664,7 +747,8 @@
     "name": "Yarette"
   },
   {
-    "id": 2008,
+    "id": 84,
+    "caption": "quest_npc_mobarea",
     "type": "npcmove",
     "kind": 15,
     "x": 2504,
@@ -672,7 +756,8 @@
     "name": "Perara"
   },
   {
-    "id": 2009,
+    "id": 85,
+    "caption": "quest_npc_mobarea",
     "type": "npcmove",
     "kind": 11,
     "x": 3640,
@@ -680,7 +765,8 @@
     "name": "Tororic"
   },
   {
-    "id": 2010,
+    "id": 86,
+    "caption": "quest_npc_mobarea",
     "type": "npcmove",
     "kind": 3,
     "x": 4584,
@@ -688,7 +774,8 @@
     "name": "Garoric"
   },
   {
-    "id": 2011,
+    "id": 87,
+    "caption": "quest_npc_mobarea",
     "type": "npcmove",
     "kind": 26,
     "x": 6312,
@@ -696,7 +783,8 @@
     "name": "Bridor"
   },
   {
-    "id": 2012,
+    "id": 88,
+    "caption": "quest_npc_mobarea",
     "type": "npcmove",
     "kind": 51,
     "x": 7608,
@@ -704,7 +792,8 @@
     "name": "Caluna"
   },
   {
-    "id": 2013,
+    "id": 89,
+    "caption": "quest_npc_mobarea",
     "type": "npcmove",
     "kind": 35,
     "x": 4136,
@@ -712,7 +801,8 @@
     "name": "Garald"
   },
   {
-    "id": 2014,
+    "id": 90,
+    "caption": "quest_npc_mobarea",
     "type": "npcmove",
     "kind": 27,
     "x": 6456,
@@ -720,7 +810,8 @@
     "name": "Isaella"
   },
   {
-    "id": 2015,
+    "id": 91,
+    "caption": "quest_npc_mobarea",
     "type": "npcmove",
     "kind": 45,
     "x": 7528,
@@ -728,7 +819,8 @@
     "name": "Nelella"
   },
   {
-    "id": 2016,
+    "id": 92,
+    "caption": "quest_npc_mobarea",
     "type": "npcmove",
     "kind": 56,
     "x": 4808,
@@ -736,7 +828,8 @@
     "name": "Sabella"
   },
   {
-    "id": 2017,
+    "id": 93,
+    "caption": "quest_npc_mobarea",
     "type": "npcmove",
     "kind": 41,
     "x": 5224,
@@ -744,7 +837,8 @@
     "name": "Orrara"
   },
   {
-    "id": 2018,
+    "id": 94,
+    "caption": "quest_npc_mobarea",
     "type": "npcmove",
     "kind": 49,
     "x": 7256,
@@ -752,7 +846,8 @@
     "name": "Coren"
   },
   {
-    "id": 2019,
+    "id": 95,
+    "caption": "quest_npc_mobarea",
     "type": "npcmove",
     "kind": 12,
     "x": 1528,
@@ -760,7 +855,8 @@
     "name": "Jorella"
   },
   {
-    "id": 2020,
+    "id": 96,
+    "caption": "quest_npc_mobarea",
     "type": "npcmove",
     "kind": 28,
     "x": 2952,
@@ -768,7 +864,8 @@
     "name": "Calold"
   },
   {
-    "id": 2021,
+    "id": 97,
+    "caption": "quest_npc_mobarea",
     "type": "npcmove",
     "kind": 48,
     "x": 3976,
@@ -776,7 +873,8 @@
     "name": "Gwenin"
   },
   {
-    "id": 2022,
+    "id": 98,
+    "caption": "quest_npc_mobarea",
     "type": "npcmove",
     "kind": 52,
     "x": 1544,
@@ -784,7 +882,8 @@
     "name": "Norric"
   },
   {
-    "id": 2023,
+    "id": 99,
+    "caption": "quest_npc_mobarea",
     "type": "npcmove",
     "kind": 20,
     "x": 2152,
@@ -792,7 +891,8 @@
     "name": "Torette"
   },
   {
-    "id": 2024,
+    "id": 100,
+    "caption": "quest_npc_mobarea",
     "type": "npcmove",
     "kind": 32,
     "x": 3624,
@@ -800,7 +900,8 @@
     "name": "Belton"
   },
   {
-    "id": 2025,
+    "id": 101,
+    "caption": "quest_npc_mobarea",
     "type": "npcmove",
     "kind": 26,
     "x": 744,
@@ -808,7 +909,8 @@
     "name": "Selold"
   },
   {
-    "id": 2026,
+    "id": 102,
+    "caption": "quest_npc_mobarea",
     "type": "npcmove",
     "kind": 55,
     "x": 1960,
@@ -816,7 +918,8 @@
     "name": "Rhimund"
   },
   {
-    "id": 2027,
+    "id": 103,
+    "caption": "quest_npc_mobarea",
     "type": "npcmove",
     "kind": 18,
     "x": 3832,
@@ -824,7 +927,8 @@
     "name": "Hobo"
   },
   {
-    "id": 2028,
+    "id": 104,
+    "caption": "quest_npc_mobarea",
     "type": "npcmove",
     "kind": 44,
     "x": 1144,
@@ -832,7 +936,8 @@
     "name": "Dorach"
   },
   {
-    "id": 2029,
+    "id": 105,
+    "caption": "quest_npc_mobarea",
     "type": "npcmove",
     "kind": 47,
     "x": 2584,
@@ -840,7 +945,8 @@
     "name": "Quinek"
   },
   {
-    "id": 2030,
+    "id": 106,
+    "caption": "quest_npc_mobarea",
     "type": "npcmove",
     "kind": 34,
     "x": 3688,
@@ -848,7 +954,8 @@
     "name": "Fenin"
   },
   {
-    "id": 2031,
+    "id": 107,
+    "caption": "quest_npc_mobarea",
     "type": "npcmove",
     "kind": 41,
     "x": 4232,
@@ -856,7 +963,8 @@
     "name": "Pipius"
   },
   {
-    "id": 2032,
+    "id": 108,
+    "caption": "quest_npc_mobarea",
     "type": "npcmove",
     "kind": 2,
     "x": 6408,
@@ -864,7 +972,8 @@
     "name": "Selek"
   },
   {
-    "id": 2033,
+    "id": 109,
+    "caption": "quest_npc_mobarea",
     "type": "npcmove",
     "kind": 23,
     "x": 7304,
@@ -872,7 +981,8 @@
     "name": "Hobira"
   },
   {
-    "id": 2034,
+    "id": 110,
+    "caption": "quest_npc_mobarea",
     "type": "npcmove",
     "kind": 48,
     "x": 4552,
@@ -880,7 +990,8 @@
     "name": "Falek"
   },
   {
-    "id": 2035,
+    "id": 111,
+    "caption": "quest_npc_mobarea",
     "type": "npcmove",
     "kind": 24,
     "x": 6344,
@@ -888,7 +999,8 @@
     "name": "Eldo"
   },
   {
-    "id": 2036,
+    "id": 112,
+    "caption": "quest_npc_mobarea",
     "type": "npcmove",
     "kind": 32,
     "x": 7112,
@@ -896,7 +1008,8 @@
     "name": "Brammund"
   },
   {
-    "id": 2037,
+    "id": 113,
+    "caption": "quest_npc_mobarea",
     "type": "npcmove",
     "kind": 52,
     "x": 4680,
@@ -904,7 +1017,8 @@
     "name": "Falton"
   },
   {
-    "id": 2038,
+    "id": 114,
+    "caption": "quest_npc_mobarea",
     "type": "npcmove",
     "kind": 10,
     "x": 6120,
@@ -912,7 +1026,8 @@
     "name": "Belley"
   },
   {
-    "id": 2039,
+    "id": 115,
+    "caption": "quest_npc_mobarea",
     "type": "npcmove",
     "kind": 4,
     "x": 7640,
@@ -920,7 +1035,8 @@
     "name": "Quinton"
   },
   {
-    "id": 2040,
+    "id": 116,
+    "caption": "quest_npc_mobarea",
     "type": "npcmove",
     "kind": 20,
     "x": 4152,
@@ -928,7 +1044,8 @@
     "name": "Odoley"
   },
   {
-    "id": 2041,
+    "id": 117,
+    "caption": "quest_npc_mobarea",
     "type": "npcmove",
     "kind": 53,
     "x": 5416,
@@ -936,7 +1053,8 @@
     "name": "Isawin"
   },
   {
-    "id": 2042,
+    "id": 118,
+    "caption": "quest_npc_mobarea",
     "type": "npcmove",
     "kind": 52,
     "x": 8088,
@@ -944,7 +1062,8 @@
     "name": "Nelan"
   },
   {
-    "id": 2043,
+    "id": 119,
+    "caption": "quest_npc_mobarea",
     "type": "npcmove",
     "kind": 4,
     "x": 312,
@@ -952,7 +1071,8 @@
     "name": "Ulius"
   },
   {
-    "id": 2044,
+    "id": 120,
+    "caption": "quest_npc_mobarea",
     "type": "npcmove",
     "kind": 52,
     "x": 1832,
@@ -960,7 +1080,8 @@
     "name": "Odoira"
   },
   {
-    "id": 2045,
+    "id": 121,
+    "caption": "quest_npc_mobarea",
     "type": "npcmove",
     "kind": 31,
     "x": 3736,
@@ -968,7 +1089,8 @@
     "name": "Pipber"
   },
   {
-    "id": 2046,
+    "id": 122,
+    "caption": "quest_npc_mobarea",
     "type": "npcmove",
     "kind": 26,
     "x": 360,
@@ -976,7 +1098,8 @@
     "name": "Selira"
   },
   {
-    "id": 2047,
+    "id": 123,
+    "caption": "quest_npc_mobarea",
     "type": "npcmove",
     "kind": 12,
     "x": 2504,
@@ -984,7 +1107,8 @@
     "name": "Bramach"
   },
   {
-    "id": 2048,
+    "id": 124,
+    "caption": "quest_npc_mobarea",
     "type": "npcmove",
     "kind": 48,
     "x": 3560,
@@ -992,7 +1116,8 @@
     "name": "Gwenric"
   },
   {
-    "id": 2049,
+    "id": 125,
+    "caption": "quest_npc_mobarea",
     "type": "npcmove",
     "kind": 44,
     "x": 1368,
@@ -1000,7 +1125,8 @@
     "name": "Orrald"
   },
   {
-    "id": 2050,
+    "id": 126,
+    "caption": "quest_npc_mobarea",
     "type": "npcmove",
     "kind": 54,
     "x": 2184,
@@ -1008,7 +1134,8 @@
     "name": "Stenelle"
   },
   {
-    "id": 2051,
+    "id": 127,
+    "caption": "quest_npc_mobarea",
     "type": "npcmove",
     "kind": 37,
     "x": 3624,
@@ -1016,7 +1143,8 @@
     "name": "Roseth"
   },
   {
-    "id": 2052,
+    "id": 128,
+    "caption": "quest_npc_mobarea",
     "type": "npcmove",
     "kind": 25,
     "x": 232,
@@ -1024,7 +1152,8 @@
     "name": "Faloric"
   },
   {
-    "id": 2053,
+    "id": 129,
+    "caption": "quest_npc_mobarea",
     "type": "npcmove",
     "kind": 26,
     "x": 1960,
@@ -1032,7 +1161,8 @@
     "name": "Norella"
   },
   {
-    "id": 2054,
+    "id": 130,
+    "caption": "quest_npc_mobarea",
     "type": "npcmove",
     "kind": 50,
     "x": 3912,
@@ -1040,7 +1170,8 @@
     "name": "Briella"
   },
   {
-    "id": 2055,
+    "id": 131,
+    "caption": "quest_npc_mobarea",
     "type": "npcmove",
     "kind": 39,
     "x": 4872,
@@ -1048,7 +1179,8 @@
     "name": "Rosette"
   },
   {
-    "id": 2056,
+    "id": 132,
+    "caption": "quest_npc_mobarea",
     "type": "npcmove",
     "kind": 22,
     "x": 6504,
@@ -1056,7 +1188,8 @@
     "name": "Perton"
   },
   {
-    "id": 2057,
+    "id": 133,
+    "caption": "quest_npc_mobarea",
     "type": "npcmove",
     "kind": 8,
     "x": 7672,
@@ -1064,7 +1197,8 @@
     "name": "Torold"
   },
   {
-    "id": 2058,
+    "id": 134,
+    "caption": "quest_npc_mobarea",
     "type": "npcmove",
     "kind": 8,
     "x": 4600,
@@ -1072,7 +1206,8 @@
     "name": "Pipdor"
   },
   {
-    "id": 2059,
+    "id": 135,
+    "caption": "quest_npc_mobarea",
     "type": "npcmove",
     "kind": 12,
     "x": 5688,
@@ -1080,7 +1215,8 @@
     "name": "Delara"
   },
   {
-    "id": 2060,
+    "id": 136,
+    "caption": "quest_npc_mobarea",
     "type": "npcmove",
     "kind": 41,
     "x": 7464,
@@ -1088,7 +1224,8 @@
     "name": "Wilmund"
   },
   {
-    "id": 2061,
+    "id": 137,
+    "caption": "quest_npc_mobarea",
     "type": "npcmove",
     "kind": 25,
     "x": 4696,
@@ -1096,7 +1233,8 @@
     "name": "Lorton"
   },
   {
-    "id": 2062,
+    "id": 138,
+    "caption": "quest_npc_mobarea",
     "type": "npcmove",
     "kind": 8,
     "x": 6136,
@@ -1104,7 +1242,8 @@
     "name": "Jormund"
   },
   {
-    "id": 2063,
+    "id": 139,
+    "caption": "quest_npc_mobarea",
     "type": "npcmove",
     "kind": 38,
     "x": 7576,
@@ -1112,7 +1251,8 @@
     "name": "Vorvin"
   },
   {
-    "id": 2064,
+    "id": 140,
+    "caption": "quest_npc_mobarea",
     "type": "npcmove",
     "kind": 45,
     "x": 4392,
@@ -1120,7 +1260,8 @@
     "name": "Fenira"
   },
   {
-    "id": 2065,
+    "id": 141,
+    "caption": "quest_npc_mobarea",
     "type": "npcmove",
     "kind": 37,
     "x": 5752,
@@ -1128,7 +1269,8 @@
     "name": "Sabek"
   },
   {
-    "id": 2066,
+    "id": 142,
+    "caption": "quest_npc_mobarea",
     "type": "npcmove",
     "kind": 30,
     "x": 8008,
@@ -1136,7 +1278,8 @@
     "name": "Sabmund"
   },
   {
-    "id": 2067,
+    "id": 143,
+    "caption": "quest_npc_mobarea",
     "type": "npcmove",
     "kind": 19,
     "x": 1480,
@@ -1144,7 +1287,8 @@
     "name": "Perella"
   },
   {
-    "id": 2068,
+    "id": 144,
+    "caption": "quest_npc_mobarea",
     "type": "npcmove",
     "kind": 7,
     "x": 2312,
@@ -1152,7 +1296,8 @@
     "name": "Feno"
   },
   {
-    "id": 2069,
+    "id": 145,
+    "caption": "quest_npc_mobarea",
     "type": "npcmove",
     "kind": 50,
     "x": 3608,
@@ -1160,7 +1305,8 @@
     "name": "Yarber"
   },
   {
-    "id": 2070,
+    "id": 146,
+    "caption": "quest_npc_mobarea",
     "type": "npcmove",
     "kind": 43,
     "x": 536,
@@ -1168,7 +1314,8 @@
     "name": "Ashelle"
   },
   {
-    "id": 2071,
+    "id": 147,
+    "caption": "quest_npc_mobarea",
     "type": "npcmove",
     "kind": 41,
     "x": 1864,
@@ -1176,7 +1323,8 @@
     "name": "Tordor"
   },
   {
-    "id": 2072,
+    "id": 148,
+    "caption": "quest_npc_mobarea",
     "type": "npcmove",
     "kind": 10,
     "x": 3592,
@@ -1184,7 +1332,8 @@
     "name": "Norelle"
   },
   {
-    "id": 2073,
+    "id": 149,
+    "caption": "quest_npc_mobarea",
     "type": "npcmove",
     "kind": 5,
     "x": 328,
@@ -1192,7 +1341,8 @@
     "name": "Fenia"
   },
   {
-    "id": 2074,
+    "id": 150,
+    "caption": "quest_npc_mobarea",
     "type": "npcmove",
     "kind": 50,
     "x": 2584,
@@ -1200,7 +1350,8 @@
     "name": "Falley"
   },
   {
-    "id": 2075,
+    "id": 151,
+    "caption": "quest_npc_mobarea",
     "type": "npcmove",
     "kind": 55,
     "x": 3928,
@@ -1208,7 +1359,8 @@
     "name": "Sabos"
   },
   {
-    "id": 2076,
+    "id": 152,
+    "caption": "quest_npc_mobarea",
     "type": "npcmove",
     "kind": 56,
     "x": 4520,
@@ -1216,7 +1368,8 @@
     "name": "Bramold"
   },
   {
-    "id": 2077,
+    "id": 153,
+    "caption": "quest_npc_mobarea",
     "type": "npcmove",
     "kind": 53,
     "x": 5336,
@@ -1224,7 +1377,8 @@
     "name": "Halo"
   },
   {
-    "id": 2078,
+    "id": 154,
+    "caption": "quest_npc_mobarea",
     "type": "npcmove",
     "kind": 30,
     "x": 7064,
@@ -1232,7 +1386,8 @@
     "name": "Lorwin"
   },
   {
-    "id": 2079,
+    "id": 155,
+    "caption": "quest_npc_mobarea",
     "type": "npcmove",
     "kind": 5,
     "x": 4696,
@@ -1240,7 +1395,8 @@
     "name": "Eldald"
   },
   {
-    "id": 2080,
+    "id": 156,
+    "caption": "quest_npc_mobarea",
     "type": "npcmove",
     "kind": 6,
     "x": 5384,
@@ -1248,7 +1404,8 @@
     "name": "Dorold"
   },
   {
-    "id": 2081,
+    "id": 157,
+    "caption": "quest_npc_mobarea",
     "type": "npcmove",
     "kind": 38,
     "x": 7688,
@@ -1256,7 +1413,8 @@
     "name": "Marara"
   },
   {
-    "id": 2082,
+    "id": 158,
+    "caption": "quest_npc_mobarea",
     "type": "npcmove",
     "kind": 44,
     "x": 4392,
@@ -1264,7 +1422,8 @@
     "name": "Milo"
   },
   {
-    "id": 2083,
+    "id": 159,
+    "caption": "quest_npc_mobarea",
     "type": "npcmove",
     "kind": 34,
     "x": 5128,
@@ -1272,7 +1431,8 @@
     "name": "Wilan"
   },
   {
-    "id": 2084,
+    "id": 160,
+    "caption": "quest_npc_mobarea",
     "type": "npcmove",
     "kind": 54,
     "x": 7080,
@@ -1280,7 +1440,8 @@
     "name": "Roswin"
   },
   {
-    "id": 3001,
+    "id": 161,
+    "caption": "dungeon_boss",
     "type": "mob",
     "kind": 4,
     "x": 8320,
@@ -1291,7 +1452,8 @@
     "spawnDelay": 3000
   },
   {
-    "id": 3002,
+    "id": 162,
+    "caption": "dungeon_boss",
     "type": "mob",
     "kind": 7,
     "x": 8464,
@@ -1302,7 +1464,8 @@
     "spawnDelay": 12000
   },
   {
-    "id": 3003,
+    "id": 163,
+    "caption": "dungeon_boss",
     "type": "mob",
     "kind": 4,
     "x": 8624,
@@ -1313,7 +1476,8 @@
     "spawnDelay": 6600
   },
   {
-    "id": 3004,
+    "id": 164,
+    "caption": "dungeon_boss",
     "type": "mob",
     "kind": 4,
     "x": 8768,
@@ -1324,7 +1488,8 @@
     "spawnDelay": 3000
   },
   {
-    "id": 3005,
+    "id": 165,
+    "caption": "dungeon_boss",
     "type": "mob",
     "kind": 7,
     "x": 8928,
@@ -1335,7 +1500,8 @@
     "spawnDelay": 10200
   },
   {
-    "id": 3006,
+    "id": 166,
+    "caption": "dungeon_boss",
     "type": "mob",
     "kind": 7,
     "x": 9072,
@@ -1346,7 +1512,8 @@
     "spawnDelay": 9900
   },
   {
-    "id": 3007,
+    "id": 167,
+    "caption": "dungeon_boss",
     "type": "mob",
     "kind": 4,
     "x": 9232,
@@ -1357,7 +1524,8 @@
     "spawnDelay": 8400
   },
   {
-    "id": 3008,
+    "id": 168,
+    "caption": "dungeon_boss",
     "type": "mob",
     "kind": 2,
     "x": 9408,
@@ -1368,7 +1536,8 @@
     "spawnDelay": 3600
   },
   {
-    "id": 3009,
+    "id": 169,
+    "caption": "dungeon_boss",
     "type": "mob",
     "kind": 4,
     "x": 9568,
@@ -1379,7 +1548,8 @@
     "spawnDelay": 8100
   },
   {
-    "id": 3010,
+    "id": 170,
+    "caption": "dungeon_boss",
     "type": "mob",
     "kind": 9,
     "x": 9728,
@@ -1390,7 +1560,8 @@
     "spawnDelay": 12600
   },
   {
-    "id": 3011,
+    "id": 171,
+    "caption": "dungeon_boss",
     "type": "mob",
     "kind": 6,
     "x": 9872,
@@ -1401,7 +1572,8 @@
     "spawnDelay": 3000
   },
   {
-    "id": 3012,
+    "id": 172,
+    "caption": "dungeon_boss",
     "type": "mob",
     "kind": 7,
     "x": 10032,
@@ -1412,7 +1584,8 @@
     "spawnDelay": 10800
   },
   {
-    "id": 3013,
+    "id": 173,
+    "caption": "dungeon_boss",
     "type": "mob",
     "kind": 3,
     "x": 10176,
@@ -1423,7 +1596,8 @@
     "spawnDelay": 10200
   },
   {
-    "id": 3014,
+    "id": 174,
+    "caption": "dungeon_boss",
     "type": "mob",
     "kind": 7,
     "x": 10336,
@@ -1434,7 +1608,8 @@
     "spawnDelay": 7500
   },
   {
-    "id": 3015,
+    "id": 175,
+    "caption": "dungeon_boss",
     "type": "mob",
     "kind": 3,
     "x": 10480,
@@ -1445,7 +1620,8 @@
     "spawnDelay": 10500
   },
   {
-    "id": 3016,
+    "id": 176,
+    "caption": "dungeon_boss",
     "type": "mob",
     "kind": 4,
     "x": 10624,
@@ -1456,7 +1632,8 @@
     "spawnDelay": 3000
   },
   {
-    "id": 3017,
+    "id": 177,
+    "caption": "dungeon_boss",
     "type": "mob",
     "kind": 3,
     "x": 10800,
@@ -1467,7 +1644,8 @@
     "spawnDelay": 7800
   },
   {
-    "id": 3018,
+    "id": 178,
+    "caption": "dungeon_boss",
     "type": "mob",
     "kind": 8,
     "x": 10944,
@@ -1478,7 +1656,8 @@
     "spawnDelay": 10500
   },
   {
-    "id": 3019,
+    "id": 179,
+    "caption": "dungeon_boss",
     "type": "mob",
     "kind": 7,
     "x": 11136,
@@ -1489,7 +1668,8 @@
     "spawnDelay": 11100
   },
   {
-    "id": 3020,
+    "id": 180,
+    "caption": "dungeon_boss",
     "type": "mob",
     "kind": 7,
     "x": 11280,
@@ -1500,7 +1680,8 @@
     "spawnDelay": 12000
   },
   {
-    "id": 3021,
+    "id": 181,
+    "caption": "dungeon_boss",
     "type": "mob",
     "kind": 2,
     "x": 11456,
@@ -1511,7 +1692,8 @@
     "spawnDelay": 2700
   },
   {
-    "id": 3022,
+    "id": 182,
+    "caption": "dungeon_boss",
     "type": "mob",
     "kind": 7,
     "x": 11600,
@@ -1522,7 +1704,8 @@
     "spawnDelay": 11700
   },
   {
-    "id": 3023,
+    "id": 183,
+    "caption": "dungeon_boss",
     "type": "mob",
     "kind": 11,
     "x": 11760,
@@ -1533,7 +1716,8 @@
     "spawnDelay": 8100
   },
   {
-    "id": 3024,
+    "id": 184,
+    "caption": "dungeon_boss",
     "type": "mob",
     "kind": 6,
     "x": 11904,
@@ -1544,7 +1728,8 @@
     "spawnDelay": 4200
   },
   {
-    "id": 3025,
+    "id": 185,
+    "caption": "dungeon_boss",
     "type": "mob",
     "kind": 2,
     "x": 12064,
@@ -1555,7 +1740,8 @@
     "spawnDelay": 3000
   },
   {
-    "id": 3026,
+    "id": 186,
+    "caption": "dungeon_boss",
     "type": "mob",
     "kind": 3,
     "x": 12224,
@@ -1566,7 +1752,8 @@
     "spawnDelay": 12600
   },
   {
-    "id": 3027,
+    "id": 187,
+    "caption": "dungeon_boss",
     "type": "mob",
     "kind": 9,
     "x": 12368,
@@ -1577,7 +1764,8 @@
     "spawnDelay": 8100
   },
   {
-    "id": 3028,
+    "id": 188,
+    "caption": "dungeon_boss",
     "type": "mob",
     "kind": 7,
     "x": 12528,
@@ -1588,7 +1776,8 @@
     "spawnDelay": 11100
   },
   {
-    "id": 3029,
+    "id": 189,
+    "caption": "dungeon_boss",
     "type": "mob",
     "kind": 6,
     "x": 12672,
@@ -1599,7 +1788,8 @@
     "spawnDelay": 7200
   },
   {
-    "id": 3030,
+    "id": 190,
+    "caption": "dungeon_boss",
     "type": "mob",
     "kind": 6,
     "x": 12848,
@@ -1610,7 +1800,8 @@
     "spawnDelay": 4800
   },
   {
-    "id": 3031,
+    "id": 191,
+    "caption": "dungeon_boss",
     "type": "mob",
     "kind": 2,
     "x": 8304,
@@ -1621,7 +1812,8 @@
     "spawnDelay": 3000
   },
   {
-    "id": 3032,
+    "id": 192,
+    "caption": "dungeon_boss",
     "type": "mob",
     "kind": 2,
     "x": 8464,
@@ -1632,7 +1824,8 @@
     "spawnDelay": 3300
   },
   {
-    "id": 3033,
+    "id": 193,
+    "caption": "dungeon_boss",
     "type": "mob",
     "kind": 9,
     "x": 8608,
@@ -1643,7 +1836,8 @@
     "spawnDelay": 12000
   },
   {
-    "id": 3034,
+    "id": 194,
+    "caption": "dungeon_boss",
     "type": "mob",
     "kind": 3,
     "x": 8768,
@@ -1654,7 +1848,8 @@
     "spawnDelay": 10800
   },
   {
-    "id": 3035,
+    "id": 195,
+    "caption": "dungeon_boss",
     "type": "mob",
     "kind": 2,
     "x": 8912,
@@ -1665,7 +1860,8 @@
     "spawnDelay": 3300
   },
   {
-    "id": 3036,
+    "id": 196,
+    "caption": "dungeon_boss",
     "type": "mob",
     "kind": 2,
     "x": 9088,
@@ -1676,7 +1872,8 @@
     "spawnDelay": 2400
   },
   {
-    "id": 3037,
+    "id": 197,
+    "caption": "dungeon_boss",
     "type": "mob",
     "kind": 2,
     "x": 9232,
@@ -1687,7 +1884,8 @@
     "spawnDelay": 3600
   },
   {
-    "id": 3038,
+    "id": 198,
+    "caption": "dungeon_boss",
     "type": "mob",
     "kind": 7,
     "x": 9376,
@@ -1698,7 +1896,8 @@
     "spawnDelay": 11100
   },
   {
-    "id": 3039,
+    "id": 199,
+    "caption": "dungeon_boss",
     "type": "mob",
     "kind": 3,
     "x": 9536,
@@ -1709,7 +1908,8 @@
     "spawnDelay": 10200
   },
   {
-    "id": 3040,
+    "id": 200,
+    "caption": "dungeon_boss",
     "type": "mob",
     "kind": 2,
     "x": 10512,
@@ -1720,7 +1920,8 @@
     "spawnDelay": 3300
   },
   {
-    "id": 3041,
+    "id": 201,
+    "caption": "dungeon_boss",
     "type": "mob",
     "kind": 2,
     "x": 11120,
@@ -1731,7 +1932,8 @@
     "spawnDelay": 3000
   },
   {
-    "id": 3042,
+    "id": 202,
+    "caption": "dungeon_boss",
     "type": "mob",
     "kind": 2,
     "x": 12320,
@@ -1742,7 +1944,8 @@
     "spawnDelay": 3900
   },
   {
-    "id": 3043,
+    "id": 203,
+    "caption": "dungeon_boss",
     "type": "mob",
     "kind": 9,
     "x": 13280,
@@ -1753,7 +1956,8 @@
     "spawnDelay": 12600
   },
   {
-    "id": 3044,
+    "id": 204,
+    "caption": "dungeon_boss",
     "type": "mob",
     "kind": 7,
     "x": 16016,
@@ -1764,7 +1968,8 @@
     "spawnDelay": 10800
   },
   {
-    "id": 3045,
+    "id": 205,
+    "caption": "dungeon_boss",
     "type": "mob",
     "kind": 2,
     "x": 10416,
@@ -1775,7 +1980,8 @@
     "spawnDelay": 3000
   },
   {
-    "id": 3046,
+    "id": 206,
+    "caption": "dungeon_boss",
     "type": "mob",
     "kind": 2,
     "x": 15120,
@@ -1786,7 +1992,8 @@
     "spawnDelay": 2400
   },
   {
-    "id": 3047,
+    "id": 207,
+    "caption": "dungeon_boss",
     "type": "mob",
     "kind": 8,
     "x": 10688,
@@ -1797,7 +2004,8 @@
     "spawnDelay": 11100
   },
   {
-    "id": 3048,
+    "id": 208,
+    "caption": "dungeon_boss",
     "type": "mob",
     "kind": 4,
     "x": 11504,
@@ -1808,7 +2016,8 @@
     "spawnDelay": 5400
   },
   {
-    "id": 3049,
+    "id": 209,
+    "caption": "dungeon_boss",
     "type": "mob",
     "kind": 6,
     "x": 9792,
@@ -1819,7 +2028,8 @@
     "spawnDelay": 3600
   },
   {
-    "id": 3050,
+    "id": 210,
+    "caption": "dungeon_boss",
     "type": "mob",
     "kind": 7,
     "x": 13296,
@@ -1830,7 +2040,8 @@
     "spawnDelay": 12000
   },
   {
-    "id": 3051,
+    "id": 211,
+    "caption": "dungeon_boss",
     "type": "mob",
     "kind": 3,
     "x": 14576,
@@ -1841,7 +2052,8 @@
     "spawnDelay": 12600
   },
   {
-    "id": 3052,
+    "id": 212,
+    "caption": "dungeon_boss",
     "type": "mob",
     "kind": 7,
     "x": 15616,
@@ -1852,7 +2064,8 @@
     "spawnDelay": 10800
   },
   {
-    "id": 3053,
+    "id": 213,
+    "caption": "dungeon_boss",
     "type": "mob",
     "kind": 6,
     "x": 8464,
@@ -1863,7 +2076,8 @@
     "spawnDelay": 4200
   },
   {
-    "id": 3054,
+    "id": 214,
+    "caption": "dungeon_boss",
     "type": "mob",
     "kind": 2,
     "x": 9984,
@@ -1874,7 +2088,8 @@
     "spawnDelay": 2700
   },
   {
-    "id": 3055,
+    "id": 215,
+    "caption": "dungeon_boss",
     "type": "mob",
     "kind": 7,
     "x": 11344,
@@ -1885,7 +2100,8 @@
     "spawnDelay": 12300
   },
   {
-    "id": 3056,
+    "id": 216,
+    "caption": "dungeon_boss",
     "type": "mob",
     "kind": 5,
     "x": 12544,
@@ -1896,7 +2112,8 @@
     "spawnDelay": 3600
   },
   {
-    "id": 3057,
+    "id": 217,
+    "caption": "dungeon_boss",
     "type": "mob",
     "kind": 4,
     "x": 12832,
@@ -1907,7 +2124,8 @@
     "spawnDelay": 3600
   },
   {
-    "id": 3058,
+    "id": 218,
+    "caption": "dungeon_boss",
     "type": "mob",
     "kind": 6,
     "x": 13584,
@@ -1918,7 +2136,8 @@
     "spawnDelay": 3000
   },
   {
-    "id": 3059,
+    "id": 219,
+    "caption": "dungeon_boss",
     "type": "mob",
     "kind": 7,
     "x": 14400,
@@ -1929,7 +2148,8 @@
     "spawnDelay": 11100
   },
   {
-    "id": 3060,
+    "id": 220,
+    "caption": "dungeon_boss",
     "type": "mob",
     "kind": 2,
     "x": 14752,
@@ -1940,7 +2160,8 @@
     "spawnDelay": 3000
   },
   {
-    "id": 3061,
+    "id": 221,
+    "caption": "dungeon_boss",
     "type": "mob",
     "kind": 4,
     "x": 9216,
@@ -1951,7 +2172,8 @@
     "spawnDelay": 7200
   },
   {
-    "id": 3062,
+    "id": 222,
+    "caption": "dungeon_boss",
     "type": "mob",
     "kind": 4,
     "x": 9536,
@@ -1962,7 +2184,8 @@
     "spawnDelay": 4500
   },
   {
-    "id": 3063,
+    "id": 223,
+    "caption": "dungeon_boss",
     "type": "mob",
     "kind": 9,
     "x": 10896,
@@ -1973,7 +2196,8 @@
     "spawnDelay": 12900
   },
   {
-    "id": 3064,
+    "id": 224,
+    "caption": "dungeon_boss",
     "type": "mob",
     "kind": 8,
     "x": 15920,
@@ -1984,7 +2208,8 @@
     "spawnDelay": 12000
   },
   {
-    "id": 3065,
+    "id": 225,
+    "caption": "dungeon_boss",
     "type": "mob",
     "kind": 3,
     "x": 16192,
@@ -1995,7 +2220,8 @@
     "spawnDelay": 11100
   },
   {
-    "id": 3066,
+    "id": 226,
+    "caption": "dungeon_boss",
     "type": "mob",
     "kind": 8,
     "x": 8336,
@@ -2006,7 +2232,8 @@
     "spawnDelay": 10200
   },
   {
-    "id": 3067,
+    "id": 227,
+    "caption": "dungeon_boss",
     "type": "mob",
     "kind": 7,
     "x": 8656,
@@ -2017,7 +2244,8 @@
     "spawnDelay": 11700
   },
   {
-    "id": 3068,
+    "id": 228,
+    "caption": "dungeon_boss",
     "type": "mob",
     "kind": 2,
     "x": 10256,
@@ -2028,7 +2256,8 @@
     "spawnDelay": 3900
   },
   {
-    "id": 3069,
+    "id": 229,
+    "caption": "dungeon_boss",
     "type": "mob",
     "kind": 8,
     "x": 15520,
@@ -2039,7 +2268,8 @@
     "spawnDelay": 9900
   },
   {
-    "id": 3070,
+    "id": 230,
+    "caption": "dungeon_boss",
     "type": "mob",
     "kind": 5,
     "x": 12176,
@@ -2050,7 +2280,8 @@
     "spawnDelay": 3300
   },
   {
-    "id": 3071,
+    "id": 231,
+    "caption": "dungeon_boss",
     "type": "mob",
     "kind": 2,
     "x": 14736,
@@ -2061,7 +2292,8 @@
     "spawnDelay": 2400
   },
   {
-    "id": 3072,
+    "id": 232,
+    "caption": "dungeon_boss",
     "type": "mob",
     "kind": 7,
     "x": 11072,
@@ -2072,7 +2304,8 @@
     "spawnDelay": 10500
   },
   {
-    "id": 3073,
+    "id": 233,
+    "caption": "dungeon_boss",
     "type": "mob",
     "kind": 3,
     "x": 12592,
@@ -2083,7 +2316,8 @@
     "spawnDelay": 11100
   },
   {
-    "id": 3074,
+    "id": 234,
+    "caption": "dungeon_boss",
     "type": "mob",
     "kind": 3,
     "x": 13280,
@@ -2094,7 +2328,8 @@
     "spawnDelay": 11400
   },
   {
-    "id": 3075,
+    "id": 235,
+    "caption": "dungeon_boss",
     "type": "mob",
     "kind": 3,
     "x": 15728,
@@ -2105,7 +2340,8 @@
     "spawnDelay": 8100
   },
   {
-    "id": 3076,
+    "id": 236,
+    "caption": "dungeon_boss",
     "type": "mob",
     "kind": 2,
     "x": 14112,

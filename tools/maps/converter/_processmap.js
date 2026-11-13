@@ -496,7 +496,7 @@ var mobAreasOf = function (layer) {
                  var elipse = !!(areas[i].ellipse || prop.elipse);
                  var lv = mobAreaLevels(prop, areas[i].name || ('mob area ' + i));
                  var area = {
-                    id: i,
+                    id: i + 1,      // area ids start at 1, as entity ids do
                     count: prop.count,
                     // the area's levels, from its "level" property ("10" or "10-12"; mobAreaLevels)
                     minLevel: lv.min,
@@ -543,8 +543,9 @@ var entityAreasOf = function (layer) {
                  // ellipse -> centre x/y, as for mob areas above
                  var elipse = !!(area.ellipse || prop.elipse);
                  var entityarea = {
-                    // was `id: i`, the enclosing layer loop's index (the same for every area)
-                    id: ai,
+                    // was `id: i`, the enclosing layer loop's index (the same for every area);
+                    // area ids start at 1, as entity ids do
+                    id: ai + 1,
                     x: ~~(area.x + (elipse ? area.width / 2 : 0)),
                     y: ~~(area.y + (elipse ? area.height / 2 : 0)),
                     w: ~~(area.width),
@@ -577,8 +578,8 @@ module.exports.areas = function (TiledJSON) {
         if (layer.name === "mobareas") out.mobAreas = out.mobAreas.concat(mobAreasOf(layer));
         else if (layer.name === "entityareas") out.entityAreas = out.entityAreas.concat(entityAreasOf(layer));
     });
-    out.mobAreas.forEach(function (a, i) { a.id = i; });
-    out.entityAreas.forEach(function (a, i) { a.id = i; });
+    out.mobAreas.forEach(function (a, i) { a.id = i + 1; });          // ids 1, 2, 3, ...
+    out.entityAreas.forEach(function (a, i) { a.id = i + 1; });
     return out;
 };
 

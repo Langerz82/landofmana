@@ -1,7 +1,8 @@
 {
  "mobAreas": [
   {
-   "id": 0,
+   "id": 1,
+   "caption": "mob_mainarea_volcano",
    "count": 200,
    "minLevel": 50,
    "maxLevel": 55,
@@ -16,7 +17,8 @@
    "levelWeight": "32,16,8,4,2,1"
   },
   {
-   "id": 1,
+   "id": 2,
+   "caption": "mob_mainarea_volcano",
    "count": 200,
    "minLevel": 55,
    "maxLevel": 60,
@@ -31,7 +33,8 @@
    "levelWeight": "32,16,8,4,2,1"
   },
   {
-   "id": 2,
+   "id": 3,
+   "caption": "mob_mainarea_desert",
    "count": 200,
    "minLevel": 40,
    "maxLevel": 45,
@@ -46,7 +49,8 @@
    "levelWeight": "32,16,8,4,2,1"
   },
   {
-   "id": 3,
+   "id": 4,
+   "caption": "mob_mainarea_desert",
    "count": 200,
    "minLevel": 45,
    "maxLevel": 50,
@@ -61,7 +65,8 @@
    "levelWeight": "32,16,8,4,2,1"
   },
   {
-   "id": 4,
+   "id": 5,
+   "caption": "mob_mainarea_forest",
    "count": 200,
    "minLevel": 30,
    "maxLevel": 35,
@@ -76,7 +81,8 @@
    "levelWeight": "32,16,8,4,2,1"
   },
   {
-   "id": 5,
+   "id": 6,
+   "caption": "mob_mainarea_forest",
    "count": 200,
    "minLevel": 35,
    "maxLevel": 40,
@@ -91,7 +97,8 @@
    "levelWeight": "32,16,8,4,2,1"
   },
   {
-   "id": 6,
+   "id": 7,
+   "caption": "mob_mainarea_village",
    "count": 200,
    "minLevel": 20,
    "maxLevel": 25,
@@ -106,7 +113,8 @@
    "levelWeight": "32,16,8,4,2,1"
   },
   {
-   "id": 7,
+   "id": 8,
+   "caption": "mob_mainarea_village",
    "count": 200,
    "minLevel": 25,
    "maxLevel": 30,
@@ -123,7 +131,8 @@
  ],
  "entityAreas": [
   {
-   "id": 0,
+   "id": 1,
+   "caption": "node_ore",
    "x": 1408,
    "y": 5968,
    "w": 96,
@@ -137,7 +146,8 @@
    "distanceApart": "2"
   },
   {
-   "id": 1,
+   "id": 2,
+   "caption": "node_ore",
    "x": 2496,
    "y": 5952,
    "w": 96,
@@ -151,7 +161,8 @@
    "distanceApart": "2"
   },
   {
-   "id": 2,
+   "id": 3,
+   "caption": "node_ore",
    "x": 512,
    "y": 7712,
    "w": 96,
@@ -165,7 +176,8 @@
    "distanceApart": "2"
   },
   {
-   "id": 3,
+   "id": 4,
+   "caption": "node_ore",
    "x": 1840,
    "y": 6944,
    "w": 96,

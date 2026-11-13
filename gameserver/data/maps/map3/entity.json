@@ -1,6 +1,7 @@
 [
   {
     "id": 1,
+    "caption": "quest_npc_oldman",
     "type": "npcmove",
     "kind": 0,
     "x": 8168,
@@ -9,6 +10,7 @@
   },
   {
     "id": 2,
+    "caption": "quest_npc_ring",
     "type": "npcmove",
     "kind": 1,
     "x": 8952,
@@ -16,6 +18,7 @@
   },
   {
     "id": 3,
+    "caption": "quest_npc_ring",
     "type": "npcmove",
     "kind": 2,
     "x": 8904,
@@ -23,6 +26,7 @@
   },
   {
     "id": 4,
+    "caption": "quest_npc_ring",
     "type": "npcmove",
     "kind": 3,
     "x": 8296,
@@ -30,6 +34,7 @@
   },
   {
     "id": 5,
+    "caption": "quest_npc_ring",
     "type": "npcmove",
     "kind": 4,
     "x": 7480,
@@ -37,6 +42,7 @@
   },
   {
     "id": 6,
+    "caption": "quest_npc_ring",
     "type": "npcmove",
     "kind": 5,
     "x": 7672,
@@ -44,6 +50,7 @@
   },
   {
     "id": 7,
+    "caption": "quest_npc_ring",
     "type": "npcmove",
     "kind": 6,
     "x": 7560,
@@ -51,6 +58,7 @@
   },
   {
     "id": 8,
+    "caption": "quest_npc_ring",
     "type": "npcmove",
     "kind": 7,
     "x": 8296,
@@ -58,6 +66,7 @@
   },
   {
     "id": 9,
+    "caption": "quest_npc_ring",
     "type": "npcmove",
     "kind": 8,
     "x": 8776,
@@ -65,6 +74,7 @@
   },
   {
     "id": 10,
+    "caption": "quest_npc_ring",
     "type": "npcmove",
     "kind": 9,
     "x": 9560,
@@ -72,6 +82,7 @@
   },
   {
     "id": 11,
+    "caption": "quest_npc_ring",
     "type": "npcmove",
     "kind": 10,
     "x": 9400,
@@ -79,6 +90,7 @@
   },
   {
     "id": 12,
+    "caption": "quest_npc_ring",
     "type": "npcmove",
     "kind": 11,
     "x": 9576,
@@ -86,6 +98,7 @@
   },
   {
     "id": 13,
+    "caption": "quest_npc_ring",
     "type": "npcmove",
     "kind": 12,
     "x": 9560,
@@ -93,6 +106,7 @@
   },
   {
     "id": 14,
+    "caption": "quest_npc_ring",
     "type": "npcmove",
     "kind": 13,
     "x": 8904,
@@ -100,6 +114,7 @@
   },
   {
     "id": 15,
+    "caption": "quest_npc_ring",
     "type": "npcmove",
     "kind": 14,
     "x": 8280,
@@ -107,6 +122,7 @@
   },
   {
     "id": 16,
+    "caption": "quest_npc_ring",
     "type": "npcmove",
     "kind": 15,
     "x": 7640,
@@ -114,6 +130,7 @@
   },
   {
     "id": 17,
+    "caption": "quest_npc_ring",
     "type": "npcmove",
     "kind": 16,
     "x": 6808,
@@ -121,6 +138,7 @@
   },
   {
     "id": 18,
+    "caption": "quest_npc_ring",
     "type": "npcmove",
     "kind": 17,
     "x": 6872,
@@ -128,6 +146,7 @@
   },
   {
     "id": 19,
+    "caption": "quest_npc_ring",
     "type": "npcmove",
     "kind": 18,
     "x": 7000,
@@ -135,6 +154,7 @@
   },
   {
     "id": 20,
+    "caption": "quest_npc_ring",
     "type": "npcmove",
     "kind": 19,
     "x": 6808,
@@ -142,6 +162,7 @@
   },
   {
     "id": 21,
+    "caption": "quest_npc_ring",
     "type": "npcmove",
     "kind": 20,
     "x": 6920,
@@ -149,6 +170,7 @@
   },
   {
     "id": 22,
+    "caption": "quest_npc_ring",
     "type": "npcmove",
     "kind": 21,
     "x": 7512,
@@ -156,6 +178,7 @@
   },
   {
     "id": 23,
+    "caption": "quest_npc_ring",
     "type": "npcmove",
     "kind": 22,
     "x": 8152,
@@ -163,6 +186,7 @@
   },
   {
     "id": 24,
+    "caption": "quest_npc_ring",
     "type": "npcmove",
     "kind": 23,
     "x": 8888,
@@ -170,6 +194,7 @@
   },
   {
     "id": 25,
+    "caption": "quest_npc_ring",
     "type": "npcmove",
     "kind": 24,
     "x": 9352,
@@ -177,6 +202,7 @@
   },
   {
     "id": 26,
+    "caption": "quest_npc_ring",
     "type": "npcmove",
     "kind": 25,
     "x": 10072,
@@ -184,6 +210,7 @@
   },
   {
     "id": 27,
+    "caption": "quest_npc_ring",
     "type": "npcmove",
     "kind": 26,
     "x": 10264,
@@ -191,6 +218,7 @@
   },
   {
     "id": 28,
+    "caption": "quest_npc_ring",
     "type": "npcmove",
     "kind": 27,
     "x": 10104,
@@ -198,6 +226,7 @@
   },
   {
     "id": 29,
+    "caption": "quest_npc_ring",
     "type": "npcmove",
     "kind": 28,
     "x": 10216,
@@ -205,6 +234,7 @@
   },
   {
     "id": 30,
+    "caption": "quest_npc_ring",
     "type": "npcmove",
     "kind": 29,
     "x": 10104,
@@ -212,6 +242,7 @@
   },
   {
     "id": 31,
+    "caption": "quest_npc_ring",
     "type": "npcmove",
     "kind": 30,
     "x": 10024,
@@ -219,6 +250,7 @@
   },
   {
     "id": 32,
+    "caption": "quest_npc_ring",
     "type": "npcmove",
     "kind": 31,
     "x": 9352,
@@ -226,6 +258,7 @@
   },
   {
     "id": 33,
+    "caption": "quest_npc_ring",
     "type": "npcmove",
     "kind": 32,
     "x": 8984,
@@ -233,6 +266,7 @@
   },
   {
     "id": 34,
+    "caption": "quest_npc_ring",
     "type": "npcmove",
     "kind": 33,
     "x": 8296,
@@ -240,6 +274,7 @@
   },
   {
     "id": 35,
+    "caption": "quest_npc_ring",
     "type": "npcmove",
     "kind": 34,
     "x": 7640,
@@ -247,6 +282,7 @@
   },
   {
     "id": 36,
+    "caption": "quest_npc_ring",
     "type": "npcmove",
     "kind": 35,
     "x": 6840,
@@ -254,6 +290,7 @@
   },
   {
     "id": 37,
+    "caption": "quest_npc_ring",
     "type": "npcmove",
     "kind": 36,
     "x": 6296,
@@ -261,6 +298,7 @@
   },
   {
     "id": 38,
+    "caption": "quest_npc_ring",
     "type": "npcmove",
     "kind": 37,
     "x": 6344,
@@ -268,6 +306,7 @@
   },
   {
     "id": 39,
+    "caption": "quest_npc_ring",
     "type": "npcmove",
     "kind": 38,
     "x": 6248,
@@ -275,6 +314,7 @@
   },
   {
     "id": 40,
+    "caption": "quest_npc_ring",
     "type": "npcmove",
     "kind": 39,
     "x": 6232,
@@ -282,6 +322,7 @@
   },
   {
     "id": 41,
+    "caption": "quest_npc_ring",
     "type": "npcmove",
     "kind": 40,
     "x": 6376,
@@ -289,6 +330,7 @@
   },
   {
     "id": 42,
+    "caption": "quest_npc_ring",
     "type": "npcmove",
     "kind": 41,
     "x": 6360,
@@ -296,6 +338,7 @@
   },
   {
     "id": 43,
+    "caption": "quest_npc_ring",
     "type": "npcmove",
     "kind": 42,
     "x": 6232,
@@ -303,6 +346,7 @@
   },
   {
     "id": 44,
+    "caption": "quest_npc_ring",
     "type": "npcmove",
     "kind": 43,
     "x": 7000,
@@ -310,6 +354,7 @@
   },
   {
     "id": 45,
+    "caption": "quest_npc_ring",
     "type": "npcmove",
     "kind": 44,
     "x": 7624,
@@ -317,6 +362,7 @@
   },
   {
     "id": 46,
+    "caption": "quest_npc_ring",
     "type": "npcmove",
     "kind": 45,
     "x": 8152,
@@ -324,6 +370,7 @@
   },
   {
     "id": 47,
+    "caption": "quest_npc_ring",
     "type": "npcmove",
     "kind": 46,
     "x": 8952,
@@ -331,6 +378,7 @@
   },
   {
     "id": 48,
+    "caption": "quest_npc_ring",
     "type": "npcmove",
     "kind": 47,
     "x": 9368,
@@ -338,6 +386,7 @@
   },
   {
     "id": 49,
+    "caption": "quest_npc_ring",
     "type": "npcmove",
     "kind": 48,
     "x": 10232,
@@ -345,6 +394,7 @@
   },
   {
     "id": 50,
+    "caption": "quest_npc_ring",
     "type": "npcmove",
     "kind": 49,
     "x": 10808,
@@ -352,6 +402,7 @@
   },
   {
     "id": 51,
+    "caption": "quest_npc_ring",
     "type": "npcmove",
     "kind": 50,
     "x": 10696,
@@ -359,6 +410,7 @@
   },
   {
     "id": 52,
+    "caption": "quest_npc_ring",
     "type": "npcmove",
     "kind": 51,
     "x": 10696,
@@ -366,6 +418,7 @@
   },
   {
     "id": 53,
+    "caption": "quest_npc_ring",
     "type": "npcmove",
     "kind": 52,
     "x": 10728,
@@ -373,6 +426,7 @@
   },
   {
     "id": 54,
+    "caption": "quest_npc_ring",
     "type": "npcmove",
     "kind": 53,
     "x": 10904,
@@ -380,6 +434,7 @@
   },
   {
     "id": 55,
+    "caption": "quest_npc_ring",
     "type": "npcmove",
     "kind": 54,
     "x": 10760,
@@ -387,6 +442,7 @@
   },
   {
     "id": 56,
+    "caption": "quest_npc_ring",
     "type": "npcmove",
     "kind": 55,
     "x": 10680,
@@ -394,6 +450,7 @@
   },
   {
     "id": 57,
+    "caption": "quest_npc_ring",
     "type": "npcmove",
     "kind": 56,
     "x": 10808,

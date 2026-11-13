@@ -292,6 +292,11 @@ class MapEntityStore {
     // entity.json. Returns { entity } on success or { error } on failure.
     add(rec) {
         // `rec` is in this part's coordinates
+        // placed with /spawn: captioned as such, unless the record says otherwise
+        if (rec && !rec.caption)
+            rec = Object.assign({}, rec, {
+                caption: 'admin_' + (MapEntityStore.normalizeType(rec.type) || 'entity')
+            });
         rec = this._normalizeRecord(rec);
         const err = MapEntityStore.validate(rec);
         if (err) return { error: err };
@@ -306,7 +311,7 @@ class MapEntityStore {
         const entity = this._spawn(rec);
         if (!entity) return { error: 'could not create the entity' };
 
-        const saved = Object.assign({}, rec, {
+        const saved = Object.assign({ id: entity.id }, rec, {
             id: entity.id,
             x: rec.x + this.map.offsetX,
             y: rec.y + this.map.offsetY
@@ -370,13 +375,18 @@ class MapEntityStore {
 
     _normalizeRecord(item) {
         if (!item || typeof item !== 'object') return null;
-        const rec = {
-            id: Number(item.id),
+        const rec = { id: Number(item.id) };
+        // "caption": a short note on what the record is ("quest_npc_mainarea",
+        // "dungeon_boss", ...), only there to make the file easier to read --
+        // the game doesn't use it, but keeps it (right after the id).
+        if (item.caption !== undefined && item.caption !== null && item.caption !== '')
+            rec.caption = String(item.caption);
+        Object.assign(rec, {
             type: MapEntityStore.normalizeType(item.type),
             kind: Number(item.kind),
             x: Number(item.x),
             y: Number(item.y)
-        };
+        });
         if (item.name !== undefined && item.name !== null && item.name !== '')
             rec.name = String(item.name);
         if (item.level !== undefined && item.level !== null && item.level !== '')

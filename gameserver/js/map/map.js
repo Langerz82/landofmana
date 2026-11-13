@@ -231,7 +231,12 @@ class Map {
         const data = readGroupAreas(this.name) || { mobAreas: [], entityAreas: [] };
         const list = data[key];
         const saved = Object.assign(
-            { id: list.reduce((m, a) => Math.max(m, Number(a.id) || 0), -1) + 1 },
+            {
+                // ids start at 1, as entity ids do
+                id: list.reduce((m, a) => Math.max(m, Number(a.id) || 0), 0) + 1,
+                // what it is, for whoever reads the file (unused by the game)
+                caption: area.caption || 'admin_' + kind + '_area'
+            },
             area,
             { x: area.x + this.offsetX, y: area.y + this.offsetY, admin: true }
         );

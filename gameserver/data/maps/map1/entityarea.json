@@ -1,7 +1,8 @@
 {
  "mobAreas": [
   {
-   "id": 0,
+   "id": 1,
+   "caption": "mob_mainarea_volcano",
    "count": 100,
    "minLevel": 38,
    "maxLevel": 40,
@@ -16,7 +17,8 @@
    "levelWeight": "2,1,1"
   },
   {
-   "id": 1,
+   "id": 2,
+   "caption": "mob_mainarea_volcano",
    "count": 100,
    "minLevel": 35,
    "maxLevel": 37,
@@ -31,7 +33,8 @@
    "levelWeight": "2,1,1"
   },
   {
-   "id": 2,
+   "id": 3,
+   "caption": "mob_mainarea_desert",
    "count": 50,
    "minLevel": 31,
    "maxLevel": 33,
@@ -46,7 +49,8 @@
    "levelWeight": "2,1,1"
   },
   {
-   "id": 3,
+   "id": 4,
+   "caption": "mob_mainarea_desert",
    "count": 100,
    "minLevel": 34,
    "maxLevel": 36,
@@ -61,7 +65,8 @@
    "levelWeight": "2,1,1"
   },
   {
-   "id": 4,
+   "id": 5,
+   "caption": "mob_mainarea_desert",
    "count": 100,
    "minLevel": 31,
    "maxLevel": 33,
@@ -76,7 +81,8 @@
    "levelWeight": "2,1,1"
   },
   {
-   "id": 5,
+   "id": 6,
+   "caption": "mob_mainarea_desert",
    "count": 50,
    "minLevel": 28,
    "maxLevel": 30,
@@ -91,7 +97,8 @@
    "levelWeight": "2,1,1"
   },
   {
-   "id": 6,
+   "id": 7,
+   "caption": "mob_mainarea_desert",
    "count": 75,
    "minLevel": 31,
    "maxLevel": 33,
@@ -106,7 +113,8 @@
    "levelWeight": "2,1,1"
   },
   {
-   "id": 7,
+   "id": 8,
+   "caption": "mob_mainarea_desert",
    "count": 75,
    "minLevel": 28,
    "maxLevel": 30,
@@ -121,7 +129,8 @@
    "levelWeight": "2,1,1"
   },
   {
-   "id": 8,
+   "id": 9,
+   "caption": "mob_mainarea_desert",
    "count": 38,
    "minLevel": 25,
    "maxLevel": 27,
@@ -136,7 +145,8 @@
    "levelWeight": "2,1,1"
   },
   {
-   "id": 9,
+   "id": 10,
+   "caption": "mob_mainarea_desert",
    "count": 50,
    "minLevel": 31,
    "maxLevel": 33,
@@ -151,7 +161,8 @@
    "levelWeight": "2,1,1"
   },
   {
-   "id": 10,
+   "id": 11,
+   "caption": "mob_mainarea_desert",
    "count": 100,
    "minLevel": 34,
    "maxLevel": 36,
@@ -166,7 +177,8 @@
    "levelWeight": "2,1,1"
   },
   {
-   "id": 11,
+   "id": 12,
+   "caption": "mob_mainarea_forest",
    "count": 100,
    "minLevel": 37,
    "maxLevel": 39,
@@ -181,7 +193,8 @@
    "levelWeight": "2,1,1"
   },
   {
-   "id": 12,
+   "id": 13,
+   "caption": "mob_mainarea_desert",
    "count": 50,
    "minLevel": 28,
    "maxLevel": 30,
@@ -196,7 +209,8 @@
    "levelWeight": "2,1,1"
   },
   {
-   "id": 13,
+   "id": 14,
+   "caption": "mob_mainarea_village",
    "count": 100,
    "minLevel": 31,
    "maxLevel": 33,
@@ -211,7 +225,8 @@
    "levelWeight": "2,1,1"
   },
   {
-   "id": 14,
+   "id": 15,
+   "caption": "mob_mainarea_desert",
    "count": 100,
    "minLevel": 34,
    "maxLevel": 36,
@@ -226,28 +241,14 @@
    "levelWeight": "2,1,1"
   },
   {
-   "id": 15,
+   "id": 16,
+   "caption": "mob_mainarea_desert",
    "count": 38,
    "minLevel": 25,
    "maxLevel": 27,
    "x": 4096,
    "y": 2976,
    "w": 816,
-   "h": 1120,
-   "include": "3,8,7",
-   "exclude": "",
-   "definite": "",
-   "bonusDrop": 1,
-   "levelWeight": "2,1,1"
-  },
-  {
-   "id": 16,
-   "count": 75,
-   "minLevel": 28,
-   "maxLevel": 30,
-   "x": 4912,
-   "y": 2976,
-   "w": 1648,
    "h": 1120,
    "include": "3,8,7",
    "exclude": "",
@@ -257,6 +258,23 @@
   },
   {
    "id": 17,
+   "caption": "mob_mainarea_desert",
+   "count": 75,
+   "minLevel": 28,
+   "maxLevel": 30,
+   "x": 4912,
+   "y": 2976,
+   "w": 1648,
+   "h": 1120,
+   "include": "3,8,7",
+   "exclude": "",
+   "definite": "",
+   "bonusDrop": 1,
+   "levelWeight": "2,1,1"
+  },
+  {
+   "id": 18,
+   "caption": "mob_mainarea_desert",
    "count": 75,
    "minLevel": 31,
    "maxLevel": 33,
@@ -271,7 +289,8 @@
    "levelWeight": "2,1,1"
   },
   {
-   "id": 18,
+   "id": 19,
+   "caption": "mob_mainarea_desert",
    "count": 25,
    "minLevel": 28,
    "maxLevel": 30,
@@ -286,7 +305,8 @@
    "levelWeight": "2,1,1"
   },
   {
-   "id": 19,
+   "id": 20,
+   "caption": "mob_mainarea_desert",
    "count": 25,
    "minLevel": 25,
    "maxLevel": 27,
@@ -301,7 +321,8 @@
    "levelWeight": "2,1,1"
   },
   {
-   "id": 20,
+   "id": 21,
+   "caption": "mob_mainarea_desert",
    "count": 12,
    "minLevel": 22,
    "maxLevel": 24,
@@ -316,7 +337,8 @@
    "levelWeight": "2,1,1"
   },
   {
-   "id": 21,
+   "id": 22,
+   "caption": "mob_mainarea_forest",
    "count": 100,
    "minLevel": 25,
    "maxLevel": 27,
@@ -331,7 +353,8 @@
    "levelWeight": "2,1,1"
   },
   {
-   "id": 22,
+   "id": 23,
+   "caption": "mob_mainarea_forest",
    "count": 100,
    "minLevel": 22,
    "maxLevel": 24,
@@ -346,7 +369,8 @@
    "levelWeight": "2,1,1"
   },
   {
-   "id": 23,
+   "id": 24,
+   "caption": "mob_mainarea_desert",
    "count": 50,
    "minLevel": 19,
    "maxLevel": 21,
@@ -361,7 +385,8 @@
    "levelWeight": "2,1,1"
   },
   {
-   "id": 24,
+   "id": 25,
+   "caption": "mob_mainarea_forest",
    "count": 100,
    "minLevel": 22,
    "maxLevel": 24,
@@ -376,7 +401,8 @@
    "levelWeight": "2,1,1"
   },
   {
-   "id": 25,
+   "id": 26,
+   "caption": "mob_mainarea_forest",
    "count": 100,
    "minLevel": 19,
    "maxLevel": 21,
@@ -391,7 +417,8 @@
    "levelWeight": "2,1,1"
   },
   {
-   "id": 26,
+   "id": 27,
+   "caption": "mob_mainarea_desert",
    "count": 50,
    "minLevel": 16,
    "maxLevel": 18,
@@ -406,7 +433,8 @@
    "levelWeight": "2,1,1"
   },
   {
-   "id": 27,
+   "id": 28,
+   "caption": "mob_mainarea_village",
    "count": 50,
    "minLevel": 19,
    "maxLevel": 21,
@@ -421,7 +449,8 @@
    "levelWeight": "2,1,1"
   },
   {
-   "id": 28,
+   "id": 29,
+   "caption": "mob_mainarea_forest",
    "count": 50,
    "minLevel": 16,
    "maxLevel": 18,
@@ -436,7 +465,8 @@
    "levelWeight": "2,1,1"
   },
   {
-   "id": 29,
+   "id": 30,
+   "caption": "mob_mainarea_forest",
    "count": 25,
    "minLevel": 13,
    "maxLevel": 15,
@@ -451,7 +481,8 @@
    "levelWeight": "2,1,1"
   },
   {
-   "id": 30,
+   "id": 31,
+   "caption": "mob_mainarea_desert",
    "count": 12,
    "minLevel": 22,
    "maxLevel": 24,
@@ -466,7 +497,8 @@
    "levelWeight": "2,1,1"
   },
   {
-   "id": 31,
+   "id": 32,
+   "caption": "mob_mainarea_desert",
    "count": 25,
    "minLevel": 25,
    "maxLevel": 27,
@@ -481,7 +513,8 @@
    "levelWeight": "2,1,1"
   },
   {
-   "id": 32,
+   "id": 33,
+   "caption": "mob_mainarea_desert",
    "count": 25,
    "minLevel": 28,
    "maxLevel": 30,
@@ -496,7 +529,8 @@
    "levelWeight": "2,1,1"
   },
   {
-   "id": 33,
+   "id": 34,
+   "caption": "mob_mainarea_desert",
    "count": 50,
    "minLevel": 19,
    "maxLevel": 21,
@@ -511,7 +545,8 @@
    "levelWeight": "2,1,1"
   },
   {
-   "id": 34,
+   "id": 35,
+   "caption": "mob_mainarea_volcano",
    "count": 100,
    "minLevel": 31,
    "maxLevel": 33,
@@ -526,7 +561,8 @@
    "levelWeight": "2,1,1"
   },
   {
-   "id": 35,
+   "id": 36,
+   "caption": "mob_mainarea_volcano",
    "count": 100,
    "minLevel": 34,
    "maxLevel": 36,
@@ -541,7 +577,8 @@
    "levelWeight": "2,1,1"
   },
   {
-   "id": 36,
+   "id": 37,
+   "caption": "mob_mainarea_desert",
    "count": 50,
    "minLevel": 16,
    "maxLevel": 18,
@@ -556,7 +593,8 @@
    "levelWeight": "2,1,1"
   },
   {
-   "id": 37,
+   "id": 38,
+   "caption": "mob_mainarea_desert",
    "count": 100,
    "minLevel": 19,
    "maxLevel": 21,
@@ -571,7 +609,8 @@
    "levelWeight": "2,1,1"
   },
   {
-   "id": 38,
+   "id": 39,
+   "caption": "mob_mainarea_desert",
    "count": 100,
    "minLevel": 22,
    "maxLevel": 24,
@@ -586,7 +625,8 @@
    "levelWeight": "2,1,1"
   },
   {
-   "id": 39,
+   "id": 40,
+   "caption": "mob_mainarea_forest",
    "count": 25,
    "minLevel": 13,
    "maxLevel": 15,
@@ -601,7 +641,8 @@
    "levelWeight": "2,1,1"
   },
   {
-   "id": 40,
+   "id": 41,
+   "caption": "mob_mainarea_forest",
    "count": 50,
    "minLevel": 16,
    "maxLevel": 18,
@@ -616,7 +657,8 @@
    "levelWeight": "2,1,1"
   },
   {
-   "id": 41,
+   "id": 42,
+   "caption": "mob_mainarea_forest",
    "count": 50,
    "minLevel": 19,
    "maxLevel": 21,
@@ -631,7 +673,8 @@
    "levelWeight": "2,1,1"
   },
   {
-   "id": 42,
+   "id": 43,
+   "caption": "mob_mainarea_village",
    "count": 50,
    "minLevel": 16,
    "maxLevel": 18,
@@ -646,28 +689,14 @@
    "levelWeight": "2,1,1"
   },
   {
-   "id": 43,
+   "id": 44,
+   "caption": "mob_mainarea_forest",
    "count": 50,
    "minLevel": 13,
    "maxLevel": 15,
    "x": 1632,
    "y": 8192,
    "w": 1648,
-   "h": 752,
-   "include": "4,6,5",
-   "exclude": "",
-   "definite": "",
-   "bonusDrop": 1,
-   "levelWeight": "2,1,1"
-  },
-  {
-   "id": 44,
-   "count": 25,
-   "minLevel": 10,
-   "maxLevel": 12,
-   "x": 3280,
-   "y": 8192,
-   "w": 816,
    "h": 752,
    "include": "4,6,5",
    "exclude": "",
@@ -677,6 +706,23 @@
   },
   {
    "id": 45,
+   "caption": "mob_mainarea_forest",
+   "count": 25,
+   "minLevel": 10,
+   "maxLevel": 12,
+   "x": 3280,
+   "y": 8192,
+   "w": 816,
+   "h": 752,
+   "include": "4,6,5",
+   "exclude": "",
+   "definite": "",
+   "bonusDrop": 1,
+   "levelWeight": "2,1,1"
+  },
+  {
+   "id": 46,
+   "caption": "mob_mainarea_forest",
    "count": 100,
    "minLevel": 13,
    "maxLevel": 15,
@@ -691,7 +737,8 @@
    "levelWeight": "2,1,1"
   },
   {
-   "id": 46,
+   "id": 47,
+   "caption": "mob_mainarea_forest",
    "count": 100,
    "minLevel": 10,
    "maxLevel": 12,
@@ -706,7 +753,8 @@
    "levelWeight": "2,1,1"
   },
   {
-   "id": 47,
+   "id": 48,
+   "caption": "mob_mainarea_forest",
    "count": 50,
    "minLevel": 8,
    "maxLevel": 9,
@@ -721,7 +769,8 @@
    "levelWeight": "2,1"
   },
   {
-   "id": 48,
+   "id": 49,
+   "caption": "mob_mainarea_beach",
    "count": 100,
    "minLevel": 10,
    "maxLevel": 12,
@@ -736,7 +785,8 @@
    "levelWeight": "2,1,1"
   },
   {
-   "id": 49,
+   "id": 50,
+   "caption": "mob_mainarea_forest",
    "count": 100,
    "minLevel": 8,
    "maxLevel": 9,
@@ -751,7 +801,8 @@
    "levelWeight": "2,1"
   },
   {
-   "id": 50,
+   "id": 51,
+   "caption": "mob_mainarea_forest",
    "count": 50,
    "minLevel": 6,
    "maxLevel": 7,
@@ -766,7 +817,8 @@
    "levelWeight": "2,1"
   },
   {
-   "id": 51,
+   "id": 52,
+   "caption": "mob_mainarea_forest",
    "count": 25,
    "minLevel": 8,
    "maxLevel": 9,
@@ -781,7 +833,8 @@
    "levelWeight": "2,1"
   },
   {
-   "id": 52,
+   "id": 53,
+   "caption": "mob_mainarea_forest",
    "count": 25,
    "minLevel": 6,
    "maxLevel": 7,
@@ -796,7 +849,8 @@
    "levelWeight": "2,1"
   },
   {
-   "id": 53,
+   "id": 54,
+   "caption": "mob_mainarea_forest",
    "count": 12,
    "minLevel": 4,
    "maxLevel": 5,
@@ -811,7 +865,8 @@
    "levelWeight": "2,1"
   },
   {
-   "id": 54,
+   "id": 55,
+   "caption": "mob_mainarea_forest",
    "count": 25,
    "minLevel": 10,
    "maxLevel": 12,
@@ -826,7 +881,8 @@
    "levelWeight": "2,1,1"
   },
   {
-   "id": 55,
+   "id": 56,
+   "caption": "mob_mainarea_forest",
    "count": 50,
    "minLevel": 13,
    "maxLevel": 15,
@@ -841,7 +897,8 @@
    "levelWeight": "2,1,1"
   },
   {
-   "id": 56,
+   "id": 57,
+   "caption": "mob_mainarea_forest",
    "count": 50,
    "minLevel": 16,
    "maxLevel": 18,
@@ -856,7 +913,8 @@
    "levelWeight": "2,1,1"
   },
   {
-   "id": 57,
+   "id": 58,
+   "caption": "mob_mainarea_forest",
    "count": 50,
    "minLevel": 8,
    "maxLevel": 9,
@@ -871,7 +929,8 @@
    "levelWeight": "2,1"
   },
   {
-   "id": 58,
+   "id": 59,
+   "caption": "mob_mainarea_forest",
    "count": 100,
    "minLevel": 10,
    "maxLevel": 12,
@@ -886,7 +945,8 @@
    "levelWeight": "2,1,1"
   },
   {
-   "id": 59,
+   "id": 60,
+   "caption": "mob_mainarea_forest",
    "count": 100,
    "minLevel": 13,
    "maxLevel": 15,
@@ -901,7 +961,8 @@
    "levelWeight": "2,1,1"
   },
   {
-   "id": 60,
+   "id": 61,
+   "caption": "mob_mainarea_forest",
    "count": 50,
    "minLevel": 6,
    "maxLevel": 7,
@@ -916,7 +977,8 @@
    "levelWeight": "2,1"
   },
   {
-   "id": 61,
+   "id": 62,
+   "caption": "mob_mainarea_forest",
    "count": 100,
    "minLevel": 8,
    "maxLevel": 9,
@@ -931,7 +993,8 @@
    "levelWeight": "2,1"
   },
   {
-   "id": 62,
+   "id": 63,
+   "caption": "mob_mainarea_forest",
    "count": 100,
    "minLevel": 10,
    "maxLevel": 12,
@@ -946,7 +1009,8 @@
    "levelWeight": "2,1,1"
   },
   {
-   "id": 63,
+   "id": 64,
+   "caption": "mob_mainarea_forest",
    "count": 12,
    "minLevel": 4,
    "maxLevel": 5,
@@ -961,7 +1025,8 @@
    "levelWeight": "2,1"
   },
   {
-   "id": 64,
+   "id": 65,
+   "caption": "mob_mainarea_forest",
    "count": 25,
    "minLevel": 6,
    "maxLevel": 7,
@@ -976,7 +1041,8 @@
    "levelWeight": "2,1"
   },
   {
-   "id": 65,
+   "id": 66,
+   "caption": "mob_mainarea_forest",
    "count": 25,
    "minLevel": 8,
    "maxLevel": 9,
@@ -991,28 +1057,14 @@
    "levelWeight": "2,1"
   },
   {
-   "id": 66,
+   "id": 67,
+   "caption": "mob_mainarea_forest",
    "count": 75,
    "minLevel": 6,
    "maxLevel": 7,
    "x": 0,
    "y": 12288,
    "w": 1632,
-   "h": 1120,
-   "include": "4,6,5",
-   "exclude": "",
-   "definite": "",
-   "bonusDrop": 1,
-   "levelWeight": "2,1"
-  },
-  {
-   "id": 67,
-   "count": 75,
-   "minLevel": 4,
-   "maxLevel": 5,
-   "x": 1632,
-   "y": 12288,
-   "w": 1648,
    "h": 1120,
    "include": "4,6,5",
    "exclude": "",
@@ -1022,12 +1074,13 @@
   },
   {
    "id": 68,
-   "count": 38,
-   "minLevel": 2,
-   "maxLevel": 3,
-   "x": 3280,
+   "caption": "mob_mainarea_forest",
+   "count": 75,
+   "minLevel": 4,
+   "maxLevel": 5,
+   "x": 1632,
    "y": 12288,
-   "w": 816,
+   "w": 1648,
    "h": 1120,
    "include": "4,6,5",
    "exclude": "",
@@ -1037,6 +1090,23 @@
   },
   {
    "id": 69,
+   "caption": "mob_mainarea_forest",
+   "count": 38,
+   "minLevel": 2,
+   "maxLevel": 3,
+   "x": 3280,
+   "y": 12288,
+   "w": 816,
+   "h": 1120,
+   "include": "4,6,5",
+   "exclude": "",
+   "definite": "",
+   "bonusDrop": 1,
+   "levelWeight": "2,1"
+  },
+  {
+   "id": 70,
+   "caption": "mob_mainarea_forest",
    "count": 100,
    "minLevel": 4,
    "maxLevel": 5,
@@ -1051,7 +1121,8 @@
    "levelWeight": "2,1"
   },
   {
-   "id": 70,
+   "id": 71,
+   "caption": "mob_mainarea_beach",
    "count": 100,
    "minLevel": 2,
    "maxLevel": 3,
@@ -1066,7 +1137,8 @@
    "levelWeight": "2,1"
   },
   {
-   "id": 71,
+   "id": 72,
+   "caption": "mob_mainarea_village",
    "count": 100,
    "minLevel": 1,
    "maxLevel": 1,
@@ -1082,7 +1154,8 @@
    "kindWeight": "4,1"
   },
   {
-   "id": 72,
+   "id": 73,
+   "caption": "mob_mainarea_beach",
    "count": 100,
    "minLevel": 6,
    "maxLevel": 7,
@@ -1097,7 +1170,8 @@
    "levelWeight": "2,1"
   },
   {
-   "id": 73,
+   "id": 74,
+   "caption": "mob_mainarea_forest",
    "count": 100,
    "minLevel": 4,
    "maxLevel": 5,
@@ -1112,7 +1186,8 @@
    "levelWeight": "2,1"
   },
   {
-   "id": 74,
+   "id": 75,
+   "caption": "mob_mainarea_beach",
    "count": 50,
    "minLevel": 2,
    "maxLevel": 3,
@@ -1127,7 +1202,8 @@
    "levelWeight": "2,1"
   },
   {
-   "id": 75,
+   "id": 76,
+   "caption": "mob_mainarea_forest",
    "count": 38,
    "minLevel": 2,
    "maxLevel": 3,
@@ -1142,7 +1218,8 @@
    "levelWeight": "2,1"
   },
   {
-   "id": 76,
+   "id": 77,
+   "caption": "mob_mainarea_forest",
    "count": 75,
    "minLevel": 4,
    "maxLevel": 5,
@@ -1157,7 +1234,8 @@
    "levelWeight": "2,1"
   },
   {
-   "id": 77,
+   "id": 78,
+   "caption": "mob_mainarea_forest",
    "count": 75,
    "minLevel": 6,
    "maxLevel": 7,
@@ -1172,7 +1250,8 @@
    "levelWeight": "2,1"
   },
   {
-   "id": 78,
+   "id": 79,
+   "caption": "mob_mainarea_village",
    "count": 100,
    "minLevel": 1,
    "maxLevel": 1,
@@ -1188,7 +1267,8 @@
    "kindWeight": "4,1"
   },
   {
-   "id": 79,
+   "id": 80,
+   "caption": "mob_mainarea_forest",
    "count": 100,
    "minLevel": 2,
    "maxLevel": 3,
@@ -1203,7 +1283,8 @@
    "levelWeight": "2,1"
   },
   {
-   "id": 80,
+   "id": 81,
+   "caption": "mob_mainarea_forest",
    "count": 100,
    "minLevel": 4,
    "maxLevel": 5,
@@ -1218,7 +1299,8 @@
    "levelWeight": "2,1"
   },
   {
-   "id": 81,
+   "id": 82,
+   "caption": "mob_mainarea_beach",
    "count": 50,
    "minLevel": 2,
    "maxLevel": 3,
@@ -1233,7 +1315,8 @@
    "levelWeight": "2,1"
   },
   {
-   "id": 82,
+   "id": 83,
+   "caption": "mob_mainarea_beach",
    "count": 100,
    "minLevel": 4,
    "maxLevel": 5,
@@ -1248,7 +1331,8 @@
    "levelWeight": "2,1"
   },
   {
-   "id": 83,
+   "id": 84,
+   "caption": "mob_mainarea_forest",
    "count": 100,
    "minLevel": 6,
    "maxLevel": 7,
@@ -1263,7 +1347,8 @@
    "levelWeight": "2,1"
   },
   {
-   "id": 84,
+   "id": 85,
+   "caption": "dungeon_mob",
    "count": 19,
    "minLevel": 36,
    "maxLevel": 37,
@@ -1279,7 +1364,8 @@
    "aggro": 1
   },
   {
-   "id": 85,
+   "id": 86,
+   "caption": "dungeon_mob",
    "count": 4,
    "minLevel": 37,
    "maxLevel": 38,
@@ -1295,7 +1381,8 @@
    "aggro": 1
   },
   {
-   "id": 86,
+   "id": 87,
+   "caption": "dungeon_mob",
    "count": 2,
    "minLevel": 37,
    "maxLevel": 38,
@@ -1311,7 +1398,8 @@
    "aggro": 1
   },
   {
-   "id": 87,
+   "id": 88,
+   "caption": "dungeon_mob",
    "count": 2,
    "minLevel": 37,
    "maxLevel": 38,
@@ -1327,7 +1415,8 @@
    "aggro": 1
   },
   {
-   "id": 88,
+   "id": 89,
+   "caption": "dungeon_mob",
    "count": 14,
    "minLevel": 37,
    "maxLevel": 38,
@@ -1343,7 +1432,8 @@
    "aggro": 1
   },
   {
-   "id": 89,
+   "id": 90,
+   "caption": "dungeon_mob",
    "count": 3,
    "minLevel": 37,
    "maxLevel": 38,
@@ -1359,7 +1449,8 @@
    "aggro": 1
   },
   {
-   "id": 90,
+   "id": 91,
+   "caption": "dungeon_mob",
    "count": 4,
    "minLevel": 38,
    "maxLevel": 39,
@@ -1375,7 +1466,8 @@
    "aggro": 1
   },
   {
-   "id": 91,
+   "id": 92,
+   "caption": "dungeon_mob",
    "count": 3,
    "minLevel": 36,
    "maxLevel": 37,
@@ -1391,7 +1483,8 @@
    "aggro": 1
   },
   {
-   "id": 92,
+   "id": 93,
+   "caption": "dungeon_mob",
    "count": 3,
    "minLevel": 37,
    "maxLevel": 38,
@@ -1407,7 +1500,8 @@
    "aggro": 1
   },
   {
-   "id": 93,
+   "id": 94,
+   "caption": "dungeon_mob",
    "count": 9,
    "minLevel": 38,
    "maxLevel": 39,
@@ -1423,7 +1517,8 @@
    "aggro": 1
   },
   {
-   "id": 94,
+   "id": 95,
+   "caption": "dungeon_mob",
    "count": 2,
    "minLevel": 39,
    "maxLevel": 40,
@@ -1439,7 +1534,8 @@
    "aggro": 1
   },
   {
-   "id": 95,
+   "id": 96,
+   "caption": "dungeon_mob",
    "count": 4,
    "minLevel": 39,
    "maxLevel": 40,
@@ -1455,7 +1551,8 @@
    "aggro": 1
   },
   {
-   "id": 96,
+   "id": 97,
+   "caption": "dungeon_mob",
    "count": 12,
    "minLevel": 30,
    "maxLevel": 31,
@@ -1471,7 +1568,8 @@
    "aggro": 1
   },
   {
-   "id": 97,
+   "id": 98,
+   "caption": "dungeon_mob",
    "count": 3,
    "minLevel": 31,
    "maxLevel": 32,
@@ -1487,7 +1585,8 @@
    "aggro": 1
   },
   {
-   "id": 98,
+   "id": 99,
+   "caption": "dungeon_mob",
    "count": 6,
    "minLevel": 32,
    "maxLevel": 33,
@@ -1503,7 +1602,8 @@
    "aggro": 1
   },
   {
-   "id": 99,
+   "id": 100,
+   "caption": "dungeon_mob",
    "count": 3,
    "minLevel": 33,
    "maxLevel": 34,
@@ -1519,7 +1619,8 @@
    "aggro": 1
   },
   {
-   "id": 100,
+   "id": 101,
+   "caption": "dungeon_mob",
    "count": 13,
    "minLevel": 32,
    "maxLevel": 33,
@@ -1535,7 +1636,8 @@
    "aggro": 1
   },
   {
-   "id": 101,
+   "id": 102,
+   "caption": "dungeon_mob",
    "count": 5,
    "minLevel": 33,
    "maxLevel": 34,
@@ -1551,7 +1653,8 @@
    "aggro": 1
   },
   {
-   "id": 102,
+   "id": 103,
+   "caption": "dungeon_mob",
    "count": 2,
    "minLevel": 34,
    "maxLevel": 35,
@@ -1567,7 +1670,8 @@
    "aggro": 1
   },
   {
-   "id": 103,
+   "id": 104,
+   "caption": "dungeon_mob",
    "count": 12,
    "minLevel": 30,
    "maxLevel": 31,
@@ -1583,7 +1687,8 @@
    "aggro": 1
   },
   {
-   "id": 104,
+   "id": 105,
+   "caption": "dungeon_mob",
    "count": 4,
    "minLevel": 31,
    "maxLevel": 32,
@@ -1599,7 +1704,8 @@
    "aggro": 1
   },
   {
-   "id": 105,
+   "id": 106,
+   "caption": "dungeon_mob",
    "count": 9,
    "minLevel": 31,
    "maxLevel": 32,
@@ -1615,7 +1721,8 @@
    "aggro": 1
   },
   {
-   "id": 106,
+   "id": 107,
+   "caption": "dungeon_mob",
    "count": 3,
    "minLevel": 32,
    "maxLevel": 33,
@@ -1631,7 +1738,8 @@
    "aggro": 1
   },
   {
-   "id": 107,
+   "id": 108,
+   "caption": "dungeon_mob",
    "count": 4,
    "minLevel": 31,
    "maxLevel": 32,
@@ -1647,7 +1755,8 @@
    "aggro": 1
   },
   {
-   "id": 108,
+   "id": 109,
+   "caption": "dungeon_mob",
    "count": 4,
    "minLevel": 32,
    "maxLevel": 33,
@@ -1663,7 +1772,8 @@
    "aggro": 1
   },
   {
-   "id": 109,
+   "id": 110,
+   "caption": "dungeon_mob",
    "count": 6,
    "minLevel": 27,
    "maxLevel": 28,
@@ -1679,7 +1789,8 @@
    "aggro": 1
   },
   {
-   "id": 110,
+   "id": 111,
+   "caption": "dungeon_mob",
    "count": 5,
    "minLevel": 28,
    "maxLevel": 29,
@@ -1695,7 +1806,8 @@
    "aggro": 1
   },
   {
-   "id": 111,
+   "id": 112,
+   "caption": "dungeon_mob",
    "count": 2,
    "minLevel": 29,
    "maxLevel": 30,
@@ -1711,7 +1823,8 @@
    "aggro": 1
   },
   {
-   "id": 112,
+   "id": 113,
+   "caption": "dungeon_mob",
    "count": 4,
    "minLevel": 30,
    "maxLevel": 31,
@@ -1727,7 +1840,8 @@
    "aggro": 1
   },
   {
-   "id": 113,
+   "id": 114,
+   "caption": "dungeon_mob",
    "count": 9,
    "minLevel": 29,
    "maxLevel": 30,
@@ -1743,7 +1857,8 @@
    "aggro": 1
   },
   {
-   "id": 114,
+   "id": 115,
+   "caption": "dungeon_mob",
    "count": 3,
    "minLevel": 30,
    "maxLevel": 31,
@@ -1759,7 +1874,8 @@
    "aggro": 1
   },
   {
-   "id": 115,
+   "id": 116,
+   "caption": "dungeon_mob",
    "count": 6,
    "minLevel": 30,
    "maxLevel": 31,
@@ -1775,7 +1891,8 @@
    "aggro": 1
   },
   {
-   "id": 116,
+   "id": 117,
+   "caption": "dungeon_mob",
    "count": 3,
    "minLevel": 31,
    "maxLevel": 32,
@@ -1791,7 +1908,8 @@
    "aggro": 1
   },
   {
-   "id": 117,
+   "id": 118,
+   "caption": "dungeon_mob",
    "count": 20,
    "minLevel": 31,
    "maxLevel": 32,
@@ -1807,7 +1925,8 @@
    "aggro": 1
   },
   {
-   "id": 118,
+   "id": 119,
+   "caption": "dungeon_mob",
    "count": 3,
    "minLevel": 32,
    "maxLevel": 33,
@@ -1823,7 +1942,8 @@
    "aggro": 1
   },
   {
-   "id": 119,
+   "id": 120,
+   "caption": "dungeon_mob",
    "count": 2,
    "minLevel": 31,
    "maxLevel": 32,
@@ -1839,7 +1959,8 @@
    "aggro": 1
   },
   {
-   "id": 120,
+   "id": 121,
+   "caption": "dungeon_mob",
    "count": 3,
    "minLevel": 32,
    "maxLevel": 33,
@@ -1855,7 +1976,8 @@
    "aggro": 1
   },
   {
-   "id": 121,
+   "id": 122,
+   "caption": "dungeon_mob",
    "count": 9,
    "minLevel": 33,
    "maxLevel": 34,
@@ -1871,7 +1993,8 @@
    "aggro": 1
   },
   {
-   "id": 122,
+   "id": 123,
+   "caption": "dungeon_mob",
    "count": 16,
    "minLevel": 33,
    "maxLevel": 34,
@@ -1887,7 +2010,8 @@
    "aggro": 1
   },
   {
-   "id": 123,
+   "id": 124,
+   "caption": "dungeon_mob",
    "count": 2,
    "minLevel": 34,
    "maxLevel": 35,
@@ -1903,7 +2027,8 @@
    "aggro": 1
   },
   {
-   "id": 124,
+   "id": 125,
+   "caption": "dungeon_mob",
    "count": 21,
    "minLevel": 34,
    "maxLevel": 35,
@@ -1919,7 +2044,8 @@
    "aggro": 1
   },
   {
-   "id": 125,
+   "id": 126,
+   "caption": "dungeon_mob",
    "count": 2,
    "minLevel": 34,
    "maxLevel": 35,
@@ -1935,7 +2061,8 @@
    "aggro": 1
   },
   {
-   "id": 126,
+   "id": 127,
+   "caption": "dungeon_mob",
    "count": 13,
    "minLevel": 34,
    "maxLevel": 35,
@@ -1951,7 +2078,8 @@
    "aggro": 1
   },
   {
-   "id": 127,
+   "id": 128,
+   "caption": "dungeon_mob",
    "count": 2,
    "minLevel": 35,
    "maxLevel": 36,
@@ -1967,7 +2095,8 @@
    "aggro": 1
   },
   {
-   "id": 128,
+   "id": 129,
+   "caption": "dungeon_mob",
    "count": 20,
    "minLevel": 33,
    "maxLevel": 34,
@@ -1983,7 +2112,8 @@
    "aggro": 1
   },
   {
-   "id": 129,
+   "id": 130,
+   "caption": "dungeon_mob",
    "count": 3,
    "minLevel": 34,
    "maxLevel": 35,
@@ -1999,7 +2129,8 @@
    "aggro": 1
   },
   {
-   "id": 130,
+   "id": 131,
+   "caption": "dungeon_mob",
    "count": 6,
    "minLevel": 34,
    "maxLevel": 35,
@@ -2015,7 +2146,8 @@
    "aggro": 1
   },
   {
-   "id": 131,
+   "id": 132,
+   "caption": "dungeon_mob",
    "count": 2,
    "minLevel": 34,
    "maxLevel": 35,
@@ -2031,7 +2163,8 @@
    "aggro": 1
   },
   {
-   "id": 132,
+   "id": 133,
+   "caption": "dungeon_mob",
    "count": 14,
    "minLevel": 35,
    "maxLevel": 36,
@@ -2047,7 +2180,8 @@
    "aggro": 1
   },
   {
-   "id": 133,
+   "id": 134,
+   "caption": "dungeon_mob",
    "count": 2,
    "minLevel": 36,
    "maxLevel": 37,
@@ -2063,7 +2197,8 @@
    "aggro": 1
   },
   {
-   "id": 134,
+   "id": 135,
+   "caption": "dungeon_mob",
    "count": 2,
    "minLevel": 36,
    "maxLevel": 37,
@@ -2079,7 +2214,8 @@
    "aggro": 1
   },
   {
-   "id": 135,
+   "id": 136,
+   "caption": "dungeon_mob",
    "count": 16,
    "minLevel": 36,
    "maxLevel": 37,
@@ -2095,7 +2231,8 @@
    "aggro": 1
   },
   {
-   "id": 136,
+   "id": 137,
+   "caption": "dungeon_mob",
    "count": 3,
    "minLevel": 37,
    "maxLevel": 38,
@@ -2111,7 +2248,8 @@
    "aggro": 1
   },
   {
-   "id": 137,
+   "id": 138,
+   "caption": "dungeon_mob",
    "count": 3,
    "minLevel": 38,
    "maxLevel": 39,
@@ -2127,7 +2265,8 @@
    "aggro": 1
   },
   {
-   "id": 138,
+   "id": 139,
+   "caption": "dungeon_mob",
    "count": 3,
    "minLevel": 39,
    "maxLevel": 40,
@@ -2143,7 +2282,8 @@
    "aggro": 1
   },
   {
-   "id": 139,
+   "id": 140,
+   "caption": "dungeon_mob",
    "count": 4,
    "minLevel": 38,
    "maxLevel": 39,
@@ -2159,7 +2299,8 @@
    "aggro": 1
   },
   {
-   "id": 140,
+   "id": 141,
+   "caption": "dungeon_mob",
    "count": 5,
    "minLevel": 39,
    "maxLevel": 40,
@@ -2175,7 +2316,8 @@
    "aggro": 1
   },
   {
-   "id": 141,
+   "id": 142,
+   "caption": "dungeon_mob",
    "count": 4,
    "minLevel": 40,
    "maxLevel": 41,
@@ -2191,7 +2333,8 @@
    "aggro": 1
   },
   {
-   "id": 142,
+   "id": 143,
+   "caption": "dungeon_mob",
    "count": 3,
    "minLevel": 21,
    "maxLevel": 22,
@@ -2207,7 +2350,8 @@
    "aggro": 1
   },
   {
-   "id": 143,
+   "id": 144,
+   "caption": "dungeon_mob",
    "count": 3,
    "minLevel": 22,
    "maxLevel": 23,
@@ -2223,7 +2367,8 @@
    "aggro": 1
   },
   {
-   "id": 144,
+   "id": 145,
+   "caption": "dungeon_mob",
    "count": 4,
    "minLevel": 23,
    "maxLevel": 24,
@@ -2239,7 +2384,8 @@
    "aggro": 1
   },
   {
-   "id": 145,
+   "id": 146,
+   "caption": "dungeon_mob",
    "count": 2,
    "minLevel": 24,
    "maxLevel": 25,
@@ -2255,7 +2401,8 @@
    "aggro": 1
   },
   {
-   "id": 146,
+   "id": 147,
+   "caption": "dungeon_mob",
    "count": 19,
    "minLevel": 23,
    "maxLevel": 24,
@@ -2271,7 +2418,8 @@
    "aggro": 1
   },
   {
-   "id": 147,
+   "id": 148,
+   "caption": "dungeon_mob",
    "count": 2,
    "minLevel": 24,
    "maxLevel": 25,
@@ -2287,7 +2435,8 @@
    "aggro": 1
   },
   {
-   "id": 148,
+   "id": 149,
+   "caption": "dungeon_mob",
    "count": 4,
    "minLevel": 21,
    "maxLevel": 22,
@@ -2303,7 +2452,8 @@
    "aggro": 1
   },
   {
-   "id": 149,
+   "id": 150,
+   "caption": "dungeon_mob",
    "count": 3,
    "minLevel": 22,
    "maxLevel": 23,
@@ -2319,7 +2469,8 @@
    "aggro": 1
   },
   {
-   "id": 150,
+   "id": 151,
+   "caption": "dungeon_mob",
    "count": 5,
    "minLevel": 22,
    "maxLevel": 23,
@@ -2335,7 +2486,8 @@
    "aggro": 1
   },
   {
-   "id": 151,
+   "id": 152,
+   "caption": "dungeon_mob",
    "count": 3,
    "minLevel": 23,
    "maxLevel": 24,
@@ -2351,7 +2503,8 @@
    "aggro": 1
   },
   {
-   "id": 152,
+   "id": 153,
+   "caption": "dungeon_mob",
    "count": 4,
    "minLevel": 23,
    "maxLevel": 24,
@@ -2367,7 +2520,8 @@
    "aggro": 1
   },
   {
-   "id": 153,
+   "id": 154,
+   "caption": "dungeon_mob",
    "count": 3,
    "minLevel": 24,
    "maxLevel": 25,
@@ -2383,7 +2537,8 @@
    "aggro": 1
   },
   {
-   "id": 154,
+   "id": 155,
+   "caption": "dungeon_mob",
    "count": 15,
    "minLevel": 21,
    "maxLevel": 22,
@@ -2399,7 +2554,8 @@
    "aggro": 1
   },
   {
-   "id": 155,
+   "id": 156,
+   "caption": "dungeon_mob",
    "count": 4,
    "minLevel": 22,
    "maxLevel": 23,
@@ -2415,7 +2571,8 @@
    "aggro": 1
   },
   {
-   "id": 156,
+   "id": 157,
+   "caption": "dungeon_mob",
    "count": 14,
    "minLevel": 23,
    "maxLevel": 24,
@@ -2431,7 +2588,8 @@
    "aggro": 1
   },
   {
-   "id": 157,
+   "id": 158,
+   "caption": "dungeon_mob",
    "count": 5,
    "minLevel": 24,
    "maxLevel": 25,
@@ -2447,7 +2605,8 @@
    "aggro": 1
   },
   {
-   "id": 158,
+   "id": 159,
+   "caption": "dungeon_mob",
    "count": 9,
    "minLevel": 24,
    "maxLevel": 25,
@@ -2463,7 +2622,8 @@
    "aggro": 1
   },
   {
-   "id": 159,
+   "id": 160,
+   "caption": "dungeon_mob",
    "count": 5,
    "minLevel": 25,
    "maxLevel": 26,
@@ -2479,7 +2639,8 @@
    "aggro": 1
   },
   {
-   "id": 160,
+   "id": 161,
+   "caption": "dungeon_mob",
    "count": 2,
    "minLevel": 18,
    "maxLevel": 19,
@@ -2495,7 +2656,8 @@
    "aggro": 1
   },
   {
-   "id": 161,
+   "id": 162,
+   "caption": "dungeon_mob",
    "count": 2,
    "minLevel": 19,
    "maxLevel": 20,
@@ -2511,7 +2673,8 @@
    "aggro": 1
   },
   {
-   "id": 162,
+   "id": 163,
+   "caption": "dungeon_mob",
    "count": 14,
    "minLevel": 20,
    "maxLevel": 21,
@@ -2527,7 +2690,8 @@
    "aggro": 1
   },
   {
-   "id": 163,
+   "id": 164,
+   "caption": "dungeon_mob",
    "count": 3,
    "minLevel": 21,
    "maxLevel": 22,
@@ -2543,7 +2707,8 @@
    "aggro": 1
   },
   {
-   "id": 164,
+   "id": 165,
+   "caption": "dungeon_mob",
    "count": 4,
    "minLevel": 21,
    "maxLevel": 22,
@@ -2559,7 +2724,8 @@
    "aggro": 1
   },
   {
-   "id": 165,
+   "id": 166,
+   "caption": "dungeon_mob",
    "count": 4,
    "minLevel": 19,
    "maxLevel": 20,
@@ -2575,7 +2741,8 @@
    "aggro": 1
   },
   {
-   "id": 166,
+   "id": 167,
+   "caption": "dungeon_mob",
    "count": 19,
    "minLevel": 12,
    "maxLevel": 13,
@@ -2591,7 +2758,8 @@
    "aggro": 1
   },
   {
-   "id": 167,
+   "id": 168,
+   "caption": "dungeon_mob",
    "count": 3,
    "minLevel": 13,
    "maxLevel": 14,
@@ -2607,7 +2775,8 @@
    "aggro": 1
   },
   {
-   "id": 168,
+   "id": 169,
+   "caption": "dungeon_mob",
    "count": 14,
    "minLevel": 13,
    "maxLevel": 14,
@@ -2623,7 +2792,8 @@
    "aggro": 1
   },
   {
-   "id": 169,
+   "id": 170,
+   "caption": "dungeon_mob",
    "count": 6,
    "minLevel": 14,
    "maxLevel": 15,
@@ -2639,7 +2809,8 @@
    "aggro": 1
   },
   {
-   "id": 170,
+   "id": 171,
+   "caption": "dungeon_mob",
    "count": 13,
    "minLevel": 15,
    "maxLevel": 16,
@@ -2655,7 +2826,8 @@
    "aggro": 1
   },
   {
-   "id": 171,
+   "id": 172,
+   "caption": "dungeon_mob",
    "count": 3,
    "minLevel": 10,
    "maxLevel": 11,
@@ -2671,7 +2843,8 @@
    "aggro": 1
   },
   {
-   "id": 172,
+   "id": 173,
+   "caption": "dungeon_mob",
    "count": 3,
    "minLevel": 11,
    "maxLevel": 12,
@@ -2687,7 +2860,8 @@
    "aggro": 1
   },
   {
-   "id": 173,
+   "id": 174,
+   "caption": "dungeon_mob",
    "count": 5,
    "minLevel": 11,
    "maxLevel": 12,
@@ -2703,7 +2877,8 @@
    "aggro": 1
   },
   {
-   "id": 174,
+   "id": 175,
+   "caption": "dungeon_mob",
    "count": 3,
    "minLevel": 11,
    "maxLevel": 12,
@@ -2719,7 +2894,8 @@
    "aggro": 1
   },
   {
-   "id": 175,
+   "id": 176,
+   "caption": "dungeon_mob",
    "count": 2,
    "minLevel": 12,
    "maxLevel": 13,
@@ -2735,7 +2911,8 @@
    "aggro": 1
   },
   {
-   "id": 176,
+   "id": 177,
+   "caption": "dungeon_mob",
    "count": 14,
    "minLevel": 6,
    "maxLevel": 7,
@@ -2751,7 +2928,8 @@
    "aggro": 1
   },
   {
-   "id": 177,
+   "id": 178,
+   "caption": "dungeon_mob",
    "count": 4,
    "minLevel": 7,
    "maxLevel": 8,
@@ -2767,7 +2945,8 @@
    "aggro": 1
   },
   {
-   "id": 178,
+   "id": 179,
+   "caption": "dungeon_mob",
    "count": 6,
    "minLevel": 7,
    "maxLevel": 8,
@@ -2783,7 +2962,8 @@
    "aggro": 1
   },
   {
-   "id": 179,
+   "id": 180,
+   "caption": "dungeon_mob",
    "count": 6,
    "minLevel": 8,
    "maxLevel": 9,
@@ -2799,7 +2979,8 @@
    "aggro": 1
   },
   {
-   "id": 180,
+   "id": 181,
+   "caption": "dungeon_mob",
    "count": 12,
    "minLevel": 7,
    "maxLevel": 8,
@@ -2815,7 +2996,8 @@
    "aggro": 1
   },
   {
-   "id": 181,
+   "id": 182,
+   "caption": "dungeon_mob",
    "count": 6,
    "minLevel": 8,
    "maxLevel": 9,
@@ -2831,7 +3013,8 @@
    "aggro": 1
   },
   {
-   "id": 182,
+   "id": 183,
+   "caption": "dungeon_mob",
    "count": 7,
    "minLevel": 9,
    "maxLevel": 10,
@@ -2847,7 +3030,8 @@
    "aggro": 1
   },
   {
-   "id": 183,
+   "id": 184,
+   "caption": "dungeon_mob",
    "count": 14,
    "minLevel": 6,
    "maxLevel": 7,
@@ -2863,7 +3047,8 @@
    "aggro": 1
   },
   {
-   "id": 184,
+   "id": 185,
+   "caption": "dungeon_mob",
    "count": 3,
    "minLevel": 7,
    "maxLevel": 8,
@@ -2879,7 +3064,8 @@
    "aggro": 1
   },
   {
-   "id": 185,
+   "id": 186,
+   "caption": "dungeon_mob",
    "count": 20,
    "minLevel": 7,
    "maxLevel": 8,
@@ -2895,7 +3081,8 @@
    "aggro": 1
   },
   {
-   "id": 186,
+   "id": 187,
+   "caption": "dungeon_mob",
    "count": 4,
    "minLevel": 8,
    "maxLevel": 9,
@@ -2911,7 +3098,8 @@
    "aggro": 1
   },
   {
-   "id": 187,
+   "id": 188,
+   "caption": "dungeon_mob",
    "count": 6,
    "minLevel": 9,
    "maxLevel": 10,
@@ -2927,7 +3115,8 @@
    "aggro": 1
   },
   {
-   "id": 188,
+   "id": 189,
+   "caption": "dungeon_mob",
    "count": 5,
    "minLevel": 6,
    "maxLevel": 7,
@@ -2943,7 +3132,8 @@
    "aggro": 1
   },
   {
-   "id": 189,
+   "id": 190,
+   "caption": "dungeon_mob",
    "count": 2,
    "minLevel": 7,
    "maxLevel": 8,
@@ -2959,7 +3149,8 @@
    "aggro": 1
   },
   {
-   "id": 190,
+   "id": 191,
+   "caption": "dungeon_mob",
    "count": 4,
    "minLevel": 7,
    "maxLevel": 8,
@@ -2975,7 +3166,8 @@
    "aggro": 1
   },
   {
-   "id": 191,
+   "id": 192,
+   "caption": "dungeon_mob",
    "count": 4,
    "minLevel": 8,
    "maxLevel": 9,
@@ -2991,7 +3183,8 @@
    "aggro": 1
   },
   {
-   "id": 192,
+   "id": 193,
+   "caption": "dungeon_mob",
    "count": 19,
    "minLevel": 9,
    "maxLevel": 10,
@@ -3007,7 +3200,8 @@
    "aggro": 1
   },
   {
-   "id": 193,
+   "id": 194,
+   "caption": "dungeon_mob",
    "count": 3,
    "minLevel": 10,
    "maxLevel": 11,
@@ -3023,7 +3217,8 @@
    "aggro": 1
   },
   {
-   "id": 194,
+   "id": 195,
+   "caption": "dungeon_mob",
    "count": 3,
    "minLevel": 10,
    "maxLevel": 11,
@@ -3039,7 +3234,8 @@
    "aggro": 1
   },
   {
-   "id": 195,
+   "id": 196,
+   "caption": "dungeon_mob",
    "count": 16,
    "minLevel": 6,
    "maxLevel": 7,
@@ -3055,7 +3251,8 @@
    "aggro": 1
   },
   {
-   "id": 196,
+   "id": 197,
+   "caption": "dungeon_mob",
    "count": 2,
    "minLevel": 7,
    "maxLevel": 8,
@@ -3071,7 +3268,8 @@
    "aggro": 1
   },
   {
-   "id": 197,
+   "id": 198,
+   "caption": "dungeon_mob",
    "count": 3,
    "minLevel": 8,
    "maxLevel": 9,
@@ -3087,7 +3285,8 @@
    "aggro": 1
   },
   {
-   "id": 198,
+   "id": 199,
+   "caption": "dungeon_mob",
    "count": 5,
    "minLevel": 9,
    "maxLevel": 10,
@@ -3103,7 +3302,8 @@
    "aggro": 1
   },
   {
-   "id": 199,
+   "id": 200,
+   "caption": "dungeon_mob",
    "count": 5,
    "minLevel": 7,
    "maxLevel": 8,
@@ -3119,7 +3319,8 @@
    "aggro": 1
   },
   {
-   "id": 200,
+   "id": 201,
+   "caption": "dungeon_mob",
    "count": 6,
    "minLevel": 4,
    "maxLevel": 5,
@@ -3135,7 +3336,8 @@
    "aggro": 1
   },
   {
-   "id": 201,
+   "id": 202,
+   "caption": "dungeon_mob",
    "count": 4,
    "minLevel": 5,
    "maxLevel": 6,
@@ -3151,7 +3353,8 @@
    "aggro": 1
   },
   {
-   "id": 202,
+   "id": 203,
+   "caption": "dungeon_mob",
    "count": 8,
    "minLevel": 5,
    "maxLevel": 6,
@@ -3167,7 +3370,8 @@
    "aggro": 1
   },
   {
-   "id": 203,
+   "id": 204,
+   "caption": "dungeon_mob",
    "count": 3,
    "minLevel": 6,
    "maxLevel": 7,
@@ -3183,7 +3387,8 @@
    "aggro": 1
   },
   {
-   "id": 204,
+   "id": 205,
+   "caption": "dungeon_mob",
    "count": 10,
    "minLevel": 6,
    "maxLevel": 7,
@@ -3199,7 +3404,8 @@
    "aggro": 1
   },
   {
-   "id": 205,
+   "id": 206,
+   "caption": "dungeon_mob",
    "count": 12,
    "minLevel": 6,
    "maxLevel": 7,
@@ -3215,7 +3421,8 @@
    "aggro": 1
   },
   {
-   "id": 206,
+   "id": 207,
+   "caption": "dungeon_mob",
    "count": 4,
    "minLevel": 7,
    "maxLevel": 8,
@@ -3231,7 +3438,8 @@
    "aggro": 1
   },
   {
-   "id": 207,
+   "id": 208,
+   "caption": "dungeon_mob",
    "count": 4,
    "minLevel": 7,
    "maxLevel": 8,
@@ -3247,7 +3455,8 @@
    "aggro": 1
   },
   {
-   "id": 208,
+   "id": 209,
+   "caption": "dungeon_mob",
    "count": 6,
    "minLevel": 7,
    "maxLevel": 8,
@@ -3263,7 +3472,8 @@
    "aggro": 1
   },
   {
-   "id": 209,
+   "id": 210,
+   "caption": "dungeon_mob",
    "count": 5,
    "minLevel": 7,
    "maxLevel": 8,
@@ -3279,7 +3489,8 @@
    "aggro": 1
   },
   {
-   "id": 210,
+   "id": 211,
+   "caption": "dungeon_mob",
    "count": 4,
    "minLevel": 8,
    "maxLevel": 9,
@@ -3295,7 +3506,8 @@
    "aggro": 1
   },
   {
-   "id": 211,
+   "id": 212,
+   "caption": "dungeon_mob",
    "count": 16,
    "minLevel": 9,
    "maxLevel": 10,
@@ -3311,7 +3523,8 @@
    "aggro": 1
   },
   {
-   "id": 212,
+   "id": 213,
+   "caption": "dungeon_mob",
    "count": 4,
    "minLevel": 30,
    "maxLevel": 31,
@@ -3327,7 +3540,8 @@
    "aggro": 1
   },
   {
-   "id": 213,
+   "id": 214,
+   "caption": "dungeon_mob",
    "count": 2,
    "minLevel": 31,
    "maxLevel": 32,
@@ -3343,7 +3557,8 @@
    "aggro": 1
   },
   {
-   "id": 214,
+   "id": 215,
+   "caption": "dungeon_mob",
    "count": 6,
    "minLevel": 32,
    "maxLevel": 33,
@@ -3359,7 +3574,8 @@
    "aggro": 1
   },
   {
-   "id": 215,
+   "id": 216,
+   "caption": "dungeon_mob",
    "count": 2,
    "minLevel": 33,
    "maxLevel": 34,
@@ -3375,7 +3591,8 @@
    "aggro": 1
   },
   {
-   "id": 216,
+   "id": 217,
+   "caption": "dungeon_mob",
    "count": 3,
    "minLevel": 33,
    "maxLevel": 34,
@@ -3391,7 +3608,8 @@
    "aggro": 1
   },
   {
-   "id": 217,
+   "id": 218,
+   "caption": "dungeon_mob",
    "count": 2,
    "minLevel": 34,
    "maxLevel": 35,
@@ -3407,7 +3625,8 @@
    "aggro": 1
   },
   {
-   "id": 218,
+   "id": 219,
+   "caption": "dungeon_mob",
    "count": 7,
    "minLevel": 30,
    "maxLevel": 31,
@@ -3423,7 +3642,8 @@
    "aggro": 1
   },
   {
-   "id": 219,
+   "id": 220,
+   "caption": "dungeon_mob",
    "count": 2,
    "minLevel": 31,
    "maxLevel": 32,
@@ -3439,7 +3659,8 @@
    "aggro": 1
   },
   {
-   "id": 220,
+   "id": 221,
+   "caption": "dungeon_mob",
    "count": 16,
    "minLevel": 31,
    "maxLevel": 32,
@@ -3455,7 +3676,8 @@
    "aggro": 1
   },
   {
-   "id": 221,
+   "id": 222,
+   "caption": "dungeon_mob",
    "count": 2,
    "minLevel": 32,
    "maxLevel": 33,
@@ -3471,7 +3693,8 @@
    "aggro": 1
   },
   {
-   "id": 222,
+   "id": 223,
+   "caption": "dungeon_mob",
    "count": 6,
    "minLevel": 33,
    "maxLevel": 34,
@@ -3487,7 +3710,8 @@
    "aggro": 1
   },
   {
-   "id": 223,
+   "id": 224,
+   "caption": "dungeon_mob",
    "count": 19,
    "minLevel": 36,
    "maxLevel": 37,
@@ -3503,7 +3727,8 @@
    "aggro": 1
   },
   {
-   "id": 224,
+   "id": 225,
+   "caption": "dungeon_mob",
    "count": 3,
    "minLevel": 37,
    "maxLevel": 38,
@@ -3519,7 +3744,8 @@
    "aggro": 1
   },
   {
-   "id": 225,
+   "id": 226,
+   "caption": "dungeon_mob",
    "count": 3,
    "minLevel": 37,
    "maxLevel": 38,
@@ -3535,7 +3761,8 @@
    "aggro": 1
   },
   {
-   "id": 226,
+   "id": 227,
+   "caption": "dungeon_mob",
    "count": 2,
    "minLevel": 38,
    "maxLevel": 39,
@@ -3551,7 +3778,8 @@
    "aggro": 1
   },
   {
-   "id": 227,
+   "id": 228,
+   "caption": "dungeon_mob",
    "count": 6,
    "minLevel": 39,
    "maxLevel": 40,
@@ -3567,7 +3795,8 @@
    "aggro": 1
   },
   {
-   "id": 228,
+   "id": 229,
+   "caption": "dungeon_mob",
    "count": 4,
    "minLevel": 4,
    "maxLevel": 5,
@@ -3583,7 +3812,8 @@
    "aggro": 1
   },
   {
-   "id": 229,
+   "id": 230,
+   "caption": "dungeon_mob",
    "count": 2,
    "minLevel": 5,
    "maxLevel": 6,
@@ -3599,7 +3829,8 @@
    "aggro": 1
   },
   {
-   "id": 230,
+   "id": 231,
+   "caption": "dungeon_mob",
    "count": 3,
    "minLevel": 5,
    "maxLevel": 6,
@@ -3615,7 +3846,8 @@
    "aggro": 1
   },
   {
-   "id": 231,
+   "id": 232,
+   "caption": "dungeon_mob",
    "count": 2,
    "minLevel": 6,
    "maxLevel": 7,
@@ -3631,7 +3863,8 @@
    "aggro": 1
   },
   {
-   "id": 232,
+   "id": 233,
+   "caption": "dungeon_mob",
    "count": 12,
    "minLevel": 7,
    "maxLevel": 8,
@@ -3647,7 +3880,8 @@
    "aggro": 1
   },
   {
-   "id": 233,
+   "id": 234,
+   "caption": "dungeon_mob",
    "count": 4,
    "minLevel": 7,
    "maxLevel": 8,
@@ -3663,7 +3897,8 @@
    "aggro": 1
   },
   {
-   "id": 234,
+   "id": 235,
+   "caption": "dungeon_mob",
    "count": 4,
    "minLevel": 7,
    "maxLevel": 8,
@@ -3679,7 +3914,8 @@
    "aggro": 1
   },
   {
-   "id": 235,
+   "id": 236,
+   "caption": "dungeon_mob",
    "count": 4,
    "minLevel": 6,
    "maxLevel": 7,
@@ -3695,7 +3931,8 @@
    "aggro": 1
   },
   {
-   "id": 236,
+   "id": 237,
+   "caption": "dungeon_mob",
    "count": 3,
    "minLevel": 7,
    "maxLevel": 8,
@@ -3711,7 +3948,8 @@
    "aggro": 1
   },
   {
-   "id": 237,
+   "id": 238,
+   "caption": "dungeon_mob",
    "count": 3,
    "minLevel": 7,
    "maxLevel": 8,
@@ -3727,7 +3965,8 @@
    "aggro": 1
   },
   {
-   "id": 238,
+   "id": 239,
+   "caption": "dungeon_mob",
    "count": 2,
    "minLevel": 8,
    "maxLevel": 9,
@@ -3743,7 +3982,8 @@
    "aggro": 1
   },
   {
-   "id": 239,
+   "id": 240,
+   "caption": "dungeon_mob",
    "count": 6,
    "minLevel": 8,
    "maxLevel": 9,
@@ -3759,7 +3999,8 @@
    "aggro": 1
   },
   {
-   "id": 240,
+   "id": 241,
+   "caption": "dungeon_mob",
    "count": 3,
    "minLevel": 9,
    "maxLevel": 10,
@@ -3775,7 +4016,8 @@
    "aggro": 1
   },
   {
-   "id": 241,
+   "id": 242,
+   "caption": "dungeon_mob",
    "count": 9,
    "minLevel": 10,
    "maxLevel": 11,
@@ -3791,7 +4033,8 @@
    "aggro": 1
   },
   {
-   "id": 242,
+   "id": 243,
+   "caption": "dungeon_mob",
    "count": 2,
    "minLevel": 4,
    "maxLevel": 5,
@@ -3807,7 +4050,8 @@
    "aggro": 1
   },
   {
-   "id": 243,
+   "id": 244,
+   "caption": "dungeon_mob",
    "count": 3,
    "minLevel": 5,
    "maxLevel": 6,
@@ -3823,7 +4067,8 @@
    "aggro": 1
   },
   {
-   "id": 244,
+   "id": 245,
+   "caption": "dungeon_mob",
    "count": 5,
    "minLevel": 5,
    "maxLevel": 6,
@@ -3839,7 +4084,8 @@
    "aggro": 1
   },
   {
-   "id": 245,
+   "id": 246,
+   "caption": "dungeon_mob",
    "count": 4,
    "minLevel": 6,
    "maxLevel": 7,
@@ -3855,7 +4101,8 @@
    "aggro": 1
   },
   {
-   "id": 246,
+   "id": 247,
+   "caption": "dungeon_mob",
    "count": 4,
    "minLevel": 7,
    "maxLevel": 8,
@@ -3871,7 +4118,8 @@
    "aggro": 1
   },
   {
-   "id": 247,
+   "id": 248,
+   "caption": "dungeon_mob",
    "count": 4,
    "minLevel": 8,
    "maxLevel": 9,
@@ -3887,7 +4135,8 @@
    "aggro": 1
   },
   {
-   "id": 248,
+   "id": 249,
+   "caption": "dungeon_mob",
    "count": 6,
    "minLevel": 6,
    "maxLevel": 7,
@@ -3903,7 +4152,8 @@
    "aggro": 1
   },
   {
-   "id": 249,
+   "id": 250,
+   "caption": "dungeon_mob",
    "count": 3,
    "minLevel": 7,
    "maxLevel": 8,
@@ -3919,7 +4169,8 @@
    "aggro": 1
   },
   {
-   "id": 250,
+   "id": 251,
+   "caption": "dungeon_mob",
    "count": 6,
    "minLevel": 8,
    "maxLevel": 9,
@@ -3935,7 +4186,8 @@
    "aggro": 1
   },
   {
-   "id": 251,
+   "id": 252,
+   "caption": "dungeon_mob",
    "count": 2,
    "minLevel": 9,
    "maxLevel": 10,
@@ -3951,7 +4203,8 @@
    "aggro": 1
   },
   {
-   "id": 252,
+   "id": 253,
+   "caption": "dungeon_mob",
    "count": 18,
    "minLevel": 8,
    "maxLevel": 9,
@@ -3969,7 +4222,8 @@
  ],
  "entityAreas": [
   {
-   "id": 0,
+   "id": 1,
+   "caption": "node_ore",
    "x": 6256,
    "y": 2720,
    "w": 96,
@@ -3983,7 +4237,8 @@
    "distanceApart": "2"
   },
   {
-   "id": 1,
+   "id": 2,
+   "caption": "node_ore",
    "x": 6640,
    "y": 1552,
    "w": 96,
@@ -3997,7 +4252,8 @@
    "distanceApart": "2"
   },
   {
-   "id": 2,
+   "id": 3,
+   "caption": "node_ore",
    "x": 864,
    "y": 7440,
    "w": 96,
@@ -4011,7 +4267,8 @@
    "distanceApart": "2"
   },
   {
-   "id": 3,
+   "id": 4,
+   "caption": "node_ore",
    "x": 1552,
    "y": 7872,
    "w": 96,
@@ -4025,7 +4282,8 @@
    "distanceApart": "2"
   },
   {
-   "id": 4,
+   "id": 5,
+   "caption": "node_ore",
    "x": 3296,
    "y": 14400,
    "w": 96,
@@ -4039,7 +4297,8 @@
    "distanceApart": "2"
   },
   {
-   "id": 5,
+   "id": 6,
+   "caption": "node_ore",
    "x": 5168,
    "y": 13888,
    "w": 96,

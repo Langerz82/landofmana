@@ -187,7 +187,10 @@ export class GroupEntityFile {
         return m;
     }
 
+    // Saves the file, sorted by id (records without a usable id last).
     save() {
+        const key = (r) => (r && Number.isInteger(Number(r.id)) ? Number(r.id) : Infinity);
+        this.read().sort((a, b) => key(a) - key(b));
         const json = JSON.stringify(this.read(), null, 2) + '\n';
         const file = this.filePath;
         const tmp = file + '.tmp';
@@ -227,7 +230,10 @@ export function readGroupAreas(mapName) {
     }
 }
 
+// Writes a map group's entityarea.json, each list sorted by id.
 export function writeGroupAreas(mapName, data) {
+    for (const k of ['mobAreas', 'entityAreas'])
+        (data[k] || []).sort((a, b) => (Number(a.id) || 0) - (Number(b.id) || 0));
     const file = mapDataFile(mapName, 'entityarea.json');
     fs.mkdirSync(path.dirname(file), { recursive: true });
     fs.writeFileSync(file, JSON.stringify(data, null, 1) + '\n');

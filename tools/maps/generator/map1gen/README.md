@@ -44,35 +44,50 @@ python gen1.py                         # writes ../../data/map1.json (seed 5 = t
 python gen1.py --seed 9 --preview map1.png
 ```
 
-Then split and convert it like map2 (map1 is split into 256x256 sections, 2 wide and 4 tall):
+Then split and convert it. map1 is split into sections 512 wide and about 256 tall (one column, four rows),
+with every village kept whole in one section (`--keep`: a cut line through a village moves to its nearer edge --
+the start-area village at row 512 moves the cut to 474):
 
 ```
 cd ..
-python split.py map1 --section 256 --convert
+python split.py map1 --section 512 --section-height 256 --keep 1,474,96,551 --keep 302,82,415,175 --keep 200,847,300,926 --convert
 ```
 
-(The converter needs the `log` package from `gameserver/node_modules`; if it can't find it, set
-`NODE_PATH=../../../gameserver/node_modules` before running.)
+(The `--keep` rectangles are the villages' houses plus 10 tiles, in full-map tiles; measure them again if
+`gen1.py` is run with another seed. `--convert` also converts map0 and map3 again, whose doors into map1 name
+the map (`tmap` "map1") rather than a part. The converter needs the `log` package from `gameserver/node_modules`;
+if it can't find it, set `NODE_PATH=../../../gameserver/node_modules` before running.)
 
-Then add the quest NPCs. Do this after every split, since a quest belongs to its NPC's map part:
+**Re-splitting changes no game data.** map1's NPCs, bosses, mob areas and entity areas are one pair of files for
+the whole map, `gameserver/data/maps/map1/entity.json` and `entityarea.json`, in full-map pixel coordinates; the
+game server gives each part what lies inside it when it loads (`gameserver/js/map/mapgroup.js`; a mob or entity
+area crossing a section edge is shared out to both sides, ellipses included, with its count split by the share
+on each side). Quest ids use map1's base index (100) and those files' entity ids, and saved player positions are
+full-map positions, so none of them change with the split either.
+
+After a NEW map (`gen1.py`), write its areas from the Tiled map, then add the quest NPCs and set the levels:
 
 ```
-cd map1gen
-python npcs1.py
+cd ../converter
+node run.js ../data/map1.json areas     # gameserver/data/maps/map1/entityarea.json (admin areas kept)
+cd ../generator/map1gen
+python npcs1.py         # quest NPCs, ids 1001+: entity.json, shared/data/quests.json, lang.json
+python npcs1_extra.py   # a second quest NPC in every outdoor mob area, ids 2001+
+python levels1.py       # mob levels, quest levels, dead-end cave bosses (ids 3001+)
 ```
 
-It writes the NPCs to `gameserver/data/maps/map1/<part>/entity.json` (ids from 101), their quests to
+`npcs1.py` writes the NPCs to `gameserver/data/maps/map1/entity.json`, their quests to
 `shared/data/quests.json` and their dialogue to `shared/data/lang.json` (`QUESTS` and `QUEST_SUMMARY`),
 leaving the rest of those files as they are. Running it again first removes what it wrote last time (listed in
 `tools/maps/data/map1_npcs_written.json`). Then run `godot-client/sync-assets-win.bat` (or `-linux.sh`).
 
-Then set the mob levels (after the NPCs, since it also updates their quests' levels):
+`levels1.py`: start town level 1; then 2-3, 4-5, 6-7, 8-9 by area away from the town, 10-12, 13-15, ... from
+level 10; volcanoes up to 40. Caves: the first room is the entrance area's lowest level + 2 (a 2-level range), +1
+per room further in; every cave mob is aggressive (`"aggro": 1`), and every dead-end room gets a boss: one of its
+area's mob kinds at a random spot, 2 levels above the area, boss multiplier 10, aggressive, respawning after 5
+minutes x its level.
 
-```
-python npcs1_extra.py   # a second quest NPC in every outdoor mob area
-python levels1.py       # start town level 1; then 2-3, 4-5, 6-7, 8-9 by area away from the town, 10-12, 13-15, ... from level 10; volcanoes up to 40
-```
-
-`levels1.py` overrides the levels `gen1.py`/`split.py` wrote, so run it again after every split. Caves: the first room is the entrance area's lowest level + 2 (a 2-level range), +1 per room further in; every cave mob is aggressive (`"aggro": 1`), and every dead-end room gets a boss (`map1_int/entity.json`): one of its area's mob kinds at a random spot, 2 levels above the area, boss multiplier 10, aggressive, respawning after 5 minutes x its level.
+(`../merge_mapdata.py` was the one-time move from the older per-part files,
+`gameserver/data/maps/map1/<part>/entity.json`, to these.)
 
 Settings are in `density1.py` (layout at the top, item amounts per 100x100 tiles below, as in `density2.py`).

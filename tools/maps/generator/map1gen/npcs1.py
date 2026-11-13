@@ -7,7 +7,7 @@ through the map's base index (100 for map1) and the NPC's fixed entity id, neith
 tools/maps/data/map1_npcs.json, this script:
 
 - adds an `npcmove` NPC at that spot to gameserver/data/maps/map1/entity.json (full-map pixels; ids from
-  FIRST_ID up, unique in the file; any other records in it are kept);
+  the first free id from 1 up, unique in the file; any other records in it are kept);
 - writes its two quests to shared/data/quests.json:
     01  kill ten of one of the section's mobs, at the section's mob levels
     02  get 3-5 of a random itemloot item from another of the section's mobs, at the section's mob levels
@@ -37,8 +37,7 @@ ap.add_argument('--seed', type=int, default=5)
 args = ap.parse_args()
 PFX = args.map
 rnd = random.Random(args.seed)
-FIRST_ID = 1001                    # entity ids from here (unique in the map's entity.json; npcs1_extra.py uses 2001+,
-                                   # levels1.py's bosses 3001+)
+FIRST_ID = 1                       # entity ids: the first free one from here (unique in the map's entity.json)
 KILL_COUNT = 10
 ITEM_COUNT = (3, 5)
 ITEM_CHANCE = 15
@@ -333,7 +332,7 @@ for s in spots['npcs']:
     eid = FIRST_ID
     while eid in _used: eid += 1
     name = new_name()
-    ent.append({'id': eid, 'type': 'npcmove', 'kind': rnd.randint(1, 56),
+    ent.append({'id': eid, 'caption': 'quest_npc_mainarea', 'type': 'npcmove', 'kind': rnd.randint(1, 56),
                 'x': s['x'] * 16 + 8, 'y': s['y'] * 16 + 8, 'name': name})   # full-map pixels
     town = nearest_town(s)['name']
     plc = town if s['area'] == 'village' else place(s, area)

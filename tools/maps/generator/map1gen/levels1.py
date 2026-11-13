@@ -15,7 +15,7 @@ doesn't need it run again: the areas and their levels don't depend on how the ma
 - Dungeon (map1_int) areas: a cave's first room is DUNGEON_BONUS levels above the lowest level of the outdoor area
   its entrance is in (a 2-level range: entrance 4-5 -> 6-7), and every room further in is ROOM_STEP higher.
   All their mobs are aggressive ("aggro": 1). Every dead end (a room with one way in and no way out) gets a
-  boss (gameserver/data/maps/map1/entity.json, ids from FIRST_BOSS_ID): one of its mob area's kinds, at a random spot in the
+  boss (gameserver/data/maps/map1/entity.json, the first free ids from 1): one of its mob area's kinds, at a random spot in the
   room, BOSS_LEVEL_BONUS levels above the area's top level, boss multiplier BOSS_MULTI, aggressive, respawning
   after BOSS_RESPAWN_PER_LEVEL seconds x its level.
 - Each map1 quest gets the level range of the mob area its NPC stands in.
@@ -36,7 +36,7 @@ VOLCANO_CLUSTER_STEP = 4
 DUNGEON_BONUS = 2       # a cave's first room: the entrance area's lowest level + this ...
 ROOM_STEP = 1           # ... and this much more for every room further in
 DUNGEON_WIDTH = 2       # cave mob areas are 2-level ranges (e.g. entrance 4-5 -> first room 6-7, next 7-8)
-FIRST_BOSS_ID = 3001     # unique in the map's entity.json (npcs1.py uses 1001+, npcs1_extra.py 2001+)
+FIRST_BOSS_ID = 1        # boss ids: the first free one from here (unique in the map's entity.json)
 BOSS_MULTI = 10                 # dead-end bosses: createBoss multiplier ...
 BOSS_LEVEL_BONUS = 2            # ... levels above their room's mob area ...
 BOSS_RESPAWN_PER_LEVEL = 300    # ... and seconds of respawn per level (5 minutes x level)
@@ -219,7 +219,7 @@ for nm_in in inner:
         t = rnd.choice(roomy or tiles)
         kinds = [int(k) for k in str(ar['include']).split(',') if k.strip()]
         lv = ar['maxLevel'] + BOSS_LEVEL_BONUS
-        bosses.setdefault(nm_in, []).append({'type': 'mob', 'kind': rnd.choice(kinds), 'x': t % w * 16,
+        bosses.setdefault(nm_in, []).append({'caption': 'dungeon_boss', 'type': 'mob', 'kind': rnd.choice(kinds), 'x': t % w * 16,
                                              'y': t // w * 16, 'level': lv, 'boss': BOSS_MULTI, 'aggro': 1,
                                              'spawnDelay': BOSS_RESPAWN_PER_LEVEL * lv})
     def root(r):

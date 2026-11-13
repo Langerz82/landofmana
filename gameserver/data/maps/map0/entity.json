@@ -1,6 +1,7 @@
 [
   {
     "id": 1,
+    "caption": "npc_beginner_shop",
     "type": "npcstatic",
     "kind": 36,
     "x": 40,
@@ -9,6 +10,7 @@
   },
   {
     "id": 2,
+    "caption": "npc_auction",
     "type": "npcstatic",
     "kind": 1,
     "x": 40,
@@ -17,6 +19,7 @@
   },
   {
     "id": 3,
+    "caption": "npc_enchant",
     "type": "npcstatic",
     "kind": 43,
     "x": 104,
@@ -25,6 +28,7 @@
   },
   {
     "id": 4,
+    "caption": "npc_repair",
     "type": "npcstatic",
     "kind": 9,
     "x": 184,
@@ -33,6 +37,7 @@
   },
   {
     "id": 5,
+    "caption": "npc_bank",
     "type": "npcstatic",
     "kind": 7,
     "x": 264,
@@ -41,6 +46,7 @@
   },
   {
     "id": 6,
+    "caption": "npc_looks",
     "type": "npcstatic",
     "kind": 10,
     "x": 328,
@@ -49,6 +55,7 @@
   },
   {
     "id": 7,
+    "caption": "npc_craft",
     "type": "npcstatic",
     "kind": 45,
     "x": 328,
