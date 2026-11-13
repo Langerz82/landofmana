@@ -131,7 +131,7 @@
         "modDamage": {"hammer": 0.8, "axe": 0.9, "sword": 0.9, "bow": 1.0}
     },
     "Skeleton2":{
-        "name":"HardSkeleton",
+        "name":"Armored Skeleton",
         "kind":7,
         "attackMod": 1.3,
         "defenseMod": 1.3,
@@ -236,7 +236,7 @@
         "idleSpeedMod": 1
     },
     "DeathKnight":{
-        "name":"DeathKnight",
+        "name":"Death Knight",
         "kind":12,
         "attackMod": 1.5,
         "defenseMod": 1.5,

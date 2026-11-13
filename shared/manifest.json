@@ -1,5 +1,5 @@
 {
- "hash": "334a1496b54d54c41992a95b65d7eccdd1a4d2de",
+ "hash": "3efdd4d43b5ec84f4bf49df9721a849537e09228",
  "files": {
   "data/appearance.json": "a9237ad1d4cbfa682cc74ba3da64149ed383bc46",
   "data/craft.json": "ec0566c1983ad8a993343ea0d51fb906a7b635e2",
@@ -33,6 +33,6 @@
   "maps/map2/map2_3_0.json": "71e089b7457482f42ed113d2edddce19b0ab67f4",
   "maps/map2/map2_int.json": "22676c10f49772402c75066f8ed7ad75ee3ed9e2",
   "maps/map3/map3.json": "c69a0d3aade191a0ab0d767fc5f30aad9c5c3d73",
-  "maps/maplist.json": "d82050d817565d4b48cd946c428f73169b0ce899"
+  "maps/maplist.json": "c69d01886c01aabc13152dfd284668e9e778189e"
  }
 }

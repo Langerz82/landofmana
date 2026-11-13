@@ -46,7 +46,8 @@ const RES_MAPS := "res://assets/maps/"
 const RES_MANIFEST := "res://assets/data/shared_manifest.json"
 const REQUEST_TIMEOUT := 60.0
 
-## {hash, files: {path: sha1} (the server's list), have: {path: sha1} (written to user://)}, or null
+## {hash, files: {path: sha1} (the server's list), have: {path: sha1} (written to user://),
+##  build: _build_id() of the build that wrote it}, or null
 var _meta = null
 var _client = null                  # the GameClient, once connected
 var _requests: Dictionary = {}      # path -> {done, ok, text}
@@ -55,6 +56,56 @@ var _pushing := false               # a pushed update still being stored
 
 func _ready() -> void:
 	_meta = _read_meta()
+	_check_cache()
+
+
+## Makes sure the downloaded copy can be trusted before anything reads it, so a stale or
+## broken cache never needs the app's data clearing by hand:
+## - written by another build of the app (an update, or a reinstall over old data): dropped,
+##   so this build's own files are used and the game server pushes its files again if they
+##   differ from them;
+## - a file missing or changed on disk (an interrupted write, storage cleaned up by the OS):
+##   no longer counted as downloaded, so it's fetched again.
+func _check_cache() -> void:
+	if _meta == null:
+		return
+	if str(_meta.get("build", "")) != _build_id():
+		print("ClientData: download cache is from another build of the app: dropping it.")
+		_clear()
+		return
+	var bad := PackedStringArray()
+	for p in _meta.have:
+		var path := ROOT + str(p)
+		if not FileAccess.file_exists(path) or _sha1(FileAccess.get_file_as_bytes(path)) != str(_meta.have[p]):
+			bad.append(str(p))
+	if not bad.is_empty():
+		push_warning("ClientData: %d downloaded file(s) missing or changed (%s): fetching them again." % [bad.size(), ", ".join(bad.slice(0, 5))])
+		for p in bad:
+			_meta.have.erase(p)
+		_save_meta()
+
+
+## Identifies this build of the app: its version and the shared hash its own files were
+## packed with (as the manifest says, whether or not they match it).
+func _build_id() -> String:
+	var packed := ""
+	if FileAccess.file_exists(RES_MANIFEST):
+		var m = JSON.parse_string(FileAccess.get_file_as_string(RES_MANIFEST))
+		if m is Dictionary and m.get("hash") is String:
+			packed = m["hash"]
+	return str(ProjectSettings.get_setting("application/config/version", "")) + "|" + packed
+
+
+## True when every data file and the map list of the downloaded copy is on disk. Map files
+## don't count: they're fetched when their map loads (ensure_map()), and fetched again then
+## if they're missing.
+func _cache_complete() -> bool:
+	if _meta == null:
+		return false
+	for p in _meta.files:
+		if _is_startup_file(str(p)) and _meta.have.get(p) != _meta.files[p]:
+			return false
+	return true
 
 
 # -------------------------------------------------------------------- hashes
@@ -103,9 +154,14 @@ func _stale_builtin_files(files: Dictionary) -> PackedStringArray:
 	return stale
 
 
-## The shared hash of the files in use: the downloaded ones', else this build's.
+## The shared hash of the files in use: the downloaded ones', else this build's. A downloaded
+## copy missing a data file or the map list claims no hash (""), so the game server pushes its
+## files again -- otherwise it would see its own hash and push nothing, and those files would
+## stay the built-in ones for good.
 func active_hash() -> String:
-	return str(_meta["hash"]) if _meta != null else builtin_hash()
+	if _meta == null:
+		return builtin_hash()
+	return str(_meta["hash"]) if _cache_complete() else ""
 
 
 # --------------------------------------------------------------------- paths
@@ -214,7 +270,7 @@ func _apply_push(server_hash: String, files: Dictionary, zip_b64: String) -> voi
 		_clear()
 	else:
 		var old = _meta
-		var meta := {"hash": server_hash, "files": files, "have": {}}
+		var meta := {"hash": server_hash, "files": files, "have": {}, "build": _build_id()}
 		_remove(META)   # never leave a list pointing at half-written files
 		_meta = null
 		if not _from_zip(zip_b64, files, meta):
