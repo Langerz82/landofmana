@@ -516,13 +516,10 @@ var mobAreasOf = function (layer) {
                  };
                  // left out when empty, or 1 for bonusDrop: the game server's defaults (gameserver area/mobarea.js)
                  if (String(area.include).trim() === '') delete area.include;
-                 if (String(prop.exclude || '').trim() !== '') area.exclude = String(prop.exclude);
-                 if (String(prop.definite || '').trim() !== '') area.definite = String(prop.definite);
-                 // definite (only these kinds, ignoring include/exclude) adds nothing when include is one kind
-                 // and definite is that same kind -- include alone spawns only it
-                 if (area.definite !== undefined && /^\s*\d+\s*$/.test(String(area.include || '')) &&
-                     area.definite.split(',').every(function (k) { return Number(k) === Number(area.include); }))
-                     delete area.definite;
+                 // exclude/definite are not mob area settings any more: include lists the kinds it spawns
+                 if (String(prop.exclude || '').trim() !== '' || String(prop.definite || '').trim() !== '')
+                     console.error((areas[i].name || ('mob area ' + i)) + ': exclude/definite are no longer read -- ' +
+                         'list the kinds to spawn in include.');
                  if (Number(prop.bonusDrop) > 0 && Number(prop.bonusDrop) !== 1) area.bonusDrop = Number(prop.bonusDrop);
                  if (prop.levelWeight !== undefined && String(prop.levelWeight).trim() !== '')
                      area.levelWeight = String(prop.levelWeight).replace(/\s+/g, '');

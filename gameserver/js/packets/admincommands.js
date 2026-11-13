@@ -61,7 +61,7 @@ import { logChat } from '../chatlog.js';
 //                                             instead of a rectangle)
 //                                     mob:    count=N and include=1,5 (the mob kinds it
 //                                             spawns) are required; level=N or level=N-N
-//                                             (or min=N max=N; default 1), exclude=, definite=,
+//                                             (or min=N max=N; default 1),
 //                                             kindweight=4,2,1 (one per include kind: how
 //                                             often each spawns; default 1 each, not stored),
 //                                             levelweight=3,2,1 (one per level; default 1 each, not stored),
@@ -139,7 +139,7 @@ const NAME_PATTERN = /^[\p{L}\p{N} _'.-]+$/u;
 const DESPAWN_RANGE_TILES = 3;
 const SELECT_RANGE_TILES = 5;
 const ADDAREA_USAGE =
-    'Usage: /addarea mob <w> <h> count=N include=1,5 [level=N or N-N exclude= definite= kindweight= levelweight= bonus=N boss=N] | ' +
+    'Usage: /addarea mob <w> <h> count=N include=1,5 [level=N or N-N kindweight= levelweight= bonus=N boss=N] | ' +
     '/addarea entity <w> <h> kind=N count=N [type=node level=N name= anim= weapon= sprite= apart=N] -- both: anchor=center|topleft elipse=1';
 const DELAREA_USAGE = 'Usage: /delarea mob|entity [id] -- no id lists the areas you are standing in';
 const MAX_AREA_TILES = 512;
@@ -737,7 +737,10 @@ class AdminCommands {
             }
             if (!(count >= 1 && count <= MAX_AREA_COUNT)) return this.reply('count must be 1-' + MAX_AREA_COUNT + '.');
             if (!(min >= 1 && max >= min && max <= 999)) return this.reply('min/max must be levels 1-999, min <= max.');
-            for (const k of ['include', 'exclude', 'definite']) {
+            // a mob area spawns its include kinds (or, without one, the mobs of its levels)
+            if (opts.exclude !== undefined || opts.definite !== undefined)
+                return this.reply('exclude= and definite= are gone: list the kinds to spawn with include=. ' + ADDAREA_USAGE);
+            for (const k of ['include']) {
                 if (opts[k] !== undefined && opts[k] !== '' && !csv(opts[k]))
                     return this.reply(k + '= must be mob kind ids, e.g. ' + k + '=1,5');
                 if (opts[k]) {
@@ -760,18 +763,16 @@ class AdminCommands {
             const boss = opts.boss !== undefined ? int(opts.boss) : 0;
             if (opts.boss !== undefined && !(boss >= 2 && boss <= 100)) return this.reply('boss must be 2-100.');
             // as entityarea.json keeps them: the levels as "level" ("35" or "35-36"), and nothing that
-            // is empty or the server's default (no exclude/definite, bonusDrop 1)
+            // is empty or the server's default (no include, bonusDrop 1)
             Object.assign(area, { count, level: levelString(min, max) });
             if (opts.include) area.include = opts.include;
-            if (opts.exclude) area.exclude = opts.exclude;
-            if (opts.definite) area.definite = opts.definite;
             if (bonus !== 1) area.bonusDrop = bonus;
             // only when given: the server gives every level and include kind 1 by default (area/mobarea.js)
             if (opts.levelweight) area.levelWeight = opts.levelweight;
             if (opts.kindweight) area.kindWeight = opts.kindweight;
             if (boss) area.boss = boss;
             what = count + ' mobs, level ' + (min === max ? min : min + '-' + max) +
-                (area.include ? ', kinds ' + area.include : area.definite ? ', kinds ' + area.definite : '');
+                (area.include ? ', kinds ' + area.include : '');
         } else {
             const typeName = AREA_ENTITY_TYPES[String(opts.type || 'node').toLowerCase()];
             if (!typeName) return this.reply('type must be one of ' + Object.keys(AREA_ENTITY_TYPES).join(', ') + '.');

@@ -1,18 +1,18 @@
 {
- "hash": "587292daca1677620be549538e2ddebd7de28128",
+ "hash": "a6291d89ed5ea27ceb0a8e24b0eb11fdfd2f93e8",
  "files": {
   "data/appearance.json": "a9237ad1d4cbfa682cc74ba3da64149ed383bc46",
   "data/craft.json": "ec0566c1983ad8a993343ea0d51fb906a7b635e2",
   "data/itemloot.json": "ec4e9d6a3e339296a1bfaf5cbcf840428d03e6a3",
   "data/items2.json": "c1a66783f638b40f43b3ee28ddcb995750565637",
-  "data/lang.json": "c394bb69f2de34b5c44afb891bdb841fa3219d9a",
+  "data/lang.json": "71774444935197e43c0d7f6e41b7ad9366ef0ce3",
   "data/missing_sprites.json": "045d1663d9be1b997ee339d32fcbfa4b7093dd65",
   "data/mobs.json": "4d34a9eb1aa7057bd989655ec0cfd51c93ddb996",
   "data/mobs_speech.json": "822a482bb921d9013c18f2b3681cfa237708a968",
   "data/notifications.json": "6efaa7093707f55bfa0a6d56282baab0b80922ce",
   "data/npcs.json": "493fde0584639b86e3533969bdcd18a664e81c00",
   "data/products.json": "18c4e2862171c6bf5cdbae00542b78be7175cfcf",
-  "data/quests.json": "705c15fe88878a360f96a081fadb42856de53d2a",
+  "data/quests.json": "61206b927ea5569468c1a0e1ee3a39d36aebc057",
   "data/skills.json": "bc855e88851b314866bffa8aef7450632af4cdc0",
   "data/skills2.json": "49e0fc9b7467327366248d3add17a31d38ac1741",
   "data/sprites.json": "9c6dca032fc3ab5854ecc1ea66262f9e5cb4292a",
@@ -29,6 +29,6 @@
   "maps/map2/map2_3_0.json": "71e089b7457482f42ed113d2edddce19b0ab67f4",
   "maps/map2/map2_int.json": "22676c10f49772402c75066f8ed7ad75ee3ed9e2",
   "maps/map3/map3.json": "e36806c65b0df402385cb27ceeef1c007f056d22",
-  "maps/maplist.json": "7e771b43e61bef336e30c5194c7cbfc65974e444"
+  "maps/maplist.json": "a19cd0582df33897b8381c12bd78e20df52dc954"
  }
 }

@@ -539,8 +539,6 @@ class Map {
                     ma.w,
                     ma.h,
                     ma.include,
-                    ma.exclude,
-                    ma.definite,
                     // An ellipse in the map editor: x/y are its centre and
                     // w/h its diameters (see area/area.js).
                     !!ma.elipse,

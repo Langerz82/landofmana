@@ -35,8 +35,6 @@ class MobArea extends EntityArea {
         width,
         height,
         include,
-        exclude,
-        definite,
         elipse,
         excludeId,
         bonusDrop,
@@ -59,14 +57,6 @@ class MobArea extends EntityArea {
                 this.include = include.split(',');
             else {
                 this.include = [include];
-            }
-        }
-        this.exclude = [];
-        if (exclude) {
-            if (typeof exclude === 'string' && exclude.indexOf(',') >= 0)
-                this.exclude = exclude.split(',');
-            else {
-                this.exclude = [exclude];
             }
         }
 
@@ -97,33 +87,10 @@ class MobArea extends EntityArea {
 
         //console.info(JSON.stringify(this.mobs));
 
-        // Definite mobs: when set, the area spawns ONLY these mob kinds
-        // (addMobs() skips the level-range lookup and include/exclude).
-        // Accepts an array of kinds ([1, 2]) from code, or the same
-        // comma-separated string as include/exclude ("1" or "1,2") from a
-        // map file's mobarea "definite" property. Empty -> normal selection.
-        this.definite = null;
-        if (Array.isArray(definite)) {
-            this.definite = definite.map(Number);
-        } else if (typeof definite === 'string' && definite.trim() !== '') {
-            this.definite = definite.split(',').map(Number);
-        } else if (typeof definite === 'number') {
-            this.definite = [definite];
-        }
-        if (this.definite) {
-            this.definite = this.definite.filter((k) => MobData.Kinds[k]);
-            if (this.definite.length === 0) this.definite = null;
-        }
     }
 
     addMobs() {
         this.mobs = [];
-        if (Array.isArray(this.definite)) {
-            for (const i of this.definite) {
-                this.mobs.push(MobData.Kinds[i]);
-            }
-            return;
-        }
 
         // NOTE: `levelMobs` was a bare (undeclared) assignment in the original
         // CommonJS source, which created an implicit global there; declared with
@@ -135,7 +102,7 @@ class MobArea extends EntityArea {
         // "add these kinds on top of every mob whose level range overlaps
         // the area's", which stopped meaning anything once every mob in
         // shared/data/mobs.json covered levels 1-99. An empty include keeps
-        // the level-range lookup. `exclude` below still applies either way.
+        // the level-range lookup (every mob kind whose levels overlap the area's).
         // the kindWeight of each include kind (kind -> weight), in include order; 1 each by default
         this.kindWeights = new Map();
         if (Array.isArray(this.include) && this.include.length > 0) {
@@ -167,35 +134,12 @@ class MobArea extends EntityArea {
             );
             this.mobs = this.mobs.concat(levelMobs);
         }
-
-        if (Array.isArray(this.exclude)) {
-            let i = this.mobs.length;
-            while (--i >= 0) {
-                for (const j of this.exclude) {
-                    // FIX: `this.mobs[i].kind` is numeric (see MobData's
-                    // Kinds table -- `kind: value.kind`), but `this.exclude`
-                    // entries are always strings whenever `exclude` arrives
-                    // as the documented CSV format (the constructor above
-                    // does `exclude.split(',')`, same as `include`). The `===`
-                    // comparison here never coerces, so a configured exclude
-                    // list (single value or CSV) silently never removed
-                    // anything -- excluded mob kinds stayed eligible to
-                    // spawn regardless. Coerce `j` to a number for the
-                    // comparison so both the CSV-string and real-array/
-                    // number forms of `exclude` work.
-                    if (this.mobs[i].kind === Number(j)) {
-                        this.mobs.splice(i, 1);
-                        break;
-                    }
-                }
-            }
-        }
     }
 
     spawnMobs() {
         //console.info("spawnMobs - nb: "+this.nb);
         for (let i = 0; i < this.nb; ++i) {
-            this.addToArea(this._createRandomMobInsideArea(), this.exclude);
+            this.addToArea(this._createRandomMobInsideArea());
         }
     }
 

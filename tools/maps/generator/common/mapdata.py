@@ -254,8 +254,7 @@ class MapData:
                                key=lambda e: (e.get('id') is None, e.get('id') or 0))
         for a in self.areas['mobAreas']:
             # left out when empty, or 1 for bonusDrop: the game server's defaults (gameserver area/mobarea.js)
-            for f in ('include', 'exclude', 'definite'):
-                if f in a and str(a[f]).strip() == '': del a[f]
+            if 'include' in a and str(a['include']).strip() == '': del a['include']
             if 'bonusDrop' in a and a['bonusDrop'] == 1: del a['bonusDrop']
             # levelWeight: one weight per level of minLevel..maxLevel, comma-separated ("2,1,1" for 10-12). A wrong
             # number of values is fixed -- the extra ones dropped, missing ones 1 -- as the game server would
@@ -269,13 +268,6 @@ class MapData:
                     print(f'  {self.name} mob area {a.get("id")}: levelWeight "{a["levelWeight"]}" for levels '
                           f'{a["minLevel"]}-{a["maxLevel"]} -> "{fixed}"')
                     a['levelWeight'] = fixed
-            # definite (only these kinds spawn, ignoring include and exclude) adds nothing when include is one kind
-            # and definite is that same kind: include alone spawns only it. (A definite naming other kinds decides
-            # what spawns, so it stays.)
-            inc = [k.strip() for k in str(a.get('include', '')).split(',') if k.strip()]
-            dfn = [k.strip() for k in str(a.get('definite', '')).split(',') if k.strip()]
-            if len(inc) == 1 and re.fullmatch(r'\d+', inc[0]) and dfn and set(map(int, dfn)) == {int(inc[0])}:
-                del a['definite']
             # kindWeight shares spawns between the include kinds: nothing to share with one kind (or none)
             if 'kindWeight' in a and len([k for k in str(a.get('include', '')).split(',') if k.strip()]) < 2:
                 del a['kindWeight']

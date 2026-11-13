@@ -7,7 +7,7 @@ gameserver/data/maps/map1/entityarea.json -- this adds a second mob area on exac
     include  WIZARD_KIND (10, Wizard)     count  WIZARD_COUNT (1)
     boss     WIZARD_BOSS (3: 3x HP, longer respawn, better drops -- gameserver MobRespawn.createBoss)
     levels   the same minLevel/maxLevel as the area it sits on
-    (no exclude, definite, levelWeight or bonusDrop: the game server's defaults apply)
+    (no levelWeight or bonusDrop: the game server's defaults apply)
 
 Running it again updates the wizard areas it made last time (matched by position) instead of adding more, and
 removes any whose main area is gone. levels1.py keeps their levels the same as their main area's whenever it sets
@@ -52,9 +52,9 @@ for m in main:
     for k in ('x', 'y', 'w', 'h', 'elipse'):
         if k in m: w[k] = m[k]
     w.update(include=str(WIZARD_KIND), boss=WIZARD_BOSS)
-    # not needed for a single wizard: left out, the game server's defaults apply (no exclude or definite list,
-    # every level as likely, normal drops)
-    for k in ('exclude', 'definite', 'levelWeight', 'bonusDrop', 'kindWeight'):
+    # not needed for a single wizard: left out, the game server's defaults apply (every level as likely, normal
+    # drops)
+    for k in ('levelWeight', 'bonusDrop', 'kindWeight'):
         w.pop(k, None)
     keep.add(id(w))
 gone = [a for a in areas if is_wizard(a) and id(a) not in keep]
