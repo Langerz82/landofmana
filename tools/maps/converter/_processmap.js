@@ -539,6 +539,8 @@ var mobAreasOf = function (layer) {
                  if (elipse) area.elipse = 1;
                  // Boss multiplier for every mob the area spawns (gameserver map.js initMobAreas).
                  if (prop.boss > 1) area.boss = prop.boss;
+                 // Seconds a dead mob of the area waits to respawn (gameserver map.js initMobAreas).
+                 if (Number(prop.spawnDelay) > 0) area.spawnDelay = Number(prop.spawnDelay);
                  out.push(area);
              }
     return out;

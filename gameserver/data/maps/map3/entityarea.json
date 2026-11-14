@@ -59,7 +59,8 @@
    "h": 160,
    "include": "2",
    "elipse": 1,
-   "boss": 5
+   "boss": 5,
+   "spawnDelay": 4560
   },
   {
    "id": 6,
@@ -96,7 +97,8 @@
    "h": 160,
    "include": "2",
    "elipse": 1,
-   "boss": 5
+   "boss": 5,
+   "spawnDelay": 4560
   },
   {
    "id": 9,
@@ -133,7 +135,8 @@
    "h": 160,
    "include": "2",
    "elipse": 1,
-   "boss": 5
+   "boss": 5,
+   "spawnDelay": 4680
   },
   {
    "id": 12,
@@ -170,7 +173,8 @@
    "h": 160,
    "include": "3",
    "elipse": 1,
-   "boss": 5
+   "boss": 5,
+   "spawnDelay": 4680
   },
   {
    "id": 15,
@@ -207,7 +211,8 @@
    "h": 160,
    "include": "3",
    "elipse": 1,
-   "boss": 5
+   "boss": 5,
+   "spawnDelay": 4680
   },
   {
    "id": 18,
@@ -244,7 +249,8 @@
    "h": 160,
    "include": "3",
    "elipse": 1,
-   "boss": 5
+   "boss": 5,
+   "spawnDelay": 4800
   },
   {
    "id": 21,
@@ -281,7 +287,8 @@
    "h": 160,
    "include": "4",
    "elipse": 1,
-   "boss": 5
+   "boss": 5,
+   "spawnDelay": 4800
   },
   {
    "id": 24,
@@ -318,7 +325,8 @@
    "h": 160,
    "include": "4",
    "elipse": 1,
-   "boss": 5
+   "boss": 5,
+   "spawnDelay": 4920
   },
   {
    "id": 27,
@@ -355,7 +363,8 @@
    "h": 160,
    "include": "4",
    "elipse": 1,
-   "boss": 5
+   "boss": 5,
+   "spawnDelay": 4920
   },
   {
    "id": 30,
@@ -392,7 +401,8 @@
    "h": 160,
    "include": "5",
    "elipse": 1,
-   "boss": 5
+   "boss": 5,
+   "spawnDelay": 4920
   },
   {
    "id": 33,
@@ -429,7 +439,8 @@
    "h": 160,
    "include": "5",
    "elipse": 1,
-   "boss": 5
+   "boss": 5,
+   "spawnDelay": 5040
   },
   {
    "id": 36,
@@ -466,7 +477,8 @@
    "h": 160,
    "include": "5",
    "elipse": 1,
-   "boss": 5
+   "boss": 5,
+   "spawnDelay": 5040
   },
   {
    "id": 39,
@@ -503,7 +515,8 @@
    "h": 160,
    "include": "6",
    "elipse": 1,
-   "boss": 5
+   "boss": 5,
+   "spawnDelay": 5160
   },
   {
    "id": 42,
@@ -540,7 +553,8 @@
    "h": 160,
    "include": "6",
    "elipse": 1,
-   "boss": 5
+   "boss": 5,
+   "spawnDelay": 5160
   },
   {
    "id": 45,
@@ -577,7 +591,8 @@
    "h": 160,
    "include": "6",
    "elipse": 1,
-   "boss": 5
+   "boss": 5,
+   "spawnDelay": 5280
   },
   {
    "id": 48,
@@ -614,7 +629,8 @@
    "h": 160,
    "include": "7",
    "elipse": 1,
-   "boss": 5
+   "boss": 5,
+   "spawnDelay": 5280
   },
   {
    "id": 51,
@@ -651,7 +667,8 @@
    "h": 160,
    "include": "7",
    "elipse": 1,
-   "boss": 5
+   "boss": 5,
+   "spawnDelay": 5280
   },
   {
    "id": 54,
@@ -688,7 +705,8 @@
    "h": 160,
    "include": "7",
    "elipse": 1,
-   "boss": 5
+   "boss": 5,
+   "spawnDelay": 5400
   },
   {
    "id": 57,
@@ -725,7 +743,8 @@
    "h": 160,
    "include": "8",
    "elipse": 1,
-   "boss": 5
+   "boss": 5,
+   "spawnDelay": 5400
   },
   {
    "id": 60,
@@ -762,7 +781,8 @@
    "h": 160,
    "include": "8",
    "elipse": 1,
-   "boss": 5
+   "boss": 5,
+   "spawnDelay": 5520
   },
   {
    "id": 63,
@@ -799,7 +819,8 @@
    "h": 160,
    "include": "8",
    "elipse": 1,
-   "boss": 5
+   "boss": 5,
+   "spawnDelay": 5520
   },
   {
    "id": 66,
@@ -836,7 +857,8 @@
    "h": 160,
    "include": "9",
    "elipse": 1,
-   "boss": 5
+   "boss": 5,
+   "spawnDelay": 5520
   },
   {
    "id": 69,
@@ -873,7 +895,8 @@
    "h": 160,
    "include": "9",
    "elipse": 1,
-   "boss": 5
+   "boss": 5,
+   "spawnDelay": 5640
   },
   {
    "id": 72,
@@ -910,7 +933,8 @@
    "h": 160,
    "include": "9",
    "elipse": 1,
-   "boss": 5
+   "boss": 5,
+   "spawnDelay": 5640
   },
   {
    "id": 75,
@@ -947,7 +971,8 @@
    "h": 160,
    "include": "10",
    "elipse": 1,
-   "boss": 5
+   "boss": 5,
+   "spawnDelay": 5760
   },
   {
    "id": 78,
@@ -984,7 +1009,8 @@
    "h": 160,
    "include": "10",
    "elipse": 1,
-   "boss": 5
+   "boss": 5,
+   "spawnDelay": 5760
   },
   {
    "id": 81,
@@ -1021,7 +1047,8 @@
    "h": 160,
    "include": "10",
    "elipse": 1,
-   "boss": 5
+   "boss": 5,
+   "spawnDelay": 5760
   },
   {
    "id": 84,
@@ -1058,7 +1085,8 @@
    "h": 160,
    "include": "11",
    "elipse": 1,
-   "boss": 5
+   "boss": 5,
+   "spawnDelay": 5880
   },
   {
    "id": 87,
@@ -1095,7 +1123,8 @@
    "h": 160,
    "include": "11",
    "elipse": 1,
-   "boss": 5
+   "boss": 5,
+   "spawnDelay": 5880
   },
   {
    "id": 90,
@@ -1132,7 +1161,8 @@
    "h": 160,
    "include": "11",
    "elipse": 1,
-   "boss": 5
+   "boss": 5,
+   "spawnDelay": 6000
   },
   {
    "id": 93,
@@ -1169,7 +1199,8 @@
    "h": 160,
    "include": "12",
    "elipse": 1,
-   "boss": 5
+   "boss": 5,
+   "spawnDelay": 6000
   },
   {
    "id": 96,
@@ -1206,7 +1237,8 @@
    "h": 160,
    "include": "12",
    "elipse": 1,
-   "boss": 5
+   "boss": 5,
+   "spawnDelay": 6000
   },
   {
    "id": 99,
@@ -1243,7 +1275,8 @@
    "h": 160,
    "include": "1",
    "elipse": 1,
-   "boss": 5
+   "boss": 5,
+   "spawnDelay": 6120
   },
   {
    "id": 102,
@@ -1280,7 +1313,8 @@
    "h": 160,
    "include": "2",
    "elipse": 1,
-   "boss": 5
+   "boss": 5,
+   "spawnDelay": 6120
   },
   {
    "id": 105,
@@ -1317,7 +1351,8 @@
    "h": 160,
    "include": "2",
    "elipse": 1,
-   "boss": 5
+   "boss": 5,
+   "spawnDelay": 6240
   },
   {
    "id": 108,
@@ -1354,7 +1389,8 @@
    "h": 160,
    "include": "2",
    "elipse": 1,
-   "boss": 5
+   "boss": 5,
+   "spawnDelay": 6240
   },
   {
    "id": 111,
@@ -1391,7 +1427,8 @@
    "h": 160,
    "include": "3",
    "elipse": 1,
-   "boss": 5
+   "boss": 5,
+   "spawnDelay": 6240
   },
   {
    "id": 114,
@@ -1428,7 +1465,8 @@
    "h": 160,
    "include": "3",
    "elipse": 1,
-   "boss": 5
+   "boss": 5,
+   "spawnDelay": 6360
   },
   {
    "id": 117,
@@ -1465,7 +1503,8 @@
    "h": 160,
    "include": "3",
    "elipse": 1,
-   "boss": 5
+   "boss": 5,
+   "spawnDelay": 6360
   },
   {
    "id": 120,
@@ -1502,7 +1541,8 @@
    "h": 160,
    "include": "4",
    "elipse": 1,
-   "boss": 5
+   "boss": 5,
+   "spawnDelay": 6480
   },
   {
    "id": 123,
@@ -1539,7 +1579,8 @@
    "h": 160,
    "include": "4",
    "elipse": 1,
-   "boss": 5
+   "boss": 5,
+   "spawnDelay": 6480
   },
   {
    "id": 126,
@@ -1576,7 +1617,8 @@
    "h": 160,
    "include": "4",
    "elipse": 1,
-   "boss": 5
+   "boss": 5,
+   "spawnDelay": 6480
   },
   {
    "id": 129,
@@ -1613,7 +1655,8 @@
    "h": 160,
    "include": "5",
    "elipse": 1,
-   "boss": 5
+   "boss": 5,
+   "spawnDelay": 6600
   },
   {
    "id": 132,
@@ -1650,7 +1693,8 @@
    "h": 160,
    "include": "5",
    "elipse": 1,
-   "boss": 5
+   "boss": 5,
+   "spawnDelay": 6600
   },
   {
    "id": 135,
@@ -1687,7 +1731,8 @@
    "h": 160,
    "include": "5",
    "elipse": 1,
-   "boss": 5
+   "boss": 5,
+   "spawnDelay": 6720
   },
   {
    "id": 138,
@@ -1724,7 +1769,8 @@
    "h": 160,
    "include": "6",
    "elipse": 1,
-   "boss": 5
+   "boss": 5,
+   "spawnDelay": 6720
   },
   {
    "id": 141,
@@ -1761,7 +1807,8 @@
    "h": 160,
    "include": "6",
    "elipse": 1,
-   "boss": 5
+   "boss": 5,
+   "spawnDelay": 6840
   },
   {
    "id": 144,
@@ -1798,7 +1845,8 @@
    "h": 160,
    "include": "6",
    "elipse": 1,
-   "boss": 5
+   "boss": 5,
+   "spawnDelay": 6840
   },
   {
    "id": 147,
@@ -1835,7 +1883,8 @@
    "h": 160,
    "include": "7",
    "elipse": 1,
-   "boss": 5
+   "boss": 5,
+   "spawnDelay": 6840
   },
   {
    "id": 150,
@@ -1872,7 +1921,8 @@
    "h": 160,
    "include": "7",
    "elipse": 1,
-   "boss": 5
+   "boss": 5,
+   "spawnDelay": 6960
   },
   {
    "id": 153,
@@ -1909,7 +1959,8 @@
    "h": 160,
    "include": "7",
    "elipse": 1,
-   "boss": 5
+   "boss": 5,
+   "spawnDelay": 6960
   },
   {
    "id": 156,
@@ -1946,7 +1997,8 @@
    "h": 160,
    "include": "8",
    "elipse": 1,
-   "boss": 5
+   "boss": 5,
+   "spawnDelay": 7080
   },
   {
    "id": 159,
@@ -1983,7 +2035,8 @@
    "h": 160,
    "include": "8",
    "elipse": 1,
-   "boss": 5
+   "boss": 5,
+   "spawnDelay": 7080
   },
   {
    "id": 162,
@@ -2020,7 +2073,8 @@
    "h": 160,
    "include": "8",
    "elipse": 1,
-   "boss": 5
+   "boss": 5,
+   "spawnDelay": 7080
   },
   {
    "id": 165,
@@ -2057,7 +2111,8 @@
    "h": 160,
    "include": "9",
    "elipse": 1,
-   "boss": 5
+   "boss": 5,
+   "spawnDelay": 7200
   },
   {
    "id": 168,
@@ -2094,7 +2149,8 @@
    "h": 160,
    "include": "9",
    "elipse": 1,
-   "boss": 5
+   "boss": 5,
+   "spawnDelay": 7200
   }
  ],
  "entityAreas": [

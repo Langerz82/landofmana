@@ -65,7 +65,9 @@ import { logChat } from '../chatlog.js';
 //                                             kindweight=4,2,1 (one per include kind: how
 //                                             often each spawns; default 1 each, not stored),
 //                                             levelweight=3,2,1 (one per level; default 1 each, not stored),
-//                                             bonus=N (drop multiplier), boss=N
+//                                             bonus=N (drop multiplier), boss=N,
+//                                             spawndelay=N (seconds a dead mob waits to
+//                                             respawn; default its kind's own time, x boss)
 //                                     entity: type=node|mob|npcmove|npcstatic|block (default
 //                                             node), kind=N, count=N, level=N, name=,
 //                                             anim= (animName), weapon= (weaponType),
@@ -96,9 +98,12 @@ import { logChat } from '../chatlog.js';
 //   o=u|d|l|r                  facing up/down/left/right (default down)
 //   boss=3                     (mob only) boss multiplier above 1: HP, respawn time
 //                              and equipment drop rates x3 (MobRespawn.createBoss)
+//   spawndelay=300             (mob and node) seconds until it comes back after dying
+//                              or being used up; wins over boss='s longer respawn
 // e.g.
 //   /spawn mob 5 level=10 o=l
 //   /spawn mob 8 level=20 boss=3 name="Ogre Chief"
+//   /spawn mob 10 level=40 boss=10 spawndelay=4800
 //   /spawn npcstatic 5 name="Bob"   (then /select it and /addquest to give it quests)
 //
 // Spawned entities are saved to gameserver/data/maps/<map>/entity.json and
@@ -120,7 +125,7 @@ const COMMANDS = {
 
 const LEVEL_TYPES = new Set(['mob', 'node']);
 const SPAWN_USAGE =
-    'Usage: /spawn <type> <kindId> [name="..."] [level=N] [o=u|d|l|r] [boss=N (mob only)]';
+    'Usage: /spawn <type> <kindId> [name="..."] [level=N] [o=u|d|l|r] [boss=N (mob only)] [spawndelay=N (seconds, mob and node)]';
 const QUEST_TYPES = new Set(['npcmove', 'npcstatic']);
 // key= spellings accepted on the command line -> canonical option.
 const OPTION_ALIASES = {
@@ -132,14 +137,15 @@ const OPTION_ALIASES = {
     o: 'orientation',
     orientation: 'orientation',
     dir: 'orientation',
-    boss: 'boss'
+    boss: 'boss',
+    spawndelay: 'spawnDelay'
 };
 // Letters (any language), digits, spaces and a little punctuation.
 const NAME_PATTERN = /^[\p{L}\p{N} _'.-]+$/u;
 const DESPAWN_RANGE_TILES = 3;
 const SELECT_RANGE_TILES = 5;
 const ADDAREA_USAGE =
-    'Usage: /addarea mob <w> <h> count=N include=1,5 [level=N or N-N kindweight= levelweight= bonus=N boss=N] | ' +
+    'Usage: /addarea mob <w> <h> count=N include=1,5 [level=N or N-N kindweight= levelweight= bonus=N boss=N spawndelay=N] | ' +
     '/addarea entity <w> <h> kind=N count=N [type=node level=N name= anim= weapon= sprite= apart=N] -- both: anchor=center|topleft elipse=1';
 const DELAREA_USAGE = 'Usage: /delarea mob|entity [id] -- no id lists the areas you are standing in';
 const MAX_AREA_TILES = 512;
@@ -320,7 +326,7 @@ class AdminCommands {
                 this.reply(
                     'Unknown option "' +
                         rawKey +
-                        '". Options: name=, level=, o= (u/d/l/r), boss= (mob only)'
+                        '". Options: name=, level=, o= (u/d/l/r), boss= (mob only), spawndelay= (seconds, mob and node)'
                 );
                 return;
             }
@@ -365,6 +371,19 @@ class AdminCommands {
                     return;
                 }
                 rec.boss = multi;
+            } else if (key === 'spawnDelay') {
+                // seconds until it comes back after dying / being used up, saved as
+                // entity.json "spawnDelay" (map/mapentitystore.js; wins over boss=)
+                if (value === '') continue;
+                if (!LEVEL_TYPES.has(type)) {
+                    this.reply('spawndelay= only applies to mob and node.');
+                    return;
+                }
+                if (!/^\d+$/.test(value) || !(parseInt(value, 10) >= 1)) {
+                    this.reply('spawndelay must be a whole number of seconds above 0, e.g. spawndelay=300, got "' + value + '".');
+                    return;
+                }
+                rec.spawnDelay = parseInt(value, 10);
             }
         }
 
@@ -397,6 +416,7 @@ class AdminCommands {
                 (LEVEL_TYPES.has(type) ? ' level ' + e.level : '') +
                 (rec.orientation ? ' facing ' + rec.orientation : '') +
                 (rec.boss ? ' boss x' + rec.boss : '') +
+                (rec.spawnDelay ? ' respawn ' + rec.spawnDelay + 's' : '') +
                 ' (entity id ' +
                 e.id +
                 ') at ' +
@@ -762,6 +782,10 @@ class AdminCommands {
             if (!(bonus > 0 && bonus <= 100)) return this.reply('bonus (drop multiplier) must be above 0 and at most 100.');
             const boss = opts.boss !== undefined ? int(opts.boss) : 0;
             if (opts.boss !== undefined && !(boss >= 2 && boss <= 100)) return this.reply('boss must be 2-100.');
+            // seconds, as "spawnDelay" in entityarea.json / entity.json (map.js initMobAreas)
+            const spawnDelay = opts.spawndelay !== undefined ? int(opts.spawndelay) : 0;
+            if (opts.spawndelay !== undefined && !(spawnDelay >= 1))
+                return this.reply('spawndelay must be a whole number of seconds above 0, e.g. spawndelay=300.');
             // as entityarea.json keeps them: the levels as "level" ("35" or "35-36"), and nothing that
             // is empty or the server's default (no include, bonusDrop 1)
             Object.assign(area, { count, level: levelString(min, max) });
@@ -771,8 +795,10 @@ class AdminCommands {
             if (opts.levelweight) area.levelWeight = opts.levelweight;
             if (opts.kindweight) area.kindWeight = opts.kindweight;
             if (boss) area.boss = boss;
+            if (spawnDelay) area.spawnDelay = spawnDelay;
             what = count + ' mobs, level ' + (min === max ? min : min + '-' + max) +
-                (area.include ? ', kinds ' + area.include : '');
+                (area.include ? ', kinds ' + area.include : '') +
+                (spawnDelay ? ', respawn ' + spawnDelay + 's' : '');
         } else {
             const typeName = AREA_ENTITY_TYPES[String(opts.type || 'node').toLowerCase()];
             if (!typeName) return this.reply('type must be one of ' + Object.keys(AREA_ENTITY_TYPES).join(', ') + '.');
@@ -893,6 +919,7 @@ class AdminCommands {
                     (rec.name ? ' "' + rec.name + '"' : '') +
                     (rec.level ? ' lv ' + rec.level : '') +
                     (rec.boss ? ' boss x' + rec.boss : '') +
+                    (rec.spawnDelay ? ' respawn ' + rec.spawnDelay + 's' : '') +
                     (rec.orientation ? ' ' + rec.orientation : '') +
                     ' @ ' +
                     rec.x +

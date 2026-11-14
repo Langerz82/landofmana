@@ -1449,7 +1449,7 @@
     "level": 10,
     "boss": 10,
     "aggro": 1,
-    "spawnDelay": 3000
+    "spawnDelay": 1200
   },
   {
     "id": 162,
@@ -1461,7 +1461,7 @@
     "level": 40,
     "boss": 10,
     "aggro": 1,
-    "spawnDelay": 12000
+    "spawnDelay": 4800
   },
   {
     "id": 163,
@@ -1473,7 +1473,7 @@
     "level": 22,
     "boss": 10,
     "aggro": 1,
-    "spawnDelay": 6600
+    "spawnDelay": 2640
   },
   {
     "id": 164,
@@ -1485,7 +1485,7 @@
     "level": 10,
     "boss": 10,
     "aggro": 1,
-    "spawnDelay": 3000
+    "spawnDelay": 1200
   },
   {
     "id": 165,
@@ -1497,7 +1497,7 @@
     "level": 34,
     "boss": 10,
     "aggro": 1,
-    "spawnDelay": 10200
+    "spawnDelay": 4080
   },
   {
     "id": 166,
@@ -1509,7 +1509,7 @@
     "level": 33,
     "boss": 10,
     "aggro": 1,
-    "spawnDelay": 9900
+    "spawnDelay": 3960
   },
   {
     "id": 167,
@@ -1521,7 +1521,7 @@
     "level": 28,
     "boss": 10,
     "aggro": 1,
-    "spawnDelay": 8400
+    "spawnDelay": 3360
   },
   {
     "id": 168,
@@ -1533,7 +1533,7 @@
     "level": 12,
     "boss": 10,
     "aggro": 1,
-    "spawnDelay": 3600
+    "spawnDelay": 1440
   },
   {
     "id": 169,
@@ -1545,7 +1545,7 @@
     "level": 27,
     "boss": 10,
     "aggro": 1,
-    "spawnDelay": 8100
+    "spawnDelay": 3240
   },
   {
     "id": 170,
@@ -1557,7 +1557,7 @@
     "level": 42,
     "boss": 10,
     "aggro": 1,
-    "spawnDelay": 12600
+    "spawnDelay": 5040
   },
   {
     "id": 171,
@@ -1569,7 +1569,7 @@
     "level": 10,
     "boss": 10,
     "aggro": 1,
-    "spawnDelay": 3000
+    "spawnDelay": 1200
   },
   {
     "id": 172,
@@ -1581,7 +1581,7 @@
     "level": 36,
     "boss": 10,
     "aggro": 1,
-    "spawnDelay": 10800
+    "spawnDelay": 4320
   },
   {
     "id": 173,
@@ -1593,7 +1593,7 @@
     "level": 34,
     "boss": 10,
     "aggro": 1,
-    "spawnDelay": 10200
+    "spawnDelay": 4080
   },
   {
     "id": 174,
@@ -1605,7 +1605,7 @@
     "level": 25,
     "boss": 10,
     "aggro": 1,
-    "spawnDelay": 7500
+    "spawnDelay": 3000
   },
   {
     "id": 175,
@@ -1617,7 +1617,7 @@
     "level": 35,
     "boss": 10,
     "aggro": 1,
-    "spawnDelay": 10500
+    "spawnDelay": 4200
   },
   {
     "id": 176,
@@ -1629,7 +1629,7 @@
     "level": 10,
     "boss": 10,
     "aggro": 1,
-    "spawnDelay": 3000
+    "spawnDelay": 1200
   },
   {
     "id": 177,
@@ -1641,7 +1641,7 @@
     "level": 26,
     "boss": 10,
     "aggro": 1,
-    "spawnDelay": 7800
+    "spawnDelay": 3120
   },
   {
     "id": 178,
@@ -1653,7 +1653,7 @@
     "level": 35,
     "boss": 10,
     "aggro": 1,
-    "spawnDelay": 10500
+    "spawnDelay": 4200
   },
   {
     "id": 179,
@@ -1665,7 +1665,7 @@
     "level": 37,
     "boss": 10,
     "aggro": 1,
-    "spawnDelay": 11100
+    "spawnDelay": 4440
   },
   {
     "id": 180,
@@ -1677,7 +1677,7 @@
     "level": 40,
     "boss": 10,
     "aggro": 1,
-    "spawnDelay": 12000
+    "spawnDelay": 4800
   },
   {
     "id": 181,
@@ -1689,7 +1689,7 @@
     "level": 9,
     "boss": 10,
     "aggro": 1,
-    "spawnDelay": 2700
+    "spawnDelay": 1080
   },
   {
     "id": 182,
@@ -1701,7 +1701,7 @@
     "level": 39,
     "boss": 10,
     "aggro": 1,
-    "spawnDelay": 11700
+    "spawnDelay": 4680
   },
   {
     "id": 183,
@@ -1713,7 +1713,7 @@
     "level": 27,
     "boss": 10,
     "aggro": 1,
-    "spawnDelay": 8100
+    "spawnDelay": 3240
   },
   {
     "id": 184,
@@ -1725,7 +1725,7 @@
     "level": 14,
     "boss": 10,
     "aggro": 1,
-    "spawnDelay": 4200
+    "spawnDelay": 1680
   },
   {
     "id": 185,
@@ -1737,7 +1737,7 @@
     "level": 10,
     "boss": 10,
     "aggro": 1,
-    "spawnDelay": 3000
+    "spawnDelay": 1200
   },
   {
     "id": 186,
@@ -1749,7 +1749,7 @@
     "level": 42,
     "boss": 10,
     "aggro": 1,
-    "spawnDelay": 12600
+    "spawnDelay": 5040
   },
   {
     "id": 187,
@@ -1761,7 +1761,7 @@
     "level": 27,
     "boss": 10,
     "aggro": 1,
-    "spawnDelay": 8100
+    "spawnDelay": 3240
   },
   {
     "id": 188,
@@ -1773,7 +1773,7 @@
     "level": 37,
     "boss": 10,
     "aggro": 1,
-    "spawnDelay": 11100
+    "spawnDelay": 4440
   },
   {
     "id": 189,
@@ -1785,7 +1785,7 @@
     "level": 24,
     "boss": 10,
     "aggro": 1,
-    "spawnDelay": 7200
+    "spawnDelay": 2880
   },
   {
     "id": 190,
@@ -1797,7 +1797,7 @@
     "level": 16,
     "boss": 10,
     "aggro": 1,
-    "spawnDelay": 4800
+    "spawnDelay": 1920
   },
   {
     "id": 191,
@@ -1809,7 +1809,7 @@
     "level": 10,
     "boss": 10,
     "aggro": 1,
-    "spawnDelay": 3000
+    "spawnDelay": 1200
   },
   {
     "id": 192,
@@ -1821,7 +1821,7 @@
     "level": 11,
     "boss": 10,
     "aggro": 1,
-    "spawnDelay": 3300
+    "spawnDelay": 1320
   },
   {
     "id": 193,
@@ -1833,7 +1833,7 @@
     "level": 40,
     "boss": 10,
     "aggro": 1,
-    "spawnDelay": 12000
+    "spawnDelay": 4800
   },
   {
     "id": 194,
@@ -1845,7 +1845,7 @@
     "level": 36,
     "boss": 10,
     "aggro": 1,
-    "spawnDelay": 10800
+    "spawnDelay": 4320
   },
   {
     "id": 195,
@@ -1857,7 +1857,7 @@
     "level": 11,
     "boss": 10,
     "aggro": 1,
-    "spawnDelay": 3300
+    "spawnDelay": 1320
   },
   {
     "id": 196,
@@ -1869,7 +1869,7 @@
     "level": 8,
     "boss": 10,
     "aggro": 1,
-    "spawnDelay": 2400
+    "spawnDelay": 960
   },
   {
     "id": 197,
@@ -1881,7 +1881,7 @@
     "level": 12,
     "boss": 10,
     "aggro": 1,
-    "spawnDelay": 3600
+    "spawnDelay": 1440
   },
   {
     "id": 198,
@@ -1893,7 +1893,7 @@
     "level": 37,
     "boss": 10,
     "aggro": 1,
-    "spawnDelay": 11100
+    "spawnDelay": 4440
   },
   {
     "id": 199,
@@ -1905,7 +1905,7 @@
     "level": 34,
     "boss": 10,
     "aggro": 1,
-    "spawnDelay": 10200
+    "spawnDelay": 4080
   },
   {
     "id": 200,
@@ -1917,7 +1917,7 @@
     "level": 11,
     "boss": 10,
     "aggro": 1,
-    "spawnDelay": 3300
+    "spawnDelay": 1320
   },
   {
     "id": 201,
@@ -1929,7 +1929,7 @@
     "level": 10,
     "boss": 10,
     "aggro": 1,
-    "spawnDelay": 3000
+    "spawnDelay": 1200
   },
   {
     "id": 202,
@@ -1941,7 +1941,7 @@
     "level": 13,
     "boss": 10,
     "aggro": 1,
-    "spawnDelay": 3900
+    "spawnDelay": 1560
   },
   {
     "id": 203,
@@ -1953,7 +1953,7 @@
     "level": 42,
     "boss": 10,
     "aggro": 1,
-    "spawnDelay": 12600
+    "spawnDelay": 5040
   },
   {
     "id": 204,
@@ -1965,7 +1965,7 @@
     "level": 36,
     "boss": 10,
     "aggro": 1,
-    "spawnDelay": 10800
+    "spawnDelay": 4320
   },
   {
     "id": 205,
@@ -1977,7 +1977,7 @@
     "level": 10,
     "boss": 10,
     "aggro": 1,
-    "spawnDelay": 3000
+    "spawnDelay": 1200
   },
   {
     "id": 206,
@@ -1989,7 +1989,7 @@
     "level": 8,
     "boss": 10,
     "aggro": 1,
-    "spawnDelay": 2400
+    "spawnDelay": 960
   },
   {
     "id": 207,
@@ -2001,7 +2001,7 @@
     "level": 37,
     "boss": 10,
     "aggro": 1,
-    "spawnDelay": 11100
+    "spawnDelay": 4440
   },
   {
     "id": 208,
@@ -2013,7 +2013,7 @@
     "level": 18,
     "boss": 10,
     "aggro": 1,
-    "spawnDelay": 5400
+    "spawnDelay": 2160
   },
   {
     "id": 209,
@@ -2025,7 +2025,7 @@
     "level": 12,
     "boss": 10,
     "aggro": 1,
-    "spawnDelay": 3600
+    "spawnDelay": 1440
   },
   {
     "id": 210,
@@ -2037,7 +2037,7 @@
     "level": 40,
     "boss": 10,
     "aggro": 1,
-    "spawnDelay": 12000
+    "spawnDelay": 4800
   },
   {
     "id": 211,
@@ -2049,7 +2049,7 @@
     "level": 42,
     "boss": 10,
     "aggro": 1,
-    "spawnDelay": 12600
+    "spawnDelay": 5040
   },
   {
     "id": 212,
@@ -2061,7 +2061,7 @@
     "level": 36,
     "boss": 10,
     "aggro": 1,
-    "spawnDelay": 10800
+    "spawnDelay": 4320
   },
   {
     "id": 213,
@@ -2073,7 +2073,7 @@
     "level": 14,
     "boss": 10,
     "aggro": 1,
-    "spawnDelay": 4200
+    "spawnDelay": 1680
   },
   {
     "id": 214,
@@ -2085,7 +2085,7 @@
     "level": 9,
     "boss": 10,
     "aggro": 1,
-    "spawnDelay": 2700
+    "spawnDelay": 1080
   },
   {
     "id": 215,
@@ -2097,7 +2097,7 @@
     "level": 41,
     "boss": 10,
     "aggro": 1,
-    "spawnDelay": 12300
+    "spawnDelay": 4920
   },
   {
     "id": 216,
@@ -2109,7 +2109,7 @@
     "level": 12,
     "boss": 10,
     "aggro": 1,
-    "spawnDelay": 3600
+    "spawnDelay": 1440
   },
   {
     "id": 217,
@@ -2121,7 +2121,7 @@
     "level": 12,
     "boss": 10,
     "aggro": 1,
-    "spawnDelay": 3600
+    "spawnDelay": 1440
   },
   {
     "id": 218,
@@ -2133,7 +2133,7 @@
     "level": 10,
     "boss": 10,
     "aggro": 1,
-    "spawnDelay": 3000
+    "spawnDelay": 1200
   },
   {
     "id": 219,
@@ -2145,7 +2145,7 @@
     "level": 37,
     "boss": 10,
     "aggro": 1,
-    "spawnDelay": 11100
+    "spawnDelay": 4440
   },
   {
     "id": 220,
@@ -2157,7 +2157,7 @@
     "level": 10,
     "boss": 10,
     "aggro": 1,
-    "spawnDelay": 3000
+    "spawnDelay": 1200
   },
   {
     "id": 221,
@@ -2169,7 +2169,7 @@
     "level": 24,
     "boss": 10,
     "aggro": 1,
-    "spawnDelay": 7200
+    "spawnDelay": 2880
   },
   {
     "id": 222,
@@ -2181,7 +2181,7 @@
     "level": 15,
     "boss": 10,
     "aggro": 1,
-    "spawnDelay": 4500
+    "spawnDelay": 1800
   },
   {
     "id": 223,
@@ -2193,7 +2193,7 @@
     "level": 43,
     "boss": 10,
     "aggro": 1,
-    "spawnDelay": 12900
+    "spawnDelay": 5160
   },
   {
     "id": 224,
@@ -2205,7 +2205,7 @@
     "level": 40,
     "boss": 10,
     "aggro": 1,
-    "spawnDelay": 12000
+    "spawnDelay": 4800
   },
   {
     "id": 225,
@@ -2217,7 +2217,7 @@
     "level": 37,
     "boss": 10,
     "aggro": 1,
-    "spawnDelay": 11100
+    "spawnDelay": 4440
   },
   {
     "id": 226,
@@ -2229,7 +2229,7 @@
     "level": 34,
     "boss": 10,
     "aggro": 1,
-    "spawnDelay": 10200
+    "spawnDelay": 4080
   },
   {
     "id": 227,
@@ -2241,7 +2241,7 @@
     "level": 39,
     "boss": 10,
     "aggro": 1,
-    "spawnDelay": 11700
+    "spawnDelay": 4680
   },
   {
     "id": 228,
@@ -2253,7 +2253,7 @@
     "level": 13,
     "boss": 10,
     "aggro": 1,
-    "spawnDelay": 3900
+    "spawnDelay": 1560
   },
   {
     "id": 229,
@@ -2265,7 +2265,7 @@
     "level": 33,
     "boss": 10,
     "aggro": 1,
-    "spawnDelay": 9900
+    "spawnDelay": 3960
   },
   {
     "id": 230,
@@ -2277,7 +2277,7 @@
     "level": 11,
     "boss": 10,
     "aggro": 1,
-    "spawnDelay": 3300
+    "spawnDelay": 1320
   },
   {
     "id": 231,
@@ -2289,7 +2289,7 @@
     "level": 8,
     "boss": 10,
     "aggro": 1,
-    "spawnDelay": 2400
+    "spawnDelay": 960
   },
   {
     "id": 232,
@@ -2301,7 +2301,7 @@
     "level": 35,
     "boss": 10,
     "aggro": 1,
-    "spawnDelay": 10500
+    "spawnDelay": 4200
   },
   {
     "id": 233,
@@ -2313,7 +2313,7 @@
     "level": 37,
     "boss": 10,
     "aggro": 1,
-    "spawnDelay": 11100
+    "spawnDelay": 4440
   },
   {
     "id": 234,
@@ -2325,7 +2325,7 @@
     "level": 38,
     "boss": 10,
     "aggro": 1,
-    "spawnDelay": 11400
+    "spawnDelay": 4560
   },
   {
     "id": 235,
@@ -2337,7 +2337,7 @@
     "level": 27,
     "boss": 10,
     "aggro": 1,
-    "spawnDelay": 8100
+    "spawnDelay": 3240
   },
   {
     "id": 236,
@@ -2349,6 +2349,6 @@
     "level": 13,
     "boss": 10,
     "aggro": 1,
-    "spawnDelay": 3900
+    "spawnDelay": 1560
   }
 ]

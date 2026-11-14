@@ -561,6 +561,17 @@ class Map {
                 if (ma.boss > 1) {
                     for (const mob of mobarea.entities) mob.createBoss(ma.boss);
                 }
+                // "spawnDelay": seconds a dead mob of this area waits before it
+                // respawns, in place of its kind's own time (mobs.json
+                // respawnMod x 30s) -- same name and unit as a mob's
+                // spawnDelay in entity.json. Set after "boss", so it also wins
+                // over the boss multiplier's longer respawn.
+                const spawnDelay = Number(ma.spawnDelay);
+                if (spawnDelay > 0) {
+                    mobarea.spawnDelay = spawnDelay;
+                    for (const mob of mobarea.entities)
+                        mob.spawnDelay = spawnDelay * 1000;
+                }
                 // "aggro": every mob in the area attacks players on sight,
                 // whatever its kind's isAggressive (mobs.json) says -- e.g.
                 // map1's dungeons. Respawns reuse the same entity, so this
