@@ -264,13 +264,12 @@ export function installEntityMovingSpatial(proto) {
     // orientation (nextTile, snapped to the grid); when it is standing still, or the next
     // tile is blocked (it's walking into a wall), the tile it is on now.
     proto.predictTile = function () {
-        const ts = G_TILESIZE,
-            half = ts >> 1;
-        const snap = (v) => Math.floor(v / ts) * ts + half;
-        const here = [snap(this.x), snap(this.y)];
+        const h = Utils.fixGridPosition(G_TILESIZE, this.x, this.y);
+        const here = [h.x, h.y];
         if (!(typeof this.isMoving === 'function' && this.isMoving())) return here;
         const n = this.nextTile(this.x, this.y, this.orientation);
-        const next = [snap(n[0]), snap(n[1])];
+        const c = Utils.fixGridPosition(G_TILESIZE, n[0], n[1]);
+        const next = [c.x, c.y];
         if (this.isColliding(next[0], next[1])) return here;
         return next;
     };
