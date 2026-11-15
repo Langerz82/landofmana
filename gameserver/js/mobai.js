@@ -290,13 +290,24 @@ class MobAI {
     // Where to aim for the target: while it is moving, its predicted tile as {x, y}
     // (EntityMoving.predictTile()); otherwise (standing still, or no predictTile())
     // its actual position.
+    // FIX (mobs can't path to an off-centre player): a target standing still used
+    // to return its raw pixel position, so a player a few pixels off its tile
+    // centre gave off-centre spots around it (getSpotsAround() adds exactly one
+    // tile). isColliding() treats a position as a box +-0.49 tiles wide, so an
+    // off-centre spot overlaps two tiles and was rejected whenever the far one
+    // was blocked - near walls and in corridors often every spot was, and the mob
+    // never got a path. Mobs work in tiles instead: aim at the centre of the
+    // target's tile (predictTile() already does this, for the next tile while
+    // moving and the current one when standing still), so every spot is the
+    // centre of a neighbouring tile and is standable whenever that tile is free.
+    // Mob.canReach()/isOverlappingEntity() (entity/mob/mob.js) are tile-based to
+    // match.
     predictedTile(target) {
-        const moving =
-            typeof target.isMoving === 'function' && target.isMoving();
-        if (!moving || typeof target.predictTile !== 'function')
-            return { x: target.x, y: target.y };
-        const p = target.predictTile();
-        return { x: p[0], y: p[1] };
+        if (typeof target.predictTile === 'function') {
+            const p = target.predictTile();
+            return { x: p[0], y: p[1] };
+        }
+        return Utils.fixGridPosition(G_TILESIZE, target.x, target.y);
     }
 
     handleHurt(mob) {

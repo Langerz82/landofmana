@@ -452,12 +452,43 @@ class Mob extends Character {
 
     onKillEntity(attacker) {}
 
+    // Tile this mob / another entity is standing on, as [gx, gy].
+    _tileOf(entity) {
+        return [
+            Math.floor(entity.x / G_TILESIZE),
+            Math.floor(entity.y / G_TILESIZE)
+        ];
+    }
+
     canReach(entity) {
+        // FIX (mobs not attacking an off-centre player): melee reach used to be a
+        // straight-line distance of at most one tile (16 px). Mobs now stand on
+        // the centre of a tile next to the target's tile (mobai.js
+        // predictedTile()), but a player can stand anywhere inside their tile, so
+        // that distance ranges from 8 to 23 px and the mob could arrive and still
+        // be "out of reach". Melee mobs reach the four tiles next to their own
+        // instead (not diagonals, like the spots they pick). Ranged mobs keep the
+        // distance check. Only Mob is changed - player attack validation still
+        // uses Character.canReach().
+        if (this.attackRange === 1) {
+            const a = this._tileOf(this),
+                b = this._tileOf(entity);
+            return Math.abs(a[0] - b[0]) + Math.abs(a[1] - b[1]) === 1;
+        }
         const o = this.orientation;
         this.lookAtEntity(entity);
         const res = super.canReach(entity);
         this.orientation = o;
         return res;
+    }
+
+    // FIX: "overlapping" (mobai.js: step off a character it is standing on) used
+    // to mean within 15 px, so a mob on the tile next to an off-centre player
+    // (as little as 8 px away) counted as standing on it. Same tile instead.
+    isOverlappingEntity(entity) {
+        const a = this._tileOf(this),
+            b = this._tileOf(entity);
+        return a[0] === b[0] && a[1] === b[1];
     }
 
     dropGold() {
