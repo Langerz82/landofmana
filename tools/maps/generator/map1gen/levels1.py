@@ -66,7 +66,7 @@ mapjson = {nm: json.load(open(os.path.join(ROOT, 'gameserver', 'maps', nm + '.js
 md = MapData(ROOT, PFX)
 ea = {nm: md.areas_of(nm) for nm in maplist}      # each part's areas, in its own pixels (copies)
 # the wizard boss areas (wizards1.py) sit on top of the main-area mob areas: they are left out of the grid below,
-# and given the levels of the area they sit on at the end
+# and given a level one above the highest of the area they sit on at the end (WIZARD_LEVEL_ABOVE in wizards1.py)
 wizard = lambda a: str(a.get('caption', '')).startswith('wizard_boss')
 
 # ---------------------------------------------------------------- outdoor grid
@@ -236,13 +236,15 @@ for nm_in in inner:
         ends = sum(1 for r in rooms_ if len(links.get(r, ())) == 1 and r not in entry)
         dungeon_report.append(f'entrance level {entry[c_]:>2}: {len(rooms_)} rooms, mobs {min(base[r] for r in rooms_)}-{max(room_hi[r] for r in rooms_)}, {ends} bosses')
 
-# wizard boss areas: the levels of the main-area mob area they sit on (same spot)
+# wizard boss areas: one level above the highest of the main-area mob area they sit on (same spot) -- keep
+# WIZARD_LEVEL_ABOVE in wizards1.py the same
+WIZARD_LEVEL_ABOVE = 1
 for nm in maplist:
     base = {(a['x'], a['y'], a['w'], a['h']): a for a in ea[nm]['mobAreas'] if not wizard(a)}
     for a in ea[nm]['mobAreas']:
         b = base.get((a['x'], a['y'], a['w'], a['h'])) if wizard(a) else None
         if not b: continue
-        a['minLevel'], a['maxLevel'] = b['minLevel'], b['maxLevel']      # (no levelWeight: wizards1.py)
+        a['minLevel'] = a['maxLevel'] = b['maxLevel'] + WIZARD_LEVEL_ABOVE      # (no levelWeight: wizards1.py)
 for nm in maplist:
     md.update_areas(nm, ea[nm])
 

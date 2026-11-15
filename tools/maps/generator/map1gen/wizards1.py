@@ -6,12 +6,12 @@ gameserver/data/maps/map1/entityarea.json -- this adds a second mob area on exac
 
     include  WIZARD_KIND (10, Wizard)     count  WIZARD_COUNT (1)
     boss     WIZARD_BOSS (3: 3x HP, longer respawn, better drops -- gameserver MobRespawn.createBoss)
-    levels   the same minLevel/maxLevel as the area it sits on
+    levels   WIZARD_LEVEL_ABOVE (1) above the highest level of the area it sits on (area 10-12 -> 13)
     (no levelWeight or bonusDrop: the game server's defaults apply)
 
 Running it again updates the wizard areas it made last time (matched by position) instead of adding more, and
-removes any whose main area is gone. levels1.py keeps their levels the same as their main area's whenever it sets
-the levels again, and it and npcs1_extra.py leave them out of everything else (they're not areas of their own).
+removes any whose main area is gone. levels1.py sets their levels the same way (WIZARD_LEVEL_ABOVE above their main
+area's highest) whenever it sets the levels again, and it and npcs1_extra.py leave them out of everything else (they're not areas of their own).
 
     python wizards1.py
 """
@@ -25,6 +25,8 @@ PFX = 'map1'
 WIZARD_KIND = 10
 WIZARD_COUNT = 1
 WIZARD_BOSS = 3
+# a wizard's level: this many levels above the highest level of the main area it sits on (levels1.py too)
+WIZARD_LEVEL_ABOVE = 1
 CAPTION = 'wizard_boss_mainarea'
 
 
@@ -48,10 +50,15 @@ for m in main:
         updated += 1
     # the same order of fields as the other mob areas: id, caption, count, levels, place, include, boss
     for k in ('count', 'minLevel', 'maxLevel', 'x', 'y', 'w', 'h', 'elipse', 'include', 'boss'): w.pop(k, None)
-    w.update(count=WIZARD_COUNT, minLevel=m['minLevel'], maxLevel=m['maxLevel'])
+    lv = m['maxLevel'] + WIZARD_LEVEL_ABOVE
+    w.update(count=WIZARD_COUNT, minLevel=lv, maxLevel=lv)
     for k in ('x', 'y', 'w', 'h', 'elipse'):
         if k in m: w[k] = m[k]
     w.update(include=str(WIZARD_KIND), boss=WIZARD_BOSS)
+    # fields this script doesn't set (e.g. a hand-added spawnDelay) stay after boss, where they were
+    for k in [k for k in w if k not in ('id', 'caption', 'count', 'minLevel', 'maxLevel', 'x', 'y', 'w', 'h',
+                                        'elipse', 'include', 'boss', 'level')]:
+        w[k] = w.pop(k)
     # not needed for a single wizard: left out, the game server's defaults apply (every level as likely, normal
     # drops)
     for k in ('levelWeight', 'bonusDrop', 'kindWeight'):
@@ -61,4 +68,4 @@ gone = [a for a in areas if is_wizard(a) and id(a) not in keep]
 md.areas['mobAreas'] = [a for a in areas if not (is_wizard(a) and id(a) not in keep)]
 md.save()
 print(f'{len(main)} main-area mob areas: {made} wizard boss areas added, {updated} updated, {len(gone)} removed '
-      f'(Wizard kind {WIZARD_KIND}, count {WIZARD_COUNT}, boss x{WIZARD_BOSS}, levels as their area)')
+      f'(Wizard kind {WIZARD_KIND}, count {WIZARD_COUNT}, boss x{WIZARD_BOSS}, level {WIZARD_LEVEL_ABOVE} above their area\'s highest)')

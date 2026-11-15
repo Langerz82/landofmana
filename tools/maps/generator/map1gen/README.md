@@ -74,7 +74,7 @@ cd ../generator/map1gen
 python npcs1.py         # quest NPCs: entity.json, shared/data/quests.json, lang.json
 python npcs1_extra.py   # a second quest NPC in every outdoor mob area
 python levels1.py       # mob levels, quest levels, dead-end cave bosses
-python wizards1.py      # a Wizard boss (count 1, boss x3) on every main-area mob area, at its levels
+python wizards1.py      # a Wizard boss (count 1, boss x3) on every main-area mob area, 1 level above its highest
 ```
 
 Entity ids in `entity.json`, and area ids in `entityarea.json`, run 1, 2, 3, ...: each tool takes the first free
@@ -86,8 +86,8 @@ closes up gaps in the ids (after records were removed), renumbering their quest 
 `lang.json` too.
 
 `wizards1.py` adds a second mob area on exactly the spot of every main-area mob area (`mob_mainarea_<biome>`),
-captioned `wizard_boss_mainarea`: one Wizard (kind 10) with boss multiplier 3, at that area's levels. Running it
-again updates them; `levels1.py` keeps their levels the same as their area's and leaves them out of its level
+captioned `wizard_boss_mainarea`: one Wizard (kind 10) with boss multiplier 3, one level above that area's highest
+(`WIZARD_LEVEL_ABOVE`; area 10-12 -> 13). Running it again updates them; `levels1.py` gives them that level too and leaves them out of its level
 grid, and `npcs1_extra.py` gives them no quest NPC of their own. A mob area crossing a section edge shares its
 count out between the sections (rounded down by share, the leftover to the bigger piece), so its single Wizard
 spawns on the side with more of the area.
