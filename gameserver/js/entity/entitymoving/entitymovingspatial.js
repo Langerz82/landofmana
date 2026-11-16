@@ -175,16 +175,12 @@ export function installEntityMovingSpatial(proto) {
     proto.isColliding = function (x, y) {
         if (typeof game === 'undefined') return this.map.isColliding(x, y);
         else {
-            return game.mapContainer.isColliding(x, y);
+            return game.currentMap.isColliding(x, y);
         }
     };
 
     proto.getEntitiesAround = function (dist) {
-        if (typeof game === 'undefined')
-            return this.map.entities.getCharactersAround(this, dist);
-        else {
-            return game.getEntitiesAround(this.x, this.y, dist * G_TILESIZE);
-        }
+        return this.getEntitiesAroundPos(this.x, this.y, dist);
     };
 
     // Characters within `dist` tiles of the point (x, y) (getEntitiesAround(), but
@@ -233,13 +229,13 @@ export function installEntityMovingSpatial(proto) {
         dist = dist || 1;
 
         switch (o) {
-            case 1: // N
+            case 1: // UP
                 return [x, y - dist];
-            case 2: // S
+            case 2: // DOWN
                 return [x, y + dist];
-            case 3: // E
+            case 3: // LEFT
                 return [x - dist, y];
-            case 4: // W
+            case 4: // RIGHT
                 return [x + dist, y];
         }
         return [x, y];

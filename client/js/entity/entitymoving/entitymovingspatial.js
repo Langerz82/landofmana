@@ -108,7 +108,11 @@ export function installEntityMovingSpatial(proto) {
         // instead removes both the correctness bug and the O(n^2) cost.
         poss = poss.filter((p) => !this.isColliding(p.x, p.y));
 
-        const entities = this.getEntitiesAround(adjEnd);
+        // FIX (mobs stacking on one spot): this looked for other characters around
+        // *this* entity, but the spots are around `dest` - a chasing mob a few tiles
+        // away never saw the mobs already standing next to its target, and walked onto
+        // their spot. Every spot is within adjEnd tiles of dest, so look there.
+        const entities = this.getEntitiesAroundPos(dest.x, dest.y, adjEnd + 1);
 
         const ts = G_TILESIZE;
         const tsh = ts >> 1;
@@ -131,6 +135,20 @@ export function installEntityMovingSpatial(proto) {
                         tx = tp[0];
                         ty = tp[1];
                     }
+                } else if (
+                    typeof e2.isMoving === 'function' &&
+                    e2.isMoving() &&
+                    typeof e2.predictTile === 'function'
+                ) {
+                    // FIX (mobs not taking the closest spot): a character walking
+                    // without a path (a player on the keys) is about to leave its
+                    // tile, but it blocked that tile here - so a mob chasing a player
+                    // from behind couldn't take the spot right behind them (the tile
+                    // being left) and went round to the side or the front instead.
+                    // Like a path-walker above, count it where it's heading.
+                    const tp = e2.predictTile();
+                    tx = tp[0];
+                    ty = tp[1];
                 }
                 if (Math.abs(x - tx) <= tsh && Math.abs(y - ty) <= tsh) {
                     return false;
@@ -156,10 +174,16 @@ export function installEntityMovingSpatial(proto) {
     };
 
     proto.getEntitiesAround = function (dist) {
+        return this.getEntitiesAroundPos(this.x, this.y, dist);
+    };
+
+    // Characters within `dist` tiles of the point (x, y) (getEntitiesAround(), but
+    // around a position rather than around this entity).
+    proto.getEntitiesAroundPos = function (x, y, dist) {
         if (typeof game === 'undefined')
-            return this.map.entities.getCharactersAround(this, dist);
+            return this.map.entities.getCharactersAround({ x: x, y: y }, dist);
         else {
-            return game.getEntitiesAround(this.x, this.y, dist * G_TILESIZE);
+            return game.getEntitiesAround(x, y, dist * G_TILESIZE);
         }
     };
 
@@ -176,8 +200,25 @@ export function installEntityMovingSpatial(proto) {
     };
 
     proto.nextDist = function (x, y, o, dist) {
-        x = x || this.x;
-        y = y || this.y;
+        // FIX: `x || this.x` treats an explicit, legitimate `x=0` (a real
+        // grid position at the map's left/top edge) the same as "x wasn't
+        // passed at all" and silently substitutes this entity's own
+        // position instead. Reached via Mob.followAttack()'s
+        // this.nextTile(entity.x, entity.y, entity.orientation) call
+        // (entity/mob/mob.js) when predicting a moving target's next tile --
+        // a target sitting exactly on column/row 0 would have its predicted
+        // position corrupted to the mob's own position instead, sending the
+        // mob pathing toward the wrong spot. Using a nullish check instead
+        // of `||` only substitutes the default when the argument is
+        // genuinely missing (undefined/null), not when it's a legitimate
+        // falsy coordinate. `o`/`dist` are left as `||` below deliberately:
+        // orientation is never 0 in this codebase (Types.Orientations
+        // starts at 1, shared/js/gametypes.js) and `dist=0` has no
+        // meaningful "explicit zero" caller today, so there's no live bug
+        // there to fix, and changing that arithmetic unprompted risks an
+        // unrelated behavior change.
+        x = x ?? this.x;
+        y = y ?? this.y;
         o = o || this.orientation;
         dist = dist || 1;
 
@@ -206,6 +247,22 @@ export function installEntityMovingSpatial(proto) {
         // a hardcoded G_TILESIZE.
         dist = dist || G_TILESIZE;
         return this.nextDist(x, y, o, dist);
+    };
+
+
+    // Predicts the tile this entity is about to be on, as [x, y] at the tile's centre
+    // (positions are tile centres, see area.js): while it is moving, the next tile in its
+    // orientation (nextTile, snapped to the grid); when it is standing still, or the next
+    // tile is blocked (it's walking into a wall), the tile it is on now.
+    proto.predictTile = function () {
+        const h = Utils.fixGridPosition(G_TILESIZE, this.x, this.y);
+        const here = [h.x, h.y];
+        if (!(typeof this.isMoving === 'function' && this.isMoving())) return here;
+        const n = this.nextTile(this.x, this.y, this.orientation);
+        const c = Utils.fixGridPosition(G_TILESIZE, n[0], n[1]);
+        const next = [c.x, c.y];
+        if (this.isColliding(next[0], next[1])) return here;
+        return next;
     };
 
     // NOTE: no caller anywhere in the client or server codebase currently (grepped
