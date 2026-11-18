@@ -384,9 +384,14 @@ export function installAppUI(proto) {
         }
         if (destination === 'player_window') {
             this.jqUserRemove.show();
+            // Logged in - PASSWORD (change password) sits bottom left, opposite DELETE.
+            this.jqChangePwButton.show();
             // Logged in / account created - the create-account window may still be up
             // (it's opened over a hidden #user_window, see showRegisterWindow below).
             this.jqRegisterWindow.hide();
+            this.jqPasswordWindow.hide();
+        } else {
+            this.jqChangePwButton.hide();
         }
     };
 
@@ -404,6 +409,35 @@ export function installAppUI(proto) {
         this.jqUserWindow.hide();
         this.jqRegisterWindow.show();
         (this.jqRegisterName.val() ? this.jqRegisterPassword : this.jqRegisterName).focus();
+    };
+
+    /**
+     * Opens the change-password window (#password_window) over the character-select
+     * screen (only reachable once logged in - the PASSWORD button is only shown there).
+     */
+    proto.showPasswordWindow = function () {
+        this.clearValidationErrors();
+        this.jqChangePwNew.val('');
+        this.jqChangePwNew2.val('');
+        this.jqChangePwInfo.text('');
+        this.jqPlayerInfo.text('');
+        this.jqPlayerWindow.hide();
+        this.jqChangePwButton.hide();
+        this.jqUserRemove.hide();
+        this.jqPasswordWindow.show();
+        this.jqChangePwNew.focus();
+    };
+
+    /** Back to the character-select screen. */
+    proto.hidePasswordWindow = function () {
+        this.clearValidationErrors();
+        this.jqChangePwNew.val('');
+        this.jqChangePwNew2.val('');
+        this.jqPasswordWindow.hide();
+        this.jqPlayerWindow.show();
+        this.jqChangePwButton.show();
+        this.jqUserRemove.show();
+        this.jqPlayerWindow.focus();
     };
 
     /** Back to the login window, keeping the username typed on the create-account window. */

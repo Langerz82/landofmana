@@ -262,6 +262,9 @@ class User {
                 case Types.UserMessages.CU_REMOVE_USER:
                     self.handleRemoveUser(message);
                     return;
+                case Types.UserMessages.CU_CHANGE_PASSWORD:
+                    self.handleChangePassword(message);
+                    return;
             }
 
             if (!self.loadedPlayer) {
@@ -462,6 +465,38 @@ class User {
             console.info('message=' + e.message);
             console.info('stack=' + e.stack);
         }
+    }
+
+    // Change-password window (both clients, on the character-select screen):
+    // [newHash], the new password wrapped like a login's. Only reaches here once this
+    // connection has logged in (see the listener: it's dispatched after the
+    // `loadedUser` check), so the account is this.name and the old password isn't
+    // asked for again. Answers 'passwordChanged' or 'passwordfail'.
+    handleChangePassword(message) {
+        const newHash = Utils.btoa(Utils.sanitize(message[0]));
+        const newPassword = decryptPassword(newHash, this.hashChallenge);
+        if (newPassword === null || !this.name) {
+            this.connection.send([Types.UserMessages.UC_ERROR, 'passwordfail']);
+            return;
+        }
+        bcrypt.hash(newPassword, BCRYPT_SALT_ROUNDS, (err, bcryptHash) => {
+            if (err) {
+                console.error(
+                    'handleChangePassword - bcrypt.hash failed: ' + err.message
+                );
+                this.connection.send([
+                    Types.UserMessages.UC_ERROR,
+                    'passwordfail'
+                ]);
+                return;
+            }
+            DBLogic.savePassword(this.name, bcryptHash, '');
+            console.info('Password changed: ' + this.name);
+            this.connection.send([
+                Types.UserMessages.UC_ERROR,
+                'passwordChanged'
+            ]);
+        });
     }
 
     handleRemoveUser(message) {

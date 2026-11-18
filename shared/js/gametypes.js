@@ -81,6 +81,9 @@ const Types = {
         CU_CREATE_PLAYER: 4,
         CU_LOGIN_PLAYER: 5,
         CU_REMOVE_USER: 6,
+        // [newHash] from the clients' change-password window on the character-select
+        // screen, once logged in (userserver/js/user.js handleChangePassword).
+        CU_CHANGE_PASSWORD: 7,
 
         UC_WORLD_READY: 101,
         UC_WORLDS: 102,

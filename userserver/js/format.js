@@ -381,6 +381,11 @@ class FormatChecker {
             // Optional e-mail (missing, or '' when the player left it blank).
             stringField(0, userEmailLenMax).optional()
         ]);
+        // [new password hash] -- same AES-wrapped form as CU_LOGIN_USER's.
+        // Only accepted once logged in (user.js handleChangePassword).
+        this.formats[Types.UserMessages.CU_CHANGE_PASSWORD] = tupleField([
+            stringField(userHashLenMin, userHashLenMax)
+        ]);
         this.formats[Types.UserMessages.CU_LOGIN_USER] = tupleField([
             stringField(usernameLenMin, usernameLenMax),
             stringField(userHashLenMin, userHashLenMax)

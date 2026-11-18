@@ -144,6 +144,10 @@ export function installUserClientCallbacks(proto) {
             case 'invalidusername':
             case 'ban':
             case 'passwordChanged':
+            // Form errors from the create-account / change-password windows - the
+            // connection stays open, so they're shown on the form, not the error window.
+            case 'invalidemail':
+            case 'passwordfail':
                 app.info_callback(data);
                 return;
             // FIX: removed duplicate unreachable 'timeout' case (referenced undefined `self`); merged its isTimeout logic here using `this`

@@ -161,8 +161,28 @@
 			</article>
 		</div>
 	</div>
+	<!-- Change password, once logged in: opened by the PASSWORD button on the character-select
+	     screen (see app.js showPasswordWindow). The account is the logged-in one, so only the new
+	     password is asked for. -->
+	<div class="frame" id="password_window" tabindex="0">
+		<div class="frame-heading" id="passwordHeading">PASSWORD</div>
+		<div class="frame-content">
+			<article id="changepassword">
+			<div class="newFieldName" id="lbl_changepw_new">New password</div>
+			<div class="newFieldName" id="lbl_changepw_new2">Confirm password</div>
+			<form action="none" method="get" accept-charset="utf-8" autocomplete="off">
+				<input type="password" id="changepw_new" class="stroke" name="changepw-new" placeholder="Password" maxlength="32" autocomplete="new-password"/>
+				<input type="password" id="changepw_new2" class="stroke" name="changepw-new2" placeholder="Password" maxlength="32" autocomplete="new-password"/>
+			</form>
+			<div class="frame-new-button" id="changepw_back">BACK</div>
+			<div class="frame-new-button" id="changepw_submit">CHANGE</div>
+			<div class="validation-summary frame-stroke1" id="changepwInfo"></div>
+			</article>
+		</div>
+	</div>
   <div class="frame-new-button" id="aboutbutton">ABOUT</div>
   <div class="frame-new-button" id="user_remove">DELETE</div>
+  <div class="frame-new-button" id="user_changepw">PASSWORD</div>
 
   <div class="frame" id="remove_window" tabindex="0">
     <div class="frame-heading" id="accountHeading">ACCOUNT<div class="frame-close-button" id="user_close"></div></div>

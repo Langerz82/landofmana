@@ -437,3 +437,81 @@
 #register_submit {
     right: 3%;
 }
+
+/* Change-password window, once logged in (opened by #user_changepw on the
+   character-select screen, bottom left - mirrors #user_remove bottom right). */
+#user_changepw {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 140px;
+    height: 50px;
+    line-height: 40px;
+    color: white;
+    cursor: pointer;
+    display: none;
+    opacity: 0.75;
+    z-index: 1;
+}
+#password_window {
+    display: none;
+    position: absolute;
+    width: 350px;
+    height: 340px;
+    top: 50%;
+    left: 50%;
+    margin-left: -175px;
+    margin-top: -170px;
+    color: white;
+    font-size: 18px;
+    z-index: 5;
+}
+#password_window input {
+    position: absolute;
+    left: 190px;
+    width: 135px;
+    font-family: "GraphicPixel";
+    font-size: 18px;
+    text-align: center;
+    color: #000;
+}
+#password_window input:focus {
+    color: #000;
+}
+#password_window input.field-error {
+    background: rgba(255, 0, 0, 0.1);
+    border-color: #f84444;
+}
+#lbl_changepw_new,
+#lbl_changepw_new2 {
+    position: absolute;
+    width: 170px;
+    text-align: right;
+    left: 5px;
+}
+#lbl_changepw_new,
+#changepw_new {
+    top: 15px;
+}
+#lbl_changepw_new2,
+#changepw_new2 {
+    top: 60px;
+}
+#password_window .validation-summary {
+    top: 110px;
+}
+#changepw_back,
+#changepw_submit {
+    position: absolute;
+    bottom: 0;
+    width: 140px;
+    height: 50px;
+    line-height: 40px;
+    cursor: pointer;
+}
+#changepw_back {
+    left: 3%;
+}
+#changepw_submit {
+    right: 3%;
+}

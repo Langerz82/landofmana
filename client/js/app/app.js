@@ -93,6 +93,19 @@ export default class App {
             this.jqRegisterEmail
         ];
 
+        // Change-password window (#password_window), opened once logged in by the PASSWORD
+        // button on the character-select screen - see showPasswordWindow()/
+        // hidePasswordWindow() in appui.js and tryChangePassword()/validatePasswordForm()
+        // in appvalidation.js. Only the new password is asked for: the account is the
+        // logged-in one.
+        this.jqPasswordWindow = $('#password_window');
+        this.jqChangePwButton = $('#user_changepw');
+        this.jqChangePwNew = $('#changepw_new');
+        this.jqChangePwNew2 = $('#changepw_new2');
+        this.jqChangePwSubmit = $('#changepw_submit');
+        this.jqChangePwBack = $('#changepw_back');
+        this.passwordFormFields = [this.jqChangePwNew, this.jqChangePwNew2];
+
         // Create new character form fields
         this.jqPlayerNameInput = $('#player_name');
         this.playerFormFields = [this.jqPlayerNameInput];
@@ -187,6 +200,8 @@ export default class App {
 
         this.jqLoginInfo = $('#loginInfo');
         this.jqRegisterInfo = $('#registerInfo');
+        this.jqChangePwInfo = $('#changepwInfo');
+        this.jqPlayerInfo = $('#player_window .validation-summary');
         this.jqGameHeading = $('#gameheading');
 
         // Cached here for appui.js's initTargetHud/initExpBar/initHealthBar/blinkHealthBar/
@@ -344,7 +359,7 @@ export default class App {
                         // above) as soon as the player edits either field, instead of leaving a
                         // stale "incorrect"/"disconnected" message up after they've already
                         // started fixing their input.
-                        self.clearErrorOnFieldsChange(self.userFormFields);
+                        self.clearErrorOnFieldsChange(self.activeAccountFormFields());
                     }
                     break;
 
@@ -443,6 +458,20 @@ export default class App {
                         self.registerFormActive() ? self.jqRegisterName : null,
                         lang.data['USERNAME_INVALID_CHARS']
                     );
+                    break;
+
+                case 'passwordChanged':
+                    // userserver/js/user.js handleChangePassword saved the new password -
+                    // back to the character-select screen, still logged in.
+                    self.hidePasswordWindow();
+                    // A remembered login hash was made from the old password.
+                    localforage.removeItem('user_hash');
+                    self.jqUserHashInput.val('');
+                    self.jqPlayerInfo.text(lang.data['PASSWORD_CHANGED']);
+                    break;
+
+                case 'passwordfail':
+                    self.addValidationError(null, lang.data['PASSWORD_CHANGE_FAILED']);
                     break;
 
                 case 'invalidemail':
@@ -572,6 +601,29 @@ export default class App {
         });
         this.jqRegisterBack.click(function () {
             self.hideRegisterWindow();
+        });
+        this.jqChangePwButton.click(function () {
+            self.showPasswordWindow();
+        });
+        this.jqChangePwSubmit.click(function () {
+            if (!self.userReady) return;
+            self.tryChangePassword();
+        });
+        this.jqChangePwBack.click(function () {
+            self.hidePasswordWindow();
+        });
+        this.jqPasswordWindow.keydown(function (e) {
+            if (e.which === 13) {
+                if (self.userReady) {
+                    $('input').blur(); // exit keyboard on mobile
+                    self.tryChangePassword();
+                }
+                return false;
+            }
+            if (e.which === 27) {
+                self.hidePasswordWindow();
+                return false;
+            }
         });
         this.jqRegisterWindow.keydown(function (e) {
             if (e.which === 13) {

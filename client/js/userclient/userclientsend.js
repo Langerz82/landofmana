@@ -46,6 +46,12 @@ export function installUserClientSend(proto) {
         ]);
     };
 
+    // Change-password window, once logged in: the new password's hash, made like a
+    // login's (see appvalidation.js tryChangePassword).
+    proto.sendChangePassword = function (newHash) {
+        this.sendMessage([Types.UserMessages.CU_CHANGE_PASSWORD, newHash]);
+    };
+
     proto.sendRemoveUser = function (user) {
         this.sendMessage([
             Types.UserMessages.CU_REMOVE_USER,

@@ -80,6 +80,14 @@ func send_create_user(username: String, password: String, email := "") -> void:
 		email.strip_edges()])
 
 
+## Change-password window, once logged in: the new password hashed like a
+## login's, for the logged-in account (Game.username). The user server answers
+## "passwordChanged" or "passwordfail".
+func send_change_password(new_password: String) -> void:
+	send([Types.UserMessages.CU_CHANGE_PASSWORD,
+		CryptoJSCompat.make_login_hash(Game.username, new_password, Game.hash_challenge)])
+
+
 func send_login_player(world_index: int, player_index: int) -> void:
 	send([Types.UserMessages.CU_LOGIN_PLAYER, world_index, player_index])
 
@@ -192,7 +200,8 @@ func _on_error(data: Array) -> void:
 	var code := str(data[0]) if data.size() > 0 else "unknown"
 	match code:
 		"full", "noserver", "invalidlogin", "userexists", "playerexists", \
-		"loggedin", "invalidusername", "invalidname", "ban", "passwordChanged", "timeout":
+		"loggedin", "invalidusername", "invalidname", "ban", "passwordChanged", "timeout", \
+		"invalidemail", "passwordfail":
 			info.emit(code)
 		_:
 			error.emit(GameData.tr_lang(code))

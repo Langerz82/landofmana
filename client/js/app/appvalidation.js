@@ -74,6 +74,20 @@ export function installAppValidation(proto) {
         }
     };
 
+    // Change-password window (once logged in): sends just the new password, hashed the
+    // same way as a login (User's constructor) for the logged-in account
+    // (userclientsend.js sendChangePassword).
+    proto.tryChangePassword = function () {
+        if (this.starting) return; // Already loading
+        if (!this.user) return; // not logged in
+
+        const newpw = this.jqChangePwNew.val();
+        if (!this.validatePasswordForm(newpw, this.jqChangePwNew2.val())) return;
+
+        const newUser = new User(this.userclient, this.user.username, newpw);
+        this.userclient.sendChangePassword(newUser.hash);
+    };
+
     proto.tryPlayerAction = function (action) {
         if (this.starting) return; // Already loading
 
@@ -116,6 +130,18 @@ export function installAppValidation(proto) {
 
     proto.registerFormActive = function () {
         return this.jqRegisterWindow.is(':visible');
+    };
+
+    proto.passwordFormActive = function () {
+        return this.jqPasswordWindow.is(':visible');
+    };
+
+    // The fields of whichever account window (login, create account, change password)
+    // is showing - for clearing a server-sent error once the player edits them.
+    proto.activeAccountFormFields = function () {
+        if (this.registerFormActive()) return this.registerFormFields;
+        if (this.passwordFormActive()) return this.passwordFormFields;
+        return this.userFormFields;
     };
 
     /**
@@ -186,6 +212,43 @@ export function installAppValidation(proto) {
      * on), the confirm field must match it, and the e-mail is optional but must look
      * like an address if given (Utils.checkInputEmail - the userserver checks it again).
      */
+    /**
+     * Validates the change-password window: the new password follows the same rules as
+     * a new account's and must match the confirm field.
+     */
+    proto.validatePasswordForm = function (newpw, newpw2) {
+        this.clearValidationErrors();
+
+        if (newpw.length < 6 || newpw.length > 32) {
+            this.addValidationError(
+                this.jqChangePwNew,
+                lang.data['PASSWORD_LENGTH']
+            );
+            return false;
+        }
+        if (
+            newpw ===
+            newpw.replace(
+                /^[A-Za-z0-9@!#\$\^%&*()+=\-\[\]\\\';\.\/\{\}\|\":<>\? ]+$/,
+                ''
+            )
+        ) {
+            this.addValidationError(
+                this.jqChangePwNew,
+                lang.data['PASSWORD_CHARS']
+            );
+            return false;
+        }
+        if (newpw !== newpw2) {
+            this.addValidationError(
+                this.jqChangePwNew2,
+                lang.data['PASSWORD_MISMATCH']
+            );
+            return false;
+        }
+        return true;
+    };
+
     proto.validateRegisterForm = function (username, userpw, userpw2, email) {
         if (
             !this.validateUserForm(
@@ -317,6 +380,7 @@ export function installAppValidation(proto) {
         let fields;
         if (this.userFormActive()) fields = this.userFormFields;
         else if (this.registerFormActive()) fields = this.registerFormFields;
+        else if (this.passwordFormActive()) fields = this.passwordFormFields;
         else if (this.playerFormActive()) fields = this.playerFormFields;
 
         if (fields) {

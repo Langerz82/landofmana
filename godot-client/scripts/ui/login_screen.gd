@@ -17,8 +17,9 @@
 
 class_name LoginScreen
 extends Control
-## Login / registration / character selection. Replaces the HTML user window,
-## create-account window, player window and app/*.js validation of the JS client.
+## Login / registration / password change / character selection. Replaces the
+## HTML user window, create-account and change-password windows, player window
+## and app/*.js validation of the JS client.
 
 signal enter_world(info: Dictionary)
 
@@ -41,6 +42,7 @@ const INFO_KEYS := {
 	"playerexists": "PLAYERNAME_TAKEN",
 	"invalidusername": "USERNAME_INVALID_CHARS",
 	"invalidemail": "EMAIL_INVALID",
+	"passwordfail": "PASSWORD_CHANGE_FAILED",
 	"invalidname": "PLAYERNAME_ALPHANUMERIC",
 	"loggedin": "USER_ALREADY_LOGGEDIN",
 	"ban": "USER_BANNED",
@@ -69,6 +71,13 @@ var _reg_pass: LineEdit
 var _reg_pass2: LineEdit
 var _reg_email: LineEdit
 var _reg_create_btn: Button
+## Change-password window, once logged in: opened by "Change password" on the
+## character list (see _show_change_password / _try_change_password). Only the
+## new password is asked for -- the account is the logged-in one.
+var _password_box: VBoxContainer
+var _cp_new: LineEdit
+var _cp_new2: LineEdit
+var _cp_btn: Button
 var _player_box: VBoxContainer
 var _world_select: OptionButton
 var _player_list: ItemList
@@ -109,6 +118,10 @@ func _ready() -> void:
 	_register_box.add_theme_constant_override("separation", 6)
 	_register_box.visible = false
 	v.add_child(_register_box)
+	_password_box = VBoxContainer.new()
+	_password_box.add_theme_constant_override("separation", 6)
+	_password_box.visible = false
+	v.add_child(_password_box)
 	_player_box = VBoxContainer.new()
 	_player_box.add_theme_constant_override("separation", 6)
 	_player_box.visible = false
@@ -128,6 +141,7 @@ func _ready() -> void:
 	v.add_child(_update_btn)
 	_build_login()
 	_build_register()
+	_build_change_password()
 	_build_players()
 	var version := Label.new()
 	version.text = "Godot client %s  -  protocol v%d" % [ProjectSettings.get_setting("application/config/version", "0"), Config.get_version()]
@@ -183,11 +197,11 @@ func _natural_panel_size(min_width: float) -> Vector2:
 	return n
 
 
-func _field(parent: Control, label: String, secret := false) -> LineEdit:
+func _field(parent: Control, label: String, secret := false, label_width := 90.0) -> LineEdit:
 	var h := HBoxContainer.new()
 	var l := Label.new()
 	l.text = label
-	l.custom_minimum_size = Vector2(90, 0)
+	l.custom_minimum_size = Vector2(label_width, 0)
 	h.add_child(l)
 	var e := LineEdit.new()
 	e.secret = secret
@@ -279,6 +293,34 @@ func _build_register() -> void:
 	_register_box.add_child(buttons)
 
 
+func _build_change_password() -> void:
+	var title := Label.new()
+	title.text = "Change password"
+	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	title.add_theme_font_size_override("font_size", 20)
+	_password_box.add_child(title)
+	_cp_new = _field(_password_box, "New password", true, 150.0)
+	_cp_new.max_length = 32
+	_cp_new2 = _field(_password_box, "Confirm password", true, 150.0)
+	_cp_new2.max_length = 32
+	for e: LineEdit in [_cp_new, _cp_new2]:
+		e.text_submitted.connect(func(_t): _try_change_password())
+	var buttons := HBoxContainer.new()
+	buttons.alignment = BoxContainer.ALIGNMENT_CENTER
+	buttons.add_theme_constant_override("separation", 12)
+	var back := Button.new()
+	back.text = "Back"
+	back.custom_minimum_size = Vector2(140, 34)
+	back.pressed.connect(_show_players)
+	buttons.add_child(back)
+	_cp_btn = Button.new()
+	_cp_btn.text = "Change"
+	_cp_btn.custom_minimum_size = Vector2(140, 34)
+	_cp_btn.pressed.connect(_try_change_password)
+	buttons.add_child(_cp_btn)
+	_password_box.add_child(buttons)
+
+
 func _build_players() -> void:
 	var wl := HBoxContainer.new()
 	var l := Label.new()
@@ -311,6 +353,13 @@ func _build_players() -> void:
 	_create_btn.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	_create_btn.pressed.connect(_create)
 	_player_box.add_child(_create_btn)
+	_player_box.add_child(HSeparator.new())
+	var change_pw := Button.new()
+	change_pw.text = "Change password"
+	change_pw.flat = true
+	change_pw.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	change_pw.pressed.connect(_show_change_password)
+	_player_box.add_child(change_pw)
 
 
 # ------------------------------------------------------------- user server
@@ -323,6 +372,7 @@ func connect_user_server() -> void:
 	_set_login_enabled(false)
 	_login_box.visible = true
 	_register_box.visible = false
+	_password_box.visible = false
 	_player_box.visible = false
 	uc = UserClient.new()
 	uc.name = "UserClient"
@@ -352,6 +402,8 @@ func _set_login_enabled(on: bool) -> void:
 	_register_btn.disabled = not on
 	if _reg_create_btn:  # null while _build_login runs (built after it)
 		_reg_create_btn.disabled = not on
+	if _cp_btn:
+		_cp_btn.disabled = not on
 
 
 func _try_login() -> void:
@@ -382,7 +434,8 @@ func _show_register() -> void:
 	_status.text = "Choose a username and password. The e-mail is optional."
 
 
-## Back to the login box, keeping the username typed on the create-account window.
+## Back to the login box from the create-account window, keeping the username
+## typed there.
 func _show_login() -> void:
 	if _reg_user.text.strip_edges() != "":
 		_user.text = _reg_user.text.strip_edges()
@@ -391,6 +444,46 @@ func _show_login() -> void:
 	_register_box.visible = false
 	_login_box.visible = true
 	_status.text = ""
+
+
+## Opens the change-password window over the character list (logged in).
+func _show_change_password() -> void:
+	_clear_password_fields()
+	_player_box.visible = false
+	_password_box.visible = true
+	_status.text = "Choose a new password for %s." % Game.username
+	_cp_new.grab_focus()
+
+
+## Back to the character list from the change-password window.
+func _show_players() -> void:
+	_clear_password_fields()
+	_password_box.visible = false
+	_player_box.visible = true
+	_status.text = ""
+
+
+func _clear_password_fields() -> void:
+	_cp_new.text = ""
+	_cp_new2.text = ""
+
+
+## Same rules as the JS client's validatePasswordForm (app/appvalidation.js):
+## the new password follows the new-account rules and must match the confirm
+## field. The user server changes the logged-in account's password.
+func _try_change_password() -> void:
+	if not _ready_for_login or Game.username == "":
+		return
+	var new_pw := _cp_new.text
+	if new_pw.length() < 6 or new_pw.length() > 32:
+		_status.text = GameData.tr_lang("PASSWORD_LENGTH")
+		return
+	if new_pw != _cp_new2.text:
+		_status.text = GameData.tr_lang("PASSWORD_MISMATCH")
+		return
+	_set_login_enabled(false)
+	_status.text = "Changing password..."
+	uc.send_change_password(new_pw)
 
 
 ## Same rules as the JS client's validateRegisterForm (app/appvalidation.js);
@@ -441,6 +534,7 @@ func _on_worlds(worlds: Array) -> void:
 func _on_players(players: Array) -> void:
 	_login_box.visible = false
 	_register_box.visible = false
+	_password_box.visible = false
 	_player_box.visible = true
 	_player_list.clear()
 	for p in players:
@@ -488,6 +582,9 @@ func _on_info(code: String) -> void:
 	var msg := GameData.tr_lang(key) if key != "" else code
 	if msg == key:
 		msg = code
+	if code == "passwordChanged":
+		# Saved by the user server -- back to the character list, still logged in.
+		_show_players()
 	_status.text = msg
 
 
@@ -498,5 +595,6 @@ func _on_error(text: String) -> void:
 	_create_btn.disabled = false
 	_login_box.visible = true
 	_register_box.visible = false
+	_password_box.visible = false
 	_player_box.visible = false
 	_status.text = text + "\nCheck the server address and press Connect."
