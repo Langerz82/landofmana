@@ -72,10 +72,12 @@ func send_login_user(username: String, password: String) -> void:
 		CryptoJSCompat.make_login_hash(Game.username, password, Game.hash_challenge)])
 
 
-func send_create_user(username: String, password: String) -> void:
+## email: optional ("" = none); the user server stores it in the u:<username> key.
+func send_create_user(username: String, password: String, email := "") -> void:
 	Game.username = username.to_lower()
 	send([Types.UserMessages.CU_CREATE_USER, Game.username,
-		CryptoJSCompat.make_login_hash(Game.username, password, Game.hash_challenge)])
+		CryptoJSCompat.make_login_hash(Game.username, password, Game.hash_challenge),
+		email.strip_edges()])
 
 
 func send_login_player(world_index: int, player_index: int) -> void:

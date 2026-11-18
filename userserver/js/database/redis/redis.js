@@ -570,6 +570,7 @@ class DatabaseHandler {
             .hset(uKey, 'ipAddresses', data[9])
             .hset(uKey, 'bank_gold', data[10])
             .hset(uKey, 'bank', data[11])
+            .hset(uKey, 'email', data[12] || '')
             .exec((err, replies) => {
                 if (callback) {
                     callback(username, data);

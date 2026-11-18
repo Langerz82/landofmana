@@ -75,6 +75,24 @@ export default class App {
         this.jqUserHashInput = $('#user_hash');
         this.userFormFields = [this.jqUsernameInput, this.jqUserPasswordInput];
 
+        // Create-account window (#register_window), opened by the REGISTER button on the
+        // login window - see showRegisterWindow()/hideRegisterWindow() in appui.js and
+        // tryUserAction(2)/validateRegisterForm() in appvalidation.js. Cached before the
+        // loadWindow(...) call below, which hides it once the player list loads.
+        this.jqRegisterWindow = $('#register_window');
+        this.jqRegisterName = $('#register_name');
+        this.jqRegisterPassword = $('#register_password');
+        this.jqRegisterPassword2 = $('#register_password2');
+        this.jqRegisterEmail = $('#register_email');
+        this.jqRegisterSubmit = $('#register_submit');
+        this.jqRegisterBack = $('#register_back');
+        this.registerFormFields = [
+            this.jqRegisterName,
+            this.jqRegisterPassword,
+            this.jqRegisterPassword2,
+            this.jqRegisterEmail
+        ];
+
         // Create new character form fields
         this.jqPlayerNameInput = $('#player_name');
         this.playerFormFields = [this.jqPlayerNameInput];
@@ -168,6 +186,7 @@ export default class App {
         this.jqAuctionSellDialog = $('#auctionSellDialog');
 
         this.jqLoginInfo = $('#loginInfo');
+        this.jqRegisterInfo = $('#registerInfo');
         this.jqGameHeading = $('#gameheading');
 
         // Cached here for appui.js's initTargetHud/initExpBar/initHealthBar/blinkHealthBar/
@@ -341,7 +360,9 @@ export default class App {
                         const triesRemaining = data[1];
                         if (triesRemaining > 0) {
                             self.addValidationError(
-                                self.jqUsernameInput,
+                                self.registerFormActive()
+                                    ? self.jqRegisterName
+                                    : self.jqUsernameInput,
                                 lang.data['USERNAME_TAKEN_TRIES'].format([
                                     triesRemaining,
                                     triesRemaining === 1 ? '' : 's'
@@ -354,6 +375,7 @@ export default class App {
                             // above - nothing told the player they'd been disconnected rather
                             // than just needing to pick another name. Say so explicitly.
                             self.jqLoginInfo.text('Disconnected.');
+                            self.jqRegisterInfo.text('Disconnected.');
                             self.addValidationError(null, lang.data['USERNAME_LOCKED_OUT']);
                             // FIX: same reasoning as the invalidlogin lockout branch above -
                             // stash so the real reason survives into the disconnect window
@@ -365,7 +387,11 @@ export default class App {
                         // above) as soon as the player edits either field, instead of leaving a
                         // stale "not available"/"disconnected" message up after they've already
                         // started changing their input.
-                        self.clearErrorOnFieldsChange(self.userFormFields);
+                        self.clearErrorOnFieldsChange(
+                            self.registerFormActive()
+                                ? self.registerFormFields
+                                : self.userFormFields
+                        );
                     }
                     break;
 
@@ -413,7 +439,20 @@ export default class App {
 
                 case 'invalidusername':
                     // The username contains characters that are not allowed (rejected by the sanitizer)
-                    self.addValidationError(null, lang.data['USERNAME_INVALID_CHARS']);
+                    self.addValidationError(
+                        self.registerFormActive() ? self.jqRegisterName : null,
+                        lang.data['USERNAME_INVALID_CHARS']
+                    );
+                    break;
+
+                case 'invalidemail':
+                    // The optional e-mail on the create-account window was rejected by
+                    // userserver/js/user.js's handleCreateUser (Utils.checkInputEmail). The
+                    // connection stays open, so the player can fix it or clear it and retry.
+                    self.addValidationError(
+                        self.jqRegisterEmail,
+                        lang.data['EMAIL_INVALID']
+                    );
                     break;
 
                 case 'loggedin':
@@ -521,9 +560,31 @@ export default class App {
             if (self.jqUserLoad.hasClass('loading')) return;
             self.tryUserAction(1);
         });
+        // REGISTER on the login window now opens the create-account window instead of
+        // registering the login fields directly; CREATE there sends the request.
         this.jqUserCreate.click(function () {
             if (self.jqUserCreate.hasClass('loading')) return;
+            self.showRegisterWindow();
+        });
+        this.jqRegisterSubmit.click(function () {
+            if (!self.userReady) return;
             self.tryUserAction(2);
+        });
+        this.jqRegisterBack.click(function () {
+            self.hideRegisterWindow();
+        });
+        this.jqRegisterWindow.keydown(function (e) {
+            if (e.which === 13) {
+                if (self.userReady) {
+                    $('input').blur(); // exit keyboard on mobile
+                    self.tryUserAction(2);
+                }
+                return false;
+            }
+            if (e.which === 27) {
+                self.hideRegisterWindow();
+                return false;
+            }
         });
         this.jqPlayerLoad.click(function () {
             if (self.jqPlayerLoad.hasClass('loading')) return;

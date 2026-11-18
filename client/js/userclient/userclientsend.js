@@ -36,11 +36,13 @@ export function installUserClientSend(proto) {
         ]);
     };
 
+    // 3rd field: the optional e-mail from the create-account window ('' = none).
     proto.sendCreateUser = function (user) {
         this.sendMessage([
             Types.UserMessages.CU_CREATE_USER,
             user.username,
-            user.hash
+            user.hash,
+            user.email || ''
         ]);
     };
 

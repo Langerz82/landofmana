@@ -47,7 +47,7 @@ func _process(_d: float) -> void:
 				await _shot("ui_01_login")
 				l._user.text = user
 				l._pass.text = pw
-				l._try_login(false)
+				l._try_login()
 				t0 = now
 				stage = 1
 		1:
@@ -66,7 +66,10 @@ func _process(_d: float) -> void:
 				stage = 2
 			elif not tried_register and l._status.text == GameData.tr_lang("LOGIN_INVALID"):
 				tried_register = true
-				l._try_login(true)
+				l._show_register()
+				l._reg_pass.text = pw
+				l._reg_pass2.text = pw
+				l._try_register()
 		2:
 			if main.world and main.world.started and main.world.map_status >= 2:
 				t0 = now

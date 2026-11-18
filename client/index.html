@@ -139,6 +139,27 @@
 			</article>
 		</div>
 	</div>
+	<!-- Create account: opened by REGISTER on #user_window (see app.js showRegisterWindow). -->
+	<div class="frame" id="register_window" tabindex="0">
+		<div class="frame-heading" id="registerHeading">NEW ACCOUNT</div>
+		<div class="frame-content">
+			<article id="registeraccount">
+			<div class="newFieldName" id="lbl_register_name">Username</div>
+			<div class="newFieldName" id="lbl_register_password">Password</div>
+			<div class="newFieldName" id="lbl_register_password2">Confirm</div>
+			<div class="newFieldName" id="lbl_register_email">E-mail</div>
+			<form action="none" method="get" accept-charset="utf-8" autocomplete="off">
+				<input type="text" id="register_name" class="stroke" name="register-name" placeholder="Username" maxlength="16" autocomplete="off" />
+				<input type="password" id="register_password" class="stroke" name="register-pw" placeholder="Password" maxlength="32" autocomplete="new-password"/>
+				<input type="password" id="register_password2" class="stroke" name="register-pw2" placeholder="Password again" maxlength="32" autocomplete="new-password"/>
+				<input type="email" id="register_email" class="stroke" name="register-email" placeholder="(optional)" maxlength="254" autocomplete="email"/>
+			</form>
+			<div class="frame-new-button" id="register_back">BACK</div>
+			<div class="frame-new-button" id="register_submit">CREATE</div>
+			<div class="validation-summary frame-stroke1" id="registerInfo"></div>
+			</article>
+		</div>
+	</div>
   <div class="frame-new-button" id="aboutbutton">ABOUT</div>
   <div class="frame-new-button" id="user_remove">DELETE</div>
 

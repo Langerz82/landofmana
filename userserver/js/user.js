@@ -191,6 +191,11 @@ class User {
 
         this.gems = 0;
 
+        // Optional account e-mail, set by handleCreateUser() from the
+        // create-account window ('' = none given) and stored in the u:<name>
+        // key's "email" field by DBLogic.createUser().
+        this.email = '';
+
         // Must start at 0 -- checkUser() does `++this.passwordTries`, and
         // incrementing an undefined value produces NaN forever, which made
         // `NaN > 3` always false and disabled the lockout-after-3-tries check.
@@ -295,11 +300,28 @@ class User {
         let name = Utils.sanitize(message[0]);
         let hash = Utils.sanitize(message[1]);
         hash = Utils.btoa(hash);
+        // Optional 3rd field (format.js allows it to be missing, for older
+        // clients, or blank). Checked against Utils.checkInputEmail before
+        // anything else so a bad address is answered with 'invalidemail' and
+        // the player can fix it -- nothing is reserved or hashed for it.
+        const email =
+            typeof message[2] === 'string'
+                ? message[2].trim()
+                : '';
 
         console.info('Starting Client/Server Handshake');
 
         self.name = name.substr(0, 16).trim().toLowerCase();
         console.info('self.user.name=' + self.name);
+
+        if (email !== '' && !Utils.checkInputEmail(email)) {
+            self.connection.send([
+                Types.UserMessages.UC_ERROR,
+                'invalidemail'
+            ]);
+            return;
+        }
+        self.email = email;
 
         const decrypt = decryptPassword(hash, this.hashChallenge);
 

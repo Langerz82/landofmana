@@ -18,7 +18,7 @@
 class_name LoginScreen
 extends Control
 ## Login / registration / character selection. Replaces the HTML user window,
-## player window and app/*.js validation of the JS client.
+## create-account window, player window and app/*.js validation of the JS client.
 
 signal enter_world(info: Dictionary)
 
@@ -40,6 +40,7 @@ const INFO_KEYS := {
 	"userexists": "USERNAME_TAKEN",
 	"playerexists": "PLAYERNAME_TAKEN",
 	"invalidusername": "USERNAME_INVALID_CHARS",
+	"invalidemail": "EMAIL_INVALID",
 	"invalidname": "PLAYERNAME_ALPHANUMERIC",
 	"loggedin": "USER_ALREADY_LOGGEDIN",
 	"ban": "USER_BANNED",
@@ -60,6 +61,14 @@ var _connect_btn: Button
 var _status: Label
 var _update_btn: Button     # shown when the server runs a newer client version
 var _login_box: VBoxContainer
+## Create-account window: opened by "Create account" on the login box, in its
+## place (see _show_register / _try_register).
+var _register_box: VBoxContainer
+var _reg_user: LineEdit
+var _reg_pass: LineEdit
+var _reg_pass2: LineEdit
+var _reg_email: LineEdit
+var _reg_create_btn: Button
 var _player_box: VBoxContainer
 var _world_select: OptionButton
 var _player_list: ItemList
@@ -96,6 +105,10 @@ func _ready() -> void:
 	_login_box = VBoxContainer.new()
 	_login_box.add_theme_constant_override("separation", 6)
 	v.add_child(_login_box)
+	_register_box = VBoxContainer.new()
+	_register_box.add_theme_constant_override("separation", 6)
+	_register_box.visible = false
+	v.add_child(_register_box)
 	_player_box = VBoxContainer.new()
 	_player_box.add_theme_constant_override("separation", 6)
 	_player_box.visible = false
@@ -114,6 +127,7 @@ func _ready() -> void:
 			_status.text = "Could not open the update page.")
 	v.add_child(_update_btn)
 	_build_login()
+	_build_register()
 	_build_players()
 	var version := Label.new()
 	version.text = "Godot client %s  -  protocol v%d" % [ProjectSettings.get_setting("application/config/version", "0"), Config.get_version()]
@@ -209,7 +223,7 @@ func _build_login() -> void:
 	_user = _field(_login_box, "Username")
 	_pass = _field(_login_box, "Password", true)
 	_user.text = str(Config.get_setting("login", "username", ""))
-	_pass.text_submitted.connect(func(_t): _try_login(false))
+	_pass.text_submitted.connect(func(_t): _try_login())
 	_remember = CheckBox.new()
 	_remember.text = "Remember username"
 	_remember.button_pressed = _user.text != ""
@@ -220,15 +234,49 @@ func _build_login() -> void:
 	_login_btn = Button.new()
 	_login_btn.text = "Login"
 	_login_btn.custom_minimum_size = Vector2(140, 34)
-	_login_btn.pressed.connect(func(): _try_login(false))
+	_login_btn.pressed.connect(func(): _try_login())
 	buttons.add_child(_login_btn)
 	_register_btn = Button.new()
 	_register_btn.text = "Create account"
 	_register_btn.custom_minimum_size = Vector2(140, 34)
-	_register_btn.pressed.connect(func(): _try_login(true))
+	_register_btn.pressed.connect(_show_register)
 	buttons.add_child(_register_btn)
 	_login_box.add_child(buttons)
 	_set_login_enabled(false)
+
+
+func _build_register() -> void:
+	var title := Label.new()
+	title.text = "Create account"
+	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	title.add_theme_font_size_override("font_size", 20)
+	_register_box.add_child(title)
+	_reg_user = _field(_register_box, "Username")
+	_reg_user.max_length = 16
+	_reg_pass = _field(_register_box, "Password", true)
+	_reg_pass.max_length = 32
+	_reg_pass2 = _field(_register_box, "Confirm", true)
+	_reg_pass2.max_length = 32
+	_reg_email = _field(_register_box, "E-mail")
+	_reg_email.max_length = 254
+	_reg_email.placeholder_text = "optional"
+	_reg_email.virtual_keyboard_type = LineEdit.KEYBOARD_TYPE_EMAIL_ADDRESS
+	for e: LineEdit in [_reg_user, _reg_pass, _reg_pass2, _reg_email]:
+		e.text_submitted.connect(func(_t): _try_register())
+	var buttons := HBoxContainer.new()
+	buttons.alignment = BoxContainer.ALIGNMENT_CENTER
+	buttons.add_theme_constant_override("separation", 12)
+	var back := Button.new()
+	back.text = "Back"
+	back.custom_minimum_size = Vector2(140, 34)
+	back.pressed.connect(_show_login)
+	buttons.add_child(back)
+	_reg_create_btn = Button.new()
+	_reg_create_btn.text = "Create"
+	_reg_create_btn.custom_minimum_size = Vector2(140, 34)
+	_reg_create_btn.pressed.connect(_try_register)
+	buttons.add_child(_reg_create_btn)
+	_register_box.add_child(buttons)
 
 
 func _build_players() -> void:
@@ -274,6 +322,7 @@ func connect_user_server() -> void:
 	_ready_for_login = false
 	_set_login_enabled(false)
 	_login_box.visible = true
+	_register_box.visible = false
 	_player_box.visible = false
 	uc = UserClient.new()
 	uc.name = "UserClient"
@@ -301,9 +350,11 @@ func connect_user_server() -> void:
 func _set_login_enabled(on: bool) -> void:
 	_login_btn.disabled = not on
 	_register_btn.disabled = not on
+	if _reg_create_btn:  # null while _build_login runs (built after it)
+		_reg_create_btn.disabled = not on
 
 
-func _try_login(register: bool) -> void:
+func _try_login() -> void:
 	if not _ready_for_login:
 		return
 	var name_t := _user.text.strip_edges()
@@ -316,11 +367,69 @@ func _try_login(register: bool) -> void:
 		return
 	Config.set_setting("login", "username", name_t if _remember.button_pressed else "")
 	_set_login_enabled(false)
-	_status.text = "Creating account..." if register else "Logging in..."
-	if register:
-		uc.send_create_user(name_t, pw)
-	else:
-		uc.send_login_user(name_t, pw)
+	_status.text = "Logging in..."
+	uc.send_login_user(name_t, pw)
+
+
+## Opens the create-account window in place of the login box, carrying over
+## the username typed there.
+func _show_register() -> void:
+	_reg_user.text = _user.text.strip_edges()
+	_reg_pass.text = ""
+	_reg_pass2.text = ""
+	_login_box.visible = false
+	_register_box.visible = true
+	_status.text = "Choose a username and password. The e-mail is optional."
+
+
+## Back to the login box, keeping the username typed on the create-account window.
+func _show_login() -> void:
+	if _reg_user.text.strip_edges() != "":
+		_user.text = _reg_user.text.strip_edges()
+	_reg_pass.text = ""
+	_reg_pass2.text = ""
+	_register_box.visible = false
+	_login_box.visible = true
+	_status.text = ""
+
+
+## Same rules as the JS client's validateRegisterForm (app/appvalidation.js);
+## the e-mail check matches shared/js/utils.js Utils.checkInputEmail, which the
+## user server applies again.
+func _try_register() -> void:
+	if not _ready_for_login:
+		return
+	var name_t := _reg_user.text.strip_edges()
+	var pw := _reg_pass.text
+	var email := _reg_email.text.strip_edges()
+	var alnum := RegEx.create_from_string("^[A-Za-z0-9]+$")
+	if name_t.length() < 2 or name_t.length() > 16:
+		_status.text = GameData.tr_lang("USERNAME_LENGTH")
+		return
+	if alnum.search(name_t) == null:
+		_status.text = GameData.tr_lang("USERNAME_ALPHANUMERIC")
+		return
+	if pw.length() < 6 or pw.length() > 32:
+		_status.text = GameData.tr_lang("PASSWORD_LENGTH")
+		return
+	if pw != _reg_pass2.text:
+		_status.text = GameData.tr_lang("PASSWORD_MISMATCH")
+		return
+	if email != "" and not _valid_email(email):
+		_status.text = GameData.tr_lang("EMAIL_INVALID")
+		return
+	Config.set_setting("login", "username", name_t if _remember.button_pressed else "")
+	_set_login_enabled(false)
+	_status.text = "Creating account..."
+	uc.send_create_user(name_t, pw, email)
+
+
+static func _valid_email(email: String) -> bool:
+	if email.length() < 6 or email.length() > 254:
+		return false
+	var re := RegEx.create_from_string(
+		"^[A-Za-z0-9._%+\\-]+@[A-Za-z0-9\\-]+(\\.[A-Za-z0-9\\-]+)*\\.[A-Za-z]{2,}$")
+	return re.search(email) != null
 
 
 func _on_worlds(worlds: Array) -> void:
@@ -331,6 +440,7 @@ func _on_worlds(worlds: Array) -> void:
 
 func _on_players(players: Array) -> void:
 	_login_box.visible = false
+	_register_box.visible = false
 	_player_box.visible = true
 	_player_list.clear()
 	for p in players:
@@ -387,5 +497,6 @@ func _on_error(text: String) -> void:
 	_play_btn.disabled = false
 	_create_btn.disabled = false
 	_login_box.visible = true
+	_register_box.visible = false
 	_player_box.visible = false
 	_status.text = text + "\nCheck the server address and press Connect."

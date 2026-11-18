@@ -19,6 +19,7 @@
 // Mixin extracted from app.js: Login/character-create form validation: tryUserAction/tryPlayerAction, field-level validators, error display/clearing.
 // Applied onto App.prototype via install*(...) call in app.js; not a standalone class.
 import User, { PlayerSummary } from '../user.js';
+import Utils from '../utils.js';
 /* global log, lang */
 
 export function installAppValidation(proto) {
@@ -26,22 +27,40 @@ export function installAppValidation(proto) {
         if (this.starting) return; // Already loading
 
         if (action > 0) {
-            const username = this.jqUsernameInput.val();
-            const userpw =
-                action === 3
-                    ? this.jqRemovePassword.val()
-                    : this.jqUserPasswordInput.val();
+            // action 2 (create account) reads the create-account window's fields
+            // (#register_window); login (1) and remove (3) read the login window's.
+            const registering = action === 2;
+            const username = registering
+                ? this.jqRegisterName.val().trim()
+                : this.jqUsernameInput.val();
+            let userpw;
+            if (action === 3) userpw = this.jqRemovePassword.val();
+            else if (registering) userpw = this.jqRegisterPassword.val();
+            else userpw = this.jqUserPasswordInput.val();
             let hash = null;
             if (userpw === '') hash = this.jqUserHashInput.val();
             log.info('hash=' + hash);
 
-            if (!this.validateUserForm(username, userpw)) return;
+            let email = '';
+            if (registering) {
+                email = this.jqRegisterEmail.val().trim();
+                if (
+                    !this.validateRegisterForm(
+                        username,
+                        userpw,
+                        this.jqRegisterPassword2.val(),
+                        email
+                    )
+                )
+                    return;
+            } else if (!this.validateUserForm(username, userpw)) return;
 
             const user = (this.user = new User(
                 this.userclient,
                 username,
                 userpw
             ));
+            user.email = email;
             this.userclient.user = this.user;
 
             if (this.jqUserSave.is(':checked')) {
@@ -95,18 +114,26 @@ export function installAppValidation(proto) {
         return this.jqPlayerWindow.is(':visible');
     };
 
+    proto.registerFormActive = function () {
+        return this.jqRegisterWindow.is(':visible');
+    };
+
     /**
      * Performs some basic validation on the login / create new character forms (required fields are filled
      * out, passwords match, email looks valid). Assumes either the login or the create new character form
      * is currently active.
      */
 
-    proto.validateUserForm = function (username, userpw) {
+    // nameField/pwField: the inputs to highlight on an error - the login window's by
+    // default; validateRegisterForm passes the create-account window's.
+    proto.validateUserForm = function (username, userpw, nameField, pwField) {
+        nameField = nameField || this.jqUsernameInput;
+        pwField = pwField || this.jqUserPasswordInput;
         this.clearValidationErrors();
 
         if (!username) {
             this.addValidationError(
-                this.jqUsernameInput,
+                nameField,
                 lang.data['USERNAME_REQUIRED']
             );
             return false;
@@ -114,14 +141,14 @@ export function installAppValidation(proto) {
         // FIX: `&&` made this condition impossible to hit (length can't be both <2 and >16); use `||` so it actually rejects bad lengths
         if (username.length < 2 || username.length > 16) {
             this.addValidationError(
-                this.jqUsernameInput,
+                nameField,
                 lang.data['USERNAME_LENGTH']
             );
             return false;
         }
         if (username === username.replace(/^[A-Za-z0-9]+$/, '')) {
             this.addValidationError(
-                this.jqUsernameInput,
+                nameField,
                 lang.data['USERNAME_ALPHANUMERIC']
             );
             return false;
@@ -131,7 +158,7 @@ export function installAppValidation(proto) {
             // FIX: `&&` made this condition impossible to hit (length can't be both <6 and >32); use `||` so it actually rejects bad lengths
             if (userpw.length < 6 || userpw.length > 32) {
                 this.addValidationError(
-                    this.jqUserPasswordInput,
+                    pwField,
                     lang.data['PASSWORD_LENGTH']
                 );
                 return false;
@@ -144,11 +171,52 @@ export function installAppValidation(proto) {
                 )
             ) {
                 this.addValidationError(
-                    this.jqUserPasswordInput,
+                    pwField,
                     lang.data['PASSWORD_CHARS']
                 );
                 return false;
             }
+        }
+        return true;
+    };
+
+    /**
+     * Validates the create-account window: the same username/password rules as the
+     * login form, except a password is required (there's no saved hash to fall back
+     * on), the confirm field must match it, and the e-mail is optional but must look
+     * like an address if given (Utils.checkInputEmail - the userserver checks it again).
+     */
+    proto.validateRegisterForm = function (username, userpw, userpw2, email) {
+        if (
+            !this.validateUserForm(
+                username,
+                userpw,
+                this.jqRegisterName,
+                this.jqRegisterPassword
+            )
+        )
+            return false;
+
+        if (userpw.length === 0) {
+            this.addValidationError(
+                this.jqRegisterPassword,
+                lang.data['PASSWORD_LENGTH']
+            );
+            return false;
+        }
+        if (userpw !== userpw2) {
+            this.addValidationError(
+                this.jqRegisterPassword2,
+                lang.data['PASSWORD_MISMATCH']
+            );
+            return false;
+        }
+        if (email !== '' && !Utils.checkInputEmail(email)) {
+            this.addValidationError(
+                this.jqRegisterEmail,
+                lang.data['EMAIL_INVALID']
+            );
+            return false;
         }
         return true;
     };
@@ -248,6 +316,7 @@ export function installAppValidation(proto) {
     proto.clearValidationErrors = function () {
         let fields;
         if (this.userFormActive()) fields = this.userFormFields;
+        else if (this.registerFormActive()) fields = this.registerFormFields;
         else if (this.playerFormActive()) fields = this.playerFormFields;
 
         if (fields) {

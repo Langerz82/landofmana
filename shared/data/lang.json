@@ -39,6 +39,8 @@
     "USERNAME_ALPHANUMERIC": "Please enter username alpha numeric characters only.",
     "PASSWORD_LENGTH": "Please enter a user password between 6 and 32 characters.",
     "PASSWORD_CHARS": "Please enter password alpha numeric, and special characters only.",
+    "PASSWORD_MISMATCH": "The two passwords you entered do not match.",
+    "EMAIL_INVALID": "Please enter a valid e-mail address, or leave it blank.",
     "PLAYERNAME_REQUIRED": "Please enter a player name.",
     "PLAYERNAME_LENGTH": "Please enter a player name between 2 and 16 characters.",
 

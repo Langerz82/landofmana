@@ -184,6 +184,19 @@ Utils.checkInputName = function (name) {
     return true;
 };
 
+// Optional account e-mail (create-account window in both clients, checked
+// again by userserver's handleCreateUser). Deliberately simple: something@
+// something.tld, no whitespace and none of the characters the userserver's
+// sanitizer would escape (< > " ' & `), at most 254 characters. Blank is
+// handled by the callers (it means "no e-mail"), not here.
+Utils.checkInputEmail = function (email) {
+    if (typeof email !== 'string') return false;
+    if (email.length < 6 || email.length > 254) return false;
+    return /^[A-Za-z0-9._%+\-]+@[A-Za-z0-9\-]+(\.[A-Za-z0-9\-]+)*\.[A-Za-z]{2,}$/.test(
+        email
+    );
+};
+
 Utils.clamp = function (min, max, value) {
     return Math.max(min, Math.min(max, value));
 };

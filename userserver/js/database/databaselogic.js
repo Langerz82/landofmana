@@ -150,7 +150,10 @@ class DatabaseLogic {
             Utils.BinArrayToBase64(user.looks),
             user.connection._connection.remoteAddress,
             0,
-            '[]'
+            '[]',
+            // Optional e-mail from the create-account window ('' if none) --
+            // saved as the u:<username> "email" field (redis.js saveUserInfo).
+            user.email || ''
         ];
 
         return data;

@@ -157,6 +157,12 @@ const usernameLenMin = 2;
 const usernameLenMax = 16;
 const userHashLenMin = 120;
 const userHashLenMax = 120;
+// Optional e-mail on CU_CREATE_USER. Only the length is checked here (so an
+// old client that sends no e-mail, or a blank one, still passes); the actual
+// address format is checked in user.js's handleCreateUser, which answers
+// with an 'invalidemail' UC_ERROR instead of closing the connection.
+// 254 = the longest address RFC 5321 allows.
+const userEmailLenMax = 254;
 
 const playerNameLenMin = 2;
 const playerNameLenMax = 16;
@@ -371,7 +377,9 @@ class FormatChecker {
 
         this.formats[Types.UserMessages.CU_CREATE_USER] = tupleField([
             stringField(usernameLenMin, usernameLenMax),
-            stringField(userHashLenMin, userHashLenMax)
+            stringField(userHashLenMin, userHashLenMax),
+            // Optional e-mail (missing, or '' when the player left it blank).
+            stringField(0, userEmailLenMax).optional()
         ]);
         this.formats[Types.UserMessages.CU_LOGIN_USER] = tupleField([
             stringField(usernameLenMin, usernameLenMax),

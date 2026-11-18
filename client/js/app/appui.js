@@ -382,7 +382,39 @@ export function installAppUI(proto) {
         if (destination !== 'user_window') {
             this.jqAboutButton.hide();
         }
-        if (destination === 'player_window') this.jqUserRemove.show();
+        if (destination === 'player_window') {
+            this.jqUserRemove.show();
+            // Logged in / account created - the create-account window may still be up
+            // (it's opened over a hidden #user_window, see showRegisterWindow below).
+            this.jqRegisterWindow.hide();
+        }
+    };
+
+    /**
+     * Opens the create-account window (#register_window) in place of the login window.
+     * Carries over whatever username was typed on the login window and starts with
+     * empty password fields.
+     */
+    proto.showRegisterWindow = function () {
+        this.clearValidationErrors();
+        this.jqRegisterName.val(this.jqUsernameInput.val());
+        this.jqRegisterPassword.val('');
+        this.jqRegisterPassword2.val('');
+        this.jqRegisterInfo.text('');
+        this.jqUserWindow.hide();
+        this.jqRegisterWindow.show();
+        (this.jqRegisterName.val() ? this.jqRegisterPassword : this.jqRegisterName).focus();
+    };
+
+    /** Back to the login window, keeping the username typed on the create-account window. */
+    proto.hideRegisterWindow = function () {
+        this.clearValidationErrors();
+        if (this.jqRegisterName.val()) this.jqUsernameInput.val(this.jqRegisterName.val());
+        this.jqRegisterPassword.val('');
+        this.jqRegisterPassword2.val('');
+        this.jqRegisterWindow.hide();
+        this.jqUserWindow.show();
+        this.jqUserWindow.focus();
     };
 
     proto.resizeUi = function () {
