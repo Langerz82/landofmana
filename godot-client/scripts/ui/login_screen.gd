@@ -17,8 +17,9 @@
 
 class_name LoginScreen
 extends Control
-## Login / registration / password change / character selection. Replaces the
-## HTML user window, create-account and change-password windows, player window
+## Login / registration / forgot password / character selection / account
+## settings (e-mail, new password, delete account). Replaces the HTML user,
+## create-account, forgot-password, player, settings and delete-account windows
 ## and app/*.js validation of the JS client.
 
 signal enter_world(info: Dictionary)
@@ -46,6 +47,9 @@ const INFO_KEYS := {
 	"passwordreset": "PASSWORD_RESET_SENT",
 	"resetwait": "PASSWORD_RESET_WAIT",
 	"mailunavailable": "MAIL_UNAVAILABLE",
+	"emailfail": "EMAIL_UPDATE_FAILED",
+	"removed_user_ok": "USER_REMOVED",
+	"removed_user_fail": "USER_REMOVE_FAILED",
 	"invalidname": "PLAYERNAME_ALPHANUMERIC",
 	"loggedin": "USER_ALREADY_LOGGEDIN",
 	"ban": "USER_BANNED",
@@ -74,17 +78,28 @@ var _reg_pass: LineEdit
 var _reg_pass2: LineEdit
 var _reg_email: LineEdit
 var _reg_create_btn: Button
-## Change-password window, once logged in: opened by "Change password" on the
-## character list (see _show_change_password / _try_change_password). Only the
-## new password is asked for -- the account is the logged-in one.
-var _password_box: VBoxContainer
-var _cp_new: LineEdit
-var _cp_new2: LineEdit
-var _cp_btn: Button
 ## Forgot-password window: opened by "Forgot password?" on the login box (see
 ## _show_forgot / _try_forgot). Username + e-mail; the user server e-mails a
 ## temporary password if they match an account.
 var _forgot_box: VBoxContainer
+## Account settings window, once logged in: opened by "Account settings" on the
+## character list. E-mail and new password (saved together by Save -- see
+## _update_settings_save_btn / _try_save_settings), and Delete account.
+var _settings_box: VBoxContainer
+var _st_email: LineEdit
+var _st_pass: LineEdit
+var _st_pass2: LineEdit
+var _st_save_btn: Button
+## Answers still expected for the last Save (one per changed item), the
+## messages from those that arrived, and the e-mail that Save sent.
+var _st_pending := 0
+var _st_msgs: Array[String] = []
+var _st_sent_email := ""
+## Delete-account window, from the settings window: current password + type YES.
+var _delete_box: VBoxContainer
+var _del_pass: LineEdit
+var _del_confirm: LineEdit
+var _del_btn: Button
 var _fp_user: LineEdit
 var _fp_email: LineEdit
 var _fp_btn: Button
@@ -128,14 +143,18 @@ func _ready() -> void:
 	_register_box.add_theme_constant_override("separation", 6)
 	_register_box.visible = false
 	v.add_child(_register_box)
-	_password_box = VBoxContainer.new()
-	_password_box.add_theme_constant_override("separation", 6)
-	_password_box.visible = false
-	v.add_child(_password_box)
 	_forgot_box = VBoxContainer.new()
 	_forgot_box.add_theme_constant_override("separation", 6)
 	_forgot_box.visible = false
 	v.add_child(_forgot_box)
+	_settings_box = VBoxContainer.new()
+	_settings_box.add_theme_constant_override("separation", 6)
+	_settings_box.visible = false
+	v.add_child(_settings_box)
+	_delete_box = VBoxContainer.new()
+	_delete_box.add_theme_constant_override("separation", 6)
+	_delete_box.visible = false
+	v.add_child(_delete_box)
 	_player_box = VBoxContainer.new()
 	_player_box.add_theme_constant_override("separation", 6)
 	_player_box.visible = false
@@ -155,8 +174,9 @@ func _ready() -> void:
 	v.add_child(_update_btn)
 	_build_login()
 	_build_register()
-	_build_change_password()
 	_build_forgot()
+	_build_settings()
+	_build_delete()
 	_build_players()
 	var version := Label.new()
 	version.text = "Godot client %s  -  protocol v%d" % [ProjectSettings.get_setting("application/config/version", "0"), Config.get_version()]
@@ -314,34 +334,6 @@ func _build_register() -> void:
 	_register_box.add_child(buttons)
 
 
-func _build_change_password() -> void:
-	var title := Label.new()
-	title.text = "Change password"
-	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	title.add_theme_font_size_override("font_size", 20)
-	_password_box.add_child(title)
-	_cp_new = _field(_password_box, "New password", true, 150.0)
-	_cp_new.max_length = 32
-	_cp_new2 = _field(_password_box, "Confirm password", true, 150.0)
-	_cp_new2.max_length = 32
-	for e: LineEdit in [_cp_new, _cp_new2]:
-		e.text_submitted.connect(func(_t): _try_change_password())
-	var buttons := HBoxContainer.new()
-	buttons.alignment = BoxContainer.ALIGNMENT_CENTER
-	buttons.add_theme_constant_override("separation", 12)
-	var back := Button.new()
-	back.text = "Back"
-	back.custom_minimum_size = Vector2(140, 34)
-	back.pressed.connect(_show_players)
-	buttons.add_child(back)
-	_cp_btn = Button.new()
-	_cp_btn.text = "Change"
-	_cp_btn.custom_minimum_size = Vector2(140, 34)
-	_cp_btn.pressed.connect(_try_change_password)
-	buttons.add_child(_cp_btn)
-	_password_box.add_child(buttons)
-
-
 func _build_forgot() -> void:
 	var title := Label.new()
 	title.text = "Forgot password"
@@ -369,6 +361,74 @@ func _build_forgot() -> void:
 	_fp_btn.pressed.connect(_try_forgot)
 	buttons.add_child(_fp_btn)
 	_forgot_box.add_child(buttons)
+
+
+func _title(parent: Control, text: String) -> void:
+	var title := Label.new()
+	title.text = text
+	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	title.add_theme_font_size_override("font_size", 20)
+	parent.add_child(title)
+
+
+func _button_row(parent: Control, buttons: Array) -> void:
+	var row := HBoxContainer.new()
+	row.alignment = BoxContainer.ALIGNMENT_CENTER
+	row.add_theme_constant_override("separation", 12)
+	for b: Button in buttons:
+		b.custom_minimum_size = Vector2(140, 34)
+		row.add_child(b)
+	parent.add_child(row)
+
+
+func _make_button(text: String, on_pressed: Callable) -> Button:
+	var b := Button.new()
+	b.text = text
+	b.pressed.connect(on_pressed)
+	return b
+
+
+func _build_settings() -> void:
+	_title(_settings_box, "Account settings")
+	_st_email = _field(_settings_box, "E-mail")
+	_st_email.max_length = 254
+	_st_email.placeholder_text = "none"
+	_st_email.virtual_keyboard_type = LineEdit.KEYBOARD_TYPE_EMAIL_ADDRESS
+	_st_pass = _field(_settings_box, "New password", true, 150.0)
+	_st_pass.max_length = 32
+	_st_pass.placeholder_text = "unchanged"
+	_st_pass2 = _field(_settings_box, "Confirm password", true, 150.0)
+	_st_pass2.max_length = 32
+	_st_pass2.placeholder_text = "unchanged"
+	# Save is only enabled once there's a valid change (_update_settings_save_btn).
+	for e: LineEdit in [_st_email, _st_pass, _st_pass2]:
+		e.text_submitted.connect(func(_t): _try_save_settings())
+		e.text_changed.connect(func(_t): _update_settings_save_btn(_ready_for_login, true))
+	_st_save_btn = _make_button("Save", _try_save_settings)
+	_st_save_btn.custom_minimum_size = Vector2(140, 34)
+	_st_save_btn.size_flags_horizontal = Control.SIZE_SHRINK_END
+	_settings_box.add_child(_st_save_btn)
+	_settings_box.add_child(HSeparator.new())
+	_button_row(_settings_box, [_make_button("Delete account", _show_delete)])
+	_settings_box.add_child(HSeparator.new())
+	_button_row(_settings_box, [_make_button("Back", _show_players)])
+
+
+func _build_delete() -> void:
+	_title(_delete_box, "Delete account")
+	var warn := Label.new()
+	warn.text = "This permanently deletes your account and all its characters."
+	warn.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	warn.custom_minimum_size = Vector2(400, 0)
+	warn.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_delete_box.add_child(warn)
+	_del_pass = _field(_delete_box, "Password", true, 120.0)
+	_del_pass.max_length = 32
+	_del_confirm = _field(_delete_box, "Type YES", false, 120.0)
+	_del_confirm.max_length = 3
+	_del_confirm.text_submitted.connect(func(_t): _try_delete())
+	_del_btn = _make_button("Delete", _try_delete)
+	_button_row(_delete_box, [_make_button("Back", _show_settings), _del_btn])
 
 
 func _build_players() -> void:
@@ -404,12 +464,12 @@ func _build_players() -> void:
 	_create_btn.pressed.connect(_create)
 	_player_box.add_child(_create_btn)
 	_player_box.add_child(HSeparator.new())
-	var change_pw := Button.new()
-	change_pw.text = "Change password"
-	change_pw.flat = true
-	change_pw.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-	change_pw.pressed.connect(_show_change_password)
-	_player_box.add_child(change_pw)
+	var settings := Button.new()
+	settings.text = "Account settings"
+	settings.flat = true
+	settings.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	settings.pressed.connect(_show_settings)
+	_player_box.add_child(settings)
 
 
 # ------------------------------------------------------------- user server
@@ -422,8 +482,9 @@ func connect_user_server() -> void:
 	_set_login_enabled(false)
 	_login_box.visible = true
 	_register_box.visible = false
-	_password_box.visible = false
 	_forgot_box.visible = false
+	_settings_box.visible = false
+	_delete_box.visible = false
 	_player_box.visible = false
 	uc = UserClient.new()
 	uc.name = "UserClient"
@@ -453,10 +514,12 @@ func _set_login_enabled(on: bool) -> void:
 	_register_btn.disabled = not on
 	if _reg_create_btn:  # null while _build_login runs (built after it)
 		_reg_create_btn.disabled = not on
-	if _cp_btn:
-		_cp_btn.disabled = not on
 	if _fp_btn:
 		_fp_btn.disabled = not on
+	if _st_save_btn:
+		_update_settings_save_btn(on)
+	if _del_btn:
+		_del_btn.disabled = not on
 
 
 func _try_login() -> void:
@@ -531,44 +594,121 @@ func _try_forgot() -> void:
 	uc.send_forgot_password(name_t, email)
 
 
-## Opens the change-password window over the character list (logged in).
-func _show_change_password() -> void:
+## Opens the account settings window (logged in) -- from the character list,
+## or back from the delete-account window.
+func _show_settings() -> void:
 	_clear_password_fields()
+	_del_pass.text = ""
+	_del_confirm.text = ""
+	if _player_box.visible:
+		_st_email.text = uc.email if uc else ""
+		_st_pending = 0
+		_st_msgs.clear()
+	_update_settings_save_btn()
 	_player_box.visible = false
-	_password_box.visible = true
-	_status.text = "Choose a new password for %s." % Game.username
-	_cp_new.grab_focus()
+	_delete_box.visible = false
+	_settings_box.visible = true
+	_status.text = "Account: %s" % Game.username
 
 
-## Back to the character list from the change-password window.
+## Back to the character list from the settings window.
 func _show_players() -> void:
 	_clear_password_fields()
-	_password_box.visible = false
+	_settings_box.visible = false
 	_player_box.visible = true
 	_status.text = ""
 
 
-func _clear_password_fields() -> void:
-	_cp_new.text = ""
-	_cp_new2.text = ""
+## Opens the delete-account window from the settings window.
+func _show_delete() -> void:
+	_del_pass.text = ""
+	_del_confirm.text = ""
+	_settings_box.visible = false
+	_delete_box.visible = true
+	_status.text = "Enter your password and type YES to delete your account."
 
 
-## Same rules as the JS client's validatePasswordForm (app/appvalidation.js):
-## the new password follows the new-account rules and must match the confirm
-## field. The user server changes the logged-in account's password.
-func _try_change_password() -> void:
-	if not _ready_for_login or Game.username == "":
+## Settings window: Save is enabled when connected, no earlier Save is still
+## waiting for its answers, and there's something valid to save -- the e-mail
+## differs from the saved one (uc.email) and/or a new password has been typed
+## in both fields that's valid and matches (_settings_password_problem). A
+## half-entered or invalid new password keeps it disabled even if the e-mail
+## changed. `edited` (a field was just changed): clears the last Save's
+## messages and, once the confirm field has been typed in, shows why the new
+## password can't be saved yet.
+func _update_settings_save_btn(on := _ready_for_login, edited := false) -> void:
+	var saved := uc.email if uc else ""
+	var email_changed := _st_email.text.strip_edges() != saved
+	var pw_entered := _st_pass.text != "" or _st_pass2.text != ""
+	var problem := _settings_password_problem(_st_pass.text, _st_pass2.text) if pw_entered else ""
+	_st_save_btn.disabled = not on or _st_pending > 0 \
+		or not (email_changed or pw_entered) or problem != ""
+	if edited:
+		_st_msgs.clear()
+		_status.text = GameData.tr_lang(problem) if problem != "" and _st_pass2.text != "" \
+			else "Account: %s" % Game.username
+
+
+## Same rules as the JS client's settingsPasswordProblem (app/appvalidation.js):
+## "" if the new password can be saved, else the lang key saying why not.
+func _settings_password_problem(pw: String, pw2: String) -> String:
+	if pw.length() < 6 or pw.length() > 32:
+		return "PASSWORD_LENGTH"
+	if pw != pw2:
+		return "PASSWORD_MISMATCH"
+	return ""
+
+
+## Settings window Save: sends whatever changed -- the e-mail ("" removes it)
+## and/or the new password (for the logged-in account). Each gets its own
+## answer (_on_info -> _settings_answered); Save stays disabled until they've
+## all arrived.
+func _try_save_settings() -> void:
+	if not _ready_for_login or _st_save_btn.disabled:
 		return
-	var new_pw := _cp_new.text
-	if new_pw.length() < 6 or new_pw.length() > 32:
+	var new_email := _st_email.text.strip_edges()
+	var email_changed := new_email != (uc.email if uc else "")
+	var new_pw := _st_pass.text
+	if email_changed and new_email != "" and not _valid_email(new_email):
+		_status.text = GameData.tr_lang("EMAIL_INVALID")
+		return
+	_st_msgs.clear()
+	_st_pending = (1 if email_changed else 0) + (1 if new_pw != "" else 0)
+	_set_login_enabled(false)
+	_status.text = "Saving..."
+	if email_changed:
+		_st_sent_email = new_email
+		uc.send_update_email(new_email)
+	if new_pw != "":
+		uc.send_change_password(new_pw)
+
+
+## One answer to the settings window's Save: adds its message to the ones shown
+## and returns them all (for _on_info to show).
+func _settings_answered(msg: String) -> String:
+	_st_pending = maxi(0, _st_pending - 1)
+	_st_msgs.append(msg)
+	_update_settings_save_btn()
+	return "\n".join(_st_msgs)
+
+
+func _try_delete() -> void:
+	if not _ready_for_login:
+		return
+	if _del_pass.text.is_empty():
 		_status.text = GameData.tr_lang("PASSWORD_LENGTH")
 		return
-	if new_pw != _cp_new2.text:
-		_status.text = GameData.tr_lang("PASSWORD_MISMATCH")
+	if _del_confirm.text.strip_edges() != "YES":
+		_status.text = GameData.tr_lang("USER_REMOVE_CONFIRM")
 		return
 	_set_login_enabled(false)
-	_status.text = "Changing password..."
-	uc.send_change_password(new_pw)
+	_status.text = "Deleting account..."
+	uc.send_remove_user(_del_pass.text)
+
+
+func _clear_password_fields() -> void:
+	_st_pass.text = ""
+	_st_pass2.text = ""
 
 
 ## Same rules as the JS client's validateRegisterForm (app/appvalidation.js);
@@ -619,7 +759,9 @@ func _on_worlds(worlds: Array) -> void:
 func _on_players(players: Array) -> void:
 	_login_box.visible = false
 	_register_box.visible = false
-	_password_box.visible = false
+	_forgot_box.visible = false
+	_settings_box.visible = false
+	_delete_box.visible = false
 	_player_box.visible = true
 	_player_list.clear()
 	for p in players:
@@ -669,14 +811,36 @@ func _on_info(code: String) -> void:
 		msg = code
 	if code == "invalidemail" and _forgot_box.visible:
 		msg = GameData.tr_lang("EMAIL_REQUIRED")
+	# Answers to the settings window's Save (one per changed item).
+	if code == "emailupdated":
+		uc.email = _st_sent_email
+		msg = _settings_answered(GameData.tr_lang("EMAIL_UPDATED" if uc.email != "" else "EMAIL_REMOVED"))
+	if code == "passwordChanged":
+		_clear_password_fields()
+		msg = _settings_answered(msg)
+	if code in ["emailfail", "passwordfail"] or (code == "invalidemail" and _settings_box.visible):
+		msg = _settings_answered(msg)
+	if code == "removed_user_ok" or code == "removed_user_fail":
+		# The user server has closed the connection (expected -- see
+		# UserClient._on_error); back to the login box to reconnect.
+		_ready_for_login = false
+		_set_login_enabled(false)
+		_del_pass.text = ""
+		_del_confirm.text = ""
+		_delete_box.visible = false
+		_settings_box.visible = false
+		_player_box.visible = false
+		_login_box.visible = true
+		if code == "removed_user_ok":
+			_user.text = ""
+			_pass.text = ""
+			Config.set_setting("login", "username", "")
+		msg += "\nPress Connect to continue."
 	if code == "passwordreset":
 		# Same answer whether or not anything matched -- back to the login box
 		# with the username filled in, ready for the temporary password.
 		_show_login()
 		_pass.text = ""
-	if code == "passwordChanged":
-		# Saved by the user server -- back to the character list, still logged in.
-		_show_players()
 	_status.text = msg
 
 
@@ -687,7 +851,8 @@ func _on_error(text: String) -> void:
 	_create_btn.disabled = false
 	_login_box.visible = true
 	_register_box.visible = false
-	_password_box.visible = false
 	_forgot_box.visible = false
+	_settings_box.visible = false
+	_delete_box.visible = false
 	_player_box.visible = false
 	_status.text = text + "\nCheck the server address and press Connect."

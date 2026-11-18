@@ -131,6 +131,12 @@ export function installUserClientCallbacks(proto) {
         game.onWorldReady(data);
     };
 
+    // UC_USER_INFO [email]: the logged-in account's saved e-mail, sent with the player
+    // list - shown in the settings window (app/appui.js showSettingsWindow).
+    proto.onUserInfo = function (data) {
+        app.userEmail = data[0] ? String(data[0]) : '';
+    };
+
     proto.onError = function (data) {
         const error = data[0];
 
@@ -152,6 +158,11 @@ export function installUserClientCallbacks(proto) {
             case 'passwordreset':
             case 'resetwait':
             case 'mailunavailable':
+            // Settings window (e-mail, delete account).
+            case 'emailupdated':
+            case 'emailfail':
+            case 'removed_user_ok':
+            case 'removed_user_fail':
                 app.info_callback(data);
                 return;
             // FIX: removed duplicate unreachable 'timeout' case (referenced undefined `self`); merged its isTimeout logic here using `this`

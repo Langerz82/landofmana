@@ -707,6 +707,16 @@ class DatabaseHandler {
         });
     }
 
+    // Settings window: the account's e-mail ('' clears it).
+    setUserEmail(username, email, callback) {
+        const uKey = 'u:' + username;
+        client.hset(uKey, 'email', email, (err) => {
+            if (callback) {
+                callback(username, !err, err);
+            }
+        });
+    }
+
     setUserLastLoginTime(username, value, callback) {
         const uKey = 'u:' + username;
         client.hset(uKey, 'lastLoginTime', value, (err) => {

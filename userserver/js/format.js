@@ -392,6 +392,10 @@ class FormatChecker {
             stringField(usernameLenMin, usernameLenMax),
             stringField(0, userEmailLenMax)
         ]);
+        // [email] -- '' clears it; the format is checked in user.js handleUpdateEmail.
+        this.formats[Types.UserMessages.CU_UPDATE_EMAIL] = tupleField([
+            stringField(0, userEmailLenMax)
+        ]);
         this.formats[Types.UserMessages.CU_LOGIN_USER] = tupleField([
             stringField(usernameLenMin, usernameLenMax),
             stringField(userHashLenMin, userHashLenMax)

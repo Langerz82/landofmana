@@ -34,6 +34,9 @@ var sio: SocketIOClient
 var intentional_disconnect := false
 var version_checked := false
 var players: Array = []
+## The logged-in account's saved e-mail ("" if none), from UC_USER_INFO -- shown
+## in the login screen's account settings window.
+var email := ""
 var worlds: Array = []
 
 
@@ -95,6 +98,20 @@ func send_forgot_password(username: String, email: String) -> void:
 	send([Types.UserMessages.CU_FORGOT_PASSWORD, username.to_lower(), email.strip_edges()])
 
 
+## Account settings window, once logged in: the account's e-mail ("" removes it).
+## Answered "emailupdated", "invalidemail" or "emailfail".
+func send_update_email(new_email: String) -> void:
+	send([Types.UserMessages.CU_UPDATE_EMAIL, new_email.strip_edges()])
+
+
+## Account settings window -> Delete account, once logged in. The user server
+## checks the password, answers "removed_user_ok" or "removed_user_fail", and
+## closes the connection either way.
+func send_remove_user(password: String) -> void:
+	send([Types.UserMessages.CU_REMOVE_USER, Game.username,
+		CryptoJSCompat.make_login_hash(Game.username, password, Game.hash_challenge)])
+
+
 func send_login_player(world_index: int, player_index: int) -> void:
 	send([Types.UserMessages.CU_LOGIN_PLAYER, world_index, player_index])
 
@@ -140,6 +157,8 @@ func _receive_action(data: Array) -> void:
 			_on_world_ready(data)
 		Types.UserMessages.UC_ERROR:
 			_on_error(data)
+		Types.UserMessages.UC_USER_INFO:
+			email = str(data[0]) if data.size() > 0 and data[0] != null else ""
 		Types.Messages.BI_SYNCTIME:
 			Game.set_world_time(Types.to_int(data[0]), Types.to_int(data[1]))
 		_:
@@ -205,10 +224,15 @@ func _on_world_ready(data: Array) -> void:
 
 func _on_error(data: Array) -> void:
 	var code := str(data[0]) if data.size() > 0 else "unknown"
+	if code == "removed_user_ok" or code == "removed_user_fail":
+		intentional_disconnect = true  # the user server closes the connection next
+		info.emit(code)
+		return
 	match code:
 		"full", "noserver", "invalidlogin", "userexists", "playerexists", \
 		"loggedin", "invalidusername", "invalidname", "ban", "passwordChanged", "timeout", \
-		"invalidemail", "passwordfail", "passwordreset", "resetwait", "mailunavailable":
+		"invalidemail", "passwordfail", "passwordreset", "resetwait", "mailunavailable", \
+		"emailupdated", "emailfail":
 			info.emit(code)
 		_:
 			error.emit(GameData.tr_lang(code))

@@ -383,16 +383,15 @@ export function installAppUI(proto) {
             this.jqAboutButton.hide();
         }
         if (destination === 'player_window') {
-            this.jqUserRemove.show();
-            // Logged in - PASSWORD (change password) sits bottom left, opposite DELETE.
-            this.jqChangePwButton.show();
+            // Logged in - SETTINGS (e-mail, new password, delete account) sits bottom left.
+            this.jqSettingsButton.show();
             // Logged in / account created - the create-account window may still be up
             // (it's opened over a hidden #user_window, see showRegisterWindow below).
             this.jqRegisterWindow.hide();
-            this.jqPasswordWindow.hide();
             this.jqForgotWindow.hide();
+            this.jqSettingsWindow.hide();
         } else {
-            this.jqChangePwButton.hide();
+            this.jqSettingsButton.hide();
         }
     };
 
@@ -413,32 +412,112 @@ export function installAppUI(proto) {
     };
 
     /**
-     * Opens the change-password window (#password_window) over the character-select
-     * screen (only reachable once logged in - the PASSWORD button is only shown there).
+     * Opens the account settings window (#settings_window) over the character-select
+     * screen (only reachable once logged in - the SETTINGS button is only shown there),
+     * with the account's saved e-mail filled in.
      */
-    proto.showPasswordWindow = function () {
+    proto.showSettingsWindow = function () {
         this.clearValidationErrors();
-        this.jqChangePwNew.val('');
-        this.jqChangePwNew2.val('');
-        this.jqChangePwInfo.text('');
-        this.jqPlayerInfo.text('');
+        this.jqSettingsEmail.val(this.userEmail || '');
+        this.jqSettingsPassword.val('');
+        this.jqSettingsPassword2.val('');
+        this.settingsPending = 0;
+        this.settingsMessages = [];
+        this.jqSettingsInfo.text('');
+        this.updateSettingsSaveButton();
         this.jqPlayerWindow.hide();
-        this.jqChangePwButton.hide();
-        this.jqUserRemove.hide();
-        this.jqPasswordWindow.show();
-        this.jqChangePwNew.focus();
+        this.jqSettingsButton.hide();
+        this.jqSettingsWindow.show();
+        this.jqSettingsWindow.focus();
+    };
+
+    /**
+     * Settings window: SAVE is enabled when there's something valid to save - the e-mail
+     * differs from the account's saved one (this.userEmail), and/or a new password has
+     * been typed in both fields that's valid and matches (settingsPasswordProblem in
+     * appvalidation.js) - and no earlier SAVE is still waiting for its answers. A
+     * half-entered or invalid new password keeps it disabled even if the e-mail changed.
+     *
+     * Called when the window opens, once a SAVE is fully answered, and on every edit
+     * (app.js, `edited` = true): an edit clears the last SAVE's messages and, once the
+     * confirm field has been typed in, shows why the new password can't be saved yet.
+     */
+    proto.updateSettingsSaveButton = function (edited) {
+        const emailChanged =
+            this.jqSettingsEmail.val().trim() !== (this.userEmail || '');
+        const pw = this.jqSettingsPassword.val();
+        const pw2 = this.jqSettingsPassword2.val();
+        const pwEntered = pw !== '' || pw2 !== '';
+        const pwProblem = pwEntered ? this.settingsPasswordProblem(pw, pw2) : null;
+
+        const canSave =
+            this.settingsPending === 0 &&
+            (emailChanged || pwEntered) &&
+            pwProblem === null;
+        this.jqSettingsSave.toggleClass('disabled', !canSave);
+
+        if (edited) {
+            this.settingsMessages = [];
+            this.clearValidationErrors();
+            this.jqSettingsInfo.text(
+                pwProblem && pw2 !== '' ? lang.data[pwProblem] : ''
+            );
+        }
+    };
+
+    /**
+     * One answer to the settings window's SAVE (app.js info_callback): adds its message to
+     * the ones shown under the form (errorField = the field to mark red, for a failure)
+     * and, once every answer has arrived, re-enables SAVE if there's still something to save.
+     */
+    proto.settingsSaveAnswered = function (message, errorField) {
+        this.settingsPending = Math.max(0, this.settingsPending - 1);
+        this.settingsMessages.push({ text: message, error: !!errorField });
+        if (errorField) errorField.addClass('field-error');
+
+        this.jqSettingsInfo.empty();
+        for (const m of this.settingsMessages) {
+            $('<div/>', {
+                class: m.error ? 'validation-error' : '',
+                text: m.text
+            }).appendTo(this.jqSettingsInfo);
+        }
+        if (this.settingsPending === 0) this.updateSettingsSaveButton();
     };
 
     /** Back to the character-select screen. */
-    proto.hidePasswordWindow = function () {
+    proto.hideSettingsWindow = function () {
         this.clearValidationErrors();
-        this.jqChangePwNew.val('');
-        this.jqChangePwNew2.val('');
-        this.jqPasswordWindow.hide();
+        this.jqSettingsPassword.val('');
+        this.jqSettingsPassword2.val('');
+        $('#remove_window').hide();
+        this.jqSettingsWindow.hide();
         this.jqPlayerWindow.show();
-        this.jqChangePwButton.show();
-        this.jqUserRemove.show();
+        this.jqSettingsButton.show();
         this.jqPlayerWindow.focus();
+    };
+
+    /**
+     * Opens the delete-account window (#remove_window) in place of the settings window
+     * (its DELETE button), with empty password / "YES" fields.
+     */
+    proto.showDeleteWindow = function () {
+        this.clearValidationErrors();
+        $('#remove_password').val('');
+        $('#remove_confirm').val('');
+        this.jqSettingsInfo.text('');
+        this.jqSettingsWindow.hide();
+        $('#remove_window').show();
+        $('#remove_password').focus();
+    };
+
+    /** Back to the settings window from the delete-account window. */
+    proto.hideDeleteWindow = function () {
+        $('#remove_password').val('');
+        $('#remove_confirm').val('');
+        $('#remove_window').hide();
+        this.jqSettingsWindow.show();
+        this.jqSettingsWindow.focus();
     };
 
     /**

@@ -349,14 +349,22 @@
     pointer-events: all;
 }
 
+/* Delete-account window: BACK (to the settings window) bottom left, REMOVE
+   bottom right - same as the other account windows. */
+#user_remove_back,
 #user_remove_confirm {
     position: absolute;
     bottom: 0;
-    left: 3%;
     width: 140px;
     height: 50px;
     line-height: 40px;
     cursor: pointer;
+}
+#user_remove_back {
+    left: 3%;
+}
+#user_remove_confirm {
+    right: 3%;
 }
 
 /* Create-account window (opened by REGISTER on #user_window). Same look as
@@ -438,9 +446,9 @@
     right: 3%;
 }
 
-/* Change-password window, once logged in (opened by #user_changepw on the
-   character-select screen, bottom left - mirrors #user_remove bottom right). */
-#user_changepw {
+/* SETTINGS button on the character-select screen (bottom left; opens
+   #settings_window below). */
+#user_settings {
     position: absolute;
     left: 0;
     bottom: 0;
@@ -453,71 +461,9 @@
     opacity: 0.75;
     z-index: 1;
 }
-#password_window {
-    display: none;
-    position: absolute;
-    width: 350px;
-    height: 340px;
-    top: 50%;
-    left: 50%;
-    margin-left: -175px;
-    margin-top: -170px;
-    color: white;
-    font-size: 18px;
-    z-index: 5;
-}
-#password_window input {
-    position: absolute;
-    left: 190px;
-    width: 135px;
-    font-family: "GraphicPixel";
-    font-size: 18px;
-    text-align: center;
-    color: #000;
-}
-#password_window input:focus {
-    color: #000;
-}
-#password_window input.field-error {
-    background: rgba(255, 0, 0, 0.1);
-    border-color: #f84444;
-}
-#lbl_changepw_new,
-#lbl_changepw_new2 {
-    position: absolute;
-    width: 170px;
-    text-align: right;
-    left: 5px;
-}
-#lbl_changepw_new,
-#changepw_new {
-    top: 15px;
-}
-#lbl_changepw_new2,
-#changepw_new2 {
-    top: 60px;
-}
-#password_window .validation-summary {
-    top: 110px;
-}
-#changepw_back,
-#changepw_submit {
-    position: absolute;
-    bottom: 0;
-    width: 140px;
-    height: 50px;
-    line-height: 40px;
-    cursor: pointer;
-}
-#changepw_back {
-    left: 3%;
-}
-#changepw_submit {
-    right: 3%;
-}
 
 /* "Forgot password?" link on the login window, and the forgot-password
-   window it opens (same layout as #password_window). */
+   window it opens (two fields, BACK left and SEND right). */
 #user_forgot {
     position: absolute;
     top: 206px;
@@ -591,4 +537,97 @@
 }
 #forgot_submit {
     right: 3%;
+}
+
+/* Account settings window, once logged in (opened by #user_settings above):
+   e-mail and new password, saved together by SAVE, and delete account. */
+#settings_window {
+    display: none;
+    position: absolute;
+    width: 350px;
+    height: 430px;
+    top: 50%;
+    left: 50%;
+    margin-left: -175px;
+    margin-top: -215px;
+    color: white;
+    font-size: 18px;
+    z-index: 5;
+}
+#settings_window input {
+    position: absolute;
+    left: 170px;
+    width: 155px;
+    font-family: "GraphicPixel";
+    font-size: 18px;
+    text-align: center;
+    color: #000;
+}
+#settings_window input:focus {
+    color: #000;
+}
+#settings_window input.field-error {
+    background: rgba(255, 0, 0, 0.1);
+    border-color: #f84444;
+}
+#lbl_settings_email,
+#lbl_settings_password,
+#lbl_settings_password2,
+#lbl_settings_delete {
+    position: absolute;
+    left: 5px;
+    width: 155px;
+    text-align: right;
+}
+#lbl_settings_email,
+#settings_email {
+    top: 15px;
+}
+#lbl_settings_password,
+#settings_password {
+    top: 55px;
+}
+#lbl_settings_password2,
+#settings_password2 {
+    top: 95px;
+}
+#settings_save,
+#settings_delete {
+    position: absolute;
+    left: 170px;
+    width: 140px;
+    cursor: pointer;
+}
+#settings_save {
+    top: 135px;
+}
+/* SAVE is disabled until the e-mail or password has a valid change
+   (appui.js updateSettingsSaveButton). */
+#settings_save.disabled {
+    opacity: 0.5;
+    cursor: default;
+}
+#lbl_settings_delete {
+    top: 198px;
+}
+#settings_delete {
+    top: 190px;
+}
+#settings_window .validation-summary {
+    top: 245px;
+}
+/* One line per answer to SAVE (appui.js settingsSaveAnswered) - the page's
+   reset gives every div the menu font otherwise. */
+#settingsInfo div {
+    font-family: "GraphicPixel";
+    font-size: 18px;
+}
+#settings_back {
+    position: absolute;
+    bottom: 0;
+    left: 3%;
+    width: 140px;
+    height: 50px;
+    line-height: 40px;
+    cursor: pointer;
 }

@@ -58,7 +58,9 @@ export default class App {
         this.jqUserLoad = $('#user_load');
         this.jqUserCreate = $('#user_create');
         this.jqPlayerCancel = $('#player_cancel');
-        this.jqUserRemove = $('#user_remove');
+        // DELETE on the settings window (#settings_window) - opens #remove_window, as the
+        // old DELETE button on the character-select screen did.
+        this.jqUserRemove = $('#settings_delete');
         this.jqAboutButton = $('#aboutbutton');
         this.jqRemovePassword = $('#remove_password');
         // FIX: selector referenced '#user_save', which doesn't exist in any of the HTML
@@ -93,19 +95,6 @@ export default class App {
             this.jqRegisterEmail
         ];
 
-        // Change-password window (#password_window), opened once logged in by the PASSWORD
-        // button on the character-select screen - see showPasswordWindow()/
-        // hidePasswordWindow() in appui.js and tryChangePassword()/validatePasswordForm()
-        // in appvalidation.js. Only the new password is asked for: the account is the
-        // logged-in one.
-        this.jqPasswordWindow = $('#password_window');
-        this.jqChangePwButton = $('#user_changepw');
-        this.jqChangePwNew = $('#changepw_new');
-        this.jqChangePwNew2 = $('#changepw_new2');
-        this.jqChangePwSubmit = $('#changepw_submit');
-        this.jqChangePwBack = $('#changepw_back');
-        this.passwordFormFields = [this.jqChangePwNew, this.jqChangePwNew2];
-
         // Forgot-password window (#forgot_window), opened by "Forgot password?" on the
         // login window - see showForgotWindow()/hideForgotWindow() in appui.js and
         // tryForgotPassword() in appvalidation.js.
@@ -116,6 +105,30 @@ export default class App {
         this.jqForgotSubmit = $('#forgot_submit');
         this.jqForgotBack = $('#forgot_back');
         this.forgotFormFields = [this.jqForgotName, this.jqForgotEmail];
+
+        // Account settings window (#settings_window), opened once logged in by the SETTINGS
+        // button on the character-select screen: e-mail (CU_UPDATE_EMAIL) and new password
+        // (CU_CHANGE_PASSWORD), saved together by SAVE, and delete account (#remove_window).
+        // See showSettingsWindow()/updateSettingsSaveButton()/settingsSaveAnswered() in
+        // appui.js and trySaveSettings() in appvalidation.js. this.userEmail is the account's
+        // saved e-mail, from UC_USER_INFO (userclientcallbacks.js onUserInfo).
+        this.jqSettingsButton = $('#user_settings');
+        this.jqSettingsWindow = $('#settings_window');
+        this.jqSettingsEmail = $('#settings_email');
+        this.jqSettingsPassword = $('#settings_password');
+        this.jqSettingsPassword2 = $('#settings_password2');
+        this.jqSettingsSave = $('#settings_save');
+        this.jqSettingsBack = $('#settings_back');
+        this.settingsFormFields = [
+            this.jqSettingsEmail,
+            this.jqSettingsPassword,
+            this.jqSettingsPassword2
+        ];
+        this.userEmail = '';
+        // Answers still expected for the last SAVE (one per changed item), and the
+        // messages from those that have arrived - see settingsSaveAnswered() in appui.js.
+        this.settingsPending = 0;
+        this.settingsMessages = [];
 
         // Create new character form fields
         this.jqPlayerNameInput = $('#player_name');
@@ -211,9 +224,8 @@ export default class App {
 
         this.jqLoginInfo = $('#loginInfo');
         this.jqRegisterInfo = $('#registerInfo');
-        this.jqChangePwInfo = $('#changepwInfo');
         this.jqForgotInfo = $('#forgotInfo');
-        this.jqPlayerInfo = $('#player_window .validation-summary');
+        this.jqSettingsInfo = $('#settingsInfo');
         this.jqGameHeading = $('#gameheading');
 
         // Cached here for appui.js's initTargetHud/initExpBar/initHealthBar/blinkHealthBar/
@@ -265,12 +277,23 @@ export default class App {
         const jqRemoveWindow = $('#remove_window');
         const jqRemoveConfirm = $('#remove_confirm');
 
+        // DELETE on the settings window: closes it and opens the delete-account window
+        // (#remove_window); its BACK button, close button and Escape go back to settings.
         this.jqUserRemove.click(function (event) {
-            jqRemoveWindow.show();
+            self.showDeleteWindow();
         });
         const jqUserClose = $('#user_close');
         jqUserClose.click(function (event) {
-            jqRemoveWindow.hide();
+            self.hideDeleteWindow();
+        });
+        $('#user_remove_back').click(function (event) {
+            self.hideDeleteWindow();
+        });
+        jqRemoveWindow.keydown(function (e) {
+            if (e.which === 27) {
+                self.hideDeleteWindow();
+                return false;
+            }
         });
 
         const jqUserRemoveConfirm = $('#user_remove_confirm');
@@ -284,9 +307,12 @@ export default class App {
                         )
                     ) {
                         app.tryUserAction(3);
+                        // The user server answers and closes the connection
+                        // (removed_user_ok / removed_user_fail, see info_callback).
+                        jqRemoveWindow.hide();
                     }
                 }
-                jqRemoveWindow.hide();
+                // Cancelled either confirm: stay on this window (BACK returns to settings).
             }
         });
 
@@ -476,28 +502,76 @@ export default class App {
                     );
                     break;
 
+                // Answers to the settings window's SAVE (one per changed item - see
+                // settingsSaveAnswered() in appui.js, which collects their messages).
                 case 'passwordChanged':
-                    // userserver/js/user.js handleChangePassword saved the new password -
-                    // back to the character-select screen, still logged in.
-                    self.hidePasswordWindow();
+                    // userserver/js/user.js handleChangePassword saved the new password.
                     // A remembered login hash was made from the old password.
                     localforage.removeItem('user_hash');
                     self.jqUserHashInput.val('');
-                    self.jqPlayerInfo.text(lang.data['PASSWORD_CHANGED']);
+                    self.jqSettingsPassword.val('');
+                    self.jqSettingsPassword2.val('');
+                    self.settingsSaveAnswered(lang.data['PASSWORD_CHANGED']);
+                    break;
+
+                case 'emailupdated':
+                    // userserver/js/user.js handleUpdateEmail saved the e-mail sent by SAVE.
+                    self.userEmail = self.settingsSentEmail;
+                    self.settingsSaveAnswered(
+                        self.userEmail
+                            ? lang.data['EMAIL_UPDATED']
+                            : lang.data['EMAIL_REMOVED']
+                    );
+                    break;
+
+                case 'emailfail':
+                    self.settingsSaveAnswered(
+                        lang.data['EMAIL_UPDATE_FAILED'],
+                        self.jqSettingsEmail
+                    );
+                    break;
+
+                case 'removed_user_ok':
+                case 'removed_user_fail':
+                    // Delete account (settings window -> #remove_window): the user server
+                    // closes the connection right after either answer (userserver/js/
+                    // database/databaselogic.js removeUser) - stash the reason so the
+                    // disconnect window shows it instead of a generic message.
+                    self.userclient.disconnectReason =
+                        data[0] === 'removed_user_ok'
+                            ? lang.data['USER_REMOVED']
+                            : lang.data['USER_REMOVE_FAILED'];
+                    if (data[0] === 'removed_user_ok') {
+                        localforage.removeItem('user_name');
+                        localforage.removeItem('user_hash');
+                    }
                     break;
 
                 case 'passwordfail':
-                    self.addValidationError(null, lang.data['PASSWORD_CHANGE_FAILED']);
+                    self.settingsSaveAnswered(
+                        lang.data['PASSWORD_CHANGE_FAILED'],
+                        self.jqSettingsPassword
+                    );
                     break;
 
                 case 'invalidemail':
                     // The optional e-mail on the create-account window was rejected by
                     // userserver/js/user.js's handleCreateUser (Utils.checkInputEmail). The
                     // connection stays open, so the player can fix it or clear it and retry.
+                    // (Also answers the settings window's SAVE.)
+                    if (self.settingsFormActive()) {
+                        self.settingsSaveAnswered(
+                            lang.data['EMAIL_INVALID'],
+                            self.jqSettingsEmail
+                        );
+                        break;
+                    }
                     self.addValidationError(
                         self.forgotFormActive()
                             ? self.jqForgotEmail
-                            : self.jqRegisterEmail,
+                            : self.settingsFormActive()
+                              ? self.jqSettingsEmail
+                              : self.jqRegisterEmail,
                         self.forgotFormActive()
                             ? lang.data['EMAIL_REQUIRED']
                             : lang.data['EMAIL_INVALID']
@@ -662,26 +736,31 @@ export default class App {
                 return false;
             }
         });
-        this.jqChangePwButton.click(function () {
-            self.showPasswordWindow();
+        this.jqSettingsButton.click(function () {
+            self.showSettingsWindow();
         });
-        this.jqChangePwSubmit.click(function () {
-            if (!self.userReady) return;
-            self.tryChangePassword();
+        this.jqSettingsSave.click(function () {
+            self.trySaveSettings();
         });
-        this.jqChangePwBack.click(function () {
-            self.hidePasswordWindow();
+        // SAVE only enabled once the e-mail differs from the saved one, or a valid new
+        // password is entered twice (`input` also catches mobile keyboards' autocomplete/
+        // swipe input, unlike keypress).
+        this.settingsFormFields.forEach(function (field) {
+            field.on('input', function () {
+                self.updateSettingsSaveButton(true);
+            });
         });
-        this.jqPasswordWindow.keydown(function (e) {
+        this.jqSettingsBack.click(function () {
+            self.hideSettingsWindow();
+        });
+        this.jqSettingsWindow.keydown(function (e) {
             if (e.which === 13) {
-                if (self.userReady) {
-                    $('input').blur(); // exit keyboard on mobile
-                    self.tryChangePassword();
-                }
+                $('input').blur(); // exit keyboard on mobile
+                self.trySaveSettings();
                 return false;
             }
             if (e.which === 27) {
-                self.hidePasswordWindow();
+                self.hideSettingsWindow();
                 return false;
             }
         });

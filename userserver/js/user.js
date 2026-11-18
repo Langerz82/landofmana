@@ -289,6 +289,9 @@ class User {
                 case Types.UserMessages.CU_CHANGE_PASSWORD:
                     self.handleChangePassword(message);
                     return;
+                case Types.UserMessages.CU_UPDATE_EMAIL:
+                    self.handleUpdateEmail(message);
+                    return;
             }
 
             if (!self.loadedPlayer) {
@@ -640,6 +643,27 @@ class User {
         });
     }
 
+    // Settings window (both clients, once logged in -- dispatched after the
+    // `loadedUser` check): [email], '' to remove it. Answers 'emailupdated', or
+    // 'invalidemail' / 'emailfail'. The e-mail is what the forgot-password window
+    // checks against.
+    handleUpdateEmail(message) {
+        const email = typeof message[0] === 'string' ? message[0].trim() : '';
+        if (email !== '' && !Utils.checkInputEmail(email)) {
+            this.connection.send([Types.UserMessages.UC_ERROR, 'invalidemail']);
+            return;
+        }
+        DBLogic.saveUserEmail(this.name, email, (ok) => {
+            if (!ok) {
+                this.connection.send([Types.UserMessages.UC_ERROR, 'emailfail']);
+                return;
+            }
+            this.email = email;
+            console.info('E-mail updated: ' + this.name);
+            this.connection.send([Types.UserMessages.UC_ERROR, 'emailupdated']);
+        });
+    }
+
     handleRemoveUser(message) {
         const self = this;
         let hash = Utils.sanitize(message[1]);
@@ -862,6 +886,9 @@ class User {
 
     sendPlayers(db_players) {
         this.loadedUser = true;
+        // The account's e-mail for the clients' settings window (set by
+        // DBLogic.loadUserData on login, or handleCreateUser for a new account).
+        this.connection.send([Types.UserMessages.UC_USER_INFO, this.email || '']);
         if (!Array.isArray(db_players)) {
             this.connection.send([Types.UserMessages.UC_PLAYER_SUM, '0']);
             return;

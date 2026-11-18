@@ -46,8 +46,8 @@ export function installUserClientSend(proto) {
         ]);
     };
 
-    // Change-password window, once logged in: the new password's hash, made like a
-    // login's (see appvalidation.js tryChangePassword).
+    // Settings window SAVE, once logged in: the new password's hash, made like a
+    // login's (see appvalidation.js trySaveSettings).
     proto.sendChangePassword = function (newHash) {
         this.sendMessage([Types.UserMessages.CU_CHANGE_PASSWORD, newHash]);
     };
@@ -55,6 +55,11 @@ export function installUserClientSend(proto) {
     // Forgot-password window, before logging in.
     proto.sendForgotPassword = function (username, email) {
         this.sendMessage([Types.UserMessages.CU_FORGOT_PASSWORD, username, email]);
+    };
+
+    // Settings window, once logged in: the account's e-mail ('' removes it).
+    proto.sendUpdateEmail = function (email) {
+        this.sendMessage([Types.UserMessages.CU_UPDATE_EMAIL, email]);
     };
 
     proto.sendRemoveUser = function (user) {

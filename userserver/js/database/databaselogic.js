@@ -174,6 +174,11 @@ class DatabaseLogic {
         });
     }
 
+    // Settings window (user.js handleUpdateEmail): callback(ok).
+    saveUserEmail(username, email, callback) {
+        this.dbh.setUserEmail(username, email, (name, ok) => callback(ok));
+    }
+
     removeUser(user) {
         this.dbh.loadUserInfo(user.name, (username, data) => {
             const db_user = {
@@ -286,6 +291,8 @@ class DatabaseLogic {
     }
 
     loadUserData(user, data) {
+        // Shown in the settings window (User.sendPlayers sends it as UC_USER_INFO).
+        user.email = data.email ? String(data.email) : '';
         if (!data.gems) {
             data.gems = 2000;
         } else {

@@ -74,20 +74,6 @@ export function installAppValidation(proto) {
         }
     };
 
-    // Change-password window (once logged in): sends just the new password, hashed the
-    // same way as a login (User's constructor) for the logged-in account
-    // (userclientsend.js sendChangePassword).
-    proto.tryChangePassword = function () {
-        if (this.starting) return; // Already loading
-        if (!this.user) return; // not logged in
-
-        const newpw = this.jqChangePwNew.val();
-        if (!this.validatePasswordForm(newpw, this.jqChangePwNew2.val())) return;
-
-        const newUser = new User(this.userclient, this.user.username, newpw);
-        this.userclient.sendChangePassword(newUser.hash);
-    };
-
     // Forgot-password window: sends [username, email] (userclientsend.js
     // sendForgotPassword). The server e-mails a temporary password if they match.
     proto.tryForgotPassword = function () {
@@ -104,6 +90,44 @@ export function installAppValidation(proto) {
             return;
         }
         this.userclient.sendForgotPassword(username.toLowerCase(), email);
+    };
+
+    // Settings window: saves the e-mail field (blank removes it) with CU_UPDATE_EMAIL
+    // (userclientsend.js sendUpdateEmail); answered with 'emailupdated' (app.js).
+    // Settings window SAVE: sends whatever changed - the e-mail (CU_UPDATE_EMAIL, blank
+    // removes it) and/or the new password (CU_CHANGE_PASSWORD, hashed the same way as a
+    // login by User's constructor, for the logged-in account). Each gets its own answer
+    // (app.js info_callback -> settingsSaveAnswered in appui.js); SAVE stays disabled
+    // until they've all arrived.
+    proto.trySaveSettings = function () {
+        // Disabled while there's nothing (valid) to save, or a save is in progress.
+        if (this.jqSettingsSave.hasClass('disabled')) return;
+        if (!this.user) return; // not logged in
+
+        const email = this.jqSettingsEmail.val().trim();
+        const emailChanged = email !== (this.userEmail || '');
+        const pw = this.jqSettingsPassword.val();
+        this.clearValidationErrors();
+        this.jqSettingsInfo.text('');
+        if (emailChanged && email !== '' && !Utils.checkInputEmail(email)) {
+            this.addValidationError(
+                this.jqSettingsEmail,
+                lang.data['EMAIL_INVALID']
+            );
+            return;
+        }
+
+        this.settingsMessages = [];
+        this.settingsPending = (emailChanged ? 1 : 0) + (pw !== '' ? 1 : 0);
+        this.updateSettingsSaveButton(); // disabled until answered
+        if (emailChanged) {
+            this.settingsSentEmail = email;
+            this.userclient.sendUpdateEmail(email);
+        }
+        if (pw !== '') {
+            const newUser = new User(this.userclient, this.user.username, pw);
+            this.userclient.sendChangePassword(newUser.hash);
+        }
     };
 
     proto.tryPlayerAction = function (action) {
@@ -150,20 +174,20 @@ export function installAppValidation(proto) {
         return this.jqRegisterWindow.is(':visible');
     };
 
-    proto.passwordFormActive = function () {
-        return this.jqPasswordWindow.is(':visible');
-    };
-
     proto.forgotFormActive = function () {
         return this.jqForgotWindow.is(':visible');
     };
 
-    // The fields of whichever account window (login, create account, change password)
-    // is showing - for clearing a server-sent error once the player edits them.
+    proto.settingsFormActive = function () {
+        return this.jqSettingsWindow.is(':visible');
+    };
+
+    // The fields of whichever account window (login, create account, forgot password,
+    // settings) is showing - for clearing a server-sent error once the player edits them.
     proto.activeAccountFormFields = function () {
         if (this.registerFormActive()) return this.registerFormFields;
-        if (this.passwordFormActive()) return this.passwordFormFields;
         if (this.forgotFormActive()) return this.forgotFormFields;
+        if (this.settingsFormActive()) return this.settingsFormFields;
         return this.userFormFields;
     };
 
@@ -236,40 +260,22 @@ export function installAppValidation(proto) {
      * like an address if given (Utils.checkInputEmail - the userserver checks it again).
      */
     /**
-     * Validates the change-password window: the new password follows the same rules as
-     * a new account's and must match the confirm field.
+     * Settings window's new password: the same rules as a new account's (6-32 allowed
+     * characters) and must match the confirm field. Returns null if it can be saved,
+     * otherwise the lang.data key saying why not (shown by updateSettingsSaveButton).
      */
-    proto.validatePasswordForm = function (newpw, newpw2) {
-        this.clearValidationErrors();
-
-        if (newpw.length < 6 || newpw.length > 32) {
-            this.addValidationError(
-                this.jqChangePwNew,
-                lang.data['PASSWORD_LENGTH']
-            );
-            return false;
-        }
+    proto.settingsPasswordProblem = function (newpw, newpw2) {
+        if (newpw.length < 6 || newpw.length > 32) return 'PASSWORD_LENGTH';
         if (
             newpw ===
             newpw.replace(
                 /^[A-Za-z0-9@!#\$\^%&*()+=\-\[\]\\\';\.\/\{\}\|\":<>\? ]+$/,
                 ''
             )
-        ) {
-            this.addValidationError(
-                this.jqChangePwNew,
-                lang.data['PASSWORD_CHARS']
-            );
-            return false;
-        }
-        if (newpw !== newpw2) {
-            this.addValidationError(
-                this.jqChangePwNew2,
-                lang.data['PASSWORD_MISMATCH']
-            );
-            return false;
-        }
-        return true;
+        )
+            return 'PASSWORD_CHARS';
+        if (newpw !== newpw2) return 'PASSWORD_MISMATCH';
+        return null;
     };
 
     proto.validateRegisterForm = function (username, userpw, userpw2, email) {
@@ -403,8 +409,8 @@ export function installAppValidation(proto) {
         let fields;
         if (this.userFormActive()) fields = this.userFormFields;
         else if (this.registerFormActive()) fields = this.registerFormFields;
-        else if (this.passwordFormActive()) fields = this.passwordFormFields;
         else if (this.forgotFormActive()) fields = this.forgotFormFields;
+        else if (this.settingsFormActive()) fields = this.settingsFormFields;
         else if (this.playerFormActive()) fields = this.playerFormFields;
 
         if (fields) {

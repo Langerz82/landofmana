@@ -87,12 +87,18 @@ const Types = {
         // [username, email] from the clients' forgot-password window, before logging
         // in (userserver/js/user.js handleForgotPassword).
         CU_FORGOT_PASSWORD: 8,
+        // [email] ('' clears it) from the clients' settings window, once logged in
+        // (userserver/js/user.js handleUpdateEmail).
+        CU_UPDATE_EMAIL: 9,
 
         UC_WORLD_READY: 101,
         UC_WORLDS: 102,
         UC_VERSION: 103,
         UC_PLAYER_SUM: 104,
         UC_ERROR: 105,
+        // [email] -- the logged-in account's saved e-mail ('' if none), sent with the
+        // player list after login so the settings window can show it.
+        UC_USER_INFO: 106,
 
         WU_CONNECT_WORLD: 501,
         WU_GAMESERVER_INFO: 502,

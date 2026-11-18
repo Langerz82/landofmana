@@ -59,6 +59,7 @@ export default class UserClient {
 
         this.handlers[Types.UserMessages.UC_PLAYER_SUM] = this.onPlayerSummary;
         this.handlers[Types.UserMessages.UC_WORLDS] = this.onWorlds;
+        this.handlers[Types.UserMessages.UC_USER_INFO] = this.onUserInfo;
 
         this.useBison = false;
         this.versionChecked = false;
