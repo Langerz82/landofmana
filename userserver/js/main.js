@@ -379,7 +379,7 @@ async function main(config) {
         // FIX: no longer logged -- it's the key that decrypts this
         // connection's password -- and neither is `config` itself, which
         // was written to console.log on every connection including
-        // user_password, redis_password, world_key and verify_key.
+        // user_password, redis_password, world_key and smtp_password.
         console.info('version sent');
         console.info(`UC_VERSION: ${GameTypes.UserMessages.UC_VERSION}`);
 

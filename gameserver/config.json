@@ -25,12 +25,10 @@
   "world_id": 1,
   "production": "heroku",
 
-  "version":120,
+  "version":121,
   "client_data": {
     "shared_dir": "shared"
   },
-  "verify_email": "",
-  "verify_key": "",
   "world_name": "North America",
   "world_key": "test123"
 }

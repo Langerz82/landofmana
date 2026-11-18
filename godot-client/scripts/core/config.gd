@@ -17,7 +17,10 @@
 
 extends Node
 ## Port of client/js/config.js. Loads res://assets/config/config_build.json and
-## lets the player override host/port (saved to user://settings.cfg).
+## lets the player override host/port. The host always starts as
+## config_build.json's "host" -- a host typed on the login screen (or given with
+## --server=) is used for that session only, so changing config_build.json's
+## host reaches every player. The port is saved to user://settings.cfg.
 
 const BUILD_PATH := "res://assets/config/config_build.json"
 const SETTINGS_PATH := "user://settings.cfg"
@@ -31,6 +34,9 @@ var build: Dictionary = {
 }
 
 var settings := ConfigFile.new()
+## Host typed on the login screen (set_server) or given with --server= for this
+## session only; "" = config_build.json's "host".
+var session_host := ""
 var log_packets := false   # print every packet (--log-packets, or "debug": 1 in config_build.json)
 
 
@@ -43,6 +49,11 @@ func _ready() -> void:
 	else:
 		push_warning("Config: could not read %s, using defaults" % BUILD_PATH)
 	settings.load(SETTINGS_PATH)
+	# Older builds saved the typed host, which then overrode config_build.json's
+	# host on every later run -- drop it so the build's host is used.
+	if settings.has_section_key("server", "host"):
+		settings.erase_section_key("server", "host")
+		settings.save(SETTINGS_PATH)
 	# "debug": 1 in config_build.json turns on all debug logging.
 	if is_debug():
 		log_packets = true
@@ -53,13 +64,15 @@ func _ready() -> void:
 		if arg.begins_with("--server="):
 			var hp := arg.substr(9).split(":")
 			# In-memory only (not saved) so it wins over saved settings.
-			settings.set_value("server", "host", hp[0])
+			session_host = hp[0]
 			if hp.size() > 1:
 				settings.set_value("server", "port", int(hp[1]))
 
 
 func get_host() -> String:
-	return str(settings.get_value("server", "host", build.get("host", "127.0.0.1")))
+	if session_host != "":
+		return session_host
+	return str(build.get("host", "127.0.0.1"))
 
 
 func get_port() -> int:
@@ -104,8 +117,10 @@ func is_debug() -> bool:
 	return int(build.get("debug", 0)) != 0
 
 
+## Login screen's Connect: the host is kept for this session only (see
+## session_host); the port is saved.
 func set_server(host: String, port: int) -> void:
-	settings.set_value("server", "host", host)
+	session_host = host
 	settings.set_value("server", "port", port)
 	settings.save(SETTINGS_PATH)
 
